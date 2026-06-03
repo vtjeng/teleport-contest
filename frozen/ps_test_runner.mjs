@@ -39,6 +39,23 @@ function extractRngCalls(rngArray) {
     return (rngArray || []).filter(isRngCall);
 }
 
+// Append every element of `src` into `dst` without exceeding V8's
+// spread-argument limit. `dst.push(...src)` and `Function.prototype.apply`
+// both pass each element as a separate function argument; on V8/Node
+// that throws RangeError: Maximum call stack size exceeded once
+// src.length is roughly above 1<<16. Session RNG logs routinely
+// exceed that, so a naive spread turns a partial-credit divergence
+// into a full zero-session error in the scorer (contest issue #8).
+// Chunk the spread well below the boundary instead — measurably
+// faster than a plain for-of loop and avoids the RangeError entirely.
+function pushAll(dst, src) {
+    if (!src || !src.length) return;
+    const CHUNK = 0x8000;
+    for (let i = 0; i < src.length; i += CHUNK) {
+        dst.push(...src.slice(i, i + CHUNK));
+    }
+}
+
 // Strip caller annotations and JS index prefix so plain "rn2(N)=M"
 // comparisons work regardless of how richly the source was annotated.
 function normalizeRng(entry) {
@@ -278,7 +295,7 @@ async function runSession(sessionPath) {
     const cAnimByStep = [];
     for (const seg of segments) {
         for (const step of seg.steps || []) {
-            cRng.push(...extractRngCalls(step.rng));
+            pushAll(cRng, extractRngCalls(step.rng));
             if (step.screen) {
                 cScreens.push(step.screen);
                 cCursors.push(Array.isArray(step.cursor) ? step.cursor : null);
@@ -317,11 +334,11 @@ async function runSession(sessionPath) {
             const segRng = (segGame.getRngLog?.() || []).map(e =>
                 typeof e === 'string' ? e.replace(/^\d+\s+/, '') : String(e)
             ).filter(isRngCall);
-            jsRng.push(...segRng);
-            jsScreens.push(...(segGame.getScreens?.() || []));
-            jsCursors.push(...(segGame.getCursors?.() || []));
+            pushAll(jsRng, segRng);
+            pushAll(jsScreens, segGame.getScreens?.() || []);
+            pushAll(jsCursors, segGame.getCursors?.() || []);
             if (typeof segGame.getAnimationFramesByStep === 'function') {
-                jsAnimByStep.push(...segGame.getAnimationFramesByStep());
+                pushAll(jsAnimByStep, segGame.getAnimationFramesByStep());
             }
             lastGame = segGame;
         }
