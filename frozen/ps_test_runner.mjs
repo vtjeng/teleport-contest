@@ -23,6 +23,7 @@ import { readFileSync, readdirSync, existsSync, statSync, writeFileSync, mkdirSy
 import { join, basename, dirname } from 'path';
 import { execSync, spawnSync } from 'child_process';
 import { fileURLToPath } from 'url';
+import { performance } from 'node:perf_hooks';
 import { decodeScreen, diffCell, ROWS_24, COLS_80 } from './screen-decode.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
@@ -327,9 +328,12 @@ async function runSession(sessionPath) {
     let jsCursors = [];
     let lastGame = null;
     let jsError = null;
+    let totalMoves = 0;
+    const t_runSegmentStart = performance.now();
     try {
         for (const seg of segments) {
             const input = { ...replayInputFor(seg), storage: storageHandle };
+            totalMoves += (input.moves || '').length;
             const segGame = await runSegment(input);
             const segRng = (segGame.getRngLog?.() || []).map(e =>
                 typeof e === 'string' ? e.replace(/^\d+\s+/, '') : String(e)
@@ -345,6 +349,7 @@ async function runSession(sessionPath) {
     } catch (e) {
         jsError = e.message;
     }
+    const totalSegmentMs = performance.now() - t_runSegmentStart;
     const game = lastGame;
 
     const rngTotal = cRng.length;
@@ -406,6 +411,11 @@ async function runSession(sessionPath) {
             animFrames: { matched: animMatched, total: animTotal },
         },
         error: jsError,
+        // Speed instrumentation: wall-clock around the runSegment loop
+        // for this session, plus the total moves across all segments.
+        // The bundle-level `speed` linear fit (a + b * moves) is derived
+        // from these.
+        time: { ms: +totalSegmentMs.toFixed(2), moves: totalMoves },
     };
 }
 
@@ -509,7 +519,46 @@ async function main() {
         commit = execSync('git rev-parse --short HEAD', { cwd: PROJECT_ROOT }).toString().trim();
     } catch (_) { /* not a git checkout */ }
 
-    const bundle = { timestamp: new Date().toISOString(), commit, results };
+    // Linear fit on (moves, time_ms) per session: total_ms = a + b * moves.
+    // `a` is the per-session startup constant the contestant pays before
+    // any move is processed (module init, WASM instantiation, prng seed,
+    // etc.); `b` is the marginal cost per move. We OLS-fit across all
+    // sessions that actually executed (had a non-zero recorded time).
+    const speed = (() => {
+        const points = results
+            .filter(r => r.time && r.time.moves >= 0 && r.time.ms >= 0)
+            .map(r => [r.time.moves, r.time.ms]);
+        if (points.length < 2) {
+            return { startup_ms: 0, per_move_ms: 0, r2: 0, label: '?',
+                     sessions: points.length };
+        }
+        const n = points.length;
+        const mx = points.reduce((s, p) => s + p[0], 0) / n;
+        const my = points.reduce((s, p) => s + p[1], 0) / n;
+        let num = 0, den = 0;
+        for (const [x, y] of points) {
+            num += (x - mx) * (y - my);
+            den += (x - mx) ** 2;
+        }
+        const b = den ? num / den : 0;
+        const a = my - b * mx;
+        let ss_res = 0, ss_tot = 0;
+        for (const [x, y] of points) {
+            ss_res += (y - (a + b * x)) ** 2;
+            ss_tot += (y - my) ** 2;
+        }
+        const r2 = ss_tot ? 1 - ss_res / ss_tot : 0;
+        return {
+            startup_ms: +a.toFixed(1),
+            per_move_ms: +b.toFixed(4),
+            r2: +r2.toFixed(3),
+            label: `${Math.round(a)}+${b.toFixed(2)}/turn`,
+            sessions: n,
+        };
+    })();
+    process.stderr.write(`  speed: ${speed.label} (R² = ${speed.r2})\n`);
+
+    const bundle = { timestamp: new Date().toISOString(), commit, speed, results };
     console.log('__RESULTS_JSON__');
     console.log(JSON.stringify(bundle));
 
