@@ -18,7 +18,11 @@ import { flush_screen } from './display.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { objects_globals_init } from './objects.js';
-import { plnamesuffix, rigid_role_checks } from './role_init.js';
+import { rigid_role_checks } from './role_init.js';
+import {
+    renderTtyStartupBanner,
+    ttyPlayerNameAndSuffix,
+} from './tty_startup.js';
 import {
     ROLE_NONE,
     ROLE_RANDOM,
@@ -67,13 +71,7 @@ function resolveNoninteractiveCharacterConfig(state) {
 }
 
 function requireNoninteractiveStartupOptions(opts) {
-    if (!opts.name) {
-        throw new Error(
-            'interactive character naming is not implemented; provide a name option',
-        );
-    }
     const unsupported = [];
-    if (opts.iflags.wc_splash_screen) unsupported.push('splash_screen');
     if (opts.flags.tutorial) unsupported.push('tutorial');
     if (opts.flags.legacy) unsupported.push('legacy');
     if (unsupported.length) {
@@ -169,8 +167,7 @@ export class NethackGame {
 
         // Parse nethackrc
         const opts = parseNethackrc(this._nethackrc);
-        requireNoninteractiveStartupOptions(opts);
-        g.plname = opts.name;
+        g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
         g.catname = opts.catname ?? '';
@@ -192,20 +189,21 @@ export class NethackGame {
             preferred_pet: opts.preferred_pet ?? '',
         };
 
-        // C strips any name suffix before character selection, then runs the
-        // rigid checks. Configured random choices can resolve without input;
-        // missing choices still belong to the unported selection menus.
-        plnamesuffix(g);
-        resolveNoninteractiveCharacterConfig(g);
-
-        // Install display
+        // tty_init_nhwindows() precedes plnamesuffix() and any role menus.
+        // Install the capture surface before reproducing that visible input
+        // boundary; explicit configurations proceed without reading a key.
         if (this._pendingDisplay) {
             g.nhDisplay = this._pendingDisplay;
             this._pendingDisplay = null;
         }
-
-        // Install capture hook
         this._installCaptureHook();
+        renderTtyStartupBanner(g);
+
+        // C filters generic Unix usernames, prompts when necessary, then
+        // strips any role/race/gender/alignment suffix before selection.
+        await ttyPlayerNameAndSuffix(g);
+        resolveNoninteractiveCharacterConfig(g);
+        requireNoninteractiveStartupOptions(opts);
 
         // Run game startup
         await newgame();

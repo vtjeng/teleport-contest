@@ -346,8 +346,8 @@ export function normalizeCharacterFlags(state) {
     return flags;
 }
 
-// C ref: role.c plnamesuffix(). Interactive askname() and generic-user
-// filtering happen before this port's API: callers provide a nonempty name.
+// C ref: role.c plnamesuffix(). The async tty askname and generic-user
+// filtering happen in tty_startup.js before this synchronous suffix parser.
 export function plnamesuffix(state) {
     const flags = normalizeCharacterFlags(state);
     const original = String(state.plname ?? '');

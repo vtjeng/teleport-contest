@@ -155,19 +155,25 @@ test('runSegment resolves configured random choices without opening selection', 
     assert.equal(game.gp.preferred_pet, 'n');
 });
 
-test('runSegment rejects startup paths whose input boundaries are unported', async () => {
+test('tty startup ignores the window-port splash option', async () => {
+    const nhGame = await runSegment({
+        seed: 161803,
+        datetime: '20401231235958',
+        recorderIsDst: false,
+        nethackrc: 'OPTIONS=name:NoSplashBoundary,role:Healer,race:human,'
+            + 'gender:male,align:neutral,!legacy,!tutorial',
+        moves: '',
+        storage: null,
+    });
+
+    assert.equal(game.iflags.wc_splash_screen, true);
+    assert.equal(nhGame._nhgetchCount, 1);
+});
+
+test('runSegment rejects startup paths whose remaining boundaries are unported', async () => {
     const character = 'role:Tourist,race:human,gender:female,align:neutral';
-    // These arbitrary seeds never reach a draw; each case stops at its named
-    // source input boundary before game initialization.
-    await assert.rejects(
-        runSegment({
-            seed: 141421,
-            datetime: '20401231235958',
-            nethackrc: `OPTIONS=${character},!legacy,!tutorial,!splash_screen`,
-            moves: '',
-        }),
-        /provide a name option/u,
-    );
+    // This arbitrary seed never reaches a draw; it stops at the post-selection
+    // pages that remain outside the current startup port.
     await assert.rejects(
         runSegment({
             seed: 173205,
@@ -175,7 +181,7 @@ test('runSegment rejects startup paths whose input boundaries are unported', asy
             nethackrc: `OPTIONS=name:Boundary,${character}`,
             moves: '',
         }),
-        /disable splash_screen, tutorial, legacy/u,
+        /disable tutorial, legacy/u,
     );
 });
 
