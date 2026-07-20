@@ -1,0 +1,417 @@
+// Role skill catalogs used by starting inventory and later skill setup.
+// C ref: src/u_init.c Skill_A through Skill_W, skills_for_role(), and
+// restricted_spell_discipline().
+
+import {
+    P_ATTACK_SPELL,
+    P_AXE,
+    P_BARE_HANDED_COMBAT,
+    P_BASIC,
+    P_BOOMERANG,
+    P_BOW,
+    P_BROAD_SWORD,
+    P_CLERIC_SPELL,
+    P_CLUB,
+    P_CROSSBOW,
+    P_DAGGER,
+    P_DART,
+    P_DIVINATION_SPELL,
+    P_ENCHANTMENT_SPELL,
+    P_ESCAPE_SPELL,
+    P_EXPERT,
+    P_FLAIL,
+    P_GRAND_MASTER,
+    P_HAMMER,
+    P_HEALING_SPELL,
+    P_KNIFE,
+    P_LANCE,
+    P_LONG_SWORD,
+    P_MACE,
+    P_MARTIAL_ARTS,
+    P_MASTER,
+    P_MATTER_SPELL,
+    P_MORNING_STAR,
+    P_PICK_AXE,
+    P_POLEARMS,
+    P_QUARTERSTAFF,
+    P_RIDING,
+    P_SABER,
+    P_SHORT_SWORD,
+    P_SHURIKEN,
+    P_SKILLED,
+    P_SLING,
+    P_SPEAR,
+    P_TRIDENT,
+    P_TWO_HANDED_SWORD,
+    P_TWO_WEAPON_COMBAT,
+    P_UNICORN_HORN,
+    P_WHIP,
+} from './const.js';
+import { game } from './gstate.js';
+import { SPBOOK_CLASS } from './objects.js';
+
+function catalog(entries) {
+    return Object.freeze(entries.map(([skill, skmax]) =>
+        Object.freeze({ skill, skmax })));
+}
+
+const SKILL_A = catalog([
+    [P_DAGGER, P_BASIC],
+    [P_KNIFE, P_BASIC],
+    [P_PICK_AXE, P_EXPERT],
+    [P_SHORT_SWORD, P_BASIC],
+    [P_SABER, P_EXPERT],
+    [P_CLUB, P_SKILLED],
+    [P_QUARTERSTAFF, P_SKILLED],
+    [P_SLING, P_SKILLED],
+    [P_DART, P_BASIC],
+    [P_BOOMERANG, P_EXPERT],
+    [P_WHIP, P_EXPERT],
+    [P_UNICORN_HORN, P_SKILLED],
+    [P_ATTACK_SPELL, P_BASIC],
+    [P_HEALING_SPELL, P_BASIC],
+    [P_DIVINATION_SPELL, P_EXPERT],
+    [P_MATTER_SPELL, P_BASIC],
+    [P_RIDING, P_BASIC],
+    [P_TWO_WEAPON_COMBAT, P_BASIC],
+    [P_BARE_HANDED_COMBAT, P_EXPERT],
+]);
+
+const SKILL_B = catalog([
+    [P_DAGGER, P_BASIC],
+    [P_AXE, P_EXPERT],
+    [P_PICK_AXE, P_SKILLED],
+    [P_SHORT_SWORD, P_EXPERT],
+    [P_BROAD_SWORD, P_SKILLED],
+    [P_LONG_SWORD, P_SKILLED],
+    [P_TWO_HANDED_SWORD, P_EXPERT],
+    [P_SABER, P_SKILLED],
+    [P_CLUB, P_SKILLED],
+    [P_MACE, P_SKILLED],
+    [P_MORNING_STAR, P_SKILLED],
+    [P_FLAIL, P_BASIC],
+    [P_HAMMER, P_EXPERT],
+    [P_QUARTERSTAFF, P_BASIC],
+    [P_SPEAR, P_SKILLED],
+    [P_TRIDENT, P_SKILLED],
+    [P_BOW, P_BASIC],
+    [P_ATTACK_SPELL, P_BASIC],
+    [P_ESCAPE_SPELL, P_BASIC],
+    [P_RIDING, P_BASIC],
+    [P_TWO_WEAPON_COMBAT, P_BASIC],
+    [P_BARE_HANDED_COMBAT, P_MASTER],
+]);
+
+const SKILL_C = catalog([
+    [P_DAGGER, P_BASIC],
+    [P_KNIFE, P_SKILLED],
+    [P_AXE, P_SKILLED],
+    [P_PICK_AXE, P_BASIC],
+    [P_CLUB, P_EXPERT],
+    [P_MACE, P_EXPERT],
+    [P_MORNING_STAR, P_BASIC],
+    [P_FLAIL, P_SKILLED],
+    [P_HAMMER, P_SKILLED],
+    [P_QUARTERSTAFF, P_EXPERT],
+    [P_POLEARMS, P_SKILLED],
+    [P_SPEAR, P_EXPERT],
+    [P_TRIDENT, P_SKILLED],
+    [P_BOW, P_SKILLED],
+    [P_SLING, P_EXPERT],
+    [P_ATTACK_SPELL, P_BASIC],
+    [P_MATTER_SPELL, P_SKILLED],
+    [P_BOOMERANG, P_EXPERT],
+    [P_UNICORN_HORN, P_BASIC],
+    [P_BARE_HANDED_COMBAT, P_MASTER],
+]);
+
+const SKILL_H = catalog([
+    [P_DAGGER, P_SKILLED],
+    [P_KNIFE, P_EXPERT],
+    [P_SHORT_SWORD, P_SKILLED],
+    [P_SABER, P_BASIC],
+    [P_CLUB, P_SKILLED],
+    [P_MACE, P_BASIC],
+    [P_QUARTERSTAFF, P_EXPERT],
+    [P_POLEARMS, P_BASIC],
+    [P_SPEAR, P_BASIC],
+    [P_TRIDENT, P_BASIC],
+    [P_SLING, P_SKILLED],
+    [P_DART, P_EXPERT],
+    [P_SHURIKEN, P_SKILLED],
+    [P_UNICORN_HORN, P_EXPERT],
+    [P_HEALING_SPELL, P_EXPERT],
+    [P_BARE_HANDED_COMBAT, P_BASIC],
+]);
+
+const SKILL_K = catalog([
+    [P_DAGGER, P_BASIC],
+    [P_KNIFE, P_BASIC],
+    [P_AXE, P_SKILLED],
+    [P_PICK_AXE, P_BASIC],
+    [P_SHORT_SWORD, P_SKILLED],
+    [P_BROAD_SWORD, P_SKILLED],
+    [P_LONG_SWORD, P_EXPERT],
+    [P_TWO_HANDED_SWORD, P_SKILLED],
+    [P_SABER, P_SKILLED],
+    [P_CLUB, P_BASIC],
+    [P_MACE, P_SKILLED],
+    [P_MORNING_STAR, P_SKILLED],
+    [P_FLAIL, P_BASIC],
+    [P_HAMMER, P_BASIC],
+    [P_POLEARMS, P_SKILLED],
+    [P_SPEAR, P_SKILLED],
+    [P_TRIDENT, P_BASIC],
+    [P_LANCE, P_EXPERT],
+    [P_BOW, P_BASIC],
+    [P_CROSSBOW, P_SKILLED],
+    [P_ATTACK_SPELL, P_SKILLED],
+    [P_HEALING_SPELL, P_SKILLED],
+    [P_CLERIC_SPELL, P_SKILLED],
+    [P_RIDING, P_EXPERT],
+    [P_TWO_WEAPON_COMBAT, P_SKILLED],
+    [P_BARE_HANDED_COMBAT, P_EXPERT],
+]);
+
+const SKILL_MON = catalog([
+    [P_QUARTERSTAFF, P_BASIC],
+    [P_SPEAR, P_BASIC],
+    [P_CROSSBOW, P_BASIC],
+    [P_SHURIKEN, P_BASIC],
+    [P_ATTACK_SPELL, P_BASIC],
+    [P_HEALING_SPELL, P_EXPERT],
+    [P_DIVINATION_SPELL, P_BASIC],
+    [P_ENCHANTMENT_SPELL, P_BASIC],
+    [P_CLERIC_SPELL, P_SKILLED],
+    [P_ESCAPE_SPELL, P_SKILLED],
+    [P_MATTER_SPELL, P_BASIC],
+    [P_MARTIAL_ARTS, P_GRAND_MASTER],
+]);
+
+const SKILL_P = catalog([
+    [P_CLUB, P_EXPERT],
+    [P_MACE, P_EXPERT],
+    [P_MORNING_STAR, P_EXPERT],
+    [P_FLAIL, P_EXPERT],
+    [P_HAMMER, P_EXPERT],
+    [P_QUARTERSTAFF, P_EXPERT],
+    [P_POLEARMS, P_SKILLED],
+    [P_SPEAR, P_SKILLED],
+    [P_TRIDENT, P_SKILLED],
+    [P_LANCE, P_BASIC],
+    [P_BOW, P_BASIC],
+    [P_SLING, P_BASIC],
+    [P_CROSSBOW, P_BASIC],
+    [P_DART, P_BASIC],
+    [P_SHURIKEN, P_BASIC],
+    [P_BOOMERANG, P_BASIC],
+    [P_UNICORN_HORN, P_SKILLED],
+    [P_HEALING_SPELL, P_EXPERT],
+    [P_DIVINATION_SPELL, P_EXPERT],
+    [P_CLERIC_SPELL, P_EXPERT],
+    [P_BARE_HANDED_COMBAT, P_BASIC],
+]);
+
+const SKILL_R = catalog([
+    [P_DAGGER, P_EXPERT],
+    [P_KNIFE, P_EXPERT],
+    [P_SHORT_SWORD, P_EXPERT],
+    [P_BROAD_SWORD, P_SKILLED],
+    [P_LONG_SWORD, P_SKILLED],
+    [P_TWO_HANDED_SWORD, P_BASIC],
+    [P_SABER, P_SKILLED],
+    [P_CLUB, P_SKILLED],
+    [P_MACE, P_SKILLED],
+    [P_MORNING_STAR, P_BASIC],
+    [P_FLAIL, P_BASIC],
+    [P_HAMMER, P_BASIC],
+    [P_POLEARMS, P_BASIC],
+    [P_SPEAR, P_BASIC],
+    [P_CROSSBOW, P_EXPERT],
+    [P_DART, P_EXPERT],
+    [P_SHURIKEN, P_SKILLED],
+    [P_DIVINATION_SPELL, P_SKILLED],
+    [P_ESCAPE_SPELL, P_SKILLED],
+    [P_MATTER_SPELL, P_SKILLED],
+    [P_RIDING, P_BASIC],
+    [P_TWO_WEAPON_COMBAT, P_EXPERT],
+    [P_BARE_HANDED_COMBAT, P_EXPERT],
+]);
+
+const SKILL_RAN = catalog([
+    [P_DAGGER, P_EXPERT],
+    [P_KNIFE, P_SKILLED],
+    [P_AXE, P_SKILLED],
+    [P_PICK_AXE, P_BASIC],
+    [P_SHORT_SWORD, P_BASIC],
+    [P_MORNING_STAR, P_BASIC],
+    [P_FLAIL, P_SKILLED],
+    [P_HAMMER, P_BASIC],
+    [P_QUARTERSTAFF, P_BASIC],
+    [P_POLEARMS, P_SKILLED],
+    [P_SPEAR, P_EXPERT],
+    [P_TRIDENT, P_BASIC],
+    [P_BOW, P_EXPERT],
+    [P_SLING, P_EXPERT],
+    [P_CROSSBOW, P_EXPERT],
+    [P_DART, P_EXPERT],
+    [P_SHURIKEN, P_SKILLED],
+    [P_BOOMERANG, P_EXPERT],
+    [P_WHIP, P_BASIC],
+    [P_HEALING_SPELL, P_BASIC],
+    [P_DIVINATION_SPELL, P_EXPERT],
+    [P_ESCAPE_SPELL, P_BASIC],
+    [P_RIDING, P_BASIC],
+    [P_BARE_HANDED_COMBAT, P_BASIC],
+]);
+
+const SKILL_S = catalog([
+    [P_DAGGER, P_BASIC],
+    [P_KNIFE, P_SKILLED],
+    [P_SHORT_SWORD, P_EXPERT],
+    [P_BROAD_SWORD, P_SKILLED],
+    [P_LONG_SWORD, P_EXPERT],
+    [P_TWO_HANDED_SWORD, P_EXPERT],
+    [P_SABER, P_BASIC],
+    [P_FLAIL, P_SKILLED],
+    [P_QUARTERSTAFF, P_BASIC],
+    [P_POLEARMS, P_SKILLED],
+    [P_SPEAR, P_SKILLED],
+    [P_LANCE, P_SKILLED],
+    [P_BOW, P_EXPERT],
+    [P_SHURIKEN, P_EXPERT],
+    [P_ATTACK_SPELL, P_BASIC],
+    [P_DIVINATION_SPELL, P_BASIC],
+    [P_CLERIC_SPELL, P_SKILLED],
+    [P_RIDING, P_SKILLED],
+    [P_TWO_WEAPON_COMBAT, P_EXPERT],
+    [P_MARTIAL_ARTS, P_MASTER],
+]);
+
+const SKILL_T = catalog([
+    [P_DAGGER, P_EXPERT],
+    [P_KNIFE, P_SKILLED],
+    [P_AXE, P_BASIC],
+    [P_PICK_AXE, P_BASIC],
+    [P_SHORT_SWORD, P_EXPERT],
+    [P_BROAD_SWORD, P_BASIC],
+    [P_LONG_SWORD, P_BASIC],
+    [P_TWO_HANDED_SWORD, P_BASIC],
+    [P_SABER, P_SKILLED],
+    [P_MACE, P_BASIC],
+    [P_MORNING_STAR, P_BASIC],
+    [P_FLAIL, P_BASIC],
+    [P_HAMMER, P_BASIC],
+    [P_QUARTERSTAFF, P_BASIC],
+    [P_POLEARMS, P_BASIC],
+    [P_SPEAR, P_BASIC],
+    [P_TRIDENT, P_BASIC],
+    [P_LANCE, P_BASIC],
+    [P_BOW, P_BASIC],
+    [P_SLING, P_BASIC],
+    [P_CROSSBOW, P_BASIC],
+    [P_DART, P_EXPERT],
+    [P_SHURIKEN, P_BASIC],
+    [P_BOOMERANG, P_BASIC],
+    [P_WHIP, P_BASIC],
+    [P_UNICORN_HORN, P_SKILLED],
+    [P_DIVINATION_SPELL, P_BASIC],
+    [P_ENCHANTMENT_SPELL, P_BASIC],
+    [P_ESCAPE_SPELL, P_SKILLED],
+    [P_RIDING, P_BASIC],
+    [P_TWO_WEAPON_COMBAT, P_SKILLED],
+    [P_BARE_HANDED_COMBAT, P_SKILLED],
+]);
+
+const SKILL_V = catalog([
+    [P_DAGGER, P_EXPERT],
+    [P_AXE, P_EXPERT],
+    [P_PICK_AXE, P_SKILLED],
+    [P_SHORT_SWORD, P_SKILLED],
+    [P_BROAD_SWORD, P_SKILLED],
+    [P_LONG_SWORD, P_EXPERT],
+    [P_TWO_HANDED_SWORD, P_EXPERT],
+    [P_SABER, P_BASIC],
+    [P_HAMMER, P_EXPERT],
+    [P_QUARTERSTAFF, P_BASIC],
+    [P_POLEARMS, P_SKILLED],
+    [P_SPEAR, P_EXPERT],
+    [P_TRIDENT, P_BASIC],
+    [P_LANCE, P_SKILLED],
+    [P_SLING, P_BASIC],
+    [P_ATTACK_SPELL, P_BASIC],
+    [P_ESCAPE_SPELL, P_BASIC],
+    [P_RIDING, P_SKILLED],
+    [P_TWO_WEAPON_COMBAT, P_SKILLED],
+    [P_BARE_HANDED_COMBAT, P_EXPERT],
+]);
+
+const SKILL_W = catalog([
+    [P_DAGGER, P_EXPERT],
+    [P_KNIFE, P_SKILLED],
+    [P_AXE, P_SKILLED],
+    [P_SHORT_SWORD, P_BASIC],
+    [P_CLUB, P_SKILLED],
+    [P_MACE, P_BASIC],
+    [P_QUARTERSTAFF, P_EXPERT],
+    [P_POLEARMS, P_SKILLED],
+    [P_SPEAR, P_BASIC],
+    [P_TRIDENT, P_BASIC],
+    [P_SLING, P_SKILLED],
+    [P_DART, P_EXPERT],
+    [P_SHURIKEN, P_BASIC],
+    [P_ATTACK_SPELL, P_EXPERT],
+    [P_HEALING_SPELL, P_SKILLED],
+    [P_DIVINATION_SPELL, P_EXPERT],
+    [P_ENCHANTMENT_SPELL, P_SKILLED],
+    [P_CLERIC_SPELL, P_SKILLED],
+    [P_ESCAPE_SPELL, P_EXPERT],
+    [P_MATTER_SPELL, P_EXPERT],
+    [P_RIDING, P_BASIC],
+    [P_BARE_HANDED_COMBAT, P_BASIC],
+]);
+
+export const ROLE_SKILLS = Object.freeze({
+    Arc: SKILL_A,
+    Bar: SKILL_B,
+    Cav: SKILL_C,
+    Hea: SKILL_H,
+    Kni: SKILL_K,
+    Mon: SKILL_MON,
+    Pri: SKILL_P,
+    Rog: SKILL_R,
+    Ran: SKILL_RAN,
+    Sam: SKILL_S,
+    Tou: SKILL_T,
+    Val: SKILL_V,
+    Wiz: SKILL_W,
+});
+
+function roleFilecode(role) {
+    return typeof role === 'string' ? role : role?.filecode;
+}
+
+// C ref: u_init.c skills_for_role().
+export function skillsForRole(role = game.urole) {
+    const filecode = roleFilecode(role);
+    const skills = ROLE_SKILLS[filecode];
+    if (!skills)
+        throw new RangeError(`no skill catalog for role ${String(filecode)}`);
+    return skills;
+}
+
+// C ref: u_init.c restricted_spell_discipline(). objects[].oc_subtyp is the
+// generated JS equivalent of objclass.h's oc_skill/oc_subtyp union field.
+export function restrictedSpellDiscipline(otyp, state = game) {
+    const objectType = state.objects?.[otyp];
+    if (!objectType)
+        throw new RangeError(`invalid spellbook object type ${otyp}`);
+    if (objectType.oc_class !== SPBOOK_CLASS)
+        throw new TypeError(`object type ${otyp} is not a spellbook`);
+    const spellSkill = objectType.oc_subtyp;
+    return !skillsForRole(state.urole).some(
+        ({ skill }) => skill === spellSkill,
+    );
+}
+
+export const _roleSkillInternals = Object.freeze({ roleFilecode });
