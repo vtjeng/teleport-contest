@@ -22,7 +22,7 @@ import {
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     SPACE_POS, isok, W_NONDIGGABLE, FILL_NORMAL,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL, DBWALL,
-    A_LAWFUL, Align2amask,
+    A_LAWFUL, A_NEUTRAL, A_CHAOTIC, Align2amask,
     LR_UPTELE,
 } from './const.js';
 
@@ -363,13 +363,13 @@ function getbones() {
 }
 
 // C ref: allmain.c l_nhcore_init()
-export function l_nhcore_init() {
-    const align = [0, 0, 0]; // A_LAWFUL, A_NEUTRAL, A_CHAOTIC
+export function l_nhcore_init(state = game, random = rn2) {
+    const align = [A_LAWFUL, A_NEUTRAL, A_CHAOTIC];
     for (let i = align.length; i > 1; i--) {
-        const j = rn2(i);
+        const j = random(i);
         [align[i - 1], align[j]] = [align[j], align[i - 1]];
     }
-    game.splev_align = align;
+    state.splev_align = align;
 }
 
 // C ref: mklev.c mklev()

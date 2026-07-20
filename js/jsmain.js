@@ -18,6 +18,70 @@ import { flush_screen } from './display.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { objects_globals_init } from './objects.js';
+import { plnamesuffix, rigid_role_checks } from './role_init.js';
+import {
+    ROLE_NONE,
+    ROLE_RANDOM,
+    validalign,
+    validgend,
+    validrace,
+    validrole,
+} from './roles.js';
+
+function resolveNoninteractiveCharacterConfig(state) {
+    const { flags } = state;
+    const choicesBeforeSelection = [
+        flags.initrole,
+        flags.initrace,
+        flags.initgend,
+        flags.initalign,
+    ];
+    const needsSelection = choicesBeforeSelection.includes(ROLE_NONE);
+
+    // role.c:genl_player_setup() resolves ROLE_RANDOM before deciding which
+    // menus are needed. A missing choice still requires confirmation even
+    // when rigid_role_checks() can force the only compatible value.
+    rigid_role_checks(state);
+    const resolvedChoices = [
+        flags.initrole,
+        flags.initrace,
+        flags.initgend,
+        flags.initalign,
+    ];
+    if (needsSelection || resolvedChoices.some((choice) => (
+        choice === ROLE_NONE || choice === ROLE_RANDOM
+    ))) {
+        throw new Error(
+            'interactive character selection is not implemented; provide '
+            + 'role, race, gender, and alignment options',
+        );
+    }
+    if (!validrole(flags.initrole)
+        || !validrace(flags.initrole, flags.initrace)
+        || !validgend(flags.initrole, flags.initrace, flags.initgend)
+        || !validalign(flags.initrole, flags.initrace, flags.initalign)) {
+        throw new RangeError(
+            'role, race, gender, and alignment options are incompatible',
+        );
+    }
+}
+
+function requireNoninteractiveStartupOptions(opts) {
+    if (!opts.name) {
+        throw new Error(
+            'interactive character naming is not implemented; provide a name option',
+        );
+    }
+    const unsupported = [];
+    if (opts.iflags.wc_splash_screen) unsupported.push('splash_screen');
+    if (opts.flags.tutorial) unsupported.push('tutorial');
+    if (opts.flags.legacy) unsupported.push('legacy');
+    if (unsupported.length) {
+        throw new Error(
+            `interactive startup pages are not implemented; disable ${unsupported.join(', ')}`,
+        );
+    }
+}
 
 // ── NethackGame ──
 // Wraps a single game session with replay infrastructure.
@@ -95,31 +159,44 @@ export class NethackGame {
         objects_globals_init(g);
         setStorageForTesting(this._storage);
         // Recorder patch 001 routes calendar.c:getnow() through this fixed
-        // YYYYMMDDHHMMSS value. A future calendar.js should read this field.
+        // YYYYMMDDHHMMSS value and leaks its current tm_isdst bit.
         g.fixedDatetime = this._datetime;
         g.recorderIsDst = this._recorderIsDst;
 
-        // Parse nethackrc
-        const opts = parseNethackrc(this._nethackrc);
-        g.plname = opts.name || 'Hero';
-        g.flags = { verbose: true, ...opts.flags };
-        g.iflags = { ...opts.iflags };
-        if (opts.preferred_pet) g.preferred_pet = opts.preferred_pet;
-        if (opts.tutorial_set) g.tutorial_set_in_config = true;
-
-        // Initialize hero struct
-        g.u = { ux: 0, uy: 0, ux0: 0, uy0: 0 };
-        g.context = { move: 0 };
-        g.program_state = {};
-        g.moves = 1;
-
-        // TODO: Map role/race/gender/align from opts to role data
-        g.urole = { name: { m: 'Rambler', f: 'Rambler' } };
-        g.urace = { adj: 'human' };
-
-        // Initialize PRNG
+        // C initializes the game RNG before reading the configuration file.
         initRng(this._seed);
         enableRngLog();
+
+        // Parse nethackrc
+        const opts = parseNethackrc(this._nethackrc);
+        requireNoninteractiveStartupOptions(opts);
+        g.plname = opts.name;
+        g.flags = { ...opts.flags };
+        g.iflags = { ...opts.iflags };
+        g.catname = opts.catname ?? '';
+        g.dogname = opts.dogname ?? '';
+        g.horsename = opts.horsename ?? '';
+        g.wizard = Boolean(g.flags.debug);
+        g.discover = Boolean(g.flags.explore);
+        if (opts.tutorial_set) g.tutorial_set_in_config = true;
+
+        // The rc parser owns roleplay options until u_init_misc() preserves
+        // them across its source memset boundary.
+        g.u = { uroleplay: { ...(opts.uroleplay ?? {}) } };
+        g.context = { move: 0 };
+        g.program_state = {};
+        g.moves = 0;
+        g.gp = {
+            plnamelen: 0,
+            // C ref: decl.h instance_globals_p; dog.c:pet_type().
+            preferred_pet: opts.preferred_pet ?? '',
+        };
+
+        // C strips any name suffix before character selection, then runs the
+        // rigid checks. Configured random choices can resolve without input;
+        // missing choices still belong to the unported selection menus.
+        plnamesuffix(g);
+        resolveNoninteractiveCharacterConfig(g);
 
         // Install display
         if (this._pendingDisplay) {

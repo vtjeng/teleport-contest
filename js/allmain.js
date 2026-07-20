@@ -1,42 +1,53 @@
 // allmain.js — Main game loop.
 // C ref: allmain.c — newgame, moveloop, moveloop_core.
 //
-// Uses fastforward.js for pre/post-mklev RNG parity on seed8000.
-// Real mklev.js handles level generation for screen parity.
+// Residual post-mklev replay remains while inventory and level population are
+// ported. The PRNG-owning pre-mklev initializers below are source-derived;
+// monster-vital, UUID, notice, and glyph-map setup remain to be ported.
 
 import { game } from './gstate.js';
-import { rn2 } from './rng.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { init_objects } from './o_init.js';
+import { init_dungeons } from './dungeon.js';
+import { init_artifacts } from './artifacts.js';
+import { role_init, welcomeMessage } from './role_init.js';
+import { u_init_misc } from './u_init.js';
 import { rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen, pline } from './display.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
-import { fastforward_pre_mklev, fastforward_post_mklev, fastforward_step, fastforward_fill_mineralize } from './fastforward.js';
+import {
+    fastforward_post_mklev,
+    fastforward_step,
+    fastforward_fill_mineralize,
+} from './fastforward.js';
+
+// PRNG-owning initializer seam corresponding to the point immediately before
+// allmain.c:newgame() calls mklev().
+export function newgame_pre_mklev(g = game) {
+    g.disp ??= {};
+    g.disp.botlx = true;
+    g.context ??= {};
+    g.context.ident = 2;
+    g.context.warnlevel = 1;
+    g.context.next_attrib_check = 600;
+    g.context.tribute = { enabled: true };
+    init_objects(g);
+    g.flags.pantheon = -1;
+    role_init(g);
+    init_dungeons(g);
+    init_artifacts(g);
+    u_init_misc(g);
+    l_nhcore_init(g);
+    return g;
+}
 
 // C ref: allmain.c newgame()
 export async function newgame() {
     const g = game;
 
-    // C ref: allmain.c newgame() — must precede role and hero setup.
-    init_objects();
-
-    // Residual replay for pre-mklev startup behavior not ported yet.
-    // Covers Lua/dungeon initialization and u_init_misc.
-    fastforward_pre_mklev();
-
-    // C ref: allmain.c l_nhcore_init() — shuffle align[] for Lua.
-    // The two source calls are implemented by mklev.js.
-    l_nhcore_init();
-
-    // Set up game state needed by mklev
-    g.dungeons = [{ dname: 'The Dungeons of Doom', depth_start: 1, num_dunlevs: 30 }];
-    g.u = g.u || {};
-    g.u.uz = { dnum: 0, dlevel: 1 };
-    g.flags = g.flags || {};
-    // Branch: Mines entrance on level 1 (for seed 8000)
-    g.branches = [
-        { end1: { dnum: 0, dlevel: 1 }, end2: { dnum: 2, dlevel: 1 }, end1_up: true },
-    ];
+    // C ref: allmain.c newgame(). Preserve this order: each initializer owns
+    // state and PRNG effects used by every initializer that follows it.
+    newgame_pre_mklev(g);
 
     // Real mklev generates the level with correct room positions
     // Structural phase consumes RNG for rooms/corridors/doors/stairs
@@ -46,29 +57,21 @@ export async function newgame() {
     // These create objects/monsters that don't affect terrain display
     fastforward_fill_mineralize();
 
+    // C ref: allmain.c newgame() → u_on_upstairs(). In C, room filling above
+    // is part of mklev(), so hero placement follows it.
+    u_on_upstairs();
+
     // Fast-forward through post-mklev startup RNG calls.
-    // Covers: u_init_role, ini_inv, attributes, moveloop_preamble.
+    // Covers: u_init_inventory_attrs and moveloop_preamble.
     fastforward_post_mklev();
 
-    // Hardcoded player state for seed8000 Tourist.
-    // Contestants: port u_init to compute these from game PRNG.
+    // Residual state owned by the unported inventory/attribute startup. Hero
+    // identity, HP, Pw, alignment, and gender now come from source ports.
     g._goldCount = 757;
-    g.u.ulevel = 1;
-    g.u.uhp = 10; g.u.uhpmax = 10;
-    g.u.uen = 2; g.u.uenmax = 2;
-    g.u.uac = 10; g.u.uexp = 0;
-    g.u.ualign = { type: 0, record: 0 };
+    g.u.uac = 10;
     g.u.acurr = { a: [9, 14, 12, 11, 16, 16] };
     g.u.amax = { a: [9, 14, 12, 11, 16, 16] };
     g.moves = 1;
-    g.urole = { name: { m: 'Tourist', f: 'Tourist' }, rank: { m: 'Rambler', f: 'Rambler' } };
-    g.urace = { adj: 'human' };
-    g.flags.female = true;
-    g.plname = g.plname || 'Contestant';
-
-    // C ref: allmain.c newgame() → u_on_upstairs()
-    // Places hero on upstair, or special stair, or random room position.
-    u_on_upstairs();
 
     // Initial display
     init_vision_globals();
@@ -80,9 +83,7 @@ export async function newgame() {
     await bot();
 
     // Welcome message
-    const alignName = 'neutral';
-    const genderAdj = g.flags?.female ? 'female' : 'male';
-    await pline(`Aloha ${g.plname}, welcome to NetHack!  You are a ${alignName} ${genderAdj} human ${g.urole.name.m}.`);
+    await pline(welcomeMessage(g));
 }
 
 // C ref: allmain.c moveloop_core()

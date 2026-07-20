@@ -52,6 +52,34 @@ test('builds a complete fresh recipe from convenient character flags', () => {
     assert.equal(validateCleanRecipe(recipe), recipe);
 });
 
+test('user options replace generated noninteractive defaults', () => {
+    // This arbitrary fresh seed only exercises recipe construction.  Supplying
+    // all three defaults reproduces the duplicate-option failure this guards.
+    const parsed = parseArgs([
+        '--seed', '161803',
+        '--options', '!legacy,!tutorial,!splash_screen',
+    ]);
+    const recipe = buildFreshRecipe(parsed);
+    const rc = recipe.segments[0].nethackrc;
+
+    assert.equal(rc.match(/!legacy/gu)?.length, 1);
+    assert.equal(rc.match(/!tutorial/gu)?.length, 1);
+    assert.equal(rc.match(/!splash_screen/gu)?.length, 1);
+    assert.equal(rc.split('\n').filter(Boolean).length, 2);
+});
+
+test('abbreviated user options also replace generated defaults', () => {
+    // The arbitrary seed is unrelated to recorded fixtures.  Three-character
+    // names cover NetHack's shortest accepted abbreviations for these options.
+    const parsed = parseArgs([
+        '--seed', '141421',
+        '--options', '!leg,!tut,!spl',
+    ]);
+    const recipe = buildFreshRecipe(parsed);
+
+    assert.doesNotMatch(recipe.segments[0].nethackrc, /!legacy|!tutorial|!splash_screen/u);
+});
+
 test('rejects direct use of the sealed holdout path', () => {
     assert.equal(isSealedHoldoutPath('sessions/holdout/example.session.json'), true);
     assert.equal(isSealedHoldoutPath('/tmp/fresh-recipe.session.json'), false);

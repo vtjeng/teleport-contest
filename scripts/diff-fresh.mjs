@@ -58,6 +58,7 @@ const DEFAULT_CHARACTER = {
     gender: 'male',
     align: 'neutral',
 };
+const NONINTERACTIVE_DEFAULTS = ['legacy', 'tutorial', 'splash_screen'];
 const RNG_CALL = /^(?:rn2|rnd|rn1|rnl|rne|rnz|d)\(/u;
 const JS_RESULT_MARKER = '__FRESH_DIFF_RESULT__';
 
@@ -187,6 +188,32 @@ function validateRcToken(value, option) {
     return value;
 }
 
+function normalizedBooleanOptionName(token) {
+    let name = token.trim().toLowerCase();
+    while (name.startsWith('!') || name.startsWith('no')) {
+        name = name.startsWith('!')
+            ? name.slice(1)
+            : name.slice(name.startsWith('no-') ? 3 : 2);
+    }
+    return name.split(/[:=]/u, 1)[0].trim();
+}
+
+function optionListsSet(optionLists, canonicalName) {
+    for (const optionList of optionLists) {
+        const equals = optionList.indexOf('=');
+        const value = optionList.slice(0, equals).trim().toUpperCase() === 'OPTIONS'
+            ? optionList.slice(equals + 1)
+            : optionList;
+        for (const token of value.split(',')) {
+            const name = normalizedBooleanOptionName(token);
+            // NetHack accepts unambiguous option abbreviations of at least
+            // three characters; all three generated defaults are unique then.
+            if (name.length >= 3 && canonicalName.startsWith(name)) return true;
+        }
+    }
+    return false;
+}
+
 export function buildFreshRecipe(config, exactNethackrc) {
     let nethackrc = exactNethackrc;
     if (nethackrc === undefined) {
@@ -198,10 +225,13 @@ export function buildFreshRecipe(config, exactNethackrc) {
             ['gender', character.gender],
             ['align', character.align],
         ].map(([key, value]) => `${key}:${validateRcToken(value, `--${key}`)}`);
-        const lines = [
-            `OPTIONS=${fields.join(',')}`,
-            'OPTIONS=!legacy,!tutorial,!splash_screen',
-        ];
+        const lines = [`OPTIONS=${fields.join(',')}`];
+        const generatedDefaults = NONINTERACTIVE_DEFAULTS.filter(
+            (name) => !optionListsSet(config.options, name),
+        );
+        if (generatedDefaults.length) {
+            lines.push(`OPTIONS=${generatedDefaults.map((name) => `!${name}`).join(',')}`);
+        }
         for (const value of config.options) {
             if (/[\r\n]/u.test(value)) throw new Error('--options must be one rc line');
             lines.push(value.toUpperCase().startsWith('OPTIONS=')

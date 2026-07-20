@@ -120,7 +120,8 @@ test('runSegment preserves datetime and installs the supplied storage', async ()
         // False exercises fresh-recorder metadata plumbing independently of
         // the canonical official-session default.
         recorderIsDst: false,
-        nethackrc: '',
+        nethackrc: 'OPTIONS=name:Runtime,role:Tourist,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
         moves: '',
         storage,
     });
@@ -131,6 +132,51 @@ test('runSegment preserves datetime and installs the supplied storage', async ()
     assert.equal(game.recorderIsDst, false);
     assert.equal(vfsWriteFile('/runtime-foundation', 'installed'), true);
     assert.equal(backing.get('vfs:/runtime-foundation'), 'installed');
+});
+
+test('runSegment resolves configured random choices without opening selection', async () => {
+    // This arbitrary seed exercises role.c's ROLE_RANDOM path. The remaining
+    // three choices constrain the draw to source-compatible candidates.
+    await runSegment({
+        seed: 271828,
+        datetime: '20401231235958',
+        recorderIsDst: false,
+        nethackrc: 'OPTIONS=name:Randomized,role:random,race:human,'
+            + 'gender:male,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none',
+        moves: '',
+        storage: null,
+    });
+
+    assert.ok(game.flags.initrole >= 0);
+    assert.equal(game.flags.initrace, 0);
+    assert.equal(game.flags.initgend, 0);
+    assert.equal(game.flags.initalign, 1);
+    assert.equal(game.gp.preferred_pet, 'n');
+});
+
+test('runSegment rejects startup paths whose input boundaries are unported', async () => {
+    const character = 'role:Tourist,race:human,gender:female,align:neutral';
+    // These arbitrary seeds never reach a draw; each case stops at its named
+    // source input boundary before game initialization.
+    await assert.rejects(
+        runSegment({
+            seed: 141421,
+            datetime: '20401231235958',
+            nethackrc: `OPTIONS=${character},!legacy,!tutorial,!splash_screen`,
+            moves: '',
+        }),
+        /provide a name option/u,
+    );
+    await assert.rejects(
+        runSegment({
+            seed: 173205,
+            datetime: '20401231235958',
+            nethackrc: `OPTIONS=name:Boundary,${character}`,
+            moves: '',
+        }),
+        /disable splash_screen, tutorial, legacy/u,
+    );
 });
 
 test('version constants match the pinned NetHack release', () => {

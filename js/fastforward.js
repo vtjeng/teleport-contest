@@ -1,94 +1,12 @@
 // fastforward.js — Auto-generated RNG replay for seed8000 starter session.
-// Split into pre-mklev and post-mklev phases.
+// Split into level-fill, post-mklev, and per-turn phases.
 // The mklev RNG calls are now consumed by the real mklev.js implementation.
 //
 // Generated from: seed8000-tourist-starter.session.json
 
 import { rn2, rnd, d, rne, rnz } from "./rng.js";
 
-// Residual pre-mklev startup: Lua/dungeon initialization and u_init_misc.
-// Object initialization now consumes its own source-derived PRNG calls.
-// 101 direct core RNG calls remain here.
-export function fastforward_pre_mklev() {
-    // random
-    rn2(3); rn2(2);
-    // init_dungeon_dungeons
-    rn2(100); rn2(5);
-    // init_level
-    rn2(100); rn2(100); rn2(100); rn2(100); rn2(100);
-    // place_level
-    rn2(4); rn2(5); rn2(4); rn2(1);
-    // init_dungeon_dungeons
-    rn2(100); rn2(5);
-    // parent_dlevel
-    rn2(1);
-    // init_level
-    rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100);
-    rn2(100); rn2(100); rn2(100);
-    // place_level
-    rn2(1); rn2(1); rn2(4); rn2(3); rn2(5); rn2(6); rn2(1); rn2(1);
-    rn2(4); rn2(4); rn2(3);
-    // init_dungeon_dungeons
-    rn2(100); rn2(2);
-    // parent_dlevel
-    rn2(3);
-    // init_level
-    rn2(100); rn2(100);
-    // place_level
-    rn2(2); rn2(1);
-    // init_dungeon_dungeons
-    rn2(100); rn2(2);
-    // parent_dlevel
-    rn2(2);
-    // init_level
-    rn2(100); rn2(100); rn2(100);
-    // place_level
-    rn2(1); rn2(1); rn2(1);
-    // init_dungeon_dungeons
-    rn2(100);
-    // parent_dlevel
-    rn2(1);
-    // init_level
-    rn2(100); rn2(100); rn2(100); rn2(100);
-    // place_level
-    rn2(1); rn2(1); rn2(1); rn2(1);
-    // init_dungeon_dungeons
-    rn2(100);
-    // parent_dlevel
-    rn2(4);
-    // init_level
-    rn2(100);
-    // place_level
-    rn2(1);
-    // init_dungeon_dungeons
-    rn2(100);
-    // parent_dlevel
-    rn2(5);
-    // init_level
-    rn2(100); rn2(100); rn2(100);
-    // place_level
-    rn2(1); rn2(1); rn2(1);
-    // init_dungeon_dungeons
-    rn2(100);
-    // parent_dlevel
-    rn2(1);
-    // init_level
-    rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100);
-    // place_level
-    rn2(1); rn2(1); rn2(1); rn2(1); rn2(1); rn2(1);
-    // init_dungeon_dungeons
-    rn2(100);
-    // init_level
-    rn2(100); rn2(100);
-    // place_level
-    rn2(1); rn2(1);
-    // init_castle_tune
-    rn2(7); rn2(7); rn2(7); rn2(7); rn2(7);
-    // u_init_misc
-    rn2(10);
-}
-
-// Post-mklev startup: u_init_role, ini_inv, attributes, moveloop_preamble
+// Post-mklev startup: u_init_inventory_attrs and moveloop_preamble.
 // 124 leaf RNG calls (regenerated from session data)
 export function fastforward_post_mklev() {
     rnd(1000); rn2(20); rnd(2); rn2(6); rn2(11); rn2(10); rn2(10); rn2(100); rn2(20); rn2(1);
