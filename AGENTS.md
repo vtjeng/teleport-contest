@@ -89,6 +89,24 @@ Git history do not grant permission to inspect the sealed local holdout.
   review the implementation against upstream and test the general behavior
   with fresh C recordings.
 
+## Periodic review and simplification
+
+- At each major milestone, and before committing a large or cross-subsystem
+  change, run an adversarial review of the diff against the upstream source.
+  Prefer `/review` when available; otherwise use a fresh read-only subagent
+  or an equivalent independent pass. Resolve confirmed findings and add a
+  regression test for any reusable failure class before continuing.
+- After several coherent chunks or whenever duplication and temporary
+  scaffolding accumulate, simplify the recently touched area. Remove
+  accidental complexity, stale compatibility layers, and obsolete replay
+  scaffolding only when a source-faithful replacement makes them unnecessary.
+- Treat code, data, comments, APIs, and dependency seams needed by planned
+  future ports as live architecture, even if current execution does not reach
+  them. Do not delete technical foundations merely because they are unused by
+  the present development sessions or current milestone.
+- Re-run the relevant unit, differential, and development checks after a
+  simplification pass; simplification must preserve behavior and PRNG order.
+
 ## Generalization failure protocol
 
 Run this protocol whenever an authorized aggregate holdout evaluation
