@@ -15,7 +15,11 @@ const SYNTHETIC_DATETIME = '20260719120000';
 // Five seconds catches a hung fake while leaving ample time for process startup.
 const CHILD_TIMEOUT_MS = 5000;
 
-async function runWithFakeRecorder(t, fakeSource, { moves = 'a', stepKeys = [null, 'a'] } = {}) {
+async function runWithFakeRecorder(
+    t,
+    fakeSource,
+    { moves = 'a', stepKeys = [null, 'a'], env = {} } = {},
+) {
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'record-session-test-'));
     t.after(() => fs.rm(tmpDir, { recursive: true, force: true }));
 
@@ -48,12 +52,25 @@ async function runWithFakeRecorder(t, fakeSource, { moves = 'a', stepKeys = [nul
             NETHACK_BINARY: binary,
             NETHACK_INSTALL: installDir,
             FAKE_PID_PATH: pidPath,
+            ...env,
         },
         encoding: 'utf8',
         timeout: CHILD_TIMEOUT_MS,
     });
     return { ...result, outputPath, pidPath };
 }
+
+test('rejects recorder timezones absent from the judge input contract', async (t) => {
+    const result = await runWithFakeRecorder(t, 'process.exit(0);\n', {
+        // UTC differs from the canonical New York recorder and exercises the
+        // guard before the fake recorder can create incompatible output.
+        env: { RERECORD_TZ: 'UTC' },
+    });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /cannot override the canonical/u);
+    await assert.rejects(fs.access(result.outputPath));
+});
 
 test('fails when the recorder exits cleanly before any input boundary', async (t) => {
     const result = await runWithFakeRecorder(t, 'process.exit(0);\n');
@@ -153,4 +170,5 @@ setInterval(() => {}, 1000);
     assert.equal(result.status, 0, result.stderr);
     const output = JSON.parse(await fs.readFile(result.outputPath, 'utf8'));
     assert.equal(output.segments[0].steps.length, 2);
+    assert.equal(typeof output.segments[0].recorderIsDst, 'boolean');
 });

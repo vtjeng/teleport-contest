@@ -4,8 +4,7 @@
 // Reads an input session.json (clean v5 segments format), spawns the
 // patched NetHack 5.0 "recorder" binary with NOMUX_MARKERS=1, drives
 // it one key at a time using in-band stdout sync markers (OSC 7777),
-// reads PRNG calls from the rng-log file, and writes a fresh
-// session.json that is byte-equal to the canonical recordings.
+// reads PRNG calls from the rng-log file, and writes a fresh v5 session.
 //
 // Usage:
 //   node scripts/record-session.mjs <input.session.json> [output.session.json]
@@ -14,8 +13,6 @@
 //   NETHACK_BINARY     path to recorder/install/games/lib/nethackdir/nethack
 //                      (defaults to nethack-c/recorder/install/...)
 //   NETHACK_INSTALL    install dir (HACKDIR / NETHACKDIR)
-//   RERECORD_TZ        timezone for the C process (default America/New_York)
-//
 // The recorder binary must be built from the patched submodule.
 // See nethack-c/build-recorder.sh.
 
@@ -34,6 +31,59 @@ const DEFAULT_BINARY = path.join(
 const DEFAULT_INSTALL = path.join(
     TEMPLATE_ROOT, 'nethack-c', 'recorder', 'install',
     'games', 'lib', 'nethackdir');
+const RECORDER_TIME_ZONE = 'America/New_York';
+const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
+    'en-CA-u-ca-gregory-nu-latn',
+    {
+        timeZone: RECORDER_TIME_ZONE,
+        hourCycle: 'h23',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    },
+);
+
+function recorderFieldsAt(epochMillis) {
+    const fields = {};
+    for (const part of RECORDER_TIME_FORMAT.formatToParts(
+        new Date(epochMillis),
+    )) {
+        if (part.type !== 'literal') fields[part.type] = Number(part.value);
+    }
+    return fields;
+}
+
+function fieldsAsUtcMillis(fields) {
+    return Date.UTC(
+        fields.year,
+        fields.month - 1,
+        fields.day,
+        fields.hour,
+        fields.minute,
+        fields.second,
+    );
+}
+
+function recorderOffsetAt(epochMillis) {
+    const wholeSecondMillis = Math.trunc(epochMillis / 1000) * 1000;
+    return fieldsAsUtcMillis(recorderFieldsAt(wholeSecondMillis))
+        - wholeSecondMillis;
+}
+
+function canonicalRecorderIsDst(now = new Date()) {
+    const year = recorderFieldsAt(now.getTime()).year;
+    const offsets = [];
+    // This captures the contemporary standard and daylight offsets used by
+    // the recorder process without consulting the Node host timezone.
+    for (let month = 0; month < 12; ++month) {
+        offsets.push(recorderOffsetAt(Date.UTC(year, month, 15, 12)));
+    }
+    return recorderOffsetAt(now.getTime()) === Math.max(...offsets)
+        && Math.max(...offsets) !== Math.min(...offsets);
+}
 
 // ---------------------------------------------------------------------------
 // Screen encoding — ports run_session.py compress_ansi_line +
@@ -634,7 +684,15 @@ async function main() {
 
     const binary = process.env.NETHACK_BINARY || DEFAULT_BINARY;
     const installDir = process.env.NETHACK_INSTALL || DEFAULT_INSTALL;
-    const tz = process.env.RERECORD_TZ || 'America/New_York';
+    if (process.env.RERECORD_TZ
+        && process.env.RERECORD_TZ !== RECORDER_TIME_ZONE) {
+        throw new Error(
+            'RERECORD_TZ cannot override the canonical America/New_York '
+            + 'recorder timezone because timezone is absent from judge inputs',
+        );
+    }
+    const tz = RECORDER_TIME_ZONE;
+    const recorderIsDst = canonicalRecorderIsDst();
 
     if (!await exists(binary)) {
         throw new Error(`recorder binary not found: ${binary}\n  build it via nethack-c/build-recorder.sh`);
@@ -667,6 +725,7 @@ async function main() {
                 datetime: seg.datetime,
                 nethackrc: seg.nethackrc,
                 moves: seg.moves,
+                recorderIsDst,
                 steps,
             };
             // Preserve any extra per-segment fields (e.g. checkpoints) that

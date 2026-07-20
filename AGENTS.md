@@ -70,6 +70,10 @@ Git history do not grant permission to inspect the sealed local holdout.
   development suite. Do not diagnose from the sealed local holdout.
 - For nontrivial behavior, differentially test against the C recorder using
   newly chosen seeds, datetimes, options, and input sequences.
+- Keep fresh recordings in the canonical `America/New_York` timezone. Recorder
+  patch 001 carries the recording-time `tm_isdst` bit into fixed-datetime
+  parsing; preserve the resulting `mktime()` normalization and the
+  `recorderIsDst` metadata emitted for fresh differential recordings.
 - Use `node scripts/diff-fresh.mjs --seed ...` for strict fresh-recording
   differentials. Its recipe inputs must contain replay inputs only, never
   recorded `steps`; do not weaken that boundary or its sealed-path checks.

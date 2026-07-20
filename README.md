@@ -164,7 +164,15 @@ nothing is captured. So this repo includes a patched build of NetHack
 - **`NETHACK_FIXED_DATETIME`** — sets the date and time of play
   (format `YYYYMMDDHHMMSS`). NetHack uses the wall clock for moon
   phase, hire dates, shopkeeper greetings, and the Friday-the-13th
-  luck penalty; pinning the datetime makes all of these reproducible.
+  luck penalty; the supplied datetime controls all of these inputs.
+
+Recordings use `America/New_York`. Patch 001 retains the recorder process's
+current daylight-saving-time bit when it parses the fixed datetime, including
+libc's one-hour normalization when the seasons differ. `js/calendar.js`
+reproduces that patched behavior. Fresh recordings retain the inherited bit
+for local differential tests, and the recording tool rejects timezone
+overrides that the judge input could not represent. The original judge input
+does not carry the bit; its May 2026 corpus defaults to daylight time.
 
 Plus changes to log every PRNG call (so you can see what C consumed
 and in what order), to capture the 24×80 terminal as a deterministic

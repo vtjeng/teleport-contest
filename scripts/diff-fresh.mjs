@@ -510,6 +510,7 @@ export async function runJsSession(recording, scoringRoot) {
                 datetime: segment.datetime,
                 nethackrc: segment.nethackrc,
                 moves: segment.moves,
+                recorderIsDst: segment.recorderIsDst,
                 storage,
             });
             const rng = (game.getRngLog?.() || []).map(withoutJsIndex).filter(isRngCall);

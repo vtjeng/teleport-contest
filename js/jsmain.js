@@ -25,6 +25,10 @@ export class NethackGame {
     constructor(opts = {}) {
         this._seed = opts.seed || 0;
         this._datetime = opts.datetime || null;
+        // Recorder patch 001 leaks tm_isdst into fixed-time parsing. Official
+        // sessions were recorded while New York daylight time was active;
+        // fresh recorder output can carry the explicit bit for local diffs.
+        this._recorderIsDst = opts.recorderIsDst ?? true;
         this._nethackrc = opts.nethackrc || '';
         // Cross-segment persistence handle. The judge sandbox passes a
         // shared Web-Storage-shaped object here so save / record /
@@ -93,6 +97,7 @@ export class NethackGame {
         // Recorder patch 001 routes calendar.c:getnow() through this fixed
         // YYYYMMDDHHMMSS value. A future calendar.js should read this field.
         g.fixedDatetime = this._datetime;
+        g.recorderIsDst = this._recorderIsDst;
 
         // Parse nethackrc
         const opts = parseNethackrc(this._nethackrc);
@@ -199,10 +204,16 @@ export class NethackGame {
 // this segment. The harness concatenates them itself. Cross-segment
 // C-side state (bones, record file, save) lives in `input.storage`.
 export async function runSegment(input) {
-    const { seed, datetime, nethackrc, storage } = input;
+    const { seed, datetime, nethackrc, recorderIsDst, storage } = input;
     const moves = input.moves || '';
 
-    const nhGame = new NethackGame({ seed, datetime, nethackrc, storage });
+    const nhGame = new NethackGame({
+        seed,
+        datetime,
+        nethackrc,
+        recorderIsDst,
+        storage,
+    });
 
     const display = new GameDisplay(null);
     display.onEmptyQueue = () => { throw new Error('Input queue empty - test may be missing keystrokes'); };

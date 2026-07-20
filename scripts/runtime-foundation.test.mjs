@@ -117,6 +117,9 @@ test('runSegment preserves datetime and installs the supplied storage', async ()
         // seed independent of any development recording.
         seed: 314159,
         datetime,
+        // False exercises fresh-recorder metadata plumbing independently of
+        // the canonical official-session default.
+        recorderIsDst: false,
         nethackrc: '',
         moves: '',
         storage,
@@ -124,6 +127,8 @@ test('runSegment preserves datetime and installs the supplied storage', async ()
 
     assert.equal(nhGame._datetime, datetime);
     assert.equal(game.fixedDatetime, datetime);
+    assert.equal(nhGame._recorderIsDst, false);
+    assert.equal(game.recorderIsDst, false);
     assert.equal(vfsWriteFile('/runtime-foundation', 'installed'), true);
     assert.equal(backing.get('vfs:/runtime-foundation'), 'installed');
 });
