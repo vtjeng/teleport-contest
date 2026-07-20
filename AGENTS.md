@@ -72,6 +72,11 @@ Git history do not grant permission to inspect the sealed local holdout.
   newly chosen seeds, datetimes, options, and input sequences.
 - Verify PRNG logs, 24×80 screens, and cursor positions. Verify browser
   behavior for browser-facing changes.
+- End each completed work chunk with an estimated leaderboard screen score
+  formatted `<shown> shown + <hidden> hidden = <total> total`. Use current
+  published aggregates when available; otherwise estimate from development
+  and fresh differential evidence and state the uncertainty. Do not run the
+  sealed local holdout merely to produce this estimate.
 - Prefer source-faithful subsystem improvements to isolated score gains. If
   a development gain does not transfer at an authorized holdout milestone,
   review the implementation against upstream and test the general behavior
