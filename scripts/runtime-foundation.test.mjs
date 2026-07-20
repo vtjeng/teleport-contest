@@ -5,6 +5,7 @@ import { PATCHLEVEL, VERSION_MAJOR, VERSION_MINOR } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
 import { runSegment } from '../js/jsmain.js';
+import { str2role } from '../js/roles.js';
 import {
     d,
     enableRngLog,
@@ -153,6 +154,49 @@ test('runSegment resolves configured random choices without opening selection', 
     assert.equal(game.flags.initgend, 0);
     assert.equal(game.flags.initalign, 1);
     assert.equal(game.gp.preferred_pet, 'n');
+});
+
+test('runSegment may end at an interactive startup boundary', async () => {
+    const input = {
+        // This arbitrary square-root-of-two prefix is irrelevant to the
+        // no-draw manual path; it keeps the case independent of fixtures.
+        seed: 141421,
+        datetime: '20401231235958',
+        nethackrc: 'OPTIONS=name:Boundary,!legacy,!tutorial,!splash_screen',
+        storage: null,
+    };
+    const question = await runSegment({ ...input, moves: '' });
+    assert.deepEqual(question.getCursors(), [[74, 0, 1]]);
+
+    // One 'n' consumes the initial question and stops at the role menu.
+    const roleMenu = await runSegment({ ...input, moves: 'n' });
+    assert.deepEqual(roleMenu.getCursors(), [
+        [74, 0, 1],
+        [7, 23, 1],
+    ]);
+});
+
+test('runSegment carries configuration filters into role selection', async () => {
+    const nhGame = await runSegment({
+        // This arbitrary e-prefix seed is immaterial to the manual menu path.
+        seed: 271828,
+        datetime: '20401231235958',
+        nethackrc: 'OPTIONS=name:Filtered,!role:Wizard,!legacy,!tutorial,'
+            + '!splash_screen',
+        // 'n' declines automatic selection and stops at the role menu.
+        moves: 'n',
+        storage: null,
+    });
+
+    const wizard = str2role('Wizard');
+    assert.equal(game.roleFilter.roles[wizard], true);
+    assert.equal(game.rfilter, game.roleFilter);
+    assert.equal(nhGame.getCursors().length, 2);
+    const roleMenu = game.nhDisplay.terminal.grid.map(
+        (row) => row.map((cell) => cell.ch).join(''),
+    ).join('\n');
+    assert.match(roleMenu, /Archeologist/u);
+    assert.doesNotMatch(roleMenu, /Wizard/u);
 });
 
 test('tty startup ignores the window-port splash option', async () => {

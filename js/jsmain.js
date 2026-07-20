@@ -18,57 +18,11 @@ import { flush_screen } from './display.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { objects_globals_init } from './objects.js';
-import { rigid_role_checks } from './role_init.js';
+import { ttyPlayerSelection } from './player_selection_tty.js';
 import {
     renderTtyStartupBanner,
     ttyPlayerNameAndSuffix,
 } from './tty_startup.js';
-import {
-    ROLE_NONE,
-    ROLE_RANDOM,
-    validalign,
-    validgend,
-    validrace,
-    validrole,
-} from './roles.js';
-
-function resolveNoninteractiveCharacterConfig(state) {
-    const { flags } = state;
-    const choicesBeforeSelection = [
-        flags.initrole,
-        flags.initrace,
-        flags.initgend,
-        flags.initalign,
-    ];
-    const needsSelection = choicesBeforeSelection.includes(ROLE_NONE);
-
-    // role.c:genl_player_setup() resolves ROLE_RANDOM before deciding which
-    // menus are needed. A missing choice still requires confirmation even
-    // when rigid_role_checks() can force the only compatible value.
-    rigid_role_checks(state);
-    const resolvedChoices = [
-        flags.initrole,
-        flags.initrace,
-        flags.initgend,
-        flags.initalign,
-    ];
-    if (needsSelection || resolvedChoices.some((choice) => (
-        choice === ROLE_NONE || choice === ROLE_RANDOM
-    ))) {
-        throw new Error(
-            'interactive character selection is not implemented; provide '
-            + 'role, race, gender, and alignment options',
-        );
-    }
-    if (!validrole(flags.initrole)
-        || !validrace(flags.initrole, flags.initrace)
-        || !validgend(flags.initrole, flags.initrace, flags.initgend)
-        || !validalign(flags.initrole, flags.initrace, flags.initalign)) {
-        throw new RangeError(
-            'role, race, gender, and alignment options are incompatible',
-        );
-    }
-}
 
 function requireNoninteractiveStartupOptions(opts) {
     const unsupported = [];
@@ -170,6 +124,13 @@ export class NethackGame {
         g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
+        g.roleFilter = {
+            roles: [...(opts.roleFilter?.roles ?? [])],
+            mask: opts.roleFilter?.mask ?? 0,
+        };
+        // role.c calls this global gr.rfilter; selection code accepts the
+        // descriptive JS name while legacy ports can use the source name.
+        g.rfilter = g.roleFilter;
         g.catname = opts.catname ?? '';
         g.dogname = opts.dogname ?? '';
         g.horsename = opts.horsename ?? '';
@@ -202,11 +163,15 @@ export class NethackGame {
         // C filters generic Unix usernames, prompts when necessary, then
         // strips any role/race/gender/alignment suffix before selection.
         await ttyPlayerNameAndSuffix(g);
-        resolveNoninteractiveCharacterConfig(g);
+        if (!await ttyPlayerSelection(g)) {
+            g.program_state.gameover = true;
+            return false;
+        }
         requireNoninteractiveStartupOptions(opts);
 
         // Run game startup
         await newgame();
+        return true;
     }
 
     _installCaptureHook() {
@@ -296,7 +261,18 @@ export async function runSegment(input) {
 
     for (const ch of moves) display.pushKey(ch.charCodeAt(0));
 
-    await nhGame.start();
+    let started;
+    try {
+        started = await nhGame.start();
+    } catch (error) {
+        // A recording may deliberately end at any startup input boundary.
+        // nhgetch() has already captured that boundary before discovering
+        // that the replay recipe has no next key.
+        if (String(error?.message || '').includes('Input queue empty'))
+            return nhGame;
+        throw error;
+    }
+    if (!started) return nhGame;
 
     // Drive the game loop until input is exhausted. The judge looks
     // at game.getScreens() afterwards; whatever the contestant

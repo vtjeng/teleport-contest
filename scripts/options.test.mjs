@@ -8,10 +8,23 @@ import {
     genders,
     races,
     roles,
+    str2role,
     validalign,
     validgend,
     validrace,
 } from '../js/roles.js';
+import {
+    ATR_BOLD,
+    ATR_INVERSE,
+    ATR_NONE,
+    ATR_UNDERLINE,
+    CLR_BRIGHT_BLUE,
+    CLR_BRIGHT_GREEN,
+    CLR_BRIGHT_MAGENTA,
+    CLR_ORANGE,
+    CLR_RED,
+    NO_COLOR,
+} from '../js/terminal.js';
 
 function characterFlags(parsed) {
     return [
@@ -54,6 +67,9 @@ test('startup option defaults use source role indices and zero roleplay', () => 
     );
     assert.equal(parsed.playmode, 'normal');
     assert.equal(parsed.preferred_pet, '');
+    assert.equal(parsed.roleFilter.mask, 0);
+    assert.equal(parsed.roleFilter.roles.length, roles.length);
+    assert.ok(parsed.roleFilter.roles.every((filtered) => !filtered));
     assert.deepEqual(parsed.uroleplay, {
         blind: false,
         nudist: false,
@@ -122,21 +138,156 @@ test('every fully explicit valid character tuple survives parsing unchanged', ()
     assert.ok(count > roles.length, 'expected multiple valid tuples per role');
 });
 
-test('unknown and incompatible explicit character choices fail loudly', () => {
+test('unknown choices fail while incompatible explicit choices reach selection', () => {
     assert.throws(
-        () => parseNethackrc('OPTIONS=role:NotARole'),
-        /unknown role 'NotARole'/u,
+        () => parseNethackrc('OPTIONS=role:BogusRole'),
+        /unknown role 'BogusRole'/u,
     );
-    assert.throws(
-        () => parseNethackrc(
+    assert.deepEqual(
+        characterFlags(parseNethackrc(
             'OPTIONS=role:Knight,race:dwarf,gender:male,align:lawful',
-        ),
-        /role and race are incompatible/u,
+        )),
+        [4, 2, 0, 0],
+    );
+});
+
+test('negated character options build source role filter masks', () => {
+    const parsed = parseNethackrc(
+        'OPTIONS=!role:Wizard Tourist,race:!orc,gender:nofemale,'
+        + 'align:!chaotic',
+    );
+    const wizard = str2role('Wizard');
+    const tourist = str2role('Tourist');
+    const orc = races.find((race) => race.noun === 'orc');
+    const female = genders.find((gender) => gender.adj === 'female');
+    const chaotic = aligns.find((alignment) => (
+        alignment.adj === 'chaotic'
+    ));
+
+    assert.deepEqual(characterFlags(parsed), [
+        ROLE_NONE, ROLE_NONE, ROLE_NONE, ROLE_NONE,
+    ]);
+    assert.equal(parsed.roleFilter.roles[wizard], true);
+    assert.equal(parsed.roleFilter.roles[tourist], true);
+    assert.equal(
+        parsed.roleFilter.roles.filter(Boolean).length,
+        2,
+        'the two listed roles are the only role exclusions',
+    );
+    assert.equal(
+        parsed.roleFilter.mask,
+        orc.selfmask | female.allow | chaotic.allow,
+        'orc, female, and chaotic each occupy a distinct source mask field',
+    );
+});
+
+test('repeated role filters merge in source parse order', () => {
+    const repeatedLines = parseNethackrc([
+        'OPTIONS=role:!Wizard',
+        'OPTIONS=role:!Tourist',
+        'OPTIONS=role:!Wizard',
+    ].join('\n'));
+    const oneLine = parseNethackrc(
+        'OPTIONS=role:!Wizard !Tourist,role:!Archeologist',
+    );
+    for (const parsed of [repeatedLines, oneLine]) {
+        assert.equal(parsed.roleFilter.roles[str2role('Wizard')], true);
+        assert.equal(parsed.roleFilter.roles[str2role('Tourist')], true);
+    }
+    assert.equal(
+        repeatedLines.roleFilter.roles.filter(Boolean).length,
+        2,
+        'repeating Wizard merges rather than adding another filter entry',
+    );
+    assert.equal(
+        oneLine.roleFilter.roles[str2role('Archeologist')],
+        true,
+    );
+
+    // parseoptions() applies comma suffixes first. The rightmost positive
+    // choice is therefore installed before the left filter is merged.
+    const filterAfterChoice = parseNethackrc(
+        'OPTIONS=role:!Tourist,role:Wizard',
+    );
+    assert.equal(filterAfterChoice.flags.initrole, str2role('Wizard'));
+    assert.equal(
+        filterAfterChoice.roleFilter.roles[str2role('Tourist')],
+        true,
     );
     assert.throws(
-        () => parseNethackrc('OPTIONS=!role:Wizard'),
-        /role filters are not supported/u,
+        () => parseNethackrc('OPTIONS=role:Wizard,role:!Tourist'),
+        /compound option specified multiple times: role/u,
+        'the opposite textual order applies the positive duplicate last',
     );
+});
+
+test('legacy ROLE statements remain distinct from OPTIONS role filters', () => {
+    const parsed = parseNethackrc([
+        'ROLE=Wizard',
+        'OPTIONS=!role:Tourist',
+    ].join('\n'));
+    assert.equal(parsed.flags.initrole, str2role('Wizard'));
+    assert.equal(parsed.roleFilter.roles[str2role('Tourist')], true);
+
+    const ignored = parseNethackrc('ROLE=!Wizard\nCHARACTER=random');
+    assert.equal(ignored.flags.initrole, ROLE_NONE);
+    assert.ok(ignored.roleFilter.roles.every((filtered) => !filtered));
+});
+
+test('tty menu presentation options populate interface flags', () => {
+    const defaults = parseNethackrc('');
+    assert.equal(defaults.iflags.menu_overlay, true);
+    assert.deepEqual(defaults.iflags.menu_headings, {
+        attr: ATR_INVERSE,
+        color: NO_COLOR,
+    });
+
+    const plain = parseNethackrc('OPTIONS=!menu_overlay,menu_headings:none');
+    assert.equal(plain.iflags.menu_overlay, false);
+    assert.deepEqual(plain.iflags.menu_headings, {
+        attr: ATR_NONE,
+        color: NO_COLOR,
+    });
+
+    const styled = parseNethackrc('OPTIONS=menu_headings:red&bold');
+    assert.deepEqual(styled.iflags.menu_headings, {
+        attr: ATR_BOLD,
+        color: CLR_RED,
+    });
+
+    const aliases = [
+        ['bright-green&bold', CLR_BRIGHT_GREEN, ATR_BOLD],
+        ['lightblue&reverse', CLR_BRIGHT_BLUE, ATR_INVERSE],
+        ['light-purple&uline', CLR_BRIGHT_MAGENTA, ATR_UNDERLINE],
+        ['normal&bright_red', CLR_ORANGE, ATR_NONE],
+    ];
+    for (const [value, color, attr] of aliases) {
+        assert.deepEqual(
+            parseNethackrc(`OPTIONS=menu_headings:${value}`)
+                .iflags.menu_headings,
+            { color, attr },
+            value,
+        );
+    }
+    // Color index 12 is the source tty index for bright blue; this covers
+    // coloratt.c's numeric-color fallback independently of name aliases.
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=menu_headings:12&bold')
+            .iflags.menu_headings,
+        { color: CLR_BRIGHT_BLUE, attr: ATR_BOLD },
+    );
+
+    for (const invalid of [
+        'red&blue',
+        'bold&inverse',
+        'red&bold&underline',
+    ]) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=menu_headings:${invalid}`),
+            /invalid menu_headings style/u,
+            invalid,
+        );
+    }
 });
 
 test('comma options apply right-to-left and later rc lines apply afterward', () => {
