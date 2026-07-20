@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
+import { parseNethackrc } from '../js/options.js';
 import {
     dismissTtyMenu,
     renderTtyMenu,
@@ -167,4 +168,95 @@ test('Escape clears a pending PICK_ONE count before it can cancel', async () => 
 
     const nul = menuState('1\0n');
     assert.equal(await selectTtyMenu(nul, confirmation), 2);
+});
+
+test('an invalid PICK_ONE key preserves a pending count', async () => {
+    // 12 proves that the invalid x remains inside xwaitforspace(): Escape
+    // clears the accumulated count instead of cancelling the whole menu.
+    const state = menuState('12x\x1bn');
+    assert.equal(await selectTtyMenu(state, confirmation), 2);
+});
+
+test('mapped page commands paginate PICK_ONE and defaults remain available', async () => {
+    const state = menuState('><#z');
+    state.iflags = parseNethackrc(
+        'OPTIONS=menu_next_page:#',
+    ).iflags;
+    const footers = [];
+    state._preNhgetchHook = () => footers.push(
+        Array.from({ length: state.nhDisplay.rows }, (_, row) => (
+            rowText(state, row)
+        )).find((line) => /\(\d+ of \d+\)$/u.test(line)),
+    );
+    const items = Array.from({ length: 22 }, (_, index) => ({
+        selector: index === 21 ? 'z' : 'a',
+        label: `choice ${index}`,
+        value: index,
+        selected: index === 0,
+    }));
+
+    const selected = await selectTtyMenu(state, {
+        title: 'Synthetic paginated choice',
+        titleAttr: 0,
+        items,
+        preselected: 0,
+    });
+
+    assert.equal(selected, 21);
+    // '>' and '<' retain their defaults; the configured '#' alias is an
+    // additional way to invoke MENU_NEXT_PAGE.
+    assert.deepEqual(footers, [
+        ' (1 of 2)',
+        ' (2 of 2)',
+        ' (1 of 2)',
+        ' (2 of 2)',
+    ]);
+});
+
+test('PICK_ONE explicit choices beat mappings and deselection updates markers', async () => {
+    const explicit = menuState('#');
+    explicit.iflags = parseNethackrc(
+        'OPTIONS=menu_next_page:#',
+    ).iflags;
+    assert.equal(await selectTtyMenu(explicit, {
+        title: 'Synthetic collision',
+        titleAttr: 0,
+        items: [{ selector: '#', label: 'literal hash', value: 'hash' }],
+    }), 'hash');
+
+    const grouped = menuState('#');
+    grouped.iflags = parseNethackrc(
+        'OPTIONS=menu_next_page:#',
+    ).iflags;
+    assert.equal(await selectTtyMenu(grouped, {
+        title: 'Synthetic group collision',
+        titleAttr: 0,
+        items: [{
+            selector: 'a', groupSelector: '#', label: 'alpha', value: 'a',
+        }],
+    }), 'a');
+
+    const deselected = menuState('#\n');
+    deselected.iflags = parseNethackrc(
+        'OPTIONS=menu_deselect_all:#',
+    ).iflags;
+    const markers = [];
+    deselected._preNhgetchHook = () => markers.push(
+        rowText(deselected, 4).slice(41),
+    );
+    assert.equal(await selectTtyMenu(deselected, confirmation), 1);
+    assert.deepEqual(markers, [
+        'y * Yes; start game',
+        'y - Yes; start game',
+    ]);
+});
+
+test('PICK_ONE can expose an empty commit without changing startup defaults', async () => {
+    const state = menuState('\n');
+    assert.equal(await selectTtyMenu(state, {
+        title: 'Synthetic empty choice',
+        titleAttr: 0,
+        items: [{ selector: 'a', label: 'alpha', value: 'alpha' }],
+        emptyValue: 'rebuild',
+    }), 'rebuild');
 });

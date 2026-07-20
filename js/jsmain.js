@@ -23,17 +23,11 @@ import {
     renderTtyStartupBanner,
     ttyPlayerNameAndSuffix,
 } from './tty_startup.js';
-
-function requireNoninteractiveStartupOptions(opts) {
-    const unsupported = [];
-    if (opts.flags.tutorial) unsupported.push('tutorial');
-    if (opts.flags.legacy) unsupported.push('legacy');
-    if (unsupported.length) {
-        throw new Error(
-            `interactive startup pages are not implemented; disable ${unsupported.join(', ')}`,
-        );
-    }
-}
+import {
+    maybe_do_tutorial,
+    TutorialTransitionNotImplementedError,
+} from './tutorial_startup.js';
+import { moveloop_preamble } from './moveloop_preamble.js';
 
 // ── NethackGame ──
 // Wraps a single game session with replay infrastructure.
@@ -167,10 +161,16 @@ export class NethackGame {
             g.program_state.gameover = true;
             return false;
         }
-        requireNoninteractiveStartupOptions(opts);
 
         // Run game startup
         await newgame();
+        // C ref: allmain.c moveloop(FALSE).  The preamble's messages and RNG
+        // effects precede the optional tutorial query.
+        await moveloop_preamble(false, g);
+        const tutorial = await maybe_do_tutorial(g);
+        if (tutorial.action === 'enter') {
+            throw new TutorialTransitionNotImplementedError(tutorial);
+        }
         return true;
     }
 

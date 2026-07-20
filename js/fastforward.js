@@ -6,8 +6,8 @@
 
 import { rn2, rnd, d, rne, rnz } from "./rng.js";
 
-// Post-mklev startup: u_init_inventory_attrs and moveloop_preamble.
-// 124 leaf RNG calls (regenerated from session data)
+// Post-mklev startup: residual u_init_inventory_attrs calls.
+// The two moveloop_preamble draws are now source-derived in that subsystem.
 export function fastforward_post_mklev() {
     rnd(1000); rn2(20); rnd(2); rn2(6); rn2(11); rn2(10); rn2(10); rn2(100); rn2(20); rn2(1);
     rnd(1000); rnd(2); rn2(6); rnd(1000); rnd(2); rn2(6); rnd(1000); rnd(2); rn2(6); rnd(1000);
@@ -21,7 +21,6 @@ export function fastforward_post_mklev() {
     rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100);
     rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100); rn2(100);
     rn2(100); rn2(100); rn2(100); rn2(20); rn2(20); rn2(20); rn2(7); rn2(20); rn2(20); rn2(20);
-    rnd(9000); rnd(30);
 }
 
 // Per-step leaf RNG calls

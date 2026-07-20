@@ -4,6 +4,7 @@ import test from 'node:test';
 import { PICK_ANY } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
+import { parseNethackrc } from '../js/options.js';
 import { ROLE_NONE, aligns, races, roles } from '../js/roles.js';
 import {
     applyRoleFilterSelection,
@@ -163,6 +164,18 @@ test('PICK_ANY tracks global groups and numeric counts', async () => {
         'a * apples',
         'b + bananas',
     ]);
+});
+
+test('an invalid PICK_ANY key preserves a pending count', async () => {
+    // 12 proves that x is rejected within xwaitforspace(). Escape clears
+    // that count, then a selects the item without a numeric quantity.
+    const state = menuState('12x\x1ba\n');
+    assert.deepEqual(await selectTtyMenu(state, {
+        title: 'Synthetic invalid key while counting',
+        titleAttr: 0,
+        how: PICK_ANY,
+        items: [{ selector: 'a', label: 'apples', value: 'apple' }],
+    }), [{ value: 'apple', count: -1 }]);
 });
 
 test('uppercase selectors commit role, race, and alignment filters', async () => {
@@ -328,4 +341,60 @@ test('MENU_SEARCH applies a pending count and matches the stored dash marker', a
             selected: true,
         }],
     }), []);
+});
+
+test('mapped PICK_ANY commands beat groups but not explicit selectors', async () => {
+    const mappedGroup = menuState('#\n');
+    mappedGroup.iflags = parseNethackrc(
+        'OPTIONS=menu_select_all:#',
+    ).iflags;
+    const items = [
+        {
+            selector: 'a', groupSelector: '#', label: 'alpha', value: 'a',
+        },
+        { selector: 'b', label: 'beta', value: 'b' },
+    ];
+    assert.deepEqual(await selectTtyMenu(mappedGroup, {
+        title: 'Synthetic mapped group collision',
+        titleAttr: 0,
+        how: PICK_ANY,
+        items,
+    }), [
+        { value: 'a', count: -1 },
+        { value: 'b', count: -1 },
+    ]);
+
+    const explicit = menuState('#\n');
+    explicit.iflags = parseNethackrc(
+        'OPTIONS=menu_select_all:#',
+    ).iflags;
+    assert.deepEqual(await selectTtyMenu(explicit, {
+        title: 'Synthetic mapped selector collision',
+        titleAttr: 0,
+        how: PICK_ANY,
+        items: [
+            { selector: '#', label: 'literal hash', value: 'hash' },
+            { selector: 'b', label: 'beta', value: 'b' },
+        ],
+    }), [{ value: 'hash', count: -1 }]);
+});
+
+test('the first duplicate incoming-key mapping wins during menu dispatch', async () => {
+    const state = menuState('#z');
+    state.iflags = parseNethackrc(
+        'OPTIONS=menu_search:#,menu_next_page:#',
+    ).iflags;
+    const items = Array.from({ length: 22 }, (_, index) => ({
+        selector: index === 21 ? 'z' : 'a',
+        label: `choice ${index}`,
+        value: index,
+    }));
+
+    // Right-to-left option parsing appends MENU_NEXT_PAGE first. If the
+    // later duplicate won, '#' would prompt for a search string instead.
+    assert.equal(await selectTtyMenu(state, {
+        title: 'Synthetic duplicate aliases',
+        titleAttr: 0,
+        items,
+    }), 21);
 });

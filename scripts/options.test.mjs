@@ -290,6 +290,88 @@ test('tty menu presentation options populate interface flags', () => {
     }
 });
 
+test('menu command options preserve source alias order and require full names', () => {
+    const defaults = parseNethackrc('');
+    assert.equal(defaults.iflags.mapped_menu_cmds, '');
+    assert.equal(defaults.iflags.mapped_menu_op, '');
+
+    const mapped = parseNethackrc([
+        // # exercises the validator's executable-source quirk, which
+        // disagrees with its preceding prose comment.
+        'OPTIONS=menu_search:#,menu_next_page:{,menu_first_page:}',
+        'OPTIONS=menu_previous_page:\\',
+    ].join('\n'));
+    assert.equal(mapped.iflags.mapped_menu_cmds, '}{#\\');
+    assert.equal(mapped.iflags.mapped_menu_op, '^>:<');
+
+    // parseoptions() handles a comma-separated suffix first. For duplicate
+    // incoming keys, map_menu_cmd() then uses the first appended alias.
+    const collision = parseNethackrc(
+        'OPTIONS=menu_search:#,menu_next_page:#',
+    );
+    assert.equal(collision.iflags.mapped_menu_cmds, '##');
+    assert.equal(collision.iflags.mapped_menu_op, '>:');
+
+    // Aliases on later lines append after earlier ones, so an earlier
+    // incoming-key mapping continues to win.
+    const acrossLines = parseNethackrc([
+        'OPTIONS=menu_search:#',
+        'OPTIONS=menu_next_page:#',
+    ].join('\n'));
+    assert.equal(acrossLines.iflags.mapped_menu_op, ':>');
+
+    // The outer option lookup recognizes these unambiguous prefixes, but
+    // shared_menu_optfn() rechecks against the complete canonical name.
+    for (const abbreviated of ['menu_sea', 'menu_n', 'menu_f']) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=${abbreviated}:#`),
+            /requires its full canonical name/u,
+        );
+    }
+
+    for (const missing of ['menu_search', 'menu_search:']) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=${missing}`),
+            /menu_search requires a value/u,
+        );
+    }
+});
+
+test('BINDINGS adds exact menu command aliases in source recursion order', () => {
+    const parsed = parseNethackrc([
+        'bind=#:menu_search,{:menu_next_page',
+        'BINDINGS=\\:menu_first_page',
+        'BINDINGS=,:menu_select_page',
+        // Non-menu bindings are owned by the gameplay command subsystem.
+        'BINDINGS=x:search',
+    ].join('\n'));
+    assert.equal(parsed.iflags.mapped_menu_cmds, '{#\\,');
+    assert.equal(parsed.iflags.mapped_menu_op, '>:^,');
+});
+
+test('menu command keys use txt2key syntax and source validation', () => {
+    const escaped = parseNethackrc(String.raw`OPTIONS=menu_search:\x23
+OPTIONS=menu_next_page:\o173
+OPTIONS=menu_first_page:125
+OPTIONS=menu_last_page:\m\x23`);
+    assert.equal(escaped.iflags.mapped_menu_cmds, '#{}£');
+    assert.equal(escaped.iflags.mapped_menu_op, ':>^|');
+
+    for (const key of [
+        'a', 'Z', '7', '?', '.', '<space>', '<esc>', String.raw`\n`,
+    ]) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=menu_search:${key}`),
+            /reserved menu command key/u,
+            key,
+        );
+    }
+    assert.throws(
+        () => parseNethackrc('OPTIONS=!menu_search:#'),
+        /may not be negated/u,
+    );
+});
+
 test('comma options apply right-to-left and later rc lines apply afterward', () => {
     // options.c recurses into the suffix first, so the leftmost duplicate is
     // applied last and wins within one comma-separated OPTIONS statement.

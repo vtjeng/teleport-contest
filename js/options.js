@@ -111,6 +111,10 @@ function defaultResult() {
             wc_color: true,
             wc_splash_screen: true,
             menu_overlay: true,
+            // options.c keeps these as parallel, insertion-ordered strings.
+            // The first alias for an incoming key wins in map_menu_cmd().
+            mapped_menu_cmds: '',
+            mapped_menu_op: '',
             menu_headings: {
                 attr: ATR_INVERSE,
                 color: NO_COLOR,
@@ -557,6 +561,208 @@ function setMenuHeadings(result, value, negated, lineNumber) {
     }
 }
 
+// C refs: options.c default_menu_cmd_info[], txt2key(),
+// illegal_menu_cmd_key(), and add_menu_cmd_alias().
+const MENU_COMMAND_OPTIONS = Object.freeze([
+    { name: 'menu_next_page', command: '>' },
+    { name: 'menu_previous_page', command: '<' },
+    { name: 'menu_first_page', command: '^' },
+    { name: 'menu_last_page', command: '|' },
+    { name: 'menu_select_all', command: '.' },
+    { name: 'menu_invert_all', command: '@' },
+    { name: 'menu_deselect_all', command: '-' },
+    { name: 'menu_select_page', command: ',' },
+    { name: 'menu_invert_page', command: '~' },
+    { name: 'menu_deselect_page', command: '\\' },
+    { name: 'menu_search', command: ':' },
+    { name: 'menu_shift_right', command: '}' },
+    { name: 'menu_shift_left', command: '{' },
+]);
+
+const MENU_COMMAND_BY_NAME = Object.freeze(Object.fromEntries(
+    MENU_COMMAND_OPTIONS.map(({ name, command }) => [name, command]),
+));
+
+const DEFAULT_OBJECT_CLASS_SYMBOLS = new Set([
+    ']', ')', '[', '=', '"', '(', '%', '!', '?', '+', '/', '$', '*', '`',
+    '0', '_', '.',
+]);
+
+function menuCommandOption(name) {
+    // parseoptions() initially accepts unambiguous prefixes, but
+    // shared_menu_optfn() calls check_misc_menu_command(), which requires
+    // the complete canonical name. Preserve that handler-level quirk.
+    return MENU_COMMAND_OPTIONS.find(
+        ({ name: canonical }) => canonical === name,
+    ) ?? null;
+}
+
+function isMenuCommandPrefix(name) {
+    return MENU_COMMAND_OPTIONS.some(
+        ({ name: canonical }) => canonical !== name
+            && canonical.startsWith(name),
+    );
+}
+
+function byteOf(character) {
+    return character.charCodeAt(0) & 0xFF;
+}
+
+function metaByte(byte) {
+    return (byte | 0x80) & 0xFF;
+}
+
+function firstEscapedByte(text) {
+    // escapes() only matters through its first output byte here because
+    // txt2key() immediately returns tbuf[0].
+    if (text.length < 2) return byteOf('\\');
+    let index = 0;
+    const meta = text[index] === '\\'
+        && (text[index + 1] === 'm' || text[index + 1] === 'M')
+        && index + 2 < text.length;
+    if (meta) index += 2;
+
+    let value;
+    const current = text[index];
+    const next = text[index + 1];
+    if ((current !== '\\' && current !== '^') || next === undefined) {
+        value = byteOf(current);
+    } else if (current === '^') {
+        value = byteOf(next) & 0x1F;
+    } else if (next >= '0' && next <= '9') {
+        const match = text.slice(index + 1).match(/^\d{1,3}/u);
+        value = Number.parseInt(match[0], 10) & 0xFF;
+    } else if ((next === 'o' || next === 'O')
+        && /[0-7]/u.test(text[index + 2] ?? '')) {
+        const match = text.slice(index + 2).match(/^[0-7]{1,3}/u);
+        value = Number.parseInt(match[0], 8) & 0xFF;
+    } else if ((next === 'x' || next === 'X')
+        && /[0-9a-f]/iu.test(text[index + 2] ?? '')) {
+        const match = text.slice(index + 2).match(/^[0-9a-f]{1,2}/iu);
+        value = Number.parseInt(match[0], 16) & 0xFF;
+    } else {
+        const escaped = {
+            '\\': '\\',
+            n: '\n',
+            t: '\t',
+            b: '\b',
+            r: '\r',
+        }[next] ?? next;
+        value = byteOf(escaped);
+    }
+    return meta ? metaByte(value) : value;
+}
+
+function textToKey(text) {
+    let value = String(text).trim();
+    if (!value) return 0;
+    if (value.length === 1) return byteOf(value);
+    if (value === '<enter>') return 10;
+    if (value === '<space>') return 32;
+    if (value === '<esc>') return 27;
+    if (value[0] === '\\') return firstEscapedByte(value);
+
+    let meta = false;
+    if (value[0].toUpperCase() === 'M') {
+        value = value.slice(1);
+        if (value[0] === '-' && value.length > 1) value = value.slice(1);
+        if (value.length === 1) return metaByte(byteOf(value));
+        meta = true;
+    }
+    if (value[0] === '^' || value[0]?.toUpperCase() === 'C') {
+        const original = value[0];
+        if (value.length === 1) {
+            const byte = byteOf(original);
+            return meta ? metaByte(byte) : byte;
+        }
+        value = value.slice(1);
+        if (value[0] === '-' && value.length > 1) value = value.slice(1);
+        const byte = value[0] === '?' ? 127 : byteOf(value[0]) & 0x1F;
+        return meta ? metaByte(byte) : byte;
+    }
+    if (meta && value) return metaByte(byteOf(value));
+
+    if (/^\d{3}/u.test(value)) {
+        return Number.parseInt(value.slice(0, 3), 10) & 0xFF;
+    }
+    return 0;
+}
+
+function illegalMenuCommandKey(key) {
+    const ch = String.fromCharCode(key);
+    const sourceLetter = (key >= 64 && key <= 90)
+        || (key >= 97 && key <= 122);
+    if (key === 0 || key === 10 || key === 13 || key === 27 || key === 32
+        || (key >= 48 && key <= 57) || (sourceLetter && key !== 64)) {
+        return true;
+    }
+    // The comment above illegal_menu_cmd_key() also lists '#', but the
+    // executable source omits it. Preserve that upstream quirk.
+    return DEFAULT_OBJECT_CLASS_SYMBOLS.has(ch);
+}
+
+function addMenuCommandAlias(result, fromKey, command) {
+    if (result.iflags.mapped_menu_cmds.length >= 32) return;
+    result.iflags.mapped_menu_cmds += String.fromCharCode(fromKey);
+    result.iflags.mapped_menu_op += command;
+}
+
+function setMenuCommandOption(
+    result, descriptor, value, negated, lineNumber,
+) {
+    if (negated) {
+        optionError(lineNumber, `${descriptor.name} may not be negated`);
+    }
+    if (value == null || value === '') {
+        optionError(lineNumber, `${descriptor.name} requires a value`);
+    }
+    const key = textToKey(value);
+    if (illegalMenuCommandKey(key)) {
+        optionError(lineNumber, `reserved menu command key '${value}'`);
+    }
+    addMenuCommandAlias(result, key, descriptor.command);
+}
+
+function bindingSeparator(bindings) {
+    let separator = bindings.indexOf(',');
+    if (separator === 0) separator = bindings.indexOf(',', 1);
+    else if (separator > 0
+        && (bindings[separator - 1] === '\\'
+            || (bindings[separator - 1] === "'"
+                && bindings[separator + 1] === "'"))) {
+        separator = bindings.indexOf(',', separator + 2);
+    }
+    return separator;
+}
+
+function applyMenuBinding(result, binding, lineNumber) {
+    const colon = binding.indexOf(':');
+    if (colon < 0) return;
+    const keyText = binding.slice(0, colon);
+    const commandName = binding.slice(colon + 1).trim();
+    const command = MENU_COMMAND_BY_NAME[commandName];
+    // Other valid gameplay bindings belong to the command subsystem rather
+    // than this startup parser; retain only menu aliases here.
+    if (command === undefined) return;
+    const key = textToKey(keyText);
+    if (!key || illegalMenuCommandKey(key)) {
+        optionError(lineNumber, `reserved menu command key '${keyText}'`);
+    }
+    addMenuCommandAlias(result, key, command);
+}
+
+// C ref: options.c parsebindings(). Comma-separated bindings recurse into
+// their suffix, so the rightmost alias is appended first and wins collisions.
+function applyMenuBindings(result, bindings, lineNumber) {
+    const separator = bindingSeparator(bindings);
+    if (separator >= 0) {
+        applyMenuBindings(result, bindings.slice(separator + 1), lineNumber);
+        applyMenuBinding(result, bindings.slice(0, separator), lineNumber);
+    } else {
+        applyMenuBinding(result, bindings, lineNumber);
+    }
+}
+
 function applyBooleanOption(result, name, value, negated, lineNumber) {
     const enabled = booleanValue(value, negated, name, lineNumber);
     if (name === 'female' || name === 'male') {
@@ -595,6 +801,8 @@ function applyOption(result, optionState, option, lineNumber) {
 
     if (!name) optionError(lineNumber, 'empty option');
 
+    const menuCommand = menuCommandOption(name);
+
     if (name === 'name') {
         result.name = truncateName(
             requireValue(value, name, negated, lineNumber),
@@ -620,6 +828,15 @@ function applyOption(result, optionState, option, lineNumber) {
         setPlaymode(result, value, negated, lineNumber);
     } else if (name === 'menu_headings') {
         setMenuHeadings(result, value, negated, lineNumber);
+    } else if (menuCommand) {
+        setMenuCommandOption(
+            result, menuCommand, value, negated, lineNumber,
+        );
+    } else if (isMenuCommandPrefix(name)) {
+        optionError(
+            lineNumber,
+            `menu command option '${name}' requires its full canonical name`,
+        );
     } else if (name === 'pettype' || name === 'pet') {
         setPettype(result, value, negated, lineNumber);
     } else if (name === 'catname' || name === 'dogname'
@@ -703,6 +920,13 @@ export function parseNethackrc(rc) {
                     applyOption(result, optionState, option, lineNumber);
                 }
             }
+            continue;
+        }
+
+        const bindingsMatch = /^(BIND(?:I(?:N(?:G(?:S)?)?)?)?)\s*[:=]\s*(.*)$/iu
+            .exec(line);
+        if (bindingsMatch) {
+            applyMenuBindings(result, bindingsMatch[2], lineNumber);
             continue;
         }
 

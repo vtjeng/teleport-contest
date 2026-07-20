@@ -22,6 +22,13 @@ export async function nhgetch() {
     const hook = game._preNhgetchHook;
     if (hook) await hook();
 
+    // C ref: win/tty/wintty.c tty_nhgetch().  The recorder marker is
+    // emitted before WIN_STOP is cleared, then every actual key wait makes
+    // later messages visible again.  Keep this after the capture hook so an
+    // Escape-dismissed More boundary suppresses messages through precisely
+    // the next recorded input boundary.
+    game._ttyMessageStopped = false;
+
     if (_inputQueue.length > 0) {
         return _inputQueue.shift();
     }

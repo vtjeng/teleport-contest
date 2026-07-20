@@ -262,6 +262,27 @@ function keyCharacter(code) {
     return String.fromCharCode(code & 0xFF);
 }
 
+// C ref: options.c map_menu_cmd(). Aliases are never replacements: the
+// incoming-key strings retain insertion order and their first match wins.
+function menuCommandMapping(state, ch) {
+    const mappedKeys = state.iflags?.mapped_menu_cmds
+        ?? state.mapped_menu_cmds ?? '';
+    const mappedCommands = state.iflags?.mapped_menu_op
+        ?? state.mapped_menu_op ?? '';
+    const index = mappedKeys.indexOf(ch);
+    const mapped = index >= 0 && index < mappedCommands.length;
+    return {
+        command: mapped ? mappedCommands[index] : ch,
+        mapped,
+    };
+}
+
+function isDefaultMenuResponse(ch) {
+    return ch === '\0' || ch === '\x1b' || ch === '\n' || ch === '\r'
+        || ch === ' ' || (ch >= '0' && ch <= '9')
+        || '^|><.-@,\\~:'.includes(ch);
+}
+
 function writeToplineCharacter(display, ch) {
     // topl_putsym() wraps before the terminal's final column, leaving that
     // column unused.  tty_getlin() limits input to COLNO characters.
@@ -436,24 +457,149 @@ function pickOneSearchEntries(state, spec) {
     return entries;
 }
 
-async function selectOneTtyMenu(state, spec) {
-    const rendered = renderTtyMenu(state, spec);
+function sourceChoiceSelector(line) {
+    const text = typeof line === 'string'
+        ? line : String(line?.text ?? line?.label ?? '');
+    return text.length >= 4 && text[1] === ' '
+        && '-+*#'.includes(text[2]) && text[3] === ' '
+        ? text[0] : '';
+}
+
+function pickOneGroupChoices(spec) {
+    if (spec.items) {
+        const grouped = new Map();
+        const counts = new Map();
+        for (const item of selectableItems(spec)) {
+            if (!item.groupSelector) continue;
+            counts.set(
+                item.groupSelector,
+                (counts.get(item.groupSelector) ?? 0) + 1,
+            );
+            grouped.set(item.groupSelector, item.value);
+        }
+        return new Map([...grouped].filter(([selector]) => (
+            counts.get(selector) === 1
+        )));
+    }
+
     const choices = spec.choices ?? new Map();
-    const itemChoices = visibleItems(rendered);
+    const lineSelectors = new Set(
+        (spec.lines ?? []).map(sourceChoiceSelector).filter(Boolean),
+    );
+    return new Map([...choices].filter(([selector]) => (
+        !lineSelectors.has(selector)
+    )));
+}
+
+function visiblePickOneChoice(rendered, spec, groupChoices, ch) {
+    const explicitItem = visibleItems(rendered).find(
+        (item) => item.selector === ch,
+    );
+    if (explicitItem) return { found: true, value: explicitItem.value };
+
+    if (!spec.items) {
+        const choices = spec.choices ?? new Map();
+        const explicitLine = rendered.layout.lines.find(
+            (line) => sourceChoiceSelector(line) === ch,
+        );
+        if (explicitLine && choices.has(ch)) {
+            return { found: true, value: choices.get(ch) };
+        }
+    }
+    if (groupChoices.has(ch)) {
+        return { found: true, value: groupChoices.get(ch) };
+    }
+    return { found: false, value: undefined };
+}
+
+function unsetPickOneLines(state, spec, rendered, allPages) {
+    if (spec.items) {
+        const candidates = allPages
+            ? selectableItems(spec) : visibleItems(rendered);
+        const changed = setItems(candidates, false);
+        refreshVisibleSelections(state, rendered, changed);
+        return;
+    }
+
+    const firstGlobalLine = allPages
+        ? 0 : rendered.layout.pageIndex * rendered.layout.pageSize;
+    const lastGlobalLine = allPages
+        ? rendered.layout.allLines.length
+        : firstGlobalLine + rendered.layout.lines.length;
+    for (let globalLine = firstGlobalLine;
+        globalLine < lastGlobalLine; ++globalLine) {
+        const bodyIndex = globalLine - 2;
+        if (bodyIndex < 0 || bodyIndex >= (spec.lines?.length ?? 0)) continue;
+        const line = spec.lines[bodyIndex];
+        const text = typeof line === 'string'
+            ? line : String(line?.text ?? line?.label ?? '');
+        if (text.length < 4 || text[1] !== ' '
+            || !'+*#'.includes(text[2]) || text[3] !== ' ') continue;
+        const replacement = `${text.slice(0, 2)}-${text.slice(3)}`;
+        if (typeof line === 'string') spec.lines[bodyIndex] = replacement;
+        else if (Object.hasOwn(line, 'text')) line.text = replacement;
+        else line.label = replacement;
+
+        if (globalLine >= rendered.layout.pageIndex * rendered.layout.pageSize
+            && globalLine < (rendered.layout.pageIndex + 1)
+                * rendered.layout.pageSize) {
+            const localRow = globalLine
+                - rendered.layout.pageIndex * rendered.layout.pageSize;
+            state.nhDisplay.setCell(
+                rendered.layout.startColumn + 2,
+                localRow,
+                '-',
+                line?.color ?? NO_COLOR,
+                line?.attr ?? 0,
+            );
+        }
+    }
+}
+
+async function selectOneTtyMenu(state, spec) {
+    const workingSpec = {
+        ...spec,
+        lines: spec.lines?.map((line) => (
+            typeof line === 'object' && line !== null ? { ...line } : line
+        )),
+        items: spec.items?.map((item) => {
+            if (typeof item !== 'object' || item === null) return item;
+            if (!Object.hasOwn(item, 'value')) return { ...item };
+            return {
+                ...item,
+                selected: Boolean(item.selected),
+                count: Number.isInteger(item.count) ? item.count : -1,
+            };
+        }),
+    };
+    const groupChoices = pickOneGroupChoices(workingSpec);
+    let pageIndex = 0;
+    let rendered = renderTtyMenu(state, workingSpec, pageIndex);
     let pendingCount = null;
     for (;;) {
         const code = await nhgetch();
-        const ch = keyCharacter(code);
-        const explicitItem = itemChoices.find(
-            (item) => item.selector === ch,
+        const incoming = keyCharacter(code);
+        // process_menu_window() protects current-page selectors and unique
+        // PICK_ONE group accelerators before applying a menu-key alias.
+        const explicit = visiblePickOneChoice(
+            rendered, workingSpec, groupChoices, incoming,
         );
-        if (explicitItem || choices.has(ch)) {
-            const result = explicitItem?.value ?? choices.get(ch);
+        if (explicit.found) {
             dismissTtyMenu(state, rendered);
-            return result;
+            return explicit.value;
         }
 
-        if (code === 0 || code === 27) {
+        const mapping = menuCommandMapping(state, incoming);
+        const ch = mapping.command;
+
+        // A mapped key can resolve to a unique group accelerator.  The C
+        // dispatcher maps it before its fallback group-accelerator branch.
+        if (groupChoices.has(ch)) {
+            dismissTtyMenu(state, rendered);
+            return groupChoices.get(ch);
+        }
+
+        if (ch === '\0' || ch === '\x1b') {
             if (pendingCount !== null) {
                 pendingCount = null;
                 continue;
@@ -485,12 +631,66 @@ async function selectOneTtyMenu(state, spec) {
             continue;
         }
 
-        pendingCount = null;
-        if (code === 10 || code === 13 || code === 32) {
-            if (!Object.hasOwn(spec, 'preselected')) continue;
+        if (ch === '\n' || ch === '\r') {
+            pendingCount = null;
+            if (!Object.hasOwn(spec, 'preselected')
+                && !Object.hasOwn(spec, 'emptyValue')) continue;
             dismissTtyMenu(state, rendered);
-            return spec.preselected;
+            return Object.hasOwn(spec, 'preselected')
+                ? spec.preselected : spec.emptyValue;
         }
+        if (ch === ' ' || ch === MENU_NEXT_PAGE) {
+            pendingCount = null;
+            if (pageIndex + 1 < rendered.layout.pageCount) {
+                ++pageIndex;
+                rendered = renderTtyMenu(
+                    state, workingSpec, pageIndex,
+                );
+            } else if (ch === ' '
+                && (Object.hasOwn(spec, 'preselected')
+                    || Object.hasOwn(spec, 'emptyValue'))) {
+                dismissTtyMenu(state, rendered);
+                return Object.hasOwn(spec, 'preselected')
+                    ? spec.preselected : spec.emptyValue;
+            }
+            continue;
+        }
+        if (ch === MENU_PREVIOUS_PAGE && pageIndex > 0) {
+            pendingCount = null;
+            --pageIndex;
+            rendered = renderTtyMenu(state, workingSpec, pageIndex);
+            continue;
+        }
+        if (ch === MENU_FIRST_PAGE && pageIndex !== 0) {
+            pendingCount = null;
+            pageIndex = 0;
+            rendered = renderTtyMenu(state, workingSpec, pageIndex);
+            continue;
+        }
+        if (ch === MENU_LAST_PAGE
+            && pageIndex + 1 !== rendered.layout.pageCount) {
+            pendingCount = null;
+            pageIndex = rendered.layout.pageCount - 1;
+            rendered = renderTtyMenu(state, workingSpec, pageIndex);
+            continue;
+        }
+        if (ch === MENU_UNSELECT_PAGE || ch === MENU_UNSELECT_ALL) {
+            pendingCount = null;
+            unsetPickOneLines(
+                state,
+                workingSpec,
+                rendered,
+                ch === MENU_UNSELECT_ALL,
+            );
+            continue;
+        }
+
+        // xwaitforspace() rejects an unknown byte internally, without
+        // returning to process_menu_window() and resetting its count.  A
+        // recognized default or mapped command still consumes the count
+        // even when that command is a no-op for PICK_ONE or this page.
+        if (mapping.mapped || isDefaultMenuResponse(incoming))
+            pendingCount = null;
     }
 }
 
@@ -596,9 +796,13 @@ async function selectAnyTtyMenu(state, spec) {
 
     for (;;) {
         const code = await nhgetch();
-        const ch = keyCharacter(code);
+        const incoming = keyCharacter(code);
         const currentItems = visibleItems(rendered);
-        const explicit = currentItems.find((item) => item.selector === ch);
+        // Current-page selectors are the only PICK_ANY choices protected
+        // from a mapped menu command.
+        const explicit = currentItems.find(
+            (item) => item.selector === incoming,
+        );
         if (explicit) {
             const changed = toggleItem(explicit, pendingCount)
                 ? new Set([explicit]) : new Set();
@@ -607,17 +811,26 @@ async function selectAnyTtyMenu(state, spec) {
             continue;
         }
 
+        const mapping = menuCommandMapping(state, incoming);
+        const ch = mapping.command;
+        const incomingGrouped = allItems.some((item) => (
+            item.groupSelector === incoming
+            && item.groupSelector !== item.selector
+        ));
+        const acceptedIncoming = mapping.mapped || incomingGrouped
+            || isDefaultMenuResponse(incoming);
         const grouped = allItems.filter((item) => (
             item.groupSelector === ch && item.groupSelector !== item.selector
         ));
-        if (grouped.length && !(ch >= '0' && ch <= '9' && pendingCount !== null)) {
-            const changed = invertItems(grouped, pendingCount);
-            pendingCount = null;
-            refreshVisibleSelections(state, rendered, changed);
-            continue;
-        }
 
         if (ch >= '0' && ch <= '9') {
+            // process_menu_window() gives a digit group accelerator its
+            // one special chance before starting a count.
+            if (pendingCount === null && grouped.length) {
+                const changed = invertItems(grouped);
+                refreshVisibleSelections(state, rendered, changed);
+                continue;
+            }
             const digit = ch.charCodeAt(0) - '0'.charCodeAt(0);
             const previous = pendingCount ?? 0;
             const next = previous * 10 + digit;
@@ -657,7 +870,7 @@ async function selectAnyTtyMenu(state, spec) {
             restoreMenuInputCursor(state, rendered);
             continue;
         }
-        pendingCount = null;
+        const commandCount = pendingCount;
 
         if (code === 10 || code === 13) {
             dismissTtyMenu(state, rendered);
@@ -666,6 +879,7 @@ async function selectAnyTtyMenu(state, spec) {
                 .map((item) => ({ value: item.value, count: item.count }));
         }
         if (ch === ' ' || ch === MENU_NEXT_PAGE) {
+            pendingCount = null;
             if (pageIndex + 1 < rendered.layout.pageCount) {
                 ++pageIndex;
                 rendered = renderTtyMenu(state, workingSpec, pageIndex);
@@ -678,17 +892,20 @@ async function selectAnyTtyMenu(state, spec) {
             continue;
         }
         if (ch === MENU_PREVIOUS_PAGE && pageIndex > 0) {
+            pendingCount = null;
             --pageIndex;
             rendered = renderTtyMenu(state, workingSpec, pageIndex);
             continue;
         }
         if (ch === MENU_FIRST_PAGE && pageIndex !== 0) {
+            pendingCount = null;
             pageIndex = 0;
             rendered = renderTtyMenu(state, workingSpec, pageIndex);
             continue;
         }
         if (ch === MENU_LAST_PAGE
             && pageIndex + 1 !== rendered.layout.pageCount) {
+            pendingCount = null;
             pageIndex = rendered.layout.pageCount - 1;
             rendered = renderTtyMenu(state, workingSpec, pageIndex);
             continue;
@@ -707,16 +924,22 @@ async function selectAnyTtyMenu(state, spec) {
             changed = setItems(allItems, false);
         } else if (ch === MENU_INVERT_ALL) {
             changed = invertItems(allItems);
+        } else if (grouped.length) {
+            changed = invertItems(grouped, commandCount);
         } else {
+            if (acceptedIncoming) pendingCount = null;
             continue;
         }
+        pendingCount = null;
         refreshVisibleSelections(state, rendered, changed);
     }
 }
 
-// PICK_ONE retains the established scalar return value. PICK_ANY mirrors
-// tty_select_menu() with an ordered array of { value, count } entries, an
-// empty array for an empty commit, and cancelValue (null by default) for Esc.
+// PICK_ONE retains the established scalar return value. Its preselected and
+// optional emptyValue fields let source callers interpret select_menu()'s
+// unusual zero-selection result. PICK_ANY mirrors tty_select_menu() with an
+// ordered array of { value, count } entries, an empty array for an empty
+// commit, and cancelValue (null by default) for Esc.
 export async function selectTtyMenu(state = game, spec) {
     const how = spec.how ?? PICK_ONE;
     return how === PICK_ANY

@@ -12,8 +12,10 @@ import { init_dungeons } from './dungeon.js';
 import { init_artifacts } from './artifacts.js';
 import { role_init, welcomeMessage } from './role_init.js';
 import { u_init_misc } from './u_init.js';
+import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { rhack } from './cmd.js';
-import { docrt, cls, bot, flush_screen, pline } from './display.js';
+import { docrt, cls, bot, flush_screen } from './display.js';
+import { ttyPline } from './tty_message.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
 import {
     fastforward_post_mklev,
@@ -61,8 +63,7 @@ export async function newgame() {
     // is part of mklev(), so hero placement follows it.
     u_on_upstairs();
 
-    // Fast-forward through post-mklev startup RNG calls.
-    // Covers: u_init_inventory_attrs and moveloop_preamble.
+    // Fast-forward through the unported inventory/attribute startup RNG.
     fastforward_post_mklev();
 
     // Residual state owned by the unported inventory/attribute startup. Hero
@@ -82,8 +83,11 @@ export async function newgame() {
     await flush_screen(1);
     await bot();
 
-    // Welcome message
-    await pline(welcomeMessage(g));
+    // C ref: allmain.c newgame() -> com_pager("legacy").
+    await ttyLegacyIntroduction(g);
+
+    // C ref: allmain.c welcome(TRUE) -> pline().
+    await ttyPline(welcomeMessage(g), g);
 }
 
 // C ref: allmain.c moveloop_core()
@@ -104,9 +108,6 @@ export async function moveloop_core() {
 
     // Read and execute one command
     await rhack(0);
-
-    // Clear message after command is processed
-    g._pending_message = '';
 
     // Advance turn
     if (g.context?.move) {

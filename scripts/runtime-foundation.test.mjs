@@ -214,19 +214,97 @@ test('tty startup ignores the window-port splash option', async () => {
     assert.equal(nhGame._nhgetchCount, 1);
 });
 
-test('runSegment rejects startup paths whose remaining boundaries are unported', async () => {
-    const character = 'role:Tourist,race:human,gender:female,align:neutral';
-    // This arbitrary seed never reaches a draw; it stops at the post-selection
-    // pages that remain outside the current startup port.
+test('runSegment reaches the configured legacy introduction boundary', async () => {
+    const nhGame = await runSegment({
+        // This arbitrary seed exercises the full startup path; the story text
+        // itself is deterministic and consumes no PRNG values.
+        seed: 223607,
+        datetime: '20401231235958',
+        nethackrc: 'OPTIONS=name:Legacy,role:Caveman,race:human,'
+            + 'gender:female,align:neutral,legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+
+    const screen = game.nhDisplay.grid.map(
+        (row) => row.map((cell) => cell.ch).join(''),
+    ).join('\n');
+    assert.match(screen, /It is written in the Book of Ishtar:/u);
+    assert.match(screen, /Your goddess Ishtar seeks to possess/u);
+    assert.equal(nhGame.getCursors().length, 1);
+});
+
+test('runSegment shows welcome More before an unset tutorial query', async () => {
+    const input = {
+        // This arbitrary seed is independent of development recordings; the
+        // boundary under test itself consumes no random values.
+        seed: 730201,
+        datetime: '20440517091327',
+        nethackrc: 'OPTIONS=name:TutorialNo,role:Healer,race:human,'
+            + 'gender:male,align:neutral,!legacy,!splash_screen',
+    };
+    const welcome = await runSegment({ ...input, moves: '' });
+    assert.deepEqual(welcome.getCursors(), [[8, 1, 1]]);
+    let screen = game.nhDisplay.grid.map(
+        (row) => row.map((cell) => cell.ch).join(''),
+    ).join('\n');
+    assert.match(screen, /Hello TutorialNo,/u);
+    assert.match(screen, /--More--/u);
+
+    // Space dismisses More, then 'n' declines the tutorial.  The final
+    // boundary is the ordinary first command prompt.
+    const declined = await runSegment({ ...input, moves: ' n' });
+    assert.equal(declined.getCursors().length, 3);
+    screen = game.nhDisplay.grid.map(
+        (row) => row.map((cell) => cell.ch).join(''),
+    ).join('\n');
+    assert.doesNotMatch(screen, /Do you want a tutorial\?/u);
+});
+
+test('configured tutorial choices skip the query or stop at its transition', async () => {
+    const common = 'OPTIONS=name:TutorialConfigured,role:Healer,race:human,'
+        + 'gender:male,align:neutral,!legacy,!splash_screen,';
+    const skipped = await runSegment({
+        seed: 730202,
+        datetime: '20440517091328',
+        nethackrc: `${common}!tutorial`,
+        moves: '',
+    });
+    assert.equal(skipped.getCursors().length, 1);
+    const screen = game.nhDisplay.grid.map(
+        (row) => row.map((cell) => cell.ch).join(''),
+    ).join('\n');
+    assert.doesNotMatch(screen, /Do you want a tutorial\?/u);
+
     await assert.rejects(
         runSegment({
-            seed: 173205,
-            datetime: '20401231235958',
-            nethackrc: `OPTIONS=name:Boundary,${character}`,
-            moves: '',
+            seed: 730203,
+            datetime: '20440517091329',
+            nethackrc: `${common}tutorial`,
+            // The configured name makes welcome() wrap; Space dismisses its
+            // immediate TTY More boundary before the configured transition.
+            moves: ' ',
         }),
-        /disable tutorial, legacy/u,
+        /tut-1 special-level transition is not implemented/u,
     );
+});
+
+test('a command message remains on the next command screen', async () => {
+    const nhGame = await runSegment({
+        // The long name forces welcome() through More. With rest_on_space
+        // disabled, the following Space is an invalid command whose source
+        // diagnostic must survive the next redraw.
+        seed: 730204,
+        datetime: '20260129120000',
+        nethackrc: 'OPTIONS=name:MessageRetention,role:Tourist,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + '!rest_on_space',
+        moves: '  ',
+    });
+    const topline = game.nhDisplay.grid[0]
+        .map((cell) => cell.ch).join('').trimEnd();
+
+    assert.equal(nhGame._nhgetchCount, 3);
+    assert.equal(topline, "Unknown command ' '.");
 });
 
 test('version constants match the pinned NetHack release', () => {
