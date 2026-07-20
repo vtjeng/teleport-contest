@@ -10,6 +10,7 @@ import { GameMap } from './game.js';
 import { rn2, rnd, rn1 } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import { depth as depth_of_level } from './hacklib.js';
+import { oinit } from './o_init.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
@@ -25,7 +26,10 @@ import {
     LR_UPTELE,
 } from './const.js';
 
-// Object/class constants (normally from objects.js, not in contest template)
+// Legacy object-creation replay scaffolding. These pre-catalog numeric IDs
+// belong to the current stubs and must not be reused as canonical constants.
+// Replace the IDs and range heuristics together in a coherent mkobj port;
+// swapping them alone would change replay-era behavior without porting it.
 const RANDOM_CLASS = 0;
 const WEAPON_CLASS = 1;
 const ARMOR_CLASS = 2;
@@ -178,9 +182,6 @@ export function u_on_upstairs() {
     // Random placement via place_lregion
     place_lregion(0, 0, 0, 0, 0, 0, 0, 0, LR_UPTELE, null);
 }
-
-// oinit stub (level-dependent object probability reset)
-function oinit() { /* no-op for contest */ }
 
 // level_difficulty stub
 function level_difficulty() {

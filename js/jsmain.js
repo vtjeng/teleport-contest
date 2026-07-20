@@ -16,6 +16,8 @@ import { newgame, moveloop_core } from './allmain.js';
 import { parseNethackrc } from './options.js';
 import { flush_screen } from './display.js';
 import { GameDisplay } from './game_display.js';
+import { setStorageForTesting } from './storage.js';
+import { objects_globals_init } from './objects.js';
 
 // ── NethackGame ──
 // Wraps a single game session with replay infrastructure.
@@ -84,6 +86,13 @@ export class NethackGame {
 
     async start() {
         const g = resetGame();
+        // C ref: allmain.c early_init() — mutable object names must exist
+        // before options can customize them; init_objects() runs later.
+        objects_globals_init(g);
+        setStorageForTesting(this._storage);
+        // Recorder patch 001 routes calendar.c:getnow() through this fixed
+        // YYYYMMDDHHMMSS value. A future calendar.js should read this field.
+        g.fixedDatetime = this._datetime;
 
         // Parse nethackrc
         const opts = parseNethackrc(this._nethackrc);
@@ -190,10 +199,10 @@ export class NethackGame {
 // this segment. The harness concatenates them itself. Cross-segment
 // C-side state (bones, record file, save) lives in `input.storage`.
 export async function runSegment(input) {
-    const { seed, nethackrc, storage } = input;
+    const { seed, datetime, nethackrc, storage } = input;
     const moves = input.moves || '';
 
-    const nhGame = new NethackGame({ seed, nethackrc, storage });
+    const nhGame = new NethackGame({ seed, datetime, nethackrc, storage });
 
     const display = new GameDisplay(null);
     display.onEmptyQueue = () => { throw new Error('Input queue empty - test may be missing keystrokes'); };
@@ -218,4 +227,3 @@ export async function runSegment(input) {
 
     return nhGame;
 }
-

@@ -27,8 +27,8 @@ import { CLR_BLACK, CLR_BLUE, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_GREEN
 export function SIZE(arr) { return arr.length; }
 
 // Version (patchlevel.h)
-export const VERSION_MAJOR = 3;
-export const VERSION_MINOR = 7;
+export const VERSION_MAJOR = 5;
+export const VERSION_MINOR = 0;
 export const PATCHLEVEL = 0;
 export const VERSION_STRING = `NetHack ${VERSION_MAJOR}.${VERSION_MINOR}.${PATCHLEVEL} Teleport #${COMMIT_NUMBER}`;
 export const TELEPORT_BANNER_C = `         Version ${VERSION_MAJOR}.${VERSION_MINOR}.${PATCHLEVEL}-134 Teleport JS (experiment ${COMMIT_NUMBER}) ${TELEPORT_BUILD_DATE}.`;

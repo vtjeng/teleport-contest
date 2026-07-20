@@ -4,6 +4,8 @@
   "description": "The Teleport Coding Challenge — Port NetHack C to JavaScript",
   "type": "module",
   "scripts": {
+    "test": "node --test scripts/*.test.mjs",
+    "check:objects": "node scripts/generate-objects.mjs --check",
     "score": "bash frozen/score.sh",
     "play": "echo 'Open index.html in a browser to play'"
   },

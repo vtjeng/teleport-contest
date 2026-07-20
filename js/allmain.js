@@ -7,6 +7,7 @@
 import { game } from './gstate.js';
 import { rn2 } from './rng.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
+import { init_objects } from './o_init.js';
 import { rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen, pline } from './display.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
@@ -16,12 +17,15 @@ import { fastforward_pre_mklev, fastforward_post_mklev, fastforward_step, fastfo
 export async function newgame() {
     const g = game;
 
-    // Fast-forward through pre-mklev startup RNG calls.
-    // Covers: o_init (shuffles), dungeon init, u_init_misc.
+    // C ref: allmain.c newgame() — must precede role and hero setup.
+    init_objects();
+
+    // Residual replay for pre-mklev startup behavior not ported yet.
+    // Covers Lua/dungeon initialization and u_init_misc.
     fastforward_pre_mklev();
 
-    // C ref: allmain.c l_nhcore_init() — shuffle align[] for Lua
-    // Consumes rn2(3), rn2(2) matching session indices 309-310
+    // C ref: allmain.c l_nhcore_init() — shuffle align[] for Lua.
+    // The two source calls are implemented by mklev.js.
     l_nhcore_init();
 
     // Set up game state needed by mklev
