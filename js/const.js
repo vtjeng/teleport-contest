@@ -435,34 +435,6 @@ export const MTSZ = 4;
 export const SQSRCHRADIUS = 5;
 export const FARAWAY = 127;
 
-// Dungeon branch indices (include/dungeon.h / src/dungeon.c)
-// Runtime fields:
-// - level coordinates: `lev.dnum` / `_genDnum`
-// - special-level registry keys and branch-selection predicates
-export const DUNGEONS_OF_DOOM = 0;
-export const GNOMISH_MINES = 1;
-export const SOKOBAN = 2;
-export const QUEST = 3;
-export const KNOX = 4;
-export const GEHENNOM = 5;
-export const VLADS_TOWER = 6;
-export const TUTORIAL = 8;
-
-// C ref: dungeon.c init_dungeons() -> svd.dungeons[dnum].flags.align
-export const DUNGEON_ALIGN_BY_DNUM = {
-    [DUNGEONS_OF_DOOM]: A_NONE,
-    [GNOMISH_MINES]: A_LAWFUL,
-    [SOKOBAN]: A_NEUTRAL,
-    [QUEST]: A_NONE,
-    [KNOX]: A_NONE,
-    [GEHENNOM]: A_NONE,
-    [VLADS_TOWER]: A_CHAOTIC,
-    // C ref: dungeon.lua tutorial has flags={"mazelike","unconnected"}.
-    // UNCONNECTED=0x10 overlaps D_ALIGN_MASK=0x70: (0x14 & 0x70) >> 4 = 1 = AM_CHAOTIC.
-    // This is a C quirk — the UNCONNECTED flag bleeds into the alignment mask.
-    [TUTORIAL]: A_CHAOTIC,
-};
-
 // Build-specific constants: hand-pinned for deterministic replay.
 // These come from date.h and change every C rebuild, so the generator skips them.
 export const BUILD_DATE = "Sun May  3 01:27:17 2026";
