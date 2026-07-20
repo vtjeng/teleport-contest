@@ -4,6 +4,7 @@
 import { A_CON, MAXULEV, NUM_ATTRS } from './const.js';
 import { game } from './gstate.js';
 import { rn2, rnd } from './rng.js';
+import { aligns } from './roles.js';
 
 function roleAndRace(state) {
     if (!state?.urole || !state?.urace) {
@@ -38,7 +39,7 @@ export function newhp(state = game, random = { rnd }) {
         if (raceRandom > 0) hp += random.rnd(raceRandom);
         if ((state.moves ?? 0) === 0) {
             if (!u.ualign) u.ualign = {};
-            u.ualign.type = state.aligns?.[state.flags?.initalign]?.value ?? 0;
+            u.ualign.type = aligns[state.flags?.initalign]?.value ?? 0;
             u.ualign.record = Math.trunc(role.initrecord ?? 0);
         }
     } else {

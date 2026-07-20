@@ -12,11 +12,6 @@ function baseState() {
     return {
         moves: 0,
         flags: { initalign: 1 },
-        aligns: [
-            { value: 1 },
-            { value: 0 },
-            { value: -1 },
-        ],
         urole: {
             filecode: 'Hea',
             xlev: 10,
@@ -61,6 +56,17 @@ test('newhp and newpw preserve initial advancement order and alignment state', (
     assert.equal(state.u.uhpinc[0], 14);
     assert.equal(newpw(state, random), 9);
     assert.equal(state.u.ueninc[0], 9);
+    random.done();
+});
+
+test('newhp reads initial alignment from the canonical role table', () => {
+    const state = baseState();
+    // Chaotic catches the old state.aligns fallback, which silently produced
+    // neutral when a normal game state did not carry a duplicate table.
+    state.flags.initalign = 2;
+    const random = queuedRandom([2, 0]);
+    assert.equal(newhp(state, random), 14);
+    assert.deepEqual(state.u.ualign, { type: -1, record: 10 });
     random.done();
 });
 
