@@ -3,7 +3,7 @@
 # from the upstream submodule + the patch series in patches/.
 #
 # Output: nethack-c/recorder/src/nethack  (the playable binary)
-#         nethack-c/recorder-install/games/lib/nethackdir/  (data files)
+#         nethack-c/recorder/install/games/lib/nethackdir/  (data files)
 #
 # The recorder produces .session.json files: pinned datetime + seed,
 # logged PRNG calls, deterministic 24×80 frame captures. These are
@@ -138,10 +138,53 @@ cd "$RECORDER_DIR"
 # you need a different pin.
 export SOURCE_DATE_EPOCH="${TELEPORT_BUILD_EPOCH:-1777723200}"
 make -j"$NPROC" SYSCFLAGS="$LUA_SYSCFLAGS" >/dev/null
-make install >/dev/null
+# Upstream's sample sysconf enables gdb-backed panic tracing with a fixed
+# /usr/bin/gdb path.  sysconf validation rejects the entire file when that
+# optional executable is absent, preventing the recorder from reaching game
+# initialization.  Keep panic tracing when its configured debugger exists;
+# otherwise disable just those two optional settings in the recorder copy.
+GDB_PATH=$(awk -F= '$1 == "GDBPATH" { print substr($0, index($0, "=") + 1); exit }' \
+    sys/unix/sysconf)
+if [ -n "$GDB_PATH" ] && [ ! -x "$GDB_PATH" ]; then
+    echo "[step 5] Disabling unavailable sysconf GDBPATH ($GDB_PATH)..."
+    sed -i.bak \
+        -e 's/^GDBPATH=/# &/' \
+        -e 's/^PANICTRACE_GDB=/# &/' \
+        sys/unix/sysconf
+fi
+# The sample also assumes grep lives under /bin.  That is not true on every
+# supported host (notably current macOS), even though grep itself is already a
+# build prerequisite used above.  Point the recorder copy at the executable
+# this build is actually using.
+GREP_PATH=$(awk -F= '$1 == "GREPPATH" { print substr($0, index($0, "=") + 1); exit }' \
+    sys/unix/sysconf)
+if [ -n "$GREP_PATH" ] && [ ! -x "$GREP_PATH" ]; then
+    AVAILABLE_GREP=$(command -v grep)
+    echo "[step 5] Replacing unavailable sysconf GREPPATH ($GREP_PATH) with $AVAILABLE_GREP..."
+    sed -i.bak \
+        -e "s|^GREPPATH=.*|GREPPATH=$AVAILABLE_GREP|" \
+        sys/unix/sysconf
+fi
+# The minimal hints omit Makefile.top's optional SYSCONF* defaults.  Supply
+# the upstream install recipe explicitly so the local HACKDIR contains the
+# runtime configuration that NetHack expects.
+SYSCONFCREATE='cp sys/unix/sysconf $(INSTDIR)/sysconf'
+SYSCONFINSTALL='$(SYSCONFCREATE) && $(CHOWN) $(GAMEUID) $(INSTDIR)/sysconf && $(CHGRP) $(GAMEGRP) $(INSTDIR)/sysconf && chmod $(VARFILEPERM) $(INSTDIR)/sysconf'
+make install \
+    SYSCONFCREATE="$SYSCONFCREATE" \
+    SYSCONFINSTALL="$SYSCONFINSTALL" >/dev/null
+
+INSTALLED_GAME_DIR="$INSTALL_PREFIX/games/lib/nethackdir"
+if ! cmp -s "$RECORDER_DIR/sys/unix/sysconf" "$INSTALLED_GAME_DIR/sysconf"; then
+    echo "[FAIL] recorder sysconf was not installed correctly" >&2
+    exit 1
+fi
+NETHACK_BINARY="$INSTALLED_GAME_DIR/nethack" \
+NETHACK_INSTALL="$INSTALLED_GAME_DIR" \
+    node "$REPO_ROOT/scripts/smoke-recorder.mjs"
 echo
 echo "[ok] recorder built: $RECORDER_DIR/src/nethack"
-echo "[ok] installed to:    $INSTALL_PREFIX/games/lib/nethackdir/"
+echo "[ok] installed to:    $INSTALLED_GAME_DIR/"
 echo
 echo "Try recording a session:"
 echo "  NETHACK_SEED=8000 NETHACK_FIXED_DATETIME=20260502143000 \\"

@@ -423,11 +423,27 @@ async function recordSegment({
         }
         moves = reconstructed.join('');
     }
-    const expectedSteps = moves.length + 1;
+    // A clean v5 recording is also the replay recipe, so its existing step
+    // count is the completion contract.  This matters for games which end
+    // before consuming every planned key: they legitimately have fewer than
+    // moves.length + 1 input boundaries.  Recipes without steps retain the
+    // ordinary initial-boundary-plus-one-per-key fallback.
+    let expectedSteps;
+    if (Object.hasOwn(seg, 'steps')) {
+        if (!Array.isArray(seg.steps) || seg.steps.length === 0) {
+            throw new Error('segment steps must be a non-empty array');
+        }
+        expectedSteps = seg.steps.length;
+    } else {
+        expectedSteps = moves.length + 1;
+    }
     const steps = [];
     let lastRngBytes = 0;
     let nextKeyIdx = 0;
     let timeoutHandle = null;
+    let forceKillHandle = null;
+    let terminationRequested = false;
+    let pendingFailure = null;
     let resolveDone, rejectDone;
     let settled = false;
     const done = new Promise((res, rej) => {
@@ -438,7 +454,7 @@ async function recordSegment({
     const armTimeout = (ms, why) => {
         if (timeoutHandle) clearTimeout(timeoutHandle);
         timeoutHandle = setTimeout(() => {
-            rejectDone(new Error(`recorder timeout: ${why} (after ${ms}ms)`));
+            fail(new Error(`recorder timeout: ${why} (after ${ms}ms)`));
         }, ms);
     };
 
@@ -469,13 +485,28 @@ async function recordSegment({
         return parseRngLines(rngText);
     };
 
-    const finish = (reason) => {
-        parser.stop();
-        if (timeoutHandle) clearTimeout(timeoutHandle);
+    const terminateChild = (intentional) => {
+        if (intentional) terminationRequested = true;
         try { child.kill('SIGTERM'); } catch {}
         // Force close in case it ignores SIGTERM.
-        setTimeout(() => { try { child.kill('SIGKILL'); } catch {} }, 1000).unref();
-        resolveDone(reason);
+        forceKillHandle = setTimeout(() => {
+            try { child.kill('SIGKILL'); } catch {}
+        }, 1000);
+        forceKillHandle.unref();
+    };
+
+    const fail = (err) => {
+        if (pendingFailure) return;
+        pendingFailure = err;
+        parser.stop();
+        if (timeoutHandle) clearTimeout(timeoutHandle);
+        terminateChild(false);
+    };
+
+    const finish = () => {
+        parser.stop();
+        if (timeoutHandle) clearTimeout(timeoutHandle);
+        terminateChild(true);
     };
 
     // Buffer of 'anim' markers received between consecutive 'input'
@@ -494,7 +525,7 @@ async function recordSegment({
         if (m.kind !== 'input') return;
         if (steps.length >= expectedSteps) {
             // We have everything we need; tear down.
-            finish('expected steps reached');
+            finish();
             return;
         }
         try {
@@ -510,7 +541,7 @@ async function recordSegment({
             steps.push(step);
 
             if (steps.length >= expectedSteps) {
-                finish('expected steps reached');
+                finish();
                 return;
             }
             if (nextKeyIdx < moves.length) {
@@ -529,7 +560,7 @@ async function recordSegment({
                 armTimeout(10000, 'awaiting process exit');
             }
         } catch (err) {
-            rejectDone(err);
+            fail(err);
         }
     };
 
@@ -539,27 +570,44 @@ async function recordSegment({
     // shared lastRngBytes pointer.
     let chain = Promise.resolve();
     const serialMarker = (m) => {
-        chain = chain.then(() => onMarker(m)).catch(rejectDone);
+        chain = chain.then(() => onMarker(m)).catch(fail);
     };
     const parser = new MarkerParser(serialMarker);
     child.stdout.on('data', (chunk) => {
-        try { parser.push(chunk); } catch (err) { rejectDone(err); }
+        try { parser.push(chunk); } catch (err) { fail(err); }
     });
-    child.stdout.on('error', (err) => rejectDone(err));
-    child.on('error', (err) => rejectDone(err));
+    child.stdout.on('error', (err) => fail(err));
+    child.on('error', (err) => fail(err));
     child.on('close', (code, signal) => {
         if (timeoutHandle) clearTimeout(timeoutHandle);
-        parser.stop();
-        if (signal === 'SIGTERM' || signal === 'SIGKILL') {
-            // Killed by us after collecting expected steps.
-            resolveDone(0);
-            return;
-        }
-        // For death sessions the game can terminate before all keys are
-        // consumed (the death itself fires nh_terminate); record whatever
-        // steps we got and let the caller compare against the canonical
-        // session, which captures the same truncated trace.
-        resolveDone(code ?? 0);
+        if (forceKillHandle) clearTimeout(forceKillHandle);
+        // Capture shutdown intent at the instant the process closes. Marker
+        // work below can still reach finish(), but it must not retroactively
+        // turn a crash into an intentional termination.
+        const terminationWasRequested = terminationRequested;
+        // `close` can race async marker handling.  Wait for the queue before
+        // deciding whether the process produced the complete recording.
+        chain.then(() => {
+            parser.stop();
+            if (pendingFailure) throw pendingFailure;
+            const exitDescription = signal ? `signal ${signal}` : `exit code ${code ?? 'unknown'}`;
+            if (code !== null && code !== 0) {
+                throw new Error(
+                    `recorder exited with ${exitDescription} after `
+                    + `${steps.length}/${expectedSteps} input boundaries`);
+            }
+            if (steps.length !== expectedSteps) {
+                throw new Error(
+                    `recorder exited before recording all input boundaries: `
+                    + `got ${steps.length}, expected ${expectedSteps} (${exitDescription})`);
+            }
+            const expectedTerminationSignal = terminationWasRequested
+                && (signal === 'SIGTERM' || signal === 'SIGKILL');
+            if (signal && !expectedTerminationSignal) {
+                throw new Error(`recorder exited unexpectedly with ${exitDescription}`);
+            }
+            resolveDone();
+        }).catch(rejectDone);
     });
 
     await done;
