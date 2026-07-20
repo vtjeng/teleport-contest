@@ -70,6 +70,9 @@ Git history do not grant permission to inspect the sealed local holdout.
   development suite. Do not diagnose from the sealed local holdout.
 - For nontrivial behavior, differentially test against the C recorder using
   newly chosen seeds, datetimes, options, and input sequences.
+- Use `node scripts/diff-fresh.mjs --seed ...` for strict fresh-recording
+  differentials. Its recipe inputs must contain replay inputs only, never
+  recorded `steps`; do not weaken that boundary or its sealed-path checks.
 - Verify PRNG logs, 24×80 screens, and cursor positions. Verify browser
   behavior for browser-facing changes.
 - End each completed work chunk with an estimated leaderboard screen score
