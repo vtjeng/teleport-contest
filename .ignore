@@ -1,0 +1,2 @@
+# Keep broad local searches from entering the sealed local holdout.
+sessions/holdout/

@@ -39,8 +39,8 @@ in the distance.* Let's begin.
    `js/`. Faithfully — including its bugs, its quirks, and its
    forty-six years of accumulated tradition.
 3. **Push.** GitHub Actions on your fork scores you on every push
-   against 44 public sessions — fast feedback in your own Actions
-   minutes. Every two hours, the official judge re-scores the
+   against the 33-session development split — fast feedback in your
+   own Actions minutes. Every two hours, the official judge re-scores the
    latest commit on every fork against all 88 sessions (44 public
    and 44 held-out) and updates the leaderboard.
 4. **Climb.** Both up the leaderboard, and metaphorically toward
@@ -71,8 +71,8 @@ If your plans don't fit in either category, you can select "other" and reach out
 ```
 # First, set your category to one of: agentic, transpiled, other .
 bash frozen/set-category.sh <CATEGORY>
-# Score locally against all 44 public sessions
-bash frozen/score.sh
+# Score the local development split
+node scripts/score-development.mjs
 ```
 
 Out of the box, the skeleton scores partial credit on
@@ -141,8 +141,11 @@ etc. — a complete NetHack port has on the order of 80 source files).
 **About `fastforward.js`:** it's a hardcoded list of `rn2(N)` calls
 that fakes the RNG sequence for `seed8000` only. It will never
 generalize and it will never pass a held-out session. The path
-forward is to delete its entries one at a time, replacing each with
-the real C function port that produces those calls naturally.
+forward is to port the real C functions. Once a source-faithful port
+naturally makes a replayed call and performs its associated state
+changes, remove only the now-obsolete replay entry; keep the gameplay
+implementation. Never add calls or replay tables derived from recorded
+sessions.
 
 The skeleton is "what works without porting much." Everything beyond
 is yours to build. *Be careful, ahead.*
@@ -232,17 +235,18 @@ compiler.*
 
 ### 3. A pile of recorded delvings to score against
 
-Forty-four recorded sessions live in `sessions/` as `*.session.json`.
-Each is a complete game (or a chain of games) played from chargen to
-wherever it ended, with the PRNG sequence and screen output of the C
-recorder captured at every input boundary. They are the standard
-against which your port is measured: same input, same output, or you
-fail.
+The public corpus contains forty-four recorded sessions. Thirty-three
+development sessions live directly under `sessions/`, and eleven form a
+fixed, sealed local holdout under `sessions/holdout/`. Each is
+a complete game (or a chain of games) played from chargen to wherever
+it ended, with the PRNG sequence and screen output of the C recorder
+captured at every input boundary. They are the standard against which
+your port is measured: same input, same output, or you fail.
 
 **Run them locally:**
 
 ```bash
-bash frozen/score.sh                             # score all 44
+node scripts/score-development.mjs               # score the development set
 node frozen/ps_test_runner.mjs sessions/seed8000-tourist-starter.session.json
                                                  # score one
 ```
@@ -276,6 +280,19 @@ coverage of the game, not just the corner of it the public sessions
 exercise. A faithful port scores comparably on both pools; a port
 that secretly hardcoded the public traces falls off a cliff on
 held-out.
+
+### Generalization policy for this fork
+
+This fork treats the pinned NetHack source as the specification and
+the public recordings as regression tests. Contributors and coding
+agents must follow [`AGENTS.md`](AGENTS.md), which defines the sealed
+local holdout, source-fidelity rules, and validation workflow.
+
+The session split, agent instructions, test helpers, and CI
+configuration remain outside the judge-evaluated `js/`, `package.json`,
+and `index.html` surface described in [`docs/PHASES.md`](docs/PHASES.md).
+The official judge supplies its own public and held-out sessions, so
+these guardrails do not change the game code it scores.
 
 PRNG sequence matching is the structural prerequisite (your PRNG
 calls have to align with C's call-by-call before any screen can

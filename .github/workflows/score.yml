@@ -14,14 +14,9 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Overlay frozen fixture (ISAAC64 + Terminal)
+      - name: Score development sessions
         run: |
-          cp frozen/isaac64.js js/isaac64.js
-          cp frozen/terminal.js js/terminal.js
-
-      - name: Score public sessions
-        run: |
-          node frozen/ps_test_runner.mjs sessions/ \
+          node scripts/score-development.mjs \
             2>score-stderr.txt | tee score-stdout.txt
           cat score-stderr.txt >&2
 
