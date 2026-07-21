@@ -304,6 +304,8 @@ test('Light source places and burns an oil lamp through default paths', () => {
     timeout_globals_init(state);
     light_globals_init(state);
     const random = scriptedRandom([
+        step('rn1', [2, 2], 3), // get_location_coord: room x
+        step('rn1', [2, 3], 4), // get_location_coord: room y
         step('rnd', [2], 1), // advance the shared object/monster identifier
         step('rn1', [500, 1000], 1000), // minimum generated lamp fuel
         step('rn2', [5], 1), // leave the lamp uncursed and unblessed
@@ -312,14 +314,6 @@ test('Light source places and burns an oil lamp through default paths', () => {
     run_themeroom_fill(fillById('light_source'), room, 1, {
         state,
         random: random.random,
-        hooks: {
-            roomCoordinate(selectedRoom, coordinate) {
-                assert.equal(selectedRoom, room);
-                coordinate.x = 3;
-                coordinate.y = 4;
-                return true;
-            },
-        },
     });
     random.assertExhausted();
 

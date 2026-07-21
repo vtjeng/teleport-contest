@@ -80,6 +80,17 @@ import {
     traptype_rnd,
 } from './mktrap.js';
 import { random_engraving } from './random_engraving.js';
+import {
+    get_free_room_loc,
+    get_location,
+    get_location_coord,
+    get_room_loc,
+    inside_room,
+    is_ok_location,
+    somex,
+    somey,
+    somexy,
+} from './room_coordinates.js';
 import { set_levltyp } from './terrain.js';
 import { PM_GIANT_SPIDER, S_HUMAN } from './monsters.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
@@ -1576,94 +1587,27 @@ function makecorridors() {
     }
 }
 
-// ============================================================
-// Room helper functions
-// ============================================================
-
-function roomCoordinateEnv(rawEnv = {}) {
-    return {
-        state: rawEnv.state ?? game,
-        randomOneBased: rawEnv.randomOneBased ?? rawEnv.random?.rn1 ?? rn1,
-    };
-}
-
-export function somex(croom, rawEnv = {}) {
-    const { randomOneBased } = roomCoordinateEnv(rawEnv);
-    return randomOneBased(croom.hx - croom.lx + 1, croom.lx);
-}
-
-export function somey(croom, rawEnv = {}) {
-    const { randomOneBased } = roomCoordinateEnv(rawEnv);
-    return randomOneBased(croom.hy - croom.ly + 1, croom.ly);
-}
-
-export function inside_room(croom, x, y, state = game) {
-    if (croom.irregular) {
-        const roomno = croom.roomnoidx + ROOMOFFSET;
-        const loc = state.level?.at(x, y);
-        return Boolean(loc && !loc.edge && loc.roomno === roomno);
-    }
-
-    return x >= croom.lx - 1 && x <= croom.hx + 1
-        && y >= croom.ly - 1 && y <= croom.hy + 1;
-}
-
-// C ref: mkroom.c somexy(). Pick a coordinate in the room while excluding
-// subroom footprints. Keep the source's post-increment retry boundary: a
-// regular room with subrooms rejects even a valid 100th candidate.
-export function somexy(croom, c, rawEnv = {}) {
-    const env = roomCoordinateEnv(rawEnv);
-    const { state } = env;
-    let tryCnt = 0;
-
-    if (croom.irregular) {
-        const roomno = croom.roomnoidx + ROOMOFFSET;
-        while (tryCnt++ < 100) {
-            c.x = somex(croom, env);
-            c.y = somey(croom, env);
-            const loc = state.level.at(c.x, c.y);
-            if (!loc.edge && loc.roomno === roomno) return true;
-        }
-        for (c.x = croom.lx; c.x <= croom.hx; ++c.x) {
-            for (c.y = croom.ly; c.y <= croom.hy; ++c.y) {
-                const loc = state.level.at(c.x, c.y);
-                if (!loc.edge && loc.roomno === roomno) return true;
-            }
-        }
-        return false;
-    }
-
-    if (!croom.nsubrooms) {
-        c.x = somex(croom, env);
-        c.y = somey(croom, env);
-        return true;
-    }
-
-    while (tryCnt++ < 100) {
-        c.x = somex(croom, env);
-        c.y = somey(croom, env);
-        if (IS_WALL(state.level.at(c.x, c.y).typ)) continue;
-
-        let inSubroom = false;
-        for (let i = 0; i < croom.nsubrooms; ++i) {
-            if (inside_room(croom.sbrooms[i], c.x, c.y, state)) {
-                inSubroom = true;
-                break;
-            }
-        }
-        if (inSubroom) continue;
-        break;
-    }
-    return tryCnt < 100;
-}
-
-export { occupied, traptype_rnd };
+// Keep the long-standing mklev.js surface while the shared implementation
+// lives below both level generation and themed-fill creation.
+export {
+    get_free_room_loc,
+    get_location,
+    get_location_coord,
+    get_room_loc,
+    inside_room,
+    is_ok_location,
+    occupied,
+    somex,
+    somey,
+    somexy,
+    traptype_rnd,
+};
 
 // C ref: mkroom.c somexyspace(). The source do-while attempts one initial
 // candidate plus at most 100 retries, for 101 total calls to somexy().
 export function somexyspace(croom, c, rawEnv = {}) {
-    const env = roomCoordinateEnv(rawEnv);
-    const { state } = env;
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
     let tryCnt = 0;
     let okay;
     do {

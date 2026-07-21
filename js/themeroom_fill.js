@@ -7,6 +7,7 @@ import {
     ARROW_TRAP,
     BEAR_TRAP,
     DART_TRAP,
+    DRY,
     ICE,
     LANDMINE,
     MELT_ICE_AWAY,
@@ -15,6 +16,7 @@ import {
     ROCKTRAP,
     RUST_TRAP,
     SLP_GAS_TRAP,
+    SP_COORD_IS_RANDOM,
     STRAT_WAITFORU,
     TIMER_LEVEL,
     WEB,
@@ -38,6 +40,7 @@ import {
 } from './objects.js';
 import { PM_GHOST } from './monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { get_location_coord } from './room_coordinates.js';
 import { set_levltyp } from './terrain.js';
 import {
     selection_iterate,
@@ -125,15 +128,24 @@ function themedCreationEnv(env) {
 
 function randomRoomCoordinate(room, env) {
     const hook = env.hooks.roomCoordinate;
-    if (typeof hook !== 'function') {
-        throw new Error(
-            'themed-room fill requires the room-coordinate subsystem',
-        );
-    }
     const coordinate = { x: -1, y: -1 };
-    if (!hook(room, coordinate, env)) {
-        throw new Error('themed-room fill could not choose a room coordinate');
+    if (hook) {
+        if (!hook(room, coordinate, env)) {
+            throw new Error(
+                'themed-room fill could not choose a room coordinate',
+            );
+        }
+        return coordinate;
     }
+    get_location_coord(
+        coordinate,
+        DRY,
+        room,
+        SP_COORD_IS_RANDOM,
+        env,
+    );
+    if (coordinate.x === -1 || coordinate.y === -1)
+        throw new Error('themed-room fill could not choose a room coordinate');
     return coordinate;
 }
 
