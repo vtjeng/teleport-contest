@@ -133,14 +133,15 @@ Run the heavier checks at these boundaries:
 
 Pass rules:
 
-- Native Codex subagents are available to the primary session and to fresh
-  top-level `codex exec` processes. Each formal pass must start in its own fresh
-  top-level process so its judgment is independent from implementation and
-  other passes. Do not use `--ephemeral`: retain the rollout so agent activity
-  and token usage can be inspected. Run with `--json` and preserve the session
-  identifier and `turn.completed.usage` summary with the pass evidence. Give the
-  process only the pass's scoped inputs and let it orchestrate the bounded
-  subagents the skill requires.
+- Native Codex subagents are available to both the primary session and fresh
+  top-level `codex exec` processes. For formal passes, use them within the
+  pass's independent top-level process: start each pass in a fresh process,
+  then let it orchestrate the bounded subagents the skill requires. This keeps
+  its judgment independent from implementation and other passes. Do not use
+  `--ephemeral`: retain the rollout so agent activity and token usage can be
+  inspected. Run with `--json` and preserve the session identifier and
+  `turn.completed.usage` summary with the pass evidence. Give the process only
+  the pass's scoped inputs.
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
