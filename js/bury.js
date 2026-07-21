@@ -168,6 +168,10 @@ function preflightUnpunish(state, env) {
     // setworn(NULL, W_CHAIN) runs before delobj(), so validate obfree() using
     // the ownership mask it will see at its own source boundary.
     preflight_obfree({ ...chain, owornmask: chain.owornmask & ~W_CHAIN }, null, env);
+    if (chain.where === OBJ_FLOOR) {
+        requireHook(env, 'maybeUnhideAt', chain);
+        requireHook(env, 'newsym', chain);
+    }
     return chain;
 }
 
@@ -190,24 +194,28 @@ function o_unleash(obj, env) {
     update_inventory(env);
 }
 
-// C ref: read.c unpunish().  Punishment chains have no object properties, so
-// clearing their worn mask directly is the source-equivalent setworn effect.
+// C ref: read.c unpunish() -> invent.c delobj_core(). Punishment chains have
+// no object properties, so clearing their worn mask directly is the
+// source-equivalent setworn effect.
 function unpunish(chain, ball, env) {
     const { state } = env;
     if (chain) {
         chain.owornmask &= ~W_CHAIN;
         clearPunishedObject(state, 'uchain', chain);
         const { ox, oy } = chain;
-        if (chain.where === OBJ_FLOOR) remove_object(chain, env);
+        const onFloor = chain.where === OBJ_FLOOR;
+        if (onFloor) remove_object(chain, env);
+        if (onFloor) {
+            env.hooks.maybeUnhideAt(ox, oy, env);
+            env.hooks.newsym(ox, oy, env);
+        }
         obfree(chain, null, env);
-        env.hooks?.newsym?.(ox, oy, env);
     }
     ball.owornmask &= ~W_BALL;
     clearPunishedObject(state, 'uball', ball);
 }
 
-// C ref: trap.c set_utrap().  float_vs_flight() remains an optional owned
-// integration hook until the flight/levitation blocking subsystem is ported.
+// C ref: trap.c set_utrap().
 function setBuriedBallTrap(turns, env) {
     const { state } = env;
     if (!state.u || !Number.isInteger(turns) || turns <= 0)
@@ -218,7 +226,7 @@ function setBuriedBallTrap(turns, env) {
     }
     state.u.utrap = turns;
     state.u.utraptype = TT_BURIEDBALL;
-    env.hooks?.floatVsFlight?.(env);
+    env.hooks.floatVsFlight(env);
 }
 
 // The returned next pointer and deallocation flag are the C return value and
@@ -243,6 +251,7 @@ export function bury_an_obj(obj, rawEnv = {}) {
         burialEnvironment(rawEnv, ['rn1', 'rn2']);
         if (!state.u)
             throw new Error('buried-ball trap requires initialized hero state');
+        requireHook(env, 'floatVsFlight', obj);
     }
 
     if (isPunishmentBall) {

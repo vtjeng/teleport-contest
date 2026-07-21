@@ -171,6 +171,9 @@ export async function ttyPline(message, state = game) {
         return;
     }
     if (current) await dismissPendingTtyMessage(state);
+    // update_topl() clears WIN_STOP for a death message after more() has had
+    // the opportunity to set it from an Escape response.
+    if (deathMessage) state._ttyMessageStopped = false;
     rememberPendingMessage(state, next);
     // redotoplin() immediately invokes more() when update_topl() wrapped the
     // new message onto a second terminal row.

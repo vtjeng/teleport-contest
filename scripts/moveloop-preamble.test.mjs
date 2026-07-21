@@ -311,6 +311,16 @@ test('You die starts a new top line instead of sharing the pending message', asy
     assert.doesNotMatch(state._ttyToplines, /prior/u);
 });
 
+test('You die clears suppression set while dismissing the prior message', async () => {
+    const state = preambleState('20260129120000', '\x1b');
+    await ttyPline('A prior message.', state);
+    await ttyPline('You die from a test.', state);
+
+    assert.equal(state._ttyMessageStopped, false);
+    assert.equal(state._pending_message, 'You die from a test.');
+    assert.equal(state._ttyToplines, 'You die from a test.');
+});
+
 test('pline flushes a changed status line before a wrapped More boundary', async () => {
     const state = preambleState('20260129120000', ' ');
     state.plname = 'ABCDEFGHIJKLMNOP';

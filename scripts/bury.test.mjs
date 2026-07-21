@@ -437,7 +437,11 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
         random: script.random,
         hooks: {
             plineThe(message) { events.push(message); },
+            maybeUnhideAt(px, py) {
+                events.push(`maybe_unhide_at:${px},${py}`);
+            },
             newsym(px, py) { events.push(`newsym:${px},${py}`); },
+            floatVsFlight() { events.push('float_vs_flight'); },
         },
     });
 
@@ -452,12 +456,52 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
     assert.equal(state.u.utraptype, TT_BURIEDBALL);
     assert.equal(state.disp.botl, true);
     assert.deepEqual(events, [
+        `maybe_unhide_at:${x},${y}`,
         `newsym:${x},${y}`,
+        'float_vs_flight',
         'iron ball gets buried!',
     ]);
     assert.deepEqual(pileAt(state, x, y), [lower]);
     assert.equal(state.level.buriedobjlist, ball);
     script.done();
+});
+
+test('buried-ball lifecycle hooks preflight before RNG or mutation', () => {
+    const state = burialState();
+    state.u = { utrap: 0, utraptype: 0 };
+    const ball = objectInstance(HEAVY_IRON_BALL, state, {
+        owornmask: W_BALL,
+    });
+    const chain = objectInstance(IRON_CHAIN, state, {
+        owornmask: W_CHAIN,
+    });
+    place_object(ball, 24, 15, { state });
+    place_object(chain, 24, 15, { state });
+    state.uball = ball;
+    state.uchain = chain;
+    let draws = 0;
+
+    assert.throws(
+        () => bury_an_obj(ball, {
+            state,
+            random: {
+                rn1() { ++draws; return 20; },
+                rn2() { ++draws; return 50; },
+            },
+            hooks: {
+                plineThe() {},
+                newsym() {},
+                floatVsFlight() {},
+            },
+        }),
+        /maybeUnhideAt/,
+    );
+    assert.equal(draws, 0);
+    assert.equal(state.uball, ball);
+    assert.equal(state.uchain, chain);
+    assert.equal(ball.where, OBJ_FLOOR);
+    assert.equal(chain.where, OBJ_FLOOR);
+    assert.equal(state.u.utrap, 0);
 });
 
 test('bury_an_obj unlinks an attached leash before burying it', () => {
