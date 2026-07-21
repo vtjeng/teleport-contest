@@ -102,7 +102,7 @@ For each coherent implementation chunk:
 1. Inspect the diff and run focused tests plus the relevant broader checks.
 2. Commit the implementation and run `npm run quality` as a scheduling
    dashboard. Assign every new file under `js/` to exactly one quality area.
-3. Run a fresh `light` `/audit-diff-correctness` pass when the change affects
+3. Run a fresh `light` `$audit-diff-correctness` pass when the change affects
    source behavior, PRNG or evaluation order, parsing, state ownership,
    persistence, input boundaries, or rendering. Small mechanical or test-only
    changes may rely on direct review and tests.
@@ -111,21 +111,21 @@ For each coherent implementation chunk:
 Run the heavier checks at these boundaries:
 
 - At a major milestone, or before completing a large or cross-subsystem change,
-  run `/simplify-codebase`, `/audit-diff-clarity`, and a `full`
-  `/audit-diff-correctness` pass. Run simplification before the audits.
+  run `$simplify-codebase`, `$audit-diff-clarity`, and a `full`
+  `$audit-diff-correctness` pass. Run simplification before the audits.
 - Run simplification earlier when duplication, accidental complexity, or stale
   scaffolding is visible. The configured commit budget is a scheduling signal
   between milestones, not a reason to interrupt a coherent chunk.
 - After a substantial batch of published technical prose stabilizes, run
-  `/copyedit-technical-prose` once. Do not run it on unchanged prose.
+  `$copyedit-technical-prose` once. Do not run it on unchanged prose.
 - After applying an audit fix, review the new delta. Repeat the full-range audit
   only when the fix changes the design or invalidates earlier conclusions.
 
 Pass rules:
 
-- Use a fresh, independent session for each skill pass. Use the review backend
-  selected for the active session; otherwise use the default skill workflow.
-  Do not reuse a reviewer or provide the parent conversation.
+- Launch each formal skill pass as a fresh top-level Codex process with
+  `codex exec --ephemeral`. Give it only the scoped review inputs, without the
+  parent conversation, and do not reuse it for another pass.
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
