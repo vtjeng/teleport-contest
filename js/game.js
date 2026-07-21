@@ -27,34 +27,33 @@ export function makeLocation() {
     };
 }
 
+function makeCoordinateGrid(makeCell) {
+    const grid = [];
+    for (let x = 0; x < COLNO; x++) {
+        grid[x] = [];
+        for (let y = 0; y < ROWNO; y++)
+            grid[x][y] = makeCell();
+    }
+    return grid;
+}
+
 // The dungeon level map. C ref: struct level.
 export class GameMap {
     constructor() {
-        this.locations = [];
-        for (let x = 0; x < COLNO; x++) {
-            this.locations[x] = [];
-            for (let y = 0; y < ROWNO; y++) {
-                this.locations[x][y] = makeLocation();
-            }
-        }
+        this.locations = makeCoordinateGrid(makeLocation);
         this.rooms = [];
         this.nroom = 0;
         this.doors = [];
         this.doorindex = 0;
         // C ref: rm.h struct level. Floor objects have both a per-square pile
         // chain (`objects[x][y]`) and a level-wide `objlist` chain.
-        this.objects = Array.from(
-            { length: COLNO },
-            () => new Array(ROWNO).fill(null),
-        );
+        this.objects = makeCoordinateGrid(() => null);
         this.objlist = null;
         this.buriedobjlist = null;
         // C ref: rm.h struct level. Monsters are indexed by coordinate;
-        // their nmon links separately form the level-wide fmon chain.
-        this.monsters = Array.from(
-            { length: COLNO },
-            () => new Array(ROWNO).fill(null),
-        );
+        // their nmon links separately form the level-wide monlist chain.
+        this.monsters = makeCoordinateGrid(() => null);
+        this.monlist = null;
         this.traps = [];
         this.flags = {
             nfountains: 0,

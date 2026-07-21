@@ -9,7 +9,6 @@ import {
 } from '../js/const.js';
 import { level_difficulty } from '../js/dungeon.js';
 import {
-    adj_lev,
     golemhp,
     mbirth_limit,
     mkclass,
@@ -55,35 +54,34 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
+import { rawMonsterGenerationState } from './monster-test-state.mjs';
 
 function startingState() {
     const state = {
+        ...rawMonsterGenerationState(),
         astral_level: { dnum: 0, dlevel: 0 },
-        branches: [],
-        dungeons: [{
-            depth_start: 1,
-            dunlev_ureached: 1,
-            entry_lev: 1,
-            flags: { align: 0, hellish: false },
-            num_dunlevs: 20,
-        }],
         level: { flags: { temperature: 0 } },
-        quest_dnum: 1,
         rogue_level: { dnum: 0, dlevel: 0 },
         sanctum_level: { dnum: 0, dlevel: 0 },
-        specialLevels: [],
-        u: {
-            uhave: { amulet: 0 },
-            ualign: { type: 0, record: 0, abuse: 0 },
-            ulevel: 1,
-            uz: { dnum: 0, dlevel: 1 },
-        },
-        urace: { lovemask: 0, hatemask: 0 },
     };
     monst_globals_init(state);
     reset_mvitals(state);
     return state;
 }
+
+test('raw monster-generation fixtures do not share nested state', () => {
+    const first = rawMonsterGenerationState();
+    const second = rawMonsterGenerationState();
+    // Arbitrary non-default alignment and level values make leaked nested
+    // mutations visible without selecting a production behavior.
+    first.dungeons[0].flags.hellish = true;
+    first.u.ualign.record = 7;
+    first.specialLevels.push({ dlevel: { dnum: 0, dlevel: 2 } });
+
+    assert.equal(second.dungeons[0].flags.hellish, false);
+    assert.equal(second.u.ualign.record, 0);
+    assert.deepEqual(second.specialLevels, []);
+});
 
 function scriptedRandom(steps) {
     let offset = 0;
@@ -317,9 +315,10 @@ test('newmonhp keeps fixed golem, Rider, and adult-dragon branches', () => {
     assert.deepEqual([rider.mhp, rider.mhpmax], [11, 11]);
 
     const dragon = {};
-    const dragonLevel = adj_lev(state.mons[PM_GRAY_DRAGON], state);
     const dragonRng = scriptedRandom([
-        { kind: 'd', bound: [dragonLevel, 4], result: dragonLevel },
+        // Gray dragon level 15 drops to 14 at this level difficulty; rolling
+        // one on each of 14 d4 establishes the exact 4 * level + d(level, 4).
+        { kind: 'd', bound: [14, 4], result: 14 },
     ]);
     newmonhp(dragon, PM_GRAY_DRAGON, {
         state,
@@ -328,7 +327,7 @@ test('newmonhp keeps fixed golem, Rider, and adult-dragon branches', () => {
     dragonRng.assertExhausted();
     assert.deepEqual(
         [dragon.m_lev, dragon.mhp, dragon.mhpmax],
-        [dragonLevel, 5 * dragonLevel, 5 * dragonLevel],
+        [14, 70, 70],
     );
 });
 

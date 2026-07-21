@@ -14,7 +14,7 @@ import {
     G_GONE,
     MAXMONNO,
 } from './const.js';
-import { level_difficulty } from './dungeon.js';
+import { level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import {
@@ -25,8 +25,17 @@ import {
     G_UNIQ,
     G_IGNORE,
     LOW_PM,
+    M1_AMORPHOUS,
+    M1_FLY,
+    M1_SWIM,
+    M2_HOSTILE,
+    M2_MINION,
+    M2_PEACEFUL,
     MR_COLD,
     MR_FIRE,
+    MS_GUARDIAN,
+    MS_LEADER,
+    MS_NEMESIS,
     NON_PM,
     NUMMONS,
     PM_AIR_ELEMENTAL,
@@ -71,16 +80,6 @@ import {
     monsterClassSymbol,
 } from './monsters.js';
 
-// C ref: monflag.h flags used by makemon.c wrong_elem_type().
-const M1_FLY = 0x00000001;
-const M1_SWIM = 0x00000002;
-const M1_AMORPHOUS = 0x00000004;
-const M2_MINION = 0x00001000;
-const M2_HOSTILE = 0x00100000;
-const M2_PEACEFUL = 0x00200000;
-const MS_LEADER = 36;
-const MS_NEMESIS = 37;
-const MS_GUARDIAN = 38;
 // C ref: mondata.h is_placeholder(). These records only back corpse forms.
 const PLACEHOLDER_MONSTERS = new Set([PM_ORC, PM_GIANT, PM_ELF, PM_HUMAN]);
 
@@ -115,15 +114,9 @@ function generationEnv(env = {}) {
     return { ...env, state, random: sourceRandom };
 }
 
-function sameLevel(left, right) {
-    return Boolean(left && right
-        && left.dnum === right.dnum
-        && left.dlevel === right.dlevel);
-}
-
 function currentSpecialLevel(state) {
     return state.specialLevels?.find(
-        (candidate) => sameLevel(candidate.dlevel, state.u?.uz),
+        (candidate) => on_level(candidate.dlevel, state.u?.uz),
     ) ?? null;
 }
 
@@ -141,11 +134,11 @@ function inEndgame(state) {
 }
 
 function isAstralLevel(state) {
-    return sameLevel(state.u?.uz, state.astral_level);
+    return on_level(state.u?.uz, state.astral_level);
 }
 
 function isRogueLevel(state) {
-    return sameLevel(state.u?.uz, state.rogue_level);
+    return on_level(state.u?.uz, state.rogue_level);
 }
 
 function uncommon(index, state) {
@@ -184,13 +177,13 @@ export function is_home_elemental(monster, state = game) {
     if (monster?.mlet !== S_ELEMENTAL) return false;
     switch (monster.pmidx) {
     case PM_AIR_ELEMENTAL:
-        return sameLevel(state.u?.uz, state.air_level);
+        return on_level(state.u?.uz, state.air_level);
     case PM_FIRE_ELEMENTAL:
-        return sameLevel(state.u?.uz, state.fire_level);
+        return on_level(state.u?.uz, state.fire_level);
     case PM_EARTH_ELEMENTAL:
-        return sameLevel(state.u?.uz, state.earth_level);
+        return on_level(state.u?.uz, state.earth_level);
     case PM_WATER_ELEMENTAL:
-        return sameLevel(state.u?.uz, state.water_level);
+        return on_level(state.u?.uz, state.water_level);
     default:
         return false;
     }
@@ -200,12 +193,12 @@ export function is_home_elemental(monster, state = game) {
 function wrongElementType(monster, state) {
     if (monster.mlet === S_ELEMENTAL)
         return !is_home_elemental(monster, state);
-    if (sameLevel(state.u?.uz, state.earth_level)) return false;
-    if (sameLevel(state.u?.uz, state.water_level))
+    if (on_level(state.u?.uz, state.earth_level)) return false;
+    if (on_level(state.u?.uz, state.water_level))
         return !(monster.mflags1 & M1_SWIM);
-    if (sameLevel(state.u?.uz, state.fire_level))
+    if (on_level(state.u?.uz, state.fire_level))
         return !(monster.mresists & MR_FIRE);
-    if (sameLevel(state.u?.uz, state.air_level)) {
+    if (on_level(state.u?.uz, state.air_level)) {
         const flyer = Boolean(monster.mflags1 & M1_FLY)
             && monster.mlet !== S_TRAPPER;
         const floater = monster.mlet === S_EYE || monster.mlet === S_LIGHT;
@@ -359,8 +352,8 @@ export function peace_minded(monster, env = {}) {
     const mal = monster.maligntyp;
     const heroAlignment = state.u.ualign.type;
 
-    if (monster.mflags2 & M2_PEACEFUL) return true;
-    if (monster.mflags2 & M2_HOSTILE) return false;
+    if (alwaysPeaceful(monster)) return true;
+    if (alwaysHostile(monster)) return false;
     if (monster.msound === MS_LEADER || monster.msound === MS_GUARDIAN)
         return true;
     if (monster.msound === MS_NEMESIS) return false;

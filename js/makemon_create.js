@@ -20,6 +20,7 @@ import {
     OBJ_MINVENT,
     W_ARMH,
 } from './const.js';
+import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { add_to_minv } from './invent.js';
 import {
@@ -32,6 +33,9 @@ import {
 import { is_female, is_male, is_neuter } from './mondata.js';
 import { m_at, newMonster, place_monster } from './monst.js';
 import {
+    AT_WEAP,
+    M2_DOMESTIC,
+    M2_GREEDY,
     NON_PM,
     PM_ELF,
     PM_FOX,
@@ -50,9 +54,6 @@ import { mksobj, next_ident, weight } from './obj.js';
 import { DART, ORCISH_DAGGER, ORCISH_HELM } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 
-const AT_WEAP = 254;
-const M2_DOMESTIC = 0x00400000;
-const M2_GREEDY = 0x10000000;
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOCOUNTBIRTH
     | MM_ANGRY
@@ -92,14 +93,8 @@ function creationEnv(env = {}) {
     return { ...env, state, random };
 }
 
-function sameLevel(left, right) {
-    return Boolean(left && right
-        && left.dnum === right.dnum
-        && left.dlevel === right.dlevel);
-}
-
 function isRogueLevel(state) {
-    return sameLevel(state.u?.uz, state.rogue_level);
+    return on_level(state.u?.uz, state.rogue_level);
 }
 
 function isArmed(monster) {
@@ -169,17 +164,15 @@ function addFreshMonsterObject(monster, obj, normalized) {
 // C ref: makemon.c mongets(). The reachable species are neither demons,
 // lawful minions, player monsters, nor princes, so source postprocessing is
 // empty before mpickobj() links the fresh object.
-function mongets(monster, otyp, env = {}) {
+function mongets(monster, otyp, normalized) {
     if (!otyp) return null;
-    const normalized = creationEnv(env);
     assertSupportedMonster(monster.data);
     const obj = mksobj(otyp, true, false, normalized);
     return addFreshMonsterObject(monster, obj, normalized);
 }
 
 // C ref: makemon.c m_initthrow().
-function m_initthrow(monster, otyp, quantityRange, env = {}) {
-    const normalized = creationEnv(env);
+function m_initthrow(monster, otyp, quantityRange, normalized) {
     const obj = mksobj(otyp, true, false, normalized);
     obj.quan = normalized.random.rn1(quantityRange, 3);
     obj.owt = weight(obj, normalized);
@@ -187,8 +180,7 @@ function m_initthrow(monster, otyp, quantityRange, env = {}) {
 }
 
 // C ref: makemon.c m_initweap().
-function m_initweap(monster, env = {}) {
-    const normalized = creationEnv(env);
+function m_initweap(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     assertSupportedMonster(ptr);
@@ -227,8 +219,7 @@ function m_initweap(monster, env = {}) {
 
 // C ref: makemon.c m_initinv(). None of the initial-level species has a
 // class-specific branch, likes gold, or can pass either level-zero item gate.
-function m_initinv(monster, env = {}) {
-    const normalized = creationEnv(env);
+function m_initinv(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     assertSupportedMonster(ptr);
@@ -309,9 +300,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     );
     const monster = newMonster({
         msleeping: Boolean(mmflags & MM_ASLEEP),
-        nmon: state.fmon ?? null,
+        nmon: state.level.monlist,
     });
-    state.fmon = monster;
+    state.level.monlist = monster;
     monster.m_id = next_ident(normalized);
     monster.data = ptr;
     monster.mnum = mndx;

@@ -31,7 +31,7 @@ import {
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
 import { noveltitle } from './do_name.js';
-import { depth, level_difficulty } from './dungeon.js';
+import { depth, level_difficulty, on_level } from './dungeon.js';
 import { set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
 import { rndmonnum } from './makemon.js';
@@ -768,19 +768,13 @@ function isInitialInventoryPhase(state) {
     return Math.trunc(state.moves ?? 0) <= 1 && !state.in_mklev;
 }
 
-function sameLevel(left, right) {
-    return Boolean(left && right
-        && left.dnum === right.dnum
-        && left.dlevel === right.dlevel);
-}
-
 function inQuest(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum) && dnum === state.quest_dnum;
 }
 
 function isRogueLevel(state) {
-    return sameLevel(state.u?.uz, state.rogue_level);
+    return on_level(state.u?.uz, state.rogue_level);
 }
 
 function inHell(state) {

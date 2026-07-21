@@ -467,7 +467,7 @@ export function Can_dig_down(level, state = game) {
 export function Can_fall_thru(level, state = game) {
     return Can_dig_down(level, state)
         || Boolean(state.stronghold_level
-            && same_level(level, state.stronghold_level));
+            && on_level(level, state.stronghold_level));
 }
 
 function builds_up(level, state) {
@@ -475,7 +475,7 @@ function builds_up(level, state) {
     if (dungeon.num_dunlevs > 1)
         return dungeon.entry_lev === dungeon.num_dunlevs;
     const branch = state.branches.find(
-        (candidate) => same_level(candidate.end2, level),
+        (candidate) => on_level(candidate.end2, level),
     );
     if (!branch)
         throw new Error(`builds_up: no branch for dungeon ${level.dnum}`);
@@ -657,8 +657,12 @@ function dname_to_dnum(name, state) {
     return index;
 }
 
-function same_level(left, right) {
-    return left.dnum === right.dnum && left.dlevel === right.dlevel;
+// C ref: dungeon.c on_level(). Optional topology locations compare false when
+// either operand is absent.
+export function on_level(left, right) {
+    return Boolean(left && right
+        && left.dnum === right.dnum
+        && left.dlevel === right.dlevel);
 }
 
 function fixup_level_locations(state, roleFilecode) {
@@ -683,7 +687,7 @@ function fixup_level_locations(state, roleFilecode) {
             special.proto = `${roleFilecode}${name.slice(1)}`;
         } else if (target === 'knox_level') {
             const branch = state.branches.find(
-                (candidate) => same_level(candidate.end2, location),
+                (candidate) => on_level(candidate.end2, location),
             );
             if (branch) {
                 branch.end1.dnum = state.n_dgns;

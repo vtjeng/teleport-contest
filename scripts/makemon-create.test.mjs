@@ -41,36 +41,21 @@ import {
     ORCISH_HELM,
     objects_globals_init,
 } from '../js/objects.js';
+import { rawMonsterGenerationState } from './monster-test-state.mjs';
 
 const MON_X = 10;
 const MON_Y = 5;
 
 function initialLevelState() {
     const state = {
+        ...rawMonsterGenerationState(),
         astral_level: { dnum: 9, dlevel: 9 },
-        branches: [],
         context: { ident: 2 },
-        dungeons: [{
-            depth_start: 1,
-            dunlev_ureached: 1,
-            entry_lev: 1,
-            flags: { align: 0, hellish: false },
-            num_dunlevs: 20,
-        }],
-        fmon: null,
         in_mklev: true,
         level: new GameMap(),
         moves: 0,
-        quest_dnum: 1,
         rogue_level: { dnum: 0, dlevel: 15 },
         sanctum_level: { dnum: 9, dlevel: 8 },
-        specialLevels: [],
-        u: {
-            uhave: { amulet: 0 },
-            ualign: { type: 0, record: 0, abuse: 0 },
-            ulevel: 1,
-            uz: { dnum: 0, dlevel: 1 },
-        },
         urace: {
             mnum: PM_HUMAN,
             lovemask: 0,
@@ -172,12 +157,48 @@ test('non-armed initial monsters preserve source state and RNG order', () => {
         assert.equal(monster.mpeaceful, false);
         assert.equal(monster.minvent, null);
         assert.equal(state.mvitals[mndx].born, 1);
-        assert.equal(state.fmon, monster);
+        assert.equal(state.level.monlist, monster);
         assert.equal(state.level.monsters[MON_X][MON_Y], monster);
         assert.equal(state.context.ident, 3);
         if (mndx === PM_LICHEN) assert.equal(monster.female, false);
         else assert.equal(monster.female, true);
     }
+});
+
+test('new monsters prepend to the source level-wide chain', () => {
+    const state = initialLevelState();
+    state.level.at(MON_X + 1, MON_Y).typ = ROOM;
+    const firstRandom = scriptedRandom([
+        ...basicCreationSteps(),
+        ...ordinaryInventoryTail(),
+    ]);
+    const first = makemon(
+        state.mons[PM_JACKAL],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random: firstRandom.random },
+    );
+    firstRandom.assertExhausted();
+
+    const secondRandom = scriptedRandom([
+        ...basicCreationSteps(),
+        ...ordinaryInventoryTail(),
+    ]);
+    const second = makemon(
+        state.mons[PM_NEWT],
+        MON_X + 1,
+        MON_Y,
+        0,
+        { state, random: secondRandom.random },
+    );
+    secondRandom.assertExhausted();
+
+    assert.equal(state.level.monlist, second);
+    assert.equal(second.nmon, first);
+    assert.equal(first.nmon, null);
+    assert.equal(state.level.monsters[MON_X][MON_Y], first);
+    assert.equal(state.level.monsters[MON_X + 1][MON_Y], second);
 });
 
 test('goblin creates helm before dagger, then wears the prepended helm', () => {
@@ -384,7 +405,7 @@ test('unsupported creation modes fail before consuming RNG or state', () => {
         UnsupportedMonsterCreationError,
     );
     random.assertExhausted();
-    assert.equal(state.fmon, null);
+    assert.equal(state.level.monlist, null);
     assert.equal(state.context.ident, 2);
 });
 
@@ -414,7 +435,7 @@ test('source no-creation exits leave the square and identity untouched', () => {
     genocidedRandom.assertExhausted();
 
     for (const state of [disabled, genocided]) {
-        assert.equal(state.fmon, null);
+        assert.equal(state.level.monlist, null);
         assert.equal(state.context.ident, 2);
         assert.equal(state.level.monsters[MON_X][MON_Y], null);
     }

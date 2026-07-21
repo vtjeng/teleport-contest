@@ -3,6 +3,20 @@
 // Hello(), and Goodbye(); src/allmain.c welcome().
 
 import { P_CLERIC_SPELL } from './const.js';
+import {
+    M2_FEMALE,
+    M2_HOSTILE,
+    M2_MALE,
+    M2_NASTY,
+    M2_NEUTER,
+    M2_PEACEFUL,
+    M2_STALK,
+    M3_CLOSE,
+    M3_WAITFORU,
+    M3_WANTSARTI,
+    MS_LEADER,
+    MS_NEMESIS,
+} from './monsters.js';
 import { SPE_LIGHT } from './objects.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
 import {
@@ -34,19 +48,6 @@ import {
     validrace,
     validrole,
 } from './roles.js';
-
-const MS_LEADER = 36;
-const MS_NEMESIS = 37;
-const M2_MALE = 0x00010000;
-const M2_FEMALE = 0x00020000;
-const M2_NEUTER = 0x00040000;
-const M2_HOSTILE = 0x00100000;
-const M2_PEACEFUL = 0x00200000;
-const M2_STALK = 0x01000000;
-const M2_NASTY = 0x02000000;
-const M3_WANTSARTI = 0x0010;
-const M3_WAITFORU = 0x0040;
-const M3_CLOSE = 0x0080;
 
 const PM_CLERIC = 337;
 const PM_KNIGHT = 335;

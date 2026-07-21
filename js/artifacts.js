@@ -15,6 +15,14 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import {
+    M2_DEMON,
+    M2_ELF,
+    M2_GIANT,
+    M2_ORC,
+    M2_UNDEAD,
+    M2_WERE,
+} from './monsters.js';
+import {
     AMULET_OF_ESP,
     ATHAME,
     BATTLE_AXE,
@@ -138,13 +146,6 @@ const AD_BLND = 11;
 const AD_STUN = 12;
 const AD_DRLI = 15;
 const AD_WERE = 29;
-
-const M2_UNDEAD = 0x00000002;
-const M2_WERE = 0x00000004;
-const M2_ELF = 0x00000010;
-const M2_ORC = 0x00000080;
-const M2_DEMON = 0x00000100;
-const M2_GIANT = 0x00002000;
 
 // defsym.h MONSYM indices; artifact mtype stores the monster class index.
 const S_DRAGON = 30;

@@ -14,6 +14,7 @@ import {
     ledger_no,
     level_range,
     maxledgerno,
+    on_level,
 } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -73,6 +74,18 @@ function branchValue(branch) {
         + (branch.end2.dnum * 33)
         + branch.end2.dlevel;
 }
+
+test('on_level is null-safe raw dungeon coordinate equality', () => {
+    // Dungeon 2, level 3 is arbitrary; the adjacent coordinates isolate each
+    // field, while zero coordinates exercise the unassigned-level sentinel.
+    assert.equal(on_level({ dnum: 2, dlevel: 3 }, { dnum: 2, dlevel: 3 }), true);
+    assert.equal(on_level({ dnum: 1, dlevel: 3 }, { dnum: 2, dlevel: 3 }), false);
+    assert.equal(on_level({ dnum: 2, dlevel: 4 }, { dnum: 2, dlevel: 3 }), false);
+    assert.equal(on_level(null, { dnum: 2, dlevel: 3 }), false);
+    assert.equal(on_level({ dnum: 2, dlevel: 3 }, undefined), false);
+    // Lassigned semantics belong to callers; raw zero coordinates are equal.
+    assert.equal(on_level({ dnum: 0, dlevel: 0 }, { dnum: 0, dlevel: 0 }), true);
+});
 
 test('generated dungeon data exactly matches the pinned Lua table', () => {
     const source = readFileSync(

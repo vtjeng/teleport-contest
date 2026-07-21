@@ -30,6 +30,7 @@ import { newhp } from './attrib.js';
 import { getnow } from './calendar.js';
 import { newpw } from './exper.js';
 import { game } from './gstate.js';
+import { M3_INFRAVISION } from './monsters.js';
 import { MAXSPELL } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
@@ -38,7 +39,6 @@ export const RIGHT_HANDED = 0;
 export const LEFT_HANDED = 1;
 
 const NO_SPELL = 0;
-const M3_INFRAVISION = 0x0100;
 
 // The initial player monster records with a natural resistance. All other
 // role records have mresists == 0. C ref: include/monsters.h character

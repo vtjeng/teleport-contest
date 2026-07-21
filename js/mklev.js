@@ -388,7 +388,6 @@ function recount_level_features() {
 // C ref: mklev.c clear_level_structures()
 function clear_level_structures() {
     const g = game;
-    g.fmon = null;
     g.level = new GameMap();
     g.made_branch = false;
     g.smeq = new Array(MAXNROFROOMS + 1).fill(0);
