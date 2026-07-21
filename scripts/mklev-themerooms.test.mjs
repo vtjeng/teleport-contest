@@ -89,8 +89,8 @@ test('themeroom generation connects selection, map placement, and filler region'
     game.u = { uz: { dnum: 0, dlevel: 1 } };
     game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     const calls = [];
-    // Difficulty one has 30 eligible descriptors, so selection consumes this
-    // many reservoir draws before map placement begins.
+    // At difficulty one, all 30 eligible descriptors have positive frequency,
+    // so selection consumes one reservoir draw per descriptor.
     const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     const random = (bound) => {
