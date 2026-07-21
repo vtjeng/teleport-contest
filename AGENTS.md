@@ -112,12 +112,14 @@ Before marking an implementation chunk complete:
 3. For a `full` review, have a fresh Claude Code instance run
    `/audit-diff-clarity` after simplification stabilizes. Use a clean checkout of
    the intended range and supply its background, decided non-issues, prior review
-   context, and repository conventions. Read the full output and warnings; apply
-   confirmed fixes in the primary session, validate, and commit them.
+   context, and repository conventions. Read the full output and warnings;
+   review and validate confirmed fixes, integrate accepted changes, and repeat
+   the affected audit.
 4. Have a different fresh Claude Code instance run the final
    `/audit-diff-correctness` review against the relevant upstream source. Resolve
-   confirmed findings, add regression tests for reusable failure classes, commit
-   the fixes, and repeat the affected audit.
+   confirmed findings, add regression tests for reusable failure classes, review
+   and validate its changes, integrate accepted fixes, and repeat the affected
+   audit.
 5. Run the relevant broader checks. Record each `review` or `simplification`
    ledger pass only through the exact commit it covered. Later commits touching
    its areas remain new debt: repeat affected review audits before completion,
@@ -138,10 +140,13 @@ Pass rules:
   sealed holdout material, and explicitly prohibit access to
   `sessions/holdout/`.
 - Capture the complete skill output, including counts, findings, rejections,
-  unverified items, and warnings. Correctness and clarity checks are read-only.
-  Run simplification in an isolated worktree, limited to its named scope and
-  tests, and prose editing on scratch copies. The primary Codex session verifies
-  and applies accepted changes. Prose passes are not quality-ledger records.
+  unverified items, and warnings. Run every check in an isolated worktree pinned
+  to the exact checked commit; copy any uncommitted prose snapshots into that
+  worktree. Claude may edit and commit only there, within its assigned scope and
+  tests, and must not push. The primary Codex session reviews the diff, reruns
+  relevant validation, and integrates accepted changes. Record a quality
+  frontier only after the corresponding check covers the exact integrated
+  commit. Prose passes are not quality-ledger records.
 - While a Claude Code check runs, freeze its assigned scope. The primary session
   may continue on a descendant commit outside that scope. Changes made after the
   checked commit are not covered by the result and must not be included in its
