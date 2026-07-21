@@ -97,6 +97,12 @@ function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }
 
+// C ref: u_init.c's zeroed hero starts in dungeon zero and assigns level one;
+// mklev.c uses that same coordinate pair for the first dungeon level.
+function isInitialDungeonLevel(state) {
+    return state.u?.uz?.dnum === 0 && state.u.uz.dlevel === 1;
+}
+
 function isArmed(species) {
     return species.mattk.some((attack) => attack.aatyp === AT_WEAP);
 }
@@ -120,6 +126,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     if (!state.in_mklev)
         throw new UnsupportedMonsterCreationError('outside mklev');
+    if (!isInitialDungeonLevel(state)) {
+        throw new UnsupportedMonsterCreationError(
+            'outside initial dungeon level',
+        );
+    }
     if (x === 0 && y === 0)
         throw new UnsupportedMonsterCreationError('random coordinates');
     if (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ)) {
@@ -138,7 +149,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     if (!state.u?.ualign || !state.urace)
         throw new Error('makemon requires initialized hero alignment and race');
-    if (state.migrating_objs || state.gm?.migrating_objs) {
+    if (!(mmflags & NO_MINVENT)
+        && (state.migrating_objs || state.gm?.migrating_objs)) {
         throw new UnsupportedMonsterCreationError('migrating object delivery');
     }
     if (ptr) {

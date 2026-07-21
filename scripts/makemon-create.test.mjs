@@ -386,6 +386,110 @@ test('creation flags suppress their source draws and mutations', () => {
     assert.equal(state.mvitals[PM_GOBLIN].born, 0);
 });
 
+test('creation outside the initial dungeon level fails before RNG or state', () => {
+    const cases = [
+        {
+            name: 'later main-dungeon level',
+            level: { dnum: 0, dlevel: 2 },
+        },
+        {
+            name: 'another dungeon at local level one',
+            level: { dnum: 1, dlevel: 1 },
+        },
+        {
+            name: 'Stronghold special level',
+            level: { dnum: 0, dlevel: 10 },
+            stronghold: true,
+        },
+    ];
+
+    for (const scenario of cases) {
+        const state = initialLevelState();
+        state.u.uz = scenario.level;
+        if (scenario.stronghold)
+            state.stronghold_level = { ...scenario.level };
+        const random = scriptedRandom([]);
+
+        assert.throws(
+            () => makemon(
+                null,
+                MON_X,
+                MON_Y,
+                MM_NOGRP | NO_MINVENT,
+                { state, random: random.random },
+            ),
+            UnsupportedMonsterCreationError,
+            scenario.name,
+        );
+        random.assertExhausted();
+        assert.equal(state.level.monlist, null, scenario.name);
+        assert.equal(state.level.monsters[MON_X][MON_Y], null, scenario.name);
+        assert.equal(state.mvitals[PM_NEWT].born, 0, scenario.name);
+        assert.equal(state.context.ident, 2, scenario.name);
+    }
+});
+
+test('NO_MINVENT leaves migrating object queues untouched', () => {
+    for (const queueOwner of ['state', 'gm']) {
+        const state = initialLevelState();
+        const tail = { nobj: null };
+        const migrating = { nobj: tail };
+        if (queueOwner === 'state') state.migrating_objs = migrating;
+        else state.gm = { migrating_objs: migrating };
+        const random = scriptedRandom(basicCreationSteps());
+
+        const monster = makemon(
+            state.mons[PM_NEWT],
+            MON_X,
+            MON_Y,
+            NO_MINVENT,
+            { state, random: random.random },
+        );
+        random.assertExhausted();
+
+        assert.equal(monster.minvent, null);
+        assert.equal(state.level.monlist, monster);
+        assert.equal(state.mvitals[PM_NEWT].born, 1);
+        assert.equal(state.context.ident, 3);
+        if (queueOwner === 'state')
+            assert.equal(state.migrating_objs, migrating);
+        else
+            assert.equal(state.gm.migrating_objs, migrating);
+        assert.equal(migrating.nobj, tail);
+        assert.equal(tail.nobj, null);
+    }
+});
+
+test('inventory-enabled creation rejects migrating object delivery', () => {
+    for (const queueOwner of ['state', 'gm']) {
+        const state = initialLevelState();
+        const tail = { nobj: null };
+        const migrating = { nobj: tail };
+        if (queueOwner === 'state') state.migrating_objs = migrating;
+        else state.gm = { migrating_objs: migrating };
+        const random = scriptedRandom([]);
+
+        assert.throws(
+            () => makemon(
+                state.mons[PM_NEWT],
+                MON_X,
+                MON_Y,
+                0,
+                { state, random: random.random },
+            ),
+            UnsupportedMonsterCreationError,
+            queueOwner,
+        );
+        random.assertExhausted();
+        assert.equal(state.level.monlist, null);
+        assert.equal(state.level.monsters[MON_X][MON_Y], null);
+        assert.equal(state.mvitals[PM_NEWT].born, 0);
+        assert.equal(state.context.ident, 2);
+        assert.equal(migrating.nobj, tail);
+        assert.equal(tail.nobj, null);
+    }
+});
+
 test('unsupported creation modes fail before consuming RNG or state', () => {
     const state = initialLevelState();
     const random = scriptedRandom([]);
