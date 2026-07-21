@@ -94,101 +94,64 @@ Git history do not grant permission to inspect the sealed local holdout.
 
 ## Quality workflow
 
-Before marking an implementation chunk complete:
+Use checks in proportion to risk. Routine chunks do not require the full
+multi-agent workflow.
 
-1. Commit one coherent implementation and run `npm run quality` to see review
-   and simplification debt. Assign every new file under `js/` to exactly one
-   quality area. `QUALITY.json` stores the tracking and enforcement bases, area
-   assignments, thresholds, and pass records. From those records and Git, the
-   dashboard derives per-area commit counts, changed-file and changed-line
-   totals, worktree state, and separate review and simplification frontiers; a
-   frontier is the last exact commit recorded as covered for that area and pass
-   kind.
-2. Have a fresh Claude Code instance run and validate any due
-   `/simplify-codebase` pass, then commit accepted changes. A simplification pass
-   is due when an area reaches its configured commit budget. Run one earlier when
-   accidental complexity, duplication, or temporary scaffolding has visibly
-   accumulated.
-3. For a `full` review, have a fresh Claude Code instance run
-   `/audit-diff-clarity` after simplification stabilizes. Use a clean checkout of
-   the intended range and supply its background, decided non-issues, prior review
-   context, and repository conventions. Read the full output and warnings;
-   review and validate confirmed fixes, integrate accepted changes, and repeat
-   the affected audit.
-4. Have a different fresh Claude Code instance run the final
-   `/audit-diff-correctness` review against the relevant upstream source. Resolve
-   confirmed findings, add regression tests for reusable failure classes, review
-   and validate its changes, integrate accepted fixes, and repeat the affected
-   audit.
-5. Run the relevant broader checks. Record each `review` or `simplification`
-   ledger pass only through the exact commit it covered. Later commits touching
-   its areas remain new debt: repeat affected review audits before completion,
-   and repeat simplification when its budget is exhausted or the complexity
-   conditions in step 2 make it due. Commit the `QUALITY.json` update and finish
-   with `npm run quality -- --check`.
+For each coherent implementation chunk:
+
+1. Inspect the diff and run focused tests plus the relevant broader checks.
+2. Commit the implementation and run `npm run quality` as a scheduling
+   dashboard. Assign every new file under `js/` to exactly one quality area.
+3. Run a fresh `light` `/audit-diff-correctness` pass when the change affects
+   source behavior, PRNG or evaluation order, parsing, state ownership,
+   persistence, input boundaries, or rendering. Small mechanical or test-only
+   changes may rely on direct review and tests.
+4. Add the exact code commit and score estimate to `SCORE.md`.
+
+Run the heavier checks at these boundaries:
+
+- At a major milestone, or before completing a large or cross-subsystem change,
+  run `/simplify-codebase`, `/audit-diff-clarity`, and a `full`
+  `/audit-diff-correctness` pass. Run simplification before the audits.
+- Run simplification earlier when duplication, accidental complexity, or stale
+  scaffolding is visible. The configured commit budget is a scheduling signal
+  between milestones, not a reason to interrupt a coherent chunk.
+- After a substantial batch of published technical prose stabilizes, run
+  `/copyedit-technical-prose` once. Do not run it on unchanged prose.
+- After applying an audit fix, review the new delta. Repeat the full-range audit
+  only when the fix changes the design or invalidates earlier conclusions.
 
 Pass rules:
 
-- For these four checks, use Claude Code instead of the default Codex-subagent
-  workflow: `/audit-diff-correctness`, `/audit-diff-clarity`,
-  `/simplify-codebase`, and `/copyedit-technical-prose`. Run every pass in a
-  separate, fresh Claude Code instance. Do not reuse an instance or give it the
-  parent conversation.
-- Give Claude only the exact committed range or document snapshots, affected
+- Use a fresh, independent session for each skill pass. Use the review backend
+  selected for the active session; otherwise use the default skill workflow.
+  Do not reuse a reviewer or provide the parent conversation.
+- Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, prior validation, decided non-issues,
-  and applicable constraints. Require it to read `AGENTS.md`. Never provide
-  sealed holdout material, and explicitly prohibit access to
-  `sessions/holdout/`.
-- Capture the complete skill output, including counts, findings, rejections,
-  unverified items, and warnings. Run every check in an isolated worktree pinned
-  to the exact checked commit; copy any uncommitted prose snapshots into that
-  worktree. Claude may edit and commit only there, within its assigned scope and
-  tests, and must not push. The primary Codex session reviews the diff, reruns
-  relevant validation, and integrates accepted changes. Record a quality
-  frontier only after the corresponding check covers the exact integrated
-  commit. Prose passes are not quality-ledger records.
-- While a Claude Code check runs, freeze its assigned scope. The primary session
-  may continue on a descendant commit outside that scope. Changes made after the
-  checked commit are not covered by the result and must not be included in its
-  recorded frontier. If later work touches a reviewed area, review that new delta
-  before completion.
-- Use a `light` `/audit-diff-correctness` audit only for a small, coherent diff,
-  and add `/audit-diff-clarity` when readability is in doubt. A `full` review is
-  required at milestones and before marking a large or cross-subsystem change
-  complete; it includes both `/audit-diff-clarity` and a `full`
-  `/audit-diff-correctness` audit.
-- In a `full` review record, identify the clarity and correctness audits
-  separately. For each audit, include its exact range; raw, deduplicated,
-  confirmed, and applied counts; applied fixes and confirmed deferrals;
-  unverified judgments; notable rejections; warnings; and validation. Preserve
-  the counter-evidence for notable correctness rejections.
-- The configured simplification commit budget applies separately to each area;
-  commits touching the area's paths count toward it, and a dirty affected
-  worktree counts as one additional unit. Shorten the budget when passes find
-  meaningful cleanup or debt grows; lengthen it after repeated, well-scoped
-  no-change passes. Record the reason and update
-  `thresholds.simplificationCommits` in `QUALITY.json`.
-- Remove accidental complexity, stale compatibility layers, or obsolete replay
-  scaffolding only after a source-faithful replacement makes them unnecessary.
-  Preserve code, data, comments, APIs, and dependency seams needed by planned
-  ports. Relevant unit, differential, and development checks must preserve
-  behavior and PRNG order.
-- Record each quality-ledger pass with `npm run quality -- record-review ...` or
-  `npm run quality -- record-simplification ...`. The command derives the prior
-  frontier and rejects a selected area when its configured `js/` paths have
-  uncommitted changes. Record `changed` when a pass changes code; use `no-change`
-  only after a deliberate pass. Include the method and validation in its
-  evidence. A simplification pass may span several coherent commits. Use
-  `--dry-run` to preview a record and `npm run quality -- --help` for full syntax.
-- `npm run quality -- --check` blocks completion for post-enforcement review
-  debt, an exhausted simplification budget, or an unassigned tracked or
-  unignored file under `js/`. Historical `BASELINE` debt is exempt independently
-  for review and simplification until that area's frontier for the pass kind
-  advances.
-- After a substantial batch of changes to `AGENTS.md`, `README.md`, or other
-  published technical prose, have a fresh Claude Code instance run
-  `/copyedit-technical-prose` once the content stabilizes. Do not schedule it by
-  implementation commit or run it on unchanged prose.
+  and applicable constraints. Require them to read `AGENTS.md`. Explicitly
+  prohibit access to `sessions/holdout/` and never provide holdout material.
+- Run formal skill passes in an isolated worktree pinned to the checked commit.
+  Capture the complete output, including counts, findings, rejections,
+  unverified items, warnings, and validation. The primary session reviews and
+  validates proposed changes before integrating them; reviewers must not push.
+- Freeze an audit's assigned scope while it runs. A later commit is outside that
+  audit, but ordinarily requires review of only the later delta.
+- Preserve source-shaped code, planned dependency seams, generated data, and
+  temporary scaffolding until a source-faithful replacement owns its behavior
+  and state. Simplification must preserve PRNG and evaluation order.
+- Record formal review and simplification passes with
+  `npm run quality -- record-review ...` and
+  `npm run quality -- record-simplification ...`. Advance a frontier only
+  through the exact integrated commit covered by the pass. Prose passes are not
+  ledger records.
+- For a full review record, identify clarity and correctness separately. Include
+  each exact range; raw, deduplicated, confirmed, and applied counts; fixes and
+  deferrals; unverified judgments; notable rejections and their counter-evidence;
+  warnings; and validation.
+- Finish each major milestone with `npm run quality -- --check`. Resolve review
+  debt, exhausted simplification budgets, and unassigned `js/` files then.
+  Historical `BASELINE` debt remains exempt until that area's first recorded
+  pass.
 
 ## Generalization failure protocol
 
