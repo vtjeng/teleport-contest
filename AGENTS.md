@@ -104,18 +104,20 @@ Before marking an implementation chunk complete:
    totals, worktree state, and separate review and simplification frontiers; a
    frontier is the last exact commit recorded as covered for that area and pass
    kind.
-2. Run and validate any due simplification, then commit accepted changes. A
-   simplification pass is due when an area reaches its configured commit budget.
-   Run one earlier when accidental complexity, duplication, or temporary
-   scaffolding has visibly accumulated.
-3. For a `full` review, run `$audit-diff-clarity` after simplification stabilizes.
-   Use a clean checkout of the intended range and supply its background, decided
-   non-issues, prior review context, and repository conventions. Read the full
-   output and warnings; apply confirmed fixes in the primary session, validate,
-   and commit them.
-4. Run the final `$audit-diff-correctness` review against the relevant upstream
-   source. Resolve confirmed findings, add regression tests for reusable failure
-   classes, commit the fixes, and repeat the affected audit.
+2. Have a fresh Claude Code instance run and validate any due
+   `/simplify-codebase` pass, then commit accepted changes. A simplification pass
+   is due when an area reaches its configured commit budget. Run one earlier when
+   accidental complexity, duplication, or temporary scaffolding has visibly
+   accumulated.
+3. For a `full` review, have a fresh Claude Code instance run
+   `/audit-diff-clarity` after simplification stabilizes. Use a clean checkout of
+   the intended range and supply its background, decided non-issues, prior review
+   context, and repository conventions. Read the full output and warnings; apply
+   confirmed fixes in the primary session, validate, and commit them.
+4. Have a different fresh Claude Code instance run the final
+   `/audit-diff-correctness` review against the relevant upstream source. Resolve
+   confirmed findings, add regression tests for reusable failure classes, commit
+   the fixes, and repeat the affected audit.
 5. Run the relevant broader checks. Record each `review` or `simplification`
    ledger pass only through the exact commit it covered. Later commits touching
    its areas remain new debt: repeat affected review audits before completion,
@@ -125,25 +127,31 @@ Before marking an implementation chunk complete:
 
 Pass rules:
 
-- Run each correctness audit, clarity audit, simplification pass, and prose pass
-  in a different newly spawned subagent with fresh state. Do not reuse the
-  implementation agent or a previous reviewer or simplifier. Start without
-  inherited conversation when supported.
-- For correctness, clarity, and simplification work, provide only the exact
-  committed range and affected quality areas, background, relevant source,
-  tests and validation, decided non-issues, and behavioral and architectural
-  constraints. For prose work, provide the current and pristine documents,
-  referenced artifacts, verified subject facts, any format reference, and prose
-  conventions. Never provide sealed holdout material.
-- Correctness and clarity reviewers are read-only; the primary session applies
-  confirmed fixes. Simplifiers use `$simplify-codebase` and may edit only their
-  named scope and its tests. The primary session verifies and applies prose
-  edits. Prose passes are not quality-ledger records.
-- Use a `light` `$audit-diff-correctness` audit only for a small, coherent diff,
-  and add `$audit-diff-clarity` when readability is in doubt. A `full` review is
+- For these four checks, use Claude Code instead of the default Codex-subagent
+  workflow: `/audit-diff-correctness`, `/audit-diff-clarity`,
+  `/simplify-codebase`, and `/copyedit-technical-prose`. Run every pass in a
+  separate, fresh Claude Code instance. Do not reuse an instance or give it the
+  parent conversation.
+- Give Claude only the exact committed range or document snapshots, affected
+  areas, relevant sources or artifacts, prior validation, decided non-issues,
+  and applicable constraints. Require it to read `AGENTS.md`. Never provide
+  sealed holdout material, and explicitly prohibit access to
+  `sessions/holdout/`.
+- Capture the complete skill output, including counts, findings, rejections,
+  unverified items, and warnings. Correctness and clarity checks are read-only.
+  Run simplification in an isolated worktree, limited to its named scope and
+  tests, and prose editing on scratch copies. The primary Codex session verifies
+  and applies accepted changes. Prose passes are not quality-ledger records.
+- While a Claude Code check runs, freeze its assigned scope. The primary session
+  may continue on a descendant commit outside that scope. Changes made after the
+  checked commit are not covered by the result and must not be included in its
+  recorded frontier. If later work touches a reviewed area, review that new delta
+  before completion.
+- Use a `light` `/audit-diff-correctness` audit only for a small, coherent diff,
+  and add `/audit-diff-clarity` when readability is in doubt. A `full` review is
   required at milestones and before marking a large or cross-subsystem change
-  complete; it includes both `$audit-diff-clarity` and a `full`
-  `$audit-diff-correctness` audit.
+  complete; it includes both `/audit-diff-clarity` and a `full`
+  `/audit-diff-correctness` audit.
 - In a `full` review record, identify the clarity and correctness audits
   separately. For each audit, include its exact range; raw, deduplicated,
   confirmed, and applied counts; applied fixes and confirmed deferrals;
@@ -173,9 +181,9 @@ Pass rules:
   for review and simplification until that area's frontier for the pass kind
   advances.
 - After a substantial batch of changes to `AGENTS.md`, `README.md`, or other
-  published technical prose, run `$copyedit-technical-prose` once the content
-  stabilizes. Do not schedule it by implementation commit or run it on unchanged
-  prose.
+  published technical prose, have a fresh Claude Code instance run
+  `/copyedit-technical-prose` once the content stabilizes. Do not schedule it by
+  implementation commit or run it on unchanged prose.
 
 ## Generalization failure protocol
 
