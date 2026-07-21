@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "trackingBase": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
+  "enforcementBase": "f11f5c2bfb80d323ac171f83b0a3214d9dbaf9b3",
+  "thresholds": {
+    "simplificationCommits": 3
+  },
+  "areas": [
+    {
+      "id": "startup",
+      "label": "Startup and options",
+      "paths": [
+        "js/allmain.js",
+        "js/jsmain.js",
+        "js/legacy_startup.js",
+        "js/options.js",
+        "js/player_selection.js",
+        "js/player_selection_tty.js",
+        "js/tty_startup.js",
+        "js/tutorial_startup.js"
+      ]
+    },
+    {
+      "id": "hero",
+      "label": "Hero, roles, and skills",
+      "paths": [
+        "js/attrib.js",
+        "js/calendar.js",
+        "js/exper.js",
+        "js/role_init.js",
+        "js/role_skills.js",
+        "js/roles.js",
+        "js/u_init.js"
+      ]
+    },
+    {
+      "id": "objects",
+      "label": "Objects and inventory",
+      "paths": [
+        "js/artifacts.js",
+        "js/do_name.js",
+        "js/eat.js",
+        "js/fruit.js",
+        "js/invent.js",
+        "js/o_init.js",
+        "js/obj.js",
+        "js/objects.js",
+        "js/u_init_inventory_data.js"
+      ]
+    },
+    {
+      "id": "world",
+      "label": "Monsters and world",
+      "paths": [
+        "js/dungeon.js",
+        "js/dungeon_data.js",
+        "js/makemon.js",
+        "js/mklev.js",
+        "js/mondata.js",
+        "js/monsters.js",
+        "js/rect.js",
+        "js/track.js",
+        "js/vision.js"
+      ]
+    },
+    {
+      "id": "interaction",
+      "label": "Commands and display",
+      "paths": [
+        "js/cmd.js",
+        "js/display.js",
+        "js/game_display.js",
+        "js/input.js",
+        "js/tty_menu.js",
+        "js/tty_message.js"
+      ]
+    },
+    {
+      "id": "runtime",
+      "label": "Core runtime",
+      "paths": [
+        "js/const.js",
+        "js/game.js",
+        "js/gstate.js",
+        "js/hacklib.js",
+        "js/moveloop_preamble.js",
+        "js/nethack.js",
+        "js/rng.js",
+        "js/timeout.js",
+        "js/version.js"
+      ]
+    },
+    {
+      "id": "replay",
+      "label": "Replay scaffolding",
+      "paths": [
+        "js/fastforward.js"
+      ]
+    },
+    {
+      "id": "judge-boundaries",
+      "label": "Judge-owned boundaries",
+      "paths": [
+        "js/isaac64.js",
+        "js/storage.js",
+        "js/terminal.js"
+      ]
+    }
+  ],
+  "passes": []
+}
