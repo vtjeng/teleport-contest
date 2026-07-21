@@ -97,14 +97,14 @@ function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }
 
-function isArmed(monster) {
-    return monster.mattk.some((attack) => attack.aatyp === AT_WEAP);
+function isArmed(species) {
+    return species.mattk.some((attack) => attack.aatyp === AT_WEAP);
 }
 
-function assertSupportedMonster(monster) {
-    if (!monster || !INITIAL_LEVEL_MONSTERS.has(monster.pmidx)) {
+function assertSupportedSpecies(species) {
+    if (!species || !INITIAL_LEVEL_MONSTERS.has(species.pmidx)) {
         throw new UnsupportedMonsterCreationError(
-            `monster ${monster?.pmidx ?? 'null'}`,
+            `monster ${species?.pmidx ?? 'null'}`,
         );
     }
 }
@@ -142,7 +142,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         throw new UnsupportedMonsterCreationError('migrating object delivery');
     }
     if (ptr) {
-        assertSupportedMonster(ptr);
+        assertSupportedSpecies(ptr);
         if (state.mons[ptr.pmidx] !== ptr) {
             throw new UnsupportedMonsterCreationError(
                 'monster record outside the mutable catalog',
@@ -166,7 +166,7 @@ function addFreshMonsterObject(monster, obj, normalized) {
 // empty before mpickobj() links the fresh object.
 function mongets(monster, otyp, normalized) {
     if (!otyp) return null;
-    assertSupportedMonster(monster.data);
+    assertSupportedSpecies(monster.data);
     const obj = mksobj(otyp, true, false, normalized);
     return addFreshMonsterObject(monster, obj, normalized);
 }
@@ -183,7 +183,7 @@ function m_initthrow(monster, otyp, quantityRange, normalized) {
 function m_initweap(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
-    assertSupportedMonster(ptr);
+    assertSupportedSpecies(ptr);
     if (isRogueLevel(state)) return;
     if (!isArmed(ptr)) {
         throw new UnsupportedMonsterCreationError(
@@ -222,7 +222,7 @@ function m_initweap(monster, normalized) {
 function m_initinv(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
-    assertSupportedMonster(ptr);
+    assertSupportedSpecies(ptr);
     if (isRogueLevel(state)) return;
 
     if (monster.m_lev > random.rn2(50)) {
@@ -270,8 +270,15 @@ function initializeGender(monster, ptr, mmflags, random) {
     }
 }
 
-// C ref: makemon.c makemon(). This owns the exact level-one, explicit-square,
-// in-mklev path used by fill_ordinary_room().
+// C ref: makemon.c makemon(). This implements the level-one, explicit-square,
+// in-mklev call shape needed when fill_ordinary_room() uses source-derived
+// monster creation. Production wiring remains deferred while room filling is
+// replayed.
+//
+// After supported-call validation, source no-creation outcomes return null:
+// generation is disabled, the square is occupied, selection has no candidate,
+// or the species is genocided. Unsupported modes throw
+// UnsupportedMonsterCreationError; invalid arguments or state fail validation.
 export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
     const { random, state } = normalized;
@@ -287,11 +294,14 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     if (anymon) {
         ptr = rndmonst(normalized);
         if (!ptr) return null;
-        assertSupportedMonster(ptr);
+        assertSupportedSpecies(ptr);
     }
     const mndx = ptr.pmidx;
     if (state.mvitals[mndx].mvflags & G_GENOD) return null;
 
+    // makemon.c deliberately ignores propagate()'s result. An explicitly
+    // requested extinct species remains creatable after the genocide check;
+    // propagate() still applies enabled birth-count side effects.
     propagate(
         mndx,
         !(mmflags & MM_NOCOUNTBIRTH),

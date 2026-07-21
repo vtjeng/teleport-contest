@@ -275,6 +275,8 @@ test('newmonhp preserves level-zero and ordinary minimum-hit-point boosts', () =
     const state = startingState();
     const newt = {};
     const newtRng = scriptedRandom([
+        // A level-zero newt uses rnd(4); the minimum result equals basehp, so
+        // newmonhp raises both hit-point fields from 1 to 2.
         { kind: 'rnd', bound: 4, result: 1 },
     ]);
     newmonhp(newt, PM_NEWT, { state, random: newtRng.random });
@@ -286,6 +288,8 @@ test('newmonhp preserves level-zero and ordinary minimum-hit-point boosts', () =
 
     const bee = {};
     const beeRng = scriptedRandom([
+        // A level-one killer bee uses d(1, 8); the minimum result equals
+        // basehp, so newmonhp raises both hit-point fields from 1 to 2.
         { kind: 'd', bound: [1, 8], result: 1 },
     ]);
     newmonhp(bee, PM_KILLER_BEE, { state, random: beeRng.random });
@@ -296,7 +300,7 @@ test('newmonhp preserves level-zero and ordinary minimum-hit-point boosts', () =
     );
 });
 
-test('newmonhp keeps fixed golem, Rider, and adult-dragon branches', () => {
+test('newmonhp preserves golem fixed HP and Rider/adult-dragon formulas', () => {
     const state = startingState();
 
     const golem = {};
@@ -308,6 +312,8 @@ test('newmonhp keeps fixed golem, Rider, and adult-dragon branches', () => {
 
     const rider = {};
     const riderRng = scriptedRandom([
+        // One on each of 10 d8 yields basehp 10, triggering the final
+        // minimum-hit-point boost to 11.
         { kind: 'd', bound: [10, 8], result: 10 },
     ]);
     newmonhp(rider, PM_DEATH, { state, random: riderRng.random });
@@ -334,19 +340,24 @@ test('newmonhp keeps fixed golem, Rider, and adult-dragon branches', () => {
 test('propagate preserves birth limits, extinction, and ghostly tally rules', () => {
     const state = startingState();
     const random = scriptedRandom([]).random;
+    // Nazgul and erinys exercise the two special caps; jackal uses MAXMONNO.
     assert.equal(mbirth_limit(PM_NAZGUL), 9);
     assert.equal(mbirth_limit(PM_ERINYS), 3);
     assert.equal(mbirth_limit(PM_JACKAL), 120);
 
+    // One below the default cap remains eligible. Tallying reaches 120 and
+    // marks this non-G_NOGEN species extinct.
     state.mvitals[PM_JACKAL].born = 119;
     assert.equal(propagate(PM_JACKAL, true, false, { state, random }), true);
     assert.equal(state.mvitals[PM_JACKAL].born, 120);
     assert.ok(state.mvitals[PM_JACKAL].mvflags & G_EXTINCT);
 
-    // Ordinary creation still tallies an already extinct species.
+    // A non-ghostly tally increments an extinct species even though
+    // propagation returns false.
     assert.equal(propagate(PM_JACKAL, true, false, { state, random }), false);
     assert.equal(state.mvitals[PM_JACKAL].born, 121);
 
+    // Ghostly restoration of an extinct species returns false without tallying.
     state.mvitals[PM_FOX].mvflags |= G_EXTINCT;
     assert.equal(propagate(PM_FOX, true, true, { state, random }), false);
     assert.equal(state.mvitals[PM_FOX].born, 0);
@@ -358,7 +369,7 @@ test('propagate preserves birth limits, extinction, and ghostly tally rules', ()
     assert.ok(state.mvitals[PM_WIZARD_OF_YENDOR].mvflags & G_EXTINCT);
 });
 
-test('peace_minded preserves level-one hostility and goblin race draws', () => {
+test('peace_minded preserves hostility gates and co-aligned RNG', () => {
     const state = startingState();
     const noDraw = scriptedRandom([]);
     const alwaysHostile = [
@@ -388,6 +399,8 @@ test('peace_minded preserves level-one hostility and goblin race draws', () => {
 
     state.urace.hatemask = 0;
     state.u.ualign = { type: -1, record: 10, abuse: 0 };
+    // The chaotic hero and goblin are co-aligned. Record 10 gives rn2(26),
+    // while goblin maligntyp -3 gives rn2(5); two nonzero results are peaceful.
     const coaligned = scriptedRandom([
         { bound: 26, result: 1 },
         { bound: 5, result: 1 },

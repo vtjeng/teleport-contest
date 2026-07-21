@@ -1,4 +1,4 @@
-// Random monster selection.
+// Monster selection, birth limits, hit points, and attitude.
 // C refs: makemon.c rndmonst_adj(), mkclass(), and elemental filtering;
 // mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
@@ -341,6 +341,8 @@ export function newmonhp(mon, mndx, env = {}) {
             mon.mhpmax = (mon.mhp *= 3);
     }
 
+    // If the roll equals basehp (all d8s rolled 1, or level-zero rnd(4)
+    // rolled 1), raise both HP fields so levels zero and one start at 2.
     if (mon.mhpmax === basehp)
         mon.mhp = ++mon.mhpmax;
     return mon;
@@ -366,8 +368,10 @@ export function peace_minded(monster, env = {}) {
         return state.u.ualign.record >= 0;
 
     const record = state.u.ualign.record;
-    const firstBound = 16 + (record < -15 ? -15 : record);
-    return Boolean(random.rn2(firstBound)
+    // Co-aligned monsters are more likely to be hostile when the hero has
+    // strayed or the monster is weakly aligned.
+    const alignmentRecordBound = 16 + (record < -15 ? -15 : record);
+    return Boolean(random.rn2(alignmentRecordBound)
         && random.rn2(2 + Math.abs(mal)));
 }
 
@@ -383,6 +387,9 @@ function alwaysHostile(monster) {
 export function set_malign(mon, state = game) {
     if (!mon?.data)
         throw new TypeError('set_malign requires initialized monster data');
+    // mon.malign is the base hero-alignment adjustment when this monster is
+    // killed: positive is favorable and negative unfavorable. Kill handling
+    // applies its other adjustments separately.
     let mal = mon.data.maligntyp;
     if (mon.ispriest || mon.isminion) {
         if (mon.ispriest && mon.mextra?.epri)

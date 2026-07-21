@@ -311,12 +311,12 @@ test('random MM_NOGRP creation uses the full level-one reservoir', () => {
         // at newt without a separate final choice draw.
         ...[3, 4, 5, 7, 8, 11, 15, 16, 21]
             .map((bound) => step('rn2', [bound], 0)),
-        step('rnd', [2], 1),
-        step('rnd', [4], 1),
-        step('rn2', [2], 0),
-        step('rn2', [50], 0),
-        step('rn2', [100], 0),
-        step('rn2', [100], 0),
+        step('rnd', [2], 1), // next_ident advances context.ident from 2 to 3
+        step('rnd', [4], 1), // level-zero HP rolls 1, then rises to 2
+        step('rn2', [2], 0), // gender leaves the newt female flag false
+        step('rn2', [50], 0), // level 0 fails the defensive-item gate
+        step('rn2', [100], 0), // level 0 fails the miscellaneous-item gate
+        step('rn2', [100], 0), // saddle hits, but a newt is non-domestic
     ]);
     const monster = makemon(
         null,

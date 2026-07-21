@@ -97,6 +97,9 @@ export function m_at(x, y, state = game) {
 
 // C ref: steed.c place_monster(). The exceptional <0,0> vault-guard parking
 // spot is retained; ordinary live monsters must occupy an empty valid square.
+// This updates only the coordinate index and the monster position/state.
+// makemon() owns creation-time monlist linkage; relocation callers clear the
+// old coordinate before placing again.
 export function place_monster(monster, x, y, state = game) {
     const parkedGuard = x === 0 && y === 0 && monster?.isgd;
     if (!monster || typeof monster !== 'object')
@@ -116,7 +119,8 @@ export function place_monster(monster, x, y, state = game) {
     return monster;
 }
 
-// C ref: rm.h remove_monster(). Its callers own the monster state transition.
+// C ref: rm.h remove_monster(). This clears only the coordinate index. Monster
+// fields, nmon, and level.monlist remain unchanged for lifecycle code to own.
 export function remove_monster(x, y, state = game) {
     const grid = monsterGrid(state);
     const monster = grid[x]?.[y] ?? null;

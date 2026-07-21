@@ -14,15 +14,20 @@ function levelState() {
     return { level: new GameMap() };
 }
 
-test('GameMap starts with the source coordinate monster index', () => {
+test('GameMap starts with an empty source-sized monster coordinate index', () => {
     const state = levelState();
     assert.equal(state.level.monsters.length, COLNO);
     assert.equal(state.level.monsters[0].length, ROWNO);
+    // This arbitrary interior square checks the initial null entry.
+    assert.equal(m_at(10, 5, state), null);
+});
+
+test('GameMap coordinate grids do not alias rows or location cells', () => {
+    const state = levelState();
     assert.notEqual(state.level.locations[0], state.level.locations[1]);
     assert.notEqual(state.level.locations[0][0], state.level.locations[0][1]);
     assert.notEqual(state.level.objects[0], state.level.objects[1]);
     assert.notEqual(state.level.monsters[0], state.level.monsters[1]);
-    assert.equal(m_at(10, 5, state), null);
 });
 
 test('newMonster creates independent zeromonst-shaped mutable state', () => {
