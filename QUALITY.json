@@ -279,6 +279,30 @@
       "outcome": "changed",
       "evidence": "Formal six-finder, three-verifier pass over 7890324121d3ecdd73c21e3a2d2d062c9219bf9a..6053768c3683cf25dcb5f2bcc559c2c063f838b2 produced 7 raw, 7 deduped, 5 unanimously confirmed, 5 applied in 88ccb28d900bfc81e76f092f7b34218dbcbabba9, 2 rejected, and 0 unverified proposals. It removed duplicate map defaults and test fixture state while retaining exported themed-room dimensions, the eager vault flag, replay scaffolding, and future subsystem seams. All 392 tests pass; development remains 103 matched screens; the fresh mismatch remains call 1468 with matching cursor. No holdout was run.",
       "recordedAt": "2026-07-21T08:27:53.682Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "71e40ad128009c7959c361aaa7946f10a18528fe",
+        "hero": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
+        "objects": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
+        "world": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
+        "interaction": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
+        "runtime": "88ccb28d900bfc81e76f092f7b34218dbcbabba9"
+      },
+      "head": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "world",
+        "interaction",
+        "runtime"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Formal full correctness milestone. Exact reviewed ranges: startup 71e40ad128009c7959c361aaa7946f10a18528fe..48ec9a8adbab826305a93f4108bf270535308064; objects/runtime and all three world passes 88ccb28d900bfc81e76f092f7b34218dbcbabba9..48ec9a8adbab826305a93f4108bf270535308064; hero and interaction 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..48ec9a8adbab826305a93f4108bf270535308064. Counts by pass, shown as raw/deduplicated/confirmed/applied/deferred: startup 10/10/10/9/1; objects-runtime 15/14/8/3/5; world-level 13/13/9/2/7; world-creatures 17/16/14/6/8; world-effects 10/10/8/8/0; hero 14/14/9/4/5; interaction 26/23/23/14/9. Combined formal counts: 105 raw, 100 deduplicated, 81 confirmed, 46 applied, 35 deferred, 19 rejected, 0 unverified. Fixes cover complete glyph validation and symbol ownership, play-mode and reroll boundaries, effective attributes and calendar serialization, object preflight/discovery/inventory effects, mineralization and monster relocation, pet/monster/trap ownership, burial and burn lifecycles, visibility, terrain/trap/altar/RGB rendering, state-owned input, TTY menu and message cleanup, and their source-order tests. Deferrals are controlled test gaps and broader unported display/status/perception or world branches; the occupied-arrival-stair integration remains covered only by source-shaped components. Optional performance finders ran for world-level, world-effects, and interaction; optional concurrency ran for startup and interaction; all returned zero findings. Notable rejections retained upstream artifact assignment, disco insertion, lamplit cleanup, complete worn-slot scans, source-shaped world contracts, byyou coordinates, burial naming, duplicated visibility simplification, canonical hero representation, and serial runtime assumptions with source counter-evidence. Audit sessions and usage: startup 019f861e-1d13-7221-aa26-5ee5cda76c02, 1774688 input/1704960 cached/12828 output/2563 reasoning; objects-runtime 019f861e-1258-7d02-96a6-2e31b0025f02, 1708721/1637632/13201/3612; world-level 019f8620-004a-7ba2-8146-b94b44573bb1, 1629837/1558784/12811/1227; world-creatures session unavailable, 2026117/1947392/14642/3122; world-effects 019f8638-ac18-7462-b5dc-65ea16c03386, 906969/853504/11597/929; hero session unavailable, 1760055/1678336/12036/2991; interaction 019f8645-a873-7820-a316-be56e2d3ecf0, 1267813/1200896/13401/2150. Post-audit reconciliation found 5 additional source defects and applied all 5: generated-door flags in vision, complete buried-ball lifecycle callbacks, death-message STOP order, the chain deletion rn2 boundary, and the death-comparison short-circuit. Exact reconciled ranges were b79732d..08f9ce9, 08f9ce9..3344557, and 3344557..f140abf; the final range received two parallel read-only reviews with zero findings. Overall milestone counts including reconciliation: 110 raw, 105 deduplicated, 86 confirmed, 51 applied, 35 deferred, 19 rejected, 0 unverified. Warnings: some read-only diff output truncated and was reopened directly; one coverage temporary-directory creation failed and direct source/test tracing was used; one optional glob and one wait timeout were retried; no audit finder or adjudicator was lost. Validation: 729 tests, all four generated-data checks, git diff checks, 178 development screens, exact fresh 3028-call Enhanced1 and 2394-call IBM differentials with matching screens/cursors, and Chromium recorder/browser glyph and full-screen restoration checks passed. The simplification advisory was inspected; source-shaped seams and planned dependencies were retained, so no simplification pass was manufactured. No sealed holdout evaluation or artifact access occurred.",
+      "recordedAt": "2026-07-21T21:15:58.580Z"
     }
   ]
 }
