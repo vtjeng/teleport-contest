@@ -21,6 +21,24 @@ import {
     M2_ORC,
     M2_UNDEAD,
     M2_WERE,
+    PM_ARCHEOLOGIST,
+    PM_BARBARIAN,
+    PM_CAVE_DWELLER,
+    PM_CLERIC,
+    PM_ELF,
+    PM_HEALER,
+    PM_KNIGHT,
+    PM_MONK,
+    PM_ORC,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_SAMURAI,
+    PM_TOURIST,
+    PM_VALKYRIE,
+    PM_WIZARD,
+    S_DRAGON,
+    S_OGRE,
+    S_TROLL,
 } from './monsters.js';
 import {
     AMULET_OF_ESP,
@@ -50,7 +68,7 @@ import {
     TSURUGI,
     WAR_HAMMER,
 } from './objects.js';
-import { aligns, races, roles } from './roles.js';
+import { aligns } from './roles.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 
 export const SPFX_NONE = 0x00000000;
@@ -146,39 +164,6 @@ const AD_BLND = 11;
 const AD_STUN = 12;
 const AD_DRLI = 15;
 const AD_WERE = 29;
-
-// defsym.h MONSYM indices; artifact mtype stores the monster class index.
-const S_DRAGON = 30;
-const S_OGRE = 41;
-const S_TROLL = 46;
-
-function roleMnum(filecode) {
-    const role = roles.find((candidate) => candidate.filecode === filecode);
-    if (!role) throw new Error(`missing pinned role ${filecode}`);
-    return role.mnum;
-}
-
-function raceMnum(noun) {
-    const race = races.find((candidate) => candidate.noun === noun);
-    if (!race) throw new Error(`missing pinned race ${noun}`);
-    return race.mnum;
-}
-
-const PM_ARCHEOLOGIST = roleMnum('Arc');
-const PM_BARBARIAN = roleMnum('Bar');
-const PM_CAVE_DWELLER = roleMnum('Cav');
-const PM_HEALER = roleMnum('Hea');
-const PM_KNIGHT = roleMnum('Kni');
-const PM_MONK = roleMnum('Mon');
-const PM_CLERIC = roleMnum('Pri');
-const PM_ROGUE = roleMnum('Rog');
-const PM_RANGER = roleMnum('Ran');
-const PM_SAMURAI = roleMnum('Sam');
-const PM_TOURIST = roleMnum('Tou');
-const PM_VALKYRIE = roleMnum('Val');
-const PM_WIZARD = roleMnum('Wiz');
-const PM_ELF = raceMnum('elf');
-const PM_ORC = raceMnum('orc');
 
 const NO_ATTK = Object.freeze({ aatyp: 0, adtyp: 0, damn: 0, damd: 0 });
 
