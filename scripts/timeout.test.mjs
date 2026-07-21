@@ -511,6 +511,8 @@ test('obj_stop_timers preflights all cleanup before removing any timer', () => {
         timed: 0,
         where: OBJ_FREE,
     };
+    // ROT expires first, before the later BURN timer whose cleanup hook is
+    // missing. Global preflight must reject without removing either timer.
     start_timer(4, TIMER_OBJECT, ROT_CORPSE, target, state);
     start_timer(8, TIMER_OBJECT, BURN_OBJECT, target, state);
     const timers = queue(state);
@@ -537,6 +539,9 @@ test('obj_stop_timers cleans burn state and preserves unrelated queue order', ()
     };
     const firstOther = { timed: 0 };
     const secondOther = { timed: 0 };
+    // Expiries interleave target and unrelated timers: BURN(target),
+    // HATCH(firstOther), ROT(target), ROT(secondOther). Removing both target
+    // timers must preserve the two survivors in that order.
     start_timer(8, TIMER_OBJECT, ROT_CORPSE, secondOther, state);
     start_timer(7, TIMER_OBJECT, ROT_CORPSE, target, state);
     start_timer(6, TIMER_OBJECT, HATCH_EGG, firstOther, state);

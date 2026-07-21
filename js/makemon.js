@@ -1,5 +1,6 @@
 // Random monster selection.
-// C refs: src/makemon.c rndmonst_adj() and src/mkobj.c rndmonnum_adj().
+// C refs: makemon.c rndmonst_adj(), mkclass(), and elemental filtering;
+// mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
     ALIGNWEIGHT,
@@ -56,6 +57,9 @@ const PLACEHOLDER_MONSTERS = new Set([PM_ORC, PM_GIANT, PM_ELF, PM_HUMAN]);
 function generationEnv(env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn1, rn2, rnd };
+    // Every selection path needs rn2. rndmonnum's fallback can synthesize rn1
+    // from it; a missing rnd is tolerated unless a path reaches mkclass(),
+    // which requires it (including a rejected fixed Quest enemy's fallback).
     if (typeof random.rn2 !== 'function')
         throw new TypeError('monster random injection requires rn2');
     const sourceRandom = {
@@ -216,7 +220,10 @@ function mkGenerationOkay(index, mvflagsMask, genoMask, state) {
         && index !== PM_MAIL_DAEMON;
 }
 
-// C ref: makemon.c mkclass()/mkclass_aligned(), for A_NONE callers.
+// C ref: makemon.c mkclass()/mkclass_aligned(), for A_NONE callers. `special`
+// contains mons[].geno bits exempted from normal rejection. G_IGNORE is a
+// pseudo-flag: it disables the G_GONE mvitals check, then is removed before
+// the geno mask is applied.
 export function mkclass(classSymbol, special = 0, env = {}) {
     const normalized = generationEnv(env);
     const { random, state } = normalized;
@@ -229,6 +236,8 @@ export function mkclass(classSymbol, special = 0, env = {}) {
 
     const order = monsterClassOrder(classSymbol, state);
     if (!order.length) return null;
+    // Like init_mongen_order()'s mclass_maxf, this check covers all NUMMONS;
+    // the candidate order remains limited to records before SPECIAL_PM.
     const zeroFrequencyForEntireClass = !state.mons
         .slice(LOW_PM, NUMMONS)
         .some((monster) => monster.mlet === classSymbol
@@ -255,6 +264,8 @@ export function mkclass(classSymbol, special = 0, env = {}) {
         genoMask &= ~specialMask;
 
         if (!mkGenerationOkay(index, mvflagsMask, genoMask, state)) continue;
+        // C compares with the immediately preceding difficulty-sorted class
+        // record, even when that record failed the generation filters above.
         if (total && monster.difficulty > maxLevel
             && monster.difficulty > state.mons[order[last - 1]].difficulty
             && random.rn2(2)) {

@@ -723,8 +723,9 @@ test('pet type aliases and names retain pinned startup values', () => {
     );
     assert.equal(parseNethackrc('OPTIONS=catname:A\u007fB').catname, 'A.B');
 
-    // Thirty-two e-acute characters occupy 64 UTF-8 bytes.  nmcpy() keeps
-    // 62 bytes; default tty sanitation strips each high byte separately.
+    // Thirty-two e-acute characters occupy 64 UTF-8 bytes. nmcpy() keeps
+    // 62 bytes; with eight-bit tty input disabled, sanitation replaces each
+    // printable high-bit byte with an underscore.
     assert.equal(
         parseNethackrc(`OPTIONS=catname:${'é'.repeat(32)}`).catname,
         '_'.repeat(62),

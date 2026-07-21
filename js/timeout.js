@@ -3,7 +3,8 @@
 // obj_stop_timers().
 // Queue primitives take their source-owned state directly. Helpers which
 // consume RNG take an `{ state, random }` environment so focused tests can
-// verify every draw without replacing the queue representation.
+// verify every draw without replacing the queue representation. stop_timer()
+// and obj_stop_timers() also accept cleanup integration through `{ hooks }`.
 
 import {
     BURN_OBJECT,
@@ -69,6 +70,10 @@ function timerCleanupEnv(state, env = {}) {
     };
 }
 
+// Cleanup hook contracts are deleteObjectLightSource(obj, env) and
+// updateInventory(state). As a JS safety adaptation, all required hooks are
+// resolved while the timer queue is intact, before any timer is removed; C's
+// corresponding cleanup functions are always linked.
 function requiredCleanupHook(env, operation, funcIndex) {
     const hook = env.hooks?.[operation];
     if (typeof hook !== 'function')
@@ -78,8 +83,9 @@ function requiredCleanupHook(env, operation, funcIndex) {
 
 // Keep this display boundary synchronized with invent.js update_inventory().
 // Timers cannot import that object-owning module without creating the cycle
-// timeout -> invent -> obj -> timeout.  The window hook is mandatory only for
-// a live permanent-inventory display.
+// timeout -> invent -> obj -> timeout. For a carried lit object, the optional
+// window hook is used whenever display is active and unsuppressed; it becomes
+// mandatory only for a permanent-inventory display.
 function burnInventoryRefreshActive(state) {
     const programState = state.program_state;
     return Boolean(programState?.in_moveloop

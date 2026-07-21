@@ -704,13 +704,16 @@ test('ordinary merges do not require hero perception state', () => {
 
 test('Mines prize records its achievement and merges after pickup', () => {
     const state = initializedState();
-    const carried = instance(LUCKSTONE, state, { o_id: 701 });
+    // Prize tracking uses nonzero object identities. Distinct carried and
+    // prize IDs prove that pickup merges compatible stacks, not identities.
+    const carriedId = 701;
+    const prizeId = 702;
+    const carried = instance(LUCKSTONE, state, { o_id: carriedId });
     addinv(carried, {
         state,
         hooks: { recalculateLuck: () => {} },
     });
 
-    const prizeId = 702;
     state.context.achieveo = {
         mines_prize_oid: prizeId,
         soko_prize_oid: 0,
@@ -741,6 +744,8 @@ test('Mines prize records its achievement and merges after pickup', () => {
 
 test('Sokoban prize clears tracking and its temporary nomerge flag', () => {
     const state = initializedState();
+    // Any nonzero ID marks an active tracked prize; zero is the inactive
+    // sentinel used for the other branch.
     const prizeId = 801;
     state.context.achieveo = {
         mines_prize_oid: 0,
@@ -766,6 +771,7 @@ test('Sokoban prize clears tracking and its temporary nomerge flag', () => {
 
 test('special-prize achievement seam is checked before addinv mutation', () => {
     const state = initializedState();
+    // A nonzero ID activates the prize path whose missing seam must fail.
     const prizeId = 901;
     state.context.achieveo = {
         mines_prize_oid: 0,

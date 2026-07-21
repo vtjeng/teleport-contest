@@ -102,6 +102,9 @@ function planeState(field) {
 }
 
 function selectOnlyMonster(state, index) {
+    // Wide adjustments admit every difficulty. G_GONE leaves `index` as the
+    // only candidate not marked G_GONE; the remaining filters still decide
+    // whether it is eligible, and a zero reservoir draw selects it when it is.
     for (const vital of state.mvitals) vital.mvflags |= G_GONE;
     state.mvitals[index].mvflags &= ~G_GONE;
     const bounds = [];
@@ -287,6 +290,8 @@ test('Quest genocide falls back through source mkclass RNG order', () => {
     };
     state.mvitals[PM_KILLER_BEE].mvflags |= G_GENOD;
     const rng = scriptedRandom([
+        // Enter the Quest branch, choose enemy1, then reject its genocided
+        // fixed species before falling back to enemy1sym's class.
         { bound: 7, result: 1 },
         { bound: 5, result: 1 },
         { bound: 5, result: 1 },
@@ -305,6 +310,8 @@ test('mkclass uses difficulty order, per-record masks, and one final draw', () =
     const rng = scriptedRandom([
         // makemon.c processes ants by difficulty: giant ant, killer bee,
         // fire ant, giant beetle, soldier ant, then the non-generatable queen.
+        // Each record consumes rn2(9) for its genesis mask. The rn2(2) draws
+        // keep scanning at the killer-bee and soldier-ant strength boundaries.
         { bound: 9, result: 0 },
         { bound: 9, result: 0 },
         { bound: 2, result: 0 },
@@ -312,6 +319,8 @@ test('mkclass uses difficulty order, per-record masks, and one final draw', () =
         { bound: 9, result: 0 },
         { bound: 9, result: 0 },
         { bound: 2, result: 0 },
+        // The queen still consumes its mask draw before G_NOGEN rejects it;
+        // rnd(15)=8 then lands in the fire ant's cumulative weight interval.
         { bound: 9, result: 0 },
         { kind: 'rnd', bound: 15, result: 8 },
     ]);
@@ -323,7 +332,7 @@ test('mkclass uses difficulty order, per-record masks, and one final draw', () =
     rng.assertExhausted();
 });
 
-test('elementals are generated only on their home planes without hooks', () => {
+test('rndmonst_adj accepts elementals only on their home planes without hooks', () => {
     const cases = [
         ['air_level', PM_AIR_ELEMENTAL, PM_FIRE_ELEMENTAL],
         ['fire_level', PM_FIRE_ELEMENTAL, PM_EARTH_ELEMENTAL],

@@ -1,5 +1,6 @@
 // options.js — Parse the startup subset of .nethackrc options.
-// C refs: options.c parseoptions(), option handlers; role.c str2*().
+// C refs: cfgfiles.c config parsing; options.c parseoptions(), handlers, and
+// nmcpy(); hacklib.c mungspaces(); bones.c sanitize_name(); role.c str2*().
 
 import {
     ROLE_ALIGNMASK,
@@ -49,10 +50,10 @@ import {
 } from './hacklib.js';
 import { rn2 } from './rng.js';
 
-const PET_NAME_LIMIT = 62; // PL_PSIZ - 1
-const PLAYER_NAME_LIMIT = 31; // PL_NSIZ - 1
-const CONFIG_BUFFER_SIZE = 4 * 256; // cfgfiles.c: 4 * BUFSZ
-const OPTION_ELEMENT_LIMIT = 256 / 2; // options.c: BUFSZ / 2
+const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
+const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
+const CONFIG_BUFFER_BYTE_CAPACITY = 4 * 256; // cfgfiles.c: 4 * BUFSZ
+const OPTION_ELEMENT_BYTE_LIMIT = 256 / 2; // options.c: BUFSZ / 2
 
 // C ref: options.c:allopt[] and determine_ambiguities().  This is the
 // canonical name catalog produced by the recorder's configured optlist.h.
@@ -260,7 +261,7 @@ function logicalConfigLines(rc) {
     while (cursor < input.length) {
         const chunk = [];
         while (cursor < input.length
-               && chunk.length < CONFIG_BUFFER_SIZE - 1) {
+               && chunk.length < CONFIG_BUFFER_BYTE_CAPACITY - 1) {
             const byte = input[cursor++];
             chunk.push(byte);
             if (byte === 0x0A) break;
@@ -284,7 +285,8 @@ function logicalConfigLines(rc) {
             continue;
         }
 
-        if (newline < 0 && cLength >= CONFIG_BUFFER_SIZE - 2) {
+        if (newline < 0
+            && cLength >= CONFIG_BUFFER_BYTE_CAPACITY - 2) {
             // parse_conf_buf() reports this non-fatally, then discards input
             // through the next visible newline.
             skip = true;
@@ -310,8 +312,8 @@ function logicalConfigLines(rc) {
             buffered = hadBuffered
                 ? [...buffered, 0x20, ...line]
                 : line;
-            if (buffered.length >= CONFIG_BUFFER_SIZE)
-                buffered.length = CONFIG_BUFFER_SIZE - 1;
+            if (buffered.length >= CONFIG_BUFFER_BYTE_CAPACITY)
+                buffered.length = CONFIG_BUFFER_BYTE_CAPACITY - 1;
         }
         if (continued || (ignored && !hadBuffered)) continue;
 
@@ -607,10 +609,12 @@ function truncateByteString(value, limit) {
     return decodeUtf8ByteString(encodeUtf8ByteString(value).slice(0, limit));
 }
 
-// C refs: options.c:nmcpy() and bones.c:sanitize_name().  Pet names are
-// truncated and sanitized as bytes; default tty mode strips each high bit.
+// C refs: options.c:nmcpy() and bones.c:sanitize_name(). Pet names are
+// truncated and sanitized as bytes. Bytes whose low seven bits are control
+// characters or DEL become '.'; default tty mode replaces other high-bit
+// bytes with '_'.
 function sanitizePetName(value, eightBitTty) {
-    const bytes = encodeUtf8ByteString(value).slice(0, PET_NAME_LIMIT);
+    const bytes = encodeUtf8ByteString(value).slice(0, PET_NAME_BYTE_LIMIT);
     for (let index = 0; index < bytes.length; ++index) {
         const lowSeven = bytes[index] & 0x7F;
         if (lowSeven < 0x20 || lowSeven === 0x7F) bytes[index] = 0x2E;
@@ -1035,7 +1039,7 @@ function applyOption(result, optionState, option, lineNumber) {
     if (name === 'name') {
         result.name = truncateByteString(
             requireValue(value, name, negated, lineNumber),
-            PLAYER_NAME_LIMIT,
+            PLAYER_NAME_BYTE_LIMIT,
         );
     } else if (name === 'role') {
         setCharacterOption(
@@ -1102,7 +1106,7 @@ function applyOption(result, optionState, option, lineNumber) {
 function applyDirectOption(result, key, value) {
     const normalized = key.toLowerCase();
     if (normalized === 'name') {
-        result.name = truncateByteString(value, PLAYER_NAME_LIMIT);
+        result.name = truncateByteString(value, PLAYER_NAME_BYTE_LIMIT);
     }
     else if (normalized === 'role' || normalized === 'character') {
         // cfgfiles.c:cnf_line_ROLE() silently ignores random or unknown
@@ -1115,7 +1119,7 @@ function applyDirectOption(result, key, value) {
     } else if (normalized === 'dogname' || normalized === 'catname') {
         // The legacy statements use strncpy(), without the compound pet-name
         // option's "none" handling or sanitize_name() pass.
-        result[normalized] = truncateByteString(value, PET_NAME_LIMIT);
+        result[normalized] = truncateByteString(value, PET_NAME_BYTE_LIMIT);
     }
 }
 
@@ -1155,7 +1159,8 @@ function configSection(line) {
 
 // C ref: cfgfiles.c:choose_random_part().  Keep its separator walk (including
 // empty-part quirks) rather than using split(), and consume rn2(1) for a
-// single candidate just as the source does.
+// single candidate just as the source does. For ",a", draw 0 returns "a"
+// while draw 1 returns null.
 function chooseRandomPart(value, random) {
     let choices = 1;
     for (const character of value) {
@@ -1193,6 +1198,9 @@ export function parseNethackrc(rc, random = rn2) {
         },
     };
 
+    // chosenSection is CHOOSE's active target; null disables filtering.
+    // currentSection names the section being gated; null means that no named
+    // section gate is active. An empty [] header clears both.
     let chosenSection = null;
     let currentSection = null;
     const lines = logicalConfigLines(rc);
@@ -1202,11 +1210,11 @@ export function parseNethackrc(rc, random = rn2) {
         // line. is_config_section() applies trimspaces() before checking for
         // '[', so that outer padding is removed even from CHOOSE and OPTIONS.
         // parse_config_line() then normalizes a separate copy with mungspaces().
-        const rawLine = trimConfigPadding(configLine.line);
-        const line = mungspaces(rawLine);
-        if (!line || line.startsWith('#')) continue;
+        const paddingTrimmedLine = trimConfigPadding(configLine.line);
+        const mungedLine = mungspaces(paddingTrimmedLine);
+        if (!mungedLine || mungedLine.startsWith('#')) continue;
 
-        const section = configSection(rawLine);
+        const section = configSection(paddingTrimmedLine);
         if (section) {
             currentSection = null;
             if (chosenSection != null) {
@@ -1220,16 +1228,16 @@ export function parseNethackrc(rc, random = rn2) {
             continue;
         }
 
-        const delimiter = configDelimiter(line);
-        const rawStatementName = delimiter >= 0
-            ? line.slice(0, delimiter) : line;
-        const statementName = mungspaces(rawStatementName).toLowerCase();
+        const delimiter = configDelimiter(mungedLine);
+        const statementNameText = delimiter >= 0
+            ? mungedLine.slice(0, delimiter) : mungedLine;
+        const statementName = mungspaces(statementNameText).toLowerCase();
         if (matchesConfigName(statementName, 'choose', 6)) {
             if (delimiter < 0) continue;
             chosenSection = null;
-            const rawDelimiter = configDelimiter(rawLine);
+            const rawDelimiter = configDelimiter(paddingTrimmedLine);
             chosenSection = chooseRandomPart(
-                rawLine.slice(rawDelimiter + 1), random,
+                paddingTrimmedLine.slice(rawDelimiter + 1), random,
             );
             continue;
         }
@@ -1241,8 +1249,8 @@ export function parseNethackrc(rc, random = rn2) {
         if (!statement) continue;
 
         const rawValue = statement.kind === 'options'
-            ? rawLine.slice(configDelimiter(rawLine) + 1)
-            : line.slice(delimiter + 1);
+            ? paddingTrimmedLine.slice(configDelimiter(paddingTrimmedLine) + 1)
+            : mungedLine.slice(delimiter + 1);
         if (statement.kind === 'options') {
             const options = rawValue.split(',');
             // options.c recurses into the comma suffix before applying the
@@ -1254,7 +1262,7 @@ export function parseNethackrc(rc, random = rn2) {
                 // parseoptions() enforces this before stripping whitespace or
                 // invoking an option handler, and continues with other items.
                 if (encodeUtf8ByteString(rawOption).length
-                    > OPTION_ELEMENT_LIMIT) continue;
+                    > OPTION_ELEMENT_BYTE_LIMIT) continue;
                 const option = trimCWhitespace(rawOption);
                 if (option) {
                     applyOption(result, optionState, option, lineNumber);
