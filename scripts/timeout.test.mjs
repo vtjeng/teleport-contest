@@ -444,6 +444,90 @@ test('stop_timer performs burning-object cleanup in source order', () => {
     assert.equal(state.iflags.suppress_price, 7);
 });
 
+test('burn cleanup completes local state before rethrowing hook errors', () => {
+    for (const failingHook of ['deleteObjectLightSource', 'updateInventory']) {
+        const state = timerState(10);
+        state.iflags = { perm_invent: true, suppress_price: 7 };
+        state.program_state = { in_moveloop: 1 };
+        const lamp = {
+            age: 40,
+            lamplit: true,
+            timed: 0,
+            where: OBJ_INVENT,
+        };
+        start_timer(7, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+        state.moves = 12;
+        const failure = new Error(failingHook);
+        const calls = [];
+
+        assert.throws(
+            () => stop_timer(BURN_OBJECT, lamp, state, {
+                hooks: {
+                    deleteObjectLightSource() {
+                        calls.push('light');
+                        if (failingHook === 'deleteObjectLightSource')
+                            throw failure;
+                    },
+                    updateInventory() {
+                        calls.push('inventory');
+                        if (failingHook === 'updateInventory') throw failure;
+                    },
+                },
+            }),
+            (error) => error === failure,
+        );
+        assert.deepEqual(calls, ['light', 'inventory']);
+        assert.equal(peek_timer(BURN_OBJECT, lamp, state), 0);
+        assert.equal(lamp.timed, 0);
+        assert.equal(lamp.age, 45);
+        assert.equal(lamp.lamplit, false);
+        assert.equal(state.iflags.suppress_price, 7);
+    }
+});
+
+test('burn cleanup preserves the first thrown value even when it is falsy', () => {
+    const state = timerState(10);
+    state.iflags = { perm_invent: true, suppress_price: 7 };
+    state.program_state = { in_moveloop: 1 };
+    const lamp = {
+        age: 40,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_INVENT,
+    };
+    start_timer(7, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+    state.moves = 12;
+    const calls = [];
+    let didThrow = false;
+    let thrown;
+
+    try {
+        stop_timer(BURN_OBJECT, lamp, state, {
+            hooks: {
+                deleteObjectLightSource() {
+                    calls.push('light');
+                    throw false;
+                },
+                updateInventory() {
+                    calls.push('inventory');
+                    throw new Error('later inventory failure');
+                },
+            },
+        });
+    } catch (error) {
+        didThrow = true;
+        thrown = error;
+    }
+    assert.equal(didThrow, true);
+    assert.equal(thrown, false);
+    assert.deepEqual(calls, ['light', 'inventory']);
+    assert.equal(peek_timer(BURN_OBJECT, lamp, state), 0);
+    assert.equal(lamp.timed, 0);
+    assert.equal(lamp.age, 45);
+    assert.equal(lamp.lamplit, false);
+    assert.equal(state.iflags.suppress_price, 7);
+});
+
 test('burn cleanup preflights every required seam before queue mutation', () => {
     const state = timerState(10);
     state.iflags = { perm_invent: true };
@@ -566,4 +650,72 @@ test('obj_stop_timers cleans burn state and preserves unrelated queue order', ()
     assert.equal(target.lamplit, false);
     assert.equal(firstOther.timed, 1);
     assert.equal(secondOther.timed, 1);
+});
+
+test('obj_stop_timers finishes its sweep before rethrowing cleanup errors', () => {
+    const state = timerState(20);
+    const target = {
+        age: 30,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_FREE,
+    };
+    const firstOther = { timed: 0 };
+    const secondOther = { timed: 0 };
+    start_timer(8, TIMER_OBJECT, ROT_CORPSE, secondOther, state);
+    start_timer(7, TIMER_OBJECT, ROT_CORPSE, target, state);
+    start_timer(6, TIMER_OBJECT, HATCH_EGG, firstOther, state);
+    start_timer(5, TIMER_OBJECT, BURN_OBJECT, target, state);
+    const survivingTimers = queue(state).filter(({ arg }) => arg !== target);
+    const failure = new Error('light cleanup failed');
+
+    assert.throws(
+        () => obj_stop_timers(target, state, {
+            hooks: {
+                deleteObjectLightSource() { throw failure; },
+            },
+        }),
+        (error) => error === failure,
+    );
+    assert.deepEqual(queue(state), survivingTimers);
+    assert.equal(target.timed, 0);
+    assert.equal(target.age, 35);
+    assert.equal(target.lamplit, false);
+    assert.equal(firstOther.timed, 1);
+    assert.equal(secondOther.timed, 1);
+});
+
+test('obj_stop_timers rethrows a falsy value after completing its sweep', () => {
+    const state = timerState(20);
+    const target = {
+        age: 30,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_FREE,
+    };
+    const other = { timed: 0 };
+    start_timer(8, TIMER_OBJECT, ROT_CORPSE, target, state);
+    start_timer(7, TIMER_OBJECT, ROT_CORPSE, other, state);
+    start_timer(5, TIMER_OBJECT, BURN_OBJECT, target, state);
+    const survivingTimers = queue(state).filter(({ arg }) => arg !== target);
+    let didThrow = false;
+    let thrown;
+
+    try {
+        obj_stop_timers(target, state, {
+            hooks: {
+                deleteObjectLightSource() { throw undefined; },
+            },
+        });
+    } catch (error) {
+        didThrow = true;
+        thrown = error;
+    }
+    assert.equal(didThrow, true);
+    assert.equal(thrown, undefined);
+    assert.deepEqual(queue(state), survivingTimers);
+    assert.equal(target.timed, 0);
+    assert.equal(target.age, 35);
+    assert.equal(target.lamplit, false);
+    assert.equal(other.timed, 1);
 });

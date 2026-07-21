@@ -116,6 +116,53 @@ function sourceOptionMinLength(name) {
 const SOURCE_OPTION_MATCHES = Object.freeze(SOURCE_OPTION_NAMES.map((name) => (
     [name, sourceOptionMinLength(name)]
 )));
+// optlist.h's pfx entries participate in name matching, but their handlers
+// validate suffixes before accepting them.  font's valid forms already have
+// ordinary catalog entries; cond_ uses botl.c:condtests[].
+const SOURCE_PREFIX_OPTION_NAMES = Object.freeze(['cond_', 'font']);
+const SOURCE_CONDITION_NAMES = Object.freeze((
+    'barehanded|blind|busy|conf|deaf|iron|fly|foodpois|glowhands|grab'
+    + '|hallucinat|held|ice|lava|levitate|paralyzed|ride|sleep|slime|slip'
+    + '|stone|strngl|stun|submerged|termill|tethered|trap|unconscious'
+    + '|woundedlegs|holding'
+).split('|'));
+// C refs: defsym.h's three *_PARSE expansions and symbols.c:loadsyms[] and
+// match_sym(). Names after the case-sensitive S_ prefix are case-insensitive.
+const SOURCE_SYMBOL_NAMES = new Set((
+    's_air|s_altar|s_amulet|s_angel|s_ant|s_anti_magic_trap|s_armor'
+    + '|s_armour|s_arrow_trap|s_ball|s_bars|s_bat|s_bear_trap|s_blcorn'
+    + '|s_blob|s_book|s_boomleft|s_boomright|s_boulder|s_brcorn'
+    + '|s_brdnladder|s_brdnstair|s_brupladder|s_brupstair|s_centaur'
+    + '|s_chain|s_cloud|s_cockatrice|s_coin|s_corr|s_crwall|s_darkroom'
+    + '|s_dart_trap|s_demon|s_digbeam|s_dnladder|s_dnstair|s_dog'
+    + '|s_dragon|s_eel|s_elemental|s_engrcorr|s_engroom|s_expl_bc'
+    + '|s_expl_bl|s_expl_br|s_expl_mc|s_expl_ml|s_expl_mr|s_expl_tc'
+    + '|s_expl_tl|s_expl_tr|s_explode1|s_explode2|s_explode3|s_explode4'
+    + '|s_explode5|s_explode6|s_explode7|s_explode8|s_explode9|s_eye'
+    + '|s_falling_rock_trap|s_feline|s_fire_trap|s_flashbeam|s_food'
+    + '|s_fountain|s_fungus|s_gem|s_ghost|s_giant|s_gnome|s_golem'
+    + '|s_goodpos|s_grave|s_gremlin|s_hbeam|s_hcdbridge|s_hcdoor'
+    + '|s_hero_override|s_hodbridge|s_hodoor|s_hole|s_human|s_humanoid'
+    + '|s_hwall|s_ice|s_imp|s_invisible|s_jabberwock|s_jelly|s_kobold'
+    + '|s_kop|s_land_mine|s_lava|s_lavawall|s_leprechaun'
+    + '|s_level_teleporter|s_lich|s_light|s_litcorr|s_lizard|s_lslant'
+    + '|s_magic_portal|s_magic_trap|s_mimic|s_mimic_def|s_mummy|s_naga'
+    + '|s_ndoor|s_nothing|s_nymph|s_ogre|s_orc|s_pet_override|s_piercer'
+    + '|s_pit|s_poisoncloud|s_polymorph_trap|s_pool|s_potion|s_pudding'
+    + '|s_quadruped|s_quantmech|s_ring|s_rock|s_rodent'
+    + '|s_rolling_boulder_trap|s_room|s_rslant|s_rust_trap|s_rustmonst'
+    + '|s_scroll|s_sink|s_sleeping_gas_trap|s_snake|s_spider'
+    + '|s_spiked_pit|s_squeaky_board|s_ss1|s_ss2|s_ss3|s_ss4'
+    + '|s_statue_trap|s_stone|s_strange_obj|s_sw_bc|s_sw_bl|s_sw_br'
+    + '|s_sw_ml|s_sw_mr|s_sw_tc|s_sw_tl|s_sw_tr|s_tdwall'
+    + '|s_teleportation_trap|s_throne|s_tlcorn|s_tlwall|s_tool'
+    + '|s_trap_door|s_trapped_chest|s_trapped_door|s_trapper|s_trcorn'
+    + '|s_tree|s_troll|s_trwall|s_tuwall|s_umber|s_unexplored|s_unicorn'
+    + '|s_upladder|s_upstair|s_vampire|s_vbeam|s_vcdbridge|s_vcdoor'
+    + '|s_venom|s_vibrating_square|s_vodbridge|s_vodoor|s_vortex'
+    + '|s_vwall|s_wand|s_water|s_weapon|s_web|s_worm|s_worm_tail'
+    + '|s_wraith|s_xan|s_xorn|s_yeti|s_zombie|s_zruty'
+).split('|'));
 const OPTION_ALIASES = Object.freeze({
     character: 'role',
     align: 'alignment',
@@ -129,6 +176,7 @@ const OPTION_ALIASES = Object.freeze({
     termcolumns: 'term_cols',
     use_menu_glyphs: 'menu_objsyms',
     use_truecolour: 'use_truecolor',
+    male: 'male',
 });
 // options.c's exact "male" alias stays distinct so applyBooleanOption() can
 // invert its value rather than treating it as an ordinary spelling of female.
@@ -357,7 +405,7 @@ function stripNegation(optionName) {
             break;
         }
     }
-    return { name: name.toLowerCase(), negated };
+    return { name: name.toLowerCase(), sourceName: name, negated };
 }
 
 function booleanValue(value, negated, optionName, lineNumber) {
@@ -1011,7 +1059,9 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
 
 function sourceOptionMatch(parsedName) {
     return SOURCE_OPTION_MATCHES.find(([canonical, minLength]) => (
-        parsedName.length >= minLength && canonical.startsWith(parsedName)
+        !SOURCE_PREFIX_OPTION_NAMES.includes(canonical)
+            && parsedName.length >= minLength
+            && canonical.startsWith(parsedName)
     ));
 }
 
@@ -1021,17 +1071,43 @@ function isSourceOptionPrefix(parsedName) {
     ));
 }
 
+function sourceConditionMatch(parsedName, value) {
+    if (value != null || !parsedName.startsWith('cond_')) return null;
+    const suffix = parsedName.slice('cond_'.length);
+    const canonical = SOURCE_CONDITION_NAMES.find((candidate) => (
+        suffix.length >= Math.min(candidate.length, 4)
+            && candidate.startsWith(suffix)
+    ));
+    return canonical ? `cond_${canonical}` : null;
+}
+
+function isSourceSymbolAssignment(sourceName, value) {
+    return value != null && sourceName.startsWith('S_')
+        && SOURCE_SYMBOL_NAMES.has(sourceName.toLowerCase());
+}
+
 function applyOption(result, optionState, option, lineNumber) {
     const { name: rawName, value } = splitNameAndValue(option);
-    const { name: parsedName, negated } = stripNegation(rawName);
-    const sourceMatch = sourceOptionMatch(parsedName);
-    const name = sourceMatch?.[0]
-        ?? OPTION_ALIASES[parsedName] ?? parsedName;
+    const {
+        name: parsedName,
+        sourceName,
+        negated,
+    } = stripNegation(rawName);
+    if (!parsedName) optionError(lineNumber, 'empty option');
 
-    if (!name) optionError(lineNumber, 'empty option');
-    if (!sourceMatch && name === parsedName
-        && isSourceOptionPrefix(parsedName)) {
-        optionError(lineNumber, `unknown or ambiguous option '${parsedName}'`);
+    const sourceMatch = sourceOptionMatch(parsedName);
+    const hasAlias = Object.hasOwn(OPTION_ALIASES, parsedName);
+    const conditionMatch = sourceConditionMatch(parsedName, value);
+    // options.c strips negation, then checks this prefix case-sensitively.
+    const isSymbolAssignment = isSourceSymbolAssignment(sourceName, value);
+    let name = sourceMatch?.[0]
+        ?? (hasAlias ? OPTION_ALIASES[parsedName] : null);
+    if (!name && conditionMatch) name = conditionMatch;
+    if (!name && isSymbolAssignment) name = parsedName;
+    if (!name) {
+        const description = isSourceOptionPrefix(parsedName)
+            ? 'unknown or ambiguous option' : 'unknown option';
+        optionError(lineNumber, `${description} '${parsedName}'`);
     }
 
     const menuCommand = menuCommandOption(name);
@@ -1080,6 +1156,9 @@ function applyOption(result, optionState, option, lineNumber) {
     } else if (name === 'blind' || name === 'deaf' || name === 'nudist'
                || name === 'pauper' || name === 'reroll') {
         setRoleplay(result, name, value, negated, lineNumber);
+    } else if (isSymbolAssignment) {
+        // parsesymbols() does not receive parseoptions()'s negation flag.
+        result.flags[name] = value;
     } else if (value != null) {
         if (negated) {
             optionError(

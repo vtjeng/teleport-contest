@@ -135,7 +135,14 @@ function cleanupTimer(timer, state, cleanup) {
 
     const obj = timer.arg;
     if (!obj.lamplit) return;
-    cleanup.deleteLight(obj, cleanup.normalized);
+    let firstError;
+    let hasError = false;
+    try {
+        cleanup.deleteLight(obj, cleanup.normalized);
+    } catch (error) {
+        firstError = error;
+        hasError = true;
+    }
     obj.age = Math.trunc(obj.age ?? 0)
         + timer.timeout - currentMove(state);
     obj.lamplit = false;
@@ -145,10 +152,16 @@ function cleanupTimer(timer, state, cleanup) {
         state.iflags.suppress_price = 0;
         try {
             cleanup.updateInventory(state);
+        } catch (error) {
+            if (!hasError) {
+                firstError = error;
+                hasError = true;
+            }
         } finally {
             state.iflags.suppress_price = savedSuppressPrice;
         }
     }
+    if (hasError) throw firstError;
 }
 
 function validateTimer(kind, funcIndex) {
@@ -270,19 +283,29 @@ export function obj_stop_timers(obj, state = game, env = {}) {
     }
     let previous = null;
     let current = state.gt.timer_base;
+    let firstError;
+    let hasError = false;
     while (current) {
         const next = current.next;
         if (current.kind === TIMER_OBJECT && current.arg === obj) {
             if (previous) previous.next = next;
             else state.gt.timer_base = next;
             current.next = null;
-            cleanupTimer(current, state, cleanupByTimer.get(current));
+            try {
+                cleanupTimer(current, state, cleanupByTimer.get(current));
+            } catch (error) {
+                if (!hasError) {
+                    firstError = error;
+                    hasError = true;
+                }
+            }
         } else {
             previous = current;
         }
         current = next;
     }
     obj.timed = 0;
+    if (hasError) throw firstError;
 }
 
 export function obj_has_timer(obj, funcIndex, state = game) {

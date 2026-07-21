@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { parseNethackrc } from '../js/options.js';
@@ -783,11 +784,11 @@ test('direct legacy name, role, and pet-name statements are accepted', () => {
     }
 });
 
-test('previous generic startup option mappings remain available', () => {
+test('valid unported startup option mappings remain available', () => {
     const parsed = parseNethackrc(
         'OPTIONS=!autopickup,color,!legacy,!tutorial,!splash_screen,'
         + 'pushweapon,showexp,time,!verbose,symset:UTF8,msg_window:r,'
-        + 'suppress_alert:3.7,extension:value',
+        + 'suppress_alert:3.7,soundlib:example,S_vwall:|',
     );
     assert.equal(parsed.flags.pickup, false);
     assert.equal(parsed.flags.color, true);
@@ -810,5 +811,75 @@ test('previous generic startup option mappings remain available', () => {
     assert.equal(parsed.symset, 'UTF8');
     assert.equal(parsed.iflags.prevmsg_window, 'r');
     assert.equal(parsed.flags.suppress_alert, '3.7');
-    assert.equal(parsed.flags.extension, 'value');
+    assert.equal(parsed.flags.soundlib, 'example');
+    assert.equal(parsed.flags.s_vwall, '|');
+
+    for (const unknown of ['extension:value', 'constructor:value', 'mal']) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=${unknown}`),
+            /unknown option/u,
+            unknown,
+        );
+    }
+});
+
+test('prefix options validate their source suffixes', () => {
+    const enabled = parseNethackrc('OPTIONS=cond_blin');
+    const disabled = parseNethackrc('OPTIONS=!cond_blin');
+    assert.equal(enabled.flags.cond_blind, true);
+    assert.equal(disabled.flags.cond_blind, false);
+
+    for (const invalid of [
+        'cond_',
+        'cond_bli',
+        'cond_bogus',
+        'cond_blind:on',
+        'font',
+        'fontbogus:value',
+    ]) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=${invalid}`),
+            /unknown/u,
+            invalid,
+        );
+    }
+});
+
+test('symbol assignments accept exactly the source symbol catalog', () => {
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/include/defsym.h', import.meta.url),
+        'utf8',
+    );
+    const sourceNames = new Set(source.match(/\bS_[A-Za-z0-9_]+\b/gu));
+    for (const name of [
+        'S_nothing',
+        'S_unexplored',
+        'S_boulder',
+        'S_invisible',
+        'S_pet_override',
+        'S_hero_override',
+        'S_armour',
+        ...Array.from({ length: 9 }, (_, index) => `S_explode${index + 1}`),
+    ]) sourceNames.add(name);
+
+    for (const name of sourceNames) {
+        assert.doesNotThrow(
+            () => parseNethackrc(`OPTIONS=${name}:x`),
+            name,
+        );
+    }
+
+    const symbols = parseNethackrc(
+        'OPTIONS=S_vwall:|,S_VWALL:!,S_armour:[,!S_hwall:-',
+    );
+    assert.equal(symbols.flags.s_vwall, '|');
+    assert.equal(symbols.flags.s_hwall, '-');
+    assert.equal(symbols.flags.s_armour, '[');
+    for (const invalid of ['s_vwall:|', 'S_bogus:x']) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=${invalid}`),
+            /unknown option/u,
+            invalid,
+        );
+    }
 });
