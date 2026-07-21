@@ -54,9 +54,10 @@ Git history do not grant permission to inspect the sealed local holdout.
 - `js/fastforward.js` is temporary, seed-specific replay scaffolding. Do
   not add, rearrange, or retune its trace-derived calls. After
   source-faithful gameplay code naturally makes a replayed PRNG call and
-  performs its associated state changes, remove the corresponding obsolete
-  replay call. Keep the gameplay implementation. Across changes,
-  trace-derived content may stay unchanged or shrink; it must never grow.
+  performs the state changes associated with that call, remove the
+  corresponding obsolete replay call. Keep the gameplay implementation.
+  Across changes, trace-derived content may stay unchanged or shrink; it must
+  never grow.
 - Do not modify `js/isaac64.js`, `js/terminal.js`, or `js/storage.js`. The
   judge replaces them with canonical copies.
 - Contestant code must remain plain JavaScript ES modules that run directly
@@ -115,7 +116,7 @@ Run the heavier checks at these boundaries:
   `$audit-diff-correctness` pass. Run simplification before the audits.
 - Run simplification earlier when duplication, accidental complexity, or stale
   scaffolding is visible. The configured commit budget is a scheduling signal
-  between milestones, not a reason to interrupt a coherent chunk.
+  between milestones. It is not a reason to interrupt a coherent chunk.
 - After a substantial batch of published technical prose stabilizes, run
   `$copyedit-technical-prose` once. Do not run it on unchanged prose.
 - After applying an audit fix, review the new delta. Repeat the full-range audit
@@ -137,17 +138,18 @@ Pass rules:
 - Freeze an audit's assigned scope while it runs. A later commit is outside that
   audit, but ordinarily requires review of only the later delta.
 - Preserve source-shaped code, planned dependency seams, generated data, and
-  temporary scaffolding until a source-faithful replacement owns its behavior
-  and state. Simplification must preserve PRNG and evaluation order.
+  temporary scaffolding until a source-faithful replacement implements the
+  behavior and maintains the state. Simplification must preserve PRNG and
+  evaluation order.
 - Record formal review and simplification passes with
   `npm run quality -- record-review ...` and
   `npm run quality -- record-simplification ...`. Advance a frontier only
   through the exact integrated commit covered by the pass. Prose passes are not
   ledger records.
-- For a full review record, identify clarity and correctness separately. Include
-  each exact range; raw, deduplicated, confirmed, and applied counts; fixes and
-  deferrals; unverified judgments; notable rejections and their counter-evidence;
-  warnings; and validation.
+- For a full review record, identify clarity and correctness separately, with
+  the exact range for each. Include raw, deduplicated, confirmed, and applied
+  counts; fixes and deferrals; unverified judgments; notable rejections and
+  their counter-evidence; warnings; and validation.
 - Finish each major milestone with `npm run quality -- --check`. Resolve review
   debt, exhausted simplification budgets, and unassigned `js/` files then.
   Historical `BASELINE` debt remains exempt until that area's first recorded
@@ -155,10 +157,12 @@ Pass rules:
 
 ## Generalization failure protocol
 
-Run this protocol whenever an authorized aggregate holdout evaluation
-indicates a transfer failure and a review of the source, code diff, and
-development evidence verifies that fixture-specific or hardcoded behavior
-passed development checks but failed to transfer:
+Run this protocol whenever both conditions hold:
+
+- An authorized aggregate holdout evaluation indicates a transfer failure.
+- A review of the source, code diff, and development evidence verifies that
+  fixture-specific or hardcoded behavior passed development checks but failed
+  to transfer.
 
 1. Stop tuning against the aggregate holdout result.
 2. Spawn a fresh subagent to analyze the responsible change, why the
