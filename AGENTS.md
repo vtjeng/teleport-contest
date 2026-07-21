@@ -146,6 +146,9 @@ Pass rules:
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
   prohibit access to `sessions/holdout/` and never provide holdout material.
+- For `$audit-diff-correctness`, tag optional context with the narrowest
+  applicable finder `audiences`. Use `all` only for universal constraints and
+  pass compact validation summaries rather than logs or prior transcripts.
 - Run formal skill passes in an isolated worktree pinned to the checked commit.
   Capture the complete output, including counts, findings, rejections,
   unverified items, warnings, and validation. The primary session reviews and
