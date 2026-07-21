@@ -10,84 +10,72 @@ function freezeDefinition(definition) {
 export const THEMEROOM_DEFINITIONS = Object.freeze(
     [
         {
-            "index": 1,
             "name": "default",
             "frequency": 1000,
             "sourceLine": 283,
             "sourceKind": "room"
         },
         {
-            "index": 2,
             "name": "Fake Delphi",
             "frequency": 1,
             "sourceLine": 291,
             "sourceKind": "room"
         },
         {
-            "index": 3,
             "name": "Room in a room",
             "frequency": 1,
             "sourceLine": 307,
             "sourceKind": "room"
         },
         {
-            "index": 4,
             "name": "Huge room with another room inside",
             "frequency": 1,
             "sourceLine": 322,
             "sourceKind": "room"
         },
         {
-            "index": 5,
             "name": "Nesting rooms",
             "frequency": 1,
             "sourceLine": 343,
             "sourceKind": "room"
         },
         {
-            "index": 6,
             "name": "Default room with themed fill",
             "frequency": 6,
             "sourceLine": 375,
             "sourceKind": "room"
         },
         {
-            "index": 7,
             "name": "Unlit room with themed fill",
             "frequency": 2,
             "sourceLine": 383,
             "sourceKind": "room"
         },
         {
-            "index": 8,
             "name": "Room with both normal contents and themed fill",
             "frequency": 2,
             "sourceLine": 391,
             "sourceKind": "room"
         },
         {
-            "index": 9,
             "name": "Pillars",
             "frequency": 1,
             "sourceLine": 399,
             "sourceKind": "room"
         },
         {
-            "index": 10,
             "name": "Mausoleum",
             "frequency": 1,
             "sourceLine": 419,
             "sourceKind": "room"
         },
         {
-            "index": 11,
             "name": "Random dungeon feature in the middle of an odd-sized room",
             "frequency": 1,
             "sourceLine": 445,
             "sourceKind": "room"
         },
         {
-            "index": 12,
             "name": "L-shaped",
             "frequency": 1,
             "sourceLine": 461,
@@ -110,7 +98,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 13,
             "name": "L-shaped, rot 1",
             "frequency": 1,
             "sourceLine": 476,
@@ -133,7 +120,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 14,
             "name": "L-shaped, rot 2",
             "frequency": 1,
             "sourceLine": 491,
@@ -156,7 +142,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 15,
             "name": "L-shaped, rot 3",
             "frequency": 1,
             "sourceLine": 506,
@@ -179,14 +164,12 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 16,
             "name": "Blocked center",
             "frequency": 1,
             "sourceLine": 521,
             "sourceKind": "map"
         },
         {
-            "index": 17,
             "name": "Circular, small",
             "frequency": 1,
             "sourceLine": 548,
@@ -208,7 +191,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 18,
             "name": "Circular, medium",
             "frequency": 1,
             "sourceLine": 562,
@@ -232,7 +214,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 19,
             "name": "Circular, big",
             "frequency": 1,
             "sourceLine": 578,
@@ -258,7 +239,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 20,
             "name": "T-shaped",
             "frequency": 1,
             "sourceLine": 596,
@@ -281,7 +261,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 21,
             "name": "T-shaped, rot 1",
             "frequency": 1,
             "sourceLine": 611,
@@ -307,7 +286,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 22,
             "name": "T-shaped, rot 2",
             "frequency": 1,
             "sourceLine": 629,
@@ -330,7 +308,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 23,
             "name": "T-shaped, rot 3",
             "frequency": 1,
             "sourceLine": 644,
@@ -356,7 +333,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 24,
             "name": "S-shaped",
             "frequency": 1,
             "sourceLine": 662,
@@ -382,7 +358,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 25,
             "name": "S-shaped, rot 1",
             "frequency": 1,
             "sourceLine": 680,
@@ -405,7 +380,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 26,
             "name": "Z-shaped",
             "frequency": 1,
             "sourceLine": 695,
@@ -431,7 +405,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 27,
             "name": "Z-shaped, rot 1",
             "frequency": 1,
             "sourceLine": 713,
@@ -454,7 +427,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 28,
             "name": "Cross",
             "frequency": 1,
             "sourceLine": 728,
@@ -480,7 +452,6 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 29,
             "name": "Four-leaf clover",
             "frequency": 1,
             "sourceLine": 746,
@@ -506,14 +477,12 @@ export const THEMEROOM_DEFINITIONS = Object.freeze(
             }
         },
         {
-            "index": 30,
             "name": "Water-surrounded vault",
             "frequency": 1,
             "sourceLine": 764,
             "sourceKind": "map"
         },
         {
-            "index": 31,
             "name": "Twin businesses",
             "frequency": 1,
             "sourceLine": 817,

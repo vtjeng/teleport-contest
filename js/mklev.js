@@ -566,7 +566,7 @@ export function select_themeroom(difficulty, random = rn2) {
     let total_frequency = 0;
     for (const meta of THEMEROOM_DEFINITIONS) {
         if (!is_themeroom_eligible(meta, difficulty)) continue;
-        const this_frequency = meta.frequency ?? 1;
+        const this_frequency = meta.frequency;
         total_frequency += this_frequency;
         if (this_frequency > 0 && random(total_frequency) < this_frequency) {
             pick = meta;
@@ -668,15 +668,11 @@ function flood_fill_themeroom(sx, sy, roomno, lit, state) {
     const target = state.level.at(sx, sy)?.typ;
     if (target !== ROOM) return null;
     const stack = [[sx, sy]];
-    const seen = new Set();
     let minx = sx, maxx = sx, miny = sy, maxy = sy;
     while (stack.length) {
         const [x, y] = stack.pop();
-        const key = y * COLNO + x;
-        if (seen.has(key)) continue;
         const loc = state.level.at(x, y);
-        if (!loc || loc.typ !== target) continue;
-        seen.add(key);
+        if (!loc || loc.typ !== target || loc.roomno === roomno) continue;
         loc.roomno = roomno;
         loc.lit = !!lit;
         minx = Math.min(minx, x); maxx = Math.max(maxx, x);

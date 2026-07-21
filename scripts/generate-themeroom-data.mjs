@@ -85,7 +85,7 @@ function integerField(prefix, field, fallback) {
     return match ? Number(match[1]) : fallback;
 }
 
-function parseEntry(entry, source, index) {
+function parseEntry(entry, source) {
     const text = entry.text;
     const nameMatch = text.match(/\bname\s*=\s*(["'])(.*?)\1/u);
     if (!nameMatch) throw new Error('themeroom entry has no literal name');
@@ -93,7 +93,6 @@ function parseEntry(entry, source, index) {
     if (contentsIndex < 0) throw new Error(`${nameMatch[2]} has no contents callback`);
     const prefix = text.slice(0, contentsIndex);
     const definition = {
-        index: index + 1,
         name: nameMatch[2],
         frequency: integerField(prefix, 'frequency', 1),
         sourceLine: source.slice(0, entry.offset).split('\n').length,
@@ -155,7 +154,7 @@ if (upstreamStatus) {
 
 const source = readFileSync(SOURCE_PATH, 'utf8');
 const definitions = extractThemeroomEntries(source)
-    .map((entry, index) => parseEntry(entry, source, index));
+    .map((entry) => parseEntry(entry, source));
 if (definitions.length !== 31) {
     throw new Error(`expected 31 themeroom definitions, found ${definitions.length}`);
 }
