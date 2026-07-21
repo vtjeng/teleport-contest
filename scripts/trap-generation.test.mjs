@@ -172,7 +172,7 @@ test('maketrap gives holes visible state, destinations, and room terrain', () =>
     const location = state.level.at(10, 5);
     location.typ = ICE;
     location.flags = 37;
-    state.head_engr = {
+    const engraving = state.head_engr = {
         engr_x: 10,
         engr_y: 5,
         engr_txt: ['old'],
@@ -194,7 +194,7 @@ test('maketrap gives holes visible state, destinations, and room terrain', () =>
     assert.deepEqual(trap.launch, { x: -1, y: -1 });
     assert.equal(location.typ, ROOM);
     assert.equal(location.flags, 0);
-    assert.equal(state.head_engr, null);
+    assert.equal(state.head_engr, engraving);
 });
 
 test('maketrap rejects non-map trap kinds and protected terrain', () => {

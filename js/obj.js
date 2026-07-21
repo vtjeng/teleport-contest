@@ -647,11 +647,23 @@ function curse(obj) {
     return obj;
 }
 
-// Narrow cross-module helper for free startup objects such as a loadstone
-// just removed from inventory. General gameplay BUC changes need the full
-// luck, equipment, timer, light, and weight side effects from mkobj.c.
-export function curseFreeObject(obj) {
-    return curse(obj);
+// Narrow cross-module helper for free objects. This covers startup loadstones
+// and objects generated for level features before they acquire an owner.
+// Carried, worn, lit, or otherwise owned objects still need curse()'s full
+// luck, equipment, timer, light, occupation, and display side effects.
+export function curseFreeObject(obj, env = {}) {
+    if (obj.oclass === COIN_CLASS) return obj;
+    if (obj.where !== OBJ_FREE || obj.lamplit) {
+        throw new UnsupportedObjectOperationError(
+            'curse outside free-object generation',
+            obj,
+        );
+    }
+    obj.blessed = false;
+    obj.cursed = true;
+    if (obj.otyp === BAG_OF_HOLDING)
+        obj.owt = weight(obj, env);
+    return obj;
 }
 
 export function bcsign(obj) {

@@ -1,14 +1,15 @@
 // vision.js — C ref: vision.c Algorithm C shadow-casting
-// Stripped-down port for the contest skeleton: no light sources, boulders,
-// mimics, underwater, blindness, or pit handling.
+// Stripped-down port for the contest skeleton: no boulders, mimics,
+// underwater, blindness, or pit handling.
 // Contestants should port the full vision.c for complete parity.
 
 import { game } from './gstate.js';
+import { do_light_sources } from './light.js';
 import {
     COLNO, ROWNO, DOOR, SDOOR, POOL,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
-    IS_WALL,
+    IS_WALL, TEMP_LIT,
 } from './const.js';
 import { newsym } from './display.js';
 
@@ -218,6 +219,23 @@ function q4_path(srow, scol, y2, x2) {
     return 1;
 }
 
+// C ref: vision.c clear_path(). The quadrant routines deliberately skip the
+// two endpoints and test only intervening cells against viz_clear.
+export function clear_path(col1, row1, col2, row2) {
+    if (col1 < col2) {
+        return row1 > row2
+            ? q1_path(row1, col1, row2, col2)
+            : q4_path(row1, col1, row2, col2);
+    }
+    if (row1 > row2) return q2_path(row1, col1, row2, col2);
+    if (row1 === row2 && col1 === col2) return 1;
+    return q3_path(row1, col1, row2, col2);
+}
+
+function circle_offset(range, rowOffset) {
+    return circle_data[circle_start[range] + rowOffset];
+}
+
 // C ref: vision.c right_side()
 function right_side(row, left, right_mark, limitsIdx) {
     const nrow = row + game.vis_step;
@@ -414,31 +432,43 @@ export function vision_recalc(control = 0) {
         view_from(u.uy, u.ux, next, next_rmin, next_rmax);
     }
 
-    // Compute IN_SIGHT from COULD_SEE + lighting
     const level = game.level;
     const ux = u.ux, uy = u.uy;
 
+    // The current vision subset models the ordinary one-square night-vision
+    // range. C computes night vision before overlaying mobile light sources.
+    for (let row = 0; row < ROWNO; row++) {
+        for (let col = next_rmin[row]; col <= next_rmax[row]; col++) {
+            if (!(next[row][col] & COULD_SEE)) continue;
+            if (Math.abs(col - ux) <= 1 && Math.abs(row - uy) <= 1)
+                next[row][col] |= IN_SIGHT;
+        }
+    }
+
+    // C ref: vision.c vision_recalc() -> light.c do_light_sources().
+    do_light_sources(next, {
+        state: game,
+        clearPath: clear_path,
+        circleOffset: circle_offset,
+    });
+
+    // Convert permanent and mobile lighting within line of sight to IN_SIGHT.
     for (let row = 0; row < ROWNO; row++) {
         const dy = Math.sign(uy - row);
         for (let col = next_rmin[row]; col <= next_rmax[row]; col++) {
-            if (!(next[row][col] & COULD_SEE)) continue;
+            if (!(next[row][col] & COULD_SEE)
+                || (next[row][col] & IN_SIGHT)) continue;
             const loc = level?.at(col, row);
             if (!loc) continue;
 
-            // Night vision: adjacent cells always IN_SIGHT
-            if (Math.abs(col - ux) <= 1 && Math.abs(row - uy) <= 1) {
-                next[row][col] |= IN_SIGHT;
-                continue;
-            }
-
-            // Lit cells
-            if (loc.lit) {
+            if (loc.lit || (next[row][col] & TEMP_LIT)) {
                 if ((loc.typ === DOOR || loc.typ === SDOOR || IS_WALL(loc.typ))
                     && !viz_clear[row]?.[col]) {
                     // Walls/doors: only IN_SIGHT if adjacent cell toward hero is lit
                     const dx = Math.sign(ux - col);
                     const flev = level?.at(col + dx, row + dy);
-                    if (flev?.lit) {
+                    if (flev?.lit
+                        || (next[row + dy]?.[col + dx] & TEMP_LIT)) {
                         next[row][col] |= IN_SIGHT;
                     }
                 } else {
@@ -480,12 +510,14 @@ export function vision_recalc(control = 0) {
                     if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv) {
                         newsym(col, row);
                     }
-                } else if ((nv & COULD_SEE) && loc.lit) {
+                } else if ((nv & COULD_SEE)
+                    && (loc.lit || (nv & TEMP_LIT))) {
                     if ((IS_WALL(loc.typ) || loc.typ === DOOR || loc.typ === SDOOR)
                         && !viz_clear[row][col]) {
                         const dx = Math.sign(ux - col);
                         const adjLoc = game.level.at(col + dx, row + dy);
-                        if (adjLoc?.lit) {
+                        if (adjLoc?.lit
+                            || (next[row + dy]?.[col + dx] & TEMP_LIT)) {
                             next_row[col] |= IN_SIGHT;
                             const oldseenv = loc.seenv || 0;
                             const sv = seenv_matrix[dy + 1][(col < ux) ? 0 : (col > ux ? 2 : 1)];

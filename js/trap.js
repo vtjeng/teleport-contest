@@ -33,7 +33,6 @@ import {
     isok,
 } from './const.js';
 import { on_level } from './dungeon.js';
-import { del_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { rn2 } from './rng.js';
 
@@ -139,7 +138,6 @@ function pitTerrain(x, y, env) {
 
     if (clearFlags) location.flags = 0;
     env.unearthObjects?.(x, y, env);
-    del_engr_at(x, y, state);
     env.recalculateBlockPoint?.(x, y, env);
 }
 

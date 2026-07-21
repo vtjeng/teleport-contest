@@ -808,6 +808,8 @@ export const BRANCH_LIMIT = 32;
 
 // ===== vision.h =====
 export const LS_NONE = 0;
+export const LS_OBJECT = 1;
+export const LS_MONSTER = 2;
 export const COULD_SEE = 0x1;
 export const IN_SIGHT = 0x2;
 export const TEMP_LIT = 0x4;
@@ -1598,7 +1600,6 @@ export const BILLED_TYPES = 0x0040;
 export const CHOOSE_ALL = 0x0080;
 export const JUSTPICKED = 0x1000;
 export const ALL_TYPES_SELECTED = -2;
-export const ONAME_SKIP_INVUPD = 0x0200;
 export const FM_FMON = 0x01;
 export const FM_MIGRATE = 0x02;
 export const FM_MYDOGS = 0x04;
@@ -1939,11 +1940,6 @@ export const XL_DOWN = 2;
 export const XL_LEFT = 4;
 export const XL_RIGHT = 8;
 
-// Light-source type tags (src/light.c)
-// Runtime fields: light_base[] entry type and routing for object/monster lookups.
-export const LS_OBJECT = 0;
-export const LS_MONSTER = 1;
-
 // Corpse taint/revival age window (src/mkobj.c)
 // Runtime fields: rot/revive scheduling bound for corpse timers.
 export const TAINT_AGE = 50;
@@ -1951,14 +1947,16 @@ export const TAINT_AGE = 50;
 // Artifact naming/origin flags (src/artifact.c)
 // Runtime fields: oname()/artifact_origin() provenance bits.
 export const ONAME_NO_FLAGS = 0;
-export const ONAME_VIA_NAMING = 0x0001;
-export const ONAME_WISH = 0x0002;
-export const ONAME_GIFT = 0x0004;
-export const ONAME_VIA_DIP = 0x0008;
-export const ONAME_LEVEL_DEF = 0x0010;
-export const ONAME_BONES = 0x0020;
-export const ONAME_RANDOM = 0x0040;
+// 0x0001 is reserved for artiexist[].exists and is not an ONAME flag.
+export const ONAME_VIA_NAMING = 0x0002;
+export const ONAME_WISH = 0x0004;
+export const ONAME_GIFT = 0x0008;
+export const ONAME_VIA_DIP = 0x0010;
+export const ONAME_LEVEL_DEF = 0x0020;
+export const ONAME_BONES = 0x0040;
+export const ONAME_RANDOM = 0x0080;
 export const ONAME_KNOW_ARTI = 0x0100;
+export const ONAME_SKIP_INVUPD = 0x0200;
 
 // seenv octants and wall-info bits (include/rm.h)
 export const SV0 = 0x01;

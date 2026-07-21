@@ -9,18 +9,24 @@ import { game } from './gstate.js';
 import { GameMap } from './game.js';
 import {
     Can_fall_thru,
-    Invocation_lev,
     depth as dungeon_depth,
-    level_difficulty as dungeon_level_difficulty,
-    on_level,
 } from './dungeon.js';
 import { make_engr_at, wipe_engr_at } from './engrave.js';
+import { make_grave } from './grave.js';
 import { rn2, rnd, rn1 } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import { depth as depth_of_level } from './hacklib.js';
 import { oinit } from './o_init.js';
+import { objectGenerationHooks } from './object_generation.js';
 import { mkgold } from './obj.js';
-import { maketrap, t_at } from './trap.js';
+import { maketrap } from './trap.js';
+import {
+    mktrap as make_level_trap,
+    occupied,
+    traptype_rnd,
+} from './mktrap.js';
+import { random_engraving } from './random_engraving.js';
+import { count_level_features } from './terrain.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
@@ -30,7 +36,7 @@ import {
     OROOM, THEMEROOM, COURT, SWAMP, VAULT, BEEHIVE, MORGUE,
     BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
     ROOMOFFSET, MAXNROFROOMS, SHARED,
-    SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, GRAVE, THRONE, TREE,
+    SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, THRONE, TREE,
     DUST,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
@@ -299,18 +305,6 @@ async function makemon(mdat, x, y, mmflags) {
     return { mx: x, my: y, mhp: hp, msleeping: 0, mpeaceful: 0 };
 }
 
-function make_grave(x, y, text) {
-    const loc = game.level?.at(x, y);
-    if (loc) loc.typ = GRAVE;
-}
-
-// random_engraving stub — consumes rn2 for text selection
-function random_engraving() {
-    // C: reads from engrave data file, consumes rn2 for selection
-    const idx = rn2(48); // approximate: rn2(num_engravings)
-    return { text: 'placeholder', pristine: 'placeholder' };
-}
-
 // in_rooms stub
 function in_rooms(x, y, rtype) { return []; }
 
@@ -343,23 +337,9 @@ export async function mklev() {
     if (getbones()) return;
     g.in_mklev = true;
     await makelevel();
-    recount_level_features();
+    count_level_features(g);
     level_finalize_topology();
     g.in_mklev = false;
-}
-
-function recount_level_features() {
-    const lvl = game.level;
-    if (!lvl?.flags) return;
-    let nfountains = 0, nsinks = 0;
-    for (let y = 0; y < ROWNO; y++)
-        for (let x = 1; x < COLNO; x++) {
-            const typ = lvl.at(x, y)?.typ;
-            if (typ === FOUNTAIN) nfountains++;
-            if (typ === SINK) nsinks++;
-        }
-    lvl.flags.nfountains = nfountains;
-    lvl.flags.nsinks = nsinks;
 }
 
 // C ref: mklev.c clear_level_structures()
@@ -1446,47 +1426,7 @@ export function somexy(croom, c, rawEnv = {}) {
     return tryCnt < 100;
 }
 
-function invocation_pos(x, y, state) {
-    const current = state.u?.uz;
-    const invocation = state.inv_pos;
-    return Boolean(current && invocation && state.dungeons?.[current.dnum]?.flags
-        && Invocation_lev(current, state)
-        && invocation.x === x && invocation.y === y);
-}
-
-function drawbridge_under(loc, terrain) {
-    return loc.typ === DRAWBRIDGE_UP
-        && ((loc.flags ?? 0) & DB_UNDER) === terrain;
-}
-
-// C ref: dbridge.c is_pool() and is_lava(). A raised drawbridge is liquid
-// only when its overloaded map flags say what lies underneath it.
-function is_pool_at(x, y, state) {
-    if (!isok(x, y)) return false;
-    const loc = state.level.at(x, y);
-    if (loc.typ === POOL || loc.typ === MOAT || loc.typ === WATER) return true;
-    const current = state.u?.uz;
-    const onJuiblexLevel = Boolean(current && state.juiblex_level
-        && on_level(current, state.juiblex_level));
-    return !onJuiblexLevel && drawbridge_under(loc, DB_MOAT);
-}
-
-function is_lava_at(x, y, state) {
-    if (!isok(x, y)) return false;
-    const loc = state.level.at(x, y);
-    return loc.typ === LAVAPOOL || loc.typ === LAVAWALL
-        || drawbridge_under(loc, DB_LAVA);
-}
-
-export function occupied(x, y, state = game) {
-    const loc = state.level?.at(x, y);
-    if (!loc) return false;
-    return Boolean(t_at(x, y, state)
-        || IS_FURNITURE(loc.typ)
-        || is_lava_at(x, y, state)
-        || is_pool_at(x, y, state)
-        || invocation_pos(x, y, state));
-}
+export { occupied, traptype_rnd };
 
 // C ref: mkroom.c somexyspace(). The source do-while attempts one initial
 // candidate plus at most 100 retries, for 101 total calls to somexy().
@@ -1807,46 +1747,6 @@ function wallification(x1, y1, x2, y2) {
 // Fill ordinary room
 // ============================================================
 
-export function traptype_rnd(mktrapflags = MKTRAP_NOFLAGS, env = {}) {
-    const state = env.state ?? game;
-    const random = env.random ?? { rn2, rnd };
-    const lvl = dungeon_level_difficulty(state);
-    let kind = random.rnd(TRAPNUM - 1);
-    switch (kind) {
-    case TRAPPED_DOOR: case TRAPPED_CHEST: case MAGIC_PORTAL: case VIBRATING_SQUARE:
-        kind = NO_TRAP; break;
-    case ROLLING_BOULDER_TRAP: case SLP_GAS_TRAP:
-        if (lvl < 2) kind = NO_TRAP; break;
-    case LEVEL_TELEP:
-        if (lvl < 5 || state.level?.flags?.noteleport
-            || on_level(state.u?.uz, state.knox_level)) {
-            kind = NO_TRAP;
-        }
-        break;
-    case SPIKED_PIT:
-        if (lvl < 5) kind = NO_TRAP; break;
-    case LANDMINE:
-        if (lvl < 6) kind = NO_TRAP; break;
-    case WEB:
-        if (lvl < 7 && !(mktrapflags & MKTRAP_NOSPIDERONWEB))
-            kind = NO_TRAP;
-        break;
-    case STATUE_TRAP: case POLY_TRAP:
-        if (lvl < 8) kind = NO_TRAP; break;
-    case FIRE_TRAP:
-        if (!state.dungeons?.[state.u?.uz?.dnum]?.flags?.hellish)
-            kind = NO_TRAP;
-        break;
-    case TELEP_TRAP:
-        if (state.level?.flags?.noteleport) kind = NO_TRAP;
-        break;
-    case HOLE:
-        if (random.rn2(7)) kind = NO_TRAP;
-        break;
-    }
-    return kind;
-}
-
 function find_okay_roompos(croom, crd) {
     let tryct = 0;
     do {
@@ -1856,67 +1756,10 @@ function find_okay_roompos(croom, crd) {
     return true;
 }
 
-function mktrap_victim(trap) {
-    const lvl = game.u?.uz?.dlevel ?? 1;
-    const kind = trap.ttyp;
-    const x = trap.tx, y = trap.ty;
-    // Object based on trap type
-    switch (kind) {
-    case ARROW_TRAP: mksobj(349, true, false); break; // ARROW
-    case DART_TRAP: mksobj(353, true, false); break; // DART
-    case ROCKTRAP: mksobj(ROCK, true, false); break;
-    default: break;
-    }
-    // Random items on victim
-    do {
-        const cls = [WEAPON_CLASS, TOOL_CLASS, FOOD_CLASS, GEM_CLASS][rn2(4)];
-        const otmp = mkobj(cls, false);
-        curse(otmp);
-    } while (!rn2(5));
-    // Victim type
-    const PM_ELF = 18, PM_DWARF = 19, PM_ORC = 20, PM_GNOME = 21, PM_HUMAN = 22;
-    const PM_ARCHEOLOGIST = 305, PM_WIZARD = 321;
-    let victim_mnum;
-    switch (rn2(15)) {
-    case 0:
-        victim_mnum = PM_ELF;
-        if (kind === SLP_GAS_TRAP && !(lvl <= 2 && rn2(2))) victim_mnum = PM_HUMAN;
-        break;
-    case 1: case 2: victim_mnum = PM_DWARF; break;
-    case 3: case 4: case 5: victim_mnum = PM_ORC; break;
-    case 6: case 7: case 8: case 9:
-        victim_mnum = PM_GNOME;
-        if (!rn2(10)) {
-            const otmp = mksobj(rn2(4) ? 370 : 371, true, false); // TALLOW_CANDLE / WAX_CANDLE
-            curse(otmp);
-        }
-        break;
-    default: victim_mnum = PM_HUMAN; break;
-    }
-    if (victim_mnum === PM_HUMAN && rn2(25))
-        victim_mnum = rn1(PM_WIZARD - PM_ARCHEOLOGIST, PM_ARCHEOLOGIST);
-    mkcorpstat(CORPSE, null, victim_mnum, x, y, 8); // CORPSTAT_INIT
-}
-
 async function mktrap_room(croom) {
-    let kind;
-    do { kind = traptype_rnd(); } while (kind === NO_TRAP);
-    const dungeon = game.dungeons?.[game.u?.uz?.dnum ?? 0];
-    const canFallThru = (game.u?.uz?.dlevel ?? 1) < (dungeon?.num_dunlevs ?? 1);
-    if (is_hole(kind) && !canFallThru) kind = ROCKTRAP;
-    const pos = { x: 0, y: 0 };
-    if (!somexyspace(croom, pos)) return;
-    const trap = await maketrap(pos.x, pos.y, kind);
-    kind = trap ? trap.ttyp : NO_TRAP;
-    const lvl = game.u?.uz?.dlevel ?? 1;
-    if (game.in_mklev && kind !== NO_TRAP
-        && lvl <= rnd(4)
-        && kind !== SQKY_BOARD && kind !== RUST_TRAP
-        && !(kind === ROLLING_BOULDER_TRAP && trap.launch?.x === trap.tx && trap.launch?.y === trap.ty)
-        && !is_pit(kind) && (kind < HOLE || kind === MAGIC_TRAP)) {
-        if (kind === LANDMINE) { trap.ttyp = PIT; trap.tseen = true; }
-        mktrap_victim(trap);
-    }
+    return make_level_trap(0, MKTRAP_NOFLAGS, croom, null, {
+        hooks: objectGenerationHooks({ somexyspace }),
+    });
 }
 
 function mkfount(croom) {

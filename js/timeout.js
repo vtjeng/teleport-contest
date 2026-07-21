@@ -8,11 +8,14 @@
 
 import {
     BURN_OBJECT,
+    BURIED_TOO,
+    CONTAINED_TOO,
     FIG_TRANSFORM,
     HATCH_EGG,
     MAX_EGG_HATCH_TIME,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
+    LS_OBJECT,
     OBJ_INVENT,
     REVIVE_MON,
     ROT_AGE,
@@ -25,6 +28,11 @@ import {
     ZOMBIFY_MON,
 } from './const.js';
 import { game } from './gstate.js';
+import {
+    candle_light_range,
+    get_obj_location,
+    new_light_source,
+} from './light.js';
 import { is_rider, zombie_form } from './mondata.js';
 import {
     PM_DEATH,
@@ -32,6 +40,7 @@ import {
     PM_LIZARD,
     S_TROLL,
 } from './monsters.js';
+import { TALLOW_CANDLE, WAX_CANDLE } from './objects.js';
 import { rn1, rn2, rnd, rnz } from './rng.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -61,6 +70,14 @@ export class UnsupportedTimerCleanupError extends Error {
         this.name = 'UnsupportedTimerCleanupError';
         this.operation = operation;
         this.func_index = funcIndex;
+    }
+}
+
+export class UnsupportedBurnObjectError extends Error {
+    constructor(obj) {
+        super(`begin_burn is not available for otyp ${obj?.otyp}`);
+        this.name = 'UnsupportedBurnObjectError';
+        this.otyp = obj?.otyp;
     }
 }
 
@@ -97,10 +114,33 @@ function burnInventoryRefreshActive(state) {
         && !programState.done_hup);
 }
 
-// C ref: timeout.c cleanup_burn(). Light-source deletion remains behind the
-// object lifecycle hook until light.c is ported. Resolve live integration
-// seams before unlinking a timer so a missing seam cannot leave the queue,
-// timed count, fuel, and light ownership partially updated.
+function preflightBurnInventoryRefresh(obj, state, env) {
+    if (obj.where !== OBJ_INVENT || !burnInventoryRefreshActive(state))
+        return null;
+    const updateInventory = env.hooks?.updateInventory;
+    if (state.iflags?.perm_invent && typeof updateInventory !== 'function') {
+        throw new UnsupportedTimerCleanupError('updateInventory', BURN_OBJECT);
+    }
+    return typeof updateInventory === 'function' ? updateInventory : null;
+}
+
+function runBurnInventoryRefresh(updateInventory, state) {
+    if (!updateInventory) return;
+    state.iflags ??= {};
+    const savedSuppressPrice = state.iflags.suppress_price;
+    state.iflags.suppress_price = 0;
+    try {
+        updateInventory(state);
+    } finally {
+        state.iflags.suppress_price = savedSuppressPrice;
+    }
+}
+
+// C ref: timeout.c cleanup_burn(). Light-source deletion remains an injected
+// object-lifecycle operation so timer cleanup can be composed with whichever
+// subsystem owns the object. Resolve live integration seams before unlinking
+// a timer so a missing seam cannot leave the queue, timed count, fuel, and
+// light ownership partially updated.
 function preflightTimerCleanup(timer, state, env = {}) {
     if (timer.func_index !== BURN_OBJECT) return null;
 
@@ -117,18 +157,11 @@ function preflightTimerCleanup(timer, state, env = {}) {
         'deleteObjectLightSource',
         timer.func_index,
     );
-    let updateInventory = null;
-    if (obj.where === OBJ_INVENT && burnInventoryRefreshActive(state)) {
-        updateInventory = typeof normalized.hooks.updateInventory === 'function'
-            ? normalized.hooks.updateInventory : null;
-        if (state.iflags?.perm_invent && !updateInventory) {
-            updateInventory = requiredCleanupHook(
-                normalized,
-                'updateInventory',
-                timer.func_index,
-            );
-        }
-    }
+    const updateInventory = preflightBurnInventoryRefresh(
+        obj,
+        state,
+        normalized,
+    );
     return { normalized, deleteLight, updateInventory };
 }
 
@@ -146,18 +179,11 @@ function cleanupTimer(timer, state, cleanup) {
     obj.age = Math.trunc(obj.age ?? 0)
         + timer.timeout - currentMove(state);
     obj.lamplit = false;
-    if (cleanup.updateInventory) {
-        state.iflags ??= {};
-        const savedSuppressPrice = state.iflags.suppress_price;
-        state.iflags.suppress_price = 0;
-        try {
-            cleanup.updateInventory(state);
-        } catch (error) {
-            if (firstError === NO_CLEANUP_ERROR) {
-                firstError = error;
-            }
-        } finally {
-            state.iflags.suppress_price = savedSuppressPrice;
+    try {
+        runBurnInventoryRefresh(cleanup.updateInventory, state);
+    } catch (error) {
+        if (firstError === NO_CLEANUP_ERROR) {
+            firstError = error;
         }
     }
     if (firstError !== NO_CLEANUP_ERROR) throw firstError;
@@ -307,6 +333,68 @@ export function obj_stop_timers(obj, state = game, env = {}) {
 
 export function obj_has_timer(obj, funcIndex, state = game) {
     return peek_timer(funcIndex, obj, state) !== 0;
+}
+
+// C ref: timeout.c begin_burn(), ordinary-candle cases. age is fuel remaining
+// before this segment; after scheduling it stores the fuel remaining when the
+// segment expires. The warning boundaries at 75, 15, and 0 split the timer.
+export function begin_burn(obj, alreadyLit = false, env = {}) {
+    const state = env.state ?? game;
+    const normalized = { ...env, state, hooks: env.hooks ?? {} };
+    if (obj?.otyp !== TALLOW_CANDLE && obj?.otyp !== WAX_CANDLE)
+        throw new UnsupportedBurnObjectError(obj);
+
+    const age = Math.trunc(obj.age ?? 0);
+    if (age === 0) return;
+    if (age < 0)
+        throw new RangeError(`begin_burn: invalid candle age ${obj.age}`);
+
+    let turns;
+    if (age > 75) turns = age - 75;
+    else if (age > 15) turns = age - 15;
+    else turns = age;
+    const radius = candle_light_range(obj);
+    let updateInventory = null;
+    let position = null;
+
+    // C cannot fail at these linked subsystem boundaries. The JS port can
+    // have an integration hook or light owner missing, so resolve both before
+    // start_timer() claims ownership and adjusts the candle's remaining fuel.
+    if (!alreadyLit) {
+        updateInventory = preflightBurnInventoryRefresh(
+            obj,
+            state,
+            normalized,
+        );
+        position = get_obj_location(
+            obj,
+            CONTAINED_TOO | BURIED_TOO,
+            state,
+        );
+        if (!position)
+            throw new Error("begin_burn: can't get object position");
+        if (!state.gl || !Object.hasOwn(state.gl, 'light_base'))
+            throw new Error('light sources require light_globals_init()');
+    }
+
+    if (start_timer(turns, TIMER_OBJECT, BURN_OBJECT, obj, state)) {
+        obj.lamplit = true;
+        obj.age = age - turns;
+        runBurnInventoryRefresh(updateInventory, state);
+    } else {
+        obj.lamplit = false;
+    }
+
+    if (obj.lamplit && !alreadyLit) {
+        new_light_source(
+            position.x,
+            position.y,
+            radius,
+            LS_OBJECT,
+            obj,
+            state,
+        );
+    }
 }
 
 function timeoutEnv(env = {}) {

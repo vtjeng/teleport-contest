@@ -122,6 +122,21 @@ export function encodeUtf8ByteString(value) {
     return bytes;
 }
 
+// C ref: hacklib.c xcrypt().  The five-bit mask advances for every byte,
+// including bytes which are not transformed, and resets for each call.
+export function xcrypt(text) {
+    let bitmask = 1;
+    let result = '';
+    for (let index = 0; index < text.length; ++index) {
+        let byte = text.charCodeAt(index);
+        if (byte & (32 | 64)) byte ^= bitmask;
+        bitmask <<= 1;
+        if (bitmask >= 32) bitmask = 1;
+        result += String.fromCharCode(byte);
+    }
+    return result;
+}
+
 export function isok(x, y) {
     const { COLNO, ROWNO } = await_const();
     return x >= 1 && x <= COLNO - 1 && y >= 0 && y <= ROWNO - 1;
