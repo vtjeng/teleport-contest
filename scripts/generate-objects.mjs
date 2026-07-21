@@ -249,15 +249,37 @@ ${objects}
 // serializable.
 const UNSEEN_OBJECT_PRICE = Number.MAX_SAFE_INTEGER;
 
+function defineObjclassAliases(object) {
+    const aliases = {
+        oc_bimanual: 'oc_big',
+        oc_bulky: 'oc_big',
+        oc_skill: 'oc_subtyp',
+        oc_armcat: 'oc_subtyp',
+        oc_hitbon: 'oc_oc1',
+        a_ac: 'oc_oc1',
+        a_can: 'oc_oc2',
+        oc_level: 'oc_oc2',
+    };
+    for (const [alias, source] of Object.entries(aliases)) {
+        Object.defineProperty(object, alias, {
+            configurable: true,
+            enumerable: false,
+            get() { return this[source]; },
+            set(value) { this[source] = value; },
+        });
+    }
+    return object;
+}
+
 function cloneObject(template) {
-    return {
+    return defineObjclassAliases({
         ...template,
         oc_uname: null,
         oc_sell_minseen: UNSEEN_OBJECT_PRICE,
         oc_sell_maxseen: 0,
         oc_buy_minseen: UNSEEN_OBJECT_PRICE,
         oc_buy_maxseen: 0,
-    };
+    });
 }
 
 function cloneDescription(template) {

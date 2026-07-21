@@ -63,6 +63,7 @@ import {
 import {
     UnsupportedObjectOperationError,
     curseFreeObject,
+    dealloc_obj,
     erosionMatters,
     isCandle,
     isContainer,
@@ -114,18 +115,43 @@ function requiredHook(env, name, obj) {
 // target updates, and leaving obj deallocated as OBJ_DELETED or OBJ_LUAFREE.
 // inventoryComparisonDiscovered(target, env), setNotWorn(obj, env).
 
+function suppressMapOutput(state) {
+    return Boolean(state.in_mklev
+        || state.program_state?.saving
+        || state.program_state?.restoring
+        || state.program_state?.done_hup);
+}
+
+function inventoryRefreshActive(env) {
+    return Boolean(env.state.program_state?.in_moveloop)
+        && !suppressMapOutput(env.state);
+}
+
 function requireInventoryRefresh(env) {
-    if ((env.state.iflags?.perm_invent || env.state.flags?.perm_invent)
+    if (!inventoryRefreshActive(env)) return;
+    if (env.state.iflags?.perm_invent
         && typeof env.hooks.updateInventory !== 'function') {
         throw new UnsupportedObjectOperationError('updateInventory');
     }
 }
 
-function refreshInventory(env) {
-    requireInventoryRefresh(env);
-    if (typeof env.hooks.updateInventory === 'function') {
-        env.hooks.updateInventory(env.state);
+// C ref: invent.c update_inventory(). Calls before the move loop and while
+// map output is suppressed are deliberately ignored. moveloop_preamble()
+// owns the first live startup refresh.
+export function update_inventory(env = {}) {
+    const normalized = inventoryEnv(env);
+    if (!inventoryRefreshActive(normalized)) return false;
+    requireInventoryRefresh(normalized);
+    if (typeof normalized.hooks.updateInventory !== 'function') return false;
+    normalized.state.iflags ??= {};
+    const savedSuppressPrice = normalized.state.iflags.suppress_price;
+    normalized.state.iflags.suppress_price = 0;
+    try {
+        normalized.hooks.updateInventory(normalized.state);
+    } finally {
+        normalized.state.iflags.suppress_price = savedSuppressPrice;
     }
+    return true;
 }
 
 function inventoryHead(state) {
@@ -247,7 +273,7 @@ export function freeinv(obj, env = {}) {
     normalized.state.invent = extractNobj(obj, inventoryHead(normalized.state));
     obj.pickup_prev = false;
     freeinvCore(obj, normalized, facts);
-    refreshInventory(normalized);
+    update_inventory(normalized);
     return obj;
 }
 
@@ -517,47 +543,8 @@ export function mergable(otmp, obj, env = {}) {
 
 function stopObjectTimers(obj, env) {
     requiredHook(env, 'stopObjectTimers', obj)(obj, env);
-    obj.timed = 0;
-}
-
-function deallocateObject(obj, env) {
-    if (obj.where !== OBJ_FREE && obj.where !== OBJ_LUAFREE) {
-        throw new Error(
-            `deallocateObject: object where=${obj.where}, expected free`,
-        );
-    }
-    if (obj.nobj || obj.cobj)
-        throw new Error('deallocateObject: object is still linked');
-    if (obj.timed) stopObjectTimers(obj, env);
-    if (obj.lamplit) {
-        requiredHook(env, 'deleteObjectLightSource', obj)(obj, env);
-        obj.lamplit = false;
-    }
-
-    if (env.state.thrownobj === obj) env.state.thrownobj = null;
-    if (env.state.kickedobj === obj) env.state.kickedobj = null;
-    if (env.state.gt?.thrownobj === obj) env.state.gt.thrownobj = null;
-    if (env.state.gk?.kickedobj === obj) env.state.gk.kickedobj = null;
-    if (env.state.context?.tin?.tin === obj) {
-        env.state.context.tin.tin = null;
-        env.state.context.tin.o_id = 0;
-    }
-    const split = env.state.context?.objsplit;
-    if (split
-        && (split.parent_oid === obj.o_id || split.child_oid === obj.o_id)) {
-        split.parent_oid = 0;
-        split.child_oid = 0;
-    }
-
-    if (obj.lua_ref_cnt) {
-        obj.where = OBJ_LUAFREE;
-        return;
-    }
-
-    obj.nobj = null;
-    obj.nexthere = null;
-    obj.oextra = null;
-    obj.where = OBJ_DELETED;
+    if (obj.timed)
+        throw new Error('stopObjectTimers must clear obj.timed');
 }
 
 function oidPriceAdjustment(obj, oid, state) {
@@ -673,7 +660,7 @@ function obfree(obj, merge, env) {
         if (obj.owornmask)
             throw new Error('setNotWorn must clear owornmask');
     }
-    deallocateObject(obj, env);
+    dealloc_obj(obj, env);
 }
 
 // C ref: invent.c merged(). Returns true when `obj` was absorbed into otmp.
@@ -960,7 +947,7 @@ function setQuiver(obj, env) {
         env.state.uquiver.owornmask &= ~W_QUIVER;
     env.state.uquiver = obj;
     obj.owornmask |= W_QUIVER;
-    refreshInventory(env);
+    update_inventory(env);
 }
 
 // C ref: invent.c addinv_core0() and addinv().
@@ -1035,7 +1022,7 @@ export function addinv(obj, env = {}) {
     obj.pickup_prev = true;
     addinvCore2(obj, normalized, addinvFacts);
     carryObjectEffects(obj, normalized, shouldAttachFigurineTimer);
-    refreshInventory(normalized);
+    update_inventory(normalized);
     return obj;
 }
 

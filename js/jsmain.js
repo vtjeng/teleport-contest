@@ -18,6 +18,7 @@ import { flush_screen } from './display.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { objects_globals_init } from './objects.js';
+import { monst_globals_init } from './monsters.js';
 import { ttyPlayerSelection } from './player_selection_tty.js';
 import {
     renderTtyStartupBanner,
@@ -100,9 +101,10 @@ export class NethackGame {
 
     async start() {
         const g = resetGame();
-        // C ref: allmain.c early_init() — mutable object names must exist
-        // before options can customize them; init_objects() runs later.
+        // C ref: allmain.c early_init() — clone both mutable source catalogs
+        // before options and role initialization; per-game resets run later.
         objects_globals_init(g);
+        monst_globals_init(g);
         setStorageForTesting(this._storage);
         // Recorder patch 001 routes calendar.c:getnow() through this fixed
         // YYYYMMDDHHMMSS value and leaks its current tm_isdst bit.

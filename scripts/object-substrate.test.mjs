@@ -5,12 +5,16 @@ import {
     A_NONE,
     MAX_OIL_IN_FLASK,
     NON_PM,
+    OBJ_DELETED,
+    OBJ_FREE,
     OBJ_INVENT,
+    OBJ_LUAFREE,
 } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     UnsupportedObjectOperationError,
     blessorcurse,
+    dealloc_obj,
     mksobj,
     mkobj,
     newObject,
@@ -26,6 +30,7 @@ import {
     AMULET_OF_STRANGULATION,
     BAG_OF_HOLDING,
     BLINDING_VENOM,
+    BOULDER,
     CANDY_BAR,
     COIN_CLASS,
     DART,
@@ -45,6 +50,7 @@ import {
     SCR_MAGIC_MAPPING,
     SLIME_MOLD,
     SPE_HEALING,
+    SPE_NOVEL,
     SPLINT_MAIL,
     TINNING_KIT,
     TOUCHSTONE,
@@ -157,6 +163,31 @@ test('newObject starts from zeroobj before mksobj applies sentinels', () => {
     assert.equal(obj.corpsenm, 0);
     assert.equal(obj.leashmon, 0);
     assert.equal(obj.novelidx, 0);
+});
+
+test('object-class macro aliases write through to their shared fields', () => {
+    const state = initializedState();
+    const type = state.objects[SPE_HEALING];
+
+    type.oc_skill = 41;
+    assert.equal(type.oc_subtyp, 41);
+    type.oc_armcat = 6;
+    assert.equal(type.oc_skill, 6);
+
+    type.oc_bimanual = true;
+    assert.equal(type.oc_big, true);
+    type.oc_bulky = false;
+    assert.equal(type.oc_bimanual, false);
+
+    type.a_ac = -7;
+    assert.equal(type.oc_oc1, -7);
+    type.oc_hitbon = 3;
+    assert.equal(type.a_ac, 3);
+
+    type.oc_level = 5;
+    assert.equal(type.oc_oc2, 5);
+    type.a_can = 2;
+    assert.equal(type.oc_level, 2);
 });
 
 test('next_ident returns the old id and preserves uint32 wrap draws', () => {
@@ -339,6 +370,161 @@ test('startup spellbooks clear study count before their BUC draw', () => {
     ]).obj;
     assert.equal(spellbook.usecount, 0);
     assert.equal(spellbook.blessed || spellbook.cursed, false);
+});
+
+test('startup novels consume BUC then title draws and keep object identity', () => {
+    const state = initializedState();
+    const random = scriptedRandom([
+        { name: 'rnd', args: [2], result: 1 },
+        { name: 'rn2', args: [17], result: 1 },
+        { name: 'rn2', args: [41], result: 33 },
+    ]);
+    const novel = mksobj(SPE_NOVEL, true, false, { state, ...random });
+
+    assert.equal(novel.o_id, 2);
+    assert.equal(novel.novelidx, 33);
+    assert.equal(novel.corpsenm, 33);
+    assert.equal(novel.oextra.oname, 'Thud!');
+    random.done();
+});
+
+test('dealloc_obj clears global references and preserves Lua-held extras', () => {
+    const objectId = 17;
+    const ordinary = newObject({
+        o_id: objectId,
+        oextra: { oname: 'Thud!' },
+        where: OBJ_FREE,
+    });
+    const state = {
+        context: {
+            objsplit: { parent_oid: objectId, child_oid: objectId + 1 },
+            tin: { tin: ordinary, o_id: objectId },
+        },
+        gk: { kickedobj: ordinary },
+        gt: { thrownobj: ordinary },
+        kickedobj: ordinary,
+        thrownobj: ordinary,
+    };
+    dealloc_obj(ordinary, { state });
+    assert.equal(ordinary.where, OBJ_DELETED);
+    assert.equal(ordinary.oextra, null);
+    assert.equal(state.thrownobj, null);
+    assert.equal(state.kickedobj, null);
+    assert.equal(state.gt.thrownobj, null);
+    assert.equal(state.gk.kickedobj, null);
+    assert.deepEqual(state.context.tin, { tin: null, o_id: 0 });
+    assert.deepEqual(state.context.objsplit, {
+        parent_oid: 0,
+        child_oid: 0,
+    });
+
+    const extras = { oname: 'Going Postal' };
+    const held = newObject({
+        lua_ref_cnt: 1,
+        oextra: extras,
+        where: OBJ_FREE,
+    });
+    dealloc_obj(held, { state: {} });
+    assert.equal(held.where, OBJ_LUAFREE);
+    assert.equal(held.oextra, extras);
+});
+
+test('dealloc_obj stops timers before deleting any surviving light source', () => {
+    const clearedByTimer = newObject({
+        lamplit: true,
+        otyp: OIL_LAMP,
+        timed: 1,
+        where: OBJ_FREE,
+    });
+    const firstOrder = [];
+    dealloc_obj(clearedByTimer, {
+        state: {},
+        hooks: {
+            stopObjectTimers(obj) {
+                firstOrder.push('timer');
+                obj.timed = 0;
+                obj.lamplit = false;
+            },
+        },
+    });
+    assert.deepEqual(firstOrder, ['timer']);
+
+    const survivingLight = newObject({
+        lamplit: true,
+        otyp: OIL_LAMP,
+        timed: 1,
+        where: OBJ_FREE,
+    });
+    const secondOrder = [];
+    dealloc_obj(survivingLight, {
+        state: {},
+        hooks: {
+            deleteObjectLightSource() { secondOrder.push('light'); },
+            stopObjectTimers(obj) {
+                secondOrder.push('timer');
+                obj.timed = 0;
+            },
+        },
+    });
+    assert.deepEqual(secondOrder, ['timer', 'light']);
+    assert.equal(survivingLight.where, OBJ_DELETED);
+});
+
+test('dealloc_obj preflights the timer seam before mutation', () => {
+    const obj = newObject({
+        oextra: { oname: 'Mort' },
+        timed: 1,
+        where: OBJ_FREE,
+    });
+    assert.throws(
+        () => dealloc_obj(obj, { state: {} }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'stopObjectTimers',
+    );
+    assert.equal(obj.timed, 1);
+    assert.deepEqual(obj.oextra, { oname: 'Mort' });
+    assert.equal(obj.where, OBJ_FREE);
+});
+
+test('dealloc_obj rechecks light ownership after timer cleanup', () => {
+    const lamp = newObject({
+        lamplit: true,
+        oextra: { oname: 'Lit' },
+        otyp: OIL_LAMP,
+        timed: 1,
+        where: OBJ_FREE,
+    });
+    let stopped = 0;
+    assert.throws(
+        () => dealloc_obj(lamp, {
+            state: {},
+            hooks: {
+                stopObjectTimers(obj) {
+                    ++stopped;
+                    obj.timed = 0;
+                },
+            },
+        }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'deleteObjectLightSource',
+    );
+    assert.equal(stopped, 1);
+    assert.equal(lamp.timed, 0);
+    assert.equal(lamp.lamplit, true);
+    assert.equal(lamp.where, OBJ_FREE);
+});
+
+test('dealloc_obj clears the boulder chain union before deletion', () => {
+    const boulder = newObject({
+        otyp: BOULDER,
+        where: OBJ_FREE,
+    });
+    boulder.next_boulder = 123;
+
+    dealloc_obj(boulder, { state: {} });
+
+    assert.equal(boulder.next_boulder, 0);
+    assert.equal(boulder.where, OBJ_DELETED);
 });
 
 test('Samurai startup splint mail is lacquered after generic armor draws', () => {

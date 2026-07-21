@@ -32,6 +32,7 @@ import {
     money_cnt,
     obj_extract_self,
     resetInventory,
+    update_inventory,
     useupall,
 } from '../js/invent.js';
 import {
@@ -67,6 +68,8 @@ function initializedState() {
         context: { ident: 2 },
         disp: {},
         flags: { invlet_constant: true },
+        iflags: {},
+        program_state: { in_moveloop: 1 },
         moves: 0,
         u: {
             ulevel: 1,
@@ -580,6 +583,7 @@ test('worn and timed merges require their canonical cleanup seams', () => {
         hooks: {
             stopObjectTimers(obj) {
                 stoppedWhere = obj.where;
+                obj.timed = 0;
             },
         },
     });
@@ -613,6 +617,7 @@ test('inventory reset stops timers on top-level and nested objects', () => {
         hooks: {
             stopObjectTimers(obj) {
                 stopped.push([obj.o_id, obj.where, state.lastinvnr]);
+                obj.timed = 0;
             },
         },
     });
@@ -696,7 +701,7 @@ test('ordinary merges do not require hero perception state', () => {
 
 test('addinv_nomerge restores its flag when a seam rejects insertion', () => {
     const state = initializedState();
-    state.flags.perm_invent = true;
+    state.iflags.perm_invent = true;
     const ration = instance(FOOD_RATION, state);
     assert.throws(
         () => addinv_nomerge(ration, { state }),
@@ -932,7 +937,7 @@ test('a live cursed figurine timer follows inventory ownership', () => {
 
 test('permanent inventory requires and receives refreshes', () => {
     const state = initializedState();
-    state.flags.perm_invent = true;
+    state.iflags.perm_invent = true;
     const ration = instance(FOOD_RATION, state);
     assert.throws(
         () => addinv(ration, { state }),
@@ -949,12 +954,54 @@ test('permanent inventory requires and receives refreshes', () => {
     assert.equal(updates, 1);
 });
 
+test('startup inventory additions defer permanent inventory rendering', () => {
+    const state = initializedState();
+    state.program_state.in_moveloop = 0;
+    state.iflags.perm_invent = true;
+    const ration = instance(FOOD_RATION, state);
+
+    addinv(ration, { state });
+    assert.equal(ration.where, OBJ_INVENT);
+});
+
+test('inventory refresh honors map suppression and restores price state', () => {
+    const state = initializedState();
+    state.iflags.perm_invent = true;
+    state.iflags.suppress_price = 7;
+
+    for (const suppressingState of [
+        ['in_mklev', state],
+        ['saving', state.program_state],
+        ['restoring', state.program_state],
+        ['done_hup', state.program_state],
+    ]) {
+        const [field, owner] = suppressingState;
+        owner[field] = 1;
+        assert.equal(update_inventory({ state }), false);
+        owner[field] = 0;
+    }
+
+    assert.throws(
+        () => update_inventory({
+            state,
+            hooks: {
+                updateInventory(current) {
+                    assert.equal(current.iflags.suppress_price, 0);
+                    throw new Error('window failure');
+                },
+            },
+        }),
+        /window failure/u,
+    );
+    assert.equal(state.iflags.suppress_price, 7);
+});
+
 test('useupall checks permanent inventory before unwielding', () => {
     const state = initializedState();
     const dart = instance(DART, state);
     addinv(dart, { state });
     dart.owornmask = W_WEP;
-    state.flags.perm_invent = true;
+    state.iflags.perm_invent = true;
 
     let unworn = 0;
     assert.throws(

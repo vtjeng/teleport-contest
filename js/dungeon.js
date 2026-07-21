@@ -5,6 +5,7 @@
 import { game } from './gstate.js';
 import { rn2 } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
+import { AGGRAVATE_MONSTER } from './const.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -442,6 +443,62 @@ function add_level(newLevel, state) {
 
 export function depth(level, state = game) {
     return state.dungeons[level.dnum].depth_start + level.dlevel - 1;
+}
+
+function builds_up(level, state) {
+    const dungeon = state.dungeons[level.dnum];
+    if (dungeon.num_dunlevs > 1)
+        return dungeon.entry_lev === dungeon.num_dunlevs;
+    const branch = state.branches.find(
+        (candidate) => same_level(candidate.end2, level),
+    );
+    if (!branch)
+        throw new Error(`builds_up: no branch for dungeon ${level.dnum}`);
+    return Boolean(branch.end1_up);
+}
+
+function deepest_lev_reached(state) {
+    let deepest = 0;
+    for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {
+        const dlevel = Math.trunc(state.dungeons[dnum].dunlev_ureached ?? 0);
+        if (!dlevel) continue;
+        deepest = Math.max(deepest, depth({ dnum, dlevel }, state));
+    }
+    return deepest;
+}
+
+// C ref: dungeon.c level_difficulty(). This value feeds random monster and
+// object generation, so retain the source's endgame, Amulet, and upward-branch
+// adjustments rather than treating dungeon depth as interchangeable.
+export function level_difficulty(state = game) {
+    const level = state.u?.uz;
+    if (!level || !state.dungeons?.[level.dnum])
+        throw new Error('level_difficulty requires initialized dungeon state');
+
+    const astral = state.astral_level;
+    const inEndgame = Number.isInteger(astral?.dlevel)
+        && astral.dlevel > 0
+        && level.dnum === astral.dnum;
+    let result;
+    if (inEndgame) {
+        if (!Number.isInteger(state.sanctum_level?.dlevel)
+            || state.sanctum_level.dlevel <= 0) {
+            throw new Error('level_difficulty requires the Sanctum level');
+        }
+        result = depth(state.sanctum_level, state)
+            + Math.trunc((state.u.ulevel ?? 0) / 2);
+    } else if (state.u.uhave?.amulet) {
+        result = deepest_lev_reached(state);
+    } else {
+        result = depth(level, state);
+        if (builds_up(level, state)) {
+            const dungeon = state.dungeons[level.dnum];
+            result += 2 * (dungeon.entry_lev - level.dlevel + 1);
+        }
+    }
+    if (state.u.uprops?.[AGGRAVATE_MONSTER]?.extrinsic)
+        result = result > 25 ? 50 : result * 2;
+    return result;
 }
 
 export function ledger_no(level, state = game) {

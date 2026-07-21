@@ -3,11 +3,12 @@
 //
 // Residual post-mklev replay remains while inventory and level population are
 // ported. The PRNG-owning pre-mklev initializers below are source-derived;
-// monster-vital, UUID, notice, and glyph-map setup remain to be ported.
+// UUID, notice, and glyph-map setup remain to be ported.
 
 import { game } from './gstate.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { init_objects } from './o_init.js';
+import { reset_mvitals } from './monsters.js';
 import { init_dungeons } from './dungeon.js';
 import { init_artifacts } from './artifacts.js';
 import { role_init, welcomeMessage } from './role_init.js';
@@ -33,6 +34,7 @@ export function newgame_pre_mklev(g = game) {
     g.context.warnlevel = 1;
     g.context.next_attrib_check = 600;
     g.context.tribute = { enabled: true };
+    reset_mvitals(g);
     init_objects(g);
     g.flags.pantheon = -1;
     role_init(g);

@@ -10,6 +10,7 @@ import {
 } from './const.js';
 import { friday_13th, phase_of_the_moon } from './calendar.js';
 import { game } from './gstate.js';
+import { update_inventory } from './invent.js';
 import { rnd } from './rng.js';
 import { initrack } from './track.js';
 import { ttyPline } from './tty_message.js';
@@ -20,11 +21,14 @@ export function change_luck(amount, state = game) {
     state.u.uluck = Math.max(LUCKMIN, Math.min(LUCKMAX, current + amount));
 }
 
-// Inventory-owned work deliberately remains at its source boundary:
-// set_wear(NULL), reset_justpicked(invent), pickup(1), encumber_msg(), and
-// update_inventory() need the real object/inventory substrate and must not be
-// approximated here.  Monster visibility deferral is likewise left to vision.
-export async function moveloop_preamble(resuming = false, state = game) {
+// Inventory-owned set_wear(NULL), reset_justpicked(invent), pickup(1), and
+// encumber_msg() remain at their source boundary. Monster visibility deferral
+// remains with the future vision subsystem.
+export async function moveloop_preamble(
+    resuming = false,
+    state = game,
+    env = {},
+) {
     state.flags ??= {};
     state.iflags ??= {};
     state.program_state ??= {};
@@ -78,5 +82,11 @@ export async function moveloop_preamble(resuming = false, state = game) {
         state.iflags.fuzzerpending = false;
     }
     state.program_state.in_moveloop = 1;
+    if (state.iflags.perm_invent) {
+        update_inventory({
+            state,
+            hooks: env.hooks,
+        });
+    }
     return state;
 }

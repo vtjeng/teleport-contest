@@ -102,6 +102,22 @@ test('ordinary new-game preamble owns its RNG draws and basic state', async () =
     assert.equal(state.iflags.fuzzerpending, false);
 });
 
+test('permanent inventory first renders after entering the move loop', async () => {
+    const state = preambleState('20260129120000');
+    state.iflags.perm_invent = true;
+    const updates = [];
+
+    await moveloop_preamble(false, state, {
+        hooks: {
+            updateInventory(current) {
+                updates.push(current.program_state.in_moveloop);
+            },
+        },
+    });
+
+    assert.deepEqual(updates, [1]);
+});
+
 test('moon and Friday effects preserve source messages and Luck changes', async () => {
     const cases = [
         {

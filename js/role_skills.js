@@ -400,15 +400,14 @@ export function skillsForRole(role = game.urole) {
     return skills;
 }
 
-// C ref: u_init.c restricted_spell_discipline(). objects[].oc_subtyp is the
-// generated JS equivalent of objclass.h's oc_skill/oc_subtyp union field.
+// C ref: u_init.c restricted_spell_discipline().
 export function restrictedSpellDiscipline(otyp, state = game) {
     const objectType = state.objects?.[otyp];
     if (!objectType)
         throw new RangeError(`invalid spellbook object type ${otyp}`);
     if (objectType.oc_class !== SPBOOK_CLASS)
         throw new TypeError(`object type ${otyp} is not a spellbook`);
-    const spellSkill = objectType.oc_subtyp;
+    const spellSkill = objectType.oc_skill;
     return !skillsForRole(state.urole).some(
         ({ skill }) => skill === spellSkill,
     );

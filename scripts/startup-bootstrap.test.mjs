@@ -4,6 +4,7 @@ import test from 'node:test';
 import { newgame_pre_mklev } from '../js/allmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { monst_globals_init } from '../js/monsters.js';
 import {
     str2align,
     str2gend,
@@ -29,6 +30,7 @@ function initialize(seed, role, race, gender, alignment) {
     };
     game.u = { uroleplay: {} };
     game.context = { move: 0 };
+    monst_globals_init(game);
     newgame_pre_mklev(game);
     return { state: game, log: [...getRngLog()] };
 }

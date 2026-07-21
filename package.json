@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test scripts/*.test.mjs",
+    "check:monsters": "node scripts/generate-monsters.mjs --check",
     "check:objects": "node scripts/generate-objects.mjs --check",
     "score": "bash frozen/score.sh",
     "play": "echo 'Open index.html in a browser to play'"

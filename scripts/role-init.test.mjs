@@ -5,7 +5,7 @@ import test from 'node:test';
 import { P_CLERIC_SPELL } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
-import { SPE_LIGHT } from '../js/objects.js';
+import { objects_globals_init, SPE_LIGHT } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     PICK_RIGID,
@@ -37,6 +37,7 @@ import {
     role_init,
     welcomeMessage,
 } from '../js/role_init.js';
+import { restrictedSpellDiscipline } from '../js/role_skills.js';
 
 function scriptedRandom(choices) {
     const remaining = [...choices];
@@ -55,7 +56,7 @@ function scriptedRandom(choices) {
 }
 
 function explicitState(role, race, gender, alignment, name = 'Player') {
-    return {
+    const state = {
         plname: name,
         flags: {
             initrole: role,
@@ -64,10 +65,9 @@ function explicitState(role, race, gender, alignment, name = 'Player') {
             initalign: alignment,
             pantheon: -1,
         },
-        // role_init only changes the cleric spell skill. A complete-sized
-        // sparse catalog exercises that address without depending on o_init.
-        objects: Array.from({ length: 481 }, () => ({})),
     };
+    objects_globals_init(state);
+    return state;
 }
 
 test('role tables match the complete pinned role.c data', () => {
@@ -267,6 +267,10 @@ test('role_init preserves randrace factor-of-100 and quest gender calls', () => 
 
 test('priest pantheon retries preserve PRNG order and deity state', () => {
     const state = explicitState('Priest', 'human', 'female', 'lawful');
+    assert.equal(restrictedSpellDiscipline(SPE_LIGHT, {
+        ...state,
+        urole: { filecode: 'Arc' },
+    }), false);
     // The first draw selects Priest again (which has no gods); the retry
     // selects Samurai, whose lawful deity is a goddess.
     const random = scriptedRandom([6, 9]);
@@ -280,6 +284,11 @@ test('priest pantheon retries preserve PRNG order and deity state', () => {
     );
     assert.equal(state.svq.quest_status.godgend, 1);
     assert.equal(state.objects[SPE_LIGHT].oc_skill, P_CLERIC_SPELL);
+    assert.equal(state.objects[SPE_LIGHT].oc_subtyp, P_CLERIC_SPELL);
+    assert.equal(restrictedSpellDiscipline(SPE_LIGHT, {
+        ...state,
+        urole: { filecode: 'Arc' },
+    }), true);
     random.done();
 });
 

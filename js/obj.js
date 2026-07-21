@@ -8,11 +8,16 @@ import {
     LOST_NONE,
     MAX_OIL_IN_FLASK,
     NON_PM,
+    OBJ_DELETED,
     OBJ_FREE,
+    OBJ_LUAFREE,
     P_BOW,
     P_NONE,
     P_SHURIKEN,
+    W_ARM,
 } from './const.js';
+import { ART_SUNSWORD } from './artifacts.js';
+import { noveltitle } from './do_name.js';
 import { game } from './gstate.js';
 import {
     pushRngLogEntry,
@@ -60,6 +65,8 @@ import {
     GLOB_OF_GRAY_OOZE,
     GLOB_OF_GREEN_SLIME,
     GLASS,
+    GOLD_DRAGON_SCALE_MAIL,
+    GOLD_DRAGON_SCALES,
     HEAVY_IRON_BALL,
     HELM_OF_OPPOSITE_ALIGNMENT,
     HORN_OF_PLENTY,
@@ -192,7 +199,8 @@ export class UnsupportedObjectOperationError extends Error {
 //   populateContainer(obj, count, env)
 //   monsterObject(obj, 'initialize' | 'pudding' | 'finalize', env)
 //   isPermanentlyPoisoned(obj, env) -> boolean
-//   nameNovel(obj, env) -> replacement obj or undefined
+//   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
+//   deleteObjectLightSource(obj, env) -> removes the remaining light source
 
 function defineObjAliases(obj) {
     const aliases = {
@@ -363,6 +371,97 @@ export function next_ident(env = {}) {
     if (!context.ident)
         context.ident = (normalized.random.rnd(2) + 1) >>> 0;
     return result;
+}
+
+function lifecycleEnv(env = {}) {
+    return {
+        ...env,
+        state: env.state ?? game,
+        hooks: env.hooks ?? {},
+    };
+}
+
+// C refs: obj.h ignitable(), artifact.c artifact_light(), and
+// light.c obj_sheds_light().
+function objectShedsLight(obj) {
+    if (!obj.lamplit) return false;
+    const ignitable = obj.otyp === BRASS_LANTERN
+        || obj.otyp === OIL_LAMP
+        || (obj.otyp === MAGIC_LAMP && obj.spe > 0)
+        || obj.otyp === CANDELABRUM_OF_INVOCATION
+        || obj.otyp === TALLOW_CANDLE
+        || obj.otyp === WAX_CANDLE
+        || obj.otyp === POT_OIL;
+    const artifactLight = ((obj.otyp === GOLD_DRAGON_SCALE_MAIL
+                            || obj.otyp === GOLD_DRAGON_SCALES)
+                           && Boolean(obj.owornmask & W_ARM))
+        || obj.oartifact === ART_SUNSWORD;
+    return ignitable || artifactLight;
+}
+
+// C ref: mkobj.c dealloc_obj(). JS collapses C's deferred OBJ_DELETED queue
+// into immediate oextra release; Lua-held objects retain oextra until their
+// references are released. Lifecycle hooks are resolved at their source
+// boundaries because timer cleanup determines whether a light remains.
+export function dealloc_obj(obj, env = {}) {
+    const normalized = lifecycleEnv(env);
+    if (obj.otyp === BOULDER) obj.next_boulder = 0;
+    if (obj.where !== OBJ_FREE && obj.where !== OBJ_LUAFREE) {
+        throw new Error(
+            `dealloc_obj: object where=${obj.where}, expected free`,
+        );
+    }
+    if (obj.nobj || obj.cobj)
+        throw new Error('dealloc_obj: object is still linked');
+
+    if (obj.timed) {
+        const stopTimers = requiredHook(
+            normalized,
+            'stopObjectTimers',
+            obj,
+        );
+        stopTimers(obj, normalized);
+        if (obj.timed)
+            throw new Error('stopObjectTimers must clear obj.timed');
+    }
+    // A burn timer can own and remove the light source, so recheck after all
+    // object timers have stopped, matching dealloc_obj()'s source order.
+    if (objectShedsLight(obj)) {
+        const deleteLight = requiredHook(
+            normalized,
+            'deleteObjectLightSource',
+            obj,
+        );
+        deleteLight(obj, normalized);
+        obj.lamplit = false;
+    }
+
+    if (normalized.state.thrownobj === obj) normalized.state.thrownobj = null;
+    if (normalized.state.kickedobj === obj) normalized.state.kickedobj = null;
+    if (normalized.state.gt?.thrownobj === obj)
+        normalized.state.gt.thrownobj = null;
+    if (normalized.state.gk?.kickedobj === obj)
+        normalized.state.gk.kickedobj = null;
+    if (normalized.state.context?.tin?.tin === obj) {
+        normalized.state.context.tin.tin = null;
+        normalized.state.context.tin.o_id = 0;
+    }
+    const split = normalized.state.context?.objsplit;
+    if (split
+        && (split.parent_oid === obj.o_id || split.child_oid === obj.o_id)) {
+        split.parent_oid = 0;
+        split.child_oid = 0;
+    }
+
+    if (obj.lua_ref_cnt) {
+        obj.where = OBJ_LUAFREE;
+        return obj;
+    }
+    obj.nobj = null;
+    obj.nexthere = null;
+    obj.oextra = null;
+    obj.where = OBJ_DELETED;
+    return obj;
 }
 
 export function isPudding(obj) {
@@ -1028,8 +1127,10 @@ export function mksobj(otyp, init = true, artif = false, env = {}) {
         break;
     case SPE_NOVEL: {
         obj.novelidx = -1;
-        const named = requiredHook(normalized, 'nameNovel', obj)(obj, normalized);
-        if (named) obj = named;
+        const named = noveltitle(obj.novelidx, normalized);
+        obj.novelidx = named.novelidx;
+        obj.oextra ??= {};
+        obj.oextra.oname = named.title;
         break;
     }
     default:
