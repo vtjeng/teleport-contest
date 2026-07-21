@@ -158,6 +158,60 @@
       "outcome": "no-change",
       "evidence": "Exact range 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..db2ab36938751e3d49b9385a014a3074784669bb. Counts: 16 raw, 10 deduplicated, 0 confirmed, 0 applied, 0 deferred, 0 unverified. Rejected generated-catalog compression, replacing C union aliases, replacing fruit byte helpers with string operations, removing inventory preflight and projections, merging generation and lifecycle environments, factoring distinct upstream predicates, inlining source-shaped helpers, deleting compatibility exports, relocating source-local tables, and removing artifact cloning. Upstream traceability, tested atomic failure behavior, byte and union semantics, generated-data integrity, mutable per-game state, and planned seams supplied counter-evidence. Warning: the skill reference was available in the fresh process, but its Claude-based workflow was prohibited; one fresh Codex reviewer reproduced all search lenses and gave every candidate three direct judgments. Validation: focused object tests, 370 full tests, and the generated object check passed; final diff was empty and no holdout ran.",
       "recordedAt": "2026-07-21T05:34:03.313Z"
+    },
+    {
+      "kind": "simplification",
+      "bases": {
+        "world": "f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad"
+      },
+      "head": "7890324121d3ecdd73c21e3a2d2d062c9219bf9a",
+      "areas": [
+        "world"
+      ],
+      "outcome": "changed",
+      "evidence": "Composite frontier f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad..7890324121d3ecdd73c21e3a2d2d062c9219bf9a. Gap pass f3e7841..ab46dc9: 3 raw, 3 deduplicated, 2 confirmed, 2 later applied, 0 unverified; all six native-subagent finder categories and nine verifier votes completed. It retained the duplicated selection filter as a local boundary. Themed-room pass ab46dc9..6d425fc: 26 raw, 17 deduplicated, 3 confirmed, 3 applied through 7890324, 0 unverified. It removed duplicate flood visitation state, an unused generated ordinal, and redundant frequency fallback while preserving PRNG order and planned theme seams. Warnings: initial ephemeral subagent launches needed self-contained retries; isolated submodules limited some source checks. Focused and 374-test suites passed; generator, development 103-screen, and fresh differential evidence remained stable; no holdout ran.",
+      "recordedAt": "2026-07-21T07:13:40.187Z"
+    },
+    {
+      "kind": "simplification",
+      "bases": {
+        "startup": "f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad"
+      },
+      "head": "71e40ad128009c7959c361aaa7946f10a18528fe",
+      "areas": [
+        "startup"
+      ],
+      "outcome": "changed",
+      "evidence": "Composite startup frontier f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad..71e40ad128009c7959c361aaa7946f10a18528fe. Native-subagent simplification gap pass: 3 raw, 3 deduplicated, 2 confirmed, 2 applied, 0 unverified. Removed derivable _nhgetchCount state and changed two tests to the public getScreens length; the other applied item was a one-use test helper. The shared selection-filter abstraction was rejected because it widened module boundaries without a true source of truth. Warning: one initial ephemeral fork failed and was retried with no lost coverage; isolated upstream paths limited three source-comparison tests. Focused tests and all 374 tests passed; follow-up correctness found 0 raw, 0 deduplicated, 0 confirmed and explicitly rejected the serialization-exception concern. No holdout ran.",
+      "recordedAt": "2026-07-21T07:13:48.351Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world": "db2ab36938751e3d49b9385a014a3074784669bb"
+      },
+      "head": "0c4714233f3da0deac679a3f8220079136303359",
+      "areas": [
+        "world"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Composite full world review through 0c4714233f3da0deac679a3f8220079136303359. Main clarity ab46dc9..7890324: 23 raw, 10 deduplicated, 5 confirmed and applied, 0 unverified. Main full correctness on the same range: 18 raw, 10 deduplicated, 0 confirmed, 0 applied, 0 unverified; notable rejections covered selection weights, placement bounds, transparent writes, flood equivalence, room flags, sorting and irregular identity, generated extraction, SpLev_Map, test coverage, performance, and concurrency with source counter-evidence. Native-subagent delta clarity 7890324..5b1a8d0: 1 raw, 1 deduplicated, 1 confirmed and applied, 0 unverified; delta correctness: 0 raw, 0 deduplicated, 0 confirmed. Final clarity 5b1a8d0..0c47142: 0 raw, 0 deduplicated, 0 confirmed. Warnings: main-range passes reproduced perspectives directly; later native-subagent passes had initial fork retries but no lost coverage, and isolated submodules limited generator checks. Validation: 374 tests, generated check, development 103 screens, fresh parity through call 1436, first mismatch at fill_special_room call 1437, no holdout.",
+      "recordedAt": "2026-07-21T07:13:59.508Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "db2ab36938751e3d49b9385a014a3074784669bb"
+      },
+      "head": "71e40ad128009c7959c361aaa7946f10a18528fe",
+      "areas": [
+        "startup"
+      ],
+      "level": "light",
+      "outcome": "no-change",
+      "evidence": "Exact reviewed delta 0c4714233f3da0deac679a3f8220079136303359..71e40ad128009c7959c361aaa7946f10a18528fe, advancing the startup frontier from its prior reviewed state. Six native-subagent finders and three adversarial lenses completed: 0 raw, 0 deduplicated, 0 confirmed, 0 applied, 0 unverified, no warnings or agent losses. The verifiers rejected the only plausible exception-path concern because serialization failure propagates and _nhgetchCount had no contractual consumer; getScreens length directly represents successful input captures. Focused tests and all 374 tests passed; rendering, input boundaries, persistence, PRNG and async order were unchanged; no holdout ran.",
+      "recordedAt": "2026-07-21T07:14:10.674Z"
     }
   ]
 }
