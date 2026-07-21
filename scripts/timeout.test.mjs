@@ -1,0 +1,414 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import {
+    BURN_OBJECT,
+    FIG_TRANSFORM,
+    HATCH_EGG,
+    NUM_TIME_FUNCS,
+    NUM_TIMER_KINDS,
+    REVIVE_MON,
+    ROT_CORPSE,
+    SHRINK_GLOB,
+    TIMER_NONE,
+    TIMER_LEVEL,
+    TIMER_OBJECT,
+    ZOMBIFY_MON,
+} from '../js/const.js';
+import {
+    PM_DEATH,
+    PM_FAMINE,
+    PM_KOBOLD,
+    PM_LICHEN,
+    PM_LIZARD,
+    PM_TROLL,
+    monst_globals_init,
+} from '../js/monsters.js';
+import {
+    UnsupportedTimerCleanupError,
+    attach_egg_hatch_timeout,
+    attach_fig_transform_timeout,
+    obj_has_timer,
+    obj_stop_timers,
+    peek_timer,
+    start_timer,
+    start_glob_timeout,
+    start_corpse_timeout,
+    stop_timer,
+    timeout_globals_init,
+} from '../js/timeout.js';
+
+function timerState(moves = 10) {
+    const state = { moves, gt: { other: true }, svt: { other: true } };
+    timeout_globals_init(state);
+    return state;
+}
+
+function monsterTimerState(moves = 1) {
+    const state = timerState(moves);
+    monst_globals_init(state);
+    return state;
+}
+
+function queue(state) {
+    const result = [];
+    for (let timer = state.gt.timer_base; timer; timer = timer.next)
+        result.push(timer);
+    return result;
+}
+
+test('timeout globals reset source-owned fields without replacing owners', () => {
+    const state = timerState();
+    assert.equal(state.gt.other, true);
+    assert.equal(state.svt.other, true);
+    assert.equal(state.gt.timer_base, null);
+    assert.equal(state.svt.timer_id, 1);
+});
+
+test('start_timer orders expiries and puts equal expiries newest first', () => {
+    const state = timerState(20);
+    const later = { timed: 0 };
+    const equalOld = { timed: 0 };
+    const sooner = { timed: 0 };
+    const equalNew = { timed: 0 };
+
+    assert.equal(start_timer(8, TIMER_OBJECT, ROT_CORPSE, later, state), true);
+    assert.equal(start_timer(5, TIMER_OBJECT, HATCH_EGG, equalOld, state), true);
+    assert.equal(start_timer(2, TIMER_OBJECT, BURN_OBJECT, sooner, state), true);
+    assert.equal(start_timer(5, TIMER_OBJECT, ROT_CORPSE, equalNew, state), true);
+
+    assert.deepEqual(
+        queue(state).map(({ timeout, tid, arg }) => [timeout, tid, arg]),
+        [
+            [22, 3, sooner],
+            [25, 4, equalNew],
+            [25, 2, equalOld],
+            [28, 1, later],
+        ],
+    );
+    assert.deepEqual(
+        [later.timed, equalOld.timed, sooner.timed, equalNew.timed],
+        [1, 1, 1, 1],
+    );
+});
+
+test('duplicate object timers are rejected without consuming an id', () => {
+    const state = timerState();
+    const obj = { timed: 0 };
+    assert.equal(start_timer(5, TIMER_OBJECT, ROT_CORPSE, obj, state), true);
+    assert.equal(start_timer(7, TIMER_OBJECT, ROT_CORPSE, obj, state), false);
+    assert.equal(state.svt.timer_id, 2);
+    assert.equal(obj.timed, 1);
+    assert.equal(peek_timer(ROT_CORPSE, obj, state), 15);
+});
+
+test('stop_timer returns remaining time and decrements object count', () => {
+    const state = timerState(4);
+    const obj = { timed: 0 };
+    start_timer(9, TIMER_OBJECT, HATCH_EGG, obj, state);
+    state.moves = 7;
+    assert.equal(stop_timer(HATCH_EGG, obj, state), 6);
+    assert.equal(obj.timed, 0);
+    assert.equal(stop_timer(HATCH_EGG, obj, state), 0);
+});
+
+test('obj_stop_timers removes all and only the target object timers', () => {
+    const state = timerState();
+    const target = { timed: 0 };
+    const other = { timed: 0 };
+    start_timer(5, TIMER_OBJECT, ROT_CORPSE, target, state);
+    start_timer(6, TIMER_OBJECT, HATCH_EGG, target, state);
+    start_timer(7, TIMER_OBJECT, ROT_CORPSE, other, state);
+
+    obj_stop_timers(target, state);
+    assert.equal(target.timed, 0);
+    assert.equal(other.timed, 1);
+    assert.equal(obj_has_timer(target, ROT_CORPSE, state), false);
+    assert.equal(obj_has_timer(target, HATCH_EGG, state), false);
+    assert.equal(obj_has_timer(other, ROT_CORPSE, state), true);
+});
+
+test('start_timer validates the numeric source enum ranges', () => {
+    const state = timerState();
+    assert.throws(
+        () => start_timer(1, TIMER_NONE, ROT_CORPSE, {}, state),
+        /invalid timer kind/,
+    );
+    assert.throws(
+        () => start_timer(1, NUM_TIMER_KINDS, ROT_CORPSE, {}, state),
+        /invalid timer kind/,
+    );
+    assert.throws(
+        () => start_timer(1, TIMER_OBJECT, NUM_TIME_FUNCS, {}, state),
+        /invalid timer function/,
+    );
+});
+
+test('queue operations fail closed when early initialization was skipped', () => {
+    assert.throws(
+        () => start_timer(1, TIMER_OBJECT, ROT_CORPSE, {}, {}),
+        /timeout_globals_init/,
+    );
+});
+
+test('egg hatch timing preserves the per-age rnd bounds', () => {
+    const state = timerState(1);
+    const egg = { timed: 0 };
+    const bounds = [];
+    attach_egg_hatch_timeout(egg, 0, {
+        state,
+        random: {
+            rn2: () => assert.fail('egg hatch timing does not use rn2'),
+            rnd: (bound) => {
+                bounds.push(bound);
+                return bound === 153 ? 151 : 150;
+            },
+        },
+    });
+    assert.deepEqual(bounds, [151, 152, 153]);
+    assert.equal(peek_timer(HATCH_EGG, egg, state), 154);
+    assert.equal(egg.timed, 1);
+});
+
+test('explicit egg hatch timing replaces the old timer without a draw', () => {
+    const state = timerState(5);
+    const egg = { timed: 0 };
+    start_timer(20, TIMER_OBJECT, HATCH_EGG, egg, state);
+    attach_egg_hatch_timeout(egg, 7, {
+        state,
+        random: {
+            rn2: () => assert.fail('explicit hatch delay does not draw'),
+            rnd: () => assert.fail('explicit hatch delay does not draw'),
+        },
+    });
+    assert.equal(peek_timer(HATCH_EGG, egg, state), 12);
+    assert.equal(egg.timed, 1);
+});
+
+test('failed egg hatch search removes the old timer across all 50 bounds', () => {
+    const state = timerState(5);
+    const egg = { timed: 0 };
+    start_timer(20, TIMER_OBJECT, HATCH_EGG, egg, state);
+    const bounds = [];
+    attach_egg_hatch_timeout(egg, 0, {
+        state,
+        random: {
+            rn2: () => assert.fail('egg hatch timing does not use rn2'),
+            rnd: (bound) => {
+                bounds.push(bound);
+                return 150;
+            },
+        },
+    });
+    assert.deepEqual(bounds,
+        Array.from({ length: 50 }, (_, index) => 151 + index));
+    assert.equal(egg.timed, 0);
+    assert.equal(peek_timer(HATCH_EGG, egg, state), 0);
+    assert.equal(state.svt.timer_id, 2);
+});
+
+test('figurine and glob helpers preserve source delay calculations', () => {
+    const state = timerState(3);
+    const figurine = { timed: 0 };
+    const glob = { globby: true, timed: 0 };
+    attach_fig_transform_timeout(figurine, {
+        state,
+        random: { rn2: () => 0, rnd: (bound) => {
+            assert.equal(bound, 9000);
+            return 17;
+        } },
+    });
+    start_glob_timeout(glob, 0, {
+        state,
+        random: { rnd: () => 1, rn2: (bound) => {
+            assert.equal(bound, 5);
+            return 4;
+        } },
+    });
+    assert.equal(peek_timer(FIG_TRANSFORM, figurine, state), 220);
+    assert.equal(peek_timer(SHRINK_GLOB, glob, state), 30);
+});
+
+test('ordinary corpse decay uses the source age and rnz adjustment', () => {
+    const state = monsterTimerState(1);
+    const body = { age: 1, corpsenm: PM_KOBOLD, timed: 0, norevive: false };
+    start_corpse_timeout(body, {
+        state,
+        random: {
+            rn1: () => assert.fail('ordinary decay does not use rn1'),
+            rn2: () => assert.fail('ordinary decay does not use rn2 directly'),
+            rnz: (bound) => {
+                assert.equal(bound, 10);
+                return 13;
+            },
+        },
+    });
+    assert.equal(peek_timer(ROT_CORPSE, body, state), 254);
+});
+
+test('level creation uses rnz(25) for corpse decay', () => {
+    const state = monsterTimerState(1);
+    state.in_mklev = true;
+    const body = { age: 1, corpsenm: PM_KOBOLD, timed: 0, norevive: false };
+    start_corpse_timeout(body, {
+        state,
+        random: {
+            rn1: () => assert.fail('ordinary decay does not use rn1'),
+            rn2: () => assert.fail('ordinary decay does not use rn2 directly'),
+            rnz: (bound) => {
+                assert.equal(bound, 25);
+                return bound;
+            },
+        },
+    });
+    assert.equal(peek_timer(ROT_CORPSE, body, state), 251);
+});
+
+test('Rider revival consumes ordinary decay randomness before its loop', () => {
+    const state = monsterTimerState(1);
+    const body = { age: 1, corpsenm: PM_DEATH, timed: 0, norevive: false };
+    const calls = [];
+    start_corpse_timeout(body, {
+        state,
+        random: {
+            rn1: () => assert.fail('Rider revival does not use rn1'),
+            rnz: (bound) => {
+                calls.push(['rnz', bound]);
+                return bound;
+            },
+            rn2: (bound) => {
+                calls.push(['rn2', bound]);
+                return calls.length === 2 ? 1 : 0;
+            },
+        },
+    });
+    assert.deepEqual(calls, [['rnz', 10], ['rn2', 3], ['rn2', 3]]);
+    assert.equal(peek_timer(REVIVE_MON, body, state), 8);
+});
+
+test('troll and zombification overrides select their source timer actions', () => {
+    const trollState = monsterTimerState(1);
+    const troll = { age: 1, corpsenm: PM_TROLL, timed: 0, norevive: false };
+    start_corpse_timeout(troll, {
+        state: trollState,
+        random: { rnz: (n) => n, rn2: () => 0, rn1: () => 5 },
+    });
+    assert.equal(peek_timer(REVIVE_MON, troll, trollState), 3);
+
+    const zombieState = monsterTimerState(1);
+    zombieState.gz = { zombify: true };
+    const victim = { age: 1, corpsenm: PM_KOBOLD, timed: 0, norevive: false };
+    start_corpse_timeout(victim, {
+        state: zombieState,
+        random: {
+            rnz: (n) => n,
+            rn2: () => assert.fail('zombification does not use rn2 directly'),
+            rn1: (range, base) => {
+                assert.deepEqual([range, base], [15, 5]);
+                return 8;
+            },
+        },
+    });
+    assert.equal(peek_timer(ZOMBIFY_MON, victim, zombieState), 9);
+});
+
+test('norevive suppresses zombification after the ordinary rnz draw', () => {
+    const state = monsterTimerState(1);
+    state.gz = { zombify: true };
+    const victim = { age: 1, corpsenm: PM_KOBOLD, timed: 0, norevive: true };
+    let rnzCalls = 0;
+    start_corpse_timeout(victim, {
+        state,
+        random: {
+            rnz: (bound) => {
+                ++rnzCalls;
+                return bound;
+            },
+            rn2: () => assert.fail('ordinary corpse does not use rn2 directly'),
+            rn1: () => assert.fail('norevive suppresses zombification'),
+        },
+    });
+    assert.equal(rnzCalls, 1);
+    assert.equal(peek_timer(ROT_CORPSE, victim, state), 251);
+    assert.equal(peek_timer(ZOMBIFY_MON, victim, state), 0);
+});
+
+test('lizard and lichen corpses never draw or receive a timer', () => {
+    for (const corpsenm of [PM_LIZARD, PM_LICHEN]) {
+        const state = monsterTimerState(1);
+        const body = { age: 1, corpsenm, timed: 0, norevive: false };
+        start_corpse_timeout(body, {
+            state,
+            random: {
+                rnz: () => assert.fail('nonrotting corpse does not draw'),
+                rn2: () => assert.fail('nonrotting corpse does not draw'),
+                rn1: () => assert.fail('nonrotting corpse does not draw'),
+            },
+        });
+        assert.equal(state.gt.timer_base, null);
+    }
+});
+
+test('Rider minimums and cap match the source loop endpoints', () => {
+    for (const [corpsenm, firstDelay] of [[PM_DEATH, 6], [PM_FAMINE, 12]]) {
+        const state = monsterTimerState(1);
+        const body = { age: 1, corpsenm, timed: 0, norevive: false };
+        start_corpse_timeout(body, {
+            state,
+            random: { rnz: (n) => n, rn1: () => 5, rn2: () => 0 },
+        });
+        assert.equal(peek_timer(REVIVE_MON, body, state), firstDelay + 1);
+    }
+
+    const cappedState = monsterTimerState(1);
+    const capped = {
+        age: 1,
+        corpsenm: PM_FAMINE,
+        timed: 0,
+        norevive: false,
+    };
+    let draws = 0;
+    start_corpse_timeout(capped, {
+        state: cappedState,
+        random: {
+            rnz: (n) => n,
+            rn1: () => 5,
+            rn2: (bound) => {
+                assert.equal(bound, 3);
+                ++draws;
+                return 1;
+            },
+        },
+    });
+    assert.equal(draws, 55);
+    assert.equal(peek_timer(REVIVE_MON, capped, cappedState), 68);
+});
+
+test('timer lookup uses argument identity and intentionally ignores kind', () => {
+    const state = timerState(10);
+    const first = { timed: 0, value: 1 };
+    const equalButDistinct = { timed: 0, value: 1 };
+    start_timer(8, TIMER_OBJECT, ROT_CORPSE, first, state);
+    start_timer(7, TIMER_OBJECT, ROT_CORPSE, equalButDistinct, state);
+    assert.equal(stop_timer(ROT_CORPSE, first, state), 8);
+    assert.equal(obj_has_timer(equalButDistinct, ROT_CORPSE, state), true);
+
+    start_timer(3, TIMER_LEVEL, HATCH_EGG, first, state);
+    start_timer(6, TIMER_OBJECT, HATCH_EGG, first, state);
+    assert.equal(stop_timer(HATCH_EGG, first, state), 3);
+    assert.equal(first.timed, 1);
+    assert.equal(stop_timer(HATCH_EGG, first, state), 6);
+    assert.equal(first.timed, 0);
+});
+
+test('unsupported burn cleanup fails before mutating the queue', () => {
+    const state = timerState();
+    const lamp = { timed: 0 };
+    start_timer(5, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+    assert.throws(
+        () => obj_stop_timers(lamp, state),
+        (error) => error instanceof UnsupportedTimerCleanupError,
+    );
+    assert.equal(lamp.timed, 1);
+    assert.equal(peek_timer(BURN_OBJECT, lamp, state), 15);
+});

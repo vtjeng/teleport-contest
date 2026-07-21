@@ -299,7 +299,9 @@ test('menu command options preserve source alias order and require full names', 
         // # exercises the validator's executable-source quirk, which
         // disagrees with its preceding prose comment.
         'OPTIONS=menu_search:#,menu_next_page:{,menu_first_page:}',
-        'OPTIONS=menu_previous_page:\\',
+        // Continuation is checked before trailing padding is trimmed, so the
+        // space makes the preceding backslash a literal option value.
+        'OPTIONS=menu_previous_page:\\ ',
     ].join('\n'));
     assert.equal(mapped.iflags.mapped_menu_cmds, '}{#\\');
     assert.equal(mapped.iflags.mapped_menu_op, '^>:<');
@@ -385,6 +387,82 @@ test('comma options apply right-to-left and later rc lines apply afterward', () 
         'OPTIONS=role:Wizard,race:elf,gender:female,align:chaotic',
     ].join('\n'));
     assert.deepEqual(characterFlags(laterLine), [12, 1, 1, 2]);
+});
+
+test('continued config lines follow cfgfiles.c merge and comment rules', () => {
+    const merged = parseNethackrc([
+        'OPTIONS=role:Healer,\\',
+        ' race:human,gender:male,\\',
+        ' align:neutral',
+    ].join('\n'));
+    assert.deepEqual(characterFlags(merged), [3, 0, 0, 1]);
+
+    // A comment with its own trailing backslash is skipped while preserving
+    // the pending line.  A plain ignored line terminates that pending line.
+    const skippedComment = parseNethackrc([
+        'OPTIONS=role:Healer,\\',
+        '# skipped continuation\\',
+        ' race:human,gender:male,align:neutral',
+    ].join('\n'));
+    assert.deepEqual(characterFlags(skippedComment), [3, 0, 0, 1]);
+
+    const terminatingComment = parseNethackrc([
+        'OPTIONS=role:Healer,\\',
+        '# terminates the pending logical line',
+        'OPTIONS=race:human,gender:male,align:neutral',
+    ].join('\n'));
+    assert.deepEqual(characterFlags(terminatingComment), [3, 0, 0, 1]);
+
+    // Continuation is detected before trailing CR is trimmed, so a CRLF
+    // backslash is literal under the recorder's Unix parser.
+    const crlf = parseNethackrc('NAME=First\\\r\nNAME=Second');
+    assert.equal(crlf.name, 'Second');
+
+    const preservedPadding = parseNethackrc([
+        'NAME=First \\',
+        'Second',
+    ].join('\n'));
+    assert.equal(preservedPadding.name, 'First  Second');
+});
+
+test('config parsing applies the source byte-buffer boundaries', () => {
+    const prefix = 'OPTIONS=fruit:';
+
+    // The prefix is 14 bytes.  With no newline, 1007 payload bytes keep the
+    // physical line below cfgfiles.c's 1022-byte rejection boundary.
+    assert.equal(
+        parseNethackrc(`${prefix}${'x'.repeat(1007)}`).pl_fruit,
+        'x'.repeat(31),
+    );
+    // A newline can occupy fgets()'s final byte, so 1008 payload bytes are
+    // valid with that newline but rejected when the file ends immediately.
+    assert.equal(
+        parseNethackrc(`${prefix}${'x'.repeat(1008)}\n`).pl_fruit,
+        'x'.repeat(31),
+    );
+    assert.equal(
+        parseNethackrc(`${prefix}${'x'.repeat(1008)}`).pl_fruit,
+        'slime mold',
+    );
+
+    // Each e-acute is two UTF-8 bytes.  The 505-character payload pushes the
+    // physical line past the byte limit even though its JS length is shorter;
+    // parsing resumes after the discarded line.
+    const overlongUnicode = parseNethackrc([
+        `${prefix}${'é'.repeat(505)}`,
+        'OPTIONS=eight_bit_tty',
+    ].join('\n'));
+    assert.equal(overlongUnicode.pl_fruit, 'slime mold');
+    assert.equal(overlongUnicode.iflags.wc_eight_bit_input, true);
+
+    // The first logical fragment is 1015 bytes including its option prefix.
+    // Merging inserts one space and truncates the result to 1023 bytes, leaving
+    // seven of the second fragment's bytes in the stored option value.
+    const merged = parseNethackrc([
+        `OPTIONS=custom:${'x'.repeat(1000)}\\`,
+        'y'.repeat(100),
+    ].join('\n'));
+    assert.equal(merged.flags.custom, `${'x'.repeat(1000)} ${'y'.repeat(7)}`);
 });
 
 test('deprecated gender booleans preserve female and male alias semantics', () => {

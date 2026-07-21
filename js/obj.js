@@ -3,29 +3,57 @@
 
 import {
     A_NONE,
+    CORPSTAT_FEMALE,
+    CORPSTAT_MALE,
+    CORPSTAT_NEUTER,
     FIRE_RES,
+    G_GONE,
+    HATCH_EGG,
     LARGEST_INT,
     LOST_NONE,
     MAX_OIL_IN_FLASK,
     NON_PM,
     OBJ_DELETED,
     OBJ_FREE,
+    OBJ_INVENT,
     OBJ_LUAFREE,
+    OBJ_MINVENT,
     P_BOW,
     P_NONE,
     P_SHURIKEN,
+    RANDOM_TIN,
+    SPINACH_TIN,
     W_ARM,
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
 import { noveltitle } from './do_name.js';
+import { set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
+import { rndmonnum } from './makemon.js';
+import {
+    can_be_hatched,
+    dead_species,
+    is_female,
+    is_male,
+    is_neuter,
+    undead_to_corpse,
+} from './mondata.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,
     rn2 as coreRn2,
     rnd as coreRnd,
     rne as coreRne,
+    rnz as coreRnz,
 } from './rng.js';
+import {
+    attach_egg_hatch_timeout,
+    attach_fig_transform_timeout,
+    obj_stop_timers,
+    start_corpse_timeout,
+    start_glob_timeout,
+    stop_timer,
+} from './timeout.js';
 import {
     AMULET_CLASS,
     AMULET_OF_CHANGE,
@@ -125,6 +153,11 @@ import {
     WORM_TOOTH,
     UNICORN_HORN,
 } from './objects.js';
+import {
+    G_NOCORPSE,
+    PM_GRAY_OOZE,
+    PM_HUMAN,
+} from './monsters.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
 
@@ -197,7 +230,8 @@ export class UnsupportedObjectOperationError extends Error {
 //   artifactCount(env) -> existing artifact count
 //   makeArtifact(obj, { alignment, maxGiftValue, adjustSpe, env }) -> obj
 //   populateContainer(obj, count, env)
-//   monsterObject(obj, 'initialize' | 'pudding' | 'finalize', env)
+//   monsterObject(obj, 'initialize' | 'finalize', env) for the residual
+//     STATUE and FIGURINE branches
 //   isPermanentlyPoisoned(obj, env) -> boolean
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
 //   deleteObjectLightSource(obj, env) -> removes the remaining light source
@@ -318,7 +352,18 @@ function sourceRandom(env) {
                 'random injection requires rn2, rnd, rn1, and rne',
             );
         }
-        return Object.fromEntries(names.map((name) => [name, injected[name]]));
+        const random = Object.fromEntries(
+            names.map((name) => [name, injected[name]]),
+        );
+        random.rnz = typeof injected.rnz === 'function'
+            ? injected.rnz
+            : (value) => {
+                const scale = (1000 + random.rn2(1000)) * random.rne(4);
+                return random.rn2(2)
+                    ? Math.trunc(value * scale / 1000)
+                    : Math.trunc(value * 1000 / scale);
+            };
+        return random;
     }
 
     const stateAwareRne = (bound) => {
@@ -331,11 +376,20 @@ function sourceRandom(env) {
         pushRngLogEntry(`rne(${bound})=${result}`);
         return result;
     };
+    const stateAwareRnz = (value) => {
+        const scale = (1000 + coreRn2(1000)) * stateAwareRne(4);
+        const result = coreRn2(2)
+            ? Math.trunc(value * scale / 1000)
+            : Math.trunc(value * 1000 / scale);
+        pushRngLogEntry(`rnz(${value})=${result}`);
+        return result;
+    };
     return {
         rn2: coreRn2,
         rnd: coreRnd,
         rn1: coreRn1,
         rne: state === game ? coreRne : stateAwareRne,
+        rnz: state === game ? coreRnz : stateAwareRnz,
     };
 }
 
@@ -809,8 +863,136 @@ function initializeContainer(obj, env) {
         requiredHook(env, 'populateContainer', obj)(obj, count, env);
 }
 
-function initializeMonsterObject(obj, phase, env) {
+function initializeResidualMonsterObject(obj, phase, env) {
     return requiredHook(env, 'monsterObject')(obj, phase, env);
+}
+
+function monsterVital(state, mnum) {
+    const vital = state.svm?.mvitals?.[mnum] ?? state.mvitals?.[mnum];
+    if (!vital || !Number.isInteger(vital.mvflags))
+        throw new Error('monster object creation requires initialized mvitals');
+    return vital;
+}
+
+function initializeCorpse(obj, env) {
+    let attempts = 50;
+    do {
+        obj.corpsenm = undead_to_corpse(rndmonnum(env));
+    } while ((monsterVital(env.state, obj.corpsenm).mvflags & G_NOCORPSE)
+             && --attempts > 0);
+    if (!attempts) obj.corpsenm = PM_HUMAN;
+}
+
+function initializeEgg(obj, env) {
+    obj.corpsenm = NON_PM;
+    if (!env.random.rn2(3)) {
+        for (let attempts = 200; attempts > 0; --attempts) {
+            const mnum = can_be_hatched(rndmonnum(env), env);
+            if (mnum !== NON_PM && !dead_species(mnum, true, env)) {
+                obj.corpsenm = mnum;
+                break;
+            }
+        }
+    }
+}
+
+function initializeTin(obj, env) {
+    obj.corpsenm = NON_PM;
+    if (!env.random.rn2(6)) {
+        set_tin_variety(obj, SPINACH_TIN, env);
+    } else {
+        for (let attempts = 200; attempts > 0; --attempts) {
+            const mnum = undead_to_corpse(rndmonnum(env));
+            if (env.state.mons[mnum].cnutrit
+                && !(monsterVital(env.state, mnum).mvflags & G_NOCORPSE)) {
+                obj.corpsenm = mnum;
+                set_tin_variety(obj, RANDOM_TIN, env);
+                break;
+            }
+        }
+    }
+    blessorcurse(obj, 10, env);
+}
+
+function initializeMonsterFood(obj, env) {
+    switch (obj.otyp) {
+    case CORPSE:
+        initializeCorpse(obj, env);
+        break;
+    case EGG:
+        initializeEgg(obj, env);
+        break;
+    case TIN:
+        initializeTin(obj, env);
+        break;
+    default:
+        throw new RangeError(`unsupported monster food ${obj.otyp}`);
+    }
+}
+
+// C ref: mkobj.c set_corpsenm().
+export function set_corpsenm(obj, id, env = {}) {
+    const normalized = objectEnv(env);
+    const { state } = normalized;
+    const oldId = obj.corpsenm;
+    let when = 0;
+    if (obj.timed) {
+        if (obj.otyp === EGG)
+            when = stop_timer(HATCH_EGG, obj, state);
+        else
+            obj_stop_timers(obj, state);
+    }
+
+    if (obj.otyp === CORPSE && obj.oeaten) {
+        const oldNutrition = state.mons[oldId].cnutrit;
+        const newNutrition = state.mons[id].cnutrit;
+        if (oldNutrition !== newNutrition) {
+            obj.oeaten = Math.trunc(
+                obj.oeaten * newNutrition / oldNutrition,
+            );
+        }
+    }
+
+    obj.corpsenm = id;
+    switch (obj.otyp) {
+    case CORPSE:
+        start_corpse_timeout(obj, normalized);
+        obj.owt = weight(obj, normalized);
+        break;
+    case FIGURINE:
+        if (obj.corpsenm !== NON_PM
+            && !dead_species(obj.corpsenm, true, normalized)
+            && (obj.where === OBJ_INVENT || obj.where === OBJ_MINVENT)) {
+            attach_fig_transform_timeout(obj, normalized);
+        }
+        obj.owt = weight(obj, normalized);
+        break;
+    case EGG:
+        if (obj.corpsenm !== NON_PM
+            && !dead_species(obj.corpsenm, true, normalized)) {
+            attach_egg_hatch_timeout(obj, when, normalized);
+        }
+        break;
+    default:
+        obj.owt = weight(obj, normalized);
+        break;
+    }
+}
+
+function finalizeCorpse(obj, env) {
+    if (obj.corpsenm === NON_PM) {
+        obj.corpsenm = undead_to_corpse(rndmonnum(env));
+        if (monsterVital(env.state, obj.corpsenm).mvflags
+            & (G_NOCORPSE | G_GONE)) {
+            obj.corpsenm = env.state.urole.mnum;
+        }
+    }
+    const monster = env.state.mons[obj.corpsenm];
+    obj.spe = is_neuter(monster) ? CORPSTAT_NEUTER
+        : is_female(monster) ? CORPSTAT_FEMALE
+            : is_male(monster) ? CORPSTAT_MALE
+                : env.random.rn2(2) ? CORPSTAT_FEMALE : CORPSTAT_MALE;
+    set_corpsenm(obj, obj.corpsenm, env);
 }
 
 function currentFruit(state, obj) {
@@ -820,9 +1002,9 @@ function currentFruit(state, obj) {
     return fruit;
 }
 
-// C ref: mkobj.c mksobj_init(). Implemented ordinary branches stay local;
-// monster-backed objects, artifacts, and nonempty containers enter explicit
-// subsystem seams rather than consuming guessed RNG.
+// C ref: mkobj.c mksobj_init(). Implemented branches stay local; artifacts,
+// nonempty containers, statues, and figurines enter explicit subsystem seams
+// rather than consuming guessed RNG.
 function mksobj_init(obj, artif = false, env = {}) {
     let normalized = objectEnv(env);
     const { random, state } = normalized;
@@ -851,7 +1033,7 @@ function mksobj_init(obj, artif = false, env = {}) {
         case CORPSE:
         case EGG:
         case TIN:
-            initializeMonsterObject(obj, 'initialize', normalized);
+            initializeMonsterFood(obj, normalized);
             break;
         case SLIME_MOLD:
             obj.spe = currentFruit(state, obj);
@@ -874,7 +1056,9 @@ function mksobj_init(obj, artif = false, env = {}) {
             obj.owt = type.oc_weight;
             obj.known = true;
             obj.dknown = true;
-            initializeMonsterObject(obj, 'pudding', normalized);
+            obj.corpsenm = PM_GRAY_OOZE
+                + (obj.otyp - GLOB_OF_GRAY_OOZE);
+            start_glob_timeout(obj, 0, normalized);
         } else if (obj.otyp !== CORPSE
                    && obj.otyp !== MEAT_RING
                    && obj.otyp !== KELP_FROND
@@ -949,7 +1133,7 @@ function mksobj_init(obj, artif = false, env = {}) {
             obj.spe = random.rn1(18, 3);
             break;
         case FIGURINE:
-            initializeMonsterObject(obj, 'initialize', normalized);
+            initializeResidualMonsterObject(obj, 'initialize', normalized);
             blessorcurse(obj, 4, normalized);
             break;
         case BELL_OF_OPENING:
@@ -1060,7 +1244,7 @@ function mksobj_init(obj, artif = false, env = {}) {
 
     case ROCK_CLASS:
         if (obj.otyp === STATUE)
-            initializeMonsterObject(obj, 'initialize', normalized);
+            initializeResidualMonsterObject(obj, 'initialize', normalized);
         break;
 
     default:
@@ -1106,11 +1290,15 @@ export function mksobj(otyp, init = true, artif = false, env = {}) {
         ? POT_WATER
         : obj.otyp;
     switch (finalType) {
-    case CORPSE:
     case STATUE:
     case FIGURINE:
+        initializeResidualMonsterObject(obj, 'finalize', normalized);
+        break;
+    case CORPSE:
+        finalizeCorpse(obj, normalized);
+        break;
     case EGG:
-        initializeMonsterObject(obj, 'finalize', normalized);
+        set_corpsenm(obj, obj.corpsenm, normalized);
         break;
     case BOULDER:
         obj.next_boulder = 0;

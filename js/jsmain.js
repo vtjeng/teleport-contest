@@ -14,11 +14,13 @@ import { initRng, enableRngLog, getRngLog } from './rng.js';
 import { pushKey, nhgetch } from './input.js';
 import { newgame, moveloop_core } from './allmain.js';
 import { parseNethackrc } from './options.js';
+import { initoptions_finish } from './fruit.js';
 import { flush_screen } from './display.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { objects_globals_init } from './objects.js';
 import { monst_globals_init } from './monsters.js';
+import { timeout_globals_init } from './timeout.js';
 import { ttyPlayerSelection } from './player_selection_tty.js';
 import {
     renderTtyStartupBanner,
@@ -105,6 +107,7 @@ export class NethackGame {
         // before options and role initialization; per-game resets run later.
         objects_globals_init(g);
         monst_globals_init(g);
+        timeout_globals_init(g);
         setStorageForTesting(this._storage);
         // Recorder patch 001 routes calendar.c:getnow() through this fixed
         // YYYYMMDDHHMMSS value and leaks its current tm_isdst bit.
@@ -145,6 +148,10 @@ export class NethackGame {
             // C ref: decl.h instance_globals_p; dog.c:pet_type().
             preferred_pet: opts.preferred_pet ?? '',
         };
+
+        // C ref: options.c:initoptions_finish() runs after the complete
+        // configuration has been parsed and before player selection.
+        initoptions_finish(opts, g);
 
         // tty_init_nhwindows() precedes plnamesuffix() and any role menus.
         // Install the capture surface before reproducing that visible input

@@ -38,10 +38,21 @@ import {
     CLR_YELLOW,
     NO_COLOR,
 } from './terminal.js';
+import {
+    DEFAULT_FRUIT,
+    normalize_initial_fruit,
+} from './fruit.js';
+import {
+    decodeUtf8ByteString,
+    encodeUtf8Text,
+} from './hacklib.js';
 
 const PET_NAME_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_LIMIT = 31; // PL_NSIZ - 1
+const CONFIG_BUFFER_SIZE = 4 * 256; // cfgfiles.c: 4 * BUFSZ
 const NONINTERACTIVE_OPTION_NAMES = Object.freeze([
+    'eight_bit_tty',
+    'fruit',
     'legacy',
     'menu_headings',
     'menu_overlay',
@@ -110,6 +121,7 @@ function defaultResult() {
         iflags: {
             wc_color: true,
             wc_splash_screen: true,
+            wc_eight_bit_input: false,
             menu_overlay: true,
             // options.c keeps these as parallel, insertion-ordered strings.
             // The first alias for an incoming key wins in map_menu_cmd().
@@ -127,11 +139,109 @@ function defaultResult() {
         catname: '',
         dogname: '',
         horsename: '',
+        pl_fruit: DEFAULT_FRUIT,
     };
 }
 
 function optionError(lineNumber, message) {
     throw new Error(`nethackrc line ${lineNumber}: ${message}`);
+}
+
+// The recorder's C locale treats only the six ASCII bytes below as
+// whitespace. ECMAScript trim() also removes Unicode spaces whose UTF-8 bytes
+// NetHack preserves until option-specific sanitization.
+function trimCWhitespace(value) {
+    return String(value).replace(
+        /^[\t\n\v\f\r ]+|[\t\n\v\f\r ]+$/gu,
+        '',
+    );
+}
+
+function trimCWhitespaceStart(value) {
+    return String(value).replace(/^[\t\n\v\f\r ]+/u, '');
+}
+
+function trimConfigPadding(value) {
+    return String(value).replace(/^[ \t]+|[ \t]+$/gu, '');
+}
+
+// C ref: cfgfiles.c:parse_conf_buf().  A physical line ending in a literal
+// backslash continues onto the next non-comment text with one separating
+// space.  Ignored lines without their own continuation terminate a pending
+// logical line, matching the parser's p->buf lifetime.
+function logicalConfigLines(rc) {
+    const input = encodeUtf8Text(rc);
+    const logical = [];
+    let buffered = null;
+    let cursor = 0;
+    let lineNumber = 0;
+    let skip = false;
+
+    while (cursor < input.length) {
+        const chunk = [];
+        while (cursor < input.length
+               && chunk.length < CONFIG_BUFFER_SIZE - 1) {
+            const byte = input[cursor++];
+            chunk.push(byte);
+            if (byte === 0x0A) break;
+        }
+
+        let cLength = chunk.length;
+        let newline = -1;
+        for (let index = 0; index < chunk.length; ++index) {
+            if (chunk[index] === 0) {
+                cLength = index;
+                break;
+            }
+            if (chunk[index] === 0x0A) {
+                newline = index;
+                break;
+            }
+        }
+
+        if (skip) {
+            if (newline >= 0) skip = false;
+            continue;
+        }
+
+        if (newline < 0 && cLength >= CONFIG_BUFFER_SIZE - 2) {
+            // parse_conf_buf() reports this non-fatally, then discards input
+            // through the next visible newline.
+            skip = true;
+            continue;
+        }
+
+        lineNumber += 1;
+        let line = chunk.slice(0, newline >= 0 ? newline : cLength);
+        const continued = line.at(-1) === 0x5C;
+        if (continued) {
+            // parse_conf_buf() leaves its end pointer on the new NUL, so
+            // spaces before a continuation backslash remain in the buffer.
+            line.pop();
+        } else {
+            while ([0x20, 0x09, 0x0D].includes(line.at(-1))) line.pop();
+        }
+        while (line[0] === 0x20 || line[0] === 0x09) line.shift();
+
+        const ignored = line.length === 0 || line[0] === 0x23;
+        const hadBuffered = buffered !== null;
+
+        if (!ignored) {
+            buffered = hadBuffered
+                ? [...buffered, 0x20, ...line]
+                : line;
+            if (buffered.length >= CONFIG_BUFFER_SIZE)
+                buffered.length = CONFIG_BUFFER_SIZE - 1;
+        }
+        if (continued || (ignored && !hadBuffered)) continue;
+
+        logical.push({
+            line: decodeUtf8ByteString(buffered),
+            lineNumber,
+        });
+        buffered = null;
+    }
+    return logical;
 }
 
 function splitNameAndValue(option) {
@@ -140,27 +250,27 @@ function splitNameAndValue(option) {
     let separator = -1;
     if (colon >= 0 && equals >= 0) separator = Math.min(colon, equals);
     else separator = Math.max(colon, equals);
-    if (separator < 0) return { name: option.trim(), value: null };
+    if (separator < 0) return { name: trimCWhitespace(option), value: null };
     return {
-        name: option.slice(0, separator).trim(),
-        value: option.slice(separator + 1).trim(),
+        name: trimCWhitespace(option.slice(0, separator)),
+        value: option.slice(separator + 1),
     };
 }
 
 // options.c toggles negation for every leading '!', "no", or "no-".
 function stripNegation(optionName) {
-    let name = optionName.trim();
+    let name = trimCWhitespace(optionName);
     let negated = false;
     for (;;) {
         if (name.startsWith('!')) {
             negated = !negated;
-            name = name.slice(1).trimStart();
+            name = trimCWhitespaceStart(name.slice(1));
         } else if (/^no-/iu.test(name)) {
             negated = !negated;
-            name = name.slice(3).trimStart();
+            name = trimCWhitespaceStart(name.slice(3));
         } else if (/^no/iu.test(name)) {
             negated = !negated;
-            name = name.slice(2).trimStart();
+            name = trimCWhitespaceStart(name.slice(2));
         } else {
             break;
         }
@@ -427,6 +537,25 @@ function setPetName(result, field, value, negated, lineNumber) {
     const lowered = value?.toLowerCase();
     result[field] = negated || lowered === 'none' || lowered === '(none)'
         ? '' : sanitizePetName(value);
+}
+
+// C ref: options.c optfn_fruit(do_set) during initial option parsing.
+// Singularization and fruit-chain insertion are deferred to
+// initoptions_finish(), after the complete configuration has been read.
+function setFruit(result, value, negated, lineNumber) {
+    if (negated) {
+        if (value != null && value !== '') {
+            optionError(lineNumber, 'negated fruit cannot have a value');
+        }
+        result.pl_fruit = DEFAULT_FRUIT;
+        return;
+    }
+    if (value == null || value === '')
+        optionError(lineNumber, 'fruit requires a value');
+    result.pl_fruit = normalize_initial_fruit(
+        value,
+        result.iflags.wc_eight_bit_input,
+    );
 }
 
 function truncateName(value, limit) {
@@ -781,6 +910,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.wc_splash_screen = enabled;
     } else if (name === 'menu_overlay') {
         result.iflags.menu_overlay = enabled;
+    } else if (name === 'eight_bit_tty') {
+        result.iflags.wc_eight_bit_input = enabled;
     } else if (name === 'pushweapon') result.flags.pushweapon = enabled;
     else if (name === 'showexp') result.flags.showexp = enabled;
     else if (name === 'time') result.flags.time = enabled;
@@ -839,6 +970,8 @@ function applyOption(result, optionState, option, lineNumber) {
         );
     } else if (name === 'pettype' || name === 'pet') {
         setPettype(result, value, negated, lineNumber);
+    } else if (name === 'fruit') {
+        setFruit(result, value, negated, lineNumber);
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
         setPetName(result, name, value, negated, lineNumber);
@@ -901,13 +1034,13 @@ export function parseNethackrc(rc) {
         },
     };
 
-    const lines = String(rc).split(/\r?\n/u);
-    for (let index = 0; index < lines.length; ++index) {
-        const lineNumber = index + 1;
-        const line = lines[index].trim();
+    const lines = logicalConfigLines(rc);
+    for (const configLine of lines) {
+        const { lineNumber } = configLine;
+        const line = trimConfigPadding(configLine.line);
         if (!line || line.startsWith('#')) continue;
 
-        const optionsMatch = /^OPTIONS\s*[:=]\s*(.*)$/iu.exec(line);
+        const optionsMatch = /^OPTIONS[ \t]*[:=]([\s\S]*)$/iu.exec(line);
         if (optionsMatch) {
             const options = optionsMatch[1].split(',');
             // options.c recurses into the comma suffix before applying the
@@ -915,7 +1048,7 @@ export function parseNethackrc(rc) {
             // left. This makes the leftmost duplicate the final value.
             for (let optionIndex = options.length - 1;
                 optionIndex >= 0; --optionIndex) {
-                const option = options[optionIndex].trim();
+                const option = trimCWhitespace(options[optionIndex]);
                 if (option) {
                     applyOption(result, optionState, option, lineNumber);
                 }

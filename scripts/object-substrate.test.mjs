@@ -35,6 +35,7 @@ import {
     COIN_CLASS,
     DART,
     EGG,
+    FIGURINE,
     FOOD_RATION,
     GOLD_PIECE,
     LONG_SWORD,
@@ -667,32 +668,29 @@ test('oil potion finalization replaces age with the full flask capacity', () => 
     assert.equal(oil.fromsink, 0);
 });
 
-test('monster-dependent startup objects require their canonical seam', () => {
-    const state = initializedState();
-    const random = scriptedRandom([
-        { name: 'rnd', args: [2], result: 1 }, // next_ident increment
+test('generic egg startup is source-owned and remains untimed', () => {
+    const { obj: egg } = generateWithScript(EGG, [
+        { name: 'rn2', args: [3], result: 2 }, // generic egg
+        { name: 'rn2', args: [6], result: 1 }, // no quantity boost
     ]);
-    assert.throws(
-        () => mksobj(EGG, true, false, { state, ...random }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'monsterObject',
-    );
-    random.done();
+    assert.equal(egg.corpsenm, NON_PM);
+    assert.equal(egg.quan, 1);
+    assert.equal(egg.timed, 0);
 });
 
-test('monster hooks retain source initialization and finalization order', () => {
+test('residual figurine hooks retain source initialization order', () => {
     const state = initializedState();
     const phases = [];
     const chosenSpecies = 17; // arbitrary non-sentinel species identity
     const random = scriptedRandom([
         { name: 'rnd', args: [2], result: 1 }, // next_ident increment
-        // Marker draws stand in for the unported monster subsystem and prove
-        // that ordinary food quantity generation remains between its phases.
+        // Marker draws bracket the residual figurine subsystem; generic BUC
+        // initialization stays between its two source phases.
         { name: 'rn2', args: [3], result: 2 },
-        { name: 'rn2', args: [6], result: 1 }, // no quantity boost
+        { name: 'rn2', args: [4], result: 1 }, // neutral BUC
         { name: 'rn2', args: [5], result: 4 },
     ]);
-    const egg = mksobj(EGG, true, false, {
+    const figurine = mksobj(FIGURINE, true, false, {
         state,
         ...random,
         hooks: {
@@ -710,7 +708,7 @@ test('monster hooks retain source initialization and finalization order', () => 
         },
     });
     assert.deepEqual(phases, ['initialize', 'finalize']);
-    assert.equal(egg.corpsenm, chosenSpecies);
+    assert.equal(figurine.corpsenm, chosenSpecies);
     random.done();
 });
 

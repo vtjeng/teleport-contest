@@ -1175,6 +1175,7 @@ export const BURN_OBJECT = (ZOMBIFY_MON + 1);
 export const HATCH_EGG = (BURN_OBJECT + 1);
 export const FIG_TRANSFORM = (HATCH_EGG + 1);
 export const SHRINK_GLOB = (FIG_TRANSFORM + 1);
+export const MELT_ICE_AWAY = (SHRINK_GLOB + 1);
 export const RANGE_LEVEL = 0;
 export const RANGE_GLOBAL = 1;
 
@@ -1942,26 +1943,6 @@ export const XL_RIGHT = 8;
 // Runtime fields: light_base[] entry type and routing for object/monster lookups.
 export const LS_OBJECT = 0;
 export const LS_MONSTER = 1;
-
-// Timeout timer-kind and timer-function enums (src/timeout.c)
-// Runtime fields: timer queue kind/func selectors and timer dispatch.
-export const TIMER_KIND = Object.freeze({
-    SHORT: 0,
-    LONG: 1,
-    SPECIAL: 2,
-});
-export const TIMER_FUNC = Object.freeze({
-    BURN_OBJECT: 'BURN_OBJECT',
-    HATCH_EGG: 'HATCH_EGG',
-    FIGURINE_TRANSFORM: 'FIGURINE_TRANSFORM',
-    FALL_ASLEEP: 'FALL_ASLEEP',
-    DO_STORMS: 'DO_STORMS',
-    REVIVE_MON: 'REVIVE_MON',
-    ZOMBIFY_MON: 'ZOMBIFY_MON',
-    ROT_CORPSE: 'ROT_CORPSE',
-    MELT_ICE_AWAY: 'MELT_ICE_AWAY',
-});
-export const MELT_ICE_AWAY = TIMER_FUNC.MELT_ICE_AWAY;
 
 // Corpse taint/revival age window (src/mkobj.c)
 // Runtime fields: rot/revive scheduling bound for corpse timers.
