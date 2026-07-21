@@ -64,31 +64,39 @@ function nicheWallY(room, trapY) {
     return trapY < room.ly ? room.ly - 1 : room.hy + 1;
 }
 
-test('makeniche retains a trapdoor when the level permits falling', async () => {
-    // Level 6 of a ten-level ordinary dungeon is neither bottom nor hardfloor.
-    const { room, state } = nicheState(6);
-    await makeniche(TRAPDOOR);
+const NICHE_CASES = [
+    {
+        name: 'makeniche retains a trapdoor when the level permits falling',
+        // Level 6 of a ten-level ordinary dungeon is neither bottom nor hardfloor.
+        dlevel: 6,
+        trapType: TRAPDOOR,
+        once: true,
+        engraving: 'Vlad was here',
+    },
+    {
+        name: 'makeniche substitutes a rock trap when falling is blocked',
+        // Level 10 is the bottom of the same ten-level ordinary dungeon.
+        dlevel: 10,
+        trapType: ROCKTRAP,
+        once: false,
+        engraving: undefined,
+    },
+];
 
-    assert.equal(state.level.traps.length, 1);
-    const trap = state.level.traps[0];
-    assert.equal(trap.ttyp, TRAPDOOR);
-    assert.equal(trap.once, true);
-    assert.equal(state.level.at(trap.tx, trap.ty).typ, SCORR);
-    assert.equal(state.level.at(trap.tx, nicheWallY(room, trap.ty)).typ, SDOOR);
-    assert.ok(state.head_engr);
-    assert.equal(state.head_engr.engr_txt[2], 'Vlad was here');
-});
+for (const { name, dlevel, trapType, once, engraving } of NICHE_CASES) {
+    test(name, async () => {
+        const { room, state } = nicheState(dlevel);
+        await makeniche(TRAPDOOR);
 
-test('makeniche substitutes a rock trap when falling is blocked', async () => {
-    // Level 10 is the bottom of the same ten-level ordinary dungeon.
-    const { room, state } = nicheState(10);
-    await makeniche(TRAPDOOR);
-
-    assert.equal(state.level.traps.length, 1);
-    const trap = state.level.traps[0];
-    assert.equal(trap.ttyp, ROCKTRAP);
-    assert.equal(trap.once, false);
-    assert.equal(state.level.at(trap.tx, trap.ty).typ, SCORR);
-    assert.equal(state.level.at(trap.tx, nicheWallY(room, trap.ty)).typ, SDOOR);
-    assert.equal(state.head_engr, undefined);
-});
+        assert.equal(state.level.traps.length, 1);
+        const trap = state.level.traps[0];
+        assert.equal(trap.ttyp, trapType);
+        assert.equal(trap.once, once);
+        assert.equal(state.level.at(trap.tx, trap.ty).typ, SCORR);
+        assert.equal(
+            state.level.at(trap.tx, nicheWallY(room, trap.ty)).typ,
+            SDOOR,
+        );
+        assert.equal(state.head_engr?.engr_txt[2], engraving);
+    });
+}

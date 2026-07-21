@@ -52,9 +52,7 @@ function room({
 
 function scriptedRandom(script) {
     const remaining = [...script];
-    const calls = [];
     const draw = (name, bound) => {
-        calls.push([name, bound]);
         const expected = remaining.shift();
         assert.ok(expected, `unexpected ${name}(${bound})`);
         assert.deepEqual(expected.slice(0, 2), [name, bound]);
@@ -75,7 +73,6 @@ function scriptedRandom(script) {
             rn1: (range, base) => rn2(range) + base,
             rne: (bound) => assert.fail(`unexpected rne(${bound})`),
         },
-        calls,
         done() {
             assert.deepEqual(remaining, []);
         },
@@ -94,33 +91,34 @@ function noDrawRandom() {
     };
 }
 
+const VAULT_BOUNDS = Object.freeze({ lx: 10, ly: 5, hx: 11, hy: 6 });
+const VAULT_COORDINATES = Object.freeze([
+    [10, 5], [10, 6], [11, 5], [11, 6],
+]);
+const EMPTY_VAULT_DRAWS = Object.freeze([
+    ['rn2', 100, 0], ['rnd', 2, 1],
+    ['rn2', 100, 24], ['rnd', 2, 2],
+    ['rn2', 100, 99], ['rnd', 2, 1],
+    ['rn2', 100, 7], ['rnd', 2, 2],
+]);
+
 test('fill_special_room fills an empty 2x2 vault in source order', () => {
     const state = initializedState();
     // NetHack creates ordinary vaults as 2x2 rooms. These arbitrary in-map
     // bounds expose the source's x-outer, y-inner traversal order.
-    const vault = room({ lx: 10, ly: 5, hx: 11, hy: 6 });
-    const coordinates = [[10, 5], [10, 6], [11, 5], [11, 6]];
+    const vault = room(VAULT_BOUNDS);
     const random = scriptedRandom([
         // At depth one, vault amounts use rn1(abs(depth) * 100, 51), hence
         // rn2(100). Each empty square then allocates gold via next_ident(),
         // whose increment is rnd(2).
-        ['rn2', 100, 0], ['rnd', 2, 1],
-        ['rn2', 100, 24], ['rnd', 2, 2],
-        ['rn2', 100, 99], ['rnd', 2, 1],
-        ['rn2', 100, 7], ['rnd', 2, 2],
+        ...EMPTY_VAULT_DRAWS,
     ]);
 
     fill_special_room(vault, { state, random: random.random });
     random.done();
 
-    assert.deepEqual(random.calls, [
-        ['rn2', 100], ['rnd', 2],
-        ['rn2', 100], ['rnd', 2],
-        ['rn2', 100], ['rnd', 2],
-        ['rn2', 100], ['rnd', 2],
-    ]);
-    const gold = coordinates.map(([x, y]) => g_at(x, y, state));
-    assert.deepEqual(gold.map((obj) => [obj.ox, obj.oy]), coordinates);
+    const gold = VAULT_COORDINATES.map(([x, y]) => g_at(x, y, state));
+    assert.deepEqual(gold.map((obj) => [obj.ox, obj.oy]), VAULT_COORDINATES);
     assert.deepEqual(gold.map((obj) => obj.quan), [51, 75, 150, 58]);
     assert.deepEqual(gold.map((obj) => obj.owt), [1, 1, 2, 1]);
     assert.deepEqual(gold.map((obj) => obj.o_id), [2, 3, 5, 6]);
@@ -156,18 +154,14 @@ test('a second vault fill merges gold without allocating new objects', () => {
     const state = initializedState();
     // A 2x2 room exercises all four source loop iterations while keeping each
     // coordinate's first object easy to retain and compare by identity.
-    const vault = room({ lx: 10, ly: 5, hx: 11, hy: 6 });
-    const coordinates = [[10, 5], [10, 6], [11, 5], [11, 6]];
+    const vault = room(VAULT_BOUNDS);
     const first = scriptedRandom([
         // Depth-one amount draws and the four empty-square id increments.
-        ['rn2', 100, 0], ['rnd', 2, 1],
-        ['rn2', 100, 24], ['rnd', 2, 2],
-        ['rn2', 100, 99], ['rnd', 2, 1],
-        ['rn2', 100, 7], ['rnd', 2, 2],
+        ...EMPTY_VAULT_DRAWS,
     ]);
     fill_special_room(vault, { state, random: first.random });
     first.done();
-    const original = coordinates.map(([x, y]) => g_at(x, y, state));
+    const original = VAULT_COORDINATES.map(([x, y]) => g_at(x, y, state));
     const ids = original.map((obj) => obj.o_id);
     const nextIdent = state.context.ident;
 
@@ -182,7 +176,7 @@ test('a second vault fill merges gold without allocating new objects', () => {
     fill_special_room(vault, { state, random: second.random });
     second.done();
 
-    const merged = coordinates.map(([x, y]) => g_at(x, y, state));
+    const merged = VAULT_COORDINATES.map(([x, y]) => g_at(x, y, state));
     assert.deepEqual(merged, original);
     assert.deepEqual(merged.map((obj) => obj.o_id), ids);
     assert.deepEqual(merged.map((obj) => obj.quan), [201, 126, 251, 134]);

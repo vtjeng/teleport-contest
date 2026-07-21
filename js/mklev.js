@@ -390,18 +390,12 @@ function clear_level_structures() {
     const g = game;
     g.fmon = null;
     g.level = new GameMap();
-    g.level.nroom = 0;
-    g.level.rooms = [];
     g.made_branch = false;
     g.smeq = new Array(MAXNROFROOMS + 1).fill(0);
-    g.level.doorindex = 0;
-    g.level.doors = [];
     g.stairs = null;
     g.head_engr = null;
     g.vault_x = -1;
     const lf = g.level.flags;
-    lf.nfountains = 0;
-    lf.nsinks = 0;
     lf.has_shop = false;
     lf.has_vault = false;
     lf.has_zoo = false;
@@ -415,10 +409,8 @@ function clear_level_structures() {
     lf.noteleport = false;
     lf.hardfloor = false;
     lf.nommap = false;
-    lf.hero_memory = true;
     lf.shortsighted = false;
     lf.sokoban_rules = false;
-    lf.is_maze_lev = false;
     lf.is_cavernous_lev = false;
     lf.arboreal = false;
     lf.has_town = false;
@@ -1586,13 +1578,12 @@ export async function makeniche(trap_type) {
         if (trap_type || !rn2(4)) {
             rm.typ = SCORR;
             if (trap_type) {
-                let actualTrap = trap_type;
-                if (is_hole(actualTrap) && !Can_fall_thru(g.u.uz, g))
-                    actualTrap = ROCKTRAP;
-                const trap = await maketrap(xx, yy + dy, actualTrap);
+                if (is_hole(trap_type) && !Can_fall_thru(g.u.uz, g))
+                    trap_type = ROCKTRAP;
+                const trap = await maketrap(xx, yy + dy, trap_type);
                 if (trap) {
-                    if (actualTrap !== ROCKTRAP) trap.once = true;
-                    const engraving = TRAP_ENGRAVINGS.get(actualTrap);
+                    if (trap_type !== ROCKTRAP) trap.once = true;
+                    const engraving = TRAP_ENGRAVINGS.get(trap_type);
                     if (engraving) {
                         make_engr_at(xx, yy - dy, engraving, null, 0, DUST);
                         wipe_engr_at(xx, yy - dy, 5, false);

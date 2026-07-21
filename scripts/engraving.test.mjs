@@ -12,11 +12,9 @@ import { encodeUtf8ByteString } from '../js/hacklib.js';
 
 function scriptedRandom(script) {
     const remaining = [...script];
-    const calls = [];
     return {
         random: {
             rn2(bound) {
-                calls.push(['rn2', bound]);
                 const expected = remaining.shift();
                 assert.ok(expected, `unexpected rn2(${bound})`);
                 assert.deepEqual(expected.slice(0, 2), ['rn2', bound]);
@@ -27,7 +25,6 @@ function scriptedRandom(script) {
                 assert.fail(`unexpected rnd(${bound})`);
             },
         },
-        calls,
         done() {
             assert.deepEqual(remaining, []);
         },
@@ -66,9 +63,6 @@ test('wipeout_text ages the teleport-niche message in source call order', () => 
         '?| aerari?r',
     );
     scripted.done();
-    assert.deepEqual(scripted.calls, nicheWipeScript().map(
-        ([name, bound]) => [name, bound],
-    ));
 });
 
 test('wipeout_text selects and mutates UTF-8 bytes', () => {
@@ -83,10 +77,6 @@ test('wipeout_text selects and mutates UTF-8 bytes', () => {
 
     const wiped = wipeout_text('éA', 2, 0, { random: scripted.random });
     scripted.done();
-    assert.deepEqual(scripted.calls, [
-        ['rn2', 3], ['rn2', 4], ['rn2', 1],
-        ['rn2', 3], ['rn2', 4],
-    ]);
     // The low-surrogate escape stores the invalid A9 byte without replacing
     // it by U+FFFD; re-encoding recovers C's exact post-rubout byte sequence.
     assert.equal(wiped, '?' + String.fromCharCode(0xDCA9) + '^');
