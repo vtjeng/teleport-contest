@@ -720,9 +720,10 @@ function filler_region(definition, origin, random, randomOneBased) {
     return true;
 }
 
-// C ref: themerms.lua themerooms_generate(). Static map shapes with a plain
-// filler_region callback are ported as a class; the remaining Lua callbacks
-// continue through the existing rectangular-room compatibility path.
+// C ref: themerms.lua themerooms_generate(). Static map shapes with a directly
+// extractable filler_region callback are ported below. Descriptors without
+// extracted map/filler data temporarily use the default rectangular-room path;
+// their Lua callbacks are not executed here.
 export async function themerooms_generate(
     difficulty,
     random = rn2,

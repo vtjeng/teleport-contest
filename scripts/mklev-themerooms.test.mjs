@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { CROSSWALL, HWALL, ROOM, ROOMOFFSET, STONE, VWALL } from '../js/const.js';
+import {
+    CROSSWALL, HWALL, MAXNROFROOMS, ROOM, ROOMOFFSET, STONE, VWALL,
+} from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
@@ -34,6 +36,7 @@ test('themeroom reservoir selects Cross in source order', () => {
     ]);
     assert.equal(selected.name, 'Cross');
     assert.equal(selected.sourceKind, 'map');
+    // These are Cross's source map dimensions and filler_region(6, 6) arguments.
     assert.equal(selected.width, 11);
     assert.equal(selected.height, 11);
     assert.deepEqual(selected.filler, { x: 6, y: 6 });
@@ -52,6 +55,8 @@ test('lspo_map places a Cross without a build_room chance draw', () => {
     // An 11-wide map uses 80 - 1 - 11 columns; an 11-high map uses
     // 21 - 11 rows. No rn2(100) room-chance call belongs between them.
     assert.deepEqual(calls, [68, 10]);
+    // Draws 30 and 4 place the map at (31, 4). These cells sample Cross's
+    // transparent corner, top wall, side wall, and interior floor.
     assert.deepEqual(origin, { x: 31, y: 4, width: 11, height: 11 });
     assert.equal(state.level.at(31, 4).typ, STONE); // transparent map 'x'
     assert.equal(state.level.at(34, 4).typ, HWALL);
@@ -82,12 +87,15 @@ test('themeroom generation connects selection, map placement, and filler region'
     resetGame();
     game.level = new GameMap();
     game.u = { uz: { dnum: 0, dlevel: 1 } };
-    game.smeq = new Array(41).fill(0);
+    game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     const calls = [];
+    // Difficulty one has 30 eligible descriptors, so selection consumes this
+    // many reservoir draws before map placement begins.
+    const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     const random = (bound) => {
         calls.push(bound);
-        if (reservoirCalls++ < 30) return bound === 1034 ? 0 : bound - 1;
+        if (reservoirCalls++ < reservoirDrawCount) return bound === 1034 ? 0 : bound - 1;
         // Place at (31,4), choose the 70% ordinary-fill branch, and leave the
         // resulting level-1 region lit after litstate_rnd's second draw.
         const scripted = new Map([[68, 30], [10, 4], [100, 99], [77, 76]]);
@@ -100,9 +108,12 @@ test('themeroom generation connects selection, map placement, and filler region'
     };
 
     assert.equal(await themerooms_generate(1, random, randomOneBased), true);
-    assert.deepEqual(calls.slice(30), [68, 10, 100, 77]);
+    assert.deepEqual(calls.slice(reservoirDrawCount), [68, 10, 100, 77]);
     assert.equal(game.level.nroom, 1);
     const room = game.level.rooms[0];
+    // Flooding from Cross's translated filler point (37, 10) registers its 9x9
+    // interior bounds and assigns the adjacent top wall to the same irregular
+    // room. The wall remains generic HWALL until post-level wallification.
     assert.deepEqual(
         [room.lx, room.ly, room.hx, room.hy],
         [32, 5, 40, 13],
