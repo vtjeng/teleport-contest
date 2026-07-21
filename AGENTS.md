@@ -94,43 +94,65 @@ Git history do not grant permission to inspect the sealed local holdout.
 
 ## Quality workflow
 
-For each completed implementation chunk:
+Before marking an implementation chunk complete:
 
 1. Commit one coherent implementation and run `npm run quality` to see review
-   and simplification debt. Assign every new contestant file under `js/` to one
-   quality area. Git calculates the counts; `QUALITY.json` stores the areas,
-   thresholds, and pass frontiers.
-2. Run and validate any due simplification, then commit accepted changes. A pass
-   is due when its configured interval is reached or accidental complexity,
-   duplication, or temporary scaffolding has visibly accumulated.
+   and simplification debt. Assign every new file under `js/` to exactly one
+   quality area. `QUALITY.json` stores the tracking and enforcement bases, area
+   assignments, thresholds, and pass records. From those records and Git, the
+   dashboard derives per-area commit counts, changed-file and changed-line
+   totals, worktree state, and separate review and simplification frontiers; a
+   frontier is the last exact commit recorded as covered for that area and pass
+   kind.
+2. Run and validate any due simplification, then commit accepted changes. A
+   simplification pass is due when an area reaches its configured commit budget.
+   Run one earlier when accidental complexity, duplication, or temporary
+   scaffolding has visibly accumulated.
 3. For a `full` review, run `$audit-diff-clarity` after simplification stabilizes.
-   Use a clean checkout of the intended range and supply the background, decided
+   Use a clean checkout of the intended range and supply its background, decided
    non-issues, prior review context, and repository conventions. Read the full
    output and warnings; apply confirmed fixes in the primary session, validate,
-   and commit them. Include the counts, applied fixes, warnings, and validation
-   in the `full` review evidence.
+   and commit them.
 4. Run the final `$audit-diff-correctness` review against the relevant upstream
    source. Resolve confirmed findings, add regression tests for reusable failure
-   classes, commit the fixes, and repeat the affected review.
-5. Run the relevant broader checks. Record each completed pass through the final
-   code commit, commit the `QUALITY.json` update, and finish with
-   `npm run quality -- --check`.
+   classes, commit the fixes, and repeat the affected audit.
+5. Run the relevant broader checks. Record each `review` or `simplification`
+   ledger pass only through the exact commit it covered. Later commits touching
+   its areas remain new debt: repeat affected review audits before completion,
+   and repeat simplification when its budget is exhausted or the complexity
+   conditions in step 2 make it due. Commit the `QUALITY.json` update and finish
+   with `npm run quality -- --check`.
 
 Pass rules:
 
-- Run each correctness, clarity, simplification, and prose pass in a different
-  newly spawned subagent with fresh state. Do not reuse the implementation agent
-  or a previous reviewer or simplifier. Start without inherited conversation
-  when supported.
-- Give each subagent only the exact commit range and quality areas, relevant
-  upstream source, applicable tests, and architectural constraints. Never give
-  it sealed holdout material. Correctness reviewers are read-only. Simplifiers
-  use `$simplify-codebase` and may edit only their named scope and its tests.
-- Use a `light` correctness review only for a small, coherent diff. Use `full`
-  at milestones and before marking a large or cross-subsystem change complete.
-  A `light` review needs the clarity gate only when readability is in doubt.
-- The default simplification interval is three commits. Shorten it when passes
-  find meaningful cleanup or debt grows; lengthen it after repeated, well-scoped
+- Run each correctness audit, clarity audit, simplification pass, and prose pass
+  in a different newly spawned subagent with fresh state. Do not reuse the
+  implementation agent or a previous reviewer or simplifier. Start without
+  inherited conversation when supported.
+- For correctness, clarity, and simplification work, provide only the exact
+  committed range and affected quality areas, background, relevant source,
+  tests and validation, decided non-issues, and behavioral and architectural
+  constraints. For prose work, provide the current and pristine documents,
+  referenced artifacts, verified subject facts, any format reference, and prose
+  conventions. Never provide sealed holdout material.
+- Correctness and clarity reviewers are read-only; the primary session applies
+  confirmed fixes. Simplifiers use `$simplify-codebase` and may edit only their
+  named scope and its tests. The primary session verifies and applies prose
+  edits. Prose passes are not quality-ledger records.
+- Use a `light` `$audit-diff-correctness` audit only for a small, coherent diff,
+  and add `$audit-diff-clarity` when readability is in doubt. A `full` review is
+  required at milestones and before marking a large or cross-subsystem change
+  complete; it includes both `$audit-diff-clarity` and a `full`
+  `$audit-diff-correctness` audit.
+- In a `full` review record, identify the clarity and correctness audits
+  separately. For each audit, include its exact range; raw, deduplicated,
+  confirmed, and applied counts; applied fixes and confirmed deferrals;
+  unverified judgments; notable rejections; warnings; and validation. Preserve
+  the counter-evidence for notable correctness rejections.
+- The configured simplification commit budget applies separately to each area;
+  commits touching the area's paths count toward it, and a dirty affected
+  worktree counts as one additional unit. Shorten the budget when passes find
+  meaningful cleanup or debt grows; lengthen it after repeated, well-scoped
   no-change passes. Record the reason and update
   `thresholds.simplificationCommits` in `QUALITY.json`.
 - Remove accidental complexity, stale compatibility layers, or obsolete replay
@@ -138,16 +160,18 @@ Pass rules:
   Preserve code, data, comments, APIs, and dependency seams needed by planned
   ports. Relevant unit, differential, and development checks must preserve
   behavior and PRNG order.
-- Record each pass with `npm run quality -- record-review ...` or
+- Record each quality-ledger pass with `npm run quality -- record-review ...` or
   `npm run quality -- record-simplification ...`. The command derives the prior
-  frontier and rejects covered areas with uncommitted changes. Record `changed`
-  when a pass changes code; use `no-change` only after a deliberate pass. Include
-  the method and validation in its evidence. A simplification pass may span
-  several coherent commits. Use `--dry-run` to preview a record and
-  `npm run quality -- --help` for full syntax.
-- New review debt and an exhausted simplification budget block completion.
-  Historical `BASELINE` debt remains exempt until its area receives a recorded
-  pass.
+  frontier and rejects a selected area when its configured `js/` paths have
+  uncommitted changes. Record `changed` when a pass changes code; use `no-change`
+  only after a deliberate pass. Include the method and validation in its
+  evidence. A simplification pass may span several coherent commits. Use
+  `--dry-run` to preview a record and `npm run quality -- --help` for full syntax.
+- `npm run quality -- --check` blocks completion for post-enforcement review
+  debt, an exhausted simplification budget, or an unassigned tracked or
+  unignored file under `js/`. Historical `BASELINE` debt is exempt independently
+  for review and simplification until that area's frontier for the pass kind
+  advances.
 - After a substantial batch of changes to `AGENTS.md`, `README.md`, or other
   published technical prose, run `$copyedit-technical-prose` once the content
   stabilizes. Do not schedule it by implementation commit or run it on unchanged
