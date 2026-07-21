@@ -124,9 +124,15 @@ Run the heavier checks at these boundaries:
 
 Pass rules:
 
+- Native Codex subagents are allowed for bounded work that benefits from
+  parallelism.
 - Launch each formal skill pass as a fresh top-level Codex process with
   `codex exec --ephemeral`. Give it only the scoped review inputs, without the
-  parent conversation, and do not reuse it for another pass.
+  parent conversation, and do not reuse it for another pass. The fresh process
+  may use its own native Codex subagents and the skill's orchestration: process
+  isolation keeps the pass independent from the primary conversation; it does
+  not require single-agent execution. Do not substitute a subagent spawned by
+  the primary session for the fresh top-level process.
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
