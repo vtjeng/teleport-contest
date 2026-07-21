@@ -134,6 +134,12 @@ function changedLines(metrics) {
   return metrics.additions + metrics.deletions;
 }
 
+export function thresholdReached(current, dirty, commitThreshold, lineThreshold) {
+  const currentUnits = current.commits + (hasChanges(dirty) ? 1 : 0);
+  const currentLines = changedLines(current) + changedLines(dirty);
+  return currentUnits >= commitThreshold || currentLines >= lineThreshold;
+}
+
 function plural(count, singular) {
   return `${count.toLocaleString('en-US')} ${singular}${count === 1 ? '' : 's'}`;
 }
@@ -149,23 +155,27 @@ export function formatMetrics(metrics, includeCommits = true) {
   return parts.join(', ');
 }
 
-function formatDebt(total, current, dirty, kind, threshold) {
+function formatDebt(total, current, dirty, commitThreshold, lineThreshold) {
   const dirtySuffix = hasChanges(dirty)
     ? ` + worktree (${formatMetrics(dirty, false)})`
     : '';
   const totalText = `${formatMetrics(total)}${dirtySuffix}`;
   const currentUnits = current.commits + (hasChanges(dirty) ? 1 : 0);
   const totalUnits = total.commits + (hasChanges(dirty) ? 1 : 0);
+  const currentLines = changedLines(current) + changedLines(dirty);
 
   if (totalUnits === 0) return 'clear';
-  if (kind === 'review') {
-    return currentUnits > 0
-      ? `DUE — ${totalText}`
-      : `BASELINE DUE — ${totalText}`;
+  if (currentUnits >= commitThreshold || currentLines >= lineThreshold) {
+    return `DUE (${currentUnits}/${commitThreshold} commits, `
+      + `${currentLines}/${lineThreshold} lines) — ${totalText}`;
   }
-  if (currentUnits >= threshold) return `DUE (${currentUnits}/${threshold}) — ${totalText}`;
-  if (currentUnits > 0) return `WATCH (${currentUnits}/${threshold}) — ${totalText}`;
-  if (total.commits >= threshold) return `BASELINE DUE — ${totalText}`;
+  if (currentUnits > 0) {
+    return `WATCH (${currentUnits}/${commitThreshold} commits, `
+      + `${currentLines}/${lineThreshold} lines) — ${totalText}`;
+  }
+  if (total.commits >= commitThreshold || changedLines(total) >= lineThreshold) {
+    return `BASELINE DUE — ${totalText}`;
+  }
   return `BASELINE — ${totalText}`;
 }
 
@@ -176,9 +186,21 @@ export function validateConfigShape(config) {
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
   }
+  if (!Number.isInteger(config.thresholds?.reviewCommits)
+      || config.thresholds.reviewCommits < 1) {
+    fail('thresholds.reviewCommits must be a positive integer');
+  }
+  if (!Number.isInteger(config.thresholds?.reviewChangedLines)
+      || config.thresholds.reviewChangedLines < 1) {
+    fail('thresholds.reviewChangedLines must be a positive integer');
+  }
   if (!Number.isInteger(config.thresholds?.simplificationCommits)
       || config.thresholds.simplificationCommits < 1) {
     fail('thresholds.simplificationCommits must be a positive integer');
+  }
+  if (!Number.isInteger(config.thresholds?.simplificationChangedLines)
+      || config.thresholds.simplificationChangedLines < 1) {
+    fail('thresholds.simplificationChangedLines must be a positive integer');
   }
   if (!Array.isArray(config.areas) || config.areas.length === 0) {
     fail('areas must be a non-empty array');
@@ -354,23 +376,40 @@ function printStatus(config, head, status, verbose) {
   for (const row of status.rows) {
     const review = row.kinds.review;
     const simplification = row.kinds.simplification;
-    const reviewCurrentUnits = review.current.commits + (hasChanges(row.dirty) ? 1 : 0);
-    const simplificationCurrentUnits = simplification.current.commits
-      + (hasChanges(row.dirty) ? 1 : 0);
-    if (reviewCurrentUnits > 0) reviewDue += 1;
-    if (simplificationCurrentUnits >= config.thresholds.simplificationCommits) {
+    if (thresholdReached(
+      review.current,
+      row.dirty,
+      config.thresholds.reviewCommits,
+      config.thresholds.reviewChangedLines,
+    )) {
+      reviewDue += 1;
+    }
+    if (thresholdReached(
+      simplification.current,
+      row.dirty,
+      config.thresholds.simplificationCommits,
+      config.thresholds.simplificationChangedLines,
+    )) {
       simplificationDue += 1;
     }
 
     console.log(`${row.area.label} [${row.area.id}]`);
-    console.log(`  Review:  ${formatDebt(review.total, review.current, row.dirty, 'review')}`);
+    console.log(
+      `  Review:  ${formatDebt(
+        review.total,
+        review.current,
+        row.dirty,
+        config.thresholds.reviewCommits,
+        config.thresholds.reviewChangedLines,
+      )}`,
+    );
     console.log(
       `  Simplify: ${formatDebt(
         simplification.total,
         simplification.current,
         row.dirty,
-        'simplification',
         config.thresholds.simplificationCommits,
+        config.thresholds.simplificationChangedLines,
       )}`,
     );
     if (verbose) {
@@ -387,13 +426,13 @@ function printStatus(config, head, status, verbose) {
   }
   console.log(
     reviewDue > 0
-      ? `Review gate: BLOCKED (${plural(reviewDue, 'area')} have post-baseline work).`
+      ? `Review gate: BLOCKED (${plural(reviewDue, 'area')} reached the batch threshold).`
       : 'Review gate: clear.',
   );
   console.log(
     simplificationDue > 0
       ? `Simplification gate: BLOCKED (${plural(simplificationDue, 'area')} `
-        + 'reached the commit budget).'
+        + 'reached a batch threshold).'
       : 'Simplification gate: clear.',
   );
   if (status.rows.some((row) => row.kinds.review.frontier === config.trackingBase)) {

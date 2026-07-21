@@ -103,36 +103,44 @@ For each coherent implementation chunk:
 1. Inspect the diff and run focused tests plus the relevant broader checks.
 2. Commit the implementation and run `npm run quality` as a scheduling
    dashboard. Assign every new file under `js/` to exactly one quality area.
-3. Run a fresh `light` `$audit-diff-correctness` pass when the change affects
-   source behavior, PRNG or evaluation order, parsing, state ownership,
-   persistence, input boundaries, or rendering. Small mechanical or test-only
-   changes may rely on direct review and tests.
+3. Directly review source behavior, PRNG and evaluation order, parsing, state
+   ownership, persistence, input boundaries, and rendering against upstream.
+   Routine chunks do not launch a formal multi-agent pass. Small mechanical or
+   test-only changes may rely on diff inspection and tests.
 4. Add the exact code commit and score estimate to `SCORE.md`.
 
 Run the heavier checks at these boundaries:
 
-- At a major milestone, or before completing a large or cross-subsystem change,
-  run `$simplify-codebase`, `$audit-diff-clarity`, and a `full`
-  `$audit-diff-correctness` pass. Run simplification before the audits.
+- Three unreviewed implementation commits in an affected quality area are an
+  advisory batching checkpoint, not a gate. A formal milestone is due at six
+  unreviewed commits or 500 changed lines in an area, when a change spans
+  multiple subsystems, or before a release, pull request, or authorized holdout
+  evaluation. Small cohesive fixes may stay batched until one of those
+  conditions applies. Do not repeat the same formal pass until another
+  threshold is met or the design materially changes.
+- At a formal milestone, run `$simplify-codebase`, `$audit-diff-clarity`, and a
+  `full` `$audit-diff-correctness` pass. Run simplification before the audits.
 - Run simplification earlier when duplication, accidental complexity, or stale
-  scaffolding is visible. The configured commit budget is a scheduling signal
-  between milestones. It is not a reason to interrupt a coherent chunk.
+  scaffolding is visible. Its configured commit and changed-line budgets use
+  the same milestone thresholds. They do not interrupt a coherent chunk.
 - After a substantial batch of published technical prose stabilizes, run
   `$copyedit-technical-prose` once. Do not run it on unchanged prose.
-- After applying an audit fix, review the new delta. Repeat the full-range audit
-  only when the fix changes the design or invalidates earlier conclusions.
+- After applying audit fixes, give a small, behavior-preserving delta to two
+  parallel read-only subagents and reconcile their results directly. Repeat a
+  formal full-range pass only when the fix changes observable behavior or
+  design, invalidates an earlier conclusion, or itself reaches a milestone
+  threshold.
 
 Pass rules:
 
-- Native Codex subagents are available to both the primary session and processes
-  launched with `codex exec --ephemeral`; either context may use them to
-  parallelize bounded work. This shared ability does not change the isolation
-  requirement for formal skill passes: each pass must start in a fresh
-  top-level `codex exec --ephemeral` process. Give that process only the pass's
-  scoped review inputs and let it orchestrate any native subagents the skill
-  needs. Ordinary work may instead be delegated from the primary session. Do
-  not reuse the ephemeral process for another pass or substitute a subagent
-  spawned by the primary session for the fresh top-level process.
+- Native Codex subagents are available to the primary session and to fresh
+  top-level `codex exec` processes. Each formal pass must start in its own fresh
+  top-level process so its judgment is independent from implementation and
+  other passes. Do not use `--ephemeral`: retain the rollout so agent activity
+  and token usage can be inspected. Run with `--json` and preserve the session
+  identifier and `turn.completed.usage` summary with the pass evidence. Give the
+  process only the pass's scoped inputs and let it orchestrate the bounded
+  subagents the skill requires.
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
@@ -156,7 +164,7 @@ Pass rules:
   the exact range for each. Include raw, deduplicated, confirmed, and applied
   counts; fixes and deferrals; unverified judgments; notable rejections and
   their counter-evidence; warnings; and validation.
-- Finish each major milestone with `npm run quality -- --check`. Resolve review
+- Finish each formal milestone with `npm run quality -- --check`. Resolve review
   debt, exhausted simplification budgets, and unassigned `js/` files then.
   Historical `BASELINE` debt remains exempt until that area's first recorded
   pass.

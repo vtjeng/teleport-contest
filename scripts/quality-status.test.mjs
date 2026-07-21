@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
   formatMetrics,
   parseNumstat,
+  thresholdReached,
   validateConfigShape,
 } from './quality-status.mjs';
 
@@ -43,14 +44,51 @@ test('metric formatting separates commits, files, and changed lines', () => {
   assert.equal(text, '1 commit, 2 files, 24 changed lines');
 });
 
+test('review thresholds batch small commits but catch large or accumulated work', () => {
+  // Three ten-line fixes exercise the advisory checkpoint without reaching
+  // either the six-commit or 500-line blocking threshold.
+  const threeSmallCommits = {
+    commits: 3,
+    files: new Set(['js/obj.js']),
+    additions: 20,
+    deletions: 10,
+    binaryFiles: 0,
+  };
+  const clean = {
+    files: new Set(), additions: 0, deletions: 0, binaryFiles: 0,
+  };
+  assert.equal(thresholdReached(threeSmallCommits, clean, 6, 500), false);
+
+  // Six commits exercise the accumulation bound even when each commit is tiny.
+  assert.equal(
+    thresholdReached({ ...threeSmallCommits, commits: 6 }, clean, 6, 500),
+    true,
+  );
+  // One 500-line change exercises the size bound without relying on commit count.
+  assert.equal(
+    thresholdReached(
+      { ...threeSmallCommits, commits: 1, additions: 450, deletions: 50 },
+      clean,
+      6,
+      500,
+    ),
+    true,
+  );
+});
+
 test('an implementation path cannot belong to two quality areas', () => {
-  // Full-length placeholder SHAs satisfy the schema while the three-commit
-  // threshold mirrors repository policy; this test isolates path ownership.
+  // Full-length placeholder SHAs satisfy the schema while the configured
+  // thresholds mirror repository policy; this test isolates path ownership.
   const config = {
     version: 1,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
-    thresholds: { simplificationCommits: 3 },
+    thresholds: {
+      reviewCommits: 6,
+      reviewChangedLines: 500,
+      simplificationCommits: 6,
+      simplificationChangedLines: 500,
+    },
     areas: [
       { id: 'first', label: 'First', paths: ['js/shared.js'] },
       { id: 'second', label: 'Second', paths: ['js/shared.js'] },
