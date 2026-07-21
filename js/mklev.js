@@ -247,6 +247,15 @@ function levelObjectEnv(overrides = {}) {
     return objectGenerationEnv({ state: game, ...overrides });
 }
 
+// C ref: dat/nhlib.lua shuffle(). Lua's one-based math.random(i) becomes the
+// injected zero-based rn2(i) index used at each source call site below.
+function shuffle_core_values(values, random) {
+    for (let i = values.length; i > 1; --i) {
+        const j = random(i);
+        [values[i - 1], values[j]] = [values[j], values[i - 1]];
+    }
+}
+
 // ============================================================
 // Core mklev functions (ported from main project's mklev.js)
 // ============================================================
@@ -263,10 +272,7 @@ function getbones() {
 // C ref: allmain.c l_nhcore_init()
 export function l_nhcore_init(state = game, random = rn2) {
     const align = [A_LAWFUL, A_NEUTRAL, A_CHAOTIC];
-    for (let i = align.length; i > 1; i--) {
-        const j = random(i);
-        [align[i - 1], align[j]] = [align[j], align[i - 1]];
-    }
+    shuffle_core_values(align, random);
     state.splev_align = align;
 }
 
@@ -432,10 +438,7 @@ export function initialize_themeroom_branch(state = game, random = rn2) {
     state.themeroom_align ??= {};
     if (!state._luathemes_loaded[dnum]) {
         const align = ['law', 'neutral', 'chaos'];
-        for (let i = align.length; i > 1; --i) {
-            const j = random(i);
-            [align[i - 1], align[j]] = [align[j], align[i - 1]];
-        }
+        shuffle_core_values(align, random);
         state.themeroom_align[dnum] = align;
         state._luathemes_loaded[dnum] = true;
     }
@@ -843,10 +846,7 @@ function dispatch_room_action(definition, context) {
 function blocked_center_contents(definition, origin, context) {
     if (context.random(100) < 30) {
         const terrain = [HWALL, POOL];
-        for (let i = terrain.length; i > 1; --i) {
-            const j = context.random(i);
-            [terrain[i - 1], terrain[j]] = [terrain[j], terrain[i - 1]];
-        }
+        shuffle_core_values(terrain, context.random);
         const toTerrain = terrain[0];
         for (let x = origin.x + 1; x <= origin.x + 9; ++x) {
             for (let y = origin.y + 1; y <= origin.y + 9; ++y) {

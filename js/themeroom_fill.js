@@ -108,12 +108,15 @@ function startMeltTimer(x, y, when, env) {
 function createTrap(type, flags, x, y, env) {
     const hook = env.hooks.createTrap;
     if (hook) return hook(type, flags, x, y, env);
-    const trapEnv = objectGenerationEnv({
+    return mktrap(type, flags, null, { x, y }, themedCreationEnv(env));
+}
+
+function themedCreationEnv(env) {
+    return objectGenerationEnv({
         state: env.state,
         random: env.random,
         hooks: env.hooks,
     });
-    return mktrap(type, flags, null, { x, y }, trapEnv);
 }
 
 function randomRoomCoordinate(room, env) {
@@ -130,20 +133,20 @@ function randomRoomCoordinate(room, env) {
     return coordinate;
 }
 
-function createObject(specification, room, env) {
-    const hook = env.hooks.createObject;
-    if (hook) return hook(specification, room, env);
-    const coordinate = specification.coordinate
+function themedCreationCoordinate(specification, room, env) {
+    return specification.coordinate
         ? {
             x: room.lx + specification.coordinate.x,
             y: room.ly + specification.coordinate.y,
         }
         : randomRoomCoordinate(room, env);
-    const objectEnv = objectGenerationEnv({
-        state: env.state,
-        random: env.random,
-        hooks: env.hooks,
-    });
+}
+
+function createObject(specification, room, env) {
+    const hook = env.hooks.createObject;
+    if (hook) return hook(specification, room, env);
+    const coordinate = themedCreationCoordinate(specification, room, env);
+    const objectEnv = themedCreationEnv(env);
     const object = specification.id != null
         ? mksobj_at(
             specification.id,
@@ -168,17 +171,8 @@ function createObject(specification, room, env) {
 function createMonster(specification, room, env) {
     const hook = env.hooks.createMonster;
     if (hook) return hook(specification, room, env);
-    const coordinate = specification.coordinate
-        ? {
-            x: room.lx + specification.coordinate.x,
-            y: room.ly + specification.coordinate.y,
-        }
-        : randomRoomCoordinate(room, env);
-    const monsterEnv = objectGenerationEnv({
-        state: env.state,
-        random: env.random,
-        hooks: env.hooks,
-    });
+    const coordinate = themedCreationCoordinate(specification, room, env);
+    const monsterEnv = themedCreationEnv(env);
     const monster = makemon(
         env.state.mons[specification.id],
         coordinate.x,
@@ -262,9 +256,7 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
                 coordinate,
                 notBlessed: true,
             }, room, env);
-            return true;
         }
-        return false;
     };
     equipment({ id: DAGGER }, 65);
     equipment({ class: WEAPON_CLASS }, 55);

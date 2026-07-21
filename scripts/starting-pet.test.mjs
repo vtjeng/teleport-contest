@@ -33,6 +33,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
+import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
 function startingPetState({
     petnum = NON_PM,
@@ -101,38 +102,12 @@ function startingPetState({
     return state;
 }
 
-const step = (kind, args, result) => ({ kind, args, result });
-
 function ringShuffleSteps() {
     const result = [];
     for (const size of [8, 16, 24])
         for (let bound = size; bound > 1; --bound)
             result.push(step('rn2', [bound], 0));
     return result;
-}
-
-function scriptedRandom(steps) {
-    let offset = 0;
-    function draw(kind, args) {
-        const expected = steps[offset++];
-        assert.ok(expected, `unexpected ${kind}(${args.join(',')})`);
-        assert.equal(kind, expected.kind);
-        assert.deepEqual(args, expected.args);
-        return expected.result;
-    }
-    return {
-        random: {
-            d: (number, sides) => draw('d', [number, sides]),
-            rn1: (range, base) => draw('rn1', [range, base]),
-            rn2: (bound) => draw('rn2', [bound]),
-            rnd: (bound) => draw('rnd', [bound]),
-            rne: (bound) => draw('rne', [bound]),
-            rnz: (value) => draw('rnz', [value]),
-        },
-        assertExhausted() {
-            assert.equal(offset, steps.length);
-        },
-    };
 }
 
 test('pet_type preserves fixed-role and preference precedence', () => {

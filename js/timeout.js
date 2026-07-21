@@ -255,41 +255,28 @@ export function start_timer(
     return true;
 }
 
-// Like remove_timer(), matching intentionally ignores kind because the C API
-// assumes each (function, argument) pair is unique.
-function remove_timer(funcIndex, arg, state) {
-    let previous = null;
-    let current = state.gt.timer_base;
-    while (current
-           && (current.func_index !== funcIndex || current.arg !== arg)) {
-        previous = current;
-        current = current.next;
-    }
-    if (!current) return null;
-    if (previous) previous.next = current.next;
-    else state.gt.timer_base = current.next;
-    current.next = null;
-    return current;
-}
-
 export function stop_timer(funcIndex, arg, state = game, env = {}) {
     timerGlobals(state);
+    // C assumes each (function, argument) pair is unique, so matching
+    // intentionally ignores kind.
+    let previous = null;
     let matched = null;
     for (let timer = state.gt.timer_base; timer; timer = timer.next) {
         if (timer.func_index === funcIndex && timer.arg === arg) {
             matched = timer;
             break;
         }
+        previous = timer;
     }
-    const cleanup = matched
-        ? preflightTimerCleanup(matched, state, env)
-        : null;
-    const timer = remove_timer(funcIndex, arg, state);
-    if (!timer) return 0;
-    if (timer.kind === TIMER_OBJECT)
+    if (!matched) return 0;
+    const cleanup = preflightTimerCleanup(matched, state, env);
+    if (previous) previous.next = matched.next;
+    else state.gt.timer_base = matched.next;
+    matched.next = null;
+    if (matched.kind === TIMER_OBJECT)
         arg.timed = Math.trunc(arg.timed ?? 0) - 1;
-    cleanupTimer(timer, state, cleanup);
-    return timer.timeout - currentMove(state);
+    cleanupTimer(matched, state, cleanup);
+    return matched.timeout - currentMove(state);
 }
 
 export function peek_timer(funcIndex, arg, state = game) {

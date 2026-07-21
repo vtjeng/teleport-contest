@@ -50,6 +50,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
+import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
 const MON_X = 10;
 const MON_Y = 5;
@@ -77,32 +78,6 @@ function initialLevelState() {
     objects_globals_init(state);
     return state;
 }
-
-function scriptedRandom(steps) {
-    let offset = 0;
-    function draw(kind, args) {
-        const step = steps[offset++];
-        assert.ok(step, `unexpected ${kind}(${args.join(',')})`);
-        assert.equal(kind, step.kind);
-        assert.deepEqual(args, step.args);
-        return step.result;
-    }
-    return {
-        random: {
-            d: (number, sides) => draw('d', [number, sides]),
-            rn1: (range, base) => draw('rn1', [range, base]),
-            rn2: (bound) => draw('rn2', [bound]),
-            rnd: (bound) => draw('rnd', [bound]),
-            rne: (bound) => draw('rne', [bound]),
-            rnz: (value) => draw('rnz', [value]),
-        },
-        assertExhausted() {
-            assert.equal(offset, steps.length);
-        },
-    };
-}
-
-const step = (kind, args, result) => ({ kind, args, result });
 
 function basicCreationSteps({ gender = true } = {}) {
     const steps = [

@@ -164,24 +164,36 @@ test('D:1 fill chooser follows source order and lit eligibility', () => {
         'Teleportation hub',
     ]);
 
-    const litBounds = [];
-    const litPick = select_themeroom_fill(1, { lit: true }, (bound) => {
-        litBounds.push(bound);
-        // Boulder is too difficult and Light source requires darkness. Garden
-        // is the fifth eligible entry, so replacing only at bound five picks it.
-        return bound === 5 ? 0 : bound - 1;
-    });
-    assert.equal(litPick.name, 'Garden');
-    assert.deepEqual(litBounds, Array.from({ length: 13 }, (_, index) => index + 1));
-
-    const darkBounds = [];
-    const darkPick = select_themeroom_fill(1, { lit: false }, (bound) => {
-        darkBounds.push(bound);
-        // With Garden excluded, Light source is the ninth eligible entry.
-        return bound === 9 ? 0 : bound - 1;
-    });
-    assert.equal(darkPick.name, 'Light source');
-    assert.deepEqual(darkBounds, Array.from({ length: 13 }, (_, index) => index + 1));
+    const cases = [
+        {
+            label: 'lit room',
+            lit: true,
+            // Boulder is too difficult and Light source requires darkness.
+            // Garden is the fifth eligible entry.
+            replacementBound: 5,
+            expectedName: 'Garden',
+        },
+        {
+            label: 'dark room',
+            lit: false,
+            // With Garden excluded, Light source is the ninth eligible entry.
+            replacementBound: 9,
+            expectedName: 'Light source',
+        },
+    ];
+    for (const testCase of cases) {
+        const bounds = [];
+        const pick = select_themeroom_fill(1, { lit: testCase.lit }, (bound) => {
+            bounds.push(bound);
+            return bound === testCase.replacementBound ? 0 : bound - 1;
+        });
+        assert.equal(pick.name, testCase.expectedName, testCase.label);
+        assert.deepEqual(
+            bounds,
+            Array.from({ length: 13 }, (_, index) => index + 1),
+            testCase.label,
+        );
+    }
 });
 
 test('fill eligibility includes Boulder starting at difficulty four', () => {

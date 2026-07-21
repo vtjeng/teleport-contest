@@ -19,10 +19,6 @@ import {
 import { init_rect } from '../js/rect.js';
 import { THEMEROOM_DEFINITIONS } from '../js/themeroom_data.js';
 
-function crossDefinition() {
-    return THEMEROOM_DEFINITIONS.find((definition) => definition.name === 'Cross');
-}
-
 function definitionById(id) {
     return THEMEROOM_DEFINITIONS.find((definition) => definition.id === id);
 }
@@ -64,7 +60,7 @@ test('lspo_map places a Cross without a build_room chance draw', () => {
     const state = { level: new GameMap() };
     const calls = [];
     const results = [30, 4];
-    const origin = lspo_map(crossDefinition(), (bound) => {
+    const origin = lspo_map(definitionById('cross'), (bound) => {
         calls.push(bound);
         assert.ok(results.length, `unexpected rn2(${bound})`);
         return results.shift();
@@ -88,7 +84,7 @@ test('lspo_map retries when the required stone halo is outside the map', () => {
     const state = { level: new GameMap() };
     const calls = [];
     const results = [0, 4, 30, 4];
-    const origin = lspo_map(crossDefinition(), (bound) => {
+    const origin = lspo_map(definitionById('cross'), (bound) => {
         calls.push(bound);
         assert.ok(results.length, `unexpected rn2(${bound})`);
         return results.shift();
@@ -342,7 +338,7 @@ test('filler_region invokes an injected fill after registering room flags', () =
     };
 
     assert.equal(dispatch_themeroom(
-        crossDefinition(),
+        definitionById('cross'),
         random,
         (bound) => bound,
         {
