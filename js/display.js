@@ -22,6 +22,7 @@ import {
     HI_DOMESTIC, HI_METAL,
 } from './const.js';
 import {
+    ATR_INVERSE,
     NO_COLOR,
     CLR_BLACK,
     CLR_BLUE,
@@ -40,6 +41,7 @@ import { rankOf } from './roles.js';
 import { m_at } from './monst.js';
 import { dist2 } from './hacklib.js';
 import { observe_object } from './o_init.js';
+import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
 import {
     BOULDER,
@@ -54,6 +56,7 @@ import {
 } from './objects.js';
 import {
     cmap_symbol,
+    cmap_symbol_byte,
     glyph_customization,
     misc_symbol,
     monster_class_symbol,
@@ -79,8 +82,10 @@ import {
     S_vcdoor,
     S_hcdoor,
     S_room,
+    S_engroom,
     S_corr,
     S_litcorr,
+    S_engrcorr,
     S_upstair,
     S_dnstair,
     S_brupstair,
@@ -584,16 +589,43 @@ export function show_glyph_cell(
     }
     loc.disp_browser_ch = displayCh;
     loc.disp_browser_color = displayCh ? color : null;
+    loc.disp_browser_attr = displayCh ? attr | 0 : null;
     loc.gnew = 1;
 }
 
 function rememberedMapGlyph(glyph) {
-    return {
+    const remembered = {
         ch: glyph.ch,
         color: glyph.color,
         decgfx: glyph.dec,
         displayCh: glyph.displayCh ?? null,
     };
+    if (glyph.attr) remembered.attr = glyph.attr;
+    return remembered;
+}
+
+// C refs: engrave.h engraving_to_defsym()/spot_shows_engravings();
+// display.c map_engraving(). Ice uses the room engraving symbol.
+function engravingGlyph(engraving, loc, state) {
+    if (!engraving?.erevealed
+        || (loc.typ !== ROOM && loc.typ !== ICE && loc.typ !== CORR)) {
+        return null;
+    }
+    const glyph = terrainCmap(
+        loc.typ === CORR ? S_engrcorr : S_engroom,
+        CLR_BRIGHT_BLUE,
+        state,
+    );
+    if (loc.typ === CORR && state.iflags?.wc_inverse !== false) {
+        const engraved = cmap_symbol_byte(S_engrcorr, state);
+        if (engraved === cmap_symbol_byte(S_corr, state)
+            || engraved === cmap_symbol_byte(S_litcorr, state)) {
+            // display.c:reset_glyphmap() marks an otherwise indistinguishable
+            // corridor engraving with MG_BW_ENGR; tty uses inverse video.
+            glyph.attr = ATR_INVERSE;
+        }
+    }
+    return glyph;
 }
 
 function observeNearbyObject(object, x, y, state) {
@@ -609,16 +641,24 @@ export function newsym(x, y) {
     const loc = game.level?.at(x, y);
     if (!loc) return;
 
+    const visible = cansee(x, y);
+    const engraving = engr_at(x, y, game);
+    // display.c:newsym() reveals a visible engraving even when an object,
+    // monster, or the hero currently covers its glyph.
+    if (visible && engraving) engraving.erevealed = true;
+
     const object = game.level?.objects?.[x]?.[y] ?? null;
     if (object) observeNearbyObject(object, x, y, game);
     const underlying = object
         ? object_glyph_info(object, game)
-        : terrain_glyph(loc, x, y);
+        : engravingGlyph(engraving, loc, game)
+            ?? terrain_glyph(loc, x, y);
 
     if (game.u?.ux === x && game.u?.uy === y) {
         const hero = hero_glyph_info(game);
         show_glyph_cell(
-            x, y, hero.ch, hero.color, hero.dec, 0, hero.displayCh ?? null,
+            x, y, hero.ch, hero.color, hero.dec, hero.attr ?? 0,
+            hero.displayCh ?? null,
         );
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph = rememberedMapGlyph(underlying);
@@ -626,7 +666,7 @@ export function newsym(x, y) {
     }
 
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
-    if (cansee(x, y)) {
+    if (visible) {
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph = rememberedMapGlyph(underlying);
         const monster = m_at(x, y, game);
@@ -639,13 +679,14 @@ export function newsym(x, y) {
             shown.ch,
             shown.color,
             shown.dec,
-            0,
+            shown.attr ?? 0,
             shown.displayCh ?? null,
         );
     } else if (loc.remembered_glyph) {
         // Out of sight but remembered — show remembered glyph
         show_glyph_cell(x, y, loc.remembered_glyph.ch,
-            loc.remembered_glyph.color, loc.remembered_glyph.decgfx, 0,
+            loc.remembered_glyph.color, loc.remembered_glyph.decgfx,
+            loc.remembered_glyph.attr ?? 0,
             loc.remembered_glyph.displayCh);
     }
 }
@@ -912,7 +953,9 @@ function _buildScreenOutput() {
                     browserGlyphs && loc.disp_browser_ch
                         ? loc.disp_browser_color ?? loc.disp_color ?? NO_COLOR
                         : loc.disp_color ?? NO_COLOR,
-                    loc.disp_attr ?? 0,
+                    browserGlyphs && loc.disp_browser_ch
+                        ? loc.disp_browser_attr ?? 0
+                        : loc.disp_attr ?? 0,
                 );
             }
         }

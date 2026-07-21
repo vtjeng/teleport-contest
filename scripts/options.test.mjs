@@ -56,6 +56,7 @@ test('startup option defaults use source role indices and zero roleplay', () => 
             verbose: parsed.flags.verbose,
             splash: parsed.iflags.wc_splash_screen,
             color: parsed.iflags.wc_color,
+            inverse: parsed.iflags.wc_inverse,
         },
         {
             pickup: false,
@@ -65,6 +66,7 @@ test('startup option defaults use source role indices and zero roleplay', () => 
             verbose: true,
             splash: true,
             color: true,
+            inverse: true,
         },
     );
     assert.equal(parsed.playmode, 'normal');
@@ -292,6 +294,19 @@ test('tty menu presentation options populate interface flags', () => {
             invalid,
         );
     }
+});
+
+test('use_inverse owns the tty inverse-video interface flag', () => {
+    assert.equal(parseNethackrc('').iflags.wc_inverse, true);
+    assert.equal(
+        parseNethackrc('OPTIONS=!use_inverse').iflags.wc_inverse,
+        false,
+    );
+    assert.equal(
+        parseNethackrc('OPTIONS=!use_inverse,use_inverse').iflags.wc_inverse,
+        false,
+        'parseoptions applies comma-separated suffixes first',
+    );
 });
 
 test('menu command options preserve source alias order and require full names', () => {

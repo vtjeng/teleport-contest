@@ -61,8 +61,10 @@ export const S_hcdoor = 16;
 export const S_bars = 17;
 export const S_tree = 18;
 export const S_room = 19;
+export const S_engroom = 21;
 export const S_corr = 22;
 export const S_litcorr = 23;
+export const S_engrcorr = 24;
 export const S_upstair = 25;
 export const S_dnstair = 26;
 export const S_brupstair = 29;
@@ -440,6 +442,14 @@ function rawSymbol(index, state) {
         ?? state.gp?.primary_syms?.[index]
         ?? DEFAULT_PRIMARY_SYMBOLS[index]
         ?? '?'.charCodeAt(0);
+}
+
+// display.c:reset_glyphmap() compares gs.showsyms bytes before the tty port
+// interprets their high bit. Keep that comparison distinct from presentation.
+export function cmap_symbol_byte(index, state = game) {
+    if (!Number.isInteger(index) || index < 0 || index >= MAXPCHARS)
+        throw new RangeError(`cmap index ${index} is outside MAXPCHARS`);
+    return rawSymbol(SYM_OFF_P + index, state);
 }
 
 /** Convert any absolute symbols.c index to recorder/browser presentation. */

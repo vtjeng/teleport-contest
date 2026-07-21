@@ -9,6 +9,7 @@ import {
     CORR,
     CROSSWALL,
     D_CLOSED,
+    DUST,
     DOOR,
     FOUNTAIN,
     HWALL,
@@ -33,6 +34,7 @@ import {
     object_glyph_info,
     terrain_glyph,
 } from '../js/display.js';
+import { make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -46,6 +48,8 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import {
+    ATR_INVERSE,
+    CLR_BRIGHT_BLUE,
     CLR_RED,
     CLR_WHITE,
     CLR_YELLOW,
@@ -468,6 +472,91 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
         color: CLR_YELLOW,
         dec: false,
     });
+});
+
+test('newsym reveals visible engravings beneath higher-priority layers', () => {
+    const state = resetGame();
+    const x = 7;
+    const y = 4;
+    state.level = new GameMap();
+    state.level.at(x, y).typ = ROOM;
+    state.u = { ux: 1, uy: 1 };
+    state.flags = {};
+    state.objects = [];
+    state.objects[42] = { oc_color: CLR_YELLOW };
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2; // vision.h IN_SIGHT
+
+    const engraving = make_engr_at(
+        x,
+        y,
+        'source-shaped',
+        null,
+        0,
+        DUST,
+        { state },
+    );
+    assert.equal(engraving.erevealed, false);
+
+    newsym(x, y);
+    assert.equal(engraving.erevealed, true);
+    assert.equal(state.level.at(x, y).disp_ch, '`');
+    assert.equal(state.level.at(x, y).disp_color, CLR_BRIGHT_BLUE);
+    assert.deepEqual(state.level.at(x, y).remembered_glyph, {
+        ch: '`',
+        color: CLR_BRIGHT_BLUE,
+        decgfx: false,
+        displayCh: null,
+    });
+
+    state.level.objects[x][y] = { otyp: 42, oclass: WEAPON_CLASS };
+    newsym(x, y);
+    assert.equal(engraving.erevealed, true);
+    assert.equal(state.level.at(x, y).disp_ch, ')');
+    assert.equal(state.level.at(x, y).remembered_glyph.ch, ')');
+
+    state.level.objects[x][y] = null;
+    state.level.at(x, y).typ = CORR;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '#');
+    assert.equal(state.level.at(x, y).disp_color, CLR_BRIGHT_BLUE);
+    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
+    assert.equal(
+        state.level.at(x, y).remembered_glyph.attr,
+        ATR_INVERSE,
+    );
+
+    state.viz_array[y][x] = 0;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
+
+    state.viz_array[y][x] = 0x2;
+    state.iflags = { wc_inverse: false };
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_attr, 0);
+
+    const metaEngraving = parseNethackrc(
+        String.raw`SYMBOLS=S_engrcorr:\m#`,
+    );
+    state.iflags = { ...metaEngraving.iflags };
+    initialize_symbols_from_options(metaEngraving, state);
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '#');
+    assert.equal(state.level.at(x, y).disp_attr, 0);
+
+    const enhanced = parseNethackrc('OPTIONS=symset:Enhanced1');
+    state.iflags = { ...enhanced.iflags };
+    initialize_symbols_from_options(enhanced, state);
+    newsym(x, y);
+    assert.ok(state.level.at(x, y).disp_browser_ch);
+    assert.equal(state.level.at(x, y).disp_browser_attr, ATR_INVERSE);
+    assert.equal(
+        state.level.at(x, y).disp_attr,
+        0,
+        'a UTF-8 browser glyph does not mutate the recorder-facing cell',
+    );
 });
 
 test('unobserved floor objects use the source generic class glyph', () => {

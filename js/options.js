@@ -238,6 +238,7 @@ function defaultResult() {
         },
         iflags: {
             wc_color: true,
+            wc_inverse: true,
             wc_splash_screen: true,
             wc_eight_bit_input: false,
             customcolors: true,
@@ -1048,6 +1049,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
     else if (name === 'color') {
         result.flags.color = enabled;
         result.iflags.wc_color = enabled;
+    } else if (name === 'use_inverse') {
+        result.iflags.wc_inverse = enabled;
     } else if (name === 'legacy') result.flags.legacy = enabled;
     else if (name === 'tutorial') {
         result.flags.tutorial = enabled;
