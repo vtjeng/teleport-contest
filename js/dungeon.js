@@ -108,6 +108,8 @@ function get_dgn_align(rawAlignment = 'unaligned') {
     return ALIGN_VALUES[rawAlignment];
 }
 
+// `pd` is init_dungeons()'s per-call working state, mirroring C's
+// `struct proto_dungeon` across these source-shaped loader helpers.
 function find_temp_level(pd, name, end) {
     for (let index = 0; index < end; ++index) {
         if (pd.tmplevel[index]?.name === name)

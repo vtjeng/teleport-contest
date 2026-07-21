@@ -89,6 +89,7 @@ test('elven instrument eligibility and roll use the local source table', () => {
     const rolled = rollElfStartingInstrument({
         rn2(bound) {
             calls.push(bound);
+            // Index 4 selects BUGLE from the six-entry source table.
             return 4;
         },
     });

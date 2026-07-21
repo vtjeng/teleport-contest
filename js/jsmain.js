@@ -3,9 +3,9 @@
 //
 // Contest contract: the judge orchestrates sessions (load JSON,
 // normalize v4/v5, loop segments, aggregate scores). It calls
-// runSegment(segment, prevGame) for each game segment and reads back
+// runSegment(input) for each game segment and reads back
 // game.getScreens() / getRngLog() / getCursors() to compare with
-// C-recorded session data.
+// C-recorded session data. Cross-segment state travels through input.storage.
 //
 // For browser play, see nethack.js (uses NethackGame directly).
 
@@ -233,18 +233,19 @@ export class NethackGame {
 // ── Per-segment runner — the contest contract ──
 //
 // The judge calls this once per segment. Input is a clean replay
-// descriptor with up to five fields (NO recorded answers):
+// descriptor with up to six fields (NO recorded answers):
 //
-//   { seed: number,        // PRNG seed
-//     datetime: string,    // fixed datetime "YYYYMMDDHHMMSS"
-//     nethackrc: string,   // game-options rc text
-//     moves: string,       // raw key sequence to replay from launch
-//     storage: object }    // Web-Storage-shaped (getItem/setItem/...)
-//                          //   handle for cross-segment persistence —
-//                          //   shared across all segments of a
-//                          //   session. The browser passes a
-//                          //   localStorage-backed view so save files
-//                          //   survive page reload too.
+//   { seed: number,           // PRNG seed
+//     datetime: string,       // fixed datetime "YYYYMMDDHHMMSS"
+//     nethackrc: string,      // game-options rc text
+//     moves: string,          // raw key sequence to replay from launch
+//     recorderIsDst: boolean, // recorder tm_isdst bit; defaults to true
+//     storage: object }       // Web-Storage-shaped (getItem/setItem/...)
+//                             //   handle for cross-segment persistence —
+//                             //   shared across all segments of a
+//                             //   session. The browser passes a
+//                             //   localStorage-backed view so save files
+//                             //   survive page reload too.
 //
 // Each call returns a self-contained game whose getScreens() /
 // getRngLog() / getCursors() / getAnimationFramesByStep() cover ONLY

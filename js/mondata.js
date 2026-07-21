@@ -1,5 +1,6 @@
-// Monster growth and species relationships.
-// C refs: src/mondata.c grownups[], little_to_big(), big_to_little();
+// Monster name parsing, growth, and species relationships.
+// C refs: src/mondata.c name_to_monplus(), name_to_mon(), grownups[],
+// little_to_big(), big_to_little(); src/botl.c title_to_mon();
 // src/mon.c undead_to_corpse(), can_be_hatched(), dead_species().
 
 import {

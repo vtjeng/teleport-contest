@@ -439,7 +439,8 @@ function initialResponse(response) {
 }
 
 /**
- * Enter role.c:genl_player_setup() and run until the first input menu.
+ * Enter role.c:genl_player_setup() and run until the first input boundary:
+ * either the initial y/n/a/q prompt or a PICK_ONE facet menu.
  *
  * The returned context preserves `picksomething`, which C snapshots before
  * rigid_role_checks(). If status is `prompt`, pass the same context to

@@ -201,6 +201,8 @@ test('manual Random uses the facet picker before continuing manual menus', () =>
     const state = selectionState(
         ROLE_NONE, ROLE_NONE, ROLE_NONE, ROLE_NONE,
     );
+    // Index 9 chooses Samurai from the 13-role menu. Its sole human race is
+    // then filled without another draw before manual gender selection.
     const random = scriptedRandom([9]);
     let context = prepare_player_selection(state, random);
     context = answer_initial_player_selection(
@@ -251,6 +253,8 @@ test('confirmation no restarts manually while quit leaves facets intact', () => 
     const state = selectionState(
         ROLE_NONE, ROLE_NONE, ROLE_NONE, ROLE_NONE,
     );
+    // Choose Wizard and the first compatible race, gender, and alignment to
+    // reach confirmation; the selected tuple itself is not special here.
     const random = scriptedRandom([12, 0, 0, 0]);
     const prepared = prepare_player_selection(state, random);
     const confirmation = answer_initial_player_selection(

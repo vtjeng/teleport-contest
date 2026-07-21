@@ -1,4 +1,4 @@
-// Object and monster naming data.
+// Novel-title data used when naming spellbooks.
 // C ref: src/do_name.c sir_Terry_novels[] and noveltitle().
 
 import { rn2 } from './rng.js';

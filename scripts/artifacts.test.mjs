@@ -7,18 +7,23 @@ import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
     ART_EYE_OF_THE_AETHIOPICA,
+    ART_GRIMTOOTH,
     ART_MAGICBANE,
     ART_MAGIC_MIRROR_OF_MERLIN,
     ART_MITRE_OF_HOLINESS,
+    ART_ORCRIST,
+    ART_STING,
     AFTER_LAST_ARTIFACT,
     NROFARTIFACTS,
     createArtifactTable,
     init_artifacts,
 } from '../js/artifacts.js';
 import { A_NONE, NON_PM } from '../js/const.js';
+import { PM_ELF, PM_ORC } from '../js/monsters.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     ROLE_ALIGNMASK,
+    ROLE_ALIGNS,
     ROLE_RACEMASK,
     aligns,
     races,
@@ -112,7 +117,7 @@ test('init_artifacts clears source-shaped tracking arrays without RNG', () => {
 
 test('hack_artifacts applies role fixups in C evaluation order', () => {
     for (const role of roles) {
-        for (let alignIndex = 0; alignIndex < 3; ++alignIndex) {
+        for (let alignIndex = 0; alignIndex < ROLE_ALIGNS; ++alignIndex) {
             const alignment = aligns[alignIndex];
             if (!(role.allow & alignment.allow & ROLE_ALIGNMASK)) continue;
 
@@ -168,9 +173,9 @@ test('role and race-sensitive records keep their distinct startup behavior', () 
 
     // hack_artifacts() does not rewrite race restrictions: Grimtooth remains
     // orc-linked while the two elven blades remain elf-linked.
-    assert.equal(wizard.artilist[5].race, 72);
-    assert.equal(wizard.artilist[6].race, 264);
-    assert.equal(wizard.artilist[7].race, 264);
+    assert.equal(wizard.artilist[ART_GRIMTOOTH].race, PM_ORC);
+    assert.equal(wizard.artilist[ART_ORCRIST].race, PM_ELF);
+    assert.equal(wizard.artilist[ART_STING].race, PM_ELF);
 
     const knight = stateFor('Kni', 'lawful');
     init_artifacts(knight);
