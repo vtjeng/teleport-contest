@@ -31,6 +31,54 @@ import {
 } from './tutorial_startup.js';
 import { moveloop_preamble } from './moveloop_preamble.js';
 import { initialize_symbols_from_options } from './symbols.js';
+import { ttyPline } from './tty_message.js';
+
+function buildEnglishList(value) {
+    const words = String(value).trim().split(/\s+/u).filter(Boolean);
+    if (words.length < 2) return words[0] ?? '';
+    if (words.length === 2) return `${words[0]} or ${words[1]}`;
+    return `${words.slice(0, -1).join(', ')}, or ${words.at(-1)}`;
+}
+
+// C ref: sys/unix/unixmain.c wd_message().  Authorization belongs to the
+// future set_playmode() port; this reproduces the messages and state cleanup
+// for the mode decision already stored on the game state.
+export async function wd_message(
+    state = game,
+    { pline = ttyPline } = {},
+) {
+    const iflags = state.iflags ??= {};
+    const flags = state.flags ??= {};
+
+    if (iflags.wiz_error_flag) {
+        const wizards = String(state.sysopt?.wizards ?? '');
+        if (wizards.length) {
+            await pline(
+                `Only user${wizards.includes(' ') ? 's' : ''} `
+                    + `${buildEnglishList(wizards)} may access debug `
+                    + '(wizard) mode.',
+                state,
+            );
+        } else {
+            await pline('You cannot access debug (wizard) mode.', state);
+        }
+        state.wizard = false;
+        flags.debug = false;
+        if (!iflags.explore_error_flag) {
+            await pline('Entering explore/discovery mode instead.', state);
+        }
+    } else if (iflags.explore_error_flag) {
+        await pline('You cannot access explore mode.', state);
+        state.discover = false;
+        flags.explore = false;
+        iflags.deferred_X = false;
+    } else if (state.discover) {
+        await pline(
+            'You are in non-scoring explore/discovery mode.',
+            state,
+        );
+    }
+}
 
 // ── NethackGame ──
 // Wraps a single game session with replay infrastructure.
@@ -177,6 +225,10 @@ export class NethackGame {
 
         // Run game startup
         await newgame();
+        // C ref: sys/unix/unixmain.c nethack_main().  This boundary must
+        // precede moveloop(): an existing welcome message can force More
+        // before the explore-mode notice and preamble RNG effects.
+        await wd_message(g);
         // C ref: allmain.c moveloop(FALSE).  The preamble's messages and RNG
         // effects precede the optional tutorial query.
         await moveloop_preamble(false, g);

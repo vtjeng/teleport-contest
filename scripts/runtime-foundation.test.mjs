@@ -4,7 +4,7 @@ import test from 'node:test';
 import { PATCHLEVEL, VERSION_MAJOR, VERSION_MINOR } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegment, wd_message } from '../js/jsmain.js';
 import { str2role } from '../js/roles.js';
 import {
     d,
@@ -231,6 +231,86 @@ test('runSegment reaches the configured legacy introduction boundary', async () 
     assert.match(screen, /It is written in the Book of Ishtar:/u);
     assert.match(screen, /Your goddess Ishtar seeks to possess/u);
     assert.equal(nhGame.getCursors().length, 1);
+});
+
+test('explore notice preserves the welcome boundary before preamble RNG', async () => {
+    const input = {
+        // This independently chosen seed exercises the complete new-game path;
+        // mode messaging itself is deterministic and must not consume draws.
+        seed: 9_753_186,
+        // An ordinary weekday avoids lunar and Friday messages after startup.
+        datetime: '20260129120000',
+        nethackrc: 'OPTIONS=name:FreshDiff,role:Healer,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=playmode:explore,!legacy,!tutorial,!splash_screen',
+    };
+    const pending = await runSegment({ ...input, moves: '' });
+    assert.equal(pending.getScreens().length, 1);
+    const pendingRows = game.nhDisplay.grid.map(
+        (row) => row.map((cell) => cell.ch).join(''),
+    );
+    assert.equal(
+        pendingRows[0].trimEnd(),
+        'Hello FreshDiff, welcome to NetHack!  '
+            + 'You are a neutral male human Healer.',
+    );
+    assert.equal(pendingRows[1].trimEnd(), '--More--');
+    assert.equal(game.context.rndencode, undefined);
+    assert.equal(game.context.seer_turn, undefined);
+    assert.equal(game.program_state.in_moveloop, undefined);
+
+    const continued = await runSegment({ ...input, moves: ' ' });
+    assert.equal(continued.getScreens().length, 2);
+    const commandRows = game.nhDisplay.grid.map(
+        (row) => row.map((cell) => cell.ch).join(''),
+    );
+    assert.equal(
+        commandRows[0].trimEnd(),
+        'You are in non-scoring explore/discovery mode.',
+    );
+    assert.deepEqual(
+        continued.getCursors()[1],
+        [game.u.ux - 1, game.u.uy + 1, 1],
+    );
+    assert.deepEqual(
+        continued.getRngSlices()[1].map((entry) => (
+            entry.replace(/=.*/u, '')
+        )),
+        ['rnd(9000)', 'rnd(30)'],
+    );
+    assert.equal(game.program_state.in_moveloop, 1);
+});
+
+test('wd_message preserves denied-mode message and cleanup order', async () => {
+    const messages = [];
+    const pline = async (message) => messages.push(message);
+    const deniedWizard = {
+        wizard: true,
+        discover: true,
+        flags: { debug: true, explore: true },
+        iflags: { wiz_error_flag: true },
+        sysopt: { wizards: 'root games admin' },
+    };
+    await wd_message(deniedWizard, { pline });
+    assert.deepEqual(messages, [
+        'Only users root, games, or admin may access debug (wizard) mode.',
+        'Entering explore/discovery mode instead.',
+    ]);
+    assert.equal(deniedWizard.wizard, false);
+    assert.equal(deniedWizard.flags.debug, false);
+    assert.equal(deniedWizard.discover, true);
+
+    messages.length = 0;
+    const deniedExplore = {
+        discover: true,
+        flags: { explore: true },
+        iflags: { explore_error_flag: true, deferred_X: true },
+    };
+    await wd_message(deniedExplore, { pline });
+    assert.deepEqual(messages, ['You cannot access explore mode.']);
+    assert.equal(deniedExplore.discover, false);
+    assert.equal(deniedExplore.flags.explore, false);
+    assert.equal(deniedExplore.iflags.deferred_X, false);
 });
 
 test('runSegment shows welcome More before an unset tutorial query', async () => {
