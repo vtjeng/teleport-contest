@@ -31,6 +31,20 @@ function resetThemeroomLevel() {
     init_rect();
 }
 
+function completeRandomFacade(random, randomOneBased, replacements = {}) {
+    const unexpected = (name) => () => {
+        assert.fail(`unexpected ${name} call`);
+    };
+    return {
+        d: replacements.d ?? unexpected('d'),
+        rn1: replacements.rn1 ?? unexpected('rn1'),
+        rn2: random,
+        rnd: randomOneBased,
+        rne: replacements.rne ?? unexpected('rne'),
+        rnz: replacements.rnz ?? unexpected('rnz'),
+    };
+}
+
 test('themeroom reservoir selects Cross in source order', () => {
     const bounds = [];
     const selected = select_themeroom(1, (bound) => {
@@ -197,15 +211,21 @@ test('generic room descriptors set topology and flags before synchronous content
         let callbackCount = 0;
         const random = () => 0;
         const randomOneBased = (bound) => bound;
+        const randomFacade = completeRandomFacade(random, randomOneBased);
         const result = dispatch_themeroom(
             definitionById(id),
             random,
             randomOneBased,
             {
                 difficulty: 1,
-                themeroomFill(room) {
+                randomFacade,
+                themeroomFill(room, difficulty, callbackEnv) {
                     ++callbackCount;
                     assert.equal(phase, 'dispatching');
+                    assert.equal(difficulty, 1);
+                    assert.equal(typeof difficulty, 'number');
+                    assert.equal(callbackEnv.state, game);
+                    assert.equal(callbackEnv.random, randomFacade);
                     assert.equal(room.rtype, roomType);
                     assert.equal(room.needfill, needfill);
                     assert.equal(room.needjoining, true);
@@ -317,6 +337,63 @@ test('strict map dispatch preflights its fill callback before loading terrain', 
     assert.equal(game.level.at(31, 4).typ, STONE);
 });
 
+test('strict map dispatch preflights its fill callback RNG contract', () => {
+    const cases = [
+        {
+            name: 'integer difficulty',
+            expected: /integer difficulty/,
+            configure(random, randomOneBased) {
+                return {
+                    difficulty: '1',
+                    randomFacade: completeRandomFacade(random, randomOneBased),
+                    themeroomFill() {},
+                };
+            },
+        },
+        {
+            name: 'complete facade',
+            expected: /randomFacade\.rnz/,
+            configure(random, randomOneBased) {
+                const randomFacade = completeRandomFacade(random, randomOneBased);
+                delete randomFacade.rnz;
+                return { difficulty: 1, randomFacade, themeroomFill() {} };
+            },
+        },
+        {
+            name: 'shared scalar streams',
+            expected: /randomFacade\.rn2\/rnd to match/,
+            configure(random, randomOneBased) {
+                const randomFacade = completeRandomFacade(random, randomOneBased);
+                randomFacade.rn2 = () => 0;
+                return { difficulty: 1, randomFacade, themeroomFill() {} };
+            },
+        },
+    ];
+
+    for (const contractCase of cases) {
+        resetThemeroomLevel();
+        let randomCalls = 0;
+        const random = () => { ++randomCalls; return 0; };
+        const randomOneBased = (bound) => bound;
+
+        assert.throws(
+            () => dispatch_themeroom(
+                definitionById('cross'),
+                random,
+                randomOneBased,
+                contractCase.configure(random, randomOneBased),
+            ),
+            contractCase.expected,
+            contractCase.name,
+        );
+        assert.equal(randomCalls, 0, contractCase.name);
+        assert.equal(game.level.nroom, 0, contractCase.name);
+        // Cross would write its top wall here if contract validation happened
+        // after lspo_map's terrain mutation.
+        assert.equal(game.level.at(34, 4).typ, STONE, contractCase.name);
+    }
+});
+
 test('all static filler-map descriptors dispatch through filler_region', () => {
     const fillerMaps = THEMEROOM_DEFINITIONS.filter(
         (definition) => definition.action.kind === 'map'
@@ -328,13 +405,19 @@ test('all static filler-map descriptors dispatch through filler_region', () => {
 
     for (const definition of fillerMaps) {
         resetThemeroomLevel();
+        const random = (bound) => Math.floor(bound / 2);
+        const randomOneBased = (bound) => bound;
         const result = dispatch_themeroom(
             definition,
             // Midpoint origins keep every map and its one-cell halo in bounds;
             // rn2(100)=50 selects filler_region's ordinary 70% branch.
-            (bound) => Math.floor(bound / 2),
-            (bound) => bound,
-            { difficulty: 1, themeroomFill() {} },
+            random,
+            randomOneBased,
+            {
+                difficulty: 1,
+                randomFacade: completeRandomFacade(random, randomOneBased),
+                themeroomFill() {},
+            },
         );
         assert.equal(result, true, definition.id);
         assert.equal(game.level.nroom, 1, definition.id);
@@ -393,13 +476,14 @@ test('Blocked center uses core shuffle and matching-cell chance draws in order',
         assert.equal(bound, 2); // rnd(1 + abs(depth)) at depth one
         return 2;
     };
+    const randomFacade = completeRandomFacade(random, randomOneBased);
 
     assert.equal(
         dispatch_themeroom(
             definitionById('blocked-center'),
             random,
             randomOneBased,
-            { difficulty: 1, themeroomFill() {} },
+            { difficulty: 1, randomFacade, themeroomFill() {} },
         ),
         true,
     );
@@ -433,13 +517,18 @@ test('Blocked center replace_terrain scans matching cells x-major', () => {
         assert.equal(bound, 100);
         return 0;
     };
+    const randomOneBased = (bound) => bound;
 
     assert.throws(
         () => dispatch_themeroom(
             definitionById('blocked-center'),
             random,
-            (bound) => bound,
-            { difficulty: 1, themeroomFill() {} },
+            randomOneBased,
+            {
+                difficulty: 1,
+                randomFacade: completeRandomFacade(random, randomOneBased),
+                themeroomFill() {},
+            },
         ),
         (error) => error === stop,
     );
@@ -464,15 +553,39 @@ test('filler_region invokes an injected fill after registering room flags', () =
         assert.equal(bound, next[0]);
         return next[1];
     };
+    const randomOneBased = (bound) => bound;
+    const methods = Object.fromEntries(
+        ['d', 'rn1', 'rne', 'rnz'].map((name) => [name, () => {
+            assert.fail(`callback must not call random.${name}`);
+        }]),
+    );
+    const randomFacade = completeRandomFacade(
+        random,
+        randomOneBased,
+        methods,
+    );
+    const expectedMethods = {
+        ...methods,
+        rn2: random,
+        rnd: randomOneBased,
+    };
 
     assert.equal(dispatch_themeroom(
         definitionById('cross'),
         random,
-        (bound) => bound,
+        randomOneBased,
         {
             difficulty: 1,
-            themeroomFill(room) {
+            randomFacade,
+            themeroomFill(room, difficulty, callbackEnv) {
                 ++callbackCount;
+                assert.equal(difficulty, 1);
+                assert.equal(callbackEnv.state, game);
+                assert.equal(callbackEnv.random, randomFacade);
+                assert.deepEqual(Object.keys(callbackEnv).sort(), ['random', 'state']);
+                for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
+                    assert.equal(callbackEnv.random[name], expectedMethods[name], name);
+                }
                 assert.equal(room.rtype, THEMEROOM);
                 assert.equal(room.irregular, true);
                 assert.equal(room.needjoining, true);

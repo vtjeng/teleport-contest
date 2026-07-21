@@ -16,6 +16,7 @@ import {
     ThemeroomSelection,
     is_themeroom_fill_eligible,
     selection_area,
+    selection_iterate,
     selection_negate,
     selection_room,
     select_themeroom_fill,
@@ -45,6 +46,12 @@ test('selection percentage is x-major while iteration is y-major', () => {
     assert.deepEqual(selectedPoints(selection), [
         [2, 3], [3, 3],
         [2, 4], [3, 4],
+    ]);
+    const cTraversal = [];
+    selection_iterate(selection, (x, y) => cTraversal.push([x, y]));
+    assert.deepEqual(cTraversal, [
+        [2, 3], [2, 4],
+        [3, 3], [3, 4],
     ]);
 });
 

@@ -6,15 +6,18 @@ import {
     BURN_OBJECT,
     ICE,
     LS_OBJECT,
+    MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
     OBJ_FLOOR,
     ROOM,
     ROOMOFFSET,
     STRAT_WAITFORU,
+    TIMER_LEVEL,
     TIMER_OBJECT,
     WEB,
 } from '../js/const.js';
+import { init_artifacts } from '../js/artifacts.js';
 import { GameMap } from '../js/game.js';
 import { light_globals_init } from '../js/light.js';
 import {
@@ -34,12 +37,14 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
+    PM_ARCHEOLOGIST,
     PM_GHOST,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
 import {
     peek_timer,
+    start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
@@ -70,6 +75,18 @@ function twoByTwoRoom() {
     return { level, room };
 }
 
+function threeByTwoRoom() {
+    const { level, room } = twoByTwoRoom();
+    room.hx = 4;
+    for (let y = room.ly; y <= room.hy; ++y) {
+        const location = level.at(room.hx, y);
+        location.typ = ROOM;
+        location.roomno = ROOMOFFSET;
+        location.edge = false;
+    }
+    return { level, room };
+}
+
 function randomWithRn2(rn2) {
     return {
         d: () => { throw new Error('unexpected d'); },
@@ -84,6 +101,7 @@ function randomWithRn2(rn2) {
 test('Ice room selects in source order and starts timers y-major', () => {
     const { level, room } = twoByTwoRoom();
     const calls = [];
+    const terrain = [];
     const timers = [];
     let reservoirCalls = 0;
     const random = randomWithRn2((bound) => {
@@ -103,6 +121,7 @@ test('Ice room selects in source order and starts timers y-major', () => {
         hooks: {
             setTerrain(x, y, typ) {
                 assert.equal(typ, ICE);
+                terrain.push([x, y]);
                 level.at(x, y).typ = typ;
             },
             startMeltTimer(x, y, when) {
@@ -114,6 +133,10 @@ test('Ice room selects in source order and starts timers y-major', () => {
     assert.equal(chosen.id, 'ice_room');
     assert.deepEqual(calls.slice(0, 13), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
     assert.deepEqual(calls.slice(13), [100, 1000, 1000, 1000, 1000]);
+    assert.deepEqual(terrain, [
+        [2, 3], [2, 4],
+        [3, 3], [3, 4],
+    ]);
     assert.deepEqual(timers, [
         [2, 3, 900], [3, 3, 901],
         [2, 4, 902], [3, 4, 903],
@@ -121,8 +144,11 @@ test('Ice room selects in source order and starts timers y-major', () => {
 });
 
 test('Spider nest samples x-major and creates webs y-major', () => {
-    const { level, room } = twoByTwoRoom();
-    const percentageDraws = [0, 99, 0, 99];
+    const { level, room } = threeByTwoRoom();
+    // X-major sampling retains <2,4> and <4,3>. Those points reverse under
+    // the Lua callback's y-major traversal, so this fixture distinguishes
+    // both the percentage draw order and the later callback order.
+    const percentageDraws = [99, 0, 99, 99, 0, 99];
     const bounds = [];
     const traps = [];
     const random = randomWithRn2((bound) => {
@@ -141,17 +167,19 @@ test('Spider nest samples x-major and creates webs y-major', () => {
         },
     });
 
-    assert.deepEqual(bounds, [100, 100, 100, 100]);
+    assert.deepEqual(bounds, [100, 100, 100, 100, 100, 100]);
     assert.deepEqual(traps, [
-        [WEB, MKTRAP_MAZEFLAG | MKTRAP_NOSPIDERONWEB, 2, 3],
-        [WEB, MKTRAP_MAZEFLAG | MKTRAP_NOSPIDERONWEB, 3, 3],
+        [WEB, MKTRAP_MAZEFLAG | MKTRAP_NOSPIDERONWEB, 4, 3],
+        [WEB, MKTRAP_MAZEFLAG | MKTRAP_NOSPIDERONWEB, 2, 4],
     ]);
 });
 
 test('Trap room shuffles before sampling and invokes callbacks y-major', () => {
-    const { level, room } = twoByTwoRoom();
+    const { level, room } = threeByTwoRoom();
     const bounds = [];
-    const percentageDraws = [0, 99, 0, 99];
+    // As above, the retained points distinguish x-major sampling from the
+    // y-major callback traversal.
+    const percentageDraws = [99, 0, 99, 99, 0, 99];
     const traps = [];
     const random = randomWithRn2((bound) => {
         bounds.push(bound);
@@ -170,11 +198,96 @@ test('Trap room shuffles before sampling and invokes callbacks y-major', () => {
         },
     });
 
-    assert.deepEqual(bounds, [8, 7, 6, 5, 4, 3, 2, 100, 100, 100, 100]);
-    assert.deepEqual(traps, [
-        [ARROW_TRAP, MKTRAP_MAZEFLAG, 2, 3],
-        [ARROW_TRAP, MKTRAP_MAZEFLAG, 3, 3],
+    assert.deepEqual(bounds, [
+        8, 7, 6, 5, 4, 3, 2,
+        100, 100, 100, 100, 100, 100,
     ]);
+    assert.deepEqual(traps, [
+        [ARROW_TRAP, MKTRAP_MAZEFLAG, 4, 3],
+        [ARROW_TRAP, MKTRAP_MAZEFLAG, 2, 4],
+    ]);
+});
+
+test('Ice room default path changes terrain and queues packed level timers', () => {
+    const { level, room } = twoByTwoRoom();
+    const state = { level, moves: 7 };
+    timeout_globals_init(state);
+    // nh.start_timer_at() replaces an existing timer of the same type at the
+    // same coordinate before scheduling the new one.
+    start_timer(
+        50,
+        TIMER_LEVEL,
+        MELT_ICE_AWAY,
+        3 * 0x10000 + 3,
+        state,
+    );
+    const bounds = [];
+    // The first zero takes the 25% timer branch. Delays deliberately include
+    // an equal pair so newest-first insertion at equal expiry is covered.
+    const draws = [0, 300, 100, 100, 200];
+    const random = randomWithRn2((bound) => {
+        bounds.push(bound);
+        return draws.shift();
+    });
+
+    run_themeroom_fill(fillById('ice_room'), room, 1, {
+        state,
+        random,
+    });
+
+    assert.deepEqual(bounds, [100, 1000, 1000, 1000, 1000]);
+    assert.deepEqual(draws, []);
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y)
+            assert.equal(level.at(x, y).typ, ICE);
+    }
+
+    const timers = [];
+    for (let timer = state.gt.timer_base; timer; timer = timer.next) {
+        timers.push({
+            timeout: timer.timeout,
+            tid: timer.tid,
+            kind: timer.kind,
+            func_index: timer.func_index,
+            arg: timer.arg,
+            needs_fixup: timer.needs_fixup,
+        });
+    }
+    assert.deepEqual(timers, [
+        {
+            timeout: 1007,
+            tid: 4,
+            kind: TIMER_LEVEL,
+            func_index: MELT_ICE_AWAY,
+            arg: 2 * 0x10000 + 4,
+            needs_fixup: false,
+        },
+        {
+            timeout: 1007,
+            tid: 3,
+            kind: TIMER_LEVEL,
+            func_index: MELT_ICE_AWAY,
+            arg: 3 * 0x10000 + 3,
+            needs_fixup: false,
+        },
+        {
+            timeout: 1107,
+            tid: 5,
+            kind: TIMER_LEVEL,
+            func_index: MELT_ICE_AWAY,
+            arg: 3 * 0x10000 + 4,
+            needs_fixup: false,
+        },
+        {
+            timeout: 1207,
+            tid: 2,
+            kind: TIMER_LEVEL,
+            func_index: MELT_ICE_AWAY,
+            arg: 2 * 0x10000 + 3,
+            needs_fixup: false,
+        },
+    ]);
+    assert.equal(state.svt.timer_id, 6);
 });
 
 test('Light source places and burns an oil lamp through default paths', () => {
@@ -293,58 +406,59 @@ test('Ghost fill shares one coordinate and preserves equipment order', () => {
     assert.ok(!requests.some(([, spec]) => spec.class === RING_CLASS));
 });
 
-test('Ghost fill translates its coordinate and applies monster state', () => {
+test('Ghost fill default path preserves the complete creation draw order', () => {
     const { level, room } = twoByTwoRoom();
     const state = {
         ...rawMonsterGenerationState(),
         context: { ident: 2 },
+        flags: { initalign: 0 },
         in_mklev: true,
         level,
         moves: 0,
         plname: 'Alice',
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
     };
     level.flags.rndmongen = true;
+    objects_globals_init(state);
+    init_artifacts(state);
     monst_globals_init(state);
     reset_mvitals(state);
-    let firstRn2 = true;
-    let rndCalls = 0;
-    let diceCalls = 0;
-    const random = {
-        d(number, sides) {
-            ++diceCalls;
-            assert.deepEqual([number, sides], [9, 8]);
-            return 30;
-        },
-        rn1() { throw new Error('missed equipment must not call rn1'); },
-        rn2(bound) {
-            if (firstRn2) {
-                firstRn2 = false;
-                assert.equal(bound, 4); // rndcoord chooses relative <1,0>
-                return 2;
-            }
-            // High subsequent results avoid rare monster inventory and every
-            // optional equipment branch without pinning the wrapper's known-
-            // incomplete intermediate call list.
-            return bound - 1;
-        },
-        rnd(bound) {
-            ++rndCalls;
-            assert.equal(bound, 2); // advance context.ident from two to three
-            return 1;
-        },
-        rne() { throw new Error('ghost creation must not call rne'); },
-        rnz() { throw new Error('ghost creation must not call rnz'); },
-    };
+    const random = scriptedRandom([
+        step('rn2', [4], 2), // x-major rndcoord chooses relative <1,0>
+        step('rn2', [2], 0), // parser chooses a male ghost
+        step('rn2', [3], 2), // induced_align() random-mask fallback
+        step('rnd', [2], 1), // ghost identifier advances from two to three
+        step('d', [9, 8], 30), // level-nine ghost hit points
+        step('rn2', [2], 1), // makemon independently chooses female
+        step('rn2', [7], 6), // select the built-in ghost-name branch
+        step('rn2', [34], 33), // select the last built-in ghost name
+        step('rn2', [50], 49), // no random defensive item
+        step('rn2', [100], 99), // no random miscellaneous item
+        step('rn2', [100], 99), // no initial saddle
+        step('rn2', [100], 0), // pass the 65% dagger equipment gate
+        step('rnd', [2], 1), // dagger identifier advances three to four
+        step('rn2', [11], 10), // no positive dagger enchantment
+        step('rn2', [10], 9), // no negative dagger enchantment
+        step('rn2', [10], 9), // dagger remains uncursed and unblessed
+        step('rn2', [20], 19), // no randomly generated dagger artifact
+        step('rn2', [100], 99), // dagger is not erosion-proof
+        step('rn2', [80], 79), // no primary erosion
+        step('rn2', [80], 79), // no secondary erosion
+        step('rn2', [1000], 999), // dagger is not greased
+        step('rn2', [100], 99), // miss the random-weapon gate
+        step('rn2', [100], 99), // miss the bow-and-arrow gate
+        step('rn2', [100], 99), // miss the armor gate
+        step('rn2', [100], 99), // miss the ring gate
+        step('rn2', [100], 99), // miss the scroll gate
+    ]);
 
     run_themeroom_fill(fillById('ghost_of_an_adventurer'), room, 1, {
         state,
-        random,
+        random: random.random,
     });
+    random.assertExhausted();
 
     const ghost = level.monsters[3][3];
-    assert.equal(firstRn2, false);
-    assert.equal(rndCalls, 1);
-    assert.equal(diceCalls, 1);
     assert.equal(level.monlist, ghost);
     assert.equal(ghost.data, state.mons[PM_GHOST]);
     assert.equal(ghost.mnum, PM_GHOST);
@@ -352,9 +466,21 @@ test('Ghost fill translates its coordinate and applies monster state', () => {
     assert.equal(ghost.msleeping, true);
     assert.equal(ghost.mstrategy & STRAT_WAITFORU, STRAT_WAITFORU);
     assert.equal(ghost.mgenmklev, true);
+    // create_monster() overwrites makemon's gender with the parser choice.
+    assert.equal(ghost.female, false);
     assert.equal(state.mvitals[PM_GHOST].born, 1);
-    assert.equal(state.context.ident, 3);
-    assert.equal(level.objlist, null);
+    assert.equal(state.context.ident, 4);
+
+    const dagger = level.objects[3][3];
+    assert.equal(level.objlist, dagger);
+    assert.deepEqual(
+        [dagger.otyp, dagger.where, dagger.ox, dagger.oy],
+        [DAGGER, OBJ_FLOOR, 3, 3],
+    );
+    assert.deepEqual(
+        [dagger.blessed, dagger.cursed, dagger.spe],
+        [false, false, 0],
+    );
 });
 
 test('unported fill handlers fail closed', () => {

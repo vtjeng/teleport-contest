@@ -223,6 +223,23 @@ export function selection_area(x1, y1, x2, y2) {
     return result;
 }
 
+// C ref: selvar.c selection_iterate(). This is distinct from Lua's
+// selection:iterate(), which traverses y-major after returning to Lua.
+export function selection_iterate(selection, callback, origin = null) {
+    if (!(selection instanceof ThemeroomSelection))
+        throw new TypeError('selection_iterate requires a selection');
+    if (typeof callback !== 'function')
+        throw new TypeError('selection_iterate requires a callback');
+    const { lx, ly, hx, hy } = selection.bounds();
+    for (let x = Math.max(1, lx); x <= hx; ++x) {
+        for (let y = ly; y <= hy; ++y) {
+            if (!selection.get(x, y)) continue;
+            const point = relativeCoordinate(x, y, origin);
+            callback(point.x, point.y);
+        }
+    }
+}
+
 // selection.negate() with no operand starts with selection_new(), whose map is
 // empty, and therefore selects the whole map.
 export function selection_negate(selection = null) {

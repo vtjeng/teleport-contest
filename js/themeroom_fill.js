@@ -20,7 +20,9 @@ import {
     WEB,
 } from './const.js';
 import { game } from './gstate.js';
+import { induced_align } from './dungeon.js';
 import { makemon } from './makemon_create.js';
+import { is_female, is_male } from './mondata.js';
 import { mktrap } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { mkobj_at, mksobj_at } from './obj.js';
@@ -38,10 +40,11 @@ import { PM_GHOST } from './monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { set_levltyp } from './terrain.js';
 import {
+    selection_iterate,
     selection_room,
     select_themeroom_fill,
 } from './themerooms.js';
-import { begin_burn, start_timer } from './timeout.js';
+import { begin_burn, spot_stop_timers, start_timer } from './timeout.js';
 
 const DEFAULT_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
@@ -96,6 +99,7 @@ function startMeltTimer(x, y, when, env) {
     const hook = env.hooks.startMeltTimer;
     if (hook) return hook(x, y, when, env);
     const packedCoordinate = x * 0x10000 + y;
+    spot_stop_timers(x, y, MELT_ICE_AWAY, env.state);
     return start_timer(
         when,
         TIMER_LEVEL,
@@ -143,8 +147,12 @@ function themedCreationCoordinate(specification, room, env) {
 }
 
 function createObject(specification, room, env) {
-    const hook = env.hooks.createObject;
-    if (hook) return hook(specification, room, env);
+    const replacement = env.hooks.createObject;
+    // This hook replaces the complete special-level object specification,
+    // including coordinate selection, blessing overrides, and lighting items.
+    // A replacement must return the finished object; none of the fallback
+    // processing below runs after the hook returns.
+    if (replacement) return replacement(specification, room, env);
     const coordinate = themedCreationCoordinate(specification, room, env);
     const objectEnv = themedCreationEnv(env);
     const object = specification.id != null
@@ -169,18 +177,43 @@ function createObject(specification, room, env) {
 }
 
 function createMonster(specification, room, env) {
-    const hook = env.hooks.createMonster;
-    if (hook) return hook(specification, room, env);
+    const replacement = env.hooks.createMonster;
+    // This hook replaces the complete special-level monster specification,
+    // including coordinate selection and the asleep/waiting state changes.
+    // A replacement must return the finished monster; none of the fallback
+    // processing below runs after the hook returns.
+    if (replacement) return replacement(specification, room, env);
+
+    // sp_lev.c:lspo_monster() resolves a fixed species and its parser gender
+    // before create_monster() converts the default random alignment mask.
+    const species = env.state.mons?.[specification.id];
+    if (!species) {
+        throw new Error(
+            `special-level monster requires species ${specification.id}`,
+        );
+    }
+    const parsedFemale = is_female(species)
+        ? true
+        : is_male(species) ? false : Boolean(env.random.rn2(2));
+    const female = specification.female == null
+        || is_female(species) || is_male(species)
+        ? parsedFemale
+        : Boolean(specification.female);
+    induced_align(80, env.state, env.random.rn2);
+
     const coordinate = themedCreationCoordinate(specification, room, env);
     const monsterEnv = themedCreationEnv(env);
     const monster = makemon(
-        env.state.mons[specification.id],
+        species,
         coordinate.x,
         coordinate.y,
         0,
         monsterEnv,
     );
     if (!monster) return null;
+    // create_monster() applies the parser-selected gender after makemon(),
+    // even though makemon may have consumed its own gender draw.
+    monster.female = female;
     if (specification.asleep != null)
         monster.msleeping = Boolean(specification.asleep);
     if (specification.waiting) monster.mstrategy |= STRAT_WAITFORU;
@@ -190,7 +223,7 @@ function createMonster(specification, room, env) {
 // dat/themerms.lua "Ice room".
 function fillIceRoom(room, difficulty, env) {
     const ice = roomSelection(room, env);
-    ice.iterate((x, y) => setTerrain(x, y, ICE, env));
+    selection_iterate(ice, (x, y) => setTerrain(x, y, ICE, env));
     if (env.random.rn2(100) >= 25) return;
 
     const minimumTime = 1000 - difficulty * 100;

@@ -19,7 +19,7 @@ import { add_to_container } from './invent.js';
 import { makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
 import { mineralize } from './mineralize.js';
-import { rn2, rnd, rn1 } from './rng.js';
+import { d, rn2, rnd, rn1, rne, rnz } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import {
     mkaltar,
@@ -115,6 +115,11 @@ import {
 
 const XLIM = 4;
 const YLIM = 3;
+
+const THEMEROOM_RANDOM_METHODS = Object.freeze([
+    'd', 'rn1', 'rn2', 'rnd', 'rne', 'rnz',
+]);
+const SOURCE_THEMEROOM_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
 // Direction deltas
 const xdir = [-1, -1, 0, 1, 1, 1, 0, -1];
@@ -731,22 +736,49 @@ export class UnsupportedThemeroomActionError extends Error {
     }
 }
 
-function invoke_themeroom_fill(room, definition, context) {
+function preflight_themeroom_fill(definition, context) {
     if (typeof context.themeroomFill !== 'function') {
-        if (context.allowMissingFill) return;
+        if (context.allowMissingFill) return false;
         throw new UnsupportedThemeroomActionError(
             definition,
             'requires an injected themeroom-fill callback',
         );
     }
+    if (!Number.isInteger(context.difficulty)) {
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            'requires an integer difficulty for its themeroom-fill callback',
+        );
+    }
+    const facade = context.randomFacade;
+    for (const method of THEMEROOM_RANDOM_METHODS) {
+        if (typeof facade?.[method] !== 'function') {
+            throw new UnsupportedThemeroomActionError(
+                definition,
+                `requires randomFacade.${method} for its themeroom-fill callback`,
+            );
+        }
+    }
+    if (facade.rn2 !== context.random
+        || facade.rnd !== context.randomOneBased) {
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            'requires randomFacade.rn2/rnd to match the map RNG streams',
+        );
+    }
+    return true;
+}
+
+function invoke_themeroom_fill(room, definition, context) {
+    // Strict callers validate before creating the room or loading its map.
+    // The missing-callback case is the live generator's temporary partial port.
+    if (typeof context.themeroomFill !== 'function') return;
     // Lua invokes contents before leaving the current room context. Keep this
-    // call synchronous and pass the indexed room that selection.room() needs.
-    context.themeroomFill(room, {
-        definition,
-        difficulty: context.difficulty,
-        random: context.random,
-        randomOneBased: context.randomOneBased,
+    // call synchronous. This is the exact themeroom_fill(room, difficulty,
+    // rawEnv) contract, including the indexed room that selection.room() needs.
+    context.themeroomFill(room, context.difficulty, {
         state: game,
+        random: context.randomFacade,
     });
 }
 
@@ -754,13 +786,7 @@ function invoke_themeroom_fill(room, definition, context) {
 function filler_region(filler, origin, definition, context) {
     const state = game;
     const themed = context.random(100) < 30;
-    if (themed && typeof context.themeroomFill !== 'function'
-        && !context.allowMissingFill) {
-        throw new UnsupportedThemeroomActionError(
-            definition,
-            'requires an injected themeroom-fill callback',
-        );
-    }
+    if (themed) preflight_themeroom_fill(definition, context);
     const lit = litstate_rnd(
         -1,
         context.random,
@@ -806,12 +832,7 @@ function dispatch_room_action(definition, context) {
             `has unsupported room contents ${JSON.stringify(action.contents.kind)}`,
         );
     }
-    if (action.contents && typeof context.themeroomFill !== 'function') {
-        throw new UnsupportedThemeroomActionError(
-            definition,
-            'requires an injected themeroom-fill callback',
-        );
-    }
+    if (action.contents) preflight_themeroom_fill(definition, context);
 
     const chance = spec.chance ?? 100;
     const declaredType = room_type_from_schema(spec.type, definition);
@@ -875,13 +896,7 @@ function dispatch_map_action(definition, context) {
             `requires unimplemented map handler ${JSON.stringify(handler)}`,
         );
     }
-    if (typeof context.themeroomFill !== 'function'
-        && !context.allowMissingFill) {
-        throw new UnsupportedThemeroomActionError(
-            definition,
-            'requires an injected themeroom-fill callback',
-        );
-    }
+    preflight_themeroom_fill(definition, context);
 
     const origin = lspo_map(definition, context.random);
     if (!origin) return false;
@@ -907,10 +922,14 @@ export function dispatch_themeroom(
             'dispatch_themeroom only supports the global game state',
         );
     }
+    const sourceRandomFacade = random === rn2 && randomOneBased === rnd
+        ? SOURCE_THEMEROOM_RANDOM
+        : null;
     const context = {
         difficulty: env.difficulty ?? level_difficulty(game),
         random,
         randomOneBased,
+        randomFacade: env.randomFacade ?? sourceRandomFacade,
         themeroomFill: env.themeroomFill,
     };
     switch (definition?.action?.kind) {

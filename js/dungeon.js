@@ -5,7 +5,7 @@
 import { game } from './gstate.js';
 import { rn2 } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
-import { AGGRAVATE_MONSTER } from './const.js';
+import { AGGRAVATE_MONSTER, Align2amask } from './const.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -663,6 +663,22 @@ export function on_level(left, right) {
     return Boolean(left && right
         && left.dnum === right.dnum
         && left.dlevel === right.dlevel);
+}
+
+// C ref: dungeon.c induced_align(). Special-level and dungeon alignment masks
+// each get their own short-circuiting percentage check before the fallback.
+export function induced_align(pct, state = game, random = rn2) {
+    const current = state.u?.uz;
+    const special = (state.specialLevels ?? []).find(
+        (level) => on_level(level.dlevel, current),
+    );
+    const specialAlignment = special?.flags?.align ?? 0;
+    if (specialAlignment && random(100) < pct) return specialAlignment;
+
+    const dungeonAlignment = state.dungeons?.[current?.dnum]?.flags?.align ?? 0;
+    if (dungeonAlignment && random(100) < pct) return dungeonAlignment;
+
+    return Align2amask(random(3) - 1);
 }
 
 function fixup_level_locations(state, roleFilecode) {

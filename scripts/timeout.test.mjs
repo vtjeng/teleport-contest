@@ -33,6 +33,7 @@ import {
     obj_has_timer,
     obj_stop_timers,
     peek_timer,
+    spot_stop_timers,
     start_timer,
     start_glob_timeout,
     start_corpse_timeout,
@@ -128,6 +129,25 @@ test('obj_stop_timers removes all and only the target object timers', () => {
     assert.equal(obj_has_timer(target, ROT_CORPSE, state), false);
     assert.equal(obj_has_timer(target, HATCH_EGG, state), false);
     assert.equal(obj_has_timer(other, ROT_CORPSE, state), true);
+});
+
+test('spot_stop_timers removes only the matching packed-coordinate timer', () => {
+    const state = timerState();
+    const target = 3 * 0x10000 + 4;
+    const other = 4 * 0x10000 + 3;
+    start_timer(5, TIMER_LEVEL, REVIVE_MON, target, state);
+    start_timer(6, TIMER_LEVEL, ROT_CORPSE, target, state);
+    start_timer(7, TIMER_LEVEL, REVIVE_MON, other, state);
+
+    spot_stop_timers(3, 4, REVIVE_MON, state);
+
+    assert.deepEqual(
+        queue(state).map(({ func_index, arg }) => [func_index, arg]),
+        [
+            [ROT_CORPSE, target],
+            [REVIVE_MON, other],
+        ],
+    );
 });
 
 test('start_timer validates the numeric source enum ranges', () => {

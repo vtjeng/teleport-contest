@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import {
+    AM_CHAOTIC,
+    AM_LAWFUL,
+    AM_NEUTRAL,
+} from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
     BR_PORTAL,
@@ -10,6 +15,7 @@ import {
     Invocation_lev,
     depth,
     find_level,
+    induced_align,
     init_dungeons,
     ledger_no,
     level_range,
@@ -85,6 +91,40 @@ test('on_level is null-safe raw dungeon coordinate equality', () => {
     assert.equal(on_level({ dnum: 2, dlevel: 3 }, undefined), false);
     // Lassigned semantics belong to callers; raw zero coordinates are equal.
     assert.equal(on_level({ dnum: 0, dlevel: 0 }, { dnum: 0, dlevel: 0 }), true);
+});
+
+test('induced_align short-circuits special, dungeon, then random masks', () => {
+    const state = {
+        u: { uz: { dnum: 0, dlevel: 3 } },
+        specialLevels: [{
+            dlevel: { dnum: 0, dlevel: 3 },
+            flags: { align: AM_LAWFUL },
+        }],
+        dungeons: [{ flags: { align: AM_NEUTRAL } }],
+    };
+    const run = (draws) => {
+        const bounds = [];
+        const values = [...draws];
+        const result = induced_align(80, state, (bound) => {
+            bounds.push(bound);
+            return values.shift();
+        });
+        assert.deepEqual(values, []);
+        return { bounds, result };
+    };
+
+    assert.deepEqual(run([79]), {
+        bounds: [100],
+        result: AM_LAWFUL,
+    });
+    assert.deepEqual(run([80, 0]), {
+        bounds: [100, 100],
+        result: AM_NEUTRAL,
+    });
+    assert.deepEqual(run([99, 99, 0]), {
+        bounds: [100, 100, 3],
+        result: AM_CHAOTIC,
+    });
 });
 
 test('generated dungeon data exactly matches the pinned Lua table', () => {

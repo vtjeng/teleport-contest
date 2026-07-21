@@ -23,6 +23,7 @@ import {
     SHRINK_GLOB,
     TAINT_AGE,
     TIMER_NONE,
+    TIMER_LEVEL,
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
     ZOMBIFY_MON,
@@ -253,6 +254,29 @@ export function start_timer(
     insert_timer(timer, state);
     if (kind === TIMER_OBJECT) arg.timed = Math.trunc(arg.timed ?? 0) + 1;
     return true;
+}
+
+// C ref: timeout.c spot_stop_timers(). Positional timer arguments use the
+// packed absolute map coordinate `(x << 16) | y`.
+export function spot_stop_timers(x, y, funcIndex, state = game) {
+    timerGlobals(state);
+    validateTimer(TIMER_LEVEL, funcIndex);
+    const coordinate = x * 0x10000 + y;
+    let previous = null;
+    let current = state.gt.timer_base;
+    while (current) {
+        const next = current.next;
+        if (current.kind === TIMER_LEVEL
+            && current.func_index === funcIndex
+            && current.arg === coordinate) {
+            if (previous) previous.next = next;
+            else state.gt.timer_base = next;
+            current.next = null;
+        } else {
+            previous = current;
+        }
+        current = next;
+    }
 }
 
 export function stop_timer(funcIndex, arg, state = game, env = {}) {
