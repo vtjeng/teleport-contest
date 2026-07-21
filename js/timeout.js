@@ -34,6 +34,8 @@ import {
 } from './monsters.js';
 import { rn1, rn2, rnd, rnz } from './rng.js';
 
+const NO_CLEANUP_ERROR = Symbol('no cleanup error');
+
 // decl.c initializes these globals once for a fresh process. Each JS game is
 // isolated in a fresh state object, so jsmain calls this at the same early
 // initialization boundary.
@@ -135,13 +137,11 @@ function cleanupTimer(timer, state, cleanup) {
 
     const obj = timer.arg;
     if (!obj.lamplit) return;
-    let firstError;
-    let hasError = false;
+    let firstError = NO_CLEANUP_ERROR;
     try {
         cleanup.deleteLight(obj, cleanup.normalized);
     } catch (error) {
         firstError = error;
-        hasError = true;
     }
     obj.age = Math.trunc(obj.age ?? 0)
         + timer.timeout - currentMove(state);
@@ -153,15 +153,14 @@ function cleanupTimer(timer, state, cleanup) {
         try {
             cleanup.updateInventory(state);
         } catch (error) {
-            if (!hasError) {
+            if (firstError === NO_CLEANUP_ERROR) {
                 firstError = error;
-                hasError = true;
             }
         } finally {
             state.iflags.suppress_price = savedSuppressPrice;
         }
     }
-    if (hasError) throw firstError;
+    if (firstError !== NO_CLEANUP_ERROR) throw firstError;
 }
 
 function validateTimer(kind, funcIndex) {
@@ -283,8 +282,7 @@ export function obj_stop_timers(obj, state = game, env = {}) {
     }
     let previous = null;
     let current = state.gt.timer_base;
-    let firstError;
-    let hasError = false;
+    let firstError = NO_CLEANUP_ERROR;
     while (current) {
         const next = current.next;
         if (current.kind === TIMER_OBJECT && current.arg === obj) {
@@ -294,9 +292,8 @@ export function obj_stop_timers(obj, state = game, env = {}) {
             try {
                 cleanupTimer(current, state, cleanupByTimer.get(current));
             } catch (error) {
-                if (!hasError) {
+                if (firstError === NO_CLEANUP_ERROR) {
                     firstError = error;
-                    hasError = true;
                 }
             }
         } else {
@@ -305,7 +302,7 @@ export function obj_stop_timers(obj, state = game, env = {}) {
         current = next;
     }
     obj.timed = 0;
-    if (hasError) throw firstError;
+    if (firstError !== NO_CLEANUP_ERROR) throw firstError;
 }
 
 export function obj_has_timer(obj, funcIndex, state = game) {

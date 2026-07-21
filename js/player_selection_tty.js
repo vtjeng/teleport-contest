@@ -215,9 +215,9 @@ function candidatesForAspect(state, aspect) {
     throw new RangeError(`unknown player-selection aspect '${aspect}'`);
 }
 
-function onlyMaskChoice(mask, table, field = 'allow') {
+function onlyMaskChoice(mask, table) {
     for (let index = 0; index < table.length; index++) {
-        if (mask === table[index][field]) return index;
+        if (mask === table[index].allow) return index;
     }
     return ROLE_NONE;
 }

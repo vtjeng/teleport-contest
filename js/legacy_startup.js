@@ -57,26 +57,18 @@ function originalAlignment(state) {
     return state.u?.ualignbase?.[1] ?? state.u?.ualign?.type ?? 0;
 }
 
-function alignedGod(state) {
+function rawAlignedGodName(state) {
     const role = state.urole ?? {};
     const alignment = originalAlignment(state);
-    const rawName = alignment > 0
+    return alignment > 0
         ? role.lgod : alignment < 0 ? role.cgod : role.ngod;
-    return String(rawName ?? 'someone').replace(/^_/u, '');
-}
-
-function alignedGodTitle(state) {
-    const role = state.urole ?? {};
-    const alignment = originalAlignment(state);
-    const rawName = alignment > 0
-        ? role.lgod : alignment < 0 ? role.cgod : role.ngod;
-    return String(rawName ?? '').startsWith('_') ? 'goddess' : 'god';
 }
 
 function convertLegacyLine(state, line) {
+    const godName = rawAlignedGodName(state);
     const replacements = {
-        d: alignedGod(state),
-        G: alignedGodTitle(state),
+        d: String(godName ?? 'someone').replace(/^_/u, ''),
+        G: String(godName ?? '').startsWith('_') ? 'goddess' : 'god',
         r: rankOf(
             state.urole,
             state.u?.ulevel ?? 1,

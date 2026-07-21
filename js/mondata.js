@@ -285,7 +285,6 @@ export function name_to_monplus(in_str, env = {}) {
     let mnum = M.NON_PM;
     let matchedLength = 0;
     let matchedGender = -1;
-    let exactMatch = false;
 
     canonical:
     for (let index = M.LOW_PM; index < M.NUMMONS; ++index) {
@@ -299,7 +298,6 @@ export function name_to_monplus(in_str, env = {}) {
                 mnum = index;
                 matchedLength = name.length;
                 matchedGender = gender;
-                exactMatch = true;
                 break canonical;
             }
             if (suffixCanFollowMonsterName(input.slice(name.length))) {
@@ -310,7 +308,7 @@ export function name_to_monplus(in_str, env = {}) {
         }
     }
 
-    if (!exactMatch && mnum === M.NON_PM) {
+    if (mnum === M.NON_PM) {
         const title = titleToMonster(input);
         mnum = title.mnum;
         matchedLength = title.length;

@@ -11,11 +11,9 @@
 
 import { game, resetGame } from './gstate.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
-import { pushKey, nhgetch } from './input.js';
 import { newgame, moveloop_core } from './allmain.js';
 import { parseNethackrc } from './options.js';
 import { initoptions_finish } from './fruit.js';
-import { flush_screen } from './display.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
 import { objects_globals_init } from './objects.js';
@@ -186,7 +184,7 @@ export class NethackGame {
     _installCaptureHook() {
         const nhGame = this;
         game._preNhgetchHook = async () => {
-            const keyIdx = nhGame._nhgetchCount++;
+            nhGame._nhgetchCount++;
 
             // Capture RNG slice since last capture
             const fullLog = getRngLog() || [];
