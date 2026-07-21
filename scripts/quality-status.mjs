@@ -140,6 +140,10 @@ export function thresholdReached(current, dirty, commitThreshold, lineThreshold)
   return currentUnits >= commitThreshold || currentLines >= lineThreshold;
 }
 
+export function qualityGateBlocked({ reviewDue, unassignedCount }) {
+  return reviewDue > 0 || unassignedCount > 0;
+}
+
 function plural(count, singular) {
   return `${count.toLocaleString('en-US')} ${singular}${count === 1 ? '' : 's'}`;
 }
@@ -431,9 +435,9 @@ function printStatus(config, head, status, verbose) {
   );
   console.log(
     simplificationDue > 0
-      ? `Simplification gate: BLOCKED (${plural(simplificationDue, 'area')} `
+      ? `Simplification advisory: DUE (${plural(simplificationDue, 'area')} `
         + 'reached a batch threshold).'
-      : 'Simplification gate: clear.',
+      : 'Simplification advisory: clear.',
   );
   if (status.rows.some((row) => row.kinds.review.frontier === config.trackingBase)) {
     console.log(
@@ -443,7 +447,10 @@ function printStatus(config, head, status, verbose) {
   }
 
   return {
-    blocked: reviewDue > 0 || simplificationDue > 0 || status.unassigned.length > 0,
+    blocked: qualityGateBlocked({
+      reviewDue,
+      unassignedCount: status.unassigned.length,
+    }),
   };
 }
 

@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
   formatMetrics,
   parseNumstat,
+  qualityGateBlocked,
   thresholdReached,
   validateConfigShape,
 } from './quality-status.mjs';
@@ -74,6 +75,19 @@ test('review thresholds batch small commits but catch large or accumulated work'
     ),
     true,
   );
+});
+
+test('simplification debt is advisory while review and path ownership block', () => {
+  // Five due simplification areas exercise the advisory path without review
+  // debt or unassigned implementation files.
+  assert.equal(qualityGateBlocked({
+    reviewDue: 0,
+    simplificationDue: 5,
+    unassignedCount: 0,
+  }), false);
+  // One due review area and one unassigned file exercise the two blocking inputs.
+  assert.equal(qualityGateBlocked({ reviewDue: 1, unassignedCount: 0 }), true);
+  assert.equal(qualityGateBlocked({ reviewDue: 0, unassignedCount: 1 }), true);
 });
 
 test('an implementation path cannot belong to two quality areas', () => {

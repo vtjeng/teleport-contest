@@ -118,11 +118,18 @@ Run the heavier checks at these boundaries:
   evaluation. Small cohesive fixes may stay batched until one of those
   conditions applies. Do not repeat the same formal pass until another
   threshold is met or the design materially changes.
-- At a formal milestone, run `$simplify-codebase`, `$audit-diff-clarity`, and a
-  `full` `$audit-diff-correctness` pass. Run simplification before the audits.
-- Run simplification earlier when duplication, accidental complexity, or stale
-  scaffolding is visible. Its configured commit and changed-line budgets use
-  the same milestone thresholds. They do not interrupt a coherent chunk.
+- At a formal milestone, run a `full` `$audit-diff-correctness` pass. Its
+  correctness, readability, tests, and variable-trace finders are mandatory.
+  Enable the performance finder only for a plausible hot-path or resource-cost
+  change, and concurrency only for shared-state, asynchronous, reentrant,
+  cancellation, retry, or cleanup risk.
+- Run `$simplify-codebase` before correctness only when inspection identifies
+  duplication, accidental complexity, or stale scaffolding worth removing. A
+  due dashboard advisory prompts that inspection but does not by itself require
+  a pass or block milestone completion.
+- Run `$audit-diff-clarity` before requesting review or release, or when a
+  documentation-heavy change, new implicit contract, or broad naming change
+  makes exposition quality a material risk.
 - After a substantial batch of published technical prose stabilizes, run
   `$copyedit-technical-prose` once. Do not run it on unchanged prose.
 - After applying audit fixes, give a small, behavior-preserving delta to two
@@ -146,9 +153,10 @@ Pass rules:
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
   prohibit access to `sessions/holdout/` and never provide holdout material.
-- For `$audit-diff-correctness`, tag optional context with the narrowest
-  applicable finder `audiences`. Use `all` only for universal constraints and
-  pass compact validation summaries rather than logs or prior transcripts.
+- For `$audit-diff-correctness`, use the skill's default context routing. Add
+  explicit finder `audiences` only for exceptions or unusually large context;
+  use `all` only for universal constraints. Pass compact validation summaries
+  rather than logs or prior transcripts.
 - Run formal skill passes in an isolated worktree pinned to the checked commit.
   Capture the complete output, including counts, findings, rejections,
   unverified items, warnings, and validation. The primary session reviews and
@@ -159,17 +167,19 @@ Pass rules:
   temporary scaffolding until a source-faithful replacement implements the
   behavior and maintains the state. Simplification must preserve PRNG and
   evaluation order.
-- Record formal review and simplification passes with
-  `npm run quality -- record-review ...` and
+- Record correctness coverage with
+  `npm run quality -- record-review ...`. Record optional simplification with
   `npm run quality -- record-simplification ...`. Advance a frontier only
   through the exact integrated commit covered by the pass. Prose passes are not
   ledger records.
-- For a full review record, identify clarity and correctness separately, with
-  the exact range for each. Include raw, deduplicated, confirmed, and applied
-  counts; fixes and deferrals; unverified judgments; notable rejections and
-  their counter-evidence; warnings; and validation.
+- For a full review record, give correctness's exact range and include raw,
+  deduplicated, confirmed, and applied counts; enabled optional finders; fixes
+  and deferrals; unverified judgments; notable rejections and their
+  counter-evidence; warnings; and validation. Include clarity separately only
+  when it ran.
 - Finish each formal milestone with `npm run quality -- --check`. Resolve review
-  debt, exhausted simplification budgets, and unassigned `js/` files then.
+  debt and unassigned `js/` files then. Inspect simplification advisories, but
+  do not manufacture cleanup merely to clear them.
   Historical `BASELINE` debt remains exempt until that area's first recorded
   pass.
 
