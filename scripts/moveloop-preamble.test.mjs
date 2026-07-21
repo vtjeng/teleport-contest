@@ -16,7 +16,10 @@ import {
     initRng,
 } from '../js/rng.js';
 import { maybe_do_tutorial } from '../js/tutorial_startup.js';
-import { ttyPline } from '../js/tty_message.js';
+import {
+    dismissPendingTtyMessage,
+    ttyPline,
+} from '../js/tty_message.js';
 
 function preambleState(datetime, keys = '') {
     resetGame();
@@ -263,6 +266,49 @@ test('a wrapped message requests More immediately', async () => {
     assert.equal(boundaries[0].rows[1], 'word--More--');
     assert.deepEqual(boundaries[0].cursor, [12, 1]);
     assert.equal(state._pending_message, '');
+});
+
+test('More cleanup distinguishes one-line, Escape, and multi-line messages', async () => {
+    const oneLine = preambleState('20260129120000', ' ');
+    await ttyPline('Short message.', oneLine);
+    await dismissPendingTtyMessage(oneLine);
+    assert.equal(rowText(oneLine, 0), 'Short message.--More--');
+
+    const escaped = preambleState('20260129120000', '\x1b');
+    await ttyPline('Short message.', escaped);
+    await dismissPendingTtyMessage(escaped);
+    assert.equal(rowText(escaped, 0), '');
+    assert.deepEqual(
+        [escaped.nhDisplay.cursorCol, escaped.nhDisplay.cursorRow],
+        [0, 0],
+    );
+
+    const multiline = preambleState('20260129120000', ' ');
+    multiline.nhDisplay.setCell(9, 1, 'M', 4, 2);
+    await ttyPline(`${'a'.repeat(70)} final word`, multiline);
+    assert.equal(rowText(multiline, 0), '');
+    assert.deepEqual(
+        [
+            multiline.nhDisplay.grid[1][9].ch,
+            multiline.nhDisplay.grid[1][9].color,
+            multiline.nhDisplay.grid[1][9].attr,
+        ],
+        ['M', 4, 2],
+    );
+    assert.deepEqual(
+        [multiline.nhDisplay.cursorCol, multiline.nhDisplay.cursorRow],
+        [0, 0],
+    );
+});
+
+test('You die starts a new top line instead of sharing the pending message', async () => {
+    const state = preambleState('20260129120000', ' ');
+    await ttyPline('A prior message.', state);
+    await ttyPline('You die from a test.', state);
+
+    assert.equal(state._pending_message, 'You die from a test.');
+    assert.equal(state._ttyToplines, 'You die from a test.');
+    assert.doesNotMatch(state._ttyToplines, /prior/u);
 });
 
 test('pline flushes a changed status line before a wrapped More boundary', async () => {

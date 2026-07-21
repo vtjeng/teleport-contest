@@ -32,7 +32,7 @@ import { newedog } from './dog.js';
 import { christen_monst, rndghostname } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { add_to_minv } from './invent.js';
+import { add_to_minv, update_inventory } from './invent.js';
 import {
     newmonhp,
     peace_minded,
@@ -559,8 +559,11 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         monster.msleeping = true;
     }
     monster.cham = NON_PM;
-    if (mndx === PM_GHOST)
-        christen_monst(monster, rndghostname(normalized));
+    if (mndx === PM_GHOST) {
+        christen_monst(monster, rndghostname(normalized), {
+            updateInventory: () => update_inventory(normalized),
+        });
+    }
     if (byHero && !state.in_mklev) {
         // makemon.c calls set_apparxy() here. At initial startup the hero is
         // visible and undisplaced, so the source result is exact and drawless.

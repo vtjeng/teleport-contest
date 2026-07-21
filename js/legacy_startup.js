@@ -180,7 +180,7 @@ export async function ttyLegacyIntroduction(state = game) {
     if (!state.flags?.legacy) return false;
     const rendered = renderTtyLegacyIntroduction(state);
     for (;;) {
-        const code = await nhgetch();
+        const code = await nhgetch(state);
         // tty_nhgetch() maps NUL to Escape. xwaitforspace(quitchars) accepts
         // Space, CR, LF, or Escape and rings the bell for every other key.
         if (code === 0 || code === 27 || code === 32

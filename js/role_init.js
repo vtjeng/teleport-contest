@@ -16,6 +16,7 @@ import {
     M3_WANTSARTI,
     MS_LEADER,
     MS_NEMESIS,
+    NUMMONS,
 } from './monsters.js';
 import { SPE_LIGHT } from './objects.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
@@ -411,10 +412,7 @@ function applyQuestOverride(monster, override) {
     if ('maligntyp' in override) monster.maligntyp = override.maligntyp;
 }
 
-// Apply the role_init mutations once a source-shaped monster catalog exists.
-// Startup may call role_init before that catalog has been ported, so the exact
-// records remain on state.roleInitMonsterOverrides for the catalog initializer
-// to apply later.
+// Apply role_init's quest-monster mutations to a source-shaped mutable catalog.
 export function applyRoleInitMonsterOverrides(
     state,
     monsters = state.mons,
@@ -452,10 +450,14 @@ function alignedGod(role, alignment) {
  * `initrace`, `initgend`, `initalign`, `female`, and `pantheon`. Choices may
  * be source indices or config strings. Optional `pl_character`, `roleFilter`,
  * `objects`, `mons`, and `svq.quest_status` correspond to the C globals. The
+ * `mons` must be the mutable catalog from monst_globals_init(). The
  * `random(bound)` callback must have rn2 semantics. Call rigid_role_checks()
  * first when selection contains ROLE_RANDOM or unspecified forced choices.
  */
 export function role_init(state, random = rn2) {
+    if (!Array.isArray(state.mons) || state.mons.length !== NUMMONS + 1) {
+        throw new Error('role_init requires monst_globals_init()');
+    }
     const flags = plnamesuffix(state);
     const filter = stateFilter(state);
 
@@ -486,7 +488,9 @@ export function role_init(state, random = rn2) {
 
     const overrides = questOverrides(state.urole, alignmnt);
     state.roleInitMonsterOverrides = overrides;
-    applyRoleInitMonsterOverrides(state);
+    if (!applyRoleInitMonsterOverrides(state)) {
+        throw new Error('role_init requires a complete monster catalog');
+    }
 
     state.svq ??= {};
     const questStatus = state.svq.quest_status ??= {};

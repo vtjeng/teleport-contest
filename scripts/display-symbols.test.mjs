@@ -2,6 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    AM_CHAOTIC,
+    AM_LAWFUL,
+    AM_NEUTRAL,
+    AM_SANCTUM,
+    ALTAR,
+    DBWALL,
+    DB_FLOOR,
+    DB_ICE,
+    DB_LAVA,
+    DB_MOAT,
+    DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
     H_UNK,
     ROGUESET,
     BLCORNER,
@@ -13,9 +25,15 @@ import {
     DOOR,
     FOUNTAIN,
     HWALL,
+    LADDER,
+    LANDMINE,
     LA_DOWN,
+    POOL,
     ROOM,
+    SCORR,
+    SDOOR,
     STAIRS,
+    STONE,
     SVALL,
     TDWALL,
     TLCORNER,
@@ -25,6 +43,7 @@ import {
     TUWALL,
     VWALL,
 } from '../js/const.js';
+import * as symbolExports from '../js/symbols.js';
 import {
     bot,
     flush_screen,
@@ -50,11 +69,16 @@ import {
 import {
     ATR_INVERSE,
     CLR_BRIGHT_BLUE,
+    CLR_BRIGHT_MAGENTA,
     CLR_RED,
     CLR_WHITE,
     CLR_YELLOW,
     NO_COLOR,
 } from '../js/terminal.js';
+import {
+    SYMBOL_INDEX_BY_NAME,
+    SYM_OFF_P,
+} from '../js/symbol_data.js';
 import {
     cmap_symbol,
     glyph_customization,
@@ -63,11 +87,13 @@ import {
     monster_class_symbol,
     object_class_symbol,
     S_hwall,
+    S_arrow_trap,
     S_room,
     S_brdnstair,
     S_brupstair,
     S_tlcorn,
     S_vwall,
+    trap_to_defsym,
     sym_val,
 } from '../js/symbols.js';
 
@@ -90,6 +116,20 @@ function displaySymbol(loc, state) {
     const { ch, dec } = terrain_glyph(loc, 7, 4, state);
     return { ch, dec };
 }
+
+test('public S_* indices are owned by the generated defsym table', () => {
+    for (const [name, value] of Object.entries(symbolExports)) {
+        if (!/^S_/u.test(name) || !Number.isInteger(value)) continue;
+        assert.equal(
+            value,
+            SYMBOL_INDEX_BY_NAME[name.toLowerCase()] - SYM_OFF_P,
+            name,
+        );
+    }
+
+    assert.equal(trap_to_defsym(LANDMINE), S_arrow_trap + LANDMINE - 1);
+    assert.throws(() => trap_to_defsym(0), /outside the source range/u);
+});
 
 test('walls use the selected default ASCII or DECgraphics cmap', () => {
     const asciiState = {};
@@ -190,6 +230,112 @@ test('stairs use rm direction and reveal only traversed branch symbols', () => {
         { ch: '>', color: CLR_YELLOW, dec: false },
     );
     assert.equal(cmap_symbol(S_brdnstair, state).ch, '>');
+});
+
+test('terrain conversion covers source backgrounds omitted by the old switch', () => {
+    const state = {
+        level: { flags: { arboreal: false } },
+        u: { uz: { dnum: 0, dlevel: 1 } },
+        stairs: {
+            sx: 7,
+            sy: 4,
+            tolev: { dnum: 1, dlevel: 1 },
+            u_traversed: false,
+            next: null,
+        },
+    };
+    // Distinct test symbols make direction and drawbridge orientation
+    // observable even though the default pairs share '<', '>', '.', or '#'.
+    initialize_symbols_from_options(parseNethackrc(
+        'SYMBOLS=S_stone:s,S_tree:t,'
+        + 'S_upladder:u,S_dnladder:d,'
+        + 'S_brupladder:U,S_brdnladder:D,'
+        + 'S_vcdbridge:V,S_hcdbridge:H,'
+        + 'S_vodbridge:v,S_hodbridge:h,'
+        + 'S_pool:p,S_lava:l,S_ice:i,S_room:r',
+    ), state);
+
+    assert.equal(terrain_glyph({ typ: STONE }, 7, 4, state).ch, 's');
+    assert.equal(terrain_glyph({ typ: SCORR }, 7, 4, state).ch, 's');
+    state.level.flags.arboreal = true;
+    assert.equal(terrain_glyph({ typ: STONE }, 7, 4, state).ch, 't');
+    assert.equal(terrain_glyph({ typ: SCORR }, 7, 4, state).ch, 't');
+    assert.equal(
+        terrain_glyph({ typ: SDOOR, seenv: 0, candig: true }, 7, 4, state).ch,
+        't',
+    );
+    state.level.flags.arboreal = false;
+
+    assert.equal(
+        terrain_glyph({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
+        'u',
+    );
+    assert.equal(
+        terrain_glyph({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
+        'd',
+    );
+    state.stairs.u_traversed = true;
+    assert.equal(
+        terrain_glyph({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
+        'U',
+    );
+    assert.equal(
+        terrain_glyph({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
+        'D',
+    );
+
+    assert.equal(
+        terrain_glyph({ typ: DBWALL, horizontal: false }, 7, 4, state).ch,
+        'V',
+    );
+    assert.equal(
+        terrain_glyph({ typ: DBWALL, horizontal: true }, 7, 4, state).ch,
+        'H',
+    );
+    assert.equal(
+        terrain_glyph({ typ: DRAWBRIDGE_DOWN, horizontal: false }, 7, 4, state).ch,
+        'v',
+    );
+    assert.equal(
+        terrain_glyph({ typ: DRAWBRIDGE_DOWN, horizontal: true }, 7, 4, state).ch,
+        'h',
+    );
+
+    for (const [underlay, expected] of [
+        [DB_MOAT, 'p'], // Water below the raised span.
+        [DB_LAVA, 'l'], // Lava below the raised span.
+        [DB_ICE, 'i'], // Ice below the raised span.
+        [DB_FLOOR, 'r'], // Ordinary floor below the raised span.
+        [DB_LAVA | DB_ICE, 'r'], // Invalid masks use source's room fallback.
+    ]) {
+        assert.equal(
+            terrain_glyph({
+                typ: DRAWBRIDGE_UP,
+                drawbridgemask: underlay,
+            }, 7, 4, state).ch,
+            expected,
+            `drawbridge underlay ${underlay}`,
+        );
+    }
+});
+
+test('altar presentation follows source alignment and sanctum categories', () => {
+    const state = {};
+    initialize_symbols_from_options({ flags: {} }, state);
+
+    for (const [altarmask, color] of [
+        [0, CLR_RED], // Unaligned altar.
+        [AM_CHAOTIC, NO_COLOR], // Default build uses gray for aligned altars.
+        [AM_NEUTRAL, NO_COLOR],
+        [AM_LAWFUL, NO_COLOR],
+        [AM_SANCTUM | AM_LAWFUL, CLR_BRIGHT_MAGENTA], // Other/sanctum glyph.
+    ]) {
+        assert.deepEqual(
+            terrain_glyph({ typ: ALTAR, altarmask }, 7, 4, state),
+            { ch: '_', color, dec: false },
+            `altar mask ${altarmask}`,
+        );
+    }
 });
 
 test('disabled color suppresses colored terrain glyphs', () => {
@@ -560,6 +706,106 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     );
 });
 
+test('newsym layers seen traps below objects and above engravings', () => {
+    const state = resetGame();
+    const x = 7;
+    const y = 4;
+    state.level = new GameMap();
+    state.level.at(x, y).typ = ROOM;
+    state.u = { ux: 1, uy: 1, uinwater: false };
+    state.flags = {};
+    state.objects = [];
+    state.objects[42] = { oc_color: CLR_YELLOW };
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2; // vision.h IN_SIGHT
+    const engraving = make_engr_at(
+        x, y, 'beneath trap', null, 0, DUST, { state },
+    );
+    const trap = {
+        tx: x,
+        ty: y,
+        // A land mine exercises a colored ordinary '^' trap glyph.
+        ttyp: LANDMINE,
+        tseen: true,
+    };
+    state.level.traps.push(trap);
+
+    newsym(x, y);
+    assert.equal(engraving.erevealed, true);
+    assert.equal(state.level.at(x, y).disp_ch, '^');
+    assert.equal(state.level.at(x, y).disp_color, CLR_RED);
+    assert.equal(state.level.at(x, y).remembered_glyph.ch, '^');
+
+    state.level.objects[x][y] = {
+        otyp: 42,
+        oclass: WEAPON_CLASS,
+    };
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, ')');
+
+    state.level.objects[x][y] = null;
+    trap.tseen = false;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '`');
+
+    trap.tseen = true;
+    state.level.at(x, y).typ = POOL;
+    newsym(x, y);
+    assert.equal(
+        state.level.at(x, y).disp_ch,
+        '}',
+        'water covers floor objects, traps, and engravings',
+    );
+
+    // Underwater newsym() is restricted to adjacent liquid positions in C.
+    state.u.ux = x - 1;
+    state.u.uy = y;
+    state.u.uinwater = true;
+    newsym(x, y);
+    assert.equal(
+        state.level.at(x, y).disp_ch,
+        '^',
+        'an underwater hero sees the trap through the pool layer',
+    );
+});
+
+test('newsym snapshots permanent lighting only at the visible boundary', () => {
+    const state = resetGame();
+    const x = 7;
+    const y = 4;
+    state.level = new GameMap();
+    const loc = state.level.at(x, y);
+    loc.typ = CORR;
+    loc.lit = true;
+    loc.waslit = false;
+    state.u = { ux: 1, uy: 1 };
+    state.flags = {};
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2; // vision.h IN_SIGHT
+
+    newsym(x, y);
+    assert.equal(loc.waslit, true);
+    assert.equal(loc.disp_color, CLR_WHITE);
+
+    loc.lit = false;
+    newsym(x, y);
+    assert.equal(loc.waslit, false);
+    assert.equal(loc.disp_color, NO_COLOR);
+
+    loc.lit = true;
+    state.viz_array[y][x] = 0;
+    newsym(x, y);
+    assert.equal(
+        loc.waslit,
+        false,
+        'out-of-sight temporary light must not refresh remembered lighting',
+    );
+});
+
 test('unobserved floor objects use the source generic class glyph', () => {
     const state = resetGame();
     objects_globals_init(state);
@@ -591,13 +837,81 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
         state,
     );
 
-    assert.equal(
-        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state).displayCh,
-        '⌠',
+    assert.deepEqual(
+        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        {
+            ch: '{',
+            color: CLR_BRIGHT_BLUE,
+            dec: false,
+            displayCh: '⌠',
+            // dat/symbols configures the concrete fountain as 0-150-255.
+            rgb: [0, 150, 255],
+            displayColor: 'rgb(0, 150, 255)',
+        },
     );
+
+    state.iflags = { customcolors: false };
+    assert.deepEqual(
+        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        {
+            ch: '{',
+            color: CLR_BRIGHT_BLUE,
+            dec: false,
+            displayCh: '⌠',
+        },
+        'customcolors does not disable the independent Unicode glyph',
+    );
+
+    state.iflags = { customsymbols: false, customcolors: true };
+    assert.deepEqual(
+        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        {
+            ch: '{',
+            color: CLR_BRIGHT_BLUE,
+            dec: false,
+            rgb: [0, 150, 255],
+            displayColor: 'rgb(0, 150, 255)',
+        },
+        'customsymbols does not disable the independent RGB customization',
+    );
+
+    state.iflags = {
+        customsymbols: true,
+        customcolors: true,
+        wc_color: false,
+    };
+    assert.deepEqual(
+        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        {
+            ch: '{',
+            color: NO_COLOR,
+            dec: false,
+            displayCh: '⌠',
+        },
+        'the global color option suppresses both palette and custom colors',
+    );
+
+    const live = resetGame();
+    live.level = new GameMap();
+    live.level.at(7, 4).typ = FOUNTAIN;
+    live.u = { ux: 1, uy: 1 };
+    live.flags = {};
+    live.viz_array = [];
+    live.viz_array[4] = [];
+    live.viz_array[4][7] = 0x2; // vision.h IN_SIGHT
+    const options = parseNethackrc('OPTIONS=symset:Enhanced1');
+    live.iflags = { ...options.iflags };
+    initialize_symbols_from_options(options, live);
+    newsym(7, 4);
+    assert.equal(live.level.at(7, 4).disp_browser_ch, '⌠');
+    assert.equal(
+        live.level.at(7, 4).disp_browser_color,
+        'rgb(0, 150, 255)',
+    );
+    assert.deepEqual(live.level.at(7, 4).remembered_glyph.rgb, [0, 150, 255]);
 });
 
-test('standalone SYMBOLS replays named G_* customizations in source order', () => {
+test('standalone SYMBOLS validates but does not apply G_* customizations', () => {
     const configured = (rc) => {
         const state = {};
         initialize_symbols_from_options(parseNethackrc(rc), state);
@@ -606,19 +920,19 @@ test('standalone SYMBOLS replays named G_* customizations in source order', () =
 
     const overridden = configured([
         'OPTIONS=symset:Enhanced1',
-        'SYMBOLS=g_fountain:U+2603,G_vwall_sokoban:U+2602',
+        'SYMBOLS=G_FoUnTaIn:U+2603,G_vWaLl_SoKoBaN:U+2602',
     ].join('\n'));
     assert.equal(
         terrain_glyph({ typ: FOUNTAIN }, 7, 4, overridden).displayCh,
-        '☃',
+        '⌠',
     );
     assert.equal(
         glyph_customization('G_vwall_sokoban', overridden).displayCh,
-        '☂',
+        '│',
     );
 
-    // A concrete customization has no owner before a named set is active,
-    // and loading a later set resets that set's customization table.
+    // Loading order does not change the source no-op; the named set retains
+    // the concrete glyph mappings defined in the symbols data file.
     const resetBySelection = configured([
         'SYMBOLS=G_fountain:U+2603',
         'OPTIONS=symset:Enhanced1',
@@ -631,6 +945,51 @@ test('standalone SYMBOLS replays named G_* customizations in source order', () =
     assert.throws(
         () => parseNethackrc('SYMBOLS=G_not_a_source_glyph:U+2603'),
         /unknown symbol/u,
+    );
+    assert.throws(
+        () => parseNethackrc('SYMBOLS=g_fountain:U+2603'),
+        /unknown symbol/u,
+    );
+    // Exercise every source family that is absent from or only partially
+    // represented by dat/symbols.
+    for (const glyphId of [
+        'G_male_giant_ant',
+        'G_pet_female_giant_ant',
+        'G_detected_male_giant_ant',
+        'G_body_giant_ant',
+        'G_ridden_female_giant_ant',
+        'G_LONG_SWORD',
+        'G_stone_substrate',
+        'G_unaligned_altar',
+        'G_trapped_chest',
+        'G_missile_zap_vbeam',
+        'G_swallow_giant_ant_top_left',
+        'G_dark_expl_tl',
+        'G_warning5',
+        'G_statue_of_female_apprentice',
+        'G_piletop_long_sword',
+        'G_piletop_body_giant_ant',
+        'G_piletop_statue_of_male_giant_ant',
+        'G_nothing',
+    ]) {
+        assert.doesNotThrow(
+            () => parseNethackrc(`SYMBOLS=${glyphId}:U+2603`),
+            glyphId,
+        );
+    }
+    assert.throws(
+        () => parseNethackrc('SYMBOLS=G_piletop_generic_weapon:U+2603'),
+        /unknown symbol/u,
+    );
+    assert.equal(
+        glyph_customization(
+            'G_long_sword',
+            configured([
+                'OPTIONS=symset:Enhanced1',
+                'SYMBOLS=G_long_sword:U+2603',
+            ].join('\n')),
+        ),
+        null,
     );
     assert.throws(
         () => parseNethackrc('OPTIONS=G_fountain:U+2603'),

@@ -525,6 +525,46 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
     rng.assertExhausted();
 });
 
+test('mkcorpstat preflights required hooks before object construction', () => {
+    const state = objectMonsterState();
+    state.in_mklev = true;
+    state.level = new GameMap();
+    const firstId = state.context.ident;
+    const noDraws = scriptedRandom([]);
+
+    assert.throws(
+        () => mkcorpstat(
+            CORPSE,
+            null,
+            PM_KOBOLD,
+            0,
+            0,
+            CORPSTAT_INIT,
+            { state, random: noDraws.random },
+        ),
+        /random object relocation/,
+    );
+    assert.equal(state.context.ident, firstId);
+    assert.equal(state.level.objlist, null);
+
+    assert.throws(
+        () => mkcorpstat(
+            CORPSE,
+            { data: state.mons[PM_KOBOLD], mcan: false },
+            null,
+            10,
+            5,
+            CORPSTAT_INIT,
+            { state, random: noDraws.random },
+        ),
+        /monster-trait persistence/,
+    );
+    assert.equal(state.context.ident, firstId);
+    assert.equal(state.level.objects[10][5], null);
+    assert.equal(state.level.objlist, null);
+    noDraws.assertExhausted();
+});
+
 test('mkcorpstat suppresses cancelled trolls but exempts cancelled Riders', () => {
     const state = objectMonsterState();
     state.in_mklev = true;

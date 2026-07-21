@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
     NON_PM,
     OBJ_MINVENT,
     ROOM,
@@ -247,6 +248,48 @@ test('starting pony creates and equips a separately identified saddle', () => {
         [SADDLE],
     );
     assert.equal(state.context.ident, 4);
+});
+
+test('blind starting pony forgets saddle-instance knowledge after discovery', () => {
+    const state = startingPetState({
+        petnum: PM_PONY,
+        role: PM_KNIGHT,
+        alignmentType: 1,
+    });
+    state.u.uprops = [];
+    // A nonzero intrinsic activates blindness for the pickup visibility path.
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    // Replay the sighted-pony creation draws so blindness is the only changed
+    // condition and cannot alter the core PRNG sequence.
+    const random = scriptedRandom([
+        ...ringShuffleSteps(),
+        step('rnd', [2], 1),
+        step('d', [2, 8], 9),
+        step('rn2', [2], 0),
+        step('rnd', [2], 1),
+    ]);
+
+    const monster = makedog({ state, random: random.random });
+    random.assertExhausted();
+    const saddle = monster.minvent;
+
+    // Saddles do not use the `known` bit, so unknow_object() leaves it set.
+    assert.equal(saddle.known, true);
+    assert.equal(saddle.dknown, false);
+    assert.equal(saddle.bknown, false);
+    assert.equal(saddle.rknown, false);
+    assert.equal(saddle.cknown, false);
+    assert.equal(saddle.lknown, false);
+    assert.equal(saddle.tknown, false);
+    assert.equal(state.objects[SADDLE].oc_name_known, 1);
+    assert.equal(state.objects[SADDLE].oc_encountered, 1);
+    assert.deepEqual(
+        state.svd.disco.slice(
+            state.svb.bases[TOOL_CLASS],
+            state.svb.bases[TOOL_CLASS + 1],
+        ).filter(Boolean),
+        [SADDLE],
+    );
 });
 
 test('pauper pony suppresses saddle creation and its object-id draw', () => {

@@ -425,7 +425,7 @@ async function fallbackRerollChoice(state) {
     const prompt = renderRerollPrompt(state);
     let response;
     for (;;) {
-        const code = await nhgetch();
+        const code = await nhgetch(state);
         if (code === 0 || code === 10 || code === 13
             || code === 27 || code === 32) {
             response = 'n';

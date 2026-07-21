@@ -5,6 +5,7 @@ import test from 'node:test';
 import * as objectExports from '../js/objects.js';
 
 import {
+    discover_object,
     init_objects,
     obj_shuffle_range,
     oinit,
@@ -36,6 +37,7 @@ import {
     RING_CLASS,
     SAPPHIRE,
     SCROLL_CLASS,
+    OIL_LAMP,
     SLIME_MOLD,
     SPBOOK_CLASS,
     SPEED_BOOTS,
@@ -346,4 +348,70 @@ test('object descriptions are mutable and isolated per game', () => {
     assert.equal(first.obj_descr[SLIME_MOLD].oc_name, 'fruit');
     assert.equal(second.obj_descr[SLIME_MOLD].oc_name, originalName);
     assert.equal(OBJECT_DESCRIPTIONS[SLIME_MOLD].oc_name, originalName);
+});
+
+function discoveryState() {
+    const state = {
+        iflags: { perm_invent: true },
+        moves: 0,
+        program_state: { gameover: false, in_moveloop: true },
+        u: {
+            acurr: { a: [10, 10, 10, 10, 10, 10] },
+            aexe: [0, 0, 0, 0, 0, 0],
+        },
+        urole: { mnum: -1 },
+    };
+    init_objects(state, () => 0);
+    return state;
+}
+
+test('discover_object applies live credit and inventory effects in C order', () => {
+    const state = discoveryState();
+    const events = [];
+    const result = discover_object(OIL_LAMP, true, true, true, state, {
+        random: {
+            rn2(bound) {
+                events.push(`exercise:${bound}`);
+                return 18;
+            },
+        },
+        hooks: {
+            updateInventory() {
+                events.push('inventory');
+                assert.equal(state.objects[OIL_LAMP].oc_name_known, 1);
+                assert.equal(state.objects[OIL_LAMP].oc_encountered, 1);
+            },
+        },
+    });
+
+    assert.equal(result, true);
+    assert.equal(state.u.aexe[2], 1);
+    assert.deepEqual(events, ['exercise:19', 'inventory']);
+});
+
+test('discover_object reprices a newly learned gem before refreshing inventory', () => {
+    const state = discoveryState();
+    const events = [];
+    discover_object(AQUAMARINE, true, true, false, state, {
+        gemLearned(oindx) {
+            events.push(`gem:${oindx}`);
+            assert.equal(state.objects[oindx].oc_name_known, 1);
+        },
+        hooks: {
+            updateInventory() { events.push('inventory'); },
+        },
+    });
+    assert.deepEqual(events, [`gem:${AQUAMARINE}`, 'inventory']);
+});
+
+test('discover_object preflights live gem pricing before catalog mutation', () => {
+    const state = discoveryState();
+    const base = state.svb.bases[GEM_CLASS];
+    assert.throws(
+        () => discover_object(AQUAMARINE, true, true, false, state),
+        /requires gem_learned/,
+    );
+    assert.equal(state.objects[AQUAMARINE].oc_name_known, 0);
+    assert.equal(state.objects[AQUAMARINE].oc_encountered, 0);
+    assert.equal(state.svd.disco[base], 0);
 });

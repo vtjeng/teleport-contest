@@ -99,6 +99,58 @@ test('a 24-row role menu becomes full-screen', () => {
     );
 });
 
+test('a full-screen gameplay menu restores its base frame on dismissal', () => {
+    const state = menuState();
+    state.nhDisplay.setCell(12, 5, '@', 3, 1);
+    state.nhDisplay.setCell(30, 22, 'S', 4, 2);
+    state.nhDisplay.setCursor(12, 5);
+    const lines = Array.from({ length: 21 }, (_, index) => `line ${index}`);
+    const rendered = renderTtyMenu(state, {
+        title: 'Full-screen gameplay menu',
+        lines,
+    });
+
+    dismissTtyMenu(state, rendered);
+
+    assert.deepEqual(
+        [
+            state.nhDisplay.grid[5][12].ch,
+            state.nhDisplay.grid[5][12].color,
+            state.nhDisplay.grid[5][12].attr,
+        ],
+        ['@', 3, 1],
+    );
+    assert.deepEqual(
+        [
+            state.nhDisplay.grid[22][30].ch,
+            state.nhDisplay.grid[22][30].color,
+            state.nhDisplay.grid[22][30].attr,
+        ],
+        ['S', 4, 2],
+    );
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        [12, 5],
+    );
+});
+
+test('state-parameterized menus read only their supplied display and hook', async () => {
+    const globalState = menuState('y');
+    const foreign = {
+        nhDisplay: new GameDisplay(null),
+        iflags: {},
+        program_state: {},
+    };
+    foreign.nhDisplay.pushKey('n'.charCodeAt(0));
+    const boundaries = [];
+    globalState._preNhgetchHook = () => boundaries.push('global');
+    foreign._preNhgetchHook = () => boundaries.push('foreign');
+
+    assert.equal(await selectTtyMenu(foreign, confirmation), 2);
+    assert.deepEqual(boundaries, ['foreign']);
+    assert.equal(globalState.nhDisplay.inputQueueLength, 1);
+});
+
 test('PICK_ONE defaults, explicit selectors, and invalid keys follow tty', async () => {
     const state = menuState('x n');
     const boundaries = [];

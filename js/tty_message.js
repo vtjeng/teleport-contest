@@ -60,9 +60,9 @@ function rememberPendingMessage(state, message) {
     }
 }
 
-// C ref: win/tty/topl.c more().  Startup messages are held as pending state
-// until an input boundary, so the snapshot is the unobscured map/status frame
-// that docorner() restores after --More-- is dismissed.
+// C ref: win/tty/topl.c more().  A multi-line top message is repaired through
+// docorner() and homes the cursor.  A one-line message remains on screen after
+// ordinary dismissal; Escape alone clears that physical top line.
 export async function dismissPendingTtyMessage(state = game) {
     if (!state._pending_message) return false;
     const display = state.nhDisplay;
@@ -76,7 +76,17 @@ export async function dismissPendingTtyMessage(state = game) {
         ++promptRow;
         promptColumn = 0;
     }
-    const snapshot = snapshotRows(display, promptRow + 1);
+    const multiline = promptRow > 0;
+    const snapshot = multiline
+        ? snapshotRows(display, promptRow + 1)
+        : null;
+    if (snapshot) {
+        // The message row is not backed by map-window data. docorner() clears
+        // it while reconstructing any obscured map rows below it.
+        snapshot.rows[0] = snapshot.rows[0].map(() => ({
+            ch: ' ', color: NO_COLOR, attr: 0,
+        }));
+    }
     for (let row = 0; row <= promptRow; ++row)
         display.clearRow(row);
     for (let row = 0; row < lines.length; ++row)
@@ -86,7 +96,7 @@ export async function dismissPendingTtyMessage(state = game) {
 
     let response;
     for (;;) {
-        const code = await nhgetch();
+        const code = await nhgetch(state);
         // tty_nhgetch() maps NUL to Escape.  xwaitforspace("\033 ") also
         // accepts CR and LF; all other keys leave this boundary unchanged.
         if (code === 0 || code === 10 || code === 13
@@ -96,7 +106,13 @@ export async function dismissPendingTtyMessage(state = game) {
         }
     }
 
-    restoreRows(display, snapshot);
+    if (snapshot) {
+        restoreRows(display, snapshot);
+        display.setCursor(0, 0);
+    } else if (response === 0 || response === 27) {
+        display.clearRow(0);
+        display.setCursor(0, 0);
+    }
     state._pending_message = '';
     // more() leaves gt.toplines intact for message history. Escape also
     // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
@@ -131,6 +147,7 @@ function rememberSuppressedMessage(state, message, columns) {
 // when both fit with two separating spaces and room for a future --More--.
 export async function ttyPline(message, state = game) {
     const next = String(message);
+    const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
@@ -138,7 +155,7 @@ export async function ttyPline(message, state = game) {
     if (state === game && state.u?.ux) await flush_screen(1);
     // "You die" is update_topl()'s exception to WIN_STOP.  Other messages
     // continue updating gt.toplines for history but remain invisible.
-    if (state._ttyMessageStopped && !next.startsWith('You die')) {
+    if (state._ttyMessageStopped && !deathMessage) {
         rememberSuppressedMessage(state, next, columns);
         return;
     }
@@ -147,6 +164,7 @@ export async function ttyPline(message, state = game) {
     const current = state._pending_message ?? '';
     const currentLines = wrapTtyTopline(current, columns);
     if (current
+        && !deathMessage
         && currentLines.length === 1
         && next.length + current.length + 3 < columns - MORE_PROMPT.length) {
         rememberPendingMessage(state, `${current}  ${next}`);

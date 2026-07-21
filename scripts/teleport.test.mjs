@@ -247,3 +247,61 @@ test('mnexto preserves monster identity and list linkage while relocating', () =
     );
     assert.equal(draws.bounds.length, 45);
 });
+
+test('mnexto honors wizard monster-teleport control before relocation', () => {
+    const state = positionState();
+    state.iflags = { mon_telecontrol: true };
+    for (let x = 1; x < 80; ++x)
+        for (let y = 0; y < 21; ++y) state.level.at(x, y).typ = ROOM;
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 1,
+        mhpmax: 1,
+        m_id: 81,
+    });
+    state.level.monlist = monster;
+    place_monster(monster, state.u.ux, state.u.uy, state);
+    const draws = boundsRandom();
+    const calls = [];
+
+    const relocated = mnexto(monster, 37, {
+        state,
+        random: draws.random,
+        controlMonsterTeleport(controlled, coordinate, flags, viaRloc) {
+            calls.push([controlled, { ...coordinate }, flags, viaRloc]);
+            coordinate.x = 12;
+            coordinate.y = 10;
+            return true;
+        },
+    });
+    assert.equal(relocated, monster);
+    assert.deepEqual([monster.mx, monster.my], [12, 10]);
+    assert.equal(state.level.monsters[10][10], null);
+    assert.equal(state.level.monsters[12][10], monster);
+    assert.deepEqual(calls, [[monster, { x: 9, y: 9 }, 37, false]]);
+});
+
+test('mnexto fails before relocation when wizard control is unavailable', () => {
+    const state = positionState();
+    state.iflags = { mon_telecontrol: true };
+    for (let x = 1; x < 80; ++x)
+        for (let y = 0; y < 21; ++y) state.level.at(x, y).typ = ROOM;
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 1,
+        mhpmax: 1,
+        m_id: 82,
+    });
+    state.level.monlist = monster;
+    place_monster(monster, state.u.ux, state.u.uy, state);
+
+    assert.throws(
+        () => mnexto(monster, 0, {
+            state,
+            random: boundsRandom().random,
+        }),
+        /montelecontrol/,
+    );
+    assert.deepEqual([monster.mx, monster.my], [10, 10]);
+    assert.equal(state.level.monsters[10][10], monster);
+});

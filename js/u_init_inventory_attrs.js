@@ -19,7 +19,7 @@ import {
     P_POLEARMS,
     P_SPEAR,
 } from './const.js';
-import { init_attr, vary_init_attr } from './attrib.js';
+import { effective_attribute, init_attr, vary_init_attr } from './attrib.js';
 import { game } from './gstate.js';
 import { resetInventory } from './invent.js';
 import { discover_object } from './o_init.js';
@@ -355,22 +355,8 @@ export function u_init_race(
     return state;
 }
 
-function attributeArray(value) {
-    return Array.isArray(value) ? value : value?.a;
-}
-
-function effectiveAttribute(state, index) {
-    const u = state.u;
-    const base = Math.trunc(u.acurr?.a?.[index] ?? 0);
-    const bonus = Math.trunc(attributeArray(u.abon)?.[index] ?? 0);
-    const temporary = Math.trunc(attributeArray(u.atemp)?.[index] ?? 0);
-    const total = base + bonus + temporary;
-    if (index === A_STR) return Math.max(total, 3);
-    return Math.max(3, Math.min(total, 25));
-}
-
 function effectiveStrengthForCapacity(state) {
-    const strength = effectiveAttribute(state, A_STR);
+    const strength = effective_attribute(state, A_STR);
     if (strength <= 18) return strength;
     if (strength <= 121) return 19 + Math.trunc(strength / 50);
     return Math.min(strength, 125) - 100;
@@ -382,7 +368,7 @@ export function initial_weight_cap(state = game) {
     return Math.min(
         1000,
         25 * (effectiveStrengthForCapacity(state)
-            + effectiveAttribute(state, A_CON)) + 50,
+            + effective_attribute(state, A_CON)) + 50,
     );
 }
 
@@ -404,7 +390,7 @@ function adjustCarryAttribute(index, state) {
     if (u.uprops?.[FIXED_ABIL]?.extrinsic) return false;
     const base = u.acurr.a;
     const maximum = u.amax.a;
-    const old = effectiveAttribute(state, index);
+    const old = effective_attribute(state, index);
     base[index] += 1;
     if (base[index] > maximum[index]) {
         maximum[index] = base[index];
@@ -412,7 +398,7 @@ function adjustCarryAttribute(index, state) {
         if (maximum[index] > racialMaximum)
             base[index] = maximum[index] = racialMaximum;
     }
-    if (effectiveAttribute(state, index) === old) return false;
+    if (effective_attribute(state, index) === old) return false;
     if (Array.isArray(u.aexe)) u.aexe[index] = 0;
     else if (Array.isArray(u.aexe?.a)) u.aexe.a[index] = 0;
     state.disp ??= {};
@@ -528,6 +514,6 @@ export const _uInitInventoryAttrInternals = Object.freeze({
     ORCISH_OBJECTS,
     adjustCarryAttribute,
     armorBonus,
-    effectiveAttribute,
+    effectiveAttribute: effective_attribute,
     effectiveStrengthForCapacity,
 });

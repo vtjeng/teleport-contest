@@ -6,15 +6,12 @@
 import { game } from './gstate.js';
 import { do_light_sources } from './light.js';
 import {
-    BLINDED, COLNO, ROWNO, DOOR, SDOOR, POOL,
+    BLINDED, COLNO, COULD_SEE, IN_SIGHT, ROWNO, DOOR, SDOOR, POOL,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     IS_WALL, TEMP_LIT,
 } from './const.js';
 import { newsym } from './display.js';
-
-const COULD_SEE = 0x1;
-const IN_SIGHT = 0x2;
 
 function heroIsBlind(hero) {
     const blindness = hero?.uprops?.[BLINDED];
@@ -80,7 +77,9 @@ function _blocks(level, x, y) {
     const typ = loc.typ ?? 0;
     if (typ < POOL) return true;  // STONE, walls, SDOOR, SCORR
     if (typ === DOOR) {
-        const mask = loc.doormask ?? 0;
+        // rm.doormask aliases the shared flags field in C.  Generated levels
+        // use flags while some focused callers still populate doormask.
+        const mask = loc.flags || loc.doormask || 0;
         if (mask & (D_CLOSED | D_LOCKED | D_TRAPPED)) return true;
     }
     return false;

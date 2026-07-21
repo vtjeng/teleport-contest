@@ -83,8 +83,17 @@ import {
 // C ref: mondata.h is_placeholder(). These records only back corpse forms.
 const PLACEHOLDER_MONSTERS = new Set([PM_ORC, PM_GIANT, PM_ELF, PM_HUMAN]);
 
-function generationEnv(env = {}) {
+function generationState(env = {}) {
     const state = env.state ?? game;
+    if (!Array.isArray(state.mons) || state.mons.length <= SPECIAL_PM)
+        throw new Error('monster generation requires monst_globals_init()');
+    if (!Array.isArray(state.mvitals) || state.mvitals.length < SPECIAL_PM)
+        throw new Error('monster generation requires initialized mvitals');
+    return state;
+}
+
+function generationEnv(env = {}) {
+    const state = generationState(env);
     const random = env.random ?? { d, rn1, rn2, rnd };
     // Every selection path needs rn2. rndmonnum's fallback can synthesize rn1
     // from it; a missing rnd is tolerated unless a path reaches mkclass(),
@@ -107,11 +116,30 @@ function generationEnv(env = {}) {
                 return total;
             }),
     };
-    if (!Array.isArray(state.mons) || state.mons.length <= SPECIAL_PM)
-        throw new Error('monster generation requires monst_globals_init()');
-    if (!Array.isArray(state.mvitals) || state.mvitals.length < SPECIAL_PM)
-        throw new Error('monster generation requires initialized mvitals');
     return { ...env, state, random: sourceRandom };
+}
+
+function hitPointEnv(env = {}) {
+    const state = generationState(env);
+    const random = env.random ?? { d, rnd };
+    const randomOneBased = typeof random.rnd === 'function'
+        ? random.rnd
+        : null;
+    return {
+        ...env,
+        state,
+        random: {
+            rnd: randomOneBased,
+            d: typeof random.d === 'function'
+                ? random.d
+                : randomOneBased && ((number, sides) => {
+                    let total = 0;
+                    for (let die = 0; die < number; ++die)
+                        total += randomOneBased(sides);
+                    return total;
+                }),
+        },
+    };
 }
 
 function currentSpecialLevel(state) {
@@ -243,7 +271,7 @@ export function mbirth_limit(mndx) {
 // C ref: makemon.c propagate(). Births can still be tallied after a species
 // is gone; ghostly restoration alone suppresses a tally which cannot live.
 export function propagate(mndx, tally, ghostly, env = {}) {
-    const { state } = generationEnv(env);
+    const state = generationState(env);
     if (!Number.isInteger(mndx) || mndx < LOW_PM || mndx >= NUMMONS)
         throw new RangeError(`propagate: invalid monster index ${mndx}`);
 
@@ -299,7 +327,7 @@ function isRider(mndx) {
 
 // C ref: makemon.c newmonhp().
 export function newmonhp(mon, mndx, env = {}) {
-    const { random, state } = generationEnv(env);
+    const { random, state } = hitPointEnv(env);
     if (!mon || typeof mon !== 'object')
         throw new TypeError('newmonhp requires a monster instance');
     if (!Number.isInteger(mndx) || mndx < LOW_PM || mndx >= NUMMONS)

@@ -2,6 +2,7 @@
 // C ref: src/exper.c newuexp(), enermod(), and newpw().
 
 import { A_WIS, MAXULEV } from './const.js';
+import { effective_attribute } from './attrib.js';
 import { game } from './gstate.js';
 import { rn1, rnd } from './rng.js';
 
@@ -50,7 +51,7 @@ export function newpw(state = game, random = { rn1, rnd }) {
         if (roleRandom > 0) energy += random.rnd(roleRandom);
         if (raceRandom > 0) energy += random.rnd(raceRandom);
     } else {
-        let energyRandom = Math.trunc((u.acurr?.a?.[A_WIS] ?? 0) / 2);
+        let energyRandom = Math.trunc(effective_attribute(state, A_WIS) / 2);
         const lowLevel = u.ulevel < Math.trunc(role.xlev ?? 0);
         const fixedField = lowLevel ? 'lofix' : 'hifix';
         const randomField = lowLevel ? 'lornd' : 'hirnd';

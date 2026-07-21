@@ -146,6 +146,26 @@ function mineralizeEnv(rawEnv = {}) {
     return objectGenerationEnv({ ...rawEnv, state, random });
 }
 
+function preflightLevelContext(state, current, goldprob) {
+    // water_has_kelp() consults this only for WATER, but the C topology global
+    // is unconditionally available. Validate it before an earlier pool or
+    // moat can consume RNG and place kelp.
+    topologyLevel(state, 'water_level');
+
+    const excluded = inHell(state)
+        || current.dnum === dungeonNumber(state, 'tower_dnum')
+        || isTopologyLevel(state, 'rogue_level')
+        || arborealLevel(state)
+        || excludedSpecialLevel(state);
+    if (excluded) return { excluded };
+
+    const mines = dungeonNumber(state, 'mines_dnum');
+    const quest = dungeonNumber(state, 'quest_dnum');
+    const defaultGold = goldprob < 0
+        ? 20 + Math.trunc(depth(current, state) / 3) : null;
+    return { excluded, mines, quest, defaultGold };
+}
+
 function waterHasKelp(x, y, kelpPool, kelpMoat, env) {
     const location = locationAt(env.state, x, y);
     return Boolean(
@@ -199,6 +219,8 @@ export function mineralize(
     if (kelpMoat < 0) kelpMoat = 30;
 
     if (!skipLevelChecks && inEndgame(state)) return;
+    const levelContext = skipLevelChecks
+        ? null : preflightLevelContext(state, current, goldprob);
     for (let x = 2; x < COLNO - 2; ++x) {
         for (let y = 1; y < ROWNO - 1; ++y) {
             if (waterHasKelp(x, y, kelpPool, kelpMoat, env)) {
@@ -207,25 +229,19 @@ export function mineralize(
         }
     }
 
-    if (!skipLevelChecks
-        && (inHell(state)
-            || current.dnum === dungeonNumber(state, 'tower_dnum')
-            || isTopologyLevel(state, 'rogue_level')
-            || arborealLevel(state)
-            || excludedSpecialLevel(state))) {
-        return;
-    }
+    if (levelContext?.excluded) return;
 
     if (goldprob < 0)
-        goldprob = 20 + Math.trunc(depth(current, state) / 3);
+        goldprob = levelContext?.defaultGold
+            ?? 20 + Math.trunc(depth(current, state) / 3);
     if (gemprob < 0)
         gemprob = Math.trunc(goldprob / 4);
 
     if (!skipLevelChecks) {
-        if (current.dnum === dungeonNumber(state, 'mines_dnum')) {
+        if (current.dnum === levelContext.mines) {
             goldprob *= 2;
             gemprob *= 3;
-        } else if (current.dnum === dungeonNumber(state, 'quest_dnum')) {
+        } else if (current.dnum === levelContext.quest) {
             goldprob = Math.trunc(goldprob / 4);
             gemprob = Math.trunc(gemprob / 6);
         }

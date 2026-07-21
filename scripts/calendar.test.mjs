@@ -5,6 +5,7 @@ import {
     friday_13th,
     getLocalTime,
     getnow,
+    getyear,
     hhmmss,
     midnight,
     night,
@@ -129,6 +130,20 @@ test('fixed timestamps inherit the recorder patch current DST bit', () => {
         time_from_yyyymmddhhmmss('18830120123456', false),
         -2743741742,
     );
+});
+
+test('date serializers preserve the pre-1970 tm_year quirk', () => {
+    const old = fixed('19650720123456', false);
+    assert.equal(getyear(old), 1965);
+    assert.equal(yyyymmdd(old), 20650720);
+    assert.equal(yyyymmddhhmmss(old), '20650720133456');
+
+    // Inheriting a daylight bit for a winter time normalizes this instant
+    // across the year boundary before calendar.c applies its tm_year test.
+    const crossed = fixed('19700101003000', true);
+    assert.equal(getyear(crossed), 1969);
+    assert.equal(yyyymmdd(crossed), 20691231);
+    assert.equal(yyyymmddhhmmss(crossed), '20691231233000');
 });
 
 test('moon phase preserves the NetHack integer epact formula', () => {

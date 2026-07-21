@@ -5,13 +5,20 @@ import {
     ANTI_MAGIC,
     ARROW_TRAP,
     BEAR_TRAP,
+    DB_EAST,
+    DB_FLOOR,
+    DB_ICE,
+    DB_LAVA,
+    DB_MOAT,
     DART_TRAP,
+    DRAWBRIDGE_UP,
     FIRE_TRAP,
     HOLE,
     ICE,
     LEVEL_TELEP,
     MAGIC_PORTAL,
     MAGIC_TRAP,
+    MELT_ICE_AWAY,
     MKTRAP_NOSPIDERONWEB,
     NO_TRAP,
     PIT,
@@ -19,6 +26,7 @@ import {
     ROOM,
     ROLLING_BOULDER_TRAP,
     RUST_TRAP,
+    SPIKED_PIT,
     SQKY_BOARD,
     STAIRS,
     STATUE_TRAP,
@@ -26,6 +34,11 @@ import {
     TRAPDOOR,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
+    TT_BEARTRAP,
+    TT_LAVA,
+    TT_NONE,
+    TT_PIT,
+    TT_WEB,
     VIBRATING_SQUARE,
     WEB,
 } from '../js/const.js';
@@ -233,4 +246,162 @@ test('maketrap exposes later subsystem boundaries before linking a trap', () => 
     assert.equal(state.level.at(10, 5).typ, ROOM);
     assert.equal(state.level.at(10, 5).flags, 37);
     assert.equal(state.level.traps.length, 0);
+});
+
+test('maketrap preflights seams before changing an existing trap', () => {
+    const state = initializedState();
+    const existing = maketrap(10, 5, ARROW_TRAP, { state });
+    // Each nondefault value is a field resetTrap() would overwrite if a
+    // missing subsystem were discovered too late.
+    Object.assign(existing, {
+        madeby_u: true,
+        once: true,
+        tnote: 9,
+        vl: { launch_otyp: 27 },
+    });
+    const original = structuredClone(existing);
+
+    assert.throws(
+        () => maketrap(10, 5, STATUE_TRAP, { state }),
+        /statue-trap subsystem/,
+    );
+    assert.deepEqual(existing, original);
+    assert.throws(
+        () => maketrap(10, 5, ROLLING_BOULDER_TRAP, { state }),
+        /rolling-boulder launch subsystem/,
+    );
+    assert.deepEqual(existing, original);
+
+    state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
+    assert.throws(
+        () => maketrap(10, 5, PIT, { state }),
+        /buried-object subsystem/,
+    );
+    assert.deepEqual(existing, original);
+
+    state.level.buriedobjlist = null;
+    const location = state.level.at(10, 5);
+    location.typ = DRAWBRIDGE_UP;
+    location.flags = DB_ICE;
+    assert.throws(
+        () => maketrap(10, 5, PIT, { state }),
+        /obj_ice_effects/,
+    );
+    assert.deepEqual(existing, original);
+    assert.deepEqual(state.level.traps, [existing]);
+    assert.deepEqual(
+        [location.typ, location.flags],
+        [DRAWBRIDGE_UP, DB_ICE],
+    );
+});
+
+test('maketrap resets only incompatible hero trap states during replacement', () => {
+    const state = initializedState();
+    const existing = maketrap(10, 5, ARROW_TRAP, { state });
+    Object.assign(state.u, {
+        ux: 10,
+        uy: 5,
+        // A positive duration means the hero is currently held by the trap.
+        utrap: 7,
+        utraptype: TT_BEARTRAP,
+    });
+
+    assert.throws(
+        () => maketrap(10, 5, WEB, { state }),
+        /hero-trap reset support/,
+    );
+    assert.equal(existing.ttyp, ARROW_TRAP);
+    assert.deepEqual([state.u.utrap, state.u.utraptype], [7, TT_BEARTRAP]);
+
+    const resets = [];
+    const replacement = maketrap(10, 5, WEB, {
+        state,
+        resetUtrap(showMessage, env) {
+            resets.push(showMessage);
+            env.state.u.utrap = 0;
+            env.state.u.utraptype = TT_NONE;
+        },
+    });
+    assert.equal(replacement, existing);
+    assert.deepEqual(resets, [false]);
+    assert.deepEqual([state.u.utrap, state.u.utraptype], [0, TT_NONE]);
+
+    const compatibleCases = [
+        ['bear trap', TT_BEARTRAP, BEAR_TRAP, ROOM, 0],
+        ['web', TT_WEB, WEB, ROOM, 0],
+        ['pit family', TT_PIT, SPIKED_PIT, ROOM, 0],
+        ['lava terrain', TT_LAVA, ARROW_TRAP, DRAWBRIDGE_UP, DB_LAVA],
+    ];
+    for (const [label, trapState, replacementType, terrain, flags]
+        of compatibleCases) {
+        const compatibleState = initializedState();
+        const compatible = maketrap(10, 5, ARROW_TRAP, {
+            state: compatibleState,
+        });
+        const location = compatibleState.level.at(10, 5);
+        location.typ = terrain;
+        location.flags = flags;
+        Object.assign(compatibleState.u, {
+            ux: 10,
+            uy: 5,
+            utrap: 7,
+            utraptype: trapState,
+        });
+        assert.equal(
+            maketrap(10, 5, replacementType, { state: compatibleState }),
+            compatible,
+            label,
+        );
+        assert.deepEqual(
+            [compatibleState.u.utrap, compatibleState.u.utraptype],
+            [7, trapState],
+            label,
+        );
+    }
+});
+
+test('maketrap uses raised drawbridge-under terrain for pits and holes', () => {
+    for (const under of [DB_MOAT, DB_LAVA]) {
+        const state = initializedState();
+        const location = state.level.at(10, 5);
+        location.typ = DRAWBRIDGE_UP;
+        location.flags = under;
+        assert.equal(maketrap(10, 5, PIT, { state }), null);
+        assert.deepEqual(state.level.traps, []);
+    }
+
+    const floorState = initializedState();
+    const floor = floorState.level.at(10, 5);
+    floor.typ = DRAWBRIDGE_UP;
+    floor.flags = DB_FLOOR | DB_EAST;
+    assert.ok(maketrap(10, 5, PIT, { state: floorState }));
+    assert.deepEqual(
+        [floor.typ, floor.flags],
+        [DRAWBRIDGE_UP, DB_FLOOR | DB_EAST],
+    );
+
+    const iceState = initializedState();
+    const ice = iceState.level.at(10, 5);
+    ice.typ = DRAWBRIDGE_UP;
+    ice.flags = DB_ICE | DB_EAST;
+    const calls = [];
+    assert.ok(maketrap(10, 5, HOLE, {
+        state: iceState,
+        // A nonzero result stops hole_destination() after one floor.
+        random: { rn2: () => 1 },
+        objIceEffects(x, y, force) {
+            calls.push(['objects', x, y, force, ice.flags]);
+        },
+        spotStopTimers(x, y, action) {
+            calls.push(['timers', x, y, action, ice.flags]);
+        },
+    }));
+    assert.deepEqual(calls, [
+        ['objects', 10, 5, true, DB_FLOOR | DB_EAST],
+        ['timers', 10, 5, MELT_ICE_AWAY, DB_FLOOR | DB_EAST],
+    ]);
+    assert.deepEqual(
+        [ice.typ, ice.flags],
+        [DRAWBRIDGE_UP, DB_FLOOR | DB_EAST],
+    );
 });

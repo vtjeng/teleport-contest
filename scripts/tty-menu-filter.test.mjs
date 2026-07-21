@@ -9,6 +9,7 @@ import { ROLE_NONE, aligns, races, roles } from '../js/roles.js';
 import {
     applyRoleFilterSelection,
     buildRoleFilterMenuSpec,
+    gotRoleFilter,
     renderTtyMenu,
     resetRoleFilteringTty,
     selectTtyMenu,
@@ -164,6 +165,83 @@ test('PICK_ANY tracks global groups and numeric counts', async () => {
         'a * apples',
         'b + bananas',
     ]);
+});
+
+test('PICK_ANY bulk commands distinguish all items from the current page', async () => {
+    const baseItems = () => Array.from({ length: 30 }, (_, index) => ({
+        selector: String.fromCharCode(65 + (index % 26)),
+        label: `choice ${index}`,
+        value: index,
+        selected: index === 0 || index === 5,
+        count: index === 0 ? 12 : index === 5 ? 7 : -1,
+        bulkSelectable: index !== 5,
+    }));
+    const expectedValues = {
+        ',': [0, ...Array.from({ length: 20 }, (_, i) => i + 1)],
+        '>,': [0, 5, ...Array.from({ length: 9 }, (_, i) => i + 21)],
+        '\\': [5],
+        '>\\': [0, 5],
+        '~': [1, 2, 3, 4, ...Array.from({ length: 16 }, (_, i) => i + 5)],
+        '>~': [0, 5, ...Array.from({ length: 9 }, (_, i) => i + 21)],
+        '.': Array.from({ length: 30 }, (_, index) => index),
+        '-': [5],
+        '@': Array.from({ length: 29 }, (_, i) => i + 1),
+    };
+
+    for (const [commands, expected] of Object.entries(expectedValues)) {
+        const state = menuState(`${commands}\n`);
+        const selected = await selectTtyMenu(state, {
+            title: 'Synthetic bulk commands',
+            titleAttr: 0,
+            how: PICK_ANY,
+            items: baseItems(),
+        });
+        assert.deepEqual(
+            selected.map(({ value }) => value),
+            expected,
+            commands,
+        );
+        const retained = new Map(
+            selected.map(({ value, count }) => [value, count]),
+        );
+        if (retained.has(0)) assert.equal(retained.get(0), 12, commands);
+        assert.equal(retained.get(5), 7, commands);
+    }
+});
+
+test('gold remains a group accelerator when its selector is off-page', async () => {
+    const state = menuState('>$\n');
+    const items = Array.from({ length: 30 }, (_, index) => ({
+        selector: index === 0 ? '$' : String.fromCharCode(65 + (index % 26)),
+        groupSelector: index === 0 || index === 29 ? '$' : '',
+        label: `choice ${index}`,
+        value: index,
+    }));
+
+    assert.deepEqual(await selectTtyMenu(state, {
+        title: 'Synthetic gold group',
+        titleAttr: 0,
+        how: PICK_ANY,
+        items,
+    }), [
+        { value: 0, count: -1 },
+        { value: 29, count: -1 },
+    ]);
+});
+
+test('gotRoleFilter and menu construction do not install filter aliases', () => {
+    const state = menuState();
+    delete state.roleFilter;
+    state.rfilter = {
+        roles: roles.map((_, index) => index === 3),
+        mask: 0,
+    };
+    const before = state.rfilter;
+
+    assert.equal(gotRoleFilter(state), true);
+    buildRoleFilterMenuSpec(state);
+    assert.equal(Object.hasOwn(state, 'roleFilter'), false);
+    assert.equal(state.rfilter, before);
 });
 
 test('an invalid PICK_ANY key preserves a pending count', async () => {

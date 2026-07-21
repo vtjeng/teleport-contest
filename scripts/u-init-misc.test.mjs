@@ -19,6 +19,7 @@ import {
 import { init_dungeons } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
+import { monst_globals_init } from '../js/monsters.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { role_init } from '../js/role_init.js';
 import {
@@ -374,6 +375,7 @@ test('moves remains the source boundary for newhp alignment record setup', () =>
 
 function freshBootstrap(seed, role, race, gender, alignment) {
     resetGame();
+    monst_globals_init(game);
     initRng(seed);
     enableRngLog();
     init_objects(game);

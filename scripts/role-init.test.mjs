@@ -5,6 +5,7 @@ import test from 'node:test';
 import { P_CLERIC_SPELL } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
+import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init, SPE_LIGHT } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -67,6 +68,7 @@ function explicitState(role, race, gender, alignment, name = 'Player') {
         },
     };
     objects_globals_init(state);
+    monst_globals_init(state);
     return state;
 }
 
@@ -294,7 +296,6 @@ test('priest pantheon retries preserve PRNG order and deity state', () => {
 
 test('quest monster overrides apply when catalog entries are available', () => {
     const state = explicitState('Ranger', 'orc', 'male', 'chaotic');
-    state.mons = Array.from({ length: 383 }, () => null);
     // Ranger uses leader 351, guardian 376, and nemesis 364. Initial peaceful
     // and close bits on the nemesis prove role_init clears both.
     state.mons[351] = { mflags2: 0, mflags3: 0 };
@@ -320,20 +321,17 @@ test('quest monster overrides apply when catalog entries are available', () => {
     assert.ok(state.mons[364].mflags3 & 0x0040);
 });
 
-test('catalog-less quest mutations remain explicit and apply later', () => {
+test('role_init rejects a missing monster catalog before state mutation', () => {
     const state = explicitState('Ranger', 'orc', 'male', 'chaotic');
-    role_init(state, (bound) => {
-        assert.fail(`fixed-gender Ranger quest called random(${bound})`);
-    });
-    assert.equal(state.roleInitMonsterOverrides.length, 3);
-    assert.equal(applyRoleInitMonsterOverrides(state), false);
-
-    state.mons = Array.from({ length: 383 }, () => null);
-    for (const { mnum } of state.roleInitMonsterOverrides)
-        state.mons[mnum] = { mflags2: 0, mflags3: 0 };
-    assert.equal(applyRoleInitMonsterOverrides(state), true);
-    assert.equal(state.mons[state.urole.ldrnum].msound, 36);
-    assert.equal(state.mons[state.urole.neminum].msound, 37);
+    delete state.mons;
+    assert.throws(
+        () => role_init(state, (bound) => {
+            assert.fail(`missing catalog called random(${bound})`);
+        }),
+        /requires monst_globals_init/,
+    );
+    assert.equal(state.urole, undefined);
+    assert.equal(state.roleInitMonsterOverrides, undefined);
 });
 
 test('restore preserves current sex independently of initial gender', () => {
@@ -384,6 +382,7 @@ test('fresh C recorder cases match the role_init PRNG prefix', () => {
 
     for (const config of cases) {
         resetGame();
+        monst_globals_init(game);
         initRng(config.seed);
         enableRngLog();
         init_objects(game);

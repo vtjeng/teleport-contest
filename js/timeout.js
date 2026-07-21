@@ -26,8 +26,10 @@ import {
     TIMER_LEVEL,
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
+    W_ARM,
     ZOMBIFY_MON,
 } from './const.js';
+import { ART_SUNSWORD } from './artifacts.js';
 import { game } from './gstate.js';
 import {
     candle_light_range,
@@ -43,6 +45,9 @@ import {
 } from './monsters.js';
 import {
     BRASS_LANTERN,
+    GOLD_DRAGON_SCALE_MAIL,
+    GOLD_DRAGON_SCALES,
+    MAGIC_LAMP,
     OIL_LAMP,
     TALLOW_CANDLE,
     WAX_CANDLE,
@@ -140,6 +145,15 @@ function runBurnInventoryRefresh(updateInventory, state) {
     } finally {
         state.iflags.suppress_price = savedSuppressPrice;
     }
+}
+
+// C ref: artifact.c artifact_light().  Gold dragon armor and Sunsword use a
+// permanent light source rather than a BURN_OBJECT timer.
+function artifactLight(obj) {
+    return ((obj.otyp === GOLD_DRAGON_SCALE_MAIL
+             || obj.otyp === GOLD_DRAGON_SCALES)
+            && Boolean(obj.owornmask & W_ARM))
+        || obj.oartifact === ART_SUNSWORD;
 }
 
 // C ref: timeout.c cleanup_burn(). Light-source deletion remains an injected
@@ -301,6 +315,68 @@ export function stop_timer(funcIndex, arg, state = game, env = {}) {
         arg.timed = Math.trunc(arg.timed ?? 0) - 1;
     cleanupTimer(matched, state, cleanup);
     return matched.timeout - currentMove(state);
+}
+
+// Dependency-only half of timeout.c end_burn().  Burial needs to establish
+// that light deletion and the burn timer are both available before it changes
+// punishment, leash, or floor ownership state.
+export function preflight_end_burn(
+    obj,
+    timerAttached = true,
+    env = {},
+) {
+    const state = env.state ?? game;
+    const normalized = timerCleanupEnv(state, env);
+    if (!obj?.lamplit) return { mode: 'none', normalized };
+
+    const attached = Boolean(timerAttached)
+        && obj.otyp !== MAGIC_LAMP
+        && !artifactLight(obj);
+    if (!attached) {
+        const deleteLight = requiredCleanupHook(
+            normalized,
+            'deleteObjectLightSource',
+            BURN_OBJECT,
+        );
+        const updateInventory = preflightBurnInventoryRefresh(
+            obj,
+            state,
+            normalized,
+        );
+        return {
+            mode: 'direct',
+            normalized,
+            deleteLight,
+            updateInventory,
+        };
+    }
+
+    let timer = state.gt?.timer_base ?? null;
+    while (timer
+           && !(timer.func_index === BURN_OBJECT && timer.arg === obj)) {
+        timer = timer.next;
+    }
+    if (!timer)
+        throw new Error('end_burn: lit object has no burn timer');
+    preflightTimerCleanup(timer, state, normalized);
+    return { mode: 'timer', normalized };
+}
+
+// C ref: timeout.c end_burn().  Returns whether a lit source was stopped.
+export function end_burn(obj, timerAttached = true, env = {}) {
+    const plan = preflight_end_burn(obj, timerAttached, env);
+    if (plan.mode === 'none') return false;
+    if (plan.mode === 'direct') {
+        plan.deleteLight(obj, plan.normalized);
+        obj.lamplit = false;
+        runBurnInventoryRefresh(
+            plan.updateInventory,
+            plan.normalized.state,
+        );
+        return true;
+    }
+    stop_timer(BURN_OBJECT, obj, plan.normalized.state, plan.normalized);
+    return true;
 }
 
 export function peek_timer(funcIndex, arg, state = game) {

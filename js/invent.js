@@ -138,13 +138,21 @@ function requireInventoryRefresh(env) {
     }
 }
 
+// Dependency-only half of update_inventory(). Callers which must mutate
+// other state first can preserve C order while still failing atomically when
+// the permanent-inventory window boundary is unavailable.
+export function preflight_update_inventory(env = {}) {
+    const normalized = inventoryEnv(env);
+    requireInventoryRefresh(normalized);
+    return normalized;
+}
+
 // C ref: invent.c update_inventory(). Calls before the move loop and while
 // map output is suppressed are deliberately ignored. moveloop_preamble()
 // owns the first live startup refresh.
 export function update_inventory(env = {}) {
-    const normalized = inventoryEnv(env);
+    const normalized = preflight_update_inventory(env);
     if (!inventoryRefreshActive(normalized)) return false;
-    requireInventoryRefresh(normalized);
     if (typeof normalized.hooks.updateInventory !== 'function') return false;
     normalized.state.iflags ??= {};
     const savedSuppressPrice = normalized.state.iflags.suppress_price;
@@ -651,6 +659,15 @@ function preflightObfree(obj, merge, env) {
         preflightObfree(contents, null, env);
 }
 
+// Dependency-only half of shk.c obfree().  Callers such as burial extract an
+// object before freeing it, so they must be able to resolve every downstream
+// lifecycle owner while the original floor chains are still intact.
+export function preflight_obfree(obj, merge = null, env = {}) {
+    const normalized = inventoryEnv(env);
+    preflightObfree(obj, merge, normalized);
+    return normalized;
+}
+
 function comparisonWillDiscover(otmp, obj, state) {
     const targetBknown = otmp.oclass === COIN_CLASS ? false : otmp.bknown;
     return Boolean(obj.known) !== Boolean(otmp.known)
@@ -663,7 +680,9 @@ function comparisonWillDiscover(otmp, obj, state) {
 // C ref: shk.c obfree(). The general shop bill is not ported; encountering a
 // billed object fails at that seam. Owned startup objects still preserve the
 // source's o_id-based price adjustment when stacks merge.
-function obfree(obj, merge, env) {
+export function obfree(obj, merge = null, rawEnv = {}) {
+    const env = inventoryEnv(rawEnv);
+    preflightObfree(obj, merge, env);
     if (obj.otyp === LEASH && obj.leashmon)
         requiredHook(env, 'unleashObject', obj)(obj, env);
 

@@ -43,6 +43,9 @@ const MENU_SELECT_PAGE = ',';
 const MENU_UNSELECT_PAGE = '\\';
 const MENU_INVERT_PAGE = '~';
 const MENU_SEARCH = ':';
+// C defsym.h: GOLD_SYM is the exceptional selector which can also act as a
+// group accelerator for gold that is not on the current page.
+const GOLD_SYM = '$';
 const SEARCH_PROMPT = 'Search for: ';
 
 export function menuTitleStyle(state = game) {
@@ -198,9 +201,14 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0) {
         // when the menu is dismissed.
         display.clearRow(0);
     }
+    // A full-screen gameplay menu is repaired by docrt()+flush_screen() in
+    // tty_dismiss_nhwindow().  Retain the equivalent physical base frame so
+    // state-parameterized and focused displays can perform that repair
+    // without reaching through the global display singleton.
     const snapshot = layout.fullScreen
-        ? null
+        ? copyRegion(display, 0, display.rows)
         : copyRegion(display, layout.repairColumn, restoredRows);
+    const baseCursor = [display.cursorCol, display.cursorRow];
 
     if (layout.fullScreen) display.clearScreen();
     else clearRegion(display, layout.firstColumn, visibleRows);
@@ -237,16 +245,20 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0) {
         layout.footerRow,
     );
 
-    return { layout, snapshot, spec };
+    return { layout, snapshot, spec, baseCursor };
 }
 
 export function dismissTtyMenu(state = game, rendered) {
     const display = state.nhDisplay;
     if (!display || !rendered) return;
     if (rendered.layout.fullScreen) {
-        display.clearScreen();
-        if (state.program_state?.in_role_selection)
+        if (state.program_state?.in_role_selection) {
+            display.clearScreen();
             state._ttyBaseCursorRow = 0;
+        } else {
+            restoreRegion(display, 0, rendered.snapshot);
+            display.setCursor(...rendered.baseCursor);
+        }
     } else if (state.program_state?.in_role_selection) {
         // Role selection overlays the base window's startup text, which tty
         // does not retain as redrawable window data. docorner() therefore
@@ -346,7 +358,7 @@ async function ttyGetlinSearch(state) {
     startTtyGetlinPrompt(display);
 
     for (;;) {
-        const code = await nhgetch();
+        const code = await nhgetch(state);
         if (code === 10 || code === 13) {
             const result = input.join('');
             clearTtyGetlinPrompt(display);
@@ -587,7 +599,7 @@ async function selectOneTtyMenu(state, spec) {
     let rendered = renderTtyMenu(state, workingSpec, pageIndex);
     let pendingCount = null;
     for (;;) {
-        const code = await nhgetch();
+        const code = await nhgetch(state);
         const incoming = keyCharacter(code);
         // process_menu_window() protects current-page selectors and unique
         // PICK_ONE group accelerators before applying a menu-key alias.
@@ -805,7 +817,7 @@ async function selectAnyTtyMenu(state, spec) {
     let pendingCount = null;
 
     for (;;) {
-        const code = await nhgetch();
+        const code = await nhgetch(state);
         const incoming = keyCharacter(code);
         const currentItems = visibleItems(rendered);
         // Current-page selectors are the only PICK_ANY choices protected
@@ -825,12 +837,15 @@ async function selectAnyTtyMenu(state, spec) {
         const ch = mapping.command;
         const incomingGrouped = allItems.some((item) => (
             item.groupSelector === incoming
-            && item.groupSelector !== item.selector
+            && (item.groupSelector !== item.selector
+                || item.groupSelector === GOLD_SYM)
         ));
         const acceptedIncoming = mapping.mapped || incomingGrouped
             || isDefaultMenuResponse(incoming);
         const grouped = allItems.filter((item) => (
-            item.groupSelector === ch && item.groupSelector !== item.selector
+            item.groupSelector === ch
+            && (item.groupSelector !== item.selector
+                || item.groupSelector === GOLD_SYM)
         ));
 
         if (ch >= '0' && ch <= '9') {
@@ -957,22 +972,26 @@ export async function selectTtyMenu(state = game, spec) {
         : selectOneTtyMenu(state, spec);
 }
 
-function roleFilterState(state) {
+function normalizedRoleFilter(state) {
     const current = state.roleFilter ?? state.rfilter ?? {};
-    const normalized = {
+    return {
         roles: Array.from(
             { length: roles.length },
             (_, index) => Boolean(current.roles?.[index]),
         ),
         mask: Number.isInteger(current.mask) ? current.mask : 0,
     };
+}
+
+function installRoleFilter(state) {
+    const normalized = normalizedRoleFilter(state);
     state.roleFilter = normalized;
     state.rfilter = normalized;
     return normalized;
 }
 
 export function gotRoleFilter(state = game) {
-    const filter = roleFilterState(state);
+    const filter = normalizedRoleFilter(state);
     return filter.mask !== 0 || filter.roles.some(Boolean);
 }
 
@@ -1075,7 +1094,7 @@ function alignmentFilterItems(filter) {
 
 // C ref: role.c reset_role_filtering() and setup_*menu(..., FALSE, ...).
 export function buildRoleFilterMenuSpec(state = game) {
-    const filter = roleFilterState(state);
+    const filter = normalizedRoleFilter(state);
     return {
         title: `Pick all that apply${gotRoleFilter(state)
             ? ' and/or unpick any that no longer apply' : ''}`,
@@ -1120,7 +1139,7 @@ function setRoleFilterValue(filter, value) {
 // empty commit which clears the filter and resets all pending facets.
 export function applyRoleFilterSelection(state = game, selected) {
     if (!Array.isArray(selected)) return false;
-    const filter = roleFilterState(state);
+    const filter = installRoleFilter(state);
     filter.roles.fill(false);
     filter.mask = 0;
     for (const entry of selected)

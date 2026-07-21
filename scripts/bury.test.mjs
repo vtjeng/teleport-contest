@@ -2,18 +2,23 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BURN_OBJECT,
     ICE,
     OBJ_BURIED,
+    OBJ_DELETED,
     OBJ_FLOOR,
     REVIVE_MON,
     ROT_CORPSE,
     ROT_ORGANIC,
     TIMER_OBJECT,
+    TT_BURIEDBALL,
+    W_BALL,
+    W_CHAIN,
 } from '../js/const.js';
 import { ART_LONGBOW_OF_DIANA } from '../js/artifacts.js';
 import {
-    UnsupportedBurialError,
     bury_an_obj,
+    obj_resists,
 } from '../js/bury.js';
 import { GameMap } from '../js/game.js';
 import { newObject, place_object } from '../js/obj.js';
@@ -21,6 +26,7 @@ import {
     APPLE,
     AMULET_OF_YENDOR,
     BOW,
+    BOULDER,
     CHEST,
     CORPSE,
     FOOD_RATION,
@@ -30,6 +36,7 @@ import {
     OIL_LAMP,
     POT_HEALING,
     ROCK,
+    SPE_BOOK_OF_THE_DEAD,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -85,6 +92,16 @@ function scriptedRandom(expectedCalls) {
     };
     return {
         random: {
+            rn1: (range, base) => {
+                const expected = remaining.shift();
+                assert.ok(expected, `unexpected rn1(${range}, ${base})`);
+                assert.deepEqual(
+                    ['rn1', range, base],
+                    expected.slice(0, 3),
+                    `wrong RNG call before scripted result ${expected[3]}`,
+                );
+                return expected[3];
+            },
             rn2: (bound) => draw('rn2', bound),
             rnd: (bound) => draw('rnd', bound),
         },
@@ -93,6 +110,22 @@ function scriptedRandom(expectedCalls) {
         },
     };
 }
+
+test('obj_resists accepts the rn2-only dependency it actually consumes', () => {
+    const state = burialState();
+    const apple = objectInstance(APPLE, state);
+    const calls = [];
+    assert.equal(obj_resists(apple, 5, 95, {
+        state,
+        random: {
+            rn2(bound) {
+                calls.push(bound);
+                return 5;
+            },
+        },
+    }), false);
+    assert.deepEqual(calls, [100]);
+});
 
 function pileAt(state, x, y) {
     const pile = [];
@@ -239,6 +272,26 @@ test('protected objects resist burial without consuming RNG', () => {
     script.done();
 });
 
+test('an organic invocation object returns before rot-timer dependencies', () => {
+    const state = burialState();
+    delete state.gt;
+    delete state.svt;
+    const book = objectInstance(SPE_BOOK_OF_THE_DEAD, state);
+    const x = 19;
+    const y = 12;
+    place_object(book, x, y, { state });
+    const script = scriptedRandom([]);
+
+    assert.deepEqual(
+        bury_an_obj(book, { state, random: script.random }),
+        { next: null, deallocated: false },
+    );
+    assert.equal(book.where, OBJ_FLOOR);
+    assert.equal(state.level.objects[x][y], book);
+    assert.equal(state.level.buriedobjlist, null);
+    script.done();
+});
+
 test('a Rider corpse resists before RNG or floor ownership changes', () => {
     const state = burialState();
     const lower = objectInstance(APPLE, state);
@@ -332,130 +385,163 @@ test('off-ice corpse adjustment falls back to a revival timer', () => {
     script.done();
 });
 
-test('punishment chain and ball branches preserve floor ownership without RNG', () => {
-    const cases = [
-        {
-            name: 'chain',
-            object: IRON_CHAIN,
-            stateKey: 'uchain',
-            stateOwner: 'direct',
-            expectedOperation: null,
-        },
-        {
-            name: 'ball',
-            object: HEAVY_IRON_BALL,
-            stateKey: 'uball',
-            stateOwner: 'go',
-            expectedOperation: 'buried-ball punishment',
-        },
-    ];
+test('a punishment chain resists burial without RNG or ownership changes', () => {
+    const state = burialState();
+    const lower = objectInstance(APPLE, state);
+    const chain = objectInstance(IRON_CHAIN, state, { owornmask: W_CHAIN });
+    const upper = objectInstance(FOOD_RATION, state);
+    const x = 23;
+    const y = 15;
+    place_object(lower, x, y, { state });
+    place_object(chain, x, y, { state });
+    place_object(upper, x, y, { state });
+    state.uchain = chain;
+    const script = scriptedRandom([]);
 
-    for (const [index, entry] of cases.entries()) {
-        const state = burialState();
-        const lower = objectInstance(APPLE, state);
-        const punished = objectInstance(entry.object, state);
-        const upper = objectInstance(FOOD_RATION, state);
-        // Separate interior squares make failures attributable to each branch;
-        // the three-object pile exposes mutation to either ownership chain.
-        const x = 23 + index;
-        const y = 15;
-        place_object(lower, x, y, { state });
-        place_object(punished, x, y, { state });
-        place_object(upper, x, y, { state });
-        if (entry.stateOwner === 'go') {
-            state.go = { [entry.stateKey]: punished };
-        } else {
-            state[entry.stateKey] = punished;
-        }
-        const script = scriptedRandom([]);
-
-        if (entry.expectedOperation) {
-            assert.throws(
-                () => bury_an_obj(punished, {
-                    state,
-                    random: script.random,
-                }),
-                (error) => error instanceof UnsupportedBurialError
-                    && error.operation === entry.expectedOperation,
-                entry.name,
-            );
-        } else {
-            assert.deepEqual(
-                bury_an_obj(punished, { state, random: script.random }),
-                { next: lower, deallocated: false },
-            );
-        }
-
-        assert.equal(state.level.objects[x][y], upper, entry.name);
-        assert.equal(upper.nexthere, punished, entry.name);
-        assert.equal(punished.nexthere, lower, entry.name);
-        assert.equal(lower.nexthere, null, entry.name);
-        assert.equal(state.level.objlist, upper, entry.name);
-        assert.equal(upper.nobj, punished, entry.name);
-        assert.equal(punished.nobj, lower, entry.name);
-        assert.equal(lower.nobj, null, entry.name);
-        assert.equal(punished.where, OBJ_FLOOR, entry.name);
-        assert.deepEqual([punished.ox, punished.oy], [x, y], entry.name);
-        assert.equal(state.level.buriedobjlist, null, entry.name);
-        assert.equal(
-            entry.stateOwner === 'go'
-                ? state.go[entry.stateKey]
-                : state[entry.stateKey],
-            punished,
-            entry.name,
-        );
-        script.done();
-    }
+    assert.deepEqual(
+        bury_an_obj(chain, { state, random: script.random }),
+        { next: lower, deallocated: false },
+    );
+    assert.deepEqual(pileAt(state, x, y), [upper, chain, lower]);
+    assert.equal(chain.where, OBJ_FLOOR);
+    assert.equal(state.uchain, chain);
+    assert.equal(state.level.buriedobjlist, null);
+    script.done();
 });
 
-test('unported burial side effects fail before changing ownership', () => {
-    const cases = [
-        {
-            // Nonzero leashmon reaches dig.c o_unleash().
-            name: 'attached leash',
-            object: LEASH,
-            overrides: { leashmon: 41 },
-            operation: 'o_unleash',
-        },
-        {
-            // A lit non-oil object reaches dig.c end_burn().
-            name: 'lit lamp',
-            object: OIL_LAMP,
-            overrides: { lamplit: true },
-            operation: 'end_burn',
-        },
-        {
-            // A non-ice rock reaches dig.c obfree().
-            name: 'ordinary rock',
-            object: ROCK,
-            overrides: {},
-            operation: 'object deallocation',
-        },
-    ];
+test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', () => {
+    const state = burialState();
+    state.u = { utrap: 0, utraptype: 0 };
+    const lower = objectInstance(APPLE, state);
+    const ball = objectInstance(HEAVY_IRON_BALL, state, {
+        owornmask: W_BALL,
+    });
+    const chain = objectInstance(IRON_CHAIN, state, {
+        owornmask: W_CHAIN,
+    });
+    const x = 24;
+    const y = 15;
+    place_object(lower, x, y, { state });
+    place_object(ball, x, y, { state });
+    place_object(chain, x, y, { state });
+    state.go = { uball: ball };
+    state.uchain = chain;
+    const events = [];
+    const script = scriptedRandom([
+        ['rn1', 50, 20, 27],
+        ['rn2', 100, 50],
+    ]);
 
-    for (const [index, entry] of cases.entries()) {
+    const result = bury_an_obj(ball, {
+        state,
+        random: script.random,
+        hooks: {
+            plineThe(message) { events.push(message); },
+            newsym(px, py) { events.push(`newsym:${px},${py}`); },
+        },
+    });
+
+    assert.deepEqual(result, { next: lower, deallocated: false });
+    assert.equal(chain.where, OBJ_DELETED);
+    assert.equal(chain.owornmask, 0);
+    assert.equal(ball.where, OBJ_BURIED);
+    assert.equal(ball.owornmask, 0);
+    assert.equal(state.go.uball, null);
+    assert.equal(state.uchain, null);
+    assert.equal(state.u.utrap, 27);
+    assert.equal(state.u.utraptype, TT_BURIEDBALL);
+    assert.equal(state.disp.botl, true);
+    assert.deepEqual(events, [
+        `newsym:${x},${y}`,
+        'iron ball gets buried!',
+    ]);
+    assert.deepEqual(pileAt(state, x, y), [lower]);
+    assert.equal(state.level.buriedobjlist, ball);
+    script.done();
+});
+
+test('bury_an_obj unlinks an attached leash before burying it', () => {
+    const state = burialState();
+    const monster = { m_id: 41, mleashed: true, nmon: null };
+    state.level.monlist = monster;
+    const leash = objectInstance(LEASH, state, { leashmon: 41 });
+    place_object(leash, 21, 12, { state });
+    const script = scriptedRandom([
+        ['rn2', 100, 50],
+        // Leather is organic; zero exercises its resistance branch without
+        // starting a timer.
+        ['rn2', 100, 0],
+    ]);
+
+    const result = bury_an_obj(leash, { state, random: script.random });
+
+    assert.deepEqual(result, { next: null, deallocated: false });
+    assert.equal(leash.leashmon, 0);
+    assert.equal(monster.mleashed, false);
+    assert.equal(leash.where, OBJ_BURIED);
+    script.done();
+});
+
+test('bury_an_obj stops a burning lamp before changing floor ownership', () => {
+    const state = burialState(20);
+    const lamp = objectInstance(OIL_LAMP, state, { age: 40, lamplit: true });
+    place_object(lamp, 22, 12, { state });
+    start_timer(10, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+    const events = [];
+    const script = scriptedRandom([
+        ['rn2', 100, 50],
+    ]);
+
+    const result = bury_an_obj(lamp, {
+        state,
+        random: script.random,
+        hooks: {
+            deleteObjectLightSource(obj) {
+                assert.equal(obj, lamp);
+                events.push('light');
+            },
+        },
+    });
+
+    assert.deepEqual(result, { next: null, deallocated: false });
+    assert.deepEqual(events, ['light']);
+    assert.equal(lamp.lamplit, false);
+    assert.equal(lamp.timed, 0);
+    assert.equal(lamp.age, 50);
+    assert.equal(lamp.where, OBJ_BURIED);
+    script.done();
+});
+
+test('rock and boulder burial deallocates after source visibility effects', () => {
+    for (const [index, otyp] of [ROCK, BOULDER].entries()) {
         const state = burialState();
-        const obj = objectInstance(entry.object, state, entry.overrides);
-        // Distinct nearby squares prevent one case's floor state from masking
-        // another; their exact coordinates carry no gameplay significance.
-        const x = 21 + index;
+        const obj = objectInstance(otyp, state);
+        const x = 23 + index;
         const y = 12;
-        place_object(obj, x, y, { state });
+        place_object(obj, x, y, {
+            state,
+            hooks: otyp === BOULDER ? { recalcBlockPoint() {} } : {},
+        });
+        const events = [];
+        const hooks = otyp === BOULDER ? {
+            recalcBlockPoint(px, py) { events.push([px, py]); },
+        } : {};
         const script = scriptedRandom([
-            // Each ordinary object first consumes obj_resists(otmp, 0, 0).
             ['rn2', 100, 50],
         ]);
 
-        assert.throws(
-            () => bury_an_obj(obj, { state, random: script.random }),
-            (error) => error instanceof UnsupportedBurialError
-                && error.operation === entry.operation,
-            entry.name,
-        );
-        assert.equal(obj.where, OBJ_FLOOR, entry.name);
-        assert.equal(state.level.objects[x][y], obj, entry.name);
-        assert.equal(state.level.objlist, obj, entry.name);
-        assert.equal(state.level.buriedobjlist, null, entry.name);
+        const result = bury_an_obj(obj, {
+            state,
+            random: script.random,
+            hooks,
+        });
+
+        assert.deepEqual(result, { next: null, deallocated: true });
+        assert.equal(obj.where, OBJ_DELETED);
+        assert.equal(state.level.objects[x][y], null);
+        assert.equal(state.level.objlist, null);
+        assert.equal(state.level.buriedobjlist, null);
+        assert.deepEqual(events, otyp === BOULDER ? [[x, y]] : []);
         script.done();
     }
 });

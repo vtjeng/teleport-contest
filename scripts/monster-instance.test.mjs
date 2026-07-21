@@ -7,6 +7,7 @@ import {
     m_at,
     newMonster,
     place_monster,
+    relocate_monster,
     remove_monster,
 } from '../js/monst.js';
 
@@ -85,4 +86,25 @@ test('place_monster retains the source vault-guard parking exception', () => {
 
     place_monster(guard, 0, 0, state);
     assert.equal(m_at(0, 0, state), guard);
+});
+
+test('same-square relocation leaves the monster index and track untouched', () => {
+    const state = levelState();
+    const track = Array.from({ length: 4 }, (_, index) => ({
+        // Distinct nonzero coordinates make any track clearing visible.
+        x: index + 1,
+        y: index + 5,
+    }));
+    const monster = newMonster({ mhp: 3, mtrack: track });
+    place_monster(monster, 10, 5, state);
+
+    assert.equal(relocate_monster(monster, 10, 5, state), monster);
+    assert.equal(m_at(10, 5, state), monster);
+    assert.equal(monster.mtrack, track);
+    assert.deepEqual(monster.mtrack, [
+        { x: 1, y: 5 },
+        { x: 2, y: 6 },
+        { x: 3, y: 7 },
+        { x: 4, y: 8 },
+    ]);
 });

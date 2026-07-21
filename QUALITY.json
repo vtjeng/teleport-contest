@@ -104,6 +104,7 @@
         "js/cmd.js",
         "js/display.js",
         "js/game_display.js",
+        "js/glyph_ids.js",
         "js/input.js",
         "js/symbol_data.js",
         "js/symbols.js",

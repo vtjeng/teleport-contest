@@ -7,7 +7,8 @@
 
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
-import { newsym, flush_screen, pline } from './display.js';
+import { newsym, flush_screen } from './display.js';
+import { ttyPline } from './tty_message.js';
 import { vision_recalc } from './vision.js';
 import { COLNO, ROWNO, STONE, DOOR, D_CLOSED, D_LOCKED,
          IS_WALL, IS_OBSTRUCTED } from './const.js';
@@ -37,7 +38,7 @@ export async function rhack(key) {
     if (key === 0) {
         // Read key from input
         await flush_screen(1);
-        key = await nhgetch();
+        key = await nhgetch(game);
     }
 
     const ch = String.fromCharCode(key);
@@ -48,7 +49,7 @@ export async function rhack(key) {
     } else {
         // Unknown command
         game.context.move = 0;
-        await pline(`Unknown command '${ch}'.`);
+        await ttyPline(`Unknown command '${ch}'.`, game);
     }
 }
 

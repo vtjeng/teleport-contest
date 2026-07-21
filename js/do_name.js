@@ -44,18 +44,26 @@ const GHOST_NAMES = Object.freeze([
     'Murphy',
 ]);
 
-export function christen_monst(monster, name) {
+export function christen_monst(monster, name, env = {}) {
     if (!monster || typeof monster !== 'object')
         throw new TypeError('christen_monst requires a monster instance');
+    const updateInventory = env.updateInventory;
+    if (monster.mleashed && typeof updateInventory !== 'function') {
+        throw new Error(
+            'christen_monst requires update_inventory for a leashed monster',
+        );
+    }
     const bytes = encodeUtf8ByteString(String(name ?? ''));
     if (!bytes.length) {
         if (monster.mextra) delete monster.mextra.mgivenname;
+        if (monster.mleashed) updateInventory(env);
         return monster;
     }
     monster.mextra ??= {};
     monster.mextra.mgivenname = decodeUtf8ByteString(
         bytes.slice(0, PL_PSIZ - 1),
     );
+    if (monster.mleashed) updateInventory(env);
     return monster;
 }
 

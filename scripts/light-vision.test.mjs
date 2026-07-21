@@ -3,10 +3,17 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    COULD_SEE,
+    DOOR,
+    D_CLOSED,
     FROMOUTSIDE,
     HWALL,
     LS_OBJECT,
+    OBJ_BURIED,
+    OBJ_CONTAINED,
     OBJ_FLOOR,
+    OBJ_INVENT,
+    OBJ_MINVENT,
     ROOM,
     TEMP_LIT,
 } from '../js/const.js';
@@ -95,7 +102,10 @@ test('a blocking wall stops candle light along clear_path', () => {
     assert.equal(clear_path(9, 5, 8, 5), 1);
     vision_recalc(0);
 
-    assert.ok(state.viz_array[5][7] & 0x1, 'hero has line of sight to target');
+    assert.ok(
+        state.viz_array[5][7] & COULD_SEE,
+        'hero has line of sight to target',
+    );
     assert.equal(state.viz_array[5][7] & TEMP_LIT, 0);
     assert.equal(cansee(7, 5), false);
     assert.equal(state.level.at(7, 5).disp_ch, ' ');
@@ -143,4 +153,165 @@ test('vision refresh follows a moved floor light source without PRNG work', () =
     assert.equal(cansee(13, 7), true);
     assert.ok(state.viz_array[7][17] & TEMP_LIT);
     assert.deepEqual(getRngLog(), []);
+});
+
+test('contained and buried lights hide while carried lights follow owners', () => {
+    const state = darkRoomState();
+    const candle = floorCandle(state, 10, 7);
+    const source = state.gl.light_base;
+
+    vision_reset();
+    vision_recalc(0);
+    assert.ok(source.flags & 0x1);
+    assert.ok(state.viz_array[7][10] & TEMP_LIT);
+
+    candle.where = OBJ_CONTAINED;
+    candle.ocontainer = { where: OBJ_FLOOR, ox: 10, oy: 7 };
+    vision_recalc(0);
+    assert.equal(source.flags & 0x1, 0);
+    assert.equal(state.viz_array[7][10] & TEMP_LIT, 0);
+    assert.equal(cansee(10, 7), false);
+
+    candle.where = OBJ_BURIED;
+    candle.ocontainer = null;
+    vision_recalc(0);
+    assert.equal(source.flags & 0x1, 0);
+    assert.equal(state.viz_array[7][10] & TEMP_LIT, 0);
+
+    candle.where = OBJ_INVENT;
+    state.u.ux = 6;
+    vision_recalc(0);
+    assert.deepEqual([source.x, source.y], [6, 7]);
+    assert.ok(source.flags & 0x1);
+    assert.ok(state.viz_array[7][8] & TEMP_LIT);
+
+    const carrier = { mx: 14, my: 7 };
+    candle.where = OBJ_MINVENT;
+    candle.ocarry = carrier;
+    vision_recalc(0);
+    assert.deepEqual([source.x, source.y], [14, 7]);
+    assert.ok(source.flags & 0x1);
+    assert.ok(state.viz_array[7][14] & TEMP_LIT);
+    carrier.mx = 15;
+    carrier.my = 8;
+    vision_recalc(0);
+    assert.deepEqual([source.x, source.y], [15, 8]);
+    assert.ok(state.viz_array[8][15] & TEMP_LIT);
+});
+
+test('clear_path checks asymmetric and tie rays in every quadrant', () => {
+    const state = darkRoomState();
+    const start = [10, 10];
+    const cases = [
+        { target: [15, 7], blocker: [12, 9] },
+        { target: [5, 7], blocker: [8, 9] },
+        { target: [5, 13], blocker: [8, 11] },
+        { target: [15, 13], blocker: [12, 11] },
+        { target: [14, 6], blocker: [12, 8] },
+        { target: [6, 6], blocker: [8, 8] },
+        { target: [6, 14], blocker: [8, 12] },
+        { target: [14, 14], blocker: [12, 12] },
+    ];
+
+    for (const { target, blocker } of cases) {
+        state.level.at(...target).typ = HWALL;
+        vision_reset();
+        assert.equal(
+            clear_path(...start, ...target),
+            1,
+            `endpoint ${target} must be skipped`,
+        );
+        state.level.at(...target).typ = ROOM;
+        state.level.at(...blocker).typ = HWALL;
+        vision_reset();
+        assert.equal(
+            clear_path(...start, ...target),
+            0,
+            `intervening blocker ${blocker} must stop ${target}`,
+        );
+        state.level.at(...blocker).typ = ROOM;
+    }
+});
+
+test('generated closed doors block sight through their shared flags field', () => {
+    const state = darkRoomState();
+    state.u.ux = 10;
+    state.u.uy = 10;
+
+    const interveningDoor = state.level.at(12, 10);
+    interveningDoor.typ = DOOR;
+    interveningDoor.flags = D_CLOSED;
+    interveningDoor.doormask = 0;
+    vision_reset();
+    assert.equal(clear_path(10, 10, 14, 10), 0);
+    interveningDoor.typ = ROOM;
+    interveningDoor.flags = 0;
+
+    // A one-cell opening between two opaque wall runs exercises Algorithm C's
+    // shallow-angle boundary handling.  Treating this closed door as clear
+    // makes the gap disappear from COULD_SEE even though either wall face is
+    // visible.  mklev stores rm.doormask in the shared rm.flags field.
+    for (let x = 2; x <= 20; ++x)
+        state.level.at(x, 9).typ = HWALL;
+    const door = state.level.at(18, 9);
+    door.typ = DOOR;
+    door.flags = D_CLOSED;
+    door.doormask = 0;
+
+    vision_reset();
+    vision_recalc(0);
+
+    assert.ok(state.viz_array[9][17] & COULD_SEE);
+    assert.ok(state.viz_array[9][18] & COULD_SEE);
+    assert.ok(state.viz_array[9][19] & COULD_SEE);
+});
+
+test('becoming blind redraws cells which were previously in sight', () => {
+    const state = darkRoomState();
+    floorCandle(state, 10, 7);
+    state.u.uprops = [];
+    state.u.uprops[BLINDED] = {
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    };
+
+    vision_reset();
+    vision_recalc(0);
+    const location = state.level.at(10, 7);
+    assert.equal(cansee(10, 7), true);
+    assert.equal(location.remembered_glyph.ch, '.');
+    // Model a transient visible overlay.  The blind transition must invoke
+    // newsym() for the old IN_SIGHT cell and restore its remembered terrain.
+    location.disp_ch = 'X';
+    state.u.uprops[BLINDED].intrinsic = FROMOUTSIDE;
+
+    vision_recalc(0);
+
+    assert.equal(cansee(10, 7), false);
+    assert.equal(location.disp_ch, '.');
+});
+
+test('opaque walls and doors require light on their hero-facing side', () => {
+    for (const blocker of [
+        { typ: HWALL, doormask: 0 },
+        { typ: DOOR, doormask: D_CLOSED },
+    ]) {
+        const farState = darkRoomState();
+        Object.assign(farState.level.at(8, 7), blocker);
+        floorCandle(farState, 10, 7);
+        vision_reset();
+        vision_recalc(0);
+        assert.ok(farState.viz_array[7][8] & TEMP_LIT);
+        assert.equal(farState.viz_array[7][7] & TEMP_LIT, 0);
+        assert.equal(cansee(8, 7), false);
+
+        const facingState = darkRoomState();
+        Object.assign(facingState.level.at(8, 7), blocker);
+        floorCandle(facingState, 7, 7);
+        vision_reset();
+        vision_recalc(0);
+        assert.ok(facingState.viz_array[7][7] & TEMP_LIT);
+        assert.equal(cansee(8, 7), true);
+    }
 });

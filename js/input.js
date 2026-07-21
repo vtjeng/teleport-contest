@@ -6,20 +6,28 @@ import { KEY_BINDINGS } from './terminal.js';
 
 const _inputQueue = [];
 
-export function pushKey(key) {
-    _inputQueue.push(typeof key === 'number' ? key : key.charCodeAt(0));
+function inputQueue(state) {
+    if (state === game) return _inputQueue;
+    state._inputQueue ??= [];
+    return state._inputQueue;
 }
 
-export function pushKeys(keys) {
-    for (const k of keys) pushKey(k);
+export function pushKey(key, state = game) {
+    inputQueue(state).push(
+        typeof key === 'number' ? key : key.charCodeAt(0),
+    );
+}
+
+export function pushKeys(keys, state = game) {
+    for (const k of keys) pushKey(k, state);
 }
 
 // C ref: tty_nhgetch — read one key.
 // In replay mode, reads from the input queue.
 // In browser mode, waits for a real keypress.
-export async function nhgetch() {
+export async function nhgetch(state = game) {
     // Fire the capture hook before reading the next key
-    const hook = game._preNhgetchHook;
+    const hook = state._preNhgetchHook;
     if (hook) await hook();
 
     // C ref: win/tty/wintty.c tty_nhgetch().  The recorder marker is
@@ -27,14 +35,15 @@ export async function nhgetch() {
     // later messages visible again.  Keep this after the capture hook so an
     // Escape-dismissed More boundary suppresses messages through precisely
     // the next recorded input boundary.
-    game._ttyMessageStopped = false;
+    state._ttyMessageStopped = false;
 
-    if (_inputQueue.length > 0) {
-        return _inputQueue.shift();
+    const queue = inputQueue(state);
+    if (queue.length > 0) {
+        return queue.shift();
     }
 
     // Browser mode: wait for keypress from the display
-    const display = game?.nhDisplay;
+    const display = state?.nhDisplay;
     if (display?.readKey) {
         return await display.readKey({ bindings: KEY_BINDINGS.VI_KEYS });
     }
@@ -43,6 +52,6 @@ export async function nhgetch() {
 }
 
 // Reset input state
-export function resetInputState() {
-    _inputQueue.length = 0;
+export function resetInputState(state = game) {
+    inputQueue(state).length = 0;
 }

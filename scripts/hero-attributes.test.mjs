@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { init_attr, newhp, vary_init_attr } from '../js/attrib.js';
+import {
+    effective_attribute,
+    init_attr,
+    newhp,
+    vary_init_attr,
+} from '../js/attrib.js';
+import { A_CON, A_STR, A_WIS } from '../js/const.js';
 import { newpw, newuexp } from '../js/exper.js';
 
 function advancement(infix, inrnd, lofix, lornd, hifix, hirnd) {
@@ -81,6 +87,33 @@ test('level advancement applies constitution and role energy modifiers', () => {
     // Healer's 3/2 modifier applies after rn1(11,1) returns 6.
     assert.equal(newpw(state, random), 9);
     random.done();
+});
+
+test('advancement uses effective Constitution and Wisdom with source caps', () => {
+    const state = baseState();
+    state.u.ulevel = 5;
+    state.u.acurr = { a: [10, 10, 14, 10, 14, 10] };
+    state.u.abon = { a: [200, 0, 4, 0, 4, 0] };
+    state.u.atemp = [0, 0, 0, 0, 0, 0];
+
+    assert.equal(effective_attribute(state, A_STR), 125);
+    assert.equal(effective_attribute(state, A_CON), 18);
+    assert.equal(effective_attribute(state, A_WIS), 18);
+
+    const random = queuedRandom([
+        3, 1, // newhp(): role d6=4, race d2=2.
+        12, // newpw(): rn1(13,1) returns 13.
+    ]);
+    assert.equal(newhp(state, random), 10);
+    assert.equal(state.u.uhpinc[5], 10);
+    assert.equal(newpw(state, random), 19);
+    assert.equal(state.u.ueninc[5], 19);
+    random.done();
+
+    state.u.abon.a[A_CON] = -30;
+    state.u.abon.a[A_WIS] = 30;
+    assert.equal(effective_attribute(state, A_CON), 3);
+    assert.equal(effective_attribute(state, A_WIS), 25);
 });
 
 test('init_attr distributes the requested total with role weights', () => {

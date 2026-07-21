@@ -139,6 +139,9 @@ export function relocate_monster(monster, x, y, state = game) {
             `relocate_monster: monster is not at <${monster.mx},${monster.my}>`,
         );
     }
+    // teleport.c rloc_to_core() returns before mon_track_clear() when the
+    // requested destination is the monster's already-indexed square.
+    if (x === monster.mx && y === monster.my) return monster;
     remove_monster(monster.mx, monster.my, state);
     for (const coordinate of monster.mtrack ?? []) {
         coordinate.x = 0;

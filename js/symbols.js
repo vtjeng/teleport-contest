@@ -10,6 +10,7 @@ import {
     H_UNK,
     PRIMARYSET,
     ROGUESET,
+    TRAPNUM,
 } from './const.js';
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
@@ -35,52 +36,93 @@ export {
     SYM_OFF_X,
 };
 
-export const MAXPCHARS = 105;
-export const MAXOCLASSES = 18;
-export const MAXMCLASSES = 61;
-export const WARNCOUNT = 6;
-export const MAXOTHER = 6;
+export const MAXPCHARS = SYM_OFF_O - SYM_OFF_P;
+export const MAXOCLASSES = SYM_OFF_M - SYM_OFF_O;
+export const MAXMCLASSES = SYM_OFF_W - SYM_OFF_M;
+export const WARNCOUNT = SYM_OFF_X - SYM_OFF_W;
+export const MAXOTHER = SYM_MAX - SYM_OFF_X;
 
-export const S_stone = 0;
-export const S_vwall = 1;
-export const S_hwall = 2;
-export const S_tlcorn = 3;
-export const S_trcorn = 4;
-export const S_blcorn = 5;
-export const S_brcorn = 6;
-export const S_crwall = 7;
-export const S_tuwall = 8;
-export const S_tdwall = 9;
-export const S_tlwall = 10;
-export const S_trwall = 11;
-export const S_ndoor = 12;
-export const S_vodoor = 13;
-export const S_hodoor = 14;
-export const S_vcdoor = 15;
-export const S_hcdoor = 16;
-export const S_bars = 17;
-export const S_tree = 18;
-export const S_room = 19;
-export const S_engroom = 21;
-export const S_corr = 22;
-export const S_litcorr = 23;
-export const S_engrcorr = 24;
-export const S_upstair = 25;
-export const S_dnstair = 26;
-export const S_brupstair = 29;
-export const S_brdnstair = 30;
-export const S_altar = 33;
-export const S_grave = 34;
-export const S_throne = 35;
-export const S_sink = 36;
-export const S_fountain = 37;
-export const S_pool = 38;
-export const S_ice = 39;
-export const S_lava = 40;
-export const S_lavawall = 41;
-export const S_air = 46;
-export const S_cloud = 47;
-export const S_water = 48;
+function requiredSourceSymbol(name) {
+    const index = SYMBOL_INDEX_BY_NAME[name];
+    if (!Number.isInteger(index))
+        throw new Error(`generated symbol data is missing ${name}`);
+    return index;
+}
+
+// Keep every public defsym index tied to the generated defsym.h table.  These
+// are cmap-relative today because SYM_OFF_P is zero, but retaining the offset
+// makes that ownership explicit and catches a generator/layout change.
+function requiredCmapSymbol(name) {
+    const index = requiredSourceSymbol(name) - SYM_OFF_P;
+    if (index < 0 || index >= MAXPCHARS)
+        throw new Error(`${name} is outside the primary cmap range`);
+    return index;
+}
+
+export const S_stone = requiredCmapSymbol('s_stone');
+export const S_vwall = requiredCmapSymbol('s_vwall');
+export const S_hwall = requiredCmapSymbol('s_hwall');
+export const S_tlcorn = requiredCmapSymbol('s_tlcorn');
+export const S_trcorn = requiredCmapSymbol('s_trcorn');
+export const S_blcorn = requiredCmapSymbol('s_blcorn');
+export const S_brcorn = requiredCmapSymbol('s_brcorn');
+export const S_crwall = requiredCmapSymbol('s_crwall');
+export const S_tuwall = requiredCmapSymbol('s_tuwall');
+export const S_tdwall = requiredCmapSymbol('s_tdwall');
+export const S_tlwall = requiredCmapSymbol('s_tlwall');
+export const S_trwall = requiredCmapSymbol('s_trwall');
+export const S_ndoor = requiredCmapSymbol('s_ndoor');
+export const S_vodoor = requiredCmapSymbol('s_vodoor');
+export const S_hodoor = requiredCmapSymbol('s_hodoor');
+export const S_vcdoor = requiredCmapSymbol('s_vcdoor');
+export const S_hcdoor = requiredCmapSymbol('s_hcdoor');
+export const S_bars = requiredCmapSymbol('s_bars');
+export const S_tree = requiredCmapSymbol('s_tree');
+export const S_room = requiredCmapSymbol('s_room');
+export const S_darkroom = requiredCmapSymbol('s_darkroom');
+export const S_engroom = requiredCmapSymbol('s_engroom');
+export const S_corr = requiredCmapSymbol('s_corr');
+export const S_litcorr = requiredCmapSymbol('s_litcorr');
+export const S_engrcorr = requiredCmapSymbol('s_engrcorr');
+export const S_upstair = requiredCmapSymbol('s_upstair');
+export const S_dnstair = requiredCmapSymbol('s_dnstair');
+export const S_upladder = requiredCmapSymbol('s_upladder');
+export const S_dnladder = requiredCmapSymbol('s_dnladder');
+export const S_brupstair = requiredCmapSymbol('s_brupstair');
+export const S_brdnstair = requiredCmapSymbol('s_brdnstair');
+export const S_brupladder = requiredCmapSymbol('s_brupladder');
+export const S_brdnladder = requiredCmapSymbol('s_brdnladder');
+export const S_altar = requiredCmapSymbol('s_altar');
+export const S_grave = requiredCmapSymbol('s_grave');
+export const S_throne = requiredCmapSymbol('s_throne');
+export const S_sink = requiredCmapSymbol('s_sink');
+export const S_fountain = requiredCmapSymbol('s_fountain');
+export const S_pool = requiredCmapSymbol('s_pool');
+export const S_ice = requiredCmapSymbol('s_ice');
+export const S_lava = requiredCmapSymbol('s_lava');
+export const S_lavawall = requiredCmapSymbol('s_lavawall');
+export const S_vodbridge = requiredCmapSymbol('s_vodbridge');
+export const S_hodbridge = requiredCmapSymbol('s_hodbridge');
+export const S_vcdbridge = requiredCmapSymbol('s_vcdbridge');
+export const S_hcdbridge = requiredCmapSymbol('s_hcdbridge');
+export const S_air = requiredCmapSymbol('s_air');
+export const S_cloud = requiredCmapSymbol('s_cloud');
+export const S_water = requiredCmapSymbol('s_water');
+export const S_arrow_trap = requiredCmapSymbol('s_arrow_trap');
+
+// C ref: rm.h trap_to_defsym()/defsym_to_trap().
+export function trap_to_defsym(ttyp) {
+    if (!Number.isInteger(ttyp) || ttyp <= 0 || ttyp >= TRAPNUM)
+        throw new RangeError(`trap type ${ttyp} is outside the source range`);
+    return S_arrow_trap + ttyp - 1;
+}
+
+export function defsym_to_trap(defsym) {
+    const ttyp = defsym - S_arrow_trap + 1;
+    if (!Number.isInteger(defsym) || ttyp <= 0 || ttyp >= TRAPNUM)
+        throw new RangeError(`defsym ${defsym} is not a trap symbol`);
+    return ttyp;
+}
 
 // drawing.c:defsyms, in enum cmap_symbols order. Store bytes like C does;
 // the tty-specific DEC high bit is interpreted only when a symbol is drawn.
@@ -205,8 +247,9 @@ function loadSymbolSet(name, set, state) {
     const entry = state.gs.symset[set];
     entry.name = String(name);
     entry.handling = HANDLING_BY_NAME[definition.handling] ?? H_UNK;
-    // SYMBOLS=G_* customizations belong to the selected named set and can
-    // override these source defaults without mutating generated data.
+    // Concrete G_* customizations come only from the selected symbols file.
+    // symbols.c:parsesymbols() validates and saves standalone G_* entries but
+    // deliberately does not pass them to glyphrep_to_custom_map_entries().
     entry.glyphs = { ...definition.glyphs };
     if (definition.color !== null) entry.nocolor = definition.color ? 0 : 1;
 }
@@ -338,10 +381,9 @@ function applySymbolAssignments(operation, state) {
     const utf8Handling = state.gs.symset[set].handling === H_UTF8;
     for (const assignment of operation.assignments) {
         if (assignment.kind === 'glyph') {
-            const entry = state.gs.symset[set];
-            // glyphs.c only installs a concrete-glyph customization while a
-            // named symbol set is active; the default set has no owner.
-            if (entry.name) entry.glyphs[assignment.name] = assignment.rawValue;
+            // C ref: symbols.c parsesymbols().  match_glyph() validates this
+            // name and savedsym_add() retains it for config serialization,
+            // but the mutation block is guarded by symp and G_* has none.
             continue;
         }
         const index = symbolIndex(assignment.name);
@@ -535,26 +577,38 @@ export function optional_misc_symbol(index, state = game) {
 function parseGlyphCustomization(raw) {
     if (typeof raw !== 'string') return null;
     const [symbolPart, colorPart] = raw.split('/', 2);
-    const match = symbolPart.match(/^U\+([0-9a-f]{1,6})$/iu);
-    if (!match) return null;
-    const codePoint = Number.parseInt(match[1], 16);
-    if (!codePoint || codePoint > 0x10FFFF
-        || (codePoint >= 0xD800 && codePoint <= 0xDFFF)) return null;
+    let displayCh = null;
+    if (symbolPart) {
+        const match = symbolPart.match(/^U\+([0-9a-f]{1,6})$/iu);
+        if (!match) return null;
+        const codePoint = Number.parseInt(match[1], 16);
+        if (!codePoint || codePoint > 0x10FFFF
+            || (codePoint >= 0xD800 && codePoint <= 0xDFFF)) return null;
+        displayCh = String.fromCodePoint(codePoint);
+    }
     let rgb = null;
     if (colorPart && /^\d{1,3}-\d{1,3}-\d{1,3}$/u.test(colorPart)) {
         const channels = colorPart.split('-').map(Number);
         if (channels.every((channel) => channel >= 0 && channel <= 255))
             rgb = channels;
     }
-    return { displayCh: String.fromCodePoint(codePoint), rgb };
+    return displayCh || rgb ? { displayCh, rgb } : null;
 }
 
 /** Named G_* customization for a concrete glyph family. */
 export function glyph_customization(name, state = game) {
     const activeSet = state.gc?.currentgraphics ?? PRIMARYSET;
-    if (state.gs?.symset?.[activeSet]?.handling !== H_UTF8
-        || state.iflags?.customsymbols === false) return null;
-    return parseGlyphCustomization(
+    const parsed = parseGlyphCustomization(
         state.gs?.symset?.[activeSet]?.glyphs?.[name],
     );
+    if (!parsed) return null;
+
+    // glyphs.c:apply_customizations() gates the two halves independently.
+    // A color customization still applies when customsymbols is disabled,
+    // and a Unicode representation still applies when customcolors is off.
+    const displayCh = state.gs?.symset?.[activeSet]?.handling === H_UTF8
+        && state.iflags?.customsymbols !== false
+        ? parsed.displayCh : null;
+    const rgb = state.iflags?.customcolors !== false ? parsed.rgb : null;
+    return displayCh || rgb ? { displayCh, rgb } : null;
 }

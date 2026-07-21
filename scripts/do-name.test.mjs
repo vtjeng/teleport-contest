@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { noveltitle, SIR_TERRY_NOVELS } from '../js/do_name.js';
+import {
+    christen_monst,
+    noveltitle,
+    SIR_TERRY_NOVELS,
+} from '../js/do_name.js';
 
 function titleDraw(result) {
     let draws = 0;
@@ -52,4 +56,35 @@ test('noveltitle leaves invalid indices untouched but uses its draw', () => {
         title: 'Moving Pictures',
     });
     assert.equal(random.draws, 1);
+});
+
+test('christen_monst refreshes a leashed name after rename and removal', () => {
+    const monster = {
+        mleashed: true,
+        mextra: { mgivenname: 'Fido' },
+    };
+    const observed = [];
+    const env = {
+        updateInventory() {
+            observed.push(monster.mextra?.mgivenname ?? '');
+        },
+    };
+
+    assert.equal(christen_monst(monster, 'Rover', env), monster);
+    assert.equal(monster.mextra.mgivenname, 'Rover');
+    assert.equal(christen_monst(monster, '', env), monster);
+    assert.equal(monster.mextra.mgivenname, undefined);
+    assert.deepEqual(observed, ['Rover', '']);
+});
+
+test('christen_monst preflights a leashed inventory refresh', () => {
+    const monster = {
+        mleashed: true,
+        mextra: { mgivenname: 'Fido' },
+    };
+    assert.throws(
+        () => christen_monst(monster, 'Rover'),
+        /requires update_inventory/,
+    );
+    assert.equal(monster.mextra.mgivenname, 'Fido');
 });

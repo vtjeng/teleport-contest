@@ -1,11 +1,13 @@
 // Object initialization and unidentified-description shuffling.
 // C ref: src/o_init.c setgemprobs through oinit.
 
+import { exercise } from './attrib.js';
 import { game } from './gstate.js';
+import { preflight_update_inventory, update_inventory } from './invent.js';
 import { PM_SAMURAI } from './monsters.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
-import { HALLUC, HALLUC_RES } from './const.js';
+import { A_WIS, HALLUC, HALLUC_RES } from './const.js';
 import {
     AMULET_CLASS,
     AQUAMARINE,
@@ -387,15 +389,16 @@ function hallucinating(state) {
         && !propertyActive(state.u, HALLUC_RES);
 }
 
-// C ref: o_init.c discover_object().  New-game callers execute before the
-// move loop, so the live inventory refresh, gem-price, and wisdom-exercise
-// branches are deliberately rejected rather than silently approximated.
+// C ref: o_init.c discover_object(). gemLearned owns shk.c gem_learned(),
+// whose bill traversal belongs to the shop subsystem. All live dependencies
+// are checked before the discovery ledger or object catalog is mutated.
 export function discover_object(
     oindx,
     markAsKnown,
     markAsEncountered,
     creditHero,
     state = game,
+    rawEnv = {},
 ) {
     const objects = ensureObjectGlobals(state);
     if (oindx < FIRST_OBJECT) return false;
@@ -408,13 +411,28 @@ export function discover_object(
     const samuraiName = state.urole?.mnum === PM_SAMURAI
         && JAPANESE_ITEM_TYPES.has(oindx);
     if (!learnsName && !encounters && !samuraiName) return false;
-    if (learnsName && (creditHero || state.program_state?.in_moveloop)) {
-        throw new Error(
-            'discover_object live knowledge effects are not implemented',
-        );
-    }
 
     const objectClass = objectType.oc_class;
+    const liveKnowledge = learnsName
+        && Boolean(state.program_state?.in_moveloop)
+        && !state.program_state?.gameover;
+    const env = {
+        ...rawEnv,
+        state,
+        random: rawEnv.random ?? { rn2 },
+        hooks: rawEnv.hooks ?? {},
+    };
+    if (learnsName && creditHero
+        && typeof env.random.rn2 !== 'function') {
+        throw new TypeError('discover_object exercise requires rn2');
+    }
+    const gemLearned = env.gemLearned ?? env.hooks.gemLearned;
+    if (liveKnowledge && objectClass === GEM_CLASS
+        && typeof gemLearned !== 'function') {
+        throw new Error('discover_object requires gem_learned');
+    }
+    if (liveKnowledge) preflight_update_inventory(env);
+
     const classEnd = state.svb.bases[objectClass + 1] ?? NUM_OBJECTS;
     let index = state.svb.bases[objectClass];
     while (index < classEnd && state.svd.disco[index]
@@ -423,7 +441,15 @@ export function discover_object(
         throw new Error(`discover_object: class ${objectClass} discovery list is full`);
     state.svd.disco[index] = oindx;
     if (markAsEncountered) objectType.oc_encountered = 1;
-    if (markAsKnown) objectType.oc_name_known = 1;
+    if (learnsName) {
+        objectType.oc_name_known = 1;
+        if (creditHero)
+            exercise(A_WIS, true, state, env.random, env.hooks);
+        if (liveKnowledge) {
+            if (objectClass === GEM_CLASS) gemLearned(oindx, env);
+            update_inventory(env);
+        }
+    }
     return true;
 }
 

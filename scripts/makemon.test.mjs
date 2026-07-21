@@ -304,9 +304,8 @@ test('newmonhp preserves golem fixed HP and Rider/adult-dragon formulas', () => 
     const state = startingState();
 
     const golem = {};
-    const noDraw = scriptedRandom([]);
-    newmonhp(golem, PM_STRAW_GOLEM, { state, random: noDraw.random });
-    noDraw.assertExhausted();
+    // Fixed golem HP has no random dependency, including no incidental rn2.
+    newmonhp(golem, PM_STRAW_GOLEM, { state, random: {} });
     assert.equal(golemhp(PM_STRAW_GOLEM), 20);
     assert.deepEqual([golem.mhp, golem.mhpmax], [20, 20]);
 
@@ -339,7 +338,8 @@ test('newmonhp preserves golem fixed HP and Rider/adult-dragon formulas', () => 
 
 test('propagate preserves birth limits, extinction, and ghostly tally rules', () => {
     const state = startingState();
-    const random = scriptedRandom([]).random;
+    // Birth accounting is deterministic and must not inherit selection RNG.
+    const random = {};
     // Nazgul and erinys exercise the two special caps; jackal uses MAXMONNO.
     assert.equal(mbirth_limit(PM_NAZGUL), 9);
     assert.equal(mbirth_limit(PM_ERINYS), 3);

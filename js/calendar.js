@@ -188,9 +188,15 @@ export function getyear(state = game, now) {
     return getLocalTime(state, now).year;
 }
 
+function serializedYear(localYear) {
+    // calendar.c operates on tm_year. Its defensive tm_year < 70 branch maps
+    // every pre-1970 local year one century forward during serialization.
+    return localYear < 1970 ? localYear + 100 : localYear;
+}
+
 export function yyyymmdd(state = game, now) {
     const local = getLocalTime(state, now);
-    return ((local.year * 100 + local.month) * 100) + local.day;
+    return ((serializedYear(local.year) * 100 + local.month) * 100) + local.day;
 }
 
 export function hhmmss(state = game, now) {
@@ -201,7 +207,7 @@ export function hhmmss(state = game, now) {
 export function yyyymmddhhmmss(state = game, now) {
     const local = getLocalTime(state, now);
     return [
-        String(local.year).padStart(4, '0'),
+        String(serializedYear(local.year)).padStart(4, '0'),
         String(local.month).padStart(2, '0'),
         String(local.day).padStart(2, '0'),
         String(local.hour).padStart(2, '0'),

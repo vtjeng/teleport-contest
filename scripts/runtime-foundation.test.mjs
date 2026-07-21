@@ -383,13 +383,15 @@ test('wd_message preserves denied-mode message and cleanup order', async () => {
 
     messages.length = 0;
     const deniedBoth = {
-        wizard: true,
-        discover: true,
-        flags: { debug: true, explore: true },
+        // set_playmode() has already cleared both denied modes before the
+        // port-specific wd_message() reporting hook runs.
+        wizard: false,
+        discover: false,
+        flags: { debug: false, explore: false },
         iflags: {
             wiz_error_flag: true,
             explore_error_flag: true,
-            deferred_X: true,
+            deferred_X: false,
         },
         sysopt: { wizards: '' },
     };
@@ -399,11 +401,11 @@ test('wd_message preserves denied-mode message and cleanup order', async () => {
     ]);
     assert.equal(deniedBoth.wizard, false);
     assert.equal(deniedBoth.flags.debug, false);
-    // unixmain.c's wiz_error branch suppresses both the fallback notice and
-    // the explore-error cleanup, so the requested explore state survives.
-    assert.equal(deniedBoth.discover, true);
-    assert.equal(deniedBoth.flags.explore, true);
-    assert.equal(deniedBoth.iflags.deferred_X, true);
+    // unixmain.c's wiz_error branch suppresses the fallback notice and the
+    // redundant explore-error cleanup; the earlier denial remains in force.
+    assert.equal(deniedBoth.discover, false);
+    assert.equal(deniedBoth.flags.explore, false);
+    assert.equal(deniedBoth.iflags.deferred_X, false);
 });
 
 test('runSegment shows welcome More before an unset tutorial query', async () => {

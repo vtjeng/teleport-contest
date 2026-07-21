@@ -437,7 +437,7 @@ async function waitForSelectionMore(state, message) {
     display.putstr(message.length, 0, more, NO_COLOR);
     display.setCursor(message.length + more.length, 0);
     for (;;) {
-        const code = await nhgetch();
+        const code = await nhgetch(state);
         // tty_nhgetch() maps NUL to Escape before xwaitforspace().
         if (code === 0 || code === 10 || code === 13
             || code === 27 || code === 32) return;
@@ -494,7 +494,7 @@ export async function ttyPlayerSelection(state = game, random) {
         for (;;) {
             if (context.status === 'prompt') {
                 renderInitialQuestion(state, context.prompt);
-                const response = await nhgetch();
+                const response = await nhgetch(state);
                 context = answer_initial_player_selection(
                     state, context, response, random,
                 );

@@ -64,13 +64,26 @@ export function mkcorpstat(
     const env = corpstatEnv(rawEnv);
     const { state } = env;
     const init = Boolean(corpstatflags & CORPSTAT_INIT);
+    const relocate = x === 0 && y === 0
+        ? env.hooks.relocateObject : null;
+    if (x === 0 && y === 0 && typeof relocate !== 'function')
+        throw new Error('mkcorpstat requires random object relocation');
+    const saveTraits = monster ? env.hooks.saveMonsterTraits : null;
+    if (monster && typeof saveTraits !== 'function')
+        throw new Error('mkcorpstat requires monster-trait persistence');
+
+    // The C helpers are always present.  Validate their JS equivalents and
+    // source arguments before mksobj() can consume RNG, allocate an id, arm a
+    // timer, or link the new object into a floor chain.
+    let resolvedSpecies = species;
+    if (monster && resolvedSpecies == null)
+        resolvedSpecies = monsterSpecies(monster, state);
+    if (resolvedSpecies != null)
+        resolvedSpecies = speciesIndex(resolvedSpecies, state);
 
     let obj;
     if (x === 0 && y === 0) {
         obj = mksobj(objtype, init, false, env);
-        const relocate = env.hooks.relocateObject;
-        if (typeof relocate !== 'function')
-            throw new Error('mkcorpstat requires random object relocation');
         relocate(obj, env);
     } else {
         obj = mksobj_at(objtype, x, y, init, false, env);
@@ -82,18 +95,14 @@ export function mkcorpstat(
     );
 
     if (monster) {
-        const saveTraits = env.hooks.saveMonsterTraits;
-        if (typeof saveTraits !== 'function')
-            throw new Error('mkcorpstat requires monster-trait persistence');
         saveTraits(obj, monster, env);
-        species ??= monsterSpecies(monster, state);
-        const record = state.mons[speciesIndex(species, state)];
+        const record = state.mons[resolvedSpecies];
         if (monster.mcan && !is_rider(record)) obj.norevive = true;
     }
 
-    if (species != null) {
+    if (resolvedSpecies != null) {
         const oldSpecies = obj.corpsenm;
-        const newSpecies = speciesIndex(species, state);
+        const newSpecies = resolvedSpecies;
         obj.corpsenm = newSpecies;
         obj.owt = weight(obj, env);
         if (obj.otyp === CORPSE

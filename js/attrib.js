@@ -1,7 +1,16 @@
 // attrib.js — hero attribute initialization and hit-point advancement.
 // C ref: src/attrib.c newhp(), init_attr(), and vary_init_attr().
 
-import { A_CON, MAXULEV, NUM_ATTRS } from './const.js';
+import {
+    A_CHA,
+    A_CON,
+    A_INT,
+    A_STR,
+    A_WIS,
+    MAXULEV,
+    NUM_ATTRS,
+    Upolyd,
+} from './const.js';
 import { game } from './gstate.js';
 import { rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
@@ -53,7 +62,7 @@ export function newhp(state = game, random = { rnd }) {
         if (roleRandom > 0) hp += random.rnd(roleRandom);
         if (raceRandom > 0) hp += random.rnd(raceRandom);
 
-        const constitution = Math.trunc(u.acurr?.a?.[A_CON] ?? 0);
+        const constitution = effective_attribute(state, A_CON);
         if (constitution <= 3) hp -= 2;
         else if (constitution <= 6) hp -= 1;
         else if (constitution <= 14) hp += 0;
@@ -88,6 +97,24 @@ function attributeArrays(u) {
         time: u.atime,
         exercise: u.aexe,
     };
+}
+
+function attributeArray(value) {
+    return Array.isArray(value) ? value : value?.a;
+}
+
+// C ref: attrib.c acurr(). Startup and level-advancement callers currently
+// have no attribute-forcing equipment, so the shared arithmetic here owns the
+// base/bonus/temporary sum and the source caps. Equipment-specific overrides
+// remain with the eventual worn-item attribute subsystem.
+export function effective_attribute(state = game, index) {
+    const u = state.u;
+    const base = Math.trunc(u?.acurr?.a?.[index] ?? 0);
+    const bonus = Math.trunc(attributeArray(u?.abon)?.[index] ?? 0);
+    const temporary = Math.trunc(attributeArray(u?.atemp)?.[index] ?? 0);
+    const total = base + bonus + temporary;
+    if (index === A_STR) return Math.max(3, Math.min(total, 125));
+    return Math.max(3, Math.min(total, 25));
 }
 
 function randomAttribute(role, random) {
@@ -177,6 +204,39 @@ export function vary_init_attr(state = game, random = { rn2 }) {
             if (attrs.base[i] < attrs.max[i]) attrs.max[i] = attrs.base[i];
         }
     }
+}
+
+// C ref: attrib.c exercise(). The inventory-identification path exercises
+// Wisdom, but keeping the complete small routine here preserves the source's
+// draw boundary for other callers too. encumberMessage owns encumber_msg(),
+// which only follows physical exercise after play has begun.
+export function exercise(
+    index,
+    increase,
+    state = game,
+    random = { rn2 },
+    { encumberMessage } = {},
+) {
+    if (index === A_INT || index === A_CHA) return 0;
+    if (Upolyd(state.u) && index !== A_WIS) return 0;
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('exercise random injection requires rn2');
+
+    const physicalMessage = Math.trunc(state.moves ?? 0) > 0
+        && (index === A_STR || index === A_CON);
+    if (physicalMessage && typeof encumberMessage !== 'function')
+        throw new Error('exercise requires encumber_msg');
+
+    const attrs = attributeArrays(state.u);
+    let adjustment = 0;
+    if (Math.abs(attrs.exercise[index]) < 50) {
+        adjustment = increase
+            ? (random.rn2(19) > effective_attribute(state, index) ? 1 : 0)
+            : -random.rn2(2);
+        attrs.exercise[index] += adjustment;
+    }
+    if (physicalMessage) encumberMessage(state);
+    return adjustment;
 }
 
 export const _attribInternals = Object.freeze({

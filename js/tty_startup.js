@@ -96,7 +96,7 @@ export async function ttyAskname(state = game) {
         const characters = [];
         let retry = false;
         for (;;) {
-            const code = await nhgetch();
+            const code = await nhgetch(state);
             if (code === 10 || code === 13) break;
             // tty_nhgetch() translates NUL to Escape before tty_askname().
             if (code === 0 || code === 27) {

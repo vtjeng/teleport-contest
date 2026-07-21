@@ -416,8 +416,8 @@ export function enexto(xx, yy, species, env = {}) {
         ?? enexto_core(xx, yy, species, 0, env);
 }
 
-// C ref: mon.c mnexto(). Overcrowding is left to the caller's explicit hook;
-// initial level generation always has ordinary floor destinations available.
+// C ref: mon.c mnexto(). Overcrowding and wizard destination control remain
+// explicit subsystem seams; both are reached at their source call boundary.
 export function mnexto(monster, _rlocflags = 0, env = {}) {
     const normalized = teleportEnv(env);
     const { state } = normalized;
@@ -426,7 +426,7 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
         monster.my = state.u.uy;
         return monster;
     }
-    const coordinate = enexto(
+    let coordinate = enexto(
         state.u?.ux,
         state.u?.uy,
         monster?.data,
@@ -436,6 +436,30 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
         if (typeof normalized.dealWithOvercrowding === 'function')
             normalized.dealWithOvercrowding(monster, normalized);
         return null;
+    }
+    if (state.iflags?.mon_telecontrol) {
+        const controlMonsterTeleport = normalized.controlMonsterTeleport;
+        if (typeof controlMonsterTeleport !== 'function') {
+            throw new UnsupportedPositionCheckError(
+                'montelecontrol without controlMonsterTeleport hook',
+            );
+        }
+        const selected = { ...coordinate };
+        if (controlMonsterTeleport(
+            monster,
+            selected,
+            _rlocflags,
+            false,
+            normalized,
+        )) {
+            if (!Number.isInteger(selected.x) || !Number.isInteger(selected.y)
+                || !isok(selected.x, selected.y)) {
+                throw new RangeError(
+                    'controlMonsterTeleport accepted an invalid coordinate',
+                );
+            }
+            coordinate = selected;
+        }
     }
     const relocated = relocate_monster(
         monster,

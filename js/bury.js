@@ -3,12 +3,22 @@
 
 import {
     OBJ_BURIED,
+    OBJ_FREE,
     OBJ_FLOOR,
     ROT_ORGANIC,
     TIMER_OBJECT,
+    TT_BURIEDBALL,
+    W_BALL,
+    W_CHAIN,
 } from './const.js';
 import { game } from './gstate.js';
-import { add_to_buried } from './invent.js';
+import {
+    add_to_buried,
+    obfree,
+    preflight_obfree,
+    preflight_update_inventory,
+    update_inventory,
+} from './invent.js';
 import { is_rider } from './mondata.js';
 import { objectType, remove_object } from './obj.js';
 import {
@@ -24,11 +34,15 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     WOOD,
 } from './objects.js';
-import { rn2, rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { is_ice } from './terrain.js';
-import { start_timer } from './timeout.js';
+import {
+    end_burn,
+    preflight_end_burn,
+    start_timer,
+} from './timeout.js';
 
-const SOURCE_RANDOM = Object.freeze({ rn2, rnd });
+const SOURCE_RANDOM = Object.freeze({ rn1, rn2, rnd });
 
 export class UnsupportedBurialError extends Error {
     constructor(operation, obj) {
@@ -39,9 +53,9 @@ export class UnsupportedBurialError extends Error {
     }
 }
 
-function burialEnvironment(rawEnv = {}) {
+function burialEnvironment(rawEnv = {}, randomNames = ['rn2']) {
     const random = rawEnv.random ?? SOURCE_RANDOM;
-    for (const name of ['rn2', 'rnd']) {
+    for (const name of randomNames) {
         if (typeof random[name] !== 'function')
             throw new TypeError(`burial random injection requires ${name}()`);
     }
@@ -122,9 +136,94 @@ function punishedObject(state, name) {
     return state[name] ?? state.go?.[name] ?? null;
 }
 
+function clearPunishedObject(state, name, object) {
+    if (state[name] === object) state[name] = null;
+    if (state.go?.[name] === object) state.go[name] = null;
+}
+
+function requireHook(env, name, obj) {
+    const hook = env.hooks?.[name];
+    if (typeof hook !== 'function')
+        throw new UnsupportedBurialError(name, obj);
+    return hook;
+}
+
+function buriedBallMessage(env, ball) {
+    const hook = env.hooks?.plineThe;
+    if (typeof hook === 'function') return hook;
+    if (typeof env.state.nhDisplay?.putstr_message === 'function') {
+        return () => env.state.nhDisplay.putstr_message(
+            'The iron ball gets buried!',
+        );
+    }
+    throw new UnsupportedBurialError('pline_The', ball);
+}
+
+function preflightUnpunish(state, env) {
+    const chain = punishedObject(state, 'uchain');
+    if (!chain) return null;
+    if (chain.where !== OBJ_FLOOR && chain.where !== OBJ_FREE) {
+        throw new UnsupportedBurialError('a floor or free iron chain', chain);
+    }
+    // setworn(NULL, W_CHAIN) runs before delobj(), so validate obfree() using
+    // the ownership mask it will see at its own source boundary.
+    preflight_obfree({ ...chain, owornmask: chain.owornmask & ~W_CHAIN }, null, env);
+    return chain;
+}
+
+// C ref: apply.c o_unleash().
+function preflightUnleash(obj, env) {
+    if (obj.otyp !== LEASH || !obj.leashmon) return;
+    preflight_update_inventory(env);
+}
+
+function o_unleash(obj, env) {
+    for (let monster = env.state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.m_id === obj.leashmon) {
+            monster.mleashed = false;
+            break;
+        }
+    }
+    obj.leashmon = 0;
+    update_inventory(env);
+}
+
+// C ref: read.c unpunish().  Punishment chains have no object properties, so
+// clearing their worn mask directly is the source-equivalent setworn effect.
+function unpunish(chain, ball, env) {
+    const { state } = env;
+    if (chain) {
+        chain.owornmask &= ~W_CHAIN;
+        clearPunishedObject(state, 'uchain', chain);
+        const { ox, oy } = chain;
+        if (chain.where === OBJ_FLOOR) remove_object(chain, env);
+        obfree(chain, null, env);
+        env.hooks?.newsym?.(ox, oy, env);
+    }
+    ball.owornmask &= ~W_BALL;
+    clearPunishedObject(state, 'uball', ball);
+}
+
+// C ref: trap.c set_utrap().  float_vs_flight() remains an optional owned
+// integration hook until the flight/levitation blocking subsystem is ported.
+function setBuriedBallTrap(turns, env) {
+    const { state } = env;
+    if (!state.u || !Number.isInteger(turns) || turns <= 0)
+        throw new Error('buried-ball trap requires initialized hero state');
+    if (Boolean(state.u.utrap) !== Boolean(turns)) {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+    state.u.utrap = turns;
+    state.u.utraptype = TT_BURIEDBALL;
+    env.hooks?.floatVsFlight?.(env);
+}
+
 // The returned next pointer and deallocation flag are the C return value and
-// out-parameter. Deallocation of rocks and boulders is intentionally rejected
-// until obfree() and its vision side effects have a complete integration.
+// out-parameter.  Boulder extraction delegates its visibility update to the
+// same recalcBlockPoint lifecycle owner used by remove_object().
 export function bury_an_obj(obj, rawEnv = {}) {
     const env = burialEnvironment(rawEnv);
     const { random, state } = env;
@@ -135,8 +234,22 @@ export function bury_an_obj(obj, rawEnv = {}) {
     }
     validateBuriedChain(state);
 
-    if (obj === punishedObject(state, 'uball'))
-        throw new UnsupportedBurialError('buried-ball punishment', obj);
+    const isPunishmentBall = obj === punishedObject(state, 'uball');
+    const punishmentChain = isPunishmentBall
+        ? preflightUnpunish(state, env)
+        : null;
+    const plineThe = isPunishmentBall ? buriedBallMessage(env, obj) : null;
+    if (isPunishmentBall) {
+        burialEnvironment(rawEnv, ['rn1', 'rn2']);
+        if (!state.u)
+            throw new Error('buried-ball trap requires initialized hero state');
+    }
+
+    if (isPunishmentBall) {
+        unpunish(punishmentChain, obj, env);
+        setBuriedBallTrap(random.rn1(50, 20), env);
+        plineThe('iron ball gets buried!', env);
+    }
 
     const next = obj.nexthere;
     if (obj === punishedObject(state, 'uchain')
@@ -144,21 +257,35 @@ export function bury_an_obj(obj, rawEnv = {}) {
         return { next, deallocated: false };
     }
 
-    if (obj.otyp === LEASH && obj.leashmon !== 0)
-        throw new UnsupportedBurialError('o_unleash', obj);
+    // Everything below the zero-percent resistance check is unreachable for
+    // Riders and invocation objects. Preserve that source boundary before
+    // requiring later lifecycle owners or their operation-specific RNG.
+    preflightUnleash(obj, env);
     if (obj.lamplit && obj.otyp !== POT_OIL)
-        throw new UnsupportedBurialError('end_burn', obj);
+        preflight_end_burn(obj, true, env);
 
     const underIce = is_ice(obj.ox, obj.oy, state);
-    if ((obj.otyp === ROCK && !underIce) || obj.otyp === BOULDER)
-        throw new UnsupportedBurialError('object deallocation', obj);
+    const deallocates = (obj.otyp === ROCK && !underIce)
+        || obj.otyp === BOULDER;
+    if (obj.otyp === BOULDER)
+        requireHook(env, 'recalcBlockPoint', obj);
+    if (deallocates) preflight_obfree(obj, null, env);
 
     const startsOrganicTimer = obj.otyp !== CORPSE
         && (underIce ? obj.oclass === POTION_CLASS : isOrganic(obj, state));
+    if (startsOrganicTimer) burialEnvironment(rawEnv, ['rn2', 'rnd']);
     if (startsOrganicTimer || (obj.timed && obj.on_ice))
         requireTimerQueue(state);
 
+    if (obj.otyp === LEASH && obj.leashmon !== 0) o_unleash(obj, env);
+    if (obj.lamplit && obj.otyp !== POT_OIL) end_burn(obj, true, env);
+
     remove_object(obj, env);
+
+    if (deallocates) {
+        obfree(obj, null, env);
+        return { next, deallocated: true };
+    }
 
     if (startsOrganicTimer && !obj_resists(obj, 5, 95, env)) {
         const delay = (underIce ? 0 : 250) + random.rnd(250);
