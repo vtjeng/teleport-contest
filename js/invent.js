@@ -1074,6 +1074,28 @@ export function addinv_nomerge(obj, env = {}) {
     }
 }
 
+// C ref: mkobj.c add_to_minv(). Returns true when `obj` merged into an
+// existing stack and was freed, false when it was linked into the inventory.
+export function add_to_minv(monster, obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('add_to_minv requires a monster');
+    if (obj.where !== OBJ_FREE) {
+        throw new Error(
+            `add_to_minv: object where=${obj.where}, expected OBJ_FREE`,
+        );
+    }
+
+    for (let current = monster.minvent; current; current = current.nobj) {
+        if (merged(current, obj, normalized)) return true;
+    }
+    obj.where = OBJ_MINVENT;
+    obj.ocarry = monster;
+    obj.nobj = monster.minvent ?? null;
+    monster.minvent = obj;
+    return false;
+}
+
 export function add_to_container(container, obj, env = {}) {
     const normalized = inventoryEnv(env);
     if (obj.where !== OBJ_FREE) {

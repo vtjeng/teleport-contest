@@ -9,19 +9,29 @@ import {
 } from '../js/const.js';
 import { level_difficulty } from '../js/dungeon.js';
 import {
+    adj_lev,
+    golemhp,
+    mbirth_limit,
     mkclass,
+    newmonhp,
+    peace_minded,
+    propagate,
     rndmonnum,
     rndmonst,
     rndmonst_adj,
+    set_malign,
 } from '../js/makemon.js';
 import {
     PM_AIR_ELEMENTAL,
     PM_BAT,
+    PM_DEATH,
     PM_EARTH_ELEMENTAL,
+    PM_ERINYS,
     PM_FIRE_ANT,
     PM_FIRE_ELEMENTAL,
     PM_FOX,
     PM_GOBLIN,
+    PM_GRAY_DRAGON,
     PM_GREMLIN,
     PM_GRID_BUG,
     PM_JACKAL,
@@ -31,8 +41,12 @@ import {
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_NEWT,
+    PM_NAZGUL,
     PM_SEWER_RAT,
+    PM_STRAW_GOLEM,
     PM_WATER_ELEMENTAL,
+    PM_WIZARD_OF_YENDOR,
+    M2_ORC,
     G_NOGEN,
     NON_PM,
     S_ANT,
@@ -60,9 +74,11 @@ function startingState() {
         specialLevels: [],
         u: {
             uhave: { amulet: 0 },
+            ualign: { type: 0, record: 0, abuse: 0 },
             ulevel: 1,
             uz: { dnum: 0, dlevel: 1 },
         },
+        urace: { lovemask: 0, hatemask: 0 },
     };
     monst_globals_init(state);
     reset_mvitals(state);
@@ -75,13 +91,14 @@ function scriptedRandom(steps) {
         const step = steps[offset++];
         assert.ok(step, `unexpected ${kind}(${bound})`);
         assert.equal(kind, step.kind ?? 'rn2');
-        assert.equal(bound, step.bound);
+        assert.deepEqual(bound, step.bound);
         return step.result;
     }
     return {
         random: {
             rn2: (bound) => draw('rn2', bound),
             rnd: (bound) => draw('rnd', bound),
+            d: (number, sides) => draw('d', [number, sides]),
         },
         assertExhausted() {
             assert.equal(offset, steps.length);
@@ -254,6 +271,166 @@ test('level_difficulty applies extrinsic aggravation after every branch', () => 
     deep.u.uprops = [];
     deep.u.uprops[AGGRAVATE_MONSTER] = { extrinsic: 1 };
     assert.equal(level_difficulty(deep), 50);
+});
+
+test('newmonhp preserves level-zero and ordinary minimum-hit-point boosts', () => {
+    const state = startingState();
+    const newt = {};
+    const newtRng = scriptedRandom([
+        { kind: 'rnd', bound: 4, result: 1 },
+    ]);
+    newmonhp(newt, PM_NEWT, { state, random: newtRng.random });
+    newtRng.assertExhausted();
+    assert.deepEqual(
+        [newt.m_lev, newt.mhp, newt.mhpmax],
+        [0, 2, 2],
+    );
+
+    const bee = {};
+    const beeRng = scriptedRandom([
+        { kind: 'd', bound: [1, 8], result: 1 },
+    ]);
+    newmonhp(bee, PM_KILLER_BEE, { state, random: beeRng.random });
+    beeRng.assertExhausted();
+    assert.deepEqual(
+        [bee.m_lev, bee.mhp, bee.mhpmax],
+        [1, 2, 2],
+    );
+});
+
+test('newmonhp keeps fixed golem, Rider, and adult-dragon branches', () => {
+    const state = startingState();
+
+    const golem = {};
+    const noDraw = scriptedRandom([]);
+    newmonhp(golem, PM_STRAW_GOLEM, { state, random: noDraw.random });
+    noDraw.assertExhausted();
+    assert.equal(golemhp(PM_STRAW_GOLEM), 20);
+    assert.deepEqual([golem.mhp, golem.mhpmax], [20, 20]);
+
+    const rider = {};
+    const riderRng = scriptedRandom([
+        { kind: 'd', bound: [10, 8], result: 10 },
+    ]);
+    newmonhp(rider, PM_DEATH, { state, random: riderRng.random });
+    riderRng.assertExhausted();
+    assert.deepEqual([rider.mhp, rider.mhpmax], [11, 11]);
+
+    const dragon = {};
+    const dragonLevel = adj_lev(state.mons[PM_GRAY_DRAGON], state);
+    const dragonRng = scriptedRandom([
+        { kind: 'd', bound: [dragonLevel, 4], result: dragonLevel },
+    ]);
+    newmonhp(dragon, PM_GRAY_DRAGON, {
+        state,
+        random: dragonRng.random,
+    });
+    dragonRng.assertExhausted();
+    assert.deepEqual(
+        [dragon.m_lev, dragon.mhp, dragon.mhpmax],
+        [dragonLevel, 5 * dragonLevel, 5 * dragonLevel],
+    );
+});
+
+test('propagate preserves birth limits, extinction, and ghostly tally rules', () => {
+    const state = startingState();
+    const random = scriptedRandom([]).random;
+    assert.equal(mbirth_limit(PM_NAZGUL), 9);
+    assert.equal(mbirth_limit(PM_ERINYS), 3);
+    assert.equal(mbirth_limit(PM_JACKAL), 120);
+
+    state.mvitals[PM_JACKAL].born = 119;
+    assert.equal(propagate(PM_JACKAL, true, false, { state, random }), true);
+    assert.equal(state.mvitals[PM_JACKAL].born, 120);
+    assert.ok(state.mvitals[PM_JACKAL].mvflags & G_EXTINCT);
+
+    // Ordinary creation still tallies an already extinct species.
+    assert.equal(propagate(PM_JACKAL, true, false, { state, random }), false);
+    assert.equal(state.mvitals[PM_JACKAL].born, 121);
+
+    state.mvitals[PM_FOX].mvflags |= G_EXTINCT;
+    assert.equal(propagate(PM_FOX, true, true, { state, random }), false);
+    assert.equal(state.mvitals[PM_FOX].born, 0);
+
+    assert.equal(
+        propagate(PM_WIZARD_OF_YENDOR, true, false, { state, random }),
+        true,
+    );
+    assert.ok(state.mvitals[PM_WIZARD_OF_YENDOR].mvflags & G_EXTINCT);
+});
+
+test('peace_minded preserves level-one hostility and goblin race draws', () => {
+    const state = startingState();
+    const noDraw = scriptedRandom([]);
+    const alwaysHostile = [
+        PM_JACKAL,
+        PM_FOX,
+        PM_KOBOLD,
+        PM_SEWER_RAT,
+        PM_GRID_BUG,
+        PM_LICHEN,
+        PM_KOBOLD_ZOMBIE,
+        PM_NEWT,
+    ];
+    for (const mndx of alwaysHostile) {
+        assert.equal(
+            peace_minded(state.mons[mndx], { state, random: noDraw.random }),
+            false,
+        );
+    }
+
+    // A human treats the goblin's orc race as hostile before alignment RNG.
+    state.urace.hatemask = M2_ORC;
+    assert.equal(
+        peace_minded(state.mons[PM_GOBLIN], { state, random: noDraw.random }),
+        false,
+    );
+    noDraw.assertExhausted();
+
+    state.urace.hatemask = 0;
+    state.u.ualign = { type: -1, record: 10, abuse: 0 };
+    const coaligned = scriptedRandom([
+        { bound: 26, result: 1 },
+        { bound: 5, result: 1 },
+    ]);
+    assert.equal(
+        peace_minded(state.mons[PM_GOBLIN], {
+            state,
+            random: coaligned.random,
+        }),
+        true,
+    );
+    coaligned.assertExhausted();
+
+    // Carrying the Amulet rejects a negatively aligned monster first.
+    state.u.uhave.amulet = 1;
+    assert.equal(
+        peace_minded(state.mons[PM_GOBLIN], { state, random: noDraw.random }),
+        false,
+    );
+});
+
+test('set_malign distinguishes peaceful and hostile coaligned monsters', () => {
+    const state = startingState();
+    state.u.ualign.type = -1;
+    const goblin = {
+        data: state.mons[PM_GOBLIN],
+        ispriest: false,
+        isminion: false,
+        mpeaceful: true,
+    };
+    assert.equal(set_malign(goblin, state), -9);
+    goblin.mpeaceful = false;
+    assert.equal(set_malign(goblin, state), 3);
+
+    state.u.ualign.type = 0;
+    const jackal = {
+        data: state.mons[PM_JACKAL],
+        ispriest: false,
+        isminion: false,
+        mpeaceful: false,
+    };
+    assert.equal(set_malign(jackal, state), 0);
 });
 
 test('Quest fixed-enemy selection preserves its three source draws', () => {

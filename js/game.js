@@ -49,7 +49,12 @@ export class GameMap {
         );
         this.objlist = null;
         this.buriedobjlist = null;
-        this.monsters = [];
+        // C ref: rm.h struct level. Monsters are indexed by coordinate;
+        // their nmon links separately form the level-wide fmon chain.
+        this.monsters = Array.from(
+            { length: COLNO },
+            () => new Array(ROWNO).fill(null),
+        );
         this.traps = [];
         this.flags = {
             nfountains: 0,
