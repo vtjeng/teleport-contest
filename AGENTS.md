@@ -126,12 +126,12 @@ Pass rules:
 
 - Native Codex subagents are available to both the primary session and processes
   launched with `codex exec --ephemeral`; either context may use them to
-  parallelize bounded work. Formal skill passes may use the same parallelism,
-  but all of their subagents must remain inside the pass's isolation boundary:
-  start a fresh top-level `codex exec --ephemeral` process, give it only the
-  pass's scoped review inputs, and let it orchestrate any native subagents the
-  skill needs. Do not reuse the process for another pass or substitute a
-  subagent spawned by the primary session for the fresh top-level process.
+  parallelize bounded work. For formal skill passes, this flexibility is
+  constrained by the pass's isolation boundary. Start each pass in a fresh
+  top-level `codex exec --ephemeral` process, give it only the pass's scoped
+  review inputs, and let that process orchestrate any native subagents the skill
+  needs. Do not reuse the process for another pass or substitute a subagent
+  spawned by the primary session for the fresh top-level process.
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
