@@ -9,18 +9,27 @@ import {
     W_SADDLE,
 } from '../js/const.js';
 import {
+    can_saddle,
     makedog,
     pet_type,
 } from '../js/dog.js';
 import { GameMap } from '../js/game.js';
 import {
+    M1_AMORPHOUS,
+    M1_HUMANOID,
+    M1_UNSOLID,
+    MZ_MEDIUM,
+    PM_AIR_ELEMENTAL,
     PM_ARCHEOLOGIST,
     PM_CAVE_DWELLER,
+    PM_FOG_CLOUD,
+    PM_GHOST,
     PM_HUMAN,
     PM_KITTEN,
     PM_KNIGHT,
     PM_LITTLE_DOG,
     PM_PONY,
+    PM_PLAINS_CENTAUR,
     PM_WIZARD,
     monst_globals_init,
     reset_mvitals,
@@ -110,6 +119,41 @@ function ringShuffleSteps() {
             result.push(step('rn2', [bound], 0));
     return result;
 }
+
+test('can_saddle applies every source body-shape exclusion', () => {
+    const state = startingPetState();
+    const pony = state.mons[PM_PONY];
+    const cases = [
+        ['ordinary pony', pony, true],
+        ['too small', { ...pony, msize: MZ_MEDIUM - 1 }, false],
+        [
+            'humanoid quadruped',
+            { ...pony, mflags1: pony.mflags1 | M1_HUMANOID },
+            false,
+        ],
+        ['centaur exception', state.mons[PM_PLAINS_CENTAUR], true],
+        [
+            'amorphous quadruped',
+            { ...pony, mflags1: pony.mflags1 | M1_AMORPHOUS },
+            false,
+        ],
+        ['noncorporeal ghost', state.mons[PM_GHOST], false],
+        ['whirly vortex', state.mons[PM_FOG_CLOUD], false],
+        [
+            'whirly air-elemental identity',
+            { ...pony, pmidx: PM_AIR_ELEMENTAL },
+            false,
+        ],
+        [
+            'unsolid quadruped',
+            { ...pony, mflags1: pony.mflags1 | M1_UNSOLID },
+            false,
+        ],
+    ];
+    for (const [name, data, expected] of cases) {
+        assert.equal(can_saddle({ data }), expected, name);
+    }
+});
 
 test('pet_type preserves fixed-role and preference precedence', () => {
     const noDraw = { rn2: () => assert.fail('unexpected pet_type draw') };

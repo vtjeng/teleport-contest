@@ -79,6 +79,15 @@ test('pre-mklev startup composes every source initializer in order', () => {
         assert.equal(state.moves, 0);
         assert.equal(state.dungeons[0].dname, 'The Dungeons of Doom');
         assert.equal(state.artilist.length, 35);
+        assert.deepEqual(state.context.achieveo, {
+            mines_prize_oid: 0,
+            soko_prize_oid: 0,
+            castle_prize_old: 0,
+            mines_prize_otyp: 0,
+            soko_prize_otyp: 0,
+            castle_prize_otyp: 0,
+            minetn_reached: false,
+        });
         assert.deepEqual(
             [...state.splev_align].sort((left, right) => left - right),
             [-1, 0, 1],

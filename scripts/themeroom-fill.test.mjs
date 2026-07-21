@@ -486,6 +486,88 @@ test('Ghost fill default path preserves the complete creation draw order', () =>
     );
 });
 
+test('Ghost equipment descriptors clear generated blessing and wear state', () => {
+    const cases = [
+        {
+            name: 'erosion, blessing, and grease',
+            middle: [
+                step('rn2', [11], 0),
+                step('rne', [3], 1),
+                step('rn2', [2], 1),
+                step('rn2', [20], 19),
+                step('rn2', [100], 99),
+                step('rn2', [80], 0),
+                step('rn2', [9], 1),
+                step('rn2', [80], 0),
+                step('rn2', [9], 1),
+                step('rn2', [1000], 0),
+            ],
+            expectedSpe: 1,
+        },
+        {
+            name: 'erosion proofing',
+            middle: [
+                step('rn2', [11], 10),
+                step('rn2', [10], 9),
+                step('rn2', [10], 9),
+                step('rn2', [20], 19),
+                step('rn2', [100], 0),
+                step('rn2', [1000], 999),
+            ],
+            expectedSpe: 0,
+        },
+    ];
+
+    for (const scenario of cases) {
+        const { level, room } = twoByTwoRoom();
+        const state = {
+            ...rawMonsterGenerationState(),
+            context: { ident: 2 },
+            flags: { initalign: 0 },
+            in_mklev: true,
+            level,
+            moves: 0,
+            plname: 'Alice',
+            urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+        };
+        objects_globals_init(state);
+        init_artifacts(state);
+        const random = scriptedRandom([
+            step('rn2', [4], 2),
+            step('rn2', [100], 0),
+            step('rnd', [2], 1),
+            ...scenario.middle,
+            step('rn2', [100], 99),
+            step('rn2', [100], 99),
+            step('rn2', [100], 99),
+            step('rn2', [100], 99),
+            step('rn2', [100], 99),
+        ]);
+
+        run_themeroom_fill(fillById('ghost_of_an_adventurer'), room, 1, {
+            state,
+            random: random.random,
+            hooks: { createMonster: () => ({}) },
+        });
+        random.assertExhausted();
+
+        const dagger = level.objects[3][3];
+        assert.deepEqual(
+            [
+                dagger.spe,
+                dagger.blessed,
+                dagger.cursed,
+                dagger.oeroded,
+                dagger.oeroded2,
+                dagger.oerodeproof,
+                dagger.greased,
+            ],
+            [scenario.expectedSpe, false, false, 0, 0, false, false],
+            scenario.name,
+        );
+    }
+});
+
 test('unported fill handlers fail closed', () => {
     const { level, room } = twoByTwoRoom();
     assert.throws(

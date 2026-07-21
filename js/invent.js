@@ -839,14 +839,25 @@ export function merged(otmp, obj, env = {}) {
 // older compatible pile member into it, which is the pointer order used by C.
 export function stackobj(obj, env = {}) {
     const normalized = inventoryEnv(env);
-    if (obj?.where !== OBJ_FLOOR) {
-        throw new Error(
-            `stackobj: object where=${obj?.where}, expected floor`,
-        );
-    }
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('stackobj requires an object');
     const pile = normalized.state.level?.objects?.[obj.ox]?.[obj.oy];
-    if (!pile)
+    if (obj.where === OBJ_FLOOR && !pile)
         throw new Error('stackobj: object is not on its floor pile');
+    if (obj.where === OBJ_FLOOR) {
+        let linked = false;
+        for (let current = pile; current; current = current.nexthere) {
+            if (current === obj) {
+                linked = true;
+                break;
+            }
+        }
+        if (!linked)
+            throw new Error('stackobj: object is not on its floor pile');
+    }
+    // sp_lev.c also calls stackobj() after putting a direct custom-inventory
+    // object into OBJ_MINVENT (or after mpickobj merged and deleted it).  C
+    // simply scans the remembered coordinate's floor pile in every case.
     for (let current = pile; current; current = current.nexthere) {
         if (current !== obj && merged(obj, current, normalized)) break;
     }

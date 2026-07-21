@@ -18,6 +18,7 @@ import {
     POOL,
     ROOM,
     ROOMOFFSET,
+    SOLID,
     NO_LOC_WARN,
     SP_COORD_IS_RANDOM,
     WATER,
@@ -222,6 +223,58 @@ test('get_location_coord rejects non-dry candidates before object RNG', () => {
 
     assert.deepEqual(coordinate, { x: 11, y: 5 });
     assert.equal(script.drawCount, 4);
+    script.done();
+});
+
+test('packed random humidity overrides the caller humidity on real terrain', () => {
+    const cases = [
+        [WET, POOL],
+        [HOT, LAVAPOOL],
+        [SOLID, HWALL],
+    ];
+    for (const [packedHumidity, acceptedTerrain] of cases) {
+        const state = coordinateState();
+        const room = regularRoom({ lx: 10, hx: 11, ly: 5, hy: 5 });
+        state.level.at(10, 5).typ = ROOM;
+        state.level.at(11, 5).typ = acceptedTerrain;
+        const script = scriptedCoordinates(room, [[10, 5], [11, 5]]);
+        const coordinate = { x: -1, y: -1 };
+
+        get_location_coord(
+            coordinate,
+            DRY,
+            room,
+            SP_COORD_IS_RANDOM | packedHumidity,
+            { state, random: script.random },
+        );
+
+        assert.deepEqual(coordinate, { x: 11, y: 5 });
+        assert.equal(script.drawCount, 4);
+        script.done();
+    }
+});
+
+test('packed humidity falls back to caller humidity after its first pass', () => {
+    const state = coordinateState();
+    const room = regularRoom({ lx: 10, hx: 11, ly: 5, hy: 5 });
+    state.level.at(10, 5).typ = ROOM;
+    state.level.at(11, 5).typ = ROOM;
+    const script = scriptedCoordinates(room, [
+        ...Array.from({ length: 100 }, () => [11, 5]),
+        [10, 5],
+    ]);
+    const coordinate = { x: -1, y: -1 };
+
+    get_location_coord(
+        coordinate,
+        DRY,
+        room,
+        SP_COORD_IS_RANDOM | WET,
+        { state, random: script.random },
+    );
+
+    assert.deepEqual(coordinate, { x: 10, y: 5 });
+    assert.equal(script.drawCount, 202);
     script.done();
 });
 

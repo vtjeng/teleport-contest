@@ -7,6 +7,7 @@ import {
     OBJ_BURIED,
     OBJ_DELETED,
     OBJ_FLOOR,
+    OBJ_MINVENT,
     REVIVE_MON,
     ROT_CORPSE,
     ROT_ORGANIC,
@@ -21,6 +22,7 @@ import {
     obj_resists,
 } from '../js/bury.js';
 import { GameMap } from '../js/game.js';
+import { add_to_minv } from '../js/invent.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     APPLE,
@@ -589,4 +591,26 @@ test('rock and boulder burial deallocates after source visibility effects', () =
         assert.deepEqual(events, otyp === BOULDER ? [[x, y]] : []);
         script.done();
     }
+});
+
+test('a carried boulder deallocates without floor visibility integration', () => {
+    const state = burialState();
+    const monster = { minvent: null };
+    const boulder = objectInstance(BOULDER, state, { ox: 23, oy: 12 });
+    add_to_minv(monster, boulder, { state });
+    assert.equal(boulder.where, OBJ_MINVENT);
+    const script = scriptedRandom([
+        ['rn2', 100, 50],
+    ]);
+
+    const result = bury_an_obj(boulder, {
+        state,
+        random: script.random,
+    });
+
+    // obj.nexthere aliases ocarry in the source union for OBJ_MINVENT.
+    assert.deepEqual(result, { next: monster, deallocated: true });
+    assert.equal(monster.minvent, null);
+    assert.equal(boulder.where, OBJ_DELETED);
+    script.done();
 });

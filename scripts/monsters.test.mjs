@@ -6,8 +6,11 @@ import * as monsterExports from '../js/monsters.js';
 import {
     AT_WEAP,
     G_NOCORPSE,
+    M1_HUMANOID,
+    M1_UNSOLID,
     M2_GREEDY,
     M3_INFRAVISION,
+    MZ_MEDIUM,
     MONSTER_CLASSES,
     MONSTER_TEMPLATES,
     MS_GUARDIAN,
@@ -36,8 +39,11 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // These source constants represent an attack type, a wide behavior flag,
     // an extended behavior flag, and a sound category from the generated set.
     assert.equal(AT_WEAP, 254);
+    assert.equal(M1_HUMANOID, 0x00020000);
+    assert.equal(M1_UNSOLID, 0x00100000);
     assert.equal(M2_GREEDY, 0x10000000);
     assert.equal(M3_INFRAVISION, 0x0100);
+    assert.equal(MZ_MEDIUM, 2);
     assert.equal(MS_GUARDIAN, 38);
 
     const numericExports = Object.entries(monsterExports)
@@ -55,7 +61,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        '1d964ac18b1bcb7f3a00f63e2423363ff0d68cbb2a8dde91ffabd92cd6fe8e9c',
+        '350f6936382215865573c94d4d8cb889564df892febf39c70921b81375481de1',
     );
 });
 

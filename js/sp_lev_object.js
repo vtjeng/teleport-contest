@@ -7,19 +7,25 @@ import {
     CORPSTAT_MALE,
     DRY,
     NON_PM,
+    ONAME,
+    ONAME_NO_FLAGS,
     SP_COORD_IS_RANDOM,
 } from './const.js';
+import { artifact_exists } from './artifacts.js';
 import { bury_an_obj } from './bury.js';
 import { lookup_novel } from './do_name.js';
+import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import {
+    add_to_minv,
     add_to_container,
     delete_contents,
     obfree,
     stackobj,
 } from './invent.js';
 import { rndmonnum } from './makemon.js';
+import { dead_species } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     mkgold,
@@ -28,6 +34,7 @@ import {
     objectType,
     remove_object,
     set_corpsenm,
+    unknow_object,
     weight,
 } from './obj.js';
 import {
@@ -37,12 +44,16 @@ import {
     EGG,
     FIGURINE,
     RANDOM_CLASS,
+    SADDLE,
     SPE_NOVEL,
     STATUE,
     TIN,
 } from './objects.js';
 import { get_location_coord } from './room_coordinates.js';
-import { begin_burn } from './timeout.js';
+import {
+    attach_fig_transform_timeout,
+    begin_burn,
+} from './timeout.js';
 
 const MAX_CONTAINMENT = 10;
 
@@ -58,7 +69,10 @@ export class UnsupportedSpecialObjectError extends Error {
 // The C loader keeps a process-global stack while one level is decoded. JS
 // scopes the same stack to one synchronous special-level or themed-room fill.
 export function new_sp_lev_object_context() {
-    return { containers: [] };
+    return {
+        containers: [],
+        inventCarryingMonster: null,
+    };
 }
 
 function specialObjectEnvironment(rawEnv = {}) {
@@ -67,6 +81,12 @@ function specialObjectEnvironment(rawEnv = {}) {
     if (!context || !Array.isArray(context.containers)) {
         throw new TypeError(
             'special-level object context requires a containers array',
+        );
+    }
+    if (context.inventCarryingMonster != null
+        && typeof context.inventCarryingMonster !== 'object') {
+        throw new TypeError(
+            'special-level object carrier must be a monster or null',
         );
     }
     return objectGenerationEnv({
@@ -108,6 +128,17 @@ function normalizedSpe(specification) {
     if (specification.id === TIN || specification.id === FIGURINE)
         return 0;
     return specification.spe ?? -127;
+}
+
+// Preserve the parser's wide -127 sentinel until assignment, then reproduce
+// the narrower C object fields explicitly.
+function signedChar(value) {
+    const byte = ((value % 0x100) + 0x100) % 0x100;
+    return byte >= 0x80 ? byte - 0x100 : byte;
+}
+
+function unsignedThreeBits(value) {
+    return ((value % 8) + 8) % 8;
 }
 
 function normalizeSpecification(specification, context) {
@@ -258,7 +289,8 @@ function constructObject(specification, coordinate, env) {
 }
 
 function applyObjectFields(obj, specification, env) {
-    if (specification.spe !== -127) obj.spe = specification.spe;
+    if (specification.spe !== -127)
+        obj.spe = signedChar(specification.spe);
     applyBuc(obj, specification.buc, env, specification);
 
     if (specification.corpsenm !== NON_PM) {
@@ -276,10 +308,21 @@ function applyObjectFields(obj, specification, env) {
                 specification,
             );
         }
-        obj = nameObject(obj, String(specification.name), env);
-        if (!obj) {
+        const namedObject = nameObject(
+            obj,
+            String(specification.name),
+            env,
+        );
+        if (!namedObject) {
             throw new UnsupportedSpecialObjectError(
                 'a named-object result',
+                specification,
+            );
+        }
+        // sp_lev.c oname() preserves identity and every ownership chain.
+        if (namedObject !== obj) {
+            throw new UnsupportedSpecialObjectError(
+                'named-object identity preservation',
                 specification,
             );
         }
@@ -306,7 +349,7 @@ function applyObjectFields(obj, specification, env) {
         obj.oerodeproof = false;
     }
     if (specification.recharged)
-        obj.recharged = specification.recharged % 8;
+        obj.recharged = unsignedThreeBits(specification.recharged);
     if (specification.locked === 0 || specification.locked === 1) {
         obj.olocked = Boolean(specification.locked);
     } else if (specification.broken) {
@@ -335,6 +378,56 @@ function impossible(message, env) {
         env.hooks.impossible(message, env);
 }
 
+function achievementTracking(state) {
+    const tracking = state.context?.achieveo;
+    if (!tracking || typeof tracking !== 'object') {
+        throw new Error(
+            'special-level achievement objects require initialized achieveo',
+        );
+    }
+    return tracking;
+}
+
+// C ref: sp_lev.c create_object() achievement branch.  Prize creation only
+// registers identity and prevents floor stacking; invent.addinv() owns the
+// later achievement award, oid clearing, and nomerge reset.
+function initializeAchievementObject(obj, env) {
+    const { state } = env;
+    const tracking = achievementTracking(state);
+    let oidField;
+    let typeField;
+    let levelName;
+    if (on_level(state.u?.uz, state.mineend_level)) {
+        oidField = 'mines_prize_oid';
+        typeField = 'mines_prize_otyp';
+        levelName = 'mines end';
+    } else if (on_level(state.u?.uz, state.sokoend_level)) {
+        oidField = 'soko_prize_oid';
+        typeField = 'soko_prize_otyp';
+        levelName = 'sokoban end';
+    } else {
+        if (!state.iflags?.lua_testing) {
+            // Full describe_level()/simpleonames() formatting belongs to the
+            // unported message-name boundary; retain the object type here so
+            // malformed level data still produces a deterministic diagnostic.
+            impossible(
+                `create_object: unknown achievement object ${obj.otyp}`,
+                env,
+            );
+        }
+        return obj;
+    }
+
+    if (tracking[oidField]) {
+        impossible(`multiple prizes on ${levelName} level`, env);
+        return obj;
+    }
+    tracking[oidField] = obj.o_id;
+    tracking[typeField] = obj.otyp;
+    obj.nomerge = true;
+    return obj;
+}
+
 function putInCurrentContainer(obj, context, env) {
     // A null entry is an active tombstone: the intended parent was destroyed
     // after being pushed (for example, a buried rock), so subsequent children
@@ -343,8 +436,12 @@ function putInCurrentContainer(obj, context, env) {
     remove_object(obj, env);
     if (!parent) {
         if (obj.oartifact) {
-            throw new UnsupportedSpecialObjectError(
-                'artifact uncreation for a missing container',
+            artifact_exists(
+                obj,
+                ONAME(obj),
+                false,
+                ONAME_NO_FLAGS,
+                env.state,
             );
         }
         obfree(obj, null, env);
@@ -353,6 +450,74 @@ function putInCurrentContainer(obj, context, env) {
     const survivor = add_to_container(parent, obj, env);
     parent.owt = weight(parent, env);
     return survivor;
+}
+
+function carrierCanSeeObject(monster, env, specification) {
+    const canSeeMonster = env.hooks.canSeeMonster;
+    if (typeof canSeeMonster === 'function')
+        return Boolean(canSeeMonster(monster, env));
+    // Special-level callbacks run while mklev has map visibility suppressed,
+    // so the carrier is not visible.  A later live loader must provide the
+    // complete canseemon() boundary explicitly.
+    if (env.state.in_mklev) return false;
+    throw new UnsupportedSpecialObjectError(
+        'monster visibility for custom inventory',
+        specification,
+    );
+}
+
+function putInCurrentMonster(obj, monster, env, specification) {
+    remove_object(obj, env);
+    if (obj.otyp === SADDLE && can_saddle(monster)) {
+        const canSeeMonster = env.hooks.canSeeMonster;
+        put_saddle_on_mon(obj, monster, {
+            ...env,
+            canseemon: typeof canSeeMonster === 'function'
+                ? (candidate) => canSeeMonster(candidate, env)
+                : undefined,
+        });
+        return obj;
+    }
+
+    obj.no_charge = false;
+    if (!monster.mtame) {
+        const canSeeCarrier = carrierCanSeeObject(
+            monster,
+            env,
+            specification,
+        );
+        if (!canSeeCarrier && monster !== env.state.u?.ustuck)
+            unknow_object(obj, env.state);
+    }
+    if (obj.otyp === FIGURINE
+        && obj.cursed
+        && obj.corpsenm !== NON_PM
+        && !dead_species(obj.corpsenm, true, env)) {
+        attach_fig_transform_timeout(obj, env);
+    }
+    // Source intentionally ignores mpickobj()'s "incoming object was freed"
+    // result.  Keep this reference even when add_to_minv() merged and deleted
+    // it; the callback and later source-ordered finalization observe that quirk.
+    add_to_minv(monster, obj, env);
+    return obj;
+}
+
+function placeSpecialObject(obj, specification, context, env) {
+    if (!specification.content && !context.inventCarryingMonster)
+        return obj;
+    if (context.containers.length)
+        return putInCurrentContainer(obj, context, env);
+    if (context.inventCarryingMonster) {
+        return putInCurrentMonster(
+            obj,
+            context.inventCarryingMonster,
+            env,
+            specification,
+        );
+    }
+    // A legal monster descriptor can outlive a failed unique-monster
+    // creation.  With no container or carrier, C leaves its objects on floor.
+    return obj;
 }
 
 function pushContainer(obj, context, env) {
@@ -404,22 +569,15 @@ function createOneObject(specification, croom, env) {
     let obj = constructObject(specification, coordinate, env);
     obj = applyObjectFields(obj, specification, env);
 
-    if (specification.content) {
-        obj = putInCurrentContainer(obj, context, env);
+    if (specification.content || context.inventCarryingMonster) {
+        obj = placeSpecialObject(obj, specification, context, env);
         if (!obj) return null;
     }
     if (specification.container && obj)
         pushContainer(obj, context, env);
 
     if (specification.achievement) {
-        const recordAchievementObject = env.hooks.recordAchievementObject;
-        if (typeof recordAchievementObject !== 'function') {
-            throw new UnsupportedSpecialObjectError(
-                'achievement-object creation',
-                specification,
-            );
-        }
-        recordAchievementObject(obj, env);
+        initializeAchievementObject(obj, env);
     }
 
     if (!specification.content && obj)

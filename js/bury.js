@@ -15,6 +15,7 @@ import { game } from './gstate.js';
 import {
     add_to_buried,
     obfree,
+    obj_extract_self,
     preflight_obfree,
     preflight_update_inventory,
     update_inventory,
@@ -241,9 +242,6 @@ export function bury_an_obj(obj, rawEnv = {}) {
     const { random, state } = env;
     if (!obj || typeof obj !== 'object')
         throw new TypeError('bury_an_obj requires an object');
-    if (obj.where !== OBJ_FLOOR) {
-        throw new UnsupportedBurialError('a floor object', obj);
-    }
     validateBuriedChain(state);
 
     const isPunishmentBall = obj === punishedObject(state, 'uball');
@@ -280,7 +278,7 @@ export function bury_an_obj(obj, rawEnv = {}) {
     const underIce = is_ice(obj.ox, obj.oy, state);
     const deallocates = (obj.otyp === ROCK && !underIce)
         || obj.otyp === BOULDER;
-    if (obj.otyp === BOULDER)
+    if (obj.otyp === BOULDER && obj.where === OBJ_FLOOR)
         requireHook(env, 'recalcBlockPoint', obj);
     if (deallocates) preflight_obfree(obj, null, env);
 
@@ -293,7 +291,8 @@ export function bury_an_obj(obj, rawEnv = {}) {
     if (obj.otyp === LEASH && obj.leashmon !== 0) o_unleash(obj, env);
     if (obj.lamplit && obj.otyp !== POT_OIL) end_burn(obj, true, env);
 
-    remove_object(obj, env);
+    if (obj.where === OBJ_FLOOR) remove_object(obj, env);
+    else obj_extract_self(obj, env);
 
     if (deallocates) {
         obfree(obj, null, env);
