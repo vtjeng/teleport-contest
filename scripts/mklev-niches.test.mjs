@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    CORR,
     HWALL,
     OROOM,
     ROCKTRAP,
@@ -70,6 +71,7 @@ const NICHE_CASES = [
         // Level 6 of a ten-level ordinary dungeon is neither bottom nor hardfloor.
         dlevel: 6,
         trapType: TRAPDOOR,
+        terrain: CORR,
         once: true,
         engraving: 'Vlad was here',
     },
@@ -78,12 +80,13 @@ const NICHE_CASES = [
         // Level 10 is the bottom of the same ten-level ordinary dungeon.
         dlevel: 10,
         trapType: ROCKTRAP,
+        terrain: SCORR,
         once: false,
         engraving: undefined,
     },
 ];
 
-for (const { name, dlevel, trapType, once, engraving } of NICHE_CASES) {
+for (const { name, dlevel, trapType, terrain, once, engraving } of NICHE_CASES) {
     test(name, async () => {
         const { room, state } = nicheState(dlevel);
         await makeniche(TRAPDOOR);
@@ -92,7 +95,7 @@ for (const { name, dlevel, trapType, once, engraving } of NICHE_CASES) {
         const trap = state.level.traps[0];
         assert.equal(trap.ttyp, trapType);
         assert.equal(trap.once, once);
-        assert.equal(state.level.at(trap.tx, trap.ty).typ, SCORR);
+        assert.equal(state.level.at(trap.tx, trap.ty).typ, terrain);
         assert.equal(
             state.level.at(trap.tx, nicheWallY(room, trap.ty)).typ,
             SDOOR,

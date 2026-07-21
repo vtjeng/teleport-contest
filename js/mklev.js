@@ -7,13 +7,19 @@
 
 import { game } from './gstate.js';
 import { GameMap } from './game.js';
-import { Can_fall_thru, depth as dungeon_depth } from './dungeon.js';
+import {
+    Can_fall_thru,
+    depth as dungeon_depth,
+    level_difficulty as dungeon_level_difficulty,
+    on_level,
+} from './dungeon.js';
 import { make_engr_at, wipe_engr_at } from './engrave.js';
 import { rn2, rnd, rn1 } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import { depth as depth_of_level } from './hacklib.js';
 import { oinit } from './o_init.js';
 import { mkgold } from './obj.js';
+import { maketrap, t_at } from './trap.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
@@ -26,12 +32,21 @@ import {
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, GRAVE, THRONE, TREE,
     DUST,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
-    IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
+    IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_LAVA,
+    IS_POOL,
     SPACE_POS, isok, W_NONDIGGABLE, FILL_NONE, FILL_NORMAL,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL, DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC, Align2amask,
     LR_UPTELE,
+    NO_TRAP, TRAPNUM, ARROW_TRAP, DART_TRAP, ROCKTRAP,
+    SQKY_BOARD, LANDMINE, ROLLING_BOULDER_TRAP,
+    SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, PIT, SPIKED_PIT, HOLE,
+    TRAPDOOR, TELEP_TRAP, LEVEL_TELEP, MAGIC_PORTAL, WEB,
+    STATUE_TRAP, MAGIC_TRAP, POLY_TRAP,
+    VIBRATING_SQUARE, TRAPPED_DOOR, TRAPPED_CHEST,
+    MKTRAP_NOFLAGS, MKTRAP_NOSPIDERONWEB,
+    is_hole, is_pit,
 } from './const.js';
 
 // Legacy object-creation replay scaffolding. These pre-catalog numeric IDs
@@ -80,33 +95,6 @@ const YLIM = 3;
 const xdir = [-1, -1, 0, 1, 1, 1, 0, -1];
 const ydir = [0, -1, -1, -1, 0, 1, 1, 1];
 
-// Trap constants
-const NO_TRAP = 0;
-const TRAPNUM = 26;
-const ARROW_TRAP = 1;
-const DART_TRAP = 2;
-const ROCKTRAP = 3;
-const SLP_GAS_TRAP = 6;
-const ROLLING_BOULDER_TRAP = 7;
-const RUST_TRAP = 4;
-const SQKY_BOARD = 5;
-const FIRE_TRAP = 8;
-const PIT = 9;
-const SPIKED_PIT = 10;
-const HOLE = 11;
-const TRAPDOOR = 14;
-const TELEP_TRAP = 15;
-const LEVEL_TELEP = 16;
-const WEB = 17;
-const STATUE_TRAP = 18;
-const MAGIC_TRAP = 19;
-const LANDMINE = 20;
-const POLY_TRAP = 21;
-const VIBRATING_SQUARE = 22;
-const TRAPPED_DOOR = 23;
-const TRAPPED_CHEST = 24;
-const MAGIC_PORTAL = 25;
-
 // C ref: mklev.c trap_engravings[]. Indices without a source string are
 // intentionally absent.
 const TRAP_ENGRAVINGS = new Map([
@@ -114,9 +102,6 @@ const TRAP_ENGRAVINGS = new Map([
     [TELEP_TRAP, 'ad aerarium'],
     [LEVEL_TELEP, 'ad aerarium'],
 ]);
-
-function is_hole(t) { return t === HOLE || t === TRAPDOOR; }
-function is_pit(t) { return t === PIT || t === SPIKED_PIT; }
 
 // Stairway list management
 function stairway_add(x, y, up, isladder, dest) {
@@ -311,15 +296,6 @@ async function makemon(mdat, x, y, mmflags) {
     // and mineralize calls are in fastforward, this stub won't be called
     // for those. It's only needed if mklev structural code calls makemon.
     return { mx: x, my: y, mhp: hp, msleeping: 0, mpeaceful: 0 };
-}
-
-// maketrap stub
-async function maketrap(x, y, typ) {
-    const trap = { ttyp: typ, tx: x, ty: y, tseen: false, once: false, launch: { x: 0, y: 0 } };
-    if (!game.level) return trap;
-    if (!game.level.traps) game.level.traps = [];
-    game.level.traps.push(trap);
-    return trap;
 }
 
 function make_grave(x, y, text) {
@@ -1434,7 +1410,12 @@ function somexy(croom, c) {
 function occupied(x, y) {
     const loc = game.level.at(x, y);
     if (!loc) return false;
-    return !!(IS_FURNITURE(loc.typ) || loc.typ === LAVAPOOL || IS_POOL(loc.typ));
+    const invocation = game.inv_pos;
+    return !!(t_at(x, y, game)
+        || IS_FURNITURE(loc.typ)
+        || IS_LAVA(loc.typ)
+        || IS_POOL(loc.typ)
+        || (invocation && invocation.x === x && invocation.y === y));
 }
 
 function somexyspace(croom, c) {
@@ -1751,30 +1732,42 @@ function wallification(x1, y1, x2, y2) {
 // Fill ordinary room
 // ============================================================
 
-function traptype_rnd() {
-    const lvl = game.u?.uz?.dlevel ?? 1;
-    let kind = rnd(TRAPNUM - 1);
+export function traptype_rnd(mktrapflags = MKTRAP_NOFLAGS, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2, rnd };
+    const lvl = dungeon_level_difficulty(state);
+    let kind = random.rnd(TRAPNUM - 1);
     switch (kind) {
     case TRAPPED_DOOR: case TRAPPED_CHEST: case MAGIC_PORTAL: case VIBRATING_SQUARE:
         kind = NO_TRAP; break;
     case ROLLING_BOULDER_TRAP: case SLP_GAS_TRAP:
         if (lvl < 2) kind = NO_TRAP; break;
     case LEVEL_TELEP:
-        if (lvl < 5 || game.level?.flags?.noteleport) kind = NO_TRAP; break;
+        if (lvl < 5 || state.level?.flags?.noteleport
+            || on_level(state.u?.uz, state.knox_level)) {
+            kind = NO_TRAP;
+        }
+        break;
     case SPIKED_PIT:
         if (lvl < 5) kind = NO_TRAP; break;
     case LANDMINE:
         if (lvl < 6) kind = NO_TRAP; break;
     case WEB:
-        if (lvl < 7) kind = NO_TRAP; break;
+        if (lvl < 7 && !(mktrapflags & MKTRAP_NOSPIDERONWEB))
+            kind = NO_TRAP;
+        break;
     case STATUE_TRAP: case POLY_TRAP:
         if (lvl < 8) kind = NO_TRAP; break;
     case FIRE_TRAP:
-        kind = NO_TRAP; break; // not hellish
+        if (!state.dungeons?.[state.u?.uz?.dnum]?.flags?.hellish)
+            kind = NO_TRAP;
+        break;
     case TELEP_TRAP:
-        if (game.level?.flags?.noteleport) kind = NO_TRAP; break;
+        if (state.level?.flags?.noteleport) kind = NO_TRAP;
+        break;
     case HOLE:
-        if (rn2(7)) kind = NO_TRAP; break;
+        if (random.rn2(7)) kind = NO_TRAP;
+        break;
     }
     return kind;
 }
