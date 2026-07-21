@@ -9,6 +9,7 @@ import { game } from './gstate.js';
 import { GameMap } from './game.js';
 import {
     Can_fall_thru,
+    Invocation_lev,
     depth as dungeon_depth,
     level_difficulty as dungeon_level_difficulty,
     on_level,
@@ -32,10 +33,10 @@ import {
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, GRAVE, THRONE, TREE,
     DUST,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
-    IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_LAVA,
-    IS_POOL,
+    IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     SPACE_POS, isok, W_NONDIGGABLE, FILL_NONE, FILL_NORMAL,
-    ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL, DBWALL, AIR, CLOUD,
+    ICE, MOAT, POOL, WATER, DRAWBRIDGE_UP, LAVAPOOL, LAVAWALL,
+    DBWALL, AIR, CLOUD, DB_MOAT, DB_LAVA, DB_UNDER,
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC, Align2amask,
     LR_UPTELE,
@@ -1368,66 +1369,140 @@ function makecorridors() {
 // Room helper functions
 // ============================================================
 
-function somex(croom) { return rn1(croom.hx - croom.lx + 1, croom.lx); }
-function somey(croom) { return rn1(croom.hy - croom.ly + 1, croom.ly); }
+function roomCoordinateEnv(rawEnv = {}) {
+    return {
+        state: rawEnv.state ?? game,
+        randomOneBased: rawEnv.randomOneBased ?? rawEnv.random?.rn1 ?? rn1,
+    };
+}
 
-function somexy(croom, c) {
-    // C ref: mkroom.c somexy(). An irregular room's bounding rectangle can
-    // contain transparent rock or disconnected wall cells, so membership is
-    // determined from flood-filled room numbers rather than bounds alone.
+export function somex(croom, rawEnv = {}) {
+    const { randomOneBased } = roomCoordinateEnv(rawEnv);
+    return randomOneBased(croom.hx - croom.lx + 1, croom.lx);
+}
+
+export function somey(croom, rawEnv = {}) {
+    const { randomOneBased } = roomCoordinateEnv(rawEnv);
+    return randomOneBased(croom.hy - croom.ly + 1, croom.ly);
+}
+
+export function inside_room(croom, x, y, state = game) {
     if (croom.irregular) {
-        const roomno = game.level.rooms.indexOf(croom) + ROOMOFFSET;
-        for (let tryCnt = 0; tryCnt < 100; tryCnt++) {
-            c.x = somex(croom);
-            c.y = somey(croom);
-            const loc = game.level.at(c.x, c.y);
-            if (loc && !loc.edge && loc.roomno === roomno) return true;
+        const roomno = croom.roomnoidx + ROOMOFFSET;
+        const loc = state.level?.at(x, y);
+        return Boolean(loc && !loc.edge && loc.roomno === roomno);
+    }
+
+    return x >= croom.lx - 1 && x <= croom.hx + 1
+        && y >= croom.ly - 1 && y <= croom.hy + 1;
+}
+
+// C ref: mkroom.c somexy(). Pick a coordinate in the room while excluding
+// subroom footprints. Keep the source's post-increment retry boundary: a
+// regular room with subrooms rejects even a valid 100th candidate.
+export function somexy(croom, c, rawEnv = {}) {
+    const env = roomCoordinateEnv(rawEnv);
+    const { state } = env;
+    let tryCnt = 0;
+
+    if (croom.irregular) {
+        const roomno = croom.roomnoidx + ROOMOFFSET;
+        while (tryCnt++ < 100) {
+            c.x = somex(croom, env);
+            c.y = somey(croom, env);
+            const loc = state.level.at(c.x, c.y);
+            if (!loc.edge && loc.roomno === roomno) return true;
         }
-        for (c.x = croom.lx; c.x <= croom.hx; c.x++) {
-            for (c.y = croom.ly; c.y <= croom.hy; c.y++) {
-                const loc = game.level.at(c.x, c.y);
-                if (loc && !loc.edge && loc.roomno === roomno) return true;
+        for (c.x = croom.lx; c.x <= croom.hx; ++c.x) {
+            for (c.y = croom.ly; c.y <= croom.hy; ++c.y) {
+                const loc = state.level.at(c.x, c.y);
+                if (!loc.edge && loc.roomno === roomno) return true;
             }
         }
         return false;
     }
+
     if (!croom.nsubrooms) {
-        c.x = somex(croom);
-        c.y = somey(croom);
+        c.x = somex(croom, env);
+        c.y = somey(croom, env);
         return true;
     }
-    let try_cnt = 0;
-    while (try_cnt++ < 100) {
-        c.x = somex(croom);
-        c.y = somey(croom);
-        const loc = game.level.at(c.x, c.y);
-        if (loc && IS_WALL(loc.typ)) continue;
-        return true;
+
+    while (tryCnt++ < 100) {
+        c.x = somex(croom, env);
+        c.y = somey(croom, env);
+        if (IS_WALL(state.level.at(c.x, c.y).typ)) continue;
+
+        let inSubroom = false;
+        for (let i = 0; i < croom.nsubrooms; ++i) {
+            if (inside_room(croom.sbrooms[i], c.x, c.y, state)) {
+                inSubroom = true;
+                break;
+            }
+        }
+        if (inSubroom) continue;
+        break;
     }
-    return false;
+    return tryCnt < 100;
 }
 
-function occupied(x, y) {
-    const loc = game.level.at(x, y);
+function invocation_pos(x, y, state) {
+    const current = state.u?.uz;
+    const invocation = state.inv_pos;
+    return Boolean(current && invocation && state.dungeons?.[current.dnum]?.flags
+        && Invocation_lev(current, state)
+        && invocation.x === x && invocation.y === y);
+}
+
+function drawbridge_under(loc, terrain) {
+    return loc.typ === DRAWBRIDGE_UP
+        && ((loc.flags ?? 0) & DB_UNDER) === terrain;
+}
+
+// C ref: dbridge.c is_pool() and is_lava(). A raised drawbridge is liquid
+// only when its overloaded map flags say what lies underneath it.
+function is_pool_at(x, y, state) {
+    if (!isok(x, y)) return false;
+    const loc = state.level.at(x, y);
+    if (loc.typ === POOL || loc.typ === MOAT || loc.typ === WATER) return true;
+    const current = state.u?.uz;
+    const onJuiblexLevel = Boolean(current && state.juiblex_level
+        && on_level(current, state.juiblex_level));
+    return !onJuiblexLevel && drawbridge_under(loc, DB_MOAT);
+}
+
+function is_lava_at(x, y, state) {
+    if (!isok(x, y)) return false;
+    const loc = state.level.at(x, y);
+    return loc.typ === LAVAPOOL || loc.typ === LAVAWALL
+        || drawbridge_under(loc, DB_LAVA);
+}
+
+export function occupied(x, y, state = game) {
+    const loc = state.level?.at(x, y);
     if (!loc) return false;
-    const invocation = game.inv_pos;
-    return !!(t_at(x, y, game)
+    return Boolean(t_at(x, y, state)
         || IS_FURNITURE(loc.typ)
-        || IS_LAVA(loc.typ)
-        || IS_POOL(loc.typ)
-        || (invocation && invocation.x === x && invocation.y === y));
+        || is_lava_at(x, y, state)
+        || is_pool_at(x, y, state)
+        || invocation_pos(x, y, state));
 }
 
-function somexyspace(croom, c) {
-    let trycnt = 0;
+// C ref: mkroom.c somexyspace(). The source do-while attempts one initial
+// candidate plus at most 100 retries, for 101 total calls to somexy().
+export function somexyspace(croom, c, rawEnv = {}) {
+    const env = roomCoordinateEnv(rawEnv);
+    const { state } = env;
+    let tryCnt = 0;
     let okay;
     do {
-        okay = somexy(croom, c) && isok(c.x, c.y) && !occupied(c.x, c.y);
-        if (okay) {
-            const loc = game.level.at(c.x, c.y);
-            okay = loc && (loc.typ === ROOM || loc.typ === CORR || loc.typ === ICE);
-        }
-    } while (trycnt++ < 100 && !okay);
+        okay = somexy(croom, c, env)
+            && isok(c.x, c.y)
+            && !occupied(c.x, c.y, state)
+            && (state.level.at(c.x, c.y).typ === ROOM
+                || state.level.at(c.x, c.y).typ === CORR
+                || state.level.at(c.x, c.y).typ === ICE);
+    } while (tryCnt++ < 100 && !okay);
     return okay;
 }
 

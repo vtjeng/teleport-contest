@@ -64,6 +64,7 @@
         "js/rect.js",
         "js/themeroom_data.js",
         "js/track.js",
+        "js/trap.js",
         "js/vision.js"
       ]
     },
