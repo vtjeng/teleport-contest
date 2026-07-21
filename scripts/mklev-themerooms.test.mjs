@@ -139,6 +139,47 @@ test('themeroom generation connects selection, map placement, and filler region'
     assert.notEqual(game.level.at(34, 4).typ, CROSSWALL);
 });
 
+test('live ordinary fallback keeps room generation on injected RNG streams', async () => {
+    resetThemeroomLevel();
+    const reservoirDrawCount = 30;
+    let reservoirCalls = 0;
+    const events = [];
+    const scripted = [
+        [100, 0], // build_room's default 100% chance
+        [77, 1], // litstate_rnd keeps the room lit
+        [1, 0], // select the sole initial free rectangle
+        [12, 0], // width two
+        [4, 0], // height two
+        [70, 0], // leftmost valid x coordinate
+        [13, 0], // upper-half y avoids the relocation-only rn1 branch
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        if (reservoirCalls++ < reservoirDrawCount) return bound - 1;
+        const next = scripted.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        assert.equal(bound, 2); // rnd(1 + abs(depth)) at depth one
+        return 2;
+    };
+
+    assert.equal(await themerooms_generate(
+        1,
+        random,
+        randomOneBased,
+    ), true);
+    assert.equal(scripted.length, 0);
+    assert.deepEqual(events.slice(reservoirDrawCount), [
+        'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
+        'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(13)',
+    ]);
+    assert.equal(game.level.nroom, 1);
+});
+
 test('generic room descriptors set topology and flags before synchronous contents', () => {
     const cases = [
         // The source default is an ordinary room scheduled for normal fill.
@@ -189,6 +230,93 @@ test('generic room descriptors set topology and flags before synchronous content
     }
 });
 
+test('generic room relocation keeps rn1 distinct from rnd', () => {
+    resetThemeroomLevel();
+    const scriptedRn2 = [
+        [100, 0], // build_room's default 100% chance
+        [77, 1], // litstate_rnd keeps the room lit
+        [1, 0], // select the sole initial free rectangle
+        [12, 0], // width two
+        [4, 3], // height five, forcing the lower-half relocation predicate
+        [70, 0], // leftmost valid x coordinate
+        [10, 9], // initial y coordinate lies below the map midpoint
+        [3, 0], // rn1(3, 2) expands to rn2(3) + 2
+    ];
+    const events = [];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        const next = scriptedRn2.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        assert.equal(bound, 2); // rnd(1 + abs(depth)) at depth one
+        return 2;
+    };
+    assert.equal(dispatch_themeroom(
+        definitionById('default'),
+        random,
+        randomOneBased,
+        { difficulty: 1 },
+    ), true);
+    assert.equal(scriptedRn2.length, 0);
+    assert.deepEqual(events, [
+        'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
+        'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(10)', 'rn2(3)',
+    ]);
+    assert.equal(game.level.rooms[0].ly, 2);
+});
+
+test('strict dispatch rejects alternate state before draws or mutation', () => {
+    resetThemeroomLevel();
+    const alternate = { level: new GameMap() };
+    let randomCalls = 0;
+
+    assert.throws(
+        () => dispatch_themeroom(
+            definitionById('default'),
+            () => { ++randomCalls; return 0; },
+            (bound) => bound,
+            { difficulty: 1, state: alternate },
+        ),
+        /only supports the global game state/,
+    );
+    assert.equal(randomCalls, 0);
+    assert.equal(game.level.nroom, 0);
+    assert.equal(game.level.at(10, 10).typ, STONE);
+    assert.equal(alternate.level.nroom, 0);
+    assert.equal(alternate.level.at(10, 10).typ, STONE);
+});
+
+test('strict map dispatch preflights its fill callback before loading terrain', () => {
+    resetThemeroomLevel();
+    let randomCalls = 0;
+    // Without the preflight, these values place Cross at (31,4) and select its
+    // themed branch, reproducing the former partially mutated failure.
+    const wouldMutate = [[68, 30], [10, 4], [100, 0]];
+
+    assert.throws(
+        () => dispatch_themeroom(
+            definitionById('cross'),
+            (bound) => {
+                ++randomCalls;
+                const next = wouldMutate.shift();
+                assert.ok(next, `unexpected rn2(${bound})`);
+                assert.equal(bound, next[0]);
+                return next[1];
+            },
+            (bound) => bound,
+            { difficulty: 1 },
+        ),
+        UnsupportedThemeroomActionError,
+    );
+    assert.equal(randomCalls, 0);
+    assert.equal(game.level.nroom, 0);
+    assert.equal(game.level.at(31, 4).typ, STONE);
+});
+
 test('all static filler-map descriptors dispatch through filler_region', () => {
     const fillerMaps = THEMEROOM_DEFINITIONS.filter(
         (definition) => definition.action.kind === 'map'
@@ -206,7 +334,7 @@ test('all static filler-map descriptors dispatch through filler_region', () => {
             // rn2(100)=50 selects filler_region's ordinary 70% branch.
             (bound) => Math.floor(bound / 2),
             (bound) => bound,
-            { difficulty: 1 },
+            { difficulty: 1, themeroomFill() {} },
         );
         assert.equal(result, true, definition.id);
         assert.equal(game.level.nroom, 1, definition.id);
@@ -271,7 +399,7 @@ test('Blocked center uses core shuffle and matching-cell chance draws in order',
             definitionById('blocked-center'),
             random,
             randomOneBased,
-            { difficulty: 1 },
+            { difficulty: 1, themeroomFill() {} },
         ),
         true,
     );
@@ -311,7 +439,7 @@ test('Blocked center replace_terrain scans matching cells x-major', () => {
             definitionById('blocked-center'),
             random,
             (bound) => bound,
-            { difficulty: 1 },
+            { difficulty: 1, themeroomFill() {} },
         ),
         (error) => error === stop,
     );

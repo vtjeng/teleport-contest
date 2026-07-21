@@ -21,6 +21,7 @@ import {
     light_globals_init,
 } from '../js/light.js';
 import {
+    BRASS_LANTERN,
     OIL_LAMP,
     TALLOW_CANDLE,
     WAX_CANDLE,
@@ -276,16 +277,38 @@ test('object light deletion follows identity and preserves other owners', () => 
     assert.equal(state.vision_full_recalc, 1);
 });
 
-test('oil lamps use the source warning boundaries and radius', () => {
-    const state = burnState();
-    const lamp = candle(OIL_LAMP, { age: 1000 });
-    begin_burn(lamp, false, { state });
+test('oil lamps and brass lanterns use every source warning boundary', () => {
+    const boundaries = [
+        // Each pair covers one turn above a source threshold, then equality;
+        // equality advances to the next warning segment rather than zero.
+        { age: 151, delay: 1, remaining: 150 },
+        { age: 150, delay: 50, remaining: 100 },
+        { age: 101, delay: 1, remaining: 100 },
+        { age: 100, delay: 50, remaining: 50 },
+        { age: 51, delay: 1, remaining: 50 },
+        { age: 50, delay: 25, remaining: 25 },
+        { age: 26, delay: 1, remaining: 25 },
+        { age: 25, delay: 25, remaining: 0 },
+    ];
 
-    assert.equal(lamp.age, 150);
-    assert.equal(lamp.lamplit, true);
-    assert.equal(peek_timer(BURN_OBJECT, lamp, state), 10 + 850);
-    assert.equal(state.gl.light_base.range, 3);
-    assert.equal(state.gl.light_base.id, lamp);
+    for (const otyp of [OIL_LAMP, BRASS_LANTERN]) {
+        for (const { age, delay, remaining } of boundaries) {
+            const state = burnState();
+            const lamp = candle(otyp, { age });
+            begin_burn(lamp, false, { state });
+
+            assert.equal(lamp.age, remaining, `${otyp} age ${age}`);
+            assert.equal(lamp.lamplit, true, `${otyp} age ${age}`);
+            assert.equal(lamp.timed, 1, `${otyp} age ${age}`);
+            assert.equal(
+                peek_timer(BURN_OBJECT, lamp, state),
+                10 + delay,
+                `${otyp} age ${age}`,
+            );
+            assert.equal(state.gl.light_base.range, 3, `${otyp} age ${age}`);
+            assert.equal(state.gl.light_base.id, lamp, `${otyp} age ${age}`);
+        }
+    }
 });
 
 test('unsupported burn and light paths fail before claiming ownership', () => {

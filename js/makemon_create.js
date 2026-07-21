@@ -1,10 +1,12 @@
-// Initial-level monster creation.
+// Initial-level monster creation for ordinary rooms, themed-room fills, and
+// starting pets.
 // C ref: makemon.c makemon(), m_initthrow(), m_initweap(), m_initinv(), and
 // mongets(); worn.c m_dowear(). The implementation fails closed outside the
-// species and call shapes reachable during ordinary-room filling and starting
-// pet creation on dungeon level one. Expanding it means porting the
-// corresponding complete source branches, not approximating their PRNG
-// effects.
+// species and call shapes reachable during ordinary-room filling, the Ghost
+// themed fill, and starting-pet creation. Fog clouds and wood nymphs are
+// source-complete prerequisites for the pending Cloud and Garden fills.
+// Expanding the closed set means porting the corresponding complete source
+// branches, not approximating their PRNG effects.
 
 import {
     ACCESSIBLE,
@@ -474,7 +476,8 @@ function initializeGender(monster, ptr, mmflags, random) {
 }
 
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
-// call shapes needed by fill_ordinary_room() and dog.c:makedog().
+// call shapes needed by fill_ordinary_room(), the Ghost themed fill, and
+// dog.c:makedog().
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,

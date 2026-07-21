@@ -875,6 +875,13 @@ function dispatch_map_action(definition, context) {
             `requires unimplemented map handler ${JSON.stringify(handler)}`,
         );
     }
+    if (typeof context.themeroomFill !== 'function'
+        && !context.allowMissingFill) {
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            'requires an injected themeroom-fill callback',
+        );
+    }
 
     const origin = lspo_map(definition, context.random);
     if (!origin) return false;
@@ -892,6 +899,14 @@ export function dispatch_themeroom(
     randomOneBased = rnd,
     env = {},
 ) {
+    // The strict dispatcher currently owns the process-global level just like
+    // the live generator. Reject an apparent alternate-state injection before
+    // any source draw or level mutation instead of silently writing `game`.
+    if (env.state !== undefined && env.state !== game) {
+        throw new TypeError(
+            'dispatch_themeroom only supports the global game state',
+        );
+    }
     const context = {
         difficulty: env.difficulty ?? level_difficulty(game),
         random,
@@ -946,7 +961,11 @@ export async function themerooms_generate(
 
     // sp_lev.c build_room() evaluates the default 100% chance with rn2(100).
     random(100);
-    const ok = create_room(-1, -1, -1, -1, -1, -1, OROOM, -1);
+    const ok = create_room(
+        -1, -1, -1, -1, -1, -1, OROOM, -1,
+        random,
+        randomOneBased,
+    );
     if (ok) {
         const room = game.level.rooms[game.level.nroom - 1];
         if (room) {
@@ -1056,7 +1075,9 @@ function create_room(
             if (ly === 0 && hy >= ROWNO - 1
                 && (!g.level.nroom || !random(g.level.nroom))
                 && (yabs + dy > Math.trunc(ROWNO / 2))) {
-                yabs = randomOneBased(3) + 1;
+                // hack.h defines rn1(x, y) as the macro rn2(x) + y; the
+                // recorder therefore identifies this source call as rn2(3).
+                yabs = random(3) + 2;
                 if (g.level.nroom < 4 && dy > 1) dy--;
             }
             const lowx = { v: xabs }, ddx = { v: dx };
