@@ -57,6 +57,7 @@ import {
 } from '../js/terminal.js';
 import {
     cmap_symbol,
+    glyph_customization,
     initialize_symbols_from_options,
     misc_symbol,
     monster_class_symbol,
@@ -593,6 +594,47 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     assert.equal(
         terrain_glyph({ typ: FOUNTAIN }, 7, 4, state).displayCh,
         '⌠',
+    );
+});
+
+test('standalone SYMBOLS replays named G_* customizations in source order', () => {
+    const configured = (rc) => {
+        const state = {};
+        initialize_symbols_from_options(parseNethackrc(rc), state);
+        return state;
+    };
+
+    const overridden = configured([
+        'OPTIONS=symset:Enhanced1',
+        'SYMBOLS=g_fountain:U+2603,G_vwall_sokoban:U+2602',
+    ].join('\n'));
+    assert.equal(
+        terrain_glyph({ typ: FOUNTAIN }, 7, 4, overridden).displayCh,
+        '☃',
+    );
+    assert.equal(
+        glyph_customization('G_vwall_sokoban', overridden).displayCh,
+        '☂',
+    );
+
+    // A concrete customization has no owner before a named set is active,
+    // and loading a later set resets that set's customization table.
+    const resetBySelection = configured([
+        'SYMBOLS=G_fountain:U+2603',
+        'OPTIONS=symset:Enhanced1',
+    ].join('\n'));
+    assert.equal(
+        terrain_glyph({ typ: FOUNTAIN }, 7, 4, resetBySelection).displayCh,
+        '⌠',
+    );
+
+    assert.throws(
+        () => parseNethackrc('SYMBOLS=G_not_a_source_glyph:U+2603'),
+        /unknown symbol/u,
+    );
+    assert.throws(
+        () => parseNethackrc('OPTIONS=G_fountain:U+2603'),
+        /unknown option/u,
     );
 });
 

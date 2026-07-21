@@ -205,7 +205,9 @@ function loadSymbolSet(name, set, state) {
     const entry = state.gs.symset[set];
     entry.name = String(name);
     entry.handling = HANDLING_BY_NAME[definition.handling] ?? H_UNK;
-    entry.glyphs = definition.glyphs;
+    // SYMBOLS=G_* customizations belong to the selected named set and can
+    // override these source defaults without mutating generated data.
+    entry.glyphs = { ...definition.glyphs };
     if (definition.color !== null) entry.nocolor = definition.color ? 0 : 1;
 }
 
@@ -335,6 +337,13 @@ function applySymbolAssignments(operation, state) {
     const arrays = slotArrays(set, state);
     const utf8Handling = state.gs.symset[set].handling === H_UTF8;
     for (const assignment of operation.assignments) {
+        if (assignment.kind === 'glyph') {
+            const entry = state.gs.symset[set];
+            // glyphs.c only installs a concrete-glyph customization while a
+            // named symbol set is active; the default set has no owner.
+            if (entry.name) entry.glyphs[assignment.name] = assignment.rawValue;
+            continue;
+        }
         const index = symbolIndex(assignment.name);
         if (index === undefined) continue;
         const utf8 = unicodeOverride(assignment.rawValue);

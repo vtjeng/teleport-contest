@@ -254,6 +254,40 @@ test('identified startup names cover race, BUC, container, and gem forms', () =>
     );
 });
 
+test('source-derived startup names cover monster food and charge forms', () => {
+    const state = rerollState();
+    const cases = [
+        // objnam.c prefixes a specific egg with its species before pluralizing.
+        [
+            object(state, O.EGG, { corpsenm: M.PM_NEWT, quan: 2 }),
+            '2 uncursed newt eggs',
+        ],
+        // A specific corpse keeps the species attached to the singular head.
+        [
+            object(state, O.CORPSE, { corpsenm: M.PM_NEWT }),
+            'an uncursed newt corpse',
+        ],
+        // An ordinary nonempty tin uses the species-meat form.
+        [
+            object(state, O.TIN, { corpsenm: M.PM_NEWT }),
+            'an uncursed tin of newt meat',
+        ],
+        // Charged tools show recharge-count:charges and omit implicit uncursed.
+        [
+            object(state, O.TINNING_KIT, { recharged: 2, spe: 30 }),
+            'a tinning kit (2:30)',
+        ],
+        // Charged rings retain BUC and enchantment prefixes.
+        [
+            object(state, O.RIN_ADORNMENT, { spe: 2 }),
+            'an uncursed +2 ring of adornment',
+        ],
+    ];
+
+    for (const [item, expected] of cases)
+        assert.equal(identifiedStartingObjectName(item, state), expected);
+});
+
 test('attribute line applies ACURR bonuses and strength encoding', () => {
     const state = rerollState();
     state.u.acurr.a = [18, 9, 10, 11, 12, 13];
@@ -365,12 +399,16 @@ test('reroll choice increments only for y and supports cancel fallback', async (
             cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
         });
         state.nhDisplay.pushKey(27); // Escape closes select_menu().
+        state.nhDisplay.pushKey('x'.charCodeAt(0)); // Ignored printable byte.
+        state.nhDisplay.pushKey(1); // Ignored control byte.
         state.nhDisplay.pushKey('Y'.charCodeAt(0));
         assert.equal(await reroll_menu(state, { displayRandom: () => 0 }), true);
         assert.equal(state.u.uroleplay.numrerolls, 3);
-        assert.equal(boundaries.length, 2);
-        assert.equal(boundaries[1].top, 'Reroll this character? [yn] (n)');
-        assert.deepEqual(boundaries[1].cursor, [32, 0]);
+        assert.equal(boundaries.length, 4);
+        for (const boundary of boundaries.slice(1)) {
+            assert.equal(boundary.top, 'Reroll this character? [yn] (n)');
+            assert.deepEqual(boundary.cursor, [32, 0]);
+        }
         assert.equal(rowText(state, 0), 'Reroll this character? [yn] (n)');
         assert.equal(state.nhDisplay.toplin, TOPLINE_NON_EMPTY);
         assert.equal(

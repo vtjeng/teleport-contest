@@ -96,8 +96,9 @@ export async function newgame() {
     await flush_screen(1);
     await bot();
 
-    // C ref: allmain.c newgame(). Only the final inventory reaches equipment,
-    // discovery, spell, and skill initialization.
+    // C ref: allmain.c newgame(). Only the accepted inventory reaches object
+    // discovery, equipment, spell, and skill initialization.  Each rejected
+    // u_init_inventory_attrs() still repeats inherent role/race knowledge.
     while (g.u.uroleplay.reroll && await reroll_menu(g)) {
         u_init_inventory_attrs(g, undefined, { objectHooks });
         await bot();

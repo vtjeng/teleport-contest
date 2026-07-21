@@ -50,6 +50,11 @@ export async function wd_message(
     const iflags = state.iflags ??= {};
     const flags = state.flags ??= {};
 
+    // C aliases wizard/discover to flags.debug/flags.explore.  JavaScript
+    // keeps both spellings for source-shaped consumers: flags holds the
+    // requested/authorized option state, while wizard/discover is the active
+    // gameplay view.  Every authorization failure below updates both copies.
+
     if (iflags.wiz_error_flag) {
         const wizards = String(state.sysopt?.wizards ?? '');
         if (wizards.length) {

@@ -49,6 +49,7 @@ import {
     encodeUtf8Text,
 } from './hacklib.js';
 import { rn2 } from './rng.js';
+import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
@@ -163,6 +164,15 @@ const SOURCE_SYMBOL_NAMES = new Set((
     + '|s_vwall|s_wand|s_water|s_weapon|s_web|s_worm|s_worm_tail'
     + '|s_wraith|s_xan|s_xorn|s_yeti|s_zombie|s_zruty'
 ).split('|'));
+// glyphs.c:match_glyph() compares G_* identifiers case-insensitively.  The
+// currently rendered concrete families are the ones named by the generated
+// source symbol-set data; retain their source spelling in replay operations.
+const SOURCE_GLYPH_NAMES = new Map();
+for (const definition of SYMBOL_SET_DEFINITIONS) {
+    for (const name of Object.keys(definition.glyphs)) {
+        SOURCE_GLYPH_NAMES.set(name.toLowerCase(), name);
+    }
+}
 const OPTION_ALIASES = Object.freeze({
     character: 'role',
     align: 'alignment',
@@ -1115,9 +1125,14 @@ function appendSymbolSelection(
 }
 
 function appendSymbolOverrides(result, set, assignments) {
+    // This ordered stream is authoritative.  flags/rogueSymbols below are
+    // compatibility snapshots for older callers and only represent S_*
+    // symbol slots; named G_* glyph customizations have no legacy mirror.
     result.symbolOperations.push({ kind: 'override', set, assignments });
     const target = set === 'rogue' ? result.rogueSymbols : result.flags;
-    for (const { name, rawValue } of assignments) target[name] = rawValue;
+    for (const { kind, name, rawValue } of assignments) {
+        if (kind !== 'glyph') target[name] = rawValue;
+    }
 }
 
 // C ref: symbols.c:parsesymbols(). Its comma recursion applies the suffix
@@ -1179,11 +1194,17 @@ function parseSymbolAssignments(value, lineNumber) {
         const rawValue = mungspaces(cString(delimiter + 1));
         // match_sym() independently stops its lookup key at ':' or '='.
         // With the carried-colon quirk, sourceName can still contain an '='.
-        const name = sourceName.split(/[:=]/u, 1)[0].trim().toLowerCase();
-        if (!SOURCE_SYMBOL_NAMES.has(name)) {
+        const lookupName = sourceName
+            .split(/[:=]/u, 1)[0]
+            .trim()
+            .toLowerCase();
+        const glyphName = SOURCE_GLYPH_NAMES.get(lookupName);
+        if (!SOURCE_SYMBOL_NAMES.has(lookupName) && !glyphName) {
             optionError(lineNumber, `unknown symbol '${sourceName}'`);
         }
-        assignments.push({ name, rawValue });
+        assignments.push(glyphName
+            ? { kind: 'glyph', name: glyphName, rawValue }
+            : { kind: 'symbol', name: lookupName, rawValue });
         return assignments;
     };
 

@@ -1,10 +1,20 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { PATCHLEVEL, VERSION_MAJOR, VERSION_MINOR } from '../js/const.js';
+import {
+    NON_PM,
+    PATCHLEVEL,
+    VERSION_MAJOR,
+    VERSION_MINOR,
+} from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
 import { runSegment, wd_message } from '../js/jsmain.js';
+import {
+    PM_KITTEN,
+    PM_LITTLE_DOG,
+    PM_PONY,
+} from '../js/monsters.js';
 import { str2role } from '../js/roles.js';
 import {
     d,
@@ -154,6 +164,65 @@ test('runSegment resolves configured random choices without opening selection', 
     assert.equal(game.flags.initgend, 0);
     assert.equal(game.flags.initalign, 1);
     assert.equal(game.gp.preferred_pet, 'n');
+});
+
+test('newgame wires random, fixed-role, and suppressed starting pets', async () => {
+    const run = async ({ seed, role, race, gender, align, pettype = '' }) => {
+        await runSegment({
+            seed,
+            datetime: '20401231235958',
+            nethackrc: `OPTIONS=name:PetWiring,role:${role},race:${race},`
+                + `gender:${gender},align:${align},!legacy,!tutorial,`
+                + `!splash_screen${pettype ? `,pettype:${pettype}` : ''}`,
+            moves: '',
+            storage: null,
+        });
+        const id = game.context.startingpet_mid;
+        let pet = game.level.monlist;
+        while (pet && pet.m_id !== id) pet = pet.nmon;
+        return pet;
+    };
+
+    const randomPet = await run({
+        // Arbitrary distinct seeds keep the three source branches independent.
+        seed: 582_031,
+        role: 'Healer',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+    });
+    assert.ok([PM_KITTEN, PM_LITTLE_DOG].includes(
+        game.context.startingpet_typ,
+    ));
+    assert.ok(randomPet);
+    assert.equal(randomPet.mnum, game.context.startingpet_typ);
+    assert.equal(randomPet.mtame, 10);
+    assert.equal(game.u.uconduct.pets, 1);
+
+    const fixedPony = await run({
+        seed: 582_037,
+        role: 'Knight',
+        race: 'human',
+        gender: 'male',
+        align: 'lawful',
+    });
+    assert.equal(game.context.startingpet_typ, PM_PONY);
+    assert.ok(fixedPony);
+    assert.equal(fixedPony.mnum, PM_PONY);
+    assert.equal(fixedPony.mtame, 10);
+
+    const suppressed = await run({
+        seed: 582_043,
+        role: 'Wizard',
+        race: 'elf',
+        gender: 'male',
+        align: 'chaotic',
+        pettype: 'none',
+    });
+    assert.equal(game.context.startingpet_typ, NON_PM);
+    assert.equal(game.context.startingpet_mid, undefined);
+    assert.equal(suppressed, null);
+    assert.equal(game.u.uconduct.pets, 0);
 });
 
 test('runSegment may end at an interactive startup boundary', async () => {
@@ -311,6 +380,30 @@ test('wd_message preserves denied-mode message and cleanup order', async () => {
     assert.equal(deniedExplore.discover, false);
     assert.equal(deniedExplore.flags.explore, false);
     assert.equal(deniedExplore.iflags.deferred_X, false);
+
+    messages.length = 0;
+    const deniedBoth = {
+        wizard: true,
+        discover: true,
+        flags: { debug: true, explore: true },
+        iflags: {
+            wiz_error_flag: true,
+            explore_error_flag: true,
+            deferred_X: true,
+        },
+        sysopt: { wizards: '' },
+    };
+    await wd_message(deniedBoth, { pline });
+    assert.deepEqual(messages, [
+        'You cannot access debug (wizard) mode.',
+    ]);
+    assert.equal(deniedBoth.wizard, false);
+    assert.equal(deniedBoth.flags.debug, false);
+    // unixmain.c's wiz_error branch suppresses both the fallback notice and
+    // the explore-error cleanup, so the requested explore state survives.
+    assert.equal(deniedBoth.discover, true);
+    assert.equal(deniedBoth.flags.explore, true);
+    assert.equal(deniedBoth.iflags.deferred_X, true);
 });
 
 test('runSegment shows welcome More before an unset tutorial query', async () => {
