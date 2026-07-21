@@ -204,12 +204,16 @@ function unpunish(chain, ball, env) {
         clearPunishedObject(state, 'uchain', chain);
         const { ox, oy } = chain;
         const onFloor = chain.where === OBJ_FLOOR;
-        if (onFloor) remove_object(chain, env);
-        if (onFloor) {
-            env.hooks.maybeUnhideAt(ox, oy, env);
-            env.hooks.newsym(ox, oy, env);
+        // delobj_core() calls obj_resists(chain, 0, 0) even though an iron
+        // chain cannot resist.  Preserve that visible rn2(100) boundary.
+        if (!obj_resists(chain, 0, 0, env)) {
+            if (onFloor) remove_object(chain, env);
+            if (onFloor) {
+                env.hooks.maybeUnhideAt(ox, oy, env);
+                env.hooks.newsym(ox, oy, env);
+            }
+            obfree(chain, null, env);
         }
-        obfree(chain, null, env);
     }
     ball.owornmask &= ~W_BALL;
     clearPunishedObject(state, 'uball', ball);

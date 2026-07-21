@@ -321,6 +321,22 @@ test('You die clears suppression set while dismissing the prior message', async 
     assert.equal(state._ttyToplines, 'You die from a test.');
 });
 
+test('a long prior line preserves Escape suppression before You die comparison', async () => {
+    const state = preambleState('20260129120000', '\x1b');
+    await ttyPline('P'.repeat(50), state);
+    await ttyPline('You die from a test.', state);
+
+    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(state._pending_message, 'You die from a test.');
+    await ttyPline('An ordinary follow-up.', state);
+    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(state._pending_message, 'You die from a test.');
+    assert.equal(
+        state._ttyToplines,
+        'You die from a test.  An ordinary follow-up.',
+    );
+});
+
 test('pline flushes a changed status line before a wrapped More boundary', async () => {
     const state = preambleState('20260129120000', ' ');
     state.plname = 'ABCDEFGHIJKLMNOP';

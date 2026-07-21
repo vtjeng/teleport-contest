@@ -428,6 +428,7 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
     state.uchain = chain;
     const events = [];
     const script = scriptedRandom([
+        ['rn2', 100, 50],
         ['rn1', 50, 20, 27],
         ['rn2', 100, 50],
     ]);

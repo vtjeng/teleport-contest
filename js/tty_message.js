@@ -149,19 +149,29 @@ export async function ttyPline(message, state = game) {
     const next = String(message);
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
+    const stoppedAtEntry = Boolean(state._ttyMessageStopped);
+    const current = state._pending_message ?? '';
+    const priorTopline = state._ttyToplines ?? current;
+    // update_topl() assigns `notdied` inside the last operand of its same-line
+    // condition.  A long prior/death combination short-circuits before that
+    // comparison, preserving WIN_STOP as an upstream quirk.
+    const deathComparisonReached = deathMessage
+        && (Boolean(current) || stoppedAtEntry)
+        && wrapTtyTopline(priorTopline, columns).length === 1
+        && next.length + priorTopline.length + 3
+            < columns - MORE_PROMPT.length;
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.
     if (state === game && state.u?.ux) await flush_screen(1);
     // "You die" is update_topl()'s exception to WIN_STOP.  Other messages
     // continue updating gt.toplines for history but remain invisible.
-    if (state._ttyMessageStopped && !deathMessage) {
+    if (stoppedAtEntry && !deathComparisonReached) {
         rememberSuppressedMessage(state, next, columns);
         return;
     }
-    if (state._ttyMessageStopped) state._ttyMessageStopped = false;
+    if (stoppedAtEntry) state._ttyMessageStopped = false;
 
-    const current = state._pending_message ?? '';
     const currentLines = wrapTtyTopline(current, columns);
     if (current
         && !deathMessage
@@ -171,9 +181,9 @@ export async function ttyPline(message, state = game) {
         return;
     }
     if (current) await dismissPendingTtyMessage(state);
-    // update_topl() clears WIN_STOP for a death message after more() has had
-    // the opportunity to set it from an Escape response.
-    if (deathMessage) state._ttyMessageStopped = false;
+    // When the comparison above was reached, update_topl() clears WIN_STOP
+    // after more() has had the opportunity to set it from an Escape response.
+    if (deathComparisonReached) state._ttyMessageStopped = false;
     rememberPendingMessage(state, next);
     // redotoplin() immediately invokes more() when update_topl() wrapped the
     // new message onto a second terminal row.
