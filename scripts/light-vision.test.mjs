@@ -13,6 +13,7 @@ import { resetGame } from '../js/gstate.js';
 import { light_globals_init } from '../js/light.js';
 import { TALLOW_CANDLE } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { initialize_symbols_from_options } from '../js/symbols.js';
 import { begin_burn, timeout_globals_init } from '../js/timeout.js';
 import {
     cansee,
@@ -33,6 +34,7 @@ function darkRoomState() {
     }
     state.u = { ux: 5, uy: 7 };
     state.moves = 1;
+    initialize_symbols_from_options({ flags: {} }, state);
     timeout_globals_init(state);
     light_globals_init(state);
     init_vision_globals();
@@ -75,7 +77,7 @@ test('a floor candle projects the source circle into initial vision', () => {
     assert.equal(cansee(8, 7), true);
     assert.equal(cansee(12, 7), true);
     assert.equal(cansee(13, 7), false);
-    assert.equal(state.level.at(12, 7).disp_ch, '~');
+    assert.equal(state.level.at(12, 7).disp_ch, '.');
 });
 
 test('a blocking wall stops candle light along clear_path', () => {

@@ -10,15 +10,68 @@ import { GameMap } from './game.js';
 import {
     Can_fall_thru,
     depth as dungeon_depth,
+    level_difficulty,
+    on_level,
 } from './dungeon.js';
+import { mkcorpstat } from './corpstat.js';
 import { make_engr_at, wipe_engr_at } from './engrave.js';
-import { make_grave } from './grave.js';
+import { add_to_container } from './invent.js';
+import { makemon } from './makemon_create.js';
+import { mkclass } from './makemon.js';
+import { mineralize } from './mineralize.js';
 import { rn2, rnd, rn1 } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
+import {
+    mkaltar,
+    mkfount,
+    mkgrave,
+    mksink,
+} from './room_features.js';
 import { depth as depth_of_level } from './hacklib.js';
 import { oinit } from './o_init.js';
-import { objectGenerationHooks } from './object_generation.js';
-import { mkgold } from './obj.js';
+import {
+    objectGenerationEnv,
+    objectGenerationHooks,
+} from './object_generation.js';
+import {
+    SPBOOK_NO_NOVEL,
+    dealloc_obj,
+    mkgold,
+    mkobj,
+    mkobj_at,
+    mksobj,
+    mksobj_at,
+    weight,
+} from './obj.js';
+import {
+    ARMOR_CLASS,
+    BOULDER,
+    CHEST,
+    CORPSE,
+    CRAM_RATION,
+    FOOD_CLASS,
+    FOOD_RATION,
+    GEM_CLASS,
+    LARGE_BOX,
+    LEMBAS_WAFER,
+    POTION_CLASS,
+    POT_EXTRA_HEALING,
+    POT_GAIN_ENERGY,
+    POT_HEALING,
+    POT_SPEED,
+    RANDOM_CLASS,
+    RING_CLASS,
+    SCROLL_CLASS,
+    SCR_CONFUSE_MONSTER,
+    SCR_ENCHANT_ARMOR,
+    SCR_ENCHANT_WEAPON,
+    SCR_SCARE_MONSTER,
+    SCR_TELEPORTATION,
+    SPE_HEALING,
+    STATUE,
+    WAN_DIGGING,
+    WEAPON_CLASS,
+} from './objects.js';
 import { maketrap } from './trap.js';
 import {
     mktrap as make_level_trap,
@@ -26,7 +79,8 @@ import {
     traptype_rnd,
 } from './mktrap.js';
 import { random_engraving } from './random_engraving.js';
-import { count_level_features } from './terrain.js';
+import { set_levltyp } from './terrain.js';
+import { PM_GIANT_SPIDER, S_HUMAN } from './monsters.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
@@ -36,15 +90,15 @@ import {
     OROOM, THEMEROOM, COURT, SWAMP, VAULT, BEEHIVE, MORGUE,
     BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
     ROOMOFFSET, MAXNROFROOMS, SHARED,
-    SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, THRONE, TREE,
+    SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, THRONE, TREE,
     DUST,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     SPACE_POS, isok, W_NONDIGGABLE, FILL_NONE, FILL_NORMAL,
-    ICE, MOAT, POOL, WATER, DRAWBRIDGE_UP, LAVAPOOL, LAVAWALL,
-    DBWALL, AIR, CLOUD, DB_MOAT, DB_LAVA, DB_UNDER,
+    ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL,
+    DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
-    A_LAWFUL, A_NEUTRAL, A_CHAOTIC, Align2amask,
+    A_LAWFUL, A_NEUTRAL, A_CHAOTIC,
     LR_UPTELE,
     NO_TRAP, TRAPNUM, ARROW_TRAP, DART_TRAP, ROCKTRAP,
     SQKY_BOARD, LANDMINE, ROLLING_BOULDER_TRAP,
@@ -53,48 +107,10 @@ import {
     STATUE_TRAP, MAGIC_TRAP, POLY_TRAP,
     VIBRATING_SQUARE, TRAPPED_DOOR, TRAPPED_CHEST,
     MKTRAP_NOFLAGS, MKTRAP_NOSPIDERONWEB,
+    CORPSTAT_INIT, MARK, MM_NOGRP,
     is_hole, is_pit,
 } from './const.js';
 
-// Legacy object-creation replay scaffolding. These pre-catalog numeric IDs
-// belong to the current stubs and must not be reused as canonical constants.
-// Replace the IDs and range heuristics together in a coherent mkobj port;
-// swapping them alone would change replay-era behavior without porting it.
-const RANDOM_CLASS = 0;
-const WEAPON_CLASS = 1;
-const ARMOR_CLASS = 2;
-const RING_CLASS = 3;
-const FOOD_CLASS = 7;
-const SCROLL_CLASS = 8;
-const POTION_CLASS = 9;
-const TOOL_CLASS = 12;
-const GEM_CLASS = 14;
-const BOULDER = 465;
-const GOLD_PIECE = 466;
-const ROCK = 467;
-const KELP_FROND = 172;
-const SCR_TELEPORTATION = 287;
-const BELL = 358;
-const CORPSE = 471;
-const STATUE = 472;
-const SPBOOK_no_NOVEL = 11;
-
-// Supply chest items
-const POT_HEALING = 235;
-const POT_EXTRA_HEALING = 236;
-const POT_SPEED = 245;
-const POT_GAIN_ENERGY = 250;
-const SCR_ENCHANT_WEAPON = 275;
-const SCR_ENCHANT_ARMOR = 276;
-const SCR_CONFUSE_MONSTER = 278;
-const SCR_SCARE_MONSTER = 279;
-const WAN_DIGGING = 305;
-const SPE_HEALING = 327;
-const LARGE_BOX = 214;
-const CHEST = 215;
-const FOOD_RATION = 143;
-const CRAM_RATION = 145;
-const LEMBAS_WAFER = 146;
 const XLIM = 4;
 const YLIM = 3;
 
@@ -188,121 +204,8 @@ export function u_on_upstairs() {
     place_lregion(0, 0, 0, 0, 0, 0, 0, 0, LR_UPTELE, null);
 }
 
-// level_difficulty stub
-function level_difficulty() {
-    const uz = game.u?.uz;
-    const d = depth_of_level(uz);
-    return d;
-}
-
-// ============================================================
-// Stub functions for object/monster/trap creation
-// These consume the exact RNG calls that C makes.
-// ============================================================
-
-let _nextObjId = 1;
-
-// C ref: mkobj.c next_ident — rnd(2) for item identification
-function next_ident() { rnd(2); }
-
-// C ref: mkobj.c blessorcurse — rn2(4) BUC selection
-function blessorcurse(otmp) {
-    const r = rn2(4);
-    if (otmp) {
-        otmp.cursed = (r === 0);
-        otmp.blessed = false;
-    }
-}
-
-// C ref: mkobj.c mksobj — create a specific object
-// Minimal stub: consumes RNG for next_ident + type-specific init
-function mksobj(otyp, init, artif) {
-    const otmp = { otyp, ox: 0, oy: 0, quan: 1, owt: 1, cursed: false, blessed: false, olocked: false, spe: 0 };
-    next_ident();
-    if (init) {
-        mksobj_init(otmp, otyp);
-    }
-    return otmp;
-}
-
-// C ref: mkobj.c mksobj initialization RNG consumption
-// This varies by object class. For the contest, we need enough to match
-// the session's RNG pattern for objects created during mklev.
-function mksobj_init(otmp, otyp) {
-    // For BOULDER, GOLD_PIECE: no extra init RNG
-    // For scrolls: blessorcurse
-    // For potions: blessorcurse
-    // For general objects: varies
-    // We just do blessorcurse for scrolls/potions
-    if (otyp >= 270 && otyp < 300) { // scrolls
-        blessorcurse(otmp);
-    } else if (otyp >= 230 && otyp < 270) { // potions
-        blessorcurse(otmp);
-    }
-}
-
-function mksobj_at(otyp, x, y, init, artif) {
-    return mksobj(otyp, init, artif);
-}
-
-function mkobj(oclass, artif) {
-    // Class-based random object creation
-    // For contest, just consume the right RNG
-    return mksobj(0, false, artif);
-}
-
-function mkobj_at(oclass, x, y, artif) {
-    return mkobj(oclass, artif);
-}
-
-function place_object(otmp, x, y) { /* stub */ }
-function dealloc_obj(otmp) { /* stub */ }
-function curse(otmp) { if (otmp) otmp.cursed = true; }
-function weight(otmp) { return otmp?.owt || 1; }
-function add_to_container(container, otmp) { /* stub */ }
-function sobj_at(otyp, x, y) { return false; }
-
-// set_corpsenm stub
-function set_corpsenm(otmp, pm) { /* stub */ }
-
-// mkcorpstat stub
-function mkcorpstat(objtyp, mtmp, pm, x, y, flags) {
-    // C ref: mkcorpstat calls mksobj(objtyp) then set_corpsenm.
-    // For STATUE: mksobj(STATUE, false, false) then set corpse identity.
-    // RNG: next_ident from mksobj
-    const otmp = mksobj(objtyp, false, false);
-    if (pm === null) {
-        // rndmonnum — pick random monster
-        rndmonnum();
-    }
-    return otmp;
-}
-
-// rndmonnum stub — consumes rn2 for random monster selection
-function rndmonnum() {
-    // C: picks a random monster class then random within class
-    // For contest, this is called from mkcorpstat when pm=null.
-    // The actual RNG depends on monster database, but for statues
-    // created by fill_ordinary_room, it consumes at least rn2 calls.
-    rn2(398); // approximate: rn2(NUMMONS)
-    return 0;
-}
-
-// makemon stub
-async function makemon(mdat, x, y, mmflags) {
-    // C: makemon consumes RNG for monster HP, inventory, etc.
-    // For fill_ordinary_room: makemon(null, ...) = random monster
-    if (mdat === null) {
-        // rndmonst_adj + selection
-        rn2(398);
-    }
-    // newmonhp
-    const hp = rnd(8);
-    // m_initinv — monster inventory
-    // For random monsters this varies widely. Since fill_ordinary_room
-    // and mineralize calls are in fastforward, this stub won't be called
-    // for those. It's only needed if mklev structural code calls makemon.
-    return { mx: x, my: y, mhp: hp, msleeping: 0, mpeaceful: 0 };
+function levelObjectEnv(overrides = {}) {
+    return objectGenerationEnv({ state: game, ...overrides });
 }
 
 // in_rooms stub
@@ -337,7 +240,6 @@ export async function mklev() {
     if (getbones()) return;
     g.in_mklev = true;
     await makelevel();
-    count_level_features(g);
     level_finalize_topology();
     g.in_mklev = false;
 }
@@ -480,6 +382,12 @@ export function fill_special_room(croom, env = {}) {
     }
 }
 
+function roomIsFillable(croom) {
+    return Boolean(croom
+        && (croom.rtype === OROOM || croom.rtype === THEMEROOM)
+        && croom.needfill === FILL_NORMAL);
+}
+
 // C ref: mklev.c makelevel()
 async function makelevel() {
     const g = game;
@@ -532,20 +440,47 @@ async function makelevel() {
                 vaultRoom.needfill = FILL_NORMAL;
                 fill_special_room(vaultRoom);
             }
-            if (!is_branchlev()) rn2(3);
-            if (!rn2(3)) await makeniche(TELEP_TRAP);
+            if (!g.level.flags.noteleport && !rn2(3))
+                await makeniche(TELEP_TRAP);
         } else if (rnd_rect()) {
             // Fallback vault attempt — simplified
         }
     }
 
+    const previousStairs = g.stairs;
+
     // Place dungeon branch
     if (branchp) {
         place_branch(branchp);
     }
+    if (g.u.uz.dnum === 0 && g.u.uz.dlevel === 1
+        && g.stairs !== previousStairs) {
+        g.stairs.u_traversed = true;
+    }
 
-    // Fill rooms + mineralize: consumed by fastforward_fill_mineralize
-    // Called externally from allmain.js after mklev structural phase
+    let fillableRoomCount = 0;
+    for (let index = 0; index < g.level.nroom; ++index) {
+        if (roomIsFillable(g.level.rooms[index])) ++fillableRoomCount;
+    }
+    let bonusItemRoomCountdown = fillableRoomCount
+        ? rn2(fillableRoomCount)
+        : -1;
+    for (let index = 0; index < g.level.nroom; ++index) {
+        const room = g.level.rooms[index];
+        const fillable = roomIsFillable(room);
+        fill_ordinary_room(
+            room,
+            fillable && bonusItemRoomCountdown === 0,
+        );
+        if (fillable) --bonusItemRoomCountdown;
+    }
+
+    const specialRoomEnv = levelObjectEnv();
+    for (let index = 0; index < g.level.nroom; ++index)
+        fill_special_room(g.level.rooms[index], specialRoomEnv);
+
+    // themerooms_post_level_generate() is completed by
+    // level_finalize_topology(), after every ordinary and special room fill.
 }
 
 // C ref: mklev.c makerooms()
@@ -1155,7 +1090,14 @@ function dig_corridor(org, dest, npoints_out, nxcor, ftyp, btyp) {
                 if (npoints_out) npoints_out.v = npoints;
                 crm.typ = ftyp;
                 if (nxcor && !rn2(50)) {
-                    mksobj_at(BOULDER, xx, yy, true, false);
+                    mksobj_at(
+                        BOULDER,
+                        xx,
+                        yy,
+                        true,
+                        false,
+                        levelObjectEnv(),
+                    );
                 }
             }
         } else if (crm.typ !== ftyp && crm.typ !== SCORR) {
@@ -1593,18 +1535,38 @@ export async function makeniche(trap_type) {
             } else {
                 const loc = g.level.at(xx, yy);
                 if (!rn2(5) && loc && IS_WALL(loc.typ)) {
-                    loc.typ = IRONBARS;
+                    set_levltyp(xx, yy, IRONBARS, { state: g });
                     if (rn2(3)) {
-                        // human corpse — consume rn2 for mkclass + mkcorpstat
-                        rn2(398); // mkclass(S_HUMAN)
-                        mkcorpstat(CORPSE, null, 0, xx, yy + dy, 1);
+                        const species = mkclass(S_HUMAN, 0);
+                        mkcorpstat(
+                            CORPSE,
+                            null,
+                            species,
+                            xx,
+                            yy + dy,
+                            1,
+                            levelObjectEnv(),
+                        );
                     }
                 }
                 if (!g.level.flags.noteleport) {
-                    mksobj_at(SCR_TELEPORTATION, xx, yy + dy, true, false);
+                    mksobj_at(
+                        SCR_TELEPORTATION,
+                        xx,
+                        yy + dy,
+                        true,
+                        false,
+                        levelObjectEnv(),
+                    );
                 }
                 if (!rn2(3)) {
-                    mkobj_at(RANDOM_CLASS, xx, yy + dy, true);
+                    mkobj_at(
+                        RANDOM_CLASS,
+                        xx,
+                        yy + dy,
+                        true,
+                        levelObjectEnv(),
+                    );
                 }
             }
         }
@@ -1747,228 +1709,236 @@ function wallification(x1, y1, x2, y2) {
 // Fill ordinary room
 // ============================================================
 
-function find_okay_roompos(croom, crd) {
-    let tryct = 0;
+const SUPPLY_ITEMS = [
+    POT_EXTRA_HEALING,
+    POT_SPEED,
+    POT_GAIN_ENERGY,
+    SCR_ENCHANT_WEAPON,
+    SCR_ENCHANT_ARMOR,
+    SCR_CONFUSE_MONSTER,
+    SCR_SCARE_MONSTER,
+    WAN_DIGGING,
+    SPE_HEALING,
+];
+
+const SUPPLY_EXTRA_CLASSES = [
+    FOOD_CLASS,
+    WEAPON_CLASS,
+    ARMOR_CLASS,
+    GEM_CLASS,
+    SCROLL_CLASS,
+    POTION_CLASS,
+    RING_CLASS,
+    SPBOOK_NO_NOVEL,
+    SPBOOK_NO_NOVEL,
+    SPBOOK_NO_NOVEL,
+];
+
+function isMinesEntrance(branch, state) {
+    const mines = state.mines_dnum;
+    return Boolean(branch
+        && state.u.uz.dnum !== mines
+        && (branch.end1?.dnum === mines || branch.end2?.dnum === mines));
+}
+
+export function populateSupplyChest(position, env) {
+    const { state } = env;
+    const random = env.random?.rn2 ?? rn2;
+    const chest = mksobj_at(
+        random(3) ? CHEST : LARGE_BOX,
+        position.x,
+        position.y,
+        false,
+        false,
+        env,
+    );
+    chest.olocked = Boolean(random(6));
+
+    let tries = 0;
+    let cursed;
     do {
-        if (++tryct > 200) return false;
-        if (!somexyspace(croom, crd)) return false;
-    } while (occupied(crd.x, crd.y) || bydoor(crd.x, crd.y));
-    return true;
-}
-
-async function mktrap_room(croom) {
-    return make_level_trap(0, MKTRAP_NOFLAGS, croom, null, {
-        hooks: objectGenerationHooks({ somexyspace }),
-    });
-}
-
-function mkfount(croom) {
-    const pos = { x: 0, y: 0 };
-    if (!find_okay_roompos(croom, pos)) return;
-    const loc = game.level?.at(pos.x, pos.y);
-    if (loc) {
-        loc.typ = FOUNTAIN;
-        if (!rn2(7)) loc.blessedftn = 1;
-        game.level.flags.nfountains++;
-    }
-}
-
-function mkaltar(croom) {
-    if (!croom || croom.rtype !== OROOM) return;
-    const pos = { x: 0, y: 0 };
-    if (!find_okay_roompos(croom, pos)) return;
-    const loc = game.level?.at(pos.x, pos.y);
-    if (!loc) return;
-    loc.typ = ALTAR;
-    const al = rn2(A_LAWFUL + 2) - 1;
-    loc.flags = Align2amask(al);
-}
-
-function mkgrave_room(croom) {
-    if (croom.rtype !== OROOM) return;
-    const dobell = !rn2(10);
-    const pos = { x: 0, y: 0 };
-    if (!find_okay_roompos(croom, pos)) return;
-    make_grave(pos.x, pos.y, dobell ? 'Saved by the bell!' : null);
-    if (!rn2(3)) {
-        const gold = mksobj(GOLD_PIECE, true, false);
-        if (gold) {
-            const depth = game.u?.uz?.dlevel ?? 1;
-            gold.quan = rnd(20) + depth * rnd(5);
+        const otyp = random(2)
+            ? POT_HEALING
+            : SUPPLY_ITEMS[random(SUPPLY_ITEMS.length)];
+        const obj = mksobj(otyp, true, false, env);
+        if (otyp === POT_HEALING && random(2)) {
+            obj.quan = 2;
+            obj.owt = weight(obj, env);
         }
-    }
-    for (let tryct = rn2(5); tryct > 0; tryct--) {
-        const otmp = mkobj(RANDOM_CLASS, true);
-        curse(otmp);
-    }
-    if (dobell) mksobj_at(BELL, pos.x, pos.y, true, false);
-}
+        cursed = obj.cursed;
+        add_to_container(chest, obj, env);
+        if (++tries === 50) break;
+    } while (cursed || !random(5));
 
-async function fill_ordinary_room(croom, bonus_items) {
-    const g = game;
-    if (!croom || (croom.rtype !== OROOM && croom.rtype !== THEMEROOM)) return;
-    if (croom.needfill !== FILL_NORMAL) return;
-
-    const pos = { x: 0, y: 0 };
-    // Sleeping monster (33%)
-    if (!rn2(3) && somexyspace(croom, pos)) {
-        await makemon(null, pos.x, pos.y, 2); // MM_NOGRP
-    }
-    // Traps
-    const u_depth = g.u?.uz?.dlevel ?? 1;
-    let x = 8 - Math.trunc(u_depth / 6);
-    if (x <= 1) x = 2;
-    let trycnt = 0;
-    while (!rn2(x) && ++trycnt < 1000) {
-        await mktrap_room(croom);
-    }
-    // Gold
-    if (!rn2(3) && somexyspace(croom, pos)) {
-        mkgold(0, pos.x, pos.y);
-    }
-    // Fountain
-    if (!rn2(10)) mkfount(croom);
-    // Sink
-    if (!rn2(60)) {
-        if (find_okay_roompos(croom, pos)) {
-            const loc = g.level?.at(pos.x, pos.y);
-            if (loc) { loc.typ = SINK; g.level.flags.nsinks = (g.level.flags.nsinks || 0) + 1; }
-        }
-    }
-    // Altar
-    if (!rn2(60)) mkaltar(croom);
-    // Grave
-    x = 80 - (u_depth * 2);
-    if (x < 2) x = 2;
-    if (!rn2(x)) mkgrave_room(croom);
-    // Statue
-    if (!rn2(20) && somexyspace(croom, pos)) {
-        mkcorpstat(STATUE, null, null, pos.x, pos.y, 8);
-    }
-    // Bonus items
-    let skip_chests = false;
-    if (bonus_items && somexyspace(croom, pos)) {
-        const branchp = is_branchlev();
-        const oracle_dlevel = g.oracle_level?.dlevel ?? 5;
-        if (branchp) {
-            // Mines entrance bonus food
-            mksobj_at((rn2(5) < 3) ? FOOD_RATION : rn2(2) ? CRAM_RATION : LEMBAS_WAFER,
-                pos.x, pos.y, true, false);
-        } else if (g.u?.uz?.dnum === 0 && (g.u?.uz?.dlevel ?? 1) < oracle_dlevel && rn2(3)) {
-            // Supply chest
-            const supply_chest = mksobj_at(rn2(3) ? CHEST : LARGE_BOX, pos.x, pos.y, false, false);
-            if (supply_chest) {
-                supply_chest.olocked = !!rn2(6);
-                let tryct2 = 0;
-                let cursed_item;
-                do {
-                    let otyp;
-                    const supply_items = [POT_EXTRA_HEALING, POT_SPEED, POT_GAIN_ENERGY,
-                        SCR_ENCHANT_WEAPON, SCR_ENCHANT_ARMOR, SCR_CONFUSE_MONSTER,
-                        SCR_SCARE_MONSTER, WAN_DIGGING, SPE_HEALING];
-                    if (rn2(2)) otyp = POT_HEALING;
-                    else otyp = supply_items[rn2(supply_items.length)];
-                    const otmp = mksobj(otyp, true, false);
-                    if (otmp && otyp === POT_HEALING && rn2(2)) {
-                        otmp.quan = 2;
-                    }
-                    cursed_item = otmp?.cursed ?? false;
-                    if (++tryct2 >= 50) break;
-                } while (cursed_item || !rn2(5));
-                if (rn2(3)) {
-                    const extra_classes = [FOOD_CLASS, WEAPON_CLASS, ARMOR_CLASS, GEM_CLASS,
-                        SCROLL_CLASS, POTION_CLASS, RING_CLASS,
-                        SPBOOK_no_NOVEL, SPBOOK_no_NOVEL, SPBOOK_no_NOVEL];
-                    const oclass = extra_classes[rn2(extra_classes.length)];
-                    let otmp = mkobj(oclass, false);
-                    if (oclass === SPBOOK_no_NOVEL && otmp) {
-                        const depth = g.u?.uz?.dlevel ?? 1;
-                        const maxpass = (depth > 2) ? 2 : 3;
-                        for (let pass = 1; pass <= maxpass; pass++) {
-                            mkobj(oclass, false);
-                        }
-                    }
+    if (random(3)) {
+        const objectClass = SUPPLY_EXTRA_CLASSES[
+            random(SUPPLY_EXTRA_CLASSES.length)
+        ];
+        let obj = mkobj(objectClass, false, env);
+        if (objectClass === SPBOOK_NO_NOVEL) {
+            const maxPass = dungeon_depth(state.u.uz, state) > 2 ? 2 : 3;
+            for (let pass = 1; pass <= maxPass; ++pass) {
+                const candidate = mkobj(objectClass, false, env);
+                if (state.objects[obj.otyp].oc_level
+                    <= state.objects[candidate.otyp].oc_level) {
+                    dealloc_obj(candidate, env);
+                } else {
+                    dealloc_obj(obj, env);
+                    obj = candidate;
                 }
             }
-            skip_chests = true;
+        }
+        add_to_container(chest, obj, env);
+    }
+
+    chest.owt = weight(chest, env);
+    return chest;
+}
+
+// C ref: mklev.c fill_ordinary_room().
+export function fill_ordinary_room(croom, bonusItems) {
+    const state = game;
+    if (!croom || (croom.rtype !== OROOM && croom.rtype !== THEMEROOM))
+        return;
+
+    const subrooms = croom.sbrooms ?? [];
+    const subroomCount = croom.nsubrooms ?? subrooms.length;
+    for (let index = 0; index < subroomCount; ++index) {
+        const subroom = subrooms[index];
+        if (!subroom) return;
+        fill_ordinary_room(subroom, false);
+    }
+
+    if (croom.needfill !== FILL_NORMAL) return;
+
+    const env = levelObjectEnv({
+        hooks: { bydoor, makeMonster: makemon, somexyspace },
+    });
+    const position = { x: 0, y: 0 };
+    let tryCount = 0;
+
+    if ((state.u.uhave.amulet || !rn2(3))
+        && somexyspace(croom, position)) {
+        const monster = makemon(
+            null,
+            position.x,
+            position.y,
+            MM_NOGRP,
+            env,
+        );
+        if (monster?.data === state.mons[PM_GIANT_SPIDER]
+            && !occupied(position.x, position.y, state)) {
+            maketrap(position.x, position.y, WEB, env);
         }
     }
-    // Box/chest check
-    if (!skip_chests && !rn2(Math.trunc(g.level.nroom * 5 / 2)) && somexyspace(croom, pos)) {
-        mksobj_at(rn2(3) ? LARGE_BOX : CHEST, pos.x, pos.y, true, false);
+
+    let chance = 8 - Math.trunc(level_difficulty(state) / 6);
+    if (chance <= 1) chance = 2;
+    while (!rn2(chance) && ++tryCount < 1000) {
+        make_level_trap(0, MKTRAP_NOFLAGS, croom, null, env);
     }
-    // Graffiti
-    const depth = g.u?.uz?.dlevel ?? 1;
-    if (!rn2(27 + 3 * Math.abs(depth))) {
-        const { text: engrText } = random_engraving();
-        if (engrText) {
-            do {
-                somexyspace(croom, pos);
-                if (g.level?.at(pos.x, pos.y)?.typ === ROOM) break;
-            } while (!rn2(40));
+
+    if (!rn2(3) && somexyspace(croom, position))
+        mkgold(0, position.x, position.y, env);
+
+    if (!on_level(state.u.uz, state.rogue_level)) {
+        if (!rn2(10)) mkfount(croom, env);
+        if (!rn2(60)) mksink(croom, env);
+        if (!rn2(60)) mkaltar(croom, env);
+
+        chance = 80 - dungeon_depth(state.u.uz, state) * 2;
+        if (chance < 2) chance = 2;
+        if (!rn2(chance)) mkgrave(croom, env);
+
+        if (!rn2(20) && somexyspace(croom, position)) {
+            mkcorpstat(
+                STATUE,
+                null,
+                null,
+                position.x,
+                position.y,
+                CORPSTAT_INIT,
+                env,
+            );
+        }
+
+        let skipChests = false;
+        if (bonusItems && somexyspace(croom, position)) {
+            const branch = is_branchlev();
+            if (isMinesEntrance(branch, state)) {
+                const food = rn2(5) < 3
+                    ? FOOD_RATION
+                    : rn2(2) ? CRAM_RATION : LEMBAS_WAFER;
+                mksobj_at(
+                    food,
+                    position.x,
+                    position.y,
+                    true,
+                    false,
+                    env,
+                );
+            } else if (state.oracle_level
+                && state.u.uz.dnum === state.oracle_level.dnum
+                && state.u.uz.dlevel < state.oracle_level.dlevel
+                && rn2(3)) {
+                populateSupplyChest(position, env);
+                skipChests = true;
+            }
+        }
+
+        const chestBound = Math.trunc(state.level.nroom * 5 / 2);
+        if (!skipChests && !rn2(chestBound)
+            && somexyspace(croom, position)) {
+            mksobj_at(
+                rn2(3) ? LARGE_BOX : CHEST,
+                position.x,
+                position.y,
+                true,
+                false,
+                env,
+            );
+        }
+
+        if (!rn2(27 + 3 * Math.abs(dungeon_depth(state.u.uz, state)))) {
+            const engraving = random_engraving();
+            if (engraving.text) {
+                do {
+                    somexyspace(croom, position);
+                } while (state.level.at(position.x, position.y).typ !== ROOM
+                    && !rn2(40));
+                if (state.level.at(position.x, position.y).typ === ROOM) {
+                    make_engr_at(
+                        position.x,
+                        position.y,
+                        engraving.text,
+                        engraving.pristine,
+                        0,
+                        MARK,
+                    );
+                }
+            }
         }
     }
-    // Random objects
-    if (!rn2(3) && somexyspace(croom, pos)) {
-        mkobj_at(RANDOM_CLASS, pos.x, pos.y, true);
-        let objTrycnt = 0;
+
+    if (!rn2(3) && somexyspace(croom, position)) {
+        mkobj_at(
+            RANDOM_CLASS,
+            position.x,
+            position.y,
+            true,
+            env,
+        );
+        tryCount = 0;
         while (!rn2(5)) {
-            if (++objTrycnt > 100) break;
-            if (somexyspace(croom, pos)) mkobj_at(RANDOM_CLASS, pos.x, pos.y, true);
-        }
-    }
-}
-
-// ============================================================
-// Mineralize
-// ============================================================
-
-function water_has_kelp(x, y, kelp_pool, kelp_moat) {
-    const loc = game.level.at(x, y);
-    if (!loc) return false;
-    if (kelp_pool && (loc.typ === POOL || loc.typ === WATER) && !rn2(kelp_pool)) return true;
-    if (kelp_moat && loc.typ === MOAT && !rn2(kelp_moat)) return true;
-    return false;
-}
-
-function mineralize_kelp(kelp_pool, kelp_moat) {
-    if (kelp_pool < 0) kelp_pool = 10;
-    if (kelp_moat < 0) kelp_moat = 30;
-    for (let x = 2; x < COLNO - 2; x++)
-        for (let y = 1; y < ROWNO - 1; y++)
-            if (water_has_kelp(x, y, kelp_pool, kelp_moat))
-                mksobj_at(KELP_FROND, x, y, true, false);
-}
-
-function mineralize(kelp_pool, kelp_moat, goldprob, gemprob, skip_lvl_checks) {
-    const map = game.level;
-    mineralize_kelp(kelp_pool, kelp_moat);
-    const absDepth = depth_of_level(game.u?.uz);
-    const dunLevel = game.u?.uz?.dlevel ?? 1;
-    if (goldprob < 0) goldprob = 20 + Math.trunc(absDepth / 3);
-    if (gemprob < 0) gemprob = Math.trunc(goldprob / 4);
-    for (let x = 2; x < COLNO - 2; x++) {
-        for (let y = 1; y < ROWNO - 1; y++) {
-            const loc = map.at(x, y);
-            const locBelow = map.at(x, y + 1);
-            if (!loc || !locBelow) continue;
-            if (locBelow.typ !== STONE) { y += 2; continue; }
-            if (loc.typ !== STONE) { y += 1; continue; }
-            const n = (d) => { const l = map.at(x + d[0], y + d[1]); return l && l.typ === STONE; };
-            if (!(loc.wall_info & W_NONDIGGABLE)
-                && n([0,-1]) && n([1,-1]) && n([-1,-1])
-                && n([1,0]) && n([-1,0])
-                && n([1,1]) && n([-1,1])) {
-                if (rn2(1000) < goldprob) {
-                    const otmp = mksobj(GOLD_PIECE, false, false);
-                    otmp.quan = 1 + rnd(goldprob * 3);
-                }
-                if (rn2(1000) < gemprob) {
-                    const cnt = rnd(2 + Math.trunc(dunLevel / 3));
-                    for (let i = 0; i < cnt; i++) {
-                        mkobj(GEM_CLASS, false);
-                    }
-                }
+            if (++tryCount > 100) break;
+            if (somexyspace(croom, position)) {
+                mkobj_at(
+                    RANDOM_CLASS,
+                    position.x,
+                    position.y,
+                    true,
+                    env,
+                );
             }
         }
     }
@@ -2039,7 +2009,7 @@ function level_finalize_topology() {
         wallification(1, 0, COLNO - 1, ROWNO - 1);
     }
     bound_digging();
-    // mineralize is consumed by fastforward_fill_mineralize
+    mineralize(-1, -1, -1, -1, false, { state: game });
     game.in_mklev = false;
     if (!game.level?.flags?.is_maze_lev) {
         const nroom = game.level?.nroom ?? 0;

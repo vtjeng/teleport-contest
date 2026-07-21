@@ -236,6 +236,8 @@ function defaultResult() {
             wc_color: true,
             wc_splash_screen: true,
             wc_eight_bit_input: false,
+            customcolors: true,
+            customsymbols: true,
             menu_overlay: true,
             // options.c keeps these as parallel, insertion-ordered strings.
             // The first alias for an incoming key wins in map_menu_cmd().
@@ -254,6 +256,8 @@ function defaultResult() {
         dogname: '',
         horsename: '',
         pl_fruit: DEFAULT_FRUIT,
+        symbolOperations: [],
+        rogueSymbols: {},
     };
 }
 
@@ -1050,6 +1054,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.menu_overlay = enabled;
     } else if (name === 'eight_bit_tty') {
         result.iflags.wc_eight_bit_input = enabled;
+    } else if (name === 'customcolors' || name === 'customsymbols') {
+        result.iflags[name] = enabled;
     } else if (name === 'pushweapon') result.flags.pushweapon = enabled;
     else if (name === 'showexp') result.flags.showexp = enabled;
     else if (name === 'time') result.flags.time = enabled;
@@ -1084,6 +1090,97 @@ function sourceConditionMatch(parsedName, value) {
 function isSourceSymbolAssignment(sourceName, value) {
     return value != null && sourceName.startsWith('S_')
         && SOURCE_SYMBOL_NAMES.has(sourceName.toLowerCase());
+}
+
+function appendSymbolSelection(
+    result,
+    set,
+    name,
+    { legacyIfUnset = false, legacyIBM = false } = {},
+) {
+    result.symbolOperations.push({
+        kind: 'select',
+        set,
+        name,
+        legacyIfUnset,
+        legacyIBM,
+    });
+}
+
+function appendSymbolOverrides(result, set, assignments) {
+    result.symbolOperations.push({ kind: 'override', set, assignments });
+    const target = set === 'rogue' ? result.rogueSymbols : result.flags;
+    for (const { name, rawValue } of assignments) target[name] = rawValue;
+}
+
+// C ref: symbols.c:parsesymbols(). Its comma recursion applies the suffix
+// first, then the current assignment. Keep a mutable character buffer so the
+// outer call retains its pre-recursion colon pointer, including the source's
+// surprising mixed-delimiter behavior.
+function parseSymbolAssignments(value, lineNumber) {
+    const buffer = Array.from(String(value));
+    buffer.push('\0');
+
+    const cString = (start) => {
+        let end = start;
+        while (buffer[end] !== '\0') ++end;
+        return buffer.slice(start, end).join('');
+    };
+
+    const parseAt = (start) => {
+        let comma = -1;
+        let colon = -1;
+        for (let index = start + 1; buffer[index] !== '\0'; ++index) {
+            const previous = buffer[index - 1];
+            const next = buffer[index + 1];
+            if (next === '\0') break;
+            if (buffer[index] === ',') {
+                if (previous === "'" && next === "'") continue;
+                if (previous === '\\') continue;
+                if (comma < 0) comma = index;
+            }
+            if (buffer[index] === ':'
+                && !(previous === "'" && next === "'")
+                && colon < 0) {
+                colon = index;
+            }
+        }
+
+        const assignments = [];
+        if (comma >= 0) {
+            buffer[comma] = '\0';
+            assignments.push(...parseAt(comma + 1));
+        }
+
+        let delimiter = colon;
+        if (delimiter < 0) {
+            for (let index = start; buffer[index] !== '\0'; ++index) {
+                if (buffer[index] === '=') {
+                    delimiter = index;
+                    break;
+                }
+            }
+        }
+        if (delimiter < 0) {
+            optionError(
+                lineNumber,
+                `invalid symbol assignment '${cString(start)}'`,
+            );
+        }
+        buffer[delimiter] = '\0';
+        const sourceName = mungspaces(cString(start));
+        const rawValue = mungspaces(cString(delimiter + 1));
+        // match_sym() independently stops its lookup key at ':' or '='.
+        // With the carried-colon quirk, sourceName can still contain an '='.
+        const name = sourceName.split(/[:=]/u, 1)[0].trim().toLowerCase();
+        if (!SOURCE_SYMBOL_NAMES.has(name)) {
+            optionError(lineNumber, `unknown symbol '${sourceName}'`);
+        }
+        assignments.push({ name, rawValue });
+        return assignments;
+    };
+
+    return parseAt(0);
 }
 
 function applyOption(result, optionState, option, lineNumber) {
@@ -1156,9 +1253,27 @@ function applyOption(result, optionState, option, lineNumber) {
     } else if (name === 'blind' || name === 'deaf' || name === 'nudist'
                || name === 'pauper' || name === 'reroll') {
         setRoleplay(result, name, value, negated, lineNumber);
+    } else if (name === 'decgraphics') {
+        result.flags.decgraphics = !negated;
+        if (!negated) {
+            appendSymbolSelection(result, 'primary', 'DECgraphics', {
+                legacyIfUnset: true,
+            });
+        }
+    } else if (name === 'ibmgraphics') {
+        result.flags.ibmgraphics = !negated;
+        if (!negated) {
+            appendSymbolSelection(result, 'primary', 'IBMgraphics', {
+                legacyIfUnset: true,
+                legacyIBM: true,
+            });
+        }
     } else if (isSymbolAssignment) {
         // parsesymbols() does not receive parseoptions()'s negation flag.
-        result.flags[name] = value;
+        appendSymbolOverrides(result, 'primary', [{
+            name,
+            rawValue: value,
+        }]);
     } else if (value != null) {
         if (negated) {
             optionError(
@@ -1166,7 +1281,13 @@ function applyOption(result, optionState, option, lineNumber) {
                 `negated compound option '${name}' is not supported`,
             );
         }
-        if (name === 'symset') result.symset = value;
+        if (name === 'symset') {
+            result.symset = value;
+            appendSymbolSelection(result, 'primary', value);
+        } else if (name === 'roguesymset') {
+            result.roguesymset = value;
+            appendSymbolSelection(result, 'rogue', value);
+        }
         else if (name === 'suppress_alert') {
             result.flags.suppress_alert = value;
         } else if (name === 'msg_window') {
@@ -1205,6 +1326,8 @@ function applyDirectOption(result, key, value) {
 const CONFIG_STATEMENTS = Object.freeze([
     { name: 'options', minLength: 4, kind: 'options' },
     { name: 'bindings', minLength: 4, kind: 'bindings' },
+    { name: 'roguesymbols', minLength: 4, kind: 'symbols', set: 'rogue' },
+    { name: 'symbols', minLength: 4, kind: 'symbols', set: 'primary' },
     { name: 'name', minLength: 4, kind: 'direct', directName: 'name' },
     { name: 'role', minLength: 4, kind: 'direct', directName: 'role' },
     {
@@ -1353,6 +1476,14 @@ export function parseNethackrc(rc, random = rn2) {
         const normalizedValue = mungspaces(rawValue);
         if (statement.kind === 'bindings') {
             applyMenuBindings(result, normalizedValue, lineNumber);
+            continue;
+        }
+        if (statement.kind === 'symbols') {
+            appendSymbolOverrides(
+                result,
+                statement.set,
+                parseSymbolAssignments(normalizedValue, lineNumber),
+            );
             continue;
         }
 

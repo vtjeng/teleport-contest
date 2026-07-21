@@ -30,6 +30,7 @@ import {
     TutorialTransitionNotImplementedError,
 } from './tutorial_startup.js';
 import { moveloop_preamble } from './moveloop_preamble.js';
+import { initialize_symbols_from_options } from './symbols.js';
 
 // ── NethackGame ──
 // Wraps a single game session with replay infrastructure.
@@ -147,6 +148,10 @@ export class NethackGame {
             // C ref: decl.h instance_globals_p; dog.c:pet_type().
             preferred_pet: opts.preferred_pet ?? '',
         };
+
+        // C ref: options.c:initoptions() and symbols.c. Initialize the
+        // default cmap, then layer the configured symset and S_* overrides.
+        initialize_symbols_from_options(opts, g);
 
         // C ref: options.c:initoptions_finish() runs after the complete
         // configuration has been parsed and before player selection.

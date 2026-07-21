@@ -21,6 +21,10 @@ export function makeLocation() {
         disp_color: NO_COLOR,
         disp_decgfx: false,
         disp_attr: 0,
+        // UTF-8 and IBM symbol sets have distinct recorder-wire and browser
+        // representations under recorder patch 006.
+        disp_browser_ch: null,
+        disp_browser_color: null,
         gnew: 0,           // dirty flag for flush_glyph_buf
         glyph_symidx: -1,  // S_* symbol index
         remembered_glyph: undefined,  // { ch, color, decgfx, symidx }

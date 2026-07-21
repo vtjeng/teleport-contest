@@ -62,6 +62,7 @@
         "js/light.js",
         "js/makemon.js",
         "js/makemon_create.js",
+        "js/mineralize.js",
         "js/mklev.js",
         "js/mktrap.js",
         "js/mondata.js",
@@ -72,6 +73,7 @@
         "js/random_text.js",
         "js/random_text_data.js",
         "js/rect.js",
+        "js/room_features.js",
         "js/terrain.js",
         "js/themeroom_data.js",
         "js/track.js",
@@ -87,6 +89,8 @@
         "js/display.js",
         "js/game_display.js",
         "js/input.js",
+        "js/symbol_data.js",
+        "js/symbols.js",
         "js/tty_menu.js",
         "js/tty_message.js"
       ]

@@ -21,7 +21,6 @@ import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
 import {
     fastforward_post_mklev,
     fastforward_step,
-    fastforward_fill_mineralize,
 } from './fastforward.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
@@ -56,10 +55,6 @@ export async function newgame() {
     // Real mklev generates the level with correct room positions
     // Structural phase consumes RNG for rooms/corridors/doors/stairs
     await mklev();
-
-    // Fill rooms + mineralize: replayed by fastforward
-    // These create objects/monsters that don't affect terrain display
-    fastforward_fill_mineralize();
 
     // C ref: allmain.c newgame() → u_on_upstairs(). In C, room filling above
     // is part of mklev(), so hero placement follows it.

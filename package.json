@@ -7,6 +7,7 @@
     "test": "node --test scripts/*.test.mjs",
     "check:monsters": "node scripts/generate-monsters.mjs --check",
     "check:objects": "node scripts/generate-objects.mjs --check",
+    "check:symbols": "node scripts/generate-symbol-data.mjs --check",
     "check:themerooms": "node scripts/generate-themeroom-data.mjs --check",
     "quality": "node scripts/quality-status.mjs",
     "score": "bash frozen/score.sh",

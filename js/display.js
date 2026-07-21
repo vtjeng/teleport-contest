@@ -5,12 +5,44 @@ import { game } from './gstate.js';
 import { cansee } from './vision.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
-    HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
+    HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER, SDOOR,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
-    D_NODOOR, D_ISOPEN, D_CLOSED, D_LOCKED,
+    D_BROKEN, D_ISOPEN, LA_DOWN,
+    SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
+    WM_MASK, WM_C_OUTER, WM_C_INNER,
+    WM_T_LONG, WM_T_BL, WM_T_BR,
+    WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
 } from './const.js';
-import { NO_COLOR, CLR_GRAY, CLR_BROWN, CLR_WHITE, CLR_YELLOW, DEC_TO_UNICODE } from './terminal.js';
+import { NO_COLOR, CLR_BROWN, CLR_WHITE, CLR_YELLOW, DEC_TO_UNICODE } from './terminal.js';
 import { rankOf } from './roles.js';
+import {
+    cmap_symbol,
+    S_stone,
+    S_tree,
+    S_vwall,
+    S_hwall,
+    S_tlcorn,
+    S_trcorn,
+    S_blcorn,
+    S_brcorn,
+    S_crwall,
+    S_tuwall,
+    S_tdwall,
+    S_tlwall,
+    S_trwall,
+    S_ndoor,
+    S_vodoor,
+    S_hodoor,
+    S_vcdoor,
+    S_hcdoor,
+    S_room,
+    S_corr,
+    S_litcorr,
+    S_upstair,
+    S_dnstair,
+    S_brupstair,
+    S_brdnstair,
+} from './symbols.js';
 
 // ── ANSI color codes ──
 // Maps CLR_* constants (0-15) to ANSI SGR color codes.
@@ -35,47 +67,374 @@ const ANSI_COLOR = [
     97,  // CLR_WHITE     15
 ];
 
+const WALL_TYPES = new Set([
+    SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
+    CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
+]);
+
+// C ref: display.c wall_matrix[] and cross_matrix[][].
+const T_D = 0;
+const T_L = 1;
+const T_U = 2;
+const T_R = 3;
+const T_STONE = 0;
+const T_TLCORN = 1;
+const T_TRCORN = 2;
+const T_HWALL = 3;
+const T_TDWALL = 4;
+const WALL_MATRIX = [
+    [S_stone, S_tlcorn, S_trcorn, S_hwall, S_tdwall],
+    [S_stone, S_trcorn, S_brcorn, S_vwall, S_tlwall],
+    [S_stone, S_brcorn, S_blcorn, S_hwall, S_tuwall],
+    [S_stone, S_blcorn, S_tlcorn, S_vwall, S_trwall],
+];
+
+const C_BL = 0;
+const C_TL = 1;
+const C_TR = 2;
+const C_BR = 3;
+const C_TRCORN = 0;
+const C_BRCORN = 1;
+const C_BLCORN = 2;
+const C_TLWALL = 3;
+const C_TUWALL = 4;
+const C_CRWALL = 5;
+const CROSS_MATRIX = [
+    [S_brcorn, S_blcorn, S_tlcorn, S_tuwall, S_trwall, S_crwall],
+    [S_blcorn, S_tlcorn, S_trcorn, S_trwall, S_tdwall, S_crwall],
+    [S_tlcorn, S_trcorn, S_brcorn, S_tdwall, S_tlwall, S_crwall],
+    [S_trcorn, S_brcorn, S_blcorn, S_tlwall, S_tuwall, S_crwall],
+];
+
+function wallMode(loc) {
+    // C's wall_info macro aliases struct rm.flags. The JS location keeps a
+    // dedicated field, while the fallback supports source-shaped test data.
+    return (loc.wall_info ?? loc.flags ?? 0) & WM_MASK;
+}
+
+function only(seenv, bits) {
+    return Boolean((seenv & bits) && !(seenv & ~bits));
+}
+
+function cornerAngle(seenv, mode, which, outer, inner) {
+    if (mode === 0) return which;
+    if (mode === WM_C_OUTER) return seenv & outer ? which : S_stone;
+    if (mode === WM_C_INNER) return seenv & ~inner ? which : S_stone;
+    return S_stone;
+}
+
+// C ref: display.c wall_angle(). This returns an S_* cmap index, not a
+// rendered character; symbol-set selection happens later in terrainCmap().
+export function wall_angle(loc) {
+    let seenv = (loc.seenv ?? 0) & 0xFF;
+    const mode = wallMode(loc);
+
+    switch (loc.typ) {
+    case TUWALL:
+    case TLWALL:
+    case TRWALL:
+    case TDWALL: {
+        let row;
+        if (loc.typ === TUWALL) {
+            row = WALL_MATRIX[T_U];
+            seenv = ((seenv >> 4) | (seenv << 4)) & 0xFF;
+        } else if (loc.typ === TLWALL) {
+            row = WALL_MATRIX[T_L];
+            seenv = ((seenv >> 2) | (seenv << 6)) & 0xFF;
+        } else if (loc.typ === TRWALL) {
+            row = WALL_MATRIX[T_R];
+            seenv = ((seenv >> 6) | (seenv << 2)) & 0xFF;
+        } else {
+            row = WALL_MATRIX[T_D];
+        }
+
+        let col;
+        if (mode === 0) {
+            if (seenv === SV4) col = T_TLCORN;
+            else if (seenv === SV6) col = T_TRCORN;
+            else if ((seenv & (SV3 | SV5 | SV7))
+                || ((seenv & SV4) && (seenv & SV6))) col = T_TDWALL;
+            else if (seenv & (SV0 | SV1 | SV2)) {
+                col = seenv & (SV4 | SV6) ? T_TDWALL : T_HWALL;
+            } else col = T_STONE;
+        } else if (mode === WM_T_LONG) {
+            if ((seenv & (SV3 | SV4))
+                && !(seenv & (SV5 | SV6 | SV7))) col = T_TLCORN;
+            else if ((seenv & (SV6 | SV7))
+                && !(seenv & (SV3 | SV4 | SV5))) col = T_TRCORN;
+            else if ((seenv & SV5)
+                || ((seenv & (SV3 | SV4))
+                    && (seenv & (SV6 | SV7)))) col = T_TDWALL;
+            else col = T_STONE;
+        } else if (mode === WM_T_BL) {
+            if (only(seenv, SV4 | SV5)) col = T_TLCORN;
+            else if ((seenv & (SV0 | SV1 | SV2 | SV7))
+                && !(seenv & (SV3 | SV4 | SV5))) col = T_HWALL;
+            else if (only(seenv, SV6)) col = T_STONE;
+            else col = T_TDWALL;
+        } else if (mode === WM_T_BR) {
+            if (only(seenv, SV5 | SV6)) col = T_TRCORN;
+            else if ((seenv & (SV0 | SV1 | SV2 | SV3))
+                && !(seenv & (SV5 | SV6 | SV7))) col = T_HWALL;
+            else if (only(seenv, SV4)) col = T_STONE;
+            else col = T_TDWALL;
+        } else col = T_STONE;
+        return row[col];
+    }
+
+    case SDOOR:
+        if (loc.arboreal_sdoor || loc.candig) return S_tree;
+        if (loc.horizontal) {
+            if (mode === 0) return seenv ? S_hwall : S_stone;
+            if (mode === 1) {
+                return seenv & (SV3 | SV4 | SV5 | SV6 | SV7)
+                    ? S_hwall : S_stone;
+            }
+            if (mode === 2) {
+                return seenv & (SV0 | SV1 | SV2 | SV3 | SV7)
+                    ? S_hwall : S_stone;
+            }
+            return S_stone;
+        }
+        // Non-horizontal secret doors use the vertical-wall cases.
+        // falls through
+    case VWALL:
+        if (mode === 0) return seenv ? S_vwall : S_stone;
+        if (mode === 1) {
+            return seenv & (SV1 | SV2 | SV3 | SV4 | SV5)
+                ? S_vwall : S_stone;
+        }
+        if (mode === 2) {
+            return seenv & (SV0 | SV1 | SV5 | SV6 | SV7)
+                ? S_vwall : S_stone;
+        }
+        return S_stone;
+
+    case HWALL:
+        if (mode === 0) return seenv ? S_hwall : S_stone;
+        if (mode === 1) {
+            return seenv & (SV3 | SV4 | SV5 | SV6 | SV7)
+                ? S_hwall : S_stone;
+        }
+        if (mode === 2) {
+            return seenv & (SV0 | SV1 | SV2 | SV3 | SV7)
+                ? S_hwall : S_stone;
+        }
+        return S_stone;
+
+    case TLCORNER:
+        return cornerAngle(
+            seenv, mode, S_tlcorn, SV3 | SV4 | SV5, SV4,
+        );
+    case TRCORNER:
+        return cornerAngle(
+            seenv, mode, S_trcorn, SV5 | SV6 | SV7, SV6,
+        );
+    case BLCORNER:
+        return cornerAngle(
+            seenv, mode, S_blcorn, SV1 | SV2 | SV3, SV2,
+        );
+    case BRCORNER:
+        return cornerAngle(
+            seenv, mode, S_brcorn, SV7 | SV0 | SV1, SV0,
+        );
+
+    case CROSSWALL: {
+        if (mode === 0) {
+            if (seenv === SV0) return S_brcorn;
+            if (seenv === SV2) return S_blcorn;
+            if (seenv === SV4) return S_tlcorn;
+            if (seenv === SV6) return S_trcorn;
+            if (!(seenv & ~(SV0 | SV1 | SV2))
+                && ((seenv & SV1) || seenv === (SV0 | SV2))) return S_tuwall;
+            if (!(seenv & ~(SV2 | SV3 | SV4))
+                && ((seenv & SV3) || seenv === (SV2 | SV4))) return S_trwall;
+            if (!(seenv & ~(SV4 | SV5 | SV6))
+                && ((seenv & SV5) || seenv === (SV4 | SV6))) return S_tdwall;
+            if (!(seenv & ~(SV0 | SV6 | SV7))
+                && ((seenv & SV7) || seenv === (SV0 | SV6))) return S_tlwall;
+            return S_crwall;
+        }
+
+        if (mode >= WM_X_TL && mode <= WM_X_BR) {
+            let row;
+            if (mode === WM_X_TL) {
+                row = CROSS_MATRIX[C_TL];
+                seenv = ((seenv >> 4) | (seenv << 4)) & 0xFF;
+            } else if (mode === WM_X_TR) {
+                row = CROSS_MATRIX[C_TR];
+                seenv = ((seenv >> 6) | (seenv << 2)) & 0xFF;
+            } else if (mode === WM_X_BL) {
+                row = CROSS_MATRIX[C_BL];
+                seenv = ((seenv >> 2) | (seenv << 6)) & 0xFF;
+            } else {
+                row = CROSS_MATRIX[C_BR];
+            }
+
+            if (seenv === SV4) return S_stone;
+            seenv &= ~SV4;
+            let col;
+            if (seenv === SV0) col = C_BRCORN;
+            else if (seenv & (SV2 | SV3)) {
+                if (seenv & (SV5 | SV6 | SV7)) col = C_CRWALL;
+                else if (seenv & (SV0 | SV1)) col = C_TUWALL;
+                else col = C_BLCORN;
+            } else if (seenv & (SV5 | SV6)) {
+                if (seenv & (SV1 | SV2 | SV3)) col = C_CRWALL;
+                else if (seenv & (SV0 | SV7)) col = C_TLWALL;
+                else col = C_TRCORN;
+            } else if (seenv & SV1) {
+                col = seenv & SV7 ? C_CRWALL : C_TUWALL;
+            } else if (seenv & SV7) {
+                col = seenv & SV1 ? C_CRWALL : C_TLWALL;
+            } else col = C_CRWALL;
+            return row[col];
+        }
+
+        if (mode === WM_X_TLBR) {
+            if (only(seenv, SV1 | SV2 | SV3)) return S_blcorn;
+            if (only(seenv, SV5 | SV6 | SV7)) return S_trcorn;
+            if (only(seenv, SV0 | SV4)) return S_stone;
+            return S_crwall;
+        }
+        if (mode === WM_X_BLTR) {
+            if (only(seenv, SV0 | SV1 | SV7)) return S_brcorn;
+            if (only(seenv, SV3 | SV4 | SV5)) return S_tlcorn;
+            if (only(seenv, SV2 | SV6)) return S_stone;
+            return S_crwall;
+        }
+        return S_stone;
+    }
+
+    default:
+        return S_stone;
+    }
+}
+
+function mapColorEnabled(state) {
+    const activeSet = state.gc?.currentgraphics ?? 0;
+    return state.iflags?.wc_color !== false
+        && !state.gs?.symset?.[activeSet]?.nocolor;
+}
+
+function terrainCmap(index, color, state) {
+    const symbol = cmap_symbol(index, state);
+    const result = {
+        ch: symbol.ch,
+        color: mapColorEnabled(state) ? color : NO_COLOR,
+        dec: symbol.dec,
+    };
+    if (symbol.displayCh) result.displayCh = symbol.displayCh;
+    return result;
+}
+
+function stairwayAt(state, x, y) {
+    for (let stairway = state.stairs; stairway; stairway = stairway.next) {
+        if (stairway.sx === x && stairway.sy === y) return stairway;
+    }
+    return null;
+}
+
+function heroColor(state) {
+    return state.iflags?.wc_color === false ? NO_COLOR : CLR_WHITE;
+}
+
 // ── Terrain to display character + color + DEC flag ──
-function terrain_glyph(loc, x, y) {
+export function terrain_glyph(loc, x, y, state = game) {
     const typ = loc.typ;
+    if (WALL_TYPES.has(typ)) {
+        return terrainCmap(
+            loc.seenv ? wall_angle(loc) : S_stone,
+            NO_COLOR,
+            state,
+        );
+    }
+
     switch (typ) {
-    case STONE:     return { ch: ' ', color: NO_COLOR, dec: false };
-    case ROOM:      return { ch: '~', color: NO_COLOR, dec: true };  // DEC middle dot
-    case CORR:      return { ch: '#', color: NO_COLOR, dec: false };
-    case DOOR:
-        if (loc.doormask & D_ISOPEN) return { ch: '|', color: CLR_BROWN, dec: false };
-        if (loc.doormask & (D_CLOSED | D_LOCKED)) return { ch: '+', color: CLR_BROWN, dec: false };
-        return { ch: '~', color: NO_COLOR, dec: true };  // D_NODOOR = floor
-    case STAIRS:
-        // Check upstair vs downstair
-        if (game.level?.upstair?.x === x && game.level?.upstair?.y === y)
-            return { ch: '<', color: CLR_YELLOW, dec: false };
-        return { ch: '>', color: CLR_YELLOW, dec: false };
-    // Wall types → DEC line-drawing characters
-    case HWALL:     return { ch: 'q', color: NO_COLOR, dec: true };  // ─
-    case VWALL:     return { ch: 'x', color: NO_COLOR, dec: true };  // │
-    case TLCORNER:  return { ch: 'l', color: NO_COLOR, dec: true };  // ┌
-    case TRCORNER:  return { ch: 'k', color: NO_COLOR, dec: true };  // ┐
-    case BLCORNER:  return { ch: 'm', color: NO_COLOR, dec: true };  // └
-    case BRCORNER:  return { ch: 'j', color: NO_COLOR, dec: true };  // ┘
-    case CROSSWALL: return { ch: 'n', color: NO_COLOR, dec: true };  // ┼
-    case TUWALL:    return { ch: 'v', color: NO_COLOR, dec: true };  // ┴
-    case TDWALL:    return { ch: 'w', color: NO_COLOR, dec: true };  // ┬
-    case TLWALL:    return { ch: 'u', color: NO_COLOR, dec: true };  // ┤
-    case TRWALL:    return { ch: 't', color: NO_COLOR, dec: true };  // ├
+    case STONE:
+        return terrainCmap(S_stone, NO_COLOR, state);
+    case ROOM:
+        return terrainCmap(S_room, NO_COLOR, state);
+    case CORR: {
+        const lit = Boolean(loc.waslit || state.flags?.lit_corridor);
+        const cmap = lit ? S_litcorr : S_corr;
+        const glyph = terrainCmap(cmap, NO_COLOR, state);
+        if (lit) {
+            const darkSymbol = cmap_symbol(S_corr, state);
+            if (mapColorEnabled(state)
+                && glyph.ch === darkSymbol.ch && glyph.dec === darkSymbol.dec) {
+                // reset_glyphmap() preserves a visible distinction when the
+                // configured dark and lit corridor symbols are identical.
+                glyph.color = CLR_WHITE;
+            }
+        }
+        return glyph;
+    }
+    case DOOR: {
+        let cmap;
+        // struct rm aliases flags and doormask. New level generation writes
+        // flags; the fallback keeps older callers which filled doormask.
+        const doormask = loc.flags || loc.doormask || 0;
+        if (!doormask || (doormask & D_BROKEN)) cmap = S_ndoor;
+        else if (doormask & D_ISOPEN) {
+            cmap = loc.horizontal ? S_hodoor : S_vodoor;
+        } else {
+            cmap = loc.horizontal ? S_hcdoor : S_vcdoor;
+        }
+        return terrainCmap(
+            cmap,
+            cmap === S_ndoor ? NO_COLOR : CLR_BROWN,
+            state,
+        );
+    }
+    case STAIRS: {
+        // C refs: display.c:back_to_glyph(), stairs.c:known_branch_stairs().
+        const stairway = stairwayAt(state, x, y);
+        const down = Boolean(loc.ladder & LA_DOWN);
+        const knownBranch = Boolean(stairway?.u_traversed
+            && stairway.tolev?.dnum !== state.u?.uz?.dnum);
+        return terrainCmap(
+            knownBranch
+                ? down ? S_brdnstair : S_brupstair
+                : down ? S_dnstair : S_upstair,
+            knownBranch ? CLR_YELLOW : NO_COLOR,
+            state,
+        );
+    }
     default:        return { ch: '?', color: NO_COLOR, dec: false };
     }
 }
 
 // ── show_glyph_cell ──
-export function show_glyph_cell(x, y, ch, color = NO_COLOR, decgfx = false, attr = 0) {
+export function show_glyph_cell(
+    x,
+    y,
+    ch,
+    color = NO_COLOR,
+    decgfx = false,
+    attr = 0,
+    displayCh = null,
+) {
     const loc = game.level?.at(x, y);
     if (!loc) return;
-    loc.disp_ch = ch;
-    loc.disp_color = color;
-    loc.disp_decgfx = !!decgfx;
-    loc.disp_attr = attr | 0;
+    if (ch !== null) {
+        loc.disp_ch = ch;
+        loc.disp_color = color;
+        loc.disp_decgfx = !!decgfx;
+        loc.disp_attr = attr | 0;
+    }
+    loc.disp_browser_ch = displayCh;
+    loc.disp_browser_color = displayCh ? color : null;
     loc.gnew = 1;
+}
+
+function rememberedTerrainGlyph(glyph) {
+    return {
+        ch: glyph.ch,
+        color: glyph.color,
+        decgfx: glyph.dec,
+        displayCh: glyph.displayCh ?? null,
+    };
 }
 
 // ── newsym ──
@@ -85,9 +444,9 @@ export function newsym(x, y) {
 
     if (game.u?.ux === x && game.u?.uy === y) {
         // Hero
-        show_glyph_cell(x, y, '@', CLR_WHITE, false);
+        show_glyph_cell(x, y, '@', heroColor(game), false);
         const tg = terrain_glyph(loc, x, y);
-        loc.remembered_glyph = { ch: tg.ch, color: tg.color, decgfx: tg.dec };
+        loc.remembered_glyph = rememberedTerrainGlyph(tg);
         return;
     }
 
@@ -96,14 +455,23 @@ export function newsym(x, y) {
     const tg = terrain_glyph(loc, x, y);
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (cansee(x, y)) {
-        show_glyph_cell(x, y, tg.ch, tg.color, tg.dec);
+        show_glyph_cell(
+            x,
+            y,
+            tg.ch,
+            tg.color,
+            tg.dec,
+            0,
+            tg.displayCh ?? null,
+        );
         if (game.level?.flags?.hero_memory) {
-            loc.remembered_glyph = { ch: tg.ch, color: tg.color, decgfx: tg.dec };
+            loc.remembered_glyph = rememberedTerrainGlyph(tg);
         }
     } else if (loc.remembered_glyph) {
         // Out of sight but remembered — show remembered glyph
         show_glyph_cell(x, y, loc.remembered_glyph.ch,
-            loc.remembered_glyph.color, loc.remembered_glyph.decgfx);
+            loc.remembered_glyph.color, loc.remembered_glyph.decgfx, 0,
+            loc.remembered_glyph.displayCh);
     }
 }
 
@@ -115,10 +483,21 @@ export async function docrt() {
             const loc = game.level.at(x, y);
             if (loc?.remembered_glyph) {
                 show_glyph_cell(x, y, loc.remembered_glyph.ch,
-                    loc.remembered_glyph.color, loc.remembered_glyph.decgfx);
+                    loc.remembered_glyph.color,
+                    loc.remembered_glyph.decgfx,
+                    0,
+                    loc.remembered_glyph.displayCh);
             }
         }
-    if (game.u?.ux > 0) show_glyph_cell(game.u.ux, game.u.uy, '@', CLR_WHITE, false);
+    if (game.u?.ux > 0) {
+        show_glyph_cell(
+            game.u.ux,
+            game.u.uy,
+            '@',
+            heroColor(game),
+            false,
+        );
+    }
 }
 
 // ── Serialize a map row with DEC line-drawing and ANSI colors ──
@@ -258,12 +637,26 @@ function _buildScreenOutput() {
         for (let c = 0; c < Math.min(msg.length, display.cols); c++)
             display.setCell(c, 0, msg[c], NO_COLOR, 0);
         // Map — write characters to grid (DEC → Unicode for browser display)
+        const browserGlyphs = Boolean(display.spans);
         for (let y = 0; y < ROWNO; y++) {
             for (let x = 1; x < COLNO; x++) {
                 const loc = game.level?.at(x, y);
-                if (!loc?.disp_ch || loc.disp_ch === ' ') continue;
-                const ch = loc.disp_decgfx ? (DEC_TO_UNICODE[loc.disp_ch] || loc.disp_ch) : loc.disp_ch;
-                display.setCell(x - 1, y + 1, ch, loc.disp_color ?? NO_COLOR, loc.disp_attr ?? 0);
+                if (!loc) continue;
+                const ch = browserGlyphs && loc.disp_browser_ch
+                    ? loc.disp_browser_ch
+                    : (loc.disp_decgfx
+                        ? DEC_TO_UNICODE[loc.disp_ch] || loc.disp_ch
+                        : loc.disp_ch);
+                if (!ch || ch === ' ') continue;
+                display.setCell(
+                    x - 1,
+                    y + 1,
+                    ch,
+                    browserGlyphs && loc.disp_browser_ch
+                        ? loc.disp_browser_color ?? loc.disp_color ?? NO_COLOR
+                        : loc.disp_color ?? NO_COLOR,
+                    loc.disp_attr ?? 0,
+                );
             }
         }
         // Status lines
