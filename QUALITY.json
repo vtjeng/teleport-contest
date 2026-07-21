@@ -213,6 +213,37 @@
       "outcome": "no-change",
       "evidence": "Exact reviewed delta 0c4714233f3da0deac679a3f8220079136303359..71e40ad128009c7959c361aaa7946f10a18528fe, advancing the startup frontier from its prior reviewed state. Six native-subagent finders and three adversarial lenses completed: 0 raw, 0 deduplicated, 0 confirmed, 0 applied, 0 unverified, no warnings or agent losses. The verifiers rejected the only plausible exception-path concern because serialization failure propagates and _nhgetchCount had no contractual consumer; getScreens length directly represents successful input captures. Focused tests and all 374 tests passed; rendering, input boundaries, persistence, PRNG and async order were unchanged; no holdout ran.",
       "recordedAt": "2026-07-21T07:14:10.674Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "objects": "db2ab36938751e3d49b9385a014a3074784669bb",
+        "world": "0c4714233f3da0deac679a3f8220079136303359",
+        "runtime": "db2ab36938751e3d49b9385a014a3074784669bb"
+      },
+      "head": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
+      "areas": [
+        "objects",
+        "world",
+        "runtime"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light correctness audit b6559f08d548066dfab29fd2c0d09d0a6a7ac2eb..14abaece4f1f7ddb0b5ddf4f333b69f9fcf85fa0 found 3 raw, 3 deduped, and 3 confirmed issues; all 3 were applied in 6053768c3683cf25dcb5f2bcc559c2c063f838b2. Exact delta review 21f5e5e7acc8e6fcdbd2f61c744c76c82f5a29e7..6053768c3683cf25dcb5f2bcc559c2c063f838b2 found no regressions. The world simplification pass had 7 raw and deduped proposals, 5 unanimous confirmations applied in 88ccb28d900bfc81e76f092f7b34218dbcbabba9, and behavior-safety approval. All 392 tests pass; development remains 103 matched screens; the fresh mismatch remains call 1468 with matching cursor. Known limits are the shop billing hook seam and incomplete boulder, mon_moving, gameover, and malformed-byte characterization. No holdout was run.",
+      "recordedAt": "2026-07-21T08:27:53.272Z"
+    },
+    {
+      "kind": "simplification",
+      "bases": {
+        "world": "7890324121d3ecdd73c21e3a2d2d062c9219bf9a"
+      },
+      "head": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
+      "areas": [
+        "world"
+      ],
+      "outcome": "changed",
+      "evidence": "Formal six-finder, three-verifier pass over 7890324121d3ecdd73c21e3a2d2d062c9219bf9a..6053768c3683cf25dcb5f2bcc559c2c063f838b2 produced 7 raw, 7 deduped, 5 unanimously confirmed, 5 applied in 88ccb28d900bfc81e76f092f7b34218dbcbabba9, 2 rejected, and 0 unverified proposals. It removed duplicate map defaults and test fixture state while retaining exported themed-room dimensions, the eager vault flag, replay scaffolding, and future subsystem seams. All 392 tests pass; development remains 103 matched screens; the fresh mismatch remains call 1468 with matching cursor. No holdout was run.",
+      "recordedAt": "2026-07-21T08:27:53.682Z"
     }
   ]
 }
