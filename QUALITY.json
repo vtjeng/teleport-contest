@@ -59,6 +59,7 @@
         "js/mondata.js",
         "js/monsters.js",
         "js/rect.js",
+        "js/themeroom_data.js",
         "js/track.js",
         "js/vision.js"
       ]

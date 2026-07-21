@@ -11,17 +11,19 @@ import { rn2, rnd, rn1 } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import { depth as depth_of_level } from './hacklib.js';
 import { oinit } from './o_init.js';
+import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
     D_NODOOR, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED,
     OROOM, VAULT, THEMEROOM, ROOMOFFSET, MAXNROFROOMS, SHARED,
-    SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, GRAVE,
+    SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, GRAVE, THRONE, TREE,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     SPACE_POS, isok, W_NONDIGGABLE, FILL_NORMAL,
-    ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL, DBWALL,
+    ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL, DBWALL, AIR, CLOUD,
+    MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC, Align2amask,
     LR_UPTELE,
 } from './const.js';
@@ -446,10 +448,10 @@ function clear_level_structures() {
 }
 
 // C ref: mkmap.c litstate_rnd()
-function litstate_rnd(litstate) {
+function litstate_rnd(litstate, random = rn2, randomOneBased = rnd) {
     if (litstate < 0) {
         const d = depth_of_level(game.u?.uz);
-        return (rnd(1 + Math.abs(d)) < 11 && rn2(77)) ? true : false;
+        return (randomOneBased(1 + Math.abs(d)) < 11 && random(77)) ? true : false;
     }
     return !!litstate;
 }
@@ -536,7 +538,14 @@ async function makerooms() {
             }
         } else {
             // Themed room selection (reservoir sampling)
-            if (!(await themerooms_generate(difficulty))) {
+            g.in_mk_themerooms = true;
+            let generated;
+            try {
+                generated = await themerooms_generate(difficulty);
+            } finally {
+                g.in_mk_themerooms = false;
+            }
+            if (!generated) {
                 if (themeroom_tries++ > 10
                     || g.level.nroom >= Math.trunc(MAXNROFROOMS / 6))
                     break;
@@ -545,71 +554,193 @@ async function makerooms() {
     }
 }
 
-// Themed room metadata — must match C's themerms.lua frequency table exactly.
-// Generated from themeroom_meta.js (31 rooms).
-const THEMEROOM_META = [
-    { name: 'default', frequency: 1000 },
-    { name: 'Fake Delphi', frequency: 1 },
-    { name: 'Room in a room', frequency: 1 },
-    { name: 'Huge room with another room inside', frequency: 1 },
-    { name: 'Nesting rooms', frequency: 1 },
-    { name: 'Default room with themed fill', frequency: 6 },
-    { name: 'Unlit room with themed fill', frequency: 2 },
-    { name: 'Room with both normal contents and themed fill', frequency: 2 },
-    { name: 'Pillars', frequency: 1 },
-    { name: 'Mausoleum', frequency: 1 },
-    { name: 'Random dungeon feature', frequency: 1 },
-    { name: 'L-shaped', frequency: 1 },
-    { name: 'L-shaped, rot 1', frequency: 1 },
-    { name: 'L-shaped, rot 2', frequency: 1 },
-    { name: 'L-shaped, rot 3', frequency: 1 },
-    { name: 'Blocked center', frequency: 1 },
-    { name: 'Circular, small', frequency: 1 },
-    { name: 'Circular, medium', frequency: 1 },
-    { name: 'Circular, big', frequency: 1 },
-    { name: 'T-shaped', frequency: 1 },
-    { name: 'T-shaped, rot 1', frequency: 1 },
-    { name: 'T-shaped, rot 2', frequency: 1 },
-    { name: 'T-shaped, rot 3', frequency: 1 },
-    { name: 'S-shaped', frequency: 1 },
-    { name: 'S-shaped, rot 1', frequency: 1 },
-    { name: 'Z-shaped', frequency: 1 },
-    { name: 'Z-shaped, rot 1', frequency: 1 },
-    { name: 'Cross', frequency: 1 },
-    { name: 'Four-leaf clover', frequency: 1 },
-    { name: 'Water-surrounded vault', frequency: 1 },
-    { name: 'Twin businesses', frequency: 1, mindiff: 4 },
-];
-
 function is_themeroom_eligible(room, difficulty) {
     if (room.mindiff != null && difficulty < room.mindiff) return false;
     if (room.maxdiff != null && difficulty > room.maxdiff) return false;
     return true;
 }
 
-// C ref: themerms.lua themerooms_generate()
-// Reservoir sampling picks one themed room. For seed8000 level 1,
-// 'ordinary' always wins (frequency 1000 vs others ~1-10).
-async function themerooms_generate(difficulty) {
+// C ref: themerms.lua themerooms_generate().
+export function select_themeroom(difficulty, random = rn2) {
     let pick = null;
     let total_frequency = 0;
-    for (const meta of THEMEROOM_META) {
+    for (const meta of THEMEROOM_DEFINITIONS) {
         if (!is_themeroom_eligible(meta, difficulty)) continue;
-        const this_frequency = meta.frequency || 1;
+        const this_frequency = meta.frequency ?? 1;
         total_frequency += this_frequency;
-        if (this_frequency > 0 && rn2(total_frequency) < this_frequency) {
+        if (this_frequency > 0 && random(total_frequency) < this_frequency) {
             pick = meta;
         }
     }
-    if (!pick) return false;
-    // For 'ordinary' rooms, create a standard room
-    // For themed rooms with dynamic dimensions, consume those rn2 calls first
-    const chance = 100;
-    if (pick.name !== 'ordinary') {
-        // Themed room — not expected for seed8000, but handle RNG correctly
-        rn2(100); // chance check (build_room)
+    return pick;
+}
+
+// C ref: nhlua.c splev_chr2typ(). This table covers the special-level map
+// alphabet even though the first generated slice only uses '.', '-', '|',
+// and transparent 'x' cells.
+function splev_chr2typ(char) {
+    switch (char) {
+    case ' ': return STONE;
+    case '#': return CORR;
+    case '.': return ROOM;
+    case '-': return HWALL;
+    case '|': return VWALL;
+    case '+': return DOOR;
+    case 'A': return AIR;
+    case 'C': return CLOUD;
+    case 'S': return SDOOR;
+    case 'H': return SCORR;
+    case '{': return FOUNTAIN;
+    case '\\': return THRONE;
+    case 'K': return SINK;
+    case '}': return MOAT;
+    case 'P': return POOL;
+    case 'L': return LAVAPOOL;
+    case 'Z': return LAVAWALL;
+    case 'I': return ICE;
+    case 'W': return WATER;
+    case 'T': return TREE;
+    case 'F': return IRONBARS;
+    case 'x': return MAX_TYPE;
+    case 'B': return CROSSWALL;
+    case 'w': return MATCH_WALL;
+    default: throw new Error(`unsupported special-level map character ${JSON.stringify(char)}`);
     }
-    // All themed rooms go through create_room for placement
+}
+
+function themeroom_map_fits(definition, xstart, ystart, state) {
+    const { width, height, map: rows } = definition;
+    for (let y = ystart - 1; y < Math.min(ROWNO, ystart + height) + 1; y++) {
+        for (let x = xstart - 1; x < Math.min(COLNO, xstart + width) + 1; x++) {
+            if (!isok(x, y)) return false;
+            const inside = y >= ystart && y < ystart + height
+                && x >= xstart && x < xstart + width;
+            const loc = state.level.at(x, y);
+            if (!inside) {
+                if (!loc || loc.typ !== STONE || loc.roomno !== 0) return false;
+                continue;
+            }
+            const mapType = splev_chr2typ(rows[y - ystart][x - xstart]);
+            if (mapType >= MAX_TYPE) continue;
+            if (!loc || (loc.typ !== STONE && loc.typ !== mapType) || loc.roomno !== 0)
+                return false;
+        }
+    }
+    return true;
+}
+
+// C ref: sp_lev.c lspo_map(). The themed-room form chooses an unconstrained
+// origin, preserves transparent cells, and retries rather than overwriting a
+// previously generated room.
+export function lspo_map(definition, random = rn2, state = game) {
+    const { width, height, map: rows } = definition;
+    if (!rows || width <= 0 || height <= 0) return null;
+    let tryct = 0;
+    let xstart;
+    let ystart;
+    for (;;) {
+        xstart = 1 + random(COLNO - 1 - width);
+        ystart = random(ROWNO - height);
+        if (themeroom_map_fits(definition, xstart, ystart, state)) break;
+        if (tryct++ >= 100) return null;
+    }
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const typ = splev_chr2typ(rows[y][x]);
+            if (typ >= MAX_TYPE) continue;
+            const loc = state.level.at(xstart + x, ystart + y);
+            loc.flags = 0;
+            loc.doormask = 0;
+            loc.horizontal = typ === HWALL || typ === IRONBARS;
+            loc.roomno = 0;
+            loc.edge = false;
+            loc.typ = typ;
+            loc.lit = false;
+        }
+    }
+    return { x: xstart, y: ystart, width, height };
+}
+
+// C ref: mkmap.c flood_fill_rm(..., anyroom=TRUE), as used by
+// sp_lev.c:lspo_region() for an irregular themed-room region.
+function flood_fill_themeroom(sx, sy, roomno, lit, state) {
+    const target = state.level.at(sx, sy)?.typ;
+    if (target !== ROOM) return null;
+    const stack = [[sx, sy]];
+    const seen = new Set();
+    let minx = sx, maxx = sx, miny = sy, maxy = sy;
+    while (stack.length) {
+        const [x, y] = stack.pop();
+        const key = y * COLNO + x;
+        if (seen.has(key)) continue;
+        const loc = state.level.at(x, y);
+        if (!loc || loc.typ !== target) continue;
+        seen.add(key);
+        loc.roomno = roomno;
+        loc.lit = !!lit;
+        minx = Math.min(minx, x); maxx = Math.max(maxx, x);
+        miny = Math.min(miny, y); maxy = Math.max(maxy, y);
+
+        stack.push([x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]);
+        for (let xx = x - 1; xx <= x + 1; xx++) {
+            for (let yy = y - 1; yy <= y + 1; yy++) {
+                const edge = state.level.at(xx, yy);
+                if (!edge || !(IS_WALL(edge.typ) || IS_DOOR(edge.typ) || edge.typ === SDOOR))
+                    continue;
+                edge.edge = true;
+                if (lit) edge.lit = true;
+                if (edge.roomno === 0) edge.roomno = roomno;
+                else if (edge.roomno !== roomno) edge.roomno = SHARED;
+            }
+        }
+    }
+    return { minx, maxx, miny, maxy };
+}
+
+// C refs: themerms.lua filler_region(); sp_lev.c lspo_region(). This slice
+// creates the irregular room and its ordinary-fill marker. The 30% themed-fill
+// callback remains part of the next themeroom-fill subsystem.
+function filler_region(definition, origin, random, randomOneBased) {
+    const state = game;
+    const themed = random(100) < 30;
+    const lit = litstate_rnd(-1, random, randomOneBased);
+    const sx = origin.x + definition.filler.x;
+    const sy = origin.y + definition.filler.y;
+    const roomIndex = state.level.nroom;
+    const bounds = flood_fill_themeroom(sx, sy, roomIndex + ROOMOFFSET, lit, state);
+    if (!bounds) return false;
+    state.smeq ??= new Array(MAXNROFROOMS + 1).fill(0);
+    state.smeq[roomIndex] = roomIndex;
+    add_room(
+        bounds.minx, bounds.miny, bounds.maxx, bounds.maxy,
+        false, themed ? THEMEROOM : OROOM, true,
+    );
+    const room = state.level.rooms[roomIndex];
+    room.rlit = lit ? 1 : 0;
+    room.irregular = true;
+    room.needjoining = true;
+    room.needfill = FILL_NORMAL;
+    return true;
+}
+
+// C ref: themerms.lua themerooms_generate(). Static map shapes with a plain
+// filler_region callback are ported as a class; the remaining Lua callbacks
+// continue through the existing rectangular-room compatibility path.
+export async function themerooms_generate(
+    difficulty,
+    random = rn2,
+    randomOneBased = rnd,
+) {
+    const pick = select_themeroom(difficulty, random);
+    if (!pick) return false;
+    if (pick.map && pick.filler) {
+        const origin = lspo_map(pick, random);
+        return origin ? filler_region(pick, origin, random, randomOneBased) : false;
+    }
+
+    // sp_lev.c build_room() evaluates the default 100% chance with rn2(100).
+    random(100);
     const ok = create_room(-1, -1, -1, -1, -1, -1, OROOM, -1);
     if (ok) {
         // C ref: sp_lev.c:2824 — build_room calls topologize after create_room
@@ -902,6 +1033,30 @@ function good_rm_wall_doorpos(x, y, dir, room) {
 function finddpos_shift(xp, yp, dir, aroom) {
     const rdir = DIR_180(dir);
     if (good_rm_wall_doorpos(xp.v, yp.v, rdir, aroom)) return true;
+    // C ref: mklev.c finddpos_shift(). An irregular room's actual wall can be
+    // inset from its rectangular bounds; walk inward through rock/corridor to
+    // find the first usable wall on that side.
+    if (aroom.irregular) {
+        const dx = xdir[rdir], dy = ydir[rdir];
+        let rx = xp.v, ry = yp.v;
+        let fail = false;
+        for (;;) {
+            const loc = game.level.at(rx, ry);
+            if (fail || !isok(rx, ry) || !loc
+                || (loc.typ !== STONE && loc.typ !== CORR)) break;
+            rx += dx;
+            ry += dy;
+            if (good_rm_wall_doorpos(rx, ry, rdir, aroom)) {
+                xp.v = rx;
+                yp.v = ry;
+                return true;
+            }
+            const shifted = game.level.at(rx, ry);
+            if (!shifted || (shifted.typ !== STONE && shifted.typ !== CORR)) fail = true;
+            if (rx < aroom.lx || rx > aroom.hx || ry < aroom.ly || ry > aroom.hy)
+                fail = true;
+        }
+    }
     return false;
 }
 
@@ -1174,6 +1329,25 @@ function somex(croom) { return rn1(croom.hx - croom.lx + 1, croom.lx); }
 function somey(croom) { return rn1(croom.hy - croom.ly + 1, croom.ly); }
 
 function somexy(croom, c) {
+    // C ref: mkroom.c somexy(). An irregular room's bounding rectangle can
+    // contain transparent rock or disconnected wall cells, so membership is
+    // determined from flood-filled room numbers rather than bounds alone.
+    if (croom.irregular) {
+        const roomno = game.level.rooms.indexOf(croom) + ROOMOFFSET;
+        for (let tryCnt = 0; tryCnt < 100; tryCnt++) {
+            c.x = somex(croom);
+            c.y = somey(croom);
+            const loc = game.level.at(c.x, c.y);
+            if (loc && !loc.edge && loc.roomno === roomno) return true;
+        }
+        for (c.x = croom.lx; c.x <= croom.hx; c.x++) {
+            for (c.y = croom.ly; c.y <= croom.hy; c.y++) {
+                const loc = game.level.at(c.x, c.y);
+                if (loc && !loc.edge && loc.roomno === roomno) return true;
+            }
+        }
+        return false;
+    }
     if (!croom.nsubrooms) {
         c.x = somex(croom);
         c.y = somey(croom);
@@ -1872,6 +2046,12 @@ function bound_digging() {
 function set_wall_state() { /* no-op for contest */ }
 
 function level_finalize_topology() {
+    const dnum = game.u?.uz?.dnum ?? 0;
+    if (game._luathemes_loaded?.[dnum]) {
+        // C ref: mklev.c themerooms_post_level_generate(). Static maps retain
+        // generic wall glyphs until every room and corridor has been placed.
+        wallification(1, 0, COLNO - 1, ROWNO - 1);
+    }
     bound_digging();
     // mineralize is consumed by fastforward_fill_mineralize
     game.in_mklev = false;
