@@ -627,15 +627,6 @@ function oidPriceAdjustment(obj, oid, state) {
     return canVary && oid % 4 === 0 ? 1 : 0;
 }
 
-function deleteContents(container, env) {
-    while (container.cobj) {
-        const obj = container.cobj;
-        container.cobj = extractNobj(obj, container.cobj);
-        obj.ocontainer = null;
-        obfree(obj, null, env);
-    }
-}
-
 function preflightObfree(obj, merge, env) {
     if (obj.otyp === LEASH && obj.leashmon)
         requiredHook(env, 'unleashObject', obj);
@@ -697,7 +688,7 @@ export function obfree(obj, merge = null, rawEnv = {}) {
         env.state.context.spbook.book = null;
         env.state.context.spbook.o_id = 0;
     }
-    if (obj.cobj) deleteContents(obj, env);
+    if (obj.cobj) delete_contents(obj, env);
     if (isContainer(obj)) {
         const lock = env.state.xlock ?? env.state.context?.xlock;
         if (lock?.box === obj)
@@ -842,6 +833,42 @@ export function merged(otmp, obj, env = {}) {
     }
     obfree(obj, otmp, normalized);
     return true;
+}
+
+// C ref: invent.c stackobj(). Preserve the newly placed object by merging an
+// older compatible pile member into it, which is the pointer order used by C.
+export function stackobj(obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    if (obj?.where !== OBJ_FLOOR) {
+        throw new Error(
+            `stackobj: object where=${obj?.where}, expected floor`,
+        );
+    }
+    const pile = normalized.state.level?.objects?.[obj.ox]?.[obj.oy];
+    if (!pile)
+        throw new Error('stackobj: object is not on its floor pile');
+    for (let current = pile; current; current = current.nexthere) {
+        if (current !== obj && merged(obj, current, normalized)) break;
+    }
+    return obj;
+}
+
+// C ref: shk.c delete_contents(). Extracting each child before freeing it
+// updates container ownership and weight at the same source boundary as C.
+export function delete_contents(container, env = {}) {
+    const normalized = inventoryEnv(env);
+    for (let current = container?.cobj ?? null;
+        current;
+        current = current.nobj) {
+        preflightObjectExtraction(current, normalized);
+        preflightObfree(current, null, normalized);
+    }
+    while (container?.cobj) {
+        const current = container.cobj;
+        obj_extract_self(current, normalized);
+        obfree(current, null, normalized);
+    }
+    return container;
 }
 
 function inventoryIndex(invlet) {

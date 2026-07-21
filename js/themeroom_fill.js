@@ -27,7 +27,6 @@ import { makemon } from './makemon_create.js';
 import { is_female, is_male } from './mondata.js';
 import { mktrap } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { mkobj_at, mksobj_at } from './obj.js';
 import {
     ARMOR_CLASS,
     ARROW,
@@ -41,13 +40,17 @@ import {
 import { PM_GHOST } from './monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { get_location_coord } from './room_coordinates.js';
+import {
+    lspo_object,
+    new_sp_lev_object_context,
+} from './sp_lev_object.js';
 import { set_levltyp } from './terrain.js';
 import {
     selection_iterate,
     selection_room,
     select_themeroom_fill,
 } from './themerooms.js';
-import { begin_burn, spot_stop_timers, start_timer } from './timeout.js';
+import { spot_stop_timers, start_timer } from './timeout.js';
 
 const DEFAULT_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
@@ -74,6 +77,8 @@ function fillEnvironment(rawEnv = {}) {
         state,
         random,
         hooks: rawEnv.hooks ?? {},
+        spObjectContext: rawEnv.spObjectContext
+            ?? new_sp_lev_object_context(),
     };
 }
 
@@ -165,27 +170,7 @@ function createObject(specification, room, env) {
     // A replacement must return the finished object; none of the fallback
     // processing below runs after the hook returns.
     if (replacement) return replacement(specification, room, env);
-    const coordinate = themedCreationCoordinate(specification, room, env);
-    const objectEnv = themedCreationEnv(env);
-    const object = specification.id != null
-        ? mksobj_at(
-            specification.id,
-            coordinate.x,
-            coordinate.y,
-            true,
-            true,
-            objectEnv,
-        )
-        : mkobj_at(
-            specification.class,
-            coordinate.x,
-            coordinate.y,
-            true,
-            objectEnv,
-        );
-    if (specification.notBlessed) object.blessed = false;
-    if (specification.lit) begin_burn(object, false, objectEnv);
-    return object;
+    return lspo_object(specification, room, env);
 }
 
 function createMonster(specification, room, env) {
@@ -299,15 +284,15 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
             createObject({
                 ...specification,
                 coordinate,
-                notBlessed: true,
+                buc: 'not-blessed',
             }, room, env);
         }
     };
     equipment({ id: DAGGER }, 65);
     equipment({ class: WEAPON_CLASS }, 55);
     if (env.random.rn2(100) < 45) {
-        createObject({ id: BOW, coordinate, notBlessed: true }, room, env);
-        createObject({ id: ARROW, coordinate, notBlessed: true }, room, env);
+        createObject({ id: BOW, coordinate, buc: 'not-blessed' }, room, env);
+        createObject({ id: ARROW, coordinate, buc: 'not-blessed' }, room, env);
     }
     equipment({ class: ARMOR_CLASS }, 65);
     equipment({ class: RING_CLASS }, 20);

@@ -10,7 +10,7 @@ import {
 import { level_difficulty } from './dungeon.js';
 import { game } from './gstate.js';
 import { add_to_container } from './invent.js';
-import { is_rider } from './mondata.js';
+import { is_reviver } from './mondata.js';
 import {
     mkobj,
     mksobj,
@@ -44,7 +44,6 @@ import {
     WAND_CLASS,
 } from './objects.js';
 import { rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { S_TROLL } from './monsters.js';
 import { obj_stop_timers, stop_timer } from './timeout.js';
 
 const BOX_ITEM_PROBABILITIES = Object.freeze([
@@ -72,7 +71,7 @@ function sourceIsReviver(mnum, env) {
     const monster = env.state.mons?.[mnum];
     if (!monster)
         throw new Error('container corpse merging requires a monster catalog');
-    return is_rider(monster) || monster.mlet === S_TROLL;
+    return is_reviver(monster);
 }
 
 function containerEnv(env = {}) {

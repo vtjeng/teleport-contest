@@ -88,6 +88,7 @@
         "js/room_coordinates.js",
         "js/room_features.js",
         "js/rooms.js",
+        "js/sp_lev_object.js",
         "js/terrain.js",
         "js/teleport.js",
         "js/themeroom_data.js",

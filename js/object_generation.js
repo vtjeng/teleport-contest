@@ -8,17 +8,33 @@ import {
     isPermanentlyPoisoned,
     makeArtifact,
 } from './artifacts.js';
+import { LS_OBJECT } from './const.js';
 import { populateContainer } from './mkobj_container.js';
+import { del_light_source } from './light.js';
+import { is_reviver } from './mondata.js';
 import { monsterObject } from './monster_object.js';
-import { obj_no_longer_held } from './obj.js';
+import { obj_no_longer_held, remove_object } from './obj.js';
 import { obj_stop_timers } from './timeout.js';
 
 export function objectGenerationHooks(overrides = {}) {
     return {
         artifactCount,
+        deleteObjectLightSource: (obj, env) => {
+            del_light_source(LS_OBJECT, obj, env.state);
+        },
         isPermanentlyPoisoned,
         makeArtifact,
         monsterObject,
+        extractExternalObject: (obj, env) => remove_object(obj, env),
+        isReviver: (mnum, env) => {
+            const monster = env.state.mons?.[mnum];
+            if (!monster) {
+                throw new Error(
+                    `object merging requires monster ${mnum}`,
+                );
+            }
+            return is_reviver(monster);
+        },
         objectNoLongerHeld: obj_no_longer_held,
         populateContainer,
         stopObjectTimers: (obj, env) => {

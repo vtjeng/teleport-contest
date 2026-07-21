@@ -27,6 +27,7 @@ import {
     addinv,
     addinv_nomerge,
     assigninvlet,
+    delete_contents,
     freeinv,
     INVLET_BASIC,
     initializeInventory,
@@ -36,11 +37,15 @@ import {
     money_cnt,
     obj_extract_self,
     resetInventory,
+    stackobj,
     update_inventory,
     useupall,
 } from '../js/invent.js';
+import { GameMap } from '../js/game.js';
 import {
     newObject,
+    place_object,
+    remove_object,
     UnsupportedObjectOperationError,
     weight,
 } from '../js/obj.js';
@@ -171,6 +176,46 @@ test('add_to_container owns the cobj chain and extraction updates weight', () =>
         sack.owt,
         state.objects[SACK].oc_weight + ration.owt,
     );
+});
+
+test('stackobj preserves the newly placed floor object as merge target', () => {
+    const state = initializedState();
+    state.level = new GameMap();
+    const older = instance(APPLE, state, { quan: 2 });
+    const newer = instance(APPLE, state, { quan: 3 });
+    place_object(older, 10, 5, { state });
+    place_object(newer, 10, 5, { state });
+
+    assert.equal(stackobj(newer, {
+        state,
+        hooks: {
+            extractExternalObject(obj) {
+                remove_object(obj, { state });
+            },
+        },
+    }), newer);
+
+    assert.equal(state.level.objects[10][5], newer);
+    assert.equal(state.level.objlist, newer);
+    assert.equal(newer.quan, 5);
+    assert.equal(older.where, OBJ_DELETED);
+});
+
+test('delete_contents extracts and frees each child before returning', () => {
+    const state = initializedState();
+    const sack = instance(SACK, state);
+    const ration = instance(FOOD_RATION, state, { quan: 2 });
+    const apple = instance(APPLE, state);
+    addinv(sack, { state });
+    add_to_container(sack, ration, { state });
+    add_to_container(sack, apple, { state });
+
+    assert.equal(delete_contents(sack, { state }), sack);
+
+    assert.equal(sack.cobj, null);
+    assert.equal(sack.owt, state.objects[SACK].oc_weight);
+    assert.equal(ration.where, OBJ_DELETED);
+    assert.equal(apple.where, OBJ_DELETED);
 });
 
 test('add_to_buried owns a LIFO chain without changing coordinates', () => {

@@ -394,7 +394,7 @@ test('Ghost fill shares one coordinate and preserves equipment order', () => {
     );
     for (const [, specification] of requests.slice(1)) {
         assert.deepEqual(specification.coordinate, { x: 1, y: 0 });
-        assert.equal(specification.notBlessed, true);
+        assert.equal(specification.buc, 'not-blessed');
     }
     assert.ok(!requests.some(([, spec]) => spec.class === WEAPON_CLASS));
     assert.ok(!requests.some(([, spec]) => spec.class === RING_CLASS));
@@ -474,6 +474,15 @@ test('Ghost fill default path preserves the complete creation draw order', () =>
     assert.deepEqual(
         [dagger.blessed, dagger.cursed, dagger.spe],
         [false, false, 0],
+    );
+    assert.deepEqual(
+        [
+            dagger.oeroded,
+            dagger.oeroded2,
+            dagger.oerodeproof,
+            dagger.greased,
+        ],
+        [0, 0, false, false],
     );
 });
 

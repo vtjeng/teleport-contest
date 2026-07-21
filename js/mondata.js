@@ -378,6 +378,11 @@ export function is_rider(ptr) {
         || index === M.PM_PESTILENCE;
 }
 
+// C ref: mondata.h is_reviver().
+export function is_reviver(ptr) {
+    return is_rider(ptr) || ptr?.mlet === M.S_TROLL;
+}
+
 function isElf(ptr) {
     return Boolean(ptr.mflags2 & M.M2_ELF);
 }
