@@ -60,7 +60,6 @@ export class NethackGame {
         this._animFramesByStep = [];
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
-        this._nhgetchCount = 0;
     }
 
     // Universal animation-frame hook.  Call once per intermediate
@@ -184,8 +183,6 @@ export class NethackGame {
     _installCaptureHook() {
         const nhGame = this;
         game._preNhgetchHook = async () => {
-            nhGame._nhgetchCount++;
-
             // Capture RNG slice since last capture
             const fullLog = getRngLog() || [];
             const slice = fullLog.slice(nhGame._lastRngIdx);

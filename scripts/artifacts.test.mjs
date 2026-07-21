@@ -35,12 +35,8 @@ const ARTI_INFO_FIELDS = [
     'viadip', 'lvldef', 'bones', 'rndm',
 ];
 
-function roleByFilecode(filecode) {
-    return roles.find((role) => role.filecode === filecode);
-}
-
 function stateFor(filecode, alignmentName, raceName = 'human') {
-    const role = roleByFilecode(filecode);
+    const role = roles.find((candidate) => candidate.filecode === filecode);
     const alignmentIndex = aligns.findIndex(
         (alignment) => alignment.name === alignmentName,
     );

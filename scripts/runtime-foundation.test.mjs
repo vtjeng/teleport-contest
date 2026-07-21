@@ -211,7 +211,7 @@ test('tty startup ignores the window-port splash option', async () => {
     });
 
     assert.equal(game.iflags.wc_splash_screen, true);
-    assert.equal(nhGame._nhgetchCount, 1);
+    assert.equal(nhGame.getScreens().length, 1);
 });
 
 test('runSegment reaches the configured legacy introduction boundary', async () => {
@@ -303,7 +303,7 @@ test('a command message remains on the next command screen', async () => {
     const topline = game.nhDisplay.grid[0]
         .map((cell) => cell.ch).join('').trimEnd();
 
-    assert.equal(nhGame._nhgetchCount, 3);
+    assert.equal(nhGame.getScreens().length, 3);
     assert.equal(topline, "Unknown command ' '.");
 });
 
