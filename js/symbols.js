@@ -1,4 +1,4 @@
-// symbols.js -- Primary cmap symbol initialization and selection.
+// symbols.js -- Primary display-symbol initialization and selection.
 // C refs: drawing.c:defsyms; symbols.c:init_symbols(), switch_symbols();
 // options.c:sym_val(); dat/symbols.
 
@@ -13,9 +13,33 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { encodeUtf8ByteString } from './hacklib.js';
-import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
+import {
+    DEFAULT_PRIMARY_SYMBOLS,
+    DEFAULT_ROGUE_SYMBOLS,
+    SYMBOL_INDEX_BY_NAME,
+    SYMBOL_SET_DEFINITIONS,
+    SYM_MAX,
+    SYM_OFF_M,
+    SYM_OFF_O,
+    SYM_OFF_P,
+    SYM_OFF_W,
+    SYM_OFF_X,
+} from './symbol_data.js';
+
+export {
+    SYM_MAX,
+    SYM_OFF_M,
+    SYM_OFF_O,
+    SYM_OFF_P,
+    SYM_OFF_W,
+    SYM_OFF_X,
+};
 
 export const MAXPCHARS = 105;
+export const MAXOCLASSES = 18;
+export const MAXMCLASSES = 61;
+export const WARNCOUNT = 6;
+export const MAXOTHER = 6;
 
 export const S_stone = 0;
 export const S_vwall = 1;
@@ -34,6 +58,7 @@ export const S_vodoor = 13;
 export const S_hodoor = 14;
 export const S_vcdoor = 15;
 export const S_hcdoor = 16;
+export const S_bars = 17;
 export const S_tree = 18;
 export const S_room = 19;
 export const S_corr = 22;
@@ -42,62 +67,24 @@ export const S_upstair = 25;
 export const S_dnstair = 26;
 export const S_brupstair = 29;
 export const S_brdnstair = 30;
-
-const CMAP_NAMES = Object.freeze([
-    'S_stone', 'S_vwall', 'S_hwall', 'S_tlcorn', 'S_trcorn',
-    'S_blcorn', 'S_brcorn', 'S_crwall', 'S_tuwall', 'S_tdwall',
-    'S_tlwall', 'S_trwall', 'S_ndoor', 'S_vodoor', 'S_hodoor',
-    'S_vcdoor', 'S_hcdoor', 'S_bars', 'S_tree', 'S_room',
-    'S_darkroom', 'S_engroom', 'S_corr', 'S_litcorr', 'S_engrcorr',
-    'S_upstair', 'S_dnstair', 'S_upladder', 'S_dnladder',
-    'S_brupstair', 'S_brdnstair', 'S_brupladder', 'S_brdnladder',
-    'S_altar', 'S_grave', 'S_throne', 'S_sink', 'S_fountain', 'S_pool',
-    'S_ice', 'S_lava', 'S_lavawall', 'S_vodbridge', 'S_hodbridge',
-    'S_vcdbridge', 'S_hcdbridge', 'S_air', 'S_cloud', 'S_water',
-    'S_arrow_trap', 'S_dart_trap', 'S_falling_rock_trap',
-    'S_squeaky_board', 'S_bear_trap', 'S_land_mine',
-    'S_rolling_boulder_trap', 'S_sleeping_gas_trap', 'S_rust_trap',
-    'S_fire_trap', 'S_pit', 'S_spiked_pit', 'S_hole', 'S_trap_door',
-    'S_teleportation_trap', 'S_level_teleporter', 'S_magic_portal',
-    'S_web', 'S_statue_trap', 'S_magic_trap', 'S_anti_magic_trap',
-    'S_polymorph_trap', 'S_vibrating_square', 'S_trapped_door',
-    'S_trapped_chest', 'S_vbeam', 'S_hbeam', 'S_lslant', 'S_rslant',
-    'S_digbeam', 'S_flashbeam', 'S_boomleft', 'S_boomright', 'S_ss1',
-    'S_ss2', 'S_ss3', 'S_ss4', 'S_poisoncloud', 'S_goodpos', 'S_sw_tl',
-    'S_sw_tc', 'S_sw_tr', 'S_sw_ml', 'S_sw_mr', 'S_sw_bl', 'S_sw_bc',
-    'S_sw_br', 'S_expl_tl', 'S_expl_tc', 'S_expl_tr', 'S_expl_ml',
-    'S_expl_mc', 'S_expl_mr', 'S_expl_bl', 'S_expl_bc', 'S_expl_br',
-]);
+export const S_altar = 33;
+export const S_grave = 34;
+export const S_throne = 35;
+export const S_sink = 36;
+export const S_fountain = 37;
+export const S_pool = 38;
+export const S_ice = 39;
+export const S_lava = 40;
+export const S_lavawall = 41;
+export const S_air = 46;
+export const S_cloud = 47;
+export const S_water = 48;
 
 // drawing.c:defsyms, in enum cmap_symbols order. Store bytes like C does;
 // the tty-specific DEC high bit is interpreted only when a symbol is drawn.
-export const DEFAULT_CMAP_SYMBOLS = Object.freeze([
-    ' ', '|', '-', '-', '-', '-', '-', '-', '-', '-', '|', '|', '.', '-',
-    '|', '+', '+', '#', '#', '.', '.', '`', '#', '#', '#', '<', '>', '<',
-    '>', '<', '>', '<', '>', '_', '|', '\\', '{', '{', '}', '.', '}', '}',
-    '.', '.', '#', '#', ' ', '#', '}', '^', '^', '^', '^', '^', '^', '^',
-    '^', '^', '^', '^', '^', '^', '^', '^', '^', '^', '"', '^', '^', '^',
-    '^', '~', '^', '^', '|', '-', '\\', '/', '*', '!', ')', '(', '0', '#',
-    '@', '*', '#', '$', '/', '-', '\\', '|', '|', '\\', '-', '/', '/', '-',
-    '\\', '|', ' ', '|', '\\', '-', '/',
-].map((character) => character.charCodeAt(0)));
-
-const CMAP_INDEX_BY_OPTION = Object.freeze(Object.fromEntries(
-    CMAP_NAMES.map((name, index) => [name.toLowerCase(), index]),
-));
-
-// Alternate explosion spellings accepted by symbols.c:match_sym().
-const CMAP_OPTION_ALIASES = Object.freeze({
-    s_explode1: 96,
-    s_explode2: 97,
-    s_explode3: 98,
-    s_explode4: 99,
-    s_explode5: 100,
-    s_explode6: 101,
-    s_explode7: 102,
-    s_explode8: 103,
-    s_explode9: 104,
-});
+export const DEFAULT_CMAP_SYMBOLS = Object.freeze(
+    DEFAULT_PRIMARY_SYMBOLS.slice(SYM_OFF_P, SYM_OFF_O),
+);
 
 const HANDLING_BY_NAME = Object.freeze({
     UNKNOWN: H_UNK,
@@ -120,16 +107,6 @@ const CP437_HIGH = Object.freeze(Array.from(
     + 'αßΓπΣσµτΦΘΩδ∞φε∩'
     + '≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ',
 ));
-
-const DEFAULT_ROGUE_CMAP_SYMBOLS = Object.freeze((() => {
-    const symbols = [...DEFAULT_CMAP_SYMBOLS];
-    symbols[S_ndoor] = '+'.charCodeAt(0);
-    symbols[S_vodoor] = '+'.charCodeAt(0);
-    symbols[S_hodoor] = '+'.charCodeAt(0);
-    symbols[S_upstair] = '%'.charCodeAt(0);
-    symbols[S_dnstair] = '%'.charCodeAt(0);
-    return symbols;
-})());
 
 function graphicsState(state) {
     state.gp ??= {};
@@ -162,11 +139,11 @@ function slotArrays(set, state) {
 function resetSymbolSlot(set, state) {
     const rogue = set === ROGUESET;
     if (rogue) {
-        state.gr.rogue_syms = [...DEFAULT_ROGUE_CMAP_SYMBOLS];
-        state.gr.rogue_utf8_syms = Array(MAXPCHARS).fill(null);
+        state.gr.rogue_syms = [...DEFAULT_ROGUE_SYMBOLS];
+        state.gr.rogue_utf8_syms = Array(SYM_MAX).fill(null);
     } else {
-        state.gp.primary_syms = [...DEFAULT_CMAP_SYMBOLS];
-        state.gp.primary_utf8_syms = Array(MAXPCHARS).fill(null);
+        state.gp.primary_syms = [...DEFAULT_PRIMARY_SYMBOLS];
+        state.gp.primary_utf8_syms = Array(SYM_MAX).fill(null);
     }
     state.gs.symset[set] = {
         name: null,
@@ -174,6 +151,7 @@ function resetSymbolSlot(set, state) {
         // init_rogue_symbols() makes this table colorless after clearing the
         // symset metadata. Named Rogue sets start through that same path.
         nocolor: rogue ? 1 : 0,
+        glyphs: Object.freeze({}),
     };
 }
 
@@ -202,6 +180,7 @@ function loadSymbolSet(name, set, state) {
             name: null,
             handling: H_UNK,
             nocolor: 0,
+            glyphs: Object.freeze({}),
         };
         return;
     }
@@ -224,6 +203,7 @@ function loadSymbolSet(name, set, state) {
     const entry = state.gs.symset[set];
     entry.name = String(name);
     entry.handling = HANDLING_BY_NAME[definition.handling] ?? H_UNK;
+    entry.glyphs = definition.glyphs;
     if (definition.color !== null) entry.nocolor = definition.color ? 0 : 1;
 }
 
@@ -231,10 +211,10 @@ function loadSymbolSet(name, set, state) {
 // init_rogue_symbols(), and the two override initializers.
 export function init_symbols(state = game) {
     graphicsState(state);
-    state.go.ov_primary_syms = Array(MAXPCHARS).fill(0);
-    state.go.ov_primary_utf8_syms = Array(MAXPCHARS).fill(null);
-    state.go.ov_rogue_syms = Array(MAXPCHARS).fill(0);
-    state.go.ov_rogue_utf8_syms = Array(MAXPCHARS).fill(null);
+    state.go.ov_primary_syms = Array(SYM_MAX).fill(0);
+    state.go.ov_primary_utf8_syms = Array(SYM_MAX).fill(null);
+    state.go.ov_rogue_syms = Array(SYM_MAX).fill(0);
+    state.go.ov_rogue_utf8_syms = Array(SYM_MAX).fill(null);
     resetSymbolSlot(PRIMARYSET, state);
     resetSymbolSlot(ROGUESET, state);
     state.gc.currentgraphics = PRIMARYSET;
@@ -331,8 +311,8 @@ export function sym_val(value) {
     return escapedFirstByte(bytes) & 0xFF;
 }
 
-function cmapIndex(name) {
-    return CMAP_INDEX_BY_OPTION[name] ?? CMAP_OPTION_ALIASES[name];
+function symbolIndex(name) {
+    return SYMBOL_INDEX_BY_NAME[name];
 }
 
 function unicodeOverride(value) {
@@ -353,7 +333,7 @@ function applySymbolAssignments(operation, state) {
     const arrays = slotArrays(set, state);
     const utf8Handling = state.gs.symset[set].handling === H_UTF8;
     for (const assignment of operation.assignments) {
-        const index = cmapIndex(assignment.name);
+        const index = symbolIndex(assignment.name);
         if (index === undefined) continue;
         const utf8 = unicodeOverride(assignment.rawValue);
         if (utf8Handling || utf8 !== undefined) {
@@ -407,13 +387,13 @@ function fallbackOperations(options) {
         });
     }
     const primary = Object.entries(options.flags ?? {})
-        .filter(([name]) => cmapIndex(name) !== undefined)
+        .filter(([name]) => symbolIndex(name) !== undefined)
         .map(([name, rawValue]) => ({ name, rawValue }));
     if (primary.length) {
         operations.push({ kind: 'override', set: 'primary', assignments: primary });
     }
     const rogue = Object.entries(options.rogueSymbols ?? {})
-        .filter(([name]) => cmapIndex(name) !== undefined)
+        .filter(([name]) => symbolIndex(name) !== undefined)
         .map(([name, rawValue]) => ({ name, rawValue }));
     if (rogue.length) {
         operations.push({ kind: 'override', set: 'rogue', assignments: rogue });
@@ -455,10 +435,24 @@ export function initialize_symbols_from_options(options, state = game) {
     }
 }
 
-export function cmap_symbol(index, state = game) {
+function rawSymbol(index, state) {
+    return state.gs?.showsyms?.[index]
+        ?? state.gp?.primary_syms?.[index]
+        ?? DEFAULT_PRIMARY_SYMBOLS[index]
+        ?? '?'.charCodeAt(0);
+}
+
+/** Convert any absolute symbols.c index to recorder/browser presentation. */
+export function symbol_at(
+    index,
+    state = game,
+    { allowUnicode = true } = {},
+) {
+    if (!Number.isInteger(index) || index < 0 || index >= SYM_MAX)
+        throw new RangeError(`symbol index ${index} is outside SYM_MAX`);
     const activeSet = state.gc?.currentgraphics ?? PRIMARYSET;
     const handling = state.gs?.symset?.[activeSet]?.handling ?? H_UNK;
-    const unicode = handling === H_UTF8
+    const unicode = allowUnicode && handling === H_UTF8
         && state.iflags?.customsymbols !== false
         ? state.gs?.showutf8?.[index]
         : null;
@@ -468,10 +462,7 @@ export function cmap_symbol(index, state = game) {
         // browser still receives the source glyph.
         return { ch: null, dec: false, displayCh: unicode };
     }
-    const byte = state.gs?.showsyms?.[index]
-        ?? state.gp?.primary_syms?.[index]
-        ?? DEFAULT_CMAP_SYMBOLS[index]
-        ?? '?'.charCodeAt(0);
+    const byte = rawSymbol(index, state);
     const high = (byte & 0x80) !== 0;
     const low = byte & 0x7F;
     const eightBit = Boolean(state.iflags?.wc_eight_bit_input);
@@ -480,4 +471,71 @@ export function cmap_symbol(index, state = game) {
     const result = { ch: String.fromCharCode(high ? low : byte), dec };
     if (high && handling === H_IBM) result.displayCh = CP437_HIGH[low];
     return result;
+}
+
+export function cmap_symbol(index, state = game) {
+    if (!Number.isInteger(index) || index < 0 || index >= MAXPCHARS)
+        throw new RangeError(`cmap index ${index} is outside MAXPCHARS`);
+    return symbol_at(SYM_OFF_P + index, state);
+}
+
+export function monster_class_symbol(mlet, state = game) {
+    if (!Number.isInteger(mlet) || mlet < 0 || mlet >= MAXMCLASSES)
+        throw new RangeError(`monster class ${mlet} is outside MAXMCLASSES`);
+    return symbol_at(SYM_OFF_M + mlet, state);
+}
+
+// glyphs.c's find_oc() applies an S_* Unicode customization to a concrete
+// object only when the glyph's object index is the generic class entry.  Byte
+// symbol tables still apply class-wide, as they do in showsyms[].
+export function object_class_symbol(oclass, state = game, otyp = oclass) {
+    if (!Number.isInteger(oclass) || oclass < 0 || oclass >= MAXOCLASSES)
+        throw new RangeError(`object class ${oclass} is outside MAXOCLASSES`);
+    return symbol_at(SYM_OFF_O + oclass, state, {
+        allowUnicode: otyp === oclass,
+    });
+}
+
+export function misc_symbol(index, state = game) {
+    if (!Number.isInteger(index) || index < 0 || index >= MAXOTHER)
+        throw new RangeError(`misc symbol ${index} is outside MAXOTHER`);
+    return symbol_at(SYM_OFF_X + index, state);
+}
+
+export function optional_misc_symbol(index, state = game) {
+    const absolute = SYM_OFF_X + index;
+    const activeSet = state.gc?.currentgraphics ?? PRIMARYSET;
+    const unicode = state.gs?.symset?.[activeSet]?.handling === H_UTF8
+        && state.iflags?.customsymbols !== false
+        ? state.gs?.showutf8?.[absolute]
+        : null;
+    if (!unicode && rawSymbol(absolute, state) === 0) return null;
+    return symbol_at(absolute, state);
+}
+
+function parseGlyphCustomization(raw) {
+    if (typeof raw !== 'string') return null;
+    const [symbolPart, colorPart] = raw.split('/', 2);
+    const match = symbolPart.match(/^U\+([0-9a-f]{1,6})$/iu);
+    if (!match) return null;
+    const codePoint = Number.parseInt(match[1], 16);
+    if (!codePoint || codePoint > 0x10FFFF
+        || (codePoint >= 0xD800 && codePoint <= 0xDFFF)) return null;
+    let rgb = null;
+    if (colorPart && /^\d{1,3}-\d{1,3}-\d{1,3}$/u.test(colorPart)) {
+        const channels = colorPart.split('-').map(Number);
+        if (channels.every((channel) => channel >= 0 && channel <= 255))
+            rgb = channels;
+    }
+    return { displayCh: String.fromCodePoint(codePoint), rgb };
+}
+
+/** Named G_* customization for a concrete glyph family. */
+export function glyph_customization(name, state = game) {
+    const activeSet = state.gc?.currentgraphics ?? PRIMARYSET;
+    if (state.gs?.symset?.[activeSet]?.handling !== H_UTF8
+        || state.iflags?.customsymbols === false) return null;
+    return parseGlyphCustomization(
+        state.gs?.symset?.[activeSet]?.glyphs?.[name],
+    );
 }

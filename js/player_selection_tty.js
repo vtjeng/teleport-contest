@@ -37,8 +37,9 @@ import {
     races,
     roles,
 } from './roles.js';
-import { ATR_INVERSE, NO_COLOR } from './terminal.js';
+import { NO_COLOR } from './terminal.js';
 import {
+    menuTitleStyle,
     resetRoleFilteringTty,
     selectTtyMenu,
 } from './tty_menu.js';
@@ -65,16 +66,6 @@ function selectionFilter(state) {
 function gotRoleFilter(state) {
     const filter = selectionFilter(state);
     return Boolean(filter.mask || filter.roles?.some(Boolean));
-}
-
-function menuTitleStyle(state) {
-    const style = state.iflags?.menu_headings;
-    return {
-        titleAttr: Number.isInteger(style?.attr)
-            ? style.attr : ATR_INVERSE,
-        titleColor: Number.isInteger(style?.color)
-            ? style.color : NO_COLOR,
-    };
 }
 
 function clipComponent(value) {

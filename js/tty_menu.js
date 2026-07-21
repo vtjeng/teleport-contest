@@ -45,6 +45,16 @@ const MENU_INVERT_PAGE = '~';
 const MENU_SEARCH = ':';
 const SEARCH_PROMPT = 'Search for: ';
 
+export function menuTitleStyle(state = game) {
+    const style = state.iflags?.menu_headings;
+    return {
+        titleAttr: Number.isInteger(style?.attr)
+            ? style.attr : ATR_INVERSE,
+        titleColor: Number.isInteger(style?.color)
+            ? style.color : NO_COLOR,
+    };
+}
+
 function copyRegion(display, firstColumn, rowCount) {
     return display.grid.slice(0, rowCount).map((row) => (
         row.slice(firstColumn).map((cell) => ({
@@ -1066,14 +1076,10 @@ function alignmentFilterItems(filter) {
 // C ref: role.c reset_role_filtering() and setup_*menu(..., FALSE, ...).
 export function buildRoleFilterMenuSpec(state = game) {
     const filter = roleFilterState(state);
-    const headingStyle = state.iflags?.menu_headings;
     return {
         title: `Pick all that apply${gotRoleFilter(state)
             ? ' and/or unpick any that no longer apply' : ''}`,
-        titleAttr: Number.isInteger(headingStyle?.attr)
-            ? headingStyle.attr : ATR_INVERSE,
-        titleColor: Number.isInteger(headingStyle?.color)
-            ? headingStyle.color : NO_COLOR,
+        ...menuTitleStyle(state),
         items: [
             ...roleFilterItems(filter),
             ...raceFilterItems(filter),

@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
+    FROMOUTSIDE,
     HWALL,
     LS_OBJECT,
     OBJ_FLOOR,
@@ -18,6 +20,7 @@ import { begin_burn, timeout_globals_init } from '../js/timeout.js';
 import {
     cansee,
     clear_path,
+    couldsee,
     init_vision_globals,
     vision_recalc,
     vision_reset,
@@ -96,6 +99,25 @@ test('a blocking wall stops candle light along clear_path', () => {
     assert.equal(state.viz_array[5][7] & TEMP_LIT, 0);
     assert.equal(cansee(7, 5), false);
     assert.equal(state.level.at(7, 5).disp_ch, ' ');
+});
+
+test('blind vision retains monster line of sight without hero IN_SIGHT', () => {
+    const state = darkRoomState();
+    state.u.uprops = [];
+    state.u.uprops[BLINDED] = {
+        intrinsic: FROMOUTSIDE,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    floorCandle(state, 10, 7);
+
+    vision_reset();
+    vision_recalc(0);
+
+    assert.equal(couldsee(10, 7), true);
+    assert.equal(cansee(state.u.ux, state.u.uy), false);
+    assert.equal(cansee(10, 7), false);
+    assert.equal(state.viz_array[7][10] & TEMP_LIT, 0);
 });
 
 test('vision refresh follows a moved floor light source without PRNG work', () => {

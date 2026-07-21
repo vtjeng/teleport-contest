@@ -127,3 +127,22 @@ export function remove_monster(x, y, state = game) {
     if (grid[x]) grid[x][y] = null;
     return monster;
 }
+
+// C refs: teleport.c rloc_to_core(); mon.c mon_track_clear(). This is the
+// placement-state core shared by source-faithful relocation callers; display,
+// region, trap, and shop effects remain with those callers.
+export function relocate_monster(monster, x, y, state = game) {
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('relocate_monster requires a monster instance');
+    if (m_at(monster.mx, monster.my, state) !== monster) {
+        throw new Error(
+            `relocate_monster: monster is not at <${monster.mx},${monster.my}>`,
+        );
+    }
+    remove_monster(monster.mx, monster.my, state);
+    for (const coordinate of monster.mtrack ?? []) {
+        coordinate.x = 0;
+        coordinate.y = 0;
+    }
+    return place_monster(monster, x, y, state);
+}

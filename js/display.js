@@ -2,22 +2,65 @@
 // C ref: display.c — newsym, show_glyph, docrt, cls, flush_screen.
 
 import { game } from './gstate.js';
+import { money_cnt } from './invent.js';
 import { cansee } from './vision.js';
 import {
+    A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
+    BLINDED, CONFUSION, DEAF, FLYING, HALLUC, HALLUC_RES,
+    LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
+    SLIMED, STONED, STR18, STRANGLED, STUNNED,
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER, SDOOR,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
+    IRONBARS, TREE, ALTAR, GRAVE, THRONE, SINK, FOUNTAIN,
+    POOL, MOAT, ICE, LAVAPOOL, LAVAWALL, AIR, CLOUD, WATER,
     D_BROKEN, D_ISOPEN, LA_DOWN,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     WM_MASK, WM_C_OUTER, WM_C_INNER,
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
+    HI_DOMESTIC, HI_METAL,
 } from './const.js';
-import { NO_COLOR, CLR_BROWN, CLR_WHITE, CLR_YELLOW, DEC_TO_UNICODE } from './terminal.js';
+import {
+    NO_COLOR,
+    CLR_BLACK,
+    CLR_BLUE,
+    CLR_BROWN,
+    CLR_BRIGHT_BLUE,
+    CLR_CYAN,
+    CLR_GREEN,
+    CLR_GRAY,
+    CLR_ORANGE,
+    CLR_RED,
+    CLR_WHITE,
+    CLR_YELLOW,
+    DEC_TO_UNICODE,
+} from './terminal.js';
 import { rankOf } from './roles.js';
+import { m_at } from './monst.js';
+import { dist2 } from './hacklib.js';
+import { observe_object } from './o_init.js';
+import { status_version } from './version.js';
+import {
+    BOULDER,
+    CORPSE,
+    FIRST_REAL_GEM,
+    FIRST_SPELL,
+    FOOD_CLASS,
+    LAST_GLASS_GEM,
+    LAST_SPELL,
+    POTION_CLASS,
+    STATUE,
+} from './objects.js';
 import {
     cmap_symbol,
+    glyph_customization,
+    misc_symbol,
+    monster_class_symbol,
+    object_class_symbol,
+    optional_misc_symbol,
     S_stone,
+    S_bars,
     S_tree,
     S_vwall,
     S_hwall,
@@ -42,6 +85,18 @@ import {
     S_dnstair,
     S_brupstair,
     S_brdnstair,
+    S_altar,
+    S_grave,
+    S_throne,
+    S_sink,
+    S_fountain,
+    S_pool,
+    S_ice,
+    S_lava,
+    S_lavawall,
+    S_air,
+    S_cloud,
+    S_water,
 } from './symbols.js';
 
 // ── ANSI color codes ──
@@ -317,15 +372,17 @@ function mapColorEnabled(state) {
         && !state.gs?.symset?.[activeSet]?.nocolor;
 }
 
+function recorderMapColor(color, state) {
+    if (!mapColorEnabled(state)) return NO_COLOR;
+    // recorder patch 006 serializes terminal-default gray without an ANSI
+    // color and cannot retain a zero-valued black foreground.  Both decode
+    // as NO_COLOR, matching how the tty presents ordinary gray glyphs.
+    if (color === CLR_GRAY || color === CLR_BLACK) return NO_COLOR;
+    return color;
+}
+
 function terrainCmap(index, color, state) {
-    const symbol = cmap_symbol(index, state);
-    const result = {
-        ch: symbol.ch,
-        color: mapColorEnabled(state) ? color : NO_COLOR,
-        dec: symbol.dec,
-    };
-    if (symbol.displayCh) result.displayCh = symbol.displayCh;
-    return result;
+    return glyphPresentation(cmap_symbol(index, state), color, state);
 }
 
 function stairwayAt(state, x, y) {
@@ -335,8 +392,77 @@ function stairwayAt(state, x, y) {
     return null;
 }
 
-function heroColor(state) {
-    return state.iflags?.wc_color === false ? NO_COLOR : CLR_WHITE;
+function glyphPresentation(symbol, color, state) {
+    const result = {
+        ch: symbol.ch,
+        color: recorderMapColor(color, state),
+        dec: symbol.dec,
+    };
+    if (symbol.displayCh) result.displayCh = symbol.displayCh;
+    return result;
+}
+
+function accessibilityOverridesEnabled(state) {
+    // C ref: display.c map_glyphinfo() and reset_glyphmap().  Merely defining
+    // S_hero_override or S_pet_override is insufficient; sysconf must also
+    // enable the accessibility glyph behavior.
+    return state.sysopt?.accessibility === 1;
+}
+
+export function hero_glyph_info(state = game) {
+    const showRace = Boolean(state.flags?.showrace);
+    const mnum = showRace ? state.urace?.mnum : state.u?.umonnum;
+    const species = state.mons?.[mnum] ?? state.youmonst?.data;
+    const symbol = (accessibilityOverridesEnabled(state)
+        ? optional_misc_symbol(5, state) : null)
+        ?? monster_class_symbol(species?.mlet ?? 53, state);
+    return glyphPresentation(
+        symbol,
+        showRace ? HI_DOMESTIC : species?.mcolor ?? CLR_WHITE,
+        state,
+    );
+}
+
+export function monster_glyph_info(monster, state = game) {
+    if (!monster?.data)
+        throw new TypeError('monster_glyph_info requires monster data');
+    const symbol = monster.mtame && accessibilityOverridesEnabled(state)
+        ? optional_misc_symbol(4, state)
+            ?? monster_class_symbol(monster.data.mlet, state)
+        : monster_class_symbol(monster.data.mlet, state);
+    return glyphPresentation(symbol, monster.data.mcolor, state);
+}
+
+// C ref: display.h obj_is_generic().  Unobserved potions, real/glass gems,
+// and ordinary spellbooks conceal their description color until nearby.
+export function object_is_generic(obj) {
+    return !obj?.dknown
+        && (obj?.oclass === POTION_CLASS
+            || (obj?.otyp >= FIRST_REAL_GEM && obj.otyp <= LAST_GLASS_GEM)
+            || (obj?.otyp >= FIRST_SPELL && obj.otyp <= LAST_SPELL));
+}
+
+export function object_glyph_info(obj, state = game) {
+    if (!obj) throw new TypeError('object_glyph_info requires an object');
+    const generic = object_is_generic(obj);
+    const type = state.objects?.[generic ? obj.oclass : obj.otyp];
+    let symbol;
+    let color = type?.oc_color ?? NO_COLOR;
+    if (obj.otyp === BOULDER) {
+        symbol = misc_symbol(2, state);
+    } else if (obj.otyp === STATUE && state.mons?.[obj.corpsenm]) {
+        symbol = monster_class_symbol(state.mons[obj.corpsenm].mlet, state);
+    } else {
+        const objectClass = obj.otyp === CORPSE ? FOOD_CLASS : obj.oclass;
+        symbol = object_class_symbol(
+            objectClass,
+            state,
+            generic ? objectClass : obj.otyp,
+        );
+        if (obj.otyp === CORPSE && state.mons?.[obj.corpsenm])
+            color = state.mons[obj.corpsenm].mcolor;
+    }
+    return glyphPresentation(symbol, color, state);
 }
 
 // ── Terrain to display character + color + DEC flag ──
@@ -355,6 +481,39 @@ export function terrain_glyph(loc, x, y, state = game) {
         return terrainCmap(S_stone, NO_COLOR, state);
     case ROOM:
         return terrainCmap(S_room, NO_COLOR, state);
+    case IRONBARS:
+        return terrainCmap(S_bars, HI_METAL, state);
+    case TREE:
+        return terrainCmap(S_tree, CLR_GREEN, state);
+    case ALTAR:
+        return terrainCmap(S_altar, NO_COLOR, state);
+    case GRAVE:
+        return terrainCmap(S_grave, CLR_WHITE, state);
+    case THRONE:
+        return terrainCmap(S_throne, CLR_YELLOW, state);
+    case SINK:
+        return terrainCmap(S_sink, CLR_WHITE, state);
+    case FOUNTAIN: {
+        const glyph = terrainCmap(S_fountain, CLR_BRIGHT_BLUE, state);
+        const customization = glyph_customization('G_fountain', state);
+        if (customization?.displayCh) glyph.displayCh = customization.displayCh;
+        return glyph;
+    }
+    case POOL:
+    case MOAT:
+        return terrainCmap(S_pool, CLR_BLUE, state);
+    case ICE:
+        return terrainCmap(S_ice, CLR_CYAN, state);
+    case LAVAPOOL:
+        return terrainCmap(S_lava, CLR_RED, state);
+    case LAVAWALL:
+        return terrainCmap(S_lavawall, CLR_ORANGE, state);
+    case AIR:
+        return terrainCmap(S_air, CLR_CYAN, state);
+    case CLOUD:
+        return terrainCmap(S_cloud, NO_COLOR, state);
+    case WATER:
+        return terrainCmap(S_water, CLR_BRIGHT_BLUE, state);
     case CORR: {
         const lit = Boolean(loc.waslit || state.flags?.lit_corridor);
         const cmap = lit ? S_litcorr : S_corr;
@@ -428,7 +587,7 @@ export function show_glyph_cell(
     loc.gnew = 1;
 }
 
-function rememberedTerrainGlyph(glyph) {
+function rememberedMapGlyph(glyph) {
     return {
         ch: glyph.ch,
         color: glyph.color,
@@ -437,36 +596,52 @@ function rememberedTerrainGlyph(glyph) {
     };
 }
 
+function observeNearbyObject(object, x, y, state) {
+    if (!object_is_generic(object) || !cansee(x, y)) return;
+    const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;
+    const nearDistance = radius * radius * 2 - radius;
+    if (dist2(x, y, state.u?.ux ?? 0, state.u?.uy ?? 0) <= nearDistance)
+        observe_object(object, state);
+}
+
 // ── newsym ──
 export function newsym(x, y) {
     const loc = game.level?.at(x, y);
     if (!loc) return;
 
+    const object = game.level?.objects?.[x]?.[y] ?? null;
+    if (object) observeNearbyObject(object, x, y, game);
+    const underlying = object
+        ? object_glyph_info(object, game)
+        : terrain_glyph(loc, x, y);
+
     if (game.u?.ux === x && game.u?.uy === y) {
-        // Hero
-        show_glyph_cell(x, y, '@', heroColor(game), false);
-        const tg = terrain_glyph(loc, x, y);
-        loc.remembered_glyph = rememberedTerrainGlyph(tg);
+        const hero = hero_glyph_info(game);
+        show_glyph_cell(
+            x, y, hero.ch, hero.color, hero.dec, 0, hero.displayCh ?? null,
+        );
+        if (game.level?.flags?.hero_memory)
+            loc.remembered_glyph = rememberedMapGlyph(underlying);
         return;
     }
 
-    // Contestants: add monster, object, and trap display here.
-
-    const tg = terrain_glyph(loc, x, y);
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (cansee(x, y)) {
+        if (game.level?.flags?.hero_memory)
+            loc.remembered_glyph = rememberedMapGlyph(underlying);
+        const monster = m_at(x, y, game);
+        const shown = monster && !monster.minvis && !monster.mundetected
+            ? monster_glyph_info(monster, game)
+            : underlying;
         show_glyph_cell(
             x,
             y,
-            tg.ch,
-            tg.color,
-            tg.dec,
+            shown.ch,
+            shown.color,
+            shown.dec,
             0,
-            tg.displayCh ?? null,
+            shown.displayCh ?? null,
         );
-        if (game.level?.flags?.hero_memory) {
-            loc.remembered_glyph = rememberedTerrainGlyph(tg);
-        }
     } else if (loc.remembered_glyph) {
         // Out of sight but remembered — show remembered glyph
         show_glyph_cell(x, y, loc.remembered_glyph.ch,
@@ -479,25 +654,7 @@ export function newsym(x, y) {
 export async function docrt() {
     if (!game.level) return;
     for (let y = 0; y < ROWNO; y++)
-        for (let x = 1; x < COLNO; x++) {
-            const loc = game.level.at(x, y);
-            if (loc?.remembered_glyph) {
-                show_glyph_cell(x, y, loc.remembered_glyph.ch,
-                    loc.remembered_glyph.color,
-                    loc.remembered_glyph.decgfx,
-                    0,
-                    loc.remembered_glyph.displayCh);
-            }
-        }
-    if (game.u?.ux > 0) {
-        show_glyph_cell(
-            game.u.ux,
-            game.u.uy,
-            '@',
-            heroColor(game),
-            false,
-        );
-    }
+        for (let x = 1; x < COLNO; x++) newsym(x, y);
 }
 
 // ── Serialize a map row with DEC line-drawing and ANSI colors ──
@@ -560,14 +717,36 @@ function render_map_row(y) {
 }
 
 // ── Status lines ──
+const BOTL_NSIZ = 16; // include/botl.h
+
+export function get_strength_str(strength) {
+    const value = Math.trunc(strength ?? 0);
+    if (value <= 18) return `${value}`;
+    if (value > STR18(100)) return `${value - 100}`;
+    if (value < STR18(100)) {
+        return `18/${String(value - 18).padStart(2, '0')}`;
+    }
+    return '18/**';
+}
+
 function _statusLine1() {
     const u = game.u;
     if (!u) return '';
-    const name = game.plname || 'Hero';
+    // C ref: botl.c do_statusline1().  The status line capitalizes only an
+    // initial ASCII lowercase byte, then reserves at most BOTL_NSIZ bytes for
+    // the player name.  Player names are ASCII in the source option parser.
+    const rawName = game.plname || 'Hero';
+    let name = rawName.slice(0, BOTL_NSIZ);
+    if (name[0] >= 'a' && name[0] <= 'z') {
+        name = name[0].toUpperCase() + name.slice(1);
+    }
     const role = rankOf(game.urole, u.ulevel ?? 1, game.flags?.female)
         || game.urole?.rank?.m || game.urole?.name?.m || 'Adventurer';
     const title = `${name} the ${role}`;
-    const stats = `St:${u.acurr?.a?.[0] || '?'} Dx:${u.acurr?.a?.[1] || '?'} Co:${u.acurr?.a?.[2] || '?'} In:${u.acurr?.a?.[3] || '?'} Wi:${u.acurr?.a?.[4] || '?'} Ch:${u.acurr?.a?.[5] || '?'}`;
+    const attrs = u.acurr?.a ?? [];
+    const strength = attrs[A_STR]
+        ? get_strength_str(attrs[A_STR]) : '?';
+    const stats = `St:${strength} Dx:${attrs[A_DEX] || '?'} Co:${attrs[A_CON] || '?'} In:${attrs[A_INT] || '?'} Wi:${attrs[A_WIS] || '?'} Ch:${attrs[A_CHA] || '?'}`;
     const align = u.ualign?.type === 0 ? 'Neutral' : u.ualign?.type > 0 ? 'Lawful' : 'Chaotic';
     // C uses cursor-forward for gap between title and stats
     // C pads to align stats starting at a fixed column
@@ -576,10 +755,88 @@ function _statusLine1() {
     return `${title}${' '.repeat(gap)}${stats} ${align}`;
 }
 
+const HUNGER_STATUS = Object.freeze([
+    'Satiated', '', 'Hungry', 'Weak', 'Fainting', 'Fainted', 'Starved',
+]);
+
+function _propertyActive(u, index) {
+    const property = u.uprops?.[index];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function _propertyIntrinsic(u, index) {
+    return Boolean(u.uprops?.[index]?.intrinsic);
+}
+
+function _propertyActiveUnblocked(u, index) {
+    return _propertyActive(u, index) && !u.uprops?.[index]?.blocked;
+}
+
+// C ref: botl.c do_statusline2(), condition assembly. Encumbrance remains
+// absent at the new-game boundary because u_init_carry_attr_boost() guarantees
+// that the initial inventory is within capacity.
+function _statusConditions(u) {
+    const conditions = [];
+    if (_propertyIntrinsic(u, STONED)) conditions.push('Stone');
+    if (_propertyIntrinsic(u, SLIMED)) conditions.push('Slime');
+    if (_propertyIntrinsic(u, STRANGLED)) conditions.push('Strngl');
+    if (_propertyIntrinsic(u, SICK)) {
+        if ((u.usick_type ?? 0) & SICK_VOMITABLE) conditions.push('FoodPois');
+        if ((u.usick_type ?? 0) & SICK_NONVOMITABLE) conditions.push('TermIll');
+    }
+    if ((u.uhs ?? NOT_HUNGRY) !== NOT_HUNGRY) {
+        const hunger = HUNGER_STATUS[u.uhs];
+        if (hunger) conditions.push(hunger);
+    }
+    if (_propertyActiveUnblocked(u, BLINDED)) conditions.push('Blind');
+    if (_propertyActive(u, DEAF) || u.uroleplay?.deaf) conditions.push('Deaf');
+    if (_propertyIntrinsic(u, STUNNED)) conditions.push('Stun');
+    if (_propertyIntrinsic(u, CONFUSION)) conditions.push('Conf');
+    if (_propertyIntrinsic(u, HALLUC)
+        && !_propertyActive(u, HALLUC_RES)) conditions.push('Hallu');
+    if (_propertyActiveUnblocked(u, LEVITATION)) conditions.push('Lev');
+    if (_propertyActiveUnblocked(u, FLYING)) conditions.push('Fly');
+    if (u.usteed) conditions.push('Ride');
+    return conditions.length ? ` ${conditions.join(' ')}` : '';
+}
+
 function _statusLine2() {
     const u = game.u;
     if (!u) return '';
-    return `Dlvl:${u.uz?.dlevel || 1} $:${game._goldCount || 0} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${u.ulevel || 1}/${u.uexp || 0} T:${game.moves || 1}`;
+    const experience = game.flags?.showexp
+        ? `${u.ulevel || 1}/${u.uexp || 0}`
+        : `${u.ulevel || 1}`;
+    const time = game.flags?.time ? ` T:${game.moves || 1}` : '';
+    const status = `Dlvl:${u.uz?.dlevel || 1} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${experience}${time}${_statusConditions(u)}`;
+    if (!game.flags?.showvers) return status;
+
+    const version = status_version(game.flags);
+    // win/tty/wintty.c render_status() right-justifies BL_VERS against the
+    // TTY's 79 printable status columns when it is the row's final field.
+    const versionColumn = Math.max(status.length + 1, 79 - version.length);
+    return `${status.padEnd(versionColumn)}${version}`;
+}
+
+function writeStatusRows(display) {
+    if (!display?.grid) return;
+    display.clearRow(22);
+    display.clearRow(23);
+    const first = _statusLine1().replace(
+        /\x1b\[[0-9;]*[A-Za-z]/g,
+        (sequence) => sequence.match(/\x1b\[\d+C/)
+            ? ' '.repeat(parseInt(sequence.slice(2), 10)) : '',
+    );
+    for (let column = 0;
+        column < Math.min(first.length, display.cols);
+        ++column) {
+        display.setCell(column, 22, first[column], NO_COLOR, 0);
+    }
+    const second = _statusLine2();
+    for (let column = 0;
+        column < Math.min(second.length, display.cols);
+        ++column) {
+        display.setCell(column, 23, second[column], NO_COLOR, 0);
+    }
 }
 
 // ── Serialize terminal grid for screen comparison ──
@@ -659,14 +916,7 @@ function _buildScreenOutput() {
                 );
             }
         }
-        // Status lines
-        const s1 = _statusLine1().replace(/\x1b\[[0-9;]*[A-Za-z]/g, m =>
-            m.match(/\x1b\[\d+C/) ? ' '.repeat(parseInt(m.slice(2))) : '');
-        for (let c = 0; c < Math.min(s1.length, display.cols); c++)
-            display.setCell(c, 22, s1[c], NO_COLOR, 0);
-        const s2 = _statusLine2();
-        for (let c = 0; c < Math.min(s2.length, display.cols); c++)
-            display.setCell(c, 23, s2[c], NO_COLOR, 0);
+        writeStatusRows(display);
         // Cursor at hero
         if (game.u?.ux > 0)
             display.setCursor(game.u.ux - 1, game.u.uy + 1);
@@ -687,7 +937,7 @@ export async function cls() {
 
 // ── bot ──
 export async function bot() {
-    // Status line updates happen in _buildScreenOutput
+    writeStatusRows(game?.nhDisplay);
 }
 
 // ── pline ──

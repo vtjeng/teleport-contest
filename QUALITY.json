@@ -16,6 +16,7 @@
         "js/options.js",
         "js/player_selection.js",
         "js/player_selection_tty.js",
+        "js/startup_reroll.js",
         "js/tty_startup.js",
         "js/tutorial_startup.js"
       ]
@@ -30,6 +31,8 @@
         "js/role_init.js",
         "js/role_skills.js",
         "js/roles.js",
+        "js/startup_skills.js",
+        "js/u_init_inventory_attrs.js",
         "js/u_init.js"
       ]
     },
@@ -47,8 +50,12 @@
         "js/monster_object.js",
         "js/o_init.js",
         "js/obj.js",
+        "js/objnam_data.js",
         "js/objects.js",
-        "js/u_init_inventory_data.js"
+        "js/u_init_inventory.js",
+        "js/u_init_inventory_data.js",
+        "js/u_init_inventory_use.js",
+        "js/worn.js"
       ]
     },
     {
@@ -57,6 +64,7 @@
       "paths": [
         "js/dungeon.js",
         "js/dungeon_data.js",
+        "js/dog.js",
         "js/engrave.js",
         "js/grave.js",
         "js/light.js",
@@ -74,7 +82,9 @@
         "js/random_text_data.js",
         "js/rect.js",
         "js/room_features.js",
+        "js/rooms.js",
         "js/terrain.js",
+        "js/teleport.js",
         "js/themeroom_data.js",
         "js/track.js",
         "js/trap.js",

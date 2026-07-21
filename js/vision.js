@@ -1,12 +1,12 @@
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 // Stripped-down port for the contest skeleton: no boulders, mimics,
-// underwater, blindness, or pit handling.
+// underwater, or pit handling.
 // Contestants should port the full vision.c for complete parity.
 
 import { game } from './gstate.js';
 import { do_light_sources } from './light.js';
 import {
-    COLNO, ROWNO, DOOR, SDOOR, POOL,
+    BLINDED, COLNO, ROWNO, DOOR, SDOOR, POOL,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     IS_WALL, TEMP_LIT,
@@ -15,6 +15,12 @@ import { newsym } from './display.js';
 
 const COULD_SEE = 0x1;
 const IN_SIGHT = 0x2;
+
+function heroIsBlind(hero) {
+    const blindness = hero?.uprops?.[BLINDED];
+    return Boolean(blindness?.intrinsic || blindness?.extrinsic)
+        && !blindness?.blocked;
+}
 
 // C ref: vision.c seenv_matrix
 const seenv_matrix = [
@@ -434,6 +440,25 @@ export function vision_recalc(control = 0) {
 
     const level = game.level;
     const ux = u.ux, uy = u.uy;
+
+    // C ref: vision.c vision_recalc(), Blind branch. Keep COULD_SEE so
+    // monster line-of-sight remains available, but grant the hero no
+    // IN_SIGHT cells and remove anything which was visible previously.
+    if (control !== 2 && heroIsBlind(u)) {
+        const oldArray = game.viz_array;
+        game.viz_array = next;
+        game.active_buf = game.active_buf === 0 ? 1 : 0;
+        if (oldArray) {
+            for (let row = 0; row < ROWNO; ++row) {
+                for (let col = 0; col < COLNO; ++col) {
+                    if (oldArray[row][col] & IN_SIGHT) newsym(col, row);
+                }
+            }
+        }
+        game._viz_rmin = next_rmin;
+        game._viz_rmax = next_rmax;
+        return;
+    }
 
     // The current vision subset models the ordinary one-square night-vision
     // range. C computes night vision before overlaying mobile light sources.

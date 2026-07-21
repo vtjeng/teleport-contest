@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-// Generate the cmap portion of every named symbol set. Object and monster
-// symbols stay for their display ports; retaining all cmap entries now keeps
-// named startup configurations source-derived and ready for those ports.
+// Generate the complete symbol table and every named symbol set.  Runtime
+// rendering consumes absolute SYM_* indices so cmap, object, monster, warning,
+// and miscellaneous symbols all share the ordering used by symbols.c.
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -16,7 +16,19 @@ const SYMBOLS_PATH = join(UPSTREAM_ROOT, 'dat', 'symbols');
 const OUTPUT_PATH = join(PROJECT_ROOT, 'js', 'symbol_data.js');
 const PINNED_REVISION = '16ff59115315917b93185d026aeefea06db9b0f4';
 
-const CMAP_ALIASES = Object.freeze({
+const MAXPCHARS = 105;
+const MAXOCLASSES = 18;
+const MAXMCLASSES = 61;
+const WARNCOUNT = 6;
+const MAXOTHER = 6;
+const SYM_OFF_O = MAXPCHARS;
+const SYM_OFF_M = SYM_OFF_O + MAXOCLASSES;
+const SYM_OFF_W = SYM_OFF_M + MAXMCLASSES;
+const SYM_OFF_X = SYM_OFF_W + WARNCOUNT;
+const SYM_MAX = SYM_OFF_X + MAXOTHER;
+
+const SYMBOL_ALIASES = Object.freeze({
+    S_armour: 'S_armor',
     S_explode1: 'S_expl_tl',
     S_explode2: 'S_expl_tc',
     S_explode3: 'S_expl_tr',
@@ -27,24 +39,6 @@ const CMAP_ALIASES = Object.freeze({
     S_explode8: 'S_expl_bc',
     S_explode9: 'S_expl_br',
 });
-
-function cmapNames(source) {
-    const result = [];
-    const pattern = /\bPCHAR2?\(\s*([0-9]+)\s*,\s*(?:'(?:\\.|[^'])*'|[^,]+)\s*,\s*(S_[A-Za-z0-9_]+)/gu;
-    for (const match of source.matchAll(pattern)) {
-        const index = Number(match[1]);
-        if (index !== result.length) {
-            throw new Error(
-                `expected cmap index ${result.length}; found ${index}`,
-            );
-        }
-        result.push(match[2]);
-    }
-    if (result.length !== 105) {
-        throw new Error(`expected 105 cmap symbols; found ${result.length}`);
-    }
-    return result;
-}
 
 function withoutComment(value) {
     return value.replace(/\s+#.*$/u, '').trim();
@@ -72,6 +66,134 @@ function dataByte(rawValue) {
     return value.charCodeAt(0) & 0xFF;
 }
 
+function assertComplete(values, label) {
+    for (let index = 0; index < values.length; ++index) {
+        if (values[index] === undefined)
+            throw new Error(`missing ${label} symbol index ${index}`);
+    }
+}
+
+function addSymbol(records, seenNames, name, index, byte) {
+    records[index] = byte;
+    const folded = name.toLowerCase();
+    if (!seenNames.has(folded)) seenNames.set(folded, index);
+}
+
+/** Extract symbols.c's absolute table layout from defsym.h. */
+export function extractSymbolLayout(source) {
+    const defaults = new Array(SYM_MAX);
+    const indices = new Map();
+    const lines = source.split(/\r?\n/u);
+
+    defaults[SYM_OFF_O] = 0; // random object-class placeholder
+    defaults[SYM_OFF_M] = 0; // monster-class placeholder
+
+    for (const line of lines) {
+        let match = line.match(
+            /^\s*PCHAR2?\(\s*([0-9]+)\s*,\s*('(?:\\.|[^'])+')\s*,\s*(S_[A-Za-z0-9_]+)/u,
+        );
+        if (match) {
+            addSymbol(
+                defaults,
+                indices,
+                match[3],
+                Number(match[1]),
+                dataByte(match[2]),
+            );
+            continue;
+        }
+
+        match = line.match(
+            /^\s*MONSYM\(\s*([0-9]+)\s*,\s*('(?:\\.|[^'])+')\s*,\s*[^,]+,\s*(S_[A-Za-z0-9_]+)/u,
+        );
+        if (match) {
+            addSymbol(
+                defaults,
+                indices,
+                match[3],
+                SYM_OFF_M + Number(match[1]),
+                dataByte(match[2]),
+            );
+            continue;
+        }
+
+        match = line.match(
+            /^\s*OBJCLASS2\(\s*([0-9]+)\s*,\s*('(?:\\.|[^'])+')\s*,\s*[^,]+,\s*[^,]+,\s*(S_[A-Za-z0-9_]+)/u,
+        );
+        if (!match) {
+            match = line.match(
+                /^\s*OBJCLASS\(\s*([0-9]+)\s*,\s*('(?:\\.|[^'])+')\s*,\s*[^,]+,\s*(S_[A-Za-z0-9_]+)/u,
+            );
+        }
+        if (match) {
+            addSymbol(
+                defaults,
+                indices,
+                match[3],
+                SYM_OFF_O + Number(match[1]),
+                dataByte(match[2]),
+            );
+        }
+    }
+
+    // drawing.c:def_warnsyms and symbols.c:get_othersym().  The first two
+    // miscellaneous symbols intentionally default to spaces; the final two
+    // intentionally have no default byte.
+    for (let index = 0; index < WARNCOUNT; ++index)
+        defaults[SYM_OFF_W + index] = '0'.charCodeAt(0) + index;
+    const misc = [
+        ['S_nothing', ' '.charCodeAt(0)],
+        ['S_unexplored', ' '.charCodeAt(0)],
+        ['S_boulder', '`'.charCodeAt(0)],
+        ['S_invisible', 'I'.charCodeAt(0)],
+        ['S_pet_override', 0],
+        ['S_hero_override', 0],
+    ];
+    for (let index = 0; index < misc.length; ++index) {
+        addSymbol(
+            defaults,
+            indices,
+            misc[index][0],
+            SYM_OFF_X + index,
+            misc[index][1],
+        );
+    }
+
+    assertComplete(defaults, 'default');
+    if (defaults.length !== SYM_MAX)
+        throw new Error(`expected ${SYM_MAX} symbols; found ${defaults.length}`);
+
+    for (const [alias, canonical] of Object.entries(SYMBOL_ALIASES)) {
+        const index = indices.get(canonical.toLowerCase());
+        if (index === undefined)
+            throw new Error(`missing canonical symbol ${canonical}`);
+        indices.set(alias.toLowerCase(), index);
+    }
+
+    const rogueDefaults = [...defaults];
+    for (const index of [12, 13, 14]) rogueDefaults[index] = '+'.charCodeAt(0);
+    for (const index of [25, 26]) rogueDefaults[index] = '%'.charCodeAt(0);
+    // drawing.c:def_r_oc_syms differs for armor, amulet, food, and coin.
+    rogueDefaults[SYM_OFF_O + 3] = ']'.charCodeAt(0);
+    rogueDefaults[SYM_OFF_O + 5] = ','.charCodeAt(0);
+    rogueDefaults[SYM_OFF_O + 7] = ':'.charCodeAt(0);
+    rogueDefaults[SYM_OFF_O + 12] = '*'.charCodeAt(0);
+
+    return {
+        defaults,
+        rogueDefaults,
+        indices: Object.fromEntries(indices),
+        offsets: {
+            p: 0,
+            o: SYM_OFF_O,
+            m: SYM_OFF_M,
+            w: SYM_OFF_W,
+            x: SYM_OFF_X,
+            max: SYM_MAX,
+        },
+    };
+}
+
 function unicodeSymbol(rawValue) {
     const value = withoutComment(rawValue);
     const match = value.match(/^U\+([0-9a-f]{1,6})/iu);
@@ -80,11 +202,8 @@ function unicodeSymbol(rawValue) {
 }
 
 export function extractSymbolSets(defsymSource, symbolsSource) {
-    const names = cmapNames(defsymSource);
-    const indices = new Map(names.map((name, index) => [name.toLowerCase(), index]));
-    for (const [alias, canonical] of Object.entries(CMAP_ALIASES)) {
-        indices.set(alias.toLowerCase(), indices.get(canonical.toLowerCase()));
-    }
+    const layout = extractSymbolLayout(defsymSource);
+    const indices = new Map(Object.entries(layout.indices));
 
     const definitions = [];
     let current = null;
@@ -103,6 +222,7 @@ export function extractSymbolSets(defsymSource, symbolsSource) {
                 color: null,
                 bytes: {},
                 utf8: {},
+                glyphs: {},
                 sourceLine: lineIndex + 1,
             };
             continue;
@@ -128,10 +248,18 @@ export function extractSymbolSets(defsymSource, symbolsSource) {
             continue;
         }
 
-        const assignment = text.match(/^(S_[A-Za-z0-9_]+)\s*[:=]\s*(.*?)\s*$/u);
+        const assignment = text.match(/^([SG]_[A-Za-z0-9_]+)\s*[:=]\s*(.*?)\s*$/u);
         if (!assignment) continue;
+        if (/^G_/u.test(assignment[1])) {
+            current.glyphs[assignment[1]] = withoutComment(assignment[2]);
+            continue;
+        }
         const index = indices.get(assignment[1].toLowerCase());
-        if (index === undefined) continue;
+        if (index === undefined) {
+            throw new Error(
+                `unprojected symbol ${assignment[1]} at line ${lineIndex + 1}`,
+            );
+        }
         if (current.handling === 'UTF8') {
             current.utf8[index] = unicodeSymbol(assignment[2]);
         } else {
@@ -146,20 +274,34 @@ export function extractSymbolSets(defsymSource, symbolsSource) {
         definition.name.toLowerCase() === 'decgraphics'
     ));
     if (!dec || Object.keys(dec.bytes).length !== 39) {
-        throw new Error('DECgraphics cmap projection is incomplete');
+        throw new Error('DECgraphics symbol projection is incomplete');
     }
     return definitions;
 }
 
-export function renderSymbolData(definitions) {
+export function renderSymbolData(definitions, layout) {
     const serialized = JSON.stringify(definitions, null, 4)
+        .split('\n').map((line) => `    ${line}`).join('\n');
+    const defaultSymbols = JSON.stringify(layout.defaults);
+    const defaultRogueSymbols = JSON.stringify(layout.rogueDefaults);
+    const symbolIndices = JSON.stringify(layout.indices, null, 4)
         .split('\n').map((line) => `    ${line}`).join('\n');
     return `// Generated by scripts/generate-symbol-data.mjs.\n`
         + `// Source: NetHack 5.0 include/defsym.h and dat/symbols at ${PINNED_REVISION}.\n\n`
+        + `export const SYM_OFF_P = ${layout.offsets.p};\n`
+        + `export const SYM_OFF_O = ${layout.offsets.o};\n`
+        + `export const SYM_OFF_M = ${layout.offsets.m};\n`
+        + `export const SYM_OFF_W = ${layout.offsets.w};\n`
+        + `export const SYM_OFF_X = ${layout.offsets.x};\n`
+        + `export const SYM_MAX = ${layout.offsets.max};\n\n`
+        + `export const DEFAULT_PRIMARY_SYMBOLS = Object.freeze(${defaultSymbols});\n`
+        + `export const DEFAULT_ROGUE_SYMBOLS = Object.freeze(${defaultRogueSymbols});\n`
+        + `export const SYMBOL_INDEX_BY_NAME = Object.freeze(\n${symbolIndices},\n);\n\n`
         + `function freezeDefinition(definition) {\n`
         + `    Object.freeze(definition.restrictions);\n`
         + `    Object.freeze(definition.bytes);\n`
         + `    Object.freeze(definition.utf8);\n`
+        + `    Object.freeze(definition.glyphs);\n`
         + `    return Object.freeze(definition);\n`
         + `}\n\n`
         + `export const SYMBOL_SET_DEFINITIONS = Object.freeze(\n`
@@ -191,10 +333,12 @@ function main() {
         throw new Error('Usage: node scripts/generate-symbol-data.mjs [--check]');
     }
     assertPinnedSource();
-    const output = renderSymbolData(extractSymbolSets(
-        readFileSync(DEFSYM_PATH, 'utf8'),
-        readFileSync(SYMBOLS_PATH, 'utf8'),
-    ));
+    const defsymSource = readFileSync(DEFSYM_PATH, 'utf8');
+    const layout = extractSymbolLayout(defsymSource);
+    const output = renderSymbolData(
+        extractSymbolSets(defsymSource, readFileSync(SYMBOLS_PATH, 'utf8')),
+        layout,
+    );
     if (checkOnly) {
         let existing = '';
         try {

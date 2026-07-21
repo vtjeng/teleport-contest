@@ -2,7 +2,10 @@
 // C ref: src/o_init.c setgemprobs through oinit.
 
 import { game } from './gstate.js';
+import { PM_SAMURAI } from './monsters.js';
+import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
+import { HALLUC, HALLUC_RES } from './const.js';
 import {
     AMULET_CLASS,
     AQUAMARINE,
@@ -12,6 +15,7 @@ import {
     DIAMOND,
     EMERALD,
     FLUORITE,
+    FIRST_OBJECT,
     GAUNTLETS_OF_DEXTERITY,
     GEM_CLASS,
     HELMET,
@@ -46,8 +50,10 @@ function ensureObjectGlobals(state) {
         objects_globals_init(state);
     }
     state.svb ??= {};
+    state.svd ??= {};
     state.go ??= {};
     state.svb.bases ??= new Array(MAXOCLASSES + 2).fill(0);
+    state.svd.disco ??= new Array(NUM_OBJECTS).fill(0);
     state.go.oclass_prob_totals ??= new Array(MAXOCLASSES).fill(0);
     return state.objects;
 }
@@ -304,6 +310,8 @@ export function init_objects(state = game, random = rn2) {
     state.svb ??= {};
     state.go ??= {};
     const bases = state.svb.bases = new Array(MAXOCLASSES + 2).fill(0);
+    state.svd ??= {};
+    state.svd.disco = new Array(NUM_OBJECTS).fill(0);
     state.go.oclass_prob_totals = new Array(MAXOCLASSES).fill(0);
 
     for (let i = 1; i < MAXOCLASSES; ++i) {
@@ -367,4 +375,65 @@ export function init_objects(state = game, random = rn2) {
 // C ref: src/o_init.c oinit.
 export function oinit(state = game) {
     return setgemprobs(state.u?.uz ?? null, state);
+}
+
+function propertyActive(hero, index) {
+    const property = hero?.uprops?.[index];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function hallucinating(state) {
+    return propertyActive(state.u, HALLUC)
+        && !propertyActive(state.u, HALLUC_RES);
+}
+
+// C ref: o_init.c discover_object().  New-game callers execute before the
+// move loop, so the live inventory refresh, gem-price, and wisdom-exercise
+// branches are deliberately rejected rather than silently approximated.
+export function discover_object(
+    oindx,
+    markAsKnown,
+    markAsEncountered,
+    creditHero,
+    state = game,
+) {
+    const objects = ensureObjectGlobals(state);
+    if (oindx < FIRST_OBJECT) return false;
+    const objectType = objects[oindx];
+    if (!objectType)
+        throw new RangeError(`discover_object: invalid object type ${oindx}`);
+
+    const learnsName = !objectType.oc_name_known && markAsKnown;
+    const encounters = !objectType.oc_encountered && markAsEncountered;
+    const samuraiName = state.urole?.mnum === PM_SAMURAI
+        && JAPANESE_ITEM_TYPES.has(oindx);
+    if (!learnsName && !encounters && !samuraiName) return false;
+    if (learnsName && (creditHero || state.program_state?.in_moveloop)) {
+        throw new Error(
+            'discover_object live knowledge effects are not implemented',
+        );
+    }
+
+    const objectClass = objectType.oc_class;
+    const classEnd = state.svb.bases[objectClass + 1] ?? NUM_OBJECTS;
+    let index = state.svb.bases[objectClass];
+    while (index < classEnd && state.svd.disco[index]
+        && state.svd.disco[index] !== oindx) ++index;
+    if (index >= classEnd)
+        throw new Error(`discover_object: class ${objectClass} discovery list is full`);
+    state.svd.disco[index] = oindx;
+    if (markAsEncountered) objectType.oc_encountered = 1;
+    if (markAsKnown) objectType.oc_name_known = 1;
+    return true;
+}
+
+// C ref: o_init.c observe_object().
+export function observe_object(obj, state = game) {
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('observe_object requires an object');
+    if (obj.otyp >= FIRST_OBJECT && !hallucinating(state)) {
+        obj.dknown = true;
+        discover_object(obj.otyp, false, true, false, state);
+    }
+    return obj;
 }

@@ -27,6 +27,7 @@ import {
     mkgrave,
     mksink,
 } from './room_features.js';
+import { in_rooms } from './rooms.js';
 import { depth as depth_of_level } from './hacklib.js';
 import { oinit } from './o_init.js';
 import {
@@ -135,22 +136,59 @@ function stairway_add(x, y, up, isladder, dest) {
 // ── Stairway lookup ──
 
 function stairway_find_dir(up) {
+    const direction = Boolean(up);
     for (let s = game.stairs; s; s = s.next)
-        if (s.up === up) return s;
+        if (Boolean(s.up) === direction) return s;
     return null;
 }
 
 function stairway_find_special_dir(up) {
+    const direction = Boolean(up);
     for (let s = game.stairs; s; s = s.next)
-        if (s.tolev.dnum !== (game.u?.uz?.dnum ?? 0) && s.up !== up) return s;
+        if (s.tolev.dnum !== (game.u?.uz?.dnum ?? 0)
+            && Boolean(s.up) !== direction) return s;
     return null;
 }
 
 // ── Hero placement (C ref: stairs.c, mkmaze.c) ──
 
-function u_on_newpos(x, y) {
-    game.u.ux = x;
-    game.u.uy = y;
+export function u_on_newpos(x, y, state = game) {
+    if (!isok(x, y))
+        throw new RangeError(`u_on_newpos: hero location is off map <${x},${y}>`);
+
+    const hero = state.u;
+    hero.ux = x;
+    hero.uy = y;
+    hero.uundetected = false;
+    if (hero.usteed) {
+        hero.usteed.mx = x;
+        hero.usteed.my = y;
+    }
+
+    if (!on_level(hero.uz, hero.uz0)) {
+        hero.ux0 = x;
+        hero.uy0 = y;
+
+        // dungeon.c:u_on_newpos() calls map_location(FALSE). Preserve its
+        // independent lastseentyp[x][y] write here; the [x][y] matrix lives
+        // with the fresh GameMap so a new level starts cleared. The current
+        // display layer does not yet map objects, seen traps, or revealed
+        // engravings, so it remains responsible for replacing this seam with
+        // map_location's remembered-glyph priority once those layers exist.
+        const level = state.level;
+        if (level) {
+            level.lastseentyp ??= Array.from(
+                { length: COLNO },
+                () => new Array(ROWNO).fill(0),
+            );
+            level.lastseentyp[x][y] = level.at(x, y)?.typ ?? STONE;
+        }
+        state.iflags ??= {};
+        state.iflags.terrain_typ = MAX_TYPE;
+    }
+    // Same-level nearby-object remapping and dungeon.c:earth_sense() are not
+    // reached by this new-game placement boundary and remain explicit future
+    // dependencies before this function can serve general level movement.
 }
 
 // C ref: mkmaze.c bad_location — simplified for skeleton
@@ -198,7 +236,7 @@ export function u_on_upstairs() {
     const stway = stairway_find_dir(true);
     if (stway) { u_on_newpos(stway.sx, stway.sy); return; }
     // No upstair — try special stairs, then random
-    const special = stairway_find_special_dir(0);
+    const special = stairway_find_special_dir(false);
     if (special) { u_on_newpos(special.sx, special.sy); return; }
     // Random placement via place_lregion
     place_lregion(0, 0, 0, 0, 0, 0, 0, 0, LR_UPTELE, null);
@@ -207,9 +245,6 @@ export function u_on_upstairs() {
 function levelObjectEnv(overrides = {}) {
     return objectGenerationEnv({ state: game, ...overrides });
 }
-
-// in_rooms stub
-function in_rooms(x, y, rtype) { return []; }
 
 // ============================================================
 // Core mklev functions (ported from main project's mklev.js)
@@ -1138,7 +1173,7 @@ function dosdoor(x, y, aroom, type) {
     const map = game.level;
     const loc = map.at(x, y);
     if (!loc) return;
-    const shdoor = in_rooms(x, y, 0).length > 0;
+    const shdoor = in_rooms(x, y, SHOPBASE).length > 0;
     if (!IS_WALL(loc.typ)) type = DOOR;
     loc.typ = type;
     if (type === DOOR) {

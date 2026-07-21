@@ -265,6 +265,38 @@ test('a wrapped message requests More immediately', async () => {
     assert.equal(state._pending_message, '');
 });
 
+test('pline flushes a changed status line before a wrapped More boundary', async () => {
+    const state = preambleState('20260129120000', ' ');
+    state.plname = 'ABCDEFGHIJKLMNOP';
+    state.urole = { name: { m: 'Healer' }, rank: { m: 'Rhizotomist' } };
+    state.u = {
+        ...state.u,
+        ux: 1,
+        uy: 1,
+        ulevel: 1,
+        uhp: 13,
+        uhpmax: 13,
+        uen: 5,
+        uenmax: 5,
+        uac: 0,
+        ualign: { type: 0 },
+        acurr: { a: [8, 10, 14, 13, 14, 16] },
+    };
+    await flush_screen(1);
+    state.u.uac = 8;
+    state.disp.botl = true;
+    const boundaries = captureBoundaries(state, state.nhDisplay.rows);
+
+    await ttyPline(
+        'Hello ABCDEFGHIJKLMNOP, welcome to NetHack!  '
+            + 'You are a neutral male human Healer.',
+        state,
+    );
+
+    assert.equal(boundaries.length, 1);
+    assert.match(boundaries[0].rows[23], / AC:8 Xp:1$/u);
+});
+
 test('resuming skips new-game RNG, movement, and track initialization', async () => {
     // An ordinary calendar date isolates the restore branch from messages.
     const state = preambleState('20260129120000');

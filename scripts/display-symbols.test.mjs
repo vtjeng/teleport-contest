@@ -10,6 +10,7 @@ import {
     CROSSWALL,
     D_CLOSED,
     DOOR,
+    FOUNTAIN,
     HWALL,
     LA_DOWN,
     ROOM,
@@ -23,15 +24,39 @@ import {
     TUWALL,
     VWALL,
 } from '../js/const.js';
-import { newsym, terrain_glyph } from '../js/display.js';
+import {
+    bot,
+    flush_screen,
+    hero_glyph_info,
+    monster_glyph_info,
+    newsym,
+    object_glyph_info,
+    terrain_glyph,
+} from '../js/display.js';
 import { GameMap } from '../js/game.js';
+import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
-import { CLR_WHITE, CLR_YELLOW, NO_COLOR } from '../js/terminal.js';
+import { S_FELINE, S_HUMAN } from '../js/monsters.js';
+import {
+    objects_globals_init,
+    POT_BOOZE,
+    POTION_CLASS,
+    WEAPON_CLASS,
+} from '../js/objects.js';
+import {
+    CLR_RED,
+    CLR_WHITE,
+    CLR_YELLOW,
+    NO_COLOR,
+} from '../js/terminal.js';
 import {
     cmap_symbol,
     initialize_symbols_from_options,
+    misc_symbol,
+    monster_class_symbol,
+    object_class_symbol,
     S_hwall,
     S_room,
     S_brdnstair,
@@ -322,6 +347,166 @@ test('named symbol sets load source-derived byte and Unicode maps', () => {
     );
 });
 
+test('object and monster classes use their absolute source symbol slots', () => {
+    const state = {};
+    initialize_symbols_from_options(
+        parseNethackrc(
+            'SYMBOLS=S_feline:F,S_weapon:!,S_invisible:?',
+        ),
+        state,
+    );
+
+    assert.equal(monster_class_symbol(S_FELINE, state).ch, 'F');
+    assert.equal(object_class_symbol(WEAPON_CLASS, state).ch, '!');
+    // symbols.c's match table encounters the monster-class S_invisible
+    // before the later miscellaneous entry of the same name.
+    assert.equal(monster_class_symbol(35, state).ch, '?');
+    assert.equal(misc_symbol(3, state).ch, 'I');
+});
+
+test('UTF-8 object-class overrides retain glyphs.c concrete-object semantics', () => {
+    const state = {};
+    initialize_symbols_from_options(
+        parseNethackrc([
+            'OPTIONS=symset:Enhanced1',
+            'SYMBOLS=S_weapon:U+2603',
+        ].join('\n')),
+        state,
+    );
+
+    assert.deepEqual(object_class_symbol(WEAPON_CLASS, state), {
+        ch: null,
+        dec: false,
+        displayCh: '☃',
+    });
+    assert.deepEqual(object_class_symbol(WEAPON_CLASS, state, 42), {
+        ch: ')',
+        dec: false,
+    });
+});
+
+test('hero and pet symbol overrides require sysconf accessibility', () => {
+    const state = {
+        flags: {},
+        u: { umonnum: 0 },
+        urace: { mnum: 1 },
+        mons: [
+            { mlet: S_HUMAN, mcolor: CLR_RED },
+            { mlet: S_FELINE, mcolor: CLR_WHITE },
+        ],
+    };
+    initialize_symbols_from_options(
+        parseNethackrc(
+            'SYMBOLS=S_pet_override:!,S_hero_override:?',
+        ),
+        state,
+    );
+    const pet = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mtame: 10,
+    };
+
+    assert.equal(hero_glyph_info(state).ch, '@');
+    assert.equal(monster_glyph_info(pet, state).ch, 'f');
+
+    state.sysopt = { accessibility: 1 };
+    assert.equal(hero_glyph_info(state).ch, '?');
+    assert.equal(monster_glyph_info(pet, state).ch, '!');
+
+    state.flags.showrace = true;
+    assert.equal(hero_glyph_info(state).ch, '?');
+    delete state.sysopt;
+    assert.equal(hero_glyph_info(state).ch, 'f');
+});
+
+test('newsym remembers an object underneath a visible monster and hero', () => {
+    const state = resetGame();
+    const x = 7;
+    const y = 4;
+    state.level = new GameMap();
+    state.level.at(x, y).typ = ROOM;
+    state.u = { ux: 1, uy: 1, umonnum: 0 };
+    state.urace = { mnum: 0 };
+    state.flags = {};
+    state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
+    state.objects = [];
+    state.objects[42] = { oc_color: CLR_YELLOW };
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2; // vision.h IN_SIGHT
+
+    const weapon = { otyp: 42, oclass: WEAPON_CLASS };
+    const pet = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mtame: 10,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+    state.level.objects[x][y] = weapon;
+    state.level.monsters[x][y] = pet;
+
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, 'f');
+    assert.deepEqual(state.level.at(x, y).remembered_glyph, {
+        ch: ')',
+        color: CLR_YELLOW,
+        decgfx: false,
+        displayCh: null,
+    });
+
+    state.level.monsters[x][y] = null;
+    state.u.ux = x;
+    state.u.uy = y;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '@');
+    assert.equal(state.level.at(x, y).remembered_glyph.ch, ')');
+    assert.deepEqual(object_glyph_info(weapon, state), {
+        ch: ')',
+        color: CLR_YELLOW,
+        dec: false,
+    });
+});
+
+test('unobserved floor objects use the source generic class glyph', () => {
+    const state = resetGame();
+    objects_globals_init(state);
+    initialize_symbols_from_options({ flags: {} }, state);
+    const potion = {
+        otyp: POT_BOOZE,
+        oclass: POTION_CLASS,
+        dknown: false,
+    };
+
+    assert.deepEqual(object_glyph_info(potion, state), {
+        ch: '!',
+        color: NO_COLOR,
+        dec: false,
+    });
+
+    potion.dknown = true;
+    assert.deepEqual(object_glyph_info(potion, state), {
+        ch: '!',
+        color: state.objects[POT_BOOZE].oc_color,
+        dec: false,
+    });
+});
+
+test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
+    const state = {};
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=symset:Enhanced1'),
+        state,
+    );
+
+    assert.equal(
+        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state).displayCh,
+        '⌠',
+    );
+});
+
 test('UTF-8 symbols honor handling, customization, and set-reset boundaries', () => {
     const configured = (rc) => {
         const options = parseNethackrc(rc);
@@ -462,4 +647,86 @@ test('sym_val consumes the first configured UTF-8 byte and source escapes', () =
     assert.equal(sym_val('^'), 0x5E);
     assert.equal(sym_val(String.raw`\xZ`), 0x78);
     assert.equal(sym_val(String.raw`\o8`), 0x6F);
+});
+
+test('status uses source attribute order and exceptional strength text', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.flags = { female: false, showexp: true, time: true };
+    state.urole = {
+        name: { m: 'Barbarian' },
+        rank: { m: 'Plunderer' },
+    };
+    state.u = {
+        ux: 0,
+        uy: 0,
+        uz: { dlevel: 1 },
+        ulevel: 1,
+        uexp: 42,
+        uhp: 16,
+        uhpmax: 16,
+        uen: 1,
+        uenmax: 1,
+        uac: 8,
+        ualign: { type: -1 },
+        // Attribute storage is STR, INT, WIS, DEX, CON, CHA. These distinct
+        // values expose a display-order swap while 118 exercises 18/**.
+        acurr: { a: [118, 13, 14, 15, 16, 17] },
+    };
+    state.moves = 7;
+
+    await flush_screen(1);
+
+    const row = (index) => state.nhDisplay.grid[index]
+        .map((cell) => cell.ch).join('').trimEnd();
+    assert.match(
+        row(22),
+        /St:18\/\*\* Dx:15 Co:16 In:13 Wi:14 Ch:17 Chaotic$/,
+    );
+    assert.equal(
+        row(23),
+        'Dlvl:1 $:0 HP:16(16) Pw:1(1) AC:8 Xp:1/42 T:7',
+    );
+
+    // These values cover the two ends of exceptional strength and the first
+    // ordinary value after it: 18/01, 18/99, then 19.
+    for (const [strength, expected] of [
+        [19, '18/01'],
+        [117, '18/99'],
+        [119, '19'],
+    ]) {
+        state.u.acurr.a[0] = strength;
+        await bot();
+        assert.match(row(22), new RegExp(`St:${expected.replace('/', '\\/')} `));
+    }
+
+    state.flags.showexp = false;
+    state.flags.time = false;
+    await bot();
+    assert.equal(
+        row(23),
+        'Dlvl:1 $:0 HP:16(16) Pw:1(1) AC:8 Xp:1',
+    );
+
+    state.flags.showvers = true;
+    state.flags.versinfo = 1;
+    await bot();
+    assert.equal(row(23).slice(74), '5.0.0');
+
+    state.flags.versinfo = 3;
+    await bot();
+    assert.equal(row(23).slice(66), 'nethack 5.0.0');
+
+    state.flags.showvers = false;
+    state.u.uroleplay = { deaf: true };
+    await bot();
+    assert.match(row(23), / Xp:1 Deaf$/u);
+
+    state.plname = 'lowercase';
+    await bot();
+    assert.match(row(22), /^Lowercase the Plunderer/);
+
+    state.plname = 'ABCDEFGHIJKLMNOPQRSTUVWX';
+    await bot();
+    assert.match(row(22), /^ABCDEFGHIJKLMNOP the Plunderer/);
 });

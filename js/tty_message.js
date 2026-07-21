@@ -2,6 +2,7 @@
 // C refs: win/tty/topl.c update_topl(), more(), and xwaitforspace().
 
 import { game } from './gstate.js';
+import { flush_screen } from './display.js';
 import { nhgetch } from './input.js';
 import { NO_COLOR } from './terminal.js';
 
@@ -131,6 +132,10 @@ function rememberSuppressedMessage(state, message, columns) {
 export async function ttyPline(message, state = game) {
     const next = String(message);
     const columns = state.nhDisplay?.cols ?? 80;
+    // C ref: pline.c vpline(). Once the hero is on the map, every message
+    // flushes pending map and bottom-line changes before update_topl() can
+    // wrap into a blocking More prompt.
+    if (state === game && state.u?.ux) await flush_screen(1);
     // "You die" is update_topl()'s exception to WIN_STOP.  Other messages
     // continue updating gt.toplines for history but remain invisible.
     if (state._ttyMessageStopped && !next.startsWith('You die')) {

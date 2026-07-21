@@ -32,12 +32,26 @@ import {
 } from './monsters.js';
 import { rn2 } from './rng.js';
 
-const TIN_VARIETY_COUNT = 15; // tintxts[] entries before its empty sentinel
-const HEALTH_FOOD_FODDER = Object.freeze([
-    false, true, true, false, true,
-    true, true, true, false, true,
-    false, false, false, true, true,
+// C ref: eat.c tintxts[]. obj.spe stores the index (negated and offset), so
+// table order is part of the object representation.
+export const TIN_VARIETIES = Object.freeze([
+    Object.freeze({ name: 'rotten', healthFood: false }),
+    Object.freeze({ name: 'homemade', healthFood: true }),
+    Object.freeze({ name: 'soup made from', healthFood: true }),
+    Object.freeze({ name: 'french fried', healthFood: false }),
+    Object.freeze({ name: 'pickled', healthFood: true }),
+    Object.freeze({ name: 'boiled', healthFood: true }),
+    Object.freeze({ name: 'smoked', healthFood: true }),
+    Object.freeze({ name: 'dried', healthFood: true }),
+    Object.freeze({ name: 'deep fried', healthFood: false }),
+    Object.freeze({ name: 'szechuan', healthFood: true }),
+    Object.freeze({ name: 'broiled', healthFood: false }),
+    Object.freeze({ name: 'stir fried', healthFood: false }),
+    Object.freeze({ name: 'sauteed', healthFood: false }),
+    Object.freeze({ name: 'candied', healthFood: true }),
+    Object.freeze({ name: 'pureed', healthFood: true }),
 ]);
+const TIN_VARIETY_COUNT = TIN_VARIETIES.length;
 function tinEnv(env = {}) {
     const random = env.random ?? { rn2 };
     if (typeof random.rn2 !== 'function')
@@ -70,7 +84,7 @@ function vegan(monster) {
         || monster.mlet === S_GHOST;
 }
 
-function vegetarian(monster) {
+export function vegetarian(monster) {
     return vegan(monster)
         || (monster.mlet === S_PUDDING
             && monster.pmidx !== PM_BLACK_PUDDING);
@@ -113,7 +127,7 @@ export function set_tin_variety(obj, forcetype, env = {}) {
         if (variety < 0 || variety >= TIN_VARIETY_COUNT)
             variety = ROTTEN_TIN;
         while ((variety === ROTTEN_TIN && !obj.cursed)
-               || !HEALTH_FOOD_FODDER[variety]) {
+               || !TIN_VARIETIES[variety].healthFood) {
             variety = random.rn2(TIN_VARIETY_COUNT);
         }
     } else if (forcetype >= 0 && forcetype < TIN_VARIETY_COUNT) {

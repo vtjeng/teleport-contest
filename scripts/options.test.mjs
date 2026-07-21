@@ -68,6 +68,8 @@ test('startup option defaults use source role indices and zero roleplay', () => 
         },
     );
     assert.equal(parsed.playmode, 'normal');
+    assert.equal(parsed.flags.showvers, false);
+    assert.equal(parsed.flags.versinfo, 1);
     assert.equal(parsed.preferred_pet, '');
     assert.equal(parsed.roleFilter.mask, 0);
     assert.equal(parsed.roleFilter.roles.length, roles.length);
@@ -821,6 +823,17 @@ test('valid unported startup option mappings remain available', () => {
             unknown,
         );
     }
+});
+
+test('showvers and versinfo preserve the release-build status selection', () => {
+    const parsed = parseNethackrc('OPTIONS=showvers,versinfo:3');
+    assert.equal(parsed.flags.showvers, true);
+    assert.equal(parsed.flags.versinfo, 3);
+    assert.equal(parseNethackrc('OPTIONS=versinfo:7').flags.versinfo, 7);
+    assert.throws(
+        () => parseNethackrc('OPTIONS=versinfo:8'),
+        /versinfo.*1 through 7/u,
+    );
 });
 
 test('prefix options validate their source suffixes', () => {

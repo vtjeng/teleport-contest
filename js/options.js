@@ -230,7 +230,11 @@ function defaultResult() {
             verbose: true,
             pushweapon: false,
             showexp: false,
+            showvers: false,
             time: false,
+            // Recorder release builds have no git-branch metadata, so
+            // options.c defaults versinfo to VI_NUMBER.
+            versinfo: 1,
         },
         iflags: {
             wc_color: true,
@@ -1292,6 +1296,16 @@ function applyOption(result, optionState, option, lineNumber) {
             result.flags.suppress_alert = value;
         } else if (name === 'msg_window') {
             result.iflags.prevmsg_window = value;
+        } else if (name === 'versinfo') {
+            const versinfo = Number.parseInt(value, 10);
+            if (!Number.isInteger(versinfo)
+                || versinfo < 1 || versinfo > 7) {
+                optionError(
+                    lineNumber,
+                    "'versinfo' must be a bitmask from 1 through 7",
+                );
+            }
+            result.flags.versinfo = versinfo;
         } else {
             // This parser currently gives source semantics to the startup
             // subset above. Preserve other valid options for later subsystem

@@ -4,8 +4,7 @@
 import { PICK_ONE } from './const.js';
 import { find_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { ATR_INVERSE, NO_COLOR } from './terminal.js';
-import { selectTtyMenu } from './tty_menu.js';
+import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
 import { dismissPendingTtyMessage } from './tty_message.js';
 
 const REPROMPT = Symbol('tutorial menu needs an explicit choice');
@@ -15,16 +14,6 @@ function configFileLabel(configFileName) {
         return 'your configuration file';
     const components = String(configFileName).split(/[\\/]/u);
     return components.at(-1) || 'your configuration file';
-}
-
-function menuTitleStyle(state) {
-    const style = state.iflags?.menu_headings;
-    return {
-        titleAttr: Number.isInteger(style?.attr)
-            ? style.attr : ATR_INVERSE,
-        titleColor: Number.isInteger(style?.color)
-            ? style.color : NO_COLOR,
-    };
 }
 
 export function buildTutorialMenuSpec(

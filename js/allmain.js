@@ -1,25 +1,40 @@
 // allmain.js — Main game loop.
 // C ref: allmain.c — newgame, moveloop, moveloop_core.
 //
-// Residual post-mklev replay remains while inventory and level population are
-// ported. The PRNG-owning pre-mklev initializers below are source-derived;
+// Per-turn replay remains while command and turn subsystems are ported. The
+// PRNG-owning initializers and new-game sequence below are source-derived;
 // UUID, notice, and glyph-map setup remain to be ported.
 
 import { game } from './gstate.js';
+import { RLOC_NOMSG } from './const.js';
+import { makedog } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
+import { m_at } from './monst.js';
 import { init_objects } from './o_init.js';
+import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
 import { init_dungeons } from './dungeon.js';
 import { init_artifacts } from './artifacts.js';
 import { role_init, welcomeMessage } from './role_init.js';
 import { u_init_misc } from './u_init.js';
+import {
+    find_ac,
+    u_init_inventory_attrs,
+} from './u_init_inventory_attrs.js';
+import { use_initial_inventory } from './u_init_inventory_use.js';
+import {
+    finalize_startup_skills,
+    initialspell,
+} from './startup_skills.js';
+import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen } from './display.js';
 import { ttyPline } from './tty_message.js';
+import { check_special_room_state } from './rooms.js';
+import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
 import {
-    fastforward_post_mklev,
     fastforward_step,
 } from './fastforward.js';
 
@@ -60,25 +75,42 @@ export async function newgame() {
     // is part of mklev(), so hero placement follows it.
     u_on_upstairs();
 
-    // Fast-forward through the unported inventory/attribute startup RNG.
-    fastforward_post_mklev();
-
-    // Residual state owned by the unported inventory/attribute startup. Hero
-    // identity, HP, Pw, alignment, and gender now come from source ports.
-    g._goldCount = 757;
-    g.u.uac = 10;
-    g.u.acurr = { a: [9, 14, 12, 11, 16, 16] };
-    g.u.amax = { a: [9, 14, 12, 11, 16, 16] };
-    g.moves = 1;
-
-    // Initial display
+    // C ref: allmain.c newgame(). Vision and room membership must observe the
+    // final hero square before an existing monster is displaced and the
+    // starting pet chooses a neighboring square.
     init_vision_globals();
     vision_reset();
+    check_special_room_state(false, g);
+    const stairOccupant = m_at(g.u.ux, g.u.uy, g);
+    if (stairOccupant)
+        mnexto(stairOccupant, RLOC_NOMSG, { state: g });
+    makedog({ state: g });
+
+    const objectHooks = objectGenerationHooks();
+    u_init_inventory_attrs(g, undefined, { objectHooks });
+
+    // Initial display
     vision_recalc(0);
     await cls();
     await docrt();
     await flush_screen(1);
     await bot();
+
+    // C ref: allmain.c newgame(). Only the final inventory reaches equipment,
+    // discovery, spell, and skill initialization.
+    while (g.u.uroleplay.reroll && await reroll_menu(g)) {
+        u_init_inventory_attrs(g, undefined, { objectHooks });
+        await bot();
+    }
+
+    // C ref: u_init.c u_init_skills_discoveries().
+    use_initial_inventory({
+        state: g,
+        hooks: objectHooks,
+        initialSpell: initialspell,
+    });
+    finalize_startup_skills(g);
+    find_ac(g);
 
     // C ref: allmain.c newgame() -> com_pager("legacy").
     await ttyLegacyIntroduction(g);
