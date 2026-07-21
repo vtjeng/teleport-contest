@@ -1,8 +1,9 @@
 // Monster names and novel-title data.
 // C ref: src/do_name.c christen_monst(), rndghostname(),
-// sir_Terry_novels[], and noveltitle().
+// sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import { PL_PSIZ } from './const.js';
+import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import { rn2 } from './rng.js';
@@ -138,4 +139,116 @@ export function noveltitle(novelidx = undefined, env = {}) {
         selected = novelidx;
     }
     return { novelidx: stored, title: SIR_TERRY_NOVELS[selected] };
+}
+
+function asciiFold(value) {
+    return String(value).replace(
+        /[A-Z]/gu,
+        (character) => String.fromCharCode(character.charCodeAt(0) + 32),
+    );
+}
+
+function sameTitle(left, right) {
+    return asciiFold(left) === asciiFold(right);
+}
+
+function startsWithThe(title) {
+    return sameTitle(String(title).slice(0, 4), 'the ');
+}
+
+function matchingArtifactName(name, state) {
+    const candidate = startsWithThe(name) ? String(name).slice(4) : String(name);
+    for (let index = 1; state.artilist?.[index]?.otyp; ++index) {
+        const artifactName = state.artilist[index].name;
+        if (typeof artifactName !== 'string') continue;
+        const comparable = startsWithThe(artifactName)
+            ? artifactName.slice(4)
+            : artifactName;
+        if (sameTitle(candidate, comparable)) return artifactName;
+    }
+    return null;
+}
+
+function fruitNameForcesArticle(title, state) {
+    if (!state.gf?.ffruit) return false;
+    if (!fruit_from_name(title, true, state)) return false;
+    const artifactName = matchingArtifactName(title, state);
+    return !artifactName || startsWithThe(artifactName);
+}
+
+// Lookup-specific port of the objnam.c the()/The() decisions which can affect
+// the fixed novel catalog.  Proper title casing normally suppresses “the,”
+// while a configured fruit name can force it back unless an artifact with the
+// same name deliberately lacks the article.
+function withDefiniteArticle(title, state) {
+    const text = String(title);
+    if (startsWithThe(text)) return `T${text.slice(1)}`;
+
+    let insertThe = !/^[A-Z]/u.test(text)
+        || fruitNameForcesArticle(text, state);
+    if (!insertThe) {
+        const lastSpace = text.lastIndexOf(' ');
+        const separator = lastSpace >= 0
+            ? lastSpace
+            : text.lastIndexOf('-');
+        if (separator >= 0 && !/^[A-Z]/u.test(text.slice(separator + 1))) {
+            insertThe = !text.includes("'");
+        } else if (separator >= 0 && text.indexOf(' ') < separator) {
+            const folded = asciiFold(text);
+            const ofIndex = folded.indexOf(' of ');
+            const namedIndex = folded.indexOf(' named ');
+            const calledIndex = folded.indexOf(' called ');
+            const namingIndex = namedIndex < 0
+                ? calledIndex
+                : calledIndex < 0
+                    ? namedIndex
+                    : Math.min(namedIndex, calledIndex);
+            insertThe = ofIndex >= 0
+                && (namingIndex < 0 || ofIndex < namingIndex);
+        }
+    }
+    const result = insertThe ? `the ${text}` : text;
+    return result ? result[0].toUpperCase() + result.slice(1) : result;
+}
+
+// C ref: do_name.c lookup_novel(). Preserve an already valid generated index
+// when the supplied title is unknown; sp_lev.c uses only the updated index and
+// leaves the explicitly supplied object name intact.
+export function lookup_novel(lookname, novelidx = undefined, env = {}) {
+    const state = env.state ?? game;
+    let sought = String(lookname);
+    if (sameTitle(
+        withDefiniteArticle(sought, state),
+        'The Color of Magic',
+    )) {
+        sought = SIR_TERRY_NOVELS[0];
+    } else if (sameTitle(sought, 'Sorcery')) {
+        sought = SIR_TERRY_NOVELS[4];
+    } else if (sameTitle(sought, 'Masquerade')) {
+        sought = SIR_TERRY_NOVELS[17];
+    } else if (sameTitle(
+        withDefiniteArticle(sought, state),
+        'The Amazing Maurice',
+    )) {
+        sought = SIR_TERRY_NOVELS[27];
+    } else if (sameTitle(sought, 'Thud')) {
+        sought = SIR_TERRY_NOVELS[33];
+    }
+
+    const matchedIndex = SIR_TERRY_NOVELS.findIndex(
+        (title) => sameTitle(sought, title)
+            || sameTitle(withDefiniteArticle(sought, state), title),
+    );
+    if (matchedIndex >= 0) {
+        return {
+            novelidx: matchedIndex,
+            title: SIR_TERRY_NOVELS[matchedIndex],
+        };
+    }
+    if (Number.isInteger(novelidx)
+        && novelidx >= 0
+        && novelidx < SIR_TERRY_NOVELS.length) {
+        return { novelidx, title: SIR_TERRY_NOVELS[novelidx] };
+    }
+    return { novelidx, title: null };
 }

@@ -10,6 +10,8 @@ import {
     SP_COORD_IS_RANDOM,
 } from './const.js';
 import { bury_an_obj } from './bury.js';
+import { lookup_novel } from './do_name.js';
+import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import {
     add_to_container,
@@ -35,6 +37,7 @@ import {
     EGG,
     FIGURINE,
     RANDOM_CLASS,
+    SPE_NOVEL,
     STATUE,
     TIN,
 } from './objects.js';
@@ -75,7 +78,10 @@ function specialObjectEnvironment(rawEnv = {}) {
 
 function packedCoordinate(specification) {
     const coordinate = specification.coordinate;
-    if (coordinate == null) return SP_COORD_IS_RANDOM;
+    if (coordinate == null
+        || (coordinate.x === -1 && coordinate.y === -1)) {
+        return SP_COORD_IS_RANDOM;
+    }
     if (!Number.isInteger(coordinate.x)
         || !Number.isInteger(coordinate.y)) {
         throw new TypeError(
@@ -180,6 +186,8 @@ function uncurseSpecialObject(obj, env) {
 
 function blessorcurseSpecialObject(obj, env) {
     if (obj.blessed || obj.cursed) return;
+    // Source quirk: blessorcurse(otmp, 1) deliberately consumes rn2(1)
+    // before its independent blessed-versus-cursed rn2(2) draw.
     if (!env.random.rn2(1)) {
         if (env.random.rn2(2)) blessSpecialObject(obj, env);
         else curseSpecialObject(obj, env);
@@ -275,6 +283,14 @@ function applyObjectFields(obj, specification, env) {
                 specification,
             );
         }
+        if (obj.otyp === SPE_NOVEL) {
+            const lookedUp = lookup_novel(
+                String(specification.name),
+                obj.novelidx,
+                env,
+            );
+            obj.novelidx = lookedUp.novelidx;
+        }
     }
 
     if (specification.eroded) {
@@ -320,6 +336,9 @@ function impossible(message, env) {
 }
 
 function putInCurrentContainer(obj, context, env) {
+    // A null entry is an active tombstone: the intended parent was destroyed
+    // after being pushed (for example, a buried rock), so subsequent children
+    // are created and then uncreated at the source's normal boundary.
     const parent = context.containers[context.containers.length - 1];
     remove_object(obj, env);
     if (!parent) {
@@ -341,6 +360,8 @@ function pushContainer(obj, context, env) {
     if (context.containers.length < MAX_CONTAINMENT) {
         context.containers.push(obj);
     } else {
+        // create_object() reports the depth error without pushing.  The
+        // enclosing lspo_object() still pops one descriptor slot afterward.
         impossible('create_object: too deeply nested containers.', env);
     }
 }
@@ -360,6 +381,17 @@ function finalizeTopLevelObject(obj, specification, context, env) {
 
 function createOneObject(specification, croom, env) {
     const context = env.spObjectContext;
+    const deadParent = specification.content
+        && context.containers.at(-1) === null;
+    if (specification.id === STATUE
+        && specification.corpsenm === NON_PM
+        && !deadParent
+        && on_level(env.state.u?.uz, env.state.medusa_level)) {
+        throw new UnsupportedSpecialObjectError(
+            'Medusa-level generic-statue population',
+            specification,
+        );
+    }
     const coordinate = { x: -1, y: -1 };
     get_location_coord(
         coordinate,
@@ -408,7 +440,9 @@ export function create_object(specification, croom, rawEnv = {}) {
 
 // Lua-facing semantic operation: nonmergeable exact quantities create one
 // object per unit, the callback sees the final result, then one container slot
-// is popped when the descriptor declared contents.
+// is popped when the descriptor declared contents.  That final pop also
+// preserves the source quirk when MAX_CONTAINMENT rejected the corresponding
+// push.
 export function lspo_object(specification, croom, rawEnv = {}) {
     const env = specialObjectEnvironment(rawEnv);
     const context = env.spObjectContext;

@@ -853,8 +853,10 @@ export function stackobj(obj, env = {}) {
     return obj;
 }
 
-// C ref: shk.c delete_contents(). Extracting each child before freeing it
-// updates container ownership and weight at the same source boundary as C.
+// C ref: shk.c delete_contents(). Preflight the whole sibling chain before
+// extracting any child, so a missing lifecycle dependency cannot partially
+// destroy a container.  Extraction then updates ownership and weight at the
+// same source boundary as C.
 export function delete_contents(container, env = {}) {
     const normalized = inventoryEnv(env);
     for (let current = container?.cobj ?? null;

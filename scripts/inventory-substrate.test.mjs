@@ -63,6 +63,7 @@ import {
     GOLD_PIECE,
     LUCKSTONE,
     SACK,
+    TALLOW_CANDLE,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -201,6 +202,78 @@ test('stackobj preserves the newly placed floor object as merge target', () => {
     assert.equal(older.where, OBJ_DELETED);
 });
 
+test('stackobj transfers live merge state before deleting the older pile', () => {
+    const state = initializedState();
+    state.level = new GameMap();
+    // Age 100 puts both candles in the same 25-turn merge bucket; quantities
+    // two and three make survivor identity and combined weight observable.
+    const older = instance(TALLOW_CANDLE, state, {
+        age: 100,
+        lamplit: true,
+        quan: 2,
+        timed: 1,
+    });
+    const newer = instance(TALLOW_CANDLE, state, {
+        age: 100,
+        lamplit: true,
+        quan: 3,
+        timed: 1,
+    });
+    place_object(older, 10, 5, { state });
+    place_object(newer, 10, 5, { state });
+    const events = [];
+
+    assert.equal(stackobj(newer, {
+        state,
+        hooks: {
+            extractExternalObject(obj) {
+                events.push(['extract', obj]);
+                assert.equal(newer.quan, 5);
+                assert.equal(state.level.objects[10][5], newer);
+                assert.equal(state.level.objlist, newer);
+                assert.equal(newer.nobj, older);
+                assert.equal(newer.nexthere, older);
+                remove_object(obj, { state });
+            },
+            mergeLightSources(obj, target) {
+                events.push(['light', obj, target]);
+                assert.equal(obj.where, OBJ_FREE);
+                assert.equal(obj.nobj, null);
+                assert.equal(obj.nexthere, null);
+                assert.equal(obj.lamplit, true);
+                assert.equal(obj.timed, 1);
+                assert.equal(target.where, OBJ_FLOOR);
+                assert.equal(target.lamplit, true);
+                assert.equal(target.timed, 1);
+            },
+            stopObjectTimers(obj) {
+                events.push(['timers', obj]);
+                assert.equal(obj.lamplit, false);
+                obj.timed = 0;
+            },
+        },
+    }), newer);
+
+    assert.deepEqual(events, [
+        ['extract', older],
+        ['light', older, newer],
+        ['timers', older],
+    ]);
+    assert.equal(state.level.objects[10][5], newer);
+    assert.equal(state.level.objlist, newer);
+    assert.equal(newer.quan, 5);
+    assert.equal(newer.owt, weight(newer, { state }));
+    assert.equal(newer.lamplit, true);
+    assert.equal(newer.timed, 1);
+    assert.equal(newer.nobj, null);
+    assert.equal(newer.nexthere, null);
+    assert.equal(older.where, OBJ_DELETED);
+    assert.equal(older.lamplit, false);
+    assert.equal(older.timed, 0);
+    assert.equal(older.nobj, null);
+    assert.equal(older.nexthere, null);
+});
+
 test('delete_contents extracts and frees each child before returning', () => {
     const state = initializedState();
     const sack = instance(SACK, state);
@@ -216,6 +289,134 @@ test('delete_contents extracts and frees each child before returning', () => {
     assert.equal(sack.owt, state.objects[SACK].oc_weight);
     assert.equal(ration.where, OBJ_DELETED);
     assert.equal(apple.where, OBJ_DELETED);
+});
+
+test('delete_contents preflights every sibling before changing ownership', () => {
+    const state = initializedState();
+    const sack = instance(SACK, state);
+    const candle = instance(TALLOW_CANDLE, state, { lamplit: true });
+    const apple = instance(APPLE, state);
+    addinv(sack, { state });
+    add_to_container(sack, candle, { state });
+    add_to_container(sack, apple, { state });
+    sack.owt = weight(sack, { state });
+    const originalWeight = sack.owt;
+
+    assert.throws(
+        () => delete_contents(sack, { state }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'deleteObjectLightSource',
+    );
+
+    assert.equal(sack.cobj, apple);
+    assert.equal(apple.nobj, candle);
+    assert.equal(apple.where, OBJ_CONTAINED);
+    assert.equal(candle.where, OBJ_CONTAINED);
+    assert.equal(apple.ocontainer, sack);
+    assert.equal(candle.ocontainer, sack);
+    assert.equal(candle.lamplit, true);
+    assert.equal(sack.owt, originalWeight);
+});
+
+test('delete_contents preflights the whole nested graph before mutation', () => {
+    const state = initializedState();
+    const outer = instance(SACK, state);
+    const inner = instance(BAG_OF_HOLDING, state);
+    const candle = instance(TALLOW_CANDLE, state, { lamplit: true });
+    const apple = instance(APPLE, state);
+    addinv(outer, { state });
+    add_to_container(outer, inner, { state });
+    add_to_container(inner, candle, {
+        state,
+        hooks: { objectNoLongerHeld() {} },
+    });
+    add_to_container(outer, apple, { state });
+    inner.owt = weight(inner, { state });
+    outer.owt = weight(outer, { state });
+    const originalInnerWeight = inner.owt;
+    const originalOuterWeight = outer.owt;
+
+    assert.throws(
+        () => delete_contents(outer, { state }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'deleteObjectLightSource',
+    );
+
+    assert.equal(outer.cobj, apple);
+    assert.equal(apple.nobj, inner);
+    assert.equal(inner.cobj, candle);
+    assert.equal(apple.where, OBJ_CONTAINED);
+    assert.equal(inner.where, OBJ_CONTAINED);
+    assert.equal(candle.where, OBJ_CONTAINED);
+    assert.equal(apple.ocontainer, outer);
+    assert.equal(inner.ocontainer, outer);
+    assert.equal(candle.ocontainer, inner);
+    assert.equal(candle.lamplit, true);
+    assert.equal(inner.owt, originalInnerWeight);
+    assert.equal(outer.owt, originalOuterWeight);
+});
+
+test('delete_contents recursively stops timers and removes object lights', () => {
+    const state = initializedState();
+    const outer = instance(SACK, state);
+    const inner = instance(BAG_OF_HOLDING, state);
+    const candle = instance(TALLOW_CANDLE, state, { lamplit: true });
+    const egg = instance(EGG, state, {
+        // Any real species works here; the timer lifecycle is under test.
+        corpsenm: TEST_SPECIES,
+        timed: 1,
+    });
+    addinv(outer, { state });
+    add_to_container(outer, inner, { state });
+    add_to_container(inner, candle, {
+        state,
+        hooks: { objectNoLongerHeld() {} },
+    });
+    add_to_container(inner, egg, {
+        state,
+        hooks: { objectNoLongerHeld() {} },
+    });
+    inner.owt = weight(inner, { state });
+    outer.owt = weight(outer, { state });
+    const events = [];
+
+    delete_contents(outer, {
+        state,
+        hooks: {
+            stopObjectTimers(obj) {
+                events.push(['timers', obj]);
+                assert.equal(obj.where, OBJ_FREE);
+                assert.equal(obj.nobj, null);
+                assert.equal(obj.ocontainer, null);
+                obj.timed = 0;
+            },
+            deleteObjectLightSource(obj) {
+                events.push(['light', obj]);
+                assert.equal(obj.where, OBJ_FREE);
+                assert.equal(obj.nobj, null);
+                assert.equal(obj.ocontainer, null);
+            },
+        },
+    });
+
+    assert.deepEqual(events, [
+        ['timers', egg],
+        ['light', candle],
+    ]);
+    assert.equal(outer.cobj, null);
+    assert.equal(outer.owt, state.objects[SACK].oc_weight);
+    assert.equal(inner.cobj, null);
+    assert.equal(inner.where, OBJ_DELETED);
+    assert.equal(egg.where, OBJ_DELETED);
+    assert.equal(candle.where, OBJ_DELETED);
+    assert.equal(egg.timed, 0);
+    assert.equal(candle.lamplit, false);
+    assert.equal(inner.nobj, null);
+    assert.equal(egg.nobj, null);
+    assert.equal(candle.nobj, null);
+    assert.equal(inner.ocontainer, null);
+    assert.equal(egg.ocontainer, null);
+    assert.equal(candle.ocontainer, null);
 });
 
 test('add_to_buried owns a LIFO chain without changing coordinates', () => {

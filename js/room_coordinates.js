@@ -257,22 +257,24 @@ export function get_location(coordinate, humidity, croom, rawEnv = {}) {
     return coordinate;
 }
 
-function unpackCoordinate(packedCoordinate, defaultHumidity) {
+function unpackCoordinate(packedCoordinate, callerHumidity) {
     const packed = Number(packedCoordinate) >>> 0;
     if (packed & SP_COORD_IS_RANDOM) {
-        const flags = packed & ~SP_COORD_IS_RANDOM;
+        // Random coordinates can carry their own humidity flags in the packed
+        // value.  An empty payload inherits the operation's caller humidity.
+        const packedFlags = packed & ~SP_COORD_IS_RANDOM;
         return {
             x: -1,
             y: -1,
             isRandom: true,
-            flags: flags || defaultHumidity,
+            flags: packedFlags || callerHumidity,
         };
     }
     return {
         x: packed & 0xff,
         y: (packed >>> 16) & 0xff,
         isRandom: false,
-        flags: defaultHumidity,
+        flags: callerHumidity,
     };
 }
 
@@ -292,6 +294,9 @@ export function get_location_coord(
         croom,
         rawEnv,
     );
+    // A packed random coordinate first searches with NO_LOC_WARN using its
+    // embedded flags (or caller humidity when empty).  If that returns the
+    // negative sentinel, retry once with caller humidity as passed.
     if (coordinate.x === -1 && coordinate.y === -1 && unpacked.isRandom)
         get_location(coordinate, humidity, croom, rawEnv);
     return coordinate;
