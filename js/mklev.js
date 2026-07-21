@@ -14,7 +14,7 @@ import {
     on_level,
 } from './dungeon.js';
 import { mkcorpstat } from './corpstat.js';
-import { make_engr_at, wipe_engr_at } from './engrave.js';
+import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
 import { add_to_container } from './invent.js';
 import { makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
@@ -95,6 +95,7 @@ import {
     DUST,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
+    IS_LAVA,
     SPACE_POS, isok, W_NONDIGGABLE, FILL_NONE, FILL_NORMAL,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL,
     DBWALL, AIR, CLOUD,
@@ -423,6 +424,24 @@ function roomIsFillable(croom) {
         && croom.needfill === FILL_NORMAL);
 }
 
+// C refs: nhlua.c nhl_init(); dat/nhlib.lua. Each dungeon branch retains its
+// own themed-room Lua state, including nhlib's shuffled alignment array.
+export function initialize_themeroom_branch(state = game, random = rn2) {
+    const dnum = state.u?.uz?.dnum ?? 0;
+    state._luathemes_loaded ??= {};
+    state.themeroom_align ??= {};
+    if (!state._luathemes_loaded[dnum]) {
+        const align = ['law', 'neutral', 'chaos'];
+        for (let i = align.length; i > 1; --i) {
+            const j = random(i);
+            [align[i - 1], align[j]] = [align[j], align[i - 1]];
+        }
+        state.themeroom_align[dnum] = align;
+        state._luathemes_loaded[dnum] = true;
+    }
+    return state.themeroom_align[dnum];
+}
+
 // C ref: mklev.c makelevel()
 async function makelevel() {
     const g = game;
@@ -440,16 +459,7 @@ async function makelevel() {
     // Regular level generation
     // C ref: mklev.c:382-388 — load themerms.lua for themed rooms
     // nhlib.lua shuffle when loading themerms.lua (first level of branch)
-    const dnum = g.u?.uz?.dnum ?? 0;
-    if (!g._luathemes_loaded) g._luathemes_loaded = {};
-    if (!g._luathemes_loaded[dnum]) {
-        const themedAlign = ['law', 'neutral', 'chaos'];
-        for (let i = themedAlign.length; i > 1; i--) {
-            const j = rn2(i);
-            [themedAlign[i - 1], themedAlign[j]] = [themedAlign[j], themedAlign[i - 1]];
-        }
-        g._luathemes_loaded[dnum] = true;
-    }
+    initialize_themeroom_branch(g, rn2);
 
     await makerooms();
 
@@ -626,6 +636,32 @@ function themeroom_map_fits(definition, xstart, ystart, state) {
     return true;
 }
 
+// C ref: sp_lev.c sel_set_ter(), as called by lspo_map(). Map loading clears
+// the location metadata before setting terrain. The map's default lit=false
+// still leaves lava lit, and door orientation depends on the already-loaded
+// cell immediately to its left.
+function set_themeroom_map_terrain(x, y, typ, state) {
+    const loc = state.level.at(x, y);
+    loc.flags = 0;
+    loc.doormask = 0;
+    loc.horizontal = false;
+    loc.roomno = 0;
+    loc.edge = false;
+    if (!set_levltyp(x, y, typ, { state })) return;
+    loc.lit = IS_LAVA(typ);
+
+    if (typ === SDOOR || IS_DOOR(typ)) {
+        if (typ === SDOOR) loc.doormask = D_CLOSED;
+        const left = x ? state.level.at(x - 1, y) : null;
+        if (left && (IS_WALL(left.typ) || left.horizontal))
+            loc.horizontal = true;
+    } else if (typ === HWALL || typ === IRONBARS) {
+        loc.horizontal = true;
+    } else if (typ === CLOUD) {
+        del_engr_at(x, y, state);
+    }
+}
+
 // C ref: sp_lev.c lspo_map(). The themed-room form chooses an unconstrained
 // origin, preserves transparent cells, and retries rather than overwriting a
 // previously generated room.
@@ -646,14 +682,7 @@ export function lspo_map(definition, random = rn2, state = game) {
         for (let x = 0; x < width; x++) {
             const typ = splev_chr2typ(rows[y][x]);
             if (typ >= MAX_TYPE) continue;
-            const loc = state.level.at(xstart + x, ystart + y);
-            loc.flags = 0;
-            loc.doormask = 0;
-            loc.horizontal = typ === HWALL || typ === IRONBARS;
-            loc.roomno = 0;
-            loc.edge = false;
-            loc.typ = typ;
-            loc.lit = false;
+            set_themeroom_map_terrain(xstart + x, ystart + y, typ, state);
         }
     }
     return { x: xstart, y: ystart, width, height };
@@ -691,15 +720,51 @@ function flood_fill_themeroom(sx, sy, roomno, lit, state) {
     return { minx, maxx, miny, maxy };
 }
 
-// C refs: themerms.lua filler_region(); sp_lev.c lspo_region(). This slice
-// creates the irregular room and its ordinary-fill marker. The 30% themed-fill
-// callback remains part of the next themeroom-fill subsystem.
-function filler_region(definition, origin, random, randomOneBased) {
+export class UnsupportedThemeroomActionError extends Error {
+    constructor(definition, detail) {
+        super(`themed room ${JSON.stringify(definition?.name ?? definition?.id)} ${detail}`);
+        this.name = 'UnsupportedThemeroomActionError';
+        this.definitionId = definition?.id ?? null;
+    }
+}
+
+function invoke_themeroom_fill(room, definition, context) {
+    if (typeof context.themeroomFill !== 'function') {
+        if (context.allowMissingFill) return;
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            'requires an injected themeroom-fill callback',
+        );
+    }
+    // Lua invokes contents before leaving the current room context. Keep this
+    // call synchronous and pass the indexed room that selection.room() needs.
+    context.themeroomFill(room, {
+        definition,
+        difficulty: context.difficulty,
+        random: context.random,
+        randomOneBased: context.randomOneBased,
+        state: game,
+    });
+}
+
+// C refs: themerms.lua filler_region(); sp_lev.c lspo_region().
+function filler_region(filler, origin, definition, context) {
     const state = game;
-    const themed = random(100) < 30;
-    const lit = litstate_rnd(-1, random, randomOneBased);
-    const sx = origin.x + definition.filler.x;
-    const sy = origin.y + definition.filler.y;
+    const themed = context.random(100) < 30;
+    if (themed && typeof context.themeroomFill !== 'function'
+        && !context.allowMissingFill) {
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            'requires an injected themeroom-fill callback',
+        );
+    }
+    const lit = litstate_rnd(
+        -1,
+        context.random,
+        context.randomOneBased,
+    );
+    const sx = origin.x + filler.x;
+    const sy = origin.y + filler.y;
     const roomIndex = state.level.nroom;
     const bounds = flood_fill_themeroom(sx, sy, roomIndex + ROOMOFFSET, lit, state);
     if (!bounds) return false;
@@ -714,13 +779,148 @@ function filler_region(definition, origin, random, randomOneBased) {
     room.irregular = true;
     room.needjoining = true;
     room.needfill = FILL_NORMAL;
+    if (themed) invoke_themeroom_fill(room, definition, context);
     return true;
 }
 
-// C ref: themerms.lua themerooms_generate(). Static map shapes with a directly
-// extractable filler_region callback are ported below. Descriptors without
-// extracted map/filler data temporarily use the default rectangular-room path;
-// their Lua callbacks are not executed here.
+function room_type_from_schema(type, definition) {
+    if (type === 'ordinary') return OROOM;
+    if (type === 'themed') return THEMEROOM;
+    throw new UnsupportedThemeroomActionError(
+        definition,
+        `has unsupported room type ${JSON.stringify(type)}`,
+    );
+}
+
+// C refs: sp_lev.c build_room(), lspo_room(). Preserve the room construction
+// boundary: chance, create, topology, deferred-fill/join flags, then contents.
+function dispatch_room_action(definition, context) {
+    const action = definition.action;
+    const spec = action.room;
+    if (action.contents && action.contents.kind !== 'themeroom-fill') {
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            `has unsupported room contents ${JSON.stringify(action.contents.kind)}`,
+        );
+    }
+    if (action.contents && typeof context.themeroomFill !== 'function') {
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            'requires an injected themeroom-fill callback',
+        );
+    }
+
+    const chance = spec.chance ?? 100;
+    const declaredType = room_type_from_schema(spec.type, definition);
+    const roomType = (!chance || context.random(100) < chance)
+        ? declaredType
+        : OROOM;
+    const ok = create_room(
+        spec.x ?? -1,
+        spec.y ?? -1,
+        spec.w ?? -1,
+        spec.h ?? -1,
+        -1,
+        -1,
+        roomType,
+        spec.lit ?? -1,
+        context.random,
+        context.randomOneBased,
+    );
+    if (!ok) return false;
+
+    const room = game.level.rooms[game.level.nroom - 1];
+    topologize(room);
+    room.needfill = spec.filled ?? FILL_NONE;
+    room.needjoining = spec.joined ?? true;
+    if (action.contents) invoke_themeroom_fill(room, definition, context);
+    return true;
+}
+
+// C refs: dat/nhlib.lua shuffle(); sp_lev.c lspo_replace_terrain(). nhlib's
+// math.random(i) shim is 1 + nh.rn2(i), so Fisher-Yates and every matching-cell
+// chance check consume the same injected core stream as the recorder.
+function blocked_center_contents(definition, origin, context) {
+    if (context.random(100) < 30) {
+        const terrain = [HWALL, POOL];
+        for (let i = terrain.length; i > 1; --i) {
+            const j = context.random(i);
+            [terrain[i - 1], terrain[j]] = [terrain[j], terrain[i - 1]];
+        }
+        const toTerrain = terrain[0];
+        for (let x = origin.x + 1; x <= origin.x + 9; ++x) {
+            for (let y = origin.y + 1; y <= origin.y + 9; ++y) {
+                const loc = game.level.at(x, y);
+                if (loc?.typ === LAVAPOOL && context.random(100) < 100)
+                    set_levltyp(x, y, toTerrain, { state: game });
+            }
+        }
+    }
+    return filler_region(
+        definition.action.contents.filler,
+        origin,
+        definition,
+        context,
+    );
+}
+
+function dispatch_map_action(definition, context) {
+    const contents = definition.action.contents;
+    const supported = contents?.kind === 'filler-region'
+        || (contents?.kind === 'handler' && contents.handler === 'blocked-center');
+    if (!supported) {
+        const handler = contents?.handler ?? contents?.kind ?? 'missing contents';
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            `requires unimplemented map handler ${JSON.stringify(handler)}`,
+        );
+    }
+
+    const origin = lspo_map(definition, context.random);
+    if (!origin) return false;
+    if (contents.kind === 'handler')
+        return blocked_center_contents(definition, origin, context);
+    return filler_region(contents.filler, origin, definition, context);
+}
+
+// Runtime counterpart to a selected themerms.lua contents function. Keep this
+// export narrow so focused tests and future direct-name diagnostics can execute
+// a source-derived descriptor without recreating reservoir selection.
+export function dispatch_themeroom(
+    definition,
+    random = rn2,
+    randomOneBased = rnd,
+    env = {},
+) {
+    const context = {
+        difficulty: env.difficulty ?? level_difficulty(game),
+        random,
+        randomOneBased,
+        themeroomFill: env.themeroomFill,
+    };
+    switch (definition?.action?.kind) {
+    case 'room':
+        return dispatch_room_action(definition, context);
+    case 'map':
+        return dispatch_map_action(definition, context);
+    case 'handler':
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            `requires unimplemented direct handler ${JSON.stringify(definition.action.handler)}`,
+        );
+    default:
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            `has unsupported action ${JSON.stringify(definition?.action?.kind)}`,
+        );
+    }
+}
+
+// C ref: themerms.lua themerooms_generate(). The live generator retains the
+// previous partial-runtime boundary until every selected callback can execute:
+// direct filler maps run without their optional fill, and other callbacks use
+// the ordinary-room fallback. dispatch_themeroom() is the strict integration
+// seam for completing that transition without partially mutating a level.
 export async function themerooms_generate(
     difficulty,
     random = rn2,
@@ -730,25 +930,35 @@ export async function themerooms_generate(
     if (!pick) return false;
     if (pick.map && pick.filler) {
         const origin = lspo_map(pick, random);
-        return origin ? filler_region(pick, origin, random, randomOneBased) : false;
+        return origin ? filler_region(
+            pick.filler,
+            origin,
+            pick,
+            {
+                allowMissingFill: true,
+                difficulty,
+                random,
+                randomOneBased,
+                themeroomFill: null,
+            },
+        ) : false;
     }
 
     // sp_lev.c build_room() evaluates the default 100% chance with rn2(100).
     random(100);
     const ok = create_room(-1, -1, -1, -1, -1, -1, OROOM, -1);
     if (ok) {
-        // C ref: sp_lev.c:2824 — build_room calls topologize after create_room
-        const aroom = game.level.rooms[game.level.nroom - 1];
-        if (aroom) {
-            topologize(aroom);
-            aroom.needfill = FILL_NORMAL;
+        const room = game.level.rooms[game.level.nroom - 1];
+        if (room) {
+            topologize(room);
+            room.needfill = FILL_NORMAL;
         }
     }
     return ok;
 }
 
 // C ref: sp_lev.c check_room()
-function check_room(lowx, ddx, lowy, ddy, vault) {
+function check_room(lowx, ddx, lowy, ddy, vault, random = rn2) {
     const map = game.level;
     let hix = lowx.v + ddx.v, hiy = lowy.v + ddy.v;
     const xlim = XLIM + (vault ? 1 : 0);
@@ -774,7 +984,7 @@ function check_room(lowx, ddx, lowy, ddy, vault) {
             for (; y <= ymax; y++) {
                 const loc = map.at(x, y);
                 if (loc && loc.typ !== STONE) {
-                    if (!rn2(3)) return false;
+                    if (!random(3)) return false;
                     if (game.in_mk_themerooms) return false;
                     if (x < lowx.v) lowx.v = x + xlim + 1;
                     else hix = x - xlim - 1;
@@ -798,7 +1008,11 @@ function check_room(lowx, ddx, lowy, ddy, vault) {
 }
 
 // C ref: sp_lev.c create_room()
-function create_room(x, y, w, h, xal, yal, rtype, rlit) {
+function create_room(
+    x, y, w, h, xal, yal, rtype, rlit,
+    random = rn2,
+    randomOneBased = rnd,
+) {
     const g = game;
     let xabs = 0, yabs = 0;
     let r1 = null, r2 = null;
@@ -812,21 +1026,21 @@ function create_room(x, y, w, h, xal, yal, rtype, rlit) {
         xlim++;
         ylim++;
     }
-    rlit = litstate_rnd(rlit);
+    rlit = litstate_rnd(rlit, random, randomOneBased);
     do {
         wtmp = w; htmp = h;
         let xtmp = x, ytmp = y;
         let xaltmp = xal, yaltmp = yal;
         if ((xtmp < 0 && ytmp < 0 && wtmp < 0 && xaltmp < 0 && yaltmp < 0) || vault) {
-            r1 = rnd_rect();
+            r1 = rnd_rect(random);
             if (!r1) return false;
             const hx = r1.hx, hy = r1.hy, lx = r1.lx, ly = r1.ly;
             let dx, dy;
             if (vault) {
                 dx = dy = 1;
             } else {
-                dx = 2 + rn2((hx - lx > 28) ? 12 : 8);
-                dy = 2 + rn2(4);
+                dx = 2 + random((hx - lx > 28) ? 12 : 8);
+                dy = 2 + random(4);
                 if (dx * dy > 50) dy = Math.trunc(50 / dx);
             }
             const xborder = (lx > 0 && hx < COLNO - 1) ? 2 * xlim : xlim + 1;
@@ -836,18 +1050,18 @@ function create_room(x, y, w, h, xal, yal, rtype, rlit) {
                 continue;
             }
             xabs = lx + (lx > 0 ? xlim : 3)
-                   + rn2(hx - (lx > 0 ? lx : 3) - dx - xborder + 1);
+                   + random(hx - (lx > 0 ? lx : 3) - dx - xborder + 1);
             yabs = ly + (ly > 0 ? ylim : 2)
-                   + rn2(hy - (ly > 0 ? ly : 2) - dy - yborder + 1);
+                   + random(hy - (ly > 0 ? ly : 2) - dy - yborder + 1);
             if (ly === 0 && hy >= ROWNO - 1
-                && (!g.level.nroom || !rn2(g.level.nroom))
+                && (!g.level.nroom || !random(g.level.nroom))
                 && (yabs + dy > Math.trunc(ROWNO / 2))) {
-                yabs = rn1(3, 2);
+                yabs = randomOneBased(3) + 1;
                 if (g.level.nroom < 4 && dy > 1) dy--;
             }
             const lowx = { v: xabs }, ddx = { v: dx };
             const lowy = { v: yabs }, ddy = { v: dy };
-            if (!check_room(lowx, ddx, lowy, ddy, vault)) {
+            if (!check_room(lowx, ddx, lowy, ddy, vault, random)) {
                 r1 = null;
                 continue;
             }

@@ -25,8 +25,11 @@ import {
     P_NONE,
     P_SHURIKEN,
     RANDOM_TIN,
+    REVIVE_MON,
+    ROT_CORPSE,
     ROWNO,
     SPINACH_TIN,
+    TIMER_OBJECT,
     W_ARM,
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
@@ -55,6 +58,7 @@ import {
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
     obj_stop_timers,
+    start_timer,
     start_corpse_timeout,
     start_glob_timeout,
     stop_timer,
@@ -1489,6 +1493,85 @@ export function place_object(obj, x, y, env = {}) {
     obj.where = OBJ_FLOOR;
     obj.nobj = state.level.objlist ?? null;
     state.level.objlist = obj;
+    return obj;
+}
+
+function chainPredecessor(head, target, link, label) {
+    const seen = new Set();
+    let previous = null;
+    for (let current = head; current; current = current[link]) {
+        if (typeof current !== 'object' || seen.has(current))
+            throw new Error(`${label} is corrupt`);
+        seen.add(current);
+        if (current === target) return previous;
+        previous = current;
+    }
+    throw new Error(
+        `${label}: object ${target?.o_id ?? '?'} is not on the chain`,
+    );
+}
+
+// C ref: mkobj.c obj_timer_checks(), reached from remove_object(). A floor
+// removal can only take a corpse off ice: extract_nobj() has already changed
+// where to OBJ_FREE, so the source's "placed on ice" arm is unreachable here.
+function corpseTimerOffIce(obj, state) {
+    if (obj.otyp !== CORPSE || !obj.on_ice) return;
+
+    let action = ROT_CORPSE;
+    let timeLeft = stop_timer(action, obj, state);
+    if (timeLeft === 0) {
+        action = REVIVE_MON;
+        timeLeft = stop_timer(action, obj, state);
+    }
+    if (timeLeft === 0) return;
+
+    obj.on_ice = false;
+    timeLeft = Math.trunc(timeLeft / 2);
+    const age = Math.trunc(state.moves ?? 0) - Math.trunc(obj.age ?? 0);
+    obj.age += Math.trunc(age / 2);
+    start_timer(timeLeft, TIMER_OBJECT, action, obj, state);
+}
+
+// C ref: mkobj.c remove_object(). Floor objects have two independent links;
+// validate both before changing either so a JS ownership error cannot orphan
+// an object from just one index.
+export function remove_object(obj, env = {}) {
+    const normalized = lifecycleEnv(env);
+    const { state } = normalized;
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('remove_object requires an object');
+    if (obj.where !== OBJ_FLOOR) {
+        throw new Error(
+            `remove_object: object where=${obj.where}, expected floor`,
+        );
+    }
+    const { ox: x, oy: y } = obj;
+    if (!Number.isInteger(x) || !Number.isInteger(y)
+        || x < 0 || x >= COLNO || y < 0 || y >= ROWNO) {
+        throw new RangeError(`remove_object: off-map location <${x},${y}>`);
+    }
+
+    const grid = floorObjectGrid(state);
+    const pilePrevious = chainPredecessor(
+        grid[x][y], obj, 'nexthere', 'floor object pile',
+    );
+    const listPrevious = chainPredecessor(
+        state.level.objlist ?? null, obj, 'nobj', 'level object list',
+    );
+    const recalcBlockPoint = obj.otyp === BOULDER
+        ? requiredHook(normalized, 'recalcBlockPoint', obj)
+        : null;
+
+    if (pilePrevious) pilePrevious.nexthere = obj.nexthere;
+    else grid[x][y] = obj.nexthere;
+    if (listPrevious) listPrevious.nobj = obj.nobj;
+    else state.level.objlist = obj.nobj;
+    obj.nexthere = null;
+    obj.nobj = null;
+    obj.where = OBJ_FREE;
+
+    if (recalcBlockPoint) recalcBlockPoint(x, y, normalized);
+    if (obj.timed) corpseTimerOffIce(obj, state);
     return obj;
 }
 

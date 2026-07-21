@@ -276,13 +276,25 @@ test('object light deletion follows identity and preserves other owners', () => 
     assert.equal(state.vision_full_recalc, 1);
 });
 
+test('oil lamps use the source warning boundaries and radius', () => {
+    const state = burnState();
+    const lamp = candle(OIL_LAMP, { age: 1000 });
+    begin_burn(lamp, false, { state });
+
+    assert.equal(lamp.age, 150);
+    assert.equal(lamp.lamplit, true);
+    assert.equal(peek_timer(BURN_OBJECT, lamp, state), 10 + 850);
+    assert.equal(state.gl.light_base.range, 3);
+    assert.equal(state.gl.light_base.id, lamp);
+});
+
 test('unsupported burn and light paths fail before claiming ownership', () => {
     const state = burnState();
-    const lamp = candle(OIL_LAMP);
+    const unsupported = candle(-1);
     assert.throws(
-        () => begin_burn(lamp, false, { state }),
+        () => begin_burn(unsupported, false, { state }),
         (error) => error instanceof UnsupportedBurnObjectError
-            && error.otyp === OIL_LAMP,
+            && error.otyp === -1,
     );
     assert.equal(state.gt.timer_base, null);
     assert.equal(state.gl.light_base, null);

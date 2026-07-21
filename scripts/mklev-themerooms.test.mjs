@@ -2,19 +2,37 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    CROSSWALL, HWALL, MAXNROFROOMS, ROOM, ROOMOFFSET, STONE, VWALL,
+    CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL, LAVAPOOL,
+    MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, STONE, THEMEROOM,
+    VWALL,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
+    dispatch_themeroom,
+    initialize_themeroom_branch,
     lspo_map,
     select_themeroom,
     themerooms_generate,
+    UnsupportedThemeroomActionError,
 } from '../js/mklev.js';
+import { init_rect } from '../js/rect.js';
 import { THEMEROOM_DEFINITIONS } from '../js/themeroom_data.js';
 
 function crossDefinition() {
     return THEMEROOM_DEFINITIONS.find((definition) => definition.name === 'Cross');
+}
+
+function definitionById(id) {
+    return THEMEROOM_DEFINITIONS.find((definition) => definition.id === id);
+}
+
+function resetThemeroomLevel() {
+    resetGame();
+    game.level = new GameMap();
+    game.u = { uz: { dnum: 0, dlevel: 1 } };
+    game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
+    init_rect();
 }
 
 test('themeroom reservoir selects Cross in source order', () => {
@@ -123,4 +141,267 @@ test('themeroom generation connects selection, map placement, and filler region'
     assert.equal(game.level.at(37, 10).roomno, ROOMOFFSET);
     assert.equal(game.level.at(34, 4).roomno, ROOMOFFSET);
     assert.notEqual(game.level.at(34, 4).typ, CROSSWALL);
+});
+
+test('generic room descriptors set topology and flags before synchronous contents', () => {
+    const cases = [
+        // The source default is an ordinary room scheduled for normal fill.
+        ['default', OROOM, FILL_NORMAL, false],
+        // The three weighted variants are themed; only the last also requests
+        // ordinary room contents through filled=1.
+        ['default-room-with-themed-fill', THEMEROOM, FILL_NONE, true],
+        ['unlit-room-with-themed-fill', THEMEROOM, FILL_NONE, true],
+        ['room-with-both-normal-contents-and-themed-fill', THEMEROOM, FILL_NORMAL, true],
+    ];
+
+    for (const [id, roomType, needfill, hasContents] of cases) {
+        resetThemeroomLevel();
+        let phase = 'dispatching';
+        let callbackCount = 0;
+        const random = () => 0;
+        const randomOneBased = (bound) => bound;
+        const result = dispatch_themeroom(
+            definitionById(id),
+            random,
+            randomOneBased,
+            {
+                difficulty: 1,
+                themeroomFill(room) {
+                    ++callbackCount;
+                    assert.equal(phase, 'dispatching');
+                    assert.equal(room.rtype, roomType);
+                    assert.equal(room.needfill, needfill);
+                    assert.equal(room.needjoining, true);
+                    assert.equal(
+                        game.level.at(room.lx, room.ly).roomno,
+                        ROOMOFFSET,
+                    );
+                },
+            },
+        );
+        phase = 'returned';
+
+        assert.equal(result, true, id);
+        assert.equal(callbackCount, hasContents ? 1 : 0, id);
+        assert.equal(game.level.nroom, 1, id);
+        const room = game.level.rooms[0];
+        assert.equal(room.rtype, roomType, id);
+        assert.equal(room.needfill, needfill, id);
+        assert.equal(room.needjoining, true, id);
+        if (id === 'unlit-room-with-themed-fill')
+            assert.equal(room.rlit, 0);
+    }
+});
+
+test('all static filler-map descriptors dispatch through filler_region', () => {
+    const fillerMaps = THEMEROOM_DEFINITIONS.filter(
+        (definition) => definition.action.kind === 'map'
+            && definition.action.contents.kind === 'filler-region',
+    );
+    // The source table has exactly 17 static maps whose callbacks only call
+    // filler_region; Blocked center and Water-surrounded vault are separate.
+    assert.equal(fillerMaps.length, 17);
+
+    for (const definition of fillerMaps) {
+        resetThemeroomLevel();
+        const result = dispatch_themeroom(
+            definition,
+            // Midpoint origins keep every map and its one-cell halo in bounds;
+            // rn2(100)=50 selects filler_region's ordinary 70% branch.
+            (bound) => Math.floor(bound / 2),
+            (bound) => bound,
+            { difficulty: 1 },
+        );
+        assert.equal(result, true, definition.id);
+        assert.equal(game.level.nroom, 1, definition.id);
+        assert.equal(game.level.rooms[0].irregular, true, definition.id);
+        assert.equal(game.level.rooms[0].needfill, FILL_NORMAL, definition.id);
+    }
+});
+
+test('map loading preserves sel_set_ter lighting and door orientation', () => {
+    const state = { level: new GameMap() };
+    const definition = {
+        // The left wall precedes '+' in source iteration order, while 'L' is
+        // a lava pool whose light overrides the map's default lit=false.
+        map: ['-----', '|+L.|', '-----'],
+        width: 5,
+        height: 3,
+    };
+    const results = [9, 4];
+    const origin = lspo_map(definition, (bound) => {
+        assert.ok(results.length, `unexpected rn2(${bound})`);
+        return results.shift();
+    }, state);
+
+    assert.deepEqual(origin, { x: 10, y: 4, width: 5, height: 3 });
+    assert.equal(state.level.at(11, 5).typ, DOOR);
+    assert.equal(state.level.at(11, 5).horizontal, true);
+    assert.equal(state.level.at(12, 5).typ, LAVAPOOL);
+    assert.equal(state.level.at(12, 5).lit, true);
+    assert.equal(state.level.at(13, 5).typ, ROOM);
+    assert.equal(state.level.at(13, 5).lit, false);
+});
+
+test('Blocked center uses core shuffle and matching-cell chance draws in order', () => {
+    resetThemeroomLevel();
+    const scripted = [
+        [68, 30], // map x origin: 1 + 30 = 31
+        [10, 4], // map y origin: 4
+        [100, 0], // enter Blocked center's 30% replacement branch
+        [2, 0], // nhlib math.random(2): swap pool into the first slot
+        // replace_terrain's default 100% chance still draws once for each of
+        // the nine matching lava cells, in x-major then y-major order.
+        ...Array.from({ length: 9 }, () => [100, 0]),
+        [100, 99], // filler_region takes its ordinary 70% branch
+        [77, 76], // the depth-one irregular room is lit
+    ];
+    const events = [];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        const next = scripted.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        assert.equal(bound, 2); // rnd(1 + abs(depth)) at depth one
+        return 2;
+    };
+
+    assert.equal(
+        dispatch_themeroom(
+            definitionById('blocked-center'),
+            random,
+            randomOneBased,
+            { difficulty: 1 },
+        ),
+        true,
+    );
+    assert.equal(scripted.length, 0);
+    assert.deepEqual(events, [
+        'rn2(68)', 'rn2(10)', 'rn2(100)', 'rn2(2)',
+        ...Array.from({ length: 9 }, () => 'rn2(100)'),
+        'rn2(100)', 'rnd(2)', 'rn2(77)',
+    ]);
+    for (let x = 35; x <= 37; ++x) {
+        for (let y = 8; y <= 10; ++y) {
+            assert.equal(game.level.at(x, y).typ, POOL);
+            // replace_terrain defaults to lit=-2, so converted lava retains
+            // the light established while loading the map.
+            assert.equal(game.level.at(x, y).lit, true);
+        }
+    }
+});
+
+test('Blocked center replace_terrain scans matching cells x-major', () => {
+    resetThemeroomLevel();
+    const stop = new Error('stop on third matching-cell chance draw');
+    let call = 0;
+    const random = (bound) => {
+        ++call;
+        if (call === 1) return 30; // x origin 31
+        if (call === 2) return 4; // y origin 4
+        if (call === 3) return 0; // enter the replacement branch
+        if (call === 4) return 0; // shuffle pool into terrain[0]
+        if (call === 7) throw stop;
+        assert.equal(bound, 100);
+        return 0;
+    };
+
+    assert.throws(
+        () => dispatch_themeroom(
+            definitionById('blocked-center'),
+            random,
+            (bound) => bound,
+            { difficulty: 1 },
+        ),
+        (error) => error === stop,
+    );
+    // The first two x-major cells changed before the third draw threw. A
+    // y-major traversal would have changed (36,8) instead of (35,9).
+    assert.equal(game.level.at(35, 8).typ, POOL);
+    assert.equal(game.level.at(35, 9).typ, POOL);
+    assert.equal(game.level.at(36, 8).typ, LAVAPOOL);
+});
+
+test('filler_region invokes an injected fill after registering room flags', () => {
+    resetThemeroomLevel();
+    const scripted = [
+        [68, 30], [10, 4], // place Cross at (31,4)
+        [100, 0], // take filler_region's 30% themed branch
+        [77, 76], // light the region at depth one
+    ];
+    let callbackCount = 0;
+    const random = (bound) => {
+        const next = scripted.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+
+    assert.equal(dispatch_themeroom(
+        crossDefinition(),
+        random,
+        (bound) => bound,
+        {
+            difficulty: 1,
+            themeroomFill(room) {
+                ++callbackCount;
+                assert.equal(room.rtype, THEMEROOM);
+                assert.equal(room.irregular, true);
+                assert.equal(room.needjoining, true);
+                assert.equal(room.needfill, FILL_NORMAL);
+                assert.equal(game.level.at(37, 10).roomno, ROOMOFFSET);
+            },
+        },
+    ), true);
+    assert.equal(callbackCount, 1);
+    assert.equal(scripted.length, 0);
+});
+
+test('unimplemented direct and Water vault handlers fail before mutation', () => {
+    for (const id of ['fake-delphi', 'water-surrounded-vault']) {
+        resetThemeroomLevel();
+        let randomCalls = 0;
+        assert.throws(
+            () => dispatch_themeroom(
+                definitionById(id),
+                () => { ++randomCalls; return 0; },
+                (bound) => bound,
+                { difficulty: 1 },
+            ),
+            UnsupportedThemeroomActionError,
+        );
+        assert.equal(randomCalls, 0, id);
+        assert.equal(game.level.nroom, 0, id);
+        assert.equal(game.level.at(10, 10).typ, STONE, id);
+    }
+});
+
+test('themed alignment shuffle is retained independently per branch', () => {
+    const state = { u: { uz: { dnum: 2 } } };
+    const calls = [];
+    const first = initialize_themeroom_branch(state, (bound) => {
+        calls.push(bound);
+        return 0;
+    });
+    // Choosing index zero for the length-three and length-two Fisher-Yates
+    // steps transforms [law, neutral, chaos] into [neutral, chaos, law].
+    assert.deepEqual(calls, [3, 2]);
+    assert.deepEqual(first, ['neutral', 'chaos', 'law']);
+    assert.equal(state.themeroom_align[2], first);
+
+    const again = initialize_themeroom_branch(state, () => {
+        throw new Error('an initialized branch must not reshuffle');
+    });
+    assert.equal(again, first);
+
+    state.u.uz.dnum = 3;
+    const second = initialize_themeroom_branch(state, (bound) => bound - 1);
+    assert.deepEqual(second, ['law', 'neutral', 'chaos']);
+    assert.notEqual(second, first);
+    assert.equal(state.themeroom_align[2], first);
+    assert.equal(state.themeroom_align[3], second);
 });

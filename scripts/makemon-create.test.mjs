@@ -11,6 +11,7 @@ import {
     NO_MINVENT,
     OBJ_MINVENT,
     ROOM,
+    W_AMUL,
     W_ARMH,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -21,7 +22,9 @@ import {
 import {
     M2_ORC,
     PM_ELF,
+    PM_FOG_CLOUD,
     PM_FOX,
+    PM_GHOST,
     PM_GOBLIN,
     PM_GRID_BUG,
     PM_HUMAN,
@@ -32,13 +35,18 @@ import {
     PM_NEWT,
     PM_ORC,
     PM_SEWER_RAT,
+    PM_WOOD_NYMPH,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
 import {
+    AMULET_OF_LIFE_SAVING,
     DART,
+    MIRROR,
     ORCISH_DAGGER,
     ORCISH_HELM,
+    POT_OBJECT_DETECTION,
+    WAN_DIGGING,
     objects_globals_init,
 } from '../js/objects.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
@@ -162,6 +170,207 @@ test('non-armed initial monsters preserve source state and RNG order', () => {
         assert.equal(state.context.ident, 3);
         if (mndx === PM_LICHEN) assert.equal(monster.female, false);
         else assert.equal(monster.female, true);
+    }
+});
+
+test('fog-cloud creation keeps mindless random-item gates drawless', () => {
+    const state = initialLevelState();
+    const random = scriptedRandom([
+        step('rnd', [2], 1), // advance the monster id from 2 to 3
+        // Difficulty one lowers the level-three fog cloud to level two.
+        step('d', [2, 8], 9),
+        // Both rare gates pass, then muse.c rejects a mindless monster
+        // without consuming a random-item selection draw.
+        step('rn2', [50], 0),
+        step('rn2', [100], 0),
+        step('rn2', [100], 1), // non-domestic saddle gate
+    ]);
+    const monster = makemon(
+        state.mons[PM_FOG_CLOUD],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    assert.deepEqual([monster.m_lev, monster.mhp, monster.mhpmax], [2, 9, 9]);
+    assert.equal(monster.female, false);
+    assert.equal(monster.msleeping, false);
+    assert.equal(monster.mpeaceful, false);
+    assert.equal(monster.minvent, null);
+    assert.equal(state.mvitals[PM_FOG_CLOUD].born, 1);
+});
+
+test('wood nymph creation preserves source sleep and empty-inventory draws', () => {
+    const state = initialLevelState();
+    const random = scriptedRandom([
+        step('rnd', [2], 1), // advance the monster id from 2 to 3
+        // Difficulty one lowers the level-three nymph to level two.
+        step('d', [2, 8], 9),
+        step('rn2', [5], 1), // source nymph branch puts her to sleep
+        step('rn2', [2], 1), // no mirror
+        step('rn2', [2], 1), // no object-detection potion
+        step('rn2', [50], 2), // level two misses the defensive-item gate
+        step('rn2', [100], 2), // level two misses the misc-item gate
+        step('rn2', [100], 1), // non-domestic saddle gate
+    ]);
+    const monster = makemon(
+        state.mons[PM_WOOD_NYMPH],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    assert.equal(monster.female, true);
+    assert.equal(monster.msleeping, true);
+    assert.equal(monster.mpeaceful, false);
+    assert.equal(monster.minvent, null);
+    assert.equal(state.mvitals[PM_WOOD_NYMPH].born, 1);
+});
+
+test('wood nymph receives mirror then potion in source inventory order', () => {
+    const state = initialLevelState();
+    const random = scriptedRandom([
+        step('rnd', [2], 1), // monster id
+        step('d', [2, 8], 9), // level-two hit points
+        step('rn2', [5], 0), // nymph sleep branch leaves her awake
+        step('rn2', [2], 0), // create the mirror
+        step('rnd', [2], 1), // mirror object id
+        step('rn2', [2], 0), // create the object-detection potion
+        step('rnd', [2], 1), // potion object id
+        step('rn2', [4], 1), // potion stays uncursed and unblessed
+        step('rn2', [50], 2), // no rare defensive item
+        step('rn2', [100], 2), // no rare miscellaneous item
+        step('rn2', [100], 1), // non-domestic saddle gate
+    ]);
+    const monster = makemon(
+        state.mons[PM_WOOD_NYMPH],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    const potion = monster.minvent;
+    const mirror = potion.nobj;
+    assert.deepEqual(
+        [potion.otyp, potion.o_id, mirror.otyp, mirror.o_id],
+        [POT_OBJECT_DETECTION, 4, MIRROR, 3],
+    );
+    assert.equal(mirror.nobj, null);
+    assert.equal(state.context.ident, 5);
+});
+
+test('wood nymph rare defensive item keeps selector and wand-init order', () => {
+    const state = initialLevelState();
+    const random = scriptedRandom([
+        step('rnd', [2], 1), // monster id
+        step('d', [2, 8], 9), // level-two hit points
+        step('rn2', [5], 0), // nymph sleep branch leaves her awake
+        step('rn2', [2], 1), // no mirror
+        step('rn2', [2], 1), // no object-detection potion
+        step('rn2', [50], 0), // pass the rare defensive-item gate
+        // Difficulty five expands rnd_defensive_item() to nine cases; case
+        // seven is a wand of digging outside Sokoban.
+        step('rn2', [9], 7),
+        step('rnd', [2], 1), // wand object id
+        step('rn1', [5, 4], 6), // directed-wand charge count
+        step('rn2', [17], 1), // wand stays uncursed and unblessed
+        step('rn2', [100], 2), // no rare miscellaneous item
+        step('rn2', [100], 1), // non-domestic saddle gate
+    ]);
+    const monster = makemon(
+        state.mons[PM_WOOD_NYMPH],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    assert.equal(monster.minvent.otyp, WAN_DIGGING);
+    assert.equal(monster.minvent.spe, 6);
+    assert.equal(monster.minvent.owornmask, 0);
+});
+
+test('wood nymph wears a rare life-saving amulet during creation', () => {
+    const state = initialLevelState();
+    const random = scriptedRandom([
+        step('rnd', [2], 1), // monster id
+        step('d', [2, 8], 9), // level-two hit points
+        step('rn2', [5], 0), // nymph sleep branch leaves her awake
+        step('rn2', [2], 1), // no mirror
+        step('rn2', [2], 1), // no object-detection potion
+        step('rn2', [50], 2), // no rare defensive item
+        step('rn2', [100], 0), // pass the rare miscellaneous-item gate
+        step('rn2', [30], 1), // skip low-level polymorph item
+        step('rn2', [40], 0), // select life-saving amulet
+        step('rnd', [2], 1), // amulet object id
+        // mksobj() checks the bad-amulet curse set, then blessorcurse().
+        step('rn2', [10], 1),
+        step('rn2', [10], 1),
+        step('rn2', [100], 1), // non-domestic saddle gate
+    ]);
+    const monster = makemon(
+        state.mons[PM_WOOD_NYMPH],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    assert.equal(monster.minvent.otyp, AMULET_OF_LIFE_SAVING);
+    assert.equal(monster.minvent.owornmask, W_AMUL);
+    assert.equal(monster.misc_worn_check, W_AMUL);
+});
+
+test('ghost creation names from player or source ghost-name reservoir', () => {
+    const cases = [
+        {
+            name: 'player name branch',
+            nameSteps: [step('rn2', [7], 0)],
+            expected: 'Alice',
+        },
+        {
+            name: 'fixed ghost-name branch',
+            nameSteps: [
+                step('rn2', [7], 1),
+                // Index 26 is the first two-word entry, exercising exact
+                // reservoir order rather than a fixture-specific alias.
+                step('rn2', [34], 26),
+            ],
+            expected: 'Nick Danger',
+        },
+    ];
+
+    for (const scenario of cases) {
+        const state = initialLevelState();
+        state.plname = 'Alice';
+        const random = scriptedRandom([
+            step('rnd', [2], 1), // monster id
+            // Difficulty one lowers the level-ten ghost to level nine.
+            step('d', [9, 8], 30),
+            step('rn2', [2], 1), // retained corpse gender
+            ...scenario.nameSteps,
+        ]);
+        const monster = makemon(
+            state.mons[PM_GHOST],
+            MON_X,
+            MON_Y,
+            NO_MINVENT,
+            { state, random: random.random },
+        );
+        random.assertExhausted();
+
+        assert.equal(monster.mextra.mgivenname, scenario.expected, scenario.name);
+        assert.equal(monster.female, true, scenario.name);
+        assert.equal(monster.mpeaceful, false, scenario.name);
+        assert.equal(monster.minvent, null, scenario.name);
     }
 });
 

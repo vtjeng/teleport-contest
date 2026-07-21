@@ -1,7 +1,73 @@
-// Novel-title data used when naming spellbooks.
-// C ref: src/do_name.c sir_Terry_novels[] and noveltitle().
+// Monster names and novel-title data.
+// C ref: src/do_name.c christen_monst(), rndghostname(),
+// sir_Terry_novels[], and noveltitle().
 
+import { PL_PSIZ } from './const.js';
+import { game } from './gstate.js';
+import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import { rn2 } from './rng.js';
+
+const GHOST_NAMES = Object.freeze([
+    'Adri',
+    'Andries',
+    'Andreas',
+    'Bert',
+    'David',
+    'Dirk',
+    'Emile',
+    'Frans',
+    'Fred',
+    'Greg',
+    'Hether',
+    'Jay',
+    'John',
+    'Jon',
+    'Karnov',
+    'Kay',
+    'Kenny',
+    'Kevin',
+    'Maud',
+    'Michiel',
+    'Mike',
+    'Peter',
+    'Robert',
+    'Ron',
+    'Tom',
+    'Wilmar',
+    'Nick Danger',
+    'Phoenix',
+    'Jiro',
+    'Mizue',
+    'Stephan',
+    'Lance Braccus',
+    'Shadowhawk',
+    'Murphy',
+]);
+
+export function christen_monst(monster, name) {
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('christen_monst requires a monster instance');
+    const bytes = encodeUtf8ByteString(String(name ?? ''));
+    if (!bytes.length) {
+        if (monster.mextra) delete monster.mextra.mgivenname;
+        return monster;
+    }
+    monster.mextra ??= {};
+    monster.mextra.mgivenname = decodeUtf8ByteString(
+        bytes.slice(0, PL_PSIZ - 1),
+    );
+    return monster;
+}
+
+export function rndghostname(env = {}) {
+    const random = env.random ?? { rn2 };
+    const state = env.state ?? game;
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('rndghostname random injection requires rn2');
+    return random.rn2(7)
+        ? GHOST_NAMES[random.rn2(GHOST_NAMES.length)]
+        : String(state.plname ?? '');
+}
 
 export const SIR_TERRY_NOVELS = Object.freeze([
     'The Colour of Magic',

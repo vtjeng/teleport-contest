@@ -65,6 +65,7 @@
       "id": "world",
       "label": "Monsters and world",
       "paths": [
+        "js/bury.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
         "js/dog.js",
@@ -89,6 +90,8 @@
         "js/terrain.js",
         "js/teleport.js",
         "js/themeroom_data.js",
+        "js/themeroom_fill.js",
+        "js/themerooms.js",
         "js/track.js",
         "js/trap.js",
         "js/vision.js"

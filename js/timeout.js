@@ -40,7 +40,12 @@ import {
     PM_LIZARD,
     S_TROLL,
 } from './monsters.js';
-import { TALLOW_CANDLE, WAX_CANDLE } from './objects.js';
+import {
+    BRASS_LANTERN,
+    OIL_LAMP,
+    TALLOW_CANDLE,
+    WAX_CANDLE,
+} from './objects.js';
 import { rn1, rn2, rnd, rnz } from './rng.js';
 
 const NO_CLEANUP_ERROR = Symbol('no cleanup error');
@@ -335,13 +340,15 @@ export function obj_has_timer(obj, funcIndex, state = game) {
     return peek_timer(funcIndex, obj, state) !== 0;
 }
 
-// C ref: timeout.c begin_burn(), ordinary-candle cases. age is fuel remaining
-// before this segment; after scheduling it stores the fuel remaining when the
-// segment expires. The warning boundaries at 75, 15, and 0 split the timer.
+// C ref: timeout.c begin_burn(), ordinary candle and lamp cases. age is fuel
+// remaining before this segment; after scheduling it stores the fuel remaining
+// when the segment expires.
 export function begin_burn(obj, alreadyLit = false, env = {}) {
     const state = env.state ?? game;
     const normalized = { ...env, state, hooks: env.hooks ?? {} };
-    if (obj?.otyp !== TALLOW_CANDLE && obj?.otyp !== WAX_CANDLE)
+    const isCandle = obj?.otyp === TALLOW_CANDLE || obj?.otyp === WAX_CANDLE;
+    const isLamp = obj?.otyp === BRASS_LANTERN || obj?.otyp === OIL_LAMP;
+    if (!isCandle && !isLamp)
         throw new UnsupportedBurnObjectError(obj);
 
     const age = Math.trunc(obj.age ?? 0);
@@ -350,10 +357,19 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
         throw new RangeError(`begin_burn: invalid candle age ${obj.age}`);
 
     let turns;
-    if (age > 75) turns = age - 75;
-    else if (age > 15) turns = age - 15;
-    else turns = age;
-    const radius = candle_light_range(obj);
+    let radius = 3;
+    if (isLamp) {
+        if (age > 150) turns = age - 150;
+        else if (age > 100) turns = age - 100;
+        else if (age > 50) turns = age - 50;
+        else if (age > 25) turns = age - 25;
+        else turns = age;
+    } else {
+        if (age > 75) turns = age - 75;
+        else if (age > 15) turns = age - 15;
+        else turns = age;
+        radius = candle_light_range(obj);
+    }
     let updateInventory = null;
     let position = null;
 

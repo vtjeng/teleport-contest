@@ -22,9 +22,12 @@ import {
     M_SEEN_NOTHING,
     NO_MINVENT,
     OBJ_MINVENT,
+    SEE_INVIS,
+    W_AMUL,
     W_ARMH,
 } from './const.js';
 import { newedog } from './dog.js';
+import { christen_monst, rndghostname } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { add_to_minv } from './invent.js';
@@ -43,7 +46,9 @@ import {
     M2_GREEDY,
     NON_PM,
     PM_ELF,
+    PM_FOG_CLOUD,
     PM_FOX,
+    PM_GHOST,
     PM_GOBLIN,
     PM_GRID_BUG,
     PM_JACKAL,
@@ -55,11 +60,39 @@ import {
     PM_NEWT,
     PM_PONY,
     PM_SEWER_RAT,
+    PM_WOOD_NYMPH,
+    S_GHOST,
     S_KOBOLD,
+    S_KOP,
+    S_NYMPH,
     S_ORC,
 } from './monsters.js';
 import { mksobj, next_ident, weight } from './obj.js';
-import { DART, ORCISH_DAGGER, ORCISH_HELM } from './objects.js';
+import {
+    AMULET_CLASS,
+    AMULET_OF_LIFE_SAVING,
+    ARMOR_CLASS,
+    DART,
+    MIRROR,
+    ORCISH_DAGGER,
+    ORCISH_HELM,
+    POT_EXTRA_HEALING,
+    POT_FULL_HEALING,
+    POT_GAIN_LEVEL,
+    POT_HEALING,
+    POT_INVISIBILITY,
+    POT_OBJECT_DETECTION,
+    POT_POLYMORPH,
+    POT_SPEED,
+    SCR_CREATE_MONSTER,
+    SCR_TELEPORTATION,
+    WAN_CREATE_MONSTER,
+    WAN_DIGGING,
+    WAN_MAKE_INVISIBLE,
+    WAN_POLYMORPH,
+    WAN_SPEED_MONSTER,
+    WAN_TELEPORTATION,
+} from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto_core } from './teleport.js';
 
@@ -81,12 +114,22 @@ const INITIAL_LEVEL_MONSTERS = new Set([
     PM_LICHEN,
     PM_KOBOLD_ZOMBIE,
     PM_NEWT,
+    PM_FOG_CLOUD,
+    PM_WOOD_NYMPH,
+    PM_GHOST,
     PM_LITTLE_DOG,
     PM_KITTEN,
     PM_PONY,
 ]);
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
+
+// include/monattk.h and include/monflag.h predicates used by muse.c's
+// random-item selectors. monsters.js exports only the generated constants
+// needed broadly enough to share across modules.
+const AT_EXPL = 13;
+const M1_MINDLESS = 0x00010000;
+const M1_ANIMAL = 0x00040000;
 
 export class UnsupportedMonsterCreationError extends Error {
     constructor(operation) {
@@ -261,39 +304,155 @@ function m_initweap(monster, normalized) {
     }
 }
 
-// C ref: makemon.c m_initinv(). None of the initial-level species has a
-// class-specific branch, likes gold, or can pass either level-zero item gate.
+function rejectsRandomUseItems(species) {
+    return Boolean(species.mflags1 & (M1_MINDLESS | M1_ANIMAL))
+        || species.mattk.some((attack) => attack.aatyp === AT_EXPL)
+        || species.mlet === S_GHOST
+        || species.mlet === S_KOP;
+}
+
+function noTeleportLevel(state) {
+    if (state.level.flags.noteleport) return true;
+    const stasisUntil = state.level.flags.stasis_until;
+    return Number.isInteger(stasisUntil)
+        && stasisUntil >= Math.trunc(state.moves ?? 0);
+}
+
+// C ref: muse.c rnd_defensive_item(). Only the wood-nymph path can reach
+// item selection in this initial-level slice. Fog clouds are mindless and
+// ghosts are rejected by monster class before this function consumes RNG.
+function rnd_defensive_item(monster, normalized) {
+    const { random, state } = normalized;
+    const ptr = monster.data;
+    if (rejectsRandomUseItems(ptr)) return 0;
+    if (ptr.pmidx !== PM_WOOD_NYMPH) {
+        throw new UnsupportedMonsterCreationError(
+            `random defensive item for monster ${ptr.pmidx}`,
+        );
+    }
+
+    const difficulty = ptr.difficulty;
+    let trycnt = 0;
+    while (true) {
+        switch (random.rn2(
+            8 + Number(difficulty > 3)
+                + Number(difficulty > 6)
+                + Number(difficulty > 8),
+        )) {
+        case 6:
+        case 9:
+            if (noTeleportLevel(state) && ++trycnt < 2) continue;
+            if (!random.rn2(3)) return WAN_TELEPORTATION;
+            return SCR_TELEPORTATION;
+        case 0:
+        case 1:
+            return SCR_TELEPORTATION;
+        case 8:
+        case 10:
+            if (!random.rn2(3)) return WAN_CREATE_MONSTER;
+            return SCR_CREATE_MONSTER;
+        case 2:
+            return SCR_CREATE_MONSTER;
+        case 3:
+            return POT_HEALING;
+        case 4:
+            return POT_EXTRA_HEALING;
+        case 5:
+            return POT_FULL_HEALING;
+        case 7:
+            if (state.u.uz.dnum === state.sokoban_dnum && random.rn2(4))
+                continue;
+            return WAN_DIGGING;
+        default:
+            throw new Error('rnd_defensive_item selected an invalid case');
+        }
+    }
+}
+
+function heroHasProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+// C ref: muse.c rnd_misc_item(). Wood nymphs are living, non-vampiric,
+// hostile non-guards, so all source predicates below retain their ordinary
+// result while their short-circuit order stays visible.
+function rnd_misc_item(monster, normalized) {
+    const { random, state } = normalized;
+    const ptr = monster.data;
+    if (rejectsRandomUseItems(ptr)) return 0;
+    if (ptr.pmidx !== PM_WOOD_NYMPH) {
+        throw new UnsupportedMonsterCreationError(
+            `random miscellaneous item for monster ${ptr.pmidx}`,
+        );
+    }
+
+    if (ptr.difficulty < 6 && !random.rn2(30))
+        return random.rn2(6) ? POT_POLYMORPH : WAN_POLYMORPH;
+    if (!random.rn2(40)) return AMULET_OF_LIFE_SAVING;
+
+    switch (random.rn2(3)) {
+    case 0:
+        if (monster.isgd) return 0;
+        return random.rn2(6) ? POT_SPEED : WAN_SPEED_MONSTER;
+    case 1:
+        if (monster.mpeaceful && !heroHasProperty(state, SEE_INVIS)) return 0;
+        return random.rn2(6) ? POT_INVISIBILITY : WAN_MAKE_INVISIBLE;
+    case 2:
+        return POT_GAIN_LEVEL;
+    default:
+        throw new Error('rnd_misc_item selected an invalid case');
+    }
+}
+
+// C ref: makemon.c m_initinv(). The level-one ordinary reservoir retains its
+// prior fail-closed rare-item boundary; the three themed-fill species carry
+// their complete source behavior.
 function m_initinv(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     assertSupportedSpecies(ptr);
     if (isRogueLevel(state)) return;
 
+    if (ptr.mlet === S_NYMPH) {
+        if (!random.rn2(2)) mongets(monster, MIRROR, normalized);
+        if (!random.rn2(2))
+            mongets(monster, POT_OBJECT_DETECTION, normalized);
+    }
+
     if (monster.m_lev > random.rn2(50)) {
-        throw new UnsupportedMonsterCreationError('random defensive item');
+        mongets(monster, rnd_defensive_item(monster, normalized), normalized);
     }
     if (monster.m_lev > random.rn2(100)) {
-        throw new UnsupportedMonsterCreationError('random miscellaneous item');
+        mongets(monster, rnd_misc_item(monster, normalized), normalized);
     }
     if (ptr.mflags2 & M2_GREEDY) {
         throw new UnsupportedMonsterCreationError('gold-carrying monster');
     }
 }
 
-// C ref: worn.c m_dowear(). Within the supported inventory set, only an
-// orcish helm is wearable. It has no autocurse, light, or extrinsic effects.
+// C ref: worn.c m_dowear(). Within the supported inventory set, an orcish
+// helm and amulet of life saving are the only wearable objects. Neither has
+// an applicable creation-time extrinsic side effect.
 function m_dowear(monster) {
+    let amulet = null;
     let helm = null;
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj.where !== OBJ_MINVENT || obj.ocarry !== monster) {
             throw new Error('m_dowear found invalid monster inventory ownership');
         }
-        if (obj.otyp === ORCISH_HELM) helm = obj;
-        else if (obj.otyp !== ORCISH_DAGGER && obj.otyp !== DART) {
+        if (obj.otyp === AMULET_OF_LIFE_SAVING) amulet ??= obj;
+        else if (obj.otyp === ORCISH_HELM) helm = obj;
+        else if (obj.oclass === AMULET_CLASS
+            || obj.oclass === ARMOR_CLASS) {
             throw new UnsupportedMonsterCreationError(
                 `wearing object ${obj.otyp}`,
             );
         }
+    }
+    if (amulet && !amulet.owornmask) {
+        monster.misc_worn_check |= W_AMUL;
+        amulet.owornmask |= W_AMUL;
     }
     if (helm && !helm.owornmask) {
         monster.misc_worn_check |= W_ARMH;
@@ -391,7 +550,14 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         : peace_minded(ptr, normalized);
     if (ptr.mlet === S_ORC && state.urace.mnum === PM_ELF)
         monster.mpeaceful = false;
+    if (ptr.mlet === S_NYMPH
+        && random.rn2(5)
+        && !state.u.uhave.amulet) {
+        monster.msleeping = true;
+    }
     monster.cham = NON_PM;
+    if (mndx === PM_GHOST)
+        christen_monst(monster, rndghostname(normalized));
     if (byHero && !state.in_mklev) {
         // makemon.c calls set_apparxy() here. At initial startup the hero is
         // visible and undisplaced, so the source result is exact and drawless.

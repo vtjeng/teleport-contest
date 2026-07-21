@@ -59,9 +59,9 @@ export function get_rect(r) {
 
 // C ref: rect.c:103 rnd_rect()
 // RNG: rn2(rect_cnt)
-export function rnd_rect() {
+export function rnd_rect(random = rn2) {
     if (game.rect_cnt <= 0) return null;
-    return game.nhrect[rn2(game.rect_cnt)];
+    return game.nhrect[random(game.rect_cnt)];
 }
 export function get_rect_cnt() { return game.rect_cnt; }
 

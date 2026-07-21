@@ -12,12 +12,11 @@ import {
     M_AP_TYPMASK,
     MM_EDOG,
     NO_MINVENT,
-    PL_PSIZ,
     TELEPAT,
     W_SADDLE,
 } from './const.js';
+import { christen_monst } from './do_name.js';
 import { game } from './gstate.js';
-import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import { add_to_minv } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
@@ -36,6 +35,8 @@ import {
 import { mksobj } from './obj.js';
 import { EXPENSIVE_CAMERA, SADDLE } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+
+export { christen_monst } from './do_name.js';
 
 function dogEnv(env = {}) {
     return {
@@ -83,21 +84,6 @@ export function newedog(monster) {
         killed_by_u: false,
     };
     return monster.mextra.edog;
-}
-
-export function christen_monst(monster, name) {
-    if (!monster || typeof monster !== 'object')
-        throw new TypeError('christen_monst requires a monster instance');
-    monster.mextra ??= {};
-    const bytes = encodeUtf8ByteString(String(name ?? ''));
-    if (!bytes.length) {
-        delete monster.mextra.mgivenname;
-        return monster;
-    }
-    monster.mextra.mgivenname = decodeUtf8ByteString(
-        bytes.slice(0, PL_PSIZ - 1),
-    );
-    return monster;
 }
 
 // C ref: dog.c initedog().
