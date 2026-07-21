@@ -125,9 +125,10 @@ Run the heavier checks at these boundaries:
 Pass rules:
 
 - Native Codex subagents are available to both the primary session and processes
-  launched with `codex exec --ephemeral`; either context may use them for bounded
-  work that benefits from parallelism. Each formal skill pass, however, must run
-  independently from the primary session in a fresh top-level
+  launched with `codex exec --ephemeral`; either context may use them to
+  parallelize bounded work. This delegation permission does not replace the
+  isolation rule for formal skill passes: each pass must run independently from
+  the primary session in a fresh top-level
   `codex exec --ephemeral` process. Give that process only the pass's scoped
   review inputs, and do not reuse it for another pass. The process is the pass
   orchestrator and may assign the skill's reviewer roles to its own native
