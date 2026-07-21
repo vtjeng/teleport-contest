@@ -84,6 +84,9 @@ Git history do not grant permission to inspect the sealed local holdout.
   published aggregates when available; otherwise estimate from development
   and fresh differential evidence and state the uncertainty. Do not run the
   sealed local holdout merely to produce this estimate.
+- After committing a completed implementation chunk, add its exact code commit
+  SHA and estimate to `SCORE.md`, together with the evidence and uncertainty.
+  Tracker-only commits do not need their own score entry.
 - Prefer source-faithful subsystem improvements to isolated score gains. If
   a development gain does not transfer at an authorized holdout milestone,
   review the implementation against upstream and test the general behavior
