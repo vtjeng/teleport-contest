@@ -3,13 +3,17 @@ import test from 'node:test';
 
 import {
     A_NONE,
+    COST_DEGRD,
     MAX_OIL_IN_FLASK,
     NON_PM,
+    OBJ_CONTAINED,
     OBJ_DELETED,
+    OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_LUAFREE,
 } from '../js/const.js';
+import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     UnsupportedObjectOperationError,
@@ -19,6 +23,7 @@ import {
     mkobj,
     newObject,
     next_ident,
+    place_object,
     rnd_class,
     weight,
 } from '../js/obj.js';
@@ -33,6 +38,7 @@ import {
     BOULDER,
     CANDY_BAR,
     COIN_CLASS,
+    CRYSKNIFE,
     DART,
     EGG,
     FIGURINE,
@@ -56,6 +62,7 @@ import {
     TINNING_KIT,
     TOUCHSTONE,
     WAN_SLEEP,
+    WORM_TOOTH,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -76,6 +83,14 @@ function initializedState() {
     // Zero choices exercise the complete catalog initialization without using
     // the global game RNG that these substrate tests are trying to isolate.
     init_objects(state, () => 0);
+    return state;
+}
+
+function initializedFloorState() {
+    const state = initializedState();
+    state.level = new GameMap();
+    state.program_state = { gameover: false };
+    state.context.mon_moving = false;
     return state;
 }
 
@@ -137,6 +152,158 @@ function generateWithScript(otyp, draws, configure = () => {}) {
     random.done();
     return { obj, state };
 }
+
+test('place_object degrades an ordinary crysknife without an RNG draw', () => {
+    const state = initializedFloorState();
+    const knife = plainObject(CRYSKNIFE, state);
+    const random = scriptedRandom([]);
+    // An arbitrary empty interior square makes both floor indexes observable.
+    const x = 11;
+    const y = 7;
+
+    place_object(knife, x, y, {
+        state,
+        ...random,
+        hooks: {
+            costlyAlteration() {
+                assert.fail('an unbilled free object takes the source fast path');
+            },
+        },
+    });
+
+    assert.equal(knife.otyp, WORM_TOOTH);
+    assert.equal(knife.oerodeproof, false);
+    assert.equal(knife.where, OBJ_FLOOR);
+    assert.equal(knife.ox, x);
+    assert.equal(knife.oy, y);
+    assert.equal(state.level.objects[x][y], knife);
+    assert.equal(state.level.objlist, knife);
+    random.done();
+});
+
+test('place_object preserves or degrades a fixed crysknife from rn2(10)', () => {
+    const retainedState = initializedFloorState();
+    const retained = plainObject(CRYSKNIFE, retainedState, {
+        oerodeproof: true,
+        unpaid: true,
+    });
+    const retainedRandom = scriptedRandom([
+        // Any nonzero result preserves a fixed crysknife; 9 checks the bound.
+        { name: 'rn2', args: [10], result: 9 },
+    ]);
+    // Separate empty squares keep the two placement outcomes independent.
+    const retainedX = 12;
+    const retainedY = 7;
+    place_object(retained, retainedX, retainedY, {
+        state: retainedState,
+        ...retainedRandom,
+        hooks: {
+            costlyAlteration() {
+                assert.fail('billing occurs only when degradation occurs');
+            },
+        },
+    });
+    assert.equal(retained.otyp, CRYSKNIFE);
+    assert.equal(retained.oerodeproof, true);
+    assert.equal(retained.where, OBJ_FLOOR);
+    retainedRandom.done();
+
+    const degradedState = initializedFloorState();
+    const degraded = plainObject(CRYSKNIFE, degradedState, {
+        oerodeproof: true,
+        unpaid: true,
+    });
+    const degradedRandom = scriptedRandom([
+        // Zero is the source's one-in-ten degradation outcome.
+        { name: 'rn2', args: [10], result: 0 },
+    ]);
+    const degradedX = 13;
+    const degradedY = 7;
+    let alterationCount = 0;
+    place_object(degraded, degradedX, degradedY, {
+        state: degradedState,
+        ...degradedRandom,
+        hooks: {
+            costlyAlteration(obj, alterType) {
+                ++alterationCount;
+                assert.equal(obj, degraded);
+                assert.equal(alterType, COST_DEGRD);
+                assert.equal(obj.otyp, CRYSKNIFE);
+                assert.equal(obj.oerodeproof, true);
+                assert.equal(obj.where, OBJ_FREE);
+            },
+        },
+    });
+    assert.equal(alterationCount, 1);
+    assert.equal(degraded.otyp, WORM_TOOTH);
+    assert.equal(degraded.oerodeproof, false);
+    assert.equal(degraded.where, OBJ_FLOOR);
+    degradedRandom.done();
+});
+
+test('place_object releases contained crysknives in chain order', () => {
+    const state = initializedFloorState();
+    const container = plainObject(SACK, state);
+    const ordinary = plainObject(CRYSKNIFE, state, {
+        where: OBJ_CONTAINED,
+    });
+    const fixed = plainObject(CRYSKNIFE, state, {
+        where: OBJ_CONTAINED,
+        oerodeproof: true,
+    });
+    container.cobj = ordinary;
+    ordinary.ocontainer = container;
+    ordinary.nobj = fixed;
+    fixed.ocontainer = container;
+    const random = scriptedRandom([
+        // The ordinary child consumes no draw; zero degrades the fixed child.
+        { name: 'rn2', args: [10], result: 0 },
+    ]);
+    const alterations = [];
+    // This third empty square isolates recursive release from pile traversal.
+    const x = 14;
+    const y = 7;
+
+    place_object(container, x, y, {
+        state,
+        ...random,
+        hooks: {
+            costlyAlteration(obj, alterType) {
+                assert.equal(alterType, COST_DEGRD);
+                assert.equal(obj.otyp, CRYSKNIFE);
+                assert.equal(obj.where, OBJ_CONTAINED);
+                alterations.push(obj);
+            },
+        },
+    });
+
+    assert.deepEqual(alterations, [ordinary, fixed]);
+    assert.equal(ordinary.otyp, WORM_TOOTH);
+    assert.equal(fixed.otyp, WORM_TOOTH);
+    assert.equal(ordinary.ocontainer, container);
+    assert.equal(fixed.ocontainer, container);
+    assert.equal(container.where, OBJ_FLOOR);
+    assert.equal(state.level.objects[x][y], container);
+    random.done();
+});
+
+test('place_object stops before linking when crysknife billing is unavailable', () => {
+    const state = initializedFloorState();
+    const knife = plainObject(CRYSKNIFE, state, { unpaid: true });
+    // This empty square exposes the exact pre-link costly_alteration boundary.
+    const x = 15;
+    const y = 7;
+
+    assert.throws(
+        () => place_object(knife, x, y, { state }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'costlyAlteration',
+    );
+    assert.equal(knife.otyp, CRYSKNIFE);
+    assert.equal(knife.where, OBJ_FREE);
+    assert.equal(state.level.objects[x][y], null);
+    assert.equal(state.level.objlist, null);
+});
 
 test('newObject exposes obj.h aliases over shared backing fields', () => {
     // Distinct values make each write-through alias observable.

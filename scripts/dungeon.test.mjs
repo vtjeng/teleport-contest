@@ -5,6 +5,9 @@ import test from 'node:test';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
     BR_PORTAL,
+    Can_dig_down,
+    Can_fall_thru,
+    Invocation_lev,
     depth,
     find_level,
     init_dungeons,
@@ -331,4 +334,39 @@ test('level_range implements absolute, end-relative, and chained couples', () =>
         base: 19,
         count: 2,
     });
+});
+
+test('digging and falling predicates preserve bottom and Castle rules', () => {
+    const state = {
+        // Ten levels make level 6 intermediate, level 9 the Invocation level
+        // in a hellish dungeon, and level 10 the bottom.
+        dungeons: [{ num_dunlevs: 10, flags: { hellish: false } }],
+        level: { flags: { hardfloor: false } },
+    };
+    const intermediate = { dnum: 0, dlevel: 6 };
+    assert.equal(Invocation_lev(intermediate, state), false);
+    assert.equal(Can_dig_down(intermediate, state), true);
+    assert.equal(Can_fall_thru(intermediate, state), true);
+
+    state.level.flags.hardfloor = true;
+    assert.equal(Can_dig_down(intermediate, state), false);
+    assert.equal(Can_fall_thru(intermediate, state), false);
+
+    state.level.flags.hardfloor = false;
+    const bottom = { dnum: 0, dlevel: 10 };
+    assert.equal(Can_dig_down(bottom, state), false);
+    assert.equal(Can_fall_thru(bottom, state), false);
+
+    state.dungeons[0].flags.hellish = true;
+    const invocation = { dnum: 0, dlevel: 9 };
+    assert.equal(Invocation_lev(invocation, state), true);
+    assert.equal(Can_dig_down(invocation, state), false);
+    assert.equal(Can_fall_thru(invocation, state), false);
+
+    // The Castle remains fall-through even when its hard floor and bottom
+    // status prevent digging, matching Can_fall_thru's source exception.
+    state.level.flags.hardfloor = true;
+    state.stronghold_level = bottom;
+    assert.equal(Can_dig_down(bottom, state), false);
+    assert.equal(Can_fall_thru(bottom, state), true);
 });

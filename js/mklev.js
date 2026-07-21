@@ -7,7 +7,7 @@
 
 import { game } from './gstate.js';
 import { GameMap } from './game.js';
-import { depth as dungeon_depth } from './dungeon.js';
+import { Can_fall_thru, depth as dungeon_depth } from './dungeon.js';
 import { make_engr_at, wipe_engr_at } from './engrave.js';
 import { rn2, rnd, rn1 } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
@@ -24,7 +24,7 @@ import {
     BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
     ROOMOFFSET, MAXNROFROOMS, SHARED,
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, GRAVE, THRONE, TREE,
-    DUST, MARK,
+    DUST,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     SPACE_POS, isok, W_NONDIGGABLE, FILL_NONE, FILL_NORMAL,
@@ -1571,7 +1571,7 @@ function place_niche(aroom) {
     return { dy, xx, yy };
 }
 
-async function makeniche(trap_type) {
+export async function makeniche(trap_type) {
     const g = game;
     let vct = 8;
     while (vct--) {
@@ -1587,7 +1587,8 @@ async function makeniche(trap_type) {
             rm.typ = SCORR;
             if (trap_type) {
                 let actualTrap = trap_type;
-                if (is_hole(actualTrap)) actualTrap = ROCKTRAP;
+                if (is_hole(actualTrap) && !Can_fall_thru(g.u.uz, g))
+                    actualTrap = ROCKTRAP;
                 const trap = await maketrap(xx, yy + dy, actualTrap);
                 if (trap) {
                     if (actualTrap !== ROCKTRAP) trap.once = true;

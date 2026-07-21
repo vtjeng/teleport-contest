@@ -8,6 +8,7 @@ import {
     wipe_engr_at,
     wipeout_text,
 } from '../js/engrave.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
 
 function scriptedRandom(script) {
     const remaining = [...script];
@@ -70,6 +71,28 @@ test('wipeout_text ages the teleport-niche message in source call order', () => 
     ));
 });
 
+test('wipeout_text selects and mutates UTF-8 bytes', () => {
+    const scripted = scriptedRandom([
+        // "éA" occupies bytes C3 A9 41. Byte index two selects ASCII 'A';
+        // its only source rubout replacement is '^'.
+        ['rn2', 3, 2], ['rn2', 4, 1], ['rn2', 1, 0],
+        // Byte index zero then selects C3. High bytes have no rubout mapping,
+        // so it becomes '?', leaving the A9 continuation byte malformed.
+        ['rn2', 3, 0], ['rn2', 4, 2],
+    ]);
+
+    const wiped = wipeout_text('éA', 2, 0, { random: scripted.random });
+    scripted.done();
+    assert.deepEqual(scripted.calls, [
+        ['rn2', 3], ['rn2', 4], ['rn2', 1],
+        ['rn2', 3], ['rn2', 4],
+    ]);
+    // The low-surrogate escape stores the invalid A9 byte without replacing
+    // it by U+FFFD; re-encoding recovers C's exact post-rubout byte sequence.
+    assert.equal(wiped, '?' + String.fromCharCode(0xDCA9) + '^');
+    assert.deepEqual(encodeUtf8ByteString(wiped), [0x3F, 0xA9, 0x5E]);
+});
+
 test('make_engr_at creates and replaces C-shaped DUST engraving state', () => {
     const state = {};
     const random = noDrawRandom();
@@ -122,6 +145,25 @@ test('make_engr_at creates and replaces C-shaped DUST engraving state', () => {
     // The longer eight-character pristine string plus NUL fixes all slot sizes.
     assert.equal(replacement.engr_szeach, 9);
     assert.equal(replacement.engr_alloc, 27);
+});
+
+test('make_engr_at sizes text slots by UTF-8 bytes', () => {
+    const state = {};
+    // One e-acute occupies two UTF-8 bytes; the two-character pristine form
+    // occupies four, so C allocates five bytes per slot including NUL.
+    const engraving = make_engr_at(
+        31,
+        12,
+        'é',
+        'éé',
+        0,
+        DUST,
+        { state, random: noDrawRandom() },
+    );
+
+    assert.deepEqual(engraving.engr_txt, ['é', 'é', 'éé']);
+    assert.equal(engraving.engr_szeach, 5);
+    assert.equal(engraving.engr_alloc, 15);
 });
 
 test('wipe_engr_at ages only the actual DUST text and skips erosion odds', () => {

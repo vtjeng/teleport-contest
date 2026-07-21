@@ -447,6 +447,29 @@ export function depth(level, state = game) {
     return state.dungeons[level.dnum].depth_start + level.dlevel - 1;
 }
 
+// C ref: dungeon.c Invocation_lev(), Can_dig_down(), and Can_fall_thru().
+// Falling retains the Castle exception even when digging is blocked there.
+export function Invocation_lev(level, state = game) {
+    const dungeon = state.dungeons[level.dnum];
+    return Boolean(
+        dungeon.flags.hellish
+        && level.dlevel === dungeon.num_dunlevs - 1
+    );
+}
+
+export function Can_dig_down(level, state = game) {
+    const dungeon = state.dungeons[level.dnum];
+    return !state.level?.flags?.hardfloor
+        && level.dlevel !== dungeon.num_dunlevs
+        && !Invocation_lev(level, state);
+}
+
+export function Can_fall_thru(level, state = game) {
+    return Can_dig_down(level, state)
+        || Boolean(state.stronghold_level
+            && same_level(level, state.stronghold_level));
+}
+
 function builds_up(level, state) {
     const dungeon = state.dungeons[level.dnum];
     if (dungeon.num_dunlevs > 1)

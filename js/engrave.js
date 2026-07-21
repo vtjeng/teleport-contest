@@ -11,6 +11,7 @@ import {
     N_ENGRAVE,
 } from './const.js';
 import { game } from './gstate.js';
+import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import { rn2, rnd } from './rng.js';
 
 const RUBOUTS = new Map([
@@ -75,7 +76,10 @@ export function make_engr_at(
     del_engr_at(x, y, state);
     const sourceText = String(text);
     const pristine = pristineText == null ? sourceText : String(pristineText);
-    const stringBytes = Math.max(sourceText.length, pristine.length) + 1;
+    const stringBytes = Math.max(
+        encodeUtf8ByteString(sourceText).length,
+        encodeUtf8ByteString(pristine).length,
+    ) + 1;
     const engraving = {
         nxt_engr: state.head_engr ?? null,
         engr_x: x,
@@ -87,7 +91,7 @@ export function make_engr_at(
             : random.rnd(N_ENGRAVE - 1),
         engr_szeach: stringBytes,
         engr_alloc: stringBytes * 3,
-        guardobjects: text === 'Elbereth' && Boolean(state.in_mklev),
+        guardobjects: sourceText === 'Elbereth' && Boolean(state.in_mklev),
         nowipeout: false,
         eread: false,
         erevealed: false,
@@ -100,8 +104,11 @@ export function make_engr_at(
 // the position and rubout draws, matching the source's continue statement.
 export function wipeout_text(text, count, seed = 0, env = {}) {
     const { random } = engravingEnv(env);
-    const characters = [...String(text)];
-    const length = characters.length;
+    // C indexes the raw bytes of its UTF-8 char array. Surrogate escapes from
+    // decodeUtf8ByteString preserve a byte when rubbing out one byte leaves a
+    // malformed sequence, so later byte-oriented operations can round-trip it.
+    const bytes = encodeUtf8ByteString(text);
+    const length = bytes.length;
     let currentSeed = seed >>> 0;
 
     if (length && count > 0) {
@@ -118,16 +125,16 @@ export function wipeout_text(text, count, seed = 0, env = {}) {
                 useRubout = currentSeed & 3;
             }
 
-            const character = characters[next];
+            const character = String.fromCharCode(bytes[next]);
             if (character === ' ') continue;
             if (SMALL_PUNCTUATION.includes(character)) {
-                characters[next] = ' ';
+                bytes[next] = ' '.charCodeAt(0);
                 continue;
             }
 
             const replacements = useRubout ? RUBOUTS.get(character) : null;
             if (!replacements) {
-                characters[next] = '?';
+                bytes[next] = '?'.charCodeAt(0);
                 continue;
             }
 
@@ -139,11 +146,11 @@ export function wipeout_text(text, count, seed = 0, env = {}) {
                 currentSeed %= BUFSZ - 1;
                 replacementIndex = currentSeed % replacements.length;
             }
-            characters[next] = replacements[replacementIndex];
+            bytes[next] = replacements.charCodeAt(replacementIndex);
         }
     }
-    while (characters.at(-1) === ' ') characters.pop();
-    return characters.join('');
+    while (bytes.at(-1) === ' '.charCodeAt(0)) bytes.pop();
+    return decodeUtf8ByteString(bytes);
 }
 
 export function wipe_engr_at(x, y, count, magical = false, env = {}) {

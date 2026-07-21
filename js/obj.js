@@ -6,6 +6,7 @@ import {
     CORPSTAT_FEMALE,
     CORPSTAT_MALE,
     CORPSTAT_NEUTER,
+    COST_DEGRD,
     FIRE_RES,
     G_GONE,
     HATCH_EGG,
@@ -78,6 +79,7 @@ import {
     CHEST,
     COIN_CLASS,
     CORPSE,
+    CRYSKNIFE,
     CRYSTAL_BALL,
     COPPER,
     DRAGON_HIDE,
@@ -240,6 +242,8 @@ export class UnsupportedObjectOperationError extends Error {
 //   isPermanentlyPoisoned(obj, env) -> boolean
 //   stopObjectTimers(obj, env) -> must clear obj.timed and its timer queue
 //   deleteObjectLightSource(obj, env) -> removes the remaining light source
+//   costlyAlteration(obj, COST_DEGRD, env) -> applies shop billing before
+//     an irreversible object degradation
 
 function defineObjAliases(obj) {
     const aliases = {
@@ -1411,6 +1415,44 @@ function floorObjectGrid(state) {
     return grid;
 }
 
+// C ref: mkobj.c costly_alteration(). The full shop-location calculation is
+// not ported here. Its source fast path proves that an unbilled free or
+// inventory object has no shop consequence; every other case needs the hook
+// so a potentially owed side effect cannot be silently discarded.
+function costlyAlteration(obj, alterType, env) {
+    if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid)
+        return;
+    requiredHook(env, 'costlyAlteration', obj)(obj, alterType, env);
+}
+
+// C ref: do.c obj_no_longer_held(). Contents are released before their
+// container, and erosion-proof crysknives alone consume the rn2(10) draw.
+export function obj_no_longer_held(obj, env = {}) {
+    const normalized = lifecycleEnv(env);
+    const { state } = normalized;
+    let random;
+
+    const release = (current) => {
+        if (!current) return;
+
+        for (let contents = current.cobj; contents; contents = contents.nobj)
+            release(contents);
+
+        if (current.otyp !== CRYSKNIFE) return;
+        if (current.oerodeproof) {
+            random ??= sourceRandom(normalized);
+            if (random.rn2(10)) return;
+        }
+
+        if (!state.context?.mon_moving && !state.program_state?.gameover)
+            costlyAlteration(current, COST_DEGRD, normalized);
+        current.otyp = WORM_TOOTH;
+        current.oerodeproof = false;
+    };
+
+    release(obj);
+}
+
 // C ref: mkobj.c place_object(). This owns the two source floor indexes: the
 // per-square nexthere pile and the level-wide nobj chain. New non-boulders go
 // below consecutive boulders so the pile head remains the displayed boulder.
@@ -1426,6 +1468,7 @@ export function place_object(obj, x, y, env = {}) {
 
     const grid = floorObjectGrid(state);
     let pile = grid[x][y];
+    obj_no_longer_held(obj, normalized);
     if (pile?.otyp === BOULDER && obj.otyp !== BOULDER) {
         while (pile.nexthere?.otyp === BOULDER) pile = pile.nexthere;
         obj.nexthere = pile.nexthere;
