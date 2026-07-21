@@ -38,10 +38,13 @@
       "label": "Objects and inventory",
       "paths": [
         "js/artifacts.js",
+        "js/corpstat.js",
         "js/do_name.js",
         "js/eat.js",
         "js/fruit.js",
         "js/invent.js",
+        "js/mkobj_container.js",
+        "js/monster_object.js",
         "js/o_init.js",
         "js/obj.js",
         "js/objects.js",

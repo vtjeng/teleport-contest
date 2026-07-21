@@ -1,6 +1,6 @@
 // Hero inventory and nobj-chain primitives.
 // C refs: src/invent.c addinv(), mergable(), merged(), useupall();
-//         src/mkobj.c extract_nobj() and add_to_container().
+//         src/mkobj.c extract_nobj(), add_to_container(), and add_to_buried().
 
 import {
     ACH_MINE_PRIZE,
@@ -206,6 +206,61 @@ function extractNobj(obj, head) {
     return head;
 }
 
+function buriedObjectHead(state) {
+    if (!state.level
+        || !Object.hasOwn(state.level, 'buriedobjlist')) {
+        throw new Error(
+            'buried object operations require initialized level state',
+        );
+    }
+    return state.level.buriedobjlist ?? null;
+}
+
+// A malformed chain is unreachable in C's normal lifecycle. Detect it before
+// mutation so a JS integration error cannot orphan objects or loop forever.
+function validateBuriedChain(state, target = null) {
+    const seen = new Set();
+    let found = target === null;
+    for (let current = buriedObjectHead(state);
+        current;
+        current = current.nobj) {
+        if (typeof current !== 'object' || seen.has(current))
+            throw new Error('buried object chain is corrupt');
+        seen.add(current);
+        if (current.where !== OBJ_BURIED || current.nexthere)
+            throw new Error('buried object chain has invalid ownership');
+        if (current === target) found = true;
+    }
+    if (!found) {
+        throw new Error(
+            `buried object ${target?.o_id ?? '?'} is not on the level chain`,
+        );
+    }
+}
+
+// C ref: mkobj.c add_to_buried(). The caller owns ox/oy; this primitive only
+// transfers a free object to the level-wide buried chain.
+export function add_to_buried(obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('add_to_buried requires an object');
+    if (obj.where !== OBJ_FREE) {
+        throw new Error(
+            `add_to_buried: object where=${obj.where}, expected OBJ_FREE`,
+        );
+    }
+    if (obj.nobj || obj.nexthere) {
+        throw new Error('add_to_buried: free object retains a chain link');
+    }
+    validateBuriedChain(normalized.state);
+    const head = buriedObjectHead(normalized.state);
+
+    obj.where = OBJ_BURIED;
+    obj.nobj = head;
+    normalized.state.level.buriedobjlist = obj;
+    return obj;
+}
+
 function container_weight(container, env) {
     container.owt = weight(container, env);
     if (container.where === OBJ_CONTAINED && container.ocontainer)
@@ -349,9 +404,11 @@ function preflightObjectExtraction(obj, env) {
         break;
     case OBJ_FLOOR:
     case OBJ_MIGRATING:
-    case OBJ_BURIED:
     case OBJ_ONBILL:
         requiredHook(env, 'extractExternalObject', obj);
+        break;
+    case OBJ_BURIED:
+        validateBuriedChain(env.state, obj);
         break;
     default:
         break;
@@ -386,9 +443,14 @@ export function obj_extract_self(obj, env = {}) {
         obj.ocarry.minvent = extractNobj(obj, obj.ocarry.minvent);
         obj.ocarry = null;
         return obj;
+    case OBJ_BURIED:
+        normalized.state.level.buriedobjlist = extractNobj(
+            obj,
+            buriedObjectHead(normalized.state),
+        );
+        return obj;
     case OBJ_FLOOR:
     case OBJ_MIGRATING:
-    case OBJ_BURIED:
     case OBJ_ONBILL:
         requiredHook(normalized, 'extractExternalObject', obj)(obj, normalized);
         if (obj.where !== OBJ_FREE)

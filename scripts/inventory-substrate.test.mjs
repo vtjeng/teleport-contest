@@ -10,6 +10,7 @@ import {
     LAST_PROP,
     LOST_THROWN,
     NON_PM,
+    OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
@@ -21,6 +22,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
+    add_to_buried,
     add_to_container,
     addinv,
     addinv_nomerge,
@@ -169,6 +171,88 @@ test('add_to_container owns the cobj chain and extraction updates weight', () =>
         sack.owt,
         state.objects[SACK].oc_weight + ration.owt,
     );
+});
+
+test('add_to_buried owns a LIFO chain without changing coordinates', () => {
+    const state = initializedState();
+    state.level = { buriedobjlist: null };
+    // Distinct interior coordinates prove that ownership does not relocate
+    // either object; grave generation assigns these before burial.
+    const first = instance(APPLE, state, { ox: 17, oy: 6 });
+    const second = instance(FOOD_RATION, state, { ox: 31, oy: 12 });
+
+    assert.equal(add_to_buried(first, { state }), first);
+    assert.equal(add_to_buried(second, { state }), second);
+
+    assert.equal(state.level.buriedobjlist, second);
+    assert.equal(second.nobj, first);
+    assert.equal(first.nobj, null);
+    assert.equal(first.where, OBJ_BURIED);
+    assert.equal(second.where, OBJ_BURIED);
+    assert.deepEqual([first.ox, first.oy], [17, 6]);
+    assert.deepEqual([second.ox, second.oy], [31, 12]);
+});
+
+test('obj_extract_self directly unlinks buried objects', () => {
+    const state = initializedState();
+    state.level = { buriedobjlist: null };
+    const first = instance(APPLE, state, { ox: 17, oy: 6 });
+    const second = instance(FOOD_RATION, state, { ox: 31, oy: 12 });
+    add_to_buried(first, { state });
+    add_to_buried(second, { state });
+    const hooks = {
+        extractExternalObject() {
+            assert.fail('buried ownership no longer uses the external seam');
+        },
+    };
+
+    assert.equal(obj_extract_self(first, { state, hooks }), first);
+    assert.equal(first.where, OBJ_FREE);
+    assert.equal(first.nobj, null);
+    assert.deepEqual([first.ox, first.oy], [17, 6]);
+    assert.equal(state.level.buriedobjlist, second);
+    assert.equal(second.nobj, null);
+
+    assert.equal(obj_extract_self(second, { state, hooks }), second);
+    assert.equal(second.where, OBJ_FREE);
+    assert.equal(state.level.buriedobjlist, null);
+});
+
+test('buried ownership failures leave both chains unchanged', () => {
+    const state = initializedState();
+    state.level = { buriedobjlist: null };
+    const buried = instance(APPLE, state, { ox: 17, oy: 6 });
+    add_to_buried(buried, { state });
+
+    const linkedFree = instance(FOOD_RATION, state, { nobj: {} });
+    assert.throws(
+        () => add_to_buried(linkedFree, { state }),
+        /free object retains a chain link/,
+    );
+    assert.equal(linkedFree.where, OBJ_FREE);
+    assert.notEqual(linkedFree.nobj, null);
+    assert.equal(state.level.buriedobjlist, buried);
+
+    const lost = instance(FOOD_RATION, state, {
+        where: OBJ_BURIED,
+        ox: 31,
+        oy: 12,
+    });
+    assert.throws(
+        () => obj_extract_self(lost, { state }),
+        /is not on the level chain/,
+    );
+    assert.equal(lost.where, OBJ_BURIED);
+    assert.equal(state.level.buriedobjlist, buried);
+
+    buried.nobj = buried;
+    assert.throws(
+        () => obj_extract_self(buried, { state }),
+        /buried object chain is corrupt/,
+    );
+    assert.equal(buried.where, OBJ_BURIED);
+    assert.equal(buried.nobj, buried);
+    assert.equal(state.level.buriedobjlist, buried);
 });
 
 test('timed eggs never merge', () => {
