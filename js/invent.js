@@ -3,6 +3,8 @@
 //         src/mkobj.c extract_nobj() and add_to_container().
 
 import {
+    ACH_MINE_PRIZE,
+    ACH_SOKO_PRIZE,
     BLINDED,
     HALLUC,
     HALLUC_RES,
@@ -100,7 +102,8 @@ function requiredHook(env, name, obj) {
 // samePrice(obj, target, env), isDeadSpecies(species, includeGone, env).
 // Inventory effects: addSpecialInventoryEffects(obj, env),
 // removeSpecialInventoryEffects(obj, env), recalculateLuck(obj, env),
-// archeologistDeciphersScroll(obj, env), updateInventory(state).
+// archeologistDeciphersScroll(obj, env), recordAchievement(id, env),
+// updateInventory(state).
 // attachFigurineTimer(obj, env) and stopFigurineTimer(obj, env) own both the
 // external timer queue and obj.timed, as NetHack's timer subsystem does.
 // Ownership/lifetime: extractExternalObject(obj, env),
@@ -846,7 +849,29 @@ function clearContainedNoCharge(container) {
     }
 }
 
-function addinvCore1(obj, env) {
+function specialPrize(obj, state) {
+    const achieveo = state.context?.achieveo;
+    if (!achieveo) return null;
+    // Prize ids use zero as their inactive sentinel.  Live object ids are
+    // nonzero, so make that invariant explicit for hand-built JS objects too.
+    if (achieveo.mines_prize_oid
+        && obj.o_id === achieveo.mines_prize_oid) {
+        return {
+            achievement: ACH_MINE_PRIZE,
+            oidField: 'mines_prize_oid',
+        };
+    }
+    if (achieveo.soko_prize_oid
+        && obj.o_id === achieveo.soko_prize_oid) {
+        return {
+            achievement: ACH_SOKO_PRIZE,
+            oidField: 'soko_prize_oid',
+        };
+    }
+    return null;
+}
+
+function addinvCore1(obj, env, facts) {
     if (obj.oclass === COIN_CLASS) {
         env.state.disp ??= {};
         env.state.disp.botl = true;
@@ -856,6 +881,17 @@ function addinvCore1(obj, env) {
                || obj.otyp === SPE_BOOK_OF_THE_DEAD
                || obj.oartifact) {
         requiredHook(env, 'addSpecialInventoryEffects', obj)(obj, env);
+    }
+
+    // C ref: invent.c addinv_core1().  Special-level creation sets nomerge
+    // only until the tracked prize reaches the hero's inventory.
+    if (facts.prize) {
+        requiredHook(env, 'recordAchievement', obj)(
+            facts.prize.achievement,
+            env,
+        );
+        env.state.context.achieveo[facts.prize.oidField] = 0;
+        obj.nomerge = false;
     }
 }
 
@@ -867,6 +903,8 @@ function preflightAddinvCores(obj, env) {
         || obj.oartifact) {
         requiredHook(env, 'addSpecialInventoryEffects', obj);
     }
+    const prize = specialPrize(obj, env.state);
+    if (prize) requiredHook(env, 'recordAchievement', obj);
     let confersLuck = obj.otyp === LUCKSTONE;
     if (obj.oartifact && obj.otyp !== LUCKSTONE) {
         confersLuck = Boolean(
@@ -881,7 +919,7 @@ function preflightAddinvCores(obj, env) {
         && !objectType(obj, env.state).oc_name_known) {
         requiredHook(env, 'archeologistDeciphersScroll', obj);
     }
-    return { confersLuck };
+    return { confersLuck, prize };
 }
 
 function addinvCore2(obj, env, facts) {
@@ -987,7 +1025,7 @@ export function addinv(obj, env = {}) {
     }
 
     let inserted = false;
-    addinvCore1(obj, normalized);
+    addinvCore1(obj, normalized, addinvFacts);
     if (state.uquiver && merged(state.uquiver, obj, normalized)) {
         obj = state.uquiver;
     } else {

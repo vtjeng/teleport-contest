@@ -12,6 +12,7 @@ import {
     MAX_EGG_HATCH_TIME,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
+    OBJ_INVENT,
     REVIVE_MON,
     ROT_AGE,
     ROT_CORPSE,
@@ -52,10 +53,95 @@ function timerGlobals(state) {
 }
 
 export class UnsupportedTimerCleanupError extends Error {
-    constructor(funcIndex) {
-        super(`timer cleanup is not available for function ${funcIndex}`);
+    constructor(operation, funcIndex) {
+        super(`timer cleanup requires ${operation} for function ${funcIndex}`);
         this.name = 'UnsupportedTimerCleanupError';
+        this.operation = operation;
         this.func_index = funcIndex;
+    }
+}
+
+function timerCleanupEnv(state, env = {}) {
+    return {
+        ...env,
+        state,
+        hooks: env.hooks ?? {},
+    };
+}
+
+function requiredCleanupHook(env, operation, funcIndex) {
+    const hook = env.hooks?.[operation];
+    if (typeof hook !== 'function')
+        throw new UnsupportedTimerCleanupError(operation, funcIndex);
+    return hook;
+}
+
+// Keep this display boundary synchronized with invent.js update_inventory().
+// Timers cannot import that object-owning module without creating the cycle
+// timeout -> invent -> obj -> timeout.  The window hook is mandatory only for
+// a live permanent-inventory display.
+function burnInventoryRefreshActive(state) {
+    const programState = state.program_state;
+    return Boolean(programState?.in_moveloop
+        && !state.in_mklev
+        && !programState.saving
+        && !programState.restoring
+        && !programState.done_hup);
+}
+
+// C ref: timeout.c cleanup_burn(). Light-source deletion remains behind the
+// object lifecycle hook until light.c is ported. Resolve live integration
+// seams before unlinking a timer so a missing seam cannot leave the queue,
+// timed count, fuel, and light ownership partially updated.
+function preflightTimerCleanup(timer, state, env = {}) {
+    if (timer.func_index !== BURN_OBJECT) return null;
+
+    const normalized = timerCleanupEnv(state, env);
+    const obj = timer.arg;
+    if (!obj.lamplit) {
+        // cleanup_burn() reports an impossible condition and returns without
+        // touching light or fuel state when a timed object is no longer lit.
+        return { normalized, deleteLight: null, updateInventory: null };
+    }
+
+    const deleteLight = requiredCleanupHook(
+        normalized,
+        'deleteObjectLightSource',
+        timer.func_index,
+    );
+    let updateInventory = null;
+    if (obj.where === OBJ_INVENT && burnInventoryRefreshActive(state)) {
+        updateInventory = typeof normalized.hooks.updateInventory === 'function'
+            ? normalized.hooks.updateInventory : null;
+        if (state.iflags?.perm_invent && !updateInventory) {
+            updateInventory = requiredCleanupHook(
+                normalized,
+                'updateInventory',
+                timer.func_index,
+            );
+        }
+    }
+    return { normalized, deleteLight, updateInventory };
+}
+
+function cleanupTimer(timer, state, cleanup) {
+    if (timer.func_index !== BURN_OBJECT) return;
+
+    const obj = timer.arg;
+    if (!obj.lamplit) return;
+    cleanup.deleteLight(obj, cleanup.normalized);
+    obj.age = Math.trunc(obj.age ?? 0)
+        + timer.timeout - currentMove(state);
+    obj.lamplit = false;
+    if (cleanup.updateInventory) {
+        state.iflags ??= {};
+        const savedSuppressPrice = state.iflags.suppress_price;
+        state.iflags.suppress_price = 0;
+        try {
+            cleanup.updateInventory(state);
+        } finally {
+            state.iflags.suppress_price = savedSuppressPrice;
+        }
     }
 }
 
@@ -137,19 +223,23 @@ function remove_timer(funcIndex, arg, state) {
     return current;
 }
 
-export function stop_timer(funcIndex, arg, state = game) {
+export function stop_timer(funcIndex, arg, state = game, env = {}) {
     timerGlobals(state);
+    let matched = null;
     for (let timer = state.gt.timer_base; timer; timer = timer.next) {
         if (timer.func_index === funcIndex && timer.arg === arg) {
-            if (timer.func_index === BURN_OBJECT)
-                throw new UnsupportedTimerCleanupError(funcIndex);
+            matched = timer;
             break;
         }
     }
+    const cleanup = matched
+        ? preflightTimerCleanup(matched, state, env)
+        : null;
     const timer = remove_timer(funcIndex, arg, state);
     if (!timer) return 0;
     if (timer.kind === TIMER_OBJECT)
         arg.timed = Math.trunc(arg.timed ?? 0) - 1;
+    cleanupTimer(timer, state, cleanup);
     return timer.timeout - currentMove(state);
 }
 
@@ -162,13 +252,15 @@ export function peek_timer(funcIndex, arg, state = game) {
     return 0;
 }
 
-export function obj_stop_timers(obj, state = game) {
+export function obj_stop_timers(obj, state = game, env = {}) {
     timerGlobals(state);
+    const cleanupByTimer = new Map();
     for (let timer = state.gt.timer_base; timer; timer = timer.next) {
-        if (timer.kind === TIMER_OBJECT && timer.arg === obj
-            && timer.func_index === BURN_OBJECT) {
-            throw new UnsupportedTimerCleanupError(timer.func_index);
-        }
+        if (timer.kind === TIMER_OBJECT && timer.arg === obj)
+            cleanupByTimer.set(
+                timer,
+                preflightTimerCleanup(timer, state, env),
+            );
     }
     let previous = null;
     let current = state.gt.timer_base;
@@ -178,6 +270,7 @@ export function obj_stop_timers(obj, state = game) {
             if (previous) previous.next = next;
             else state.gt.timer_base = next;
             current.next = null;
+            cleanupTimer(current, state, cleanupByTimer.get(current));
         } else {
             previous = current;
         }

@@ -7,6 +7,8 @@ import {
     HATCH_EGG,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
+    OBJ_FREE,
+    OBJ_INVENT,
     REVIVE_MON,
     ROT_CORPSE,
     SHRINK_GLOB,
@@ -401,14 +403,162 @@ test('timer lookup uses argument identity and intentionally ignores kind', () =>
     assert.equal(first.timed, 0);
 });
 
-test('unsupported burn cleanup fails before mutating the queue', () => {
-    const state = timerState();
-    const lamp = { timed: 0 };
+test('stop_timer performs burning-object cleanup in source order', () => {
+    const state = timerState(10);
+    state.iflags = { perm_invent: true, suppress_price: 7 };
+    state.program_state = { in_moveloop: 1 };
+    const lamp = {
+        // Age 40 and a seven-turn timer make five unused fuel turns remain
+        // when the timer is stopped two moves later.
+        age: 40,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_INVENT,
+    };
+    start_timer(7, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+    state.moves = 12;
+    const calls = [];
+
+    assert.equal(stop_timer(BURN_OBJECT, lamp, state, {
+        hooks: {
+            deleteObjectLightSource(obj) {
+                calls.push('light');
+                assert.equal(obj, lamp);
+                assert.equal(obj.timed, 0);
+                assert.equal(peek_timer(BURN_OBJECT, obj, state), 0);
+            },
+            updateInventory(currentState) {
+                calls.push('inventory');
+                assert.equal(currentState, state);
+                assert.equal(currentState.iflags.suppress_price, 0);
+                assert.equal(lamp.age, 45);
+                assert.equal(lamp.lamplit, false);
+            },
+        },
+    }), 5);
+
+    assert.deepEqual(calls, ['light', 'inventory']);
+    assert.equal(lamp.timed, 0);
+    assert.equal(lamp.age, 45);
+    assert.equal(lamp.lamplit, false);
+    assert.equal(state.iflags.suppress_price, 7);
+});
+
+test('burn cleanup preflights every required seam before queue mutation', () => {
+    const state = timerState(10);
+    state.iflags = { perm_invent: true };
+    state.program_state = { in_moveloop: 1 };
+    const lamp = {
+        age: 40,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_INVENT,
+    };
     start_timer(5, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+
     assert.throws(
-        () => obj_stop_timers(lamp, state),
-        (error) => error instanceof UnsupportedTimerCleanupError,
+        () => stop_timer(BURN_OBJECT, lamp, state),
+        (error) => error instanceof UnsupportedTimerCleanupError
+            && error.operation === 'deleteObjectLightSource',
+    );
+    assert.throws(
+        () => stop_timer(BURN_OBJECT, lamp, state, {
+            hooks: { deleteObjectLightSource() {} },
+        }),
+        (error) => error instanceof UnsupportedTimerCleanupError
+            && error.operation === 'updateInventory',
     );
     assert.equal(lamp.timed, 1);
     assert.equal(peek_timer(BURN_OBJECT, lamp, state), 15);
+    assert.equal(lamp.age, 40);
+    assert.equal(lamp.lamplit, true);
+});
+
+test('burn cleanup uses the optional live inventory seam without perm_invent', () => {
+    for (const active of [false, true]) {
+        const state = timerState(10);
+        if (active) {
+            state.iflags = { perm_invent: false };
+            state.program_state = { in_moveloop: 1 };
+        }
+        const lamp = {
+            age: 40,
+            lamplit: true,
+            timed: 0,
+            where: OBJ_INVENT,
+        };
+        start_timer(5, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+
+        let refreshes = 0;
+        assert.equal(stop_timer(BURN_OBJECT, lamp, state, {
+            hooks: {
+                deleteObjectLightSource() {},
+                updateInventory() { ++refreshes; },
+            },
+        }), 5);
+        assert.equal(refreshes, active ? 1 : 0);
+        assert.equal(lamp.timed, 0);
+        assert.equal(lamp.age, 45);
+        assert.equal(lamp.lamplit, false);
+    }
+});
+
+test('obj_stop_timers preflights all cleanup before removing any timer', () => {
+    const state = timerState(20);
+    const target = {
+        age: 30,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_FREE,
+    };
+    start_timer(4, TIMER_OBJECT, ROT_CORPSE, target, state);
+    start_timer(8, TIMER_OBJECT, BURN_OBJECT, target, state);
+    const timers = queue(state);
+
+    assert.throws(
+        () => obj_stop_timers(target, state),
+        (error) => error instanceof UnsupportedTimerCleanupError
+            && error.operation === 'deleteObjectLightSource',
+    );
+    assert.deepEqual(queue(state), timers);
+    assert.equal(target.timed, 2);
+    assert.equal(target.age, 30);
+    assert.equal(target.lamplit, true);
+});
+
+test('obj_stop_timers cleans burn state and preserves unrelated queue order', () => {
+    const state = timerState(20);
+    const target = {
+        // A five-turn burn timer stopped immediately restores all five turns.
+        age: 30,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_FREE,
+    };
+    const firstOther = { timed: 0 };
+    const secondOther = { timed: 0 };
+    start_timer(8, TIMER_OBJECT, ROT_CORPSE, secondOther, state);
+    start_timer(7, TIMER_OBJECT, ROT_CORPSE, target, state);
+    start_timer(6, TIMER_OBJECT, HATCH_EGG, firstOther, state);
+    start_timer(5, TIMER_OBJECT, BURN_OBJECT, target, state);
+    const survivingTimers = queue(state).filter(({ arg }) => arg !== target);
+    const calls = [];
+
+    obj_stop_timers(target, state, {
+        hooks: {
+            deleteObjectLightSource(obj) {
+                calls.push(obj);
+                assert.equal(obj.timed, 2);
+            },
+        },
+    });
+
+    assert.deepEqual(calls, [target]);
+    assert.deepEqual(queue(state), survivingTimers);
+    assert.deepEqual(queue(state).map(({ arg }) => arg), [firstOther, secondOther]);
+    assert.equal(target.timed, 0);
+    assert.equal(target.age, 35);
+    assert.equal(target.lamplit, false);
+    assert.equal(firstOther.timed, 1);
+    assert.equal(secondOther.timed, 1);
 });

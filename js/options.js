@@ -44,28 +44,93 @@ import {
 } from './fruit.js';
 import {
     decodeUtf8ByteString,
+    encodeUtf8ByteString,
     encodeUtf8Text,
 } from './hacklib.js';
+import { rn2 } from './rng.js';
 
 const PET_NAME_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_LIMIT = 31; // PL_NSIZ - 1
 const CONFIG_BUFFER_SIZE = 4 * 256; // cfgfiles.c: 4 * BUFSZ
-const NONINTERACTIVE_OPTION_NAMES = Object.freeze([
-    'eight_bit_tty',
-    'fruit',
-    'legacy',
-    'menu_headings',
-    'menu_overlay',
-    'tutorial',
-    'splash_screen',
-]);
+const OPTION_ELEMENT_LIMIT = 256 / 2; // options.c: BUFSZ / 2
+
+// C ref: options.c:allopt[] and determine_ambiguities().  This is the
+// canonical name catalog produced by the recorder's configured optlist.h.
+// Keeping the full catalog matters because unported options still determine
+// whether a prefix is unique (and are preserved under their canonical key).
+const SOURCE_OPTION_NAMES = Object.freeze((
+    'windowtype|playmode|name|role|race|gender|alignment|accessiblemsg'
+    + '|acoustics|align_message|align_status|altkeyhandling|altmeta'
+    + '|armorstatus|ascii_map|autocompletions|autodescribe|autodig|autoopen'
+    + '|autopickup|autopickup exceptions|autoquiver|autounlock|bgcolors'
+    + '|bind keys|bios|blind|bones|boulder|catname|checkpoint|cmdassist'
+    + '|color|confirm|crash_email|crash_name|crash_urlmax|customcolors'
+    + '|customsymbols|dark_room|deaf|decgraphics|debug_hunger|debug_mongen'
+    + '|debug_overwrite_stairs|disclose|dogname|dropped_nopick|dungeon'
+    + '|effects|eight_bit_tty|extmenu|female|fireassist|fixinv|font_map'
+    + '|font_menu|font_message|font_size_map|font_size_menu'
+    + '|font_size_message|font_size_status|font_size_text|font_status'
+    + '|font_text|force_invmenu|fruit|fullscreen|glyph|goldx|guicolor|help'
+    + '|herecmd_menu|hilite_pet|hilite_pile|hilite_status|hitpointbar'
+    + '|horsename|ibmgraphics|idlecheckpoint|ignintr|implicit_uncursed'
+    + '|legacy|lit_corridor|lootabc|mail|map_mode|mention_decor|mention_map'
+    + '|mention_walls|menu_deselect_all|menu_deselect_page|menu_first_page'
+    + '|menu_headings|menu_invert_all|menu_invert_page|menu_last_page'
+    + '|menu_next_page|menu_objsyms|menu_overlay|menu_previous_page'
+    + '|menu_search|menu_select_all|menu_select_page|menu_shift_left'
+    + '|menu_shift_right|menu_tab_sep|menucolors|menu colors|menuinvertmode'
+    + '|menustyle|message types|mon_movement|monpolycontrol|montelecontrol'
+    + '|monsters|mouse_support|msg_window|msghistory|news|nudist|null'
+    + '|number_pad|objects|packorder|paranoid_confirmation|pauper'
+    + '|perm_invent|perminv_mode|petattr|pettype|pickup_burden'
+    + '|pickup_stolen|pickup_thrown|pickup_types|pile_limit|player_selection'
+    + '|popup_dialog|preload_tiles|price_quotes|pushweapon|query_menu'
+    + '|quick_farsight|rawio|reroll|rest_on_space|roguesymset|runmode'
+    + '|safe_pet|safe_wait|sanity_check|scores|scroll_amount|scroll_margin'
+    + '|selectsaved|showdamage|showexp|showrace|showscore|showvers|silent'
+    + '|softkeyboard|sortdiscoveries|sortloot|sortpack|sortvanquished'
+    + '|soundlib|sounds|sparkle|spot_monsters|splash_screen|standout'
+    + '|status_updates|status condition fields|statushilites'
+    + '|status highlight rules|statuslines|suppress_alert|symset|term_cols'
+    + '|term_rows|terrainstatus|tile_file|tile_height|tile_width|tiled_map'
+    + '|time|timed_delay|tips|tombstone|toptenwin|traps|travel|travel_debug'
+    + '|tutorial|use_darkgray|use_inverse|use_truecolor|vary_msgcount'
+    + '|verbose|versinfo|voices|vt_tiledata|vt_sounddata|warnings'
+    + '|weaponstatus|whatis_coord|whatis_filter|whatis_menu|whatis_moveskip'
+    + '|windowborders|windowcolors|wizmgender|wizweight|wraptext|cond_|font'
+).split('|'));
+
+function sourceOptionMinLength(name) {
+    let needed = 0;
+    for (const other of SOURCE_OPTION_NAMES) {
+        if (other === name) continue;
+        let shared = 0;
+        while (shared < name.length && shared < other.length
+               && name[shared] === other[shared]) ++shared;
+        needed = Math.max(needed, shared + 1);
+    }
+    return Math.max(3, Math.min(needed, name.length));
+}
+
+const SOURCE_OPTION_MATCHES = Object.freeze(SOURCE_OPTION_NAMES.map((name) => (
+    [name, sourceOptionMinLength(name)]
+)));
 const OPTION_ALIASES = Object.freeze({
     character: 'role',
     align: 'alignment',
+    altkeyhandler: 'altkeyhandling',
     permablind: 'blind',
     permadeaf: 'deaf',
     colour: 'color',
+    customcolours: 'customcolors',
+    pet: 'pettype',
+    prayconfirm: 'paranoid_confirmation',
+    termcolumns: 'term_cols',
+    use_menu_glyphs: 'menu_objsyms',
+    use_truecolour: 'use_truecolor',
 });
+// options.c's exact "male" alias stays distinct so applyBooleanOption() can
+// invert its value rather than treating it as an ordinary spelling of female.
 
 const ROLEPLAY_FIELDS = Object.freeze([
     'blind',
@@ -163,6 +228,21 @@ function trimCWhitespaceStart(value) {
 
 function trimConfigPadding(value) {
     return String(value).replace(/^[ \t]+|[ \t]+$/gu, '');
+}
+
+// C ref: hacklib.c:mungspaces().  Configuration statements other than
+// OPTIONS are dispatched from a copy normalized this way.
+function mungspaces(value) {
+    let normalized = '';
+    let wasSpace = true;
+    for (const original of String(value)) {
+        if (original === '\n') break;
+        const character = original === '\t' ? ' ' : original;
+        if (character !== ' ' || !wasSpace) normalized += character;
+        wasSpace = character === ' ';
+    }
+    if (wasSpace && normalized) normalized = normalized.slice(0, -1);
+    return normalized;
 }
 
 // C ref: cfgfiles.c:parse_conf_buf().  A physical line ending in a literal
@@ -523,20 +603,30 @@ function setPettype(result, value, negated, lineNumber) {
     }
 }
 
-function sanitizePetName(value) {
-    return [...value].slice(0, PET_NAME_LIMIT).map((character) => {
-        const code = character.codePointAt(0);
-        return code < 32 || code === 127 ? '.' : character;
-    }).join('');
+function truncateByteString(value, limit) {
+    return decodeUtf8ByteString(encodeUtf8ByteString(value).slice(0, limit));
+}
+
+// C refs: options.c:nmcpy() and bones.c:sanitize_name().  Pet names are
+// truncated and sanitized as bytes; default tty mode strips each high bit.
+function sanitizePetName(value, eightBitTty) {
+    const bytes = encodeUtf8ByteString(value).slice(0, PET_NAME_LIMIT);
+    for (let index = 0; index < bytes.length; ++index) {
+        const lowSeven = bytes[index] & 0x7F;
+        if (lowSeven < 0x20 || lowSeven === 0x7F) bytes[index] = 0x2E;
+        else if (lowSeven !== bytes[index] && !eightBitTty) {
+            bytes[index] = 0x5F;
+        }
+    }
+    return decodeUtf8ByteString(bytes);
 }
 
 function setPetName(result, field, value, negated, lineNumber) {
     if (!negated && value == null) {
         optionError(lineNumber, `${field} requires a value`);
     }
-    const lowered = value?.toLowerCase();
-    result[field] = negated || lowered === 'none' || lowered === '(none)'
-        ? '' : sanitizePetName(value);
+    result[field] = negated || value === 'none' || value === '(none)'
+        ? '' : sanitizePetName(value, result.iflags.wc_eight_bit_input);
 }
 
 // C ref: options.c optfn_fruit(do_set) during initial option parsing.
@@ -556,10 +646,6 @@ function setFruit(result, value, negated, lineNumber) {
         value,
         result.iflags.wc_eight_bit_input,
     );
-}
-
-function truncateName(value, limit) {
-    return String(value).slice(0, limit);
 }
 
 function setRoleplay(result, field, value, negated, lineNumber) {
@@ -919,23 +1005,35 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
     else result.flags[name] = enabled;
 }
 
+function sourceOptionMatch(parsedName) {
+    return SOURCE_OPTION_MATCHES.find(([canonical, minLength]) => (
+        parsedName.length >= minLength && canonical.startsWith(parsedName)
+    ));
+}
+
+function isSourceOptionPrefix(parsedName) {
+    return SOURCE_OPTION_NAMES.some((canonical) => (
+        canonical.startsWith(parsedName)
+    ));
+}
+
 function applyOption(result, optionState, option, lineNumber) {
     const { name: rawName, value } = splitNameAndValue(option);
     const { name: parsedName, negated } = stripNegation(rawName);
-    let name = OPTION_ALIASES[parsedName] ?? parsedName;
-    if (name.length >= 3) {
-        const startupMatch = NONINTERACTIVE_OPTION_NAMES.find(
-            (canonical) => canonical.startsWith(name),
-        );
-        if (startupMatch) name = startupMatch;
-    }
+    const sourceMatch = sourceOptionMatch(parsedName);
+    const name = sourceMatch?.[0]
+        ?? OPTION_ALIASES[parsedName] ?? parsedName;
 
     if (!name) optionError(lineNumber, 'empty option');
+    if (!sourceMatch && name === parsedName
+        && isSourceOptionPrefix(parsedName)) {
+        optionError(lineNumber, `unknown or ambiguous option '${parsedName}'`);
+    }
 
     const menuCommand = menuCommandOption(name);
 
     if (name === 'name') {
-        result.name = truncateName(
+        result.name = truncateByteString(
             requireValue(value, name, negated, lineNumber),
             PLAYER_NAME_LIMIT,
         );
@@ -959,16 +1057,16 @@ function applyOption(result, optionState, option, lineNumber) {
         setPlaymode(result, value, negated, lineNumber);
     } else if (name === 'menu_headings') {
         setMenuHeadings(result, value, negated, lineNumber);
-    } else if (menuCommand) {
+    } else if (menuCommand && parsedName === name) {
         setMenuCommandOption(
             result, menuCommand, value, negated, lineNumber,
         );
-    } else if (isMenuCommandPrefix(name)) {
+    } else if (menuCommand || isMenuCommandPrefix(parsedName)) {
         optionError(
             lineNumber,
-            `menu command option '${name}' requires its full canonical name`,
+            `menu command option '${parsedName}' requires its full canonical name`,
         );
-    } else if (name === 'pettype' || name === 'pet') {
+    } else if (name === 'pettype') {
         setPettype(result, value, negated, lineNumber);
     } else if (name === 'fruit') {
         setFruit(result, value, negated, lineNumber);
@@ -1004,7 +1102,7 @@ function applyOption(result, optionState, option, lineNumber) {
 function applyDirectOption(result, key, value) {
     const normalized = key.toLowerCase();
     if (normalized === 'name') {
-        result.name = truncateName(value, PLAYER_NAME_LIMIT);
+        result.name = truncateByteString(value, PLAYER_NAME_LIMIT);
     }
     else if (normalized === 'role' || normalized === 'character') {
         // cfgfiles.c:cnf_line_ROLE() silently ignores random or unknown
@@ -1017,11 +1115,72 @@ function applyDirectOption(result, key, value) {
     } else if (normalized === 'dogname' || normalized === 'catname') {
         // The legacy statements use strncpy(), without the compound pet-name
         // option's "none" handling or sanitize_name() pass.
-        result[normalized] = truncateName(value, PET_NAME_LIMIT);
+        result[normalized] = truncateByteString(value, PET_NAME_LIMIT);
     }
 }
 
-export function parseNethackrc(rc) {
+const CONFIG_STATEMENTS = Object.freeze([
+    { name: 'options', minLength: 4, kind: 'options' },
+    { name: 'bindings', minLength: 4, kind: 'bindings' },
+    { name: 'name', minLength: 4, kind: 'direct', directName: 'name' },
+    { name: 'role', minLength: 4, kind: 'direct', directName: 'role' },
+    {
+        name: 'character', minLength: 4,
+        kind: 'direct', directName: 'role',
+    },
+    { name: 'dogname', minLength: 3, kind: 'direct', directName: 'dogname' },
+    { name: 'catname', minLength: 3, kind: 'direct', directName: 'catname' },
+]);
+
+function configDelimiter(line) {
+    const colon = line.indexOf(':');
+    const equals = line.indexOf('=');
+    if (colon >= 0 && equals >= 0) return Math.min(colon, equals);
+    return Math.max(colon, equals);
+}
+
+function matchesConfigName(name, canonical, minLength) {
+    return name.length >= minLength && canonical.startsWith(name);
+}
+
+function configSection(line) {
+    if (!line.startsWith('[')) return null;
+    const close = line.indexOf(']', 1);
+    if (close < 0) return null;
+    let suffixIndex = close + 1;
+    while (line[suffixIndex] === ' ') ++suffixIndex;
+    if (suffixIndex < line.length && line[suffixIndex] !== '#') return null;
+    return { name: trimConfigPadding(line.slice(1, close)) };
+}
+
+// C ref: cfgfiles.c:choose_random_part().  Keep its separator walk (including
+// empty-part quirks) rather than using split(), and consume rn2(1) for a
+// single candidate just as the source does.
+function chooseRandomPart(value, random) {
+    let choices = 1;
+    for (const character of value) {
+        if (character === ',') ++choices;
+    }
+    let choice = random(choices);
+    if (!Number.isInteger(choice) || choice < 0 || choice >= choices) {
+        throw new RangeError(`random(${choices}) returned ${choice}`);
+    }
+
+    let index = 0;
+    while (choice > 0 && index < value.length) {
+        ++index;
+        if (value[index] === ',') --choice;
+    }
+    if (index < value.length) {
+        if (value[index] === ',') ++index;
+        const begin = index;
+        while (index < value.length && value[index] !== ',') ++index;
+        if (index > begin) return value.slice(begin, index);
+    }
+    return null;
+}
+
+export function parseNethackrc(rc, random = rn2) {
     const result = defaultResult();
     if (!rc) return result;
     const optionState = {
@@ -1034,21 +1193,69 @@ export function parseNethackrc(rc) {
         },
     };
 
+    let chosenSection = null;
+    let currentSection = null;
     const lines = logicalConfigLines(rc);
     for (const configLine of lines) {
         const { lineNumber } = configLine;
-        const line = trimConfigPadding(configLine.line);
+        // parse_conf_buf() calls handle_config_section() on every logical
+        // line. is_config_section() applies trimspaces() before checking for
+        // '[', so that outer padding is removed even from CHOOSE and OPTIONS.
+        // parse_config_line() then normalizes a separate copy with mungspaces().
+        const rawLine = trimConfigPadding(configLine.line);
+        const line = mungspaces(rawLine);
         if (!line || line.startsWith('#')) continue;
 
-        const optionsMatch = /^OPTIONS[ \t]*[:=]([\s\S]*)$/iu.exec(line);
-        if (optionsMatch) {
-            const options = optionsMatch[1].split(',');
+        const section = configSection(rawLine);
+        if (section) {
+            currentSection = null;
+            if (chosenSection != null) {
+                if (section.name) currentSection = section.name;
+                else chosenSection = null;
+            }
+            continue;
+        }
+        if (currentSection != null
+            && (chosenSection == null || currentSection !== chosenSection)) {
+            continue;
+        }
+
+        const delimiter = configDelimiter(line);
+        const rawStatementName = delimiter >= 0
+            ? line.slice(0, delimiter) : line;
+        const statementName = mungspaces(rawStatementName).toLowerCase();
+        if (matchesConfigName(statementName, 'choose', 6)) {
+            if (delimiter < 0) continue;
+            chosenSection = null;
+            const rawDelimiter = configDelimiter(rawLine);
+            chosenSection = chooseRandomPart(
+                rawLine.slice(rawDelimiter + 1), random,
+            );
+            continue;
+        }
+        if (delimiter < 0) continue;
+
+        const statement = CONFIG_STATEMENTS.find(({ name, minLength }) => (
+            matchesConfigName(statementName, name, minLength)
+        ));
+        if (!statement) continue;
+
+        const rawValue = statement.kind === 'options'
+            ? rawLine.slice(configDelimiter(rawLine) + 1)
+            : line.slice(delimiter + 1);
+        if (statement.kind === 'options') {
+            const options = rawValue.split(',');
             // options.c recurses into the comma suffix before applying the
             // current element, so options on one line are processed right to
             // left. This makes the leftmost duplicate the final value.
             for (let optionIndex = options.length - 1;
                 optionIndex >= 0; --optionIndex) {
-                const option = trimCWhitespace(options[optionIndex]);
+                const rawOption = options[optionIndex];
+                // parseoptions() enforces this before stripping whitespace or
+                // invoking an option handler, and continues with other items.
+                if (encodeUtf8ByteString(rawOption).length
+                    > OPTION_ELEMENT_LIMIT) continue;
+                const option = trimCWhitespace(rawOption);
                 if (option) {
                     applyOption(result, optionState, option, lineNumber);
                 }
@@ -1056,18 +1263,13 @@ export function parseNethackrc(rc) {
             continue;
         }
 
-        const bindingsMatch = /^(BIND(?:I(?:N(?:G(?:S)?)?)?)?)\s*[:=]\s*(.*)$/iu
-            .exec(line);
-        if (bindingsMatch) {
-            applyMenuBindings(result, bindingsMatch[2], lineNumber);
+        const normalizedValue = mungspaces(rawValue);
+        if (statement.kind === 'bindings') {
+            applyMenuBindings(result, normalizedValue, lineNumber);
             continue;
         }
 
-        const directMatch = /^(NAME|ROLE|CHARACTER|DOGNAME|CATNAME)\s*[:=]\s*(.*)$/iu
-            .exec(line);
-        if (directMatch) {
-            applyDirectOption(result, directMatch[1], directMatch[2]);
-        }
+        applyDirectOption(result, statement.directName, normalizedValue);
     }
 
     return result;

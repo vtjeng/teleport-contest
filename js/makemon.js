@@ -6,37 +6,56 @@ import {
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    G_GENOD,
     G_GONE,
 } from './const.js';
 import { level_difficulty } from './dungeon.js';
 import { game } from './gstate.js';
-import { rn1, rn2 } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import {
     G_FREQ,
     G_HELL,
     G_NOGEN,
     G_NOHELL,
     G_UNIQ,
+    G_IGNORE,
     LOW_PM,
     MR_COLD,
     MR_FIRE,
     NON_PM,
     NUMMONS,
+    PM_AIR_ELEMENTAL,
+    PM_EARTH_ELEMENTAL,
+    PM_ELF,
+    PM_FIRE_ELEMENTAL,
+    PM_GIANT,
+    PM_HUMAN,
+    PM_MAIL_DAEMON,
+    PM_ORC,
+    PM_WATER_ELEMENTAL,
+    PM_WIZARD_OF_YENDOR,
+    S_ELEMENTAL,
+    S_EYE,
+    S_GHOST,
+    S_LICH,
+    S_LIGHT,
+    S_MIMIC_DEF,
+    S_TRAPPER,
+    S_VORTEX,
     SPECIAL_PM,
     monsterClassSymbol,
 } from './monsters.js';
 
-export class UnsupportedMonsterGenerationError extends Error {
-    constructor(operation) {
-        super(`${operation} is not available`);
-        this.name = 'UnsupportedMonsterGenerationError';
-        this.operation = operation;
-    }
-}
+// C ref: monflag.h flags used by makemon.c wrong_elem_type().
+const M1_FLY = 0x00000001;
+const M1_SWIM = 0x00000002;
+const M1_AMORPHOUS = 0x00000004;
+// C ref: mondata.h is_placeholder(). These records only back corpse forms.
+const PLACEHOLDER_MONSTERS = new Set([PM_ORC, PM_GIANT, PM_ELF, PM_HUMAN]);
 
 function generationEnv(env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn1, rn2 };
+    const random = env.random ?? { rn1, rn2, rnd };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('monster random injection requires rn2');
     const sourceRandom = {
@@ -44,12 +63,13 @@ function generationEnv(env = {}) {
         rn1: typeof random.rn1 === 'function'
             ? random.rn1
             : (range, base) => random.rn2(range) + base,
+        rnd: typeof random.rnd === 'function' ? random.rnd : null,
     };
     if (!Array.isArray(state.mons) || state.mons.length <= SPECIAL_PM)
         throw new Error('monster generation requires monst_globals_init()');
     if (!Array.isArray(state.mvitals) || state.mvitals.length < SPECIAL_PM)
         throw new Error('monster generation requires initialized mvitals');
-    return { ...env, state, random: sourceRandom, hooks: env.hooks ?? {} };
+    return { ...env, state, random: sourceRandom };
 }
 
 function sameLevel(left, right) {
@@ -116,22 +136,167 @@ function temperatureShift(monster, state) {
     return monster.mresists & resistance ? 3 : 0;
 }
 
-function questMonster(env) {
-    const hook = env.hooks.questMonsterType;
-    if (typeof hook !== 'function')
-        throw new UnsupportedMonsterGenerationError('questMonsterType');
-    const index = hook(env);
-    if (index == null) return null;
-    if (!Number.isInteger(index) || index < LOW_PM || index >= NUMMONS)
-        throw new RangeError(`invalid quest monster index ${index}`);
-    return env.state.mons[index];
+// C ref: makemon.c is_home_elemental().
+export function is_home_elemental(monster, state = game) {
+    if (monster?.mlet !== S_ELEMENTAL) return false;
+    switch (monster.pmidx) {
+    case PM_AIR_ELEMENTAL:
+        return sameLevel(state.u?.uz, state.air_level);
+    case PM_FIRE_ELEMENTAL:
+        return sameLevel(state.u?.uz, state.fire_level);
+    case PM_EARTH_ELEMENTAL:
+        return sameLevel(state.u?.uz, state.earth_level);
+    case PM_WATER_ELEMENTAL:
+        return sameLevel(state.u?.uz, state.water_level);
+    default:
+        return false;
+    }
 }
 
-function wrongElement(monster, env) {
-    const hook = env.hooks.wrongElementType;
-    if (typeof hook !== 'function')
-        throw new UnsupportedMonsterGenerationError('wrongElementType');
-    return Boolean(hook(monster, env));
+// C ref: makemon.c wrong_elem_type().
+function wrongElementType(monster, state) {
+    if (monster.mlet === S_ELEMENTAL)
+        return !is_home_elemental(monster, state);
+    if (sameLevel(state.u?.uz, state.earth_level)) return false;
+    if (sameLevel(state.u?.uz, state.water_level))
+        return !(monster.mflags1 & M1_SWIM);
+    if (sameLevel(state.u?.uz, state.fire_level))
+        return !(monster.mresists & MR_FIRE);
+    if (sameLevel(state.u?.uz, state.air_level)) {
+        const flyer = Boolean(monster.mflags1 & M1_FLY)
+            && monster.mlet !== S_TRAPPER;
+        const floater = monster.mlet === S_EYE || monster.mlet === S_LIGHT;
+        const amorphous = Boolean(monster.mflags1 & M1_AMORPHOUS);
+        const noncorporeal = monster.mlet === S_GHOST;
+        const whirly = monster.mlet === S_VORTEX
+            || monster.pmidx === PM_AIR_ELEMENTAL;
+        return !(flyer || floater || amorphous || noncorporeal || whirly);
+    }
+    return false;
+}
+
+function adjustedMonsterLevel(monster, state) {
+    if (monster.pmidx === PM_WIZARD_OF_YENDOR) {
+        return Math.min(
+            monster.mlevel + Math.trunc(state.mvitals[monster.pmidx].died ?? 0),
+            49,
+        );
+    }
+    let adjusted = Math.trunc(monster.mlevel);
+    if (adjusted > 49) return 50;
+
+    let difference = level_difficulty(state) - adjusted;
+    if (difference < 0) --adjusted;
+    else adjusted += Math.trunc(difference / 5);
+
+    difference = Math.trunc(state.u.ulevel) - monster.mlevel;
+    if (difference > 0) adjusted += Math.trunc(difference / 4);
+
+    const upperLimit = Math.min(Math.trunc(3 * monster.mlevel / 2), 49);
+    return Math.min(Math.max(adjusted, 0), upperLimit);
+}
+
+function monsterClassOrder(classSymbol, state) {
+    const order = [];
+    for (let index = LOW_PM; index < SPECIAL_PM; ++index) {
+        if (state.mons[index].mlet === classSymbol) order.push(index);
+    }
+    // init_mongen_order() sorts by class and difficulty.  The recorder's
+    // source catalog retains mons[] order for equal-difficulty records.
+    order.sort((left, right) => state.mons[left].difficulty
+        - state.mons[right].difficulty || left - right);
+    return order;
+}
+
+function mkGenerationOkay(index, mvflagsMask, genoMask, state) {
+    const monster = state.mons[index];
+    return !(state.mvitals[index].mvflags & mvflagsMask)
+        && !(monster.geno & genoMask)
+        && !PLACEHOLDER_MONSTERS.has(index)
+        && index !== PM_MAIL_DAEMON;
+}
+
+// C ref: makemon.c mkclass()/mkclass_aligned(), for A_NONE callers.
+export function mkclass(classSymbol, special = 0, env = {}) {
+    const normalized = generationEnv(env);
+    const { random, state } = normalized;
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('mkclass random injection requires rnd');
+    if (!Number.isInteger(classSymbol)
+        || classSymbol < 1 || classSymbol > S_MIMIC_DEF) {
+        return null;
+    }
+
+    const order = monsterClassOrder(classSymbol, state);
+    if (!order.length) return null;
+    const zeroFrequencyForEntireClass = !state.mons
+        .slice(LOW_PM, NUMMONS)
+        .some((monster) => monster.mlet === classSymbol
+            && (monster.geno & G_FREQ));
+    const weights = Array(SPECIAL_PM).fill(0);
+    const maxLevel = Math.trunc(level_difficulty(state) / 2);
+    const gehennom = inHell(state);
+    let mvflagsMask = G_GONE;
+    let specialMask = Math.trunc(special);
+    if (specialMask & G_IGNORE) {
+        mvflagsMask = 0;
+        specialMask &= ~G_IGNORE;
+    }
+
+    let total = 0;
+    let last = 0;
+    for (; last < order.length; ++last) {
+        const index = order[last];
+        const monster = state.mons[index];
+        let genoMask = G_NOGEN | G_UNIQ;
+        // rn2(9) is evaluated even for liches because it is the left operand.
+        if (random.rn2(9) || classSymbol === S_LICH)
+            genoMask |= gehennom ? G_NOHELL : G_HELL;
+        genoMask &= ~specialMask;
+
+        if (!mkGenerationOkay(index, mvflagsMask, genoMask, state)) continue;
+        if (total && monster.difficulty > maxLevel
+            && monster.difficulty > state.mons[order[last - 1]].difficulty
+            && random.rn2(2)) {
+            break;
+        }
+
+        let weight = monster.geno & G_FREQ;
+        if (!weight && zeroFrequencyForEntireClass) weight = 1;
+        if (weight) {
+            weight += 1 - Number(
+                adjustedMonsterLevel(monster, state) > state.u.ulevel * 2,
+            );
+            weights[index] = weight;
+            total += weight;
+        }
+    }
+    if (!total) return null;
+
+    let choice = random.rnd(total);
+    for (let position = 0; position < last; ++position) {
+        const index = order[position];
+        choice -= weights[index];
+        if (choice <= 0) return state.mons[index];
+    }
+    return null;
+}
+
+// C ref: questpgr.c qt_montype().
+export function qt_montype(env = {}) {
+    const normalized = generationEnv(env);
+    const { random, state } = normalized;
+    const role = state.urole;
+    if (!role) throw new Error('qt_montype requires role_init()');
+
+    const useFirst = Boolean(random.rn2(5));
+    const qpm = useFirst ? role.enemy1num : role.enemy2num;
+    const monsterClass = useFirst ? role.enemy1sym : role.enemy2sym;
+    if (qpm !== NON_PM && random.rn2(5)
+        && !(state.mvitals[qpm].mvflags & G_GENOD)) {
+        return state.mons[qpm];
+    }
+    return mkclass(monsterClass, 0, normalized);
 }
 
 // Weighted reservoir sampling is intentional. It consumes one rn2 call for
@@ -141,7 +306,7 @@ export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
     const normalized = generationEnv(env);
     const { random, state } = normalized;
     if (state.u.uz.dnum === state.quest_dnum && random.rn2(7)) {
-        const quest = questMonster(normalized);
+        const quest = qt_montype(normalized);
         if (quest) return quest;
     }
 
@@ -162,7 +327,7 @@ export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
             && !/^[A-Z]$/u.test(monsterClassSymbol(monster.mlet))) {
             continue;
         }
-        if (elementalLevel && wrongElement(monster, normalized)) continue;
+        if (elementalLevel && wrongElementType(monster, state)) continue;
         if (uncommon(index, state)) continue;
         if (inHell(state) && (monster.geno & G_NOHELL)) continue;
 

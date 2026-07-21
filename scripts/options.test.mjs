@@ -13,6 +13,7 @@ import {
     validgend,
     validrace,
 } from '../js/roles.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     ATR_BOLD,
     ATR_INVERSE,
@@ -389,6 +390,109 @@ test('comma options apply right-to-left and later rc lines apply afterward', () 
     assert.deepEqual(characterFlags(laterLine), [12, 1, 1, 2]);
 });
 
+test('CHOOSE consumes source-order RNG calls and gates config sections', () => {
+    const draws = [1, 2, 0];
+    const calls = [];
+    const random = (bound) => {
+        calls.push(bound);
+        const result = draws.shift();
+        assert.ok(result >= 0 && result < bound, `${result} < ${bound}`);
+        return result;
+    };
+    const parsed = parseNethackrc([
+        // rn2(2)=1 selects the second section.  The nested CHOOSE in the
+        // skipped first section must not consume a draw.
+        'CHOOSE=left,right',
+        '[left]',
+        'CHOOSE=ignored-a,ignored-b,ignored-c,ignored-d',
+        'OPTIONS=name:Left,role:Healer',
+        '[right]',
+        'OPTIONS=name:Right',
+        '[] # common statements resume here',
+        // rn2(3)=2 selects the third section.
+        'CHOOSE=red,blue,green',
+        '[red]',
+        'OPTIONS=role:Healer',
+        '[blue]',
+        'OPTIONS=role:Knight',
+        '[green]',
+        'OPTIONS=role:Wizard',
+        '[]',
+        // choose_random_part() still calls rn2(1) for one candidate.
+        'CHOOSE=only',
+        '[only]',
+        'OPTIONS=race:elf',
+    ].join('\n'), random);
+
+    assert.deepEqual(calls, [2, 3, 1]);
+    assert.equal(parsed.name, 'Right');
+    assert.deepEqual(characterFlags(parsed), [12, 1, ROLE_NONE, ROLE_NONE]);
+});
+
+test('CHOOSE defaults to the core game RNG', () => {
+    initRng(0xC0FFEE);
+    enableRngLog();
+    const parsed = parseNethackrc([
+        // One candidate deliberately exercises the source's required rn2(1).
+        'CHOOSE=only',
+        '[only]',
+        'NAME=Default RNG',
+    ].join('\n'));
+
+    assert.equal(parsed.name, 'Default RNG');
+    assert.deepEqual(getRngLog(), ['rn2(1)=0']);
+});
+
+test('config and source option names accept valid abbreviations', () => {
+    const parsed = parseNethackrc([
+        'OPTI=nam:Alice,rol:Healer,rac:elf,gen:female,alignm:chaotic',
+        'OPTI=playm:debug,!col,showe,!verb,menu_h:bold',
+        'OPTI=!menu_ov,eig,pett:cat,fru:pear,hor:Shadowfax',
+        'OPTI=bli,dea,nud,pau,rer,sym:UTF8,sup:3.7,msg_:r,pus',
+        'CHAR=Wizard',
+        'DOG=Fido',
+        'CAT=Mog',
+    ].join('\n'));
+
+    assert.equal(parsed.name, 'Alice');
+    assert.deepEqual(characterFlags(parsed), [12, 1, 1, 2]);
+    assert.equal(parsed.playmode, 'debug');
+    assert.equal(parsed.iflags.wc_color, false);
+    assert.equal(parsed.flags.showexp, true);
+    assert.equal(parsed.flags.verbose, false);
+    assert.deepEqual(parsed.iflags.menu_headings, {
+        attr: ATR_BOLD,
+        color: NO_COLOR,
+    });
+    assert.equal(parsed.iflags.menu_overlay, false);
+    assert.equal(parsed.iflags.wc_eight_bit_input, true);
+    assert.equal(parsed.preferred_pet, 'c');
+    assert.equal(parsed.pl_fruit, 'pear');
+    assert.equal(parsed.horsename, 'Shadowfax');
+    assert.equal(parsed.uroleplay.blind, true);
+    assert.equal(parsed.uroleplay.deaf, true);
+    assert.equal(parsed.uroleplay.nudist, true);
+    assert.equal(parsed.uroleplay.pauper, true);
+    assert.equal(parsed.uroleplay.reroll, true);
+    assert.equal(parsed.symset, 'UTF8');
+    assert.equal(parsed.flags.suppress_alert, '3.7');
+    assert.equal(parsed.iflags.prevmsg_window, 'r');
+    assert.equal(parsed.flags.pushweapon, true);
+    assert.equal(parsed.dogname, 'Fido');
+    assert.equal(parsed.catname, 'Mog');
+
+    const genericBooleans = parseNethackrc('OPTIONS=!bon,res,stan');
+    assert.equal(genericBooleans.flags.bones, false);
+    assert.equal(genericBooleans.flags.rest_on_space, true);
+    assert.equal(genericBooleans.flags.standout, true);
+
+    // playmode needs five characters because player_selection shares "play".
+    assert.throws(
+        () => parseNethackrc('OPTIONS=play:debug'),
+        /unknown or ambiguous option 'play'/u,
+    );
+});
+
 test('continued config lines follow cfgfiles.c merge and comment rules', () => {
     const merged = parseNethackrc([
         'OPTIONS=role:Healer,\\',
@@ -422,47 +526,91 @@ test('continued config lines follow cfgfiles.c merge and comment rules', () => {
         'NAME=First \\',
         'Second',
     ].join('\n'));
-    assert.equal(preservedPadding.name, 'First  Second');
+    assert.equal(preservedPadding.name, 'First Second');
+
+    // parse_conf_buf() initially preserves padding before a continuation
+    // backslash. Its unconditional handle_config_section() call then invokes
+    // trimspaces(), even for CHOOSE, before the choice is parsed.
+    const paddedChoice = parseNethackrc([
+        'CHOOSE=selected   \\',
+        '# terminate the pending logical line',
+        '[selected]',
+        'NAME=padding removed',
+    ].join('\n'), () => 0);
+    assert.equal(paddedChoice.name, 'padding removed');
+
+    // is_config_section() applies trimspaces() after parse_conf_buf(), so tabs
+    // preserved before a continuation backslash do not invalidate the header.
+    const paddedSection = parseNethackrc([
+        'CHOOSE=selected',
+        '[other]\t\t\\',
+        '# terminate the pending logical line',
+        'NAME=must not apply',
+    ].join('\n'), () => 0);
+    assert.equal(paddedSection.name, '');
 });
 
-test('config parsing applies the source byte-buffer boundaries', () => {
-    const prefix = 'OPTIONS=fruit:';
+test('config parsing applies physical-line and option byte boundaries', () => {
+    const namePrefix = 'NAME=';
 
-    // The prefix is 14 bytes.  With no newline, 1007 payload bytes keep the
+    // The prefix is five bytes.  A 1016-byte payload keeps an unterminated
     // physical line below cfgfiles.c's 1022-byte rejection boundary.
     assert.equal(
-        parseNethackrc(`${prefix}${'x'.repeat(1007)}`).pl_fruit,
+        parseNethackrc(`${namePrefix}${'x'.repeat(1016)}`).name,
         'x'.repeat(31),
     );
-    // A newline can occupy fgets()'s final byte, so 1008 payload bytes are
+    // A newline can occupy fgets()'s final byte, so 1017 payload bytes are
     // valid with that newline but rejected when the file ends immediately.
     assert.equal(
-        parseNethackrc(`${prefix}${'x'.repeat(1008)}\n`).pl_fruit,
+        parseNethackrc(`${namePrefix}${'x'.repeat(1017)}\n`).name,
         'x'.repeat(31),
     );
     assert.equal(
-        parseNethackrc(`${prefix}${'x'.repeat(1008)}`).pl_fruit,
-        'slime mold',
+        parseNethackrc(`${namePrefix}${'x'.repeat(1017)}`).name,
+        '',
     );
 
-    // Each e-acute is two UTF-8 bytes.  The 505-character payload pushes the
+    // Each e-acute is two UTF-8 bytes.  The 509-character payload pushes the
     // physical line past the byte limit even though its JS length is shorter;
     // parsing resumes after the discarded line.
     const overlongUnicode = parseNethackrc([
-        `${prefix}${'é'.repeat(505)}`,
+        `${namePrefix}${'é'.repeat(509)}`,
         'OPTIONS=eight_bit_tty',
     ].join('\n'));
-    assert.equal(overlongUnicode.pl_fruit, 'slime mold');
+    assert.equal(overlongUnicode.name, '');
     assert.equal(overlongUnicode.iflags.wc_eight_bit_input, true);
 
-    // The first logical fragment is 1015 bytes including its option prefix.
-    // Merging inserts one space and truncates the result to 1023 bytes, leaving
-    // seven of the second fragment's bytes in the stored option value.
-    const merged = parseNethackrc([
-        `OPTIONS=custom:${'x'.repeat(1000)}\\`,
-        'y'.repeat(100),
-    ].join('\n'));
-    assert.equal(merged.flags.custom, `${'x'.repeat(1000)} ${'y'.repeat(7)}`);
+    // "fruit:" is six bytes, so 122 payload bytes reach options.c's
+    // 128-byte maximum and 123 exceed it.  Rejection happens before fruit's
+    // handler and does not prevent the other comma elements from applying.
+    assert.equal(
+        parseNethackrc(`OPTIONS=fruit:${'x'.repeat(122)}`).pl_fruit,
+        'x'.repeat(31),
+    );
+    // parseoptions() measures raw bytes before trimming surrounding C
+    // whitespace: 121 spaces plus the seven-byte "fruit:a" is allowed.
+    assert.equal(
+        parseNethackrc(`OPTIONS=${' '.repeat(121)}fruit:a`).pl_fruit,
+        'a',
+    );
+    assert.equal(
+        parseNethackrc(`OPTIONS=${' '.repeat(122)}fruit:a`).pl_fruit,
+        'slime mold',
+    );
+    // The same unconditional trimspaces() call removes trailing padding from
+    // OPTIONS before parseoptions() measures its raw element length.
+    const paddedContinuation = (padding) => parseNethackrc([
+        `OPTIONS=fruit:a${' '.repeat(padding)}\\`,
+        '# terminate the pending logical line',
+    ].join('\n')).pl_fruit;
+    assert.equal(paddedContinuation(121), 'a');
+    assert.equal(paddedContinuation(122), 'a');
+    const overlongOption = parseNethackrc(
+        `OPTIONS=!tutorial,fruit:${'x'.repeat(123)},!legacy`,
+    );
+    assert.equal(overlongOption.pl_fruit, 'slime mold');
+    assert.equal(overlongOption.flags.tutorial, false);
+    assert.equal(overlongOption.flags.legacy, false);
 });
 
 test('deprecated gender booleans preserve female and male alias semantics', () => {
@@ -567,12 +715,32 @@ test('pet type aliases and names retain pinned startup values', () => {
     );
     assert.equal(parseNethackrc('OPTIONS=dogname:none').dogname, '');
     assert.equal(parseNethackrc('OPTIONS=dogname:(none)').dogname, '');
+    assert.equal(parseNethackrc('OPTIONS=dogname:None').dogname, 'None');
     assert.equal(parseNethackrc('OPTIONS=!dogname').dogname, '');
     assert.equal(
         parseNethackrc(`OPTIONS=catname:${'x'.repeat(70)}`).catname.length,
         62,
     );
     assert.equal(parseNethackrc('OPTIONS=catname:A\u007fB').catname, 'A.B');
+
+    // Thirty-two e-acute characters occupy 64 UTF-8 bytes.  nmcpy() keeps
+    // 62 bytes; default tty sanitation strips each high byte separately.
+    assert.equal(
+        parseNethackrc(`OPTIONS=catname:${'é'.repeat(32)}`).catname,
+        '_'.repeat(62),
+    );
+    assert.equal(
+        parseNethackrc(
+            `OPTIONS=catname:${'é'.repeat(32)},eight_bit_tty`,
+        ).catname,
+        'é'.repeat(31),
+    );
+    // Right-to-left comma parsing sanitizes the name before this spelling
+    // enables eight-bit tty input.
+    assert.equal(
+        parseNethackrc('OPTIONS=eight_bit_tty,catname:é').catname,
+        '__',
+    );
 });
 
 test('direct legacy name, role, and pet-name statements are accepted', () => {
@@ -591,14 +759,34 @@ test('direct legacy name, role, and pet-name statements are accepted', () => {
     const literal = parseNethackrc('DOGNAME=none\nCATNAME:A\u007fB');
     assert.equal(literal.dogname, 'none');
     assert.equal(literal.catname, 'A\u007fB');
+    assert.equal(
+        parseNethackrc(`CAT=${'é'.repeat(32)}`).catname,
+        'é'.repeat(31),
+    );
+    const munged = parseNethackrc(
+        'NAME=Direct   Hero\nDOG=Fido\t\tThe   Dog',
+    );
+    assert.equal(munged.name, 'Direct Hero');
+    assert.equal(munged.dogname, 'Fido The Dog');
     assert.equal(parseNethackrc('ROLE=random').flags.initrole, ROLE_NONE);
+
+    // PL_NSIZ is 32 bytes including the terminator.  Both name handlers keep
+    // 31 bytes, splitting the sixteenth two-byte e-acute at the C boundary.
+    for (const configured of [
+        `OPTIONS=name:${'é'.repeat(16)}`,
+        `NAME=${'é'.repeat(16)}`,
+    ]) {
+        const truncated = parseNethackrc(configured).name;
+        assert.equal(truncated.slice(0, 15), 'é'.repeat(15), configured);
+        assert.equal(truncated.charCodeAt(15), 0xDCC3, configured);
+    }
 });
 
 test('previous generic startup option mappings remain available', () => {
     const parsed = parseNethackrc(
         'OPTIONS=!autopickup,color,!legacy,!tutorial,!splash_screen,'
         + 'pushweapon,showexp,time,!verbose,symset:UTF8,msg_window:r,'
-        + 'suppress_alert:3.7,custom:value',
+        + 'suppress_alert:3.7,extension:value',
     );
     assert.equal(parsed.flags.pickup, false);
     assert.equal(parsed.flags.color, true);
@@ -621,5 +809,5 @@ test('previous generic startup option mappings remain available', () => {
     assert.equal(parsed.symset, 'UTF8');
     assert.equal(parsed.iflags.prevmsg_window, 'r');
     assert.equal(parsed.flags.suppress_alert, '3.7');
-    assert.equal(parsed.flags.custom, 'value');
+    assert.equal(parsed.flags.extension, 'value');
 });

@@ -1,24 +1,42 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { AGGRAVATE_MONSTER, G_GONE } from '../js/const.js';
+import {
+    AGGRAVATE_MONSTER,
+    G_EXTINCT,
+    G_GENOD,
+    G_GONE,
+} from '../js/const.js';
 import { level_difficulty } from '../js/dungeon.js';
 import {
+    mkclass,
     rndmonnum,
     rndmonst,
+    rndmonst_adj,
 } from '../js/makemon.js';
 import {
+    PM_AIR_ELEMENTAL,
+    PM_BAT,
+    PM_EARTH_ELEMENTAL,
+    PM_FIRE_ANT,
+    PM_FIRE_ELEMENTAL,
     PM_FOX,
     PM_GOBLIN,
+    PM_GREMLIN,
     PM_GRID_BUG,
     PM_JACKAL,
+    PM_KILLER_BEE,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
+    PM_LEPRECHAUN,
     PM_LICHEN,
     PM_NEWT,
     PM_SEWER_RAT,
+    PM_WATER_ELEMENTAL,
     G_NOGEN,
-    NUMMONS,
+    NON_PM,
+    S_ANT,
+    S_LEPRECHAUN,
     SPECIAL_PM,
     monst_globals_init,
     reset_mvitals,
@@ -49,6 +67,54 @@ function startingState() {
     monst_globals_init(state);
     reset_mvitals(state);
     return state;
+}
+
+function scriptedRandom(steps) {
+    let offset = 0;
+    function draw(kind, bound) {
+        const step = steps[offset++];
+        assert.ok(step, `unexpected ${kind}(${bound})`);
+        assert.equal(kind, step.kind ?? 'rn2');
+        assert.equal(bound, step.bound);
+        return step.result;
+    }
+    return {
+        random: {
+            rn2: (bound) => draw('rn2', bound),
+            rnd: (bound) => draw('rnd', bound),
+        },
+        assertExhausted() {
+            assert.equal(offset, steps.length);
+        },
+    };
+}
+
+function planeState(field) {
+    const state = startingState();
+    state.air_level = { dnum: 0, dlevel: 1 };
+    state.fire_level = { dnum: 0, dlevel: 2 };
+    state.earth_level = { dnum: 0, dlevel: 3 };
+    state.water_level = { dnum: 0, dlevel: 4 };
+    state.astral_level = { dnum: 0, dlevel: 5 };
+    state.sanctum_level = { dnum: 0, dlevel: 20 };
+    state.u.uz = { ...state[field] };
+    return state;
+}
+
+function selectOnlyMonster(state, index) {
+    for (const vital of state.mvitals) vital.mvflags |= G_GONE;
+    state.mvitals[index].mvflags &= ~G_GONE;
+    const bounds = [];
+    const selected = rndmonst_adj(-100, 100, {
+        state,
+        random: {
+            rn2(bound) {
+                bounds.push(bound);
+                return 0;
+            },
+        },
+    });
+    return { bounds, selected };
 }
 
 test('depth-one rndmonst preserves every reservoir-sampling draw', () => {
@@ -187,17 +253,110 @@ test('level_difficulty applies extrinsic aggravation after every branch', () => 
     assert.equal(level_difficulty(deep), 50);
 });
 
-test('quest monster selection rejects the catalog terminator', () => {
+test('Quest fixed-enemy selection preserves its three source draws', () => {
     const state = startingState();
     state.quest_dnum = state.u.uz.dnum;
-    assert.throws(
-        () => rndmonst({
-            state,
-            random: { rn2: () => 1 },
-            hooks: { questMonsterType: () => NUMMONS },
-        }),
-        /invalid quest monster index/u,
+    state.urole = {
+        enemy1num: PM_KILLER_BEE,
+        enemy1sym: S_ANT,
+        enemy2num: PM_JACKAL,
+        enemy2sym: state.mons[PM_JACKAL].mlet,
+    };
+    // rndmonst_adj() first chooses the Quest path; qt_montype() then chooses
+    // enemy1 and accepts its fixed species.  Extinction is intentionally not
+    // genocide, matching questpgr.c's G_GENOD-only test.
+    state.mvitals[PM_KILLER_BEE].mvflags |= G_EXTINCT;
+    const rng = scriptedRandom([
+        { bound: 7, result: 1 },
+        { bound: 5, result: 1 },
+        { bound: 5, result: 1 },
+    ]);
+
+    assert.equal(rndmonst({ state, random: rng.random }).pmidx, PM_KILLER_BEE);
+    rng.assertExhausted();
+});
+
+test('Quest genocide falls back through source mkclass RNG order', () => {
+    const state = startingState();
+    state.quest_dnum = state.u.uz.dnum;
+    state.urole = {
+        enemy1num: PM_KILLER_BEE,
+        enemy1sym: S_LEPRECHAUN,
+        enemy2num: NON_PM,
+        enemy2sym: S_LEPRECHAUN,
+    };
+    state.mvitals[PM_KILLER_BEE].mvflags |= G_GENOD;
+    const rng = scriptedRandom([
+        { bound: 7, result: 1 },
+        { bound: 5, result: 1 },
+        { bound: 5, result: 1 },
+        // The one-member leprechaun class consumes its genesis-mask draw,
+        // then rnd(4) selects the weighted candidate.
+        { bound: 9, result: 0 },
+        { kind: 'rnd', bound: 4, result: 1 },
+    ]);
+
+    assert.equal(rndmonst({ state, random: rng.random }).pmidx, PM_LEPRECHAUN);
+    rng.assertExhausted();
+});
+
+test('mkclass uses difficulty order, per-record masks, and one final draw', () => {
+    const state = startingState();
+    const rng = scriptedRandom([
+        // makemon.c processes ants by difficulty: giant ant, killer bee,
+        // fire ant, giant beetle, soldier ant, then the non-generatable queen.
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 2, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 9, result: 0 },
+        { bound: 2, result: 0 },
+        { bound: 9, result: 0 },
+        { kind: 'rnd', bound: 15, result: 8 },
+    ]);
+
+    assert.equal(
+        mkclass(S_ANT, 0, { state, random: rng.random }).pmidx,
+        PM_FIRE_ANT,
     );
+    rng.assertExhausted();
+});
+
+test('elementals are generated only on their home planes without hooks', () => {
+    const cases = [
+        ['air_level', PM_AIR_ELEMENTAL, PM_FIRE_ELEMENTAL],
+        ['fire_level', PM_FIRE_ELEMENTAL, PM_EARTH_ELEMENTAL],
+        ['earth_level', PM_EARTH_ELEMENTAL, PM_WATER_ELEMENTAL],
+        ['water_level', PM_WATER_ELEMENTAL, PM_AIR_ELEMENTAL],
+    ];
+    for (const [field, home, foreign] of cases) {
+        const accepted = selectOnlyMonster(planeState(field), home);
+        assert.equal(accepted.selected?.pmidx, home, `${field} home`);
+        assert.equal(accepted.bounds.length, 1, `${field} home RNG`);
+
+        const rejected = selectOnlyMonster(planeState(field), foreign);
+        assert.equal(rejected.selected, null, `${field} foreign`);
+        assert.deepEqual(rejected.bounds, [], `${field} foreign RNG`);
+    }
+});
+
+test('elemental planes filter ordinary monsters by source capabilities', () => {
+    const cases = [
+        ['earth_level', PM_JACKAL, true],
+        ['water_level', PM_GREMLIN, true],
+        ['water_level', PM_JACKAL, false],
+        ['fire_level', PM_FIRE_ANT, true],
+        ['fire_level', PM_JACKAL, false],
+        ['air_level', PM_BAT, true],
+        ['air_level', PM_JACKAL, false],
+    ];
+    for (const [field, candidate, allowed] of cases) {
+        const result = selectOnlyMonster(planeState(field), candidate);
+        assert.equal(result.selected?.pmidx ?? NON_PM,
+            allowed ? candidate : NON_PM, `${field} candidate ${candidate}`);
+        assert.equal(result.bounds.length, allowed ? 1 : 0);
+    }
 });
 
 test('monster selection fails closed without initialized source catalogs', () => {

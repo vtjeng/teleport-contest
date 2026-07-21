@@ -23,6 +23,7 @@ import {
     PM_JACKAL,
     PM_KILLER_BEE,
     PM_NEWT,
+    S_ANT,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -233,15 +234,23 @@ test('egg exhausts two hundred non-hatchable choices before stacking', () => {
 
 test('typed egg schedules hatching after its common quantity draw', () => {
     const state = objectMonsterState();
-    // The quest selection seam supplies a real source hatchable exception
-    // without changing the mutable monster catalog for this test.
     state.quest_dnum = state.u.uz.dnum;
+    state.urole = {
+        ...state.urole,
+        enemy1num: PM_KILLER_BEE,
+        enemy1sym: S_ANT,
+        enemy2num: PM_KILLER_BEE,
+        enemy2sym: S_ANT,
+    };
     const firstHatchAge = MAX_EGG_HATCH_TIME - 50 + 1;
     const rng = scriptedRandom([
         idDraw(),
         call('rn2', [3], 0),
         // Nonzero takes the quest-monster path in rndmonst_adj().
         call('rn2', [7], 1),
+        // qt_montype() chooses enemy1, then accepts its fixed species.
+        call('rn2', [5], 1),
+        call('rn2', [5], 1),
         // Keep one egg; hatch-time draws must occur only after this draw.
         call('rn2', [6], 1),
         // attach_egg_hatch_timeout() accepts the first result above 150.
@@ -252,7 +261,6 @@ test('typed egg schedules hatching after its common quantity draw', () => {
     const egg = mksobj(EGG, true, false, {
         state,
         random: rng.random,
-        hooks: { questMonsterType: () => PM_KILLER_BEE },
     });
 
     assert.equal(egg.corpsenm, PM_KILLER_BEE);

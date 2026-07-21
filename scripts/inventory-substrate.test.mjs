@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ACH_MINE_PRIZE,
+    ACH_SOKO_PRIZE,
     BLINDED,
     HALLUC,
     HALLUC_RES,
@@ -44,6 +46,7 @@ import { init_objects } from '../js/o_init.js';
 import {
     APPLE,
     AKLYS,
+    BAG_OF_HOLDING,
     CORPSE,
     DART,
     EGG,
@@ -697,6 +700,95 @@ test('ordinary merges do not require hero perception state', () => {
     addinv(first, { state });
     assert.equal(addinv(second, { state }), first);
     assert.equal(first.quan, 2);
+});
+
+test('Mines prize records its achievement and merges after pickup', () => {
+    const state = initializedState();
+    const carried = instance(LUCKSTONE, state, { o_id: 701 });
+    addinv(carried, {
+        state,
+        hooks: { recalculateLuck: () => {} },
+    });
+
+    const prizeId = 702;
+    state.context.achieveo = {
+        mines_prize_oid: prizeId,
+        soko_prize_oid: 0,
+    };
+    const prize = instance(LUCKSTONE, state, {
+        nomerge: true,
+        o_id: prizeId,
+    });
+    const achievements = [];
+    const result = addinv(prize, {
+        state,
+        hooks: {
+            recalculateLuck: () => {},
+            recordAchievement(achievement) {
+                assert.equal(state.context.achieveo.mines_prize_oid, prizeId);
+                assert.equal(prize.nomerge, true);
+                achievements.push(achievement);
+            },
+        },
+    });
+
+    assert.equal(result, carried);
+    assert.equal(carried.quan, 2);
+    assert.equal(prize.where, OBJ_DELETED);
+    assert.deepEqual(achievements, [ACH_MINE_PRIZE]);
+    assert.equal(state.context.achieveo.mines_prize_oid, 0);
+});
+
+test('Sokoban prize clears tracking and its temporary nomerge flag', () => {
+    const state = initializedState();
+    const prizeId = 801;
+    state.context.achieveo = {
+        mines_prize_oid: 0,
+        soko_prize_oid: prizeId,
+    };
+    const prize = instance(BAG_OF_HOLDING, state, {
+        nomerge: true,
+        o_id: prizeId,
+    });
+    const achievements = [];
+
+    assert.equal(addinv(prize, {
+        state,
+        hooks: {
+            recordAchievement: (achievement) => achievements.push(achievement),
+        },
+    }), prize);
+    assert.deepEqual(achievements, [ACH_SOKO_PRIZE]);
+    assert.equal(state.context.achieveo.soko_prize_oid, 0);
+    assert.equal(prize.nomerge, false);
+    assert.equal(prize.where, OBJ_INVENT);
+});
+
+test('special-prize achievement seam is checked before addinv mutation', () => {
+    const state = initializedState();
+    const prizeId = 901;
+    state.context.achieveo = {
+        mines_prize_oid: 0,
+        soko_prize_oid: prizeId,
+    };
+    const prize = instance(BAG_OF_HOLDING, state, {
+        how_lost: LOST_THROWN,
+        no_charge: true,
+        nomerge: true,
+        o_id: prizeId,
+    });
+
+    assert.throws(
+        () => addinv(prize, { state }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'recordAchievement',
+    );
+    assert.equal(state.invent, null);
+    assert.equal(state.context.achieveo.soko_prize_oid, prizeId);
+    assert.equal(prize.how_lost, LOST_THROWN);
+    assert.equal(prize.no_charge, true);
+    assert.equal(prize.nomerge, true);
+    assert.equal(prize.where, OBJ_FREE);
 });
 
 test('addinv_nomerge restores its flag when a seam rejects insertion', () => {
