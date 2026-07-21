@@ -54,6 +54,7 @@
       "paths": [
         "js/dungeon.js",
         "js/dungeon_data.js",
+        "js/engrave.js",
         "js/makemon.js",
         "js/mklev.js",
         "js/mondata.js",
