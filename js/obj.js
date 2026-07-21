@@ -9,11 +9,13 @@ import {
     FIRE_RES,
     G_GONE,
     HATCH_EGG,
+    COLNO,
     LARGEST_INT,
     LOST_NONE,
     MAX_OIL_IN_FLASK,
     NON_PM,
     OBJ_DELETED,
+    OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_LUAFREE,
@@ -22,11 +24,13 @@ import {
     P_NONE,
     P_SHURIKEN,
     RANDOM_TIN,
+    ROWNO,
     SPINACH_TIN,
     W_ARM,
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
 import { noveltitle } from './do_name.js';
+import { depth, level_difficulty } from './dungeon.js';
 import { set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
 import { rndmonnum } from './makemon.js';
@@ -93,6 +97,7 @@ import {
     GLOB_OF_GRAY_OOZE,
     GLOB_OF_GREEN_SLIME,
     GLASS,
+    GOLD_PIECE,
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_DRAGON_SCALES,
     HEAVY_IRON_BALL,
@@ -1393,4 +1398,102 @@ export function mkobj(oclass, artif = false, env = {}) {
     if (catalog[otyp]?.oc_class !== oclass)
         throw new Error(`mkobj: probability table selected ${otyp} for class ${oclass}`);
     return mksobj(otyp, true, artif, normalized);
+}
+
+function floorObjectGrid(state) {
+    const grid = state.level?.objects;
+    if (!Array.isArray(grid)
+        || grid.length !== COLNO
+        || !grid.every((column) => Array.isArray(column)
+            && column.length === ROWNO)) {
+        throw new Error('floor object operations require a GameMap object grid');
+    }
+    return grid;
+}
+
+// C ref: mkobj.c place_object(). This owns the two source floor indexes: the
+// per-square nexthere pile and the level-wide nobj chain. New non-boulders go
+// below consecutive boulders so the pile head remains the displayed boulder.
+export function place_object(obj, x, y, env = {}) {
+    const normalized = lifecycleEnv(env);
+    const { state } = normalized;
+    if (!Number.isInteger(x) || !Number.isInteger(y)
+        || x < 0 || x >= COLNO || y < 0 || y >= ROWNO) {
+        throw new RangeError(`place_object: off-map location <${x},${y}>`);
+    }
+    if (obj.where !== OBJ_FREE)
+        throw new Error(`place_object: object where=${obj.where}, expected free`);
+
+    const grid = floorObjectGrid(state);
+    let pile = grid[x][y];
+    if (pile?.otyp === BOULDER && obj.otyp !== BOULDER) {
+        while (pile.nexthere?.otyp === BOULDER) pile = pile.nexthere;
+        obj.nexthere = pile.nexthere;
+        pile.nexthere = obj;
+    } else {
+        obj.nexthere = pile;
+        grid[x][y] = obj;
+    }
+
+    obj.ox = x;
+    obj.oy = y;
+    obj.where = OBJ_FLOOR;
+    obj.nobj = state.level.objlist ?? null;
+    state.level.objlist = obj;
+    return obj;
+}
+
+// C ref: invent.c sobj_at() and g_at().
+export function sobj_at(otyp, x, y, state = game) {
+    const grid = floorObjectGrid(state);
+    for (let obj = grid[x]?.[y] ?? null; obj; obj = obj.nexthere) {
+        if (obj.otyp === otyp) return obj;
+    }
+    return null;
+}
+
+export function g_at(x, y, state = game) {
+    const grid = floorObjectGrid(state);
+    for (let obj = grid[x]?.[y] ?? null; obj; obj = obj.nexthere) {
+        if (obj.oclass === COIN_CLASS) return obj;
+    }
+    return null;
+}
+
+// C ref: mkobj.c mksobj_at() and mkobj_at().
+export function mksobj_at(otyp, x, y, init = true, artif = false, env = {}) {
+    const normalized = objectEnv(env);
+    return place_object(
+        mksobj(otyp, init, artif, normalized),
+        x,
+        y,
+        normalized,
+    );
+}
+
+export function mkobj_at(oclass, x, y, artif = false, env = {}) {
+    const normalized = objectEnv(env);
+    return place_object(mkobj(oclass, artif, normalized), x, y, normalized);
+}
+
+// C ref: mkobj.c mkgold(). Existing floor gold absorbs the new amount without
+// allocating another object, which also means that next_ident() consumes no
+// PRNG draw on a repeated fill of the same square.
+export function mkgold(amount, x, y, env = {}) {
+    const normalized = objectEnv(env);
+    const { random, state } = normalized;
+    let gold = g_at(x, y, state);
+    if (amount <= 0) {
+        const divisor = Math.max(12 - depth(state.u?.uz, state), 2);
+        const multiplier = random.rnd(Math.trunc(30 / divisor));
+        amount = 1 + random.rnd(level_difficulty(state) + 2) * multiplier;
+    }
+    if (gold) {
+        gold.quan += amount;
+    } else {
+        gold = mksobj_at(GOLD_PIECE, x, y, true, false, normalized);
+        gold.quan = amount;
+    }
+    gold.owt = weight(gold, normalized);
+    return gold;
 }

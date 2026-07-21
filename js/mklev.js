@@ -7,21 +7,27 @@
 
 import { game } from './gstate.js';
 import { GameMap } from './game.js';
+import { depth as dungeon_depth } from './dungeon.js';
+import { make_engr_at, wipe_engr_at } from './engrave.js';
 import { rn2, rnd, rn1 } from './rng.js';
 import { init_rect, rnd_rect, get_rect, split_rects } from './rect.js';
 import { depth as depth_of_level } from './hacklib.js';
 import { oinit } from './o_init.js';
+import { mkgold } from './obj.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
     D_NODOOR, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED,
-    OROOM, VAULT, THEMEROOM, ROOMOFFSET, MAXNROFROOMS, SHARED,
+    OROOM, THEMEROOM, COURT, SWAMP, VAULT, BEEHIVE, MORGUE,
+    BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
+    ROOMOFFSET, MAXNROFROOMS, SHARED,
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, ALTAR, GRAVE, THRONE, TREE,
+    DUST, MARK,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
-    SPACE_POS, isok, W_NONDIGGABLE, FILL_NORMAL,
+    SPACE_POS, isok, W_NONDIGGABLE, FILL_NONE, FILL_NORMAL,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL, DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC, Align2amask,
@@ -67,9 +73,6 @@ const CHEST = 215;
 const FOOD_RATION = 143;
 const CRAM_RATION = 145;
 const LEMBAS_WAFER = 146;
-const DUST = 3;
-const MARK = 6;
-
 const XLIM = 4;
 const YLIM = 3;
 
@@ -103,6 +106,14 @@ const VIBRATING_SQUARE = 22;
 const TRAPPED_DOOR = 23;
 const TRAPPED_CHEST = 24;
 const MAGIC_PORTAL = 25;
+
+// C ref: mklev.c trap_engravings[]. Indices without a source string are
+// intentionally absent.
+const TRAP_ENGRAVINGS = new Map([
+    [TRAPDOOR, 'Vlad was here'],
+    [TELEP_TRAP, 'ad aerarium'],
+    [LEVEL_TELEP, 'ad aerarium'],
+]);
 
 function is_hole(t) { return t === HOLE || t === TRAPDOOR; }
 function is_pit(t) { return t === PIT || t === SPIKED_PIT; }
@@ -252,18 +263,6 @@ function mkobj_at(oclass, x, y, artif) {
     return mkobj(oclass, artif);
 }
 
-function mkgold(amount, x, y) {
-    // C ref: mkobj.c mkgold()
-    if (amount <= 0) {
-        // C ref: mkobj.c:2008-2010
-        const depthVal = depth_of_level(game.u?.uz);
-        const mul = rnd(Math.trunc(30 / Math.max(12 - depthVal, 2)));
-        amount = 1 + rnd(level_difficulty() + 2) * mul;
-    }
-    // mksobj_at(GOLD_PIECE) calls next_ident
-    next_ident();
-}
-
 function place_object(otmp, x, y) { /* stub */ }
 function dealloc_obj(otmp) { /* stub */ }
 function curse(otmp) { if (otmp) otmp.cursed = true; }
@@ -323,9 +322,6 @@ async function maketrap(x, y, typ) {
     return trap;
 }
 
-// engrave stubs
-function make_engr_at(x, y, text, pristine, epoch, engr_type) { /* stub */ }
-function wipe_engr_at(x, y, cnt, perm) { /* stub */ }
 function make_grave(x, y, text) {
     const loc = game.level?.at(x, y);
     if (loc) loc.typ = GRAVE;
@@ -336,16 +332,6 @@ function random_engraving() {
     // C: reads from engrave data file, consumes rn2 for selection
     const idx = rn2(48); // approximate: rn2(num_engravings)
     return { text: 'placeholder', pristine: 'placeholder' };
-}
-
-// wipeout_text stub — consumes rn2 for character corruption
-function wipeout_text(text) {
-    for (let i = 0; i < text.length; i++) {
-        if (text[i] !== ' ') {
-            rn2(1 + 27 / (text.length - i));
-        }
-    }
-    return text;
 }
 
 // in_rooms stub
@@ -411,6 +397,7 @@ function clear_level_structures() {
     g.level.doorindex = 0;
     g.level.doors = [];
     g.stairs = null;
+    g.head_engr = null;
     g.vault_x = -1;
     const lf = g.level.flags;
     lf.nfountains = 0;
@@ -454,6 +441,95 @@ function litstate_rnd(litstate, random = rn2, randomOneBased = rnd) {
         return (randomOneBased(1 + Math.abs(d)) < 11 && random(77)) ? true : false;
     }
     return !!litstate;
+}
+
+// C ref: sp_lev.c fill_special_room(). Shops and zoo-family rooms keep narrow
+// hooks until their population subsystems are ported; vault filling and all
+// recursion, fill-policy, and level-flag behavior are complete here.
+export function fill_special_room(croom, env = {}) {
+    if (!croom) return;
+
+    const state = env.state ?? game;
+    const normalized = { ...env, state };
+    const randomOneBased = env.random?.rn1 ?? rn1;
+    const subrooms = croom.sbrooms ?? [];
+    const subroomCount = croom.nsubrooms ?? subrooms.length;
+    for (let index = 0; index < subroomCount; ++index)
+        fill_special_room(subrooms[index], normalized);
+
+    if (croom.rtype === OROOM || croom.rtype === THEMEROOM
+        || croom.needfill === FILL_NONE) {
+        return;
+    }
+
+    const flags = state.level?.flags;
+    if (!flags)
+        throw new Error('fill_special_room requires initialized level flags');
+
+    if (croom.needfill === FILL_NORMAL) {
+        if (croom.rtype >= SHOPBASE) {
+            if (typeof env.stockRoom !== 'function')
+                throw new Error('fill_special_room requires the stock_room subsystem');
+            env.stockRoom(croom.rtype - SHOPBASE, croom, normalized);
+            flags.has_shop = true;
+            return;
+        }
+
+        switch (croom.rtype) {
+        case VAULT: {
+            const amountRange = Math.abs(dungeon_depth(state.u?.uz, state)) * 100;
+            for (let x = croom.lx; x <= croom.hx; ++x) {
+                for (let y = croom.ly; y <= croom.hy; ++y) {
+                    mkgold(randomOneBased(amountRange, 51), x, y, normalized);
+                }
+            }
+            break;
+        }
+        case COURT:
+        case ZOO:
+        case BEEHIVE:
+        case ANTHOLE:
+        case COCKNEST:
+        case LEPREHALL:
+        case MORGUE:
+        case BARRACKS:
+            if (typeof env.fillZoo !== 'function')
+                throw new Error('fill_special_room requires the fill_zoo subsystem');
+            env.fillZoo(croom, normalized);
+            break;
+        default:
+            break;
+        }
+    }
+
+    switch (croom.rtype) {
+    case VAULT:
+        flags.has_vault = true;
+        break;
+    case ZOO:
+        flags.has_zoo = true;
+        break;
+    case COURT:
+        flags.has_court = true;
+        break;
+    case MORGUE:
+        flags.has_morgue = true;
+        break;
+    case BEEHIVE:
+        flags.has_beehive = true;
+        break;
+    case BARRACKS:
+        flags.has_barracks = true;
+        break;
+    case TEMPLE:
+        flags.has_temple = true;
+        break;
+    case SWAMP:
+        flags.has_swamp = true;
+        break;
+    default:
+        break;
+    }
 }
 
 // C ref: mklev.c makelevel()
@@ -504,7 +580,10 @@ async function makelevel() {
             add_room(vx.v, vy.v, vx.v + vw.v, vy.v + vh.v, true, VAULT, false);
             g.level.flags.has_vault = true;
             const vaultRoom = g.level.rooms[g.level.nroom - 1];
-            if (vaultRoom) vaultRoom.needfill = FILL_NORMAL;
+            if (vaultRoom) {
+                vaultRoom.needfill = FILL_NORMAL;
+                fill_special_room(vaultRoom);
+            }
             if (!is_branchlev()) rn2(3);
             if (!rn2(3)) await makeniche(TELEP_TRAP);
         } else if (rnd_rect()) {
@@ -1509,7 +1588,15 @@ async function makeniche(trap_type) {
             if (trap_type) {
                 let actualTrap = trap_type;
                 if (is_hole(actualTrap)) actualTrap = ROCKTRAP;
-                await maketrap(xx, yy + dy, actualTrap);
+                const trap = await maketrap(xx, yy + dy, actualTrap);
+                if (trap) {
+                    if (actualTrap !== ROCKTRAP) trap.once = true;
+                    const engraving = TRAP_ENGRAVINGS.get(actualTrap);
+                    if (engraving) {
+                        make_engr_at(xx, yy - dy, engraving, null, 0, DUST);
+                        wipe_engr_at(xx, yy - dy, 5, false);
+                    }
+                }
             }
             dosdoor(xx, yy, aroom, SDOOR);
         } else {

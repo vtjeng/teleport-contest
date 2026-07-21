@@ -41,7 +41,14 @@ export class GameMap {
         this.nroom = 0;
         this.doors = [];
         this.doorindex = 0;
-        this.objects = [];
+        // C ref: rm.h struct level. Floor objects have both a per-square pile
+        // chain (`objects[x][y]`) and a level-wide `objlist` chain.
+        this.objects = Array.from(
+            { length: COLNO },
+            () => new Array(ROWNO).fill(null),
+        );
+        this.objlist = null;
+        this.buriedobjlist = null;
         this.monsters = [];
         this.traps = [];
         this.flags = {
