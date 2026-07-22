@@ -1,6 +1,5 @@
 // vision.js — C ref: vision.c Algorithm C shadow-casting
-// Stripped-down port for the contest skeleton: no mimics, underwater, or pit
-// handling.
+// Stripped-down port for the contest skeleton: no underwater or pit handling.
 // Contestants should port the full vision.c for complete parity.
 
 import { game } from './gstate.js';
@@ -16,7 +15,13 @@ import {
     IS_WALL, TEMP_LIT,
 } from './const.js';
 import { newsym } from './display.js';
-import { S_hcdoor, S_ndoor, S_tree, S_vcdoor } from './symbols.js';
+import {
+    S_hcdoor,
+    S_ndoor,
+    S_stone,
+    S_tree,
+    S_vcdoor,
+} from './symbols.js';
 
 function heroIsBlind(hero) {
     const blindness = hero?.uprops?.[BLINDED];
@@ -80,6 +85,13 @@ function heroSeesInvisible() {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
+// defsym.h keeps every wall cmap entry in the contiguous half-open range
+// [S_stone, S_ndoor).  C's is_lightblocker_mappear() expresses this as
+// mappearance < S_ndoor because a valid furniture appearance is nonnegative.
+function isWallMimicAppearance(appearance) {
+    return appearance >= S_stone && appearance < S_ndoor;
+}
+
 // C refs: monst.h is_lightblocker_mappear(); vision.c does_block().
 function mimicBlocksLight(x, y) {
     const monster = m_at(x, y, game);
@@ -90,11 +102,14 @@ function mimicBlocksLight(x, y) {
     return appearanceType === M_AP_FURNITURE
         && (monster.mappearance === S_hcdoor
             || monster.mappearance === S_vcdoor
-            || monster.mappearance < S_ndoor
+            || isWallMimicAppearance(monster.mappearance)
             || monster.mappearance === S_tree);
 }
 
-function _blocks(level, x, y) {
+function blocksVisionAt(x, y) {
+    // Vision state is a game-global singleton, like vision.c's levl,
+    // level.objects, monster grid, and region registry.
+    const level = game.level;
     const loc = level.at(x, y);
     if (!loc) return true;
     const typ = loc.typ ?? 0;
@@ -121,7 +136,7 @@ export function vision_reset() {
         let dig_left = 0;
         let block = true;
         for (let x = 1; x < COLNO; x++) {
-            const cur_block = _blocks(level, x, y);
+            const cur_block = blocksVisionAt(x, y);
             if (block !== cur_block) {
                 if (block) {
                     for (let i = dig_left; i < x; i++) {
@@ -601,10 +616,11 @@ export function vision_recalc(control = 0) {
     game._viz_rmax = next_rmax;
 }
 
-// C ref: cansee(x, y)
-export function cansee(x, y) {
+// C ref: cansee(x, y). The optional state keeps focused rendering calls on
+// the same owner; production uses the default game singleton.
+export function cansee(x, y, state = game) {
     if (y < 0 || y >= ROWNO || x < 0 || x >= COLNO) return false;
-    return !!(game.viz_array?.[y]?.[x] & IN_SIGHT);
+    return !!(state.viz_array?.[y]?.[x] & IN_SIGHT);
 }
 
 // C ref: couldsee(x, y)

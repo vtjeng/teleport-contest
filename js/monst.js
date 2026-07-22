@@ -4,6 +4,7 @@
 
 import { isok, MON_FLOOR } from './const.js';
 import { game } from './gstate.js';
+import { update_monster_region } from './region.js';
 
 // C ref: decl.c cg.zeromonst and include/monst.h struct monst.
 export function newMonster(overrides = {}) {
@@ -129,8 +130,9 @@ export function remove_monster(x, y, state = game) {
 }
 
 // C refs: teleport.c rloc_to_core(); mon.c mon_track_clear(). This is the
-// placement-state core shared by source-faithful relocation callers; display,
-// region, trap, and shop effects remain with those callers.
+// placement-state core shared by source-faithful relocation callers. It owns
+// the source-mandated region-cache update; display, trap, and shop effects
+// remain with the higher-level callers.
 export function relocate_monster(monster, x, y, state = game) {
     if (!monster || typeof monster !== 'object')
         throw new TypeError('relocate_monster requires a monster instance');
@@ -147,5 +149,7 @@ export function relocate_monster(monster, x, y, state = game) {
         coordinate.x = 0;
         coordinate.y = 0;
     }
-    return place_monster(monster, x, y, state);
+    place_monster(monster, x, y, state);
+    update_monster_region(monster, state);
+    return monster;
 }

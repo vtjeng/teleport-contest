@@ -34,7 +34,11 @@ import {
     initialize_symbols_from_options,
     S_cloud,
     S_hcdoor,
+    S_ndoor,
+    S_stone,
+    S_tree,
     S_upstair,
+    S_vcdoor,
 } from '../js/symbols.js';
 import { begin_burn, timeout_globals_init } from '../js/timeout.js';
 import {
@@ -163,13 +167,32 @@ test('visible light-blocking mimic appearances obstruct initial vision', () => {
     };
     state.level.monsters[12][10] = mimic;
 
-    vision_reset();
-    assert.equal(clear_path(10, 10, 14, 10), 0);
-    assert.equal(clear_path(10, 10, 12, 10), 1);
+    for (let appearance = S_stone; appearance < S_ndoor; ++appearance) {
+        mimic.mappearance = appearance;
+        vision_reset();
+        assert.equal(
+            clear_path(10, 10, 14, 10),
+            0,
+            `wall cmap ${appearance}`,
+        );
+        assert.equal(clear_path(10, 10, 12, 10), 1);
+    }
 
-    mimic.mappearance = S_upstair;
-    vision_reset();
-    assert.equal(clear_path(10, 10, 14, 10), 1);
+    for (const appearance of [S_hcdoor, S_vcdoor, S_tree]) {
+        mimic.mappearance = appearance;
+        vision_reset();
+        assert.equal(clear_path(10, 10, 14, 10), 0, `${appearance}`);
+    }
+
+    for (const appearance of [S_ndoor, S_upstair]) {
+        mimic.mappearance = appearance;
+        vision_reset();
+        assert.equal(
+            clear_path(10, 10, 14, 10),
+            1,
+            `non-blocking cmap ${appearance}`,
+        );
+    }
 
     mimic.m_ap_type = M_AP_OBJECT;
     mimic.mappearance = BOULDER;

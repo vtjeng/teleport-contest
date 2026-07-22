@@ -2,9 +2,9 @@
 // starting pets.
 // C ref: makemon.c makemon(), m_initthrow(), m_initweap(), m_initinv(), and
 // mongets(); worn.c m_dowear(). The implementation fails closed outside the
-// species and call shapes reachable during ordinary-room filling, the Ghost
-// themed fill, and starting-pet creation. Fog clouds, wood nymphs, and the
-// three mimic sizes support the Cloud, Garden, and Storeroom fills.
+// species and call shapes reachable during ordinary-room filling, the Ghost,
+// Cloud, Garden, and Storeroom themed fills, and starting-pet creation. Fog
+// clouds, wood nymphs, and the three mimic sizes cover those added fills.
 // Expanding the closed set means porting the corresponding complete source
 // branches, not approximating their PRNG effects.
 
@@ -36,6 +36,7 @@ import {
     ONAME,
     ONAME_NO_FLAGS,
     OBJ_MINVENT,
+    OROOM,
     ROOMOFFSET,
     SCORR,
     SDOOR,
@@ -44,6 +45,7 @@ import {
     TLCORNER,
     TRWALL,
     TUWALL,
+    THEMEROOM,
     W_AMUL,
     W_ARMH,
     IS_WALL,
@@ -263,8 +265,9 @@ function setMimicCorpsenm(monster, value) {
 }
 
 // C ref: makemon.c set_mimic_sym(), for ordinary and themed initial rooms.
-// The descriptor which requested the Storeroom mimic overwrites this shape,
-// but all RNG, temporary-object allocation, and fruit state here occur first.
+// The descriptor which requested the Storeroom mimic overwrites m_ap_type and
+// mappearance only. All RNG, temporary-object allocation, fruit state, and any
+// mcorpsenm overlay established here remain intact.
 function set_mimic_sym(monster, normalized) {
     const { random, state } = normalized;
     const x = monster.mx;
@@ -298,7 +301,7 @@ function set_mimic_sym(monster, normalized) {
         const roomType = roomIndex >= 0
             ? state.level.rooms?.[roomIndex]?.rtype ?? 0
             : null;
-        if (roomType !== 0 && roomType !== 1) {
+        if (roomType !== OROOM && roomType !== THEMEROOM) {
             throw new UnsupportedMonsterCreationError(
                 `mimic room type ${roomType ?? 'none'}`,
             );
@@ -758,8 +761,8 @@ function initializeGender(monster, ptr, mmflags, random) {
 }
 
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
-// call shapes needed by fill_ordinary_room(), the Ghost themed fill, and
-// dog.c:makedog().
+// call shapes needed by fill_ordinary_room(), the Ghost, Cloud, Garden, and
+// Storeroom themed fills, and dog.c:makedog().
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,

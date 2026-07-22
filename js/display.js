@@ -121,6 +121,7 @@ import {
 } from './symbols.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
+import { NON_PM, PM_TENGU } from './monsters.js';
 
 // ── ANSI color codes ──
 // Maps CLR_* constants (0-15) to ANSI SGR color codes.
@@ -568,13 +569,26 @@ export function monster_glyph_info(monster, state = game) {
         }
     }
     if (appearanceType === M_AP_OBJECT) {
-        const type = state.objects?.[monster.mappearance];
-        return object_glyph_info({
+        const storedCorpsenm = monster.mextra?.mcorpsenm;
+        // C ref: display.c display_monster().  The temporary object starts
+        // from zeroobj, so its class remains zero even though normal object
+        // glyphs still derive their class from otyp.  That distinction is
+        // visible for distant gems and spellbooks, and makes fake potions
+        // concrete rather than generic.
+        const fakeObject = {
             otyp: monster.mappearance,
-            oclass: type?.oc_class,
-            corpsenm: monster.mextra?.mcorpsenm,
+            oclass: 0,
+            corpsenm: Number.isInteger(storedCorpsenm)
+                && storedCorpsenm !== NON_PM
+                ? storedCorpsenm : PM_TENGU,
             dknown: false,
-        }, state);
+            ox: monster.mx,
+            oy: monster.my,
+        };
+        // map_object() observes only glyph_is_generic_object().  Class zero
+        // is deliberately outside that glyph range, so even a nearby fake
+        // gem or spellbook remains unobserved.
+        return object_glyph_info(fakeObject, state);
     }
     const symbol = monster.mtame && accessibilityOverridesEnabled(state)
         ? optional_misc_symbol(4, state)
@@ -595,7 +609,8 @@ export function object_is_generic(obj) {
 export function object_glyph_info(obj, state = game) {
     if (!obj) throw new TypeError('object_glyph_info requires an object');
     const generic = object_is_generic(obj);
-    const type = state.objects?.[generic ? obj.oclass : obj.otyp];
+    const actualType = state.objects?.[obj.otyp];
+    const type = generic ? state.objects?.[obj.oclass] : actualType;
     let symbol;
     let color = type?.oc_color ?? NO_COLOR;
     if (obj.otyp === BOULDER) {
@@ -603,7 +618,9 @@ export function object_glyph_info(obj, state = game) {
     } else if (obj.otyp === STATUE && state.mons?.[obj.corpsenm]) {
         symbol = monster_class_symbol(state.mons[obj.corpsenm].mlet, state);
     } else {
-        const objectClass = obj.otyp === CORPSE ? FOOD_CLASS : obj.oclass;
+        const objectClass = obj.otyp === CORPSE
+            ? FOOD_CLASS
+            : generic ? obj.oclass : actualType?.oc_class ?? obj.oclass;
         symbol = object_class_symbol(
             objectClass,
             state,
@@ -846,7 +863,7 @@ function trapGlyph(trap, state) {
 }
 
 function observeNearbyObject(object, x, y, state) {
-    if (!object_is_generic(object) || !cansee(x, y)) return;
+    if (!object_is_generic(object) || !cansee(x, y, state)) return;
     const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;
     const nearDistance = radius * radius * 2 - radius;
     if (dist2(x, y, state.u?.ux ?? 0, state.u?.uy ?? 0) <= nearDistance)

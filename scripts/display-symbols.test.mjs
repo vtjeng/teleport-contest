@@ -60,23 +60,36 @@ import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
 import {
     add_rect_to_reg,
     add_region,
     create_region,
 } from '../js/region.js';
-import { S_FELINE, S_HUMAN } from '../js/monsters.js';
+import {
+    NON_PM,
+    PM_GOBLIN,
+    PM_TENGU,
+    S_FELINE,
+    S_HUMAN,
+    monst_globals_init,
+} from '../js/monsters.js';
 import {
     CHEST,
+    CORPSE,
+    DIAMOND,
     objects_globals_init,
     POT_BOOZE,
     POTION_CLASS,
+    SPE_FORCE_BOLT,
+    STATUE,
     WEAPON_CLASS,
 } from '../js/objects.js';
 import {
     ATR_INVERSE,
     CLR_BRIGHT_BLUE,
+    CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
     CLR_BROWN,
     CLR_RED,
@@ -102,6 +115,7 @@ import {
     S_brupstair,
     S_cloud,
     S_hcdoor,
+    S_poisoncloud,
     S_tlcorn,
     S_vwall,
     trap_to_defsym,
@@ -126,6 +140,22 @@ const WALL_SYMBOL_CASES = [
 function displaySymbol(loc, state) {
     const { ch, dec } = terrain_glyph(loc, 7, 4, state);
     return { ch, dec };
+}
+
+function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.level.at(x, y).typ = ROOM;
+    state.u = { ux, uy, umonnum: 0 };
+    state.urace = { mnum: 0 };
+    state.flags = {};
+    monst_globals_init(state);
+    objects_globals_init(state);
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2;
+    return state;
 }
 
 test('public S_* indices are owned by the generated defsym table', () => {
@@ -662,6 +692,123 @@ test('newsym maps a visible object mimic as its remembered chest', () => {
     assert.equal(state.level.at(x, y).remembered_glyph.ch, '(');
 });
 
+test('object mimics use display_monster zeroobj glyph and corpse metadata', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    const fake = {
+        data: state.mons[PM_TENGU],
+        m_ap_type: M_AP_OBJECT,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+    const genericZeroClass = {
+        ch: object_class_symbol(0, state).ch,
+        // Illegal-object class zero is black in objects.c; map_glyphinfo()
+        // suppresses black as the terminal's default color.
+        color: NO_COLOR,
+        dec: false,
+    };
+    const cases = [
+        {
+            otyp: POT_BOOZE,
+            expected: {
+                ch: '!',
+                color: state.objects[POT_BOOZE].oc_color,
+                dec: false,
+            },
+        },
+        // obj_is_generic() consults otyp for gems and spellbooks, then the
+        // zeroobj's untouched oclass selects generic object class zero.
+        { otyp: DIAMOND, expected: genericZeroClass },
+        { otyp: SPE_FORCE_BOLT, expected: genericZeroClass },
+        {
+            otyp: CORPSE,
+            expected: {
+                ch: '%',
+                color: state.mons[PM_TENGU].mcolor,
+                dec: false,
+            },
+        },
+        {
+            otyp: STATUE,
+            mcorpsenm: NON_PM,
+            expected: {
+                ch: monster_class_symbol(
+                    state.mons[PM_TENGU].mlet,
+                    state,
+                ).ch,
+                color: state.objects[STATUE].oc_color,
+                dec: false,
+            },
+        },
+        {
+            otyp: STATUE,
+            mcorpsenm: PM_GOBLIN,
+            expected: {
+                ch: monster_class_symbol(
+                    state.mons[PM_GOBLIN].mlet,
+                    state,
+                ).ch,
+                color: state.objects[STATUE].oc_color,
+                dec: false,
+            },
+        },
+    ];
+
+    for (const { otyp, expected, mcorpsenm } of cases) {
+        fake.mappearance = otyp;
+        fake.mextra = mcorpsenm === undefined ? null : { mcorpsenm };
+        assert.deepEqual(monster_glyph_info(fake, state), expected, `${otyp}`);
+        state.level.monsters[x][y] = fake;
+        newsym(x, y);
+        assert.deepEqual(
+            {
+                ch: state.level.at(x, y).disp_ch,
+                color: state.level.at(x, y).disp_color,
+                dec: state.level.at(x, y).disp_decgfx,
+            },
+            expected,
+            `visible ${otyp}`,
+        );
+        assert.equal(state.level.at(x, y).remembered_glyph.ch, expected.ch);
+        assert.equal(
+            state.level.at(x, y).remembered_glyph.color,
+            expected.color,
+        );
+    }
+});
+
+test('nearby zero-class object mimics stay outside the generic-glyph range', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 6, uy: 4 });
+    init_objects(state, () => 0);
+    state.level.monsters[x][y] = {
+        data: state.mons[PM_TENGU],
+        m_ap_type: M_AP_OBJECT,
+        mappearance: SPE_FORCE_BOLT,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+
+    newsym(x, y);
+    assert.equal(state.objects[SPE_FORCE_BOLT].oc_encountered, 0);
+    assert.equal(
+        state.level.at(x, y).disp_ch,
+        object_class_symbol(0, state).ch,
+    );
+    assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
+    assert.equal(
+        state.level.at(x, y).remembered_glyph.ch,
+        object_class_symbol(0, state).ch,
+    );
+});
+
 test('newsym maps a visible furniture mimic into display and memory', () => {
     const state = resetGame();
     const x = 7;
@@ -723,6 +870,63 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, '#');
     assert.equal(state.level.at(x, y).remembered_glyph.ch, 'x');
+});
+
+test('gas colors and ordinary/disguised monster precedence follow newsym', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    const cloud = create_region();
+    add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+    cloud.visible = true;
+    cloud.glyph = S_cloud;
+    add_region(cloud, state);
+
+    newsym(x, y);
+    assert.deepEqual(
+        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        ['#', NO_COLOR],
+    );
+
+    cloud.arg = 1;
+    cloud.glyph = S_poisoncloud;
+    newsym(x, y);
+    assert.deepEqual(
+        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        ['#', CLR_BRIGHT_GREEN],
+    );
+
+    const monster = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        m_ap_type: 0,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+    state.level.monsters[x][y] = monster;
+    state.u.ux = x - 1;
+    state.u.uy = y;
+    newsym(x, y);
+    assert.deepEqual(
+        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        ['f', CLR_WHITE],
+        'an adjacent ordinary monster overrides gas',
+    );
+
+    for (const [appearanceType, appearance] of [
+        [M_AP_OBJECT, CHEST],
+        [M_AP_FURNITURE, S_hcdoor],
+    ]) {
+        monster.m_ap_type = appearanceType;
+        monster.mappearance = appearance;
+        newsym(x, y);
+        assert.deepEqual(
+            [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+            ['#', CLR_BRIGHT_GREEN],
+            'a disguised mimic remains behind gas',
+        );
+    }
 });
 
 test('newsym reveals visible engravings beneath higher-priority layers', () => {

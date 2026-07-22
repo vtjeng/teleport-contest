@@ -55,6 +55,7 @@ import {
     discard_minvent,
     makemon,
     m_dowear,
+    UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { mkclass } from './makemon.js';
 import { is_female, is_male } from './mondata.js';
@@ -544,6 +545,30 @@ function createMonsterBody(specification, room, env) {
     return monster;
 }
 
+function assertSupportedMonsterAppearance(specification, state) {
+    const appearance = specification.appearAs;
+    if (appearance == null) return;
+
+    const species = Number.isInteger(specification.id)
+        ? state.mons?.[specification.id] : null;
+    const monsterClass = species?.mlet ?? specification.class;
+    if (monsterClass !== S_MIMIC) {
+        throw new UnsupportedMonsterCreationError(
+            'appearance descriptor for a non-mimic',
+        );
+    }
+    if (appearance.type !== M_AP_OBJECT) {
+        throw new UnsupportedMonsterCreationError(
+            `special-level mimic appearance type ${appearance.type}`,
+        );
+    }
+    if (appearance.id !== CHEST) {
+        throw new UnsupportedMonsterCreationError(
+            `special-level mimic object appearance ${appearance.id}`,
+        );
+    }
+}
+
 // C refs: sp_lev.c lspo_monster(), create_monster(), and
 // spo_end_moninvent().  The descriptor callback runs even when monster
 // creation fails.  A top-level failure leaves its objects on the floor; a
@@ -551,6 +576,10 @@ function createMonsterBody(specification, room, env) {
 // boundary clears it, matching create_monster()'s success-only assignment.
 export function create_monster(specification, room, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
+    // This bounded port implements the Storeroom's object-disguised mimic
+    // descriptor only. Reject other appearance pairs before create_monster()
+    // consumes RNG or mutates level state.
+    assertSupportedMonsterAppearance(specification, env.state);
     const inventory = specification.inventory;
     if (inventory != null && typeof inventory !== 'function') {
         throw new TypeError(

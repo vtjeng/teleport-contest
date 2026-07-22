@@ -12,6 +12,7 @@ import {
     BURN_OBJECT,
     COLNO,
     CORR,
+    COURT,
     DOOR,
     FOUNTAIN,
     HWALL,
@@ -21,6 +22,8 @@ import {
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
     M_AP_OBJECT,
     OBJ_BURIED,
     OBJ_CONTAINED,
@@ -29,6 +32,7 @@ import {
     OBJ_FREE,
     OBJ_MINVENT,
     ONAME_LEVEL_DEF,
+    OROOM,
     ROLLING_BOULDER_TRAP,
     ROWNO,
     ROT_CORPSE,
@@ -58,7 +62,7 @@ import { GameMap } from '../js/game.js';
 import { engr_at } from '../js/engrave.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
-import { newMonster } from '../js/monst.js';
+import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
@@ -85,6 +89,7 @@ import {
     SCROLL_CLASS,
     WEAPON_CLASS,
     OIL_LAMP,
+    NUM_OBJECTS,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -105,6 +110,7 @@ import {
     PM_GOBLIN,
     PM_GHOST,
     PM_FOG_CLOUD,
+    PM_GIANT_MIMIC,
     PM_HEALER,
     PM_HUMAN,
     PM_HUNTER,
@@ -126,7 +132,6 @@ import {
     PM_WARRIOR,
     PM_WIZARD,
     PM_WOOD_NYMPH,
-    PM_SMALL_MIMIC,
     S_MIMIC,
     monst_globals_init,
     reset_mvitals,
@@ -172,6 +177,18 @@ function twoByTwoRoom() {
 function threeByTwoRoom() {
     const { level, room } = twoByTwoRoom();
     room.hx = 4;
+    for (let y = room.ly; y <= room.hy; ++y) {
+        const location = level.at(room.hx, y);
+        location.typ = ROOM;
+        location.roomno = ROOMOFFSET;
+        location.edge = false;
+    }
+    return { level, room };
+}
+
+function fourByTwoRoom() {
+    const { level, room } = threeByTwoRoom();
+    room.hx = 5;
     for (let y = room.ly; y <= room.hy; ++y) {
         const location = level.at(room.hx, y);
         location.typ = ROOM;
@@ -281,6 +298,46 @@ function monsterDescriptorFixture() {
     };
 }
 
+function clippedEnextoTailSwapSteps() {
+    // The fixed coordinate <2,3> clips enexto()'s outer rings at the left map
+    // boundary. Each bound-minus-one draw swaps the current scan head with the
+    // last remaining entry in the resulting 8-, 11-, and 15-point rings.
+    return [8, 11, 15].flatMap((start) => Array.from(
+        { length: start - 1 },
+        (_, index) => {
+            const bound = start - index;
+            return step('rn2', [bound], bound - 1);
+        },
+    ));
+}
+
+function occupiedFogRandom({ create }) {
+    return scriptedRandom([
+        step('rn2', [2], 1), // descriptor gender
+        step('rn2', [3], 2), // induced_align() fallback
+        ...clippedEnextoTailSwapSteps(),
+        ...(create ? [
+            step('rnd', [2], 1), // monster identifier
+            step('d', [2, 8], 16), // adjusted fog-cloud hit points
+            step('rn2', [50], 49), // no defensive item
+            step('rn2', [100], 99), // no miscellaneous item
+            step('rn2', [100], 99), // no saddle
+        ] : []),
+    ]);
+}
+
+function occupyFixedRoomCoordinate(level, room, state) {
+    const occupant = newMonster({
+        data: state.mons[PM_GOBLIN],
+        mhp: 1,
+        mhpmax: 1,
+        m_id: 700,
+    });
+    level.monlist = occupant;
+    place_monster(occupant, room.lx, room.ly, state);
+    return occupant;
+}
+
 test('Ice room selects in source order and starts timers y-major', () => {
     const { level, room } = twoByTwoRoom();
     const calls = [];
@@ -327,7 +384,7 @@ test('Ice room selects in source order and starts timers y-major', () => {
 });
 
 test('Cloud room creates all fog monsters before its unchanged selection region', () => {
-    const { level, room } = threeByTwoRoom();
+    const { level, room } = fourByTwoRoom();
     const events = [];
     let retainedSelection;
     const random = randomWithRn2(() => {
@@ -352,11 +409,12 @@ test('Cloud room creates all fog monsters before its unchanged selection region'
 
     assert.deepEqual(events, [
         ['monster', { id: PM_FOG_CLOUD, asleep: true }],
+        ['monster', { id: PM_FOG_CLOUD, asleep: true }],
         ['region', 0],
     ]);
-    assert.equal(retainedSelection.numpoints(), 6);
+    assert.equal(retainedSelection.numpoints(), 8);
     assert.ok(retainedSelection.get(2, 3));
-    assert.ok(retainedSelection.get(4, 4));
+    assert.ok(retainedSelection.get(5, 4));
 });
 
 test('Cloud room default path owns sleeping fog and a visible gas region', () => {
@@ -423,19 +481,163 @@ test('Storeroom samples x-major but invokes independent placements y-major', () 
     ]);
 });
 
-test('class-only Storeroom descriptor creates a male chest mimic', () => {
-    const { level, room, state, random } = monsterDescriptorFixture();
+test('Storeroom scripts class selection and preserves pre-override mimic metadata', () => {
+    const { level, room, state } = monsterDescriptorFixture();
     level.rooms[0] = { ...room, rtype: THEMEROOM };
+    const random = scriptedRandom([
+        step('rn2', [3], 2), // induced_align(): lawful fallback
+        step('rn2', [9], 8), // small mimic generation filter
+        step('rn2', [9], 8), // large mimic generation filter
+        step('rn2', [2], 0), // retain the above-level large mimic
+        step('rn2', [9], 8), // giant mimic generation filter
+        step('rn2', [2], 0), // retain the above-level giant mimic
+        step('rnd', [4], 4), // select the giant mimic from full class weight
+        step('rn1', [2, 2], 2), // x coordinate
+        step('rn1', [2, 3], 3), // y coordinate
+        step('rnd', [2], 2), // monster identifier
+        step('d', [8, 8], 64), // giant mimic hit points
+        step('rn2', [2], 0), // makemon gender draw
+        step('rn2', [17], 0), // automatic mimic shape: furniture
+        step('rn2', [8], 4), // automatic furniture shape: altar
+        step('rn2', [3], 0), // altar metadata: chaotic
+        step('rn2', [50], 49), // no random inventory weapon
+        step('rn2', [100], 99), // no defensive item
+        step('rn2', [100], 99), // no miscellaneous item
+    ]);
 
     const mimic = create_monster({
         class: S_MIMIC,
         appearAs: { type: M_AP_OBJECT, id: CHEST },
-    }, room, { state, random });
+    }, room, { state, random: random.random });
 
-    assert.equal(mimic.data.pmidx, PM_SMALL_MIMIC);
+    random.assertExhausted();
+    assert.equal(mimic.data.pmidx, PM_GIANT_MIMIC);
     assert.equal(mimic.female, false);
     assert.equal(mimic.m_ap_type, M_AP_OBJECT);
     assert.equal(mimic.mappearance, CHEST);
+    assert.equal(mimic.mextra.mcorpsenm, AM_CHAOTIC);
+});
+
+test('automatic mimic setup accepts only ordinary and themed room types', () => {
+    for (const roomType of [OROOM, THEMEROOM]) {
+        const { level, room, state } = monsterDescriptorFixture();
+        level.rooms[0] = { ...room, rtype: roomType };
+        const mimic = create_monster({
+            class: S_MIMIC,
+            appearAs: { type: M_AP_OBJECT, id: CHEST },
+        }, room, { state, random: quietObjectRandom() });
+        assert.ok(mimic, `${roomType}`);
+        assert.equal(mimic.mappearance, CHEST);
+    }
+
+    const { level, room, state } = monsterDescriptorFixture();
+    level.rooms[0] = { ...room, rtype: COURT };
+    assert.throws(
+        () => create_monster({
+            class: S_MIMIC,
+            appearAs: { type: M_AP_OBJECT, id: CHEST },
+        }, room, { state, random: quietObjectRandom() }),
+        /mimic room type/u,
+    );
+});
+
+test('unsupported appearance pairs fail before hooks, RNG, or level mutation', () => {
+    const { level, room, state } = monsterDescriptorFixture();
+    const random = {};
+    for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
+        random[name] = () => assert.fail(`unexpected ${name}`);
+    }
+    const env = {
+        state,
+        random,
+        hooks: {
+            createMonster() {
+                assert.fail('unsupported appearance reached creation hook');
+            },
+        },
+    };
+    const invalid = [
+        {
+            id: PM_FOG_CLOUD,
+            appearAs: { type: M_AP_OBJECT, id: CHEST },
+        },
+        {
+            class: S_MIMIC,
+            appearAs: { type: M_AP_FURNITURE, id: 0 },
+        },
+        {
+            class: S_MIMIC,
+            appearAs: { type: M_AP_MONSTER, id: PM_GOBLIN },
+        },
+        {
+            class: S_MIMIC,
+            appearAs: { type: M_AP_OBJECT, id: BOULDER },
+        },
+        {
+            class: S_MIMIC,
+            appearAs: { type: M_AP_OBJECT, id: -1 },
+        },
+        {
+            class: S_MIMIC,
+            appearAs: { type: M_AP_OBJECT, id: NUM_OBJECTS },
+        },
+        {
+            class: S_MIMIC,
+            appearAs: { type: M_AP_OBJECT, id: 'chest' },
+        },
+    ];
+
+    for (const specification of invalid) {
+        assert.throws(
+            () => create_monster(specification, room, env),
+            /unsupported initial-level monster creation/u,
+        );
+        assert.equal(level.monlist, null);
+    }
+});
+
+test('create_monster relocates an occupied fixed coordinate inside its room', () => {
+    const { level, room, state } = monsterDescriptorFixture();
+    level.rooms[0] = { ...room, rtype: THEMEROOM };
+    const occupant = occupyFixedRoomCoordinate(level, room, state);
+    const random = occupiedFogRandom({ create: true });
+
+    const fog = create_monster({
+        id: PM_FOG_CLOUD,
+        coordinate: { x: 0, y: 0 },
+    }, room, { state, random: random.random });
+
+    random.assertExhausted();
+    assert.ok(fog);
+    assert.equal(level.monsters[room.lx][room.ly], occupant);
+    assert.deepEqual([fog.mx, fog.my], [3, 4]);
+    assert.equal(level.monsters[fog.mx][fog.my], fog);
+});
+
+test('create_monster rejects occupied-coordinate relocation outside its room', () => {
+    const { level, room, state } = monsterDescriptorFixture();
+    level.rooms[0] = { ...room, rtype: THEMEROOM };
+    const occupant = occupyFixedRoomCoordinate(level, room, state);
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            if (x !== room.lx || y !== room.ly)
+                level.at(x, y).typ = STONE;
+        }
+    }
+    // This is the only valid enexto() destination and lies beyond the
+    // regular room's one-square border accepted by inside_room().
+    level.at(room.lx, room.ly - 2).typ = ROOM;
+    const random = occupiedFogRandom({ create: false });
+
+    const fog = create_monster({
+        id: PM_FOG_CLOUD,
+        coordinate: { x: 0, y: 0 },
+    }, room, { state, random: random.random });
+
+    random.assertExhausted();
+    assert.equal(fog, null);
+    assert.equal(level.monlist, occupant);
+    assert.equal(level.monsters[room.lx][room.ly], occupant);
 });
 
 test('Spider nest samples x-major and creates webs y-major', () => {

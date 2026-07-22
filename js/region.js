@@ -87,6 +87,26 @@ export function add_region(region, state = game) {
     return region;
 }
 
+// C ref: region.c update_monster_region(). Relocation updates each active
+// region's cached monster-id membership after the coordinate grid changes.
+export function update_monster_region(monster, state = game) {
+    if (!monster || typeof monster !== 'object') {
+        throw new TypeError('update_monster_region requires a monster');
+    }
+    for (const region of state.level?.regions ?? []) {
+        const index = region.monsters.indexOf(monster.m_id);
+        if (inside_region(region, monster.mx, monster.my)) {
+            if (index < 0) region.monsters.push(monster.m_id);
+        } else if (index >= 0) {
+            // region.c remove_mon_from_reg() fills the removed slot with the
+            // former tail rather than preserving array order.
+            region.monsters[index] = region.monsters.at(-1);
+            region.monsters.pop();
+        }
+    }
+    return monster;
+}
+
 export function visible_region_at(x, y, state = game) {
     for (const region of state.level?.regions ?? []) {
         if (!region.visible || region.ttl === -2) continue;

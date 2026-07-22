@@ -24,6 +24,11 @@ import {
 } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import {
+    add_rect_to_reg,
+    add_region,
+    create_region,
+} from '../js/region.js';
+import {
     collect_coords,
     enexto_core,
     goodpos,
@@ -246,6 +251,60 @@ test('mnexto preserves monster identity and list linkage while relocating', () =
         Array.from({ length: 4 }, () => ({ x: 0, y: 0 })),
     );
     assert.equal(draws.bounds.length, 45);
+});
+
+test('mnexto refreshes every gas-region monster membership after relocation', () => {
+    const state = positionState();
+    for (let x = 1; x < 80; ++x)
+        for (let y = 0; y < 21; ++y) state.level.at(x, y).typ = ROOM;
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 1,
+        mhpmax: 1,
+        m_id: 83,
+    });
+    state.level.monlist = monster;
+    place_monster(monster, state.u.ux, state.u.uy, state);
+    const second = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 1,
+        mhpmax: 1,
+        m_id: 84,
+    });
+    const third = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 1,
+        mhpmax: 1,
+        m_id: 85,
+    });
+    place_monster(second, 11, 10, state);
+    place_monster(third, 12, 10, state);
+
+    const oldOnly = create_region();
+    add_rect_to_reg(oldOnly, { lx: 10, ly: 10, hx: 12, hy: 10 });
+    add_region(oldOnly, state);
+    const newOnly = create_region();
+    add_rect_to_reg(newOnly, { lx: 9, ly: 9, hx: 9, hy: 9 });
+    add_region(newOnly, state);
+    const both = create_region();
+    add_rect_to_reg(both, { lx: 9, ly: 9, hx: 9, hy: 9 });
+    add_rect_to_reg(both, { lx: 10, ly: 10, hx: 10, hy: 10 });
+    add_region(both, state);
+    assert.deepEqual(
+        [oldOnly.monsters, newOnly.monsters, both.monsters],
+        [[monster.m_id, second.m_id, third.m_id], [], [monster.m_id]],
+    );
+
+    mnexto(monster, 0, {
+        state,
+        random: boundsRandom().random,
+    });
+
+    assert.deepEqual([monster.mx, monster.my], [9, 9]);
+    assert.deepEqual(
+        [oldOnly.monsters, newOnly.monsters, both.monsters],
+        [[third.m_id, second.m_id], [monster.m_id], [monster.m_id]],
+    );
 });
 
 test('mnexto honors wizard monster-teleport control before relocation', () => {
