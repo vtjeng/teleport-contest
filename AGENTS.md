@@ -78,8 +78,11 @@ Git history do not grant permission to inspect the sealed local holdout.
 - Use `node scripts/diff-fresh.mjs --seed ...` for strict fresh-recording
   differentials. Its recipe inputs must contain replay inputs only, never
   recorded `steps`; do not weaken that boundary or its sealed-path checks.
-- Verify PRNG logs, 24×80 screens, and cursor positions. Verify browser
-  behavior for browser-facing changes.
+- Verify PRNG logs, 24×80 screens, and cursor positions. Launch a browser only
+  when browser-specific code, DOM/CSS, input/storage, or browser-only
+  presentation behavior changes. Shared engine or glyph-output changes do not
+  require browser validation when the browser renderer is unchanged and focused
+  tests cover its input contract.
 - End each completed work chunk with an estimated leaderboard screen score
   formatted `<shown> shown + <hidden> hidden = <total> total`. Use current
   published aggregates when available; otherwise estimate from development
