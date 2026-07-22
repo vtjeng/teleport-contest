@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BURN_OBJECT,
     G_GENOD,
     MM_ANGRY,
     MM_ASLEEP,
@@ -39,12 +40,17 @@ import { newMonster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
+    G_FREQ,
+    G_HELL,
+    G_NOGEN,
+    G_UNIQ,
     M2_ORC,
     PM_ELF,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
     PM_BUGBEAR,
     PM_CAVE_SPIDER,
+    PM_CHAMELEON,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_GHOST,
@@ -54,41 +60,66 @@ import {
     PM_HUMAN,
     PM_HUMAN_MUMMY,
     PM_DWARF,
+    PM_GNOME_RULER,
+    PM_GNOMISH_WIZARD,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
     PM_LICHEN,
+    PM_LEPRECHAUN,
     PM_NEWT,
     PM_ORC,
+    PM_ORC_CAPTAIN,
+    PM_OGRE,
+    PM_PLAINS_CENTAUR,
     PM_PONY,
+    PM_ROCK_MOLE,
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_WHITE_UNICORN,
+    PM_WOODLAND_ELF,
     PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
     PM_ZRUTY,
+    SPECIAL_PM,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
 import {
+    AKLYS,
     AMULET_OF_LIFE_SAVING,
     DART,
+    CLUB,
+    CROSSBOW,
+    CROSSBOW_BOLT,
+    DAGGER,
+    DWARVISH_CLOAK,
     ELVEN_BOOTS,
     ELVEN_CLOAK,
+    ELVEN_DAGGER,
     ELVEN_LEATHER_HELM,
     ELVEN_MITHRIL_COAT,
     ELVEN_SHIELD,
+    ELVEN_SPEAR,
+    GOLD_PIECE,
+    IRON_SHOES,
     LEATHER_GLOVES,
     MIRROR,
     MUMMY_WRAPPING,
+    ORCISH_ARROW,
+    ORCISH_BOW,
     ORCISH_DAGGER,
     ORCISH_HELM,
     POT_OBJECT_DETECTION,
     SADDLE,
+    SCR_CREATE_MONSTER,
+    TALLOW_CANDLE,
     T_SHIRT,
     WAN_DIGGING,
+    WAN_MAGIC_MISSILE,
     objects_globals_init,
 } from '../js/objects.js';
+import { timeout_globals_init } from '../js/timeout.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
@@ -167,7 +198,7 @@ function ordinaryInventoryTail() {
     ];
 }
 
-function recordingRandom({ rn2Result } = {}) {
+function recordingRandom({ rn2Result, rndResult } = {}) {
     const calls = [];
     const record = (kind, args, result) => {
         calls.push({ kind, args, result });
@@ -183,11 +214,21 @@ function recordingRandom({ rn2Result } = {}) {
                 [bound],
                 rn2Result ? rn2Result(bound) : Math.max(0, bound - 1),
             ),
-            rnd: (bound) => record('rnd', [bound], 1),
+            rnd: (bound) => record(
+                'rnd',
+                [bound],
+                rndResult ? rndResult(bound) : 1,
+            ),
             rne: (bound) => record('rne', [bound], 1),
             rnz: (value) => record('rnz', [value], value),
         },
     };
+}
+
+function monsterInventory(monster) {
+    const result = [];
+    for (let obj = monster.minvent; obj; obj = obj.nobj) result.push(obj);
+    return result;
 }
 
 test('non-armed initial monsters preserve source state and RNG order', () => {
@@ -905,6 +946,251 @@ test('ordinary domestic creation equips a saddle after inventory gates', () => {
     assert.ok(saddleId > saddleGate);
 });
 
+test('Statuary armed families generate their source equipment', () => {
+    const cases = [
+        {
+            mndx: PM_DWARF,
+            expected: [DAGGER, IRON_SHOES, DWARVISH_CLOAK],
+        },
+        {
+            mndx: PM_ORC_CAPTAIN,
+            expected: [ORCISH_HELM],
+        },
+        {
+            mndx: PM_PLAINS_CENTAUR,
+            expected: [CROSSBOW_BOLT, CROSSBOW],
+        },
+        {
+            mndx: PM_OGRE,
+            expected: [CLUB],
+        },
+        {
+            mndx: PM_WOODLAND_ELF,
+            expected: [
+                ELVEN_SHIELD,
+                ELVEN_SPEAR,
+                ELVEN_DAGGER,
+                ELVEN_LEATHER_HELM,
+                ELVEN_MITHRIL_COAT,
+            ],
+        },
+    ];
+
+    for (const { mndx, expected } of cases) {
+        const state = initialLevelState();
+        const random = recordingRandom();
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        assert.deepEqual(
+            monsterInventory(monster).map((obj) => obj.otyp),
+            expected,
+            state.mons[mndx].pmnames[2],
+        );
+    }
+});
+
+test('every non-shapechanging Statuary reservoir species completes creation', () => {
+    const catalog = initialLevelState().mons.slice(0, SPECIAL_PM).filter(
+        (species) => species.pmidx !== PM_CHAMELEON
+            && species.difficulty >= 3
+            && species.difficulty <= 7
+            && (species.geno & G_FREQ)
+            && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL)),
+    );
+    assert.equal(catalog.length, 104);
+
+    for (const species of catalog) {
+        const state = initialLevelState();
+        init_objects(state, () => 0);
+        light_globals_init(state);
+        timeout_globals_init(state);
+        const random = recordingRandom();
+        const monster = makemon(
+            state.mons[species.pmidx],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            {
+                state,
+                random: random.random,
+                hooks: { artifactCount: () => 0 },
+            },
+        );
+        assert.equal(monster.mnum, species.pmidx, species.pmnames[2]);
+    }
+});
+
+test('gnome ruler gets the general weapon table and prince quality floor', () => {
+    const state = initialLevelState();
+    const random = recordingRandom({
+        rndResult: (bound) => bound === 10 ? 5 : 1,
+    });
+    const monster = makemon(
+        state.mons[PM_GNOME_RULER],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+
+    assert.equal(monster.minvent.otyp, AKLYS);
+    assert.equal(monster.minvent.spe, 1);
+    assert.ok(random.calls.some(
+        (call) => call.kind === 'rnd' && call.args[0] === 10,
+    ));
+});
+
+test('Uruk-hai equipment poisons its thrown arrow stack after weight', () => {
+    const state = initialLevelState();
+    const random = recordingRandom({
+        rn2Result: (bound) => {
+            if (bound === 2 || bound === 3) return 0;
+            return Math.max(0, bound - 1);
+        },
+    });
+    const monster = makemon(
+        state.mons[PM_ORC_CAPTAIN],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    const inventory = monsterInventory(monster);
+    const arrows = inventory.find((obj) => obj.otyp === ORCISH_ARROW);
+
+    assert.ok(inventory.some((obj) => obj.otyp === ORCISH_BOW));
+    assert.ok(arrows);
+    assert.equal(arrows.opoisoned, true);
+    assert.equal(arrows.quan, 3);
+    assert.equal(arrows.owt, 3);
+});
+
+test('non-nymph armed monsters receive both rare item classes in source order', () => {
+    const state = initialLevelState();
+    const random = recordingRandom({
+        rn2Result: (bound) => {
+            if (bound === 75 || bound === 50) return 0;
+            return Math.max(0, bound - 1);
+        },
+    });
+    const monster = makemon(
+        state.mons[PM_BUGBEAR],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+
+    assert.deepEqual(
+        monsterInventory(monster).map((obj) => obj.otyp),
+        [SCR_CREATE_MONSTER, WAN_MAGIC_MISSILE],
+    );
+    const offensiveGate = random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 75,
+    );
+    const defensiveGate = random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 50,
+    );
+    assert.ok(offensiveGate >= 0);
+    assert.ok(defensiveGate > offensiveGate);
+});
+
+test('mummies wear wrapping and leprechauns sleep with existing gold', () => {
+    const cases = [
+        {
+            mndx: PM_HUMAN_MUMMY,
+            expectedType: MUMMY_WRAPPING,
+            expectedMask: W_ARMC,
+        },
+        {
+            mndx: PM_LEPRECHAUN,
+            expectedType: GOLD_PIECE,
+            expectedMask: 0,
+        },
+    ];
+    for (const { mndx, expectedType, expectedMask } of cases) {
+        const state = initialLevelState();
+        const random = recordingRandom();
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        assert.equal(monster.minvent.otyp, expectedType);
+        assert.equal(monster.minvent.owornmask, expectedMask);
+        if (mndx === PM_LEPRECHAUN) {
+            assert.equal(monster.msleeping, true);
+            assert.equal(monster.minvent.quan, 1);
+            assert.equal(
+                random.calls.some(
+                    (call) => call.kind === 'rn2' && call.args[0] === 5,
+                ),
+                false,
+            );
+        }
+    }
+});
+
+test('dark-level gnome candle starts burning after monster pickup', () => {
+    const state = initialLevelState();
+    light_globals_init(state);
+    timeout_globals_init(state);
+    const random = recordingRandom({
+        rn2Result: (bound) => bound === 60
+            ? 0
+            : Math.max(0, bound - 1),
+    });
+    const monster = makemon(
+        state.mons[PM_GNOMISH_WIZARD],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+
+    const candle = monster.minvent;
+    assert.equal(candle.otyp, TALLOW_CANDLE);
+    assert.equal(candle.quan, 1);
+    assert.equal(candle.lamplit, true);
+    assert.equal(candle.timed, 1);
+    assert.equal(state.gt.timer_base.func_index, BURN_OBJECT);
+    assert.equal(state.gt.timer_base.arg, candle);
+    assert.equal(state.gl.light_base.id, candle);
+});
+
+test('greedy unarmed monsters receive gold after the rare item gates', () => {
+    const state = initialLevelState();
+    const random = recordingRandom({
+        rn2Result: (bound) => bound === 5
+            ? 0
+            : Math.max(0, bound - 1),
+    });
+    const monster = makemon(
+        state.mons[PM_ROCK_MOLE],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+
+    assert.equal(monster.minvent.otyp, GOLD_PIECE);
+    const miscGate = random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 100,
+    );
+    const goldGate = random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 5,
+    );
+    assert.ok(miscGate >= 0);
+    assert.ok(goldGate > miscGate);
+});
+
 test('goblin creates helm before dagger, then wears the prepended helm', () => {
     const state = initialLevelState();
     const random = scriptedRandom([
@@ -1206,7 +1492,7 @@ test('unsupported creation modes fail before consuming RNG or state', () => {
         UnsupportedMonsterCreationError,
     );
     assert.throws(
-        () => makemon(state.mons[1], MON_X, MON_Y, MM_NOGRP, {
+        () => makemon(state.mons[PM_CHAMELEON], MON_X, MON_Y, MM_NOGRP, {
             state,
             random: random.random,
         }),

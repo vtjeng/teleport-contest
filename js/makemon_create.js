@@ -72,7 +72,7 @@ import {
     put_saddle_on_mon,
 } from './dog.js';
 import { christen_monst, rndghostname } from './do_name.js';
-import { on_level } from './dungeon.js';
+import { level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import {
     add_to_minv,
@@ -103,60 +103,85 @@ import {
 } from './monst.js';
 import {
     AT_WEAP,
+    G_FREQ,
+    G_HELL,
+    G_NOCORPSE,
+    G_NOGEN,
+    G_UNIQ,
+    M1_AMORPHOUS,
     M1_ANIMAL,
     M1_HUMANOID,
     M1_MINDLESS,
     M1_NOHANDS,
+    M1_UNSOLID,
+    M2_DWARF,
     M2_DOMESTIC,
+    M2_ELF,
     M2_GREEDY,
+    M2_NASTY,
+    M2_UNDEAD,
+    M2_WERE,
     MZ_MEDIUM,
     MZ_SMALL,
     NON_PM,
-    PM_ELF,
+    PM_ARCHEOLOGIST,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
     PM_CAVE_SPIDER,
     PM_CENTIPEDE,
+    PM_CHAMELEON,
     PM_CHICKATRICE,
     PM_COCKATRICE,
+    PM_ELF,
     PM_FOG_CLOUD,
     PM_FOX,
+    PM_GARTER_SNAKE,
     PM_GHOST,
+    PM_GIANT_MIMIC,
+    PM_GIANT_SPIDER,
     PM_GOBLIN,
+    PM_GRAY_UNICORN,
     PM_GRID_BUG,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
     PM_KITTEN,
+    PM_LARGE_MIMIC,
     PM_LICHEN,
     PM_LITTLE_DOG,
+    PM_MANES,
+    PM_MORDOR_ORC,
     PM_SMALL_MIMIC,
-    PM_LARGE_MIMIC,
-    PM_GIANT_MIMIC,
-    PM_GIANT_SPIDER,
     PM_NEWT,
+    PM_ORC_CAPTAIN,
+    PM_ORC_SHAMAN,
     PM_PONY,
-    PM_GARTER_SNAKE,
-    PM_GRAY_UNICORN,
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_SNAKE,
+    PM_URUK_HAI,
     PM_WHITE_UNICORN,
     PM_WOOD_NYMPH,
-    PM_YELLOW_LIGHT,
-    PM_ARCHEOLOGIST,
     PM_WIZARD,
-    G_NOCORPSE,
-    S_GHOST,
+    PM_YELLOW_LIGHT,
+    SPECIAL_PM,
     S_CENTAUR,
+    S_EYE,
+    S_GHOST,
+    S_GNOME,
+    S_GOLEM,
+    S_HUMAN,
+    S_HUMANOID,
     S_KOBOLD,
     S_KOP,
-    S_MUMMY,
+    S_LEPRECHAUN,
+    S_LIGHT,
     S_MIMIC,
     S_MIMIC_DEF,
+    S_MUMMY,
     S_NYMPH,
+    S_OGRE,
     S_ORC,
-    S_LIGHT,
     S_SNAKE,
     S_SPIDER,
     S_UNICORN,
@@ -164,6 +189,7 @@ import {
 } from './monsters.js';
 import { mkobj, mkobj_at, mksobj, next_ident, weight } from './obj.js';
 import {
+    AKLYS,
     AMULET_CLASS,
     AMULET_OF_GUARDING,
     AMULET_OF_LIFE_SAVING,
@@ -176,35 +202,82 @@ import {
     ARM_SHIRT,
     ARM_SUIT,
     ARMOR_CLASS,
+    ARROW,
+    AXE,
+    BATTLE_AXE,
+    BOW,
+    CLUB,
     COIN_CLASS,
     CORPSE,
+    CROSSBOW,
+    CROSSBOW_BOLT,
+    DAGGER,
     DART,
     DUNCE_CAP,
+    DWARVISH_CLOAK,
+    DWARVISH_IRON_HELM,
+    DWARVISH_MATTOCK,
+    DWARVISH_MITHRIL_COAT,
+    DWARVISH_ROUNDSHIELD,
+    DWARVISH_SHORT_SWORD,
+    DWARVISH_SPEAR,
     EGG,
+    ELVEN_ARROW,
+    ELVEN_BOOTS,
+    ELVEN_BOW,
+    ELVEN_BROADSWORD,
+    ELVEN_CLOAK,
+    ELVEN_DAGGER,
+    ELVEN_LEATHER_HELM,
+    ELVEN_MITHRIL_COAT,
+    ELVEN_SHIELD,
+    ELVEN_SHORT_SWORD,
+    ELVEN_SPEAR,
     FIGURINE,
     FOOD_CLASS,
     GEM_CLASS,
     GOLD_PIECE,
+    GLASS,
+    HELM_OF_OPPOSITE_ALIGNMENT,
+    IRON_SHOES,
+    IRON,
+    KNIFE,
     LEATHER,
+    LONG_SWORD,
+    LUCERN_HAMMER,
     MAXOCLASSES,
     MIRROR,
     MUMMY_WRAPPING,
+    MITHRIL,
+    ORCISH_ARROW,
+    ORCISH_BOW,
+    ORCISH_CHAIN_MAIL,
+    ORCISH_CLOAK,
     ORCISH_DAGGER,
     ORCISH_HELM,
-    HELM_OF_OPPOSITE_ALIGNMENT,
+    ORCISH_SHIELD,
+    ORCISH_SHORT_SWORD,
+    PICK_AXE,
+    POT_ACID,
+    POT_BLINDNESS,
+    POT_CONFUSION,
     POT_EXTRA_HEALING,
     POT_FULL_HEALING,
     POT_GAIN_LEVEL,
     POT_HEALING,
     POT_INVISIBILITY,
     POT_OBJECT_DETECTION,
+    POT_PARALYSIS,
     POT_POLYMORPH,
+    POT_SLEEPING,
     POT_SPEED,
     POTION_CLASS,
     RANDOM_CLASS,
     RING_CLASS,
     ROCK_CLASS,
+    SCIMITAR,
     SCR_CREATE_MONSTER,
+    SCR_EARTH,
     SCR_TELEPORTATION,
     SCROLL_CLASS,
     SLIME_MOLD,
@@ -212,15 +285,26 @@ import {
     SPEED_BOOTS,
     STATUE,
     STRANGE_OBJECT,
+    TALLOW_CANDLE,
     TIN,
     TOOL_CLASS,
+    TWO_HANDED_SWORD,
+    URUK_HAI_SHIELD,
+    WAN_COLD,
     WAN_CREATE_MONSTER,
+    WAN_DEATH,
     WAN_DIGGING,
+    WAN_FIRE,
+    WAN_LIGHTNING,
+    WAN_MAGIC_MISSILE,
     WAN_MAKE_INVISIBLE,
     WAN_POLYMORPH,
+    WAN_SLEEP,
     WAN_SPEED_MONSTER,
+    WAN_STRIKING,
     WAN_TELEPORTATION,
     WAND_CLASS,
+    WAX_CANDLE,
     WEAPON_CLASS,
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
@@ -237,6 +321,7 @@ import {
     S_vcdoor,
     S_vwall,
 } from './symbols.js';
+import { begin_burn } from './timeout.js';
 import { t_at } from './trap.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
@@ -284,8 +369,12 @@ const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 // include/monattk.h predicate used by muse.c's random-item selectors.
 const AT_EXPL = 13;
 // include/monflag.h creation-time predicates not yet exported by monsters.js.
+const M1_WALLWALK = 0x00000008;
 const M1_CONCEAL = 0x00000080;
 const M1_SLITHY = 0x00080000;
+const M2_LORD = 0x00000400;
+const M2_PRINCE = 0x00000800;
+const M2_STRONG = 0x04000000;
 const MR_STONE = 0x80;
 const MZ_LARGE = 3;
 const MZ_HUGE = 4;
@@ -488,8 +577,20 @@ function set_mimic_sym(monster, normalized) {
     }
 }
 
+function isStatuaryReservoirSpecies(species) {
+    return species.pmidx >= 0
+        && species.pmidx < SPECIAL_PM
+        && species.pmidx !== PM_CHAMELEON
+        && species.difficulty >= 3
+        && species.difficulty <= 7
+        && Boolean(species.geno & G_FREQ)
+        && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL));
+}
+
 function assertSupportedSpecies(species) {
-    if (!species || !INITIAL_LEVEL_MONSTERS.has(species.pmidx)) {
+    if (!species
+        || (!INITIAL_LEVEL_MONSTERS.has(species.pmidx)
+            && !isStatuaryReservoirSpecies(species))) {
         throw new UnsupportedMonsterCreationError(
             `monster ${species?.pmidx ?? 'null'}`,
         );
@@ -616,13 +717,16 @@ function monsterWears(monster, mask) {
     return null;
 }
 
-// C ref: makemon.c mongets(). The reachable species are neither demons,
-// lawful minions, player monsters, nor princes, so source postprocessing is
-// empty before mpickobj() links the fresh object.
+// C ref: makemon.c mongets(). No reachable species is a demon, lawful minion,
+// or player monster. Gnome rulers do use the source prince-quality floor.
 function mongets(monster, otyp, normalized) {
     if (!otyp) return null;
     assertSupportedSpecies(monster.data);
     const obj = mksobj(otyp, true, false, normalized);
+    if (monster.data.mflags2 & M2_PRINCE) {
+        if (obj.oclass === WEAPON_CLASS && obj.spe < 1) obj.spe = 1;
+        else if (obj.oclass === ARMOR_CLASS && obj.spe < 0) obj.spe = 0;
+    }
     return addFreshMonsterObject(monster, obj, normalized);
 }
 
@@ -631,6 +735,7 @@ function m_initthrow(monster, otyp, quantityRange, normalized) {
     const obj = mksobj(otyp, true, false, normalized);
     obj.quan = normalized.random.rn1(quantityRange, 3);
     obj.owt = weight(obj, normalized);
+    if (otyp === ORCISH_ARROW) obj.opoisoned = true;
     return addFreshMonsterObject(monster, obj, normalized);
 }
 
@@ -647,29 +752,181 @@ function m_initweap(monster, normalized) {
     }
 
     switch (ptr.mlet) {
+    case S_HUMAN:
+        if (ptr.mflags2 & M2_ELF) {
+            if (random.rn2(2)) {
+                mongets(
+                    monster,
+                    random.rn2(2) ? ELVEN_MITHRIL_COAT : ELVEN_CLOAK,
+                    normalized,
+                );
+            }
+            if (random.rn2(2)) {
+                mongets(monster, ELVEN_LEATHER_HELM, normalized);
+            } else if (!random.rn2(4)) {
+                mongets(monster, ELVEN_BOOTS, normalized);
+            }
+            if (random.rn2(2)) mongets(monster, ELVEN_DAGGER, normalized);
+            switch (random.rn2(3)) {
+            case 0:
+                if (!random.rn2(4))
+                    mongets(monster, ELVEN_SHIELD, normalized);
+                if (random.rn2(3))
+                    mongets(monster, ELVEN_SHORT_SWORD, normalized);
+                mongets(monster, ELVEN_BOW, normalized);
+                m_initthrow(monster, ELVEN_ARROW, 12, normalized);
+                break;
+            case 1:
+                mongets(monster, ELVEN_BROADSWORD, normalized);
+                if (random.rn2(2))
+                    mongets(monster, ELVEN_SHIELD, normalized);
+                break;
+            case 2:
+                if (random.rn2(2)) {
+                    mongets(monster, ELVEN_SPEAR, normalized);
+                    mongets(monster, ELVEN_SHIELD, normalized);
+                }
+                break;
+            }
+        } else if (!(ptr.mflags2 & M2_WERE)) {
+            throw new UnsupportedMonsterCreationError(
+                `human weapon branch ${ptr.pmidx}`,
+            );
+        }
+        break;
+    case S_HUMANOID:
+        if (ptr.mflags2 & M2_DWARF) {
+            if (random.rn2(7))
+                mongets(monster, DWARVISH_CLOAK, normalized);
+            if (random.rn2(7)) mongets(monster, IRON_SHOES, normalized);
+            if (!random.rn2(4)) {
+                mongets(monster, DWARVISH_SHORT_SWORD, normalized);
+                if (random.rn2(2)) {
+                    mongets(monster, DWARVISH_MATTOCK, normalized);
+                } else {
+                    mongets(
+                        monster,
+                        random.rn2(2) ? AXE : DWARVISH_SPEAR,
+                        normalized,
+                    );
+                    mongets(monster, DWARVISH_ROUNDSHIELD, normalized);
+                }
+                mongets(monster, DWARVISH_IRON_HELM, normalized);
+                if (!random.rn2(3))
+                    mongets(monster, DWARVISH_MITHRIL_COAT, normalized);
+            } else {
+                mongets(
+                    monster,
+                    !random.rn2(3) ? PICK_AXE : DAGGER,
+                    normalized,
+                );
+            }
+        }
+        break;
     case S_KOBOLD:
         if (!random.rn2(4)) m_initthrow(monster, DART, 12, normalized);
         break;
     case S_ORC:
-        if (ptr.pmidx !== PM_GOBLIN) {
-            throw new UnsupportedMonsterCreationError(
-                `orc weapon branch ${ptr.pmidx}`,
-            );
-        }
         if (random.rn2(2)) mongets(monster, ORCISH_HELM, normalized);
-        if (random.rn2(2)) mongets(monster, ORCISH_DAGGER, normalized);
+        switch (ptr.pmidx !== PM_ORC_CAPTAIN
+            ? ptr.pmidx
+            : random.rn2(2) ? PM_MORDOR_ORC : PM_URUK_HAI) {
+        case PM_MORDOR_ORC:
+            if (!random.rn2(3)) mongets(monster, SCIMITAR, normalized);
+            if (!random.rn2(3))
+                mongets(monster, ORCISH_SHIELD, normalized);
+            if (!random.rn2(3)) mongets(monster, KNIFE, normalized);
+            if (!random.rn2(3))
+                mongets(monster, ORCISH_CHAIN_MAIL, normalized);
+            break;
+        case PM_URUK_HAI:
+            if (!random.rn2(3))
+                mongets(monster, ORCISH_CLOAK, normalized);
+            if (!random.rn2(3))
+                mongets(monster, ORCISH_SHORT_SWORD, normalized);
+            if (!random.rn2(3)) mongets(monster, IRON_SHOES, normalized);
+            if (!random.rn2(3)) {
+                mongets(monster, ORCISH_BOW, normalized);
+                m_initthrow(monster, ORCISH_ARROW, 12, normalized);
+            }
+            if (!random.rn2(3))
+                mongets(monster, URUK_HAI_SHIELD, normalized);
+            break;
+        default:
+            if (ptr.pmidx !== PM_ORC_SHAMAN && random.rn2(2)) {
+                mongets(
+                    monster,
+                    ptr.pmidx === PM_GOBLIN || !random.rn2(2)
+                        ? ORCISH_DAGGER
+                        : SCIMITAR,
+                    normalized,
+                );
+            }
+            break;
+        }
+        break;
+    case S_OGRE:
+        mongets(
+            monster,
+            !random.rn2(12) ? BATTLE_AXE : CLUB,
+            normalized,
+        );
+        break;
+    case S_CENTAUR:
+        if (random.rn2(2)) {
+            mongets(monster, CROSSBOW, normalized);
+            m_initthrow(monster, CROSSBOW_BOLT, 12, normalized);
+        }
         break;
     default:
-        throw new UnsupportedMonsterCreationError(
-            `weapon class ${ptr.mlet}`,
-        );
+        if (ptr.mlet !== S_GNOME) {
+            throw new UnsupportedMonsterCreationError(
+                `weapon class ${ptr.mlet}`,
+            );
+        }
+        {
+            const bias = Number(Boolean(ptr.mflags2 & M2_LORD))
+                + 2 * Number(Boolean(ptr.mflags2 & M2_PRINCE))
+                + Number(Boolean(ptr.mflags2 & M2_NASTY));
+            switch (random.rnd(14 - 2 * bias)) {
+            case 1:
+                if (ptr.mflags2 & M2_STRONG)
+                    mongets(monster, BATTLE_AXE, normalized);
+                else m_initthrow(monster, DART, 12, normalized);
+                break;
+            case 2:
+                if (ptr.mflags2 & M2_STRONG) {
+                    mongets(monster, TWO_HANDED_SWORD, normalized);
+                } else {
+                    mongets(monster, CROSSBOW, normalized);
+                    m_initthrow(monster, CROSSBOW_BOLT, 12, normalized);
+                }
+                break;
+            case 3:
+                mongets(monster, BOW, normalized);
+                m_initthrow(monster, ARROW, 12, normalized);
+                break;
+            case 4:
+                if (ptr.mflags2 & M2_STRONG)
+                    mongets(monster, LONG_SWORD, normalized);
+                else m_initthrow(monster, DAGGER, 3, normalized);
+                break;
+            case 5:
+                mongets(
+                    monster,
+                    ptr.mflags2 & M2_STRONG ? LUCERN_HAMMER : AKLYS,
+                    normalized,
+                );
+                break;
+            default:
+                break;
+            }
+        }
+        break;
     }
 
-    // Every source branch reaches the rare offensive-item check. Level-zero
-    // monsters cannot pass it, but the draw is still observable.
-    if (monster.m_lev > random.rn2(75)) {
-        throw new UnsupportedMonsterCreationError('random offensive item');
-    }
+    if (monster.m_lev > random.rn2(75))
+        mongets(monster, rnd_offensive_item(monster, normalized), normalized);
 }
 
 function rejectsRandomUseItems(species) {
@@ -686,19 +943,63 @@ function noTeleportLevel(state) {
         && stasisUntil >= Math.trunc(state.moves ?? 0);
 }
 
-// C ref: muse.c rnd_defensive_item(). Only the wood-nymph path can reach
-// item selection in this initial-level slice. Fog clouds are mindless and
-// ghosts are rejected by monster class before this function consumes RNG.
+function isNonliving(species) {
+    return Boolean(species.mflags2 & M2_UNDEAD)
+        || species.pmidx === PM_MANES
+        || species.mlet === S_GOLEM
+        || species.mlet === S_VORTEX;
+}
+
+function isFloater(species) {
+    return species.mlet === S_EYE || species.mlet === S_LIGHT;
+}
+
+function isHardHelmet(obj, state) {
+    if (!obj || armorCategory(obj, state) !== ARM_HELM) return false;
+    const material = state.objects[obj.otyp].oc_material;
+    return (material >= IRON && material <= MITHRIL) || material === GLASS;
+}
+
+// C ref: muse.c rnd_offensive_item().
+function rnd_offensive_item(monster, normalized) {
+    const { random, state } = normalized;
+    const ptr = monster.data;
+    if (rejectsRandomUseItems(ptr)) return 0;
+    if (ptr.difficulty > 7 && !random.rn2(35)) return WAN_DEATH;
+
+    switch (random.rn2(
+        9 - Number(ptr.difficulty < 4) + 4 * Number(ptr.difficulty > 6),
+    )) {
+    case 0: {
+        const helmet = monsterWears(monster, W_ARMH);
+        if (isHardHelmet(helmet, state)
+            || (ptr.mflags1 & (M1_AMORPHOUS | M1_WALLWALK | M1_UNSOLID))
+            || ptr.mlet === S_GHOST) {
+            return SCR_EARTH;
+        }
+    }
+    // Fall through like muse.c when earth would hit the monster too.
+    case 1: return WAN_STRIKING;
+    case 2: return POT_ACID;
+    case 3: return POT_CONFUSION;
+    case 4: return POT_BLINDNESS;
+    case 5: return POT_SLEEPING;
+    case 6: return POT_PARALYSIS;
+    case 7:
+    case 8: return WAN_MAGIC_MISSILE;
+    case 9: return WAN_SLEEP;
+    case 10: return WAN_FIRE;
+    case 11: return WAN_COLD;
+    case 12: return WAN_LIGHTNING;
+    default: throw new Error('rnd_offensive_item selected an invalid case');
+    }
+}
+
+// C ref: muse.c rnd_defensive_item().
 function rnd_defensive_item(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     if (rejectsRandomUseItems(ptr)) return 0;
-    if (ptr.pmidx !== PM_WOOD_NYMPH) {
-        throw new UnsupportedMonsterCreationError(
-            `random defensive item for monster ${ptr.pmidx}`,
-        );
-    }
-
     const difficulty = ptr.difficulty;
     let trycnt = 0;
     while (true) {
@@ -730,6 +1031,12 @@ function rnd_defensive_item(monster, normalized) {
         case 7:
             if (state.u.uz.dnum === state.sokoban_dnum && random.rn2(4))
                 continue;
+            if (isFloater(ptr)
+                || monster.isshk
+                || monster.isgd
+                || monster.ispriest) {
+                return 0;
+            }
             return WAN_DIGGING;
         default:
             throw new Error('rnd_defensive_item selected an invalid case');
@@ -742,22 +1049,16 @@ function heroHasProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-// C ref: muse.c rnd_misc_item(). Wood nymphs are living, non-vampiric,
-// hostile non-guards, so all source predicates below retain their ordinary
-// result while their short-circuit order stays visible.
+// C ref: muse.c rnd_misc_item(). No inventory-enabled shape-changer in this
+// initial-generation slice is a vampire shifter.
 function rnd_misc_item(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
     if (rejectsRandomUseItems(ptr)) return 0;
-    if (ptr.pmidx !== PM_WOOD_NYMPH) {
-        throw new UnsupportedMonsterCreationError(
-            `random miscellaneous item for monster ${ptr.pmidx}`,
-        );
-    }
-
     if (ptr.difficulty < 6 && !random.rn2(30))
         return random.rn2(6) ? POT_POLYMORPH : WAN_POLYMORPH;
-    if (!random.rn2(40)) return AMULET_OF_LIFE_SAVING;
+    if (!random.rn2(40) && !isNonliving(ptr))
+        return AMULET_OF_LIFE_SAVING;
 
     switch (random.rn2(3)) {
     case 0:
@@ -773,9 +1074,23 @@ function rnd_misc_item(monster, normalized) {
     }
 }
 
-// C ref: makemon.c m_initinv(). The level-one ordinary reservoir retains its
-// prior fail-closed rare-item boundary; the three themed-fill species carry
-// their complete source behavior.
+function findMonsterGold(monster) {
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.oclass === COIN_CLASS) return obj;
+    }
+    return null;
+}
+
+// C ref: makemon.c mkmonmoney().
+function mkmonmoney(monster, amount, normalized) {
+    if (amount <= 0) return null;
+    const gold = mksobj(GOLD_PIECE, false, false, normalized);
+    gold.quan = amount;
+    gold.owt = weight(gold, normalized);
+    return addFreshMonsterObject(monster, gold, normalized);
+}
+
+// C ref: makemon.c m_initinv().
 function m_initinv(monster, normalized) {
     const { random, state } = normalized;
     const ptr = monster.data;
@@ -786,6 +1101,27 @@ function m_initinv(monster, normalized) {
         if (!random.rn2(2)) mongets(monster, MIRROR, normalized);
         if (!random.rn2(2))
             mongets(monster, POT_OBJECT_DETECTION, normalized);
+    } else if (ptr.mlet === S_MUMMY) {
+        if (random.rn2(7)) mongets(monster, MUMMY_WRAPPING, normalized);
+    } else if (ptr.mlet === S_LEPRECHAUN) {
+        mkmonmoney(
+            monster,
+            random.d(level_difficulty(state), 30),
+            normalized,
+        );
+    } else if (ptr.mlet === S_GNOME
+        && !random.rn2(60)) {
+        const candle = mksobj(
+            random.rn2(4) ? TALLOW_CANDLE : WAX_CANDLE,
+            true,
+            false,
+            normalized,
+        );
+        candle.quan = 1;
+        candle.owt = weight(candle, normalized);
+        addFreshMonsterObject(monster, candle, normalized);
+        if (!state.level.at(monster.mx, monster.my).lit)
+            begin_burn(candle, false, normalized);
     }
 
     if (monster.m_lev > random.rn2(50)) {
@@ -794,8 +1130,14 @@ function m_initinv(monster, normalized) {
     if (monster.m_lev > random.rn2(100)) {
         mongets(monster, rnd_misc_item(monster, normalized), normalized);
     }
-    if (ptr.mflags2 & M2_GREEDY) {
-        throw new UnsupportedMonsterCreationError('gold-carrying monster');
+    if ((ptr.mflags2 & M2_GREEDY)
+        && !findMonsterGold(monster)
+        && !random.rn2(5)) {
+        mkmonmoney(
+            monster,
+            random.d(level_difficulty(state), monster.minvent ? 5 : 10),
+            normalized,
+        );
     }
 }
 
@@ -1233,6 +1575,8 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             monster.perminvis = true;
             monster.minvis = true;
         }
+    } else if (ptr.mlet === S_LEPRECHAUN) {
+        monster.msleeping = true;
     } else if (ptr.mlet === S_ORC && state.urace.mnum === PM_ELF) {
         monster.mpeaceful = false;
     } else if (ptr.mlet === S_NYMPH
