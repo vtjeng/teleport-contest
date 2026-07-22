@@ -9,20 +9,33 @@ import {
     FROMOUTSIDE,
     HWALL,
     LS_OBJECT,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
     ROOM,
+    SEE_INVIS,
     TEMP_LIT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { light_globals_init } from '../js/light.js';
 import { BOULDER, TALLOW_CANDLE } from '../js/objects.js';
+import {
+    add_rect_to_reg,
+    add_region,
+    create_region,
+} from '../js/region.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { initialize_symbols_from_options } from '../js/symbols.js';
+import {
+    initialize_symbols_from_options,
+    S_cloud,
+    S_hcdoor,
+    S_upstair,
+} from '../js/symbols.js';
 import { begin_burn, timeout_globals_init } from '../js/timeout.js';
 import {
     cansee,
@@ -121,6 +134,55 @@ test('a floor boulder blocks initial line of sight', () => {
 
     assert.equal(clear_path(10, 10, 14, 10), 0);
     assert.equal(clear_path(10, 10, 12, 10), 1);
+});
+
+test('a visible gas region blocks initial line of sight', () => {
+    const state = darkRoomState();
+    state.u.ux = 10;
+    state.u.uy = 10;
+    const cloud = create_region();
+    add_rect_to_reg(cloud, { lx: 12, ly: 10, hx: 12, hy: 10 });
+    cloud.visible = true;
+    cloud.glyph = S_cloud;
+    add_region(cloud, state);
+
+    vision_reset();
+
+    assert.equal(clear_path(10, 10, 14, 10), 0);
+    assert.equal(clear_path(10, 10, 12, 10), 1);
+});
+
+test('visible light-blocking mimic appearances obstruct initial vision', () => {
+    const state = darkRoomState();
+    state.u.ux = 10;
+    state.u.uy = 10;
+    const mimic = {
+        minvis: false,
+        m_ap_type: M_AP_FURNITURE,
+        mappearance: S_hcdoor,
+    };
+    state.level.monsters[12][10] = mimic;
+
+    vision_reset();
+    assert.equal(clear_path(10, 10, 14, 10), 0);
+    assert.equal(clear_path(10, 10, 12, 10), 1);
+
+    mimic.mappearance = S_upstair;
+    vision_reset();
+    assert.equal(clear_path(10, 10, 14, 10), 1);
+
+    mimic.m_ap_type = M_AP_OBJECT;
+    mimic.mappearance = BOULDER;
+    vision_reset();
+    assert.equal(clear_path(10, 10, 14, 10), 0);
+
+    mimic.minvis = true;
+    vision_reset();
+    assert.equal(clear_path(10, 10, 14, 10), 1);
+    state.u.uprops = [];
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
+    vision_reset();
+    assert.equal(clear_path(10, 10, 14, 10), 0);
 });
 
 test('blind vision retains monster line of sight without hero IN_SIGHT', () => {

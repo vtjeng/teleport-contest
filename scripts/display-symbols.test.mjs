@@ -28,6 +28,8 @@ import {
     LADDER,
     LANDMINE,
     LA_DOWN,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
     POOL,
     ROOM,
     SCORR,
@@ -59,8 +61,14 @@ import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
+import {
+    add_rect_to_reg,
+    add_region,
+    create_region,
+} from '../js/region.js';
 import { S_FELINE, S_HUMAN } from '../js/monsters.js';
 import {
+    CHEST,
     objects_globals_init,
     POT_BOOZE,
     POTION_CLASS,
@@ -70,6 +78,7 @@ import {
     ATR_INVERSE,
     CLR_BRIGHT_BLUE,
     CLR_BRIGHT_MAGENTA,
+    CLR_BROWN,
     CLR_RED,
     CLR_WHITE,
     CLR_YELLOW,
@@ -91,6 +100,8 @@ import {
     S_room,
     S_brdnstair,
     S_brupstair,
+    S_cloud,
+    S_hcdoor,
     S_tlcorn,
     S_vwall,
     trap_to_defsym,
@@ -619,6 +630,99 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
         color: CLR_YELLOW,
         dec: false,
     });
+});
+
+test('newsym maps a visible object mimic as its remembered chest', () => {
+    const state = resetGame();
+    const x = 7;
+    const y = 4;
+    state.level = new GameMap();
+    state.level.at(x, y).typ = ROOM;
+    state.u = { ux: 1, uy: 1, umonnum: 0 };
+    state.urace = { mnum: 0 };
+    state.flags = {};
+    state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
+    objects_globals_init(state);
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2;
+    state.level.monsters[x][y] = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        m_ap_type: M_AP_OBJECT,
+        mappearance: CHEST,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '(');
+    assert.equal(state.level.at(x, y).remembered_glyph.ch, '(');
+});
+
+test('newsym maps a visible furniture mimic into display and memory', () => {
+    const state = resetGame();
+    const x = 7;
+    const y = 4;
+    state.level = new GameMap();
+    state.level.at(x, y).typ = ROOM;
+    state.u = { ux: 1, uy: 1, umonnum: 0 };
+    state.urace = { mnum: 0 };
+    state.flags = {};
+    state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2;
+    state.level.monsters[x][y] = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        m_ap_type: M_AP_FURNITURE,
+        mappearance: S_hcdoor,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '+');
+    assert.equal(state.level.at(x, y).disp_color, CLR_BROWN);
+    assert.equal(state.level.at(x, y).remembered_glyph.ch, '+');
+    assert.equal(state.level.at(x, y).remembered_glyph.color, CLR_BROWN);
+});
+
+test('a visible gas region covers the hero without refreshing map memory', () => {
+    const state = resetGame();
+    const x = 7;
+    const y = 4;
+    state.level = new GameMap();
+    state.level.at(x, y).typ = ROOM;
+    state.level.at(x, y).remembered_glyph = {
+        ch: 'x',
+        color: NO_COLOR,
+        decgfx: false,
+        displayCh: null,
+    };
+    state.u = { ux: x, uy: y, umonnum: 0 };
+    state.urace = { mnum: 0 };
+    state.flags = {};
+    state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
+    state.objects = [];
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.viz_array = [];
+    state.viz_array[y] = [];
+    state.viz_array[y][x] = 0x2;
+    const cloud = create_region();
+    add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+    cloud.visible = true;
+    cloud.glyph = S_cloud;
+    add_region(cloud, state);
+
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '#');
+    assert.equal(state.level.at(x, y).remembered_glyph.ch, 'x');
 });
 
 test('newsym reveals visible engravings beneath higher-priority layers', () => {

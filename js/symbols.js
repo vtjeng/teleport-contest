@@ -108,6 +108,7 @@ export const S_hcdbridge = requiredCmapSymbol('s_hcdbridge');
 export const S_air = requiredCmapSymbol('s_air');
 export const S_cloud = requiredCmapSymbol('s_cloud');
 export const S_water = requiredCmapSymbol('s_water');
+export const S_poisoncloud = requiredCmapSymbol('s_poisoncloud');
 export const S_arrow_trap = requiredCmapSymbol('s_arrow_trap');
 
 // C ref: rm.h trap_to_defsym()/defsym_to_trap().

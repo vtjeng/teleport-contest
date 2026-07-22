@@ -290,7 +290,7 @@ test('live generic themed rooms invoke their synchronous fill callback', async (
     assert.equal(game.level.nroom, 1);
 });
 
-test('live generic fill fallback preserves selection before containing a missing handler', async () => {
+test('live generic fill fallback preserves selection before containing Statuary', async () => {
     resetThemeroomLevel();
     const reservoirDrawCount = 30;
     let reservoirCalls = 0;
@@ -317,9 +317,9 @@ test('live generic fill fallback preserves selection before containing a missing
             return next[1];
         }
         assert.equal(bound, ++fillBound);
-        // Select Cloud room at cumulative weight two, then retain it through
+        // Select Statuary at cumulative weight nine, then retain it through
         // all later eligible fills. Its missing handler is the bounded case.
-        return bound === 2 ? 0 : bound - 1;
+        return bound === 9 ? 0 : bound - 1;
     };
     const randomOneBased = (bound) => {
         events.push(`rnd(${bound})`);

@@ -3,16 +3,23 @@
 // C ref: makemon.c makemon(), m_initthrow(), m_initweap(), m_initinv(), and
 // mongets(); worn.c m_dowear(). The implementation fails closed outside the
 // species and call shapes reachable during ordinary-room filling, the Ghost
-// themed fill, and starting-pet creation. Fog clouds and wood nymphs are
-// source-complete prerequisites for the pending Cloud and Garden fills.
+// themed fill, and starting-pet creation. Fog clouds, wood nymphs, and the
+// three mimic sizes support the Cloud, Garden, and Storeroom fills.
 // Expanding the closed set means porting the corresponding complete source
 // branches, not approximating their PRNG effects.
 
 import {
     ACCESSIBLE,
+    AM_CHAOTIC,
+    AM_LAWFUL,
+    AM_NEUTRAL,
+    BLCORNER,
+    CROSSWALL,
+    DOOR,
     G_GENOD,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    HWALL,
     I_SPECIAL,
     isok,
     MM_ANGRY,
@@ -22,14 +29,24 @@ import {
     MM_MALE,
     MM_NOCOUNTBIRTH,
     MM_NOGRP,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
     M_SEEN_NOTHING,
     NO_MINVENT,
     ONAME,
     ONAME_NO_FLAGS,
     OBJ_MINVENT,
+    ROOMOFFSET,
+    SCORR,
+    SDOOR,
     SEE_INVIS,
+    TDWALL,
+    TLCORNER,
+    TRWALL,
+    TUWALL,
     W_AMUL,
     W_ARMH,
+    IS_WALL,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { newedog } from './dog.js';
@@ -46,10 +63,16 @@ import {
     newmonhp,
     peace_minded,
     propagate,
+    rndmonnum,
     rndmonst,
     set_malign,
 } from './makemon.js';
-import { is_female, is_male, is_neuter } from './mondata.js';
+import {
+    can_be_hatched,
+    is_female,
+    is_male,
+    is_neuter,
+} from './mondata.js';
 import { m_at, newMonster, place_monster } from './monst.js';
 import {
     AT_WEAP,
@@ -72,24 +95,40 @@ import {
     PM_KITTEN,
     PM_LICHEN,
     PM_LITTLE_DOG,
+    PM_SMALL_MIMIC,
+    PM_LARGE_MIMIC,
+    PM_GIANT_MIMIC,
     PM_NEWT,
     PM_PONY,
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_WOOD_NYMPH,
+    PM_ARCHEOLOGIST,
+    PM_WIZARD,
+    G_NOCORPSE,
     S_GHOST,
     S_KOBOLD,
     S_KOP,
     S_MUMMY,
+    S_MIMIC,
+    S_MIMIC_DEF,
     S_NYMPH,
     S_ORC,
 } from './monsters.js';
-import { mksobj, next_ident, weight } from './obj.js';
+import { mkobj, mksobj, next_ident, weight } from './obj.js';
 import {
     AMULET_CLASS,
     AMULET_OF_LIFE_SAVING,
     ARMOR_CLASS,
+    COIN_CLASS,
+    CORPSE,
     DART,
+    EGG,
+    FIGURINE,
+    FOOD_CLASS,
+    GEM_CLASS,
+    GOLD_PIECE,
+    MAXOCLASSES,
     MIRROR,
     ORCISH_DAGGER,
     ORCISH_HELM,
@@ -101,17 +140,41 @@ import {
     POT_OBJECT_DETECTION,
     POT_POLYMORPH,
     POT_SPEED,
+    POTION_CLASS,
+    RING_CLASS,
+    ROCK_CLASS,
     SCR_CREATE_MONSTER,
     SCR_TELEPORTATION,
+    SCROLL_CLASS,
+    SLIME_MOLD,
+    SPBOOK_CLASS,
+    STATUE,
+    STRANGE_OBJECT,
+    TIN,
+    TOOL_CLASS,
     WAN_CREATE_MONSTER,
     WAN_DIGGING,
     WAN_MAKE_INVISIBLE,
     WAN_POLYMORPH,
     WAN_SPEED_MONSTER,
     WAN_TELEPORTATION,
+    WAND_CLASS,
+    WEAPON_CLASS,
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto_core } from './teleport.js';
+import {
+    S_altar,
+    S_dnstair,
+    S_grave,
+    S_hcdoor,
+    S_hwall,
+    S_sink,
+    S_throne,
+    S_upstair,
+    S_vcdoor,
+    S_vwall,
+} from './symbols.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOCOUNTBIRTH
@@ -134,6 +197,9 @@ const INITIAL_LEVEL_MONSTERS = new Set([
     PM_FOG_CLOUD,
     PM_WOOD_NYMPH,
     PM_GHOST,
+    PM_SMALL_MIMIC,
+    PM_LARGE_MIMIC,
+    PM_GIANT_MIMIC,
     PM_LITTLE_DOG,
     PM_KITTEN,
     PM_PONY,
@@ -143,6 +209,19 @@ const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
 // include/monattk.h predicate used by muse.c's random-item selectors.
 const AT_EXPL = 13;
+
+// makemon.c set_mimic_sym() source tables. The first two entries deliberately
+// make furniture twice as likely as each ordinary object class.
+const MIMIC_SYMBOLS = Object.freeze([
+    MAXOCLASSES, MAXOCLASSES, RING_CLASS, WAND_CLASS, WEAPON_CLASS,
+    FOOD_CLASS, COIN_CLASS, SCROLL_CLASS, POTION_CLASS, ARMOR_CLASS,
+    AMULET_CLASS, TOOL_CLASS, ROCK_CLASS, GEM_CLASS, SPBOOK_CLASS,
+    S_MIMIC_DEF, S_MIMIC_DEF,
+]);
+const MIMIC_FURNITURE = Object.freeze([
+    S_upstair, S_upstair, S_dnstair, S_dnstair,
+    S_altar, S_grave, S_throne, S_sink,
+]);
 
 export class UnsupportedMonsterCreationError extends Error {
     constructor(operation) {
@@ -176,6 +255,111 @@ function isInitialDungeonLevel(state) {
 
 function isArmed(species) {
     return species.mattk.some((attack) => attack.aatyp === AT_WEAP);
+}
+
+function setMimicCorpsenm(monster, value) {
+    monster.mextra ??= {};
+    monster.mextra.mcorpsenm = value;
+}
+
+// C ref: makemon.c set_mimic_sym(), for ordinary and themed initial rooms.
+// The descriptor which requested the Storeroom mimic overwrites this shape,
+// but all RNG, temporary-object allocation, and fruit state here occur first.
+function set_mimic_sym(monster, normalized) {
+    const { random, state } = normalized;
+    const x = monster.mx;
+    const y = monster.my;
+    const object = state.level.objects?.[x]?.[y];
+    let appearance;
+    let appearanceType;
+
+    const location = state.level.at(x, y);
+    if (object) {
+        appearanceType = M_AP_OBJECT;
+        appearance = object.otyp;
+    } else if (location.typ === DOOR || IS_WALL(location.typ)
+               || location.typ === SDOOR || location.typ === SCORR) {
+        appearanceType = M_AP_FURNITURE;
+        const leftType = state.level.at(x - 1, y)?.typ;
+        const horizontal = x !== 0 && [
+            HWALL,
+            TLCORNER,
+            TRWALL,
+            BLCORNER,
+            TDWALL,
+            CROSSWALL,
+            TUWALL,
+        ].includes(leftType);
+        appearance = isRogueLevel(state)
+            ? horizontal ? S_hwall : S_vwall
+            : horizontal ? S_hcdoor : S_vcdoor;
+    } else {
+        const roomIndex = (state.level.at(x, y)?.roomno ?? 0) - ROOMOFFSET;
+        const roomType = roomIndex >= 0
+            ? state.level.rooms?.[roomIndex]?.rtype ?? 0
+            : null;
+        if (roomType !== 0 && roomType !== 1) {
+            throw new UnsupportedMonsterCreationError(
+                `mimic room type ${roomType ?? 'none'}`,
+            );
+        }
+
+        const symbol = MIMIC_SYMBOLS[random.rn2(MIMIC_SYMBOLS.length)];
+        if (symbol === MAXOCLASSES) {
+            appearanceType = M_AP_FURNITURE;
+            appearance = MIMIC_FURNITURE[
+                random.rn2(MIMIC_FURNITURE.length)
+            ];
+        } else {
+            appearanceType = M_AP_OBJECT;
+            if (symbol === S_MIMIC_DEF) {
+                appearance = STRANGE_OBJECT;
+            } else if (symbol === COIN_CLASS) {
+                appearance = GOLD_PIECE;
+            } else {
+                const temporary = mkobj(symbol, false, normalized);
+                appearance = temporary.otyp;
+                obfree(temporary, null, normalized);
+            }
+        }
+    }
+
+    monster.m_ap_type = appearanceType;
+    monster.mappearance = appearance;
+    if (appearanceType === M_AP_OBJECT
+        && (appearance === STATUE || appearance === FIGURINE
+            || appearance === CORPSE || appearance === EGG
+            || appearance === TIN)) {
+        let species = rndmonnum(normalized);
+        const noCorpse = Boolean(
+            state.mvitals[species]?.mvflags & G_NOCORPSE,
+        );
+        if (appearance === CORPSE && noCorpse) {
+            species = random.rn1(
+                PM_WIZARD - PM_ARCHEOLOGIST + 1,
+                PM_ARCHEOLOGIST,
+            );
+        } else if ((appearance === EGG
+                    && can_be_hatched(species, normalized) === NON_PM)
+                   || (appearance === TIN && noCorpse)) {
+            species = NON_PM;
+        }
+        setMimicCorpsenm(monster, species);
+    } else if (appearanceType === M_AP_OBJECT
+               && appearance === SLIME_MOLD) {
+        setMimicCorpsenm(monster, state.context.current_fruit);
+        state.flags.made_fruit = true;
+    } else if (appearanceType === M_AP_FURNITURE
+               && appearance === S_altar) {
+        const alignment = random.rn2(3) - 1;
+        setMimicCorpsenm(
+            monster,
+            alignment < 0 ? AM_CHAOTIC
+                : alignment > 0 ? AM_LAWFUL : AM_NEUTRAL,
+        );
+    } else if (monster.mextra && 'mcorpsenm' in monster.mextra) {
+        monster.mextra.mcorpsenm = NON_PM;
+    }
 }
 
 function assertSupportedSpecies(species) {
@@ -649,9 +833,11 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     monster.mpeaceful = (mmflags & MM_ANGRY)
         ? false
         : peace_minded(ptr, normalized);
-    if (ptr.mlet === S_ORC && state.urace.mnum === PM_ELF)
+    if (ptr.mlet === S_MIMIC) {
+        set_mimic_sym(monster, normalized);
+    } else if (ptr.mlet === S_ORC && state.urace.mnum === PM_ELF) {
         monster.mpeaceful = false;
-    if (ptr.mlet === S_NYMPH
+    } else if (ptr.mlet === S_NYMPH
         && random.rn2(5)
         && !state.u.uhave.amulet) {
         monster.msleeping = true;

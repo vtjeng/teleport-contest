@@ -20,6 +20,7 @@ import {
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
+    M_AP_OBJECT,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -35,6 +36,7 @@ import {
     STAIRS,
     STONE,
     STRAT_WAITFORU,
+    THEMEROOM,
     TELEP_TRAP,
     TIMER_LEVEL,
     TIMER_OBJECT,
@@ -100,6 +102,7 @@ import {
     PM_GNOME,
     PM_GOBLIN,
     PM_GHOST,
+    PM_FOG_CLOUD,
     PM_HEALER,
     PM_HUMAN,
     PM_HUNTER,
@@ -121,6 +124,8 @@ import {
     PM_WARRIOR,
     PM_WIZARD,
     PM_WOOD_NYMPH,
+    PM_SMALL_MIMIC,
+    S_MIMIC,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -317,6 +322,118 @@ test('Ice room selects in source order and starts timers y-major', () => {
         [2, 3, 900], [3, 3, 901],
         [2, 4, 902], [3, 4, 903],
     ]);
+});
+
+test('Cloud room creates all fog monsters before its unchanged selection region', () => {
+    const { level, room } = threeByTwoRoom();
+    const events = [];
+    let retainedSelection;
+    const random = randomWithRn2(() => {
+        assert.fail('replacement hooks should contain Cloud creation RNG');
+    });
+
+    run_themeroom_fill(fillById('cloud_room'), room, 1, {
+        state: { level },
+        random,
+        hooks: {
+            createMonster(specification) {
+                events.push(['monster', specification]);
+                return {};
+            },
+            createGasCloudSelection(selection, damage) {
+                events.push(['region', damage]);
+                retainedSelection = selection;
+                return {};
+            },
+        },
+    });
+
+    assert.deepEqual(events, [
+        ['monster', { id: PM_FOG_CLOUD, asleep: true }],
+        ['region', 0],
+    ]);
+    assert.equal(retainedSelection.numpoints(), 6);
+    assert.ok(retainedSelection.get(2, 3));
+    assert.ok(retainedSelection.get(4, 4));
+});
+
+test('Cloud room default path owns sleeping fog and a visible gas region', () => {
+    const { level, room, state, random } = monsterDescriptorFixture();
+    level.rooms[0] = { ...room, rtype: THEMEROOM };
+
+    run_themeroom_fill(fillById('cloud_room'), room, 1, {
+        state,
+        random,
+    });
+
+    const fog = level.monlist;
+    assert.equal(fog.data.pmidx, PM_FOG_CLOUD);
+    assert.equal(fog.msleeping, true);
+    assert.equal(level.regions.length, 1);
+    const [cloud] = level.regions;
+    assert.equal(cloud.visible, true);
+    assert.equal(cloud.ttl, -1);
+    assert.equal(cloud.arg, 0);
+    assert.deepEqual(cloud.monsters, [fog.m_id]);
+    assert.deepEqual(cloud.rects, [
+        { lx: 2, ly: 3, hx: 2, hy: 3 },
+        { lx: 2, ly: 4, hx: 2, hy: 4 },
+        { lx: 3, ly: 3, hx: 3, hy: 3 },
+        { lx: 3, ly: 4, hx: 3, hy: 4 },
+    ]);
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y)
+            assert.equal(level.at(x, y).typ, ROOM);
+    }
+});
+
+test('Storeroom samples x-major but invokes independent placements y-major', () => {
+    const { level, room } = threeByTwoRoom();
+    const draws = [99, 0, 99, 99, 0, 99, 99, 0];
+    const events = [];
+    const random = randomWithRn2((bound) => {
+        assert.equal(bound, 100);
+        return draws.shift();
+    });
+
+    run_themeroom_fill(fillById('storeroom'), room, 1, {
+        state: { level },
+        random,
+        hooks: {
+            createMonster(specification) {
+                events.push(['monster', specification]);
+                return {};
+            },
+            createObject(specification) {
+                events.push(['object', specification]);
+                return {};
+            },
+        },
+    });
+
+    assert.deepEqual(draws, []);
+    assert.deepEqual(events, [
+        ['monster', {
+            class: S_MIMIC,
+            appearAs: { type: M_AP_OBJECT, id: CHEST },
+        }],
+        ['object', { id: CHEST }],
+    ]);
+});
+
+test('class-only Storeroom descriptor creates a male chest mimic', () => {
+    const { level, room, state, random } = monsterDescriptorFixture();
+    level.rooms[0] = { ...room, rtype: THEMEROOM };
+
+    const mimic = create_monster({
+        class: S_MIMIC,
+        appearAs: { type: M_AP_OBJECT, id: CHEST },
+    }, room, { state, random });
+
+    assert.equal(mimic.data.pmidx, PM_SMALL_MIMIC);
+    assert.equal(mimic.female, false);
+    assert.equal(mimic.m_ap_type, M_AP_OBJECT);
+    assert.equal(mimic.mappearance, CHEST);
 });
 
 test('Spider nest samples x-major and creates webs y-major', () => {
@@ -2036,13 +2153,13 @@ test('Teleportation hub abandons a queued source that becomes stairs', () => {
     );
 });
 
-test('unported fill handlers fail closed', () => {
+test('remaining unported Statuary handler fails closed', () => {
     const { level, room } = twoByTwoRoom();
     assert.throws(
-        () => run_themeroom_fill(fillById('cloud_room'), room, 1, {
+        () => run_themeroom_fill(fillById('statuary'), room, 1, {
             state: { level },
             random: randomWithRn2(() => 0),
         }),
-        /unported themed-room fill: Cloud room/,
+        /unported themed-room fill: Statuary/,
     );
 });

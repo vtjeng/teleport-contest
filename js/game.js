@@ -60,6 +60,9 @@ export class GameMap {
         this.monsters = makeCoordinateGrid(() => null);
         this.monlist = null;
         this.traps = [];
+        // C ref: region.c gr.regions[]/svn.n_regions. A new level owns a
+        // fresh active-region list; visible gas clouds are not terrain.
+        this.regions = [];
         this.flags = {
             nfountains: 0,
             nsinks: 0,

@@ -7,7 +7,7 @@ import { cansee } from './vision.js';
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    BLINDED, CONFUSION, DEAF, FLYING, HALLUC, HALLUC_RES,
+    ACCESSIBLE, BLINDED, CONFUSION, DEAF, FLYING, HALLUC, HALLUC_RES,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
     SLIMED, STONED, STR18, STRANGLED, STUNNED,
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER, SCORR,
@@ -22,7 +22,7 @@ import {
     WM_MASK, WM_C_OUTER, WM_C_INNER,
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
-    HI_DOMESTIC, HI_METAL,
+    HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
 } from './const.js';
 import {
     ATR_INVERSE,
@@ -88,6 +88,7 @@ import {
     S_vcdoor,
     S_hcdoor,
     S_room,
+    S_darkroom,
     S_engroom,
     S_corr,
     S_litcorr,
@@ -119,6 +120,7 @@ import {
     trap_to_defsym,
 } from './symbols.js';
 import { t_at } from './trap.js';
+import { visible_region_at } from './region.js';
 
 // ── ANSI color codes ──
 // Maps CLR_* constants (0-15) to ANSI SGR color codes.
@@ -511,6 +513,69 @@ export function hero_glyph_info(state = game) {
 export function monster_glyph_info(monster, state = game) {
     if (!monster?.data)
         throw new TypeError('monster_glyph_info requires monster data');
+    const appearanceType = monster.m_ap_type & M_AP_TYPMASK;
+    if (appearanceType === M_AP_FURNITURE) {
+        // C ref: display.c display_monster() maps a furniture appearance
+        // through cmap_to_glyph(), independently of the underlying terrain.
+        const sym = monster.mappearance;
+        if (sym >= S_vwall && sym <= S_trwall)
+            return terrainCmap(sym, NO_COLOR, state);
+        switch (sym) {
+        case S_ndoor:
+        case S_room:
+        case S_darkroom:
+        case S_corr:
+        case S_litcorr:
+        case S_upstair:
+        case S_dnstair:
+            return terrainCmap(sym, NO_COLOR, state);
+        case S_vodoor:
+        case S_hodoor:
+        case S_vcdoor:
+        case S_hcdoor:
+        case S_upladder:
+        case S_dnladder:
+            return terrainCmap(sym, CLR_BROWN, state);
+        case S_bars:
+            return terrainCmap(sym, HI_METAL, state);
+        case S_tree:
+            return terrainCmap(sym, CLR_GREEN, state);
+        case S_engroom:
+        case S_engrcorr:
+            return terrainCmap(sym, CLR_BRIGHT_BLUE, state);
+        case S_brupstair:
+        case S_brdnstair:
+        case S_brupladder:
+        case S_brdnladder:
+        case S_throne:
+            return terrainCmap(sym, CLR_YELLOW, state);
+        case S_altar:
+            // cmap_to_glyph(S_altar) deliberately chooses neutral rather than
+            // the alignment stored in the mimic's mcorpsenm overlay.
+            return altarPresentation({ altarmask: AM_NEUTRAL }, state);
+        case S_grave:
+        case S_sink:
+            return terrainCmap(sym, CLR_WHITE, state);
+        case S_fountain:
+            return terrainCmap(
+                sym, CLR_BRIGHT_BLUE, state, 'G_fountain',
+            );
+        default:
+            // Special-level descriptors can name other cmap entries. Keep
+            // their symbol source-faithful even when no specialized color
+            // mapping is needed by initial-level generation.
+            return terrainCmap(sym, NO_COLOR, state);
+        }
+    }
+    if (appearanceType === M_AP_OBJECT) {
+        const type = state.objects?.[monster.mappearance];
+        return object_glyph_info({
+            otyp: monster.mappearance,
+            oclass: type?.oc_class,
+            corpsenm: monster.mextra?.mcorpsenm,
+            dknown: false,
+        }, state);
+    }
     const symbol = monster.mtame && accessibilityOverridesEnabled(state)
         ? optional_misc_symbol(4, state)
             ?? monster_class_symbol(monster.data.mlet, state)
@@ -804,6 +869,34 @@ export function newsym(x, y) {
     // monster, or the hero currently covers its glyph.
     if (visible && engraving) engraving.erevealed = true;
 
+    // display.c:newsym() lets a visible gas region cover every accessible
+    // location, including the hero. Ordinary visible, unsensed monsters only
+    // override it when adjacent; object-disguised mimics do not. Returning
+    // here intentionally leaves the remembered underlying glyph untouched.
+    const region = visible ? visible_region_at(x, y, game) : null;
+    if (region && ACCESSIBLE(loc.typ)) {
+        const monster = m_at(x, y, game);
+        const adjacentVisibleMonster = monster
+            && !monster.minvis
+            && !monster.mundetected
+            && ![M_AP_FURNITURE, M_AP_OBJECT].includes(
+                monster.m_ap_type & M_AP_TYPMASK,
+            )
+            && dist2(x, y, game.u?.ux ?? 0, game.u?.uy ?? 0) <= 2;
+        if (!adjacentVisibleMonster) {
+            const cloud = terrainCmap(
+                region.glyph,
+                region.arg ? CLR_BRIGHT_GREEN : CLR_GRAY,
+                game,
+            );
+            show_glyph_cell(
+                x, y, cloud.ch, cloud.color, cloud.dec, cloud.attr ?? 0,
+                cloud.displayCh ?? null, cloud.displayColor ?? null,
+            );
+            return;
+        }
+    }
+
     const covered = floorLayersCovered(loc, game);
     const object = covered
         ? null : game.level?.objects?.[x]?.[y] ?? null;
@@ -830,12 +923,21 @@ export function newsym(x, y) {
 
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
-        if (game.level?.flags?.hero_memory)
-            loc.remembered_glyph = rememberedMapGlyph(underlying);
         const monster = m_at(x, y, game);
         const shown = monster && !monster.minvis && !monster.mundetected
             ? monster_glyph_info(monster, game)
             : underlying;
+        // display_monster() maps an unsensed mimic appearance onto memory.
+        // Ordinary monsters leave memory as the actual layer underneath them.
+        const remembered = monster
+            && !monster.minvis
+            && !monster.mundetected
+            && [M_AP_FURNITURE, M_AP_OBJECT].includes(
+                monster.m_ap_type & M_AP_TYPMASK,
+            )
+            ? shown : underlying;
+        if (game.level?.flags?.hero_memory)
+            loc.remembered_glyph = rememberedMapGlyph(remembered);
         show_glyph_cell(
             x,
             y,

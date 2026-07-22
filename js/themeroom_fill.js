@@ -17,6 +17,7 @@ import {
     DRY,
     FOUNTAIN,
     ICE,
+    HOT,
     IS_FURNITURE,
     IS_STWALL,
     LADDER,
@@ -25,6 +26,8 @@ import {
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
     MKTRAP_SEEN,
+    M_AP_OBJECT,
+    NO_LOC_WARN,
     ROCKTRAP,
     ROLLING_BOULDER_TRAP,
     ROOM,
@@ -40,6 +43,8 @@ import {
     TIMER_OBJECT,
     ROT_CORPSE,
     TREE,
+    WET,
+    SOLID,
     WEB,
     ZOMBIFY_MON,
 } from './const.js';
@@ -51,6 +56,7 @@ import {
     makemon,
     m_dowear,
 } from './makemon_create.js';
+import { mkclass } from './makemon.js';
 import { is_female, is_male } from './mondata.js';
 import { mktrap } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -82,6 +88,13 @@ import {
     PM_ETTIN,
     PM_GIANT,
     PM_GNOME,
+    G_NOGEN,
+    M1_FLY,
+    M1_SWIM,
+    PM_FIRE_ELEMENTAL,
+    PM_FIRE_VORTEX,
+    PM_FLAMING_SPHERE,
+    PM_FOG_CLOUD,
     PM_GHOST,
     PM_HEALER,
     PM_HUMAN,
@@ -103,17 +116,27 @@ import {
     PM_WARRIOR,
     PM_WIZARD,
     PM_WOOD_NYMPH,
+    PM_SALAMANDER,
+    S_EEL,
+    S_EYE,
+    S_GHOST,
+    S_LIGHT,
+    S_MIMIC,
 } from './monsters.js';
+import { m_at } from './monst.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     get_free_room_loc,
     get_location_coord,
+    inside_room,
 } from './room_coordinates.js';
+import { create_gas_cloud_selection } from './region.js';
 import {
     lspo_object,
     new_sp_lev_object_context,
 } from './sp_lev_object.js';
 import { set_levltyp } from './terrain.js';
+import { enexto } from './teleport.js';
 import {
     selection_iterate,
     selection_negate,
@@ -134,6 +157,11 @@ const WHOLE_LEVEL_FRAME = Object.freeze({
     xsize: COLNO - 1,
     ysize: ROWNO,
 });
+
+// Generated monsters.js currently exposes the movement flags used elsewhere;
+// keep these two monflag.h values local until another subsystem needs them.
+const M1_WALLWALK = 0x00000008;
+const M1_AMPHIBIOUS = 0x00000200;
 
 export class UnsupportedThemeroomFillError extends Error {
     constructor(fill) {
@@ -294,13 +322,55 @@ function randomRoomCoordinate(room, env) {
     return coordinate;
 }
 
-function themedCreationCoordinate(specification, room, env) {
-    return specification.coordinate
-        ? {
-            x: room.lx + specification.coordinate.x,
-            y: room.ly + specification.coordinate.y,
-        }
-        : randomRoomCoordinate(room, env);
+// sp_lev.c pm_to_humidity(). Unlike objects and traps, a special-level
+// monster's first coordinate search honors its species' movement medium.
+function monsterHumidity(species) {
+    let humidity = DRY;
+    const flags = species?.mflags1 ?? 0;
+    if (species?.mlet === S_EEL
+        || (flags & M1_AMPHIBIOUS)
+        || (flags & M1_SWIM)) {
+        humidity = WET;
+    }
+    if ((flags & M1_FLY)
+        || species?.mlet === S_EYE
+        || species?.mlet === S_LIGHT) {
+        humidity |= HOT | WET;
+    }
+    if ((flags & M1_WALLWALK) || species?.mlet === S_GHOST)
+        humidity |= SOLID;
+    if (species?.pmidx === PM_FIRE_VORTEX
+        || species?.pmidx === PM_FLAMING_SPHERE
+        || species?.pmidx === PM_FIRE_ELEMENTAL
+        || species?.pmidx === PM_SALAMANDER) {
+        humidity |= HOT;
+    }
+    return humidity;
+}
+
+function themedMonsterCoordinate(specification, room, species, env) {
+    const coordinate = { x: -1, y: -1 };
+    const packed = specification.coordinate
+        ? packedMapCoordinate(specification.coordinate)
+        : SP_COORD_IS_RANDOM;
+    const humidity = monsterHumidity(species);
+    get_location_coord(
+        coordinate,
+        humidity | NO_LOC_WARN,
+        room,
+        packed,
+        env,
+    );
+    if (coordinate.x === -1 && coordinate.y === -1) {
+        get_location_coord(
+            coordinate,
+            humidity | DRY,
+            room,
+            packed,
+            env,
+        );
+    }
+    return coordinate;
 }
 
 function createObject(specification, room, env) {
@@ -398,24 +468,59 @@ function createMonsterBody(specification, room, env) {
     // runs after the replacement returns.
     if (replacement) return replacement(specification, room, env);
 
-    // sp_lev.c:lspo_monster() resolves a fixed species and its parser gender
-    // before create_monster() converts the default random alignment mask.
-    const species = env.state.mons?.[specification.id];
-    if (!species) {
-        throw new Error(
-            `special-level monster requires species ${specification.id}`,
-        );
+    // lspo_monster() resolves a named species and parser gender before
+    // create_monster(), but a class-only descriptor has no parser gender draw
+    // and its BOOL_RANDOM safety net becomes male.
+    let species = Number.isInteger(specification.id)
+        ? env.state.mons?.[specification.id] : null;
+    let female;
+    if (species) {
+        const parsedFemale = is_female(species)
+            ? true
+            : is_male(species) ? false : Boolean(env.random.rn2(2));
+        female = specification.female == null
+            || is_female(species) || is_male(species)
+            ? parsedFemale
+            : Boolean(specification.female);
+    } else if (specification.class != null) {
+        female = specification.female == null
+            ? false : Boolean(specification.female);
+    } else {
+        throw new Error('special-level monster requires species or class');
     }
-    const parsedFemale = is_female(species)
-        ? true
-        : is_male(species) ? false : Boolean(env.random.rn2(2));
-    const female = specification.female == null
-        || is_female(species) || is_male(species)
-        ? parsedFemale
-        : Boolean(specification.female);
-    induced_align(80, env.state, env.random.rn2);
 
-    const coordinate = themedCreationCoordinate(specification, room, env);
+    // sp_amask_to_amask(AM_SPLEV_RANDOM) runs before mkclass().
+    induced_align(80, env.state, env.random.rn2);
+    if (!species) {
+        species = mkclass(specification.class, G_NOGEN, {
+            state: env.state,
+            random: env.random,
+        });
+    }
+
+    const coordinate = themedMonsterCoordinate(
+        specification,
+        room,
+        species,
+        env,
+    );
+    if (species && m_at(coordinate.x, coordinate.y, env.state)) {
+        const nearby = enexto(
+            coordinate.x,
+            coordinate.y,
+            species,
+            env,
+        );
+        if (nearby) Object.assign(coordinate, nearby);
+    }
+    if (room && !inside_room(
+        room,
+        coordinate.x,
+        coordinate.y,
+        env.state,
+    )) {
+        return null;
+    }
     const monsterEnv = themedCreationEnv(env);
     const monster = makemon(
         species,
@@ -425,6 +530,11 @@ function createMonsterBody(specification, room, env) {
         monsterEnv,
     );
     if (!monster) return null;
+    if (specification.appearAs?.type === M_AP_OBJECT
+        && monster.data.mlet === S_MIMIC) {
+        monster.m_ap_type = M_AP_OBJECT;
+        monster.mappearance = specification.appearAs.id;
+    }
     // create_monster() applies the parser-selected gender after makemon(),
     // even though makemon may have consumed its own gender draw.
     monster.female = female;
@@ -575,6 +685,19 @@ function fillIceRoom(room, difficulty, env) {
     ice.iterate((x, y) => {
         startMeltTimer(x, y, minimumTime + env.random.rn2(1000), env);
     });
+}
+
+// dat/themerms.lua "Cloud room". The room selection is retained as a gas
+// region after every fog monster has completed its independent creation.
+function fillCloudRoom(room, _difficulty, env) {
+    const fog = roomSelection(room, env);
+    const monsterCount = Math.trunc(fog.numpoints() / 4);
+    for (let index = 0; index < monsterCount; ++index)
+        create_monster({ id: PM_FOG_CLOUD, asleep: true }, room, env);
+    const replacement = env.hooks.createGasCloudSelection;
+    return replacement
+        ? replacement(fog, 0, env)
+        : create_gas_cloud_selection(fog, 0, env);
 }
 
 // dat/themerms.lua "Boulder room". selection:percentage() samples x-major,
@@ -760,6 +883,26 @@ function fillMassacre(room, _difficulty, env) {
     }
 }
 
+// dat/themerms.lua "Storeroom". percentage() samples x-major, then the Lua
+// callback runs y-major. Its x/y arguments are intentionally unused: each
+// retained point triggers a fresh random-room object or monster placement.
+function fillStoreroom(room, _difficulty, env) {
+    const locations = roomSelection(room, env).percentage(
+        30,
+        env.random.rn2,
+    );
+    locations.iterate(() => {
+        if (env.random.rn2(100) < 25) {
+            createObject({ id: CHEST }, room, env);
+        } else {
+            create_monster({
+                class: S_MIMIC,
+                appearAs: { type: M_AP_OBJECT, id: CHEST },
+            }, room, env);
+        }
+    });
+}
+
 // dat/themerms.lua "Light source".
 function fillLightSource(room, _difficulty, env) {
     createObject({ id: OIL_LAMP, lit: true }, room, env);
@@ -844,12 +987,14 @@ const FILL_HANDLERS = Object.freeze({
     boulder_room: fillBoulderRoom,
     buried_treasure: fillBuriedTreasure,
     buried_zombies: fillBuriedZombies,
+    cloud_room: fillCloudRoom,
     garden: fillGarden,
     ghost_of_an_adventurer: fillGhostOfAnAdventurer,
     ice_room: fillIceRoom,
     light_source: fillLightSource,
     massacre: fillMassacre,
     spider_nest: fillSpiderNest,
+    storeroom: fillStoreroom,
     teleportation_hub: fillTeleportationHub,
     temple_of_the_gods: fillTempleOfTheGods,
     trap_room: fillTrapRoom,

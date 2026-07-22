@@ -84,6 +84,7 @@
         "js/random_engraving.js",
         "js/random_text.js",
         "js/random_text_data.js",
+        "js/region.js",
         "js/rect.js",
         "js/room_coordinates.js",
         "js/room_features.js",
