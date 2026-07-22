@@ -27,9 +27,12 @@ import {
     DOOR,
     FOUNTAIN,
     HWALL,
+    ICE,
     LADDER,
     LANDMINE,
     LA_DOWN,
+    LAVAPOOL,
+    LAVAWALL,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     OBJ_FLOOR,
@@ -37,6 +40,7 @@ import {
     ROOM,
     SCORR,
     SDOOR,
+    SINK,
     STAIRS,
     STONE,
     SVALL,
@@ -47,6 +51,7 @@ import {
     TRWALL,
     TUWALL,
     VWALL,
+    WATER,
 } from '../js/const.js';
 import * as symbolExports from '../js/symbols.js';
 import {
@@ -422,6 +427,45 @@ test('disabled color suppresses colored terrain glyphs', () => {
     assert.equal(
         terrain_glyph({ typ: STAIRS, ladder: 0 }, 7, 4, state).color,
         NO_COLOR,
+    );
+});
+
+test('disabled color uses tty inverse cues for ambiguous terrain symbols', () => {
+    const state = {
+        iflags: { wc_color: false, wc_inverse: true },
+    };
+    initialize_symbols_from_options({ flags: {} }, state);
+
+    for (const typ of [SINK, ICE, LAVAPOOL, LAVAWALL]) {
+        assert.equal(
+            terrain_glyph({ typ }, 7, 4, state).attr,
+            ATR_INVERSE,
+            `terrain type ${typ}`,
+        );
+    }
+    for (const typ of [FOUNTAIN, POOL, WATER]) {
+        assert.equal(
+            terrain_glyph({ typ }, 7, 4, state).attr,
+            undefined,
+            `reference terrain type ${typ}`,
+        );
+    }
+    assert.equal(
+        terrain_glyph({ typ: DRAWBRIDGE_UP, flags: DB_LAVA }, 7, 4, state).attr,
+        ATR_INVERSE,
+        'raised drawbridge lava uses the same cmap cue',
+    );
+
+    state.iflags.wc_inverse = false;
+    assert.equal(
+        terrain_glyph({ typ: SINK }, 7, 4, state).attr,
+        undefined,
+    );
+    state.iflags.wc_inverse = true;
+    state.iflags.wc_color = true;
+    assert.equal(
+        terrain_glyph({ typ: SINK }, 7, 4, state).attr,
+        undefined,
     );
 });
 
@@ -1679,6 +1723,22 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
     await flush_screen(1);
     assert.match(row(23), /^Dl:1 .* T:1  Bl Df Bare-hnds Shirt Stairs/u);
     assert.equal(row(23).length, 79);
+});
+
+test('disabled status updates retain blank reserved tty rows', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.level = new GameMap();
+    state.iflags = { status_updates: false, wc2_statuslines: 2 };
+    state.level.at(7, 20).disp_ch = '.';
+
+    await flush_screen(1);
+
+    const row = (index) => state.nhDisplay.grid[index]
+        .map((cell) => cell.ch).join('');
+    assert.equal(row(21)[6], '.', 'the full map viewport remains visible');
+    assert.equal(row(22), ' '.repeat(80));
+    assert.equal(row(23), ' '.repeat(80));
 });
 
 test('status uses source attribute order and exceptional strength text', async () => {

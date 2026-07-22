@@ -596,12 +596,36 @@ function recorderMapColor(color, state) {
     return color;
 }
 
+// C refs: display.c map_glyphinfo() and wintty.c tty_print_glyph().  When
+// color is explicitly disabled, tty uses inverse video to distinguish terrain
+// pairs whose configured symbols are otherwise identical.
+function blackAndWhiteTerrainCue(index, state) {
+    if (state.iflags?.wc_color !== false
+        || state.iflags?.wc_inverse === false) return false;
+    const symbol = cmap_symbol_byte(index, state);
+    switch (index) {
+    case S_lava:
+    case S_lavawall:
+        return symbol === cmap_symbol_byte(S_pool, state)
+            || symbol === cmap_symbol_byte(S_water, state);
+    case S_ice:
+        return symbol === cmap_symbol_byte(S_room, state)
+            || symbol === cmap_symbol_byte(S_darkroom, state);
+    case S_sink:
+        return symbol === cmap_symbol_byte(S_fountain, state);
+    default:
+        return false;
+    }
+}
+
 function terrainCmap(index, color, state, customizationName = null) {
     const customization = customizationName
         ? glyph_customization(customizationName, state) : null;
-    return glyphPresentation(
+    const glyph = glyphPresentation(
         cmap_symbol(index, state), color, state, customization,
     );
+    if (blackAndWhiteTerrainCue(index, state)) glyph.attr = ATR_INVERSE;
+    return glyph;
 }
 
 function stairwayAt(state, x, y) {
@@ -1822,6 +1846,8 @@ function _statusLine3Details() {
 }
 
 function statusTextRows() {
+    const count = game.iflags?.wc2_statuslines === 3 ? 3 : 2;
+    if (game.iflags?.status_updates === false) return Array(count).fill('');
     return game.iflags?.wc2_statuslines === 3
         ? [_statusLine1(false), _statusLine3Vitals(), _statusLine3Details()]
         : [_statusLine1(), _statusLine2()];
@@ -2199,9 +2225,12 @@ function mapViewport(rows, statusRowCount) {
 function writeStatusRows(
     display,
     rows = statusTextRows(),
-    styles = _statusStyleRows(rows),
+    styles = null,
 ) {
     if (!display?.grid) return;
+    styles ??= game.iflags?.status_updates === false
+        ? rows.map(() => [])
+        : _statusStyleRows(rows);
     const firstRow = display.rows - rows.length;
     for (let index = 0; index < rows.length; ++index) {
         const screenRow = firstRow + index;

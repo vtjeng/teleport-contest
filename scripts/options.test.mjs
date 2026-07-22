@@ -903,6 +903,11 @@ test('valid unported startup option mappings remain available', () => {
     assert.equal(parsed.flags.tutorial, false);
     assert.equal(parsed.tutorial_set, true);
     assert.equal(parsed.iflags.wc_splash_screen, false);
+    assert.equal(parsed.iflags.status_updates, true);
+    assert.equal(
+        parseNethackrc('OPTIONS=!status_updates').iflags.status_updates,
+        false,
+    );
     const abbreviated = parseNethackrc('OPTIONS=!leg,!tut,!spl');
     assert.deepEqual(
         [abbreviated.flags.legacy, abbreviated.flags.tutorial,
