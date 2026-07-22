@@ -4,7 +4,7 @@ import test from 'node:test';
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
     AGGRAVATE_MONSTER, ARMORSHOP, CLOUD, COLNO, CROSSWALL, DOOR, DUST, D_ISOPEN,
-    D_LOCKED, D_NODOOR, D_TRAPPED,
+    D_CLOSED, D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     LR_TELE, MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO,
     STATUE_TRAP, STONE,
@@ -15,6 +15,7 @@ import {
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
+import { initoptions_finish } from '../js/fruit.js';
 import { game, resetGame } from '../js/gstate.js';
 import { objectType } from '../js/obj.js';
 import {
@@ -34,6 +35,7 @@ import {
 } from '../js/mklev.js';
 import {
     PM_FOG_CLOUD,
+    PM_ETTIN_ZOMBIE,
     PM_GIANT_ZOMBIE,
     PM_SHOPKEEPER,
     PM_VAMPIRE_LEADER,
@@ -45,15 +47,23 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import {
+    ARMOR_CLASS,
     CHEST,
     CORPSE,
     GOLD_PIECE,
     GLASS,
     objects_globals_init,
+    POT_EXTRA_HEALING,
+    POT_HEALING,
+    RIN_TELEPORTATION,
+    SCR_TELEPORTATION,
     STATUE,
     SKELETON_KEY,
     WAN_DIGGING,
+    WAN_MAGIC_MISSILE,
+    WAN_STRIKING,
     WAN_TELEPORTATION,
+    WEAPON_CLASS,
 } from '../js/objects.js';
 import { init_rect } from '../js/rect.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -166,6 +176,7 @@ function initializeNewGame(seed) {
     game.iflags = {};
     game.u = { uroleplay: {} };
     game.context = { move: 0 };
+    initoptions_finish({}, game);
     newgame_pre_mklev(game);
 }
 
@@ -362,6 +373,58 @@ test('live filler maps invoke their optional themed fill synchronously', async (
     assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
         'rn2(68)', 'rn2(10)', 'rn2(100)', 'rnd(2)', 'rn2(77)',
     ]);
+});
+
+test('live filler maps execute the selected default themed fill', async () => {
+    resetThemeroomLevel();
+    let reservoirCalls = 0;
+    let fillBound = 0;
+    const events = [];
+    const scripted = [
+        [68, 30], [10, 4], // place Cross at (31,4)
+        [100, 0], // take filler_region's 30% themed branch
+        [77, 76], // light the region at depth one
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT)
+            return bound === 1034 ? 0 : bound - 1;
+        if (scripted.length) {
+            const next = scripted.shift();
+            assert.equal(bound, next[0]);
+            return next[1];
+        }
+        if (fillBound < 13) {
+            assert.equal(bound, ++fillBound);
+            // Retain Ice room, the first eligible fill descriptor.
+            return bound - 1;
+        }
+        assert.equal(bound, 100);
+        return 99; // do not schedule melt timers
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        assert.equal(bound, 2);
+        return 2;
+    };
+
+    assert.equal(await themerooms_generate(
+        1,
+        random,
+        randomOneBased,
+        { randomFacade: completeRandomFacade(random, randomOneBased) },
+    ), true);
+    assert.equal(scripted.length, 0);
+    assert.equal(fillBound, 13);
+    assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
+        'rn2(68)', 'rn2(10)', 'rn2(100)', 'rnd(2)', 'rn2(77)',
+        ...Array.from({ length: 13 }, (_, index) => `rn2(${index + 1})`),
+        'rn2(100)',
+    ]);
+    const room = game.level.rooms[0];
+    assert.equal(room.rtype, THEMEROOM);
+    assert.equal(room.irregular, true);
+    assert.equal(game.level.at(37, 10).typ, ICE);
 });
 
 test('live generic room generation keeps the injected RNG streams', async () => {
@@ -652,6 +715,57 @@ test('failed vault realization performs the one source retry attempt', async () 
             .some((room) => room.rtype === VAULT),
         false,
     );
+});
+
+test('successful vault retry realizes and fills its replacement room', async () => {
+    // A precise branch-coverage probe on this newly chosen seed verifies that
+    // the staged vault at (39,17) fails check_room(), then create_vault()
+    // stages the successful replacement at (52,16).
+    initializeNewGame(405);
+    enableRngLog();
+    await mklev();
+
+    assert.deepEqual(getRngLog().slice(859, 863), [
+        'rn2(3)=2', // rnd_rect() selects the remaining free rectangle
+        'rn2(3)=2', 'rn2(5)=4', 'rn2(4)=1', // create_vault()
+    ]);
+    assert.equal(game.level.flags.has_vault, true);
+    assert.deepEqual([game.vault_x, game.vault_y], [52, 16]);
+    const vaults = game.level.rooms.slice(0, game.level.nroom)
+        .filter((room) => room.rtype === VAULT);
+    assert.equal(vaults.length, 1);
+    assert.deepEqual(
+        [vaults[0].lx, vaults[0].ly, vaults[0].hx, vaults[0].hy],
+        [52, 16, 53, 17],
+    );
+    assert.deepEqual(
+        [
+            game.level.objects[52][16], game.level.objects[52][17],
+            game.level.objects[53][16], game.level.objects[53][17],
+        ].map((object) => [object.otyp, object.quan]),
+        [
+            [GOLD_PIECE, 235], [GOLD_PIECE, 216],
+            [GOLD_PIECE, 196], [GOLD_PIECE, 187],
+        ],
+    );
+});
+
+test('mklev discards exclusion zones retained from the previous level', async () => {
+    initializeNewGame(450);
+    const staleZone = {
+        zonetype: LR_TELE,
+        lx: 1,
+        ly: 1,
+        hx: 2,
+        hy: 2,
+        next: null,
+    };
+    game.exclusion_zones = staleZone;
+
+    await mklev();
+
+    for (let zone = game.exclusion_zones; zone; zone = zone.next)
+        assert.notEqual(zone, staleZone);
 });
 
 test('mklev runs themed-room postprocessing before final wallification', async () => {
@@ -2149,7 +2263,7 @@ test('Water vault registers its chamber, chests, undead, and exclusion', () => {
     });
 });
 
-test('Water vault unlocks the chest containing a glass escape item', () => {
+test('Water vault retains the random chest lock despite source olocked typo', () => {
     initializeDirectThemeroomNewGame(14);
     assert.equal(dispatch_themeroom(
         definitionById('water-surrounded-vault'),
@@ -2159,7 +2273,48 @@ test('Water vault unlocks the chest containing a glass escape item', () => {
     const escapeItem = chest.cobj;
     assert.equal(escapeItem.otyp, WAN_DIGGING);
     assert.equal(objectType(escapeItem, game).oc_material, GLASS);
-    assert.equal(chest.olocked, false);
+    // themerms.lua supplies `olocked`, while lspo_object() reads `locked`.
+    assert.equal(chest.olocked, true);
+});
+
+test('Water vault reaches every escape item and nasty-undead variant', () => {
+    const cases = [
+        [1, WAN_TELEPORTATION, PM_GIANT_ZOMBIE, false],
+        [2, WAN_DIGGING, PM_ETTIN_ZOMBIE, true],
+        [3, SCR_TELEPORTATION, PM_VAMPIRE_LEADER, true],
+        [7, RIN_TELEPORTATION, PM_VAMPIRE_LEADER, true],
+    ];
+    const escapeTypes = new Set([
+        SCR_TELEPORTATION,
+        RIN_TELEPORTATION,
+        WAN_TELEPORTATION,
+        WAN_DIGGING,
+    ]);
+
+    for (const [seed, escapeType, undeadType, locked] of cases) {
+        initializeDirectThemeroomNewGame(seed);
+        assert.equal(dispatch_themeroom(
+            definitionById('water-surrounded-vault'),
+        ), true, `seed ${seed}`);
+
+        const room = game.level.rooms[0];
+        const escapeChests = [];
+        for (let x = room.lx; x <= room.hx; ++x) {
+            for (let y = room.ly; y <= room.hy; ++y) {
+                const chest = game.level.objects[x][y];
+                if (escapeTypes.has(chest.cobj?.otyp)) escapeChests.push(chest);
+            }
+        }
+        assert.equal(escapeChests.length, 1, `seed ${seed}`);
+        assert.equal(escapeChests[0].cobj.otyp, escapeType, `seed ${seed}`);
+        assert.equal(escapeChests[0].olocked, locked, `seed ${seed}`);
+
+        const monster = game.level.monsters[room.lx][room.ly];
+        const naturalType = monster.cham === PM_VAMPIRE_LEADER
+            ? monster.cham
+            : monster.mnum;
+        assert.equal(naturalType, undeadType, `seed ${seed}`);
+    }
 });
 
 test('Water vault preserves the male parse of its vampire-lord name', () => {
@@ -2216,6 +2371,13 @@ test('Twin businesses builds both source shop subrooms', () => {
         shops.map((room) => game.level.doors[room.fdoor]),
         [{ x: 70, y: 3 }, { x: 75, y: 3 }],
     );
+    assert.deepEqual(
+        shops.map((room) => {
+            const door = game.level.doors[room.fdoor];
+            return game.level.at(door.x, door.y).doormask;
+        }),
+        [D_CLOSED, D_CLOSED],
+    );
 });
 
 test('Twin businesses stocks both shops and initializes their keepers', () => {
@@ -2237,7 +2399,18 @@ test('Twin businesses stocks both shops and initializes their keepers', () => {
         ['Siirt', 'Laguiolet'],
     );
 
-    for (const room of shops) {
+    const expectedStock = [
+        {
+            oclass: ARMOR_CLASS,
+            squares: ['70,5', '70,6', '71,5', '71,6', '72,5', '72,6'],
+        },
+        {
+            oclass: WEAPON_CLASS,
+            squares: ['74,5', '74,6', '75,5', '75,6', '76,5', '76,6'],
+        },
+    ];
+
+    for (const [index, room] of shops.entries()) {
         const keeper = room.resident;
         const eshk = keeper.mextra.eshk;
         assert.equal(keeper.isshk, true);
@@ -2254,14 +2427,101 @@ test('Twin businesses stocks both shops and initializes their keepers', () => {
         assert.ok(inventory.includes(GOLD_PIECE));
         assert.ok(inventory.includes(SKELETON_KEY));
 
-        let stockedSquares = 0;
+        const stockedSquares = [];
         for (let x = room.lx; x <= room.hx; ++x) {
             for (let y = room.ly; y <= room.hy; ++y) {
-                if (game.level.objects[x][y]) ++stockedSquares;
+                const object = game.level.objects[x][y];
+                if (!object) continue;
+                stockedSquares.push(`${x},${y}`);
+                assert.equal(object.oclass, expectedStock[index].oclass);
             }
         }
-        assert.equal(stockedSquares, 6);
+        assert.deepEqual(stockedSquares, expectedStock[index].squares);
+        assert.equal(game.level.objects[keeper.mx][keeper.my], null);
     }
+});
+
+test('shopkeeper startup reaches every source inventory fallthrough', () => {
+    const cases = [
+        [1, 0, [POT_HEALING, POT_EXTRA_HEALING, WAN_STRIKING, WAN_MAGIC_MISSILE]],
+        [6, 1, [POT_HEALING, POT_EXTRA_HEALING, WAN_STRIKING]],
+        [1, 1, [POT_HEALING, WAN_STRIKING]],
+        [3, 0, [WAN_STRIKING]],
+    ];
+    const fallthroughTypes = new Set([
+        POT_HEALING,
+        POT_EXTRA_HEALING,
+        WAN_STRIKING,
+        WAN_MAGIC_MISSILE,
+    ]);
+
+    for (const [seed, shopIndex, expectedTypes] of cases) {
+        initializeDirectThemeroomNewGame(seed);
+        assert.equal(dispatch_themeroom(
+            definitionById('twin-businesses'),
+        ), true, `seed ${seed}`);
+        fill_special_room(game.level.rooms[0]);
+
+        const actualTypes = [];
+        for (let obj = game.subrooms[shopIndex].resident.minvent;
+            obj;
+            obj = obj.nobj) {
+            if (fallthroughTypes.has(obj.otyp)) actualTypes.push(obj.otyp);
+        }
+        assert.deepEqual(
+            actualTypes.sort((left, right) => left - right),
+            [...expectedTypes].sort((left, right) => left - right),
+            `seed ${seed}, shop ${shopIndex}`,
+        );
+    }
+});
+
+test('Twin shop stocking reaches both 90/10 secondary object classes', () => {
+    initializeDirectThemeroomNewGame(11);
+    assert.equal(dispatch_themeroom(
+        definitionById('twin-businesses'),
+    ), true);
+    fill_special_room(game.level.rooms[0]);
+
+    const shops = game.subrooms.slice(0, game.nsubroom);
+    assert.deepEqual(shops.map((room) => room.rtype), [ARMORSHOP, WEAPONSHOP]);
+    const stock = shops.map((room) => {
+        const entries = [];
+        for (let x = room.lx; x <= room.hx; ++x) {
+            for (let y = room.ly; y <= room.hy; ++y) {
+                const object = game.level.objects[x][y];
+                if (object) entries.push([x, y, object.oclass]);
+            }
+        }
+        return entries;
+    });
+    assert.deepEqual(stock, [
+        [
+            [20, 2, ARMOR_CLASS], [20, 3, ARMOR_CLASS],
+            [20, 4, ARMOR_CLASS], [21, 2, ARMOR_CLASS],
+            [21, 3, ARMOR_CLASS], [21, 4, WEAPON_CLASS],
+        ],
+        [
+            [26, 5, WEAPON_CLASS], [26, 6, WEAPON_CLASS],
+            [27, 5, WEAPON_CLASS], [27, 6, ARMOR_CLASS],
+            [28, 5, WEAPON_CLASS], [28, 6, ARMOR_CLASS],
+        ],
+    ]);
+});
+
+test('shopkeeper inventory accepts a generated duplicate potion merge', () => {
+    initializeDirectThemeroomNewGame(5);
+    assert.equal(dispatch_themeroom(
+        definitionById('twin-businesses'),
+    ), true);
+    fill_special_room(game.level.rooms[0]);
+
+    const extraHealingStacks = [];
+    for (let obj = game.subrooms[0].resident.minvent; obj; obj = obj.nobj) {
+        if (obj.otyp === POT_EXTRA_HEALING) extraHealingStacks.push(obj.quan);
+    }
+    // C mongets() returns null when mpickobj() merges the new object.
+    assert.deepEqual(extraHealingStacks, [2]);
 });
 
 test('Twin businesses marks the exterior of a locked shop', () => {
@@ -2274,10 +2534,17 @@ test('Twin businesses marks the exterior of a locked shop', () => {
     const lockedShop = game.subrooms[0];
     const door = game.level.doors[lockedShop.fdoor];
     assert.deepEqual(door, { x: 33, y: 5 });
+    assert.equal(game.level.at(door.x, door.y).typ, DOOR);
     assert.equal(game.level.at(door.x, door.y).doormask, D_LOCKED);
     const notice = engr_at(33, 6, game);
     assert.equal(notice.engr_type, DUST);
     assert.equal(notice.engr_txt[0], 'Closed for inventory');
+
+    const openShop = game.subrooms[1];
+    const openDoor = game.level.doors[openShop.fdoor];
+    assert.deepEqual(openDoor, { x: 39, y: 3 });
+    assert.equal(game.level.at(openDoor.x, openDoor.y).typ, DOOR);
+    assert.equal(game.level.at(openDoor.x, openDoor.y).doormask, D_ISOPEN);
 });
 
 test('themed alignment shuffle is retained independently per branch', () => {

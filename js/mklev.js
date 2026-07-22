@@ -54,7 +54,6 @@ import {
     FOOD_CLASS,
     FOOD_RATION,
     GEM_CLASS,
-    GLASS,
     LARGE_BOX,
     LEMBAS_WAFER,
     POTION_CLASS,
@@ -1506,8 +1505,8 @@ function water_surrounded_vault_contents(
         id: CHEST,
         coordinate: chestSpots[0],
     };
-    if (objectType(escapeObject, game).oc_material === GLASS)
-        firstChestSpec.locked = false;
+    // themerms.lua spells this field `olocked`; lspo_object() only reads
+    // `locked`, so the source retains the chest's randomly generated state.
     const firstChest = lspo_object(
         firstChestSpec,
         null,

@@ -950,12 +950,9 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
 
 function addFreshMonsterObject(monster, obj, normalized) {
     const merged = add_to_minv(monster, obj, normalized);
-    if (merged) {
-        throw new UnsupportedMonsterCreationError(
-            'new monster inventory object merged unexpectedly',
-        );
-    }
-    return obj;
+    // C ref: mpickobj().  Merging and freeing the new object is ordinary
+    // success; mongets() exposes that by returning null to its caller.
+    return merged ? null : obj;
 }
 
 // C ref: worn.c which_armor().
@@ -1385,9 +1382,15 @@ function m_initinv(monster, normalized) {
         );
         candle.quan = 1;
         candle.owt = weight(candle, normalized);
-        addFreshMonsterObject(monster, candle, normalized);
-        if (!state.level.at(monster.mx, monster.my).lit)
-            begin_burn(candle, false, normalized);
+        const carriedCandle = addFreshMonsterObject(
+            monster,
+            candle,
+            normalized,
+        );
+        if (carriedCandle
+            && !state.level.at(monster.mx, monster.my).lit) {
+            begin_burn(carriedCandle, false, normalized);
+        }
     }
 
     if (monster.m_lev > random.rn2(50)) {
