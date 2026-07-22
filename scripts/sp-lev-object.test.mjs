@@ -1012,6 +1012,10 @@ test('a tame carrier receives a saddle without a visibility provider', () => {
         spObjectContext: tameContext,
     });
     assert.equal(tameSaddle.where, OBJ_MINVENT);
+    assert.equal(tameHorse.minvent, tameSaddle);
+    assert.equal(tameSaddle.owornmask, W_SADDLE);
+    assert.equal(tameSaddle.leashmon, tameHorse.m_id);
+    assert.equal(tameHorse.misc_worn_check & W_SADDLE, W_SADDLE);
 });
 
 test('an already-saddled carrier rejects another before visibility', () => {

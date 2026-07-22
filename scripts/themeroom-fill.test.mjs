@@ -12,6 +12,7 @@ import {
     MKTRAP_NOSPIDERONWEB,
     OBJ_DELETED,
     OBJ_FLOOR,
+    OBJ_FREE,
     OBJ_MINVENT,
     ONAME_LEVEL_DEF,
     ROOM,
@@ -486,6 +487,19 @@ test('custom inventory discards worn defaults and reverses artifacts', () => {
     );
     assert.equal(generatedArtifact.oartifact, ART_ORCRIST);
     assert.equal(state.artiexist[ART_ORCRIST].exists, 1);
+    let artifactNameReads = 0;
+    Object.defineProperty(generatedArtifact.oextra, 'oname', {
+        configurable: true,
+        get() {
+            ++artifactNameReads;
+            assert.equal(generatedArtifact.where, OBJ_FREE);
+            assert.equal(generatedArtifact.ocarry, null);
+            assert.equal(monster.minvent, null);
+            assert.equal(generatedArtifact.oartifact, ART_ORCRIST);
+            assert.equal(state.artiexist[ART_ORCRIST].exists, 1);
+            return 'Orcrist';
+        },
+    });
     const generatedHelm = mksobj(
         ORCISH_HELM,
         true,
@@ -521,6 +535,7 @@ test('custom inventory discards worn defaults and reverses artifacts', () => {
     assert.equal(generatedArtifact.where, OBJ_DELETED);
     assert.equal(generatedArtifact.oartifact, 0);
     assert.equal(state.artiexist[ART_ORCRIST].exists, 0);
+    assert.equal(artifactNameReads, 1);
     assert.equal(customHelm.where, OBJ_MINVENT);
     assert.equal(customHelm.ocarry, monster);
     assert.equal(customHelm.owornmask, W_ARMH);
@@ -693,7 +708,7 @@ test('a failed nested descriptor uses then clears the outer scalar carrier', () 
         mcanmove: true,
     });
     let creationCalls = 0;
-    let inheritedApple = null;
+    let inheritedHelm = null;
     let laterApple = null;
 
     create_monster({
@@ -705,13 +720,15 @@ test('a failed nested descriptor uses then clears the outer scalar carrier', () 
                 coordinate: { x: 0, y: 0 },
                 inventory(innerMonster, innerEnv) {
                     assert.equal(innerMonster, null);
-                    inheritedApple = lspo_object({
-                        id: APPLE,
+                    inheritedHelm = lspo_object({
+                        id: ORCISH_HELM,
                         coordinate: { x: 0, y: 0 },
                     }, room, innerEnv);
                 },
             }, room, outerEnv);
             assert.equal(inner, null);
+            assert.equal(inheritedHelm.owornmask, W_ARMH);
+            assert.equal(outer.misc_worn_check & W_ARMH, W_ARMH);
             laterApple = lspo_object({
                 id: APPLE,
                 coordinate: { x: 1, y: 0 },
@@ -728,9 +745,9 @@ test('a failed nested descriptor uses then clears the outer scalar carrier', () 
         spObjectContext: context,
     });
 
-    assert.equal(inheritedApple.where, OBJ_MINVENT);
-    assert.equal(inheritedApple.ocarry, outer);
-    assert.equal(outer.minvent, inheritedApple);
+    assert.equal(inheritedHelm.where, OBJ_MINVENT);
+    assert.equal(inheritedHelm.ocarry, outer);
+    assert.equal(outer.minvent, inheritedHelm);
     assert.equal(creationCalls, 2);
     assert.equal(laterApple.where, OBJ_FLOOR);
     assert.equal(level.objects[3][3], laterApple);
