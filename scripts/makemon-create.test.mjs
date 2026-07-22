@@ -16,7 +16,13 @@ import {
     STONE,
     WEB,
     W_AMUL,
+    W_ARM,
+    W_ARMC,
+    W_ARMF,
+    W_ARMG,
     W_ARMH,
+    W_ARMS,
+    W_ARMU,
     W_SADDLE,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -37,6 +43,7 @@ import {
     PM_ELF,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
+    PM_BUGBEAR,
     PM_CAVE_SPIDER,
     PM_FOG_CLOUD,
     PM_FOX,
@@ -46,6 +53,7 @@ import {
     PM_HOMUNCULUS,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
+    PM_DWARF,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
@@ -65,11 +73,19 @@ import {
 import {
     AMULET_OF_LIFE_SAVING,
     DART,
+    ELVEN_BOOTS,
+    ELVEN_CLOAK,
+    ELVEN_LEATHER_HELM,
+    ELVEN_MITHRIL_COAT,
+    ELVEN_SHIELD,
+    LEATHER_GLOVES,
     MIRROR,
+    MUMMY_WRAPPING,
     ORCISH_DAGGER,
     ORCISH_HELM,
     POT_OBJECT_DETECTION,
     SADDLE,
+    T_SHIRT,
     WAN_DIGGING,
     objects_globals_init,
 } from '../js/objects.js';
@@ -454,6 +470,67 @@ test('m_dowear retains tied and cursed worn helmets', () => {
         assert.equal(newHelm.owornmask, 0, scenario.name);
         assert.equal(monster.misc_worn_check, W_ARMH, scenario.name);
     }
+});
+
+test('m_dowear fills every creation-time armor slot in source order', () => {
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_DWARF],
+        mnum: PM_DWARF,
+        m_id: 9001,
+        mcanmove: true,
+    });
+    const equipment = [
+        [ELVEN_MITHRIL_COAT, W_ARM],
+        [ELVEN_CLOAK, W_ARMC],
+        [ELVEN_LEATHER_HELM, W_ARMH],
+        [ELVEN_SHIELD, W_ARMS],
+        [LEATHER_GLOVES, W_ARMG],
+        [ELVEN_BOOTS, W_ARMF],
+        [T_SHIRT, W_ARMU],
+    ].map(([otyp, mask]) => {
+        const obj = mksobj(otyp, false, false, {
+            state,
+            random: FIXED_OBJECT_ID_RANDOM,
+        });
+        add_to_minv(monster, obj, { state });
+        return { mask, obj };
+    });
+
+    m_dowear(monster, true, { state });
+
+    const allMasks = equipment.reduce((result, item) => result | item.mask, 0);
+    assert.equal(monster.misc_worn_check, allMasks);
+    for (const { mask, obj } of equipment) assert.equal(obj.owornmask, mask);
+});
+
+test('large humanoids can wear only mummy wrapping from generated body armor', () => {
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_BUGBEAR],
+        mnum: PM_BUGBEAR,
+        m_id: 9002,
+        minvis: true,
+        perminvis: true,
+    });
+    const suit = mksobj(ELVEN_MITHRIL_COAT, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    const wrapping = mksobj(MUMMY_WRAPPING, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, suit, { state });
+    add_to_minv(monster, wrapping, { state });
+
+    m_dowear(monster, true, { state });
+
+    assert.equal(suit.owornmask, 0);
+    assert.equal(wrapping.owornmask, W_ARMC);
+    assert.equal(monster.misc_worn_check, W_ARMC);
+    assert.equal(monster.invis_blkd, true);
+    assert.equal(monster.minvis, false);
 });
 
 test('ghost creation names from player or source ghost-name reservoir', () => {

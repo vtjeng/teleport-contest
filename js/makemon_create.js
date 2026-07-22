@@ -25,6 +25,7 @@ import {
     isok,
     is_pit,
     LS_MONSTER,
+    MFAST,
     MM_ANGRY,
     MM_ASLEEP,
     MM_EDOG,
@@ -54,7 +55,13 @@ import {
     TUWALL,
     THEMEROOM,
     W_AMUL,
+    W_ARM,
+    W_ARMC,
+    W_ARMF,
+    W_ARMG,
     W_ARMH,
+    W_ARMS,
+    W_ARMU,
     W_SADDLE,
     IS_WALL,
 } from './const.js';
@@ -97,10 +104,12 @@ import {
 import {
     AT_WEAP,
     M1_ANIMAL,
+    M1_HUMANOID,
     M1_MINDLESS,
     M1_NOHANDS,
     M2_DOMESTIC,
     M2_GREEDY,
+    MZ_MEDIUM,
     MZ_SMALL,
     NON_PM,
     PM_ELF,
@@ -139,6 +148,7 @@ import {
     PM_WIZARD,
     G_NOCORPSE,
     S_GHOST,
+    S_CENTAUR,
     S_KOBOLD,
     S_KOP,
     S_MUMMY,
@@ -150,24 +160,38 @@ import {
     S_SNAKE,
     S_SPIDER,
     S_UNICORN,
+    S_VORTEX,
 } from './monsters.js';
 import { mkobj, mkobj_at, mksobj, next_ident, weight } from './obj.js';
 import {
     AMULET_CLASS,
+    AMULET_OF_GUARDING,
     AMULET_OF_LIFE_SAVING,
+    AMULET_OF_REFLECTION,
+    ARM_BOOTS,
+    ARM_CLOAK,
+    ARM_GLOVES,
+    ARM_HELM,
+    ARM_SHIELD,
+    ARM_SHIRT,
+    ARM_SUIT,
     ARMOR_CLASS,
     COIN_CLASS,
     CORPSE,
     DART,
+    DUNCE_CAP,
     EGG,
     FIGURINE,
     FOOD_CLASS,
     GEM_CLASS,
     GOLD_PIECE,
+    LEATHER,
     MAXOCLASSES,
     MIRROR,
+    MUMMY_WRAPPING,
     ORCISH_DAGGER,
     ORCISH_HELM,
+    HELM_OF_OPPOSITE_ALIGNMENT,
     POT_EXTRA_HEALING,
     POT_FULL_HEALING,
     POT_GAIN_LEVEL,
@@ -185,6 +209,7 @@ import {
     SCROLL_CLASS,
     SLIME_MOLD,
     SPBOOK_CLASS,
+    SPEED_BOOTS,
     STATUE,
     STRANGE_OBJECT,
     TIN,
@@ -260,7 +285,10 @@ const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 const AT_EXPL = 13;
 // include/monflag.h creation-time predicates not yet exported by monsters.js.
 const M1_CONCEAL = 0x00000080;
+const M1_SLITHY = 0x00080000;
 const MR_STONE = 0x80;
+const MZ_LARGE = 3;
+const MZ_HUGE = 4;
 
 // makemon.c set_mimic_sym() source tables. The first two entries deliberately
 // make furniture twice as likely as each ordinary object class.
@@ -780,9 +808,169 @@ function armorBonus(obj, state) {
     return base + obj.spe - Math.min(erosion, base);
 }
 
-// C ref: worn.c m_dowear()/m_dowear_type(). Within the supported inventory
-// set, an orcish helm and amulet of life saving are the only wearable objects.
-// Neither has an applicable creation-time extrinsic side effect.
+function monsterWornObject(monster, mask) {
+    let worn = null;
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (!(obj.owornmask & mask)) continue;
+        if (worn) {
+            throw new Error(
+                `m_dowear found multiple worn slot 0x${mask.toString(16)}`,
+            );
+        }
+        worn = obj;
+    }
+    return worn;
+}
+
+function armorCategory(obj, state) {
+    return obj.oclass === ARMOR_CLASS
+        ? state.objects?.[obj.otyp]?.oc_armcat
+        : undefined;
+}
+
+function slipsArmor(species) {
+    return species.mlet === S_VORTEX
+        || species.mlet === S_GHOST
+        || species.msize <= MZ_SMALL;
+}
+
+function cantWearArmor(species) {
+    if (slipsArmor(species)) return true;
+    return species.msize >= MZ_LARGE
+        || (species.msize > MZ_SMALL
+            && !(species.mflags1 & M1_HUMANOID));
+}
+
+function wrappingAllowed(species) {
+    return Boolean(species.mflags1 & M1_HUMANOID)
+        && species.msize >= MZ_SMALL
+        && species.msize <= MZ_HUGE
+        && species.mlet !== S_GHOST
+        && species.mlet !== S_CENTAUR;
+}
+
+function monsterHasHorns(species) {
+    return species.pmidx === PM_WHITE_UNICORN
+        || species.pmidx === PM_GRAY_UNICORN
+        || species.pmidx === PM_BLACK_UNICORN;
+}
+
+function isFlimsy(obj, state) {
+    const material = state.objects?.[obj.otyp]?.oc_material;
+    return Number.isInteger(material) && material <= LEATHER;
+}
+
+function armorExtraPreference(monster, obj) {
+    return obj.otyp === SPEED_BOOTS && monster.permspeed !== MFAST ? 20 : 0;
+}
+
+function updateCreationArmorEffects(monster, obj, on, state) {
+    if (obj.otyp === MUMMY_WRAPPING) {
+        monster.invis_blkd = on;
+        monster.minvis = on ? false : Boolean(monster.perminvis);
+    }
+    if (obj.otyp === SPEED_BOOTS) {
+        let hasSpeedBoots = false;
+        for (let current = monster.minvent; current; current = current.nobj) {
+            if ((current.owornmask & W_ARMF)
+                && current.otyp === SPEED_BOOTS) {
+                hasSpeedBoots = true;
+                break;
+            }
+        }
+        monster.mspeed = hasSpeedBoots ? MFAST : monster.permspeed;
+    }
+}
+
+function m_dowear_type(
+    monster,
+    mask,
+    creation,
+    state,
+    racialException = false,
+) {
+    const old = monsterWornObject(monster, mask);
+    if (old?.cursed) return;
+    if (old && mask === W_AMUL && old.otyp !== AMULET_OF_GUARDING) return;
+    let best = old;
+
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (mask === W_AMUL) {
+            if (obj.oclass !== AMULET_CLASS
+                || (obj.otyp !== AMULET_OF_LIFE_SAVING
+                    && obj.otyp !== AMULET_OF_REFLECTION
+                    && obj.otyp !== AMULET_OF_GUARDING)) {
+                continue;
+            }
+            if (!best || obj.otyp !== AMULET_OF_GUARDING) {
+                best = obj;
+                if (best.otyp !== AMULET_OF_GUARDING) break;
+            }
+            continue;
+        }
+
+        const category = armorCategory(obj, state);
+        if ((mask === W_ARMU && category !== ARM_SHIRT)
+            || (mask === W_ARMC && category !== ARM_CLOAK)
+            || (mask === W_ARMH && category !== ARM_HELM)
+            || (mask === W_ARMS && category !== ARM_SHIELD)
+            || (mask === W_ARMG && category !== ARM_GLOVES)
+            || (mask === W_ARMF && category !== ARM_BOOTS)
+            || (mask === W_ARM && category !== ARM_SUIT)) {
+            continue;
+        }
+        if (mask === W_ARMC
+            && monster.data.msize > MZ_MEDIUM
+            && obj.otyp !== MUMMY_WRAPPING) {
+            continue;
+        }
+        if (mask === W_ARMC
+            && monster.minvis
+            && obj.otyp === MUMMY_WRAPPING
+            && !heroHasProperty(state, SEE_INVIS)
+            && !creation) {
+            continue;
+        }
+        if (mask === W_ARMH
+            && obj.otyp === HELM_OF_OPPOSITE_ALIGNMENT
+            && (monster.ispriest || monster.isminion)) {
+            continue;
+        }
+        if (mask === W_ARMH
+            && monsterHasHorns(monster.data)
+            && !isFlimsy(obj, state)) {
+            continue;
+        }
+        // No currently supported Statuary species has the hobbit/elven-suit
+        // racial exception, so a race-exception suit remains ineligible.
+        if (mask === W_ARM && racialException) continue;
+        if (obj.owornmask) continue;
+        if (best
+            && armorBonus(best, state) + armorExtraPreference(monster, best)
+                >= armorBonus(obj, state)
+                    + armorExtraPreference(monster, obj)) {
+            continue;
+        }
+        best = obj;
+    }
+
+    if (!best || best === old) return;
+    if (old) {
+        old.owornmask = 0;
+        updateCreationArmorEffects(monster, old, false, state);
+    }
+    monster.misc_worn_check |= mask;
+    best.owornmask |= mask;
+    if ((best.otyp === HELM_OF_OPPOSITE_ALIGNMENT
+        || best.otyp === DUNCE_CAP) && !best.cursed) {
+        best.cursed = true;
+        best.blessed = false;
+    }
+    updateCreationArmorEffects(monster, best, true, state);
+}
+
+// C ref: worn.c m_dowear()/m_dowear_type(), restricted to creation-time
+// behavior and the species and equipment reachable from initial generation.
 export function m_dowear(monster, creation = false, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
@@ -798,60 +986,25 @@ export function m_dowear(monster, creation = false, env = {}) {
                 && species.pmidx !== PM_SKELETON))) {
         return monster;
     }
-    let amulet = null;
-    let wornAmulet = null;
-    let wornHelm = null;
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj.where !== OBJ_MINVENT || obj.ocarry !== monster) {
             throw new Error('m_dowear found invalid monster inventory ownership');
         }
-        if (obj.otyp === AMULET_OF_LIFE_SAVING) {
-            amulet ??= obj;
-            if (obj.owornmask & W_AMUL) {
-                if (wornAmulet) {
-                    throw new Error('m_dowear found multiple worn amulets');
-                }
-                wornAmulet = obj;
-            }
-        } else if (obj.otyp === ORCISH_HELM) {
-            if (obj.owornmask & W_ARMH) {
-                if (wornHelm) {
-                    throw new Error('m_dowear found multiple worn helmets');
-                }
-                wornHelm = obj;
-            }
-        } else if (obj.oclass === AMULET_CLASS
-            || obj.oclass === ARMOR_CLASS) {
-            throw new UnsupportedMonsterCreationError(
-                `wearing object ${obj.otyp}`,
-            );
-        }
     }
 
-    // m_dowear_type(W_AMUL) keeps an occupied life-saving slot without even
-    // considering another amulet.
-    if (!wornAmulet && amulet) {
-        monster.misc_worn_check |= W_AMUL;
-        amulet.owornmask |= W_AMUL;
-    }
-
-    // m_dowear_type(W_ARMH) retains ties and replaces only with a strictly
-    // better unworn helm.  extra_pref() is zero for every supported helmet.
-    let bestHelm = wornHelm;
-    if (!wornHelm?.cursed) {
-        for (let obj = monster.minvent; obj; obj = obj.nobj) {
-            if (obj.otyp !== ORCISH_HELM || obj.owornmask) continue;
-            if (!bestHelm
-                || armorBonus(obj, state) > armorBonus(bestHelm, state)) {
-                bestHelm = obj;
-            }
-        }
-    }
-    if (bestHelm && bestHelm !== wornHelm) {
-        if (wornHelm) wornHelm.owornmask &= ~W_ARMH;
-        monster.misc_worn_check |= W_ARMH;
-        bestHelm.owornmask |= W_ARMH;
-    }
+    m_dowear_type(monster, W_AMUL, creation, state);
+    const canWearArmor = !cantWearArmor(species);
+    if (canWearArmor && !(monster.misc_worn_check & W_ARM))
+        m_dowear_type(monster, W_ARMU, creation, state);
+    if (canWearArmor || wrappingAllowed(species))
+        m_dowear_type(monster, W_ARMC, creation, state);
+    m_dowear_type(monster, W_ARMH, creation, state);
+    if (!monster.mw || !state.objects?.[monster.mw.otyp]?.oc_bimanual)
+        m_dowear_type(monster, W_ARMS, creation, state);
+    m_dowear_type(monster, W_ARMG, creation, state);
+    if (!(bodyFlags & M1_SLITHY) && species.mlet !== S_CENTAUR)
+        m_dowear_type(monster, W_ARMF, creation, state);
+    m_dowear_type(monster, W_ARM, creation, state, !canWearArmor);
     return monster;
 }
 
