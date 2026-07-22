@@ -42,6 +42,7 @@ import {
     mkobj_at,
     mksobj,
     mksobj_at,
+    objectType,
     weight,
 } from './obj.js';
 import {
@@ -53,6 +54,7 @@ import {
     FOOD_CLASS,
     FOOD_RATION,
     GEM_CLASS,
+    GLASS,
     LARGE_BOX,
     LEMBAS_WAFER,
     POTION_CLASS,
@@ -61,6 +63,7 @@ import {
     POT_HEALING,
     POT_SPEED,
     RANDOM_CLASS,
+    RIN_TELEPORTATION,
     RING_CLASS,
     SCROLL_CLASS,
     SCR_CONFUSE_MONSTER,
@@ -71,6 +74,7 @@ import {
     SPE_HEALING,
     STATUE,
     WAN_DIGGING,
+    WAN_TELEPORTATION,
     WEAPON_CLASS,
 } from './objects.js';
 import { maketrap } from './trap.js';
@@ -106,6 +110,9 @@ import {
     G_IGNORE,
     G_NOGEN,
     PM_GIANT_SPIDER,
+    PM_GIANT_ZOMBIE,
+    PM_ETTIN_ZOMBIE,
+    PM_VAMPIRE_LEADER,
     S_HUMAN,
     S_LICH,
     S_MUMMY,
@@ -133,7 +140,7 @@ import {
     DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC,
-    LR_UPTELE,
+    LR_TELE, LR_UPTELE, MALE,
     NO_TRAP, TRAPNUM, ARROW_TRAP, DART_TRAP, ROCKTRAP,
     SQKY_BOARD, LANDMINE, ROLLING_BOULDER_TRAP,
     SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, PIT, SPIKED_PIT, HOLE,
@@ -338,6 +345,7 @@ function clear_level_structures() {
     g.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     g.stairs = null;
     g.head_engr = null;
+    g.exclusion_zones = null;
     g.vault_x = -1;
     const lf = g.level.flags;
     lf.has_shop = false;
@@ -819,32 +827,55 @@ function invoke_themeroom_fill(room, definition, context) {
     });
 }
 
-// C refs: themerms.lua filler_region(); sp_lev.c lspo_region().
-function filler_region(filler, origin, definition, context) {
+// C ref: sp_lev.c lspo_region() irregular-room branch.
+function register_irregular_map_region(
+    seed,
+    roomType,
+    needfill,
+    joined,
+    context,
+) {
     const state = game;
-    const themed = context.random(100) < 30;
-    if (themed) preflight_themeroom_fill(definition, context);
     const lit = litstate_rnd(
         -1,
         context.random,
         context.randomOneBased,
     );
-    const sx = origin.x + filler.x;
-    const sy = origin.y + filler.y;
     const roomIndex = state.level.nroom;
-    const bounds = flood_fill_themeroom(sx, sy, roomIndex + ROOMOFFSET, lit, state);
-    if (!bounds) return false;
+    const bounds = flood_fill_themeroom(
+        seed.x,
+        seed.y,
+        roomIndex + ROOMOFFSET,
+        lit,
+        state,
+    );
+    if (!bounds) return null;
     state.smeq ??= new Array(MAXNROFROOMS + 1).fill(0);
     state.smeq[roomIndex] = roomIndex;
     add_room(
         bounds.minx, bounds.miny, bounds.maxx, bounds.maxy,
-        false, themed ? THEMEROOM : OROOM, true,
+        false, roomType, true,
     );
     const room = state.level.rooms[roomIndex];
     room.rlit = lit ? 1 : 0;
     room.irregular = true;
-    room.needjoining = true;
-    room.needfill = FILL_NORMAL;
+    room.needjoining = joined;
+    room.needfill = needfill;
+    return room;
+}
+
+// C refs: themerms.lua filler_region(); sp_lev.c lspo_region().
+function filler_region(filler, origin, definition, context) {
+    const themed = context.random(100) < 30;
+    if (themed) preflight_themeroom_fill(definition, context);
+    const room = register_irregular_map_region(
+        { x: origin.x + filler.x, y: origin.y + filler.y },
+        themed ? THEMEROOM : OROOM,
+        FILL_NORMAL,
+        true,
+        context,
+    );
+    if (!room) return false;
     if (themed) invoke_themeroom_fill(room, definition, context);
     return true;
 }
@@ -1289,6 +1320,117 @@ function blocked_center_contents(definition, origin, context) {
     );
 }
 
+// C refs: nhlobj.c l_obj_new_readobjnam(); objnam.c readobjnam(). The Water
+// vault uses four exact, wishable names. Their common path is mksobj(...,
+// TRUE, FALSE); a mergeable exact object also evaluates the source rnd(6)
+// quantity guard even though its requested count and generated count are one.
+function new_water_vault_escape_object(otyp, env) {
+    // readobjnam() resolves the unambiguous class-qualified name through
+    // rnd_otyp_by_namedesc(..., xtra_prob=1) before constructing it.
+    env.random.rn2(objectType(otyp, env.state).oc_prob + 1);
+    const obj = mksobj(otyp, true, false, env);
+    if (objectType(otyp, env.state).oc_merge)
+        env.random.rnd(6);
+    return obj;
+}
+
+function add_teleport_exclusion(origin, state = game) {
+    state.exclusion_zones = {
+        zonetype: LR_TELE,
+        lx: origin.x + 2,
+        ly: origin.y + 2,
+        hx: origin.x + 3,
+        hy: origin.y + 3,
+        next: state.exclusion_zones ?? null,
+    };
+}
+
+// C ref: themerms.lua "Water-surrounded vault" map callback.
+function water_surrounded_vault_contents(
+    origin,
+    context,
+    baseCreationEnvironment,
+) {
+    const room = register_irregular_map_region(
+        { x: origin.x + 3, y: origin.y + 3 },
+        THEMEROOM,
+        FILL_NONE,
+        false,
+        context,
+    );
+    if (!room) return false;
+
+    const creationEnvironment = objectGenerationEnv({
+        ...baseCreationEnvironment,
+        frame: {
+            xstart: origin.x,
+            ystart: origin.y,
+            xsize: origin.width,
+            ysize: origin.height,
+        },
+    });
+    const nastyUndead = [
+        PM_GIANT_ZOMBIE,
+        PM_ETTIN_ZOMBIE,
+        PM_VAMPIRE_LEADER,
+    ];
+    const chestSpots = [
+        { x: 2, y: 2 },
+        { x: 3, y: 2 },
+        { x: 2, y: 3 },
+        { x: 3, y: 3 },
+    ];
+    shuffle_core_values(chestSpots, context.random);
+
+    const escapeTypes = [
+        SCR_TELEPORTATION,
+        RIN_TELEPORTATION,
+        WAN_TELEPORTATION,
+        WAN_DIGGING,
+    ];
+    const escapeObject = new_water_vault_escape_object(
+        escapeTypes[context.random(escapeTypes.length)],
+        creationEnvironment,
+    );
+    const firstChestSpec = {
+        id: CHEST,
+        coordinate: chestSpots[0],
+    };
+    if (objectType(escapeObject, game).oc_material === GLASS)
+        firstChestSpec.locked = false;
+    const firstChest = lspo_object(
+        firstChestSpec,
+        null,
+        creationEnvironment,
+    );
+    add_to_container(firstChest, escapeObject, creationEnvironment);
+    firstChest.owt = weight(firstChest, creationEnvironment);
+
+    for (let index = 1; index < chestSpots.length; ++index) {
+        lspo_object(
+            { id: CHEST, coordinate: chestSpots[index] },
+            null,
+            creationEnvironment,
+        );
+    }
+
+    shuffle_core_values(nastyUndead, context.random);
+    create_monster(
+        {
+            id: nastyUndead[0],
+            coordinate: { x: 2, y: 2 },
+            // The source string is "vampire lord", whose male pmname makes
+            // find_montype() skip its otherwise-random parser gender draw.
+            ...(nastyUndead[0] === PM_VAMPIRE_LEADER
+                ? { parsedGender: MALE } : {}),
+        },
+        null,
+        creationEnvironment,
+    );
+    add_teleport_exclusion(origin);
+    return true;
+}
+
 function dispatch_map_action(definition, context) {
     const contents = definition.action.contents;
     if (!has_supported_map_action(definition)) {
@@ -1298,10 +1440,22 @@ function dispatch_map_action(definition, context) {
             `requires unimplemented map handler ${JSON.stringify(handler)}`,
         );
     }
-    preflight_themeroom_fill(definition, context);
+    const waterVault = contents?.kind === 'handler'
+        && contents.handler === 'water-surrounded-vault';
+    const creationEnvironment = waterVault
+        ? direct_creation_environment(context)
+        : null;
+    if (!waterVault) preflight_themeroom_fill(definition, context);
 
     const origin = lspo_map(definition, context.random);
     if (!origin) return false;
+    if (waterVault) {
+        return water_surrounded_vault_contents(
+            origin,
+            context,
+            creationEnvironment,
+        );
+    }
     if (contents.kind === 'handler')
         return blocked_center_contents(definition, origin, context);
     return filler_region(contents.filler, origin, definition, context);
@@ -1311,7 +1465,8 @@ function has_supported_map_action(definition) {
     const contents = definition?.action?.contents;
     return contents?.kind === 'filler-region'
         || (contents?.kind === 'handler'
-            && contents.handler === 'blocked-center');
+            && (contents.handler === 'blocked-center'
+                || contents.handler === 'water-surrounded-vault'));
 }
 
 // Runtime counterpart to a selected themerms.lua contents function. Keep this

@@ -15,6 +15,7 @@ import {
     COLNO,
     DART_TRAP,
     DRY,
+    FEMALE,
     FOUNTAIN,
     ICE,
     HOT,
@@ -22,6 +23,7 @@ import {
     IS_STWALL,
     LADDER,
     LANDMINE,
+    MALE,
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
@@ -489,9 +491,16 @@ function createMonsterBody(specification, room, env) {
         ? env.state.mons?.[specification.id] : null;
     let female;
     if (species) {
-        const parsedFemale = is_female(species)
-            ? true
-            : is_male(species) ? false : Boolean(env.random.rn2(2));
+        let parsedFemale;
+        if (is_female(species)) {
+            parsedFemale = true;
+        } else if (is_male(species)) {
+            parsedFemale = false;
+        } else if (specification.parsedGender != null) {
+            parsedFemale = specification.parsedGender === FEMALE;
+        } else {
+            parsedFemale = Boolean(env.random.rn2(2));
+        }
         female = specification.female == null
             || is_female(species) || is_male(species)
             ? parsedFemale
@@ -606,6 +615,13 @@ export function create_monster(specification, room, rawEnv = {}) {
     // descriptor only. Reject other appearance pairs before create_monster()
     // consumes RNG or mutates level state.
     assertSupportedMonsterAppearance(specification, env.state);
+    if (specification.parsedGender != null
+        && specification.parsedGender !== MALE
+        && specification.parsedGender !== FEMALE) {
+        throw new TypeError(
+            'special-level monster parsedGender must be MALE or FEMALE',
+        );
+    }
     const inventory = specification.inventory;
     if (inventory != null && typeof inventory !== 'function') {
         throw new TypeError(

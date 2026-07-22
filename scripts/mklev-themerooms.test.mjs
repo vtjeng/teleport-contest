@@ -6,13 +6,15 @@ import {
     AGGRAVATE_MONSTER, CLOUD, COLNO, CROSSWALL, DOOR, DUST, D_ISOPEN,
     D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
-    MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
+    LR_TELE, MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO,
+    STATUE_TRAP, STONE,
     SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, TREE, VWALL, W_ANY, W_RANDOM,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
+import { objectType } from '../js/obj.js';
 import {
     add_doors_to_room,
     build_room,
@@ -28,6 +30,9 @@ import {
     UnsupportedThemeroomActionError,
 } from '../js/mklev.js';
 import {
+    PM_FOG_CLOUD,
+    PM_GIANT_ZOMBIE,
+    PM_VAMPIRE_LEADER,
     S_HUMAN,
     S_LICH,
     S_MUMMY,
@@ -35,7 +40,15 @@ import {
     S_ZOMBIE,
     monst_globals_init,
 } from '../js/monsters.js';
-import { CORPSE, objects_globals_init, STATUE } from '../js/objects.js';
+import {
+    CHEST,
+    CORPSE,
+    GLASS,
+    objects_globals_init,
+    STATUE,
+    WAN_DIGGING,
+    WAN_TELEPORTATION,
+} from '../js/objects.js';
 import { init_rect } from '../js/rect.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -2047,23 +2060,104 @@ test('filler_region invokes an injected fill after registering room flags', () =
     assert.equal(scripted.length, 0);
 });
 
-test('unimplemented direct and Water vault handlers fail before mutation', () => {
-    for (const id of ['twin-businesses', 'water-surrounded-vault']) {
-        resetThemeroomLevel();
-        let randomCalls = 0;
-        assert.throws(
-            () => dispatch_themeroom(
-                definitionById(id),
-                () => { ++randomCalls; return 0; },
-                (bound) => bound,
-                { difficulty: 1 },
-            ),
-            UnsupportedThemeroomActionError,
-        );
-        assert.equal(randomCalls, 0, id);
-        assert.equal(game.level.nroom, 0, id);
-        assert.equal(game.level.at(10, 10).typ, STONE, id);
+test('Water vault requires its complete creation facade before map mutation', () => {
+    resetThemeroomLevel();
+    let randomCalls = 0;
+    assert.throws(
+        () => dispatch_themeroom(
+            definitionById('water-surrounded-vault'),
+            () => { ++randomCalls; return 0; },
+            (bound) => bound,
+            { difficulty: 1 },
+        ),
+        UnsupportedThemeroomActionError,
+    );
+    assert.equal(randomCalls, 0);
+    assert.equal(game.level.nroom, 0);
+    assert.equal(game.level.at(10, 10).typ, STONE);
+});
+
+test('Water vault registers its chamber, chests, undead, and exclusion', () => {
+    initializeDirectThemeroomNewGame(1);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('water-surrounded-vault'),
+    ), true);
+
+    const room = game.level.rooms[0];
+    assert.deepEqual(
+        [room.lx, room.ly, room.hx, room.hy],
+        [32, 9, 33, 10],
+    );
+    assert.deepEqual(
+        [room.rtype, room.irregular, room.needfill, room.needjoining],
+        [THEMEROOM, true, FILL_NONE, false],
+    );
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            const chest = game.level.objects[x][y];
+            assert.equal(chest.otyp, CHEST, `${x},${y}`);
+        }
     }
+    assert.equal(
+        game.level.objects[room.hx][room.hy].cobj.otyp,
+        WAN_TELEPORTATION,
+    );
+    assert.equal(
+        game.level.monsters[room.lx][room.ly].mnum,
+        PM_GIANT_ZOMBIE,
+    );
+    assert.deepEqual(game.exclusion_zones, {
+        zonetype: LR_TELE,
+        lx: room.lx,
+        ly: room.ly,
+        hx: room.hx,
+        hy: room.hy,
+        next: null,
+    });
+});
+
+test('Water vault unlocks the chest containing a glass escape item', () => {
+    initializeDirectThemeroomNewGame(14);
+    assert.equal(dispatch_themeroom(
+        definitionById('water-surrounded-vault'),
+    ), true);
+
+    const chest = game.level.objects[72][12];
+    const escapeItem = chest.cobj;
+    assert.equal(escapeItem.otyp, WAN_DIGGING);
+    assert.equal(objectType(escapeItem, game).oc_material, GLASS);
+    assert.equal(chest.olocked, false);
+});
+
+test('Water vault preserves the male parse of its vampire-lord name', () => {
+    initializeDirectThemeroomNewGame(3);
+    assert.equal(dispatch_themeroom(
+        definitionById('water-surrounded-vault'),
+    ), true);
+
+    const room = game.level.rooms[0];
+    const monster = game.level.monsters[room.lx][room.ly];
+    assert.equal(monster.cham, PM_VAMPIRE_LEADER);
+    assert.equal(monster.mnum, PM_FOG_CLOUD);
+    assert.equal(monster.female, false);
+});
+
+test('remaining unimplemented map handler fails before mutation', () => {
+    resetThemeroomLevel();
+    let randomCalls = 0;
+    assert.throws(
+        () => dispatch_themeroom(
+            definitionById('twin-businesses'),
+            () => { ++randomCalls; return 0; },
+            (bound) => bound,
+            { difficulty: 1 },
+        ),
+        UnsupportedThemeroomActionError,
+    );
+    assert.equal(randomCalls, 0);
+    assert.equal(game.level.nroom, 0);
+    assert.equal(game.level.at(10, 10).typ, STONE);
 });
 
 test('themed alignment shuffle is retained independently per branch', () => {
