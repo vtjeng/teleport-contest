@@ -207,8 +207,8 @@ function branchPostprocessQueue(state) {
 }
 
 // dat/themerms.lua keeps one postprocess table in each branch's persistent Lua
-// state.  initialize_themeroom_branch() calls this only when that state is
-// first loaded; fills also initialize lazily for focused callers.
+// state. initialize_themeroom_branch() idempotently ensures the table on every
+// level; fills also initialize lazily for focused callers.
 export function initialize_themeroom_postprocess_branch(state = game) {
     return branchPostprocessQueue(state).queue;
 }
@@ -653,7 +653,9 @@ function makeTeleportationHubTrap(data, env) {
 
 // dat/themerms.lua post_level_generate(). The index loop deliberately observes
 // work appended while a handler runs, just like ipairs() on the live table.
-// The branch receives a fresh table only after every handler succeeds.
+// The branch receives a fresh table only after every handler succeeds. A Lua
+// error skips that assignment and is fatal through NHLpa_panic; retaining the
+// failed table and whole-level frame is source parity, not a retry contract.
 export function run_themeroom_postprocess(rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     const { dnum, queue, queues } = branchPostprocessQueue(env.state);

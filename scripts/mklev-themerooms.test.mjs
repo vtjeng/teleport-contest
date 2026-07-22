@@ -3,9 +3,9 @@ import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
-    AGGRAVATE_MONSTER, CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL,
+    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL,
     ICE, LAVAPOOL,
-    MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, STONE, THEMEROOM,
+    MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STONE, THEMEROOM,
     VWALL,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
@@ -32,6 +32,9 @@ import {
 } from '../js/roles.js';
 import { THEMEROOM_DEFINITIONS } from '../js/themeroom_data.js';
 import { timeout_globals_init } from '../js/timeout.js';
+import {
+    initialize_themeroom_postprocess_branch,
+} from '../js/themeroom_fill.js';
 
 function definitionById(id) {
     return THEMEROOM_DEFINITIONS.find((definition) => definition.id === id);
@@ -437,6 +440,66 @@ test('makerooms uses adjusted level difficulty for eligibility', async () => {
         ...Array.from({ length: 23 }, (_, index) => 1015 + index),
     ]);
     assert.deepEqual([game.xstart, game.ystart], [0, 0]);
+});
+
+test('mklev runs themed-room postprocessing before final wallification', async () => {
+    // Seed 450 completes the supported initial-level generation path. Calling
+    // mklev() reaches its first async boundary after clearing the level and
+    // initializing branch state, where this injected callback joins the live
+    // generation attempt without relying on a seed-selected themed room.
+    initializeNewGame(450);
+    const generation = mklev();
+    const queue = initialize_themeroom_postprocess_branch(game);
+    let callbackCount = 0;
+    let marker = null;
+    queue.push({
+        handler(_data, env) {
+            ++callbackCount;
+            assert.equal(env.state, game);
+            assert.equal(game.in_mklev, true);
+            assert.equal(game.in_mk_themerooms, true);
+            assert.deepEqual(
+                [game.xstart, game.ystart, game.xsize, game.ysize],
+                [1, 0, COLNO - 1, ROWNO],
+            );
+
+            // An isolated wall inside a 3x3 stone patch is removed by the
+            // wall_cleanup() phase that must follow this callback.
+            findPatch:
+            for (let x = 2; x < COLNO - 1; ++x) {
+                for (let y = 1; y < ROWNO - 1; ++y) {
+                    let allStone = true;
+                    for (let dx = -1; dx <= 1 && allStone; ++dx) {
+                        for (let dy = -1; dy <= 1; ++dy) {
+                            if (game.level.at(x + dx, y + dy).typ !== STONE) {
+                                allStone = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (!allStone) continue;
+                    marker = { x, y };
+                    game.level.at(x, y).typ = HWALL;
+                    break findPatch;
+                }
+            }
+            assert.ok(marker, 'generated level should retain a 3x3 stone patch');
+        },
+        data: null,
+    });
+
+    await generation;
+
+    assert.equal(callbackCount, 1);
+    assert.notEqual(game.themeroom_postprocess[0], queue);
+    assert.deepEqual(game.themeroom_postprocess[0], []);
+    assert.equal(game.level.at(marker.x, marker.y).typ, STONE);
+    assert.deepEqual(
+        [game.xstart, game.ystart, game.xsize, game.ysize],
+        [0, 0, COLNO - 1, ROWNO],
+    );
+    assert.equal(game.in_mk_themerooms, false);
+    assert.equal(game.in_mklev, false);
 });
 
 test('generic room descriptors set topology and flags before synchronous contents', () => {

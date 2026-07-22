@@ -10,6 +10,7 @@ import {
     ARROW_TRAP,
     BURN,
     BURN_OBJECT,
+    COLNO,
     CORR,
     DOOR,
     FOUNTAIN,
@@ -29,6 +30,7 @@ import {
     OBJ_MINVENT,
     ONAME_LEVEL_DEF,
     ROLLING_BOULDER_TRAP,
+    ROWNO,
     ROT_CORPSE,
     ROOM,
     ROOMOFFSET,
@@ -1787,6 +1789,63 @@ test('Garden creates one sleeping nymph per six points and an uncounted fountain
         },
     });
     assert.equal(sparseState.themeroom_postprocess[2].length, 1);
+
+    const dozen = twoByTwoRoom();
+    // Extending the two-row room through x=7 gives twelve selected points, so
+    // the Lua numeric loop must run twice rather than act as a boolean gate.
+    dozen.room.hx = 7;
+    for (let x = 4; x <= dozen.room.hx; ++x) {
+        for (let y = dozen.room.ly; y <= dozen.room.hy; ++y) {
+            const location = dozen.level.at(x, y);
+            location.typ = ROOM;
+            location.roomno = ROOMOFFSET;
+            location.edge = false;
+        }
+    }
+    const dozenState = {
+        level: dozen.level,
+        u: { uz: { dnum: 2, dlevel: 1 } },
+    };
+    const dozenRandom = scriptedRandom([
+        step('rn2', [100], 0), // first nymph requests one fountain
+        step('rn2', [100], 99), // second nymph does not request a fountain
+    ]);
+    const dozenMonsters = [];
+    const dozenFeatures = [];
+    const dozenEvents = [];
+    const dozenRandomFacade = {
+        ...dozenRandom.random,
+        rn2(bound) {
+            dozenEvents.push(`rn2(${bound})`);
+            return dozenRandom.random.rn2(bound);
+        },
+    };
+    run_themeroom_fill(fillById('garden'), dozen.room, 1, {
+        state: dozenState,
+        random: dozenRandomFacade,
+        hooks: {
+            createMonster(specification) {
+                dozenEvents.push('monster');
+                dozenMonsters.push(specification);
+                return {};
+            },
+            createFeature(typ) {
+                dozenEvents.push('feature');
+                dozenFeatures.push(typ);
+                return {};
+            },
+        },
+    });
+    dozenRandom.assertExhausted();
+    assert.deepEqual(dozenMonsters, [
+        { id: PM_WOOD_NYMPH, asleep: true },
+        { id: PM_WOOD_NYMPH, asleep: true },
+    ]);
+    assert.deepEqual(dozenFeatures, [FOUNTAIN]);
+    assert.deepEqual(dozenEvents, [
+        'monster', 'rn2(100)', 'feature', 'monster', 'rn2(100)',
+    ]);
+    assert.equal(dozenState.themeroom_postprocess[2].length, 1);
 });
 
 test('Garden postprocessing grows its snapshot and preserves arboreal doors', () => {
@@ -1849,7 +1908,7 @@ test('Garden postprocessing grows its snapshot and preserves arboreal doors', ()
     assert.deepEqual(state.themeroom_postprocess[1], []);
     assert.deepEqual(
         [state.xstart, state.ystart, state.xsize, state.ysize],
-        [1, 0, 79, 21],
+        [1, 0, COLNO - 1, ROWNO],
     );
     assert.equal(state.in_mk_themerooms, false);
 });
@@ -1947,6 +2006,72 @@ test('Buried treasure postprocessing engraves the source-shaped directions', () 
     assert.equal(engraving.guardobjects, false);
 });
 
+test('Buried treasure formats every directional engraving branch', () => {
+    // The room's x-major floor order is (2,3), (2,4), (3,3), (3,4).
+    // rndcoord exposes those as whole-level-relative x coordinates 1 or 2.
+    // North repeats the real-engraving case above to keep this formatter
+    // matrix complete; that earlier case also covers engraving metadata.
+    const cases = [
+        ['here', { ox: 3, oy: 4 }, 3, { x: 2, y: 4 }, 'Dig here'],
+        ['east', { ox: 3, oy: 3 }, 0, { x: 1, y: 3 }, 'Dig 1 east'],
+        ['west', { ox: 2, oy: 3 }, 2, { x: 2, y: 3 }, 'Dig 1 west'],
+        ['south', { ox: 2, oy: 4 }, 0, { x: 1, y: 3 }, 'Dig 1 south'],
+        ['north', { ox: 2, oy: 3 }, 1, { x: 1, y: 4 }, 'Dig 1 north'],
+        [
+            'diagonal',
+            { ox: 3, oy: 4 },
+            0,
+            { x: 1, y: 3 },
+            'Dig 1 east 1 south',
+        ],
+    ];
+
+    for (const [name, chest, floorIndex, expectedPosition, expectedText]
+        of cases) {
+        const { level, room } = twoByTwoRoom();
+        const state = {
+            level,
+            u: { uz: { dnum: 0, dlevel: 1 } },
+        };
+        const random = scriptedRandom([
+            // d(3,4) still creates its minimum three random contents.
+            step('rn2', [4], 0),
+            step('rn2', [4], 0),
+            step('rn2', [4], 0),
+            step('rn2', [4], floorIndex),
+        ]);
+        let engraving = null;
+        const createEngraving = (position, text) => {
+            engraving = { position: { ...position }, text };
+            return engraving;
+        };
+
+        run_themeroom_fill(fillById('buried_treasure'), room, 1, {
+            state,
+            random: random.random,
+            hooks: {
+                createObject(specification, _objectRoom, callbackEnv) {
+                    if (specification.id === CHEST) {
+                        specification.contents(chest, callbackEnv);
+                        return chest;
+                    }
+                    return {};
+                },
+            },
+        });
+        assert.equal(run_themeroom_postprocess({
+            state,
+            random: random.random,
+            hooks: { createEngraving },
+        }), 1, name);
+        random.assertExhausted();
+        assert.deepEqual(engraving, {
+            position: expectedPosition,
+            text: expectedText,
+        }, name);
+    }
+});
+
 test('Buried treasure owns a real buried container and its random contents', () => {
     const { context, level, random, room, state } = monsterDescriptorFixture();
     state.gz = { zombify: false };
@@ -1976,7 +2101,7 @@ test('Buried treasure owns a real buried container and its random contents', () 
     assert.equal(state.themeroom_postprocess[0].length, 1);
 });
 
-test('themed-room postprocessing is branch-local, live, and failure-atomic', () => {
+test('themed-room postprocessing is branch-local and observes live appends', () => {
     const state = { u: { uz: { dnum: 2, dlevel: 1 } } };
     const queue = initialize_themeroom_postprocess_branch(state);
     const order = [];
@@ -2002,12 +2127,26 @@ test('themed-room postprocessing is branch-local, live, and failure-atomic', () 
     assert.deepEqual(order, ['first', 'second', 'appended']);
     assert.notEqual(state.themeroom_postprocess[2], queue);
     assert.deepEqual(state.themeroom_postprocess[2], []);
+});
 
-    state.u.uz.dnum = 3;
+test('fatal themed-room handlers retain the queue and whole-level frame', () => {
+    const state = { u: { uz: { dnum: 3, dlevel: 1 } } };
     const failingQueue = initialize_themeroom_postprocess_branch(state);
     const marker = new Error('postprocess failed');
+    const order = [];
     failingQueue.push({
-        handler() { throw marker; },
+        handler() { order.push('completed prefix'); },
+        data: null,
+    });
+    failingQueue.push({
+        handler() {
+            order.push('failing handler');
+            throw marker;
+        },
+        data: null,
+    });
+    failingQueue.push({
+        handler() { order.push('unreachable suffix'); },
         data: null,
     });
     assert.throws(
@@ -2017,10 +2156,14 @@ test('themed-room postprocessing is branch-local, live, and failure-atomic', () 
         }),
         (error) => error === marker,
     );
+    assert.deepEqual(order, ['completed prefix', 'failing handler']);
     assert.equal(state.themeroom_postprocess[3], failingQueue);
-    assert.equal(failingQueue.length, 1);
+    assert.equal(failingQueue.length, 3);
+    assert.deepEqual(
+        [state.xstart, state.ystart, state.xsize, state.ysize],
+        [1, 0, COLNO - 1, ROWNO],
+    );
     assert.equal(state.in_mk_themerooms, false);
-    assert.deepEqual(state.themeroom_postprocess[2], []);
 });
 
 test('Teleportation hub preserves source removal, frames, and trap order', () => {
