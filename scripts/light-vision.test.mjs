@@ -8,6 +8,7 @@ import {
     D_CLOSED,
     FROMOUTSIDE,
     HWALL,
+    LS_MONSTER,
     LS_OBJECT,
     M_AP_FURNITURE,
     M_AP_OBJECT,
@@ -22,7 +23,11 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
-import { light_globals_init } from '../js/light.js';
+import {
+    del_light_source,
+    light_globals_init,
+    new_light_source,
+} from '../js/light.js';
 import { BOULDER, TALLOW_CANDLE } from '../js/objects.js';
 import {
     add_rect_to_reg,
@@ -105,6 +110,32 @@ test('a floor candle projects the source circle into initial vision', () => {
     assert.equal(cansee(12, 7), true);
     assert.equal(cansee(13, 7), false);
     assert.equal(state.level.at(12, 7).disp_ch, '.');
+});
+
+test('monster light follows its owner and deletes by identity', () => {
+    const state = darkRoomState();
+    const monster = { mx: 10, my: 7, mburied: false };
+    new_light_source(10, 7, 1, LS_MONSTER, monster, state);
+
+    vision_reset();
+    vision_recalc(0);
+    assert.equal(state.gl.light_base.id, monster);
+    assert.deepEqual(
+        [state.gl.light_base.x, state.gl.light_base.y],
+        [10, 7],
+    );
+
+    monster.mx = 12;
+    monster.my = 9;
+    vision_recalc(0);
+    assert.deepEqual(
+        [state.gl.light_base.x, state.gl.light_base.y],
+        [12, 9],
+    );
+
+    del_light_source(LS_MONSTER, monster, state);
+    assert.equal(state.gl.light_base, null);
+    assert.equal(state.vision_full_recalc, 1);
 });
 
 test('a blocking wall stops candle light along clear_path', () => {

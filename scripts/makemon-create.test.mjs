@@ -14,11 +14,14 @@ import {
     OBJ_MINVENT,
     ROOM,
     STONE,
+    WEB,
     W_AMUL,
     W_ARMH,
+    W_SADDLE,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { add_to_minv } from '../js/invent.js';
+import { light_globals_init } from '../js/light.js';
 import {
     dmonsfree,
     makemon,
@@ -27,10 +30,14 @@ import {
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
 import { newMonster } from '../js/monst.js';
+import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
     M2_ORC,
     PM_ELF,
+    PM_BLACK_LIGHT,
+    PM_BLACK_UNICORN,
+    PM_CAVE_SPIDER,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_GHOST,
@@ -45,9 +52,11 @@ import {
     PM_LICHEN,
     PM_NEWT,
     PM_ORC,
+    PM_PONY,
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_WHITE_UNICORN,
+    PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
     PM_ZRUTY,
     monst_globals_init,
@@ -60,6 +69,7 @@ import {
     ORCISH_DAGGER,
     ORCISH_HELM,
     POT_OBJECT_DETECTION,
+    SADDLE,
     WAN_DIGGING,
     objects_globals_init,
 } from '../js/objects.js';
@@ -139,6 +149,29 @@ function ordinaryInventoryTail() {
         // initial-level species.
         step('rn2', [100], 1),
     ];
+}
+
+function recordingRandom({ rn2Result } = {}) {
+    const calls = [];
+    const record = (kind, args, result) => {
+        calls.push({ kind, args, result });
+        return result;
+    };
+    return {
+        calls,
+        random: {
+            d: (number, sides) => record('d', [number, sides], number),
+            rn1: (range, base) => record('rn1', [range, base], base),
+            rn2: (bound) => record(
+                'rn2',
+                [bound],
+                rn2Result ? rn2Result(bound) : Math.max(0, bound - 1),
+            ),
+            rnd: (bound) => record('rnd', [bound], 1),
+            rne: (bound) => record('rne', [bound], 1),
+            rnz: (value) => record('rnz', [value], value),
+        },
+    };
 }
 
 test('non-armed initial monsters preserve source state and RNG order', () => {
@@ -619,6 +652,180 @@ test('mongone leaves a detached chain node until dmonsfree unlinks it', () => {
     assert.equal(second.nmon, null);
     assert.equal(first.nmon, null);
     assert.equal(state.iflags.purge_monsters, 0);
+});
+
+test('spider creation places its side object before inventory and hides when legal', () => {
+    for (const scenario of [
+        { name: 'ordinary floor', trap: null, hidden: true },
+        { name: 'non-pit trap', trap: WEB, hidden: false },
+    ]) {
+        const state = initialLevelState();
+        init_objects(state, () => 0);
+        if (scenario.trap != null) {
+            state.level.traps.unshift({
+                tx: MON_X,
+                ty: MON_Y,
+                ttyp: scenario.trap,
+            });
+        }
+        const random = recordingRandom();
+        const monster = makemon(
+            state.mons[PM_CAVE_SPIDER],
+            MON_X,
+            MON_Y,
+            MM_NOCOUNTBIRTH,
+            {
+                state,
+                random: random.random,
+                hooks: { artifactCount: () => 0 },
+            },
+        );
+
+        const sideObject = state.level.objects[MON_X][MON_Y];
+        assert.ok(sideObject, scenario.name);
+        assert.deepEqual(
+            [sideObject.ox, sideObject.oy],
+            [MON_X, MON_Y],
+            scenario.name,
+        );
+        assert.equal(monster.mundetected, scenario.hidden, scenario.name);
+        const objectClassDraw = random.calls.findIndex(
+            (call) => call.kind === 'rnd' && call.args[0] === 100,
+        );
+        const defensiveGate = random.calls.findIndex(
+            (call) => call.kind === 'rn2' && call.args[0] === 50,
+        );
+        assert.ok(objectClassDraw >= 0, scenario.name);
+        assert.ok(defensiveGate > objectClassDraw, scenario.name);
+    }
+});
+
+test('light monsters own mobile light through creation and teardown', () => {
+    const state = initialLevelState();
+    state.level.at(MON_X + 1, MON_Y).typ = ROOM;
+    light_globals_init(state);
+
+    const yellowRandom = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [2, 8], 9),
+        step('rn2', [50], 2),
+        step('rn2', [100], 2),
+        step('rn2', [100], 1),
+    ]);
+    const yellow = makemon(
+        state.mons[PM_YELLOW_LIGHT],
+        MON_X,
+        MON_Y,
+        MM_NOCOUNTBIRTH,
+        { state, random: yellowRandom.random },
+    );
+    yellowRandom.assertExhausted();
+    assert.equal(yellow.minvis, false);
+    assert.equal(state.gl.light_base.id, yellow);
+    assert.equal(state.gl.light_base.range, 1);
+
+    const blackRandom = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [4, 8], 18),
+        step('rn2', [50], 4),
+        step('rn2', [100], 4),
+        step('rn2', [100], 1),
+    ]);
+    const black = makemon(
+        state.mons[PM_BLACK_LIGHT],
+        MON_X + 1,
+        MON_Y,
+        MM_NOCOUNTBIRTH,
+        { state, random: blackRandom.random },
+    );
+    blackRandom.assertExhausted();
+    assert.equal(black.minvis, true);
+    assert.equal(black.perminvis, true);
+    assert.equal(state.gl.light_base.id, black);
+    assert.equal(state.gl.light_base.next.id, yellow);
+
+    const teardownRandom = scriptedRandom([]);
+    mongone(yellow, { state, random: teardownRandom.random });
+    assert.equal(state.gl.light_base.id, black);
+    assert.equal(state.gl.light_base.next, null);
+    mongone(black, { state, random: teardownRandom.random });
+    teardownRandom.assertExhausted();
+    assert.equal(state.gl.light_base, null);
+    assert.equal(state.iflags.purge_monsters, 2);
+});
+
+test('co-aligned unicorn creation overrides an explicitly angry attitude', () => {
+    const cases = [
+        { mndx: PM_WHITE_UNICORN, expected: true },
+        { mndx: PM_BLACK_UNICORN, expected: false },
+    ];
+    for (const { mndx, expected } of cases) {
+        const state = initialLevelState();
+        state.u.ualign.type = 1;
+        const random = scriptedRandom([
+            step('rnd', [2], 1),
+            step('d', [3, 8], 12),
+            step('rn2', [2], 0),
+            step('rn2', [50], 3),
+            step('rn2', [100], 3),
+            step('rn2', [100], 1),
+        ]);
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        random.assertExhausted();
+        assert.equal(monster.mpeaceful, expected);
+    }
+});
+
+test('ordinary domestic creation equips a saddle after inventory gates', () => {
+    const state = initialLevelState();
+    init_objects(state, () => 0);
+    let hundredDraws = 0;
+    const random = recordingRandom({
+        rn2Result: (bound) => {
+            if (bound === 100) {
+                ++hundredDraws;
+                return hundredDraws === 2 ? 0 : 99;
+            }
+            return Math.max(0, bound - 1);
+        },
+    });
+    const monster = makemon(
+        state.mons[PM_PONY],
+        MON_X,
+        MON_Y,
+        MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+
+    const saddle = monster.minvent;
+    assert.equal(saddle.otyp, SADDLE);
+    assert.equal(saddle.where, OBJ_MINVENT);
+    assert.equal(saddle.ocarry, monster);
+    assert.equal(saddle.owornmask, W_SADDLE);
+    assert.equal(saddle.leashmon, monster.m_id);
+    assert.equal(monster.misc_worn_check, W_SADDLE);
+    assert.equal(hundredDraws, 2);
+
+    const defensiveGate = random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 50,
+    );
+    const saddleGate = random.calls.findLastIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 100,
+    );
+    const saddleId = random.calls.findIndex(
+        (call, index) => index > saddleGate
+            && call.kind === 'rnd'
+            && call.args[0] === 2,
+    );
+    assert.ok(defensiveGate >= 0);
+    assert.ok(saddleGate > defensiveGate);
+    assert.ok(saddleId > saddleGate);
 });
 
 test('goblin creates helm before dagger, then wears the prepended helm', () => {

@@ -323,7 +323,7 @@ test('unsupported burn and light paths fail before claiming ownership', () => {
     assert.equal(state.gl.light_base, null);
 
     assert.throws(
-        () => del_light_source(LS_MONSTER, {}, state),
+        () => del_light_source(LS_NONE, {}, state),
         (error) => error instanceof UnsupportedLightOperationError,
     );
 });

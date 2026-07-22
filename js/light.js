@@ -1,6 +1,6 @@
-// Mobile light-source ownership needed by object burning.
+// Mobile light-source ownership for burning objects and luminous monsters.
 // C refs: src/light.c new_light_source(), del_light_source(),
-// candle_light_range(); src/zap.c get_obj_location().
+// candle_light_range(); src/zap.c get_obj_location(), get_mon_location().
 
 import {
     BURIED_TOO,
@@ -8,6 +8,7 @@ import {
     COULD_SEE,
     CONTAINED_TOO,
     LS_OBJECT,
+    LS_MONSTER,
     MAX_RADIUS,
     OBJ_BURIED,
     OBJ_CONTAINED,
@@ -42,8 +43,8 @@ function lightGlobals(state) {
     return state.gl;
 }
 
-function requireObjectSource(type) {
-    if (type !== LS_OBJECT)
+function requireMobileSource(type) {
+    if (type !== LS_OBJECT && type !== LS_MONSTER)
         throw new UnsupportedLightOperationError(`light source type ${type}`);
 }
 
@@ -51,14 +52,17 @@ function requireObjectSource(type) {
 // and marks vision for a full recalculation.
 export function new_light_source(x, y, range, type, id, state = game) {
     const globals = lightGlobals(state);
-    requireObjectSource(type);
+    requireMobileSource(type);
     const radius = Math.trunc(range);
     if (radius < 0 || radius > MAX_RADIUS
         || (radius === 0 && id != null)) {
         throw new RangeError(`new_light_source: illegal range ${range}`);
     }
-    if (!id || typeof id !== 'object')
-        throw new TypeError('object light source requires an object identity');
+    if (!id || typeof id !== 'object') {
+        throw new TypeError(
+            `${type === LS_MONSTER ? 'monster' : 'object'} light source requires an object identity`,
+        );
+    }
 
     const source = {
         next: globals.light_base,
@@ -74,11 +78,11 @@ export function new_light_source(x, y, range, type, id, state = game) {
     return source;
 }
 
-// light.c:del_light_source(). Fixup ids and monster sources belong to the
-// unported save/restore and monster-light paths, so this subset rejects them.
+// C ref: light.c del_light_source(). Object and monster sources use their
+// owner identity directly; save/restore fixup ids remain outside this subset.
 export function del_light_source(type, id, state = game) {
     const globals = lightGlobals(state);
-    requireObjectSource(type);
+    requireMobileSource(type);
     let previous = null;
     let current = globals.light_base;
     while (current && (current.type !== type || current.id !== id)) {
@@ -91,6 +95,19 @@ export function del_light_source(type, id, state = game) {
     else globals.light_base = current.next;
     current.next = null;
     state.vision_full_recalc = 1;
+}
+
+// C ref: zap.c get_mon_location(), for a live level monster or steed.
+export function get_mon_location(monster, locflags = 0, state = game) {
+    if (!monster || typeof monster !== 'object') return null;
+    if (monster === state.youmonst || monster === state.u?.usteed) {
+        return Number.isInteger(state.u?.ux) && Number.isInteger(state.u?.uy)
+            ? { x: Math.trunc(state.u.ux), y: Math.trunc(state.u.uy) }
+            : null;
+    }
+    return monster.mx > 0 && (!monster.mburied || locflags)
+        ? { x: Math.trunc(monster.mx), y: Math.trunc(monster.my) }
+        : null;
 }
 
 // zap.c:get_obj_location(). Return null for the source's FALSE result.
@@ -152,6 +169,13 @@ export function do_light_sources(csRows, env = {}) {
             const position = source.range === 0
                 ? { x: source.x, y: source.y }
                 : get_obj_location(source.id, 0, state);
+            if (position) {
+                source.x = position.x;
+                source.y = position.y;
+                source.flags |= LSF_SHOW;
+            }
+        } else if (source.type === LS_MONSTER) {
+            const position = get_mon_location(source.id, 0, state);
             if (position) {
                 source.x = position.x;
                 source.y = position.y;

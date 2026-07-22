@@ -1,12 +1,10 @@
-// Initial-level monster creation for ordinary rooms, themed-room fills, and
-// starting pets.
+// Initial-level monster creation for ordinary rooms, themed-room fills,
+// starting pets, and the temporary monsters used by Statuary.
 // C ref: makemon.c makemon(), m_initthrow(), m_initweap(), m_initinv(), and
 // mongets(); worn.c m_dowear(). The implementation fails closed outside the
-// species and call shapes reachable during ordinary-room filling, the Ghost,
-// Cloud, Garden, and Storeroom themed fills, and starting-pet creation. Fog
-// clouds, wood nymphs, and the three mimic sizes cover those added fills.
-// Expanding the closed set means porting the corresponding complete source
-// branches, not approximating their PRNG effects.
+// currently ported species and call shapes. Expanding that closed set means
+// porting the corresponding complete source branches, not approximating their
+// PRNG effects.
 
 import {
     ACCESSIBLE,
@@ -22,7 +20,11 @@ import {
     GP_CHECKSCARY,
     HWALL,
     I_SPECIAL,
+    IS_LAVA,
+    IS_POOL,
     isok,
+    is_pit,
+    LS_MONSTER,
     MM_ANGRY,
     MM_ASLEEP,
     MM_EDOG,
@@ -38,6 +40,7 @@ import {
     NO_MINVENT,
     ONAME,
     ONAME_NO_FLAGS,
+    OBJ_FLOOR,
     OBJ_MINVENT,
     OROOM,
     ROOMOFFSET,
@@ -52,10 +55,15 @@ import {
     THEMEROOM,
     W_AMUL,
     W_ARMH,
+    W_SADDLE,
     IS_WALL,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
-import { newedog } from './dog.js';
+import {
+    can_saddle,
+    newedog,
+    put_saddle_on_mon,
+} from './dog.js';
 import { christen_monst, rndghostname } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
@@ -65,6 +73,7 @@ import {
     obj_extract_self,
     update_inventory,
 } from './invent.js';
+import { del_light_source, new_light_source } from './light.js';
 import {
     newmonhp,
     peace_minded,
@@ -95,6 +104,12 @@ import {
     MZ_SMALL,
     NON_PM,
     PM_ELF,
+    PM_BLACK_LIGHT,
+    PM_BLACK_UNICORN,
+    PM_CAVE_SPIDER,
+    PM_CENTIPEDE,
+    PM_CHICKATRICE,
+    PM_COCKATRICE,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_GHOST,
@@ -109,11 +124,17 @@ import {
     PM_SMALL_MIMIC,
     PM_LARGE_MIMIC,
     PM_GIANT_MIMIC,
+    PM_GIANT_SPIDER,
     PM_NEWT,
     PM_PONY,
+    PM_GARTER_SNAKE,
+    PM_GRAY_UNICORN,
     PM_SEWER_RAT,
     PM_SKELETON,
+    PM_SNAKE,
+    PM_WHITE_UNICORN,
     PM_WOOD_NYMPH,
+    PM_YELLOW_LIGHT,
     PM_ARCHEOLOGIST,
     PM_WIZARD,
     G_NOCORPSE,
@@ -125,8 +146,12 @@ import {
     S_MIMIC_DEF,
     S_NYMPH,
     S_ORC,
+    S_LIGHT,
+    S_SNAKE,
+    S_SPIDER,
+    S_UNICORN,
 } from './monsters.js';
-import { mkobj, mksobj, next_ident, weight } from './obj.js';
+import { mkobj, mkobj_at, mksobj, next_ident, weight } from './obj.js';
 import {
     AMULET_CLASS,
     AMULET_OF_LIFE_SAVING,
@@ -152,6 +177,7 @@ import {
     POT_POLYMORPH,
     POT_SPEED,
     POTION_CLASS,
+    RANDOM_CLASS,
     RING_CLASS,
     ROCK_CLASS,
     SCR_CREATE_MONSTER,
@@ -186,6 +212,7 @@ import {
     S_vcdoor,
     S_vwall,
 } from './symbols.js';
+import { t_at } from './trap.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOCOUNTBIRTH
@@ -215,12 +242,25 @@ const INITIAL_LEVEL_MONSTERS = new Set([
     PM_LITTLE_DOG,
     PM_KITTEN,
     PM_PONY,
+    PM_CAVE_SPIDER,
+    PM_CENTIPEDE,
+    PM_GIANT_SPIDER,
+    PM_GARTER_SNAKE,
+    PM_SNAKE,
+    PM_WHITE_UNICORN,
+    PM_GRAY_UNICORN,
+    PM_BLACK_UNICORN,
+    PM_YELLOW_LIGHT,
+    PM_BLACK_LIGHT,
 ]);
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
 // include/monattk.h predicate used by muse.c's random-item selectors.
 const AT_EXPL = 13;
+// include/monflag.h creation-time predicates not yet exported by monsters.js.
+const M1_CONCEAL = 0x00000080;
+const MR_STONE = 0x80;
 
 // makemon.c set_mimic_sym() source tables. The first two entries deliberately
 // make furniture twice as likely as each ordinary object class.
@@ -272,6 +312,51 @@ function isArmed(species) {
 function setMimicCorpsenm(monster, value) {
     monster.mextra ??= {};
     monster.mextra.mcorpsenm = value;
+}
+
+function emitsLight(species) {
+    return species?.mlet === S_LIGHT ? 1 : 0;
+}
+
+function canHideUnderObject(obj) {
+    if (!obj || obj.where !== OBJ_FLOOR) return false;
+    if (obj.oclass !== COIN_CLASS) return true;
+    let quantity = 0;
+    let current = obj;
+    while (current?.oclass === COIN_CLASS) {
+        quantity += current.quan;
+        if (quantity >= 10) return true;
+        current = current.nexthere;
+    }
+    return Boolean(current);
+}
+
+// C ref: mon.c hideunder(), restricted to the object-concealing spiders and
+// snakes reachable from the Statuary D:1 reservoir.
+function hideunder(monster, state) {
+    const { mx: x, my: y } = monster;
+    let hidden = false;
+    const trap = t_at(x, y, state);
+    if (monster !== state.u?.ustuck
+        && !monster.mtrapped
+        && (!trap || is_pit(trap.ttyp))
+        && (monster.data.mflags1 & M1_CONCEAL)
+        && !IS_POOL(state.level.at(x, y).typ)
+        && !IS_LAVA(state.level.at(x, y).typ)) {
+        let obj = state.level.objects[x][y];
+        if (canHideUnderObject(obj)) {
+            if (!(monster.data.mresists & MR_STONE)) {
+                while (obj?.otyp === CORPSE
+                    && (obj.corpsenm === PM_COCKATRICE
+                        || obj.corpsenm === PM_CHICKATRICE)) {
+                    obj = obj.nexthere;
+                }
+            }
+            hidden = Boolean(obj);
+        }
+    }
+    monster.mundetected = hidden;
+    return hidden;
 }
 
 // C ref: makemon.c set_mimic_sym(), for ordinary and themed initial rooms.
@@ -416,11 +501,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'edog creation during mklev',
         );
     }
-    if (ptr && STARTING_PETS.has(ptr.pmidx) && !startingPetCall) {
-        throw new UnsupportedMonsterCreationError(
-            'pet species outside starting-pet call',
-        );
-    }
     if (!startingPetCall && !randomCoordinates
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
@@ -499,6 +579,13 @@ function addFreshMonsterObject(monster, obj, normalized) {
         );
     }
     return obj;
+}
+
+function monsterWears(monster, mask) {
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.owornmask & mask) return obj;
+    }
+    return null;
 }
 
 // C ref: makemon.c mongets(). The reachable species are neither demons,
@@ -834,6 +921,9 @@ export function mongone(monster, env = {}) {
     monster.mhp = 0;
     discard_minvent(monster, false, normalized);
 
+    if (monster.mx > 0 && emitsLight(monster.data))
+        del_light_source(LS_MONSTER, monster, state);
+
     const onmap = isok(monster.mx, monster.my)
         && m_at(monster.mx, monster.my, state) === monster;
     if (onmap) {
@@ -980,12 +1070,36 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         : peace_minded(ptr, normalized);
     if (ptr.mlet === S_MIMIC) {
         set_mimic_sym(monster, normalized);
+    } else if (ptr.mlet === S_SPIDER || ptr.mlet === S_SNAKE) {
+        if (state.in_mklev) {
+            if (x && y) mkobj_at(RANDOM_CLASS, x, y, true, normalized);
+            hideunder(monster, state);
+        }
+    } else if (ptr.mlet === S_LIGHT) {
+        if (mndx === PM_BLACK_LIGHT) {
+            monster.perminvis = true;
+            monster.minvis = true;
+        }
     } else if (ptr.mlet === S_ORC && state.urace.mnum === PM_ELF) {
         monster.mpeaceful = false;
     } else if (ptr.mlet === S_NYMPH
         && random.rn2(5)
         && !state.u.uhave.amulet) {
         monster.msleeping = true;
+    } else if (ptr.mlet === S_UNICORN
+        && Math.sign(state.u.ualign.type) === Math.sign(ptr.maligntyp)) {
+        monster.mpeaceful = true;
+    }
+    const lightRange = emitsLight(monster.data);
+    if (lightRange) {
+        new_light_source(
+            monster.mx,
+            monster.my,
+            lightRange,
+            LS_MONSTER,
+            monster,
+            state,
+        );
     }
     monster.cham = NON_PM;
     if (mndx === PM_GHOST) {
@@ -1007,8 +1121,10 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         m_dowear(monster, true, normalized);
 
         const saddleRoll = random.rn2(100);
-        if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)) {
-            throw new UnsupportedMonsterCreationError('initial saddle');
+        if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)
+            && can_saddle(monster)
+            && !monsterWears(monster, W_SADDLE)) {
+            put_saddle_on_mon(null, monster, normalized);
         }
     }
 
