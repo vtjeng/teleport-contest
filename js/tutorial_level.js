@@ -114,6 +114,11 @@ const SOURCE_NUMPAD_ALIASES = Object.freeze([
     ['N', 'name'],
     ['u', 'untrap'],
     ['5', 'run'],
+    ['M-5', 'rush'],
+    ['-', 'fight'],
+    ['M-O', 'overview'],
+    ['M-2', 'twoweapon'],
+    ['M-N', 'name'],
 ]);
 
 const DIRECTION_COMMANDS = Object.freeze([
@@ -232,6 +237,10 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
         : (swapYZ ? DIRECTION_KEYS.swapped : DIRECTION_KEYS.normal);
     model.directionBackups = DIRECTION_COMMANDS.map((commands, direction) => {
         const key = directionKeys.charCodeAt(direction);
+        // cmd.c reset_commands() backs up its numpad RUN and RUSH slots
+        // separately even though both modes use the same meta-digit key.
+        // Keep the duplicate: restoration then removes that key twice, which
+        // is observable after user bindings and repeated mode transitions.
         const modeKeys = enabled
             ? [key, key | 0x80, key | 0x80]
             : [key, directionKeys.toUpperCase().charCodeAt(direction), key & 0x1F];
@@ -377,6 +386,12 @@ function tutorialKeys(des, state) {
 
     return { key, help };
 }
+
+export const _tutorialLevelInternals = Object.freeze({
+    commandKeyCode,
+    createCommandBindingModel,
+    tutorialCommandKey,
+});
 
 // Port of dat/tut-1.lua. The injected `des` object deliberately mirrors the
 // small slice of the Lua special-level API used by this one level.

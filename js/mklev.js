@@ -987,6 +987,10 @@ function createSpecialLevelApi(state) {
         },
 
         object(specification) {
+            // sp_lev's object and monster descriptors retain map-relative
+            // coordinates until their shared lspo_* adapters consume frame.
+            // Terrain, doors, traps, engravings, and stairs convert eagerly
+            // above, so applying specialCoordinate() here would offset twice.
             const normalized = {
                 ...specification,
                 coordinate: specification.coord

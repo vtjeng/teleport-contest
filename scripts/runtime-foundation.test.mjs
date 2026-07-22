@@ -3,10 +3,16 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import {
+    BRCORNER,
+    D_CLOSED,
+    MAGIC_PORTAL,
     NON_PM,
     PATCHLEVEL,
     VERSION_MAJOR,
     VERSION_MINOR,
+    WEB,
+    WM_C_INNER,
+    W_NONDIGGABLE,
 } from '../js/const.js';
 import { engr_at } from '../js/engrave.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -18,10 +24,11 @@ import {
 } from '../js/jsmain.js';
 import {
     PM_KITTEN,
+    PM_LICHEN,
     PM_LITTLE_DOG,
     PM_PONY,
 } from '../js/monsters.js';
-import { WAN_WISHING } from '../js/objects.js';
+import { LEATHER_ARMOR, WAN_WISHING } from '../js/objects.js';
 import { str2role } from '../js/roles.js';
 import {
     d,
@@ -653,7 +660,7 @@ test('configured tutorial choices skip the query or reach its first command', as
     ).join('\n');
     assert.doesNotMatch(screen, /Do you want a tutorial\?/u);
 
-    const entered = await runSegment({
+    const captured = await runWithGridCapture({
         seed: 730203,
         datetime: '20440517091329',
         nethackrc: `${common}tutorial`,
@@ -661,6 +668,7 @@ test('configured tutorial choices skip the query or reach its first command', as
         // source read_engr_at() messages to reach the command boundary.
         moves: '    ',
     });
+    const { session: entered, grids } = captured;
     assert.deepEqual(entered.getCursors(), [
         [15, 1, 1],
         [30, 0, 1],
@@ -683,6 +691,98 @@ test('configured tutorial choices skip the query or reach its first command', as
     assert.ok(game.svs.spl_book.every(
         (spell) => Object.values(spell).every((value) => value === 0),
     ));
+
+    assert.deepEqual(grids.map(gridDigest), [
+        'e268bfa55cc344a11b395fdd79858af7614280e7fbf954c96698958e985a912f',
+        'd6bd4a8019da48e3501315e89ae71e5f8872ca2ba5cc24f0f2689a93103f1243',
+        '9e26d011d64cbfeb01f8337933cccb3fa0f292d105b6f2bda3e885c099d0cb8e',
+        '04aa492b4331633fa6cf04d81a09fc9a5c7e48b54d28a001e8f4035239709729',
+        '45a6eec8dd96b00ed1591e6a70ea9384426e3dc598fab389020fd42833a89ce0',
+    ]);
+    assert.deepEqual(
+        entered.getRngSlices().map((slice) => [
+            slice.length, sha256(slice.join('\n')),
+        ]),
+        [
+            [6439, '3ade0b11423715bedcd8f415fa19d7db5e547da72d2a5cd7d515f9bb5744c7e8'],
+            [192, 'ac2afbd981bd9fbdc6b74aa1edd8dcc77b10163a56618eaca50cabb5f00a1606'],
+            [0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+            [0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+            [0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+        ],
+    );
+
+    assert.deepEqual(
+        {
+            maze: game.level.flags.is_maze_lev,
+            randomMonsters: game.level.flags.rndmongen,
+            deathDrops: game.level.flags.deathdrops,
+            autoSearch: game.level.flags.noautosearch,
+            flips: game.specialLevelAllowFlips,
+        },
+        {
+            maze: true,
+            randomMonsters: false,
+            deathDrops: false,
+            autoSearch: true,
+            flips: 0,
+        },
+    );
+    assert.deepEqual(game.dndest, {
+        lx: 12, ly: 6, hx: 12, hy: 6,
+        nlx: -1, nly: -1, nhx: -1, nhy: -1,
+    });
+    assert.deepEqual(game.updest, game.dndest);
+    assert.deepEqual(
+        [game.xstart, game.ystart, game.xsize, game.ysize],
+        [0, 0, 75, 18],
+    );
+
+    const corner = game.level.at(4, 4);
+    assert.equal(corner.typ, BRCORNER);
+    assert.equal(
+        corner.wall_info,
+        W_NONDIGGABLE | WM_C_INNER,
+        'level finalization applies both non-diggability and wall angles',
+    );
+    assert.equal(corner.lit, true);
+    assert.equal(game.level.at(34, 12).lit, false);
+    assert.equal(game.level.at(56, 5).lit, false);
+    assert.deepEqual(
+        {
+            mask: game.level.at(5, 9).doormask,
+            horizontal: game.level.at(5, 9).horizontal,
+        },
+        { mask: D_CLOSED, horizontal: true },
+    );
+    assert.ok(game.level.traps.some(
+        (trap) => trap.tx === 7 && trap.ty === 7
+            && trap.ttyp === MAGIC_PORTAL && trap.tseen,
+    ));
+    assert.ok(game.level.traps.some(
+        (trap) => trap.tx === 18 && trap.ty === 19
+            && trap.ttyp === WEB && !trap.tseen,
+    ));
+
+    const objects = [];
+    for (let object = game.level.objlist; object; object = object.nobj)
+        objects.push([object.otyp, object.ox, object.oy]);
+    assert.ok(objects.some(
+        ([otyp, x, y]) => otyp === LEATHER_ARMOR && x === 22 && y === 17,
+    ));
+    const lichen = game.level.monlist;
+    let tutorialLichen = lichen;
+    while (tutorialLichen && tutorialLichen.mnum !== PM_LICHEN)
+        tutorialLichen = tutorialLichen.nmon;
+    assert.deepEqual(
+        [tutorialLichen?.mx, tutorialLichen?.my],
+        [26, 18],
+        'deferred object and monster adapters apply the nonzero origin once',
+    );
+    assert.deepEqual(
+        [game.stairs.sx, game.stairs.sy, game.stairs.up],
+        [61, 13, false],
+    );
 });
 
 test('tutorial movement text follows number-pad and gameplay bindings', async () => {
@@ -724,9 +824,22 @@ test('tutorial movement text follows number-pad and gameplay bindings', async ()
             expected: 'Move around with h j k l',
             expectedDiagonal: 'Move diagonally with b u n z',
         },
+        {
+            seed: 730211,
+            config: 'OPTIONS=tutorial,!legacy,!splash_screen\n'
+                + 'BINDINGS=X:nothing',
+            expected: 'Move around with h j k l',
+            expectedTwoWeapon: "Use 'M-2' to use two weapons at once",
+        },
     ];
 
-    for (const { seed, config, expected, expectedDiagonal } of cases) {
+    for (const {
+        seed,
+        config,
+        expected,
+        expectedDiagonal,
+        expectedTwoWeapon,
+    } of cases) {
         await runSegment({
             seed,
             datetime: '20440517091330',
@@ -738,6 +851,12 @@ test('tutorial movement text follows number-pad and gameplay bindings', async ()
             assert.equal(
                 engr_at(8, 5, game)?.engr_txt[0],
                 expectedDiagonal,
+            );
+        }
+        if (expectedTwoWeapon) {
+            assert.equal(
+                engr_at(46, 14, game)?.engr_txt[0],
+                expectedTwoWeapon,
             );
         }
     }

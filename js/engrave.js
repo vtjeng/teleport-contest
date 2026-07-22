@@ -116,7 +116,7 @@ export async function read_engr_at(
     x,
     y,
     state = game,
-    { pline } = {},
+    { pline, canReachFloor } = {},
 ) {
     const engraving = engr_at(x, y, state);
     const text = engraving?.engr_txt?.[0] ?? '';
@@ -127,6 +127,15 @@ export async function read_engr_at(
     const blind = propertyActiveUnblocked(state.u, BLINDED);
     const onIce = state.level?.at(x, y)?.typ === ICE;
     const surface = onIce ? 'ice' : 'floor';
+    const tactileFloor = () => {
+        if (!blind) return true;
+        if (typeof canReachFloor !== 'function') {
+            throw new TypeError(
+                'blind read_engr_at requires a canReachFloor callback',
+            );
+        }
+        return Boolean(canReachFloor(true, state));
+    };
     let sensed = false;
     switch (engraving.engr_type) {
     case DUST:
@@ -140,17 +149,19 @@ export async function read_engr_at(
         break;
     case ENGRAVE:
     case HEADSTONE:
-        // Initial tutorial entry is never swallowed and can reach the floor;
-        // retain that source result even when a startup condition is blind.
-        sensed = true;
-        await pline(`Something is engraved here on the ${surface}.`, state);
+        if (tactileFloor()) {
+            sensed = true;
+            await pline(`Something is engraved here on the ${surface}.`, state);
+        }
         break;
     case BURN:
-        sensed = true;
-        await pline(
-            `Some text has been ${onIce ? 'melted' : 'burned'} into the ${surface} here.`,
-            state,
-        );
+        if (tactileFloor()) {
+            sensed = true;
+            await pline(
+                `Some text has been ${onIce ? 'melted' : 'burned'} into the ${surface} here.`,
+                state,
+            );
+        }
         break;
     case MARK:
         if (!blind) {

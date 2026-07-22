@@ -213,6 +213,9 @@ export async function enter_tutorial(target, state = game) {
         state.u.uz0 = { ...state.u.uz };
         await read_engr_at(state.u.ux, state.u.uy, state, {
             pline: ttyPline,
+            // A newly created hero entering tut-1 is neither swallowed nor
+            // levitating and can reach the engraving underfoot.
+            canReachFloor: () => true,
         });
 
         // maybe_do_tutorial() performs one final redraw after deferred_goto;
