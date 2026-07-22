@@ -8,7 +8,8 @@ import {
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     LR_TELE, MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO,
     STATUE_TRAP, STONE,
-    SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, TREE, VWALL, W_ANY, W_RANDOM,
+    SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, TREE, VAULT, VWALL,
+    W_ANY, W_RANDOM,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
@@ -620,6 +621,32 @@ test('makerooms uses adjusted level difficulty for eligibility', async () => {
         ...Array.from({ length: 23 }, (_, index) => 1015 + index),
     ]);
     assert.deepEqual([game.xstart, game.ystart], [0, 0]);
+});
+
+test('failed vault realization performs the one source retry attempt', async () => {
+    initializeNewGame(2);
+    enableRngLog();
+    await mklev();
+
+    // The first staged vault no longer fits after corridor generation. One
+    // free rectangle remains, but it is too small: the condition's rnd_rect()
+    // draw plus create_room()'s 101 do-while attempts produce this exact run.
+    let longestRun = 0;
+    let currentRun = 0;
+    for (const entry of getRngLog()) {
+        if (entry === 'rn2(1)=0') {
+            longestRun = Math.max(longestRun, ++currentRun);
+        } else {
+            currentRun = 0;
+        }
+    }
+    assert.equal(longestRun, 102);
+    assert.equal(game.level.flags.has_vault, false);
+    assert.equal(
+        game.level.rooms.slice(0, game.level.nroom)
+            .some((room) => room.rtype === VAULT),
+        false,
+    );
 });
 
 test('mklev runs themed-room postprocessing before final wallification', async () => {

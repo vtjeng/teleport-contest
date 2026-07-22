@@ -529,11 +529,19 @@ async function makelevel() {
     makecorridors();
     await make_niches();
 
-    // Vault creation (simplified for contest)
+    // C ref: mklev.c makelevel() secret-vault realization and retry.
     if (g.vault_x !== -1) {
         const vw = { v: 1 }, vh = { v: 1 };
         const vx = { v: g.vault_x }, vy = { v: g.vault_y };
-        if (check_room(vx, vw, vy, vh, true)) {
+        let realized = check_room(vx, vw, vy, vh, true);
+        if (!realized && rnd_rect() && create_vault()) {
+            const staged = g.level.rooms[g.level.nroom];
+            g.vault_x = vx.v = staged.lx;
+            g.vault_y = vy.v = staged.ly;
+            realized = check_room(vx, vw, vy, vh, true);
+            if (!realized) staged.hx = -1;
+        }
+        if (realized) {
             add_room(vx.v, vy.v, vx.v + vw.v, vy.v + vh.v, true, VAULT, false);
             g.level.flags.has_vault = true;
             const vaultRoom = g.level.rooms[g.level.nroom - 1];
@@ -543,8 +551,6 @@ async function makelevel() {
             }
             if (!g.level.flags.noteleport && !rn2(3))
                 await makeniche(TELEP_TRAP);
-        } else if (rnd_rect()) {
-            // Fallback vault attempt — simplified
         }
     }
 
