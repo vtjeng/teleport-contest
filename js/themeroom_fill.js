@@ -24,7 +24,10 @@ import {
     SP_COORD_IS_RANDOM,
     STRAT_WAITFORU,
     TIMER_LEVEL,
+    TIMER_OBJECT,
+    ROT_CORPSE,
     WEB,
+    ZOMBIFY_MON,
 } from './const.js';
 import { game } from './gstate.js';
 import { induced_align } from './dungeon.js';
@@ -58,13 +61,21 @@ import {
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
     PM_CHIEFTAIN,
+    PM_DWARF,
+    PM_ELF,
+    PM_ETTIN,
+    PM_GIANT,
+    PM_GNOME,
     PM_GHOST,
     PM_HEALER,
+    PM_HUMAN,
     PM_HUNTER,
     PM_KNIGHT,
+    PM_KOBOLD,
     PM_MONK,
     PM_NEANDERTHAL,
     PM_NINJA,
+    PM_ORC,
     PM_PAGE,
     PM_RANGER,
     PM_ROGUE,
@@ -91,7 +102,12 @@ import {
     selection_room,
     select_themeroom_fill,
 } from './themerooms.js';
-import { spot_stop_timers, start_timer } from './timeout.js';
+import {
+    obj_has_timer,
+    spot_stop_timers,
+    start_timer,
+    stop_timer,
+} from './timeout.js';
 
 const DEFAULT_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
@@ -371,6 +387,44 @@ function fillBoulderRoom(room, _difficulty, env) {
     });
 }
 
+// dat/themerms.lua "Buried zombies".  The same mutable pool is shuffled for
+// every corpse, and Lua's numeric loop truncates the half-room area.
+function fillBuriedZombies(room, difficulty, env) {
+    const zombifiable = [PM_KOBOLD, PM_GNOME, PM_ORC, PM_DWARF];
+    if (difficulty > 3) {
+        zombifiable.push(PM_ELF, PM_HUMAN);
+        if (difficulty > 6) zombifiable.push(PM_ETTIN, PM_GIANT);
+    }
+
+    const width = 1 + room.hx - room.lx;
+    const height = 1 + room.hy - room.ly;
+    const corpseCount = Math.trunc(width * height / 2);
+    for (let index = 0; index < corpseCount; ++index) {
+        shuffle_themeroom_values(zombifiable, env.random.rn2);
+        const corpse = createObject({
+            id: CORPSE,
+            corpsenm: zombifiable[0],
+            buried: true,
+        }, room, env);
+        if (corpse)
+            stop_timer(ROT_CORPSE, corpse, env.state, env);
+
+        // Lua evaluates math.random() before l_obj_timer_start(), whose body
+        // replaces a duplicate timer only after the delay has been selected.
+        const delay = 990 + env.random.rn2(21);
+        if (!corpse) continue;
+        if (obj_has_timer(corpse, ZOMBIFY_MON, env.state))
+            stop_timer(ZOMBIFY_MON, corpse, env.state, env);
+        start_timer(
+            delay,
+            TIMER_OBJECT,
+            ZOMBIFY_MON,
+            corpse,
+            env.state,
+        );
+    }
+}
+
 // dat/themerms.lua "Spider nest". D:1 never requests a spider on each web,
 // but create_trap still performs its source mktrap victim check.
 function fillSpiderNest(room, difficulty, env) {
@@ -509,6 +563,7 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
 
 const FILL_HANDLERS = Object.freeze({
     boulder_room: fillBoulderRoom,
+    buried_zombies: fillBuriedZombies,
     ghost_of_an_adventurer: fillGhostOfAnAdventurer,
     ice_room: fillIceRoom,
     light_source: fillLightSource,

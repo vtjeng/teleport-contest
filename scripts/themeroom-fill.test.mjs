@@ -15,12 +15,14 @@ import {
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
+    OBJ_BURIED,
     OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_FREE,
     OBJ_MINVENT,
     ONAME_LEVEL_DEF,
     ROLLING_BOULDER_TRAP,
+    ROT_CORPSE,
     ROOM,
     ROOMOFFSET,
     STRAT_WAITFORU,
@@ -29,6 +31,7 @@ import {
     W_AMUL,
     W_ARMH,
     WEB,
+    ZOMBIFY_MON,
 } from '../js/const.js';
 import {
     ART_ORCRIST,
@@ -74,14 +77,22 @@ import {
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
     PM_CHIEFTAIN,
+    PM_DWARF,
+    PM_ELF,
+    PM_ETTIN,
+    PM_GIANT,
+    PM_GNOME,
     PM_GOBLIN,
     PM_GHOST,
     PM_HEALER,
+    PM_HUMAN,
     PM_HUNTER,
     PM_KNIGHT,
+    PM_KOBOLD,
     PM_MONK,
     PM_NEANDERTHAL,
     PM_NINJA,
+    PM_ORC,
     PM_PAGE,
     PM_PONY,
     PM_RANGER,
@@ -503,6 +514,198 @@ test('Boulder room composes real object, trap, launch, and victim boundaries', (
         ]),
         [[BOULDER, 1, OBJ_FLOOR, 7, 5]],
     );
+});
+
+test('Buried zombies preserves pool thresholds and appended source order', () => {
+    const cases = [
+        [3, 4, [PM_ORC, PM_DWARF]],
+        [4, 6, [PM_ELF, PM_HUMAN]],
+        [6, 6, [PM_ELF, PM_HUMAN]],
+        [7, 8, [PM_ETTIN, PM_GIANT]],
+    ];
+
+    for (const [difficulty, poolSize, expectedTail] of cases) {
+        for (const [tailOffset, expectedSpecies] of expectedTail.entries()) {
+            const { level, room } = twoByTwoRoom();
+            // A one-by-two room creates exactly one corpse.
+            room.hx = room.lx;
+            const state = { level, moves: 7 };
+            timeout_globals_init(state);
+            const calls = [];
+            let corpse = null;
+            const random = randomWithRn2((bound) => {
+                calls.push(bound);
+                if (bound === 21) return 0;
+                // First leave the last entry in place.  Selecting index zero
+                // on the next requested suffix moves either the second-last
+                // or last source entry into the pool's first slot.
+                if (tailOffset === 0)
+                    return bound === poolSize - 1 ? 0 : bound - 1;
+                return bound === poolSize ? 0 : bound - 1;
+            });
+            let request = null;
+
+            run_themeroom_fill(fillById('buried_zombies'), room, difficulty, {
+                state,
+                random,
+                hooks: {
+                    createObject(specification) {
+                        request = specification;
+                        corpse = { timed: 0 };
+                        return corpse;
+                    },
+                },
+            });
+
+            assert.deepEqual(calls, [
+                ...Array.from(
+                    { length: poolSize - 1 },
+                    (_, index) => poolSize - index,
+                ),
+                21,
+            ]);
+            assert.deepEqual(request, {
+                id: CORPSE,
+                corpsenm: expectedSpecies,
+                buried: true,
+            });
+            assert.equal(peek_timer(ZOMBIFY_MON, corpse, state), 997);
+        }
+    }
+});
+
+test('Buried zombies reuses its shuffled pool and replaces timers after delay', () => {
+    const { level, room } = twoByTwoRoom();
+    room.hx = room.lx + 2;
+    room.hy = room.ly + 2;
+    const state = { level, moves: 7 };
+    timeout_globals_init(state);
+    const calls = [];
+    const corpses = [];
+    const requests = [];
+    let reservoirCalls = 0;
+    const random = randomWithRn2((bound) => {
+        calls.push(bound);
+        if (reservoirCalls++ < 13) {
+            // Buried zombies is the seventh eligible lit D:1 fill.
+            return bound === 7 ? 0 : bound - 1;
+        }
+        if (bound === 21) {
+            const corpse = corpses.at(-1);
+            // stop_timer("rot-corpse") precedes evaluation of the delay;
+            // replacement of the old zombification timer follows it.
+            assert.equal(peek_timer(ROT_CORPSE, corpse, state), 0);
+            assert.equal(peek_timer(ZOMBIFY_MON, corpse, state), 57);
+            return corpses.length - 1;
+        }
+        return 0;
+    });
+
+    const chosen = themeroom_fill(room, 1, {
+        state,
+        random,
+        hooks: {
+            createObject(specification) {
+                requests.push(specification);
+                const corpse = { timed: 0 };
+                start_timer(40, TIMER_OBJECT, ROT_CORPSE, corpse, state);
+                start_timer(50, TIMER_OBJECT, ZOMBIFY_MON, corpse, state);
+                corpses.push(corpse);
+                return corpse;
+            },
+        },
+    });
+
+    assert.equal(chosen.id, 'buried_zombies');
+    assert.deepEqual(calls.slice(0, 13), [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+    ]);
+    assert.deepEqual(calls.slice(13), [
+        4, 3, 2, 21,
+        4, 3, 2, 21,
+        4, 3, 2, 21,
+        4, 3, 2, 21,
+    ]);
+    // Reapplying the same swaps to one mutable pool cycles each base species
+    // through the first slot; recreating the pool would repeat PM_GNOME.
+    assert.deepEqual(
+        requests.map((request) => request.corpsenm),
+        [PM_GNOME, PM_ORC, PM_DWARF, PM_KOBOLD],
+    );
+    assert.ok(requests.every((request) => request.id === CORPSE));
+    assert.ok(requests.every((request) => request.buried === true));
+    for (const [index, corpse] of corpses.entries()) {
+        assert.equal(corpse.timed, 1);
+        assert.equal(peek_timer(ROT_CORPSE, corpse, state), 0);
+        assert.equal(
+            peek_timer(ZOMBIFY_MON, corpse, state),
+            state.moves + 990 + index,
+        );
+    }
+});
+
+test('Buried zombies default path owns buried corpses and final timers', () => {
+    const { level, room } = twoByTwoRoom();
+    const state = {
+        ...rawMonsterGenerationState(),
+        context: { ident: 2 },
+        flags: { initalign: 0 },
+        gz: { zombify: false },
+        in_mklev: true,
+        level,
+        moves: 7,
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+    };
+    objects_globals_init(state);
+    init_artifacts(state);
+    monst_globals_init(state);
+    reset_mvitals(state);
+    timeout_globals_init(state);
+
+    run_themeroom_fill(fillById('buried_zombies'), room, 1, {
+        state,
+        random: quietObjectRandom(),
+    });
+
+    const second = level.buriedobjlist;
+    const first = second.nobj;
+    assert.ok(first);
+    assert.equal(first.nobj, null);
+    assert.equal(level.objlist, null);
+    assert.equal(level.objects[room.lx][room.ly], null);
+    for (const corpse of [first, second]) {
+        assert.deepEqual(
+            [
+                corpse.otyp,
+                corpse.corpsenm,
+                corpse.spe,
+                corpse.quan,
+                corpse.where,
+                corpse.ox,
+                corpse.oy,
+                corpse.timed,
+            ],
+            [
+                CORPSE,
+                PM_KOBOLD,
+                0,
+                1,
+                OBJ_BURIED,
+                room.lx,
+                room.ly,
+                1,
+            ],
+        );
+        assert.equal(peek_timer(ROT_CORPSE, corpse, state), 0);
+        assert.equal(
+            peek_timer(ZOMBIFY_MON, corpse, state),
+            state.moves + 1010,
+        );
+    }
+    // Equal-expiry timers are newest first, matching the buried LIFO chain.
+    assert.equal(state.gt.timer_base.arg, second);
+    assert.equal(state.gt.timer_base.next.arg, first);
+    assert.equal(state.gt.timer_base.next.next, null);
 });
 
 test('Massacre preserves the source species table order', () => {
