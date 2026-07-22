@@ -112,6 +112,10 @@ For each coherent implementation chunk:
 
 Run the heavier checks at these boundaries:
 
+`QUALITY.json` is the executable source for the numeric thresholds below. When
+those values change, update this policy text and the quality-status tests in the
+same chunk.
+
 - Three unreviewed implementation commits or 500 changed production lines in an
   affected quality area are an advisory batching checkpoint. Run a full
   correctness pass no later than ten unreviewed implementation commits or 1,000

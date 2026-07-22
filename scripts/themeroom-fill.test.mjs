@@ -2561,12 +2561,14 @@ test('Teleportation hub abandons a queued source that becomes stairs', () => {
 test('Statuary rolls every statue before its random room traps', () => {
     const { level, room } = twoByTwoRoom();
     const random = scriptedRandom([
+        // Five d5 rolls yield 1 + 2 + 3 + 4 + 5 = 15 floor statues.
         step('rn2', [5], 0),
         step('rn2', [5], 1),
         step('rn2', [5], 2),
         step('rn2', [5], 3),
         step('rn2', [5], 4),
-        step('rn2', [3], 1),
+        step('rn2', [3], 1), // d3 yields two living-statue traps
+        // The two room-coordinate pairs select (3,3), then (2,4).
         step('rn1', [2, 2], 3),
         step('rn1', [2, 3], 3),
         step('rn1', [2, 2], 2),
@@ -2599,8 +2601,11 @@ test('Statuary rolls every statue before its random room traps', () => {
 
 test('Statuary composes floor statues with living statue traps', () => {
     const { level, room, state } = statuaryGenerationFixture();
+    // Five zero d5 results create five floor statues; the maximum d3 result
+    // creates three living-statue traps, for eight statue objects in total.
     let leadingDice = 5;
     let roomCoordinateCall = 0;
+    // Cycle through every square of the 2x2 room for coordinate requests.
     const offsets = [[0, 0], [1, 0], [0, 1], [1, 1]];
     const random = {
         d(number, sides) { return number * sides; },

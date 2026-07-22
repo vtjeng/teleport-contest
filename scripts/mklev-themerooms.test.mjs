@@ -673,13 +673,13 @@ test('generic room relocation keeps rn1 distinct from rnd', () => {
 test('build_room places a partially specified top-level room in source order', () => {
     resetThemeroomLevel();
     const random = scriptedRandom([
-        step('rn2', [100], 0),
-        step('rnd', [2], 2),
-        step('rn2', [77], 76),
-        step('rnd', [5], 3),
-        step('rnd', [5], 2),
-        step('rnd', [3], 3),
-        step('rnd', [3], 1),
+        step('rn2', [100], 0), // keep the requested room type
+        step('rnd', [2], 2), // depth-one lighting bound
+        step('rn2', [77], 76), // light the room
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // align right within the horizontal sector
+        step('rnd', [3], 1), // align top within the vertical sector
     ]);
 
     const room = build_room({
@@ -713,13 +713,13 @@ test('build_room creates and indexes random nested subrooms', () => {
     resetThemeroomLevel();
     const parent = buildFixedParentRoom();
     const random = scriptedRandom([
-        step('rn2', [100], 0),
-        step('rnd', [8], 4),
-        step('rnd', [6], 3),
-        step('rnd', [7], 1),
-        step('rnd', [6], 5),
-        step('rnd', [2], 2),
-        step('rn2', [77], 76),
+        step('rn2', [100], 0), // keep the requested room type
+        step('rnd', [8], 4), // child width within the 11-wide parent
+        step('rnd', [6], 3), // child height within the 9-high parent
+        step('rnd', [7], 1), // left edge adjusts from one to zero
+        step('rnd', [6], 5), // bottom edge adjusts from five to six
+        step('rnd', [2], 2), // depth-one lighting bound
+        step('rn2', [77], 76), // light the child
     ]);
 
     const child = build_room({

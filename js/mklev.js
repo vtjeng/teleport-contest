@@ -1382,8 +1382,11 @@ function create_subroom(
     return true;
 }
 
-// C ref: sp_lev.c build_room(). This is the shared room/subroom construction
-// boundary used by every Lua direct-room callback.
+// C ref: sp_lev.c build_room(). This low-level boundary accepts normalized
+// rtype/rlit/needfill fields; direct handlers adapt their Lua-shaped fields via
+// run_room_descriptor(). chance selects the requested type versus OROOM, not
+// whether a room exists. create_room()/create_subroom() append one room and
+// return only success, so null below means construction itself failed.
 export function build_room(
     spec,
     parent = null,
@@ -1744,6 +1747,8 @@ function add_door(x, y, aroom) {
         const d = g.level.doors[aroom.fdoor + i];
         if (d && d.x === x && d.y === y) return;
     }
+    // level.doors concatenates each room's [fdoor, fdoor + doorct) slice.
+    // Inserting into an earlier slice shifts every later room's starting index.
     if (aroom.doorct === 0) aroom.fdoor = g.level.doorindex;
     aroom.doorct++;
     for (let tmp = g.level.doorindex; tmp > aroom.fdoor; tmp--)

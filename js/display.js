@@ -574,7 +574,9 @@ export function monster_glyph_info(monster, state = game) {
         // from zeroobj, so its class remains zero even though normal object
         // glyphs still derive their class from otyp.  That distinction is
         // visible for distant gems and spellbooks, and makes fake potions
-        // concrete rather than generic.
+        // concrete rather than generic.  display_monster() deliberately uses
+        // PM_TENGU as a valid species placeholder when the mimic has no
+        // mcorpsenm; corpse color and statue symbols can observe that field.
         const fakeObject = {
             otyp: monster.mappearance,
             oclass: 0,

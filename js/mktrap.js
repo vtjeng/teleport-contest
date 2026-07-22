@@ -410,6 +410,8 @@ function isCoalignedUnicorn(species, state) {
 // C ref: trap.c mk_trap_statue(). The temporary monster exists solely to
 // generate the living statue's inventory, which is transferred before the
 // monster follows the ordinary mongone()/dmonsfree() detachment lifecycle.
+// The source pre-decrements its ten-try counter: the first nine co-aligned true
+// unicorns retry, but the tenth is accepted.
 function mk_trap_statue(x, y, env) {
     const { state } = env;
     let tryCount = 10;

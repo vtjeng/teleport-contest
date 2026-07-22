@@ -67,9 +67,9 @@ export function add_region(region, state = game) {
     state.level.regions ??= [];
     state.level.regions.push(region);
 
-    // region.c scans the bounding box x-major when activating a region and
-    // records every resident monster once. Long-worm duplication is outside
-    // the initial-level slice because the coordinate grid stores one head.
+    // region.c scans the bounding box x-major when activating a region. Long
+    // worms occupy several grid cells, so the ID check records each resident
+    // monster only once.
     const bounds = region.bounding_box;
     for (let x = bounds.lx; x <= bounds.hx; ++x) {
         for (let y = bounds.ly; y <= bounds.hy; ++y) {

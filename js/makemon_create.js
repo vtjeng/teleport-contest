@@ -738,6 +738,8 @@ function set_mimic_sym(monster, normalized) {
     }
 }
 
+// On the initial level, trap.c:rndmonnum_adj(3, 6) admits source difficulties
+// 3 through 7. The remaining predicates mirror rndmonst()'s viable reservoir.
 function isStatuaryReservoirSpecies(species) {
     return species.pmidx >= 0
         && species.pmidx < SPECIAL_PM
@@ -883,7 +885,8 @@ function addFreshMonsterObject(monster, obj, normalized) {
     return obj;
 }
 
-function monsterWears(monster, mask) {
+// C ref: worn.c which_armor().
+function whichArmor(monster, mask) {
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj.owornmask & mask) return obj;
     }
@@ -1144,7 +1147,7 @@ function rnd_offensive_item(monster, normalized) {
         9 - Number(ptr.difficulty < 4) + 4 * Number(ptr.difficulty > 6),
     )) {
     case 0: {
-        const helmet = monsterWears(monster, W_ARMH);
+        const helmet = whichArmor(monster, W_ARMH);
         if (isHardHelmet(helmet, state)
             || (ptr.mflags1 & (M1_AMORPHOUS | M1_WALLWALK | M1_UNSOLID))
             || ptr.mlet === S_GHOST) {
@@ -1323,7 +1326,7 @@ function armorBonus(obj, state) {
     return base + obj.spe - Math.min(erosion, base);
 }
 
-function monsterWornObject(monster, mask) {
+function uniqueWornObject(monster, mask) {
     let worn = null;
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (!(obj.owornmask & mask)) continue;
@@ -1364,7 +1367,8 @@ function wrappingAllowed(species) {
         && species.mlet !== S_CENTAUR;
 }
 
-function monsterHasHorns(species) {
+// The supported initial-level subset contains only these horned species.
+function supportedSpeciesHasHorns(species) {
     return species.pmidx === PM_WHITE_UNICORN
         || species.pmidx === PM_GRAY_UNICORN
         || species.pmidx === PM_BLACK_UNICORN;
@@ -1406,7 +1410,7 @@ function m_dowear_type(
     state,
     racialException = false,
 ) {
-    const old = monsterWornObject(monster, mask);
+    const old = uniqueWornObject(monster, mask);
     if (old?.cursed) return;
     if (old && mask === W_AMUL && old.otyp !== AMULET_OF_GUARDING) return;
     let best = old;
@@ -1454,7 +1458,7 @@ function m_dowear_type(
             continue;
         }
         if (mask === W_ARMH
-            && monsterHasHorns(monster.data)
+            && supportedSpeciesHasHorns(monster.data)
             && !isFlimsy(obj, state)) {
             continue;
         }
@@ -1751,6 +1755,9 @@ function set_mon_data(monster, species) {
 
 // C ref: mon.c newcham(..., NULL, NO_NC_FLAGS), for a just-created natural
 // chameleon with no inventory, leash, disguise, tail, or hero attachment.
+// Base-species admission is narrower than target-form selection: accepted
+// targets span the polymorphable pre-SPECIAL_PM catalog, so gender, light,
+// invisibility, concealment, and long-worm transitions must cover that catalog.
 function newcham_initial(monster, normalized) {
     const { random, state } = normalized;
     const olddata = monster.data;
@@ -1962,7 +1969,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         const saddleRoll = random.rn2(100);
         if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)
             && can_saddle(monster)
-            && !monsterWears(monster, W_SADDLE)) {
+            && !whichArmor(monster, W_SADDLE)) {
             put_saddle_on_mon(null, monster, normalized);
         }
     } else {

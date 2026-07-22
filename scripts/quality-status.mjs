@@ -146,6 +146,8 @@ function hasImplementationWork(current, dirty) {
     || hasChanges(dirty);
 }
 
+// The ledger is append-only recording chronology. Reordering otherwise valid
+// entries changes this cadence even when each kind's frontier stays monotonic.
 export function reviewsSinceLastSimplification(passes, areaId) {
   let reviews = 0;
   for (const pass of passes) {

@@ -521,7 +521,7 @@ test('m_dowear retains tied and cursed worn helmets', () => {
     }
 });
 
-test('m_dowear fills every creation-time armor slot in source order', () => {
+test('m_dowear fills every eligible creation-time armor slot', () => {
     const state = initialLevelState();
     const monster = newMonster({
         data: state.mons[PM_DWARF],
@@ -1148,20 +1148,22 @@ test('initial chameleon long-worm form owns and removes its full tail', () => {
     light_globals_init(state);
     const redraws = [];
     const hooks = { newsym: (x, y) => redraws.push([x, y]) };
+    // Each requested tail segment shuffles all eight directions. Descending
+    // Fisher-Yates results preserve their source order, selecting west first.
     const identityShuffle = Array.from({ length: 2 }, () =>
         Array.from(
             { length: 8 },
             (_, index) => step('rn2', [8 - index], 7 - index),
         )).flat();
     const random = scriptedRandom([
-        step('rnd', [2], 1),
-        step('d', [5, 8], 20),
-        step('rn2', [2], 0),
-        step('rn2', [3], 0),
-        step('rn2', [98], 59),
-        step('rn2', [10], 0),
-        step('d', [8, 8], 32),
-        step('rn2', [5], 2),
+        step('rnd', [2], 1), // adjusted initial level
+        step('d', [5, 8], 20), // initial chameleon hit points
+        step('rn2', [2], 0), // initial gender is male
+        step('rn2', [3], 0), // select from the 98-entry animal reservoir
+        step('rn2', [98], 59), // reservoir entry 59 is PM_LONG_WORM
+        step('rn2', [10], 0), // new form flips gender to female
+        step('d', [8, 8], 32), // replacement long-worm hit points
+        step('rn2', [5], 2), // request two tail segments
         ...identityShuffle,
     ]);
     const monster = makemon(
@@ -1223,6 +1225,8 @@ test('initial long-worm tail truncates after one blocked neighbor search', () =>
         { length: 8 },
         (_, index) => step('rn2', [8 - index], 7 - index),
     );
+    // This repeats the long-worm selection above, then requests two segments.
+    // One full direction shuffle finds no valid neighbor and truncates the tail.
     const random = scriptedRandom([
         step('rnd', [2], 1),
         step('d', [5, 8], 20),
@@ -1265,6 +1269,8 @@ test('initial long worm skips tail draws when every worm slot is occupied', () =
         (_, index) => index ? { owner: index } : null,
     );
     state.level.worms = [...occupied];
+    // The same transcript selects PM_LONG_WORM and flips gender. With no free
+    // worm slot, source code skips both the rn2(5) length and direction draws.
     const random = scriptedRandom([
         step('rnd', [2], 1),
         step('d', [5, 8], 20),
@@ -1488,10 +1494,12 @@ test('gnome ruler gets the general weapon table and prince quality floor', () =>
     ));
 });
 
-test('Uruk-hai equipment poisons its thrown arrow stack after weight', () => {
+test('Uruk-hai equipment produces a poisoned three-arrow stack with recomputed weight', () => {
     const state = initialLevelState();
     const random = recordingRandom({
         rn2Result: (bound) => {
+            // Zero selects the captain's Uruk-hai branch and passes the
+            // two- and three-way arrow quantity and poison decisions.
             if (bound === 2 || bound === 3) return 0;
             return Math.max(0, bound - 1);
         },
