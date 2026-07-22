@@ -10,6 +10,11 @@ import {
     ACCESSIBLE, BLINDED, CONFUSION, DEAF, FLYING, HALLUC, HALLUC_RES,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
     SLIMED, STONED, STR18, STRANGLED, STUNNED,
+    P_DAGGER, P_KNIFE, P_AXE, P_PICK_AXE, P_SHORT_SWORD, P_SABER,
+    P_CLUB, P_MACE, P_MORNING_STAR, P_FLAIL, P_HAMMER,
+    P_QUARTERSTAFF, P_POLEARMS, P_SPEAR, P_TRIDENT, P_LANCE,
+    P_BOW, P_SLING, P_CROSSBOW, P_DART, P_SHURIKEN, P_BOOMERANG,
+    P_WHIP, P_UNICORN_HORN,
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER, SCORR,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER, SDOOR,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
@@ -17,7 +22,7 @@ import {
     POOL, MOAT, ICE, LAVAPOOL, LAVAWALL, AIR, CLOUD, WATER,
     DBWALL, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN,
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
-    D_BROKEN, D_ISOPEN, LA_DOWN,
+    D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     WM_MASK, WM_C_OUTER, WM_C_INNER,
     WM_T_LONG, WM_T_BL, WM_T_BR,
@@ -49,16 +54,57 @@ import { dist2 } from './hacklib.js';
 import { observe_object } from './o_init.js';
 import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
+import { objectType, isWeptool } from './obj.js';
+import { weapon_type } from './startup_skills.js';
+import { bimanual } from './worn.js';
 import {
+    ART_MITRE_OF_HOLINESS,
+    ART_TSURUGI_OF_MURAMASA,
+} from './artifacts.js';
+import {
+    AKLYS,
+    AMULET_OF_GUARDING,
+    ARMOR_CLASS,
+    AMULET_CLASS,
+    BALL_CLASS,
     BOULDER,
+    CHAIN_CLASS,
+    CLOAK_OF_PROTECTION,
+    COIN_CLASS,
     CORPSE,
+    CORNUTHAUM,
+    CREAM_PIE,
+    DUNCE_CAP,
+    DWARVISH_MATTOCK,
+    EGG,
+    ELVEN_LEATHER_HELM,
+    FEDORA,
     FIRST_REAL_GEM,
     FIRST_SPELL,
+    FLINT,
     FOOD_CLASS,
+    GEM_CLASS,
+    GRAPPLING_HOOK,
+    ILLOBJ_CLASS,
     LAST_GLASS_GEM,
     LAST_SPELL,
+    LUCKSTONE,
+    OBJ_NAME,
     POTION_CLASS,
+    RIN_PROTECTION,
+    RING_CLASS,
+    ROCK,
+    ROCK_CLASS,
+    SCROLL_CLASS,
+    SPBOOK_CLASS,
     STATUE,
+    TIN,
+    TIN_OPENER,
+    TOOL_CLASS,
+    TOWEL,
+    VENOM_CLASS,
+    WAND_CLASS,
+    WEAPON_CLASS,
 } from './objects.js';
 import {
     cmap_symbol,
@@ -121,7 +167,7 @@ import {
 } from './symbols.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
-import { NON_PM, PM_TENGU } from './monsters.js';
+import { M1_HUMANOID, NON_PM, PM_TENGU } from './monsters.js';
 
 // ── ANSI color codes ──
 // Maps CLR_* constants (0-15) to ANSI SGR color codes.
@@ -1060,7 +1106,268 @@ export function get_strength_str(strength) {
     return '18/**';
 }
 
-function _statusLine1() {
+// C ref: weapon.c P_NAME() and weapon_descr(). These are the singular skill
+// descriptions which survive botl.c:weapon_status()'s special cases.
+const WEAPON_SKILL_DESCRIPTIONS = Object.freeze({
+    [P_DAGGER]: 'dagger',
+    [P_KNIFE]: 'knife',
+    [P_AXE]: 'axe',
+    [P_PICK_AXE]: 'pick-axe',
+    [P_CLUB]: 'club',
+    [P_MACE]: 'mace',
+    [P_MORNING_STAR]: 'morning star',
+    [P_FLAIL]: 'flail',
+    [P_HAMMER]: 'hammer',
+    [P_QUARTERSTAFF]: 'quarterstaff',
+    [P_POLEARMS]: 'polearms',
+    [P_SPEAR]: 'spear',
+    [P_TRIDENT]: 'trident',
+    [P_LANCE]: 'lance',
+    [P_BOW]: 'bow',
+    [P_SLING]: 'sling',
+    [P_CROSSBOW]: 'crossbow',
+    [P_DART]: 'dart',
+    [P_SHURIKEN]: 'shuriken',
+    [P_BOOMERANG]: 'boomerang',
+    [P_WHIP]: 'whip',
+    [P_UNICORN_HORN]: 'unicorn horn',
+});
+
+// C ref: drawing.c def_oc_syms[].name after weapon.c makesingular().
+const OBJECT_CLASS_DESCRIPTIONS = Object.freeze({
+    [ILLOBJ_CLASS]: 'illegal object',
+    [WEAPON_CLASS]: 'weapon',
+    [ARMOR_CLASS]: 'armor',
+    [RING_CLASS]: 'ring',
+    [AMULET_CLASS]: 'amulet',
+    [TOOL_CLASS]: 'tool',
+    [FOOD_CLASS]: 'food',
+    [POTION_CLASS]: 'potion',
+    [SCROLL_CLASS]: 'scroll',
+    [SPBOOK_CLASS]: 'spellbook',
+    [WAND_CLASS]: 'wand',
+    [COIN_CLASS]: 'coin',
+    [GEM_CLASS]: 'rock',
+    [ROCK_CLASS]: 'large stone',
+    [BALL_CLASS]: 'iron ball',
+    [CHAIN_CLASS]: 'chain',
+    [VENOM_CLASS]: 'venom',
+});
+
+function _objectName(obj, state) {
+    return OBJ_NAME(objectType(obj, state), state)
+        ?? OBJECT_CLASS_DESCRIPTIONS[obj.oclass]
+        ?? 'object';
+}
+
+function _statusAmmo(obj, state) {
+    const type = objectType(obj, state);
+    const skill = Math.trunc(type.oc_skill ?? type.oc_subtyp ?? 0);
+    return (obj.oclass === WEAPON_CLASS || obj.oclass === GEM_CLASS)
+        && skill >= -P_CROSSBOW && skill <= -P_BOW;
+}
+
+// C ref: weapon.c weapon_descr().
+function _weaponDescr(obj, state) {
+    const skill = weapon_type(obj, state);
+    let description = WEAPON_SKILL_DESCRIPTIONS[skill];
+
+    if (skill === 0) {
+        if ([CORPSE, TIN, EGG, STATUE, BOULDER, TOWEL, TIN_OPENER]
+            .includes(obj.otyp)) {
+            description = _objectName(obj, state);
+        } else if (obj.globby) {
+            description = 'glob';
+        } else {
+            description = OBJECT_CLASS_DESCRIPTIONS[obj.oclass] ?? 'object';
+        }
+    } else if (skill === P_SLING && _statusAmmo(obj, state)) {
+        description = obj.otyp === ROCK
+            || (obj.otyp >= LUCKSTONE && obj.otyp <= FLINT)
+            ? 'stone'
+            : obj.oclass === GEM_CLASS
+                ? 'gem'
+                : OBJECT_CLASS_DESCRIPTIONS[obj.oclass] ?? 'object';
+    } else if (skill === P_BOW && _statusAmmo(obj, state)) {
+        description = 'arrow';
+    } else if (skill === P_CROSSBOW && _statusAmmo(obj, state)) {
+        description = 'bolt';
+    } else if (skill === P_FLAIL && obj.otyp === GRAPPLING_HOOK) {
+        description = 'hook';
+    } else if (skill === P_PICK_AXE && obj.otyp === DWARVISH_MATTOCK) {
+        description = 'mattock';
+    }
+    return description ?? _objectName(obj, state);
+}
+
+// C ref: botl.c weapon_status().
+export function weapon_status(state = game) {
+    const u = state.u;
+    const weapon = state.uwep;
+    if (!weapon) {
+        if (state.uarmg) return 'Empty-hnd';
+        const species = state.mons?.[u?.umonnum] ?? state.youmonst?.data;
+        return species && (species.mflags1 & M1_HUMANOID)
+            ? 'Bare-hnds' : 'No-weapon';
+    }
+    if (u?.twoweap) {
+        const lance = weapon_type(weapon, state) === P_LANCE
+            || weapon_type(state.uswapwep, state) === P_LANCE;
+        return u.usteed && lance ? 'Dual+joust' : 'Dual-weps';
+    }
+
+    const skill = weapon_type(weapon, state);
+    let description;
+    if (u?.usteed && skill === P_LANCE) description = 'joust';
+    else if (weapon.otyp === AKLYS) description = 'aklys';
+    else if (weapon.oclass === WEAPON_CLASS
+             && skill >= P_SHORT_SWORD && skill <= P_SABER) {
+        description = 'sword';
+    } else {
+        switch (skill) {
+        case P_QUARTERSTAFF: description = 'staff'; break;
+        case P_MORNING_STAR: description = 'mrng-star'; break;
+        case P_POLEARMS: description = 'pole'; break;
+        case P_UNICORN_HORN: description = 'unihorn'; break;
+        default:
+            description = _weaponDescr(weapon, state);
+            if (description.toLowerCase() === 'food'
+                && weapon.otyp === CREAM_PIE) description = 'pie';
+            break;
+        }
+    }
+
+    description = description[0].toUpperCase() + description.slice(1);
+    let result = '';
+    if ((weapon.oclass === WEAPON_CLASS || isWeptool(weapon, state))
+        && bimanual(weapon, state)
+        && !description.startsWith('2')
+        && !description.toLowerCase().startsWith('two')) result = '2H-';
+    result += description;
+    return result.replaceAll(' ', '-');
+}
+
+function _helmetSimpleName(helmet) {
+    return [ELVEN_LEATHER_HELM, FEDORA, CORNUTHAUM, DUNCE_CAP]
+        .includes(helmet.otyp) ? 'hat' : 'helm';
+}
+
+// C ref: botl.c armor_status().
+export function armor_status(state = game) {
+    const slots = [
+        state.uarmg,
+        state.uarmc,
+        state.uarm,
+        state.uarmu,
+        state.uarmh,
+        state.uarmf,
+        state.uarms,
+    ];
+    const count = slots.filter(Boolean).length;
+    let result;
+    if (count === 0) {
+        result = 'naked';
+    } else if (count === 1) {
+        result = state.uarmg ? 'gloves'
+            : state.uarmc ? 'cloak'
+                : state.uarm ? 'suit'
+                    : state.uarmu ? 'shirt'
+                        : state.uarmh ? _helmetSimpleName(state.uarmh)
+                            : state.uarmf ? 'boots' : 'shield';
+    } else {
+        result = [
+            state.uarmg && 'G',
+            state.uarmc && 'C',
+            state.uarm && 'A',
+            state.uarmu && 'U',
+            state.uarmh && 'H',
+            state.uarmf && 'B',
+            state.uarms && 'S',
+        ].filter(Boolean).join('');
+    }
+
+    if (state.uright?.otyp === RIN_PROTECTION
+        || state.uleft?.otyp === RIN_PROTECTION
+        || state.uamul?.otyp === AMULET_OF_GUARDING
+        || state.uarmc?.otyp === CLOAK_OF_PROTECTION
+        || state.uarmh?.oartifact === ART_MITRE_OF_HOLINESS
+        || state.uwep?.oartifact === ART_TSURUGI_OF_MURAMASA) result += '+';
+    return result[0].toUpperCase() + result.slice(1);
+}
+
+const TERRAIN_DESCRIPTIONS = Object.freeze([
+    'Stone', 'Wall', 'Wall', 'Wall', 'Wall', 'Wall', 'Wall', 'Wall',
+    'Wall', 'Wall', 'Wall', 'Wall', 'Portcullis', 'Tree', 'Wall',
+    'Stone', 'Pool', 'Moat', 'Water', '(gap)', 'Lava', 'LavaWall',
+    'Bars', 'Doorway', 'Corridor', 'Room', 'Stairs', 'Ladder', 'Fountain',
+    'Throne', 'Sink', 'Grave', 'Altar', 'Ice', 'Bridge', 'Air', 'Cloud',
+    '', 'Wall', 'Floor', 'Ground', 'Open-door', 'Shut-door', 'Swamp',
+    'Submerged', 'Sea', 'WaterWall',
+]);
+
+// C ref: hack.c classify_terrain(). The pseudo-types 39..46 are indices in
+// botl.c terrain_descr[], not map terrain values.
+export function classify_terrain(state = game) {
+    const u = state.u;
+    const loc = state.level?.at(u?.ux, u?.uy);
+    let typ = state.level?.lastseentyp?.[u?.ux]?.[u?.uy] ?? loc?.typ ?? STONE;
+
+    if (u?.uinwater) {
+        typ = 44; // xSUBMERGED
+    } else {
+        switch (typ) {
+        case STONE:
+            if (state.level?.flags?.arboreal) typ = TREE;
+            break;
+        case CORR:
+        case ROOM:
+            typ = sameLevel(u?.uz, state.earth_level) ? 40 : 39;
+            break;
+        case DOOR: {
+            const mask = loc?.flags || loc?.doormask || 0;
+            if (mask & D_ISOPEN) typ = 41;
+            else if (mask & (D_CLOSED | D_LOCKED | D_TRAPPED)) typ = 42;
+            break;
+        }
+        case DRAWBRIDGE_UP: {
+            const under = drawbridgeMask(loc ?? {}) & DB_UNDER;
+            typ = under === DB_ICE ? ICE
+                : under === DB_LAVA ? LAVAPOOL
+                    : under === DB_MOAT ? MOAT : STONE;
+            if (typ === STONE || typ === ROOM) typ = 40;
+            break;
+        }
+        case MOAT:
+            if (sameLevel(u?.uz, state.medusa_level)) typ = 45;
+            else if (sameLevel(u?.uz, state.juiblex_level)) typ = 43;
+            break;
+        case WATER:
+            if (!sameLevel(u?.uz, state.water_level)) typ = 46;
+            break;
+        default:
+            break;
+        }
+    }
+
+    state.iflags ??= {};
+    state.iflags.terrain_typ = typ;
+    return typ;
+}
+
+function _terrainStatus(state = game) {
+    const typ = classify_terrain(state);
+    return TERRAIN_DESCRIPTIONS[typ] ?? '';
+}
+
+function _optionalStatusFields() {
+    const fields = [];
+    if (game.flags?.weaponstatus) fields.push(weapon_status(game));
+    if (game.flags?.armorstatus) fields.push(armor_status(game));
+    if (game.flags?.terrainstatus) fields.push(_terrainStatus(game));
+    return fields.length ? ` ${fields.join(' ')}` : '';
+}
+
+function _statusLine1(includeAlignment = true) {
     const u = game.u;
     if (!u) return '';
     // C ref: botl.c do_statusline1().  The status line capitalizes only an
@@ -1082,8 +1389,9 @@ function _statusLine1() {
     // C uses cursor-forward for gap between title and stats
     // C pads to align stats starting at a fixed column
     const gap = Math.max(1, 31 - title.length);
-    if (gap > 4) return `${title}\x1b[${gap}C${stats} ${align}`;
-    return `${title}${' '.repeat(gap)}${stats} ${align}`;
+    const suffix = includeAlignment ? ` ${align}` : '';
+    if (gap > 4) return `${title}\x1b[${gap}C${stats}${suffix}`;
+    return `${title}${' '.repeat(gap)}${stats}${suffix}`;
 }
 
 const HUNGER_STATUS = Object.freeze([
@@ -1103,70 +1411,204 @@ function _propertyActiveUnblocked(u, index) {
     return _propertyActive(u, index) && !u.uprops?.[index]?.blocked;
 }
 
+function _hungerStatus(u) {
+    if ((u.uhs ?? NOT_HUNGRY) === NOT_HUNGRY) return '';
+    const hunger = HUNGER_STATUS[u.uhs];
+    return hunger ? ` ${hunger}` : '';
+}
+
 // C ref: botl.c do_statusline2(), condition assembly. Encumbrance remains
 // absent at the new-game boundary because u_init_carry_attr_boost() guarantees
 // that the initial inventory is within capacity.
-function _statusConditions(u) {
+function _statusConditions(u, shrinkLevel = 0) {
     const conditions = [];
-    if (_propertyIntrinsic(u, STONED)) conditions.push('Stone');
-    if (_propertyIntrinsic(u, SLIMED)) conditions.push('Slime');
-    if (_propertyIntrinsic(u, STRANGLED)) conditions.push('Strngl');
+    const add = (...forms) => conditions.push(forms[shrinkLevel]);
+    if (_propertyIntrinsic(u, STONED)) add('Stone', 'Ston', 'Sto');
+    if (_propertyIntrinsic(u, SLIMED)) add('Slime', 'Slim', 'Slm');
+    if (_propertyIntrinsic(u, STRANGLED)) add('Strngl', 'Stngl', 'Str');
     if (_propertyIntrinsic(u, SICK)) {
-        if ((u.usick_type ?? 0) & SICK_VOMITABLE) conditions.push('FoodPois');
-        if ((u.usick_type ?? 0) & SICK_NONVOMITABLE) conditions.push('TermIll');
+        if ((u.usick_type ?? 0) & SICK_VOMITABLE)
+            add('FoodPois', 'Fpois', 'Poi');
+        if ((u.usick_type ?? 0) & SICK_NONVOMITABLE)
+            add('TermIll', 'Ill', 'Ill');
     }
-    if ((u.uhs ?? NOT_HUNGRY) !== NOT_HUNGRY) {
-        const hunger = HUNGER_STATUS[u.uhs];
-        if (hunger) conditions.push(hunger);
-    }
-    if (_propertyActiveUnblocked(u, BLINDED)) conditions.push('Blind');
-    if (_propertyActive(u, DEAF) || u.uroleplay?.deaf) conditions.push('Deaf');
-    if (_propertyIntrinsic(u, STUNNED)) conditions.push('Stun');
-    if (_propertyIntrinsic(u, CONFUSION)) conditions.push('Conf');
+    if (_propertyActiveUnblocked(u, BLINDED)) add('Blind', 'Blnd', 'Bl');
+    if (_propertyActive(u, DEAF) || u.uroleplay?.deaf)
+        add('Deaf', 'Def', 'Df');
+    if (_propertyIntrinsic(u, STUNNED)) add('Stun', 'Stun', 'St');
+    if (_propertyIntrinsic(u, CONFUSION)) add('Conf', 'Cnf', 'Cf');
     if (_propertyIntrinsic(u, HALLUC)
-        && !_propertyActive(u, HALLUC_RES)) conditions.push('Hallu');
-    if (_propertyActiveUnblocked(u, LEVITATION)) conditions.push('Lev');
-    if (_propertyActiveUnblocked(u, FLYING)) conditions.push('Fly');
-    if (u.usteed) conditions.push('Ride');
+        && !_propertyActive(u, HALLUC_RES)) add('Hallu', 'Hal', 'Hl');
+    if (_propertyActiveUnblocked(u, LEVITATION)) add('Lev', 'Lev', 'Lv');
+    if (_propertyActiveUnblocked(u, FLYING)) add('Fly', 'Fly', 'Fl');
+    if (u.usteed) add('Ride', 'Rid', 'Rd');
     return conditions.length ? ` ${conditions.join(' ')}` : '';
+}
+
+function _statusExperience(u) {
+    return game.flags?.showexp
+        ? `${u.ulevel || 1}/${u.uexp || 0}`
+        : `${u.ulevel || 1}`;
+}
+
+function _statusVersionSuffix(status) {
+    if (!game.flags?.showvers) return status.slice(0, 79);
+    const version = status_version(game.flags);
+    // win/tty/wintty.c render_status() right-justifies BL_VERS against the
+    // TTY's 79 printable status columns when it is the row's final field.
+    const versionColumn = Math.max(status.length + 1, 79 - version.length);
+    return `${status.padEnd(versionColumn)}${version}`.slice(0, 79);
 }
 
 function _statusLine2() {
     const u = game.u;
     if (!u) return '';
-    const experience = game.flags?.showexp
-        ? `${u.ulevel || 1}/${u.uexp || 0}`
-        : `${u.ulevel || 1}`;
     const time = game.flags?.time ? ` T:${game.moves || 1}` : '';
-    const status = `Dlvl:${u.uz?.dlevel || 1} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${experience}${time}${_statusConditions(u)}`;
-    if (!game.flags?.showvers) return status;
-
-    const version = status_version(game.flags);
-    // win/tty/wintty.c render_status() right-justifies BL_VERS against the
-    // TTY's 79 printable status columns when it is the row's final field.
-    const versionColumn = Math.max(status.length + 1, 79 - version.length);
-    return `${status.padEnd(versionColumn)}${version}`;
+    const optional = _optionalStatusFields();
+    const versionLength = game.flags?.showvers
+        ? status_version(game.flags).length + 1 : 0;
+    let conditionLevel = 0;
+    let capacityPadding = '';
+    let shortLevel = false;
+    const build = () => `${shortLevel ? 'Dl' : 'Dlvl'}:${u.uz?.dlevel || 1} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}${time}${_hungerStatus(u)}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
+    let status = build();
+    // wintty.c make_things_fit() first tries both abbreviated condition
+    // vocabularies, then shortens "Dlvl" to "Dl" before truncating.
+    while (status.length + versionLength > 79 && conditionLevel < 2) {
+        conditionLevel++;
+        status = build();
+    }
+    if (status.length + versionLength > 79) {
+        // shrink_enc() reconstructs an unencumbered BL_CAP as one blank;
+        // unlike tty_status_update(), it does not suppress that blank again.
+        capacityPadding = ' ';
+        status = build();
+    }
+    if (status.length + versionLength > 79) {
+        shortLevel = true;
+        status = build();
+    }
+    return _statusVersionSuffix(status);
 }
 
-function writeStatusRows(display) {
-    if (!display?.grid) return;
-    display.clearRow(22);
-    display.clearRow(23);
-    const first = _statusLine1().replace(
-        /\x1b\[[0-9;]*[A-Za-z]/g,
-        (sequence) => sequence.match(/\x1b\[\d+C/)
-            ? ' '.repeat(parseInt(sequence.slice(2), 10)) : '',
-    );
-    for (let column = 0;
-        column < Math.min(first.length, display.cols);
-        ++column) {
-        display.setCell(column, 22, first[column], NO_COLOR, 0);
+function _statusLine3VitalsBase(u) {
+    const align = u.ualign?.type === 0
+        ? 'Neutral' : u.ualign?.type > 0 ? 'Lawful' : 'Chaotic';
+    return `${align} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
+}
+
+function _statusLine3Vitals() {
+    const u = game.u;
+    if (!u) return '';
+    return `${_statusLine3VitalsBase(u)}${_hungerStatus(u)}`;
+}
+
+function _statusLine3Details() {
+    const u = game.u;
+    if (!u) return '';
+    const time = game.flags?.time ? ` T:${game.moves || 1}` : '';
+    const optional = _optionalStatusFields();
+    const version = game.flags?.showvers ? status_version(game.flags) : '';
+    const versionFieldLength = version ? version.length + 1 : 0;
+    let conditionLevel = 0;
+    let shortLevel = false;
+    const prefix = () => `${shortLevel ? 'Dl' : 'Dlvl'}:${u.uz?.dlevel || 1}${time}`;
+    let conditions = _statusConditions(u, conditionLevel);
+    const nominalLength = () => prefix().length + conditions.length
+        + optional.length + versionFieldLength;
+    while (nominalLength() > 79 && conditionLevel < 2) {
+        conditionLevel++;
+        conditions = _statusConditions(u, conditionLevel);
     }
-    const second = _statusLine2();
-    for (let column = 0;
-        column < Math.min(second.length, display.cols);
-        ++column) {
-        display.setCell(column, 23, second[column], NO_COLOR, 0);
+    if (nominalLength() > 79) shortLevel = true;
+
+    // C ref: wintty.c render_status(). It computes nominal field positions,
+    // indents BL_CONDITION toward BL_HUNGER, then resumes later fields at
+    // their nominal positions. That can overwrite the indented condition.
+    const row = new Array(79).fill(' ');
+    const write = (start, text) => {
+        for (let index = 0; index < text.length; ++index) {
+            const column = start + index;
+            if (column >= 0 && column < row.length) row[column] = text[index];
+        }
+    };
+    const level = prefix();
+    write(0, level);
+    let nominal = level.length;
+    if (conditions) {
+        const x = nominal + 1; // tty field positions are one-based.
+        const hungerX = _statusLine3VitalsBase(u).length + 1;
+        let lastColumn = 80;
+        if (!optional && version) lastColumn -= versionFieldLength;
+        let conditionX = x;
+        if (x < hungerX
+            && hungerX + conditions.length < lastColumn - 1) {
+            conditionX = hungerX;
+        } else if (x + conditions.length < 79) {
+            conditionX = lastColumn - conditions.length;
+        }
+        write(conditionX - 1, conditions);
+        nominal += conditions.length;
+    }
+    if (optional) {
+        write(nominal, optional);
+        nominal += optional.length;
+    }
+    if (version) {
+        const field = ` ${version}`;
+        const rightStart = 79 - field.length;
+        const start = Math.max(nominal, rightStart);
+        for (let column = nominal; column < start && column < row.length;
+            ++column) row[column] = ' ';
+        write(start, field);
+    }
+    return row.join('').trimEnd();
+}
+
+function statusTextRows() {
+    return game.iflags?.wc2_statuslines === 3
+        ? [_statusLine1(false), _statusLine3Vitals(), _statusLine3Details()]
+        : [_statusLine1(), _statusLine2()];
+}
+
+function mapViewport(rows, statusRowCount) {
+    const height = Math.min(ROWNO, rows - 1 - statusRowCount);
+    if (height >= ROWNO) return { height: ROWNO, top: 0 };
+
+    // win/tty/wintty.c setclipped() and tty_cliparound(). Startup begins
+    // with clipy=0; one cliparound() follows initial hero placement.
+    let top = 0;
+    let bottom = height;
+    const heroY = game.u?.uy ?? 0;
+    if (heroY < top + 2) {
+        top = Math.max(0, heroY - Math.trunc((bottom - top) / 2));
+        bottom = top + height;
+    } else if (heroY > bottom - 2) {
+        bottom = Math.min(
+            ROWNO,
+            bottom + Math.trunc((bottom - top) / 2),
+        );
+        top = bottom - height;
+    }
+    return { height, top };
+}
+
+function writeStatusRows(display, rows = statusTextRows()) {
+    if (!display?.grid) return;
+    const firstRow = display.rows - rows.length;
+    for (let index = 0; index < rows.length; ++index) {
+        const screenRow = firstRow + index;
+        display.clearRow(screenRow);
+        const text = rows[index].replace(
+            /\x1b\[[0-9;]*[A-Za-z]/g,
+            (sequence) => sequence.match(/\x1b\[\d+C/)
+                ? ' '.repeat(parseInt(sequence.slice(2), 10)) : '',
+        );
+        for (let column = 0;
+            column < Math.min(text.length, display.cols);
+            ++column) {
+            display.setCell(column, screenRow, text[column], NO_COLOR, 0);
+        }
     }
 }
 
@@ -1201,19 +1643,20 @@ export function serialize_terminal_grid(display) {
 function _buildScreenOutput() {
     const display = game?.nhDisplay;
     if (!display) return;
+    const statusRows = statusTextRows();
+    const viewport = mapViewport(display.rows, statusRows.length);
 
     let output = '';
     // Row 0: message
     output += (game._pending_message || '') + '\n';
 
-    // Rows 1-21: map (rendered with DEC + ANSI, per-row SO/SI)
-    for (let y = 0; y < ROWNO; y++) {
+    // Map viewport between the message row and the status window.
+    for (let offset = 0; offset < viewport.height; ++offset) {
+        const y = viewport.top + offset;
         output += render_map_row(y) + '\n';
     }
 
-    // Row 22-23: status
-    output += _statusLine1() + '\n';
-    output += _statusLine2();
+    output += statusRows.join('\n');
 
     game._screen_output = output;
 
@@ -1226,7 +1669,8 @@ function _buildScreenOutput() {
             display.setCell(c, 0, msg[c], NO_COLOR, 0);
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);
-        for (let y = 0; y < ROWNO; y++) {
+        for (let offset = 0; offset < viewport.height; ++offset) {
+            const y = viewport.top + offset;
             for (let x = 1; x < COLNO; x++) {
                 const loc = game.level?.at(x, y);
                 if (!loc) continue;
@@ -1238,7 +1682,7 @@ function _buildScreenOutput() {
                 if (!ch || ch === ' ') continue;
                 display.setCell(
                     x - 1,
-                    y + 1,
+                    offset + 1,
                     ch,
                     browserGlyphs
                         ? loc.disp_browser_color ?? loc.disp_color ?? NO_COLOR
@@ -1249,10 +1693,13 @@ function _buildScreenOutput() {
                 );
             }
         }
-        writeStatusRows(display);
+        writeStatusRows(display, statusRows);
         // Cursor at hero
         if (game.u?.ux > 0)
-            display.setCursor(game.u.ux - 1, game.u.uy + 1);
+            display.setCursor(
+                game.u.ux - 1,
+                game.u.uy - viewport.top + 1,
+            );
     }
 }
 

@@ -242,6 +242,7 @@ function defaultResult() {
             wc_inverse: true,
             wc_splash_screen: true,
             wc_eight_bit_input: false,
+            wc2_statuslines: 2,
             customcolors: true,
             customsymbols: true,
             menu_overlay: true,
@@ -1325,6 +1326,17 @@ function applyOption(result, optionState, option, lineNumber) {
                 );
             }
             result.flags.versinfo = versinfo;
+        } else if (name === 'statuslines') {
+            // options.c:optfn_statuslines() uses atoi() and accepts only the
+            // two window-port layouts supported by tty.
+            const statuslines = Number.parseInt(value, 10);
+            if (statuslines !== 2 && statuslines !== 3) {
+                optionError(
+                    lineNumber,
+                    "'statuslines' must be 2 or 3",
+                );
+            }
+            result.iflags.wc2_statuslines = statuslines;
         } else {
             // This parser currently gives source semantics to the startup
             // subset above. Preserve other valid options for later subsystem

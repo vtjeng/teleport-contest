@@ -827,6 +827,7 @@ test('valid unported startup option mappings remain available', () => {
     assert.equal(parsed.flags.verbose, false);
     assert.equal(parsed.symset, 'UTF8');
     assert.equal(parsed.iflags.prevmsg_window, 'r');
+    assert.equal(parsed.iflags.wc2_statuslines, 2);
     assert.equal(parsed.flags.suppress_alert, '3.7');
     assert.equal(parsed.flags.soundlib, 'example');
     assert.equal(parsed.flags.s_vwall, '|');
@@ -838,6 +839,21 @@ test('valid unported startup option mappings remain available', () => {
             unknown,
         );
     }
+});
+
+test('statuslines selects one of the two tty status-window heights', () => {
+    assert.equal(
+        parseNethackrc('OPTIONS=statuslines:3').iflags.wc2_statuslines,
+        3,
+    );
+    assert.equal(
+        parseNethackrc('OPTIONS=statuslines:2').iflags.wc2_statuslines,
+        2,
+    );
+    assert.throws(
+        () => parseNethackrc('OPTIONS=statuslines:4'),
+        /statuslines.*2 or 3/u,
+    );
 });
 
 test('showvers and versinfo preserve the release-build status selection', () => {

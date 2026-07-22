@@ -7,6 +7,7 @@ import {
     AM_NEUTRAL,
     AM_SANCTUM,
     ALTAR,
+    BLINDED,
     DBWALL,
     DB_FLOOR,
     DB_ICE,
@@ -21,6 +22,7 @@ import {
     CORR,
     CROSSWALL,
     D_CLOSED,
+    D_ISOPEN,
     DUST,
     DOOR,
     FOUNTAIN,
@@ -48,12 +50,15 @@ import {
 import * as symbolExports from '../js/symbols.js';
 import {
     bot,
+    armor_status,
+    classify_terrain,
     flush_screen,
     hero_glyph_info,
     monster_glyph_info,
     newsym,
     object_glyph_info,
     terrain_glyph,
+    weapon_status,
 } from '../js/display.js';
 import { make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
@@ -68,6 +73,7 @@ import {
     create_region,
 } from '../js/region.js';
 import {
+    M1_HUMANOID,
     NON_PM,
     PM_GOBLIN,
     PM_TENGU,
@@ -76,14 +82,27 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import {
+    ARROW,
     CHEST,
+    CLOAK_OF_PROTECTION,
+    COIN_CLASS,
     CORPSE,
+    CROSSBOW_BOLT,
     DIAMOND,
+    FEDORA,
+    LEATHER_ARMOR,
+    LEATHER_GLOVES,
+    LOW_BOOTS,
     objects_globals_init,
     POT_BOOZE,
     POTION_CLASS,
+    QUARTERSTAFF,
+    SMALL_SHIELD,
+    SPEAR,
     SPE_FORCE_BOLT,
     STATUE,
+    T_SHIRT,
+    TWO_HANDED_SWORD,
     WEAPON_CLASS,
 } from '../js/objects.js';
 import {
@@ -1455,6 +1474,148 @@ test('sym_val consumes the first configured UTF-8 byte and source escapes', () =
     assert.equal(sym_val(String.raw`\o8`), 0x6F);
 });
 
+test('weapon and armor status descriptions follow botl source categories', () => {
+    const state = resetGame();
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    const object = (otyp) => ({
+        otyp,
+        oclass: state.objects[otyp].oc_class,
+    });
+    state.u = { umonnum: 0, twoweap: false, usteed: null };
+    state.mons = [{ mflags1: M1_HUMANOID }];
+
+    assert.equal(weapon_status(state), 'Bare-hnds');
+    state.uarmg = object(LEATHER_GLOVES);
+    assert.equal(weapon_status(state), 'Empty-hnd');
+    state.uarmg = null;
+
+    // Quarterstaves and two-handed swords exercise capitalization after the
+    // source's 2H- prefix rather than capitalization of the prefix itself.
+    state.uwep = object(QUARTERSTAFF);
+    assert.equal(weapon_status(state), '2H-Staff');
+    state.uwep = object(TWO_HANDED_SWORD);
+    assert.equal(weapon_status(state), '2H-Sword');
+    state.uwep = object(ARROW);
+    assert.equal(weapon_status(state), 'Arrow');
+    state.uwep = object(CROSSBOW_BOLT);
+    assert.equal(weapon_status(state), 'Bolt');
+
+    state.uwep = null;
+    assert.equal(armor_status(state), 'Naked');
+    state.uarmh = object(FEDORA);
+    assert.equal(armor_status(state), 'Hat');
+
+    state.uarmg = object(LEATHER_GLOVES);
+    state.uarmc = object(CLOAK_OF_PROTECTION);
+    state.uarm = object(LEATHER_ARMOR);
+    state.uarmu = object(T_SHIRT);
+    state.uarmf = object(LOW_BOOTS);
+    state.uarms = object(SMALL_SHIELD);
+    assert.equal(
+        armor_status(state),
+        'GCAUHBS+',
+        'multiple pieces use source slot order and mark protection',
+    );
+});
+
+test('terrain status classifies map and pseudo-terrain types', () => {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.iflags = {};
+    state.u = {
+        // This interior coordinate permits every synthetic terrain case.
+        ux: 7,
+        uy: 4,
+        uz: { dnum: 0, dlevel: 1 },
+        uinwater: false,
+    };
+    const loc = state.level.at(7, 4);
+
+    loc.typ = ROOM;
+    assert.equal(classify_terrain(state), 39, 'room becomes xFLOOR');
+    loc.typ = DOOR;
+    loc.flags = D_ISOPEN;
+    assert.equal(classify_terrain(state), 41, 'open door becomes xOPENDOOR');
+    loc.flags = D_CLOSED;
+    assert.equal(classify_terrain(state), 42, 'closed door becomes xSHUTDOOR');
+    loc.typ = DRAWBRIDGE_UP;
+    loc.flags = DB_LAVA;
+    assert.equal(classify_terrain(state), 20, 'lava underlay becomes LAVAPOOL');
+    state.u.uinwater = true;
+    assert.equal(classify_terrain(state), 44, 'underwater becomes xSUBMERGED');
+    assert.equal(state.iflags.terrain_typ, 44);
+});
+
+test('optional status fields preserve tty placement and overflow shrinking', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.level = new GameMap();
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    const object = (otyp) => ({
+        otyp,
+        oclass: state.objects[otyp].oc_class,
+    });
+    state.level.at(7, 4).typ = STAIRS;
+    state.flags = {
+        weaponstatus: true,
+        armorstatus: true,
+        terrainstatus: true,
+    };
+    state.iflags = { wc2_statuslines: 3 };
+    state.urole = {
+        name: { m: 'Valkyrie' },
+        rank: { m: 'Stripling' },
+    };
+    state.u = {
+        ux: 7,
+        uy: 4,
+        uz: { dnum: 0, dlevel: 1 },
+        umonnum: 0,
+        ulevel: 1,
+        uexp: 0,
+        uhp: 18,
+        uhpmax: 18,
+        uen: 1,
+        uenmax: 1,
+        uac: 6,
+        ualign: { type: 1 },
+        // Storage order is STR, INT, WIS, DEX, CON, CHA.
+        acurr: { a: [15, 10, 8, 13, 20, 9] },
+        uprops: [],
+        uroleplay: {},
+    };
+    state.mons = [{ mflags1: M1_HUMANOID }];
+    state.uwep = object(SPEAR);
+    state.uarms = object(SMALL_SHIELD);
+
+    await flush_screen(1);
+    const row = (index) => state.nhDisplay.grid[index]
+        .map((cell) => cell.ch).join('').trimEnd();
+    assert.equal(row(23), 'Dlvl:1 Spear Shield Stairs');
+
+    // Maximal first-command options force make_things_fit() through both
+    // condition abbreviations, its empty-capacity blank, and short "Dl".
+    state.iflags.wc2_statuslines = 2;
+    state.flags.showexp = true;
+    state.flags.showvers = true;
+    state.flags.time = true;
+    state.flags.versinfo = 1;
+    state.moves = 1;
+    state.u.uroleplay.deaf = true;
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.uwep = null;
+    state.uarms = null;
+    state.uarmu = object(T_SHIRT);
+    // 999 is the three-digit starting-gold case which makes all enabled
+    // fields exceed tty's 79 printable columns.
+    state.invent = { oclass: COIN_CLASS, quan: 999, nobj: null };
+    await flush_screen(1);
+    assert.match(row(23), /^Dl:1 .* T:1  Bl Df Bare-hnds Shirt Stairs/u);
+    assert.equal(row(23).length, 79);
+});
+
 test('status uses source attribute order and exceptional strength text', async () => {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
@@ -1535,4 +1696,78 @@ test('status uses source attribute order and exceptional strength text', async (
     state.plname = 'ABCDEFGHIJKLMNOPQRSTUVWX';
     await bot();
     assert.match(row(22), /^ABCDEFGHIJKLMNOP the Plunderer/);
+
+    state.plname = 'Hero';
+    state.iflags = { wc2_statuslines: 3 };
+    state.u.uroleplay = {};
+    await flush_screen(1);
+    assert.match(
+        row(21),
+        /St:19 Dx:15 Co:16 In:13 Wi:14 Ch:17$/u,
+    );
+    assert.equal(
+        row(22),
+        'Chaotic $:0 HP:16(16) Pw:1(1) AC:8 Xp:1',
+    );
+    assert.equal(row(23), 'Dlvl:1');
+
+    state.u.uroleplay = { deaf: true };
+    await bot();
+    assert.equal(
+        row(23).indexOf('Deaf'),
+        row(22).length + 1,
+        'three-row conditions align with the preceding hunger field',
+    );
+
+    state.flags.showvers = true;
+    state.flags.versinfo = 1;
+    await bot();
+    assert.equal(row(23).slice(0, 6), 'Dlvl:1');
+    assert.equal(row(23).slice(74), '5.0.0');
+    assert.doesNotMatch(
+        row(23),
+        /Deaf/u,
+        'initial tty version padding overwrites an indented condition',
+    );
+});
+
+test('three-line status clips the map around a bottom-row hero', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.level = new GameMap();
+    state.flags = {};
+    state.iflags = { wc2_statuslines: 3 };
+    state.urole = {
+        name: { m: 'Archeologist' },
+        rank: { m: 'Digger' },
+    };
+    state.u = {
+        ux: 1,
+        uy: 20,
+        uz: { dlevel: 1 },
+        ulevel: 1,
+        uhp: 12,
+        uhpmax: 12,
+        uen: 3,
+        uenmax: 3,
+        uac: 10,
+        ualign: { type: 1 },
+        // Attribute storage is STR, INT, WIS, DEX, CON, CHA. Distinct
+        // values expose both field order and the clipped cursor projection.
+        acurr: { a: [12, 13, 14, 15, 16, 17] },
+    };
+    state.level.at(1, 0).disp_ch = 'A';
+    state.level.at(1, 20).disp_ch = 'Z';
+
+    await flush_screen(1);
+
+    const row = (index) => state.nhDisplay.grid[index]
+        .map((cell) => cell.ch).join('').trimEnd();
+    assert.equal(row(1), '', 'map row zero is above the clipped viewport');
+    assert.equal(row(20), 'Z', 'map row twenty occupies the last map row');
+    assert.match(row(21), /^Hero the Digger/u);
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        [0, 20],
+    );
 });
