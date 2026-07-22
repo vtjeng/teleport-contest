@@ -23,16 +23,24 @@ import {
     MM_NOGRP,
     M_SEEN_NOTHING,
     NO_MINVENT,
+    ONAME,
+    ONAME_NO_FLAGS,
     OBJ_MINVENT,
     SEE_INVIS,
     W_AMUL,
     W_ARMH,
 } from './const.js';
+import { artifact_exists } from './artifacts.js';
 import { newedog } from './dog.js';
 import { christen_monst, rndghostname } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { add_to_minv, update_inventory } from './invent.js';
+import {
+    add_to_minv,
+    obfree,
+    obj_extract_self,
+    update_inventory,
+} from './invent.js';
 import {
     newmonhp,
     peace_minded,
@@ -44,8 +52,12 @@ import { is_female, is_male, is_neuter } from './mondata.js';
 import { m_at, newMonster, place_monster } from './monst.js';
 import {
     AT_WEAP,
+    M1_ANIMAL,
+    M1_MINDLESS,
+    M1_NOHANDS,
     M2_DOMESTIC,
     M2_GREEDY,
+    MZ_SMALL,
     NON_PM,
     PM_ELF,
     PM_FOG_CLOUD,
@@ -62,10 +74,12 @@ import {
     PM_NEWT,
     PM_PONY,
     PM_SEWER_RAT,
+    PM_SKELETON,
     PM_WOOD_NYMPH,
     S_GHOST,
     S_KOBOLD,
     S_KOP,
+    S_MUMMY,
     S_NYMPH,
     S_ORC,
 } from './monsters.js';
@@ -126,12 +140,8 @@ const INITIAL_LEVEL_MONSTERS = new Set([
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
-// include/monattk.h and include/monflag.h predicates used by muse.c's
-// random-item selectors. monsters.js exports only the generated constants
-// needed broadly enough to share across modules.
+// include/monattk.h predicate used by muse.c's random-item selectors.
 const AT_EXPL = 13;
-const M1_MINDLESS = 0x00010000;
-const M1_ANIMAL = 0x00040000;
 
 export class UnsupportedMonsterCreationError extends Error {
     constructor(operation) {
@@ -433,32 +443,114 @@ function m_initinv(monster, normalized) {
     }
 }
 
-// C ref: worn.c m_dowear(). Within the supported inventory set, an orcish
-// helm and amulet of life saving are the only wearable objects. Neither has
-// an applicable creation-time extrinsic side effect.
-function m_dowear(monster) {
+function armorBonus(obj, state) {
+    const base = state.objects?.[obj.otyp]?.a_ac;
+    if (!Number.isInteger(base)) {
+        throw new Error('m_dowear requires initialized armor data');
+    }
+    const erosion = Math.max(obj.oeroded ?? 0, obj.oeroded2 ?? 0);
+    return base + obj.spe - Math.min(erosion, base);
+}
+
+// C ref: worn.c m_dowear()/m_dowear_type(). Within the supported inventory
+// set, an orcish helm and amulet of life saving are the only wearable objects.
+// Neither has an applicable creation-time extrinsic side effect.
+export function m_dowear(monster, _creation = false, env = {}) {
+    const state = env.state ?? game;
+    const species = monster.data;
+    const bodyFlags = species.mflags1 ?? 0;
+    if (species.msize < MZ_SMALL
+        || (bodyFlags & M1_NOHANDS)
+        || (bodyFlags & M1_ANIMAL)) {
+        return monster;
+    }
+    if ((bodyFlags & M1_MINDLESS)
+        && (!_creation
+            || (species.mlet !== S_MUMMY
+                && species.pmidx !== PM_SKELETON))) {
+        return monster;
+    }
     let amulet = null;
-    let helm = null;
+    let wornAmulet = null;
+    let wornHelm = null;
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj.where !== OBJ_MINVENT || obj.ocarry !== monster) {
             throw new Error('m_dowear found invalid monster inventory ownership');
         }
-        if (obj.otyp === AMULET_OF_LIFE_SAVING) amulet ??= obj;
-        else if (obj.otyp === ORCISH_HELM) helm = obj;
-        else if (obj.oclass === AMULET_CLASS
+        if (obj.otyp === AMULET_OF_LIFE_SAVING) {
+            amulet ??= obj;
+            if (obj.owornmask & W_AMUL) {
+                if (wornAmulet) {
+                    throw new Error('m_dowear found multiple worn amulets');
+                }
+                wornAmulet = obj;
+            }
+        } else if (obj.otyp === ORCISH_HELM) {
+            if (obj.owornmask & W_ARMH) {
+                if (wornHelm) {
+                    throw new Error('m_dowear found multiple worn helmets');
+                }
+                wornHelm = obj;
+            }
+        } else if (obj.oclass === AMULET_CLASS
             || obj.oclass === ARMOR_CLASS) {
             throw new UnsupportedMonsterCreationError(
                 `wearing object ${obj.otyp}`,
             );
         }
     }
-    if (amulet && !amulet.owornmask) {
+
+    // m_dowear_type(W_AMUL) keeps an occupied life-saving slot without even
+    // considering another amulet.
+    if (!wornAmulet && amulet) {
         monster.misc_worn_check |= W_AMUL;
         amulet.owornmask |= W_AMUL;
     }
-    if (helm && !helm.owornmask) {
+
+    // m_dowear_type(W_ARMH) retains ties and replaces only with a strictly
+    // better unworn helm.  extra_pref() is zero for every supported helmet.
+    let bestHelm = wornHelm;
+    if (!wornHelm?.cursed) {
+        for (let obj = monster.minvent; obj; obj = obj.nobj) {
+            if (obj.otyp !== ORCISH_HELM || obj.owornmask) continue;
+            if (!bestHelm
+                || armorBonus(obj, state) > armorBonus(bestHelm, state)) {
+                bestHelm = obj;
+            }
+        }
+    }
+    if (bestHelm && bestHelm !== wornHelm) {
+        if (wornHelm) wornHelm.owornmask &= ~W_ARMH;
         monster.misc_worn_check |= W_ARMH;
-        helm.owornmask |= W_ARMH;
+        bestHelm.owornmask |= W_ARMH;
+    }
+    return monster;
+}
+
+// C ref: mkobj.c discard_minvent().  The currently supported makemon()
+// species cannot receive invocation artifacts or other special objects which
+// mdrop_special_objs() would preserve on the floor.  Artifact bookkeeping is
+// still reversed here before each generated inventory object is uncreated.
+export function discard_minvent(monster, uncreateArtifacts, env = {}) {
+    const normalized = creationEnv(env);
+    while (monster.minvent) {
+        const obj = monster.minvent;
+        // C's extract_from_minvent(..., TRUE, TRUE) removes worn state before
+        // unlinking.  No supported creation-time worn item grants an
+        // extrinsic, so clearing these two masks is the complete local effect.
+        monster.misc_worn_check &= ~obj.owornmask;
+        obj.owornmask = 0;
+        obj_extract_self(obj, normalized);
+        if (uncreateArtifacts && obj.oartifact) {
+            artifact_exists(
+                obj,
+                ONAME(obj),
+                false,
+                ONAME_NO_FLAGS,
+                normalized.state,
+            );
+        }
+        obfree(obj, null, normalized);
     }
     return monster;
 }
@@ -575,7 +667,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     if (!(mmflags & NO_MINVENT)) {
         if (isArmed(ptr)) m_initweap(monster, normalized);
         m_initinv(monster, normalized);
-        m_dowear(monster);
+        m_dowear(monster, true, normalized);
 
         const saddleRoll = random.rn2(100);
         if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)) {

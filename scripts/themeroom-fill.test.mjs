@@ -9,27 +9,38 @@ import {
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
+    OBJ_DELETED,
     OBJ_FLOOR,
+    OBJ_MINVENT,
     ROOM,
     ROOMOFFSET,
     STRAT_WAITFORU,
     TIMER_LEVEL,
     TIMER_OBJECT,
+    W_AMUL,
+    W_ARMH,
     WEB,
 } from '../js/const.js';
 import { init_artifacts } from '../js/artifacts.js';
 import { GameMap } from '../js/game.js';
+import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
+import { newMonster } from '../js/monst.js';
+import { mksobj } from '../js/obj.js';
 import {
+    create_monster,
     run_themeroom_fill,
     themeroom_fill,
 } from '../js/themeroom_fill.js';
 import { THEMEROOM_FILL_DEFINITIONS } from '../js/themerooms.js';
 import {
+    AMULET_OF_LIFE_SAVING,
     ARMOR_CLASS,
+    APPLE,
     ARROW,
     BOW,
     DAGGER,
+    ORCISH_HELM,
     RING_CLASS,
     SCROLL_CLASS,
     WEAPON_CLASS,
@@ -38,10 +49,16 @@ import {
 } from '../js/objects.js';
 import {
     PM_ARCHEOLOGIST,
+    PM_GOBLIN,
     PM_GHOST,
+    PM_PONY,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
+import {
+    lspo_object,
+    new_sp_lev_object_context,
+} from '../js/sp_lev_object.js';
 import {
     peek_timer,
     start_timer,
@@ -95,6 +112,44 @@ function randomWithRn2(rn2) {
         rnd: () => { throw new Error('unexpected rnd'); },
         rne: () => { throw new Error('unexpected rne'); },
         rnz: () => { throw new Error('unexpected rnz'); },
+    };
+}
+
+// Choose the last ordinary branch for every bounded draw.  This keeps object
+// fixtures non-artifact, unenchanted, uneroded, and ungreased without hiding
+// a scripted PRNG trace in tests which exercise only descriptor ownership.
+function quietObjectRandom() {
+    return {
+        d(number, sides) { return number * sides; },
+        rn1(_bound, base) { return base; },
+        rn2(bound) { return Math.max(0, bound - 1); },
+        rnd() { return 1; },
+        rne() { return 1; },
+        rnz(value) { return value; },
+    };
+}
+
+function monsterDescriptorFixture() {
+    const { level, room } = twoByTwoRoom();
+    const state = {
+        ...rawMonsterGenerationState(),
+        context: { ident: 2 },
+        flags: { initalign: 0 },
+        in_mklev: true,
+        level,
+        moves: 7,
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+    };
+    objects_globals_init(state);
+    init_artifacts(state);
+    monst_globals_init(state);
+    reset_mvitals(state);
+    return {
+        context: new_sp_lev_object_context(),
+        level,
+        random: quietObjectRandom(),
+        room,
+        state,
     };
 }
 
@@ -400,6 +455,189 @@ test('Ghost fill shares one coordinate and preserves equipment order', () => {
     assert.ok(!requests.some(([, spec]) => spec.class === RING_CLASS));
 });
 
+test('monster descriptors scope custom inventory and finish its worn state', () => {
+    const { context, level, random, room, state } = monsterDescriptorFixture();
+    const monster = newMonster({
+        data: state.mons[PM_GOBLIN],
+        mnum: PM_GOBLIN,
+        m_id: 40,
+        mcanmove: true,
+    });
+    const generatedDagger = mksobj(DAGGER, true, false, { state, random });
+    add_to_minv(monster, generatedDagger, { state, random });
+
+    let customHelm = null;
+    const created = create_monster({
+        id: PM_GOBLIN,
+        coordinate: { x: 0, y: 0 },
+        inventory(callbackMonster, callbackEnv) {
+            assert.equal(callbackMonster, monster);
+            customHelm = lspo_object({
+                id: ORCISH_HELM,
+                coordinate: { x: 0, y: 0 },
+            }, room, callbackEnv);
+        },
+    }, room, {
+        state,
+        random,
+        hooks: { createMonster: () => monster },
+        spObjectContext: context,
+    });
+
+    assert.equal(created, monster);
+    assert.equal(generatedDagger.where, OBJ_DELETED);
+    assert.equal(customHelm.where, OBJ_MINVENT);
+    assert.equal(customHelm.ocarry, monster);
+    assert.equal(customHelm.owornmask, W_ARMH);
+    assert.equal(monster.misc_worn_check & W_ARMH, W_ARMH);
+    assert.equal(context.inventCarryingMonster, null);
+
+    const laterApple = lspo_object({
+        id: APPLE,
+        coordinate: { x: 1, y: 0 },
+    }, room, { state, random, spObjectContext: context });
+    assert.equal(laterApple.where, OBJ_FLOOR);
+    assert.equal(level.objects[3][3], laterApple);
+});
+
+test('kept default inventory preserves an amulet and upgrades a weaker helm', () => {
+    const { context, random, room, state } = monsterDescriptorFixture();
+    const monster = newMonster({
+        data: state.mons[PM_GOBLIN],
+        mnum: PM_GOBLIN,
+        m_id: 42,
+        mcanmove: true,
+    });
+    const oldAmulet = mksobj(
+        AMULET_OF_LIFE_SAVING,
+        true,
+        false,
+        { state, random },
+    );
+    const oldHelm = mksobj(ORCISH_HELM, true, false, { state, random });
+    oldHelm.spe = 0;
+    add_to_minv(monster, oldAmulet, { state, random });
+    add_to_minv(monster, oldHelm, { state, random });
+    oldAmulet.owornmask = W_AMUL;
+    oldHelm.owornmask = W_ARMH;
+    monster.misc_worn_check = W_AMUL | W_ARMH;
+
+    let newAmulet = null;
+    let newHelm = null;
+    create_monster({
+        id: PM_GOBLIN,
+        coordinate: { x: 0, y: 0 },
+        keepDefaultInventory: true,
+        inventory(_callbackMonster, callbackEnv) {
+            newAmulet = lspo_object({
+                id: AMULET_OF_LIFE_SAVING,
+                coordinate: { x: 0, y: 0 },
+            }, room, callbackEnv);
+            newHelm = lspo_object({
+                id: ORCISH_HELM,
+                spe: 3,
+                coordinate: { x: 0, y: 0 },
+            }, room, callbackEnv);
+        },
+    }, room, {
+        state,
+        random,
+        hooks: { createMonster: () => monster },
+        spObjectContext: context,
+    });
+
+    assert.equal(oldAmulet.owornmask, W_AMUL);
+    assert.equal(newAmulet.owornmask, 0);
+    assert.equal(oldHelm.owornmask, 0);
+    assert.equal(newHelm.owornmask, W_ARMH);
+    assert.equal(monster.misc_worn_check, W_AMUL | W_ARMH);
+});
+
+test('animal carriers keep custom armor in inventory without wearing it', () => {
+    const { context, random, room, state } = monsterDescriptorFixture();
+    const pony = newMonster({
+        data: state.mons[PM_PONY],
+        mnum: PM_PONY,
+        m_id: 43,
+        mcanmove: true,
+    });
+    let helm = null;
+
+    create_monster({
+        id: PM_PONY,
+        coordinate: { x: 0, y: 0 },
+        inventory(_callbackMonster, callbackEnv) {
+            helm = lspo_object({
+                id: ORCISH_HELM,
+                coordinate: { x: 0, y: 0 },
+            }, room, callbackEnv);
+        },
+    }, room, {
+        state,
+        random,
+        hooks: { createMonster: () => pony },
+        spObjectContext: context,
+    });
+
+    assert.equal(helm.where, OBJ_MINVENT);
+    assert.equal(helm.ocarry, pony);
+    assert.equal(helm.owornmask, 0);
+    assert.equal(pony.misc_worn_check & W_ARMH, 0);
+});
+
+test('failed monster creation runs custom inventory with a null carrier', () => {
+    const { context, level, random, room, state } = monsterDescriptorFixture();
+    let callbackObject = null;
+
+    const monster = create_monster({
+        id: PM_GOBLIN,
+        coordinate: { x: 0, y: 0 },
+        inventory(callbackMonster, callbackEnv) {
+            assert.equal(callbackMonster, null);
+            callbackObject = lspo_object({
+                id: APPLE,
+                coordinate: { x: 0, y: 0 },
+            }, room, callbackEnv);
+        },
+    }, room, {
+        state,
+        random,
+        hooks: { createMonster: () => null },
+        spObjectContext: context,
+    });
+
+    assert.equal(monster, null);
+    assert.equal(callbackObject.where, OBJ_FLOOR);
+    assert.equal(level.objects[2][3], callbackObject);
+    assert.equal(context.inventCarryingMonster, null);
+});
+
+test('throwing monster inventory callbacks still clear their carrier', () => {
+    const { context, random, room, state } = monsterDescriptorFixture();
+    const monster = newMonster({
+        data: state.mons[PM_GOBLIN],
+        mnum: PM_GOBLIN,
+        m_id: 41,
+        mcanmove: true,
+    });
+    const marker = new Error('inventory failed');
+
+    assert.throws(
+        () => create_monster({
+            id: PM_GOBLIN,
+            coordinate: { x: 0, y: 0 },
+            inventory() { throw marker; },
+        }, room, {
+            state,
+            random,
+            hooks: { createMonster: () => monster },
+            spObjectContext: context,
+        }),
+        (error) => error === marker,
+    );
+    assert.equal(context.inventCarryingMonster, null);
+});
+
 test('Ghost fill default path preserves the complete creation draw order', () => {
     const { level, room } = twoByTwoRoom();
     const state = {
@@ -491,28 +729,28 @@ test('Ghost equipment descriptors clear generated blessing and wear state', () =
         {
             name: 'erosion, blessing, and grease',
             middle: [
-                step('rn2', [11], 0),
-                step('rne', [3], 1),
-                step('rn2', [2], 1),
-                step('rn2', [20], 19),
-                step('rn2', [100], 99),
-                step('rn2', [80], 0),
-                step('rn2', [9], 1),
-                step('rn2', [80], 0),
-                step('rn2', [9], 1),
-                step('rn2', [1000], 0),
+                step('rn2', [11], 0), // take positive enchantment branch
+                step('rne', [3], 1), // generate a +1 enchantment
+                step('rn2', [2], 1), // generate the dagger blessed
+                step('rn2', [20], 19), // do not turn it into an artifact
+                step('rn2', [100], 99), // skip erosion proofing
+                step('rn2', [80], 0), // generate primary erosion
+                step('rn2', [9], 1), // stop primary erosion at one level
+                step('rn2', [80], 0), // generate secondary erosion
+                step('rn2', [9], 1), // stop secondary erosion at one level
+                step('rn2', [1000], 0), // generate grease
             ],
             expectedSpe: 1,
         },
         {
             name: 'erosion proofing',
             middle: [
-                step('rn2', [11], 10),
-                step('rn2', [10], 9),
-                step('rn2', [10], 9),
-                step('rn2', [20], 19),
-                step('rn2', [100], 0),
-                step('rn2', [1000], 999),
+                step('rn2', [11], 10), // skip positive enchantment
+                step('rn2', [10], 9), // skip negative enchantment
+                step('rn2', [10], 9), // leave generated BUC neutral
+                step('rn2', [20], 19), // do not turn it into an artifact
+                step('rn2', [100], 0), // generate erosion proofing
+                step('rn2', [1000], 999), // skip grease
             ],
             expectedSpe: 0,
         },
@@ -533,15 +771,15 @@ test('Ghost equipment descriptors clear generated blessing and wear state', () =
         objects_globals_init(state);
         init_artifacts(state);
         const random = scriptedRandom([
-            step('rn2', [4], 2),
-            step('rn2', [100], 0),
-            step('rnd', [2], 1),
+            step('rn2', [4], 2), // choose relative coordinate <1,0>
+            step('rn2', [100], 0), // pass the 65% dagger equipment gate
+            step('rnd', [2], 1), // advance the dagger object identifier
             ...scenario.middle,
-            step('rn2', [100], 99),
-            step('rn2', [100], 99),
-            step('rn2', [100], 99),
-            step('rn2', [100], 99),
-            step('rn2', [100], 99),
+            step('rn2', [100], 99), // miss the random-weapon gate
+            step('rn2', [100], 99), // miss the bow-and-arrow gate
+            step('rn2', [100], 99), // miss the armor gate
+            step('rn2', [100], 99), // miss the ring gate
+            step('rn2', [100], 99), // miss the scroll gate
         ]);
 
         run_themeroom_fill(fillById('ghost_of_an_adventurer'), room, 1, {

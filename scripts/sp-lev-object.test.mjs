@@ -6,6 +6,7 @@ import {
     OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
+    OBJ_FREE,
     OBJ_MINVENT,
     ONAME_LEVEL_DEF,
     REVIVE_MON,
@@ -51,6 +52,7 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import {
+    UnsupportedSpecialObjectError,
     create_object,
     lspo_object,
     new_sp_lev_object_context,
@@ -227,41 +229,74 @@ test('named exact and class-generated novels resolve their canonical index', () 
 
 test('special-object numeric fields use their source C storage widths', () => {
     const speCases = [
-        [-129, 127],
-        [-128, -128],
-        [127, 127],
-        [128, -128],
-        [255, -1],
-        [256, 0],
+        {
+            name: 'one below signed-byte minimum wraps to maximum',
+            input: -129,
+            expected: 127,
+        },
+        { name: 'signed-byte minimum is stable', input: -128, expected: -128 },
+        { name: 'signed-byte maximum is stable', input: 127, expected: 127 },
+        {
+            name: 'one above signed-byte maximum wraps to minimum',
+            input: 128,
+            expected: -128,
+        },
+        { name: 'all byte bits set becomes minus one', input: 255, expected: -1 },
+        { name: 'one full byte wraps to zero', input: 256, expected: 0 },
+        {
+            name: 'value below positive short-sentinel alias assigns minus 128',
+            input: 65408,
+            expected: -128,
+        },
+        {
+            name: 'positive short alias of minus 127 preserves generated zero',
+            input: 65409,
+            expected: 0,
+        },
+        {
+            name: 'value above positive short-sentinel alias assigns minus 126',
+            input: 65410,
+            expected: -126,
+        },
+        {
+            name: 'negative short alias of minus 127 preserves generated zero',
+            input: -65663,
+            expected: 0,
+        },
     ];
-    for (const [spe, expected] of speCases) {
+    for (const { name, input, expected } of speCases) {
         const { room, state } = roomState();
         const obj = lspo_object({
             id: CHEST,
-            spe,
+            spe: input,
             coordinate: { x: 0, y: 0 },
         }, room, { state, random: quietGenerationRandom() });
-        assert.equal(obj.spe, expected, `spe ${spe}`);
+        assert.equal(obj.spe, expected, name);
     }
 
     const rechargeCases = [
-        [-9, 7],
-        [-8, 0],
-        [-1, 7],
-        [1, 1],
-        [7, 7],
-        [8, 0],
-        [9, 1],
+        { name: 'one below negative field width wraps to seven', input: -9, expected: 7 },
+        { name: 'negative field width wraps to zero', input: -8, expected: 0 },
+        { name: 'minus one sets all three bits', input: -1, expected: 7 },
+        { name: 'lowest positive field value is stable', input: 1, expected: 1 },
+        { name: 'highest field value is stable', input: 7, expected: 7 },
+        { name: 'one full field width wraps to zero', input: 8, expected: 0 },
+        { name: 'one above field width wraps to one', input: 9, expected: 1 },
     ];
-    for (const [recharged, expected] of rechargeCases) {
+    for (const { name, input, expected } of rechargeCases) {
         const { room, state } = roomState();
         const obj = lspo_object({
             id: CHEST,
-            recharged,
+            recharged: input,
             coordinate: { x: 0, y: 0 },
         }, room, { state, random: quietGenerationRandom() });
-        assert.equal(obj.recharged, expected, `recharged ${recharged}`);
-        if (expected === 0) assert.ok(!Object.is(obj.recharged, -0));
+        assert.equal(obj.recharged, expected, name);
+        if (expected === 0) {
+            assert.ok(
+                !Object.is(obj.recharged, -0),
+                `${name}: zero must not retain a negative sign`,
+            );
+        }
     }
 });
 
@@ -855,6 +890,7 @@ test('containers and tombstones take precedence over an active carrier', () => {
 
 test('direct saddles use can_saddle while other monsters carry them normally', () => {
     const horseSetup = roomState();
+    horseSetup.state.in_mklev = false;
     const warhorse = carrier(horseSetup.state, PM_WARHORSE, 77);
     horseSetup.state.u.ustuck = warhorse;
     const horseContext = new_sp_lev_object_context();
@@ -902,6 +938,123 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
         wornSaddle.lknown,
         wornSaddle.tknown,
     ], Array(7).fill(true));
+
+    const unseenSetup = roomState();
+    unseenSetup.state.in_mklev = false;
+    const unseenHorse = carrier(unseenSetup.state, PM_WARHORSE, 78);
+    const unseenContext = new_sp_lev_object_context();
+    unseenContext.inventCarryingMonster = unseenHorse;
+    const unseenSaddle = lspo_object({
+        id: SADDLE,
+        name: 'unseen saddle',
+        coordinate: { x: 0, y: 0 },
+    }, unseenSetup.room, {
+        state: unseenSetup.state,
+        random: quietGenerationRandom(),
+        hooks: {
+            canSeeMonster: () => false,
+            nameObject(obj) {
+                Object.assign(obj, {
+                    known: true,
+                    dknown: true,
+                    bknown: true,
+                    rknown: true,
+                    cknown: true,
+                    lknown: true,
+                    tknown: true,
+                });
+                return obj;
+            },
+        },
+        spObjectContext: unseenContext,
+    });
+    assert.deepEqual([
+        unseenSaddle.known,
+        unseenSaddle.dknown,
+        unseenSaddle.bknown,
+        unseenSaddle.rknown,
+        unseenSaddle.cknown,
+        unseenSaddle.lknown,
+        unseenSaddle.tknown,
+    ], [true, false, false, false, false, false, false]);
+
+    const tameSetup = roomState();
+    tameSetup.state.in_mklev = false;
+    const tameHorse = carrier(tameSetup.state, PM_WARHORSE, 79);
+    tameHorse.mtame = true;
+    const tameContext = new_sp_lev_object_context();
+    tameContext.inventCarryingMonster = tameHorse;
+    const tameSaddle = lspo_object({
+        id: SADDLE,
+        coordinate: { x: 0, y: 0 },
+    }, tameSetup.room, {
+        state: tameSetup.state,
+        random: quietGenerationRandom(),
+        spObjectContext: tameContext,
+    });
+    assert.equal(tameSaddle.where, OBJ_MINVENT);
+
+    const saddledSetup = roomState();
+    const saddledHorse = carrier(saddledSetup.state, PM_WARHORSE, 80);
+    const saddledContext = new_sp_lev_object_context();
+    saddledContext.inventCarryingMonster = saddledHorse;
+    const existingSaddle = lspo_object({
+        id: SADDLE,
+        coordinate: { x: 0, y: 0 },
+    }, saddledSetup.room, {
+        state: saddledSetup.state,
+        random: quietGenerationRandom(),
+        spObjectContext: saddledContext,
+    });
+    saddledSetup.state.in_mklev = false;
+    let impossibleCalls = 0;
+    const rejectedSaddle = lspo_object({
+        id: SADDLE,
+        coordinate: { x: 1, y: 0 },
+    }, saddledSetup.room, {
+        state: saddledSetup.state,
+        random: quietGenerationRandom(),
+        hooks: {
+            impossible(message) {
+                ++impossibleCalls;
+                assert.equal(
+                    message,
+                    'put_saddle_on_mon: saddle obj could get orphaned',
+                );
+            },
+        },
+        spObjectContext: saddledContext,
+    });
+    assert.equal(impossibleCalls, 1);
+    assert.equal(saddledHorse.minvent, existingSaddle);
+    assert.equal(existingSaddle.owornmask, W_SADDLE);
+    assert.equal(rejectedSaddle.where, OBJ_FREE);
+
+    const unsupportedSetup = roomState();
+    unsupportedSetup.state.in_mklev = false;
+    const unsupportedHorse = carrier(
+        unsupportedSetup.state,
+        PM_WARHORSE,
+        81,
+    );
+    const unsupportedContext = new_sp_lev_object_context();
+    unsupportedContext.inventCarryingMonster = unsupportedHorse;
+    assert.throws(
+        () => lspo_object({
+            id: SADDLE,
+            coordinate: { x: 0, y: 0 },
+        }, unsupportedSetup.room, {
+            state: unsupportedSetup.state,
+            random: quietGenerationRandom(),
+            spObjectContext: unsupportedContext,
+        }),
+        (error) => error instanceof UnsupportedSpecialObjectError
+            && error.operation === 'monster visibility for custom inventory',
+    );
+    const unsupportedSaddle = unsupportedSetup.level.objects[2][3];
+    assert.equal(unsupportedSaddle.where, OBJ_FLOOR);
+    assert.equal(unsupportedSetup.level.objlist, unsupportedSaddle);
+    assert.equal(unsupportedHorse.minvent, null);
 
     const ogreSetup = roomState();
     const ogre = carrier(ogreSetup.state, PM_OGRE);

@@ -23,7 +23,11 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { induced_align } from './dungeon.js';
-import { makemon } from './makemon_create.js';
+import {
+    discard_minvent,
+    makemon,
+    m_dowear,
+} from './makemon_create.js';
 import { is_female, is_male } from './mondata.js';
 import { mktrap } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -173,12 +177,12 @@ function createObject(specification, room, env) {
     return lspo_object(specification, room, env);
 }
 
-function createMonster(specification, room, env) {
+function createMonsterBody(specification, room, env) {
     const replacement = env.hooks.createMonster;
-    // This hook replaces the complete special-level monster specification,
-    // including coordinate selection and the asleep/waiting state changes.
-    // A replacement must return the finished monster; none of the fallback
-    // processing below runs after the hook returns.
+    // This hook replaces create_monster()'s monster construction and
+    // attribute processing, including coordinate selection and asleep/waiting
+    // state.  The surrounding lspo_monster() custom-inventory lifecycle still
+    // runs after the replacement returns.
     if (replacement) return replacement(specification, room, env);
 
     // sp_lev.c:lspo_monster() resolves a fixed species and its parser gender
@@ -214,6 +218,48 @@ function createMonster(specification, room, env) {
     if (specification.asleep != null)
         monster.msleeping = Boolean(specification.asleep);
     if (specification.waiting) monster.mstrategy |= STRAT_WAITFORU;
+    return monster;
+}
+
+// C refs: sp_lev.c lspo_monster(), create_monster(), and
+// spo_end_moninvent().  The descriptor callback runs even when monster
+// creation fails; in that case the null carrier leaves its objects on floor.
+export function create_monster(specification, room, rawEnv = {}) {
+    const env = fillEnvironment(rawEnv);
+    const inventory = specification.inventory;
+    if (inventory != null && typeof inventory !== 'function') {
+        throw new TypeError(
+            'special-level monster inventory must be a function',
+        );
+    }
+    if (specification.keepDefaultInventory != null
+        && typeof specification.keepDefaultInventory !== 'boolean') {
+        throw new TypeError(
+            'special-level monster keepDefaultInventory must be boolean',
+        );
+    }
+
+    const monster = createMonsterBody(specification, room, env);
+    const hasCustomInventory = typeof inventory === 'function';
+    const keepDefaultInventory = hasCustomInventory
+        ? specification.keepDefaultInventory === true
+        : specification.keepDefaultInventory !== false;
+    if (monster && !keepDefaultInventory)
+        discard_minvent(monster, true, env);
+    if (!hasCustomInventory) return monster;
+
+    const context = env.spObjectContext;
+    context.inventCarryingMonster = monster;
+    try {
+        inventory(monster, env);
+        // spo_end_moninvent() deliberately consults the shared carrier rather
+        // than a saved local.  Preserve that behavior if a nested descriptor
+        // replaced or cleared it during the callback.
+        if (context.inventCarryingMonster)
+            m_dowear(context.inventCarryingMonster, true, env);
+    } finally {
+        context.inventCarryingMonster = null;
+    }
     return monster;
 }
 
@@ -272,7 +318,7 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
         env.random.rn2,
         { x: room.lx, y: room.ly },
     );
-    createMonster({
+    create_monster({
         id: PM_GHOST,
         asleep: true,
         waiting: true,

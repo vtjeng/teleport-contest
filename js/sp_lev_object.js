@@ -10,6 +10,7 @@ import {
     ONAME,
     ONAME_NO_FLAGS,
     SP_COORD_IS_RANDOM,
+    W_SADDLE,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { bury_an_obj } from './bury.js';
@@ -130,8 +131,14 @@ function normalizedSpe(specification) {
     return specification.spe ?? -127;
 }
 
-// Preserve the parser's wide -127 sentinel until assignment, then reproduce
-// the narrower C object fields explicitly.
+// The level descriptor stores spe in a signed short before create_object()
+// compares its -127 sentinel.  The object itself narrows an assigned value to
+// signed char afterward.
+function signedShort(value) {
+    const word = ((value % 0x10000) + 0x10000) % 0x10000;
+    return word >= 0x8000 ? word - 0x10000 : word;
+}
+
 function signedChar(value) {
     const byte = ((value % 0x100) + 0x100) % 0x100;
     return byte >= 0x80 ? byte - 0x100 : byte;
@@ -161,7 +168,7 @@ function normalizeSpecification(specification, context) {
     }
     return {
         ...specification,
-        spe: normalizedSpe(specification),
+        spe: signedShort(normalizedSpe(specification)),
         buc: normalizedBuc(specification),
         corpsenm: specification.corpsenm ?? NON_PM,
         quantity: specification.quantity ?? -1,
@@ -466,15 +473,41 @@ function carrierCanSeeObject(monster, env, specification) {
     );
 }
 
+function saddleRejectedBeforePickup(obj, monster) {
+    if (obj.otyp !== SADDLE || !can_saddle(monster)) return false;
+    for (let carried = monster.minvent; carried; carried = carried.nobj) {
+        if (carried.owornmask & W_SADDLE) return true;
+    }
+    return false;
+}
+
+function preflightCarrierVisibility(obj, monster, env, specification) {
+    // mpickobj() skips canseemon() for tame carriers.  For every other live
+    // carrier, verify that JS owns the complete visibility boundary before
+    // remove_object() unlinks the newly generated floor object.  The provider
+    // itself still runs later at the source-ordered pickup point.
+    if (!saddleRejectedBeforePickup(obj, monster)
+        && !monster.mtame
+        && !env.state.in_mklev
+        && typeof env.hooks.canSeeMonster !== 'function') {
+        throw new UnsupportedSpecialObjectError(
+            'monster visibility for custom inventory',
+            specification,
+        );
+    }
+}
+
 function putInCurrentMonster(obj, monster, env, specification) {
+    preflightCarrierVisibility(obj, monster, env, specification);
     remove_object(obj, env);
     if (obj.otyp === SADDLE && can_saddle(monster)) {
-        const canSeeMonster = env.hooks.canSeeMonster;
         put_saddle_on_mon(obj, monster, {
             ...env,
-            canseemon: typeof canSeeMonster === 'function'
-                ? (candidate) => canSeeMonster(candidate, env)
-                : undefined,
+            canseemon: (candidate) => carrierCanSeeObject(
+                candidate,
+                env,
+                specification,
+            ),
         });
         return obj;
     }

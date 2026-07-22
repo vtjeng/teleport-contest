@@ -6,11 +6,15 @@ import * as monsterExports from '../js/monsters.js';
 import {
     AT_WEAP,
     G_NOCORPSE,
+    M1_ANIMAL,
     M1_HUMANOID,
+    M1_MINDLESS,
+    M1_NOHANDS,
     M1_UNSOLID,
     M2_GREEDY,
     M3_INFRAVISION,
     MZ_MEDIUM,
+    MZ_SMALL,
     MONSTER_CLASSES,
     MONSTER_TEMPLATES,
     MS_GUARDIAN,
@@ -36,13 +40,17 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(monsterClassSymbol(S_HUMAN), '@');
     assert.equal(MONSTER_TEMPLATES[NUMMONS].pmidx, -1);
     assert.equal(MONSTER_TEMPLATES[NUMMONS].pmnames[2], '');
-    // These source constants represent an attack type, a wide behavior flag,
-    // an extended behavior flag, and a sound category from the generated set.
+    // These source constants sample attack, body-shape, behavior, size,
+    // extended-behavior, and sound categories from the generated set.
     assert.equal(AT_WEAP, 254);
+    assert.equal(M1_NOHANDS, 0x00002000);
+    assert.equal(M1_MINDLESS, 0x00010000);
     assert.equal(M1_HUMANOID, 0x00020000);
+    assert.equal(M1_ANIMAL, 0x00040000);
     assert.equal(M1_UNSOLID, 0x00100000);
     assert.equal(M2_GREEDY, 0x10000000);
     assert.equal(M3_INFRAVISION, 0x0100);
+    assert.equal(MZ_SMALL, 1);
     assert.equal(MZ_MEDIUM, 2);
     assert.equal(MS_GUARDIAN, 38);
 
@@ -61,7 +69,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        '350f6936382215865573c94d4d8cb889564df892febf39c70921b81375481de1',
+        'b30a15caf39ecb9cebd2acce96d010fc8d4df06b3b0d4ab57529ff4996efa865',
     );
 });
 
