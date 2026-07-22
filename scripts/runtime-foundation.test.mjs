@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import {
@@ -20,6 +21,7 @@ import {
     PM_LITTLE_DOG,
     PM_PONY,
 } from '../js/monsters.js';
+import { WAN_WISHING } from '../js/objects.js';
 import { str2role } from '../js/roles.js';
 import {
     d,
@@ -32,6 +34,40 @@ import {
     rnl,
 } from '../js/rng.js';
 import { vfsWriteFile } from '../js/storage.js';
+import { Terminal } from '../js/terminal.js';
+
+async function runWithGridCapture(input) {
+    const previous = Terminal.prototype.serialize;
+    Terminal.prototype.serialize = function serializeGridForTest() {
+        return JSON.stringify(this.grid);
+    };
+    try {
+        const session = await runSegment(input);
+        return {
+            session,
+            grids: session.getScreens().map((screen) => JSON.parse(screen)),
+        };
+    } finally {
+        if (previous) Terminal.prototype.serialize = previous;
+        else delete Terminal.prototype.serialize;
+    }
+}
+
+function sha256(value) {
+    return createHash('sha256').update(value).digest('hex');
+}
+
+function gridDigest(grid) {
+    // Pin every character, recorder-facing color, and attribute in the 24x80
+    // capture without embedding 1,920 cells of fixture prose in this test.
+    return sha256(JSON.stringify(grid.map(
+        (row) => row.map(({ ch, color, attr }) => [ch, color, attr]),
+    )));
+}
+
+function rowText(grid, row) {
+    return grid[row].map((cell) => cell.ch).join('').trimEnd();
+}
 
 function seedBytes(seed) {
     let remaining = BigInt(seed) & 0xFFFFFFFFFFFFFFFFn;
@@ -356,6 +392,86 @@ test('explore notice preserves the welcome boundary before preamble RNG', async 
     assert.equal(game.program_state.in_moveloop, 1);
 });
 
+test('startup accessibility notices preserve complete command-boundary state', async () => {
+    const mentionMap = await runWithGridCapture({
+        seed: 19,
+        datetime: '20000110090000',
+        nethackrc: 'OPTIONS=name:Named,role:Healer,race:human,'
+            + 'gender:male,align:neutral,dogname:Fido\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,'
+            + 'mention_map,spot_monsters\n',
+        moves: '   ',
+    });
+    assert.deepEqual(
+        mentionMap.grids.map((grid) => rowText(grid, 0)),
+        [
+            'Hello Named, welcome to NetHack!  '
+                + 'You are a neutral male human Healer.--More--',
+            'You are in a rectangular 7 by 3 room.  '
+                + '(2north,3west): doorway.--More--',
+            '(2north,1west): sink.  '
+                + '(northwest): tame little dog called Fido.--More--',
+            '(3west): doorway.  (1south,2west): closed door.',
+        ],
+    );
+    assert.deepEqual(
+        mentionMap.grids.map(gridDigest),
+        [
+            '26761a4b8bc034e2aaa178a256b55a8e57c692bbed2465277f47082634547771',
+            '55eb309a151cb0caa43582df46794074e5e505559b97e171873e1dd336dfb270',
+            '2b71514063bf4bd2ac632b778fb8d76c178ca9180855e851a09ac81442d255a5',
+            'adab195ce177dbe6ad043be8076f29ebdeb1bb3b379882f4bbbc0c011d60a036',
+        ],
+    );
+    assert.deepEqual(mentionMap.session.getCursors(), [
+        [78, 0, 1], [71, 0, 1], [72, 0, 1], [25, 6, 1],
+    ]);
+    assert.deepEqual(
+        mentionMap.session.getRngSlices().map((slice) => [
+            slice.length, sha256(slice.join('\n')),
+        ]),
+        [
+            [2713, 'cc6c514f17e1eadba10b19fcc1843ac3701fc767b2bbe4fe8d327bc83646ae03'],
+            [0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+            [0, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'],
+            [2, '55184f9159866256ba9694b4fb630440b6dd61924d29ce37a7d95c91bd628eb3'],
+        ],
+    );
+
+    const spotMonsters = await runWithGridCapture({
+        seed: 103,
+        datetime: '20000110090000',
+        nethackrc: 'OPTIONS=name:Spot,role:Healer,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,spot_monsters\n',
+        moves: ' ',
+    });
+    assert.deepEqual(
+        spotMonsters.grids.map((grid) => rowText(grid, 0)),
+        [
+            'Hello Spot, welcome to NetHack!  '
+                + 'You are a neutral male human Healer.--More--',
+            'You see your little dog.  You see a kobold zombie.',
+        ],
+    );
+    assert.deepEqual(spotMonsters.grids.map(gridDigest), [
+        'd8a005ec5b92054c616921ebd4ab0477ae3e4d5caed90afd57c6a0f9ab5918ef',
+        'c92bec3884be65e2f5b9816a2a7d1f69d17305a03eb609996398c11cbad40858',
+    ]);
+    assert.deepEqual(spotMonsters.session.getCursors(), [
+        [77, 0, 1], [57, 4, 1],
+    ]);
+    assert.deepEqual(
+        spotMonsters.session.getRngSlices().map((slice) => [
+            slice.length, sha256(slice.join('\n')),
+        ]),
+        [
+            [2427, '901f1e530cdd65a5947396ca4cede881987e44101ad96ee3b8764b202173fc34'],
+            [2, 'e83fc4d48b2347dc71e2b45a245eff6f12db842956dcf6830423e996bda8c75c'],
+        ],
+    );
+});
+
 test('wd_message preserves denied-mode message and cleanup order', async () => {
     const messages = [];
     const pline = async (message) => messages.push(message);
@@ -444,6 +560,55 @@ test('set_playmode applies recorder authorization before new-game state', () => 
     assert.equal(authorized.discover, false);
     assert.equal(authorized.plname, 'wizard');
     assert.equal(authorized.gp.plnamelen, 6);
+});
+
+test('denied debug mode becomes explore before initial inventory generation', async () => {
+    const runMode = async (mode) => {
+        const session = await runSegment({
+            seed: 9_753_186,
+            datetime: '20260129120000',
+            nethackrc: 'OPTIONS=name:ModeTiming,role:Healer,race:human,'
+                + 'gender:male,align:neutral\n'
+                + `OPTIONS=playmode:${mode},!legacy,!tutorial,!splash_screen`,
+            moves: '',
+            storage: null,
+        });
+        const inventory = [];
+        for (let object = game.invent; object; object = object.nobj) {
+            inventory.push([object.otyp, object.quan]);
+        }
+        return {
+            inventory,
+            rng: [...session.getRngLog()],
+            discover: game.discover,
+            wizard: game.wizard,
+            flags: {
+                debug: game.flags.debug,
+                explore: game.flags.explore,
+            },
+            wizError: Boolean(game.iflags.wiz_error_flag),
+        };
+    };
+
+    const explore = await runMode('explore');
+    const deniedDebug = await runMode('debug');
+    assert.equal(explore.inventory.some(([otyp]) => otyp === WAN_WISHING), true);
+    assert.deepEqual(deniedDebug.inventory, explore.inventory);
+    assert.deepEqual(deniedDebug.rng, explore.rng);
+    assert.deepEqual(
+        {
+            discover: deniedDebug.discover,
+            wizard: deniedDebug.wizard,
+            flags: deniedDebug.flags,
+            wizError: deniedDebug.wizError,
+        },
+        {
+            discover: true,
+            wizard: false,
+            flags: { debug: false, explore: true },
+            wizError: true,
+        },
+    );
 });
 
 test('runSegment shows welcome More before an unset tutorial query', async () => {

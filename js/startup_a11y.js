@@ -9,16 +9,25 @@ import {
     AM_MASK,
     AM_NEUTRAL,
     AM_SANCTUM,
+    BLINDED,
     COLNO,
+    COULD_SEE,
     CORR,
     DBWALL,
     DOOR,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     FOUNTAIN,
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_MAP,
+    GPCOORDS_NONE,
+    GPCOORDS_SCREEN,
     GRAVE,
     ICE,
     IRONBARS,
+    INFRAVISION,
+    IS_POOL,
     LADDER,
     LAVAPOOL,
     LAVAWALL,
@@ -37,6 +46,11 @@ import {
     STRAT_WAITMASK,
     THRONE,
     TREE,
+    DETECT_MONSTERS,
+    FIRE_RES,
+    SEE_INVIS,
+    TELEPAT,
+    WARN_OF_MON,
     WATER,
     W_SADDLE,
     D_BROKEN,
@@ -57,24 +71,35 @@ import {
     BALL_CLASS,
     BOULDER,
     CHAIN_CLASS,
+    COPPER,
     COIN_CLASS,
     CORPSE,
     FOOD_CLASS,
     GEM_CLASS,
+    GLASS,
     ILLOBJ_CLASS,
+    IRON,
+    LIQUID,
     OBJ_DESCR,
     OBJ_NAME,
     POTION_CLASS,
+    PLASTIC,
     RING_CLASS,
     ROCK_CLASS,
     SCROLL_CLASS,
     SPBOOK_CLASS,
     STATUE,
     TOOL_CLASS,
+    DRAGON_HIDE,
+    TALLOW_CANDLE,
     VENOM_CLASS,
+    WAN_FIRE,
     WAND_CLASS,
+    WAX_CANDLE,
     WEAPON_CLASS,
+    WOOD,
 } from './objects.js';
+import { M1_MINDLESS } from './monsters.js';
 import {
     S_altar,
     S_bars,
@@ -164,7 +189,7 @@ const OBJECT_CLASS_NAMES = Object.freeze({
     [VENOM_CLASS]: 'venom',
 });
 
-function compassDescription(x, y, state) {
+function compassDescription(x, y, state, full = true) {
     const dx = x - state.u.ux;
     const dy = y - state.u.uy;
     if (!dx && !dy) return '(here)';
@@ -176,14 +201,38 @@ function compassDescription(x, y, state) {
     }
 
     const parts = [];
-    if (dy) parts.push(`${Math.abs(dy)}${dy < 0 ? 'north' : 'south'}`);
-    if (dx) parts.push(`${Math.abs(dx)}${dx < 0 ? 'west' : 'east'}`);
+    if (dy) {
+        const direction = dy < 0 ? (full ? 'north' : 'n')
+            : (full ? 'south' : 's');
+        parts.push(`${Math.abs(dy)}${direction}`);
+    }
+    if (dx) {
+        const direction = dx < 0 ? (full ? 'west' : 'w')
+            : (full ? 'east' : 'e');
+        parts.push(`${Math.abs(dx)}${direction}`);
+    }
     return `(${parts.join(',')})`;
+}
+
+function coordinateDescription(x, y, state) {
+    const configured = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    // pline.c substitutes full compass coordinates for accessible messages
+    // when the ordinary whatis coordinate option is disabled.
+    const mode = configured === GPCOORDS_NONE ? GPCOORDS_COMFULL : configured;
+    if (mode === GPCOORDS_COMPASS)
+        return compassDescription(x, y, state, false);
+    if (mode === GPCOORDS_COMFULL)
+        return compassDescription(x, y, state, true);
+    if (mode === GPCOORDS_MAP) return `<${x},${y}>`;
+    if (mode === GPCOORDS_SCREEN) {
+        return `[${String(y + 2).padStart(2, '0')},${String(x).padStart(2, '0')}]`;
+    }
+    return '';
 }
 
 function messageAt(text, x, y, state, forceLocation = false) {
     if (forceLocation || state.a11y?.accessiblemsg) {
-        return `${compassDescription(x, y, state)}: ${text}`;
+        return `${coordinateDescription(x, y, state)}: ${text}`;
     }
     return text;
 }
@@ -349,9 +398,14 @@ function noticeMonsterName(monster) {
     const given = monster.mextra?.mgivenname ?? monster.mgivenname;
     if (given) return given;
     const base = speciesName(monster);
-    if (monster.mtame) return `your ${base}`;
-    if (monster.mpeaceful) return `${indefiniteArticle(`peaceful ${base}`)} peaceful ${base}`;
-    return `${indefiniteArticle(base)} ${base}`;
+    const saddled = monster.misc_worn_check & W_SADDLE ? 'saddled ' : '';
+    if (monster.mtame) return `your ${saddled}${base}`;
+    if (monster.mpeaceful) {
+        const described = `peaceful ${saddled}${base}`;
+        return `${indefiniteArticle(described)} ${described}`;
+    }
+    const described = `${saddled}${base}`;
+    return `${indefiniteArticle(described)} ${described}`;
 }
 
 function furnitureDescription(symbol) {
@@ -482,6 +536,36 @@ function objectBaseName(object, state) {
     }
 }
 
+function objectDamageModifiers(object, type) {
+    if (!type) return '';
+    const material = type?.oc_material ?? 0;
+    const rustProne = material === IRON;
+    const crackable = material === GLASS && object.oclass === ARMOR_CLASS;
+    const corrodeable = material === COPPER || material === IRON;
+    const candle = object.otyp === TALLOW_CANDLE || object.otyp === WAX_CANDLE;
+    const flammable = !candle && type?.oc_oprop !== FIRE_RES
+        && object.otyp !== WAN_FIRE
+        && ((material <= WOOD && material !== LIQUID) || material === PLASTIC);
+    const rottable = (material <= WOOD && material !== LIQUID)
+        || material === DRAGON_HIDE;
+    const damageable = rustProne || crackable || corrodeable
+        || flammable || rottable;
+    if (!damageable) return '';
+
+    const severity = (amount) => amount === 2 ? 'very '
+        : amount === 3 ? 'thoroughly ' : '';
+    let result = '';
+    if (object.oeroded) {
+        result += severity(object.oeroded);
+        result += rustProne ? 'rusty ' : crackable ? 'cracked ' : 'burnt ';
+    }
+    if (object.oeroded2) {
+        result += severity(object.oeroded2);
+        result += corrodeable ? 'corroded ' : 'rotted ';
+    }
+    return result;
+}
+
 function pluralize(text) {
     if (/(?:s|x|z|ch|sh)$/iu.test(text)) return `${text}es`;
     if (/[^aeiou]y$/iu.test(text)) return `${text.slice(0, -1)}ies`;
@@ -495,7 +579,10 @@ function describeObject(object, state) {
     const near = dx * dx + dy * dy <= 6;
     const vagueQuantity = quantity !== 1 && !object.dknown && !near;
     if (near) object.dknown = true;
-    const base = objectBaseName(object, state);
+    const type = state.objects?.[object.otyp];
+    const modifiers = `${object.greased ? 'greased ' : ''}`
+        + objectDamageModifiers(object, type);
+    const base = `${modifiers}${objectBaseName(object, state)}`;
     if (quantity !== 1) {
         return `${vagueQuantity ? 'some' : quantity} ${pluralize(base)}`;
     }
@@ -580,13 +667,78 @@ export function collectLookaroundMessages(state) {
     return messages;
 }
 
+function propertyActive(hero, index) {
+    const property = hero?.uprops?.[index];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function heroIsBlind(state) {
+    const property = state.u?.uprops?.[BLINDED];
+    return Boolean(property?.intrinsic || property?.extrinsic)
+        && !property?.blocked;
+}
+
+function canSeeMonster(monster, state) {
+    if (!monster || monster.mhp < 1) return false;
+    const hero = state.u;
+    const visible = (!monster.minvis || propertyActive(hero, SEE_INVIS))
+        && !monster.mundetected;
+    if (!visible) return false;
+    const couldSee = Boolean(
+        state.viz_array?.[monster.my]?.[monster.mx] & COULD_SEE,
+    );
+    const infrared = !heroIsBlind(state)
+        && propertyActive(hero, INFRAVISION)
+        && Boolean(monster.data?.mflags3 & 0x0200) // monflag.h:M3_INFRAVISIBLE
+        && couldSee;
+    return cansee(monster.mx, monster.my, state) || infrared;
+}
+
+function matchesWarnOfMonster(monster, state) {
+    if (!propertyActive(state.u, WARN_OF_MON)) return false;
+    const flags = monster.data?.mflags2 ?? 0;
+    const warned = state.context?.warntype ?? {};
+    return Boolean((warned.obj & flags) || (warned.polyd & flags)
+        || (warned.species && warned.species === monster.data));
+}
+
+function sensesMonster(monster, state) {
+    const hero = state.u;
+    const dx = monster.mx - hero.ux;
+    const dy = monster.my - hero.uy;
+    const distance = dx * dx + dy * dy;
+    if (hero.uswallow && monster !== hero.ustuck) return false;
+    if (hero.uinwater
+        && !(distance <= 2
+            && IS_POOL(state.level?.at(monster.mx, monster.my)?.typ))) {
+        return false;
+    }
+    if (propertyActive(hero, DETECT_MONSTERS)) return true;
+
+    const mindless = Boolean(monster.data?.mflags1 & M1_MINDLESS);
+    if (!mindless) {
+        const telepathy = hero.uprops?.[TELEPAT] ?? {};
+        if (heroIsBlind(state)
+            && Boolean(telepathy.intrinsic || telepathy.extrinsic)) return true;
+        if (telepathy.extrinsic
+            && distance <= Math.trunc(hero.unblind_telepat_range ?? 0)) {
+            return true;
+        }
+    }
+    return matchesWarnOfMonster(monster, state);
+}
+
 function canSpotMonster(monster, state) {
-    if (!monster || monster.mhp < 1 || monster.minvis || monster.mundetected)
+    if (!monster || monster.mhp < 1) return false;
+    if (!canSeeMonster(monster, state) && !sensesMonster(monster, state))
         return false;
     const appearance = monster.m_ap_type & M_AP_TYPMASK;
-    if (appearance === M_AP_FURNITURE || appearance === M_AP_OBJECT)
+    const hider = Boolean(monster.data?.mflags1 & 0x00000100); // M1_HIDE
+    if (hider && (monster.mundetected
+        || appearance === M_AP_FURNITURE || appearance === M_AP_OBJECT)) {
         return false;
-    return cansee(monster.mx, monster.my, state);
+    }
+    return true;
 }
 
 export function collectMonsterNoticeMessages(state) {
@@ -608,7 +760,7 @@ export function collectMonsterNoticeMessages(state) {
         if (monster.mspotted) continue;
         monster.mspotted = true;
         messages.push(messageAt(
-            `You see ${noticeMonsterName(monster)}.`,
+            `You ${canSeeMonster(monster, state) ? 'see' : 'notice'} ${noticeMonsterName(monster)}.`,
             monster.mx,
             monster.my,
             state,
@@ -621,7 +773,8 @@ export async function emitStartupA11yNotices(state, env = {}) {
     const pline = env.pline ?? ttyPline;
     let messages = [];
     if (state.a11y?.glyph_updates) messages = collectLookaroundMessages(state);
-    else if (state.a11y?.mon_notices)
+    else if (state.a11y?.mon_notices
+             && !state.a11y?.mon_notices_blocked)
         messages = collectMonsterNoticeMessages(state);
     for (const message of messages) await pline(message, state);
     return messages;
@@ -629,6 +782,8 @@ export async function emitStartupA11yNotices(state, env = {}) {
 
 export const _startupA11yInternals = Object.freeze({
     compassDescription,
+    coordinateDescription,
+    canSeeMonster,
     describeKnownRoom,
     describeMonster,
     describeObject,

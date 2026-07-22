@@ -2,20 +2,40 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
     COLNO,
+    COULD_SEE,
+    DETECT_MONSTERS,
     DOOR,
     D_BROKEN,
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_MAP,
+    GPCOORDS_SCREEN,
     IN_SIGHT,
+    INFRAVISION,
+    M_AP_FURNITURE,
     M_AP_OBJECT,
     ROOM,
     ROOMOFFSET,
     ROWNO,
+    SEE_INVIS,
     SINK,
+    TELEPAT,
+    W_SADDLE,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
-import { CHEST, objects_globals_init } from '../js/objects.js';
+import {
+    ARMOR_CLASS,
+    CHEST,
+    CRYSTAL_PLATE_MAIL,
+    LEATHER_ARMOR,
+    LONG_SWORD,
+    WEAPON_CLASS,
+    objects_globals_init,
+} from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import {
     _startupA11yInternals,
@@ -33,7 +53,12 @@ function startupState(ux = 13, uy = 6) {
         ux,
         uy,
         urooms: [ROOMOFFSET, 0, 0, 0, 0],
+        uprops: [],
+        unblind_telepat_range: 0,
+        uswallow: false,
+        uinwater: false,
     };
+    state.iflags = { getpos_coords: 'n' };
     state.a11y = {
         accessiblemsg: false,
         glyph_updates: false,
@@ -108,6 +133,28 @@ test('dolookaround describes the room then scans interesting glyphs by row', () 
     ]);
 });
 
+test('accessible locations honor every whatis_coord presentation', () => {
+    const state = startupState(13, 6);
+    const describe = _startupA11yInternals.coordinateDescription;
+    for (const [mode, expected] of [
+        [GPCOORDS_COMPASS, '(2n,3w)'],
+        [GPCOORDS_COMFULL, '(2north,3west)'],
+        [GPCOORDS_MAP, '<10,4>'],
+        [GPCOORDS_SCREEN, '[06,10]'],
+    ]) {
+        state.iflags.getpos_coords = mode;
+        assert.equal(describe(10, 4, state), expected, mode);
+    }
+    state.iflags.getpos_coords = 'n';
+    assert.equal(
+        describe(10, 4, state),
+        '(2north,3west)',
+        'accessible pline output falls back from none to full compass',
+    );
+    state.iflags.getpos_coords = GPCOORDS_COMPASS;
+    assert.equal(describe(12, 5, state), '(northwest)');
+});
+
 test('notice_all_mons sorts by distance and honors accessiblemsg', () => {
     const state = startupState(20, 10);
     state.a11y.accessiblemsg = true;
@@ -145,6 +192,112 @@ test('notice_all_mons sorts by distance and honors accessiblemsg', () => {
     assert.deepEqual(collectMonsterNoticeMessages(state), []);
 });
 
+test('notice_all_mons distinguishes sight, infravision, and sensing', () => {
+    const state = startupState(20, 10);
+    const monster = (overrides = {}) => ({
+        data: {
+            pmnames: [null, null, 'goblin'],
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+        mx: 22,
+        my: 10,
+        mhp: 4,
+        mtame: 0,
+        mpeaceful: false,
+        m_ap_type: 0,
+        mspotted: false,
+        nmon: null,
+        ...overrides,
+    });
+    const notice = (current) => {
+        state.level.monlist = current;
+        current.mspotted = false;
+        return collectMonsterNoticeMessages(state);
+    };
+
+    const ordinary = monster();
+    reveal(state, ordinary.mx, ordinary.my);
+    assert.deepEqual(notice(ordinary), ['You see a goblin.']);
+
+    const invisible = monster({ minvis: true });
+    assert.deepEqual(notice(invisible), []);
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    assert.deepEqual(notice(invisible), ['You see a goblin.']);
+
+    state.u.uprops[SEE_INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.viz_array[ordinary.my][ordinary.mx] = COULD_SEE;
+    state.u.uprops[INFRAVISION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const infrared = monster({ data: {
+        pmnames: [null, null, 'goblin'],
+        mflags1: 0,
+        mflags2: 0,
+        mflags3: 0x0200,
+    } });
+    assert.deepEqual(notice(infrared), ['You see a goblin.']);
+
+    state.u.uprops[INFRAVISION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[TELEPAT] = { intrinsic: 0, extrinsic: 1, blocked: 0 };
+    state.u.unblind_telepat_range = 20;
+    assert.deepEqual(notice(monster()), ['You notice a goblin.']);
+
+    state.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.unblind_telepat_range = 0;
+    assert.deepEqual(notice(monster()), ['You notice a goblin.']);
+
+    state.u.uprops[TELEPAT] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    const hidden = monster({
+        mundetected: true,
+        data: {
+            pmnames: [null, null, 'goblin'],
+            mflags1: 0x00000100,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    assert.deepEqual(notice(hidden), []);
+    hidden.mundetected = false;
+    hidden.m_ap_type = M_AP_FURNITURE;
+    assert.deepEqual(notice(hidden), []);
+});
+
+test('monster notices retain saddle adjectives except for given names', () => {
+    const state = startupState(20, 10);
+    const pony = (overrides = {}) => ({
+        data: { pmnames: [null, null, 'pony'], mflags1: 0 },
+        mx: 21,
+        my: 10,
+        mhp: 8,
+        mtame: 10,
+        mpeaceful: true,
+        m_ap_type: 0,
+        misc_worn_check: W_SADDLE,
+        mspotted: false,
+        nmon: null,
+        ...overrides,
+    });
+    reveal(state, 21, 10);
+
+    state.level.monlist = pony();
+    assert.deepEqual(collectMonsterNoticeMessages(state), [
+        'You see your saddled pony.',
+    ]);
+    state.level.monlist = pony({ mgivenname: 'Shadowfax' });
+    assert.deepEqual(collectMonsterNoticeMessages(state), [
+        'You see Shadowfax.',
+    ]);
+    state.level.monlist = pony({ misc_worn_check: 0 });
+    assert.deepEqual(collectMonsterNoticeMessages(state), [
+        'You see your pony.',
+    ]);
+});
+
 test('lookaround treats an adjacent object mimic as seen up close', () => {
     const state = startupState(20, 10);
     objects_globals_init(state);
@@ -170,6 +323,40 @@ test('lookaround treats an adjacent object mimic as seen up close', () => {
         _startupA11yInternals.visibleSubjectAt(x, y, state),
         'a chest',
     );
+});
+
+test('lookaround object names retain grease and erosion modifier order', () => {
+    const state = startupState();
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    const describe = _startupA11yInternals.describeObject;
+    const base = {
+        oclass: WEAPON_CLASS,
+        dknown: true,
+        quan: 1,
+        ox: state.u.ux,
+        oy: state.u.uy,
+    };
+    assert.equal(describe({
+        ...base,
+        otyp: LONG_SWORD,
+        greased: true,
+        oeroded: 2,
+        oeroded2: 3,
+    }, state), 'a greased very rusty thoroughly corroded long sword');
+    assert.equal(describe({
+        ...base,
+        otyp: LEATHER_ARMOR,
+        oclass: ARMOR_CLASS,
+        oeroded: 1,
+        oeroded2: 2,
+    }, state), 'a burnt very rotted leather armor');
+    assert.equal(describe({
+        ...base,
+        otyp: CRYSTAL_PLATE_MAIL,
+        oclass: ARMOR_CLASS,
+        oeroded: 3,
+    }, state), 'a thoroughly cracked crystal plate mail');
 });
 
 test('mention_map takes precedence and emits each message in source order', async () => {

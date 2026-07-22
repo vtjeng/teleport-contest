@@ -3,6 +3,13 @@
 // nmcpy(); hacklib.c mungspaces(); bones.c sanitize_name(); role.c str2*().
 
 import {
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_MAP,
+    GPCOORDS_NONE,
+    GPCOORDS_SCREEN,
+} from './const.js';
+import {
     ROLE_ALIGNMASK,
     ROLE_GENDMASK,
     ROLE_NONE,
@@ -287,6 +294,7 @@ function defaultResult() {
             status_conditions: { ...DEFAULT_STATUS_CONDITIONS },
             num_pad: false,
             num_pad_mode: 0,
+            getpos_coords: GPCOORDS_NONE,
             customcolors: true,
             customsymbols: true,
             menu_overlay: true,
@@ -1030,14 +1038,15 @@ function statusConditionNames(rawConditions, lineNumber) {
         const token = menuHeadingToken(rawCondition);
         const canonical = STATUS_HILITE_CONDITIONS[token];
         const alias = STATUS_CONDITION_ALIASES[token];
-        // condition aliases accept a unique prefix after exact matching.
-        const partialAliases = Object.keys(STATUS_CONDITION_ALIASES).filter(
-            (name) => name.startsWith(token),
-        );
+        // botl.c accumulates every alias whose name shares this prefix.  In
+        // particular, "m" selects majortroubles, minortroubles, and movement.
+        const partialAliases = Object.keys(STATUS_CONDITION_ALIASES)
+            .filter((name) => name.startsWith(token));
         const names = canonical ? [canonical]
-            : alias ?? (partialAliases.length === 1
-                ? STATUS_CONDITION_ALIASES[partialAliases[0]] : null);
-        if (!names) {
+            : alias ?? partialAliases.flatMap(
+                (name) => STATUS_CONDITION_ALIASES[name],
+            );
+        if (!names.length) {
             optionError(lineNumber, `unknown status condition '${rawCondition}'`);
         }
         for (const name of names) selected.add(name);
@@ -1670,6 +1679,32 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
     else result.flags[name] = enabled;
 }
 
+// Options whose source boolean handlers have concrete state ownership in this
+// startup port.  Explicit true/false values must reach those handlers too;
+// otherwise they fall through to the intentionally opaque compound-option
+// preservation path and create stray string-valued flags.
+const HANDLED_BOOLEAN_OPTIONS = new Set([
+    'female', 'male', 'autopickup', 'color', 'use_inverse', 'hilite_pet',
+    'hilite_pile', 'hitpointbar', 'legacy', 'tutorial', 'splash_screen',
+    'status_updates', 'accessiblemsg', 'mention_map', 'spot_monsters',
+    'menu_overlay', 'eight_bit_tty', 'customcolors', 'customsymbols',
+    'pushweapon', 'rest_on_space', 'showexp', 'time', 'verbose',
+]);
+
+function setWhatisCoord(result, value, negated, lineNumber) {
+    if (negated) {
+        result.iflags.getpos_coords = GPCOORDS_NONE;
+        return;
+    }
+    if (!value) optionError(lineNumber, 'whatis_coord requires a value');
+    const mode = value[0].toLowerCase();
+    if (![GPCOORDS_NONE, GPCOORDS_COMPASS, GPCOORDS_COMFULL,
+        GPCOORDS_MAP, GPCOORDS_SCREEN].includes(mode)) {
+        optionError(lineNumber, `unknown whatis_coord parameter '${value}'`);
+    }
+    result.iflags.getpos_coords = mode;
+}
+
 function sourceOptionMatch(parsedName) {
     return SOURCE_OPTION_MATCHES.find(([canonical, minLength]) => (
         !SOURCE_PREFIX_OPTION_NAMES.includes(canonical)
@@ -1908,6 +1943,10 @@ function applyOption(result, optionState, option, lineNumber) {
         }]);
     } else if (name === 'number_pad') {
         setNumberPadOption(result, value, negated, lineNumber);
+    } else if (name === 'whatis_coord') {
+        setWhatisCoord(result, value, negated, lineNumber);
+    } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
+        applyBooleanOption(result, name, value, negated, lineNumber);
     } else if (value != null) {
         if (negated) {
             optionError(

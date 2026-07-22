@@ -4,6 +4,13 @@ import test from 'node:test';
 
 import { parseNethackrc } from '../js/options.js';
 import {
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_MAP,
+    GPCOORDS_NONE,
+    GPCOORDS_SCREEN,
+} from '../js/const.js';
+import {
     ROLE_NONE,
     aligns,
     genders,
@@ -306,6 +313,61 @@ test('use_inverse owns the tty inverse-video interface flag', () => {
         parseNethackrc('OPTIONS=!use_inverse,use_inverse').iflags.wc_inverse,
         false,
         'parseoptions applies comma-separated suffixes first',
+    );
+});
+
+test('explicit boolean values reach their source-owned state', () => {
+    const parsed = parseNethackrc(
+        'OPTIONS=mention_map:true,spot_monsters:false,menu_overlay:false',
+    );
+    assert.equal(parsed.a11y.glyph_updates, true);
+    assert.equal(parsed.a11y.mon_notices, false);
+    assert.equal(parsed.iflags.menu_overlay, false);
+    assert.equal(Object.hasOwn(parsed.flags, 'mention_map'), false);
+    assert.equal(Object.hasOwn(parsed.flags, 'spot_monsters'), false);
+    assert.equal(Object.hasOwn(parsed.flags, 'menu_overlay'), false);
+
+    const negated = parseNethackrc(
+        'OPTIONS=!mention_map,!spot_monsters,!menu_overlay',
+    );
+    assert.equal(negated.a11y.glyph_updates, false);
+    assert.equal(negated.a11y.mon_notices, false);
+    assert.equal(negated.iflags.menu_overlay, false);
+    assert.throws(
+        () => parseNethackrc('OPTIONS=!mention_map:true'),
+        /negated boolean/u,
+    );
+});
+
+test('whatis_coord selects each source coordinate presentation', () => {
+    assert.equal(parseNethackrc('').iflags.getpos_coords, GPCOORDS_NONE);
+    for (const [value, expected] of [
+        ['none', GPCOORDS_NONE],
+        ['compass', GPCOORDS_COMPASS],
+        ['full compass', GPCOORDS_COMFULL],
+        ['map', GPCOORDS_MAP],
+        ['screen', GPCOORDS_SCREEN],
+    ]) {
+        assert.equal(
+            parseNethackrc(`OPTIONS=whatis_coord:${value}`)
+                .iflags.getpos_coords,
+            expected,
+            value,
+        );
+    }
+    assert.equal(
+        parseNethackrc('OPTIONS=whatis_coord:map,!whatis_coord')
+            .iflags.getpos_coords,
+        GPCOORDS_MAP,
+        'the source parser applies comma-separated options right to left',
+    );
+    assert.throws(
+        () => parseNethackrc('OPTIONS=whatis_coord:bogus'),
+        /unknown whatis_coord parameter/u,
+    );
+    assert.throws(
+        () => parseNethackrc('OPTIONS=whatis_coord'),
+        /requires a value/u,
     );
 });
 
@@ -1060,6 +1122,17 @@ test('status highlighting uses source field and condition vocabularies', () => {
             invalid,
         );
     }
+});
+
+test('status condition alias prefixes union every source match', () => {
+    const parsed = parseNethackrc(
+        'OPTIONS=hilite_status:condition/m/red',
+    );
+    assert.deepEqual(parsed.iflags.status_hilites[0].conditions, [
+        'foodpois', 'grab', 'lava', 'slime', 'stone', 'strngl', 'termill',
+        'blind', 'conf', 'deaf', 'hallucinat', 'paralyzed', 'submerged',
+        'stun', 'levitate', 'fly', 'ride',
+    ]);
 });
 
 test('showvers and versinfo preserve the release-build status selection', () => {
