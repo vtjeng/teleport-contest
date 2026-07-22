@@ -646,7 +646,13 @@ export function monster_glyph_info(monster, state = game) {
         ? optional_misc_symbol(4, state)
             ?? monster_class_symbol(monster.data.mlet, state)
         : monster_class_symbol(monster.data.mlet, state);
-    return glyphPresentation(symbol, monster.data.mcolor, state);
+    const glyph = glyphPresentation(symbol, monster.data.mcolor, state);
+    // C ref: win/tty/wintty.c:tty_print_glyph(). Pet highlighting is a tty
+    // presentation attribute; it does not alter the remembered floor glyph.
+    if (monster.mtame && state.iflags?.wc_hilite_pet) {
+        glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE;
+    }
+    return glyph;
 }
 
 // C ref: display.h obj_is_generic().  Unobserved potions, real/glass gems,

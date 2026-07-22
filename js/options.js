@@ -240,9 +240,11 @@ function defaultResult() {
         iflags: {
             wc_color: true,
             wc_inverse: true,
+            wc_hilite_pet: false,
             wc_splash_screen: true,
             wc_eight_bit_input: false,
             wc2_statuslines: 2,
+            wc2_petattr: ATR_INVERSE,
             num_pad: false,
             num_pad_mode: 0,
             customcolors: true,
@@ -843,6 +845,24 @@ function setMenuHeadings(result, value, negated, lineNumber) {
     }
 }
 
+// C ref: options.c:optfn_petattr(). The tty port accepts one text
+// attribute and keeps the chosen style when hilite_pet is later disabled.
+function setPetAttribute(result, value, negated, lineNumber) {
+    if (value != null && negated) {
+        optionError(lineNumber, 'negated petattr cannot have a value');
+    }
+    if (value != null) {
+        const attr = menuHeadingAttribute(menuHeadingToken(value));
+        if (attr == null) {
+            optionError(lineNumber, `unknown petattr parameter '${value}'`);
+        }
+        result.iflags.wc2_petattr = attr;
+    } else if (negated) {
+        result.iflags.wc2_petattr = ATR_NONE;
+    }
+    result.iflags.wc_hilite_pet = result.iflags.wc2_petattr !== ATR_NONE;
+}
+
 // C refs: options.c default_menu_cmd_info[], txt2key(),
 // illegal_menu_cmd_key(), and add_menu_cmd_alias().
 const MENU_COMMAND_OPTIONS = Object.freeze([
@@ -1134,6 +1154,11 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.wc_color = enabled;
     } else if (name === 'use_inverse') {
         result.iflags.wc_inverse = enabled;
+    } else if (name === 'hilite_pet') {
+        result.iflags.wc_hilite_pet = enabled;
+        if (enabled && result.iflags.wc2_petattr === ATR_NONE) {
+            result.iflags.wc2_petattr = ATR_INVERSE;
+        }
     } else if (name === 'legacy') result.flags.legacy = enabled;
     else if (name === 'tutorial') {
         result.flags.tutorial = enabled;
@@ -1346,6 +1371,8 @@ function applyOption(result, optionState, option, lineNumber) {
         setPlaymode(result, value, negated, lineNumber);
     } else if (name === 'menu_headings') {
         setMenuHeadings(result, value, negated, lineNumber);
+    } else if (name === 'petattr') {
+        setPetAttribute(result, value, negated, lineNumber);
     } else if (menuCommand && parsedName === name) {
         setMenuCommandOption(
             result, menuCommand, value, negated, lineNumber,

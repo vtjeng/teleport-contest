@@ -309,6 +309,52 @@ test('use_inverse owns the tty inverse-video interface flag', () => {
     );
 });
 
+test('pet highlighting preserves the source tty attribute state', () => {
+    const defaults = parseNethackrc('');
+    assert.equal(defaults.iflags.wc_hilite_pet, false);
+    assert.equal(defaults.iflags.wc2_petattr, ATR_INVERSE);
+
+    const enabled = parseNethackrc('OPTIONS=hilite_pet');
+    assert.equal(enabled.iflags.wc_hilite_pet, true);
+    assert.equal(enabled.iflags.wc2_petattr, ATR_INVERSE);
+
+    const bold = parseNethackrc('OPTIONS=petattr:bold');
+    assert.equal(bold.iflags.wc_hilite_pet, true);
+    assert.equal(bold.iflags.wc2_petattr, ATR_BOLD);
+
+    const plain = parseNethackrc('OPTIONS=petattr:none');
+    assert.equal(plain.iflags.wc_hilite_pet, false);
+    assert.equal(plain.iflags.wc2_petattr, ATR_NONE);
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=!petattr').iflags,
+        plain.iflags,
+    );
+
+    const reenabled = parseNethackrc(
+        'OPTIONS=hilite_pet,petattr:none',
+    );
+    assert.equal(reenabled.iflags.wc_hilite_pet, true);
+    assert.equal(reenabled.iflags.wc2_petattr, ATR_INVERSE);
+
+    const disabled = parseNethackrc(
+        'OPTIONS=!hilite_pet,petattr:bold',
+    );
+    assert.equal(disabled.iflags.wc_hilite_pet, false);
+    assert.equal(disabled.iflags.wc2_petattr, ATR_BOLD);
+
+    for (const invalid of ['red', 'bold&underline']) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=petattr:${invalid}`),
+            /unknown petattr parameter/u,
+            invalid,
+        );
+    }
+    assert.throws(
+        () => parseNethackrc('OPTIONS=!petattr:bold'),
+        /negated petattr cannot have a value/u,
+    );
+});
+
 test('menu command options preserve source alias order and require full names', () => {
     const defaults = parseNethackrc('');
     assert.equal(defaults.iflags.mapped_menu_cmds, '');

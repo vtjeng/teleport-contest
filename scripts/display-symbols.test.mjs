@@ -106,6 +106,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import {
+    ATR_BOLD,
     ATR_INVERSE,
     CLR_BRIGHT_BLUE,
     CLR_BRIGHT_GREEN,
@@ -628,6 +629,29 @@ test('hero and pet symbol overrides require sysconf accessibility', () => {
     assert.equal(hero_glyph_info(state).ch, '?');
     delete state.sysopt;
     assert.equal(hero_glyph_info(state).ch, 'f');
+});
+
+test('monster glyphs apply the configured tty attribute only to pets', () => {
+    const state = {
+        flags: {},
+        iflags: {
+            wc_color: true,
+            wc_hilite_pet: true,
+            wc2_petattr: ATR_BOLD,
+        },
+    };
+    initialize_symbols_from_options({ flags: {} }, state);
+    const monster = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mtame: 0,
+        m_ap_type: 0,
+    };
+
+    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    monster.mtame = 10;
+    assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
+    state.iflags.wc_hilite_pet = false;
+    assert.equal(monster_glyph_info(monster, state).attr, undefined);
 });
 
 test('newsym remembers an object underneath a visible monster and hero', () => {
