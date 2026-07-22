@@ -262,7 +262,17 @@ test('themeroom generation connects selection, map placement, and filler region'
         return 2;
     };
 
-    assert.equal(await themerooms_generate(1, random, randomOneBased), true);
+    assert.equal(await themerooms_generate(
+        1,
+        random,
+        randomOneBased,
+        {
+            randomFacade: completeRandomFacade(random, randomOneBased),
+            themeroomFill() {
+                assert.fail('ordinary filler-region branch must not fill');
+            },
+        },
+    ), true);
     assert.deepEqual(
         calls.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT),
         [68, 10, 100, 77],
@@ -281,6 +291,58 @@ test('themeroom generation connects selection, map placement, and filler region'
     assert.equal(game.level.at(37, 10).roomno, ROOMOFFSET);
     assert.equal(game.level.at(34, 4).roomno, ROOMOFFSET);
     assert.notEqual(game.level.at(34, 4).typ, CROSSWALL);
+});
+
+test('live filler maps invoke their optional themed fill synchronously', async () => {
+    resetThemeroomLevel();
+    let reservoirCalls = 0;
+    const events = [];
+    const scripted = [
+        [68, 30], [10, 4], // place Cross at (31,4)
+        [100, 0], // take filler_region's 30% themed branch
+        [77, 76], // light the region at depth one
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT)
+            return bound === 1034 ? 0 : bound - 1;
+        const next = scripted.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        assert.equal(bound, 2);
+        return 2;
+    };
+    const randomFacade = completeRandomFacade(random, randomOneBased);
+    let callbackCount = 0;
+
+    assert.equal(await themerooms_generate(
+        1,
+        random,
+        randomOneBased,
+        {
+            randomFacade,
+            themeroomFill(room, difficulty, callbackEnv) {
+                ++callbackCount;
+                assert.equal(room, game.level.rooms[0]);
+                assert.equal(room.rtype, THEMEROOM);
+                assert.equal(room.irregular, true);
+                assert.equal(room.needjoining, true);
+                assert.equal(room.needfill, FILL_NORMAL);
+                assert.equal(difficulty, 1);
+                assert.equal(callbackEnv.state, game);
+                assert.equal(callbackEnv.random, randomFacade);
+            },
+        },
+    ), true);
+    assert.equal(callbackCount, 1);
+    assert.equal(scripted.length, 0);
+    assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
+        'rn2(68)', 'rn2(10)', 'rn2(100)', 'rnd(2)', 'rn2(77)',
+    ]);
 });
 
 test('live generic room generation keeps the injected RNG streams', async () => {

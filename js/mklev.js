@@ -778,7 +778,6 @@ export class UnsupportedThemeroomActionError extends Error {
 
 function preflight_themeroom_fill(definition, context) {
     if (typeof context.themeroomFill !== 'function') {
-        if (context.allowMissingFill) return false;
         throw new UnsupportedThemeroomActionError(
             definition,
             'requires an injected themeroom-fill callback',
@@ -810,9 +809,7 @@ function preflight_themeroom_fill(definition, context) {
 }
 
 function invoke_themeroom_fill(room, definition, context) {
-    // Strict callers validate before creating the room or loading its map.
-    // The missing-callback case is the live generator's temporary partial port.
-    if (typeof context.themeroomFill !== 'function') return;
+    // Callers validate before creating the room or loading its map.
     // Lua invokes contents before leaving the current room context. Keep this
     // call synchronous. This is the exact themeroom_fill(room, difficulty,
     // rawEnv) contract, including the indexed room that selection.room() needs.
@@ -1294,9 +1291,7 @@ function blocked_center_contents(definition, origin, context) {
 
 function dispatch_map_action(definition, context) {
     const contents = definition.action.contents;
-    const supported = contents?.kind === 'filler-region'
-        || (contents?.kind === 'handler' && contents.handler === 'blocked-center');
-    if (!supported) {
+    if (!has_supported_map_action(definition)) {
         const handler = contents?.handler ?? contents?.kind ?? 'missing contents';
         throw new UnsupportedThemeroomActionError(
             definition,
@@ -1310,6 +1305,13 @@ function dispatch_map_action(definition, context) {
     if (contents.kind === 'handler')
         return blocked_center_contents(definition, origin, context);
     return filler_region(contents.filler, origin, definition, context);
+}
+
+function has_supported_map_action(definition) {
+    const contents = definition?.action?.contents;
+    return contents?.kind === 'filler-region'
+        || (contents?.kind === 'handler'
+            && contents.handler === 'blocked-center');
 }
 
 // Runtime counterpart to a selected themerms.lua contents function. Keep this
@@ -1358,9 +1360,8 @@ export function dispatch_themeroom(
 
 // C ref: themerms.lua themerooms_generate(). Generic room descriptors use the
 // strict synchronous dispatcher and the complete source-order fill reservoir.
-// All generic fill bodies and registered direct handlers are live. Direct
-// filler maps still omit their optional fill, and unported direct callbacks
-// use the ordinary-room fallback.
+// All generic fill bodies, filler maps, and registered direct handlers are
+// live. Unported direct callbacks use the ordinary-room fallback.
 // dispatch_themeroom() remains the strict completion seam.
 export async function themerooms_generate(
     difficulty,
@@ -1371,6 +1372,7 @@ export async function themerooms_generate(
     const pick = select_themeroom(difficulty, random);
     if (!pick) return false;
     if (pick.action?.kind === 'room'
+        || has_supported_map_action(pick)
         || DIRECT_THEMEROOM_HANDLERS.has(pick.action?.handler)) {
         const sourceRandomFacade = random === rn2 && randomOneBased === rnd
             ? SOURCE_THEMEROOM_RANDOM
@@ -1384,22 +1386,6 @@ export async function themerooms_generate(
                 : rawEnv.themeroomFill,
         });
     }
-    if (pick.map && pick.filler) {
-        const origin = lspo_map(pick, random);
-        return origin ? filler_region(
-            pick.filler,
-            origin,
-            pick,
-            {
-                allowMissingFill: true,
-                difficulty,
-                random,
-                randomOneBased,
-                themeroomFill: null,
-            },
-        ) : false;
-    }
-
     // sp_lev.c build_room() evaluates the default 100% chance with rn2(100).
     random(100);
     const ok = create_room(
