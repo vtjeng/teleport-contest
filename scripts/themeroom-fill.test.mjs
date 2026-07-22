@@ -64,6 +64,7 @@ import { GameMap } from '../js/game.js';
 import { engr_at } from '../js/engrave.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
+import { dmonsfree } from '../js/makemon_create.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
@@ -2644,10 +2645,15 @@ test('Statuary composes floor statues with living statue traps', () => {
         ],
     );
     assert.equal(state.iflags.purge_monsters, 3);
-    let detached = 0;
+    const detached = [];
     for (let monster = level.monlist; monster; monster = monster.nmon) {
         assert.equal(monster.mhp, 0);
-        ++detached;
+        detached.push(monster);
     }
-    assert.equal(detached, 3);
+    assert.equal(detached.length, 3);
+
+    assert.equal(dmonsfree(state), 3);
+    assert.equal(level.monlist, null);
+    assert.equal(state.iflags.purge_monsters, 0);
+    assert.deepEqual(detached.map((monster) => monster.nmon), [null, null, null]);
 });

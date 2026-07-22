@@ -849,8 +849,10 @@ function room_type_from_schema(type, definition) {
 
 // C ref: sp_lev.c lspo_room(). Keep the callback boundary in one place so
 // nested handlers share room failure propagation, parent irregularity, and
-// the post-callback door-table scan.
-function run_room_descriptor(spec, parent, context, contents = null) {
+// the post-callback door-table scan. A returned room means that this descriptor
+// was created; callers must inspect context.roomFailed for aggregate failure
+// because a nested descriptor can fail while this room still finalizes.
+export function run_room_descriptor(spec, parent, context, contents = null) {
     if (context.roomFailed) return null;
     const room = build_room(
         {

@@ -3,7 +3,8 @@ import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
-    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, D_LOCKED, D_NODOOR, D_TRAPPED,
+    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, D_ISOPEN, D_LOCKED, D_NODOOR,
+    D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
     SDOOR, THEMEROOM, TLCORNER, VWALL, W_ANY, W_RANDOM,
@@ -20,6 +21,7 @@ import {
     initialize_themeroom_branch,
     lspo_map,
     mklev,
+    run_room_descriptor,
     select_themeroom,
     themerooms_generate,
     UnsupportedThemeroomActionError,
@@ -752,6 +754,59 @@ test('build_room creates and indexes random nested subrooms', () => {
     );
 });
 
+test('nested room failure preserves ancestor finalization and short-circuits siblings', () => {
+    resetThemeroomLevel();
+    const parent = buildFixedParentRoom();
+    const random = scriptedRandom([
+        step('rn2', [100], 0), // create the 3x3 ancestor subroom
+        step('rn2', [4], 0), // place its door on the north wall
+        step('rn2', [100], 0), // attempt the too-small nested room
+    ]);
+    const context = {
+        definition: { id: 'nested-failure-test' },
+        random: random.random.rn2,
+        randomOneBased: random.random.rnd,
+        roomFailed: false,
+    };
+    let skippedContents = false;
+
+    const ancestor = run_room_descriptor(
+        {
+            type: 'ordinary', x: 4, y: 3, w: 3, h: 3,
+            lit: 0, filled: FILL_NONE,
+        },
+        parent,
+        context,
+        (created) => {
+            assert.equal(create_room_door(
+                { state: 'open', wall: 'north', pos: 1 },
+                created,
+                context.random,
+            ), true);
+            assert.equal(run_room_descriptor(
+                { type: 'ordinary', x: 0, y: 0, w: 1, h: 1, lit: 0 },
+                created,
+                context,
+            ), null);
+            assert.equal(context.roomFailed, true);
+            assert.equal(run_room_descriptor(
+                { type: 'unsupported' },
+                created,
+                context,
+                () => { skippedContents = true; },
+            ), null);
+        },
+    );
+
+    random.assertExhausted();
+    assert.equal(context.roomFailed, true);
+    assert.equal(skippedContents, false);
+    assert.equal(ancestor, game.subrooms[0]);
+    const door = { x: ancestor.lx + 1, y: ancestor.ly - 1 };
+    assert.deepEqual(game.level.doors, [door]);
+    assert.deepEqual([ancestor.fdoor, ancestor.doorct], [0, 1]);
+});
+
 test('live Fake Delphi builds and registers its nested room in source order', async () => {
     resetThemeroomLevel();
     let reservoirCalls = 0;
@@ -869,6 +924,117 @@ test('random room doors preserve source draws, state, and nested registration', 
         [0, 1, 1, 1],
     );
     assert.equal(game.level.doorindex, 2);
+});
+
+test('door insertion shifts later top-room and subroom ownership slices', () => {
+    resetThemeroomLevel();
+    const room = (lx, roomnoidx) => ({
+        lx,
+        ly: 2,
+        hx: lx + 2,
+        hy: 4,
+        roomnoidx,
+        doorct: 0,
+        fdoor: 0,
+        irregular: false,
+        nsubrooms: 0,
+        sbrooms: [],
+    });
+    const early = room(2, 0);
+    const later = room(12, 1);
+    const nested = room(22, MAXNROFROOMS + 1);
+    game.level.rooms = [early, later, { hx: -1 }];
+    game.level.nroom = 2;
+    game.subrooms = [nested, { hx: -1 }];
+    game.nsubroom = 1;
+
+    const earlyOld = { x: 3, y: 1 };
+    const earlyNew = { x: 4, y: 1 };
+    const laterDoor = { x: 13, y: 1 };
+    const nestedDoor = { x: 23, y: 1 };
+    for (const door of [earlyOld, laterDoor, nestedDoor])
+        game.level.at(door.x, door.y).typ = DOOR;
+    add_doors_to_room(early);
+    add_doors_to_room(later);
+    add_doors_to_room(nested);
+    assert.deepEqual(game.level.doors, [earlyOld, laterDoor, nestedDoor]);
+
+    game.level.at(earlyNew.x, earlyNew.y).typ = DOOR;
+    add_doors_to_room(early);
+
+    assert.deepEqual(
+        game.level.doors,
+        [earlyNew, earlyOld, laterDoor, nestedDoor],
+    );
+    assert.deepEqual(
+        [early.fdoor, early.doorct, later.fdoor, later.doorct,
+            nested.fdoor, nested.doorct],
+        [0, 2, 2, 1, 3, 1],
+    );
+    assert.deepEqual(
+        [early, later, nested].map((entry) =>
+            game.level.doors.slice(entry.fdoor, entry.fdoor + entry.doorct)),
+        [[earlyNew, earlyOld], [laterDoor], [nestedDoor]],
+    );
+});
+
+test('south and west doors retry obstructed outward squares', () => {
+    for (const scenario of [
+        {
+            wall: 'south',
+            wallDraw: 1,
+            rejected(child) {
+                return { x: child.lx, y: child.hy + 1 };
+            },
+            outward(door) { return { x: door.x, y: door.y + 1 }; },
+            placed(child) {
+                return { x: child.lx + 1, y: child.hy + 1 };
+            },
+            horizontal: true,
+        },
+        {
+            wall: 'west',
+            wallDraw: 2,
+            rejected(child) {
+                return { x: child.lx - 1, y: child.ly };
+            },
+            outward(door) { return { x: door.x - 1, y: door.y }; },
+            placed(child) {
+                return { x: child.lx - 1, y: child.ly + 1 };
+            },
+            horizontal: false,
+        },
+    ]) {
+        resetThemeroomLevel();
+        const { child } = buildDoorTestRooms();
+        const rejected = scenario.rejected(child);
+        const outward = scenario.outward(rejected);
+        const rejectedType = game.level.at(rejected.x, rejected.y).typ;
+        game.level.at(outward.x, outward.y).typ = STONE;
+        const random = scriptedRandom([
+            step('rn2', [4], scenario.wallDraw),
+            step('rn2', [3], 0),
+            step('rn2', [4], scenario.wallDraw),
+            step('rn2', [3], 1),
+        ]);
+
+        assert.equal(create_room_door(
+            { state: 'open', wall: scenario.wall },
+            child,
+            random.random.rn2,
+        ), true, scenario.wall);
+        random.assertExhausted();
+        const placed = scenario.placed(child);
+        const location = game.level.at(placed.x, placed.y);
+        assert.equal(location.typ, DOOR, scenario.wall);
+        assert.equal(location.horizontal, scenario.horizontal, scenario.wall);
+        assert.equal(location.doormask, D_ISOPEN, scenario.wall);
+        assert.equal(
+            game.level.at(rejected.x, rejected.y).typ,
+            rejectedType,
+            scenario.wall,
+        );
+    }
 });
 
 test('explicit secret room doors retry walls and truncate the parser-only bit', () => {

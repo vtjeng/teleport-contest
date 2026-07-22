@@ -35,8 +35,12 @@ import {
     PM_GIANT_SPIDER,
     PM_HOBGOBLIN,
     PM_HUMAN,
+    PM_PONY,
     PM_ORC,
+    PM_WHITE_UNICORN,
     PM_WIZARD,
+    LOW_PM,
+    SPECIAL_PM,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -506,4 +510,77 @@ test('statue traps transfer a temporary monster inventory before detaching it', 
     assert.equal(temporary.mstate & MON_DETACH, MON_DETACH);
     assert.equal(state.level.monsters[temporary.mx][temporary.my], null);
     assert.equal(state.iflags.purge_monsters, 1);
+});
+
+test('living statues retry only co-aligned true unicorns and accept attempt ten', () => {
+    for (const scenario of [
+        {
+            name: 'retry true unicorn',
+            selections: [PM_WHITE_UNICORN, PM_HOBGOBLIN],
+            expected: PM_HOBGOBLIN,
+        },
+        {
+            name: 'retain non-unicorn glyph member',
+            selections: [PM_PONY],
+            expected: PM_PONY,
+        },
+        {
+            name: 'accept tenth true unicorn',
+            selections: Array(10).fill(PM_WHITE_UNICORN),
+            expected: PM_WHITE_UNICORN,
+        },
+    ]) {
+        const state = generationState();
+        state.u.ualign.type = 1;
+        // Suppress reservoir weights only while the retry loop selects its
+        // scripted species. Restore them before mkcorpstat() and makemon() so
+        // the chosen monster still satisfies the live Statuary preflight.
+        let selectingStatueSpecies = true;
+        state.mons = state.mons.map((species) => {
+            const copy = { ...species };
+            Object.defineProperty(copy, 'geno', {
+                enumerable: true,
+                get: () => selectingStatueSpecies ? 0 : species.geno,
+            });
+            return copy;
+        });
+        const selections = [...scenario.selections];
+        let selectionRangeCalls = 0;
+        const random = {
+            d: (number, sides) => number * sides,
+            rn1(bound, base) {
+                if (bound === SPECIAL_PM - LOW_PM && base === LOW_PM) {
+                    ++selectionRangeCalls;
+                    assert.ok(selections.length, scenario.name);
+                    const selected = selections.shift();
+                    if (!selections.length) selectingStatueSpecies = false;
+                    return selected;
+                }
+                return base;
+            },
+            rn2: (bound) => Math.max(0, bound - 1),
+            rnd: () => 1,
+            rne: () => 1,
+            rnz: (value) => value,
+        };
+
+        mktrap(
+            STATUE_TRAP,
+            MKTRAP_MAZEFLAG,
+            null,
+            { x: 10, y: 5 },
+            { state, random, hooks: objectGenerationHooks() },
+        );
+
+        assert.equal(selections.length, 0, scenario.name);
+        assert.equal(
+            selectionRangeCalls,
+            scenario.selections.length,
+            scenario.name,
+        );
+        const statue = floorPile(state, 10, 5).find(
+            (obj) => obj.otyp === STATUE,
+        );
+        assert.equal(statue.corpsenm, scenario.expected, scenario.name);
+    }
 });

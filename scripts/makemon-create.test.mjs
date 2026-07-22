@@ -5,6 +5,7 @@ import {
     BURN_OBJECT,
     G_GENOD,
     I_SPECIAL,
+    MAX_NUM_WORMS,
     MM_ANGRY,
     MM_ASLEEP,
     MM_FEMALE,
@@ -55,6 +56,7 @@ import {
     PM_BUGBEAR,
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
+    PM_DOPPELGANGER,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_GHOST,
@@ -1066,6 +1068,79 @@ test('initial chameleon retries a placeholder then takes luminous form', () => {
     ]);
 });
 
+test('initial chameleon rejects genocided and non-natural shapeshifter forms', () => {
+    for (const scenario of [
+        {
+            name: 'genocided',
+            target: PM_NEWT,
+            configure(state) {
+                state.mvitals[PM_NEWT].mvflags |= G_GENOD;
+            },
+        },
+        {
+            name: 'non-natural shapeshifter',
+            target: PM_DOPPELGANGER,
+            configure() {},
+        },
+    ]) {
+        const state = initialLevelState();
+        light_globals_init(state);
+        scenario.configure(state);
+        const random = scriptedRandom([
+            step('rnd', [2], 1),
+            step('d', [5, 8], 20),
+            step('rn2', [2], 1),
+            step('rn2', [3], 1),
+            step('rn1', [SPECIAL_PM, 0], scenario.target),
+            step('rn2', [3], 1),
+            step('rn1', [SPECIAL_PM, 0], PM_BLACK_LIGHT),
+            step('d', [4, 8], 12),
+        ]);
+
+        const monster = makemon(
+            state.mons[PM_CHAMELEON],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        random.assertExhausted();
+        assert.equal(monster.mnum, PM_BLACK_LIGHT, scenario.name);
+        assert.equal(monster.data, state.mons[PM_BLACK_LIGHT], scenario.name);
+    }
+});
+
+test('initial chameleon stops after twenty rejected forms and resumes inventory', () => {
+    const state = initialLevelState();
+    light_globals_init(state);
+    const rejectedSelections = Array.from({ length: 20 }, () => [
+        step('rn2', [3], 1),
+        step('rn1', [SPECIAL_PM, 0], PM_HUMAN),
+    ]).flat();
+    const random = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [5, 8], 20),
+        step('rn2', [2], 1),
+        ...rejectedSelections,
+        step('rn2', [50], 5),
+        step('rn2', [100], 5),
+        step('rn2', [100], 1),
+    ]);
+
+    const monster = makemon(
+        state.mons[PM_CHAMELEON],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+    assert.equal(monster.mnum, PM_CHAMELEON);
+    assert.equal(monster.data, state.mons[PM_CHAMELEON]);
+    assert.equal(monster.misc_worn_check, 0);
+    assert.equal(monster.minvent, null);
+});
+
 test('initial chameleon long-worm form owns and removes its full tail', () => {
     const state = initialLevelState();
     state.level.at(MON_X - 1, MON_Y).typ = ROOM;
@@ -1138,6 +1213,80 @@ test('initial chameleon long-worm form owns and removes its full tail', () => {
     ]);
     assert.equal(monster.mstate & MON_DETACH, MON_DETACH);
     assert.equal(state.iflags.purge_monsters, 1);
+});
+
+test('initial long-worm tail truncates after one blocked neighbor search', () => {
+    const state = initialLevelState();
+    light_globals_init(state);
+    const redraws = [];
+    const shuffle = Array.from(
+        { length: 8 },
+        (_, index) => step('rn2', [8 - index], 7 - index),
+    );
+    const random = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [5, 8], 20),
+        step('rn2', [2], 0),
+        step('rn2', [3], 0),
+        step('rn2', [98], 59),
+        step('rn2', [10], 0),
+        step('d', [8, 8], 32),
+        step('rn2', [5], 2),
+        ...shuffle,
+    ]);
+
+    const monster = makemon(
+        state.mons[PM_CHAMELEON],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        {
+            state,
+            random: random.random,
+            hooks: { newsym: (x, y) => redraws.push([x, y]) },
+        },
+    );
+    random.assertExhausted();
+    assert.equal(monster.mnum, PM_LONG_WORM);
+    assert.equal(monster.wormno, 1);
+    assert.deepEqual(
+        state.level.worms[1].segments,
+        [{ x: MON_X, y: MON_Y }],
+    );
+    assert.equal(state.level.monsters[MON_X][MON_Y], monster);
+    assert.deepEqual(redraws, [[MON_X, MON_Y]]);
+});
+
+test('initial long worm skips tail draws when every worm slot is occupied', () => {
+    const state = initialLevelState();
+    light_globals_init(state);
+    const occupied = Array.from(
+        { length: MAX_NUM_WORMS },
+        (_, index) => index ? { owner: index } : null,
+    );
+    state.level.worms = [...occupied];
+    const random = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [5, 8], 20),
+        step('rn2', [2], 0),
+        step('rn2', [3], 0),
+        step('rn2', [98], 59),
+        step('rn2', [10], 0),
+        step('d', [8, 8], 32),
+    ]);
+
+    const monster = makemon(
+        state.mons[PM_CHAMELEON],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+    assert.equal(monster.mnum, PM_LONG_WORM);
+    assert.equal(monster.wormno, 0);
+    assert.deepEqual(state.level.worms, occupied);
+    assert.equal(state.level.monsters[MON_X][MON_Y], monster);
 });
 
 test('co-aligned unicorn creation overrides an explicitly angry attitude', () => {
