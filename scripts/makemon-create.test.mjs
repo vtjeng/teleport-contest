@@ -8,17 +8,22 @@ import {
     MM_FEMALE,
     MM_NOCOUNTBIRTH,
     MM_NOGRP,
+    MM_NOMSG,
+    MON_DETACH,
     NO_MINVENT,
     OBJ_MINVENT,
     ROOM,
+    STONE,
     W_AMUL,
     W_ARMH,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { add_to_minv } from '../js/invent.js';
 import {
+    dmonsfree,
     makemon,
     m_dowear,
+    mongone,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
 import { newMonster } from '../js/monst.js';
@@ -497,6 +502,123 @@ test('new monsters prepend to the source level-wide chain', () => {
     assert.equal(first.nmon, null);
     assert.equal(state.level.monsters[MON_X][MON_Y], first);
     assert.equal(state.level.monsters[MON_X + 1][MON_Y], second);
+});
+
+test('random-coordinate creation accepts the first sampled good position', () => {
+    const state = initialLevelState();
+    state.level.at(17, 4).typ = ROOM;
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17),
+        step('rn2', [21], 4),
+        ...basicCreationSteps(),
+    ]);
+
+    const monster = makemon(
+        state.mons[PM_NEWT],
+        0,
+        0,
+        MM_NOCOUNTBIRTH | MM_NOMSG | NO_MINVENT,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    assert.deepEqual([monster.mx, monster.my], [17, 4]);
+    assert.equal(state.level.monsters[17][4], monster);
+    assert.equal(state.mvitals[PM_NEWT].born, 0);
+});
+
+test('random-coordinate creation scans x-major after exactly 50 failed pairs', () => {
+    const state = initialLevelState();
+    state.level.at(3, 2).typ = ROOM;
+    const failedPairs = Array.from({ length: 50 }, () => [
+        step('rn1', [77, 2], 2),
+        step('rn2', [21], 0),
+    ]).flat();
+    const random = scriptedRandom([
+        ...failedPairs,
+        ...basicCreationSteps(),
+    ]);
+
+    const monster = makemon(
+        state.mons[PM_NEWT],
+        0,
+        0,
+        MM_NOCOUNTBIRTH | NO_MINVENT,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    // From offsets <2,0>, the deterministic scan visits <3,1> first and
+    // <3,2> second. Row zero is deliberately absent from this fallback pass.
+    assert.deepEqual([monster.mx, monster.my], [3, 2]);
+    assert.equal(state.level.monsters[3][2], monster);
+});
+
+test('random-coordinate exhaustion returns null without creation state', () => {
+    const state = initialLevelState();
+    state.level.at(MON_X, MON_Y).typ = STONE;
+    const failedPairs = Array.from({ length: 50 }, () => [
+        step('rn1', [77, 2], 2),
+        step('rn2', [21], 0),
+    ]).flat();
+    const random = scriptedRandom(failedPairs);
+
+    assert.equal(
+        makemon(
+            state.mons[PM_NEWT],
+            0,
+            0,
+            MM_NOCOUNTBIRTH | NO_MINVENT,
+            { state, random: random.random },
+        ),
+        null,
+    );
+    random.assertExhausted();
+    assert.equal(state.level.monlist, null);
+    assert.equal(state.context.ident, 2);
+    assert.equal(state.mvitals[PM_NEWT].born, 0);
+});
+
+test('mongone leaves a detached chain node until dmonsfree unlinks it', () => {
+    const state = initialLevelState();
+    state.level.at(MON_X + 1, MON_Y).typ = ROOM;
+    const firstRandom = scriptedRandom(basicCreationSteps());
+    const first = makemon(
+        state.mons[PM_NEWT],
+        MON_X,
+        MON_Y,
+        NO_MINVENT,
+        { state, random: firstRandom.random },
+    );
+    firstRandom.assertExhausted();
+    const secondRandom = scriptedRandom(basicCreationSteps());
+    const second = makemon(
+        state.mons[PM_JACKAL],
+        MON_X + 1,
+        MON_Y,
+        NO_MINVENT,
+        { state, random: secondRandom.random },
+    );
+    secondRandom.assertExhausted();
+
+    const teardownRandom = scriptedRandom([]);
+    mongone(first, { state, random: teardownRandom.random });
+    teardownRandom.assertExhausted();
+
+    assert.equal(state.level.monsters[MON_X][MON_Y], null);
+    assert.equal(state.level.monsters[MON_X + 1][MON_Y], second);
+    assert.equal(first.mhp, 0);
+    assert.equal(first.mstate & MON_DETACH, MON_DETACH);
+    assert.deepEqual([first.mx, first.my], [MON_X, MON_Y]);
+    assert.equal(state.level.monlist, second);
+    assert.equal(second.nmon, first);
+    assert.equal(state.iflags.purge_monsters, 1);
+
+    assert.equal(dmonsfree(state), 1);
+    assert.equal(state.level.monlist, second);
+    assert.equal(second.nmon, null);
+    assert.equal(first.nmon, null);
+    assert.equal(state.iflags.purge_monsters, 0);
 });
 
 test('goblin creates helm before dagger, then wears the prepended helm', () => {

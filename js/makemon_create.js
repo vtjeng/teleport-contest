@@ -14,6 +14,7 @@ import {
     AM_LAWFUL,
     AM_NEUTRAL,
     BLCORNER,
+    COLNO,
     CROSSWALL,
     DOOR,
     G_GENOD,
@@ -29,15 +30,18 @@ import {
     MM_MALE,
     MM_NOCOUNTBIRTH,
     MM_NOGRP,
+    MM_NOMSG,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_SEEN_NOTHING,
+    MON_DETACH,
     NO_MINVENT,
     ONAME,
     ONAME_NO_FLAGS,
     OBJ_MINVENT,
     OROOM,
     ROOMOFFSET,
+    ROWNO,
     SCORR,
     SDOOR,
     SEE_INVIS,
@@ -75,7 +79,12 @@ import {
     is_male,
     is_neuter,
 } from './mondata.js';
-import { m_at, newMonster, place_monster } from './monst.js';
+import {
+    m_at,
+    newMonster,
+    place_monster,
+    remove_monster,
+} from './monst.js';
 import {
     AT_WEAP,
     M1_ANIMAL,
@@ -164,7 +173,7 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { enexto_core } from './teleport.js';
+import { enexto_core, goodpos } from './teleport.js';
 import {
     S_altar,
     S_dnstair,
@@ -180,6 +189,7 @@ import {
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOCOUNTBIRTH
+    | MM_NOMSG
     | MM_ANGRY
     | MM_ASLEEP
     | MM_EDOG
@@ -375,6 +385,7 @@ function assertSupportedSpecies(species) {
 
 function preflightCreation(ptr, x, y, mmflags, normalized) {
     const { state } = normalized;
+    const randomCoordinates = x === 0 && y === 0;
     if (!Number.isInteger(mmflags) || mmflags < 0)
         throw new TypeError('makemon flags must be a nonnegative integer');
     if (mmflags & ~SUPPORTED_FLAGS) {
@@ -387,8 +398,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'outside initial dungeon level',
         );
     }
-    if (x === 0 && y === 0)
-        throw new UnsupportedMonsterCreationError('random coordinates');
+    if (randomCoordinates && !state.in_mklev) {
+        throw new UnsupportedMonsterCreationError(
+            'random coordinates outside mklev',
+        );
+    }
     const startingPetCall = !state.in_mklev
         && Boolean(ptr)
         && STARTING_PETS.has(ptr.pmidx)
@@ -407,7 +421,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'pet species outside starting-pet call',
         );
     }
-    if (!startingPetCall
+    if (!startingPetCall && !randomCoordinates
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
             `non-accessible location <${x},${y}>`,
@@ -436,6 +450,45 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             );
         }
     }
+}
+
+// C ref: makemon.c makemon_rnd_goodpos(). The initial-level loader skips the
+// source's visibility pass and stair fallback, so after 50 sampled pairs it
+// performs one x-major scan from the last sampled offsets.
+function makemon_rnd_goodpos(ptr, gpflags, normalized) {
+    const { random } = normalized;
+    const fakemon = ptr ? newMonster({ data: ptr }) : null;
+    let nx;
+    let ny;
+    let good;
+    let tryct = 0;
+
+    do {
+        nx = random.rn1(COLNO - 3, 2);
+        ny = random.rn2(ROWNO);
+        good = goodpos(nx, ny, fakemon, gpflags | GP_AVOID_MONPOS, normalized);
+    } while (++tryct < 50 && !good);
+
+    if (good) return { x: nx, y: ny };
+
+    const xofs = nx;
+    const yofs = ny;
+    for (let dx = 0; dx < COLNO; ++dx) {
+        for (let dy = 0; dy < ROWNO; ++dy) {
+            nx = ((dx + xofs) % (COLNO - 1)) + 1;
+            ny = ((dy + yofs) % (ROWNO - 1)) + 1;
+            if (goodpos(
+                nx,
+                ny,
+                fakemon,
+                gpflags | GP_AVOID_MONPOS,
+                normalized,
+            )) {
+                return { x: nx, y: ny };
+            }
+        }
+    }
+    return null;
 }
 
 function addFreshMonsterObject(monster, obj, normalized) {
@@ -748,6 +801,89 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
     return monster;
 }
 
+function monsterOnLevelChain(monster, state) {
+    for (let current = state.level?.monlist ?? null;
+        current;
+        current = current.nmon) {
+        if (current === monster) return true;
+    }
+    return false;
+}
+
+// C refs: mon.c mon_leaving_level(), m_detach(), and mongone(). This is the
+// level-generation subset used to discard a temporary monster after its
+// inventory has been transferred elsewhere. The dead monster stays linked on
+// level.monlist until dmonsfree(), just as C's fmon does.
+export function mongone(monster, env = {}) {
+    const normalized = creationEnv(env);
+    const { state } = normalized;
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('mongone requires a monster instance');
+    if (!monsterOnLevelChain(monster, state))
+        throw new Error('mongone: monster is not on the level chain');
+    if (monster.mstate & MON_DETACH)
+        throw new Error('mongone: monster is already detached');
+    if (monster.isgd || monster.mleashed || monster.wormno
+        || monster.iswiz || state.u?.ustuck === monster
+        || state.u?.usteed === monster) {
+        throw new UnsupportedMonsterCreationError(
+            'temporary monster with unsupported departure state',
+        );
+    }
+
+    monster.mhp = 0;
+    discard_minvent(monster, false, normalized);
+
+    const onmap = isok(monster.mx, monster.my)
+        && m_at(monster.mx, monster.my, state) === monster;
+    if (onmap) {
+        remove_monster(monster.mx, monster.my, state);
+        monster.mundetected = false;
+        if (monster.m_ap_type) {
+            monster.m_ap_type = 0;
+            monster.mappearance = 0;
+            if (monster.mextra && 'mcorpsenm' in monster.mextra)
+                monster.mextra.mcorpsenm = NON_PM;
+        }
+    }
+    monster.mtrapped = false;
+    monster.mstate |= MON_DETACH;
+    state.iflags ??= {};
+    state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
+    return monster;
+}
+
+// C ref: mon.c dmonsfree(). Dead non-guard nodes are unlinked in place, and
+// the source checks that their count matches iflags.purge_monsters.
+export function dmonsfree(state = game) {
+    if (!state.level || !Object.hasOwn(state.level, 'monlist'))
+        throw new Error('dmonsfree requires an initialized level monster list');
+    state.iflags ??= {};
+    const expected = state.iflags.purge_monsters ?? 0;
+    let removed = 0;
+    let previous = null;
+    let current = state.level.monlist;
+    while (current) {
+        const next = current.nmon;
+        if (current.mhp < 1 && !current.isgd) {
+            if (previous) previous.nmon = next;
+            else state.level.monlist = next;
+            current.nmon = null;
+            ++removed;
+        } else {
+            previous = current;
+        }
+        current = next;
+    }
+    state.iflags.purge_monsters = 0;
+    if (removed !== expected) {
+        throw new Error(
+            `dmonsfree: ${removed} removed does not match ${expected} pending`,
+        );
+    }
+    return removed;
+}
+
 function initializeGender(monster, ptr, mmflags, random) {
     const femaleok = !is_male(ptr) && !is_neuter(ptr);
     const maleok = !is_female(ptr) && !is_neuter(ptr);
@@ -762,7 +898,8 @@ function initializeGender(monster, ptr, mmflags, random) {
 
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
 // call shapes needed by fill_ordinary_room(), the Ghost, Cloud, Garden, and
-// Storeroom themed fills, and dog.c:makedog().
+// Storeroom themed fills, dog.c:makedog(), plus the level-generation random
+// coordinate shape needed by temporary Statuary monsters.
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,
@@ -778,8 +915,13 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         return null;
     }
     const byHero = x === state.u.ux && y === state.u.uy;
-    if (byHero && !state.in_mklev) {
-        const gpflags = GP_CHECKSCARY | GP_AVOID_MONPOS;
+    const gpflags = GP_CHECKSCARY | GP_AVOID_MONPOS;
+    if (x === 0 && y === 0) {
+        const coordinate = makemon_rnd_goodpos(ptr, gpflags, normalized);
+        if (!coordinate) return null;
+        x = coordinate.x;
+        y = coordinate.y;
+    } else if (byHero && !state.in_mklev) {
         const coordinate = enexto_core(
             state.u.ux,
             state.u.uy,
