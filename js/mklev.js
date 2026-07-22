@@ -15,6 +15,7 @@ import {
 } from './dungeon.js';
 import { mkcorpstat } from './corpstat.js';
 import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
+import { set_wall_state } from './display.js';
 import { add_to_container } from './invent.js';
 import { makemon } from './makemon_create.js';
 import { mkclass } from './makemon.js';
@@ -3532,8 +3533,6 @@ function bound_digging() {
             }
         }
 }
-
-function set_wall_state() { /* no-op for contest */ }
 
 function level_finalize_topology() {
     const dnum = game.u?.uz?.dnum ?? 0;

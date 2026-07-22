@@ -23,8 +23,10 @@ import {
     DBWALL, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN,
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
+    IS_STWALL, isok,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     WM_MASK, WM_C_OUTER, WM_C_INNER,
+    WM_W_LEFT, WM_W_RIGHT, WM_W_TOP, WM_W_BOTTOM,
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
     HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
@@ -244,6 +246,135 @@ const CROSS_MATRIX = [
     [S_tlcorn, S_trcorn, S_brcorn, S_tdwall, S_tlwall, S_crwall],
     [S_trcorn, S_brcorn, S_blcorn, S_tlwall, S_tuwall, S_crwall],
 ];
+
+// C ref: display.c check_pos().  Rock, corridors, and secret doors represent
+// unfinished exterior terrain.  isok() deliberately excludes map column 0.
+function check_pos(level, x, y, which) {
+    if (!isok(x, y)) return which;
+    const typ = level.at(x, y).typ;
+    return IS_STWALL(typ) || typ === CORR || typ === SCORR || typ === SDOOR
+        ? which
+        : 0;
+}
+
+function more_than_one(a, b, c) {
+    return Boolean((a && (b || c)) || (b && (a || c)) || (c && (a || b)));
+}
+
+// C ref: display.c set_twall().
+function set_twall(level, x1, y1, x2, y2, x3, y3) {
+    const is1 = check_pos(level, x1, y1, WM_T_LONG);
+    const is2 = check_pos(level, x2, y2, WM_T_BL);
+    const is3 = check_pos(level, x3, y3, WM_T_BR);
+    return more_than_one(is1, is2, is3) ? 0 : is1 + is2 + is3;
+}
+
+// C ref: display.c set_wall().
+function set_wall(level, x, y, horizontal) {
+    const is1 = horizontal
+        ? check_pos(level, x, y - 1, WM_W_TOP)
+        : check_pos(level, x - 1, y, WM_W_LEFT);
+    const is2 = horizontal
+        ? check_pos(level, x, y + 1, WM_W_BOTTOM)
+        : check_pos(level, x + 1, y, WM_W_RIGHT);
+    return more_than_one(is1, is2, 0) ? 0 : is1 + is2;
+}
+
+// C ref: display.c set_corn().  The fourth coordinate is the inner quarter.
+function set_corn(level, x1, y1, x2, y2, x3, y3, x4, y4) {
+    const is1 = check_pos(level, x1, y1, 1);
+    const is2 = check_pos(level, x2, y2, 1);
+    const is3 = check_pos(level, x3, y3, 1);
+    const is4 = check_pos(level, x4, y4, 1);
+    if (is4) return WM_C_INNER;
+    return is1 && is2 && is3 ? WM_C_OUTER : 0;
+}
+
+// C ref: display.c set_crosswall().
+function set_crosswall(level, x, y) {
+    const is1 = check_pos(level, x - 1, y - 1, 1);
+    const is2 = check_pos(level, x + 1, y - 1, 1);
+    const is3 = check_pos(level, x + 1, y + 1, 1);
+    const is4 = check_pos(level, x - 1, y + 1, 1);
+    const count = is1 + is2 + is3 + is4;
+    if (count > 1) {
+        if (is1 && is3 && !is2 && !is4) return WM_X_TLBR;
+        if (is2 && is4 && !is1 && !is3) return WM_X_BLTR;
+        return 0;
+    }
+    if (is1) return WM_X_TL;
+    if (is2) return WM_X_TR;
+    if (is3) return WM_X_BR;
+    if (is4) return WM_X_BL;
+    return 0;
+}
+
+// C ref: display.c xy_set_wall_state().  This is exported because vault wall
+// repair updates individual cells through the same source boundary.
+export function xy_set_wall_state(x, y, state = game) {
+    const level = state.level;
+    const loc = level?.at(x, y);
+    if (!loc) return;
+
+    let mode;
+    switch (loc.typ) {
+    case SDOOR:
+        mode = set_wall(level, x, y, Boolean(loc.horizontal));
+        break;
+    case VWALL:
+        mode = set_wall(level, x, y, false);
+        break;
+    case HWALL:
+        mode = set_wall(level, x, y, true);
+        break;
+    case TDWALL:
+        mode = set_twall(level, x, y - 1, x - 1, y + 1, x + 1, y + 1);
+        break;
+    case TUWALL:
+        mode = set_twall(level, x, y + 1, x + 1, y - 1, x - 1, y - 1);
+        break;
+    case TLWALL:
+        mode = set_twall(level, x + 1, y, x - 1, y - 1, x - 1, y + 1);
+        break;
+    case TRWALL:
+        mode = set_twall(level, x - 1, y, x + 1, y + 1, x + 1, y - 1);
+        break;
+    case TLCORNER:
+        mode = set_corn(
+            level, x - 1, y - 1, x, y - 1, x - 1, y, x + 1, y + 1,
+        );
+        break;
+    case TRCORNER:
+        mode = set_corn(
+            level, x, y - 1, x + 1, y - 1, x + 1, y, x - 1, y + 1,
+        );
+        break;
+    case BLCORNER:
+        mode = set_corn(
+            level, x, y + 1, x - 1, y + 1, x - 1, y, x + 1, y - 1,
+        );
+        break;
+    case BRCORNER:
+        mode = set_corn(
+            level, x + 1, y, x + 1, y + 1, x, y + 1, x - 1, y - 1,
+        );
+        break;
+    case CROSSWALL:
+        mode = set_crosswall(level, x, y);
+        break;
+    default:
+        return;
+    }
+
+    loc.wall_info = ((loc.wall_info ?? loc.flags ?? 0) & ~WM_MASK) | mode;
+}
+
+// C ref: display.c set_wall_state(); called once by mklev after topologize().
+export function set_wall_state(state = game) {
+    for (let x = 0; x < COLNO; x++) {
+        for (let y = 0; y < ROWNO; y++) xy_set_wall_state(x, y, state);
+    }
+}
 
 function wallMode(loc) {
     // C's wall_info macro aliases struct rm.flags. The JS location keeps a
