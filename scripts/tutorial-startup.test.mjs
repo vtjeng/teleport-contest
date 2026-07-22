@@ -8,6 +8,7 @@ import {
     buildTutorialMenuSpec,
     maybe_do_tutorial,
 } from '../js/tutorial_startup.js';
+import { TUTORIAL_MAP } from '../js/tutorial_level.js';
 
 function tutorialState(keys = '', overrides = {}) {
     resetGame();
@@ -160,4 +161,9 @@ test('tutorial menu uses the source config-file fallback text', () => {
         spec.items.at(-1).text,
         'Put "OPTIONS=!tutorial" in your configuration file to skip this query.',
     );
+});
+
+test('tutorial map preserves the source 75 by 18 descriptor', () => {
+    assert.equal(TUTORIAL_MAP.length, 18);
+    assert.ok(TUTORIAL_MAP.every((row) => row.length === 75));
 });

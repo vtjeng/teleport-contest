@@ -145,6 +145,7 @@ export async function moveloop_core() {
         vision_recalc(0);
         g.vision_full_recalc = 0;
     }
+    find_ac(g);
     await bot();
     await flush_screen(1);
 

@@ -50,7 +50,7 @@ import {
 } from './terminal.js';
 import { rankOf } from './roles.js';
 import { m_at } from './monst.js';
-import { dist2 } from './hacklib.js';
+import { depth as dungeonDepth, dist2 } from './hacklib.js';
 import { observe_object } from './o_init.js';
 import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
@@ -1451,6 +1451,15 @@ function _statusExperience(u) {
         : `${u.ulevel || 1}`;
 }
 
+// C ref: botl.c describe_level(). The tutorial uses its branch label in the
+// compact status field; ordinary startup retains the traditional Dlvl label.
+function _statusLevelDescription(u, short = false) {
+    const tutorial = Number.isInteger(game.tutorial_dnum)
+        && u.uz?.dnum === game.tutorial_dnum;
+    const label = tutorial ? 'Tutorial' : short ? 'Dl' : 'Dlvl';
+    return `${label}:${dungeonDepth(u.uz)}`;
+}
+
 function _statusVersionSuffix(status) {
     if (!game.flags?.showvers) return status.slice(0, 79);
     const version = status_version(game.flags);
@@ -1470,7 +1479,7 @@ function _statusLine2() {
     let conditionLevel = 0;
     let capacityPadding = '';
     let shortLevel = false;
-    const build = () => `${shortLevel ? 'Dl' : 'Dlvl'}:${u.uz?.dlevel || 1} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}${time}${_hungerStatus(u)}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
+    const build = () => `${_statusLevelDescription(u, shortLevel)} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}${time}${_hungerStatus(u)}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
     let status = build();
     // wintty.c make_things_fit() first tries both abbreviated condition
     // vocabularies, then shortens "Dlvl" to "Dl" before truncating.
@@ -1512,7 +1521,7 @@ function _statusLine3Details() {
     const versionFieldLength = version ? version.length + 1 : 0;
     let conditionLevel = 0;
     let shortLevel = false;
-    const prefix = () => `${shortLevel ? 'Dl' : 'Dlvl'}:${u.uz?.dlevel || 1}${time}`;
+    const prefix = () => `${_statusLevelDescription(u, shortLevel)}${time}`;
     let conditions = _statusConditions(u, conditionLevel);
     const nominalLength = () => prefix().length + conditions.length
         + optional.length + versionFieldLength;

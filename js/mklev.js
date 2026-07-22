@@ -148,7 +148,8 @@ import {
     TRAPDOOR, TELEP_TRAP, LEVEL_TELEP, MAGIC_PORTAL, WEB,
     STATUE_TRAP, MAGIC_TRAP, POLY_TRAP,
     VIBRATING_SQUARE, TRAPPED_DOOR, TRAPPED_CHEST,
-    MKTRAP_NOFLAGS, MKTRAP_NOSPIDERONWEB,
+    MKTRAP_NOFLAGS, MKTRAP_MAZEFLAG, MKTRAP_NOSPIDERONWEB,
+    MKTRAP_NOVICTIM, MKTRAP_SEEN,
     CORPSTAT_INIT, MARK, MM_NOGRP,
     is_hole, is_pit,
 } from './const.js';
@@ -327,11 +328,11 @@ export function l_nhcore_init(state = game, random = rn2) {
 }
 
 // C ref: mklev.c mklev()
-export async function mklev() {
+export async function mklev({ specialLevelLoader = null } = {}) {
     const g = game;
     if (getbones()) return;
     g.in_mklev = true;
-    await makelevel();
+    await makelevel(specialLevelLoader);
     level_finalize_topology();
     g.in_mklev = false;
 }
@@ -498,10 +499,24 @@ export function initialize_themeroom_branch(state = game, random = rn2) {
 }
 
 // C ref: mklev.c makelevel()
-async function makelevel() {
+async function makelevel(specialLevelLoader = null) {
     const g = game;
     oinit();
     clear_level_structures();
+
+    if (specialLevelLoader) {
+        // C refs: nhlua.c nhl_init(); dat/nhlib.lua. Loading an isolated
+        // special-level Lua state shuffles its private alignment table before
+        // evaluating the level file. Do not mark the persistent themed-room
+        // branch as loaded: that Lua state has a different lifetime.
+        const align = ['law', 'neutral', 'chaos'];
+        shuffle_core_values(align, rn2);
+        g.specialLevelAlign = align;
+        const specialLevelApi = createSpecialLevelApi(g);
+        await specialLevelLoader(specialLevelApi, g);
+        specialLevelApi.finish();
+        return;
+    }
 
     // C ref: mklev.c:1295 — check for below-Medusa maze level
     // This rn2(5) is consumed even when the condition fails (short-circuit)
@@ -721,6 +736,303 @@ function set_themeroom_map_terrain(x, y, typ, state) {
     } else if (typ === CLOUD) {
         del_engr_at(x, y, state);
     }
+}
+
+const SPECIAL_DOOR_STATES = Object.freeze({
+    open: D_ISOPEN,
+    closed: D_CLOSED,
+    locked: D_LOCKED,
+    nodoor: D_NODOOR,
+    broken: D_BROKEN,
+});
+const RANDOM_SPECIAL_DOOR_STATES = Object.freeze([
+    D_NODOOR,
+    D_BROKEN,
+    D_ISOPEN,
+    D_CLOSED,
+    D_LOCKED,
+]);
+
+function specialCoordinate(frame, coordinate) {
+    if (!Array.isArray(coordinate)
+        || !Number.isInteger(coordinate[0])
+        || !Number.isInteger(coordinate[1])) {
+        throw new TypeError('special-level coordinate requires [x, y]');
+    }
+    return {
+        x: frame.xstart + coordinate[0],
+        y: frame.ystart + coordinate[1],
+    };
+}
+
+// C ref: sp_lev.c set_door_orientation(). Tutorial doors all have an
+// adjacent wall or door, so the source's unwallified-rock fallback is not
+// reachable for this loader.
+function setSpecialDoorOrientation(x, y, state) {
+    const isDoorWall = (xx, yy) => {
+        const typ = state.level.at(xx, yy)?.typ;
+        return typ != null && (IS_WALL(typ) || IS_DOOR(typ) || typ === SDOOR);
+    };
+    const wleft = isDoorWall(x - 1, y);
+    const wright = isDoorWall(x + 1, y);
+    const wup = isDoorWall(x, y - 1);
+    const wdown = isDoorWall(x, y + 1);
+    state.level.at(x, y).horizontal = Boolean(
+        (wleft || wright) && !(wup && wdown),
+    );
+}
+
+function lightSpecialArea(frame, specification, state) {
+    const [rx1, ry1, rx2, ry2] = specification.area;
+    const grow = specification.lit ? 1 : 0;
+    const x1 = Math.max(0, frame.xstart + rx1 - grow);
+    const y1 = Math.max(0, frame.ystart + ry1 - grow);
+    const x2 = Math.min(COLNO - 1, frame.xstart + rx2 + grow);
+    const y2 = Math.min(ROWNO - 1, frame.ystart + ry2 + grow);
+    for (let x = x1; x <= x2; ++x)
+        for (let y = y1; y <= y2; ++y)
+            state.level.at(x, y).lit = Boolean(specification.lit);
+}
+
+function lightSpecialMatch(frame, mapCharacter, lit, state) {
+    const typ = splev_chr2typ(mapCharacter);
+    for (let x = 0; x < frame.xsize; ++x) {
+        for (let y = 0; y < frame.ysize; ++y) {
+            const location = state.level.at(frame.xstart + x, frame.ystart + y);
+            if (location.typ === typ) location.lit = Boolean(lit);
+        }
+    }
+}
+
+function createSpecialLevelApi(state) {
+    const frame = {
+        xstart: 0,
+        ystart: 0,
+        xsize: 0,
+        ysize: 0,
+        xMazeMax: (COLNO - 1) & ~1,
+        yMazeMax: (ROWNO - 1) & ~1,
+    };
+    const spObjectContext = new_sp_lev_object_context();
+    const env = {
+        state,
+        random: SOURCE_THEMEROOM_RANDOM,
+        hooks: objectGenerationHooks(),
+        frame,
+        spObjectContext,
+    };
+
+    return {
+        random: SOURCE_THEMEROOM_RANDOM,
+
+        level_init(specification) {
+            if (specification?.style !== 'solidfill') {
+                throw new Error(
+                    `unsupported special-level init style ${specification?.style}`,
+                );
+            }
+            const filling = splev_chr2typ(specification.fg ?? ' ');
+            const lit = specification.lit == null
+                ? Boolean(rn2(2))
+                : Boolean(specification.lit);
+            for (let x = 2; x <= frame.xMazeMax; ++x) {
+                for (let y = 0; y <= frame.yMazeMax; ++y) {
+                    set_themeroom_map_terrain(x, y, filling, state);
+                    state.level.at(x, y).lit = lit;
+                }
+            }
+        },
+
+        level_flags(...names) {
+            for (const name of names) {
+                switch (name) {
+                case 'mazelevel': state.level.flags.is_maze_lev = true; break;
+                case 'noflip': state.specialLevelAllowFlips = 0; break;
+                case 'nomongen': state.level.flags.rndmongen = false; break;
+                case 'nodeathdrops': state.level.flags.deathdrops = false; break;
+                case 'noautosearch': state.level.flags.noautosearch = true; break;
+                default: throw new Error(`unsupported special-level flag ${name}`);
+                }
+            }
+        },
+
+        map(rows) {
+            const height = rows.length;
+            const width = rows[0]?.length ?? 0;
+            if (!width || rows.some((row) => row.length !== width))
+                throw new Error('special-level map rows must have equal width');
+            frame.xsize = width;
+            frame.ysize = height;
+            frame.xstart = 2 + Math.trunc(
+                (frame.xMazeMax - 2 - width) / 2,
+            );
+            frame.ystart = 2 + Math.trunc(
+                (frame.yMazeMax - 2 - height) / 2,
+            );
+            if (!(frame.xstart % 2)) ++frame.xstart;
+            if (!(frame.ystart % 2)) ++frame.ystart;
+            state.xstart = frame.xstart;
+            state.ystart = frame.ystart;
+            state.xsize = frame.xsize;
+            state.ysize = frame.ysize;
+            for (let y = 0; y < height; ++y) {
+                for (let x = 0; x < width; ++x) {
+                    set_themeroom_map_terrain(
+                        frame.xstart + x,
+                        frame.ystart + y,
+                        splev_chr2typ(rows[y][x]),
+                        state,
+                    );
+                }
+            }
+            return { ...frame };
+        },
+
+        region(specification) {
+            if (specification.area) {
+                lightSpecialArea(frame, specification, state);
+            } else if (specification.match != null) {
+                lightSpecialMatch(
+                    frame,
+                    specification.match,
+                    specification.lit,
+                    state,
+                );
+            } else {
+                throw new Error('special-level region requires area or match');
+            }
+        },
+
+        non_diggable() {
+            for (let x = 0; x < COLNO; ++x) {
+                for (let y = 0; y < ROWNO; ++y) {
+                    const location = state.level.at(x, y);
+                    if (IS_STWALL(location.typ)
+                        || location.typ === TREE
+                        || location.typ === IRONBARS) {
+                        location.wall_info |= W_NONDIGGABLE;
+                    }
+                }
+            }
+        },
+
+        teleport_region(specification) {
+            const [x1, y1, x2, y2] = specification.region;
+            const destination = {
+                lx: frame.xstart + x1,
+                ly: frame.ystart + y1,
+                hx: frame.xstart + x2,
+                hy: frame.ystart + y2,
+                nlx: -1,
+                nly: -1,
+                nhx: -1,
+                nhy: -1,
+            };
+            state.updest = { ...destination };
+            state.dndest = { ...destination };
+        },
+
+        parse_config(name, enabled) {
+            state.flags ??= {};
+            state.flags[name] = Boolean(enabled);
+        },
+
+        engraving(specification) {
+            const coordinate = specialCoordinate(frame, specification.coord);
+            const engraving = make_engr_at(
+                coordinate.x,
+                coordinate.y,
+                specification.text,
+                null,
+                0,
+                specification.type ?? DUST,
+                env,
+            );
+            engraving.nowipeout = specification.degrade === false;
+            return engraving;
+        },
+
+        door(specification) {
+            const coordinate = specialCoordinate(frame, specification.coord);
+            const mask = specification.state === 'random'
+                ? RANDOM_SPECIAL_DOOR_STATES[rn2(
+                    RANDOM_SPECIAL_DOOR_STATES.length,
+                )]
+                : SPECIAL_DOOR_STATES[specification.state];
+            if (mask == null)
+                throw new Error(`unsupported special-level door state ${specification.state}`);
+            const location = state.level.at(coordinate.x, coordinate.y);
+            if (!IS_DOOR(location.typ) && location.typ !== SDOOR)
+                set_levltyp(coordinate.x, coordinate.y, DOOR, { state });
+            setSpecialDoorOrientation(coordinate.x, coordinate.y, state);
+            location.doormask = mask;
+            return location;
+        },
+
+        trap(specification) {
+            const coordinate = specialCoordinate(frame, specification.coord);
+            let flags = MKTRAP_MAZEFLAG;
+            if (specification.spider_on_web === false)
+                flags |= MKTRAP_NOSPIDERONWEB;
+            if (specification.seen) flags |= MKTRAP_SEEN;
+            if (specification.victim === false) flags |= MKTRAP_NOVICTIM;
+            return make_level_trap(
+                specification.type,
+                flags,
+                null,
+                coordinate,
+                env,
+            );
+        },
+
+        object(specification) {
+            const normalized = {
+                ...specification,
+                coordinate: specification.coord
+                    ? { x: specification.coord[0], y: specification.coord[1] }
+                    : undefined,
+                corpsenm: specification.montype,
+            };
+            return lspo_object(normalized, null, env);
+        },
+
+        monster(specification) {
+            const normalized = {
+                ...specification,
+                coordinate: specification.coord
+                    ? { x: specification.coord[0], y: specification.coord[1] }
+                    : undefined,
+            };
+            return create_monster(normalized, null, env);
+        },
+
+        stair(specification) {
+            const coordinate = specialCoordinate(frame, specification.coord);
+            mkstairs(
+                coordinate.x,
+                coordinate.y,
+                specification.dir === 'up',
+                null,
+            );
+        },
+
+        shuffle(values) {
+            shuffle_core_values(values, rn2);
+            return values;
+        },
+
+        finish() {
+            for (let x = 0; x < COLNO; ++x) {
+                for (let y = 0; y < ROWNO; ++y) {
+                    const typ = state.level.at(x, y).typ;
+                    if (IS_DOOR(typ) || typ === SDOOR)
+                        setSpecialDoorOrientation(x, y, state);
+                }
+            }
+            if (!state.level.flags.corrmaze)
+                wallification(1, 0, COLNO - 1, ROWNO - 1);
+        },
+    };
 }
 
 // C ref: sp_lev.c lspo_map(). The themed-room form chooses an unconstrained

@@ -243,6 +243,8 @@ function defaultResult() {
             wc_splash_screen: true,
             wc_eight_bit_input: false,
             wc2_statuslines: 2,
+            num_pad: false,
+            num_pad_mode: 0,
             customcolors: true,
             customsymbols: true,
             menu_overlay: true,
@@ -263,6 +265,8 @@ function defaultResult() {
         dogname: '',
         horsename: '',
         pl_fruit: DEFAULT_FRUIT,
+        gameplayBindings: [],
+        commandOperations: [],
         symbolOperations: [],
         rogueSymbols: {},
     };
@@ -861,6 +865,39 @@ const MENU_COMMAND_BY_NAME = Object.freeze(Object.fromEntries(
     MENU_COMMAND_OPTIONS.map(({ name, command }) => [name, command]),
 ));
 
+// C ref: cmd.c spkeys_binds[]. These names update prompt/navigation keys,
+// not the extended-command binding list queried by nh.eckey().
+const SPECIAL_KEY_COMMANDS = new Set([
+    'getdir.self',
+    'getdir.self2',
+    'getdir.help',
+    'getdir.mouse',
+    'count',
+    'getpos.self',
+    'getpos.pick',
+    'getpos.pick.quick',
+    'getpos.pick.once',
+    'getpos.pick.verbose',
+    'getpos.valid',
+    'getpos.autodescribe',
+    'getpos.mon.next',
+    'getpos.mon.prev',
+    'getpos.obj.next',
+    'getpos.obj.prev',
+    'getpos.door.next',
+    'getpos.door.prev',
+    'getpos.unexplored.next',
+    'getpos.unexplored.prev',
+    'getpos.valid.next',
+    'getpos.valid.prev',
+    'getpos.all.next',
+    'getpos.all.prev',
+    'getpos.help',
+    'getpos.filter',
+    'getpos.moveskip',
+    'getpos.menu',
+]);
+
 const DEFAULT_OBJECT_CLASS_SYMBOLS = new Set([
     ']', ')', '[', '=', '"', '(', '%', '!', '?', '+', '/', '$', '*', '`',
     '0', '_', '.',
@@ -1019,14 +1056,58 @@ function applyMenuBinding(result, binding, lineNumber) {
     const keyText = binding.slice(0, colon);
     const commandName = binding.slice(colon + 1).trim();
     const command = MENU_COMMAND_BY_NAME[commandName];
-    // Other valid gameplay bindings belong to the command subsystem rather
-    // than this startup parser; retain only menu aliases here.
-    if (command === undefined) return;
     const key = textToKey(keyText);
+    if (command === undefined) {
+        if (keyText === 'mouse1' || keyText === 'mouse2') return;
+        if (!key) {
+            optionError(lineNumber, `unknown key binding key '${keyText}'`);
+        }
+        if (SPECIAL_KEY_COMMANDS.has(commandName)) return;
+        // Keep gameplay bindings in source application order. The first
+        // consumer is nh.eckey() while loading tut-1; command execution still
+        // belongs to the later turn milestone.
+        const operation = {
+            key,
+            command: commandName.toLowerCase(),
+        };
+        result.gameplayBindings.push(operation);
+        result.commandOperations.push({ type: 'bind', ...operation });
+        return;
+    }
     if (!key || illegalMenuCommandKey(key)) {
         optionError(lineNumber, `reserved menu command key '${keyText}'`);
     }
     addMenuCommandAlias(result, key, command);
+}
+
+// C ref: options.c optfn_number_pad(). These fields affect cmd_from_ecname()
+// during tutorial generation even though command dispatch remains unported.
+function setNumberPadOption(result, value, negated, lineNumber) {
+    let enabled;
+    let mode;
+    if (value == null || value === '') {
+        enabled = !negated;
+        mode = 0;
+    } else {
+        if (negated) {
+            optionError(lineNumber, 'number_pad may not be negated with a value');
+        }
+        const parsed = Number.parseInt(value, 10);
+        if (!Number.isInteger(parsed) || parsed < -1 || parsed > 4
+            || (parsed === 0 && value[0] !== '0')) {
+            optionError(lineNumber, `illegal number_pad parameter '${value}'`);
+        }
+        enabled = parsed > 0;
+        mode = parsed < 0 ? 1
+            : (parsed === 2 ? 1 : parsed === 3 ? 2 : parsed === 4 ? 3 : 0);
+    }
+    result.iflags.num_pad = enabled;
+    result.iflags.num_pad_mode = mode;
+    result.commandOperations.push({
+        type: 'number_pad',
+        enabled,
+        mode,
+    });
 }
 
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
@@ -1066,6 +1147,13 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
     } else if (name === 'customcolors' || name === 'customsymbols') {
         result.iflags[name] = enabled;
     } else if (name === 'pushweapon') result.flags.pushweapon = enabled;
+    else if (name === 'rest_on_space') {
+        result.flags.rest_on_space = enabled;
+        result.commandOperations.push({
+            type: 'rest_on_space',
+            enabled,
+        });
+    }
     else if (name === 'showexp') result.flags.showexp = enabled;
     else if (name === 'time') result.flags.time = enabled;
     else if (name === 'verbose') result.flags.verbose = enabled;
@@ -1298,6 +1386,8 @@ function applyOption(result, optionState, option, lineNumber) {
             name,
             rawValue: value,
         }]);
+    } else if (name === 'number_pad') {
+        setNumberPadOption(result, value, negated, lineNumber);
     } else if (value != null) {
         if (negated) {
             optionError(

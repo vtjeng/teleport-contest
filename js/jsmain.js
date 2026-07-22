@@ -26,8 +26,8 @@ import {
     ttyPlayerNameAndSuffix,
 } from './tty_startup.js';
 import {
+    enter_tutorial,
     maybe_do_tutorial,
-    TutorialTransitionNotImplementedError,
 } from './tutorial_startup.js';
 import { moveloop_preamble } from './moveloop_preamble.js';
 import { initialize_symbols_from_options } from './symbols.js';
@@ -186,6 +186,12 @@ export class NethackGame {
         g.catname = opts.catname ?? '';
         g.dogname = opts.dogname ?? '';
         g.horsename = opts.horsename ?? '';
+        g.gameplayBindings = opts.gameplayBindings.map((binding) => ({
+            ...binding,
+        }));
+        g.commandOperations = opts.commandOperations.map((operation) => ({
+            ...operation,
+        }));
         g.wizard = Boolean(g.flags.debug);
         g.discover = Boolean(g.flags.explore);
         if (opts.tutorial_set) g.tutorial_set_in_config = true;
@@ -238,9 +244,7 @@ export class NethackGame {
         // effects precede the optional tutorial query.
         await moveloop_preamble(false, g);
         const tutorial = await maybe_do_tutorial(g);
-        if (tutorial.action === 'enter') {
-            throw new TutorialTransitionNotImplementedError(tutorial);
-        }
+        if (tutorial.action === 'enter') await enter_tutorial(tutorial, g);
         return true;
     }
 

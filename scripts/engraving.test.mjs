@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { DUST } from '../js/const.js';
+import { BLINDED, BURN, DUST, ENGRAVE, ICE, ROOM } from '../js/const.js';
 import {
     engr_at,
     make_engr_at,
+    read_engr_at,
     wipe_engr_at,
     wipeout_text,
 } from '../js/engrave.js';
@@ -208,4 +209,72 @@ test('wipe_engr_at deletes a DUST engraving whose actual text is erased', () => 
     scripted.done();
     assert.equal(engr_at(23, 9, state), null);
     assert.equal(state.head_engr, null);
+});
+
+test('read_engr_at reports, remembers, and punctuates a carved message', async () => {
+    const state = {
+        u: { uprops: [] },
+        level: { at: () => ({ typ: ROOM }) },
+    };
+    const engraving = make_engr_at(
+        12,
+        6,
+        'Move around with h j k l',
+        null,
+        0,
+        ENGRAVE,
+        { state, random: noDrawRandom() },
+    );
+    const messages = [];
+
+    assert.equal(await read_engr_at(12, 6, state, {
+        pline: async (message) => messages.push(message),
+    }), true);
+    assert.deepEqual(messages, [
+        'Something is engraved here on the floor.',
+        'You read: "Move around with h j k l".',
+    ]);
+    assert.equal(engraving.engr_txt[1], engraving.engr_txt[0]);
+    assert.equal(engraving.eread, true);
+    assert.equal(engraving.erevealed, true);
+});
+
+test('read_engr_at uses tactile burn text but cannot sense blind dust', async () => {
+    const state = {
+        u: { uprops: [] },
+        level: { at: () => ({ typ: ICE }) },
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    make_engr_at(
+        4,
+        5,
+        'Careful!',
+        null,
+        0,
+        BURN,
+        { state, random: noDrawRandom() },
+    );
+    const messages = [];
+    assert.equal(await read_engr_at(4, 5, state, {
+        pline: async (message) => messages.push(message),
+    }), true);
+    assert.deepEqual(messages, [
+        'Some text has been melted into the ice here.',
+        'You feel the words: "Careful!"',
+    ]);
+
+    make_engr_at(
+        4,
+        5,
+        'unseen',
+        null,
+        0,
+        DUST,
+        { state, random: noDrawRandom() },
+    );
+    messages.length = 0;
+    assert.equal(await read_engr_at(4, 5, state, {
+        pline: async (message) => messages.push(message),
+    }), false);
+    assert.deepEqual(messages, []);
 });

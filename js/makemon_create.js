@@ -193,6 +193,7 @@ import {
     PM_WOOD_NYMPH,
     PM_WIZARD,
     PM_YELLOW_LIGHT,
+    PM_YELLOW_MOLD,
     PM_GOLD_DRAGON,
     SPECIAL_PM,
     S_CENTAUR,
@@ -398,6 +399,11 @@ const INITIAL_LEVEL_MONSTERS = new Set([
 ]);
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
+const TUTORIAL_LEVEL_MONSTERS = new Set([
+    PM_LICHEN,
+    PM_WOLF,
+    PM_YELLOW_MOLD,
+]);
 
 // include/monattk.h predicate used by muse.c's random-item selectors.
 const AT_EXPL = 13;
@@ -487,6 +493,11 @@ function isRogueLevel(state) {
 // mklev.c uses that same coordinate pair for the first dungeon level.
 function isInitialDungeonLevel(state) {
     return state.u?.uz?.dnum === 0 && state.u.uz.dlevel === 1;
+}
+
+function isTutorialLevel(state) {
+    return state.u?.uz?.dnum === state.tutorial_dnum
+        && state.u.uz.dlevel === 1;
 }
 
 function isArmed(species) {
@@ -810,6 +821,7 @@ function isMausoleumSpecies(species) {
 function assertSupportedSpecies(species) {
     if (!species
         || (!INITIAL_LEVEL_MONSTERS.has(species.pmidx)
+            && !TUTORIAL_LEVEL_MONSTERS.has(species.pmidx)
             && !isStatuaryReservoirSpecies(species)
             && !isMausoleumSpecies(species))) {
         throw new UnsupportedMonsterCreationError(
@@ -828,9 +840,20 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             `mmflags 0x${(mmflags & ~SUPPORTED_FLAGS).toString(16)}`,
         );
     }
-    if (!isInitialDungeonLevel(state)) {
+    const initialDungeonLevel = isInitialDungeonLevel(state);
+    const tutorialLevel = isTutorialLevel(state);
+    if (!initialDungeonLevel && !tutorialLevel) {
         throw new UnsupportedMonsterCreationError(
             'outside initial dungeon level',
+        );
+    }
+    if (tutorialLevel
+        && (!state.in_mklev
+            || randomCoordinates
+            || !ptr
+            || !TUTORIAL_LEVEL_MONSTERS.has(ptr.pmidx))) {
+        throw new UnsupportedMonsterCreationError(
+            'unsupported tutorial monster creation',
         );
     }
     if (randomCoordinates && !state.in_mklev) {

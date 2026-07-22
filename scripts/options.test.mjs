@@ -363,11 +363,41 @@ test('BINDINGS adds exact menu command aliases in source recursion order', () =>
         'bind=#:menu_search,{:menu_next_page',
         'BINDINGS=\\:menu_first_page',
         'BINDINGS=,:menu_select_page',
-        // Non-menu bindings are owned by the gameplay command subsystem.
+        // Non-menu bindings are retained for source command-key lookup.
         'BINDINGS=x:search',
     ].join('\n'));
     assert.equal(parsed.iflags.mapped_menu_cmds, '{#\\,');
     assert.equal(parsed.iflags.mapped_menu_op, '>:^,');
+    assert.deepEqual(parsed.gameplayBindings, [{
+        key: 'x'.charCodeAt(0), command: 'search',
+    }]);
+    assert.deepEqual(parsed.commandOperations, [{
+        type: 'bind', key: 'x'.charCodeAt(0), command: 'search',
+    }]);
+});
+
+test('number_pad preserves the source modes used by command-key lookup', () => {
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=number_pad').iflags,
+        {
+            ...parseNethackrc('').iflags,
+            num_pad: true,
+            num_pad_mode: 0,
+        },
+    );
+    const phone = parseNethackrc('OPTIONS=number_pad:4');
+    assert.equal(phone.iflags.num_pad, true);
+    assert.equal(phone.iflags.num_pad_mode, 3);
+    assert.deepEqual(phone.commandOperations, [{
+        type: 'number_pad', enabled: true, mode: 3,
+    }]);
+    const swapped = parseNethackrc('OPTIONS=number_pad:-1');
+    assert.equal(swapped.iflags.num_pad, false);
+    assert.equal(swapped.iflags.num_pad_mode, 1);
+    assert.throws(
+        () => parseNethackrc('OPTIONS=number_pad:5'),
+        /illegal number_pad parameter/u,
+    );
 });
 
 test('menu command keys use txt2key syntax and source validation', () => {

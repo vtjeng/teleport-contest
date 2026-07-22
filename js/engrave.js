@@ -2,12 +2,15 @@
 // C ref: engrave.c make_engr_at(), wipe_engr_at(), and wipeout_text().
 
 import {
+    BLINDED,
     BURN,
     BUFSZ,
     DUST,
+    ENGRAVE,
     ENGR_BLOOD,
     HEADSTONE,
     ICE,
+    MARK,
     N_ENGRAVE,
 } from './const.js';
 import { game } from './gstate.js';
@@ -98,6 +101,88 @@ export function make_engr_at(
     };
     state.head_engr = engraving;
     return engraving;
+}
+
+function propertyActiveUnblocked(hero, propertyIndex) {
+    const property = hero?.uprops?.[propertyIndex];
+    return Boolean(property
+        && ((property.intrinsic ?? 0) || (property.extrinsic ?? 0))
+        && !(property.blocked ?? 0));
+}
+
+// C ref: engrave.c read_engr_at(). The message callback is injected to avoid
+// making the engraving substrate depend on the tty display implementation.
+export async function read_engr_at(
+    x,
+    y,
+    state = game,
+    { pline } = {},
+) {
+    const engraving = engr_at(x, y, state);
+    const text = engraving?.engr_txt?.[0] ?? '';
+    if (!text) return false;
+    if (typeof pline !== 'function')
+        throw new TypeError('read_engr_at requires a pline callback');
+
+    const blind = propertyActiveUnblocked(state.u, BLINDED);
+    const onIce = state.level?.at(x, y)?.typ === ICE;
+    const surface = onIce ? 'ice' : 'floor';
+    let sensed = false;
+    switch (engraving.engr_type) {
+    case DUST:
+        if (!blind) {
+            sensed = true;
+            await pline(
+                `Something is written here in the ${onIce ? 'frost' : 'dust'}.`,
+                state,
+            );
+        }
+        break;
+    case ENGRAVE:
+    case HEADSTONE:
+        // Initial tutorial entry is never swallowed and can reach the floor;
+        // retain that source result even when a startup condition is blind.
+        sensed = true;
+        await pline(`Something is engraved here on the ${surface}.`, state);
+        break;
+    case BURN:
+        sensed = true;
+        await pline(
+            `Some text has been ${onIce ? 'melted' : 'burned'} into the ${surface} here.`,
+            state,
+        );
+        break;
+    case MARK:
+        if (!blind) {
+            sensed = true;
+            await pline(`There's some graffiti on the ${surface} here.`, state);
+        }
+        break;
+    case ENGR_BLOOD:
+        if (!blind) {
+            sensed = true;
+            await pline('You see a message scrawled in blood here.', state);
+        }
+        break;
+    default:
+        sensed = true;
+        break;
+    }
+    if (!sensed) return false;
+
+    const pristine = engraving.engr_txt[2] ?? text;
+    const finalCharacter = text.at(-1) ?? '';
+    const hasOriginalPunctuation = text.length >= 2
+        && '.!?'.includes(finalCharacter)
+        && pristine.at(-1) === finalCharacter;
+    await pline(
+        `You ${blind ? 'feel the words' : 'read'}: "${text}"${hasOriginalPunctuation ? '' : '.'}`,
+        state,
+    );
+    engraving.engr_txt[1] = text;
+    engraving.eread = true;
+    engraving.erevealed = true;
+    return true;
 }
 
 // Degrade exactly `count` character selections. A selected space still uses

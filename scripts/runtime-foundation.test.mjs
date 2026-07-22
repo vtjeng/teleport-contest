@@ -7,6 +7,7 @@ import {
     VERSION_MAJOR,
     VERSION_MINOR,
 } from '../js/const.js';
+import { engr_at } from '../js/engrave.js';
 import { game, resetGame } from '../js/gstate.js';
 import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
 import { runSegment, wd_message } from '../js/jsmain.js';
@@ -435,7 +436,7 @@ test('runSegment shows welcome More before an unset tutorial query', async () =>
     assert.doesNotMatch(screen, /Do you want a tutorial\?/u);
 });
 
-test('configured tutorial choices skip the query or stop at its transition', async () => {
+test('configured tutorial choices skip the query or reach its first command', async () => {
     const common = 'OPTIONS=name:TutorialConfigured,role:Healer,race:human,'
         + 'gender:male,align:neutral,!legacy,!splash_screen,';
     const skipped = await runSegment({
@@ -450,17 +451,94 @@ test('configured tutorial choices skip the query or stop at its transition', asy
     ).join('\n');
     assert.doesNotMatch(screen, /Do you want a tutorial\?/u);
 
-    await assert.rejects(
-        runSegment({
-            seed: 730203,
-            datetime: '20440517091329',
-            nethackrc: `${common}tutorial`,
-            // The configured name makes welcome() wrap; Space dismisses its
-            // immediate TTY More boundary before the configured transition.
-            moves: ' ',
-        }),
-        /tut-1 special-level transition is not implemented/u,
+    const entered = await runSegment({
+        seed: 730203,
+        datetime: '20440517091329',
+        nethackrc: `${common}tutorial`,
+        // Dismiss the wrapped welcome, tutorial-arrival message, and both
+        // source read_engr_at() messages to reach the command boundary.
+        moves: '    ',
+    });
+    assert.deepEqual(entered.getCursors(), [
+        [15, 1, 1],
+        [30, 0, 1],
+        [48, 0, 1],
+        [45, 0, 1],
+        [11, 7, 1],
+    ]);
+    const rows = game.nhDisplay.grid.map(
+        (row) => row.map((cell) => cell.ch).join('').trimEnd(),
     );
+    assert.equal(rows[0], '');
+    assert.equal(rows[7][11], '@');
+    assert.match(rows.at(-1), /^Tutorial:1 \$:0 .* AC:10 /u);
+    assert.deepEqual(game.u.uz, { dnum: game.tutorial_dnum, dlevel: 1 });
+    assert.deepEqual([game.u.ux, game.u.uy], [12, 6]);
+    assert.equal(game.invent, null);
+    assert.ok(game.gmst_invent);
+    assert.equal(game.gmst_stored, true);
+    assert.equal(game.iflags.nofollowers, false);
+    assert.ok(game.svs.spl_book.every(
+        (spell) => Object.values(spell).every((value) => value === 0),
+    ));
+});
+
+test('tutorial movement text follows number-pad and gameplay bindings', async () => {
+    const character = 'OPTIONS=name:TutorialKeys,role:Healer,race:human,'
+        + 'gender:male,align:neutral\n';
+    const cases = [
+        {
+            seed: 730205,
+            config: 'OPTIONS=tutorial,!legacy,!splash_screen,number_pad',
+            expected: 'Move around with 4 2 8 6',
+        },
+        {
+            seed: 730206,
+            config: 'OPTIONS=tutorial,!legacy,!splash_screen\n'
+                + 'BINDINGS=h:nothing,a:movewest',
+            expected: 'Move around with a j k l',
+        },
+        {
+            seed: 730207,
+            config: 'OPTIONS=tutorial,!legacy,!splash_screen\n'
+                + 'BINDINGS=a:movewest',
+            expected: 'Move around with h j k l',
+        },
+        {
+            seed: 730208,
+            config: 'OPTIONS=tutorial,!legacy,!splash_screen\n'
+                + 'BINDINGS=b:movewest',
+            expected: 'Move around with b j k l',
+        },
+        {
+            seed: 730209,
+            config: 'OPTIONS=tutorial,!legacy,!splash_screen,number_pad:3',
+            expected: 'Move around with 4 8 2 6',
+            expectedDiagonal: 'Move diagonally with 7 3 9 1',
+        },
+        {
+            seed: 730210,
+            config: 'OPTIONS=tutorial,!legacy,!splash_screen,number_pad:-1',
+            expected: 'Move around with h j k l',
+            expectedDiagonal: 'Move diagonally with b u n z',
+        },
+    ];
+
+    for (const { seed, config, expected, expectedDiagonal } of cases) {
+        await runSegment({
+            seed,
+            datetime: '20440517091330',
+            nethackrc: character + config,
+            moves: '    ',
+        });
+        assert.equal(engr_at(12, 6, game)?.engr_txt[0], expected);
+        if (expectedDiagonal) {
+            assert.equal(
+                engr_at(8, 5, game)?.engr_txt[0],
+                expectedDiagonal,
+            );
+        }
+    }
 });
 
 test('a command message remains on the next command screen', async () => {
