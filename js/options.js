@@ -299,6 +299,12 @@ function defaultResult() {
                 color: NO_COLOR,
             },
         },
+        a11y: {
+            accessiblemsg: false,
+            glyph_updates: false,
+            mon_notices: false,
+            mon_notices_blocked: 0,
+        },
         roleFilter: defaultRoleFilter(),
         uroleplay: defaultRoleplay(),
         playmode: 'normal',
@@ -1638,6 +1644,12 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.wc_splash_screen = enabled;
     } else if (name === 'status_updates') {
         result.iflags.status_updates = enabled;
+    } else if (name === 'accessiblemsg') {
+        result.a11y.accessiblemsg = enabled;
+    } else if (name === 'mention_map') {
+        result.a11y.glyph_updates = enabled;
+    } else if (name === 'spot_monsters') {
+        result.a11y.mon_notices = enabled;
     } else if (name === 'menu_overlay') {
         result.iflags.menu_overlay = enabled;
     } else if (name === 'eight_bit_tty') {

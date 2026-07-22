@@ -31,6 +31,7 @@ import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen } from './display.js';
 import { ttyPline } from './tty_message.js';
+import { emitStartupA11yNotices } from './startup_a11y.js';
 import { check_special_room_state } from './rooms.js';
 import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
@@ -130,6 +131,9 @@ export async function newgame() {
 
     // C ref: allmain.c welcome(TRUE) -> pline().
     await ttyPline(welcomeMessage(g), g);
+    // C re-enables monster notices only after the welcome, then chooses
+    // between #lookaround and the distance-sorted monster notice pass.
+    await emitStartupA11yNotices(g);
 }
 
 // C ref: allmain.c moveloop_core()

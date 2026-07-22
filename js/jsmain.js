@@ -232,6 +232,7 @@ export class NethackGame {
         g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
+        g.a11y = { ...opts.a11y };
         g.roleFilter = {
             roles: [...(opts.roleFilter?.roles ?? [])],
             mask: opts.roleFilter?.mask ?? 0,

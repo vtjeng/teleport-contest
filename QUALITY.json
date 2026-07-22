@@ -22,6 +22,7 @@
         "js/player_selection.js",
         "js/player_selection_tty.js",
         "js/startup_reroll.js",
+        "js/startup_a11y.js",
         "js/tty_startup.js",
         "js/tutorial_startup.js"
       ]
