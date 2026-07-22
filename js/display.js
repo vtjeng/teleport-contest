@@ -9,7 +9,7 @@ import {
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, CONFUSION, DEAF, FLYING, HALLUC, HALLUC_RES,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
-    SLIMED, STONED, STR18, STRANGLED, STUNNED,
+    SLIMED, STONED, STR18, STRANGLED, STUNNED, OBJ_FLOOR,
     P_DAGGER, P_KNIFE, P_AXE, P_PICK_AXE, P_SHORT_SWORD, P_SABER,
     P_CLUB, P_MACE, P_MORNING_STAR, P_FLAIL, P_HAMMER,
     P_QUARTERSTAFF, P_POLEARMS, P_SPEAR, P_TRIDENT, P_LANCE,
@@ -666,6 +666,15 @@ export function object_is_generic(obj) {
             || (obj?.otyp >= FIRST_SPELL && obj.otyp <= LAST_SPELL));
 }
 
+// C ref: display.h obj_is_piletop(). A top boulder conceals non-boulders
+// beneath it, but two stacked boulders still use the pile-top glyph family.
+function object_is_piletop(obj, state) {
+    const next = state.level?.objects?.[obj.ox]?.[obj.oy]?.nexthere;
+    return obj.where === OBJ_FLOOR
+        && Boolean(next)
+        && (obj.otyp !== BOULDER || next.otyp === BOULDER);
+}
+
 export function object_glyph_info(obj, state = game) {
     if (!obj) throw new TypeError('object_glyph_info requires an object');
     const generic = object_is_generic(obj);
@@ -689,7 +698,15 @@ export function object_glyph_info(obj, state = game) {
         if (obj.otyp === CORPSE && state.mons?.[obj.corpsenm])
             color = state.mons[obj.corpsenm].mcolor;
     }
-    return glyphPresentation(symbol, color, state);
+    const glyph = glyphPresentation(symbol, color, state);
+    // C ref: win/tty/wintty.c tty_print_glyph(). Pile highlighting is a tty
+    // presentation attribute and is suppressed together with inverse video.
+    if (object_is_piletop(obj, state)
+        && state.iflags?.hilite_pile
+        && state.iflags?.wc_inverse !== false) {
+        glyph.attr = ATR_INVERSE;
+    }
+    return glyph;
 }
 
 // ── Terrain to display character + color + DEC flag ──

@@ -32,6 +32,7 @@ import {
     LA_DOWN,
     M_AP_FURNITURE,
     M_AP_OBJECT,
+    OBJ_FLOOR,
     POOL,
     ROOM,
     SCORR,
@@ -83,6 +84,7 @@ import {
 } from '../js/monsters.js';
 import {
     ARROW,
+    BOULDER,
     CHEST,
     CLOAK_OF_PROTECTION,
     COIN_CLASS,
@@ -654,6 +656,43 @@ test('monster glyphs apply the configured tty attribute only to pets', () => {
     assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
     state.iflags.wc_hilite_pet = false;
     assert.equal(monster_glyph_info(monster, state).attr, undefined);
+});
+
+test('object glyphs apply tty pile highlighting with the source boulder rule', () => {
+    const state = visibleCellState();
+    const x = 7;
+    const y = 4;
+    state.iflags = {
+        wc_color: true,
+        wc_inverse: true,
+        hilite_pile: true,
+    };
+    const lower = { otyp: SPEAR };
+    const top = {
+        otyp: ARROW,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: lower,
+    };
+    state.level.objects[x][y] = top;
+
+    assert.equal(object_glyph_info(top, state).attr, ATR_INVERSE);
+
+    state.iflags.hilite_pile = false;
+    assert.equal(object_glyph_info(top, state).attr, undefined);
+    state.iflags.hilite_pile = true;
+    state.iflags.wc_inverse = false;
+    assert.equal(object_glyph_info(top, state).attr, undefined);
+
+    state.iflags.wc_inverse = true;
+    top.otyp = BOULDER;
+    assert.equal(object_glyph_info(top, state).attr, undefined);
+    lower.otyp = BOULDER;
+    assert.equal(object_glyph_info(top, state).attr, ATR_INVERSE);
+
+    top.where = 0;
+    assert.equal(object_glyph_info(top, state).attr, undefined);
 });
 
 test('newsym remembers an object underneath a visible monster and hero', () => {

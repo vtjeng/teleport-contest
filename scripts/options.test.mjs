@@ -309,6 +309,18 @@ test('use_inverse owns the tty inverse-video interface flag', () => {
     );
 });
 
+test('hilite_pile owns the tty pile interface flag', () => {
+    assert.equal(parseNethackrc('').iflags.hilite_pile, false);
+    assert.equal(
+        parseNethackrc('OPTIONS=hilite_pile').iflags.hilite_pile,
+        true,
+    );
+    assert.equal(
+        parseNethackrc('OPTIONS=!hilite_pile').iflags.hilite_pile,
+        false,
+    );
+});
+
 test('pet highlighting preserves the source tty attribute state', () => {
     const defaults = parseNethackrc('');
     assert.equal(defaults.iflags.wc_hilite_pet, false);

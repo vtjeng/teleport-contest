@@ -275,6 +275,7 @@ function defaultResult() {
             wc_color: true,
             wc_inverse: true,
             wc_hilite_pet: false,
+            hilite_pile: false,
             wc2_hitpointbar: false,
             wc_splash_screen: true,
             wc_eight_bit_input: false,
@@ -1624,6 +1625,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         if (enabled && result.iflags.wc2_petattr === ATR_NONE) {
             result.iflags.wc2_petattr = ATR_INVERSE;
         }
+    } else if (name === 'hilite_pile') {
+        result.iflags.hilite_pile = enabled;
     } else if (name === 'hitpointbar') {
         result.iflags.wc2_hitpointbar = enabled;
     } else if (name === 'legacy') result.flags.legacy = enabled;
