@@ -9,6 +9,7 @@ import {
     ttyLegacyLayout,
 } from '../js/legacy_startup.js';
 import { parseNethackrc } from '../js/options.js';
+import { initRng } from '../js/rng.js';
 import { roles, str2role } from '../js/roles.js';
 import { ATR_NONE, NO_COLOR } from '../js/terminal.js';
 
@@ -21,6 +22,7 @@ function legacyState({
     menuOverlay = true,
 } = {}) {
     resetGame();
+    initRng(0x1e6ac7);
     game.nhDisplay = new GameDisplay(null);
     game.flags = { legacy: true, female };
     game.iflags = { menu_overlay: menuOverlay };
@@ -118,6 +120,24 @@ test('tty legacy page ignores invalid keys and restores its corner', async () =>
         layout.promptColumn + '--More--'.length,
         layout.promptRow,
     ]);
+});
+
+test('legacy pager loads a fresh nhlib alignment shuffle before input', async () => {
+    const state = legacyState({ keys: ' ' });
+    const bounds = [];
+    let boundsAtInput;
+    state._preNhgetchHook = () => { boundsAtInput = [...bounds]; };
+
+    assert.equal(
+        await ttyLegacyIntroduction(state, (bound) => {
+            bounds.push(bound);
+            return bound - 1;
+        }),
+        true,
+    );
+
+    assert.deepEqual(bounds, [3, 2]);
+    assert.deepEqual(boundsAtInput, [3, 2]);
 });
 
 test('recorder capture leaves standout dmore attributes unset', async () => {

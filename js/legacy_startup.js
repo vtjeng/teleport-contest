@@ -4,6 +4,7 @@
 
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
+import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { CLR_GRAY, NO_COLOR } from './terminal.js';
 
@@ -176,8 +177,24 @@ export function dismissTtyLegacyIntroduction(state = game, rendered) {
     restoreDisplay(state.nhDisplay, rendered.snapshot);
 }
 
-export async function ttyLegacyIntroduction(state = game) {
+// C refs: questpgr.c com_pager_core(), nhlua.c nhl_init(), and
+// dat/nhlib.lua.  Every pager invocation owns a fresh Lua state; loading its
+// common library shuffles the otherwise-unused global alignment table before
+// quest.lua is read, then the state is discarded when the pager closes.
+function initializeLegacyPagerLua(random) {
+    const align = ['law', 'neutral', 'chaos'];
+    for (let index = align.length; index > 1; --index) {
+        const selected = random(index);
+        [align[index - 1], align[selected]] = [
+            align[selected], align[index - 1],
+        ];
+    }
+    return align;
+}
+
+export async function ttyLegacyIntroduction(state = game, random = rn2) {
     if (!state.flags?.legacy) return false;
+    initializeLegacyPagerLua(random);
     const rendered = renderTtyLegacyIntroduction(state);
     for (;;) {
         const code = await nhgetch(state);

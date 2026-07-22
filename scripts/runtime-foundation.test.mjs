@@ -290,8 +290,9 @@ test('tty startup ignores the window-port splash option', async () => {
 
 test('runSegment reaches the configured legacy introduction boundary', async () => {
     const nhGame = await runSegment({
-        // This arbitrary seed exercises the full startup path; the story text
-        // itself is deterministic and consumes no PRNG values.
+        // This arbitrary seed exercises the full startup path. The story text
+        // is deterministic, but its fresh pager Lua state performs nhlib's
+        // two-draw alignment shuffle before displaying the page.
         seed: 223607,
         datetime: '20401231235958',
         nethackrc: 'OPTIONS=name:Legacy,role:Caveman,race:human,'
