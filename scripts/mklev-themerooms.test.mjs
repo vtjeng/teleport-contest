@@ -6,12 +6,13 @@ import {
     AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL,
     ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
-    THEMEROOM, VWALL,
+    THEMEROOM, TLCORNER, VWALL,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
+    build_room,
     dispatch_themeroom,
     initialize_themeroom_branch,
     lspo_map,
@@ -648,6 +649,145 @@ test('generic room relocation keeps rn1 distinct from rnd', () => {
         'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(10)', 'rn2(3)',
     ]);
     assert.equal(game.level.rooms[0].ly, 2);
+});
+
+test('build_room places a partially specified top-level room in source order', () => {
+    resetThemeroomLevel();
+    const events = [];
+    const coreDraws = [[100, 0], [77, 76]];
+    const oneBasedDraws = [
+        [2, 2], // litstate_rnd
+        [5, 3], [5, 2], // random position sectors
+        [3, 3], [3, 1], // centered horizontally, top-aligned vertically
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        const next = coreDraws.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        const next = oneBasedDraws.shift();
+        assert.ok(next, `unexpected rnd(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+
+    const room = build_room({
+        x: -1,
+        y: -1,
+        w: 11,
+        h: 9,
+        xalign: -1,
+        yalign: -1,
+        rtype: OROOM,
+        chance: 100,
+        rlit: -1,
+        needfill: FILL_NORMAL,
+        joined: false,
+    }, null, random, randomOneBased);
+
+    assert.equal(coreDraws.length, 0);
+    assert.equal(oneBasedDraws.length, 0);
+    assert.deepEqual(events, [
+        'rn2(100)', 'rnd(2)', 'rn2(77)',
+        'rnd(5)', 'rnd(5)', 'rnd(3)', 'rnd(3)',
+    ]);
+    assert.equal(room, game.level.rooms[0]);
+    assert.deepEqual(
+        [room.lx, room.ly, room.hx, room.hy],
+        [35, 5, 45, 13],
+    );
+    assert.equal(room.rlit, 1);
+    assert.equal(room.needfill, FILL_NORMAL);
+    assert.equal(room.needjoining, false);
+    assert.equal(game.level.at(35, 5).roomno, ROOMOFFSET);
+    assert.equal(game.level.at(34, 4).typ, TLCORNER);
+});
+
+test('build_room creates and indexes random nested subrooms', () => {
+    resetThemeroomLevel();
+    const parentOneBased = [3, 2, 3, 1];
+    const parent = build_room({
+        x: -1,
+        y: -1,
+        w: 11,
+        h: 9,
+        rtype: OROOM,
+        chance: 100,
+        rlit: 0,
+        needfill: FILL_NORMAL,
+        joined: true,
+    }, null, (bound) => {
+        assert.equal(bound, 100);
+        return 0;
+    }, (bound) => {
+        const value = parentOneBased.shift();
+        assert.ok(value != null, `unexpected parent rnd(${bound})`);
+        return value;
+    });
+    assert.equal(parentOneBased.length, 0);
+
+    const events = [];
+    const coreDraws = [[100, 0], [77, 76]];
+    const oneBasedDraws = [
+        [8, 4], [6, 3], // width and height
+        [7, 1], [6, 5], // left and bottom-edge-adjusted positions
+        [2, 2], // litstate_rnd
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        const next = coreDraws.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        const next = oneBasedDraws.shift();
+        assert.ok(next, `unexpected rnd(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+
+    const child = build_room({
+        x: -1,
+        y: -1,
+        w: -1,
+        h: -1,
+        rtype: THEMEROOM,
+        chance: 100,
+        rlit: -1,
+        needfill: FILL_NORMAL,
+        joined: false,
+    }, parent, random, randomOneBased);
+
+    assert.equal(coreDraws.length, 0);
+    assert.equal(oneBasedDraws.length, 0);
+    assert.deepEqual(events, [
+        'rn2(100)',
+        'rnd(8)', 'rnd(6)', 'rnd(7)', 'rnd(6)',
+        'rnd(2)', 'rn2(77)',
+    ]);
+    assert.equal(parent.nsubrooms, 1);
+    assert.equal(parent.sbrooms[0], child);
+    assert.equal(game.nsubroom, 1);
+    assert.equal(game.subrooms[0], child);
+    assert.equal(game.subrooms[1].hx, -1);
+    assert.equal(child.roomnoidx, MAXNROFROOMS + 1);
+    assert.deepEqual(
+        [child.lx, child.ly, child.hx, child.hy],
+        [parent.lx, parent.ly + 6, parent.lx + 3, parent.hy],
+    );
+    assert.equal(child.rlit, 1);
+    assert.equal(child.needfill, FILL_NORMAL);
+    assert.equal(child.needjoining, false);
+    assert.equal(
+        game.level.at(child.lx, child.ly).roomno,
+        child.roomnoidx + ROOMOFFSET,
+    );
 });
 
 test('strict dispatch rejects alternate state before draws or mutation', () => {

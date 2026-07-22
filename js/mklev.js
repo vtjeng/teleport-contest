@@ -106,7 +106,7 @@ import {
     D_NODOOR, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED,
     OROOM, THEMEROOM, COURT, SWAMP, VAULT, BEEHIVE, MORGUE,
     BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
-    ROOMOFFSET, MAXNROFROOMS, SHARED,
+    ROOMOFFSET, MAXNROFROOMS, MAX_SUBROOMS, SHARED,
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, THRONE, TREE,
     DUST,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
@@ -131,6 +131,11 @@ import {
 
 const XLIM = 4;
 const YLIM = 3;
+
+// sp_lev.c room alignment values are private to that loader.
+const SPLEV_CENTER = 3;
+const SPLEV_RIGHT = 5;
+const SPLEV_BOTTOM = 5;
 
 const THEMEROOM_RANDOM_METHODS = Object.freeze([
     'd', 'rn1', 'rn2', 'rnd', 'rne', 'rnz',
@@ -311,6 +316,8 @@ export async function mklev() {
 function clear_level_structures() {
     const g = game;
     g.level = new GameMap();
+    g.subrooms = [];
+    g.nsubroom = 0;
     g.made_branch = false;
     g.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     g.stairs = null;
@@ -851,29 +858,26 @@ function dispatch_room_action(definition, context) {
     }
     if (action.contents) preflight_themeroom_fill(definition, context);
 
-    const chance = spec.chance ?? 100;
     const declaredType = room_type_from_schema(spec.type, definition);
-    const roomType = (!chance || context.random(100) < chance)
-        ? declaredType
-        : OROOM;
-    const ok = create_room(
-        spec.x ?? -1,
-        spec.y ?? -1,
-        spec.w ?? -1,
-        spec.h ?? -1,
-        -1,
-        -1,
-        roomType,
-        spec.lit ?? -1,
+    const room = build_room(
+        {
+            x: spec.x ?? -1,
+            y: spec.y ?? -1,
+            w: spec.w ?? -1,
+            h: spec.h ?? -1,
+            xalign: -1,
+            yalign: -1,
+            rtype: declaredType,
+            chance: spec.chance ?? 100,
+            rlit: spec.lit ?? -1,
+            needfill: spec.filled ?? FILL_NONE,
+            joined: spec.joined ?? true,
+        },
+        null,
         context.random,
         context.randomOneBased,
     );
-    if (!ok) return false;
-
-    const room = game.level.rooms[game.level.nroom - 1];
-    topologize(room);
-    room.needfill = spec.filled ?? FILL_NONE;
-    room.needjoining = spec.joined ?? true;
+    if (!room) return false;
     if (action.contents) invoke_themeroom_fill(room, definition, context);
     return true;
 }
@@ -1077,7 +1081,7 @@ function check_room(lowx, ddx, lowy, ddy, vault, random = rn2) {
 }
 
 // C ref: sp_lev.c create_room()
-function create_room(
+export function create_room(
     x, y, w, h, xal, yal, rtype, rlit,
     random = rn2,
     randomOneBased = rnd,
@@ -1142,8 +1146,58 @@ function create_room(
             htmp = ddy.v + 1;
             r2 = { lx: xabs - 1, ly: yabs - 1, hx: xabs + wtmp, hy: yabs + htmp };
         } else {
-            // positioned room (not used for seed8000)
-            return false;
+            // sp_lev.c create_room(): some, but not all, parameters are
+            // random. Random positions reserve the source's extra border.
+            let rndpos = 0;
+            if (xtmp < 0 && ytmp < 0) {
+                xtmp = randomOneBased(5);
+                ytmp = randomOneBased(5);
+                rndpos = 1;
+            }
+            if (wtmp < 0 || htmp < 0) {
+                wtmp = random(15) + 3;
+                htmp = random(8) + 2;
+            }
+            if (xaltmp === -1) xaltmp = randomOneBased(3);
+            if (yaltmp === -1) yaltmp = randomOneBased(3);
+
+            xabs = Math.trunc(((xtmp - 1) * COLNO) / 5) + 1;
+            yabs = Math.trunc(((ytmp - 1) * ROWNO) / 5) + 1;
+            if (xaltmp === SPLEV_RIGHT) {
+                xabs += Math.trunc(COLNO / 5) - wtmp;
+            } else if (xaltmp === SPLEV_CENTER) {
+                xabs += Math.trunc((Math.trunc(COLNO / 5) - wtmp) / 2);
+            }
+            if (yaltmp === SPLEV_BOTTOM) {
+                yabs += Math.trunc(ROWNO / 5) - htmp;
+            } else if (yaltmp === SPLEV_CENTER) {
+                yabs += Math.trunc((Math.trunc(ROWNO / 5) - htmp) / 2);
+            }
+
+            if (xabs + wtmp - 1 > COLNO - 2)
+                xabs = COLNO - wtmp - 3;
+            if (xabs < 2) xabs = 2;
+            if (yabs + htmp - 1 > ROWNO - 2)
+                yabs = ROWNO - htmp - 3;
+            if (yabs < 2) yabs = 2;
+
+            r2 = {
+                lx: xabs - 1,
+                ly: yabs - 1,
+                hx: xabs + wtmp + rndpos,
+                hy: yabs + htmp + rndpos,
+            };
+            r1 = get_rect(r2);
+            if (r1) {
+                const lowx = { v: xabs }, ddx = { v: wtmp };
+                const lowy = { v: yabs }, ddy = { v: htmp };
+                if (!check_room(lowx, ddx, lowy, ddy, vault, random)) {
+                    r1 = null;
+                } else {
+                    xabs = lowx.v;
+                    yabs = lowy.v;
+                }
+            }
         }
     } while (++trycnt <= 100 && !r1);
     if (!r1) return false;
@@ -1181,6 +1235,135 @@ function add_room(lowx, lowy, hix, hiy, lit, rtype, special) {
     if (g.level.nroom < MAXNROFROOMS) {
         g.level.rooms[g.level.nroom] = { hx: -1 };
     }
+}
+
+// C ref: mklev.c add_subroom(). Subrooms occupy the second half of the
+// conceptual rooms[] allocation, so their topology room numbers remain stable
+// when the top-level room array is later sorted.
+function add_subroom(proom, lowx, lowy, hix, hiy, lit, rtype, special) {
+    const g = game;
+    g.subrooms ??= [];
+    g.nsubroom ??= 0;
+    proom.sbrooms ??= [];
+    proom.nsubrooms ??= proom.sbrooms.length;
+    if (g.nsubroom >= MAXNROFROOMS)
+        throw new Error('level has too many subrooms');
+    if (proom.nsubrooms >= MAX_SUBROOMS)
+        throw new Error('room has too many subrooms');
+
+    const croom = {
+        lx: lowx, ly: lowy, hx: hix, hy: hiy,
+        rtype, rlit: lit ? 1 : 0,
+        doorct: 0, fdoor: g.level.doorindex,
+        irregular: false, needjoining: !special,
+        nsubrooms: 0, sbrooms: [],
+        roomnoidx: MAXNROFROOMS + 1 + g.nsubroom,
+        needfill: FILL_NONE,
+    };
+    do_room_or_subroom(
+        croom,
+        lowx,
+        lowy,
+        hix,
+        hiy,
+        lit,
+        rtype,
+        special,
+        false,
+    );
+    proom.sbrooms[proom.nsubrooms++] = croom;
+    g.subrooms[g.nsubroom++] = croom;
+    g.subrooms[g.nsubroom] = { hx: -1 };
+    return croom;
+}
+
+// C ref: sp_lev.c create_subroom(). Coordinates are relative to the parent
+// room; the paired edge adjustments intentionally retain the source's
+// one-based random-position quirks.
+export function create_subroom(
+    proom,
+    x,
+    y,
+    w,
+    h,
+    rtype,
+    rlit,
+    random = rn2,
+    randomOneBased = rnd,
+) {
+    const width = proom.hx - proom.lx + 1;
+    const height = proom.hy - proom.ly + 1;
+    if (width < 4 || height < 4) return false;
+
+    if (w === -1) w = randomOneBased(width - 3);
+    if (h === -1) h = randomOneBased(height - 3);
+    if (x === -1) x = randomOneBased(width - w);
+    if (y === -1) y = randomOneBased(height - h);
+    if (x === 1) x = 0;
+    if (y === 1) y = 0;
+    if (x + w + 1 === width) ++x;
+    if (y + h + 1 === height) ++y;
+    if (rtype === -1) rtype = OROOM;
+    rlit = litstate_rnd(rlit, random, randomOneBased);
+    add_subroom(
+        proom,
+        proom.lx + x,
+        proom.ly + y,
+        proom.lx + x + w - 1,
+        proom.ly + y + h - 1,
+        rlit,
+        rtype,
+        false,
+    );
+    return true;
+}
+
+// C ref: sp_lev.c build_room(). This is the shared room/subroom construction
+// boundary used by every Lua direct-room callback.
+export function build_room(
+    spec,
+    parent = null,
+    random = rn2,
+    randomOneBased = rnd,
+) {
+    const requestedType = spec.rtype ?? OROOM;
+    const chance = spec.chance ?? 100;
+    const rtype = (!chance || random(100) < chance)
+        ? requestedType : OROOM;
+    const roomIndex = parent
+        ? (game.nsubroom ?? 0) : game.level.nroom;
+    const ok = parent
+        ? create_subroom(
+            parent,
+            spec.x ?? -1,
+            spec.y ?? -1,
+            spec.w ?? -1,
+            spec.h ?? -1,
+            rtype,
+            spec.rlit ?? -1,
+            random,
+            randomOneBased,
+        )
+        : create_room(
+            spec.x ?? -1,
+            spec.y ?? -1,
+            spec.w ?? -1,
+            spec.h ?? -1,
+            spec.xalign ?? -1,
+            spec.yalign ?? -1,
+            rtype,
+            spec.rlit ?? -1,
+            random,
+            randomOneBased,
+        );
+    if (!ok) return null;
+
+    const room = parent
+        ? game.subrooms[roomIndex] : game.level.rooms[roomIndex];
+    topologize(room);
+    room.needfill = spec.needfill ?? FILL_NONE;
+    room.needjoining = spec.joined ?? true;
+    return room;
 }
 
 // C ref: mklev.c do_room_or_subroom()
