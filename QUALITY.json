@@ -412,6 +412,20 @@
       "outcome": "changed",
       "evidence": "Full correctness audit of 1a8adff62f1c769c665e5dc5f46350dffecd9a1f..fd46453664e4ba4cc0073f9575e4783ca9cb8fd5; final reconciled frontier 44c4f69aed40dc3644b809c52d7bd9c32a667a2d. Mandatory correctness, readability, tests, and variable-trace finders ran; performance and concurrency disabled. 9 raw, 7 deduplicated, 7 confirmed, 7 applied; 0 deferrals, 0 unverified, 0 rejected. Applied waiting-vampire base-form reversion and six regression-strengthening fixes. Two post-fix readers found one overly broad helper API; narrowed in 44c4f69, then both readers rechecked that delta with 0 findings. Warning: fresh top-level Codex process was blocked by private-repository disclosure policy, so no external session ID or usage summary exists; safer fresh-context in-session subagents preserved the finder/adjudication workflow. Prior seed 941182 evidence was discarded as misattributed because it did not generate Mausoleum. Validation: 903/903 tests, themed-room data check, fresh seeds 4481 at 2825 calls and 7414 at 2642 calls exact for PRNG/screens/cursors, development 178 matched screens. No holdout run or access.",
       "recordedAt": "2026-07-22T12:50:10.697Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world": "44c4f69aed40dc3644b809c52d7bd9c32a667a2d"
+      },
+      "head": "67240887f5a10776689c216aa97f1c577e73e509",
+      "areas": [
+        "world"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Composite committed range 44c4f69aed40dc3644b809c52d7bd9c32a667a2d..67240887f5a10776689c216aa97f1c577e73e509. Initial full correctness pass through c005fab: 14 raw, 14 deduplicated, 9 confirmed, 9 applied in 79505268c80e3b7de485401af793e641c9ff91dd, 0 deferred, 5 rejected, 0 unverified. Two post-fix readers found no must-fix issue. Observable fixes required a final full-range pass: 5 raw, 4 deduplicated, 4 confirmed, 3 applied as test coverage in 67240887f5a10776689c216aa97f1c577e73e509, 1 deferred, 0 rejected, 0 unverified. Two final read-only source/mutation reviewers found no must-fix issue. Combined: 19 raw, 18 deduplicated, 13 confirmed, 12 applied, 1 deferred, 5 rejected, 0 unverified. Mandatory correctness, readability, tests, and variable-trace finders ran; performance and concurrency were disabled as inapplicable. Applied production fixes preserve mongets merge success, gnome candle burn evaluation, and Water vault random chest locking from the Lua olocked typo. Notable rejected claims: failed shop stock still sets has_shop per C; lx/ly/rx/ry are exact Lua fields; Water fixed-offset exclusion is independent; shopkeeper preflight validates call shape rather than caller identity; shop indexes 1 and 4 are documented rtype-SHOPBASE values. The one deferred Water exclusion consumer belongs to later level-arrival integration: generated D:1 always registers the upward branch stair, and current first-command code has no level-transition place_lregion caller. Warning: external top-level codex exec was blocked by private-repository disclosure policy, so fresh in-session independent subagents preserved the required roles and phase order. One proposed source premise that glass escape chests must be unlocked was disproved and corrected before integration. Validation: 919 full tests; generated monster, object, symbol, and themed-room checks; exact fresh C differentials seed 87 at 2973 calls, seed 1297 at 3046 calls, and seed 423 at 3050 calls with exact PRNG/screens/cursors; development score 217 matched screens over 33 sessions; no sealed holdout run.",
+      "recordedAt": "2026-07-22T15:11:54.999Z"
     }
   ]
 }
