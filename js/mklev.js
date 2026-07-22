@@ -96,6 +96,7 @@ import {
     somexy,
 } from './room_coordinates.js';
 import { set_levltyp } from './terrain.js';
+import { stock_room } from './shknam.js';
 import {
     lspo_object,
     new_sp_lev_object_context,
@@ -127,6 +128,7 @@ import {
     D_NODOOR, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED, D_SECRET,
     OROOM, THEMEROOM, COURT, SWAMP, VAULT, BEEHIVE, MORGUE,
     BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
+    ARMORSHOP, WEAPONSHOP,
     ROOMOFFSET, MAXNROFROOMS, MAX_SUBROOMS, SHARED,
     SDOOR, SCORR, IRONBARS, FOUNTAIN, SINK, THRONE, TREE,
     DUST,
@@ -387,9 +389,8 @@ function litstate_rnd(litstate, random = rn2, randomOneBased = rnd) {
     return !!litstate;
 }
 
-// C ref: sp_lev.c fill_special_room(). Shops and zoo-family rooms keep narrow
-// hooks until their population subsystems are ported; vault filling and all
-// recursion, fill-policy, and level-flag behavior are complete here.
+// C ref: sp_lev.c fill_special_room(). The Twin businesses shop types are
+// backed by stock_room(); zoo-family rooms retain their narrow population hook.
 export function fill_special_room(croom, env = {}) {
     if (!croom) return;
 
@@ -412,9 +413,8 @@ export function fill_special_room(croom, env = {}) {
 
     if (croom.needfill === FILL_NORMAL) {
         if (croom.rtype >= SHOPBASE) {
-            if (typeof env.stockRoom !== 'function')
-                throw new Error('fill_special_room requires the stock_room subsystem');
-            env.stockRoom(croom.rtype - SHOPBASE, croom, normalized);
+            const stockRoom = env.stockRoom ?? stock_room;
+            stockRoom(croom.rtype - SHOPBASE, croom, normalized);
             flags.has_shop = true;
             return;
         }
@@ -889,6 +889,8 @@ function filler_region(filler, origin, definition, context) {
 function room_type_from_schema(type, definition) {
     if (type === 'ordinary') return OROOM;
     if (type === 'themed') return THEMEROOM;
+    if (type === 'armor shop') return ARMORSHOP;
+    if (type === 'weapon shop') return WEAPONSHOP;
     throw new UnsupportedThemeroomActionError(
         definition,
         `has unsupported room type ${JSON.stringify(type)}`,
@@ -1275,6 +1277,107 @@ function random_dungeon_feature_in_odd_room(context) {
     return Boolean(room && !context.roomFailed);
 }
 
+// C ref: themerms.lua "Twin businesses" callback. Constructing the Lua
+// placements table evaluates all twelve directional helpers before the
+// shop-type swap and d(8) placement choice; retain that surprising draw order.
+function twin_businesses(context) {
+    const percent = (chance) => context.random(100) < chance;
+    const southeast = () => (percent(50) ? 'south' : 'east');
+    const northeast = () => (percent(50) ? 'north' : 'east');
+    const northwest = () => (percent(50) ? 'north' : 'west');
+    const southwest = () => (percent(50) ? 'south' : 'west');
+
+    const outer = run_room_descriptor(
+        { type: 'themed', w: 9, h: 5 },
+        null,
+        context,
+        (parent) => {
+            const placements = [
+                {
+                    lx: 1, ly: 1, rx: 4, ry: 1,
+                    leftWall: 'south', rightWall: southeast(),
+                },
+                {
+                    lx: 1, ly: 2, rx: 4, ry: 2,
+                    leftWall: 'north', rightWall: northeast(),
+                },
+                {
+                    lx: 1, ly: 1, rx: 5, ry: 1,
+                    leftWall: southeast(), rightWall: southwest(),
+                },
+                {
+                    lx: 1, ly: 1, rx: 5, ry: 2,
+                    leftWall: southeast(), rightWall: northwest(),
+                },
+                {
+                    lx: 1, ly: 2, rx: 5, ry: 1,
+                    leftWall: northeast(), rightWall: southwest(),
+                },
+                {
+                    lx: 1, ly: 2, rx: 5, ry: 2,
+                    leftWall: northeast(), rightWall: northwest(),
+                },
+                {
+                    lx: 2, ly: 1, rx: 5, ry: 1,
+                    leftWall: southwest(), rightWall: 'south',
+                },
+                {
+                    lx: 2, ly: 2, rx: 5, ry: 2,
+                    leftWall: northwest(), rightWall: 'north',
+                },
+            ];
+
+            let leftType = 'weapon shop';
+            let rightType = 'armor shop';
+            if (percent(50))
+                [leftType, rightType] = [rightType, leftType];
+
+            const shopDoorState = () => {
+                if (percent(1)) return 'locked';
+                if (percent(50)) return 'closed';
+                return 'open';
+            };
+            const placement = placements[context.randomOneBased(8) - 1];
+
+            run_room_descriptor(
+                {
+                    type: leftType,
+                    x: placement.lx,
+                    y: placement.ly,
+                    w: 3,
+                    h: 3,
+                    filled: FILL_NORMAL,
+                    joined: false,
+                },
+                parent,
+                context,
+                (room) => create_room_door({
+                    state: shopDoorState(),
+                    wall: placement.leftWall,
+                }, room, context.random),
+            );
+            run_room_descriptor(
+                {
+                    type: rightType,
+                    x: placement.rx,
+                    y: placement.ry,
+                    w: 3,
+                    h: 3,
+                    filled: FILL_NORMAL,
+                    joined: false,
+                },
+                parent,
+                context,
+                (room) => create_room_door({
+                    state: shopDoorState(),
+                    wall: placement.rightWall,
+                }, room, context.random),
+            );
+        },
+    );
+    return Boolean(outer && !context.roomFailed);
+}
+
 const DIRECT_THEMEROOM_HANDLERS = new Map([
     ['fake-delphi', fake_delphi],
     ['room-in-a-room', room_in_a_room],
@@ -1289,6 +1392,7 @@ const DIRECT_THEMEROOM_HANDLERS = new Map([
         'random-dungeon-feature-in-the-middle-of-an-odd-sized-room',
         random_dungeon_feature_in_odd_room,
     ],
+    ['twin-businesses', twin_businesses],
 ]);
 
 function dispatch_direct_action(definition, context) {
@@ -1521,8 +1625,7 @@ export function dispatch_themeroom(
 
 // C ref: themerms.lua themerooms_generate(). Generic room descriptors use the
 // strict synchronous dispatcher and the complete source-order fill reservoir.
-// All generic fill bodies, filler maps, and registered direct handlers are
-// live. Unported direct callbacks use the ordinary-room fallback.
+// Every initial-generation definition now uses its registered source handler;
 // dispatch_themeroom() remains the strict completion seam.
 export async function themerooms_generate(
     difficulty,
@@ -1532,36 +1635,17 @@ export async function themerooms_generate(
 ) {
     const pick = select_themeroom(difficulty, random);
     if (!pick) return false;
-    if (pick.action?.kind === 'room'
-        || has_supported_map_action(pick)
-        || DIRECT_THEMEROOM_HANDLERS.has(pick.action?.handler)) {
-        const sourceRandomFacade = random === rn2 && randomOneBased === rnd
-            ? SOURCE_THEMEROOM_RANDOM
-            : null;
-        const useDefaultFill = rawEnv.themeroomFill == null;
-        return dispatch_themeroom(pick, random, randomOneBased, {
-            difficulty,
-            randomFacade: rawEnv.randomFacade ?? sourceRandomFacade,
-            themeroomFill: useDefaultFill
-                ? themeroom_fill
-                : rawEnv.themeroomFill,
-        });
-    }
-    // sp_lev.c build_room() evaluates the default 100% chance with rn2(100).
-    random(100);
-    const ok = create_room(
-        -1, -1, -1, -1, -1, -1, OROOM, -1,
-        random,
-        randomOneBased,
-    );
-    if (ok) {
-        const room = game.level.rooms[game.level.nroom - 1];
-        if (room) {
-            topologize(room);
-            room.needfill = FILL_NORMAL;
-        }
-    }
-    return ok;
+    const sourceRandomFacade = random === rn2 && randomOneBased === rnd
+        ? SOURCE_THEMEROOM_RANDOM
+        : null;
+    const useDefaultFill = rawEnv.themeroomFill == null;
+    return dispatch_themeroom(pick, random, randomOneBased, {
+        difficulty,
+        randomFacade: rawEnv.randomFacade ?? sourceRandomFacade,
+        themeroomFill: useDefaultFill
+            ? themeroom_fill
+            : rawEnv.themeroomFill,
+    });
 }
 
 // C ref: sp_lev.c check_room()

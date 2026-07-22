@@ -3,12 +3,13 @@ import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
-    AGGRAVATE_MONSTER, CLOUD, COLNO, CROSSWALL, DOOR, DUST, D_ISOPEN,
+    AGGRAVATE_MONSTER, ARMORSHOP, CLOUD, COLNO, CROSSWALL, DOOR, DUST, D_ISOPEN,
     D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     LR_TELE, MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO,
     STATUE_TRAP, STONE,
     SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, TREE, VAULT, VWALL,
+    WEAPONSHOP,
     W_ANY, W_RANDOM,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
@@ -22,6 +23,7 @@ import {
     create_door,
     create_room_door,
     dispatch_themeroom,
+    fill_special_room,
     initialize_themeroom_branch,
     lspo_map,
     mklev,
@@ -33,6 +35,7 @@ import {
 import {
     PM_FOG_CLOUD,
     PM_GIANT_ZOMBIE,
+    PM_SHOPKEEPER,
     PM_VAMPIRE_LEADER,
     S_HUMAN,
     S_LICH,
@@ -44,9 +47,11 @@ import {
 import {
     CHEST,
     CORPSE,
+    GOLD_PIECE,
     GLASS,
     objects_globals_init,
     STATUE,
+    SKELETON_KEY,
     WAN_DIGGING,
     WAN_TELEPORTATION,
 } from '../js/objects.js';
@@ -2170,21 +2175,109 @@ test('Water vault preserves the male parse of its vampire-lord name', () => {
     assert.equal(monster.female, false);
 });
 
-test('remaining unimplemented map handler fails before mutation', () => {
-    resetThemeroomLevel();
-    let randomCalls = 0;
-    assert.throws(
-        () => dispatch_themeroom(
-            definitionById('twin-businesses'),
-            () => { ++randomCalls; return 0; },
-            (bound) => bound,
-            { difficulty: 1 },
-        ),
-        UnsupportedThemeroomActionError,
+test('Twin businesses builds both source shop subrooms', () => {
+    initializeDirectThemeroomNewGame(1);
+    enableRngLog();
+    assert.equal(dispatch_themeroom(
+        definitionById('twin-businesses'),
+    ), true);
+    assert.deepEqual(
+        getRngLog().map((entry) => entry.replace(/=.*/, '')),
+        [
+            'rn2(100)', 'rnd(2)', 'rn2(77)',
+            'rnd(5)', 'rnd(5)', 'rnd(3)', 'rnd(3)',
+            ...Array(13).fill('rn2(100)'),
+            'rnd(8)',
+            'rn2(100)', 'rnd(2)', 'rn2(77)',
+            'rn2(100)', 'rn2(100)', 'rn2(4)', 'rn2(3)',
+            'rn2(100)', 'rnd(2)', 'rn2(77)',
+            'rn2(100)', 'rn2(100)', 'rn2(4)', 'rn2(4)', 'rn2(3)',
+        ],
     );
-    assert.equal(randomCalls, 0);
-    assert.equal(game.level.nroom, 0);
-    assert.equal(game.level.at(10, 10).typ, STONE);
+
+    const parent = game.level.rooms[0];
+    const shops = game.subrooms.slice(0, game.nsubroom);
+    assert.deepEqual(
+        [parent.lx, parent.ly, parent.hx, parent.hy, parent.rtype],
+        [68, 2, 76, 6, THEMEROOM],
+    );
+    assert.equal(parent.nsubrooms, 2);
+    assert.deepEqual(
+        shops.map((room) => [
+            room.lx, room.ly, room.hx, room.hy,
+            room.rtype, room.needfill, room.needjoining,
+        ]),
+        [
+            [70, 4, 72, 6, ARMORSHOP, FILL_NORMAL, false],
+            [74, 4, 76, 6, WEAPONSHOP, FILL_NORMAL, false],
+        ],
+    );
+    assert.deepEqual(
+        shops.map((room) => game.level.doors[room.fdoor]),
+        [{ x: 70, y: 3 }, { x: 75, y: 3 }],
+    );
+});
+
+test('Twin businesses stocks both shops and initializes their keepers', () => {
+    initializeDirectThemeroomNewGame(1);
+    assert.equal(dispatch_themeroom(
+        definitionById('twin-businesses'),
+    ), true);
+    const parent = game.level.rooms[0];
+    fill_special_room(parent);
+
+    assert.equal(game.level.flags.has_shop, true);
+    const shops = game.subrooms.slice(0, game.nsubroom);
+    assert.deepEqual(
+        shops.map((room) => room.resident?.mnum),
+        [PM_SHOPKEEPER, PM_SHOPKEEPER],
+    );
+    assert.deepEqual(
+        shops.map((room) => room.resident.mextra.eshk.shknam),
+        ['Siirt', 'Laguiolet'],
+    );
+
+    for (const room of shops) {
+        const keeper = room.resident;
+        const eshk = keeper.mextra.eshk;
+        assert.equal(keeper.isshk, true);
+        assert.equal(keeper.mpeaceful, true);
+        assert.equal(keeper.mtrapseen, -1);
+        assert.equal(eshk.parentmid, 0);
+        assert.equal(eshk.shoptype, room.rtype);
+        assert.equal(eshk.shoproom, room.roomnoidx + ROOMOFFSET);
+        assert.deepEqual(eshk.shoplevel, game.u.uz);
+
+        const inventory = [];
+        for (let obj = keeper.minvent; obj; obj = obj.nobj)
+            inventory.push(obj.otyp);
+        assert.ok(inventory.includes(GOLD_PIECE));
+        assert.ok(inventory.includes(SKELETON_KEY));
+
+        let stockedSquares = 0;
+        for (let x = room.lx; x <= room.hx; ++x) {
+            for (let y = room.ly; y <= room.hy; ++y) {
+                if (game.level.objects[x][y]) ++stockedSquares;
+            }
+        }
+        assert.equal(stockedSquares, 6);
+    }
+});
+
+test('Twin businesses marks the exterior of a locked shop', () => {
+    initializeDirectThemeroomNewGame(2);
+    assert.equal(dispatch_themeroom(
+        definitionById('twin-businesses'),
+    ), true);
+    fill_special_room(game.level.rooms[0]);
+
+    const lockedShop = game.subrooms[0];
+    const door = game.level.doors[lockedShop.fdoor];
+    assert.deepEqual(door, { x: 33, y: 5 });
+    assert.equal(game.level.at(door.x, door.y).doormask, D_LOCKED);
+    const notice = engr_at(33, 6, game);
+    assert.equal(notice.engr_type, DUST);
+    assert.equal(notice.engr_txt[0], 'Closed for inventory');
 });
 
 test('themed alignment shuffle is retained independently per branch', () => {

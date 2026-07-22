@@ -29,6 +29,7 @@ import {
     MM_ANGRY,
     MM_ASLEEP,
     MM_EDOG,
+    MM_ESHK,
     MM_FEMALE,
     MM_MALE,
     MM_NOCOUNTBIRTH,
@@ -178,6 +179,7 @@ import {
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_SEWER_RAT,
+    PM_SHOPKEEPER,
     PM_SHOCKING_SPHERE,
     PM_SKELETON,
     PM_SNAKE,
@@ -304,6 +306,7 @@ import {
     RING_CLASS,
     ROCK_CLASS,
     SCIMITAR,
+    SKELETON_KEY,
     SCR_CREATE_MONSTER,
     SCR_EARTH,
     SCR_TELEPORTATION,
@@ -358,6 +361,7 @@ const SUPPORTED_FLAGS = NO_MINVENT
     | MM_ANGRY
     | MM_ASLEEP
     | MM_EDOG
+    | MM_ESHK
     | MM_NOGRP
     | MM_MALE
     | MM_FEMALE;
@@ -390,6 +394,7 @@ const INITIAL_LEVEL_MONSTERS = new Set([
     PM_BLACK_UNICORN,
     PM_YELLOW_LIGHT,
     PM_BLACK_LIGHT,
+    PM_SHOPKEEPER,
 ]);
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
@@ -428,6 +433,38 @@ export class UnsupportedMonsterCreationError extends Error {
         this.name = 'UnsupportedMonsterCreationError';
         this.operation = operation;
     }
+}
+
+// C ref: shknam.c neweshk(). makemon() calls this before assigning m_id, so
+// parentmid deliberately starts at zero just like the source structure.
+export function neweshk(monster) {
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('neweshk requires a monster instance');
+    monster.mextra ??= {};
+    monster.mextra.eshk = {
+        parentmid: monster.m_id,
+        robbed: 0,
+        credit: 0,
+        debit: 0,
+        loan: 0,
+        shoptype: 0,
+        shoproom: 0,
+        following: false,
+        surcharge: false,
+        dismiss_kops: false,
+        shk: { x: 0, y: 0 },
+        shd: { x: 0, y: 0 },
+        shoplevel: { dnum: 0, dlevel: 0 },
+        billct: 0,
+        bill: [],
+        bill_p: null,
+        break_seq: 0,
+        seq_peaceful: false,
+        visitct: 0,
+        customer: '',
+        shknam: '',
+    };
+    return monster.mextra.eshk;
 }
 
 function creationEnv(env = {}) {
@@ -807,6 +844,20 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EDOG | NO_MINVENT);
+    const shopkeeperCall = state.in_mklev
+        && ptr?.pmidx === PM_SHOPKEEPER
+        && !randomCoordinates
+        && mmflags === MM_ESHK;
+    if ((mmflags & MM_ESHK) && !shopkeeperCall) {
+        throw new UnsupportedMonsterCreationError(
+            'shopkeeper extension outside shkinit',
+        );
+    }
+    if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall) {
+        throw new UnsupportedMonsterCreationError(
+            'shopkeeper creation outside shkinit',
+        );
+    }
     if (!state.in_mklev && !startingPetCall)
         throw new UnsupportedMonsterCreationError('outside mklev');
     if (state.in_mklev && (mmflags & MM_EDOG)) {
@@ -917,7 +968,7 @@ function whichArmor(monster, mask) {
 
 // C ref: makemon.c mongets(). No reachable species is a demon, lawful minion,
 // or player monster. Gnome rulers do use the source prince-quality floor.
-function mongets(monster, otyp, normalized) {
+export function mongets(monster, otyp, normalized) {
     if (!otyp) return null;
     assertSupportedSpecies(monster.data);
     const obj = mksobj(otyp, true, false, normalized);
@@ -986,7 +1037,8 @@ function m_initweap(monster, normalized) {
                 }
                 break;
             }
-        } else if (!(ptr.mflags2 & M2_WERE)) {
+        } else if (ptr.pmidx !== PM_SHOPKEEPER
+            && !(ptr.mflags2 & M2_WERE)) {
             throw new UnsupportedMonsterCreationError(
                 `human weapon branch ${ptr.pmidx}`,
             );
@@ -1280,7 +1332,7 @@ function findMonsterGold(monster) {
 }
 
 // C ref: makemon.c mkmonmoney().
-function mkmonmoney(monster, amount, normalized) {
+export function mkmonmoney(monster, amount, normalized) {
     if (amount <= 0) return null;
     const gold = mksobj(GOLD_PIECE, false, false, normalized);
     gold.quan = amount;
@@ -1307,6 +1359,22 @@ function m_initinv(monster, normalized) {
             random.d(level_difficulty(state), 30),
             normalized,
         );
+    } else if (ptr.pmidx === PM_SHOPKEEPER) {
+        mongets(monster, SKELETON_KEY, normalized);
+        switch (random.rn2(4)) {
+        case 0:
+            mongets(monster, WAN_MAGIC_MISSILE, normalized);
+            // FALLTHROUGH
+        case 1:
+            mongets(monster, POT_EXTRA_HEALING, normalized);
+            // FALLTHROUGH
+        case 2:
+            mongets(monster, POT_HEALING, normalized);
+            // FALLTHROUGH
+        case 3:
+            mongets(monster, WAN_STRIKING, normalized);
+            break;
+        }
     } else if (ptr.mlet === S_GNOME
         && !random.rn2(60)) {
         const candle = mksobj(
@@ -1983,6 +2051,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         normalized,
     );
     const monster = newMonster();
+    if (mmflags & MM_ESHK) neweshk(monster);
     if (mmflags & MM_EDOG) newedog(monster);
     monster.msleeping = Boolean(mmflags & MM_ASLEEP);
     monster.nmon = state.level.monlist;
