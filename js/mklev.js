@@ -1154,7 +1154,7 @@ function check_room(lowx, ddx, lowy, ddy, vault, random = rn2) {
 }
 
 // C ref: sp_lev.c create_room()
-export function create_room(
+function create_room(
     x, y, w, h, xal, yal, rtype, rlit,
     random = rn2,
     randomOneBased = rnd,
@@ -1294,11 +1294,6 @@ function create_vault() {
 function add_room(lowx, lowy, hix, hiy, lit, rtype, special) {
     const g = game;
     const croom = {
-        lx: lowx, ly: lowy, hx: hix, hy: hiy,
-        rtype, rlit: lit ? 1 : 0,
-        doorct: 0, fdoor: g.level.doorindex,
-        irregular: false, needjoining: !special,
-        nsubrooms: 0, sbrooms: [],
         roomnoidx: g.level.nroom,
         needfill: 0,
     };
@@ -1325,11 +1320,6 @@ function add_subroom(proom, lowx, lowy, hix, hiy, lit, rtype, special) {
         throw new Error('room has too many subrooms');
 
     const croom = {
-        lx: lowx, ly: lowy, hx: hix, hy: hiy,
-        rtype, rlit: lit ? 1 : 0,
-        doorct: 0, fdoor: g.level.doorindex,
-        irregular: false, needjoining: !special,
-        nsubrooms: 0, sbrooms: [],
         roomnoidx: MAXNROFROOMS + 1 + g.nsubroom,
         needfill: FILL_NONE,
     };
@@ -1347,13 +1337,12 @@ function add_subroom(proom, lowx, lowy, hix, hiy, lit, rtype, special) {
     proom.sbrooms[proom.nsubrooms++] = croom;
     g.subrooms[g.nsubroom++] = croom;
     g.subrooms[g.nsubroom] = { hx: -1 };
-    return croom;
 }
 
 // C ref: sp_lev.c create_subroom(). Coordinates are relative to the parent
 // room; the paired edge adjustments intentionally retain the source's
 // one-based random-position quirks.
-export function create_subroom(
+function create_subroom(
     proom,
     x,
     y,
@@ -1460,10 +1449,10 @@ function do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, _rtype, special, i
     croom.doorct = 0;
     croom.fdoor = game.level.doorindex;
     croom.irregular = false;
+    croom.needjoining = !special;
     croom.nsubrooms = 0;
     croom.sbrooms = [];
     if (!special) {
-        croom.needjoining = true;
         for (let x = lowx - 1; x <= hix + 1; x++)
             for (let y = lowy - 1; y <= hiy + 1; y += (hiy - lowy + 2)) {
                 const loc = map.at(x, y);
@@ -1845,8 +1834,8 @@ export function create_door(dd, broom, random = rn2) {
 
     let x = 0;
     let y = 0;
-    let found = false;
-    for (let trycnt = 0; trycnt < 100; ++trycnt) {
+    let trycnt;
+    for (trycnt = 0; trycnt < 100; ++trycnt) {
         const dwall = dd.wall;
         const dpos = dd.pos;
         switch (random(4)) {
@@ -1883,12 +1872,9 @@ export function create_door(dd, broom, random = rn2) {
                 || IS_OBSTRUCTED(game.level.at(x + 1, y).typ)) continue;
             break;
         }
-        if (okdoor(x, y)) {
-            found = true;
-            break;
-        }
+        if (okdoor(x, y)) break;
     }
-    if (!found) return false;
+    if (trycnt >= 100) return false;
     if (!set_levltyp(x, y, dd.secret ? SDOOR : DOOR, { state: game }))
         return false;
 
@@ -1902,8 +1888,8 @@ export function create_door(dd, broom, random = rn2) {
 }
 
 // C ref: sp_lev.c lspo_door(), restricted to its room-wall form. Lua's
-// random state resolution consumes rnddoor() before create_door() rolls the
-// actual state; that first result only determines that the door isn't secret.
+// random state resolution consumes and discards rnddoor() before create_door()
+// rolls the actual state; rnddoor() never yields the parser-only secret state.
 export function create_room_door(spec, broom, random = rn2) {
     const stateName = spec.state ?? 'random';
     const wallName = spec.wall ?? 'all';
@@ -1913,9 +1899,9 @@ export function create_room_door(spec, broom, random = rn2) {
         throw new RangeError(`unsupported room door wall ${JSON.stringify(wallName)}`);
 
     const mask = ROOM_DOOR_STATE_MASKS[stateName];
-    const typ = mask === -1 ? rnddoor(random) : mask;
+    if (mask === -1) rnddoor(random);
     return create_door({
-        secret: typ === D_SECRET ? 1 : 0,
+        secret: mask === D_SECRET ? 1 : 0,
         mask,
         pos: spec.pos ?? -1,
         wall: ROOM_DOOR_WALL_MASKS[wallName],

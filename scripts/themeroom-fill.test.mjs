@@ -203,6 +203,33 @@ function fourByTwoRoom() {
     return { level, room };
 }
 
+function themedGenerationState(level, dlevel) {
+    const state = {
+        ...rawMonsterGenerationState(),
+        astral_level: { dnum: 0, dlevel: 0 },
+        context: { current_fruit: 1, ident: 2, mon_moving: false },
+        flags: { initalign: 0 },
+        gz: { zombify: false },
+        in_mklev: true,
+        level,
+        moves: 2,
+        program_state: { gameover: false },
+        rogue_level: { dnum: 0, dlevel: 0 },
+        sanctum_level: { dnum: 0, dlevel: 0 },
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+    };
+    state.u.uz.dlevel = dlevel;
+    state.dungeons[0].dunlev_ureached = dlevel;
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    reset_mvitals(state);
+    init_artifacts(state);
+    timeout_globals_init(state);
+    light_globals_init(state);
+    return state;
+}
+
 function boulderGenerationFixture() {
     const level = new GameMap();
     const room = {
@@ -221,55 +248,13 @@ function boulderGenerationFixture() {
         location.edge = false;
     }
 
-    const state = {
-        ...rawMonsterGenerationState(),
-        astral_level: { dnum: 0, dlevel: 0 },
-        context: { current_fruit: 1, ident: 2, mon_moving: false },
-        flags: { initalign: 0 },
-        gz: { zombify: false },
-        in_mklev: true,
-        level,
-        moves: 2,
-        program_state: { gameover: false },
-        rogue_level: { dnum: 0, dlevel: 0 },
-        sanctum_level: { dnum: 0, dlevel: 0 },
-        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
-    };
-    state.u.uz.dlevel = 4;
-    state.dungeons[0].dunlev_ureached = 4;
-    objects_globals_init(state);
-    init_objects(state, () => 0);
-    monst_globals_init(state);
-    reset_mvitals(state);
-    init_artifacts(state);
-    timeout_globals_init(state);
-    light_globals_init(state);
+    const state = themedGenerationState(level, 4);
     return { level, room, state };
 }
 
 function statuaryGenerationFixture() {
     const { level, room } = twoByTwoRoom();
-    const state = {
-        ...rawMonsterGenerationState(),
-        astral_level: { dnum: 0, dlevel: 0 },
-        context: { current_fruit: 1, ident: 2, mon_moving: false },
-        flags: { initalign: 0 },
-        gz: { zombify: false },
-        in_mklev: true,
-        level,
-        moves: 2,
-        program_state: { gameover: false },
-        rogue_level: { dnum: 0, dlevel: 0 },
-        sanctum_level: { dnum: 0, dlevel: 0 },
-        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
-    };
-    objects_globals_init(state);
-    init_objects(state, () => 0);
-    monst_globals_init(state);
-    reset_mvitals(state);
-    init_artifacts(state);
-    timeout_globals_init(state);
-    light_globals_init(state);
+    const state = themedGenerationState(level, 1);
     return { level, room, state };
 }
 

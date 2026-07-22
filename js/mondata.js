@@ -15,6 +15,8 @@ import * as M from './monsters.js';
 import { rn2 } from './rng.js';
 import { roles } from './roles.js';
 
+const M2_JEWELS = 0x20000000;
+
 const pair = (little, big) => Object.freeze([little, big]);
 const alternateName = (name, mnum, gender = NEUTRAL) => Object.freeze({
     name,
@@ -376,6 +378,11 @@ export function is_rider(ptr) {
     return index === M.PM_DEATH
         || index === M.PM_FAMINE
         || index === M.PM_PESTILENCE;
+}
+
+// C ref: mondata.h is_unicorn() and likes_gems().
+export function is_unicorn(ptr) {
+    return ptr?.mlet === M.S_UNICORN && Boolean(ptr.mflags2 & M2_JEWELS);
 }
 
 // C ref: mondata.h is_reviver().

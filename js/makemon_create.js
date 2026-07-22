@@ -37,6 +37,7 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_SEEN_NOTHING,
+    MAX_NUM_WORMS,
     MON_DETACH,
     N_DIRS,
     NO_MINVENT,
@@ -99,6 +100,7 @@ import {
     is_female,
     is_male,
     is_neuter,
+    is_unicorn,
 } from './mondata.js';
 import {
     m_at,
@@ -201,7 +203,6 @@ import {
     S_ORC,
     S_SNAKE,
     S_SPIDER,
-    S_UNICORN,
     S_VAMPIRE,
     S_VORTEX,
 } from './monsters.js';
@@ -395,11 +396,9 @@ const M2_LORD = 0x00000400;
 const M2_PRINCE = 0x00000800;
 const M2_SHAPESHIFTER = 0x00004000;
 const M2_STRONG = 0x04000000;
-const M2_JEWELS = 0x20000000;
 const MR_STONE = 0x80;
 const MZ_LARGE = 3;
 const MZ_HUGE = 4;
-const MAX_NUM_WORMS = 32;
 
 // makemon.c set_mimic_sym() source tables. The first two entries deliberately
 // make furniture twice as likely as each ordinary object class.
@@ -1921,8 +1920,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         && random.rn2(5)
         && !state.u.uhave.amulet) {
         monster.msleeping = true;
-    } else if (ptr.mlet === S_UNICORN
-        && (ptr.mflags2 & M2_JEWELS)
+    } else if (is_unicorn(ptr)
         && Math.sign(state.u.ualign.type) === Math.sign(ptr.maligntyp)) {
         monster.mpeaceful = true;
     }

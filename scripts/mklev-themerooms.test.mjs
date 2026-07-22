@@ -40,6 +40,21 @@ import {
     initialize_themeroom_postprocess_branch,
     themeroom_fill,
 } from '../js/themeroom_fill.js';
+import { scriptedRandom, step } from './monster-scripted-random.mjs';
+
+const LEVEL_ONE_RESERVOIR_DRAW_COUNT = 30;
+
+function genericRoomPlacementDraws() {
+    return [
+        [100, 0], // build_room's default 100% chance
+        [77, 1], // litstate_rnd keeps the room lit
+        [1, 0], // select the sole initial free rectangle
+        [12, 0], // width two
+        [4, 0], // height two
+        [70, 0], // leftmost valid x coordinate
+        [13, 0], // upper-half y avoids the relocation-only rn1 branch
+    ];
+}
 
 function definitionById(id) {
     return THEMEROOM_DEFINITIONS.find((definition) => definition.id === id);
@@ -53,8 +68,14 @@ function resetThemeroomLevel() {
     init_rect();
 }
 
-function buildDoorTestRooms() {
-    const parentPlacement = [3, 2, 3, 1];
+function buildFixedParentRoom() {
+    const random = scriptedRandom([
+        step('rn2', [100], 0),
+        step('rnd', [5], 3),
+        step('rnd', [5], 2),
+        step('rnd', [3], 3),
+        step('rnd', [3], 1),
+    ]);
     const parent = build_room({
         x: -1,
         y: -1,
@@ -65,17 +86,16 @@ function buildDoorTestRooms() {
         rlit: 0,
         needfill: FILL_NORMAL,
         joined: true,
-    }, null, (bound) => {
-        assert.equal(bound, 100); // the room descriptor's chance check
-        return 0;
-    }, (bound) => {
-        // Sector (3,2), then center/top alignment, places an 11x9 parent at
-        // (35,5)..(45,13) with ample stone outside its four walls.
-        const value = parentPlacement.shift();
-        assert.ok(value != null, `unexpected parent rnd(${bound})`);
-        return value;
-    });
-    assert.equal(parentPlacement.length, 0);
+    }, null, random.random.rn2, random.random.rnd);
+    random.assertExhausted();
+    return parent;
+}
+
+function buildDoorTestRooms() {
+    // Sector (3,2), then center/top alignment, places an 11x9 parent at
+    // (35,5)..(45,13) with ample stone outside its four walls.
+    const parent = buildFixedParentRoom();
+    const random = scriptedRandom([step('rn2', [100], 0)]);
 
     const child = build_room({
         // These source-relative coordinates put a 3x3 room wholly inside the
@@ -89,10 +109,8 @@ function buildDoorTestRooms() {
         rlit: 0,
         needfill: FILL_NORMAL,
         joined: false,
-    }, parent, (bound) => {
-        assert.equal(bound, 100); // the nested descriptor's chance check
-        return 0;
-    }, (bound) => assert.fail(`unexpected child rnd(${bound})`));
+    }, parent, random.random.rn2, random.random.rnd);
+    random.assertExhausted();
     // lspo_room() marks a parent irregular immediately after adding a child.
     parent.irregular = true;
     return { parent, child };
@@ -210,11 +228,11 @@ test('themeroom generation connects selection, map placement, and filler region'
     const calls = [];
     // At difficulty one, all 30 eligible descriptors have positive frequency,
     // so selection consumes one reservoir draw per descriptor.
-    const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     const random = (bound) => {
         calls.push(bound);
-        if (reservoirCalls++ < reservoirDrawCount) return bound === 1034 ? 0 : bound - 1;
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT)
+            return bound === 1034 ? 0 : bound - 1;
         // Place at (31,4), choose the 70% ordinary-fill branch, and leave the
         // resulting level-1 region lit after litstate_rnd's second draw.
         const scripted = new Map([[68, 30], [10, 4], [100, 99], [77, 76]]);
@@ -227,7 +245,10 @@ test('themeroom generation connects selection, map placement, and filler region'
     };
 
     assert.equal(await themerooms_generate(1, random, randomOneBased), true);
-    assert.deepEqual(calls.slice(reservoirDrawCount), [68, 10, 100, 77]);
+    assert.deepEqual(
+        calls.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT),
+        [68, 10, 100, 77],
+    );
     assert.equal(game.level.nroom, 1);
     const room = game.level.rooms[0];
     // Flooding from Cross's translated filler point (37, 10) registers its 9x9
@@ -246,21 +267,12 @@ test('themeroom generation connects selection, map placement, and filler region'
 
 test('live generic room generation keeps the injected RNG streams', async () => {
     resetThemeroomLevel();
-    const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     const events = [];
-    const scripted = [
-        [100, 0], // build_room's default 100% chance
-        [77, 1], // litstate_rnd keeps the room lit
-        [1, 0], // select the sole initial free rectangle
-        [12, 0], // width two
-        [4, 0], // height two
-        [70, 0], // leftmost valid x coordinate
-        [13, 0], // upper-half y avoids the relocation-only rn1 branch
-    ];
+    const scripted = genericRoomPlacementDraws();
     const random = (bound) => {
         events.push(`rn2(${bound})`);
-        if (reservoirCalls++ < reservoirDrawCount) return bound - 1;
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT) return bound - 1;
         const next = scripted.shift();
         assert.ok(next, `unexpected rn2(${bound})`);
         assert.equal(bound, next[0]);
@@ -278,7 +290,7 @@ test('live generic room generation keeps the injected RNG streams', async () => 
         randomOneBased,
     ), true);
     assert.equal(scripted.length, 0);
-    assert.deepEqual(events.slice(reservoirDrawCount), [
+    assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
         'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
         'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(13)',
     ]);
@@ -287,21 +299,12 @@ test('live generic room generation keeps the injected RNG streams', async () => 
 
 test('live generic themed rooms invoke their synchronous fill callback', async () => {
     resetThemeroomLevel();
-    const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     const events = [];
-    const scripted = [
-        [100, 0], // build_room's default 100% chance
-        [77, 1], // litstate_rnd keeps the room lit
-        [1, 0], // select the sole initial free rectangle
-        [12, 0], // width two
-        [4, 0], // height two
-        [70, 0], // leftmost valid x coordinate
-        [13, 0], // upper-half y avoids the relocation-only rn1 branch
-    ];
+    const scripted = genericRoomPlacementDraws();
     const random = (bound) => {
         events.push(`rn2(${bound})`);
-        if (reservoirCalls++ < reservoirDrawCount) {
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT) {
             // The first weighted generic themed-room descriptor ends at 1010.
             return bound === 1010 ? 0 : bound - 1;
         }
@@ -336,7 +339,7 @@ test('live generic themed rooms invoke their synchronous fill callback', async (
     ), true);
     assert.equal(callbackCount, 1);
     assert.equal(scripted.length, 0);
-    assert.deepEqual(events.slice(reservoirDrawCount), [
+    assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
         'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
         'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(13)',
     ]);
@@ -345,26 +348,17 @@ test('live generic themed rooms invoke their synchronous fill callback', async (
 
 test('live generic fill dispatch executes selected Statuary', async () => {
     resetThemeroomLevel();
-    const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     const events = [];
     let fillBound = 0;
-    const scripted = [
-        [100, 0], // ordinary fallback build_room chance
-        [77, 1], // litstate_rnd keeps the room lit
-        [1, 0], // select the sole initial free rectangle
-        [12, 0], // width two
-        [4, 0], // height two
-        [70, 0], // leftmost valid x coordinate
-        [13, 0], // upper-half y
-    ];
+    const scripted = genericRoomPlacementDraws();
     const bodyDraws = [
         [5, 0], [5, 0], [5, 0], [5, 0], [5, 0],
         [3, 0],
     ];
     const random = (bound) => {
         events.push(`rn2(${bound})`);
-        if (reservoirCalls++ < reservoirDrawCount) {
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT) {
             // Select Default room with themed fill from the outer reservoir.
             return bound === 1010 ? 0 : bound - 1;
         }
@@ -427,7 +421,7 @@ test('live generic fill dispatch executes selected Statuary', async () => {
     assert.equal(scripted.length, 0);
     assert.equal(bodyDraws.length, 0);
     assert.equal(fillBound, 13);
-    assert.deepEqual(events.slice(reservoirDrawCount), [
+    assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
         'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
         'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(13)',
         ...Array.from({ length: 13 }, (_, index) => `rn2(${index + 1})`),
@@ -454,21 +448,12 @@ test('live generic fill dispatch executes selected Statuary', async () => {
 test('live default fill executes supported handlers and propagates their errors', async () => {
     resetThemeroomLevel();
     // All 30 outer descriptors are eligible at difficulty one.
-    const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     let fillBound = 0;
     const marker = new Error('supported fill marker');
-    const scripted = [
-        [100, 0], // build_room's default 100% chance
-        [77, 1], // litstate_rnd keeps the room lit
-        [1, 0], // select the sole initial free rectangle
-        [12, 0], // width two
-        [4, 0], // height two
-        [70, 0], // leftmost valid x coordinate
-        [13, 0], // upper-half y
-    ];
+    const scripted = genericRoomPlacementDraws();
     const random = (bound) => {
-        if (reservoirCalls++ < reservoirDrawCount) {
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT) {
             // Select Default room with themed fill from the outer reservoir.
             return bound === 1010 ? 0 : bound - 1;
         }
@@ -662,66 +647,38 @@ test('generic room descriptors set topology and flags before synchronous content
 
 test('generic room relocation keeps rn1 distinct from rnd', () => {
     resetThemeroomLevel();
-    const scriptedRn2 = [
-        [100, 0], // build_room's default 100% chance
-        [77, 1], // litstate_rnd keeps the room lit
-        [1, 0], // select the sole initial free rectangle
-        [12, 0], // width two
-        [4, 3], // height five, forcing the lower-half relocation predicate
-        [70, 0], // leftmost valid x coordinate
-        [10, 9], // initial y coordinate lies below the map midpoint
-        [3, 0], // rn1(3, 2) expands to rn2(3) + 2
-    ];
-    const events = [];
-    const random = (bound) => {
-        events.push(`rn2(${bound})`);
-        const next = scriptedRn2.shift();
-        assert.ok(next, `unexpected rn2(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
-    const randomOneBased = (bound) => {
-        events.push(`rnd(${bound})`);
-        assert.equal(bound, 2); // rnd(1 + abs(depth)) at depth one
-        return 2;
-    };
+    const random = scriptedRandom([
+        step('rn2', [100], 0),
+        step('rnd', [2], 2), // rnd(1 + abs(depth)) at depth one
+        step('rn2', [77], 1),
+        step('rn2', [1], 0),
+        step('rn2', [12], 0),
+        step('rn2', [4], 3), // height five triggers lower-half relocation
+        step('rn2', [70], 0),
+        step('rn2', [10], 9),
+        step('rn2', [3], 0), // rn1(3, 2) expands to rn2(3) + 2
+    ]);
     assert.equal(dispatch_themeroom(
         definitionById('default'),
-        random,
-        randomOneBased,
+        random.random.rn2,
+        random.random.rnd,
         { difficulty: 1 },
     ), true);
-    assert.equal(scriptedRn2.length, 0);
-    assert.deepEqual(events, [
-        'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
-        'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(10)', 'rn2(3)',
-    ]);
+    random.assertExhausted();
     assert.equal(game.level.rooms[0].ly, 2);
 });
 
 test('build_room places a partially specified top-level room in source order', () => {
     resetThemeroomLevel();
-    const events = [];
-    const coreDraws = [[100, 0], [77, 76]];
-    const oneBasedDraws = [
-        [2, 2], // litstate_rnd
-        [5, 3], [5, 2], // random position sectors
-        [3, 3], [3, 1], // centered horizontally, top-aligned vertically
-    ];
-    const random = (bound) => {
-        events.push(`rn2(${bound})`);
-        const next = coreDraws.shift();
-        assert.ok(next, `unexpected rn2(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
-    const randomOneBased = (bound) => {
-        events.push(`rnd(${bound})`);
-        const next = oneBasedDraws.shift();
-        assert.ok(next, `unexpected rnd(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
+    const random = scriptedRandom([
+        step('rn2', [100], 0),
+        step('rnd', [2], 2),
+        step('rn2', [77], 76),
+        step('rnd', [5], 3),
+        step('rnd', [5], 2),
+        step('rnd', [3], 3),
+        step('rnd', [3], 1),
+    ]);
 
     const room = build_room({
         x: -1,
@@ -735,14 +692,9 @@ test('build_room places a partially specified top-level room in source order', (
         rlit: -1,
         needfill: FILL_NORMAL,
         joined: false,
-    }, null, random, randomOneBased);
+    }, null, random.random.rn2, random.random.rnd);
 
-    assert.equal(coreDraws.length, 0);
-    assert.equal(oneBasedDraws.length, 0);
-    assert.deepEqual(events, [
-        'rn2(100)', 'rnd(2)', 'rn2(77)',
-        'rnd(5)', 'rnd(5)', 'rnd(3)', 'rnd(3)',
-    ]);
+    random.assertExhausted();
     assert.equal(room, game.level.rooms[0]);
     assert.deepEqual(
         [room.lx, room.ly, room.hx, room.hy],
@@ -757,48 +709,16 @@ test('build_room places a partially specified top-level room in source order', (
 
 test('build_room creates and indexes random nested subrooms', () => {
     resetThemeroomLevel();
-    const parentOneBased = [3, 2, 3, 1];
-    const parent = build_room({
-        x: -1,
-        y: -1,
-        w: 11,
-        h: 9,
-        rtype: OROOM,
-        chance: 100,
-        rlit: 0,
-        needfill: FILL_NORMAL,
-        joined: true,
-    }, null, (bound) => {
-        assert.equal(bound, 100);
-        return 0;
-    }, (bound) => {
-        const value = parentOneBased.shift();
-        assert.ok(value != null, `unexpected parent rnd(${bound})`);
-        return value;
-    });
-    assert.equal(parentOneBased.length, 0);
-
-    const events = [];
-    const coreDraws = [[100, 0], [77, 76]];
-    const oneBasedDraws = [
-        [8, 4], [6, 3], // width and height
-        [7, 1], [6, 5], // left and bottom-edge-adjusted positions
-        [2, 2], // litstate_rnd
-    ];
-    const random = (bound) => {
-        events.push(`rn2(${bound})`);
-        const next = coreDraws.shift();
-        assert.ok(next, `unexpected rn2(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
-    const randomOneBased = (bound) => {
-        events.push(`rnd(${bound})`);
-        const next = oneBasedDraws.shift();
-        assert.ok(next, `unexpected rnd(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
+    const parent = buildFixedParentRoom();
+    const random = scriptedRandom([
+        step('rn2', [100], 0),
+        step('rnd', [8], 4),
+        step('rnd', [6], 3),
+        step('rnd', [7], 1),
+        step('rnd', [6], 5),
+        step('rnd', [2], 2),
+        step('rn2', [77], 76),
+    ]);
 
     const child = build_room({
         x: -1,
@@ -810,15 +730,9 @@ test('build_room creates and indexes random nested subrooms', () => {
         rlit: -1,
         needfill: FILL_NORMAL,
         joined: false,
-    }, parent, random, randomOneBased);
+    }, parent, random.random.rn2, random.random.rnd);
 
-    assert.equal(coreDraws.length, 0);
-    assert.equal(oneBasedDraws.length, 0);
-    assert.deepEqual(events, [
-        'rn2(100)',
-        'rnd(8)', 'rnd(6)', 'rnd(7)', 'rnd(6)',
-        'rnd(2)', 'rn2(77)',
-    ]);
+    random.assertExhausted();
     assert.equal(parent.nsubrooms, 1);
     assert.equal(parent.sbrooms[0], child);
     assert.equal(game.nsubroom, 1);
@@ -840,7 +754,6 @@ test('build_room creates and indexes random nested subrooms', () => {
 
 test('live Fake Delphi builds and registers its nested room in source order', async () => {
     resetThemeroomLevel();
-    const reservoirDrawCount = 30;
     let reservoirCalls = 0;
     const events = [];
     const coreDraws = [
@@ -858,7 +771,7 @@ test('live Fake Delphi builds and registers its nested room in source order', as
     ];
     const random = (bound) => {
         events.push(`rn2(${bound})`);
-        if (reservoirCalls++ < reservoirDrawCount) {
+        if (reservoirCalls++ < LEVEL_ONE_RESERVOIR_DRAW_COUNT) {
             // Fake Delphi is the second source entry, at cumulative weight
             // 1001. Later entries retain it by returning their final slot.
             return bound === 1001 ? 0 : bound - 1;
@@ -883,7 +796,7 @@ test('live Fake Delphi builds and registers its nested room in source order', as
     ), true);
     assert.equal(coreDraws.length, 0);
     assert.equal(oneBasedDraws.length, 0);
-    assert.deepEqual(events.slice(reservoirDrawCount), [
+    assert.deepEqual(events.slice(LEVEL_ONE_RESERVOIR_DRAW_COUNT), [
         'rn2(100)', 'rnd(2)', 'rn2(77)',
         'rnd(5)', 'rnd(5)', 'rnd(3)', 'rnd(3)',
         'rn2(100)', 'rnd(2)', 'rn2(77)',
@@ -921,34 +834,22 @@ test('live Fake Delphi builds and registers its nested room in source order', as
 test('random room doors preserve source draws, state, and nested registration', () => {
     resetThemeroomLevel();
     const { parent, child } = buildDoorTestRooms();
-    const events = [];
-    const draws = [
-        [5, 4], // lspo_door's discarded rnddoor state
-        [3, 0], // create an actual door instead of an empty doorway
-        [5, 1], // skip open
-        [6, 0], // choose locked
-        [25, 0], // trap the non-open door
-        [4, 0], // north wall
-        [3, 1], // center of the three-cell wall
-    ];
-    const random = (bound) => {
-        events.push(`rn2(${bound})`);
-        const next = draws.shift();
-        assert.ok(next, `unexpected rn2(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
+    const random = scriptedRandom([
+        step('rn2', [5], 4), // lspo_door's discarded rnddoor state
+        step('rn2', [3], 0), // create an actual door
+        step('rn2', [5], 1), // skip open
+        step('rn2', [6], 0), // choose locked
+        step('rn2', [25], 0), // trap the non-open door
+        step('rn2', [4], 0), // north wall
+        step('rn2', [3], 1), // center of the three-cell wall
+    ]);
 
     assert.equal(create_room_door(
         { state: 'random', wall: 'all' },
         child,
-        random,
+        random.random.rn2,
     ), true);
-    assert.equal(draws.length, 0);
-    assert.deepEqual(events, [
-        'rn2(5)', 'rn2(3)', 'rn2(5)', 'rn2(6)', 'rn2(25)',
-        'rn2(4)', 'rn2(3)',
-    ]);
+    random.assertExhausted();
 
     const door = { x: child.lx + 1, y: child.ly - 1 };
     const loc = game.level.at(door.x, door.y);
@@ -973,26 +874,17 @@ test('random room doors preserve source draws, state, and nested registration', 
 test('explicit secret room doors retry walls and truncate the parser-only bit', () => {
     resetThemeroomLevel();
     const { child } = buildDoorTestRooms();
-    const draws = [
-        [4, 0], // north is excluded by wall="east"
-        [4, 3], // retry on the east wall
-    ];
-    const events = [];
-    const random = (bound) => {
-        events.push(`rn2(${bound})`);
-        const next = draws.shift();
-        assert.ok(next, `unexpected rn2(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
+    const random = scriptedRandom([
+        step('rn2', [4], 0), // north is excluded by wall="east"
+        step('rn2', [4], 3), // retry on the east wall
+    ]);
 
     assert.equal(create_room_door(
         { state: 'secret', wall: 'east', pos: 1 },
         child,
-        random,
+        random.random.rn2,
     ), true);
-    assert.equal(draws.length, 0);
-    assert.deepEqual(events, ['rn2(4)', 'rn2(4)']);
+    random.assertExhausted();
 
     const loc = game.level.at(child.hx + 1, child.ly + 1);
     assert.equal(loc.typ, SDOOR);
@@ -1012,24 +904,15 @@ test('create_door resolves random secret descriptors in place', () => {
         pos: 1,
         wall: W_RANDOM,
     };
-    const draws = [
-        [2, 1], // secret door
-        [5, 0], // locked secret door
-        [20, 1], // not trapped
-        [4, 3], // east wall
-    ];
-    const events = [];
-    const random = (bound) => {
-        events.push(`rn2(${bound})`);
-        const next = draws.shift();
-        assert.ok(next, `unexpected rn2(${bound})`);
-        assert.equal(bound, next[0]);
-        return next[1];
-    };
+    const random = scriptedRandom([
+        step('rn2', [2], 1), // secret door
+        step('rn2', [5], 0), // locked secret door
+        step('rn2', [20], 1), // not trapped
+        step('rn2', [4], 3), // east wall
+    ]);
 
-    assert.equal(create_door(descriptor, child, random), true);
-    assert.equal(draws.length, 0);
-    assert.deepEqual(events, ['rn2(2)', 'rn2(5)', 'rn2(20)', 'rn2(4)']);
+    assert.equal(create_door(descriptor, child, random.random.rn2), true);
+    random.assertExhausted();
     assert.deepEqual(descriptor, {
         secret: 1,
         mask: D_LOCKED,

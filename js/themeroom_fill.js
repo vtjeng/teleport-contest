@@ -257,23 +257,21 @@ function createTrap(type, flags, x, y, env) {
     return mktrap(type, flags, null, { x, y }, themedCreationEnv(env));
 }
 
-// sp_lev.h SP_COORD_PACK() plus sp_lev.c create_trap(). Lua callback
-// coordinates are relative to the current room; get_free_room_loc() converts
-// them back to the map and preserves the source relocation fallback if that
-// fixed point is no longer ROOM terrain.
-function createRoomTrapAt(type, flags, coordinate, room, env) {
+// sp_lev.c create_trap(). Resolve either an SP_COORD_PACK() value or the
+// random-coordinate sentinel before handing the fixed point to mktrap().
+function createRoomTrap(type, flags, packedCoordinate, room, env) {
     const absolute = { x: -1, y: -1 };
-    const packed = (coordinate.x & 0xff) + ((coordinate.y & 0xff) << 16);
-    get_free_room_loc(absolute, room, packed, env);
-    return createTrap(type, flags, absolute.x, absolute.y, env);
+    get_free_room_loc(absolute, room, packedCoordinate, env);
+    createTrap(type, flags, absolute.x, absolute.y, env);
 }
 
-// sp_lev.c create_trap() resolves a random Lua trap coordinate through
-// get_free_room_loc() before passing that fixed point to mktrap().
-function createRandomRoomTrap(type, flags, room, env) {
-    const absolute = { x: -1, y: -1 };
-    get_free_room_loc(absolute, room, SP_COORD_IS_RANDOM, env);
-    return createTrap(type, flags, absolute.x, absolute.y, env);
+// C ref: nhlib.lua d(). Its math.random(1, sides) consumes one injected core
+// draw per die, in increasing die order.
+function rollLuaDice(number, sides, random) {
+    let total = 0;
+    for (let die = 0; die < number; ++die)
+        total += 1 + random.rn2(sides);
+    return total;
 }
 
 const ALTAR_ALIGNMENT_MASK = Object.freeze({
@@ -750,10 +748,10 @@ function fillBoulderRoom(room, _difficulty, env) {
         if (env.random.rn2(100) < 50) {
             createObject({ id: BOULDER, coordinate }, room, env);
         } else {
-            createRoomTrapAt(
+            createRoomTrap(
                 ROLLING_BOULDER_TRAP,
                 MKTRAP_MAZEFLAG,
-                coordinate,
+                (coordinate.x & 0xff) + ((coordinate.y & 0xff) << 16),
                 room,
                 env,
             );
@@ -863,9 +861,7 @@ function fillBuriedTreasure(room, _difficulty, env) {
                     activeEnv,
                 );
             }
-            let objectCount = 0;
-            for (let die = 0; die < 3; ++die)
-                objectCount += 1 + activeEnv.random.rn2(4);
+            const objectCount = rollLuaDice(3, 4, activeEnv.random);
             for (let index = 0; index < objectCount; ++index)
                 createObject({}, room, activeEnv);
         },
@@ -909,11 +905,7 @@ function fillMassacre(room, _difficulty, env) {
     let species = MASSACRE_SPECIES[
         env.random.rn2(MASSACRE_SPECIES.length)
     ];
-    // nhlib.lua d(5,5) calls math.random(1,5) once per die. Spell those draws
-    // out so an injected core stream observes the same five calls.
-    let corpseCount = 0;
-    for (let die = 0; die < 5; ++die)
-        corpseCount += 1 + env.random.rn2(5);
+    const corpseCount = rollLuaDice(5, 5, env.random);
     for (let index = 0; index < corpseCount; ++index) {
         if (env.random.rn2(100) < 10) {
             species = MASSACRE_SPECIES[
@@ -927,17 +919,16 @@ function fillMassacre(room, _difficulty, env) {
 // dat/themerms.lua "Statuary". nhlib.lua d(5,5) and d(3) consume one
 // math.random() call per die; every ordinary statue precedes every trap.
 function fillStatuary(room, _difficulty, env) {
-    let statueCount = 0;
-    for (let die = 0; die < 5; ++die)
-        statueCount += 1 + env.random.rn2(5);
+    const statueCount = rollLuaDice(5, 5, env.random);
     for (let index = 0; index < statueCount; ++index)
         createObject({ id: STATUE }, room, env);
 
-    const trapCount = 1 + env.random.rn2(3);
+    const trapCount = rollLuaDice(1, 3, env.random);
     for (let index = 0; index < trapCount; ++index) {
-        createRandomRoomTrap(
+        createRoomTrap(
             STATUE_TRAP,
             MKTRAP_MAZEFLAG,
+            SP_COORD_IS_RANDOM,
             room,
             env,
         );

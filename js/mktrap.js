@@ -64,7 +64,7 @@ import { game } from './gstate.js';
 import { add_to_container, obj_extract_self } from './invent.js';
 import { makemon, mongone } from './makemon_create.js';
 import { rndmonnum_adj } from './makemon.js';
-import { is_rider } from './mondata.js';
+import { is_rider, is_unicorn } from './mondata.js';
 import {
     PM_ARCHEOLOGIST,
     PM_DWARF,
@@ -74,7 +74,6 @@ import {
     PM_HUMAN,
     PM_ORC,
     PM_WIZARD,
-    S_UNICORN,
 } from './monsters.js';
 import {
     curseFreeObject,
@@ -116,10 +115,6 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { maketrap, t_at } from './trap.js';
 import { mkcorpstat } from './corpstat.js';
 import { begin_burn } from './timeout.js';
-
-// include/monflag.h is_unicorn()'s likes_gems() predicate. Generated monster
-// records retain the bit, but monsters.js does not currently export its name.
-const M2_JEWELS = 0x20000000;
 
 function levelTrapEnv(env = {}) {
     return {
@@ -408,8 +403,7 @@ function mazeCoordinate(coordinate, env) {
 }
 
 function isCoalignedUnicorn(species, state) {
-    return species.mlet === S_UNICORN
-        && (species.mflags2 & M2_JEWELS)
+    return is_unicorn(species)
         && Math.sign(state.u.ualign.type) === Math.sign(species.maligntyp);
 }
 
@@ -419,16 +413,16 @@ function isCoalignedUnicorn(species, state) {
 function mk_trap_statue(x, y, env) {
     const { state } = env;
     let tryCount = 10;
-    let mndx;
+    let species;
     do {
-        mndx = rndmonnum_adj(3, 6, env);
+        species = state.mons[rndmonnum_adj(3, 6, env)];
     } while (--tryCount > 0
-        && isCoalignedUnicorn(state.mons[mndx], state));
+        && isCoalignedUnicorn(species, state));
 
     const statue = mkcorpstat(
         STATUE,
         null,
-        state.mons[mndx],
+        species,
         x,
         y,
         CORPSTAT_NONE,
@@ -441,7 +435,7 @@ function mk_trap_statue(x, y, env) {
         MM_NOCOUNTBIRTH | MM_NOMSG,
         env,
     );
-    if (!monster) return statue;
+    if (!monster) return;
 
     while (monster.minvent) {
         const obj = monster.minvent;
@@ -451,7 +445,6 @@ function mk_trap_statue(x, y, env) {
     }
     statue.owt = weight(statue, env);
     mongone(monster, env);
-    return statue;
 }
 
 export function mktrap(
@@ -461,13 +454,10 @@ export function mktrap(
     tm = null,
     rawEnv = {},
 ) {
-    const baseEnv = levelTrapEnv(rawEnv);
-    const env = {
-        ...baseEnv,
-        hooks: {
-            makeTrapStatue: mk_trap_statue,
-            ...(baseEnv.hooks ?? {}),
-        },
+    const env = levelTrapEnv(rawEnv);
+    env.hooks = {
+        makeTrapStatue: mk_trap_statue,
+        ...env.hooks,
     };
     const { random, state } = env;
     if (!tm && !croom && !(mktrapflags & MKTRAP_MAZEFLAG)) return null;
