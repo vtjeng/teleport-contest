@@ -1066,6 +1066,72 @@ function nesting_rooms(context) {
     return Boolean(room && !context.roomFailed);
 }
 
+// C ref: sp_lev.c sel_set_ter(), restricted to the SET_LIT_NOCHANGE terrain
+// used by these direct handlers. Coordinates are relative to the current room.
+function set_room_terrain(room, relativeX, relativeY, typ) {
+    const x = room.lx + relativeX;
+    const y = room.ly + relativeY;
+    if (!set_levltyp(x, y, typ, { state: game })) return false;
+    const location = game.level.at(x, y);
+    if (typ === HWALL || typ === IRONBARS) {
+        location.horizontal = true;
+    } else if (typ === CLOUD) {
+        del_engr_at(x, y, game);
+    }
+    return true;
+}
+
+// C ref: themerms.lua "Pillars" callback.
+function pillars(context) {
+    const room = run_room_descriptor(
+        { type: 'themed', w: 10, h: 10 },
+        null,
+        context,
+        (parent) => {
+            const terrain = [
+                HWALL, HWALL, HWALL, HWALL, LAVAPOOL, POOL, TREE,
+            ];
+            shuffle_core_values(terrain, context.random);
+            const columns = Math.trunc((parent.hx - parent.lx + 1) / 4);
+            const rows = Math.trunc((parent.hy - parent.ly + 1) / 4);
+            for (let x = 0; x < columns; ++x) {
+                for (let y = 0; y < rows; ++y) {
+                    const left = x * 4 + 2;
+                    const top = y * 4 + 2;
+                    set_room_terrain(parent, left, top, terrain[0]);
+                    set_room_terrain(parent, left + 1, top, terrain[0]);
+                    set_room_terrain(parent, left, top + 1, terrain[0]);
+                    set_room_terrain(parent, left + 1, top + 1, terrain[0]);
+                }
+            }
+        },
+    );
+    return Boolean(room && !context.roomFailed);
+}
+
+// C ref: themerms.lua "Random dungeon feature in the middle of an odd-sized
+// room" callback.
+function random_dungeon_feature_in_odd_room(context) {
+    const width = 3 + context.random(3) * 2;
+    const height = 3 + context.random(3) * 2;
+    const room = run_room_descriptor(
+        { type: 'ordinary', filled: FILL_NORMAL, w: width, h: height },
+        null,
+        context,
+        (parent) => {
+            const features = [CLOUD, LAVAPOOL, ICE, POOL, TREE];
+            shuffle_core_values(features, context.random);
+            set_room_terrain(
+                parent,
+                Math.trunc((width - 1) / 2),
+                Math.trunc((height - 1) / 2),
+                features[0],
+            );
+        },
+    );
+    return Boolean(room && !context.roomFailed);
+}
+
 const DIRECT_THEMEROOM_HANDLERS = new Map([
     ['fake-delphi', fake_delphi],
     ['room-in-a-room', room_in_a_room],
@@ -1074,6 +1140,11 @@ const DIRECT_THEMEROOM_HANDLERS = new Map([
         huge_room_with_another_room_inside,
     ],
     ['nesting-rooms', nesting_rooms],
+    ['pillars', pillars],
+    [
+        'random-dungeon-feature-in-the-middle-of-an-odd-sized-room',
+        random_dungeon_feature_in_odd_room,
+    ],
 ]);
 
 function dispatch_direct_action(definition, context) {

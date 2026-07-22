@@ -3,13 +3,14 @@ import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
-    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, D_ISOPEN, D_LOCKED, D_NODOOR,
-    D_TRAPPED,
+    AGGRAVATE_MONSTER, CLOUD, COLNO, CROSSWALL, DOOR, DUST, D_ISOPEN,
+    D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
     SDOOR, THEMEROOM, TLCORNER, VWALL, W_ANY, W_RANDOM,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
+import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
@@ -1170,6 +1171,104 @@ test('Nesting rooms skips the grandchild and second child door at boundaries', (
     assert.equal(game.level.doorindex, 2);
 });
 
+test('Pillars shuffles once and places four source-ordered two-by-two blocks', () => {
+    resetThemeroomLevel();
+    const random = scriptedRandom([
+        step('rn2', [100], 0), // keep the themed room type
+        step('rnd', [2], 2), // depth-one lighting bound
+        step('rn2', [77], 0), // leave the outer room unlit
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // center within the horizontal sector
+        step('rnd', [3], 1), // top within the vertical sector
+        step('rn2', [7], 6), // retain the final terrain entry
+        step('rn2', [6], 5), // retain the sixth terrain entry
+        step('rn2', [5], 4), // retain the fifth terrain entry
+        step('rn2', [4], 3), // retain the fourth terrain entry
+        step('rn2', [3], 2), // retain the third terrain entry
+        step('rn2', [2], 1), // retain HWALL as the selected first entry
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('pillars'),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+
+    const room = game.level.rooms[0];
+    assert.deepEqual(
+        [room.lx, room.ly, room.hx, room.hy],
+        [36, 5, 45, 14],
+    );
+    assert.deepEqual(
+        [room.rtype, room.needfill, room.rlit],
+        [THEMEROOM, FILL_NONE, 0],
+    );
+    const pillarCoordinates = [];
+    for (const x of [38, 39, 42, 43]) {
+        for (const y of [7, 8, 11, 12]) pillarCoordinates.push([x, y]);
+    }
+    assert.equal(pillarCoordinates.length, 16);
+    for (const [x, y] of pillarCoordinates) {
+        const location = game.level.at(x, y);
+        assert.equal(location.typ, HWALL, `${x},${y} type`);
+        assert.equal(location.horizontal, true, `${x},${y} orientation`);
+        assert.equal(location.roomno, ROOMOFFSET, `${x},${y} room`);
+        assert.equal(location.lit, false, `${x},${y} lighting`);
+    }
+    assert.equal(game.level.at(room.lx + 1, room.ly + 1).typ, ROOM);
+});
+
+test('Odd-room feature shuffles and replaces only the exact center terrain', () => {
+    resetThemeroomLevel();
+    const center = { x: 40, y: 8 };
+    make_engr_at(center.x, center.y, 'old', null, 0, DUST, { state: game });
+    const random = scriptedRandom([
+        step('rn2', [3], 1), // room width 5
+        step('rn2', [3], 2), // room height 7
+        step('rn2', [100], 0), // keep the ordinary room type
+        step('rnd', [2], 2), // depth-one lighting bound
+        step('rn2', [77], 0), // leave the room unlit
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // center within the horizontal sector
+        step('rnd', [3], 1), // top within the vertical sector
+        step('rn2', [5], 4), // retain TREE at the final feature slot
+        step('rn2', [4], 3), // retain POOL at the fourth feature slot
+        step('rn2', [3], 2), // retain ICE at the third feature slot
+        step('rn2', [2], 1), // retain CLOUD as the selected first feature
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById(
+            'random-dungeon-feature-in-the-middle-of-an-odd-sized-room',
+        ),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+
+    const room = game.level.rooms[0];
+    assert.deepEqual(
+        [room.lx, room.ly, room.hx, room.hy],
+        [38, 5, 42, 11],
+    );
+    assert.deepEqual(
+        [room.rtype, room.needfill, room.rlit],
+        [OROOM, FILL_NORMAL, 0],
+    );
+    const location = game.level.at(center.x, center.y);
+    assert.deepEqual(
+        [location.typ, location.roomno, location.lit],
+        [CLOUD, ROOMOFFSET, false],
+    );
+    assert.equal(engr_at(center.x, center.y), null);
+    assert.equal(game.level.at(center.x - 1, center.y).typ, ROOM);
+});
+
 test('random room doors preserve source draws, state, and nested registration', () => {
     resetThemeroomLevel();
     const { parent, child } = buildDoorTestRooms();
@@ -1706,7 +1805,7 @@ test('filler_region invokes an injected fill after registering room flags', () =
 });
 
 test('unimplemented direct and Water vault handlers fail before mutation', () => {
-    for (const id of ['pillars', 'water-surrounded-vault']) {
+    for (const id of ['mausoleum', 'water-surrounded-vault']) {
         resetThemeroomLevel();
         let randomCalls = 0;
         assert.throws(
