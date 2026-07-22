@@ -140,6 +140,35 @@ export function thresholdReached(current, dirty, commitThreshold, lineThreshold)
   return currentUnits >= commitThreshold || currentLines >= lineThreshold;
 }
 
+function hasImplementationWork(current, dirty) {
+  return current.commits > 0
+    || changedLines(current) > 0
+    || hasChanges(dirty);
+}
+
+export function reviewsSinceLastSimplification(passes, areaId) {
+  let reviews = 0;
+  for (const pass of passes) {
+    if (!pass.areas.includes(areaId)) continue;
+    if (pass.kind === 'simplification') reviews = 0;
+    else if (pass.kind === 'review') reviews += 1;
+  }
+  return reviews;
+}
+
+export function simplificationReviewDue({
+  completedReviews,
+  interval,
+  reviewCurrent,
+  simplificationTotal,
+  dirty,
+}) {
+  if (!hasImplementationWork(simplificationTotal, dirty)) return false;
+  if (completedReviews >= interval) return true;
+  return completedReviews === interval - 1
+    && hasImplementationWork(reviewCurrent, dirty);
+}
+
 export function qualityGateBlocked({ reviewDue, unassignedCount }) {
   return reviewDue > 0 || unassignedCount > 0;
 }
@@ -159,7 +188,7 @@ export function formatMetrics(metrics, includeCommits = true) {
   return parts.join(', ');
 }
 
-function formatDebt(total, current, dirty, commitThreshold, lineThreshold) {
+function formatReviewDebt(total, current, dirty, thresholds) {
   const dirtySuffix = hasChanges(dirty)
     ? ` + worktree (${formatMetrics(dirty, false)})`
     : '';
@@ -169,26 +198,67 @@ function formatDebt(total, current, dirty, commitThreshold, lineThreshold) {
   const currentLines = changedLines(current) + changedLines(dirty);
 
   if (totalUnits === 0) return 'clear';
-  if (currentUnits >= commitThreshold || currentLines >= lineThreshold) {
-    return `DUE (${currentUnits}/${commitThreshold} commits, `
-      + `${currentLines}/${lineThreshold} lines) — ${totalText}`;
+  if (currentUnits >= thresholds.reviewCommits
+      || currentLines >= thresholds.reviewChangedLines) {
+    return `DUE (${currentUnits}/${thresholds.reviewCommits} commits, `
+      + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
+  }
+  if (currentUnits >= thresholds.reviewAdvisoryCommits
+      || currentLines >= thresholds.reviewAdvisoryChangedLines) {
+    return `ADVISORY (${currentUnits}/${thresholds.reviewCommits} commits, `
+      + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
   }
   if (currentUnits > 0) {
-    return `WATCH (${currentUnits}/${commitThreshold} commits, `
-      + `${currentLines}/${lineThreshold} lines) — ${totalText}`;
+    return `WATCH (${currentUnits}/${thresholds.reviewCommits} commits, `
+      + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
   }
-  if (total.commits >= commitThreshold || changedLines(total) >= lineThreshold) {
+  if (total.commits >= thresholds.reviewCommits
+      || changedLines(total) >= thresholds.reviewChangedLines) {
     return `BASELINE DUE — ${totalText}`;
+  }
+  return `BASELINE — ${totalText}`;
+}
+
+function formatSimplificationDebt(
+  total,
+  current,
+  dirty,
+  completedReviews,
+  interval,
+  due,
+) {
+  const dirtySuffix = hasChanges(dirty)
+    ? ` + worktree (${formatMetrics(dirty, false)})`
+    : '';
+  const totalText = `${formatMetrics(total)}${dirtySuffix}`;
+  const totalUnits = total.commits + (hasChanges(dirty) ? 1 : 0);
+  const cadence = `${completedReviews}/${interval} correctness passes`;
+
+  if (totalUnits === 0) return 'clear';
+  if (due) return `DUE (${cadence}) — ${totalText}`;
+  if (completedReviews > 0 || hasImplementationWork(current, dirty)) {
+    return `WATCH (${cadence}) — ${totalText}`;
   }
   return `BASELINE — ${totalText}`;
 }
 
 export function validateConfigShape(config) {
   if (!config || typeof config !== 'object') fail('QUALITY.json must contain an object');
-  if (config.version !== 1) fail('QUALITY.json version must be 1');
+  if (config.version !== 2) fail('QUALITY.json version must be 2');
   if (!SHA_PATTERN.test(config.trackingBase ?? '')) fail('trackingBase must be a full commit SHA');
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
+  }
+  if (!SHA_PATTERN.test(config.simplificationCadenceBase ?? '')) {
+    fail('simplificationCadenceBase must be a full commit SHA');
+  }
+  if (!Number.isInteger(config.thresholds?.reviewAdvisoryCommits)
+      || config.thresholds.reviewAdvisoryCommits < 1) {
+    fail('thresholds.reviewAdvisoryCommits must be a positive integer');
+  }
+  if (!Number.isInteger(config.thresholds?.reviewAdvisoryChangedLines)
+      || config.thresholds.reviewAdvisoryChangedLines < 1) {
+    fail('thresholds.reviewAdvisoryChangedLines must be a positive integer');
   }
   if (!Number.isInteger(config.thresholds?.reviewCommits)
       || config.thresholds.reviewCommits < 1) {
@@ -198,13 +268,16 @@ export function validateConfigShape(config) {
       || config.thresholds.reviewChangedLines < 1) {
     fail('thresholds.reviewChangedLines must be a positive integer');
   }
-  if (!Number.isInteger(config.thresholds?.simplificationCommits)
-      || config.thresholds.simplificationCommits < 1) {
-    fail('thresholds.simplificationCommits must be a positive integer');
+  if (config.thresholds.reviewAdvisoryCommits >= config.thresholds.reviewCommits) {
+    fail('the review commit advisory must be below the review gate');
   }
-  if (!Number.isInteger(config.thresholds?.simplificationChangedLines)
-      || config.thresholds.simplificationChangedLines < 1) {
-    fail('thresholds.simplificationChangedLines must be a positive integer');
+  if (config.thresholds.reviewAdvisoryChangedLines
+      >= config.thresholds.reviewChangedLines) {
+    fail('the review line advisory must be below the review gate');
+  }
+  if (!Number.isInteger(config.thresholds?.simplificationReviewInterval)
+      || config.thresholds.simplificationReviewInterval < 1) {
+    fail('thresholds.simplificationReviewInterval must be a positive integer');
   }
   if (!Array.isArray(config.areas) || config.areas.length === 0) {
     fail('areas must be a non-empty array');
@@ -288,6 +361,9 @@ function validateHistory(config, head) {
   if (!isAncestor(config.enforcementBase, head)) {
     fail('enforcementBase must be an ancestor of HEAD');
   }
+  if (!isAncestor(config.simplificationCadenceBase, head)) {
+    fail('simplificationCadenceBase must be an ancestor of HEAD');
+  }
 
   const frontiers = {
     review: new Map(config.areas.map((area) => [area.id, config.trackingBase])),
@@ -341,6 +417,10 @@ function unassignedJsFiles(config) {
 
 function buildStatus(config, head) {
   const frontiers = validateHistory(config, head);
+  const cadencePasses = config.passes.filter((pass) => (
+    pass.head !== config.simplificationCadenceBase
+      && isAncestor(config.simplificationCadenceBase, pass.head)
+  ));
   const rows = [];
 
   for (const area of config.areas) {
@@ -355,6 +435,10 @@ function buildStatus(config, head) {
         current: committedMetrics(enforcedBase, head, area.paths),
       };
     }
+    row.simplificationReviewCount = reviewsSinceLastSimplification(
+      cadencePasses,
+      area.id,
+    );
     rows.push(row);
   }
 
@@ -376,44 +460,51 @@ function printStatus(config, head, status, verbose) {
   console.log('');
 
   let reviewDue = 0;
+  let reviewAdvisory = 0;
   let simplificationDue = 0;
   for (const row of status.rows) {
     const review = row.kinds.review;
     const simplification = row.kinds.simplification;
-    if (thresholdReached(
+    const areaReviewDue = thresholdReached(
       review.current,
       row.dirty,
       config.thresholds.reviewCommits,
       config.thresholds.reviewChangedLines,
-    )) {
-      reviewDue += 1;
-    }
-    if (thresholdReached(
-      simplification.current,
+    );
+    const areaReviewAdvisory = !areaReviewDue && thresholdReached(
+      review.current,
       row.dirty,
-      config.thresholds.simplificationCommits,
-      config.thresholds.simplificationChangedLines,
-    )) {
-      simplificationDue += 1;
-    }
+      config.thresholds.reviewAdvisoryCommits,
+      config.thresholds.reviewAdvisoryChangedLines,
+    );
+    const areaSimplificationDue = simplificationReviewDue({
+      completedReviews: row.simplificationReviewCount,
+      interval: config.thresholds.simplificationReviewInterval,
+      reviewCurrent: review.current,
+      simplificationTotal: simplification.total,
+      dirty: row.dirty,
+    });
+    if (areaReviewDue) reviewDue += 1;
+    if (areaReviewAdvisory) reviewAdvisory += 1;
+    if (areaSimplificationDue) simplificationDue += 1;
 
     console.log(`${row.area.label} [${row.area.id}]`);
     console.log(
-      `  Review:  ${formatDebt(
+      `  Review:  ${formatReviewDebt(
         review.total,
         review.current,
         row.dirty,
-        config.thresholds.reviewCommits,
-        config.thresholds.reviewChangedLines,
+        config.thresholds,
       )}`,
     );
     console.log(
-      `  Simplify: ${formatDebt(
+      `  Simplify: ${formatSimplificationDebt(
         simplification.total,
         simplification.current,
         row.dirty,
-        config.thresholds.simplificationCommits,
-        config.thresholds.simplificationChangedLines,
+        row.simplificationReviewCount,
+        config.thresholds.simplificationReviewInterval,
+        areaSimplificationDue,
       )}`,
     );
     if (verbose) {
@@ -432,6 +523,12 @@ function printStatus(config, head, status, verbose) {
     reviewDue > 0
       ? `Review gate: BLOCKED (${plural(reviewDue, 'area')} reached the batch threshold).`
       : 'Review gate: clear.',
+  );
+  console.log(
+    reviewAdvisory > 0
+      ? `Review advisory: CHECKPOINT (${plural(reviewAdvisory, 'area')} reached `
+        + 'the advisory threshold).'
+      : 'Review advisory: clear.',
   );
   console.log(
     simplificationDue > 0

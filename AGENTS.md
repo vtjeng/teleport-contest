@@ -95,8 +95,8 @@ Git history do not grant permission to inspect the sealed local holdout.
 
 ## Quality workflow
 
-Use checks in proportion to risk. Routine chunks do not require the full
-multi-agent workflow.
+Use checks in proportion to risk. Formal correctness review may be batched, but
+every implementation commit remains subject to it.
 
 For each coherent implementation chunk:
 
@@ -105,38 +105,55 @@ For each coherent implementation chunk:
    dashboard. Assign every new file under `js/` to exactly one quality area.
 3. Directly review source behavior, PRNG and evaluation order, parsing, state
    ownership, persistence, input boundaries, and rendering against upstream.
-   Routine chunks do not launch a formal multi-agent pass. Small mechanical or
-   test-only changes may rely on diff inspection and tests.
+   Small mechanical or test-only changes may rely on diff inspection and tests
+   for immediate validation, but include them in the next scheduled correctness
+   pass.
 4. Add the exact code commit and score estimate to `SCORE.md`.
 
 Run the heavier checks at these boundaries:
 
-- Three unreviewed implementation commits in an affected quality area are an
-  advisory batching checkpoint, not a gate. A formal milestone is due at six
-  unreviewed commits or 500 changed lines in an area, when a change spans
-  multiple subsystems, or before a release, pull request, or authorized holdout
-  evaluation. Small cohesive fixes may stay batched until one of those
-  conditions applies. Do not repeat the same formal pass until another
-  threshold is met or the design materially changes.
+- Three unreviewed implementation commits or 500 changed production lines in an
+  affected quality area are an advisory batching checkpoint. Run a full
+  correctness pass no later than ten unreviewed implementation commits or 1,000
+  changed production lines under `js/` in an affected area. A pass is also due
+  when a change alters a shared behavioral contract between quality areas,
+  direct review or differential validation produces an unexplained mismatch, or
+  before a release, pull request, authorized holdout evaluation, or closure of
+  the current first-command milestone. Small cohesive fixes may stay batched
+  until one of these conditions applies. Do not repeat the same formal pass
+  until another threshold is met or the design materially changes.
+- For the shared-contract trigger, a change crosses quality areas only when it
+  changes state ownership or persistence, PRNG or evaluation order, lifecycle
+  ownership, an input boundary, or another shared behavioral interface. Imports,
+  exports, call sites, tests, and other wiring that consume an existing contract
+  do not trigger a pass by themselves.
 - At a formal milestone, run a `full` `$audit-diff-correctness` pass. Its
   correctness, readability, tests, and variable-trace finders are mandatory.
   Enable the performance finder only for a plausible hot-path or resource-cost
   change, and concurrency only for shared-state, asynchronous, reentrant,
   cancellation, retry, or cleanup risk.
-- Run `$simplify-codebase` before correctness only when inspection identifies
-  duplication, accidental complexity, or stale scaffolding worth removing. A
-  due dashboard advisory prompts that inspection but does not by itself require
-  a pass or block milestone completion.
-- Run `$audit-diff-clarity` before requesting review or release, or when a
-  documentation-heavy change, new implicit contract, or broad naming change
-  makes exposition quality a material risk.
-- After a substantial batch of published technical prose stabilizes, run
-  `$copyedit-technical-prose` once. Do not run it on unchanged prose.
-- After applying audit fixes, give a small, behavior-preserving delta to two
-  parallel read-only subagents and reconcile their results directly. Repeat a
-  formal full-range pass only when the fix changes observable behavior or
-  design, invalidates an earlier conclusion, or itself reaches a milestone
-  threshold.
+- Run `$simplify-codebase` before every second scheduled correctness pass over
+  production changes since the previous simplification frontier. Run it sooner
+  when direct inspection finds duplication, accidental complexity, or stale
+  scaffolding. Also run it before a pull request or release when production code
+  has changed since its previous pass. A pass may conclude that no changes are
+  warranted.
+- Run `$audit-diff-clarity` after every second scheduled correctness pass, once
+  correctness fixes have stabilized, over changes since the previous clarity
+  pass. Also run it before requesting external review or making a release.
+- Run `$copyedit-technical-prose` after every third scheduled correctness pass
+  if published prose has changed since the previous copyedit. Also run it before
+  externally publishing changed documentation, reports, or a pull request
+  description. Tracker-only SHA and score entries do not trigger it. Do not run
+  it on unchanged prose.
+- After applying audit fixes, inspect the fix diff directly and run
+  proportionate focused and broad validation. Do not launch an immediate delta
+  review solely because audit fixes were applied. Keep the review frontier at
+  the audited commit and record the exact fix commits as the start of the next
+  correctness range. Repeat a formal pass immediately only when a fix
+  independently meets one of the triggers above. No audit-fix tail may remain
+  before a pull request, release, authorized holdout evaluation, or closure of
+  the first-command milestone.
 
 Pass rules:
 
@@ -168,17 +185,20 @@ Pass rules:
   behavior and maintains the state. Simplification must preserve PRNG and
   evaluation order.
 - Record correctness coverage with
-  `npm run quality -- record-review ...`. Record optional simplification with
+  `npm run quality -- record-review ...`. Record simplification coverage with
   `npm run quality -- record-simplification ...`. Advance a frontier only
-  through the exact integrated commit covered by the pass. Prose passes are not
-  ledger records.
+  through the exact integrated commit covered by the pass. Audit-fix commits
+  remain review debt until the next correctness pass covers them. Prose passes
+  are not ledger records.
 - For a full review record, give correctness's exact range and include raw,
   deduplicated, confirmed, and applied counts; enabled optional finders; fixes
   and deferrals; unverified judgments; notable rejections and their
   counter-evidence; warnings; and validation. Include clarity separately only
   when it ran.
 - Finish each formal milestone with `npm run quality -- --check`. Resolve review
-  debt and unassigned `js/` files then. Inspect simplification advisories, but
+  debt that has reached a batching threshold and resolve unassigned `js/` files
+  then. A smaller audit-fix tail may remain except at the external and
+  first-command boundaries listed above. Inspect simplification advisories, but
   do not manufacture cleanup merely to clear them.
   Historical `BASELINE` debt remains exempt until that area's first recorded
   pass.

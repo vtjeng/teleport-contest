@@ -1,12 +1,14 @@
 {
-  "version": 1,
+  "version": 2,
   "trackingBase": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
   "enforcementBase": "f11f5c2bfb80d323ac171f83b0a3214d9dbaf9b3",
+  "simplificationCadenceBase": "0a3e69db2e26ad59ff5f70c929ee579e4267dc46",
   "thresholds": {
-    "reviewCommits": 6,
-    "reviewChangedLines": 500,
-    "simplificationCommits": 6,
-    "simplificationChangedLines": 500
+    "reviewAdvisoryCommits": 3,
+    "reviewAdvisoryChangedLines": 500,
+    "reviewCommits": 10,
+    "reviewChangedLines": 1000,
+    "simplificationReviewInterval": 2
   },
   "areas": [
     {

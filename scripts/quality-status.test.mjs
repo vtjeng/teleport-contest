@@ -6,6 +6,8 @@ import {
   formatMetrics,
   parseNumstat,
   qualityGateBlocked,
+  reviewsSinceLastSimplification,
+  simplificationReviewDue,
   thresholdReached,
   validateConfigShape,
 } from './quality-status.mjs';
@@ -16,6 +18,13 @@ test('the checked-in quality ledger has a valid schema', async () => {
   );
 
   assert.doesNotThrow(() => validateConfigShape(config));
+  assert.deepEqual(config.thresholds, {
+    reviewAdvisoryCommits: 3,
+    reviewAdvisoryChangedLines: 500,
+    reviewCommits: 10,
+    reviewChangedLines: 1000,
+    simplificationReviewInterval: 2,
+  });
 });
 
 test('numstat parsing totals text changes and identifies binary files', () => {
@@ -45,9 +54,9 @@ test('metric formatting separates commits, files, and changed lines', () => {
   assert.equal(text, '1 commit, 2 files, 24 changed lines');
 });
 
-test('review thresholds batch small commits but catch large or accumulated work', () => {
-  // Three ten-line fixes exercise the advisory checkpoint without reaching
-  // either the six-commit or 500-line blocking threshold.
+test('review thresholds separate the advisory checkpoint from the gate', () => {
+  // Three ten-line fixes reach the commit advisory while remaining below both
+  // the ten-commit and 1,000-line blocking thresholds.
   const threeSmallCommits = {
     commits: 3,
     files: new Set(['js/obj.js']),
@@ -58,23 +67,83 @@ test('review thresholds batch small commits but catch large or accumulated work'
   const clean = {
     files: new Set(), additions: 0, deletions: 0, binaryFiles: 0,
   };
-  assert.equal(thresholdReached(threeSmallCommits, clean, 6, 500), false);
+  assert.equal(thresholdReached(threeSmallCommits, clean, 3, 500), true);
+  assert.equal(thresholdReached(threeSmallCommits, clean, 10, 1000), false);
 
-  // Six commits exercise the accumulation bound even when each commit is tiny.
+  // Ten commits exercise the hard accumulation bound even when each is tiny.
   assert.equal(
-    thresholdReached({ ...threeSmallCommits, commits: 6 }, clean, 6, 500),
+    thresholdReached({ ...threeSmallCommits, commits: 10 }, clean, 10, 1000),
     true,
   );
-  // One 500-line change exercises the size bound without relying on commit count.
+  // Five hundred lines reach only the size advisory.
+  const advisoryLines = {
+    ...threeSmallCommits,
+    commits: 1,
+    additions: 450,
+    deletions: 50,
+  };
+  assert.equal(thresholdReached(advisoryLines, clean, 3, 500), true);
+  assert.equal(thresholdReached(advisoryLines, clean, 10, 1000), false);
+
+  // One 1,000-line change reaches the hard size bound without ten commits.
   assert.equal(
     thresholdReached(
-      { ...threeSmallCommits, commits: 1, additions: 450, deletions: 50 },
+      { ...threeSmallCommits, commits: 1, additions: 900, deletions: 100 },
       clean,
-      6,
-      500,
+      10,
+      1000,
     ),
     true,
   );
+});
+
+test('simplification cadence resets and becomes due before a second review', () => {
+  const area = 'world';
+  const passes = [
+    { kind: 'review', areas: [area] },
+    { kind: 'review', areas: ['runtime'] },
+    { kind: 'simplification', areas: [area] },
+    { kind: 'review', areas: [area] },
+  ];
+  assert.equal(reviewsSinceLastSimplification(passes, area), 1);
+
+  const clean = {
+    files: new Set(), additions: 0, deletions: 0, binaryFiles: 0,
+  };
+  const reviewedCode = {
+    commits: 1,
+    files: new Set(['js/rooms.js']),
+    additions: 8,
+    deletions: 2,
+    binaryFiles: 0,
+  };
+  const noUnreviewedCode = { ...clean, commits: 0 };
+  assert.equal(simplificationReviewDue({
+    completedReviews: 1,
+    interval: 2,
+    reviewCurrent: noUnreviewedCode,
+    simplificationTotal: reviewedCode,
+    dirty: clean,
+  }), false);
+
+  // One new dirty file represents the work that will receive review number two.
+  const dirty = {
+    files: new Set(['js/region.js']), additions: 4, deletions: 1, binaryFiles: 0,
+  };
+  assert.equal(simplificationReviewDue({
+    completedReviews: 1,
+    interval: 2,
+    reviewCurrent: noUnreviewedCode,
+    simplificationTotal: reviewedCode,
+    dirty,
+  }), true);
+  assert.equal(simplificationReviewDue({
+    completedReviews: 2,
+    interval: 2,
+    reviewCurrent: noUnreviewedCode,
+    simplificationTotal: reviewedCode,
+    dirty: clean,
+  }), true);
 });
 
 test('simplification debt is advisory while review and path ownership block', () => {
@@ -94,14 +163,16 @@ test('an implementation path cannot belong to two quality areas', () => {
   // Full-length placeholder SHAs satisfy the schema while the configured
   // thresholds mirror repository policy; this test isolates path ownership.
   const config = {
-    version: 1,
+    version: 2,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
+    simplificationCadenceBase: '3'.repeat(40),
     thresholds: {
-      reviewCommits: 6,
-      reviewChangedLines: 500,
-      simplificationCommits: 6,
-      simplificationChangedLines: 500,
+      reviewAdvisoryCommits: 3,
+      reviewAdvisoryChangedLines: 500,
+      reviewCommits: 10,
+      reviewChangedLines: 1000,
+      simplificationReviewInterval: 2,
     },
     areas: [
       { id: 'first', label: 'First', paths: ['js/shared.js'] },
