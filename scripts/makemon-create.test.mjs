@@ -14,6 +14,7 @@ import {
     MON_DETACH,
     NO_MINVENT,
     OBJ_MINVENT,
+    PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     STONE,
     WEB,
@@ -47,6 +48,7 @@ import {
     G_NOGEN,
     G_UNIQ,
     M2_ORC,
+    NON_PM,
     PM_ELF,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
@@ -70,6 +72,7 @@ import {
     PM_KOBOLD_ZOMBIE,
     PM_LICHEN,
     PM_LEPRECHAUN,
+    PM_LONG_WORM,
     PM_NEWT,
     PM_ORC,
     PM_ORC_CAPTAIN,
@@ -952,6 +955,191 @@ test('light monsters own mobile light through creation and teardown', () => {
     assert.equal(state.iflags.purge_monsters, 2);
 });
 
+test('initial chameleon can retain its natural form and inventory gates', () => {
+    const state = initialLevelState();
+    light_globals_init(state);
+    const redraws = [];
+    const random = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [5, 8], 20),
+        step('rn2', [2], 1),
+        step('rn2', [3], 1),
+        step('rn1', [SPECIAL_PM, 0], PM_CHAMELEON),
+        step('rn2', [50], 5),
+        step('rn2', [100], 5),
+        step('rn2', [100], 1),
+    ]);
+    const monster = makemon(
+        state.mons[PM_CHAMELEON],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        {
+            state,
+            random: random.random,
+            hooks: { newsym: (x, y) => redraws.push([x, y]) },
+        },
+    );
+    random.assertExhausted();
+
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(monster.mnum, PM_CHAMELEON);
+    assert.equal(monster.data, state.mons[PM_CHAMELEON]);
+    assert.deepEqual([monster.m_lev, monster.mhp, monster.mhpmax], [5, 20, 20]);
+    assert.equal(monster.misc_worn_check, 0);
+    assert.equal(monster.minvent, null);
+    assert.deepEqual(redraws, []);
+});
+
+test('shapechanger protection leaves an initial chameleon unactivated', () => {
+    const state = initialLevelState();
+    state.u.uprops = [];
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+        intrinsic: 1,
+        extrinsic: 0,
+    };
+    const random = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [5, 8], 20),
+        step('rn2', [2], 1),
+        step('rn2', [50], 5),
+        step('rn2', [100], 5),
+        step('rn2', [100], 1),
+    ]);
+    const monster = makemon(
+        state.mons[PM_CHAMELEON],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    random.assertExhausted();
+
+    assert.equal(monster.cham, NON_PM);
+    assert.equal(monster.mnum, PM_CHAMELEON);
+    assert.equal(monster.misc_worn_check, 0);
+});
+
+test('initial chameleon retries a placeholder then takes luminous form', () => {
+    const state = initialLevelState();
+    light_globals_init(state);
+    const redraws = [];
+    const hooks = { newsym: (x, y) => redraws.push([x, y]) };
+    const random = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [5, 8], 20),
+        step('rn2', [2], 1),
+        step('rn2', [3], 1),
+        step('rn1', [SPECIAL_PM, 0], PM_HUMAN),
+        step('rn2', [3], 1),
+        step('rn1', [SPECIAL_PM, 0], PM_BLACK_LIGHT),
+        step('d', [4, 8], 12),
+    ]);
+    const monster = makemon(
+        state.mons[PM_CHAMELEON],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random, hooks },
+    );
+    random.assertExhausted();
+
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(monster.mnum, PM_BLACK_LIGHT);
+    assert.equal(monster.data, state.mons[PM_BLACK_LIGHT]);
+    assert.deepEqual([monster.m_lev, monster.mhp, monster.mhpmax], [4, 12, 12]);
+    assert.equal(monster.perminvis, true);
+    assert.equal(monster.minvis, true);
+    assert.equal(monster.misc_worn_check, I_SPECIAL);
+    assert.equal(monster.minvent, null);
+    assert.equal(state.gl.light_base.id, monster);
+    assert.equal(state.gl.light_base.range, 1);
+    assert.deepEqual(redraws, [[MON_X, MON_Y]]);
+
+    const teardown = scriptedRandom([]);
+    mongone(monster, { state, random: teardown.random, hooks });
+    teardown.assertExhausted();
+    assert.equal(state.gl.light_base, null);
+    assert.deepEqual(redraws, [
+        [MON_X, MON_Y],
+        [MON_X, MON_Y],
+    ]);
+});
+
+test('initial chameleon long-worm form owns and removes its full tail', () => {
+    const state = initialLevelState();
+    state.level.at(MON_X - 1, MON_Y).typ = ROOM;
+    state.level.at(MON_X - 2, MON_Y).typ = ROOM;
+    light_globals_init(state);
+    const redraws = [];
+    const hooks = { newsym: (x, y) => redraws.push([x, y]) };
+    const identityShuffle = Array.from({ length: 2 }, () =>
+        Array.from(
+            { length: 8 },
+            (_, index) => step('rn2', [8 - index], 7 - index),
+        )).flat();
+    const random = scriptedRandom([
+        step('rnd', [2], 1),
+        step('d', [5, 8], 20),
+        step('rn2', [2], 0),
+        step('rn2', [3], 0),
+        step('rn2', [98], 59),
+        step('rn2', [10], 0),
+        step('d', [8, 8], 32),
+        step('rn2', [5], 2),
+        ...identityShuffle,
+    ]);
+    const monster = makemon(
+        state.mons[PM_CHAMELEON],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random, hooks },
+    );
+    random.assertExhausted();
+
+    assert.equal(monster.cham, PM_CHAMELEON);
+    assert.equal(monster.mnum, PM_LONG_WORM);
+    assert.equal(monster.female, true);
+    assert.equal(monster.wormno, 1);
+    assert.equal(monster.misc_worn_check, I_SPECIAL);
+    assert.equal(monster.minvent, null);
+    assert.deepEqual(
+        state.level.worms[1].segments,
+        [
+            { x: MON_X - 2, y: MON_Y },
+            { x: MON_X - 1, y: MON_Y },
+            { x: MON_X, y: MON_Y },
+        ],
+    );
+    for (const x of [MON_X - 2, MON_X - 1, MON_X])
+        assert.equal(state.level.monsters[x][MON_Y], monster);
+    assert.deepEqual(redraws, [
+        [MON_X - 1, MON_Y],
+        [MON_X - 2, MON_Y],
+        [MON_X, MON_Y],
+    ]);
+
+    const teardown = scriptedRandom([]);
+    mongone(monster, { state, random: teardown.random, hooks });
+    teardown.assertExhausted();
+    assert.equal(monster.wormno, 0);
+    assert.equal(state.level.worms[1], null);
+    for (const x of [MON_X - 2, MON_X - 1, MON_X])
+        assert.equal(state.level.monsters[x][MON_Y], null);
+    assert.deepEqual(redraws, [
+        [MON_X - 1, MON_Y],
+        [MON_X - 2, MON_Y],
+        [MON_X, MON_Y],
+        [MON_X - 2, MON_Y],
+        [MON_X - 1, MON_Y],
+        [MON_X, MON_Y],
+        [MON_X, MON_Y],
+    ]);
+    assert.equal(monster.mstate & MON_DETACH, MON_DETACH);
+    assert.equal(state.iflags.purge_monsters, 1);
+});
+
 test('co-aligned unicorn creation overrides an explicitly angry attitude', () => {
     const cases = [
         { mndx: PM_WHITE_UNICORN, expected: true },
@@ -1093,15 +1281,14 @@ test('Statuary armed families generate their source equipment', () => {
     }
 });
 
-test('every non-shapechanging Statuary reservoir species completes creation', () => {
+test('every Statuary reservoir species completes creation', () => {
     const catalog = initialLevelState().mons.slice(0, SPECIAL_PM).filter(
-        (species) => species.pmidx !== PM_CHAMELEON
-            && species.difficulty >= 3
+        (species) => species.difficulty >= 3
             && species.difficulty <= 7
             && (species.geno & G_FREQ)
             && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL)),
     );
-    assert.equal(catalog.length, 104);
+    assert.equal(catalog.length, 105);
 
     for (const species of catalog) {
         const state = initialLevelState();
@@ -1117,10 +1304,18 @@ test('every non-shapechanging Statuary reservoir species completes creation', ()
             {
                 state,
                 random: random.random,
-                hooks: { artifactCount: () => 0 },
+                hooks: {
+                    artifactCount: () => 0,
+                    newsym: () => {},
+                },
             },
         );
-        assert.equal(monster.mnum, species.pmidx, species.pmnames[2]);
+        if (species.pmidx === PM_CHAMELEON) {
+            assert.equal(monster.cham, PM_CHAMELEON, species.pmnames[2]);
+            assert.notEqual(monster.mnum, PM_CHAMELEON, species.pmnames[2]);
+        } else {
+            assert.equal(monster.mnum, species.pmidx, species.pmnames[2]);
+        }
     }
 });
 
@@ -1590,6 +1785,7 @@ test('unsupported creation modes fail before consuming RNG or state', () => {
         }),
         UnsupportedMonsterCreationError,
     );
+    state.rogue_level = { ...state.u.uz };
     assert.throws(
         () => makemon(state.mons[PM_CHAMELEON], MON_X, MON_Y, MM_NOGRP, {
             state,

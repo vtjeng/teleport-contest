@@ -38,6 +38,7 @@ import {
     M_AP_OBJECT,
     M_SEEN_NOTHING,
     MON_DETACH,
+    N_DIRS,
     NO_MINVENT,
     ONAME,
     ONAME_NO_FLAGS,
@@ -49,6 +50,7 @@ import {
     SCORR,
     SDOOR,
     SEE_INVIS,
+    PROT_FROM_SHAPE_CHANGERS,
     TDWALL,
     TLCORNER,
     TRWALL,
@@ -64,6 +66,8 @@ import {
     W_ARMU,
     W_SADDLE,
     IS_WALL,
+    xdir,
+    ydir,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import {
@@ -72,6 +76,7 @@ import {
     put_saddle_on_mon,
 } from './dog.js';
 import { christen_monst, rndghostname } from './do_name.js';
+import { newsym } from './display.js';
 import { level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import {
@@ -124,7 +129,9 @@ import {
     MZ_MEDIUM,
     MZ_SMALL,
     NON_PM,
+    LOW_PM,
     PM_ARCHEOLOGIST,
+    PM_BABY_GOLD_DRAGON,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
     PM_CAVE_SPIDER,
@@ -133,15 +140,20 @@ import {
     PM_CHICKATRICE,
     PM_COCKATRICE,
     PM_ELF,
+    PM_FIRE_ELEMENTAL,
+    PM_FIRE_VORTEX,
+    PM_FLAMING_SPHERE,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_GARTER_SNAKE,
     PM_GHOST,
+    PM_GIANT,
     PM_GIANT_MIMIC,
     PM_GIANT_SPIDER,
     PM_GOBLIN,
     PM_GRAY_UNICORN,
     PM_GRID_BUG,
+    PM_HUMAN,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
@@ -149,21 +161,26 @@ import {
     PM_LARGE_MIMIC,
     PM_LICHEN,
     PM_LITTLE_DOG,
+    PM_LONG_WORM,
     PM_MANES,
     PM_MORDOR_ORC,
     PM_SMALL_MIMIC,
     PM_NEWT,
+    PM_ORC,
     PM_ORC_CAPTAIN,
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_SEWER_RAT,
+    PM_SHOCKING_SPHERE,
     PM_SKELETON,
     PM_SNAKE,
+    PM_STALKER,
     PM_URUK_HAI,
     PM_WHITE_UNICORN,
     PM_WOOD_NYMPH,
     PM_WIZARD,
     PM_YELLOW_LIGHT,
+    PM_GOLD_DRAGON,
     SPECIAL_PM,
     S_CENTAUR,
     S_EYE,
@@ -185,6 +202,7 @@ import {
     S_SNAKE,
     S_SPIDER,
     S_UNICORN,
+    S_VAMPIRE,
     S_VORTEX,
 } from './monsters.js';
 import { mkobj, mkobj_at, mksobj, next_ident, weight } from './obj.js';
@@ -372,13 +390,16 @@ const AT_EXPL = 13;
 const M1_WALLWALK = 0x00000008;
 const M1_CONCEAL = 0x00000080;
 const M1_SLITHY = 0x00080000;
+const M2_NOPOLY = 0x00000001;
 const M2_LORD = 0x00000400;
 const M2_PRINCE = 0x00000800;
+const M2_SHAPESHIFTER = 0x00004000;
 const M2_STRONG = 0x04000000;
 const M2_JEWELS = 0x20000000;
 const MR_STONE = 0x80;
 const MZ_LARGE = 3;
 const MZ_HUGE = 4;
+const MAX_NUM_WORMS = 32;
 
 // makemon.c set_mimic_sym() source tables. The first two entries deliberately
 // make furniture twice as likely as each ordinary object class.
@@ -432,8 +453,148 @@ function setMimicCorpsenm(monster, value) {
     monster.mextra.mcorpsenm = value;
 }
 
+// C ref: mondata.h emits_light(). All currently listed luminous forms have
+// range one; keeping the explicit species list preserves the source predicate.
 function emitsLight(species) {
-    return species?.mlet === S_LIGHT ? 1 : 0;
+    return species?.mlet === S_LIGHT
+        || species?.pmidx === PM_FLAMING_SPHERE
+        || species?.pmidx === PM_SHOCKING_SPHERE
+        || species?.pmidx === PM_BABY_GOLD_DRAGON
+        || species?.pmidx === PM_FIRE_VORTEX
+        || species?.pmidx === PM_FIRE_ELEMENTAL
+        || species?.pmidx === PM_GOLD_DRAGON
+        ? 1 : 0;
+}
+
+function permanentlyInvisible(species) {
+    return species?.pmidx === PM_STALKER
+        || species?.pmidx === PM_BLACK_LIGHT;
+}
+
+function redrawSquare(x, y, normalized) {
+    if (typeof normalized.hooks?.newsym === 'function') {
+        normalized.hooks.newsym(x, y, normalized);
+    } else if (normalized.state === game) {
+        newsym(x, y);
+    }
+}
+
+function wormSlots(state) {
+    if (!state.level)
+        throw new Error('worm lifecycle requires an initialized level');
+    if (!Object.hasOwn(state.level, 'worms')) {
+        state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    }
+    if (!Array.isArray(state.level.worms)
+        || state.level.worms.length !== MAX_NUM_WORMS) {
+        throw new Error('worm lifecycle found invalid level worm slots');
+    }
+    return state.level.worms;
+}
+
+// C ref: worm.c get_wormno(). Slot zero remains reserved.
+function get_wormno(state) {
+    const slots = wormSlots(state);
+    for (let wormno = 1; wormno < MAX_NUM_WORMS; ++wormno) {
+        if (!slots[wormno]) return wormno;
+    }
+    return 0;
+}
+
+// C ref: worm.c initworm(). The array order is the source linked-list order,
+// from the visible tail to the hidden segment co-located with the head.
+function initworm(monster, segmentCount, state) {
+    const slots = wormSlots(state);
+    if (!monster.wormno || slots[monster.wormno])
+        throw new Error('initworm requires a newly allocated worm slot');
+    const segments = Array.from(
+        { length: segmentCount + 1 },
+        () => ({ x: 0, y: 0 }),
+    );
+    const head = segments[segments.length - 1];
+    head.x = monster.mx;
+    head.y = monster.my;
+    slots[monster.wormno] = { segments };
+}
+
+// C ref: trap.c rnd_nextto_goodpos(). Fisher-Yates consumes rn2(8) through
+// rn2(1) before any candidate is checked.
+function rnd_nextto_goodpos(x, y, monster, normalized) {
+    const directions = Array.from({ length: N_DIRS }, (_, index) => index);
+    for (let count = N_DIRS; count > 0; --count) {
+        const selected = normalized.random.rn2(count);
+        const swap = directions[selected];
+        directions[selected] = directions[count - 1];
+        directions[count - 1] = swap;
+    }
+    for (const direction of directions) {
+        const nx = x + xdir[direction];
+        const ny = y + ydir[direction];
+        if (goodpos(nx, ny, monster, 0, normalized)) return { x: nx, y: ny };
+    }
+    return null;
+}
+
+// C ref: worm.c place_worm_tail_randomly(). Reversing the segment chain as
+// coordinates are chosen leaves the list in tail-to-head order.
+function place_worm_tail_randomly(monster, x, y, normalized) {
+    const record = wormSlots(normalized.state)[monster.wormno];
+    if (!record?.segments?.length)
+        throw new Error('place_worm_tail_randomly requires an initialized tail');
+    if (record.segments.length === 1) {
+        record.segments[0].x = monster.mx;
+        record.segments[0].y = monster.my;
+        return;
+    }
+
+    const unplaced = record.segments;
+    const hiddenHead = unplaced[0];
+    hiddenHead.x = x;
+    hiddenHead.y = y;
+    const placed = [hiddenHead];
+    let previousX = x;
+    let previousY = y;
+    for (let index = 1; index < unplaced.length; ++index) {
+        const next = rnd_nextto_goodpos(
+            previousX,
+            previousY,
+            monster,
+            normalized,
+        );
+        if (!next) break;
+        const segment = unplaced[index];
+        segment.x = previousX = next.x;
+        segment.y = previousY = next.y;
+        normalized.state.level.monsters[next.x][next.y] = monster;
+        placed.unshift(segment);
+        redrawSquare(next.x, next.y, normalized);
+    }
+    record.segments = placed;
+}
+
+// C ref: worm.c remove_worm(). This removes coordinate occupancy but retains
+// the segment record until wormgone() releases its slot.
+function remove_worm(monster, normalized) {
+    const record = wormSlots(normalized.state)[monster.wormno];
+    if (!record?.segments?.length)
+        throw new Error('remove_worm requires an initialized tail');
+    for (const segment of record.segments) {
+        if (!segment.x) continue;
+        remove_monster(segment.x, segment.y, normalized.state);
+        redrawSquare(segment.x, segment.y, normalized);
+        segment.x = 0;
+    }
+}
+
+// C ref: worm.c wormgone(). remove_worm() has already cleared map occupancy
+// in mongone()'s m_detach path, so only the owned tail state remains here.
+function wormgone(monster, state) {
+    const wormno = monster.wormno;
+    const slots = wormSlots(state);
+    if (!wormno || !slots[wormno])
+        throw new Error('wormgone requires an allocated worm slot');
+    monster.wormno = 0;
+    slots[wormno] = null;
 }
 
 function canHideUnderObject(obj) {
@@ -581,7 +742,6 @@ function set_mimic_sym(monster, normalized) {
 function isStatuaryReservoirSpecies(species) {
     return species.pmidx >= 0
         && species.pmidx < SPECIAL_PM
-        && species.pmidx !== PM_CHAMELEON
         && species.difficulty >= 3
         && species.difficulty <= 7
         && Boolean(species.geno & G_FREQ)
@@ -648,6 +808,19 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     }
     if (!state.u?.ualign || !state.urace)
         throw new Error('makemon requires initialized hero alignment and race');
+    if (ptr?.pmidx === PM_CHAMELEON
+        && !heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) {
+        if (isRogueLevel(state)) {
+            throw new UnsupportedMonsterCreationError(
+                'initial chameleon on the rogue level',
+            );
+        }
+        if (!state.gl || !Object.hasOwn(state.gl, 'light_base')) {
+            throw new Error(
+                'initial chameleon requires initialized light globals',
+            );
+        }
+    }
     if (!(mmflags & NO_MINVENT)
         && (state.migrating_objs || state.gm?.migrating_objs)) {
         throw new UnsupportedMonsterCreationError('migrating object delivery');
@@ -1415,7 +1588,7 @@ export function mongone(monster, env = {}) {
         throw new Error('mongone: monster is not on the level chain');
     if (monster.mstate & MON_DETACH)
         throw new Error('mongone: monster is already detached');
-    if (monster.isgd || monster.mleashed || monster.wormno
+    if (monster.isgd || monster.mleashed
         || monster.iswiz || state.u?.ustuck === monster
         || state.u?.usteed === monster) {
         throw new UnsupportedMonsterCreationError(
@@ -1431,8 +1604,10 @@ export function mongone(monster, env = {}) {
 
     const onmap = isok(monster.mx, monster.my)
         && m_at(monster.mx, monster.my, state) === monster;
+    monster.mtrapped = false;
     if (onmap) {
-        remove_monster(monster.mx, monster.my, state);
+        if (monster.wormno) remove_worm(monster, normalized);
+        else remove_monster(monster.mx, monster.my, state);
         monster.mundetected = false;
         if (monster.m_ap_type) {
             monster.m_ap_type = 0;
@@ -1440,8 +1615,9 @@ export function mongone(monster, env = {}) {
             if (monster.mextra && 'mcorpsenm' in monster.mextra)
                 monster.mextra.mcorpsenm = NON_PM;
         }
+        redrawSquare(monster.mx, monster.my, normalized);
     }
-    monster.mtrapped = false;
+    if (monster.wormno) wormgone(monster, state);
     monster.mstate |= MON_DETACH;
     state.iflags ??= {};
     state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
@@ -1489,6 +1665,157 @@ function initializeGender(monster, ptr, mmflags, random) {
     } else {
         monster.female = femaleok ? Boolean(random.rn2(2)) : false;
     }
+}
+
+function pm_to_cham(mndx, state) {
+    const species = state.mons?.[mndx];
+    return species && (species.mflags2 & M2_SHAPESHIFTER) ? mndx : NON_PM;
+}
+
+function isPlaceholderForm(mndx) {
+    return mndx === PM_ORC || mndx === PM_GIANT
+        || mndx === PM_ELF || mndx === PM_HUMAN;
+}
+
+function pick_animal(normalized) {
+    const animals = [];
+    for (let mndx = LOW_PM; mndx < SPECIAL_PM; ++mndx) {
+        if (normalized.state.mons[mndx].mflags1 & M1_ANIMAL)
+            animals.push(mndx);
+    }
+    if (!animals.length)
+        throw new Error('pick_animal requires at least one animal form');
+    return animals[normalized.random.rn2(animals.length)];
+}
+
+// C ref: mon.c select_newcham_form(), restricted to the ordinary initial
+// chameleon. The initial dungeon level is not a rogue level, so its extra
+// uppercase retry is rejected during preflight rather than approximated.
+function select_newcham_form(monster, normalized) {
+    if (monster.cham !== PM_CHAMELEON) {
+        throw new UnsupportedMonsterCreationError(
+            `initial shapechanger ${monster.cham}`,
+        );
+    }
+    let mndx = NON_PM;
+    if (!normalized.random.rn2(3)) mndx = pick_animal(normalized);
+    if (mndx === NON_PM) {
+        mndx = normalized.random.rn1(
+            SPECIAL_PM - LOW_PM,
+            LOW_PM,
+        );
+    }
+    return mndx;
+}
+
+// C ref: mon.c accept_newcham_form(). Random initial selection cannot return
+// an endgame player-monster because those records begin at SPECIAL_PM.
+function accept_newcham_form(monster, mndx, state) {
+    if (!Number.isInteger(mndx) || mndx < LOW_PM || mndx >= SPECIAL_PM)
+        return null;
+    const species = state.mons[mndx];
+    if (state.mvitals[mndx].mvflags & G_GENOD) return null;
+    if (isPlaceholderForm(mndx)) return null;
+    if ((species.mflags2 & M2_SHAPESHIFTER)
+        && mndx === monster.cham) {
+        return species;
+    }
+    return species.mflags2 & M2_NOPOLY ? null : species;
+}
+
+// C ref: mon.c mgender_from_permonst(). A natural chameleon is not a vampire
+// shifter, but vampire target forms still suppress the ordinary 10% flip.
+function mgender_from_permonst(monster, species, random) {
+    if (is_male(species)) {
+        monster.female = false;
+    } else if (is_female(species)) {
+        monster.female = true;
+    } else if (!is_neuter(species)
+               && !random.rn2(10)
+               && species.mlet !== S_VAMPIRE) {
+        monster.female = !monster.female;
+    }
+}
+
+// C ref: mondata.c set_mon_data(). Only unused movement in a slower form is
+// prorated; faster forms retain the already accumulated movement.
+function set_mon_data(monster, species) {
+    const oldSpeed = monster.data?.mmove ?? 0;
+    monster.data = species;
+    monster.mnum = species.pmidx;
+    if (monster.movement && species.mmove < oldSpeed) {
+        monster.movement *= species.mmove;
+        if (oldSpeed > 0)
+            monster.movement = Math.trunc(monster.movement / oldSpeed);
+    }
+}
+
+// C ref: mon.c newcham(..., NULL, NO_NC_FLAGS), for a just-created natural
+// chameleon with no inventory, leash, disguise, tail, or hero attachment.
+function newcham_initial(monster, normalized) {
+    const { random, state } = normalized;
+    const olddata = monster.data;
+    let target = null;
+    for (let attempt = 0; attempt < 20 && !target; ++attempt) {
+        target = accept_newcham_form(
+            monster,
+            select_newcham_form(monster, normalized),
+            state,
+        );
+    }
+    if (!target || target === olddata) return false;
+
+    mgender_from_permonst(monster, target, random);
+    const oldHp = monster.mhp;
+    const oldMax = monster.mhpmax;
+    newmonhp(monster, target.pmidx, normalized);
+    monster.mhp = Math.trunc(oldHp * monster.mhp / oldMax);
+    if (monster.mhp < 0 || monster.mhp > monster.mhpmax)
+        monster.mhp = monster.mhpmax;
+    if (!monster.mhp) monster.mhp = 1;
+
+    set_mon_data(monster, target);
+
+    const oldLight = emitsLight(olddata);
+    const newLight = emitsLight(target);
+    if (oldLight !== newLight) {
+        if (oldLight)
+            del_light_source(LS_MONSTER, monster, state);
+        if (newLight) {
+            new_light_source(
+                monster.mx,
+                monster.my,
+                newLight,
+                LS_MONSTER,
+                monster,
+                state,
+            );
+        }
+    }
+    if (!monster.perminvis || permanentlyInvisible(olddata))
+        monster.perminvis = permanentlyInvisible(target);
+    monster.minvis = monster.invis_blkd ? false : monster.perminvis;
+    if (monster.mundetected) hideunder(monster, state);
+
+    if (target.pmidx === PM_LONG_WORM) {
+        monster.wormno = get_wormno(state);
+        if (monster.wormno) {
+            initworm(monster, random.rn2(5), state);
+            place_worm_tail_randomly(
+                monster,
+                monster.mx,
+                monster.my,
+                normalized,
+            );
+        }
+    }
+
+    monster.meverseen = false;
+    redrawSquare(monster.mx, monster.my, normalized);
+    // possibly_unwield(), mon_break_armor(), and mselftouch() are drawless for
+    // this empty inventory; check_gear_next_turn() still schedules a recheck.
+    monster.misc_worn_check |= I_SPECIAL;
+    return true;
 }
 
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
@@ -1543,6 +1870,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         assertSupportedSpecies(ptr);
     }
     const mndx = ptr.pmidx;
+    let allowMinvent = !(mmflags & NO_MINVENT);
     if (state.mvitals[mndx].mvflags & G_GENOD) return null;
 
     // makemon.c deliberately ignores propagate()'s result. An explicitly
@@ -1610,7 +1938,12 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         );
     }
     monster.cham = NON_PM;
-    if (mndx === PM_GHOST) {
+    const naturalShape = pm_to_cham(mndx, state);
+    if (!heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)
+        && naturalShape !== NON_PM) {
+        monster.cham = naturalShape;
+        if (newcham_initial(monster, normalized)) allowMinvent = false;
+    } else if (mndx === PM_GHOST) {
         christen_monst(monster, rndghostname(normalized), {
             updateInventory: () => update_inventory(normalized),
         });
@@ -1623,7 +1956,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     }
     set_malign(monster, state);
 
-    if (!(mmflags & NO_MINVENT)) {
+    if (allowMinvent) {
         if (isArmed(ptr)) m_initweap(monster, normalized);
         m_initinv(monster, normalized);
         m_dowear(monster, true, normalized);
@@ -1634,6 +1967,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             && !monsterWears(monster, W_SADDLE)) {
             put_saddle_on_mon(null, monster, normalized);
         }
+    } else {
+        if (monster.minvent) discard_minvent(monster, true, normalized);
+        monster.minvent = null;
     }
 
     return monster;
