@@ -1,10 +1,11 @@
 // vision.js — C ref: vision.c Algorithm C shadow-casting
-// Stripped-down port for the contest skeleton: no boulders, mimics,
-// underwater, or pit handling.
+// Stripped-down port for the contest skeleton: no mimics, underwater, or pit
+// handling.
 // Contestants should port the full vision.c for complete parity.
 
 import { game } from './gstate.js';
 import { do_light_sources } from './light.js';
+import { BOULDER } from './objects.js';
 import {
     BLINDED, COLNO, COULD_SEE, IN_SIGHT, ROWNO, DOOR, SDOOR, POOL,
     D_CLOSED, D_LOCKED, D_TRAPPED,
@@ -74,6 +75,7 @@ function mark_visible_range(row, left, right) {
 function _blocks(level, x, y) {
     const loc = level.at(x, y);
     if (!loc) return true;
+    if (level.objects?.[x]?.[y]?.otyp === BOULDER) return true;
     const typ = loc.typ ?? 0;
     if (typ < POOL) return true;  // STONE, walls, SDOOR, SCORR
     if (typ === DOOR) {

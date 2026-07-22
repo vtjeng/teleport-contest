@@ -3,12 +3,15 @@
 
 import {
     BEAR_TRAP,
+    BOLT_LIM,
     CORR,
     DB_FLOOR,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
     DB_UNDER,
+    D_CLOSED,
+    D_LOCKED,
     DOOR,
     DRAWBRIDGE_UP,
     HOLE,
@@ -19,9 +22,11 @@ import {
     IS_ROOM,
     IS_WALL,
     LADDER,
+    LAVAWALL,
     LEVEL_TELEP,
     MAGIC_PORTAL,
     MELT_ICE_AWAY,
+    N_DIRS,
     PIT,
     ROLLING_BOULDER_TRAP,
     ROOM,
@@ -42,24 +47,33 @@ import {
     TT_PIT,
     TT_WEB,
     VIBRATING_SQUARE,
+    WATER,
     WEB,
+    ZAP_POS,
+    is_hole,
     is_pit,
+    is_xport,
     isok,
+    xdir,
+    ydir,
 } from './const.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { rn2 } from './rng.js';
+import { stackobj } from './invent.js';
+import { mksobj, place_object, weight } from './obj.js';
+import { BOULDER } from './objects.js';
+import { rn1, rn2, rnd, rne } from './rng.js';
 
 function trapEnv(env = {}) {
     return {
         ...env,
         state: env.state ?? game,
-        random: env.random ?? { rn2 },
+        random: env.random ?? { rn1, rn2, rnd, rne },
     };
 }
 
 function capability(env, name) {
-    return env[name] ?? env.hooks?.[name];
+    return env[name] ?? env.hooks?.[name] ?? DEFAULT_CAPABILITIES[name];
 }
 
 function drawbridgeFlags(location) {
@@ -85,6 +99,122 @@ function isLavaAt(location) {
         || (location.typ === DRAWBRIDGE_UP
             && drawbridgeUnder(location) === DB_LAVA);
 }
+
+function closedDoor(location) {
+    const mask = location.flags || location.doormask || 0;
+    return location.typ === DOOR
+        && Boolean(mask & (D_CLOSED | D_LOCKED));
+}
+
+function clearLaunchPath(coordinate, distance, dx, dy, env) {
+    let { x, y } = coordinate;
+    while (distance-- > 0) {
+        x += dx;
+        y += dy;
+        if (!isok(x, y)) return false;
+        const location = env.state.level.at(x, y);
+        if (!ZAP_POS(location.typ) || closedDoor(location)) return false;
+        const trap = t_at(x, y, env.state);
+        if (trap && (is_pit(trap.ttyp)
+            || is_hole(trap.ttyp)
+            || is_xport(trap.ttyp))) {
+            return false;
+        }
+    }
+    coordinate.x = x;
+    coordinate.y = y;
+    return true;
+}
+
+// mthrowu.c:linedup(..., 1) for an explicitly supplied launch offset.  The
+// boulderhandling=1 branch ignores intervening boulders, so only terrain and
+// the source's orthogonal-or-diagonal range contract matter here.
+function explicitLaunchCoordinate(trap, env) {
+    const offset = env.state.launchplace;
+    if (!offset) return null;
+    const target = {
+        x: trap.tx + offset.x,
+        y: trap.ty + offset.y,
+    };
+    if (!isok(target.x, target.y)) return null;
+    const dx = target.x - trap.tx;
+    const dy = target.y - trap.ty;
+    const distance = Math.max(Math.abs(dx), Math.abs(dy));
+    if (!distance || distance >= BOLT_LIM
+        || (dx && dy && Math.abs(dx) !== Math.abs(dy))) {
+        return null;
+    }
+    const sx = Math.sign(dx);
+    const sy = Math.sign(dy);
+    for (let step = 1; step < distance; ++step) {
+        const location = env.state.level.at(
+            trap.tx + sx * step,
+            trap.ty + sy * step,
+        );
+        if (!ZAP_POS(location.typ) || closedDoor(location)
+            || location.typ === WATER || location.typ === LAVAWALL) {
+            return null;
+        }
+    }
+    return target;
+}
+
+// trap.c:find_random_launch_coord(). The path is tested in both directions
+// because a rolling boulder must pass through the trigger square and continue
+// to the mirrored endpoint.
+function findRandomLaunchCoordinate(trap, env) {
+    if (!trap || env.state.level.flags?.sokoban_rules) return null;
+    const explicit = explicitLaunchCoordinate(trap, env);
+    if (explicit) return explicit;
+
+    let distance = env.random.rn1(5, 4);
+    let direction = env.random.rn2(N_DIRS);
+    let trycount = 0;
+    while (distance >= 2) {
+        const dx = xdir[direction];
+        const dy = ydir[direction];
+        const launch = { x: trap.tx, y: trap.ty };
+        const endpoint = env.state.level.at(
+            trap.tx + distance * dx,
+            trap.ty + distance * dy,
+        );
+        let success = endpoint
+            && !isPoolAt(endpoint, env.state)
+            && !isLavaAt(endpoint)
+            && clearLaunchPath(launch, distance, dx, dy, env);
+        const opposite = { x: trap.tx, y: trap.ty };
+        if (!clearLaunchPath(opposite, distance, -dx, -dy, env))
+            success = false;
+        if (success) return launch;
+        direction = (direction + 1) % N_DIRS;
+        if (++trycount % N_DIRS === 0) --distance;
+    }
+    return null;
+}
+
+// trap.c:mkroll_launch() rolling-boulder subset.
+function makeRollingBoulderLaunch(trap, x, y, env) {
+    const launch = findRandomLaunchCoordinate(trap, env) ?? { x, y };
+    if (launch.x !== x || launch.y !== y) {
+        const boulder = mksobj(BOULDER, true, false, env);
+        boulder.quan = 1;
+        boulder.owt = weight(boulder, env);
+        place_object(boulder, launch.x, launch.y, env);
+        stackobj(boulder, env);
+    }
+    trap.launch.x = launch.x;
+    trap.launch.y = launch.y;
+    trap.launch2 = {
+        x: x - (launch.x - x),
+        y: y - (launch.y - y),
+    };
+    capability(env, 'newsym')?.(launch.x, launch.y, env);
+    return true;
+}
+
+const DEFAULT_CAPABILITIES = Object.freeze({
+    makeRollingBoulderLaunch,
+});
 
 export function t_at(x, y, state = game) {
     for (const trap of state.level?.traps ?? []) {

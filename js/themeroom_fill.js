@@ -18,6 +18,7 @@ import {
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
     ROCKTRAP,
+    ROLLING_BOULDER_TRAP,
     RUST_TRAP,
     SLP_GAS_TRAP,
     SP_COORD_IS_RANDOM,
@@ -38,6 +39,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import {
     ARMOR_CLASS,
     ARROW,
+    BOULDER,
     BOW,
     CORPSE,
     DAGGER,
@@ -160,6 +162,17 @@ function createTrap(type, flags, x, y, env) {
     const hook = env.hooks.createTrap;
     if (hook) return hook(type, flags, x, y, env);
     return mktrap(type, flags, null, { x, y }, themedCreationEnv(env));
+}
+
+// sp_lev.h SP_COORD_PACK() plus sp_lev.c create_trap(). Lua callback
+// coordinates are relative to the current room; get_free_room_loc() converts
+// them back to the map and preserves the source relocation fallback if that
+// fixed point is no longer ROOM terrain.
+function createRoomTrapAt(type, flags, coordinate, room, env) {
+    const absolute = { x: -1, y: -1 };
+    const packed = (coordinate.x & 0xff) + ((coordinate.y & 0xff) << 16);
+    get_free_room_loc(absolute, room, packed, env);
+    return createTrap(type, flags, absolute.x, absolute.y, env);
 }
 
 const ALTAR_ALIGNMENT_MASK = Object.freeze({
@@ -338,6 +351,26 @@ function fillIceRoom(room, difficulty, env) {
     });
 }
 
+// dat/themerms.lua "Boulder room". selection:percentage() samples x-major,
+// then selection:iterate() invokes the retained points y-major.
+function fillBoulderRoom(room, _difficulty, env) {
+    const locations = roomSelection(room, env).percentage(30, env.random.rn2);
+    locations.iterate((x, y) => {
+        const coordinate = { x: x - room.lx, y: y - room.ly };
+        if (env.random.rn2(100) < 50) {
+            createObject({ id: BOULDER, coordinate }, room, env);
+        } else {
+            createRoomTrapAt(
+                ROLLING_BOULDER_TRAP,
+                MKTRAP_MAZEFLAG,
+                coordinate,
+                room,
+                env,
+            );
+        }
+    });
+}
+
 // dat/themerms.lua "Spider nest". D:1 never requests a spider on each web,
 // but create_trap still performs its source mktrap victim check.
 function fillSpiderNest(room, difficulty, env) {
@@ -475,6 +508,7 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
 }
 
 const FILL_HANDLERS = Object.freeze({
+    boulder_room: fillBoulderRoom,
     ghost_of_an_adventurer: fillGhostOfAnAdventurer,
     ice_room: fillIceRoom,
     light_source: fillLightSource,

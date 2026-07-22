@@ -24,7 +24,6 @@ import {
     PIT,
     ROCKTRAP,
     ROOM,
-    ROLLING_BOULDER_TRAP,
     RUST_TRAP,
     SPIKED_PIT,
     SQKY_BOARD,
@@ -231,12 +230,6 @@ test('maketrap exposes later subsystem boundaries before linking a trap', () => 
     );
     assert.equal(state.level.traps.length, 0);
 
-    assert.throws(
-        () => maketrap(10, 5, ROLLING_BOULDER_TRAP, { state }),
-        /rolling-boulder launch subsystem/,
-    );
-    assert.equal(state.level.traps.length, 0);
-
     state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
     state.level.at(10, 5).flags = 37;
     assert.throws(
@@ -266,12 +259,6 @@ test('maketrap preflights seams before changing an existing trap', () => {
         /statue-trap subsystem/,
     );
     assert.deepEqual(existing, original);
-    assert.throws(
-        () => maketrap(10, 5, ROLLING_BOULDER_TRAP, { state }),
-        /rolling-boulder launch subsystem/,
-    );
-    assert.deepEqual(existing, original);
-
     state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
     assert.throws(
         () => maketrap(10, 5, PIT, { state }),

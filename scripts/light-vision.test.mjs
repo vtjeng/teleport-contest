@@ -20,7 +20,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { light_globals_init } from '../js/light.js';
-import { TALLOW_CANDLE } from '../js/objects.js';
+import { BOULDER, TALLOW_CANDLE } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { begin_burn, timeout_globals_init } from '../js/timeout.js';
@@ -109,6 +109,18 @@ test('a blocking wall stops candle light along clear_path', () => {
     assert.equal(state.viz_array[5][7] & TEMP_LIT, 0);
     assert.equal(cansee(7, 5), false);
     assert.equal(state.level.at(7, 5).disp_ch, ' ');
+});
+
+test('a floor boulder blocks initial line of sight', () => {
+    const state = darkRoomState();
+    state.u.ux = 10;
+    state.u.uy = 10;
+    state.level.objects[12][10] = { otyp: BOULDER };
+
+    vision_reset();
+
+    assert.equal(clear_path(10, 10, 14, 10), 0);
+    assert.equal(clear_path(10, 10, 12, 10), 1);
 });
 
 test('blind vision retains monster line of sight without hero IN_SIGHT', () => {

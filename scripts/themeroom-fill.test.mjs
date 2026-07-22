@@ -8,6 +8,7 @@ import {
     AM_NEUTRAL,
     ARROW_TRAP,
     BURN_OBJECT,
+    CORR,
     ICE,
     I_SPECIAL,
     LS_OBJECT,
@@ -19,6 +20,7 @@ import {
     OBJ_FREE,
     OBJ_MINVENT,
     ONAME_LEVEL_DEF,
+    ROLLING_BOULDER_TRAP,
     ROOM,
     ROOMOFFSET,
     STRAT_WAITFORU,
@@ -49,6 +51,7 @@ import {
     ARMOR_CLASS,
     APPLE,
     ARROW,
+    BOULDER,
     BOW,
     CORPSE,
     DAGGER,
@@ -298,6 +301,96 @@ test('Trap room shuffles before sampling and invokes callbacks y-major', () => {
         [ARROW_TRAP, MKTRAP_MAZEFLAG, 4, 3],
         [ARROW_TRAP, MKTRAP_MAZEFLAG, 2, 4],
     ]);
+});
+
+test('Boulder room samples x-major and invokes mixed callbacks y-major', () => {
+    const { level, room } = threeByTwoRoom();
+    // The first six draws retain <2,3>, <3,4>, and <4,3> in x-major order.
+    // The final three then choose object, trap, object in y-major order.
+    const draws = [0, 99, 99, 0, 0, 99, 0, 99, 0];
+    const bounds = [];
+    const events = [];
+    const random = randomWithRn2((bound) => {
+        bounds.push(bound);
+        assert.equal(bound, 100);
+        return draws.shift();
+    });
+
+    run_themeroom_fill(fillById('boulder_room'), room, 4, {
+        state: { level },
+        random,
+        hooks: {
+            createObject(specification) {
+                events.push(['object', specification]);
+                return {};
+            },
+            createTrap(type, flags, x, y) {
+                events.push(['trap', { type, flags, x, y }]);
+                return {};
+            },
+        },
+    });
+
+    assert.deepEqual(bounds, Array(9).fill(100));
+    assert.deepEqual(draws, []);
+    assert.deepEqual(events, [
+        ['object', { id: BOULDER, coordinate: { x: 0, y: 0 } }],
+        ['trap', {
+            type: ROLLING_BOULDER_TRAP,
+            flags: MKTRAP_MAZEFLAG,
+            x: 4,
+            y: 3,
+        }],
+        ['object', { id: BOULDER, coordinate: { x: 1, y: 1 } }],
+    ]);
+});
+
+test('Boulder traps preserve create_trap room relocation', () => {
+    const { level, room } = threeByTwoRoom();
+    const percentageDraws = [0, 99, 99, 99, 99, 99];
+    const oneBasedCalls = [];
+    const traps = [];
+    let coreCalls = 0;
+    const random = {
+        d: () => assert.fail('unexpected d'),
+        rn1(bound, base) {
+            oneBasedCalls.push([bound, base]);
+            return base + bound - 1;
+        },
+        rn2(bound) {
+            assert.equal(bound, 100);
+            ++coreCalls;
+            if (coreCalls <= 6) return percentageDraws.shift();
+            // The selection snapshot already contains <2,3>. Changing it to
+            // corridor terrain now exercises create_trap's relocation path.
+            level.at(2, 3).typ = CORR;
+            return 99;
+        },
+        rnd: () => assert.fail('unexpected rnd'),
+        rne: () => assert.fail('unexpected rne'),
+        rnz: () => assert.fail('unexpected rnz'),
+    };
+
+    run_themeroom_fill(fillById('boulder_room'), room, 4, {
+        state: { level },
+        random,
+        hooks: {
+            createTrap(type, flags, x, y) {
+                traps.push([type, flags, x, y]);
+                return {};
+            },
+        },
+    });
+
+    assert.equal(coreCalls, 7);
+    assert.deepEqual(percentageDraws, []);
+    assert.deepEqual(oneBasedCalls, [[3, 2], [2, 3]]);
+    assert.deepEqual(traps, [[
+        ROLLING_BOULDER_TRAP,
+        MKTRAP_MAZEFLAG,
+        4,
+        4,
+    ]]);
 });
 
 test('Massacre preserves the source species table order', () => {

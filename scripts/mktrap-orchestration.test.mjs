@@ -9,9 +9,11 @@ import {
     FOUNTAIN,
     HATCH_EGG,
     MAGIC_TRAP,
+    MKTRAP_MAZEFLAG,
     MKTRAP_NOVICTIM,
     OBJ_FLOOR,
     ROCKTRAP,
+    ROLLING_BOULDER_TRAP,
     ROOM,
     TAINT_AGE,
     TIMER_OBJECT,
@@ -44,6 +46,7 @@ import {
 import {
     ARROW,
     BAG_OF_HOLDING,
+    BOULDER,
     CORPSE,
     EGG,
     ROCK,
@@ -140,6 +143,90 @@ test('mktrap retries an occupied room coordinate without consuming RNG', () => {
     assert.deepEqual([trap.tx, trap.ty, trap.ttyp], [11, 5, ARROW_TRAP]);
     assert.deepEqual(state.level.traps, [trap]);
     assert.deepEqual(floorPile(state, 11, 5), []);
+});
+
+test('rolling-boulder traps create symmetric source launch geometry', () => {
+    const state = generationState();
+    state.u.uz.dlevel = 4;
+    state.dungeons[0].dunlev_ureached = 4;
+    for (let x = 6; x <= 14; ++x)
+        state.level.at(x, 5).typ = ROOM;
+    const calls = [];
+    const random = {
+        rn1(bound, base) {
+            calls.push(['rn1', bound, base]);
+            return 4;
+        },
+        rn2(bound) {
+            calls.push(['rn2', bound]);
+            return 4; // east in the source direction arrays
+        },
+        rnd(bound) {
+            calls.push(['rnd', bound]);
+            return 1;
+        },
+        rne: () => assert.fail('unexpected rne'),
+    };
+
+    const trap = mktrap(
+        ROLLING_BOULDER_TRAP,
+        MKTRAP_MAZEFLAG,
+        null,
+        { x: 10, y: 5 },
+        { state, random, hooks: objectGenerationHooks() },
+    );
+
+    assert.deepEqual(calls, [
+        ['rn1', 5, 4],
+        ['rn2', 8],
+        ['rnd', 2],
+        ['rnd', 4],
+    ]);
+    assert.deepEqual(trap.launch, { x: 14, y: 5 });
+    assert.deepEqual(trap.launch2, { x: 6, y: 5 });
+    const launchPile = floorPile(state, 14, 5);
+    assert.equal(launchPile.length, 1);
+    assert.equal(launchPile[0].otyp, BOULDER);
+    assert.deepEqual([launchPile[0].quan, launchPile[0].where], [1, OBJ_FLOOR]);
+});
+
+test('blocked rolling-boulder traps keep an ammo-free local launch', () => {
+    const state = generationState();
+    state.u.uz.dlevel = 4;
+    state.dungeons[0].dunlev_ureached = 4;
+    const calls = [];
+    const random = {
+        rn1(bound, base) {
+            calls.push(['rn1', bound, base]);
+            return 4;
+        },
+        rn2(bound) {
+            calls.push(['rn2', bound]);
+            return 0;
+        },
+        rnd(bound) {
+            calls.push(['rnd', bound]);
+            return 1;
+        },
+        rne: () => assert.fail('unexpected rne'),
+    };
+
+    const trap = mktrap(
+        ROLLING_BOULDER_TRAP,
+        MKTRAP_MAZEFLAG,
+        null,
+        { x: 10, y: 5 },
+        { state, random, hooks: objectGenerationHooks() },
+    );
+
+    assert.deepEqual(calls, [
+        ['rn1', 5, 4],
+        ['rn2', 8],
+        ['rnd', 4],
+    ]);
+    assert.deepEqual(trap.launch, { x: 10, y: 5 });
+    assert.deepEqual(trap.launch2, { x: 10, y: 5 });
+    assert.deepEqual(floorPile(state, 10, 5), []);
 });
 
 test('every eligible dungeon-level-one trap receives a prior victim', () => {
