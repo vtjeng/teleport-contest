@@ -50,6 +50,7 @@ import {
     APPLE,
     ARROW,
     BOW,
+    CORPSE,
     DAGGER,
     ELVEN_BROADSWORD,
     ORCISH_HELM,
@@ -60,10 +61,34 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
+    PM_ABBOT,
+    PM_ACOLYTE,
+    PM_ALIGNED_CLERIC,
+    PM_APPRENTICE,
     PM_ARCHEOLOGIST,
+    PM_ATTENDANT,
+    PM_BARBARIAN,
+    PM_CAVE_DWELLER,
+    PM_CHIEFTAIN,
     PM_GOBLIN,
     PM_GHOST,
+    PM_HEALER,
+    PM_HUNTER,
+    PM_KNIGHT,
+    PM_MONK,
+    PM_NEANDERTHAL,
+    PM_NINJA,
+    PM_PAGE,
     PM_PONY,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_SAMURAI,
+    PM_STUDENT,
+    PM_THUG,
+    PM_TOURIST,
+    PM_VALKYRIE,
+    PM_WARRIOR,
+    PM_WIZARD,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -273,6 +298,158 @@ test('Trap room shuffles before sampling and invokes callbacks y-major', () => {
         [ARROW_TRAP, MKTRAP_MAZEFLAG, 4, 3],
         [ARROW_TRAP, MKTRAP_MAZEFLAG, 2, 4],
     ]);
+});
+
+test('Massacre preserves the source species table order', () => {
+    const sourceSpecies = [
+        PM_APPRENTICE,
+        PM_WARRIOR,
+        PM_NINJA,
+        PM_THUG,
+        PM_HUNTER,
+        PM_ACOLYTE,
+        PM_ABBOT,
+        PM_PAGE,
+        PM_ATTENDANT,
+        PM_NEANDERTHAL,
+        PM_CHIEFTAIN,
+        PM_STUDENT,
+        PM_WIZARD,
+        PM_VALKYRIE,
+        PM_TOURIST,
+        PM_SAMURAI,
+        PM_ROGUE,
+        PM_RANGER,
+        PM_ALIGNED_CLERIC, // source "priestess": first matching pmname
+        PM_ALIGNED_CLERIC, // source "priest": first matching pmname
+        PM_MONK,
+        PM_KNIGHT,
+        PM_HEALER,
+        PM_CAVE_DWELLER, // source "cavewoman"
+        PM_CAVE_DWELLER, // source "caveman"
+        PM_BARBARIAN,
+        PM_ARCHEOLOGIST,
+    ];
+    const { level, room } = twoByTwoRoom();
+
+    for (const [tableIndex, species] of sourceSpecies.entries()) {
+        const random = scriptedRandom([
+            // Lua math.random(#mon) becomes zero-based rn2(27).
+            step('rn2', [sourceSpecies.length], tableIndex),
+            // Five minimum-valued dice keep each table-index case compact.
+            ...Array.from(
+                { length: 5 },
+                () => step('rn2', [5], 0),
+            ),
+            ...Array.from(
+                { length: 5 },
+                () => step('rn2', [100], 99), // miss each 10% reselection
+            ),
+        ]);
+        const requests = [];
+        run_themeroom_fill(fillById('massacre'), room, 1, {
+            state: { level },
+            random: random.random,
+            hooks: {
+                createObject(specification) {
+                    requests.push(specification);
+                    return {};
+                },
+            },
+        });
+
+        random.assertExhausted();
+        assert.deepEqual(
+            requests,
+            Array.from(
+                { length: 5 },
+                () => ({ id: CORPSE, corpsenm: species }),
+            ),
+            `source table index ${tableIndex + 1}`,
+        );
+    }
+});
+
+test('Massacre reselects before creating a corpse and retains that species', () => {
+    const { level, room } = twoByTwoRoom();
+    const random = scriptedRandom([
+        step('rn2', [27], 0), // initial apprentice selection
+        // nhlib d(5,5) is five independent math.random(1,5) calls.
+        ...Array.from({ length: 5 }, () => step('rn2', [5], 0)),
+        step('rn2', [100], 10), // threshold is strict: retain apprentice
+        step('rn2', [100], 9), // pass the 10% reselection gate
+        step('rn2', [27], 1), // switch to warrior before corpse two
+        step('rn2', [100], 99), // retain warrior for corpse three
+        step('rn2', [100], 0), // pass the reselection gate again
+        step('rn2', [27], 18), // priestess finds aligned cleric first
+        step('rn2', [100], 99), // retain aligned cleric for corpse five
+    ]);
+    const requests = [];
+
+    run_themeroom_fill(fillById('massacre'), room, 1, {
+        state: { level },
+        random: random.random,
+        hooks: {
+            createObject(specification) {
+                requests.push(specification);
+                return {};
+            },
+        },
+    });
+
+    random.assertExhausted();
+    assert.deepEqual(
+        requests.map((specification) => specification.corpsenm),
+        [
+            PM_APPRENTICE,
+            PM_WARRIOR,
+            PM_WARRIOR,
+            PM_ALIGNED_CLERIC,
+            PM_ALIGNED_CLERIC,
+        ],
+    );
+});
+
+test('Massacre default path creates exact floor corpses', () => {
+    const { level, room } = twoByTwoRoom();
+    const state = {
+        ...rawMonsterGenerationState(),
+        context: { ident: 2 },
+        flags: { initalign: 0 },
+        in_mklev: true,
+        level,
+        moves: 7,
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+    };
+    objects_globals_init(state);
+    init_artifacts(state);
+    monst_globals_init(state);
+    reset_mvitals(state);
+    timeout_globals_init(state);
+    const random = quietObjectRandom();
+    const quietRn2 = random.rn2;
+    // Five minimum-valued dice exercise real object construction without
+    // making the fixture depend on all twenty-five possible corpse objects.
+    random.rn2 = (bound) => bound === 5 ? 0 : quietRn2(bound);
+
+    run_themeroom_fill(fillById('massacre'), room, 1, { state, random });
+
+    // All five random coordinates land at the upper-left square. Exact
+    // same-age corpses merge there, preserving their aggregate quantity.
+    const corpse = level.objlist;
+    assert.equal(corpse.nobj, null);
+    assert.deepEqual(
+        [
+            corpse.otyp,
+            corpse.corpsenm,
+            corpse.spe,
+            corpse.quan,
+            corpse.where,
+            corpse.ox,
+            corpse.oy,
+        ],
+        [CORPSE, PM_ARCHEOLOGIST, 0, 5, OBJ_FLOOR, room.lx, room.ly],
+    );
 });
 
 test('Ice room default path changes terrain and queues packed level timers', () => {

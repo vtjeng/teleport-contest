@@ -39,13 +39,41 @@ import {
     ARMOR_CLASS,
     ARROW,
     BOW,
+    CORPSE,
     DAGGER,
     OIL_LAMP,
     RING_CLASS,
     SCROLL_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { PM_GHOST } from './monsters.js';
+import {
+    PM_ABBOT,
+    PM_ACOLYTE,
+    PM_ALIGNED_CLERIC,
+    PM_APPRENTICE,
+    PM_ARCHEOLOGIST,
+    PM_ATTENDANT,
+    PM_BARBARIAN,
+    PM_CAVE_DWELLER,
+    PM_CHIEFTAIN,
+    PM_GHOST,
+    PM_HEALER,
+    PM_HUNTER,
+    PM_KNIGHT,
+    PM_MONK,
+    PM_NEANDERTHAL,
+    PM_NINJA,
+    PM_PAGE,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_SAMURAI,
+    PM_STUDENT,
+    PM_THUG,
+    PM_TOURIST,
+    PM_VALKYRIE,
+    PM_WARRIOR,
+    PM_WIZARD,
+} from './monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     get_free_room_loc,
@@ -341,6 +369,58 @@ function fillTrapRoom(room, _difficulty, env) {
     });
 }
 
+// dat/themerms.lua "Massacre". Keep the Lua table order explicit: the
+// gendered priest and cave-dweller names intentionally resolve to duplicate
+// species entries through sp_lev.c:lspo_object()'s first-name match.
+const MASSACRE_SPECIES = Object.freeze([
+    PM_APPRENTICE,
+    PM_WARRIOR,
+    PM_NINJA,
+    PM_THUG,
+    PM_HUNTER,
+    PM_ACOLYTE,
+    PM_ABBOT,
+    PM_PAGE,
+    PM_ATTENDANT,
+    PM_NEANDERTHAL,
+    PM_CHIEFTAIN,
+    PM_STUDENT,
+    PM_WIZARD,
+    PM_VALKYRIE,
+    PM_TOURIST,
+    PM_SAMURAI,
+    PM_ROGUE,
+    PM_RANGER,
+    PM_ALIGNED_CLERIC, // priestess: first matching pmname
+    PM_ALIGNED_CLERIC, // priest: first matching pmname
+    PM_MONK,
+    PM_KNIGHT,
+    PM_HEALER,
+    PM_CAVE_DWELLER, // cavewoman
+    PM_CAVE_DWELLER, // caveman
+    PM_BARBARIAN,
+    PM_ARCHEOLOGIST,
+]);
+
+function fillMassacre(room, _difficulty, env) {
+    let species = MASSACRE_SPECIES[
+        env.random.rn2(MASSACRE_SPECIES.length)
+    ];
+    // nhlib.lua d(5,5) calls math.random(1,5) once per die. Spell those draws
+    // out so an injected core stream observes the same five calls.
+    let corpseCount = 0;
+    for (let die = 0; die < 5; ++die)
+        corpseCount += 1 + env.random.rn2(5);
+    for (let index = 0; index < corpseCount; ++index) {
+        if (env.random.rn2(100) < 10) {
+            species = MASSACRE_SPECIES[
+                env.random.rn2(MASSACRE_SPECIES.length)
+            ];
+        }
+        createObject({ id: CORPSE, corpsenm: species }, room, env);
+    }
+}
+
 // dat/themerms.lua "Light source".
 function fillLightSource(room, _difficulty, env) {
     createObject({ id: OIL_LAMP, lit: true }, room, env);
@@ -398,6 +478,7 @@ const FILL_HANDLERS = Object.freeze({
     ghost_of_an_adventurer: fillGhostOfAnAdventurer,
     ice_room: fillIceRoom,
     light_source: fillLightSource,
+    massacre: fillMassacre,
     spider_nest: fillSpiderNest,
     temple_of_the_gods: fillTempleOfTheGods,
     trap_room: fillTrapRoom,
