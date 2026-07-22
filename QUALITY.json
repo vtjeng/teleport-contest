@@ -397,6 +397,20 @@
       "outcome": "changed",
       "evidence": "Full correctness audit of exact world range 634ddf65b6f585185bd741e4830c015b02e6ade6..1a8adff62f1c769c665e5dc5f46350dffecd9a1f. Mandatory behavior, readability-risk, test-quality, and variable-trace finders ran; optional performance and concurrency finders were disabled. Counts: 9 raw, 8 deduplicated, 7 confirmed, 7 applied in 086963f72cbcb156f23e9e08bf59761c91108796, 0 deferred, 1 rejected, and 0 unverified. The audit found no production divergence. Applied work documents and tests local room success versus aggregate nested failure, ordered door-slice shifts, living-statue unicorn retry and cap behavior, long-worm truncation and slot exhaustion, batch dmonsfree cleanup, successful south and west door branches, and chameleon rejection filters and twenty-attempt exhaustion. Duplicate deferred-door documentation was rejected because existing comments and tests already state the contract. Warnings: repository privacy enforcement prevented the required fresh top-level process, retained subagent threads were reused, and the isolated source submodule was unpopulated; upstream checks used the primary checkout at gitlink 16ff59115315917b93185d026aeefea06db9b0f4. Separate clarity audit over the revised-cadence range 0a3e69db2e26ad59ff5f70c929ee579e4267dc46..086963f72cbcb156f23e9e08bf59761c91108796 produced 32 raw, 29 deduplicated, 17 confirmed, 17 applied through 7e362bf and 9ba635d, 12 rejected, and 0 unverified. Clarity fixes cover source bounds and invariants, exact helper names, test-literal rationale, build_room and polymorph target contracts, threshold synchronization, the PM_TENGU display sentinel, ledger chronology, the false long-worm region comment, and the missing score row. Notable clarity rejections retained ROADMAP unchanged until milestone closure and avoided comments or renames where code, source terminology, or existing documentation already made the contract explicit. Clarity shared the retained-thread and unpopulated-submodule warnings. Validation: seven affected suites, all 892 tests, git diff checks, and the themed-room generated-data check passed; development remains 178 matched screens; fresh Fake Delphi seeds 250 and 713 matched 6331 and 2699 PRNG calls and Statuary seed 820037 matched 2677, with complete screen, attribute, and cursor parity. No holdout evaluation or access occurred. The later simplification, regression, and clarity code commits remain review debt after this audited frontier; tracker-only commits do not.",
       "recordedAt": "2026-07-22T11:08:55.618Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world": "1a8adff62f1c769c665e5dc5f46350dffecd9a1f"
+      },
+      "head": "44c4f69aed40dc3644b809c52d7bd9c32a667a2d",
+      "areas": [
+        "world"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full correctness audit of 1a8adff62f1c769c665e5dc5f46350dffecd9a1f..fd46453664e4ba4cc0073f9575e4783ca9cb8fd5; final reconciled frontier 44c4f69aed40dc3644b809c52d7bd9c32a667a2d. Mandatory correctness, readability, tests, and variable-trace finders ran; performance and concurrency disabled. 9 raw, 7 deduplicated, 7 confirmed, 7 applied; 0 deferrals, 0 unverified, 0 rejected. Applied waiting-vampire base-form reversion and six regression-strengthening fixes. Two post-fix readers found one overly broad helper API; narrowed in 44c4f69, then both readers rechecked that delta with 0 findings. Warning: fresh top-level Codex process was blocked by private-repository disclosure policy, so no external session ID or usage summary exists; safer fresh-context in-session subagents preserved the finder/adjudication workflow. Prior seed 941182 evidence was discarded as misattributed because it did not generate Mausoleum. Validation: 903/903 tests, themed-room data check, fresh seeds 4481 at 2825 calls and 7414 at 2642 calls exact for PRNG/screens/cursors, development 178 matched screens. No holdout run or access.",
+      "recordedAt": "2026-07-22T12:50:10.697Z"
     }
   ]
 }
