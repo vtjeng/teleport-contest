@@ -215,8 +215,10 @@ test('unearth_objs restores every target object and stops organic rot', () => {
     const elsewhere = objectInstance(FOOD_RATION, state, { ox: 20, oy: 9 });
     const chest = objectInstance(CHEST, state, { ox: x, oy: y });
     const apple = objectInstance(APPLE, state, { ox: x, oy: y });
-    add_to_buried(elsewhere, { state });
+    // Prepending in this order yields target -> foreign -> target, proving a
+    // nonmatching middle object does not terminate the source chain scan.
     add_to_buried(chest, { state });
+    add_to_buried(elsewhere, { state });
     add_to_buried(apple, { state });
     start_timer(300, TIMER_OBJECT, ROT_ORGANIC, chest, state);
     const events = [];
@@ -241,6 +243,31 @@ test('unearth_objs restores every target object and stops organic rot', () => {
     assert.equal(chest.timed, 0);
     assert.equal(peek_timer(ROT_ORGANIC, chest, state), 0);
     assert.deepEqual(events, [[x, y]]);
+});
+
+test('unearth_objs preserves non-organic object timers', () => {
+    const state = burialState(40);
+    const x = 15;
+    const y = 8;
+    const corpse = objectInstance(CORPSE, state, {
+        ox: x,
+        oy: y,
+        // A troll corpse can carry the revival action being preserved.
+        corpsenm: PM_TROLL,
+    });
+    add_to_buried(corpse, { state });
+    // A 75-turn delay is arbitrary but keeps the absolute deadline distinct
+    // from both the current move and the organic timer used above.
+    start_timer(75, TIMER_OBJECT, REVIVE_MON, corpse, state);
+
+    unearth_objs(x, y, { state });
+
+    assert.equal(corpse.where, OBJ_FLOOR);
+    assert.equal(state.level.objects[x][y], corpse);
+    assert.equal(state.level.objlist, corpse);
+    assert.equal(corpse.timed, 1);
+    assert.equal(peek_timer(ROT_ORGANIC, corpse, state), 0);
+    assert.equal(peek_timer(REVIVE_MON, corpse, state), 115);
 });
 
 test('bury_an_obj applies the source off-ice corpse timer adjustment', () => {

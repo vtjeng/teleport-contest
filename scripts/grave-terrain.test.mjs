@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     AIR,
+    DB_EAST,
     DB_ICE,
     DRAWBRIDGE_UP,
     DUST,
@@ -14,6 +15,8 @@ import {
     MAX_TYPE,
     MELT_ICE_AWAY,
     OBJ_BURIED,
+    OBJ_FREE,
+    REVIVE_MON,
     ROT_CORPSE,
     ROOM,
     SDOOR,
@@ -26,7 +29,8 @@ import {
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { make_grave } from '../js/grave.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object, remove_object } from '../js/obj.js';
+import { PM_TROLL } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import {
     count_level_features,
@@ -177,6 +181,79 @@ test('set_levltyp applies live floor, buried, and melt-timer ice effects', () =>
         assert.equal(peek_timer(ROT_CORPSE, corpse, state), 140);
     }
     assert.equal(peek_timer(MELT_ICE_AWAY, meltCoordinate, state), 0);
+});
+
+test('remove_object applies the off-ice adjustment after unlinking', () => {
+    const state = makeState();
+    // At move 100, a 40-turn rot timer and age 80 make both the doubled
+    // on-ice values and their exact inverse visible.
+    state.moves = 100;
+    timeout_globals_init(state);
+    const x = 31;
+    const y = 12;
+    state.level.at(x, y).typ = ICE;
+    const corpse = newObject({ otyp: CORPSE, age: 80 });
+    start_timer(40, TIMER_OBJECT, ROT_CORPSE, corpse, state);
+    place_object(corpse, x, y, { state });
+    assert.equal(corpse.on_ice, true);
+    assert.equal(corpse.age, 60);
+    assert.equal(peek_timer(ROT_CORPSE, corpse, state), 180);
+
+    remove_object(corpse, { state });
+
+    assert.equal(corpse.where, OBJ_FREE);
+    assert.equal(corpse.on_ice, false);
+    assert.equal(corpse.age, 80);
+    assert.equal(peek_timer(ROT_CORPSE, corpse, state), 140);
+    assert.equal(state.level.objects[x][y], null);
+    assert.equal(state.level.objlist, null);
+    assert.equal(corpse.nexthere, null);
+    assert.equal(corpse.nobj, null);
+});
+
+test('place_object doubles a revival timer when a corpse enters ice', () => {
+    const state = makeState();
+    // A troll makes REVIVE_MON source-valid; the same move, age, and delay as
+    // the rot case isolate the fallback action without changing arithmetic.
+    state.moves = 100;
+    timeout_globals_init(state);
+    const x = 32;
+    const y = 12;
+    state.level.at(x, y).typ = ICE;
+    const corpse = newObject({
+        otyp: CORPSE,
+        corpsenm: PM_TROLL,
+        age: 80,
+    });
+    start_timer(40, TIMER_OBJECT, REVIVE_MON, corpse, state);
+
+    place_object(corpse, x, y, { state });
+
+    assert.equal(corpse.on_ice, true);
+    assert.equal(corpse.age, 60);
+    assert.equal(corpse.timed, 1);
+    assert.equal(peek_timer(ROT_CORPSE, corpse, state), 0);
+    assert.equal(peek_timer(REVIVE_MON, corpse, state), 180);
+});
+
+test('place_object recognizes ice under a raised drawbridge', () => {
+    const state = makeState();
+    // DB_EAST proves the under-terrain mask is isolated from direction bits.
+    state.moves = 100;
+    timeout_globals_init(state);
+    const x = 33;
+    const y = 12;
+    const location = state.level.at(x, y);
+    location.typ = DRAWBRIDGE_UP;
+    location.flags = DB_ICE | DB_EAST;
+    const corpse = newObject({ otyp: CORPSE, age: 80 });
+    start_timer(40, TIMER_OBJECT, ROT_CORPSE, corpse, state);
+
+    place_object(corpse, x, y, { state });
+
+    assert.equal(corpse.on_ice, true);
+    assert.equal(corpse.age, 60);
+    assert.equal(peek_timer(ROT_CORPSE, corpse, state), 180);
 });
 
 test('make_grave rejects non-floor terrain and an existing trap', () => {

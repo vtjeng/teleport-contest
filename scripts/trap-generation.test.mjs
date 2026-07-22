@@ -282,6 +282,15 @@ test('maketrap preflights seams before changing an existing trap', () => {
 
     state.level.buriedobjlist = null;
     const location = state.level.at(10, 5);
+    location.typ = ICE;
+    location.flags = 0;
+    assert.throws(
+        () => maketrap(10, 5, PIT, { state, objIceEffects: false }),
+        /obj_ice_effects when removing ice/,
+    );
+    assert.deepEqual(existing, original);
+    assert.deepEqual([location.typ, location.flags], [ICE, 0]);
+
     location.typ = DRAWBRIDGE_UP;
     location.flags = DB_ICE;
     assert.throws(

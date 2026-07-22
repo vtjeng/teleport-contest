@@ -301,7 +301,6 @@ function buriedObjectAt(x, y, state) {
 }
 
 function preflightPitTerrain(x, y, env) {
-    const location = env.state.level.at(x, y);
     if (buriedObjectAt(x, y, env.state)
         && typeof capability(env, 'unearthObjects') !== 'function') {
         throw new Error('maketrap requires the buried-object subsystem');
@@ -309,12 +308,12 @@ function preflightPitTerrain(x, y, env) {
     if (is_ice(x, y, env.state)) {
         if (typeof capability(env, 'objIceEffects') !== 'function') {
             throw new Error(
-                'maketrap requires obj_ice_effects for drawbridge ice',
+                'maketrap requires obj_ice_effects when removing ice',
             );
         }
         if (typeof capability(env, 'spotStopTimers') !== 'function') {
             throw new Error(
-                'maketrap requires spot_stop_timers for drawbridge ice',
+                'maketrap requires spot_stop_timers when removing ice',
             );
         }
     }
