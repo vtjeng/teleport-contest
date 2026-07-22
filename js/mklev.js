@@ -1102,6 +1102,26 @@ export class UnsupportedThemeroomActionError extends Error {
     }
 }
 
+function themeroom_random_facade(context, operation, streams) {
+    const facade = context.randomFacade;
+    for (const method of THEMEROOM_RANDOM_METHODS) {
+        if (typeof facade?.[method] !== 'function') {
+            throw new UnsupportedThemeroomActionError(
+                context.definition,
+                `requires randomFacade.${method} for ${operation}`,
+            );
+        }
+    }
+    if (facade.rn2 !== context.random
+        || facade.rnd !== context.randomOneBased) {
+        throw new UnsupportedThemeroomActionError(
+            context.definition,
+            `requires randomFacade.rn2/rnd to match the ${streams} RNG streams`,
+        );
+    }
+    return facade;
+}
+
 function preflight_themeroom_fill(definition, context) {
     if (typeof context.themeroomFill !== 'function') {
         throw new UnsupportedThemeroomActionError(
@@ -1115,22 +1135,11 @@ function preflight_themeroom_fill(definition, context) {
             'requires an integer difficulty for its themeroom-fill callback',
         );
     }
-    const facade = context.randomFacade;
-    for (const method of THEMEROOM_RANDOM_METHODS) {
-        if (typeof facade?.[method] !== 'function') {
-            throw new UnsupportedThemeroomActionError(
-                definition,
-                `requires randomFacade.${method} for its themeroom-fill callback`,
-            );
-        }
-    }
-    if (facade.rn2 !== context.random
-        || facade.rnd !== context.randomOneBased) {
-        throw new UnsupportedThemeroomActionError(
-            definition,
-            'requires randomFacade.rn2/rnd to match the map RNG streams',
-        );
-    }
+    themeroom_random_facade(
+        context,
+        'its themeroom-fill callback',
+        'map',
+    );
     return true;
 }
 
@@ -1472,22 +1481,11 @@ function pillars(context) {
 }
 
 function direct_creation_environment(context) {
-    const facade = context.randomFacade;
-    for (const method of THEMEROOM_RANDOM_METHODS) {
-        if (typeof facade?.[method] !== 'function') {
-            throw new UnsupportedThemeroomActionError(
-                context.definition,
-                `requires randomFacade.${method} for special-level creation`,
-            );
-        }
-    }
-    if (facade.rn2 !== context.random
-        || facade.rnd !== context.randomOneBased) {
-        throw new UnsupportedThemeroomActionError(
-            context.definition,
-            'requires randomFacade.rn2/rnd to match the room RNG streams',
-        );
-    }
+    const facade = themeroom_random_facade(
+        context,
+        'special-level creation',
+        'room',
+    );
     return {
         state: game,
         random: facade,
@@ -1855,7 +1853,11 @@ function water_surrounded_vault_contents(
 
 function dispatch_map_action(definition, context) {
     const contents = definition.action.contents;
-    if (!has_supported_map_action(definition)) {
+    const supported = contents?.kind === 'filler-region'
+        || (contents?.kind === 'handler'
+            && (contents.handler === 'blocked-center'
+                || contents.handler === 'water-surrounded-vault'));
+    if (!supported) {
         const handler = contents?.handler ?? contents?.kind ?? 'missing contents';
         throw new UnsupportedThemeroomActionError(
             definition,
@@ -1881,14 +1883,6 @@ function dispatch_map_action(definition, context) {
     if (contents.kind === 'handler')
         return blocked_center_contents(definition, origin, context);
     return filler_region(contents.filler, origin, definition, context);
-}
-
-function has_supported_map_action(definition) {
-    const contents = definition?.action?.contents;
-    return contents?.kind === 'filler-region'
-        || (contents?.kind === 'handler'
-            && (contents.handler === 'blocked-center'
-                || contents.handler === 'water-surrounded-vault'));
 }
 
 // Runtime counterpart to a selected themerms.lua contents function. Keep this

@@ -347,7 +347,6 @@ function tutorialCommandKey(command, model) {
 
 function tutorialKeys(des, state) {
     let controlKey = null;
-    let altKey = null;
     const commandBindings = des.eckey
         ? null : createCommandBindingModel(state);
 
@@ -360,10 +359,7 @@ function tutorialKeys(des, state) {
             return `Ctrl-${match[1]}`;
         }
         match = source.match(/^M-([A-Z])$/u);
-        if (match) {
-            altKey = match[1];
-            return `Alt-${match[1]}`;
-        }
+        if (match) return `Alt-${match[1]}`;
         return source;
     }
 
@@ -379,8 +375,6 @@ function tutorialKeys(des, state) {
         controlKey = null;
     }
 
-    // tut_alt_key is assigned by tut_key() but never read by tut-1.lua.
-    void altKey;
     return { key, help };
 }
 

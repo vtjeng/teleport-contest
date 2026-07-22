@@ -4,6 +4,7 @@
 // selected by that initial-generation callback; other shop types fail closed.
 
 import {
+    ARMORSHOP,
     CORR,
     DOOR,
     DUST,
@@ -17,6 +18,8 @@ import {
     ROOM,
     ROOMOFFSET,
     SDOOR,
+    SHOPBASE,
+    WEAPONSHOP,
 } from './const.js';
 import { depth, ledger_no } from './dungeon.js';
 import { make_engr_at } from './engrave.js';
@@ -25,7 +28,6 @@ import { distmin } from './hacklib.js';
 import {
     makemon,
     mkmonmoney,
-    mongets,
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
@@ -70,7 +72,7 @@ const GENERAL_NAMES = Object.freeze([
 
 // Indexes are rtype - SHOPBASE, matching shtypes[] in shknam.c.
 const TWIN_SHOPS = new Map([
-    [1, Object.freeze({
+    [ARMORSHOP - SHOPBASE, Object.freeze({
         name: 'used armor dealership',
         iprobs: Object.freeze([
             Object.freeze({ probability: 90, type: ARMOR_CLASS }),
@@ -78,7 +80,7 @@ const TWIN_SHOPS = new Map([
         ]),
         names: ARMOR_NAMES,
     })],
-    [4, Object.freeze({
+    [WEAPONSHOP - SHOPBASE, Object.freeze({
         name: 'antique weapons outlet',
         iprobs: Object.freeze([
             Object.freeze({ probability: 90, type: WEAPON_CLASS }),
