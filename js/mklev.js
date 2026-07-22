@@ -103,7 +103,7 @@ import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
     HWALL, VWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
-    D_NODOOR, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED,
+    D_NODOOR, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED, D_TRAPPED, D_SECRET,
     OROOM, THEMEROOM, COURT, SWAMP, VAULT, BEEHIVE, MORGUE,
     BARRACKS, ZOO, TEMPLE, LEPREHALL, COCKNEST, ANTHOLE, SHOPBASE,
     ROOMOFFSET, MAXNROFROOMS, MAX_SUBROOMS, SHARED,
@@ -112,7 +112,9 @@ import {
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
     IS_LAVA,
-    SPACE_POS, isok, W_NONDIGGABLE, FILL_NONE, FILL_NORMAL,
+    SPACE_POS, isok, W_NONDIGGABLE,
+    W_RANDOM, W_NORTH, W_SOUTH, W_EAST, W_WEST, W_ANY,
+    FILL_NONE, FILL_NORMAL,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL,
     DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
@@ -1684,8 +1686,14 @@ function add_door(x, y, aroom) {
     aroom.doorct++;
     for (let tmp = g.level.doorindex; tmp > aroom.fdoor; tmp--)
         g.level.doors[tmp] = g.level.doors[tmp - 1];
-    for (const broom of g.level.rooms || []) {
-        if (!broom || broom.hx <= 0 || broom === aroom || !(broom.doorct > 0)) continue;
+    for (let i = 0; i < g.level.nroom; ++i) {
+        const broom = g.level.rooms[i];
+        if (!broom || broom === aroom || !(broom.doorct > 0)) continue;
+        if ((broom.fdoor ?? 0) >= aroom.fdoor) broom.fdoor++;
+    }
+    for (let i = 0; i < (g.nsubroom ?? 0); ++i) {
+        const broom = g.subrooms?.[i];
+        if (!broom || broom === aroom || !(broom.doorct > 0)) continue;
         if ((broom.fdoor ?? 0) >= aroom.fdoor) broom.fdoor++;
     }
     g.level.doors[aroom.fdoor] = { x, y };
@@ -1714,6 +1722,178 @@ function okdoor(x, y) {
         || (isok(x, y - 1) && !IS_OBSTRUCTED(map.at(x, y - 1).typ))
         || (isok(x, y + 1) && !IS_OBSTRUCTED(map.at(x, y + 1).typ))
     );
+}
+
+const ROOM_DOOR_STATE_MASKS = Object.freeze({
+    random: -1,
+    open: D_ISOPEN,
+    closed: D_CLOSED,
+    locked: D_LOCKED,
+    nodoor: D_NODOOR,
+    broken: D_BROKEN,
+    secret: D_SECRET,
+});
+
+const ROOM_DOOR_WALL_MASKS = Object.freeze({
+    all: W_ANY,
+    random: W_ANY,
+    north: W_NORTH,
+    south: W_SOUTH,
+    east: W_EAST,
+    west: W_WEST,
+});
+
+function rnddoor(random) {
+    // C ref: sp_lev.c rnddoor(). ROLL_FROM chooses among these five states.
+    return [D_NODOOR, D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED][random(5)];
+}
+
+// C ref: sp_lev.c create_door(). The descriptor is deliberately mutable:
+// source resolves its random fields in place before attempting placement.
+export function create_door(dd, broom, random = rn2) {
+    if (dd.secret === -1) dd.secret = random(2);
+    if (dd.wall === W_RANDOM) dd.wall = W_ANY;
+
+    if (dd.mask === -1) {
+        if (!dd.secret) {
+            if (!random(3)) {
+                if (!random(5)) dd.mask = D_ISOPEN;
+                else if (!random(6)) dd.mask = D_LOCKED;
+                else dd.mask = D_CLOSED;
+                if (dd.mask !== D_ISOPEN && !random(25))
+                    dd.mask |= D_TRAPPED;
+            } else {
+                dd.mask = D_NODOOR;
+            }
+        } else {
+            if (!random(5)) dd.mask = D_LOCKED;
+            else dd.mask = D_CLOSED;
+            if (!random(20)) dd.mask |= D_TRAPPED;
+        }
+    }
+
+    let x = 0;
+    let y = 0;
+    let found = false;
+    for (let trycnt = 0; trycnt < 100; ++trycnt) {
+        const dwall = dd.wall;
+        const dpos = dd.pos;
+        switch (random(4)) {
+        case 0:
+            if (!(dwall & W_NORTH)) continue;
+            y = broom.ly - 1;
+            x = broom.lx + (dpos === -1
+                ? random(1 + broom.hx - broom.lx) : dpos);
+            if (!isok(x, y - 1)
+                || IS_OBSTRUCTED(game.level.at(x, y - 1).typ)) continue;
+            break;
+        case 1:
+            if (!(dwall & W_SOUTH)) continue;
+            y = broom.hy + 1;
+            x = broom.lx + (dpos === -1
+                ? random(1 + broom.hx - broom.lx) : dpos);
+            if (!isok(x, y + 1)
+                || IS_OBSTRUCTED(game.level.at(x, y + 1).typ)) continue;
+            break;
+        case 2:
+            if (!(dwall & W_WEST)) continue;
+            x = broom.lx - 1;
+            y = broom.ly + (dpos === -1
+                ? random(1 + broom.hy - broom.ly) : dpos);
+            if (!isok(x - 1, y)
+                || IS_OBSTRUCTED(game.level.at(x - 1, y).typ)) continue;
+            break;
+        case 3:
+            if (!(dwall & W_EAST)) continue;
+            x = broom.hx + 1;
+            y = broom.ly + (dpos === -1
+                ? random(1 + broom.hy - broom.ly) : dpos);
+            if (!isok(x + 1, y)
+                || IS_OBSTRUCTED(game.level.at(x + 1, y).typ)) continue;
+            break;
+        }
+        if (okdoor(x, y)) {
+            found = true;
+            break;
+        }
+    }
+    if (!found) return false;
+    if (!set_levltyp(x, y, dd.secret ? SDOOR : DOOR, { state: game }))
+        return false;
+
+    // struct rm.flags is a five-bit field. In particular, the parser's
+    // D_SECRET pseudo-mask is truncated when it is assigned to an SDOOR.
+    const mask = dd.mask & 0x1f;
+    const loc = game.level.at(x, y);
+    loc.flags = mask;
+    loc.doormask = mask;
+    return true;
+}
+
+// C ref: sp_lev.c lspo_door(), restricted to its room-wall form. Lua's
+// random state resolution consumes rnddoor() before create_door() rolls the
+// actual state; that first result only determines that the door isn't secret.
+export function create_room_door(spec, broom, random = rn2) {
+    const stateName = spec.state ?? 'random';
+    const wallName = spec.wall ?? 'all';
+    if (!Object.hasOwn(ROOM_DOOR_STATE_MASKS, stateName))
+        throw new RangeError(`unsupported room door state ${JSON.stringify(stateName)}`);
+    if (!Object.hasOwn(ROOM_DOOR_WALL_MASKS, wallName))
+        throw new RangeError(`unsupported room door wall ${JSON.stringify(wallName)}`);
+
+    const mask = ROOM_DOOR_STATE_MASKS[stateName];
+    const typ = mask === -1 ? rnddoor(random) : mask;
+    return create_door({
+        secret: typ === D_SECRET ? 1 : 0,
+        mask,
+        pos: spec.pos ?? -1,
+        wall: ROOM_DOOR_WALL_MASKS[wallName],
+    }, broom, random);
+}
+
+// C ref: sp_lev.c shared_with_room()/maybe_add_door().
+function shared_with_room(x, y, droom) {
+    const map = game.level;
+    const loc = map.at(x, y);
+    const rmno = (droom.roomnoidx ?? -1) + ROOMOFFSET;
+    if (!loc || rmno < ROOMOFFSET) return false;
+    if (loc.roomno === rmno && !loc.edge) return false;
+    if (isok(x - 1, y) && map.at(x - 1, y).roomno === rmno
+        && x - 1 <= droom.hx) return true;
+    if (isok(x + 1, y) && map.at(x + 1, y).roomno === rmno
+        && x + 1 >= droom.lx) return true;
+    if (isok(x, y - 1) && map.at(x, y - 1).roomno === rmno
+        && y - 1 <= droom.hy) return true;
+    if (isok(x, y + 1) && map.at(x, y + 1).roomno === rmno
+        && y + 1 >= droom.ly) return true;
+    return false;
+}
+
+function maybe_add_door(x, y, droom) {
+    const loc = game.level.at(x, y);
+    const rmno = (droom.roomnoidx ?? -1) + ROOMOFFSET;
+    if (droom.hx >= 0 && loc
+        && ((!droom.irregular && inside_room(droom, x, y))
+            || loc.roomno === rmno
+            || shared_with_room(x, y, droom))) {
+        add_door(x, y, droom);
+    }
+}
+
+// C ref: sp_lev.c add_doors_to_room(). lspo_room() calls this after a room's
+// contents callback, then recurses through any already-completed subrooms.
+export function add_doors_to_room(croom) {
+    for (let x = croom.lx - 1; x <= croom.hx + 1; ++x) {
+        for (let y = croom.ly - 1; y <= croom.hy + 1; ++y) {
+            const typ = game.level.at(x, y)?.typ;
+            if (IS_DOOR(typ) || typ === SDOOR)
+                maybe_add_door(x, y, croom);
+        }
+    }
+    const subrooms = croom.sbrooms ?? [];
+    const count = croom.nsubrooms ?? subrooms.length;
+    for (let i = 0; i < count; ++i)
+        add_doors_to_room(subrooms[i]);
 }
 
 // C ref: mklev.c join()

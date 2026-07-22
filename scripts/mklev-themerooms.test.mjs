@@ -3,16 +3,19 @@ import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
-    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL,
-    ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
+    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, D_LOCKED, D_TRAPPED,
+    FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
-    THEMEROOM, TLCORNER, VWALL,
+    SDOOR, THEMEROOM, TLCORNER, VWALL, W_ANY, W_RANDOM,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
+    add_doors_to_room,
     build_room,
+    create_door,
+    create_room_door,
     dispatch_themeroom,
     initialize_themeroom_branch,
     lspo_map,
@@ -48,6 +51,51 @@ function resetThemeroomLevel() {
     game.u = { uz: { dnum: 0, dlevel: 1 } };
     game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     init_rect();
+}
+
+function buildDoorTestRooms() {
+    const parentPlacement = [3, 2, 3, 1];
+    const parent = build_room({
+        x: -1,
+        y: -1,
+        w: 11,
+        h: 9,
+        rtype: OROOM,
+        chance: 100,
+        rlit: 0,
+        needfill: FILL_NORMAL,
+        joined: true,
+    }, null, (bound) => {
+        assert.equal(bound, 100); // the room descriptor's chance check
+        return 0;
+    }, (bound) => {
+        // Sector (3,2), then center/top alignment, places an 11x9 parent at
+        // (35,5)..(45,13) with ample stone outside its four walls.
+        const value = parentPlacement.shift();
+        assert.ok(value != null, `unexpected parent rnd(${bound})`);
+        return value;
+    });
+    assert.equal(parentPlacement.length, 0);
+
+    const child = build_room({
+        // These source-relative coordinates put a 3x3 room wholly inside the
+        // parent, leaving ordinary parent floor beyond every child wall.
+        x: 4,
+        y: 3,
+        w: 3,
+        h: 3,
+        rtype: OROOM,
+        chance: 100,
+        rlit: 0,
+        needfill: FILL_NORMAL,
+        joined: false,
+    }, parent, (bound) => {
+        assert.equal(bound, 100); // the nested descriptor's chance check
+        return 0;
+    }, (bound) => assert.fail(`unexpected child rnd(${bound})`));
+    // lspo_room() marks a parent irregular immediately after adding a child.
+    parent.irregular = true;
+    return { parent, child };
 }
 
 function initializeNewGame(seed) {
@@ -788,6 +836,151 @@ test('build_room creates and indexes random nested subrooms', () => {
         game.level.at(child.lx, child.ly).roomno,
         child.roomnoidx + ROOMOFFSET,
     );
+});
+
+test('random room doors preserve source draws, state, and nested registration', () => {
+    resetThemeroomLevel();
+    const { parent, child } = buildDoorTestRooms();
+    const events = [];
+    const draws = [
+        [5, 4], // lspo_door's discarded rnddoor state
+        [3, 0], // create an actual door instead of an empty doorway
+        [5, 1], // skip open
+        [6, 0], // choose locked
+        [25, 0], // trap the non-open door
+        [4, 0], // north wall
+        [3, 1], // center of the three-cell wall
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        const next = draws.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+
+    assert.equal(create_room_door(
+        { state: 'random', wall: 'all' },
+        child,
+        random,
+    ), true);
+    assert.equal(draws.length, 0);
+    assert.deepEqual(events, [
+        'rn2(5)', 'rn2(3)', 'rn2(5)', 'rn2(6)', 'rn2(25)',
+        'rn2(4)', 'rn2(3)',
+    ]);
+
+    const door = { x: child.lx + 1, y: child.ly - 1 };
+    const loc = game.level.at(door.x, door.y);
+    assert.equal(loc.typ, DOOR);
+    assert.equal(loc.horizontal, true);
+    assert.equal(loc.flags, D_LOCKED | D_TRAPPED);
+    assert.equal(loc.doormask, D_LOCKED | D_TRAPPED);
+
+    // A nested lspo_room() registers its doors when its callback closes. The
+    // outer close then registers the shared physical door for the parent too,
+    // while recursive child registration recognizes its existing entry.
+    add_doors_to_room(child);
+    add_doors_to_room(parent);
+    assert.deepEqual(game.level.doors, [door, door]);
+    assert.deepEqual(
+        [child.fdoor, child.doorct, parent.fdoor, parent.doorct],
+        [0, 1, 1, 1],
+    );
+    assert.equal(game.level.doorindex, 2);
+});
+
+test('explicit secret room doors retry walls and truncate the parser-only bit', () => {
+    resetThemeroomLevel();
+    const { child } = buildDoorTestRooms();
+    const draws = [
+        [4, 0], // north is excluded by wall="east"
+        [4, 3], // retry on the east wall
+    ];
+    const events = [];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        const next = draws.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+
+    assert.equal(create_room_door(
+        { state: 'secret', wall: 'east', pos: 1 },
+        child,
+        random,
+    ), true);
+    assert.equal(draws.length, 0);
+    assert.deepEqual(events, ['rn2(4)', 'rn2(4)']);
+
+    const loc = game.level.at(child.hx + 1, child.ly + 1);
+    assert.equal(loc.typ, SDOOR);
+    assert.equal(loc.horizontal, false);
+    // D_SECRET is 0x20, outside struct rm.flags' five bits. A room-wall secret
+    // door therefore stores zero and becomes closed when eventually revealed.
+    assert.equal(loc.flags, 0);
+    assert.equal(loc.doormask, 0);
+});
+
+test('create_door resolves random secret descriptors in place', () => {
+    resetThemeroomLevel();
+    const { child } = buildDoorTestRooms();
+    const descriptor = {
+        secret: -1,
+        mask: -1,
+        pos: 1,
+        wall: W_RANDOM,
+    };
+    const draws = [
+        [2, 1], // secret door
+        [5, 0], // locked secret door
+        [20, 1], // not trapped
+        [4, 3], // east wall
+    ];
+    const events = [];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        const next = draws.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+
+    assert.equal(create_door(descriptor, child, random), true);
+    assert.equal(draws.length, 0);
+    assert.deepEqual(events, ['rn2(2)', 'rn2(5)', 'rn2(20)', 'rn2(4)']);
+    assert.deepEqual(descriptor, {
+        secret: 1,
+        mask: D_LOCKED,
+        pos: 1,
+        wall: W_ANY,
+    });
+    const loc = game.level.at(child.hx + 1, child.ly + 1);
+    assert.equal(loc.typ, SDOOR);
+    assert.equal(loc.flags, D_LOCKED);
+    assert.equal(loc.doormask, D_LOCKED);
+});
+
+test('create_room_door stops after one hundred rejected wall attempts', () => {
+    resetThemeroomLevel();
+    const { child } = buildDoorTestRooms();
+    let calls = 0;
+    const target = game.level.at(child.lx, child.ly - 1);
+    const originalType = target.typ;
+
+    assert.equal(create_room_door(
+        { state: 'open', wall: 'north', pos: 0 },
+        child,
+        (bound) => {
+            assert.equal(bound, 4);
+            ++calls;
+            return 1; // repeatedly choose the excluded south wall
+        },
+    ), false);
+    assert.equal(calls, 100);
+    assert.equal(target.typ, originalType);
+    assert.equal(game.level.doorindex, 0);
 });
 
 test('strict dispatch rejects alternate state before draws or mutation', () => {
