@@ -3,6 +3,7 @@
 // src/sp_lev.c special-level terrain and trap creation.
 
 import {
+    AIR,
     ALTAR,
     AM_CHAOTIC,
     AM_LAWFUL,
@@ -10,25 +11,39 @@ import {
     ANTI_MAGIC,
     ARROW_TRAP,
     BEAR_TRAP,
+    BURN,
+    COLNO,
     DART_TRAP,
     DRY,
+    FOUNTAIN,
     ICE,
+    IS_FURNITURE,
+    IS_STWALL,
+    LADDER,
     LANDMINE,
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
+    MKTRAP_SEEN,
     ROCKTRAP,
     ROLLING_BOULDER_TRAP,
+    ROOM,
+    ROWNO,
     RUST_TRAP,
+    SDOOR,
     SLP_GAS_TRAP,
     SP_COORD_IS_RANDOM,
+    STAIRS,
     STRAT_WAITFORU,
+    TELEP_TRAP,
     TIMER_LEVEL,
     TIMER_OBJECT,
     ROT_CORPSE,
+    TREE,
     WEB,
     ZOMBIFY_MON,
 } from './const.js';
+import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { induced_align } from './dungeon.js';
 import {
@@ -44,6 +59,7 @@ import {
     ARROW,
     BOULDER,
     BOW,
+    CHEST,
     CORPSE,
     DAGGER,
     OIL_LAMP,
@@ -86,6 +102,7 @@ import {
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
+    PM_WOOD_NYMPH,
 } from './monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
@@ -99,6 +116,7 @@ import {
 import { set_levltyp } from './terrain.js';
 import {
     selection_iterate,
+    selection_negate,
     selection_room,
     select_themeroom_fill,
 } from './themerooms.js';
@@ -110,6 +128,12 @@ import {
 } from './timeout.js';
 
 const DEFAULT_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
+const WHOLE_LEVEL_FRAME = Object.freeze({
+    xstart: 1,
+    ystart: 0,
+    xsize: COLNO - 1,
+    ysize: ROWNO,
+});
 
 export class UnsupportedThemeroomFillError extends Error {
     constructor(fill) {
@@ -141,6 +165,28 @@ function fillEnvironment(rawEnv = {}) {
 
 function roomSelection(room, env) {
     return selection_room(room, (x, y) => env.state.level?.at(x, y));
+}
+
+function branchPostprocessQueue(state) {
+    const dnum = state.u?.uz?.dnum ?? 0;
+    state.themeroom_postprocess ??= {};
+    state.themeroom_postprocess[dnum] ??= [];
+    const queue = state.themeroom_postprocess[dnum];
+    if (!Array.isArray(queue)) {
+        throw new TypeError('themed-room postprocess queue must be an array');
+    }
+    return { dnum, queue, queues: state.themeroom_postprocess };
+}
+
+// dat/themerms.lua keeps one postprocess table in each branch's persistent Lua
+// state.  initialize_themeroom_branch() calls this only when that state is
+// first loaded; fills also initialize lazily for focused callers.
+export function initialize_themeroom_postprocess_branch(state = game) {
+    return branchPostprocessQueue(state).queue;
+}
+
+function enqueuePostprocess(handler, data, env) {
+    branchPostprocessQueue(env.state).queue.push({ handler, data });
 }
 
 // nhlib.lua shuffle(): Lua's math.random(i) is one-based, but its result is
@@ -267,6 +313,83 @@ function createObject(specification, room, env) {
     return lspo_object(specification, room, env);
 }
 
+// sp_lev.c lspo_feature("fountain") uses sel_set_feature(), not mkfount() or
+// set_levltyp().  It therefore neither blesses nor recounts the fountain and
+// refuses a single randomly selected furniture square without retrying.
+function createFeature(typ, room, env) {
+    const replacement = env.hooks.createFeature;
+    if (replacement) return replacement(typ, room, env);
+    const coordinate = randomRoomCoordinate(room, env);
+    const location = env.state.level?.at(coordinate.x, coordinate.y);
+    if (!location || IS_FURNITURE(location.typ)) return null;
+    location.typ = typ;
+    return location;
+}
+
+function packedMapCoordinate(coordinate) {
+    if (coordinate.x === -1 && coordinate.y === -1)
+        return SP_COORD_IS_RANDOM;
+    return (coordinate.x & 0xff) | ((coordinate.y & 0xff) << 16);
+}
+
+function getGlobalCoordinate(coordinate, env) {
+    const absolute = { x: -1, y: -1 };
+    get_location_coord(
+        absolute,
+        DRY,
+        null,
+        packedMapCoordinate(coordinate),
+        { ...env, frame: WHOLE_LEVEL_FRAME },
+    );
+    return absolute;
+}
+
+function createPostprocessEngraving(coordinate, text, env) {
+    const replacement = env.hooks.createEngraving;
+    if (replacement) return replacement(coordinate, text, env);
+    const absolute = getGlobalCoordinate(coordinate, env);
+    return make_engr_at(
+        absolute.x,
+        absolute.y,
+        text,
+        null,
+        0,
+        BURN,
+        env,
+    );
+}
+
+// sp_lev.c create_trap() retries a special-level coordinate while it resolves
+// to stairs or a ladder.  Fixed coordinates repeat without RNG and are
+// abandoned after the source's 101st check.
+function createPostprocessTrap(specification, env) {
+    const state = env.state;
+    state.launchplace ??= {};
+    state.launchplace.x = specification.teledest.x;
+    state.launchplace.y = specification.teledest.y;
+    try {
+        let tryCount = 0;
+        let absolute;
+        do {
+            absolute = getGlobalCoordinate(specification.coordinate, env);
+        } while ((state.level.at(absolute.x, absolute.y)?.typ === STAIRS
+            || state.level.at(absolute.x, absolute.y)?.typ === LADDER)
+            && ++tryCount <= 100);
+        if (tryCount > 100) return null;
+        return createTrap(
+            TELEP_TRAP,
+            MKTRAP_MAZEFLAG | MKTRAP_SEEN,
+            absolute.x,
+            absolute.y,
+            env,
+        );
+    } finally {
+        // lspo_trap() clears only the coordinate fields after create_trap().
+        state.launchplace.x = 0;
+        state.launchplace.y = 0;
+    }
+}
+
 function createMonsterBody(specification, room, env) {
     const replacement = env.hooks.createMonster;
     // This hook replaces create_monster()'s monster construction and
@@ -353,6 +476,93 @@ export function create_monster(specification, room, rawEnv = {}) {
         context.inventCarryingMonster = null;
     }
     return monster;
+}
+
+function replaceSelectedTerrain(selection, predicate, toTerrain, env) {
+    selection_iterate(selection, (x, y) => {
+        const location = env.state.level?.at(x, y);
+        if (!location || !predicate(location.typ)) return;
+        // lspo_replace_terrain() performs this check even at chance=100.
+        if (env.random.rn2(100) < 100)
+            setTerrain(x, y, toTerrain, env);
+    });
+}
+
+// dat/themerms.lua make_garden_walls().
+function makeGardenWalls(data, env) {
+    const grown = data.selection.grow();
+    replaceSelectedTerrain(grown, IS_STWALL, TREE, env);
+    replaceSelectedTerrain(grown, (typ) => typ === SDOOR, AIR, env);
+}
+
+// dat/themerms.lua make_dig_engraving(). selection:rndcoord() returns a
+// coordinate relative to reset_xystart_size()'s whole-level frame.
+function makeDigEngraving(data, env) {
+    const floors = selection_negate().filter_mapchar(
+        ROOM,
+        (x, y) => env.state.level?.at(x, y),
+    );
+    const position = floors.rndcoord(
+        false,
+        env.random.rn2,
+        { x: WHOLE_LEVEL_FRAME.xstart, y: WHOLE_LEVEL_FRAME.ystart },
+    );
+    const dx = data.x - position.x - 1;
+    const dy = data.y - position.y;
+    let direction = '';
+    if (dx === 0 && dy === 0) {
+        direction = ' here';
+    } else {
+        if (dx !== 0)
+            direction = ` ${Math.abs(dx)} ${dx > 0 ? 'east' : 'west'}`;
+        if (dy !== 0) {
+            direction += ` ${Math.abs(dy)} ${dy > 0 ? 'south' : 'north'}`;
+        }
+    }
+    createPostprocessEngraving(position, `Dig${direction}`, env);
+}
+
+// dat/themerms.lua make_a_trap(), for the Teleportation hub's only request.
+function makeTeleportationHubTrap(data, env) {
+    const floors = selection_negate().filter_mapchar(
+        ROOM,
+        (x, y) => env.state.level?.at(x, y),
+    );
+    let destination;
+    do {
+        destination = floors.rndcoord(
+            true,
+            env.random.rn2,
+            { x: WHOLE_LEVEL_FRAME.xstart, y: WHOLE_LEVEL_FRAME.ystart },
+        );
+    } while (destination.x === data.coordinate.x
+        || destination.y === data.coordinate.y);
+    data.teledest = destination;
+    createPostprocessTrap(data, env);
+}
+
+// dat/themerms.lua post_level_generate(). The index loop deliberately observes
+// work appended while a handler runs, just like ipairs() on the live table.
+// The branch receives a fresh table only after every handler succeeds.
+export function run_themeroom_postprocess(rawEnv = {}) {
+    const env = fillEnvironment(rawEnv);
+    const { dnum, queue, queues } = branchPostprocessQueue(env.state);
+    env.state.xstart = WHOLE_LEVEL_FRAME.xstart;
+    env.state.ystart = WHOLE_LEVEL_FRAME.ystart;
+    env.state.xsize = WHOLE_LEVEL_FRAME.xsize;
+    env.state.ysize = WHOLE_LEVEL_FRAME.ysize;
+    env.state.in_mk_themerooms = true;
+    let processed = 0;
+    try {
+        while (processed < queue.length) {
+            const entry = queue[processed++];
+            entry.handler(entry.data, env);
+        }
+    } finally {
+        env.state.in_mk_themerooms = false;
+    }
+    queues[dnum] = [];
+    return processed;
 }
 
 // dat/themerms.lua "Ice room".
@@ -454,6 +664,48 @@ function fillTrapRoom(room, _difficulty, env) {
     locations.iterate((x, y) => {
         createTrap(traps[0], MKTRAP_MAZEFLAG, x, y, env);
     });
+}
+
+// dat/themerms.lua "Garden". The room selection is sampled before the loop,
+// but the deferred wall snapshot is taken again after all immediate contents.
+function fillGarden(room, _difficulty, env) {
+    const selected = roomSelection(room, env);
+    const monsterCount = Math.trunc(selected.numpoints() / 6);
+    for (let index = 0; index < monsterCount; ++index) {
+        create_monster({ id: PM_WOOD_NYMPH, asleep: true }, room, env);
+        if (env.random.rn2(100) < 30)
+            createFeature(FOUNTAIN, room, env);
+    }
+    enqueuePostprocess(
+        makeGardenWalls,
+        { selection: roomSelection(room, env) },
+        env,
+    );
+}
+
+// dat/themerms.lua "Buried treasure". create_object() buries the chest while
+// its descriptor container frame is active, then lspo_object() invokes this
+// callback and only pops the frame after all random contents have been made.
+function fillBuriedTreasure(room, _difficulty, env) {
+    createObject({
+        id: CHEST,
+        buried: true,
+        contents(chest, callbackEnv) {
+            const activeEnv = fillEnvironment(callbackEnv ?? env);
+            if (chest && chest.NO_OBJ == null) {
+                enqueuePostprocess(
+                    makeDigEngraving,
+                    { x: chest.ox, y: chest.oy },
+                    activeEnv,
+                );
+            }
+            let objectCount = 0;
+            for (let die = 0; die < 3; ++die)
+                objectCount += 1 + activeEnv.random.rn2(4);
+            for (let index = 0; index < objectCount; ++index)
+                createObject({}, room, activeEnv);
+        },
+    }, room, env);
 }
 
 // dat/themerms.lua "Massacre". Keep the Lua table order explicit: the
@@ -561,14 +813,44 @@ function fillGhostOfAnAdventurer(room, _difficulty, env) {
     equipment({ class: SCROLL_CLASS }, 20);
 }
 
+// dat/themerms.lua "Teleportation hub". rndcoord() removes a point before the
+// source's relative-x check, so points in the room's leftmost column are lost
+// without queuing a trap. Queued coordinates use the later whole-level frame.
+function fillTeleportationHub(room, _difficulty, env) {
+    const locations = roomSelection(room, env).filter_mapchar(
+        ROOM,
+        (x, y) => env.state.level?.at(x, y),
+    );
+    const trapCount = 2 + env.random.rn2(3);
+    for (let index = 0; index < trapCount; ++index) {
+        const position = locations.rndcoord(
+            true,
+            env.random.rn2,
+            { x: room.lx, y: room.ly },
+        );
+        if (position.x <= 0) continue;
+        position.x += room.lx - 1;
+        position.y += room.ly;
+        enqueuePostprocess(makeTeleportationHubTrap, {
+            type: TELEP_TRAP,
+            seen: true,
+            coordinate: position,
+            teledest: 1,
+        }, env);
+    }
+}
+
 const FILL_HANDLERS = Object.freeze({
     boulder_room: fillBoulderRoom,
+    buried_treasure: fillBuriedTreasure,
     buried_zombies: fillBuriedZombies,
+    garden: fillGarden,
     ghost_of_an_adventurer: fillGhostOfAnAdventurer,
     ice_room: fillIceRoom,
     light_source: fillLightSource,
     massacre: fillMassacre,
     spider_nest: fillSpiderNest,
+    teleportation_hub: fillTeleportationHub,
     temple_of_the_gods: fillTempleOfTheGods,
     trap_room: fillTrapRoom,
 });

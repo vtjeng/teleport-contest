@@ -93,6 +93,8 @@ import {
 } from './room_coordinates.js';
 import { set_levltyp } from './terrain.js';
 import {
+    initialize_themeroom_postprocess_branch,
+    run_themeroom_postprocess,
     themeroom_fill,
     UnsupportedThemeroomFillError,
 } from './themeroom_fill.js';
@@ -462,6 +464,7 @@ export function initialize_themeroom_branch(state = game, random = rn2) {
         state.themeroom_align[dnum] = align;
         state._luathemes_loaded[dnum] = true;
     }
+    initialize_themeroom_postprocess_branch(state);
     return state.themeroom_align[dnum];
 }
 
@@ -979,7 +982,7 @@ export function dispatch_themeroom(
 
 // C ref: themerms.lua themerooms_generate(). Generic room descriptors use the
 // strict synchronous dispatcher and the complete source-order fill reservoir.
-// While seven fill bodies remain unported, the live default callback tolerates
+// While three fill bodies remain unported, the live default callback tolerates
 // only UnsupportedThemeroomFillError after selection; implemented fills and
 // explicitly injected callbacks retain strict behavior. Direct filler maps
 // omit their optional fill, and unported direct callbacks use the ordinary-room
@@ -2269,13 +2272,19 @@ function set_wall_state() { /* no-op for contest */ }
 function level_finalize_topology() {
     const dnum = game.u?.uz?.dnum ?? 0;
     if (game._luathemes_loaded?.[dnum]) {
-        // C ref: mklev.c themerooms_post_level_generate(). Static maps retain
-        // generic wall glyphs until every room and corridor has been placed.
+        // C ref: mklev.c themerooms_post_level_generate(). Deferred themed
+        // work runs after every room fill and before final wallification.
+        run_themeroom_postprocess();
         wallification(1, 0, COLNO - 1, ROWNO - 1);
     }
     bound_digging();
     mineralize(-1, -1, -1, -1, false, { state: game });
     game.in_mklev = false;
+    // mklev.c:level_finalize_topology() clears the Lua coordinate origin after
+    // post-level callbacks because xstart/ystart are not persisted with a
+    // level.  Later special-level operations must start from the zero frame.
+    game.xstart = 0;
+    game.ystart = 0;
     if (!game.level?.flags?.is_maze_lev) {
         const nroom = game.level?.nroom ?? 0;
         for (let i = 0; i < nroom; i++)

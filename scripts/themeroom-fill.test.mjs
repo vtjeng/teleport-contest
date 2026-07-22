@@ -2,13 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    AIR,
     ALTAR,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
     ARROW_TRAP,
+    BURN,
     BURN_OBJECT,
     CORR,
+    DOOR,
+    FOUNTAIN,
+    HWALL,
     ICE,
     I_SPECIAL,
     LS_OBJECT,
@@ -16,6 +21,7 @@ import {
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
     OBJ_BURIED,
+    OBJ_CONTAINED,
     OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_FREE,
@@ -25,12 +31,18 @@ import {
     ROT_CORPSE,
     ROOM,
     ROOMOFFSET,
+    SDOOR,
+    STAIRS,
+    STONE,
     STRAT_WAITFORU,
+    TELEP_TRAP,
     TIMER_LEVEL,
     TIMER_OBJECT,
     W_AMUL,
     W_ARMH,
     WEB,
+    TREE,
+    VWALL,
     ZOMBIFY_MON,
 } from '../js/const.js';
 import {
@@ -39,6 +51,7 @@ import {
     init_artifacts,
 } from '../js/artifacts.js';
 import { GameMap } from '../js/game.js';
+import { engr_at } from '../js/engrave.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
 import { newMonster } from '../js/monst.js';
@@ -46,7 +59,9 @@ import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
     create_monster,
+    initialize_themeroom_postprocess_branch,
     run_themeroom_fill,
+    run_themeroom_postprocess,
     themeroom_fill,
 } from '../js/themeroom_fill.js';
 import { THEMEROOM_FILL_DEFINITIONS } from '../js/themerooms.js';
@@ -57,6 +72,7 @@ import {
     ARROW,
     BOULDER,
     BOW,
+    CHEST,
     CORPSE,
     DAGGER,
     ELVEN_BROADSWORD,
@@ -104,6 +120,7 @@ import {
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
+    PM_WOOD_NYMPH,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -116,6 +133,7 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
+import { set_levltyp } from '../js/terrain.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
@@ -1602,6 +1620,420 @@ test('Ghost equipment descriptors clear generated blessing and wear state', () =
             scenario.name,
         );
     }
+});
+
+test('Garden creates one sleeping nymph per six points and an uncounted fountain', () => {
+    const { level, room } = threeByTwoRoom();
+    const state = {
+        level,
+        u: { uz: { dnum: 2, dlevel: 1 } },
+    };
+    const random = scriptedRandom([
+        step('rn2', [100], 0),
+        step('rn1', [3, 2], 2),
+        step('rn1', [2, 3], 3),
+    ]);
+    const monsters = [];
+
+    run_themeroom_fill(fillById('garden'), room, 1, {
+        state,
+        random: random.random,
+        hooks: {
+            createMonster(specification) {
+                monsters.push(specification);
+                return {};
+            },
+        },
+    });
+
+    random.assertExhausted();
+    assert.deepEqual(monsters, [{ id: PM_WOOD_NYMPH, asleep: true }]);
+    assert.equal(level.at(2, 3).typ, FOUNTAIN);
+    assert.equal(level.flags.nfountains, 0);
+    assert.equal(state.themeroom_postprocess[2].length, 1);
+
+    const sparse = threeByTwoRoom();
+    sparse.level.at(4, 4).edge = true;
+    const sparseState = {
+        level: sparse.level,
+        u: { uz: { dnum: 2, dlevel: 1 } },
+    };
+    run_themeroom_fill(fillById('garden'), sparse.room, 1, {
+        state: sparseState,
+        random: randomWithRn2(() => {
+            throw new Error('five room points must not consume RNG');
+        }),
+        hooks: {
+            createMonster() {
+                throw new Error('five room points must not create a nymph');
+            },
+        },
+    });
+    assert.equal(sparseState.themeroom_postprocess[2].length, 1);
+});
+
+test('Garden postprocessing grows its snapshot and preserves arboreal doors', () => {
+    const { level, room } = twoByTwoRoom();
+    for (let x = room.lx - 1; x <= room.hx + 1; ++x) {
+        for (let y = room.ly - 1; y <= room.hy + 1; ++y)
+            level.at(x, y).typ = DOOR;
+    }
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y)
+            level.at(x, y).typ = ROOM;
+    }
+    level.at(1, 2).typ = STONE;
+    level.at(2, 2).typ = HWALL;
+    level.at(4, 5).typ = VWALL;
+    level.at(1, 3).typ = SDOOR;
+
+    const state = {
+        level,
+        u: { uz: { dnum: 1, dlevel: 1 } },
+    };
+    run_themeroom_fill(fillById('garden'), room, 1, {
+        state,
+        random: randomWithRn2(() => {
+            throw new Error('four room points must not consume RNG');
+        }),
+    });
+    const queued = state.themeroom_postprocess[1];
+    const changes = [];
+    const bounds = [];
+    const processed = run_themeroom_postprocess({
+        state,
+        random: randomWithRn2((bound) => {
+            bounds.push(bound);
+            return 99;
+        }),
+        hooks: {
+            setTerrain(x, y, typ, env) {
+                changes.push([x, y, typ]);
+                return set_levltyp(x, y, typ, { state: env.state });
+            },
+        },
+    });
+
+    assert.equal(processed, 1);
+    assert.deepEqual(bounds, [100, 100, 100, 100]);
+    assert.deepEqual(changes, [
+        [1, 2, TREE],
+        [2, 2, TREE],
+        [4, 5, TREE],
+        [1, 3, AIR],
+    ]);
+    assert.equal(level.at(1, 2).typ, TREE);
+    assert.equal(level.at(2, 2).typ, TREE);
+    assert.equal(level.at(4, 5).typ, TREE);
+    assert.equal(level.at(1, 3).typ, SDOOR);
+    assert.equal(level.at(1, 3).candig, true);
+    assert.equal(level.at(4, 2).typ, DOOR);
+    assert.notEqual(state.themeroom_postprocess[1], queued);
+    assert.deepEqual(state.themeroom_postprocess[1], []);
+    assert.deepEqual(
+        [state.xstart, state.ystart, state.xsize, state.ysize],
+        [1, 0, 79, 21],
+    );
+    assert.equal(state.in_mk_themerooms, false);
+});
+
+test('Buried treasure queues a live chest before rolling each random child', () => {
+    for (const noObject of [false, true]) {
+        const { level, room } = twoByTwoRoom();
+        const state = {
+            level,
+            u: { uz: { dnum: 3, dlevel: 1 } },
+        };
+        const chest = noObject
+            ? { NO_OBJ: 1, ox: 20, oy: 7 }
+            : { ox: 20, oy: 7 };
+        const dice = [0, 1, 2];
+        const requests = [];
+        const random = randomWithRn2((bound) => {
+            assert.equal(bound, 4);
+            assert.equal(
+                state.themeroom_postprocess?.[3]?.length ?? 0,
+                noObject ? 0 : 1,
+            );
+            return dice.shift();
+        });
+
+        run_themeroom_fill(fillById('buried_treasure'), room, 1, {
+            state,
+            random,
+            hooks: {
+                createObject(specification, _objectRoom, callbackEnv) {
+                    requests.push(specification);
+                    if (specification.id === CHEST)
+                        specification.contents(chest, callbackEnv);
+                    return specification.id === CHEST ? chest : {};
+                },
+            },
+        });
+
+        assert.deepEqual(dice, []);
+        assert.equal(requests[0].id, CHEST);
+        assert.equal(requests[0].buried, true);
+        assert.equal(typeof requests[0].contents, 'function');
+        assert.equal(requests.length, 7);
+        assert.ok(requests.slice(1).every(
+            (specification) => Object.keys(specification).length === 0,
+        ));
+        assert.equal(
+            state.themeroom_postprocess?.[3]?.length ?? 0,
+            noObject ? 0 : 1,
+        );
+    }
+});
+
+test('Buried treasure postprocessing engraves the source-shaped directions', () => {
+    const { level, room } = twoByTwoRoom();
+    const state = {
+        in_mklev: true,
+        level,
+        u: { uz: { dnum: 0, dlevel: 1 } },
+    };
+    const random = scriptedRandom([
+        step('rn2', [4], 0),
+        step('rn2', [4], 0),
+        step('rn2', [4], 0),
+        // Whole-level x-major ROOM selection chooses absolute (3,4), which
+        // the Lua frame exposes as relative (2,4).
+        step('rn2', [4], 3),
+    ]);
+
+    run_themeroom_fill(fillById('buried_treasure'), room, 1, {
+        state,
+        random: random.random,
+        hooks: {
+            createObject(specification, _objectRoom, callbackEnv) {
+                if (specification.id === CHEST) {
+                    const chest = { ox: 3, oy: 3 };
+                    specification.contents(chest, callbackEnv);
+                    return chest;
+                }
+                return {};
+            },
+        },
+    });
+    assert.equal(state.themeroom_postprocess[0].length, 1);
+    assert.equal(run_themeroom_postprocess({
+        state,
+        random: random.random,
+    }), 1);
+    random.assertExhausted();
+
+    const engraving = engr_at(3, 4, state);
+    assert.equal(engraving.engr_txt[0], 'Dig 1 north');
+    assert.equal(engraving.engr_type, BURN);
+    assert.equal(engraving.engr_time, 0);
+    assert.equal(engraving.guardobjects, false);
+});
+
+test('Buried treasure owns a real buried container and its random contents', () => {
+    const { context, level, random, room, state } = monsterDescriptorFixture();
+    state.gz = { zombify: false };
+    init_objects(state, () => 0);
+    timeout_globals_init(state);
+    light_globals_init(state);
+
+    run_themeroom_fill(fillById('buried_treasure'), room, 1, {
+        state,
+        random,
+        spObjectContext: context,
+    });
+
+    const chest = level.buriedobjlist;
+    assert.equal(chest.otyp, CHEST);
+    assert.equal(chest.where, OBJ_BURIED);
+    assert.equal(level.objlist, null);
+    assert.equal(level.objects[chest.ox][chest.oy], null);
+    let childCount = 0;
+    for (let child = chest.cobj; child; child = child.nobj) {
+        ++childCount;
+        assert.equal(child.where, OBJ_CONTAINED);
+        assert.equal(child.ocontainer, chest);
+    }
+    assert.ok(childCount > 0);
+    assert.deepEqual(context.containers, []);
+    assert.equal(state.themeroom_postprocess[0].length, 1);
+});
+
+test('themed-room postprocessing is branch-local, live, and failure-atomic', () => {
+    const state = { u: { uz: { dnum: 2, dlevel: 1 } } };
+    const queue = initialize_themeroom_postprocess_branch(state);
+    const order = [];
+    queue.push({
+        handler() {
+            order.push('first');
+            queue.push({
+                handler() { order.push('appended'); },
+                data: null,
+            });
+        },
+        data: null,
+    });
+    queue.push({
+        handler() { order.push('second'); },
+        data: null,
+    });
+
+    assert.equal(run_themeroom_postprocess({
+        state,
+        random: quietObjectRandom(),
+    }), 3);
+    assert.deepEqual(order, ['first', 'second', 'appended']);
+    assert.notEqual(state.themeroom_postprocess[2], queue);
+    assert.deepEqual(state.themeroom_postprocess[2], []);
+
+    state.u.uz.dnum = 3;
+    const failingQueue = initialize_themeroom_postprocess_branch(state);
+    const marker = new Error('postprocess failed');
+    failingQueue.push({
+        handler() { throw marker; },
+        data: null,
+    });
+    assert.throws(
+        () => run_themeroom_postprocess({
+            state,
+            random: quietObjectRandom(),
+        }),
+        (error) => error === marker,
+    );
+    assert.equal(state.themeroom_postprocess[3], failingQueue);
+    assert.equal(failingQueue.length, 1);
+    assert.equal(state.in_mk_themerooms, false);
+    assert.deepEqual(state.themeroom_postprocess[2], []);
+});
+
+test('Teleportation hub preserves source removal, frames, and trap order', () => {
+    const { level, room } = threeByTwoRoom();
+    const marker = { kind: 'launch-object' };
+    const state = {
+        ...rawMonsterGenerationState(),
+        in_mklev: true,
+        launchplace: { x: 99, y: 99, obj: marker },
+        level,
+    };
+    const random = scriptedRandom([
+        step('rn2', [3], 2), // request four source points
+        step('rn2', [6], 0), // remove and discard left-column (2,3)
+        step('rn2', [5], 1), // queue source (3,3)
+        step('rn2', [4], 0), // remove and discard left-column (2,4)
+        step('rn2', [3], 2), // queue source (4,4)
+        // First destination rejects the same row, then the same column.
+        step('rn2', [6], 0),
+        step('rn2', [5], 2),
+        step('rn2', [4], 3),
+        step('rnd', [4], 4),
+        // Each queued trap starts from a fresh destination selection.
+        step('rn2', [6], 0),
+        step('rnd', [4], 4),
+    ]);
+
+    run_themeroom_fill(fillById('teleportation_hub'), room, 1, {
+        state,
+        random: random.random,
+    });
+    assert.deepEqual(
+        state.themeroom_postprocess[0].map((entry) => entry.data.coordinate),
+        [{ x: 2, y: 3 }, { x: 3, y: 4 }],
+    );
+    assert.equal(level.traps.length, 0);
+
+    assert.equal(run_themeroom_postprocess({
+        state,
+        random: random.random,
+    }), 2);
+    random.assertExhausted();
+    assert.deepEqual(
+        level.traps.map((trap) => ({
+            source: [trap.tx, trap.ty],
+            destination: [trap.teledest.x, trap.teledest.y],
+            type: trap.ttyp,
+            seen: trap.tseen,
+        })),
+        [
+            {
+                source: [4, 4],
+                destination: [2, 3],
+                type: TELEP_TRAP,
+                seen: true,
+            },
+            {
+                source: [3, 3],
+                destination: [4, 4],
+                type: TELEP_TRAP,
+                seen: true,
+            },
+        ],
+    );
+    assert.deepEqual(
+        [state.xstart, state.ystart, state.xsize, state.ysize],
+        [1, 0, 79, 21],
+    );
+    assert.deepEqual(state.launchplace, { x: 0, y: 0, obj: marker });
+});
+
+test('Teleportation hub retains an invalid column-zero destination', () => {
+    const { level, room } = twoByTwoRoom();
+    level.at(1, 0).typ = ROOM;
+    const state = {
+        ...rawMonsterGenerationState(),
+        in_mklev: true,
+        level,
+    };
+    const random = scriptedRandom([
+        step('rn2', [3], 0),
+        step('rn2', [4], 0), // discard source (2,3)
+        step('rn2', [3], 1), // queue source (3,3)
+        step('rn2', [5], 0), // destination relative (0,0)
+        step('rnd', [4], 4),
+    ]);
+
+    run_themeroom_fill(fillById('teleportation_hub'), room, 1, {
+        state,
+        random: random.random,
+    });
+    assert.equal(run_themeroom_postprocess({
+        state,
+        random: random.random,
+    }), 1);
+    random.assertExhausted();
+    assert.equal(level.traps.length, 1);
+    assert.deepEqual(level.traps[0].teledest, { x: 0, y: 0 });
+});
+
+test('Teleportation hub abandons a queued source that becomes stairs', () => {
+    const { level, room } = twoByTwoRoom();
+    const state = {
+        ...rawMonsterGenerationState(),
+        in_mklev: true,
+        level,
+    };
+    const random = scriptedRandom([
+        step('rn2', [3], 0),
+        step('rn2', [4], 0), // discard source (2,3)
+        step('rn2', [3], 1), // queue source (3,3)
+        step('rn2', [3], 0), // reject destination (2,4): same row
+        step('rn2', [2], 0), // accept destination (3,4)
+    ]);
+
+    run_themeroom_fill(fillById('teleportation_hub'), room, 1, {
+        state,
+        random: random.random,
+    });
+    level.at(3, 3).typ = STAIRS;
+    assert.equal(run_themeroom_postprocess({
+        state,
+        random: random.random,
+    }), 1);
+    random.assertExhausted();
+    assert.equal(level.traps.length, 0);
+    assert.deepEqual(
+        [state.launchplace.x, state.launchplace.y],
+        [0, 0],
+    );
 });
 
 test('unported fill handlers fail closed', () => {

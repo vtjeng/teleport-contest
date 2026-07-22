@@ -436,6 +436,7 @@ test('makerooms uses adjusted level difficulty for eligibility', async () => {
         1000, 1001, 1002, 1003, 1004, 1010, 1012, 1014,
         ...Array.from({ length: 23 }, (_, index) => 1015 + index),
     ]);
+    assert.deepEqual([game.xstart, game.ystart], [0, 0]);
 });
 
 test('generic room descriptors set topology and flags before synchronous contents', () => {
