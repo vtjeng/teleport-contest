@@ -847,6 +847,42 @@ function room_type_from_schema(type, definition) {
     );
 }
 
+// C ref: sp_lev.c lspo_room(). Keep the callback boundary in one place so
+// nested handlers share room failure propagation, parent irregularity, and
+// the post-callback door-table scan.
+function run_room_descriptor(spec, parent, context, contents = null) {
+    if (context.roomFailed) return null;
+    const room = build_room(
+        {
+            x: spec.x ?? -1,
+            y: spec.y ?? -1,
+            w: spec.w ?? -1,
+            h: spec.h ?? -1,
+            xalign: spec.xalign ?? -1,
+            yalign: spec.yalign ?? -1,
+            rtype: room_type_from_schema(
+                spec.type ?? 'ordinary',
+                context.definition,
+            ),
+            chance: spec.chance ?? 100,
+            rlit: spec.lit ?? -1,
+            needfill: spec.filled ?? FILL_NONE,
+            joined: spec.joined ?? true,
+        },
+        parent,
+        context.random,
+        context.randomOneBased,
+    );
+    if (!room) {
+        context.roomFailed = true;
+        return null;
+    }
+    if (parent) parent.irregular = true;
+    if (contents) contents(room);
+    add_doors_to_room(room);
+    return room;
+}
+
 // C refs: sp_lev.c build_room(), lspo_room(). Preserve the room construction
 // boundary: chance, create, topology, deferred-fill/join flags, then contents.
 function dispatch_room_action(definition, context) {
@@ -860,28 +896,62 @@ function dispatch_room_action(definition, context) {
     }
     if (action.contents) preflight_themeroom_fill(definition, context);
 
-    const declaredType = room_type_from_schema(spec.type, definition);
-    const room = build_room(
-        {
-            x: spec.x ?? -1,
-            y: spec.y ?? -1,
-            w: spec.w ?? -1,
-            h: spec.h ?? -1,
-            xalign: -1,
-            yalign: -1,
-            rtype: declaredType,
-            chance: spec.chance ?? 100,
-            rlit: spec.lit ?? -1,
-            needfill: spec.filled ?? FILL_NONE,
-            joined: spec.joined ?? true,
-        },
+    const room = run_room_descriptor(
+        spec,
         null,
-        context.random,
-        context.randomOneBased,
+        context,
+        action.contents
+            ? (created) => invoke_themeroom_fill(created, definition, context)
+            : null,
     );
     if (!room) return false;
-    if (action.contents) invoke_themeroom_fill(room, definition, context);
-    return true;
+    return !context.roomFailed;
+}
+
+// C ref: themerms.lua "Fake Delphi" callback.
+function fake_delphi(context) {
+    const room = run_room_descriptor(
+        { type: 'ordinary', w: 11, h: 9, filled: FILL_NORMAL },
+        null,
+        context,
+        (parent) => {
+            run_room_descriptor(
+                {
+                    type: 'ordinary',
+                    x: 4,
+                    y: 3,
+                    w: 3,
+                    h: 3,
+                    filled: FILL_NORMAL,
+                },
+                parent,
+                context,
+                (child) => {
+                    create_room_door(
+                        { state: 'random', wall: 'all' },
+                        child,
+                        context.random,
+                    );
+                },
+            );
+        },
+    );
+    return Boolean(room && !context.roomFailed);
+}
+
+const DIRECT_THEMEROOM_HANDLERS = new Map([
+    ['fake-delphi', fake_delphi],
+]);
+
+function dispatch_direct_action(definition, context) {
+    const handler = DIRECT_THEMEROOM_HANDLERS.get(definition.action.handler);
+    if (!handler) {
+        throw new UnsupportedThemeroomActionError(
+            definition,
+            `requires unimplemented direct handler ${JSON.stringify(definition.action.handler)}`,
+        );
+    }
+    return handler(context);
 }
 
 // C refs: dat/nhlib.lua shuffle(); sp_lev.c lspo_replace_terrain(). nhlib's
@@ -949,11 +1019,13 @@ export function dispatch_themeroom(
         ? SOURCE_THEMEROOM_RANDOM
         : null;
     const context = {
+        definition,
         difficulty: env.difficulty ?? level_difficulty(game),
         random,
         randomOneBased,
         randomFacade: env.randomFacade ?? sourceRandomFacade,
         themeroomFill: env.themeroomFill,
+        roomFailed: false,
     };
     switch (definition?.action?.kind) {
     case 'room':
@@ -961,10 +1033,7 @@ export function dispatch_themeroom(
     case 'map':
         return dispatch_map_action(definition, context);
     case 'handler':
-        throw new UnsupportedThemeroomActionError(
-            definition,
-            `requires unimplemented direct handler ${JSON.stringify(definition.action.handler)}`,
-        );
+        return dispatch_direct_action(definition, context);
     default:
         throw new UnsupportedThemeroomActionError(
             definition,
@@ -975,8 +1044,9 @@ export function dispatch_themeroom(
 
 // C ref: themerms.lua themerooms_generate(). Generic room descriptors use the
 // strict synchronous dispatcher and the complete source-order fill reservoir.
-// All generic fill bodies are live. Direct filler maps still omit their
-// optional fill, and unported direct callbacks use the ordinary-room fallback.
+// All generic fill bodies and registered direct handlers are live. Direct
+// filler maps still omit their optional fill, and unported direct callbacks
+// use the ordinary-room fallback.
 // dispatch_themeroom() remains the strict completion seam.
 export async function themerooms_generate(
     difficulty,
@@ -986,7 +1056,8 @@ export async function themerooms_generate(
 ) {
     const pick = select_themeroom(difficulty, random);
     if (!pick) return false;
-    if (pick.action?.kind === 'room') {
+    if (pick.action?.kind === 'room'
+        || DIRECT_THEMEROOM_HANDLERS.has(pick.action?.handler)) {
         const sourceRandomFacade = random === rn2 && randomOneBased === rnd
             ? SOURCE_THEMEROOM_RANDOM
             : null;

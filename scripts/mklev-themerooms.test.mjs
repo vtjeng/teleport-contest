@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
-    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, D_LOCKED, D_TRAPPED,
+    AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
     SDOOR, THEMEROOM, TLCORNER, VWALL, W_ANY, W_RANDOM,
@@ -838,6 +838,86 @@ test('build_room creates and indexes random nested subrooms', () => {
     );
 });
 
+test('live Fake Delphi builds and registers its nested room in source order', async () => {
+    resetThemeroomLevel();
+    const reservoirDrawCount = 30;
+    let reservoirCalls = 0;
+    const events = [];
+    const coreDraws = [
+        [100, 0], [77, 76], // outer room chance and lighting
+        [100, 0], [77, 76], // fixed child chance and lighting
+        [5, 4], // lspo_door's discarded random state
+        [3, 1], // choose an empty doorway
+        [4, 0], [3, 1], // north wall, centered position
+    ];
+    const oneBasedDraws = [
+        [2, 2], // outer lighting depth roll
+        [5, 3], [5, 2], // outer room sectors
+        [3, 3], [3, 1], // outer center/top alignment
+        [2, 2], // child lighting depth roll
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        if (reservoirCalls++ < reservoirDrawCount) {
+            // Fake Delphi is the second source entry, at cumulative weight
+            // 1001. Later entries retain it by returning their final slot.
+            return bound === 1001 ? 0 : bound - 1;
+        }
+        const next = coreDraws.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        const next = oneBasedDraws.shift();
+        assert.ok(next, `unexpected rnd(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+
+    assert.equal(await themerooms_generate(
+        1,
+        random,
+        randomOneBased,
+    ), true);
+    assert.equal(coreDraws.length, 0);
+    assert.equal(oneBasedDraws.length, 0);
+    assert.deepEqual(events.slice(reservoirDrawCount), [
+        'rn2(100)', 'rnd(2)', 'rn2(77)',
+        'rnd(5)', 'rnd(5)', 'rnd(3)', 'rnd(3)',
+        'rn2(100)', 'rnd(2)', 'rn2(77)',
+        'rn2(5)', 'rn2(3)', 'rn2(4)', 'rn2(3)',
+    ]);
+
+    assert.equal(game.level.nroom, 1);
+    assert.equal(game.nsubroom, 1);
+    const parent = game.level.rooms[0];
+    const child = game.subrooms[0];
+    assert.deepEqual(
+        [parent.lx, parent.ly, parent.hx, parent.hy],
+        [35, 5, 45, 13],
+    );
+    assert.deepEqual(
+        [child.lx, child.ly, child.hx, child.hy],
+        [39, 8, 41, 10],
+    );
+    assert.equal(parent.irregular, true);
+    assert.equal(parent.needfill, FILL_NORMAL);
+    assert.equal(child.needfill, FILL_NORMAL);
+    assert.equal(child.needjoining, true);
+
+    const door = { x: 40, y: 7 };
+    const loc = game.level.at(door.x, door.y);
+    assert.equal(loc.typ, DOOR);
+    assert.equal(loc.doormask, D_NODOOR);
+    assert.deepEqual(game.level.doors, [door, door]);
+    assert.deepEqual(
+        [child.fdoor, child.doorct, parent.fdoor, parent.doorct],
+        [0, 1, 1, 1],
+    );
+});
+
 test('random room doors preserve source draws, state, and nested registration', () => {
     resetThemeroomLevel();
     const { parent, child } = buildDoorTestRooms();
@@ -1293,7 +1373,7 @@ test('filler_region invokes an injected fill after registering room flags', () =
 });
 
 test('unimplemented direct and Water vault handlers fail before mutation', () => {
-    for (const id of ['fake-delphi', 'water-surrounded-vault']) {
+    for (const id of ['pillars', 'water-surrounded-vault']) {
         resetThemeroomLevel();
         let randomCalls = 0;
         assert.throws(
