@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
 
@@ -29,8 +29,7 @@ jobs:
 
       - name: Extract score summary
         run: |
-          # Parse results JSON and create a summary
-          node -e "
+          node <<'EOF'
             const fs = require('fs');
             const raw = fs.readFileSync('score-stdout.txt', 'utf8');
             const idx = raw.lastIndexOf('__RESULTS_JSON__');
@@ -39,16 +38,58 @@ jobs:
             const results = data.results || [];
             const passed = results.filter(r => r.passed).length;
             const total = results.length;
-            const rngPct = total > 0
-              ? (results.reduce((s, r) => s + (r.metrics?.rngCalls?.matched || 0), 0)
-                 / results.reduce((s, r) => s + (r.metrics?.rngCalls?.total || 1), 0) * 100).toFixed(1)
-              : '0.0';
-            console.log(JSON.stringify({ passed, total, rngPct, timestamp: data.timestamp }));
-            fs.writeFileSync('score-summary.json', JSON.stringify({ passed, total, rngPct, timestamp: data.timestamp, results: results.map(r => ({ session: r.session, passed: r.passed, rng: r.metrics?.rngCalls, screen: r.metrics?.screens, cursor: r.metrics?.cursor })) }, null, 2));
-          "
+            const sumMetric = key => results.reduce((sum, result) => ({
+              matched: sum.matched + (result.metrics?.[key]?.matched || 0),
+              total: sum.total + (result.metrics?.[key]?.total || 0),
+            }), { matched: 0, total: 0 });
+            const percentage = metric => metric.total
+              ? (100 * metric.matched / metric.total).toFixed(1) + '%'
+              : '0.0%';
+            const format = value => value.toLocaleString('en-US');
+            const rng = sumMetric('rngCalls');
+            const screens = sumMetric('screens');
+            const cursors = sumMetric('cursors');
+            const metricLine = (label, metric) =>
+              label + ': ' + format(metric.matched) + ' / ' + format(metric.total)
+                + ' (' + percentage(metric) + ')';
+            const display = [
+              'Sessions: ' + passed + ' / ' + total + ' passing',
+              metricLine('RNG', rng),
+              metricLine('Screens', screens),
+              metricLine('Cursors', cursors),
+            ];
+            console.log(display.join('\n'));
+
+            const summary = {
+              passed,
+              total,
+              rngPct: percentage(rng).slice(0, -1),
+              timestamp: data.timestamp,
+              metrics: { rngCalls: rng, screens, cursors },
+              results: results.map(r => ({
+                session: r.session,
+                passed: r.passed,
+                rng: r.metrics?.rngCalls,
+                screen: r.metrics?.screens,
+                cursor: r.metrics?.cursors,
+              })),
+            };
+            fs.writeFileSync('score-summary.json', JSON.stringify(summary, null, 2));
+
+            if (process.env.GITHUB_STEP_SUMMARY) {
+              fs.appendFileSync(
+                process.env.GITHUB_STEP_SUMMARY,
+                [
+                  '## Development score',
+                  '',
+                  ...display.map(line => '- ' + line),
+                ].join('\n') + '\n',
+              );
+            }
+          EOF
 
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: score-results
           path: |
