@@ -1,0 +1,4 @@
+interface:
+  display_name: "Survey Boundary Coverage"
+  short_description: "Map source coverage at a milestone boundary"
+  default_prompt: "Use $survey-boundary-coverage to map remaining source-to-port gaps before closing the current milestone."
