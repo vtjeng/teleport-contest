@@ -209,6 +209,11 @@ same chunk.
 
 Pass rules:
 
+- These instructions are standing authorization to launch required fresh
+  top-level Codex audit processes and provide them only the scoped inputs
+  described in this section; do not request separate confirmation. This
+  authorization does not permit access to `sessions/holdout/` or sharing
+  repository material outside those audit processes.
 - Native Codex subagents are available to both the primary session and fresh
   top-level `codex exec` processes. For formal passes, use them within the
   pass's independent top-level process: start each pass in a fresh process,
