@@ -30,6 +30,7 @@ import {
     HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
 } from './const.js';
 import {
+    ATR_NONE,
     ATR_INVERSE,
     NO_COLOR,
     CLR_BLACK,
@@ -55,6 +56,7 @@ import { observe_object } from './o_init.js';
 import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
 import { objectType, isWeptool } from './obj.js';
+import { newuexp } from './exper.js';
 import { weapon_type } from './startup_skills.js';
 import { bimanual } from './worn.js';
 import {
@@ -1373,9 +1375,7 @@ function _optionalStatusFields() {
     return fields.length ? ` ${fields.join(' ')}` : '';
 }
 
-function _statusLine1(includeAlignment = true) {
-    const u = game.u;
-    if (!u) return '';
+function _statusPlayerName() {
     // C ref: botl.c do_statusline1().  The status line capitalizes only an
     // initial ASCII lowercase byte, then reserves at most BOTL_NSIZ bytes for
     // the player name.  Player names are ASCII in the source option parser.
@@ -1384,20 +1384,58 @@ function _statusLine1(includeAlignment = true) {
     if (name[0] >= 'a' && name[0] <= 'z') {
         name = name[0].toUpperCase() + name.slice(1);
     }
+    return name;
+}
+
+function _statusTitle() {
+    const u = game.u;
+    if (!u) return '';
+    const name = _statusPlayerName();
     const role = rankOf(game.urole, u.ulevel ?? 1, game.flags?.female)
         || game.urole?.rank?.m || game.urole?.name?.m || 'Adventurer';
-    const title = `${name} the ${role}`;
+    return `${name} the ${role}`;
+}
+
+function _statusHitpointBarTitle() {
+    let bar = _statusTitle().slice(0, 30).padEnd(30);
+    if (_criticallyLowHp(true)) {
+        const chars = [...bar];
+        for (let index = chars.length - 1; index >= 1; index -= 2) {
+            if (chars[index] === ' ' && chars[index - 1] === ' ') {
+                chars[index] = '-';
+            }
+        }
+        bar = chars.join('');
+    }
+    return bar;
+}
+
+function _statusAlignment(u = game.u) {
+    return u?.ualign?.type === 0
+        ? 'Neutral' : u?.ualign?.type > 0 ? 'Lawful' : 'Chaotic';
+}
+
+function _statusLine1(includeAlignment = true) {
+    const u = game.u;
+    if (!u) return '';
+    const title = _statusTitle();
+    let displayedTitle = title;
+    if (game.iflags?.wc2_hitpointbar) {
+        displayedTitle = `[${_statusHitpointBarTitle()}]`;
+    }
     const attrs = u.acurr?.a ?? [];
     const strength = attrs[A_STR]
         ? get_strength_str(attrs[A_STR]) : '?';
     const stats = `St:${strength} Dx:${attrs[A_DEX] || '?'} Co:${attrs[A_CON] || '?'} In:${attrs[A_INT] || '?'} Wi:${attrs[A_WIS] || '?'} Ch:${attrs[A_CHA] || '?'}`;
-    const align = u.ualign?.type === 0 ? 'Neutral' : u.ualign?.type > 0 ? 'Lawful' : 'Chaotic';
+    const align = _statusAlignment(u);
     // C uses cursor-forward for gap between title and stats
     // C pads to align stats starting at a fixed column
-    const gap = Math.max(1, 31 - title.length);
+    const gap = Math.max(1, 31 - displayedTitle.length);
     const suffix = includeAlignment ? ` ${align}` : '';
-    if (gap > 4) return `${title}\x1b[${gap}C${stats}${suffix}`;
-    return `${title}${' '.repeat(gap)}${stats}${suffix}`;
+    if (gap > 4) {
+        return `${displayedTitle}\x1b[${gap}C${stats}${suffix}`;
+    }
+    return `${displayedTitle}${' '.repeat(gap)}${stats}${suffix}`;
 }
 
 const HUNGER_STATUS = Object.freeze([
@@ -1423,32 +1461,87 @@ function _hungerStatus(u) {
     return hunger ? ` ${hunger}` : '';
 }
 
-// C ref: botl.c do_statusline2(), condition assembly. Encumbrance remains
+const STATUS_CONDITION_SPECS = Object.freeze([
+    { option: 'barehanded', rank: 20, enabled: false,
+        forms: ['Bare', 'Bar', 'Bh'] },
+    { option: 'blind', rank: 10, enabled: true,
+        forms: ['Blind', 'Blnd', 'Bl'] },
+    { option: 'conf', rank: 10, enabled: true,
+        forms: ['Conf', 'Cnf', 'Cf'] },
+    { option: 'deaf', rank: 10, enabled: true,
+        forms: ['Deaf', 'Def', 'Df'] },
+    { option: 'fly', rank: 10, enabled: true,
+        forms: ['Fly', 'Fly', 'Fl'] },
+    { option: 'foodpois', rank: 6, enabled: true,
+        forms: ['FoodPois', 'Fpois', 'Poi'] },
+    { option: 'hallucinat', rank: 10, enabled: true,
+        forms: ['Hallu', 'Hal', 'Hl'] },
+    { option: 'ice', rank: 20, enabled: false,
+        forms: ['Icy', 'Icy', 'Ic'] },
+    { option: 'levitate', rank: 10, enabled: true,
+        forms: ['Lev', 'Lev', 'Lv'] },
+    { option: 'ride', rank: 10, enabled: true,
+        forms: ['Ride', 'Rid', 'Rd'] },
+    { option: 'slime', rank: 6, enabled: true,
+        forms: ['Slime', 'Slim', 'Slm'] },
+    { option: 'stone', rank: 6, enabled: true,
+        forms: ['Stone', 'Ston', 'Sto'] },
+    { option: 'strngl', rank: 4, enabled: true,
+        forms: ['Strngl', 'Stngl', 'Str'] },
+    { option: 'stun', rank: 10, enabled: true,
+        forms: ['Stun', 'Stun', 'St'] },
+    { option: 'termill', rank: 6, enabled: true,
+        forms: ['TermIll', 'Ill', 'Ill'] },
+]);
+
+function _statusConditionActive(option, u) {
+    switch (option) {
+    case 'barehanded': return !game.uarmg && !game.uwep;
+    case 'blind': return _propertyActiveUnblocked(u, BLINDED);
+    case 'conf': return _propertyIntrinsic(u, CONFUSION);
+    case 'deaf': return _propertyActive(u, DEAF) || u.uroleplay?.deaf;
+    case 'fly': return _propertyActiveUnblocked(u, FLYING);
+    case 'foodpois':
+        return _propertyIntrinsic(u, SICK)
+            && Boolean((u.usick_type ?? 0) & SICK_VOMITABLE);
+    case 'hallucinat':
+        return _propertyIntrinsic(u, HALLUC)
+            && !_propertyActive(u, HALLUC_RES);
+    case 'ice':
+        return game.level?.at(u.ux, u.uy)?.typ === ICE;
+    case 'levitate': return _propertyActiveUnblocked(u, LEVITATION);
+    case 'ride': return Boolean(u.usteed);
+    case 'slime': return _propertyIntrinsic(u, SLIMED);
+    case 'stone': return _propertyIntrinsic(u, STONED);
+    case 'strngl': return _propertyIntrinsic(u, STRANGLED);
+    case 'stun': return _propertyIntrinsic(u, STUNNED);
+    case 'termill':
+        return _propertyIntrinsic(u, SICK)
+            && Boolean((u.usick_type ?? 0) & SICK_NONVOMITABLE);
+    default: return false;
+    }
+}
+
+// C ref: botl.c condtests[], conditions[], and cond_cmp(). Encumbrance remains
 // absent at the new-game boundary because u_init_carry_attr_boost() guarantees
 // that the initial inventory is within capacity.
+function _statusConditionEntries(u, shrinkLevel = 0) {
+    const configured = game.iflags?.status_conditions ?? {};
+    return STATUS_CONDITION_SPECS
+        .filter((spec) => (configured[spec.option] ?? spec.enabled)
+            && _statusConditionActive(spec.option, u))
+        .sort((left, right) => left.rank - right.rank
+            || left.option.localeCompare(right.option))
+        .map((spec) => ({
+            option: spec.option,
+            text: spec.forms[shrinkLevel],
+        }));
+}
+
 function _statusConditions(u, shrinkLevel = 0) {
-    const conditions = [];
-    const add = (...forms) => conditions.push(forms[shrinkLevel]);
-    if (_propertyIntrinsic(u, STONED)) add('Stone', 'Ston', 'Sto');
-    if (_propertyIntrinsic(u, SLIMED)) add('Slime', 'Slim', 'Slm');
-    if (_propertyIntrinsic(u, STRANGLED)) add('Strngl', 'Stngl', 'Str');
-    if (_propertyIntrinsic(u, SICK)) {
-        if ((u.usick_type ?? 0) & SICK_VOMITABLE)
-            add('FoodPois', 'Fpois', 'Poi');
-        if ((u.usick_type ?? 0) & SICK_NONVOMITABLE)
-            add('TermIll', 'Ill', 'Ill');
-    }
-    if (_propertyActiveUnblocked(u, BLINDED)) add('Blind', 'Blnd', 'Bl');
-    if (_propertyActive(u, DEAF) || u.uroleplay?.deaf)
-        add('Deaf', 'Def', 'Df');
-    if (_propertyIntrinsic(u, STUNNED)) add('Stun', 'Stun', 'St');
-    if (_propertyIntrinsic(u, CONFUSION)) add('Conf', 'Cnf', 'Cf');
-    if (_propertyIntrinsic(u, HALLUC)
-        && !_propertyActive(u, HALLUC_RES)) add('Hallu', 'Hal', 'Hl');
-    if (_propertyActiveUnblocked(u, LEVITATION)) add('Lev', 'Lev', 'Lv');
-    if (_propertyActiveUnblocked(u, FLYING)) add('Fly', 'Fly', 'Fl');
-    if (u.usteed) add('Ride', 'Rid', 'Rd');
-    return conditions.length ? ` ${conditions.join(' ')}` : '';
+    const conditions = _statusConditionEntries(u, shrinkLevel);
+    return conditions.length
+        ? ` ${conditions.map(({ text }) => text).join(' ')}` : '';
 }
 
 function _statusExperience(u) {
@@ -1586,6 +1679,353 @@ function statusTextRows() {
         : [_statusLine1(), _statusLine2()];
 }
 
+function _statusPercentage(value, maximum) {
+    if (!maximum) return 0;
+    const percent = Math.trunc((100 * value) / maximum);
+    return percent === 0 && value !== 0 ? 1 : percent;
+}
+
+function _statusExperiencePercentage(u) {
+    const level = u.ulevel ?? 1;
+    if (level >= 30) return 0;
+    const levelStart = newuexp(level - 1);
+    const gained = (u.uexp ?? 0) - levelStart;
+    const needed = newuexp(level) - levelStart;
+    return gained === needed - 1
+        ? 100 : _statusPercentage(gained, needed);
+}
+
+function _criticallyLowHp(onlyIfInjured) {
+    const u = game.u;
+    const current = u?.uhp ?? 0;
+    let maximum = u?.uhpmax ?? 0;
+    if (onlyIfInjured && current >= maximum) return false;
+    maximum = Math.min(maximum, 15 * (u?.ulevel ?? 1));
+    const rank = (u?.ulevel ?? 1) <= 2
+        ? 0 : (u.ulevel <= 30 ? Math.trunc((u.ulevel + 2) / 4) : 8);
+    const divisor = rank <= 1 ? 5
+        : rank <= 3 ? 6 : rank <= 5 ? 7 : rank <= 7 ? 8 : 9;
+    return current <= 5 || current * divisor <= maximum;
+}
+
+function _statusFieldData(field) {
+    const u = game.u;
+    const attrs = u?.acurr?.a ?? [];
+    const title = _statusTitle();
+    switch (field) {
+    case 'title':
+        return { text: title.slice(_statusPlayerName().length + 5) };
+    case 'strength': return { value: attrs[A_STR] ?? 0 };
+    case 'dexterity': return { value: attrs[A_DEX] ?? 0 };
+    case 'constitution': return { value: attrs[A_CON] ?? 0 };
+    case 'intelligence': return { value: attrs[A_INT] ?? 0 };
+    case 'wisdom': return { value: attrs[A_WIS] ?? 0 };
+    case 'charisma': return { value: attrs[A_CHA] ?? 0 };
+    case 'alignment': return { text: _statusAlignment(u) };
+    case 'score': return { value: 0 };
+    case 'carrying-capacity': return { value: 0, text: '' };
+    case 'gold': return { value: money_cnt(game.invent) };
+    case 'power':
+        return {
+            value: u?.uen ?? 0,
+            percent: _statusPercentage(u?.uen ?? 0, u?.uenmax ?? 0),
+        };
+    case 'power-max': return { value: u?.uenmax ?? 0 };
+    case 'experience-level':
+        return {
+            value: u?.ulevel ?? 1,
+            percent: _statusExperiencePercentage(u),
+        };
+    case 'armor-class': return { value: u?.uac ?? 10 };
+    case 'hd': return { value: 0 };
+    case 'time': return { value: game.moves ?? 1 };
+    case 'hunger':
+        return {
+            value: u?.uhs ?? NOT_HUNGRY,
+            text: HUNGER_STATUS[u?.uhs ?? NOT_HUNGRY] ?? '',
+        };
+    case 'hitpoints':
+        return {
+            value: u?.uhp ?? 0,
+            percent: _statusPercentage(u?.uhp ?? 0, u?.uhpmax ?? 0),
+        };
+    case 'hitpoints-max': return { value: u?.uhpmax ?? 0 };
+    case 'dungeon-level': return { text: _statusLevelDescription(u) };
+    case 'experience':
+        return {
+            value: u?.uexp ?? 0,
+            percent: _statusExperiencePercentage(u),
+        };
+    case 'version': return { text: status_version(game.flags) };
+    case 'weapon': return { text: weapon_status(game) };
+    case 'armor': return { text: armor_status(game) };
+    case 'terrain': return { text: _terrainStatus(game) };
+    default: return { text: '' };
+    }
+}
+
+function _statusFuzzyText(value) {
+    return String(value ?? '').toLowerCase().replace(/[" _-]+/gu, '');
+}
+
+function _statusRelationMatches(actual, relation, threshold) {
+    switch (relation) {
+    case '<': return actual < threshold;
+    case '<=': return actual <= threshold;
+    case '>': return actual > threshold;
+    case '>=': return actual >= threshold;
+    default: return actual === threshold;
+    }
+}
+
+// C ref: botl.c:get_hilite(). Initial status has no up/down transition, but
+// persistent percentage, absolute, text, always, and critical rules retain
+// the source best-fit precedence.
+function _statusFieldStyle(field) {
+    if (!game.iflags?.hilite_delta) return null;
+    const rules = (game.iflags.status_hilites ?? []).filter(
+        (rule) => rule.field === field,
+    );
+    const data = _statusFieldData(field);
+    if (!rules.length || (data.text === '' && data.value == null)) return null;
+    let selected = null;
+    let exact = false;
+    let persistent = false;
+    let critical = false;
+    const minimum = {
+        percentage: Number.POSITIVE_INFINITY,
+        absolute: Number.POSITIVE_INFINITY,
+    };
+    const maximum = {
+        percentage: Number.NEGATIVE_INFINITY,
+        absolute: Number.NEGATIVE_INFINITY,
+    };
+    for (const rule of rules) {
+        if (critical && rule.behavior !== 'critical') continue;
+        if (persistent && rule.behavior === 'always') continue;
+        if (rule.behavior === 'always') {
+            selected = rule;
+        } else if (rule.behavior === 'critical') {
+            if (field === 'hitpoints' && _criticallyLowHp(false)) {
+                selected = rule;
+                critical = true;
+                persistent = false;
+            }
+        } else if (rule.behavior === 'text') {
+            const matches = _statusFuzzyText(rule.text)
+                === _statusFuzzyText(data.text);
+            if (matches) {
+                selected = rule;
+                exact = true;
+            }
+        } else if (rule.behavior === 'percentage'
+                   || rule.behavior === 'absolute') {
+            const actual = rule.behavior === 'percentage'
+                ? data.percent ?? 0 : data.value ?? 0;
+            if (rule.relation === '=' && actual === rule.value) {
+                selected = rule;
+                exact = persistent = true;
+                minimum[rule.behavior] = rule.value;
+                maximum[rule.behavior] = rule.value;
+            } else if (!exact
+                       && _statusRelationMatches(
+                           actual, rule.relation, rule.value,
+                       )) {
+                if ((rule.relation === '<' || rule.relation === '<=')
+                    && rule.value <= minimum[rule.behavior]) {
+                    selected = rule;
+                    minimum[rule.behavior] = rule.value;
+                    persistent = true;
+                } else if ((rule.relation === '>' || rule.relation === '>=')
+                           && rule.value >= maximum[rule.behavior]) {
+                    selected = rule;
+                    maximum[rule.behavior] = rule.value;
+                    persistent = true;
+                }
+            }
+        }
+    }
+    return selected?.style ?? null;
+}
+
+function _statusConditionStyle(option) {
+    if (!game.iflags?.hilite_delta) return null;
+    const colors = new Set();
+    let attr = ATR_NONE;
+    let matched = false;
+    for (const rule of game.iflags.status_hilites ?? []) {
+        if (rule.field !== 'condition'
+            || !rule.conditions.includes(option)) continue;
+        matched = true;
+        colors.add(rule.style.color);
+        if (rule.style.clearAttributes) attr = ATR_NONE;
+        attr |= rule.style.attr;
+    }
+    return matched
+        ? { color: Math.min(...colors), attr } : null;
+}
+
+function _expandedStatusRow(row) {
+    return row.replace(
+        /\x1b\[[0-9;]*[A-Za-z]/g,
+        (sequence) => sequence.match(/\x1b\[\d+C/)
+            ? ' '.repeat(parseInt(sequence.slice(2), 10)) : '',
+    );
+}
+
+function _statusStyleRows(rows) {
+    const renderedRows = rows.map(_expandedStatusRow);
+    const styles = renderedRows.map((row) => Array.from(
+        { length: row.length }, () => ({ color: NO_COLOR, attr: ATR_NONE }),
+    ));
+    const apply = (row, start, end, style) => {
+        if (!style || row < 0 || start < 0) return;
+        for (let column = start;
+            column < Math.min(end, styles[row].length);
+            ++column) {
+            styles[row][column] = {
+                color: style.color,
+                attr: style.attr,
+            };
+        }
+    };
+    const find = (
+        field,
+        regexp,
+        group = 0,
+        rowIndexes = null,
+        fromEnd = false,
+    ) => {
+        const style = _statusFieldStyle(field);
+        if (!style) return;
+        for (const row of rowIndexes ?? renderedRows.keys()) {
+            const match = fromEnd
+                ? [...renderedRows[row].matchAll(new RegExp(
+                    regexp.source,
+                    regexp.flags.includes('g')
+                        ? regexp.flags : `${regexp.flags}g`,
+                ))].at(-1)
+                : renderedRows[row].match(regexp);
+            const value = match?.[group];
+            if (match && value != null) {
+                const relative = group ? match[0].indexOf(value) : 0;
+                const start = match.index + relative;
+                apply(row, start, start + value.length, style);
+                return;
+            }
+        }
+    };
+
+    if (!game.iflags?.wc2_hitpointbar) {
+        apply(0, 0, _statusTitle().length, _statusFieldStyle('title'));
+    }
+    find('strength', /St:[^ ]+/u, 0, [0], true);
+    find('dexterity', /Dx:[^ ]+/u, 0, [0], true);
+    find('constitution', /Co:[^ ]+/u, 0, [0], true);
+    find('intelligence', /In:[^ ]+/u, 0, [0], true);
+    find('wisdom', /Wi:[^ ]+/u, 0, [0], true);
+    find('charisma', /Ch:[^ ]+/u, 0, [0], true);
+    find(
+        'alignment',
+        /(Lawful|Neutral|Chaotic)/u,
+        1,
+        renderedRows.length === 3 ? [1] : [0],
+        true,
+    );
+    find('dungeon-level', /^(?:Dlvl|Dl|Tutorial):\d+/u);
+    find('gold', /\$:\d+/u);
+    find('hitpoints', /(HP:-?\d+)\(-?\d+\)/u, 1);
+    find('hitpoints-max', /HP:-?\d+(\(-?\d+\))/u, 1);
+    find('power', /(Pw:-?\d+)\(-?\d+\)/u, 1);
+    find('power-max', /Pw:-?\d+(\(-?\d+\))/u, 1);
+    find('armor-class', /AC:-?\d+/u);
+    find('experience-level', /(Xp:\d+)(?:\/\d+)?/u, 1);
+    find('experience', /Xp:\d+\/(\d+)/u, 1);
+    find('time', /T:\d+/u);
+
+    const hunger = _statusFieldData('hunger').text;
+    if (hunger) {
+        for (let row = 0; row < renderedRows.length; ++row) {
+            const start = renderedRows[row].indexOf(hunger);
+            if (start >= 0) {
+                apply(
+                    row, start, start + hunger.length,
+                    _statusFieldStyle('hunger'),
+                );
+                break;
+            }
+        }
+    }
+
+    const optionalRow = renderedRows.length - 1;
+    let optionalStart = 0;
+    for (const [field, enabled] of [
+        ['weapon', game.flags?.weaponstatus],
+        ['armor', game.flags?.armorstatus],
+        ['terrain', game.flags?.terrainstatus],
+    ]) {
+        if (!enabled) continue;
+        const value = _statusFieldData(field).text;
+        const start = renderedRows[optionalRow].indexOf(value, optionalStart);
+        apply(
+            optionalRow, start, start + value.length,
+            _statusFieldStyle(field),
+        );
+        optionalStart = Math.max(optionalStart, start + value.length);
+    }
+    if (game.flags?.showvers) {
+        const version = _statusFieldData('version').text;
+        const start = renderedRows[optionalRow].lastIndexOf(version);
+        apply(
+            optionalRow, start, start + version.length,
+            _statusFieldStyle('version'),
+        );
+    }
+
+    const conditionRow = renderedRows.length - 1;
+    for (let shrinkLevel = 0; shrinkLevel < 3; ++shrinkLevel) {
+        const entries = _statusConditionEntries(game.u, shrinkLevel);
+        let searchStart = 0;
+        const ranges = [];
+        for (const entry of entries) {
+            const start = renderedRows[conditionRow].indexOf(
+                entry.text, searchStart,
+            );
+            if (start < 0) break;
+            ranges.push({ entry, start });
+            searchStart = start + entry.text.length;
+        }
+        if (ranges.length === entries.length) {
+            for (const { entry, start } of ranges) {
+                apply(
+                    conditionRow,
+                    start,
+                    start + entry.text.length,
+                    _statusConditionStyle(entry.option),
+                );
+            }
+            break;
+        }
+    }
+
+    if (game.iflags?.wc2_hitpointbar) {
+        const hp = _statusFieldData('hitpoints');
+        let barLength = Math.trunc((30 * hp.percent) / 100);
+        if (barLength < 1 && hp.percent > 0) barLength = 1;
+        if (barLength >= 30 && hp.percent < 100) barLength = 29;
+        // tty_putstatusfield() advances across trailing padding rather than
+        // writing it, so recorder shadow cells there retain normal attrs.
+        const printedLength = _statusHitpointBarTitle()
+            .slice(0, barLength).trimEnd().length;
+        const hpStyle = _statusFieldStyle('hitpoints');
+        apply(0, 1, 1 + printedLength, {
+            color: hpStyle?.color ?? NO_COLOR,
+            attr: ATR_INVERSE,
+        });
+    }
+    return styles;
+}
+
 function mapViewport(rows, statusRowCount) {
     const height = Math.min(ROWNO, rows - 1 - statusRowCount);
     if (height >= ROWNO) return { height: ROWNO, top: 0 };
@@ -1608,21 +2048,28 @@ function mapViewport(rows, statusRowCount) {
     return { height, top };
 }
 
-function writeStatusRows(display, rows = statusTextRows()) {
+function writeStatusRows(
+    display,
+    rows = statusTextRows(),
+    styles = _statusStyleRows(rows),
+) {
     if (!display?.grid) return;
     const firstRow = display.rows - rows.length;
     for (let index = 0; index < rows.length; ++index) {
         const screenRow = firstRow + index;
         display.clearRow(screenRow);
-        const text = rows[index].replace(
-            /\x1b\[[0-9;]*[A-Za-z]/g,
-            (sequence) => sequence.match(/\x1b\[\d+C/)
-                ? ' '.repeat(parseInt(sequence.slice(2), 10)) : '',
-        );
+        const text = _expandedStatusRow(rows[index]);
         for (let column = 0;
             column < Math.min(text.length, display.cols);
             ++column) {
-            display.setCell(column, screenRow, text[column], NO_COLOR, 0);
+            const style = styles[index]?.[column];
+            display.setCell(
+                column,
+                screenRow,
+                text[column],
+                style?.color ?? NO_COLOR,
+                style?.attr ?? ATR_NONE,
+            );
         }
     }
 }

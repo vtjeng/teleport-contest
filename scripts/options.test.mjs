@@ -932,6 +932,119 @@ test('statuslines selects one of the two tty status-window heights', () => {
     );
 });
 
+test('status highlight options preserve source rules and condition defaults', () => {
+    const defaults = parseNethackrc('');
+    assert.equal(defaults.iflags.hilite_delta, 0);
+    assert.equal(defaults.iflags.wc2_hitpointbar, false);
+    assert.equal(defaults.iflags.status_conditions.blind, true);
+    assert.equal(defaults.iflags.status_conditions.barehanded, false);
+
+    const parsed = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints/<50%/red&inverse/100%/bright-green '
+        + 'characteristics/always/bright-blue&bold\n'
+        + 'OPTIONS=hilite_status:'
+        + 'condition/blind+deaf/bright-magenta&underline\n'
+        + 'OPTIONS='
+        // Seven is an arbitrary positive duration which distinguishes the
+        // explicit statushilites value from the source default of three.
+        + 'statushilites:7,hitpointbar,!cond_blind,cond_barehanded',
+    );
+    assert.equal(parsed.iflags.hilite_delta, 7);
+    assert.equal(parsed.iflags.wc2_hitpointbar, true);
+    assert.equal(parsed.iflags.status_conditions.blind, false);
+    assert.equal(parsed.iflags.status_conditions.barehanded, true);
+    assert.equal(parsed.flags.cond_blind, false);
+    assert.equal(parsed.flags.cond_barehanded, true);
+
+    const [lowHp, fullHp, ...remaining] = parsed.iflags.status_hilites;
+    assert.deepEqual(lowHp, {
+        field: 'hitpoints',
+        behavior: 'percentage',
+        relation: '<',
+        value: 50,
+        text: '',
+        style: {
+            attr: ATR_INVERSE,
+            clearAttributes: false,
+            color: CLR_RED,
+        },
+    });
+    assert.equal(fullHp.value, 100);
+    assert.equal(fullHp.style.color, CLR_BRIGHT_GREEN);
+    assert.deepEqual(
+        remaining.slice(0, 6).map(({ field }) => field),
+        [
+            'strength', 'dexterity', 'constitution',
+            'intelligence', 'wisdom', 'charisma',
+        ],
+    );
+    assert.ok(remaining.slice(0, 6).every(
+        ({ style }) => style.color === CLR_BRIGHT_BLUE
+            && style.attr === ATR_BOLD,
+    ));
+    assert.deepEqual(remaining[6], {
+        field: 'condition',
+        conditions: ['blind', 'deaf'],
+        style: {
+            attr: ATR_UNDERLINE,
+            clearAttributes: false,
+            color: CLR_BRIGHT_MAGENTA,
+        },
+    });
+});
+
+test('status option recursion keeps the source right-to-left precedence', () => {
+    const disabled = parseNethackrc(
+        'OPTIONS=statushilites:0,'
+        + 'hilite_status:hitpoints/always/red&inverse',
+    );
+    assert.equal(disabled.iflags.hilite_delta, 0);
+    assert.equal(disabled.iflags.status_hilites.length, 1);
+
+    const reenabled = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints/always/red&inverse,'
+        + 'statushilites:0',
+    );
+    assert.equal(reenabled.iflags.hilite_delta, 3);
+
+    const cleared = parseNethackrc(
+        'OPTIONS=!hilite_status:clear,'
+        + 'hilite_status:hitpoints/always/red&inverse',
+    );
+    assert.deepEqual(cleared.iflags.status_hilites, []);
+});
+
+test('status highlighting uses source field and condition vocabularies', () => {
+    const parsed = parseNethackrc(
+        'OPTIONS=hilite_status:experience-points/always/orange '
+        + 'hunger/hungry/bright-green\n'
+        + 'OPTIONS=hilite_status:carrying-capacity/strained/red '
+        + 'condition/hallu+icy+in-lava/bright-blue',
+    );
+    assert.deepEqual(
+        parsed.iflags.status_hilites.map(({ field }) => field),
+        ['experience', 'hunger', 'carrying-capacity', 'condition'],
+    );
+    assert.deepEqual(
+        parsed.iflags.status_hilites[3].conditions,
+        ['hallucinat', 'ice', 'lava'],
+    );
+
+    for (const invalid of [
+        'hitpoints-max/<50%/red',
+        'dexterity/weak/red',
+        'hitpoints/<0%/red',
+        'hitpoints/>100%/red',
+        'condition/hallucinat/red',
+    ]) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=hilite_status:${invalid}`),
+            /status|condition/u,
+            invalid,
+        );
+    }
+});
+
 test('showvers and versinfo preserve the release-build status selection', () => {
     const parsed = parseNethackrc('OPTIONS=showvers,versinfo:3');
     assert.equal(parsed.flags.showvers, true);

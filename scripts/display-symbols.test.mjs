@@ -108,6 +108,8 @@ import {
 import {
     ATR_BOLD,
     ATR_INVERSE,
+    ATR_NONE,
+    ATR_UNDERLINE,
     CLR_BRIGHT_BLUE,
     CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
@@ -1752,6 +1754,130 @@ test('status uses source attribute order and exceptional strength text', async (
         row(23),
         /Deaf/u,
         'initial tty version padding overwrites an indented condition',
+    );
+});
+
+test('status highlights, condition filters, and hitpoint bar reach the grid', async () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.level = new GameMap();
+    const options = parseNethackrc(
+        'OPTIONS=hilite_status:title/always/bright-blue&bold '
+        + 'dexterity/always/bright-green&underline '
+        + 'hitpoints/always/red&inverse\n'
+        + 'OPTIONS=hilite_status:'
+        + 'condition/blind/bright-magenta&inverse',
+    );
+    state.flags = options.flags;
+    state.iflags = options.iflags;
+    state.urole = {
+        name: { m: 'Barbarian' },
+        rank: { m: 'Plunderer' },
+    };
+    state.plname = 'Hero';
+    state.u = {
+        ux: 0,
+        uy: 0,
+        uz: { dlevel: 1 },
+        ulevel: 1,
+        uexp: 0,
+        uhp: 16,
+        uhpmax: 16,
+        uen: 1,
+        uenmax: 1,
+        uac: 8,
+        ualign: { type: -1 },
+        // Storage order is STR, INT, WIS, DEX, CON, CHA.
+        acurr: { a: [18, 13, 14, 15, 16, 17] },
+        uprops: [],
+        uroleplay: {},
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+
+    await flush_screen(1);
+    const row = (index) => state.nhDisplay.grid[index]
+        .map((cell) => cell.ch).join('').trimEnd();
+    const styledCell = (rowIndex, text) => {
+        const column = row(rowIndex).indexOf(text);
+        assert.notEqual(column, -1, text);
+        return state.nhDisplay.grid[rowIndex][column];
+    };
+    assert.deepEqual(
+        [styledCell(22, 'Hero').color, styledCell(22, 'Hero').attr],
+        [CLR_BRIGHT_BLUE, ATR_BOLD],
+    );
+    assert.deepEqual(
+        [styledCell(22, 'Dx:15').color, styledCell(22, 'Dx:15').attr],
+        [CLR_BRIGHT_GREEN, ATR_UNDERLINE],
+    );
+    assert.deepEqual(
+        [styledCell(23, 'HP:16').color, styledCell(23, 'HP:16').attr],
+        [CLR_RED, ATR_INVERSE],
+    );
+    assert.deepEqual(
+        [styledCell(23, 'Blind').color, styledCell(23, 'Blind').attr],
+        [CLR_BRIGHT_MAGENTA, ATR_INVERSE],
+    );
+
+    state.iflags.status_conditions.blind = false;
+    await bot();
+    assert.doesNotMatch(row(23), /Blind/u);
+
+    state.iflags.wc2_hitpointbar = true;
+    await bot();
+    assert.equal(row(22).slice(0, 19), '[Hero the Plunderer');
+    assert.deepEqual(
+        [
+            state.nhDisplay.grid[22][0].attr,
+            state.nhDisplay.grid[22][1].color,
+            state.nhDisplay.grid[22][1].attr,
+            state.nhDisplay.grid[22][19].color,
+            state.nhDisplay.grid[22][19].attr,
+        ],
+        [ATR_NONE, CLR_RED, ATR_INVERSE, NO_COLOR, ATR_NONE],
+        'tty cursor-forward padding retains normal shadow-cell attributes',
+    );
+
+    // One hit point out of sixteen makes exactly one of the thirty bar cells
+    // highlighted and activates the source low-HP dash padding.
+    state.u.uhp = 1;
+    await bot();
+    assert.match(row(22).slice(0, 32), /-/u);
+    assert.deepEqual(
+        [
+            state.nhDisplay.grid[22][1].color,
+            state.nhDisplay.grid[22][1].attr,
+            state.nhDisplay.grid[22][2].color,
+            state.nhDisplay.grid[22][2].attr,
+        ],
+        [CLR_RED, ATR_INVERSE, NO_COLOR, ATR_NONE],
+    );
+
+    state.iflags = parseNethackrc(
+        'OPTIONS=hilite_status:'
+        + 'hitpoints/<20/red/<=100%/bright-blue',
+    ).iflags;
+    state.u.uhp = state.u.uhpmax;
+    await bot();
+    assert.equal(
+        styledCell(23, 'HP:16').color,
+        CLR_BRIGHT_BLUE,
+        'absolute and percentage thresholds keep separate best-fit bounds',
+    );
+
+    state.plname = 'Neutral';
+    state.iflags = parseNethackrc(
+        'OPTIONS=hilite_status:title/always/bright-blue '
+        + 'alignment/always/yellow',
+    ).iflags;
+    await bot();
+    assert.equal(styledCell(22, 'Neutral').color, CLR_BRIGHT_BLUE);
+    const alignmentColumn = row(22).lastIndexOf('Chaotic');
+    assert.notEqual(alignmentColumn, -1);
+    assert.equal(
+        state.nhDisplay.grid[22][alignmentColumn].color,
+        CLR_YELLOW,
+        'alignment styling targets the field rather than a matching name',
     );
 });
 

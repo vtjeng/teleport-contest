@@ -127,6 +127,40 @@ const SOURCE_CONDITION_NAMES = Object.freeze((
     + '|stone|strngl|stun|submerged|termill|tethered|trap|unconscious'
     + '|woundedlegs|holding'
 ).split('|'));
+// C ref: botl.c:condtests[]. opt_out entries begin enabled; opt_in entries
+// begin disabled until an explicit cond_* option enables them.
+const DEFAULT_STATUS_CONDITIONS = Object.freeze({
+    barehanded: false,
+    blind: true,
+    busy: false,
+    conf: true,
+    deaf: true,
+    iron: true,
+    fly: true,
+    foodpois: true,
+    glowhands: false,
+    grab: true,
+    hallucinat: true,
+    held: false,
+    ice: false,
+    lava: true,
+    levitate: true,
+    paralyzed: false,
+    ride: true,
+    sleep: false,
+    slime: true,
+    slip: false,
+    stone: true,
+    strngl: true,
+    stun: true,
+    submerged: false,
+    termill: true,
+    tethered: false,
+    trap: false,
+    unconscious: false,
+    woundedlegs: false,
+    holding: false,
+});
 // C refs: defsym.h's three *_PARSE expansions and symbols.c:loadsyms[] and
 // match_sym(). Names after the case-sensitive S_ prefix are case-insensitive.
 const SOURCE_SYMBOL_NAMES = new Set((
@@ -241,10 +275,14 @@ function defaultResult() {
             wc_color: true,
             wc_inverse: true,
             wc_hilite_pet: false,
+            wc2_hitpointbar: false,
             wc_splash_screen: true,
             wc_eight_bit_input: false,
             wc2_statuslines: 2,
             wc2_petattr: ATR_INVERSE,
+            hilite_delta: 0,
+            status_hilites: [],
+            status_conditions: { ...DEFAULT_STATUS_CONDITIONS },
             num_pad: false,
             num_pad_mode: 0,
             customcolors: true,
@@ -791,6 +829,433 @@ function menuHeadingAttribute(token) {
         ? MENU_HEADING_ATTRIBUTES[token] : null;
 }
 
+// C refs: botl.c initblstats[], fieldids_alias[], parse_status_hl1(), and
+// parse_status_hl2(). Rules stay in source append order for get_hilite()-
+// shaped selection by the tty status renderer.
+const STATUS_HILITE_FIELDS = Object.freeze({
+    title: 'string',
+    strength: 'int',
+    dexterity: 'int',
+    constitution: 'int',
+    intelligence: 'int',
+    wisdom: 'int',
+    charisma: 'int',
+    alignment: 'string',
+    score: 'long',
+    'carrying-capacity': 'int',
+    gold: 'long',
+    power: 'int',
+    'power-max': 'int',
+    'experience-level': 'int',
+    'armor-class': 'int',
+    hd: 'int',
+    time: 'long',
+    hunger: 'int',
+    hitpoints: 'int',
+    'hitpoints-max': 'int',
+    'dungeon-level': 'string',
+    experience: 'long',
+    condition: 'condition',
+    version: 'string',
+    weapon: 'string',
+    armor: 'string',
+    terrain: 'string',
+});
+
+const STATUS_PERCENT_FIELDS = new Set([
+    'power', 'experience-level', 'hitpoints', 'experience',
+]);
+
+const STATUS_TEXT_THRESHOLDS = Object.freeze({
+    'carrying-capacity': Object.freeze({
+        burdened: 'burdened',
+        stressed: 'stressed',
+        strained: 'strained',
+        overtaxed: 'overtaxed',
+        overloaded: 'overloaded',
+    }),
+    hunger: Object.freeze({
+        satiated: 'satiated',
+        hungry: 'hungry',
+        weak: 'weak',
+        fainting: 'fainting',
+        fainted: 'fainted',
+        starved: 'starved',
+    }),
+});
+
+const STATUS_HILITE_FIELD_ALIASES = Object.freeze({
+    characteristics: 'characteristics',
+    encumbrance: 'carrying-capacity',
+    experiencepoints: 'experience',
+    dx: 'dexterity',
+    co: 'constitution',
+    con: 'constitution',
+    points: 'score',
+    cap: 'carrying-capacity',
+    pw: 'power',
+    pwmax: 'power-max',
+    xl: 'experience-level',
+    xplvl: 'experience-level',
+    ac: 'armor-class',
+    hitdice: 'hd',
+    turns: 'time',
+    hp: 'hitpoints',
+    hpmax: 'hitpoints-max',
+    dgn: 'dungeon-level',
+    xp: 'experience',
+    exp: 'experience',
+    flags: 'condition',
+});
+
+const STATUS_CHARACTERISTIC_FIELDS = Object.freeze([
+    'strength',
+    'dexterity',
+    'constitution',
+    'intelligence',
+    'wisdom',
+    'charisma',
+]);
+
+const STATUS_HILITE_CONDITIONS = Object.freeze({
+    bare: 'barehanded',
+    blind: 'blind',
+    busy: 'busy',
+    conf: 'conf',
+    deaf: 'deaf',
+    iron: 'iron',
+    fly: 'fly',
+    foodpois: 'foodpois',
+    glow: 'glowhands',
+    grab: 'grab',
+    hallu: 'hallucinat',
+    held: 'held',
+    icy: 'ice',
+    inlava: 'lava',
+    lev: 'levitate',
+    parlyz: 'paralyzed',
+    ride: 'ride',
+    zzz: 'sleep',
+    slime: 'slime',
+    slip: 'slip',
+    stone: 'stone',
+    strngl: 'strngl',
+    stun: 'stun',
+    submrg: 'submerged',
+    termill: 'termill',
+    teth: 'tethered',
+    trap: 'trap',
+    out: 'unconscious',
+    wlegs: 'woundedlegs',
+    uhold: 'holding',
+});
+
+const STATUS_CONDITION_ALIASES = Object.freeze({
+    strangled: ['strngl'],
+    all: SOURCE_CONDITION_NAMES,
+    majortroubles: [
+        'foodpois', 'grab', 'lava', 'slime', 'stone', 'strngl', 'termill',
+    ],
+    minortroubles: [
+        'blind', 'conf', 'deaf', 'hallucinat', 'paralyzed', 'submerged',
+        'stun',
+    ],
+    movement: ['levitate', 'fly', 'ride'],
+    optin: SOURCE_CONDITION_NAMES.filter(
+        (name) => !DEFAULT_STATUS_CONDITIONS[name],
+    ),
+});
+
+function statusHiliteFieldName(rawName) {
+    const normalized = menuHeadingToken(rawName);
+    const exact = Object.keys(STATUS_HILITE_FIELDS).find(
+        (name) => menuHeadingToken(name) === normalized,
+    );
+    if (exact) return exact;
+    if (Object.hasOwn(STATUS_HILITE_FIELD_ALIASES, normalized)) {
+        return STATUS_HILITE_FIELD_ALIASES[normalized];
+    }
+    const partials = Object.keys(STATUS_HILITE_FIELDS).filter(
+        (name) => menuHeadingToken(name).startsWith(normalized),
+    );
+    return partials.length === 1 ? partials[0] : null;
+}
+
+function parseStatusHiliteAction(
+    rawAction,
+    lineNumber,
+    { allowRepeatedColors = false, inheritedColor = NO_COLOR } = {},
+) {
+    const subfields = String(rawAction).split(/[+&]/u);
+    if (!subfields.length || subfields.some((part) => !part.trim())) {
+        optionError(lineNumber, `invalid status highlight '${rawAction}'`);
+    }
+    let attr = ATR_NONE;
+    let clearAttributes = false;
+    let color = inheritedColor;
+    let colorSeen = false;
+    for (const rawSubfield of subfields) {
+        const token = menuHeadingToken(rawSubfield);
+        const parsedAttr = menuHeadingAttribute(token);
+        if (parsedAttr != null) {
+            if (parsedAttr === ATR_NONE) {
+                attr = ATR_NONE;
+                clearAttributes = true;
+            } else {
+                attr |= parsedAttr;
+            }
+            continue;
+        }
+        const parsedColor = menuHeadingColor(token, rawSubfield.trim());
+        if (parsedColor == null || (colorSeen && !allowRepeatedColors)) {
+            optionError(lineNumber, `invalid status highlight '${rawAction}'`);
+        }
+        color = parsedColor;
+        colorSeen = true;
+    }
+    return { attr, clearAttributes, color };
+}
+
+function statusConditionNames(rawConditions, lineNumber) {
+    const selected = new Set();
+    for (const rawCondition of String(rawConditions).split(/[+&]/u)) {
+        const token = menuHeadingToken(rawCondition);
+        const canonical = STATUS_HILITE_CONDITIONS[token];
+        const alias = STATUS_CONDITION_ALIASES[token];
+        // condition aliases accept a unique prefix after exact matching.
+        const partialAliases = Object.keys(STATUS_CONDITION_ALIASES).filter(
+            (name) => name.startsWith(token),
+        );
+        const names = canonical ? [canonical]
+            : alias ?? (partialAliases.length === 1
+                ? STATUS_CONDITION_ALIASES[partialAliases[0]] : null);
+        if (!names) {
+            optionError(lineNumber, `unknown status condition '${rawCondition}'`);
+        }
+        for (const name of names) selected.add(name);
+    }
+    return [...selected];
+}
+
+function parseNumericStatusThreshold(rawThreshold) {
+    const match = String(rawThreshold).match(
+        /^([<>]=?|=)?([+-]?\d+)(%)?$/u,
+    );
+    if (!match) return null;
+    const operator = match[1] || '=';
+    return {
+        behavior: match[3] ? 'percentage' : 'absolute',
+        relation: operator,
+        value: Number.parseInt(match[2], 10),
+    };
+}
+
+function parseStatusHiliteRule(field, threshold, action, lineNumber) {
+    const fieldType = STATUS_HILITE_FIELDS[field];
+    const normalized = String(threshold).trim().toLowerCase();
+    let behavior;
+    let relation = '=';
+    let value = null;
+    let text = '';
+    if (normalized === 'always') {
+        behavior = 'always';
+    } else if (normalized === 'up') {
+        behavior = 'changed';
+        relation = fieldType === 'string' ? '=' : '>';
+    } else if (normalized === 'down') {
+        behavior = 'changed';
+        relation = fieldType === 'string' ? '=' : '<';
+    } else if (normalized === 'changed') {
+        behavior = 'changed';
+    } else if (field === 'hitpoints' && normalized === 'criticalhp') {
+        behavior = 'critical';
+    } else {
+        const numeric = parseNumericStatusThreshold(normalized);
+        if (numeric) {
+            if (fieldType === 'string') {
+                optionError(
+                    lineNumber,
+                    `status field '${field}' does not accept numeric thresholds`,
+                );
+            }
+            ({ behavior, relation, value } = numeric);
+            if (behavior === 'percentage') {
+                if (!STATUS_PERCENT_FIELDS.has(field)) {
+                    optionError(
+                        lineNumber,
+                        `status field '${field}' does not accept percentages`,
+                    );
+                }
+                if (value < 0 || value > 100
+                    || (relation === '<' && value === 0)
+                    || (relation === '>' && value === 100)) {
+                    optionError(
+                        lineNumber,
+                        `status percentage '${threshold}' is out of range`,
+                    );
+                }
+            } else {
+                const lower = field === 'armor-class' ? -128
+                    : relation === '>' ? -1 : relation === '<' ? 1 : 0;
+                if (value < lower
+                    || (fieldType === 'int' && value > 32767)) {
+                    optionError(
+                        lineNumber,
+                        `status threshold '${threshold}' is out of range`,
+                    );
+                }
+            }
+        } else if (Object.hasOwn(STATUS_TEXT_THRESHOLDS, field)) {
+            const canonical = STATUS_TEXT_THRESHOLDS[field][
+                menuHeadingToken(normalized)
+            ];
+            if (!canonical) {
+                optionError(
+                    lineNumber,
+                    `unknown status threshold '${threshold}'`,
+                );
+            }
+            behavior = 'text';
+            text = canonical;
+        } else if (fieldType === 'string') {
+            behavior = 'text';
+            text = normalized;
+        } else {
+            optionError(
+                lineNumber,
+                `unknown status behavior '${threshold}'`,
+            );
+        }
+    }
+    return {
+        field,
+        behavior,
+        relation,
+        value,
+        text,
+        style: parseStatusHiliteAction(action, lineNumber),
+    };
+}
+
+function parseStatusHiliteComponents(components, lineNumber) {
+    const field = statusHiliteFieldName(components[0]);
+    if (!field) {
+        optionError(
+            lineNumber,
+            `unknown status field '${components[0]}'`,
+        );
+    }
+    if (components.length < 2) {
+        optionError(lineNumber, 'incomplete status highlight rule');
+    }
+    const fields = field === 'characteristics'
+        ? STATUS_CHARACTERISTIC_FIELDS : [field];
+    const rules = [];
+    if (field === 'condition') {
+        if (components.length < 3 || components.length % 2 === 0) {
+            optionError(lineNumber, 'incomplete condition highlight rule');
+        }
+        let inheritedColor = NO_COLOR;
+        for (let index = 1; index < components.length; index += 2) {
+            const style = parseStatusHiliteAction(
+                components[index + 1],
+                lineNumber,
+                { allowRepeatedColors: true, inheritedColor },
+            );
+            inheritedColor = style.color;
+            rules.push({
+                field: 'condition',
+                conditions: statusConditionNames(
+                    components[index], lineNumber,
+                ),
+                style,
+            });
+        }
+        return rules;
+    }
+    if (components.length === 2) {
+        for (const target of fields) {
+            rules.push(parseStatusHiliteRule(
+                target, 'always', components[1], lineNumber,
+            ));
+        }
+        return rules;
+    }
+    if (components.length % 2 === 0) {
+        optionError(lineNumber, 'incomplete status highlight rule');
+    }
+    for (let index = 1; index < components.length; index += 2) {
+        for (const target of fields) {
+            rules.push(parseStatusHiliteRule(
+                target,
+                components[index],
+                components[index + 1],
+                lineNumber,
+            ));
+        }
+    }
+    return rules;
+}
+
+function parseStatusHiliteRules(value, lineNumber) {
+    const rules = [];
+    let components = [''];
+    let componentIndex = 0;
+    const flush = () => {
+        if (components.some(Boolean)) {
+            rules.push(...parseStatusHiliteComponents(
+                components.map((part) => part.trim()), lineNumber,
+            ));
+        }
+        components = [''];
+        componentIndex = 0;
+    };
+    for (const character of String(value).toLowerCase()) {
+        if (character === '/') {
+            componentIndex++;
+            components[componentIndex] = '';
+        } else if (character === ' ') {
+            if (componentIndex === 1
+                && menuHeadingToken(components[0]) === 'title') {
+                components[componentIndex] += character;
+            } else if (componentIndex > 0) {
+                flush();
+            }
+        } else {
+            components[componentIndex] += character;
+        }
+    }
+    flush();
+    if (!rules.length) {
+        optionError(lineNumber, 'hilite_status requires a value');
+    }
+    return rules;
+}
+
+function setStatusHiliteOption(result, value, negated, lineNumber) {
+    if (negated && value != null) {
+        result.iflags.status_hilites.length = 0;
+        return;
+    }
+    if (value == null || !String(value).trim()) {
+        optionError(lineNumber, 'hilite_status requires a value');
+    }
+    result.iflags.status_hilites.push(
+        ...parseStatusHiliteRules(value, lineNumber),
+    );
+    if (!result.iflags.hilite_delta) result.iflags.hilite_delta = 3;
+}
+
+function setStatusHiliteDuration(result, value, negated) {
+    if (negated) {
+        result.iflags.hilite_delta = 0;
+        return;
+    }
+    const parsed = value == null || value === ''
+        ? 3 : Number.parseInt(value, 10) || 0;
+    result.iflags.hilite_delta = parsed < 0 ? 1 : parsed;
+}
+
 function parseMenuHeadingStyle(value, lineNumber) {
     const rawTokens = String(value).split('&').map((token) => token.trim());
     const tokens = rawTokens.map(menuHeadingToken);
@@ -1159,6 +1624,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         if (enabled && result.iflags.wc2_petattr === ATR_NONE) {
             result.iflags.wc2_petattr = ATR_INVERSE;
         }
+    } else if (name === 'hitpointbar') {
+        result.iflags.wc2_hitpointbar = enabled;
     } else if (name === 'legacy') result.flags.legacy = enabled;
     else if (name === 'tutorial') {
         result.flags.tutorial = enabled;
@@ -1373,6 +1840,14 @@ function applyOption(result, optionState, option, lineNumber) {
         setMenuHeadings(result, value, negated, lineNumber);
     } else if (name === 'petattr') {
         setPetAttribute(result, value, negated, lineNumber);
+    } else if (name === 'hilite_status') {
+        setStatusHiliteOption(result, value, negated, lineNumber);
+    } else if (name === 'statushilites') {
+        setStatusHiliteDuration(result, value, negated);
+    } else if (name.startsWith('cond_')) {
+        const enabled = !negated;
+        result.flags[name] = enabled;
+        result.iflags.status_conditions[name.slice('cond_'.length)] = enabled;
     } else if (menuCommand && parsedName === name) {
         setMenuCommandOption(
             result, menuCommand, value, negated, lineNumber,
