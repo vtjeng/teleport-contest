@@ -10,7 +10,11 @@ import {
 import { engr_at } from '../js/engrave.js';
 import { game, resetGame } from '../js/gstate.js';
 import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
-import { runSegment, wd_message } from '../js/jsmain.js';
+import {
+    runSegment,
+    set_playmode,
+    wd_message,
+} from '../js/jsmain.js';
 import {
     PM_KITTEN,
     PM_LITTLE_DOG,
@@ -407,6 +411,38 @@ test('wd_message preserves denied-mode message and cleanup order', async () => {
     assert.equal(deniedBoth.discover, false);
     assert.equal(deniedBoth.flags.explore, false);
     assert.equal(deniedBoth.iflags.deferred_X, false);
+});
+
+test('set_playmode applies recorder authorization before new-game state', () => {
+    const denied = {
+        plname: 'FreshDiff',
+        flags: { debug: true, explore: false },
+        iflags: {},
+        gp: {},
+    };
+    set_playmode(denied);
+    assert.equal(denied.wizard, false);
+    assert.equal(denied.discover, true);
+    assert.deepEqual(denied.flags, { debug: false, explore: true });
+    assert.equal(denied.iflags.wiz_error_flag, true);
+    assert.equal(denied.iflags.deferred_X, false);
+    assert.deepEqual(denied.sysopt, {
+        wizards: 'root games',
+        explorers: '*',
+    });
+
+    const authorized = {
+        plname: 'FreshDiff',
+        flags: { debug: true, explore: false },
+        iflags: {},
+        gp: {},
+        sysopt: { wizards: 'root games', explorers: '*' },
+    };
+    set_playmode(authorized, { loginName: 'root' });
+    assert.equal(authorized.wizard, true);
+    assert.equal(authorized.discover, false);
+    assert.equal(authorized.plname, 'wizard');
+    assert.equal(authorized.gp.plnamelen, 6);
 });
 
 test('runSegment shows welcome More before an unset tutorial query', async () => {

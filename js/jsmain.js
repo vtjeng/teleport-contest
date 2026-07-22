@@ -33,6 +33,15 @@ import { moveloop_preamble } from './moveloop_preamble.js';
 import { initialize_symbols_from_options } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 
+const RECORDER_SYSTEM_OPTIONS = Object.freeze({
+    // nethack-c/upstream/sys/libnh/sysconf.  Login identity is not part of
+    // the contest input, so an unset login name represents the ordinary
+    // unprivileged recorder user rather than granting browser-side wizard
+    // access.
+    wizards: 'root games',
+    explorers: '*',
+});
+
 function buildEnglishList(value) {
     const words = String(value).trim().split(/\s+/u).filter(Boolean);
     if (words.length < 2) return words[0] ?? '';
@@ -40,9 +49,56 @@ function buildEnglishList(value) {
     return `${words.slice(0, -1).join(', ')}, or ${words.at(-1)}`;
 }
 
-// C ref: sys/unix/unixmain.c wd_message().  Authorization belongs to the
-// future set_playmode() port; this reproduces the messages and state cleanup
-// for the mode decision already stored on the game state.
+// C refs: options.c:set_playmode() and unixmain.c:check_user_string().
+// This runs after tty initialization and before plnamesuffix(), matching the
+// Unix startup owner.  A caller can supply loginName for focused authorization
+// tests; the replay contract deliberately has no operating-system identity.
+export function set_playmode(state = game, { loginName } = {}) {
+    const flags = state.flags ??= {};
+    const iflags = state.iflags ??= {};
+    const sysopt = state.sysopt ??= {};
+    sysopt.wizards ??= RECORDER_SYSTEM_OPTIONS.wizards;
+    sysopt.explorers ??= RECORDER_SYSTEM_OPTIONS.explorers;
+
+    const username = String(loginName ?? state.loginName ?? '');
+    const authorized = (configuredUsers) => {
+        const text = String(configuredUsers ?? '');
+        if (text.startsWith('*')) return true;
+        if (!username) return false;
+        return text.split(/\s+/u).filter(Boolean).includes(username);
+    };
+
+    let wizard = Boolean(flags.debug);
+    let discover = Boolean(flags.explore);
+    if (wizard) {
+        if (authorized(sysopt.wizards)) {
+            state.plname = 'wizard';
+            state.gp ??= {};
+            state.gp.plnamelen = state.plname.length;
+        } else {
+            iflags.wiz_error_flag = true;
+            wizard = false;
+        }
+        // A denied debug request falls through to explore mode.  Successful
+        // wizard authorization stays out of explore mode.
+        discover = !wizard;
+        iflags.deferred_X = false;
+    }
+    if (discover && !authorized(sysopt.explorers)) {
+        iflags.explore_error_flag = true;
+        discover = false;
+        iflags.deferred_X = false;
+    }
+
+    flags.debug = wizard;
+    flags.explore = discover;
+    state.wizard = wizard;
+    state.discover = discover;
+    return state;
+}
+
+// C ref: sys/unix/unixmain.c wd_message().  set_playmode() has already made
+// and recorded the authorization decision; this reports it after newgame.
 export async function wd_message(
     state = game,
     { pline = ttyPline } = {},
@@ -192,8 +248,6 @@ export class NethackGame {
         g.commandOperations = opts.commandOperations.map((operation) => ({
             ...operation,
         }));
-        g.wizard = Boolean(g.flags.debug);
-        g.discover = Boolean(g.flags.explore);
         if (opts.tutorial_set) g.tutorial_set_in_config = true;
 
         // The rc parser owns roleplay options until u_init_misc() preserves
@@ -225,6 +279,11 @@ export class NethackGame {
         }
         this._installCaptureHook();
         renderTtyStartupBanner(g);
+
+        // Unix calls set_playmode() after init_nhwindows() and before
+        // plnamesuffix().  Its decision changes initial inventory and dungeon
+        // PRNG order, so it cannot be deferred to wd_message().
+        set_playmode(g);
 
         // C filters generic Unix usernames, prompts when necessary, then
         // strips any role/race/gender/alignment suffix before selection.
