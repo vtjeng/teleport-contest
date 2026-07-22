@@ -19,6 +19,7 @@ import {
     ROGUESET,
     BLCORNER,
     BRCORNER,
+    CONFUSION,
     CORR,
     CROSSWALL,
     D_CLOSED,
@@ -26,6 +27,8 @@ import {
     DUST,
     DOOR,
     FOUNTAIN,
+    FLYING,
+    HALLUC,
     HWALL,
     ICE,
     LADDER,
@@ -33,6 +36,7 @@ import {
     LA_DOWN,
     LAVAPOOL,
     LAVAWALL,
+    LEVITATION,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     OBJ_FLOOR,
@@ -40,9 +44,16 @@ import {
     ROOM,
     SCORR,
     SDOOR,
+    SICK,
+    SICK_NONVOMITABLE,
+    SICK_VOMITABLE,
     SINK,
+    SLIMED,
     STAIRS,
     STONE,
+    STONED,
+    STRANGLED,
+    STUNNED,
     SVALL,
     TDWALL,
     TLCORNER,
@@ -58,6 +69,8 @@ import {
     bot,
     armor_status,
     classify_terrain,
+    cls,
+    docrt,
     flush_screen,
     hero_glyph_info,
     monster_glyph_info,
@@ -121,6 +134,7 @@ import {
     CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
     CLR_BROWN,
+    CLR_GRAY,
     CLR_RED,
     CLR_WHITE,
     CLR_YELLOW,
@@ -184,6 +198,121 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     state.viz_array = [];
     state.viz_array[y] = [];
     state.viz_array[y][x] = 0x2;
+    return state;
+}
+
+function terminalRow(state, row) {
+    return state.nhDisplay.grid[row].map((cell) => cell.ch).join('');
+}
+
+function enableBrowserProjection(display) {
+    display.terminal.spans = Array.from(
+        { length: display.rows },
+        () => Array.from({ length: display.cols }, () => ({
+            classList: { add() {}, remove() {} },
+            style: {},
+            textContent: ' ',
+        })),
+    );
+}
+
+function assertCellRange(state, row, start, length, expected, label) {
+    assert.ok(start >= 0, `${label}: missing range`);
+    for (let column = start; column < start + length; ++column) {
+        assert.deepEqual(
+            {
+                color: state.nhDisplay.grid[row][column].color,
+                attr: state.nhDisplay.grid[row][column].attr,
+            },
+            expected,
+            `${label}: column ${column}`,
+        );
+    }
+}
+
+function assertStatusTextStyle(
+    state,
+    row,
+    text,
+    expected,
+    { from = 0, before = true, after = true } = {},
+) {
+    const start = terminalRow(state, row).indexOf(text, from);
+    assert.notEqual(start, -1, text);
+    assertCellRange(state, row, start, text.length, expected, text);
+    const normal = { color: NO_COLOR, attr: ATR_NONE };
+    if (before && start > 0) {
+        assert.deepEqual(
+            {
+                color: state.nhDisplay.grid[row][start - 1].color,
+                attr: state.nhDisplay.grid[row][start - 1].attr,
+            },
+            normal,
+            `${text}: preceding cell`,
+        );
+    }
+    if (after && start + text.length < 79) {
+        assert.deepEqual(
+            {
+                color: state.nhDisplay.grid[row][start + text.length].color,
+                attr: state.nhDisplay.grid[row][start + text.length].attr,
+            },
+            normal,
+            `${text}: following cell`,
+        );
+    }
+    return start;
+}
+
+function statusRenderingState() {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    state.level = new GameMap();
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    const object = (otyp) => ({
+        otyp,
+        oclass: state.objects[otyp].oc_class,
+    });
+    state.level.at(7, 4).typ = STAIRS;
+    state.flags = {
+        female: false,
+        showexp: true,
+        showvers: true,
+        time: true,
+        versinfo: 1,
+        weaponstatus: true,
+        armorstatus: true,
+        terrainstatus: true,
+    };
+    state.iflags = { wc2_statuslines: 2 };
+    state.urole = {
+        name: { m: 'Barbarian' },
+        rank: { m: 'Plunderer' },
+    };
+    state.plname = 'Hero';
+    state.u = {
+        ux: 7,
+        uy: 4,
+        uz: { dnum: 0, dlevel: 1 },
+        umonnum: 0,
+        ulevel: 1,
+        uexp: 42,
+        uhp: 16,
+        uhpmax: 16,
+        uen: 4,
+        uenmax: 6,
+        uac: 8,
+        ualign: { type: -1 },
+        acurr: { a: [18, 13, 14, 15, 16, 17] },
+        uprops: [],
+        uroleplay: {},
+    };
+    state.moves = 7;
+    state.mons = [{ mflags1: M1_HUMANOID }];
+    state.uwep = object(SPEAR);
+    state.uarms = object(SMALL_SHIELD);
+    state.invent = { oclass: COIN_CLASS, quan: 50, nobj: null };
     return state;
 }
 
@@ -679,6 +808,50 @@ test('hero and pet symbol overrides require sysconf accessibility', () => {
     assert.equal(hero_glyph_info(state).ch, 'f');
 });
 
+test('UTF-8 hero and pet overrides survive zero raw optional symbols', () => {
+    const state = {
+        flags: {},
+        sysopt: { accessibility: 1 },
+        u: { umonnum: 0 },
+        urace: { mnum: 1 },
+        mons: [
+            { mlet: S_HUMAN, mcolor: CLR_RED },
+            { mlet: S_FELINE, mcolor: CLR_WHITE },
+        ],
+    };
+    const configured = parseNethackrc([
+        'OPTIONS=symset:Enhanced1',
+        'SYMBOLS=S_pet_override:U+2603,S_hero_override:U+2602',
+    ].join('\n'));
+    state.iflags = { ...configured.iflags };
+    initialize_symbols_from_options(configured, state);
+    const pet = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mtame: 10,
+    };
+
+    assert.deepEqual(hero_glyph_info(state), {
+        ch: null,
+        color: CLR_RED,
+        dec: false,
+        displayCh: '☂',
+    });
+    assert.deepEqual(monster_glyph_info(pet, state), {
+        ch: null,
+        color: CLR_WHITE,
+        dec: false,
+        displayCh: '☃',
+    });
+
+    state.iflags.customsymbols = false;
+    assert.deepEqual(hero_glyph_info(state), {
+        ch: '@', color: CLR_RED, dec: false,
+    });
+    assert.deepEqual(monster_glyph_info(pet, state), {
+        ch: 'f', color: CLR_WHITE, dec: false,
+    });
+});
+
 test('monster glyphs apply the configured tty attribute only to pets', () => {
     const state = {
         flags: {},
@@ -1140,6 +1313,94 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
         0,
         'a UTF-8 browser glyph does not mutate the recorder-facing cell',
     );
+});
+
+test('flush_screen preserves final map attributes for recorder and browser cells', async () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    state.nhDisplay = new GameDisplay(null);
+    state.level.flags.hero_memory = true;
+    const gridCell = () => state.nhDisplay.grid[y + 1][x - 1];
+
+    state.iflags = {
+        wc_color: true,
+        wc_hilite_pet: true,
+        wc2_petattr: ATR_BOLD,
+    };
+    state.level.monsters[x][y] = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mtame: 10,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+    newsym(x, y);
+    await flush_screen(1);
+    assert.deepEqual(gridCell(), {
+        ch: 'f', color: CLR_WHITE, attr: ATR_BOLD,
+    });
+
+    state.level.monsters[x][y] = null;
+    const lower = { otyp: SPEAR };
+    state.level.objects[x][y] = {
+        otyp: ARROW,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: lower,
+    };
+    state.iflags.hilite_pile = true;
+    state.iflags.wc_inverse = true;
+    newsym(x, y);
+    await flush_screen(1);
+    assert.deepEqual(gridCell(), {
+        ch: ')', color: state.objects[ARROW].oc_color, attr: ATR_INVERSE,
+    });
+
+    state.level.objects[x][y] = null;
+    state.level.at(x, y).typ = LAVAPOOL;
+    state.iflags = { wc_color: false, wc_inverse: true };
+    newsym(x, y);
+    await flush_screen(1);
+    assert.deepEqual(gridCell(), {
+        ch: '}', color: NO_COLOR, attr: ATR_INVERSE,
+    });
+
+    state.level.at(x, y).typ = CORR;
+    state.iflags = { wc_color: true, wc_inverse: true };
+    const engraving = make_engr_at(
+        x, y, 'final grid', null, 0, DUST, { state },
+    );
+    newsym(x, y);
+    await flush_screen(1);
+    assert.equal(engraving.erevealed, true);
+    assert.deepEqual(gridCell(), {
+        ch: '#', color: CLR_BRIGHT_BLUE, attr: ATR_INVERSE,
+    });
+
+    state.viz_array[y][x] = 0;
+    newsym(x, y);
+    await flush_screen(1);
+    assert.deepEqual(gridCell(), {
+        ch: '#', color: CLR_BRIGHT_BLUE, attr: ATR_INVERSE,
+    }, 'remembered engraving retains its presentation attributes');
+
+    state.viz_array[y][x] = 0x2;
+    const enhanced = parseNethackrc('OPTIONS=symset:Enhanced1');
+    state.iflags = { ...enhanced.iflags, wc_inverse: true };
+    initialize_symbols_from_options(enhanced, state);
+    newsym(x, y);
+    const browserCharacter = state.level.at(x, y).disp_browser_ch;
+    assert.ok(browserCharacter);
+    enableBrowserProjection(state.nhDisplay);
+    await flush_screen(1);
+    assert.deepEqual(gridCell(), {
+        ch: browserCharacter,
+        color: state.level.at(x, y).disp_browser_color,
+        attr: ATR_INVERSE,
+    });
 });
 
 test('newsym layers seen traps below objects and above engravings', () => {
@@ -1725,6 +1986,124 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
     assert.equal(row(23).length, 79);
 });
 
+test('tutorial overflow shrinking preserves complete status grids and attributes', async () => {
+    const state = statusRenderingState();
+    state.tutorial_dnum = state.u.uz.dnum;
+    state.level.at(state.u.ux, state.u.uy).typ = ICE;
+    state.uwep = null;
+    state.u.uroleplay.deaf = true;
+    state.u.usick_type = SICK_NONVOMITABLE | SICK_VOMITABLE;
+    for (const property of [
+        BLINDED,
+        CONFUSION,
+        FLYING,
+        HALLUC,
+        LEVITATION,
+        SICK,
+        SLIMED,
+        STONED,
+        STRANGLED,
+        STUNNED,
+    ]) {
+        state.u.uprops[property] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+    }
+    const expected = {
+        2: [
+            'Hero the Plunderer             St:18 Dx:15 Co:16 In:13 Wi:14 Ch:17 Chaotic',
+            'Dl:1 $:50 HP:16(16) Pw:4(6) AC:8 Xp:1/42 T:7  Str Poi Slm Sto Ill Bl Cf Df Fl H',
+        ],
+        3: [
+            'Hero the Plunderer             St:18 Dx:15 Co:16 In:13 Wi:14 Ch:17',
+            'Chaotic $:50 HP:16(16) Pw:4(6) AC:8 Xp:1/42',
+            'Dl:1 T:7                         Str Poi Slm Sto Ill Bl Bare-hnds Shield Ice 5.',
+        ],
+    };
+
+    for (const lines of [2, 3]) {
+        const parsed = parseNethackrc(
+            'OPTIONS=cond_barehanded,cond_ice\n'
+            + 'OPTIONS=hilite_status:dungeon-level/always/red&bold',
+        );
+        state.iflags = { ...parsed.iflags, wc2_statuslines: lines };
+        await bot();
+        for (let index = 0; index < expected[lines].length; ++index) {
+            const screenRow = 24 - lines + index;
+            const text = expected[lines][index];
+            assert.equal(terminalRow(state, screenRow), text.padEnd(80));
+            const detailRow = index === expected[lines].length - 1;
+            assert.deepEqual(
+                state.nhDisplay.grid[screenRow].map((cell, column) => ({
+                    color: cell.color,
+                    attr: cell.attr,
+                })),
+                Array.from({ length: 80 }, (_, column) => {
+                    if (detailRow && column < 4) {
+                        return { color: CLR_RED, attr: ATR_BOLD };
+                    }
+                    return column < text.length
+                        ? { color: NO_COLOR, attr: ATR_NONE }
+                        : { color: CLR_GRAY, attr: ATR_NONE };
+                }),
+                `${lines}-line row ${screenRow}`,
+            );
+        }
+    }
+});
+
+test('initial three-line status preserves tty overlap until the forced refresh', async () => {
+    const state = statusRenderingState();
+    state.uwep = null;
+    state.uarms = null;
+    state.u.uroleplay.deaf = true;
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const parsed = parseNethackrc(
+        'OPTIONS=cond_barehanded\n'
+        + 'OPTIONS=hilite_status:condition/blind/red&bold',
+    );
+    state.iflags = { ...parsed.iflags, wc2_statuslines: 3 };
+    state.program_state = { in_moveloop: 0 };
+    state.disp = {};
+
+    await bot({ initialTtyRefresh: true });
+
+    // The condition starts at the preceding row's hunger slot (column 45),
+    // while the right-justified version starts at column 75.
+    const initialRow = 'Dlvl:1 T:7'.padEnd(44)
+        + 'Blind'.padEnd(30)
+        + '5.0.0';
+    assert.equal(terminalRow(state, 23), initialRow.padEnd(80));
+    assertCellRange(
+        state,
+        23,
+        44,
+        5,
+        { color: CLR_RED, attr: ATR_BOLD },
+        'initial overlapping Blind condition',
+    );
+
+    state.disp.botlx = false;
+    await docrt();
+    assert.equal(state.disp.botlx, true, 'docrt invalidates tty status');
+    state.program_state.in_moveloop = 1;
+    await flush_screen(1);
+
+    // On the forced steady-state pass, the first optional value begins at
+    // its nominal column 28 and overwrites the indented conditions.
+    const refreshedRow = 'Dlvl:1 T:7'.padEnd(27)
+        + 'Bare-hnds Naked Stairs'.padEnd(47)
+        + '5.0.0';
+    assert.equal(terminalRow(state, 23), refreshedRow.padEnd(80));
+    assert.equal(state.disp.botlx, false);
+
+    state.disp.botlx = false;
+    await cls();
+    assert.equal(state.disp.botlx, true, 'cls invalidates tty status');
+});
+
 test('disabled status updates retain blank reserved tty rows', async () => {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
@@ -1825,7 +2204,7 @@ test('status uses source attribute order and exceptional strength text', async (
     state.plname = 'Hero';
     state.iflags = { wc2_statuslines: 3 };
     state.u.uroleplay = {};
-    await flush_screen(1);
+    await bot();
     assert.match(
         row(21),
         /St:19 Dx:15 Co:16 In:13 Wi:14 Ch:17$/u,
@@ -1925,16 +2304,53 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
     state.iflags.wc2_hitpointbar = true;
     await bot();
     assert.equal(row(22).slice(0, 19), '[Hero the Plunderer');
+    assertCellRange(
+        state,
+        22,
+        1,
+        18,
+        { color: CLR_RED, attr: ATR_INVERSE },
+        'full-HP visible title',
+    );
     assert.deepEqual(
         [
             state.nhDisplay.grid[22][0].attr,
-            state.nhDisplay.grid[22][1].color,
-            state.nhDisplay.grid[22][1].attr,
             state.nhDisplay.grid[22][19].color,
             state.nhDisplay.grid[22][19].attr,
+            state.nhDisplay.grid[22][31].color,
+            state.nhDisplay.grid[22][31].attr,
         ],
-        [ATR_NONE, CLR_RED, ATR_INVERSE, NO_COLOR, ATR_NONE],
-        'tty cursor-forward padding retains normal shadow-cell attributes',
+        [
+            ATR_NONE,
+            NO_COLOR,
+            ATR_NONE,
+            NO_COLOR,
+            ATR_NONE,
+        ],
+        'the NOMUX first-command grid retains normal title padding',
+    );
+
+    // Eight of sixteen HP places the 15-cell split inside the visible title.
+    state.u.uhp = 8;
+    await bot();
+    assert.deepEqual(
+        [
+            state.nhDisplay.grid[22][15].attr,
+            state.nhDisplay.grid[22][16].attr,
+        ],
+        [ATR_INVERSE, ATR_NONE],
+        'an injured hitpoint split styles the visible percentage prefix',
+    );
+
+    state.u.uhp = 0;
+    await bot();
+    assert.deepEqual(
+        [
+            state.nhDisplay.grid[22][1].color,
+            state.nhDisplay.grid[22][1].attr,
+        ],
+        [NO_COLOR, ATR_NONE],
+        'zero hitpoints leave the entire bar in its unhighlighted part',
     );
 
     // One hit point out of sixteen makes exactly one of the thirty bar cells
@@ -1978,6 +2394,217 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         CLR_YELLOW,
         'alignment styling targets the field rather than a matching name',
     );
+});
+
+test('status field ownership styles every dispatch branch in both layouts', async () => {
+    const state = statusRenderingState();
+    const cases = [
+        { field: 'dungeon-level', text: 'Dlvl:1', threeRow: 23,
+            before: false },
+        { field: 'gold', text: '$:50', threeRow: 22 },
+        { field: 'power', text: 'Pw:4', threeRow: 22 },
+        { field: 'power-max', text: '(6)', threeRow: 22 },
+        { field: 'hitpoints-max', text: '(16)', threeRow: 22 },
+        { field: 'armor-class', text: 'AC:8', threeRow: 22 },
+        { field: 'experience-level', text: 'Xp:1', threeRow: 22 },
+        { field: 'experience', text: '42', threeRow: 22,
+            afterPrefix: 'Xp:1/', after: false },
+        { field: 'time', text: 'T:7', threeRow: 23 },
+        { field: 'version', text: '5.0.0', threeRow: 23, after: false },
+        { field: 'weapon', text: 'Spear', threeRow: 23 },
+        { field: 'armor', text: 'Shield', threeRow: 23 },
+        { field: 'terrain', text: 'Stairs', threeRow: 23 },
+    ];
+    const expected = { color: CLR_RED, attr: ATR_BOLD };
+
+    for (const lines of [2, 3]) {
+        for (const expectedField of cases) {
+            const parsed = parseNethackrc(
+                `OPTIONS=hilite_status:${expectedField.field}/always/red&bold`,
+            );
+            state.iflags = {
+                ...parsed.iflags,
+                wc2_statuslines: lines,
+            };
+            await bot();
+            const row = lines === 2 ? 23 : expectedField.threeRow;
+            const from = expectedField.afterPrefix
+                ? terminalRow(state, row).indexOf(expectedField.afterPrefix)
+                    + expectedField.afterPrefix.length
+                : 0;
+            assertStatusTextStyle(
+                state,
+                row,
+                expectedField.text,
+                expected,
+                {
+                    from,
+                    before: expectedField.before !== false,
+                    after: expectedField.after !== false,
+                },
+            );
+        }
+
+        const parsed = parseNethackrc(
+            'OPTIONS=hilite_status:title/always/red&bold',
+        );
+        state.iflags = { ...parsed.iflags, wc2_statuslines: lines };
+        await bot();
+        const titleRow = lines === 2 ? 22 : 21;
+        assertCellRange(
+            state,
+            titleRow,
+            0,
+            30,
+            expected,
+            `${lines}-line padded title`,
+        );
+        assert.deepEqual(
+            {
+                color: state.nhDisplay.grid[titleRow][30].color,
+                attr: state.nhDisplay.grid[titleRow][30].attr,
+            },
+            { color: NO_COLOR, attr: ATR_NONE },
+            'the title separator is not part of BL_TITLE',
+        );
+    }
+});
+
+test('status highlight rules preserve source matching and precedence', async () => {
+    const state = statusRenderingState();
+    const install = (rules) => {
+        const parsed = parseNethackrc(`OPTIONS=hilite_status:${rules}`);
+        state.iflags = { ...parsed.iflags, wc2_statuslines: 2 };
+    };
+    const goldStyle = () => {
+        const row = terminalRow(state, 23);
+        const column = row.indexOf('$:');
+        return state.nhDisplay.grid[23][column];
+    };
+
+    install('gold/<100/red/<75/bright-green/>10/bright-blue/>40/yellow/=50/bright-magenta');
+    await bot();
+    assert.equal(goldStyle().color, CLR_BRIGHT_MAGENTA, 'exact equality wins');
+
+    state.invent.quan = 51;
+    await bot();
+    assert.equal(
+        goldStyle().color,
+        CLR_YELLOW,
+        'the tightest matching greater-than bound wins after equality stops matching',
+    );
+
+    state.invent.quan = 5;
+    await bot();
+    assert.equal(
+        goldStyle().color,
+        CLR_BRIGHT_GREEN,
+        'the tightest matching less-than bound wins',
+    );
+
+    state.invent.quan = 50;
+    install('gold/<50/red/<=50/bright-green/>50/bright-blue/>=50/yellow');
+    await bot();
+    assert.equal(
+        goldStyle().color,
+        CLR_YELLOW,
+        'inclusive greater-than and less-than relations both match equality in rule order',
+    );
+
+    install('title/"Plunderer"/bright-green/always/red');
+    await bot();
+    assert.equal(
+        state.nhDisplay.grid[22][0].color,
+        CLR_RED,
+        'a later always rule replaces an earlier text match',
+    );
+    install('title/always/red/"Plunderer"/bright-green');
+    await bot();
+    assert.equal(
+        state.nhDisplay.grid[22][0].color,
+        CLR_BRIGHT_GREEN,
+        'a later fuzzy text match replaces the always fallback',
+    );
+
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uroleplay.deaf = true;
+    state.flags.showvers = false;
+    state.flags.time = false;
+    state.flags.weaponstatus = false;
+    state.flags.armorstatus = false;
+    state.flags.terrainstatus = false;
+    install('condition/blind+deaf/red&bold/blind/bright-blue&underline');
+    await bot();
+    assertStatusTextStyle(
+        state,
+        23,
+        'Blind',
+        { color: CLR_RED, attr: ATR_BOLD | ATR_UNDERLINE },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        'Deaf',
+        { color: CLR_RED, attr: ATR_BOLD },
+        { after: false },
+    );
+});
+
+test('gray status rules normalize at the recorder-facing grid boundary', async () => {
+    const state = statusRenderingState();
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const parsed = parseNethackrc(
+        'OPTIONS=hilite_status:gold/always/gray&bold '
+        + 'power/always/red&underline hitpoints/always/gray&bold\n'
+        + 'OPTIONS=hilite_status:condition/blind/gray&underline',
+    );
+    state.iflags = { ...parsed.iflags, wc2_statuslines: 2 };
+    await bot();
+
+    assertStatusTextStyle(
+        state,
+        23,
+        '$:50',
+        { color: NO_COLOR, attr: ATR_BOLD },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        'Pw:4',
+        { color: CLR_RED, attr: ATR_UNDERLINE },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        'HP:16',
+        { color: NO_COLOR, attr: ATR_BOLD },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        'Blind',
+        { color: NO_COLOR, attr: ATR_UNDERLINE },
+    );
+
+    state.iflags.wc2_hitpointbar = true;
+    await bot();
+    assertCellRange(
+        state,
+        22,
+        1,
+        18,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'gray full-HP visible title',
+    );
+    assert.deepEqual(
+        {
+            color: state.nhDisplay.grid[22][19].color,
+            attr: state.nhDisplay.grid[22][19].attr,
+        },
+        { color: NO_COLOR, attr: ATR_NONE },
+        'gray HP-bar padding stays at terminal defaults',
+    );
+    assert.notEqual(CLR_GRAY, NO_COLOR, 'the assertion detects normalization');
 });
 
 test('three-line status clips the map around a bottom-row hero', async () => {

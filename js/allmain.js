@@ -107,7 +107,7 @@ export async function newgame() {
     await cls();
     await docrt();
     await flush_screen(1);
-    await bot();
+    await bot({ initialTtyRefresh: true });
 
     // C ref: allmain.c newgame(). Only the accepted inventory reaches object
     // discovery, equipment, spell, and skill initialization.  Each rejected

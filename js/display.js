@@ -1191,6 +1191,10 @@ export async function docrt() {
     if (!game.level) return;
     for (let y = 0; y < ROWNO; y++)
         for (let x = 1; x < COLNO; x++) newsym(x, y);
+    // display.c docrt(): the full redraw invalidates the tty status window;
+    // the next flush performs bot() before placing the hero cursor.
+    game.disp ??= {};
+    game.disp.botlx = true;
 }
 
 // ── Status lines ──
@@ -1461,12 +1465,23 @@ function _terrainStatus(state = game) {
     return TERRAIN_DESCRIPTIONS[typ] ?? '';
 }
 
-function _optionalStatusFields() {
+function _optionalStatusEntries() {
     const fields = [];
-    if (game.flags?.weaponstatus) fields.push(weapon_status(game));
-    if (game.flags?.armorstatus) fields.push(armor_status(game));
-    if (game.flags?.terrainstatus) fields.push(_terrainStatus(game));
-    return fields.length ? ` ${fields.join(' ')}` : '';
+    if (game.flags?.weaponstatus) {
+        fields.push({ field: 'weapon', text: weapon_status(game) });
+    }
+    if (game.flags?.armorstatus) {
+        fields.push({ field: 'armor', text: armor_status(game) });
+    }
+    if (game.flags?.terrainstatus) {
+        fields.push({ field: 'terrain', text: _terrainStatus(game) });
+    }
+    return fields;
+}
+
+function _optionalStatusFields() {
+    const fields = _optionalStatusEntries();
+    return fields.length ? ` ${fields.map(({ text }) => text).join(' ')}` : '';
 }
 
 function _statusPlayerName() {
@@ -1509,29 +1524,6 @@ function _statusHitpointBarTitle() {
 function _statusAlignment(u = game.u) {
     return u?.ualign?.type === 0
         ? 'Neutral' : u?.ualign?.type > 0 ? 'Lawful' : 'Chaotic';
-}
-
-function _statusLine1(includeAlignment = true) {
-    const u = game.u;
-    if (!u) return '';
-    const title = _statusTitle();
-    let displayedTitle = title;
-    if (game.iflags?.wc2_hitpointbar) {
-        displayedTitle = `[${_statusHitpointBarTitle()}]`;
-    }
-    const attrs = u.acurr?.a ?? [];
-    const strength = attrs[A_STR]
-        ? get_strength_str(attrs[A_STR]) : '?';
-    const stats = `St:${strength} Dx:${attrs[A_DEX] || '?'} Co:${attrs[A_CON] || '?'} In:${attrs[A_INT] || '?'} Wi:${attrs[A_WIS] || '?'} Ch:${attrs[A_CHA] || '?'}`;
-    const align = _statusAlignment(u);
-    // C uses cursor-forward for gap between title and stats
-    // C pads to align stats starting at a fixed column
-    const gap = Math.max(1, 31 - displayedTitle.length);
-    const suffix = includeAlignment ? ` ${align}` : '';
-    if (gap > 4) {
-        return `${displayedTitle}\x1b[${gap}C${stats}${suffix}`;
-    }
-    return `${displayedTitle}${' '.repeat(gap)}${stats}${suffix}`;
 }
 
 const HUNGER_STATUS = Object.freeze([
@@ -1651,30 +1643,19 @@ function _statusExperience(u) {
 function _statusLevelDescription(u, short = false) {
     const tutorial = Number.isInteger(game.tutorial_dnum)
         && u.uz?.dnum === game.tutorial_dnum;
-    const label = tutorial ? 'Tutorial' : short ? 'Dl' : 'Dlvl';
+    // wintty.c shrink_dlvl() replaces everything before the colon, including
+    // special-level descriptions such as "Tutorial", with the short label.
+    const label = short ? 'Dl' : tutorial ? 'Tutorial' : 'Dlvl';
     return `${label}:${dungeonDepth(u.uz)}`;
-}
-
-function _statusVersionSuffix(status) {
-    if (!game.flags?.showvers) return status.slice(0, TTY_STATUS_WIDTH);
-    const version = status_version(game.flags);
-    // win/tty/wintty.c render_status() right-justifies BL_VERS against the
-    // TTY's 79 printable status columns when it is the row's final field.
-    const versionColumn = Math.max(
-        status.length + 1,
-        TTY_STATUS_WIDTH - version.length,
-    );
-    return `${status.padEnd(versionColumn)}${version}`
-        .slice(0, TTY_STATUS_WIDTH);
 }
 
 function _statusVitals(u) {
     return `$:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
 }
 
-function _statusLine2() {
+function _statusLine2Configuration() {
     const u = game.u;
-    if (!u) return '';
+    if (!u) return null;
     const time = game.flags?.time ? ` T:${game.moves || 1}` : '';
     const optional = _optionalStatusFields();
     const versionLength = game.flags?.showvers
@@ -1701,22 +1682,16 @@ function _statusLine2() {
         shortLevel = true;
         status = build();
     }
-    return _statusVersionSuffix(status);
+    return { capacityPadding, conditionLevel, shortLevel, status };
 }
 
 function _statusLine3VitalsBase(u) {
     return `${_statusAlignment(u)} ${_statusVitals(u)}`;
 }
 
-function _statusLine3Vitals() {
+function _statusLine3DetailsConfiguration() {
     const u = game.u;
-    if (!u) return '';
-    return `${_statusLine3VitalsBase(u)}${_hungerStatus(u)}`;
-}
-
-function _statusLine3Details() {
-    const u = game.u;
-    if (!u) return '';
+    if (!u) return null;
     const time = game.flags?.time ? ` T:${game.moves || 1}` : '';
     const optional = _optionalStatusFields();
     const version = game.flags?.showvers ? status_version(game.flags) : '';
@@ -1733,24 +1708,251 @@ function _statusLine3Details() {
     }
     if (nominalLength() > TTY_STATUS_WIDTH) shortLevel = true;
 
+    return { conditionLevel, conditions, optional, shortLevel, time, version };
+}
+
+function _newStatusRow() {
+    const chars = new Array(TTY_STATUS_WIDTH).fill(' ');
+    const owners = new Array(TTY_STATUS_WIDTH).fill(null);
+    let extent = 0;
+    const write = (start, text, owner = null) => {
+        for (let index = 0; index < text.length; ++index) {
+            const column = start + index;
+            if (column >= 0 && column < TTY_STATUS_WIDTH) {
+                chars[column] = text[index];
+                owners[column] = owner;
+            }
+        }
+        extent = Math.max(
+            extent,
+            Math.min(TTY_STATUS_WIDTH, Math.max(0, start + text.length)),
+        );
+        return start + text.length;
+    };
+    const clear = (start, end) => {
+        for (let column = Math.max(0, start);
+            column < Math.min(TTY_STATUS_WIDTH, end);
+            ++column) {
+            chars[column] = ' ';
+            owners[column] = null;
+        }
+        extent = Math.max(extent, Math.min(TTY_STATUS_WIDTH, end));
+    };
+    const finish = () => {
+        let length = extent;
+        while (length > 0 && chars[length - 1] === ' ') --length;
+        return {
+            text: chars.slice(0, length).join(''),
+            owners: owners.slice(0, length),
+        };
+    };
+    return { clear, finish, write };
+}
+
+function _fieldOwner(field) {
+    return { kind: 'field', field };
+}
+
+function _conditionOwner(option) {
+    return { kind: 'condition', option };
+}
+
+function _hpBarOwner() {
+    return { kind: 'hitpoint-bar' };
+}
+
+function _writeSeparatedFields(row, start, entries) {
+    let column = start;
+    for (const { field, text } of entries) {
+        column = row.write(column, ' ');
+        column = row.write(column, text, _fieldOwner(field));
+    }
+    return column;
+}
+
+function _writeConditions(row, start, entries) {
+    let column = start;
+    for (const { option, text } of entries) {
+        column = row.write(column, ' ');
+        column = row.write(column, text, _conditionOwner(option));
+    }
+    return column;
+}
+
+function _writeVitals(row, start, u) {
+    let column = start;
+    column = row.write(column, `$:${money_cnt(game.invent)}`, _fieldOwner('gold'));
+    column = row.write(column, ' ');
+    column = row.write(column, `HP:${u.uhp || 0}`, _fieldOwner('hitpoints'));
+    column = row.write(column, `(${u.uhpmax || 0})`, _fieldOwner('hitpoints-max'));
+    column = row.write(column, ' ');
+    column = row.write(column, `Pw:${u.uen || 0}`, _fieldOwner('power'));
+    column = row.write(column, `(${u.uenmax || 0})`, _fieldOwner('power-max'));
+    column = row.write(column, ' ');
+    column = row.write(column, `AC:${u.uac ?? 10}`, _fieldOwner('armor-class'));
+    column = row.write(column, ' ');
+    column = row.write(
+        column,
+        `Xp:${u.ulevel || 1}`,
+        _fieldOwner('experience-level'),
+    );
+    if (game.flags?.showexp) {
+        column = row.write(column, '/');
+        column = row.write(column, `${u.uexp || 0}`, _fieldOwner('experience'));
+    }
+    return column;
+}
+
+function _statusLine1Layout(includeAlignment = true) {
+    const u = game.u;
+    if (!u) return { text: '', owners: [] };
+    const row = _newStatusRow();
+    let column;
+    if (game.iflags?.wc2_hitpointbar) {
+        const hp = _statusFieldData('hitpoints');
+        let barLength = Math.trunc(
+            (STATUS_HP_BAR_WIDTH * hp.percent) / 100,
+        );
+        if (barLength < 1 && hp.percent > 0) barLength = 1;
+        if (barLength >= STATUS_HP_BAR_WIDTH && hp.percent < 100) {
+            barLength = STATUS_HP_BAR_WIDTH - 1;
+        }
+        row.write(0, '[');
+        const bar = _statusHitpointBarTitle();
+        // The recorder's final first-command shadow styles only the
+        // nonblank prefix of the percentage slice.  The tty renderer emits
+        // the padded bytes, but its later status refresh leaves those blank
+        // shadow cells at terminal defaults (patch 006 NOMUX capture).
+        const capturedLength = bar.slice(0, barLength).trimEnd().length;
+        row.write(1, bar.slice(0, capturedLength), _hpBarOwner());
+        row.write(1 + capturedLength, bar.slice(capturedLength));
+        row.write(1 + STATUS_HP_BAR_WIDTH, ']');
+        column = STATUS_HP_BAR_WIDTH + 2;
+    } else {
+        const title = _statusTitle().padEnd(STATUS_HP_BAR_WIDTH);
+        row.write(0, title, _fieldOwner('title'));
+        column = title.length;
+    }
+
+    column = Math.max(31, column + 1);
+    const attrs = u.acurr?.a ?? [];
+    const fields = [
+        ['strength', `St:${attrs[A_STR] ? get_strength_str(attrs[A_STR]) : '?'}`],
+        ['dexterity', `Dx:${attrs[A_DEX] || '?'}`],
+        ['constitution', `Co:${attrs[A_CON] || '?'}`],
+        ['intelligence', `In:${attrs[A_INT] || '?'}`],
+        ['wisdom', `Wi:${attrs[A_WIS] || '?'}`],
+        ['charisma', `Ch:${attrs[A_CHA] || '?'}`],
+    ];
+    for (let index = 0; index < fields.length; ++index) {
+        if (index) column = row.write(column, ' ');
+        const [field, text] = fields[index];
+        column = row.write(column, text, _fieldOwner(field));
+    }
+    if (includeAlignment) {
+        column = row.write(column, ' ');
+        row.write(column, _statusAlignment(u), _fieldOwner('alignment'));
+    }
+    return row.finish();
+}
+
+function _statusLine2Layout() {
+    const u = game.u;
+    const configuration = _statusLine2Configuration();
+    if (!u || !configuration) return { text: '', owners: [] };
+    const { capacityPadding, conditionLevel, shortLevel, status } = configuration;
+    const row = _newStatusRow();
+    let column = row.write(
+        0,
+        _statusLevelDescription(u, shortLevel),
+        _fieldOwner('dungeon-level'),
+    );
+    column = row.write(column, ' ');
+    column = _writeVitals(row, column, u);
+    if (game.flags?.time) {
+        column = row.write(column, ' ');
+        column = row.write(column, `T:${game.moves || 1}`, _fieldOwner('time'));
+    }
+    const hunger = _statusFieldData('hunger').text;
+    if (hunger) {
+        column = row.write(column, ' ');
+        column = row.write(column, hunger, _fieldOwner('hunger'));
+    }
+    if (capacityPadding) column = row.write(column, capacityPadding);
+    column = _writeConditions(
+        row,
+        column,
+        _statusConditionEntries(u, conditionLevel),
+    );
+    column = _writeSeparatedFields(row, column, _optionalStatusEntries());
+    if (game.flags?.showvers) {
+        const version = status_version(game.flags);
+        const start = Math.max(
+            status.length + 1,
+            TTY_STATUS_WIDTH - version.length,
+        );
+        row.write(start, version, _fieldOwner('version'));
+    }
+    return row.finish();
+}
+
+function _statusLine3VitalsLayout() {
+    const u = game.u;
+    if (!u) return { text: '', owners: [] };
+    const row = _newStatusRow();
+    let column = row.write(
+        0,
+        _statusAlignment(u),
+        _fieldOwner('alignment'),
+    );
+    column = row.write(column, ' ');
+    column = _writeVitals(row, column, u);
+    const hunger = _statusFieldData('hunger').text;
+    if (hunger) {
+        column = row.write(column, ' ');
+        row.write(column, hunger, _fieldOwner('hunger'));
+    }
+    return row.finish();
+}
+
+function _statusLine3DetailsLayout({ initialTtyRefresh = false } = {}) {
+    const u = game.u;
+    const configuration = _statusLine3DetailsConfiguration();
+    if (!u || !configuration) return { text: '', owners: [] };
+    const {
+        conditionLevel,
+        conditions,
+        optional,
+        shortLevel,
+        time,
+        version,
+    } = configuration;
+    const row = _newStatusRow();
+    let column = row.write(
+        0,
+        _statusLevelDescription(u, shortLevel),
+        _fieldOwner('dungeon-level'),
+    );
+    if (time) {
+        column = row.write(column, ' ');
+        column = row.write(
+            column,
+            time.slice(1),
+            _fieldOwner('time'),
+        );
+    }
+
     // C ref: wintty.c render_status(). It computes nominal field positions,
     // indents BL_CONDITION toward BL_HUNGER, then resumes later fields at
     // their nominal positions. That can overwrite the indented condition.
-    const row = new Array(TTY_STATUS_WIDTH).fill(' ');
-    const write = (start, text) => {
-        for (let index = 0; index < text.length; ++index) {
-            const column = start + index;
-            if (column >= 0 && column < row.length) row[column] = text[index];
-        }
-    };
-    const level = prefix();
-    write(0, level);
-    let nominal = level.length;
+    const conditionNominalStart = column;
+    let nominal = column;
+    let conditionStart = null;
     if (conditions) {
         const x = nominal + 1; // tty field positions are one-based.
         const hungerX = _statusLine3VitalsBase(u).length + 1;
         let lastColumn = TTY_STATUS_WIDTH + 1;
-        if (!optional && version) lastColumn -= versionFieldLength;
+        if (!optional && version) lastColumn -= version.length + 1;
         let conditionX = x;
         if (x < hungerX
             && hungerX + conditions.length < lastColumn - 1) {
@@ -1758,30 +1960,61 @@ function _statusLine3Details() {
         } else if (x + conditions.length < TTY_STATUS_WIDTH) {
             conditionX = lastColumn - conditions.length;
         }
-        write(conditionX - 1, conditions);
+        conditionStart = conditionX - 1;
+        _writeConditions(row, conditionStart, _statusConditionEntries(
+            u,
+            conditionLevel,
+        ));
         nominal += conditions.length;
     }
     if (optional) {
-        write(nominal, optional);
+        _writeSeparatedFields(row, nominal, _optionalStatusEntries());
         nominal += optional.length;
     }
     if (version) {
         const field = ` ${version}`;
         const rightStart = TTY_STATUS_WIDTH - field.length;
         const start = Math.max(nominal, rightStart);
-        for (let column = nominal; column < start && column < row.length;
-            ++column) row[column] = ' ';
-        write(start, field);
+        row.clear(nominal, start);
+        row.write(start, ' ');
+        row.write(start + 1, version, _fieldOwner('version'));
     }
-    return row.join('').trimEnd();
+
+    if (initialTtyRefresh && conditionStart !== null) {
+        // newgame()'s explicit bot() follows the flush-triggered initial
+        // status pass.  On that second tty pass, BL_CONDITION is redrawn:
+        // its indent clears unchanged optional fields, then BL_VERS redraws
+        // from its nominal position.  This incremental overlap is visible at
+        // a More boundary before moveloop's forced status refresh.
+        row.clear(conditionNominalStart, conditionStart);
+        _writeConditions(row, conditionStart, _statusConditionEntries(
+            u,
+            conditionLevel,
+        ));
+        if (version) {
+            const field = ` ${version}`;
+            const rightStart = TTY_STATUS_WIDTH - field.length;
+            const start = Math.max(nominal, rightStart);
+            row.clear(nominal, start);
+            row.write(start, ' ');
+            row.write(start + 1, version, _fieldOwner('version'));
+        }
+    }
+    return row.finish();
 }
 
-function statusTextRows() {
+function statusLayouts({ initialTtyRefresh = false } = {}) {
     const count = game.iflags?.wc2_statuslines === 3 ? 3 : 2;
-    if (game.iflags?.status_updates === false) return Array(count).fill('');
+    if (game.iflags?.status_updates === false) {
+        return Array.from({ length: count }, () => ({ text: '', owners: [] }));
+    }
     return game.iflags?.wc2_statuslines === 3
-        ? [_statusLine1(false), _statusLine3Vitals(), _statusLine3Details()]
-        : [_statusLine1(), _statusLine2()];
+        ? [
+            _statusLine1Layout(false),
+            _statusLine3VitalsLayout(),
+            _statusLine3DetailsLayout({ initialTtyRefresh }),
+        ]
+        : [_statusLine1Layout(), _statusLine2Layout()];
 }
 
 function _statusPercentage(value, maximum) {
@@ -1970,168 +2203,49 @@ function _statusConditionStyle(option) {
         ? { color: Math.min(...colors), attr } : null;
 }
 
-function _expandedStatusRow(row) {
-    return row.replace(
-        /\x1b\[[0-9;]*[A-Za-z]/g,
-        (sequence) => sequence.match(/\x1b\[\d+C/)
-            ? ' '.repeat(parseInt(sequence.slice(2), 10)) : '',
-    );
+function _statusOwnerStyle(owner) {
+    if (!owner) return null;
+    if (owner.kind === 'field') return _statusFieldStyle(owner.field);
+    if (owner.kind === 'condition') {
+        return _statusConditionStyle(owner.option);
+    }
+    if (owner.kind === 'hitpoint-bar') {
+        const hpStyle = _statusFieldStyle('hitpoints');
+        return {
+            color: hpStyle?.color ?? NO_COLOR,
+            // wintty.c assigns inverse independently of the configured HP
+            // rule; unsupported blink is intentionally absent from capture.
+            attr: ATR_INVERSE,
+        };
+    }
+    return null;
 }
 
-function _statusStyleRows(rows) {
-    const renderedRows = rows.map(_expandedStatusRow);
-    const styles = renderedRows.map((row) => Array.from(
-        { length: row.length }, () => ({ color: NO_COLOR, attr: ATR_NONE }),
-    ));
-    const apply = (row, start, end, style) => {
-        if (!style || row < 0 || start < 0) return;
-        for (let column = start;
-            column < Math.min(end, styles[row].length);
-            ++column) {
-            styles[row][column] = {
-                color: style.color,
-                attr: style.attr,
-            };
-        }
+function _recorderStatusStyle(style) {
+    if (!style) return { color: NO_COLOR, attr: ATR_NONE };
+    // Recorder patch 006 begins with terminal-default gray active. Selecting
+    // CLR_GRAY emits no observable transition, so the decoded cell is the
+    // same NO_COLOR value used by an ordinary status field.
+    return {
+        color: style.color === CLR_GRAY ? NO_COLOR : style.color,
+        attr: style.attr,
     };
-    const find = (
-        field,
-        regexp,
-        group = 0,
-        rowIndexes = null,
-        fromEnd = false,
-    ) => {
-        const style = _statusFieldStyle(field);
-        if (!style) return;
-        for (const row of rowIndexes ?? renderedRows.keys()) {
-            const match = fromEnd
-                ? [...renderedRows[row].matchAll(new RegExp(
-                    regexp.source,
-                    regexp.flags.includes('g')
-                        ? regexp.flags : `${regexp.flags}g`,
-                ))].at(-1)
-                : renderedRows[row].match(regexp);
-            const value = match?.[group];
-            if (match && value != null) {
-                const relative = group ? match[0].indexOf(value) : 0;
-                const start = match.index + relative;
-                apply(row, start, start + value.length, style);
-                return;
-            }
-        }
-    };
+}
 
-    if (!game.iflags?.wc2_hitpointbar) {
-        apply(0, 0, _statusTitle().length, _statusFieldStyle('title'));
-    }
-    find('strength', /St:[^ ]+/u, 0, [0], true);
-    find('dexterity', /Dx:[^ ]+/u, 0, [0], true);
-    find('constitution', /Co:[^ ]+/u, 0, [0], true);
-    find('intelligence', /In:[^ ]+/u, 0, [0], true);
-    find('wisdom', /Wi:[^ ]+/u, 0, [0], true);
-    find('charisma', /Ch:[^ ]+/u, 0, [0], true);
-    find(
-        'alignment',
-        /(Lawful|Neutral|Chaotic)/u,
-        1,
-        renderedRows.length === 3 ? [1] : [0],
-        true,
-    );
-    find('dungeon-level', /^(?:Dlvl|Dl|Tutorial):\d+/u);
-    find('gold', /\$:\d+/u);
-    find('hitpoints', /(HP:-?\d+)\(-?\d+\)/u, 1);
-    find('hitpoints-max', /HP:-?\d+(\(-?\d+\))/u, 1);
-    find('power', /(Pw:-?\d+)\(-?\d+\)/u, 1);
-    find('power-max', /Pw:-?\d+(\(-?\d+\))/u, 1);
-    find('armor-class', /AC:-?\d+/u);
-    find('experience-level', /(Xp:\d+)(?:\/\d+)?/u, 1);
-    find('experience', /Xp:\d+\/(\d+)/u, 1);
-    find('time', /T:\d+/u);
-
-    const hunger = _statusFieldData('hunger').text;
-    if (hunger) {
-        for (let row = 0; row < renderedRows.length; ++row) {
-            const start = renderedRows[row].indexOf(hunger);
-            if (start >= 0) {
-                apply(
-                    row, start, start + hunger.length,
-                    _statusFieldStyle('hunger'),
-                );
-                break;
-            }
-        }
-    }
-
-    const optionalRow = renderedRows.length - 1;
-    let optionalStart = 0;
-    for (const [field, enabled] of [
-        ['weapon', game.flags?.weaponstatus],
-        ['armor', game.flags?.armorstatus],
-        ['terrain', game.flags?.terrainstatus],
-    ]) {
-        if (!enabled) continue;
-        const value = _statusFieldData(field).text;
-        const start = renderedRows[optionalRow].indexOf(value, optionalStart);
-        apply(
-            optionalRow, start, start + value.length,
-            _statusFieldStyle(field),
-        );
-        optionalStart = Math.max(optionalStart, start + value.length);
-    }
-    if (game.flags?.showvers) {
-        const version = _statusFieldData('version').text;
-        const start = renderedRows[optionalRow].lastIndexOf(version);
-        apply(
-            optionalRow, start, start + version.length,
-            _statusFieldStyle('version'),
-        );
-    }
-
-    const conditionRow = renderedRows.length - 1;
-    for (let shrinkLevel = 0; shrinkLevel < 3; ++shrinkLevel) {
-        const entries = _statusConditionEntries(game.u, shrinkLevel);
-        let searchStart = 0;
-        const ranges = [];
-        for (const entry of entries) {
-            const start = renderedRows[conditionRow].indexOf(
-                entry.text, searchStart,
-            );
-            if (start < 0) break;
-            ranges.push({ entry, start });
-            searchStart = start + entry.text.length;
-        }
-        if (ranges.length === entries.length) {
-            for (const { entry, start } of ranges) {
-                apply(
-                    conditionRow,
-                    start,
-                    start + entry.text.length,
-                    _statusConditionStyle(entry.option),
+function _statusStyleRows(layouts) {
+    return layouts.map(({ owners }) => {
+        const cache = new Map();
+        return owners.map((owner) => {
+            if (!owner) return _recorderStatusStyle(null);
+            if (!cache.has(owner)) {
+                cache.set(
+                    owner,
+                    _recorderStatusStyle(_statusOwnerStyle(owner)),
                 );
             }
-            break;
-        }
-    }
-
-    if (game.iflags?.wc2_hitpointbar) {
-        const hp = _statusFieldData('hitpoints');
-        let barLength = Math.trunc(
-            (STATUS_HP_BAR_WIDTH * hp.percent) / 100,
-        );
-        if (barLength < 1 && hp.percent > 0) barLength = 1;
-        if (barLength >= STATUS_HP_BAR_WIDTH && hp.percent < 100)
-            barLength = STATUS_HP_BAR_WIDTH - 1;
-        // tty_putstatusfield() advances across trailing padding rather than
-        // writing it, so recorder shadow cells there retain normal attrs.
-        const printedLength = _statusHitpointBarTitle()
-            .slice(0, barLength).trimEnd().length;
-        const hpStyle = _statusFieldStyle('hitpoints');
-        apply(0, 1, 1 + printedLength, {
-            color: hpStyle?.color ?? NO_COLOR,
-            attr: ATR_INVERSE,
+            return cache.get(owner);
         });
-    }
-    return styles;
+    });
 }
 
 function mapViewport(rows, statusRowCount) {
@@ -2158,17 +2272,17 @@ function mapViewport(rows, statusRowCount) {
 
 function writeStatusRows(
     display,
-    rows = statusTextRows(),
+    layouts = statusLayouts(),
 ) {
     if (!display?.grid) return;
     const styles = game.iflags?.status_updates === false
-        ? rows.map(() => [])
-        : _statusStyleRows(rows);
-    const firstRow = display.rows - rows.length;
-    for (let index = 0; index < rows.length; ++index) {
+        ? layouts.map(() => [])
+        : _statusStyleRows(layouts);
+    const firstRow = display.rows - layouts.length;
+    for (let index = 0; index < layouts.length; ++index) {
         const screenRow = firstRow + index;
         display.clearRow(screenRow);
-        const text = _expandedStatusRow(rows[index]);
+        const { text } = layouts[index];
         for (let column = 0;
             column < Math.min(text.length, display.cols);
             ++column) {
@@ -2215,7 +2329,7 @@ export function serialize_terminal_grid(display) {
 function _buildScreenOutput() {
     const display = game?.nhDisplay;
     if (!display) return;
-    const statusRows = statusTextRows();
+    const statusRows = game._renderedStatusLayouts ?? statusLayouts();
     const viewport = mapViewport(display.rows, statusRows.length);
 
     // Render into the canonical terminal grid.
@@ -2263,6 +2377,18 @@ function _buildScreenOutput() {
 
 // ── flush_screen ──
 export async function flush_screen(mode) {
+    if (game.disp?.botl || game.disp?.botlx || game.disp?.time_botl) {
+        await bot({
+            // Before moveloop_preamble(), repeated tty status updates retain
+            // the initial three-row condition/optional-field overlap.  The
+            // preamble's forced refresh is the first steady-state pass.
+            initialTtyRefresh: Boolean(
+                game.program_state
+                && !game.program_state.in_moveloop
+                && game.u?.ux,
+            ),
+        });
+    }
     _buildScreenOutput();
 }
 
@@ -2271,9 +2397,20 @@ export async function cls() {
     const display = game?.nhDisplay;
     if (display?.clearScreen) display.clearScreen();
     game._pending_message = '';
+    // display.c cls() forces the bottom lines to be rebuilt after clearing
+    // the physical screen.
+    game.disp ??= {};
+    game.disp.botlx = true;
 }
 
 // ── bot ──
-export async function bot() {
-    writeStatusRows(game?.nhDisplay);
+export async function bot({ initialTtyRefresh = false } = {}) {
+    const layouts = statusLayouts({ initialTtyRefresh });
+    game._renderedStatusLayouts = layouts;
+    writeStatusRows(game?.nhDisplay, layouts);
+    if (game.disp) {
+        game.disp.botl = false;
+        game.disp.botlx = false;
+        game.disp.time_botl = false;
+    }
 }

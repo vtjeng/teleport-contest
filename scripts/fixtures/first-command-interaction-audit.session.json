@@ -1,0 +1,47 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91101,
+      "datetime": "20470102030405",
+      "nethackrc": "OPTIONS=name:TitlePad,role:Barbarian,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,statuslines:2\nOPTIONS=hilite_status:title/always/red&bold",
+      "moves": ""
+    },
+    {
+      "seed": 91102,
+      "datetime": "20470203040506",
+      "nethackrc": "OPTIONS=name:GrayRules,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,blind\nOPTIONS=hilite_status:gold/always/gray&bold hitpoints/always/gray&underline\nOPTIONS=hilite_status:condition/blind/gray&inverse",
+      "moves": ""
+    },
+    {
+      "seed": 91103,
+      "datetime": "20470304050607",
+      "nethackrc": "OPTIONS=name:FullBar,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,hitpointbar\nOPTIONS=hilite_status:hitpoints/always/red",
+      "moves": ""
+    },
+    {
+      "seed": 91104,
+      "datetime": "20470405060708",
+      "nethackrc": "OPTIONS=name:AllFieldsTwo,role:Ranger,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,statuslines:2,showexp,time,showvers,versinfo:1,weaponstatus,armorstatus,terrainstatus\nOPTIONS=hilite_status:dungeon-level/always/bright-blue gold/always/red power/always/green power-max/always/yellow\nOPTIONS=hilite_status:hitpoints-max/always/bright-magenta armor-class/always/cyan experience-level/always/white experience/always/brown\nOPTIONS=hilite_status:time/always/bright-green version/always/bright-blue weapon/always/red\nOPTIONS=hilite_status:armor/always/yellow terrain/always/bright-magenta",
+      "moves": ""
+    },
+    {
+      "seed": 91105,
+      "datetime": "20470506070809",
+      "nethackrc": "OPTIONS=name:AllFieldsThree,role:Wizard,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,statuslines:3,showexp,time,showvers,versinfo:1,weaponstatus,armorstatus,terrainstatus\nOPTIONS=hilite_status:dungeon-level/always/bright-blue gold/always/red power/always/green power-max/always/yellow\nOPTIONS=hilite_status:hitpoints-max/always/bright-magenta armor-class/always/cyan experience-level/always/white experience/always/brown\nOPTIONS=hilite_status:time/always/bright-green version/always/bright-blue weapon/always/red\nOPTIONS=hilite_status:armor/always/yellow terrain/always/bright-magenta",
+      "moves": ""
+    },
+    {
+      "seed": 91106,
+      "datetime": "20470607080910",
+      "nethackrc": "OPTIONS=name:TutorialOverflowTwo,role:Healer,race:human,gender:male,align:neutral,!legacy,!splash_screen,tutorial,statuslines:2,showexp,time,showvers,versinfo:1,weaponstatus,armorstatus,terrainstatus,blind,deaf,pauper,cond_barehanded\nOPTIONS=hilite_status:dungeon-level/always/red&bold",
+      "moves": "    "
+    },
+    {
+      "seed": 91107,
+      "datetime": "20470708091011",
+      "nethackrc": "OPTIONS=name:TutorialOverflowThree,role:Monk,race:human,gender:female,align:neutral,!legacy,!splash_screen,tutorial,statuslines:3,showexp,time,showvers,versinfo:1,weaponstatus,armorstatus,terrainstatus,blind,deaf,pauper,cond_barehanded\nOPTIONS=hilite_status:dungeon-level/always/red&bold",
+      "moves": "    "
+    }
+  ]
+}

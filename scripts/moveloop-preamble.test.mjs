@@ -268,6 +268,47 @@ test('a wrapped message requests More immediately', async () => {
     assert.equal(state._pending_message, '');
 });
 
+test('top-line sharing keeps the strict room-for-More inequality', async () => {
+    const prior = 'P'.repeat(30);
+    const cases = [
+        // next + prior + 3 is respectively one below, equal to, and one
+        // above CO - 8. Equality must start a new top line.
+        { length: 38, shares: true },
+        { length: 39, shares: false },
+        { length: 40, shares: false },
+    ];
+
+    for (const expected of cases) {
+        const next = 'N'.repeat(expected.length);
+        const state = preambleState('20260129120000', '  ');
+        const boundaries = captureBoundaries(state, 2);
+        await ttyPline(prior, state);
+        await ttyPline(next, state);
+
+        if (expected.shares) {
+            assert.equal(state._pending_message, `${prior}  ${next}`);
+            assert.equal(state.nhDisplay.inputQueueLength, 2);
+            assert.deepEqual(boundaries, []);
+        } else {
+            assert.equal(state._pending_message, next);
+            assert.equal(state.nhDisplay.inputQueueLength, 1);
+            assert.equal(boundaries.length, 1);
+            assert.equal(boundaries[0].rows[0], `${prior}--More--`);
+        }
+
+        await dismissPendingTtyMessage(state);
+        assert.equal(
+            boundaries.at(-1).rows[0],
+            `${expected.shares ? `${prior}  ${next}` : next}--More--`,
+        );
+        assert.equal(
+            state.nhDisplay.inputQueueLength,
+            expected.shares ? 1 : 0,
+            'only a required More boundary consumes its queued key',
+        );
+    }
+});
+
 test('More cleanup distinguishes one-line, Escape, and multi-line messages', async () => {
     const oneLine = preambleState('20260129120000', ' ');
     await ttyPline('Short message.', oneLine);
