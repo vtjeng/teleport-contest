@@ -96,7 +96,6 @@ import {
     initialize_themeroom_postprocess_branch,
     run_themeroom_postprocess,
     themeroom_fill,
-    UnsupportedThemeroomFillError,
 } from './themeroom_fill.js';
 import { PM_GIANT_SPIDER, S_HUMAN } from './monsters.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
@@ -800,18 +799,6 @@ function invoke_themeroom_fill(room, definition, context) {
     });
 }
 
-function staged_themeroom_fill(room, difficulty, env) {
-    try {
-        return themeroom_fill(room, difficulty, env);
-    } catch (error) {
-        // Live generation still performs the complete source-order reservoir
-        // and executes every supported result. Only the missing-handler
-        // boundary is tolerated until the remaining fill bodies are ported.
-        if (error instanceof UnsupportedThemeroomFillError) return null;
-        throw error;
-    }
-}
-
 // C refs: themerms.lua filler_region(); sp_lev.c lspo_region().
 function filler_region(filler, origin, definition, context) {
     const state = game;
@@ -982,11 +969,9 @@ export function dispatch_themeroom(
 
 // C ref: themerms.lua themerooms_generate(). Generic room descriptors use the
 // strict synchronous dispatcher and the complete source-order fill reservoir.
-// While three fill bodies remain unported, the live default callback tolerates
-// only UnsupportedThemeroomFillError after selection; implemented fills and
-// explicitly injected callbacks retain strict behavior. Direct filler maps
-// omit their optional fill, and unported direct callbacks use the ordinary-room
-// fallback. dispatch_themeroom() remains the strict completion seam.
+// All generic fill bodies are live. Direct filler maps still omit their
+// optional fill, and unported direct callbacks use the ordinary-room fallback.
+// dispatch_themeroom() remains the strict completion seam.
 export async function themerooms_generate(
     difficulty,
     random = rn2,
@@ -1004,7 +989,7 @@ export async function themerooms_generate(
             difficulty,
             randomFacade: rawEnv.randomFacade ?? sourceRandomFacade,
             themeroomFill: useDefaultFill
-                ? staged_themeroom_fill
+                ? themeroom_fill
                 : rawEnv.themeroomFill,
         });
     }

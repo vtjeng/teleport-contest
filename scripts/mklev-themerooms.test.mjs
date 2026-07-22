@@ -4,9 +4,9 @@ import test from 'node:test';
 import { newgame_pre_mklev } from '../js/allmain.js';
 import {
     AGGRAVATE_MONSTER, COLNO, CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL,
-    ICE, LAVAPOOL,
-    MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STONE, THEMEROOM,
-    VWALL,
+    ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
+    MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
+    THEMEROOM, VWALL,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
@@ -21,7 +21,7 @@ import {
     UnsupportedThemeroomActionError,
 } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
-import { objects_globals_init } from '../js/objects.js';
+import { objects_globals_init, STATUE } from '../js/objects.js';
 import { init_rect } from '../js/rect.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -34,6 +34,7 @@ import { THEMEROOM_DEFINITIONS } from '../js/themeroom_data.js';
 import { timeout_globals_init } from '../js/timeout.js';
 import {
     initialize_themeroom_postprocess_branch,
+    themeroom_fill,
 } from '../js/themeroom_fill.js';
 
 function definitionById(id) {
@@ -293,7 +294,7 @@ test('live generic themed rooms invoke their synchronous fill callback', async (
     assert.equal(game.level.nroom, 1);
 });
 
-test('live generic fill fallback preserves selection before containing Statuary', async () => {
+test('live generic fill dispatch executes selected Statuary', async () => {
     resetThemeroomLevel();
     const reservoirDrawCount = 30;
     let reservoirCalls = 0;
@@ -308,6 +309,10 @@ test('live generic fill fallback preserves selection before containing Statuary'
         [70, 0], // leftmost valid x coordinate
         [13, 0], // upper-half y
     ];
+    const bodyDraws = [
+        [5, 0], [5, 0], [5, 0], [5, 0], [5, 0],
+        [3, 0],
+    ];
     const random = (bound) => {
         events.push(`rn2(${bound})`);
         if (reservoirCalls++ < reservoirDrawCount) {
@@ -319,10 +324,16 @@ test('live generic fill fallback preserves selection before containing Statuary'
             assert.equal(bound, next[0]);
             return next[1];
         }
-        assert.equal(bound, ++fillBound);
-        // Select Statuary at cumulative weight nine, then retain it through
-        // all later eligible fills. Its missing handler is the bounded case.
-        return bound === 9 ? 0 : bound - 1;
+        if (fillBound < 13) {
+            assert.equal(bound, ++fillBound);
+            // Select Statuary at cumulative weight nine, then retain it
+            // through every later eligible fill.
+            return bound === 9 ? 0 : bound - 1;
+        }
+        const next = bodyDraws.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
     };
     const randomOneBased = (bound) => {
         events.push(`rnd(${bound})`);
@@ -330,23 +341,65 @@ test('live generic fill fallback preserves selection before containing Statuary'
         return 2;
     };
 
-    const randomFacade = completeRandomFacade(random, randomOneBased);
+    const roomCoordinateCalls = [];
+    const randomFacade = completeRandomFacade(random, randomOneBased, {
+        rn1(bound, base) {
+            roomCoordinateCalls.push([bound, base]);
+            return base;
+        },
+    });
+    const objects = [];
+    const traps = [];
+    let filledRoom = null;
     assert.equal(await themerooms_generate(
         1,
         random,
         randomOneBased,
-        { randomFacade },
+        {
+            randomFacade,
+            themeroomFill(room, difficulty, callbackEnv) {
+                filledRoom = room;
+                return themeroom_fill(room, difficulty, {
+                    ...callbackEnv,
+                    hooks: {
+                        createObject(specification) {
+                            objects.push(specification);
+                            return {};
+                        },
+                        createTrap(type, flags, x, y) {
+                            traps.push([type, flags, x, y]);
+                            return {};
+                        },
+                    },
+                });
+            },
+        },
     ), true);
     assert.equal(scripted.length, 0);
+    assert.equal(bodyDraws.length, 0);
     assert.equal(fillBound, 13);
     assert.deepEqual(events.slice(reservoirDrawCount), [
         'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
         'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(13)',
         ...Array.from({ length: 13 }, (_, index) => `rn2(${index + 1})`),
+        ...Array(5).fill('rn2(5)'),
+        'rn2(3)',
     ]);
     assert.equal(game.level.nroom, 1);
-    assert.equal(game.level.rooms[0].rtype, THEMEROOM);
-    assert.equal(game.level.rooms[0].needfill, FILL_NONE);
+    assert.equal(filledRoom, game.level.rooms[0]);
+    assert.equal(filledRoom.rtype, THEMEROOM);
+    assert.equal(filledRoom.needfill, FILL_NONE);
+    assert.deepEqual(objects, Array(5).fill({ id: STATUE }));
+    assert.deepEqual(roomCoordinateCalls, [
+        [filledRoom.hx - filledRoom.lx + 1, filledRoom.lx],
+        [filledRoom.hy - filledRoom.ly + 1, filledRoom.ly],
+    ]);
+    assert.deepEqual(traps, [[
+        STATUE_TRAP,
+        MKTRAP_MAZEFLAG,
+        filledRoom.lx,
+        filledRoom.ly,
+    ]]);
 });
 
 test('live default fill executes supported handlers and propagates their errors', async () => {
@@ -383,7 +436,7 @@ test('live default fill executes supported handlers and propagates their errors'
             return bound - 1;
         }
         // Ice room has already changed every room cell before its melt-chance
-        // draw.  An unrelated handler error must escape the staged fallback.
+        // draw. An unrelated handler error must escape the default dispatcher.
         assert.equal(bound, 100);
         throw marker;
     };

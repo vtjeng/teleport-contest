@@ -40,6 +40,7 @@ import {
     ROOMOFFSET,
     SDOOR,
     STAIRS,
+    STATUE_TRAP,
     STONE,
     STRAT_WAITFORU,
     THEMEROOM,
@@ -89,6 +90,7 @@ import {
     ORCISH_HELM,
     RING_CLASS,
     SCROLL_CLASS,
+    STATUE,
     WEAPON_CLASS,
     OIL_LAMP,
     NUM_OBJECTS,
@@ -235,6 +237,32 @@ function boulderGenerationFixture() {
     };
     state.u.uz.dlevel = 4;
     state.dungeons[0].dunlev_ureached = 4;
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    reset_mvitals(state);
+    init_artifacts(state);
+    timeout_globals_init(state);
+    light_globals_init(state);
+    return { level, room, state };
+}
+
+function statuaryGenerationFixture() {
+    const { level, room } = twoByTwoRoom();
+    const state = {
+        ...rawMonsterGenerationState(),
+        astral_level: { dnum: 0, dlevel: 0 },
+        context: { current_fruit: 1, ident: 2, mon_moving: false },
+        flags: { initalign: 0 },
+        gz: { zombify: false },
+        in_mklev: true,
+        level,
+        moves: 2,
+        program_state: { gameover: false },
+        rogue_level: { dnum: 0, dlevel: 0 },
+        sanctum_level: { dnum: 0, dlevel: 0 },
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+    };
     objects_globals_init(state);
     init_objects(state, () => 0);
     monst_globals_init(state);
@@ -2544,13 +2572,97 @@ test('Teleportation hub abandons a queued source that becomes stairs', () => {
     );
 });
 
-test('remaining unported Statuary handler fails closed', () => {
+test('Statuary rolls every statue before its random room traps', () => {
     const { level, room } = twoByTwoRoom();
-    assert.throws(
-        () => run_themeroom_fill(fillById('statuary'), room, 1, {
-            state: { level },
-            random: randomWithRn2(() => 0),
-        }),
-        /unported themed-room fill: Statuary/,
+    const random = scriptedRandom([
+        step('rn2', [5], 0),
+        step('rn2', [5], 1),
+        step('rn2', [5], 2),
+        step('rn2', [5], 3),
+        step('rn2', [5], 4),
+        step('rn2', [3], 1),
+        step('rn1', [2, 2], 3),
+        step('rn1', [2, 3], 3),
+        step('rn1', [2, 2], 2),
+        step('rn1', [2, 3], 4),
+    ]);
+    const events = [];
+
+    run_themeroom_fill(fillById('statuary'), room, 1, {
+        state: { level },
+        random: random.random,
+        hooks: {
+            createObject(specification) {
+                events.push(['object', specification]);
+                return {};
+            },
+            createTrap(type, flags, x, y) {
+                events.push(['trap', type, flags, x, y]);
+                return {};
+            },
+        },
+    });
+    random.assertExhausted();
+
+    assert.deepEqual(events, [
+        ...Array.from({ length: 15 }, () => ['object', { id: STATUE }]),
+        ['trap', STATUE_TRAP, MKTRAP_MAZEFLAG, 3, 3],
+        ['trap', STATUE_TRAP, MKTRAP_MAZEFLAG, 2, 4],
+    ]);
+});
+
+test('Statuary composes floor statues with living statue traps', () => {
+    const { level, room, state } = statuaryGenerationFixture();
+    let leadingDice = 5;
+    let roomCoordinateCall = 0;
+    const offsets = [[0, 0], [1, 0], [0, 1], [1, 1]];
+    const random = {
+        d(number, sides) { return number * sides; },
+        rn1(bound, base) {
+            if (bound === 2 && (base === room.lx || base === room.ly)) {
+                const pair = Math.trunc(roomCoordinateCall / 2);
+                const axis = roomCoordinateCall % 2;
+                ++roomCoordinateCall;
+                return base + offsets[pair % offsets.length][axis];
+            }
+            return base;
+        },
+        rn2(bound) {
+            if (leadingDice) {
+                assert.equal(bound, 5);
+                --leadingDice;
+                return 0;
+            }
+            return Math.max(0, bound - 1);
+        },
+        rnd() { return 1; },
+        rne() { return 1; },
+        rnz(value) { return value; },
+    };
+
+    run_themeroom_fill(fillById('statuary'), room, 1, { state, random });
+
+    const statues = [];
+    for (let obj = level.objlist; obj; obj = obj.nobj) {
+        if (obj.otyp === STATUE) statues.push(obj);
+    }
+    assert.equal(leadingDice, 0);
+    assert.equal(roomCoordinateCall, 16);
+    assert.equal(statues.length, 8);
+    assert.equal(level.traps.length, 3);
+    assert.deepEqual(
+        level.traps.map((trap) => [trap.ttyp, trap.tx, trap.ty]),
+        [
+            [STATUE_TRAP, 3, 4],
+            [STATUE_TRAP, 2, 4],
+            [STATUE_TRAP, 3, 3],
+        ],
     );
+    assert.equal(state.iflags.purge_monsters, 3);
+    let detached = 0;
+    for (let monster = level.monlist; monster; monster = monster.nmon) {
+        assert.equal(monster.mhp, 0);
+        ++detached;
+    }
+    assert.equal(detached, 3);
 });

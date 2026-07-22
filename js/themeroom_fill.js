@@ -37,6 +37,7 @@ import {
     SLP_GAS_TRAP,
     SP_COORD_IS_RANDOM,
     STAIRS,
+    STATUE_TRAP,
     STRAT_WAITFORU,
     TELEP_TRAP,
     TIMER_LEVEL,
@@ -72,6 +73,7 @@ import {
     OIL_LAMP,
     RING_CLASS,
     SCROLL_CLASS,
+    STATUE,
     WEAPON_CLASS,
 } from './objects.js';
 import {
@@ -263,6 +265,14 @@ function createRoomTrapAt(type, flags, coordinate, room, env) {
     const absolute = { x: -1, y: -1 };
     const packed = (coordinate.x & 0xff) + ((coordinate.y & 0xff) << 16);
     get_free_room_loc(absolute, room, packed, env);
+    return createTrap(type, flags, absolute.x, absolute.y, env);
+}
+
+// sp_lev.c create_trap() resolves a random Lua trap coordinate through
+// get_free_room_loc() before passing that fixed point to mktrap().
+function createRandomRoomTrap(type, flags, room, env) {
+    const absolute = { x: -1, y: -1 };
+    get_free_room_loc(absolute, room, SP_COORD_IS_RANDOM, env);
     return createTrap(type, flags, absolute.x, absolute.y, env);
 }
 
@@ -914,6 +924,26 @@ function fillMassacre(room, _difficulty, env) {
     }
 }
 
+// dat/themerms.lua "Statuary". nhlib.lua d(5,5) and d(3) consume one
+// math.random() call per die; every ordinary statue precedes every trap.
+function fillStatuary(room, _difficulty, env) {
+    let statueCount = 0;
+    for (let die = 0; die < 5; ++die)
+        statueCount += 1 + env.random.rn2(5);
+    for (let index = 0; index < statueCount; ++index)
+        createObject({ id: STATUE }, room, env);
+
+    const trapCount = 1 + env.random.rn2(3);
+    for (let index = 0; index < trapCount; ++index) {
+        createRandomRoomTrap(
+            STATUE_TRAP,
+            MKTRAP_MAZEFLAG,
+            room,
+            env,
+        );
+    }
+}
+
 // dat/themerms.lua "Storeroom". percentage() samples x-major, then the Lua
 // callback runs y-major. Its x/y arguments are intentionally unused: each
 // retained point triggers a fresh random-room object or monster placement.
@@ -1025,6 +1055,7 @@ const FILL_HANDLERS = Object.freeze({
     light_source: fillLightSource,
     massacre: fillMassacre,
     spider_nest: fillSpiderNest,
+    statuary: fillStatuary,
     storeroom: fillStoreroom,
     teleportation_hub: fillTeleportationHub,
     temple_of_the_gods: fillTempleOfTheGods,
