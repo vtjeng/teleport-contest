@@ -5,6 +5,7 @@
 import {
     ARROW_TRAP,
     BEAR_TRAP,
+    CORPSTAT_NONE,
     CORPSTAT_INIT,
     DART_TRAP,
     DB_LAVA,
@@ -23,6 +24,8 @@ import {
     MKTRAP_NOSPIDERONWEB,
     MKTRAP_NOVICTIM,
     MKTRAP_SEEN,
+    MM_NOCOUNTBIRTH,
+    MM_NOMSG,
     NO_MM_FLAGS,
     NO_TRAP,
     PIT,
@@ -58,6 +61,9 @@ import {
     on_level,
 } from './dungeon.js';
 import { game } from './gstate.js';
+import { add_to_container, obj_extract_self } from './invent.js';
+import { makemon, mongone } from './makemon_create.js';
+import { rndmonnum_adj } from './makemon.js';
 import { is_rider } from './mondata.js';
 import {
     PM_ARCHEOLOGIST,
@@ -68,6 +74,7 @@ import {
     PM_HUMAN,
     PM_ORC,
     PM_WIZARD,
+    S_UNICORN,
 } from './monsters.js';
 import {
     curseFreeObject,
@@ -99,21 +106,26 @@ import {
     POTION_CLASS,
     ROCK,
     SPE_BOOK_OF_THE_DEAD,
+    STATUE,
     TALLOW_CANDLE,
     TOOL_CLASS,
     WAX_CANDLE,
     WEAPON_CLASS,
 } from './objects.js';
-import { rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { maketrap, t_at } from './trap.js';
 import { mkcorpstat } from './corpstat.js';
 import { begin_burn } from './timeout.js';
+
+// include/monflag.h is_unicorn()'s likes_gems() predicate. Generated monster
+// records retain the bit, but monsters.js does not currently export its name.
+const M2_JEWELS = 0x20000000;
 
 function levelTrapEnv(env = {}) {
     return {
         ...env,
         state: env.state ?? game,
-        random: env.random ?? { rn1, rn2, rnd, rne, rnz },
+        random: env.random ?? { d, rn1, rn2, rnd, rne, rnz },
         hooks: env.hooks ?? {},
     };
 }
@@ -395,6 +407,53 @@ function mazeCoordinate(coordinate, env) {
     choose(coordinate, env);
 }
 
+function isCoalignedUnicorn(species, state) {
+    return species.mlet === S_UNICORN
+        && (species.mflags2 & M2_JEWELS)
+        && Math.sign(state.u.ualign.type) === Math.sign(species.maligntyp);
+}
+
+// C ref: trap.c mk_trap_statue(). The temporary monster exists solely to
+// generate the living statue's inventory, which is transferred before the
+// monster follows the ordinary mongone()/dmonsfree() detachment lifecycle.
+function mk_trap_statue(x, y, env) {
+    const { state } = env;
+    let tryCount = 10;
+    let mndx;
+    do {
+        mndx = rndmonnum_adj(3, 6, env);
+    } while (--tryCount > 0
+        && isCoalignedUnicorn(state.mons[mndx], state));
+
+    const statue = mkcorpstat(
+        STATUE,
+        null,
+        state.mons[mndx],
+        x,
+        y,
+        CORPSTAT_NONE,
+        env,
+    );
+    const monster = makemon(
+        state.mons[statue.corpsenm],
+        0,
+        0,
+        MM_NOCOUNTBIRTH | MM_NOMSG,
+        env,
+    );
+    if (!monster) return statue;
+
+    while (monster.minvent) {
+        const obj = monster.minvent;
+        obj.owornmask = 0;
+        obj_extract_self(obj, env);
+        add_to_container(statue, obj, env);
+    }
+    statue.owt = weight(statue, env);
+    mongone(monster, env);
+    return statue;
+}
+
 export function mktrap(
     num,
     mktrapflags = MKTRAP_NOFLAGS,
@@ -402,7 +461,14 @@ export function mktrap(
     tm = null,
     rawEnv = {},
 ) {
-    const env = levelTrapEnv(rawEnv);
+    const baseEnv = levelTrapEnv(rawEnv);
+    const env = {
+        ...baseEnv,
+        hooks: {
+            makeTrapStatue: mk_trap_statue,
+            ...(baseEnv.hooks ?? {}),
+        },
+    };
     const { random, state } = env;
     if (!tm && !croom && !(mktrapflags & MKTRAP_MAZEFLAG)) return null;
     if (tm && (isPoolAt(tm.x, tm.y, state) || isLavaAt(tm.x, tm.y, state)))

@@ -11,10 +11,13 @@ import {
     MAGIC_TRAP,
     MKTRAP_MAZEFLAG,
     MKTRAP_NOVICTIM,
+    MON_DETACH,
+    OBJ_CONTAINED,
     OBJ_FLOOR,
     ROCKTRAP,
     ROLLING_BOULDER_TRAP,
     ROOM,
+    STATUE_TRAP,
     TAINT_AGE,
     TIMER_OBJECT,
     WEB,
@@ -30,6 +33,7 @@ import {
     PM_ELF,
     PM_GNOME,
     PM_GIANT_SPIDER,
+    PM_HOBGOBLIN,
     PM_HUMAN,
     PM_ORC,
     PM_WIZARD,
@@ -52,6 +56,7 @@ import {
     CORPSE,
     EGG,
     ROCK,
+    STATUE,
     objects_globals_init,
 } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
@@ -84,9 +89,12 @@ function generationState(seed = 424242) {
         specialLevels: [],
         u: {
             uhave: { amulet: 0 },
+            ualign: { type: 0, record: 0, abuse: 0 },
             ulevel: 1,
+            uprops: [],
             uz: { dnum: 0, dlevel: 1 },
         },
+        urace: { mnum: PM_HUMAN, lovemask: 0, hatemask: 0 },
         urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
     });
     state.level = new GameMap();
@@ -462,4 +470,40 @@ test('normal webs delegate their source-ordered giant-spider creation', () => {
     assert.equal(call.species.pmidx, PM_GIANT_SPIDER);
     assert.deepEqual([call.x, call.y, call.flags], [10, 5, 0]);
     assert.equal(call.env.state, state);
+});
+
+test('statue traps transfer a temporary monster inventory before detaching it', () => {
+    const state = generationState(424242);
+    const trap = mktrap(
+        STATUE_TRAP,
+        MKTRAP_MAZEFLAG,
+        null,
+        { x: 10, y: 5 },
+        { state, hooks: objectGenerationHooks() },
+    );
+
+    assert.equal(trap.ttyp, STATUE_TRAP);
+    const statue = floorPile(state, 10, 5).find(
+        (obj) => obj.otyp === STATUE,
+    );
+    assert.ok(statue);
+    assert.equal(statue.corpsenm, PM_HOBGOBLIN);
+    assert.equal(statue.where, OBJ_FLOOR);
+    assert.ok(statue.cobj, 'the selected hobgoblin contributes equipment');
+    for (let obj = statue.cobj; obj; obj = obj.nobj) {
+        assert.equal(obj.where, OBJ_CONTAINED);
+        assert.equal(obj.ocontainer, statue);
+        assert.equal(obj.owornmask, 0);
+    }
+    assert.equal(statue.owt, weight(statue, { state }));
+    assert.equal(state.mvitals[PM_HOBGOBLIN].born, 0);
+
+    const temporary = state.level.monlist;
+    assert.ok(temporary);
+    assert.equal(temporary.data, state.mons[PM_HOBGOBLIN]);
+    assert.equal(temporary.mhp, 0);
+    assert.equal(temporary.minvent, null);
+    assert.equal(temporary.mstate & MON_DETACH, MON_DETACH);
+    assert.equal(state.level.monsters[temporary.mx][temporary.my], null);
+    assert.equal(state.iflags.purge_monsters, 1);
 });
