@@ -433,12 +433,16 @@ function stairwayAt(state, x, y) {
 }
 
 function glyphPresentation(symbol, color, state, customization = null) {
+    const displayCh = customization?.displayCh ?? symbol.displayCh;
     const result = {
-        ch: symbol.ch,
+        // tty_print_glyph() sends UTF-8 customizations through g_pututf8().
+        // Recorder patch 006 does not mirror that byte sequence into its
+        // shadow frame, so its existing cell stays untouched.  The browser
+        // still receives the Unicode presentation independently.
+        ch: customization?.displayCh ? null : symbol.ch,
         color: recorderMapColor(color, state),
         dec: symbol.dec,
     };
-    const displayCh = customization?.displayCh ?? symbol.displayCh;
     if (displayCh) result.displayCh = displayCh;
     if (customization?.rgb && state.iflags?.wc_color !== false) {
         result.rgb = [...customization.rgb];

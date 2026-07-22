@@ -1148,7 +1148,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     assert.deepEqual(
         terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
         {
-            ch: '{',
+            ch: null,
             color: CLR_BRIGHT_BLUE,
             dec: false,
             displayCh: '⌠',
@@ -1162,7 +1162,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     assert.deepEqual(
         terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
         {
-            ch: '{',
+            ch: null,
             color: CLR_BRIGHT_BLUE,
             dec: false,
             displayCh: '⌠',
@@ -1191,7 +1191,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     assert.deepEqual(
         terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
         {
-            ch: '{',
+            ch: null,
             color: NO_COLOR,
             dec: false,
             displayCh: '⌠',
@@ -1202,6 +1202,8 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     const live = resetGame();
     live.level = new GameMap();
     live.level.at(7, 4).typ = FOUNTAIN;
+    live.level.at(7, 4).disp_ch = 'x';
+    live.level.at(7, 4).disp_color = CLR_RED;
     live.u = { ux: 1, uy: 1 };
     live.flags = {};
     live.viz_array = [];
@@ -1211,6 +1213,12 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     live.iflags = { ...options.iflags };
     initialize_symbols_from_options(options, live);
     newsym(7, 4);
+    assert.equal(
+        live.level.at(7, 4).disp_ch,
+        'x',
+        'recorder patch 006 leaves the prior cell under g_pututf8()',
+    );
+    assert.equal(live.level.at(7, 4).disp_color, CLR_RED);
     assert.equal(live.level.at(7, 4).disp_browser_ch, '⌠');
     assert.equal(
         live.level.at(7, 4).disp_browser_color,
