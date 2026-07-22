@@ -7,7 +7,7 @@ import {
     D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
-    SDOOR, THEMEROOM, TLCORNER, VWALL, W_ANY, W_RANDOM,
+    SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, VWALL, W_ANY, W_RANDOM,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
@@ -27,8 +27,15 @@ import {
     themerooms_generate,
     UnsupportedThemeroomActionError,
 } from '../js/mklev.js';
-import { monst_globals_init } from '../js/monsters.js';
-import { objects_globals_init, STATUE } from '../js/objects.js';
+import {
+    S_HUMAN,
+    S_LICH,
+    S_MUMMY,
+    S_VAMPIRE,
+    S_ZOMBIE,
+    monst_globals_init,
+} from '../js/monsters.js';
+import { CORPSE, objects_globals_init, STATUE } from '../js/objects.js';
 import { init_rect } from '../js/rect.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -141,6 +148,14 @@ function initializeNewGame(seed) {
     game.u = { uroleplay: {} };
     game.context = { move: 0 };
     newgame_pre_mklev(game);
+}
+
+function initializeDirectThemeroomNewGame(seed) {
+    initializeNewGame(seed);
+    game.level = new GameMap();
+    game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
+    game.in_mklev = true;
+    init_rect();
 }
 
 function completeRandomFacade(random, randomOneBased, replacements = {}) {
@@ -1269,6 +1284,66 @@ test('Odd-room feature shuffles and replaces only the exact center terrain', () 
     assert.equal(game.level.at(center.x - 1, center.y).typ, ROOM);
 });
 
+test('Mausoleum corpse branch centers one human corpse in its inner room', () => {
+    initializeDirectThemeroomNewGame(1);
+
+    assert.equal(dispatch_themeroom(definitionById('mausoleum')), true);
+
+    const parent = game.level.rooms[0];
+    const child = game.subrooms[0];
+    assert.deepEqual(
+        [parent.lx, parent.ly, parent.hx, parent.hy],
+        [53, 12, 59, 18],
+    );
+    assert.deepEqual(
+        [child.lx, child.ly, child.hx, child.hy],
+        [56, 15, 56, 15],
+    );
+    assert.deepEqual(
+        [parent.rtype, parent.needfill, child.rtype, child.needfill],
+        [THEMEROOM, FILL_NONE, THEMEROOM, FILL_NONE],
+    );
+    assert.equal(child.needjoining, false);
+    const corpse = game.level.objects[child.lx][child.ly];
+    assert.equal(corpse.otyp, CORPSE);
+    assert.equal(game.mons[corpse.corpsenm].mlet, S_HUMAN);
+    assert.equal(game.level.monsters[child.lx][child.ly], null);
+});
+
+test('Mausoleum creates every source monster class and preserves waiting', () => {
+    const cases = [
+        [2, S_MUMMY],
+        [3, S_VAMPIRE],
+        [5, S_ZOMBIE],
+        [7, S_LICH],
+    ];
+    for (const [seed, expectedClass] of cases) {
+        initializeDirectThemeroomNewGame(seed);
+        assert.equal(dispatch_themeroom(definitionById('mausoleum')), true);
+
+        const child = game.subrooms[0];
+        const monster = game.level.monsters[child.lx][child.ly];
+        assert.ok(monster, `seed ${seed}`);
+        const base = monster.cham >= 0 ? game.mons[monster.cham] : monster.data;
+        assert.equal(base.mlet, expectedClass, `seed ${seed} class`);
+        assert.ok(monster.mstrategy & STRAT_WAITFORU, `seed ${seed} waiting`);
+        assert.equal(game.level.objects[child.lx][child.ly], null);
+        if (seed === 5) {
+            // This seed also takes Mausoleum's independent 20-percent
+            // secret-door branch.
+            const secretDoors = [];
+            for (let x = child.lx - 1; x <= child.hx + 1; ++x) {
+                for (let y = child.ly - 1; y <= child.hy + 1; ++y) {
+                    if (game.level.at(x, y).typ === SDOOR)
+                        secretDoors.push([x, y]);
+                }
+            }
+            assert.equal(secretDoors.length, 1);
+            assert.deepEqual([child.doorct, game.level.doorindex], [1, 2]);
+        }
+    }
+});
+
 test('random room doors preserve source draws, state, and nested registration', () => {
     resetThemeroomLevel();
     const { parent, child } = buildDoorTestRooms();
@@ -1805,7 +1880,7 @@ test('filler_region invokes an injected fill after registering room flags', () =
 });
 
 test('unimplemented direct and Water vault handlers fail before mutation', () => {
-    for (const id of ['mausoleum', 'water-surrounded-vault']) {
+    for (const id of ['twin-businesses', 'water-surrounded-vault']) {
         resetThemeroomLevel();
         let randomCalls = 0;
         assert.throws(

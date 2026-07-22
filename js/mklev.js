@@ -93,11 +93,25 @@ import {
 } from './room_coordinates.js';
 import { set_levltyp } from './terrain.js';
 import {
+    lspo_object,
+    new_sp_lev_object_context,
+} from './sp_lev_object.js';
+import {
+    create_monster,
     initialize_themeroom_postprocess_branch,
     run_themeroom_postprocess,
     themeroom_fill,
 } from './themeroom_fill.js';
-import { PM_GIANT_SPIDER, S_HUMAN } from './monsters.js';
+import {
+    G_IGNORE,
+    G_NOGEN,
+    PM_GIANT_SPIDER,
+    S_HUMAN,
+    S_LICH,
+    S_MUMMY,
+    S_VAMPIRE,
+    S_ZOMBIE,
+} from './monsters.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
@@ -1109,6 +1123,101 @@ function pillars(context) {
     return Boolean(room && !context.roomFailed);
 }
 
+function direct_creation_environment(context) {
+    const facade = context.randomFacade;
+    for (const method of THEMEROOM_RANDOM_METHODS) {
+        if (typeof facade?.[method] !== 'function') {
+            throw new UnsupportedThemeroomActionError(
+                context.definition,
+                `requires randomFacade.${method} for special-level creation`,
+            );
+        }
+    }
+    if (facade.rn2 !== context.random
+        || facade.rnd !== context.randomOneBased) {
+        throw new UnsupportedThemeroomActionError(
+            context.definition,
+            'requires randomFacade.rn2/rnd to match the room RNG streams',
+        );
+    }
+    return {
+        state: game,
+        random: facade,
+        spObjectContext: new_sp_lev_object_context(),
+    };
+}
+
+// C ref: themerms.lua "Mausoleum" callback.
+function mausoleum(context) {
+    const creationEnvironment = direct_creation_environment(context);
+    const width = 5 + context.random(3) * 2;
+    const height = 5 + context.random(3) * 2;
+    const room = run_room_descriptor(
+        { type: 'themed', w: width, h: height },
+        null,
+        context,
+        (parent) => {
+            run_room_descriptor(
+                {
+                    type: 'themed',
+                    x: Math.trunc((width - 1) / 2),
+                    y: Math.trunc((height - 1) / 2),
+                    w: 1,
+                    h: 1,
+                    joined: false,
+                },
+                parent,
+                context,
+                (child) => {
+                    if (context.random(100) < 50) {
+                        const classes = [
+                            S_MUMMY, S_VAMPIRE, S_LICH, S_ZOMBIE,
+                        ];
+                        shuffle_core_values(classes, context.random);
+                        create_monster(
+                            {
+                                class: classes[0],
+                                coordinate: { x: 0, y: 0 },
+                                waiting: true,
+                            },
+                            child,
+                            creationEnvironment,
+                        );
+                    } else {
+                        const species = mkclass(
+                            S_HUMAN,
+                            G_NOGEN | G_IGNORE,
+                            creationEnvironment,
+                        );
+                        if (!species) {
+                            throw new Error(
+                                'Mausoleum could not resolve a human corpse species',
+                            );
+                        }
+                        lspo_object(
+                            {
+                                id: CORPSE,
+                                corpsenm: species.pmidx,
+                                coordinate: { x: 0, y: 0 },
+                            },
+                            child,
+                            creationEnvironment,
+                        );
+                    }
+                    if (context.random(100) < 20) {
+                        create_room_door(
+                            { state: 'secret', wall: 'all' },
+                            child,
+                            context.random,
+                        );
+                    }
+                },
+            );
+        },
+    );
+    return Boolean(room && !context.roomFailed);
+}
+
 // C ref: themerms.lua "Random dungeon feature in the middle of an odd-sized
 // room" callback.
 function random_dungeon_feature_in_odd_room(context) {
@@ -1141,6 +1250,7 @@ const DIRECT_THEMEROOM_HANDLERS = new Map([
     ],
     ['nesting-rooms', nesting_rooms],
     ['pillars', pillars],
+    ['mausoleum', mausoleum],
     [
         'random-dungeon-feature-in-the-middle-of-an-odd-sized-room',
         random_dungeon_feature_in_odd_room,

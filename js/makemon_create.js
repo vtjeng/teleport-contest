@@ -1,5 +1,5 @@
-// Initial-level monster creation for ordinary rooms, themed-room fills,
-// starting pets, and the temporary monsters used by Statuary.
+// Initial-level monster creation for ordinary rooms, themed-room fills
+// including Mausoleum, starting pets, and Statuary's temporary monsters.
 // C ref: makemon.c makemon(), m_initthrow(), m_initweap(), m_initinv(), and
 // mongets(); worn.c m_dowear(). The implementation fails closed outside the
 // currently ported species and call shapes. Expanding that closed set means
@@ -141,6 +141,7 @@ import {
     PM_CHAMELEON,
     PM_CHICKATRICE,
     PM_COCKATRICE,
+    PM_DEMILICH,
     PM_ELF,
     PM_FIRE_ELEMENTAL,
     PM_FIRE_VORTEX,
@@ -150,17 +151,21 @@ import {
     PM_GARTER_SNAKE,
     PM_GHOST,
     PM_GIANT,
+    PM_GIANT_MUMMY,
     PM_GIANT_MIMIC,
     PM_GIANT_SPIDER,
+    PM_GIANT_ZOMBIE,
     PM_GOBLIN,
     PM_GRAY_UNICORN,
     PM_GRID_BUG,
     PM_HUMAN,
     PM_JACKAL,
     PM_KOBOLD,
+    PM_KOBOLD_MUMMY,
     PM_KOBOLD_ZOMBIE,
     PM_KITTEN,
     PM_LARGE_MIMIC,
+    PM_LICH,
     PM_LICHEN,
     PM_LITTLE_DOG,
     PM_LONG_WORM,
@@ -178,7 +183,11 @@ import {
     PM_SNAKE,
     PM_STALKER,
     PM_URUK_HAI,
+    PM_VAMPIRE,
+    PM_VAMPIRE_BAT,
+    PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
+    PM_WOLF,
     PM_WOOD_NYMPH,
     PM_WIZARD,
     PM_YELLOW_LIGHT,
@@ -749,10 +758,23 @@ function isStatuaryReservoirSpecies(species) {
         && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL));
 }
 
+// dat/themerms.lua's Mausoleum chooses one of these four classes through
+// mkclass(..., G_NOGEN).  On D:1 the source can reach both ordinary liches,
+// every mummy, both non-unique vampires, and every generated zombie; the
+// zero-frequency skeleton and hell-only master liches remain unreachable.
+function isMausoleumSpecies(species) {
+    const mndx = species.pmidx;
+    return (mndx >= PM_LICH && mndx <= PM_DEMILICH)
+        || (mndx >= PM_KOBOLD_MUMMY && mndx <= PM_GIANT_MUMMY)
+        || (mndx >= PM_VAMPIRE && mndx <= PM_VAMPIRE_LEADER)
+        || (mndx >= PM_KOBOLD_ZOMBIE && mndx <= PM_GIANT_ZOMBIE);
+}
+
 function assertSupportedSpecies(species) {
     if (!species
         || (!INITIAL_LEVEL_MONSTERS.has(species.pmidx)
-            && !isStatuaryReservoirSpecies(species))) {
+            && !isStatuaryReservoirSpecies(species)
+            && !isMausoleumSpecies(species))) {
         throw new UnsupportedMonsterCreationError(
             `monster ${species?.pmidx ?? 'null'}`,
         );
@@ -1691,17 +1713,44 @@ function pick_animal(normalized) {
     return animals[normalized.random.rn2(animals.length)];
 }
 
-// C ref: mon.c select_newcham_form(), restricted to the ordinary initial
-// chameleon. The initial dungeon level is not a rogue level, so its extra
-// uppercase retry is rejected during preflight rather than approximated.
+// C ref: mon.c pickvampshape(), for the ordinary vampire variants reachable
+// from the Mausoleum's class descriptor.
+function pick_vampire_shape(monster, normalized) {
+    const { random, state } = normalized;
+    const uppercaseOnly = isRogueLevel(state);
+    let mndx = NON_PM;
+    if (monster.cham === PM_VAMPIRE_LEADER
+        && !random.rn2(10)
+        && !uppercaseOnly) {
+        const typ = state.level.at(monster.mx, monster.my).typ;
+        if (!IS_POOL(typ) && !IS_LAVA(typ)) mndx = PM_WOLF;
+    }
+    if (mndx === NON_PM) {
+        mndx = !random.rn2(4) && !uppercaseOnly
+            ? PM_FOG_CLOUD : PM_VAMPIRE_BAT;
+    }
+    if ((state.mvitals[mndx].mvflags & G_GENOD)
+        || (monster.data !== state.mons[monster.cham]
+            && !random.rn2(4))) {
+        return monster.cham;
+    }
+    return mndx;
+}
+
+// C ref: mon.c select_newcham_form(), for the ordinary chameleon and the two
+// non-unique vampires reachable during initial themed-room generation.
 function select_newcham_form(monster, normalized) {
-    if (monster.cham !== PM_CHAMELEON) {
+    let mndx = NON_PM;
+    if (monster.cham === PM_CHAMELEON) {
+        if (!normalized.random.rn2(3)) mndx = pick_animal(normalized);
+    } else if (monster.cham === PM_VAMPIRE
+               || monster.cham === PM_VAMPIRE_LEADER) {
+        return pick_vampire_shape(monster, normalized);
+    } else {
         throw new UnsupportedMonsterCreationError(
             `initial shapechanger ${monster.cham}`,
         );
     }
-    let mndx = NON_PM;
-    if (!normalized.random.rn2(3)) mndx = pick_animal(normalized);
     if (mndx === NON_PM) {
         mndx = normalized.random.rn1(
             SPECIAL_PM - LOW_PM,
@@ -1735,7 +1784,9 @@ function mgender_from_permonst(monster, species, random) {
         monster.female = true;
     } else if (!is_neuter(species)
                && !random.rn2(10)
-               && species.mlet !== S_VAMPIRE) {
+               && species.mlet !== S_VAMPIRE
+               && monster.cham !== PM_VAMPIRE
+               && monster.cham !== PM_VAMPIRE_LEADER) {
         monster.female = !monster.female;
     }
 }
@@ -1753,11 +1804,10 @@ function set_mon_data(monster, species) {
     }
 }
 
-// C ref: mon.c newcham(..., NULL, NO_NC_FLAGS), for a just-created natural
-// chameleon with no inventory, leash, disguise, tail, or hero attachment.
-// Base-species admission is narrower than target-form selection: accepted
-// targets span the polymorphable pre-SPECIAL_PM catalog, so gender, light,
-// invisibility, concealment, and long-worm transitions must cover that catalog.
+// C ref: mon.c newcham(..., NULL, NO_NC_FLAGS), for a just-created supported
+// natural shapechanger with no inventory, leash, disguise, tail, or hero
+// attachment. Chameleon targets span the polymorphable pre-SPECIAL_PM catalog;
+// vampires use their controlled bat, fog-cloud, and wolf target set.
 function newcham_initial(monster, normalized) {
     const { random, state } = normalized;
     const olddata = monster.data;
