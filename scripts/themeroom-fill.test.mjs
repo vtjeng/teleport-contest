@@ -39,6 +39,7 @@ import { GameMap } from '../js/game.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
 import { newMonster } from '../js/monst.js';
+import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
     create_monster,
@@ -142,6 +143,57 @@ function threeByTwoRoom() {
         location.edge = false;
     }
     return { level, room };
+}
+
+function boulderGenerationFixture() {
+    const level = new GameMap();
+    const room = {
+        lx: 10,
+        ly: 5,
+        hx: 11,
+        hy: 5,
+        roomnoidx: 0,
+        rlit: 1,
+    };
+    for (let x = 6; x <= 15; ++x)
+        level.at(x, 5).typ = ROOM;
+    for (let x = room.lx; x <= room.hx; ++x) {
+        const location = level.at(x, room.ly);
+        location.roomno = ROOMOFFSET;
+        location.edge = false;
+    }
+
+    const state = {
+        ...rawMonsterGenerationState(),
+        astral_level: { dnum: 0, dlevel: 0 },
+        context: { current_fruit: 1, ident: 2, mon_moving: false },
+        flags: { initalign: 0 },
+        gz: { zombify: false },
+        in_mklev: true,
+        level,
+        moves: 2,
+        program_state: { gameover: false },
+        rogue_level: { dnum: 0, dlevel: 0 },
+        sanctum_level: { dnum: 0, dlevel: 0 },
+        urole: { mnum: PM_ARCHEOLOGIST, questarti: 0 },
+    };
+    state.u.uz.dlevel = 4;
+    state.dungeons[0].dunlev_ureached = 4;
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    reset_mvitals(state);
+    init_artifacts(state);
+    timeout_globals_init(state);
+    light_globals_init(state);
+    return { level, room, state };
+}
+
+function floorPile(level, x, y) {
+    const objects = [];
+    for (let obj = level.objects[x][y]; obj; obj = obj.nexthere)
+        objects.push(obj);
+    return objects;
 }
 
 function randomWithRn2(rn2) {
@@ -393,6 +445,66 @@ test('Boulder traps preserve create_trap room relocation', () => {
     ]]);
 });
 
+test('Boulder room composes real object, trap, launch, and victim boundaries', () => {
+    const { level, room, state } = boulderGenerationFixture();
+    const scripted = scriptedRandom([
+        step('rn2', [100], 0), // retain room-relative <0,0>
+        step('rn2', [100], 0), // retain room-relative <1,0>
+        step('rn2', [100], 0), // first callback creates a floor boulder
+        step('rnd', [2], 1), // direct boulder identifier
+        step('rn2', [100], 99), // second callback creates a trap
+        step('rn1', [5, 4], 4), // launch distance
+        step('rn2', [8], 7), // southwest fails, then west succeeds
+        step('rnd', [2], 1), // launch boulder identifier
+        step('rnd', [4], 1), // difficulty-four victim gate fails
+    ]);
+    const events = [];
+    const random = {};
+    for (const name of ['d', 'rn1', 'rn2', 'rnd', 'rne', 'rnz']) {
+        random[name] = (...args) => {
+            events.push([name, ...args]);
+            return scripted.random[name](...args);
+        };
+    }
+
+    run_themeroom_fill(fillById('boulder_room'), room, 4, {
+        state,
+        random,
+        hooks: {
+            newsym(x, y) {
+                events.push(['newsym', x, y]);
+            },
+        },
+    });
+    scripted.assertExhausted();
+
+    assert.deepEqual(events, [
+        ['rn2', 100], ['rn2', 100],
+        ['rn2', 100], ['rnd', 2],
+        ['rn2', 100], ['rn1', 5, 4], ['rn2', 8], ['rnd', 2],
+        ['newsym', 7, 5], ['rnd', 4],
+    ]);
+    assert.deepEqual(
+        floorPile(level, 10, 5).map((obj) => [
+            obj.otyp, obj.quan, obj.where, obj.ox, obj.oy,
+        ]),
+        [[BOULDER, 1, OBJ_FLOOR, 10, 5]],
+    );
+    assert.equal(level.traps.length, 1);
+    assert.deepEqual(
+        [level.traps[0].tx, level.traps[0].ty, level.traps[0].ttyp],
+        [11, 5, ROLLING_BOULDER_TRAP],
+    );
+    assert.deepEqual(level.traps[0].launch, { x: 7, y: 5 });
+    assert.deepEqual(level.traps[0].launch2, { x: 15, y: 5 });
+    assert.deepEqual(
+        floorPile(level, 7, 5).map((obj) => [
+            obj.otyp, obj.quan, obj.where, obj.ox, obj.oy,
+        ]),
+        [[BOULDER, 1, OBJ_FLOOR, 7, 5]],
+    );
+});
+
 test('Massacre preserves the source species table order', () => {
     const sourceSpecies = [
         PM_APPRENTICE,
@@ -461,6 +573,34 @@ test('Massacre preserves the source species table order', () => {
             `source table index ${tableIndex + 1}`,
         );
     }
+});
+
+test('Massacre creates the full 25 corpses at the five-die maximum', () => {
+    const { level, room } = twoByTwoRoom();
+    const random = scriptedRandom([
+        step('rn2', [27], 0),
+        ...Array.from({ length: 5 }, () => step('rn2', [5], 4)),
+        ...Array.from({ length: 25 }, () => step('rn2', [100], 99)),
+    ]);
+    const requests = [];
+
+    run_themeroom_fill(fillById('massacre'), room, 1, {
+        state: { level },
+        random: random.random,
+        hooks: {
+            createObject(specification) {
+                requests.push(specification);
+                return {};
+            },
+        },
+    });
+
+    random.assertExhausted();
+    assert.equal(requests.length, 25);
+    assert.ok(requests.every((request) => request.id === CORPSE));
+    assert.ok(requests.every(
+        (request) => request.corpsenm === PM_APPRENTICE,
+    ));
 });
 
 test('Massacre reselects before creating a corpse and retains that species', () => {

@@ -252,6 +252,62 @@ test('live generic themed rooms invoke their synchronous fill callback', async (
     assert.equal(game.level.nroom, 1);
 });
 
+test('live generic fill fallback preserves selection before containing a missing handler', async () => {
+    resetThemeroomLevel();
+    const reservoirDrawCount = 30;
+    let reservoirCalls = 0;
+    const events = [];
+    let fillBound = 0;
+    const scripted = [
+        [100, 0], // ordinary fallback build_room chance
+        [77, 1], // litstate_rnd keeps the room lit
+        [1, 0], // select the sole initial free rectangle
+        [12, 0], // width two
+        [4, 0], // height two
+        [70, 0], // leftmost valid x coordinate
+        [13, 0], // upper-half y
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        if (reservoirCalls++ < reservoirDrawCount) {
+            // Select Default room with themed fill from the outer reservoir.
+            return bound === 1010 ? 0 : bound - 1;
+        }
+        if (scripted.length) {
+            const next = scripted.shift();
+            assert.equal(bound, next[0]);
+            return next[1];
+        }
+        assert.equal(bound, ++fillBound);
+        // Select Cloud room at cumulative weight two, then retain it through
+        // all later eligible fills. Its missing handler is the bounded case.
+        return bound === 2 ? 0 : bound - 1;
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        assert.equal(bound, 2);
+        return 2;
+    };
+
+    const randomFacade = completeRandomFacade(random, randomOneBased);
+    assert.equal(await themerooms_generate(
+        1,
+        random,
+        randomOneBased,
+        { randomFacade },
+    ), true);
+    assert.equal(scripted.length, 0);
+    assert.equal(fillBound, 13);
+    assert.deepEqual(events.slice(reservoirDrawCount), [
+        'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
+        'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(13)',
+        ...Array.from({ length: 13 }, (_, index) => `rn2(${index + 1})`),
+    ]);
+    assert.equal(game.level.nroom, 1);
+    assert.equal(game.level.rooms[0].rtype, THEMEROOM);
+    assert.equal(game.level.rooms[0].needfill, FILL_NONE);
+});
+
 test('generic room descriptors set topology and flags before synchronous contents', () => {
     const cases = [
         // The source default is an ordinary room scheduled for normal fill.

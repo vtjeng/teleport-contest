@@ -42,6 +42,8 @@ import {
     curseFreeObject,
     mksobj,
     obj_no_longer_held,
+    place_object,
+    weight,
 } from '../js/obj.js';
 import {
     ARROW,
@@ -151,6 +153,8 @@ test('rolling-boulder traps create symmetric source launch geometry', () => {
     state.dungeons[0].dunlev_ureached = 4;
     for (let x = 6; x <= 14; ++x)
         state.level.at(x, 5).typ = ROOM;
+    const existing = mksobj(BOULDER, true, false, { state });
+    place_object(existing, 14, 5, { state });
     const calls = [];
     const random = {
         rn1(bound, base) {
@@ -173,6 +177,69 @@ test('rolling-boulder traps create symmetric source launch geometry', () => {
         MKTRAP_MAZEFLAG,
         null,
         { x: 10, y: 5 },
+        {
+            state,
+            random,
+            hooks: objectGenerationHooks({
+                newsym(x, y) {
+                    calls.push(['newsym', x, y]);
+                },
+            }),
+        },
+    );
+
+    assert.deepEqual(calls, [
+        ['rn1', 5, 4],
+        ['rn2', 8],
+        ['rnd', 2],
+        ['newsym', 14, 5],
+        ['rnd', 4],
+    ]);
+    assert.deepEqual(trap.launch, { x: 14, y: 5 });
+    assert.deepEqual(trap.launch2, { x: 6, y: 5 });
+    const launchPile = floorPile(state, 14, 5);
+    // objects.h declares Boulder with merge=0. stackobj() therefore preserves
+    // two quantity-one boulders and the newly launched one remains pile head.
+    assert.equal(launchPile.length, 2);
+    assert.equal(launchPile[0].otyp, BOULDER);
+    assert.deepEqual([launchPile[0].quan, launchPile[0].where], [1, OBJ_FLOOR]);
+    assert.equal(launchPile[0].owt, weight(launchPile[0], { state }));
+    assert.equal(launchPile[0].nexthere, existing);
+    assert.equal(launchPile[1], existing);
+    assert.equal(existing.where, OBJ_FLOOR);
+    assert.equal(state.level.objlist, launchPile[0]);
+    assert.equal(launchPile[0].nobj, existing);
+    assert.equal(existing.nobj, null);
+});
+
+test('rolling launch wraps directions before accepting a later path', () => {
+    const state = generationState();
+    state.u.uz.dlevel = 4;
+    state.dungeons[0].dunlev_ureached = 4;
+    for (let x = 6; x <= 14; ++x)
+        state.level.at(x, 5).typ = ROOM;
+    const calls = [];
+    const random = {
+        rn1(bound, base) {
+            calls.push(['rn1', bound, base]);
+            return 4;
+        },
+        rn2(bound) {
+            calls.push(['rn2', bound]);
+            return 6; // south, southwest, then wrapped west
+        },
+        rnd(bound) {
+            calls.push(['rnd', bound]);
+            return 1;
+        },
+        rne: () => assert.fail('unexpected rne'),
+    };
+
+    const trap = mktrap(
+        ROLLING_BOULDER_TRAP,
+        MKTRAP_MAZEFLAG,
+        null,
+        { x: 10, y: 5 },
         { state, random, hooks: objectGenerationHooks() },
     );
 
@@ -182,12 +249,51 @@ test('rolling-boulder traps create symmetric source launch geometry', () => {
         ['rnd', 2],
         ['rnd', 4],
     ]);
-    assert.deepEqual(trap.launch, { x: 14, y: 5 });
-    assert.deepEqual(trap.launch2, { x: 6, y: 5 });
-    const launchPile = floorPile(state, 14, 5);
-    assert.equal(launchPile.length, 1);
-    assert.equal(launchPile[0].otyp, BOULDER);
-    assert.deepEqual([launchPile[0].quan, launchPile[0].where], [1, OBJ_FLOOR]);
+    assert.deepEqual(trap.launch, { x: 6, y: 5 });
+    assert.deepEqual(trap.launch2, { x: 14, y: 5 });
+    assert.equal(floorPile(state, 6, 5).length, 1);
+});
+
+test('rolling launch reduces distance only after all eight directions fail', () => {
+    const state = generationState();
+    state.u.uz.dlevel = 4;
+    state.dungeons[0].dunlev_ureached = 4;
+    for (let x = 7; x <= 13; ++x)
+        state.level.at(x, 5).typ = ROOM;
+    const calls = [];
+    const random = {
+        rn1(bound, base) {
+            calls.push(['rn1', bound, base]);
+            return 4;
+        },
+        rn2(bound) {
+            calls.push(['rn2', bound]);
+            return 4; // east fails at distance four, succeeds at three
+        },
+        rnd(bound) {
+            calls.push(['rnd', bound]);
+            return 1;
+        },
+        rne: () => assert.fail('unexpected rne'),
+    };
+
+    const trap = mktrap(
+        ROLLING_BOULDER_TRAP,
+        MKTRAP_MAZEFLAG,
+        null,
+        { x: 10, y: 5 },
+        { state, random, hooks: objectGenerationHooks() },
+    );
+
+    assert.deepEqual(calls, [
+        ['rn1', 5, 4],
+        ['rn2', 8],
+        ['rnd', 2],
+        ['rnd', 4],
+    ]);
+    assert.deepEqual(trap.launch, { x: 13, y: 5 });
+    assert.deepEqual(trap.launch2, { x: 7, y: 5 });
+    assert.equal(floorPile(state, 13, 5).length, 1);
 });
 
 test('blocked rolling-boulder traps keep an ammo-free local launch', () => {

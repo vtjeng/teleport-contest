@@ -92,7 +92,10 @@ import {
     somexy,
 } from './room_coordinates.js';
 import { set_levltyp } from './terrain.js';
-import { themeroom_fill } from './themeroom_fill.js';
+import {
+    themeroom_fill,
+    UnsupportedThemeroomFillError,
+} from './themeroom_fill.js';
 import { PM_GIANT_SPIDER, S_HUMAN } from './monsters.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
@@ -552,7 +555,7 @@ async function makelevel() {
 async function makerooms() {
     const g = game;
     let tried_vault = false;
-    const difficulty = depth_of_level(g.u?.uz);
+    const difficulty = level_difficulty(g);
     let themeroom_tries = 0;
 
     while (g.level.nroom < (MAXNROFROOMS - 1) && rnd_rect()) {
@@ -794,6 +797,18 @@ function invoke_themeroom_fill(room, definition, context) {
     });
 }
 
+function staged_themeroom_fill(room, difficulty, env) {
+    try {
+        return themeroom_fill(room, difficulty, env);
+    } catch (error) {
+        // Live generation still performs the complete source-order reservoir
+        // and executes every supported result. Only the missing-handler
+        // boundary is tolerated until the remaining fill bodies are ported.
+        if (error instanceof UnsupportedThemeroomFillError) return null;
+        throw error;
+    }
+}
+
 // C refs: themerms.lua filler_region(); sp_lev.c lspo_region().
 function filler_region(filler, origin, definition, context) {
     const state = game;
@@ -962,11 +977,13 @@ export function dispatch_themeroom(
     }
 }
 
-// C ref: themerms.lua themerooms_generate(). Generic room descriptors now use
-// the strict synchronous dispatcher. The remaining partial-runtime boundary is
-// confined to non-room descriptors: direct filler maps omit their optional
-// fill, and unported direct callbacks use the ordinary-room fallback.
-// dispatch_themeroom() remains the strict seam for completing that transition.
+// C ref: themerms.lua themerooms_generate(). Generic room descriptors use the
+// strict synchronous dispatcher and the complete source-order fill reservoir.
+// While seven fill bodies remain unported, the live default callback tolerates
+// only UnsupportedThemeroomFillError after selection; implemented fills and
+// explicitly injected callbacks retain strict behavior. Direct filler maps
+// omit their optional fill, and unported direct callbacks use the ordinary-room
+// fallback. dispatch_themeroom() remains the strict completion seam.
 export async function themerooms_generate(
     difficulty,
     random = rn2,
@@ -979,10 +996,13 @@ export async function themerooms_generate(
         const sourceRandomFacade = random === rn2 && randomOneBased === rnd
             ? SOURCE_THEMEROOM_RANDOM
             : null;
+        const useDefaultFill = rawEnv.themeroomFill == null;
         return dispatch_themeroom(pick, random, randomOneBased, {
             difficulty,
             randomFacade: rawEnv.randomFacade ?? sourceRandomFacade,
-            themeroomFill: rawEnv.themeroomFill ?? themeroom_fill,
+            themeroomFill: useDefaultFill
+                ? staged_themeroom_fill
+                : rawEnv.themeroomFill,
         });
     }
     if (pick.map && pick.filler) {
