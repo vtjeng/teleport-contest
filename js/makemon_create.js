@@ -13,6 +13,7 @@ import {
     G_GENOD,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    I_SPECIAL,
     isok,
     MM_ANGRY,
     MM_ASLEEP,
@@ -455,7 +456,7 @@ function armorBonus(obj, state) {
 // C ref: worn.c m_dowear()/m_dowear_type(). Within the supported inventory
 // set, an orcish helm and amulet of life saving are the only wearable objects.
 // Neither has an applicable creation-time extrinsic side effect.
-export function m_dowear(monster, _creation = false, env = {}) {
+export function m_dowear(monster, creation = false, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
     const bodyFlags = species.mflags1 ?? 0;
@@ -465,7 +466,7 @@ export function m_dowear(monster, _creation = false, env = {}) {
         return monster;
     }
     if ((bodyFlags & M1_MINDLESS)
-        && (!_creation
+        && (!creation
             || (species.mlet !== S_MUMMY
                 && species.pmidx !== PM_SKELETON))) {
         return monster;
@@ -535,12 +536,17 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
     const normalized = creationEnv(env);
     while (monster.minvent) {
         const obj = monster.minvent;
+        const unwornmask = obj.owornmask;
         // C's extract_from_minvent(..., TRUE, TRUE) removes worn state before
-        // unlinking.  No supported creation-time worn item grants an
-        // extrinsic, so clearing these two masks is the complete local effect.
-        monster.misc_worn_check &= ~obj.owornmask;
-        obj.owornmask = 0;
+        // freeing the object.  No supported creation-time worn item grants an
+        // extrinsic, so the remaining local effects are the two worn masks and
+        // check_gear_next_turn()'s I_SPECIAL reassessment flag.
         obj_extract_self(obj, normalized);
+        obj.owornmask = 0;
+        if (unwornmask) {
+            monster.misc_worn_check &= ~unwornmask;
+            monster.misc_worn_check |= I_SPECIAL;
+        }
         if (uncreateArtifacts && obj.oartifact) {
             artifact_exists(
                 obj,

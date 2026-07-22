@@ -15,10 +15,14 @@ import {
     W_ARMH,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { add_to_minv } from '../js/invent.js';
 import {
     makemon,
+    m_dowear,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
+import { newMonster } from '../js/monst.js';
+import { mksobj } from '../js/obj.js';
 import {
     M2_ORC,
     PM_ELF,
@@ -27,7 +31,9 @@ import {
     PM_GHOST,
     PM_GOBLIN,
     PM_GRID_BUG,
+    PM_HOMUNCULUS,
     PM_HUMAN,
+    PM_HUMAN_MUMMY,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_ZOMBIE,
@@ -35,7 +41,10 @@ import {
     PM_NEWT,
     PM_ORC,
     PM_SEWER_RAT,
+    PM_SKELETON,
+    PM_WHITE_UNICORN,
     PM_WOOD_NYMPH,
+    PM_ZRUTY,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -54,6 +63,12 @@ import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
 const MON_X = 10;
 const MON_Y = 5;
+const FIXED_OBJECT_ID_RANDOM = {
+    rn2: () => 0,
+    rnd: () => 1,
+    rn1: (_bound, base) => base,
+    rne: () => 1,
+};
 
 function initialLevelState() {
     const state = {
@@ -77,6 +92,23 @@ function initialLevelState() {
     reset_mvitals(state);
     objects_globals_init(state);
     return state;
+}
+
+function monsterWithHelm(state, mndx, { spe = 0, cursed = false } = {}) {
+    const monster = newMonster({
+        data: state.mons[mndx],
+        mnum: mndx,
+        m_id: 9000 + mndx,
+        mcanmove: true,
+    });
+    const helm = mksobj(ORCISH_HELM, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    helm.spe = spe;
+    helm.cursed = cursed;
+    add_to_minv(monster, helm, { state });
+    return { helm, monster };
 }
 
 function basicCreationSteps({ gender = true } = {}) {
@@ -302,6 +334,88 @@ test('wood nymph wears a rare life-saving amulet during creation', () => {
     assert.equal(monster.minvent.otyp, AMULET_OF_LIFE_SAVING);
     assert.equal(monster.minvent.owornmask, W_AMUL);
     assert.equal(monster.misc_worn_check, W_AMUL);
+});
+
+test('m_dowear independently enforces each body and mind eligibility guard', () => {
+    const state = initialLevelState();
+    const cases = [
+        ['very small homunculus', PM_HOMUNCULUS],
+        ['no-hands white unicorn', PM_WHITE_UNICORN],
+        ['animal zruty', PM_ZRUTY],
+        ['mindless nonexception kobold zombie', PM_KOBOLD_ZOMBIE],
+    ];
+
+    for (const [name, mndx] of cases) {
+        const { helm, monster } = monsterWithHelm(state, mndx);
+        m_dowear(monster, true, { state });
+        assert.equal(helm.owornmask, 0, name);
+        assert.equal(monster.misc_worn_check & W_ARMH, 0, name);
+    }
+});
+
+test('m_dowear creation exception applies to mummies and skeletons only', () => {
+    const cases = [
+        ['existing human mummy', PM_HUMAN_MUMMY, false, false],
+        ['new human mummy', PM_HUMAN_MUMMY, true, true],
+        ['existing skeleton', PM_SKELETON, false, false],
+        ['new skeleton', PM_SKELETON, true, true],
+    ];
+
+    for (const [name, mndx, creation, expectedWorn] of cases) {
+        const state = initialLevelState();
+        const { helm, monster } = monsterWithHelm(state, mndx);
+        m_dowear(monster, creation, { state });
+        assert.equal(
+            Boolean(helm.owornmask & W_ARMH),
+            expectedWorn,
+            name,
+        );
+        assert.equal(
+            Boolean(monster.misc_worn_check & W_ARMH),
+            expectedWorn,
+            name,
+        );
+    }
+});
+
+test('m_dowear retains tied and cursed worn helmets', () => {
+    const cases = [
+        {
+            name: 'equal protection retains the old helmet',
+            oldSpe: 0,
+            oldCursed: false,
+            newSpe: 0,
+        },
+        {
+            name: 'a cursed old helmet blocks a stronger replacement',
+            oldSpe: 0,
+            oldCursed: true,
+            newSpe: 3,
+        },
+    ];
+
+    for (const scenario of cases) {
+        const state = initialLevelState();
+        const { helm: oldHelm, monster } = monsterWithHelm(
+            state,
+            PM_GOBLIN,
+            { spe: scenario.oldSpe, cursed: scenario.oldCursed },
+        );
+        oldHelm.owornmask = W_ARMH;
+        monster.misc_worn_check = W_ARMH;
+        const newHelm = mksobj(ORCISH_HELM, false, false, {
+            state,
+            random: FIXED_OBJECT_ID_RANDOM,
+        });
+        newHelm.spe = scenario.newSpe;
+        add_to_minv(monster, newHelm, { state });
+
+        m_dowear(monster, true, { state });
+
+        assert.equal(oldHelm.owornmask, W_ARMH, scenario.name);
+        assert.equal(newHelm.owornmask, 0, scenario.name);
+        assert.equal(monster.misc_worn_check, W_ARMH, scenario.name);
+    }
 });
 
 test('ghost creation names from player or source ghost-name reservoir', () => {

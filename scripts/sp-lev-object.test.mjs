@@ -158,6 +158,19 @@ function carrier(state, species, id = 40) {
     });
 }
 
+function markObjectKnown(obj) {
+    Object.assign(obj, {
+        known: true,
+        dknown: true,
+        bknown: true,
+        rknown: true,
+        cknown: true,
+        lknown: true,
+        tknown: true,
+    });
+    return obj;
+}
+
 test('explicit double-negative coordinates use the random-coordinate sentinel', () => {
     function generate(coordinate) {
         const { room, state } = roomState();
@@ -888,7 +901,7 @@ test('containers and tombstones take precedence over an active carrier', () => {
     assert.equal(dead.level.objlist, null);
 });
 
-test('direct saddles use can_saddle while other monsters carry them normally', () => {
+test('a held carrier receives its saddle after the visibility callback', () => {
     const horseSetup = roomState();
     horseSetup.state.in_mklev = false;
     const warhorse = carrier(horseSetup.state, PM_WARHORSE, 77);
@@ -896,6 +909,7 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
     const horseContext = new_sp_lev_object_context();
     horseContext.inventCarryingMonster = warhorse;
     let visibilityCalls = 0;
+    let namedSaddle = null;
     const wornSaddle = lspo_object({
         id: SADDLE,
         name: 'held saddle',
@@ -904,21 +918,18 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
         state: horseSetup.state,
         random: quietGenerationRandom(),
         hooks: {
-            canSeeMonster() {
+            canSeeMonster(candidate) {
                 ++visibilityCalls;
+                assert.equal(candidate, warhorse);
+                assert.equal(namedSaddle.where, OBJ_FREE);
+                assert.equal(horseSetup.level.objects[2][3], null);
+                assert.equal(horseSetup.level.objlist, null);
+                assert.equal(warhorse.minvent, null);
                 return false;
             },
             nameObject(obj) {
-                Object.assign(obj, {
-                    known: true,
-                    dknown: true,
-                    bknown: true,
-                    rknown: true,
-                    cknown: true,
-                    lknown: true,
-                    tknown: true,
-                });
-                return obj;
+                namedSaddle = obj;
+                return markObjectKnown(obj);
             },
         },
         spObjectContext: horseContext,
@@ -938,12 +949,16 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
         wornSaddle.lknown,
         wornSaddle.tknown,
     ], Array(7).fill(true));
+});
 
+test('an unseen carrier forgets its saddle details after floor unlink', () => {
     const unseenSetup = roomState();
     unseenSetup.state.in_mklev = false;
     const unseenHorse = carrier(unseenSetup.state, PM_WARHORSE, 78);
     const unseenContext = new_sp_lev_object_context();
     unseenContext.inventCarryingMonster = unseenHorse;
+    let namedSaddle = null;
+    let visibilityCalls = 0;
     const unseenSaddle = lspo_object({
         id: SADDLE,
         name: 'unseen saddle',
@@ -952,18 +967,18 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
         state: unseenSetup.state,
         random: quietGenerationRandom(),
         hooks: {
-            canSeeMonster: () => false,
+            canSeeMonster(candidate) {
+                ++visibilityCalls;
+                assert.equal(candidate, unseenHorse);
+                assert.equal(namedSaddle.where, OBJ_FREE);
+                assert.equal(unseenSetup.level.objects[2][3], null);
+                assert.equal(unseenSetup.level.objlist, null);
+                assert.equal(unseenHorse.minvent, null);
+                return false;
+            },
             nameObject(obj) {
-                Object.assign(obj, {
-                    known: true,
-                    dknown: true,
-                    bknown: true,
-                    rknown: true,
-                    cknown: true,
-                    lknown: true,
-                    tknown: true,
-                });
-                return obj;
+                namedSaddle = obj;
+                return markObjectKnown(obj);
             },
         },
         spObjectContext: unseenContext,
@@ -978,6 +993,10 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
         unseenSaddle.tknown,
     ], [true, false, false, false, false, false, false]);
 
+    assert.equal(visibilityCalls, 1);
+});
+
+test('a tame carrier receives a saddle without a visibility provider', () => {
     const tameSetup = roomState();
     tameSetup.state.in_mklev = false;
     const tameHorse = carrier(tameSetup.state, PM_WARHORSE, 79);
@@ -993,7 +1012,9 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
         spObjectContext: tameContext,
     });
     assert.equal(tameSaddle.where, OBJ_MINVENT);
+});
 
+test('an already-saddled carrier rejects another before visibility', () => {
     const saddledSetup = roomState();
     const saddledHorse = carrier(saddledSetup.state, PM_WARHORSE, 80);
     const saddledContext = new_sp_lev_object_context();
@@ -1029,7 +1050,9 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
     assert.equal(saddledHorse.minvent, existingSaddle);
     assert.equal(existingSaddle.owornmask, W_SADDLE);
     assert.equal(rejectedSaddle.where, OBJ_FREE);
+});
 
+test('a live saddle pickup preflights its visibility provider', () => {
     const unsupportedSetup = roomState();
     unsupportedSetup.state.in_mklev = false;
     const unsupportedHorse = carrier(
@@ -1055,7 +1078,9 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
     assert.equal(unsupportedSaddle.where, OBJ_FLOOR);
     assert.equal(unsupportedSetup.level.objlist, unsupportedSaddle);
     assert.equal(unsupportedHorse.minvent, null);
+});
 
+test('a nonsaddleable carrier picks a saddle up as ordinary inventory', () => {
     const ogreSetup = roomState();
     const ogre = carrier(ogreSetup.state, PM_OGRE);
     const ogreContext = new_sp_lev_object_context();
@@ -1072,6 +1097,73 @@ test('direct saddles use can_saddle while other monsters carry them normally', (
     assert.equal(ogre.minvent, carriedSaddle);
     assert.equal(carriedSaddle.owornmask, 0);
     assert.equal(ogre.misc_worn_check & W_SADDLE, 0);
+});
+
+test('ordinary live pickup checks visibility after unlink and before inventory', () => {
+    const setup = roomState();
+    setup.state.in_mklev = false;
+    const ogre = carrier(setup.state, PM_OGRE, 82);
+    const context = new_sp_lev_object_context();
+    context.inventCarryingMonster = ogre;
+    let namedApple = null;
+    let visibilityCalls = 0;
+
+    const apple = lspo_object({
+        id: APPLE,
+        name: 'observed apple',
+        coordinate: { x: 0, y: 0 },
+    }, setup.room, {
+        state: setup.state,
+        random: quietGenerationRandom(),
+        hooks: {
+            canSeeMonster(candidate) {
+                ++visibilityCalls;
+                assert.equal(candidate, ogre);
+                assert.equal(namedApple.where, OBJ_FREE);
+                assert.equal(setup.level.objects[2][3], null);
+                assert.equal(setup.level.objlist, null);
+                assert.equal(ogre.minvent, null);
+                return true;
+            },
+            nameObject(obj) {
+                namedApple = obj;
+                return obj;
+            },
+        },
+        spObjectContext: context,
+    });
+
+    assert.equal(visibilityCalls, 1);
+    assert.equal(apple, namedApple);
+    assert.equal(apple.where, OBJ_MINVENT);
+    assert.equal(apple.ocarry, ogre);
+    assert.equal(ogre.minvent, apple);
+});
+
+test('ordinary live pickup without visibility stays linked on the floor', () => {
+    const setup = roomState();
+    setup.state.in_mklev = false;
+    const ogre = carrier(setup.state, PM_OGRE, 83);
+    const context = new_sp_lev_object_context();
+    context.inventCarryingMonster = ogre;
+
+    assert.throws(
+        () => lspo_object({
+            id: APPLE,
+            coordinate: { x: 0, y: 0 },
+        }, setup.room, {
+            state: setup.state,
+            random: quietGenerationRandom(),
+            spObjectContext: context,
+        }),
+        (error) => error instanceof UnsupportedSpecialObjectError
+            && error.operation === 'monster visibility for custom inventory',
+    );
+
+    const apple = setup.level.objects[2][3];
+    assert.equal(apple.where, OBJ_FLOOR);
+    assert.equal(setup.level.objlist, apple);
+    assert.equal(ogre.minvent, null);
 });
 
 test('direct carried burial and figurine timers retain their source boundaries', () => {

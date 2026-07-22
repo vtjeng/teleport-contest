@@ -459,7 +459,7 @@ function putInCurrentContainer(obj, context, env) {
     return survivor;
 }
 
-function carrierCanSeeObject(monster, env, specification) {
+function heroCanSeeCarrier(monster, env, specification) {
     const canSeeMonster = env.hooks.canSeeMonster;
     if (typeof canSeeMonster === 'function')
         return Boolean(canSeeMonster(monster, env));
@@ -503,7 +503,7 @@ function putInCurrentMonster(obj, monster, env, specification) {
     if (obj.otyp === SADDLE && can_saddle(monster)) {
         put_saddle_on_mon(obj, monster, {
             ...env,
-            canseemon: (candidate) => carrierCanSeeObject(
+            canseemon: (candidate) => heroCanSeeCarrier(
                 candidate,
                 env,
                 specification,
@@ -514,7 +514,7 @@ function putInCurrentMonster(obj, monster, env, specification) {
 
     obj.no_charge = false;
     if (!monster.mtame) {
-        const canSeeCarrier = carrierCanSeeObject(
+        const canSeeCarrier = heroCanSeeCarrier(
             monster,
             env,
             specification,

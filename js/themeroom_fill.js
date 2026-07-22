@@ -223,7 +223,9 @@ function createMonsterBody(specification, room, env) {
 
 // C refs: sp_lev.c lspo_monster(), create_monster(), and
 // spo_end_moninvent().  The descriptor callback runs even when monster
-// creation fails; in that case the null carrier leaves its objects on floor.
+// creation fails.  A top-level failure leaves its objects on the floor; a
+// nested failure inherits the outer scalar carrier until this descriptor's end
+// boundary clears it, matching create_monster()'s success-only assignment.
 export function create_monster(specification, room, rawEnv = {}) {
     const env = fillEnvironment(rawEnv);
     const inventory = specification.inventory;
@@ -249,7 +251,7 @@ export function create_monster(specification, room, rawEnv = {}) {
     if (!hasCustomInventory) return monster;
 
     const context = env.spObjectContext;
-    context.inventCarryingMonster = monster;
+    if (monster) context.inventCarryingMonster = monster;
     try {
         inventory(monster, env);
         // spo_end_moninvent() deliberately consults the shared carrier rather

@@ -5,6 +5,7 @@ import {
     ARROW_TRAP,
     BURN_OBJECT,
     ICE,
+    I_SPECIAL,
     LS_OBJECT,
     MELT_ICE_AWAY,
     MKTRAP_MAZEFLAG,
@@ -12,6 +13,7 @@ import {
     OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_MINVENT,
+    ONAME_LEVEL_DEF,
     ROOM,
     ROOMOFFSET,
     STRAT_WAITFORU,
@@ -21,7 +23,11 @@ import {
     W_ARMH,
     WEB,
 } from '../js/const.js';
-import { init_artifacts } from '../js/artifacts.js';
+import {
+    ART_ORCRIST,
+    artifact_exists,
+    init_artifacts,
+} from '../js/artifacts.js';
 import { GameMap } from '../js/game.js';
 import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
@@ -40,6 +46,7 @@ import {
     ARROW,
     BOW,
     DAGGER,
+    ELVEN_BROADSWORD,
     ORCISH_HELM,
     RING_CLASS,
     SCROLL_CLASS,
@@ -455,7 +462,7 @@ test('Ghost fill shares one coordinate and preserves equipment order', () => {
     assert.ok(!requests.some(([, spec]) => spec.class === RING_CLASS));
 });
 
-test('monster descriptors scope custom inventory and finish its worn state', () => {
+test('custom inventory discards worn defaults and reverses artifacts', () => {
     const { context, level, random, room, state } = monsterDescriptorFixture();
     const monster = newMonster({
         data: state.mons[PM_GOBLIN],
@@ -463,8 +470,32 @@ test('monster descriptors scope custom inventory and finish its worn state', () 
         m_id: 40,
         mcanmove: true,
     });
-    const generatedDagger = mksobj(DAGGER, true, false, { state, random });
-    add_to_minv(monster, generatedDagger, { state, random });
+    const generatedArtifact = mksobj(
+        ELVEN_BROADSWORD,
+        true,
+        false,
+        { state, random },
+    );
+    generatedArtifact.oextra = { oname: 'Orcrist' };
+    artifact_exists(
+        generatedArtifact,
+        'Orcrist',
+        true,
+        ONAME_LEVEL_DEF,
+        state,
+    );
+    assert.equal(generatedArtifact.oartifact, ART_ORCRIST);
+    assert.equal(state.artiexist[ART_ORCRIST].exists, 1);
+    const generatedHelm = mksobj(
+        ORCISH_HELM,
+        true,
+        false,
+        { state, random },
+    );
+    generatedHelm.owornmask = W_ARMH;
+    monster.misc_worn_check = W_ARMH;
+    add_to_minv(monster, generatedArtifact, { state, random });
+    add_to_minv(monster, generatedHelm, { state, random });
 
     let customHelm = null;
     const created = create_monster({
@@ -485,11 +516,15 @@ test('monster descriptors scope custom inventory and finish its worn state', () 
     });
 
     assert.equal(created, monster);
-    assert.equal(generatedDagger.where, OBJ_DELETED);
+    assert.equal(generatedHelm.where, OBJ_DELETED);
+    assert.equal(generatedHelm.owornmask, 0);
+    assert.equal(generatedArtifact.where, OBJ_DELETED);
+    assert.equal(generatedArtifact.oartifact, 0);
+    assert.equal(state.artiexist[ART_ORCRIST].exists, 0);
     assert.equal(customHelm.where, OBJ_MINVENT);
     assert.equal(customHelm.ocarry, monster);
     assert.equal(customHelm.owornmask, W_ARMH);
-    assert.equal(monster.misc_worn_check & W_ARMH, W_ARMH);
+    assert.equal(monster.misc_worn_check, I_SPECIAL | W_ARMH);
     assert.equal(context.inventCarryingMonster, null);
 
     const laterApple = lspo_object({
@@ -498,6 +533,43 @@ test('monster descriptors scope custom inventory and finish its worn state', () 
     }, room, { state, random, spObjectContext: context });
     assert.equal(laterApple.where, OBJ_FLOOR);
     assert.equal(level.objects[3][3], laterApple);
+});
+
+test('explicit false discards default inventory without a custom callback', () => {
+    const { context, random, room, state } = monsterDescriptorFixture();
+    const monster = newMonster({
+        data: state.mons[PM_GOBLIN],
+        mnum: PM_GOBLIN,
+        m_id: 44,
+        mcanmove: true,
+    });
+    const generatedHelm = mksobj(
+        ORCISH_HELM,
+        true,
+        false,
+        { state, random },
+    );
+    generatedHelm.owornmask = W_ARMH;
+    monster.misc_worn_check = W_ARMH;
+    add_to_minv(monster, generatedHelm, { state, random });
+
+    const created = create_monster({
+        id: PM_GOBLIN,
+        coordinate: { x: 0, y: 0 },
+        keepDefaultInventory: false,
+    }, room, {
+        state,
+        random,
+        hooks: { createMonster: () => monster },
+        spObjectContext: context,
+    });
+
+    assert.equal(created, monster);
+    assert.equal(monster.minvent, null);
+    assert.equal(generatedHelm.where, OBJ_DELETED);
+    assert.equal(generatedHelm.owornmask, 0);
+    assert.equal(monster.misc_worn_check, I_SPECIAL);
+    assert.equal(context.inventCarryingMonster, null);
 });
 
 test('kept default inventory preserves an amulet and upgrades a weaker helm', () => {
@@ -609,6 +681,59 @@ test('failed monster creation runs custom inventory with a null carrier', () => 
     assert.equal(monster, null);
     assert.equal(callbackObject.where, OBJ_FLOOR);
     assert.equal(level.objects[2][3], callbackObject);
+    assert.equal(context.inventCarryingMonster, null);
+});
+
+test('a failed nested descriptor uses then clears the outer scalar carrier', () => {
+    const { context, level, random, room, state } = monsterDescriptorFixture();
+    const outer = newMonster({
+        data: state.mons[PM_GOBLIN],
+        mnum: PM_GOBLIN,
+        m_id: 45,
+        mcanmove: true,
+    });
+    let creationCalls = 0;
+    let inheritedApple = null;
+    let laterApple = null;
+
+    create_monster({
+        id: PM_GOBLIN,
+        coordinate: { x: 0, y: 0 },
+        inventory(_outerMonster, outerEnv) {
+            const inner = create_monster({
+                id: PM_GOBLIN,
+                coordinate: { x: 0, y: 0 },
+                inventory(innerMonster, innerEnv) {
+                    assert.equal(innerMonster, null);
+                    inheritedApple = lspo_object({
+                        id: APPLE,
+                        coordinate: { x: 0, y: 0 },
+                    }, room, innerEnv);
+                },
+            }, room, outerEnv);
+            assert.equal(inner, null);
+            laterApple = lspo_object({
+                id: APPLE,
+                coordinate: { x: 1, y: 0 },
+            }, room, outerEnv);
+        },
+    }, room, {
+        state,
+        random,
+        hooks: {
+            createMonster() {
+                return creationCalls++ === 0 ? outer : null;
+            },
+        },
+        spObjectContext: context,
+    });
+
+    assert.equal(inheritedApple.where, OBJ_MINVENT);
+    assert.equal(inheritedApple.ocarry, outer);
+    assert.equal(outer.minvent, inheritedApple);
+    assert.equal(creationCalls, 2);
+    assert.equal(laterApple.where, OBJ_FLOOR);
+    assert.equal(level.objects[3][3], laterApple);
     assert.equal(context.inventCarryingMonster, null);
 });
 
