@@ -28,6 +28,7 @@ import {
     MKTRAP_MAZEFLAG,
     MKTRAP_NOSPIDERONWEB,
     MKTRAP_SEEN,
+    MM_NOCOUNTBIRTH,
     M_AP_OBJECT,
     M_AP_MONSTER,
     NO_LOC_WARN,
@@ -62,7 +63,7 @@ import {
     restore_waiting_vampire,
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
-import { mkclass } from './makemon.js';
+import { mkclass, set_malign } from './makemon.js';
 import { is_female, is_male } from './mondata.js';
 import { mktrap } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -545,11 +546,14 @@ function createMonsterBody(specification, room, env) {
         return null;
     }
     const monsterEnv = themedCreationEnv(env);
+    const mmflags = specification.countbirth === false
+        ? MM_NOCOUNTBIRTH
+        : 0;
     const monster = makemon(
         species,
         coordinate.x,
         coordinate.y,
-        0,
+        mmflags,
         monsterEnv,
     );
     if (!monster) return null;
@@ -561,6 +565,12 @@ function createMonsterBody(specification, room, env) {
     // create_monster() applies the parser-selected gender after makemon(),
     // even though makemon may have consumed its own gender draw.
     monster.female = female;
+    if (specification.peaceful != null) {
+        monster.mpeaceful = Boolean(specification.peaceful);
+        // sp_lev.c:create_monster() recomputes malign because makemon()
+        // initialized it from the monster's natural peacefulness.
+        set_malign(monster, env.state);
+    }
     if (specification.asleep != null)
         monster.msleeping = Boolean(specification.asleep);
     if (specification.waiting) {

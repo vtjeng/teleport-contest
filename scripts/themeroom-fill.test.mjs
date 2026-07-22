@@ -122,6 +122,7 @@ import {
     PM_HUNTER,
     PM_KNIGHT,
     PM_KOBOLD,
+    PM_LICHEN,
     PM_MONK,
     PM_NEANDERTHAL,
     PM_NINJA,
@@ -655,6 +656,25 @@ test('create_monster rejects occupied-coordinate relocation outside its room', (
     assert.equal(fog, null);
     assert.equal(level.monlist, occupant);
     assert.equal(level.monsters[room.lx][room.ly], occupant);
+});
+
+test('create_monster honors uncounted births and explicit peacefulness', () => {
+    const { level, room, state, random } = monsterDescriptorFixture();
+    level.rooms[0] = { ...room, rtype: THEMEROOM };
+
+    const lichen = create_monster({
+        id: PM_LICHEN,
+        coordinate: { x: 0, y: 0 },
+        countbirth: false,
+        peaceful: true,
+        waiting: true,
+    }, room, { state, random });
+
+    assert.ok(lichen);
+    assert.equal(state.mvitals[PM_LICHEN].born, 0);
+    assert.equal(lichen.mpeaceful, true);
+    assert.equal(lichen.malign, 0);
+    assert.equal(lichen.mstrategy & STRAT_WAITFORU, STRAT_WAITFORU);
 });
 
 test('Spider nest samples x-major and creates webs y-major', () => {
