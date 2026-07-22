@@ -22,14 +22,8 @@ import {
     isok,
 } from './const.js';
 import { game } from './gstate.js';
-
-export class UnsupportedTerrainTransitionError extends Error {
-    constructor(operation) {
-        super(`set_levltyp requires ${operation} when removing ice`);
-        this.name = 'UnsupportedTerrainTransitionError';
-        this.operation = operation;
-    }
-}
+import { obj_ice_effects } from './obj.js';
+import { spot_stop_timers } from './timeout.js';
 
 export function is_ice(x, y, state = game) {
     if (!isok(x, y)) return false;
@@ -76,12 +70,10 @@ export function set_levltyp(x, y, newtyp, rawEnv = {}) {
 
     const wasIce = is_ice(x, y, state);
     const removingIce = wasIce && newtyp !== ICE;
-    const objIceEffects = env.objIceEffects ?? env.hooks?.objIceEffects;
-    const spotStopTimers = env.spotStopTimers ?? env.hooks?.spotStopTimers;
-    if (removingIce && typeof objIceEffects !== 'function')
-        throw new UnsupportedTerrainTransitionError('obj_ice_effects');
-    if (removingIce && typeof spotStopTimers !== 'function')
-        throw new UnsupportedTerrainTransitionError('spot_stop_timers');
+    const objIceEffects = env.objIceEffects ?? env.hooks?.objIceEffects
+        ?? obj_ice_effects;
+    const spotStopTimers = env.spotStopTimers ?? env.hooks?.spotStopTimers
+        ?? ((tx, ty, action) => spot_stop_timers(tx, ty, action, state));
 
     location.typ = newtyp;
     if (IS_LAVA(newtyp)) location.lit = true;

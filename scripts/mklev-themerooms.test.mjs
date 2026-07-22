@@ -5,9 +5,9 @@ import { newgame_pre_mklev } from '../js/allmain.js';
 import {
     AGGRAVATE_MONSTER, ARMORSHOP, CLOUD, COLNO, CROSSWALL, DOOR, DUST, D_ISOPEN,
     D_CLOSED, D_LOCKED, D_NODOOR, D_TRAPPED,
-    FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
+    FILL_NONE, FILL_NORMAL, FOUNTAIN, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     LR_TELE, LR_UPTELE, MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO,
-    STATUE_TRAP, STONE,
+    STATUE_TRAP, STONE, TRAPDOOR,
     SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, TREE, VAULT, VWALL,
     WEAPONSHOP,
     W_ANY, W_RANDOM,
@@ -17,6 +17,7 @@ import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { initoptions_finish } from '../js/fruit.js';
 import { game, resetGame } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { objectType, weight } from '../js/obj.js';
 import {
     add_doors_to_room,
@@ -105,6 +106,17 @@ function resetThemeroomLevel() {
     game.u = { uz: { dnum: 0, dlevel: 1 } };
     game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     init_rect();
+}
+
+function memoryStorage() {
+    const values = new Map();
+    return {
+        getItem(key) { return values.get(key) ?? null; },
+        setItem(key, value) { values.set(key, String(value)); },
+        removeItem(key) { values.delete(key); },
+        get length() { return values.size; },
+        key(index) { return [...values.keys()][index] ?? null; },
+    };
 }
 
 function buildFixedParentRoom() {
@@ -748,6 +760,79 @@ test('successful vault retry realizes and fills its replacement room', async () 
             [GOLD_PIECE, 196], [GOLD_PIECE, 187],
         ],
     );
+});
+
+test('ordinary features can replace optional-fill ice during live generation', async () => {
+    // This newly chosen seed makes Circular, small take its optional Ice room
+    // fill, then selects one of those ice cells for mkfount(). set_levltyp()
+    // must run the real object and melt-timer owners before ordinary filling
+    // can finish.
+    const session = await runSegment({
+        seed: 461,
+        datetime: '20000110090000',
+        nethackrc: [
+            'OPTIONS=name:FreshDiff,role:Healer,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            '',
+        ].join('\n'),
+        moves: '',
+        recorderIsDst: false,
+        storage: memoryStorage(),
+    });
+
+    const room = game.level.rooms.slice(0, game.level.nroom)
+        .find((candidate) => candidate.rtype === THEMEROOM
+            && candidate.irregular);
+    assert.ok(room);
+    assert.deepEqual(
+        [room.lx, room.ly, room.hx, room.hy],
+        [32, 10, 36, 14],
+    );
+    assert.equal(game.level.at(34, 13).typ, FOUNTAIN);
+    let iceCount = 0;
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            if (game.level.at(x, y).typ === ICE) ++iceCount;
+        }
+    }
+    assert.equal(iceCount, 12);
+    // The later level-wide feature recount normalizes mkfount()'s temporary
+    // source double-count before the first command prompt.
+    assert.equal(game.level.flags.nfountains, 1);
+    assert.equal(session.getRngLog().length, 3041);
+    assert.equal(session.getScreens().length, 1);
+});
+
+test('ordinary trap creation unearths themed buried treasure', async () => {
+    // This newly chosen seed buries a treasure chest, then selects that exact
+    // square for an ordinary trap door. dig.c:unearth_objs() must cancel the
+    // burial timer and return the chest to the floor before startup finishes.
+    const session = await runSegment({
+        seed: 6916,
+        datetime: '20000110090000',
+        nethackrc: [
+            'OPTIONS=name:FreshDiff,role:Healer,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            '',
+        ].join('\n'),
+        moves: '',
+        recorderIsDst: false,
+        storage: memoryStorage(),
+    });
+
+    const trap = game.level.traps.find((candidate) =>
+        candidate.tx === 6 && candidate.ty === 9);
+    assert.ok(trap);
+    assert.equal(trap.ttyp, TRAPDOOR);
+    const chest = game.level.objects[6][9];
+    assert.ok(chest);
+    assert.equal(chest.otyp, CHEST);
+    assert.equal(chest.timed, 0);
+    assert.equal(chest.nexthere, null);
+    for (let obj = game.level.buriedobjlist; obj; obj = obj.nobj)
+        assert.notDeepEqual([obj.ox, obj.oy], [6, 9]);
+    assert.equal(session.getRngLog().length, 3434);
+    assert.equal(session.getScreens().length, 1);
 });
 
 test('mklev discards exclusion zones retained from the previous level', async () => {

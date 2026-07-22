@@ -13,21 +13,31 @@ import {
     LAVAPOOL,
     MAX_TYPE,
     MELT_ICE_AWAY,
+    OBJ_BURIED,
+    ROT_CORPSE,
     ROOM,
     SDOOR,
     SINK,
     STAIRS,
     STONE,
+    TIMER_LEVEL,
+    TIMER_OBJECT,
 } from '../js/const.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { make_grave } from '../js/grave.js';
+import { newObject, place_object } from '../js/obj.js';
+import { CORPSE } from '../js/objects.js';
 import {
-    UnsupportedTerrainTransitionError,
     count_level_features,
     is_ice,
     set_levltyp,
 } from '../js/terrain.js';
+import {
+    peek_timer,
+    start_timer,
+    timeout_globals_init,
+} from '../js/timeout.js';
 
 function makeState() {
     return { level: new GameMap(), iflags: {}, head_engr: null };
@@ -128,17 +138,45 @@ test('set_levltyp delegates both ice-removal effects after mutation', () => {
     assert.equal(is_ice(31, 12, state), false);
 });
 
-test('set_levltyp fails closed before an unowned ice transition', () => {
+test('set_levltyp applies live floor, buried, and melt-timer ice effects', () => {
     const state = makeState();
+    // These ages and delays make both corpses equivalent at move 100 while
+    // exercising the inverse on-ice and off-ice timer transformations.
+    state.moves = 100;
+    timeout_globals_init(state);
+    const x = 31;
+    const y = 12;
     const location = state.level.at(31, 12);
     location.typ = ICE;
 
-    assert.throws(
-        () => set_levltyp(31, 12, ROOM, { state }),
-        (error) => error instanceof UnsupportedTerrainTransitionError
-            && error.operation === 'obj_ice_effects',
-    );
-    assert.equal(location.typ, ICE);
+    const floorCorpse = newObject({ otyp: CORPSE, age: 80 });
+    start_timer(40, TIMER_OBJECT, ROT_CORPSE, floorCorpse, state);
+    place_object(floorCorpse, x, y, { state });
+    assert.equal(floorCorpse.on_ice, true);
+    assert.equal(floorCorpse.age, 60);
+    assert.equal(peek_timer(ROT_CORPSE, floorCorpse, state), 180);
+
+    const buriedCorpse = newObject({
+        otyp: CORPSE,
+        ox: x,
+        oy: y,
+        where: OBJ_BURIED,
+        age: 60,
+        on_ice: true,
+    });
+    state.level.buriedobjlist = buriedCorpse;
+    start_timer(80, TIMER_OBJECT, ROT_CORPSE, buriedCorpse, state);
+    const meltCoordinate = x * 0x10000 + y;
+    start_timer(25, TIMER_LEVEL, MELT_ICE_AWAY, meltCoordinate, state);
+
+    assert.equal(set_levltyp(x, y, ROOM, { state }), true);
+    assert.equal(location.typ, ROOM);
+    for (const corpse of [floorCorpse, buriedCorpse]) {
+        assert.equal(corpse.on_ice, false);
+        assert.equal(corpse.age, 80);
+        assert.equal(peek_timer(ROT_CORPSE, corpse, state), 140);
+    }
+    assert.equal(peek_timer(MELT_ICE_AWAY, meltCoordinate, state), 0);
 });
 
 test('make_grave rejects non-floor terrain and an existing trap', () => {

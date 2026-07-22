@@ -44,6 +44,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { traptype_rnd } from '../js/mklev.js';
+import { timeout_globals_init } from '../js/timeout.js';
 import { maketrap, t_at } from '../js/trap.js';
 
 function initializedState(dlevel = 1) {
@@ -61,6 +62,7 @@ function initializedState(dlevel = 1) {
         flags: { hellish: false },
     }];
     state.level = new GameMap();
+    timeout_globals_init(state);
     state.level.at(10, 5).typ = ROOM;
     state.level.at(11, 5).typ = ROOM;
     return state;
@@ -184,7 +186,7 @@ test('maketrap gives holes visible state, destinations, and room terrain', () =>
     const location = state.level.at(10, 5);
     location.typ = ICE;
     location.flags = 37;
-    const engraving = state.head_engr = {
+    state.head_engr = {
         engr_x: 10,
         engr_y: 5,
         engr_txt: ['old'],
@@ -194,10 +196,17 @@ test('maketrap gives holes visible state, destinations, and room terrain', () =>
         ['rn2', 4, 0],
         ['rn2', 4, 2],
     ]);
+    const iceEvents = [];
 
     const trap = maketrap(10, 5, HOLE, {
         state,
         random: random.random,
+        objIceEffects(x, y, doBuried) {
+            iceEvents.push(['objects', x, y, doBuried, location.typ]);
+        },
+        spotStopTimers(x, y, action) {
+            iceEvents.push(['timers', x, y, action, location.typ]);
+        },
     });
     random.done();
 
@@ -206,7 +215,12 @@ test('maketrap gives holes visible state, destinations, and room terrain', () =>
     assert.deepEqual(trap.launch, { x: -1, y: -1 });
     assert.equal(location.typ, ROOM);
     assert.equal(location.flags, 0);
-    assert.equal(state.head_engr, engraving);
+    assert.equal(state.head_engr, null);
+    assert.deepEqual(iceEvents, [
+        // set_levltyp() changes ICE to ROOM before notifying both owners.
+        ['objects', 10, 5, true, ROOM],
+        ['timers', 10, 5, MELT_ICE_AWAY, ROOM],
+    ]);
 });
 
 test('maketrap rejects non-map trap kinds and protected terrain', () => {
@@ -233,7 +247,7 @@ test('maketrap exposes later subsystem boundaries before linking a trap', () => 
     state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
     state.level.at(10, 5).flags = 37;
     assert.throws(
-        () => maketrap(10, 5, PIT, { state }),
+        () => maketrap(10, 5, PIT, { state, unearthObjects: false }),
         /buried-object subsystem/,
     );
     assert.equal(state.level.at(10, 5).typ, ROOM);
@@ -261,7 +275,7 @@ test('maketrap preflights seams before changing an existing trap', () => {
     assert.deepEqual(existing, original);
     state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
     assert.throws(
-        () => maketrap(10, 5, PIT, { state }),
+        () => maketrap(10, 5, PIT, { state, unearthObjects: false }),
         /buried-object subsystem/,
     );
     assert.deepEqual(existing, original);
@@ -271,7 +285,7 @@ test('maketrap preflights seams before changing an existing trap', () => {
     location.typ = DRAWBRIDGE_UP;
     location.flags = DB_ICE;
     assert.throws(
-        () => maketrap(10, 5, PIT, { state }),
+        () => maketrap(10, 5, PIT, { state, objIceEffects: false }),
         /obj_ice_effects/,
     );
     assert.deepEqual(existing, original);

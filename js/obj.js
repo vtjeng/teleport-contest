@@ -7,14 +7,19 @@ import {
     CORPSTAT_MALE,
     CORPSTAT_NEUTER,
     COST_DEGRD,
+    COLNO,
+    DB_ICE,
+    DB_UNDER,
+    DRAWBRIDGE_UP,
     FIRE_RES,
     G_GONE,
     HATCH_EGG,
-    COLNO,
+    ICE,
     LARGEST_INT,
     LOST_NONE,
     MAX_OIL_IN_FLASK,
     NON_PM,
+    OBJ_BURIED,
     OBJ_DELETED,
     OBJ_FLOOR,
     OBJ_FREE,
@@ -1493,6 +1498,7 @@ export function place_object(obj, x, y, env = {}) {
     obj.where = OBJ_FLOOR;
     obj.nobj = state.level.objlist ?? null;
     state.level.objlist = obj;
+    if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
     return obj;
 }
 
@@ -1511,25 +1517,76 @@ function chainPredecessor(head, target, link, label) {
     );
 }
 
-// C ref: mkobj.c obj_timer_checks(), reached from remove_object(). A floor
-// removal can only take a corpse off ice: extract_nobj() has already changed
-// where to OBJ_FREE, so the source's "placed on ice" arm is unreachable here.
-function corpseTimerOffIce(obj, state) {
-    if (obj.otyp !== CORPSE || !obj.on_ice) return;
+function objectLocationIsIce(x, y, state) {
+    const location = state.level?.at(x, y);
+    return location?.typ === ICE
+        || (location?.typ === DRAWBRIDGE_UP
+            && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
+}
+
+// C ref: mkobj.c obj_timer_checks(). Corpse rot and revival timers run at
+// half speed on ice; moving a corpse onto or off ice adjusts both its pending
+// timeout and age so later source calculations see the same elapsed time.
+export function obj_timer_checks(obj, x, y, force = 0, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const onFloor = obj.where === OBJ_FLOOR;
+    const buried = obj.where === OBJ_BURIED;
+    const onIce = (onFloor || buried) && objectLocationIsIce(x, y, state);
 
     let action = ROT_CORPSE;
-    let timeLeft = stop_timer(action, obj, state);
-    if (timeLeft === 0) {
-        action = REVIVE_MON;
-        timeLeft = stop_timer(action, obj, state);
-    }
-    if (timeLeft === 0) return;
+    let timeLeft = 0;
+    let restartTimer = false;
 
-    obj.on_ice = false;
-    timeLeft = Math.trunc(timeLeft / 2);
-    const age = Math.trunc(state.moves ?? 0) - Math.trunc(obj.age ?? 0);
-    obj.age += Math.trunc(age / 2);
-    start_timer(timeLeft, TIMER_OBJECT, action, obj, state);
+    if (obj.otyp === CORPSE && onIce) {
+        timeLeft = stop_timer(action, obj, state, rawEnv);
+        if (timeLeft === 0) {
+            action = REVIVE_MON;
+            timeLeft = stop_timer(action, obj, state, rawEnv);
+        }
+        if (timeLeft !== 0) {
+            obj.on_ice = true;
+            timeLeft *= 2;
+            restartTimer = true;
+            const age = Math.trunc(state.moves ?? 0)
+                - Math.trunc(obj.age ?? 0);
+            obj.age = Math.trunc(state.moves ?? 0) - age * 2;
+        }
+    } else if (force < 0
+        || (obj.otyp === CORPSE && obj.on_ice && !onIce)) {
+        timeLeft = stop_timer(action, obj, state, rawEnv);
+        if (timeLeft === 0) {
+            action = REVIVE_MON;
+            timeLeft = stop_timer(action, obj, state, rawEnv);
+        }
+        if (timeLeft !== 0) {
+            obj.on_ice = false;
+            timeLeft = Math.trunc(timeLeft / 2);
+            restartTimer = true;
+            const age = Math.trunc(state.moves ?? 0)
+                - Math.trunc(obj.age ?? 0);
+            obj.age += Math.trunc(age / 2);
+        }
+    }
+
+    if (restartTimer)
+        start_timer(timeLeft, TIMER_OBJECT, action, obj, state);
+}
+
+// C ref: mkobj.c obj_ice_effects(). Terrain changes recheck every timed floor
+// object at the square and, when requested, every timed buried object there.
+export function obj_ice_effects(x, y, doBuried, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const grid = floorObjectGrid(state);
+
+    for (let obj = grid[x][y]; obj; obj = obj.nexthere) {
+        if (obj.timed) obj_timer_checks(obj, x, y, 0, rawEnv);
+    }
+    if (doBuried) {
+        for (let obj = state.level.buriedobjlist; obj; obj = obj.nobj) {
+            if (obj.ox === x && obj.oy === y && obj.timed)
+                obj_timer_checks(obj, x, y, 0, rawEnv);
+        }
+    }
 }
 
 // C ref: mkobj.c remove_object(). Floor objects have two independent links;
@@ -1571,7 +1628,7 @@ export function remove_object(obj, env = {}) {
     obj.where = OBJ_FREE;
 
     if (recalcBlockPoint) recalcBlockPoint(x, y, normalized);
-    if (obj.timed) corpseTimerOffIce(obj, state);
+    if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
     return obj;
 }
 

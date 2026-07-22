@@ -57,12 +57,20 @@ import {
     xdir,
     ydir,
 } from './const.js';
+import { unearth_objs } from './bury.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { stackobj } from './invent.js';
-import { mksobj, place_object, weight } from './obj.js';
+import {
+    mksobj,
+    obj_ice_effects,
+    place_object,
+    weight,
+} from './obj.js';
 import { BOULDER } from './objects.js';
 import { rn1, rn2, rnd, rne } from './rng.js';
+import { is_ice, set_levltyp } from './terrain.js';
+import { spot_stop_timers } from './timeout.js';
 
 function trapEnv(env = {}) {
     return {
@@ -214,6 +222,11 @@ function makeRollingBoulderLaunch(trap, x, y, env) {
 
 const DEFAULT_CAPABILITIES = Object.freeze({
     makeRollingBoulderLaunch,
+    objIceEffects: obj_ice_effects,
+    spotStopTimers(x, y, action, env) {
+        spot_stop_timers(x, y, action, env.state);
+    },
+    unearthObjects: unearth_objs,
 });
 
 export function t_at(x, y, state = game) {
@@ -293,8 +306,7 @@ function preflightPitTerrain(x, y, env) {
         && typeof capability(env, 'unearthObjects') !== 'function') {
         throw new Error('maketrap requires the buried-object subsystem');
     }
-    if (location.typ === DRAWBRIDGE_UP
-        && drawbridgeUnder(location) === DB_ICE) {
+    if (is_ice(x, y, env.state)) {
         if (typeof capability(env, 'objIceEffects') !== 'function') {
             throw new Error(
                 'maketrap requires obj_ice_effects for drawbridge ice',
@@ -388,13 +400,13 @@ function pitTerrain(x, y, env) {
             );
         }
     } else if (IS_ROOM(location.typ)) {
-        location.typ = ROOM;
+        set_levltyp(x, y, ROOM, env);
     } else if (location.typ === STONE || location.typ === SCORR) {
-        location.typ = CORR;
+        set_levltyp(x, y, CORR, env);
     } else if (IS_WALL(location.typ) || location.typ === SDOOR) {
-        location.typ = state.level.flags?.is_maze_lev
+        set_levltyp(x, y, state.level.flags?.is_maze_lev
             ? ROOM
-            : state.level.flags?.is_cavernous_lev ? CORR : DOOR;
+            : state.level.flags?.is_cavernous_lev ? CORR : DOOR, env);
     }
 
     if (clearFlags) location.flags = 0;

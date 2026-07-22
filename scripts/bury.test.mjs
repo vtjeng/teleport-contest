@@ -20,9 +20,10 @@ import { ART_LONGBOW_OF_DIANA } from '../js/artifacts.js';
 import {
     bury_an_obj,
     obj_resists,
+    unearth_objs,
 } from '../js/bury.js';
 import { GameMap } from '../js/game.js';
-import { add_to_minv } from '../js/invent.js';
+import { add_to_buried, add_to_minv } from '../js/invent.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     APPLE,
@@ -202,6 +203,44 @@ test('bury_an_obj leaves a corpse timer in place and unlinks both floor indexes'
     assert.equal(peek_timer(ROT_CORPSE, corpse, state), 320);
     assert.equal(peek_timer(ROT_ORGANIC, corpse, state), 0);
     script.done();
+});
+
+test('unearth_objs restores every target object and stops organic rot', () => {
+    // Move 40 and the 300-turn rot delay leave a live organic timer for the
+    // target chest; the distinct coordinates prove that unearthing is local.
+    const state = burialState(40);
+    state.head_engr = null;
+    const x = 13;
+    const y = 8;
+    const elsewhere = objectInstance(FOOD_RATION, state, { ox: 20, oy: 9 });
+    const chest = objectInstance(CHEST, state, { ox: x, oy: y });
+    const apple = objectInstance(APPLE, state, { ox: x, oy: y });
+    add_to_buried(elsewhere, { state });
+    add_to_buried(chest, { state });
+    add_to_buried(apple, { state });
+    start_timer(300, TIMER_OBJECT, ROT_ORGANIC, chest, state);
+    const events = [];
+
+    unearth_objs(x, y, {
+        state,
+        hooks: {
+            newsym(actualX, actualY) {
+                events.push([actualX, actualY]);
+            },
+        },
+    });
+
+    assert.equal(state.level.buriedobjlist, elsewhere);
+    assert.equal(elsewhere.where, OBJ_BURIED);
+    assert.deepEqual(pileAt(state, x, y), [chest, apple]);
+    assert.deepEqual(floorList(state), [chest, apple]);
+    for (const obj of [chest, apple]) {
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.deepEqual([obj.ox, obj.oy], [x, y]);
+    }
+    assert.equal(chest.timed, 0);
+    assert.equal(peek_timer(ROT_ORGANIC, chest, state), 0);
+    assert.deepEqual(events, [[x, y]]);
 });
 
 test('bury_an_obj applies the source off-ice corpse timer adjustment', () => {
