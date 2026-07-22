@@ -1,23 +1,37 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { newgame_pre_mklev } from '../js/allmain.js';
 import {
-    CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL, LAVAPOOL,
+    AGGRAVATE_MONSTER, CROSSWALL, DOOR, FILL_NONE, FILL_NORMAL, HWALL,
+    ICE, LAVAPOOL,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, STONE, THEMEROOM,
     VWALL,
 } from '../js/const.js';
+import { depth, level_difficulty } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     dispatch_themeroom,
     initialize_themeroom_branch,
     lspo_map,
+    mklev,
     select_themeroom,
     themerooms_generate,
     UnsupportedThemeroomActionError,
 } from '../js/mklev.js';
+import { monst_globals_init } from '../js/monsters.js';
+import { objects_globals_init } from '../js/objects.js';
 import { init_rect } from '../js/rect.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import {
+    str2align,
+    str2gend,
+    str2race,
+    str2role,
+} from '../js/roles.js';
 import { THEMEROOM_DEFINITIONS } from '../js/themeroom_data.js';
+import { timeout_globals_init } from '../js/timeout.js';
 
 function definitionById(id) {
     return THEMEROOM_DEFINITIONS.find((definition) => definition.id === id);
@@ -29,6 +43,30 @@ function resetThemeroomLevel() {
     game.u = { uz: { dnum: 0, dlevel: 1 } };
     game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     init_rect();
+}
+
+function initializeNewGame(seed) {
+    resetGame();
+    objects_globals_init(game);
+    monst_globals_init(game);
+    timeout_globals_init(game);
+    initRng(seed);
+    game.fixedDatetime = '20400314015926';
+    game.recorderIsDst = false;
+    game.moves = 0;
+    game.plname = 'ThemeroomTest';
+    game.flags = {
+        initrole: str2role('Tourist'),
+        initrace: str2race('human'),
+        initgend: str2gend('female'),
+        initalign: str2align('neutral'),
+        female: true,
+        bones: false,
+    };
+    game.iflags = {};
+    game.u = { uroleplay: {} };
+    game.context = { move: 0 };
+    newgame_pre_mklev(game);
 }
 
 function completeRandomFacade(random, randomOneBased, replacements = {}) {
@@ -306,6 +344,98 @@ test('live generic fill fallback preserves selection before containing a missing
     assert.equal(game.level.nroom, 1);
     assert.equal(game.level.rooms[0].rtype, THEMEROOM);
     assert.equal(game.level.rooms[0].needfill, FILL_NONE);
+});
+
+test('live default fill executes supported handlers and propagates their errors', async () => {
+    resetThemeroomLevel();
+    // All 30 outer descriptors are eligible at difficulty one.
+    const reservoirDrawCount = 30;
+    let reservoirCalls = 0;
+    let fillBound = 0;
+    const marker = new Error('supported fill marker');
+    const scripted = [
+        [100, 0], // build_room's default 100% chance
+        [77, 1], // litstate_rnd keeps the room lit
+        [1, 0], // select the sole initial free rectangle
+        [12, 0], // width two
+        [4, 0], // height two
+        [70, 0], // leftmost valid x coordinate
+        [13, 0], // upper-half y
+    ];
+    const random = (bound) => {
+        if (reservoirCalls++ < reservoirDrawCount) {
+            // Select Default room with themed fill from the outer reservoir.
+            return bound === 1010 ? 0 : bound - 1;
+        }
+        if (scripted.length) {
+            const next = scripted.shift();
+            assert.equal(bound, next[0]);
+            return next[1];
+        }
+        // A lit D:1 room has 13 eligible fill descriptors: Boulder is too
+        // difficult and Light source requires darkness.
+        if (fillBound < 13) {
+            assert.equal(bound, ++fillBound);
+            // Retain Ice room, the first eligible fill, through the reservoir.
+            return bound - 1;
+        }
+        // Ice room has already changed every room cell before its melt-chance
+        // draw.  An unrelated handler error must escape the staged fallback.
+        assert.equal(bound, 100);
+        throw marker;
+    };
+    const randomOneBased = (bound) => {
+        // litstate_rnd uses rnd(1 + abs(depth)) at dungeon depth one.
+        assert.equal(bound, 2);
+        return 2;
+    };
+
+    await assert.rejects(
+        themerooms_generate(
+            1,
+            random,
+            randomOneBased,
+            { randomFacade: completeRandomFacade(random, randomOneBased) },
+        ),
+        (error) => error === marker,
+    );
+    assert.equal(scripted.length, 0);
+    assert.equal(fillBound, 13);
+    assert.equal(game.level.nroom, 1);
+    const room = game.level.rooms[0];
+    assert.equal(room.rtype, THEMEROOM);
+    for (let x = room.lx; x <= room.hx; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y)
+            assert.equal(game.level.at(x, y).typ, ICE);
+    }
+});
+
+test('makerooms uses adjusted level difficulty for eligibility', async () => {
+    // Aggravate Monster doubles difficulty on this regular Dungeons-of-Doom
+    // level.  Raw depth two excludes difficulty-four Twin businesses, while
+    // source difficulty four includes its 31st outer-reservoir draw.
+    // Newly chosen seed 15 enters the real room path and completes the
+    // currently supported noninitial-level generation without a test seam.
+    initializeNewGame(15);
+    game.u.uz = { dnum: 0, dlevel: 2 };
+    game.u.uprops[AGGRAVATE_MONSTER].extrinsic = 1;
+    assert.equal(depth(game.u.uz, game), 2);
+    assert.equal(level_difficulty(game), 4);
+
+    enableRngLog();
+    await mklev();
+    const log = getRngLog();
+    const reservoirStart = log.findIndex((entry) => entry.startsWith('rn2(1000)='));
+    assert.ok(reservoirStart >= 0);
+    const bounds = log.slice(reservoirStart, reservoirStart + 31).map((entry) => {
+        const match = /^rn2\((\d+)\)=/.exec(entry);
+        assert.ok(match, entry);
+        return Number(match[1]);
+    });
+    assert.deepEqual(bounds, [
+        1000, 1001, 1002, 1003, 1004, 1010, 1012, 1014,
+        ...Array.from({ length: 23 }, (_, index) => 1015 + index),
+    ]);
 });
 
 test('generic room descriptors set topology and flags before synchronous contents', () => {
