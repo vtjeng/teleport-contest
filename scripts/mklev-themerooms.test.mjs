@@ -886,6 +886,290 @@ test('live Fake Delphi builds and registers its nested room in source order', as
     );
 });
 
+test('Room in a room preserves random room and door source order', () => {
+    resetThemeroomLevel();
+    const random = scriptedRandom([
+        step('rn2', [100], 0), // keep the outer ordinary room type
+        step('rnd', [2], 2), // depth-one outer lighting bound
+        step('rn2', [77], 76), // light the outer room
+        step('rn2', [1], 0), // select the sole free rectangle
+        step('rn2', [12], 8), // outer extent is ten plus its inclusive cell
+        step('rn2', [4], 3), // outer extent is five plus its inclusive cell
+        step('rn2', [62], 10), // outer left edge becomes column 13
+        step('rn2', [10], 2), // outer top edge becomes row 4
+        step('rn2', [100], 0), // keep the child ordinary room type
+        step('rnd', [8], 4), // four-cell child width
+        step('rnd', [3], 2), // two-cell child height
+        step('rnd', [7], 2), // child x offset inside the parent
+        step('rnd', [4], 2), // child y offset inside the parent
+        step('rnd', [2], 2), // depth-one child lighting bound
+        step('rn2', [77], 76), // light the child
+        step('rn2', [5], 4), // discarded lspo_door random state
+        step('rn2', [3], 1), // actual state is D_NODOOR
+        step('rn2', [4], 0), // north wall
+        step('rn2', [4], 1), // second cell along the four-cell wall
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('room-in-a-room'),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+
+    assert.equal(game.level.nroom, 1);
+    assert.equal(game.nsubroom, 1);
+    const parent = game.level.rooms[0];
+    const child = game.subrooms[0];
+    assert.deepEqual(
+        [parent.lx, parent.ly, parent.hx, parent.hy],
+        [13, 4, 23, 9],
+    );
+    assert.deepEqual(
+        [child.lx, child.ly, child.hx, child.hy],
+        [15, 6, 18, 7],
+    );
+    assert.equal(parent.irregular, true);
+    assert.equal(parent.needfill, FILL_NORMAL);
+    assert.equal(child.needfill, FILL_NONE);
+
+    const door = { x: 16, y: 5 };
+    assert.equal(game.level.at(door.x, door.y).doormask, D_NODOOR);
+    assert.deepEqual(game.level.doors, [door, door]);
+    assert.deepEqual(
+        [child.fdoor, child.doorct, parent.fdoor, parent.doorct],
+        [0, 1, 1, 1],
+    );
+});
+
+test('Huge nested room creates both source-ordered optional doors', () => {
+    resetThemeroomLevel();
+    const random = scriptedRandom([
+        step('rn2', [10], 0), // outer width 11
+        step('rn2', [5], 0), // outer height 8
+        step('rn2', [100], 0), // keep the outer ordinary room type
+        step('rnd', [2], 2), // depth-one outer lighting bound
+        step('rn2', [77], 76), // light the outer room
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // center within the horizontal sector
+        step('rnd', [3], 1), // top within the vertical sector
+        step('rn2', [100], 0), // pass the 90-percent child gate
+        step('rn2', [100], 0), // keep the child ordinary room type
+        step('rnd', [8], 4), // four-cell child width
+        step('rnd', [5], 3), // three-cell child height
+        step('rnd', [7], 2), // child x offset
+        step('rnd', [5], 2), // child y offset
+        step('rnd', [2], 2), // depth-one child lighting bound
+        step('rn2', [77], 76), // light the child
+        step('rn2', [5], 4), // first discarded random door state
+        step('rn2', [3], 1), // first actual state is D_NODOOR
+        step('rn2', [4], 0), // first door uses the north wall
+        step('rn2', [4], 1), // first door x offset
+        step('rn2', [100], 0), // pass the 50-percent second-door gate
+        step('rn2', [5], 4), // second discarded random door state
+        step('rn2', [3], 1), // second actual state is D_NODOOR
+        step('rn2', [4], 1), // second door uses the south wall
+        step('rn2', [4], 2), // second door x offset
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('huge-room-with-another-room-inside'),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+
+    const parent = game.level.rooms[0];
+    const child = game.subrooms[0];
+    assert.deepEqual(
+        [parent.lx, parent.ly, parent.hx, parent.hy],
+        [35, 5, 45, 12],
+    );
+    assert.deepEqual(
+        [child.lx, child.ly, child.hx, child.hy],
+        [37, 7, 40, 9],
+    );
+    assert.equal(parent.needfill, FILL_NORMAL);
+    assert.equal(child.needfill, FILL_NORMAL);
+    const doors = [{ x: 38, y: 6 }, { x: 39, y: 10 }];
+    assert.deepEqual(
+        doors.map(({ x, y }) => game.level.at(x, y).doormask),
+        [D_NODOOR, D_NODOOR],
+    );
+    assert.equal(new Set(game.level.doors.map(({ x, y }) => `${x},${y}`)).size, 2);
+    assert.deepEqual([child.doorct, parent.doorct], [2, 2]);
+    assert.equal(game.level.doorindex, 4);
+});
+
+test('Huge nested room stops after the failed child percentage gate', () => {
+    resetThemeroomLevel();
+    const random = scriptedRandom([
+        step('rn2', [10], 0), // outer width 11
+        step('rn2', [5], 0), // outer height 8
+        step('rn2', [100], 0), // keep the ordinary room type
+        step('rnd', [2], 2), // depth-one lighting bound
+        step('rn2', [77], 76), // light the room
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // centered horizontally
+        step('rnd', [3], 1), // aligned to the top vertically
+        step('rn2', [100], 90), // fail percent(90) at its boundary
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('huge-room-with-another-room-inside'),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+    assert.equal(game.level.nroom, 1);
+    assert.equal(game.nsubroom ?? 0, 0);
+    assert.equal(game.level.rooms[0].irregular, false);
+    assert.equal(game.level.doors?.length ?? 0, 0);
+});
+
+test('Nesting rooms preserves deep room, percentage, and door order', () => {
+    resetThemeroomLevel();
+    const random = scriptedRandom([
+        step('rn2', [4], 0), // outer width 9
+        step('rn2', [4], 0), // outer height 9
+        step('rn2', [100], 0), // keep the outer ordinary room type
+        step('rnd', [2], 2), // depth-one outer lighting bound
+        step('rn2', [77], 76), // light the outer room
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // center within the horizontal sector
+        step('rnd', [3], 1), // top within the vertical sector
+        step('rn2', [4], 2), // child width 6 from Lua range 4..7
+        step('rn2', [4], 2), // child height 6 from Lua range 4..7
+        step('rn2', [100], 0), // keep the child ordinary room type
+        step('rnd', [3], 1), // child left edge adjusts to zero
+        step('rnd', [3], 1), // child top edge adjusts to zero
+        step('rnd', [2], 2), // depth-one child lighting bound
+        step('rn2', [77], 76), // light the child
+        step('rn2', [100], 0), // pass the 90-percent grandchild gate
+        step('rn2', [100], 0), // keep the grandchild ordinary room type
+        step('rnd', [3], 2), // two-cell grandchild width
+        step('rnd', [3], 2), // two-cell grandchild height
+        step('rnd', [4], 2), // grandchild x offset
+        step('rnd', [4], 2), // grandchild y offset
+        step('rnd', [2], 2), // depth-one grandchild lighting bound
+        step('rn2', [77], 76), // light the grandchild
+        step('rn2', [5], 4), // first grandchild discarded door state
+        step('rn2', [3], 1), // first grandchild door is D_NODOOR
+        step('rn2', [4], 0), // grandchild north wall
+        step('rn2', [2], 0), // grandchild north x offset
+        step('rn2', [100], 0), // pass the grandchild percent(15) gate
+        step('rn2', [5], 4), // second grandchild discarded door state
+        step('rn2', [3], 1), // second grandchild door is D_NODOOR
+        step('rn2', [4], 1), // grandchild south wall
+        step('rn2', [2], 1), // grandchild south x offset
+        step('rn2', [5], 4), // first child discarded door state
+        step('rn2', [3], 1), // first child door is D_NODOOR
+        step('rn2', [4], 1), // child south wall
+        step('rn2', [6], 3), // child south x offset
+        step('rn2', [100], 0), // pass the child percent(15) gate
+        step('rn2', [5], 4), // second child discarded door state
+        step('rn2', [3], 1), // second child door is D_NODOOR
+        step('rn2', [4], 3), // child east wall
+        step('rn2', [6], 4), // child east y offset
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('nesting-rooms'),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+
+    assert.equal(game.level.nroom, 1);
+    assert.equal(game.nsubroom, 2);
+    const parent = game.level.rooms[0];
+    const child = game.subrooms[0];
+    const grandchild = game.subrooms[1];
+    assert.deepEqual(
+        [parent.lx, parent.ly, parent.hx, parent.hy],
+        [36, 5, 44, 13],
+    );
+    assert.deepEqual(
+        [child.lx, child.ly, child.hx, child.hy],
+        [36, 5, 41, 10],
+    );
+    assert.deepEqual(
+        [grandchild.lx, grandchild.ly, grandchild.hx, grandchild.hy],
+        [38, 7, 39, 8],
+    );
+    assert.deepEqual(
+        [parent.needfill, child.needfill, grandchild.needfill],
+        [FILL_NORMAL, FILL_NORMAL, FILL_NORMAL],
+    );
+    assert.deepEqual(
+        [parent.irregular, child.irregular, grandchild.irregular],
+        [true, true, false],
+    );
+    const doors = [
+        { x: 38, y: 6 },
+        { x: 39, y: 9 },
+        { x: 39, y: 11 },
+        { x: 42, y: 9 },
+    ];
+    assert.deepEqual(
+        doors.map(({ x, y }) => game.level.at(x, y).doormask),
+        [D_NODOOR, D_NODOOR, D_NODOOR, D_NODOOR],
+    );
+    assert.equal(new Set(game.level.doors.map(({ x, y }) => `${x},${y}`)).size, 4);
+    assert.deepEqual(
+        [parent.doorct, child.doorct, grandchild.doorct],
+        [2, 4, 2],
+    );
+    assert.equal(game.level.doorindex, 8);
+});
+
+test('Nesting rooms skips the grandchild and second child door at boundaries', () => {
+    resetThemeroomLevel();
+    const random = scriptedRandom([
+        step('rn2', [4], 0), // outer width 9
+        step('rn2', [4], 0), // outer height 9
+        step('rn2', [100], 0), // keep the outer ordinary room type
+        step('rnd', [2], 2), // depth-one outer lighting bound
+        step('rn2', [77], 76), // light the outer room
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // centered horizontally
+        step('rnd', [3], 1), // aligned to the top vertically
+        step('rn2', [4], 2), // child width 6
+        step('rn2', [4], 2), // child height 6
+        step('rn2', [100], 0), // keep the child ordinary room type
+        step('rnd', [3], 1), // child left edge adjusts to zero
+        step('rnd', [3], 1), // child top edge adjusts to zero
+        step('rnd', [2], 2), // depth-one child lighting bound
+        step('rn2', [77], 76), // light the child
+        step('rn2', [100], 90), // fail percent(90) at its boundary
+        step('rn2', [5], 4), // discarded child random door state
+        step('rn2', [3], 1), // actual child state is D_NODOOR
+        step('rn2', [4], 1), // child south wall
+        step('rn2', [6], 3), // child south x offset
+        step('rn2', [100], 15), // fail percent(15) at its boundary
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('nesting-rooms'),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+    assert.equal(game.level.nroom, 1);
+    assert.equal(game.nsubroom, 1);
+    assert.deepEqual([game.level.rooms[0].doorct, game.subrooms[0].doorct], [1, 1]);
+    assert.equal(game.level.doorindex, 2);
+});
+
 test('random room doors preserve source draws, state, and nested registration', () => {
     resetThemeroomLevel();
     const { parent, child } = buildDoorTestRooms();

@@ -941,8 +941,139 @@ function fake_delphi(context) {
     return Boolean(room && !context.roomFailed);
 }
 
+// C ref: themerms.lua "Room in a room" callback.
+function room_in_a_room(context) {
+    const room = run_room_descriptor(
+        { type: 'ordinary', filled: FILL_NORMAL },
+        null,
+        context,
+        (parent) => {
+            run_room_descriptor(
+                { type: 'ordinary' },
+                parent,
+                context,
+                (child) => {
+                    create_room_door(
+                        { state: 'random', wall: 'all' },
+                        child,
+                        context.random,
+                    );
+                },
+            );
+        },
+    );
+    return Boolean(room && !context.roomFailed);
+}
+
+// C ref: themerms.lua "Huge room with another room inside" callback.
+function huge_room_with_another_room_inside(context) {
+    const width = context.random(10) + 11;
+    const height = context.random(5) + 8;
+    const room = run_room_descriptor(
+        { type: 'ordinary', w: width, h: height, filled: FILL_NORMAL },
+        null,
+        context,
+        (parent) => {
+            if (context.random(100) >= 90) return;
+            run_room_descriptor(
+                { type: 'ordinary', filled: FILL_NORMAL },
+                parent,
+                context,
+                (child) => {
+                    create_room_door(
+                        { state: 'random', wall: 'all' },
+                        child,
+                        context.random,
+                    );
+                    if (context.random(100) < 50) {
+                        create_room_door(
+                            { state: 'random', wall: 'all' },
+                            child,
+                            context.random,
+                        );
+                    }
+                },
+            );
+        },
+    );
+    return Boolean(room && !context.roomFailed);
+}
+
+// C ref: themerms.lua "Nesting rooms" callback.
+function nesting_rooms(context) {
+    const width = context.random(4) + 9;
+    const height = context.random(4) + 9;
+    const room = run_room_descriptor(
+        { type: 'ordinary', w: width, h: height, filled: FILL_NORMAL },
+        null,
+        context,
+        (parent) => {
+            const parentWidth = parent.hx - parent.lx + 1;
+            const parentHeight = parent.hy - parent.ly + 1;
+            const minWidth = Math.floor(parentWidth / 2);
+            const minHeight = Math.floor(parentHeight / 2);
+            const childWidth = minWidth
+                + context.random(parentWidth - 1 - minWidth);
+            const childHeight = minHeight
+                + context.random(parentHeight - 1 - minHeight);
+            run_room_descriptor(
+                {
+                    type: 'ordinary',
+                    w: childWidth,
+                    h: childHeight,
+                    filled: FILL_NORMAL,
+                },
+                parent,
+                context,
+                (child) => {
+                    if (context.random(100) < 90) {
+                        run_room_descriptor(
+                            { type: 'ordinary', filled: FILL_NORMAL },
+                            child,
+                            context,
+                            (grandchild) => {
+                                create_room_door(
+                                    { state: 'random', wall: 'all' },
+                                    grandchild,
+                                    context.random,
+                                );
+                                if (context.random(100) < 15) {
+                                    create_room_door(
+                                        { state: 'random', wall: 'all' },
+                                        grandchild,
+                                        context.random,
+                                    );
+                                }
+                            },
+                        );
+                    }
+                    create_room_door(
+                        { state: 'random', wall: 'all' },
+                        child,
+                        context.random,
+                    );
+                    if (context.random(100) < 15) {
+                        create_room_door(
+                            { state: 'random', wall: 'all' },
+                            child,
+                            context.random,
+                        );
+                    }
+                },
+            );
+        },
+    );
+    return Boolean(room && !context.roomFailed);
+}
+
 const DIRECT_THEMEROOM_HANDLERS = new Map([
     ['fake-delphi', fake_delphi],
+    ['room-in-a-room', room_in_a_room],
+    [
+        'huge-room-with-another-room-inside',
+        huge_room_with_another_room_inside,
+    ],
+    ['nesting-rooms', nesting_rooms],
 ]);
 
 function dispatch_direct_action(definition, context) {
