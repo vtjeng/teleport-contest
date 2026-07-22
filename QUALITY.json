@@ -442,6 +442,32 @@
       "outcome": "changed",
       "evidence": "Exact correctness range 651dbcf5d56c72d90b25b3fafd48a27711045f85..74000203c2a0473051b7d3f8b0a1be6dc4c77a52; fixes and reconciled review frontier through b4c7dcb2a36e0a7726c12c7bf05b368621aea800. Mandatory correctness, readability, tests, and variable-trace finders ran; performance and concurrency were disabled. Counts: 17 raw, 11 deduplicated, 6 confirmed, 6 applied, 0 deferred, 5 rejected, 0 unverified, 0 warnings. Applied one diagnostic clarification and five source-order or ownership regressions; no production behavior defect was confirmed. Buried-ball restoration, synthetic hook, live redraw, blocking, and helper-order concerns were rejected against startup scope and upstream evidence. A private-repository policy blocked the independent top-level process, so fresh-context in-session subagents preserved role independence. Two post-fix read-only delta reviews found no must-fix issue. Validation: 926 tests, generated monster, object, symbol, and themed-room checks, exact fresh seeds 461 and 6916, and an instrumented 10,000-seed default scan covering every D:1-eligible themed room and fill; development score 217; no holdout. The objects frontier was not advanced because preceding object commits were outside this audit. The due simplification advisory was inspected; active source-shaped seams did not warrant cleanup.",
       "recordedAt": "2026-07-22T16:15:13.264Z"
+    },
+    {
+      "kind": "simplification",
+      "bases": {
+        "world": "218748c76f0bce0b9311a195b9e55c99b33de254"
+      },
+      "head": "61d2bf62cbd692e6bb93ce37c1232efe84e31a34",
+      "areas": [
+        "world"
+      ],
+      "outcome": "changed",
+      "evidence": "Fresh Codex simplify-codebase session 019f8bad-a861-7352-b95c-49f1ce2bdfba audited 218748c76f0bce0b9311a195b9e55c99b33de254..8222464176b82e03d0c144f0d6b74628ee13fada: 13 raw, 12 deduplicated, 5 confirmed and applied, 0 deferred, 7 rejected, 0 unverified; all six finders and the adjudicator completed. Validation: focused world/tutorial tests, 956/956 full tests, and diff check passed; the supplied 107-case fresh matrix was baseline evidence and was not rerun in the isolated worktree. No warnings. Usage: 4077811 input, 3942656 cached input, 19482 output, 5366 reasoning tokens.",
+      "recordedAt": "2026-07-22T22:12:12.216Z"
+    },
+    {
+      "kind": "simplification",
+      "bases": {
+        "interaction": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7"
+      },
+      "head": "7426b1287958b0cd06bce3d9a60331f2a4d71de9",
+      "areas": [
+        "interaction"
+      ],
+      "outcome": "changed",
+      "evidence": "Fresh Codex simplify-codebase session 019f8bc2-f7ab-76f2-a00b-73ec9acd9f6b audited 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..8222464176b82e03d0c144f0d6b74628ee13fada: 23 raw, 22 deduplicated, 21 confirmed, 20 applied, 1 deferred, 1 rejected, 0 unverified; all six finders and the adjudicator completed. Validation: focused display, symbol, input, menu, and message suites; generated symbol check; 956/956 full tests; unchanged development aggregate; and diff check passed. The isolated fresh differential could not launch because detached worktrees omit the untracked recorder installation; integrated main later passed strict seed 31. One transient sandbox spawn EPERM was retried without role or verdict loss. Usage: 7793546 input, 7578624 cached input, 32766 output, 8696 reasoning tokens.",
+      "recordedAt": "2026-07-22T22:12:12.711Z"
     }
   ]
 }
