@@ -2,6 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ALTAR,
+    AM_CHAOTIC,
+    AM_LAWFUL,
+    AM_NEUTRAL,
     ARROW_TRAP,
     BURN_OBJECT,
     ICE,
@@ -417,6 +421,45 @@ test('Light source places and burns an oil lamp through default paths', () => {
     );
     assert.equal(state.vision_full_recalc, 1);
     assert.equal(state.context.ident, 3);
+});
+
+test('Temple of the gods places the branch-shuffled alignments in order', () => {
+    const { level, room } = threeByTwoRoom();
+    const state = {
+        level,
+        themeroom_align: {
+            2: ['neutral', 'chaos', 'law'],
+        },
+        u: { uz: { dnum: 2, dlevel: 1 } },
+    };
+    const random = scriptedRandom([
+        step('rn1', [3, 2], 2), // first altar: left column
+        step('rn1', [2, 3], 3), // first altar: top row
+        step('rn1', [3, 2], 3), // second altar: middle column
+        step('rn1', [2, 3], 3), // second altar: top row
+        step('rn1', [3, 2], 4), // third altar: right column
+        step('rn1', [2, 3], 3), // third altar: top row
+    ]);
+
+    run_themeroom_fill(
+        fillById('temple_of_the_gods'),
+        room,
+        1,
+        { state, random: random.random },
+    );
+
+    random.assertExhausted();
+    assert.deepEqual(
+        [2, 3, 4].map((x) => [
+            level.at(x, 3).typ,
+            level.at(x, 3).flags,
+        ]),
+        [
+            [ALTAR, AM_NEUTRAL],
+            [ALTAR, AM_CHAOTIC],
+            [ALTAR, AM_LAWFUL],
+        ],
+    );
 });
 
 test('Ghost fill shares one coordinate and preserves equipment order', () => {

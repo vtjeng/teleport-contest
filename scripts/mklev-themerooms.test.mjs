@@ -153,7 +153,7 @@ test('themeroom generation connects selection, map placement, and filler region'
     assert.notEqual(game.level.at(34, 4).typ, CROSSWALL);
 });
 
-test('live ordinary fallback keeps room generation on injected RNG streams', async () => {
+test('live generic room generation keeps the injected RNG streams', async () => {
     resetThemeroomLevel();
     const reservoirDrawCount = 30;
     let reservoirCalls = 0;
@@ -186,6 +186,64 @@ test('live ordinary fallback keeps room generation on injected RNG streams', asy
         random,
         randomOneBased,
     ), true);
+    assert.equal(scripted.length, 0);
+    assert.deepEqual(events.slice(reservoirDrawCount), [
+        'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',
+        'rn2(12)', 'rn2(4)', 'rn2(70)', 'rn2(13)',
+    ]);
+    assert.equal(game.level.nroom, 1);
+});
+
+test('live generic themed rooms invoke their synchronous fill callback', async () => {
+    resetThemeroomLevel();
+    const reservoirDrawCount = 30;
+    let reservoirCalls = 0;
+    const events = [];
+    const scripted = [
+        [100, 0], // build_room's default 100% chance
+        [77, 1], // litstate_rnd keeps the room lit
+        [1, 0], // select the sole initial free rectangle
+        [12, 0], // width two
+        [4, 0], // height two
+        [70, 0], // leftmost valid x coordinate
+        [13, 0], // upper-half y avoids the relocation-only rn1 branch
+    ];
+    const random = (bound) => {
+        events.push(`rn2(${bound})`);
+        if (reservoirCalls++ < reservoirDrawCount) {
+            // The first weighted generic themed-room descriptor ends at 1010.
+            return bound === 1010 ? 0 : bound - 1;
+        }
+        const next = scripted.shift();
+        assert.ok(next, `unexpected rn2(${bound})`);
+        assert.equal(bound, next[0]);
+        return next[1];
+    };
+    const randomOneBased = (bound) => {
+        events.push(`rnd(${bound})`);
+        assert.equal(bound, 2);
+        return 2;
+    };
+    const randomFacade = completeRandomFacade(random, randomOneBased);
+    let callbackCount = 0;
+
+    assert.equal(await themerooms_generate(
+        1,
+        random,
+        randomOneBased,
+        {
+            randomFacade,
+            themeroomFill(room, difficulty, callbackEnv) {
+                ++callbackCount;
+                assert.equal(difficulty, 1);
+                assert.equal(room.rtype, THEMEROOM);
+                assert.equal(room.needfill, FILL_NONE);
+                assert.equal(callbackEnv.state, game);
+                assert.equal(callbackEnv.random, randomFacade);
+            },
+        },
+    ), true);
+    assert.equal(callbackCount, 1);
     assert.equal(scripted.length, 0);
     assert.deepEqual(events.slice(reservoirDrawCount), [
         'rn2(100)', 'rnd(2)', 'rn2(77)', 'rn2(1)',

@@ -92,6 +92,7 @@ import {
     somexy,
 } from './room_coordinates.js';
 import { set_levltyp } from './terrain.js';
+import { themeroom_fill } from './themeroom_fill.js';
 import { PM_GIANT_SPIDER, S_HUMAN } from './monsters.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
@@ -961,18 +962,29 @@ export function dispatch_themeroom(
     }
 }
 
-// C ref: themerms.lua themerooms_generate(). The live generator retains the
-// previous partial-runtime boundary until every selected callback can execute:
-// direct filler maps run without their optional fill, and other callbacks use
-// the ordinary-room fallback. dispatch_themeroom() is the strict integration
-// seam for completing that transition without partially mutating a level.
+// C ref: themerms.lua themerooms_generate(). Generic room descriptors now use
+// the strict synchronous dispatcher. The remaining partial-runtime boundary is
+// confined to non-room descriptors: direct filler maps omit their optional
+// fill, and unported direct callbacks use the ordinary-room fallback.
+// dispatch_themeroom() remains the strict seam for completing that transition.
 export async function themerooms_generate(
     difficulty,
     random = rn2,
     randomOneBased = rnd,
+    rawEnv = {},
 ) {
     const pick = select_themeroom(difficulty, random);
     if (!pick) return false;
+    if (pick.action?.kind === 'room') {
+        const sourceRandomFacade = random === rn2 && randomOneBased === rnd
+            ? SOURCE_THEMEROOM_RANDOM
+            : null;
+        return dispatch_themeroom(pick, random, randomOneBased, {
+            difficulty,
+            randomFacade: rawEnv.randomFacade ?? sourceRandomFacade,
+            themeroomFill: rawEnv.themeroomFill ?? themeroom_fill,
+        });
+    }
     if (pick.map && pick.filler) {
         const origin = lspo_map(pick, random);
         return origin ? filler_region(

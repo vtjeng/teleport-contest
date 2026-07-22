@@ -3,6 +3,10 @@
 // src/sp_lev.c special-level terrain and trap creation.
 
 import {
+    ALTAR,
+    AM_CHAOTIC,
+    AM_LAWFUL,
+    AM_NEUTRAL,
     ANTI_MAGIC,
     ARROW_TRAP,
     BEAR_TRAP,
@@ -43,7 +47,10 @@ import {
 } from './objects.js';
 import { PM_GHOST } from './monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { get_location_coord } from './room_coordinates.js';
+import {
+    get_free_room_loc,
+    get_location_coord,
+} from './room_coordinates.js';
 import {
     lspo_object,
     new_sp_lev_object_context,
@@ -125,6 +132,32 @@ function createTrap(type, flags, x, y, env) {
     const hook = env.hooks.createTrap;
     if (hook) return hook(type, flags, x, y, env);
     return mktrap(type, flags, null, { x, y }, themedCreationEnv(env));
+}
+
+const ALTAR_ALIGNMENT_MASK = Object.freeze({
+    chaos: AM_CHAOTIC,
+    law: AM_LAWFUL,
+    neutral: AM_NEUTRAL,
+});
+
+// C ref: sp_lev.c create_altar().  The themed fill requests ordinary altars,
+// so its explicit alignment is installed after get_free_room_loc() and no
+// shrine or priest branch runs for the THEMEROOM carrier.
+function createAltar(alignment, room, env) {
+    const mask = ALTAR_ALIGNMENT_MASK[alignment];
+    if (mask == null)
+        throw new Error(`unknown themed-room altar alignment ${alignment}`);
+    const coordinate = { x: -1, y: -1 };
+    get_free_room_loc(
+        coordinate,
+        room,
+        SP_COORD_IS_RANDOM,
+        env,
+    );
+    if (!setTerrain(coordinate.x, coordinate.y, ALTAR, env)) return null;
+    const location = env.state.level.at(coordinate.x, coordinate.y);
+    location.flags = mask;
+    return location;
 }
 
 function themedCreationEnv(env) {
@@ -313,6 +346,20 @@ function fillLightSource(room, _difficulty, env) {
     createObject({ id: OIL_LAMP, lit: true }, room, env);
 }
 
+// dat/themerms.lua "Temple of the gods".  nhlib.lua shuffles this alignment
+// array once when the branch's persistent Lua state is initialized.
+function fillTempleOfTheGods(room, _difficulty, env) {
+    const dnum = env.state.u?.uz?.dnum ?? 0;
+    const alignments = env.state.themeroom_align?.[dnum];
+    if (!Array.isArray(alignments) || alignments.length !== 3) {
+        throw new Error(
+            'Temple of the gods requires initialized branch alignments',
+        );
+    }
+    for (const alignment of alignments)
+        createAltar(alignment, room, env);
+}
+
 // dat/themerms.lua "Ghost of an Adventurer".
 function fillGhostOfAnAdventurer(room, _difficulty, env) {
     const coordinate = roomSelection(room, env).rndcoord(
@@ -352,6 +399,7 @@ const FILL_HANDLERS = Object.freeze({
     ice_room: fillIceRoom,
     light_source: fillLightSource,
     spider_nest: fillSpiderNest,
+    temple_of_the_gods: fillTempleOfTheGods,
     trap_room: fillTrapRoom,
 });
 
