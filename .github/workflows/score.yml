@@ -37,6 +37,7 @@ jobs:
             const data = JSON.parse(raw.slice(idx + '__RESULTS_JSON__'.length).trim());
             const results = data.results || [];
             const passed = results.filter(r => r.passed).length;
+            const replayErrors = results.filter(r => r.error).length;
             const total = results.length;
             const sumMetric = key => results.reduce((sum, result) => ({
               matched: sum.matched + (result.metrics?.[key]?.matched || 0),
@@ -47,31 +48,51 @@ jobs:
               : '0.0%';
             const format = value => value.toLocaleString('en-US');
             const rng = sumMetric('rngCalls');
+            const cells = sumMetric('cellsOnly');
             const screens = sumMetric('screens');
             const cursors = sumMetric('cursors');
+            const animation = sumMetric('animFrames');
+            const cursorCausedMisses = cells.matched - screens.matched;
             const metricLine = (label, metric) =>
               label + ': ' + format(metric.matched) + ' / ' + format(metric.total)
                 + ' (' + percentage(metric) + ')';
             const display = [
               'Sessions: ' + passed + ' / ' + total + ' passing',
+              'Replay errors: ' + replayErrors,
               metricLine('RNG', rng),
-              metricLine('Screens', screens),
+              metricLine('Cells', cells),
               metricLine('Cursors', cursors),
+              metricLine('Screens', screens),
+              'Cursor-caused misses: ' + format(cursorCausedMisses),
             ];
+            if (animation.total) {
+              display.push(metricLine('Animation frames', animation));
+            }
             console.log(display.join('\n'));
 
             const summary = {
               passed,
               total,
+              replayErrors,
               rngPct: percentage(rng).slice(0, -1),
               timestamp: data.timestamp,
-              metrics: { rngCalls: rng, screens, cursors },
+              metrics: {
+                rngCalls: rng,
+                cellsOnly: cells,
+                cursors,
+                screens,
+                animFrames: animation,
+              },
+              diagnostics: { cursorCausedMisses },
               results: results.map(r => ({
                 session: r.session,
                 passed: r.passed,
+                error: r.error,
                 rng: r.metrics?.rngCalls,
+                cells: r.metrics?.cellsOnly,
                 screen: r.metrics?.screens,
                 cursor: r.metrics?.cursors,
+                animation: r.metrics?.animFrames,
               })),
             };
             fs.writeFileSync('score-summary.json', JSON.stringify(summary, null, 2));
