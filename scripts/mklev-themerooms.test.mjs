@@ -6,7 +6,7 @@ import {
     AGGRAVATE_MONSTER, ARMORSHOP, CLOUD, COLNO, CROSSWALL, DOOR, DUST, D_ISOPEN,
     D_CLOSED, D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
-    LR_TELE, MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO,
+    LR_TELE, LR_UPTELE, MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO,
     STATUE_TRAP, STONE,
     SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, TREE, VAULT, VWALL,
     WEAPONSHOP,
@@ -17,7 +17,7 @@ import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { initoptions_finish } from '../js/fruit.js';
 import { game, resetGame } from '../js/gstate.js';
-import { objectType } from '../js/obj.js';
+import { objectType, weight } from '../js/obj.js';
 import {
     add_doors_to_room,
     build_room,
@@ -2225,6 +2225,15 @@ test('Water vault requires its complete creation facade before map mutation', ()
 
 test('Water vault registers its chamber, chests, undead, and exclusion', () => {
     initializeDirectThemeroomNewGame(1);
+    const previousZone = {
+        zonetype: LR_UPTELE,
+        lx: 1,
+        ly: 1,
+        hx: 2,
+        hy: 2,
+        next: null,
+    };
+    game.exclusion_zones = previousZone;
 
     assert.equal(dispatch_themeroom(
         definitionById('water-surrounded-vault'),
@@ -2253,14 +2262,15 @@ test('Water vault registers its chamber, chests, undead, and exclusion', () => {
         game.level.monsters[room.lx][room.ly].mnum,
         PM_GIANT_ZOMBIE,
     );
-    assert.deepEqual(game.exclusion_zones, {
+    const { next, ...waterZone } = game.exclusion_zones;
+    assert.deepEqual(waterZone, {
         zonetype: LR_TELE,
         lx: room.lx,
         ly: room.ly,
         hx: room.hx,
         hy: room.hy,
-        next: null,
     });
+    assert.equal(next, previousZone);
 });
 
 test('Water vault retains the random chest lock despite source olocked typo', () => {
@@ -2308,6 +2318,11 @@ test('Water vault reaches every escape item and nasty-undead variant', () => {
         assert.equal(escapeChests.length, 1, `seed ${seed}`);
         assert.equal(escapeChests[0].cobj.otyp, escapeType, `seed ${seed}`);
         assert.equal(escapeChests[0].olocked, locked, `seed ${seed}`);
+        assert.equal(
+            escapeChests[0].owt,
+            weight(escapeChests[0], { state: game }),
+            `seed ${seed}`,
+        );
 
         const monster = game.level.monsters[room.lx][room.ly];
         const naturalType = monster.cham === PM_VAMPIRE_LEADER
@@ -2378,6 +2393,80 @@ test('Twin businesses builds both source shop subrooms', () => {
         }),
         [D_CLOSED, D_CLOSED],
     );
+});
+
+test('Twin businesses preserves all eight placement and wall variants', () => {
+    const expectedRooms = new Map([
+        [1, [[0, 0, 2, 2], [4, 0, 6, 2]]],
+        [2, [[0, 2, 2, 4], [4, 2, 6, 4]]],
+        [3, [[0, 0, 2, 2], [6, 0, 8, 2]]],
+        [4, [[0, 0, 2, 2], [6, 2, 8, 4]]],
+        [5, [[0, 2, 2, 4], [6, 0, 8, 2]]],
+        [6, [[0, 2, 2, 4], [6, 2, 8, 4]]],
+        [7, [[2, 0, 4, 2], [6, 0, 8, 2]]],
+        [8, [[2, 2, 4, 4], [6, 2, 8, 4]]],
+    ]);
+    const cases = [
+        [4, 1, ['south', 'south'], [[0, 3], [6, 3]]],
+        [20, 1, ['south', 'east'], [[1, 3], [7, 0]]],
+        [15, 2, ['north', 'north'], [[0, 1], [4, 1]]],
+        [18, 2, ['north', 'east'], [[1, 1], [7, 4]]],
+        [53, 3, ['south', 'south'], [[2, 3], [7, 3]]],
+        [3, 3, ['east', 'west'], [[3, 1], [5, 2]]],
+        [2, 4, ['south', 'north'], [[0, 3], [6, 1]]],
+        [66, 4, ['east', 'west'], [[3, 2], [5, 4]]],
+        [7, 5, ['north', 'south'], [[2, 1], [6, 3]]],
+        [5, 5, ['east', 'west'], [[3, 4], [5, 1]]],
+        [39, 6, ['north', 'north'], [[1, 1], [6, 1]]],
+        [65, 6, ['east', 'west'], [[3, 2], [5, 2]]],
+        [12, 7, ['south', 'south'], [[4, 3], [6, 3]]],
+        [14, 7, ['west', 'south'], [[1, 1], [7, 3]]],
+        [1, 8, ['north', 'north'], [[2, 1], [7, 1]]],
+        [8, 8, ['west', 'north'], [[1, 4], [8, 1]]],
+    ];
+    const doorSide = (room, door) => {
+        if (door.y === room.ly - 1) return 'north';
+        if (door.y === room.hy + 1) return 'south';
+        if (door.x === room.lx - 1) return 'west';
+        if (door.x === room.hx + 1) return 'east';
+        assert.fail(`door ${door.x},${door.y} is not on its shop wall`);
+    };
+
+    for (const [seed, placementIndex, sides, expectedDoors] of cases) {
+        initializeDirectThemeroomNewGame(seed);
+        enableRngLog();
+        assert.equal(dispatch_themeroom(
+            definitionById('twin-businesses'),
+        ), true, `seed ${seed}`);
+        assert.ok(
+            getRngLog().includes(`rnd(8)=${placementIndex}`),
+            `seed ${seed}`,
+        );
+
+        const parent = game.level.rooms[0];
+        const shops = game.subrooms.slice(0, game.nsubroom);
+        const doors = shops.map((room) => game.level.doors[room.fdoor]);
+        assert.deepEqual(
+            shops.map((room) => [
+                room.lx - parent.lx,
+                room.ly - parent.ly,
+                room.hx - parent.lx,
+                room.hy - parent.ly,
+            ]),
+            expectedRooms.get(placementIndex),
+            `seed ${seed}`,
+        );
+        assert.deepEqual(
+            doors.map((door) => [door.x - parent.lx, door.y - parent.ly]),
+            expectedDoors,
+            `seed ${seed}`,
+        );
+        assert.deepEqual(
+            shops.map((room, index) => doorSide(room, doors[index])),
+            sides,
+            `seed ${seed}`,
+        );
+    }
 });
 
 test('Twin businesses stocks both shops and initializes their keepers', () => {
