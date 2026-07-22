@@ -38,7 +38,7 @@ import {
     mongone,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
-import { newMonster } from '../js/monst.js';
+import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
 import {
@@ -619,6 +619,39 @@ test('discard_minvent reverses wrapping state only for a live monster', () => {
         assert.equal(monster.invis_blkd, expectedBlocked, name);
         assert.equal(monster.minvis, expectedVisible, name);
     }
+});
+
+test('mongone marks a monster dead before discarding worn wrapping', () => {
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_HUMAN_MUMMY],
+        mnum: PM_HUMAN_MUMMY,
+        m_id: 45,
+        mhp: 10,
+        minvis: true,
+        perminvis: true,
+    });
+    state.level.monlist = monster;
+    place_monster(monster, MON_X, MON_Y, state);
+    const wrapping = mksobj(MUMMY_WRAPPING, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, wrapping, { state });
+    m_dowear(monster, true, { state });
+    assert.equal(monster.invis_blkd, true);
+    assert.equal(monster.minvis, false);
+
+    const random = scriptedRandom([]);
+    mongone(monster, { state, random: random.random });
+    random.assertExhausted();
+
+    assert.equal(monster.mhp, 0);
+    assert.equal(monster.minvent, null);
+    assert.equal(wrapping.owornmask, 0);
+    assert.equal(monster.misc_worn_check, I_SPECIAL);
+    assert.equal(monster.invis_blkd, true);
+    assert.equal(monster.minvis, false);
 });
 
 test('ghost creation names from player or source ghost-name reservoir', () => {
