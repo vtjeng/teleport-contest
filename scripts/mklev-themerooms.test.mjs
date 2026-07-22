@@ -7,7 +7,7 @@ import {
     D_LOCKED, D_NODOOR, D_TRAPPED,
     FILL_NONE, FILL_NORMAL, HWALL, ICE, LAVAPOOL, MKTRAP_MAZEFLAG,
     MAXNROFROOMS, OROOM, POOL, ROOM, ROOMOFFSET, ROWNO, STATUE_TRAP, STONE,
-    SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, VWALL, W_ANY, W_RANDOM,
+    SDOOR, STRAT_WAITFORU, THEMEROOM, TLCORNER, TREE, VWALL, W_ANY, W_RANDOM,
 } from '../js/const.js';
 import { depth, level_difficulty } from '../js/dungeon.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
@@ -1020,6 +1020,51 @@ test('Huge nested room creates both source-ordered optional doors', () => {
     assert.equal(game.level.doorindex, 4);
 });
 
+test('Huge nested room stops after the failed second-door gate', () => {
+    resetThemeroomLevel();
+    const random = scriptedRandom([
+        step('rn2', [10], 0), // outer width 11
+        step('rn2', [5], 0), // outer height 8
+        step('rn2', [100], 0), // keep the outer ordinary room type
+        step('rnd', [2], 2), // depth-one outer lighting bound
+        step('rn2', [77], 76), // light the outer room
+        step('rnd', [5], 3), // horizontal sector
+        step('rnd', [5], 2), // vertical sector
+        step('rnd', [3], 3), // center within the horizontal sector
+        step('rnd', [3], 1), // top within the vertical sector
+        step('rn2', [100], 0), // pass the 90-percent child gate
+        step('rn2', [100], 0), // keep the child ordinary room type
+        step('rnd', [8], 4), // four-cell child width
+        step('rnd', [5], 3), // three-cell child height
+        step('rnd', [7], 2), // child x offset
+        step('rnd', [5], 2), // child y offset
+        step('rnd', [2], 2), // depth-one child lighting bound
+        step('rn2', [77], 76), // light the child
+        step('rn2', [5], 4), // first discarded random door state
+        step('rn2', [3], 1), // first actual state is D_NODOOR
+        step('rn2', [4], 0), // first door uses the north wall
+        step('rn2', [4], 1), // first door x offset
+        step('rn2', [100], 50), // fail percent(50) at its boundary
+    ]);
+
+    assert.equal(dispatch_themeroom(
+        definitionById('huge-room-with-another-room-inside'),
+        random.random.rn2,
+        random.random.rnd,
+        { difficulty: 1 },
+    ), true);
+    random.assertExhausted();
+
+    const parent = game.level.rooms[0];
+    const child = game.subrooms[0];
+    assert.equal(game.level.at(38, 6).doormask, D_NODOOR);
+    assert.equal(new Set(
+        game.level.doors.map(({ x, y }) => `${x},${y}`),
+    ).size, 1);
+    assert.deepEqual([child.doorct, parent.doorct], [1, 1]);
+    assert.equal(game.level.doorindex, 2);
+});
+
 test('Huge nested room stops after the failed child percentage gate', () => {
     resetThemeroomLevel();
     const random = scriptedRandom([
@@ -1186,102 +1231,147 @@ test('Nesting rooms skips the grandchild and second child door at boundaries', (
     assert.equal(game.level.doorindex, 2);
 });
 
-test('Pillars shuffles once and places four source-ordered two-by-two blocks', () => {
-    resetThemeroomLevel();
-    const random = scriptedRandom([
-        step('rn2', [100], 0), // keep the themed room type
-        step('rnd', [2], 2), // depth-one lighting bound
-        step('rn2', [77], 0), // leave the outer room unlit
-        step('rnd', [5], 3), // horizontal sector
-        step('rnd', [5], 2), // vertical sector
-        step('rnd', [3], 3), // center within the horizontal sector
-        step('rnd', [3], 1), // top within the vertical sector
-        step('rn2', [7], 6), // retain the final terrain entry
-        step('rn2', [6], 5), // retain the sixth terrain entry
-        step('rn2', [5], 4), // retain the fifth terrain entry
-        step('rn2', [4], 3), // retain the fourth terrain entry
-        step('rn2', [3], 2), // retain the third terrain entry
-        step('rn2', [2], 1), // retain HWALL as the selected first entry
-    ]);
+test('Pillars preserves every distinct shuffled terrain outcome', () => {
+    const cases = [
+        [HWALL, [6, 5, 4, 3, 2, 1]],
+        [LAVAPOOL, [6, 5, 0, 3, 2, 1]],
+        [POOL, [6, 0, 4, 3, 2, 1]],
+        [TREE, [0, 5, 4, 3, 2, 1]],
+    ];
+    for (const [expectedTerrain, shuffleResults] of cases) {
+        resetThemeroomLevel();
+        const random = scriptedRandom([
+            step('rn2', [100], 0), // keep the themed room type
+            step('rnd', [2], 2), // depth-one lighting bound
+            step('rn2', [77], 0), // leave the outer room unlit
+            step('rnd', [5], 3), // horizontal sector
+            step('rnd', [5], 2), // vertical sector
+            step('rnd', [3], 3), // center within the horizontal sector
+            step('rnd', [3], 1), // top within the vertical sector
+            ...shuffleResults.map((result, index) =>
+                step('rn2', [7 - index], result)),
+        ]);
 
-    assert.equal(dispatch_themeroom(
-        definitionById('pillars'),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
-    ), true);
-    random.assertExhausted();
+        assert.equal(dispatch_themeroom(
+            definitionById('pillars'),
+            random.random.rn2,
+            random.random.rnd,
+            { difficulty: 1 },
+        ), true);
+        random.assertExhausted();
 
-    const room = game.level.rooms[0];
-    assert.deepEqual(
-        [room.lx, room.ly, room.hx, room.hy],
-        [36, 5, 45, 14],
-    );
-    assert.deepEqual(
-        [room.rtype, room.needfill, room.rlit],
-        [THEMEROOM, FILL_NONE, 0],
-    );
-    const pillarCoordinates = [];
-    for (const x of [38, 39, 42, 43]) {
-        for (const y of [7, 8, 11, 12]) pillarCoordinates.push([x, y]);
+        const room = game.level.rooms[0];
+        assert.deepEqual(
+            [room.lx, room.ly, room.hx, room.hy],
+            [36, 5, 45, 14],
+        );
+        assert.deepEqual(
+            [room.rtype, room.needfill, room.rlit],
+            [THEMEROOM, FILL_NONE, 0],
+        );
+        const pillarCoordinates = [];
+        for (const x of [38, 39, 42, 43]) {
+            for (const y of [7, 8, 11, 12])
+                pillarCoordinates.push([x, y]);
+        }
+        assert.equal(pillarCoordinates.length, 16);
+        for (const [x, y] of pillarCoordinates) {
+            const location = game.level.at(x, y);
+            assert.equal(
+                location.typ,
+                expectedTerrain,
+                `${expectedTerrain} ${x},${y} type`,
+            );
+            assert.equal(
+                Boolean(location.horizontal),
+                expectedTerrain === HWALL,
+                `${expectedTerrain} ${x},${y} orientation`,
+            );
+            assert.equal(location.roomno, ROOMOFFSET, `${x},${y} room`);
+            assert.equal(
+                location.lit,
+                expectedTerrain === LAVAPOOL,
+                `${expectedTerrain} ${x},${y} lighting`,
+            );
+        }
+        assert.equal(game.level.at(room.lx + 1, room.ly + 1).typ, ROOM);
     }
-    assert.equal(pillarCoordinates.length, 16);
-    for (const [x, y] of pillarCoordinates) {
-        const location = game.level.at(x, y);
-        assert.equal(location.typ, HWALL, `${x},${y} type`);
-        assert.equal(location.horizontal, true, `${x},${y} orientation`);
-        assert.equal(location.roomno, ROOMOFFSET, `${x},${y} room`);
-        assert.equal(location.lit, false, `${x},${y} lighting`);
-    }
-    assert.equal(game.level.at(room.lx + 1, room.ly + 1).typ, ROOM);
 });
 
-test('Odd-room feature shuffles and replaces only the exact center terrain', () => {
-    resetThemeroomLevel();
-    const center = { x: 40, y: 8 };
-    make_engr_at(center.x, center.y, 'old', null, 0, DUST, { state: game });
-    const random = scriptedRandom([
-        step('rn2', [3], 1), // room width 5
-        step('rn2', [3], 2), // room height 7
-        step('rn2', [100], 0), // keep the ordinary room type
-        step('rnd', [2], 2), // depth-one lighting bound
-        step('rn2', [77], 0), // leave the room unlit
-        step('rnd', [5], 3), // horizontal sector
-        step('rnd', [5], 2), // vertical sector
-        step('rnd', [3], 3), // center within the horizontal sector
-        step('rnd', [3], 1), // top within the vertical sector
-        step('rn2', [5], 4), // retain TREE at the final feature slot
-        step('rn2', [4], 3), // retain POOL at the fourth feature slot
-        step('rn2', [3], 2), // retain ICE at the third feature slot
-        step('rn2', [2], 1), // retain CLOUD as the selected first feature
-    ]);
+test('Odd-room feature preserves every distinct shuffled terrain outcome', () => {
+    const cases = [
+        [CLOUD, 0, 0, [4, 3, 2, 1]],
+        [LAVAPOOL, 1, 0, [4, 3, 2, 0]],
+        [ICE, 2, 1, [4, 3, 0, 1]],
+        [POOL, 0, 2, [4, 0, 2, 1]],
+        [TREE, 2, 2, [0, 3, 2, 1]],
+    ];
+    for (const [
+        expectedTerrain,
+        widthDraw,
+        heightDraw,
+        shuffleResults,
+    ] of cases) {
+        resetThemeroomLevel();
+        const expectedCenter = { x: 40, y: 6 + heightDraw };
+        make_engr_at(
+            expectedCenter.x,
+            expectedCenter.y,
+            'old',
+            null,
+            0,
+            DUST,
+            { state: game },
+        );
+        const random = scriptedRandom([
+            step('rn2', [3], widthDraw),
+            step('rn2', [3], heightDraw),
+            step('rn2', [100], 0), // keep the ordinary room type
+            step('rnd', [2], 2), // depth-one lighting bound
+            step('rn2', [77], 0), // leave the room unlit
+            step('rnd', [5], 3), // horizontal sector
+            step('rnd', [5], 2), // vertical sector
+            step('rnd', [3], 3), // center within the horizontal sector
+            step('rnd', [3], 1), // top within the vertical sector
+            ...shuffleResults.map((result, index) =>
+                step('rn2', [5 - index], result)),
+        ]);
 
-    assert.equal(dispatch_themeroom(
-        definitionById(
-            'random-dungeon-feature-in-the-middle-of-an-odd-sized-room',
-        ),
-        random.random.rn2,
-        random.random.rnd,
-        { difficulty: 1 },
-    ), true);
-    random.assertExhausted();
+        assert.equal(dispatch_themeroom(
+            definitionById(
+                'random-dungeon-feature-in-the-middle-of-an-odd-sized-room',
+            ),
+            random.random.rn2,
+            random.random.rnd,
+            { difficulty: 1 },
+        ), true);
+        random.assertExhausted();
 
-    const room = game.level.rooms[0];
-    assert.deepEqual(
-        [room.lx, room.ly, room.hx, room.hy],
-        [38, 5, 42, 11],
-    );
-    assert.deepEqual(
-        [room.rtype, room.needfill, room.rlit],
-        [OROOM, FILL_NORMAL, 0],
-    );
-    const location = game.level.at(center.x, center.y);
-    assert.deepEqual(
-        [location.typ, location.roomno, location.lit],
-        [CLOUD, ROOMOFFSET, false],
-    );
-    assert.equal(engr_at(center.x, center.y), null);
-    assert.equal(game.level.at(center.x - 1, center.y).typ, ROOM);
+        const room = game.level.rooms[0];
+        assert.deepEqual(
+            [room.hx - room.lx + 1, room.hy - room.ly + 1],
+            [3 + widthDraw * 2, 3 + heightDraw * 2],
+        );
+        assert.deepEqual(
+            [room.rtype, room.needfill, room.rlit],
+            [OROOM, FILL_NORMAL, 0],
+        );
+        const center = {
+            x: room.lx + Math.trunc((room.hx - room.lx) / 2),
+            y: room.ly + Math.trunc((room.hy - room.ly) / 2),
+        };
+        assert.deepEqual(center, expectedCenter);
+        const location = game.level.at(center.x, center.y);
+        assert.deepEqual(
+            [location.typ, location.roomno, location.lit],
+            [expectedTerrain, ROOMOFFSET, expectedTerrain === LAVAPOOL],
+        );
+        if (expectedTerrain === CLOUD)
+            assert.equal(engr_at(center.x, center.y), null);
+        else
+            assert.ok(engr_at(center.x, center.y), `${expectedTerrain} engraving`);
+        assert.equal(game.level.at(center.x - 1, center.y).typ, ROOM);
+    }
 });
 
 test('Mausoleum corpse branch centers one human corpse in its inner room', () => {
@@ -1324,22 +1414,38 @@ test('Mausoleum creates every source monster class and preserves waiting', () =>
         const child = game.subrooms[0];
         const monster = game.level.monsters[child.lx][child.ly];
         assert.ok(monster, `seed ${seed}`);
-        const base = monster.cham >= 0 ? game.mons[monster.cham] : monster.data;
-        assert.equal(base.mlet, expectedClass, `seed ${seed} class`);
+        assert.equal(monster.data.mlet, expectedClass, `seed ${seed} class`);
         assert.ok(monster.mstrategy & STRAT_WAITFORU, `seed ${seed} waiting`);
         assert.equal(game.level.objects[child.lx][child.ly], null);
+        const parent = game.level.rooms[0];
+        const secretDoors = [];
+        for (let x = child.lx - 1; x <= child.hx + 1; ++x) {
+            for (let y = child.ly - 1; y <= child.hy + 1; ++y) {
+                if (game.level.at(x, y).typ === SDOOR)
+                    secretDoors.push([x, y]);
+            }
+        }
         if (seed === 5) {
             // This seed also takes Mausoleum's independent 20-percent
             // secret-door branch.
-            const secretDoors = [];
-            for (let x = child.lx - 1; x <= child.hx + 1; ++x) {
-                for (let y = child.ly - 1; y <= child.hy + 1; ++y) {
-                    if (game.level.at(x, y).typ === SDOOR)
-                        secretDoors.push([x, y]);
-                }
-            }
             assert.equal(secretDoors.length, 1);
-            assert.deepEqual([child.doorct, game.level.doorindex], [1, 2]);
+            assert.deepEqual(
+                [child.doorct, parent.doorct, game.level.doorindex],
+                [1, 1, 2],
+            );
+            assert.deepEqual(game.level.doors[0], game.level.doors[1]);
+        } else {
+            assert.deepEqual(secretDoors, [], `seed ${seed} secret doors`);
+            assert.deepEqual(
+                [child.doorct, parent.doorct, game.level.doorindex],
+                [0, 0, 0],
+                `seed ${seed} door ownership`,
+            );
+        }
+        if (expectedClass === S_VAMPIRE) {
+            assert.equal(monster.mnum, monster.cham, `seed ${seed} form`);
+            assert.equal(monster.data, game.mons[monster.cham], `seed ${seed} data`);
+            assert.equal(monster.minvent, null, `seed ${seed} inventory`);
         }
     }
 });

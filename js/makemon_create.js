@@ -1804,22 +1804,15 @@ function set_mon_data(monster, species) {
     }
 }
 
-// C ref: mon.c newcham(..., NULL, NO_NC_FLAGS), for a just-created supported
-// natural shapechanger with no inventory, leash, disguise, tail, or hero
-// attachment. Chameleon targets span the polymorphable pre-SPECIAL_PM catalog;
-// vampires use their controlled bat, fog-cloud, and wolf target set.
-function newcham_initial(monster, normalized) {
+// C ref: mon.c newcham(), for the just-created supported natural
+// shapechangers. These paths have no inventory, leash, disguise, tail, or
+// hero attachment. The same state transition handles makemon()'s random
+// initial form and sp_lev.c:create_monster()'s explicit waiting-vampire
+// reversion.
+function apply_newcham_form(monster, target, normalized) {
     const { random, state } = normalized;
     const olddata = monster.data;
-    let target = null;
-    for (let attempt = 0; attempt < 20 && !target; ++attempt) {
-        target = accept_newcham_form(
-            monster,
-            select_newcham_form(monster, normalized),
-            state,
-        );
-    }
-    if (!target || target === olddata) return false;
+    if (target === olddata) return false;
 
     mgender_from_permonst(monster, target, random);
     const oldHp = monster.mhp;
@@ -1872,6 +1865,39 @@ function newcham_initial(monster, normalized) {
     // this empty inventory; check_gear_next_turn() still schedules a recheck.
     monster.misc_worn_check |= I_SPECIAL;
     return true;
+}
+
+// C ref: mon.c newcham(..., NULL, NO_NC_FLAGS). Chameleon targets span the
+// polymorphable pre-SPECIAL_PM catalog; vampires use their controlled bat,
+// fog-cloud, and wolf target set.
+function newcham_initial(monster, normalized) {
+    const { state } = normalized;
+    let target = null;
+    for (let attempt = 0; attempt < 20 && !target; ++attempt) {
+        target = accept_newcham_form(
+            monster,
+            select_newcham_form(monster, normalized),
+            state,
+        );
+    }
+    return target ? apply_newcham_form(monster, target, normalized) : false;
+}
+
+// Bounded explicit-target form of mon.c:newcham(). The currently supported
+// caller is sp_lev.c:create_monster(), which restores an implicitly shifted
+// waiting vampire to the natural species recorded in monster.cham.
+export function newcham(monster, target, rawEnv = {}) {
+    const normalized = creationEnv(rawEnv);
+    const { state } = normalized;
+    const mndx = target?.pmidx;
+    if (!monster || !Number.isInteger(mndx)
+        || state.mons?.[mndx] !== target) {
+        throw new UnsupportedMonsterCreationError(
+            `explicit newcham target ${mndx ?? 'null'}`,
+        );
+    }
+    if (state.mvitals[mndx].mvflags & G_GENOD) return false;
+    return apply_newcham_form(monster, target, normalized);
 }
 
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square

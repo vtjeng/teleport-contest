@@ -27,6 +27,7 @@ import {
     MKTRAP_NOSPIDERONWEB,
     MKTRAP_SEEN,
     M_AP_OBJECT,
+    M_AP_MONSTER,
     NO_LOC_WARN,
     ROCKTRAP,
     ROLLING_BOULDER_TRAP,
@@ -56,6 +57,7 @@ import {
     discard_minvent,
     makemon,
     m_dowear,
+    newcham,
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { mkclass } from './makemon.js';
@@ -115,6 +117,8 @@ import {
     PM_STUDENT,
     PM_THUG,
     PM_TOURIST,
+    PM_VAMPIRE,
+    PM_VAMPIRE_LEADER,
     PM_VALKYRIE,
     PM_WARRIOR,
     PM_WIZARD,
@@ -125,6 +129,7 @@ import {
     S_GHOST,
     S_LIGHT,
     S_MIMIC,
+    S_VAMPIRE,
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
@@ -549,7 +554,20 @@ function createMonsterBody(specification, room, env) {
     monster.female = female;
     if (specification.asleep != null)
         monster.msleeping = Boolean(specification.asleep);
-    if (specification.waiting) monster.mstrategy |= STRAT_WAITFORU;
+    if (specification.waiting) {
+        monster.mstrategy |= STRAT_WAITFORU;
+        // sp_lev.c:create_monster() restores a naturally shifted waiting
+        // vampire unless the descriptor explicitly requested a monster
+        // appearance. makemon() already suppressed inventory for the initial
+        // successful shift; newcham() must not regenerate it here.
+        const isVampireShifter = monster.cham === PM_VAMPIRE
+            || monster.cham === PM_VAMPIRE_LEADER;
+        if (isVampireShifter
+            && monster.data.mlet !== S_VAMPIRE
+            && specification.appearAs?.type !== M_AP_MONSTER) {
+            newcham(monster, env.state.mons[monster.cham], monsterEnv);
+        }
+    }
     return monster;
 }
 

@@ -50,6 +50,7 @@ import {
     G_UNIQ,
     M2_ORC,
     NON_PM,
+    PM_ARCH_LICH,
     PM_ELF,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
@@ -57,9 +58,12 @@ import {
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
     PM_DOPPELGANGER,
+    PM_DEMILICH,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_GHOST,
+    PM_GIANT_MUMMY,
+    PM_GIANT_ZOMBIE,
     PM_GOBLIN,
     PM_GRID_BUG,
     PM_HOMUNCULUS,
@@ -71,10 +75,13 @@ import {
     PM_GNOMISH_WIZARD,
     PM_JACKAL,
     PM_KOBOLD,
+    PM_KOBOLD_MUMMY,
     PM_KOBOLD_ZOMBIE,
+    PM_LICH,
     PM_LICHEN,
     PM_LEPRECHAUN,
     PM_LONG_WORM,
+    PM_MASTER_LICH,
     PM_NEWT,
     PM_ORC,
     PM_ORC_CAPTAIN,
@@ -84,6 +91,8 @@ import {
     PM_ROCK_MOLE,
     PM_SEWER_RAT,
     PM_SKELETON,
+    PM_VAMPIRE,
+    PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
     PM_WOODLAND_ELF,
     PM_YELLOW_LIGHT,
@@ -1825,6 +1834,53 @@ test('creation flags suppress their source draws and mutations', () => {
     assert.equal(monster.female, true);
     assert.equal(monster.minvent, null);
     assert.equal(state.mvitals[PM_GOBLIN].born, 0);
+});
+
+test('Mausoleum preflight admits every reachable species and rejects its boundaries', () => {
+    const inclusiveRange = (first, last) => Array.from(
+        { length: last - first + 1 },
+        (_, index) => first + index,
+    );
+    const admitted = [
+        ...inclusiveRange(PM_LICH, PM_DEMILICH),
+        ...inclusiveRange(PM_KOBOLD_MUMMY, PM_GIANT_MUMMY),
+        ...inclusiveRange(PM_VAMPIRE, PM_VAMPIRE_LEADER),
+        ...inclusiveRange(PM_KOBOLD_ZOMBIE, PM_GIANT_ZOMBIE),
+    ];
+    assert.equal(new Set(admitted).size, 21);
+
+    for (const mndx of admitted) {
+        const state = initialLevelState();
+        const random = recordingRandom();
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            MM_NOGRP | NO_MINVENT,
+            { state, random: random.random },
+        );
+        const naturalForm = monster.cham === NON_PM
+            ? monster.mnum : monster.cham;
+        assert.equal(naturalForm, mndx, state.mons[mndx].pmnames[2]);
+        assert.equal(monster.minvent, null, state.mons[mndx].pmnames[2]);
+    }
+
+    for (const mndx of [PM_MASTER_LICH, PM_ARCH_LICH, PM_SKELETON]) {
+        const state = initialLevelState();
+        const random = scriptedRandom([]);
+        assert.throws(
+            () => makemon(
+                state.mons[mndx],
+                MON_X,
+                MON_Y,
+                MM_NOGRP | NO_MINVENT,
+                { state, random: random.random },
+            ),
+            UnsupportedMonsterCreationError,
+            state.mons[mndx].pmnames[2],
+        );
+        random.assertExhausted();
+    }
 });
 
 test('creation outside the initial dungeon level fails before RNG or state', () => {

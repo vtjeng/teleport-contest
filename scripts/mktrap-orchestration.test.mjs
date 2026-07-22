@@ -29,6 +29,7 @@ import { light_globals_init } from '../js/light.js';
 import { mktrap } from '../js/mktrap.js';
 import {
     PM_ARCHEOLOGIST,
+    PM_BLACK_UNICORN,
     PM_DWARF,
     PM_ELF,
     PM_GNOME,
@@ -523,6 +524,11 @@ test('living statues retry only co-aligned true unicorns and accept attempt ten'
             name: 'retain non-unicorn glyph member',
             selections: [PM_PONY],
             expected: PM_PONY,
+        },
+        {
+            name: 'retain anti-aligned true unicorn',
+            selections: [PM_BLACK_UNICORN],
+            expected: PM_BLACK_UNICORN,
         },
         {
             name: 'accept tenth true unicorn',
