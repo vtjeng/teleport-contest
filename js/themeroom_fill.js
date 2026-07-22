@@ -57,7 +57,7 @@ import {
     discard_minvent,
     makemon,
     m_dowear,
-    newcham,
+    restore_waiting_vampire,
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { mkclass } from './makemon.js';
@@ -559,13 +559,13 @@ function createMonsterBody(specification, room, env) {
         // sp_lev.c:create_monster() restores a naturally shifted waiting
         // vampire unless the descriptor explicitly requested a monster
         // appearance. makemon() already suppressed inventory for the initial
-        // successful shift; newcham() must not regenerate it here.
+        // successful shift; the reversion must not regenerate it here.
         const isVampireShifter = monster.cham === PM_VAMPIRE
             || monster.cham === PM_VAMPIRE_LEADER;
         if (isVampireShifter
             && monster.data.mlet !== S_VAMPIRE
             && specification.appearAs?.type !== M_AP_MONSTER) {
-            newcham(monster, env.state.mons[monster.cham], monsterEnv);
+            restore_waiting_vampire(monster, monsterEnv);
         }
     }
     return monster;

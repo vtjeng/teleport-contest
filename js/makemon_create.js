@@ -1883,19 +1883,37 @@ function newcham_initial(monster, normalized) {
     return target ? apply_newcham_form(monster, target, normalized) : false;
 }
 
-// Bounded explicit-target form of mon.c:newcham(). The currently supported
-// caller is sp_lev.c:create_monster(), which restores an implicitly shifted
-// waiting vampire to the natural species recorded in monster.cham.
-export function newcham(monster, target, rawEnv = {}) {
+// Bounded explicit-target form of mon.c:newcham() for
+// sp_lev.c:create_monster(). The caller has just created an implicitly shifted
+// waiting vampire, so none of general newcham()'s inventory, tail, disguise,
+// leash, steed, or hero-attachment branches may be live.
+export function restore_waiting_vampire(monster, rawEnv = {}) {
     const normalized = creationEnv(rawEnv);
     const { state } = normalized;
-    const mndx = target?.pmidx;
-    if (!monster || !Number.isInteger(mndx)
-        || state.mons?.[mndx] !== target) {
+    const isVampireShifter = monster?.cham === PM_VAMPIRE
+        || monster?.cham === PM_VAMPIRE_LEADER;
+    const isSupportedShift = monster?.mnum === PM_VAMPIRE_BAT
+        || monster?.mnum === PM_FOG_CLOUD
+        || monster?.mnum === PM_WOLF;
+    const hasUnsupportedAttachment = Boolean(
+        monster?.minvent
+        || monster?.wormno
+        || monster?.m_ap_type
+        || monster?.mleashed
+        || state.u?.ustuck === monster
+        || state.u?.usteed === monster,
+    );
+    if (!isVampireShifter || !isSupportedShift
+        || monster.data?.mlet === S_VAMPIRE
+        || hasUnsupportedAttachment) {
         throw new UnsupportedMonsterCreationError(
-            `explicit newcham target ${mndx ?? 'null'}`,
+            'waiting-vampire reversion state',
         );
     }
+    const mndx = monster.cham;
+    const target = state.mons?.[mndx];
+    if (!target || target.pmidx !== mndx)
+        throw new UnsupportedMonsterCreationError('waiting-vampire target');
     if (state.mvitals[mndx].mvflags & G_GENOD) return false;
     return apply_newcham_form(monster, target, normalized);
 }
