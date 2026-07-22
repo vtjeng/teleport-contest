@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BURN_OBJECT,
     G_GENOD,
+    I_SPECIAL,
     MM_ANGRY,
     MM_ASLEEP,
     MM_FEMALE,
@@ -31,6 +32,7 @@ import { add_to_minv } from '../js/invent.js';
 import { light_globals_init } from '../js/light.js';
 import {
     dmonsfree,
+    discard_minvent,
     makemon,
     m_dowear,
     mongone,
@@ -57,6 +59,7 @@ import {
     PM_GOBLIN,
     PM_GRID_BUG,
     PM_HOMUNCULUS,
+    PM_HORSE,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
     PM_DWARF,
@@ -574,6 +577,50 @@ test('large humanoids can wear only mummy wrapping from generated body armor', (
     assert.equal(monster.minvis, false);
 });
 
+test('discard_minvent reverses wrapping state only for a live monster', () => {
+    for (const { name, mhp, expectedBlocked, expectedVisible } of [
+        {
+            name: 'live monster',
+            mhp: 10,
+            expectedBlocked: false,
+            expectedVisible: true,
+        },
+        {
+            name: 'dead monster',
+            mhp: 0,
+            expectedBlocked: true,
+            expectedVisible: false,
+        },
+    ]) {
+        const state = initialLevelState();
+        const monster = newMonster({
+            data: state.mons[PM_HUMAN_MUMMY],
+            mnum: PM_HUMAN_MUMMY,
+            mhp,
+            minvis: true,
+            perminvis: true,
+        });
+        const wrapping = mksobj(MUMMY_WRAPPING, false, false, {
+            state,
+            random: FIXED_OBJECT_ID_RANDOM,
+        });
+        add_to_minv(monster, wrapping, { state });
+        m_dowear(monster, true, { state });
+        assert.equal(monster.invis_blkd, true, name);
+        assert.equal(monster.minvis, false, name);
+
+        const random = scriptedRandom([]);
+        discard_minvent(monster, false, { state, random: random.random });
+        random.assertExhausted();
+
+        assert.equal(monster.minvent, null, name);
+        assert.equal(wrapping.owornmask, 0, name);
+        assert.equal(monster.misc_worn_check, I_SPECIAL, name);
+        assert.equal(monster.invis_blkd, expectedBlocked, name);
+        assert.equal(monster.minvis, expectedVisible, name);
+    }
+});
+
 test('ghost creation names from player or source ghost-name reservoir', () => {
     const cases = [
         {
@@ -897,6 +944,25 @@ test('co-aligned unicorn creation overrides an explicitly angry attitude', () =>
         );
         random.assertExhausted();
         assert.equal(monster.mpeaceful, expected);
+    }
+});
+
+test('neutral ponies and horses do not receive the true-unicorn override', () => {
+    for (const mndx of [PM_PONY, PM_HORSE]) {
+        const state = initialLevelState();
+        state.u.ualign.type = 0;
+        const random = recordingRandom();
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH | NO_MINVENT,
+            { state, random: random.random },
+        );
+
+        assert.equal(monster.mpeaceful, false, state.mons[mndx].pmnames[2]);
+        // Neutral hostile non-unicorns retain set_malign()'s +3 kill value.
+        assert.equal(monster.malign, 3, state.mons[mndx].pmnames[2]);
     }
 });
 

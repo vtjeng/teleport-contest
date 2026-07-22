@@ -47,6 +47,7 @@ import {
     TIMER_LEVEL,
     TIMER_OBJECT,
     W_AMUL,
+    W_ARMC,
     W_ARMH,
     WEB,
     TREE,
@@ -84,6 +85,7 @@ import {
     CORPSE,
     DAGGER,
     ELVEN_BROADSWORD,
+    MUMMY_WRAPPING,
     ORCISH_HELM,
     RING_CLASS,
     SCROLL_CLASS,
@@ -113,6 +115,7 @@ import {
     PM_GIANT_MIMIC,
     PM_HEALER,
     PM_HUMAN,
+    PM_HUMAN_MUMMY,
     PM_HUNTER,
     PM_KNIGHT,
     PM_KOBOLD,
@@ -1579,6 +1582,49 @@ test('explicit false discards default inventory without a custom callback', () =
     assert.equal(generatedHelm.where, OBJ_DELETED);
     assert.equal(generatedHelm.owornmask, 0);
     assert.equal(monster.misc_worn_check, I_SPECIAL);
+    assert.equal(context.inventCarryingMonster, null);
+});
+
+test('discarding live default wrapping restores permanent invisibility', () => {
+    const { context, random, room, state } = monsterDescriptorFixture();
+    const monster = newMonster({
+        data: state.mons[PM_HUMAN_MUMMY],
+        mnum: PM_HUMAN_MUMMY,
+        m_id: 45,
+        mhp: 10,
+        minvis: false,
+        perminvis: true,
+        invis_blkd: true,
+        mcanmove: true,
+    });
+    const generatedWrapping = mksobj(
+        MUMMY_WRAPPING,
+        true,
+        false,
+        { state, random },
+    );
+    generatedWrapping.owornmask = W_ARMC;
+    monster.misc_worn_check = W_ARMC;
+    add_to_minv(monster, generatedWrapping, { state, random });
+
+    const created = create_monster({
+        id: PM_HUMAN_MUMMY,
+        coordinate: { x: 0, y: 0 },
+        keepDefaultInventory: false,
+    }, room, {
+        state,
+        random,
+        hooks: { createMonster: () => monster },
+        spObjectContext: context,
+    });
+
+    assert.equal(created, monster);
+    assert.equal(monster.minvent, null);
+    assert.equal(generatedWrapping.where, OBJ_DELETED);
+    assert.equal(generatedWrapping.owornmask, 0);
+    assert.equal(monster.misc_worn_check, I_SPECIAL);
+    assert.equal(monster.invis_blkd, false);
+    assert.equal(monster.minvis, true);
     assert.equal(context.inventCarryingMonster, null);
 });
 

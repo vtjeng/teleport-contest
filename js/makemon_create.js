@@ -375,6 +375,7 @@ const M1_SLITHY = 0x00080000;
 const M2_LORD = 0x00000400;
 const M2_PRINCE = 0x00000800;
 const M2_STRONG = 0x04000000;
+const M2_JEWELS = 0x20000000;
 const MR_STONE = 0x80;
 const MZ_LARGE = 3;
 const MZ_HUGE = 4;
@@ -1206,7 +1207,9 @@ function armorExtraPreference(monster, obj) {
     return obj.otyp === SPEED_BOOTS && monster.permspeed !== MFAST ? 20 : 0;
 }
 
-function updateCreationArmorEffects(monster, obj, on, state) {
+// C ref: worn.c update_mon_extrinsics(), for effects reachable from the
+// currently supported creation-time armor set.
+function updateMonsterArmorEffects(monster, obj, on, state) {
     if (obj.otyp === MUMMY_WRAPPING) {
         monster.invis_blkd = on;
         monster.minvis = on ? false : Boolean(monster.perminvis);
@@ -1299,7 +1302,7 @@ function m_dowear_type(
     if (!best || best === old) return;
     if (old) {
         old.owornmask = 0;
-        updateCreationArmorEffects(monster, old, false, state);
+        updateMonsterArmorEffects(monster, old, false, state);
     }
     monster.misc_worn_check |= mask;
     best.owornmask |= mask;
@@ -1308,7 +1311,7 @@ function m_dowear_type(
         best.cursed = true;
         best.blessed = false;
     }
-    updateCreationArmorEffects(monster, best, true, state);
+    updateMonsterArmorEffects(monster, best, true, state);
 }
 
 // C ref: worn.c m_dowear()/m_dowear_type(), restricted to creation-time
@@ -1359,13 +1362,20 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
     while (monster.minvent) {
         const obj = monster.minvent;
         const unwornmask = obj.owornmask;
-        // C's extract_from_minvent(..., TRUE, TRUE) removes worn state before
-        // freeing the object.  No supported creation-time worn item grants an
-        // extrinsic, so the remaining local effects are the two worn masks and
-        // check_gear_next_turn()'s I_SPECIAL reassessment flag.
+        // C's extract_from_minvent(..., TRUE, TRUE) unlinks and clears the worn
+        // mask before reversing live-monster effects. Dead monsters skip that
+        // reversal but still clear their masks and schedule a gear check.
         obj_extract_self(obj, normalized);
         obj.owornmask = 0;
         if (unwornmask) {
+            if (monster.mhp >= 1) {
+                updateMonsterArmorEffects(
+                    monster,
+                    obj,
+                    false,
+                    normalized.state,
+                );
+            }
             monster.misc_worn_check &= ~unwornmask;
             monster.misc_worn_check |= I_SPECIAL;
         }
@@ -1584,6 +1594,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         && !state.u.uhave.amulet) {
         monster.msleeping = true;
     } else if (ptr.mlet === S_UNICORN
+        && (ptr.mflags2 & M2_JEWELS)
         && Math.sign(state.u.ualign.type) === Math.sign(ptr.maligntyp)) {
         monster.mpeaceful = true;
     }
