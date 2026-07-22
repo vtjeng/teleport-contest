@@ -39,7 +39,6 @@ export {
 export const MAXPCHARS = SYM_OFF_O - SYM_OFF_P;
 export const MAXOCLASSES = SYM_OFF_M - SYM_OFF_O;
 export const MAXMCLASSES = SYM_OFF_W - SYM_OFF_M;
-export const WARNCOUNT = SYM_OFF_X - SYM_OFF_W;
 export const MAXOTHER = SYM_MAX - SYM_OFF_X;
 
 function requiredSourceSymbol(name) {
@@ -124,12 +123,6 @@ export function defsym_to_trap(defsym) {
         throw new RangeError(`defsym ${defsym} is not a trap symbol`);
     return ttyp;
 }
-
-// drawing.c:defsyms, in enum cmap_symbols order. Store bytes like C does;
-// the tty-specific DEC high bit is interpreted only when a symbol is drawn.
-export const DEFAULT_CMAP_SYMBOLS = Object.freeze(
-    DEFAULT_PRIMARY_SYMBOLS.slice(SYM_OFF_P, SYM_OFF_O),
-);
 
 const HANDLING_BY_NAME = Object.freeze({
     UNKNOWN: H_UNK,
@@ -566,13 +559,9 @@ export function misc_symbol(index, state = game) {
 
 export function optional_misc_symbol(index, state = game) {
     const absolute = SYM_OFF_X + index;
-    const activeSet = state.gc?.currentgraphics ?? PRIMARYSET;
-    const unicode = state.gs?.symset?.[activeSet]?.handling === H_UTF8
-        && state.iflags?.customsymbols !== false
-        ? state.gs?.showutf8?.[absolute]
-        : null;
-    if (!unicode && rawSymbol(absolute, state) === 0) return null;
-    return symbol_at(absolute, state);
+    const symbol = symbol_at(absolute, state);
+    if (!symbol.displayCh && rawSymbol(absolute, state) === 0) return null;
+    return symbol;
 }
 
 function parseGlyphCustomization(raw) {

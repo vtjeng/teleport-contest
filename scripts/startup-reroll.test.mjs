@@ -13,7 +13,6 @@ import { init_dungeons } from '../js/dungeon.js';
 import { initoptions_finish } from '../js/fruit.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { resetInputState } from '../js/input.js';
 import { NethackGame } from '../js/jsmain.js';
 import * as M from '../js/monsters.js';
 import { monst_globals_init, reset_mvitals } from '../js/monsters.js';
@@ -48,7 +47,6 @@ const {
 
 function rerollState({ role = M.PM_HEALER, lootabc = false } = {}) {
     resetGame();
-    resetInputState();
     game.nhDisplay = new GameDisplay(null);
     // Zero keeps each randomized appearance in place; reroll naming uses the
     // actual-name indexes initialized by init_objects().
@@ -501,7 +499,6 @@ test('every valid role and race builds a source-shaped reroll inventory', () => 
 });
 
 test('newgame applies startup effects only after multiple rerolls are accepted', async () => {
-    resetInputState();
     const session = new NethackGame({
         // This fixed, freshly chosen seed gives all three Monk candidates
         // distinct scrolls and spellbooks, so rejected-only effects are visible.

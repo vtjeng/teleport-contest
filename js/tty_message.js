@@ -11,22 +11,18 @@ const TOPLINE_EMPTY = 0;
 const TOPLINE_NEED_MORE = 1;
 
 function snapshotRows(display, rowCount) {
-    return {
-        rows: display.grid.slice(0, rowCount).map(
-            (row) => row.map((cell) => ({ ...cell })),
-        ),
-        cursor: [display.cursorCol, display.cursorRow],
-    };
+    return display.grid.slice(0, rowCount).map(
+        (row) => row.map((cell) => ({ ...cell })),
+    );
 }
 
 function restoreRows(display, snapshot) {
-    for (let row = 0; row < snapshot.rows.length; ++row) {
-        for (let column = 0; column < snapshot.rows[row].length; ++column) {
-            const cell = snapshot.rows[row][column];
+    for (let row = 0; row < snapshot.length; ++row) {
+        for (let column = 0; column < snapshot[row].length; ++column) {
+            const cell = snapshot[row][column];
             display.setCell(column, row, cell.ch, cell.color, cell.attr);
         }
     }
-    display.setCursor(...snapshot.cursor);
 }
 
 // C ref: win/tty/topl.c update_topl().  It replaces the last space before
@@ -83,7 +79,7 @@ export async function dismissPendingTtyMessage(state = game) {
     if (snapshot) {
         // The message row is not backed by map-window data. docorner() clears
         // it while reconstructing any obscured map rows below it.
-        snapshot.rows[0] = snapshot.rows[0].map(() => ({
+        snapshot[0] = snapshot[0].map(() => ({
             ch: ' ', color: NO_COLOR, attr: 0,
         }));
     }
@@ -125,13 +121,17 @@ export async function dismissPendingTtyMessage(state = game) {
     return true;
 }
 
+function fitsOnTtyTopline(prior, next, columns) {
+    return wrapTtyTopline(prior, columns).length === 1
+        && next.length + prior.length + 3
+            < columns - MORE_PROMPT.length;
+}
+
 function rememberSuppressedMessage(state, message, columns) {
     const next = String(message);
     const current = state._ttyToplines ?? '';
     const sharesTopline = current
-        && wrapTtyTopline(current, columns).length === 1
-        && next.length + current.length + 3
-            < columns - MORE_PROMPT.length;
+        && fitsOnTtyTopline(current, next, columns);
     const toplines = sharesTopline ? `${current}  ${next}` : next;
     state._ttyToplines = toplines;
     const display = state.nhDisplay;
@@ -157,9 +157,7 @@ export async function ttyPline(message, state = game) {
     // comparison, preserving WIN_STOP as an upstream quirk.
     const deathComparisonReached = deathMessage
         && (Boolean(current) || stoppedAtEntry)
-        && wrapTtyTopline(priorTopline, columns).length === 1
-        && next.length + priorTopline.length + 3
-            < columns - MORE_PROMPT.length;
+        && fitsOnTtyTopline(priorTopline, next, columns);
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.
@@ -172,11 +170,9 @@ export async function ttyPline(message, state = game) {
     }
     if (stoppedAtEntry) state._ttyMessageStopped = false;
 
-    const currentLines = wrapTtyTopline(current, columns);
     if (current
         && !deathMessage
-        && currentLines.length === 1
-        && next.length + current.length + 3 < columns - MORE_PROMPT.length) {
+        && fitsOnTtyTopline(current, next, columns)) {
         rememberPendingMessage(state, `${current}  ${next}`);
         return;
     }

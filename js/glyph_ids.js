@@ -250,10 +250,8 @@ function buildSourceGlyphIds() {
     return ids;
 }
 
-export const SOURCE_GLYPH_IDS = Object.freeze(buildSourceGlyphIds());
-
 const SOURCE_GLYPH_NAME_BY_FOLDED_ID = new Map(
-    SOURCE_GLYPH_IDS.map((name) => [name.toLowerCase(), name]),
+    buildSourceGlyphIds().map((name) => [name.toLowerCase(), name]),
 );
 
 /** glyphs.c:match_glyph() lookup after its case-sensitive G_ gate. */

@@ -140,15 +140,15 @@ export function ttyMenuLayout(display, spec, pageIndex = 0) {
     // tty_end_menu() limits each page to the smaller of 52 accelerators or
     // all terminal rows except the dmore() footer.
     const pageSize = Math.min(52, Math.max(1, display.rows - 1));
-    const pages = [];
-    for (let index = 0; index < allLines.length; index += pageSize)
-        pages.push(allLines.slice(index, index + pageSize));
-    if (pages.length === 0) pages.push([]);
-    if (pageIndex < 0 || pageIndex >= pages.length)
+    const pageCount = Math.max(1, Math.ceil(allLines.length / pageSize));
+    if (pageIndex < 0 || pageIndex >= pageCount)
         throw new RangeError(`invalid tty menu page ${pageIndex}`);
-    const lines = pages[pageIndex];
-    const footerText = pages.length > 1
-        ? `(${pageIndex + 1} of ${pages.length})`
+    const lines = allLines.slice(
+        pageIndex * pageSize,
+        (pageIndex + 1) * pageSize,
+    );
+    const footerText = pageCount > 1
+        ? `(${pageIndex + 1} of ${pageCount})`
         : END_PROMPT;
 
     // tty_end_menu() reserves one cell on each side of every stored line.
@@ -156,7 +156,7 @@ export function ttyMenuLayout(display, spec, pageIndex = 0) {
         footerText.length + 1,
         ...allLines.map((line) => String(line.text ?? '').length + 2),
     );
-    const maxrow = pages.length > 1
+    const maxrow = pageCount > 1
         ? pageSize + 1
         : allLines.length + 1;
 
@@ -176,15 +176,12 @@ export function ttyMenuLayout(display, spec, pageIndex = 0) {
         repairColumn: Math.max(0, offx - 1),
         startColumn: offx + 1,
         fullScreen,
-        allLines,
         lines,
-        pages,
-        pageCount: pages.length,
+        pageCount,
         pageIndex,
         pageSize,
         footerText,
         footerRow: lines.length,
-        maxcol,
         maxrow,
     };
 }
@@ -245,7 +242,7 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0) {
         layout.footerRow,
     );
 
-    return { layout, snapshot, spec, baseCursor };
+    return { layout, snapshot, baseCursor };
 }
 
 export function dismissTtyMenu(state = game, rendered) {
@@ -546,7 +543,7 @@ function unsetPickOneLines(state, spec, rendered, allPages) {
     const firstGlobalLine = allPages
         ? 0 : rendered.layout.pageIndex * rendered.layout.pageSize;
     const lastGlobalLine = allPages
-        ? rendered.layout.allLines.length
+        ? 2 + (spec.lines?.length ?? 0)
         : firstGlobalLine + rendered.layout.lines.length;
     for (let globalLine = firstGlobalLine;
         globalLine < lastGlobalLine; ++globalLine) {
@@ -578,23 +575,29 @@ function unsetPickOneLines(state, spec, rendered, allPages) {
     }
 }
 
+function copyMenuItem(item) {
+    if (typeof item !== 'object' || item === null) return item;
+    if (!Object.hasOwn(item, 'value')) return { ...item };
+    return {
+        ...item,
+        selected: Boolean(item.selected),
+        count: Number.isInteger(item.count) ? item.count : -1,
+    };
+}
+
 async function selectOneTtyMenu(state, spec) {
     const workingSpec = {
         ...spec,
         lines: spec.lines?.map((line) => (
             typeof line === 'object' && line !== null ? { ...line } : line
         )),
-        items: spec.items?.map((item) => {
-            if (typeof item !== 'object' || item === null) return item;
-            if (!Object.hasOwn(item, 'value')) return { ...item };
-            return {
-                ...item,
-                selected: Boolean(item.selected),
-                count: Number.isInteger(item.count) ? item.count : -1,
-            };
-        }),
+        items: spec.items?.map(copyMenuItem),
     };
     const groupChoices = pickOneGroupChoices(workingSpec);
+    const hasEmptyCompletion = Object.hasOwn(spec, 'preselected')
+        || Object.hasOwn(spec, 'emptyValue');
+    const emptyCompletion = Object.hasOwn(spec, 'preselected')
+        ? spec.preselected : spec.emptyValue;
     let pageIndex = 0;
     let rendered = renderTtyMenu(state, workingSpec, pageIndex);
     let pendingCount = null;
@@ -655,11 +658,9 @@ async function selectOneTtyMenu(state, spec) {
 
         if (ch === '\n' || ch === '\r') {
             pendingCount = null;
-            if (!Object.hasOwn(spec, 'preselected')
-                && !Object.hasOwn(spec, 'emptyValue')) continue;
+            if (!hasEmptyCompletion) continue;
             dismissTtyMenu(state, rendered);
-            return Object.hasOwn(spec, 'preselected')
-                ? spec.preselected : spec.emptyValue;
+            return emptyCompletion;
         }
         if (ch === ' ' || ch === MENU_NEXT_PAGE) {
             pendingCount = null;
@@ -668,12 +669,9 @@ async function selectOneTtyMenu(state, spec) {
                 rendered = renderTtyMenu(
                     state, workingSpec, pageIndex,
                 );
-            } else if (ch === ' '
-                && (Object.hasOwn(spec, 'preselected')
-                    || Object.hasOwn(spec, 'emptyValue'))) {
+            } else if (ch === ' ' && hasEmptyCompletion) {
                 dismissTtyMenu(state, rendered);
-                return Object.hasOwn(spec, 'preselected')
-                    ? spec.preselected : spec.emptyValue;
+                return emptyCompletion;
             }
             continue;
         }
@@ -800,16 +798,7 @@ function invertItems(items, pendingCount = null) {
 async function selectAnyTtyMenu(state, spec) {
     const workingSpec = {
         ...spec,
-        items: (spec.items ?? []).map((item) => {
-            if (typeof item !== 'object' || item === null)
-                return item;
-            if (!Object.hasOwn(item, 'value')) return { ...item };
-            return {
-                ...item,
-                selected: Boolean(item.selected),
-                count: Number.isInteger(item.count) ? item.count : -1,
-            };
-        }),
+        items: (spec.items ?? []).map(copyMenuItem),
     };
     const allItems = selectableItems(workingSpec);
     let pageIndex = 0;
@@ -1115,24 +1104,23 @@ function setRoleFilterValue(filter, value) {
     let index = str2role(value);
     if (index !== ROLE_NONE && index !== ROLE_RANDOM) {
         filter.roles[index] = true;
-        return true;
+        return;
     }
     index = str2race(value);
     if (index !== ROLE_NONE && index !== ROLE_RANDOM) {
         filter.mask |= races[index].selfmask;
-        return true;
+        return;
     }
     index = str2gend(value);
     if (index !== ROLE_NONE && index !== ROLE_RANDOM) {
         filter.mask |= genders[index].allow;
-        return true;
+        return;
     }
     index = str2align(value);
     if (index !== ROLE_NONE && index !== ROLE_RANDOM) {
         filter.mask |= aligns[index].allow;
-        return true;
+        return;
     }
-    return false;
 }
 
 // Apply a PICK_ANY result. null denotes cancellation; [] is an intentional

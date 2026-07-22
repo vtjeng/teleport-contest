@@ -30,6 +30,7 @@ import {
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
     HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
+    SYM_BOULDER, SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE,
 } from './const.js';
 import {
     ATR_NONE,
@@ -172,29 +173,6 @@ import {
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
 import { M1_HUMANOID, NON_PM, PM_TENGU } from './monsters.js';
-
-// ── ANSI color codes ──
-// Maps CLR_* constants (0-15) to ANSI SGR color codes.
-// C ref: wintty.c term_start_color
-const ANSI_DEFAULT = 39;
-const ANSI_COLOR = [
-    30,  // CLR_BLACK     0
-    31,  // CLR_RED       1
-    32,  // CLR_GREEN     2
-    33,  // CLR_BROWN     3
-    34,  // CLR_BLUE      4
-    35,  // CLR_MAGENTA   5
-    36,  // CLR_CYAN      6
-    37,  // CLR_GRAY      7
-    39,  // NO_COLOR      8 → default
-    91,  // CLR_ORANGE    9
-    92,  // CLR_BRIGHT_GREEN  10
-    93,  // CLR_YELLOW    11
-    94,  // CLR_BRIGHT_BLUE   12
-    95,  // CLR_BRIGHT_MAGENTA 13
-    96,  // CLR_BRIGHT_CYAN   14
-    97,  // CLR_WHITE     15
-];
 
 const WALL_TYPES = new Set([
     SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
@@ -709,7 +687,7 @@ export function hero_glyph_info(state = game) {
     const mnum = showRace ? state.urace?.mnum : state.u?.umonnum;
     const species = state.mons?.[mnum] ?? state.youmonst?.data;
     const symbol = (accessibilityOverridesEnabled(state)
-        ? optional_misc_symbol(5, state) : null)
+        ? optional_misc_symbol(SYM_HERO_OVERRIDE, state) : null)
         ?? monster_class_symbol(species?.mlet ?? 53, state);
     return glyphPresentation(
         symbol,
@@ -800,7 +778,7 @@ export function monster_glyph_info(monster, state = game) {
         return object_glyph_info(fakeObject, state);
     }
     const symbol = monster.mtame && accessibilityOverridesEnabled(state)
-        ? optional_misc_symbol(4, state)
+        ? optional_misc_symbol(SYM_PET_OVERRIDE, state)
             ?? monster_class_symbol(monster.data.mlet, state)
         : monster_class_symbol(monster.data.mlet, state);
     const glyph = glyphPresentation(symbol, monster.data.mcolor, state);
@@ -838,7 +816,7 @@ export function object_glyph_info(obj, state = game) {
     let symbol;
     let color = type?.oc_color ?? NO_COLOR;
     if (obj.otyp === BOULDER) {
-        symbol = misc_symbol(2, state);
+        symbol = misc_symbol(SYM_BOULDER, state);
     } else if (obj.otyp === STATUE && state.mons?.[obj.corpsenm]) {
         symbol = monster_class_symbol(state.mons[obj.corpsenm].mlet, state);
     } else {
@@ -1173,14 +1151,15 @@ export function newsym(x, y) {
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
         const monster = m_at(x, y, game);
-        const shown = monster && !monster.minvis && !monster.mundetected
+        const monsterVisible = Boolean(
+            monster && !monster.minvis && !monster.mundetected,
+        );
+        const shown = monsterVisible
             ? monster_glyph_info(monster, game)
             : underlying;
         // display_monster() maps an unsensed mimic appearance onto memory.
         // Ordinary monsters leave memory as the actual layer underneath them.
-        const remembered = monster
-            && !monster.minvis
-            && !monster.mundetected
+        const remembered = monsterVisible
             && [M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
             )
@@ -1214,67 +1193,10 @@ export async function docrt() {
         for (let x = 1; x < COLNO; x++) newsym(x, y);
 }
 
-// ── Serialize a map row with DEC line-drawing and ANSI colors ──
-function render_map_row(y) {
-    if (!game.level) return '';
-    let firstCol = -1, lastCol = -1;
-    for (let x = 1; x < COLNO; x++) {
-        const loc = game.level.at(x, y);
-        if (loc?.disp_ch && loc.disp_ch !== ' ') {
-            if (firstCol < 0) firstCol = x;
-            lastCol = x;
-        }
-    }
-    if (firstCol < 0) return '';
-
-    let output = '';
-    let activeColor = ANSI_DEFAULT;  // default
-    let activeDec = false;
-
-    // Leading gap
-    const gap = firstCol - 1;
-    if (gap > 4) output += `\x1b[${gap}C`;
-    else if (gap > 0) output += ' '.repeat(gap);
-
-    for (let x = firstCol; x <= lastCol; x++) {
-        const loc = game.level.at(x, y);
-        const ch = loc?.disp_ch ?? ' ';
-        const color = loc?.disp_color ?? NO_COLOR;
-        const dec = !!loc?.disp_decgfx;
-
-        if (ch === ' ') {
-            // Space runs
-            let run = 1;
-            while (x + run <= lastCol && (game.level.at(x + run, y)?.disp_ch ?? ' ') === ' ') run++;
-            if (activeDec) { output += '\x0f'; activeDec = false; }
-            if (run > 4) output += `\x1b[${run}C`;
-            else output += ' '.repeat(run);
-            x += run - 1;
-            continue;
-        }
-
-        let wantAnsi = ANSI_COLOR[color] ?? ANSI_DEFAULT;
-        if (wantAnsi !== activeColor) {
-            output += `\x1b[${wantAnsi}m`;
-            activeColor = wantAnsi;
-        }
-
-        // DEC mode switching
-        if (dec && !activeDec) { output += '\x0e'; activeDec = true; }
-        else if (!dec && activeDec) { output += '\x0f'; activeDec = false; }
-
-        output += ch;
-    }
-
-    // Reset state at end of row (C does per-row SO/SI)
-    if (activeColor !== ANSI_DEFAULT) output += `\x1b[${ANSI_DEFAULT}m`;
-    if (activeDec) output += '\x0f';
-
-    return output;
-}
-
 // ── Status lines ──
 const BOTL_NSIZ = 16; // include/botl.h
+const TTY_STATUS_WIDTH = COLNO - 1;
+const STATUS_HP_BAR_WIDTH = 30;
 
 export function get_strength_str(strength) {
     const value = Math.trunc(strength ?? 0);
@@ -1569,7 +1491,9 @@ function _statusTitle() {
 }
 
 function _statusHitpointBarTitle() {
-    let bar = _statusTitle().slice(0, 30).padEnd(30);
+    let bar = _statusTitle()
+        .slice(0, STATUS_HP_BAR_WIDTH)
+        .padEnd(STATUS_HP_BAR_WIDTH);
     if (_criticallyLowHp(true)) {
         const chars = [...bar];
         for (let index = chars.length - 1; index >= 1; index -= 2) {
@@ -1732,12 +1656,20 @@ function _statusLevelDescription(u, short = false) {
 }
 
 function _statusVersionSuffix(status) {
-    if (!game.flags?.showvers) return status.slice(0, 79);
+    if (!game.flags?.showvers) return status.slice(0, TTY_STATUS_WIDTH);
     const version = status_version(game.flags);
     // win/tty/wintty.c render_status() right-justifies BL_VERS against the
     // TTY's 79 printable status columns when it is the row's final field.
-    const versionColumn = Math.max(status.length + 1, 79 - version.length);
-    return `${status.padEnd(versionColumn)}${version}`.slice(0, 79);
+    const versionColumn = Math.max(
+        status.length + 1,
+        TTY_STATUS_WIDTH - version.length,
+    );
+    return `${status.padEnd(versionColumn)}${version}`
+        .slice(0, TTY_STATUS_WIDTH);
+}
+
+function _statusVitals(u) {
+    return `$:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
 }
 
 function _statusLine2() {
@@ -1750,21 +1682,22 @@ function _statusLine2() {
     let conditionLevel = 0;
     let capacityPadding = '';
     let shortLevel = false;
-    const build = () => `${_statusLevelDescription(u, shortLevel)} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}${time}${_hungerStatus(u)}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
+    const build = () => `${_statusLevelDescription(u, shortLevel)} ${_statusVitals(u)}${time}${_hungerStatus(u)}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
     let status = build();
     // wintty.c make_things_fit() first tries both abbreviated condition
     // vocabularies, then shortens "Dlvl" to "Dl" before truncating.
-    while (status.length + versionLength > 79 && conditionLevel < 2) {
+    while (status.length + versionLength > TTY_STATUS_WIDTH
+        && conditionLevel < 2) {
         conditionLevel++;
         status = build();
     }
-    if (status.length + versionLength > 79) {
+    if (status.length + versionLength > TTY_STATUS_WIDTH) {
         // shrink_enc() reconstructs an unencumbered BL_CAP as one blank;
         // unlike tty_status_update(), it does not suppress that blank again.
         capacityPadding = ' ';
         status = build();
     }
-    if (status.length + versionLength > 79) {
+    if (status.length + versionLength > TTY_STATUS_WIDTH) {
         shortLevel = true;
         status = build();
     }
@@ -1772,9 +1705,7 @@ function _statusLine2() {
 }
 
 function _statusLine3VitalsBase(u) {
-    const align = u.ualign?.type === 0
-        ? 'Neutral' : u.ualign?.type > 0 ? 'Lawful' : 'Chaotic';
-    return `${align} $:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
+    return `${_statusAlignment(u)} ${_statusVitals(u)}`;
 }
 
 function _statusLine3Vitals() {
@@ -1796,16 +1727,16 @@ function _statusLine3Details() {
     let conditions = _statusConditions(u, conditionLevel);
     const nominalLength = () => prefix().length + conditions.length
         + optional.length + versionFieldLength;
-    while (nominalLength() > 79 && conditionLevel < 2) {
+    while (nominalLength() > TTY_STATUS_WIDTH && conditionLevel < 2) {
         conditionLevel++;
         conditions = _statusConditions(u, conditionLevel);
     }
-    if (nominalLength() > 79) shortLevel = true;
+    if (nominalLength() > TTY_STATUS_WIDTH) shortLevel = true;
 
     // C ref: wintty.c render_status(). It computes nominal field positions,
     // indents BL_CONDITION toward BL_HUNGER, then resumes later fields at
     // their nominal positions. That can overwrite the indented condition.
-    const row = new Array(79).fill(' ');
+    const row = new Array(TTY_STATUS_WIDTH).fill(' ');
     const write = (start, text) => {
         for (let index = 0; index < text.length; ++index) {
             const column = start + index;
@@ -1818,13 +1749,13 @@ function _statusLine3Details() {
     if (conditions) {
         const x = nominal + 1; // tty field positions are one-based.
         const hungerX = _statusLine3VitalsBase(u).length + 1;
-        let lastColumn = 80;
+        let lastColumn = TTY_STATUS_WIDTH + 1;
         if (!optional && version) lastColumn -= versionFieldLength;
         let conditionX = x;
         if (x < hungerX
             && hungerX + conditions.length < lastColumn - 1) {
             conditionX = hungerX;
-        } else if (x + conditions.length < 79) {
+        } else if (x + conditions.length < TTY_STATUS_WIDTH) {
             conditionX = lastColumn - conditions.length;
         }
         write(conditionX - 1, conditions);
@@ -1836,7 +1767,7 @@ function _statusLine3Details() {
     }
     if (version) {
         const field = ` ${version}`;
-        const rightStart = 79 - field.length;
+        const rightStart = TTY_STATUS_WIDTH - field.length;
         const start = Math.max(nominal, rightStart);
         for (let column = nominal; column < start && column < row.length;
             ++column) row[column] = ' ';
@@ -2184,9 +2115,12 @@ function _statusStyleRows(rows) {
 
     if (game.iflags?.wc2_hitpointbar) {
         const hp = _statusFieldData('hitpoints');
-        let barLength = Math.trunc((30 * hp.percent) / 100);
+        let barLength = Math.trunc(
+            (STATUS_HP_BAR_WIDTH * hp.percent) / 100,
+        );
         if (barLength < 1 && hp.percent > 0) barLength = 1;
-        if (barLength >= 30 && hp.percent < 100) barLength = 29;
+        if (barLength >= STATUS_HP_BAR_WIDTH && hp.percent < 100)
+            barLength = STATUS_HP_BAR_WIDTH - 1;
         // tty_putstatusfield() advances across trailing padding rather than
         // writing it, so recorder shadow cells there retain normal attrs.
         const printedLength = _statusHitpointBarTitle()
@@ -2225,10 +2159,9 @@ function mapViewport(rows, statusRowCount) {
 function writeStatusRows(
     display,
     rows = statusTextRows(),
-    styles = null,
 ) {
     if (!display?.grid) return;
-    styles ??= game.iflags?.status_updates === false
+    const styles = game.iflags?.status_updates === false
         ? rows.map(() => [])
         : _statusStyleRows(rows);
     const firstRow = display.rows - rows.length;
@@ -2285,21 +2218,7 @@ function _buildScreenOutput() {
     const statusRows = statusTextRows();
     const viewport = mapViewport(display.rows, statusRows.length);
 
-    let output = '';
-    // Row 0: message
-    output += (game._pending_message || '') + '\n';
-
-    // Map viewport between the message row and the status window.
-    for (let offset = 0; offset < viewport.height; ++offset) {
-        const y = viewport.top + offset;
-        output += render_map_row(y) + '\n';
-    }
-
-    output += statusRows.join('\n');
-
-    game._screen_output = output;
-
-    // Also write to grid for serialize_terminal_grid
+    // Render into the canonical terminal grid.
     if (display.grid) {
         display.clearScreen();
         // Message line
