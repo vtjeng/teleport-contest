@@ -65,6 +65,32 @@ Git history do not grant permission to inspect the sealed local holdout.
   filesystem or network access at runtime, subprocesses, native addons, or
   threads. Persist cross-segment state only through `input.storage`.
 
+## Porting workflow
+
+- Follow `ROADMAP.md` order. Implement each behavior from an existing input or
+  call boundary through its state changes, PRNG calls, messages, rendering,
+  persistence, and next observable boundary. Finish one complete path before
+  starting partial implementations of several commands.
+
+- Add a prerequisite only when the current roadmap item has a named consumer
+  for it. If the prerequisite lands first, test it against upstream source and
+  connect it to that consumer before the roadmap item closes. Do not accumulate
+  helpers for later roadmap items.
+
+- Store each C state value in one canonical JavaScript location. For a
+  non-obvious mapping, name the corresponding C global or struct field and
+  document when the JavaScript value is initialized, reset, changed, and
+  persisted. Store the same value in multiple fields only when source behavior
+  requires separate state. In that case, centralize the updates and test the
+  relevant initialization, reset, and segment boundaries.
+
+- Use deterministic development-time generators for large static tables that
+  can be derived mechanically from upstream C or Lua. Commit the generator and
+  its plain-JavaScript output, and provide a check that fails when regeneration
+  changes the committed output. Translate behavioral control flow directly
+  from source. Never generate implementation data from recordings, screens, or
+  PRNG traces.
+
 ## Validation
 
 - Diagnose with upstream source, focused development sessions, and the full
@@ -78,6 +104,20 @@ Git history do not grant permission to inspect the sealed local holdout.
 - Use `node scripts/diff-fresh.mjs --seed ...` for strict fresh-recording
   differentials. Its recipe inputs must contain replay inputs only, never
   recorded `steps`; do not weaken that boundary or its sealed-path checks.
+- Before closing a nontrivial behavior slice or milestone, run a reproducible
+  set of fresh differentials that varies the inputs relevant to the change,
+  such as seeds, datetimes, character configurations, options, and replay
+  inputs. Cover ordinary cases and source-identified rare branches. The set
+  does not need to include every possible combination.
+- Store any differential matrix intended for repeated use in a checked-in
+  recipe or script so another agent can run the same cases. Recipes must
+  contain replay inputs only, use `scripts/diff-fresh.mjs`, and never contain
+  recorded steps or reference the sealed holdout.
+- When a fresh differential fails, keep the original failing recipe and remove
+  irrelevant options and inputs until the smallest useful case remains. Use
+  that case to locate the responsible C behavior and add a regression test.
+  Derive the implementation from upstream source rather than from the observed
+  trace.
 - Verify PRNG logs, 24×80 screens, and cursor positions. Launch a browser only
   when browser-specific code, DOM/CSS, input/storage, or browser-only
   presentation behavior changes. Shared engine or glyph-output changes do not
@@ -112,6 +152,11 @@ For each coherent implementation chunk:
    for immediate validation, but include them in the next scheduled correctness
    pass.
 4. Add the exact code commit and score estimate to `SCORE.md`.
+
+- Close a behavior slice only after its real consumer executes the new path and
+  a fresh end-to-end differential verifies the PRNG log, complete screens and
+  attributes, cursors, and persisted state through the next boundary. Unit
+  tests may validate a prerequisite, but they do not close a dormant path.
 
 Run the heavier checks at these boundaries:
 
