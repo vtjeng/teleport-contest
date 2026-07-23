@@ -17,6 +17,7 @@ import {
     can_saddle,
     makedog,
     pet_type,
+    see_monster_closeup,
     see_nearby_monsters,
 } from '../js/dog.js';
 import { GameMap } from '../js/game.js';
@@ -34,6 +35,8 @@ import {
     PM_KITTEN,
     PM_KNIGHT,
     PM_LITTLE_DOG,
+    PM_LONG_WORM,
+    PM_LONG_WORM_TAIL,
     PM_PONY,
     PM_PLAINS_CENTAUR,
     PM_WIZARD,
@@ -273,6 +276,38 @@ test('see_nearby_monsters records each newly visible adjacent species', () => {
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
     assert.equal(see_nearby_monsters(state), 0);
     assert.equal(state.mvitals[PM_KITTEN].seen_close, 0);
+});
+
+test('see_nearby_monsters records an adjacent worm tail separately', () => {
+    const state = startingPetState();
+    state.u.uprops = [];
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    const worm = {
+        data: state.mons[PM_LONG_WORM],
+        mx: state.u.ux + 2,
+        my: state.u.uy,
+        mhp: 8,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: 0,
+    };
+    const tailX = state.u.ux + 1;
+    const tailY = state.u.uy;
+    state.level.monsters[tailX][tailY] = worm;
+    state.level.monlist = worm;
+    state.viz_array[tailY][tailX] = COULD_SEE | IN_SIGHT;
+    state.viz_array[worm.my][worm.mx] = COULD_SEE | IN_SIGHT;
+
+    assert.equal(see_nearby_monsters(state), 1);
+    assert.equal(state.mvitals[PM_LONG_WORM].seen_close, 0);
+    assert.equal(state.mvitals[PM_LONG_WORM_TAIL].seen_close, 1);
+    assert.equal(state.gn.notonhead, true);
+    assert.equal(see_monster_closeup(worm, true, { state }), true);
+    assert.equal(state.mvitals[PM_LONG_WORM].photographed, 0);
+    assert.equal(state.mvitals[PM_LONG_WORM_TAIL].photographed, 1);
 });
 
 test('fixed Caveman dog skips selection draw and receives source default name', () => {

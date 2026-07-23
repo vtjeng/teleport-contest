@@ -98,6 +98,8 @@ function actionMonster(overrides = {}) {
         movement: NORMAL_SPEED,
         mx: 4, // Interior coordinates keep distance checks away from edges.
         my: 4,
+        mux: 0,
+        muy: 0,
         mlstmv: 0,
         misc_worn_check: 0,
         mcanmove: true,
@@ -358,6 +360,86 @@ test('mcalcdistress advances ordinary maladies in list order', async () => {
             second.mfrozen, second.mcanmove, second.mfleetim, second.mflee],
         [3, 0, 0, true, 1, false, 0, false],
     );
+});
+
+test('mcalcdistress skips dead and off-map list entries', async () => {
+    const offMap = {
+        nmon: null,
+        data: { mmove: 0, mflags1: 0, mflags2: M2_WERE },
+        cham: -1,
+        mhp: 2,
+        mhpmax: 3,
+        mstate: MON_MIGRATING,
+        mspec_used: 1,
+        mblinded: 1,
+        mfrozen: 1,
+        mfleetim: 1,
+    };
+    const dead = {
+        ...offMap,
+        nmon: offMap,
+        data: { mmove: 0, mflags1: M1_REGEN, mflags2: M2_WERE },
+        mhp: 0,
+        mstate: MON_FLOOR,
+    };
+    const state = {
+        moves: 20,
+        level: { monlist: dead },
+        vision_full_recalc: 1,
+    };
+    await mcalcdistress(state);
+    assert.deepEqual(
+        [dead.mhp, dead.mspec_used, dead.mblinded,
+            dead.mfrozen, dead.mfleetim],
+        [0, 1, 1, 1, 1],
+    );
+    assert.deepEqual(
+        [offMap.mhp, offMap.mspec_used, offMap.mblinded,
+            offMap.mfrozen, offMap.mfleetim],
+        [2, 1, 1, 1, 1],
+    );
+});
+
+test('mcalcdistress resolves vision for a later immobile monster', async () => {
+    const immobile = {
+        nmon: null,
+        data: { mmove: 0, mflags1: 0, mflags2: 0 },
+        cham: -1,
+        mhp: 2,
+        mhpmax: 2,
+        mstate: MON_FLOOR,
+        mspec_used: 0,
+        mblinded: 0,
+        mfrozen: 0,
+        mfleetim: 0,
+    };
+    const changing = {
+        ...immobile,
+        nmon: immobile,
+        data: { mmove: 12, mflags1: 0, mflags2: 0 },
+        cham: PM_VAMPIRE,
+    };
+    const state = {
+        moves: 20,
+        level: { monlist: changing },
+        vision_full_recalc: 0,
+    };
+    const events = [];
+    await mcalcdistress(state, {
+        decideToShapeshift() {
+            events.push('shape');
+            state.vision_full_recalc = 1;
+        },
+        visionRecalc() {
+            events.push('vision');
+            state.vision_full_recalc = 0;
+        },
+        minLiquid() {
+            events.push('liquid');
+            return false;
+        },
+    });
+    assert.deepEqual(events, ['shape', 'vision', 'liquid']);
 });
 
 test('mcalcdistress preflights rare downstream owners atomically', async () => {
@@ -642,6 +724,8 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
         misc_worn_check: I_SPECIAL | 0x08,
         mx: 4,
         my: 4,
+        mux: 5,
+        muy: 4,
     });
     const closeState = actionState(closeHostile);
     closeState.u.ux = 5;
@@ -656,6 +740,51 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
     }), false);
     assert.equal(moved, 1);
     assert.ok(closeHostile.misc_worn_check & I_SPECIAL);
+
+    const mistakenDistant = actionMonster({
+        misc_worn_check: I_SPECIAL | 0x08,
+        mx: 4,
+        my: 4,
+        mux: 20,
+        muy: 4,
+    });
+    const mistakenDistantState = actionState(mistakenDistant);
+    mistakenDistantState.u.ux = 5;
+    mistakenDistantState.u.uy = 4;
+    let wore = 0;
+    assert.equal(await movemon_singlemon(mistakenDistant, {
+        state: mistakenDistantState,
+        ...actionOperations({
+            dowear(current) {
+                ++wore;
+                current.misc_worn_check |= 0x10;
+            },
+            moveMonster: () => assert.fail('remembered distance equips'),
+        }),
+    }), false);
+    assert.equal(wore, 1);
+    assert.equal(Boolean(mistakenDistant.misc_worn_check & I_SPECIAL), false);
+
+    const mistakenClose = actionMonster({
+        misc_worn_check: I_SPECIAL | 0x08,
+        mx: 4,
+        my: 4,
+        mux: 5,
+        muy: 4,
+    });
+    const mistakenCloseState = actionState(mistakenClose);
+    mistakenCloseState.u.ux = 20;
+    mistakenCloseState.u.uy = 4;
+    let mistakenCloseMoves = 0;
+    assert.equal(await movemon_singlemon(mistakenClose, {
+        state: mistakenCloseState,
+        ...actionOperations({
+            dowear: () => assert.fail('remembered proximity defers gear'),
+            moveMonster: () => { ++mistakenCloseMoves; },
+        }),
+    }), false);
+    assert.equal(mistakenCloseMoves, 1);
+    assert.ok(mistakenClose.misc_worn_check & I_SPECIAL);
 });
 
 test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {

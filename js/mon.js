@@ -233,13 +233,13 @@ export async function movemon_singlemon(monster, env = {}) {
     if (await operations.minLiquid(monster, normalized)) return false;
 
     if (monster.misc_worn_check & I_SPECIAL) {
-        const heroIsDistant = dist2(
+        const believedHeroIsDistant = dist2(
             monster.mx,
             monster.my,
-            state.u?.ux,
-            state.u?.uy,
+            monster.mux,
+            monster.muy,
         ) > 9;
-        if (monster.mpeaceful || monster.mtame || heroIsDistant) {
+        if (monster.mpeaceful || monster.mtame || believedHeroIsDistant) {
             monster.misc_worn_check &= ~I_SPECIAL;
             const oldWorn = monster.misc_worn_check;
             await operations.dowear(monster, false, normalized);
@@ -769,22 +769,27 @@ function requiredDistressOperation(env, name) {
 // rare shape/liquid branch cannot leave earlier monsters partially advanced.
 export async function mcalcdistress(state = game, env = {}) {
     const monsters = [];
-    let needsVision = false;
     let needsLiquid = false;
     let needsShapechange = false;
     let needsWerechange = false;
     for (let monster = state.level?.monlist ?? null;
         monster;
         monster = monster.nmon) {
+        if (monster.mhp < 1
+            || (monster.mstate ?? MON_FLOOR) !== MON_FLOOR) {
+            continue;
+        }
         monsters.push(monster);
         if (!monster.data?.mmove) {
             needsLiquid = true;
-            needsVision ||= Boolean(state.vision_full_recalc);
         }
         needsShapechange ||= ismnum(monster.cham);
         needsWerechange ||= is_were(monster.data);
     }
-    const visionRecalc = needsVision
+    // An earlier liquid or shapechange operation can dirty vision before a
+    // later immobile monster. Resolve the owner atomically whenever that
+    // source check can be reached, then consult the live flag in list order.
+    const visionRecalc = needsLiquid
         ? requiredDistressOperation(env, 'visionRecalc') : null;
     const minLiquid = needsLiquid
         ? requiredDistressOperation(env, 'minLiquid') : null;

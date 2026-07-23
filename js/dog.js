@@ -35,6 +35,8 @@ import {
     PM_CAVE_DWELLER,
     PM_KITTEN,
     PM_LITTLE_DOG,
+    PM_LONG_WORM,
+    PM_LONG_WORM_TAIL,
     PM_PONY,
     PM_RANGER,
     PM_SAMURAI,
@@ -288,6 +290,8 @@ export function see_monster_closeup(monster, photo = false, env = {}) {
         && typeof env.sensemon === 'function' && !env.sensemon(monster, env)) {
         mndx = monster.mappearance;
     }
+    if (mndx === PM_LONG_WORM && state.gn?.notonhead)
+        mndx = PM_LONG_WORM_TAIL;
     const vital = state.mvitals?.[mndx];
     if (!vital)
         throw new Error(`see_monster_closeup requires mvitals[${mndx}]`);
