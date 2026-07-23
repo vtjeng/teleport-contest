@@ -10,6 +10,8 @@ import { COLNO, RLOC_NOMSG } from './const.js';
 import { makedog } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { m_at } from './monst.js';
+import { mcalcmove } from './mon.js';
+import { dmonsfree } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
@@ -143,9 +145,21 @@ export async function newgame() {
 export async function moveloop_core() {
     const g = game;
 
-    // Fast-forward per-step RNG (monster movement, regen, sounds, hunger)
+    // Fast-forward residual per-step RNG around the source-owned movement
+    // allocation boundary. Monster action state, regen, sounds, and hunger
+    // remain in the replay scaffold.
     const stepNum = (g.moves || 1) - 1;
-    fastforward_step(stepNum);
+    fastforward_step(stepNum, () => {
+        // C ref: allmain.c moveloop_core(). Dead monsters have already been
+        // purged at the end of their previous movement round, so every node
+        // on fmon receives a new movement ration in list order.
+        dmonsfree(g);
+        for (let monster = g.level?.monlist ?? null;
+            monster;
+            monster = monster.nmon) {
+            monster.movement += mcalcmove(monster, true, g);
+        }
+    });
 
     // Vision + display
     if (g.vision_full_recalc) {

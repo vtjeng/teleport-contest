@@ -121,6 +121,7 @@
         "js/dog.js",
         "js/makemon.js",
         "js/makemon_create.js",
+        "js/mon.js",
         "js/mondata.js",
         "js/monst.js",
         "js/monsters.js",
