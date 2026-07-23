@@ -1179,6 +1179,82 @@
         "productionDefects": []
       },
       "recordedAt": "2026-07-23T03:59:22.008Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "3cc0649943020c3968cfad9e74c5919df9e570b4",
+        "generation": "3cc0649943020c3968cfad9e74c5919df9e570b4",
+        "commands": "3cc0649943020c3968cfad9e74c5919df9e570b4"
+      },
+      "head": "76109518c4e879b444ee53cddd9617f875780888",
+      "areas": [
+        "startup",
+        "generation",
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full audit of exact command range 7d37eb5e8e8af120e59eb9424fd90c320b9ea0ce..76109518c4e879b444ee53cddd9617f875780888. Session 019f8d41-74dd-77d3-a81b-15896ffbf7ee; elapsed 1505s; usage 3569470 input, 3427584 cached, 20494 output, 6118 reasoning. Four mandatory finders plus performance and one consolidated adjudicator completed; concurrency was omitted because replay input and turn execution are serialized with no overlapping lifecycle. Counts 18 raw, 16 deduplicated, 11 confirmed, 10 applied in 080242cdc7e5a633e99e301a17cdfbca1c257872, 1 deferred, 5 rejected, 0 unverified, and no workflow warnings. Fixes cover the legal count ceiling, altmeta composition and ownership, mutable count-prefix bindings, rhack entry resets, complete count and TTY tests, movement family/repeat tests, and source-contract comments. The donull safe-wait path is deferred to roadmap item 4 because an exact fix requires its coherent hostile visibility, scare, dangerous-property, message-cadence, and result-handling dependencies; no approximation was added. Performance was applicable due added per-command lookup and repeated-turn work; its finder measured no actionable overhead. Simplification was not applicable because direct inspection found no concrete accidental complexity. The separate clarity pass covered 7d37eb5e8e8af120e59eb9424fd90c320b9ea0ce..080242cdc7e5a633e99e301a17cdfbca1c257872 in session 019f8d63-769a-7e10-bc9e-4ed8b17693df; elapsed 1234s; usage 2761630 input, 2672128 cached, 27332 output, 6572 reasoning. Its six required perspectives and one consolidated adjudicator produced 33 raw, 24 deduplicated, 19 confirmed and applied in 3eaac5d1e211f8ace64c358f7a892568582011d2, 5 rejected, 0 unverified, and no warnings. The material fixes document logical-input, count, movement, dispatch, direction-table, and binding-operation contracts and make the corresponding byte, boundary, TTY, and movement test oracles explicit; churn-only renames were rejected. The detached submodule limitation was bypassed with the clean local checkout at exact gitlink 16ff59115315917b93185d026aeefea06db9b0f4. Validation: 1012 tests, exact fresh rebound-count, altmeta-run, and meta-count differentials, the exact 107-segment first-command matrix, development 302, and diff checks passed. Counted movement reached the known next mcalcmove turn-spine boundary. No network or holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1505,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 16,
+          "confirmed": 11,
+          "applied": 10,
+          "deferred": 1,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 4,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "allow the segment runner to complete every legal command count",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "compose altmeta ESC-plus-byte logical command input",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "retain and consume mutable number-pad count-prefix bindings",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "port donull safe-wait rejection after its visibility and danger prerequisites",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "clear menu and no-pickup prefix state at every rhack entry",
+            "foundBy": [
+              "test-quality"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T05:10:57.060Z"
     }
   ]
 }
