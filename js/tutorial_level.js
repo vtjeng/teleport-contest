@@ -104,7 +104,10 @@ const SOURCE_EXTENDED_COMMAND_DEFAULTS = Object.freeze([
     ['^F', 'wizmap'], ['^W', 'wizwish'], ['z', 'zap'],
 ]);
 
-const SOURCE_NUMPAD_ALIASES = Object.freeze([
+// cmd.c commands_init() registers the number-pad compatibility aliases first,
+// then the unconditional alternate keys. Array order preserves its head
+// insertion and lookup behavior across both groups.
+const SOURCE_COMMAND_ALIASES = Object.freeze([
     ['^L', 'redraw'],
     ['h', 'help'],
     ['j', 'jump'],
@@ -238,9 +241,10 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
     model.directionBackups = DIRECTION_COMMANDS.map((commands, direction) => {
         const key = directionKeys.charCodeAt(direction);
         // cmd.c reset_commands() backs up its numpad RUN and RUSH slots
-        // separately even though both modes use the same meta-digit key.
-        // Keep the duplicate: restoration then removes that key twice, which
-        // is observable after user bindings and repeated mode transitions.
+        // separately even though both modes use the same meta-digit key. The
+        // first backup captures and removes the binding; the second captures
+        // null. Restoration later re-adds the first, then removes it with the
+        // second, which is observable after user bindings and mode changes.
         const modeKeys = enabled
             ? [key, key | 0x80, key | 0x80]
             : [key, directionKeys.toUpperCase().charCodeAt(direction), key & 0x1F];
@@ -289,7 +293,7 @@ function createCommandBindingModel(state) {
     for (const [key, command] of SOURCE_EXTENDED_COMMAND_DEFAULTS) {
         setBinding(model.bindings, commandKeyCode(key), command);
     }
-    for (const [key, command] of SOURCE_NUMPAD_ALIASES) {
+    for (const [key, command] of SOURCE_COMMAND_ALIASES) {
         setBinding(model.bindings, commandKeyCode(key), command);
     }
     resetCommandBindings(model, false, 0, true);

@@ -106,6 +106,9 @@ export async function newgame() {
     vision_recalc(0);
     await cls();
     await docrt();
+    // The first tty render and newgame()'s explicit BL_FLUSH retain the
+    // initial three-line overlap. Later dirty-field flushes, including the
+    // welcome pline after equipment is worn, use the steady-state layout.
     await flush_screen(1);
     await bot({ initialTtyRefresh: true });
 

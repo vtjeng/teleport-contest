@@ -320,6 +320,21 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
             .map(([, specification]) => specification.type),
         [SLP_GAS_TRAP, SQKY_BOARD, SLP_GAS_TRAP, SQKY_BOARD],
     );
+    assert.deepEqual(
+        doors.find(({ coord }) => coord[0] === 20 && coord[1] === 3),
+        { coord: [20, 3], state: 'open' },
+    );
+    const closedDoor = recordTutorialDescriptor({
+        // dat/tut-1.lua makes the seventh percentage draw open only below 50.
+        percent: [49, 50, 0, 99, 49, 50, 50],
+    }).find(([name, specification]) => (
+        name === 'door'
+            && specification.coord[0] === 20
+            && specification.coord[1] === 3
+    ));
+    assert.deepEqual(closedDoor, [
+        'door', { coord: [20, 3], state: 'closed' },
+    ]);
 
     const box = base.findIndex(([, specification]) => (
         specification?.id === LARGE_BOX
@@ -347,12 +362,20 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
         energy: 4,
         eckeys: { kick: '^D', down: '^J' },
     });
-    assert.ok(knight.some(([, specification]) => (
+    assert.deepEqual(knight.find(([, specification]) => (
         specification?.text === "Knights can jump with '@jump'"
-    )));
-    assert.ok(knight.some(([, specification]) => (
-        specification?.text === "Unfortunately you don't have enough energy to cast spells."
-    )));
+    )), ['engraving', {
+        coord: [12, 1], type: ENGRAVE,
+        text: "Knights can jump with '@jump'", degrade: false,
+    }]);
+    assert.deepEqual(knight.find(([, specification]) => (
+        specification?.text
+            === "Unfortunately you don't have enough energy to cast spells."
+    )), ['engraving', {
+        coord: [59, 2], type: ENGRAVE,
+        text: "Unfortunately you don't have enough energy to cast spells.",
+        degrade: false,
+    }]);
     assert.deepEqual(
         knight.filter(([, specification]) => (
             specification?.text?.startsWith('Note: Outside the tutorial')
@@ -396,7 +419,6 @@ test('tutorial command lookup retains every commands_init alias', () => {
     assert.equal(lookup('rush', [unbind('g')]), 'M-5');
     assert.equal(lookup('fight', [
         { type: 'number_pad', enabled: true, mode: 0 },
-        unbind('F'),
     ], { num_pad: true }), '-');
     assert.equal(lookup('overview', [unbind('^O')]), 'M-O');
     assert.equal(lookup('twoweapon', [unbind('X')]), 'M-2');

@@ -2052,7 +2052,12 @@ function _statusFieldData(field) {
     const title = _statusTitle();
     switch (field) {
     case 'title':
-        return { text: title.slice(_statusPlayerName().length + 5) };
+        // botl.c get_hilite() advances through BL_TITLE by the complete
+        // svp.plname length even when status formatting truncated the name.
+        // Preserve that pointer-offset quirk for long player names.
+        return {
+            text: title.slice((game.plname || 'Hero').length + 5),
+        };
     case 'strength': return { value: attrs[A_STR] ?? 0 };
     case 'dexterity': return { value: attrs[A_DEX] ?? 0 };
     case 'constitution': return { value: attrs[A_CON] ?? 0 };
@@ -2224,10 +2229,11 @@ function _statusOwnerStyle(owner) {
 function _recorderStatusStyle(style) {
     if (!style) return { color: NO_COLOR, attr: ATR_NONE };
     // Recorder patch 006 begins with terminal-default gray active. Selecting
-    // CLR_GRAY emits no observable transition, so the decoded cell is the
-    // same NO_COLOR value used by an ordinary status field.
+    // CLR_GRAY emits no observable transition, and zero-valued CLR_BLACK is
+    // decoded as that same default. Both become NO_COLOR in captured cells.
     return {
-        color: style.color === CLR_GRAY ? NO_COLOR : style.color,
+        color: style.color === CLR_GRAY || style.color === CLR_BLACK
+            ? NO_COLOR : style.color,
         attr: style.attr,
     };
 }
@@ -2379,9 +2385,8 @@ function _buildScreenOutput() {
 export async function flush_screen(mode) {
     if (game.disp?.botl || game.disp?.botlx || game.disp?.time_botl) {
         await bot({
-            // Before moveloop_preamble(), repeated tty status updates retain
-            // the initial three-row condition/optional-field overlap.  The
-            // preamble's forced refresh is the first steady-state pass.
+            // Before moveloop_preamble(), tty field dirtiness can preserve
+            // the initial three-row condition/optional-field overlap.
             initialTtyRefresh: Boolean(
                 game.program_state
                 && !game.program_state.in_moveloop
@@ -2405,7 +2410,23 @@ export async function cls() {
 
 // ── bot ──
 export async function bot({ initialTtyRefresh = false } = {}) {
-    const layouts = statusLayouts({ initialTtyRefresh });
+    const optionalSnapshot = game.iflags?.wc2_statuslines === 3
+        ? JSON.stringify(_optionalStatusEntries().map(
+            ({ field, text }) => [field, text],
+        ))
+        : '';
+    const optionalFieldsChanged = optionalSnapshot
+        !== game._statusOptionalFieldSnapshot;
+    // wintty.c renders only dirty fields. On the second initial pass,
+    // BL_CONDITION can clear unchanged BL_WEAPON/BL_ARMOR/BL_TERRAIN cells;
+    // if equipment changed meanwhile, those fields redraw afterward and
+    // restore the steady layout.
+    const retainInitialOverlap = initialTtyRefresh
+        && !optionalFieldsChanged;
+    const layouts = statusLayouts({
+        initialTtyRefresh: retainInitialOverlap,
+    });
+    game._statusOptionalFieldSnapshot = optionalSnapshot;
     game._renderedStatusLayouts = layouts;
     writeStatusRows(game?.nhDisplay, layouts);
     if (game.disp) {

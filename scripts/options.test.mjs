@@ -337,6 +337,26 @@ test('explicit boolean values reach their source-owned state', () => {
         () => parseNethackrc('OPTIONS=!mention_map:true'),
         /negated boolean/u,
     );
+
+    // options.c optfn_boolean() uses digit(*op) with atoi(op), so leading
+    // decimal 0/1 spellings may contain padding or a nonnumeric suffix.
+    for (const [value, enabled] of [
+        ['01', true], ['00', false], ['1suffix', true], ['0suffix', false],
+    ]) {
+        assert.equal(
+            parseNethackrc(`OPTIONS=mention_map:${value}`)
+                .a11y.glyph_updates,
+            enabled,
+            value,
+        );
+    }
+    for (const value of ['2', '10', '9suffix', '-1']) {
+        assert.throws(
+            () => parseNethackrc(`OPTIONS=mention_map:${value}`),
+            /not valid/u,
+            value,
+        );
+    }
 });
 
 test('whatis_coord selects each source coordinate presentation', () => {
@@ -1133,6 +1153,15 @@ test('status condition alias prefixes union every source match', () => {
         'blind', 'conf', 'deaf', 'hallucinat', 'paralyzed', 'submerged',
         'stun', 'levitate', 'fly', 'ride',
     ]);
+    for (const conditions of ['', '&']) {
+        assert.throws(
+            () => parseNethackrc(
+                `OPTIONS=hilite_status:condition/${conditions}/red`,
+            ),
+            /unknown status condition/u,
+            JSON.stringify(conditions),
+        );
+    }
 });
 
 test('showvers and versinfo preserve the release-build status selection', () => {

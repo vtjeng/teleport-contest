@@ -286,25 +286,27 @@ test('blind tactile engravings require the source reach-floor gate', async () =>
         level: { at: () => ({ typ: ROOM }) },
     };
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    make_engr_at(
-        8,
-        7,
-        'Out of reach',
-        null,
-        0,
-        ENGRAVE,
-        { state, random: noDrawRandom() },
-    );
     const messages = [];
-    assert.equal(await read_engr_at(8, 7, state, {
-        pline: async (message) => messages.push(message),
-        canReachFloor: (checkPits, receivedState) => {
-            assert.equal(checkPits, true);
-            assert.equal(receivedState, state);
-            return false;
-        },
-    }), false);
-    assert.deepEqual(messages, []);
+    for (const engravingType of [ENGRAVE, BURN]) {
+        make_engr_at(
+            8,
+            7,
+            'Out of reach',
+            null,
+            0,
+            engravingType,
+            { state, random: noDrawRandom() },
+        );
+        assert.equal(await read_engr_at(8, 7, state, {
+            pline: async (message) => messages.push(message),
+            canReachFloor: (checkPits, receivedState) => {
+                assert.equal(checkPits, true);
+                assert.equal(receivedState, state);
+                return false;
+            },
+        }), false, engravingType);
+        assert.deepEqual(messages, []);
+    }
     await assert.rejects(
         read_engr_at(8, 7, state, {
             pline: async (message) => messages.push(message),

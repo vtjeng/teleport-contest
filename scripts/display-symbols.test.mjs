@@ -130,6 +130,7 @@ import {
     ATR_INVERSE,
     ATR_NONE,
     ATR_UNDERLINE,
+    CLR_BLACK,
     CLR_BRIGHT_BLUE,
     CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
@@ -808,40 +809,93 @@ test('hero and pet symbol overrides require sysconf accessibility', () => {
     assert.equal(hero_glyph_info(state).ch, 'f');
 });
 
-test('UTF-8 hero and pet overrides survive zero raw optional symbols', () => {
-    const state = {
-        flags: {},
-        sysopt: { accessibility: 1 },
-        u: { umonnum: 0 },
-        urace: { mnum: 1 },
-        mons: [
-            { mlet: S_HUMAN, mcolor: CLR_RED },
-            { mlet: S_FELINE, mcolor: CLR_WHITE },
-        ],
-    };
+test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () => {
     const configured = parseNethackrc([
         'OPTIONS=symset:Enhanced1',
         'SYMBOLS=S_pet_override:U+2603,S_hero_override:U+2602',
     ].join('\n'));
-    state.iflags = { ...configured.iflags };
-    initialize_symbols_from_options(configured, state);
-    const pet = {
-        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
-        mtame: 10,
+    const makeState = (heroAtCell) => {
+        const state = resetGame();
+        state.level = new GameMap();
+        state.level.at(7, 4).typ = ROOM;
+        state.flags = {};
+        state.sysopt = { accessibility: 1 };
+        state.u = {
+            ux: heroAtCell ? 7 : 1,
+            uy: heroAtCell ? 4 : 1,
+            umonnum: 0,
+        };
+        state.urace = { mnum: 1 };
+        state.mons = [
+            { mlet: S_HUMAN, mcolor: CLR_RED },
+            { mlet: S_FELINE, mcolor: CLR_WHITE },
+        ];
+        state.iflags = { ...configured.iflags };
+        initialize_symbols_from_options(configured, state);
+        state.viz_array = [];
+        state.viz_array[4] = [];
+        state.viz_array[4][7] = 0x2; // vision.h IN_SIGHT
+        state.nhDisplay = new GameDisplay(null);
+        return state;
     };
 
+    let state = makeState(true);
     assert.deepEqual(hero_glyph_info(state), {
         ch: null,
         color: CLR_RED,
         dec: false,
         displayCh: '☂',
     });
+    newsym(7, 4);
+    assert.deepEqual(
+        {
+            ch: state.level.at(7, 4).disp_ch,
+            color: state.level.at(7, 4).disp_color,
+            attr: state.level.at(7, 4).disp_attr,
+            browserCh: state.level.at(7, 4).disp_browser_ch,
+        },
+        { ch: ' ', color: NO_COLOR, attr: ATR_NONE, browserCh: '☂' },
+    );
+    enableBrowserProjection(state.nhDisplay);
+    await flush_screen(1);
+    assert.deepEqual(
+        state.nhDisplay.grid[5][6],
+        { ch: '☂', color: CLR_RED, attr: ATR_NONE },
+    );
+
+    state = makeState(false);
+    const pet = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mtame: 10,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: 0,
+        mx: 7,
+        my: 4,
+    };
+    state.level.monsters[7][4] = pet;
     assert.deepEqual(monster_glyph_info(pet, state), {
         ch: null,
         color: CLR_WHITE,
         dec: false,
         displayCh: '☃',
     });
+    newsym(7, 4);
+    assert.deepEqual(
+        {
+            ch: state.level.at(7, 4).disp_ch,
+            color: state.level.at(7, 4).disp_color,
+            attr: state.level.at(7, 4).disp_attr,
+            browserCh: state.level.at(7, 4).disp_browser_ch,
+        },
+        { ch: ' ', color: NO_COLOR, attr: ATR_NONE, browserCh: '☃' },
+    );
+    enableBrowserProjection(state.nhDisplay);
+    await flush_screen(1);
+    assert.deepEqual(
+        state.nhDisplay.grid[5][6],
+        { ch: '☃', color: CLR_WHITE, attr: ATR_NONE },
+    );
 
     state.iflags.customsymbols = false;
     assert.deepEqual(hero_glyph_info(state), {
@@ -2062,12 +2116,16 @@ test('initial three-line status preserves tty overlap until the forced refresh',
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     const parsed = parseNethackrc(
         'OPTIONS=cond_barehanded\n'
-        + 'OPTIONS=hilite_status:condition/blind/red&bold',
+        + 'OPTIONS=hilite_status:condition/blind/red&bold '
+        + 'version/always/bright-blue',
     );
     state.iflags = { ...parsed.iflags, wc2_statuslines: 3 };
     state.program_state = { in_moveloop: 0 };
     state.disp = {};
 
+    // The first pass seeds wintty's BEFORE values; the explicit second pass
+    // then exposes the unchanged-field overlap under test.
+    await bot();
     await bot({ initialTtyRefresh: true });
 
     // The condition starts at the preceding row's hunger slot (column 45),
@@ -2084,6 +2142,22 @@ test('initial three-line status preserves tty overlap until the forced refresh',
         { color: CLR_RED, attr: ATR_BOLD },
         'initial overlapping Blind condition',
     );
+    assertCellRange(
+        state,
+        23,
+        49,
+        25,
+        { color: NO_COLOR, attr: ATR_NONE },
+        'initial condition-to-version gap',
+    );
+    assertCellRange(
+        state,
+        23,
+        74,
+        5,
+        { color: CLR_BRIGHT_BLUE, attr: ATR_NONE },
+        'initial overlapping version',
+    );
 
     state.disp.botlx = false;
     await docrt();
@@ -2097,6 +2171,14 @@ test('initial three-line status preserves tty overlap until the forced refresh',
         + 'Bare-hnds Naked Stairs'.padEnd(47)
         + '5.0.0';
     assert.equal(terminalRow(state, 23), refreshedRow.padEnd(80));
+    assertCellRange(
+        state,
+        23,
+        74,
+        5,
+        { color: CLR_BRIGHT_BLUE, attr: ATR_NONE },
+        'steady-state version',
+    );
     assert.equal(state.disp.botlx, false);
 
     state.disp.botlx = false;
@@ -2414,6 +2496,8 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
         { field: 'weapon', text: 'Spear', threeRow: 23 },
         { field: 'armor', text: 'Shield', threeRow: 23 },
         { field: 'terrain', text: 'Stairs', threeRow: 23 },
+        { field: 'alignment', text: 'Chaotic', twoRow: 22, threeRow: 22,
+            twoAfter: false },
     ];
     const expected = { color: CLR_RED, attr: ATR_BOLD };
 
@@ -2427,7 +2511,8 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
                 wc2_statuslines: lines,
             };
             await bot();
-            const row = lines === 2 ? 23 : expectedField.threeRow;
+            const row = lines === 2
+                ? expectedField.twoRow ?? 23 : expectedField.threeRow;
             const from = expectedField.afterPrefix
                 ? terminalRow(state, row).indexOf(expectedField.afterPrefix)
                     + expectedField.afterPrefix.length
@@ -2440,7 +2525,9 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
                 {
                     from,
                     before: expectedField.before !== false,
-                    after: expectedField.after !== false,
+                    after: lines === 2
+                        ? expectedField.twoAfter !== false
+                        : expectedField.after !== false,
                 },
             );
         }
@@ -2525,6 +2612,14 @@ test('status highlight rules preserve source matching and precedence', async () 
         CLR_BRIGHT_GREEN,
         'a later fuzzy text match replaces the always fallback',
     );
+    state.plname = 'ABCDEFGHIJKLMNOPQRSTUVWX';
+    await bot();
+    assert.equal(
+        state.nhDisplay.grid[22][0].color,
+        CLR_RED,
+        'title matching skips by the full source player-name length',
+    );
+    state.plname = 'Hero';
 
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     state.u.uroleplay.deaf = true;
@@ -2550,13 +2645,15 @@ test('status highlight rules preserve source matching and precedence', async () 
     );
 });
 
-test('gray status rules normalize at the recorder-facing grid boundary', async () => {
+test('gray and black status rules normalize at the recorder-facing grid boundary', async () => {
     const state = statusRenderingState();
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     const parsed = parseNethackrc(
         'OPTIONS=hilite_status:gold/always/gray&bold '
-        + 'power/always/red&underline hitpoints/always/gray&bold\n'
-        + 'OPTIONS=hilite_status:condition/blind/gray&underline',
+        + 'armor-class/always/gray\n'
+        + 'OPTIONS=hilite_status:power/always/red&underline '
+        + 'hitpoints/always/black&bold time/always/black\n'
+        + 'OPTIONS=hilite_status:condition/blind/black&underline',
     );
     state.iflags = { ...parsed.iflags, wc2_statuslines: 2 };
     await bot();
@@ -2566,6 +2663,12 @@ test('gray status rules normalize at the recorder-facing grid boundary', async (
         23,
         '$:50',
         { color: NO_COLOR, attr: ATR_BOLD },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        'AC:8',
+        { color: NO_COLOR, attr: ATR_NONE },
     );
     assertStatusTextStyle(
         state,
@@ -2585,6 +2688,12 @@ test('gray status rules normalize at the recorder-facing grid boundary', async (
         'Blind',
         { color: NO_COLOR, attr: ATR_UNDERLINE },
     );
+    assertStatusTextStyle(
+        state,
+        23,
+        'T:7',
+        { color: NO_COLOR, attr: ATR_NONE },
+    );
 
     state.iflags.wc2_hitpointbar = true;
     await bot();
@@ -2594,7 +2703,7 @@ test('gray status rules normalize at the recorder-facing grid boundary', async (
         1,
         18,
         { color: NO_COLOR, attr: ATR_INVERSE },
-        'gray full-HP visible title',
+        'black full-HP visible title',
     );
     assert.deepEqual(
         {
@@ -2602,9 +2711,10 @@ test('gray status rules normalize at the recorder-facing grid boundary', async (
             attr: state.nhDisplay.grid[22][19].attr,
         },
         { color: NO_COLOR, attr: ATR_NONE },
-        'gray HP-bar padding stays at terminal defaults',
+        'black HP-bar padding stays at terminal defaults',
     );
     assert.notEqual(CLR_GRAY, NO_COLOR, 'the assertion detects normalization');
+    assert.notEqual(CLR_BLACK, NO_COLOR, 'black is distinct before capture');
 });
 
 test('three-line status clips the map around a bottom-row hero', async () => {

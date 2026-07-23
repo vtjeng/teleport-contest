@@ -11,7 +11,9 @@ import {
     VERSION_MAJOR,
     VERSION_MINOR,
     WEB,
+    HWALL,
     WM_C_INNER,
+    WM_W_LEFT,
     W_NONDIGGABLE,
 } from '../js/const.js';
 import { engr_at } from '../js/engrave.js';
@@ -41,7 +43,7 @@ import {
     rnl,
 } from '../js/rng.js';
 import { vfsWriteFile } from '../js/storage.js';
-import { Terminal } from '../js/terminal.js';
+import { CLR_BRIGHT_BLUE, Terminal } from '../js/terminal.js';
 
 async function runWithGridCapture(input) {
     const previous = Terminal.prototype.serialize;
@@ -399,6 +401,39 @@ test('explore notice preserves the welcome boundary before preamble RNG', async 
     assert.equal(game.program_state.in_moveloop, 1);
 });
 
+test('newgame preserves the initial three-line tty refresh at welcome More', async () => {
+    const { session, grids } = await runWithGridCapture({
+        // Independently chosen startup inputs exercise the explicit bot()
+        // call in allmain.c newgame(), after its flush-triggered first pass.
+        seed: 1_355_433,
+        datetime: '20000110013159',
+        nethackrc: 'OPTIONS=name:Closure7,role:Arc,race:Gno,'
+            + 'gender:Fem,align:Neu\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,blind,statuslines:3,'
+            + 'time,showvers,weaponstatus,armorstatus,terrainstatus\n'
+            + 'OPTIONS=hilite_status:condition/blind/red&bold '
+            + 'version/always/bright-blue\n',
+        moves: '',
+    });
+
+    assert.deepEqual(session.getCursors(), [[21, 1, 1]]);
+    assert.equal(grids.length, 1);
+    assert.equal(
+        rowText(grids[0], 23),
+        'Dlvl:1 T:1'.padEnd(17) + 'Whip AH Stairs'.padEnd(57) + '5.0.0',
+    );
+    assert.deepEqual(
+        grids[0][23].slice(74, 79).map(({ ch, color, attr }) => (
+            [ch, color, attr]
+        )),
+        [...'5.0.0'].map((ch) => [ch, CLR_BRIGHT_BLUE, 0]),
+    );
+    assert.equal(
+        gridDigest(grids[0]),
+        '412b8be3e01df5be71abc0a9a6aa7d0805bb79afeadf4301f8e1cf7ba295306a',
+    );
+});
+
 test('startup accessibility notices preserve complete command-boundary state', async () => {
     const mentionMap = await runWithGridCapture({
         seed: 19,
@@ -477,6 +512,69 @@ test('startup accessibility notices preserve complete command-boundary state', a
             [2, 'e83fc4d48b2347dc71e2b45a245eff6f12db842956dcf6830423e996bda8c75c'],
         ],
     );
+});
+
+test('startup accessibility notices use configured non-default coordinates', async () => {
+    const cases = [
+        {
+            mode: 'map',
+            rows: [
+                'Hello Named, welcome to NetHack!  '
+                    + 'You are a neutral male human Healer.--More--',
+                'You are in a rectangular 7 by 3 room.  '
+                    + '<23,3>: doorway.  <25,3>: sink.--More--',
+                '<25,4>: tame little dog called Fido.  '
+                    + '<23,5>: doorway.--More--',
+                '<24,6>: closed door.',
+            ],
+            digests: [
+                '26761a4b8bc034e2aaa178a256b55a8e57c692bbed2465277f47082634547771',
+                'dedf0f6a1e7e87396a35dadb3d02b18c79243338312fe379630fe41b7990220d',
+                'a4ec3f0e8ba302a03e20ce9c51fa615152c9cc4958752cc1dfc0440e966c1780',
+                '9220a48d8f6301f779cd6f104b231746cf92ea6d08028535e95907337700088b',
+            ],
+        },
+        {
+            mode: 'screen',
+            rows: [
+                'Hello Named, welcome to NetHack!  '
+                    + 'You are a neutral male human Healer.--More--',
+                'You are in a rectangular 7 by 3 room.  '
+                    + '[05,23]: doorway.--More--',
+                '[05,25]: sink.  [06,25]: tame little dog called Fido.--More--',
+                '[07,23]: doorway.  [08,24]: closed door.',
+            ],
+            digests: [
+                '26761a4b8bc034e2aaa178a256b55a8e57c692bbed2465277f47082634547771',
+                'b0d560e2fe0361468b1c2e670b442138ba2e32588530cdca569ae1d1a431b19d',
+                '3df4c903ca3b2337f37f14e1581d3e67b518ec76e5aa12ee30d727cd16214004',
+                '7d82e89962d46e52686e18a05456eb05d77c981930139c870460cc60f8c985f6',
+            ],
+        },
+    ];
+
+    for (const expected of cases) {
+        const result = await runWithGridCapture({
+            // Reuse one fresh seed so only the coordinate presentation varies.
+            seed: 19,
+            datetime: '20000110090000',
+            nethackrc: 'OPTIONS=name:Named,role:Healer,race:human,'
+                + 'gender:male,align:neutral,dogname:Fido\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,mention_map:01,'
+                + `spot_monsters,whatis_coord:${expected.mode}\n`,
+            moves: '   ',
+        });
+        assert.deepEqual(
+            result.grids.map((grid) => rowText(grid, 0)),
+            expected.rows,
+            expected.mode,
+        );
+        assert.deepEqual(
+            result.grids.map(gridDigest),
+            expected.digests,
+            `${expected.mode} complete grids and attributes`,
+        );
+    }
 });
 
 test('wd_message preserves denied-mode message and cleanup order', async () => {
@@ -746,6 +844,13 @@ test('configured tutorial choices skip the query or reach its first command', as
         'level finalization applies both non-diggability and wall angles',
     );
     assert.equal(corner.lit, true);
+    // dat/tut-1.lua row 3 reaches map column 74; this catches using the
+    // ordinary COLNO-1 bound while finalizing the wider special-level map.
+    const farRightWall = game.level.at(74, 3);
+    assert.deepEqual(
+        { typ: farRightWall.typ, wallInfo: farRightWall.wall_info },
+        { typ: HWALL, wallInfo: W_NONDIGGABLE | WM_W_LEFT },
+    );
     assert.equal(game.level.at(34, 12).lit, false);
     assert.equal(game.level.at(56, 5).lit, false);
     assert.deepEqual(
