@@ -23,7 +23,7 @@ import {
 } from './tty_message.js';
 import { vision_recalc } from './vision.js';
 
-const LARGEST_INT = 32767;
+export const MAX_COMMAND_COUNT = 32767;
 const ESC = 0x1B;
 const BACKSPACE = 0x08;
 const DELETE = 0x7F;
@@ -66,6 +66,21 @@ function isDigit(key) {
     return key >= 0x30 && key <= 0x39;
 }
 
+// C ref: cmd.c readchar_core().  The window port supplies physical bytes;
+// this layer owns the logical command byte, including altmeta's ESC+byte
+// composition and input_state reset after every completed read.
+async function readCommandKey(state) {
+    let key = (await nhgetch(state)) & 0xFF;
+    if (key === ESC && state.iflags.altmeta
+        && state.program_state.input_state !== 'other') {
+        const following = (await nhgetch(state)) & 0xFF;
+        if (following === 0 || following === ESC) key = ESC;
+        else key = following | 0x80;
+    }
+    state.program_state.input_state = 'other';
+    return key;
+}
+
 // C ref: cmd.c get_count().  The command parser passes allowchars == NULL,
 // so the first non-digit other than erase or Escape terminates the count.
 async function getCount(state, inkey = 0) {
@@ -74,17 +89,25 @@ async function getCount(state, inkey = 0) {
     let hasInkey = Boolean(inkey);
     let backspaced = false;
     let showZero = true;
+    const savedInputState = state.program_state.input_state;
 
     for (;;) {
         if (hasInkey) {
             hasInkey = false;
         } else {
-            key = await nhgetch(state);
+            // readchar_core() resets this after each physical read.  Counts
+            // restore commandInp so ESC+byte remains one meta command after
+            // any number of digits.
+            state.program_state.input_state = savedInputState;
+            key = await readCommandKey(state);
         }
 
         if (isDigit(key)) {
             // AppendLongDigit() followed by parse()'s LARGEST_INT limit.
-            count = Math.min(LARGEST_INT, count * 10 + key - 0x30);
+            count = Math.min(
+                MAX_COMMAND_COUNT,
+                count * 10 + key - 0x30,
+            );
             showZero = key === 0x30;
         } else if (key === BACKSPACE || key === DELETE) {
             if (!count) break;
@@ -132,9 +155,16 @@ export async function parseCommand(state = game) {
         if (!state.iflags.num_pad) {
             parsed = await getCount(state);
         } else {
-            const key = await nhgetch(state);
-            // cmd.c's NHKF_COUNT binding is 'n' while number_pad is enabled.
-            parsed = key === 0x6E ? await getCount(state) : { key, count: 0 };
+            const key = await readCommandKey(state);
+            const countKey = commandBindings(state).specialKeys.count;
+            if (key === countKey) {
+                // The initial read reset input_state; get_count() restores
+                // commandInp so altmeta also works after the count prefix.
+                state.program_state.input_state = 'command';
+                parsed = await getCount(state);
+            } else {
+                parsed = { key, count: 0 };
+            }
         }
     } catch (error) {
         // A replay can intentionally stop at this live input wait. C never
@@ -241,13 +271,16 @@ async function executeMovement(command, firstTime, state) {
         if (state.multi) state.context.mv = 1;
     } else {
         if (firstTime) {
+            // Upstream uses max(COLNO, ROWNO) as the uncounted-run sentinel.
+            // Explicit movement counts at or above COLNO intentionally share
+            // its run-until-stopped treatment in moveloop_core().
             if (!state.multi) state.multi = COLNO;
             state.u.last_str_turn = 0;
         }
         state.context.mv = 1;
     }
     await domove(state);
-    state.context.forcefight = 0;
+    if (!run) state.context.forcefight = 0;
     state.iflags.menu_requested = false;
 }
 
@@ -255,6 +288,12 @@ async function executeMovement(command, firstTime, state) {
 // dispatched here; later command families retain the existing unknown-command
 // behavior until their complete handlers are ported.
 export async function rhack(key, state = game) {
+    state.iflags ??= {};
+    state.context ??= {};
+    // C resets both prefix effects at every rhack() entry, including repeats.
+    state.iflags.menu_requested = false;
+    state.context.nopick = 0;
+
     const firstTime = key === 0;
     if (firstTime) key = await parseCommand(state);
 
@@ -270,6 +309,9 @@ export async function rhack(key, state = game) {
 
     const command = commandForKey(commandBindings(state), key);
     if (command === 'wait') {
+        // This is the ordinary time-consuming subset of do.c donull().  Its
+        // safe-wait rejection path depends on the later coherent monster
+        // visibility/scare and dangerous-property boundary (roadmap item 4).
         state.context.move = 1;
         return;
     }

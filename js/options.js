@@ -291,6 +291,7 @@ function defaultResult() {
             wc_eight_bit_input: false,
             wc2_statuslines: 2,
             wc2_petattr: ATR_INVERSE,
+            altmeta: false,
             hilite_delta: 0,
             status_hilites: [],
             status_conditions: { ...DEFAULT_STATUS_CONDITIONS },
@@ -1578,10 +1579,17 @@ function applyMenuBinding(result, binding, lineNumber) {
         if (!key) {
             optionError(lineNumber, `unknown key binding key '${keyText}'`);
         }
-        if (SPECIAL_KEY_COMMANDS.has(commandName)) return;
-        // Keep gameplay bindings in source application order. The first
-        // consumer is nh.eckey() while loading tut-1; command execution still
-        // belongs to the later turn milestone.
+        if (SPECIAL_KEY_COMMANDS.has(commandName)) {
+            result.commandOperations.push({
+                type: 'special_key',
+                key,
+                command: commandName,
+            });
+            return;
+        }
+        // Keep gameplay bindings in source application order. Both nh.eckey()
+        // while loading tut-1 and runtime command dispatch consume the shared
+        // command model; gameplayBindings remains the Lua-facing projection.
         const operation = {
             key,
             command: commandName.toLowerCase(),
@@ -1597,7 +1605,7 @@ function applyMenuBinding(result, binding, lineNumber) {
 }
 
 // C ref: options.c optfn_number_pad(). These fields affect cmd_from_ecname()
-// during tutorial generation even though command dispatch remains unported.
+// during tutorial generation and the same source-ordered runtime bindings.
 function setNumberPadOption(result, value, negated, lineNumber) {
     let enabled;
     let mode;
@@ -1682,6 +1690,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.menu_overlay = enabled;
     } else if (name === 'eight_bit_tty') {
         result.iflags.wc_eight_bit_input = enabled;
+    } else if (name === 'altmeta') {
+        result.iflags.altmeta = enabled;
     } else if (name === 'customcolors' || name === 'customsymbols') {
         result.iflags[name] = enabled;
     } else if (name === 'pushweapon') result.flags.pushweapon = enabled;
@@ -1708,7 +1718,7 @@ const HANDLED_BOOLEAN_OPTIONS = new Set([
     'splash_screen',
     'status_updates', 'accessiblemsg', 'mention_map', 'spot_monsters',
     'menu_overlay', 'eight_bit_tty', 'customcolors', 'customsymbols',
-    'pushweapon', 'rest_on_space', 'showexp', 'time', 'verbose',
+    'altmeta', 'pushweapon', 'rest_on_space', 'showexp', 'time', 'verbose',
 ]);
 
 function setWhatisCoord(result, value, negated, lineNumber) {

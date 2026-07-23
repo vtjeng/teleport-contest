@@ -157,8 +157,11 @@ export async function moveloop_core() {
     await flush_screen(1);
 
     // C ref: allmain.c moveloop_core(). A positive multi repeats the saved
-    // command without another input boundary. Movement repeats its established
-    // intent directly; other counted commands re-enter rhack() with cmd_key.
+    // command without another input boundary. For movement, values below
+    // COLNO are remaining finite repeats; COLNO and above are the source's
+    // run-until-stopped sentinel range and are not decremented here. Movement
+    // repeats its established intent directly; other counted commands re-enter
+    // rhack() with cmd_key.
     g.context.move = 1;
     if ((g.multi ?? 0) > 0) {
         if (g.context.mv) {

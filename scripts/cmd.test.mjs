@@ -6,11 +6,19 @@ import {
     commandKeyCode,
     createCommandBindingModel,
 } from '../js/command_bindings.js';
-import { parseCommand, rhack } from '../js/cmd.js';
+import { moveloop_core } from '../js/allmain.js';
+import {
+    MAX_COMMAND_COUNT,
+    parseCommand,
+    resetCommandVars,
+    rhack,
+} from '../js/cmd.js';
+import { COLNO, ROOM } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
+import { CLR_GRAY } from '../js/terminal.js';
 import { ttyPline } from '../js/tty_message.js';
 
 // This non-Friday-the-13th, non-moon-boundary afternoon keeps command tests
@@ -28,7 +36,11 @@ function parserState(keys) {
     game.u = {};
     // Avoid invoking the status formatter: these tests isolate command input.
     game._renderedStatusLayouts = [];
-    for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));
+    for (const key of keys) {
+        game.nhDisplay.pushKey(
+            typeof key === 'number' ? key : key.charCodeAt(0),
+        );
+    }
     return game;
 }
 
@@ -51,6 +63,77 @@ test('runtime bindings preserve option order, number-pad layout, and rest', () =
             commandForKey(model, commandKeyCode(key))
         )),
         ['movewest', 'movenorth', 'moveeast', 'movesouth'],
+    );
+});
+
+test('special count-key bindings retain their source byte namespace', async () => {
+    const cases = [
+        ['x', 'x'.charCodeAt(0)],
+        ['7', '7'.charCodeAt(0)],
+        ['^X', 0x18],
+        ['M-x', 0xF8],
+    ];
+    const baseline = createCommandBindingModel(
+        parseNethackrc('OPTIONS=number_pad'),
+    );
+    for (const [keyText, expected] of cases) {
+        const parsed = parseNethackrc(
+            `OPTIONS=number_pad\nBINDINGS=${keyText}:count`,
+        );
+        const model = createCommandBindingModel(parsed);
+        assert.equal(model.specialKeys.count, expected, keyText);
+        assert.equal(
+            commandForKey(model, expected),
+            commandForKey(baseline, expected),
+            `${keyText} must not replace an extended-command binding`,
+        );
+    }
+
+    const parsed = parseNethackrc(
+        'OPTIONS=number_pad\nBINDINGS=x:count',
+    );
+    const state = parserState('x12.');
+    state.flags = parsed.flags;
+    state.iflags = parsed.iflags;
+    state.commandOperations = parsed.commandOperations;
+
+    const key = await parseCommand(state);
+
+    assert.equal(key, commandKeyCode('.'));
+    assert.equal(state.commandCount, 12);
+    assert.equal(state.multi, 11);
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+});
+
+test('logical command reads compose altmeta across counts and number-pad input', async () => {
+    for (const following of [0, 0x1B]) {
+        const state = parserState([0x1B, following]);
+        state.iflags.altmeta = true;
+        assert.equal(await parseCommand(state), 0x1B);
+        assert.equal(state.commandCount, 0);
+        assert.equal(state.program_state.input_state, 'other');
+        assert.equal(state.nhDisplay.inputQueueLength, 0);
+    }
+
+    const ordinary = parserState([0x1B, 'x']);
+    ordinary.iflags.altmeta = true;
+    assert.equal(await parseCommand(ordinary), 0xF8);
+    assert.equal(ordinary.nhDisplay.inputQueueLength, 0);
+
+    const counted = parserState(['1', 0x1B, 'x']);
+    counted.iflags.altmeta = true;
+    assert.equal(await parseCommand(counted), 0xF8);
+    assert.equal(counted.commandCount, 1);
+    assert.equal(counted.multi, 0);
+
+    const numberPad = parserState([0x1B, '4']);
+    numberPad.iflags.num_pad = true;
+    numberPad.iflags.altmeta = true;
+    const metaFour = await parseCommand(numberPad);
+    assert.equal(metaFour, 0xB4);
+    assert.equal(
+        commandForKey(numberPad.commandBindings, metaFour),
+        'runwest',
     );
 });
 
@@ -80,6 +163,94 @@ test('parseCommand echoes a multi-digit count only at source boundaries', async 
     // The nine visible bytes in "Count: 12" leave the source cursor at 9.
     assert.deepEqual(boundaries.at(-1).cursor, [9, 0]);
     assert.equal(topLine(state), '');
+});
+
+test('count editing preserves erase, leading-zero, and cancellation branches', async () => {
+    const cases = [
+        {
+            name: 'backspace then append',
+            keys: ['1', '2', 0x08, '3', '.'],
+            key: commandKeyCode('.'),
+            count: 13,
+            multi: 12,
+            boundaryLines: ['Ready', 'Ready', 'Count: 12', 'Count: 1',
+                'Count: 13'],
+        },
+        {
+            name: 'delete to zero',
+            keys: ['1', 0x7F, '.'],
+            key: commandKeyCode('.'),
+            count: 0,
+            multi: 0,
+            boundaryLines: ['Ready', 'Ready', 'Count:'],
+        },
+        {
+            name: 'leading zero',
+            keys: ['0', '.'],
+            key: commandKeyCode('.'),
+            count: 0,
+            multi: 0,
+            boundaryLines: ['Ready', 'Ready'],
+        },
+        {
+            name: 'escape cancellation',
+            keys: ['1', '2', 0x1B],
+            key: 0x1B,
+            count: 0,
+            multi: 0,
+            boundaryLines: ['Ready', 'Ready', 'Count: 12'],
+        },
+    ];
+
+    for (const entry of cases) {
+        const state = parserState(entry.keys);
+        await ttyPline('Ready', state);
+        const boundaries = [];
+        state._preNhgetchHook = () => boundaries.push(topLine(state));
+
+        const key = await parseCommand(state);
+
+        assert.equal(key, entry.key, entry.name);
+        assert.equal(state.commandCount, entry.count, entry.name);
+        assert.equal(state.lastCommandCount, entry.count, entry.name);
+        assert.equal(state.multi, entry.multi, entry.name);
+        assert.deepEqual(boundaries, entry.boundaryLines, entry.name);
+        assert.deepEqual(
+            [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+            [0, 0],
+            entry.name,
+        );
+        assert.equal(topLine(state), '', entry.name);
+    }
+});
+
+test('command parsing clears complete styled TTY state but retains toplines', async () => {
+    const state = parserState('12.');
+    for (let column = 0; column < state.nhDisplay.cols; ++column)
+        state.nhDisplay.setCell(column, 0, 'X', 2, 3);
+    state._pending_message = 'Ready';
+    state._ttyToplines = 'Ready';
+    state.nhDisplay.topMessage = 'Ready';
+    state.nhDisplay.toplines = 'Ready';
+    state.nhDisplay.toplin = 1;
+
+    await parseCommand(state);
+
+    assert.deepEqual(
+        state.nhDisplay.grid[0],
+        Array.from({ length: state.nhDisplay.cols }, () => ({
+            ch: ' ', color: CLR_GRAY, attr: 0,
+        })),
+    );
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        [0, 0],
+    );
+    assert.equal(state._pending_message, '');
+    assert.equal(state.nhDisplay.toplin, 0);
+    assert.equal(state._ttyToplines, 'Count: 12');
+    assert.equal(state.nhDisplay.topMessage, 'Count: 12');
+    assert.equal(state.nhDisplay.toplines, 'Count: 12');
 });
 
 test('number-pad count prefix feeds the same saturating parser', async () => {
@@ -114,6 +285,177 @@ test('a counted wait repeats without reading another command key', async () => {
     // Input is read for the digit, the command, then the next live prompt;
     // the two repeated waits introduce no input boundary of their own.
     assert.equal(replay.getScreens().length, 3);
+});
+
+test('the segment runner completes counts around and at the portable limit', async () => {
+    for (const count of [1023, 1024, 1100, MAX_COMMAND_COUNT]) {
+        const replay = await runSegment({
+            seed: 840003,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:CountLimit,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen',
+            moves: `${count}.`,
+        });
+
+        assert.equal(game.moves, count + 1, `count ${count}`);
+        assert.equal(game.multi, 0, `count ${count}`);
+        assert.equal(game._commandDispatchCount, count, `count ${count}`);
+        assert.ok(replay.getScreens().length > 0, `count ${count}`);
+    }
+});
+
+test('rhack clears menu and no-pickup prefix state on every entry', async () => {
+    const state = parserState('..');
+    for (const firstTime of [true, false]) {
+        state.iflags.menu_requested = true;
+        state.context.nopick = 1;
+
+        await rhack(firstTime ? 0 : commandKeyCode('.'), state);
+
+        assert.equal(state.iflags.menu_requested, false);
+        assert.equal(state.context.nopick, 0);
+        assert.equal(state.context.move, 1);
+    }
+});
+
+test('counted movement repeats intent without extra dispatch or input', async () => {
+    const replay = await runSegment({
+        seed: 840004,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:MoveCount,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n'
+            + 'BINDINGS=x:movewest',
+        moves: '',
+    });
+    const start = [game.u.ux, game.u.uy];
+    const initialScreens = replay.getScreens().length;
+    for (let distance = 1; distance <= 3; ++distance) {
+        const square = game.level.at(start[0] - distance, start[1]);
+        square.typ = ROOM;
+        square.flags = square.doormask = 0;
+    }
+    game.nhDisplay.pushKey(commandKeyCode('3'));
+    game.nhDisplay.pushKey(commandKeyCode('x'));
+
+    for (let turn = 0; turn < 3; ++turn) await moveloop_core();
+    await assert.rejects(moveloop_core(), /Input queue empty/u);
+
+    assert.deepEqual([game.u.ux, game.u.uy], [start[0] - 3, start[1]]);
+    assert.equal(game.moves, 4);
+    assert.equal(game.multi, 0);
+    assert.equal(game.context.mv, 0);
+    assert.equal(game.context.run, 0);
+    assert.equal(game._commandDispatchCount, 1);
+    assert.equal(replay.getScreens().length - initialScreens, 3);
+});
+
+test('movement repeat counts preserve the COLNO sentinel threshold', async () => {
+    await runSegment({
+        seed: 840004,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:MoveSentinel,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+    const start = [game.u.ux, game.u.uy];
+    const destination = game.level.at(start[0] + 1, start[1]);
+    destination.typ = ROOM;
+    destination.flags = destination.doormask = 0;
+
+    for (const [initial, expected] of [
+        [2, 1],
+        [COLNO, COLNO],
+        [COLNO + 1, COLNO + 1],
+    ]) {
+        game.u.ux = start[0];
+        game.u.uy = start[1];
+        game.u.dx = 1;
+        game.u.dy = 0;
+        game.context.mv = 1;
+        game.context.run = 1;
+        game.multi = initial;
+
+        await moveloop_core();
+
+        assert.equal(game.multi, expected, `initial multi ${initial}`);
+    }
+});
+
+test('all source direction families dispatch their exact movement intent', async () => {
+    await runSegment({
+        seed: 840004,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:MoveIntents,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+    const start = [game.u.ux, game.u.uy];
+    const directions = [
+        ['h', -1, 0], ['y', -1, -1], ['k', 0, -1], ['u', 1, -1],
+        ['l', 1, 0], ['n', 1, 1], ['j', 0, 1], ['b', -1, 1],
+    ];
+    const modes = [
+        ['walk', (key) => key.charCodeAt(0), 0],
+        ['run', (key) => key.toUpperCase().charCodeAt(0), 1],
+        ['rush', (key) => key.toUpperCase().charCodeAt(0) & 0x1F, 3],
+    ];
+
+    for (const [mode, keyCode, expectedRun] of modes) {
+        for (const [key, dx, dy] of directions) {
+            resetCommandVars(game);
+            game.u.ux = start[0];
+            game.u.uy = start[1];
+            const square = game.level.at(start[0] + dx, start[1] + dy);
+            square.typ = ROOM;
+            square.flags = square.doormask = 0;
+
+            await rhack(keyCode(key), game);
+
+            assert.deepEqual(
+                [game.u.dx, game.u.dy, game.u.dz],
+                [dx, dy, 0],
+                `${mode} ${key}`,
+            );
+            assert.equal(game.context.run, expectedRun, `${mode} ${key}`);
+            assert.equal(
+                game.context.mv,
+                expectedRun ? 1 : 0,
+                `${mode} ${key}`,
+            );
+            assert.deepEqual(
+                [game.u.ux, game.u.uy],
+                [start[0] + dx, start[1] + dy],
+                `${mode} ${key}`,
+            );
+        }
+    }
+});
+
+test('first-time run and altmeta number-pad run establish run state', async () => {
+    await runSegment({
+        seed: 840004,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:RunIntent,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'number_pad,altmeta',
+        moves: '',
+    });
+    const start = [game.u.ux, game.u.uy];
+    const west = game.level.at(start[0] - 1, start[1]);
+    west.typ = ROOM;
+    west.flags = west.doormask = 0;
+    game.u.last_str_turn = 99;
+    game.nhDisplay.pushKey(0x1B);
+    game.nhDisplay.pushKey(commandKeyCode('4'));
+
+    await rhack(0, game);
+
+    assert.deepEqual([game.u.dx, game.u.dy, game.u.dz], [-1, 0, 0]);
+    assert.equal(game.context.run, 1);
+    assert.equal(game.context.mv, 1);
+    assert.equal(game.multi, COLNO);
+    assert.equal(game.u.last_str_turn, 0);
 });
 
 test('runtime dispatch applies a configured movement binding', async () => {

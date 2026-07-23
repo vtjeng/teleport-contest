@@ -10,6 +10,7 @@
 // For browser play, see nethack.js (uses NethackGame directly).
 
 import { game, resetGame } from './gstate.js';
+import { MAX_COMMAND_COUNT } from './cmd.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import { newgame, moveloop_core } from './allmain.js';
 import { parseNethackrc } from './options.js';
@@ -443,7 +444,13 @@ export async function runSegment(
     // Drive the game loop until input is exhausted. The judge looks
     // at game.getScreens() afterwards; whatever the contestant
     // captured is what gets compared.
-    const maxIter = Math.max(moves.length * 8, 1024);
+    // A single legal count can repeat through MAX_COMMAND_COUNT turns before
+    // the next input boundary.  Keep a finite runaway guard, but size it from
+    // the portable source limit rather than truncating valid counted commands.
+    const maxIter = Math.max(
+        moves.length * (MAX_COMMAND_COUNT + 1) + 1,
+        1024,
+    );
     for (let iter = 0; iter < maxIter; iter++) {
         try {
             await moveloop_core();

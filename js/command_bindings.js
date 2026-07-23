@@ -224,6 +224,11 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
 export function createCommandBindingModel(state) {
     const model = {
         bindings: [],
+        // cmd.c spkeys_binds[] keeps prompt/navigation keys outside the
+        // extended-command linked list.  Only NHKF_COUNT is consumed by the
+        // command parser so far, but retain every configured special key in
+        // this separate namespace for its eventual source owner.
+        specialKeys: { count: commandKeyCode('n') },
         directionBackups: null,
         numPad: false,
         swapYZ: false,
@@ -251,6 +256,8 @@ export function createCommandBindingModel(state) {
                 operation.key,
                 command === 'nothing' ? null : command,
             );
+        } else if (operation.type === 'special_key') {
+            model.specialKeys[operation.command] = operation.key & 0xFF;
         } else if (operation.type === 'number_pad') {
             resetCommandBindings(
                 model,
