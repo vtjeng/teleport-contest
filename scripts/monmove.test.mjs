@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ALTAR,
     A_LAWFUL,
@@ -9,19 +10,23 @@ import {
     COLNO,
     DB_ICE,
     DB_MOAT,
+    DEAF,
     DISPLACED,
     DOOR,
     DRAWBRIDGE_UP,
     D_CLOSED,
     DUST,
+    FAINTED,
     G_GENOD,
     HEADSTONE,
     INVIS,
+    M_AP_OBJECT,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     ROOMOFFSET,
     ROWNO,
     TEMPLE,
+    W_ARM,
 } from '../js/const.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
 import {
@@ -30,6 +35,7 @@ import {
     can_ooze,
     distfleeck,
     in_your_sanctuary,
+    monflee,
     monnear,
     onscary,
     set_apparxy,
@@ -38,9 +44,11 @@ import {
     PM_ANGEL,
     PM_FOG_CLOUD,
     PM_GIANT_RAT,
+    PM_GREMLIN,
     PM_GRID_BUG,
     PM_HUMAN,
     PM_VAMPIRE_LEADER,
+    PM_VROCK,
     PM_XORN,
     monst_globals_init,
     reset_mvitals,
@@ -50,6 +58,7 @@ import { newObject } from '../js/obj.js';
 import {
     COIN_CLASS,
     DAGGER,
+    GOLD_DRAGON_SCALE_MAIL,
     LONG_SWORD,
     SACK,
     SCR_SCARE_MONSTER,
@@ -64,6 +73,7 @@ function makeState() {
     );
     const uprops = [];
     uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[DEAF] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[DISPLACED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[PROT_FROM_SHAPE_CHANGERS] = {
         intrinsic: 0,
@@ -488,6 +498,308 @@ test('monnear excludes only grid-bug diagonal adjacency', () => {
     assert.equal(monnear(gridBug, 6, 6, state), false);
     assert.equal(monnear(gridBug, 6, 5, state), true);
     assert.equal(monnear(ordinary, 7, 5, state), false);
+});
+
+test('monflee preserves timer extension, untimed fear, and first-call rules', async () => {
+    const { state } = makeState();
+    const fresh = ordinaryMonster(state, {
+        mhp: 5,
+        mtrack: [{ x: 1, y: 2 }, { x: 3, y: 4 }],
+    });
+    await monflee(fresh, 1, true, false, { state });
+    assert.equal(fresh.mflee, true);
+    assert.equal(fresh.mfleetim, 2);
+    assert.deepEqual(fresh.mtrack, [{ x: 0, y: 0 }, { x: 0, y: 0 }]);
+
+    const timed = ordinaryMonster(state, {
+        mhp: 5,
+        mflee: true,
+        mfleetim: 120,
+    });
+    await monflee(timed, 20, false, false, { state });
+    assert.equal(timed.mfleetim, 127);
+
+    const newlyUntimed = ordinaryMonster(state, {
+        mhp: 5,
+        mflee: true,
+        mfleetim: 9,
+    });
+    await monflee(newlyUntimed, 0, false, false, { state });
+    assert.equal(newlyUntimed.mfleetim, 0);
+
+    const untimed = ordinaryMonster(state, {
+        mhp: 5,
+        mflee: true,
+        mfleetim: 0,
+    });
+    await monflee(untimed, 20, false, false, { state });
+    assert.equal(untimed.mfleetim, 0);
+
+    const alreadyFleeing = ordinaryMonster(state, {
+        mhp: 5,
+        mflee: true,
+        mfleetim: 9,
+    });
+    await monflee(alreadyFleeing, 20, true, false, { state });
+    assert.equal(alreadyFleeing.mfleetim, 9);
+});
+
+test('monflee releases the hero before timing and emits before setting mflee', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mhp: 5,
+        mcanmove: true,
+        mfleetim: 0,
+    });
+    state.u.ustuck = monster;
+    const events = [];
+
+    await monflee(monster, 1, true, true, {
+        state,
+        random: {
+            rn2: () => assert.fail('ordinary flight message must not draw'),
+        },
+        couldSee: () => true,
+        releaseHero(candidate) {
+            events.push(`release:${candidate.mfleetim}`);
+            state.u.ustuck = null;
+        },
+        canSeeMonster(candidate) {
+            events.push(`see:${candidate.mfleetim}:${candidate.mflee}`);
+            return true;
+        },
+        fleesLight(candidate) {
+            events.push(`light:${candidate.mflee}`);
+            return false;
+        },
+        fleeMessage(candidate, message) {
+            events.push(`message:${message.kind}:${candidate.mflee}`);
+        },
+    });
+
+    assert.deepEqual(events, [
+        'release:0',
+        'see:2:false',
+        'light:false',
+        'message:turns-to-flee:false',
+    ]);
+    assert.equal(monster.mflee, true);
+});
+
+test('monflee uses the immobile message before testing emitted light', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mhp: 5,
+        mcanmove: false,
+    });
+    let message;
+
+    await monflee(monster, 0, true, true, {
+        state,
+        random: { rn2: () => assert.fail('immobile flight does not draw') },
+        couldSee: () => assert.fail('immobile flight skips light checks'),
+        canSeeMonster: () => true,
+        fleesLight: () => assert.fail('immobile branch precedes light'),
+        fleeMessage(_candidate, selected) {
+            message = selected;
+        },
+    });
+
+    assert.deepEqual(message, { kind: 'immobile-flinch' });
+    assert.equal(monster.mflee, true);
+});
+
+test('monflee checks visibility before concealed appearance suppression', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mhp: 5,
+        mcanmove: true,
+        m_ap_type: M_AP_OBJECT,
+    });
+    const events = [];
+
+    await monflee(monster, 0, true, true, {
+        state,
+        random: { rn2: () => assert.fail('concealed flight does not draw') },
+        couldSee: () => assert.fail('concealed flight skips light checks'),
+        canSeeMonster() {
+            events.push('see');
+            return true;
+        },
+        fleesLight: () => assert.fail('appearance gate precedes light'),
+        fleeMessage: () => assert.fail('concealed monster has no message'),
+    });
+
+    assert.deepEqual(events, ['see']);
+    assert.equal(monster.mflee, true);
+});
+
+test('monflee selects every light-flight message in source order', async () => {
+    const { state } = makeState();
+    const sword = {
+        otyp: LONG_SWORD,
+        oartifact: ART_SUNSWORD,
+        lamplit: true,
+        owornmask: 0,
+    };
+    state.uwep = sword;
+
+    async function lightMessage(overrides = {}, roll = null) {
+        const monster = newMonster({
+            data: state.mons[PM_GREMLIN],
+            mnum: PM_GREMLIN,
+            mhp: 5,
+            mcanmove: true,
+            mcansee: true,
+            mx: 4,
+            my: 4,
+            ...overrides,
+        });
+        const calls = [];
+        let message;
+        await monflee(monster, 0, true, true, {
+            state,
+            random: {
+                rn2(bound) {
+                    calls.push(bound);
+                    if (roll == null) assert.fail('unaware hero must not draw');
+                    return roll;
+                },
+            },
+            couldSee: () => true,
+            canSeeMonster: () => true,
+            fleeMessage(_candidate, selected) {
+                message = selected;
+            },
+        });
+        return { calls, message };
+    }
+
+    state.multi = -1;
+    state.u.usleep = 1;
+    assert.deepEqual(await lightMessage(), {
+        calls: [],
+        message: { kind: 'frightened' },
+    });
+
+    state.u.usleep = 0;
+    state.u.uhs = FAINTED;
+    assert.deepEqual(await lightMessage(), {
+        calls: [],
+        message: { kind: 'frightened' },
+    });
+
+    state.multi = 0;
+    state.u.uhs = 0;
+    assert.deepEqual(await lightMessage({}, 0), {
+        calls: [10],
+        message: { kind: 'bright-light' },
+    });
+
+    state.u.uprops[DEAF].intrinsic = 1;
+    assert.deepEqual(await lightMessage({}, 0), {
+        calls: [10],
+        message: { kind: 'painful-light', lightSource: sword },
+    });
+
+    state.u.uprops[DEAF].intrinsic = 0;
+    sword.lamplit = false;
+    state.uarm = {
+        otyp: GOLD_DRAGON_SCALE_MAIL,
+        lamplit: true,
+        owornmask: W_ARM,
+    };
+    const sourceQuirk = await lightMessage({}, 1);
+    assert.deepEqual(sourceQuirk.calls, [10]);
+    assert.equal(sourceQuirk.message.kind, 'painful-light');
+    // Source naming prefers an artifact weapon even when the armor supplied
+    // the actual visible light for this branch.
+    assert.equal(sourceQuirk.message.lightSource, sword);
+});
+
+test('monflee gives a newly fleeing Vrock its gas cooldown before the cloud', async () => {
+    const { state } = makeState();
+    const monster = newMonster({
+        data: state.mons[PM_VROCK],
+        mnum: PM_VROCK,
+        mhp: 5,
+        mx: 6,
+        my: 7,
+        mtrack: [{ x: 2, y: 3 }],
+    });
+    const events = [];
+
+    await monflee(monster, 0, true, false, {
+        state,
+        random: {
+            rn2(bound) {
+                events.push(`rn2(${bound})`);
+                assert.equal(bound, 25);
+                return 9;
+            },
+        },
+        createGasCloud(x, y, radius, damage) {
+            events.push(`gas:${x},${y},${radius},${damage}`);
+            assert.equal(monster.mspec_used, 84);
+            assert.equal(monster.mflee, false);
+        },
+    });
+
+    assert.deepEqual(events, ['rn2(25)', 'gas:6,7,5,8']);
+    assert.equal(monster.mspec_used, 84);
+    assert.equal(monster.mflee, true);
+    assert.deepEqual(monster.mtrack, [{ x: 0, y: 0 }]);
+});
+
+test('monflee preflights downstream ownership and ignores dead monsters', async () => {
+    const { state } = makeState();
+    const dead = ordinaryMonster(state, {
+        mhp: 0,
+        mtrack: [{ x: 1, y: 2 }],
+    });
+    await monflee(dead, 5, true, true, {
+        get state() {
+            assert.fail('dead monsters return before environment access');
+        },
+    });
+    assert.deepEqual(dead.mtrack, [{ x: 1, y: 2 }]);
+
+    const stuck = ordinaryMonster(state, {
+        mhp: 5,
+        mfleetim: 6,
+        mtrack: [{ x: 1, y: 2 }],
+    });
+    state.u.ustuck = stuck;
+    await assert.rejects(
+        monflee(stuck, 5, true, false, { state }),
+        /releaseHero/,
+    );
+    assert.equal(stuck.mfleetim, 6);
+    assert.deepEqual(stuck.mtrack, [{ x: 1, y: 2 }]);
+
+    state.u.ustuck = null;
+    const visible = ordinaryMonster(state, { mhp: 5, mfleetim: 6 });
+    await assert.rejects(
+        monflee(visible, 5, true, true, { state }),
+        /canSeeMonster/,
+    );
+    assert.equal(visible.mfleetim, 6);
+
+    const vrock = newMonster({
+        data: state.mons[PM_VROCK],
+        mnum: PM_VROCK,
+        mhp: 5,
+        mfleetim: 6,
+    });
+    await assert.rejects(
+        monflee(vrock, 5, true, false, {
+            state,
+            random: { rn2: () => assert.fail('missing gas owner preflights') },
+        }),
+        /createGasCloud/,
+    );
+    assert.equal(vrock.mfleetim, 6);
+    assert.equal(vrock.mspec_used, 0);
 });
 
 test('distfleeck always draws brave-gremlin before checking a far monster', async () => {

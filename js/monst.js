@@ -129,6 +129,16 @@ export function remove_monster(x, y, state = game) {
     return monster;
 }
 
+// C ref: monmove.c mon_track_clear().
+export function mon_track_clear(monster) {
+    if (!Array.isArray(monster?.mtrack))
+        throw new TypeError('mon_track_clear requires monster tracking state');
+    for (const coordinate of monster.mtrack) {
+        coordinate.x = 0;
+        coordinate.y = 0;
+    }
+}
+
 // C refs: teleport.c rloc_to_core(); mon.c mon_track_clear(). This is the
 // placement-state core shared by source-faithful relocation callers. It owns
 // the source-mandated region-cache update; display, trap, and shop effects
@@ -145,10 +155,7 @@ export function relocate_monster(monster, x, y, state = game) {
     // requested destination is the monster's already-indexed square.
     if (x === monster.mx && y === monster.my) return monster;
     remove_monster(monster.mx, monster.my, state);
-    for (const coordinate of monster.mtrack ?? []) {
-        coordinate.x = 0;
-        coordinate.y = 0;
-    }
+    mon_track_clear(monster);
     place_monster(monster, x, y, state);
     update_monster_region(monster, state);
     return monster;

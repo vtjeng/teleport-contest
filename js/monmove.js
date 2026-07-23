@@ -12,16 +12,21 @@ import {
     DB_LAVA,
     DB_MOAT,
     DB_UNDER,
+    DEAF,
     DISPLACED,
     DOOR,
     DRAWBRIDGE_UP,
     D_CLOSED,
     D_LOCKED,
+    FAINTED,
     G_GENOD,
     ICE,
     INVIS,
     IS_ALTAR,
     LAVAPOOL,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
+    M_AP_TYPMASK,
     MOAT,
     PROT_FROM_SHAPE_CHANGERS,
     ROOMOFFSET,
@@ -56,10 +61,12 @@ import {
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_VLAD_THE_IMPALER,
+    PM_VROCK,
     PM_XORN,
     S_HUMAN,
     S_VAMPIRE,
 } from './monsters.js';
+import { mon_track_clear } from './monst.js';
 import {
     isCandle,
     isContainer,
@@ -445,6 +452,137 @@ function fleesLight(monster, normalized) {
             || (state.uarm?.lamplit && artifactLight(state.uarm)))
         && monster.mcansee
         && couldSee(monster.mx, monster.my);
+}
+
+function heroUnaware(state) {
+    if (Math.trunc(state.multi ?? 0) >= 0) return false;
+    const noMoveMessage = state.nomovemsg ?? state.gn?.nomovemsg ?? '';
+    const unconscious = Boolean(state.u?.usleep
+        || noMoveMessage.startsWith('You awake')
+        || noMoveMessage.startsWith('You regain con')
+        || noMoveMessage.startsWith('You are consci'));
+    return unconscious || state.u?.uhs === FAINTED;
+}
+
+function heroDeaf(state) {
+    return propertyActive(state, DEAF)
+        || Boolean(state.u?.uroleplay?.deaf);
+}
+
+function fleeingLightSource(state) {
+    if (artifactLight(state.uwep)) return state.uwep;
+    if (artifactLight(state.uarm)) return state.uarm;
+    return null;
+}
+
+function requireFleeOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`monflee requires a ${name} operation`);
+    return operation;
+}
+
+// C ref: monmove.c monflee(). fleeMessage owns the exact naming and terminal
+// calls for the five source kinds below. releaseHero owns release_hero(), and
+// createGasCloud owns create_gas_cloud(). Required downstream operations are
+// checked before release or flee-state mutation.
+export async function monflee(
+    monster,
+    fleeTime,
+    first,
+    showMessage,
+    env = {},
+) {
+    if (monster.mhp < 1) return;
+
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const couldSee = env.couldSee ?? ((x, y) => couldsee(x, y, state));
+    const checksFleeingLight = env.fleesLight ?? fleesLight;
+    const entersFleeState = !first || !monster.mflee;
+    const checksMessage = entersFleeState && !monster.mflee && showMessage;
+    const createsGas = entersFleeState
+        && isSpecies(monster, PM_VROCK, state) && !monster.mspec_used;
+
+    if (!Array.isArray(monster.mtrack))
+        throw new TypeError('monflee requires monster tracking state');
+    const releaseHero = monster === state.u?.ustuck
+        ? requireFleeOperation(env, 'releaseHero')
+        : null;
+    const canSeeMonster = checksMessage
+        ? requireFleeOperation(env, 'canSeeMonster')
+        : null;
+    const fleeMessage = checksMessage
+        ? requireFleeOperation(env, 'fleeMessage')
+        : null;
+    const createGasCloud = createsGas
+        ? requireFleeOperation(env, 'createGasCloud')
+        : null;
+    if (checksMessage) {
+        if (typeof checksFleeingLight !== 'function'
+            || typeof couldSee !== 'function') {
+            throw new TypeError('monflee light predicates must be functions');
+        }
+        if (typeof random.rn2 !== 'function')
+            throw new TypeError('monflee random injection requires rn2');
+    } else if (createsGas && typeof random.rn2 !== 'function') {
+        throw new TypeError('monflee random injection requires rn2');
+    }
+    const normalized = {
+        ...env,
+        state,
+        random,
+        couldSee,
+    };
+
+    if (releaseHero) await releaseHero(monster, normalized);
+
+    if (entersFleeState) {
+        if (!fleeTime) {
+            monster.mfleetim = 0;
+        } else if (!monster.mflee || monster.mfleetim) {
+            fleeTime += Math.trunc(monster.mfleetim ?? 0);
+            if (fleeTime === 1) ++fleeTime;
+            monster.mfleetim = Math.min(fleeTime, 127);
+        }
+
+        if (!monster.mflee && showMessage
+            && canSeeMonster(monster, normalized)
+            && (monster.m_ap_type & M_AP_TYPMASK) !== M_AP_FURNITURE
+            && (monster.m_ap_type & M_AP_TYPMASK) !== M_AP_OBJECT) {
+            let message;
+            if (!monster.mcanmove || !monster.data?.mmove) {
+                message = { kind: 'immobile-flinch' };
+            } else if (checksFleeingLight(monster, normalized)) {
+                if (heroUnaware(state)) {
+                    message = { kind: 'frightened' };
+                } else if (random.rn2(10) || heroDeaf(state)) {
+                    message = {
+                        kind: 'painful-light',
+                        lightSource: fleeingLightSource(state),
+                    };
+                } else {
+                    message = { kind: 'bright-light' };
+                }
+            } else {
+                message = { kind: 'turns-to-flee' };
+            }
+            await fleeMessage(monster, message, normalized);
+        }
+
+        if (createsGas) {
+            monster.mspec_used = 75 + random.rn2(25);
+            await createGasCloud(
+                monster.mx,
+                monster.my,
+                5,
+                8,
+                normalized,
+            );
+        }
+        monster.mflee = true;
+    }
+    mon_track_clear(monster);
 }
 
 // C ref: monmove.c distfleeck(). monflee() owns messages, release behavior,
