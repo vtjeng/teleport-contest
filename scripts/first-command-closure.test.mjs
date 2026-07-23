@@ -98,8 +98,13 @@ test('closure boundary rejects an appended zero-time command', async () => {
 });
 
 test('theme diagnostics are neutral and remain owned by their segment', async () => {
-    const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[1])
-        .segments[0];
+    const fillSeed = THEME_MANIFEST.selections.find(
+        ({ fills }) => fills.length > 0,
+    )?.seed;
+    const segment = FIRST_COMMAND_CLOSURE_FIXTURES.slice(1)
+        .flatMap((filename) => loadClosureRecipe(filename).segments)
+        .find(({ seed }) => seed === fillSeed);
+    assert.ok(segment, 'the closure manifest supplies a fill-bearing segment');
     const traced = await runSegment(segment, {
         traceThemeroomSelections: true,
     });
@@ -107,7 +112,11 @@ test('theme diagnostics are neutral and remain owned by their segment', async ()
     const tracedRng = [...traced.getRngLog()];
     const tracedScreens = [...traced.getScreens()];
     const tracedCursors = traced.getCursors().map((cursor) => [...cursor]);
-    assert.ok(selections.length > 0);
+    assert.ok(selections.some(({ kind }) => kind === 'room'));
+    assert.ok(
+        selections.some(({ kind }) => kind === 'fill'),
+        'neutrality covers the independent fill instrumentation site',
+    );
 
     const untraced = await runSegment(segment);
     assert.equal(untraced.getThemeroomSelections(), null);
