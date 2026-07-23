@@ -25,7 +25,7 @@ behavior. Treat matched-screen count as a lagging indicator.
 ## Completed milestone: arbitrary new game to first command
 
 **Status:** complete at production commit
-`f0624a759f50fbf061ab7e48ff7e83a08ea57ef1`, with the test-only audit tail
+`f0624a759f50fbf061ab7e48ff7e83a08ea57ef1`, with the test-only audit-fix tail
 closed at `82615f42653158d8074f3903e7d2087545ffe05f`.
 
 **Goal:** For arbitrary valid seeds, datetimes, character configurations, and
@@ -57,9 +57,9 @@ differentials reach the first command prompt exactly. Follow the quality and
 score-recording requirements in `AGENTS.md` before marking the milestone done.
 
 The boundary survey found no remaining reachable gap, the checked-in 107-case
-matrix reached the first command exactly, and the correctness ledger and its
-audit-fix tail are clear. Detailed validation and score evidence remain in
-`SCORE.md` and `QUALITY.json`.
+matrix reached the first command exactly, the correctness ledger and audit-fix
+tail are clear, and the final quality gate passes. Detailed validation and
+score evidence remain in `SCORE.md` and `QUALITY.json`.
 
 ## Current milestone: one source-faithful command turn
 
