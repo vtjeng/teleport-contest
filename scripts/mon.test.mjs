@@ -59,6 +59,22 @@ test('mcalcmove randomly rounds every moving speed to NORMAL_SPEED', () => {
     exact.assertBounds([12]);
 });
 
+test('mcalcmove rounds the slow or fast adjusted speed', () => {
+    const state = { u: {}, context: {} };
+    const cases = [
+        [monster(11, MSLOW), 6, 12],
+        [monster(11, MSLOW), 7, 0],
+        [monster(11, MFAST), 2, 24],
+        [monster(11, MFAST), 3, 12],
+    ];
+
+    for (const [subject, roll, expected] of cases) {
+        const script = draws([roll]);
+        assert.equal(mcalcmove(subject, true, state, script.random), expected);
+        script.assertBounds([12]);
+    }
+});
+
 test('mcalcmove applies steed gallop before moving-speed rounding', () => {
     const steed = monster(10);
     const state = {
@@ -74,4 +90,24 @@ test('mcalcmove applies steed gallop before moving-speed rounding', () => {
     const ordinary = draws([9]);
     assert.equal(mcalcmove(other, true, state, ordinary.random), 12);
     ordinary.assertBounds([12]);
+});
+
+test('mcalcmove preserves both gallop factors and state gates', () => {
+    const steed = monster(10);
+    const state = {
+        u: { usteed: steed, ugallop: true },
+        context: { mv: 1 },
+    };
+    const fourThirds = draws([1, 1]);
+    assert.equal(mcalcmove(steed, true, state, fourThirds.random), 12);
+    fourThirds.assertBounds([2, 12]);
+
+    for (const disabled of [
+        { u: { usteed: steed, ugallop: false }, context: { mv: 1 } },
+        { u: { usteed: steed, ugallop: true }, context: { mv: 0 } },
+    ]) {
+        const ordinary = draws([9]);
+        assert.equal(mcalcmove(steed, true, disabled, ordinary.random), 12);
+        ordinary.assertBounds([12]);
+    }
 });

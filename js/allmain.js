@@ -145,21 +145,26 @@ export async function newgame() {
 export async function moveloop_core() {
     const g = game;
 
-    // Fast-forward residual per-step RNG around the source-owned movement
-    // allocation boundary. Monster action state, regen, sounds, and hunger
-    // remain in the replay scaffold.
-    const stepNum = (g.moves || 1) - 1;
-    fastforward_step(stepNum, () => {
-        // C ref: allmain.c moveloop_core(). Dead monsters have already been
-        // purged at the end of their previous movement round, so every node
-        // on fmon receives a new movement ration in list order.
-        dmonsfree(g);
-        for (let monster = g.level?.monlist ?? null;
-            monster;
-            monster = monster.nmon) {
-            monster.movement += mcalcmove(monster, true, g);
-        }
-    });
+    // C gates its entire elapsed-time block on the preceding command's
+    // context.move value. Capture that value before the once-per-input code
+    // below resets it optimistically for the next command.
+    if (g.context?.move) {
+        // Fast-forward residual per-step RNG around the source-owned movement
+        // allocation boundary. Monster action state, regen, sounds, and hunger
+        // remain in the replay scaffold.
+        const stepNum = (g.moves || 1) - 1;
+        fastforward_step(stepNum, () => {
+            // C ref: mon.c movemon() and allmain.c moveloop_core(). Until
+            // movemon() is ported, this callback temporarily owns its terminal
+            // dead-monster purge as well as the later list-order allocation.
+            dmonsfree(g);
+            for (let monster = g.level?.monlist ?? null;
+                monster;
+                monster = monster.nmon) {
+                monster.movement += mcalcmove(monster, true, g);
+            }
+        });
+    }
 
     // Vision + display
     if (g.vision_full_recalc) {

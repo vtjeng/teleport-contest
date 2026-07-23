@@ -13,11 +13,16 @@ import {
     resetCommandVars,
     rhack,
 } from '../js/cmd.js';
-import { COLNO, ROOM } from '../js/const.js';
+import { COLNO, ROOM, STONE } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
+import {
+    enableRngLog,
+    getRngLog,
+    initRng,
+} from '../js/rng.js';
 import { CLR_GRAY } from '../js/terminal.js';
 import { ttyPline } from '../js/tty_message.js';
 
@@ -362,6 +367,60 @@ test('counted movement repeats intent without extra dispatch or input', async ()
     assert.equal(game.context.run, 0);
     assert.equal(game._commandDispatchCount, 1);
     assert.equal(replay.getScreens().length - initialScreens, 3);
+});
+
+test('moveloop allocates live monster movement once after elapsed input', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:MovementAllocation,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen',
+        moves: '',
+    });
+
+    const tail = {
+        data: { mmove: 6 }, mspeed: 0, movement: 11, mhp: 1, nmon: null,
+    };
+    const dead = {
+        data: { mmove: 7 }, mspeed: 0, movement: 13, mhp: 0, nmon: tail,
+    };
+    const head = {
+        data: { mmove: 5 }, mspeed: 0, movement: 7, mhp: 1, nmon: dead,
+    };
+    game.level.monlist = head;
+    game.iflags.purge_monsters = 1;
+    game.vision_full_recalc = 0;
+    initRng(918273);
+    enableRngLog();
+
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    assert.deepEqual(getRngLog(), []);
+
+    // Tilde has no default binding in the upstream command table.
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+    await moveloop_core();
+    assert.equal(game.level.monlist, head);
+    assert.equal(head.nmon, tail);
+    assert.equal(tail.nmon, null);
+    assert.equal(dead.nmon, null);
+    assert.equal(game.iflags.purge_monsters, 0);
+    assert.deepEqual([head.movement, tail.movement], [19, 11]);
+    assert.deepEqual(
+        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(300)', 'rn2(20)', 'rn2(82)'],
+    );
+
+    const elapsedLog = [...getRngLog()];
+    const elapsedMovement = [head.movement, tail.movement];
+    const west = game.level.at(game.u.ux - 1, game.u.uy);
+    west.typ = STONE;
+    game.nhDisplay.pushKey(commandKeyCode('h'));
+    await moveloop_core();
+    assert.equal(game.context.move, 0);
+    assert.deepEqual([head.movement, tail.movement], elapsedMovement);
+    assert.deepEqual(getRngLog(), elapsedLog);
 });
 
 test('movement repeat counts preserve the COLNO sentinel threshold', async () => {
