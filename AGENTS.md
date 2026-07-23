@@ -176,17 +176,28 @@ that also changes an area-owned path is not ledger-only.
   affected quality area are an advisory batching checkpoint. Run a full
   correctness pass no later than ten unreviewed implementation commits or 1,000
   changed production lines under `js/` in an affected area. A pass is also due
-  when a change alters a shared behavioral contract between quality areas,
-  direct review or differential validation produces an unexplained mismatch, or
-  before a release, pull request, authorized holdout evaluation, or closure of
-  the current first-command milestone. Small cohesive fixes may stay batched
-  until one of these conditions applies. Do not repeat the same formal pass
-  until another threshold is met or the design materially changes.
-- For the shared-contract trigger, a change crosses quality areas only when it
-  changes state ownership or persistence, PRNG or evaluation order, lifecycle
-  ownership, an input boundary, or another shared behavioral interface. Imports,
-  exports, call sites, tests, and other wiring that consume an existing contract
-  do not trigger a pass by themselves.
+  when direct review or differential validation produces an unexplained
+  mismatch, or before a release, pull request, authorized holdout evaluation,
+  or closure of the current first-command milestone. Shared-contract work may
+  use the bounded behavior-slice window below. Other small cohesive fixes may
+  stay batched until one of these conditions applies. Do not repeat the same
+  formal pass until another threshold is met or the design materially changes.
+- A change crosses quality areas only when it changes state ownership or
+  persistence, PRNG or evaluation order, lifecycle ownership, an input
+  boundary, or another shared behavioral interface. Imports, exports, call
+  sites, tests, and other wiring that consume an existing contract do not cross
+  quality areas by themselves. Related shared-contract changes within one named
+  behavior slice and one roadmap item may remain in a review window through the
+  slice's next observable boundary. The window may contain at most three
+  unreviewed implementation commits and 500 changed production lines across
+  its affected areas. Apply the per-chunk inspection, tests, direct review, and
+  quality-dashboard steps throughout the window, and run fresh end-to-end
+  differentials once its real consumer executes. Audit the exact window as one
+  range before adding a fourth implementation commit, accepting a change that
+  would take it above 500 changed production lines, starting another behavior
+  slice or roadmap item, or reaching any external or no-tail boundary. An
+  unexplained direct-review or differential mismatch ends the window and makes
+  the pass due immediately.
 - Performance, concurrency, simplification, and clarity checks are
   evidence-triggered. Before recording a formal correctness pass, state briefly
   whether each trigger applies. If no trigger applies, omitting that check is
@@ -195,9 +206,13 @@ that also changes an area-owned path is not ledger-only.
   trigger these checks.
 - At a formal milestone, run a `full` `$audit-diff-correctness` pass. Its
   correctness, readability, tests, and variable-trace finders are mandatory.
-  Enable the performance finder when the reviewed range plausibly changes
-  hot-path work, algorithmic complexity, iteration counts, allocation or
-  serialization volume, startup cost, or another measurable resource cost.
+  Enable the performance finder only when the reviewed range plausibly adds a
+  material resource regression beyond the source-faithful work it implements,
+  such as unbounded or newly amplified work, worse algorithmic complexity,
+  avoidable repeated hot-path traversal, material allocation or serialization,
+  startup cost, or conflict with a measured budget. A source-required change in
+  iteration count or replacement of replay scaffolding with the required
+  traversal is not sufficient by itself.
   Enable the concurrency finder when the range changes shared mutable state,
   asynchronous or reentrant control flow, parallel work, cancellation, retries,
   cleanup, or lifecycle behavior that can overlap. State the applicable risk in
