@@ -4,11 +4,22 @@
 import {
     ACCESSIBLE,
     AGGRAVATE_MONSTER,
+    ALLOW_BARS,
+    ALLOW_DIG,
+    ALLOW_M,
+    ALLOW_ROCK,
+    ALLOW_SANCT,
+    ALLOW_SSM,
+    ALLOW_TRAPS,
+    ALLOW_U,
+    ALLOW_WALL,
     A_LAWFUL,
     A_NONE,
     AM_SHRINE,
     Amask2align,
     BOLT_LIM,
+    BUSTDOOR,
+    CONFLICT,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -29,12 +40,16 @@ import {
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MOAT,
+    NOGARLIC,
+    NOTONL,
+    OPENDOOR,
     PROT_FROM_SHAPE_CHANGERS,
     ROOMOFFSET,
     SHOPBASE,
     STEALTH,
     STONE,
     TEMPLE,
+    UNLOCKDOOR,
     W_ARM,
     isok,
 } from './const.js';
@@ -44,13 +59,25 @@ import { sengr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { money_cnt } from './invent.js';
+import { m_carrying } from './mon.js';
 import {
     amorphous,
+    is_giant,
+    is_human,
     is_minion,
     is_rider,
+    is_undead,
+    is_unicorn,
     is_vampshifter,
+    needspick,
+    nohands,
+    passes_bars,
     passes_walls,
     perceives,
+    resist_conflict,
+    throws_rocks,
+    tunnels,
+    unsolid,
     verysmall,
 } from './mondata.js';
 import {
@@ -66,10 +93,12 @@ import {
     PM_VROCK,
     PM_XORN,
     S_DOG,
+    S_GHOST,
     S_HUMAN,
     S_LEPRECHAUN,
     S_NYMPH,
     S_VAMPIRE,
+    MS_LEADER,
 } from './monsters.js';
 import { mon_track_clear } from './monst.js';
 import {
@@ -122,6 +151,7 @@ import {
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
+import { noteleport_level } from './teleport.js';
 import { couldsee } from './vision.js';
 
 const ALGN_SINNED = -4;
@@ -182,6 +212,81 @@ function surfaceAt(x, y, state) {
 // terrain through rm.h's SURFACE_AT macro.
 export function accessible(x, y, state = game) {
     return ACCESSIBLE(surfaceAt(x, y, state)) && !closed_door(x, y, state);
+}
+
+// C ref: monmove.c monhaskey(). Credit cards can unlock but cannot lock.
+export function monhaskey(monster, forUnlocking, state = game) {
+    if (forUnlocking && m_carrying(monster, CREDIT_CARD, state)) return true;
+    return Boolean(m_carrying(monster, SKELETON_KEY, state)
+        || m_carrying(monster, LOCK_PICK, state));
+}
+
+// C ref: monmove.c m_can_break_boulder(). Riders do not spend special-action
+// cooldown; the caller which fractures the boulder owns that later effect.
+export function m_can_break_boulder(monster) {
+    return is_rider(monster.data)
+        || (!(monster.mspec_used ?? 0)
+            && (monster.isshk
+                || monster.ispriest
+                || monster.data?.msound === MS_LEADER));
+}
+
+// C ref: mon.c mon_allowflags(). This returns only movement capabilities;
+// mfndpos() owns applying them to individual neighboring squares.
+export function mon_allowflags(monster, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rnd };
+    const species = monster.data;
+    const conflict = propertyActive(state, CONFLICT);
+    const canOpen = !(nohands(species) || verysmall(species));
+    const canUnlock = (canOpen && monhaskey(monster, true, state))
+        || monster.iswiz || is_rider(species);
+    const doorbuster = is_giant(species);
+    let canTunnel = tunnels(species)
+        && !on_level(state.u?.uz, state.rogue_level);
+
+    if (canTunnel && needspick(species)
+        && ((!monster.mpeaceful || conflict)
+            && dist2(monster.mx, monster.my, monster.mux, monster.muy) <= 8)) {
+        canTunnel = false;
+    }
+
+    let allowflags = 0;
+    if (monster.mtame) {
+        allowflags |= ALLOW_M | ALLOW_TRAPS | ALLOW_SANCT | ALLOW_SSM;
+    } else if (monster.mpeaceful) {
+        allowflags |= ALLOW_SANCT | ALLOW_SSM;
+    } else {
+        allowflags |= ALLOW_U;
+    }
+    if (conflict && !resist_conflict(monster, state, random))
+        allowflags |= ALLOW_U;
+    if (monster.isshk) allowflags |= ALLOW_SSM;
+    if (monster.ispriest) allowflags |= ALLOW_SSM | ALLOW_SANCT;
+    if (passes_walls(species)) allowflags |= ALLOW_ROCK | ALLOW_WALL;
+    if (throws_rocks(species) || m_can_break_boulder(monster))
+        allowflags |= ALLOW_ROCK;
+    if (canTunnel) allowflags |= ALLOW_DIG;
+    if (doorbuster) allowflags |= BUSTDOOR;
+    if (canOpen) allowflags |= OPENDOOR;
+    if (canUnlock) allowflags |= UNLOCKDOOR;
+    if (passes_bars(species)
+        && (monster !== state.u?.ustuck
+            || unsolid(state.youmonst?.data)
+            || verysmall(state.youmonst?.data))) {
+        allowflags |= ALLOW_BARS;
+    }
+    if (is_minion(species) || is_rider(species))
+        allowflags |= ALLOW_SANCT;
+    if (is_unicorn(species) && !noteleport_level(monster, state))
+        allowflags |= NOTONL;
+    if (is_human(species) || species === state.mons?.[PM_MINOTAUR])
+        allowflags |= ALLOW_SSM;
+    if ((is_undead(species) && species?.mlet !== S_GHOST)
+        || is_vampshifter(monster)) {
+        allowflags |= NOGARLIC;
+    }
+    return allowflags;
 }
 
 function isArmorCategory(obj, category, state) {

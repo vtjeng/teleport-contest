@@ -32,6 +32,7 @@ import {
     LR_MONGEN,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
+    MON_FLOOR,
     MOAT,
     POOL,
     ROWNO,
@@ -44,7 +45,12 @@ import {
 import { on_level } from './dungeon.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { is_rider } from './mondata.js';
+import {
+    is_covetous,
+    is_dlord,
+    is_dprince,
+    is_rider,
+} from './mondata.js';
 import { m_at, relocate_monster } from './monst.js';
 import {
     G_UNIQ,
@@ -127,6 +133,32 @@ function currentDungeonIsHellish(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum)
         && Boolean(state.dungeons?.[dnum]?.flags?.hellish);
+}
+
+function blocksTeleporting(monster) {
+    return is_dlord(monster.data) || is_dprince(monster.data);
+}
+
+// C ref: teleport.c m_blocks_teleporting() and noteleport_level(). Demon
+// courts inspect only living, on-map monsters, as get_iter_mons() does.
+export function noteleport_level(monster, state = game) {
+    if (currentDungeonIsHellish(state)
+        && !is_dlord(monster.data)
+        && !is_dprince(monster.data)) {
+        for (let current = state.level?.monlist ?? null;
+            current;
+            current = current.nmon) {
+            if (current.mhp < 1
+                || (current.mstate ?? MON_FLOOR) !== MON_FLOOR) {
+                continue;
+            }
+            if (blocksTeleporting(current)) return true;
+        }
+    }
+    if (state.level?.flags?.noteleport && !is_covetous(monster.data))
+        return true;
+    return Math.trunc(state.level?.flags?.stasis_until ?? 0)
+        >= Math.trunc(state.moves ?? 0);
 }
 
 function inEndgame(state) {

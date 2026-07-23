@@ -8,6 +8,8 @@ import {
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
     LAVAPOOL,
+    MON_FLOOR,
+    MON_MIGRATING,
     POOL,
     ROOM,
     STONE,
@@ -17,8 +19,10 @@ import { newMonster, place_monster } from '../js/monst.js';
 import {
     PM_KITTEN,
     PM_LITTLE_DOG,
+    PM_ORCUS,
     PM_PONY,
     PM_SEWER_RAT,
+    PM_WIZARD_OF_YENDOR,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -33,6 +37,7 @@ import {
     enexto_core,
     goodpos,
     mnexto,
+    noteleport_level,
 } from '../js/teleport.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
 
@@ -41,7 +46,7 @@ function positionState() {
         astral_level: { dnum: 9, dlevel: 1 },
         dungeons: [{ flags: { hellish: false } }],
         level: new GameMap(),
-        moves: 0,
+        moves: 1,
         u: {
             ux: 10,
             uy: 10,
@@ -51,6 +56,7 @@ function positionState() {
     monst_globals_init(state);
     reset_mvitals(state);
     objects_globals_init(state);
+    state.level.flags.stasis_until = 0;
     return state;
 }
 
@@ -94,6 +100,48 @@ test('collect_coords shuffles every complete interior ring in source order', () 
         { x: 39, y: 10 }, { x: 41, y: 10 },
         { x: 39, y: 11 }, { x: 40, y: 11 }, { x: 41, y: 11 },
     ]);
+});
+
+test('noteleport_level applies natural levels and stasis in source order', () => {
+    const state = positionState();
+    const ordinary = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 1,
+    });
+    const covetous = newMonster({
+        data: state.mons[PM_WIZARD_OF_YENDOR],
+        mhp: 1,
+    });
+
+    state.level.flags.noteleport = true;
+    assert.equal(noteleport_level(ordinary, state), true);
+    assert.equal(noteleport_level(covetous, state), false);
+
+    state.level.flags.stasis_until = state.moves;
+    assert.equal(noteleport_level(covetous, state), true);
+});
+
+test('noteleport_level counts only living on-map demon-court blockers', () => {
+    const state = positionState();
+    state.dungeons[0].flags.hellish = true;
+    const ordinary = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 1,
+    });
+    const prince = newMonster({
+        data: state.mons[PM_ORCUS],
+        mhp: 0,
+        mstate: MON_FLOOR,
+    });
+    state.level.monlist = prince;
+
+    assert.equal(noteleport_level(ordinary, state), false);
+    prince.mhp = 1;
+    prince.mstate = MON_MIGRATING;
+    assert.equal(noteleport_level(ordinary, state), false);
+    prince.mstate = MON_FLOOR;
+    assert.equal(noteleport_level(ordinary, state), true);
+    assert.equal(noteleport_level(prince, state), false);
 });
 
 test('collect_coords clips edge rings before deriving shuffle bounds', () => {

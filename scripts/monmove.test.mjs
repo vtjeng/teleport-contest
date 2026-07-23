@@ -4,12 +4,23 @@ import test from 'node:test';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     AGGRAVATE_MONSTER,
+    ALLOW_BARS,
+    ALLOW_DIG,
+    ALLOW_M,
+    ALLOW_ROCK,
+    ALLOW_SANCT,
+    ALLOW_SSM,
+    ALLOW_TRAPS,
+    ALLOW_U,
+    ALLOW_WALL,
     ALTAR,
     A_LAWFUL,
     A_NEUTRAL,
     AM_LAWFUL,
     AM_SHRINE,
+    BUSTDOOR,
     COLNO,
+    CONFLICT,
     DB_ICE,
     DB_MOAT,
     DEAF,
@@ -23,12 +34,16 @@ import {
     HEADSTONE,
     INVIS,
     M_AP_OBJECT,
+    NOGARLIC,
+    NOTONL,
+    OPENDOOR,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     ROOMOFFSET,
     ROWNO,
     STEALTH,
     TEMPLE,
+    UNLOCKDOOR,
     W_ARM,
 } from '../js/const.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
@@ -39,25 +54,36 @@ import {
     distfleeck,
     disturb,
     in_your_sanctuary,
+    m_can_break_boulder,
+    mon_allowflags,
+    monhaskey,
     monflee,
     monnear,
     onscary,
     set_apparxy,
 } from '../js/monmove.js';
 import {
+    M1_NEEDPICK,
+    M1_TUNNEL,
+    MS_LEADER,
     PM_ANGEL,
     PM_DEATH,
     PM_FOG_CLOUD,
     PM_ETTIN,
     PM_GIANT_RAT,
+    PM_GHOST,
     PM_GREMLIN,
     PM_GRID_BUG,
+    PM_HILL_GIANT,
     PM_HUMAN,
+    PM_HUMAN_ZOMBIE,
     PM_JABBERWOCK,
     PM_LEPRECHAUN,
     PM_LITTLE_DOG,
+    PM_MINOTAUR,
     PM_VAMPIRE_LEADER,
     PM_VROCK,
+    PM_WHITE_UNICORN,
     PM_WOOD_NYMPH,
     PM_XORN,
     monst_globals_init,
@@ -67,11 +93,14 @@ import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import {
     COIN_CLASS,
+    CREDIT_CARD,
     DAGGER,
     GOLD_DRAGON_SCALE_MAIL,
     LONG_SWORD,
+    LOCK_PICK,
     SACK,
     SCR_SCARE_MONSTER,
+    SKELETON_KEY,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -204,6 +233,151 @@ function sanctuaryFixture() {
         state,
     };
 }
+
+test('monhaskey distinguishes credit-card unlocking from locking tools', () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state);
+
+    monster.minvent = objectFor(state, CREDIT_CARD);
+    assert.equal(monhaskey(monster, true, state), true);
+    assert.equal(monhaskey(monster, false, state), false);
+
+    monster.minvent = objectFor(state, SKELETON_KEY);
+    assert.equal(monhaskey(monster, false, state), true);
+    monster.minvent = objectFor(state, LOCK_PICK);
+    assert.equal(monhaskey(monster, false, state), true);
+});
+
+test('m_can_break_boulder preserves rider and cooldown exceptions', () => {
+    const { state } = makeState();
+    const rider = newMonster({
+        data: state.mons[PM_DEATH],
+        mspec_used: 12,
+    });
+    assert.equal(m_can_break_boulder(rider), true);
+
+    for (const overrides of [
+        { isshk: true },
+        { ispriest: true },
+        { data: { ...state.mons[PM_HUMAN], msound: MS_LEADER } },
+    ]) {
+        const monster = ordinaryMonster(state, overrides);
+        assert.equal(m_can_break_boulder(monster), true);
+        monster.mspec_used = 1;
+        assert.equal(m_can_break_boulder(monster), false);
+    }
+});
+
+test('mon_allowflags combines disposition, doors, and species identity', () => {
+    const { state } = makeState();
+    const human = newMonster({
+        data: state.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        minvent: objectFor(state, SKELETON_KEY),
+    });
+    assert.equal(
+        mon_allowflags(human, { state }),
+        ALLOW_U | ALLOW_SSM | OPENDOOR | UNLOCKDOOR,
+    );
+
+    const tame = ordinaryMonster(state, { mtame: 5 });
+    const disposition = ALLOW_U | ALLOW_M | ALLOW_TRAPS
+        | ALLOW_SANCT | ALLOW_SSM;
+    assert.equal(mon_allowflags(tame, { state }) & disposition,
+        ALLOW_M | ALLOW_TRAPS | ALLOW_SANCT | ALLOW_SSM);
+
+    const minotaur = newMonster({ data: state.mons[PM_MINOTAUR] });
+    const minotaurFlags = mon_allowflags(minotaur, { state });
+    assert.ok(minotaurFlags & ALLOW_SSM);
+    const giant = newMonster({ data: state.mons[PM_HILL_GIANT] });
+    assert.ok(mon_allowflags(giant, { state }) & BUSTDOOR);
+});
+
+test('mon_allowflags preserves tunnel distance and rogue-level rules', () => {
+    const { state } = makeState();
+    const species = {
+        ...state.mons[PM_HUMAN],
+        mflags1: state.mons[PM_HUMAN].mflags1 | M1_TUNNEL | M1_NEEDPICK,
+    };
+    const monster = newMonster({
+        data: species,
+        mx: 4,
+        my: 4,
+        mux: 5,
+        muy: 5,
+    });
+
+    assert.equal(Boolean(mon_allowflags(monster, { state }) & ALLOW_DIG), false);
+    monster.mux = 10;
+    monster.muy = 10;
+    assert.equal(Boolean(mon_allowflags(monster, { state }) & ALLOW_DIG), true);
+
+    monster.mux = 5;
+    monster.muy = 5;
+    monster.mpeaceful = true;
+    assert.equal(Boolean(mon_allowflags(monster, { state }) & ALLOW_DIG), true);
+
+    state.rogue_level = { ...state.u.uz };
+    assert.equal(Boolean(mon_allowflags(monster, { state }) & ALLOW_DIG), false);
+});
+
+test('mon_allowflags retains terrain, bars, garlic, and unicorn clauses', () => {
+    const { state } = makeState();
+    const xorn = newMonster({ data: state.mons[PM_XORN] });
+    let flags = mon_allowflags(xorn, { state });
+    assert.ok(flags & ALLOW_ROCK);
+    assert.ok(flags & ALLOW_WALL);
+    assert.ok(flags & ALLOW_BARS);
+
+    state.u.ustuck = xorn;
+    state.youmonst.data = state.mons[PM_HUMAN];
+    flags = mon_allowflags(xorn, { state });
+    assert.equal(Boolean(flags & ALLOW_BARS), false);
+    state.youmonst.data = state.mons[PM_FOG_CLOUD];
+    flags = mon_allowflags(xorn, { state });
+    assert.ok(flags & ALLOW_BARS);
+
+    const zombie = newMonster({ data: state.mons[PM_HUMAN_ZOMBIE] });
+    assert.ok(mon_allowflags(zombie, { state }) & NOGARLIC);
+    const ghost = newMonster({ data: state.mons[PM_GHOST] });
+    assert.equal(Boolean(mon_allowflags(ghost, { state }) & NOGARLIC), false);
+
+    const unicorn = newMonster({ data: state.mons[PM_WHITE_UNICORN] });
+    assert.ok(mon_allowflags(unicorn, { state }) & NOTONL);
+    state.level.flags = { noteleport: true, stasis_until: 0 };
+    assert.equal(Boolean(mon_allowflags(unicorn, { state }) & NOTONL), false);
+});
+
+test('mon_allowflags draws once for conflict resistance', () => {
+    const { state } = makeState();
+    state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.ulevel = 3;
+    const peaceful = newMonster({
+        data: state.mons[PM_HUMAN],
+        m_lev: 8,
+        mpeaceful: true,
+    });
+    const bounds = [];
+
+    let flags = mon_allowflags(peaceful, {
+        state,
+        random: {
+            rnd(bound) {
+                bounds.push(bound);
+                return 5;
+            },
+        },
+    });
+    assert.ok(flags & ALLOW_U);
+    assert.deepEqual(bounds, [20]);
+
+    flags = mon_allowflags(peaceful, {
+        state,
+        random: { rnd: () => 6 },
+    });
+    assert.equal(Boolean(flags & ALLOW_U), false);
+});
 
 test('set_apparxy keeps exact knowledge for pets and remembered hero squares', () => {
     const { state } = makeState();

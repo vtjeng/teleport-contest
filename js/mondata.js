@@ -4,15 +4,17 @@
 // src/mon.c undead_to_corpse(), can_be_hatched(), dead_species().
 
 import {
+    A_CHA,
     FEMALE,
     G_GENOD,
     MALE,
     NEUTRAL,
     NUM_MGENDERS,
 } from './const.js';
+import { effective_attribute } from './attrib.js';
 import { game } from './gstate.js';
 import * as M from './monsters.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
 import { roles } from './roles.js';
 
 function hasAttackType(species, attackType) {
@@ -103,6 +105,14 @@ export function metallivorous(species) {
 export function is_undead(species) { return flag2(species, M.M2_UNDEAD); }
 export function is_were(species) { return flag2(species, M.M2_WERE); }
 export function is_demon(species) { return flag2(species, M.M2_DEMON); }
+export function is_lord(species) { return flag2(species, M.M2_LORD); }
+export function is_prince(species) { return flag2(species, M.M2_PRINCE); }
+export function is_dlord(species) {
+    return is_demon(species) && is_lord(species);
+}
+export function is_dprince(species) {
+    return is_demon(species) && is_prince(species);
+}
 export function is_human(species) { return flag2(species, M.M2_HUMAN); }
 export function is_giant(species) { return flag2(species, M.M2_GIANT); }
 export function is_domestic(species) { return flag2(species, M.M2_DOMESTIC); }
@@ -148,6 +158,20 @@ export function hates_silver(species) {
 
 export function mon_hates_silver(monster) {
     return is_vampshifter(monster) || hates_silver(monster?.data);
+}
+
+// C ref: mondata.c resist_conflict(). Keep the unbounded lower end of the
+// source chance: sufficiently strong monsters always resist a weak hero.
+export function resist_conflict(monster, state = game, random = { rnd }) {
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('resist_conflict random injection requires rnd');
+    const resistChance = Math.min(
+        19,
+        effective_attribute(state, A_CHA)
+            - Math.trunc(monster.m_lev ?? 0)
+            + Math.trunc(state.u?.ulevel ?? 0),
+    );
+    return random.rnd(20) > resistChance;
 }
 
 // C ref: mondata.c passes_bars(). This combines shape, size, attack, and diet

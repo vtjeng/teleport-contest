@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_CHA,
     FEMALE,
     G_EXTINCT,
     G_GENOD,
@@ -25,6 +26,8 @@ import {
     is_clinger,
     is_covetous,
     is_demon,
+    is_dlord,
+    is_dprince,
     is_displacer,
     is_female,
     is_floater,
@@ -32,9 +35,11 @@ import {
     is_giant,
     is_hider,
     is_human,
+    is_lord,
     is_male,
     is_minion,
     is_neuter,
+    is_prince,
     is_rider,
     is_swimmer,
     is_undead,
@@ -56,6 +61,7 @@ import {
     passes_walls,
     perceives,
     regenerates,
+    resist_conflict,
     slithy,
     strongmonst,
     throws_rocks,
@@ -497,6 +503,8 @@ test('movement predicates are exact projections of permonst flags', () => {
         [is_undead, 'mflags2', M.M2_UNDEAD],
         [is_were, 'mflags2', M.M2_WERE],
         [is_demon, 'mflags2', M.M2_DEMON],
+        [is_lord, 'mflags2', M.M2_LORD],
+        [is_prince, 'mflags2', M.M2_PRINCE],
         [is_human, 'mflags2', M.M2_HUMAN],
         [is_giant, 'mflags2', M.M2_GIANT],
         [is_wanderer, 'mflags2', M.M2_WANDER],
@@ -527,6 +535,43 @@ test('movement predicates are exact projections of permonst flags', () => {
                 || species.mattk.some((attack) => attack.aatyp === M.AT_WEAP),
         );
     }
+});
+
+test('demon rank and conflict resistance preserve source composition', () => {
+    const demonLord = {
+        mflags2: M.M2_DEMON | M.M2_LORD,
+    };
+    const mortalPrince = {
+        mflags2: M.M2_PRINCE,
+    };
+    assert.equal(is_dlord(demonLord), true);
+    assert.equal(is_dprince(demonLord), false);
+    assert.equal(is_prince(mortalPrince), true);
+    assert.equal(is_dprince(mortalPrince), false);
+
+    const state = {
+        u: {
+            acurr: { a: new Array(6).fill(0) },
+            ulevel: 3,
+        },
+    };
+    state.u.acurr.a[A_CHA] = 12;
+    const monster = { m_lev: 8 };
+    const bounds = [];
+    assert.equal(resist_conflict(monster, state, {
+        rnd(bound) {
+            bounds.push(bound);
+            return 8;
+        },
+    }), true);
+    assert.deepEqual(bounds, [20]);
+    assert.equal(resist_conflict(monster, state, { rnd: () => 7 }), false);
+
+    // min(19, ...) caps only the high end; the negative source chance stays
+    // negative and therefore makes every legal rnd(20) result resist.
+    state.u.acurr.a[A_CHA] = 3;
+    monster.m_lev = 30;
+    assert.equal(resist_conflict(monster, state, { rnd: () => 1 }), true);
 });
 
 test('compound movement predicates preserve source special cases', () => {
