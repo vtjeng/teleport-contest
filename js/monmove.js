@@ -3,6 +3,7 @@
 
 import {
     ACCESSIBLE,
+    AGGRAVATE_MONSTER,
     A_LAWFUL,
     A_NONE,
     AM_SHRINE,
@@ -31,6 +32,7 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     ROOMOFFSET,
     SHOPBASE,
+    STEALTH,
     STONE,
     TEMPLE,
     W_ARM,
@@ -54,16 +56,21 @@ import {
     G_UNIQ,
     PM_ANGEL,
     PM_DISPLACER_BEAST,
+    PM_ETTIN,
     PM_FOG_CLOUD,
     PM_GREMLIN,
     PM_GRID_BUG,
+    PM_JABBERWOCK,
     PM_MINOTAUR,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_VLAD_THE_IMPALER,
     PM_VROCK,
     PM_XORN,
+    S_DOG,
     S_HUMAN,
+    S_LEPRECHAUN,
+    S_NYMPH,
     S_VAMPIRE,
 } from './monsters.js';
 import { mon_track_clear } from './monst.js';
@@ -583,6 +590,44 @@ export async function monflee(
         monster.mflee = true;
     }
     mon_track_clear(monster);
+}
+
+// C ref: monmove.c disturb(). wakeMessage owns wake_msg(), including its
+// visibility-dependent message. It is preflighted before the first possible
+// random draw so an unavailable output owner cannot advance the PRNG stream.
+export async function disturb(monster, env = {}) {
+    const normalized = movementEnv(env);
+    const { couldSee, random, state } = normalized;
+
+    if (!couldSee(monster.mx, monster.my)
+        || dist2(monster.mx, monster.my, state.u.ux, state.u.uy) > 100) {
+        return 0;
+    }
+    const stealthyHero = propertyActive(state, STEALTH);
+    if (stealthyHero && !isSpecies(monster, PM_ETTIN, state)) return 0;
+    if (typeof env.wakeMessage !== 'function')
+        throw new TypeError('disturb requires a wakeMessage operation');
+
+    if (stealthyHero && !random.rn2(10)) return 0;
+    const hardToWake = monster.data?.mlet === S_NYMPH
+        || isSpecies(monster, PM_JABBERWOCK, state)
+        || monster.data?.mlet === S_LEPRECHAUN;
+    if (hardToWake && random.rn2(50)) return 0;
+
+    const readilyAwakened = propertyActive(state, AGGRAVATE_MONSTER)
+        || monster.data?.mlet === S_DOG
+        || monster.data?.mlet === S_HUMAN;
+    if (!readilyAwakened) {
+        if (random.rn2(7)
+            || (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE
+            || (monster.m_ap_type & M_AP_TYPMASK) === M_AP_OBJECT) {
+            return 0;
+        }
+    }
+
+    await env.wakeMessage(monster, !monster.mpeaceful, normalized);
+    monster.msleeping = false;
+    return 1;
 }
 
 // C ref: monmove.c distfleeck(). monflee() owns messages, release behavior,

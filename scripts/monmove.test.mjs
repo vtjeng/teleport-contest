@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
+    AGGRAVATE_MONSTER,
     ALTAR,
     A_LAWFUL,
     AM_LAWFUL,
@@ -25,6 +26,7 @@ import {
     ROOM,
     ROOMOFFSET,
     ROWNO,
+    STEALTH,
     TEMPLE,
     W_ARM,
 } from '../js/const.js';
@@ -34,6 +36,7 @@ import {
     can_fog,
     can_ooze,
     distfleeck,
+    disturb,
     in_your_sanctuary,
     monflee,
     monnear,
@@ -43,12 +46,17 @@ import {
 import {
     PM_ANGEL,
     PM_FOG_CLOUD,
+    PM_ETTIN,
     PM_GIANT_RAT,
     PM_GREMLIN,
     PM_GRID_BUG,
     PM_HUMAN,
+    PM_JABBERWOCK,
+    PM_LEPRECHAUN,
+    PM_LITTLE_DOG,
     PM_VAMPIRE_LEADER,
     PM_VROCK,
+    PM_WOOD_NYMPH,
     PM_XORN,
     monst_globals_init,
     reset_mvitals,
@@ -74,6 +82,12 @@ function makeState() {
     const uprops = [];
     uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[DEAF] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[STEALTH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[AGGRAVATE_MONSTER] = {
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    };
     uprops[DISPLACED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[PROT_FROM_SHAPE_CHANGERS] = {
         intrinsic: 0,
@@ -498,6 +512,174 @@ test('monnear excludes only grid-bug diagonal adjacency', () => {
     assert.equal(monnear(gridBug, 6, 6, state), false);
     assert.equal(monnear(gridBug, 6, 5, state), true);
     assert.equal(monnear(ordinary, 7, 5, state), false);
+});
+
+test('disturb rejects unseen, distant, and stealth-shielded monsters drawlessly', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mx: 9,
+        my: 10,
+        msleeping: true,
+    });
+    const noDraw = { rn2: () => assert.fail('rejected wake must not draw') };
+
+    assert.equal(await disturb(monster, {
+        state,
+        random: noDraw,
+        couldSee: () => false,
+    }), 0);
+
+    monster.mx = 1;
+    monster.my = 1;
+    assert.equal(await disturb(monster, {
+        state,
+        random: noDraw,
+        couldSee: () => true,
+    }), 0);
+
+    monster.mx = 9;
+    monster.my = 10;
+    state.u.uprops[STEALTH].intrinsic = 1;
+    assert.equal(await disturb(monster, {
+        state,
+        random: noDraw,
+        couldSee: () => true,
+    }), 0);
+    assert.equal(monster.msleeping, true);
+});
+
+test('disturb preserves Ettin and hard-sleeper random order', async () => {
+    const { state } = makeState();
+    state.u.uprops[STEALTH].intrinsic = 1;
+    const ettin = newMonster({
+        data: state.mons[PM_ETTIN],
+        mnum: PM_ETTIN,
+        mx: 9,
+        my: 10,
+        msleeping: true,
+    });
+    const ettinCalls = [];
+
+    assert.equal(await disturb(ettin, {
+        state,
+        random: sequenceRandom([1, 0], ettinCalls),
+        couldSee: () => true,
+        wakeMessage(candidate, hostile) {
+            assert.equal(candidate.msleeping, true);
+            assert.equal(hostile, true);
+        },
+    }), 1);
+    assert.deepEqual(ettinCalls, [10, 7]);
+    assert.equal(ettin.msleeping, false);
+
+    state.u.uprops[STEALTH].intrinsic = 0;
+    for (const pmidx of [PM_WOOD_NYMPH, PM_JABBERWOCK, PM_LEPRECHAUN]) {
+        const hardSleeper = newMonster({
+            data: state.mons[pmidx],
+            mnum: pmidx,
+            mx: 9,
+            my: 10,
+            msleeping: true,
+        });
+        const calls = [];
+        assert.equal(await disturb(hardSleeper, {
+            state,
+            random: sequenceRandom([1], calls),
+            couldSee: () => true,
+            wakeMessage: () => assert.fail('failed rare wake stays asleep'),
+        }), 0);
+        assert.deepEqual(calls, [50]);
+        assert.equal(hardSleeper.msleeping, true);
+    }
+
+    const nymph = newMonster({
+        data: state.mons[PM_WOOD_NYMPH],
+        mnum: PM_WOOD_NYMPH,
+        mx: 9,
+        my: 10,
+        msleeping: true,
+    });
+    const nymphCalls = [];
+    assert.equal(await disturb(nymph, {
+        state,
+        random: sequenceRandom([0, 0], nymphCalls),
+        couldSee: () => true,
+        wakeMessage() {},
+    }), 1);
+    assert.deepEqual(nymphCalls, [50, 7]);
+});
+
+test('disturb lets dogs and aggravation bypass the final random draw', async () => {
+    const { state } = makeState();
+    const dog = newMonster({
+        data: state.mons[PM_LITTLE_DOG],
+        mnum: PM_LITTLE_DOG,
+        mpeaceful: true,
+        msleeping: true,
+        mx: 9,
+        my: 10,
+    });
+    const noDraw = { rn2: () => assert.fail('readily awakened without draw') };
+    let dogHostile;
+
+    assert.equal(await disturb(dog, {
+        state,
+        random: noDraw,
+        couldSee: () => true,
+        wakeMessage(_candidate, hostile) {
+            dogHostile = hostile;
+        },
+    }), 1);
+    assert.equal(dogHostile, false);
+
+    const ordinary = ordinaryMonster(state, {
+        mx: 9,
+        my: 10,
+        msleeping: true,
+    });
+    state.u.uprops[AGGRAVATE_MONSTER].extrinsic = 1;
+    assert.equal(await disturb(ordinary, {
+        state,
+        random: noDraw,
+        couldSee: () => true,
+        wakeMessage() {},
+    }), 1);
+});
+
+test('disturb draws before rejecting a concealed ordinary monster', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        m_ap_type: M_AP_OBJECT,
+        msleeping: true,
+        mx: 9,
+        my: 10,
+    });
+    const calls = [];
+
+    assert.equal(await disturb(monster, {
+        state,
+        random: sequenceRandom([0], calls),
+        couldSee: () => true,
+        wakeMessage: () => assert.fail('concealed monster stays asleep'),
+    }), 0);
+    assert.deepEqual(calls, [7]);
+    assert.equal(monster.msleeping, true);
+});
+
+test('disturb preflights wake-message ownership before consuming randomness', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        msleeping: true,
+        mx: 9,
+        my: 10,
+    });
+
+    await assert.rejects(disturb(monster, {
+        state,
+        random: { rn2: () => assert.fail('missing wake owner preflights') },
+        couldSee: () => true,
+    }), /wakeMessage/);
+    assert.equal(monster.msleeping, true);
 });
 
 test('monflee preserves timer extension, untimed fear, and first-call rules', async () => {
