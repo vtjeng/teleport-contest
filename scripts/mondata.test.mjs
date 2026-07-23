@@ -4,16 +4,20 @@ import test from 'node:test';
 
 import {
     A_CHA,
+    ALL_TRAPS,
+    ARROW_TRAP,
     FEMALE,
     G_EXTINCT,
     G_GENOD,
     MALE,
     NEUTRAL,
+    NO_TRAP,
 } from '../js/const.js';
 import {
     _mondataInternals,
     amorphous,
     attacktype,
+    attacktype_fordmg,
     big_to_little,
     bigmonst,
     can_teleport,
@@ -35,6 +39,7 @@ import {
     is_giant,
     is_hider,
     is_human,
+    is_golem,
     is_lord,
     is_male,
     is_minion,
@@ -51,11 +56,13 @@ import {
     likes_magic,
     likes_objs,
     little_to_big,
+    mon_knows_traps,
     name_to_mon,
     name_to_monplus,
     needspick,
     noattacks,
     nohands,
+    nonliving,
     notake,
     passes_bars,
     passes_walls,
@@ -69,6 +76,7 @@ import {
     undead_to_corpse,
     unsolid,
     verysmall,
+    webmaker,
     zombie_form,
 } from '../js/mondata.js';
 import * as M from '../js/monsters.js';
@@ -605,4 +613,42 @@ test('compound movement predicates preserve source special cases', () => {
         assert.equal(passes_bars(species(mndx)), true, mndx);
     }
     assert.equal(passes_bars(species(M.PM_HUMAN)), false);
+});
+
+test('movement attack, life-state, web, and trap queries match source tables', () => {
+    const state = monsterState();
+    const species = (mndx) => state.mons[mndx];
+    const poisonBreath = {
+        mattk: [{ aatyp: M.AT_BREA, adtyp: M.AD_DRST }],
+    };
+
+    assert.equal(
+        attacktype_fordmg(poisonBreath, M.AT_BREA, M.AD_DRST),
+        true,
+    );
+    assert.equal(
+        attacktype_fordmg(poisonBreath, M.AT_BREA, M.AD_ANY),
+        true,
+    );
+    assert.equal(
+        attacktype_fordmg(poisonBreath, M.AT_BREA, M.AD_RBRE),
+        false,
+    );
+
+    assert.equal(is_golem(species(M.PM_IRON_GOLEM)), true);
+    assert.equal(nonliving(species(M.PM_IRON_GOLEM)), true);
+    assert.equal(nonliving(species(M.PM_MANES)), true);
+    assert.equal(nonliving(species(M.PM_HUMAN)), false);
+    assert.equal(webmaker(species(M.PM_CAVE_SPIDER)), true);
+    assert.equal(webmaker(species(M.PM_GIANT_SPIDER)), true);
+    assert.equal(webmaker(species(M.PM_HUMAN)), false);
+
+    const monster = { mtrapseen: 1 << (ARROW_TRAP - 1) };
+    assert.equal(mon_knows_traps(monster, ARROW_TRAP), true);
+    assert.equal(mon_knows_traps(monster, ARROW_TRAP + 1), false);
+    assert.equal(mon_knows_traps(monster, ALL_TRAPS), true);
+    assert.equal(mon_knows_traps(monster, NO_TRAP), false);
+    monster.mtrapseen = 0;
+    assert.equal(mon_knows_traps(monster, ALL_TRAPS), false);
+    assert.equal(mon_knows_traps(monster, NO_TRAP), true);
 });

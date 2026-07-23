@@ -5,10 +5,12 @@
 
 import {
     A_CHA,
+    ALL_TRAPS,
     FEMALE,
     G_GENOD,
     MALE,
     NEUTRAL,
+    NO_TRAP,
     NUM_MGENDERS,
 } from './const.js';
 import { effective_attribute } from './attrib.js';
@@ -34,6 +36,13 @@ function hasDamageType(species, damageType) {
 // callers decide how a capability interacts with level and monster state.
 export function attacktype(species, attackType) {
     return hasAttackType(species, attackType);
+}
+
+export function attacktype_fordmg(species, attackType, damageType) {
+    return Boolean(species?.mattk?.some(
+        (attack) => attack.aatyp === attackType
+            && (damageType === M.AD_ANY || attack.adtyp === damageType),
+    ));
 }
 
 export function noattacks(species) {
@@ -129,6 +138,18 @@ export function likes_magic(species) { return flag2(species, M.M2_MAGIC); }
 export function is_covetous(species) { return flag3(species, M.M3_COVETOUS); }
 export function is_displacer(species) { return flag3(species, M.M3_DISPLACES); }
 
+export function is_golem(species) { return species?.mlet === M.S_GOLEM; }
+export function nonliving(species) {
+    return is_undead(species)
+        || species?.pmidx === M.PM_MANES
+        || is_golem(species)
+        || species?.mlet === M.S_VORTEX;
+}
+export function webmaker(species) {
+    return species?.pmidx === M.PM_CAVE_SPIDER
+        || species?.pmidx === M.PM_GIANT_SPIDER;
+}
+
 export function is_whirly(species) {
     return species?.mlet === M.S_VORTEX
         || species?.pmidx === M.PM_AIR_ELEMENTAL;
@@ -172,6 +193,14 @@ export function resist_conflict(monster, state = game, random = { rnd }) {
             + Math.trunc(state.u?.ulevel ?? 0),
     );
     return random.rnd(20) > resistChance;
+}
+
+// C ref: mondata.c mon_knows_traps(). The two sentinels retain their source
+// meanings; ordinary trap types map to bit positions starting at one.
+export function mon_knows_traps(monster, trapType) {
+    if (trapType === ALL_TRAPS) return Boolean(monster.mtrapseen);
+    if (trapType === NO_TRAP) return !monster.mtrapseen;
+    return Boolean((monster.mtrapseen ?? 0) & (1 << (trapType - 1)));
 }
 
 // C ref: mondata.c passes_bars(). This combines shape, size, attack, and diet

@@ -157,6 +157,13 @@ export function dist2(x1, y1, x2, y2) {
     return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 }
 
+// C ref: hacklib.c online2(). Orthogonal and 45-degree diagonal lines count.
+export function online2(x0, y0, x1, y1) {
+    const dx = x0 - x1;
+    const dy = y0 - y1;
+    return !dy || !dx || dy === dx || dy === -dx;
+}
+
 export function depth(uz) {
     const dnum = uz?.dnum ?? 0;
     const dlevel = uz?.dlevel ?? 1;

@@ -7,10 +7,12 @@ import {
     ALLOW_BARS,
     ALLOW_DIG,
     ALLOW_M,
+    ALLOW_MDISP,
     ALLOW_ROCK,
     ALLOW_SANCT,
     ALLOW_SSM,
     ALLOW_TRAPS,
+    ALLOW_TM,
     ALLOW_U,
     ALLOW_WALL,
     ALTAR,
@@ -18,6 +20,8 @@ import {
     A_NEUTRAL,
     AM_LAWFUL,
     AM_SHRINE,
+    ARROW_TRAP,
+    BEAR_TRAP,
     BUSTDOOR,
     COLNO,
     CONFLICT,
@@ -27,34 +31,54 @@ import {
     DISPLACED,
     DOOR,
     DRAWBRIDGE_UP,
+    D_BROKEN,
     D_CLOSED,
+    D_LOCKED,
     DUST,
     FAINTED,
     G_GENOD,
     HEADSTONE,
     INVIS,
+    LAVAPOOL,
+    LAVAWALL,
     M_AP_OBJECT,
     NOGARLIC,
     NOTONL,
     OPENDOOR,
+    POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     ROOMOFFSET,
     ROWNO,
+    RUST_TRAP,
+    SLP_GAS_TRAP,
     STEALTH,
+    STONE,
+    TELEP_TRAP,
     TEMPLE,
+    TREE,
     UNLOCKDOOR,
+    WATER,
+    W_NONDIGGABLE,
+    W_NONPASSWALL,
     W_ARM,
 } from '../js/const.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
+import { create_region } from '../js/region.js';
 import {
     accessible,
+    bad_rock,
     can_fog,
     can_ooze,
     distfleeck,
     disturb,
     in_your_sanctuary,
     m_can_break_boulder,
+    m_harmless_trap,
+    m_in_air,
+    may_dig,
+    may_passwall,
+    mfndpos,
     mon_allowflags,
     monhaskey,
     monflee,
@@ -63,24 +87,33 @@ import {
     set_apparxy,
 } from '../js/monmove.js';
 import {
+    M1_CLING,
     M1_NEEDPICK,
     M1_TUNNEL,
     MS_LEADER,
     PM_ANGEL,
     PM_DEATH,
+    PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
+    PM_FLOATING_EYE,
     PM_ETTIN,
     PM_GIANT_RAT,
+    PM_GIANT_EEL,
     PM_GHOST,
     PM_GREMLIN,
     PM_GRID_BUG,
     PM_HILL_GIANT,
     PM_HUMAN,
     PM_HUMAN_ZOMBIE,
+    PM_IRON_GOLEM,
     PM_JABBERWOCK,
     PM_LEPRECHAUN,
     PM_LITTLE_DOG,
+    PM_LONG_WORM,
     PM_MINOTAUR,
+    PM_PURPLE_WORM,
+    PM_SALAMANDER,
+    PM_SHRIEKER,
     PM_VAMPIRE_LEADER,
     PM_VROCK,
     PM_WHITE_UNICORN,
@@ -93,6 +126,9 @@ import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import {
     COIN_CLASS,
+    AXE,
+    BOULDER,
+    CLOVE_OF_GARLIC,
     CREDIT_CARD,
     DAGGER,
     GOLD_DRAGON_SCALE_MAIL,
@@ -103,10 +139,15 @@ import {
     SKELETON_KEY,
     objects_globals_init,
 } from '../js/objects.js';
+import { S_poisoncloud } from '../js/symbols.js';
 
 function makeState() {
     const locations = new Map();
     const floorObjects = Array.from(
+        { length: COLNO },
+        () => Array(ROWNO).fill(null),
+    );
+    const floorMonsters = Array.from(
         { length: COLNO },
         () => Array(ROWNO).fill(null),
     );
@@ -131,12 +172,26 @@ function makeState() {
         dungeons: [{ flags: { hellish: false } }],
         astral_level: { dnum: 99, dlevel: 1 },
         level: {
+            flags: {
+                arboreal: false,
+                has_temple: false,
+                sokoban_rules: false,
+            },
             monlist: null,
+            monsters: floorMonsters,
             objects: floorObjects,
+            regions: [],
             rooms: [],
+            traps: [],
+            worms: [],
             at(x, y) {
                 return locations.get(`${x},${y}`) ?? { typ: ROOM, flags: 0 };
             },
+        },
+        track: {
+            utcnt: 0,
+            utpnt: 0,
+            utrack: [],
         },
         u: {
             ux: 10,
@@ -176,6 +231,19 @@ function objectFor(state, otyp, overrides = {}) {
         quan: 1,
         ...overrides,
     });
+}
+
+function sealNeighborhood(locations, x, y) {
+    for (let nx = x - 1; nx <= x + 1; ++nx) {
+        for (let ny = y - 1; ny <= y + 1; ++ny) {
+            if (nx === x && ny === y) continue;
+            locations.set(`${nx},${ny}`, {
+                typ: STONE,
+                flags: 0,
+                wall_info: W_NONDIGGABLE | W_NONPASSWALL,
+            });
+        }
+    }
 }
 
 function sequenceRandom(values, calls) {
@@ -377,6 +445,421 @@ test('mon_allowflags draws once for conflict resistance', () => {
         random: { rnd: () => 6 },
     });
     assert.equal(Boolean(flags & ALLOW_U), false);
+});
+
+test('movement terrain helpers preserve walls, boulders, and ceilings', () => {
+    const { locations, state } = makeState();
+    locations.set('3,3', { typ: STONE, flags: 0, wall_info: 0 });
+    assert.equal(may_dig(3, 3, state), true);
+    assert.equal(may_passwall(3, 3, state), true);
+    locations.get('3,3').wall_info = W_NONDIGGABLE | W_NONPASSWALL;
+    assert.equal(may_dig(3, 3, state), false);
+    assert.equal(may_passwall(3, 3, state), false);
+
+    const human = state.mons[PM_HUMAN];
+    assert.equal(bad_rock(human, 3, 3, state), true);
+    locations.get('3,3').wall_info = 0;
+    assert.equal(bad_rock(state.mons[PM_XORN], 3, 3, state), false);
+
+    locations.set('6,6', { typ: ROOM, flags: 0, wall_info: 0 });
+    state.level.flags.sokoban_rules = true;
+    state.level.objects[6][6] = objectFor(state, BOULDER);
+    assert.equal(bad_rock(human, 6, 6, state), true);
+
+    const floater = newMonster({ data: state.mons[PM_FLOATING_EYE] });
+    assert.equal(m_in_air(floater, state), true);
+    const clinger = newMonster({
+        data: { ...human, mflags1: human.mflags1 | M1_CLING },
+        mundetected: true,
+    });
+    assert.equal(m_in_air(clinger, state), true);
+    state.u.uz = { dnum: state.astral_level.dnum, dlevel: 1 };
+    state.earth_level = { dnum: state.astral_level.dnum, dlevel: 2 };
+    assert.equal(m_in_air(clinger, state), false);
+});
+
+test('m_harmless_trap keeps structural cases local to movement legality', () => {
+    const { state } = makeState();
+    const floater = newMonster({ data: state.mons[PM_FLOATING_EYE] });
+    assert.equal(m_harmless_trap(floater, { ttyp: ARROW_TRAP }, { state }), true);
+
+    const rat = ordinaryMonster(state);
+    assert.equal(m_harmless_trap(rat, { ttyp: BEAR_TRAP }, { state }), true);
+    const human = newMonster({ data: state.mons[PM_HUMAN] });
+    assert.equal(m_harmless_trap(human, { ttyp: RUST_TRAP }, { state }), true);
+    const ironGolem = newMonster({ data: state.mons[PM_IRON_GOLEM] });
+    assert.equal(
+        m_harmless_trap(ironGolem, { ttyp: RUST_TRAP }, { state }),
+        false,
+    );
+
+    assert.throws(
+        () => m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, { state }),
+        /resistsTrapEffect/,
+    );
+    assert.equal(m_harmless_trap(human, { ttyp: SLP_GAS_TRAP }, {
+        state,
+        resistsTrapEffect: () => true,
+    }), true);
+});
+
+test('mfndpos enumerates neighbors in source x-major order', () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, { mcansee: false });
+    const data = {};
+
+    assert.equal(mfndpos(monster, data, 0, {
+        state,
+        onScary: () => false,
+    }), 8);
+    assert.deepEqual(data.poss.slice(0, data.cnt), [
+        { x: 3, y: 3 }, { x: 3, y: 4 }, { x: 3, y: 5 },
+        { x: 4, y: 3 }, { x: 4, y: 5 },
+        { x: 5, y: 3 }, { x: 5, y: 4 }, { x: 5, y: 5 },
+    ]);
+
+    const gridBug = newMonster({
+        data: state.mons[PM_GRID_BUG],
+        mnum: PM_GRID_BUG,
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(gridBug, data, 0, {
+        state,
+        onScary: () => false,
+    }), 4);
+    assert.deepEqual(data.poss.slice(0, data.cnt), [
+        { x: 3, y: 4 }, { x: 4, y: 3 },
+        { x: 4, y: 5 }, { x: 5, y: 4 },
+    ]);
+});
+
+test('mfndpos records scary squares and adjacent hero discovery', () => {
+    const { state } = makeState();
+    state.u.ux = 5;
+    state.u.uy = 4;
+    const monster = ordinaryMonster(state, {
+        mux: 12,
+        muy: 12,
+        mcansee: true,
+    });
+    const data = {};
+    const onScary = (x, y) => x === 3 && y === 4;
+
+    assert.equal(mfndpos(monster, data, ALLOW_U, { state, onScary }), 7);
+    assert.deepEqual([monster.mux, monster.muy], [5, 4]);
+    const heroIndex = data.poss.findIndex(
+        ({ x, y }) => x === state.u.ux && y === state.u.uy,
+    );
+    assert.ok(heroIndex >= 0);
+    assert.ok(data.info[heroIndex] & ALLOW_U);
+
+    assert.equal(mfndpos(monster, data, ALLOW_U | ALLOW_SSM, {
+        state,
+        onScary,
+    }), 8);
+    const scaryIndex = data.poss.findIndex(({ x, y }) => x === 3 && y === 4);
+    assert.ok(data.info[scaryIndex] & ALLOW_SSM);
+});
+
+test('mfndpos applies door and digging tools before candidate metadata', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    const door = { typ: DOOR, flags: D_CLOSED, wall_info: 0 };
+    locations.set('3,4', door);
+    const human = newMonster({
+        data: state.mons[PM_HUMAN],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    const data = {};
+
+    assert.equal(mfndpos(human, data, 0, {
+        state,
+        onScary: () => false,
+    }), 0);
+    assert.equal(mfndpos(human, data, OPENDOOR, {
+        state,
+        onScary: () => false,
+    }), 1);
+    door.flags = D_LOCKED;
+    assert.equal(mfndpos(human, data, OPENDOOR, {
+        state,
+        onScary: () => false,
+    }), 0);
+    assert.equal(mfndpos(human, data, UNLOCKDOOR, {
+        state,
+        onScary: () => false,
+    }), 1);
+
+    locations.set('3,4', { typ: TREE, flags: 0, wall_info: 0 });
+    const tunneler = newMonster({
+        data: {
+            ...state.mons[PM_HUMAN],
+            mflags1: state.mons[PM_HUMAN].mflags1
+                | M1_TUNNEL | M1_NEEDPICK,
+        },
+        minvent: objectFor(state, AXE),
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(tunneler, data, ALLOW_DIG, {
+        state,
+        onScary: () => false,
+    }), 1);
+});
+
+test('mfndpos preserves boulder, garlic, and trap information bits', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const human = newMonster({
+        data: state.mons[PM_HUMAN],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    const data = {};
+    const env = { state, onScary: () => false };
+
+    state.level.objects[3][4] = objectFor(state, BOULDER);
+    assert.equal(mfndpos(human, data, 0, env), 0);
+    assert.equal(mfndpos(human, data, ALLOW_ROCK, env), 1);
+    assert.ok(data.info[0] & ALLOW_ROCK);
+
+    state.level.objects[3][4] = objectFor(state, CLOVE_OF_GARLIC);
+    const zombie = newMonster({
+        data: state.mons[PM_HUMAN_ZOMBIE],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(zombie, data, NOGARLIC, env), 0);
+    assert.equal(mfndpos(human, data, 0, env), 1);
+    assert.ok(data.info[0] & NOGARLIC);
+
+    state.level.objects[3][4] = null;
+    state.level.traps = [{ tx: 3, ty: 4, ttyp: ARROW_TRAP }];
+    human.mtrapseen = 1 << (ARROW_TRAP - 1);
+    assert.equal(mfndpos(human, data, 0, env), 0);
+    human.mtrapseen = 0;
+    assert.equal(mfndpos(human, data, 0, env), 1);
+    assert.ok(data.info[0] & ALLOW_TRAPS);
+
+    const floater = newMonster({
+        data: state.mons[PM_FLOATING_EYE],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(floater, data, 0, env), 1);
+    assert.equal(Boolean(data.info[0] & ALLOW_TRAPS), false);
+});
+
+test('mfndpos applies monster aggression and displacement at occupancy', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('5,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const data = {};
+    const env = { state, onScary: () => false };
+    const attacker = newMonster({
+        data: state.mons[PM_HUMAN],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    const defender = ordinaryMonster(state, {
+        mx: 5,
+        my: 4,
+        m_lev: 1,
+    });
+    state.level.monsters[5][4] = defender;
+
+    assert.equal(mfndpos(attacker, data, 0, env), 0);
+    assert.equal(mfndpos(attacker, data, ALLOW_M, env), 1);
+    assert.ok(data.info[0] & ALLOW_M);
+    defender.mtame = 5;
+    assert.equal(mfndpos(attacker, data, ALLOW_M, env), 0);
+    assert.equal(mfndpos(attacker, data, ALLOW_M | ALLOW_TM, env), 1);
+    assert.ok(data.info[0] & ALLOW_TM);
+
+    attacker.data = state.mons[PM_PURPLE_WORM];
+    attacker.mnum = PM_PURPLE_WORM;
+    defender.data = state.mons[PM_SHRIEKER];
+    defender.mnum = PM_SHRIEKER;
+    defender.mtame = 0;
+    assert.equal(mfndpos(attacker, data, 0, env), 1);
+    assert.ok(data.info[0] & ALLOW_M);
+
+    attacker.data = state.mons[PM_DISPLACER_BEAST];
+    attacker.mnum = PM_DISPLACER_BEAST;
+    attacker.m_lev = 10;
+    defender.data = state.mons[PM_GIANT_RAT];
+    defender.mnum = PM_GIANT_RAT;
+    assert.equal(mfndpos(attacker, data, ALLOW_MDISP, env), 1);
+    assert.ok(data.info[0] & ALLOW_MDISP);
+});
+
+test('mfndpos retries eel movement on land only when no pool is adjacent', () => {
+    const { locations, state } = makeState();
+    const eel = newMonster({
+        data: state.mons[PM_GIANT_EEL],
+        mnum: PM_GIANT_EEL,
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    const data = {};
+    const env = { state, onScary: () => false };
+
+    assert.equal(mfndpos(eel, data, 0, env), 8);
+    locations.set('3,4', { typ: POOL, flags: 0, wall_info: 0 });
+    assert.equal(mfndpos(eel, data, 0, env), 1);
+    assert.deepEqual(data.poss[0], { x: 3, y: 4 });
+});
+
+test('mfndpos preserves water, lava-wall, and poison-cloud preferences', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    const data = {};
+    const env = { state, onScary: () => false };
+    const human = newMonster({
+        data: state.mons[PM_HUMAN],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+
+    locations.set('3,4', { typ: WATER, flags: 0, wall_info: 0 });
+    assert.equal(mfndpos(human, data, 0, env), 0);
+    const eel = newMonster({
+        data: state.mons[PM_GIANT_EEL],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(eel, data, 0, env), 1);
+
+    locations.set('3,4', { typ: LAVAPOOL, flags: 0, wall_info: 0 });
+    assert.equal(mfndpos(human, data, 0, env), 0);
+    const salamander = newMonster({
+        data: state.mons[PM_SALAMANDER],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(salamander, data, 0, env), 1);
+    locations.set('3,4', { typ: LAVAWALL, flags: 0, wall_info: 0 });
+    assert.equal(mfndpos(salamander, data, 0, env), 0);
+    assert.equal(mfndpos(salamander, data, ALLOW_WALL, env), 1);
+
+    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const cloud = create_region([{ lx: 3, ly: 4, hx: 3, hy: 4 }]);
+    cloud.visible = true;
+    cloud.glyph = S_poisoncloud;
+    state.level.regions = [cloud];
+    assert.equal(mfndpos(human, data, 0, env), 0);
+    const zombie = newMonster({
+        data: state.mons[PM_HUMAN_ZOMBIE],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(zombie, data, 0, env), 1);
+
+    cloud.rects.push({ lx: 4, ly: 4, hx: 4, hy: 4 });
+    cloud.bounding_box.hx = 4;
+    assert.equal(mfndpos(human, data, 0, env), 1);
+});
+
+test('mfndpos blocks source diagonal door and worm crossings', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('4,4', { typ: DOOR, flags: D_CLOSED, wall_info: 0 });
+    const monster = ordinaryMonster(state, { mcansee: false });
+    const data = {};
+    const env = { state, onScary: () => false };
+
+    assert.equal(mfndpos(monster, data, 0, env), 0);
+    locations.get('4,4').flags = D_BROKEN;
+    assert.equal(mfndpos(monster, data, 0, env), 1);
+
+    locations.set('4,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const giant = newMonster({
+        data: state.mons[PM_HILL_GIANT],
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    assert.equal(mfndpos(giant, data, 0, env), 0);
+
+    const worm = newMonster({
+        data: state.mons[PM_LONG_WORM],
+        mnum: PM_LONG_WORM,
+        wormno: 1,
+    });
+    state.level.monsters[3][4] = worm;
+    state.level.monsters[4][3] = worm;
+    state.level.worms[1] = {
+        segments: [{ x: 3, y: 4 }, { x: 4, y: 3 }],
+    };
+    assert.equal(mfndpos(monster, data, 0, env), 0);
+
+    state.level.worms[1].segments.splice(1, 0, { x: 2, y: 4 });
+    assert.equal(mfndpos(monster, data, 0, env), 1);
+});
+
+test('mfndpos records line, sanctuary, and fixed-teleport constraints', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('5,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const monster = ordinaryMonster(state, {
+        mcansee: true,
+        mux: 8,
+        muy: 4,
+    });
+    const data = {};
+    const env = { state, onScary: () => false };
+
+    assert.equal(mfndpos(monster, data, NOTONL, env), 0);
+    assert.equal(mfndpos(monster, data, 0, env), 1);
+    assert.ok(data.info[0] & NOTONL);
+
+    monster.mcansee = false;
+    const roomNumber = ROOMOFFSET;
+    state.level.flags.has_temple = true;
+    state.level.rooms[0] = { rtype: TEMPLE };
+    locations.set('5,4', {
+        typ: ROOM,
+        flags: 0,
+        wall_info: 0,
+        roomno: roomNumber,
+    });
+    assert.equal(mfndpos(monster, data, 0, {
+        ...env,
+        inYourSanctuary: () => true,
+    }), 0);
+    assert.equal(mfndpos(monster, data, ALLOW_SANCT, {
+        ...env,
+        inYourSanctuary: () => true,
+    }), 1);
+    assert.ok(data.info[0] & ALLOW_SANCT);
+
+    state.level.flags.has_temple = false;
+    state.level.traps = [{
+        tx: 5,
+        ty: 4,
+        ttyp: TELEP_TRAP,
+        teledest: { x: 12, y: 12 },
+    }];
+    state.track.utcnt = 1;
+    state.track.utrack = [{ x: 5, y: 4 }];
+    assert.equal(mfndpos(monster, data, 0, env), 1);
+    assert.ok(data.info[0] & ALLOW_TRAPS);
 });
 
 test('set_apparxy keeps exact knowledge for pets and remembered hero squares', () => {

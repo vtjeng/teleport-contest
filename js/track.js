@@ -16,3 +16,14 @@ export function initrack(state = game) {
     };
     return state.track;
 }
+
+// C ref: track.c hastrack(). Only the populated prefix is meaningful even
+// after the circular insertion point has wrapped.
+export function hastrack(x, y, state = game) {
+    const count = Math.trunc(state.track?.utcnt ?? 0);
+    const track = state.track?.utrack ?? [];
+    for (let index = 0; index < count; ++index) {
+        if (track[index]?.x === x && track[index]?.y === y) return true;
+    }
+    return false;
+}

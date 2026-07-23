@@ -4,21 +4,28 @@
 import {
     ACCESSIBLE,
     AGGRAVATE_MONSTER,
+    ALLOW_ALL,
     ALLOW_BARS,
     ALLOW_DIG,
     ALLOW_M,
+    ALLOW_MDISP,
     ALLOW_ROCK,
     ALLOW_SANCT,
     ALLOW_SSM,
     ALLOW_TRAPS,
+    ALLOW_TM,
     ALLOW_U,
     ALLOW_WALL,
     A_LAWFUL,
     A_NONE,
     AM_SHRINE,
     Amask2align,
+    ANTI_MAGIC,
+    ARROW_TRAP,
+    BEAR_TRAP,
     BOLT_LIM,
     BUSTDOOR,
+    COLNO,
     CONFLICT,
     DB_ICE,
     DB_LAVA,
@@ -28,79 +35,151 @@ import {
     DISPLACED,
     DOOR,
     DRAWBRIDGE_UP,
+    DART_TRAP,
+    D_BROKEN,
     D_CLOSED,
     D_LOCKED,
     FAINTED,
+    FIRE_TRAP,
     G_GENOD,
+    HOLE,
     ICE,
     INVIS,
+    IRONBARS,
     IS_ALTAR,
+    IS_DOOR,
+    IS_OBSTRUCTED,
+    IS_STWALL,
+    IS_WATERWALL,
+    LANDMINE,
     LAVAPOOL,
+    LAVAWALL,
+    LEVEL_TELEP,
+    MAGIC_PORTAL,
+    MAGIC_TRAP,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MOAT,
     NOGARLIC,
+    NO_WEAPON_WANTED,
     NOTONL,
     OPENDOOR,
+    PIT,
+    POLY_TRAP,
+    P_AXE,
+    P_PICK_AXE,
     PROT_FROM_SHAPE_CHANGERS,
     ROOMOFFSET,
+    ROCKTRAP,
+    ROLLING_BOULDER_TRAP,
+    ROWNO,
+    RUST_TRAP,
     SHOPBASE,
+    SLP_GAS_TRAP,
+    SPIKED_PIT,
+    SQKY_BOARD,
+    STATUE_TRAP,
     STEALTH,
     STONE,
+    TELEP_TRAP,
     TEMPLE,
+    TRAPDOOR,
+    TRAPNUM,
+    TREE,
     UNLOCKDOOR,
+    VIBRATING_SQUARE,
+    WEB,
     W_ARM,
+    W_ARMS,
+    W_NONDIGGABLE,
+    W_NONPASSWALL,
+    WT_TOOMUCH_DIAGONAL,
     isok,
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
 import { on_level } from './dungeon.js';
 import { sengr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import { dist2, online2 } from './hacklib.js';
 import { money_cnt } from './invent.js';
-import { m_carrying } from './mon.js';
+import { curr_mon_load, m_carrying } from './mon.js';
 import {
     amorphous,
+    attacktype_fordmg,
+    bigmonst,
+    breathless,
+    dmgtype,
+    is_clinger,
+    is_displacer,
+    is_floater,
+    is_flyer,
     is_giant,
     is_human,
     is_minion,
     is_rider,
+    is_swimmer,
     is_undead,
     is_unicorn,
     is_vampshifter,
+    is_whirly,
+    likes_lava,
+    mindless,
+    mon_knows_traps,
     needspick,
     nohands,
+    noncorporeal,
+    nonliving,
     passes_bars,
     passes_walls,
     perceives,
     resist_conflict,
+    slithy,
     throws_rocks,
     tunnels,
     unsolid,
     verysmall,
+    webmaker,
+    zombie_form,
 } from './mondata.js';
 import {
+    AD_DRST,
+    AD_CORR,
+    AD_RBRE,
+    AD_RUST,
+    AT_BREA,
     G_UNIQ,
+    MS_LEADER,
+    MZ_SMALL,
     PM_ANGEL,
+    PM_BABY_PURPLE_WORM,
     PM_DISPLACER_BEAST,
     PM_ETTIN,
     PM_FOG_CLOUD,
+    PM_FLOATING_EYE,
+    PM_GHOUL,
     PM_GREMLIN,
     PM_GRID_BUG,
+    PM_HEZROU,
+    PM_IRON_GOLEM,
     PM_JABBERWOCK,
     PM_MINOTAUR,
+    PM_PURPLE_WORM,
+    PM_SHRIEKER,
+    PM_SKELETON,
     PM_VROCK,
     PM_XORN,
     S_DOG,
+    S_EEL,
     S_GHOST,
     S_HUMAN,
     S_LEPRECHAUN,
+    S_LICH,
     S_NYMPH,
     S_VAMPIRE,
-    MS_LEADER,
+    S_ZOMBIE,
 } from './monsters.js';
-import { mon_track_clear } from './monst.js';
+import { m_at, mon_track_clear } from './monst.js';
 import {
     isCandle,
     isContainer,
@@ -114,16 +193,21 @@ import {
     ARM_GLOVES,
     ARM_SHIRT,
     ARROW,
+    AXE,
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
+    BATTLE_AXE,
     BLINDFOLD,
+    BOULDER,
     BOOMERANG,
     CANDY_BAR,
     COIN_CLASS,
+    CLOVE_OF_GARLIC,
     CORPSE,
     CREDIT_CARD,
     CRYSKNIFE,
     DAGGER,
+    DWARVISH_MATTOCK,
     FEDORA,
     FORTUNE_COOKIE,
     GEM_CLASS,
@@ -138,6 +222,7 @@ import {
     MAGIC_WHISTLE,
     OILSKIN_SACK,
     PANCAKE,
+    PICK_AXE,
     RING_CLASS,
     SACK,
     SCR_SCARE_MONSTER,
@@ -149,10 +234,15 @@ import {
     TOWEL,
     VENOM_CLASS,
 } from './objects.js';
+import { visible_region_at } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
+import { S_poisoncloud } from './symbols.js';
 import { noteleport_level } from './teleport.js';
+import { hastrack } from './track.js';
+import { is_lava, is_pool, t_at } from './trap.js';
 import { couldsee } from './vision.js';
+import { which_armor } from './weapon.js';
 
 const ALGN_SINNED = -4;
 const ROOM_STRING_SIZE = 5;
@@ -287,6 +377,514 @@ export function mon_allowflags(monster, env = {}) {
         allowflags |= NOGARLIC;
     }
     return allowflags;
+}
+
+function currentLevelHasCeiling(state) {
+    return !inEndgame(state) || on_level(state.u?.uz, state.earth_level);
+}
+
+// C ref: mon.c m_in_air(). Clingers count only while concealed against a
+// ceiling; ordinary flyers and floaters are unconditional.
+export function m_in_air(monster, state = game) {
+    return is_flyer(monster.data)
+        || is_floater(monster.data)
+        || (is_clinger(monster.data)
+            && currentLevelHasCeiling(state)
+            && monster.mundetected);
+}
+
+function isTreeTerrain(type, state) {
+    return type === TREE
+        || (type === STONE && state.level?.flags?.arboreal);
+}
+
+// C refs: hack.c may_dig() and may_passwall().
+export function may_dig(x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    if (!location) return false;
+    return !((IS_STWALL(location.typ) || isTreeTerrain(location.typ, state))
+        && ((location.wall_info ?? 0) & W_NONDIGGABLE));
+}
+
+export function may_passwall(x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    if (!location) return false;
+    return !(IS_STWALL(location.typ)
+        && ((location.wall_info ?? 0) & W_NONPASSWALL));
+}
+
+// C ref: hack.c bad_rock(), specialized only by its supplied monster species.
+export function bad_rock(species, x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    if (!location) return true;
+    return Boolean(
+        (state.level?.flags?.sokoban_rules && sobj_at(BOULDER, x, y, state))
+        || (IS_OBSTRUCTED(location.typ)
+            && (!tunnels(species) || needspick(species)
+                || !may_dig(x, y, state))
+            && !(passes_walls(species) && may_passwall(x, y, state))),
+    );
+}
+
+// mfndpos() never passes the hero to hack.c cant_squeeze_thru(). Preserve the
+// complete monster branch without importing the later hero burden subsystem.
+function monsterCantSqueezeThrough(monster, state) {
+    const species = monster.data;
+    if (passes_walls(species)) return 0;
+    if (bigmonst(species)
+        && !(amorphous(species) || is_whirly(species)
+            || noncorporeal(species) || slithy(species)
+            || can_fog(monster, state))) {
+        return 1;
+    }
+    return curr_mon_load(monster, state) > WT_TOOMUCH_DIAGONAL ? 2 : 0;
+}
+
+function isPick(obj, state) {
+    return Boolean(obj && objectType(obj, state).oc_skill === P_PICK_AXE);
+}
+
+function isAxe(obj, state) {
+    return Boolean(obj && objectType(obj, state).oc_skill === P_AXE);
+}
+
+function monsterPoisonGasSafe(monster, state) {
+    const species = monster.data;
+    if (nonliving(species) || is_vampshifter(monster)
+        || breathless(species)
+        || isSpecies(monster, PM_HEZROU, state)
+        || isSpecies(monster, PM_VROCK, state)) {
+        return true;
+    }
+    if ((species?.mlet === S_EEL
+        || on_level(state.u?.uz, state.water_level))
+        && is_pool(monster.mx, monster.my, state)) {
+        return true;
+    }
+    return attacktype_fordmg(species, AT_BREA, AD_DRST)
+        || attacktype_fordmg(species, AT_BREA, AD_RBRE);
+}
+
+const FLOOR_TRIGGER_TRAPS = new Set([
+    ARROW_TRAP,
+    DART_TRAP,
+    ROCKTRAP,
+    SQKY_BOARD,
+    BEAR_TRAP,
+    LANDMINE,
+    ROLLING_BOULDER_TRAP,
+    SLP_GAS_TRAP,
+    RUST_TRAP,
+    FIRE_TRAP,
+    PIT,
+    SPIKED_PIT,
+    HOLE,
+    TRAPDOOR,
+]);
+
+function trapResistance(monster, trap, env) {
+    if (typeof env.resistsTrapEffect !== 'function') {
+        throw new TypeError(
+            'm_harmless_trap requires resistsTrapEffect for this trap type',
+        );
+    }
+    return Boolean(env.resistsTrapEffect(monster, trap.ttyp, env));
+}
+
+// C ref: trap.c m_harmless_trap(). Elemental and antimagic equipment defense
+// stays with its artifact/equipment owner and is requested only on those three
+// branches; every shape, flight, and ordinary-trap clause is local.
+export function m_harmless_trap(monster, trap, env = {}) {
+    const state = env.state ?? game;
+    const species = monster.data;
+    const sokoban = Boolean(state.level?.flags?.sokoban_rules);
+    if (!sokoban && FLOOR_TRIGGER_TRAPS.has(trap.ttyp)
+        && (is_floater(species) || is_flyer(species))) {
+        return true;
+    }
+
+    switch (trap.ttyp) {
+    case ARROW_TRAP:
+    case DART_TRAP:
+    case ROCKTRAP:
+    case SQKY_BOARD:
+    case LANDMINE:
+    case ROLLING_BOULDER_TRAP:
+    case TELEP_TRAP:
+    case LEVEL_TELEP:
+    case MAGIC_PORTAL:
+    case POLY_TRAP:
+        return false;
+    case BEAR_TRAP:
+        return species.msize <= MZ_SMALL || amorphous(species)
+            || is_whirly(species) || unsolid(species);
+    case SLP_GAS_TRAP:
+    case FIRE_TRAP:
+    case ANTI_MAGIC:
+        return trapResistance(monster, trap, { ...env, state });
+    case RUST_TRAP:
+        return !isSpecies(monster, PM_IRON_GOLEM, state);
+    case PIT:
+    case SPIKED_PIT:
+    case HOLE:
+    case TRAPDOOR:
+        return is_clinger(species) && !sokoban;
+    case WEB:
+        return amorphous(species) || webmaker(species)
+            || is_whirly(species) || unsolid(species);
+    case STATUE_TRAP:
+    case MAGIC_TRAP:
+    case VIBRATING_SQUARE:
+        return true;
+    default:
+        return false;
+    }
+}
+
+function fixedTeleportTrap(trap) {
+    return trap.ttyp === TELEP_TRAP
+        && isok(trap.teledest?.x, trap.teledest?.y);
+}
+
+function wormCross(x1, y1, x2, y2, state) {
+    if (Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) !== 1
+        || x1 === x2 || y1 === y2) {
+        return false;
+    }
+    const worm = m_at(x1, y2, state);
+    if (!worm || m_at(x2, y1, state) !== worm) return false;
+    const segments = state.level?.worms?.[worm.wormno]?.segments ?? [];
+    for (let index = 0; index + 1 < segments.length; ++index) {
+        const current = segments[index];
+        const next = segments[index + 1];
+        if (current.x === x1 && current.y === y2)
+            return next.x === x2 && next.y === y1;
+        if (current.x === x2 && current.y === y1)
+            return next.x === x1 && next.y === y2;
+    }
+    return false;
+}
+
+function onWizardTowerLevel(state) {
+    const level = state.u?.uz;
+    return on_level(level, state.wiz1_level)
+        || on_level(level, state.wiz2_level)
+        || on_level(level, state.wiz3_level);
+}
+
+function inWizardTower(x, y, state) {
+    if (!onWizardTowerLevel(state)) return false;
+    const bounds = state.dndest;
+    if (!bounds?.nlx) return false;
+    return x >= bounds.nlx && x <= bounds.nhx
+        && y >= bounds.nly && y <= bounds.nhy;
+}
+
+function zombieMaker(monster, state) {
+    if (monster.mcan) return false;
+    if (monster.data?.mlet === S_LICH) return true;
+    if (monster.data?.mlet !== S_ZOMBIE) return false;
+    return !isSpecies(monster, PM_GHOUL, state)
+        && !isSpecies(monster, PM_SKELETON, state);
+}
+
+function uniqueCorpstat(species) {
+    return Boolean((species?.geno ?? 0) & G_UNIQ);
+}
+
+function mmTwoWayAggression(attacker, defender, state) {
+    if (onWizardTowerLevel(state)) {
+        const heroInside = inWizardTower(state.u?.ux, state.u?.uy, state);
+        if (heroInside
+            ? (!inWizardTower(attacker.mx, attacker.my, state)
+                || !inWizardTower(defender.mx, defender.my, state))
+            : (inWizardTower(attacker.mx, attacker.my, state)
+                || inWizardTower(defender.mx, defender.my, state))) {
+            return 0;
+        }
+    }
+    if (zombieMaker(attacker, state)
+        && zombie_form(defender.data) >= 0) {
+        if (attacker.mgenmklev && defender.mgenmklev) return 0;
+        if (!on_level(state.u?.uz, state.stronghold_level)
+            && !uniqueCorpstat(attacker.data)
+            && !uniqueCorpstat(defender.data)) {
+            return ALLOW_M | ALLOW_TM;
+        }
+    }
+    return 0;
+}
+
+function mmAggression(attacker, defender, state) {
+    if (attacker.mtame && defender.mtame) return 0;
+    if ((isSpecies(attacker, PM_PURPLE_WORM, state)
+        || isSpecies(attacker, PM_BABY_PURPLE_WORM, state))
+        && isSpecies(defender, PM_SHRIEKER, state)) {
+        return ALLOW_M | ALLOW_TM;
+    }
+    return mmTwoWayAggression(attacker, defender, state)
+        | mmTwoWayAggression(defender, attacker, state);
+}
+
+function wormSegmentCount(monster, state) {
+    if (!monster.wormno) return 0;
+    const count = state.level?.worms?.[monster.wormno]?.segments?.length ?? 0;
+    return Math.max(0, count - 1);
+}
+
+function mmDisplacement(attacker, defender, state) {
+    const attackerSpecies = attacker.data;
+    const defenderSpecies = defender.data;
+    if (is_displacer(attackerSpecies)
+        && (!is_displacer(defenderSpecies)
+            || attacker.m_lev > defender.m_lev)
+        && !(attacker.mx !== defender.mx && attacker.my !== defender.my
+            && isSpecies(defender, PM_GRID_BUG, state))
+        && !defender.mtrapped
+        && (!defender.wormno || !wormSegmentCount(defender, state))
+        && (is_rider(attackerSpecies)
+            || attackerSpecies.msize >= defenderSpecies.msize)) {
+        return ALLOW_MDISP;
+    }
+    return 0;
+}
+
+function resetMfndposData(data) {
+    if (!data || typeof data !== 'object')
+        throw new TypeError('mfndpos requires an output data object');
+    data.cnt = 0;
+    data.poss = Array.from({ length: 9 }, () => ({ x: 0, y: 0 }));
+    data.info = new Array(9).fill(0);
+}
+
+// C ref: mon.c mfndpos(). Candidate iteration is x-major then y-major; the
+// info bitmask is built in the same order as each source rejection check.
+export function mfndpos(monster, data, initialFlags, env = {}) {
+    const state = env.state ?? game;
+    const species = monster.data;
+    const onScaryCheck = env.onScary ?? onscary;
+    const sanctuaryCheck = env.inYourSanctuary ?? in_your_sanctuary;
+    const harmlessTrap = env.mHarmlessTrap ?? m_harmless_trap;
+    const aggression = env.mmAggression ?? mmAggression;
+    const displacement = env.mmDisplacement ?? mmDisplacement;
+    resetMfndposData(data);
+
+    const x = monster.mx;
+    const y = monster.my;
+    const currentLocation = state.level?.at?.(x, y);
+    if (!currentLocation)
+        throw new RangeError('mfndpos monster is outside the current map');
+    const nowType = currentLocation.typ;
+    const noDiagonal = isSpecies(monster, PM_GRID_BUG, state);
+    let wantPool = species.mlet === S_EEL;
+    const poolOkay = (!on_level(state.u?.uz, state.water_level)
+            && m_in_air(monster, state))
+        || (is_swimmer(species) && !wantPool);
+    let lavaOkay = m_in_air(monster, state) || likes_lava(species);
+    if (isSpecies(monster, PM_FLOATING_EYE, state)) lavaOkay = false;
+    let flags = initialFlags | 0;
+    let throughDoor = Boolean(flags & (ALLOW_WALL | BUSTDOOR));
+    const poisonGasOkay = monsterPoisonGasSafe(monster, state);
+    const currentGas = visible_region_at(x, y, state);
+    const inPoisonGas = currentGas?.glyph === S_poisoncloud;
+    let rockOkay = false;
+    let treeOkay = false;
+
+    if (flags & ALLOW_DIG) {
+        const weapon = monster.mw;
+        if (!needspick(species)) {
+            rockOkay = treeOkay = true;
+        } else if (weapon?.cursed
+            && monster.weapon_check === NO_WEAPON_WANTED) {
+            rockOkay = isPick(weapon, state);
+            treeOkay = isAxe(weapon, state);
+        } else {
+            rockOkay = Boolean(m_carrying(monster, PICK_AXE, state)
+                || (m_carrying(monster, DWARVISH_MATTOCK, state)
+                    && !which_armor(monster, W_ARMS)));
+            treeOkay = Boolean(m_carrying(monster, AXE, state)
+                || (m_carrying(monster, BATTLE_AXE, state)
+                    && !which_armor(monster, W_ARMS)));
+        }
+        if (rockOkay || treeOkay) throughDoor = true;
+    }
+
+    let count = 0;
+    for (;;) {
+        if (monster.mconf) {
+            flags |= ALLOW_ALL;
+            flags &= ~NOTONL;
+        }
+        if (!monster.mcansee) flags |= ALLOW_SSM;
+        const maxX = Math.min(x + 1, COLNO - 1);
+        const maxY = Math.min(y + 1, ROWNO - 1);
+        for (let nx = Math.max(1, x - 1); nx <= maxX; ++nx) {
+            for (let ny = Math.max(0, y - 1); ny <= maxY; ++ny) {
+                if (nx === x && ny === y) continue;
+                const location = state.level.at(nx, ny);
+                const nextType = location.typ;
+                if (IS_OBSTRUCTED(nextType)
+                    && !((flags & ALLOW_WALL)
+                        && may_passwall(nx, ny, state))
+                    && !((isTreeTerrain(nextType, state)
+                        ? treeOkay : rockOkay) && may_dig(nx, ny, state))) {
+                    continue;
+                }
+                if (IS_OBSTRUCTED(nextType) && rockOkay
+                    && !mindless(species)
+                    && (monster.mpeaceful || monster.mtame)
+                    && (in_rooms(nx, ny, TEMPLE, state)[0]
+                        || in_rooms(nx, ny, SHOPBASE, state)[0])
+                    && !(in_rooms(x, y, TEMPLE, state)[0]
+                        || in_rooms(x, y, SHOPBASE, state)[0])) {
+                    continue;
+                }
+                if (IS_WATERWALL(nextType) && !is_swimmer(species)) continue;
+                if (nextType === IRONBARS
+                    && (!(flags & ALLOW_BARS)
+                        || (((location.wall_info ?? 0) & W_NONDIGGABLE)
+                            && (dmgtype(species, AD_RUST)
+                                || dmgtype(species, AD_CORR))))) {
+                    continue;
+                }
+                if (IS_DOOR(nextType)
+                    && !((amorphous(species) || can_fog(monster, state))
+                        && !(state.u?.uswallow
+                            && state.u?.ustuck === monster))
+                    && ((((doorMask(location) & D_CLOSED)
+                            && !(flags & OPENDOOR))
+                        || ((doorMask(location) & D_LOCKED)
+                            && !(flags & UNLOCKDOOR)))
+                        && !throughDoor)) {
+                    continue;
+                }
+                const nextGas = visible_region_at(nx, ny, state);
+                if (!poisonGasOkay && !inPoisonGas
+                    && nextGas?.glyph === S_poisoncloud) {
+                    continue;
+                }
+                const diagonal = nx !== x && ny !== y;
+                if (diagonal
+                    && (noDiagonal
+                        || (IS_DOOR(nowType)
+                            && (doorMask(currentLocation) & ~D_BROKEN))
+                        || (IS_DOOR(nextType)
+                            && (doorMask(location) & ~D_BROKEN))
+                        || ((IS_DOOR(nowType) || IS_DOOR(nextType))
+                            && on_level(state.u?.uz, state.rogue_level))
+                        || (m_at(x, ny, state) && m_at(nx, y, state)
+                            && wormCross(x, y, nx, ny, state)
+                            && !m_at(nx, ny, state)
+                            && (nx !== state.u?.ux || ny !== state.u?.uy)))) {
+                    continue;
+                }
+                if ((!lavaOkay || !(flags & ALLOW_WALL))
+                    && nextType === LAVAWALL) {
+                    continue;
+                }
+                if (!(poolOkay || is_pool(nx, ny, state) === wantPool)
+                    || !(lavaOkay || !is_lava(nx, ny, state))) {
+                    continue;
+                }
+
+                const monsterSeesHero = monster.mcansee
+                    && (!propertyActive(state, INVIS, true)
+                        || perceives(species));
+                const checkObject = Boolean(
+                    state.level?.objects?.[nx]?.[ny],
+                );
+                let displacedX = nx;
+                let displacedY = ny;
+                if (propertyActive(state, DISPLACED) && monsterSeesHero
+                    && monster.mux === nx && monster.muy === ny) {
+                    displacedX = state.u.ux;
+                    displacedY = state.u.uy;
+                }
+
+                data.info[count] = 0;
+                if (onScaryCheck(displacedX, displacedY, monster, state)) {
+                    if (!(flags & ALLOW_SSM)) continue;
+                    data.info[count] |= ALLOW_SSM;
+                }
+                const heroAt = state.u?.ux === nx && state.u?.uy === ny;
+                if (heroAt || (nx === monster.mux && ny === monster.muy)) {
+                    if (heroAt) {
+                        monster.mux = state.u.ux;
+                        monster.muy = state.u.uy;
+                    }
+                    if (!(flags & ALLOW_U)) continue;
+                    data.info[count] |= ALLOW_U;
+                } else {
+                    const occupant = m_at(nx, ny, state);
+                    if (occupant) {
+                        const monsterFlags = flags
+                            | aggression(monster, occupant, state);
+                        if (monsterFlags & ALLOW_M) {
+                            data.info[count] |= ALLOW_M;
+                            if (occupant.mtame) {
+                                if (!(monsterFlags & ALLOW_TM)) continue;
+                                data.info[count] |= ALLOW_TM;
+                            }
+                        } else {
+                            flags &= ~ALLOW_MDISP;
+                            const displacementFlags = flags
+                                | displacement(monster, occupant, state);
+                            if (!(displacementFlags & ALLOW_MDISP)) continue;
+                            data.info[count] |= ALLOW_MDISP;
+                        }
+                    }
+                    if (state.level?.flags?.has_temple
+                        && in_rooms(nx, ny, TEMPLE, state)[0]
+                        && !in_rooms(x, y, TEMPLE, state)[0]
+                        && sanctuaryCheck(null, nx, ny, state)) {
+                        if (!(flags & ALLOW_SANCT)) continue;
+                        data.info[count] |= ALLOW_SANCT;
+                    }
+                }
+                if (checkObject && sobj_at(CLOVE_OF_GARLIC, nx, ny, state)) {
+                    if (flags & NOGARLIC) continue;
+                    data.info[count] |= NOGARLIC;
+                }
+                if (checkObject && sobj_at(BOULDER, nx, ny, state)) {
+                    if (!(flags & ALLOW_ROCK)) continue;
+                    data.info[count] |= ALLOW_ROCK;
+                }
+                if (monsterSeesHero
+                    && online2(nx, ny, monster.mux, monster.muy)) {
+                    if (flags & NOTONL) continue;
+                    data.info[count] |= NOTONL;
+                }
+                if (diagonal && bad_rock(species, x, ny, state)
+                    && bad_rock(species, nx, y, state)
+                    && monsterCantSqueezeThrough(monster, state)) {
+                    continue;
+                }
+                const trap = t_at(nx, ny, state);
+                if (trap) {
+                    if (trap.ttyp >= TRAPNUM || trap.ttyp === 0) continue;
+                    if (fixedTeleportTrap(trap) && hastrack(nx, ny, state)) {
+                        data.info[count] |= ALLOW_TRAPS;
+                    } else if (!harmlessTrap(monster, trap, { ...env, state })) {
+                        if (!(flags & ALLOW_TRAPS)
+                            && mon_knows_traps(monster, trap.ttyp)) {
+                            continue;
+                        }
+                        data.info[count] |= ALLOW_TRAPS;
+                    }
+                }
+                data.poss[count].x = nx;
+                data.poss[count].y = ny;
+                ++count;
+            }
+        }
+        if (!count && wantPool && !is_pool(x, y, state)) {
+            wantPool = false;
+            continue;
+        }
+        break;
+    }
+    data.cnt = count;
+    return count;
 }
 
 function isArmorCategory(obj, category, state) {

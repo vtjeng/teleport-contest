@@ -48,6 +48,10 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(AT_WEAP, 254);
     assert.equal(monsterExports.AT_HUGS, 7);
     assert.equal(monsterExports.AT_ENGL, 11);
+    assert.equal(monsterExports.AT_BREA, 12);
+    assert.equal(monsterExports.AD_ANY, -1);
+    assert.equal(monsterExports.AD_DRST, 7);
+    assert.equal(monsterExports.AD_RBRE, 242);
     assert.equal(monsterExports.AD_STCK, 19);
     assert.equal(monsterExports.AD_WRAP, 28);
     assert.equal(monsterExports.M1_CLING, 0x00000010);
@@ -82,7 +86,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        'ee878ae327f72fba92a888c68366f0ac9c39867f810455bb8dd2e70319b063ba',
+        '81efe4ee59d209a3936ee752d0ff2d85ced36181ff55f93d38b72e184560a3bd',
     );
 });
 

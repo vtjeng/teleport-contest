@@ -108,6 +108,16 @@ function isLavaAt(location) {
             && drawbridgeUnder(location) === DB_LAVA);
 }
 
+export function is_pool(x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    return Boolean(location && isPoolAt(location, state));
+}
+
+export function is_lava(x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    return Boolean(location && isLavaAt(location));
+}
+
 function closedDoor(location) {
     const mask = location.flags || location.doormask || 0;
     return location.typ === DOOR

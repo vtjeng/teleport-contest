@@ -115,10 +115,14 @@ main(void)
     print_enum("HIGH_PM", HIGH_PM, &needs_comma);
     print_enum("SPECIAL_PM", SPECIAL_PM, &needs_comma);
 #define PRINT_ENUM(name) print_enum(#name, name, &needs_comma)
+    PRINT_ENUM(AD_ANY);
     PRINT_ENUM(AT_HUGS);
     PRINT_ENUM(AT_ENGL);
+    PRINT_ENUM(AT_BREA);
     PRINT_ENUM(AT_WEAP);
     PRINT_ENUM(AT_BOOM);
+    PRINT_ENUM(AD_DRST);
+    PRINT_ENUM(AD_RBRE);
     PRINT_ENUM(AD_RUST);
     PRINT_ENUM(AD_CORR);
     PRINT_ENUM(AD_STCK);
