@@ -678,7 +678,7 @@ function heroIsBlind(state) {
         && !property?.blocked;
 }
 
-function canSeeMonster(monster, state) {
+export function canSeeMonster(monster, state) {
     if (!monster || monster.mhp < 1) return false;
     const hero = state.u;
     const visible = (!monster.minvis || propertyActive(hero, SEE_INVIS))
@@ -702,7 +702,7 @@ function matchesWarnOfMonster(monster, state) {
         || (warned.species && warned.species === monster.data));
 }
 
-function sensesMonster(monster, state) {
+export function sensesMonster(monster, state) {
     const hero = state.u;
     const dx = monster.mx - hero.ux;
     const dy = monster.my - hero.uy;
@@ -728,10 +728,16 @@ function sensesMonster(monster, state) {
     return matchesWarnOfMonster(monster, state);
 }
 
-function canSpotMonster(monster, state) {
+// C ref: display.h canspotmon(). Hiding and mimicry do not block sensing;
+// callers such as hack.c notice_mon() and monster_nearby() apply their own
+// source-specific concealment predicates.
+export function canSpotMonster(monster, state) {
     if (!monster || monster.mhp < 1) return false;
-    if (!canSeeMonster(monster, state) && !sensesMonster(monster, state))
-        return false;
+    return canSeeMonster(monster, state) || sensesMonster(monster, state);
+}
+
+function canNoticeMonster(monster, state) {
+    if (!canSpotMonster(monster, state)) return false;
     const appearance = monster.m_ap_type & M_AP_TYPMASK;
     const hider = Boolean(monster.data?.mflags1 & 0x00000100); // M1_HIDE
     if (hider && (monster.mundetected
@@ -757,6 +763,10 @@ export function collectMonsterNoticeMessages(state) {
 
     const messages = [];
     for (const monster of monsters) {
+        if (!canNoticeMonster(monster, state)) {
+            monster.mspotted = false;
+            continue;
+        }
         if (monster.mspotted) continue;
         monster.mspotted = true;
         messages.push(messageAt(

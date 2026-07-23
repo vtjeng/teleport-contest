@@ -200,10 +200,13 @@ function rememberSuppressedMessage(state, message, columns) {
     }
 }
 
-// C ref: win/tty/topl.c update_topl().  Messages share the top line only
-// when both fit with two separating spaces and room for a future --More--.
-export async function ttyPline(message, state = game) {
+// C refs: pline.c vpline(), Norep(); win/tty/topl.c update_topl(). Messages
+// share the top line only when both fit with two separating spaces and room
+// for a future --More--. PLINE_NOREPEAT compares the new individual message
+// against gp.prevmsg before the window port sees it.
+async function ttyPlineCore(message, state, noRepeat) {
     const next = ttyByteText(message);
+    if (noRepeat && next === state._ttyPreviousMessage) return;
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     const stoppedAtEntry = Boolean(state._ttyMessageStopped);
@@ -223,6 +226,7 @@ export async function ttyPline(message, state = game) {
     // continue updating gt.toplines for history but remain invisible.
     if (stoppedAtEntry && !deathComparisonReached) {
         rememberSuppressedMessage(state, next, columns);
+        state._ttyPreviousMessage = next;
         return;
     }
     if (stoppedAtEntry) state._ttyMessageStopped = false;
@@ -231,6 +235,7 @@ export async function ttyPline(message, state = game) {
         && !deathMessage
         && fitsOnTtyTopline(current, next, columns)) {
         rememberPendingMessage(state, `${current}  ${next}`);
+        state._ttyPreviousMessage = next;
         return;
     }
     if (current) await dismissPendingTtyMessage(state);
@@ -238,8 +243,17 @@ export async function ttyPline(message, state = game) {
     // after more() has had the opportunity to set it from an Escape response.
     if (deathComparisonReached) state._ttyMessageStopped = false;
     rememberPendingMessage(state, next);
+    state._ttyPreviousMessage = next;
     // redotoplin() immediately invokes more() when update_topl() wrapped the
     // new message onto a second terminal row.
     if (wrapTtyTopline(next, columns).length > 1)
         await dismissPendingTtyMessage(state);
+}
+
+export async function ttyPline(message, state = game) {
+    return ttyPlineCore(message, state, false);
+}
+
+export async function ttyNorep(message, state = game) {
+    return ttyPlineCore(message, state, true);
 }

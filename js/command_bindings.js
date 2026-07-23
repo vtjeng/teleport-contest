@@ -297,6 +297,29 @@ export function commandForKey(model, key) {
     return bindingAt(model.bindings, key)?.command ?? null;
 }
 
+// C ref: cmd.c cmd_from_func(). cmdbinds is ordered newest-first, just like
+// model.bindings. Prefer the first printable non-space binding, retain the
+// last control/meta binding as a fallback, and use Space only as a last
+// resort. The fight-command '-' exception is irrelevant to current callers.
+export function keyForCommand(model, command) {
+    let fallback = 0;
+    for (const binding of model.bindings) {
+        const key = binding.key & 0xFF;
+        if (key === commandKeyCode(' ')) continue;
+        if (((key >= commandKeyCode('0') && key <= commandKeyCode('9'))
+                || (key === commandKeyCode('-') && command === 'fight'))
+            && !model.numPad) {
+            continue;
+        }
+        if (binding.command !== command) continue;
+        if (key >= 0x20 && key <= 0x7E) return key;
+        fallback = key;
+    }
+    if (bindingAt(model.bindings, commandKeyCode(' '))?.command === command)
+        return commandKeyCode(' ');
+    return fallback;
+}
+
 export function visibleCommandKey(code) {
     const byte = code & 0xFF;
     if (byte >= 0x80) return `M-${visibleCommandKey(byte & 0x7F)}`;

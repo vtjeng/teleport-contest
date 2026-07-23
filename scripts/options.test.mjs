@@ -389,6 +389,32 @@ test('explicit boolean values reach their source-owned state', () => {
     }
 });
 
+test('safe waiting options keep their source defaults and state owners', () => {
+    const defaults = parseNethackrc('');
+    assert.equal(defaults.flags.safe_wait, true);
+    assert.equal(defaults.iflags.cmdassist, true);
+    assert.equal(Object.hasOwn(defaults.flags, 'cmdassist'), false);
+
+    const disabled = parseNethackrc(
+        'OPTIONS=safe_wait:false,cmdassist:false',
+    );
+    assert.equal(disabled.flags.safe_wait, false);
+    assert.equal(disabled.iflags.cmdassist, false);
+    assert.equal(Object.hasOwn(disabled.flags, 'cmdassist'), false);
+
+    const negated = parseNethackrc('OPTIONS=!safe_wait,!cmdassist');
+    assert.equal(negated.flags.safe_wait, false);
+    assert.equal(negated.iflags.cmdassist, false);
+
+    const enabled = parseNethackrc(
+        'OPTIONS=!safe_wait,!cmdassist,safe_wait:true,cmdassist:true',
+    );
+    // parseoptions() applies comma-separated suffixes first, so the leftmost
+    // duplicate remains the final value.
+    assert.equal(enabled.flags.safe_wait, false);
+    assert.equal(enabled.iflags.cmdassist, false);
+});
+
 test('whatis_coord selects each source coordinate presentation', () => {
     assert.equal(parseNethackrc('').iflags.getpos_coords, GPCOORDS_NONE);
     for (const [value, expected] of [

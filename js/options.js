@@ -271,6 +271,8 @@ function defaultResult() {
             legacy: true,
             tutorial: true,
             verbose: true,
+            // optlist.h: safe_wait is opt_out and defaults On.
+            safe_wait: true,
             pushweapon: false,
             showexp: false,
             showvers: false,
@@ -296,6 +298,9 @@ function defaultResult() {
             hilite_delta: 0,
             status_hilites: [],
             status_conditions: { ...DEFAULT_STATUS_CONDITIONS },
+            // optlist.h: cmdassist is opt_out and defaults On.  Unlike most
+            // behavior booleans, its source owner is instance_flags.
+            cmdassist: true,
             num_pad: false,
             num_pad_mode: 0,
             getpos_coords: GPCOORDS_NONE,
@@ -1694,9 +1699,12 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.wc_eight_bit_input = enabled;
     } else if (name === 'altmeta') {
         result.iflags.altmeta = enabled;
+    } else if (name === 'cmdassist') {
+        result.iflags.cmdassist = enabled;
     } else if (name === 'customcolors' || name === 'customsymbols') {
         result.iflags[name] = enabled;
-    } else if (name === 'pushweapon') result.flags.pushweapon = enabled;
+    } else if (name === 'safe_wait') result.flags.safe_wait = enabled;
+    else if (name === 'pushweapon') result.flags.pushweapon = enabled;
     else if (name === 'rest_on_space') {
         result.flags.rest_on_space = enabled;
         result.commandOperations.push({
@@ -1721,7 +1729,8 @@ const HANDLED_BOOLEAN_OPTIONS = new Set([
     'splash_screen',
     'status_updates', 'accessiblemsg', 'mention_map', 'spot_monsters',
     'menu_overlay', 'eight_bit_tty', 'customcolors', 'customsymbols',
-    'altmeta', 'pushweapon', 'rest_on_space', 'showexp', 'time', 'verbose',
+    'altmeta', 'cmdassist', 'safe_wait', 'pushweapon', 'rest_on_space',
+    'showexp', 'time', 'verbose',
 ]);
 
 function setWhatisCoord(result, value, negated, lineNumber) {

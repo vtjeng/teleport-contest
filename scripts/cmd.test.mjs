@@ -5,10 +5,12 @@ import {
     commandForKey,
     commandKeyCode,
     createCommandBindingModel,
+    keyForCommand,
 } from '../js/command_bindings.js';
 import { moveloop_core } from '../js/allmain.js';
 import {
     MAX_COMMAND_COUNT,
+    monsterNearby,
     parseCommand,
     resetCommandVars,
     rhack,
@@ -16,13 +18,19 @@ import {
 import {
     COLNO,
     FAST,
+    HALLUC,
+    IN_SIGHT,
     INTRINSIC,
+    M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
     ROOM,
+    ROWNO,
     STONE,
+    STONED,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
+import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { PM_FOG_CLOUD } from '../js/monsters.js';
@@ -61,6 +69,55 @@ function resetParserTestGame(keys) {
 function topLine(state) {
     return state.nhDisplay.grid[0]
         .map(({ ch }) => ch).join('').trimEnd();
+}
+
+function resetSafeWaitTestGame(options = '') {
+    const state = resetParserTestGame([]);
+    const parsed = parseNethackrc(options);
+    state.flags = parsed.flags;
+    state.iflags = parsed.iflags;
+    state.commandOperations = parsed.commandOperations;
+    state.level = new GameMap();
+    state.moves = 1;
+    state.u = {
+        ux: 20,
+        uy: 10,
+        uprops: [],
+        uswallow: false,
+        uinwater: false,
+        unblind_telepat_range: 0,
+    };
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    state.level.at(state.u.ux, state.u.uy).typ = ROOM;
+
+    const monster = {
+        data: {
+            pmidx: -1,
+            mlet: 1,
+            geno: 0,
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+            mattk: [{ aatyp: 1 }],
+        },
+        mx: state.u.ux + 1,
+        my: state.u.uy,
+        mhp: 5,
+        mpeaceful: false,
+        m_ap_type: 0,
+        mundetected: false,
+        msleeping: false,
+        mcanmove: true,
+        mcansee: true,
+    };
+    state.level.at(monster.mx, monster.my).typ = ROOM;
+    state.level.monsters[monster.mx][monster.my] = monster;
+    state.level.monlist = monster;
+    state.viz_array[monster.my][monster.mx] = IN_SIGHT;
+    return { state, monster };
 }
 
 test('runtime bindings apply a custom movement binding, phone-layout directions, and rest-on-space', () => {
@@ -389,6 +446,89 @@ test('rhack clears menu and no-pickup prefix state on every entry', async () => 
         assert.equal(state.context.nopick, 0);
         assert.equal(state.context.move, 1);
     }
+});
+
+test('monster_nearby applies hostility, concealment, helplessness, and sensing', () => {
+    const { state, monster } = resetSafeWaitTestGame();
+    assert.equal(monsterNearby(state), true);
+
+    monster.mpeaceful = true;
+    assert.equal(monsterNearby(state), false);
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(monsterNearby(state), true);
+
+    monster.m_ap_type = M_AP_FURNITURE;
+    assert.equal(monsterNearby(state), false);
+    monster.m_ap_type = 0;
+    monster.msleeping = true;
+    assert.equal(monsterNearby(state), false);
+    monster.msleeping = false;
+    state.viz_array[monster.my][monster.mx] = 0;
+    assert.equal(monsterNearby(state), false);
+});
+
+test('safe wait rejects a nearby hostile with the bound force prefix', async () => {
+    const { state } = resetSafeWaitTestGame(
+        'OPTIONS=!cmdassist\nBINDINGS=x:reqmenu',
+    );
+    const model = createCommandBindingModel(state);
+    assert.equal(keyForCommand(model, 'reqmenu'), commandKeyCode('x'));
+
+    state.nhDisplay.pushKey(commandKeyCode('.'));
+    await rhack(0, state);
+    assert.equal(
+        state._pending_message,
+        "Are you waiting to get hit?  Use 'x' prefix to force a no-op (to rest).",
+    );
+    assert.equal(state.context.move, 0);
+    assert.equal(state.did_nothing_flag, 1);
+
+    state.nhDisplay.pushKey(commandKeyCode('.'));
+    await rhack(0, state);
+    assert.equal(state._pending_message, 'Are you waiting to get hit?');
+    assert.equal(state.context.move, 0);
+    assert.equal(state.did_nothing_flag, 2);
+
+    state.nhDisplay.pushKey(commandKeyCode('.'));
+    await rhack(0, state);
+    assert.equal(state._pending_message, '');
+    assert.equal(state.context.move, 0);
+    assert.equal(state.did_nothing_flag, 3);
+});
+
+test('reqmenu prefix forces a wait which safe_wait would reject', async () => {
+    const { state } = resetSafeWaitTestGame(
+        'OPTIONS=!cmdassist\nBINDINGS=x:reqmenu',
+    );
+    state.nhDisplay.pushKey(commandKeyCode('x'));
+    state.nhDisplay.pushKey(commandKeyCode('.'));
+
+    await rhack(0, state);
+
+    assert.equal(state.context.move, 1);
+    assert.equal(state.iflags.menu_requested, true);
+    assert.equal(state.did_nothing_flag, 0);
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
+});
+
+test('dangerous hero properties reject waiting and success resets its counter', async () => {
+    const { state, monster } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
+    state.level.monsters[monster.mx][monster.my] = null;
+    state.level.monlist = null;
+    state.u.uprops[STONED] = { intrinsic: 1, extrinsic: 0 };
+
+    await rhack(commandKeyCode('.'), state);
+    assert.equal(
+        state._pending_message,
+        "Waiting doesn't feel like a good idea right now.",
+    );
+    assert.equal(state.context.move, 0);
+    assert.equal(state.did_nothing_flag, 1);
+
+    state.u.uprops[STONED].intrinsic = 0;
+    await rhack(commandKeyCode('.'), state);
+    assert.equal(state.context.move, 1);
+    assert.equal(state.did_nothing_flag, 0);
 });
 
 test('counted movement repeats intent without extra dispatch or input', async () => {
@@ -905,6 +1045,7 @@ test('runtime dispatch applies a configured movement binding', async () => {
 
     assert.deepEqual([game.u.dx, game.u.dy, game.u.dz], [-1, 0, 0]);
     assert.deepEqual([game.u.ux, game.u.uy], [start[0] - 1, start[1]]);
+    assert.equal(game.u.umoved, true);
     assert.equal(game.context.move, 1);
     assert.equal(game._commandDispatchCount, 1);
 });

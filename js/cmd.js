@@ -4,6 +4,7 @@
 import {
     commandForKey,
     createCommandBindingModel,
+    keyForCommand,
     visibleCommandKey,
 } from './command_bindings.js';
 import {
@@ -11,14 +12,29 @@ import {
     DOOR,
     D_CLOSED,
     D_LOCKED,
+    HALLUC,
+    HALLUC_RES,
     IS_WALL,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
+    M_AP_TYPMASK,
+    SICK,
+    SLIMED,
     STONE,
+    STONED,
+    STRANGLED,
+    isok,
 } from './const.js';
 import { flush_screen, newsym } from './display.js';
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
+import { is_hider, noattacks } from './mondata.js';
+import { m_at } from './monst.js';
+import { onscary } from './monmove.js';
+import { canSpotMonster } from './startup_a11y.js';
 import {
     clearTtyMessageWindow,
+    ttyNorep,
     ttyPline,
 } from './tty_message.js';
 import { vision_recalc } from './vision.js';
@@ -63,6 +79,109 @@ const MOVEMENT_INTENTS = Object.freeze({
 function commandBindings(state) {
     state.commandBindings ??= createCommandBindingModel(state);
     return state.commandBindings;
+}
+
+function propertyIntrinsic(state, property) {
+    return Boolean(state.u?.uprops?.[property]?.intrinsic);
+}
+
+function heroHallucinating(state) {
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return propertyIntrinsic(state, HALLUC)
+        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: hack.c monster_nearby(). This deliberately has stricter concealment,
+// disposition, helplessness, and scare checks than canspotmon().
+export function monsterNearby(state = game) {
+    const { ux, uy } = state.u;
+    const hallucinating = heroHallucinating(state);
+    for (let x = ux - 1; x <= ux + 1; ++x) {
+        for (let y = uy - 1; y <= uy + 1; ++y) {
+            if (!isok(x, y) || (x === ux && y === uy)) continue;
+            const monster = m_at(x, y, state);
+            if (!monster) continue;
+            const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
+            if (appearance === M_AP_FURNITURE
+                || appearance === M_AP_OBJECT) {
+                continue;
+            }
+            if (!hallucinating
+                && (monster.mpeaceful || noattacks(monster.data))) {
+                continue;
+            }
+            if (is_hider(monster.data) && monster.mundetected) continue;
+            if (monster.msleeping || !monster.mcanmove) continue;
+            if (onscary(ux, uy, monster, state)) continue;
+            if (canSpotMonster(monster, state)) return true;
+        }
+    }
+    return false;
+}
+
+// C ref: do.c danger_uprops(). These four properties are timeout bits; unlike
+// ordinary property checks, the source tests their intrinsic field directly.
+function dangerUprops(state) {
+    return propertyIntrinsic(state, STONED)
+        || propertyIntrinsic(state, SLIMED)
+        || propertyIntrinsic(state, STRANGLED)
+        || propertyIntrinsic(state, SICK);
+}
+
+// C ref: do.c cmd_safety_prevention(). flagName models the source int pointer.
+export async function cmdSafetyPrevention(
+    ucverb,
+    cmddesc,
+    act,
+    flagName,
+    state = game,
+) {
+    state.flags ??= {};
+    state.iflags ??= {};
+    state[flagName] ??= 0;
+    if (state.flags.safe_wait
+        && !state.iflags.menu_requested
+        && !state.multi) {
+        let assist = '';
+        if (state.iflags.cmdassist) {
+            const key = keyForCommand(commandBindings(state), 'reqmenu');
+            assist = `  Use '${visibleCommandKey(key)}' prefix to force ${cmddesc}.`;
+        } else {
+            const prior = Math.trunc(state[flagName] ?? 0);
+            state[flagName] = prior + 1;
+            if (!prior) {
+                const key = keyForCommand(commandBindings(state), 'reqmenu');
+                assist = `  Use '${visibleCommandKey(key)}' prefix to force ${cmddesc}.`;
+            }
+        }
+
+        if (monsterNearby(state)) {
+            await ttyNorep(`${act}${assist}`, state);
+            return true;
+        }
+        if (dangerUprops(state)) {
+            await ttyNorep(
+                `${ucverb} doesn't feel like a good idea right now.`,
+                state,
+            );
+            return true;
+        }
+    }
+    state[flagName] = 0;
+    return false;
+}
+
+// C ref: do.c donull().
+export async function donull(state = game) {
+    const prevented = await cmdSafetyPrevention(
+        'Waiting',
+        'a no-op (to rest)',
+        'Are you waiting to get hit?',
+        'did_nothing_flag',
+        state,
+    );
+    state.context.move = prevented ? 0 : 1;
+    return !prevented;
 }
 
 function isDigit(key) {
@@ -239,7 +358,8 @@ function blocksMove(x, y, state) {
 // It requires established u.dx/u.dy and context.move = 1. Success updates the
 // position and leaves that turn flag untouched; a blocked step sets it to 0
 // and cancels multi, context.mv, and context.run. moveloop_core() calls this
-// directly only for already-established movement intent.
+// directly only for already-established movement intent. Like hack.c, a
+// changed hero position sets u.umoved for the subsequent turn effects.
 export async function domove(state = game) {
     const u = state.u;
     const newx = u.ux + u.dx;
@@ -260,6 +380,7 @@ export async function domove(state = game) {
     u.uy0 = oldy;
     u.ux = newx;
     u.uy = newy;
+    u.umoved = true;
 
     newsym(oldx, oldy);
     vision_recalc(1);
@@ -322,12 +443,25 @@ export async function rhack(key, state = game) {
         return;
     }
 
-    const command = commandForKey(commandBindings(state), key);
+    let command = commandForKey(commandBindings(state), key);
+    if (command === 'reqmenu') {
+        state.iflags.menu_requested = true;
+        // do_reqmenu() is a PREFIXCMD, so rhack() immediately reads and
+        // dispatches the following command in the same input cycle.
+        key = await parseCommand(state);
+        command = commandForKey(commandBindings(state), key);
+        if (command === 'reqmenu') {
+            const prefix = keyForCommand(commandBindings(state), 'reqmenu');
+            await ttyNorep(
+                `Double ${visibleCommandKey(prefix)} prefix, canceled.`,
+                state,
+            );
+            resetCommandVars(state);
+            return;
+        }
+    }
     if (command === 'wait') {
-        // This is the ordinary time-consuming subset of do.c donull().  Its
-        // safe-wait rejection path depends on the later coherent monster
-        // visibility/scare and dangerous-property boundary (roadmap item 4).
-        state.context.move = 1;
+        if (!await donull(state)) resetCommandVars(state);
         return;
     }
     if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
