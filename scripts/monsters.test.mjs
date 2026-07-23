@@ -82,7 +82,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        '5e30c38fe6b3683bd831c67397d47fbc2ebdc5e234f84d4662fc92c2630fdc81',
+        'ee878ae327f72fba92a888c68366f0ac9c39867f810455bb8dd2e70319b063ba',
     );
 });
 

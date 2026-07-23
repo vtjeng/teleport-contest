@@ -15,8 +15,6 @@ import * as M from './monsters.js';
 import { rn2 } from './rng.js';
 import { roles } from './roles.js';
 
-const M2_JEWELS = 0x20000000;
-
 function hasAttackType(species, attackType) {
     return Boolean(species?.mattk?.some(
         (attack) => attack.aatyp === attackType,
@@ -27,6 +25,113 @@ function hasDamageType(species, damageType) {
     return Boolean(species?.mattk?.some(
         (attack) => attack.adtyp === damageType,
     ));
+}
+
+// C refs: mondata.c attacktype(), noattacks(), dmgtype(); mondata.h's
+// movement-facing permonst predicates. Keep these as direct catalog queries:
+// callers decide how a capability interacts with level and monster state.
+export function attacktype(species, attackType) {
+    return hasAttackType(species, attackType);
+}
+
+export function noattacks(species) {
+    return !species?.mattk?.some(
+        (attack) => attack.aatyp && attack.aatyp !== M.AT_BOOM,
+    );
+}
+
+export function dmgtype(species, damageType) {
+    return hasDamageType(species, damageType);
+}
+
+function flag1(species, mask) {
+    return Boolean(species && ((species.mflags1 ?? 0) & mask));
+}
+
+function flag2(species, mask) {
+    return Boolean(species && ((species.mflags2 ?? 0) & mask));
+}
+
+function flag3(species, mask) {
+    return Boolean(species && ((species.mflags3 ?? 0) & mask));
+}
+
+export function verysmall(species) {
+    return Number.isInteger(species?.msize) && species.msize < M.MZ_SMALL;
+}
+
+export function bigmonst(species) {
+    return Number.isInteger(species?.msize) && species.msize >= M.MZ_LARGE;
+}
+
+export function is_flyer(species) { return flag1(species, M.M1_FLY); }
+export function is_floater(species) {
+    return species?.mlet === M.S_EYE || species?.mlet === M.S_LIGHT;
+}
+export function is_clinger(species) { return flag1(species, M.M1_CLING); }
+export function is_swimmer(species) { return flag1(species, M.M1_SWIM); }
+export function breathless(species) { return flag1(species, M.M1_BREATHLESS); }
+export function amphibious(species) { return flag1(species, M.M1_AMPHIBIOUS); }
+export function passes_walls(species) { return flag1(species, M.M1_WALLWALK); }
+export function amorphous(species) { return flag1(species, M.M1_AMORPHOUS); }
+export function noncorporeal(species) { return species?.mlet === M.S_GHOST; }
+export function tunnels(species) { return flag1(species, M.M1_TUNNEL); }
+export function needspick(species) { return flag1(species, M.M1_NEEDPICK); }
+export function hides_under(species) { return flag1(species, M.M1_CONCEAL); }
+export function is_hider(species) { return flag1(species, M.M1_HIDE); }
+export function haseyes(species) { return !flag1(species, M.M1_NOEYES); }
+export function nohands(species) { return flag1(species, M.M1_NOHANDS); }
+export function nolimbs(species) {
+    return species != null
+        && ((species.mflags1 ?? 0) & M.M1_NOLIMBS) === M.M1_NOLIMBS;
+}
+export function notake(species) { return flag1(species, M.M1_NOTAKE); }
+export function has_head(species) { return !flag1(species, M.M1_NOHEAD); }
+export function unsolid(species) { return flag1(species, M.M1_UNSOLID); }
+export function mindless(species) { return flag1(species, M.M1_MINDLESS); }
+export function slithy(species) { return flag1(species, M.M1_SLITHY); }
+export function regenerates(species) { return flag1(species, M.M1_REGEN); }
+export function perceives(species) { return flag1(species, M.M1_SEE_INVIS); }
+export function can_teleport(species) { return flag1(species, M.M1_TPORT); }
+export function carnivorous(species) { return flag1(species, M.M1_CARNIVORE); }
+export function herbivorous(species) { return flag1(species, M.M1_HERBIVORE); }
+export function metallivorous(species) {
+    return flag1(species, M.M1_METALLIVORE);
+}
+
+export function is_undead(species) { return flag2(species, M.M2_UNDEAD); }
+export function is_human(species) { return flag2(species, M.M2_HUMAN); }
+export function is_giant(species) { return flag2(species, M.M2_GIANT); }
+export function is_domestic(species) { return flag2(species, M.M2_DOMESTIC); }
+export function is_wanderer(species) { return flag2(species, M.M2_WANDER); }
+export function throws_rocks(species) { return flag2(species, M.M2_ROCKTHROW); }
+export function is_minion(species) { return flag2(species, M.M2_MINION); }
+export function likes_gold(species) { return flag2(species, M.M2_GREEDY); }
+export function likes_gems(species) { return flag2(species, M.M2_JEWELS); }
+export function likes_objs(species) {
+    return flag2(species, M.M2_COLLECT) || attacktype(species, M.AT_WEAP);
+}
+export function likes_magic(species) { return flag2(species, M.M2_MAGIC); }
+export function is_covetous(species) { return flag3(species, M.M3_COVETOUS); }
+export function is_displacer(species) { return flag3(species, M.M3_DISPLACES); }
+
+export function is_whirly(species) {
+    return species?.mlet === M.S_VORTEX
+        || species?.pmidx === M.PM_AIR_ELEMENTAL;
+}
+
+export function likes_lava(species) {
+    return species?.pmidx === M.PM_FIRE_ELEMENTAL
+        || species?.pmidx === M.PM_SALAMANDER;
+}
+
+// C ref: mondata.c passes_bars(). This combines shape, size, attack, and diet
+// capabilities; no single flag is a sufficient substitute.
+export function passes_bars(species) {
+    return passes_walls(species) || amorphous(species) || unsolid(species)
+        || is_whirly(species) || verysmall(species)
+        || dmgtype(species, M.AD_RUST) || dmgtype(species, M.AD_CORR)
+        || metallivorous(species) || (slithy(species) && !bigmonst(species));
 }
 
 // C ref: mondata.c sticks(). A wrapping attack sticks unless it is the
@@ -403,7 +508,8 @@ export function is_rider(ptr) {
 
 // C ref: mondata.h is_unicorn() and likes_gems().
 export function is_unicorn(ptr) {
-    return ptr?.mlet === M.S_UNICORN && Boolean(ptr.mflags2 & M2_JEWELS);
+    return ptr?.mlet === M.S_UNICORN
+        && Boolean(ptr.mflags2 & M.M2_JEWELS);
 }
 
 // C ref: mondata.h is_reviver().

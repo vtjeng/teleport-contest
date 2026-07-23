@@ -11,17 +11,54 @@ import {
 } from '../js/const.js';
 import {
     _mondataInternals,
+    amorphous,
+    attacktype,
     big_to_little,
+    bigmonst,
+    can_teleport,
     can_be_hatched,
+    dmgtype,
     dead_species,
+    haseyes,
+    hides_under,
+    is_clinger,
+    is_covetous,
+    is_displacer,
     is_female,
+    is_floater,
+    is_flyer,
+    is_giant,
+    is_hider,
+    is_human,
     is_male,
+    is_minion,
     is_neuter,
     is_rider,
+    is_swimmer,
+    is_undead,
+    is_wanderer,
+    likes_gems,
+    likes_gold,
+    likes_lava,
+    likes_magic,
+    likes_objs,
     little_to_big,
     name_to_mon,
     name_to_monplus,
+    needspick,
+    noattacks,
+    nohands,
+    notake,
+    passes_bars,
+    passes_walls,
+    perceives,
+    regenerates,
+    slithy,
+    throws_rocks,
+    tunnels,
     undead_to_corpse,
+    unsolid,
+    verysmall,
     zombie_form,
 } from '../js/mondata.js';
 import * as M from '../js/monsters.js';
@@ -432,4 +469,87 @@ test('dead_species uses the first reverse growth match and fails closed', () => 
         () => dead_species(M.PM_NEWT, true, { state: {} }),
         /requires initialized mvitals/u,
     );
+});
+
+test('movement predicates are exact projections of permonst flags', () => {
+    const flagCases = [
+        [is_flyer, 'mflags1', M.M1_FLY],
+        [is_clinger, 'mflags1', M.M1_CLING],
+        [is_swimmer, 'mflags1', M.M1_SWIM],
+        [amorphous, 'mflags1', M.M1_AMORPHOUS],
+        [passes_walls, 'mflags1', M.M1_WALLWALK],
+        [tunnels, 'mflags1', M.M1_TUNNEL],
+        [needspick, 'mflags1', M.M1_NEEDPICK],
+        [hides_under, 'mflags1', M.M1_CONCEAL],
+        [is_hider, 'mflags1', M.M1_HIDE],
+        [nohands, 'mflags1', M.M1_NOHANDS],
+        [notake, 'mflags1', M.M1_NOTAKE],
+        [unsolid, 'mflags1', M.M1_UNSOLID],
+        [slithy, 'mflags1', M.M1_SLITHY],
+        [regenerates, 'mflags1', M.M1_REGEN],
+        [perceives, 'mflags1', M.M1_SEE_INVIS],
+        [can_teleport, 'mflags1', M.M1_TPORT],
+        [is_undead, 'mflags2', M.M2_UNDEAD],
+        [is_human, 'mflags2', M.M2_HUMAN],
+        [is_giant, 'mflags2', M.M2_GIANT],
+        [is_wanderer, 'mflags2', M.M2_WANDER],
+        [throws_rocks, 'mflags2', M.M2_ROCKTHROW],
+        [is_minion, 'mflags2', M.M2_MINION],
+        [likes_gold, 'mflags2', M.M2_GREEDY],
+        [likes_gems, 'mflags2', M.M2_JEWELS],
+        [likes_magic, 'mflags2', M.M2_MAGIC],
+        [is_covetous, 'mflags3', M.M3_COVETOUS],
+        [is_displacer, 'mflags3', M.M3_DISPLACES],
+    ];
+
+    for (const species of M.MONSTER_TEMPLATES) {
+        for (const [predicate, field, mask] of flagCases) {
+            assert.equal(
+                predicate(species),
+                Boolean(species[field] & mask),
+                `${predicate.name}(${species.pmidx})`,
+            );
+        }
+        assert.equal(haseyes(species), !(species.mflags1 & M.M1_NOEYES));
+        assert.equal(verysmall(species), species.msize < M.MZ_SMALL);
+        assert.equal(bigmonst(species), species.msize >= M.MZ_LARGE);
+        assert.equal(
+            likes_objs(species),
+            Boolean(species.mflags2 & M.M2_COLLECT)
+                || species.mattk.some((attack) => attack.aatyp === M.AT_WEAP),
+        );
+    }
+});
+
+test('compound movement predicates preserve source special cases', () => {
+    const state = monsterState();
+    const species = (mndx) => state.mons[mndx];
+
+    assert.equal(is_floater(species(M.PM_FLOATING_EYE)), true);
+    assert.equal(is_floater(species(M.PM_YELLOW_LIGHT)), true);
+    assert.equal(is_floater(species(M.PM_FOG_CLOUD)), false);
+    assert.equal(likes_lava(species(M.PM_FIRE_ELEMENTAL)), true);
+    assert.equal(likes_lava(species(M.PM_SALAMANDER)), true);
+    assert.equal(likes_lava(species(M.PM_FIRE_VORTEX)), false);
+
+    assert.equal(attacktype(species(M.PM_SOLDIER), M.AT_WEAP), true);
+    assert.equal(dmgtype(species(M.PM_RUST_MONSTER), M.AD_RUST), true);
+    assert.equal(noattacks(species(M.PM_GAS_SPORE)), true);
+    assert.equal(noattacks(species(M.PM_JACKAL)), false);
+
+    // Each independent source clause has a representative: wall-passing,
+    // amorphous, unsolid/whirly, tiny, corrosive, metallivorous, and slithy.
+    for (const mndx of [
+        M.PM_EARTH_ELEMENTAL,
+        M.PM_FOG_CLOUD,
+        M.PM_GHOST,
+        M.PM_AIR_ELEMENTAL,
+        M.PM_NEWT,
+        M.PM_RUST_MONSTER,
+        M.PM_ROCK_MOLE,
+        M.PM_GARTER_SNAKE,
+    ]) {
+        assert.equal(passes_bars(species(mndx)), true, mndx);
+    }
+    assert.equal(passes_bars(species(M.PM_HUMAN)), false);
 });
