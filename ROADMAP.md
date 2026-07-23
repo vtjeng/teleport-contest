@@ -22,9 +22,11 @@ patch around it or leave multiple partially integrated approaches. Use
 development recordings as regressions and fresh recordings to validate general
 behavior. Treat matched-screen count as a lagging indicator.
 
-## Current milestone: arbitrary new game to first command
+## Completed milestone: arbitrary new game to first command
 
-**Status:** in progress.
+**Status:** complete at production commit
+`f0624a759f50fbf061ab7e48ff7e83a08ea57ef1`, with the test-only audit tail
+closed at `82615f42653158d8074f3903e7d2087545ffe05f`.
 
 **Goal:** For arbitrary valid seeds, datetimes, character configurations, and
 startup options, match the C recorder's PRNG log, terminal screens, attributes,
@@ -54,7 +56,14 @@ fixture-specific replay, or unsupported source branch, and broad fresh
 differentials reach the first command prompt exactly. Follow the quality and
 score-recording requirements in `AGENTS.md` before marking the milestone done.
 
-## Next milestone: one source-faithful command turn
+The boundary survey found no remaining reachable gap, the checked-in 107-case
+matrix reached the first command exactly, and the correctness ledger and its
+audit-fix tail are clear. Detailed validation and score evidence remain in
+`SCORE.md` and `QUALITY.json`.
+
+## Current milestone: one source-faithful command turn
+
+**Status:** in progress.
 
 Replace the per-step replay scaffold with the real source turn spine:
 
