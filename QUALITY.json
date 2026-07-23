@@ -123,6 +123,7 @@
         "js/makemon_create.js",
         "js/mon.js",
         "js/mondata.js",
+        "js/monmove.js",
         "js/monst.js",
         "js/monsters.js",
         "js/teleport.js"

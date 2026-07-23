@@ -623,10 +623,11 @@ export function cansee(x, y, state = game) {
     return !!(state.viz_array?.[y]?.[x] & IN_SIGHT);
 }
 
-// C ref: couldsee(x, y)
-export function couldsee(x, y) {
+// C ref: couldsee(x, y). The optional state mirrors cansee()'s focused-call
+// ownership while production continues to use the game singleton.
+export function couldsee(x, y, state = game) {
     if (y < 0 || y >= ROWNO || x < 0 || x >= COLNO) return false;
-    return !!(game.viz_array?.[y]?.[x] & COULD_SEE);
+    return !!(state.viz_array?.[y]?.[x] & COULD_SEE);
 }
 
 export function init_vision_globals() {
