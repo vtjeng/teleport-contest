@@ -7,17 +7,20 @@
 
 import { game } from './gstate.js';
 import {
+    A_DEX,
     COLNO,
     EXT_ENCUMBER,
     FAST,
     HVY_ENCUMBER,
     INTRINSIC,
+    LEVITATION,
     MOD_ENCUMBER,
     NORMAL_SPEED,
     RLOC_NOMSG,
     SLT_ENCUMBER,
     UNENCUMBERED,
 } from './const.js';
+import { effective_attribute } from './attrib.js';
 import { makedog } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { m_at } from './monst.js';
@@ -45,10 +48,11 @@ import { domove, endRunning, rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen } from './display.js';
 import { ttyPline } from './tty_message.js';
 import { emitStartupA11yNotices } from './startup_a11y.js';
+import { wipe_engr_at } from './engrave.js';
 import { check_special_room_state } from './rooms.js';
 import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
 import {
     fastforward_step,
@@ -197,6 +201,38 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
     if (u.umovement < 0) u.umovement = 0;
 }
 
+function propertyActiveUnblocked(hero, propertyIndex) {
+    const property = hero?.uprops?.[propertyIndex];
+    return Boolean(
+        (property?.intrinsic || property?.extrinsic) && !property?.blocked,
+    );
+}
+
+// C ref: allmain.c moveloop_core() lines 360-361 and engrave.c
+// u_wipe_engr(). The currently reachable D:1 commands leave the hero standing
+// on the floor. Reject future reachability states instead of silently skipping
+// u_wipe_engr()'s can_reach_floor(TRUE) contract.
+export function maybeWipeHeroEngraving(
+    state = game,
+    random = { rn2, rnd },
+) {
+    const dexterity = effective_attribute(state, A_DEX);
+    if (random.rn2(40 + dexterity * 3) !== 0) return false;
+
+    // rnd(3) is evaluated before u_wipe_engr() checks floor reachability.
+    const count = random.rnd(3);
+    const hero = state.u;
+    if (hero?.uswallow || hero?.ustuck || hero?.usteed
+        || hero?.uundetected || propertyActiveUnblocked(hero, LEVITATION)) {
+        throw new Error(
+            'initial-level engraving wear reached an unported '
+                + 'can_reach_floor state',
+        );
+    }
+    wipe_engr_at(hero.ux, hero.uy, count, false, { state, random });
+    return true;
+}
+
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
@@ -228,6 +264,8 @@ export async function moveloop_core() {
             u_calc_moveamt(UNENCUMBERED, g);
         }, async () => {
             await dosoundsInitialLevel(g);
+        }, () => {
+            maybeWipeHeroEngraving(g);
         });
     }
 

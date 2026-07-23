@@ -417,7 +417,8 @@ test('moveloop allocates live monster movement once after elapsed input', async 
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
         // This generated level has a fountain but no sink, so dosounds()
         // owns the 1-in-400 gate in place of the old fixed 1-in-300 draw.
-        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(400)', 'rn2(20)', 'rn2(82)'],
+        // Its Dexterity 9 makes engraving wear use 40 + 9 * 3 = 67.
+        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(400)', 'rn2(20)', 'rn2(67)'],
     );
 
     const elapsedLog = [...getRngLog()];
