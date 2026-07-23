@@ -434,6 +434,29 @@ test('newgame preserves the initial three-line tty refresh at welcome More', asy
     );
 });
 
+test('initial three-line redraw detects an armor-only optional change', async () => {
+    const { session, grids } = await runWithGridCapture({
+        // This independently chosen Monk starts with armor but weaponstatus is
+        // disabled, isolating BL_ARMOR in newgame()'s second tty status pass.
+        seed: 8_642_019,
+        datetime: '20000110013159',
+        nethackrc: 'OPTIONS=name:ArmorOnlyBoundary12345678901234,'
+            + 'role:Monk,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,statuslines:3,time,'
+            + 'showvers,armorstatus,terrainstatus\n',
+        moves: '',
+    });
+
+    assert.equal(game.program_state.in_moveloop, undefined);
+    assert.equal(grids.length, 1);
+    assert.equal(rowText(grids[0], 1), 'male human Monk.--More--');
+    assert.equal(
+        rowText(grids[0], 23),
+        'Dlvl:1 T:1 GC Stairs'.padEnd(74) + '5.0.0',
+    );
+    assert.equal(session.getCursors().length, 1);
+});
+
 test('startup accessibility notices preserve complete command-boundary state', async () => {
     const mentionMap = await runWithGridCapture({
         seed: 19,

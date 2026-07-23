@@ -11,43 +11,43 @@
       "seed": 1307919,
       "datetime": "20000402015959",
       "nethackrc": "OPTIONS=name:Closure1,role:Arc,race:Hum,gender:Mal,align:Neu\nOPTIONS=!legacy,!tutorial,!splash_screen,statuslines:3,time,showexp,showvers,weaponstatus,armorstatus,terrainstatus\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1315838,
       "datetime": "20000402030001",
       "nethackrc": "OPTIONS=name:Closure2,role:Arc,race:Hum,gender:Fem,align:Law\nOPTIONS=!legacy,!tutorial,!splash_screen,symset:IBMgraphics\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1323757,
       "datetime": "20000704090000",
       "nethackrc": "OPTIONS=name:Closure3,role:Arc,race:Hum,gender:Fem,align:Neu\nOPTIONS=!legacy,!tutorial,!splash_screen,symset:DECgraphics\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1331676,
       "datetime": "20001029013000",
       "nethackrc": "OPTIONS=name:Closure4,role:Arc,race:Dwa,gender:Mal,align:Law\nOPTIONS=!legacy,!tutorial,!splash_screen,symset:Enhanced1\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1339595,
       "datetime": "20001029023000",
       "nethackrc": "OPTIONS=name:Closure5,role:Arc,race:Dwa,gender:Fem,align:Law\nOPTIONS=!legacy,!tutorial,!splash_screen,!color,use_inverse\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1347514,
       "datetime": "20001013000000",
       "nethackrc": "OPTIONS=name:Closure6,role:Arc,race:Gno,gender:Mal,align:Neu\nOPTIONS=!legacy,!tutorial,!splash_screen,hilite_pet,petattr:bold,hilite_pile\n",
-      "moves": ""
+      "moves": "  "
     },
     {
       "seed": 1355433,
       "datetime": "20001231235959",
       "nethackrc": "OPTIONS=name:Closure7,role:Arc,race:Gno,gender:Fem,align:Neu\nOPTIONS=!legacy,!tutorial,!splash_screen,blind,statuslines:3\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1363352,
@@ -83,7 +83,7 @@
       "seed": 1402947,
       "datetime": "20000110194941",
       "nethackrc": "OPTIONS=name:Closure13,role:Bar,race:Orc,gender:Fem,align:Cha\nOPTIONS=!legacy,!tutorial,!splash_screen,symset:IBMgraphics\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1410866,
@@ -167,7 +167,7 @@
       "seed": 1513813,
       "datetime": "20000110215139",
       "nethackrc": "OPTIONS=name:Closure27,role:Kni,race:Hum,gender:Fem,align:Law\nOPTIONS=!legacy,!tutorial,!splash_screen,!color,use_inverse\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1521732,
@@ -341,13 +341,13 @@
       "seed": 1743464,
       "datetime": "20000110080852",
       "nethackrc": "OPTIONS=name:Closure56,role:Sam,race:Hum,gender:Mal,align:Law\nOPTIONS=!legacy,!tutorial,!splash_screen,statuslines:3,time,showexp,showvers,weaponstatus,armorstatus,terrainstatus\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1751383,
       "datetime": "20000110152109",
       "nethackrc": "OPTIONS=name:Closure57,role:Sam,race:Hum,gender:Fem,align:Law\nOPTIONS=!legacy,!tutorial,!splash_screen,symset:IBMgraphics\n",
-      "moves": ""
+      "moves": " "
     },
     {
       "seed": 1759302,

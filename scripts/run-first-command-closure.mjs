@@ -13,6 +13,8 @@ import {
     runDifferential,
     validateCleanRecipe,
 } from './diff-fresh.mjs';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = dirname(SCRIPT_PATH);
@@ -53,6 +55,34 @@ export function loadClosureRecipe(filename) {
     return validateCleanRecipe(recipe, path);
 }
 
+function segmentLabel(segment) {
+    return /(?:^|[=,])name:([^,\n]+)/u.exec(segment.nethackrc)?.[1]
+        ?? `seed ${segment.seed}`;
+}
+
+export async function verifyFirstCommandBoundary(segment) {
+    const replay = await runSegment(segment);
+    const label = segmentLabel(segment);
+    if (game.program_state?.in_moveloop !== 1) {
+        throw new Error(`${label} stopped before entering moveloop`);
+    }
+    if (game.moves !== 1 || game.context?.move !== 0) {
+        throw new Error(`${label} executed a gameplay turn before stopping`);
+    }
+    const rows = game.nhDisplay.grid.map(
+        (row) => row.map(({ ch }) => ch).join(''),
+    );
+    if (rows.some((row) => row.includes('--More--'))) {
+        throw new Error(`${label} stopped at a --More-- prompt`);
+    }
+    const expectedBoundaries = [...segment.moves].length + 1;
+    if (replay.getCursors().length !== expectedBoundaries) {
+        throw new Error(
+            `${label} did not consume exactly its startup dismissal keys`,
+        );
+    }
+}
+
 async function main(argv) {
     if (argv.length) throw new Error('arguments are not accepted');
     const totals = { segments: 0, rng: 0, screens: 0, cursors: 0 };
@@ -62,6 +92,9 @@ async function main(argv) {
         const chunks = chunkRecipe(recipe);
         for (let index = 0; index < chunks.length; ++index) {
             const chunk = chunks[index];
+            for (const segment of chunk.segments) {
+                await verifyFirstCommandBoundary(segment);
+            }
             process.stdout.write(
                 `[${filename} ${index + 1}/${chunks.length}] `
                 + `${chunk.segments.length} segments\n`,

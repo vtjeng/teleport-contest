@@ -3,12 +3,22 @@
 
 import { game } from './gstate.js';
 import { flush_screen } from './display.js';
+import { encodeUtf8ByteString } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { NO_COLOR } from './terminal.js';
 
 const MORE_PROMPT = '--More--';
 const TOPLINE_EMPTY = 0;
 const TOPLINE_NEED_MORE = 1;
+
+function recorderRawTtyText(value) {
+    // topl.c emits raw bytes and advances once per byte. Recorder patch 006
+    // ignores signed high-bit bytes in nomux_putch(), so each remains a blank
+    // captured cell rather than becoming a Unicode glyph.
+    return encodeUtf8ByteString(value).map((byte) => (
+        byte < 0x80 ? String.fromCharCode(byte) : ' '
+    )).join('');
+}
 
 function snapshotRows(display, rowCount) {
     return display.grid.slice(0, rowCount).map(
@@ -146,7 +156,7 @@ function rememberSuppressedMessage(state, message, columns) {
 // C ref: win/tty/topl.c update_topl().  Messages share the top line only
 // when both fit with two separating spaces and room for a future --More--.
 export async function ttyPline(message, state = game) {
-    const next = String(message);
+    const next = recorderRawTtyText(message);
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     const stoppedAtEntry = Boolean(state._ttyMessageStopped);

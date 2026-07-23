@@ -112,8 +112,9 @@ function propertyActiveUnblocked(hero, propertyIndex) {
 
 // C ref: engrave.c read_engr_at(). The message callback is injected to avoid
 // making the engraving substrate depend on the tty display implementation.
-// Blind tactile ENGRAVE and BURN paths invoke canReachFloor(true, state)
-// synchronously; other paths do not require the callback.
+// Blind tactile ENGRAVE, HEADSTONE, and BURN paths invoke
+// canReachFloor(true, state) synchronously; other paths do not require the
+// callback.
 export async function read_engr_at(
     x,
     y,

@@ -54,7 +54,11 @@ import {
 } from './terminal.js';
 import { rankOf } from './roles.js';
 import { m_at } from './monst.js';
-import { depth as dungeonDepth, dist2 } from './hacklib.js';
+import {
+    depth as dungeonDepth,
+    dist2,
+    encodeUtf8ByteString,
+} from './hacklib.js';
 import { observe_object } from './o_init.js';
 import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
@@ -567,9 +571,10 @@ function mapColorEnabled(state) {
 
 function recorderMapColor(color, state) {
     if (!mapColorEnabled(state)) return NO_COLOR;
-    // recorder patch 006 serializes terminal-default gray without an ANSI
-    // color and cannot retain a zero-valued black foreground.  Both decode
-    // as NO_COLOR, matching how the tty presents ordinary gray glyphs.
+    // Recorder patch 006 serializes terminal-default gray as NO_COLOR. Black
+    // also decodes as NO_COLOR: use_darkgray remaps it to wire color 8, while
+    // !use_darkgray leaves zero in the shadow cell and the serializer treats
+    // that zero as its terminal-default sentinel.
     if (color === CLR_GRAY || color === CLR_BLACK) return NO_COLOR;
     return color;
 }
@@ -1485,15 +1490,28 @@ function _optionalStatusFields() {
 }
 
 function _statusPlayerName() {
-    // C ref: botl.c do_statusline1().  The status line capitalizes only an
-    // initial ASCII lowercase byte, then reserves at most BOTL_NSIZ bytes for
-    // the player name.  Player names are ASCII in the source option parser.
+    // C ref: botl.c bot_via_windowport(). Capitalize only the initial ASCII
+    // byte, then truncate only when the complete title exceeds 30 bytes.
     const rawName = game.plname || 'Hero';
-    let name = rawName.slice(0, BOTL_NSIZ);
-    if (name[0] >= 'a' && name[0] <= 'z') {
-        name = name[0].toUpperCase() + name.slice(1);
+    const role = rankOf(game.urole, game.u?.ulevel ?? 1, game.flags?.female)
+        || game.urole?.rank?.m || game.urole?.name?.m || 'Adventurer';
+    const nameBytes = encodeUtf8ByteString(rawName);
+    const roleBytes = encodeUtf8ByteString(role);
+    if (nameBytes[0] >= 0x61 && nameBytes[0] <= 0x7A) {
+        nameBytes[0] -= 0x20;
     }
-    return name;
+    if (nameBytes.length + 5 + roleBytes.length > 30) {
+        nameBytes.length = Math.min(
+            nameBytes.length,
+            Math.max(30 - 5 - roleBytes.length, BOTL_NSIZ),
+        );
+    }
+    // wintty.c:tty_putstatusfield() advances once per byte. Use NUL as an
+    // internal skipped-cell marker for high-bit bytes; _newStatusRow() turns
+    // each marker into an unowned blank, matching patch 006 nomux_putch().
+    return nameBytes.map((byte) => (
+        byte < 0x80 ? String.fromCharCode(byte) : '\0'
+    )).join('');
 }
 
 function _statusTitle() {
@@ -1719,8 +1737,9 @@ function _newStatusRow() {
         for (let index = 0; index < text.length; ++index) {
             const column = start + index;
             if (column >= 0 && column < TTY_STATUS_WIDTH) {
-                chars[column] = text[index];
-                owners[column] = owner;
+                const skippedByte = text[index] === '\0';
+                chars[column] = skippedByte ? ' ' : text[index];
+                owners[column] = skippedByte ? null : owner;
             }
         }
         extent = Math.max(
@@ -1819,11 +1838,16 @@ function _statusLine1Layout(includeAlignment = true) {
         }
         row.write(0, '[');
         const bar = _statusHitpointBarTitle();
-        // The recorder's final first-command shadow styles only the
-        // nonblank prefix of the percentage slice.  The tty renderer emits
-        // the padded bytes, but its later status refresh leaves those blank
-        // shadow cells at terminal defaults (patch 006 NOMUX capture).
-        const capturedLength = bar.slice(0, barLength).trimEnd().length;
+        // record-session.mjs ports the recorder harness's ANSI compression:
+        // a run of at least five literal spaces becomes a cursor-forward
+        // escape. Such skipped cells remain at terminal defaults even when
+        // the C tty emitted the spaces inside the highlighted bar. Preserve
+        // shorter padding runs because the harness leaves those bytes intact.
+        const highlighted = bar.slice(0, barLength);
+        const visibleLength = highlighted.trimEnd().length;
+        const paddingLength = highlighted.length - visibleLength;
+        const capturedLength = paddingLength >= 5
+            ? visibleLength : highlighted.length;
         row.write(1, bar.slice(0, capturedLength), _hpBarOwner());
         row.write(1 + capturedLength, bar.slice(capturedLength));
         row.write(1 + STATUS_HP_BAR_WIDTH, ']');
@@ -2053,10 +2077,13 @@ function _statusFieldData(field) {
     switch (field) {
     case 'title':
         // botl.c get_hilite() advances through BL_TITLE by the complete
-        // svp.plname length even when status formatting truncated the name.
-        // Preserve that pointer-offset quirk for long player names.
+        // svp.plname byte length even when status formatting truncated the
+        // name. The title has one internal cell per source byte, so multibyte
+        // names follow strlen(), not JavaScript code-unit indexing.
         return {
-            text: title.slice((game.plname || 'Hero').length + 5),
+            text: title.slice(
+                encodeUtf8ByteString(game.plname || 'Hero').length + 5,
+            ),
         };
     case 'strength': return { value: attrs[A_STR] ?? 0 };
     case 'dexterity': return { value: attrs[A_DEX] ?? 0 };
@@ -2229,8 +2256,9 @@ function _statusOwnerStyle(owner) {
 function _recorderStatusStyle(style) {
     if (!style) return { color: NO_COLOR, attr: ATR_NONE };
     // Recorder patch 006 begins with terminal-default gray active. Selecting
-    // CLR_GRAY emits no observable transition, and zero-valued CLR_BLACK is
-    // decoded as that same default. Both become NO_COLOR in captured cells.
+    // CLR_GRAY emits no observable transition. CLR_BLACK also decodes as the
+    // default whether use_darkgray remaps it to wire color 8 or leaves zero,
+    // which the serializer uses as its terminal-default sentinel.
     return {
         color: style.color === CLR_GRAY || style.color === CLR_BLACK
             ? NO_COLOR : style.color,

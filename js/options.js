@@ -281,6 +281,8 @@ function defaultResult() {
         iflags: {
             wc_color: true,
             wc_inverse: true,
+            // optlist.h: use_darkgray is opt_out and defaults On.
+            wc2_darkgray: true,
             wc_hilite_pet: false,
             hilite_pile: false,
             wc2_hitpointbar: false,
@@ -1648,6 +1650,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.wc_color = enabled;
     } else if (name === 'use_inverse') {
         result.iflags.wc_inverse = enabled;
+    } else if (name === 'use_darkgray') {
+        result.iflags.wc2_darkgray = enabled;
     } else if (name === 'hilite_pet') {
         result.iflags.wc_hilite_pet = enabled;
         if (enabled && result.iflags.wc2_petattr === ATR_NONE) {
@@ -1696,8 +1700,9 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
 // otherwise they fall through to the intentionally opaque compound-option
 // preservation path and create stray string-valued flags.
 const HANDLED_BOOLEAN_OPTIONS = new Set([
-    'female', 'male', 'autopickup', 'color', 'use_inverse', 'hilite_pet',
-    'hilite_pile', 'hitpointbar', 'legacy', 'tutorial', 'splash_screen',
+    'female', 'male', 'autopickup', 'color', 'use_darkgray', 'use_inverse',
+    'hilite_pet', 'hilite_pile', 'hitpointbar', 'legacy', 'tutorial',
+    'splash_screen',
     'status_updates', 'accessiblemsg', 'mention_map', 'spot_monsters',
     'menu_overlay', 'eight_bit_tty', 'customcolors', 'customsymbols',
     'pushweapon', 'rest_on_space', 'showexp', 'time', 'verbose',

@@ -63,6 +63,7 @@ test('startup option defaults use source role indices and zero roleplay', () => 
             verbose: parsed.flags.verbose,
             splash: parsed.iflags.wc_splash_screen,
             color: parsed.iflags.wc_color,
+            darkgray: parsed.iflags.wc2_darkgray,
             inverse: parsed.iflags.wc_inverse,
         },
         {
@@ -73,6 +74,7 @@ test('startup option defaults use source role indices and zero roleplay', () => 
             verbose: true,
             splash: true,
             color: true,
+            darkgray: true,
             inverse: true,
         },
     );
@@ -311,6 +313,24 @@ test('use_inverse owns the tty inverse-video interface flag', () => {
     );
     assert.equal(
         parseNethackrc('OPTIONS=!use_inverse,use_inverse').iflags.wc_inverse,
+        false,
+        'parseoptions applies comma-separated suffixes first',
+    );
+});
+
+test('use_darkgray owns the recorder-visible black remap', () => {
+    assert.equal(parseNethackrc('').iflags.wc2_darkgray, true);
+    assert.equal(
+        parseNethackrc('OPTIONS=!use_darkgray').iflags.wc2_darkgray,
+        false,
+    );
+    assert.equal(
+        parseNethackrc('OPTIONS=use_darkgray:false').iflags.wc2_darkgray,
+        false,
+    );
+    assert.equal(
+        parseNethackrc('OPTIONS=!use_darkgray,use_darkgray')
+            .iflags.wc2_darkgray,
         false,
         'parseoptions applies comma-separated suffixes first',
     );

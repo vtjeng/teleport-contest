@@ -40,6 +40,7 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     OBJ_FLOOR,
+    PIT,
     POOL,
     ROOM,
     SCORR,
@@ -1489,6 +1490,16 @@ test('newsym layers seen traps below objects and above engravings', () => {
     assert.equal(state.level.at(x, y).disp_color, CLR_RED);
     assert.equal(state.level.at(x, y).remembered_glyph.ch, '^');
 
+    trap.ttyp = PIT;
+    state.iflags ??= {};
+    state.iflags.wc2_darkgray = true;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
+    state.iflags.wc2_darkgray = false;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
+    trap.ttyp = LANDMINE;
+
     state.level.objects[x][y] = {
         otyp: 42,
         oclass: WEAPON_CLASS,
@@ -2645,6 +2656,61 @@ test('status highlight rules preserve source matching and precedence', async () 
     );
 });
 
+test('title formatting and matching use source byte limits', async () => {
+    const state = statusRenderingState();
+    state.urole = {
+        name: { m: 'Test role' },
+        rank: { m: 'Digger' },
+    };
+    state.iflags = {
+        ...parseNethackrc(
+            'OPTIONS=hilite_status:title/always/red/"Digger"/bright-green',
+        ).iflags,
+        wc2_statuslines: 2,
+    };
+
+    for (const { name, prefix, color, styleColumn } of [
+        {
+            name: 'ABCDEFGHIJKLMNOP',
+            prefix: 'ABCDEFGHIJKLMNOP',
+            color: CLR_BRIGHT_GREEN,
+        },
+        {
+            name: 'ABCDEFGHIJKLMNOPQ',
+            prefix: 'ABCDEFGHIJKLMNOPQ',
+            color: CLR_BRIGHT_GREEN,
+        },
+        {
+            name: 'ABCDEFGHIJKLMNOPQRSTUVWX',
+            prefix: 'ABCDEFGHIJKLMNOPQRS',
+            color: CLR_RED,
+        },
+        {
+            // Eight characters occupy sixteen UTF-8 bytes. get_hilite()
+            // advances by strlen(plname), not JavaScript code units.
+            name: 'é'.repeat(8),
+            prefix: ' '.repeat(16),
+            color: CLR_BRIGHT_GREEN,
+            styleColumn: 21,
+        },
+    ]) {
+        state.plname = name;
+        await bot();
+        assert.match(
+            terminalRow(state, 22),
+            new RegExp(`^${prefix} the Digger`, 'u'),
+        );
+        assert.equal(
+            state.nhDisplay.grid[22][styleColumn ?? 0].color,
+            color,
+            name,
+        );
+        if (styleColumn) {
+            assert.equal(state.nhDisplay.grid[22][0].color, NO_COLOR, name);
+        }
+    }
+});
+
 test('gray and black status rules normalize at the recorder-facing grid boundary', async () => {
     const state = statusRenderingState();
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
@@ -2711,7 +2777,68 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
             attr: state.nhDisplay.grid[22][19].attr,
         },
         { color: NO_COLOR, attr: ATR_NONE },
-        'black HP-bar padding stays at terminal defaults',
+        'five-or-more-byte HP-bar padding is compressed to cursor movement',
+    );
+
+    state.plname = 'FourPadTitle';
+    await bot();
+    assertCellRange(
+        state,
+        22,
+        1,
+        30,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'four-byte HP-bar padding remains literal and highlighted',
+    );
+
+    state.plname = 'FivePadName';
+    await bot();
+    assert.deepEqual(
+        {
+            color: state.nhDisplay.grid[22][26].color,
+            attr: state.nhDisplay.grid[22][26].attr,
+        },
+        { color: NO_COLOR, attr: ATR_NONE },
+        'five-byte HP-bar padding becomes unowned after compression',
+    );
+
+    state.iflags.wc2_darkgray = false;
+    state.iflags.wc2_hitpointbar = false;
+    await bot();
+    assertStatusTextStyle(
+        state,
+        23,
+        'HP:16',
+        { color: NO_COLOR, attr: ATR_BOLD },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        'Blind',
+        { color: NO_COLOR, attr: ATR_UNDERLINE },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        'T:7',
+        { color: NO_COLOR, attr: ATR_NONE },
+    );
+    assertStatusTextStyle(
+        state,
+        23,
+        '$:50',
+        { color: NO_COLOR, attr: ATR_BOLD },
+    );
+
+    state.iflags.wc2_hitpointbar = true;
+    await bot();
+    assertCellRange(
+        state,
+        22,
+        1,
+        18,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        '!use_darkgray black aliases terminal-default in recorder output',
     );
     assert.notEqual(CLR_GRAY, NO_COLOR, 'the assertion detects normalization');
     assert.notEqual(CLR_BLACK, NO_COLOR, 'black is distinct before capture');
