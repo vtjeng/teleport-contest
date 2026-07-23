@@ -1587,9 +1587,10 @@ function applyMenuBinding(result, binding, lineNumber) {
             });
             return;
         }
-        // Keep gameplay bindings in source application order. Both nh.eckey()
-        // while loading tut-1 and runtime command dispatch consume the shared
-        // command model; gameplayBindings remains the Lua-facing projection.
+        // Keep gameplay bindings in source application order.
+        // commandOperations is the authoritative stream consumed by tutorial
+        // key lookup and runtime dispatch; gameplayBindings remains a
+        // compatibility projection of parsed option state.
         const operation = {
             key,
             command: commandName.toLowerCase(),

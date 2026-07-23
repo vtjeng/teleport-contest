@@ -25,7 +25,7 @@ import { ttyPline } from '../js/tty_message.js';
 // free of calendar messages while still exercising fixed-datetime startup.
 const COMMAND_DATETIME = '20310314150926';
 
-function parserState(keys) {
+function resetParserTestGame(keys) {
     resetGame();
     game.nhDisplay = new GameDisplay(null);
     game.flags = { rest_on_space: true };
@@ -49,7 +49,7 @@ function topLine(state) {
         .map(({ ch }) => ch).join('').trimEnd();
 }
 
-test('runtime bindings preserve option order, number-pad layout, and rest', () => {
+test('runtime bindings apply a custom movement binding, phone-layout directions, and rest-on-space', () => {
     const parsed = parseNethackrc(
         'OPTIONS=number_pad:3,rest_on_space\nBINDINGS=x:movewest',
     );
@@ -92,7 +92,7 @@ test('special count-key bindings retain their source byte namespace', async () =
     const parsed = parseNethackrc(
         'OPTIONS=number_pad\nBINDINGS=x:count',
     );
-    const state = parserState('x12.');
+    const state = resetParserTestGame('x12.');
     state.flags = parsed.flags;
     state.iflags = parsed.iflags;
     state.commandOperations = parsed.commandOperations;
@@ -106,8 +106,12 @@ test('special count-key bindings retain their source byte namespace', async () =
 });
 
 test('logical command reads compose altmeta across counts and number-pad input', async () => {
+    // ESC followed by NUL or ESC remains a plain ESC command. Altmeta sets
+    // the high bit: ASCII x (0x78) becomes M-x (0xF8). In number-pad mode,
+    // ESC+4 composes M-4 (0x34 | 0x80 = 0xB4), which is runwest. A preceding
+    // count digit must not break the later ESC+x composition.
     for (const following of [0, 0x1B]) {
-        const state = parserState([0x1B, following]);
+        const state = resetParserTestGame([0x1B, following]);
         state.iflags.altmeta = true;
         assert.equal(await parseCommand(state), 0x1B);
         assert.equal(state.commandCount, 0);
@@ -115,18 +119,18 @@ test('logical command reads compose altmeta across counts and number-pad input',
         assert.equal(state.nhDisplay.inputQueueLength, 0);
     }
 
-    const ordinary = parserState([0x1B, 'x']);
+    const ordinary = resetParserTestGame([0x1B, 'x']);
     ordinary.iflags.altmeta = true;
     assert.equal(await parseCommand(ordinary), 0xF8);
     assert.equal(ordinary.nhDisplay.inputQueueLength, 0);
 
-    const counted = parserState(['1', 0x1B, 'x']);
+    const counted = resetParserTestGame(['1', 0x1B, 'x']);
     counted.iflags.altmeta = true;
     assert.equal(await parseCommand(counted), 0xF8);
     assert.equal(counted.commandCount, 1);
     assert.equal(counted.multi, 0);
 
-    const numberPad = parserState([0x1B, '4']);
+    const numberPad = resetParserTestGame([0x1B, '4']);
     numberPad.iflags.num_pad = true;
     numberPad.iflags.altmeta = true;
     const metaFour = await parseCommand(numberPad);
@@ -140,7 +144,7 @@ test('logical command reads compose altmeta across counts and number-pad input',
 test('parseCommand echoes a multi-digit count only at source boundaries', async () => {
     // Twelve is the smallest multi-digit count, so the first digit remains
     // silent and the second activates cmd.c get_count()'s Count message.
-    const state = parserState('12.');
+    const state = resetParserTestGame('12.');
     await ttyPline('Ready', state);
     const boundaries = [];
     state._preNhgetchHook = () => boundaries.push({
@@ -166,6 +170,10 @@ test('parseCommand echoes a multi-digit count only at source boundaries', async 
 });
 
 test('count editing preserves erase, leading-zero, and cancellation branches', async () => {
+    // boundaryLines records the top line immediately before each physical
+    // byte read. A one-digit count stays silent; count > 9 and an erase
+    // repaint "Count:". The control bytes are BS (0x08), DEL (0x7F), and ESC
+    // (0x1B).
     const cases = [
         {
             name: 'backspace then append',
@@ -203,7 +211,7 @@ test('count editing preserves erase, leading-zero, and cancellation branches', a
     ];
 
     for (const entry of cases) {
-        const state = parserState(entry.keys);
+        const state = resetParserTestGame(entry.keys);
         await ttyPline('Ready', state);
         const boundaries = [];
         state._preNhgetchHook = () => boundaries.push(topLine(state));
@@ -224,8 +232,11 @@ test('count editing preserves erase, leading-zero, and cancellation branches', a
     }
 });
 
-test('command parsing clears complete styled TTY state but retains toplines', async () => {
-    const state = parserState('12.');
+test('parseCommand clears the physical message row but retains the final Count text as logical toplines', async () => {
+    const state = resetParserTestGame('12.');
+    // Fill the row with non-default glyph, color, and attribute values so
+    // physical clearing is observable; "12." leaves "Count: 12" in logical
+    // message history.
     for (let column = 0; column < state.nhDisplay.cols; ++column)
         state.nhDisplay.setCell(column, 0, 'X', 2, 3);
     state._pending_message = 'Ready';
@@ -256,7 +267,7 @@ test('command parsing clears complete styled TTY state but retains toplines', as
 test('number-pad count prefix feeds the same saturating parser', async () => {
     // Five nines exceed NetHack's portable LARGEST_INT (32767), proving that
     // counts clamp rather than following JavaScript's larger integer range.
-    const state = parserState('n99999.');
+    const state = resetParserTestGame('n99999.');
     state.iflags.num_pad = true;
 
     const key = await parseCommand(state);
@@ -288,6 +299,9 @@ test('a counted wait repeats without reading another command key', async () => {
 });
 
 test('the segment runner completes counts around and at the portable limit', async () => {
+    // 1023 and 1024 exercise values immediately below and at the former
+    // effective 1024-iteration limit for these short recipes. 1100 exceeds
+    // that limit, and MAX_COMMAND_COUNT exercises the source ceiling.
     for (const count of [1023, 1024, 1100, MAX_COMMAND_COUNT]) {
         const replay = await runSegment({
             seed: 840003,
@@ -306,7 +320,7 @@ test('the segment runner completes counts around and at the portable limit', asy
 });
 
 test('rhack clears menu and no-pickup prefix state on every entry', async () => {
-    const state = parserState('..');
+    const state = resetParserTestGame('..');
     for (const firstTime of [true, false]) {
         state.iflags.menu_requested = true;
         state.context.nopick = 1;
@@ -383,6 +397,9 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
 });
 
 test('all source direction families dispatch their exact movement intent', async () => {
+    // cmd.c's default vi order is h/y/k/u/l/n/j/b for
+    // W/NW/N/NE/E/SE/S/SW. Lowercase walks with run=0, uppercase runs with
+    // run=1, and Ctrl-letter rushes with run=3.
     await runSegment({
         seed: 840004,
         datetime: COMMAND_DATETIME,
@@ -390,6 +407,8 @@ test('all source direction families dispatch their exact movement intent', async
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
         moves: '',
     });
+    // Every destination tile is overwritten below; seed 840004 supplies only
+    // deterministic startup state, not a favorable terrain fixture.
     const start = [game.u.ux, game.u.uy];
     const directions = [
         ['h', -1, 0], ['y', -1, -1], ['k', 0, -1], ['u', 1, -1],
@@ -432,7 +451,7 @@ test('all source direction families dispatch their exact movement intent', async
     }
 });
 
-test('first-time run and altmeta number-pad run establish run state', async () => {
+test('a first-time altmeta number-pad run establishes run state', async () => {
     await runSegment({
         seed: 840004,
         datetime: COMMAND_DATETIME,
@@ -445,6 +464,9 @@ test('first-time run and altmeta number-pad run establish run state', async () =
     const west = game.level.at(start[0] - 1, start[1]);
     west.typ = ROOM;
     west.flags = west.doormask = 0;
+    // Any nonzero sentinel proves first-time running resets last_str_turn to
+    // zero. With number_pad+altmeta, ESC followed by 4 composes M-4, the
+    // runwest binding.
     game.u.last_str_turn = 99;
     game.nhDisplay.pushKey(0x1B);
     game.nhDisplay.pushKey(commandKeyCode('4'));

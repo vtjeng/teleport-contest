@@ -30,6 +30,9 @@ const DELETE = 0x7F;
 const DOMOVE_WALK = 0x01;
 const DOMOVE_RUSH = 0x02;
 
+// Each value is [u.dx, u.dy, context.run]: 0 walks, 1 runs, and 3 rushes.
+// Preserve these source numeric modes; downstream code groups them by
+// truthiness only where cmd.c does.
 const MOVEMENT_INTENTS = Object.freeze({
     movewest: [-1, 0, 0],
     movenorthwest: [-1, -1, 0],
@@ -66,9 +69,9 @@ function isDigit(key) {
     return key >= 0x30 && key <= 0x39;
 }
 
-// C ref: cmd.c readchar_core().  The window port supplies physical bytes;
-// this layer owns the logical command byte, including altmeta's ESC+byte
-// composition and input_state reset after every completed read.
+// C ref: cmd.c readchar_core(). The window port supplies physical bytes;
+// this helper composes ESC+byte for altmeta and resets input_state after the
+// completed logical command read.
 async function readCommandKey(state) {
     let key = (await nhgetch(state)) & 0xFF;
     if (key === ESC && state.iflags.altmeta
@@ -81,8 +84,9 @@ async function readCommandKey(state) {
     return key;
 }
 
-// C ref: cmd.c get_count().  The command parser passes allowchars == NULL,
-// so the first non-digit other than erase or Escape terminates the count.
+// C ref: cmd.c get_count(). parse() passes allowchars == NULL: an ordinary
+// non-digit commits the count, Backspace/Delete edit it, and Escape returns
+// without committing so parse() can cancel the count.
 async function getCount(state, inkey = 0) {
     let count = 0;
     let key = inkey;
@@ -95,9 +99,9 @@ async function getCount(state, inkey = 0) {
         if (hasInkey) {
             hasInkey = false;
         } else {
-            // readchar_core() resets this after each physical read.  Counts
-            // restore commandInp so ESC+byte remains one meta command after
-            // any number of digits.
+            // readchar_core() resets input_state after each logical read.
+            // Restore commandInp before the next read so ESC+byte remains one
+            // meta command after any number of digits.
             state.program_state.input_state = savedInputState;
             key = await readCommandKey(state);
         }
@@ -139,7 +143,10 @@ async function getCount(state, inkey = 0) {
     return { key, count };
 }
 
-// C ref: cmd.c parse().
+// C ref: cmd.c parse(). Reads one logical command, stores its parsed count in
+// commandCount/lastCommandCount, remaining repeats in multi, and its command
+// byte in cmdKey. It restores parse/input state, clears the physical TTY
+// message row, and returns cmdKey.
 export async function parseCommand(state = game) {
     state.iflags ??= {};
     state.program_state ??= {};
@@ -209,8 +216,9 @@ export function resetCommandVars(state = game) {
     state.iflags.menu_requested = false;
 }
 
-// C ref: hack.c end_running(). Status refresh and travel-map cleanup remain
-// with their owning subsystems.
+// C ref: hack.c end_running(TRUE). The current finite-movement caller always
+// requests travel cancellation, so this helper clears travel, travel1, and mv.
+// Status refresh and travel-map cleanup remain with their owning subsystems.
 export function endRunning(state = game) {
     state.context.run = 0;
     state.context.travel = 0;
@@ -228,6 +236,10 @@ function blocksMove(x, y, state) {
 // C ref: hack.c domove(). This remains the narrow ordinary-floor subset; the
 // movement milestone will replace its collision and terrain branches in source
 // order without changing the command intent established by executeMovement().
+// It requires established u.dx/u.dy and context.move = 1. Success updates the
+// position and leaves that turn flag untouched; a blocked step sets it to 0
+// and cancels multi, context.mv, and context.run. moveloop_core() calls this
+// directly only for already-established movement intent.
 export async function domove(state = game) {
     const u = state.u;
     const newx = u.ux + u.dx;
@@ -286,7 +298,10 @@ async function executeMovement(command, firstTime, state) {
 
 // C ref: cmd.c rhack(). Only the source handlers owned by this milestone are
 // dispatched here; later command families retain the existing unknown-command
-// behavior until their complete handlers are ported.
+// behavior until their complete handlers are ported. key === 0 reads and
+// parses a fresh command; any nonzero key is supplied command input (normally
+// cmdKey during a repeat) and dispatches without another read. rhack() has no
+// command-result return; context.move reports whether the command took time.
 export async function rhack(key, state = game) {
     state.iflags ??= {};
     state.context ??= {};

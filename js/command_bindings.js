@@ -52,6 +52,10 @@ const SOURCE_COMMAND_ALIASES = Object.freeze([
     ['M-N', 'name'],
 ]);
 
+// DIRECTION_COMMANDS rows and every DIRECTION_KEYS string share index order
+// west, northwest, north, northeast, east, southeast, south, southwest.
+// Within each command row and directionBackups row, columns are walk, run,
+// rush; keep every layout at exactly eight positions in this order.
 const DIRECTION_COMMANDS = Object.freeze([
     ['movewest', 'runwest', 'rushwest'],
     ['movenorthwest', 'runnorthwest', 'rushnorthwest'],
@@ -131,8 +135,13 @@ function updateRestOnSpace(model, enabled) {
     model.restOnSpace = enabled;
 }
 
-function resetCommandBindings(model, enabled, mode, initial = false) {
-    if (!initial && model.directionBackups) {
+function resetCommandBindings(
+    model,
+    numberPadEnabled,
+    numberPadMode,
+    initialSetup = false,
+) {
+    if (!initialSetup && model.directionBackups) {
         for (const direction of model.directionBackups) {
             for (const binding of direction) {
                 setBinding(
@@ -145,10 +154,10 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
         }
     }
 
-    const swapYZ = Boolean(mode & 1) && !enabled;
-    const pcHack = Boolean(mode & 1) && enabled;
-    const phone = Boolean(mode & 2) && enabled;
-    if (!initial && swapYZ !== model.swapYZ) {
+    const swapYZ = Boolean(numberPadMode & 1) && !numberPadEnabled;
+    const pcHack = Boolean(numberPadMode & 1) && numberPadEnabled;
+    const phone = Boolean(numberPadMode & 2) && numberPadEnabled;
+    if (!initialSetup && swapYZ !== model.swapYZ) {
         for (const [first, second] of YZ_SWAP_KEYS) {
             swapBindingKeys(
                 model.bindings,
@@ -157,14 +166,14 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
             );
         }
     }
-    if (!initial && pcHack !== model.pcHack) {
+    if (!initialSetup && pcHack !== model.pcHack) {
         setBinding(
             model.bindings,
             commandKeyCode('M-0'),
             pcHack ? 'inventtype' : null,
         );
     }
-    if (!initial && phone !== model.phone) {
+    if (!initialSetup && phone !== model.phone) {
         for (let index = 0; index < 3; ++index) {
             const low = '1'.charCodeAt(0) + index;
             const high = low + 6;
@@ -172,12 +181,12 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
             swapBindingKeys(model.bindings, low | 0x80, high | 0x80);
         }
     }
-    model.numPad = enabled;
+    model.numPad = numberPadEnabled;
     model.swapYZ = swapYZ;
     model.pcHack = pcHack;
     model.phone = phone;
 
-    const directionKeys = enabled
+    const directionKeys = numberPadEnabled
         ? (phone ? DIRECTION_KEYS.phone : DIRECTION_KEYS.numberPad)
         : (swapYZ ? DIRECTION_KEYS.swapped : DIRECTION_KEYS.normal);
     model.directionBackups = DIRECTION_COMMANDS.map((commands, direction) => {
@@ -187,7 +196,7 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
         // first backup captures and removes the binding; the second captures
         // null. Restoration later re-adds the first, then removes it with the
         // second, which is observable after user bindings and mode changes.
-        const modeKeys = enabled
+        const modeKeys = numberPadEnabled
             ? [key, key | 0x80, key | 0x80]
             : [key, directionKeys.toUpperCase().charCodeAt(direction), key & 0x1F];
         return modeKeys.map((modeKey) => {
@@ -207,7 +216,7 @@ function resetCommandBindings(model, enabled, mode, initial = false) {
         const key = directionKeys.charCodeAt(direction);
         const [walk, run, rush] = DIRECTION_COMMANDS[direction];
         setBinding(model.bindings, key, walk);
-        if (enabled) {
+        if (numberPadEnabled) {
             setBinding(model.bindings, key | 0x80, run);
         } else {
             setBinding(
@@ -245,6 +254,10 @@ export function createCommandBindingModel(state) {
     }
     resetCommandBindings(model, false, 0, true);
 
+    // Replay commandOperations to preserve source ordering and binding
+    // collisions. The final option snapshots below also support callers that
+    // provide only terminal option state; when both forms are present, the
+    // snapshots should agree with the replayed result.
     for (const operation of state.commandOperations ?? []) {
         if (operation.type === 'bind') {
             const parameter = operation.command.indexOf('(');
