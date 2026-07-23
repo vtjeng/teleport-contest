@@ -3,15 +3,20 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    CLOUD,
     COULD_SEE,
+    DB_MOAT,
     DOOR,
     D_CLOSED,
+    DRAWBRIDGE_UP,
     FROMOUTSIDE,
     HWALL,
+    LAVAWALL,
     LS_MONSTER,
     LS_OBJECT,
     M_AP_FURNITURE,
     M_AP_OBJECT,
+    MOAT,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
@@ -20,6 +25,7 @@ import {
     ROOM,
     SEE_INVIS,
     TEMP_LIT,
+    WATER,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
@@ -50,6 +56,7 @@ import {
     cansee,
     clear_path,
     couldsee,
+    does_block,
     init_vision_globals,
     vision_recalc,
     vision_reset,
@@ -167,6 +174,39 @@ test('a floor boulder blocks initial line of sight', () => {
 
     vision_reset();
 
+    assert.equal(clear_path(10, 10, 14, 10), 0);
+    assert.equal(clear_path(10, 10, 12, 10), 1);
+});
+
+test('does_block preserves opaque terrain and underwater moat gates', () => {
+    const state = darkRoomState();
+    for (const typ of [CLOUD, WATER, LAVAWALL]) {
+        state.level.at(12, 10).typ = typ;
+        state.u.uinwater = false;
+        assert.equal(does_block(12, 10), true, `terrain ${typ}`);
+    }
+
+    state.level.at(12, 10).typ = MOAT;
+    assert.equal(does_block(12, 10), false);
+    state.u.uinwater = true;
+    assert.equal(does_block(12, 10), true);
+
+    state.level.at(12, 10).typ = DRAWBRIDGE_UP;
+    state.level.at(12, 10).flags = DB_MOAT;
+    assert.equal(does_block(12, 10), true);
+});
+
+test('a boulder below the floor-object head still blocks sight', () => {
+    const state = darkRoomState();
+    state.u.ux = 10;
+    state.u.uy = 10;
+    state.level.objects[12][10] = {
+        otyp: TALLOW_CANDLE,
+        nexthere: { otyp: BOULDER, nexthere: null },
+    };
+
+    assert.equal(does_block(12, 10), true);
+    vision_reset();
     assert.equal(clear_path(10, 10, 14, 10), 0);
     assert.equal(clear_path(10, 10, 12, 10), 1);
 });

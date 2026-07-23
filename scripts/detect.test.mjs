@@ -12,6 +12,7 @@ import {
     D_CLOSED,
     D_LOCKED,
     D_TRAPPED,
+    HALLUC,
     ROOM,
     SCORR,
     SDOOR,
@@ -114,6 +115,8 @@ function recordingOperations(state, events) {
             assert.equal(trap.tseen, true);
             events.push(`displayTrap(${x},${y})`);
         },
+        revealFoundTrap() {},
+        waitFoundTrap() {},
         nomulZero(env) {
             events.push('nomul(0)');
             _detectInternals.defaultNomulZero(env);
@@ -295,6 +298,57 @@ test('statue discovery activates, conditionally exercises, and returns early', a
     }
 });
 
+test('cluttered and hallucinatory trap finds reveal, wait, then redraw', async () => {
+    for (const hallucinating of [false, true]) {
+        const state = searchState();
+        const trap = {
+            tx: 9,
+            ty: 9,
+            ttyp: ANTI_MAGIC,
+            tseen: false,
+        };
+        state.level.traps.push(trap);
+        if (hallucinating) {
+            state.u.uprops[HALLUC] = {
+                intrinsic: 1,
+                extrinsic: 0,
+                blocked: 0,
+            };
+        }
+        const events = [];
+        const random = scriptedRandom(events, [0], [18]);
+        await dosearch0(1, {
+            state,
+            random,
+            ...recordingOperations(state, events),
+            displayFoundTrap() {
+                events.push('displayTrap');
+                return hallucinating ? true : false;
+            },
+            revealFoundTrap() {
+                events.push('revealTrap');
+            },
+            waitFoundTrap() {
+                events.push('waitAndRedraw');
+            },
+            trapName() {
+                return 'anti-magic field';
+            },
+        });
+
+        assert.deepEqual(events, [
+            'rnl(8)',
+            'nomul(0)',
+            'rn2(19)',
+            'displayTrap',
+            'revealTrap',
+            'message(9,9,You find an anti-magic field.)',
+            'waitAndRedraw',
+        ]);
+        random.done();
+    }
+});
+
 test('automatic search computes artifact and lenses fund before rnl', async () => {
     const state = searchState();
     state.level.at(9, 9).typ = SDOOR;
@@ -353,7 +407,7 @@ test('automatic search scans x-major and only draws for source candidates', asyn
     random.done();
 });
 
-test('missing statue animation is rejected before RNG or state changes', async () => {
+test('a missed statue search draws before requiring its hit operation', async () => {
     const state = searchState();
     const trap = {
         tx: 9,
@@ -363,8 +417,19 @@ test('missing statue animation is rejected before RNG or state changes', async (
     };
     state.level.traps.push(trap);
     const events = [];
-    const random = scriptedRandom(events, []);
+    let random = scriptedRandom(events, [1]);
+    await dosearch0(1, {
+        state,
+        random,
+        ...recordingOperations(state, events),
+    });
+    assert.deepEqual(events, ['rnl(8)']);
+    assert.equal(trap.tseen, false);
+    assert.equal(state.multi, 4);
+    random.done();
 
+    events.length = 0;
+    random = scriptedRandom(events, [0]);
     await assert.rejects(
         dosearch0(1, {
             state,
@@ -373,9 +438,28 @@ test('missing statue animation is rejected before RNG or state changes', async (
         }),
         /requires activateStatueTrap for a statue trap/,
     );
-    assert.deepEqual(events, []);
+    assert.deepEqual(events, ['rnl(8)']);
     assert.equal(trap.tseen, false);
     assert.equal(state.multi, 4);
+    random.done();
+});
+
+test('a blind miss draws before tactile display preflight', async () => {
+    const state = searchState();
+    state.level.at(9, 9).typ = SDOOR;
+    state.u.uprops[BLINDED] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    const events = [];
+    const random = scriptedRandom(events, [1]);
+
+    await dosearch0(1, { state, random });
+
+    assert.deepEqual(events, ['rnl(7)']);
+    assert.equal(state.level.at(9, 9).typ, SDOOR);
+    random.done();
 });
 
 test('swallowed automatic search is inert and explicit search is out of scope', async () => {

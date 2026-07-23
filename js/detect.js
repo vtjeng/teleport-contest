@@ -24,7 +24,15 @@ import {
 } from './const.js';
 import { SPFX_SEARCH } from './artifacts.js';
 import { exercise } from './attrib.js';
-import { newsym } from './display.js';
+import {
+    cls,
+    docrt,
+    flush_screen,
+    hero_glyph_info,
+    newsym,
+    show_glyph_cell,
+    trap_glyph_info,
+} from './display.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { LENSES } from './objects.js';
@@ -32,6 +40,7 @@ import { rn2, rnl } from './rng.js';
 import { t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { vision_reset } from './vision.js';
+import { nhgetch } from './input.js';
 
 // C's trap names come from defsyms[trap_to_defsym(ttyp)].explanation.
 // Index zero is NO_TRAP and is never passed by find_trap().
@@ -154,6 +163,59 @@ function defaultSearchDisplay(x, y, env) {
     newsym(x, y);
 }
 
+function defaultFoundTrapDisplay(trap, x, y, env) {
+    defaultSearchDisplay(x, y, env);
+    const shown = env.state.level.at(x, y);
+    const expected = trap_glyph_info(trap, env.state);
+    return shown.disp_ch === expected.ch
+        && shown.disp_color === expected.color
+        && Boolean(shown.disp_decgfx) === Boolean(expected.dec);
+}
+
+async function defaultRevealFoundTrap(trap, env) {
+    if (env.state !== game) {
+        throw new Error(
+            'automatic search requires an injected trap reveal '
+            + 'for non-global state',
+        );
+    }
+    await cls();
+    const trapGlyph = trap_glyph_info(trap, env.state);
+    show_glyph_cell(
+        trap.tx,
+        trap.ty,
+        trapGlyph.ch,
+        trapGlyph.color,
+        trapGlyph.dec,
+        trapGlyph.attr ?? 0,
+        trapGlyph.displayCh ?? null,
+        trapGlyph.displayColor ?? null,
+    );
+    const heroGlyph = hero_glyph_info(env.state);
+    show_glyph_cell(
+        env.state.u.ux,
+        env.state.u.uy,
+        heroGlyph.ch,
+        heroGlyph.color,
+        heroGlyph.dec,
+        heroGlyph.attr ?? 0,
+        heroGlyph.displayCh ?? null,
+        heroGlyph.displayColor ?? null,
+    );
+}
+
+async function defaultWaitFoundTrap(env) {
+    if (env.state !== game) {
+        throw new Error(
+            'automatic search requires an injected trap-map wait '
+            + 'for non-global state',
+        );
+    }
+    await flush_screen(1);
+    await nhgetch(env.state);
+    await docrt();
+}
+
 // C ref: hack.c nomul(0), including end_running(TRUE)'s state effects which
 // matter when automatic searching interrupts a repeated movement command.
 function defaultNomulZero(env) {
@@ -213,10 +275,13 @@ function normalizeSearchEnv(rawEnv = {}) {
         feelNewSym: operation('feelNewSym', defaultSearchDisplay),
         displayFoundTrap: operation(
             'displayFoundTrap',
-            (trap, x, y, normalized) => defaultSearchDisplay(
-                x, y, normalized,
-            ),
+            defaultFoundTrapDisplay,
         ),
+        revealFoundTrap: operation(
+            'revealFoundTrap',
+            defaultRevealFoundTrap,
+        ),
+        waitFoundTrap: operation('waitFoundTrap', defaultWaitFoundTrap),
         activateStatueTrap: operation('activateStatueTrap', null),
         exerciseWisdom: operation(
             'exerciseWisdom',
@@ -264,61 +329,56 @@ function validateDisplayCapability(env, name, detail) {
         requireInjected(env, name, 'blind tactile mapping');
 }
 
-// Validate every potentially reachable downstream operation before the first
-// RNG call, so a missing subsystem cannot leave a half-applied discovery.
-function preflightSearchCandidates(env) {
-    const { state } = env;
-    const { u } = state;
-    for (let x = u.ux - 1; x < u.ux + 2; ++x) {
-        for (let y = u.uy - 1; y < u.uy + 2; ++y) {
-            if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
-            const location = state.level.at(x, y);
-            if (location.typ === SDOOR) {
-                requireOperation(env, 'recalcBlockPoint', 'a secret door');
-                validateDisplayCapability(
-                    env, 'feelLocation', 'a secret door',
-                );
-                requireOperation(env, 'exerciseWisdom', 'a secret door');
-                requireExerciseRandom(env);
-                requireOperation(env, 'nomulZero', 'a secret door');
-                requireOperation(env, 'message', 'a secret door');
-            } else if (location.typ === SCORR) {
-                requireOperation(env, 'unblockPoint', 'a secret corridor');
-                validateDisplayCapability(
-                    env, 'feelNewSym', 'a secret corridor',
-                );
-                requireOperation(env, 'exerciseWisdom', 'a secret corridor');
-                requireExerciseRandom(env);
-                requireOperation(env, 'nomulZero', 'a secret corridor');
-                requireOperation(env, 'message', 'a secret corridor');
-            } else {
-                const trap = t_at(x, y, state);
-                if (!trap || trap.tseen) continue;
-                requireOperation(env, 'nomulZero', 'an unseen trap');
-                requireOperation(env, 'exerciseWisdom', 'an unseen trap');
-                requireExerciseRandom(env);
-                if (trap.ttyp === STATUE_TRAP) {
-                    requireOperation(
-                        env, 'activateStatueTrap', 'a statue trap',
-                    );
-                } else {
-                    validateDisplayCapability(
-                        env, 'displayFoundTrap', 'an unseen trap',
-                    );
-                    requireOperation(env, 'message', 'an unseen trap');
-                    requireOperation(env, 'trapName', 'an unseen trap');
-                    if (hallucinating(state)) {
-                        requireInjected(
-                            env, 'displayFoundTrap',
-                            'hallucinatory trap display',
-                        );
-                        requireInjected(
-                            env, 'trapName', 'hallucinatory trap naming',
-                        );
-                    }
-                }
-            }
-        }
+function preflightSecretDoor(env) {
+    requireOperation(env, 'recalcBlockPoint', 'a secret door');
+    validateDisplayCapability(env, 'feelLocation', 'a secret door');
+    requireOperation(env, 'exerciseWisdom', 'a secret door');
+    requireExerciseRandom(env);
+    requireOperation(env, 'nomulZero', 'a secret door');
+    requireOperation(env, 'message', 'a secret door');
+}
+
+function preflightSecretCorridor(env) {
+    requireOperation(env, 'unblockPoint', 'a secret corridor');
+    validateDisplayCapability(env, 'feelNewSym', 'a secret corridor');
+    requireOperation(env, 'exerciseWisdom', 'a secret corridor');
+    requireExerciseRandom(env);
+    requireOperation(env, 'nomulZero', 'a secret corridor');
+    requireOperation(env, 'message', 'a secret corridor');
+}
+
+function preflightTrap(env, trap) {
+    requireOperation(env, 'nomulZero', 'an unseen trap');
+    requireOperation(env, 'exerciseWisdom', 'an unseen trap');
+    requireExerciseRandom(env);
+    if (trap.ttyp === STATUE_TRAP) {
+        requireOperation(env, 'activateStatueTrap', 'a statue trap');
+        return;
+    }
+    validateDisplayCapability(env, 'displayFoundTrap', 'an unseen trap');
+    requireOperation(env, 'message', 'an unseen trap');
+    requireOperation(env, 'trapName', 'an unseen trap');
+    if (env.state !== game) {
+        requireInjected(
+            env, 'revealFoundTrap', 'non-global trap display',
+        );
+        requireInjected(
+            env, 'waitFoundTrap', 'non-global trap display',
+        );
+    }
+    if (hallucinating(env.state)) {
+        requireInjected(
+            env, 'displayFoundTrap', 'hallucinatory trap display',
+        );
+        requireInjected(
+            env, 'trapName', 'hallucinatory trap naming',
+        );
+        requireOperation(
+            env, 'revealFoundTrap', 'hallucinatory trap display',
+        );
+        requireOperation(
+            env, 'waitFoundTrap', 'hallucinatory trap display',
+        );
     }
 }
 
@@ -370,7 +430,18 @@ function indefinite(name) {
 async function findTrap(trap, env) {
     trap.tseen = true;
     env.exerciseWisdom(env);
-    await env.displayFoundTrap(trap, trap.tx, trap.ty, env);
+    const trapVisible = await env.displayFoundTrap(
+        trap,
+        trap.tx,
+        trap.ty,
+        env,
+    );
+    const cleared = hallucinating(env.state) || trapVisible === false;
+    if (cleared) {
+        requireOperation(env, 'revealFoundTrap', 'a cluttered trap');
+        requireOperation(env, 'waitFoundTrap', 'a cluttered trap');
+        await env.revealFoundTrap(trap, env);
+    }
     const name = env.trapName(trap, env);
     await env.message(
         `You find ${indefinite(name)}.`,
@@ -378,6 +449,7 @@ async function findTrap(trap, env) {
         trap.ty,
         env,
     );
+    if (cleared) await env.waitFoundTrap(env);
 }
 
 /**
@@ -407,16 +479,17 @@ export async function dosearch0(aflag, rawEnv = {}) {
     }
 
     const fund = searchFund(state);
-    preflightSearchCandidates(env);
 
     // Preserve detect.c's x-major, then y-minor traversal and its continue
-    // boundaries: a missed secret square does not fall through to trap search.
+    // boundaries. Discovery-only owners are resolved after the source rnl()
+    // succeeds, so an unsupported hit cannot suppress or reorder a miss.
     for (let x = u.ux - 1; x < u.ux + 2; ++x) {
         for (let y = u.uy - 1; y < u.uy + 2; ++y) {
             if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
             const location = state.level.at(x, y);
             if (location.typ === SDOOR) {
                 if (env.random.rnl(7 - fund)) continue;
+                preflightSecretDoor(env);
                 cvt_sdoor_to_door(location, state);
                 env.recalcBlockPoint(x, y, env);
                 env.exerciseWisdom(env);
@@ -427,6 +500,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 );
             } else if (location.typ === SCORR) {
                 if (env.random.rnl(7 - fund)) continue;
+                preflightSecretCorridor(env);
                 location.typ = CORR;
                 env.unblockPoint(x, y, env);
                 env.exerciseWisdom(env);
@@ -438,6 +512,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
             } else {
                 const trap = t_at(x, y, state);
                 if (!trap || trap.tseen || env.random.rnl(8)) continue;
+                preflightTrap(env, trap);
                 env.nomulZero(env);
                 if (trap.ttyp === STATUE_TRAP) {
                     const animated = await env.activateStatueTrap(

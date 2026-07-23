@@ -1077,6 +1077,12 @@ function trapGlyph(trap, state) {
     return terrainCmap(trap_to_defsym(trap.ttyp), color, state);
 }
 
+// C ref: display.c trap_to_glyph(). Search discovery temporarily needs the
+// canonical trap glyph even when an object or monster covers the square.
+export function trap_glyph_info(trap, state = game) {
+    return trapGlyph(trap, state);
+}
+
 function observeNearbyObject(object, x, y, state) {
     if (!object_is_generic(object) || !cansee(x, y, state)) return;
     const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;

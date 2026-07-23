@@ -3,12 +3,14 @@
 // Contestants should port the full vision.c for complete parity.
 
 import { game } from './gstate.js';
+import { on_level } from './dungeon.js';
 import { do_light_sources } from './light.js';
 import { BOULDER } from './objects.js';
 import { visible_region_at } from './region.js';
 import { m_at } from './monst.js';
 import {
-    BLINDED, COLNO, COULD_SEE, IN_SIGHT, ROWNO, DOOR, SDOOR, POOL,
+    BLINDED, CLOUD, COLNO, COULD_SEE, DB_MOAT, DB_UNDER, DRAWBRIDGE_UP,
+    IN_SIGHT, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR, POOL, WATER,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
@@ -120,7 +122,20 @@ function blocksVisionAt(x, y) {
         const mask = loc.flags || loc.doormask || 0;
         if (mask & (D_CLOSED | D_LOCKED | D_TRAPPED)) return true;
     }
-    if (level.objects?.[x]?.[y]?.otyp === BOULDER) return true;
+    const drawbridgeMask = loc.flags || loc.drawbridgemask || 0;
+    const moat = !on_level(game.u?.uz, game.juiblex_level)
+        && (typ === MOAT
+            || (typ === DRAWBRIDGE_UP
+                && (drawbridgeMask & DB_UNDER) === DB_MOAT));
+    if (typ === CLOUD || typ === WATER || typ === LAVAWALL
+        || (game.u?.uinwater && moat)) {
+        return true;
+    }
+    for (let object = level.objects?.[x]?.[y] ?? null;
+        object;
+        object = object.nexthere) {
+        if (object.otyp === BOULDER) return true;
+    }
     if (mimicBlocksLight(x, y)) return true;
     if (visible_region_at(x, y, game)) return true;
     return false;
