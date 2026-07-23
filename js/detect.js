@@ -41,6 +41,7 @@ import {
     hero_glyph_info,
     newsym,
     object_glyph_info,
+    remembered_glyph_info,
     show_glyph_cell,
     terrain_glyph,
     trap_glyph_info,
@@ -175,7 +176,10 @@ function defaultSearchDisplay(x, y, env) {
             + 'for non-global state',
         );
     }
-    const remembered = newsym(x, y);
+    // C's newsym() is side-effect-only. find_trap() then compares levl's
+    // canonical remembered glyph, not the presentation currently covering it.
+    newsym(x, y);
+    const remembered = env.state.level.at(x, y).remembered_glyph;
     return remembered?.trapType === undefined
         ? { kind: 'remembered-other' }
         : { kind: 'trap', trapType: remembered.trapType };
@@ -189,22 +193,6 @@ const FELT_SEENV = Object.freeze([
     Object.freeze([SV3, 0, SV7]),
     Object.freeze([SV4, SV5, SV6]),
 ]);
-
-function rememberedSearchGlyph(glyph, layer = null) {
-    const remembered = {
-        ch: glyph.ch,
-        color: glyph.color,
-        decgfx: glyph.dec,
-        displayCh: glyph.displayCh ?? null,
-    };
-    if (layer?.kind === 'trap')
-        remembered.trapType = layer.owner.ttyp;
-    if (glyph.attr) remembered.attr = glyph.attr;
-    if (glyph.displayColor)
-        remembered.displayColor = glyph.displayColor;
-    if (glyph.rgb) remembered.rgb = [...glyph.rgb];
-    return remembered;
-}
 
 // C ref: display.c _map_location().  Every location admitted by this
 // automatic-search owner is a converted adjacent door/corridor or an ordinary
@@ -279,7 +267,10 @@ function defaultFeelSearchLocation(x, y, env) {
     const layer = mappedSearchLayer(x, y, state);
     const { glyph } = layer;
     if (state.level.flags?.hero_memory)
-        location.remembered_glyph = rememberedSearchGlyph(glyph, layer);
+        location.remembered_glyph = remembered_glyph_info(
+            glyph,
+            layer.kind === 'trap' ? layer.owner : null,
+        );
     show_glyph_cell(
         x,
         y,
@@ -361,7 +352,10 @@ async function defaultWaitFoundTrap(env) {
     // C ref: win/tty/wintty.c tty_display_nhwindow(NHW_MAP, TRUE).
     // A pending find_trap() message is presented through more(), whose key
     // wait and topline cleanup are owned by the tty message subsystem.
-    if (!await dismissPendingTtyMessage(env.state)) {
+    // WIN_STOP suppresses that message and therefore the wait, but find_trap()
+    // still continues to docrt().
+    const messageWasStopped = Boolean(env.state._ttyMessageStopped);
+    if (!await dismissPendingTtyMessage(env.state) && !messageWasStopped) {
         throw new Error(
             'automatic search trap-map wait requires its pending tty message',
         );
@@ -700,6 +694,5 @@ export const _detectInternals = Object.freeze({
     artifactSearchAbility,
     coordinateDescription,
     defaultNomulZero,
-    rememberedSearchGlyph,
     searchFund,
 });

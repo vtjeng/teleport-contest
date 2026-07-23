@@ -177,6 +177,7 @@ import {
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
 import { M1_HUMANOID, NON_PM, PM_TENGU } from './monsters.js';
+import { sensesMonster } from './startup_a11y.js';
 
 const WALL_TYPES = new Set([
     SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
@@ -701,6 +702,20 @@ export function hero_glyph_info(state = game) {
     );
 }
 
+function actualMonsterGlyphInfo(monster, state) {
+    const symbol = monster.mtame && accessibilityOverridesEnabled(state)
+        ? optional_misc_symbol(SYM_PET_OVERRIDE, state)
+            ?? monster_class_symbol(monster.data.mlet, state)
+        : monster_class_symbol(monster.data.mlet, state);
+    const glyph = glyphPresentation(symbol, monster.data.mcolor, state);
+    // C ref: win/tty/wintty.c:tty_print_glyph(). Pet highlighting is a tty
+    // presentation attribute; it does not alter the remembered floor glyph.
+    if (monster.mtame && state.iflags?.wc_hilite_pet) {
+        glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE;
+    }
+    return glyph;
+}
+
 export function monster_glyph_info(monster, state = game) {
     if (!monster?.data)
         throw new TypeError('monster_glyph_info requires monster data');
@@ -782,17 +797,7 @@ export function monster_glyph_info(monster, state = game) {
         // gem or spellbook remains unobserved.
         return object_glyph_info(fakeObject, state);
     }
-    const symbol = monster.mtame && accessibilityOverridesEnabled(state)
-        ? optional_misc_symbol(SYM_PET_OVERRIDE, state)
-            ?? monster_class_symbol(monster.data.mlet, state)
-        : monster_class_symbol(monster.data.mlet, state);
-    const glyph = glyphPresentation(symbol, monster.data.mcolor, state);
-    // C ref: win/tty/wintty.c:tty_print_glyph(). Pet highlighting is a tty
-    // presentation attribute; it does not alter the remembered floor glyph.
-    if (monster.mtame && state.iflags?.wc_hilite_pet) {
-        glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE;
-    }
-    return glyph;
+    return actualMonsterGlyphInfo(monster, state);
 }
 
 // C ref: display.h obj_is_generic().  Unobserved potions, real/glass gems,
@@ -1015,7 +1020,7 @@ export function show_glyph_cell(
     loc.gnew = 1;
 }
 
-function rememberedMapGlyph(glyph, trap = null) {
+export function remembered_glyph_info(glyph, trap = null) {
     const remembered = {
         ch: glyph.ch,
         color: glyph.color,
@@ -1112,12 +1117,16 @@ export function newsym(x, y) {
     if (visible && engraving) engraving.erevealed = true;
 
     // display.c:newsym() lets a visible gas region cover every accessible
-    // location, including the hero. Ordinary visible, unsensed monsters only
-    // override it when adjacent; object-disguised mimics do not. Returning
-    // here intentionally leaves the remembered underlying glyph untouched.
+    // location, including the hero. Sensed monsters override the region;
+    // ordinary visible monsters do so only when adjacent, and object-disguised
+    // mimics do not. The early return intentionally leaves the remembered
+    // underlying glyph untouched.
     const region = visible ? visible_region_at(x, y, game) : null;
+    const monster = visible ? m_at(x, y, game) : null;
+    const monsterSensed = Boolean(
+        monster && sensesMonster(monster, game),
+    );
     if (region && ACCESSIBLE(loc.typ)) {
-        const monster = m_at(x, y, game);
         const adjacentVisibleMonster = monster
             && !monster.minvis
             && !monster.mundetected
@@ -1125,7 +1134,7 @@ export function newsym(x, y) {
                 monster.m_ap_type & M_AP_TYPMASK,
             )
             && dist2(x, y, game.u?.ux ?? 0, game.u?.uy ?? 0) <= 2;
-        if (!adjacentVisibleMonster) {
+        if (!monsterSensed && !adjacentVisibleMonster) {
             const cloud = terrainCmap(
                 region.glyph,
                 region.arg ? CLR_BRIGHT_GREEN : CLR_GRAY,
@@ -1135,7 +1144,7 @@ export function newsym(x, y) {
                 x, y, cloud.ch, cloud.color, cloud.dec, cloud.attr ?? 0,
                 cloud.displayCh ?? null, cloud.displayColor ?? null,
             );
-            return loc.remembered_glyph ?? null;
+            return;
         }
     }
 
@@ -1159,31 +1168,35 @@ export function newsym(x, y) {
             hero.displayCh ?? null, hero.displayColor ?? null,
         );
         if (game.level?.flags?.hero_memory)
-            loc.remembered_glyph = rememberedMapGlyph(
+            loc.remembered_glyph = remembered_glyph_info(
                 underlying,
                 object ? null : trap?.tseen ? trap : null,
             );
-        return loc.remembered_glyph ?? null;
+        return;
     }
 
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
-        const monster = m_at(x, y, game);
         const monsterVisible = Boolean(
-            monster && !monster.minvis && !monster.mundetected,
+            monster
+            && ((!monster.minvis && !monster.mundetected) || monsterSensed),
         );
+        // display_monster() exposes a mimic's real monster glyph when sensing
+        // defeats its appearance; physical sight alone shows the disguise.
         const shown = monsterVisible
-            ? monster_glyph_info(monster, game)
+            ? (monsterSensed
+                ? actualMonsterGlyphInfo(monster, game)
+                : monster_glyph_info(monster, game))
             : underlying;
         // display_monster() maps an unsensed mimic appearance onto memory.
         // Ordinary monsters leave memory as the actual layer underneath them.
-        const remembered = monsterVisible
+        const remembered = monsterVisible && !monsterSensed
             && [M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
             )
             ? shown : underlying;
         if (game.level?.flags?.hero_memory) {
-            loc.remembered_glyph = rememberedMapGlyph(
+            loc.remembered_glyph = remembered_glyph_info(
                 remembered,
                 remembered === underlying && !object && trap?.tseen
                     ? trap : null,
@@ -1207,7 +1220,6 @@ export function newsym(x, y) {
             loc.remembered_glyph.displayCh,
             loc.remembered_glyph.displayColor ?? null);
     }
-    return loc.remembered_glyph ?? null;
 }
 
 // ── docrt ──

@@ -21,6 +21,7 @@ import {
     SCORR,
     SDOOR,
     STATUE_TRAP,
+    TELEPAT,
     SV0,
     SV1,
     SV2,
@@ -36,7 +37,9 @@ import {
     dosearch0,
 } from '../js/detect.js';
 import {
+    monster_glyph_info,
     object_glyph_info,
+    remembered_glyph_info,
     terrain_glyph,
     trap_glyph_info,
 } from '../js/display.js';
@@ -47,7 +50,9 @@ import {
     FOOD_CLASS,
     LENSES,
 } from '../js/objects.js';
+import { S_FELINE } from '../js/monsters.js';
 import { create_region } from '../js/region.js';
+import { CLR_WHITE } from '../js/terminal.js';
 
 function searchState() {
     const locations = new Map();
@@ -259,6 +264,17 @@ function captureInputBoundaries() {
     return captures;
 }
 
+function enableBrowserGlyphProjection(display) {
+    display.terminal.spans = Array.from(
+        { length: display.rows },
+        () => Array.from({ length: display.cols }, () => ({
+            textContent: ' ',
+            style: {},
+            classList: { add() {}, remove() {} },
+        })),
+    );
+}
+
 function screenRow(grid, row) {
     return grid[row].map(({ ch }) => ch).join('');
 }
@@ -407,10 +423,7 @@ test('blind tactile search records all eight source viewing vectors', async () =
 });
 
 test('tactile memory retains logical, browser, and RGB glyph metadata', () => {
-    const layer = {
-        kind: 'trap',
-        owner: { ttyp: ANTI_MAGIC },
-    };
+    const trap = { ttyp: ANTI_MAGIC };
     const glyph = {
         ch: null,
         color: 12,
@@ -422,7 +435,7 @@ test('tactile memory retains logical, browser, and RGB glyph metadata', () => {
     };
 
     assert.deepEqual(
-        _detectInternals.rememberedSearchGlyph(glyph, layer),
+        remembered_glyph_info(glyph, trap),
         {
             ch: null,
             color: 12,
@@ -572,6 +585,11 @@ test('trap clutter uses logical layers when custom symbols collide', async () =>
     }, 'the valid custom configuration creates a presentation collision');
 
     const beforeWait = target.replay.getScreens().length;
+    enableBrowserGlyphProjection(game.nhDisplay);
+    const staleBrowserCell = game.level.at(target.x + 2, target.y);
+    staleBrowserCell.disp_browser_ch = '✦';
+    staleBrowserCell.disp_browser_color = 'rgb(1, 2, 3)';
+    staleBrowserCell.disp_browser_attr = 4;
     const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const random = tactileSearchRandom(8);
@@ -588,6 +606,32 @@ test('trap clutter uses logical layers when custom symbols collide', async () =>
         captures.at(-1),
         target,
         { x: game.u.ux, y: game.u.uy },
+    );
+});
+
+test('sighted trap discovery records trap identity without a map wait', async () => {
+    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    assert.ok(game.viz_array[target.y][target.x] & IN_SIGHT);
+    const trap = {
+        tx: target.x,
+        ty: target.y,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    game.level.traps.push(trap);
+    const beforeWait = target.replay.getScreens().length;
+    const random = tactileSearchRandom(8);
+
+    await dosearch0(1, { state: game, random });
+
+    const location = game.level.at(target.x, target.y);
+    assert.equal(target.replay.getScreens().length, beforeWait);
+    assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
+    assertCompleteMappedGlyph(
+        location,
+        trap_glyph_info(trap, game),
+        '',
+        ANTI_MAGIC,
     );
 });
 
@@ -632,6 +676,150 @@ test('sighted trap discovery compares memory retained under a gas region', async
         target,
         { x: game.u.ux, y: game.u.uy },
     );
+});
+
+test('a sensed invisible monster overrides gas and leaves trap memory', async () => {
+    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    assert.ok(game.viz_array[target.y][target.x] & IN_SIGHT);
+    const location = game.level.at(target.x, target.y);
+    const trap = {
+        tx: target.x,
+        ty: target.y,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    game.level.traps.push(trap);
+    const region = create_region([{
+        lx: target.x,
+        ly: target.y,
+        hx: target.x,
+        hy: target.y,
+    }]);
+    region.visible = true;
+    game.level.regions.push(region);
+    const monster = {
+        data: {
+            mlet: S_FELINE,
+            mcolor: CLR_WHITE,
+            mflags1: 0,
+            mflags2: 0,
+        },
+        mhp: 10,
+        mtame: 0,
+        minvis: true,
+        mundetected: false,
+        m_ap_type: 0,
+        mx: target.x,
+        my: target.y,
+    };
+    game.level.monsters[target.x][target.y] = monster;
+    game.u.uprops ??= [];
+    game.u.uprops[TELEPAT] = {
+        intrinsic: 0,
+        extrinsic: 1,
+        blocked: 0,
+    };
+    game.u.unblind_telepat_range = 3;
+    const beforeWait = target.replay.getScreens().length;
+    const random = tactileSearchRandom(8);
+
+    await dosearch0(1, { state: game, random });
+
+    const shown = monster_glyph_info(monster, game);
+    assert.deepEqual({
+        ch: location.disp_ch,
+        color: location.disp_color,
+        dec: Boolean(location.disp_decgfx),
+        attr: location.disp_attr ?? 0,
+    }, {
+        ch: shown.ch,
+        color: shown.color,
+        dec: Boolean(shown.dec),
+        attr: shown.attr ?? 0,
+    });
+    assert.deepEqual(
+        location.remembered_glyph,
+        rememberedGlyphContract(
+            trap_glyph_info(trap, game),
+            ANTI_MAGIC,
+        ),
+    );
+    assert.equal(target.replay.getScreens().length, beforeWait);
+    assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
+});
+
+test('disabled hero memory retains prior visible and tactile memory', async () => {
+    for (const [label, extraRc] of [
+        ['visible', 'OPTIONS=!blind\n'],
+        ['tactile', ''],
+    ]) {
+        const target = await blindGlobalSearchState(extraRc);
+        game.level.flags.hero_memory = false;
+        const location = game.level.at(target.x, target.y);
+        const retained = {
+            ch: '?',
+            color: 7,
+            decgfx: false,
+            displayCh: null,
+        };
+        location.remembered_glyph = retained;
+        const trap = {
+            tx: target.x,
+            ty: target.y,
+            ttyp: ANTI_MAGIC,
+            tseen: false,
+        };
+        game.level.traps.push(trap);
+        const beforeWait = target.replay.getScreens().length;
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+        await dosearch0(1, {
+            state: game,
+            random: tactileSearchRandom(8),
+        });
+
+        assert.equal(location.remembered_glyph, retained, label);
+        assert.equal(
+            target.replay.getScreens().length,
+            beforeWait + 1,
+            label,
+        );
+        assert.equal(game.nhDisplay.inputQueueLength, 0, label);
+    }
+});
+
+test('WIN_STOP suppresses a cluttered trap message but still redraws', async () => {
+    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    const location = game.level.at(target.x, target.y);
+    const trap = {
+        tx: target.x,
+        ty: target.y,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    game.level.traps.push(trap);
+    const region = create_region([{
+        lx: target.x,
+        ly: target.y,
+        hx: target.x,
+        hy: target.y,
+    }]);
+    region.visible = true;
+    game.level.regions.push(region);
+    game._ttyMessageStopped = true;
+    game.nhDisplay.pushKey('x'.charCodeAt(0));
+    const beforeWait = target.replay.getScreens().length;
+    const random = tactileSearchRandom(8);
+
+    await dosearch0(1, { state: game, random });
+
+    assert.equal(trap.tseen, true);
+    assert.equal(location.disp_ch, '#');
+    assert.equal(game._pending_message, '');
+    assert.equal(game._ttyMessageStopped, true);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(target.replay.getScreens().length, beforeWait);
+    assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
 });
 
 test('injected trap messaging requires paired wait ownership', async () => {
