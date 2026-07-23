@@ -42,6 +42,8 @@ import {
     FAINTED,
     FIRE_TRAP,
     G_GENOD,
+    HALLUC,
+    HALLUC_RES,
     HOLE,
     ICE,
     INVIS,
@@ -128,6 +130,7 @@ import {
     mon_knows_traps,
     needspick,
     nohands,
+    noattacks,
     noncorporeal,
     nonliving,
     passes_bars,
@@ -302,6 +305,71 @@ export async function m_everyturn_effect(monster, env = {}) {
         );
     }
     await env.createGasCloud(x, y, 1, 0, { ...env, state });
+}
+
+function requireDochugwOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function') {
+        throw new TypeError(`dochugw requires a ${name} operation`);
+    }
+    return operation;
+}
+
+function heroHallucinating(state) {
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(hallucination?.intrinsic)
+        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: monmove.c dochugw(). The injected dochug operation owns the complete
+// monster action. canSpotMonster and stopOccupation retain display/sensing and
+// command-state ownership. When an occupation is active, preflight those
+// later seams before dochug can mutate the monster or game state.
+export async function dochugw(monster, chug, env = {}) {
+    const state = env.state ?? game;
+    const occupation = state.occupation;
+    const dochugOperation = chug
+        ? requireDochugwOperation(env, 'dochug')
+        : null;
+    let canSpotMonster;
+    let stopOccupation;
+    if (occupation) {
+        canSpotMonster = requireDochugwOperation(env, 'canSpotMonster');
+        stopOccupation = requireDochugwOperation(env, 'stopOccupation');
+    }
+    const couldSee = env.couldSee
+        ?? ((x, y) => couldsee(x, y, state));
+    if (occupation && typeof couldSee !== 'function') {
+        throw new TypeError('dochugw requires a couldSee operation');
+    }
+
+    const x = monster.mx;
+    const y = monster.my;
+    const alreadySawMonster = chug && occupation
+        ? Boolean(canSpotMonster(monster, { ...env, state }))
+        : false;
+    const result = chug
+        ? await dochugOperation(monster, { ...env, state })
+        : 0;
+    const threatRange = (BOLT_LIM + 1) * (BOLT_LIM + 1);
+
+    if (state.occupation && !result
+        && (heroHallucinating(state)
+            || (!monster.mpeaceful && !noattacks(monster.data)))
+        && dist2(monster.mx, monster.my, state.u?.ux, state.u?.uy)
+            <= threatRange
+        && (!alreadySawMonster
+            || !couldSee(x, y, { ...env, state })
+            || dist2(x, y, state.u?.ux, state.u?.uy) > threatRange)
+        && canSpotMonster(monster, { ...env, state })
+        && couldSee(monster.mx, monster.my, { ...env, state })
+        && monster.mcanmove
+        && !onscary(state.u?.ux, state.u?.uy, monster, state)) {
+        await stopOccupation({ ...env, state });
+    }
+
+    return result;
 }
 
 function surfaceAt(x, y, state) {

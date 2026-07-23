@@ -37,6 +37,8 @@ import {
     DUST,
     FAINTED,
     G_GENOD,
+    HALLUC,
+    HALLUC_RES,
     HEADSTONE,
     INVIS,
     LAVAPOOL,
@@ -72,6 +74,7 @@ import {
     bad_rock,
     can_fog,
     can_ooze,
+    dochugw,
     distfleeck,
     disturb,
     in_your_sanctuary,
@@ -165,6 +168,8 @@ function makeState() {
         blocked: 0,
     };
     uprops[DISPLACED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[HALLUC] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[PROT_FROM_SHAPE_CHANGERS] = {
         intrinsic: 0,
         extrinsic: 0,
@@ -366,6 +371,231 @@ test('m_everyturn_effect creates only unobstructed missing fog clouds', async ()
         radius: 1,
         damage: 0,
     });
+});
+
+test('dochugw delegates movement and leaves an idle hero alone', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state);
+    const calls = [];
+
+    assert.equal(await dochugw(monster, true, {
+        state,
+        async dochug(candidate) {
+            calls.push(['dochug', candidate.mx, candidate.my]);
+            candidate.mx = 5;
+            return 2;
+        },
+        canSpotMonster: () => assert.fail('idle hero skips sensing'),
+        couldSee: () => assert.fail('idle hero skips old visibility'),
+        stopOccupation: () => assert.fail('idle hero has no occupation'),
+    }), 2);
+    assert.deepEqual(calls, [['dochug', 4, 4]]);
+
+    assert.equal(await dochugw(monster, false, { state }), 0);
+});
+
+test('dochugw stops work for a newly nearby visible threat in source order', async () => {
+    const { state } = makeState();
+    state.occupation = () => {};
+    const monster = ordinaryMonster(state, {
+        mcanmove: true,
+        mx: 1,
+        my: 1,
+    });
+    const calls = [];
+    const stop = deferred();
+
+    const result = dochugw(monster, true, {
+        state,
+        canSpotMonster(candidate) {
+            calls.push(['spot', candidate.mx, candidate.my]);
+            return true;
+        },
+        async dochug(candidate) {
+            calls.push(['dochug', candidate.mx, candidate.my]);
+            candidate.mx = 9;
+            candidate.my = 10;
+            return 0;
+        },
+        couldSee(x, y) {
+            calls.push(['couldSee', x, y]);
+            return true;
+        },
+        async stopOccupation() {
+            calls.push(['stop']);
+            await stop.promise;
+        },
+    });
+
+    await Promise.resolve();
+    assert.deepEqual(calls, [
+        ['spot', 1, 1],
+        ['dochug', 1, 1],
+        ['couldSee', 1, 1],
+        ['spot', 9, 10],
+        ['couldSee', 9, 10],
+        ['stop'],
+    ]);
+    let settled = false;
+    result.then(() => { settled = true; });
+    await Promise.resolve();
+    assert.equal(settled, false);
+    stop.resolve();
+    assert.equal(await result, 0);
+});
+
+test('dochugw hallucination bypasses hostility only without resistance', async () => {
+    const { state } = makeState();
+    state.occupation = () => {};
+    state.u.uprops[HALLUC].intrinsic = 5;
+    const monster = ordinaryMonster(state, {
+        mcanmove: true,
+        mpeaceful: true,
+        mx: 9,
+        my: 10,
+    });
+    let stops = 0;
+    const env = {
+        state,
+        canSpotMonster: () => true,
+        couldSee: () => true,
+        stopOccupation() { ++stops; },
+    };
+
+    assert.equal(await dochugw(monster, false, env), 0);
+    assert.equal(stops, 1);
+
+    state.u.uprops[HALLUC_RES].extrinsic = 1;
+    assert.equal(await dochugw(monster, false, env), 0);
+    assert.equal(stops, 1);
+});
+
+test('dochugw rechecks occupation after the monster action', async () => {
+    const { state } = makeState();
+    state.occupation = () => {};
+    const monster = ordinaryMonster(state, {
+        mcanmove: true,
+        mx: 9,
+        my: 10,
+    });
+
+    assert.equal(await dochugw(monster, true, {
+        state,
+        canSpotMonster: () => true,
+        couldSee: () => true,
+        dochug() {
+            state.occupation = null;
+            return 0;
+        },
+        stopOccupation: () => assert.fail('action already stopped work'),
+    }), 0);
+});
+
+test('dochugw retains every threat-interruption rejection gate', async () => {
+    const cases = [
+        ['action result', ({ env }) => { env.dochug = () => 1; }],
+        ['peaceful', ({ context, monster }) => {
+            context.chug = false;
+            monster.mpeaceful = true;
+        }],
+        ['attackless', ({ context, monster }) => {
+            context.chug = false;
+            monster.data = { mattk: [] };
+        }],
+        ['too far', ({ context, monster }) => {
+            context.chug = false;
+            monster.mx = monster.my = 1;
+        }],
+        ['already visible nearby', () => {}],
+        ['not spotted now', ({ env, monster }) => {
+            monster.mx = monster.my = 1;
+            env.dochug = (candidate) => {
+                candidate.mx = 9;
+                candidate.my = 10;
+                return 0;
+            };
+            let spots = 0;
+            env.canSpotMonster = () => ++spots === 1;
+        }],
+        ['not visible now', ({ env, monster }) => {
+            monster.mx = monster.my = 1;
+            env.dochug = (candidate) => {
+                candidate.mx = 9;
+                candidate.my = 10;
+                return 0;
+            };
+            let visibilityChecks = 0;
+            env.couldSee = () => ++visibilityChecks === 1;
+        }],
+        ['immobile', ({ context, monster }) => {
+            context.chug = false;
+            monster.mcanmove = false;
+        }],
+        ['scared', ({ context, state }) => {
+            context.chug = false;
+            state.level.objects[state.u.ux][state.u.uy] = objectFor(
+                state,
+                SCR_SCARE_MONSTER,
+            );
+        }],
+    ];
+
+    for (const [name, configure] of cases) {
+        const { state } = makeState();
+        state.occupation = () => {};
+        const monster = ordinaryMonster(state, {
+            mcanmove: true,
+            mx: 9,
+            my: 10,
+        });
+        let stops = 0;
+        const context = { chug: true };
+        const env = {
+            state,
+            dochug: () => 0,
+            canSpotMonster: () => true,
+            couldSee: () => true,
+            stopOccupation() { ++stops; },
+        };
+        configure({ context, env, monster, state });
+
+        assert.equal(
+            await dochugw(monster, context.chug, env) >= 0,
+            true,
+            name,
+        );
+        assert.equal(stops, 0, name);
+    }
+});
+
+test('dochugw preflights occupation owners before monster action', async () => {
+    const { state } = makeState();
+    state.occupation = () => {};
+    const monster = ordinaryMonster(state);
+    let actions = 0;
+    const dochug = () => { ++actions; return 0; };
+
+    await assert.rejects(dochugw(monster, true, {
+        state,
+        dochug,
+        stopOccupation() {},
+    }), /canSpotMonster/);
+    await assert.rejects(dochugw(monster, true, {
+        state,
+        dochug,
+        canSpotMonster: () => true,
+    }), /stopOccupation/);
+    await assert.rejects(dochugw(monster, true, {
+        state,
+        dochug,
+        canSpotMonster: () => true,
+        couldSee: true,
+        stopOccupation() {},
+    }), /couldSee/);
+    assert.equal(actions, 0);
+
+    await assert.rejects(dochugw(monster, true, { state }), /dochug/);
+    assert.equal(actions, 0);
 });
 
 test('m_can_break_boulder preserves rider and cooldown exceptions', () => {
