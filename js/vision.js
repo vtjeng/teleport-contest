@@ -13,7 +13,7 @@ import {
     IN_SIGHT, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR, POOL, WATER,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
-    SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
+    SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7, SVALL,
     IS_WALL, TEMP_LIT,
 } from './const.js';
 import { newsym } from './display.js';
@@ -31,12 +31,12 @@ function heroIsBlind(hero) {
         && !blindness?.blocked;
 }
 
-// C ref: vision.c seenv_matrix
-const seenv_matrix = [
-    [SV2, SV1, SV0],
-    [SV3, 0,   SV7],
-    [SV4, SV5, SV6],
-];
+// C ref: display.c seenv_matrix, shared with vision.c.
+export const seenv_matrix = Object.freeze([
+    Object.freeze([SV2, SV1, SV0]),
+    Object.freeze([SV3, SVALL, SV7]),
+    Object.freeze([SV4, SV5, SV6]),
+]);
 
 // Circle data for range limits (C vision.c:27-70)
 const circle_data = [

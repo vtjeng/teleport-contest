@@ -639,6 +639,8 @@ test('blind first-turn search maps a discovered door by touch', async () => {
     assert.equal(replay.getScreens().length, 3);
     assert.equal(game.moves, 2);
     assert.equal(game.hero_seq, 17);
+    // cls() must leave an untouched northwest cell out of pending disp_* state;
+    // otherwise the temporary trap frame can repopulate it during flush.
     assert.equal(
         game.level.at(game.u.ux - 1, game.u.uy - 1).disp_ch,
         null,
@@ -724,6 +726,8 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
         if (segment.moves.endsWith(' ')) {
             ++dismissalSegments;
             assert.match(segment.nethackrc, /name:TrapOverlay/u);
+            // The first space dismisses the welcome, '.' consumes turn one,
+            // and the final space dismisses trap discovery's --More-- prompt.
             assert.equal(segment.moves, ' . ');
         } else {
             assert.match(segment.moves, /^ +[.hl]$/u);

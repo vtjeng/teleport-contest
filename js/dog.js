@@ -273,11 +273,25 @@ export function put_saddle_on_mon(saddle, monster, env = {}) {
     return saddle;
 }
 
-// C ref: mon.c see_monster_closeup(). `env.observedAt` owns the caller's
-// gb.bhitpos/gn.notonhead setup when a long-worm head or tail is observed;
-// requiring that coordinate prevents stale global context from changing which
-// vital is recorded. Startup monsters are undisguised; the representation
-// below also handles the source's monster-appearance case.
+// C callers set gb.bhitpos and derive gn.notonhead together before recording a
+// monster observation. Keep those coupled writes at one JS ownership point.
+function setMonsterObservationPosition(monster, observedAt, state) {
+    state.gb ??= {};
+    state.gb.bhitpos ??= {};
+    state.gb.bhitpos.x = observedAt.x;
+    state.gb.bhitpos.y = observedAt.y;
+    state.gn ??= {};
+    state.gn.notonhead = observedAt.x !== monster.mx
+        || observedAt.y !== monster.my;
+    return state.gn.notonhead;
+}
+
+// C ref: mon.c see_monster_closeup(). When appearance handling resolves mndx to
+// PM_LONG_WORM, `env.observedAt` owns the matching gb.bhitpos/gn.notonhead
+// setup for the observed head or tail. Requiring that coordinate prevents
+// stale global context from changing which vital is recorded. Startup monsters
+// are undisguised; the representation below also handles the source's
+// monster-appearance case.
 export function see_monster_closeup(monster, photo = false, env = {}) {
     const { state } = dogEnv(env);
     const hero = state.u;
@@ -298,17 +312,12 @@ export function see_monster_closeup(monster, photo = false, env = {}) {
         if (!Number.isInteger(observedAt?.x)
             || !Number.isInteger(observedAt?.y)) {
             throw new Error(
-                'see_monster_closeup requires observedAt for a long worm',
+                'see_monster_closeup requires observedAt when resolved as a '
+                + 'long worm',
             );
         }
-        state.gb ??= {};
-        state.gb.bhitpos ??= {};
-        state.gb.bhitpos.x = observedAt.x;
-        state.gb.bhitpos.y = observedAt.y;
-        state.gn ??= {};
-        state.gn.notonhead = observedAt.x !== monster.mx
-            || observedAt.y !== monster.my;
-        if (state.gn.notonhead) mndx = PM_LONG_WORM_TAIL;
+        if (setMonsterObservationPosition(monster, observedAt, state))
+            mndx = PM_LONG_WORM_TAIL;
     }
     const vital = state.mvitals?.[mndx];
     if (!vital)
@@ -365,12 +374,7 @@ export function see_nearby_monsters(state = game, env = {}) {
                     && sensesMonster(monster, state))) {
                 continue;
             }
-            state.gb ??= {};
-            state.gb.bhitpos ??= {};
-            state.gb.bhitpos.x = x;
-            state.gb.bhitpos.y = y;
-            state.gn ??= {};
-            state.gn.notonhead = x !== monster.mx || y !== monster.my;
+            setMonsterObservationPosition(monster, { x, y }, state);
             if (see_monster_closeup(monster, false, {
                 ...env,
                 state,
@@ -414,12 +418,11 @@ export function makedog(env = {}) {
         state.context.startingpet_mid = monster.m_id;
         if (!state.u?.uroleplay?.pauper && pettype === PM_PONY)
             put_saddle_on_mon(null, monster, normalized);
-        state.gb ??= {};
-        state.gb.bhitpos ??= {};
-        state.gb.bhitpos.x = monster.mx;
-        state.gb.bhitpos.y = monster.my;
-        state.gn ??= {};
-        state.gn.notonhead = false;
+        setMonsterObservationPosition(
+            monster,
+            { x: monster.mx, y: monster.my },
+            state,
+        );
         see_monster_closeup(
             monster,
             carryingType(state, EXPENSIVE_CAMERA),

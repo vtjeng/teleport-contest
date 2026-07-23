@@ -305,8 +305,9 @@ test('gethungry preflights only nutrition losses reachable this tick', () => {
     assert.equal(reachableTransition.u.uhunger, 152);
 
     const oddAggregate = hungerState();
-    // 153 would stay Not Hungry after the ordinary one-point loss, but an
-    // odd tick also charges active Regeneration and moderate encumbrance.
+    // The maximum reachable odd-parity loss is 153 - 1 ordinary
+    // - 1 Regeneration - 1 moderate encumbrance = 150, crossing the Not Hungry
+    // threshold. Preflight must reject before parity selection calls rn2().
     oddAggregate.u.uhunger = 153;
     property(oddAggregate, REGENERATION).intrinsic = FROMOUTSIDE;
     assert.throws(

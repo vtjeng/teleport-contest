@@ -678,12 +678,22 @@ function heroIsBlind(state) {
         && !property?.blocked;
 }
 
-export function canSeeMonster(monster, state) {
-    if (!monster || monster.mhp < 1) return false;
+// C ref: display.h mon_visible(). This tests the monster itself, assuming that
+// its map location is physically visible; canSeeMonster() adds that location
+// check.
+export function monsterVisible(monster, state) {
     const hero = state.u;
-    const visible = (!monster.minvis || propertyActive(hero, SEE_INVIS))
-        && !monster.mundetected;
-    if (!visible) return false;
+    return Boolean(
+        monster
+        && (!monster.minvis || propertyActive(hero, SEE_INVIS))
+        && !monster.mundetected,
+    );
+}
+
+export function canSeeMonster(monster, state) {
+    if (!monster || monster.mhp < 1 || !monsterVisible(monster, state))
+        return false;
+    const hero = state.u;
     const couldSee = Boolean(
         state.viz_array?.[monster.my]?.[monster.mx] & COULD_SEE,
     );
@@ -714,13 +724,15 @@ function monsterSensingContext(monster, state) {
     return { blocked, distance };
 }
 
-// C ref: display.h sensemon(), excluding its Detect_monsters operand.  Display
-// code needs this narrower result because detection uses a distinct glyph
-// family while telepathy and type warning count as physical sightflags.
-export function sensesMonsterWithoutDetection(monster, state) {
+// C ref: display.h sensemon(), excluding only its Detect_monsters operand.
+// This shares sensesMonster()'s swallowed and underwater gates. Ordinary
+// consumers should call sensesMonster(); display code uses this narrower
+// result solely to choose PHYSICALLY_SEEN versus DETECTED sightflags.
+function sensesMonsterCore(monster, state, includeDetection) {
     const hero = state.u;
     const { blocked, distance } = monsterSensingContext(monster, state);
     if (blocked) return false;
+    if (includeDetection && propertyActive(hero, DETECT_MONSTERS)) return true;
     const mindless = Boolean(monster.data?.mflags1 & M1_MINDLESS);
     if (!mindless) {
         const telepathy = hero.uprops?.[TELEPAT] ?? {};
@@ -734,11 +746,12 @@ export function sensesMonsterWithoutDetection(monster, state) {
     return matchesWarnOfMonster(monster, state);
 }
 
+export function sensesMonsterWithoutDetection(monster, state) {
+    return sensesMonsterCore(monster, state, false);
+}
+
 export function sensesMonster(monster, state) {
-    const { blocked } = monsterSensingContext(monster, state);
-    return !blocked
-        && (propertyActive(state.u, DETECT_MONSTERS)
-            || sensesMonsterWithoutDetection(monster, state));
+    return sensesMonsterCore(monster, state, true);
 }
 
 // C ref: display.h canspotmon(). Hiding and mimicry do not block sensing;

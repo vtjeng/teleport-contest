@@ -23,6 +23,7 @@ import {
     CORR,
     CROSSWALL,
     D_CLOSED,
+    DETECT_MONSTERS,
     D_ISOPEN,
     DUST,
     DOOR,
@@ -45,6 +46,7 @@ import {
     ROOM,
     SCORR,
     SDOOR,
+    SEE_INVIS,
     SICK,
     SICK_NONVOMITABLE,
     SICK_VOMITABLE,
@@ -96,12 +98,14 @@ import {
 import {
     M1_HUMANOID,
     NON_PM,
+    NUMMONS,
     PM_GOBLIN,
     PM_TENGU,
     S_FELINE,
     S_HUMAN,
     monst_globals_init,
 } from '../js/monsters.js';
+import { initRng, rn2_on_display_rng } from '../js/rng.js';
 import {
     ARROW,
     BOULDER,
@@ -167,6 +171,9 @@ import {
     trap_to_defsym,
     sym_val,
 } from '../js/symbols.js';
+import {
+    enableBrowserGlyphProjection,
+} from './browser-projection-test-support.mjs';
 
 const WALL_SYMBOL_CASES = [
     // Every wall enum is present so the test catches a swapped corner or T.
@@ -206,17 +213,6 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
 
 function terminalRow(state, row) {
     return state.nhDisplay.grid[row].map((cell) => cell.ch).join('');
-}
-
-function enableBrowserProjection(display) {
-    display.terminal.spans = Array.from(
-        { length: display.rows },
-        () => Array.from({ length: display.cols }, () => ({
-            classList: { add() {}, remove() {} },
-            style: {},
-            textContent: ' ',
-        })),
-    );
 }
 
 function assertCellRange(state, row, start, length, expected, label) {
@@ -858,7 +854,7 @@ test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () 
         },
         { ch: ' ', color: NO_COLOR, attr: ATR_NONE, browserCh: '☂' },
     );
-    enableBrowserProjection(state.nhDisplay);
+    enableBrowserGlyphProjection(state.nhDisplay);
     await flush_screen(1);
     assert.deepEqual(
         state.nhDisplay.grid[5][6],
@@ -892,7 +888,7 @@ test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () 
         },
         { ch: ' ', color: NO_COLOR, attr: ATR_NONE, browserCh: '☃' },
     );
-    enableBrowserProjection(state.nhDisplay);
+    enableBrowserGlyphProjection(state.nhDisplay);
     await flush_screen(1);
     assert.deepEqual(
         state.nhDisplay.grid[5][6],
@@ -1315,6 +1311,8 @@ test('generic monster warning overrides gas without hiding a visible monster', (
         my: y,
     };
     state.level.monsters[x][y] = monster;
+    // Squared distance 45 is below mon_warning()'s 100 cutoff but outside the
+    // adjacent-visible-monster override, whose fresh xray radius is one.
 
     assert.equal(newsym(x, y), undefined);
     assert.deepEqual(
@@ -1330,6 +1328,150 @@ test('generic monster warning overrides gas without hiding a visible monster', (
         ['f', CLR_WHITE],
         'ordinary physical visibility takes precedence over warning',
     );
+});
+
+test('see invisible keeps a warned detected mimic physically visible', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.u.uprops = [];
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[WARNING] = { intrinsic: 1, extrinsic: 0 };
+    state.context = { warnlevel: 1 };
+    state.iflags ??= {};
+    state.iflags.wc_inverse = true;
+    const monster = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        m_lev: 8, // warning_of() maps level 8 to warning glyph 2.
+        mpeaceful: false,
+        mtame: 0,
+        minvis: true,
+        mundetected: false,
+        m_ap_type: M_AP_OBJECT,
+        mappearance: CHEST,
+        mx: x,
+        my: y,
+    };
+    state.level.monsters[x][y] = monster;
+    const disguise = monster_glyph_info(monster, state);
+    const actual = monster_glyph_info({
+        ...monster,
+        m_ap_type: 0,
+    }, state);
+
+    newsym(x, y);
+    assert.deepEqual(
+        [
+            state.level.at(x, y).disp_ch,
+            state.level.at(x, y).disp_color,
+            state.level.at(x, y).disp_attr,
+        ],
+        [disguise.ch, disguise.color, disguise.attr ?? 0],
+        'physical visibility shows an unsensed disguise instead of warning',
+    );
+
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+    newsym(x, y);
+    assert.deepEqual(
+        [
+            state.level.at(x, y).disp_ch,
+            state.level.at(x, y).disp_color,
+            state.level.at(x, y).disp_attr,
+        ],
+        [actual.ch, actual.color, actual.attr ?? 0],
+        'detection defeats the physically visible disguise without inversion',
+    );
+    assert.equal(
+        state.level.at(x, y).remembered_glyph.ch,
+        disguise.ch,
+        'PHYSICALLY_SEEN retains the mimic disguise in map memory',
+    );
+
+    state.u.uprops[SEE_INVIS] = { intrinsic: 0, extrinsic: 0 };
+    newsym(x, y);
+    assert.deepEqual(
+        [
+            state.level.at(x, y).disp_ch,
+            state.level.at(x, y).disp_color,
+            state.level.at(x, y).disp_attr,
+        ],
+        [actual.ch, actual.color, ATR_INVERSE],
+        'detection alone uses detected presentation',
+    );
+    assert.equal(
+        state.level.at(x, y).remembered_glyph.ch,
+        '.',
+        'DETECTED retains the underlying terrain rather than the disguise',
+    );
+});
+
+test('detected monsters preserve tame and hallucination display-RNG rules', () => {
+    const cases = [
+        { tame: false, hallucinating: false },
+        { tame: true, hallucinating: false },
+        { tame: false, hallucinating: true },
+        { tame: true, hallucinating: true },
+    ];
+    for (const [caseIndex, { tame, hallucinating }] of cases.entries()) {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        state.iflags ??= {};
+        state.iflags.wc_inverse = true;
+        state.iflags.wc_hilite_pet = true;
+        state.iflags.wc2_petattr = ATR_UNDERLINE;
+        state.u.uprops = [];
+        state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+        if (hallucinating)
+            state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        const monster = {
+            data: state.mons[PM_TENGU],
+            mhp: 10,
+            mtame: tame ? 10 : 0,
+            minvis: true,
+            mundetected: false,
+            m_ap_type: 0,
+            mx: x,
+            my: y,
+        };
+        state.level.monsters[x][y] = monster;
+
+        // Distinct fixed seeds make each case reproducible; the first two
+        // NUMMONS draws establish both the displayed identity and stream tail.
+        const seed = 2026072400 + caseIndex;
+        initRng(seed);
+        const randomMonster = rn2_on_display_rng(NUMMONS);
+        const followingDraw = rn2_on_display_rng(NUMMONS);
+        initRng(seed);
+
+        newsym(x, y);
+
+        const expectedMonster = hallucinating
+            ? {
+                ...monster,
+                data: state.mons[randomMonster],
+                mtame: 0,
+            }
+            : monster;
+        const expected = monster_glyph_info(expectedMonster, state);
+        const expectedAttr = tame && !hallucinating
+            ? ATR_UNDERLINE : ATR_INVERSE;
+        assert.deepEqual(
+            [
+                state.level.at(x, y).disp_ch,
+                state.level.at(x, y).disp_color,
+                state.level.at(x, y).disp_attr,
+            ],
+            [expected.ch, expected.color, expectedAttr],
+            `tame=${tame}, hallucinating=${hallucinating}`,
+        );
+        assert.equal(
+            rn2_on_display_rng(NUMMONS),
+            hallucinating ? followingDraw : randomMonster,
+            `display RNG order for tame=${tame}, hallucinating=${hallucinating}`,
+        );
+    }
 });
 
 test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {
@@ -1523,7 +1665,7 @@ test('flush_screen preserves final map attributes for recorder and browser cells
     newsym(x, y);
     const browserCharacter = state.level.at(x, y).disp_browser_ch;
     assert.ok(browserCharacter);
-    enableBrowserProjection(state.nhDisplay);
+    enableBrowserGlyphProjection(state.nhDisplay);
     await flush_screen(1);
     assert.deepEqual(gridCell(), {
         ch: browserCharacter,

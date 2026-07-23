@@ -179,9 +179,15 @@ import {
 } from './symbols.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
-import { M1_HUMANOID, NON_PM, PM_TENGU } from './monsters.js';
+import {
+    M1_HUMANOID,
+    NON_PM,
+    NUMMONS,
+    PM_TENGU,
+} from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
 import {
+    monsterVisible,
     sensesMonster,
     sensesMonsterWithoutDetection,
 } from './startup_a11y.js';
@@ -727,11 +733,20 @@ function actualMonsterGlyphInfo(monster, state) {
 // win/tty/wintty.c tty_print_glyph()'s MG_DETECT handling.  Tame monsters use
 // their pet presentation unless hallucination defeats that source exception.
 function detectedMonsterGlyphInfo(monster, state) {
-    if (monster.mtame && !_propertyActiveUnblocked(state.u, HALLUC))
+    const hallucinating = _propertyActiveUnblocked(state.u, HALLUC);
+    if (monster.mtame && !hallucinating)
         return actualMonsterGlyphInfo(monster, state);
+    const species = hallucinating
+        ? state.mons?.[rn2_on_display_rng(NUMMONS)]
+        : monster.data;
+    if (!species) {
+        throw new Error(
+            'detected monster display requires the complete monster catalog',
+        );
+    }
     const glyph = glyphPresentation(
-        monster_class_symbol(monster.data.mlet, state),
-        monster.data.mcolor,
+        monster_class_symbol(species.mlet, state),
+        species.mcolor,
         state,
     );
     if (state.iflags?.wc_inverse !== false) glyph.attr = ATR_INVERSE;
@@ -1047,16 +1062,15 @@ export function terrain_glyph(loc, x, y, state = game) {
 }
 
 // ── show_glyph_cell ──
-export function show_glyph_cell(
-    x,
-    y,
-    ch,
-    color = NO_COLOR,
-    decgfx = false,
-    attr = 0,
-    displayCh = null,
-    displayColor = null,
-) {
+export function show_glyph_cell(x, y, glyph) {
+    const {
+        ch,
+        color = NO_COLOR,
+        dec: decgfx = false,
+        attr = 0,
+        displayCh = null,
+        displayColor = null,
+    } = glyph;
     const loc = game.level?.at(x, y);
     if (!loc) return;
     if (ch !== null) {
@@ -1075,7 +1089,9 @@ export function show_glyph_cell(
  * Convert a live glyph-presentation record into the persistent levl glyph
  * record used by map memory.  The input must use display.js presentation
  * fields (`dec`, optional browser/RGB metadata); the result uses the
- * persistent `decgfx` field and may carry the underlying logical trap type.
+ * persistent `decgfx` field. Pass `trap` only when the remembered layer itself
+ * represents that trap; hidden traps beneath another remembered layer must not
+ * contribute their logical identity.
  */
 export function remembered_glyph_from_presentation(glyph, trap = null) {
     if (!glyph || typeof glyph !== 'object'
@@ -1142,17 +1158,13 @@ function floorLayersCovered(loc, state) {
     return pool && !state.u?.uinwater;
 }
 
-function trapGlyph(trap, state) {
+// C ref: display.c trap_to_glyph(). Search discovery temporarily needs the
+// canonical trap glyph even when an object or monster covers the square.
+export function trap_glyph_info(trap, state = game) {
     const color = TRAP_COLORS[trap.ttyp];
     if (color === undefined)
         throw new RangeError(`trap type ${trap.ttyp} has no display color`);
     return terrainCmap(trap_to_defsym(trap.ttyp), color, state);
-}
-
-// C ref: display.c trap_to_glyph(). Search discovery temporarily needs the
-// canonical trap glyph even when an object or monster covers the square.
-export function trap_glyph_info(trap, state = game) {
-    return trapGlyph(trap, state);
 }
 
 function observeNearbyObject(object, x, y, state) {
@@ -1165,7 +1177,8 @@ function observeNearbyObject(object, x, y, state) {
 
 // ── newsym ──
 // C ref: display.c newsym().  This is a side-effect-only map mutation; callers
-// which need the persistent map glyph must reread level.at(x, y) afterward.
+// which need the persistent map glyph must reread
+// level.at(x, y).remembered_glyph afterward.
 export function newsym(x, y) {
     const loc = game.level?.at(x, y);
     if (!loc) return;
@@ -1188,17 +1201,18 @@ export function newsym(x, y) {
     // intentionally leaves the remembered underlying glyph untouched.
     const region = visible ? visible_region_at(x, y, game) : null;
     const monster = visible ? m_at(x, y, game) : null;
-    const monsterSeen = Boolean(
-        monster && !monster.minvis && !monster.mundetected,
+    const monsterDirectlyVisible = Boolean(
+        monster && monsterVisible(monster, game),
     );
     const sensedWithoutDetection = Boolean(
         monster && sensesMonsterWithoutDetection(monster, game),
     );
     const monsterSensed = Boolean(
-        monster && sensesMonster(monster, game),
+        monster
+        && (sensedWithoutDetection || sensesMonster(monster, game)),
     );
     const detectedOnly = monsterSensed
-        && !monsterSeen
+        && !monsterDirectlyVisible
         && !sensedWithoutDetection;
     const monsterWarning = Boolean(
         monster
@@ -1208,7 +1222,7 @@ export function newsym(x, y) {
     );
     if (region && ACCESSIBLE(loc.typ)) {
         const adjacentVisibleMonster = monster
-            && monsterSeen
+            && monsterDirectlyVisible
             && ![M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
             )
@@ -1220,10 +1234,7 @@ export function newsym(x, y) {
                 region.arg ? CLR_BRIGHT_GREEN : CLR_GRAY,
                 game,
             );
-            show_glyph_cell(
-                x, y, cloud.ch, cloud.color, cloud.dec, cloud.attr ?? 0,
-                cloud.displayCh ?? null, cloud.displayColor ?? null,
-            );
+            show_glyph_cell(x, y, cloud);
             return;
         }
     }
@@ -1235,7 +1246,7 @@ export function newsym(x, y) {
     const trap = covered ? null : t_at(x, y, game);
     let underlying;
     if (object) underlying = object_glyph_info(object, game);
-    else if (trap?.tseen) underlying = trapGlyph(trap, game);
+    else if (trap?.tseen) underlying = trap_glyph_info(trap, game);
     else {
         underlying = engravingGlyph(engraving, loc, game)
             ?? terrain_glyph(loc, x, y);
@@ -1243,10 +1254,7 @@ export function newsym(x, y) {
 
     if (game.u?.ux === x && game.u?.uy === y) {
         const hero = hero_glyph_info(game);
-        show_glyph_cell(
-            x, y, hero.ch, hero.color, hero.dec, hero.attr ?? 0,
-            hero.displayCh ?? null, hero.displayColor ?? null,
-        );
+        show_glyph_cell(x, y, hero);
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph = remembered_glyph_from_presentation(
                 underlying,
@@ -1257,13 +1265,13 @@ export function newsym(x, y) {
 
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
-        const monsterVisible = Boolean(
-            monster && (monsterSeen || monsterSensed),
+        const shouldDisplayMonster = Boolean(
+            monster && (monsterDirectlyVisible || monsterSensed),
         );
         // display_monster() exposes a mimic's real monster glyph when sensing
         // defeats its appearance. Detect-only sensing uses the detected glyph
         // family; physical sight alone shows the disguise.
-        const shown = monsterVisible
+        const shown = shouldDisplayMonster
             ? (detectedOnly
                 ? detectedMonsterGlyphInfo(monster, game)
                 : monsterSensed
@@ -1272,7 +1280,7 @@ export function newsym(x, y) {
             : monsterWarning ? warningGlyphInfo(monster, game) : underlying;
         // A PHYSICALLY_SEEN mimic maps its disguise into persistent memory
         // before sensing reveals the real monster. DETECTED skips that step.
-        const physicallySeenMimic = monsterVisible && !detectedOnly
+        const physicallySeenMimic = shouldDisplayMonster && !detectedOnly
             && [M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
             );
@@ -1285,23 +1293,17 @@ export function newsym(x, y) {
                     ? trap : null,
             );
         }
-        show_glyph_cell(
-            x,
-            y,
-            shown.ch,
-            shown.color,
-            shown.dec,
-            shown.attr ?? 0,
-            shown.displayCh ?? null,
-            shown.displayColor ?? null,
-        );
+        show_glyph_cell(x, y, shown);
     } else if (loc.remembered_glyph) {
         // Out of sight but remembered — show remembered glyph
-        show_glyph_cell(x, y, loc.remembered_glyph.ch,
-            loc.remembered_glyph.color, loc.remembered_glyph.decgfx,
-            loc.remembered_glyph.attr ?? 0,
-            loc.remembered_glyph.displayCh,
-            loc.remembered_glyph.displayColor ?? null);
+        show_glyph_cell(x, y, {
+            ch: loc.remembered_glyph.ch,
+            color: loc.remembered_glyph.color,
+            dec: loc.remembered_glyph.decgfx,
+            attr: loc.remembered_glyph.attr ?? 0,
+            displayCh: loc.remembered_glyph.displayCh,
+            displayColor: loc.remembered_glyph.displayColor ?? null,
+        });
     }
 }
 

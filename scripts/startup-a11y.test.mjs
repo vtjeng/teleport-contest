@@ -16,6 +16,7 @@ import {
     INFRAVISION,
     M_AP_FURNITURE,
     M_AP_OBJECT,
+    POOL,
     ROOM,
     ROOMOFFSET,
     ROWNO,
@@ -42,6 +43,8 @@ import {
     collectLookaroundMessages,
     collectMonsterNoticeMessages,
     emitStartupA11yNotices,
+    sensesMonster,
+    sensesMonsterWithoutDetection,
 } from '../js/startup_a11y.js';
 
 // Keep the hero away from map edges so room flood-fill and coordinate
@@ -76,6 +79,58 @@ function reveal(state, x, y) {
     state.viz_array[y][x] = IN_SIGHT;
     state.level.at(x, y).remembered_glyph = { ch: '.' };
 }
+
+test('monster sensing shares swallowed and underwater display gates', () => {
+    for (const mode of ['detection', 'blind telepathy']) {
+        const state = startupState();
+        const monster = {
+            data: { mflags1: 0, mflags2: 0 },
+            mx: state.u.ux + 1,
+            my: state.u.uy,
+        };
+        if (mode === 'detection') {
+            state.u.uprops[DETECT_MONSTERS] = {
+                intrinsic: 1,
+                extrinsic: 0,
+            };
+        } else {
+            state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+            state.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0 };
+        }
+        const expectedWithoutDetection = mode === 'blind telepathy';
+        const assertSensing = (expected, label) => {
+            assert.equal(
+                sensesMonster(monster, state),
+                expected,
+                `${mode}: ${label}: sensemon`,
+            );
+            assert.equal(
+                sensesMonsterWithoutDetection(monster, state),
+                expected && expectedWithoutDetection,
+                `${mode}: ${label}: non-detection senses`,
+            );
+        };
+
+        assertSensing(true, 'ordinary map');
+
+        state.u.uswallow = true;
+        state.u.ustuck = null;
+        assertSensing(false, 'unrelated swallowed monster');
+        state.u.ustuck = monster;
+        assertSensing(true, 'swallowing monster');
+        state.u.uswallow = false;
+
+        state.u.uinwater = true;
+        state.level.at(monster.mx, monster.my).typ = POOL;
+        assertSensing(true, 'adjacent pool');
+        state.level.at(monster.mx, monster.my).typ = ROOM;
+        assertSensing(false, 'adjacent non-pool');
+        state.level.at(monster.mx, monster.my).typ = POOL;
+        monster.mx = state.u.ux + 3; // Squared distance 9 exceeds mdistu <= 2.
+        state.level.at(monster.mx, monster.my).typ = POOL;
+        assertSensing(false, 'distant pool');
+    }
+});
 
 test('accessibility startup options retain their source-owned state', () => {
     assert.deepEqual(parseNethackrc('').a11y, {

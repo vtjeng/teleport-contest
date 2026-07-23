@@ -305,10 +305,12 @@ test('see_nearby_monsters records an adjacent worm tail separately', () => {
     assert.equal(state.mvitals[PM_LONG_WORM].seen_close, 0);
     assert.equal(state.mvitals[PM_LONG_WORM_TAIL].seen_close, 1);
     assert.equal(state.gn.notonhead, true);
+    assert.deepEqual(state.gb.bhitpos, { x: tailX, y: tailY });
     assert.equal(see_monster_closeup(worm, true, {
         state,
         observedAt: { x: tailX, y: tailY },
     }), true);
+    assert.deepEqual(state.gb.bhitpos, { x: tailX, y: tailY });
     assert.equal(state.mvitals[PM_LONG_WORM].photographed, 0);
     assert.equal(state.mvitals[PM_LONG_WORM_TAIL].photographed, 1);
 
@@ -320,6 +322,7 @@ test('see_nearby_monsters records an adjacent worm tail separately', () => {
         observedAt: { x: worm.mx, y: worm.my },
     }), true);
     assert.equal(state.gn.notonhead, false);
+    assert.deepEqual(state.gb.bhitpos, { x: worm.mx, y: worm.my });
     assert.equal(state.mvitals[PM_LONG_WORM].seen_close, 1);
     assert.equal(state.mvitals[PM_LONG_WORM].photographed, 1);
     assert.equal(state.mvitals[PM_LONG_WORM_TAIL].photographed, 1);

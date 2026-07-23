@@ -22,14 +22,6 @@ import {
     SCORR,
     SDOOR,
     STATUE_TRAP,
-    SV0,
-    SV1,
-    SV2,
-    SV3,
-    SV4,
-    SV5,
-    SV6,
-    SV7,
     WM_MASK,
     isok,
 } from './const.js';
@@ -56,7 +48,7 @@ import {
     dismissPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
-import { vision_reset } from './vision.js';
+import { seenv_matrix, vision_reset } from './vision.js';
 
 // C's trap names come from defsyms[trap_to_defsym(ttyp)].explanation.
 // Index zero is NO_TRAP and is never passed by find_trap().
@@ -179,47 +171,31 @@ function defaultSearchDisplay(x, y, env) {
     // C's newsym() is side-effect-only. find_trap() then compares levl's
     // canonical remembered glyph, not the presentation currently covering it.
     newsym(x, y);
-    const remembered = env.state.level.at(x, y).remembered_glyph;
-    return remembered?.trapType === undefined
-        ? { kind: 'remembered-other' }
-        : { kind: 'trap', trapType: remembered.trapType };
 }
-
-// C ref: display.c set_seenv()'s seenv_matrix.  Its vertical index is the
-// sign of hero.y - target.y, the opposite of the target-relative dy used by
-// defaultFeelSearchLocation().
-const FELT_SEENV = Object.freeze([
-    Object.freeze([SV2, SV1, SV0]),
-    Object.freeze([SV3, 0, SV7]),
-    Object.freeze([SV4, SV5, SV6]),
-]);
 
 // C ref: display.c _map_location().  Every location admitted by this
 // automatic-search owner is a converted adjacent door/corridor or an ordinary
 // floor trap, so the reachable layer order is object, seen trap, terrain.
-// Keep the logical layer beside its presentation: find_trap() compares the
-// former even when custom symbols make two different glyphs look identical.
+// Keep the trap owner beside its presentation so tactile memory can retain its
+// logical identity when custom symbols make two glyphs look identical.
 function mappedSearchLayer(x, y, state) {
     const object = state.level.objects?.[x]?.[y] ?? null;
     if (object) {
         return {
-            kind: 'object',
-            owner: object,
             glyph: object_glyph_info(object, state),
+            trap: null,
         };
     }
     const trap = t_at(x, y, state);
     if (trap?.tseen) {
         return {
-            kind: 'trap',
-            owner: trap,
             glyph: trap_glyph_info(trap, state),
+            trap,
         };
     }
     return {
-        kind: 'terrain',
-        owner: state.level.at(x, y),
         glyph: terrain_glyph(state.level.at(x, y), x, y, state),
+        trap: null,
     };
 }
 
@@ -256,8 +232,10 @@ function defaultFeelSearchLocation(x, y, env) {
     }
 
     const location = state.level.at(x, y);
+    // set_seenv() indexes hero.y - target.y, the opposite of this function's
+    // target-relative dy.
     location.seenv = (location.seenv ?? 0)
-        | FELT_SEENV[1 - dy][dx + 1];
+        | seenv_matrix[1 - dy][dx + 1];
     const engraving = engr_at(x, y, state);
     if (engraving
         && [ENGRAVE, HEADSTONE, BURN].includes(engraving.engr_type)) {
@@ -269,31 +247,30 @@ function defaultFeelSearchLocation(x, y, env) {
     if (state.level.flags?.hero_memory)
         location.remembered_glyph = remembered_glyph_from_presentation(
             glyph,
-            layer.kind === 'trap' ? layer.owner : null,
+            layer.trap,
         );
-    show_glyph_cell(
-        x,
-        y,
-        glyph.ch,
-        glyph.color,
-        glyph.dec,
-        glyph.attr ?? 0,
-        glyph.displayCh ?? null,
-        glyph.displayColor ?? null,
-    );
+    show_glyph_cell(x, y, glyph);
     if (state.level.lastseentyp?.[x])
         state.level.lastseentyp[x][y] = location.typ;
-    return layer;
 }
 
 function defaultFeelSearchNewSym(x, y, env) {
-    if (propertyActiveUnblocked(env.state.u, BLINDED))
-        return defaultFeelSearchLocation(x, y, env);
-    return defaultSearchDisplay(x, y, env);
+    if (propertyActiveUnblocked(env.state.u, BLINDED)) {
+        defaultFeelSearchLocation(x, y, env);
+        return;
+    }
+    defaultSearchDisplay(x, y, env);
 }
 
 async function defaultFoundTrapDisplay(trap, x, y, env) {
     const layer = await env.feelNewSym(x, y, env);
+    if (!env.injected.has('feelNewSym')) {
+        const remembered = env.state.level.at(x, y).remembered_glyph;
+        return Boolean(
+            env.state.level.flags?.hero_memory
+            && remembered?.trapType === trap.ttyp,
+        );
+    }
     if (layer?.kind) {
         return Boolean(
             env.state.level.flags?.hero_memory
@@ -319,27 +296,9 @@ async function defaultRevealFoundTrap(trap, env) {
     }
     await cls();
     const trapGlyph = trap_glyph_info(trap, env.state);
-    show_glyph_cell(
-        trap.tx,
-        trap.ty,
-        trapGlyph.ch,
-        trapGlyph.color,
-        trapGlyph.dec,
-        trapGlyph.attr ?? 0,
-        trapGlyph.displayCh ?? null,
-        trapGlyph.displayColor ?? null,
-    );
+    show_glyph_cell(trap.tx, trap.ty, trapGlyph);
     const heroGlyph = hero_glyph_info(env.state);
-    show_glyph_cell(
-        env.state.u.ux,
-        env.state.u.uy,
-        heroGlyph.ch,
-        heroGlyph.color,
-        heroGlyph.dec,
-        heroGlyph.attr ?? 0,
-        heroGlyph.displayCh ?? null,
-        heroGlyph.displayColor ?? null,
-    );
+    show_glyph_cell(env.state.u.ux, env.state.u.uy, heroGlyph);
 }
 
 async function defaultWaitFoundTrap(env) {
@@ -586,6 +545,11 @@ function indefinite(name) {
 }
 
 async function findTrap(trap, env) {
+    // displayFoundTrap mutates the live display and reports semantic identity:
+    // true means the remembered top layer is this trap, not merely that its
+    // projected character and color resemble the trap. False (or
+    // hallucination) owns reveal -> message -> acknowledgement -> redraw;
+    // WIN_STOP may suppress the acknowledgement while retaining the redraw.
     trap.tseen = true;
     env.exerciseWisdom(env);
     const trapVisible = await env.displayFoundTrap(
