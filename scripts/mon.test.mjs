@@ -10,21 +10,31 @@ import {
     MON_MIGRATING,
     MSLOW,
     NORMAL_SPEED,
+    STRAT_WAITFORU,
 } from '../js/const.js';
 import {
+    counter_were,
     curr_mon_load,
+    decide_to_shapeshift,
     iter_mons_safe,
     m_carrying,
+    mcalcdistress,
     mcalcmove,
     max_mon_load,
+    mon_regen,
     movemon,
     movemon_singlemon,
 } from '../js/mon.js';
 import {
     M1_HIDE,
+    M1_REGEN,
+    M2_WERE,
     M2_ROCKTHROW,
     M2_STRONG,
     MZ_HUGE,
+    PM_HUMAN_WEREWOLF,
+    PM_VAMPIRE,
+    PM_WEREWOLF,
     S_EEL,
 } from '../js/monsters.js';
 import { BOULDER, DAGGER, LONG_SWORD } from '../js/objects.js';
@@ -278,6 +288,135 @@ test('mcalcmove preserves both gallop factors and state gates', () => {
         assert.equal(mcalcmove(steed, true, disabled, ordinary.random), 12);
         ordinary.assertBounds([12]);
     }
+});
+
+test('mon_regen heals on cadence or regeneration and advances cooldown', () => {
+    const ordinary = {
+        data: { mflags1: 0 },
+        mhp: 3,
+        mhpmax: 5,
+        mspec_used: 2,
+    };
+    mon_regen(ordinary, false, { moves: 19 });
+    assert.deepEqual(
+        [ordinary.mhp, ordinary.mspec_used],
+        [3, 1],
+    );
+    mon_regen(ordinary, false, { moves: 20 });
+    assert.deepEqual(
+        [ordinary.mhp, ordinary.mspec_used],
+        [4, 0],
+    );
+
+    const regenerating = {
+        data: { mflags1: M1_REGEN },
+        mhp: 2,
+        mhpmax: 2,
+        mspec_used: 0,
+    };
+    mon_regen(regenerating, false, { moves: 1 });
+    assert.equal(regenerating.mhp, 2);
+});
+
+test('mcalcdistress advances ordinary maladies in list order', async () => {
+    const second = {
+        nmon: null,
+        data: { mmove: 12, mflags1: 0, mflags2: 0 },
+        cham: -1,
+        mhp: 2,
+        mhpmax: 4,
+        mspec_used: 1,
+        mblinded: 1,
+        mcansee: false,
+        mfrozen: 2,
+        mcanmove: false,
+        mfleetim: 1,
+        mflee: true,
+    };
+    const first = {
+        ...second,
+        nmon: second,
+        mhp: 1,
+        mhpmax: 3,
+        mblinded: 2,
+        mfrozen: 1,
+        mfleetim: 2,
+    };
+    const state = {
+        moves: 20,
+        level: { monlist: first },
+        vision_full_recalc: 0,
+    };
+    await mcalcdistress(state);
+    assert.deepEqual(
+        [first.mhp, first.mspec_used, first.mblinded, first.mcansee,
+            first.mfrozen, first.mcanmove, first.mfleetim, first.mflee],
+        [2, 0, 1, false, 0, true, 1, true],
+    );
+    assert.deepEqual(
+        [second.mhp, second.mspec_used, second.mblinded, second.mcansee,
+            second.mfrozen, second.mcanmove, second.mfleetim, second.mflee],
+        [3, 0, 0, true, 1, false, 0, false],
+    );
+});
+
+test('mcalcdistress preflights rare downstream owners atomically', async () => {
+    const ordinary = {
+        nmon: null,
+        data: { mmove: 12, mflags1: 0, mflags2: 0 },
+        cham: -1,
+        mhp: 1,
+        mhpmax: 2,
+        mspec_used: 1,
+        mblinded: 1,
+        mfrozen: 0,
+        mfleetim: 0,
+    };
+    const were = {
+        ...ordinary,
+        data: { mmove: 12, mflags1: 0, mflags2: M2_WERE },
+    };
+    ordinary.nmon = were;
+    const state = {
+        moves: 20,
+        level: { monlist: ordinary },
+        vision_full_recalc: 0,
+    };
+    await assert.rejects(
+        () => mcalcdistress(state),
+        /requires a wereChange operation/u,
+    );
+    assert.deepEqual(
+        [ordinary.mhp, ordinary.mspec_used, ordinary.mblinded],
+        [1, 1, 1],
+    );
+});
+
+test('waiting vampires skip distress shapechange without a random draw', async () => {
+    const noDraw = () => assert.fail('waiting vampire consumed randomness');
+    const vampire = {
+        cham: PM_VAMPIRE,
+        mstrategy: STRAT_WAITFORU,
+    };
+    assert.equal(await decide_to_shapeshift(vampire, {
+        state: { u: { uprops: [] } },
+        random: {
+            d: noDraw,
+            rn1: noDraw,
+            rn2: noDraw,
+            rnd: noDraw,
+            rne: noDraw,
+        },
+        canSeeMonster: () => false,
+        canSpotMonster: () => false,
+        message: noDraw,
+    }), false);
+});
+
+test('counter_were preserves the source human and beast pairing', () => {
+    assert.equal(counter_were(PM_WEREWOLF), PM_HUMAN_WEREWOLF);
+    assert.equal(counter_were(PM_HUMAN_WEREWOLF), PM_WEREWOLF);
+    assert.equal(counter_were(-1), -1);
 });
 
 test('iter_mons_safe visits its original identities despite list mutation', async () => {

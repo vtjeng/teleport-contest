@@ -1911,7 +1911,7 @@ function pick_animal(normalized) {
 
 // C ref: mon.c pickvampshape(), for the ordinary vampire variants reachable
 // from the Mausoleum's class descriptor.
-function pick_vampire_shape(monster, normalized) {
+export function pick_vampire_shape(monster, normalized) {
     const { random, state } = normalized;
     const uppercaseOnly = isRogueLevel(state);
     let mndx = NON_PM;
@@ -1989,7 +1989,7 @@ function mgender_from_permonst(monster, species, random) {
 
 // C ref: mondata.c set_mon_data(). Only unused movement in a slower form is
 // prorated; faster forms retain the already accumulated movement.
-function set_mon_data(monster, species) {
+export function set_mon_data(monster, species) {
     const oldSpeed = monster.data?.mmove ?? 0;
     monster.data = species;
     monster.mnum = species.pmidx;
@@ -2077,6 +2077,164 @@ function newcham_initial(monster, normalized) {
         );
     }
     return target ? apply_newcham_form(monster, target, normalized) : false;
+}
+
+function distressShapechangeName(monster) {
+    const assigned = monster.mextra?.mgivenname;
+    if (assigned) return String(assigned);
+    const names = monster.data?.pmnames ?? [];
+    return names[monster.female ? 1 : 0] ?? names[2] ?? 'monster';
+}
+
+function distressShapechangeArticle(name) {
+    const text = String(name);
+    const lower = text.toLowerCase();
+    if (lower === 'molten lava' || lower === 'iron bars' || lower === 'ice'
+        || lower.startsWith('the ')) {
+        return '';
+    }
+    const first = lower[0] ?? '';
+    const vowel = 'aeiou'.includes(first);
+    const oneException = lower.startsWith('one')
+        && (!lower[3] || '-_ '.includes(lower[3]));
+    const longU = lower.startsWith('eu')
+        || lower.startsWith('uke')
+        || lower.startsWith('ukulele')
+        || lower.startsWith('unicorn')
+        || lower.startsWith('uranium')
+        || lower.startsWith('useful');
+    const pronouncedX = first === 'x'
+        && !'aeiou'.includes(lower[1] ?? '');
+    return (vowel && !oneException && !longU) || pronouncedX ? 'an' : 'a';
+}
+
+function distressShapechangeOldName(monster) {
+    const assigned = monster.mextra?.mgivenname;
+    if (assigned) {
+        const text = String(assigned);
+        return text ? text[0].toUpperCase() + text.slice(1) : text;
+    }
+    const name = distressShapechangeName(monster);
+    const article = monster.mtame ? 'Your' : 'The';
+    return `${article} ${name}`;
+}
+
+function distressShapechangeNewName(monster) {
+    const name = distressShapechangeName(monster);
+    return `${distressShapechangeArticle(name)} ${name}`.trim();
+}
+
+function requiredDistressShapechangeOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function') {
+        throw new TypeError(
+            `newcham_distress requires a ${name} operation`,
+        );
+    }
+    return operation;
+}
+
+function preflightDistressShapechange(monster, normalized) {
+    const { state } = normalized;
+    const supportedShifter = monster?.cham === PM_CHAMELEON
+        || monster?.cham === PM_VAMPIRE
+        || monster?.cham === PM_VAMPIRE_LEADER;
+    if (!supportedShifter) {
+        throw new UnsupportedMonsterCreationError(
+            `distress shapechanger ${monster?.cham}`,
+        );
+    }
+    // The initial-D:1 forms admitted here are empty-inventory chameleons and
+    // Mausoleum vampires. General newcham() has additional owners for worm
+    // teardown, disguise, leash/steed/engulfment, armor, wielding, and
+    // self-touch. Refuse those states before selection can consume RNG.
+    if (monster.minvent || monster.wormno || monster.m_ap_type
+        || monster.mleashed || state.u?.ustuck === monster
+        || state.u?.usteed === monster) {
+        throw new UnsupportedMonsterCreationError(
+            'distress shapechanger attachment state',
+        );
+    }
+    if (!Number.isInteger(monster.mhpmax) || monster.mhpmax <= 0
+        || !Number.isInteger(monster.mhp) || monster.mhp <= 0) {
+        throw new TypeError(
+            'newcham_distress requires positive integer hit points',
+        );
+    }
+}
+
+export function preflight_newcham_distress(monster, rawEnv = {}) {
+    const normalized = creationEnv(rawEnv);
+    preflightDistressShapechange(monster, normalized);
+    requiredDistressShapechangeOperation(normalized, 'canSpotMonster');
+    requiredDistressShapechangeOperation(normalized, 'message');
+    return true;
+}
+
+// C ref: mon.c newcham(..., NC_SHOW_MSG), bounded to the empty-inventory
+// natural shapechangers which can originate while D:1 is being built.
+// Selection, HP reroll/scaling, form state, redraw, and visibility-dependent
+// feedback retain source order. The broader attachment and equipment cases
+// remain explicit seams in preflightDistressShapechange().
+export async function newcham_distress(
+    monster,
+    target = null,
+    rawEnv = {},
+) {
+    const normalized = creationEnv(rawEnv);
+    const { state } = normalized;
+    preflightDistressShapechange(monster, normalized);
+    const canSpotMonster = requiredDistressShapechangeOperation(
+        normalized,
+        'canSpotMonster',
+    );
+    const message = requiredDistressShapechangeOperation(
+        normalized,
+        'message',
+    );
+
+    const seenOrSensed = Boolean(canSpotMonster(monster, normalized));
+    const oldName = distressShapechangeOldName(monster);
+    let selected = target;
+    if (selected == null) {
+        for (let attempt = 0; attempt < 20 && !selected; ++attempt) {
+            selected = accept_newcham_form(
+                monster,
+                select_newcham_form(monster, normalized),
+                state,
+            );
+        }
+        if (!selected) return false;
+    } else {
+        const mndx = selected.pmidx;
+        if (!Number.isInteger(mndx)
+            || state.mons?.[mndx] !== selected) {
+            throw new TypeError(
+                'newcham_distress target must be a catalog monster',
+            );
+        }
+        if (state.mvitals[mndx].mvflags & G_GENOD) return false;
+    }
+    if (!apply_newcham_form(monster, selected, normalized)) return false;
+
+    const canSpotNow = Boolean(canSpotMonster(monster, normalized));
+    if (!canSpotNow) {
+        if (seenOrSensed)
+            await message(`${oldName} disappears!`, state, normalized);
+    } else if (!seenOrSensed) {
+        const newName = distressShapechangeNewName(monster);
+        const appeared = newName
+            ? newName[0].toUpperCase() + newName.slice(1)
+            : newName;
+        await message(`${appeared} appears!`, state, normalized);
+    } else {
+        await message(
+            `${oldName} turns into ${distressShapechangeNewName(monster)}!`,
+            state,
+            normalized,
+        );
+    }
+    return true;
 }
 
 // Bounded explicit-target form of mon.c:newcham() for

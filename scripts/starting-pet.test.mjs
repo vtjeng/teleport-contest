@@ -3,15 +3,21 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    COLNO,
+    COULD_SEE,
+    HALLUC,
+    IN_SIGHT,
     NON_PM,
     OBJ_MINVENT,
     ROOM,
+    ROWNO,
     W_SADDLE,
 } from '../js/const.js';
 import {
     can_saddle,
     makedog,
     pet_type,
+    see_nearby_monsters,
 } from '../js/dog.js';
 import { GameMap } from '../js/game.js';
 import {
@@ -231,6 +237,42 @@ test('makedog creates a named random dog with exact startup state and RNG', () =
     assert.equal(state.mvitals[PM_LITTLE_DOG].born, 1);
     assert.equal(state.gp.petname_used, 1);
     assert.equal(state.u.uconduct.pets, 1);
+});
+
+test('see_nearby_monsters records each newly visible adjacent species', () => {
+    const state = startingPetState();
+    state.u.uprops = [];
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    const kitten = {
+        data: state.mons[PM_KITTEN],
+        mx: state.u.ux + 1,
+        my: state.u.uy,
+        mhp: 4,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: 0,
+    };
+    state.level.monsters[kitten.mx][kitten.my] = kitten;
+    state.level.monlist = kitten;
+    state.viz_array[kitten.my][kitten.mx] = COULD_SEE | IN_SIGHT;
+
+    assert.equal(see_nearby_monsters(state), 1);
+    assert.equal(state.mvitals[PM_KITTEN].seen_close, 1);
+    assert.equal(state.context.lifelist.total_seen_upclose, 1);
+    assert.deepEqual(
+        state.gb.bhitpos,
+        { x: kitten.mx, y: kitten.my },
+    );
+    assert.equal(state.gn.notonhead, false);
+    assert.equal(see_nearby_monsters(state), 0);
+
+    state.mvitals[PM_KITTEN].seen_close = 0;
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(see_nearby_monsters(state), 0);
+    assert.equal(state.mvitals[PM_KITTEN].seen_close, 0);
 });
 
 test('fixed Caveman dog skips selection draw and receives source default name', () => {

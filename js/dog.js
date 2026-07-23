@@ -14,6 +14,7 @@ import {
     NO_MINVENT,
     TELEPAT,
     W_SADDLE,
+    isok,
 } from './const.js';
 import { christen_monst } from './do_name.js';
 import { game } from './gstate.js';
@@ -21,6 +22,7 @@ import { add_to_minv, update_inventory } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
+import { m_at } from './monst.js';
 import {
     M1_AMORPHOUS,
     M1_HUMANOID,
@@ -48,6 +50,10 @@ import {
 import { mksobj, unknow_object } from './obj.js';
 import { EXPENSIVE_CAMERA, SADDLE } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import {
+    canSeeMonster,
+    sensesMonster,
+} from './startup_a11y.js';
 
 export { christen_monst } from './do_name.js';
 
@@ -310,6 +316,49 @@ export function see_monster_closeup(monster, photo = false, env = {}) {
         }
     }
     return true;
+}
+
+// C ref: mon.c see_nearby_monsters(). Mark each newly visible adjacent
+// species as seen up close after the hero's time-consuming action.
+export function see_nearby_monsters(state = game, env = {}) {
+    const hero = state.u;
+    const hallucinating = propertyActive(hero, HALLUC)
+        && !propertyActive(hero, HALLUC_RES);
+    const blind = propertyActive(hero, BLINDED)
+        && !propertyBlocked(hero, BLINDED);
+    if (hallucinating || (blind && !propertyActive(hero, TELEPAT))) return 0;
+
+    let seen = 0;
+    for (let x = hero.ux - 1; x <= hero.ux + 1; ++x) {
+        for (let y = hero.uy - 1; y <= hero.uy + 1; ++y) {
+            if (!isok(x, y)) continue;
+            const monster = m_at(x, y, state);
+            if (!monster) continue;
+            const appearance = monster.m_ap_type & M_AP_TYPMASK;
+            const mndx = appearance === M_AP_MONSTER
+                ? monster.mappearance : monster.data.pmidx;
+            if (state.mvitals?.[mndx]?.seen_close) continue;
+            if (!canSeeMonster(monster, state)
+                && !(monster.mundetected
+                    && sensesMonster(monster, state))) {
+                continue;
+            }
+            state.gb ??= {};
+            state.gb.bhitpos ??= {};
+            state.gb.bhitpos.x = x;
+            state.gb.bhitpos.y = y;
+            state.gn ??= {};
+            state.gn.notonhead = x !== monster.mx || y !== monster.my;
+            if (see_monster_closeup(monster, false, {
+                ...env,
+                state,
+                sensemon: (subject) => sensesMonster(subject, state),
+            })) {
+                seen++;
+            }
+        }
+    }
+    return seen;
 }
 
 // C ref: dog.c makedog().
