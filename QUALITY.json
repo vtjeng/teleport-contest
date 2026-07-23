@@ -165,6 +165,7 @@
       "label": "Commands, input, and messages",
       "paths": [
         "js/cmd.js",
+        "js/command_bindings.js",
         "js/input.js",
         "js/tty_menu.js",
         "js/tty_message.js"

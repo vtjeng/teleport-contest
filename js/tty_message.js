@@ -96,6 +96,21 @@ function rememberPendingMessage(state, message) {
     }
 }
 
+// C ref: win/tty/wintty.c tty_clear_nhwindow(WIN_MESSAGE).  Command parsing
+// clears the physical top line after the final key has been read while
+// retaining gt.toplines for message history.
+export function clearTtyMessageWindow(state = game) {
+    const display = state.nhDisplay;
+    if (!display) return;
+    if (display.toplin !== TOPLINE_EMPTY || state._pending_message) {
+        display.clearRow(0);
+        display.setCursor(0, 0);
+    }
+    state._pending_message = '';
+    display.toplin = TOPLINE_EMPTY;
+    display.topMessage = state._ttyToplines ?? display.toplines ?? '';
+}
+
 // C ref: win/tty/topl.c more().  A multi-line top message is repaired through
 // docorner() and homes the cursor.  A one-line message remains on screen after
 // ordinary dismissal; Escape alone clears that physical top line.

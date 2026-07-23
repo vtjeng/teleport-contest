@@ -6,7 +6,7 @@
 // UUID, notice, and glyph-map setup remain to be ported.
 
 import { game } from './gstate.js';
-import { RLOC_NOMSG } from './const.js';
+import { COLNO, RLOC_NOMSG } from './const.js';
 import { makedog } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { m_at } from './monst.js';
@@ -28,7 +28,7 @@ import {
 } from './startup_skills.js';
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
-import { rhack } from './cmd.js';
+import { domove, endRunning, rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen } from './display.js';
 import { ttyPline } from './tty_message.js';
 import { emitStartupA11yNotices } from './startup_a11y.js';
@@ -156,8 +156,21 @@ export async function moveloop_core() {
     await bot();
     await flush_screen(1);
 
-    // Read and execute one command
-    await rhack(0);
+    // C ref: allmain.c moveloop_core(). A positive multi repeats the saved
+    // command without another input boundary. Movement repeats its established
+    // intent directly; other counted commands re-enter rhack() with cmd_key.
+    g.context.move = 1;
+    if ((g.multi ?? 0) > 0) {
+        if (g.context.mv) {
+            if (g.multi < COLNO && !--g.multi) endRunning(g);
+            await domove(g);
+        } else {
+            --g.multi;
+            await rhack(g.cmdKey, g);
+        }
+    } else if ((g.multi ?? 0) === 0) {
+        await rhack(0, g);
+    }
 
     // Advance turn
     if (g.context?.move) {
