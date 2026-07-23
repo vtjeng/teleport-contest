@@ -37,6 +37,11 @@ export function light_globals_init(state = game) {
     state.gl.light_base = null;
 }
 
+// C ref: light.c any_light_source().
+export function any_light_source(state = game) {
+    return Boolean(state.gl?.light_base);
+}
+
 function lightGlobals(state) {
     if (!state.gl || !Object.hasOwn(state.gl, 'light_base'))
         throw new Error('light sources require light_globals_init()');

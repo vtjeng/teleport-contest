@@ -428,6 +428,14 @@ function requiredHook(env, name, obj) {
     return hook;
 }
 
+// C ref: mkobj.c clear_splitobjs().
+export function clear_splitobjs(state = game) {
+    state.context ??= {};
+    state.context.objsplit ??= {};
+    state.context.objsplit.parent_oid = 0;
+    state.context.objsplit.child_oid = 0;
+}
+
 // C ref: mkobj.c next_ident(). Object and monster ids share context.ident.
 export function next_ident(env = {}) {
     const normalized = objectEnv(env);
