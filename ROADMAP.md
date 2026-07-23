@@ -32,58 +32,57 @@ closed at `82615f42653158d8074f3903e7d2087545ffe05f`.
 startup options, match the C recorder's PRNG log, terminal screens, attributes,
 and cursor through the first command prompt.
 
-Work in this order:
-
-1. Close the in-flight Cloud/Storeroom implementation and its formal review,
-   validation, quality record, and score evidence without expanding its scope.
-2. Port the general initial-generation monster lifecycle needed by Statuary,
-   including source-order random placement, inventory and equipment effects,
-   side objects, removal/detachment, and reachable form-specific behavior.
-3. Complete Statuary using that lifecycle; do not add a room-specific shortcut.
-4. Port shared room-construction and nesting primitives required by the direct
-   themed-room handlers, then complete those handlers in dependency families.
-5. Enable the source optional-fill behavior for map-based themed rooms through
-   the same fill dispatcher.
-6. Remove the staged initial-generation fallbacks once their source paths are
-   implemented.
-7. Validate the closed milestone with focused and full tests plus fresh
-   differentials spanning every themed fill and direct handler, varied seeds,
-   all valid role/race combinations, genders, alignments, datetimes, and
-   startup/display options.
-
-Exit only when no known valid initial-generation path relies on a fallback,
-fixture-specific replay, or unsupported source branch, and broad fresh
-differentials reach the first command prompt exactly. Follow the quality and
-score-recording requirements in `AGENTS.md` before marking the milestone done.
-
 The boundary survey found no remaining reachable gap, the checked-in 107-case
 matrix reached the first command exactly, the correctness ledger and audit-fix
 tail are clear, and the final quality gate passes. Detailed validation and
 score evidence remain in `SCORE.md` and `QUALITY.json`.
 
-## Current milestone: one source-faithful command turn
+## Current milestone: first complete gameplay turn
 
 **Status:** in progress.
 
-Replace the per-step replay scaffold with the real source turn spine:
+**Goal:** Starting at a correctly generated first command prompt, match the C
+game through the next command prompt after either waiting or making one
+unobstructed move. Replace the temporary playback used during those turns with
+the corresponding behavior translated from the upstream source.
 
-1. Port command decoding, counts, movement intent, and turn-consumption state.
-2. Port `moveloop_core()` ordering, timeouts, regeneration, hunger, vision,
-   status, and other per-turn state changes.
-3. Port the monster and pet movement needed by an ordinary initial-level turn.
-4. Make wait/no-op and one ordinary movement command match end to end, including
-   PRNG, messages, screen, cursor, and resulting state.
-5. Remove the corresponding obsolete `fastforward.js` calls.
+This boundary includes the ordinary monster and starting-pet actions and normal
+per-turn changes reached before the game next asks for input. Combat, opening
+doors, triggering traps, pickup, stairs, item commands, and movement beyond the
+single unobstructed step remain in later milestones unless the current boundary
+directly requires a shared prerequisite.
+
+Remaining work:
+
+- Complete and connect the ordinary initial-level monster and pet behavior
+  reached during the turn.
+- Replace each part of the temporary `fastforward.js` playback once the
+  translated behavior performs the same work. Do not extend or retune the
+  playback.
+- Make waiting and one unobstructed move reach the next input prompt without a
+  fallback or unsupported branch.
+
+Close the milestone with a checked-in fresh differential matrix. Vary inputs
+that affect the turn, including independently chosen seeds and level layouts,
+pet configuration, relevant character state, and both commands. Cover ordinary
+cases and source-identified rare branches within the boundary, including cases
+where a monster acts and where it does not. Require exact random-number logs,
+complete screens and attributes, cursors, and the state used by the next input
+cycle. The covered paths must no longer use temporary playback. Finish the
+focused and full tests, quality work, score evidence, and any review required by
+`AGENTS.md` before marking the milestone complete.
 
 ## Later milestones
 
 Proceed in source-dependency order, using earliest fresh divergence to choose
 between equally reusable candidates:
 
-1. **Exploration:** complete movement, running, search, doors, traps, pickup,
-   stairs, terrain effects, vision, and status updates.
-2. **Combat and creatures:** melee, damage and death, monster AI, pets, monster
-   inventory, conditions, and common creature abilities.
+1. **Exploration:** complete movement beyond the first unobstructed step,
+   running, search, doors, traps, pickup, stairs, terrain effects, vision, and
+   status updates.
+2. **Combat and creatures:** complete melee, damage and death, the remaining
+   monster and pet behavior, monster inventory, conditions, and common creature
+   abilities.
 3. **Item interaction:** inventory commands and menus, wield/wear, eat/quaff,
    read/zap, apply, throw, drop, identification, and equipment effects.
 4. **Levels and persistence:** level transitions, deeper and special levels,
