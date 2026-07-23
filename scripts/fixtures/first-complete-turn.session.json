@@ -102,6 +102,12 @@
       "datetime": "20260723161500",
       "nethackrc": "OPTIONS=name:BlindSearchHit,role:Ranger,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,blind\n",
       "moves": " ."
+    },
+    {
+      "seed": 3300169,
+      "datetime": "20260723170000",
+      "nethackrc": "OPTIONS=name:TrapOverlay,role:Ranger,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,blind\nOPTIONS=!color\nSYMBOLS=S_food:^\n",
+      "moves": " . "
     }
   ]
 }

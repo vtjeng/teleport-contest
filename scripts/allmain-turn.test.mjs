@@ -25,7 +25,7 @@ import {
     PIT,
     DOOR,
     SLT_ENCUMBER,
-    SV6,
+    SV0,
     W_ARMF,
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
@@ -644,10 +644,11 @@ test('blind first-turn search maps a discovered door by touch', async () => {
         ' ',
     );
     // This seed's successful rnl(7) converts the southeast SDOOR and
-    // feel_location() records the southeast viewing vector.
+    // feel_location() records the southeast viewing vector. display.c
+    // computes its vertical sign from hero to target, so southeast is SV0.
     const foundDoor = game.level.at(game.u.ux + 1, game.u.uy + 1);
     assert.equal(foundDoor.typ, DOOR);
-    assert.equal(foundDoor.seenv & SV6, SV6);
+    assert.equal(foundDoor.seenv & SV0, SV0);
     assert.equal(foundDoor.remembered_glyph.ch, foundDoor.disp_ch);
 });
 
@@ -702,11 +703,11 @@ test('first turn maintains the source cloud-room region in monster order', async
 
 test('first-complete-turn matrix stays clean and recorder-sized', () => {
     const recipe = loadFirstCompleteTurnRecipe();
-    assert.equal(recipe.segments.length, 17);
+    assert.equal(recipe.segments.length, 18);
     const chunks = chunkRecipe(recipe);
     assert.deepEqual(
         chunks.map(({ segments }) => segments.length),
-        [RECORDER_SEGMENT_LIMIT, 7],
+        [RECORDER_SEGMENT_LIMIT, 8],
     );
     assert.equal(
         chunks.reduce((total, chunk) => total + chunk.segments.length, 0),
@@ -719,6 +720,8 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
-        assert.match(segment.moves, /^ +[.hl]$/u);
+        // The optional last space dismisses find_trap()'s blocking --More--
+        // prompt in the custom-symbol collision case.
+        assert.match(segment.moves, /^ +[.hl] ?$/u);
     }
 });

@@ -12,12 +12,22 @@ import {
     D_CLOSED,
     D_LOCKED,
     D_TRAPPED,
+    DUST,
+    ENGRAVE,
     HALLUC,
+    OBJ_FLOOR,
     ROOM,
     SCORR,
     SDOOR,
     STATUE_TRAP,
+    SV0,
+    SV1,
     SV2,
+    SV3,
+    SV4,
+    SV5,
+    SV6,
+    SV7,
 } from '../js/const.js';
 import {
     _detectInternals,
@@ -25,12 +35,17 @@ import {
     dosearch0,
 } from '../js/detect.js';
 import {
+    object_glyph_info,
     terrain_glyph,
     trap_glyph_info,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { LENSES } from '../js/objects.js';
+import {
+    CORPSE,
+    FOOD_CLASS,
+    LENSES,
+} from '../js/objects.js';
 
 function searchState() {
     const locations = new Map();
@@ -134,13 +149,13 @@ function recordingOperations(state, events) {
     };
 }
 
-async function blindGlobalSearchState() {
-    await runSegment({
+async function blindGlobalSearchState(extraRc = '') {
+    const replay = await runSegment({
         seed: 2026072301,
         datetime: '20260723120000',
         nethackrc: 'OPTIONS=name:TactileSearch,role:Ranger,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + '!splash_screen,blind\n',
+            + `!splash_screen,blind\n${extraRc}`,
         moves: ' ',
     });
     const target = { x: game.u.ux - 1, y: game.u.uy - 1 };
@@ -157,7 +172,7 @@ async function blindGlobalSearchState() {
         }
     }
     game.level.traps = [];
-    return target;
+    return { ...target, replay };
 }
 
 function tactileSearchRandom(expectedBound) {
@@ -175,6 +190,46 @@ function tactileSearchRandom(expectedBound) {
             return 18;
         },
     };
+}
+
+function rememberedGlyphContract(glyph) {
+    const remembered = {
+        ch: glyph.ch,
+        color: glyph.color,
+        decgfx: glyph.dec,
+        displayCh: glyph.displayCh ?? null,
+    };
+    if (glyph.attr) remembered.attr = glyph.attr;
+    if (glyph.displayColor)
+        remembered.displayColor = glyph.displayColor;
+    if (glyph.rgb) remembered.rgb = [...glyph.rgb];
+    return remembered;
+}
+
+function assertCompleteMappedGlyph(location, glyph, label = '') {
+    assert.deepEqual({
+        ch: location.disp_ch,
+        color: location.disp_color,
+        dec: Boolean(location.disp_decgfx),
+        attr: location.disp_attr ?? 0,
+        displayCh: location.disp_browser_ch ?? null,
+        displayColor: location.disp_browser_color ?? null,
+        displayAttr: location.disp_browser_attr ?? null,
+    }, {
+        ch: glyph.ch,
+        color: glyph.color,
+        dec: Boolean(glyph.dec),
+        attr: glyph.attr ?? 0,
+        displayCh: glyph.displayCh ?? null,
+        displayColor: glyph.displayColor
+            ?? (glyph.displayCh ? glyph.color : null),
+        displayAttr: glyph.displayCh ? glyph.attr ?? 0 : null,
+    }, label);
+    assert.deepEqual(
+        location.remembered_glyph,
+        rememberedGlyphContract(glyph),
+        label,
+    );
 }
 
 test('automatic search reveals a secret door in source operation order', async () => {
@@ -265,20 +320,37 @@ test('automatic search reveals a secret corridor before exercise and display', a
     random.done();
 });
 
-test('blind global search maps a secret corridor through tactile defaults', async () => {
-    const target = await blindGlobalSearchState();
-    const location = game.level.at(target.x, target.y);
-    location.typ = SCORR;
-    const random = tactileSearchRandom(7);
+test('blind tactile search records all eight source viewing vectors', async () => {
+    const origin = await blindGlobalSearchState(
+        String.raw`SYMBOLS=S_corr:\m#` + '\n',
+    );
+    // display.c set_seenv() indexes by sign(hero.y - target.y), so the upper
+    // row uses SV4..SV6 and the lower row uses SV2..SV0.
+    const directions = [
+        [-1, -1, SV4], [0, -1, SV5], [1, -1, SV6],
+        [-1, 0, SV3],                    [1, 0, SV7],
+        [-1, 1, SV2],  [0, 1, SV1],   [1, 1, SV0],
+    ];
 
-    await dosearch0(1, { state: game, random });
+    for (const [dx, dy, seenv] of directions) {
+        const x = game.u.ux + dx;
+        const y = game.u.uy + dy;
+        const location = game.level.at(x, y);
+        location.typ = SCORR;
+        const random = tactileSearchRandom(7);
 
-    const expected = terrain_glyph(location, target.x, target.y, game);
-    assert.equal(location.typ, CORR);
-    assert.equal(location.seenv & SV2, SV2);
-    assert.deepEqual(random.calls, ['rnl(7)', 'rn2(19)']);
-    assert.equal(location.disp_ch, expected.ch);
-    assert.equal(location.remembered_glyph.ch, expected.ch);
+        await dosearch0(1, {
+            state: game,
+            random,
+            message: async () => {},
+        });
+
+        const expected = terrain_glyph(location, x, y, game);
+        assert.equal(location.typ, CORR);
+        assert.equal(location.seenv, seenv, `${dx},${dy}`);
+        assert.deepEqual(random.calls, ['rnl(7)', 'rn2(19)']);
+        assertCompleteMappedGlyph(location, expected, `${dx},${dy}`);
+    }
 });
 
 test('ordinary trap discovery marks seen before exercise and display', async () => {
@@ -333,10 +405,100 @@ test('blind global search maps an ordinary trap through tactile defaults', async
     const expected = trap_glyph_info(trap, game);
     const location = game.level.at(target.x, target.y);
     assert.equal(trap.tseen, true);
-    assert.equal(location.seenv & SV2, SV2);
+    assert.equal(location.seenv, SV4);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
-    assert.equal(location.disp_ch, expected.ch);
-    assert.equal(location.remembered_glyph.ch, expected.ch);
+    assertCompleteMappedGlyph(location, expected);
+});
+
+test('blind tactile mapping reveals only feelable engravings below a trap', async () => {
+    // engrave.c engr_can_be_felt() accepts carved text but rejects dust.
+    for (const [engrType, expectedRevealed] of [
+        [ENGRAVE, 1],
+        [DUST, 0],
+    ]) {
+        const target = await blindGlobalSearchState();
+        const engraving = {
+            engr_x: target.x,
+            engr_y: target.y,
+            engr_type: engrType,
+            erevealed: 0,
+            nxt_engr: null,
+        };
+        game.head_engr = engraving;
+        const trap = {
+            tx: target.x,
+            ty: target.y,
+            ttyp: ANTI_MAGIC,
+            tseen: false,
+        };
+        game.level.traps.push(trap);
+
+        await dosearch0(1, {
+            state: game,
+            random: tactileSearchRandom(8),
+            message: async () => {},
+        });
+
+        assert.equal(engraving.erevealed, expectedRevealed);
+    }
+});
+
+test('trap clutter uses logical layers when custom symbols collide', async () => {
+    const target = await blindGlobalSearchState(
+        'OPTIONS=!color\nSYMBOLS=S_food:^\n',
+    );
+    const location = game.level.at(target.x, target.y);
+    const trap = {
+        tx: target.x,
+        ty: target.y,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    game.level.traps.push(trap);
+    const corpse = {
+        otyp: CORPSE,
+        oclass: FOOD_CLASS,
+        corpsenm: 0,
+        dknown: true,
+        where: OBJ_FLOOR,
+        ox: target.x,
+        oy: target.y,
+        nexthere: null,
+    };
+    game.level.objects[target.x][target.y] = corpse;
+    const engraving = {
+        engr_x: target.x,
+        engr_y: target.y,
+        engr_type: ENGRAVE,
+        erevealed: 0,
+        nxt_engr: null,
+    };
+    game.head_engr = engraving;
+
+    const objectGlyph = object_glyph_info(corpse, game);
+    const trapGlyph = trap_glyph_info(trap, game);
+    assert.deepEqual({
+        ch: objectGlyph.ch,
+        color: objectGlyph.color,
+        dec: objectGlyph.dec,
+    }, {
+        ch: trapGlyph.ch,
+        color: trapGlyph.color,
+        dec: trapGlyph.dec,
+    }, 'the valid custom configuration creates a presentation collision');
+
+    const beforeWait = target.replay.getScreens().length;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const random = tactileSearchRandom(8);
+    await dosearch0(1, { state: game, random });
+
+    assert.equal(trap.tseen, true);
+    assert.equal(engraving.erevealed, 1);
+    assert.equal(location.seenv, SV4);
+    assert.equal(target.replay.getScreens().length, beforeWait + 1);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
+    assertCompleteMappedGlyph(location, objectGlyph);
 });
 
 test('statue discovery activates, conditionally exercises, and returns early', async () => {

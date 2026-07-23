@@ -38,7 +38,6 @@ import { exercise } from './attrib.js';
 import {
     cls,
     docrt,
-    flush_screen,
     hero_glyph_info,
     newsym,
     object_glyph_info,
@@ -52,9 +51,11 @@ import { game } from './gstate.js';
 import { LENSES } from './objects.js';
 import { rn2, rnl } from './rng.js';
 import { t_at } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    dismissPendingTtyMessage,
+    ttyPline,
+} from './tty_message.js';
 import { vision_reset } from './vision.js';
-import { nhgetch } from './input.js';
 
 // C's trap names come from defsyms[trap_to_defsym(ttyp)].explanation.
 // Index zero is NO_TRAP and is never passed by find_trap().
@@ -175,12 +176,13 @@ function defaultSearchDisplay(x, y, env) {
         );
     }
     newsym(x, y);
+    return mappedSearchLayer(x, y, env.state);
 }
 
 const FELT_SEENV = Object.freeze([
-    Object.freeze([SV2, SV1, SV0]),
-    Object.freeze([SV3, 0, SV7]),
     Object.freeze([SV4, SV5, SV6]),
+    Object.freeze([SV3, 0, SV7]),
+    Object.freeze([SV2, SV1, SV0]),
 ]);
 
 function rememberedSearchGlyph(glyph) {
@@ -195,6 +197,35 @@ function rememberedSearchGlyph(glyph) {
         remembered.displayColor = glyph.displayColor;
     if (glyph.rgb) remembered.rgb = [...glyph.rgb];
     return remembered;
+}
+
+// C ref: display.c _map_location().  Every location admitted by this
+// automatic-search owner is a converted adjacent door/corridor or an ordinary
+// floor trap, so the reachable layer order is object, seen trap, terrain.
+// Keep the logical layer beside its presentation: find_trap() compares the
+// former even when custom symbols make two different glyphs look identical.
+function mappedSearchLayer(x, y, state) {
+    const object = state.level.objects?.[x]?.[y] ?? null;
+    if (object) {
+        return {
+            kind: 'object',
+            owner: object,
+            glyph: object_glyph_info(object, state),
+        };
+    }
+    const trap = t_at(x, y, state);
+    if (trap?.tseen) {
+        return {
+            kind: 'trap',
+            owner: trap,
+            glyph: trap_glyph_info(trap, state),
+        };
+    }
+    return {
+        kind: 'terrain',
+        owner: state.level.at(x, y),
+        glyph: terrain_glyph(state.level.at(x, y), x, y, state),
+    };
 }
 
 // C ref: display.c feel_location(), specialized to the reachable-floor,
@@ -238,13 +269,8 @@ function defaultFeelSearchLocation(x, y, env) {
         engraving.erevealed = 1;
     }
 
-    const object = state.level.objects?.[x]?.[y] ?? null;
-    const trap = t_at(x, y, state);
-    const glyph = object
-        ? object_glyph_info(object, state)
-        : trap?.tseen
-            ? trap_glyph_info(trap, state)
-            : terrain_glyph(location, x, y, state);
+    const layer = mappedSearchLayer(x, y, state);
+    const { glyph } = layer;
     if (state.level.flags?.hero_memory)
         location.remembered_glyph = rememberedSearchGlyph(glyph);
     show_glyph_cell(
@@ -259,17 +285,26 @@ function defaultFeelSearchLocation(x, y, env) {
     );
     if (state.level.lastseentyp?.[x])
         state.level.lastseentyp[x][y] = location.typ;
+    return layer;
 }
 
 function defaultFeelSearchNewSym(x, y, env) {
     if (propertyActiveUnblocked(env.state.u, BLINDED))
-        defaultFeelSearchLocation(x, y, env);
-    else
-        defaultSearchDisplay(x, y, env);
+        return defaultFeelSearchLocation(x, y, env);
+    return defaultSearchDisplay(x, y, env);
 }
 
 async function defaultFoundTrapDisplay(trap, x, y, env) {
-    await env.feelNewSym(x, y, env);
+    const layer = await env.feelNewSym(x, y, env);
+    if (layer?.kind) {
+        return Boolean(
+            env.state.level.flags?.hero_memory
+            && layer.kind === 'trap'
+            && layer.owner === trap,
+        );
+    }
+    // Preserve the injected-hook fallback contract for focused callers which
+    // supply presentation but not a logical layer descriptor.
     const shown = env.state.level.at(x, y);
     const expected = trap_glyph_info(trap, env.state);
     return shown.disp_ch === expected.ch
@@ -316,8 +351,10 @@ async function defaultWaitFoundTrap(env) {
             + 'for non-global state',
         );
     }
-    await flush_screen(1);
-    await nhgetch(env.state);
+    // C ref: win/tty/wintty.c tty_display_nhwindow(NHW_MAP, TRUE).
+    // A pending find_trap() message is presented through more(), whose key
+    // wait and topline cleanup are owned by the tty message subsystem.
+    await dismissPendingTtyMessage(env.state);
     await docrt();
 }
 
