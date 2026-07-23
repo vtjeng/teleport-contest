@@ -12,7 +12,11 @@
 import { game, resetGame } from './gstate.js';
 import { MAX_COMMAND_COUNT } from './cmd.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
-import { newgame, moveloop_core } from './allmain.js';
+import {
+    newgame,
+    moveloop_core,
+    UnsupportedTurnBoundaryError,
+} from './allmain.js';
 import { parseNethackrc } from './options.js';
 import { initoptions_finish } from './fruit.js';
 import { GameDisplay } from './game_display.js';
@@ -381,6 +385,13 @@ function createThemeroomSelectionCollector() {
     });
 }
 
+export function segmentIterationLimit(movesLength) {
+    return Math.max(
+        movesLength * (MAX_COMMAND_COUNT + 1) + 1,
+        1024,
+    );
+}
+
 // ── Per-segment runner — the contest contract ──
 //
 // The judge calls this once per segment. Input is a clean replay
@@ -447,15 +458,16 @@ export async function runSegment(
     // A single legal count can repeat through MAX_COMMAND_COUNT turns before
     // the next input boundary.  Keep a finite runaway guard, but size it from
     // the portable source limit rather than truncating valid counted commands.
-    const maxIter = Math.max(
-        moves.length * (MAX_COMMAND_COUNT + 1) + 1,
-        1024,
-    );
+    const maxIter = segmentIterationLimit(moves.length);
     for (let iter = 0; iter < maxIter; iter++) {
         try {
             await moveloop_core();
         } catch (e) {
             if (String(e?.message || '').includes('Input queue empty')) break;
+            // A known, fail-closed gameplay boundary preserves all output
+            // produced through the supported prefix. It must not turn that
+            // prefix into a zero-session scorer error.
+            if (e instanceof UnsupportedTurnBoundaryError) break;
             throw e;
         }
     }

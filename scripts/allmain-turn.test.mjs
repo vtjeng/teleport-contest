@@ -13,16 +13,20 @@ import {
     DUST,
     EXT_ENCUMBER,
     FAST,
+    FLYING,
     FROMOUTSIDE,
+    HOLE,
     HVY_ENCUMBER,
     INTRINSIC,
     LEVITATION,
     MOD_ENCUMBER,
     OVERLOADED,
+    PIT,
     SLT_ENCUMBER,
     W_ARMF,
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
+import { AT_HUGS, M1_CLING, M1_HIDE } from '../js/monsters.js';
 
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
@@ -63,6 +67,7 @@ function draws(results) {
 function engravingTurnState(dexterity = 13) {
     const uprops = [];
     uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     return {
         u: {
             ux: 23,
@@ -76,8 +81,14 @@ function engravingTurnState(dexterity = 13) {
             ustuck: null,
             usteed: null,
             uundetected: false,
+            uz: { dnum: 0, dlevel: 1 },
+            utrap: 0,
+            utraptype: 0,
         },
-        level: { at: () => null },
+        youmonst: {
+            data: { mflags1: 0, msize: 2, mlet: 0, mattk: [] },
+        },
+        level: { at: () => null, traps: [] },
         head_engr: null,
     };
 }
@@ -309,6 +320,20 @@ test('clairvoyance cadence preserves gating, mapping, and update order', () => {
     assert.deepEqual(events, ['map', 'schedule']);
     assert.equal(due.context.seer_turn, 56);
 
+    for (const source of ['intrinsic', 'extrinsic']) {
+        const propertyOnly = clairvoyanceTurnState();
+        propertyOnly.u.uprops[CLAIRVOYANT][source] = 1;
+        const propertyEvents = [];
+        assert.equal(maybeRunClairvoyance(propertyOnly, {
+            doVicinityMap: () => propertyEvents.push('map'),
+            random: {
+                rn1: () => { propertyEvents.push('schedule'); return 15; },
+            },
+        }), true, source);
+        assert.deepEqual(propertyEvents, ['map', 'schedule'], source);
+        assert.equal(propertyOnly.context.seer_turn, 35, source);
+    }
+
     // A blocking cornuthaum suppresses even Amulet-based mapping, but not the
     // cadence update itself. Endgame levels have the same mapping-only gate.
     const blocked = clairvoyanceTurnState();
@@ -342,6 +367,27 @@ test('hero time effects increment the sequence before seer cadence', () => {
     });
     assert.equal(state.hero_seq, 161);
     assert.equal(state.context.seer_turn, 35);
+});
+
+test('hero time effects validate due clairvoyance owners atomically', () => {
+    const missingMap = clairvoyanceTurnState();
+    missingMap.u.uprops[CLAIRVOYANT].extrinsic = 1;
+    assert.throws(
+        () => finishHeroTimeEffects(missingMap, {
+            random: { rn1: () => assert.fail('missing map must not draw') },
+        }),
+        /requires doVicinityMap/u,
+    );
+    assert.equal(missingMap.hero_seq, 160);
+    assert.equal(missingMap.context.seer_turn, 20);
+
+    const missingRandom = clairvoyanceTurnState();
+    assert.throws(
+        () => finishHeroTimeEffects(missingRandom, { random: {} }),
+        /requires rn1/u,
+    );
+    assert.equal(missingRandom.hero_seq, 160);
+    assert.equal(missingRandom.context.seer_turn, 20);
 });
 
 test('maybeWipeHeroEngraving derives its gate from effective Dexterity', () => {
@@ -379,26 +425,45 @@ test('maybeWipeHeroEngraving consumes rnd(3) before touching the engraving', () 
     assert.equal(state.head_engr, null);
 });
 
-test('maybeWipeHeroEngraving rejects unsupported floor reachability after rnd', () => {
-    for (const [label, makeUnsupported] of [
+test('maybeWipeHeroEngraving skips unreachable floors after rnd', () => {
+    for (const [label, makeUnreachable] of [
         ['swallowed', (state) => { state.u.uswallow = true; }],
-        ['stuck', (state) => { state.u.ustuck = {}; }],
-        ['mounted', (state) => { state.u.usteed = {}; }],
-        ['undetected', (state) => { state.u.uundetected = true; }],
+        ['held by hugs', (state) => {
+            state.u.ustuck = {
+                data: { mattk: [{ aatyp: AT_HUGS, adtyp: 0 }] },
+            };
+        }],
+        ['unskilled rider', (state) => {
+            state.u.usteed = { data: { mflags1: 0 } };
+        }],
+        ['ceiling hider', (state) => {
+            state.u.uundetected = true;
+            state.youmonst.data.mflags1 = M1_HIDE | M1_CLING;
+        }],
         ['levitating', (state) => {
             state.u.uprops[LEVITATION].intrinsic = 1;
         }],
+        ['teetering over a seen pit', (state) => {
+            state.level.traps.push({
+                tx: state.u.ux, ty: state.u.uy, ttyp: PIT, tseen: true,
+            });
+        }],
+        ['escaped seen shaft', (state) => {
+            state.level.traps.push({
+                tx: state.u.ux, ty: state.u.uy, ttyp: HOLE, tseen: true,
+            });
+        }],
     ]) {
         const state = engravingTurnState();
-        makeUnsupported(state);
+        makeUnreachable(state);
         const script = turnDraws([
             ['rn2', 79, 0], // Enter the rare branch at Dexterity 13.
             ['rnd', 3, 2], // Evaluate the argument before floor reachability.
         ]);
 
-        assert.throws(
-            () => maybeWipeHeroEngraving(state, script.random),
-            /unported can_reach_floor state/u,
+        assert.equal(
+            maybeWipeHeroEngraving(state, script.random),
+            false,
             label,
         );
         script.done();

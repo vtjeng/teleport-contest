@@ -46,6 +46,12 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // These source constants sample attack, body-shape, behavior, size,
     // extended-behavior, and sound categories from the generated set.
     assert.equal(AT_WEAP, 254);
+    assert.equal(monsterExports.AT_HUGS, 7);
+    assert.equal(monsterExports.AT_ENGL, 11);
+    assert.equal(monsterExports.AD_STCK, 19);
+    assert.equal(monsterExports.AD_WRAP, 28);
+    assert.equal(monsterExports.M1_CLING, 0x00000010);
+    assert.equal(monsterExports.M1_HIDE, 0x00000100);
     assert.equal(M1_NOHANDS, 0x00002000);
     assert.equal(M1_MINDLESS, 0x00010000);
     assert.equal(M1_HUMANOID, 0x00020000);
@@ -58,6 +64,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(M3_INFRAVISION, 0x0100);
     assert.equal(MZ_SMALL, 1);
     assert.equal(MZ_MEDIUM, 2);
+    assert.equal(monsterExports.MZ_HUGE, 4);
     assert.equal(MS_GUARDIAN, 38);
 
     const numericExports = Object.entries(monsterExports)
@@ -75,7 +82,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        '69f69a5cae2f32d3a33c4a58f2b77db224d5695364ac3c4530477cba99465f3f',
+        '5e30c38fe6b3683bd831c67397d47fbc2ebdc5e234f84d4662fc92c2630fdc81',
     );
 });
 

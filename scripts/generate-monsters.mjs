@@ -115,7 +115,11 @@ main(void)
     print_enum("HIGH_PM", HIGH_PM, &needs_comma);
     print_enum("SPECIAL_PM", SPECIAL_PM, &needs_comma);
 #define PRINT_ENUM(name) print_enum(#name, name, &needs_comma)
+    PRINT_ENUM(AT_HUGS);
+    PRINT_ENUM(AT_ENGL);
     PRINT_ENUM(AT_WEAP);
+    PRINT_ENUM(AD_STCK);
+    PRINT_ENUM(AD_WRAP);
     PRINT_ENUM(G_UNIQ);
     PRINT_ENUM(G_NOHELL);
     PRINT_ENUM(G_HELL);
@@ -124,6 +128,8 @@ main(void)
     PRINT_ENUM(G_FREQ);
     PRINT_ENUM(G_IGNORE);
     PRINT_ENUM(M1_FLY);
+    PRINT_ENUM(M1_CLING);
+    PRINT_ENUM(M1_HIDE);
     PRINT_ENUM(M1_SWIM);
     PRINT_ENUM(M1_AMORPHOUS);
     PRINT_ENUM(M1_NOHANDS);
@@ -137,6 +143,7 @@ main(void)
     PRINT_ENUM(M1_METALLIVORE);
     PRINT_ENUM(MZ_SMALL);
     PRINT_ENUM(MZ_MEDIUM);
+    PRINT_ENUM(MZ_HUGE);
     PRINT_ENUM(M2_UNDEAD);
     PRINT_ENUM(M2_WERE);
     PRINT_ENUM(M2_HUMAN);

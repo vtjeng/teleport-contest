@@ -33,12 +33,16 @@ import {
 } from '../js/objects.js';
 import {
     M1_CARNIVORE,
+    M1_HERBIVORE,
+    M1_METALLIVORE,
     NON_PM,
     PM_GHOST,
     PM_HUMAN,
     PM_KOBOLD,
     PM_LICHEN,
     PM_LIZARD,
+    PM_PONY,
+    PM_RUST_MONSTER,
     PM_WRAITH,
     monst_globals_init,
 } from '../js/monsters.js';
@@ -94,6 +98,28 @@ test('gethungry applies ordinary alert-hero nutrition loss', () => {
     assert.equal(hungerTick(current, 2), 1);
     assert.equal(current.u.uhunger, 899);
     assert.equal(current.u.uhs, NOT_HUNGRY);
+});
+
+test('gethungry derives ordinary nutrition loss from the source diet flags', () => {
+    for (const [name, monster, flag, expected] of [
+        ['no diet', PM_GHOST, 0, 0],
+        ['carnivore', PM_HUMAN, M1_CARNIVORE, 1],
+        ['herbivore', PM_PONY, M1_HERBIVORE, 1],
+        ['metallivore', PM_RUST_MONSTER, M1_METALLIVORE, 1],
+    ]) {
+        const current = hungerState();
+        current.youmonst.data = current.mons[monster];
+        if (flag) assert.ok(current.youmonst.data.mflags1 & flag, name);
+        else {
+            assert.equal(
+                current.youmonst.data.mflags1
+                    & (M1_CARNIVORE | M1_HERBIVORE | M1_METALLIVORE),
+                0,
+                name,
+            );
+        }
+        assert.equal(hungerTick(current, 2), expected, name);
+    }
 });
 
 test('gethungry skips invulnerable and debug-hunger turns without drawing', () => {
@@ -181,25 +207,69 @@ test('gethungry follows ring charge and duplicate-protection rules', () => {
     property(duplicateProtection, PROTECTION).extrinsic = W_RINGL | W_RINGR;
     assert.equal(hungerTick(duplicateProtection, 4), 2);
     assert.equal(hungerTick(duplicateProtection, 12), 1);
+
+    for (const [name, ring, expected, configure] of [
+        ['charged zero', { otyp: RIN_ADORNMENT, spe: 0 }, 1],
+        ['charged nonzero', { otyp: RIN_ADORNMENT, spe: 1 }, 2],
+        ['uncharged type', { otyp: RIN_SEARCHING, spe: 0 }, 2],
+        ['meat ring', { otyp: MEAT_RING, spe: 1 }, 1],
+        ['single protection', { otyp: RIN_PROTECTION, spe: 0 }, 2,
+            (current) => {
+                property(current, PROTECTION).extrinsic = W_RINGR;
+            }],
+    ]) {
+        const current = hungerState();
+        current.uright = ring;
+        configure?.(current);
+        assert.equal(hungerTick(current, 12), expected, name);
+    }
 });
 
 test('gethungry fails closed at unported awareness and status boundaries', () => {
     const immobile = hungerState();
     immobile.multi = -1;
+    const immobileDraws = [];
     assert.throws(
-        () => hungerTick(immobile, 2),
+        () => gethungry(immobile, {
+            random: {
+                rn2: (bound) => { immobileDraws.push(bound); return 2; },
+            },
+            nearCapacity: () => UNENCUMBERED,
+        }),
         /unported unconscious or immobile state/u,
     );
+    assert.deepEqual(immobileDraws, []);
     assert.equal(immobile.u.uhunger, 900);
 
     const threshold = hungerState();
     threshold.u.uhunger = 151;
+    const thresholdDraws = [];
     assert.throws(
-        () => hungerTick(threshold, 2),
+        () => gethungry(threshold, {
+            random: { rn2: (bound) => { thresholdDraws.push(bound); return 2; } },
+            nearCapacity: () => UNENCUMBERED,
+        }),
         /unported hunger-status transition/u,
     );
+    assert.deepEqual(thresholdDraws, []);
     assert.equal(threshold.u.uhunger, 151);
     assert.equal(threshold.u.uhs, NOT_HUNGRY);
+
+    const missingRing = hungerState();
+    missingRing.uleft = { otyp: RIN_ADORNMENT, spe: 1 };
+    missingRing.objects[RIN_ADORNMENT] = undefined;
+    const missingRingDraws = [];
+    assert.throws(
+        () => gethungry(missingRing, {
+            random: {
+                rn2: (bound) => { missingRingDraws.push(bound); return 4; },
+            },
+            nearCapacity: () => UNENCUMBERED,
+        }),
+        /requires object data for ring/u,
+    );
+    assert.deepEqual(missingRingDraws, []);
+    assert.equal(missingRing.u.uhunger, 900);
 });
 
 test('spinach tins clear species and do not draw', () => {

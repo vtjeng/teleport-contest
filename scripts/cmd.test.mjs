@@ -17,12 +17,13 @@ import {
     COLNO,
     FAST,
     INTRINSIC,
+    NORMAL_SPEED,
     ROOM,
     STONE,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { runSegment } from '../js/jsmain.js';
+import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
 import {
     enableRngLog,
@@ -150,6 +151,16 @@ test('logical command reads compose altmeta across counts and number-pad input',
         commandForKey(numberPad.commandBindings, metaFour),
         'runwest',
     );
+});
+
+test('disabled altmeta leaves the byte after Escape queued', async () => {
+    const state = resetParserTestGame([0x1B, 'x']);
+    state.iflags.altmeta = false;
+
+    assert.equal(await parseCommand(state), 0x1B);
+    assert.equal(state.nhDisplay.inputQueueLength, 1);
+    assert.equal(await parseCommand(state), commandKeyCode('x'));
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
 });
 
 test('parseCommand echoes a multi-digit count only at source boundaries', async () => {
@@ -297,40 +308,70 @@ test('a counted wait repeats without reading another command key', async () => {
         datetime: COMMAND_DATETIME,
         nethackrc: 'OPTIONS=name:CountTest,role:Healer,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        moves: '3.',
+        moves: ' ',
     });
+    // Command repetition is independent of the not-yet-ported monster-action
+    // phase, so remove startup monsters before driving the three waits.
+    game.level.monlist = null;
+    const initialScreens = replay.getScreens().length;
+    const initialDispatches = game._commandDispatchCount;
+    game.nhDisplay.pushKey(commandKeyCode('3'));
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    for (let turn = 0; turn < 3; ++turn) await moveloop_core();
+    await assert.rejects(moveloop_core(), /Input queue empty/u);
 
     assert.equal(game.moves, 4);
     assert.equal(game.multi, 0);
     assert.equal(game.lastCommandCount, 3);
-    assert.equal(game._commandDispatchCount, 3);
+    assert.equal(game._commandDispatchCount - initialDispatches, 3);
     // Input is read for the digit, the command, then the next live prompt;
     // the two repeated waits introduce no input boundary of their own.
-    assert.equal(replay.getScreens().length, 3);
+    assert.equal(replay.getScreens().length - initialScreens, 3);
 });
 
-test('the segment runner completes counts around and at the portable limit', async () => {
-    // 1023 and 1024 exercise values immediately below and at the former
-    // effective 1024-iteration limit for these short recipes. 1100 exceeds
-    // that limit, and MAX_COMMAND_COUNT exercises the source ceiling.
-    for (const count of [1023, 1024, 1100, MAX_COMMAND_COUNT]) {
-        const replay = await runSegment({
-            seed: 840003,
-            datetime: COMMAND_DATETIME,
-            nethackrc: 'OPTIONS=name:CountLimit,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                // Keep rare ambient More prompts from consuming the finite
-                // input recipe in this command-count boundary test.
-                + '!splash_screen,!acoustics',
-            moves: `${count}.`,
-        });
+test('the segment runner preserves output at a known turn boundary', async () => {
+    const replay = await runSegment({
+        seed: 840003,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:BoundaryStop,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '3.',
+    });
 
-        // Source turn progression is intentionally bounded by the ten-row
-        // residual replay; this test owns command-count completion, not the
-        // later gameplay turn counter.
-        assert.equal(game.multi, 0, `count ${count}`);
-        assert.equal(game._commandDispatchCount, count, `count ${count}`);
-        assert.ok(replay.getScreens().length > 0, `count ${count}`);
+    // Two waits are dispatched before startup monsters acquire a complete
+    // action. The third repeat stays pending; no later input boundary is read.
+    assert.equal(game._commandDispatchCount, 2);
+    assert.equal(game.multi, 1);
+    assert.equal(game.moves, 2);
+    assert.equal(game.hero_seq, 17);
+    assert.equal(game.u.uhunger, 899);
+    assert.equal(replay.getScreens().length, 2);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    let actionableMonster = false;
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        if (monster.mhp > 0 && monster.movement >= NORMAL_SPEED) {
+            actionableMonster = true;
+            break;
+        }
+    }
+    assert.equal(actionableMonster, true);
+});
+
+test('the segment runner budget covers counts through the portable limit', () => {
+    // Isolate the runner's arithmetic from later gameplay turn boundaries.
+    // Every logical repeat plus the following input attempt fits inside the
+    // finite guard, including the source's saturated count.
+    for (const count of [1023, 1024, 1100, MAX_COMMAND_COUNT]) {
+        const recipeLength = `${count}.`.length;
+        assert.equal(
+            segmentIterationLimit(recipeLength),
+            Math.max(recipeLength * (MAX_COMMAND_COUNT + 1) + 1, 1024),
+            `count ${count}`,
+        );
+        assert.ok(
+            segmentIterationLimit(recipeLength) > count,
+            `count ${count}`,
+        );
     }
 });
 
@@ -357,6 +398,7 @@ test('counted movement repeats intent without extra dispatch or input', async ()
             + 'BINDINGS=x:movewest',
         moves: '',
     });
+    game.level.monlist = null;
     const start = [game.u.ux, game.u.uy];
     const initialScreens = replay.getScreens().length;
     for (let distance = 1; distance <= 3; ++distance) {
@@ -405,6 +447,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     game.level.monlist = head;
     game.iflags.purge_monsters = 1;
     game.vision_full_recalc = 0;
+    game.context.seer_turn = 2;
     initRng(918273);
     enableRngLog();
 
@@ -432,8 +475,11 @@ test('moveloop allocates live monster movement once after elapsed input', async 
         // This generated level has a fountain but no sink, so dosounds()
         // owns the 1-in-400 gate in place of the old fixed 1-in-300 draw.
         // Its Dexterity 9 makes engraving wear use 40 + 9 * 3 = 67.
-        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(400)', 'rn2(20)', 'rn2(67)'],
+        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(400)', 'rn2(20)',
+            'rn2(67)', 'rn2(31)'],
     );
+    const cadenceValue = Number(getRngLog().at(-1).split('=').at(-1));
+    assert.equal(game.context.seer_turn, 2 + cadenceValue + 15);
 
     const elapsedLog = [...getRngLog()];
     const elapsedMovement = [head.movement, tail.movement];
@@ -449,24 +495,24 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.deepEqual([head.movement, tail.movement], elapsedMovement);
     assert.deepEqual(getRngLog(), elapsedLog);
 
-    // A later elapsed command must still select residual step 2; neither the
-    // unbound command nor blocked movement advanced the source turn counter.
+    // Neither the unbound command nor blocked movement advances the source
+    // turn counter. The next elapsed boundary must stop before an allocated
+    // live monster acts, preserving both its action and the queued command.
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
     assert.equal(game.moves, 2);
     assert.equal(game.u.uhunger, 899);
     assert.deepEqual(getRngLog(), elapsedLog);
     game.nhDisplay.pushKey(commandKeyCode('~'));
-    await moveloop_core();
-    assert.equal(game.moves, 3);
-    assert.equal(game.hero_seq, 25);
-    assert.equal(game.u.uhunger, 898);
-    assert.deepEqual(
-        getRngLog().slice(elapsedLog.length, elapsedLog.length + 4)
-            .map((entry) => entry.replace(/=.*/u, '')),
-        // Residual step 2 uniquely begins with four rn2(5) calls.
-        ['rn2(5)', 'rn2(5)', 'rn2(5)', 'rn2(5)'],
-    );
+    await assert.rejects(moveloop_core(), /unported monster-action phase/u);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(game.moves, 2);
+    assert.equal(game.hero_seq, 17);
+    assert.equal(game.u.uhunger, 899);
+    assert.deepEqual([head.movement, tail.movement], elapsedMovement);
+    assert.deepEqual(getRngLog(), elapsedLog);
+    await assert.rejects(moveloop_core(), /unported monster-action phase/u);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
 });
 
 test('moveloop zero generation gate creates before the next allocation', async () => {
@@ -546,13 +592,107 @@ test('a fast hero spends surplus movement without allocating a new turn', async 
     assert.ok(getRngLog().includes('rn2(3)=0'));
     const allocatedLog = [...getRngLog()];
 
+    game.context.seer_turn = 2;
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
     assert.equal(game.moves, 2);
     assert.equal(game.u.umovement, 12);
     assert.equal(game.hero_seq, 18);
     assert.equal(game.u.uhunger, 899);
-    assert.deepEqual(getRngLog(), allocatedLog);
+    assert.equal(getRngLog().length, allocatedLog.length + 1);
+    assert.match(getRngLog().at(-1), /^rn2\(31\)=/u);
+    const cadenceValue = Number(getRngLog().at(-1).split('=').at(-1));
+    assert.equal(game.context.seer_turn, 2 + cadenceValue + 15);
+});
+
+test('moveloop blocks an actionable monster before fast-hero state changes', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:MonsterAction,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const monster = {
+        data: { mmove: 12 }, movement: 12, mhp: 1, nmon: null,
+    };
+    game.level.monlist = monster;
+    game.u.umovement = 24;
+    game.context.move = 1;
+    const before = {
+        dispatches: game._commandDispatchCount,
+        heroSeq: game.hero_seq,
+        hunger: game.u.uhunger,
+        moves: game.moves,
+    };
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+
+    await assert.rejects(moveloop_core(), /unported monster-action phase/u);
+    assert.equal(game.u.umovement, 24);
+    assert.equal(monster.movement, 12);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.deepEqual({
+        dispatches: game._commandDispatchCount,
+        heroSeq: game.hero_seq,
+        hunger: game.u.uhunger,
+        moves: game.moves,
+    }, before);
+});
+
+test('moveloop makes residual replay exhaustion persistent', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:ReplayBoundary,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const monster = {
+        data: { mmove: 6 }, mspeed: 0, movement: 0, mhp: 1, nmon: null,
+    };
+    game.level.monlist = monster;
+    game.iflags.purge_monsters = 0;
+    game.moves = 11;
+    game.hero_seq = 88;
+    game.u.umovement = 12;
+    game.context.move = 1;
+    const before = {
+        dispatches: game._commandDispatchCount,
+        heroSeq: game.hero_seq,
+        hunger: game.u.uhunger,
+        moves: game.moves,
+    };
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+
+    await assert.rejects(
+        moveloop_core(),
+        /end of the residual turn replay/u,
+    );
+    assert.equal(game.context.turn_replay_blocked, true);
+    assert.equal(game.u.umovement, 0);
+    const allocatedMovement = monster.movement;
+    assert.ok(allocatedMovement > 0);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.deepEqual({
+        dispatches: game._commandDispatchCount,
+        heroSeq: game.hero_seq,
+        hunger: game.u.uhunger,
+        moves: game.moves,
+    }, before);
+
+    await assert.rejects(
+        moveloop_core(),
+        /end of the residual turn replay/u,
+    );
+    assert.equal(game.u.umovement, 0);
+    assert.equal(monster.movement, allocatedMovement);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.deepEqual({
+        dispatches: game._commandDispatchCount,
+        heroSeq: game.hero_seq,
+        hunger: game.u.uhunger,
+        moves: game.moves,
+    }, before);
 });
 
 test('movement repeat counts preserve the COLNO sentinel threshold', async () => {
@@ -563,6 +703,7 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
         moves: '',
     });
+    game.level.monlist = null;
     const start = [game.u.ux, game.u.uy];
     const destination = game.level.at(start[0] + 1, start[1]);
     destination.typ = ROOM;
@@ -579,6 +720,7 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
         game.u.dy = 0;
         game.context.mv = 1;
         game.context.run = 1;
+        game.context.move = 0;
         game.multi = initial;
 
         await moveloop_core();

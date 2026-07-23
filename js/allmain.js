@@ -14,7 +14,6 @@ import {
     FAST,
     HVY_ENCUMBER,
     INTRINSIC,
-    LEVITATION,
     MOD_ENCUMBER,
     NO_MM_FLAGS,
     NORMAL_SPEED,
@@ -50,7 +49,7 @@ import { domove, endRunning, rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen } from './display.js';
 import { ttyPline } from './tty_message.js';
 import { emitStartupA11yNotices } from './startup_a11y.js';
-import { wipe_engr_at } from './engrave.js';
+import { can_reach_floor, wipe_engr_at } from './engrave.js';
 import { check_special_room_state } from './rooms.js';
 import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
@@ -228,17 +227,8 @@ export function maybe_generate_rnd_mon(state = game, env = {}) {
     });
 }
 
-function propertyActiveUnblocked(hero, propertyIndex) {
-    const property = hero?.uprops?.[propertyIndex];
-    return Boolean(
-        (property?.intrinsic || property?.extrinsic) && !property?.blocked,
-    );
-}
-
 // C ref: allmain.c moveloop_core() lines 360-361 and engrave.c
-// u_wipe_engr(). The currently reachable D:1 commands leave the hero standing
-// on the floor. Reject future reachability states instead of silently skipping
-// u_wipe_engr()'s can_reach_floor(TRUE) contract.
+// u_wipe_engr(). rnd(3) is evaluated before can_reach_floor(TRUE).
 export function maybeWipeHeroEngraving(
     state = game,
     random = { rn2, rnd },
@@ -246,25 +236,14 @@ export function maybeWipeHeroEngraving(
     const dexterity = effective_attribute(state, A_DEX);
     if (random.rn2(40 + dexterity * 3) !== 0) return false;
 
-    // rnd(3) is evaluated before u_wipe_engr() checks floor reachability.
     const count = random.rnd(3);
     const hero = state.u;
-    if (hero?.uswallow || hero?.ustuck || hero?.usteed
-        || hero?.uundetected || propertyActiveUnblocked(hero, LEVITATION)) {
-        throw new Error(
-            'initial-level engraving wear reached an unported '
-                + 'can_reach_floor state',
-        );
-    }
+    if (!can_reach_floor(true, state)) return false;
     wipe_engr_at(hero.ux, hero.uy, count, false, { state, random });
     return true;
 }
 
-// C ref: allmain.c moveloop_core()'s once-per-hero-took-time clairvoyance
-// block. The cadence advances even when the hero cannot currently map; a
-// future active-clairvoyance owner must supply doVicinityMap rather than
-// silently skipping the source effect.
-export function maybeRunClairvoyance(state = game, env = {}) {
+function clairvoyancePlan(state, env) {
     const moves = state.moves;
     const seerTurn = state.context?.seer_turn;
     if (!Number.isSafeInteger(moves) || moves < 0
@@ -273,7 +252,7 @@ export function maybeRunClairvoyance(state = game, env = {}) {
             'clairvoyance cadence requires initialized moves and seer_turn',
         );
     }
-    if (moves < seerTurn) return false;
+    if (moves < seerTurn) return { due: false };
 
     const random = env.random ?? { rn1 };
     if (typeof random.rn1 !== 'function') {
@@ -286,17 +265,27 @@ export function maybeRunClairvoyance(state = game, env = {}) {
     ) && !blocked;
     const inEndgame = Number.isInteger(state.astral_level?.dnum)
         && state.u?.uz?.dnum === state.astral_level.dnum;
-    if ((state.u?.uhave?.amulet || active) && !inEndgame && !blocked) {
-        if (typeof env.doVicinityMap !== 'function') {
-            throw new Error(
-                'active clairvoyance requires doVicinityMap',
-            );
-        }
-        env.doVicinityMap(null, { state });
+    const mapRequired = Boolean(
+        (state.u?.uhave?.amulet || active) && !inEndgame && !blocked,
+    );
+    if (mapRequired && typeof env.doVicinityMap !== 'function') {
+        throw new Error('active clairvoyance requires doVicinityMap');
     }
+    return { due: true, mapRequired, moves, random };
+}
 
-    state.context.seer_turn = moves + random.rn1(31, 15);
+function applyClairvoyancePlan(plan, state, env) {
+    if (!plan.due) return false;
+    if (plan.mapRequired)
+        env.doVicinityMap(null, { state });
+    state.context.seer_turn = plan.moves + plan.random.rn1(31, 15);
     return true;
+}
+
+// C ref: allmain.c moveloop_core()'s once-per-hero-took-time clairvoyance
+// block. The cadence advances even when the hero cannot currently map.
+export function maybeRunClairvoyance(state = game, env = {}) {
+    return applyClairvoyancePlan(clairvoyancePlan(state, env), state, env);
 }
 
 // C ref: allmain.c moveloop_core()'s once-per-hero-took-time boundary.
@@ -306,18 +295,49 @@ export function finishHeroTimeEffects(state = game, env = {}) {
     if (!Number.isSafeInteger(state.hero_seq) || state.hero_seq < 0) {
         throw new Error('hero time effects require initialized hero_seq');
     }
+    // Validate injected owners before changing hero_seq. Once admitted,
+    // preserve C's increment -> map -> schedule order.
+    const plan = clairvoyancePlan(state, env);
     state.hero_seq++;
-    maybeRunClairvoyance(state, env);
+    applyClairvoyancePlan(plan, state, env);
+}
+
+const MONSTER_ACTION_BOUNDARY =
+    'moveloop reached the unported monster-action phase';
+const TURN_REPLAY_BOUNDARY =
+    'moveloop reached the end of the residual turn replay';
+
+export class UnsupportedTurnBoundaryError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedTurnBoundaryError';
+    }
+}
+
+function requireNoPendingMonsterAction(state) {
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp > 0 && monster.movement >= NORMAL_SPEED)
+            throw new UnsupportedTurnBoundaryError(MONSTER_ACTION_BOUNDARY);
+    }
 }
 
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
 
+    if (g.context?.turn_replay_blocked)
+        throw new UnsupportedTurnBoundaryError(TURN_REPLAY_BOUNDARY);
+
     // C gates its entire elapsed-time block on the preceding command's
     // context.move value. Capture that value before the next command dispatch
     // below (including an internal repeat) resets it optimistically.
     if (g.context?.move) {
+        // movemon() owns every live monster with a complete action ration.
+        // Until it is ported, reject that boundary before debiting the hero
+        // so retries cannot duplicate partial elapsed-time state changes.
+        requireNoPendingMonsterAction(g);
         g.u.umovement -= NORMAL_SPEED;
         // A fast hero can retain a complete action after paying for the prior
         // command. C still runs movemon() before noticing that surplus; the
@@ -333,44 +353,53 @@ export async function moveloop_core() {
             // and other intervening turn work remain replay-owned; random-
             // monster generation, ambient sounds, hunger, and engraving wear
             // run through their source callbacks below.
-            await fastforward_step(elapsedReplayStep, () => {
-                // C ref: mon.c movemon() and allmain.c moveloop_core(). Until
-                // movemon() is ported, this callback temporarily owns its
-                // terminal dead-monster purge and later list-order allocation.
-                dmonsfree(g);
-                for (let monster = g.level?.monlist ?? null;
-                    monster;
-                    monster = monster.nmon) {
-                    monster.movement += mcalcmove(monster, true, g);
-                }
-            }, () => {
-                maybe_generate_rnd_mon(g);
-            }, () => {
-                // near_capacity() follows movemon() in C. Current reachable
-                // commands cannot change the startup inventory, whose
-                // initializer guarantees an unencumbered load; runtime burden
-                // is ported with the later monster-action boundary.
-                u_calc_moveamt(UNENCUMBERED, g);
-                // C increments moves after hero allocation and before all
-                // once-per-turn effects, including dosounds().
-                g.moves = (g.moves || 1) + 1;
-                g.hero_seq = g.moves * 8;
-            }, async () => {
-                await dosoundsInitialLevel(g);
-            }, () => {
-                // Current reachable commands cannot change the startup
-                // inventory, whose initializer guarantees an unencumbered
-                // load. Runtime burden is ported with the later monster-action
-                // boundary.
-                gethungry(g, {
-                    random: { rn2 },
-                    nearCapacity: () => UNENCUMBERED,
-                });
-            }, () => {
-                maybeWipeHeroEngraving(g);
-            }, () => {
-                finishHeroTimeEffects(g);
-            });
+            const replayComplete = await fastforward_step(
+                elapsedReplayStep,
+                () => {
+                    // C ref: mon.c movemon() and allmain.c moveloop_core().
+                    // Until movemon() is ported, this callback temporarily
+                    // owns its terminal dead-monster purge and later
+                    // list-order allocation.
+                    dmonsfree(g);
+                    for (let monster = g.level?.monlist ?? null;
+                        monster;
+                        monster = monster.nmon) {
+                        monster.movement += mcalcmove(monster, true, g);
+                    }
+                }, () => {
+                    maybe_generate_rnd_mon(g);
+                }, () => {
+                    // near_capacity() follows movemon() in C. Current
+                    // reachable commands cannot change the startup inventory,
+                    // whose initializer guarantees an unencumbered load;
+                    // runtime burden is ported with the later monster-action
+                    // boundary.
+                    u_calc_moveamt(UNENCUMBERED, g);
+                    // C increments moves after hero allocation and before all
+                    // once-per-turn effects, including dosounds().
+                    g.moves = (g.moves || 1) + 1;
+                    g.hero_seq = g.moves * 8;
+                }, async () => {
+                    await dosoundsInitialLevel(g);
+                }, () => {
+                    // Current reachable commands cannot change the startup
+                    // inventory, whose initializer guarantees an unencumbered
+                    // load. Runtime burden is ported with the later
+                    // monster-action boundary.
+                    gethungry(g, {
+                        random: { rn2 },
+                        nearCapacity: () => UNENCUMBERED,
+                    });
+                }, () => {
+                    maybeWipeHeroEngraving(g);
+                }, () => {
+                    finishHeroTimeEffects(g);
+                },
+            );
+            if (!replayComplete) {
+                g.context.turn_replay_blocked = true;
+                throw new UnsupportedTurnBoundaryError(TURN_REPLAY_BOUNDARY);
+            }
         } else {
             // A fast hero's surplus action does not start a new turn, but it
             // still advances the per-action sequence and seer cadence.

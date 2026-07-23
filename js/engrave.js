@@ -8,14 +8,32 @@ import {
     DUST,
     ENGRAVE,
     ENGR_BLOOD,
+    FLYING,
     HEADSTONE,
     ICE,
+    LEVITATION,
     MARK,
     N_ENGRAVE,
+    P_BASIC,
+    P_RIDING,
+    TT_PIT,
+    is_hole,
+    is_pit,
 } from './const.js';
+import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
+import { sticks } from './mondata.js';
+import {
+    AT_HUGS,
+    M1_CLING,
+    M1_FLY,
+    M1_HIDE,
+    MZ_HUGE,
+    S_MIMIC,
+} from './monsters.js';
 import { rn2, rnd } from './rng.js';
+import { t_at } from './trap.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -108,6 +126,67 @@ function propertyActiveUnblocked(hero, propertyIndex) {
     return Boolean(property
         && ((property.intrinsic ?? 0) || (property.extrinsic ?? 0))
         && !(property.blocked ?? 0));
+}
+
+function hasAttackType(species, attackType) {
+    return Boolean(species?.mattk?.some(
+        (attack) => attack.aatyp === attackType,
+    ));
+}
+
+function ceilingHider(species) {
+    return Boolean(species?.mflags1 & M1_HIDE)
+        && ((Boolean(species.mflags1 & M1_CLING)
+                && species.mlet !== S_MIMIC)
+            || Boolean(species.mflags1 & M1_FLY));
+}
+
+function heroFlying(state) {
+    const hero = state.u;
+    const property = hero?.uprops?.[FLYING] ?? {};
+    return Boolean(
+        property.intrinsic
+            || property.extrinsic
+            || (hero?.usteed?.data?.mflags1 & M1_FLY),
+    ) && !property.blocked;
+}
+
+// C ref: engrave.c can_reach_floor(), mondata.c sticks(), and trap.c
+// uteetering_at_seen_pit()/uescaped_shaft().
+export function can_reach_floor(checkPit = true, state = game) {
+    const hero = state.u;
+    const species = state.youmonst?.data;
+    if (!hero || !species || !Number.isInteger(species.mflags1)
+        || !Number.isInteger(species.msize)
+        || !Array.isArray(species.mattk)) {
+        throw new Error('can_reach_floor requires initialized hero form');
+    }
+
+    const holderSpecies = hero.ustuck?.data;
+    const levitating = propertyActiveUnblocked(hero, LEVITATION);
+    if (hero.uswallow
+        || (holderSpecies && !sticks(species)
+            && hasAttackType(holderSpecies, AT_HUGS))
+        || (levitating
+            && !(on_level(hero.uz, state.air_level)
+                || on_level(hero.uz, state.water_level)))) {
+        return false;
+    }
+
+    const ridingSkill = hero.weapon_skills?.[P_RIDING]?.skill ?? 0;
+    if (hero.usteed && ridingSkill < P_BASIC) return false;
+    if (hero.uundetected && ceilingHider(species)) return false;
+    if (heroFlying(state) || species.msize >= MZ_HUGE) return true;
+
+    if (checkPit) {
+        const trap = t_at(hero.ux, hero.uy, state);
+        const atHero = trap?.tx === hero.ux && trap?.ty === hero.uy;
+        const teetering = atHero && is_pit(trap.ttyp) && trap.tseen
+            && !(hero.utrap && hero.utraptype === TT_PIT);
+        const escapedShaft = atHero && is_hole(trap.ttyp) && trap.tseen;
+        if (teetering || escapedShaft) return false;
+    }
+    return true;
 }
 
 // C ref: engrave.c read_engr_at(). The message callback is injected to avoid

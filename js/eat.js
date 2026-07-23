@@ -129,6 +129,15 @@ function ringConsumesNutrition(ring, side, state) {
     return (extrinsic & ~W_RINGR) === 0;
 }
 
+function preflightNutritionRing(ring, state) {
+    if (!ring || ring.otyp === MEAT_RING) return;
+    if (!state.objects?.[ring.otyp]) {
+        throw new Error(
+            `gethungry requires object data for ring ${ring.otyp}`,
+        );
+    }
+}
+
 // C ref: eat.c gethungry(). This owns the complete nutrition-consumption
 // decision for an alert hero. Hunger-status transitions still require their
 // message, occupation, fainting, and death owners, so this first-command slice
@@ -156,6 +165,20 @@ export function gethungry(state = game, env = {}) {
     if (!species || !Number.isInteger(species.mflags1)) {
         throw new Error('gethungry requires initialized hero form');
     }
+
+    // The admitted alert-hero slice must remain within one hunger status for
+    // every possible branch. Its maximum source loss is ordinary diet plus
+    // Hunger, Conflict, and one accessory (four nutrition points).
+    if (u.uhs === FAINTED || hungerStatus(u.uhunger) !== u.uhs
+        || hungerStatus(u.uhunger - 4) !== u.uhs) {
+        throw new Error(
+            'gethungry reached unported hunger-status transition',
+        );
+    }
+    // Either ring can be selected by rn2(20). Validate both definitions
+    // before that draw so malformed admitted state cannot consume RNG.
+    preflightNutritionRing(state.uleft, state);
+    preflightNutritionRing(state.uright, state);
 
     let nutritionLoss = 0;
     const eatsNormally = Boolean(species.mflags1
@@ -212,7 +235,7 @@ export function gethungry(state = game, env = {}) {
 
     const nextNutrition = u.uhunger - nutritionLoss;
     const nextStatus = hungerStatus(nextNutrition);
-    if (u.uhs === FAINTED || nextStatus !== u.uhs) {
+    if (nextStatus !== u.uhs) {
         throw new Error(
             'gethungry reached unported hunger-status transition',
         );

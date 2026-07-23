@@ -39,9 +39,11 @@ export async function fastforward_step(
         async () => { rn2(5); rn2(20); rn2(5); rn2(5); rn2(8); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); rn2(19); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 9
         async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(20); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 10
     ];
-    if (stepNum <= 0) return;
-    if (stepNum <= steps.length) await steps[stepNum - 1]();
-    else {
-        await purgeAndAllocateMonsterMovement();
+    if (stepNum <= 0) return true;
+    if (stepNum <= steps.length) {
+        await steps[stepNum - 1]();
+        return true;
     }
+    await purgeAndAllocateMonsterMovement();
+    return false;
 }

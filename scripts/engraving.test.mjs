@@ -1,8 +1,23 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { BLINDED, BURN, DUST, ENGRAVE, ICE, ROOM } from '../js/const.js';
 import {
+    BLINDED,
+    BURN,
+    DUST,
+    ENGRAVE,
+    FLYING,
+    HOLE,
+    ICE,
+    LEVITATION,
+    PIT,
+    P_BASIC,
+    P_RIDING,
+    ROOM,
+    TT_PIT,
+} from '../js/const.js';
+import {
+    can_reach_floor,
     engr_at,
     make_engr_at,
     read_engr_at,
@@ -10,6 +25,17 @@ import {
     wipeout_text,
 } from '../js/engrave.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
+import {
+    AD_STCK,
+    AD_WRAP,
+    AT_ENGL,
+    AT_HUGS,
+    M1_CLING,
+    M1_FLY,
+    M1_HIDE,
+    MZ_HUGE,
+    S_MIMIC,
+} from '../js/monsters.js';
 
 function scriptedRandom(script) {
     const remaining = [...script];
@@ -53,6 +79,95 @@ function nicheWipeScript() {
         ['rn2', 11, 9], ['rn2', 4, 2],
     ];
 }
+
+function floorReachState() {
+    const uprops = [];
+    uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const weaponSkills = [];
+    weaponSkills[P_RIDING] = { skill: 0 };
+    return {
+        u: {
+            ux: 12,
+            uy: 6,
+            uz: { dnum: 0, dlevel: 1 },
+            uprops,
+            weapon_skills: weaponSkills,
+            uswallow: false,
+            ustuck: null,
+            usteed: null,
+            uundetected: false,
+            utrap: 0,
+            utraptype: 0,
+        },
+        youmonst: {
+            data: { mflags1: 0, msize: 2, mlet: 0, mattk: [] },
+        },
+        level: { traps: [] },
+        air_level: { dnum: 5, dlevel: 1 },
+        water_level: { dnum: 5, dlevel: 2 },
+    };
+}
+
+test('can_reach_floor preserves swallow, hold, levitation, and riding gates', () => {
+    const swallowed = floorReachState();
+    swallowed.u.uswallow = true;
+    assert.equal(can_reach_floor(true, swallowed), false);
+
+    const held = floorReachState();
+    held.u.ustuck = {
+        data: { mattk: [{ aatyp: AT_HUGS, adtyp: 0 }] },
+    };
+    assert.equal(can_reach_floor(true, held), false);
+    held.youmonst.data.mattk = [{ aatyp: 0, adtyp: AD_STCK }];
+    assert.equal(can_reach_floor(true, held), true);
+    held.youmonst.data.mattk = [{ aatyp: 0, adtyp: AD_WRAP }];
+    assert.equal(can_reach_floor(true, held), true);
+    held.youmonst.data.mattk = [{ aatyp: AT_ENGL, adtyp: AD_WRAP }];
+    assert.equal(can_reach_floor(true, held), false);
+
+    const levitating = floorReachState();
+    levitating.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(can_reach_floor(true, levitating), false);
+    levitating.u.uz = { ...levitating.air_level };
+    assert.equal(can_reach_floor(true, levitating), true);
+    levitating.u.uz = { ...levitating.water_level };
+    assert.equal(can_reach_floor(true, levitating), true);
+
+    const mounted = floorReachState();
+    mounted.u.usteed = { data: { mflags1: 0 } };
+    assert.equal(can_reach_floor(true, mounted), false);
+    mounted.u.weapon_skills[P_RIDING].skill = P_BASIC;
+    assert.equal(can_reach_floor(true, mounted), true);
+});
+
+test('can_reach_floor preserves hiding, flight, size, and seen-pit gates', () => {
+    const hidden = floorReachState();
+    hidden.u.uundetected = true;
+    hidden.youmonst.data.mflags1 = M1_HIDE | M1_CLING;
+    assert.equal(can_reach_floor(true, hidden), false);
+    hidden.youmonst.data.mlet = S_MIMIC;
+    assert.equal(can_reach_floor(true, hidden), true);
+    hidden.youmonst.data.mflags1 |= M1_FLY;
+    assert.equal(can_reach_floor(true, hidden), false);
+
+    const pit = floorReachState();
+    pit.level.traps.push({ tx: 12, ty: 6, ttyp: PIT, tseen: true });
+    assert.equal(can_reach_floor(true, pit), false);
+    assert.equal(can_reach_floor(false, pit), true);
+    pit.u.utrap = 1;
+    pit.u.utraptype = TT_PIT;
+    assert.equal(can_reach_floor(true, pit), true);
+
+    const shaft = floorReachState();
+    shaft.level.traps.push({ tx: 12, ty: 6, ttyp: HOLE, tseen: true });
+    assert.equal(can_reach_floor(true, shaft), false);
+    shaft.u.uprops[FLYING].extrinsic = 1;
+    assert.equal(can_reach_floor(true, shaft), true);
+    shaft.u.uprops[FLYING].extrinsic = 0;
+    shaft.youmonst.data.msize = MZ_HUGE;
+    assert.equal(can_reach_floor(true, shaft), true);
+});
 
 test('wipeout_text ages the teleport-niche message in source call order', () => {
     const scripted = scriptedRandom(nicheWipeScript());

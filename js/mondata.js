@@ -17,6 +17,27 @@ import { roles } from './roles.js';
 
 const M2_JEWELS = 0x20000000;
 
+function hasAttackType(species, attackType) {
+    return Boolean(species?.mattk?.some(
+        (attack) => attack.aatyp === attackType,
+    ));
+}
+
+function hasDamageType(species, damageType) {
+    return Boolean(species?.mattk?.some(
+        (attack) => attack.adtyp === damageType,
+    ));
+}
+
+// C ref: mondata.c sticks(). A wrapping attack sticks unless it is the
+// engulfing form; explicit sticky damage and hug attacks always do.
+export function sticks(species) {
+    return hasDamageType(species, M.AD_STCK)
+        || (hasDamageType(species, M.AD_WRAP)
+            && !hasAttackType(species, M.AT_ENGL))
+        || hasAttackType(species, M.AT_HUGS);
+}
+
 const pair = (little, big) => Object.freeze([little, big]);
 const alternateName = (name, mnum, gender = NEUTRAL) => Object.freeze({
     name,

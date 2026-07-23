@@ -92,7 +92,7 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
 
     initRng(918273);
     enableRngLog();
-    await fastforward_step(
+    const complete = await fastforward_step(
         11,
         () => pushRngLogEntry('monster-allocation'),
         () => assert.fail('random generation crosses the replay boundary'),
@@ -102,6 +102,7 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
         () => assert.fail('engraving wear crosses the replay boundary'),
         () => assert.fail('hero-time effects cross the replay boundary'),
     );
+    assert.equal(complete, false);
     assert.deepEqual(getRngLog(), ['monster-allocation']);
 });
 
