@@ -68,6 +68,25 @@ export function engr_at(x, y, state = game) {
     return null;
 }
 
+function asciiCaseFold(value) {
+    return String(value).replace(/[A-Z]/g, (character) =>
+        String.fromCharCode(character.charCodeAt(0) + 32));
+}
+
+// C ref: engrave.c sengr_at(). NetHack's strcmpi()/strstri() comparison is
+// ASCII case-insensitive; strict callers require the intact complete text.
+export function sengr_at(text, x, y, strict, state = game) {
+    const engraving = engr_at(x, y, state);
+    if (!engraving || engraving.engr_type === HEADSTONE
+        || engraving.engr_time > state.moves) {
+        return null;
+    }
+    const actual = asciiCaseFold(engraving.engr_txt?.[0] ?? '');
+    const wanted = asciiCaseFold(text);
+    const matches = strict ? actual === wanted : actual.includes(wanted);
+    return matches ? engraving : null;
+}
+
 export function del_engr_at(x, y, state = game) {
     let previous = null;
     for (let engraving = state.head_engr ?? null;

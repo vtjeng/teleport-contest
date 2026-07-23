@@ -3,6 +3,11 @@
 
 import {
     ACCESSIBLE,
+    A_LAWFUL,
+    A_NONE,
+    AM_SHRINE,
+    Amask2align,
+    BOLT_LIM,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -15,29 +20,52 @@ import {
     G_GENOD,
     ICE,
     INVIS,
+    IS_ALTAR,
     LAVAPOOL,
     MOAT,
     PROT_FROM_SHAPE_CHANGERS,
+    ROOMOFFSET,
+    SHOPBASE,
     STONE,
+    TEMPLE,
+    W_ARM,
     isok,
 } from './const.js';
+import { ART_SUNSWORD } from './artifacts.js';
+import { on_level } from './dungeon.js';
+import { sengr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
 import { money_cnt } from './invent.js';
 import {
     amorphous,
+    is_minion,
+    is_rider,
     passes_walls,
     perceives,
     verysmall,
 } from './mondata.js';
 import {
+    G_UNIQ,
+    PM_ANGEL,
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
+    PM_GREMLIN,
+    PM_GRID_BUG,
+    PM_MINOTAUR,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_VLAD_THE_IMPALER,
     PM_XORN,
+    S_HUMAN,
+    S_VAMPIRE,
 } from './monsters.js';
-import { isCandle, isContainer, objectType } from './obj.js';
+import {
+    isCandle,
+    isContainer,
+    objectType,
+    sobj_at,
+} from './obj.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -58,6 +86,8 @@ import {
     FEDORA,
     FORTUNE_COOKIE,
     GEM_CLASS,
+    GOLD_DRAGON_SCALE_MAIL,
+    GOLD_DRAGON_SCALES,
     LEASH,
     LEATHER_JACKET,
     LEMBAS_WAFER,
@@ -69,6 +99,7 @@ import {
     PANCAKE,
     RING_CLASS,
     SACK,
+    SCR_SCARE_MONSTER,
     SKELETON_KEY,
     SLING,
     STETHOSCOPE,
@@ -77,19 +108,26 @@ import {
     TOWEL,
     VENOM_CLASS,
 } from './objects.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
+import { in_rooms } from './rooms.js';
 import { couldsee } from './vision.js';
+
+const ALGN_SINNED = -4;
+const ROOM_STRING_SIZE = 5;
 
 function movementEnv(env = {}) {
     const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? { rn2, rnd };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('monster movement random injection requires rn2');
+    const couldSee = env.couldSee ?? ((x, y) => couldsee(x, y, state));
+    if (typeof couldSee !== 'function')
+        throw new TypeError('monster movement couldSee must be a function');
     return {
         ...env,
         state,
         random,
-        couldSee: env.couldSee ?? ((x, y) => couldsee(x, y, state)),
+        couldSee,
     };
 }
 
@@ -214,6 +252,256 @@ export function can_fog(monster, state = game) {
 function isSpecies(monster, pmidx, state) {
     return monster.data === state.mons?.[pmidx]
         || monster.data?.pmidx === pmidx;
+}
+
+function monsterAlignment(monster) {
+    let alignment = monster.ispriest
+        ? monster.mextra?.epri?.shralign
+        : monster.isminion
+            ? monster.mextra?.emin?.min_align
+            : monster.data?.maligntyp;
+    if (alignment === A_NONE) return A_NONE;
+    alignment = Math.sign(alignment ?? 0);
+    return alignment;
+}
+
+function isLawfulMinion(monster) {
+    return is_minion(monster.data)
+        && monsterAlignment(monster) === A_LAWFUL;
+}
+
+function altarMask(location) {
+    return location?.altarmask ?? location?.flags ?? 0;
+}
+
+function hasShrine(priest, state) {
+    if (!priest?.ispriest) return false;
+    const extension = priest.mextra?.epri;
+    const location = state.level?.at(
+        extension?.shrpos?.x,
+        extension?.shrpos?.y,
+    );
+    const mask = altarMask(location);
+    return IS_ALTAR(location?.typ)
+        && Boolean(mask & AM_SHRINE)
+        && extension.shralign === Amask2align(mask & ~AM_SHRINE);
+}
+
+function histempleAt(priest, x, y, state) {
+    const extension = priest?.mextra?.epri;
+    return Boolean(priest?.ispriest
+        && extension
+        && extension.shroom === (in_rooms(x, y, TEMPLE, state)[0] ?? 0)
+        && on_level(extension.shrlevel, state.u?.uz));
+}
+
+function inhistemple(priest, state) {
+    return Boolean(priest?.ispriest
+        && histempleAt(priest, priest.mx, priest.my, state)
+        && hasShrine(priest, state));
+}
+
+function inhishop(shopkeeper, state) {
+    const extension = shopkeeper?.mextra?.eshk;
+    return Boolean(extension
+        && on_level(extension.shoplevel, state.u?.uz)
+        && in_rooms(
+            shopkeeper.mx,
+            shopkeeper.my,
+            SHOPBASE,
+            state,
+        ).includes(extension.shoproom));
+}
+
+function templeOccupied(roomBuffer, state) {
+    for (let index = 0; index < ROOM_STRING_SIZE; ++index) {
+        const roomNumber = Math.trunc(roomBuffer?.[index] ?? 0);
+        if (!roomNumber) break;
+        if (state.level?.rooms?.[roomNumber - ROOMOFFSET]?.rtype === TEMPLE)
+            return roomNumber;
+    }
+    return 0;
+}
+
+function findPriest(roomNumber, state) {
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp < 1) continue;
+        if (monster.ispriest
+            && monster.mextra?.epri?.shroom === roomNumber
+            && histempleAt(monster, monster.mx, monster.my, state)) {
+            return monster;
+        }
+    }
+    return null;
+}
+
+// C ref: priest.c in_your_sanctuary().
+export function in_your_sanctuary(
+    monster,
+    x = 0,
+    y = 0,
+    state = game,
+) {
+    if (monster) {
+        if (is_minion(monster.data) || is_rider(monster.data)) return false;
+        x = monster.mx;
+        y = monster.my;
+    }
+    if (state.u?.ualign?.record <= ALGN_SINNED) return false;
+    const roomNumber = templeOccupied(state.u?.urooms, state);
+    if (!roomNumber
+        || roomNumber !== (in_rooms(x, y, TEMPLE, state)[0] ?? 0)) {
+        return false;
+    }
+    const priest = findPriest(roomNumber, state);
+    return Boolean(priest
+        && hasShrine(priest, state)
+        && monsterAlignment(priest) === state.u?.ualign?.type
+        && priest.mpeaceful);
+}
+
+function inHell(state) {
+    const dnum = state.u?.uz?.dnum;
+    return Boolean(state.dungeons?.[dnum]?.flags?.hellish);
+}
+
+function inEndgame(state) {
+    return state.u?.uz?.dnum != null
+        && state.u.uz.dnum === state.astral_level?.dnum;
+}
+
+function visibleObjectAt(x, y, state) {
+    return state.level?.objects?.[x]?.[y] ?? null;
+}
+
+// C ref: monmove.c onscary().
+export function onscary(x, y, monster, state = game) {
+    const auditoryScare = x === 0 && y === 0;
+    const magicalScare = !auditoryScare;
+
+    if (monster.iswiz || isLawfulMinion(monster)
+        || isSpecies(monster, PM_ANGEL, state)
+        || is_rider(monster.data)) {
+        return false;
+    }
+
+    if (magicalScare
+        && (monster.data?.mlet === S_HUMAN
+            || Boolean(monster.data?.geno & G_UNIQ))) {
+        return false;
+    }
+
+    if ((monster.isshk && inhishop(monster, state))
+        || (monster.ispriest && inhistemple(monster, state))) {
+        return false;
+    }
+
+    if (auditoryScare) return true;
+
+    const location = state.level?.at(x, y);
+    if (IS_ALTAR(location?.typ)
+        && (monster.data?.mlet === S_VAMPIRE
+            || is_vampshifter(monster))) {
+        return true;
+    }
+
+    if (sobj_at(SCR_SCARE_MONSTER, x, y, state)) return true;
+
+    const engraving = sengr_at('Elbereth', x, y, true, state);
+    const imageAtSquare = propertyActive(state, DISPLACED)
+        && monster.mux === x && monster.muy === y;
+    return Boolean(engraving
+        && ((state.u?.ux === x && state.u?.uy === y)
+            || imageAtSquare
+            || (engraving.guardobjects && visibleObjectAt(x, y, state)))
+        && !(monster.isshk || monster.isgd || !monster.mcansee
+            || monster.mpeaceful
+            || isSpecies(monster, PM_MINOTAUR, state)
+            || inHell(state) || inEndgame(state)));
+}
+
+// C ref: mon.c monnear(). Grid bugs alone cannot use diagonal adjacency.
+export function monnear(monster, x, y, state = game) {
+    const distance = dist2(monster.mx, monster.my, x, y);
+    if (distance === 2 && isSpecies(monster, PM_GRID_BUG, state))
+        return false;
+    return distance < 3;
+}
+
+function artifactLight(obj) {
+    return Boolean(obj
+        && ((((obj.otyp === GOLD_DRAGON_SCALE_MAIL
+                    || obj.otyp === GOLD_DRAGON_SCALES)
+                && (obj.owornmask & W_ARM))
+            || obj.oartifact === ART_SUNSWORD)));
+}
+
+function fleesLight(monster, normalized) {
+    const { couldSee, state } = normalized;
+    return isSpecies(monster, PM_GREMLIN, state)
+        && ((state.uwep?.lamplit && artifactLight(state.uwep))
+            || (state.uarm?.lamplit && artifactLight(state.uarm)))
+        && monster.mcansee
+        && couldSee(monster.mx, monster.my);
+}
+
+// C ref: monmove.c distfleeck(). monflee() owns messages, release behavior,
+// Vrock gas, and track clearing, so callers supply that complete operation.
+export async function distfleeck(monster, env = {}) {
+    const normalized = movementEnv(env);
+    const { random, state } = normalized;
+    const onScary = env.onScary ?? onscary;
+    const checksFleeingLight = env.fleesLight ?? fleesLight;
+    const inSanctuary = env.inYourSanctuary ?? in_your_sanctuary;
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('distfleeck random injection requires rnd');
+    if (typeof onScary !== 'function'
+        || typeof checksFleeingLight !== 'function'
+        || typeof inSanctuary !== 'function') {
+        throw new TypeError('distfleeck predicate injections must be functions');
+    }
+    if (typeof env.monFlee !== 'function')
+        throw new TypeError('distfleeck requires a monFlee operation');
+
+    const braveGremlin = random.rn2(5) === 0;
+    const inrange = dist2(
+        monster.mx,
+        monster.my,
+        monster.mux,
+        monster.muy,
+    ) <= BOLT_LIM * BOLT_LIM;
+    const nearby = inrange
+        && monnear(monster, monster.mux, monster.muy, state);
+
+    const seesWrongSquare = !monster.mcansee
+        || (propertyActive(state, INVIS, true) && !perceives(monster.data));
+    const scaryX = seesWrongSquare ? monster.mux : state.u.ux;
+    const scaryY = seesWrongSquare ? monster.muy : state.u.uy;
+    const sawScary = onScary(
+        scaryX,
+        scaryY,
+        monster,
+        state,
+    );
+    const scared = nearby
+        && (sawScary
+            || (checksFleeingLight(monster, normalized)
+                && !braveGremlin)
+            || (!monster.mpeaceful
+                && inSanctuary(
+                    monster,
+                    0,
+                    0,
+                    state,
+                )));
+
+    if (scared) {
+        const fleeTime = random.rnd(random.rn2(7) ? 10 : 100);
+        await env.monFlee(monster, fleeTime, true, true, normalized);
+    }
+    return { inrange, nearby, scared: Boolean(scared) };
 }
 
 // C ref: monmove.c set_apparxy(). Decide where a monster thinks the hero is.

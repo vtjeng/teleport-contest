@@ -2,26 +2,44 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ALTAR,
+    A_LAWFUL,
+    AM_LAWFUL,
+    AM_SHRINE,
+    COLNO,
     DB_ICE,
     DB_MOAT,
     DISPLACED,
     DOOR,
     DRAWBRIDGE_UP,
     D_CLOSED,
+    DUST,
     G_GENOD,
+    HEADSTONE,
     INVIS,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    ROOMOFFSET,
+    ROWNO,
+    TEMPLE,
 } from '../js/const.js';
+import { make_engr_at, sengr_at } from '../js/engrave.js';
 import {
     accessible,
     can_fog,
     can_ooze,
+    distfleeck,
+    in_your_sanctuary,
+    monnear,
+    onscary,
     set_apparxy,
 } from '../js/monmove.js';
 import {
+    PM_ANGEL,
     PM_FOG_CLOUD,
     PM_GIANT_RAT,
+    PM_GRID_BUG,
+    PM_HUMAN,
     PM_VAMPIRE_LEADER,
     PM_XORN,
     monst_globals_init,
@@ -34,11 +52,16 @@ import {
     DAGGER,
     LONG_SWORD,
     SACK,
+    SCR_SCARE_MONSTER,
     objects_globals_init,
 } from '../js/objects.js';
 
 function makeState() {
     const locations = new Map();
+    const floorObjects = Array.from(
+        { length: COLNO },
+        () => Array(ROWNO).fill(null),
+    );
     const uprops = [];
     uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[DISPLACED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
@@ -49,7 +72,13 @@ function makeState() {
     };
     const state = {
         invent: null,
+        moves: 1,
+        dungeons: [{ flags: { hellish: false } }],
+        astral_level: { dnum: 99, dlevel: 1 },
         level: {
+            monlist: null,
+            objects: floorObjects,
+            rooms: [],
             at(x, y) {
                 return locations.get(`${x},${y}`) ?? { typ: ROOM, flags: 0 };
             },
@@ -60,6 +89,9 @@ function makeState() {
             uinwater: false,
             uprops,
             ustuck: null,
+            ualign: { record: 10, type: A_LAWFUL },
+            urooms: [0, 0, 0, 0, 0],
+            uz: { dnum: 0, dlevel: 1 },
         },
         youmonst: newMonster(),
     };
@@ -328,4 +360,253 @@ test('can_fog checks vampire form, genocide, protection, and inventory', () => {
     monster.minvent = null;
     monster.cham = 0;
     assert.equal(can_fog(monster, state), false);
+});
+
+test('sengr_at preserves strict, timing, headstone, and case rules', () => {
+    const { state } = makeState();
+    state.moves = 20;
+    const engraving = make_engr_at(
+        10,
+        10,
+        'Elbereth',
+        'Elbereth',
+        19, // Already complete on the current source turn.
+        DUST,
+        { state },
+    );
+
+    assert.equal(sengr_at('elbereth', 10, 10, true, state), engraving);
+    assert.equal(sengr_at('beret', 10, 10, true, state), null);
+    assert.equal(sengr_at('beret', 10, 10, false, state), engraving);
+
+    engraving.engr_time = 21; // Completion lies one turn in the future.
+    assert.equal(sengr_at('Elbereth', 10, 10, true, state), null);
+    engraving.engr_time = 19;
+    engraving.engr_type = HEADSTONE;
+    assert.equal(sengr_at('Elbereth', 10, 10, true, state), null);
+});
+
+test('onscary applies immunity before auditory and map-based scares', () => {
+    const { state } = makeState();
+    const ordinary = ordinaryMonster(state);
+    assert.equal(onscary(0, 0, ordinary, state), true);
+
+    ordinary.iswiz = true;
+    assert.equal(onscary(0, 0, ordinary, state), false);
+
+    const angel = newMonster({ data: state.mons[PM_ANGEL] });
+    assert.equal(onscary(0, 0, angel, state), false);
+
+    const human = newMonster({ data: state.mons[PM_HUMAN] });
+    assert.equal(onscary(10, 10, human, state), false);
+});
+
+test('onscary recognizes vampire altars and scare-monster scrolls', () => {
+    const { locations, state } = makeState();
+    locations.set('6,6', { typ: ALTAR, flags: AM_LAWFUL });
+    const vampire = newMonster({
+        data: state.mons[PM_VAMPIRE_LEADER],
+        cham: PM_VAMPIRE_LEADER,
+    });
+    assert.equal(onscary(6, 6, vampire, state), true);
+
+    state.level.objects[7][7] = objectFor(state, SCR_SCARE_MONSTER);
+    assert.equal(onscary(7, 7, ordinaryMonster(state), state), true);
+});
+
+test('onscary requires an active whole Elbereth and an eligible monster', () => {
+    const { state } = makeState();
+    state.moves = 20;
+    make_engr_at(
+        state.u.ux,
+        state.u.uy,
+        'Elbereth',
+        'Elbereth',
+        19, // The engraving is complete before this movement phase.
+        DUST,
+        { state },
+    );
+    const monster = ordinaryMonster(state, { mcansee: true });
+
+    assert.equal(onscary(state.u.ux, state.u.uy, monster, state), true);
+    monster.mpeaceful = true;
+    assert.equal(onscary(state.u.ux, state.u.uy, monster, state), false);
+
+    monster.mpeaceful = false;
+    state.head_engr.engr_txt[0] = 'Elbereth Elbereth';
+    assert.equal(onscary(state.u.ux, state.u.uy, monster, state), false);
+});
+
+test('in_your_sanctuary validates room, priest, shrine, and alignment', () => {
+    const { locations, state } = makeState();
+    const roomNumber = ROOMOFFSET;
+    state.level.rooms[0] = { rtype: TEMPLE };
+    state.u.urooms[0] = roomNumber;
+    locations.set('6,6', { typ: ROOM, flags: 0, roomno: roomNumber });
+    locations.set('7,7', { typ: ROOM, flags: 0, roomno: roomNumber });
+    locations.set('8,8', {
+        typ: ALTAR,
+        flags: AM_SHRINE | AM_LAWFUL,
+        roomno: roomNumber,
+    });
+
+    const priest = newMonster({
+        data: state.mons[PM_HUMAN],
+        ispriest: true,
+        mpeaceful: true,
+        mhp: 1,
+        mx: 7,
+        my: 7,
+        mextra: {
+            epri: {
+                shralign: A_LAWFUL,
+                shroom: roomNumber,
+                shrpos: { x: 8, y: 8 },
+                shrlevel: { ...state.u.uz },
+            },
+        },
+    });
+    state.level.monlist = priest;
+    const monster = ordinaryMonster(state, { mx: 6, my: 6 });
+
+    assert.equal(in_your_sanctuary(monster, 0, 0, state), true);
+    state.u.ualign.record = -4; // priest.c's sinned-or-worse cutoff.
+    assert.equal(in_your_sanctuary(monster, 0, 0, state), false);
+});
+
+test('monnear excludes only grid-bug diagonal adjacency', () => {
+    const { state } = makeState();
+    const ordinary = ordinaryMonster(state, { mx: 5, my: 5 });
+    const gridBug = newMonster({
+        data: state.mons[PM_GRID_BUG],
+        mnum: PM_GRID_BUG,
+        mx: 5,
+        my: 5,
+    });
+
+    assert.equal(monnear(ordinary, 6, 6, state), true);
+    assert.equal(monnear(gridBug, 6, 6, state), false);
+    assert.equal(monnear(gridBug, 6, 5, state), true);
+    assert.equal(monnear(ordinary, 7, 5, state), false);
+});
+
+test('distfleeck always draws brave-gremlin before checking a far monster', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mx: 1,
+        my: 1,
+        mux: 10,
+        muy: 10,
+    });
+    const events = [];
+
+    const result = await distfleeck(monster, {
+        state,
+        random: {
+            rn2(bound) {
+                events.push(`rn2(${bound})`);
+                return 1;
+            },
+            rnd: () => assert.fail('a far monster does not flee'),
+        },
+        onScary() {
+            events.push('onscary');
+            return false;
+        },
+        fleesLight: () => assert.fail('nearby gate comes first'),
+        inYourSanctuary: () => assert.fail('nearby gate comes first'),
+        monFlee: () => assert.fail('a far monster does not flee'),
+    });
+
+    assert.deepEqual(events, ['rn2(5)', 'onscary']);
+    assert.deepEqual(result, { inrange: false, nearby: false, scared: false });
+});
+
+test('distfleeck validates its action owner before consuming randomness', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state);
+
+    await assert.rejects(
+        distfleeck(monster, {
+            state,
+            random: {
+                rn2: () => assert.fail('missing monFlee must preflight'),
+                rnd: () => assert.fail('missing monFlee must preflight'),
+            },
+        }),
+        /requires a monFlee operation/,
+    );
+});
+
+test('distfleeck preserves scare duration draws and monflee arguments', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mx: 9,
+        my: 10,
+        mux: 10,
+        muy: 10,
+    });
+    const events = [];
+
+    const result = await distfleeck(monster, {
+        state,
+        random: {
+            rn2(bound) {
+                events.push(`rn2(${bound})`);
+                // The rn2(7) result selects the ten-turn rnd bound.
+                return bound === 7 ? 1 : 2;
+            },
+            rnd(bound) {
+                events.push(`rnd(${bound})`);
+                return 6; // Representative non-edge flee duration.
+            },
+        },
+        onScary() {
+            events.push('onscary');
+            return true;
+        },
+        fleesLight: () => assert.fail('a seen scare short-circuits light'),
+        inYourSanctuary: () => assert.fail('a seen scare short-circuits temple'),
+        async monFlee(candidate, duration, first, message) {
+            events.push(`monflee(${duration},${first},${message})`);
+            assert.equal(candidate, monster);
+        },
+    });
+
+    assert.deepEqual(events, [
+        'rn2(5)',
+        'onscary',
+        'rn2(7)',
+        'rnd(10)',
+        'monflee(6,true,true)',
+    ]);
+    assert.deepEqual(result, { inrange: true, nearby: true, scared: true });
+});
+
+test('distfleeck checks an invisible hero at the guessed square', async () => {
+    const { state } = makeState();
+    state.u.uprops[INVIS].intrinsic = 1;
+    const monster = ordinaryMonster(state, {
+        mpeaceful: true,
+        mx: 8,
+        my: 8,
+        mux: 9,
+        muy: 9,
+        mcansee: true,
+    });
+    const checked = [];
+
+    const result = await distfleeck(monster, {
+        state,
+        random: { rn2: () => 1, rnd: () => assert.fail('not scared') },
+        onScary(x, y) {
+            checked.push([x, y]);
+            return false;
+        },
+        fleesLight: () => false,
+        monFlee: () => assert.fail('not scared'),
+    });
+
+    assert.deepEqual(checked, [[monster.mux, monster.muy]]);
+    assert.deepEqual(result, { inrange: true, nearby: true, scared: false });
 });
