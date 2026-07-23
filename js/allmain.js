@@ -15,6 +15,7 @@ import {
     INTRINSIC,
     LEVITATION,
     MOD_ENCUMBER,
+    NO_MM_FLAGS,
     NORMAL_SPEED,
     RLOC_NOMSG,
     SLT_ENCUMBER,
@@ -25,11 +26,11 @@ import { makedog } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { m_at } from './monst.js';
 import { mcalcmove } from './mon.js';
-import { dmonsfree } from './makemon_create.js';
+import { dmonsfree, makemon } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
-import { init_dungeons } from './dungeon.js';
+import { depth, init_dungeons } from './dungeon.js';
 import { init_artifacts } from './artifacts.js';
 import { role_init, welcomeMessage } from './role_init.js';
 import { u_init_misc } from './u_init.js';
@@ -52,7 +53,7 @@ import { wipe_engr_at } from './engrave.js';
 import { check_special_room_state } from './rooms.js';
 import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
-import { rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
 import {
     fastforward_step,
@@ -201,6 +202,30 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
     if (u.umovement < 0) u.umovement = 0;
 }
 
+// C ref: allmain.c maybe_generate_rnd_mon(). New monsters receive their
+// movement only on the following allocation round because this gate follows
+// the current round's monster movement allocation.
+export function maybe_generate_rnd_mon(state = game, env = {}) {
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const createMonster = env.makemon ?? makemon;
+    const heroLevel = state.u?.uz;
+    const strongholdLevel = state.stronghold_level;
+    if (!heroLevel || !strongholdLevel || !state.u?.uevent) {
+        throw new Error(
+            'maybe_generate_rnd_mon requires initialized level globals',
+        );
+    }
+    const bound = state.u.uevent.udemigod
+        ? 25
+        : depth(heroLevel, state) > depth(strongholdLevel, state) ? 50 : 70;
+    if (random.rn2(bound) !== 0) return null;
+    return createMonster(null, 0, 0, NO_MM_FLAGS, {
+        ...env,
+        random,
+        state,
+    });
+}
+
 function propertyActiveUnblocked(hero, propertyIndex) {
     const property = hero?.uprops?.[propertyIndex];
     return Boolean(
@@ -253,9 +278,9 @@ export async function moveloop_core() {
             const elapsedReplayStep = g.moves || 1;
             // Fast-forward residual per-step RNG around the source-owned
             // movement allocation boundary. Monster actions, regeneration,
-            // random-monster generation, hunger, and other intervening turn
-            // work remain replay-owned; ambient sounds and engraving wear run
-            // through their source callbacks below.
+            // hunger, and other intervening turn work remain replay-owned;
+            // random-monster generation, ambient sounds, and engraving wear
+            // run through their source callbacks below.
             await fastforward_step(elapsedReplayStep, () => {
                 // C ref: mon.c movemon() and allmain.c moveloop_core(). Until
                 // movemon() is ported, this callback temporarily owns its
@@ -266,6 +291,8 @@ export async function moveloop_core() {
                     monster = monster.nmon) {
                     monster.movement += mcalcmove(monster, true, g);
                 }
+            }, () => {
+                maybe_generate_rnd_mon(g);
             }, () => {
                 // near_capacity() follows movemon() in C. Current reachable
                 // commands cannot change the startup inventory, whose

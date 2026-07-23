@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { maybeWipeHeroEngraving, u_calc_moveamt } from '../js/allmain.js';
+import {
+    maybe_generate_rnd_mon,
+    maybeWipeHeroEngraving,
+    u_calc_moveamt,
+} from '../js/allmain.js';
 import {
     DUST,
     EXT_ENCUMBER,
@@ -24,6 +28,17 @@ function movementState(speed = 12, umovement = 0) {
         u: { umovement, umoved: false, usteed: null, uprops },
         youmonst: { data: { mmove: speed } },
         context: {},
+    };
+}
+
+function randomMonsterTurnState({ demigod = false, depth = 1 } = {}) {
+    return {
+        dungeons: [{ depth_start: 1 }],
+        stronghold_level: { dnum: 0, dlevel: 10 },
+        u: {
+            uevent: { udemigod: demigod },
+            uz: { dnum: 0, dlevel: depth },
+        },
     };
 }
 
@@ -176,6 +191,69 @@ test('u_calc_moveamt applies every source encumbrance fraction', () => {
         });
         assert.equal(fractional.u.umovement, expected);
     }
+});
+
+test('maybe_generate_rnd_mon preserves every source gate', () => {
+    for (const scenario of [
+        {
+            name: 'ordinary dungeon level',
+            state: randomMonsterTurnState(),
+            expectedBound: 70,
+        },
+        {
+            name: 'below the stronghold',
+            // Depth 11 is the first level deeper than the depth-10 Castle.
+            state: randomMonsterTurnState({ depth: 11 }),
+            expectedBound: 50,
+        },
+        {
+            name: 'demigod',
+            state: randomMonsterTurnState({ demigod: true }),
+            expectedBound: 25,
+        },
+    ]) {
+        const bounds = [];
+        const creations = [];
+        const random = {
+            rn2(bound) {
+                bounds.push(bound);
+                return 0; // Take the rare creation branch for each gate.
+            },
+        };
+        const created = { scenario: scenario.name };
+        assert.equal(
+            maybe_generate_rnd_mon(scenario.state, {
+                random,
+                makemon(...args) {
+                    creations.push(args);
+                    return created;
+                },
+            }),
+            created,
+            scenario.name,
+        );
+        assert.deepEqual(bounds, [scenario.expectedBound], scenario.name);
+        assert.equal(creations.length, 1, scenario.name);
+        assert.deepEqual(creations[0].slice(0, 4), [null, 0, 0, 0]);
+        assert.equal(creations[0][4].state, scenario.state);
+        assert.equal(creations[0][4].random, random);
+    }
+
+    const state = randomMonsterTurnState();
+    const bounds = [];
+    assert.equal(
+        maybe_generate_rnd_mon(state, {
+            random: {
+                rn2(bound) {
+                    bounds.push(bound);
+                    return 1; // Nonzero is the ordinary no-creation outcome.
+                },
+            },
+            makemon: () => assert.fail('a missed gate must not create'),
+        }),
+        null,
+    );
+    assert.deepEqual(bounds, [70]);
 });
 
 test('maybeWipeHeroEngraving derives its gate from effective Dexterity', () => {

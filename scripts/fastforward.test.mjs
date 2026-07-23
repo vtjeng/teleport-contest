@@ -15,6 +15,7 @@ async function eventsForStep(stepNum) {
     await fastforward_step(
         stepNum,
         () => pushRngLogEntry('monster-allocation'),
+        () => pushRngLogEntry('random-monster-generation'),
         () => pushRngLogEntry('hero-movement'),
         () => pushRngLogEntry('initial-level-sounds'),
         () => pushRngLogEntry('engraving-wear'),
@@ -39,36 +40,42 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
     // Each row pins one residual replay step. The literal bounds distinguish
     // every recorded prefix and step 9's unique pre-engraving rn2(19).
     const expectedRows = [
-        ['monster-allocation', 'rn2(70)', 'hero-movement',
+        ['monster-allocation', 'random-monster-generation', 'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'engraving-wear'],
         ['rn2(5)', 'rn2(5)', 'rn2(5)', 'rn2(5)',
-            'monster-allocation', 'rn2(70)', 'hero-movement',
+            'monster-allocation', 'random-monster-generation', 'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'engraving-wear'],
         ['rn2(5)', 'rn2(32)', 'rn2(5)', 'rn2(5)', 'rn2(32)',
-            'rn2(5)', 'monster-allocation', 'rn2(70)', 'hero-movement',
+            'rn2(5)', 'monster-allocation', 'random-monster-generation',
+            'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'engraving-wear'],
         ['rn2(5)', 'rn2(24)', 'rn2(5)', 'rn2(5)', 'rn2(24)',
-            'rn2(5)', 'monster-allocation', 'rn2(70)', 'hero-movement',
+            'rn2(5)', 'monster-allocation', 'random-monster-generation',
+            'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'engraving-wear'],
         ['rn2(5)', 'rn2(16)', 'rn2(5)', 'monster-allocation',
-            'rn2(70)', 'hero-movement', 'initial-level-sounds',
+            'random-monster-generation', 'hero-movement',
+            'initial-level-sounds',
             'rn2(20)', 'engraving-wear'],
         ['rn2(5)', 'rn2(12)', 'rn2(5)', 'rn2(5)', 'rn2(5)',
-            'monster-allocation', 'rn2(70)', 'hero-movement',
+            'monster-allocation', 'random-monster-generation', 'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'engraving-wear',
             'rn2(31)'],
         ['rn2(5)', 'rn2(16)', 'rn2(5)', 'rn2(5)', 'rn2(16)',
-            'rn2(5)', 'monster-allocation', 'rn2(70)', 'hero-movement',
+            'rn2(5)', 'monster-allocation', 'random-monster-generation',
+            'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'engraving-wear'],
         ['rn2(5)', 'rn2(12)', 'rn2(5)', 'monster-allocation',
-            'rn2(70)', 'hero-movement', 'initial-level-sounds',
+            'random-monster-generation', 'hero-movement',
+            'initial-level-sounds',
             'rn2(20)', 'engraving-wear'],
         ['rn2(5)', 'rn2(20)', 'rn2(5)', 'rn2(5)', 'rn2(8)', 'rn2(5)',
-            'monster-allocation', 'rn2(70)', 'hero-movement',
+            'monster-allocation', 'random-monster-generation', 'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'rn2(19)',
             'engraving-wear'],
         ['rn2(5)', 'rn2(12)', 'rn2(5)', 'rn2(5)', 'rn2(20)',
-            'rn2(5)', 'monster-allocation', 'rn2(70)', 'hero-movement',
+            'rn2(5)', 'monster-allocation', 'random-monster-generation',
+            'hero-movement',
             'initial-level-sounds', 'rn2(20)', 'engraving-wear'],
     ];
     for (let step = 1; step <= expectedRows.length; ++step) {
@@ -80,6 +87,7 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
     await fastforward_step(
         11,
         () => pushRngLogEntry('monster-allocation'),
+        () => assert.fail('random generation crosses the replay boundary'),
         () => assert.fail('hero movement crosses the replay boundary'),
         () => assert.fail('sounds cross the replay boundary'),
         () => assert.fail('engraving wear crosses the replay boundary'),
@@ -91,6 +99,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     initRng(918273);
     enableRngLog();
     const monster = deferred();
+    const randomMonster = deferred();
     const hero = deferred();
     const sounds = deferred();
     const engraving = deferred();
@@ -103,6 +112,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     const execution = fastforward_step(
         1,
         waitAt('monster', monster),
+        waitAt('random-monster', randomMonster),
         waitAt('hero', hero),
         waitAt('sounds', sounds),
         waitAt('engraving', engraving),
@@ -114,32 +124,40 @@ test('fastforward_step awaits each source callback before continuing', async () 
     await flushMicrotasks();
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
-        ['monster:start', 'monster:end', 'rn2(70)', 'hero:start'],
+        ['monster:start', 'monster:end', 'random-monster:start'],
+    );
+
+    randomMonster.resolve();
+    await flushMicrotasks();
+    assert.deepEqual(
+        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        ['monster:start', 'monster:end', 'random-monster:start',
+            'random-monster:end', 'hero:start'],
     );
 
     hero.resolve();
     await flushMicrotasks();
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
-        ['monster:start', 'monster:end', 'rn2(70)', 'hero:start',
-            'hero:end', 'sounds:start'],
+        ['monster:start', 'monster:end', 'random-monster:start',
+            'random-monster:end', 'hero:start', 'hero:end', 'sounds:start'],
     );
 
     sounds.resolve();
     await flushMicrotasks();
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
-        ['monster:start', 'monster:end', 'rn2(70)', 'hero:start',
-            'hero:end', 'sounds:start', 'sounds:end', 'rn2(20)',
-            'engraving:start'],
+        ['monster:start', 'monster:end', 'random-monster:start',
+            'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
+            'sounds:end', 'rn2(20)', 'engraving:start'],
     );
 
     engraving.resolve();
     await execution;
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
-        ['monster:start', 'monster:end', 'rn2(70)', 'hero:start',
-            'hero:end', 'sounds:start', 'sounds:end', 'rn2(20)',
-            'engraving:start', 'engraving:end'],
+        ['monster:start', 'monster:end', 'random-monster:start',
+            'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
+            'sounds:end', 'rn2(20)', 'engraving:start', 'engraving:end'],
     );
 });

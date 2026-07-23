@@ -3,8 +3,10 @@ import test from 'node:test';
 
 import {
     BURN_OBJECT,
+    COLNO,
     G_GENOD,
     I_SPECIAL,
+    IN_SIGHT,
     MAX_NUM_WORMS,
     MM_ANGRY,
     MM_ASLEEP,
@@ -17,6 +19,7 @@ import {
     OBJ_MINVENT,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    ROWNO,
     STONE,
     WEB,
     W_AMUL,
@@ -142,6 +145,9 @@ import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
 const MON_X = 10;
 const MON_Y = 5;
+// makemon.c:rndmonst() visits these cumulative D:1 reservoir weights in
+// mons[] order. Returning bound - 1 retains the first candidate, jackal.
+const DEPTH_ONE_RESERVOIR_BOUNDS = [3, 4, 5, 7, 8, 11, 15, 16, 21];
 const FIXED_OBJECT_ID_RANDOM = {
     rn2: () => 0,
     rnd: () => 1,
@@ -213,6 +219,16 @@ function ordinaryInventoryTail() {
         // initial-level species.
         step('rn2', [100], 1),
     ];
+}
+
+function radiusThreeShuffleSteps() {
+    // teleport.c:collect_coords() shuffles the 8-, 16-, and 24-cell rings
+    // completely before enexto_core() examines the first candidate.
+    return [8, 16, 24].flatMap((ringSize) =>
+        Array.from(
+            { length: ringSize - 1 },
+            (_, index) => step('rn2', [ringSize - index], 0),
+        ));
 }
 
 function recordingRandom({ rn2Result, rndResult } = {}) {
@@ -770,6 +786,139 @@ test('random-coordinate creation accepts the first sampled good position', () =>
     assert.deepEqual([monster.mx, monster.my], [17, 4]);
     assert.equal(state.level.monsters[17][4], monster);
     assert.equal(state.mvitals[PM_NEWT].born, 0);
+});
+
+test('runtime random creation selects a compatible unseen D:1 monster', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.level.at(17, 4).typ = ROOM;
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17), // First runtime coordinate candidate.
+        step('rn2', [21], 4), // Its row is outside the hero's sight map.
+        ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
+            step('rn2', [bound], bound - 1)),
+        ...basicCreationSteps(),
+        step('rn2', [2], 0), // Jackal's small-group gate does not fire.
+        ...ordinaryInventoryTail(),
+    ]);
+
+    const monster = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+    });
+    random.assertExhausted();
+
+    assert.equal(monster.data, state.mons[PM_JACKAL]);
+    assert.deepEqual([monster.mx, monster.my], [17, 4]);
+    assert.equal(monster.mgenmklev, false);
+    assert.equal(state.level.monlist, monster);
+    assert.equal(monster.nmon, null);
+});
+
+test('runtime random coordinates reject a visible sample before goodpos', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.level.at(17, 4).typ = ROOM;
+    state.level.at(18, 5).typ = ROOM;
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    state.viz_array[4][17] = IN_SIGHT;
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17), // Rejected because the hero sees it.
+        step('rn2', [21], 4),
+        step('rn1', [77, 2], 18), // First unseen accessible sample.
+        step('rn2', [21], 5),
+        ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
+            step('rn2', [bound], 0)),
+        ...basicCreationSteps(),
+        ...ordinaryInventoryTail(),
+    ]);
+
+    const monster = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+    });
+    random.assertExhausted();
+    assert.deepEqual([monster.mx, monster.my], [18, 5]);
+    assert.equal(monster.data, state.mons[PM_NEWT]);
+});
+
+test('runtime random coordinates fall back to an in-dungeon stair', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.level.at(20, 8).typ = ROOM;
+    state.stairs = {
+        sx: 20,
+        sy: 8,
+        tolev: { dnum: state.u.uz.dnum, dlevel: 2 },
+        next: null,
+    };
+    // Mark every coordinate visible so all 50 samples and the first fallback
+    // scan fail solely on the runtime visibility constraint.
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO).fill(IN_SIGHT),
+    );
+    const failedPairs = Array.from({ length: 50 }, () => [
+        step('rn1', [77, 2], 17),
+        step('rn2', [21], 4),
+    ]).flat();
+    const random = scriptedRandom([
+        ...failedPairs,
+        step('rn2', [2], 0), // Accept the first same-dungeon stair.
+        ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
+            step('rn2', [bound], 0)),
+        ...basicCreationSteps(),
+        ...ordinaryInventoryTail(),
+    ]);
+
+    const monster = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+    });
+    random.assertExhausted();
+    assert.deepEqual([monster.mx, monster.my], [20, 8]);
+    assert.equal(monster.data, state.mons[PM_NEWT]);
+});
+
+test('runtime random creation builds source-order hostile groups', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    // The parent and every radius-three candidate are valid floor squares;
+    // zero shuffle offsets make <16,3> the first group destination.
+    for (let x = 14; x <= 20; ++x) {
+        for (let y = 1; y <= 7; ++y) state.level.at(x, y).typ = ROOM;
+    }
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17), // Parent coordinate.
+        step('rn2', [21], 4),
+        ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
+            step('rn2', [bound], bound - 1)),
+        ...basicCreationSteps(),
+        step('rn2', [2], 1), // Take jackal's small-group branch.
+        step('rnd', [3], 1), // Level one reduces any 1..3 roll to one member.
+        ...radiusThreeShuffleSteps(),
+        ...basicCreationSteps(), // Create the hostile group member first.
+        ...ordinaryInventoryTail(),
+        ...ordinaryInventoryTail(), // Parent inventory follows its group.
+    ]);
+
+    const parent = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+    });
+    random.assertExhausted();
+
+    const groupMember = state.level.monlist;
+    assert.notEqual(groupMember, parent);
+    assert.equal(groupMember.data, state.mons[PM_JACKAL]);
+    assert.deepEqual([groupMember.mx, groupMember.my], [16, 3]);
+    assert.equal(groupMember.mpeaceful, false);
+    assert.equal(groupMember.mavenge, false);
+    assert.equal(groupMember.nmon, parent);
+    assert.equal(parent.nmon, null);
 });
 
 test('random-coordinate creation scans x-major after exactly 50 failed pairs', () => {
