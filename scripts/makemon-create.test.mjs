@@ -4,7 +4,9 @@ import test from 'node:test';
 import {
     BURN_OBJECT,
     COLNO,
+    DUST,
     G_GENOD,
+    G_GONE,
     I_SPECIAL,
     IN_SIGHT,
     MAX_NUM_WORMS,
@@ -64,6 +66,7 @@ import {
     PM_DEMILICH,
     PM_FOG_CLOUD,
     PM_FOX,
+    PM_GARTER_SNAKE,
     PM_GHOST,
     PM_GIANT_MUMMY,
     PM_GIANT_ZOMBIE,
@@ -179,6 +182,12 @@ function initialLevelState() {
     return state;
 }
 
+function leaveOnlyRandomSpecies(state, speciesIndexes) {
+    for (const vital of state.mvitals) vital.mvflags |= G_GONE;
+    for (const index of speciesIndexes)
+        state.mvitals[index].mvflags &= ~G_GONE;
+}
+
 function monsterWithHelm(state, mndx, { spe = 0, cursed = false } = {}) {
     const monster = newMonster({
         data: state.mons[mndx],
@@ -221,14 +230,28 @@ function ordinaryInventoryTail() {
     ];
 }
 
-function radiusThreeShuffleSteps() {
+function radiusThreeShuffleSteps(thirdRingSize = 24) {
     // teleport.c:collect_coords() shuffles the 8-, 16-, and 24-cell rings
-    // completely before enexto_core() examines the first candidate.
-    return [8, 16, 24].flatMap((ringSize) =>
+    // completely before enexto_core() examines the first candidate. Near the
+    // map edge, the outer ring is clipped to its actual coordinate count.
+    return [8, 16, thirdRingSize].flatMap((ringSize) =>
         Array.from(
             { length: ringSize - 1 },
             (_, index) => step('rn2', [ringSize - index], 0),
         ));
+}
+
+function garterSnakeCreationSteps({ peaceful }) {
+    const steps = [
+        step('rnd', [2], 1), // Allocate the next monster id.
+        step('d', [1, 8], 1), // Level-one hit points; makemon raises 1 to 2.
+        step('rn2', [2], 1), // Garter snakes retain a random corpse gender.
+        // A neutral species with alignment record zero starts with rn2(16).
+        step('rn2', [16], peaceful ? 1 : 0),
+    ];
+    if (peaceful)
+        steps.push(step('rn2', [2], 1)); // Complete the peaceful result.
+    return steps;
 }
 
 function recordingRandom({ rn2Result, rndResult } = {}) {
@@ -845,6 +868,72 @@ test('runtime random coordinates reject a visible sample before goodpos', () => 
     assert.equal(monster.data, state.mons[PM_NEWT]);
 });
 
+test('runtime random coordinates use the unseen exhaustive scan first', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.level.at(MON_X, MON_Y).typ = STONE;
+    // Offsets <17,4> make <18,5> the first x-major fallback coordinate.
+    state.level.at(18, 5).typ = ROOM;
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    state.viz_array[4][17] = IN_SIGHT;
+    const failedPairs = Array.from({ length: 50 }, () => [
+        step('rn1', [77, 2], 17),
+        step('rn2', [21], 4),
+    ]).flat();
+    const random = scriptedRandom([
+        ...failedPairs,
+        ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
+            step('rn2', [bound], 0)),
+        ...basicCreationSteps(),
+        ...ordinaryInventoryTail(),
+    ]);
+
+    const monster = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+    });
+    random.assertExhausted();
+    assert.deepEqual([monster.mx, monster.my], [18, 5]);
+    assert.equal(monster.data, state.mons[PM_NEWT]);
+});
+
+test('runtime random coordinates relax visibility on the final scan', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.level.at(MON_X, MON_Y).typ = STONE;
+    // The only valid square is visible. With no stair, the first scan must
+    // skip it and the second scan must return it with GP_CHECKSCARY still off.
+    state.level.at(18, 5).typ = ROOM;
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO).fill(IN_SIGHT),
+    );
+    const failedPairs = Array.from({ length: 50 }, () => [
+        step('rn1', [77, 2], 17),
+        step('rn2', [21], 4),
+    ]).flat();
+    const redraws = [];
+    const random = scriptedRandom([
+        ...failedPairs,
+        ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
+            step('rn2', [bound], 0)),
+        ...basicCreationSteps(),
+        ...ordinaryInventoryTail(),
+    ]);
+
+    const monster = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+        hooks: { newsym: (x, y) => redraws.push([x, y]) },
+    });
+    random.assertExhausted();
+    assert.deepEqual([monster.mx, monster.my], [18, 5]);
+    assert.deepEqual(redraws, [[18, 5]]);
+});
+
 test('runtime random coordinates fall back to an in-dungeon stair', () => {
     const state = initialLevelState();
     state.in_mklev = false;
@@ -874,13 +963,56 @@ test('runtime random coordinates fall back to an in-dungeon stair', () => {
         ...ordinaryInventoryTail(),
     ]);
 
+    const redraws = [];
+    const monster = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+        hooks: { newsym: (x, y) => redraws.push([x, y]) },
+    });
+    random.assertExhausted();
+    assert.deepEqual([monster.mx, monster.my], [20, 8]);
+    assert.equal(monster.data, state.mons[PM_NEWT]);
+    assert.deepEqual(redraws, [[20, 8]]);
+});
+
+test('runtime random creation retries a species that cannot use its square', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    // Hero level seven admits the difficulty-four fog cloud. Keep only it and
+    // the jackal in rndmonst()'s reservoir so the two selection passes are
+    // explicit: jackal first, then the Elbereth-immune eyeless cloud.
+    state.u.ulevel = 7;
+    leaveOnlyRandomSpecies(state, [PM_JACKAL, PM_FOG_CLOUD]);
+    state.level.at(17, 4).typ = ROOM;
+    state.head_engr = {
+        nxt_engr: null,
+        engr_x: 17,
+        engr_y: 4,
+        engr_txt: ['Elbereth'],
+        engr_time: 0,
+        engr_type: DUST,
+    };
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17), // Choose the engraved runtime square.
+        step('rn2', [21], 4),
+        step('rn2', [3], 0), // Initial reservoir candidate: jackal.
+        step('rn2', [5], 4), // Retain jackal over the later fog cloud.
+        step('rn2', [3], 0), // Retry starts from jackal again.
+        step('rn2', [5], 0), // Replace it with the compatible fog cloud.
+        step('rnd', [2], 1), // Allocate the first runtime monster id.
+        step('d', [3, 8], 3), // Level-three fog-cloud hit points.
+        ...ordinaryInventoryTail(),
+    ]);
+
     const monster = makemon(null, 0, 0, 0, {
         state,
         random: random.random,
     });
     random.assertExhausted();
-    assert.deepEqual([monster.mx, monster.my], [20, 8]);
-    assert.equal(monster.data, state.mons[PM_NEWT]);
+    assert.equal(monster.data, state.mons[PM_FOG_CLOUD]);
+    assert.equal(state.mvitals[PM_JACKAL].born, 0);
+    assert.equal(state.mvitals[PM_FOG_CLOUD].born, 1);
+    assert.equal(state.context.ident, 3);
 });
 
 test('runtime random creation builds source-order hostile groups', () => {
@@ -919,6 +1051,69 @@ test('runtime random creation builds source-order hostile groups', () => {
     assert.equal(groupMember.mavenge, false);
     assert.equal(groupMember.nmon, parent);
     assert.equal(parent.nmon, null);
+});
+
+test('large runtime groups chain placement and override recursive peace', () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    // Level five removes m_initgrp()'s low-level divisor. Restrict rndmonst()
+    // to the neutral, probabilistically peaceful G_LGROUP garter snake.
+    state.u.ulevel = 5;
+    leaveOnlyRandomSpecies(state, [PM_GARTER_SNAKE]);
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) state.level.at(x, y).typ = ROOM;
+    }
+    const memberSteps = (thirdRingSize = 24) => [
+        step('rn2', [16], 0), // Hostile precheck permits this group member.
+        ...radiusThreeShuffleSteps(thirdRingSize),
+        // Recursive makemon() independently rolls peaceful; m_initgrp()
+        // must force the resulting member hostile and recompute malign.
+        ...garterSnakeCreationSteps({ peaceful: true }),
+        ...ordinaryInventoryTail(),
+    ];
+    const redraws = [];
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17), // Parent coordinate.
+        step('rn2', [21], 4),
+        step('rn2', [1], 0), // The one-species reservoir selects garter snake.
+        ...garterSnakeCreationSteps({ peaceful: false }),
+        step('rn2', [3], 1), // Choose m_initlgrp() rather than m_initsgrp().
+        step('rnd', [10], 3), // Create three members at hero level five.
+        ...memberSteps(),
+        ...memberSteps(),
+        ...memberSteps(17), // Radius three clips at the top edge from <15,2>.
+        ...ordinaryInventoryTail(), // Parent inventory follows the group.
+    ]);
+
+    const parent = makemon(null, 0, 0, 0, {
+        state,
+        random: random.random,
+        hooks: { newsym: (x, y) => redraws.push([x, y]) },
+    });
+    random.assertExhausted();
+
+    const newest = state.level.monlist;
+    const middle = newest.nmon;
+    const oldest = middle.nmon;
+    assert.equal(oldest.nmon, parent);
+    assert.equal(parent.nmon, null);
+    assert.deepEqual(
+        [parent, oldest, middle, newest].map((monster) => [
+            monster.mx,
+            monster.my,
+        ]),
+        [[17, 4], [16, 3], [15, 2], [14, 1]],
+    );
+    for (const member of [oldest, middle, newest]) {
+        assert.equal(member.data, state.mons[PM_GARTER_SNAKE]);
+        assert.equal(member.mpeaceful, false);
+        assert.equal(member.mavenge, false);
+        assert.equal(member.malign, 3);
+    }
+    assert.equal(state.mvitals[PM_GARTER_SNAKE].born, 4);
+    // Recursive children redraw as each creation finishes; the parent redraw
+    // remains last, after its own inventory initialization.
+    assert.deepEqual(redraws, [[16, 3], [15, 2], [14, 1], [17, 4]]);
 });
 
 test('random-coordinate creation scans x-major after exactly 50 failed pairs', () => {

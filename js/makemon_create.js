@@ -985,15 +985,18 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
 
     const xofs = nx;
     const yofs = ny;
-    let blindPass = state.in_mklev || heroIsBlind(state) ? 1 : 0;
+    const firstScanStage = state.in_mklev || heroIsBlind(state) ? 1 : 0;
     let scanFlags = gpflags | GP_AVOID_MONPOS;
-    for (; blindPass < 2; ++blindPass) {
-        if (blindPass === 0) scanFlags &= ~GP_CHECKSCARY;
+    for (let scanStage = firstScanStage; scanStage < 2; ++scanStage) {
+        const visibleSquaresAllowed = scanStage === 1;
+        // C clears GP_CHECKSCARY for the sighted unseen scan and deliberately
+        // keeps it cleared for both the stair fallback and final visible scan.
+        if (!visibleSquaresAllowed) scanFlags &= ~GP_CHECKSCARY;
         for (let dx = 0; dx < COLNO; ++dx) {
             for (let dy = 0; dy < ROWNO; ++dy) {
                 nx = ((dx + xofs) % (COLNO - 1)) + 1;
                 ny = ((dy + yofs) % (ROWNO - 1)) + 1;
-                if (blindPass === 0 && cansee(nx, ny, state)) continue;
+                if (!visibleSquaresAllowed && cansee(nx, ny, state)) continue;
                 if (goodpos(
                     nx,
                     ny,
@@ -1005,7 +1008,7 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
                 }
             }
         }
-        if (blindPass === 0 && (!ptr || ptr.mmove)) {
+        if (!visibleSquaresAllowed && (!ptr || ptr.mmove)) {
             for (let stairway = state.stairs; stairway;
                 stairway = stairway.next) {
                 if (stairway.tolev?.dnum === state.u.uz.dnum
@@ -2114,7 +2117,10 @@ export function restore_waiting_vampire(monster, rawEnv = {}) {
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
 // call shapes needed by fill_ordinary_room(), the Ghost, Cloud, Garden, and
 // Storeroom themed fills, dog.c:makedog(), plus the level-generation random
-// coordinate shape needed by temporary Statuary monsters.
+// coordinate shape needed by temporary Statuary monsters. Outside mklev(), it
+// also admits the exact initial-D:1 random-generation call
+// makemon(NULL, 0, 0, NO_MM_FLAGS) and that call's explicit-coordinate,
+// MM_NOGRP recursive group members.
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,
@@ -2287,6 +2293,11 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         if (monster.minvent) discard_minvent(monster, true, normalized);
         monster.minvent = null;
     }
+
+    // C ref: makemon.c makemon(). Runtime creation refreshes the final square
+    // after inventory and group creation. Appearance messages and occupation
+    // interruption remain with their future command/UI owners.
+    if (!state.in_mklev) redrawSquare(monster.mx, monster.my, normalized);
 
     return monster;
 }

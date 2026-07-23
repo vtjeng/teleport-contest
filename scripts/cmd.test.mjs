@@ -460,6 +460,52 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     );
 });
 
+test('moveloop zero generation gate creates before the next allocation', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:RuntimeGeneration,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,!acoustics',
+        // Dismiss startup, then let the test drive command boundaries.
+        moves: ' ',
+    });
+
+    // Remove startup monsters from both source-owned indexes so allocation is
+    // drawless and rn2(70) is the first core draw at the elapsed boundary.
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        game.level.monsters[monster.mx][monster.my] = null;
+    }
+    game.level.monlist = null;
+    game.iflags.purge_monsters = 0;
+    game.vision_full_recalc = 0;
+    // ISAAC seed 167's first core value is zero modulo 70, forcing the rare
+    // allmain.c:maybe_generate_rnd_mon() branch without mocking makemon().
+    initRng(167);
+    enableRngLog();
+
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+    await moveloop_core();
+
+    const created = [];
+    for (let monster = game.level.monlist; monster; monster = monster.nmon)
+        created.push(monster);
+    assert.ok(created.length > 0);
+    assert.equal(getRngLog()[0], 'rn2(70)=0');
+    assert.ok(created.every((monster) => !monster.mgenmklev));
+    assert.ok(created.every((monster) => monster.movement === 0));
+
+    // The unbound command consumed no time. A following wait, then another
+    // unbound command, reaches the next allocation round for the same nodes.
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+    await moveloop_core();
+    assert.ok(created.every((monster) => monster.movement > 0));
+});
+
 test('a fast hero spends surplus movement without allocating a new turn', async () => {
     await runSegment({
         seed: 840015,

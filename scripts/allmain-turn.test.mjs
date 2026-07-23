@@ -211,6 +211,13 @@ test('maybe_generate_rnd_mon preserves every source gate', () => {
             state: randomMonsterTurnState({ demigod: true }),
             expectedBound: 25,
         },
+        {
+            name: 'demigod below the stronghold',
+            // Demigod status takes precedence even at depth 11, where an
+            // ordinary hero would use the deeper-level bound of 50.
+            state: randomMonsterTurnState({ demigod: true, depth: 11 }),
+            expectedBound: 25,
+        },
     ]) {
         const bounds = [];
         const creations = [];
