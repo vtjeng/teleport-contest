@@ -1560,6 +1560,62 @@
         ]
       },
       "recordedAt": "2026-07-23T12:05:35.871Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0"
+      },
+      "head": "10dd52becdd3f3d2c6193b4b63483c3ad043bdaa",
+      "areas": [
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full correctness audit of exact range 32c3c65fd379384d7f9ca56a6604a0612c3ba9f0..10dd52becdd3f3d2c6193b4b63483c3ad043bdaa. Session 019f8f1e-2ce5-7df3-8ca7-df4fc8b63daf; elapsed 1031s; usage 6545252 input, 6380544 cached input, 19824 output, and 5689 reasoning tokens. Correctness, readability-risk, test-quality, variable-trace, performance, and one consolidated adjudicator completed; performance was enabled because mfndpos is a per-monster hot path, while concurrency was disabled because these paths are synchronous, serialized, and non-reentrant. Counts: 16 raw and deduplicated, 15 confirmed and applied in linked audit-fix commit 4607698b36e976b398303b1308794d818dd01ab9, 1 rejected, 0 deferred or unverified. Three production fixes add the source Charisma floor to Conflict, make a missing trap-resistance owner transactional, and evaluate weapon visibility after assignment and old-light teardown. Four contract fixes document Conflict draws, mfndpos output metadata and hero-memory mutation, reusable scratch ownership, and artifact-light preflight. Seven test fixes cover Sokoban traps, displaced scary coordinates, shared displacement flags, zombie and Wizard Tower aggression, every online2 line family, corpse filtering, and combined tool selection. The yellow-dragon stoning claim was rejected because upstream worn resistance checks oc_oprop and yellow dragon armor supplies ACID_RES, not STONE_RES; the adjudicator initially conflated artifact and worn branches, then corrected all three judgments after direct source counter-evidence. Validation: 1158 tests and all four generated-source checks passed. Development remained 204 screens, 77588 PRNG calls, and 243 cursors. An ABBA Node 22.18.0 benchmark used seven 50000-call rounds per side across open-floor, trap, door, occupancy, and eel-retry cases; exact poss and info outputs matched, aggregate median time improved 33.4 percent and 32.9 percent in the two orderings, while GC event counts and time were effectively unchanged. The helpers remain behind the explicit unowned live monster-action boundary, so no fresh command differential can exercise these fixes yet. Direct post-fix inspection found no independent simplification, clarity, or repeat-review trigger; no optional follow-up audit or holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1031,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 16,
+          "confirmed": 15,
+          "applied": 15,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 7,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 1
+        },
+        "productionDefects": [
+          {
+            "summary": "apply the polymorphed nymph and amorous-demon Charisma floor to Conflict resistance",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "restore remembered hero coordinates and movement scratch output when a required trap-resistance owner is absent",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "evaluate monster visibility after weapon assignment and old artifact-light teardown",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T13:56:46.893Z"
     }
   ]
 }
