@@ -4,11 +4,13 @@
 import {
     A_WIS,
     BLINDED,
+    BURN,
     CORR,
     DOOR,
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
+    ENGRAVE,
     GPCOORDS_COMFULL,
     GPCOORDS_COMPASS,
     GPCOORDS_MAP,
@@ -16,9 +18,18 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
+    HEADSTONE,
     SCORR,
     SDOOR,
     STATUE_TRAP,
+    SV0,
+    SV1,
+    SV2,
+    SV3,
+    SV4,
+    SV5,
+    SV6,
+    SV7,
     WM_MASK,
     isok,
 } from './const.js';
@@ -30,10 +41,13 @@ import {
     flush_screen,
     hero_glyph_info,
     newsym,
+    object_glyph_info,
     show_glyph_cell,
+    terrain_glyph,
     trap_glyph_info,
 } from './display.js';
 import { on_level } from './dungeon.js';
+import { can_reach_floor, engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { LENSES } from './objects.js';
 import { rn2, rnl } from './rng.js';
@@ -163,8 +177,99 @@ function defaultSearchDisplay(x, y, env) {
     newsym(x, y);
 }
 
-function defaultFoundTrapDisplay(trap, x, y, env) {
-    defaultSearchDisplay(x, y, env);
+const FELT_SEENV = Object.freeze([
+    Object.freeze([SV2, SV1, SV0]),
+    Object.freeze([SV3, 0, SV7]),
+    Object.freeze([SV4, SV5, SV6]),
+]);
+
+function rememberedSearchGlyph(glyph) {
+    const remembered = {
+        ch: glyph.ch,
+        color: glyph.color,
+        decgfx: glyph.dec,
+        displayCh: glyph.displayCh ?? null,
+    };
+    if (glyph.attr) remembered.attr = glyph.attr;
+    if (glyph.displayColor)
+        remembered.displayColor = glyph.displayColor;
+    if (glyph.rgb) remembered.rgb = [...glyph.rgb];
+    return remembered;
+}
+
+// C ref: display.c feel_location(), specialized to the reachable-floor,
+// adjacent-square branch used by intrinsic searching in a fresh blind game.
+// Secret doors and corridors cannot contain floor objects; an ordinary trap
+// may be covered by an object, which must remain visible as clutter so
+// find_trap() can perform its temporary clear-and-wait sequence.
+function defaultFeelSearchLocation(x, y, env) {
+    const { state } = env;
+    if (state !== game) {
+        throw new Error(
+            'automatic search requires an injected tactile mapping '
+            + 'for non-global state',
+        );
+    }
+    if (!propertyActiveUnblocked(state.u, BLINDED)) {
+        defaultSearchDisplay(x, y, env);
+        return;
+    }
+    const dx = x - state.u.ux;
+    const dy = y - state.u.uy;
+    if (!isok(x, y) || Math.abs(dx) > 1 || Math.abs(dy) > 1
+        || (!dx && !dy)) {
+        throw new Error(
+            'automatic search tactile mapping requires an adjacent square',
+        );
+    }
+    if (!can_reach_floor(false, state)
+        || state.u.uinwater || state.u.uball || state.u.uchain) {
+        throw new Error(
+            'automatic search reached an unsupported tactile floor state',
+        );
+    }
+
+    const location = state.level.at(x, y);
+    location.seenv = (location.seenv ?? 0)
+        | FELT_SEENV[dy + 1][dx + 1];
+    const engraving = engr_at(x, y, state);
+    if (engraving
+        && [ENGRAVE, HEADSTONE, BURN].includes(engraving.engr_type)) {
+        engraving.erevealed = 1;
+    }
+
+    const object = state.level.objects?.[x]?.[y] ?? null;
+    const trap = t_at(x, y, state);
+    const glyph = object
+        ? object_glyph_info(object, state)
+        : trap?.tseen
+            ? trap_glyph_info(trap, state)
+            : terrain_glyph(location, x, y, state);
+    if (state.level.flags?.hero_memory)
+        location.remembered_glyph = rememberedSearchGlyph(glyph);
+    show_glyph_cell(
+        x,
+        y,
+        glyph.ch,
+        glyph.color,
+        glyph.dec,
+        glyph.attr ?? 0,
+        glyph.displayCh ?? null,
+        glyph.displayColor ?? null,
+    );
+    if (state.level.lastseentyp?.[x])
+        state.level.lastseentyp[x][y] = location.typ;
+}
+
+function defaultFeelSearchNewSym(x, y, env) {
+    if (propertyActiveUnblocked(env.state.u, BLINDED))
+        defaultFeelSearchLocation(x, y, env);
+    else
+        defaultSearchDisplay(x, y, env);
+}
+
+async function defaultFoundTrapDisplay(trap, x, y, env) {
+    await env.feelNewSym(x, y, env);
     const shown = env.state.level.at(x, y);
     const expected = trap_glyph_info(trap, env.state);
     return shown.disp_ch === expected.ch
@@ -271,8 +376,14 @@ function normalizeSearchEnv(rawEnv = {}) {
             defaultVisionMutation,
         ),
         unblockPoint: operation('unblockPoint', defaultVisionMutation),
-        feelLocation: operation('feelLocation', defaultSearchDisplay),
-        feelNewSym: operation('feelNewSym', defaultSearchDisplay),
+        feelLocation: operation(
+            'feelLocation',
+            defaultFeelSearchLocation,
+        ),
+        feelNewSym: operation(
+            'feelNewSym',
+            defaultFeelSearchNewSym,
+        ),
         displayFoundTrap: operation(
             'displayFoundTrap',
             defaultFoundTrapDisplay,
@@ -325,8 +436,6 @@ function requireExerciseRandom(env) {
 function validateDisplayCapability(env, name, detail) {
     requireOperation(env, name, detail);
     if (env.state !== game) requireInjected(env, name, 'non-global state');
-    if (propertyActiveUnblocked(env.state.u, BLINDED))
-        requireInjected(env, name, 'blind tactile mapping');
 }
 
 function preflightSecretDoor(env) {

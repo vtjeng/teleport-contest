@@ -23,13 +23,28 @@ import {
     NO_SPELL,
     OVERLOADED,
     PIT,
+    DOOR,
     SLT_ENCUMBER,
+    SV6,
     W_ARMF,
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { AT_HUGS, M1_CLING, M1_HIDE } from '../js/monsters.js';
+import {
+    AT_HUGS,
+    M1_CLING,
+    M1_HIDE,
+    PM_KITTEN,
+    PM_LICHEN,
+} from '../js/monsters.js';
+import {
+    loadFirstCompleteTurnRecipe,
+} from './run-first-complete-turn.mjs';
+import {
+    chunkRecipe,
+    RECORDER_SEGMENT_LIMIT,
+} from './run-first-command-closure.mjs';
 
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
@@ -542,11 +557,14 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
         { x: game.u.ux, y: game.u.uy },
     );
 
-    const pet = liveMonsters().find((monster) => monster.mtame);
-    assert.ok(pet, 'the starting pet remains on the live monster list');
-    assert.ok(
-        pet.movement >= 12,
-        'the starting pet receives its first source movement ration',
+    // mcalcmove() rounds the speed-18 kitten up to 24 on rn2(12)=2,
+    // while the speed-1 lichen rounds down to zero on rn2(12)=4.
+    assert.deepEqual(
+        liveMonsters().map((monster) => [
+            monster.data.pmidx,
+            monster.movement,
+        ]),
+        [[PM_KITTEN, 24], [PM_LICHEN, 0]],
     );
     const knownSpells = game.svs.spl_book
         .filter((spell) => spell.sp_id !== NO_SPELL);
@@ -579,6 +597,58 @@ test('first unobstructed move records its destination before the next prompt', a
     assert.equal(game.moves, 2);
     assert.equal(game.hero_seq, 17);
     assert.equal(game.u.umoved, false);
+    const nearbyLichen = liveMonsters().find(
+        (monster) => monster.data.pmidx === PM_LICHEN,
+    );
+    assert.ok(nearbyLichen, 'the selected east step ends beside a lichen');
+    assert.equal(game.mvitals[PM_LICHEN].seen_close, 1);
+    assert.equal(game.context.lifelist.total_seen_upclose, 2);
+    assert.deepEqual(
+        game.gb.bhitpos,
+        { x: nearbyLichen.mx, y: nearbyLichen.my },
+    );
+    assert.equal(game.gn.notonhead, false);
+});
+
+test('blind first-turn search maps a discovered door by touch', async () => {
+    // Reuse the seed sighted first.  The contestant module serves multiple
+    // runSegment() calls, while each C segment starts with zeroed file-static
+    // vision buffers.
+    await runSegment(firstTurnInput({
+        seed: 3200018,
+        datetime: '20260723161500',
+        name: 'SearchHit',
+        role: 'Ranger',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        command: '.',
+    }));
+    const replay = await runSegment(firstTurnInput({
+        seed: 3200018,
+        datetime: '20260723161500',
+        name: 'BlindSearchHit',
+        role: 'Ranger',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        command: '.',
+        options: ',blind',
+    }));
+
+    assert.equal(replay.getScreens().length, 3);
+    assert.equal(game.moves, 2);
+    assert.equal(game.hero_seq, 17);
+    assert.equal(
+        game.level.at(game.u.ux - 1, game.u.uy - 1).disp_ch,
+        ' ',
+    );
+    // This seed's successful rnl(7) converts the southeast SDOOR and
+    // feel_location() records the southeast viewing vector.
+    const foundDoor = game.level.at(game.u.ux + 1, game.u.uy + 1);
+    assert.equal(foundDoor.typ, DOOR);
+    assert.equal(foundDoor.seenv & SV6, SV6);
+    assert.equal(foundDoor.remembered_glyph.ch, foundDoor.disp_ch);
 });
 
 test('first-turn automatic search stays between allocation and ambient sound', async () => {
@@ -628,4 +698,27 @@ test('first turn maintains the source cloud-room region in monster order', async
     // The permanent region begins at -1; its first five fog-cloud occupants
     // each add five until ttl reaches the source's 20-point maintenance gate.
     assert.equal(cloud.ttl, 24);
+});
+
+test('first-complete-turn matrix stays clean and recorder-sized', () => {
+    const recipe = loadFirstCompleteTurnRecipe();
+    assert.equal(recipe.segments.length, 17);
+    const chunks = chunkRecipe(recipe);
+    assert.deepEqual(
+        chunks.map(({ segments }) => segments.length),
+        [RECORDER_SEGMENT_LIMIT, 7],
+    );
+    assert.equal(
+        chunks.reduce((total, chunk) => total + chunk.segments.length, 0),
+        recipe.segments.length,
+    );
+    assert.ok(
+        chunks.every(
+            ({ segments }) => segments.length <= RECORDER_SEGMENT_LIMIT,
+        ),
+    );
+    for (const segment of recipe.segments) {
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        assert.match(segment.moves, /^ +[.hl]$/u);
+    }
 });

@@ -681,12 +681,27 @@ export function couldsee(x, y, state = game) {
 }
 
 export function init_vision_globals() {
+    // A runSegment() call is a new NetHack process.  C's file-static vision
+    // buffers therefore begin zeroed for every segment; clear the module
+    // buffers explicitly so a prior game cannot redraw stale visible cells
+    // while initializing a blind hero.
+    for (let row = 0; row < ROWNO; ++row) {
+        cs_buf0[row].fill(0);
+        cs_buf1[row].fill(0);
+    }
+    cs_rmin0.fill(COLNO);
+    cs_rmax0.fill(0);
+    cs_rmin1.fill(COLNO);
+    cs_rmax1.fill(0);
     game.viz_array = cs_buf0;
     game.active_buf = 0;
+    game.vision_full_recalc = 0;
     game.vis_step = 0;
     game.vis_start_col = 0;
     game.vis_start_row = 0;
     game.cs_rows = null;
     game.cs_left = null;
     game.cs_right = null;
+    game._viz_rmin = null;
+    game._viz_rmax = null;
 }

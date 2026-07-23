@@ -657,7 +657,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.nhDisplay.inputQueueLength, 1);
 });
 
-test('first turn runs fog upkeep but later parked guards remain fail-closed', async () => {
+test('first-turn fog upkeep and later monster work stay source-owned', async () => {
     await runSegment({
         seed: 840015,
         datetime: COMMAND_DATETIME,
@@ -706,7 +706,33 @@ test('first turn runs fog upkeep but later parked guards remain fail-closed', as
     assert.deepEqual(game.level.regions[0].monsters, [fogCloud.m_id]);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 
+    // movemon_singlemon() runs fog upkeep before its movement-ration gate.
+    // Once residual replay owns later turns, a missing cloud must therefore
+    // reject before any hero or PRNG state changes.
+    game.level.regions = [];
+    fogCloud.movement = 0;
+    game.context.move = 1;
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+    const beforeFogBoundary = {
+        hunger: game.u.uhunger,
+        moves: game.moves,
+        movement: game.u.umovement,
+        rng: [...getRngLog()],
+    };
+    await assert.rejects(
+        moveloop_core(),
+        /unported monster-action phase/u,
+    );
+    assert.deepEqual({
+        hunger: game.u.uhunger,
+        moves: game.moves,
+        movement: game.u.umovement,
+        rng: getRngLog(),
+    }, beforeFogBoundary);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+
     // A parked guard is handled even when dead and below a movement ration.
+    game.level.monsters[x][y] = null;
     game.level.monlist = {
         isgd: true,
         mhp: 0,
@@ -718,7 +744,6 @@ test('first turn runs fog upkeep but later parked guards remain fail-closed', as
         nmon: null,
     };
     game.context.move = 1;
-    game.nhDisplay.pushKey(commandKeyCode('~'));
     const parked = {
         hunger: game.u.uhunger,
         moves: game.moves,
@@ -734,6 +759,33 @@ test('first turn runs fog upkeep but later parked guards remain fail-closed', as
         movement: game.u.umovement,
     }, parked);
     assert.equal(game.nhDisplay.inputQueueLength, 1);
+});
+
+test('hero fog upkeep keeps its every-input region owner', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:HeroFogWork,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,!acoustics',
+        moves: ' ',
+    });
+    game.youmonst.data = game.mons[PM_FOG_CLOUD];
+    game.level.regions = [];
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+
+    await moveloop_core();
+
+    assert.equal(game.moves, 1);
+    assert.equal(game.level.regions.length, 1);
+    assert.equal(game.level.regions[0].visible, true);
+    assert.equal(
+        game.level.regions[0].bounding_box.lx <= game.u.ux
+            && game.level.regions[0].bounding_box.hx >= game.u.ux
+            && game.level.regions[0].bounding_box.ly <= game.u.uy
+            && game.level.regions[0].bounding_box.hy >= game.u.uy,
+        true,
+    );
 });
 
 test('moveloop zero generation gate creates before the next allocation', async () => {

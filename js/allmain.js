@@ -397,7 +397,7 @@ function firstTurnBoundary(reason) {
     );
 }
 
-function freshTurnRegionEnv(state, random) {
+function regionEffectEnv(state, random) {
     return {
         state,
         random,
@@ -415,8 +415,8 @@ function freshTurnRegionEnv(state, random) {
     };
 }
 
-async function freshTurnEveryTurnEffect(monster, env) {
-    const regionEnv = freshTurnRegionEnv(env.state, env.random);
+async function runEveryTurnEffectWithRegionHooks(monster, env) {
+    const regionEnv = regionEffectEnv(env.state, env.random);
     await m_everyturn_effect(monster, {
         ...env,
         createGasCloud: (x, y, size, damage, effectEnv) =>
@@ -508,7 +508,7 @@ function unavailableFirstTurnOperation(operation) {
 async function advanceFirstFreshTurn(state) {
     preflightFirstFreshTurn(state);
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
-    const regionEnv = freshTurnRegionEnv(state, random);
+    const regionEnv = regionEffectEnv(state, random);
 
     state.u.umovement -= NORMAL_SPEED;
     state.context.mon_moving = true;
@@ -520,7 +520,7 @@ async function advanceFirstFreshTurn(state) {
             moveSingleMonster: (monster, env) =>
                 movemon_singlemon(monster, {
                     ...env,
-                    everyTurnEffect: freshTurnEveryTurnEffect,
+                    everyTurnEffect: runEveryTurnEffectWithRegionHooks,
                 }),
             clearBypasses: unavailableFirstTurnOperation(
                 'monster bypass cleanup',
@@ -677,6 +677,9 @@ export async function moveloop_core() {
         }
     }
 
+    // C has a separate clear_splitobjs() at movemon()'s terminal boundary.
+    // This one is the once-per-player-input owner from allmain.c, so it also
+    // runs when no monster scan occurred and on residual replay paths.
     clear_splitobjs(g);
 
     // Vision + display
@@ -688,7 +691,7 @@ export async function moveloop_core() {
     await bot();
     await flush_screen(1);
 
-    await freshTurnEveryTurnEffect(g.youmonst, {
+    await runEveryTurnEffectWithRegionHooks(g.youmonst, {
         state: g,
         random: { d, rn1, rn2, rnd, rne, rnl, rnz },
     });

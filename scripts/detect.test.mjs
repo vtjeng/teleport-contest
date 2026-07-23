@@ -17,12 +17,19 @@ import {
     SCORR,
     SDOOR,
     STATUE_TRAP,
+    SV2,
 } from '../js/const.js';
 import {
     _detectInternals,
     cvt_sdoor_to_door,
     dosearch0,
 } from '../js/detect.js';
+import {
+    terrain_glyph,
+    trap_glyph_info,
+} from '../js/display.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { LENSES } from '../js/objects.js';
 
 function searchState() {
@@ -127,6 +134,49 @@ function recordingOperations(state, events) {
     };
 }
 
+async function blindGlobalSearchState() {
+    await runSegment({
+        seed: 2026072301,
+        datetime: '20260723120000',
+        nethackrc: 'OPTIONS=name:TactileSearch,role:Ranger,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,blind\n',
+        moves: ' ',
+    });
+    const target = { x: game.u.ux - 1, y: game.u.uy - 1 };
+    for (let x = game.u.ux - 1; x <= game.u.ux + 1; ++x) {
+        for (let y = game.u.uy - 1; y <= game.u.uy + 1; ++y) {
+            if (x === game.u.ux && y === game.u.uy) continue;
+            const location = game.level.at(x, y);
+            location.typ = ROOM;
+            location.flags = location.doormask = 0;
+            location.remembered_glyph = undefined;
+            location.seenv = 0;
+            game.level.objects[x][y] = null;
+            game.level.monsters[x][y] = null;
+        }
+    }
+    game.level.traps = [];
+    return target;
+}
+
+function tactileSearchRandom(expectedBound) {
+    const calls = [];
+    return {
+        calls,
+        rnl(bound) {
+            calls.push(`rnl(${bound})`);
+            assert.equal(bound, expectedBound);
+            return 0;
+        },
+        rn2(bound) {
+            calls.push(`rn2(${bound})`);
+            assert.equal(bound, 19);
+            return 18;
+        },
+    };
+}
+
 test('automatic search reveals a secret door in source operation order', async () => {
     const state = searchState();
     const location = state.level.at(9, 9);
@@ -215,6 +265,22 @@ test('automatic search reveals a secret corridor before exercise and display', a
     random.done();
 });
 
+test('blind global search maps a secret corridor through tactile defaults', async () => {
+    const target = await blindGlobalSearchState();
+    const location = game.level.at(target.x, target.y);
+    location.typ = SCORR;
+    const random = tactileSearchRandom(7);
+
+    await dosearch0(1, { state: game, random });
+
+    const expected = terrain_glyph(location, target.x, target.y, game);
+    assert.equal(location.typ, CORR);
+    assert.equal(location.seenv & SV2, SV2);
+    assert.deepEqual(random.calls, ['rnl(7)', 'rn2(19)']);
+    assert.equal(location.disp_ch, expected.ch);
+    assert.equal(location.remembered_glyph.ch, expected.ch);
+});
+
 test('ordinary trap discovery marks seen before exercise and display', async () => {
     const state = searchState();
     const trap = {
@@ -249,6 +315,28 @@ test('ordinary trap discovery marks seen before exercise and display', async () 
     assert.equal(trap.tseen, true);
     assert.equal(state.u.aexe[2], 1);
     random.done();
+});
+
+test('blind global search maps an ordinary trap through tactile defaults', async () => {
+    const target = await blindGlobalSearchState();
+    const trap = {
+        tx: target.x,
+        ty: target.y,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    game.level.traps.push(trap);
+    const random = tactileSearchRandom(8);
+
+    await dosearch0(1, { state: game, random });
+
+    const expected = trap_glyph_info(trap, game);
+    const location = game.level.at(target.x, target.y);
+    assert.equal(trap.tseen, true);
+    assert.equal(location.seenv & SV2, SV2);
+    assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
+    assert.equal(location.disp_ch, expected.ch);
+    assert.equal(location.remembered_glyph.ch, expected.ch);
 });
 
 test('statue discovery activates, conditionally exercises, and returns early', async () => {
