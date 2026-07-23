@@ -1,12 +1,24 @@
 {
-  "version": 3,
+  "version": 4,
   "trackingBase": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
   "enforcementBase": "f11f5c2bfb80d323ac171f83b0a3214d9dbaf9b3",
+  "legacyPassCount": 21,
   "thresholds": {
     "reviewAdvisoryCommits": 3,
     "reviewAdvisoryChangedLines": 500,
     "reviewCommits": 10,
     "reviewChangedLines": 1000
+  },
+  "legacyAreaExpansions": {
+    "world": [
+      "generation",
+      "monsters",
+      "world-effects"
+    ],
+    "interaction": [
+      "commands",
+      "display"
+    ]
   },
   "areas": [
     {
@@ -60,62 +72,120 @@
         "js/u_init_inventory_data.js",
         "js/u_init_inventory_use.js",
         "js/worn.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/objects.js",
+          "generator": "scripts/generate-objects.mjs",
+          "check": "node scripts/generate-objects.mjs --check"
+        }
       ]
     },
     {
-      "id": "world",
-      "label": "Monsters and world",
+      "id": "generation",
+      "label": "Level and room generation",
       "paths": [
-        "js/bury.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
-        "js/dog.js",
-        "js/engrave.js",
-        "js/grave.js",
-        "js/light.js",
-        "js/makemon.js",
-        "js/makemon_create.js",
         "js/mineralize.js",
         "js/mklev.js",
-        "js/mktrap.js",
-        "js/mondata.js",
-        "js/monst.js",
-        "js/monsters.js",
         "js/object_generation.js",
-        "js/random_engraving.js",
-        "js/random_text.js",
-        "js/random_text_data.js",
-        "js/region.js",
         "js/rect.js",
         "js/room_coordinates.js",
         "js/room_features.js",
         "js/rooms.js",
         "js/shknam.js",
         "js/sp_lev_object.js",
-        "js/terrain.js",
-        "js/teleport.js",
         "js/themeroom_data.js",
         "js/themeroom_fill.js",
         "js/themerooms.js",
-        "js/track.js",
-        "js/trap.js",
-        "js/tutorial_level.js",
-        "js/vision.js"
+        "js/tutorial_level.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/dungeon_data.js",
+          "generator": "scripts/generate-dungeon-data.mjs",
+          "check": "node scripts/generate-dungeon-data.mjs --check"
+        },
+        {
+          "path": "js/themeroom_data.js",
+          "generator": "scripts/generate-themeroom-data.mjs",
+          "check": "node scripts/generate-themeroom-data.mjs --check"
+        }
       ]
     },
     {
-      "id": "interaction",
-      "label": "Commands and display",
+      "id": "monsters",
+      "label": "Monsters and placement",
+      "paths": [
+        "js/dog.js",
+        "js/makemon.js",
+        "js/makemon_create.js",
+        "js/mondata.js",
+        "js/monst.js",
+        "js/monsters.js",
+        "js/teleport.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/monsters.js",
+          "generator": "scripts/generate-monsters.mjs",
+          "check": "node scripts/generate-monsters.mjs --check"
+        }
+      ]
+    },
+    {
+      "id": "world-effects",
+      "label": "Terrain, traps, vision, and effects",
+      "paths": [
+        "js/bury.js",
+        "js/engrave.js",
+        "js/grave.js",
+        "js/light.js",
+        "js/mktrap.js",
+        "js/random_engraving.js",
+        "js/random_text.js",
+        "js/random_text_data.js",
+        "js/region.js",
+        "js/terrain.js",
+        "js/track.js",
+        "js/trap.js",
+        "js/vision.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/random_text_data.js",
+          "generator": "scripts/generate-random-text-data.mjs",
+          "check": "node scripts/generate-random-text-data.mjs --check"
+        }
+      ]
+    },
+    {
+      "id": "commands",
+      "label": "Commands, input, and messages",
       "paths": [
         "js/cmd.js",
+        "js/input.js",
+        "js/tty_menu.js",
+        "js/tty_message.js"
+      ]
+    },
+    {
+      "id": "display",
+      "label": "Display and symbols",
+      "paths": [
         "js/display.js",
         "js/game_display.js",
         "js/glyph_ids.js",
-        "js/input.js",
         "js/symbol_data.js",
-        "js/symbols.js",
-        "js/tty_menu.js",
-        "js/tty_message.js"
+        "js/symbols.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/symbol_data.js",
+          "generator": "scripts/generate-symbol-data.mjs",
+          "check": "node scripts/generate-symbol-data.mjs --check"
+        }
       ]
     },
     {

@@ -164,6 +164,14 @@ Run the heavier checks at these boundaries:
 those values change, update this policy text and the quality-status tests in the
 same chunk.
 
+Mechanically generated outputs declared in `QUALITY.json` do not contribute to
+changed-line thresholds. Their generators do contribute, and a commit touching
+an output or generator still contributes to the commit threshold unless it is a
+linked audit-fix commit as described below. The declaration must name the
+generator and regeneration check, and reviews of that area must include both.
+Ledger-only commits already fall outside the path-scoped commit count; a commit
+that also changes an area-owned path is not ledger-only.
+
 - Three unreviewed implementation commits or 500 changed production lines in an
   affected quality area are an advisory batching checkpoint. Run a full
   correctness pass no later than ten unreviewed implementation commits or 1,000
@@ -214,12 +222,21 @@ same chunk.
   description. Tracker-only SHA and score entries do not trigger it. Do not run
   it on unchanged prose.
 - After applying audit fixes, inspect the fix diff directly and run
-  proportionate focused and broad validation. Do not launch another formal pass
-  unless the fixes independently introduce a trigger. Keep the review frontier
-  at the audited commit and record the exact fix commits as the start of the
-  next correctness range. No audit-fix tail may remain before a pull request,
-  release, authorized holdout evaluation, or closure of the first-command
-  milestone.
+  proportionate focused and broad validation. A commit confined to confirmed
+  audit findings may carry `Audit-fix-for: <full-reviewed-head-sha>`; do not use
+  that trailer for unrelated changes. The dashboard excludes a validly linked
+  audit-fix commit from the commit threshold but continues to count its changed
+  production lines.
+- Audit-fix commits remain correctness debt until reviewed. Away from a no-tail
+  boundary, include them in the next scheduled correctness range. At a pull
+  request, release, authorized holdout evaluation, or closure of the
+  first-command milestone, fixes confined to confirmed findings may instead be
+  covered by a `light` delta review. That review checks the exact fix commits
+  for source fidelity, end-to-end state and PRNG effects, test adequacy, and
+  collateral changes without repeating the original full-range finder search.
+  A clean light delta review closes the tail. Run a full pass when the fixes
+  expand scope, change a shared contract, produce an unexplained mismatch, or
+  independently meet a normal full-review trigger.
 
 Pass rules:
 
@@ -241,6 +258,9 @@ Pass rules:
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
   prohibit access to `sessions/holdout/` and never provide holdout material.
+  For a declared generated output, include its generator and regeneration
+  check even though the output's mechanical lines do not count toward the
+  threshold.
 - For `$audit-diff-correctness`, use the skill's default context routing. Add
   explicit finder `audiences` only for exceptions or unusually large context;
   use `all` only for universal constraints. Pass compact validation summaries
@@ -263,6 +283,15 @@ Pass rules:
   progress does not automatically create simplification debt; the dashboard may
   report the last simplification frontier for context. Prose passes are not
   ledger records.
+- For every newly recorded correctness or simplification pass, include
+  structured audit metrics: elapsed wall time from launch through the completed
+  report; raw, deduplicated, confirmed, applied, deferred, rejected, and
+  unverified counts; confirmed-finding totals by production, tests, clarity,
+  simplification, and other categories; and each confirmed production defect
+  with all finders that reported it. Finder attribution must preserve unique
+  discoveries rather than assigning them to the combined pass. For non-ledger
+  clarity and copyedit passes, include elapsed time and finding counts in the
+  surrounding review or publication evidence.
 - For a full review record, give correctness's exact range and include raw,
   deduplicated, confirmed, and applied counts; enabled optional finders; fixes
   and deferrals; unverified judgments; notable rejections and their

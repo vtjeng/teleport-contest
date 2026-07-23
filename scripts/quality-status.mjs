@@ -21,9 +21,120 @@ const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const PASS_KINDS = new Set(['review', 'simplification']);
 const PASS_OUTCOMES = new Set(['changed', 'no-change']);
 const REVIEW_LEVELS = new Set(['light', 'full']);
+const AUDIT_COUNT_FIELDS = Object.freeze([
+  'raw',
+  'deduplicated',
+  'confirmed',
+  'applied',
+  'deferred',
+  'rejected',
+  'unverified',
+]);
+const AUDIT_CATEGORY_FIELDS = Object.freeze([
+  'production',
+  'tests',
+  'clarity',
+  'simplification',
+  'other',
+]);
+const AUDIT_RESOLUTIONS = new Set(['applied', 'deferred']);
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function fail(message) {
   throw new Error(message);
+}
+
+function validateExactNonnegativeCounts(value, fields, label) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    fail(`${label} must be an object`);
+  }
+  const actual = Object.keys(value).sort();
+  const expected = [...fields].sort();
+  if (actual.length !== expected.length
+      || actual.some((field, index) => field !== expected[index])) {
+    fail(`${label} must contain exactly: ${fields.join(', ')}`);
+  }
+  for (const field of fields) {
+    if (!Number.isInteger(value[field]) || value[field] < 0) {
+      fail(`${label}.${field} must be a nonnegative integer`);
+    }
+  }
+}
+
+export function validateAuditMetrics(metrics) {
+  if (!metrics || typeof metrics !== 'object' || Array.isArray(metrics)) {
+    fail('auditMetrics must be an object');
+  }
+  if (!Number.isInteger(metrics.wallTimeSeconds) || metrics.wallTimeSeconds < 1) {
+    fail('auditMetrics.wallTimeSeconds must be a positive integer');
+  }
+  validateExactNonnegativeCounts(
+    metrics.counts,
+    AUDIT_COUNT_FIELDS,
+    'auditMetrics.counts',
+  );
+  validateExactNonnegativeCounts(
+    metrics.categories,
+    AUDIT_CATEGORY_FIELDS,
+    'auditMetrics.categories',
+  );
+
+  const { counts, categories } = metrics;
+  if (counts.raw < counts.deduplicated) {
+    fail('auditMetrics raw count cannot be below the deduplicated count');
+  }
+  if (counts.deduplicated
+      !== counts.confirmed + counts.rejected + counts.unverified) {
+    fail('auditMetrics deduplicated count must resolve to confirmed, rejected, or unverified');
+  }
+  if (counts.confirmed !== counts.applied + counts.deferred) {
+    fail('auditMetrics confirmed count must resolve to applied or deferred');
+  }
+  const categorized = AUDIT_CATEGORY_FIELDS.reduce(
+    (total, field) => total + categories[field],
+    0,
+  );
+  if (categorized !== counts.confirmed) {
+    fail('auditMetrics categories must total the confirmed count');
+  }
+
+  if (!Array.isArray(metrics.productionDefects)) {
+    fail('auditMetrics.productionDefects must be an array');
+  }
+  if (metrics.productionDefects.length !== categories.production) {
+    fail('auditMetrics.productionDefects must enumerate every production finding');
+  }
+  let appliedProduction = 0;
+  let deferredProduction = 0;
+  for (const [index, defect] of metrics.productionDefects.entries()) {
+    const label = `auditMetrics.productionDefects[${index}]`;
+    if (!defect || typeof defect !== 'object' || Array.isArray(defect)) {
+      fail(`${label} must be an object`);
+    }
+    if (typeof defect.summary !== 'string' || defect.summary.trim().length === 0) {
+      fail(`${label}.summary must be nonempty`);
+    }
+    if (!Array.isArray(defect.foundBy) || defect.foundBy.length === 0) {
+      fail(`${label}.foundBy must name at least one finder`);
+    }
+    if (new Set(defect.foundBy).size !== defect.foundBy.length) {
+      fail(`${label}.foundBy cannot name a finder twice`);
+    }
+    for (const finder of defect.foundBy) {
+      if (typeof finder !== 'string' || !SLUG_PATTERN.test(finder)) {
+        fail(`${label}.foundBy has invalid finder id: ${finder}`);
+      }
+    }
+    if (!AUDIT_RESOLUTIONS.has(defect.resolution)) {
+      fail(`${label}.resolution must be applied or deferred`);
+    }
+    if (defect.resolution === 'applied') appliedProduction += 1;
+    else deferredProduction += 1;
+  }
+  if (appliedProduction > counts.applied || deferredProduction > counts.deferred) {
+    fail('auditMetrics production resolutions exceed the overall resolution counts');
+  }
+  return metrics;
 }
 
 function git(args, options = {}) {
@@ -91,18 +202,87 @@ function lineCount(contents) {
   return newlineCount + (contents.endsWith('\n') ? 0 : 1);
 }
 
-function committedMetrics(base, head, paths) {
-  const commits = Number.parseInt(
-    git(['rev-list', '--count', `${base}..${head}`, '--', ...paths]),
-    10,
+function areaMetricPaths(area) {
+  return [
+    ...area.paths,
+    ...(area.generatedOutputs ?? []).map(({ generator }) => generator),
+  ];
+}
+
+function generatedOutputPaths(area) {
+  return (area.generatedOutputs ?? []).map(({ path }) => path);
+}
+
+export function excludeGeneratedLines(metrics, generatedMetrics) {
+  if (generatedMetrics.additions > metrics.additions
+      || generatedMetrics.deletions > metrics.deletions) {
+    fail('generated line totals exceed their enclosing quality metrics');
+  }
+  return {
+    ...metrics,
+    additions: metrics.additions - generatedMetrics.additions,
+    deletions: metrics.deletions - generatedMetrics.deletions,
+    excludedGeneratedLines: generatedMetrics.additions + generatedMetrics.deletions,
+  };
+}
+
+export function parseAuditFixCommitLog(output) {
+  if (!output) return [];
+  return output.split('\n').filter(Boolean).map((line) => {
+    const separator = line.indexOf('\t');
+    const sha = separator === -1 ? line : line.slice(0, separator);
+    if (!SHA_PATTERN.test(sha)) fail(`invalid commit log row: ${line}`);
+    const trailers = separator === -1 ? '' : line.slice(separator + 1);
+    return {
+      sha,
+      auditFixFor: trailers.split(',').map((value) => value.trim()).filter(Boolean),
+    };
+  });
+}
+
+export function countReviewCommits(
+  rows,
+  validReviewHeads,
+  ancestorCheck = () => true,
+) {
+  let excludedCommits = 0;
+  for (const row of rows) {
+    const linked = row.auditFixFor.some((reviewHead) => (
+      validReviewHeads.has(reviewHead)
+      && ancestorCheck(reviewHead, row.sha)
+    ));
+    if (linked) excludedCommits += 1;
+  }
+  return { commits: rows.length - excludedCommits, excludedCommits };
+}
+
+function committedMetrics(base, head, area, validReviewHeads) {
+  const paths = areaMetricPaths(area);
+  const commitLog = git([
+    'log',
+    '--format=%H%x09%(trailers:key=Audit-fix-for,valueonly,separator=%x2C)',
+    `${base}..${head}`,
+    '--',
+    ...paths,
+  ]);
+  const commitCounts = countReviewCommits(
+    parseAuditFixCommitLog(commitLog),
+    validReviewHeads,
+    isAncestor,
   );
   const stats = parseNumstat(
     git(['diff', '--numstat', `${base}..${head}`, '--', ...paths]),
   );
-  return { commits, ...stats };
+  const generatedPaths = generatedOutputPaths(area);
+  const generatedStats = generatedPaths.length === 0
+    ? parseNumstat('')
+    : parseNumstat(
+      git(['diff', '--numstat', `${base}..${head}`, '--', ...generatedPaths]),
+    );
+  return { ...commitCounts, ...excludeGeneratedLines(stats, generatedStats) };
 }
 
-function workingTreeMetrics(paths) {
+function rawWorkingTreeMetrics(paths) {
   const tracked = parseNumstat(
     git(['diff', '--numstat', 'HEAD', '--', ...paths]),
   );
@@ -124,6 +304,16 @@ function workingTreeMetrics(paths) {
   }
 
   return tracked;
+}
+
+function workingTreeMetrics(area) {
+  const paths = areaMetricPaths(area);
+  const metrics = rawWorkingTreeMetrics(paths);
+  const generatedPaths = generatedOutputPaths(area);
+  const generatedMetrics = generatedPaths.length === 0
+    ? parseNumstat('')
+    : rawWorkingTreeMetrics(generatedPaths);
+  return excludeGeneratedLines(metrics, generatedMetrics);
 }
 
 function hasChanges(metrics) {
@@ -153,13 +343,19 @@ export function formatMetrics(metrics, includeCommits = true) {
   if (includeCommits) parts.push(plural(metrics.commits, 'commit'));
   parts.push(plural(metrics.files.size, 'file'));
   parts.push(plural(changedLines(metrics), 'changed line'));
+  if ((metrics.excludedCommits ?? 0) > 0) {
+    parts.push(`${plural(metrics.excludedCommits, 'audit-fix commit')} excluded`);
+  }
+  if ((metrics.excludedGeneratedLines ?? 0) > 0) {
+    parts.push(`${plural(metrics.excludedGeneratedLines, 'generated line')} excluded`);
+  }
   if (metrics.binaryFiles > 0) {
     parts.push(plural(metrics.binaryFiles, 'binary file'));
   }
   return parts.join(', ');
 }
 
-function formatReviewDebt(total, current, dirty, thresholds) {
+export function formatReviewDebt(total, current, dirty, thresholds) {
   const dirtySuffix = hasChanges(dirty)
     ? ` + worktree (${formatMetrics(dirty, false)})`
     : '';
@@ -168,7 +364,7 @@ function formatReviewDebt(total, current, dirty, thresholds) {
   const totalUnits = total.commits + (hasChanges(dirty) ? 1 : 0);
   const currentLines = changedLines(current) + changedLines(dirty);
 
-  if (totalUnits === 0) return 'clear';
+  if (totalUnits === 0 && !hasChanges(total)) return 'clear';
   if (currentUnits >= thresholds.reviewCommits
       || currentLines >= thresholds.reviewChangedLines) {
     return `DUE (${currentUnits}/${thresholds.reviewCommits} commits, `
@@ -179,7 +375,7 @@ function formatReviewDebt(total, current, dirty, thresholds) {
     return `ADVISORY (${currentUnits}/${thresholds.reviewCommits} commits, `
       + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
   }
-  if (currentUnits > 0) {
+  if (currentUnits > 0 || currentLines > 0 || hasChanges(current)) {
     return `WATCH (${currentUnits}/${thresholds.reviewCommits} commits, `
       + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
   }
@@ -192,7 +388,7 @@ function formatReviewDebt(total, current, dirty, thresholds) {
 
 export function validateConfigShape(config) {
   if (!config || typeof config !== 'object') fail('QUALITY.json must contain an object');
-  if (config.version !== 3) fail('QUALITY.json version must be 3');
+  if (config.version !== 4) fail('QUALITY.json version must be 4');
   if (!SHA_PATTERN.test(config.trackingBase ?? '')) fail('trackingBase must be a full commit SHA');
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
@@ -224,9 +420,15 @@ export function validateConfigShape(config) {
     fail('areas must be a non-empty array');
   }
   if (!Array.isArray(config.passes)) fail('passes must be an array');
+  if (!Number.isInteger(config.legacyPassCount)
+      || config.legacyPassCount < 0
+      || config.legacyPassCount > config.passes.length) {
+    fail('legacyPassCount must identify the unstructured prefix of passes');
+  }
 
   const areaIds = new Set();
   const claimedPaths = new Map();
+  const claimedGenerators = new Map();
   for (const area of config.areas) {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(area.id ?? '')) {
       fail(`invalid area id: ${area.id}`);
@@ -248,9 +450,69 @@ export function validateConfigShape(config) {
       }
       claimedPaths.set(path, area.id);
     }
+    if (area.generatedOutputs !== undefined && !Array.isArray(area.generatedOutputs)) {
+      fail(`area ${area.id} generatedOutputs must be an array`);
+    }
+    const generatedPaths = new Set();
+    for (const generated of area.generatedOutputs ?? []) {
+      if (!generated || typeof generated !== 'object' || Array.isArray(generated)) {
+        fail(`area ${area.id} has an invalid generated output declaration`);
+      }
+      if (!area.paths.includes(generated.path)) {
+        fail(`generated output ${generated.path} is not owned by area ${area.id}`);
+      }
+      if (generatedPaths.has(generated.path)) {
+        fail(`area ${area.id} declares generated output ${generated.path} twice`);
+      }
+      generatedPaths.add(generated.path);
+      if (typeof generated.generator !== 'string'
+          || !generated.generator.startsWith('scripts/')
+          || generated.generator.includes('..')) {
+        fail(`generated output ${generated.path} needs a scripts/ generator path`);
+      }
+      if (claimedGenerators.has(generated.generator)) {
+        fail(
+          `${generated.generator} generates outputs in both `
+            + `${claimedGenerators.get(generated.generator)} and ${area.id}`,
+        );
+      }
+      claimedGenerators.set(generated.generator, area.id);
+      if (typeof generated.check !== 'string' || generated.check.trim().length === 0) {
+        fail(`generated output ${generated.path} needs a regeneration check`);
+      }
+    }
   }
 
-  for (const pass of config.passes) {
+  if (!config.legacyAreaExpansions
+      || typeof config.legacyAreaExpansions !== 'object'
+      || Array.isArray(config.legacyAreaExpansions)) {
+    fail('legacyAreaExpansions must be an object');
+  }
+  const legacyAreaIds = new Set();
+  const expandedTargets = new Set();
+  for (const [legacyId, targets] of Object.entries(config.legacyAreaExpansions)) {
+    if (!SLUG_PATTERN.test(legacyId) || areaIds.has(legacyId)) {
+      fail(`invalid legacy area id: ${legacyId}`);
+    }
+    if (!Array.isArray(targets) || targets.length === 0) {
+      fail(`legacy area ${legacyId} needs at least one current target`);
+    }
+    if (new Set(targets).size !== targets.length) {
+      fail(`legacy area ${legacyId} cannot name a target twice`);
+    }
+    for (const target of targets) {
+      if (!areaIds.has(target)) {
+        fail(`legacy area ${legacyId} names unknown target: ${target}`);
+      }
+      if (expandedTargets.has(target)) {
+        fail(`current area ${target} belongs to two legacy expansions`);
+      }
+      expandedTargets.add(target);
+    }
+    legacyAreaIds.add(legacyId);
+  }
+
+  for (const [passIndex, pass] of config.passes.entries()) {
     if (!PASS_KINDS.has(pass.kind)) fail(`invalid pass kind: ${pass.kind}`);
     if (!SHA_PATTERN.test(pass.head ?? '')) fail('pass head must be a full commit SHA');
     if (!Array.isArray(pass.areas) || pass.areas.length === 0) {
@@ -266,7 +528,12 @@ export function validateConfigShape(config) {
       fail('pass bases must match its areas exactly');
     }
     for (const areaId of pass.areas) {
-      if (!areaIds.has(areaId)) fail(`pass names unknown area: ${areaId}`);
+      if (!areaIds.has(areaId) && !legacyAreaIds.has(areaId)) {
+        fail(`pass names unknown area: ${areaId}`);
+      }
+      if (passIndex >= config.legacyPassCount && legacyAreaIds.has(areaId)) {
+        fail(`new passes cannot name legacy area: ${areaId}`);
+      }
       if (!SHA_PATTERN.test(pass.bases[areaId] ?? '')) {
         fail(`pass base for ${areaId} must be a full commit SHA`);
       }
@@ -284,15 +551,36 @@ export function validateConfigShape(config) {
     if (typeof pass.recordedAt !== 'string' || Number.isNaN(Date.parse(pass.recordedAt))) {
       fail('every pass needs an ISO recordedAt timestamp');
     }
+    if (pass.auditMetrics !== undefined) validateAuditMetrics(pass.auditMetrics);
+    if (passIndex >= config.legacyPassCount && pass.auditMetrics === undefined) {
+      fail('new quality passes require structured auditMetrics');
+    }
   }
 
-  return { areaIds, claimedPaths };
+  return { areaIds, claimedPaths, legacyAreaIds };
 }
 
 function loadConfig() {
   const config = JSON.parse(readFileSync(QUALITY_PATH, 'utf8'));
   validateConfigShape(config);
   return config;
+}
+
+function currentAreaIds(config, recordedAreaId) {
+  return config.legacyAreaExpansions[recordedAreaId] ?? [recordedAreaId];
+}
+
+function reviewHeadsByArea(config) {
+  const heads = new Map(config.areas.map(({ id }) => [id, new Set()]));
+  for (const pass of config.passes) {
+    if (pass.kind !== 'review') continue;
+    for (const recordedAreaId of pass.areas) {
+      for (const areaId of currentAreaIds(config, recordedAreaId)) {
+        heads.get(areaId).add(pass.head);
+      }
+    }
+  }
+  return heads;
 }
 
 function validateHistory(config, head) {
@@ -311,18 +599,20 @@ function validateHistory(config, head) {
     if (!isAncestor(pass.head, head)) {
       fail(`pass head ${pass.head} is not an ancestor of HEAD`);
     }
-    for (const areaId of pass.areas) {
-      const expectedBase = frontiers[pass.kind].get(areaId);
-      if (pass.bases[areaId] !== expectedBase) {
-        fail(
-          `${pass.kind} pass for ${areaId} starts at ${pass.bases[areaId]}; `
-            + `expected ${expectedBase}`,
-        );
+    for (const recordedAreaId of pass.areas) {
+      for (const areaId of currentAreaIds(config, recordedAreaId)) {
+        const expectedBase = frontiers[pass.kind].get(areaId);
+        if (pass.bases[recordedAreaId] !== expectedBase) {
+          fail(
+            `${pass.kind} pass for ${recordedAreaId} -> ${areaId} starts at `
+              + `${pass.bases[recordedAreaId]}; expected ${expectedBase}`,
+          );
+        }
+        if (!isAncestor(expectedBase, pass.head)) {
+          fail(`${pass.kind} pass for ${areaId} moves its frontier backwards or sideways`);
+        }
+        frontiers[pass.kind].set(areaId, pass.head);
       }
-      if (!isAncestor(expectedBase, pass.head)) {
-        fail(`${pass.kind} pass for ${areaId} moves its frontier backwards or sideways`);
-      }
-      frontiers[pass.kind].set(areaId, pass.head);
     }
   }
 
@@ -354,17 +644,18 @@ function unassignedJsFiles(config) {
 
 function buildStatus(config, head) {
   const frontiers = validateHistory(config, head);
+  const reviewHeads = reviewHeadsByArea(config);
   const rows = [];
 
   for (const area of config.areas) {
-    const dirty = workingTreeMetrics(area.paths);
+    const dirty = workingTreeMetrics(area);
     const row = { area, dirty, kinds: {} };
     const reviewFrontier = frontiers.review.get(area.id);
     const enforcedBase = currentBase(reviewFrontier, config.enforcementBase);
     row.kinds.review = {
       frontier: reviewFrontier,
-      total: committedMetrics(reviewFrontier, head, area.paths),
-      current: committedMetrics(enforcedBase, head, area.paths),
+      total: committedMetrics(reviewFrontier, head, area, reviewHeads.get(area.id)),
+      current: committedMetrics(enforcedBase, head, area, reviewHeads.get(area.id)),
     };
     row.kinds.simplification = {
       frontier: frontiers.simplification.get(area.id),
@@ -526,6 +817,31 @@ function withLedgerLock(callback) {
   }
 }
 
+function auditMetricsFromOptions(options) {
+  if (options['audit-metrics'] && options['audit-metrics-file']) {
+    fail('provide only one of --audit-metrics or --audit-metrics-file');
+  }
+  let serialized = options['audit-metrics'];
+  if (options['audit-metrics-file']) {
+    const path = resolve(REPO_ROOT, options['audit-metrics-file']);
+    try {
+      serialized = readFileSync(path, 'utf8');
+    } catch (error) {
+      fail(`could not read audit metrics file ${path}: ${error.message}`);
+    }
+  }
+  if (!serialized) {
+    fail('--audit-metrics or --audit-metrics-file is required');
+  }
+  let metrics;
+  try {
+    metrics = JSON.parse(serialized);
+  } catch (error) {
+    fail(`audit metrics must be valid JSON: ${error.message}`);
+  }
+  return validateAuditMetrics(metrics);
+}
+
 function preparePass(kind, options) {
   rejectUnknownOptions(
     options,
@@ -534,6 +850,8 @@ function preparePass(kind, options) {
       'head',
       'outcome',
       'evidence',
+      'audit-metrics',
+      'audit-metrics-file',
       'dry-run',
       ...(kind === 'review' ? ['level'] : []),
     ]),
@@ -550,6 +868,7 @@ function preparePass(kind, options) {
     fail('--outcome must be changed or no-change');
   }
   if (!options.evidence?.trim()) fail('--evidence is required');
+  const auditMetrics = auditMetricsFromOptions(options);
   if (kind === 'review' && !REVIEW_LEVELS.has(options.level)) {
     fail('review passes require --level light or --level full');
   }
@@ -558,7 +877,7 @@ function preparePass(kind, options) {
   }
 
   const areaById = new Map(config.areas.map((area) => [area.id, area]));
-  const dirtyAreas = areas.filter((id) => hasChanges(workingTreeMetrics(areaById.get(id).paths)));
+  const dirtyAreas = areas.filter((id) => hasChanges(workingTreeMetrics(areaById.get(id))));
   if (dirtyAreas.length > 0) {
     fail(
       'cannot record an exact committed pass while these areas have '
@@ -581,6 +900,7 @@ function preparePass(kind, options) {
     ...(kind === 'review' ? { level: options.level } : {}),
     outcome: options.outcome,
     evidence: options.evidence.trim(),
+    auditMetrics,
     recordedAt: new Date().toISOString(),
   };
   if (!options['dry-run']) {
@@ -613,9 +933,13 @@ function printHelp() {
   npm run quality -- --check
   npm run quality -- --verbose
   npm run quality -- record-review --areas <id,...> --level <light|full> \\
-    --outcome <changed|no-change> --evidence <text> [--head <commit>] [--dry-run]
+    --outcome <changed|no-change> --evidence <text> \\
+    <--audit-metrics <json>|--audit-metrics-file <path>> \\
+    [--head <commit>] [--dry-run]
   npm run quality -- record-simplification --areas <id,...> \\
-    --outcome <changed|no-change> --evidence <text> [--head <commit>] [--dry-run]
+    --outcome <changed|no-change> --evidence <text> \\
+    <--audit-metrics <json>|--audit-metrics-file <path>> \\
+    [--head <commit>] [--dry-run]
 
 Status is derived from Git. A recorded pass advances each selected area's
 frontier from its prior exact commit through --head (HEAD by default).`);
