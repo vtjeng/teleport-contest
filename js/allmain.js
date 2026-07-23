@@ -8,6 +8,7 @@
 import { game } from './gstate.js';
 import {
     A_DEX,
+    CLAIRVOYANT,
     COLNO,
     EXT_ENCUMBER,
     FAST,
@@ -258,6 +259,56 @@ export function maybeWipeHeroEngraving(
     return true;
 }
 
+// C ref: allmain.c moveloop_core()'s once-per-hero-took-time clairvoyance
+// block. The cadence advances even when the hero cannot currently map; a
+// future active-clairvoyance owner must supply doVicinityMap rather than
+// silently skipping the source effect.
+export function maybeRunClairvoyance(state = game, env = {}) {
+    const moves = state.moves;
+    const seerTurn = state.context?.seer_turn;
+    if (!Number.isSafeInteger(moves) || moves < 0
+        || !Number.isSafeInteger(seerTurn) || seerTurn < 0) {
+        throw new Error(
+            'clairvoyance cadence requires initialized moves and seer_turn',
+        );
+    }
+    if (moves < seerTurn) return false;
+
+    const random = env.random ?? { rn1 };
+    if (typeof random.rn1 !== 'function') {
+        throw new TypeError('clairvoyance cadence requires rn1');
+    }
+    const clairvoyance = state.u?.uprops?.[CLAIRVOYANT] ?? {};
+    const blocked = Boolean(clairvoyance.blocked);
+    const active = Boolean(
+        clairvoyance.intrinsic || clairvoyance.extrinsic,
+    ) && !blocked;
+    const inEndgame = Number.isInteger(state.astral_level?.dnum)
+        && state.u?.uz?.dnum === state.astral_level.dnum;
+    if ((state.u?.uhave?.amulet || active) && !inEndgame && !blocked) {
+        if (typeof env.doVicinityMap !== 'function') {
+            throw new Error(
+                'active clairvoyance requires doVicinityMap',
+            );
+        }
+        env.doVicinityMap(null, { state });
+    }
+
+    state.context.seer_turn = moves + random.rn1(31, 15);
+    return true;
+}
+
+// C ref: allmain.c moveloop_core()'s once-per-hero-took-time boundary.
+// New-turn allocation establishes moves*8; each action within that turn then
+// receives the next sequence number before clairvoyance cadence is checked.
+export function finishHeroTimeEffects(state = game, env = {}) {
+    if (!Number.isSafeInteger(state.hero_seq) || state.hero_seq < 0) {
+        throw new Error('hero time effects require initialized hero_seq');
+    }
+    state.hero_seq++;
+    maybeRunClairvoyance(state, env);
+}
+
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
@@ -302,11 +353,18 @@ export async function moveloop_core() {
                 // C increments moves after hero allocation and before all
                 // once-per-turn effects, including dosounds().
                 g.moves = (g.moves || 1) + 1;
+                g.hero_seq = g.moves * 8;
             }, async () => {
                 await dosoundsInitialLevel(g);
             }, () => {
                 maybeWipeHeroEngraving(g);
+            }, () => {
+                finishHeroTimeEffects(g);
             });
+        } else {
+            // A fast hero's surplus action does not start a new turn, but it
+            // still advances the per-action sequence and seer cadence.
+            finishHeroTimeEffects(g);
         }
     }
 

@@ -2,11 +2,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    finishHeroTimeEffects,
     maybe_generate_rnd_mon,
+    maybeRunClairvoyance,
     maybeWipeHeroEngraving,
     u_calc_moveamt,
 } from '../js/allmain.js';
 import {
+    CLAIRVOYANT,
     DUST,
     EXT_ENCUMBER,
     FAST,
@@ -76,6 +79,22 @@ function engravingTurnState(dexterity = 13) {
         },
         level: { at: () => null },
         head_engr: null,
+    };
+}
+
+function clairvoyanceTurnState({ moves = 20, seerTurn = 20 } = {}) {
+    const uprops = [];
+    uprops[CLAIRVOYANT] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    return {
+        moves,
+        hero_seq: moves * 8,
+        context: { seer_turn: seerTurn },
+        astral_level: { dnum: 5, dlevel: 1 },
+        u: {
+            uz: { dnum: 0, dlevel: 1 },
+            uhave: { amulet: false },
+            uprops,
+        },
     };
 }
 
@@ -261,6 +280,68 @@ test('maybe_generate_rnd_mon preserves every source gate', () => {
         null,
     );
     assert.deepEqual(bounds, [70]);
+});
+
+test('clairvoyance cadence preserves gating, mapping, and update order', () => {
+    const early = clairvoyanceTurnState({ moves: 19, seerTurn: 20 });
+    assert.equal(maybeRunClairvoyance(early, {
+        random: { rn1: () => assert.fail('early cadence must not draw') },
+    }), false);
+    assert.equal(early.context.seer_turn, 20);
+
+    const due = clairvoyanceTurnState();
+    const events = [];
+    due.u.uhave.amulet = true;
+    assert.equal(maybeRunClairvoyance(due, {
+        doVicinityMap(object, context) {
+            assert.equal(object, null);
+            assert.deepEqual(context, { state: due });
+            events.push('map');
+        },
+        random: {
+            rn1(range, base) {
+                assert.deepEqual([range, base], [31, 15]);
+                events.push('schedule');
+                return 36;
+            },
+        },
+    }), true);
+    assert.deepEqual(events, ['map', 'schedule']);
+    assert.equal(due.context.seer_turn, 56);
+
+    // A blocking cornuthaum suppresses even Amulet-based mapping, but not the
+    // cadence update itself. Endgame levels have the same mapping-only gate.
+    const blocked = clairvoyanceTurnState();
+    blocked.u.uhave.amulet = true;
+    blocked.u.uprops[CLAIRVOYANT].blocked = 1;
+    const endgame = clairvoyanceTurnState();
+    endgame.u.uz.dnum = endgame.astral_level.dnum;
+    endgame.u.uprops[CLAIRVOYANT].intrinsic = 1;
+    for (const [name, state] of [
+        ['blocked', blocked],
+        ['endgame', endgame],
+    ]) {
+        assert.equal(maybeRunClairvoyance(state, {
+            doVicinityMap: () => assert.fail(`${name} must not map`),
+            random: { rn1: () => 15 },
+        }), true, name);
+        assert.equal(state.context.seer_turn, 35, name);
+    }
+});
+
+test('hero time effects increment the sequence before seer cadence', () => {
+    const state = clairvoyanceTurnState();
+    finishHeroTimeEffects(state, {
+        random: {
+            rn1(range, base) {
+                assert.deepEqual([range, base], [31, 15]);
+                assert.equal(state.hero_seq, 161);
+                return 15;
+            },
+        },
+    });
+    assert.equal(state.hero_seq, 161);
+    assert.equal(state.context.seer_turn, 35);
 });
 
 test('maybeWipeHeroEngraving derives its gate from effective Dexterity', () => {
