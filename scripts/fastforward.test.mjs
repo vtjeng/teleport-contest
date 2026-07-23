@@ -18,6 +18,7 @@ async function eventsForStep(stepNum) {
         () => pushRngLogEntry('random-monster-generation'),
         () => pushRngLogEntry('hero-movement'),
         () => pushRngLogEntry('initial-level-sounds'),
+        () => pushRngLogEntry('hunger'),
         () => pushRngLogEntry('engraving-wear'),
         () => pushRngLogEntry('hero-time-effects'),
     );
@@ -42,47 +43,47 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
     // every recorded prefix and step 9's unique pre-engraving rn2(19).
     const expectedRows = [
         ['monster-allocation', 'random-monster-generation', 'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'engraving-wear',
+            'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
         ['rn2(5)', 'rn2(5)', 'rn2(5)', 'rn2(5)',
             'monster-allocation', 'random-monster-generation', 'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'engraving-wear',
+            'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
         ['rn2(5)', 'rn2(32)', 'rn2(5)', 'rn2(5)', 'rn2(32)',
             'rn2(5)', 'monster-allocation', 'random-monster-generation',
             'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'engraving-wear',
+            'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
         ['rn2(5)', 'rn2(24)', 'rn2(5)', 'rn2(5)', 'rn2(24)',
             'rn2(5)', 'monster-allocation', 'random-monster-generation',
             'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'engraving-wear',
+            'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
         ['rn2(5)', 'rn2(16)', 'rn2(5)', 'monster-allocation',
             'random-monster-generation', 'hero-movement',
             'initial-level-sounds',
-            'rn2(20)', 'engraving-wear', 'hero-time-effects'],
+            'hunger', 'engraving-wear', 'hero-time-effects'],
         ['rn2(5)', 'rn2(12)', 'rn2(5)', 'rn2(5)', 'rn2(5)',
             'monster-allocation', 'random-monster-generation', 'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'engraving-wear',
+            'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
         ['rn2(5)', 'rn2(16)', 'rn2(5)', 'rn2(5)', 'rn2(16)',
             'rn2(5)', 'monster-allocation', 'random-monster-generation',
             'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'engraving-wear',
+            'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
         ['rn2(5)', 'rn2(12)', 'rn2(5)', 'monster-allocation',
             'random-monster-generation', 'hero-movement',
             'initial-level-sounds',
-            'rn2(20)', 'engraving-wear', 'hero-time-effects'],
+            'hunger', 'engraving-wear', 'hero-time-effects'],
         ['rn2(5)', 'rn2(20)', 'rn2(5)', 'rn2(5)', 'rn2(8)', 'rn2(5)',
             'monster-allocation', 'random-monster-generation', 'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'rn2(19)',
+            'initial-level-sounds', 'hunger', 'rn2(19)',
             'engraving-wear', 'hero-time-effects'],
         ['rn2(5)', 'rn2(12)', 'rn2(5)', 'rn2(5)', 'rn2(20)',
             'rn2(5)', 'monster-allocation', 'random-monster-generation',
             'hero-movement',
-            'initial-level-sounds', 'rn2(20)', 'engraving-wear',
+            'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
     ];
     for (let step = 1; step <= expectedRows.length; ++step) {
@@ -97,6 +98,7 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
         () => assert.fail('random generation crosses the replay boundary'),
         () => assert.fail('hero movement crosses the replay boundary'),
         () => assert.fail('sounds cross the replay boundary'),
+        () => assert.fail('hunger crosses the replay boundary'),
         () => assert.fail('engraving wear crosses the replay boundary'),
         () => assert.fail('hero-time effects cross the replay boundary'),
     );
@@ -110,6 +112,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     const randomMonster = deferred();
     const hero = deferred();
     const sounds = deferred();
+    const hunger = deferred();
     const engraving = deferred();
     const heroTime = deferred();
     const waitAt = (name, gate) => async () => {
@@ -124,6 +127,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
         waitAt('random-monster', randomMonster),
         waitAt('hero', hero),
         waitAt('sounds', sounds),
+        waitAt('hunger', hunger),
         waitAt('engraving', engraving),
         waitAt('hero-time', heroTime),
     );
@@ -159,7 +163,16 @@ test('fastforward_step awaits each source callback before continuing', async () 
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
-            'sounds:end', 'rn2(20)', 'engraving:start'],
+            'sounds:end', 'hunger:start'],
+    );
+
+    hunger.resolve();
+    await flushMicrotasks();
+    assert.deepEqual(
+        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        ['monster:start', 'monster:end', 'random-monster:start',
+            'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
+            'sounds:end', 'hunger:start', 'hunger:end', 'engraving:start'],
     );
 
     engraving.resolve();
@@ -168,7 +181,8 @@ test('fastforward_step awaits each source callback before continuing', async () 
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
-            'sounds:end', 'rn2(20)', 'engraving:start', 'engraving:end',
+            'sounds:end', 'hunger:start', 'hunger:end', 'engraving:start',
+            'engraving:end',
             'hero-time:start'],
     );
 
@@ -178,7 +192,8 @@ test('fastforward_step awaits each source callback before continuing', async () 
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
-            'sounds:end', 'rn2(20)', 'engraving:start', 'engraving:end',
+            'sounds:end', 'hunger:start', 'hunger:end', 'engraving:start',
+            'engraving:end',
             'hero-time:start', 'hero-time:end'],
     );
 });

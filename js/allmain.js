@@ -56,6 +56,7 @@ import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
+import { gethungry } from './eat.js';
 import {
     fastforward_step,
 } from './fastforward.js';
@@ -329,8 +330,8 @@ export async function moveloop_core() {
             const elapsedReplayStep = g.moves || 1;
             // Fast-forward residual per-step RNG around the source-owned
             // movement allocation boundary. Monster actions, regeneration,
-            // hunger, and other intervening turn work remain replay-owned;
-            // random-monster generation, ambient sounds, and engraving wear
+            // and other intervening turn work remain replay-owned; random-
+            // monster generation, ambient sounds, hunger, and engraving wear
             // run through their source callbacks below.
             await fastforward_step(elapsedReplayStep, () => {
                 // C ref: mon.c movemon() and allmain.c moveloop_core(). Until
@@ -356,6 +357,15 @@ export async function moveloop_core() {
                 g.hero_seq = g.moves * 8;
             }, async () => {
                 await dosoundsInitialLevel(g);
+            }, () => {
+                // Current reachable commands cannot change the startup
+                // inventory, whose initializer guarantees an unencumbered
+                // load. Runtime burden is ported with the later monster-action
+                // boundary.
+                gethungry(g, {
+                    random: { rn2 },
+                    nearCapacity: () => UNENCUMBERED,
+                });
             }, () => {
                 maybeWipeHeroEngraving(g);
             }, () => {

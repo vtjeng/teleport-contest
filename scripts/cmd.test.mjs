@@ -391,6 +391,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     });
     assert.equal(game.program_state.in_moveloop, 1);
     assert.equal(game.u.umovement, 12);
+    assert.equal(game.u.uhunger, 900);
 
     const tail = {
         data: { mmove: 6 }, mspeed: 0, movement: 11, mhp: 1, nmon: null,
@@ -411,6 +412,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     await moveloop_core();
     assert.deepEqual(getRngLog(), []);
     assert.equal(game.moves, 1);
+    assert.equal(game.u.uhunger, 900);
 
     // Tilde has no default binding in the upstream command table.
     game.nhDisplay.pushKey(commandKeyCode('~'));
@@ -424,6 +426,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.u.umovement, 12);
     assert.equal(game.moves, 2);
     assert.equal(game.hero_seq, 17);
+    assert.equal(game.u.uhunger, 899);
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
         // This generated level has a fountain but no sink, so dosounds()
@@ -442,6 +445,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.u.umovement, 12);
     assert.equal(game.moves, 2);
     assert.equal(game.hero_seq, 17);
+    assert.equal(game.u.uhunger, 899);
     assert.deepEqual([head.movement, tail.movement], elapsedMovement);
     assert.deepEqual(getRngLog(), elapsedLog);
 
@@ -450,11 +454,13 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
     assert.equal(game.moves, 2);
+    assert.equal(game.u.uhunger, 899);
     assert.deepEqual(getRngLog(), elapsedLog);
     game.nhDisplay.pushKey(commandKeyCode('~'));
     await moveloop_core();
     assert.equal(game.moves, 3);
     assert.equal(game.hero_seq, 25);
+    assert.equal(game.u.uhunger, 898);
     assert.deepEqual(
         getRngLog().slice(elapsedLog.length, elapsedLog.length + 4)
             .map((entry) => entry.replace(/=.*/u, '')),
@@ -529,12 +535,14 @@ test('a fast hero spends surplus movement without allocating a new turn', async 
     await moveloop_core();
     assert.equal(game.moves, 1);
     assert.equal(game.u.umovement, 12);
+    assert.equal(game.u.uhunger, 900);
 
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
     assert.equal(game.moves, 2);
     assert.equal(game.u.umovement, 24);
     assert.equal(game.hero_seq, 17);
+    assert.equal(game.u.uhunger, 899);
     assert.ok(getRngLog().includes('rn2(3)=0'));
     const allocatedLog = [...getRngLog()];
 
@@ -543,6 +551,7 @@ test('a fast hero spends surplus movement without allocating a new turn', async 
     assert.equal(game.moves, 2);
     assert.equal(game.u.umovement, 12);
     assert.equal(game.hero_seq, 18);
+    assert.equal(game.u.uhunger, 899);
     assert.deepEqual(getRngLog(), allocatedLog);
 });
 

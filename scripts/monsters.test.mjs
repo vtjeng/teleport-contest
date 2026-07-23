@@ -7,7 +7,10 @@ import {
     AT_WEAP,
     G_NOCORPSE,
     M1_ANIMAL,
+    M1_CARNIVORE,
+    M1_HERBIVORE,
     M1_HUMANOID,
+    M1_METALLIVORE,
     M1_MINDLESS,
     M1_NOHANDS,
     M1_UNSOLID,
@@ -48,6 +51,9 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(M1_HUMANOID, 0x00020000);
     assert.equal(M1_ANIMAL, 0x00040000);
     assert.equal(M1_UNSOLID, 0x00100000);
+    assert.equal(M1_CARNIVORE, 0x20000000);
+    assert.equal(M1_HERBIVORE, 0x40000000);
+    assert.equal(M1_METALLIVORE, 0x80000000);
     assert.equal(M2_GREEDY, 0x10000000);
     assert.equal(M3_INFRAVISION, 0x0100);
     assert.equal(MZ_SMALL, 1);
@@ -69,7 +75,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        'b30a15caf39ecb9cebd2acce96d010fc8d4df06b3b0d4ab57529ff4996efa865',
+        '69f69a5cae2f32d3a33c4a58f2b77db224d5695364ac3c4530477cba99465f3f',
     );
 });
 
