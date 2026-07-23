@@ -39,12 +39,24 @@ async function flushMicrotasks() {
 
 test('fastforward_step preserves source-owned turn boundaries', async () => {
     assert.deepEqual(await eventsForStep(0), []);
-    // Each row pins one residual replay step. The literal bounds distinguish
-    // every recorded prefix and step 9's unique pre-engraving rn2(19).
+    assert.deepEqual(await eventsForStep(1), []);
+    let firstRowCallback = false;
+    const firstRowComplete = await fastforward_step(
+        1,
+        () => { firstRowCallback = true; },
+        () => { firstRowCallback = true; },
+        () => { firstRowCallback = true; },
+        () => { firstRowCallback = true; },
+        () => { firstRowCallback = true; },
+        () => { firstRowCallback = true; },
+        () => { firstRowCallback = true; },
+    );
+    assert.equal(firstRowComplete, false);
+    assert.equal(firstRowCallback, false);
+    // Each remaining row pins one residual replay step. The literal bounds
+    // distinguish every recorded prefix and step 9's unique pre-engraving
+    // rn2(19); source turn 1 deliberately has no playback row.
     const expectedRows = [
-        ['monster-allocation', 'random-monster-generation', 'hero-movement',
-            'initial-level-sounds', 'hunger', 'engraving-wear',
-            'hero-time-effects'],
         ['rn2(5)', 'rn2(5)', 'rn2(5)', 'rn2(5)',
             'monster-allocation', 'random-monster-generation', 'hero-movement',
             'initial-level-sounds', 'hunger', 'engraving-wear',
@@ -86,8 +98,8 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
             'initial-level-sounds', 'hunger', 'engraving-wear',
             'hero-time-effects'],
     ];
-    for (let step = 1; step <= expectedRows.length; ++step) {
-        assert.deepEqual(await eventsForStep(step), expectedRows[step - 1]);
+    for (let index = 0; index < expectedRows.length; ++index) {
+        assert.deepEqual(await eventsForStep(index + 2), expectedRows[index]);
     }
 
     initRng(918273);
@@ -121,9 +133,12 @@ test('fastforward_step awaits each source callback before continuing', async () 
         await gate.promise;
         pushRngLogEntry(`${name}:end`);
     };
+    const callbackLog = () => getRngLog()
+        .filter((entry) => !entry.startsWith('rn2('))
+        .map((entry) => entry.replace(/=.*/u, ''));
 
     const execution = fastforward_step(
-        1,
+        2,
         waitAt('monster', monster),
         waitAt('random-monster', randomMonster),
         waitAt('hero', hero),
@@ -133,19 +148,19 @@ test('fastforward_step awaits each source callback before continuing', async () 
         waitAt('hero-time', heroTime),
     );
     await flushMicrotasks();
-    assert.deepEqual(getRngLog(), ['monster:start']);
+    assert.deepEqual(callbackLog(), ['monster:start']);
 
     monster.resolve();
     await flushMicrotasks();
     assert.deepEqual(
-        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        callbackLog(),
         ['monster:start', 'monster:end', 'random-monster:start'],
     );
 
     randomMonster.resolve();
     await flushMicrotasks();
     assert.deepEqual(
-        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        callbackLog(),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start'],
     );
@@ -153,7 +168,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     hero.resolve();
     await flushMicrotasks();
     assert.deepEqual(
-        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        callbackLog(),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start'],
     );
@@ -161,7 +176,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     sounds.resolve();
     await flushMicrotasks();
     assert.deepEqual(
-        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        callbackLog(),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
             'sounds:end', 'hunger:start'],
@@ -170,7 +185,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     hunger.resolve();
     await flushMicrotasks();
     assert.deepEqual(
-        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        callbackLog(),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
             'sounds:end', 'hunger:start', 'hunger:end', 'engraving:start'],
@@ -179,7 +194,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     engraving.resolve();
     await flushMicrotasks();
     assert.deepEqual(
-        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        callbackLog(),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
             'sounds:end', 'hunger:start', 'hunger:end', 'engraving:start',
@@ -190,7 +205,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
     heroTime.resolve();
     await execution;
     assert.deepEqual(
-        getRngLog().map((entry) => entry.replace(/=.*/u, '')),
+        callbackLog(),
         ['monster:start', 'monster:end', 'random-monster:start',
             'random-monster:end', 'hero:start', 'hero:end', 'sounds:start',
             'sounds:end', 'hunger:start', 'hunger:end', 'engraving:start',

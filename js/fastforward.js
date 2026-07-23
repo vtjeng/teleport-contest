@@ -6,8 +6,10 @@
 
 import { rn2 } from './rng.js';
 
-// Per-step leaf RNG calls. purgeAndAllocateMonsterMovement replaces the former
-// block of four trace-derived rn2(12) calls at its source position.
+// Residual per-step leaf RNG calls begin at source turn 2.  Turn 1 now runs
+// through allmain.c-shaped gameplay code and deliberately has no replay row.
+// purgeAndAllocateMonsterMovement replaces the former block of four
+// trace-derived rn2(12) calls at its source position.
 // generateRandomMonster replaces the residual rn2(70) random-monster gate;
 // calculateHeroMovement follows it.
 // playInitialLevelSounds replaces the source-reachable dosounds() draws while
@@ -27,21 +29,31 @@ export async function fastforward_step(
     wearHeroEngraving,
     finishHeroTimeEffects,
 ) {
-    const steps = [
-        async () => { await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 1
-        async () => { rn2(5); rn2(5); rn2(5); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 2
-        async () => { rn2(5); rn2(32); rn2(5); rn2(5); rn2(32); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 3
-        async () => { rn2(5); rn2(24); rn2(5); rn2(5); rn2(24); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 4
-        async () => { rn2(5); rn2(16); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 5
-        async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 6
-        async () => { rn2(5); rn2(16); rn2(5); rn2(5); rn2(16); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 7
-        async () => { rn2(5); rn2(12); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 8
-        async () => { rn2(5); rn2(20); rn2(5); rn2(5); rn2(8); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); rn2(19); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 9
-        async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(20); rn2(5); await purgeAndAllocateMonsterMovement(); await generateRandomMonster(); await calculateHeroMovement(); await playInitialLevelSounds(); await updateHunger(); await wearHeroEngraving(); await finishHeroTimeEffects(); }, // step 10
-    ];
+    const finishTurn = async (beforeEngraving = null) => {
+        await purgeAndAllocateMonsterMovement();
+        await generateRandomMonster();
+        await calculateHeroMovement();
+        await playInitialLevelSounds();
+        await updateHunger();
+        if (beforeEngraving) beforeEngraving();
+        await wearHeroEngraving();
+        await finishHeroTimeEffects();
+    };
+    const steps = {
+        2: async () => { rn2(5); rn2(5); rn2(5); rn2(5); await finishTurn(); },
+        3: async () => { rn2(5); rn2(32); rn2(5); rn2(5); rn2(32); rn2(5); await finishTurn(); },
+        4: async () => { rn2(5); rn2(24); rn2(5); rn2(5); rn2(24); rn2(5); await finishTurn(); },
+        5: async () => { rn2(5); rn2(16); rn2(5); await finishTurn(); },
+        6: async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(5); await finishTurn(); },
+        7: async () => { rn2(5); rn2(16); rn2(5); rn2(5); rn2(16); rn2(5); await finishTurn(); },
+        8: async () => { rn2(5); rn2(12); rn2(5); await finishTurn(); },
+        9: async () => { rn2(5); rn2(20); rn2(5); rn2(5); rn2(8); rn2(5); await finishTurn(() => rn2(19)); },
+        10: async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(20); rn2(5); await finishTurn(); },
+    };
     if (stepNum <= 0) return true;
-    if (stepNum <= steps.length) {
-        await steps[stepNum - 1]();
+    if (stepNum === 1) return false;
+    if (Object.hasOwn(steps, stepNum)) {
+        await steps[stepNum]();
         return true;
     }
     await purgeAndAllocateMonsterMovement();

@@ -20,12 +20,15 @@ import {
     INTRINSIC,
     LEVITATION,
     MOD_ENCUMBER,
+    NO_SPELL,
     OVERLOADED,
     PIT,
     SLT_ENCUMBER,
     W_ARMF,
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { AT_HUGS, M1_CLING, M1_HIDE } from '../js/monsters.js';
 
 function movementState(speed = 12, umovement = 0) {
@@ -479,4 +482,150 @@ test('maybeWipeHeroEngraving skips unreachable floors after rnd', () => {
     ]);
     assert.equal(maybeWipeHeroEngraving(state, blocked.random), true);
     blocked.done();
+});
+
+function firstTurnInput({
+    seed,
+    datetime,
+    name,
+    role,
+    race,
+    gender,
+    align,
+    command,
+    options = '',
+}) {
+    return {
+        seed,
+        datetime,
+        nethackrc: `OPTIONS=name:${name},role:${role},race:${race},`
+            + `gender:${gender},align:${align},!legacy,!tutorial,`
+            + `!splash_screen${options}\n`,
+        // The leading space dismisses the welcome message; command is the
+        // first gameplay input. Queue exhaustion captures the next prompt.
+        moves: ` ${command}`,
+    };
+}
+
+function liveMonsters() {
+    const monsters = [];
+    for (let monster = game.level.monlist;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp > 0) monsters.push(monster);
+    }
+    return monsters;
+}
+
+test('first wait reaches the next prompt through live turn upkeep', async () => {
+    const replay = await runSegment(firstTurnInput({
+        seed: 2026072301,
+        datetime: '20260723120000',
+        name: 'FirstWait',
+        role: 'Healer',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        command: '.',
+    }));
+
+    assert.equal(replay.getScreens().length, 3);
+    assert.equal(game.moves, 2);
+    assert.equal(game.hero_seq, 17);
+    assert.equal(game.u.umovement, 12);
+    assert.equal(game.u.uhunger, 899);
+    assert.equal(game.u.ublesscnt, 299);
+    assert.equal(game.u.umoved, false);
+    assert.equal(game.track.utcnt, 1);
+    assert.deepEqual(
+        game.track.utrack[0],
+        { x: game.u.ux, y: game.u.uy },
+    );
+
+    const pet = liveMonsters().find((monster) => monster.mtame);
+    assert.ok(pet, 'the starting pet remains on the live monster list');
+    assert.ok(
+        pet.movement >= 12,
+        'the starting pet receives its first source movement ration',
+    );
+    const knownSpells = game.svs.spl_book
+        .filter((spell) => spell.sp_id !== NO_SPELL);
+    assert.ok(knownSpells.length > 0);
+    assert.ok(knownSpells.every((spell) => spell.sp_know === 19999));
+    assert.notEqual(game.context.turn_replay_blocked, true);
+});
+
+test('first unobstructed move records its destination before the next prompt', async () => {
+    const replay = await runSegment(firstTurnInput({
+        seed: 2026072302,
+        datetime: '20260723124500',
+        name: 'FirstMove',
+        role: 'Wizard',
+        race: 'gnome',
+        gender: 'male',
+        align: 'neutral',
+        command: 'l',
+    }));
+
+    assert.equal(replay.getScreens().length, 3);
+    assert.deepEqual(
+        [game.u.ux, game.u.uy],
+        [game.u.ux0 + 1, game.u.uy0],
+    );
+    assert.deepEqual(
+        game.track.utrack[0],
+        { x: game.u.ux, y: game.u.uy },
+    );
+    assert.equal(game.moves, 2);
+    assert.equal(game.hero_seq, 17);
+    assert.equal(game.u.umoved, false);
+});
+
+test('first-turn automatic search stays between allocation and ambient sound', async () => {
+    const replay = await runSegment(firstTurnInput({
+        seed: 2026072415,
+        datetime: '20260723131500',
+        name: 'SearchTurn',
+        role: 'Ranger',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        command: '.',
+    }));
+    const tail = replay.getRngLog()
+        .slice(-8)
+        .map((entry) => entry.replace(/=.*/u, ''));
+
+    assert.deepEqual(tail, [
+        'rn2(12)',
+        'rn2(12)',
+        'rn2(12)',
+        'rn2(70)',
+        'rnl(8)',
+        'rn2(400)',
+        'rn2(20)',
+        'rn2(70)',
+    ]);
+});
+
+test('first turn maintains the source cloud-room region in monster order', async () => {
+    await runSegment(firstTurnInput({
+        seed: 441,
+        datetime: '20260723123000',
+        name: 'CloudTurn',
+        role: 'Wizard',
+        race: 'gnome',
+        gender: 'male',
+        align: 'neutral',
+        command: '.',
+    }));
+
+    assert.equal(game.level.regions.length, 1);
+    const [cloud] = game.level.regions;
+    assert.equal(cloud.arg, 0);
+    assert.equal(cloud.rects.length, 42);
+    assert.equal(cloud.monsters.length, 10);
+    // The permanent region begins at -1; its first five fog-cloud occupants
+    // each add five until ttl reaches the source's 20-point maintenance gate.
+    assert.equal(cloud.ttl, 24);
 });

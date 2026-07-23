@@ -1,0 +1,101 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2026072301,
+      "datetime": "20260723120000",
+      "nethackrc": "OPTIONS=name:FirstWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 2026072302,
+      "datetime": "20260723124500",
+      "nethackrc": "OPTIONS=name:FirstMove,role:Wizard,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " l"
+    },
+    {
+      "seed": 441,
+      "datetime": "20260723123000",
+      "nethackrc": "OPTIONS=name:CloudTurn,role:Wizard,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 2026072415,
+      "datetime": "20260723131500",
+      "nethackrc": "OPTIONS=name:SearchTurn,role:Ranger,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 2026072303,
+      "datetime": "20260723133000",
+      "nethackrc": "OPTIONS=name:NoPetTurn,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " h"
+    },
+    {
+      "seed": 2026072310,
+      "datetime": "20240229060000",
+      "nethackrc": "OPTIONS=name:ArcSearch,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,statuslines:3,time\n",
+      "moves": " ."
+    },
+    {
+      "seed": 2026072311,
+      "datetime": "20261029013000",
+      "nethackrc": "OPTIONS=name:MonkSpeed,role:Monk,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
+      "moves": " ."
+    },
+    {
+      "seed": 2026072313,
+      "datetime": "20260723144500",
+      "nethackrc": "OPTIONS=name:PonyTurn,role:Knight,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 2026072314,
+      "datetime": "20260723150000",
+      "nethackrc": "OPTIONS=name:SenseTurn,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,blind,deaf,pettype:cat\n",
+      "moves": " ."
+    },
+    {
+      "seed": 2026072312,
+      "datetime": "20260723143000",
+      "nethackrc": "OPTIONS=name:SamMove,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\n",
+      "moves": " h"
+    },
+    {
+      "seed": 2026072317,
+      "datetime": "20260723153000",
+      "nethackrc": "OPTIONS=name:RogueTrack,role:Rogue,race:orc,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 3100030,
+      "datetime": "20260723160000",
+      "nethackrc": "OPTIONS=name:GenerateTurn,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 3100268,
+      "datetime": "20260723160000",
+      "nethackrc": "OPTIONS=name:SoundTurn,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 3100186,
+      "datetime": "20260723160000",
+      "nethackrc": "OPTIONS=name:EngraveTurn,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 3100019,
+      "datetime": "20260723160000",
+      "nethackrc": "OPTIONS=name:SeerTurn,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    },
+    {
+      "seed": 3200018,
+      "datetime": "20260723161500",
+      "nethackrc": "OPTIONS=name:SearchHit,role:Ranger,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " ."
+    }
+  ]
+}

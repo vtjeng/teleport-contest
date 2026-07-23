@@ -657,7 +657,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.nhDisplay.inputQueueLength, 1);
 });
 
-test('moveloop rejects unowned monster work before debiting a fast hero', async () => {
+test('first turn runs fog upkeep but later parked guards remain fail-closed', async () => {
     await runSegment({
         seed: 840015,
         datetime: COMMAND_DATETIME,
@@ -674,7 +674,9 @@ test('moveloop rejects unowned monster work before debiting a fast hero', async 
     const fogCloud = {
         data: game.mons[PM_FOG_CLOUD],
         mnum: PM_FOG_CLOUD,
+        m_id: 9901,
         mhp: 1,
+        mhpmax: 1,
         mlstmv: game.moves,
         movement: 0,
         mstate: MON_FLOOR,
@@ -683,8 +685,8 @@ test('moveloop rejects unowned monster work before debiting a fast hero', async 
         nmon: null,
     };
     game.level.monlist = fogCloud;
+    game.level.monsters[x][y] = fogCloud;
     game.level.regions = [];
-    game.u.umovement = 2 * NORMAL_SPEED;
 
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
@@ -695,16 +697,14 @@ test('moveloop rejects unowned monster work before debiting a fast hero', async 
     };
     game.nhDisplay.pushKey(commandKeyCode('~'));
 
-    await assert.rejects(
-        moveloop_core(),
-        /unported monster-action phase/u,
-    );
-    assert.deepEqual({
-        hunger: game.u.uhunger,
-        moves: game.moves,
-        movement: game.u.umovement,
-    }, unchanged);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    await moveloop_core();
+    assert.equal(game.moves, unchanged.moves + 1);
+    assert.equal(game.u.uhunger, unchanged.hunger - 1);
+    assert.equal(game.u.umovement, NORMAL_SPEED);
+    assert.equal(game.level.regions.length, 1);
+    assert.equal(game.level.regions[0].visible, true);
+    assert.deepEqual(game.level.regions[0].monsters, [fogCloud.m_id]);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
 
     // A parked guard is handled even when dead and below a movement ration.
     game.level.monlist = {
@@ -717,6 +717,13 @@ test('moveloop rejects unowned monster work before debiting a fast hero', async 
         my: 0,
         nmon: null,
     };
+    game.context.move = 1;
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+    const parked = {
+        hunger: game.u.uhunger,
+        moves: game.moves,
+        movement: game.u.umovement,
+    };
     await assert.rejects(
         moveloop_core(),
         /unported monster-action phase/u,
@@ -725,7 +732,7 @@ test('moveloop rejects unowned monster work before debiting a fast hero', async 
         hunger: game.u.uhunger,
         moves: game.moves,
         movement: game.u.umovement,
-    }, unchanged);
+    }, parked);
     assert.equal(game.nhDisplay.inputQueueLength, 1);
 });
 
