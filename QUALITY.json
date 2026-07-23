@@ -1687,6 +1687,73 @@
         ]
       },
       "recordedAt": "2026-07-23T18:02:06.129Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world-effects": "91220dc310e2efd2b00cecdca5598c2b39b2c8fa"
+      },
+      "head": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
+      "areas": [
+        "world-effects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full correctness pass over exact world-effects range 91220dc310e2efd2b00cecdca5598c2b39b2c8fa..09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144. Mandatory correctness, readability-risk, test-quality, and variable-trace roles plus independent adjudication produced 8 raw, 5 deduplicated, 4 confirmed and applied findings; the vault-guard candidate was rejected from this range as pre-existing. Fix commit cd6335d preserves search RNG ordering, restores trap reveal/wait/redraw, and completes source-required vision blockers. Performance was not enabled because the fixes add bounded local checks without a plausible material resource regression; concurrency was not enabled because these paths are synchronous, serialized, and non-reentrant. The variable-trace reviewer warned that gas-region lifecycle coverage was not exhaustive but found no additional concrete defect. Validation: focused world-effects suites and all 1225 tests passed; the full suite required outside-sandbox execution solely because record-session tests launch subprocesses. Fresh top-level orchestration stalled without usable child state, so native fresh-context agents preserved the required independent roles and phase order. Direct post-fix inspection found no separate simplification or clarity trigger. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1800,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 5,
+          "confirmed": 4,
+          "applied": 4,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 0,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "Automatic-search preflight resolved hit-only operations before rnl and could suppress or reorder misses",
+            "foundBy": [
+              "correctness",
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Found traps omitted the source clutter and hallucination reveal, input wait, and redraw sequence",
+            "foundBy": [
+              "correctness",
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Vision opacity omitted cloud, water, lava wall, and underwater moat terrain",
+            "foundBy": [
+              "correctness",
+              "test-quality"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Vision tested only the head floor object for a sight-blocking boulder",
+            "foundBy": [
+              "correctness",
+              "test-quality"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T18:24:50.471Z"
     }
   ]
 }
