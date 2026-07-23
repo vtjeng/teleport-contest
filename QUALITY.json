@@ -142,6 +142,7 @@
       "label": "Terrain, traps, vision, and effects",
       "paths": [
         "js/bury.js",
+        "js/detect.js",
         "js/engrave.js",
         "js/grave.js",
         "js/light.js",
