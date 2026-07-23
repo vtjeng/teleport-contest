@@ -11,13 +11,18 @@ const MORE_PROMPT = '--More--';
 const TOPLINE_EMPTY = 0;
 const TOPLINE_NEED_MORE = 1;
 
-function recorderRawTtyText(value) {
-    // topl.c emits raw bytes and advances once per byte. Recorder patch 006
-    // ignores signed high-bit bytes in nomux_putch(), so each remains a blank
-    // captured cell rather than becoming a Unicode glyph.
+function ttyByteText(value) {
+    // topl.c keeps the raw byte string for wrapping and message history.
+    // Recorder patch 006 ignores signed high-bit bytes only when putchar()
+    // projects them into the shadow grid. NUL is an internal skipped-byte
+    // marker: it occupies one logical byte cell but is not a wrapping space.
     return encodeUtf8ByteString(value).map((byte) => (
-        byte < 0x80 ? String.fromCharCode(byte) : ' '
+        byte < 0x80 ? String.fromCharCode(byte) : '\0'
     )).join('');
+}
+
+function recorderTtyProjection(value) {
+    return String(value).replaceAll('\0', ' ');
 }
 
 function snapshotRows(display, rowCount) {
@@ -39,7 +44,7 @@ function restoreRows(display, snapshot) {
 // column 80 with a newline whenever the remaining message is at least one
 // terminal row long.
 export function wrapTtyTopline(message, columns) {
-    const lines = [];
+    const logicalLines = [];
     let remaining = String(message);
     while (remaining.length >= columns) {
         let split = columns - 1;
@@ -48,11 +53,23 @@ export function wrapTtyTopline(message, columns) {
             split = remaining.indexOf(' ');
             if (split < 0) break;
         }
-        lines.push(remaining.slice(0, split));
+        logicalLines.push(remaining.slice(0, split));
         remaining = remaining.slice(split + 1);
     }
-    lines.push(remaining);
-    return lines;
+    logicalLines.push(remaining);
+
+    // topl_putsym() moves to the next row before writing a byte at CO - 1.
+    // That physical wrap still happens when update_topl() could not insert a
+    // newline into a long token, but it does not alter gt.toplines history.
+    const physicalWidth = Math.max(1, columns - 1);
+    return logicalLines.flatMap((line) => {
+        if (!line.length) return [''];
+        const rows = [];
+        for (let start = 0; start < line.length; start += physicalWidth) {
+            rows.push(line.slice(start, start + physicalWidth));
+        }
+        return rows;
+    });
 }
 
 function rememberPendingMessage(state, message) {
@@ -96,7 +113,13 @@ export async function dismissPendingTtyMessage(state = game) {
     for (let row = 0; row <= promptRow; ++row)
         display.clearRow(row);
     for (let row = 0; row < lines.length; ++row)
-        display.putstr(0, row, lines[row], NO_COLOR, 0);
+        display.putstr(
+            0,
+            row,
+            recorderTtyProjection(lines[row]),
+            NO_COLOR,
+            0,
+        );
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 
@@ -156,7 +179,7 @@ function rememberSuppressedMessage(state, message, columns) {
 // C ref: win/tty/topl.c update_topl().  Messages share the top line only
 // when both fit with two separating spaces and room for a future --More--.
 export async function ttyPline(message, state = game) {
-    const next = recorderRawTtyText(message);
+    const next = ttyByteText(message);
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     const stoppedAtEntry = Boolean(state._ttyMessageStopped);

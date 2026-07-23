@@ -69,6 +69,9 @@ export async function verifyFirstCommandBoundary(segment) {
     if (game.moves !== 1 || game.context?.move !== 0) {
         throw new Error(`${label} executed a gameplay turn before stopping`);
     }
+    if (game._commandDispatchCount !== 0) {
+        throw new Error(`${label} dispatched a command before stopping`);
+    }
     const rows = game.nhDisplay.grid.map(
         (row) => row.map(({ ch }) => ch).join(''),
     );
@@ -81,6 +84,13 @@ export async function verifyFirstCommandBoundary(segment) {
             `${label} did not consume exactly its startup dismissal keys`,
         );
     }
+}
+
+export async function traceFirstCommandThemeroomSelections(segment) {
+    const replay = await runSegment(segment, {
+        traceThemeroomSelections: true,
+    });
+    return replay.getThemeroomSelections();
 }
 
 async function main(argv) {

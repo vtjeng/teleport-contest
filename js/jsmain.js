@@ -171,6 +171,7 @@ export class NethackGame {
         this._animFramesByStep = [];
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
+        this._themeroomSelectionTrace = opts.themeroomSelectionTrace ?? null;
     }
 
     // Universal animation-frame hook.  Call once per intermediate
@@ -257,6 +258,10 @@ export class NethackGame {
         g.context = { move: 0 };
         g.program_state = {};
         g.moves = 0;
+        g._commandDispatchCount = 0;
+        if (this._themeroomSelectionTrace) {
+            g._themeroomSelectionTrace = this._themeroomSelectionTrace;
+        }
         g.gp = {
             plnamelen: 0,
             // C ref: decl.h instance_globals_p; dog.c:pet_type().
@@ -353,6 +358,11 @@ export class NethackGame {
     // for steps that didn't animate.  SUPPLEMENTAL metric — not part
     // of the official ranking; see API.md.
     getAnimationFramesByStep() { return this._animFramesByStep; }
+    getThemeroomSelections() {
+        return this._themeroomSelectionTrace
+            ? this._themeroomSelectionTrace.map((entry) => ({ ...entry }))
+            : null;
+    }
 }
 
 // ── Per-segment runner — the contest contract ──
@@ -376,7 +386,12 @@ export class NethackGame {
 // getRngLog() / getCursors() / getAnimationFramesByStep() cover ONLY
 // this segment. The harness concatenates them itself. Cross-segment
 // C-side state (bones, record file, save) lives in `input.storage`.
-export async function runSegment(input) {
+// The optional second argument enables local diagnostics and is never part of
+// a replay recipe or the judge contract.
+export async function runSegment(
+    input,
+    { traceThemeroomSelections = false } = {},
+) {
     const { seed, datetime, nethackrc, recorderIsDst, storage } = input;
     const moves = input.moves || '';
 
@@ -386,6 +401,7 @@ export async function runSegment(input) {
         nethackrc,
         recorderIsDst,
         storage,
+        themeroomSelectionTrace: traceThemeroomSelections ? [] : null,
     });
 
     const display = new GameDisplay(null);

@@ -2686,12 +2686,13 @@ test('title formatting and matching use source byte limits', async () => {
             color: CLR_RED,
         },
         {
-            // Eight characters occupy sixteen UTF-8 bytes. get_hilite()
-            // advances by strlen(plname), not JavaScript code units.
-            name: 'é'.repeat(8),
-            prefix: ' '.repeat(16),
-            color: CLR_BRIGHT_GREEN,
-            styleColumn: 21,
+            // Thirteen characters occupy twenty-six UTF-8 bytes. Formatting
+            // truncates the byte string to nineteen cells, but get_hilite()
+            // still advances by the complete strlen(plname), past Digger.
+            name: 'é'.repeat(13),
+            prefix: ' '.repeat(19),
+            color: NO_COLOR,
+            styleColumn: 20,
         },
     ]) {
         state.plname = name;
@@ -2793,15 +2794,62 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
 
     state.plname = 'FivePadName';
     await bot();
-    assert.deepEqual(
-        {
-            color: state.nhDisplay.grid[22][26].color,
-            attr: state.nhDisplay.grid[22][26].attr,
-        },
+    assertCellRange(
+        state,
+        22,
+        26,
+        5,
         { color: NO_COLOR, attr: ATR_NONE },
         'five-byte HP-bar padding becomes unowned after compression',
     );
+    assert.deepEqual(
+        {
+            color: state.nhDisplay.grid[22][31].color,
+            attr: state.nhDisplay.grid[22][31].attr,
+        },
+        { color: NO_COLOR, attr: ATR_NONE },
+        'the closing bracket remains outside the highlighted slice',
+    );
 
+    state.plname = 'Foo    Bar';
+    await bot();
+    assertCellRange(
+        state,
+        22,
+        4,
+        4,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'an internal four-space run remains literal and highlighted',
+    );
+
+    state.plname = 'Foo     Bar';
+    await bot();
+    assertCellRange(
+        state,
+        22,
+        4,
+        5,
+        { color: NO_COLOR, attr: ATR_NONE },
+        'an internal five-space run is compressed to cursor movement',
+    );
+    assertCellRange(
+        state,
+        22,
+        1,
+        3,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'the highlighted prefix survives internal compression',
+    );
+    assertCellRange(
+        state,
+        22,
+        9,
+        17,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'the highlighted suffix survives internal compression',
+    );
+
+    state.plname = 'Hero';
     state.iflags.wc2_darkgray = false;
     state.iflags.wc2_hitpointbar = false;
     await bot();
@@ -2838,7 +2886,7 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
         1,
         18,
         { color: NO_COLOR, attr: ATR_INVERSE },
-        '!use_darkgray black aliases terminal-default in recorder output',
+        'both use_darkgray states canonicalize black recorder cells',
     );
     assert.notEqual(CLR_GRAY, NO_COLOR, 'the assertion detects normalization');
     assert.notEqual(CLR_BLACK, NO_COLOR, 'black is distinct before capture');

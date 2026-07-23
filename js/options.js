@@ -1651,6 +1651,9 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
     } else if (name === 'use_inverse') {
         result.iflags.wc_inverse = enabled;
     } else if (name === 'use_darkgray') {
+        // Preserve optlist.h's source option state. At the recorder-facing
+        // grid boundary, both the remapped black wire value and the terminal
+        // default sentinel intentionally canonicalize to NO_COLOR.
         result.iflags.wc2_darkgray = enabled;
     } else if (name === 'hilite_pet') {
         result.iflags.wc_hilite_pet = enabled;

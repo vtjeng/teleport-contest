@@ -41,6 +41,12 @@ export async function rhack(key) {
         key = await nhgetch(game);
     }
 
+    // A command is dispatched only after its input wait returns.  Keep this
+    // diagnostic counter independent of turn consumption so boundary checks
+    // can distinguish blocked and other zero-time commands from an untouched
+    // first-command prompt.
+    game._commandDispatchCount = (game._commandDispatchCount ?? 0) + 1;
+
     const ch = String.fromCharCode(key);
 
     if (isMovementKey(ch)) {

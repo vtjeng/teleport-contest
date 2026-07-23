@@ -318,7 +318,7 @@ test('use_inverse owns the tty inverse-video interface flag', () => {
     );
 });
 
-test('use_darkgray owns the recorder-visible black remap', () => {
+test('use_darkgray preserves the source option state', () => {
     assert.equal(parseNethackrc('').iflags.wc2_darkgray, true);
     assert.equal(
         parseNethackrc('OPTIONS=!use_darkgray').iflags.wc2_darkgray,

@@ -19,6 +19,7 @@ import {
     FIRST_COMMAND_CLOSURE_FIXTURES,
     loadClosureRecipe,
     RECORDER_SEGMENT_LIMIT,
+    traceFirstCommandThemeroomSelections,
     verifyFirstCommandBoundary,
 } from './run-first-command-closure.mjs';
 
@@ -76,6 +77,18 @@ test('closure recipes reach the first command without executing it', async () =>
     }
 });
 
+test('closure boundary rejects an appended zero-time command', async () => {
+    const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[0])
+        .segments[0];
+    await assert.rejects(
+        verifyFirstCommandBoundary({
+            ...segment,
+            moves: `${segment.moves} `,
+        }),
+        /dispatched a command/u,
+    );
+});
+
 test('closure role recipe covers every valid character tuple exactly once', () => {
     const recipe = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[0]);
     const actual = new Set(recipe.segments.map((segment) => (
@@ -113,7 +126,7 @@ test('closure role recipe covers every valid character tuple exactly once', () =
     }
 });
 
-test('closure theme seeds retain every D:1-eligible selection family', () => {
+test('closure theme seeds retain every D:1-eligible selection family', async () => {
     assert.equal(THEME_MANIFEST.version, 1);
     assert.equal(THEME_MANIFEST.difficulty, 1);
     const themeSeeds = FIRST_COMMAND_CLOSURE_FIXTURES.slice(1)
@@ -123,10 +136,34 @@ test('closure theme seeds retain every D:1-eligible selection family', () => {
     assert.deepEqual(themeSeeds, manifestSeeds);
     assert.equal(new Set(themeSeeds).size, themeSeeds.length);
 
-    // The manifest was captured by observing source-shaped room and fill
-    // selection during the source-neutral 1..2000 seed scan. Cross-check its
-    // union against the generated source catalogs so seed substitution cannot
-    // silently reduce the promised handler/fill coverage.
+    const actualSelections = [];
+    for (const filename of FIRST_COMMAND_CLOSURE_FIXTURES.slice(1)) {
+        for (const segment of loadClosureRecipe(filename).segments) {
+            const trace = await traceFirstCommandThemeroomSelections(segment);
+            const selectedRooms = [...new Set(trace
+                .filter(({ kind }) => kind === 'room')
+                .map(({ id }) => id))];
+            const nonDefaultRooms = selectedRooms.filter(
+                (id) => id !== 'default',
+            );
+            actualSelections.push({
+                seed: segment.seed,
+                // The manifest records distinct non-default handlers. Keep a
+                // single default marker only when a level selected no other
+                // family, matching the source-neutral seed-scan format.
+                rooms: nonDefaultRooms.length
+                    ? nonDefaultRooms : ['default'],
+                fills: [...new Set(trace
+                    .filter(({ kind }) => kind === 'fill')
+                    .map(({ id }) => id))],
+            });
+        }
+    }
+    assert.deepEqual(actualSelections, THEME_MANIFEST.selections);
+
+    // Cross-check the regenerated selection union against the generated source
+    // catalogs so seed substitution cannot silently reduce handler/fill
+    // coverage while keeping the fixture and manifest internally consistent.
     const selectedRooms = new Set(THEME_MANIFEST.selections.flatMap(
         ({ rooms: selected }) => selected,
     ));

@@ -268,6 +268,31 @@ test('a wrapped message requests More immediately', async () => {
     assert.equal(state._pending_message, '');
 });
 
+test('high-bit top-line bytes stay nonbreaking until recorder projection', async () => {
+    const state = preambleState('20260129120000', ' ');
+    const boundaries = captureBoundaries(state, 3);
+    // The UTF-8 bytes for é occupy columns 70 and 71. C does not treat either
+    // high-bit byte as a space while choosing a wrap point, so seven following
+    // bytes remain on row zero. Recorder patch 006 leaves the two high-bit
+    // cells blank only when the raw bytes reach the shadow grid.
+    const message = `${'a'.repeat(70)}é${'B'.repeat(12)}`;
+
+    await ttyPline(message, state);
+
+    assert.equal(boundaries.length, 1);
+    assert.equal(
+        boundaries[0].rows[0],
+        `${'a'.repeat(70)}  ${'B'.repeat(7)}`,
+    );
+    assert.equal(boundaries[0].rows[1], `${'B'.repeat(5)}--More--`);
+    assert.deepEqual(boundaries[0].cursor, [13, 1]);
+    assert.equal(
+        state._ttyToplines,
+        `${'a'.repeat(70)}\0\0${'B'.repeat(12)}`,
+    );
+    assert.equal(state._pending_message, '');
+});
+
 test('top-line sharing keeps the strict room-for-More inequality', async () => {
     const prior = 'P'.repeat(30);
     const cases = [
