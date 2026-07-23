@@ -6,8 +6,6 @@ import {
   formatMetrics,
   parseNumstat,
   qualityGateBlocked,
-  reviewsSinceLastSimplification,
-  simplificationReviewDue,
   thresholdReached,
   validateConfigShape,
 } from './quality-status.mjs';
@@ -23,7 +21,6 @@ test('the checked-in quality ledger has a valid schema', async () => {
     reviewAdvisoryChangedLines: 500,
     reviewCommits: 10,
     reviewChangedLines: 1000,
-    simplificationReviewInterval: 2,
   });
 });
 
@@ -97,63 +94,8 @@ test('review thresholds separate the advisory checkpoint from the gate', () => {
   );
 });
 
-test('simplification cadence resets and becomes due before a second review', () => {
-  const area = 'world';
-  const passes = [
-    { kind: 'review', areas: [area] },
-    { kind: 'review', areas: ['runtime'] },
-    { kind: 'simplification', areas: [area] },
-    { kind: 'review', areas: [area] },
-  ];
-  assert.equal(reviewsSinceLastSimplification(passes, area), 1);
-
-  const clean = {
-    files: new Set(), additions: 0, deletions: 0, binaryFiles: 0,
-  };
-  const reviewedCode = {
-    commits: 1,
-    files: new Set(['js/rooms.js']),
-    additions: 8,
-    deletions: 2,
-    binaryFiles: 0,
-  };
-  const noUnreviewedCode = { ...clean, commits: 0 };
-  assert.equal(simplificationReviewDue({
-    completedReviews: 1,
-    interval: 2,
-    reviewCurrent: noUnreviewedCode,
-    simplificationTotal: reviewedCode,
-    dirty: clean,
-  }), false);
-
-  // One new dirty file represents the work that will receive review number two.
-  const dirty = {
-    files: new Set(['js/region.js']), additions: 4, deletions: 1, binaryFiles: 0,
-  };
-  assert.equal(simplificationReviewDue({
-    completedReviews: 1,
-    interval: 2,
-    reviewCurrent: noUnreviewedCode,
-    simplificationTotal: reviewedCode,
-    dirty,
-  }), true);
-  assert.equal(simplificationReviewDue({
-    completedReviews: 2,
-    interval: 2,
-    reviewCurrent: noUnreviewedCode,
-    simplificationTotal: reviewedCode,
-    dirty: clean,
-  }), true);
-});
-
-test('simplification debt is advisory while review and path ownership block', () => {
-  // Five due simplification areas exercise the advisory path without review
-  // debt or unassigned implementation files.
-  assert.equal(qualityGateBlocked({
-    reviewDue: 0,
-    simplificationDue: 5,
-    unassignedCount: 0,
-  }), false);
+test('review debt and path ownership block the quality gate', () => {
+  assert.equal(qualityGateBlocked({ reviewDue: 0, unassignedCount: 0 }), false);
   // One due review area and one unassigned file exercise the two blocking inputs.
   assert.equal(qualityGateBlocked({ reviewDue: 1, unassignedCount: 0 }), true);
   assert.equal(qualityGateBlocked({ reviewDue: 0, unassignedCount: 1 }), true);
@@ -163,16 +105,14 @@ test('an implementation path cannot belong to two quality areas', () => {
   // Full-length placeholder SHAs satisfy the schema while the configured
   // thresholds mirror repository policy; this test isolates path ownership.
   const config = {
-    version: 2,
+    version: 3,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
-    simplificationCadenceBase: '3'.repeat(40),
     thresholds: {
       reviewAdvisoryCommits: 3,
       reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
-      simplificationReviewInterval: 2,
     },
     areas: [
       { id: 'first', label: 'First', paths: ['js/shared.js'] },

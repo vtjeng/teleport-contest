@@ -179,33 +179,47 @@ same chunk.
   ownership, an input boundary, or another shared behavioral interface. Imports,
   exports, call sites, tests, and other wiring that consume an existing contract
   do not trigger a pass by themselves.
+- Performance, concurrency, simplification, and clarity checks are
+  evidence-triggered. Before recording a formal correctness pass, state briefly
+  whether each trigger applies. If no trigger applies, omitting that check is
+  compliant and creates no review debt. Commit counts, changed-line counts,
+  milestones, and numbers of prior correctness passes do not by themselves
+  trigger these checks.
 - At a formal milestone, run a `full` `$audit-diff-correctness` pass. Its
   correctness, readability, tests, and variable-trace finders are mandatory.
-  Enable the performance finder only for a plausible hot-path or resource-cost
-  change, and concurrency only for shared-state, asynchronous, reentrant,
-  cancellation, retry, or cleanup risk.
-- Run `$simplify-codebase` before every second scheduled correctness pass over
-  production changes since the previous simplification frontier. Run it sooner
-  when direct inspection finds duplication, accidental complexity, or stale
-  scaffolding. Also run it before a pull request or release when production code
-  has changed since its previous pass. A pass may conclude that no changes are
-  warranted.
-- Run `$audit-diff-clarity` after every second scheduled correctness pass, once
-  correctness fixes have stabilized, over changes since the previous clarity
-  pass. Also run it before requesting external review or making a release.
+  Enable the performance finder when the reviewed range plausibly changes
+  hot-path work, algorithmic complexity, iteration counts, allocation or
+  serialization volume, startup cost, or another measurable resource cost.
+  Enable the concurrency finder when the range changes shared mutable state,
+  asynchronous or reentrant control flow, parallel work, cancellation, retries,
+  cleanup, or lifecycle behavior that can overlap. State the applicable risk in
+  the audit scope; a full pass does not otherwise enable either finder.
+- Run `$simplify-codebase` when direct inspection or a correctness finding
+  identifies concrete accidental complexity: duplicated behavior or state,
+  competing ownership, scattered configuration, unnecessary indirection, dead
+  declarations, or transitional scaffolding whose replacement is complete.
+  Scope the pass to the implicated committed range and its consumers.
+- Run `$audit-diff-clarity` when a change creates a concrete reviewer-facing
+  explanation problem: a new or changed shared contract, non-obvious source
+  correspondence, complex state ownership or control flow, unclear test intent,
+  misleading names or comments, or conflicting documentation. Scope the pass to
+  the implicated code, tests, and prose.
+- Before a pull request, release, or external review, inspect directly for the
+  simplification and clarity triggers above. Run the corresponding formal pass
+  only when that inspection identifies a trigger, and record the trigger and
+  outcome with the boundary evidence.
 - Run `$copyedit-technical-prose` after every third scheduled correctness pass
   if published prose has changed since the previous copyedit. Also run it before
   externally publishing changed documentation, reports, or a pull request
   description. Tracker-only SHA and score entries do not trigger it. Do not run
   it on unchanged prose.
 - After applying audit fixes, inspect the fix diff directly and run
-  proportionate focused and broad validation. Do not launch an immediate delta
-  review solely because audit fixes were applied. Keep the review frontier at
-  the audited commit and record the exact fix commits as the start of the next
-  correctness range. Repeat a formal pass immediately only when a fix
-  independently meets one of the triggers above. No audit-fix tail may remain
-  before a pull request, release, authorized holdout evaluation, or closure of
-  the first-command milestone.
+  proportionate focused and broad validation. Do not launch another formal pass
+  unless the fixes independently introduce a trigger. Keep the review frontier
+  at the audited commit and record the exact fix commits as the start of the
+  next correctness range. No audit-fix tail may remain before a pull request,
+  release, authorized holdout evaluation, or closure of the first-command
+  milestone.
 
 Pass rules:
 
@@ -245,8 +259,10 @@ Pass rules:
   `npm run quality -- record-review ...`. Record simplification coverage with
   `npm run quality -- record-simplification ...`. Advance a frontier only
   through the exact integrated commit covered by the pass. Audit-fix commits
-  remain review debt until the next correctness pass covers them. Prose passes
-  are not ledger records.
+  remain review debt until the next correctness pass covers them. Correctness
+  progress does not automatically create simplification debt; the dashboard may
+  report the last simplification frontier for context. Prose passes are not
+  ledger records.
 - For a full review record, give correctness's exact range and include raw,
   deduplicated, confirmed, and applied counts; enabled optional finders; fixes
   and deferrals; unverified judgments; notable rejections and their
@@ -255,8 +271,9 @@ Pass rules:
 - Finish each formal milestone with `npm run quality -- --check`. Resolve review
   debt that has reached a batching threshold and resolve unassigned `js/` files
   then. A smaller audit-fix tail may remain except at the external and
-  first-command boundaries listed above. Inspect simplification advisories, but
-  do not manufacture cleanup merely to clear them.
+  first-command boundaries listed above. Resolve any concrete simplification or
+  clarity trigger identified at the boundary, but do not manufacture a formal
+  pass when none exists.
   Historical `BASELINE` debt remains exempt until that area's first recorded
   pass.
 

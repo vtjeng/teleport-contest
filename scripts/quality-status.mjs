@@ -140,37 +140,6 @@ export function thresholdReached(current, dirty, commitThreshold, lineThreshold)
   return currentUnits >= commitThreshold || currentLines >= lineThreshold;
 }
 
-function hasImplementationWork(current, dirty) {
-  return current.commits > 0
-    || changedLines(current) > 0
-    || hasChanges(dirty);
-}
-
-// The ledger is append-only recording chronology. Reordering otherwise valid
-// entries changes this cadence even when each kind's frontier stays monotonic.
-export function reviewsSinceLastSimplification(passes, areaId) {
-  let reviews = 0;
-  for (const pass of passes) {
-    if (!pass.areas.includes(areaId)) continue;
-    if (pass.kind === 'simplification') reviews = 0;
-    else if (pass.kind === 'review') reviews += 1;
-  }
-  return reviews;
-}
-
-export function simplificationReviewDue({
-  completedReviews,
-  interval,
-  reviewCurrent,
-  simplificationTotal,
-  dirty,
-}) {
-  if (!hasImplementationWork(simplificationTotal, dirty)) return false;
-  if (completedReviews >= interval) return true;
-  return completedReviews === interval - 1
-    && hasImplementationWork(reviewCurrent, dirty);
-}
-
 export function qualityGateBlocked({ reviewDue, unassignedCount }) {
   return reviewDue > 0 || unassignedCount > 0;
 }
@@ -221,38 +190,12 @@ function formatReviewDebt(total, current, dirty, thresholds) {
   return `BASELINE — ${totalText}`;
 }
 
-function formatSimplificationDebt(
-  total,
-  current,
-  dirty,
-  completedReviews,
-  interval,
-  due,
-) {
-  const dirtySuffix = hasChanges(dirty)
-    ? ` + worktree (${formatMetrics(dirty, false)})`
-    : '';
-  const totalText = `${formatMetrics(total)}${dirtySuffix}`;
-  const totalUnits = total.commits + (hasChanges(dirty) ? 1 : 0);
-  const cadence = `${completedReviews}/${interval} correctness passes`;
-
-  if (totalUnits === 0) return 'clear';
-  if (due) return `DUE (${cadence}) — ${totalText}`;
-  if (completedReviews > 0 || hasImplementationWork(current, dirty)) {
-    return `WATCH (${cadence}) — ${totalText}`;
-  }
-  return `BASELINE — ${totalText}`;
-}
-
 export function validateConfigShape(config) {
   if (!config || typeof config !== 'object') fail('QUALITY.json must contain an object');
-  if (config.version !== 2) fail('QUALITY.json version must be 2');
+  if (config.version !== 3) fail('QUALITY.json version must be 3');
   if (!SHA_PATTERN.test(config.trackingBase ?? '')) fail('trackingBase must be a full commit SHA');
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
-  }
-  if (!SHA_PATTERN.test(config.simplificationCadenceBase ?? '')) {
-    fail('simplificationCadenceBase must be a full commit SHA');
   }
   if (!Number.isInteger(config.thresholds?.reviewAdvisoryCommits)
       || config.thresholds.reviewAdvisoryCommits < 1) {
@@ -276,10 +219,6 @@ export function validateConfigShape(config) {
   if (config.thresholds.reviewAdvisoryChangedLines
       >= config.thresholds.reviewChangedLines) {
     fail('the review line advisory must be below the review gate');
-  }
-  if (!Number.isInteger(config.thresholds?.simplificationReviewInterval)
-      || config.thresholds.simplificationReviewInterval < 1) {
-    fail('thresholds.simplificationReviewInterval must be a positive integer');
   }
   if (!Array.isArray(config.areas) || config.areas.length === 0) {
     fail('areas must be a non-empty array');
@@ -363,10 +302,6 @@ function validateHistory(config, head) {
   if (!isAncestor(config.enforcementBase, head)) {
     fail('enforcementBase must be an ancestor of HEAD');
   }
-  if (!isAncestor(config.simplificationCadenceBase, head)) {
-    fail('simplificationCadenceBase must be an ancestor of HEAD');
-  }
-
   const frontiers = {
     review: new Map(config.areas.map((area) => [area.id, config.trackingBase])),
     simplification: new Map(config.areas.map((area) => [area.id, config.trackingBase])),
@@ -419,28 +354,21 @@ function unassignedJsFiles(config) {
 
 function buildStatus(config, head) {
   const frontiers = validateHistory(config, head);
-  const cadencePasses = config.passes.filter((pass) => (
-    pass.head !== config.simplificationCadenceBase
-      && isAncestor(config.simplificationCadenceBase, pass.head)
-  ));
   const rows = [];
 
   for (const area of config.areas) {
     const dirty = workingTreeMetrics(area.paths);
     const row = { area, dirty, kinds: {} };
-    for (const kind of PASS_KINDS) {
-      const frontier = frontiers[kind].get(area.id);
-      const enforcedBase = currentBase(frontier, config.enforcementBase);
-      row.kinds[kind] = {
-        frontier,
-        total: committedMetrics(frontier, head, area.paths),
-        current: committedMetrics(enforcedBase, head, area.paths),
-      };
-    }
-    row.simplificationReviewCount = reviewsSinceLastSimplification(
-      cadencePasses,
-      area.id,
-    );
+    const reviewFrontier = frontiers.review.get(area.id);
+    const enforcedBase = currentBase(reviewFrontier, config.enforcementBase);
+    row.kinds.review = {
+      frontier: reviewFrontier,
+      total: committedMetrics(reviewFrontier, head, area.paths),
+      current: committedMetrics(enforcedBase, head, area.paths),
+    };
+    row.kinds.simplification = {
+      frontier: frontiers.simplification.get(area.id),
+    };
     rows.push(row);
   }
 
@@ -463,10 +391,8 @@ function printStatus(config, head, status, verbose) {
 
   let reviewDue = 0;
   let reviewAdvisory = 0;
-  let simplificationDue = 0;
   for (const row of status.rows) {
     const review = row.kinds.review;
-    const simplification = row.kinds.simplification;
     const areaReviewDue = thresholdReached(
       review.current,
       row.dirty,
@@ -479,16 +405,8 @@ function printStatus(config, head, status, verbose) {
       config.thresholds.reviewAdvisoryCommits,
       config.thresholds.reviewAdvisoryChangedLines,
     );
-    const areaSimplificationDue = simplificationReviewDue({
-      completedReviews: row.simplificationReviewCount,
-      interval: config.thresholds.simplificationReviewInterval,
-      reviewCurrent: review.current,
-      simplificationTotal: simplification.total,
-      dirty: row.dirty,
-    });
     if (areaReviewDue) reviewDue += 1;
     if (areaReviewAdvisory) reviewAdvisory += 1;
-    if (areaSimplificationDue) simplificationDue += 1;
 
     console.log(`${row.area.label} [${row.area.id}]`);
     console.log(
@@ -499,20 +417,10 @@ function printStatus(config, head, status, verbose) {
         config.thresholds,
       )}`,
     );
-    console.log(
-      `  Simplify: ${formatSimplificationDebt(
-        simplification.total,
-        simplification.current,
-        row.dirty,
-        row.simplificationReviewCount,
-        config.thresholds.simplificationReviewInterval,
-        areaSimplificationDue,
-      )}`,
-    );
     if (verbose) {
       console.log(
         `  Frontiers: review ${shortSha(review.frontier)}, `
-          + `simplification ${shortSha(simplification.frontier)}`,
+          + `simplification ${shortSha(row.kinds.simplification.frontier)}`,
       );
     }
   }
@@ -531,12 +439,6 @@ function printStatus(config, head, status, verbose) {
       ? `Review advisory: CHECKPOINT (${plural(reviewAdvisory, 'area')} reached `
         + 'the advisory threshold).'
       : 'Review advisory: clear.',
-  );
-  console.log(
-    simplificationDue > 0
-      ? `Simplification advisory: DUE (${plural(simplificationDue, 'area')} `
-        + 'reached a batch threshold).'
-      : 'Simplification advisory: clear.',
   );
   if (status.rows.some((row) => row.kinds.review.frontier === config.trackingBase)) {
     console.log(
