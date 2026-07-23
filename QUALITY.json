@@ -1619,6 +1619,74 @@
         ]
       },
       "recordedAt": "2026-07-23T13:56:46.893Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "10dd52becdd3f3d2c6193b4b63483c3ad043bdaa"
+      },
+      "head": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
+      "areas": [
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full correctness pass: mandatory correctness, readability-risk, test-quality, and variable-trace finders; optional performance and concurrency lenses enabled and clean. Four deduplicated findings confirmed by independent adjudication and applied in a877906. Focused monster, monster-move, and starting-pet tests pass. External fresh-process orchestration session 019f9006-5448-76d1-999c-7dcf349410dc stalled in empty waits without child state; native fresh-context agents completed the preserved roles. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1900,
+        "counts": {
+          "raw": 9,
+          "deduplicated": 4,
+          "confirmed": 4,
+          "applied": 4,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 0,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "Monster equipment distance used actual instead of remembered hero coordinates",
+            "foundBy": [
+              "correctness",
+              "readability-risk",
+              "test-quality",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Monster distress processed dead and off-map monsters",
+            "foundBy": [
+              "correctness",
+              "readability-risk",
+              "test-quality"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Monster distress vision preflight could become stale after earlier mutations",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Nearby worm tails recorded the long-worm head vital",
+            "foundBy": [
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T18:02:06.129Z"
     }
   ]
 }
