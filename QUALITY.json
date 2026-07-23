@@ -1302,6 +1302,72 @@
         ]
       },
       "recordedAt": "2026-07-23T06:25:58.860Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world-effects": "b38b104133dedd76e33c6a092669d4871ec34de3",
+        "replay": "afcbd77b5e33169f749c6dc59f3e973b8beb650b"
+      },
+      "head": "91220dc310e2efd2b00cecdca5598c2b39b2c8fa",
+      "areas": [
+        "world-effects",
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full command-turn audit of exact range afcbd77b5e33169f749c6dc59f3e973b8beb650b..91220dc310e2efd2b00cecdca5598c2b39b2c8fa. Session 019f8dcf-8422-72e0-8b94-f41cc87ea646; elapsed 1038s; usage 6302934 input, 6129152 cached, 20905 output, 6154 reasoning. All four mandatory finders plus the evidence-triggered concurrency finder and one adjudicator completed; performance was omitted because the changes had no plausible hot-path or resource-cost trigger. Counts: 17 raw, 16 deduplicated, 15 confirmed and applied in audit-fix commit 24dc678c, 1 rejected, 0 deferred or unverified, and no warnings. Production fixes prevent fast-hero surplus actions from allocating another turn, parse valued acoustics booleans, preserve ambient-sound source branch order, and stop residual replay before the next unported random-monster boundary. Reviewer-facing fixes clarify turn and replay ownership; test fixes cover speed truncation, awaited callbacks, all ten replay rows, awaited sound messages, vault ownership and ordering, engraving reachability, and guard traversal. The maybeWipeHeroEngraving return-value concern was rejected because the sole caller ignores it and tests pin the contract. The startup changes were inspected but that frontier is not advanced because earlier command and movement audit-fix tails are outside this exact range. Validation: 1038 tests and diff checks passed. Five strict fresh cases matched 13871 PRNG calls and 11 complete screen/cursor states; a two-action Fast case reached the expected next unported distfleeck boundary at C call 2679. Development scored 301 screens, 78649 RNG calls, and 590 cursors versus 301, 78635, and 590 at the clean pre-fix head; only RNG totals changed across 12 sessions. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1038,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 16,
+          "confirmed": 15,
+          "applied": 15,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 7,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "avoid allocating a new turn while a fast hero retains a complete action",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse valued acoustics booleans through typed option ownership",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preserve ambient-sound source branch and guard order",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "stop residual replay before the next unported random-monster boundary",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T07:44:08.289Z"
     }
   ]
 }
