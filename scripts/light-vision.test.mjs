@@ -24,6 +24,7 @@ import {
     OBJ_MINVENT,
     ROOM,
     SEE_INVIS,
+    SVALL,
     TEMP_LIT,
     WATER,
 } from '../js/const.js';
@@ -97,6 +98,17 @@ function floorCandle(state, x, y) {
     assert.equal(state.gl.light_base.type, LS_OBJECT);
     return candle;
 }
+
+test('vision_recalc marks the hero square seen from every direction', () => {
+    const state = darkRoomState();
+    const heroLocation = state.level.at(state.u.ux, state.u.uy);
+    heroLocation.seenv = 0;
+
+    vision_reset();
+    vision_recalc(0);
+
+    assert.equal(heroLocation.seenv, SVALL);
+});
 
 test('a floor candle projects the source circle into initial vision', () => {
     const state = darkRoomState();

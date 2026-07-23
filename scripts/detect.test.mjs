@@ -564,20 +564,43 @@ test('blind global search maps an ordinary trap through tactile defaults', async
 });
 
 test('default trap comparison preserves injected mapping contracts', async () => {
-    for (const mode of ['logical descriptor', 'presentation fallback']) {
+    const cases = [
+        {
+            label: 'matching logical owner',
+            descriptor: (trap) => ({ kind: 'trap', owner: trap }),
+            waits: false,
+        },
+        {
+            label: 'different logical owner',
+            descriptor: () => ({ kind: 'trap', owner: {} }),
+            waits: true,
+        },
+        {
+            label: 'different logical trap type',
+            descriptor: () => ({ kind: 'trap', trapType: STATUE_TRAP }),
+            waits: true,
+        },
+        {
+            label: 'presentation fallback',
+            descriptor: null,
+            waits: false,
+        },
+    ];
+    for (const { label, descriptor, waits } of cases) {
         const target = await blindGlobalSearchState();
         const trap = installUnseenAntiMagicTrap(target);
         const location = game.level.at(target.x, target.y);
         const expected = trap_glyph_info(trap, game);
         const beforeWait = target.replay.getScreens().length;
         const random = tactileSearchRandom(8);
+        const captures = waits ? captureInputBoundaries() : [];
+        if (waits) game.nhDisplay.pushKey(' '.charCodeAt(0));
 
         await dosearch0(1, {
             state: game,
             random,
             feelNewSym() {
-                if (mode === 'logical descriptor')
-                    return { kind: 'trap', owner: trap };
+                if (descriptor) return descriptor(trap);
                 location.disp_ch = expected.ch;
                 location.disp_color = expected.color;
                 location.disp_decgfx = expected.dec;
@@ -585,13 +608,30 @@ test('default trap comparison preserves injected mapping contracts', async () =>
             },
         });
 
-        assert.equal(trap.tseen, true, mode);
+        assert.equal(trap.tseen, true, label);
         assert.equal(
             target.replay.getScreens().length,
-            beforeWait,
-            mode,
+            beforeWait + (waits ? 1 : 0),
+            label,
         );
-        assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)'], mode);
+        if (waits) {
+            assert.equal(game.nhDisplay.inputQueueLength, 0, label);
+            assertTemporaryTrapScreen(
+                captures.at(-1),
+                target,
+                { x: game.u.ux, y: game.u.uy },
+            );
+            assert.deepEqual(
+                [
+                    location.disp_ch,
+                    location.disp_color,
+                    Boolean(location.disp_decgfx),
+                ],
+                [expected.ch, expected.color, Boolean(expected.dec)],
+                `${label}: final redraw`,
+            );
+        }
+        assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)'], label);
     }
 });
 

@@ -30,6 +30,7 @@ import {
     FOUNTAIN,
     FLYING,
     HALLUC,
+    HALLUC_RES,
     HWALL,
     ICE,
     LADDER,
@@ -80,6 +81,7 @@ import {
     monster_glyph_info,
     newsym,
     object_glyph_info,
+    show_glyph_cell,
     terrain_glyph,
     weapon_status,
 } from '../js/display.js';
@@ -1412,8 +1414,21 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
         { tame: true, hallucinating: false },
         { tame: false, hallucinating: true },
         { tame: true, hallucinating: true },
+        {
+            tame: false,
+            hallucinating: true,
+            resistance: 'intrinsic',
+        },
+        {
+            tame: true,
+            hallucinating: true,
+            resistance: 'extrinsic',
+        },
     ];
-    for (const [caseIndex, { tame, hallucinating }] of cases.entries()) {
+    for (const [
+        caseIndex,
+        { tame, hallucinating, resistance },
+    ] of cases.entries()) {
         const x = 7;
         const y = 4;
         const state = visibleCellState({ x, y, ux: 1, uy: 1 });
@@ -1425,6 +1440,12 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
         state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
         if (hallucinating)
             state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        if (resistance) {
+            state.u.uprops[HALLUC_RES] = {
+                intrinsic: resistance === 'intrinsic' ? 1 : 0,
+                extrinsic: resistance === 'extrinsic' ? 1 : 0,
+            };
+        }
         const monster = {
             data: state.mons[PM_TENGU],
             mhp: 10,
@@ -1447,16 +1468,23 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
 
         newsym(x, y);
 
-        const expectedMonster = hallucinating
+        const effectiveHallucination = hallucinating && !resistance;
+        const expectedMonster = effectiveHallucination
             ? {
                 ...monster,
                 data: state.mons[randomMonster],
                 mtame: 0,
             }
             : monster;
+        if (effectiveHallucination)
+            state.u.uprops[HALLUC].intrinsic = 0;
         const expected = monster_glyph_info(expectedMonster, state);
-        const expectedAttr = tame && !hallucinating
+        if (effectiveHallucination)
+            state.u.uprops[HALLUC].intrinsic = 1;
+        const expectedAttr = tame && !effectiveHallucination
             ? ATR_UNDERLINE : ATR_INVERSE;
+        const label = `tame=${tame}, hallucinating=${hallucinating}, `
+            + `resistance=${resistance ?? 'none'}`;
         assert.deepEqual(
             [
                 state.level.at(x, y).disp_ch,
@@ -1464,14 +1492,90 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
                 state.level.at(x, y).disp_attr,
             ],
             [expected.ch, expected.color, expectedAttr],
-            `tame=${tame}, hallucinating=${hallucinating}`,
+            label,
         );
         assert.equal(
             rn2_on_display_rng(NUMMONS),
-            hallucinating ? followingDraw : randomMonster,
-            `display RNG order for tame=${tame}, hallucinating=${hallucinating}`,
+            effectiveHallucination ? followingDraw : randomMonster,
+            `display RNG order for ${label}`,
         );
     }
+});
+
+test('physical sight owns hallucinated monster presentation over detection', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+    state.iflags ??= {};
+    state.iflags.wc_inverse = true;
+    const monster = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        mtame: 0,
+        minvis: true,
+        mundetected: false,
+        m_ap_type: 0,
+        mx: x,
+        my: y,
+    };
+    state.level.monsters[x][y] = monster;
+
+    const seed = 2026072406;
+    initRng(seed);
+    const randomMonster = rn2_on_display_rng(NUMMONS);
+    const followingDraw = rn2_on_display_rng(NUMMONS);
+    initRng(seed);
+
+    newsym(x, y);
+
+    state.u.uprops[HALLUC].intrinsic = 0;
+    const expected = monster_glyph_info({
+        ...monster,
+        data: state.mons[randomMonster],
+    }, state);
+    state.u.uprops[HALLUC].intrinsic = 1;
+    assert.deepEqual(
+        [
+            state.level.at(x, y).disp_ch,
+            state.level.at(x, y).disp_color,
+            state.level.at(x, y).disp_attr,
+        ],
+        [expected.ch, expected.color, expected.attr ?? 0],
+        'physically seen hallucinated monsters do not use inverse detection',
+    );
+    assert.equal(
+        rn2_on_display_rng(NUMMONS),
+        followingDraw,
+        'the physical presentation consumes one display-RNG species draw',
+    );
+});
+
+test('show_glyph_cell accepts presentation records, not map-memory records', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+
+    assert.throws(
+        () => show_glyph_cell(x, y, {
+            ch: 'x',
+            color: CLR_RED,
+            decgfx: true,
+        }),
+        /show_glyph_cell requires a glyph-presentation record/u,
+    );
+    show_glyph_cell(x, y, { ch: 'x', color: CLR_RED, dec: true });
+    assert.deepEqual(
+        [
+            state.level.at(x, y).disp_ch,
+            state.level.at(x, y).disp_color,
+            state.level.at(x, y).disp_decgfx,
+        ],
+        ['x', CLR_RED, true],
+    );
 });
 
 test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {

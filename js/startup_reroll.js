@@ -65,6 +65,22 @@ function displayDraw(random, bound) {
     return result;
 }
 
+function postHallucinationPresentationState(state) {
+    // rerollObjectGlyphInfo() has already performed what_mon()'s display-RNG
+    // draw.  Present that chosen species through the ordinary glyph helper
+    // without letting it perform the same Hallucination choice a second time.
+    const uprops = [...(state.u?.uprops ?? [])];
+    uprops[HALLUC] = {
+        ...(uprops[HALLUC] ?? {}),
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    return {
+        ...state,
+        u: { ...state.u, uprops },
+    };
+}
+
 // C ref: display.h obj_to_glyph(). The TTY does not print these glyphs for
 // reroll rows (their identifiers are zero), but it still computes them and
 // therefore consumes the display RNG while hallucinating.
@@ -79,7 +95,10 @@ function rerollObjectGlyphInfo(
     if (obj.otyp === O.STATUE && hallucinating(state)) {
         const monster = displayDraw(displayRandom, M.NUMMONS);
         displayDraw(displayRandom, 2); // statue_to_glyph() chooses a gender.
-        return monster_glyph_info({ data: state.mons[monster] }, state);
+        return monster_glyph_info(
+            { data: state.mons[monster] },
+            postHallucinationPresentationState(state),
+        );
     }
     if (!hallucinating(state)) return object_glyph_info(obj, state);
 

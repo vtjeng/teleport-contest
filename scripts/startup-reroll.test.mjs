@@ -330,6 +330,7 @@ test('reroll glyph calculation consumes only display draws for hallucination', (
         },
     );
     assert.deepEqual(calls, [M.NUMMONS, 2]);
+    assert.equal(state.u.uprops[HALLUC].intrinsic, 1);
 });
 
 test('reroll rows compute glyphs before names and honor artifact fruit articles', () => {

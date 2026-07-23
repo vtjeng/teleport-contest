@@ -14,6 +14,7 @@ import {
     GPCOORDS_SCREEN,
     IN_SIGHT,
     INFRAVISION,
+    LAVAPOOL,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     POOL,
@@ -123,6 +124,8 @@ test('monster sensing shares swallowed and underwater display gates', () => {
         state.u.uinwater = true;
         state.level.at(monster.mx, monster.my).typ = POOL;
         assertSensing(true, 'adjacent pool');
+        state.level.at(monster.mx, monster.my).typ = LAVAPOOL;
+        assertSensing(false, 'adjacent lava');
         state.level.at(monster.mx, monster.my).typ = ROOM;
         assertSensing(false, 'adjacent non-pool');
         state.level.at(monster.mx, monster.my).typ = POOL;

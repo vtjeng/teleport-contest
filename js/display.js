@@ -729,11 +729,19 @@ function actualMonsterGlyphInfo(monster, state) {
     return glyph;
 }
 
-// C ref: display.c display_monster() with sightflags == DETECTED and
-// win/tty/wintty.c tty_print_glyph()'s MG_DETECT handling.  Tame monsters use
-// their pet presentation unless hallucination defeats that source exception.
-function detectedMonsterGlyphInfo(monster, state) {
-    const hallucinating = _propertyActiveUnblocked(state.u, HALLUC);
+function heroHallucinating(state) {
+    // youprop.h Hallucination: the property is solely an intrinsic timeout,
+    // and either intrinsic or extrinsic resistance suppresses it.
+    return Boolean(state.u)
+        && _propertyIntrinsic(state.u, HALLUC)
+        && !_propertyActive(state.u, HALLUC_RES);
+}
+
+// C ref: display.c display_monster()'s final pet/detected/ordinary branch.
+// Hallucination changes the presented species for both detected and physically
+// seen monsters; only detected presentation receives inverse video.
+function presentedMonsterGlyphInfo(monster, state, detected) {
+    const hallucinating = heroHallucinating(state);
     if (monster.mtame && !hallucinating)
         return actualMonsterGlyphInfo(monster, state);
     const species = hallucinating
@@ -741,7 +749,7 @@ function detectedMonsterGlyphInfo(monster, state) {
         : monster.data;
     if (!species) {
         throw new Error(
-            'detected monster display requires the complete monster catalog',
+            'monster display requires the complete monster catalog',
         );
     }
     const glyph = glyphPresentation(
@@ -749,8 +757,16 @@ function detectedMonsterGlyphInfo(monster, state) {
         species.mcolor,
         state,
     );
-    if (state.iflags?.wc_inverse !== false) glyph.attr = ATR_INVERSE;
+    if (detected && state.iflags?.wc_inverse !== false)
+        glyph.attr = ATR_INVERSE;
     return glyph;
+}
+
+// C ref: display.c display_monster() with sightflags == DETECTED and
+// win/tty/wintty.c tty_print_glyph()'s MG_DETECT handling.  Tame monsters use
+// their pet presentation unless hallucination defeats that source exception.
+function detectedMonsterGlyphInfo(monster, state) {
+    return presentedMonsterGlyphInfo(monster, state, true);
 }
 
 export function monster_glyph_info(monster, state = game) {
@@ -834,7 +850,7 @@ export function monster_glyph_info(monster, state = game) {
         // gem or spellbook remains unobserved.
         return object_glyph_info(fakeObject, state);
     }
-    return actualMonsterGlyphInfo(monster, state);
+    return presentedMonsterGlyphInfo(monster, state, false);
 }
 
 // C ref: display.h mon_warning() and display.c warning_of().
@@ -1063,6 +1079,12 @@ export function terrain_glyph(loc, x, y, state = game) {
 
 // ── show_glyph_cell ──
 export function show_glyph_cell(x, y, glyph) {
+    if (!glyph || typeof glyph !== 'object'
+        || !Object.hasOwn(glyph, 'dec')) {
+        throw new TypeError(
+            'show_glyph_cell requires a glyph-presentation record',
+        );
+    }
     const {
         ch,
         color = NO_COLOR,
@@ -1275,7 +1297,7 @@ export function newsym(x, y) {
             ? (detectedOnly
                 ? detectedMonsterGlyphInfo(monster, game)
                 : monsterSensed
-                    ? actualMonsterGlyphInfo(monster, game)
+                    ? presentedMonsterGlyphInfo(monster, game, false)
                     : monster_glyph_info(monster, game))
             : monsterWarning ? warningGlyphInfo(monster, game) : underlying;
         // A PHYSICALLY_SEEN mimic maps its disguise into persistent memory
