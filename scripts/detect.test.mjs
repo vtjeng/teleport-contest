@@ -15,6 +15,7 @@ import {
     DUST,
     ENGRAVE,
     HALLUC,
+    IN_SIGHT,
     OBJ_FLOOR,
     ROOM,
     SCORR,
@@ -46,6 +47,7 @@ import {
     FOOD_CLASS,
     LENSES,
 } from '../js/objects.js';
+import { create_region } from '../js/region.js';
 
 function searchState() {
     const locations = new Map();
@@ -192,13 +194,14 @@ function tactileSearchRandom(expectedBound) {
     };
 }
 
-function rememberedGlyphContract(glyph) {
+function rememberedGlyphContract(glyph, trapType = null) {
     const remembered = {
         ch: glyph.ch,
         color: glyph.color,
         decgfx: glyph.dec,
         displayCh: glyph.displayCh ?? null,
     };
+    if (trapType !== null) remembered.trapType = trapType;
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor)
         remembered.displayColor = glyph.displayColor;
@@ -206,7 +209,12 @@ function rememberedGlyphContract(glyph) {
     return remembered;
 }
 
-function assertCompleteMappedGlyph(location, glyph, label = '') {
+function assertCompleteMappedGlyph(
+    location,
+    glyph,
+    label = '',
+    trapType = null,
+) {
     assert.deepEqual({
         ch: location.disp_ch,
         color: location.disp_color,
@@ -227,9 +235,54 @@ function assertCompleteMappedGlyph(location, glyph, label = '') {
     }, label);
     assert.deepEqual(
         location.remembered_glyph,
-        rememberedGlyphContract(glyph),
+        rememberedGlyphContract(glyph, trapType),
         label,
     );
+}
+
+function captureInputBoundaries() {
+    const captures = [];
+    const original = game._preNhgetchHook;
+    game._preNhgetchHook = async () => {
+        captures.push({
+            grid: game.nhDisplay.grid.map(
+                (row) => row.map((cell) => ({ ...cell })),
+            ),
+            cursor: [
+                game.nhDisplay.cursorCol,
+                game.nhDisplay.cursorRow,
+                1,
+            ],
+        });
+        if (original) await original();
+    };
+    return captures;
+}
+
+function screenRow(grid, row) {
+    return grid[row].map(({ ch }) => ch).join('');
+}
+
+function assertTemporaryTrapScreen(capture, trap, hero) {
+    const { grid, cursor } = capture;
+    assert.equal(
+        screenRow(grid, 0).trimEnd(),
+        'You find an anti-magic field.--More--',
+    );
+    const mapCells = [];
+    for (let row = 1; row < 22; ++row) {
+        for (let column = 0; column < 80; ++column) {
+            if (grid[row][column].ch !== ' ')
+                mapCells.push([column, row, grid[row][column].ch]);
+        }
+    }
+    assert.deepEqual(mapCells, [
+        [trap.x - 1, trap.y + 1, '^'],
+        [hero.x - 1, hero.y + 1, '@'],
+    ].sort((left, right) => left[1] - right[1] || left[0] - right[0]));
+    // The 29-byte message plus the eight-byte tty prompt leaves C's cursor
+    // immediately after --More--.
+    assert.deepEqual(cursor, [37, 0, 1]);
 }
 
 test('automatic search reveals a secret door in source operation order', async () => {
@@ -353,6 +406,36 @@ test('blind tactile search records all eight source viewing vectors', async () =
     }
 });
 
+test('tactile memory retains logical, browser, and RGB glyph metadata', () => {
+    const layer = {
+        kind: 'trap',
+        owner: { ttyp: ANTI_MAGIC },
+    };
+    const glyph = {
+        ch: null,
+        color: 12,
+        dec: false,
+        attr: 4,
+        displayCh: '⌁',
+        displayColor: 'rgb(7, 11, 13)',
+        rgb: [7, 11, 13],
+    };
+
+    assert.deepEqual(
+        _detectInternals.rememberedSearchGlyph(glyph, layer),
+        {
+            ch: null,
+            color: 12,
+            decgfx: false,
+            displayCh: '⌁',
+            displayColor: 'rgb(7, 11, 13)',
+            rgb: [7, 11, 13],
+            attr: 4,
+            trapType: ANTI_MAGIC,
+        },
+    );
+});
+
 test('ordinary trap discovery marks seen before exercise and display', async () => {
     const state = searchState();
     const trap = {
@@ -407,7 +490,7 @@ test('blind global search maps an ordinary trap through tactile defaults', async
     assert.equal(trap.tseen, true);
     assert.equal(location.seenv, SV4);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
-    assertCompleteMappedGlyph(location, expected);
+    assertCompleteMappedGlyph(location, expected, '', ANTI_MAGIC);
 });
 
 test('blind tactile mapping reveals only feelable engravings below a trap', async () => {
@@ -437,6 +520,7 @@ test('blind tactile mapping reveals only feelable engravings below a trap', asyn
             state: game,
             random: tactileSearchRandom(8),
             message: async () => {},
+            waitFoundTrap: async () => {},
         });
 
         assert.equal(engraving.erevealed, expectedRevealed);
@@ -488,6 +572,7 @@ test('trap clutter uses logical layers when custom symbols collide', async () =>
     }, 'the valid custom configuration creates a presentation collision');
 
     const beforeWait = target.replay.getScreens().length;
+    const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const random = tactileSearchRandom(8);
     await dosearch0(1, { state: game, random });
@@ -499,6 +584,77 @@ test('trap clutter uses logical layers when custom symbols collide', async () =>
     assert.equal(game.nhDisplay.inputQueueLength, 0);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
     assertCompleteMappedGlyph(location, objectGlyph);
+    assertTemporaryTrapScreen(
+        captures.at(-1),
+        target,
+        { x: game.u.ux, y: game.u.uy },
+    );
+});
+
+test('sighted trap discovery compares memory retained under a gas region', async () => {
+    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    assert.ok(game.viz_array[target.y][target.x] & IN_SIGHT);
+    const location = game.level.at(target.x, target.y);
+    const priorMemory = location.remembered_glyph;
+    const trap = {
+        tx: target.x,
+        ty: target.y,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    game.level.traps.push(trap);
+    const region = create_region([{
+        lx: target.x,
+        ly: target.y,
+        hx: target.x,
+        hy: target.y,
+    }]);
+    region.visible = true;
+    game.level.regions.push(region);
+    const captures = captureInputBoundaries();
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    const beforeWait = target.replay.getScreens().length;
+    await dosearch0(1, {
+        state: game,
+        random: tactileSearchRandom(8),
+    });
+
+    assert.equal(trap.tseen, true);
+    assert.deepEqual(
+        location.remembered_glyph,
+        priorMemory,
+        'newsym leaves levl glyph memory unchanged below the gas overlay',
+    );
+    assert.equal(target.replay.getScreens().length, beforeWait + 1);
+    assertTemporaryTrapScreen(
+        captures.at(-1),
+        target,
+        { x: game.u.ux, y: game.u.uy },
+    );
+});
+
+test('injected trap messaging requires paired wait ownership', async () => {
+    const target = await blindGlobalSearchState();
+    const trap = {
+        tx: target.x,
+        ty: target.y,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    game.level.traps.push(trap);
+    const random = tactileSearchRandom(8);
+
+    await assert.rejects(
+        dosearch0(1, {
+            state: game,
+            random,
+            message: async () => {},
+        }),
+        /injected waitFoundTrap when trap messaging is injected/u,
+    );
+    assert.equal(trap.tseen, false);
+    assert.deepEqual(random.calls, ['rnl(8)']);
 });
 
 test('statue discovery activates, conditionally exercises, and returns early', async () => {

@@ -175,23 +175,30 @@ function defaultSearchDisplay(x, y, env) {
             + 'for non-global state',
         );
     }
-    newsym(x, y);
-    return mappedSearchLayer(x, y, env.state);
+    const remembered = newsym(x, y);
+    return remembered?.trapType === undefined
+        ? { kind: 'remembered-other' }
+        : { kind: 'trap', trapType: remembered.trapType };
 }
 
+// C ref: display.c set_seenv()'s seenv_matrix.  Its vertical index is the
+// sign of hero.y - target.y, the opposite of the target-relative dy used by
+// defaultFeelSearchLocation().
 const FELT_SEENV = Object.freeze([
-    Object.freeze([SV4, SV5, SV6]),
-    Object.freeze([SV3, 0, SV7]),
     Object.freeze([SV2, SV1, SV0]),
+    Object.freeze([SV3, 0, SV7]),
+    Object.freeze([SV4, SV5, SV6]),
 ]);
 
-function rememberedSearchGlyph(glyph) {
+function rememberedSearchGlyph(glyph, layer = null) {
     const remembered = {
         ch: glyph.ch,
         color: glyph.color,
         decgfx: glyph.dec,
         displayCh: glyph.displayCh ?? null,
     };
+    if (layer?.kind === 'trap')
+        remembered.trapType = layer.owner.ttyp;
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor)
         remembered.displayColor = glyph.displayColor;
@@ -262,7 +269,7 @@ function defaultFeelSearchLocation(x, y, env) {
 
     const location = state.level.at(x, y);
     location.seenv = (location.seenv ?? 0)
-        | FELT_SEENV[dy + 1][dx + 1];
+        | FELT_SEENV[1 - dy][dx + 1];
     const engraving = engr_at(x, y, state);
     if (engraving
         && [ENGRAVE, HEADSTONE, BURN].includes(engraving.engr_type)) {
@@ -272,7 +279,7 @@ function defaultFeelSearchLocation(x, y, env) {
     const layer = mappedSearchLayer(x, y, state);
     const { glyph } = layer;
     if (state.level.flags?.hero_memory)
-        location.remembered_glyph = rememberedSearchGlyph(glyph);
+        location.remembered_glyph = rememberedSearchGlyph(glyph, layer);
     show_glyph_cell(
         x,
         y,
@@ -300,7 +307,7 @@ async function defaultFoundTrapDisplay(trap, x, y, env) {
         return Boolean(
             env.state.level.flags?.hero_memory
             && layer.kind === 'trap'
-            && layer.owner === trap,
+            && (layer.owner === trap || layer.trapType === trap.ttyp),
         );
     }
     // Preserve the injected-hook fallback contract for focused callers which
@@ -354,7 +361,11 @@ async function defaultWaitFoundTrap(env) {
     // C ref: win/tty/wintty.c tty_display_nhwindow(NHW_MAP, TRUE).
     // A pending find_trap() message is presented through more(), whose key
     // wait and topline cleanup are owned by the tty message subsystem.
-    await dismissPendingTtyMessage(env.state);
+    if (!await dismissPendingTtyMessage(env.state)) {
+        throw new Error(
+            'automatic search trap-map wait requires its pending tty message',
+        );
+    }
     await docrt();
 }
 
@@ -504,6 +515,13 @@ function preflightTrap(env, trap) {
     validateDisplayCapability(env, 'displayFoundTrap', 'an unseen trap');
     requireOperation(env, 'message', 'an unseen trap');
     requireOperation(env, 'trapName', 'an unseen trap');
+    if (env.injected.has('message')
+        && !env.injected.has('waitFoundTrap')) {
+        throw new Error(
+            'automatic search requires an injected waitFoundTrap '
+            + 'when trap messaging is injected',
+        );
+    }
     if (env.state !== game) {
         requireInjected(
             env, 'revealFoundTrap', 'non-global trap display',
@@ -682,5 +700,6 @@ export const _detectInternals = Object.freeze({
     artifactSearchAbility,
     coordinateDescription,
     defaultNomulZero,
+    rememberedSearchGlyph,
     searchFund,
 });

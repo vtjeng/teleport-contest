@@ -1015,13 +1015,17 @@ export function show_glyph_cell(
     loc.gnew = 1;
 }
 
-function rememberedMapGlyph(glyph) {
+function rememberedMapGlyph(glyph, trap = null) {
     const remembered = {
         ch: glyph.ch,
         color: glyph.color,
         decgfx: glyph.dec,
         displayCh: glyph.displayCh ?? null,
     };
+    // C stores a logical glyph number in levl[x][y].glyph.  Presentation can
+    // collide after symbol customization, so retain the trap identity needed
+    // by detect.c:find_trap() in the same canonical memory record.
+    if (trap) remembered.trapType = trap.ttyp;
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor) remembered.displayColor = glyph.displayColor;
     if (glyph.rgb) remembered.rgb = [...glyph.rgb];
@@ -1131,7 +1135,7 @@ export function newsym(x, y) {
                 x, y, cloud.ch, cloud.color, cloud.dec, cloud.attr ?? 0,
                 cloud.displayCh ?? null, cloud.displayColor ?? null,
             );
-            return;
+            return loc.remembered_glyph ?? null;
         }
     }
 
@@ -1155,8 +1159,11 @@ export function newsym(x, y) {
             hero.displayCh ?? null, hero.displayColor ?? null,
         );
         if (game.level?.flags?.hero_memory)
-            loc.remembered_glyph = rememberedMapGlyph(underlying);
-        return;
+            loc.remembered_glyph = rememberedMapGlyph(
+                underlying,
+                object ? null : trap?.tseen ? trap : null,
+            );
+        return loc.remembered_glyph ?? null;
     }
 
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
@@ -1175,8 +1182,13 @@ export function newsym(x, y) {
                 monster.m_ap_type & M_AP_TYPMASK,
             )
             ? shown : underlying;
-        if (game.level?.flags?.hero_memory)
-            loc.remembered_glyph = rememberedMapGlyph(remembered);
+        if (game.level?.flags?.hero_memory) {
+            loc.remembered_glyph = rememberedMapGlyph(
+                remembered,
+                remembered === underlying && !object && trap?.tseen
+                    ? trap : null,
+            );
+        }
         show_glyph_cell(
             x,
             y,
@@ -1195,6 +1207,7 @@ export function newsym(x, y) {
             loc.remembered_glyph.displayCh,
             loc.remembered_glyph.displayColor ?? null);
     }
+    return loc.remembered_glyph ?? null;
 }
 
 // ── docrt ──
@@ -2464,6 +2477,25 @@ export async function flush_screen(mode) {
 export async function cls() {
     const display = game?.nhDisplay;
     if (display?.clearScreen) display.clearScreen();
+    // C's cls() clears both the physical terminal and its pending glyph
+    // buffer.  disp_* is the JS glyph-buffer owner; leaving it populated lets
+    // the next flush reconstruct dungeon cells which were meant to stay
+    // hidden on a temporary find_trap() display.
+    if (game.level?.at) {
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) {
+                const loc = game.level.at(x, y);
+                loc.disp_ch = null;
+                loc.disp_color = NO_COLOR;
+                loc.disp_decgfx = false;
+                loc.disp_attr = 0;
+                loc.disp_browser_ch = null;
+                loc.disp_browser_color = null;
+                loc.disp_browser_attr = null;
+                loc.gnew = 0;
+            }
+        }
+    }
     game._pending_message = '';
     // display.c cls() forces the bottom lines to be rebuilt after clearing
     // the physical screen.

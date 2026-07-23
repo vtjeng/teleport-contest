@@ -641,7 +641,7 @@ test('blind first-turn search maps a discovered door by touch', async () => {
     assert.equal(game.hero_seq, 17);
     assert.equal(
         game.level.at(game.u.ux - 1, game.u.uy - 1).disp_ch,
-        ' ',
+        null,
     );
     // This seed's successful rnl(7) converts the southeast SDOOR and
     // feel_location() records the southeast viewing vector. display.c
@@ -718,10 +718,16 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
             ({ segments }) => segments.length <= RECORDER_SEGMENT_LIMIT,
         ),
     );
+    let dismissalSegments = 0;
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
-        // The optional last space dismisses find_trap()'s blocking --More--
-        // prompt in the custom-symbol collision case.
-        assert.match(segment.moves, /^ +[.hl] ?$/u);
+        if (segment.moves.endsWith(' ')) {
+            ++dismissalSegments;
+            assert.match(segment.nethackrc, /name:TrapOverlay/u);
+            assert.equal(segment.moves, ' . ');
+        } else {
+            assert.match(segment.moves, /^ +[.hl]$/u);
+        }
     }
+    assert.equal(dismissalSegments, 1);
 });
