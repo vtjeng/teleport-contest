@@ -30,6 +30,7 @@ import {
     UnsupportedTimerCleanupError,
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
+    nh_timeout_fresh_turn,
     obj_has_timer,
     obj_stop_timers,
     peek_timer,
@@ -66,6 +67,38 @@ test('timeout globals reset source-owned fields without replacing owners', () =>
     assert.equal(state.svt.other, true);
     assert.equal(state.gt.timer_base, null);
     assert.equal(state.svt.timer_id, 1);
+});
+
+test('fresh-turn timeout upkeep admits only source-inert timeout state', () => {
+    const state = timerState(2);
+    state.u = {
+        uinvulnerable: false,
+        mtimedone: 0,
+        ucreamed: 0,
+        usptime: 0,
+        ugallop: 0,
+        uprops: [{ intrinsic: 0 }, { intrinsic: 0x01000000 }],
+    };
+    start_timer(100, TIMER_OBJECT, ROT_CORPSE, { timed: 0 }, state);
+    assert.doesNotThrow(() => nh_timeout_fresh_turn(state));
+
+    state.u.uprops[0].intrinsic = 3;
+    assert.throws(
+        () => nh_timeout_fresh_turn(state),
+        /no active property timeout at index 0/u,
+    );
+    state.u.uprops[0].intrinsic = 0;
+    state.gt.timer_base.timeout = 2;
+    assert.throws(
+        () => nh_timeout_fresh_turn(state),
+        /no timer due by move 2/u,
+    );
+});
+
+test('fresh-turn timeout upkeep preserves invulnerability short circuit', () => {
+    const state = timerState(2);
+    state.u = { uinvulnerable: true, mtimedone: 5, uprops: [] };
+    assert.doesNotThrow(() => nh_timeout_fresh_turn(state));
 });
 
 test('start_timer orders expiries and puts equal expiries newest first', () => {

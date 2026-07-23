@@ -22,6 +22,7 @@ import {
     ROT_CORPSE,
     SHRINK_GLOB,
     TAINT_AGE,
+    TIMEOUT,
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
@@ -222,6 +223,48 @@ function validateTimer(kind, funcIndex) {
 
 function currentMove(state) {
     return Math.trunc(state.moves ?? 0);
+}
+
+export class UnsupportedHeroTimeoutBoundaryError extends Error {
+    constructor(reason) {
+        super(`fresh-turn nh_timeout requires ${reason}`);
+        this.name = 'UnsupportedHeroTimeoutBoundaryError';
+    }
+}
+
+// C ref: timeout.c nh_timeout() and timer.c run_timers(), specialized to the
+// source-guaranteed fresh-game state admitted by the first complete turn.
+// Fresh heroes have no active property/scalar timeout, and every creation-time
+// object timer expires well after move 2.  Validate those invariants rather
+// than silently skipping a newly reachable timeout branch.
+export function nh_timeout_fresh_turn(state = game) {
+    const u = state.u ?? {};
+    if (u.uinvulnerable) return;
+    for (const [name, value] of [
+        ['mtimedone', u.mtimedone],
+        ['ucreamed', u.ucreamed],
+        ['usptime', u.usptime],
+        ['ugallop', u.ugallop],
+    ]) {
+        if (Math.trunc(value ?? 0) !== 0) {
+            throw new UnsupportedHeroTimeoutBoundaryError(
+                `zero ${name}`,
+            );
+        }
+    }
+    for (let index = 0; index < (u.uprops?.length ?? 0); ++index) {
+        if ((Math.trunc(u.uprops[index]?.intrinsic ?? 0) & TIMEOUT) !== 0) {
+            throw new UnsupportedHeroTimeoutBoundaryError(
+                `no active property timeout at index ${index}`,
+            );
+        }
+    }
+    const due = state.gt?.timer_base;
+    if (due && Math.trunc(due.timeout) <= currentMove(state)) {
+        throw new UnsupportedHeroTimeoutBoundaryError(
+            `no timer due by move ${currentMove(state)}`,
+        );
+    }
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to

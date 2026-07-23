@@ -44,9 +44,11 @@
         "js/attrib.js",
         "js/calendar.js",
         "js/exper.js",
+        "js/regen.js",
         "js/role_init.js",
         "js/role_skills.js",
         "js/roles.js",
+        "js/spell.js",
         "js/startup_skills.js",
         "js/u_init_inventory_attrs.js",
         "js/u_init.js"

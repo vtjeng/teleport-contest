@@ -1,7 +1,8 @@
 // track.js -- Hero movement history.
-// C ref: track.c initrack().
+// C ref: track.c initrack(), settrack(), and hastrack().
 
 import { game } from './gstate.js';
+import { RIN_STEALTH } from './objects.js';
 
 const UTSZ = 100;
 
@@ -15,6 +16,22 @@ export function initrack(state = game) {
         ),
     };
     return state.track;
+}
+
+// C ref: track.c settrack().  A worn ring of stealth suppresses footprints;
+// the intrinsic Stealth property deliberately does not.
+export function settrack(state = game) {
+    if (state.uleft?.otyp === RIN_STEALTH
+        || state.uright?.otyp === RIN_STEALTH) {
+        return false;
+    }
+    const track = state.track ?? initrack(state);
+    if (track.utcnt < UTSZ) track.utcnt++;
+    if (track.utpnt === UTSZ) track.utpnt = 0;
+    track.utrack[track.utpnt].x = state.u.ux;
+    track.utrack[track.utpnt].y = state.u.uy;
+    track.utpnt++;
+    return true;
 }
 
 // C ref: track.c hastrack(). Only the populated prefix is meaningful even
