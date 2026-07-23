@@ -1947,7 +1947,7 @@ export async function themerooms_generate(
     if (!pick) return false;
     // Local closure diagnostics observe the already-selected definition;
     // absent diagnostics, this optional chain has no runtime effect.
-    game._themeroomSelectionTrace?.push({ kind: 'room', id: pick.id });
+    game._themeroomSelectionCollector?.record('room', pick.id);
     const sourceRandomFacade = random === rn2 && randomOneBased === rnd
         ? SOURCE_THEMEROOM_RANDOM
         : null;

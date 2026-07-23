@@ -1117,6 +1117,6 @@ export function themeroom_fill(room, difficulty, rawEnv = {}) {
     if (!fill) throw new UnsupportedThemeroomFillError(null);
     // Match the room-selection diagnostic seam without adding a random draw
     // or changing the selected fill's source-shaped execution.
-    env.state._themeroomSelectionTrace?.push({ kind: 'fill', id: fill.id });
+    env.state._themeroomSelectionCollector?.record('fill', fill.id);
     return run_themeroom_fill(fill, room, difficulty, env);
 }

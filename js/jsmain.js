@@ -171,7 +171,8 @@ export class NethackGame {
         this._animFramesByStep = [];
         this._pendingAnimFrames = [];
         this._lastRngIdx = 0;
-        this._themeroomSelectionTrace = opts.themeroomSelectionTrace ?? null;
+        this._themeroomSelectionCollector
+            = opts.themeroomSelectionCollector ?? null;
     }
 
     // Universal animation-frame hook.  Call once per intermediate
@@ -259,8 +260,12 @@ export class NethackGame {
         g.program_state = {};
         g.moves = 0;
         g._commandDispatchCount = 0;
-        if (this._themeroomSelectionTrace) {
-            g._themeroomSelectionTrace = this._themeroomSelectionTrace;
+        if (this._themeroomSelectionCollector) {
+            // The collector is the single owner of this diagnostic state.
+            // Level-generation producers can append through its narrow seam,
+            // while this NethackGame retains the segment-local snapshot API.
+            g._themeroomSelectionCollector
+                = this._themeroomSelectionCollector;
         }
         g.gp = {
             plnamelen: 0,
@@ -359,10 +364,20 @@ export class NethackGame {
     // of the official ranking; see API.md.
     getAnimationFramesByStep() { return this._animFramesByStep; }
     getThemeroomSelections() {
-        return this._themeroomSelectionTrace
-            ? this._themeroomSelectionTrace.map((entry) => ({ ...entry }))
-            : null;
+        return this._themeroomSelectionCollector?.snapshot() ?? null;
     }
+}
+
+function createThemeroomSelectionCollector() {
+    const selections = [];
+    return Object.freeze({
+        record(kind, id) {
+            selections.push(Object.freeze({ kind, id }));
+        },
+        snapshot() {
+            return selections.map((entry) => ({ ...entry }));
+        },
+    });
 }
 
 // ── Per-segment runner — the contest contract ──
@@ -401,7 +416,9 @@ export async function runSegment(
         nethackrc,
         recorderIsDst,
         storage,
-        themeroomSelectionTrace: traceThemeroomSelections ? [] : null,
+        themeroomSelectionCollector: traceThemeroomSelections
+            ? createThemeroomSelectionCollector()
+            : null,
     });
 
     const display = new GameDisplay(null);

@@ -60,8 +60,7 @@ function segmentLabel(segment) {
         ?? `seed ${segment.seed}`;
 }
 
-export async function verifyFirstCommandBoundary(segment) {
-    const replay = await runSegment(segment);
+function assertFirstCommandBoundary(segment, replay) {
     const label = segmentLabel(segment);
     if (game.program_state?.in_moveloop !== 1) {
         throw new Error(`${label} stopped before entering moveloop`);
@@ -86,10 +85,16 @@ export async function verifyFirstCommandBoundary(segment) {
     }
 }
 
+export async function verifyFirstCommandBoundary(segment) {
+    const replay = await runSegment(segment);
+    assertFirstCommandBoundary(segment, replay);
+}
+
 export async function traceFirstCommandThemeroomSelections(segment) {
     const replay = await runSegment(segment, {
         traceThemeroomSelections: true,
     });
+    assertFirstCommandBoundary(segment, replay);
     return replay.getThemeroomSelections();
 }
 

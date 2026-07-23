@@ -2383,8 +2383,13 @@ function _buildScreenOutput() {
         display.clearScreen();
         // Message line
         const msg = game._pending_message || '';
-        for (let c = 0; c < Math.min(msg.length, display.cols); c++)
-            display.setCell(c, 0, msg[c], NO_COLOR, 0);
+        for (let c = 0; c < Math.min(msg.length, display.cols); c++) {
+            // Recorder patch 006 ignores signed high-bit TTY bytes after the
+            // source cursor has advanced. tty_message.js represents each such
+            // byte as NUL, so leave the rebuilt physical cell untouched.
+            if (msg[c] !== '\0')
+                display.setCell(c, 0, msg[c], NO_COLOR, 0);
+        }
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);
         for (let offset = 0; offset < viewport.height; ++offset) {

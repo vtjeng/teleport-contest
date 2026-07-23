@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { parseNethackrc } from '../js/options.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     aligns,
     genders,
@@ -86,6 +87,31 @@ test('closure boundary rejects an appended zero-time command', async () => {
             moves: `${segment.moves} `,
         }),
         /dispatched a command/u,
+    );
+    await assert.rejects(
+        traceFirstCommandThemeroomSelections({
+            ...segment,
+            moves: `${segment.moves} `,
+        }),
+        /dispatched a command/u,
+    );
+});
+
+test('theme diagnostics remain owned by their traced segment', async () => {
+    const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[1])
+        .segments[0];
+    const traced = await runSegment(segment, {
+        traceThemeroomSelections: true,
+    });
+    const selections = traced.getThemeroomSelections();
+    assert.ok(selections.length > 0);
+
+    const untraced = await runSegment(segment);
+    assert.equal(untraced.getThemeroomSelections(), null);
+    assert.deepEqual(
+        traced.getThemeroomSelections(),
+        selections,
+        'a later segment cannot replace the earlier segment collector',
     );
 });
 

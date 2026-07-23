@@ -2405,22 +2405,21 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         { color: CLR_RED, attr: ATR_INVERSE },
         'full-HP visible title',
     );
-    assert.deepEqual(
-        [
-            state.nhDisplay.grid[22][0].attr,
-            state.nhDisplay.grid[22][19].color,
-            state.nhDisplay.grid[22][19].attr,
-            state.nhDisplay.grid[22][31].color,
-            state.nhDisplay.grid[22][31].attr,
-        ],
-        [
-            ATR_NONE,
-            NO_COLOR,
-            ATR_NONE,
-            NO_COLOR,
-            ATR_NONE,
-        ],
-        'the NOMUX first-command grid retains normal title padding',
+    assertCellRange(
+        state,
+        22,
+        19,
+        12,
+        { color: NO_COLOR, attr: ATR_NONE },
+        'the full compressed title-padding run remains unowned',
+    );
+    assertCellRange(
+        state,
+        22,
+        31,
+        1,
+        { color: NO_COLOR, attr: ATR_NONE },
+        'the closing bracket remains outside the highlighted slice',
     );
 
     // Eight of sixteen HP places the 15-cell split inside the visible title.
@@ -2847,6 +2846,33 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
         17,
         { color: NO_COLOR, attr: ATR_INVERSE },
         'the highlighted suffix survives internal compression',
+    );
+
+    state.plname = 'Foo      Bar';
+    await bot();
+    assertCellRange(
+        state,
+        22,
+        4,
+        6,
+        { color: NO_COLOR, attr: ATR_NONE },
+        'an internal six-space run is fully compressed',
+    );
+    assertCellRange(
+        state,
+        22,
+        1,
+        3,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'the six-space run retains its highlighted prefix',
+    );
+    assertCellRange(
+        state,
+        22,
+        10,
+        21,
+        { color: NO_COLOR, attr: ATR_INVERSE },
+        'the six-space run retains its highlighted suffix and tail padding',
     );
 
     state.plname = 'Hero';

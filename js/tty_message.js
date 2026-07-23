@@ -21,8 +21,21 @@ function ttyByteText(value) {
     )).join('');
 }
 
-function recorderTtyProjection(value) {
-    return String(value).replaceAll('\0', ' ');
+function writeRecorderTtyLine(display, row, value) {
+    const line = String(value);
+    let column = 0;
+    for (const ch of line) {
+        if (column >= display.cols) break;
+        // Recorder patch 006 receives signed high-bit bytes after topl_putsym()
+        // advances curx. nomux_putch() ignores those bytes, preserving the
+        // prior shadow cell at that column.
+        if (ch !== '\0')
+            display.setCell(column, row, ch, NO_COLOR, 0);
+        ++column;
+    }
+    display.setCursor(column, row);
+    display.clearToEol();
+    return column;
 }
 
 function snapshotRows(display, rowCount) {
@@ -110,16 +123,12 @@ export async function dismissPendingTtyMessage(state = game) {
             ch: ' ', color: NO_COLOR, attr: 0,
         }));
     }
-    for (let row = 0; row <= promptRow; ++row)
-        display.clearRow(row);
+    // redotoplin() overwrites ordinary bytes in place, skips recorder-ignored
+    // high-bit bytes, and calls cl_end() after every logical/physical line.
+    // Do not clear the prefix first: skipped byte cells retain their prior
+    // character, color, and attributes in the recorder shadow grid.
     for (let row = 0; row < lines.length; ++row)
-        display.putstr(
-            0,
-            row,
-            recorderTtyProjection(lines[row]),
-            NO_COLOR,
-            0,
-        );
+        writeRecorderTtyLine(display, row, lines[row]);
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 
