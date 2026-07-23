@@ -1,0 +1,65 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 9,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 11,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 21,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 31,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 32,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 39,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 41,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 54,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 56,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    }
+  ]
+}

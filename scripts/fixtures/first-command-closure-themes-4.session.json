@@ -1,0 +1,29 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 377,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 382,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 402,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    },
+    {
+      "seed": 717,
+      "datetime": "20000110090000",
+      "nethackrc": "OPTIONS=name:ThemeClosure,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": ""
+    }
+  ]
+}
