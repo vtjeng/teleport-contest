@@ -48,6 +48,7 @@ import {
     amorphous,
     is_minion,
     is_rider,
+    is_vampshifter,
     passes_walls,
     perceives,
     verysmall,
@@ -62,9 +63,6 @@ import {
     PM_GRID_BUG,
     PM_JABBERWOCK,
     PM_MINOTAUR,
-    PM_VAMPIRE,
-    PM_VAMPIRE_LEADER,
-    PM_VLAD_THE_IMPALER,
     PM_VROCK,
     PM_XORN,
     S_DOG,
@@ -249,11 +247,7 @@ export function can_ooze(monster, state = game) {
         && !stuffPreventsPassage(monster, state);
 }
 
-export function is_vampshifter(monster) {
-    return monster.cham === PM_VAMPIRE
-        || monster.cham === PM_VAMPIRE_LEADER
-        || monster.cham === PM_VLAD_THE_IMPALER;
-}
+export { is_vampshifter };
 
 // C ref: monmove.c can_fog().
 export function can_fog(monster, state = game) {

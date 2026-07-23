@@ -89,6 +89,7 @@ export function notake(species) { return flag1(species, M.M1_NOTAKE); }
 export function has_head(species) { return !flag1(species, M.M1_NOHEAD); }
 export function unsolid(species) { return flag1(species, M.M1_UNSOLID); }
 export function mindless(species) { return flag1(species, M.M1_MINDLESS); }
+export function is_animal(species) { return flag1(species, M.M1_ANIMAL); }
 export function slithy(species) { return flag1(species, M.M1_SLITHY); }
 export function regenerates(species) { return flag1(species, M.M1_REGEN); }
 export function perceives(species) { return flag1(species, M.M1_SEE_INVIS); }
@@ -100,6 +101,8 @@ export function metallivorous(species) {
 }
 
 export function is_undead(species) { return flag2(species, M.M2_UNDEAD); }
+export function is_were(species) { return flag2(species, M.M2_WERE); }
+export function is_demon(species) { return flag2(species, M.M2_DEMON); }
 export function is_human(species) { return flag2(species, M.M2_HUMAN); }
 export function is_giant(species) { return flag2(species, M.M2_GIANT); }
 export function is_domestic(species) { return flag2(species, M.M2_DOMESTIC); }
@@ -124,6 +127,27 @@ export function is_whirly(species) {
 export function likes_lava(species) {
     return species?.pmidx === M.PM_FIRE_ELEMENTAL
         || species?.pmidx === M.PM_SALAMANDER;
+}
+
+// C refs: mondata.h hates_silver(), mondata.c mon_hates_silver(), and
+// monmove.h is_vampshifter(). A shapechanger's current cham field matters
+// even when its present species would not otherwise hate silver.
+export function is_vampshifter(monster) {
+    return monster?.cham === M.PM_VAMPIRE
+        || monster?.cham === M.PM_VAMPIRE_LEADER
+        || monster?.cham === M.PM_VLAD_THE_IMPALER;
+}
+
+export function hates_silver(species) {
+    return is_were(species)
+        || species?.mlet === M.S_VAMPIRE
+        || is_demon(species)
+        || species?.pmidx === M.PM_SHADE
+        || (species?.mlet === M.S_IMP && species?.pmidx !== M.PM_TENGU);
+}
+
+export function mon_hates_silver(monster) {
+    return is_vampshifter(monster) || hates_silver(monster?.data);
 }
 
 // C ref: mondata.c passes_bars(). This combines shape, size, attack, and diet

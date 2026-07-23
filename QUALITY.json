@@ -126,7 +126,8 @@
         "js/monmove.js",
         "js/monst.js",
         "js/monsters.js",
-        "js/teleport.js"
+        "js/teleport.js",
+        "js/weapon.js"
       ],
       "generatedOutputs": [
         {
