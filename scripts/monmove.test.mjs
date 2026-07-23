@@ -45,6 +45,7 @@ import {
     NOGARLIC,
     NOTONL,
     OPENDOOR,
+    PIT,
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
@@ -64,6 +65,7 @@ import {
     W_ARM,
 } from '../js/const.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
+import { online2 } from '../js/hacklib.js';
 import { create_region } from '../js/region.js';
 import {
     accessible,
@@ -91,6 +93,7 @@ import {
     M1_NEEDPICK,
     M1_TUNNEL,
     MS_LEADER,
+    PM_AMOROUS_DEMON,
     PM_ANGEL,
     PM_DEATH,
     PM_DISPLACER_BEAST,
@@ -445,6 +448,50 @@ test('mon_allowflags draws once for conflict resistance', () => {
         random: { rnd: () => 6 },
     });
     assert.equal(Boolean(flags & ALLOW_U), false);
+
+    const hostile = newMonster({
+        data: state.mons[PM_HUMAN],
+        m_lev: 8,
+        mpeaceful: false,
+    });
+    bounds.length = 0;
+    flags = mon_allowflags(hostile, {
+        state,
+        random: {
+            rnd(bound) {
+                bounds.push(bound);
+                return 19;
+            },
+        },
+    });
+    assert.ok(flags & ALLOW_U);
+    assert.deepEqual(bounds, [20]);
+});
+
+test('mon_allowflags uses polymorphed Charisma for conflict resistance', () => {
+    const { state } = makeState();
+    state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    // Equal level 5 values cancel, so stored CHA 10 versus the form floor 18
+    // alone decides whether a roll of 15 resists Conflict.
+    state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.ulevel = 5;
+    const peaceful = newMonster({
+        data: state.mons[PM_HUMAN],
+        m_lev: 5,
+        mpeaceful: true,
+    });
+    const env = { state, random: { rnd: () => 15 } };
+
+    state.youmonst.data = state.mons[PM_HUMAN];
+    state.u.umonnum = PM_HUMAN;
+    assert.equal(Boolean(mon_allowflags(peaceful, env) & ALLOW_U), false);
+
+    state.youmonst.data = state.mons[PM_WOOD_NYMPH];
+    assert.ok(mon_allowflags(peaceful, env) & ALLOW_U);
+
+    state.youmonst.data = state.mons[PM_HUMAN];
+    state.u.umonnum = PM_AMOROUS_DEMON;
+    assert.ok(mon_allowflags(peaceful, env) & ALLOW_U);
 });
 
 test('movement terrain helpers preserve walls, boulders, and ceilings', () => {
@@ -501,6 +548,34 @@ test('m_harmless_trap keeps structural cases local to movement legality', () => 
         state,
         resistsTrapEffect: () => true,
     }), true);
+
+    const clinger = newMonster({
+        data: {
+            ...state.mons[PM_HUMAN],
+            mflags1: state.mons[PM_HUMAN].mflags1 | M1_CLING,
+        },
+    });
+    assert.equal(m_harmless_trap(clinger, { ttyp: PIT }, { state }), true);
+
+    state.level.flags.sokoban_rules = true;
+    assert.equal(
+        m_harmless_trap(floater, { ttyp: ARROW_TRAP }, { state }),
+        false,
+    );
+    assert.equal(m_harmless_trap(clinger, { ttyp: PIT }, { state }), false);
+});
+
+test('online2 recognizes source rows, columns, and both diagonals', () => {
+    const cases = [
+        // Endpoints are separated enough to distinguish the four source lines.
+        { from: [2, 4], to: [7, 4], expected: true },
+        { from: [4, 2], to: [4, 7], expected: true },
+        { from: [2, 2], to: [7, 7], expected: true },
+        { from: [2, 7], to: [7, 2], expected: true },
+        { from: [2, 2], to: [7, 6], expected: false },
+    ];
+    for (const { from, to, expected } of cases)
+        assert.equal(online2(...from, ...to), expected);
 });
 
 test('mfndpos enumerates neighbors in source x-major order', () => {
@@ -561,6 +636,125 @@ test('mfndpos records scary squares and adjacent hero discovery', () => {
     }), 8);
     const scaryIndex = data.poss.findIndex(({ x, y }) => x === 3 && y === 4);
     assert.ok(data.info[scaryIndex] & ALLOW_SSM);
+});
+
+test('mfndpos remaps a displaced scary image to the real hero square', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    state.u.uprops[DISPLACED].intrinsic = 1;
+    // The remembered image is adjacent at (3,4); the real hero remains at
+    // makeState()'s distant (10,10), so the callback coordinate is decisive.
+    const monster = ordinaryMonster(state, { mux: 3, muy: 4 });
+    const checked = [];
+
+    assert.equal(mfndpos(monster, {}, 0, {
+        state,
+        onScary(x, y) {
+            checked.push([x, y]);
+            return false;
+        },
+    }), 0);
+    assert.deepEqual(checked, [[10, 10]]);
+});
+
+test('mfndpos reveals an adjacent hero before rejecting the square', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    state.u.ux = 3;
+    state.u.uy = 4;
+    const monster = ordinaryMonster(state, { mux: 12, muy: 12 });
+    const data = {};
+
+    assert.equal(mfndpos(monster, data, 0, {
+        state,
+        onScary: () => false,
+    }), 0);
+    assert.deepEqual([monster.mux, monster.muy], [3, 4]);
+    assert.equal(data.cnt, 0);
+});
+
+test('mfndpos reuses caller-owned fixed scratch buffers', () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, { mcansee: false });
+    const data = {};
+    const env = { state, onScary: () => false };
+
+    assert.equal(mfndpos(monster, data, 0, env), 8);
+    const positions = data.poss;
+    const positionEntries = [...data.poss];
+    const info = data.info;
+    const firstResult = data.poss.slice(0, data.cnt).map((position, index) => ({
+        ...position,
+        info: data.info[index],
+    }));
+
+    assert.equal(mfndpos(monster, data, 0, env), 8);
+    assert.equal(data.poss, positions);
+    assert.equal(data.info, info);
+    for (let index = 0; index < positionEntries.length; ++index)
+        assert.equal(data.poss[index], positionEntries[index]);
+    assert.deepEqual(
+        data.poss.slice(0, data.cnt).map((position, index) => ({
+            ...position,
+            info: data.info[index],
+        })),
+        firstResult,
+    );
+});
+
+test('mfndpos rolls back partial output when trap resistance is unavailable', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('5,5', { typ: ROOM, flags: 0, wall_info: 0 });
+    // x-major enumeration accepts the adjacent hero at (3,3) before reaching
+    // the sleep trap at the last candidate, (5,5).
+    state.u.ux = 3;
+    state.u.uy = 3;
+    state.level.traps = [{ tx: 5, ty: 5, ttyp: SLP_GAS_TRAP }];
+    const monster = ordinaryMonster(state, { mux: 12, muy: 12 });
+    const positions = Array.from({ length: 9 }, (_, index) => ({
+        x: 100 + index,
+        y: 200 + index,
+    }));
+    const info = Array.from({ length: 9 }, (_, index) => 300 + index);
+    const data = { cnt: 7, poss: positions, info };
+    const before = {
+        cnt: data.cnt,
+        poss: data.poss.map((position) => ({ ...position })),
+        info: [...data.info],
+    };
+    const env = { state, onScary: () => false };
+
+    assert.throws(
+        () => mfndpos(monster, data, ALLOW_U, env),
+        /resistsTrapEffect/,
+    );
+    assert.deepEqual([monster.mux, monster.muy], [12, 12]);
+    assert.equal(data.poss, positions);
+    assert.equal(data.info, info);
+    assert.deepEqual(data, before);
+
+    const configured = {
+        ...env,
+        resistsTrapEffect: () => false,
+    };
+    const retryCount = mfndpos(monster, data, ALLOW_U, configured);
+    const cleanMonster = ordinaryMonster(state, { mux: 12, muy: 12 });
+    const cleanData = {};
+    const cleanCount = mfndpos(
+        cleanMonster,
+        cleanData,
+        ALLOW_U,
+        configured,
+    );
+    assert.equal(retryCount, cleanCount);
+    assert.deepEqual(data.poss.slice(0, data.cnt),
+        cleanData.poss.slice(0, cleanData.cnt));
+    assert.deepEqual(data.info.slice(0, data.cnt),
+        cleanData.info.slice(0, cleanData.cnt));
 });
 
 test('mfndpos applies door and digging tools before candidate metadata', () => {
@@ -701,6 +895,75 @@ test('mfndpos applies monster aggression and displacement at occupancy', () => {
     defender.mnum = PM_GIANT_RAT;
     assert.equal(mfndpos(attacker, data, ALLOW_MDISP, env), 1);
     assert.ok(data.info[0] & ALLOW_MDISP);
+});
+
+test('mfndpos clears inherited displacement permission across candidates', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
+    locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const attacker = newMonster({
+        data: state.mons[PM_DISPLACER_BEAST],
+        mnum: PM_DISPLACER_BEAST,
+        mx: 4,
+        my: 4,
+        m_lev: 10,
+        mcansee: false,
+    });
+    const eligible = ordinaryMonster(state, { mx: 3, my: 3, m_lev: 1 });
+    const trapped = ordinaryMonster(state, {
+        mx: 3,
+        my: 4,
+        m_lev: 1,
+        mtrapped: true,
+    });
+    state.level.monsters[3][3] = eligible;
+    state.level.monsters[3][4] = trapped;
+    const data = {};
+
+    assert.equal(mfndpos(attacker, data, ALLOW_MDISP, {
+        state,
+        onScary: () => false,
+    }), 1);
+    assert.deepEqual(data.poss[0], { x: 3, y: 3 });
+    assert.ok(data.info[0] & ALLOW_MDISP);
+});
+
+test('mfndpos applies zombie aggression and Wizard Tower partitioning', () => {
+    const { locations, state } = makeState();
+    sealNeighborhood(locations, 4, 4);
+    locations.set('5,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const attacker = newMonster({
+        data: state.mons[PM_HUMAN_ZOMBIE],
+        mnum: PM_HUMAN_ZOMBIE,
+        mx: 4,
+        my: 4,
+        mcansee: false,
+    });
+    const defender = newMonster({
+        data: state.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        mx: 5,
+        my: 4,
+    });
+    state.level.monsters[5][4] = defender;
+    const data = {};
+    const env = { state, onScary: () => false };
+
+    assert.equal(mfndpos(attacker, data, 0, env), 1);
+    assert.ok(data.info[0] & ALLOW_M);
+
+    attacker.mgenmklev = true;
+    defender.mgenmklev = true;
+    assert.equal(mfndpos(attacker, data, 0, env), 0);
+
+    attacker.mgenmklev = false;
+    defender.mgenmklev = false;
+    state.wiz1_level = { ...state.u.uz };
+    // The hero and defender are outside this one-square tower boundary while
+    // the attacker is inside, so cross-partition aggression is suppressed.
+    state.dndest = { nlx: 4, nly: 4, nhx: 4, nhy: 4 };
+    assert.equal(mfndpos(attacker, data, 0, env), 0);
 });
 
 test('mfndpos retries eel movement on land only when no pool is adjacent', () => {

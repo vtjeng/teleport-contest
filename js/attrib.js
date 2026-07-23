@@ -12,6 +12,7 @@ import {
     Upolyd,
 } from './const.js';
 import { game } from './gstate.js';
+import { PM_AMOROUS_DEMON, S_NYMPH } from './monsters.js';
 import { rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
 
@@ -103,10 +104,10 @@ function attributeArray(value) {
     return Array.isArray(value) ? value : value?.a;
 }
 
-// C ref: attrib.c acurr(). Startup and level-advancement callers currently
-// have no attribute-forcing equipment, so the shared arithmetic here owns the
-// base/bonus/temporary sum and the source caps. Equipment-specific overrides
-// remain with the eventual worn-item attribute subsystem.
+// C ref: attrib.c acurr(). The shared arithmetic here owns the
+// base/bonus/temporary sum, source caps, and form-specific Charisma floor.
+// Equipment-specific overrides remain with the eventual worn-item attribute
+// subsystem.
 export function effective_attribute(state = game, index) {
     const u = state.u;
     const base = Math.trunc(u?.acurr?.a?.[index] ?? 0);
@@ -114,6 +115,11 @@ export function effective_attribute(state = game, index) {
     const temporary = Math.trunc(attributeArray(u?.atemp)?.[index] ?? 0);
     const total = base + bonus + temporary;
     if (index === A_STR) return Math.max(3, Math.min(total, 125));
+    if (index === A_CHA && total < 18
+        && (state.youmonst?.data?.mlet === S_NYMPH
+            || state.u?.umonnum === PM_AMOROUS_DEMON)) {
+        return 18;
+    }
     return Math.max(3, Math.min(total, 25));
 }
 

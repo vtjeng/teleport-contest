@@ -6,6 +6,7 @@ import {
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
+    NEED_PICK_OR_AXE,
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
     NO_WEAPON_WANTED,
@@ -185,6 +186,21 @@ test('select_hwep handles artifacts, bimanual limits, and silver aversion', () =
     assert.equal(select_hwep(were, { state }).otyp, DAGGER);
 });
 
+test('select_hwep considers only petrifying corpses as weapons', () => {
+    const state = makeState();
+    const subject = monster(state, PM_NEWT, { misc_worn_check: W_ARMG });
+    const ordinaryCorpse = object(state, CORPSE, { corpsenm: PM_NEWT });
+    const cockatriceCorpse = object(state, CORPSE, {
+        corpsenm: PM_COCKATRICE,
+    });
+    subject.minvent = inventory(ordinaryCorpse, cockatriceCorpse);
+    assert.equal(select_hwep(subject, { state }), cockatriceCorpse);
+
+    const dagger = object(state, DAGGER);
+    subject.minvent = inventory(ordinaryCorpse, dagger);
+    assert.equal(select_hwep(subject, { state }), dagger);
+});
+
 test('mon_wield_item selects hand-to-hand weapons and reports welded state', async () => {
     const state = makeState();
     const subject = monster(state, PM_NEWT, {
@@ -289,6 +305,46 @@ test('mon_wield_item selects digging tools around shield restrictions', async ()
     assert.equal(subject.mw, axe);
 });
 
+test('mon_wield_item preserves combined pick-or-axe source priority', async () => {
+    const state = makeState();
+    const events = [];
+    const unshielded = monster(state, PM_NEWT, {
+        // Reverse inventory order proves selection follows source type order.
+        minvent: inventory(
+            object(state, AXE),
+            object(state, PICK_AXE),
+            object(state, BATTLE_AXE),
+            object(state, DWARVISH_MATTOCK),
+        ),
+        weapon_check: NEED_PICK_OR_AXE,
+    });
+    assert.equal(await mon_wield_item(unshielded, {
+        state,
+        ...visibleOperations(events),
+    }), 1);
+    assert.equal(unshielded.mw.otyp, DWARVISH_MATTOCK);
+    assert.equal(events.at(-1), `wield:${DWARVISH_MATTOCK}:false:false`);
+
+    const shield = object(state, DAGGER, { owornmask: W_ARMS });
+    const shielded = monster(state, PM_NEWT, {
+        minvent: inventory(
+            shield,
+            object(state, AXE),
+            object(state, PICK_AXE),
+            object(state, BATTLE_AXE),
+            object(state, DWARVISH_MATTOCK),
+        ),
+        misc_worn_check: W_ARMS,
+        weapon_check: NEED_PICK_OR_AXE,
+    });
+    assert.equal(await mon_wield_item(shielded, {
+        state,
+        ...visibleOperations(events),
+    }), 1);
+    assert.equal(shielded.mw.otyp, PICK_AXE);
+    assert.equal(events.at(-1), `wield:${PICK_AXE}:false:false`);
+});
+
 test('mon_wield_item delegates ranged selection and artifact-light lifecycle', async () => {
     const state = makeState();
     const oldLight = object(state, LONG_SWORD, {
@@ -327,6 +383,45 @@ test('mon_wield_item delegates ranged selection and artifact-light lifecycle', a
     ]);
 });
 
+test('mon_wield_item checks visibility after extinguishing the old weapon', async () => {
+    const state = makeState();
+    const current = object(state, LONG_SWORD, {
+        oartifact: ART_SUNSWORD,
+        lamplit: true,
+        owornmask: W_WEP,
+    });
+    const wanted = object(state, DAGGER, { cursed: true });
+    const subject = monster(state, PM_NEWT, {
+        minvent: inventory(current, wanted),
+        mw: current,
+        weapon_check: NEED_RANGED_WEAPON,
+    });
+    const events = [];
+    let visible = true;
+
+    assert.equal(await mon_wield_item(subject, {
+        state,
+        selectRangedWeapon: () => wanted,
+        async endArtifactLight(_monster, obj) {
+            events.push('end');
+            obj.lamplit = false;
+            visible = false;
+        },
+        canSeeMonster() {
+            events.push('see');
+            return visible;
+        },
+        wieldMessage() {
+            events.push('wield');
+        },
+    }), 1);
+    assert.deepEqual(events, ['end', 'see']);
+    assert.equal(subject.mw, wanted);
+    assert.equal(current.owornmask, 0);
+    assert.equal(wanted.owornmask, W_WEP);
+    assert.equal(wanted.bknown, false);
+});
+
 test('mon_wield_item preflights presentation and artifact lifecycle owners', async () => {
     const state = makeState();
     const current = object(state, LONG_SWORD, {
@@ -346,6 +441,24 @@ test('mon_wield_item preflights presentation and artifact lifecycle owners', asy
         canSeeMonster: () => true,
         selectRangedWeapon: () => wanted,
     }), /wieldMessage/);
+    assert.equal(subject.mw, current);
+    assert.equal(subject.weapon_check, NEED_RANGED_WEAPON);
+    assert.equal(current.lamplit, true);
+    assert.equal(current.owornmask, W_WEP);
+    assert.equal(wanted.owornmask, 0);
+
+    let visibilityChecks = 0;
+    await assert.rejects(mon_wield_item(subject, {
+        state,
+        canSeeMonster() {
+            ++visibilityChecks;
+            return true;
+        },
+        wieldMessage: () => {},
+        selectRangedWeapon: () => wanted,
+        startArtifactLight: () => {},
+    }), /endArtifactLight/);
+    assert.equal(visibilityChecks, 0);
     assert.equal(subject.mw, current);
     assert.equal(subject.weapon_check, NEED_RANGED_WEAPON);
     assert.equal(current.lamplit, true);

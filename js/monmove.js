@@ -322,7 +322,9 @@ export function m_can_break_boulder(monster) {
 }
 
 // C ref: mon.c mon_allowflags(). This returns only movement capabilities;
-// mfndpos() owns applying them to individual neighboring squares.
+// mfndpos() owns applying them to individual neighboring squares. When
+// Conflict is active, the source always makes exactly one resistance draw,
+// even for a hostile monster which already has ALLOW_U.
 export function mon_allowflags(monster, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rnd };
@@ -649,17 +651,108 @@ function mmDisplacement(attacker, defender, state) {
     return 0;
 }
 
+function hasReusablePositionBuffer(poss) {
+    if (!Array.isArray(poss) || poss.length !== 9) return false;
+    for (let index = 0; index < poss.length; ++index) {
+        if (!poss[index] || typeof poss[index] !== 'object') return false;
+    }
+    return true;
+}
+
 function resetMfndposData(data) {
     if (!data || typeof data !== 'object')
         throw new TypeError('mfndpos requires an output data object');
     data.cnt = 0;
-    data.poss = Array.from({ length: 9 }, () => ({ x: 0, y: 0 }));
-    data.info = new Array(9).fill(0);
+    if (!hasReusablePositionBuffer(data.poss)) {
+        data.poss = Array.from({ length: 9 }, () => ({ x: 0, y: 0 }));
+    } else {
+        for (const position of data.poss) {
+            position.x = 0;
+            position.y = 0;
+        }
+    }
+    if (!Array.isArray(data.info) || data.info.length !== 9)
+        data.info = new Array(9).fill(0);
+    else
+        data.info.fill(0);
+}
+
+function snapshotProperty(target, key) {
+    return {
+        owned: Object.hasOwn(target, key),
+        value: target[key],
+    };
+}
+
+function restoreProperty(target, key, snapshot) {
+    if (snapshot.owned) target[key] = snapshot.value;
+    else delete target[key];
+}
+
+function snapshotMfndposMutation(monster, data) {
+    const reusablePositions = hasReusablePositionBuffer(data.poss);
+    const reusableInfo = Array.isArray(data.info) && data.info.length === 9;
+    return {
+        mux: snapshotProperty(monster, 'mux'),
+        muy: snapshotProperty(monster, 'muy'),
+        cnt: snapshotProperty(data, 'cnt'),
+        poss: snapshotProperty(data, 'poss'),
+        positions: reusablePositions
+            ? data.poss.map((position) => ({
+                position,
+                x: snapshotProperty(position, 'x'),
+                y: snapshotProperty(position, 'y'),
+            }))
+            : null,
+        info: snapshotProperty(data, 'info'),
+        infoValues: reusableInfo ? data.info.slice() : null,
+    };
+}
+
+function restoreMfndposMutation(monster, data, snapshot) {
+    restoreProperty(monster, 'mux', snapshot.mux);
+    restoreProperty(monster, 'muy', snapshot.muy);
+    restoreProperty(data, 'cnt', snapshot.cnt);
+    restoreProperty(data, 'poss', snapshot.poss);
+    if (snapshot.positions) {
+        for (const entry of snapshot.positions) {
+            restoreProperty(entry.position, 'x', entry.x);
+            restoreProperty(entry.position, 'y', entry.y);
+        }
+    }
+    restoreProperty(data, 'info', snapshot.info);
+    if (snapshot.infoValues) {
+        for (let index = 0; index < snapshot.infoValues.length; ++index)
+            data.info[index] = snapshot.infoValues[index];
+    }
+}
+
+function hasAdjacentResistanceTrap(monster, state) {
+    for (const trap of state.level?.traps ?? []) {
+        if (Math.abs(trap.tx - monster.mx) > 1
+            || Math.abs(trap.ty - monster.my) > 1
+            || (trap.tx === monster.mx && trap.ty === monster.my)) {
+            continue;
+        }
+        if (trap.ttyp === SLP_GAS_TRAP
+            || trap.ttyp === FIRE_TRAP
+            || trap.ttyp === ANTI_MAGIC) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // C ref: mon.c mfndpos(). Candidate iteration is x-major then y-major; the
-// info bitmask is built in the same order as each source rejection check.
-export function mfndpos(monster, data, initialFlags, env = {}) {
+// caller-owned `poss` and `info` arrays are fixed scratch buffers and are
+// reused after their first initialization. `info[i]` describes what accepting
+// `poss[i]` entails rather than echoing `initialFlags`: ALLOW_U/ALLOW_M and
+// ALLOW_TM mark attacks, ALLOW_MDISP marks displacement, ALLOW_SSM and
+// ALLOW_SANCT mark protected squares, ALLOW_ROCK marks a boulder,
+// ALLOW_TRAPS marks a harmful or fixed teleport trap, and NOGARLIC/NOTONL mark
+// garlic or alignment with the remembered hero. Discovering an adjacent hero
+// updates `monster.mux`/`muy` before an absent ALLOW_U rejects that square.
+function mfndposCore(monster, data, initialFlags, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
     const onScaryCheck = env.onScary ?? onscary;
@@ -885,6 +978,28 @@ export function mfndpos(monster, data, initialFlags, env = {}) {
     }
     data.cnt = count;
     return count;
+}
+
+export function mfndpos(monster, data, initialFlags, env = {}) {
+    if (!data || typeof data !== 'object')
+        throw new TypeError('mfndpos requires an output data object');
+    const state = env.state ?? game;
+    // A missing resistance owner can be discovered after earlier candidates
+    // mutate knowledge and output. Snapshot only that exceptional reachable
+    // neighborhood so ordinary hot-path calls keep allocation-free buffers.
+    const usesDefaultHarmlessTrap = env.mHarmlessTrap == null
+        || env.mHarmlessTrap === m_harmless_trap;
+    const snapshot = usesDefaultHarmlessTrap
+        && typeof env.resistsTrapEffect !== 'function'
+        && hasAdjacentResistanceTrap(monster, state)
+        ? snapshotMfndposMutation(monster, data)
+        : null;
+    try {
+        return mfndposCore(monster, data, initialFlags, env);
+    } catch (error) {
+        if (snapshot) restoreMfndposMutation(monster, data, snapshot);
+        throw error;
+    }
 }
 
 function isArmorCategory(obj, category, state) {

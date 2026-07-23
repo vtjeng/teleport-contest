@@ -284,21 +284,30 @@ export function mwelded(obj, state = game) {
     return Boolean(obj && (obj.owornmask & W_WEP) && willWeld(obj, state));
 }
 
-// C ref: weapon.c setmnotwielded(). The artifact-light operation owns
-// end_burn(FALSE) and its visibility-dependent message.
-export async function setmnotwielded(monster, obj, env = {}) {
+async function clearMonsterWeapon(
+    monster,
+    obj,
+    normalized,
+    preflightEndArtifactLight,
+) {
     if (!obj) return;
-    const normalized = weaponEnv(env);
     if (artifactLight(obj) && obj.lamplit) {
-        const endArtifactLight = requiredOperation(
-            normalized,
-            'endArtifactLight',
-            'setmnotwielded',
-        );
+        const endArtifactLight = preflightEndArtifactLight
+            ?? requiredOperation(
+                normalized,
+                'endArtifactLight',
+                'setmnotwielded',
+            );
         await endArtifactLight(monster, obj, normalized);
     }
     if (monster.mw === obj) monster.mw = null;
     obj.owornmask &= ~W_WEP;
+}
+
+// C ref: weapon.c setmnotwielded(). The artifact-light operation owns
+// end_burn(FALSE) and its visibility-dependent message.
+export async function setmnotwielded(monster, obj, env = {}) {
+    return clearMonsterWeapon(monster, obj, weaponEnv(env));
 }
 
 function selectToolWeapon(monster, weaponCheck, state) {
@@ -383,28 +392,31 @@ export async function mon_wield_item(monster, env = {}) {
             return 1;
         }
 
-        const canSeeMonster = requiredOperation(
-            normalized,
-            'canSeeMonster',
-            'mon_wield_item',
-        );
-        const visible = Boolean(canSeeMonster(monster, normalized));
-        const wieldMessage = visible
-            ? requiredOperation(
+        // Resolve every operation before the first mutation. In particular,
+        // the old-light hook is deliberately preflighted here and invoked by
+        // clearMonsterWeapon() after the new weapon has been assigned.
+        const transition = {
+            canSeeMonster: requiredOperation(
+                normalized,
+                'canSeeMonster',
+                'mon_wield_item',
+            ),
+            wieldMessage: requiredOperation(
                 normalized,
                 'wieldMessage',
                 'mon_wield_item',
-            )
-            : null;
-        if (current && artifactLight(current) && current.lamplit) {
-            requiredOperation(
-                normalized,
-                'endArtifactLight',
-                'mon_wield_item',
-            );
-        }
+            ),
+            endArtifactLight: current
+                && artifactLight(current) && current.lamplit
+                ? requiredOperation(
+                    normalized,
+                    'endArtifactLight',
+                    'mon_wield_item',
+                )
+                : null,
+        };
         const startsArtifactLight = artifactLight(obj) && !obj.lamplit;
-        const startArtifactLight = startsArtifactLight
+        transition.startArtifactLight = startsArtifactLight
             ? requiredOperation(
                 normalized,
                 'startArtifactLight',
@@ -413,11 +425,16 @@ export async function mon_wield_item(monster, env = {}) {
             : null;
 
         monster.mw = obj;
-        await setmnotwielded(monster, current, normalized);
+        await clearMonsterWeapon(
+            monster,
+            current,
+            normalized,
+            transition.endArtifactLight,
+        );
         monster.weapon_check = NEED_WEAPON;
-        if (wieldMessage) {
+        if (transition.canSeeMonster(monster, normalized)) {
             const newlyWelded = willWeld(obj, state);
-            await wieldMessage(
+            await transition.wieldMessage(
                 monster,
                 obj,
                 { exclaim, newlyWelded },
@@ -425,8 +442,9 @@ export async function mon_wield_item(monster, env = {}) {
             );
             if (newlyWelded) obj.bknown = true;
         }
-        if (startArtifactLight)
-            await startArtifactLight(monster, obj, normalized);
+        if (transition.startArtifactLight) {
+            await transition.startArtifactLight(monster, obj, normalized);
+        }
         obj.owornmask = W_WEP;
         return 1;
     }
