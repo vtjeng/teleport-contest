@@ -2380,15 +2380,27 @@ function _buildScreenOutput() {
 
     // Render into the canonical terminal grid.
     if (display.grid) {
+        const msg = game._pending_message || '';
+        let skippedMessageCells = null;
+        for (let c = 0; c < Math.min(msg.length, display.cols); ++c) {
+            if (msg[c] === '\0') {
+                skippedMessageCells ??= [];
+                skippedMessageCells[c] = { ...display.grid[0][c] };
+            }
+        }
         display.clearScreen();
         // Message line
-        const msg = game._pending_message || '';
         for (let c = 0; c < Math.min(msg.length, display.cols); c++) {
             // Recorder patch 006 ignores signed high-bit TTY bytes after the
             // source cursor has advanced. tty_message.js represents each such
-            // byte as NUL, so leave the rebuilt physical cell untouched.
-            if (msg[c] !== '\0')
+            // byte as NUL, so restore the physical cell which clearScreen()
+            // temporarily erased instead of projecting the marker.
+            if (msg[c] === '\0') {
+                const cell = skippedMessageCells[c];
+                display.setCell(c, 0, cell.ch, cell.color, cell.attr);
+            } else {
                 display.setCell(c, 0, msg[c], NO_COLOR, 0);
+            }
         }
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);

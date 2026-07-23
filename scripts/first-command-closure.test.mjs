@@ -97,17 +97,23 @@ test('closure boundary rejects an appended zero-time command', async () => {
     );
 });
 
-test('theme diagnostics remain owned by their traced segment', async () => {
+test('theme diagnostics are neutral and remain owned by their segment', async () => {
     const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[1])
         .segments[0];
     const traced = await runSegment(segment, {
         traceThemeroomSelections: true,
     });
     const selections = traced.getThemeroomSelections();
+    const tracedRng = [...traced.getRngLog()];
+    const tracedScreens = [...traced.getScreens()];
+    const tracedCursors = traced.getCursors().map((cursor) => [...cursor]);
     assert.ok(selections.length > 0);
 
     const untraced = await runSegment(segment);
     assert.equal(untraced.getThemeroomSelections(), null);
+    assert.deepEqual(untraced.getRngLog(), tracedRng);
+    assert.deepEqual(untraced.getScreens(), tracedScreens);
+    assert.deepEqual(untraced.getCursors(), tracedCursors);
     assert.deepEqual(
         traced.getThemeroomSelections(),
         selections,

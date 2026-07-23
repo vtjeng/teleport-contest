@@ -20,7 +20,7 @@ import {
     dismissPendingTtyMessage,
     ttyPline,
 } from '../js/tty_message.js';
-import { NO_COLOR } from '../js/terminal.js';
+import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
 
 function preambleState(datetime, keys = '') {
     resetGame();
@@ -296,15 +296,42 @@ test('high-bit top-line bytes stay nonbreaking until recorder projection', async
 
 test('short high-bit messages never write internal markers to the screen', async () => {
     const state = preambleState('20260129120000');
+    const priorCells = [
+        { column: 0, ch: 'W', color: 1, attr: 1 },
+        { column: 1, ch: 'X', color: 2, attr: 2 },
+        { column: 2, ch: 'Y', color: 3, attr: 4 },
+        { column: 3, ch: 'Z', color: 4, attr: 0 },
+    ];
+    for (const cell of priorCells) {
+        state.nhDisplay.setCell(
+            cell.column, 0, cell.ch, cell.color, cell.attr,
+        );
+    }
     await ttyPline('AéB', state);
 
     await flush_screen(1);
 
-    assert.equal(rowText(state, 0), 'A  B');
+    assert.equal(rowText(state, 0), 'AXYB');
+    assert.deepEqual(
+        state.nhDisplay.grid[0].slice(0, 4).map(
+            ({ ch, color, attr }) => ({ ch, color, attr }),
+        ),
+        [
+            { ch: 'A', color: NO_COLOR, attr: 0 },
+            { ch: 'X', color: 2, attr: 2 },
+            { ch: 'Y', color: 3, attr: 4 },
+            { ch: 'B', color: NO_COLOR, attr: 0 },
+        ],
+        'a full-grid rebuild preserves complete skipped-byte cells',
+    );
     assert.equal(
         state.nhDisplay.grid.flat().some(({ ch }) => ch === '\0'),
         false,
         'the physical capture grid contains no logical marker bytes',
+    );
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        [0, 0],
     );
     assert.equal(state._pending_message, 'A\0\0B');
 });
@@ -322,6 +349,9 @@ test('recorder-ignored top-line bytes preserve prior physical cells', async () =
             cell.column, 0, cell.ch, cell.color, cell.attr,
         );
     }
+    // Column 20 lies beyond the four-byte logical message and its eight-byte
+    // More prompt, so redotoplin()'s cl_end() must erase this stale cell.
+    state.nhDisplay.setCell(20, 0, 'T', 5, 2);
     const boundaries = captureBoundaries(state, 1);
     await ttyPline('AéB', state);
 
@@ -339,6 +369,11 @@ test('recorder-ignored top-line bytes preserve prior physical cells', async () =
             { ch: 'B', color: NO_COLOR, attr: 0 },
         ],
         'ordinary bytes overwrite while skipped bytes retain full cell state',
+    );
+    assert.deepEqual(
+        state.nhDisplay.grid[0][20],
+        { ch: ' ', color: CLR_GRAY, attr: 0 },
+        'cl_end clears stale character and style state after the message',
     );
 });
 
