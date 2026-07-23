@@ -1368,6 +1368,49 @@
         ]
       },
       "recordedAt": "2026-07-23T07:44:08.289Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "afcbd77b5e33169f749c6dc59f3e973b8beb650b"
+      },
+      "head": "0708853dc18b2a0723dab61f6d116f7606fc23ab",
+      "areas": [
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full correctness audit of exact range fdd7f47a9edd119d0214af7ddf195a8ba45bc8c6..0708853dc18b2a0723dab61f6d116f7606fc23ab. Session 019f8e0a-6d02-72f2-9052-febed4d6508c; elapsed 920s; usage 4433785 input, 4289536 cached, 19524 output, 6655 reasoning. Four mandatory finders plus the performance finder and one consolidated adjudicator completed; concurrency was omitted because execution is synchronous and non-reentrant. Counts: 11 raw, 10 deduplicated, 9 confirmed, 8 applied in e372a9e5ebdddf65e8b895e32671bdffbd113e52, 1 deferred, 1 rejected, and 0 unverified. Applied changes restore the runtime newsym tail, clarify the runtime call signatures and persistent scary-square flag transition, and add real moveloop zero-gate, exhaustive fallback, species-retry, multi-member large-group and forced-hostility, and demigod-precedence oracles. The composite production finding remains deferred because its redraw facet is fixed but exact appearance messaging requires an async naming/message owner and occupation interruption has no current owner; no approximation was introduced. Renaming the upstream anymon latch was rejected because it would weaken source traceability. Warnings: the full upstream tail also has waiting-strategy and migrating-object branches outside the admitted path; runtime pet creation shared the pre-existing omission; higher-level D:1 group states are valid; no finder or adjudicator was lost. Paired 33-session development timing at fdd7f47 versus the candidate measured startup 66.7 versus 66.8 ms, per-move 0.2832 versus 0.2896 ms (1.023x), and aggregate 4388.06 versus 4441.63 ms (1.012x) over 7720 moves; single-run noise limits precision and no material regression was found. Validation: 1048 tests; strict fresh seed 870091 and 872875 differentials matched 5289 PRNG calls, four complete screens and cursors; development matched 302 screens, 78645 RNG calls, and 590 cursors; diff checks passed. Startup and replay changes were inspected but those frontiers are not advanced because earlier audit-fix tails precede this exact range. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 920,
+        "counts": {
+          "raw": 11,
+          "deduplicated": 10,
+          "confirmed": 9,
+          "applied": 8,
+          "deferred": 1,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 6,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "complete the runtime makemon post-creation redraw, appearance-message, and occupation-interruption tail",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T08:58:12.271Z"
     }
   ]
 }
