@@ -376,8 +376,11 @@ test('moveloop allocates live monster movement once after elapsed input', async 
         nethackrc: 'OPTIONS=name:MovementAllocation,role:Healer,'
             + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
             + '!splash_screen',
-        moves: '',
+        // Dismiss the startup message boundary, then stop at command input.
+        moves: ' ',
     });
+    assert.equal(game.program_state.in_moveloop, 1);
+    assert.equal(game.u.umovement, 12);
 
     const tail = {
         data: { mmove: 6 }, mspeed: 0, movement: 11, mhp: 1, nmon: null,
@@ -407,6 +410,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(dead.nmon, null);
     assert.equal(game.iflags.purge_monsters, 0);
     assert.deepEqual([head.movement, tail.movement], [19, 11]);
+    assert.equal(game.u.umovement, 12);
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
         ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(300)', 'rn2(20)', 'rn2(82)'],
@@ -419,6 +423,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     game.nhDisplay.pushKey(commandKeyCode('h'));
     await moveloop_core();
     assert.equal(game.context.move, 0);
+    assert.equal(game.u.umovement, 12);
     assert.deepEqual([head.movement, tail.movement], elapsedMovement);
     assert.deepEqual(getRngLog(), elapsedLog);
 });

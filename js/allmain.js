@@ -6,7 +6,18 @@
 // UUID, notice, and glyph-map setup remain to be ported.
 
 import { game } from './gstate.js';
-import { COLNO, RLOC_NOMSG } from './const.js';
+import {
+    COLNO,
+    EXT_ENCUMBER,
+    FAST,
+    HVY_ENCUMBER,
+    INTRINSIC,
+    MOD_ENCUMBER,
+    NORMAL_SPEED,
+    RLOC_NOMSG,
+    SLT_ENCUMBER,
+    UNENCUMBERED,
+} from './const.js';
 import { makedog } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { m_at } from './monst.js';
@@ -37,6 +48,7 @@ import { emitStartupA11yNotices } from './startup_a11y.js';
 import { check_special_room_state } from './rooms.js';
 import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
+import { rn2 } from './rng.js';
 import {
     fastforward_step,
 } from './fastforward.js';
@@ -141,6 +153,49 @@ export async function newgame() {
     await emitStartupA11yNotices(g);
 }
 
+// C ref: allmain.c u_calc_moveamt(). Add the hero's next movement ration
+// after monster allocation and random-monster generation.
+export function u_calc_moveamt(wtcap, state = game, random = rn2) {
+    const u = state.u;
+    let moveamt;
+
+    if (u.usteed && u.umoved) {
+        moveamt = mcalcmove(u.usteed, true, state, random);
+    } else {
+        if (!Number.isInteger(state.youmonst?.data?.mmove))
+            throw new Error('u_calc_moveamt requires initialized hero form');
+        moveamt = state.youmonst.data.mmove;
+        const speed = u.uprops?.[FAST] ?? {};
+        const intrinsic = Math.trunc(speed.intrinsic ?? 0);
+        const extrinsic = Math.trunc(speed.extrinsic ?? 0);
+        if ((intrinsic & ~INTRINSIC) || extrinsic) {
+            if (random(3) !== 0) moveamt += NORMAL_SPEED;
+        } else if (intrinsic || extrinsic) {
+            if (random(3) === 0) moveamt += NORMAL_SPEED;
+        }
+    }
+
+    switch (wtcap) {
+    case SLT_ENCUMBER:
+        moveamt -= Math.trunc(moveamt / 4);
+        break;
+    case MOD_ENCUMBER:
+        moveamt -= Math.trunc(moveamt / 2);
+        break;
+    case HVY_ENCUMBER:
+        moveamt -= Math.trunc((moveamt * 3) / 4);
+        break;
+    case EXT_ENCUMBER:
+        moveamt -= Math.trunc((moveamt * 7) / 8);
+        break;
+    default:
+        break;
+    }
+
+    u.umovement += moveamt;
+    if (u.umovement < 0) u.umovement = 0;
+}
+
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
@@ -149,6 +204,7 @@ export async function moveloop_core() {
     // context.move value. Capture that value before the once-per-input code
     // below resets it optimistically for the next command.
     if (g.context?.move) {
+        g.u.umovement -= NORMAL_SPEED;
         // Fast-forward residual per-step RNG around the source-owned movement
         // allocation boundary. Monster action state, regen, sounds, and hunger
         // remain in the replay scaffold.
@@ -163,6 +219,12 @@ export async function moveloop_core() {
                 monster = monster.nmon) {
                 monster.movement += mcalcmove(monster, true, g);
             }
+        }, () => {
+            // near_capacity() follows movemon() in C. Current reachable
+            // commands cannot change the startup inventory, whose initializer
+            // guarantees an unencumbered load; runtime burden is ported with
+            // the later monster-action boundary.
+            u_calc_moveamt(UNENCUMBERED, g);
         });
     }
 
