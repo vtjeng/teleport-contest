@@ -8,31 +8,34 @@ import { rn2 } from './rng.js';
 
 // Per-step leaf RNG calls. purgeAndAllocateMonsterMovement replaces the former
 // block of four trace-derived rn2(12) calls at its source position.
-// calculateHeroMovement runs after the residual rn2(70) random-monster check
-// while a table entry still owns that unported boundary. Both source callbacks
-// continue beyond the residual recording; runtime random-monster generation
-// remains the intervening boundary to port.
-export function fastforward_step(
+// calculateHeroMovement runs after the residual rn2(70) random-monster check.
+// playInitialLevelSounds replaces the source-reachable dosounds() draws while
+// a table entry still owns the surrounding turn work. Source callbacks continue
+// beyond the residual recording; random-monster generation remains the
+// intervening boundary to port.
+export async function fastforward_step(
     stepNum,
     purgeAndAllocateMonsterMovement,
     calculateHeroMovement,
+    playInitialLevelSounds,
 ) {
     const steps = [
-        () => { purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 1
-        () => { rn2(5); rn2(5); rn2(5); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 2
-        () => { rn2(5); rn2(32); rn2(5); rn2(5); rn2(32); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 3
-        () => { rn2(5); rn2(24); rn2(5); rn2(5); rn2(24); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 4
-        () => { rn2(5); rn2(16); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 5
-        () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); rn2(31); }, // step 6
-        () => { rn2(5); rn2(16); rn2(5); rn2(5); rn2(16); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 7
-        () => { rn2(5); rn2(12); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 8
-        () => { rn2(5); rn2(20); rn2(5); rn2(5); rn2(8); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(19); rn2(82); }, // step 9
-        () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(20); rn2(5); purgeAndAllocateMonsterMovement(); rn2(70); calculateHeroMovement(); rn2(300); rn2(20); rn2(82); }, // step 10
+        async () => { await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 1
+        async () => { rn2(5); rn2(5); rn2(5); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 2
+        async () => { rn2(5); rn2(32); rn2(5); rn2(5); rn2(32); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 3
+        async () => { rn2(5); rn2(24); rn2(5); rn2(5); rn2(24); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 4
+        async () => { rn2(5); rn2(16); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 5
+        async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); rn2(31); }, // step 6
+        async () => { rn2(5); rn2(16); rn2(5); rn2(5); rn2(16); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 7
+        async () => { rn2(5); rn2(12); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 8
+        async () => { rn2(5); rn2(20); rn2(5); rn2(5); rn2(8); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(19); rn2(82); }, // step 9
+        async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(20); rn2(5); await purgeAndAllocateMonsterMovement(); rn2(70); await calculateHeroMovement(); await playInitialLevelSounds(); rn2(20); rn2(82); }, // step 10
     ];
     if (stepNum <= 0) return;
-    if (stepNum <= steps.length) steps[stepNum - 1]();
+    if (stepNum <= steps.length) await steps[stepNum - 1]();
     else {
-        purgeAndAllocateMonsterMovement();
-        calculateHeroMovement();
+        await purgeAndAllocateMonsterMovement();
+        await calculateHeroMovement();
+        await playInitialLevelSounds();
     }
 }

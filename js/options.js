@@ -267,6 +267,7 @@ function defaultResult() {
             explore: false,
             pickup: false,
             bones: true,
+            acoustics: true,
             legacy: true,
             tutorial: true,
             verbose: true,

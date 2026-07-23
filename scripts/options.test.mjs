@@ -58,6 +58,7 @@ test('startup option defaults use source role indices and zero roleplay', () => 
         {
             pickup: parsed.flags.pickup,
             bones: parsed.flags.bones,
+            acoustics: parsed.flags.acoustics,
             legacy: parsed.flags.legacy,
             tutorial: parsed.flags.tutorial,
             verbose: parsed.flags.verbose,
@@ -69,6 +70,7 @@ test('startup option defaults use source role indices and zero roleplay', () => 
         {
             pickup: false,
             bones: true,
+            acoustics: true,
             legacy: true,
             tutorial: true,
             verbose: true,
@@ -693,6 +695,7 @@ test('config and source option names accept valid abbreviations', () => {
     assert.equal(genericBooleans.flags.bones, false);
     assert.equal(genericBooleans.flags.rest_on_space, true);
     assert.equal(genericBooleans.flags.standout, true);
+    assert.equal(parseNethackrc('OPTIONS=!acoustics').flags.acoustics, false);
 
     // playmode needs five characters because player_selection shares "play".
     assert.throws(

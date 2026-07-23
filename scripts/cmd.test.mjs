@@ -313,7 +313,9 @@ test('the segment runner completes counts around and at the portable limit', asy
             datetime: COMMAND_DATETIME,
             nethackrc: 'OPTIONS=name:CountLimit,role:Healer,race:human,'
                 + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen',
+                // Keep rare ambient More prompts from consuming the finite
+                // input recipe in this command-count boundary test.
+                + '!splash_screen,!acoustics',
             moves: `${count}.`,
         });
 
@@ -413,7 +415,9 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.u.umovement, 12);
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
-        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(300)', 'rn2(20)', 'rn2(82)'],
+        // This generated level has a fountain but no sink, so dosounds()
+        // owns the 1-in-400 gate in place of the old fixed 1-in-300 draw.
+        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(400)', 'rn2(20)', 'rn2(82)'],
     );
 
     const elapsedLog = [...getRngLog()];

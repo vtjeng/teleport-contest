@@ -49,6 +49,7 @@ import { check_special_room_state } from './rooms.js';
 import { mnexto } from './teleport.js';
 import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
 import { rn2 } from './rng.js';
+import { dosoundsInitialLevel } from './sounds.js';
 import {
     fastforward_step,
 } from './fastforward.js';
@@ -209,7 +210,7 @@ export async function moveloop_core() {
         // allocation boundary. Monster action state, regen, sounds, and hunger
         // remain in the replay scaffold.
         const stepNum = (g.moves || 1) - 1;
-        fastforward_step(stepNum, () => {
+        await fastforward_step(stepNum, () => {
             // C ref: mon.c movemon() and allmain.c moveloop_core(). Until
             // movemon() is ported, this callback temporarily owns its terminal
             // dead-monster purge as well as the later list-order allocation.
@@ -225,6 +226,8 @@ export async function moveloop_core() {
             // guarantees an unencumbered load; runtime burden is ported with
             // the later monster-action boundary.
             u_calc_moveamt(UNENCUMBERED, g);
+        }, async () => {
+            await dosoundsInitialLevel(g);
         });
     }
 
