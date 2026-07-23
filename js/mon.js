@@ -3,17 +3,26 @@
 // mthrowu.c m_carrying().
 
 import {
+    BOLT_LIM,
+    CONFLICT,
+    I_SPECIAL,
     MAX_CARR_CAP,
+    M_AP_FURNITURE,
+    M_AP_OBJECT,
+    M_AP_TYPMASK,
     MFAST,
+    MON_FLOOR,
+    MON_MIGRATING,
     MSLOW,
     NORMAL_SPEED,
     WT_HUMAN,
 } from './const.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
 import { any_light_source } from './light.js';
 import { dmonsfree } from './makemon_create.js';
-import { strongmonst, throws_rocks } from './mondata.js';
-import { MZ_MEDIUM } from './monsters.js';
+import { is_hider, strongmonst, throws_rocks } from './mondata.js';
+import { MZ_MEDIUM, S_EEL } from './monsters.js';
 import { clear_splitobjs } from './obj.js';
 import { BOULDER } from './objects.js';
 import { rn2 } from './rng.js';
@@ -81,6 +90,155 @@ export async function movemon(env = {}) {
         state.somebody_can_move = false;
     }
     return state.somebody_can_move;
+}
+
+function requiredSingleMonsterOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function') {
+        throw new TypeError(
+            `movemon_singlemon requires a ${name} operation`,
+        );
+    }
+    return operation;
+}
+
+function activeMonsterOperations(env) {
+    return {
+        visionRecalc: requiredSingleMonsterOperation(env, 'visionRecalc'),
+        clearBypasses: requiredSingleMonsterOperation(env, 'clearBypasses'),
+        minLiquid: requiredSingleMonsterOperation(env, 'minLiquid'),
+        dowear: requiredSingleMonsterOperation(env, 'dowear'),
+        restrap: requiredSingleMonsterOperation(env, 'restrap'),
+        canSeeMonster: requiredSingleMonsterOperation(env, 'canSeeMonster'),
+        hideUnder: requiredSingleMonsterOperation(env, 'hideUnder'),
+        canSeeHero: requiredSingleMonsterOperation(env, 'canSeeHero'),
+        canSeeSquare: requiredSingleMonsterOperation(env, 'canSeeSquare'),
+        fightMonster: requiredSingleMonsterOperation(env, 'fightMonster'),
+        moveMonster: requiredSingleMonsterOperation(env, 'moveMonster'),
+    };
+}
+
+function conflictActive(state) {
+    const conflict = state.u?.uprops?.[CONFLICT];
+    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
+}
+
+function monsterOnMap(monster) {
+    return (monster.mstate ?? MON_FLOOR) === MON_FLOOR;
+}
+
+// C ref: mon.c movemon_singlemon(). The injected operations retain the source
+// subsystem boundaries for guard cleanup, liquid effects, runtime equipment,
+// hiding, perception, monster combat, and dochugw(). All operations reachable
+// after the movement debit are preflighted before m_everyturn_effect() so a
+// missing owner cannot duplicate its fog-cloud side effect on retry.
+export async function movemon_singlemon(monster, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+
+    if (state.u?.utotype) {
+        state.somebody_can_move = false;
+        return true;
+    }
+
+    const parkedGuard = monster.isgd
+        && !monster.mx
+        && !((monster.mstate ?? MON_FLOOR) & MON_MIGRATING);
+    if (parkedGuard) {
+        if ((state.moves ?? 0) > (monster.mlstmv ?? 0)) {
+            const guardMove = requiredSingleMonsterOperation(env, 'guardMove');
+            await guardMove(monster, { ...env, state, random });
+            monster.mlstmv = state.moves;
+        }
+        return false;
+    }
+    if (monster.mhp < 1 || !monsterOnMap(monster)) return false;
+
+    const everyTurnEffect = requiredSingleMonsterOperation(
+        env,
+        'everyTurnEffect',
+    );
+    const willSpendMovement = monster.movement >= NORMAL_SPEED;
+    const operations = willSpendMovement ? activeMonsterOperations(env) : null;
+    if (willSpendMovement && monster.data?.mlet === S_EEL
+        && typeof random.rn2 !== 'function') {
+        throw new TypeError(
+            'movemon_singlemon random injection requires rn2',
+        );
+    }
+    const normalized = {
+        ...env,
+        state,
+        random,
+        ...operations,
+    };
+
+    await everyTurnEffect(monster, normalized);
+    if (!willSpendMovement) return false;
+
+    monster.movement -= NORMAL_SPEED;
+    if (monster.movement >= NORMAL_SPEED) state.somebody_can_move = true;
+
+    if (state.vision_full_recalc)
+        await operations.visionRecalc(0, normalized);
+    if (state.context?.bypasses)
+        await operations.clearBypasses(normalized);
+    clear_splitobjs(state);
+    if (await operations.minLiquid(monster, normalized)) return false;
+
+    if (monster.misc_worn_check & I_SPECIAL) {
+        const heroIsDistant = dist2(
+            monster.mx,
+            monster.my,
+            state.u?.ux,
+            state.u?.uy,
+        ) > 9;
+        if (monster.mpeaceful || monster.mtame || heroIsDistant) {
+            monster.misc_worn_check &= ~I_SPECIAL;
+            const oldWorn = monster.misc_worn_check;
+            await operations.dowear(monster, false, normalized);
+            if (monster.misc_worn_check !== oldWorn || !monster.mcanmove)
+                return false;
+        }
+    }
+
+    if (is_hider(monster.data)) {
+        if (await operations.restrap(monster, normalized)) return false;
+        const appearance = monster.m_ap_type & M_AP_TYPMASK;
+        if (appearance === M_AP_FURNITURE || appearance === M_AP_OBJECT)
+            return false;
+        if (monster.mundetected) return false;
+    } else if (monster.data?.mlet === S_EEL
+        && !monster.mundetected
+        && (monster.mflee
+            || dist2(
+                monster.mx,
+                monster.my,
+                state.u?.ux,
+                state.u?.uy,
+        ) > 2)
+        && !operations.canSeeMonster(monster, normalized)) {
+        if (!random.rn2(4)
+            && await operations.hideUnder(monster, normalized)) {
+            return false;
+        }
+    }
+
+    if (conflictActive(state) && !monster.iswiz
+        && operations.canSeeHero(monster, normalized)) {
+        if (operations.canSeeSquare(monster.mx, monster.my, normalized)
+            && dist2(
+                monster.mx,
+                monster.my,
+                state.u?.ux,
+                state.u?.uy,
+            ) <= BOLT_LIM * BOLT_LIM
+            && await operations.fightMonster(monster, normalized)) {
+            return false;
+        }
+    }
+    await operations.moveMonster(monster, true, normalized);
+    return false;
 }
 
 // C ref: mthrowu.c m_carrying(). The hero-form case is retained because

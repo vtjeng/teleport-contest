@@ -286,6 +286,24 @@ export function closed_door(x, y, state = game) {
         && Boolean(doorMask(location) & (D_LOCKED | D_CLOSED));
 }
 
+// C ref: monmove.c m_everyturn_effect(). This runs for each living on-map
+// monster before its movement-ration check and for the hero near the end of
+// each input cycle. createGasCloud owns create_gas_cloud().
+export async function m_everyturn_effect(monster, env = {}) {
+    const state = env.state ?? game;
+    if (!isSpecies(monster, PM_FOG_CLOUD, state)) return;
+    const isHero = monster === state.youmonst;
+    const x = isHero ? state.u?.ux : monster.mx;
+    const y = isHero ? state.u?.uy : monster.my;
+    if (closed_door(x, y, state) || visible_region_at(x, y, state)) return;
+    if (typeof env.createGasCloud !== 'function') {
+        throw new TypeError(
+            'm_everyturn_effect requires a createGasCloud operation',
+        );
+    }
+    await env.createGasCloud(x, y, 1, 0, { ...env, state });
+}
+
 function surfaceAt(x, y, state) {
     const location = state.level?.at(x, y);
     if (!location) return STONE;

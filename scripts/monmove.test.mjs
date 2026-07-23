@@ -76,6 +76,7 @@ import {
     disturb,
     in_your_sanctuary,
     m_can_break_boulder,
+    m_everyturn_effect,
     m_harmless_trap,
     m_in_air,
     may_dig,
@@ -317,6 +318,54 @@ test('monhaskey distinguishes credit-card unlocking from locking tools', () => {
     assert.equal(monhaskey(monster, false, state), true);
     monster.minvent = objectFor(state, LOCK_PICK);
     assert.equal(monhaskey(monster, false, state), true);
+});
+
+test('m_everyturn_effect creates only unobstructed missing fog clouds', async () => {
+    const { locations, state } = makeState();
+    const ordinary = ordinaryMonster(state);
+    await m_everyturn_effect(ordinary, { state });
+
+    const fog = newMonster({
+        data: state.mons[PM_FOG_CLOUD],
+        mnum: PM_FOG_CLOUD,
+        mx: 4,
+        my: 4,
+    });
+    await assert.rejects(
+        m_everyturn_effect(fog, { state }),
+        /createGasCloud/,
+    );
+
+    const calls = [];
+    const env = {
+        state,
+        createGasCloud(x, y, radius, damage) {
+            calls.push({ x, y, radius, damage });
+        },
+    };
+    await m_everyturn_effect(fog, env);
+    assert.deepEqual(calls, [{ x: 4, y: 4, radius: 1, damage: 0 }]);
+
+    locations.set('4,4', { typ: DOOR, flags: D_CLOSED, wall_info: 0 });
+    await m_everyturn_effect(fog, env);
+    assert.equal(calls.length, 1);
+
+    locations.set('4,4', { typ: ROOM, flags: 0, wall_info: 0 });
+    const existing = create_region([{ lx: 4, ly: 4, hx: 4, hy: 4 }]);
+    existing.visible = true;
+    state.level.regions = [existing];
+    await m_everyturn_effect(fog, env);
+    assert.equal(calls.length, 1);
+
+    state.youmonst.data = state.mons[PM_FOG_CLOUD];
+    state.youmonst.mnum = PM_FOG_CLOUD;
+    await m_everyturn_effect(state.youmonst, env);
+    assert.deepEqual(calls.at(-1), {
+        x: state.u.ux,
+        y: state.u.uy,
+        radius: 1,
+        damage: 0,
+    });
 });
 
 test('m_can_break_boulder preserves rider and cooldown exceptions', () => {

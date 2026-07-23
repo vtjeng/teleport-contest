@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { MFAST, MSLOW } from '../js/const.js';
+import {
+    CONFLICT,
+    I_SPECIAL,
+    M_AP_FURNITURE,
+    MFAST,
+    MON_FLOOR,
+    MON_MIGRATING,
+    MSLOW,
+    NORMAL_SPEED,
+} from '../js/const.js';
 import {
     curr_mon_load,
     iter_mons_safe,
@@ -9,8 +18,15 @@ import {
     mcalcmove,
     max_mon_load,
     movemon,
+    movemon_singlemon,
 } from '../js/mon.js';
-import { M2_ROCKTHROW, M2_STRONG, MZ_HUGE } from '../js/monsters.js';
+import {
+    M1_HIDE,
+    M2_ROCKTHROW,
+    M2_STRONG,
+    MZ_HUGE,
+    S_EEL,
+} from '../js/monsters.js';
 import { BOULDER, DAGGER, LONG_SWORD } from '../js/objects.js';
 
 function monster(mmove, mspeed = 0) {
@@ -60,6 +76,59 @@ function schedulerOperations(overrides = {}) {
         deferredGoto: ({ state }) => {
             state.u.utotype = 0;
         },
+        ...overrides,
+    };
+}
+
+function actionMonster(overrides = {}) {
+    return {
+        data: { mflags1: 0, mlet: 0 },
+        mhp: 5, // Any positive value keeps lifecycle gates on the live path.
+        mstate: MON_FLOOR,
+        movement: NORMAL_SPEED,
+        mx: 4, // Interior coordinates keep distance checks away from edges.
+        my: 4,
+        mlstmv: 0,
+        misc_worn_check: 0,
+        mcanmove: true,
+        mpeaceful: false,
+        mtame: 0,
+        m_ap_type: 0,
+        mundetected: false,
+        mflee: false,
+        iswiz: false,
+        isgd: false,
+        ...overrides,
+    };
+}
+
+function actionState(subject) {
+    const state = schedulerState([subject]);
+    state.moves = 10; // One turn after the parked guard test's mlstmv value.
+    state.somebody_can_move = false;
+    state.u = {
+        utotype: 0,
+        ux: 10,
+        uy: 10,
+        uprops: [],
+    };
+    return state;
+}
+
+function actionOperations(overrides = {}) {
+    return {
+        everyTurnEffect() {},
+        visionRecalc() {},
+        clearBypasses() {},
+        minLiquid: () => false,
+        dowear() {},
+        restrap: () => false,
+        canSeeMonster: () => true,
+        hideUnder: () => false,
+        canSeeHero: () => false,
+        canSeeSquare: () => false,
+        fightMonster: () => false,
+        moveMonster() {},
         ...overrides,
     };
 }
@@ -248,6 +317,358 @@ test('iter_mons_safe stops when its callback returns true', async () => {
     }, state);
 
     assert.deepEqual(visited, ['first', 'second']);
+});
+
+test('movemon_singlemon preserves level-exit, guard, and lifecycle gates', async () => {
+    const leaving = actionMonster();
+    const leavingState = actionState(leaving);
+    leavingState.u.utotype = 1;
+    assert.equal(await movemon_singlemon(leaving, { state: leavingState }), true);
+    assert.equal(leavingState.somebody_can_move, false);
+
+    const guard = actionMonster({
+        isgd: true,
+        mx: 0,
+        my: 0,
+        mlstmv: 9,
+    });
+    const guardState = actionState(guard);
+    const events = [];
+    assert.equal(await movemon_singlemon(guard, {
+        state: guardState,
+        guardMove(current) {
+            events.push(`guard:${current.mlstmv}`);
+        },
+    }), false);
+    assert.deepEqual(events, ['guard:9']);
+    assert.equal(guard.mlstmv, 10);
+
+    guard.mlstmv = guardState.moves;
+    assert.equal(await movemon_singlemon(guard, { state: guardState }), false);
+    assert.deepEqual(events, ['guard:9']);
+
+    const dead = actionMonster({ mhp: 0 });
+    assert.equal(await movemon_singlemon(dead, {
+        state: actionState(dead),
+    }), false);
+    const migrating = actionMonster({
+        isgd: true,
+        mx: 0,
+        my: 0,
+        mstate: MON_MIGRATING,
+    });
+    assert.equal(await movemon_singlemon(migrating, {
+        state: actionState(migrating),
+    }), false);
+});
+
+test('movemon_singlemon runs every-turn effects before the ration gate', async () => {
+    // Eleven movement points are one below the 12-point action threshold.
+    const subject = actionMonster({ movement: NORMAL_SPEED - 1 });
+    const state = actionState(subject);
+    const events = [];
+
+    assert.equal(await movemon_singlemon(subject, {
+        state,
+        everyTurnEffect() {
+            events.push('every');
+        },
+    }), false);
+    assert.deepEqual(events, ['every']);
+    assert.equal(subject.movement, NORMAL_SPEED - 1);
+});
+
+test('movemon_singlemon preserves active-monster cleanup and move order', async () => {
+    // Twenty-four points leave one complete action after the 12-point debit.
+    const subject = actionMonster({ movement: 2 * NORMAL_SPEED });
+    const state = actionState(subject);
+    state.vision_full_recalc = 1;
+    state.context.bypasses = true;
+    const events = [];
+    const operations = actionOperations({
+        everyTurnEffect() {
+            events.push('every');
+        },
+        visionRecalc(mode) {
+            events.push(`vision:${mode}`);
+        },
+        clearBypasses({ state: currentState }) {
+            events.push('bypasses');
+            currentState.context.bypasses = false;
+        },
+        minLiquid(_monster, { state: currentState }) {
+            events.push('liquid');
+            assert.equal(currentState.context.bypasses, false);
+            assert.deepEqual(currentState.context.objsplit, {
+                parent_oid: 0,
+                child_oid: 0,
+            });
+            return false;
+        },
+        moveMonster(_monster, chug) {
+            events.push(`move:${chug}`);
+        },
+    });
+
+    assert.equal(await movemon_singlemon(subject, {
+        state,
+        ...operations,
+    }), false);
+    assert.deepEqual(events, [
+        'every',
+        'vision:0',
+        'bypasses',
+        'liquid',
+        'move:true',
+    ]);
+    assert.equal(subject.movement, NORMAL_SPEED);
+    assert.equal(state.somebody_can_move, true);
+});
+
+test('movemon_singlemon stops after a lethal or relocating liquid effect', async () => {
+    const subject = actionMonster();
+    const state = actionState(subject);
+    state.context.bypasses = true;
+    const events = [];
+
+    assert.equal(await movemon_singlemon(subject, {
+        state,
+        ...actionOperations({
+            everyTurnEffect: () => events.push('every'),
+            clearBypasses: ({ state: currentState }) => {
+                events.push('bypasses');
+                currentState.context.bypasses = false;
+            },
+            minLiquid: () => {
+                events.push('liquid');
+                return true;
+            },
+            moveMonster: () => assert.fail('liquid effect ends the action'),
+        }),
+    }), false);
+    assert.deepEqual(events, ['every', 'bypasses', 'liquid']);
+    assert.equal(subject.movement, 0);
+    assert.deepEqual(state.context.objsplit, {
+        parent_oid: 0,
+        child_oid: 0,
+    });
+});
+
+test('movemon_singlemon spends equipment turns at the source distance gate', async () => {
+    const equipping = actionMonster({
+        // 0x08 is an ordinary retained worn bit beside the I_SPECIAL request.
+        misc_worn_check: I_SPECIAL | 0x08,
+        mpeaceful: true,
+    });
+    const state = actionState(equipping);
+    const events = [];
+    const operations = actionOperations({
+        everyTurnEffect: () => events.push('every'),
+        minLiquid: () => {
+            events.push('liquid');
+            return false;
+        },
+        dowear(current, creation) {
+            events.push(`wear:${creation}`);
+            // A different ordinary worn bit proves runtime gear changed.
+            current.misc_worn_check |= 0x10;
+        },
+        moveMonster: () => assert.fail('equipping consumes this action'),
+    });
+
+    assert.equal(await movemon_singlemon(equipping, {
+        state,
+        ...operations,
+    }), false);
+    assert.deepEqual(events, ['every', 'liquid', 'wear:false']);
+    assert.equal(Boolean(equipping.misc_worn_check & I_SPECIAL), false);
+
+    const unchanged = actionMonster({
+        misc_worn_check: I_SPECIAL | 0x08,
+        mpeaceful: true,
+    });
+    const unchangedState = actionState(unchanged);
+    let unchangedMoves = 0;
+    assert.equal(await movemon_singlemon(unchanged, {
+        state: unchangedState,
+        ...actionOperations({
+            dowear() {},
+            moveMonster: () => { ++unchangedMoves; },
+        }),
+    }), false);
+    assert.equal(unchangedMoves, 1);
+    assert.equal(unchanged.misc_worn_check, 0x08);
+
+    const closeHostile = actionMonster({
+        misc_worn_check: I_SPECIAL | 0x08,
+        mx: 4,
+        my: 4,
+    });
+    const closeState = actionState(closeHostile);
+    closeState.u.ux = 5;
+    closeState.u.uy = 4;
+    let moved = 0;
+    assert.equal(await movemon_singlemon(closeHostile, {
+        state: closeState,
+        ...actionOperations({
+            dowear: () => assert.fail('close hostile retains I_SPECIAL'),
+            moveMonster: () => { ++moved; },
+        }),
+    }), false);
+    assert.equal(moved, 1);
+    assert.ok(closeHostile.misc_worn_check & I_SPECIAL);
+});
+
+test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
+    const hidden = actionMonster({
+        data: { mflags1: M1_HIDE, mlet: 0 },
+    });
+    const hiddenState = actionState(hidden);
+    let moves = 0;
+    assert.equal(await movemon_singlemon(hidden, {
+        state: hiddenState,
+        ...actionOperations({
+            restrap: () => true,
+            moveMonster: () => { ++moves; },
+        }),
+    }), false);
+    assert.equal(moves, 0);
+
+    hidden.movement = NORMAL_SPEED;
+    hidden.m_ap_type = M_AP_FURNITURE;
+    assert.equal(await movemon_singlemon(hidden, {
+        state: hiddenState,
+        ...actionOperations({
+            restrap: () => false,
+            moveMonster: () => { ++moves; },
+        }),
+    }), false);
+    assert.equal(moves, 0);
+
+    hidden.movement = NORMAL_SPEED;
+    hidden.m_ap_type = 0;
+    hidden.mundetected = true;
+    assert.equal(await movemon_singlemon(hidden, {
+        state: hiddenState,
+        ...actionOperations({
+            restrap: () => false,
+            moveMonster: () => { ++moves; },
+        }),
+    }), false);
+    assert.equal(moves, 0);
+
+    hidden.movement = NORMAL_SPEED;
+    hidden.mundetected = false;
+    assert.equal(await movemon_singlemon(hidden, {
+        state: hiddenState,
+        ...actionOperations({
+            restrap: () => false,
+            moveMonster: () => { ++moves; },
+        }),
+    }), false);
+    assert.equal(moves, 1);
+
+    const eel = actionMonster({
+        data: { mflags1: 0, mlet: S_EEL },
+        mflee: true,
+    });
+    const eelState = actionState(eel);
+    const bounds = [];
+    assert.equal(await movemon_singlemon(eel, {
+        state: eelState,
+        random: {
+            rn2(bound) {
+                bounds.push(bound);
+                return 0;
+            },
+        },
+        ...actionOperations({
+            canSeeMonster: () => false,
+            hideUnder: () => true,
+            moveMonster: () => { ++moves; },
+        }),
+    }), false);
+    assert.deepEqual(bounds, [4]);
+    assert.equal(moves, 1);
+
+    eel.movement = NORMAL_SPEED;
+    assert.equal(await movemon_singlemon(eel, {
+        state: eelState,
+        random: { rn2: () => assert.fail('visible eel must not draw') },
+        ...actionOperations({
+            canSeeMonster: () => true,
+            hideUnder: () => assert.fail('visible eel must not re-hide'),
+            moveMonster: () => { ++moves; },
+        }),
+    }), false);
+    assert.equal(moves, 2);
+});
+
+test('movemon_singlemon keeps conflict combat as the last pre-move action', async () => {
+    const subject = actionMonster({ mx: 4, my: 4 });
+    const state = actionState(subject);
+    state.u.ux = 5;
+    state.u.uy = 4;
+    state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0 };
+    const events = [];
+
+    assert.equal(await movemon_singlemon(subject, {
+        state,
+        ...actionOperations({
+            everyTurnEffect: () => events.push('every'),
+            minLiquid: () => {
+                events.push('liquid');
+                return false;
+            },
+            canSeeHero: () => {
+                events.push('hero');
+                return true;
+            },
+            canSeeSquare: () => {
+                events.push('square');
+                return true;
+            },
+            fightMonster: () => {
+                events.push('fight');
+                return true;
+            },
+            moveMonster: () => assert.fail('successful fight ends the action'),
+        }),
+    }), false);
+    assert.deepEqual(events, ['every', 'liquid', 'hero', 'square', 'fight']);
+});
+
+test('movemon_singlemon preflights downstream owners before mutation', async () => {
+    const subject = actionMonster();
+    const state = actionState(subject);
+    const operations = actionOperations();
+    delete operations.moveMonster;
+    let everyTurnCalls = 0;
+    operations.everyTurnEffect = () => { ++everyTurnCalls; };
+
+    await assert.rejects(movemon_singlemon(subject, {
+        state,
+        ...operations,
+    }), /moveMonster/);
+    assert.equal(subject.movement, NORMAL_SPEED);
+    assert.equal(everyTurnCalls, 0);
+    assert.deepEqual(state.context.objsplit, {
+        parent_oid: 7,
+        child_oid: 8,
+    });
+
+    const eel = actionMonster({ data: { mflags1: 0, mlet: S_EEL } });
+    const eelState = actionState(eel);
+    everyTurnCalls = 0;
+    await assert.rejects(movemon_singlemon(eel, {
+        state: eelState,
+        random: {},
+        ...actionOperations({
+            everyTurnEffect: () => { ++everyTurnCalls; },
+        }),
+    }), /requires rn2/);
+    assert.equal(eel.movement, NORMAL_SPEED);
+    assert.equal(everyTurnCalls, 0);
 });
 
 test('movemon preserves scheduler and terminal cleanup order', async () => {
