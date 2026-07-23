@@ -1221,7 +1221,7 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
     add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
     cloud.visible = true;
     cloud.glyph = S_cloud;
-    add_region(cloud, state);
+    add_region(cloud, state, { deferVisual: true });
 
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, '#');
@@ -1236,7 +1236,7 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
     add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
     cloud.visible = true;
     cloud.glyph = S_cloud;
-    add_region(cloud, state);
+    add_region(cloud, state, { deferVisual: true });
 
     newsym(x, y);
     assert.deepEqual(

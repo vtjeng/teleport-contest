@@ -31,6 +31,7 @@ import { nhgetch } from './input.js';
 import { is_hider, noattacks } from './mondata.js';
 import { m_at } from './monst.js';
 import { onscary } from './monmove.js';
+import { in_out_region } from './region.js';
 import { canSpotMonster } from './startup_a11y.js';
 import {
     clearTtyMessageWindow,
@@ -376,6 +377,7 @@ export async function domove(state = game) {
 
     const oldx = u.ux;
     const oldy = u.uy;
+    if (!await in_out_region(newx, newy, { state })) return;
     u.ux0 = oldx;
     u.uy0 = oldy;
     u.ux = newx;

@@ -126,6 +126,41 @@ function blocksVisionAt(x, y) {
     return false;
 }
 
+// C ref: vision.c does_block(). The level and vision arrays are game-global
+// singletons in both implementations.
+export function does_block(x, y, _location = null, state = game) {
+    if (state !== game)
+        throw new Error('does_block requires the active game state');
+    return blocksVisionAt(x, y);
+}
+
+function rebuildVisionPoint(x, y, state) {
+    if (state !== game)
+        throw new Error('vision point mutation requires the active game state');
+    const affectedCurrentVision = Boolean(state.viz_array?.[y]?.[x]);
+    const oldVisionMin = state._viz_rmin;
+    const oldVisionMax = state._viz_rmax;
+    vision_reset();
+    state._viz_rmin = oldVisionMin;
+    state._viz_rmax = oldVisionMax;
+    if (affectedCurrentVision) state.vision_full_recalc = 1;
+}
+
+// C refs: vision.c block_point(), unblock_point(), recalc_block_point().
+// The JS owner rebuilds the compact transparency index as a unit; preserving
+// the prior display bounds gives the same subsequent vision_recalc() contract.
+export function block_point(x, y, state = game) {
+    rebuildVisionPoint(x, y, state);
+}
+
+export function unblock_point(x, y, state = game) {
+    rebuildVisionPoint(x, y, state);
+}
+
+export function recalc_block_point(x, y, state = game) {
+    rebuildVisionPoint(x, y, state);
+}
+
 // C ref: vision_reset() — rebuild viz_clear and left/right ptrs
 export function vision_reset() {
     const level = game.level;
