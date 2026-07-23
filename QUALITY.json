@@ -536,6 +536,648 @@
       "outcome": "changed",
       "evidence": "Fresh Codex simplify-codebase session 019f8bc2-f7ab-76f2-a00b-73ec9acd9f6b audited 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..8222464176b82e03d0c144f0d6b74628ee13fada: 23 raw, 22 deduplicated, 21 confirmed, 20 applied, 1 deferred, 1 rejected, 0 unverified; all six finders and the adjudicator completed. Validation: focused display, symbol, input, menu, and message suites; generated symbol check; 956/956 full tests; unchanged development aggregate; and diff check passed. The isolated fresh differential could not launch because detached worktrees omit the untracked recorder installation; integrated main later passed strict seed 31. One transient sandbox spawn EPERM was retried without role or verdict loss. Usage: 7793546 input, 7578624 cached input, 32766 output, 8696 reasoning tokens.",
       "recordedAt": "2026-07-22T22:12:12.711Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73",
+        "objects": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73"
+      },
+      "head": "33594973e33e4af23e557305fb052b10e1f7692f",
+      "areas": [
+        "startup",
+        "objects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full startup/objects audit of exact scoped range f140abfaa499b2e8d7648fffc5c0fb73e33a5c73..33594973e33e4af23e557305fb052b10e1f7692f. Session 019f8bea-b81e-72b1-bc12-cef7e3a1c390; elapsed 1586s; usage 2746559 input, 2661120 cached, 16334 output, 3658 reasoning. All four mandatory finders and the adjudicator completed; performance and concurrency were disabled. Final counts 14 raw, 13 deduplicated, 9 confirmed and later applied, 4 rejected, 0 deferred or unverified. Fixes completed typed option ownership, condition aliases, coordinate modes, accessibility naming/perception, and end-to-end startup/tutorial oracles; later audit 33594973..ece6b80 covered the fix tail. Rejections retained synchronized play-mode state, source-required notice mutations, unreachable broken doors, and source-shaped tutorial inventory order. No warnings. Focused tests, 956-test baseline, strict fresh matrices, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1586,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 13,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 3,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "union every source-matching status-condition alias prefix",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "route explicitly valued boolean options through typed ownership",
+            "foundBy": [
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "honor every whatis_coord mode in startup accessibility messages",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "retain the unnamed starting pony's saddle adjective",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "include source-visible erosion and grease in object notices",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "implement complete canspotmon visibility and notice semantics",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:16.249Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "generation": "b4c7dcb2a36e0a7726c12c7bf05b368621aea800",
+        "monsters": "b4c7dcb2a36e0a7726c12c7bf05b368621aea800",
+        "world-effects": "b4c7dcb2a36e0a7726c12c7bf05b368621aea800"
+      },
+      "head": "33594973e33e4af23e557305fb052b10e1f7692f",
+      "areas": [
+        "generation",
+        "monsters",
+        "world-effects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full world audit of exact scoped range b4c7dcb2a36e0a7726c12c7bf05b368621aea800..33594973e33e4af23e557305fb052b10e1f7692f. Session 019f8bea-adcc-71d0-a65c-bd6842bd4f9d; elapsed 1177s; usage 2544328 input, 2462976 cached, 13257 output, 2502 reasoning. All four mandatory finders and adjudicator completed; optional finders disabled. Counts 8 raw and deduplicated, 7 confirmed and later applied, 1 rejected, 0 deferred or unverified. Fixes completed tutorial reach-floor contracts, descriptor/state/coordinate/wall tests, source aliases, and duplicate meta-key documentation; later audit 33594973..ece6b80 covered the fix tail. The generic special-level API claim was rejected because the private tutorial-only boundary already throws on unsupported operations. Detached recorder absence and partial linear reading of unaffected source were warnings; focused tests, the 956-test baseline, strict fresh evidence, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1177,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 8,
+          "confirmed": 7,
+          "applied": 7,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 3,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "install the complete source command aliases used by tutorial text",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:16.692Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "replay": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7"
+      },
+      "head": "33594973e33e4af23e557305fb052b10e1f7692f",
+      "areas": [
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "no-change",
+      "evidence": "Fresh full replay-scaffolding audit of exact range 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..33594973e33e4af23e557305fb052b10e1f7692f for js/fastforward.js. Session 019f8bf4-7ac7-79d0-b50f-7fd5deae2998; elapsed 334s; usage 2983688 input, 2870272 cached, 11789 output, 3726 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 0 raw, deduplicated, confirmed, applied, deferred, rejected, or unverified. The deleted startup replay calls all had live source-faithful owners; the remaining per-turn scaffold stayed unchanged. No warnings. The 956-test baseline, 107-case closure baseline, strict fresh seed 31, development aggregate, and diff checks supported the result; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 334,
+        "counts": {
+          "raw": 0,
+          "deduplicated": 0,
+          "confirmed": 0,
+          "applied": 0,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 0,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": []
+      },
+      "recordedAt": "2026-07-23T03:59:17.115Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "634ddf65b6f585185bd741e4830c015b02e6ade6",
+        "display": "634ddf65b6f585185bd741e4830c015b02e6ade6"
+      },
+      "head": "33594973e33e4af23e557305fb052b10e1f7692f",
+      "areas": [
+        "commands",
+        "display"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full interaction audit of exact scoped range 634ddf65b6f585185bd741e4830c015b02e6ade6..33594973e33e4af23e557305fb052b10e1f7692f. Session 019f8bf9-b939-73e3-83fd-dd86f5185301; elapsed 1393s; usage 1798774 input, 1727232 cached, 13237 output, 2277 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. The formal report had 12 raw/deduplicated and 11 audit-confirmed; fresh C recorder counter-evidence overturned the proposed HP-bar-padding change, yielding final integrated counts 10 confirmed/applied, 2 rejected, 0 deferred/unverified. Fixes covered status layout, ownership, projection, title, Unicode, map, and top-line boundaries; later audit 33594973..ece6b80 covered the fix tail. copyMenuItem was also rejected as a correct private normalization helper. Recorder absence inside the detached worktree was the only limitation. Focused tests, 956-test baseline, strict fresh matrices, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1393,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 12,
+          "confirmed": 10,
+          "applied": 10,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 6,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "shrink tutorial level descriptions through the source Dl form",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "carry formatter-owned status spans instead of reparsing rendered text",
+            "foundBy": [
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "normalize gray status highlights to recorder-facing default color",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "style the complete ordinary 30-column title field",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:17.567Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "33594973e33e4af23e557305fb052b10e1f7692f"
+      },
+      "head": "ece6b80a84e7389f0c54aa2371213b05966763ee",
+      "areas": [
+        "startup"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full startup fix-tail audit of exact range 33594973e33e4af23e557305fb052b10e1f7692f..ece6b80a84e7389f0c54aa2371213b05966763ee. Session 019f8c48-0a37-7962-a5da-ec03ee4a9291; elapsed 1305s; usage 2901266 input, 2806272 cached, 13021 output, 3908 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 13 raw, 9 deduplicated, 4 confirmed and later applied, 5 rejected, 0 deferred/unverified. Fixes reject empty condition tokens, accept source numeric booleans, and add status-refresh and coordinate wiring coverage; audit ece6b80..e1770cc covered them. Rejections used base-revision causality or complete current wiring as counter-evidence. No warnings. 978 tests, development 213, strict fresh matrices, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1305,
+        "counts": {
+          "raw": 13,
+          "deduplicated": 9,
+          "confirmed": 4,
+          "applied": 4,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 2,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "reject empty status-condition tokens before prefix matching",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "accept source-valid leading-decimal boolean spellings",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:18.008Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "generation": "33594973e33e4af23e557305fb052b10e1f7692f",
+        "world-effects": "33594973e33e4af23e557305fb052b10e1f7692f"
+      },
+      "head": "ece6b80a84e7389f0c54aa2371213b05966763ee",
+      "areas": [
+        "generation",
+        "world-effects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full world fix-tail audit of exact range 33594973e33e4af23e557305fb052b10e1f7692f..ece6b80a84e7389f0c54aa2371213b05966763ee. Session 019f8c48-4de2-71f1-812f-ce1939af49ad; elapsed 768s; usage 2439904 input, 2339584 cached, 12519 output, 2946 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 8 raw/deduplicated/confirmed and later applied, 0 rejected/deferred/unverified. Three clarity fixes document callback and command-alias ownership; five mutation-sensitive tests cover BURN, role and energy descriptors, random doors, alias precedence, and far-right wall finalization. Audit ece6b80..e1770cc covered the tail. No warnings. 978 tests, five fresh tutorial cases, the interaction matrix, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 768,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 8,
+          "confirmed": 8,
+          "applied": 8,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 5,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": []
+      },
+      "recordedAt": "2026-07-23T03:59:18.473Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "display": "33594973e33e4af23e557305fb052b10e1f7692f"
+      },
+      "head": "ece6b80a84e7389f0c54aa2371213b05966763ee",
+      "areas": [
+        "display"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full display fix-tail audit of exact range 33594973e33e4af23e557305fb052b10e1f7692f..ece6b80a84e7389f0c54aa2371213b05966763ee. Session 019f8c48-7d48-7072-943a-345c544ce122; elapsed 1040s; usage 4269884 input, 4131072 cached, 18651 output, 6582 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 9 raw/deduplicated, 6 confirmed and later applied, 3 rejected, 0 deferred/unverified. Fixes normalize black, preserve the source title offset, and strengthen Unicode, version-overlap, alignment, and attribute-free gray oracles; audit ece6b80..e1770cc covered the tail. Rejections retained source-backed current behavior. No warnings. 978 tests, 213 development screens, seven strict fresh interaction cases, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1040,
+        "counts": {
+          "raw": 9,
+          "deduplicated": 9,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 4,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "normalize black status highlights to recorder-facing default color",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preserve the source long-name title matching offset",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:18.935Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "ece6b80a84e7389f0c54aa2371213b05966763ee",
+        "generation": "ece6b80a84e7389f0c54aa2371213b05966763ee",
+        "world-effects": "ece6b80a84e7389f0c54aa2371213b05966763ee",
+        "display": "ece6b80a84e7389f0c54aa2371213b05966763ee"
+      },
+      "head": "e1770ccb153d0f930c039bcad36186ae9ec89065",
+      "areas": [
+        "startup",
+        "generation",
+        "world-effects",
+        "display"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full audit of exact fix and closure-matrix range ece6b80a84e7389f0c54aa2371213b05966763ee..e1770ccb153d0f930c039bcad36186ae9ec89065. Session 019f8c73-80d4-7851-ba0b-850a974347ee; elapsed 1552s; usage 3411962 input, 3300352 cached, 18446 output, 5474 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 10 raw, 8 deduplicated, 6 confirmed and later applied, 2 rejected, 0 deferred/unverified. Fixes made title bytes and black projection source-accurate, corrected engraving prose, and strengthened theme, first-command, and armor-only matrix coverage; audit e1770cc..b38b104 covered the tail. Lifecycle and shared-fallthrough coverage claims were rejected with direct call/source evidence. No warnings. 980 tests, development 213, focused fresh cases, full 107-segment closure matrix, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1552,
+        "counts": {
+          "raw": 10,
+          "deduplicated": 8,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 3,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "apply byte-accurate source semantics to long-name title matching",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "canonicalize black status output under both dark-gray option states",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:19.425Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "e1770ccb153d0f930c039bcad36186ae9ec89065",
+        "world-effects": "e1770ccb153d0f930c039bcad36186ae9ec89065",
+        "commands": "33594973e33e4af23e557305fb052b10e1f7692f",
+        "display": "e1770ccb153d0f930c039bcad36186ae9ec89065"
+      },
+      "head": "b38b104133dedd76e33c6a092669d4871ec34de3",
+      "areas": [
+        "startup",
+        "world-effects",
+        "commands",
+        "display"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full audit of exact closure-fix range e1770ccb153d0f930c039bcad36186ae9ec89065..b38b104133dedd76e33c6a092669d4871ec34de3. Session 019f8cb4-42bd-73c1-ae84-5ac77addb224; elapsed 1227s; usage 3354505 input, 3234560 cached, 18240 output, 5907 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 12 raw, 10 deduplicated, 9 confirmed and later applied, 1 rejected, 0 deferred/unverified. Fixes cover every HP space run, logical high-bit bytes and recorder projection, use_darkgray documentation, byte-limit tests, source-derived theme tracing, and zero-command closure. Audit 46c2e40..5a84540 covered the production fix tail. The remaining candidate was rejected with source/call-graph counter-evidence. No warnings. 988 tests, development 213, focused fresh cases, full closure matrix, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1227,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 10,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 5,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "remove HP-bar ownership from every recorder-compressed space run",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "keep high-bit message bytes nonbreaking through logical wrapping",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "separate logical top-line state from recorder cell projection",
+            "foundBy": [
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:19.940Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "b38b104133dedd76e33c6a092669d4871ec34de3",
+        "generation": "e1770ccb153d0f930c039bcad36186ae9ec89065",
+        "commands": "b38b104133dedd76e33c6a092669d4871ec34de3",
+        "display": "b38b104133dedd76e33c6a092669d4871ec34de3"
+      },
+      "head": "5a845405522d685ed8320d112ee7a1fce492a53e",
+      "areas": [
+        "startup",
+        "generation",
+        "commands",
+        "display"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full audit of the exact production fix delta 46c2e40e5680d2d3d22db7b9b4783d578498eb8b..5a845405522d685ed8320d112ee7a1fce492a53e; intervening commits after b38b104 were tracker or quality policy only. Sessions 019f8cd7-1c1a-7073-a0eb-78a3c0997523 outer and 019f8cd8-e9fc-7171-93be-2f31c5b852b8 nested; elapsed 1316s; outer usage 2374169 input, 2273024 cached, 10087 output, 4111 reasoning; nested usage 2754910 input, 2649856 cached, 16069 output, 3783 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 6 raw, 5 deduplicated/confirmed and later applied, 0 rejected/deferred/unverified. Fixes centralized theme trace ownership, kept NUL markers out of physical screens, strengthened HP and high-bit tests, and enforced the trace boundary; audit 5a84540..3cc0649 covered the tail. No warnings. 989 tests, development 213, focused fresh cases, full closure matrix, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1316,
+        "counts": {
+          "raw": 6,
+          "deduplicated": 5,
+          "confirmed": 5,
+          "applied": 5,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 3,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "prevent logical high-bit markers from entering physical screen cells",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:20.458Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "5a845405522d685ed8320d112ee7a1fce492a53e",
+        "generation": "5a845405522d685ed8320d112ee7a1fce492a53e",
+        "commands": "5a845405522d685ed8320d112ee7a1fce492a53e",
+        "display": "5a845405522d685ed8320d112ee7a1fce492a53e"
+      },
+      "head": "3cc0649943020c3968cfad9e74c5919df9e570b4",
+      "areas": [
+        "startup",
+        "generation",
+        "commands",
+        "display"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full audit of exact fix delta 5a845405522d685ed8320d112ee7a1fce492a53e..3cc0649943020c3968cfad9e74c5919df9e570b4. Session 019f8cf4-20c8-77b2-9de5-f0798a711939; elapsed 1010s; usage 2457796 input, 2354176 cached, 20931 output, 7718 reasoning. Four mandatory finders and adjudicator completed; optional finders disabled. Counts 6 raw, 5 deduplicated, 4 confirmed and later applied, 1 rejected, 0 deferred/unverified. The production fix preserves recorder-ignored cells across clearScreen; tests directly compare tracing neutrality, styled marker cells, complete HP padding, and cl_end tail clearing. Audit 6bef28f..f0624a7 covered the production tail; the mixed replay/global helper claim was rejected because all private callers pair the same completed segment. No warnings. 997 tests, development 213, three focused fresh cases, full closure matrix twice, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1010,
+        "counts": {
+          "raw": 6,
+          "deduplicated": 5,
+          "confirmed": 4,
+          "applied": 4,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 3,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "preserve recorder-ignored physical cells across full-grid rebuilds",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T03:59:20.987Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "display": "3cc0649943020c3968cfad9e74c5919df9e570b4"
+      },
+      "head": "f0624a759f50fbf061ab7e48ff7e83a08ea57ef1",
+      "areas": [
+        "display"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full audit of exact production fix delta 6bef28f8bb89a7cc7e028ccede5453aec486e14b..f0624a759f50fbf061ab7e48ff7e83a08ea57ef1. Session 019f8d0c-1e2f-7633-8a3a-1c7aac1278ed; elapsed 573s; usage 2849814 input, 2736640 cached, 15230 output, 5149 reasoning. Four mandatory finders and adjudicator completed; optional performance and concurrency finders were disabled. Direct inspection found no simplification trigger; the user-identified score terminology issue created a documentation-clarity trigger handled in a separate focused pass. Counts 2 raw/deduplicated, 1 test finding confirmed and applied in 82615f42653158d8074f3903e7d2087545ffe05f, 1 rejected, 0 deferred/unverified, and no production finding. The fix makes diagnostics neutrality execute both room and fill collector sites; a fresh light audit covers that test-only tail. The multi-codepoint marker candidate was rejected because every UTF-8 high byte follows the same indexed marker loop and the existing case already distinguishes adjacent cells. Warnings: the detached upstream submodule was uninitialized, so exact pinned local source was used; style-literal documentation was non-blocking. Focused suites, 997 tests, three strict fresh cases, the closure matrix twice, development 213, and diff checks passed; no holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 573,
+        "counts": {
+          "raw": 2,
+          "deduplicated": 2,
+          "confirmed": 1,
+          "applied": 1,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 1,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": []
+      },
+      "recordedAt": "2026-07-23T03:59:21.500Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "display": "f0624a759f50fbf061ab7e48ff7e83a08ea57ef1"
+      },
+      "head": "82615f42653158d8074f3903e7d2087545ffe05f",
+      "areas": [
+        "display"
+      ],
+      "level": "light",
+      "outcome": "no-change",
+      "evidence": "Fresh light audit-fix tail review of exact test-only range d8d706a565780f12d180bfaf07060bf9addd2022..82615f42653158d8074f3903e7d2087545ffe05f, following the full production review at f0624a759f50fbf061ab7e48ff7e83a08ea57ef1. Session 019f8d19-7c08-79a2-8514-d7f52bd4401d; elapsed 379s; usage 1380377 input, 1315328 cached, 9178 output, 2957 reasoning. All four mandatory light finders and an explicit empty-set adjudicator completed; optional finders disabled. Counts 0 raw, deduplicated, confirmed, applied, deferred, rejected, or unverified; no warnings. Review proved deterministic seed-41 selection, actual room and fill producer execution, per-segment collector/reset ownership, drift guards, and complete traced-versus-untraced RNG/screen/cursor comparisons. Runtime reproduction matched 3091 RNG calls, one screen, and one cursor. Focused and 997-test suites plus diff checks passed; no production, network, or holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 379,
+        "counts": {
+          "raw": 0,
+          "deduplicated": 0,
+          "confirmed": 0,
+          "applied": 0,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 0,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": []
+      },
+      "recordedAt": "2026-07-23T03:59:22.008Z"
     }
   ]
 }
