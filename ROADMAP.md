@@ -4,38 +4,15 @@ This file records milestone order and unresolved work. `AGENTS.md` remains the
 authority for implementation, validation, holdout, quality, and attribution
 rules. `SCORE.md` records completed evidence; it is not a prospective backlog.
 
-## How to choose work
-
-Keep one active implementation frontier. Order work by source dependencies and
-reuse, not by isolated development-screen gains or the next convenient fixture.
-A coherent chunk should accomplish at least one of these:
-
-- remove a reachable fallback or trace-derived replay path;
-- advance the earliest fresh C-versus-JavaScript differential past a source
-  boundary;
-- complete a source-shaped primitive or subsystem used by multiple production
-  callers.
-
-When the next mismatch exposes broad prerequisites, make the prerequisite a
-bounded subsystem chunk and finish it before returning to the frontier. Do not
-patch around it or leave multiple partially integrated approaches. Use
-development recordings as regressions and fresh recordings to validate general
-behavior. Treat matched-screen count as a lagging indicator.
-
 ## Completed milestone: arbitrary new game to first command
 
 **Status:** complete at production commit
-`f0624a759f50fbf061ab7e48ff7e83a08ea57ef1`, with the test-only audit-fix tail
-closed at `82615f42653158d8074f3903e7d2087545ffe05f`.
+`f0624a759f50fbf061ab7e48ff7e83a08ea57ef1`, with the final test-only follow-up
+at `82615f42653158d8074f3903e7d2087545ffe05f`.
 
 **Goal:** For arbitrary valid seeds, datetimes, character configurations, and
-startup options, match the C recorder's PRNG log, terminal screens, attributes,
-and cursor through the first command prompt.
-
-The boundary survey found no remaining reachable gap, the checked-in 107-case
-matrix reached the first command exactly, the correctness ledger and audit-fix
-tail are clear, and the final quality gate passes. Detailed validation and
-score evidence remain in `SCORE.md` and `QUALITY.json`.
+startup options, match the C recorder's random-number log, terminal screens,
+attributes, and cursor through the first command prompt.
 
 ## Current milestone: first complete gameplay turn
 
@@ -43,8 +20,9 @@ score evidence remain in `SCORE.md` and `QUALITY.json`.
 
 **Goal:** Starting at a correctly generated first command prompt, match the C
 game through the next command prompt after either waiting or making one
-unobstructed move. Replace the temporary playback used during those turns with
-the corresponding behavior translated from the upstream source.
+unobstructed move. Replace the temporary playback in `fastforward.js` used
+during those turns with the corresponding behavior translated from the
+upstream source.
 
 This boundary includes the ordinary monster and starting-pet actions and normal
 per-turn changes reached before the game next asks for input. Combat, opening
@@ -52,30 +30,26 @@ doors, triggering traps, pickup, stairs, item commands, and movement beyond the
 single unobstructed step remain in later milestones unless the current boundary
 directly requires a shared prerequisite.
 
-Remaining work:
+**Current focus:** Complete and connect the ordinary initial-level monster and
+pet behavior reached during the turn.
 
-- Complete and connect the ordinary initial-level monster and pet behavior
-  reached during the turn.
-- Replace each part of the temporary `fastforward.js` playback once the
-  translated behavior performs the same work. Do not extend or retune the
-  playback.
-- Make waiting and one unobstructed move reach the next input prompt without a
-  fallback or unsupported branch.
+Close the milestone with a checked-in fresh differential matrix that:
 
-Close the milestone with a checked-in fresh differential matrix. Vary inputs
-that affect the turn, including independently chosen seeds and level layouts,
-pet configuration, relevant character state, and both commands. Cover ordinary
-cases and source-identified rare branches within the boundary, including cases
-where a monster acts and where it does not. Require exact random-number logs,
-complete screens and attributes, cursors, and the state used by the next input
-cycle. The covered paths must no longer use temporary playback. Finish the
-focused and full tests, quality work, score evidence, and any review required by
+- varies inputs that affect the turn, including seeds that produce different
+  layouts, pet configuration, relevant character state, and both commands;
+- covers ordinary cases and rare branches identified in the C source within
+  this boundary, including cases where a monster acts and where it does not;
+- exactly matches random-number logs, complete screens and attributes, cursors,
+  and game state at the next prompt; and
+- reaches that prompt without temporary playback, a fallback, or an unsupported
+  branch.
+
+Meet the validation, quality, review, and score-recording requirements in
 `AGENTS.md` before marking the milestone complete.
 
 ## Later milestones
 
-Proceed in source-dependency order, using earliest fresh divergence to choose
-between equally reusable candidates:
+After the current milestone, proceed in this order:
 
 1. **Exploration:** complete movement beyond the first unobstructed step,
    running, search, doors, traps, pickup, stairs, terrain effects, vision, and
