@@ -1411,6 +1411,90 @@
         ]
       },
       "recordedAt": "2026-07-23T08:58:12.271Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "76109518c4e879b444ee53cddd9617f875780888",
+        "objects": "33594973e33e4af23e557305fb052b10e1f7692f",
+        "monsters": "0708853dc18b2a0723dab61f6d116f7606fc23ab",
+        "replay": "91220dc310e2efd2b00cecdca5598c2b39b2c8fa"
+      },
+      "head": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters",
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full correctness audit of exact range 76109518c4e879b444ee53cddd9617f875780888..9f24c329a44af7c7ccf9f9bf6dae3904b0189336. Session 019f8e4e-7ada-7132-9b7d-82313333b523; elapsed 1620s; usage 5247886 input, 5094656 cached input, 21980 output, and 6886 reasoning tokens. Four mandatory finders plus the evidence-triggered concurrency finder and one consolidated adjudicator completed; performance was omitted because no material resource-cost trigger applied. Counts: 15 raw, 14 deduplicated, 13 confirmed and applied in audit-fix commit 68472ba3aa99786e5c3e01f4407b07bc853ea89b, 1 rejected, 0 deferred or unverified. Six production fixes make replay exhaustion persistent, reject unsupported hunger before RNG, make clairvoyance owner checks atomic, port complete can_reach_floor behavior, and stop before unowned ordinary or Fast-surplus monster actions. Seven test fixes cover the runner budget, both seer call sites, throwing hunger RNG order, all diet flags, right-ring cases, property-only clairvoyance, and disabled or negated altmeta. The signed metallivore-mask concern was rejected because Boolean of the signed nonzero result matches C. Warnings: maximum-count integration remains beyond the replay boundary; unsupported hunger expects zero draws; native subagents did not expose separate rollout usage summaries. Concurrency found serialized execution and no issue. Direct post-fix inspection found no separate clarity or simplification trigger, so no optional pass or immediate audit-fix review ran; the audit-fix tail remains debt for the next scheduled review. Validation: 1064 tests and generated-monster check passed; fresh seeds 870078 and 870091 matched 5296 PRNG calls, six complete screens and cursors; development preserved 204 screens, 77588 RNG calls, and 243 cursors through the now-explicit monster-action stop. Diff checks passed. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1620,
+        "counts": {
+          "raw": 15,
+          "deduplicated": 14,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 7,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "make post-step-ten replay exhaustion a persistent stop after one allocation",
+            "foundBy": [
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preflight unsupported hunger state and ring definitions before RNG",
+            "foundBy": [
+              "correctness",
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preflight due clairvoyance owners before advancing hero_seq",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "replace the engraving reachability proxy with complete can_reach_floor behavior",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "stop before movement can accumulate without the monster action debit",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "stop fast-surplus processing before an actionable monster is skipped",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T10:19:52.391Z"
     }
   ]
 }
