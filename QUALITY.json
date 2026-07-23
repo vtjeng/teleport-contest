@@ -1256,6 +1256,51 @@
         ]
       },
       "recordedAt": "2026-07-23T05:10:57.060Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "33594973e33e4af23e557305fb052b10e1f7692f",
+        "replay": "33594973e33e4af23e557305fb052b10e1f7692f"
+      },
+      "head": "afcbd77b5e33169f749c6dc59f3e973b8beb650b",
+      "areas": [
+        "monsters",
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full audit of exact movement-allocation range 8eedcbf24c1cf3762304831bc6634b87dc93cc2e..afcbd77b5e33169f749c6dc59f3e973b8beb650b. Session 019f8d8c-0f65-76e2-8f8e-c53f3e70327b; elapsed 906s; usage 2015506 input, 1942272 cached, 16531 output, 4025 reasoning. Four mandatory finders plus the evidence-triggered performance finder and one consolidated adjudicator completed; concurrency was omitted because turn execution is synchronous and non-reentrant. Counts 8 raw, 7 deduplicated, 6 confirmed and applied in audit-fix commit 49ec52f49480498df0fcd52b239dff367e71511e, 1 rejected, 0 deferred or unverified, and no warnings. The production fix gates replay and movement allocation on the preceding command consuming time. Supporting fixes clarify temporary purge ownership and test purge/list order/accumulation, callback placement, adjusted-speed rounding, and gallop factors and gates. The proposed global-phase rename was rejected because m_moving is a calculation mode also used outside movemon. Performance found no actionable cost. Direct post-fix inspection found no remaining simplification or clarity trigger, so no optional follow-up pass ran; the audit-fix tail remains debt for the next scheduled review. The pass also inspected the new startup-area allmain change, but that frontier is deliberately not advanced because an earlier command audit-fix tail lies outside this exact range. Validation: 1019 tests; exact fresh wait-wait, wait-unbound, and wait-blocked differentials; development 302 screens, 78535 RNG calls, and 590 cursors; diff checks passed. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 906,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 7,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 4,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "gate elapsed monster movement allocation on the preceding command consuming time",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T06:25:58.860Z"
     }
   ]
 }
