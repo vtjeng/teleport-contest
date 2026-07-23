@@ -303,6 +303,23 @@ test('gethungry preflights only nutrition losses reachable this tick', () => {
         /unported hunger-status transition/u,
     );
     assert.equal(reachableTransition.u.uhunger, 152);
+
+    const oddAggregate = hungerState();
+    // 153 would stay Not Hungry after the ordinary one-point loss, but an
+    // odd tick also charges active Regeneration and moderate encumbrance.
+    oddAggregate.u.uhunger = 153;
+    property(oddAggregate, REGENERATION).intrinsic = FROMOUTSIDE;
+    assert.throws(
+        () => gethungry(oddAggregate, {
+            random: {
+                rn2: () => assert.fail('aggregate transition preflights'),
+            },
+            nearCapacity: () => MOD_ENCUMBER,
+        }),
+        /unported hunger-status transition/u,
+    );
+    assert.equal(oddAggregate.u.uhunger, 153);
+    assert.equal(oddAggregate.u.uhs, NOT_HUNGRY);
 });
 
 test('spinach tins clear species and do not draw', () => {

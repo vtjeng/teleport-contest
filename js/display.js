@@ -30,7 +30,8 @@ import {
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
     HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
-    SYM_BOULDER, SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE,
+    SYM_BOULDER, SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNING, WARNCOUNT,
+    def_warnsyms,
 } from './const.js';
 import {
     ATR_NONE,
@@ -123,6 +124,8 @@ import {
     monster_class_symbol,
     object_class_symbol,
     optional_misc_symbol,
+    symbol_at,
+    SYM_OFF_W,
     S_stone,
     S_bars,
     S_tree,
@@ -177,7 +180,11 @@ import {
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
 import { M1_HUMANOID, NON_PM, PM_TENGU } from './monsters.js';
-import { sensesMonster } from './startup_a11y.js';
+import { rn2_on_display_rng } from './rng.js';
+import {
+    sensesMonster,
+    sensesMonsterWithoutDetection,
+} from './startup_a11y.js';
 
 const WALL_TYPES = new Set([
     SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
@@ -716,6 +723,21 @@ function actualMonsterGlyphInfo(monster, state) {
     return glyph;
 }
 
+// C ref: display.c display_monster() with sightflags == DETECTED and
+// win/tty/wintty.c tty_print_glyph()'s MG_DETECT handling.  Tame monsters use
+// their pet presentation unless hallucination defeats that source exception.
+function detectedMonsterGlyphInfo(monster, state) {
+    if (monster.mtame && !_propertyActiveUnblocked(state.u, HALLUC))
+        return actualMonsterGlyphInfo(monster, state);
+    const glyph = glyphPresentation(
+        monster_class_symbol(monster.data.mlet, state),
+        monster.data.mcolor,
+        state,
+    );
+    if (state.iflags?.wc_inverse !== false) glyph.attr = ATR_INVERSE;
+    return glyph;
+}
+
 export function monster_glyph_info(monster, state = game) {
     if (!monster?.data)
         throw new TypeError('monster_glyph_info requires monster data');
@@ -798,6 +820,35 @@ export function monster_glyph_info(monster, state = game) {
         return object_glyph_info(fakeObject, state);
     }
     return actualMonsterGlyphInfo(monster, state);
+}
+
+// C ref: display.h mon_warning() and display.c warning_of().
+function monsterWarnsHero(monster, state) {
+    if (!monster || monster.mpeaceful || !_propertyActive(state.u, WARNING))
+        return false;
+    const warningLevel = Math.trunc((monster.m_lev ?? 0) / 4);
+    const threshold = Math.trunc(state.context?.warnlevel ?? 1);
+    return dist2(
+        monster.mx,
+        monster.my,
+        state.u?.ux ?? 0,
+        state.u?.uy ?? 0,
+    ) < 100 && warningLevel >= threshold;
+}
+
+function warningGlyphInfo(monster, state) {
+    const warningLevel = _propertyActiveUnblocked(state.u, HALLUC)
+        ? rn2_on_display_rng(WARNCOUNT - 1) + 1
+        : Math.min(
+            Math.trunc((monster.m_lev ?? 0) / 4),
+            WARNCOUNT - 1,
+        );
+    return glyphPresentation(
+        symbol_at(SYM_OFF_W + warningLevel, state),
+        def_warnsyms[warningLevel].color,
+        state,
+        glyph_customization(`G_warning${warningLevel}`, state),
+    );
 }
 
 // C ref: display.h obj_is_generic().  Unobserved potions, real/glass gems,
@@ -1020,7 +1071,19 @@ export function show_glyph_cell(
     loc.gnew = 1;
 }
 
-export function remembered_glyph_info(glyph, trap = null) {
+/**
+ * Convert a live glyph-presentation record into the persistent levl glyph
+ * record used by map memory.  The input must use display.js presentation
+ * fields (`dec`, optional browser/RGB metadata); the result uses the
+ * persistent `decgfx` field and may carry the underlying logical trap type.
+ */
+export function remembered_glyph_from_presentation(glyph, trap = null) {
+    if (!glyph || typeof glyph !== 'object'
+        || !Object.hasOwn(glyph, 'dec')) {
+        throw new TypeError(
+            'remembered glyph conversion requires a presentation record',
+        );
+    }
     const remembered = {
         ch: glyph.ch,
         color: glyph.color,
@@ -1101,6 +1164,8 @@ function observeNearbyObject(object, x, y, state) {
 }
 
 // ── newsym ──
+// C ref: display.c newsym().  This is a side-effect-only map mutation; callers
+// which need the persistent map glyph must reread level.at(x, y) afterward.
 export function newsym(x, y) {
     const loc = game.level?.at(x, y);
     if (!loc) return;
@@ -1117,24 +1182,39 @@ export function newsym(x, y) {
     if (visible && engraving) engraving.erevealed = true;
 
     // display.c:newsym() lets a visible gas region cover every accessible
-    // location, including the hero. Sensed monsters override the region;
-    // ordinary visible monsters do so only when adjacent, and object-disguised
-    // mimics do not. The early return intentionally leaves the remembered
-    // underlying glyph untouched.
+    // location, including the hero. Sensed monsters and generic monster
+    // warnings override the region; ordinary visible monsters do so only when
+    // adjacent, and object-disguised mimics do not. The early return
+    // intentionally leaves the remembered underlying glyph untouched.
     const region = visible ? visible_region_at(x, y, game) : null;
     const monster = visible ? m_at(x, y, game) : null;
+    const monsterSeen = Boolean(
+        monster && !monster.minvis && !monster.mundetected,
+    );
+    const sensedWithoutDetection = Boolean(
+        monster && sensesMonsterWithoutDetection(monster, game),
+    );
     const monsterSensed = Boolean(
         monster && sensesMonster(monster, game),
     );
+    const detectedOnly = monsterSensed
+        && !monsterSeen
+        && !sensedWithoutDetection;
+    const monsterWarning = Boolean(
+        monster
+        && x === monster.mx
+        && y === monster.my
+        && monsterWarnsHero(monster, game),
+    );
     if (region && ACCESSIBLE(loc.typ)) {
         const adjacentVisibleMonster = monster
-            && !monster.minvis
-            && !monster.mundetected
+            && monsterSeen
             && ![M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
             )
             && dist2(x, y, game.u?.ux ?? 0, game.u?.uy ?? 0) <= 2;
-        if (!monsterSensed && !adjacentVisibleMonster) {
+        if (!monsterSensed && !monsterWarning
+            && !adjacentVisibleMonster) {
             const cloud = terrainCmap(
                 region.glyph,
                 region.arg ? CLR_BRIGHT_GREEN : CLR_GRAY,
@@ -1168,7 +1248,7 @@ export function newsym(x, y) {
             hero.displayCh ?? null, hero.displayColor ?? null,
         );
         if (game.level?.flags?.hero_memory)
-            loc.remembered_glyph = remembered_glyph_info(
+            loc.remembered_glyph = remembered_glyph_from_presentation(
                 underlying,
                 object ? null : trap?.tseen ? trap : null,
             );
@@ -1178,25 +1258,28 @@ export function newsym(x, y) {
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
         const monsterVisible = Boolean(
-            monster
-            && ((!monster.minvis && !monster.mundetected) || monsterSensed),
+            monster && (monsterSeen || monsterSensed),
         );
         // display_monster() exposes a mimic's real monster glyph when sensing
-        // defeats its appearance; physical sight alone shows the disguise.
+        // defeats its appearance. Detect-only sensing uses the detected glyph
+        // family; physical sight alone shows the disguise.
         const shown = monsterVisible
-            ? (monsterSensed
-                ? actualMonsterGlyphInfo(monster, game)
-                : monster_glyph_info(monster, game))
-            : underlying;
-        // display_monster() maps an unsensed mimic appearance onto memory.
-        // Ordinary monsters leave memory as the actual layer underneath them.
-        const remembered = monsterVisible && !monsterSensed
+            ? (detectedOnly
+                ? detectedMonsterGlyphInfo(monster, game)
+                : monsterSensed
+                    ? actualMonsterGlyphInfo(monster, game)
+                    : monster_glyph_info(monster, game))
+            : monsterWarning ? warningGlyphInfo(monster, game) : underlying;
+        // A PHYSICALLY_SEEN mimic maps its disguise into persistent memory
+        // before sensing reveals the real monster. DETECTED skips that step.
+        const physicallySeenMimic = monsterVisible && !detectedOnly
             && [M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
-            )
-            ? shown : underlying;
+            );
+        const remembered = physicallySeenMimic
+            ? monster_glyph_info(monster, game) : underlying;
         if (game.level?.flags?.hero_memory) {
-            loc.remembered_glyph = remembered_glyph_info(
+            loc.remembered_glyph = remembered_glyph_from_presentation(
                 remembered,
                 remembered === underlying && !object && trap?.tseen
                     ? trap : null,

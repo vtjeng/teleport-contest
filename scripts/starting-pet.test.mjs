@@ -305,8 +305,23 @@ test('see_nearby_monsters records an adjacent worm tail separately', () => {
     assert.equal(state.mvitals[PM_LONG_WORM].seen_close, 0);
     assert.equal(state.mvitals[PM_LONG_WORM_TAIL].seen_close, 1);
     assert.equal(state.gn.notonhead, true);
-    assert.equal(see_monster_closeup(worm, true, { state }), true);
+    assert.equal(see_monster_closeup(worm, true, {
+        state,
+        observedAt: { x: tailX, y: tailY },
+    }), true);
     assert.equal(state.mvitals[PM_LONG_WORM].photographed, 0);
+    assert.equal(state.mvitals[PM_LONG_WORM_TAIL].photographed, 1);
+
+    // A stale tail flag must not turn a real-head observation into another
+    // tail record; the explicit coordinate owns the source notonhead value.
+    state.gn.notonhead = true;
+    assert.equal(see_monster_closeup(worm, true, {
+        state,
+        observedAt: { x: worm.mx, y: worm.my },
+    }), true);
+    assert.equal(state.gn.notonhead, false);
+    assert.equal(state.mvitals[PM_LONG_WORM].seen_close, 1);
+    assert.equal(state.mvitals[PM_LONG_WORM].photographed, 1);
     assert.equal(state.mvitals[PM_LONG_WORM_TAIL].photographed, 1);
 });
 

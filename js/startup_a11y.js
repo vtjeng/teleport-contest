@@ -702,19 +702,25 @@ function matchesWarnOfMonster(monster, state) {
         || (warned.species && warned.species === monster.data));
 }
 
-export function sensesMonster(monster, state) {
+function monsterSensingContext(monster, state) {
     const hero = state.u;
     const dx = monster.mx - hero.ux;
     const dy = monster.my - hero.uy;
     const distance = dx * dx + dy * dy;
-    if (hero.uswallow && monster !== hero.ustuck) return false;
-    if (hero.uinwater
+    const blocked = (hero.uswallow && monster !== hero.ustuck)
+        || (hero.uinwater
         && !(distance <= 2
-            && IS_POOL(state.level?.at(monster.mx, monster.my)?.typ))) {
-        return false;
-    }
-    if (propertyActive(hero, DETECT_MONSTERS)) return true;
+            && IS_POOL(state.level?.at(monster.mx, monster.my)?.typ)));
+    return { blocked, distance };
+}
 
+// C ref: display.h sensemon(), excluding its Detect_monsters operand.  Display
+// code needs this narrower result because detection uses a distinct glyph
+// family while telepathy and type warning count as physical sightflags.
+export function sensesMonsterWithoutDetection(monster, state) {
+    const hero = state.u;
+    const { blocked, distance } = monsterSensingContext(monster, state);
+    if (blocked) return false;
     const mindless = Boolean(monster.data?.mflags1 & M1_MINDLESS);
     if (!mindless) {
         const telepathy = hero.uprops?.[TELEPAT] ?? {};
@@ -726,6 +732,13 @@ export function sensesMonster(monster, state) {
         }
     }
     return matchesWarnOfMonster(monster, state);
+}
+
+export function sensesMonster(monster, state) {
+    const { blocked } = monsterSensingContext(monster, state);
+    return !blocked
+        && (propertyActive(state.u, DETECT_MONSTERS)
+            || sensesMonsterWithoutDetection(monster, state));
 }
 
 // C ref: display.h canspotmon(). Hiding and mimicry do not block sensing;

@@ -41,7 +41,7 @@ import {
     hero_glyph_info,
     newsym,
     object_glyph_info,
-    remembered_glyph_info,
+    remembered_glyph_from_presentation,
     show_glyph_cell,
     terrain_glyph,
     trap_glyph_info,
@@ -267,7 +267,7 @@ function defaultFeelSearchLocation(x, y, env) {
     const layer = mappedSearchLayer(x, y, state);
     const { glyph } = layer;
     if (state.level.flags?.hero_memory)
-        location.remembered_glyph = remembered_glyph_info(
+        location.remembered_glyph = remembered_glyph_from_presentation(
             glyph,
             layer.kind === 'trap' ? layer.owner : null,
         );
@@ -594,6 +594,11 @@ async function findTrap(trap, env) {
         trap.ty,
         env,
     );
+    if (typeof trapVisible !== 'boolean') {
+        throw new TypeError(
+            'automatic search displayFoundTrap must return a Boolean',
+        );
+    }
     const cleared = hallucinating(env.state) || trapVisible === false;
     if (cleared) {
         requireOperation(env, 'revealFoundTrap', 'a cluttered trap');

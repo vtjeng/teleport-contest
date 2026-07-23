@@ -64,6 +64,7 @@ import {
     TUWALL,
     VWALL,
     WATER,
+    WARNING,
 } from '../js/const.js';
 import * as symbolExports from '../js/symbols.js';
 import {
@@ -1283,6 +1284,79 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
             'a disguised mimic remains behind gas',
         );
     }
+});
+
+test('generic monster warning overrides gas without hiding a visible monster', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.u.uprops = [];
+    state.u.uprops[WARNING] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    state.context = { warnlevel: 1 };
+    const cloud = create_region();
+    add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+    cloud.visible = true;
+    cloud.glyph = S_poisoncloud;
+    cloud.arg = 1;
+    add_region(cloud, state, { deferVisual: true });
+    const monster = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mhp: 10,
+        m_lev: 8, // warning_of() maps level 8 to warning glyph 2.
+        mpeaceful: false,
+        m_ap_type: 0,
+        minvis: true,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+    state.level.monsters[x][y] = monster;
+
+    assert.equal(newsym(x, y), undefined);
+    assert.deepEqual(
+        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        ['2', CLR_RED],
+        'an unseen dangerous monster floats its warning above gas',
+    );
+
+    monster.minvis = false;
+    assert.equal(newsym(x, y), undefined);
+    assert.deepEqual(
+        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        ['f', CLR_WHITE],
+        'ordinary physical visibility takes precedence over warning',
+    );
+});
+
+test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+
+    assert.equal(newsym(x, y), undefined);
+    assert.equal(state.level.at(x, y).disp_ch, '.');
+
+    state.u.ux = x;
+    state.u.uy = y;
+    assert.equal(newsym(x, y), undefined);
+    assert.equal(
+        state.level.at(x, y).disp_ch,
+        hero_glyph_info(state).ch,
+    );
+
+    state.u.ux = 1;
+    state.u.uy = 1;
+    const cloud = create_region();
+    add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+    cloud.visible = true;
+    cloud.glyph = S_cloud;
+    add_region(cloud, state, { deferVisual: true });
+    assert.equal(newsym(x, y), undefined);
+    assert.equal(state.level.at(x, y).disp_ch, '#');
 });
 
 test('newsym reveals visible engravings beneath higher-priority layers', () => {

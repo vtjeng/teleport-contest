@@ -273,8 +273,11 @@ export function put_saddle_on_mon(saddle, monster, env = {}) {
     return saddle;
 }
 
-// C ref: mon.c see_monster_closeup(). Startup monsters are undisguised; the
-// representation below also handles the source's monster-appearance case.
+// C ref: mon.c see_monster_closeup(). `env.observedAt` owns the caller's
+// gb.bhitpos/gn.notonhead setup when a long-worm head or tail is observed;
+// requiring that coordinate prevents stale global context from changing which
+// vital is recorded. Startup monsters are undisguised; the representation
+// below also handles the source's monster-appearance case.
 export function see_monster_closeup(monster, photo = false, env = {}) {
     const { state } = dogEnv(env);
     const hero = state.u;
@@ -290,8 +293,23 @@ export function see_monster_closeup(monster, photo = false, env = {}) {
         && typeof env.sensemon === 'function' && !env.sensemon(monster, env)) {
         mndx = monster.mappearance;
     }
-    if (mndx === PM_LONG_WORM && state.gn?.notonhead)
-        mndx = PM_LONG_WORM_TAIL;
+    if (mndx === PM_LONG_WORM) {
+        const observedAt = env.observedAt;
+        if (!Number.isInteger(observedAt?.x)
+            || !Number.isInteger(observedAt?.y)) {
+            throw new Error(
+                'see_monster_closeup requires observedAt for a long worm',
+            );
+        }
+        state.gb ??= {};
+        state.gb.bhitpos ??= {};
+        state.gb.bhitpos.x = observedAt.x;
+        state.gb.bhitpos.y = observedAt.y;
+        state.gn ??= {};
+        state.gn.notonhead = observedAt.x !== monster.mx
+            || observedAt.y !== monster.my;
+        if (state.gn.notonhead) mndx = PM_LONG_WORM_TAIL;
+    }
     const vital = state.mvitals?.[mndx];
     if (!vital)
         throw new Error(`see_monster_closeup requires mvitals[${mndx}]`);
@@ -356,6 +374,7 @@ export function see_nearby_monsters(state = game, env = {}) {
             if (see_monster_closeup(monster, false, {
                 ...env,
                 state,
+                observedAt: { x, y },
                 sensemon: (subject) => sensesMonster(subject, state),
             })) {
                 seen++;

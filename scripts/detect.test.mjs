@@ -8,6 +8,7 @@ import {
     ANTI_MAGIC,
     BLINDED,
     CORR,
+    DETECT_MONSTERS,
     DOOR,
     D_CLOSED,
     D_LOCKED,
@@ -16,6 +17,7 @@ import {
     ENGRAVE,
     HALLUC,
     IN_SIGHT,
+    M_AP_OBJECT,
     OBJ_FLOOR,
     ROOM,
     SCORR,
@@ -39,20 +41,21 @@ import {
 import {
     monster_glyph_info,
     object_glyph_info,
-    remembered_glyph_info,
+    remembered_glyph_from_presentation,
     terrain_glyph,
     trap_glyph_info,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    CHEST,
     CORPSE,
     FOOD_CLASS,
     LENSES,
 } from '../js/objects.js';
 import { S_FELINE } from '../js/monsters.js';
 import { create_region } from '../js/region.js';
-import { CLR_WHITE } from '../js/terminal.js';
+import { ATR_INVERSE, CLR_WHITE } from '../js/terminal.js';
 
 function searchState() {
     const locations = new Map();
@@ -143,6 +146,7 @@ function recordingOperations(state, events) {
         displayFoundTrap(trap, x, y) {
             assert.equal(trap.tseen, true);
             events.push(`displayTrap(${x},${y})`);
+            return true;
         },
         revealFoundTrap() {},
         waitFoundTrap() {},
@@ -422,7 +426,7 @@ test('blind tactile search records all eight source viewing vectors', async () =
     }
 });
 
-test('tactile memory retains logical, browser, and RGB glyph metadata', () => {
+test('presentation-to-memory conversion retains logical and browser metadata', () => {
     const trap = { ttyp: ANTI_MAGIC };
     const glyph = {
         ch: null,
@@ -435,7 +439,7 @@ test('tactile memory retains logical, browser, and RGB glyph metadata', () => {
     };
 
     assert.deepEqual(
-        remembered_glyph_info(glyph, trap),
+        remembered_glyph_from_presentation(glyph, trap),
         {
             ch: null,
             color: 12,
@@ -446,6 +450,14 @@ test('tactile memory retains logical, browser, and RGB glyph metadata', () => {
             attr: 4,
             trapType: ANTI_MAGIC,
         },
+    );
+    assert.throws(
+        () => remembered_glyph_from_presentation({
+            ch: '^',
+            color: 12,
+            decgfx: false,
+        }),
+        /requires a presentation record/u,
     );
 });
 
@@ -482,6 +494,38 @@ test('ordinary trap discovery marks seen before exercise and display', async () 
     ]);
     assert.equal(trap.tseen, true);
     assert.equal(state.u.aexe[2], 1);
+    random.done();
+});
+
+test('injected trap display must return semantic visibility', async () => {
+    const state = searchState();
+    const trap = {
+        tx: 9,
+        ty: 9,
+        ttyp: ANTI_MAGIC,
+        tseen: false,
+    };
+    state.level.traps.push(trap);
+    const events = [];
+    const random = scriptedRandom(events, [0], [18]);
+
+    await assert.rejects(
+        dosearch0(1, {
+            state,
+            random,
+            ...recordingOperations(state, events),
+            displayFoundTrap() {
+                events.push('displayTrapWithoutIdentity');
+            },
+        }),
+        /displayFoundTrap must return a Boolean/u,
+    );
+    assert.deepEqual(events, [
+        'rnl(8)',
+        'nomul(0)',
+        'rn2(19)',
+        'displayTrapWithoutIdentity',
+    ]);
     random.done();
 });
 
@@ -678,7 +722,7 @@ test('sighted trap discovery compares memory retained under a gas region', async
     );
 });
 
-test('a sensed invisible monster overrides gas and leaves trap memory', async () => {
+test('a telepathically sensed visible mimic shows real form and remembers disguise', async () => {
     const target = await blindGlobalSearchState('OPTIONS=!blind\n');
     assert.ok(game.viz_array[target.y][target.x] & IN_SIGHT);
     const location = game.level.at(target.x, target.y);
@@ -706,9 +750,10 @@ test('a sensed invisible monster overrides gas and leaves trap memory', async ()
         },
         mhp: 10,
         mtame: 0,
-        minvis: true,
+        minvis: false,
         mundetected: false,
-        m_ap_type: 0,
+        m_ap_type: M_AP_OBJECT,
+        mappearance: CHEST,
         mx: target.x,
         my: target.y,
     };
@@ -720,12 +765,18 @@ test('a sensed invisible monster overrides gas and leaves trap memory', async ()
         blocked: 0,
     };
     game.u.unblind_telepat_range = 3;
+    const captures = captureInputBoundaries();
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     const beforeWait = target.replay.getScreens().length;
     const random = tactileSearchRandom(8);
 
     await dosearch0(1, { state: game, random });
 
-    const shown = monster_glyph_info(monster, game);
+    const shown = monster_glyph_info({
+        ...monster,
+        m_ap_type: 0,
+    }, game);
+    const disguise = monster_glyph_info(monster, game);
     assert.deepEqual({
         ch: location.disp_ch,
         color: location.disp_color,
@@ -739,13 +790,91 @@ test('a sensed invisible monster overrides gas and leaves trap memory', async ()
     });
     assert.deepEqual(
         location.remembered_glyph,
-        rememberedGlyphContract(
-            trap_glyph_info(trap, game),
-            ANTI_MAGIC,
-        ),
+        rememberedGlyphContract(disguise),
     );
-    assert.equal(target.replay.getScreens().length, beforeWait);
+    assert.equal(target.replay.getScreens().length, beforeWait + 1);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    assertTemporaryTrapScreen(
+        captures.at(-1),
+        target,
+        { x: game.u.ux, y: game.u.uy },
+    );
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
+});
+
+test('detect-only mimic presentation retains the underlying trap memory', async () => {
+    for (const inverse of [true, false]) {
+        const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+        const location = game.level.at(target.x, target.y);
+        const trap = {
+            tx: target.x,
+            ty: target.y,
+            ttyp: ANTI_MAGIC,
+            tseen: false,
+        };
+        game.level.traps.push(trap);
+        const region = create_region([{
+            lx: target.x,
+            ly: target.y,
+            hx: target.x,
+            hy: target.y,
+        }]);
+        region.visible = true;
+        game.level.regions.push(region);
+        const monster = {
+            data: {
+                mlet: S_FELINE,
+                mcolor: CLR_WHITE,
+                mflags1: 0,
+                mflags2: 0,
+            },
+            mhp: 10,
+            mtame: 0,
+            minvis: true,
+            mundetected: false,
+            m_ap_type: M_AP_OBJECT,
+            mappearance: CHEST,
+            mx: target.x,
+            my: target.y,
+        };
+        game.level.monsters[target.x][target.y] = monster;
+        game.u.uprops ??= [];
+        game.u.uprops[DETECT_MONSTERS] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        game.iflags.wc_inverse = inverse;
+        const beforeWait = target.replay.getScreens().length;
+        const random = tactileSearchRandom(8);
+
+        await dosearch0(1, { state: game, random });
+
+        const shown = monster_glyph_info({
+            ...monster,
+            m_ap_type: 0,
+        }, game);
+        assert.deepEqual({
+            ch: location.disp_ch,
+            color: location.disp_color,
+            dec: Boolean(location.disp_decgfx),
+            attr: location.disp_attr ?? 0,
+        }, {
+            ch: shown.ch,
+            color: shown.color,
+            dec: Boolean(shown.dec),
+            attr: inverse ? ATR_INVERSE : 0,
+        }, `wc_inverse=${inverse}`);
+        assert.deepEqual(
+            location.remembered_glyph,
+            rememberedGlyphContract(
+                trap_glyph_info(trap, game),
+                ANTI_MAGIC,
+            ),
+        );
+        assert.equal(target.replay.getScreens().length, beforeWait);
+        assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
+    }
 });
 
 test('disabled hero memory retains prior visible and tactile memory', async () => {
