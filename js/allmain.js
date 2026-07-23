@@ -14,6 +14,8 @@ import {
     FAST,
     HVY_ENCUMBER,
     INTRINSIC,
+    MON_FLOOR,
+    MON_MIGRATING,
     MOD_ENCUMBER,
     NO_MM_FLAGS,
     NORMAL_SPEED,
@@ -29,7 +31,7 @@ import { mcalcmove } from './mon.js';
 import { dmonsfree, makemon } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { objectGenerationHooks } from './object_generation.js';
-import { reset_mvitals } from './monsters.js';
+import { PM_FOG_CLOUD, reset_mvitals } from './monsters.js';
 import { depth, init_dungeons } from './dungeon.js';
 import { init_artifacts } from './artifacts.js';
 import { role_init, welcomeMessage } from './role_init.js';
@@ -56,6 +58,8 @@ import { vision_recalc, vision_reset, init_vision_globals } from './vision.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
 import { gethungry } from './eat.js';
+import { closed_door } from './monmove.js';
+import { visible_region_at } from './region.js';
 import {
     fastforward_step,
 } from './fastforward.js';
@@ -318,8 +322,32 @@ function requireNoPendingMonsterAction(state) {
     for (let monster = state.level?.monlist ?? null;
         monster;
         monster = monster.nmon) {
-        if (monster.mhp > 0 && monster.movement >= NORMAL_SPEED)
+        // C ref: mon.c movemon_singlemon(). Parked vault guards and live
+        // on-map monster effects run before the movement-ration check, so
+        // they must also fail closed while their action owners are absent.
+        const parkedGuard = monster.isgd
+            && monster.mx === 0 && monster.my === 0
+            && !(monster.mstate & MON_MIGRATING);
+        if (parkedGuard) {
+            if (state.moves > (monster.mlstmv ?? 0)) {
+                throw new UnsupportedTurnBoundaryError(
+                    MONSTER_ACTION_BOUNDARY,
+                );
+            }
+            continue;
+        }
+        const liveOnMap = monster.mhp > 0
+            && (monster.mstate ?? MON_FLOOR) === MON_FLOOR;
+        const isFogCloud = monster.data === state.mons?.[PM_FOG_CLOUD]
+            || monster.data?.pmidx === PM_FOG_CLOUD
+            || monster.mnum === PM_FOG_CLOUD;
+        const fogCloudNeedsEffect = liveOnMap && isFogCloud
+            && !closed_door(monster.mx, monster.my, state)
+            && !visible_region_at(monster.mx, monster.my, state);
+        if (fogCloudNeedsEffect
+            || (liveOnMap && monster.movement >= NORMAL_SPEED)) {
             throw new UnsupportedTurnBoundaryError(MONSTER_ACTION_BOUNDARY);
+        }
     }
 }
 
@@ -334,9 +362,10 @@ export async function moveloop_core() {
     // context.move value. Capture that value before the next command dispatch
     // below (including an internal repeat) resets it optimistically.
     if (g.context?.move) {
-        // movemon() owns every live monster with a complete action ration.
-        // Until it is ported, reject that boundary before debiting the hero
-        // so retries cannot duplicate partial elapsed-time state changes.
+        // The movemon() list scheduler is ported, but movemon_singlemon() and
+        // its downstream action owners are not. Reject that boundary before
+        // debiting the hero so retries cannot duplicate partial elapsed-time
+        // state changes.
         requireNoPendingMonsterAction(g);
         g.u.umovement -= NORMAL_SPEED;
         // A fast hero can retain a complete action after paying for the prior
@@ -357,9 +386,10 @@ export async function moveloop_core() {
                 elapsedReplayStep,
                 () => {
                     // C ref: mon.c movemon() and allmain.c moveloop_core().
-                    // Until movemon() is ported, this callback temporarily
-                    // owns its terminal dead-monster purge and later
-                    // list-order allocation.
+                    // Until movemon_singlemon() and its downstream action
+                    // owners are complete, this callback temporarily owns
+                    // movemon()'s terminal purge and later list-order
+                    // allocation.
                     dmonsfree(g);
                     for (let monster = g.level?.monlist ?? null;
                         monster;

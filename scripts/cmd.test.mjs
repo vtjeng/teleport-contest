@@ -17,6 +17,7 @@ import {
     COLNO,
     FAST,
     INTRINSIC,
+    MON_FLOOR,
     NORMAL_SPEED,
     ROOM,
     STONE,
@@ -24,6 +25,7 @@ import {
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
+import { PM_FOG_CLOUD } from '../js/monsters.js';
 import { parseNethackrc } from '../js/options.js';
 import {
     enableRngLog,
@@ -512,6 +514,78 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.deepEqual([head.movement, tail.movement], elapsedMovement);
     assert.deepEqual(getRngLog(), elapsedLog);
     await assert.rejects(moveloop_core(), /unported monster-action phase/u);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+});
+
+test('moveloop rejects unowned monster work before debiting a fast hero', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:PreRationMonsterWork,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,!acoustics',
+        moves: ' ',
+    });
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    const square = game.level.at(x, y);
+    square.typ = ROOM;
+    square.flags = square.doormask = 0;
+    const fogCloud = {
+        data: game.mons[PM_FOG_CLOUD],
+        mnum: PM_FOG_CLOUD,
+        mhp: 1,
+        mlstmv: game.moves,
+        movement: 0,
+        mstate: MON_FLOOR,
+        mx: x,
+        my: y,
+        nmon: null,
+    };
+    game.level.monlist = fogCloud;
+    game.level.regions = [];
+    game.u.umovement = 2 * NORMAL_SPEED;
+
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    const unchanged = {
+        hunger: game.u.uhunger,
+        moves: game.moves,
+        movement: game.u.umovement,
+    };
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+
+    await assert.rejects(
+        moveloop_core(),
+        /unported monster-action phase/u,
+    );
+    assert.deepEqual({
+        hunger: game.u.uhunger,
+        moves: game.moves,
+        movement: game.u.umovement,
+    }, unchanged);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+
+    // A parked guard is handled even when dead and below a movement ration.
+    game.level.monlist = {
+        isgd: true,
+        mhp: 0,
+        mlstmv: game.moves - 1,
+        movement: 0,
+        mstate: MON_FLOOR,
+        mx: 0,
+        my: 0,
+        nmon: null,
+    };
+    await assert.rejects(
+        moveloop_core(),
+        /unported monster-action phase/u,
+    );
+    assert.deepEqual({
+        hunger: game.u.uhunger,
+        moves: game.moves,
+        movement: game.u.umovement,
+    }, unchanged);
     assert.equal(game.nhDisplay.inputQueueLength, 1);
 });
 

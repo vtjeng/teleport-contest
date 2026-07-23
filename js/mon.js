@@ -44,8 +44,10 @@ export async function iter_mons_safe(callback, state = game) {
     }
 }
 
-// C ref: mon.c movemon(). moveSingleMonster owns movemon_singlemon(); the
-// other two required operations own worn.c clear_bypasses() and do.c
+// C ref: mon.c movemon(). moveSingleMonster owns movemon_singlemon(). Its
+// Boolean result means "terminate traversal", not "monster moved"; like C, it
+// separately maintains state.somebody_can_move for movemon()'s return value.
+// The other two required operations own worn.c clear_bypasses() and do.c
 // deferred_goto(). They are preflighted together so an unavailable later
 // boundary cannot leave a partially processed monster list.
 export async function movemon(env = {}) {

@@ -272,6 +272,39 @@ test('gethungry fails closed at unported awareness and status boundaries', () =>
     assert.equal(missingRing.u.uhunger, 900);
 });
 
+test('gethungry preflights only nutrition losses reachable this tick', () => {
+    const lowLoss = hungerState();
+    lowLoss.u.uhunger = 152;
+    const lowLossDraws = [];
+
+    assert.equal(gethungry(lowLoss, {
+        random: {
+            rn2(bound) {
+                lowLossDraws.push(bound);
+                return 2;
+            },
+        },
+        nearCapacity: () => UNENCUMBERED,
+    }), 1);
+    assert.deepEqual(lowLossDraws, [20]);
+    assert.equal(lowLoss.u.uhunger, 151);
+    assert.equal(lowLoss.u.uhs, NOT_HUNGRY);
+
+    const reachableTransition = hungerState();
+    reachableTransition.u.uhunger = 152;
+    property(reachableTransition, HUNGER).intrinsic = FROMOUTSIDE;
+    assert.throws(
+        () => gethungry(reachableTransition, {
+            random: {
+                rn2: () => assert.fail('reachable transition preflights'),
+            },
+            nearCapacity: () => UNENCUMBERED,
+        }),
+        /unported hunger-status transition/u,
+    );
+    assert.equal(reachableTransition.u.uhunger, 152);
+});
+
 test('spinach tins clear species and do not draw', () => {
     const obj = { corpsenm: PM_KOBOLD, spe: 0 };
     set_tin_variety(obj, SPINACH_TIN, {

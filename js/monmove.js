@@ -506,9 +506,12 @@ export async function monflee(
     const random = env.random ?? { rn2 };
     const couldSee = env.couldSee ?? ((x, y) => couldsee(x, y, state));
     const checksFleeingLight = env.fleesLight ?? fleesLight;
-    const entersFleeState = !first || !monster.mflee;
-    const checksMessage = entersFleeState && !monster.mflee && showMessage;
-    const createsGas = entersFleeState
+    // C's `first` means "only establish fear if not already fleeing"; false
+    // permits an existing flee state to be refreshed or extended.
+    const mayEnterOrRefreshFleeState = !first || !monster.mflee;
+    const checksMessage = mayEnterOrRefreshFleeState
+        && !monster.mflee && showMessage;
+    const createsGas = mayEnterOrRefreshFleeState
         && isSpecies(monster, PM_VROCK, state) && !monster.mspec_used;
 
     if (!Array.isArray(monster.mtrack))
@@ -544,7 +547,7 @@ export async function monflee(
 
     if (releaseHero) await releaseHero(monster, normalized);
 
-    if (entersFleeState) {
+    if (mayEnterOrRefreshFleeState) {
         if (!fleeTime) {
             monster.mfleetim = 0;
         } else if (!monster.mflee || monster.mfleetim) {
@@ -603,7 +606,7 @@ export async function disturb(monster, env = {}) {
         || dist2(monster.mx, monster.my, state.u.ux, state.u.uy) > 100) {
         return 0;
     }
-    const stealthyHero = propertyActive(state, STEALTH);
+    const stealthyHero = propertyActive(state, STEALTH, true);
     if (stealthyHero && !isSpecies(monster, PM_ETTIN, state)) return 0;
     if (typeof env.wakeMessage !== 'function')
         throw new TypeError('disturb requires a wakeMessage operation');

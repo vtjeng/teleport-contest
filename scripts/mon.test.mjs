@@ -55,6 +55,12 @@ function schedulerOperations(overrides = {}) {
     };
 }
 
+function deferred() {
+    let resolve;
+    const promise = new Promise((accept) => { resolve = accept; });
+    return { promise, resolve };
+}
+
 test('mcalcmove preserves the source slow and fast integer formulas', () => {
     const state = { u: {}, context: {} };
     const cases = [
@@ -186,7 +192,8 @@ test('iter_mons_safe stops when its callback returns true', async () => {
 test('movemon preserves scheduler and terminal cleanup order', async () => {
     const first = { id: 'first' };
     const second = { id: 'second' };
-    const state = schedulerState([first, second]);
+    const third = { id: 'third' };
+    const state = schedulerState([first, second, third]);
     const events = [];
     state.context.bypasses = true;
     state.gl.light_base = {};
@@ -197,7 +204,7 @@ test('movemon preserves scheduler and terminal cleanup order', async () => {
             moveSingleMonster(current, env) {
                 events.push(`move:${current.id}:${env.state.somebody_can_move}`);
                 if (current === first) env.state.somebody_can_move = true;
-                return false;
+                return current === second;
             },
             clearBypasses(env) {
                 events.push(`bypass:${env.state.vision_full_recalc}`);
@@ -252,6 +259,92 @@ test('movemon completes cleanup before a deferred level change', async () => {
     assert.equal(result, false);
     assert.deepEqual(events, ['move:first', 'deferred']);
     assert.equal(state.somebody_can_move, false);
+});
+
+test('movemon awaits actions, cleanup, and deferred level changes in order', async () => {
+    const first = { id: 'first' };
+    const second = { id: 'second' };
+    const third = { id: 'third' };
+    const state = schedulerState([first, second, third]);
+    state.context.bypasses = true;
+    state.u.utotype = 1;
+    const firstAction = deferred();
+    const bypass = deferred();
+    const bypassStarted = deferred();
+    const levelChange = deferred();
+    const levelChangeStarted = deferred();
+    const events = [];
+
+    const pending = movemon({
+        state,
+        async moveSingleMonster(current, env) {
+            events.push(`move:${current.id}:start`);
+            if (current === first) await firstAction.promise;
+            events.push(`move:${current.id}:end`);
+            if (current === first) env.state.somebody_can_move = true;
+            return current === second;
+        },
+        async clearBypasses(env) {
+            events.push('bypass:start');
+            bypassStarted.resolve();
+            await bypass.promise;
+            env.state.context.bypasses = false;
+            events.push('bypass:end');
+        },
+        async deferredGoto(env) {
+            events.push('deferred:start');
+            levelChangeStarted.resolve();
+            await levelChange.promise;
+            env.state.u.utotype = 0;
+            events.push('deferred:end');
+        },
+    });
+
+    assert.deepEqual(events, ['move:first:start']);
+    assert.deepEqual(state.context.objsplit, {
+        parent_oid: 7,
+        child_oid: 8,
+    });
+
+    firstAction.resolve();
+    await bypassStarted.promise;
+    assert.deepEqual(events, [
+        'move:first:start',
+        'move:first:end',
+        'move:second:start',
+        'move:second:end',
+        'bypass:start',
+    ]);
+    assert.deepEqual(state.context.objsplit, {
+        parent_oid: 7,
+        child_oid: 8,
+    });
+
+    bypass.resolve();
+    await levelChangeStarted.promise;
+    assert.deepEqual(state.context.objsplit, {
+        parent_oid: 0,
+        child_oid: 0,
+    });
+    assert.equal(events.at(-1), 'deferred:start');
+
+    let settled = false;
+    pending.then(() => { settled = true; });
+    await Promise.resolve();
+    assert.equal(settled, false);
+    levelChange.resolve();
+    assert.equal(await pending, false);
+    assert.equal(settled, true);
+    assert.deepEqual(events, [
+        'move:first:start',
+        'move:first:end',
+        'move:second:start',
+        'move:second:end',
+        'bypass:start',
+        'bypass:end',
+        'deferred:start',
+        'deferred:end',
+    ]);
 });
 
 test('movemon preflights every unported operation before state changes', async () => {

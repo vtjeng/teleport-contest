@@ -6,6 +6,7 @@ import {
     AGGRAVATE_MONSTER,
     ALTAR,
     A_LAWFUL,
+    A_NEUTRAL,
     AM_LAWFUL,
     AM_SHRINE,
     COLNO,
@@ -45,6 +46,7 @@ import {
 } from '../js/monmove.js';
 import {
     PM_ANGEL,
+    PM_DEATH,
     PM_FOG_CLOUD,
     PM_ETTIN,
     PM_GIANT_RAT,
@@ -159,6 +161,50 @@ function sequenceRandom(values, calls) {
     };
 }
 
+function deferred() {
+    let resolve;
+    const promise = new Promise((accept) => { resolve = accept; });
+    return { promise, resolve };
+}
+
+function sanctuaryFixture() {
+    const { locations, state } = makeState();
+    const roomNumber = ROOMOFFSET;
+    state.level.rooms[0] = { rtype: TEMPLE };
+    state.u.urooms[0] = roomNumber;
+    locations.set('6,6', { typ: ROOM, flags: 0, roomno: roomNumber });
+    locations.set('7,7', { typ: ROOM, flags: 0, roomno: roomNumber });
+    locations.set('8,8', {
+        typ: ALTAR,
+        flags: AM_SHRINE | AM_LAWFUL,
+        roomno: roomNumber,
+    });
+    const priest = newMonster({
+        data: state.mons[PM_HUMAN],
+        ispriest: true,
+        mpeaceful: true,
+        mhp: 1,
+        mx: 7,
+        my: 7,
+        mextra: {
+            epri: {
+                shralign: A_LAWFUL,
+                shroom: roomNumber,
+                shrpos: { x: 8, y: 8 },
+                shrlevel: { ...state.u.uz },
+            },
+        },
+    });
+    state.level.monlist = priest;
+    return {
+        locations,
+        monster: ordinaryMonster(state, { mx: 6, my: 6 }),
+        priest,
+        roomNumber,
+        state,
+    };
+}
+
 test('set_apparxy keeps exact knowledge for pets and remembered hero squares', () => {
     const { state } = makeState();
     const noDraws = { rn2: () => assert.fail('direct knowledge must not draw') };
@@ -212,6 +258,44 @@ test('set_apparxy lets a blind xorn smell any carried money', () => {
     });
 
     assert.deepEqual([monster.mux, monster.muy], [state.u.ux, state.u.uy]);
+});
+
+test('set_apparxy zero rolls immediately recover the real hero square', () => {
+    const unseen = makeState().state;
+    unseen.u.uprops[INVIS].intrinsic = 1;
+    const blindMonster = ordinaryMonster(unseen, { mux: 2, muy: 3 });
+    const unseenCalls = [];
+
+    set_apparxy(blindMonster, {
+        state: unseen,
+        random: sequenceRandom([0], unseenCalls),
+        couldSee: () => assert.fail('exact unseen roll skips guessing'),
+    });
+    assert.deepEqual(unseenCalls, [3]);
+    assert.deepEqual(
+        [blindMonster.mux, blindMonster.muy],
+        [unseen.u.ux, unseen.u.uy],
+    );
+
+    const displaced = makeState().state;
+    displaced.u.uprops[DISPLACED].extrinsic = 1;
+    const displacedMonster = ordinaryMonster(displaced, { mux: 7, muy: 7 });
+    const displacedCalls = [];
+    const seen = [];
+    set_apparxy(displacedMonster, {
+        state: displaced,
+        random: sequenceRandom([0], displacedCalls),
+        couldSee(x, y) {
+            seen.push([x, y]);
+            return true;
+        },
+    });
+    assert.deepEqual(displacedCalls, [4]);
+    assert.deepEqual(seen, [[7, 7]]);
+    assert.deepEqual(
+        [displacedMonster.mux, displacedMonster.muy],
+        [displaced.u.ux, displaced.u.uy],
+    );
 });
 
 test('set_apparxy uses the source unseen draw and retries its own square', () => {
@@ -345,6 +429,9 @@ test('can_ooze preserves the source inventory-width whitelist', () => {
     const { state } = makeState();
     const monster = newMonster({ data: state.mons[PM_FOG_CLOUD] });
 
+    assert.equal(can_ooze(monster, state), true);
+    assert.equal(can_ooze(ordinaryMonster(state), state), false);
+
     monster.minvent = objectFor(state, DAGGER);
     assert.equal(can_ooze(monster, state), true);
 
@@ -462,40 +549,62 @@ test('onscary requires an active whole Elbereth and an eligible monster', () => 
 });
 
 test('in_your_sanctuary validates room, priest, shrine, and alignment', () => {
-    const { locations, state } = makeState();
-    const roomNumber = ROOMOFFSET;
-    state.level.rooms[0] = { rtype: TEMPLE };
-    state.u.urooms[0] = roomNumber;
-    locations.set('6,6', { typ: ROOM, flags: 0, roomno: roomNumber });
-    locations.set('7,7', { typ: ROOM, flags: 0, roomno: roomNumber });
-    locations.set('8,8', {
-        typ: ALTAR,
-        flags: AM_SHRINE | AM_LAWFUL,
-        roomno: roomNumber,
-    });
+    const baseline = sanctuaryFixture();
+    assert.equal(in_your_sanctuary(
+        baseline.monster,
+        0,
+        0,
+        baseline.state,
+    ), true);
+    assert.equal(in_your_sanctuary(null, 6, 6, baseline.state), true);
 
-    const priest = newMonster({
-        data: state.mons[PM_HUMAN],
-        ispriest: true,
-        mpeaceful: true,
-        mhp: 1,
-        mx: 7,
-        my: 7,
-        mextra: {
-            epri: {
-                shralign: A_LAWFUL,
-                shroom: roomNumber,
-                shrpos: { x: 8, y: 8 },
-                shrlevel: { ...state.u.uz },
-            },
-        },
-    });
-    state.level.monlist = priest;
-    const monster = ordinaryMonster(state, { mx: 6, my: 6 });
+    for (const [name, invalidate] of [
+        ['alignment record', ({ state }) => { state.u.ualign.record = -4; }],
+        ['occupied temple', ({ state }) => { state.u.urooms[0] = 0; }],
+        ['target room', ({ locations }) => {
+            locations.set('6,6', { typ: ROOM, flags: 0, roomno: 0 });
+        }],
+        ['priest lookup', ({ state }) => { state.level.monlist = null; }],
+        ['shrine', ({ locations, roomNumber }) => {
+            locations.set('8,8', {
+                typ: ALTAR,
+                flags: AM_LAWFUL,
+                roomno: roomNumber,
+            });
+        }],
+        ['coalignment', ({ state }) => {
+            state.u.ualign.type = A_NEUTRAL;
+        }],
+        ['peaceful priest', ({ priest }) => { priest.mpeaceful = false; }],
+    ]) {
+        const fixture = sanctuaryFixture();
+        invalidate(fixture);
+        assert.equal(in_your_sanctuary(
+            fixture.monster,
+            0,
+            0,
+            fixture.state,
+        ), false, name);
+    }
 
-    assert.equal(in_your_sanctuary(monster, 0, 0, state), true);
-    state.u.ualign.record = -4; // priest.c's sinned-or-worse cutoff.
-    assert.equal(in_your_sanctuary(monster, 0, 0, state), false);
+    for (const [name, pmidx] of [
+        ['minion', PM_ANGEL],
+        ['rider', PM_DEATH],
+    ]) {
+        const fixture = sanctuaryFixture();
+        const immune = newMonster({
+            data: fixture.state.mons[pmidx],
+            mnum: pmidx,
+            mx: 6,
+            my: 6,
+        });
+        assert.equal(in_your_sanctuary(
+            immune,
+            0,
+            0,
+            fixture.state,
+        ), false, name);
+    }
 });
 
 test('monnear excludes only grid-bug diagonal adjacency', () => {
@@ -546,6 +655,41 @@ test('disturb rejects unseen, distant, and stealth-shielded monsters drawlessly'
         couldSee: () => true,
     }), 0);
     assert.equal(monster.msleeping, true);
+});
+
+test('disturb treats blocked Stealth as inactive without an Ettin draw', async () => {
+    const { state } = makeState();
+    state.u.uprops[STEALTH].intrinsic = 1;
+    state.u.uprops[STEALTH].blocked = 1;
+    const dog = newMonster({
+        data: state.mons[PM_LITTLE_DOG],
+        mnum: PM_LITTLE_DOG,
+        msleeping: true,
+        mx: 9,
+        my: 10,
+    });
+    assert.equal(await disturb(dog, {
+        state,
+        random: { rn2: () => assert.fail('blocked Stealth is inactive') },
+        couldSee: () => true,
+        wakeMessage() {},
+    }), 1);
+
+    const ettin = newMonster({
+        data: state.mons[PM_ETTIN],
+        mnum: PM_ETTIN,
+        msleeping: true,
+        mx: 9,
+        my: 10,
+    });
+    const calls = [];
+    assert.equal(await disturb(ettin, {
+        state,
+        random: sequenceRandom([0], calls),
+        couldSee: () => true,
+        wakeMessage() {},
+    }), 1);
+    assert.deepEqual(calls, [7]);
 });
 
 test('disturb preserves Ettin and hard-sleeper random order', async () => {
@@ -682,6 +826,34 @@ test('disturb preflights wake-message ownership before consuming randomness', as
     assert.equal(monster.msleeping, true);
 });
 
+test('disturb keeps sleep state behind the asynchronous wake owner', async () => {
+    const { state } = makeState();
+    const monster = newMonster({
+        data: state.mons[PM_LITTLE_DOG],
+        mnum: PM_LITTLE_DOG,
+        msleeping: true,
+        mx: 9,
+        my: 10,
+    });
+    const wake = deferred();
+    let settled = false;
+    const pending = disturb(monster, {
+        state,
+        random: { rn2: () => assert.fail('dogs wake without a draw') },
+        couldSee: () => true,
+        wakeMessage: () => wake.promise,
+    });
+    pending.then(() => { settled = true; });
+
+    assert.equal(monster.msleeping, true);
+    await Promise.resolve();
+    assert.equal(settled, false);
+    wake.resolve();
+    assert.equal(await pending, 1);
+    assert.equal(monster.msleeping, false);
+    assert.equal(settled, true);
+});
+
 test('monflee preserves timer extension, untimed fear, and first-call rules', async () => {
     const { state } = makeState();
     const fresh = ordinaryMonster(state, {
@@ -721,9 +893,14 @@ test('monflee preserves timer extension, untimed fear, and first-call rules', as
         mhp: 5,
         mflee: true,
         mfleetim: 9,
+        mtrack: [{ x: 6, y: 7 }, { x: 8, y: 9 }],
     });
     await monflee(alreadyFleeing, 20, true, false, { state });
     assert.equal(alreadyFleeing.mfleetim, 9);
+    assert.deepEqual(alreadyFleeing.mtrack, [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+    ]);
 });
 
 test('monflee releases the hero before timing and emits before setting mflee', async () => {
@@ -766,6 +943,91 @@ test('monflee releases the hero before timing and emits before setting mflee', a
         'message:turns-to-flee:false',
     ]);
     assert.equal(monster.mflee, true);
+});
+
+test('monflee awaits release, message, and gas owners before later state', async () => {
+    const { state } = makeState();
+    const monster = newMonster({
+        data: state.mons[PM_VROCK],
+        mnum: PM_VROCK,
+        mhp: 5,
+        mcanmove: true,
+        mflee: false,
+        mfleetim: 0,
+        mspec_used: 0,
+        mtrack: [{ x: 2, y: 3 }],
+        mx: 6,
+        my: 7,
+    });
+    state.u.ustuck = monster;
+    const release = deferred();
+    const message = deferred();
+    const messageStarted = deferred();
+    const gas = deferred();
+    const gasStarted = deferred();
+    const events = [];
+
+    const pending = monflee(monster, 1, true, true, {
+        state,
+        random: {
+            rn2(bound) {
+                events.push(`rn2(${bound})`);
+                assert.equal(bound, 25);
+                return 9;
+            },
+        },
+        couldSee: () => true,
+        async releaseHero() {
+            events.push('release:start');
+            await release.promise;
+            state.u.ustuck = null;
+            events.push('release:end');
+        },
+        canSeeMonster: () => true,
+        fleesLight: () => false,
+        async fleeMessage() {
+            events.push('message:start');
+            messageStarted.resolve();
+            await message.promise;
+            events.push('message:end');
+        },
+        async createGasCloud() {
+            events.push('gas:start');
+            gasStarted.resolve();
+            await gas.promise;
+            events.push('gas:end');
+        },
+    });
+
+    assert.deepEqual(events, ['release:start']);
+    assert.equal(monster.mfleetim, 0);
+    assert.equal(monster.mflee, false);
+
+    release.resolve();
+    await messageStarted.promise;
+    assert.equal(monster.mfleetim, 2);
+    assert.equal(monster.mflee, false);
+    assert.deepEqual(monster.mtrack, [{ x: 2, y: 3 }]);
+
+    message.resolve();
+    await gasStarted.promise;
+    assert.equal(monster.mspec_used, 84);
+    assert.equal(monster.mflee, false);
+    assert.deepEqual(monster.mtrack, [{ x: 2, y: 3 }]);
+
+    gas.resolve();
+    await pending;
+    assert.equal(monster.mflee, true);
+    assert.deepEqual(monster.mtrack, [{ x: 0, y: 0 }]);
+    assert.deepEqual(events, [
+        'release:start',
+        'release:end',
+        'message:start',
+        'message:end',
+        'rn2(25)',
+        'gas:start',
+        'gas:end',
+    ]);
 });
 
 test('monflee uses the immobile message before testing emitted light', async () => {
@@ -1075,6 +1337,140 @@ test('distfleeck preserves scare duration draws and monflee arguments', async ()
         'monflee(6,true,true)',
     ]);
     assert.deepEqual(result, { inrange: true, nearby: true, scared: true });
+});
+
+test('distfleeck awaits the asynchronous flee owner before returning', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mx: 9,
+        my: 10,
+        mux: 10,
+        muy: 10,
+    });
+    const flee = deferred();
+    const fleeStarted = deferred();
+    let settled = false;
+    const pending = distfleeck(monster, {
+        state,
+        random: {
+            rn2(bound) {
+                assert.ok(bound === 5 || bound === 7);
+                return 1;
+            },
+            rnd(bound) {
+                assert.equal(bound, 10);
+                return 6;
+            },
+        },
+        onScary: () => true,
+        fleesLight: () => assert.fail('scary square short-circuits light'),
+        inYourSanctuary: () => assert.fail('scary square short-circuits temple'),
+        async monFlee() {
+            fleeStarted.resolve();
+            await flee.promise;
+        },
+    });
+    pending.then(() => { settled = true; });
+
+    await fleeStarted.promise;
+    await Promise.resolve();
+    assert.equal(settled, false);
+    flee.resolve();
+    assert.deepEqual(await pending, {
+        inrange: true,
+        nearby: true,
+        scared: true,
+    });
+    assert.equal(settled, true);
+});
+
+test('distfleeck independently recognizes light and sanctuary fear', async () => {
+    async function runCause({ brave, light, peaceful, sanctuary }) {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, {
+            mpeaceful: peaceful,
+            mx: 9,
+            my: 10,
+            mux: 10,
+            muy: 10,
+        });
+        const events = [];
+        const result = await distfleeck(monster, {
+            state,
+            random: {
+                rn2(bound) {
+                    events.push(`rn2(${bound})`);
+                    if (bound === 5) return brave ? 0 : 1;
+                    assert.equal(bound, 7);
+                    return 1;
+                },
+                rnd(bound) {
+                    events.push(`rnd(${bound})`);
+                    return 6;
+                },
+            },
+            onScary() {
+                events.push('onscary');
+                return false;
+            },
+            fleesLight() {
+                events.push('light');
+                return light;
+            },
+            inYourSanctuary() {
+                events.push('sanctuary');
+                return sanctuary;
+            },
+            monFlee(candidate, duration, first, message) {
+                events.push(`monflee(${duration},${first},${message})`);
+                assert.equal(candidate, monster);
+            },
+        });
+        return { events, result };
+    }
+
+    assert.deepEqual(await runCause({
+        brave: false,
+        light: true,
+        peaceful: false,
+        sanctuary: false,
+    }), {
+        events: [
+            'rn2(5)',
+            'onscary',
+            'light',
+            'rn2(7)',
+            'rnd(10)',
+            'monflee(6,true,true)',
+        ],
+        result: { inrange: true, nearby: true, scared: true },
+    });
+    assert.deepEqual(await runCause({
+        brave: true,
+        light: true,
+        peaceful: true,
+        sanctuary: false,
+    }), {
+        events: ['rn2(5)', 'onscary', 'light'],
+        result: { inrange: true, nearby: true, scared: false },
+    });
+    assert.deepEqual(await runCause({
+        brave: false,
+        light: false,
+        peaceful: false,
+        sanctuary: true,
+    }), {
+        events: [
+            'rn2(5)',
+            'onscary',
+            'light',
+            'sanctuary',
+            'rn2(7)',
+            'rnd(10)',
+            'monflee(6,true,true)',
+        ],
+        result: { inrange: true, nearby: true, scared: true },
+    });
 });
 
 test('distfleeck checks an invisible hero at the guessed square', async () => {

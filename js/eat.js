@@ -166,11 +166,7 @@ export function gethungry(state = game, env = {}) {
         throw new Error('gethungry requires initialized hero form');
     }
 
-    // The admitted alert-hero slice must remain within one hunger status for
-    // every possible branch. Its maximum source loss is ordinary diet plus
-    // Hunger, Conflict, and one accessory (four nutrition points).
-    if (u.uhs === FAINTED || hungerStatus(u.uhunger) !== u.uhs
-        || hungerStatus(u.uhunger - 4) !== u.uhs) {
+    if (u.uhs === FAINTED || hungerStatus(u.uhunger) !== u.uhs) {
         throw new Error(
             'gethungry reached unported hunger-status transition',
         );
@@ -180,29 +176,52 @@ export function gethungry(state = game, env = {}) {
     preflightNutritionRing(state.uleft, state);
     preflightNutritionRing(state.uright, state);
 
-    let nutritionLoss = 0;
     const eatsNormally = Boolean(species.mflags1
         & (M1_CARNIVORE | M1_HERBIVORE | M1_METALLIVORE));
     const slowDigestion = hungerPropertyActive(state, SLOW_DIGESTION);
-    if (eatsNormally && !slowDigestion) nutritionLoss++;
+    const ordinaryLoss = eatsNormally && !slowDigestion ? 1 : 0;
+    const regeneration = hungerProperty(state, REGENERATION);
+    const regenerationLoss = (Math.trunc(regeneration.intrinsic ?? 0)
+            & ~FROMFORM)
+        || (Math.trunc(regeneration.extrinsic ?? 0) & ~(W_ARTI | W_WEP))
+        ? 1 : 0;
+    const capacity = env.nearCapacity(state);
+    const oddLoss = ordinaryLoss + regenerationLoss
+        + (capacity > SLT_ENCUMBER ? 1 : 0);
+    const hungerLoss = hungerPropertyActive(state, HUNGER) ? 1 : 0;
+    const conflict = hungerProperty(state, CONFLICT);
+    const conflictLoss = conflict.intrinsic
+        || (Math.trunc(conflict.extrinsic ?? 0) & ~W_ARTI) ? 1 : 0;
+    const accessoryLoss = Math.max(
+        slowDigestion
+            && state.uright?.otyp !== RIN_SLOW_DIGESTION
+            && state.uleft?.otyp !== RIN_SLOW_DIGESTION ? 1 : 0,
+        ringConsumesNutrition(state.uleft, W_RINGL, state) ? 1 : 0,
+        state.uamul && state.uamul.otyp !== FAKE_AMULET_OF_YENDOR ? 1 : 0,
+        ringConsumesNutrition(state.uright, W_RINGR, state) ? 1 : 0,
+        u.uhave?.amulet ? 1 : 0,
+    );
+    const evenLoss = ordinaryLoss + hungerLoss + conflictLoss + accessoryLoss;
+    const maximumReachableLoss = Math.max(oddLoss, evenLoss);
+
+    // The admitted alert-hero slice must remain within one hunger status for
+    // every possible rn2(20) branch. Use only costs reachable from the current
+    // form, properties, burden, and equipment so harmless low-loss ticks are
+    // not rejected before their source draw.
+    if (hungerStatus(u.uhunger - maximumReachableLoss) !== u.uhs) {
+        throw new Error(
+            'gethungry reached unported hunger-status transition',
+        );
+    }
+
+    let nutritionLoss = ordinaryLoss;
 
     const accessoryTime = random.rn2(20);
     if (accessoryTime % 2) {
-        const regeneration = hungerProperty(state, REGENERATION);
-        const intrinsic = Math.trunc(regeneration.intrinsic ?? 0);
-        const extrinsic = Math.trunc(regeneration.extrinsic ?? 0);
-        if ((intrinsic & ~FROMFORM)
-            || (extrinsic & ~(W_ARTI | W_WEP))) {
-            nutritionLoss++;
-        }
-        if (env.nearCapacity(state) > SLT_ENCUMBER) nutritionLoss++;
+        nutritionLoss += regenerationLoss;
+        if (capacity > SLT_ENCUMBER) nutritionLoss++;
     } else {
-        if (hungerPropertyActive(state, HUNGER)) nutritionLoss++;
-        const conflict = hungerProperty(state, CONFLICT);
-        if (conflict.intrinsic
-            || (Math.trunc(conflict.extrinsic ?? 0) & ~W_ARTI)) {
-            nutritionLoss++;
-        }
+        nutritionLoss += hungerLoss + conflictLoss;
         switch (accessoryTime) {
         case 0:
             if (slowDigestion
