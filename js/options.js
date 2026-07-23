@@ -1715,7 +1715,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
 // otherwise they fall through to the intentionally opaque compound-option
 // preservation path and create stray string-valued flags.
 const HANDLED_BOOLEAN_OPTIONS = new Set([
-    'female', 'male', 'autopickup', 'color', 'use_darkgray', 'use_inverse',
+    'female', 'male', 'acoustics', 'autopickup', 'color', 'use_darkgray',
+    'use_inverse',
     'hilite_pet', 'hilite_pile', 'hitpointbar', 'legacy', 'tutorial',
     'splash_screen',
     'status_updates', 'accessiblemsg', 'mention_map', 'spot_monsters',

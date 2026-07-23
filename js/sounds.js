@@ -27,9 +27,12 @@ const SINK_MESSAGES = Object.freeze([
     'dishes being washed!',
 ]);
 
-const LATER_SPECIAL_SOUND_FLAGS = Object.freeze([
+const PRE_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
     'has_court',
     'has_swamp',
+]);
+
+const POST_VAULT_SPECIAL_SOUND_FLAGS = Object.freeze([
     'has_beehive',
     'has_morgue',
     'has_barracks',
@@ -59,6 +62,8 @@ function roomStringContainsType(buffer, roomType, state) {
 }
 
 function searchSpecial(roomType, state) {
+    // C's search_special() scans its main-room array and separate subroom
+    // array. mklev.js preserves that split as level.rooms and root subrooms.
     for (const room of state.level?.rooms ?? []) {
         if (!room || room.hx < 0) break;
         if (room.rtype === roomType) return room;
@@ -95,14 +100,22 @@ function vaultContainsGold(room, state) {
     return false;
 }
 
-function requireInitialLevelSoundScope(state) {
+function rejectUnportedSpecialSound(state, flagNames) {
     const flags = state.level?.flags ?? {};
-    const laterFlag = LATER_SPECIAL_SOUND_FLAGS.find((name) => flags[name]);
-    const oracleLevel = on_level(state.u?.uz, state.oracle_level);
-    if (laterFlag || oracleLevel) {
+    const laterFlag = flagNames.find((name) => flags[name]);
+    if (laterFlag) {
         throw new Error(
             'dosounds initial-level slice reached an unported later-level '
-                + `branch (${laterFlag ?? 'Oracle'})`,
+                + `branch (${laterFlag})`,
+        );
+    }
+}
+
+function rejectUnportedOracleSound(state) {
+    if (on_level(state.u?.uz, state.oracle_level)) {
+        throw new Error(
+            'dosounds initial-level slice reached an unported later-level '
+                + 'branch (Oracle)',
         );
     }
 }
@@ -130,7 +143,6 @@ export async function dosoundsInitialLevel(
         return;
     }
 
-    requireInitialLevelSoundScope(state);
     const hallu = hallucinating(hero) ? 1 : 0;
 
     if (flags.nfountains && random(400) === 0) {
@@ -139,6 +151,8 @@ export async function dosoundsInitialLevel(
     if (flags.nsinks && random(300) === 0) {
         await hear(SINK_MESSAGES[random(2) + hallu], state, pline);
     }
+    // Stop at the first unowned source branch, after all earlier owned work.
+    rejectUnportedSpecialSound(state, PRE_VAULT_SPECIAL_SOUND_FLAGS);
     if (flags.has_vault && random(200) === 0) {
         const room = searchSpecial(VAULT, state);
         if (!room) {
@@ -170,5 +184,10 @@ export async function dosoundsInitialLevel(
                 );
             }
         }
+        // sounds.c returns after every taken vault gate, including when a
+        // guard or the hero's room suppresses its selection draw.
+        return;
     }
+    rejectUnportedSpecialSound(state, POST_VAULT_SPECIAL_SOUND_FLAGS);
+    rejectUnportedOracleSound(state);
 }

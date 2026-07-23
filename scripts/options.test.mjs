@@ -704,6 +704,27 @@ test('config and source option names accept valid abbreviations', () => {
     );
 });
 
+test('acoustics value spellings use the source boolean parser', () => {
+    // These are options.c's canonical word and numeric true/false spellings;
+    // they must become booleans rather than opaque compound-option strings.
+    for (const [value, expected] of [
+        ['true', true],
+        ['yes', true],
+        ['on', true],
+        ['1', true],
+        ['false', false],
+        ['no', false],
+        ['off', false],
+        ['0', false],
+    ]) {
+        assert.equal(
+            parseNethackrc(`OPTIONS=acoustics:${value}`).flags.acoustics,
+            expected,
+            value,
+        );
+    }
+});
+
 test('continued config lines follow cfgfiles.c merge and comment rules', () => {
     const merged = parseNethackrc([
         'OPTIONS=role:Healer,\\',

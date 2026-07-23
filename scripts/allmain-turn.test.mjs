@@ -161,6 +161,21 @@ test('u_calc_moveamt applies every source encumbrance fraction', () => {
     const clamped = movementState(0, -3);
     u_calc_moveamt(0, clamped);
     assert.equal(clamped.u.umovement, 0);
+
+    // Speed 13 makes every encumbrance division fractional, so these cases
+    // distinguish C's truncation toward zero from floating-point subtraction.
+    for (const [capacity, expected] of [
+        [SLT_ENCUMBER, 10],
+        [MOD_ENCUMBER, 7],
+        [HVY_ENCUMBER, 4],
+        [EXT_ENCUMBER, 2],
+    ]) {
+        const fractional = movementState(13);
+        u_calc_moveamt(capacity, fractional, () => {
+            assert.fail('ordinary speed must not draw');
+        });
+        assert.equal(fractional.u.umovement, expected);
+    }
 });
 
 test('maybeWipeHeroEngraving derives its gate from effective Dexterity', () => {
@@ -199,20 +214,33 @@ test('maybeWipeHeroEngraving consumes rnd(3) before touching the engraving', () 
 });
 
 test('maybeWipeHeroEngraving rejects unsupported floor reachability after rnd', () => {
-    const state = engravingTurnState();
-    state.u.uprops[LEVITATION].intrinsic = 1;
-    const script = turnDraws([
-        ['rn2', 79, 0], // Enter the rare branch at Dexterity 13.
-        ['rnd', 3, 2], // C evaluates rnd(3) before can_reach_floor(TRUE).
-    ]);
+    for (const [label, makeUnsupported] of [
+        ['swallowed', (state) => { state.u.uswallow = true; }],
+        ['stuck', (state) => { state.u.ustuck = {}; }],
+        ['mounted', (state) => { state.u.usteed = {}; }],
+        ['undetected', (state) => { state.u.uundetected = true; }],
+        ['levitating', (state) => {
+            state.u.uprops[LEVITATION].intrinsic = 1;
+        }],
+    ]) {
+        const state = engravingTurnState();
+        makeUnsupported(state);
+        const script = turnDraws([
+            ['rn2', 79, 0], // Enter the rare branch at Dexterity 13.
+            ['rnd', 3, 2], // Evaluate the argument before floor reachability.
+        ]);
 
-    assert.throws(
-        () => maybeWipeHeroEngraving(state, script.random),
-        /unported can_reach_floor state/u,
-    );
-    script.done();
+        assert.throws(
+            () => maybeWipeHeroEngraving(state, script.random),
+            /unported can_reach_floor state/u,
+            label,
+        );
+        script.done();
+    }
 
     // A blocked property does not satisfy NetHack's Levitation macro.
+    const state = engravingTurnState();
+    state.u.uprops[LEVITATION].intrinsic = 1;
     state.u.uprops[LEVITATION].blocked = 1;
     const blocked = turnDraws([
         ['rn2', 79, 0], // Re-enter the Dexterity-13 rare branch.

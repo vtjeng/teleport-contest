@@ -238,35 +238,49 @@ export async function moveloop_core() {
     const g = game;
 
     // C gates its entire elapsed-time block on the preceding command's
-    // context.move value. Capture that value before the once-per-input code
-    // below resets it optimistically for the next command.
+    // context.move value. Capture that value before the next command dispatch
+    // below (including an internal repeat) resets it optimistically.
     if (g.context?.move) {
         g.u.umovement -= NORMAL_SPEED;
-        // Fast-forward residual per-step RNG around the source-owned movement
-        // allocation boundary. Monster action state, regen, sounds, and hunger
-        // remain in the replay scaffold.
-        const stepNum = (g.moves || 1) - 1;
-        await fastforward_step(stepNum, () => {
-            // C ref: mon.c movemon() and allmain.c moveloop_core(). Until
-            // movemon() is ported, this callback temporarily owns its terminal
-            // dead-monster purge as well as the later list-order allocation.
-            dmonsfree(g);
-            for (let monster = g.level?.monlist ?? null;
-                monster;
-                monster = monster.nmon) {
-                monster.movement += mcalcmove(monster, true, g);
-            }
-        }, () => {
-            // near_capacity() follows movemon() in C. Current reachable
-            // commands cannot change the startup inventory, whose initializer
-            // guarantees an unencumbered load; runtime burden is ported with
-            // the later monster-action boundary.
-            u_calc_moveamt(UNENCUMBERED, g);
-        }, async () => {
-            await dosoundsInitialLevel(g);
-        }, () => {
-            maybeWipeHeroEngraving(g);
-        });
+        // A fast hero can retain a complete action after paying for the prior
+        // command. C still runs movemon() before noticing that surplus; the
+        // currently ported initial-command slice has no live monster-action
+        // owner, so do not start a new allocation turn in that case.
+        if (g.u.umovement < NORMAL_SPEED) {
+            // g.moves still names the preceding source turn here. This replay
+            // phase uses that one-behind value, then the hero-allocation
+            // callback advances moves before later once-per-turn effects.
+            const elapsedReplayStep = g.moves || 1;
+            // Fast-forward residual per-step RNG around the source-owned
+            // movement allocation boundary. Monster actions, regeneration,
+            // random-monster generation, hunger, and other intervening turn
+            // work remain replay-owned; ambient sounds and engraving wear run
+            // through their source callbacks below.
+            await fastforward_step(elapsedReplayStep, () => {
+                // C ref: mon.c movemon() and allmain.c moveloop_core(). Until
+                // movemon() is ported, this callback temporarily owns its
+                // terminal dead-monster purge and later list-order allocation.
+                dmonsfree(g);
+                for (let monster = g.level?.monlist ?? null;
+                    monster;
+                    monster = monster.nmon) {
+                    monster.movement += mcalcmove(monster, true, g);
+                }
+            }, () => {
+                // near_capacity() follows movemon() in C. Current reachable
+                // commands cannot change the startup inventory, whose
+                // initializer guarantees an unencumbered load; runtime burden
+                // is ported with the later monster-action boundary.
+                u_calc_moveamt(UNENCUMBERED, g);
+                // C increments moves after hero allocation and before all
+                // once-per-turn effects, including dosounds().
+                g.moves = (g.moves || 1) + 1;
+            }, async () => {
+                await dosoundsInitialLevel(g);
+            }, () => {
+                maybeWipeHeroEngraving(g);
+            });
+        }
     }
 
     // Vision + display
@@ -295,11 +309,6 @@ export async function moveloop_core() {
         }
     } else if ((g.multi ?? 0) === 0) {
         await rhack(0, g);
-    }
-
-    // Advance turn
-    if (g.context?.move) {
-        g.moves = (g.moves || 1) + 1;
     }
 }
 

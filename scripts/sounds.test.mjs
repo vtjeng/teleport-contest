@@ -10,6 +10,7 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { COIN_CLASS } from '../js/objects.js';
+import { parseNethackrc } from '../js/options.js';
 import { dosoundsInitialLevel } from '../js/sounds.js';
 
 function soundState() {
@@ -39,6 +40,9 @@ function scriptedRandom(results) {
             assert.ok(results.length, `unexpected rn2(${bound})`);
             return results.shift();
         },
+        assertBoundsSoFar(expected) {
+            assert.deepEqual(bounds, expected);
+        },
         assertBounds(expected) {
             assert.deepEqual(bounds, expected);
             assert.deepEqual(results, []);
@@ -54,6 +58,18 @@ function messageSink() {
             messages.push(message);
         },
     };
+}
+
+function deferred() {
+    let resolve;
+    const promise = new Promise((done) => { resolve = done; });
+    return { promise, resolve };
+}
+
+async function flushMicrotasks() {
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
 }
 
 async function runSounds(state, results) {
@@ -97,6 +113,17 @@ test('dosounds returns before drawing when hearing is unavailable', async () => 
     }
 });
 
+test('valued false acoustics options suppress the first sound draw', async () => {
+    for (const value of ['false', 'no', 'off', '0']) {
+        const state = soundState();
+        state.flags = parseNethackrc(`OPTIONS=acoustics:${value}`).flags;
+        state.level.flags.nfountains = 1;
+        const { script, messages } = await runSounds(state, []);
+        script.assertBounds([]);
+        assert.deepEqual(messages, [], value);
+    }
+});
+
 test('dosounds preserves fountain and sink gate and selection order', async () => {
     const state = soundState();
     state.level.flags.nfountains = 1;
@@ -110,6 +137,45 @@ test('dosounds preserves fountain and sink gate and selection order', async () =
         'You hear the splashing of a naiad.',
         'You hear a gurgling noise.',
     ]);
+});
+
+test('dosounds awaits each message before drawing for the next branch', async () => {
+    const state = soundState();
+    state.level.flags.nfountains = 1;
+    state.level.flags.nsinks = 1;
+    // Both zeroes hit their gates; selections 2 and 1 choose the third
+    // fountain and second sink messages.
+    const script = scriptedRandom([0, 2, 0, 1]);
+    const fountain = deferred();
+    const sink = deferred();
+    const gates = [fountain, sink];
+    const messages = [];
+    let completed = false;
+    const execution = dosoundsInitialLevel(state, {
+        random: script.random,
+        pline(message) {
+            messages.push(message);
+            return gates[messages.length - 1].promise;
+        },
+    }).then(() => { completed = true; });
+
+    await flushMicrotasks();
+    script.assertBoundsSoFar([400, 3]);
+    assert.deepEqual(messages, ['You hear the splashing of a naiad.']);
+    assert.equal(completed, false);
+
+    fountain.resolve();
+    await flushMicrotasks();
+    script.assertBounds([400, 3, 300, 2]);
+    assert.deepEqual(messages, [
+        'You hear the splashing of a naiad.',
+        'You hear a gurgling noise.',
+    ]);
+    assert.equal(completed, false);
+
+    sink.resolve();
+    await execution;
+    assert.equal(completed, true);
 });
 
 test('dosounds applies hallucination only when it is not resisted', async () => {
@@ -136,7 +202,7 @@ test('dosounds applies hallucination only when it is not resisted', async () => 
     ]);
 });
 
-function vaultState({ gold = false } = {}) {
+function vaultState({ gold = false, subroom = false } = {}) {
     const state = soundState();
     const room = {
         // A 2-by-2 room keeps the inclusive source scan easy to verify.
@@ -147,11 +213,18 @@ function vaultState({ gold = false } = {}) {
         roomnoidx: 0,
         rtype: VAULT,
     };
-    state.level.rooms = [room];
-    state.level.nroom = 1;
+    if (subroom) {
+        state.level.rooms = [];
+        state.level.nroom = 0;
+        state.subrooms = [room];
+    } else {
+        state.level.rooms = [room];
+        state.level.nroom = 1;
+    }
     state.level.flags.has_vault = true;
     if (gold) {
-        state.level.objects[2][4] = {
+        // The far upper corner protects both inclusive source scan bounds.
+        state.level.objects[3][5] = {
             oclass: COIN_CLASS,
             nexthere: null,
         };
@@ -182,6 +255,16 @@ test('dosounds reports the source vault messages from floor gold', async () => {
     assert.deepEqual(result.messages, ['You hear Ebenezer Scrooge!']);
 });
 
+test('dosounds finds a vault in the separate subroom array', async () => {
+    const state = vaultState({ gold: true, subroom: true });
+    // Zero hits the vault gate; selection 1 requests the gold-aware message.
+    const result = await runSounds(state, [0, 1]);
+    result.script.assertBounds([200, 2]);
+    assert.deepEqual(result.messages, [
+        'You hear someone counting gold coins.',
+    ]);
+});
+
 test('dosounds suppresses vault noise around its occupant or guard', async () => {
     const occupied = vaultState({ gold: true });
     occupied.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
@@ -192,11 +275,14 @@ test('dosounds suppresses vault noise around its occupant or guard', async () =>
 
     const guarded = vaultState({ gold: true });
     guarded.level.monlist = {
-        isgd: true,
-        mextra: { egd: { gdlevel: { ...guarded.u.uz } } },
-        nmon: null,
+        isgd: false,
+        nmon: {
+            isgd: true,
+            mextra: { egd: { gdlevel: { ...guarded.u.uz } } },
+            nmon: null,
+        },
     };
-    // A same-level guard suppresses the selection draw outside the vault too.
+    // A same-level guard behind a non-guard still suppresses selection.
     result = await runSounds(guarded, [0]);
     result.script.assertBounds([200]);
     assert.deepEqual(result.messages, []);
@@ -213,18 +299,45 @@ test('dosounds clears a stale vault flag at the source gate', async () => {
     assert.deepEqual(messages, []);
 });
 
-test('dosounds rejects later-level sound branches before drawing', async () => {
-    const state = soundState();
-    state.level.flags.has_court = true;
-    state.level.flags.nfountains = 1;
-    const script = scriptedRandom([]);
-
+test('dosounds stops at each unported branch in source order', async () => {
+    const fountainCourt = soundState();
+    fountainCourt.level.flags.nfountains = 1;
+    fountainCourt.level.flags.has_court = true;
+    // One misses the earlier fountain gate before the court boundary.
+    let script = scriptedRandom([1]);
     await assert.rejects(
-        dosoundsInitialLevel(state, {
+        dosoundsInitialLevel(fountainCourt, {
             random: script.random,
             pline: async () => {},
         }),
         /unported later-level branch \(has_court\)/u,
     );
-    script.assertBounds([]);
+    script.assertBounds([400]);
+
+    const vaultBeehive = vaultState();
+    vaultBeehive.level.flags.has_beehive = true;
+    // One misses the earlier vault gate before the beehive boundary.
+    script = scriptedRandom([1]);
+    await assert.rejects(
+        dosoundsInitialLevel(vaultBeehive, {
+            random: script.random,
+            pline: async () => {},
+        }),
+        /unported later-level branch \(has_beehive\)/u,
+    );
+    script.assertBounds([200]);
+
+    const sinkOracle = soundState();
+    sinkOracle.level.flags.nsinks = 1;
+    sinkOracle.oracle_level = { ...sinkOracle.u.uz };
+    // One misses the earlier sink gate before the final Oracle boundary.
+    script = scriptedRandom([1]);
+    await assert.rejects(
+        dosoundsInitialLevel(sinkOracle, {
+            random: script.random,
+            pline: async () => {},
+        }),
+        /unported later-level branch \(Oracle\)/u,
+    );
+    script.assertBounds([300]);
 });

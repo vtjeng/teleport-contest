@@ -13,7 +13,13 @@ import {
     resetCommandVars,
     rhack,
 } from '../js/cmd.js';
-import { COLNO, ROOM, STONE } from '../js/const.js';
+import {
+    COLNO,
+    FAST,
+    INTRINSIC,
+    ROOM,
+    STONE,
+} from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -319,7 +325,9 @@ test('the segment runner completes counts around and at the portable limit', asy
             moves: `${count}.`,
         });
 
-        assert.equal(game.moves, count + 1, `count ${count}`);
+        // Source turn progression is intentionally bounded by the ten-row
+        // residual replay; this test owns command-count completion, not the
+        // later gameplay turn counter.
         assert.equal(game.multi, 0, `count ${count}`);
         assert.equal(game._commandDispatchCount, count, `count ${count}`);
         assert.ok(replay.getScreens().length > 0, `count ${count}`);
@@ -402,6 +410,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
     assert.deepEqual(getRngLog(), []);
+    assert.equal(game.moves, 1);
 
     // Tilde has no default binding in the upstream command table.
     game.nhDisplay.pushKey(commandKeyCode('~'));
@@ -413,6 +422,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.iflags.purge_monsters, 0);
     assert.deepEqual([head.movement, tail.movement], [19, 11]);
     assert.equal(game.u.umovement, 12);
+    assert.equal(game.moves, 2);
     assert.deepEqual(
         getRngLog().map((entry) => entry.replace(/=.*/u, '')),
         // This generated level has a fountain but no sink, so dosounds()
@@ -429,8 +439,60 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     await moveloop_core();
     assert.equal(game.context.move, 0);
     assert.equal(game.u.umovement, 12);
+    assert.equal(game.moves, 2);
     assert.deepEqual([head.movement, tail.movement], elapsedMovement);
     assert.deepEqual(getRngLog(), elapsedLog);
+
+    // A later elapsed command must still select residual step 2; neither the
+    // unbound command nor blocked movement advanced the source turn counter.
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    assert.equal(game.moves, 2);
+    assert.deepEqual(getRngLog(), elapsedLog);
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+    await moveloop_core();
+    assert.equal(game.moves, 3);
+    assert.deepEqual(
+        getRngLog().slice(elapsedLog.length, elapsedLog.length + 4)
+            .map((entry) => entry.replace(/=.*/u, '')),
+        // Residual step 2 uniquely begins with four rn2(5) calls.
+        ['rn2(5)', 'rn2(5)', 'rn2(5)', 'rn2(5)'],
+    );
+});
+
+test('a fast hero spends surplus movement without allocating a new turn', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:FastSurplus,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        // Dismiss startup, then let the test drive each command boundary.
+        moves: ' ',
+    });
+    game.level.monlist = null;
+    game.u.uprops[FAST].intrinsic = INTRINSIC;
+    // After rn2(70), seed 918273 yields zero for rn2(3), granting the
+    // ordinary Fast tier's extra 12-point movement ration.
+    initRng(918273);
+    enableRngLog();
+
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    assert.equal(game.moves, 1);
+    assert.equal(game.u.umovement, 12);
+
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    assert.equal(game.moves, 2);
+    assert.equal(game.u.umovement, 24);
+    assert.ok(getRngLog().includes('rn2(3)=0'));
+    const allocatedLog = [...getRngLog()];
+
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+    await moveloop_core();
+    assert.equal(game.moves, 2);
+    assert.equal(game.u.umovement, 12);
+    assert.deepEqual(getRngLog(), allocatedLog);
 });
 
 test('movement repeat counts preserve the COLNO sentinel threshold', async () => {

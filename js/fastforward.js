@@ -12,8 +12,8 @@ import { rn2 } from './rng.js';
 // playInitialLevelSounds replaces the source-reachable dosounds() draws while
 // a table entry still owns the surrounding turn work. wearHeroEngraving
 // replaces moveloop_core()'s later fixed rn2(82) draw, after the residual
-// rn2(20) call. The earlier source callbacks continue beyond the recording;
-// engraving wear cannot until the intervening turn work is ported.
+// rn2(20) call. Beyond the recording, monster allocation is the last owned
+// boundary before unported random-monster generation.
 export async function fastforward_step(
     stepNum,
     purgeAndAllocateMonsterMovement,
@@ -37,7 +37,5 @@ export async function fastforward_step(
     if (stepNum <= steps.length) await steps[stepNum - 1]();
     else {
         await purgeAndAllocateMonsterMovement();
-        await calculateHeroMovement();
-        await playInitialLevelSounds();
     }
 }
