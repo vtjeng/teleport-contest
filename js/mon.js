@@ -1,11 +1,21 @@
-// mon.js -- Runtime monster turn state.
-// C ref: mon.c mcalcmove().
+// mon.js -- Runtime monster turn and inventory state.
+// C refs: mon.c movemon(), mcalcmove(), curr_mon_load(), max_mon_load();
+// mthrowu.c m_carrying().
 
-import { MFAST, MSLOW, NORMAL_SPEED } from './const.js';
+import {
+    MAX_CARR_CAP,
+    MFAST,
+    MSLOW,
+    NORMAL_SPEED,
+    WT_HUMAN,
+} from './const.js';
 import { game } from './gstate.js';
 import { any_light_source } from './light.js';
 import { dmonsfree } from './makemon_create.js';
+import { strongmonst, throws_rocks } from './mondata.js';
+import { MZ_MEDIUM } from './monsters.js';
 import { clear_splitobjs } from './obj.js';
+import { BOULDER } from './objects.js';
 import { rn2 } from './rng.js';
 
 function monsterTurnEnv(env = {}) {
@@ -71,6 +81,51 @@ export async function movemon(env = {}) {
         state.somebody_can_move = false;
     }
     return state.somebody_can_move;
+}
+
+// C ref: mthrowu.c m_carrying(). The hero-form case is retained because
+// source callers can pass &youmonst even though ordinary movement passes a
+// level monster.
+export function m_carrying(monster, type, state = game) {
+    const inventory = monster === state.youmonst
+        ? state.invent
+        : monster.minvent;
+    for (let obj = inventory; obj; obj = obj.nobj) {
+        if (obj.otyp === type) return obj;
+    }
+    return null;
+}
+
+// C ref: mon.c curr_mon_load(). Boulder throwers' boulders do not contribute
+// to their current load, matching their unlimited-boulder carrying rule.
+export function curr_mon_load(monster) {
+    let currentLoad = 0;
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.otyp !== BOULDER || !throws_rocks(monster.data))
+            currentLoad += obj.owt;
+    }
+    return currentLoad;
+}
+
+// C ref: mon.c max_mon_load(). MZ_HUMAN is the source alias for MZ_MEDIUM.
+// All operands are nonnegative, so Math.trunc reproduces C integer division.
+export function max_mon_load(monster) {
+    const species = monster.data;
+    const strong = strongmonst(species);
+    let maxLoad;
+
+    if (!species.cwt) {
+        maxLoad = Math.trunc(
+            MAX_CARR_CAP * species.msize / MZ_MEDIUM,
+        );
+    } else if (!strong || (strong && species.cwt > WT_HUMAN)) {
+        maxLoad = Math.trunc(MAX_CARR_CAP * species.cwt / WT_HUMAN);
+    } else {
+        maxLoad = MAX_CARR_CAP;
+    }
+
+    if (!strong) maxLoad = Math.trunc(maxLoad / 2);
+    return Math.max(maxLoad, 1);
 }
 
 // C ref: mon.c mcalcmove(). Adjust a monster's base speed, then randomly

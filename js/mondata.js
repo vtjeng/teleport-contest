@@ -104,6 +104,7 @@ export function is_human(species) { return flag2(species, M.M2_HUMAN); }
 export function is_giant(species) { return flag2(species, M.M2_GIANT); }
 export function is_domestic(species) { return flag2(species, M.M2_DOMESTIC); }
 export function is_wanderer(species) { return flag2(species, M.M2_WANDER); }
+export function strongmonst(species) { return flag2(species, M.M2_STRONG); }
 export function throws_rocks(species) { return flag2(species, M.M2_ROCKTHROW); }
 export function is_minion(species) { return flag2(species, M.M2_MINION); }
 export function likes_gold(species) { return flag2(species, M.M2_GREEDY); }

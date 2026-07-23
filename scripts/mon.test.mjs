@@ -2,7 +2,16 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { MFAST, MSLOW } from '../js/const.js';
-import { iter_mons_safe, mcalcmove, movemon } from '../js/mon.js';
+import {
+    curr_mon_load,
+    iter_mons_safe,
+    m_carrying,
+    mcalcmove,
+    max_mon_load,
+    movemon,
+} from '../js/mon.js';
+import { M2_ROCKTHROW, M2_STRONG, MZ_HUGE } from '../js/monsters.js';
+import { BOULDER, DAGGER, LONG_SWORD } from '../js/objects.js';
 
 function monster(mmove, mspeed = 0) {
     return { data: { mmove }, mspeed };
@@ -60,6 +69,58 @@ function deferred() {
     const promise = new Promise((accept) => { resolve = accept; });
     return { promise, resolve };
 }
+
+test('m_carrying returns the first matching object from the source inventory', () => {
+    const firstDagger = { otyp: DAGGER, nobj: null };
+    const sword = { otyp: LONG_SWORD, nobj: firstDagger };
+    const laterDagger = { otyp: DAGGER, nobj: null };
+    firstDagger.nobj = laterDagger;
+    const subject = { minvent: sword };
+
+    assert.equal(m_carrying(subject, DAGGER, {}), firstDagger);
+    assert.equal(m_carrying(subject, LONG_SWORD, {}), sword);
+    assert.equal(m_carrying(subject, BOULDER, {}), null);
+
+    const heroForm = {};
+    const heroInventory = { otyp: BOULDER, nobj: null };
+    assert.equal(m_carrying(heroForm, BOULDER, {
+        youmonst: heroForm,
+        invent: heroInventory,
+    }), heroInventory);
+});
+
+test('curr_mon_load sums inventory weight except rock-thrower boulders', () => {
+    const dagger = { otyp: DAGGER, owt: 10, nobj: null };
+    const boulder = { otyp: BOULDER, owt: 6000, nobj: dagger };
+    const ordinary = { data: { mflags2: 0 }, minvent: boulder };
+    const thrower = {
+        data: { mflags2: M2_ROCKTHROW },
+        minvent: boulder,
+    };
+
+    assert.equal(curr_mon_load(ordinary), 6010);
+    assert.equal(curr_mon_load(thrower), 10);
+    assert.equal(curr_mon_load({ data: {}, minvent: null }), 0);
+});
+
+test('max_mon_load preserves source weight, size, and strength scaling', () => {
+    const capacity = (cwt, msize, mflags2 = 0) => max_mon_load({
+        data: { cwt, msize, mflags2 },
+    });
+
+    // Corpseless monsters scale from size, then non-strong species halve it.
+    assert.equal(capacity(0, 1), 250);
+    assert.equal(capacity(0, MZ_HUGE, M2_STRONG), 2000);
+
+    // Weighted non-strong species scale by body weight and then halve.
+    assert.equal(capacity(1000, 2), 344);
+    assert.equal(capacity(1, 2), 1);
+
+    // Strong human-weight or lighter species receive the full human limit;
+    // heavier strong species scale above it without the non-strong halving.
+    assert.equal(capacity(1450, 2, M2_STRONG), 1000);
+    assert.equal(capacity(2000, 2, M2_STRONG), 1379);
+});
 
 test('mcalcmove preserves the source slow and fast integer formulas', () => {
     const state = { u: {}, context: {} };
