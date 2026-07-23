@@ -1496,6 +1496,69 @@
         ]
       },
       "recordedAt": "2026-07-23T10:19:52.391Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
+        "objects": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
+        "monsters": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
+        "replay": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336"
+      },
+      "head": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters",
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full correctness audit of exact range 9f24c329a44af7c7ccf9f9bf6dae3904b0189336..32c3c65fd379384d7f9ca56a6604a0612c3ba9f0. Session 019f8eb6-cd76-7702-8ef8-f3a70b9bd787; elapsed 1185s; usage 3373155 input, 3256064 cached input, 22326 output, and 4448 reasoning tokens. Correctness, readability-risk, test-quality, variable-trace, concurrency, and the consolidated adjudicator all completed; performance was omitted because no material resource trigger applied. Counts: 16 raw, 15 deduplicated, 13 confirmed and applied in linked audit-fix commit 7478ce8dbe0c46dd450d22b4fa9217c67ed204e0, 2 rejected, 0 deferred or unverified. Three production fixes reject unowned parked-guard and fog-cloud work before hero mutation, preflight only reachable hunger losses, and honor blocked Stealth. Three contract fixes clarify the ported scheduler, dual moveSingleMonster result channels, and monflee first semantics. Seven test fixes cover suspended async owners, apparent-position zero rolls, the amorphous gate, sanctuary gates, unconditional track clearing, and light or sanctuary fear causes. Artifact-light renaming was rejected because source-shaped naming and an exact quirk test provide counter-evidence; an extra distfleeck ordering comment was rejected because straight-line code and its exact-order test already protect the contract. Concurrency found no reachable issue in the serialized turn loop. Warnings: the isolated submodule directory was initially uninitialized, but final verification used the exact pinned local object store; only three child slots were available, so five independent finders ran in capacity-limited batches; native subagents exposed no separate session or usage summaries; one invalid polling interval was retried without losing a role or judgment. Validation after fixes: 1113 tests, all four generated-source checks, two strict fresh cases matching 5296 PRNG calls and eight complete screen or cursor states, development 204 screens with 77588 RNG calls and 243 cursors, and diff checks passed. Direct inspection found no separate simplification or clarity trigger, so no optional follow-up pass ran. World-effects and commands remain at their existing frontiers because earlier gaps precede this exact range. The audit-fix tail begins the next correctness range. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1185,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 15,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 7,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "reject unowned parked-guard and fog-cloud work before the movement-ration gate",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preflight only hunger losses reachable from current state",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "treat blocked Stealth as inactive during monster wake decisions",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-23T12:05:35.871Z"
     }
   ]
 }
