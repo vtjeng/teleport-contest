@@ -4,15 +4,25 @@ import test from 'node:test';
 
 import {
     A_CHA,
+    ACID_RES,
     ALL_TRAPS,
     ARROW_TRAP,
     FEMALE,
+    FIRE_RES,
     G_EXTINCT,
     G_GENOD,
     MALE,
     NEUTRAL,
     NO_TRAP,
+    POISON_RES,
+    W_ARMC,
+    W_RINGL,
 } from '../js/const.js';
+import {
+    ARTILIST_TEMPLATE,
+    ART_GRIMTOOTH,
+    ART_MITRE_OF_HOLINESS,
+} from '../js/artifacts.js';
 import {
     _mondataInternals,
     acidic,
@@ -66,6 +76,7 @@ import {
     likes_objs,
     little_to_big,
     mon_knows_traps,
+    monster_resists_element,
     name_to_mon,
     name_to_monplus,
     needspick,
@@ -95,6 +106,11 @@ import {
     zombie_form,
 } from '../js/mondata.js';
 import * as M from '../js/monsters.js';
+import {
+    ALCHEMY_SMOCK,
+    OBJECT_TEMPLATES,
+    RIN_POISON_RESISTANCE,
+} from '../js/objects.js';
 import { roles } from '../js/roles.js';
 
 // Source callers use -1 when no monster-name gender has been selected yet.
@@ -662,6 +678,57 @@ test('demon rank and conflict resistance preserve source composition', () => {
     state.u.acurr.a[A_CHA] = 3;
     monster.m_lev = 30;
     assert.equal(resist_conflict(monster, state, { rnd: () => 1 }), true);
+});
+
+test('monster elemental resistance includes source equipment defenses', () => {
+    const state = {
+        artilist: ARTILIST_TEMPLATE,
+        objects: OBJECT_TEMPLATES,
+    };
+    const monster = {
+        data: { mresists: 0 },
+        mextrinsics: 0,
+        mintrinsics: 0,
+        minvent: null,
+        mw: null,
+    };
+
+    assert.equal(monster_resists_element(monster, POISON_RES, state), false);
+
+    // mon_resistancebits combines the species, acquired, and worn masks.
+    monster.mintrinsics = 1 << (POISON_RES - 1);
+    assert.equal(monster_resists_element(monster, POISON_RES, state), true);
+    monster.mintrinsics = 0;
+
+    monster.minvent = {
+        otyp: RIN_POISON_RESISTANCE,
+        owornmask: W_RINGL,
+        nobj: null,
+    };
+    assert.equal(monster_resists_element(monster, POISON_RES, state), true);
+
+    // A worn alchemy smock grants both poison and acid resistance even
+    // though its object definition can encode only one property.
+    monster.minvent = {
+        otyp: ALCHEMY_SMOCK,
+        owornmask: W_ARMC,
+        nobj: null,
+    };
+    assert.equal(monster_resists_element(monster, ACID_RES, state), true);
+
+    // Grimtooth's defn field grants poison resistance while wielded.
+    monster.minvent = null;
+    monster.mw = { oartifact: ART_GRIMTOOTH };
+    assert.equal(monster_resists_element(monster, POISON_RES, state), true);
+
+    // The Mitre's cary field grants fire resistance from any inventory slot.
+    monster.mw = null;
+    monster.minvent = {
+        oartifact: ART_MITRE_OF_HOLINESS,
+        owornmask: 0,
+        nobj: null,
+    };
+    assert.equal(monster_resists_element(monster, FIRE_RES, state), true);
 });
 
 test('compound movement predicates preserve source special cases', () => {

@@ -6,16 +6,23 @@
 import {
     A_CHA,
     ALL_TRAPS,
+    ACID_RES,
     FEMALE,
     G_GENOD,
     MALE,
     NEUTRAL,
     NO_TRAP,
     NUM_MGENDERS,
+    POISON_RES,
+    W_ACCESSORY,
+    W_ARMC,
+    W_ARMOR,
+    W_WEP,
 } from './const.js';
 import { effective_attribute } from './attrib.js';
 import { game } from './gstate.js';
 import * as M from './monsters.js';
+import { ALCHEMY_SMOCK } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { roles } from './roles.js';
 
@@ -233,6 +240,64 @@ export function hates_silver(species) {
 
 export function mon_hates_silver(monster) {
     return is_vampshifter(monster) || hates_silver(monster?.data);
+}
+
+function monsterArtifactDefense(monster, obj, field, damageType, state) {
+    if (!obj?.oartifact) return false;
+    const artifact = state.artilist?.[obj.oartifact];
+    if (!artifact) {
+        throw new Error(
+            `Resists_Elem requires artifact ${obj.oartifact} data`,
+        );
+    }
+    return artifact[field]?.adtyp === damageType;
+}
+
+// C ref: mondata.c Resists_Elem(), elemental-property monster arm. Hero
+// properties and the three non-elemental delegation cases have separate
+// consumers and are outside this monster predicate.
+export function monster_resists_element(monster, property, state = game) {
+    if (!Number.isInteger(property) || property < 1 || property > 8)
+        throw new RangeError(`invalid elemental resistance ${property}`);
+
+    const resistanceMask = 1 << (property - 1);
+    const resistanceBits = (monster.data?.mresists ?? 0)
+        | (monster.mextrinsics ?? 0)
+        | (monster.mintrinsics ?? 0);
+    if (resistanceBits & resistanceMask) return true;
+
+    const damageType = property + 1;
+    if (monsterArtifactDefense(
+        monster,
+        monster.mw,
+        'defn',
+        damageType,
+        state,
+    )) {
+        return true;
+    }
+
+    const slotmask = W_ARMOR | W_ACCESSORY | W_WEP;
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        const wornProperty = Boolean(
+            (obj.owornmask & slotmask)
+            && state.objects?.[obj.otyp]?.oc_oprop === property,
+        );
+        const smockResistance = (obj.owornmask & W_ARMC) === W_ARMC
+            && obj.otyp === ALCHEMY_SMOCK
+            && (property === POISON_RES || property === ACID_RES);
+        if (wornProperty || smockResistance
+            || monsterArtifactDefense(
+                monster,
+                obj,
+                'cary',
+                damageType,
+                state,
+            )) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // C ref: mondata.c resist_conflict(). Keep the unbounded lower end of the

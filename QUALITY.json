@@ -123,6 +123,7 @@
       "label": "Monsters and placement",
       "paths": [
         "js/dog.js",
+        "js/dogfood.js",
         "js/makemon.js",
         "js/makemon_create.js",
         "js/mon.js",
