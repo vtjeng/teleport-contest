@@ -182,7 +182,8 @@ object, and combat module.
 4. **C4 — `track.c:gettrack()` hero-track lookup.** Complete in
    `a93f4dd2f89f5b1405294886d967e42a1e68c0d0`. Monster-local track updates
    remain with `monmove.c` in C14.
-5. **C5 — `obj.c` floor/object substrate.**
+5. **C5 — `mkobj.c` stack-splitting and object-damage substrate.** Complete
+   in `315fe27033c78c178e5fb715bef41309ad6989c9`.
 6. **C6 — `objnam.c` early naming used by the active consumers.**
 7. **C7 — `mon.c:can_carry()` and monster inventory transfer.**
 8. **C8 — `dog.c:dogfood()` and its source-required food predicates.**
@@ -264,6 +265,13 @@ the named milestone decision recorded above.
   with exactly `js/track.js` and `scripts/track.test.mjs`. Four focused tests,
   the 1,349-test full suite, and all six generated-data checks pass. Its live
   `monmove.c` consumer closes later.
+- C5 is committed as `315fe27033c78c178e5fb715bef41309ad6989c9`
+  with exactly `js/obj.js` and `scripts/object-substrate.test.mjs`. The
+  53-test focused object suite, the 1,355-test full suite, and all six
+  generated-data checks pass. `splitobj()` now preserves source ID pricing,
+  chain insertion, extra copying, and bill/timer/light order. The pet, combat,
+  and trap consumers close in later checkpoints, so no fresh differential is
+  claimed for this prerequisite.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
