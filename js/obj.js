@@ -35,13 +35,12 @@ import {
     ROWNO,
     SPINACH_TIN,
     TIMER_OBJECT,
-    W_ARM,
 } from './const.js';
-import { ART_SUNSWORD } from './artifacts.js';
 import { noveltitle } from './do_name.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 import { set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
+import { obj_sheds_light } from './light.js';
 import { rndmonnum } from './makemon.js';
 import {
     can_be_hatched,
@@ -109,8 +108,6 @@ import {
     GLOB_OF_GREEN_SLIME,
     GLASS,
     GOLD_PIECE,
-    GOLD_DRAGON_SCALE_MAIL,
-    GOLD_DRAGON_SCALES,
     HEAVY_IRON_BALL,
     HELM_OF_OPPOSITE_ALIGNMENT,
     HORN_OF_PLENTY,
@@ -518,7 +515,7 @@ export function splitobj(obj, quantity, env = {}) {
             + 'and an empty object',
         );
     }
-    const splitLight = objectShedsLight(obj);
+    const splitLight = obj_sheds_light(obj);
     if (obj.unpaid) requiredHook(normalized, 'splitBill', obj);
     if (obj.timed) requiredHook(normalized, 'splitObjectTimers', obj);
     if (splitLight) requiredHook(normalized, 'splitObjectLight', obj);
@@ -575,24 +572,6 @@ function lifecycleEnv(env = {}) {
     };
 }
 
-// C refs: obj.h ignitable(), artifact.c artifact_light(), and
-// light.c obj_sheds_light().
-function objectShedsLight(obj) {
-    if (!obj.lamplit) return false;
-    const ignitable = obj.otyp === BRASS_LANTERN
-        || obj.otyp === OIL_LAMP
-        || (obj.otyp === MAGIC_LAMP && obj.spe > 0)
-        || obj.otyp === CANDELABRUM_OF_INVOCATION
-        || obj.otyp === TALLOW_CANDLE
-        || obj.otyp === WAX_CANDLE
-        || obj.otyp === POT_OIL;
-    const artifactLight = ((obj.otyp === GOLD_DRAGON_SCALE_MAIL
-                            || obj.otyp === GOLD_DRAGON_SCALES)
-                           && Boolean(obj.owornmask & W_ARM))
-        || obj.oartifact === ART_SUNSWORD;
-    return ignitable || artifactLight;
-}
-
 // C ref: mkobj.c dealloc_obj(). JS collapses C's deferred OBJ_DELETED queue
 // into immediate oextra release; Lua-held objects retain oextra until their
 // references are released. Lifecycle hooks are resolved at their source
@@ -620,7 +599,7 @@ export function dealloc_obj(obj, env = {}) {
     }
     // A burn timer can own and remove the light source, so recheck after all
     // object timers have stopped, matching dealloc_obj()'s source order.
-    if (objectShedsLight(obj)) {
+    if (obj_sheds_light(obj)) {
         const deleteLight = requiredHook(
             normalized,
             'deleteObjectLightSource',

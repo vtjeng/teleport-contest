@@ -1060,12 +1060,43 @@ function addinvCore2(obj, env, facts) {
     }
 }
 
-function carryObjectEffects(obj, env, shouldAttachFigurineTimer) {
+function runCarryObjEffects(obj, env, shouldAttachFigurineTimer) {
     if (shouldAttachFigurineTimer) {
         requiredHook(env, 'attachFigurineTimer', obj)(obj, env);
         if (obj.timed !== 1)
             throw new Error('attachFigurineTimer must leave one object timer');
     }
+}
+
+// Dependency-only half of invent.c:carry_obj_effects(). Object-transfer
+// callers use this before unlinking a floor object so a missing timer or
+// species boundary cannot leave ownership half-changed.
+export function preflight_carry_obj_effects(obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    let shouldAttachFigurineTimer = false;
+    if (obj.otyp === FIGURINE
+        && obj.cursed
+        && obj.corpsenm !== NON_PM) {
+        shouldAttachFigurineTimer = !requiredHook(
+            normalized,
+            'isDeadSpecies',
+            obj,
+        )(obj.corpsenm, true, normalized);
+        if (shouldAttachFigurineTimer)
+            requiredHook(normalized, 'attachFigurineTimer', obj);
+    }
+    return { normalized, shouldAttachFigurineTimer };
+}
+
+// C ref: invent.c carry_obj_effects().
+export function carry_obj_effects(obj, env = {}, prepared = null) {
+    const plan = prepared ?? preflight_carry_obj_effects(obj, env);
+    runCarryObjEffects(
+        obj,
+        plan.normalized,
+        plan.shouldAttachFigurineTimer,
+    );
+    return obj;
 }
 
 function isAmmo(obj, state) {
@@ -1124,18 +1155,7 @@ export function addinv(obj, env = {}) {
     const willConsiderAutoquiver = obj.how_lost === LOST_THROWN
         && state.flags?.pickup_thrown
         && !state.uquiver;
-    let shouldAttachFigurineTimer = false;
-    if (obj.otyp === FIGURINE
-        && obj.cursed
-        && obj.corpsenm !== NON_PM) {
-        shouldAttachFigurineTimer = !requiredHook(
-            normalized,
-            'isDeadSpecies',
-            obj,
-        )(obj.corpsenm, true, normalized);
-        if (shouldAttachFigurineTimer)
-            requiredHook(normalized, 'attachFigurineTimer', obj);
-    }
+    const carryEffects = preflight_carry_obj_effects(obj, normalized);
 
     obj.no_charge = false;
     if (obj.cobj) clearContainedNoCharge(obj);
@@ -1180,7 +1200,7 @@ export function addinv(obj, env = {}) {
         setQuiver(obj, normalized);
     obj.pickup_prev = true;
     addinvCore2(obj, normalized, addinvFacts);
-    carryObjectEffects(obj, normalized, shouldAttachFigurineTimer);
+    carry_obj_effects(obj, normalized, carryEffects);
     update_inventory(normalized);
     return obj;
 }
@@ -1277,4 +1297,15 @@ export function money_cnt(head = inventoryHead(game)) {
         if (obj.oclass === COIN_CLASS) return obj.quan;
     }
     return 0;
+}
+
+// C ref: invent.c count_unpaid(). Nested contents remain on their own nobj
+// chains, so each contained object contributes once regardless of quantity.
+export function count_unpaid(list) {
+    let count = 0;
+    for (let obj = list; obj; obj = obj.nobj) {
+        if (obj.unpaid) ++count;
+        if (obj.cobj) count += count_unpaid(obj.cobj);
+    }
+    return count;
 }

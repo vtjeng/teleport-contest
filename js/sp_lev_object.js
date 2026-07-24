@@ -19,14 +19,12 @@ import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import {
-    add_to_minv,
     add_to_container,
     delete_contents,
     obfree,
     stackobj,
 } from './invent.js';
 import { rndmonnum } from './makemon.js';
-import { dead_species } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     mkgold,
@@ -35,7 +33,6 @@ import {
     objectType,
     remove_object,
     set_corpsenm,
-    unknow_object,
     weight,
 } from './obj.js';
 import {
@@ -52,9 +49,9 @@ import {
 } from './objects.js';
 import { get_location_coord } from './room_coordinates.js';
 import {
-    attach_fig_transform_timeout,
     begin_burn,
 } from './timeout.js';
+import { mpickobj, preflight_mpickobj } from './steal.js';
 
 const MAX_CONTAINMENT = 10;
 
@@ -498,9 +495,23 @@ function preflightCarrierVisibility(obj, monster, env, specification) {
 }
 
 function putInCurrentMonster(obj, monster, env, specification) {
+    const saddlePickup = obj.otyp === SADDLE && can_saddle(monster);
     preflightCarrierVisibility(obj, monster, env, specification);
+    let pickupEnv;
+    let pickupPlan;
+    if (!saddlePickup) {
+        pickupEnv = {
+            ...env,
+            canSeeMonster: (candidate) => heroCanSeeCarrier(
+                candidate,
+                env,
+                specification,
+            ),
+        };
+        pickupPlan = preflight_mpickobj(monster, obj, pickupEnv);
+    }
     remove_object(obj, env);
-    if (obj.otyp === SADDLE && can_saddle(monster)) {
+    if (saddlePickup) {
         put_saddle_on_mon(obj, monster, {
             ...env,
             canseemon: (candidate) => heroCanSeeCarrier(
@@ -512,26 +523,10 @@ function putInCurrentMonster(obj, monster, env, specification) {
         return obj;
     }
 
-    obj.no_charge = false;
-    if (!monster.mtame) {
-        const canSeeCarrier = heroCanSeeCarrier(
-            monster,
-            env,
-            specification,
-        );
-        if (!canSeeCarrier && monster !== env.state.u?.ustuck)
-            unknow_object(obj, env.state);
-    }
-    if (obj.otyp === FIGURINE
-        && obj.cursed
-        && obj.corpsenm !== NON_PM
-        && !dead_species(obj.corpsenm, true, env)) {
-        attach_fig_transform_timeout(obj, env);
-    }
     // Source intentionally ignores mpickobj()'s "incoming object was freed"
     // result.  Keep this reference even when add_to_minv() merged and deleted
     // it; the callback and later source-ordered finalization observe that quirk.
-    add_to_minv(monster, obj, env);
+    mpickobj(monster, obj, pickupEnv, pickupPlan);
     return obj;
 }
 

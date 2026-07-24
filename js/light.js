@@ -17,9 +17,21 @@ import {
     OBJ_MINVENT,
     ROWNO,
     TEMP_LIT,
+    W_ARM,
 } from './const.js';
+import { ART_SUNSWORD } from './artifacts.js';
 import { game } from './gstate.js';
-import { TALLOW_CANDLE, WAX_CANDLE } from './objects.js';
+import {
+    BRASS_LANTERN,
+    CANDELABRUM_OF_INVOCATION,
+    GOLD_DRAGON_SCALE_MAIL,
+    GOLD_DRAGON_SCALES,
+    MAGIC_LAMP,
+    OIL_LAMP,
+    POT_OIL,
+    TALLOW_CANDLE,
+    WAX_CANDLE,
+} from './objects.js';
 
 export class UnsupportedLightOperationError extends Error {
     constructor(operation) {
@@ -40,6 +52,24 @@ export function light_globals_init(state = game) {
 // C ref: light.c any_light_source().
 export function any_light_source(state = game) {
     return Boolean(state.gl?.light_base);
+}
+
+// C refs: obj.h ignitable(), artifact.c artifact_light(), and
+// light.c obj_sheds_light(). Only actively burning objects shed light.
+export function obj_sheds_light(obj) {
+    if (!obj?.lamplit) return false;
+    const ignitable = obj.otyp === BRASS_LANTERN
+        || obj.otyp === OIL_LAMP
+        || (obj.otyp === MAGIC_LAMP && obj.spe > 0)
+        || obj.otyp === CANDELABRUM_OF_INVOCATION
+        || obj.otyp === TALLOW_CANDLE
+        || obj.otyp === WAX_CANDLE
+        || obj.otyp === POT_OIL;
+    const artifactLight = ((obj.otyp === GOLD_DRAGON_SCALE_MAIL
+                            || obj.otyp === GOLD_DRAGON_SCALES)
+                           && Boolean(obj.owornmask & W_ARM))
+        || obj.oartifact === ART_SUNSWORD;
+    return ignitable || artifactLight;
 }
 
 function lightGlobals(state) {
