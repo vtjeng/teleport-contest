@@ -155,6 +155,18 @@ review.
 
 ### Audit readiness and scope changes
 
+A long-running goal or roadmap milestone is not one implementation or review
+slice. Keep the goal active while completing small, source-owned checkpoints
+that fit the applicable review limits. For each checkpoint, connect its real
+consumer, run the required checks, commit the completed work, and update the
+existing checklist when one is required. Do not postpone all commits and
+validation until the entire goal is complete.
+
+A final integration runner, fixture, or test may remain uncommitted while it
+is still changing. This does not prevent earlier commits of completed
+production behavior and its focused tests. Commit the final integration
+artifacts together with the code they validate.
+
 For a behavior slice expected to span sessions, cross subsystems, or approach
 the 500-line review-window limit, create or replace
 `.agents/implementation-checklist.md` from
