@@ -134,6 +134,49 @@ export function buildRandomTextFiles(upstreamRoot = UPSTREAM_ROOT) {
     });
 }
 
+function stripCComments(source) {
+    let result = '';
+    let quote = null;
+    for (let index = 0; index < source.length; ++index) {
+        const current = source[index];
+        const next = source[index + 1];
+        if (quote) {
+            result += current;
+            if (current === '\\' && next != null) {
+                result += next;
+                ++index;
+            } else if (current === quote) {
+                quote = null;
+            }
+            continue;
+        }
+        if (current === '"' || current === "'") {
+            quote = current;
+            result += current;
+            continue;
+        }
+        if (current === '/' && next === '*') {
+            index += 2;
+            while (index < source.length
+                   && !(source[index] === '*' && source[index + 1] === '/')) {
+                if (source[index] === '\n') result += '\n';
+                ++index;
+            }
+            ++index;
+            continue;
+        }
+        if (current === '/' && next === '/') {
+            index += 2;
+            while (index < source.length && source[index] !== '\n') ++index;
+            if (index < source.length) result += '\n';
+            continue;
+        }
+        result += current;
+    }
+    if (quote) throw new Error('unterminated C string in do_name.c');
+    return result;
+}
+
 // C ref: do_name.c hliquids[].  This table participates in the display-RNG
 // stream, so derive it from the same pinned source as the runtime code.
 export function buildDoNameTables(upstreamRoot = UPSTREAM_ROOT) {
@@ -146,8 +189,10 @@ export function buildDoNameTables(upstreamRoot = UPSTREAM_ROOT) {
     )?.[1];
     if (!body) throw new Error('could not locate do_name.c hliquids[]');
     const hliquids = [];
-    for (const match of body.matchAll(/"((?:\\.|[^"\\])*)"/gu))
+    for (const match of stripCComments(body)
+        .matchAll(/"((?:\\.|[^"\\])*)"/gu)) {
         hliquids.push(JSON.parse(`"${match[1]}"`));
+    }
     if (!hliquids.length)
         throw new Error('do_name.c hliquids[] is empty');
     return Object.freeze({

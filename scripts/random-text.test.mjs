@@ -63,6 +63,24 @@ test('generated random-text data matches the pinned source and byte layout', () 
     const tables = buildDoNameTables();
     assert.deepEqual(generated, RANDOM_TEXT_FILES);
     assert.deepEqual(tables.hliquids, HLIQUIDS);
+    const doNameSource = readFileSync(
+        new URL('../nethack-c/upstream/src/do_name.c', import.meta.url),
+        'utf8',
+    );
+    const liquidBody = doNameSource.match(
+        /static\s+NEARDATA\s+const\s+char\s+\*const\s+hliquids\[\]\s*=\s*\{([\s\S]*?)\n\};/u,
+    )?.[1];
+    assert.ok(liquidBody);
+    const uncommentedLiquidBody = liquidBody
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/\/\/[^\n]*/gu, '');
+    const sourceLiquids = [...uncommentedLiquidBody.matchAll(
+        /"((?:\\.|[^"\\])*)"/gu,
+    )].map((match) => JSON.parse(`"${match[1]}"`));
+    assert.deepEqual(HLIQUIDS, sourceLiquids);
+    assert.equal(HLIQUIDS.length, 40);
+    assert.equal(HLIQUIDS.at(-1), 'creosote');
+    assert.equal(HLIQUIDS.includes('new coke (tm)'), false);
     assert.equal(
         readFileSync(
             new URL('../js/random_text_data.js', import.meta.url),
@@ -100,12 +118,12 @@ test('hliquid preserves its preferred value or consumes one display draw', () =>
             state,
             random(bound) {
                 draws.push(bound);
-                return HLIQUIDS.length - 1;
+                return 39;
             },
         }),
-        HLIQUIDS.at(-1),
+        'creosote',
     );
-    assert.deepEqual(draws, [HLIQUIDS.length + 1]);
+    assert.deepEqual(draws, [41]);
 
     state.program_state.gameover = true;
     assert.equal(

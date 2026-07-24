@@ -57,6 +57,5 @@ export const HLIQUIDS = Object.freeze([
     "custard",
     "lard",
     "vinegar",
-    "creosote",
-    "new coke (tm)"
+    "creosote"
 ]);

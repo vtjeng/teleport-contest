@@ -48,6 +48,7 @@ import {
     LAVAPOOL,
     LAVAWALL,
     M_AP_FURNITURE,
+    M_AP_F_DKNOWN,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MOAT,
@@ -77,6 +78,7 @@ import {
     D_LOCKED,
     D_TRAPPED,
     LA_DOWN,
+    OBJ_FREE,
     OBJ_FLOOR,
     isok,
 } from './const.js';
@@ -86,6 +88,10 @@ import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
 import { hliquid, rndmonnam } from './do_name.js';
 import { m_at } from './monst.js';
+import { dealloc_obj, mkobj, mksobj } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { observe_object } from './o_init.js';
+import { obj_stop_timers } from './timeout.js';
 import {
     hides_under,
     is_clinger,
@@ -111,6 +117,7 @@ import {
     LIQUID,
     LAST_GLASS_GEM,
     LAST_SPELL,
+    LEASH,
     OBJ_DESCR,
     OBJ_NAME,
     POTION_CLASS,
@@ -118,6 +125,7 @@ import {
     RING_CLASS,
     ROCK_CLASS,
     SCROLL_CLASS,
+    SLIME_MOLD,
     SPBOOK_CLASS,
     STATUE,
     STRANGE_OBJECT,
@@ -768,12 +776,18 @@ function bufferedGlyphSubjectAt(monster, state) {
     );
     const glyph = state.level?.flags?.hero_memory === false
         ? location?.disp_glyph : location?.remembered_glyph;
-    return glyph?.a11ySubject ?? null;
+    return {
+        hasSubject: Boolean(glyph)
+            && Object.hasOwn(glyph, 'a11ySubject'),
+        subject: glyph?.a11ySubject ?? null,
+    };
 }
 
 function bufferedObjectSubjectAt(monster, state) {
-    const buffered = bufferedGlyphSubjectAt(monster, state);
+    const bufferedGlyph = bufferedGlyphSubjectAt(monster, state);
+    const buffered = bufferedGlyph.subject;
     if (buffered?.type === 'object') return buffered;
+    if (bufferedGlyph.hasSubject) return null;
     if (state.level?.flags?.hero_memory === false) return null;
 
     // display_monster() sends a zeroobj through obj_to_glyph(). Gems and
@@ -793,6 +807,30 @@ function bufferedObjectSubjectAt(monster, state) {
     };
 }
 
+function withBufferedObject(subject, x, y, state, describe) {
+    const resolved = objectFromBufferedGlyph(subject, x, y, state);
+    try {
+        return describe(resolved.object);
+    } finally {
+        if (resolved.ownership === 'synthetic') {
+            resolved.object.where = OBJ_FREE;
+            dealloc_obj(resolved.object, resolved.env);
+        }
+    }
+}
+
+function simpleObjectName(object, state) {
+    const name = objectBaseName(object, state);
+    return Math.trunc(object.quan ?? 1) === 1 ? name : pluralize(name);
+}
+
+function hiddenObjectPhrase(object, state) {
+    const name = simpleObjectName(object, state);
+    return Math.trunc(object.quan ?? 1) === 1
+        ? `${indefiniteArticle(name)} ${name}`
+        : name;
+}
+
 function monsterHiddenDescription(monster, state) {
     let suffix = '';
     const appearance = monster.m_ap_type & M_AP_TYPMASK;
@@ -802,36 +840,39 @@ function monsterHiddenDescription(monster, state) {
     } else if (appearance === M_AP_OBJECT) {
         const subject = bufferedObjectSubjectAt(monster, state);
         if (subject) {
-            const object = objectFromBufferedGlyph(
+            const what = withBufferedObject(
                 subject,
                 monster.mx,
                 monster.my,
                 state,
+                (object) => hiddenObjectPhrase(object, state),
             );
-            const what = objectBaseName(object, state);
-            suffix = `, mimicking ${indefiniteArticle(what)} ${what}`;
+            suffix = `, mimicking ${what}`;
         } else {
             suffix = ', mimicking something';
         }
     } else if (!appearance && monster.mundetected) {
         suffix = ', hiding';
         if (hides_under(monster.data)) {
-            const remembered = bufferedGlyphSubjectAt(monster, state);
-            const object = remembered?.type === 'object'
-                ? objectFromBufferedGlyph(
-                    remembered,
+            const buffered = bufferedGlyphSubjectAt(monster, state);
+            const what = buffered.subject?.type === 'object'
+                ? withBufferedObject(
+                    buffered.subject,
                     monster.mx,
                     monster.my,
                     state,
+                    (object) => hiddenObjectPhrase(object, state),
                 )
-                : state.level?.flags?.hero_memory === false
-                    ? null : state.level?.objects?.[monster.mx]?.[monster.my];
-            if (object) {
-                const what = objectBaseName(object, state);
-                suffix += ` under ${indefiniteArticle(what)} ${what}`;
-            } else {
-                suffix += ' under something';
-            }
+                : buffered.hasSubject
+                    || state.level?.flags?.hero_memory === false
+                    ? null
+                    : state.level?.objects?.[monster.mx]?.[monster.my]
+                        ? hiddenObjectPhrase(
+                            state.level.objects[monster.mx][monster.my],
+                            state,
+                        )
+                        : null;
+            suffix += what ? ` under ${what}` : ' under something';
         } else if (is_hider(monster.data)) {
             const ceiling = (is_clinger(monster.data)
                     && monster.data?.mlet !== S_MIMIC)
@@ -1232,15 +1273,26 @@ function objectMatchesBufferedSubject(object, subject) {
     // Generic glyphs encode their class in glyph_to_obj(), and no live
     // object uses those reserved pre-FIRST_OBJECT type slots.
     if (subject.generic) return false;
-    return object.otyp === subject.otyp
-        && (subject.otyp !== CORPSE && subject.otyp !== STATUE
-            || subject.corpsenm == null
-            || object.corpsenm === subject.corpsenm);
+    return object.otyp === subject.otyp;
+}
+
+function observeBufferedObject(object, synthetic, x, y, state) {
+    const dx = x - state.u.ux;
+    const dy = y - state.u.uy;
+    if (dx * dx + dy * dy <= 2
+        && !heroIsBlind(state)
+        && !heroHallucinating(state)
+        && (synthetic || object.where === OBJ_FLOOR)
+        && !state.iflags?.terrainmode) {
+        observe_object(object, state);
+    }
 }
 
 // C ref: pager.c object_from_map(). The rendered object used to choose a
 // glyph is not necessarily the semantic object being described: hallucination
 // and object-shaped mimics reconstruct from buffered identity and map state.
+// The ownership tag mirrors object_from_map()'s fakeobj return so callers
+// cannot accidentally retain or mutate a temporary as linked game state.
 function objectFromBufferedGlyph(subject, x, y, state) {
     let object = state.level?.objects?.[x]?.[y] ?? null;
     while (object && !objectMatchesBufferedSubject(object, subject))
@@ -1265,21 +1317,45 @@ function objectFromBufferedGlyph(subject, x, y, state) {
         && !subject.generic
         && monster.mappearance === subject.otyp,
     );
+    const mimicCorpsenm = mimicMatches
+        && Number.isInteger(monster.mextra?.mcorpsenm)
+        && monster.mextra.mcorpsenm >= 0
+        ? monster.mextra.mcorpsenm
+        : null;
     if (mimicMatches) object = null;
-    if (object) return object;
+    if (object) {
+        observeBufferedObject(object, false, x, y, state);
+        return { object, ownership: 'live' };
+    }
 
-    const otyp = subject.generic ? subject.oclass : subject.otyp;
-    const type = state.objects?.[otyp];
-    return {
-        otyp,
-        oclass: subject.oclass ?? type?.oc_class ?? ILLOBJ_CLASS,
-        corpsenm: subject.corpsenm,
-        dknown: false,
-        quan: (subject.oclass ?? type?.oc_class) === COIN_CLASS ? 2 : 1,
-        where: OBJ_FLOOR,
-        ox: x,
-        oy: y,
-    };
+    const env = objectGenerationEnv({ state });
+    object = subject.generic
+        ? mkobj(subject.oclass, false, env)
+        : mksobj(subject.otyp, false, false, env);
+    if (object.timed) obj_stop_timers(object, state, env);
+    if (object.oclass === COIN_CLASS) object.quan = 2;
+    else if (object.otyp === SLIME_MOLD)
+        object.spe = state.context?.current_fruit ?? 0;
+    if (mimicCorpsenm != null) {
+        if (object.otyp === SLIME_MOLD)
+            object.spe = mimicCorpsenm;
+        else
+            object.corpsenm = mimicCorpsenm;
+    } else if ((object.otyp === CORPSE || object.otyp === STATUE)
+               && subject.corpsenm != null) {
+        object.corpsenm = subject.corpsenm;
+    }
+    if (object.otyp === LEASH) object.leashmon = 0;
+    object.where = OBJ_FLOOR;
+    object.ox = x;
+    object.oy = y;
+    observeBufferedObject(object, true, x, y, state);
+    if (mimicMatches
+        && (object.dknown || (monster.m_ap_type & M_AP_F_DKNOWN))) {
+        monster.m_ap_type |= M_AP_F_DKNOWN;
+        observe_object(object, state);
+    }
+    return { object, ownership: 'synthetic', env };
 }
 
 function describeObject(object, state) {
@@ -1308,9 +1384,12 @@ function describeGlyphUpdate(glyph, x, y, state) {
             species: subject.species,
         });
     case 'object':
-        return describeObject(
-            objectFromBufferedGlyph(subject, x, y, state),
+        return withBufferedObject(
+            subject,
+            x,
+            y,
             state,
+            (object) => describeObject(object, state),
         );
     case 'trap':
         return TRAP_DESCRIPTIONS[subject.trap?.ttyp]

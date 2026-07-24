@@ -40,6 +40,7 @@ import {
     LAVAWALL,
     LEVITATION,
     M_AP_FURNITURE,
+    M_AP_F_DKNOWN,
     M_AP_MONSTER,
     M_AP_OBJECT,
     OBJ_FLOOR,
@@ -118,8 +119,15 @@ import {
     S_FELINE,
     S_HUMAN,
     monst_globals_init,
+    reset_mvitals,
 } from '../js/monsters.js';
-import { initRng, rn2_on_display_rng } from '../js/rng.js';
+import {
+    enableRngLog,
+    getRngLog,
+    initRng,
+    rn2,
+    rn2_on_display_rng,
+} from '../js/rng.js';
 import {
     ARROW,
     BOULDER,
@@ -131,6 +139,7 @@ import {
     DIAMOND,
     FEDORA,
     FIRST_OBJECT,
+    GOLD_PIECE,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LOW_BOOTS,
@@ -149,6 +158,7 @@ import {
     TWO_HANDED_SWORD,
     WEAPON_CLASS,
 } from '../js/objects.js';
+import { timeout_globals_init } from '../js/timeout.js';
 import { HLIQUIDS } from '../js/random_text_data.js';
 import {
     ATR_BOLD,
@@ -220,12 +230,35 @@ function displaySymbol(loc, state) {
 
 function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     const state = resetGame();
+    state.context = { ident: 2 };
+    state.moves = 1;
+    timeout_globals_init(state);
     state.level = new GameMap();
     state.level.at(x, y).typ = ROOM;
-    state.u = { ux, uy, umonnum: 0 };
+    state.dungeons = [{
+        ledger_start: 0,
+        depth_start: 1,
+        entry_lev: 1,
+        num_dunlevs: 20,
+        flags: 0,
+    }];
+    state.quest_dnum = -1;
+    state.rogue_level = { dnum: 0, dlevel: 0 };
+    state.sanctum_level = { dnum: 0, dlevel: 0 };
+    state.specialLevels = [];
+    state.u = {
+        ux,
+        uy,
+        umonnum: 0,
+        ulevel: 1,
+        uhave: { amulet: 0 },
+        uz: { dnum: 0, dlevel: 1 },
+    };
     state.urace = { mnum: 0 };
+    state.urole = { mnum: PM_TENGU };
     state.flags = {};
     monst_globals_init(state);
+    reset_mvitals(state);
     objects_globals_init(state);
     initialize_symbols_from_options({ flags: {} }, state);
     state.viz_array = [];
@@ -2080,6 +2113,8 @@ test('queued glyph notices retain each distinct sparse frame', async () => {
     enableGlyphNotices(state);
     const first = state.level.at(7, 4);
     const second = state.level.at(8, 4);
+    const unannounced = state.level.at(9, 4);
+    const third = state.level.at(10, 4);
     const fountain = terrain_glyph(
         { ...first, typ: FOUNTAIN },
         7,
@@ -2087,9 +2122,23 @@ test('queued glyph notices retain each distinct sparse frame', async () => {
         state,
     );
     const pit = trap_glyph_info({ ttyp: PIT }, state);
+    const room = terrain_glyph(
+        { ...unannounced, typ: ROOM },
+        9,
+        4,
+        state,
+    );
+    const altar = terrain_glyph(
+        { ...third, typ: ALTAR },
+        10,
+        4,
+        state,
+    );
 
     show_glyph_cell(7, 4, fountain);
+    show_glyph_cell(9, 4, room);
     show_glyph_cell(8, 4, pit);
+    show_glyph_cell(10, 4, altar);
 
     const frames = [];
     const messages = await emitGlyphUpdateNotices(state, {
@@ -2099,21 +2148,37 @@ test('queued glyph notices retain each distinct sparse frame', async () => {
                     ? glyphPresentationRecord(first.disp_glyph) : null,
                 second.disp_glyph
                     ? glyphPresentationRecord(second.disp_glyph) : null,
+                unannounced.disp_glyph
+                    ? glyphPresentationRecord(unannounced.disp_glyph) : null,
+                third.disp_glyph
+                    ? glyphPresentationRecord(third.disp_glyph) : null,
             ]);
         },
     });
     assert.deepEqual(messages, [
         '(3south,6east): fountain.',
         '(3south,7east): pit.',
+        '(3south,9east): altar.',
     ]);
     assert.deepEqual(frames, [
-        [glyphPresentationRecord(fountain), null],
-        [glyphPresentationRecord(fountain), glyphPresentationRecord(pit)],
+        [glyphPresentationRecord(fountain), null, null, null],
+        [
+            glyphPresentationRecord(fountain),
+            glyphPresentationRecord(pit),
+            glyphPresentationRecord(room),
+            null,
+        ],
+        [
+            glyphPresentationRecord(fountain),
+            glyphPresentationRecord(pit),
+            glyphPresentationRecord(room),
+            glyphPresentationRecord(altar),
+        ],
     ]);
     assert.deepEqual(
-        [first.gnew, second.gnew],
-        [0, 0],
-        'both presentations were flushed by the final source-order notice',
+        [first.gnew, second.gnew, unannounced.gnew, third.gnew],
+        [0, 0, 0, 0],
+        'all cumulative presentations were flushed by the final notice',
     );
 });
 
@@ -2261,17 +2326,18 @@ test('hallucinated object notices reconstruct buffered near and far identity', (
 
 test('object-shaped mimic notices name buffered object classes and bodies', () => {
     const cases = [
-        [POT_BOOZE, null, 'a potion', true],
-        [SCR_IDENTIFY, null, 'a scroll', true],
+        [POT_BOOZE, null, 'a potion', 'a brown potion'],
+        [SCR_IDENTIFY, null, 'a scroll', 'a scroll labeled KERNOD WEL'],
+        [GOLD_PIECE, null, 'gold pieces', 'gold pieces'],
         // zeroobj has class zero; obj_to_glyph() therefore encodes these
         // generic-by-type disguises as STRANGE_OBJECT, not mappearance.
-        [DIAMOND, null, 'a strange object', false],
-        [SPE_FORCE_BOLT, null, 'a strange object', false],
-        [CORPSE, PM_GOBLIN, 'a goblin corpse', false],
-        [STATUE, PM_GOBLIN, 'a statue of a goblin', false],
+        [DIAMOND, null, 'a strange object', 'a strange object'],
+        [SPE_FORCE_BOLT, null, 'a strange object', 'a strange object'],
+        [CORPSE, PM_GOBLIN, 'a goblin corpse', 'a goblin corpse'],
+        [STATUE, PM_GOBLIN, 'a statue of a goblin', 'a statue of a goblin'],
     ];
     for (const near of [false, true]) {
-        for (const [otyp, corpsenm, distant, revealsAppearance] of cases) {
+        for (const [otyp, corpsenm, distant, adjacent] of cases) {
             const x = 7;
             const y = 4;
             const state = visibleCellState({
@@ -2282,6 +2348,7 @@ test('object-shaped mimic notices name buffered object classes and bodies', () =
             });
             enableGlyphNotices(state);
             init_objects(state, () => 0);
+            initRng(2026072413);
             const monster = {
                 data: state.mons[PM_TENGU],
                 mtame: 0,
@@ -2296,19 +2363,142 @@ test('object-shaped mimic notices name buffered object classes and bodies', () =
             state.level.monsters[x][y] = monster;
             show_glyph_cell(x, y, monster_glyph_info(monster, state));
             const message = state._glyphUpdateNotices[0].message;
-            if (!near || !revealsAppearance) {
-                assert.ok(
-                    message.endsWith(`${distant}.`),
-                    `${otyp}: ${message}`,
-                );
-            } else {
-                assert.notEqual(
-                    message.endsWith(`${distant}.`),
-                    true,
-                    `adjacent ${otyp} should expose its shuffled appearance`,
-                );
-            }
+            const expected = near ? adjacent : distant;
+            assert.ok(
+                message.endsWith(`${expected}.`),
+                `${otyp}: ${message}`,
+            );
         }
+    }
+});
+
+test('buffered corpse identity does not displace a live corpse of that type', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    enableGlyphNotices(state);
+    init_objects(state, () => 0);
+    state.level.objects[x][y] = {
+        otyp: CORPSE,
+        oclass: state.objects[CORPSE].oc_class,
+        corpsenm: PM_TENGU,
+        dknown: true,
+        quan: 1,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: null,
+    };
+    const buffered = object_glyph_info({
+        otyp: CORPSE,
+        oclass: state.objects[CORPSE].oc_class,
+        corpsenm: PM_GOBLIN,
+        dknown: true,
+    }, state);
+    const seed = 2026072412;
+    initRng(seed);
+    const expectedFollowingDraw = rn2(997);
+    initRng(seed);
+
+    show_glyph_cell(x, y, buffered);
+
+    assert.equal(
+        state._glyphUpdateNotices[0].message,
+        '(3south,6east): a tengu corpse.',
+    );
+    assert.equal(state.context.ident, 2);
+    assert.equal(rn2(997), expectedFollowingDraw);
+});
+
+test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
+    const scenarios = [
+        {
+            name: 'regular',
+            seed: 2026072415,
+            ident: 3,
+            trace: ['rnd(2)=1'],
+            following: 280,
+            message: '(3south,6east): a tool.',
+            object: (state) => ({
+                otyp: CHEST,
+                oclass: state.objects[CHEST].oc_class,
+                dknown: true,
+            }),
+        },
+        {
+            name: 'generic',
+            seed: 2026072416,
+            ident: 4,
+            trace: [
+                'rnd(1000)=995',
+                'rnd(2)=2',
+                'rn2(4)=0',
+                'rn2(2)=1',
+            ],
+            following: 532,
+            message: '(3south,6east): a potion.',
+            object: (state) => ({
+                otyp: POT_BOOZE,
+                oclass: state.objects[POT_BOOZE].oc_class,
+                dknown: false,
+            }),
+        },
+        {
+            name: 'corpse',
+            seed: 2026072417,
+            ident: 4,
+            trace: [
+                'rnd(2)=2',
+                'rn2(3)=1',
+                'rn2(4)=1',
+                'rn2(5)=0',
+                'rn2(7)=3',
+                'rn2(8)=6',
+                'rn2(11)=9',
+                'rn2(15)=11',
+                'rn2(16)=3',
+                'rn2(21)=6',
+                'rn2(2)=0',
+                'rn2(1000)=174',
+                'rn2(4)=1',
+                'rne(4)=1',
+                'rn2(2)=1',
+                'rnz(10)=11',
+            ],
+            following: 91,
+            message: '(3south,6east): a goblin corpse.',
+            object: (state) => ({
+                otyp: CORPSE,
+                oclass: state.objects[CORPSE].oc_class,
+                corpsenm: PM_GOBLIN,
+                dknown: true,
+            }),
+        },
+    ];
+    for (const scenario of scenarios) {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        enableGlyphNotices(state);
+        init_objects(state, () => 0);
+        const glyph = object_glyph_info(scenario.object(state), state);
+        initRng(scenario.seed);
+        enableRngLog();
+
+        show_glyph_cell(x, y, glyph);
+
+        const trace = [...getRngLog()];
+        const following = rn2(997);
+        assert.equal(state.context.ident, scenario.ident, scenario.name);
+        assert.deepEqual(trace, scenario.trace, scenario.name);
+        assert.equal(following, scenario.following, scenario.name);
+        assert.equal(
+            state._glyphUpdateNotices[0].message,
+            scenario.message,
+            scenario.name,
+        );
+        assert.equal(state.gt.timer_base, null, scenario.name);
+        assert.equal(state.level.objects[x][y], null, scenario.name);
     }
 });
 
@@ -2323,7 +2513,8 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
         intrinsic: 1,
         extrinsic: 0,
     };
-    state.level.monsters[x][y] = {
+    initRng(2026072414);
+    const monster = {
         data: state.mons[PM_TENGU],
         mhp: 10,
         mtame: 0,
@@ -2334,6 +2525,7 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
         mx: x,
         my: y,
     };
+    state.level.monsters[x][y] = monster;
 
     newsym(x, y);
 
@@ -2342,9 +2534,57 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
         ['(3south,6east): tengu, mimicking a strange object.'],
     );
 
+    const location = state.level.at(x, y);
+    location.remembered_glyph = terrain_glyph(
+        { ...location, typ: ROOM },
+        x,
+        y,
+        state,
+    );
+    assert.equal(
+        describeMonster(monster, { state }),
+        'tengu, mimicking something',
+        'an explicit remembered non-object does not leak live mappearance',
+    );
+    location.remembered_glyph = { ch: ')' };
+    assert.equal(
+        describeMonster(monster, { state }),
+        'tengu, mimicking a strange object',
+        'legacy memory without semantic metadata retains its fallback',
+    );
+    const coinMonster = { ...monster, mappearance: GOLD_PIECE };
+    state.level.monsters[x][y] = coinMonster;
+    location.remembered_glyph = object_glyph_info({
+        otyp: GOLD_PIECE,
+        oclass: 0,
+        dknown: false,
+    }, state);
+    assert.equal(
+        describeMonster(coinMonster, { state }),
+        'tengu, mimicking gold pieces',
+        'mhidden_description pluralizes a two-coin synthetic disguise',
+    );
+    const potionMonster = { ...monster, mappearance: POT_BOOZE };
+    state.level.monsters[x][y] = potionMonster;
+    state.u.ux = x - 1;
+    state.u.uy = y;
+    location.remembered_glyph = object_glyph_info({
+        otyp: POT_BOOZE,
+        oclass: 0,
+        dknown: false,
+    }, state);
+    assert.equal(
+        describeMonster(potionMonster, { state }),
+        'tengu, mimicking a brown potion',
+        'an adjacent synthetic disguise is observed before simple naming',
+    );
+    assert.ok(potionMonster.m_ap_type & M_AP_F_DKNOWN);
+
     state.level.flags.hero_memory = false;
-    state.level.at(x, y).disp_glyph = null;
-    state.level.at(x, y).remembered_glyph = null;
+    state.u.ux = 1;
+    state.u.uy = 1;
+    location.disp_glyph = null;
+    location.remembered_glyph = null;
     state._glyphUpdateNotices = [];
     newsym(x, y);
     assert.deepEqual(
