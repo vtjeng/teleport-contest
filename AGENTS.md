@@ -389,6 +389,10 @@ Pass rules:
   Capture the complete output, including counts, findings, rejections,
   unverified items, warnings, and validation. The primary session reviews and
   validates proposed changes before integrating them; reviewers must not push.
+- Use `node scripts/audit-worktree.mjs prepare ...` to create and verify that
+  worktree, then run `check` immediately before launching the audit. After
+  preserving the report and any proposed changes, run `cleanup`; it refuses to
+  discard a changed worktree.
 - Freeze an audit's assigned scope while it runs. A later commit is outside that
   audit, but ordinarily requires review of only the later delta.
 - Preserve source-shaped code, planned dependency seams, generated data, and
