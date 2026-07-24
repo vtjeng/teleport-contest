@@ -31,6 +31,7 @@ import {
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
     HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
     SYM_BOULDER, SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNING, WARNCOUNT,
+    PROT_FROM_SHAPE_CHANGERS,
     def_warnsyms,
 } from './const.js';
 import {
@@ -835,6 +836,8 @@ function mimicObject(monster) {
         corpsenm: Number.isInteger(storedCorpsenm)
             && storedCorpsenm !== NON_PM
             ? storedCorpsenm : PM_TENGU,
+        // display_monster() deliberately uses PM_TENGU when mextra has no
+        // mcorpsenm. Corpse color and statue presentation can observe it.
         dknown: false,
         ox: monster.mx,
         oy: monster.my,
@@ -1003,6 +1006,9 @@ function mappedObjectGlyphInfo(obj, state) {
     }
 
     const shown = hallucinated_statue_glyph_info(state);
+    // map_object() gates this memory-only draw independently from its caller's
+    // later decision to persist remembered output. The shown statue glyph has
+    // already consumed every draw required when hero memory is disabled.
     const remembered = state.level?.flags?.hero_memory
         ? random_object_glyph_info(state) : shown;
     return { shown, remembered };
@@ -1381,12 +1387,12 @@ export function newsym(x, y) {
         // PHYSICALLY_SEEN mimicry maps the disguise before any sensed real
         // monster presentation. Object disguises therefore own their complete
         // map_object() draw sequence at this point.
-        const physicallySeenMimic = shouldDisplayMonster && !detectedOnly
+        const mapsMimicDisguise = shouldDisplayMonster && !detectedOnly
             && [M_AP_FURNITURE, M_AP_OBJECT].includes(
                 monster.m_ap_type & M_AP_TYPMASK,
             );
         let mappedMimic = null;
-        if (physicallySeenMimic) {
+        if (mapsMimicDisguise) {
             if ((monster.m_ap_type & M_AP_TYPMASK) === M_AP_OBJECT)
                 mappedMimic = mappedObjectGlyphInfo(
                     mimicObject(monster),
@@ -1397,20 +1403,27 @@ export function newsym(x, y) {
                 mappedMimic = { shown: glyph, remembered: glyph };
             }
         }
+        // display_monster()'s PHYSICALLY_SEEN category is broader than literal
+        // sight: telepathy and warn-of-mon sensing enter it too. Protection
+        // from shape changers reveals a mimic only after that category has
+        // mapped its disguise into memory.
+        const revealsMappedMimic = mapsMimicDisguise
+            && (monsterSensed
+                || _propertyActive(game.u, PROT_FROM_SHAPE_CHANGERS));
         // display_monster() exposes a mimic's real monster glyph when sensing
         // defeats its appearance. Detect-only sensing uses the detected glyph
         // family; physical sight alone shows the disguise.
         const shown = shouldDisplayMonster
             ? (detectedOnly
                 ? detectedMonsterGlyphInfo(monster, game)
-                : monsterSensed
+                : monsterSensed || revealsMappedMimic
                     ? presentedMonsterGlyphInfo(monster, game, false)
                     : mappedMimic?.shown
                         ?? monster_glyph_info(monster, game))
             : monsterWarning ? warningGlyphInfo(monster, game) : underlying;
         // A PHYSICALLY_SEEN mimic maps its disguise into persistent memory
         // before sensing reveals the real monster. DETECTED skips that step.
-        const remembered = physicallySeenMimic
+        const remembered = mapsMimicDisguise
             ? mappedMimic.remembered : rememberedUnderlying;
         if (game.level?.flags?.hero_memory) {
             loc.remembered_glyph = remembered_glyph_from_presentation(

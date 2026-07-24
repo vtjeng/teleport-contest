@@ -10,7 +10,10 @@ import {
     TOPLINE_NON_EMPTY,
 } from '../js/const.js';
 import { init_dungeons } from '../js/dungeon.js';
-import { monster_glyph_info } from '../js/display.js';
+import {
+    monster_glyph_info,
+    object_glyph_info,
+} from '../js/display.js';
 import { initoptions_finish } from '../js/fruit.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -343,6 +346,70 @@ test('reroll glyph calculation consumes only display draws for hallucination', (
     assert.notDeepEqual(statueGlyph, originalGlyph);
     assert.deepEqual(calls, [M.NUMMONS, 2]);
     assert.equal(state.u.uprops[HALLUC].intrinsic, 1);
+});
+
+test('reroll hallucination requires intrinsic HALLUC without resistance', () => {
+    const cases = [
+        {
+            label: 'no hallucination',
+            hallucination: { intrinsic: 0, extrinsic: 0 },
+            resistance: { intrinsic: 0, extrinsic: 0 },
+            draws: false,
+        },
+        {
+            label: 'extrinsic-only HALLUC',
+            hallucination: { intrinsic: 0, extrinsic: 1 },
+            resistance: { intrinsic: 0, extrinsic: 0 },
+            draws: false,
+        },
+        {
+            label: 'effective intrinsic HALLUC',
+            hallucination: { intrinsic: 1, extrinsic: 0 },
+            resistance: { intrinsic: 0, extrinsic: 0 },
+            draws: true,
+        },
+        {
+            label: 'intrinsic resistance',
+            hallucination: { intrinsic: 1, extrinsic: 0 },
+            resistance: { intrinsic: 1, extrinsic: 0 },
+            draws: false,
+        },
+        {
+            label: 'extrinsic resistance',
+            hallucination: { intrinsic: 1, extrinsic: 0 },
+            resistance: { intrinsic: 0, extrinsic: 1 },
+            draws: false,
+        },
+    ];
+    for (const {
+        label,
+        hallucination,
+        resistance,
+        draws,
+    } of cases) {
+        const state = rerollState();
+        state.u.uprops[HALLUC] = { ...hallucination };
+        state.u.uprops[HALLUC_RES] = { ...resistance };
+        const apple = object(state, O.APPLE);
+        const expected = object_glyph_info(apple, state);
+        const calls = [];
+
+        const glyph = rerollObjectGlyphInfo(
+            apple,
+            state,
+            (bound) => {
+                calls.push(bound);
+                return O.APPLE - O.FIRST_OBJECT;
+            },
+        );
+
+        assert.deepEqual(
+            calls,
+            draws ? [O.NUM_OBJECTS - O.FIRST_OBJECT] : [],
+            label,
+        );
+        assert.deepEqual(glyph, expected, label);
+    }
 });
 
 test('reroll rows compute glyphs before names and honor artifact fruit articles', () => {

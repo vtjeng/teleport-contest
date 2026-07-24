@@ -52,7 +52,7 @@ function propertyActive(state, property) {
 }
 
 function hallucinating(state) {
-    return propertyActive(state, HALLUC)
+    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
         && !propertyActive(state, HALLUC_RES);
 }
 
