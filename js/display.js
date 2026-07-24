@@ -1432,12 +1432,20 @@ export function newsym(x, y) {
             }
         }
         // display_monster()'s PHYSICALLY_SEEN category is broader than literal
-        // sight: telepathy and warn-of-mon sensing enter it too. Protection
-        // from shape changers reveals a mimic only after that category has
-        // mapped its disguise into memory.
+        // sight: telepathy and warn-of-mon sensing enter it too. It handles the
+        // disguise before revealing the real monster: object and furniture
+        // appearances can update memory, while a monster appearance is a
+        // transient presentation only.
         const revealsMappedMimic = mapsMimicDisguise
             && (monsterSensed
                 || _propertyActive(game.u, PROT_FROM_SHAPE_CHANGERS));
+        if (revealsMappedMimic
+            && mimicAppearanceType === M_AP_MONSTER) {
+            // display_monster() emits this disguise before overwriting it with
+            // the sensed real form. Besides preserving rendering order, the
+            // intermediate write can drive accessibility glyph-change notices.
+            show_glyph_cell(x, y, mappedMimic.shown);
+        }
         // display_monster() exposes a mimic's real monster glyph when sensing
         // defeats its appearance. Detect-only sensing uses the detected glyph
         // family; physical sight alone shows the disguise.
@@ -1449,11 +1457,16 @@ export function newsym(x, y) {
                     : mappedMimic?.shown
                         ?? monster_glyph_info(monster, game))
             : monsterWarning ? warningGlyphInfo(monster, game) : underlying;
-        // A PHYSICALLY_SEEN mimic maps its disguise into persistent memory
-        // before sensing reveals the real monster. DETECTED skips that step.
+        // PHYSICALLY_SEEN object and furniture mimics map their disguise
+        // before sensing reveals the real monster. M_AP_MONSTER leaves the
+        // underlying floor memory intact, and DETECTED skips every disguise.
         const remembered = mapsMimicDisguise
             ? mappedMimic.remembered : rememberedUnderlying;
-        if (game.level?.flags?.hero_memory) {
+        if (game.level?.flags?.hero_memory
+            || (mapsMimicDisguise
+                && mimicAppearanceType === M_AP_FURNITURE)) {
+            // display_monster() writes a furniture disguise directly to
+            // levl[x][y].glyph even when ordinary hero memory is disabled.
             loc.remembered_glyph = remembered_glyph_from_presentation(
                 remembered,
                 remembered === underlying && !object && trap?.tseen
