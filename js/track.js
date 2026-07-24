@@ -1,5 +1,5 @@
 // track.js -- Hero movement history.
-// C ref: track.c initrack(), settrack(), and hastrack().
+// C ref: track.c initrack(), settrack(), gettrack(), and hastrack().
 
 import { game } from './gstate.js';
 import { RIN_STEALTH } from './objects.js';
@@ -32,6 +32,29 @@ export function settrack(state = game) {
     track.utrack[track.utpnt].y = state.u.uy;
     track.utpnt++;
     return true;
+}
+
+// C ref: track.c gettrack(). Search newest-to-oldest from the circular
+// insertion point and return the first hero track adjacent to, but not on,
+// the monster's square.
+export function gettrack(x, y, state = game) {
+    const trackState = state.track;
+    const count = Math.trunc(trackState?.utcnt ?? 0);
+    const track = trackState?.utrack ?? [];
+    if (!count || !track.length) return null;
+
+    let index = Math.trunc(trackState.utpnt ?? 0);
+    for (let remaining = count; remaining > 0; --remaining) {
+        index = index === 0 ? track.length - 1 : index - 1;
+        const coordinate = track[index];
+        if (!coordinate) continue;
+        const distance = Math.max(
+            Math.abs(x - coordinate.x),
+            Math.abs(y - coordinate.y),
+        );
+        if (distance <= 1) return distance ? coordinate : null;
+    }
+    return null;
 }
 
 // C ref: track.c hastrack(). Only the populated prefix is meaningful even
