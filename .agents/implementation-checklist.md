@@ -17,7 +17,9 @@
   screens and attributes, cursors, persistence, and the next input or
   termination boundary.
 - Exclusions: Obstructed movement, commands other than waiting or moving, and
-  behavior whose first effect occurs after the ending event.
+  behavior whose first effect occurs after the ending event. The source trace
+  has not yet proved that every reachable excluded branch stops before changing
+  state, consuming randomness, or producing output.
 
 ## How the candidate list was built
 
@@ -50,24 +52,24 @@ This checklist uses the status definitions in
 
 ## Implementation table
 
-| Upstream function or branch family | Why it can run | JavaScript owner | State, randomness, and output | Evidence | Status | Next action |
+| Upstream function or branch family | Reachability and ordering | JavaScript owner | State, randomness, and output | Evidence | Status | Next action |
 | --- | --- | --- | --- | --- | --- | --- |
 | Command dispatch and elapsed-turn allocation | Both allowed commands consume time before the ending event. | `js/allmain.js` | Turn state, movement allocation, random-number order, and command prompts | Existing focused command tests and the checked-in fresh matrix must be rerun at the final committed head. | `undecided` | Enumerate all reachable second-turn short circuits and rerun validation. |
 | Starting-pet goals, food classification, carrying, and movement | A starting pet can act after either allowed command. | `js/dogmove.js`, `js/dogfood.js`, `js/moncarry.js`, `js/track.js` | Pet state, object ownership, nutrition, movement, messages, rendering, and random-number order | Focused tests and several exact fresh cases exist in the active worktree. | `undecided` | Finish the source branch list, including corpse effects and related food paths. |
 | Ordinary monster movement and action selection | Eligible level monsters act during elapsed turns. | `js/monster_action.js`, `js/mondata.js`, `js/monst.js` | Apparent hero position, strategy, movement, equipment, traps, state, and random-number order | The broad scan has exact cases for movement, waiting strategy, equipment, and several traps. | `undecided` | Enumerate remaining movement, strategy, and action branches. |
-| Monster-versus-monster combat | Pets and ordinary monsters can meet during either elapsed turn. | `js/mhitm.js` | Attack selection, hit and damage results, death, growth, objects, messages, rendering, and random-number order | Focused combat tests and exact fresh collision cases exist in the active worktree. | `undecided` | Trace every attack and result family reachable within the boundary. |
+| Monster-versus-monster combat | Pets and ordinary monsters can meet during either elapsed turn. A fresh scan reaches a weapon attack before the ending event. | `js/mhitm.js` | Attack selection, hit and damage results, death, growth, objects, messages, rendering, and random-number order | Focused combat tests pass in the active worktree. Fresh seed 962473 reaches an equipped goblin retaliating against the starting kitten, then stops because the weapon-attack path is not implemented. | `missing` | Port the reachable `AT_WEAP` path, including `mswingsm()`, `hitval()`, `dmgval()`, and `mhitm_ad_phys()`, then continue the scan. |
 | Monster-versus-hero combat and termination | A nearby monster can attack the hero before the second prompt. | `js/mhitu.js`, `js/allmain.js` | Hero state, adhesion, damage, death or continued play, messages, screens, and random-number order | Exact fresh cases include displaced-image and sticky-touch paths. | `undecided` | Enumerate reachable attack forms, damage types, and termination paths. |
-| Monster trap effects, migration, and relocation | A moving pet or monster can enter a generated trap. | `js/monster_action.js`, `js/teleport.js` | Trap knowledge, damage, object creation, migration or relocation, redraw, and random-number order | Exact fresh cases include rust, hole, arrow, anti-magic, bear-trap, and random-teleport behavior. | `undecided` | Resolve the current screen mismatch and classify fixed-destination and one-shot teleport traps. |
+| Monster trap effects, migration, and relocation | A moving pet or monster can enter a generated trap. | `js/monster_action.js`, `js/teleport.js` | Trap knowledge, damage, object creation, migration or relocation, redraw, and random-number order | Exact fresh cases include rust, hole, arrow, anti-magic, bear-trap, and random-teleport behavior. | `undecided` | Classify fixed-destination and one-shot teleport traps. |
 | Object transfer, consumption, and corpse effects | Pet goals and combat can move, split, create, eat, or destroy objects. | `js/obj.js`, `js/dogfood.js`, `js/dogmove.js`, `js/moncarry.js` | Object identity, ownership, quantity, age, nutrition, corpse effects, persistence, and random-number order | Focused object tests and exact pickup or ordinary-food cases exist in the active worktree. | `undecided` | Complete the source list for edible corpses and conveyed effects. |
-| Messages, rendering, cursors, and persisted state | Every elapsed action can affect observable output or the next segment. | `js/allmain.js`, `js/monster_action.js`, affected display and state owners | Message order, glyph removal or redraw, complete screens and attributes, cursors, and saved state | The fresh matrix and individual cases compare these outputs; the latest scan still has a screen mismatch. | `missing` | Identify and port the source owner of the boundary-three message mismatch, then rerun the case. |
+| Messages, rendering, cursors, and persisted state | Every elapsed action can affect observable output or the next segment. | `js/allmain.js`, `js/monster_action.js`, affected display and state owners | Message order, glyph removal or redraw, complete screens and attributes, cursors, and saved state | The fresh matrix and individual cases compare these outputs. The earlier boundary-three screen mismatch is no longer the current scan blocker. | `undecided` | Continue exact output comparison after the weapon-attack path is implemented. |
 | Removal of temporary second-turn playback | Live behavior replaces recorded calls only after it performs their state and random-number effects. | `js/fastforward.js` and live owners above | Replay removal, live state changes, and random-number order | The active diff reduces playback, but final source coverage and validation are incomplete. | `undecided` | Remove only calls made obsolete by completed live behavior and prove no live replay remains before the ending event. |
 
 ## Missing work by owner
 
 1. Source enumeration: Expand each broad row into every meaningful reachable
    branch or branch family and decide its status.
-2. Output ownership: Resolve the current boundary-three screen mismatch against
-   its upstream message or floor-object owner.
+2. Monster combat: Implement the reachable weapon-attack path and then inspect
+   the related attack and damage branches.
 3. Trap and object families: Decide remaining teleport-trap and edible-corpse
    paths from source and fresh cases.
 4. Final validation: Commit the implementation, run all focused and broad
@@ -77,6 +79,9 @@ This checklist uses the status definitions in
 ## Validation
 
 - Commit checked: Not yet available; implementation is uncommitted.
+- Source review: Incomplete. The controlling entry points and several
+  subsystems have been traced, but every reachable branch and helper has not
+  yet been checked against upstream through the ending event.
 - Focused tests: Individual active-worktree tests have passed, but the final
   focused set has not run at a committed head.
 - Full suite: Not yet run at the final committed head.
@@ -94,5 +99,5 @@ This checklist uses the status definitions in
 Current mode: Implementation
 
 Reason: The source-based candidate list is incomplete, the table contains
-`missing` and `undecided` entries, the active scan has an unresolved screen
-mismatch, and validation has not run at a committed head.
+`missing` and `undecided` entries, the active scan reaches an unimplemented
+weapon-attack path, and validation has not run at a committed head.
