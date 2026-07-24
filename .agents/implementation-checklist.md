@@ -104,7 +104,7 @@ allowed labels.
 | ---: | --- | --- | --- | --- | --- | --- |
 | 1 | `allmain.c:moveloop_core()` per-input cleanup | Runs after each accepted wait or move; clears input-scoped flags and preserves command ordering. Existing live fresh cases execute it through both prompts. | `js/allmain.js` | covered | `done` | C15: retain direct source review and rerun the final matrix. |
 | 2 | Elapsed gate, movement debit, and repeated monster scans | Either command can debit movement and run zero or more monster passes before hero control resumes; this owns major PRNG and ordering seams. Implemented subsets pass fresh cases, but all short circuits are not closed. | `js/allmain.js` | partial | `undecided` | C15: port the complete elapsed loop and prove varying speed/debit cases. |
-| 3 | Monster distress, allocation, random generation, and move counters | Runs inside elapsed work; may regenerate/status-tick monsters, allocate a random monster, and update `moves`/`monstermoves`. Current helpers and replay share ownership. | `js/allmain.js`, `js/mondata.js`, `js/monst.js` | partial | `undecided` | C2-C3 prerequisites, then C15 live turn-loop ownership. |
+| 3 | Monster distress, allocation, random generation, and move counters | Runs inside elapsed work; may regenerate/status-tick monsters, allocate a random monster, and update `moves`/`monstermoves`. Current helpers and replay share ownership. | `js/allmain.js`, `js/mondata.js`, `js/monst.js` | partial | `undecided` | C2 catalog plus the existing placement substrate, then C15 live turn-loop ownership. |
 | 4 | Once-per-turn upkeep | Timeout, light, vision, and related once-per-turn work can change state, visibility, messages, and PRNG before the prompt. Only the reached subset is implemented. | `js/timeout.js`, `js/light.js`, `js/vision.js`, `js/allmain.js` | partial | `undecided` | C15: separate owner commits, then turn-loop wiring. |
 | 5 | Per-hero-action effects | Source performs action-cadence effects independently of once-per-turn elapsed work; ordering matters when two commands consume different amounts of time. | `js/allmain.js`, affected state owners | partial | `undecided` | C15: enumerate cadence branches and compare mixed wait/move cases. |
 | 6 | Final display and next prompt | Every surviving path flushes messages, redraws, saves state, and requests the next command at the ending boundary. Passing cases match, but missing action families can alter the result. | `js/allmain.js`, renderer and persistence owners | partial | `undecided` | C17: verify complete screens, attributes, cursors, storage, and termination. |
@@ -115,9 +115,9 @@ allowed labels.
 | 11 | Destination objects, pickup/description, and engraving reading | A destination can contain an object or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. Object substrate exists but the live movement consumer is incomplete. | `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | C5-C6 substrate and naming, then C16 live pickup/read paths. |
 | 12 | `trap.c:dotrap()` hero trap effects | A hidden trap on an otherwise accessible square is reached if the formal boundary includes such moves. Effects include damage, holding, status, teleport, and extra elapsed work. The temporary scanner excludes these squares. | Trap and hero-state owners not yet integrated | boundary-dependent | `undecided` | Resolve the boundary; if included, C13 and C16 must cover hero trap effects. |
 | 13 | Hero teleport, statue animation, level transition, and termination | Hero trap effects can relocate the hero, animate one of 105 eligible monsters, move to D:2, or end the game before the second prompt. Reachability depends on family 12's boundary decision. | `js/teleport.js`, `js/monst.js`, turn/termination owners | boundary-dependent | `undecided` | Resolve the boundary; if included, prove transition, termination, and expanded catalogs. |
-| 14 | `mon.c:movemon_singlemon()` dead/off-map/every-turn/ration gates | Each monster scan filters dead, migrating, or ineligible monsters and handles rationed movement before dispatch. Active cases exercise common gates only. | `js/allmain.js`, `js/monster_action.js` pending extraction | partial | `undecided` | C3 placement state, then C15 turn-loop dispatch. |
+| 14 | `mon.c:movemon_singlemon()` dead/off-map/every-turn/ration gates | Each monster scan filters dead, migrating, or ineligible monsters and handles rationed movement before dispatch. Active cases exercise common gates only. | `js/allmain.js`, `js/monster_action.js` pending extraction | partial | `undecided` | Reuse the existing placement state, then C15 turn-loop dispatch. |
 | 15 | Bypass/split, `minliquid()`, equipment, and hider handling | Eligible monsters can clear bypass state, split, interact with liquid, equip, or hide before ordinary action selection. Some equipment and trap cases match; the family is incomplete. | Future `mon.c` owner plus object/equipment helpers | partial | `undecided` | C5-C7 prerequisites, C11 weapons, then source-shaped `mon.c` extraction. |
-| 16 | `movemon()` terminal light, purge, and deferred transition | After scans, source updates monster-carried light, purges dead monsters, and performs deferred level transitions before prompt rendering. Only reached subsets are wired. | `js/allmain.js`, `js/light.js`, `js/monst.js` | partial | `undecided` | C3 placement, C15 light and turn-loop completion. |
+| 16 | `movemon()` terminal light, purge, and deferred transition | After scans, source updates monster-carried light, purges dead monsters, and performs deferred level transitions before prompt rendering. Only reached subsets are wired. | `js/allmain.js`, `js/light.js`, `js/monst.js` | partial | `undecided` | Reuse the existing placement substrate; complete light and turn-loop ownership in C15. |
 | 17 | `mcalcdistress()` regeneration, shape, and timers | Before actions, monsters can heal, change shape, and tick status timers; species predicates and ordering control effects and PRNG. Catalog support is incomplete. | `js/mondata.js`, future `mon.c` distress owner | partial | `undecided` | C2 generated fields/predicates, then a source-owned distress commit. |
 | 18 | `monmove.c:dochug()` phase 1: arrival, wait, sleep, status, flee, respond, release | Runs before movement for pets and ordinary monsters. Explicit unsupported branches remain for sleep/arrival/wait and flight behavior. | `js/monmove.js`; callers still in `js/monster_action.js` | confirmed gap | `missing` | C14 pre-action phase commit; include scary-square flight ordering where owned here. |
 | 19 | `dochug()` phase 2: apparent hero, scary checks, defensive/miscellaneous actions, wielding, special actions | Monsters choose apparent hero coordinates, react to scary squares, use defensive or miscellaneous actions, and decide whether to wield before movement/attack. Several explicit unsupported branches remain. | `js/monmove.js`, `js/weapon.js`, future action owners | confirmed gap | `missing` | C11 weapon helpers, then C14 phase-2 commit and representative strict cases. |
@@ -125,7 +125,7 @@ allowed labels.
 | 21 | `monmove.c:m_move()` trapped/eating/hide/setup branches | Movement setup can release a trapped monster, continue eating, reveal/hide, or stop before candidate selection. Web, bear, and pit subsets exist. | `js/monmove.js`; temporary code in `js/monster_action.js` | partial | `undecided` | C13 trap primitives, then C14 `m_move()` setup extraction. |
 | 22 | Special movers, item goals, doors, and tunneling | Species and strategy can select covetous/special movement, object goals, doors, tunneling, or boulder handling instead of ordinary walking. Explicit unsupported paths remain. | Future `monmove.js` and subsystem owners | confirmed gap | `missing` | C14 special-mover checkpoint after object and weapon prerequisites. |
 | 23 | Path selection, tracking, trap avoidance, collisions, aggression, and displacement | Ordinary movement ranks squares using hero/monster tracks, trap knowledge, occupancy, aggression, and displacement. Common walking exists; aggression/displacement still stop explicitly. | `js/track.js`, `js/monmove.js`; temporary action code | partial | `undecided` | C4 tracking, C13 trap routing, then C14 candidate selection. |
-| 24 | Normal movement and `postmov()` doors, traps, objects, and hiding | Chosen movement updates position and track, then applies door, trap, object, hiding, redraw, and message effects in source order. Exact subsets match, not the complete family. | `js/monst.js`, `js/obj.js`, `js/monmove.js`; temporary action code | partial | `undecided` | C3/C5/C13 prerequisites, then C14 normal movement and `postmov()`. |
+| 24 | Normal movement and `postmov()` doors, traps, objects, and hiding | Chosen movement updates position and track, then applies door, trap, object, hiding, redraw, and message effects in source order. Exact subsets match, not the complete family. | `js/monst.js`, `js/obj.js`, `js/monmove.js`; temporary action code | partial | `undecided` | Existing placement plus C5/C13 prerequisites, then C14 normal movement and `postmov()`. |
 | 25 | `dogmove.c` hunger and inventory | A starting pet can become hungry, carry objects, select droppables, drop, or starve before/after movement. Ordinary carry/drop cases match; thresholds and special inventory effects remain. | `js/dogmove.js`, `js/moncarry.js`, `js/dogfood.js` | partial | `undecided` | C7-C9: carrying, food, then dog inventory/eating subcommit. |
 | 26 | Pet goals and reachability | `dog_goal()` chooses hero, food, apport, and follow goals, subject to reachability and object safety. Artifact refusal is complete; the full goal family is not. | `js/dogmove.js`, `js/track.js`, `js/moncarry.js` | partial | `undecided` | C4/C7/C8, then C9 goals/reachability subcommit. |
 | 27 | Pet candidate selection, trap/cursed-square avoidance, and scary-square flight | A pet ranks moves while avoiding known traps/cursed objects and reacts to a scare-monster scroll under the hero. Strict seed 979597 reaches the explicit unsupported pre-move flight callback after source-required PRNG draws. | `js/dogmove.js`, `js/monmove.js`; caller in `js/monster_action.js` | confirmed gap | `missing` | C9 candidate logic plus C14 `distfleeck()`/`monflee()` connection; rerun seed 979597. |
@@ -156,7 +156,10 @@ object, and combat module.
    `scripts/generate-monsters.mjs`, generated `js/monsters.js`,
    `js/mondata.js`, `scripts/monsters.test.mjs`, and
    `scripts/mondata.test.mjs`.
-3. **C3 — `monst.c` placement and relocation.**
+3. **C3 — `teleport.c:rloc()` ordinary live-monster relocation.** The shared
+   monster placement/index substrate is already committed. Keep
+   `monmove.c:mon_track_add()` for C14 rather than adding it to the instance
+   module checkpoint.
 4. **C4 — `track.c` hero and monster tracking.**
 5. **C5 — `obj.c` floor/object substrate.**
 6. **C6 — `objnam.c` early naming used by the active consumers.**
@@ -202,8 +205,9 @@ the inventory and sequence above are committed.
 
 ## Missing work by checkpoint owner
 
-1. C2-C8 establish source-owned catalogs, placement, tracking, object, naming,
-   carry, and food prerequisites used by active pet, trap, and combat paths.
+1. C2-C8 establish source-owned catalogs, random relocation, tracking, object,
+   naming, carry, and food prerequisites used by active pet, trap, and combat
+   paths; the shared placement/index substrate is already present.
 2. C9 resolves families 25-29 without absorbing trap or combat behavior.
 3. C10-C12 resolve the attack, hero-combat, and hurtling seams in families
    28 and 35-37.
@@ -220,16 +224,17 @@ the inventory and sequence above are committed.
 ## Current checkpoint evidence
 
 - C1 is committed and tracked as described above.
-- C2 intended files are exactly:
-  `scripts/generate-monsters.mjs`, `js/monsters.js`, `js/mondata.js`,
-  `scripts/monsters.test.mjs`, and `scripts/mondata.test.mjs`.
-- C2 focused tests currently pass 24/24.
-- The full suite currently passes 1,346/1,346.
-- The relevant monster generated-data regeneration check passes. All
-  generated-data checks still need to be reported at the exact C2 commit
-  boundary.
+- C2 is committed as `89db11da70dbb42442a0688e50cf9d681d21a134`
+  with exactly `scripts/generate-monsters.mjs`, generated `js/monsters.js`,
+  `js/mondata.js`, `scripts/monsters.test.mjs`, and
+  `scripts/mondata.test.mjs`.
+- C2 focused tests pass 24/24, the full suite passes 1,346/1,346, and all six
+  declared generated-data checks pass.
 - No C2 fresh differential is claimed yet; its real consumers close in later
   checkpoints.
+- C3's intended files are exactly `js/teleport.js` and
+  `scripts/teleport.test.mjs`; the uncommitted `mon_track_add()` delta is not
+  part of C3.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
