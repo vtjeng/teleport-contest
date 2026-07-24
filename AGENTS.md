@@ -138,6 +138,15 @@ Git history do not grant permission to inspect the sealed local holdout.
 
 ## Quality workflow
 
+In this section, an **audit** is an independent, structured review of a fixed
+committed change. A fresh top-level Codex process runs a named audit skill,
+reports possible problems, and leaves the primary agent to verify and apply any
+fixes. Routine diff inspection, tests, source comparison, and
+`npm run quality` are checks, not audits. Correctness and clarity reviews are
+audits; simplification and copyediting use the same independent-process rules
+when their named skills are required, but remain separate kinds of formal
+review.
+
 Use checks in proportion to risk. Formal correctness review may be batched, but
 every implementation commit remains subject to it.
 
@@ -269,6 +278,13 @@ Pass rules:
   inspected. Run with `--json` and preserve the session identifier and
   `turn.completed.usage` summary with the pass evidence. Give the process only
   the pass's scoped inputs.
+- For this repository, launch each formal top-level process with
+  `codex exec --profile audit-high`. The profile selects `gpt-5.6-sol` with
+  `high` reasoning effort for both the top-level process and its native
+  subagents. Do not add a conflicting model or reasoning-effort override unless
+  the user explicitly requests it. After launch, spot-check the retained
+  top-level `turn_context` and one child rollout when subagents run; confirm
+  both the model and reasoning effort before accepting the pass.
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, prior validation, decided non-issues,
   and applicable constraints. Require them to read `AGENTS.md`. Explicitly
