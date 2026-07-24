@@ -198,9 +198,11 @@ object, and combat module.
      transfer. The live pet pickup consumer still closes in C9.
 8. **C8 — `dog.c:dogfood()` and its source-required food predicates.**
    Complete in `e558d75494a3479b29d73633fd6a5914e5bfa3df`.
-9. **C9 — `dogmove.c` in three bounded commits:** goals/reachability;
-   inventory/eating; active movement. Combat and trap effects remain calls to
-   their upstream owners.
+9. **C9 — `dogmove.c` in bounded commits:** goals/reachability; inventory
+   decisions; eating and object mutations; active movement. Combat and trap
+   effects remain calls to their upstream owners. The inventory-decision
+   prerequisite is complete in
+   `8385846f3064fb3c6f5251e1493d1f914a7883d6`.
 10. **C10 — `mhitm.c` in bounded commits:** attack iteration; damage/death and
     growth/corpses; passives/knockback/collision as line counts and source
     seams require.
@@ -318,6 +320,15 @@ the named milestone decision recorded above.
   monster area is advisory at five commits and 826 lines. No fresh
   second-turn differential is claimed until C9 connects the live pet
   `dogmove.c` consumer.
+- The C9 inventory-decision prerequisite is committed as
+  `8385846f3064fb3c6f5251e1493d1f914a7883d6` with exactly `QUALITY.json`,
+  `js/dogmove_inventory.js`, and `scripts/dogmove-inventory.test.mjs`. Nine
+  direct inventory tests and 47 focused pet/object tests pass; the exact
+  staged full suite passes 1,368/1,368 and all six generated-data checks pass.
+  The production diff is 116 changed lines. The quality gate is clear and the
+  monster area is advisory at six commits and 942 lines. No fresh
+  second-turn differential is claimed until later C9 commits connect
+  `dog_invent()` to the live `dog_move()` path.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
