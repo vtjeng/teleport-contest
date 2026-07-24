@@ -189,7 +189,12 @@ object, and combat module.
    `artifact.c:find_artifact()` prerequisite is
    `09922c7b5d13d84331becd891a2f5f16c8606e2d`. Broader naming suffixes
    remain explicit family-11 seams for their later consumers.
-7. **C7 — `mon.c:can_carry()` and monster inventory transfer.**
+7. **C7 — monster carrying and inventory transfer.**
+   - **C7a — `mon.c:can_carry()`.** Complete in
+     `3e1276beb2ca163890be7b27ead110d91d714799`.
+   - **C7b — `steal.c:mpickobj()` transfer.** Keep bill, light, knowledge,
+     carrying-effect, merge, and ownership order in a separate source-owned
+     commit before the pet pickup consumer closes.
 8. **C8 — `dog.c:dogfood()` and its source-required food predicates.**
 9. **C9 — `dogmove.c` in three bounded commits:** goals/reachability;
    inventory/eating; active movement. Combat and trap effects remain calls to
@@ -284,6 +289,14 @@ the named milestone decision recorded above.
   The production diff is 491 changed lines. The quality gate is clear and the
   objects area is advisory at four commits and 703 lines. No fresh differential
   is claimed until the named movement, pet, or combat consumer commits.
+- C7a is committed as `3e1276beb2ca163890be7b27ead110d91d714799`
+  with exactly `QUALITY.json`, `js/moncarry.js`, and
+  `scripts/moncarry.test.mjs`. Five focused carrying tests, 23 related
+  dog-movement and touch-safety tests, the canonical 1,368-test full suite, and
+  all six generated-data checks pass. The production diff is 68 changed lines.
+  The quality gate is clear and the monster area is advisory at four commits
+  and 431 lines. C7b remains with `steal.c`; no fresh differential is claimed
+  until that transfer and its live pet consumer commit.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
