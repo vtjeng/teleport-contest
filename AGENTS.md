@@ -237,6 +237,11 @@ expanded committed range.
 
 ### Progress updates
 
+These progress-update rules apply only while reporting implementation,
+validation, or audit work. For planning, process discussion, questions, and
+other meta-conversations, respond directly in ordinary prose. Do not announce
+a workflow mode unless it is relevant to the discussion.
+
 Keep progress updates brief, natural, and specific. Say what now matches
 upstream, what remains, and what check or action comes next when those facts
 help the user. Do not force routine updates into fixed labels or repeat
