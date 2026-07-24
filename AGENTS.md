@@ -237,16 +237,14 @@ expanded committed range.
 
 ### Progress updates
 
-Use this format for every progress update, including each mode change:
+Keep progress updates brief, natural, and specific. Say what now matches
+upstream, what remains, and what check or action comes next when those facts
+help the user. Do not force routine updates into fixed labels or repeat
+unchanged status. Explain specialized terms on first use.
 
-```text
-Mode: <Implementation | Ready for audit | Audit | Audit fix>
-Matches now: <observable behavior that matches upstream through a named event>
-Still missing: <specific behavior or evidence; use None if nothing is missing>
-Next proof: <test or differential that will show completion>
-```
-
-Explain specialized terms on first use.
+When the workflow changes modes, state the new mode once and explain why.
+Formal audit readiness notes and audit reports still use their required
+structures; routine implementation updates do not.
 
 Use checks in proportion to risk. Formal correctness review may be batched, but
 every implementation commit remains subject to it.
