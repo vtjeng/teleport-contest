@@ -12,27 +12,45 @@
   command, or the upstream game ends before that prompt.
 - Valid inputs: Arbitrary valid seeds, datetimes, character configurations,
   startup options, and any two-command combination in which each command is a
-  wait or one unobstructed move.
+  wait or one move into a square the hero can legally enter. Objects, regions,
+  hidden traps, special terrain, and engravings do not make a square
+  obstructed; every resulting effect is in scope.
 - Observables: State changes, random-number calls and order, messages, complete
   24x80 screens and attributes, cursors, persistence, and the next input or
   termination boundary.
 - Exclusions: Obstructed movement, commands other than waiting or moving, and
   behavior whose first effect occurs after the ending event.
 
-### Boundary limitation to resolve
+### Clarified broad boundary and sizing pause
 
-The source meaning of an unobstructed move is broader than the temporary
-discovery scanner's clear-square predicate. `hack.c:domove()` can enter an
-accessible square containing objects, regions, special terrain, engravings, or
-a hidden trap. The scanner currently requires an accessible square with no
-monster and no trap, but it can still choose objects and regions.
+The user confirmed that legal entry, not an empty clear square, defines the
+movement boundary. `hack.c:domove()` can therefore enter an accessible square
+containing objects, regions, special terrain, engravings, or a hidden trap.
+The temporary scanner's predicate still requires no monster and no trap, so it
+covers only a subset of the formal boundary.
 
-Consequently, scanner passes cover the clear-square subset only. If hidden
-traps remain in scope, `hack.c:spoteffects()` and `trap.c:dotrap()` can add
-elapsed turns, move the hero to D:2, terminate the game, or animate a
-higher-level monster before the ending event. Families 12 and 13 remain
-boundary-dependent and `undecided`; they cannot be closed from the scanner
-subset.
+The broad boundary is impractical as one reviewable implementation slice.
+`hack.c:spoteffects()` and `trap.c:dotrap()` can add elapsed turns, move the
+hero to D:2 and require another level's generation and catalogs, terminate the
+game, or animate any of 105 difficulty-3-through-7 statue species before the
+ending event. Those species reach broad spell, special-damage, death, and
+object-effect families which ordinary D:1 generation does not.
+
+Implementation and broad discovery are paused for a milestone decision. The
+proposed narrower named milestone is **Second stable-level non-trap command**:
+
+- It retains the same first-prompt starting event and second-command prompt or
+  termination ending event.
+- It includes waits and legal moves onto objects, regions, engravings, and
+  special terrain, with all resulting effects.
+- An entered hero square must not activate `trap.c:dotrap()`, and play must not
+  transition to another level before the ending event.
+- Monster-triggered traps and termination from in-scope monster actions remain
+  included.
+
+This proposal is not accepted yet and has not replaced the formal broad
+boundary. If accepted, hero-triggered trap effects and their transitions become
+explicit later named milestones rather than silent exclusions.
 
 ## How the candidate list was built
 
@@ -72,10 +90,11 @@ incomplete summary.
   replay. The temporary discovery scanner now traverses its complete requested
   range and groups failures by unsupported reason. Strict case lists use
   `scripts/scan-fresh.mjs`.
-- Remaining limits: The two hidden-trap families depend on the boundary
-  interpretation above. The 27 partial families still require source closure
-  and live-consumer differentials; a passing discovery range is not closure
-  proof.
+- Remaining limits: Families 12 and 13 are confirmed in the broad boundary but
+  have not been exercised by the clear-square scanner. The 27 partial families
+  still require source closure and live-consumer differentials; a passing
+  discovery range is not closure proof. Work is paused pending the named
+  milestone decision above.
 
 ## Coverage summary
 
@@ -85,7 +104,8 @@ The source survey has 38 families:
 - 27 partially implemented or partially proved families, represented as
   `undecided`;
 - 7 confirmed implementation gaps, represented as `missing`; and
-- 2 boundary-dependent families, represented as `undecided`.
+- 2 confirmed-in-scope but unverified hero-trap families, represented as
+  `undecided`.
 
 Thus the checklist-status totals are 2 `done`, 7 `missing`, and 29
 `undecided`. No family is currently classified as `no-effect-yet`, `later`, or
@@ -113,8 +133,8 @@ allowed labels.
 | 9 | Region entry, hero track, vision, and engraving smudge | A successful move can enter/leave regions, update `utrack`, recalculate vision, and smudge an engraving before elapsed monster work. Focused tracking exists; the live path is not closed. | `js/track.js`, `js/vision.js`, region and engraving owners | partial | `undecided` | C4 tracking, C15 vision, then C16 movement integration. |
 | 10 | `hack.c:spoteffects()` terrain, rooms, and regions | An accessible destination can trigger terrain, room, and region effects before monsters move; sleeping gas can add elapsed turns. Scanner cases do not prove every variant. | `js/cmd.js`, region/terrain owners | partial | `undecided` | C16: trace and port non-trap spot effects, including extra-turn cases. |
 | 11 | Destination objects, pickup/description, and engraving reading | A destination can contain an object or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. Object substrate exists but the live movement consumer is incomplete. | `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | C5-C6 substrate and naming, then C16 live pickup/read paths. |
-| 12 | `trap.c:dotrap()` hero trap effects | A hidden trap on an otherwise accessible square is reached if the formal boundary includes such moves. Effects include damage, holding, status, teleport, and extra elapsed work. The temporary scanner excludes these squares. | Trap and hero-state owners not yet integrated | boundary-dependent | `undecided` | Resolve the boundary; if included, C13 and C16 must cover hero trap effects. |
-| 13 | Hero teleport, statue animation, level transition, and termination | Hero trap effects can relocate the hero, animate one of 105 eligible monsters, move to D:2, or end the game before the second prompt. Reachability depends on family 12's boundary decision. | `js/teleport.js`, `js/monst.js`, turn/termination owners | boundary-dependent | `undecided` | Resolve the boundary; if included, prove transition, termination, and expanded catalogs. |
+| 12 | `trap.c:dotrap()` hero trap effects | A hidden trap on an otherwise accessible square is in the formal boundary. Effects include damage, holding, status, teleport, and extra elapsed work. The temporary scanner excludes these squares, so no live reproduction has classified the implementation yet. | Trap and hero-state owners not yet integrated | in-scope unverified | `undecided` | If the broad milestone remains, extend discovery and C13/C16 to every reachable hero trap effect. |
+| 13 | Hero teleport, statue animation, level transition, and termination | In-scope hero trap effects can relocate the hero, animate one of 105 eligible monsters, move to D:2, or end the game before the second prompt. The resulting level and monster catalogs are part of the broad boundary. | `js/teleport.js`, `js/monst.js`, turn/termination owners | in-scope unverified | `undecided` | If the broad milestone remains, prove transition, termination, D:2 generation, and the expanded attack catalogs. |
 | 14 | `mon.c:movemon_singlemon()` dead/off-map/every-turn/ration gates | Each monster scan filters dead, migrating, or ineligible monsters and handles rationed movement before dispatch. Active cases exercise common gates only. | `js/allmain.js`, `js/monster_action.js` pending extraction | partial | `undecided` | Reuse the existing placement state, then C15 turn-loop dispatch. |
 | 15 | Bypass/split, `minliquid()`, equipment, and hider handling | Eligible monsters can clear bypass state, split, interact with liquid, equip, or hide before ordinary action selection. Some equipment and trap cases match; the family is incomplete. | Future `mon.c` owner plus object/equipment helpers | partial | `undecided` | C5-C7 prerequisites, C11 weapons, then source-shaped `mon.c` extraction. |
 | 16 | `movemon()` terminal light, purge, and deferred transition | After scans, source updates monster-carried light, purges dead monsters, and performs deferred level transitions before prompt rendering. Only reached subsets are wired. | `js/allmain.js`, `js/light.js`, `js/monst.js` | partial | `undecided` | Reuse the existing placement substrate; complete light and turn-loop ownership in C15. |
@@ -180,9 +200,10 @@ object, and combat module.
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior.
 15. **C15 — elapsed-loop owners:** separate `allmain.c`, `timeout.c`,
     `light.c`, and `vision.c` commits, followed by turn-loop wiring.
-16. **C16 — `hack.c:domove()` and `spoteffects()`.** If hidden traps remain
-    in the formal boundary, include the hero-facing consumers of C13 and the
-    family-13 transition/termination proof.
+16. **C16 — `hack.c:domove()` and `spoteffects()`.** Under the current broad
+    boundary, include the hero-facing consumers of C13 and the family-13
+    transition/termination proof. If the named narrower milestone is accepted,
+    close its non-trap spot effects here and schedule hero traps separately.
 17. **C17 — final integration:** live wiring and replay removal, plus
     `scripts/run-second-complete-turn.mjs` refactored to `runFreshMatrix()`,
     `scripts/fixtures/second-complete-turn.session.json`, and
@@ -216,8 +237,9 @@ the inventory and sequence above are committed.
    for scary-square flight.
 6. C15 closes elapsed work and the pre-prompt turn loop in families 1-6 and
    14-17.
-7. C16 closes movement spot effects and, after the explicit boundary decision,
-   either implements or excludes families 12-13 with source evidence.
+7. C16 closes movement spot effects. Under the current broad boundary it also
+   integrates families 12-13; under the proposed named milestone those
+   families move to explicit follow-up milestones.
 8. C17 removes obsolete replay and proves family 38 through the next observable
    boundary.
 
@@ -266,6 +288,6 @@ the inventory and sequence above are committed.
 Current mode: Implementation
 
 Reason: Seven families have confirmed missing behavior, 27 are only partially
-implemented or proved, two depend on the unresolved hidden-trap interpretation,
-second-turn replay remains, and final validation has not run at an exact
-committed head.
+implemented or proved, two newly confirmed in-scope hero-trap families are
+unverified, second-turn replay remains, and the broad boundary is paused for a
+named milestone decision before implementation or discovery resumes.
