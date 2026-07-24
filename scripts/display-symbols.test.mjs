@@ -2853,6 +2853,17 @@ test('fruit object descriptions preserve source articles and plural order', () =
     const location = state.level.at(x, y);
     location.remembered_glyph = object_glyph_info(fruit, state);
 
+    state.gf.ffruit.fname = 'the eXcALiBuR';
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        'the eXcALiBuR',
+        'candidate-side the is ignored while matching canonical Excalibur',
+    );
+    assert.match(
+        describeMonster(hider, { state }),
+        /, hiding under the eXcALiBuR$/u,
+    );
+
     state.gf.ffruit.fname = 'eXcALiBuR';
     assert.equal(
         _startupA11yInternals.describeObject(fruit, state),

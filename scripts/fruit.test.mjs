@@ -209,7 +209,7 @@ test('makeplural preserves source compounds and irregular object names', () => {
         ['pair of boots', 'pair of boots'],
         ['blueberry', 'blueberries'],
         ['foo@', 'foo@s'],
-        // len == 1 precedes letter(), so neither single letter is pluralized.
+        // len == 1 adds "'s" before makeplural() reaches letter().
         ['@', "@'s"],
         ['A', "A's"],
         ['HE', 'They'],
@@ -225,6 +225,11 @@ test('artifact fruit matching returns only its article classification', () => {
         matching_artifact_fruit('eXcALiBuR', state),
         { forceThe: false },
         'artifact_name compares case-insensitively',
+    );
+    assert.deepEqual(
+        matching_artifact_fruit('the eXcALiBuR', state),
+        { forceThe: false },
+        'artifact_name ignores candidate-side the for every artifact',
     );
     assert.deepEqual(
         matching_artifact_fruit('orb of detection', state),
