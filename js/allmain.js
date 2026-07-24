@@ -62,7 +62,10 @@ import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { domove, endRunning, rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen, newsym } from './display.js';
 import { ttyPline } from './tty_message.js';
-import { emitStartupA11yNotices } from './startup_a11y.js';
+import {
+    emitGlyphUpdateNotices,
+    emitStartupA11yNotices,
+} from './startup_a11y.js';
 import { can_reach_floor, wipe_engr_at } from './engrave.js';
 import { check_special_room_state } from './rooms.js';
 import { mnexto } from './teleport.js';
@@ -132,6 +135,11 @@ export function newgame_pre_mklev(g = game) {
 // C ref: allmain.c newgame()
 export async function newgame() {
     const g = game;
+    // allmain.c newgame() brackets initialization and the welcome message
+    // with notice_mon_off()/notice_mon_on().
+    g.a11y ??= {};
+    g.a11y.mon_notices_blocked
+        = (g.a11y.mon_notices_blocked ?? 0) + 1;
 
     // C ref: allmain.c newgame(). Preserve this order: each initializer owns
     // state and PRNG effects used by every initializer that follows it.
@@ -193,6 +201,10 @@ export async function newgame() {
     await ttyPline(welcomeMessage(g), g);
     // C re-enables monster notices only after the welcome, then chooses
     // between #lookaround and the distance-sorted monster notice pass.
+    g.a11y.mon_notices_blocked = Math.max(
+        0,
+        g.a11y.mon_notices_blocked - 1,
+    );
     await emitStartupA11yNotices(g);
 }
 
@@ -687,6 +699,7 @@ export async function moveloop_core() {
         vision_recalc(0);
         g.vision_full_recalc = 0;
     }
+    await emitGlyphUpdateNotices(g);
     find_ac(g);
     await bot();
     await flush_screen(1);
@@ -695,6 +708,7 @@ export async function moveloop_core() {
         state: g,
         random: { d, rn1, rn2, rnd, rne, rnl, rnz },
     });
+    await emitGlyphUpdateNotices(g);
 
     // C ref: allmain.c moveloop_core(). A positive multi repeats the saved
     // command without another input boundary. For movement, values below

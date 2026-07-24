@@ -178,6 +178,7 @@ import {
     trap_to_defsym,
     sym_val,
 } from '../js/symbols.js';
+import { emitGlyphUpdateNotices } from '../js/startup_a11y.js';
 import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
@@ -218,18 +219,35 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     return state;
 }
 
-function captureDisplayCharacterWrites(location) {
-    let displayedCharacter = location.disp_ch;
+function glyphPresentationRecord(glyph) {
+    const color = glyph.color ?? NO_COLOR;
+    const displayCh = glyph.displayCh ?? null;
+    const record = {
+        ch: glyph.ch,
+        color,
+        dec: Boolean(glyph.dec),
+        attr: glyph.attr ?? 0,
+        displayCh,
+        displayColor: glyph.displayColor ?? (displayCh ? color : null),
+        a11yKind: glyph.a11yKind ?? null,
+        a11yDescription: glyph.a11yDescription ?? null,
+    };
+    if (glyph.rgb) record.rgb = [...glyph.rgb];
+    return record;
+}
+
+function captureDisplayWrites(location) {
+    let logicalPresentation = location.disp_glyph;
     const writes = [];
-    Object.defineProperty(location, 'disp_ch', {
+    Object.defineProperty(location, 'disp_glyph', {
         configurable: true,
         enumerable: true,
         get() {
-            return displayedCharacter;
+            return logicalPresentation;
         },
         set(value) {
             writes.push(value);
-            displayedCharacter = value;
+            logicalPresentation = value;
         },
     });
     return writes;
@@ -1569,6 +1587,55 @@ test('protected furniture mimics remember disguise regardless of hero memory',
         }
     });
 
+test('unprotected furniture mimics bypass disabled hero memory without RNG',
+    () => {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        state.level.flags.hero_memory = false;
+        state.u.uprops = [];
+        const monster = {
+            data: state.mons[PM_TENGU],
+            mhp: 10,
+            mtame: 0,
+            minvis: false,
+            mundetected: false,
+            m_ap_type: M_AP_FURNITURE,
+            mappearance: S_hcdoor,
+            mx: x,
+            my: y,
+        };
+        state.level.monsters[x][y] = monster;
+        state.level.at(x, y).remembered_glyph = {
+            ch: '?',
+            color: CLR_YELLOW,
+            decgfx: false,
+            displayCh: null,
+        };
+        const expected = monster_glyph_info(monster, state);
+        const seed = 2026072415;
+        initRng(seed);
+        const firstDraw = rn2_on_display_rng(NUMMONS);
+        initRng(seed);
+
+        newsym(x, y);
+
+        const location = state.level.at(x, y);
+        assert.deepEqual(
+            [
+                location.disp_ch,
+                location.disp_color,
+                location.disp_attr,
+            ],
+            [expected.ch, expected.color, expected.attr ?? 0],
+        );
+        assert.deepEqual(
+            location.remembered_glyph,
+            remembered_glyph_from_presentation(expected),
+        );
+        assert.equal(rn2_on_display_rng(NUMMONS), firstDraw);
+    });
+
 test('monster disguises are transient and preserve display-RNG order', () => {
     const cases = [
         {
@@ -1593,6 +1660,13 @@ test('monster disguises are transient and preserve display-RNG order', () => {
             label: 'non-hallucinated tame disguise',
             hallucinating: false,
             protected: false,
+            detectedOnly: false,
+            tame: true,
+        },
+        {
+            label: 'non-hallucinated protected tame real form',
+            hallucinating: false,
+            protected: true,
             detectedOnly: false,
             tame: true,
         },
@@ -1665,7 +1739,7 @@ test('monster disguises are transient and preserve display-RNG order', () => {
             ...monster,
             data: state.mons[shownSpecies],
             m_ap_type: 0,
-            mtame: 0,
+            mtame: tame && (protectedHero || detectedOnly) ? 1 : 0,
         }, state);
         const expectedDisguise = detectedOnly
             ? null
@@ -1678,7 +1752,7 @@ test('monster disguises are transient and preserve display-RNG order', () => {
         if (detectedOnly) expectedShown.attr = ATR_INVERSE;
         state.u.uprops[HALLUC].intrinsic = hallucinating ? 1 : 0;
         const location = state.level.at(x, y);
-        const glyphWrites = captureDisplayCharacterWrites(location);
+        const glyphWrites = captureDisplayWrites(location);
 
         newsym(x, y);
 
@@ -1698,8 +1772,11 @@ test('monster disguises are transient and preserve display-RNG order', () => {
         assert.deepEqual(
             glyphWrites,
             protectedHero
-                ? [expectedDisguise.ch, expectedShown.ch]
-                : [expectedShown.ch],
+                ? [
+                    glyphPresentationRecord(expectedDisguise),
+                    glyphPresentationRecord(expectedShown),
+                ]
+                : [glyphPresentationRecord(expectedShown)],
             `${label}: ordered glyph writes`,
         );
         assert.deepEqual(location.remembered_glyph, expectedMemory, label);
@@ -1782,7 +1859,7 @@ test('monster disguises preserve divergent hallucinated statue memory', () => {
     }, state);
     state.u.uprops[HALLUC].intrinsic = 1;
     const location = state.level.at(x, y);
-    const glyphWrites = captureDisplayCharacterWrites(location);
+    const glyphWrites = captureDisplayWrites(location);
 
     newsym(x, y);
 
@@ -1796,7 +1873,10 @@ test('monster disguises preserve divergent hallucinated statue memory', () => {
     );
     assert.deepEqual(
         glyphWrites,
-        [expectedDisguise.ch, expectedReal.ch],
+        [
+            glyphPresentationRecord(expectedDisguise),
+            glyphPresentationRecord(expectedReal),
+        ],
     );
     assert.deepEqual(
         location.remembered_glyph,
@@ -1808,6 +1888,73 @@ test('monster disguises preserve divergent hallucinated statue memory', () => {
         'the transient statue presentation must not replace its object memory',
     );
     assert.equal(rn2_on_display_rng(NUMMONS), followingDraw);
+});
+
+test('protected monster disguises queue their transient glyph update', async () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.a11y = {
+        accessiblemsg: false,
+        glyph_updates: true,
+        mon_notices: false,
+        mon_notices_blocked: 0,
+    };
+    state.program_state = {};
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0 };
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+        intrinsic: 1,
+        extrinsic: 0,
+    };
+    const monster = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        mtame: 0,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: M_AP_MONSTER,
+        mappearance: PM_GOBLIN,
+        mx: x,
+        my: y,
+    };
+    state.level.monsters[x][y] = monster;
+    const expectedDisguise = monster_glyph_info(monster, state);
+    const expectedReal = monster_glyph_info({
+        ...monster,
+        m_ap_type: 0,
+    }, state);
+    const location = state.level.at(x, y);
+    const glyphWrites = captureDisplayWrites(location);
+
+    newsym(x, y);
+
+    assert.deepEqual(glyphWrites, [
+        glyphPresentationRecord(expectedDisguise),
+        glyphPresentationRecord(expectedReal),
+    ]);
+    assert.deepEqual(
+        state._glyphUpdateNotices?.map((notice) => ({
+            message: notice.message,
+            current: notice.current,
+        })),
+        [{
+            message: '(3south,6east): goblin.',
+            current: glyphPresentationRecord(expectedDisguise),
+        }],
+        'the disguise transition is captured before the real form overwrites it',
+    );
+
+    const emitted = [];
+    const returned = await emitGlyphUpdateNotices(state, {
+        pline: async (message, receivedState) => {
+            assert.equal(receivedState, state);
+            emitted.push(message);
+        },
+    });
+    assert.deepEqual(returned, ['(3south,6east): goblin.']);
+    assert.deepEqual(emitted, returned);
+    assert.deepEqual(state._glyphUpdateNotices, []);
 });
 
 test('newsym maps a visible object mimic as its remembered chest', () => {
@@ -2404,6 +2551,56 @@ test('show_glyph_cell accepts presentation records, not map-memory records', () 
         ],
         ['x', CLR_RED, true],
     );
+});
+
+test('show_glyph_cell retains each complete ordered presentation', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    const location = state.level.at(x, y);
+    const glyphWrites = captureDisplayWrites(location);
+    const presentations = [
+        {
+            ch: 'i',
+            color: CLR_RED,
+            dec: false,
+            attr: ATR_NONE,
+        },
+        {
+            ch: 'i',
+            color: CLR_YELLOW,
+            dec: true,
+            attr: ATR_UNDERLINE,
+            displayCh: 'ı',
+            displayColor: CLR_BRIGHT_BLUE,
+        },
+        {
+            ch: null,
+            color: CLR_WHITE,
+            dec: false,
+            attr: ATR_BOLD,
+            displayCh: '☃',
+            displayColor: CLR_BRIGHT_GREEN,
+            rgb: [12, 34, 56],
+        },
+    ];
+
+    for (const presentation of presentations)
+        show_glyph_cell(x, y, presentation);
+
+    assert.deepEqual(
+        glyphWrites,
+        presentations.map(glyphPresentationRecord),
+        'same-character style changes and browser-only glyphs remain distinct',
+    );
+    assert.equal(
+        location.disp_ch,
+        'i',
+        'a null recorder glyph preserves the prior recorder-facing character',
+    );
+    assert.deepEqual(location.disp_glyph, glyphPresentationRecord(
+        presentations.at(-1),
+    ));
 });
 
 test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {

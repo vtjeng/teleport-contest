@@ -237,6 +237,93 @@ function messageAt(text, x, y, state, forceLocation = false) {
     return text;
 }
 
+function sameGlyphPresentation(left, right) {
+    if (!left || !right) return left === right;
+    const scalarFieldsMatch = [
+        'ch',
+        'color',
+        'dec',
+        'attr',
+        'displayCh',
+        'displayColor',
+        'a11yKind',
+        'a11yDescription',
+    ].every((field) => left[field] === right[field]);
+    const leftRgb = left.rgb ?? null;
+    const rightRgb = right.rgb ?? null;
+    return scalarFieldsMatch
+        && (leftRgb === rightRgb
+            || (Array.isArray(leftRgb)
+                && Array.isArray(rightRgb)
+                && leftRgb.length === rightRgb.length
+                && leftRgb.every((channel, index) => (
+                    channel === rightRgb[index]
+                ))));
+}
+
+// C ref: display.c show_glyph(). Capture the accessibility decision while
+// both the old and new logical presentations are still available; scanning
+// the final map later cannot recover an intermediate disguise.
+export function queueGlyphUpdateNotice(
+    x,
+    y,
+    previous,
+    current,
+    previousGnew,
+    state,
+) {
+    const a11y = state.a11y;
+    const program = state.program_state ?? {};
+    if (!a11y?.glyph_updates
+        || a11y.mon_notices_blocked
+        || program.in_docrt
+        || program.gameover
+        || program.in_getlev
+        || program.stopprint
+        || (sameGlyphPresentation(previous, current) && !previousGnew)) {
+        return false;
+    }
+
+    const oldKind = previous?.a11yKind
+        ?? (previous ? 'other' : 'unexplored');
+    const newKind = current?.a11yKind ?? 'other';
+    const eligible = oldKind === 'nothing'
+        || oldKind === 'unexplored'
+        || newKind === 'furniture';
+    if (!eligible
+        || newKind === 'wall'
+        || newKind === 'room'
+        || (a11y.mon_notices && newKind === 'monster')
+        || oldKind === 'monster'
+        || (state.u?.ux === x && state.u?.uy === y)
+        || !current?.a11yDescription) {
+        return false;
+    }
+
+    const notice = {
+        x,
+        y,
+        previous,
+        current,
+        message: messageAt(
+            `${current.a11yDescription}.`,
+            x,
+            y,
+            state,
+            true,
+        ),
+    };
+    (state._glyphUpdateNotices ??= []).push(notice);
+    return true;
+}
+
+export async function emitGlyphUpdateNotices(state, env = {}) {
+    const pline = env.pline ?? ttyPline;
+    const pending = state._glyphUpdateNotices?.splice(0) ?? [];
+    for (const notice of pending) await pline(notice.message, state);
+    return pending.map((notice) => notice.message);
+}
+
 function roomFloodAllows(location) {
     if (!location) return false;
     const typ = location.typ;
@@ -380,7 +467,7 @@ function monsterBaseName(monster, called) {
     return speciesName(monster);
 }
 
-function describeMonster(monster) {
+export function describeMonster(monster) {
     let text = monsterBaseName(monster, true);
     if (monster.misc_worn_check & W_SADDLE) text = `saddled ${text}`;
     if (monster.minvis) text = `invisible ${text}`;

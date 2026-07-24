@@ -191,7 +191,9 @@ import {
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
 import {
+    describeMonster,
     monsterVisible,
+    queueGlyphUpdateNotice,
     sensesMonster,
     sensesMonsterWithoutDetection,
 } from './startup_a11y.js';
@@ -719,6 +721,26 @@ export function hero_glyph_info(state = game) {
     );
 }
 
+function withMonsterAccessibility(
+    glyph,
+    monster,
+    species,
+    disguise = false,
+) {
+    const names = species?.pmnames ?? [];
+    const speciesName = names[monster.female ? 1 : 0]
+        ?? names[2]
+        ?? 'monster';
+    const description = disguise
+        ? speciesName
+        : describeMonster({ ...monster, data: species });
+    Object.defineProperties(glyph, {
+        a11yKind: { value: 'monster' },
+        a11yDescription: { value: description },
+    });
+    return glyph;
+}
+
 function actualMonsterGlyphInfo(monster, state) {
     const symbol = monster.mtame && accessibilityOverridesEnabled(state)
         ? optional_misc_symbol(SYM_PET_OVERRIDE, state)
@@ -730,7 +752,7 @@ function actualMonsterGlyphInfo(monster, state) {
     if (monster.mtame && state.iflags?.wc_hilite_pet) {
         glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE;
     }
-    return glyph;
+    return withMonsterAccessibility(glyph, monster, monster.data);
 }
 
 function displayDraw(random, bound) {
@@ -817,7 +839,7 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
     );
     if (detected && state.iflags?.wc_inverse !== false)
         glyph.attr = ATR_INVERSE;
-    return glyph;
+    return withMonsterAccessibility(glyph, monster, species);
 }
 
 // C ref: display.c display_monster() with sightflags == DETECTED and
@@ -839,11 +861,11 @@ function mimickedMonsterGlyphInfo(monster, state) {
             'mimicked monster display requires the complete monster catalog',
         );
     }
-    return glyphPresentation(
+    return withMonsterAccessibility(glyphPresentation(
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
-    );
+    ), monster, species, true);
 }
 
 function mimicObject(monster) {
@@ -1197,6 +1219,28 @@ export function show_glyph_cell(x, y, glyph) {
     } = glyph;
     const loc = game.level?.at(x, y);
     if (!loc) return;
+    const logicalPresentation = {
+        ch,
+        color,
+        dec: !!decgfx,
+        attr: attr | 0,
+        displayCh,
+        displayColor: displayColor ?? (displayCh ? color : null),
+        a11yKind: glyph.a11yKind ?? null,
+        a11yDescription: glyph.a11yDescription ?? null,
+    };
+    if (glyph.rgb) logicalPresentation.rgb = [...glyph.rgb];
+    queueGlyphUpdateNotice(
+        x,
+        y,
+        loc.disp_glyph ?? null,
+        logicalPresentation,
+        loc.gnew,
+        game,
+    );
+    // C's gbuf retains logical glyph identity even when a UTF-8 customization
+    // deliberately leaves the recorder-facing `ch` cell untouched.
+    loc.disp_glyph = logicalPresentation;
     if (ch !== null) {
         loc.disp_ch = ch;
         loc.disp_color = color;
@@ -1489,9 +1533,15 @@ export function newsym(x, y) {
 
 // ── docrt ──
 export async function docrt() {
-    if (!game.level) return;
-    for (let y = 0; y < ROWNO; y++)
-        for (let x = 1; x < COLNO; x++) newsym(x, y);
+    if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
+    game.program_state ??= {};
+    game.program_state.in_docrt = true;
+    try {
+        for (let y = 0; y < ROWNO; y++)
+            for (let x = 1; x < COLNO; x++) newsym(x, y);
+    } finally {
+        game.program_state.in_docrt = false;
+    }
     // display.c docrt(): the full redraw invalidates the tty status window;
     // the next flush performs bot() before placing the hero cursor.
     game.disp ??= {};
@@ -2769,6 +2819,7 @@ export async function cls() {
                 loc.disp_browser_ch = null;
                 loc.disp_browser_color = null;
                 loc.disp_browser_attr = null;
+                loc.disp_glyph = null;
                 loc.gnew = 0;
             }
         }
