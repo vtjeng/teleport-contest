@@ -99,6 +99,7 @@ import {
     GEM_CLASS,
     GRAPPLING_HOOK,
     ILLOBJ_CLASS,
+    LAST_GENERIC,
     LAST_GLASS_GEM,
     LAST_SPELL,
     LUCKSTONE,
@@ -112,6 +113,7 @@ import {
     SCROLL_CLASS,
     SPBOOK_CLASS,
     STATUE,
+    STRANGE_OBJECT,
     TIN,
     TIN_OPENER,
     TOOL_CLASS,
@@ -191,8 +193,8 @@ import {
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
 import {
-    describeMonster,
     monsterVisible,
+    noteGlyphBufferMutation,
     queueGlyphUpdateNotice,
     sensesMonster,
     sensesMonsterWithoutDetection,
@@ -656,6 +658,7 @@ function terrainCmap(index, color, state, customizationName = null) {
         cmap_symbol(index, state), color, state, customization,
     );
     if (blackAndWhiteTerrainCue(index, state)) glyph.attr = ATR_INVERSE;
+    if (!state.a11y?.glyph_updates) return glyph;
     const kind = index >= S_stone && index <= S_trwall
         ? 'wall'
         : index >= S_room && index <= S_darkroom
@@ -765,22 +768,15 @@ function withMonsterAccessibility(
     glyph,
     monster,
     species,
-    disguise = false,
+    state,
     family = 'monster',
 ) {
-    const names = species?.pmnames ?? [];
-    const speciesName = names[monster.female ? 1 : 0]
-        ?? names[2]
-        ?? 'monster';
-    const description = disguise
-        ? speciesName
-        : describeMonster({ ...monster, data: species });
+    if (!state.a11y?.glyph_updates) return glyph;
     return withAccessibilityMetadata(
         glyph,
         'monster',
         `monster:${family}:${species?.pmidx ?? -1}:${monster.female ? 1 : 0}`,
         { type: 'monster', monster, species },
-        description,
     );
 }
 
@@ -799,7 +795,7 @@ function actualMonsterGlyphInfo(monster, state) {
         glyph,
         monster,
         monster.data,
-        false,
+        state,
         monster.mtame ? 'pet' : 'monster',
     );
 }
@@ -892,7 +888,7 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
         glyph,
         monster,
         species,
-        false,
+        state,
         detected ? 'detected' : 'monster',
     );
 }
@@ -920,7 +916,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
-    ), monster, species, true);
+    ), monster, species, state, 'disguise');
 }
 
 function mimicObject(monster) {
@@ -1036,6 +1032,7 @@ function warningGlyphInfo(monster, state) {
         state,
         glyph_customization(`G_warning${warningLevel}`, state),
     );
+    if (!state.a11y?.glyph_updates) return glyph;
     return withAccessibilityMetadata(
         glyph,
         'warning',
@@ -1094,18 +1091,35 @@ export function object_glyph_info(obj, state = game) {
         && state.iflags?.wc_inverse !== false) {
         glyph.attr = ATR_INVERSE;
     }
-    const identity = generic
+    if (!state.a11y?.glyph_updates) return glyph;
+    // glyph_to_obj() recovers the generic class index from a generic glyph.
+    // Class zero is outside that glyph range, so zeroobj gem/spellbook
+    // disguises encode STRANGE_OBJECT rather than their mappearance.
+    const encodedGeneric = generic
+        && obj.oclass >= ILLOBJ_CLASS
+        && obj.oclass <= LAST_GENERIC;
+    const encodedOtyp = encodedGeneric
+        ? null : generic ? STRANGE_OBJECT : obj.otyp;
+    const semanticType = state.objects?.[encodedOtyp];
+    const identity = encodedGeneric
         ? `object:generic:${obj.oclass}`
-        : obj.otyp === STATUE
+        : encodedOtyp === STATUE
             ? `object:statue:${obj.corpsenm ?? NON_PM}`
-            : obj.otyp === CORPSE
+            : encodedOtyp === CORPSE
                 ? `object:corpse:${obj.corpsenm ?? NON_PM}`
-                : `object:${obj.otyp}`;
+                : `object:${encodedOtyp}`;
     return withAccessibilityMetadata(
         glyph,
         'object',
         identity,
-        { type: 'object', object: obj },
+        {
+            type: 'object',
+            generic: encodedGeneric,
+            otyp: encodedOtyp,
+            oclass: encodedGeneric
+                ? obj.oclass : semanticType?.oc_class ?? obj.oclass,
+            corpsenm: obj.corpsenm,
+        },
     );
 }
 
@@ -1327,6 +1341,7 @@ export function show_glyph_cell(x, y, glyph) {
     loc.disp_browser_color = displayColor ?? (displayCh ? color : null);
     loc.disp_browser_attr = displayCh ? attr | 0 : null;
     loc.gnew = 1;
+    noteGlyphBufferMutation(x, y, game);
     queueGlyphUpdateNotice(
         x,
         y,
@@ -1365,6 +1380,14 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor) remembered.displayColor = glyph.displayColor;
     if (glyph.rgb) remembered.rgb = [...glyph.rgb];
+    for (const field of ['a11yIdentity', 'a11ySubject']) {
+        if (glyph[field] !== undefined) {
+            Object.defineProperty(remembered, field, {
+                configurable: true,
+                value: glyph[field],
+            });
+        }
+    }
     return remembered;
 }
 
@@ -1416,8 +1439,10 @@ export function trap_glyph_info(trap, state = game) {
     const color = TRAP_COLORS[trap.ttyp];
     if (color === undefined)
         throw new RangeError(`trap type ${trap.ttyp} has no display color`);
+    const glyph = terrainCmap(trap_to_defsym(trap.ttyp), color, state);
+    if (!state.a11y?.glyph_updates) return glyph;
     return withAccessibilityMetadata(
-        terrainCmap(trap_to_defsym(trap.ttyp), color, state),
+        glyph,
         'trap',
         `trap:${trap.ttyp}`,
         { type: 'trap', trap, ttyp: trap.ttyp },

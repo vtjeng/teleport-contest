@@ -5,6 +5,8 @@
 
 import {
     BOGUSMONFILE,
+    HALLUC,
+    HALLUC_RES,
     MD_PAD_BOGONS,
     PL_PSIZ,
 } from './const.js';
@@ -18,6 +20,7 @@ import {
     SPECIAL_PM,
 } from './monsters.js';
 import { get_rnd_text } from './random_text.js';
+import { HLIQUIDS } from './random_text_data.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
 
 const GHOST_NAMES = Object.freeze([
@@ -94,7 +97,7 @@ function displayRandomFunction(random) {
     if (typeof random === 'function') return random;
     if (random && typeof random.rn2 === 'function')
         return (bound) => random.rn2(bound);
-    throw new TypeError('rndmonnam random injection requires rn2');
+    throw new TypeError('display random injection requires rn2');
 }
 
 // C ref: do_name.c bogusmon(). Prefix codes affect capitalization and
@@ -143,6 +146,28 @@ export function rndmonnam(env = {}) {
     return species.pmnames?.[gender]
         ?? species.pmnames?.[2]
         ?? 'monster';
+}
+
+// C ref: do_name.c hliquid().  Hallucinatory terrain descriptions share the
+// display RNG with glyph randomization and monster naming.
+export function hliquid(liquidpref, env = {}) {
+    const state = env.state ?? game;
+    const random = displayRandomFunction(
+        env.random ?? rn2_on_display_rng,
+    );
+    const preferred = liquidpref == null ? '' : String(liquidpref);
+    const hallucinating = Boolean(
+        state.u?.uprops?.[HALLUC]?.intrinsic,
+    ) && !Boolean(
+        state.u?.uprops?.[HALLUC_RES]?.intrinsic
+            || state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+    ) && !state.program_state?.gameover;
+    if (hallucinating || !preferred) {
+        const count = HLIQUIDS.length + (preferred ? 1 : 0);
+        const index = random(count);
+        if (index < HLIQUIDS.length) return HLIQUIDS[index];
+    }
+    return preferred;
 }
 
 export const SIR_TERRY_NOVELS = Object.freeze([

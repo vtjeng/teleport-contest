@@ -70,6 +70,9 @@ import {
     VWALL,
     WATER,
     WARNING,
+    WARNCOUNT,
+    W_SADDLE,
+    def_warnsyms,
 } from '../js/const.js';
 import * as symbolExports from '../js/symbols.js';
 import {
@@ -83,6 +86,7 @@ import {
     monster_glyph_info,
     newsym,
     object_glyph_info,
+    random_object_glyph_info,
     remembered_glyph_from_presentation,
     show_glyph_cell,
     terrain_glyph,
@@ -107,6 +111,9 @@ import {
     NON_PM,
     NUMMONS,
     PM_GOBLIN,
+    PM_GARTER_SNAKE,
+    PM_LURKER_ABOVE,
+    PM_ROCK_PIERCER,
     PM_TENGU,
     S_FELINE,
     S_HUMAN,
@@ -128,10 +135,12 @@ import {
     LEATHER_GLOVES,
     LOW_BOOTS,
     NUM_OBJECTS,
+    OBJ_DESCR,
     objects_globals_init,
     POT_BOOZE,
     POTION_CLASS,
     QUARTERSTAFF,
+    SCR_IDENTIFY,
     SMALL_SHIELD,
     SPEAR,
     SPE_FORCE_BOLT,
@@ -140,6 +149,7 @@ import {
     TWO_HANDED_SWORD,
     WEAPON_CLASS,
 } from '../js/objects.js';
+import { HLIQUIDS } from '../js/random_text_data.js';
 import {
     ATR_BOLD,
     ATR_INVERSE,
@@ -180,7 +190,10 @@ import {
     trap_to_defsym,
     sym_val,
 } from '../js/symbols.js';
-import { emitGlyphUpdateNotices } from '../js/startup_a11y.js';
+import {
+    describeMonster,
+    emitGlyphUpdateNotices,
+} from '../js/startup_a11y.js';
 import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
@@ -219,6 +232,16 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     state.viz_array[y] = [];
     state.viz_array[y][x] = 0x2;
     return state;
+}
+
+function enableGlyphNotices(state) {
+    state.a11y = {
+        accessiblemsg: false,
+        glyph_updates: true,
+        mon_notices: false,
+        mon_notices_blocked: 0,
+    };
+    state.program_state = {};
 }
 
 function glyphPresentationRecord(glyph) {
@@ -1912,11 +1935,13 @@ test('protected monster disguises queue their transient glyph update', async () 
     const monster = {
         data: state.mons[PM_TENGU],
         mhp: 10,
-        mtame: 0,
+        mtame: 5,
         minvis: false,
         mundetected: false,
         m_ap_type: M_AP_MONSTER,
         mappearance: PM_GOBLIN,
+        misc_worn_check: W_SADDLE,
+        mextra: { mgivenname: 'Fido' },
         mx: x,
         my: y,
     };
@@ -1941,7 +1966,7 @@ test('protected monster disguises queue their transient glyph update', async () 
             current: notice.current,
         })),
         [{
-            message: '(3south,6east): goblin.',
+            message: '(3south,6east): tame saddled goblin called Fido.',
             current: glyphPresentationRecord(expectedDisguise),
         }],
         'the disguise transition is captured before the real form overwrites it',
@@ -1959,13 +1984,21 @@ test('protected monster disguises queue their transient glyph update', async () 
             emitted.push(message);
         },
     });
-    assert.deepEqual(returned, ['(3south,6east): goblin.']);
+    assert.deepEqual(
+        returned,
+        ['(3south,6east): tame saddled goblin called Fido.'],
+    );
     assert.deepEqual(emitted, returned);
     assert.deepEqual(state._glyphUpdateNotices, []);
     assert.deepEqual(
         glyphPresentationRecord(location.disp_glyph),
         glyphPresentationRecord(expectedReal),
         'the later real form remains buffered after the notice',
+    );
+    assert.equal(
+        location.gnew,
+        1,
+        'the unflushed final form remains dirty after the transient frame',
     );
 });
 
@@ -1990,6 +2023,7 @@ test('glyph updates describe newly revealed objects, traps, and furniture', asyn
         ox: x,
         oy: y,
     };
+    state.level.objects[x][y] = object;
     const cases = [
         [object_glyph_info(object, state), 'a chest.'],
         [trap_glyph_info({ ttyp: PIT }, state), 'pit.'],
@@ -2011,6 +2045,357 @@ test('glyph updates describe newly revealed objects, traps, and furniture', asyn
             pline: async () => {},
         });
     }
+});
+
+test('disabled glyph updates do not decorate ordinary render records', () => {
+    const state = visibleCellState();
+    state.a11y = { glyph_updates: false };
+    init_objects(state, () => 0);
+    const records = [
+        terrain_glyph({ ...state.level.at(7, 4), typ: FOUNTAIN }, 7, 4, state),
+        object_glyph_info({
+            otyp: CHEST,
+            oclass: state.objects[CHEST].oc_class,
+            dknown: true,
+        }, state),
+        monster_glyph_info({
+            data: state.mons[PM_TENGU],
+            mtame: 0,
+            m_ap_type: 0,
+        }, state),
+        trap_glyph_info({ ttyp: PIT }, state),
+    ];
+    for (const record of records) {
+        assert.deepEqual(
+            Object.getOwnPropertyNames(record).filter(
+                (name) => name.startsWith('a11y'),
+            ),
+            [],
+        );
+    }
+});
+
+test('queued glyph notices retain each distinct sparse frame', async () => {
+    const state = visibleCellState();
+    enableGlyphNotices(state);
+    const first = state.level.at(7, 4);
+    const second = state.level.at(8, 4);
+    const fountain = terrain_glyph(
+        { ...first, typ: FOUNTAIN },
+        7,
+        4,
+        state,
+    );
+    const pit = trap_glyph_info({ ttyp: PIT }, state);
+
+    show_glyph_cell(7, 4, fountain);
+    show_glyph_cell(8, 4, pit);
+
+    const frames = [];
+    const messages = await emitGlyphUpdateNotices(state, {
+        pline: async () => {
+            frames.push([
+                first.disp_glyph
+                    ? glyphPresentationRecord(first.disp_glyph) : null,
+                second.disp_glyph
+                    ? glyphPresentationRecord(second.disp_glyph) : null,
+            ]);
+        },
+    });
+    assert.deepEqual(messages, [
+        '(3south,6east): fountain.',
+        '(3south,7east): pit.',
+    ]);
+    assert.deepEqual(frames, [
+        [glyphPresentationRecord(fountain), null],
+        [glyphPresentationRecord(fountain), glyphPresentationRecord(pit)],
+    ]);
+    assert.deepEqual(
+        [first.gnew, second.gnew],
+        [0, 0],
+        'both presentations were flushed by the final source-order notice',
+    );
+});
+
+test('a dirty same-identity furniture rewrite still queues a notice', async () => {
+    const state = visibleCellState();
+    enableGlyphNotices(state);
+    const location = state.level.at(7, 4);
+    const fountain = terrain_glyph(
+        { ...location, typ: FOUNTAIN },
+        7,
+        4,
+        state,
+    );
+
+    show_glyph_cell(7, 4, fountain);
+    assert.equal(location.gnew, 1);
+    show_glyph_cell(7, 4, fountain);
+
+    assert.deepEqual(
+        state._glyphUpdateNotices.map((notice) => notice.message),
+        [
+            '(3south,6east): fountain.',
+            '(3south,6east): fountain.',
+        ],
+    );
+    await emitGlyphUpdateNotices(state, { pline: async () => {} });
+    assert.equal(location.gnew, 0);
+});
+
+test('hallucinated water notices consume hliquid display RNG in order', () => {
+    const state = visibleCellState();
+    enableGlyphNotices(state);
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    const location = state.level.at(7, 4);
+    location.typ = POOL;
+    const pool = terrain_glyph(location, 7, 4, state);
+    const seed = 0x71abn;
+
+    initRng(seed);
+    show_glyph_cell(7, 4, pool);
+    const followingDraw = rn2_on_display_rng(997);
+
+    initRng(seed);
+    const liquidIndex = rn2_on_display_rng(HLIQUIDS.length + 1);
+    const expectedLiquid = HLIQUIDS[liquidIndex] ?? 'water';
+    const expectedFollowingDraw = rn2_on_display_rng(997);
+    assert.equal(
+        state._glyphUpdateNotices[0].message,
+        `(3south,6east): pool of ${expectedLiquid}.`,
+    );
+    assert.equal(followingDraw, expectedFollowingDraw);
+});
+
+test('warning notices preserve ordinary and hallucinated display RNG', () => {
+    for (const hallucinating of [false, true]) {
+        const state = visibleCellState();
+        enableGlyphNotices(state);
+        state.context = { warnlevel: 1 };
+        state.u.uprops = [];
+        state.u.uprops[WARNING] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        state.u.uprops[HALLUC] = {
+            intrinsic: hallucinating ? 1 : 0,
+            extrinsic: 0,
+        };
+        state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+        state.level.monsters[7][4] = {
+            data: state.mons[PM_TENGU],
+            m_lev: 8,
+            mpeaceful: false,
+            minvis: true,
+            mundetected: false,
+            m_ap_type: 0,
+            mx: 7,
+            my: 4,
+        };
+        const seed = 0x2a17n;
+        initRng(seed);
+        newsym(7, 4);
+        const followingDraw = rn2_on_display_rng(997);
+
+        initRng(seed);
+        const warning = hallucinating
+            ? rn2_on_display_rng(WARNCOUNT - 1) + 1 : 2;
+        const expectedFollowingDraw = rn2_on_display_rng(997);
+        assert.equal(
+            state._glyphUpdateNotices[0].message,
+            `(3south,6east): ${def_warnsyms[warning].desc}.`,
+        );
+        assert.equal(followingDraw, expectedFollowingDraw);
+    }
+});
+
+test('hallucinated object notices reconstruct buffered near and far identity', () => {
+    for (const near of [false, true]) {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({
+            x,
+            y,
+            ux: near ? x - 1 : 1,
+            uy: near ? y : 1,
+        });
+        enableGlyphNotices(state);
+        init_objects(state, () => 0);
+        state.u.uprops = [];
+        state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+        state.level.objects[x][y] = {
+            otyp: CHEST,
+            oclass: state.objects[CHEST].oc_class,
+            dknown: true,
+            ox: x,
+            oy: y,
+        };
+        const seed = 1126n; // First display draw selects POT_BOOZE.
+        initRng(seed);
+        const glyph = random_object_glyph_info(state);
+        show_glyph_cell(x, y, glyph);
+        const followingDraw = rn2_on_display_rng(997);
+
+        initRng(seed);
+        assert.equal(
+            FIRST_OBJECT + rn2_on_display_rng(NUM_OBJECTS - FIRST_OBJECT),
+            POT_BOOZE,
+        );
+        const expectedFollowingDraw = rn2_on_display_rng(997);
+        const appearance = OBJ_DESCR(state.objects[POT_BOOZE], state);
+        const description = near
+            ? `${/^[aeiou]/iu.test(appearance) ? 'an' : 'a'} ${
+                appearance
+            } potion`
+            : 'a potion';
+        assert.ok(
+            state._glyphUpdateNotices[0].message.endsWith(`${description}.`),
+        );
+        assert.equal(followingDraw, expectedFollowingDraw);
+    }
+});
+
+test('object-shaped mimic notices name buffered object classes and bodies', () => {
+    const cases = [
+        [POT_BOOZE, null, 'a potion', true],
+        [SCR_IDENTIFY, null, 'a scroll', true],
+        // zeroobj has class zero; obj_to_glyph() therefore encodes these
+        // generic-by-type disguises as STRANGE_OBJECT, not mappearance.
+        [DIAMOND, null, 'a strange object', false],
+        [SPE_FORCE_BOLT, null, 'a strange object', false],
+        [CORPSE, PM_GOBLIN, 'a goblin corpse', false],
+        [STATUE, PM_GOBLIN, 'a statue of a goblin', false],
+    ];
+    for (const near of [false, true]) {
+        for (const [otyp, corpsenm, distant, revealsAppearance] of cases) {
+            const x = 7;
+            const y = 4;
+            const state = visibleCellState({
+                x,
+                y,
+                ux: near ? x - 1 : 1,
+                uy: near ? y : 1,
+            });
+            enableGlyphNotices(state);
+            init_objects(state, () => 0);
+            const monster = {
+                data: state.mons[PM_TENGU],
+                mtame: 0,
+                minvis: false,
+                mundetected: false,
+                m_ap_type: M_AP_OBJECT,
+                mappearance: otyp,
+                mextra: corpsenm == null ? undefined : { mcorpsenm: corpsenm },
+                mx: x,
+                my: y,
+            };
+            state.level.monsters[x][y] = monster;
+            show_glyph_cell(x, y, monster_glyph_info(monster, state));
+            const message = state._glyphUpdateNotices[0].message;
+            if (!near || !revealsAppearance) {
+                assert.ok(
+                    message.endsWith(`${distant}.`),
+                    `${otyp}: ${message}`,
+                );
+            } else {
+                assert.notEqual(
+                    message.endsWith(`${distant}.`),
+                    true,
+                    `adjacent ${otyp} should expose its shuffled appearance`,
+                );
+            }
+        }
+    }
+});
+
+test('protected object mimics describe the buffered zeroobj identity', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    enableGlyphNotices(state);
+    init_objects(state, () => 0);
+    state.u.uprops = [];
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+        intrinsic: 1,
+        extrinsic: 0,
+    };
+    state.level.monsters[x][y] = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        mtame: 0,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: M_AP_OBJECT,
+        mappearance: DIAMOND,
+        mx: x,
+        my: y,
+    };
+
+    newsym(x, y);
+
+    assert.deepEqual(
+        state._glyphUpdateNotices.map((notice) => notice.message),
+        ['(3south,6east): tengu, mimicking a strange object.'],
+    );
+
+    state.level.flags.hero_memory = false;
+    state.level.at(x, y).disp_glyph = null;
+    state.level.at(x, y).remembered_glyph = null;
+    state._glyphUpdateNotices = [];
+    newsym(x, y);
+    assert.deepEqual(
+        state._glyphUpdateNotices.map((notice) => notice.message),
+        ['(3south,6east): tengu, mimicking something.'],
+    );
+});
+
+test('monster look-at descriptions include hidden and region suffixes', () => {
+    const state = visibleCellState({ x: 7, y: 4, ux: 6, uy: 4 });
+    init_objects(state, () => 0);
+    const monster = (species, overrides = {}) => ({
+        data: state.mons[species],
+        mtame: 0,
+        minvis: false,
+        mundetected: true,
+        m_ap_type: 0,
+        mx: 7,
+        my: 4,
+        ...overrides,
+    });
+    assert.match(
+        describeMonster(monster(PM_ROCK_PIERCER), { state }),
+        /, hiding on the ceiling$/u,
+    );
+    assert.match(
+        describeMonster(monster(PM_LURKER_ABOVE), { state }),
+        /, hiding on the ceiling$/u,
+    );
+
+    state.level.objects[7][4] = {
+        otyp: CHEST,
+        oclass: state.objects[CHEST].oc_class,
+        dknown: true,
+        ox: 7,
+        oy: 4,
+    };
+    assert.match(
+        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        /, hiding under a chest$/u,
+    );
+
+    const cloud = create_region();
+    add_rect_to_reg(cloud, { lx: 7, ly: 4, hx: 7, hy: 4 });
+    cloud.visible = true;
+    cloud.glyph = S_poisoncloud;
+    add_region(cloud, state, { deferVisual: true });
+    assert.match(
+        describeMonster(monster(PM_TENGU, { mundetected: false }), { state }),
+        /, in a cloud of poison gas$/u,
+    );
 });
 
 test('glyph update identity ignores pile highlighting', async () => {

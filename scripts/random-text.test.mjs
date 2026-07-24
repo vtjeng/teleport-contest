@@ -3,12 +3,14 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { A_WIS } from '../js/const.js';
+import { A_WIS, HALLUC, HALLUC_RES } from '../js/const.js';
 import { random_engraving } from '../js/random_engraving.js';
 import {
+    HLIQUIDS,
     RANDOM_TEXT_FILES,
     RANDOM_TEXT_FILE_HASHES,
 } from '../js/random_text_data.js';
+import { hliquid } from '../js/do_name.js';
 import {
     get_rnd_line,
     getrumor,
@@ -16,6 +18,7 @@ import {
     xcrypt,
 } from '../js/random_text.js';
 import {
+    buildDoNameTables,
     buildRandomTextFiles,
     renderRandomTextData,
 } from './generate-random-text-data.mjs';
@@ -57,13 +60,15 @@ test('generated random-text data matches the pinned source and byte layout', () 
     }
 
     const generated = buildRandomTextFiles();
+    const tables = buildDoNameTables();
     assert.deepEqual(generated, RANDOM_TEXT_FILES);
+    assert.deepEqual(tables.hliquids, HLIQUIDS);
     assert.equal(
         readFileSync(
             new URL('../js/random_text_data.js', import.meta.url),
             'utf8',
         ),
-        renderRandomTextData(generated),
+        renderRandomTextData(generated, tables),
     );
     assert.deepEqual(RANDOM_TEXT_FILE_HASHES, {
         // These are the exact makedefs outputs used by the C recorder.
@@ -74,6 +79,39 @@ test('generated random-text data matches the pinned source and byte layout', () 
     });
     for (const [filename, data] of Object.entries(RANDOM_TEXT_FILES))
         assert.equal(sha256(data, 'latin1'), RANDOM_TEXT_FILE_HASHES[filename]);
+});
+
+test('hliquid preserves its preferred value or consumes one display draw', () => {
+    const state = {
+        program_state: {},
+        u: { uprops: [] },
+    };
+    state.u.uprops[HALLUC] = { intrinsic: 0 };
+    state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    assert.equal(
+        hliquid('water', { state, random: () => assert.fail('unexpected draw') }),
+        'water',
+    );
+
+    state.u.uprops[HALLUC].intrinsic = 1;
+    const draws = [];
+    assert.equal(
+        hliquid('water', {
+            state,
+            random(bound) {
+                draws.push(bound);
+                return HLIQUIDS.length - 1;
+            },
+        }),
+        HLIQUIDS.at(-1),
+    );
+    assert.deepEqual(draws, [HLIQUIDS.length + 1]);
+
+    state.program_state.gameover = true;
+    assert.equal(
+        hliquid('water', { state, random: () => assert.fail('unexpected draw') }),
+        'water',
+    );
 });
 
 test('rumor header retains the generated section offsets and byte bounds', () => {

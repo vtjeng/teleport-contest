@@ -5,9 +5,11 @@ import {
     BLINDED,
     COLNO,
     COULD_SEE,
+    DB_WEST,
     DETECT_MONSTERS,
     DOOR,
     D_BROKEN,
+    DRAWBRIDGE_UP,
     GPCOORDS_COMPASS,
     GPCOORDS_COMFULL,
     GPCOORDS_MAP,
@@ -166,7 +168,7 @@ test('dolookaround describes the room then scans interesting glyphs by row', () 
         }
     }
 
-    // These positions force y-major ordering: sink, northwest pet, doorway.
+    // These positions force y-major ordering: sink, northwest pet, broken door.
     state.level.at(11, 5).typ = SINK;
     state.level.at(9, 6).typ = DOOR;
     state.level.at(9, 6).flags = D_BROKEN;
@@ -187,8 +189,29 @@ test('dolookaround describes the room then scans interesting glyphs by row', () 
         'You are in a rectangular 7 by 3 room.',
         '(1north,2west): sink.',
         '(northwest): tame little dog.',
-        '(4west): doorway.',
+        '(4west): broken door.',
     ]);
+});
+
+test('look-at recognizes a drawbridge portcullis from its adjacent bridge', () => {
+    const state = startupState();
+    const x = 9;
+    const y = 6;
+    const doorway = state.level.at(x, y);
+    doorway.typ = DOOR;
+    const bridge = state.level.at(x + 1, y);
+    bridge.typ = DRAWBRIDGE_UP;
+    bridge.flags = DB_WEST;
+
+    assert.equal(
+        _startupA11yInternals.terrainDescription(
+            doorway,
+            x,
+            y,
+            state,
+        ),
+        'open drawbridge portcullis',
+    );
 });
 
 test('accessible locations honor every whatis_coord presentation', () => {
