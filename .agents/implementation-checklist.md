@@ -172,15 +172,16 @@ object, and combat module.
    code commit `3d33c40c0862755a1a989223128b649704bd2d75`; tracker commit
    `139027f` records its score evidence.
 2. **C2 — generated monster attack/resistance fields and `mondata.c`
-   predicates.** Planned files:
-   `scripts/generate-monsters.mjs`, generated `js/monsters.js`,
-   `js/mondata.js`, `scripts/monsters.test.mjs`, and
-   `scripts/mondata.test.mjs`.
-3. **C3 — `teleport.c:rloc()` ordinary live-monster relocation.** The shared
-   monster placement/index substrate is already committed. Keep
+   predicates.** Complete in
+   `89db11da70dbb42442a0688e50cf9d681d21a134`.
+3. **C3 — `teleport.c:rloc()` ordinary live-monster relocation.** Complete
+   in `ff24365bd6134a2f46d2b24dd015769f41b35a75`. The shared monster
+   placement/index substrate was already committed. Keep
    `monmove.c:mon_track_add()` for C14 rather than adding it to the instance
    module checkpoint.
-4. **C4 — `track.c` hero and monster tracking.**
+4. **C4 — `track.c:gettrack()` hero-track lookup.** Complete in
+   `a93f4dd2f89f5b1405294886d967e42a1e68c0d0`. Monster-local track updates
+   remain with `monmove.c` in C14.
 5. **C5 — `obj.c` floor/object substrate.**
 6. **C6 — `objnam.c` early naming used by the active consumers.**
 7. **C7 — `mon.c:can_carry()` and monster inventory transfer.**
@@ -221,14 +222,14 @@ object, and combat module.
 
 The second-turn runner, fixture, and integration test remain uncommitted until
 C17. Temporary discovery may continue with `/tmp/scan-second-turn.mjs`; strict
-case lists use `scripts/scan-fresh.mjs`. Broad discovery does not resume until
-the inventory and sequence above are committed.
+case lists use `scripts/scan-fresh.mjs`. Broad discovery remains paused pending
+the named milestone decision recorded above.
 
 ## Missing work by checkpoint owner
 
-1. C2-C8 establish source-owned catalogs, random relocation, tracking, object,
-   naming, carry, and food prerequisites used by active pet, trap, and combat
-   paths; the shared placement/index substrate is already present.
+1. C5-C8 establish the remaining source-owned object, naming, carry, and food
+   prerequisites used by active pet, trap, and combat paths. C2-C4 and the
+   shared placement/index substrate are complete.
 2. C9 resolves families 25-29 without absorbing trap or combat behavior.
 3. C10-C12 resolve the attack, hero-combat, and hurtling seams in families
    28 and 35-37.
@@ -254,9 +255,15 @@ the inventory and sequence above are committed.
   declared generated-data checks pass.
 - No C2 fresh differential is claimed yet; its real consumers close in later
   checkpoints.
-- C3's intended files are exactly `js/teleport.js` and
-  `scripts/teleport.test.mjs`; the uncommitted `mon_track_add()` delta is not
-  part of C3.
+- C3 is committed as `ff24365bd6134a2f46d2b24dd015769f41b35a75`
+  with exactly `js/teleport.js` and `scripts/teleport.test.mjs`. Fourteen
+  focused tests, the 1,349-test full suite, and all six generated-data checks
+  pass. Its extended `rloc_to_core()` seams remain explicit and its live trap
+  consumer closes later.
+- C4 is committed as `a93f4dd2f89f5b1405294886d967e42a1e68c0d0`
+  with exactly `js/track.js` and `scripts/track.test.mjs`. Four focused tests,
+  the 1,349-test full suite, and all six generated-data checks pass. Its live
+  `monmove.c` consumer closes later.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
