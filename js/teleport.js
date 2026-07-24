@@ -37,6 +37,7 @@ import {
     POOL,
     ROWNO,
     STONE,
+    STRAT_APPEARMSG,
     WATER,
     W_NONPASSWALL,
     ZAP_POS,
@@ -50,8 +51,15 @@ import {
     is_dlord,
     is_dprince,
     is_rider,
+    passes_walls,
 } from './mondata.js';
-import { m_at, relocate_monster } from './monst.js';
+import {
+    m_at,
+    mon_track_clear,
+    place_monster,
+    relocate_monster,
+    remove_monster,
+} from './monst.js';
 import {
     G_UNIQ,
     M1_AMORPHOUS,
@@ -70,7 +78,9 @@ import {
 } from './monsters.js';
 import { sobj_at } from './obj.js';
 import { BOULDER, SCR_SCARE_MONSTER } from './objects.js';
-import { rn2 } from './rng.js';
+import { within_bounded_area } from './rect.js';
+import { update_monster_region } from './region.js';
+import { rn2, rnd } from './rng.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -88,10 +98,169 @@ export class UnsupportedPositionCheckError extends Error {
 }
 
 function teleportEnv(env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = env.random ?? { rn2, rnd };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('teleport random injection requires rn2');
     return { ...env, random, state: env.state ?? game };
+}
+
+function teleJumpOk(x1, y1, x2, y2, state) {
+    if (!isok(x2, y2)) return false;
+    for (const bounds of [state.dndest, state.updest]) {
+        if (!(bounds?.nlx > 0)) continue;
+        const wasInside = within_bounded_area(
+            x1,
+            y1,
+            bounds.nlx,
+            bounds.nly,
+            bounds.nhx,
+            bounds.nhy,
+        );
+        const isInside = within_bounded_area(
+            x2,
+            y2,
+            bounds.nlx,
+            bounds.nly,
+            bounds.nhx,
+            bounds.nhy,
+        );
+        if (wasInside !== isInside) return false;
+    }
+    return true;
+}
+
+function rlocPositionOk(x, y, monster, env) {
+    if (!goodpos(x, y, monster, GP_CHECKSCARY, env)) return false;
+    return teleJumpOk(monster.mx, monster.my, x, y, env.state);
+}
+
+function requiredRelocationOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function') {
+        throw new UnsupportedPositionCheckError(
+            `random relocation without ${name}`,
+        );
+    }
+    return operation;
+}
+
+function finishRandomRelocation(monster, x, y, env) {
+    const oldX = monster.mx;
+    const oldY = monster.my;
+    if (x === oldX && y === oldY && m_at(x, y, env.state) === monster)
+        return true;
+
+    // teleport.c rloc_to_core(), bounded ordinary-monster path. Redraw the
+    // emptied square before track clearing, placement, and region-cache
+    // updates; the destination redraw and apparent-position update come last.
+    remove_monster(oldX, oldY, env.state);
+    env.newsym(oldX, oldY, env);
+    mon_track_clear(monster);
+    place_monster(monster, x, y, env.state);
+    update_monster_region(monster, env.state);
+    env.newsym(x, y, env);
+    env.setApparxy(monster, env);
+    return true;
+}
+
+function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('rloc requires a monster');
+    const env = teleportEnv(rawEnv);
+    if (typeof env.random.rnd !== 'function')
+        throw new TypeError('rloc random injection requires rnd');
+    if (rlocflags)
+        throw new UnsupportedPositionCheckError('random relocation flags');
+    if (monster === env.state.u?.usteed) {
+        throw new UnsupportedPositionCheckError(
+            'steed random relocation',
+        );
+    }
+    if (monster.iswiz) {
+        throw new UnsupportedPositionCheckError(
+            'Wizard random relocation',
+        );
+    }
+    if (env.state.iflags?.mon_telecontrol) {
+        throw new UnsupportedPositionCheckError(
+            'controlled random relocation',
+        );
+    }
+    if (!monster.mx)
+        throw new UnsupportedPositionCheckError(
+            'migrating-monster random relocation',
+        );
+    if (!monster.m_id)
+        throw new UnsupportedPositionCheckError(
+            'zero-id live-monster random relocation',
+        );
+    if (monster.isshk || monster.ispriest) {
+        throw new UnsupportedPositionCheckError(
+            'shopkeeper or priest random relocation',
+        );
+    }
+    if (monster.wormno
+        || monster === env.state.u?.ustuck
+        || monster.mtrapped
+        || monster.mundetected
+        || monster.minvent
+        || env.state.occupation
+        || (monster.mstrategy & STRAT_APPEARMSG)) {
+        throw new UnsupportedPositionCheckError(
+            'extended rloc_to_core side effects',
+        );
+    }
+    return {
+        ...env,
+        newsym: requiredRelocationOperation(env, 'newsym'),
+        onscary: requiredRelocationOperation(env, 'onscary'),
+        setApparxy: requiredRelocationOperation(env, 'setApparxy'),
+    };
+}
+
+// C refs: teleport.c rloc() and the ordinary live-monster subset of
+// rloc_to_core(). Random trials and exhaustive fallback shuffling retain their
+// exact source PRNG bounds. Extended placement effects remain explicit seams.
+export function rloc(monster, rlocflags = 0, rawEnv = {}) {
+    const env = preflightOrdinaryRloc(monster, rlocflags, rawEnv);
+
+    // Source makes fifty independent whole-map attempts before its fallback.
+    for (let attempt = 0; attempt < 50; ++attempt) {
+        const x = env.random.rnd(COLNO - 1);
+        const y = env.random.rn2(ROWNO);
+        if (rlocPositionOk(x, y, monster, env))
+            return finishRandomRelocation(monster, x, y, env);
+    }
+
+    let flags = CC_INCL_CENTER | CC_UNSHUFFLED | CC_SKIP_MONS;
+    if (!passes_walls(monster.data)) flags |= CC_SKIP_INACCS;
+    const candidates = collect_coords(
+        Math.trunc(COLNO / 2),
+        Math.trunc(ROWNO / 2),
+        0,
+        flags,
+        null,
+        env,
+    );
+    let backup = null;
+    for (let index = 0; index < candidates.length; ++index) {
+        const offset = env.random.rn2(candidates.length - index);
+        if (offset) {
+            const other = index + offset;
+            [candidates[index], candidates[other]] = [
+                candidates[other],
+                candidates[index],
+            ];
+        }
+        const { x, y } = candidates[index];
+        if (rlocPositionOk(x, y, monster, env))
+            return finishRandomRelocation(monster, x, y, env);
+        if (!backup && goodpos(x, y, monster, 0, env))
+            backup = { x, y };
+    }
+    return backup
+        ? finishRandomRelocation(monster, backup.x, backup.y, env)
+        : false;
 }
 
 function closedDoor(location) {

@@ -38,6 +38,7 @@ import {
     goodpos,
     mnexto,
     noteleport_level,
+    rloc,
 } from '../js/teleport.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
 
@@ -299,6 +300,171 @@ test('mnexto preserves monster identity and list linkage while relocating', () =
         Array.from({ length: 4 }, () => ({ x: 0, y: 0 })),
     );
     assert.equal(draws.bounds.length, 45);
+});
+
+test('rloc keeps random coordinate and relocation side effects in source order',
+    () => {
+        const state = positionState();
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2, // A live monster is required for the coordinate index.
+            mhpmax: 2,
+            m_id: 81, // A nonzero id selects live-monster scary checks.
+        });
+        state.level.at(10, 11).typ = ROOM;
+        state.level.at(12, 9).typ = ROOM;
+        place_monster(monster, 10, 11, state);
+        const calls = [];
+
+        assert.equal(rloc(monster, 0, {
+            state,
+            random: {
+                rnd(bound) {
+                    calls.push(`rnd(${bound})`);
+                    return 12; // Selects the prepared accessible column.
+                },
+                rn2(bound) {
+                    calls.push(`rn2(${bound})`);
+                    return 9; // Selects the prepared accessible row.
+                },
+            },
+            newsym(x, y) {
+                calls.push(`newsym(${x},${y})`);
+                if (x === 10 && y === 11) {
+                    assert.equal(state.level.monsters[x][y], null);
+                    assert.equal(state.level.monsters[12][9], null);
+                } else {
+                    assert.equal(state.level.monsters[x][y], monster);
+                }
+            },
+            onscary: () => false,
+            setApparxy: () => calls.push('set_apparxy'),
+        }), true);
+
+        assert.deepEqual([monster.mx, monster.my], [12, 9]);
+        assert.deepEqual(calls, [
+            'rnd(79)',
+            'rn2(21)',
+            'newsym(10,11)',
+            'newsym(12,9)',
+            'set_apparxy',
+        ]);
+        assert.equal(state.level.monsters[10][11], null);
+        assert.equal(state.level.monsters[12][9], monster);
+    });
+
+test('rloc returns immediately when random selection finds the current square',
+    () => {
+        const state = positionState();
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2, // A live monster is required for rloc_to_core().
+            mhpmax: 2,
+            m_id: 82, // A nonzero id selects live-monster scary checks.
+        });
+        state.level.at(12, 9).typ = ROOM;
+        place_monster(monster, 12, 9, state);
+        const calls = [];
+
+        assert.equal(rloc(monster, 0, {
+            state,
+            random: {
+                rnd(bound) {
+                    calls.push(`rnd(${bound})`);
+                    return 12; // Select the monster's current column.
+                },
+                rn2(bound) {
+                    calls.push(`rn2(${bound})`);
+                    return 9; // Select the monster's current row.
+                },
+            },
+            newsym: () => calls.push('newsym'),
+            onscary: () => false,
+            setApparxy: () => calls.push('set_apparxy'),
+        }), true);
+
+        assert.deepEqual(calls, ['rnd(79)', 'rn2(21)']);
+        assert.equal(state.level.monsters[12][9], monster);
+    });
+
+test('rloc exhausts fifty trials before its unshuffled fallback and backup',
+    () => {
+        const state = positionState();
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2, // A live monster is required for relocation.
+            mhpmax: 2,
+            m_id: 86, // A nonzero id selects the injected onscary operation.
+        });
+        state.level.at(10, 11).typ = ROOM;
+        state.level.at(12, 9).typ = ROOM;
+        place_monster(monster, 10, 11, state);
+        const bounds = [];
+        let scaryCalls = 0;
+
+        assert.equal(rloc(monster, 0, {
+            state,
+            random: {
+                rnd(bound) {
+                    bounds.push(`rnd(${bound})`);
+                    return 1; // All fifty trials select inaccessible stone.
+                },
+                rn2(bound) {
+                    bounds.push(`rn2(${bound})`);
+                    return 0; // Row zero is stone; fallback keeps source order.
+                },
+            },
+            newsym: () => {},
+            onscary() {
+                ++scaryCalls;
+                return true; // Force the sole candidate into backupcc.
+            },
+            setApparxy: () => {},
+        }), true);
+
+        assert.equal(bounds.length, 101);
+        assert.deepEqual(bounds.slice(0, 4), [
+            'rnd(79)', 'rn2(21)', 'rnd(79)', 'rn2(21)',
+        ]);
+        assert.deepEqual(bounds.slice(-3), [
+            'rnd(79)', 'rn2(21)', 'rn2(1)',
+        ]);
+        // goodpos() checks scary squares before its final accessibility test:
+        // once per failed random trial, then once for the fallback candidate.
+        assert.equal(scaryCalls, 51);
+        assert.deepEqual([monster.mx, monster.my], [12, 9]);
+    });
+
+test('rloc preflights live relocation operations before its first draw', () => {
+    const state = positionState();
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 2, // A live monster is required for relocation.
+        mhpmax: 2,
+        m_id: 87, // A nonzero id selects live-monster scary checks.
+    });
+    state.level.at(10, 11).typ = ROOM;
+    place_monster(monster, 10, 11, state);
+    let draws = 0;
+
+    assert.throws(() => rloc(monster, 0, {
+        state,
+        random: {
+            rnd() {
+                ++draws;
+                return 12;
+            },
+            rn2() {
+                ++draws;
+                return 9;
+            },
+        },
+        // Omit newsym to exercise atomic dependency validation.
+        onscary: () => false,
+        setApparxy: () => {},
+    }), /random relocation without newsym/u);
+    assert.equal(draws, 0);
+    assert.equal(state.level.monsters[10][11], monster);
 });
 
 test('mnexto refreshes every gas-region monster membership after relocation', () => {
