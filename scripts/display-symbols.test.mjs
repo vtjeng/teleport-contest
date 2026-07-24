@@ -81,6 +81,7 @@ import {
     monster_glyph_info,
     newsym,
     object_glyph_info,
+    remembered_glyph_from_presentation,
     show_glyph_cell,
     terrain_glyph,
     weapon_status,
@@ -118,9 +119,11 @@ import {
     CROSSBOW_BOLT,
     DIAMOND,
     FEDORA,
+    FIRST_OBJECT,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LOW_BOOTS,
+    NUM_OBJECTS,
     objects_globals_init,
     POT_BOOZE,
     POTION_CLASS,
@@ -1017,6 +1020,224 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
     });
 });
 
+test('hallucinated object underlays preserve map_object RNG and memory order', () => {
+    const cases = [
+        {
+            label: 'ordinary floor object',
+            originalType: ARROW,
+            seed: 2026072400,
+            statue: false,
+            dknown: true,
+        },
+        {
+            label: 'corpse result',
+            originalType: CORPSE,
+            seed: 2026073840,
+            statue: false,
+            dknown: true,
+        },
+        {
+            label: 'unidentified potion remains unobserved',
+            originalType: POT_BOOZE,
+            seed: 2026072402,
+            statue: false,
+            dknown: false,
+        },
+        {
+            label: 'statue with separate memory',
+            originalType: STATUE,
+            seed: 2026072400,
+            statue: true,
+            dknown: true,
+            heroMemory: true,
+        },
+        {
+            label: 'statue without memory draw',
+            originalType: STATUE,
+            seed: 2026072401,
+            statue: true,
+            dknown: true,
+            heroMemory: false,
+        },
+    ];
+    for (const {
+        label,
+        originalType,
+        seed,
+        statue,
+        dknown,
+        heroMemory = true,
+    } of cases) {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        state.u.uprops = [];
+        state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        state.level.flags.hero_memory = heroMemory;
+        const floorObject = {
+            otyp: originalType,
+            oclass: state.objects[originalType].oc_class,
+            corpsenm: PM_TENGU,
+            dknown,
+            where: OBJ_FLOOR,
+            ox: x,
+            oy: y,
+            nexthere: null,
+        };
+        state.level.objects[x][y] = floorObject;
+        const monster = {
+            data: state.mons[PM_TENGU],
+            mhp: 10,
+            mtame: 0,
+            minvis: false,
+            mundetected: false,
+            m_ap_type: 0,
+            mx: x,
+            my: y,
+        };
+        state.level.monsters[x][y] = monster;
+
+        initRng(seed);
+        if (statue) {
+            rn2_on_display_rng(NUMMONS);
+            rn2_on_display_rng(2);
+        }
+        let randomType = NON_PM;
+        let randomBody = NON_PM;
+        if (!statue || heroMemory) {
+            randomType = FIRST_OBJECT + rn2_on_display_rng(
+                NUM_OBJECTS - FIRST_OBJECT,
+            );
+            if (randomType === CORPSE)
+                randomBody = rn2_on_display_rng(NUMMONS);
+        }
+        const randomMonster = rn2_on_display_rng(NUMMONS);
+        const followingDraw = rn2_on_display_rng(NUMMONS);
+        initRng(seed);
+
+        state.u.uprops[HALLUC].intrinsic = 0;
+        const expectedObject = heroMemory
+            ? object_glyph_info({
+                otyp: randomType,
+                oclass: state.objects[randomType].oc_class,
+                corpsenm: randomBody,
+                dknown: true,
+            }, state)
+            : null;
+        const expectedMonster = monster_glyph_info({
+            ...monster,
+            data: state.mons[randomMonster],
+        }, state);
+        state.u.uprops[HALLUC].intrinsic = 1;
+
+        newsym(x, y);
+
+        const location = state.level.at(x, y);
+        assert.deepEqual(
+            [
+                location.disp_ch,
+                location.disp_color,
+                location.disp_attr,
+            ],
+            [
+                expectedMonster.ch,
+                expectedMonster.color,
+                expectedMonster.attr ?? 0,
+            ],
+            `${label}: displayed monster`,
+        );
+        if (heroMemory) {
+            assert.deepEqual(
+                location.remembered_glyph,
+                remembered_glyph_from_presentation(expectedObject),
+                `${label}: remembered object`,
+            );
+        } else {
+            assert.equal(location.remembered_glyph, undefined, label);
+        }
+        if (!dknown) {
+            assert.equal(floorObject.dknown, false, label);
+            assert.equal(
+                state.objects[originalType].oc_encountered,
+                0,
+                label,
+            );
+        }
+        assert.equal(
+            rn2_on_display_rng(NUMMONS),
+            followingDraw,
+            `${label}: display RNG tail`,
+        );
+    }
+});
+
+test('hallucinated sensed object mimics map disguise before real form', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+    const monster = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        mtame: 0,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: M_AP_OBJECT,
+        mappearance: CHEST,
+        mx: x,
+        my: y,
+    };
+    state.level.monsters[x][y] = monster;
+
+    const seed = 2026072400;
+    initRng(seed);
+    const randomType = FIRST_OBJECT + rn2_on_display_rng(
+        NUM_OBJECTS - FIRST_OBJECT,
+    );
+    const randomBody = randomType === CORPSE
+        ? rn2_on_display_rng(NUMMONS) : NON_PM;
+    const randomMonster = rn2_on_display_rng(NUMMONS);
+    const followingDraw = rn2_on_display_rng(NUMMONS);
+    initRng(seed);
+
+    state.u.uprops[HALLUC].intrinsic = 0;
+    const expectedDisguise = object_glyph_info({
+        otyp: randomType,
+        oclass: state.objects[randomType].oc_class,
+        corpsenm: randomBody,
+        dknown: true,
+    }, state);
+    const expectedMonster = monster_glyph_info({
+        ...monster,
+        data: state.mons[randomMonster],
+        m_ap_type: 0,
+    }, state);
+    state.u.uprops[HALLUC].intrinsic = 1;
+
+    newsym(x, y);
+
+    const location = state.level.at(x, y);
+    assert.deepEqual(
+        [
+            location.disp_ch,
+            location.disp_color,
+            location.disp_attr,
+        ],
+        [
+            expectedMonster.ch,
+            expectedMonster.color,
+            expectedMonster.attr ?? 0,
+        ],
+    );
+    assert.deepEqual(
+        location.remembered_glyph,
+        remembered_glyph_from_presentation(expectedDisguise),
+    );
+    assert.equal(rn2_on_display_rng(NUMMONS), followingDraw);
+});
+
 test('newsym maps a visible object mimic as its remembered chest', () => {
     const state = resetGame();
     const x = 7;
@@ -1410,24 +1631,26 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
 
 test('detected monsters preserve tame and hallucination display-RNG rules', () => {
     const cases = [
-        { tame: false, hallucinating: false },
-        { tame: true, hallucinating: false },
-        { tame: false, hallucinating: true },
-        { tame: true, hallucinating: true },
+        { tame: false, hallucination: null },
+        { tame: true, hallucination: null },
+        { tame: false, hallucination: 'intrinsic' },
+        { tame: true, hallucination: 'intrinsic' },
         {
             tame: false,
-            hallucinating: true,
+            hallucination: 'intrinsic',
             resistance: 'intrinsic',
         },
         {
             tame: true,
-            hallucinating: true,
+            hallucination: 'intrinsic',
             resistance: 'extrinsic',
         },
+        { tame: false, hallucination: 'extrinsic' },
+        { tame: true, hallucination: 'extrinsic' },
     ];
     for (const [
         caseIndex,
-        { tame, hallucinating, resistance },
+        { tame, hallucination, resistance },
     ] of cases.entries()) {
         const x = 7;
         const y = 4;
@@ -1438,8 +1661,12 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
         state.iflags.wc2_petattr = ATR_UNDERLINE;
         state.u.uprops = [];
         state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
-        if (hallucinating)
-            state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        if (hallucination) {
+            state.u.uprops[HALLUC] = {
+                intrinsic: hallucination === 'intrinsic' ? 1 : 0,
+                extrinsic: hallucination === 'extrinsic' ? 1 : 0,
+            };
+        }
         if (resistance) {
             state.u.uprops[HALLUC_RES] = {
                 intrinsic: resistance === 'intrinsic' ? 1 : 0,
@@ -1468,7 +1695,8 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
 
         newsym(x, y);
 
-        const effectiveHallucination = hallucinating && !resistance;
+        const effectiveHallucination = hallucination === 'intrinsic'
+            && !resistance;
         const expectedMonster = effectiveHallucination
             ? {
                 ...monster,
@@ -1483,7 +1711,7 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
             state.u.uprops[HALLUC].intrinsic = 1;
         const expectedAttr = tame && !effectiveHallucination
             ? ATR_UNDERLINE : ATR_INVERSE;
-        const label = `tame=${tame}, hallucinating=${hallucinating}, `
+        const label = `tame=${tame}, hallucination=${hallucination ?? 'none'}, `
             + `resistance=${resistance ?? 'none'}`;
         assert.deepEqual(
             [
@@ -1500,6 +1728,34 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
             `display RNG order for ${label}`,
         );
     }
+});
+
+test('monster_glyph_info directly owns one hallucinated species draw', () => {
+    const state = visibleCellState();
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    const monster = {
+        data: state.mons[PM_TENGU],
+        mtame: 0,
+        m_ap_type: 0,
+    };
+    const seed = 2026072407;
+    initRng(seed);
+    const randomMonster = rn2_on_display_rng(NUMMONS);
+    const followingDraw = rn2_on_display_rng(NUMMONS);
+    initRng(seed);
+
+    const glyph = monster_glyph_info(monster, state);
+
+    state.u.uprops[HALLUC].intrinsic = 0;
+    const expected = monster_glyph_info({
+        ...monster,
+        data: state.mons[randomMonster],
+    }, state);
+    state.u.uprops[HALLUC].intrinsic = 1;
+    assert.deepEqual(glyph, expected);
+    assert.equal(glyph.attr, undefined);
+    assert.equal(rn2_on_display_rng(NUMMONS), followingDraw);
 });
 
 test('physical sight owns hallucinated monster presentation over detection', () => {

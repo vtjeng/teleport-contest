@@ -89,6 +89,7 @@ import {
     EGG,
     ELVEN_LEATHER_HELM,
     FEDORA,
+    FIRST_OBJECT,
     FIRST_REAL_GEM,
     FIRST_SPELL,
     FLINT,
@@ -99,6 +100,7 @@ import {
     LAST_GLASS_GEM,
     LAST_SPELL,
     LUCKSTONE,
+    NUM_OBJECTS,
     OBJ_NAME,
     POTION_CLASS,
     RIN_PROTECTION,
@@ -729,12 +731,66 @@ function actualMonsterGlyphInfo(monster, state) {
     return glyph;
 }
 
+function displayDraw(random, bound) {
+    const result = random(bound);
+    if (!Number.isInteger(result) || result < 0 || result >= bound) {
+        throw new RangeError(
+            `display RNG returned ${result} outside 0..${bound - 1}`,
+        );
+    }
+    return result;
+}
+
+export function random_object_glyph_info(
+    state = game,
+    displayRandom = rn2_on_display_rng,
+) {
+    // display.h random_obj_to_glyph(): ordinary random objects retain their
+    // concrete object glyph, while a random corpse draws its displayed body.
+    const randomType = FIRST_OBJECT + displayDraw(
+        displayRandom,
+        NUM_OBJECTS - FIRST_OBJECT,
+    );
+    const type = state.objects?.[randomType];
+    if (!type) {
+        throw new Error(
+            'random object display requires the complete object catalog',
+        );
+    }
+    const randomObject = {
+        otyp: randomType,
+        oclass: type.oc_class,
+        dknown: true,
+    };
+    if (randomType === CORPSE)
+        randomObject.corpsenm = displayDraw(displayRandom, NUMMONS);
+    return object_glyph_info(randomObject, state);
+}
+
 function heroHallucinating(state) {
     // youprop.h Hallucination: the property is solely an intrinsic timeout,
     // and either intrinsic or extrinsic resistance suppresses it.
     return Boolean(state.u)
         && _propertyIntrinsic(state.u, HALLUC)
         && !_propertyActive(state.u, HALLUC_RES);
+}
+
+export function hallucinated_statue_glyph_info(
+    state = game,
+    displayRandom = rn2_on_display_rng,
+) {
+    // display.h statue_to_glyph(): the random species choice precedes the
+    // gender draw. The current renderer has one class glyph for both genders,
+    // but the second call remains part of the observable display-RNG stream.
+    const species = state.mons?.[displayDraw(displayRandom, NUMMONS)];
+    if (!species) {
+        throw new Error(
+            'hallucinated statue display requires the complete monster catalog',
+        );
+    }
+    const shown = actualMonsterGlyphInfo({ data: species, mtame: 0 }, state);
+    displayDraw(displayRandom, 2);
+    return shown;
 }
 
 // C ref: display.c display_monster()'s final pet/detected/ordinary branch.
@@ -767,6 +823,22 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
 // their pet presentation unless hallucination defeats that source exception.
 function detectedMonsterGlyphInfo(monster, state) {
     return presentedMonsterGlyphInfo(monster, state, true);
+}
+
+function mimicObject(monster) {
+    const storedCorpsenm = monster.mextra?.mcorpsenm;
+    return {
+        // display.c display_monster() initializes this temporary object from
+        // zeroobj, so its class intentionally remains zero.
+        otyp: monster.mappearance,
+        oclass: 0,
+        corpsenm: Number.isInteger(storedCorpsenm)
+            && storedCorpsenm !== NON_PM
+            ? storedCorpsenm : PM_TENGU,
+        dknown: false,
+        ox: monster.mx,
+        oy: monster.my,
+    };
 }
 
 export function monster_glyph_info(monster, state = game) {
@@ -827,28 +899,10 @@ export function monster_glyph_info(monster, state = game) {
         }
     }
     if (appearanceType === M_AP_OBJECT) {
-        const storedCorpsenm = monster.mextra?.mcorpsenm;
-        // C ref: display.c display_monster().  The temporary object starts
-        // from zeroobj, so its class remains zero even though normal object
-        // glyphs still derive their class from otyp.  That distinction is
-        // visible for distant gems and spellbooks, and makes fake potions
-        // concrete rather than generic.  display_monster() deliberately uses
-        // PM_TENGU as a valid species placeholder when the mimic has no
-        // mcorpsenm; corpse color and statue symbols can observe that field.
-        const fakeObject = {
-            otyp: monster.mappearance,
-            oclass: 0,
-            corpsenm: Number.isInteger(storedCorpsenm)
-                && storedCorpsenm !== NON_PM
-                ? storedCorpsenm : PM_TENGU,
-            dknown: false,
-            ox: monster.mx,
-            oy: monster.my,
-        };
         // map_object() observes only glyph_is_generic_object().  Class zero
         // is deliberately outside that glyph range, so even a nearby fake
         // gem or spellbook remains unobserved.
-        return object_glyph_info(fakeObject, state);
+        return object_glyph_info(mimicObject(monster), state);
     }
     return presentedMonsterGlyphInfo(monster, state, false);
 }
@@ -932,6 +986,26 @@ export function object_glyph_info(obj, state = game) {
         glyph.attr = ATR_INVERSE;
     }
     return glyph;
+}
+
+// C ref: display.c map_object(). Return the transient presentation separately
+// from levl[x][y].glyph because hallucinated statues use a random monster on
+// screen but a separately drawn random object in map memory.
+function mappedObjectGlyphInfo(obj, state) {
+    if (!heroHallucinating(state)) {
+        const glyph = object_glyph_info(obj, state);
+        return { shown: glyph, remembered: glyph };
+    }
+
+    if (obj.otyp !== STATUE) {
+        const glyph = random_object_glyph_info(state);
+        return { shown: glyph, remembered: glyph };
+    }
+
+    const shown = hallucinated_statue_glyph_info(state);
+    const remembered = state.level?.flags?.hero_memory
+        ? random_object_glyph_info(state) : shown;
+    return { shown, remembered };
 }
 
 // ── Terrain to display character + color + DEC flag ──
@@ -1190,7 +1264,9 @@ export function trap_glyph_info(trap, state = game) {
 }
 
 function observeNearbyObject(object, x, y, state) {
-    if (!object_is_generic(object) || !cansee(x, y, state)) return;
+    if (heroHallucinating(state)
+        || !object_is_generic(object)
+        || !cansee(x, y, state)) return;
     const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;
     const nearDistance = radius * radius * 2 - radius;
     if (dist2(x, y, state.u?.ux ?? 0, state.u?.uy ?? 0) <= nearDistance)
@@ -1266,12 +1342,24 @@ export function newsym(x, y) {
         ? null : game.level?.objects?.[x]?.[y] ?? null;
     if (object) observeNearbyObject(object, x, y, game);
     const trap = covered ? null : t_at(x, y, game);
+    const mapsLocation = visible
+        || (game.u?.ux === x && game.u?.uy === y);
     let underlying;
-    if (object) underlying = object_glyph_info(object, game);
-    else if (trap?.tseen) underlying = trap_glyph_info(trap, game);
-    else {
+    let rememberedUnderlying;
+    if (object && mapsLocation) {
+        const mapped = mappedObjectGlyphInfo(object, game);
+        underlying = mapped.shown;
+        rememberedUnderlying = mapped.remembered;
+    } else if (object) {
+        // Out-of-sight non-hero cells retain existing memory without invoking
+        // map_object() or consuming its Hallucination display draws.
+        underlying = rememberedUnderlying = object_glyph_info(object, game);
+    } else if (trap?.tseen) {
+        underlying = rememberedUnderlying = trap_glyph_info(trap, game);
+    } else {
         underlying = engravingGlyph(engraving, loc, game)
             ?? terrain_glyph(loc, x, y);
+        rememberedUnderlying = underlying;
     }
 
     if (game.u?.ux === x && game.u?.uy === y) {
@@ -1279,7 +1367,7 @@ export function newsym(x, y) {
         show_glyph_cell(x, y, hero);
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph = remembered_glyph_from_presentation(
-                underlying,
+                rememberedUnderlying,
                 object ? null : trap?.tseen ? trap : null,
             );
         return;
@@ -1290,6 +1378,25 @@ export function newsym(x, y) {
         const shouldDisplayMonster = Boolean(
             monster && (monsterDirectlyVisible || monsterSensed),
         );
+        // PHYSICALLY_SEEN mimicry maps the disguise before any sensed real
+        // monster presentation. Object disguises therefore own their complete
+        // map_object() draw sequence at this point.
+        const physicallySeenMimic = shouldDisplayMonster && !detectedOnly
+            && [M_AP_FURNITURE, M_AP_OBJECT].includes(
+                monster.m_ap_type & M_AP_TYPMASK,
+            );
+        let mappedMimic = null;
+        if (physicallySeenMimic) {
+            if ((monster.m_ap_type & M_AP_TYPMASK) === M_AP_OBJECT)
+                mappedMimic = mappedObjectGlyphInfo(
+                    mimicObject(monster),
+                    game,
+                );
+            else {
+                const glyph = monster_glyph_info(monster, game);
+                mappedMimic = { shown: glyph, remembered: glyph };
+            }
+        }
         // display_monster() exposes a mimic's real monster glyph when sensing
         // defeats its appearance. Detect-only sensing uses the detected glyph
         // family; physical sight alone shows the disguise.
@@ -1298,16 +1405,13 @@ export function newsym(x, y) {
                 ? detectedMonsterGlyphInfo(monster, game)
                 : monsterSensed
                     ? presentedMonsterGlyphInfo(monster, game, false)
-                    : monster_glyph_info(monster, game))
+                    : mappedMimic?.shown
+                        ?? monster_glyph_info(monster, game))
             : monsterWarning ? warningGlyphInfo(monster, game) : underlying;
         // A PHYSICALLY_SEEN mimic maps its disguise into persistent memory
         // before sensing reveals the real monster. DETECTED skips that step.
-        const physicallySeenMimic = shouldDisplayMonster && !detectedOnly
-            && [M_AP_FURNITURE, M_AP_OBJECT].includes(
-                monster.m_ap_type & M_AP_TYPMASK,
-            );
         const remembered = physicallySeenMimic
-            ? monster_glyph_info(monster, game) : underlying;
+            ? mappedMimic.remembered : rememberedUnderlying;
         if (game.level?.flags?.hero_memory) {
             loc.remembered_glyph = remembered_glyph_from_presentation(
                 remembered,

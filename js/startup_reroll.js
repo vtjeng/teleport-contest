@@ -20,8 +20,9 @@ import {
     docrt,
     flush_screen,
     get_strength_str as strengthText,
-    monster_glyph_info,
+    hallucinated_statue_glyph_info,
     object_glyph_info,
+    random_object_glyph_info,
 } from './display.js';
 import {
     TIN_VARIETIES,
@@ -55,32 +56,6 @@ function hallucinating(state) {
         && !propertyActive(state, HALLUC_RES);
 }
 
-function displayDraw(random, bound) {
-    const result = random(bound);
-    if (!Number.isInteger(result) || result < 0 || result >= bound) {
-        throw new RangeError(
-            `display RNG returned ${result} outside 0..${bound - 1}`,
-        );
-    }
-    return result;
-}
-
-function postHallucinationPresentationState(state) {
-    // rerollObjectGlyphInfo() has already performed what_mon()'s display-RNG
-    // draw.  Present that chosen species through the ordinary glyph helper
-    // without letting it perform the same Hallucination choice a second time.
-    const uprops = [...(state.u?.uprops ?? [])];
-    uprops[HALLUC] = {
-        ...(uprops[HALLUC] ?? {}),
-        intrinsic: 0,
-        extrinsic: 0,
-    };
-    return {
-        ...state,
-        u: { ...state.u, uprops },
-    };
-}
-
 // C ref: display.h obj_to_glyph(). The TTY does not print these glyphs for
 // reroll rows (their identifiers are zero), but it still computes them and
 // therefore consumes the display RNG while hallucinating.
@@ -92,30 +67,10 @@ function rerollObjectGlyphInfo(
     if (typeof displayRandom !== 'function')
         throw new TypeError('reroll displayRandom must be a function');
 
-    if (obj.otyp === O.STATUE && hallucinating(state)) {
-        const monster = displayDraw(displayRandom, M.NUMMONS);
-        displayDraw(displayRandom, 2); // statue_to_glyph() chooses a gender.
-        return monster_glyph_info(
-            { data: state.mons[monster] },
-            postHallucinationPresentationState(state),
-        );
-    }
+    if (obj.otyp === O.STATUE && hallucinating(state))
+        return hallucinated_statue_glyph_info(state, displayRandom);
     if (!hallucinating(state)) return object_glyph_info(obj, state);
-
-    const randomType = O.FIRST_OBJECT + displayDraw(
-        displayRandom,
-        O.NUM_OBJECTS - O.FIRST_OBJECT,
-    );
-    const randomObject = {
-        otyp: randomType,
-        oclass: state.objects[randomType].oc_class,
-        dknown: true,
-        corpsenm: NON_PM,
-    };
-    if (randomType === O.CORPSE) {
-        randomObject.corpsenm = displayDraw(displayRandom, M.NUMMONS);
-    }
-    return object_glyph_info(randomObject, state);
+    return random_object_glyph_info(state, displayRandom);
 }
 
 function objectActualName(obj, state) {

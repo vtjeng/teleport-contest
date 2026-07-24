@@ -10,6 +10,7 @@ import {
     TOPLINE_NON_EMPTY,
 } from '../js/const.js';
 import { init_dungeons } from '../js/dungeon.js';
+import { monster_glyph_info } from '../js/display.js';
 import { initoptions_finish } from '../js/fruit.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -320,8 +321,9 @@ test('reroll glyph calculation consumes only display draws for hallucination', (
     assert.equal(glyph.ch, '%');
 
     calls.length = 0;
-    const statueResults = [M.PM_NEWT, 1];
-    rerollObjectGlyphInfo(
+    const selectedSpecies = M.PM_TENGU;
+    const statueResults = [selectedSpecies, 1];
+    const statueGlyph = rerollObjectGlyphInfo(
         object(state, O.STATUE, { corpsenm: M.PM_NEWT }),
         state,
         (bound) => {
@@ -329,6 +331,16 @@ test('reroll glyph calculation consumes only display draws for hallucination', (
             return statueResults.shift();
         },
     );
+    state.u.uprops[HALLUC].intrinsic = 0;
+    const selectedGlyph = monster_glyph_info({
+        data: state.mons[selectedSpecies],
+    }, state);
+    const originalGlyph = monster_glyph_info({
+        data: state.mons[M.PM_NEWT],
+    }, state);
+    state.u.uprops[HALLUC].intrinsic = 1;
+    assert.deepEqual(statueGlyph, selectedGlyph);
+    assert.notDeepEqual(statueGlyph, originalGlyph);
     assert.deepEqual(calls, [M.NUMMONS, 2]);
     assert.equal(state.u.uprops[HALLUC].intrinsic, 1);
 });
