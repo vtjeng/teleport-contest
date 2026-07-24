@@ -192,9 +192,10 @@ object, and combat module.
 7. **C7 — monster carrying and inventory transfer.**
    - **C7a — `mon.c:can_carry()`.** Complete in
      `3e1276beb2ca163890be7b27ead110d91d714799`.
-   - **C7b — `steal.c:mpickobj()` transfer.** Keep bill, light, knowledge,
-     carrying-effect, merge, and ownership order in a separate source-owned
-     commit before the pet pickup consumer closes.
+   - **C7b — `steal.c:mpickobj()` transfer.** Complete in
+     `303677046a65e6ffdac2a5bbc18caa5908d15755`. Bill, light, knowledge,
+     carrying-effect, merge, and ownership order now share the source-owned
+     transfer. The live pet pickup consumer still closes in C9.
 8. **C8 — `dog.c:dogfood()` and its source-required food predicates.**
 9. **C9 — `dogmove.c` in three bounded commits:** goals/reachability;
    inventory/eating; active movement. Combat and trap effects remain calls to
@@ -295,8 +296,18 @@ the named milestone decision recorded above.
   dog-movement and touch-safety tests, the canonical 1,368-test full suite, and
   all six generated-data checks pass. The production diff is 68 changed lines.
   The quality gate is clear and the monster area is advisory at four commits
-  and 431 lines. C7b remains with `steal.c`; no fresh differential is claimed
-  until that transfer and its live pet consumer commit.
+  and 431 lines.
+- C7b is committed as `303677046a65e6ffdac2a5bbc18caa5908d15755`
+  with exactly `QUALITY.json`, `js/invent.js`, `js/light.js`, `js/obj.js`,
+  `js/sp_lev_object.js`, `js/steal.js`, and `scripts/steal.test.mjs`.
+  Ten focused pickup tests and the affected inventory, object-lifecycle,
+  special-level, light, and burning suites pass. The exact staged full suite
+  passes 1,346/1,346, the broader implementation worktree passes 1,378/1,378,
+  and all six generated-data checks pass. The production diff is 350 changed
+  lines. The quality gate is clear; objects are advisory at five commits and
+  979 lines, and world-effects at three commits and 142 lines. The
+  special-level loader is a real consumer; no fresh second-turn differential
+  is claimed until C9 connects the live pet pickup consumer.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
