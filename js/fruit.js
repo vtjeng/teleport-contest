@@ -80,6 +80,12 @@ const NO_MAN = Object.freeze([
     'ya', 'o', 'a',
 ]);
 
+const CH_K_SOUND = Object.freeze([
+    'monarch', 'poch', 'tech', 'mech', 'stomach', 'psych', 'amphibrach',
+    'anarch', 'atriarch', 'azedarach', 'broch', 'gastrotrich', 'isopach',
+    'loch', 'oligarch', 'peritrich', 'sandarach', 'sumach', 'symposiarch',
+]);
+
 function asciiSpace(byte) {
     return byte === 0x20;
 }
@@ -237,6 +243,144 @@ function singularLookup(value) {
         }
     }
     return { matched: false, value };
+}
+
+function appendCase(value, suffix) {
+    return value + caseCopy('', suffix, value.at(-1));
+}
+
+function pluralLookup(value) {
+    for (const suffix of AS_IS) {
+        if (endsWithCI(value, suffix)) return { matched: true, value };
+    }
+    for (const suffix of ['ae', 'eaux', 'matzot']) {
+        if (endsWithCI(value, suffix)) return { matched: true, value };
+    }
+    if (value.length > 5 && endsWithCI(value, 'craft'))
+        return { matched: true, value };
+    if (equalsCI(value, 'slice') || equalsCI(value, 'mongoose')) {
+        return { matched: true, value: appendCase(value, 's') };
+    }
+    if (value.length > 2 && endsWithCI(value, 'ox')
+        && !(value.length > 5 && endsWithCI(value, 'muskox'))) {
+        return { matched: true, value: appendCase(value, 'es') };
+    }
+    if (value.length > 2 && endsWithCI(value, 'man')
+        && badman(value, true)) {
+        return { matched: true, value: appendCase(value, 's') };
+    }
+
+    for (const [singular, plural] of ONE_OFF) {
+        if (endsWithCI(value, plural)) return { matched: true, value };
+        if (endsWithCI(value, singular)) {
+            return {
+                matched: true,
+                value: replaceSuffixCase(value, singular.length, plural),
+            };
+        }
+    }
+    return { matched: false, value };
+}
+
+function chKsound(value) {
+    return value.length >= 4
+        && CH_K_SOUND.some((suffix) => endsWithCI(value, suffix));
+}
+
+// C ref: objnam.c makeplural(). Object names use this after any compound
+// suffix has been separated, so "potion of healing" becomes "potions of
+// healing" rather than "potion of healings".
+export function makeplural(oldstr) {
+    const original = String(oldstr ?? '').replace(/^ +/u, '');
+    if (!original) return 's';
+
+    const pronouns = new Map([
+        ['he', 'they'],
+        ['she', 'they'],
+        ['it', 'they'],
+        ['him', 'them'],
+        ['her', 'them'],
+        ['his', 'their'],
+        ['hers', 'their'],
+        ['its', 'their'],
+    ]);
+    const pronoun = pronouns.get(original.toLowerCase());
+    if (pronoun) {
+        return original[0] === original[0].toUpperCase()
+            ? pronoun[0].toUpperCase() + pronoun.slice(1)
+            : pronoun;
+    }
+    if (/^pair of /iu.test(original)) return original;
+
+    const split = compoundIndex(original);
+    const excess = split >= 0 ? original.slice(split) : '';
+    let base = (split >= 0 ? original.slice(0, split) : original)
+        .replace(/ +$/u, '');
+    const len = base.length;
+    const last = base.at(-1);
+    if (len === 1 || !/[A-Za-z]/u.test(last))
+        return appendCase(base, "'s") + excess;
+
+    const lookup = pluralLookup(base);
+    if (lookup.matched) return lookup.value + excess;
+    if (equalsCI(base, 'ya') || endsWithCI(base, ' ya'))
+        return base + excess;
+
+    const prior = base.at(-2)?.toLowerCase() ?? '';
+    if (len >= 3 && endsWithCI(base, 'man') && !badman(base, true))
+        return replaceSuffixCase(base, 2, 'en') + excess;
+    if (last.toLowerCase() === 'f'
+        && !endsWithCI(base, 'erf')
+        && 'aeioulr'.includes(prior)) {
+        return replaceSuffixCase(base, 1, 'ves') + excess;
+    }
+    if (len >= 3 && endsWithCI(base, 'ium'))
+        return replaceSuffixCase(base, 3, 'ia') + excess;
+    if (endsWithCI(base, 'alga')
+        || endsWithCI(base, 'hypha')
+        || endsWithCI(base, 'larva')
+        || endsWithCI(base, 'amoeba')
+        || endsWithCI(base, 'vertebra')) {
+        return appendCase(base, 'e') + excess;
+    }
+    if (len > 3 && endsWithCI(base, 'us')
+        && !endsWithCI(base, 'lotus')
+        && !endsWithCI(base, 'wumpus')) {
+        return replaceSuffixCase(base, 2, 'i') + excess;
+    }
+    if (len >= 3 && endsWithCI(base, 'sis'))
+        return replaceSuffixCase(base, 2, 'es') + excess;
+    if (len >= 3 && endsWithCI(base, 'eau')
+        && !endsWithCI(base, 'bureau')) {
+        return appendCase(base, 'x') + excess;
+    }
+    if (len >= 6
+        && (endsWithCI(base, 'matzoh') || endsWithCI(base, 'matzah'))) {
+        return replaceSuffixCase(base, 2, 'ot') + excess;
+    }
+    if (len >= 5
+        && (endsWithCI(base, 'matzo') || endsWithCI(base, 'matza'))) {
+        return replaceSuffixCase(base, 1, 'ot') + excess;
+    }
+    if (len >= 5
+        && (endsWithCI(base, 'dex')
+            || endsWithCI(base, 'dix')
+            || endsWithCI(base, 'tex'))
+        && !endsWithCI(base, 'index')) {
+        return replaceSuffixCase(base, 2, 'ices') + excess;
+    }
+
+    const lowerLast = last.toLowerCase();
+    const sibilant = 'zxs'.includes(lowerLast)
+        || (lowerLast === 'h'
+            && 'cs'.includes(prior)
+            && !(prior === 'c' && chKsound(base)))
+        || endsWithCI(base, 'ato')
+        || endsWithCI(base, 'dingo');
+    if (sibilant) return appendCase(base, 'es') + excess;
+    if (lowerLast === 'y' && !'aeiou'.includes(prior))
+        return replaceSuffixCase(base, 1, 'ies') + excess;
+    return appendCase(base, 's') + excess;
 }
 
 // Source-faithful singularization is part of fruit identity: fruitadd()

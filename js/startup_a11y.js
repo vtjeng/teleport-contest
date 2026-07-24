@@ -87,6 +87,11 @@ import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
 import { hliquid, rndmonnam } from './do_name.js';
+import {
+    fruit_from_indx,
+    makeplural,
+    makesingular,
+} from './fruit.js';
 import { m_at } from './monst.js';
 import { dealloc_obj, mkobj, mksobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -118,6 +123,7 @@ import {
     LAST_GLASS_GEM,
     LAST_SPELL,
     LEASH,
+    MINERAL,
     OBJ_DESCR,
     OBJ_NAME,
     POTION_CLASS,
@@ -820,8 +826,9 @@ function withBufferedObject(subject, x, y, state, describe) {
 }
 
 function simpleObjectName(object, state) {
-    const name = objectBaseName(object, state);
-    return Math.trunc(object.quan ?? 1) === 1 ? name : pluralize(name);
+    const name = minimalObjectBaseName(object, state);
+    return Math.trunc(object.quan ?? 1) === 1
+        ? name : pluralObjectName(object, name);
 }
 
 function hiddenObjectPhrase(object, state) {
@@ -1183,10 +1190,14 @@ function cmapDescription(symbol, x, y, state) {
 function objectBaseName(object, state) {
     const type = state.objects?.[object.otyp];
     if (!type) return 'strange object';
+    if (object.otyp === SLIME_MOLD)
+        return fruit_from_indx(object.spe, state)?.fname ?? 'fruit';
     const identifiableWithoutCloseLook = object.oclass === COIN_CLASS
         || object.otyp === BOULDER
         || object.otyp === CORPSE
         || object.otyp === STATUE;
+    if (!object.dknown && object.oclass === GEM_CLASS)
+        return type.oc_material === MINERAL ? 'stone' : 'gem';
     if (!object.dknown && !identifiableWithoutCloseLook)
         return OBJECT_CLASS_NAMES[object.oclass] ?? 'object';
 
@@ -1232,6 +1243,23 @@ function objectBaseName(object, state) {
     }
 }
 
+// C ref: objnam.c minimal_xname(). Hidden-monster descriptions deliberately
+// suppress corpse and statue species while retaining a slime mold's fruit.
+function minimalObjectBaseName(object, state) {
+    if (object.otyp === CORPSE || object.otyp === STATUE) {
+        const type = state.objects?.[object.otyp];
+        return OBJ_NAME(type, state)
+            ?? (object.otyp === CORPSE ? 'corpse' : 'statue');
+    }
+    return objectBaseName(object, state);
+}
+
+function pluralObjectName(object, name) {
+    return makeplural(
+        object.otyp === SLIME_MOLD ? makesingular(name) : name,
+    );
+}
+
 function objectDamageModifiers(object, type) {
     if (!type) return '';
     const material = type?.oc_material ?? 0;
@@ -1260,12 +1288,6 @@ function objectDamageModifiers(object, type) {
         result += corrodeable ? 'corroded ' : 'rotted ';
     }
     return result;
-}
-
-function pluralize(text) {
-    if (/(?:s|x|z|ch|sh)$/iu.test(text)) return `${text}es`;
-    if (/[^aeiou]y$/iu.test(text)) return `${text.slice(0, -1)}ies`;
-    return `${text}s`;
 }
 
 function objectMatchesBufferedSubject(object, subject) {
@@ -1370,7 +1392,9 @@ function describeObject(object, state) {
         + objectDamageModifiers(object, type);
     const base = `${modifiers}${objectBaseName(object, state)}`;
     if (quantity !== 1) {
-        return `${vagueQuantity ? 'some' : quantity} ${pluralize(base)}`;
+        return `${vagueQuantity ? 'some' : quantity} ${
+            pluralObjectName(object, base)
+        }`;
     }
     return `${indefiniteArticle(base)} ${base}`;
 }

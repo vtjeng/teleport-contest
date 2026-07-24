@@ -149,8 +149,10 @@ import {
     POT_BOOZE,
     POTION_CLASS,
     QUARTERSTAFF,
+    ROCK,
     SCR_IDENTIFY,
     SMALL_SHIELD,
+    SLIME_MOLD,
     SPEAR,
     SPE_FORCE_BOLT,
     STATUE,
@@ -201,6 +203,7 @@ import {
     sym_val,
 } from '../js/symbols.js';
 import {
+    _startupA11yInternals,
     describeMonster,
     emitGlyphUpdateNotices,
 } from '../js/startup_a11y.js';
@@ -2378,7 +2381,17 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
     const state = visibleCellState({ x, y, ux: 1, uy: 1 });
     enableGlyphNotices(state);
     init_objects(state, () => 0);
-    state.level.objects[x][y] = {
+    const linkedObject = {
+        otyp: ARROW,
+        oclass: state.objects[ARROW].oc_class,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: null,
+        nobj: null,
+    };
+    const extra = { marker: 'object extra' };
+    const liveCorpse = {
         otyp: CORPSE,
         oclass: state.objects[CORPSE].oc_class,
         corpsenm: PM_TENGU,
@@ -2387,8 +2400,13 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
         where: OBJ_FLOOR,
         ox: x,
         oy: y,
-        nexthere: null,
+        nexthere: linkedObject,
+        nobj: linkedObject,
+        timed: 0,
+        oextra: extra,
     };
+    state.level.objects[x][y] = liveCorpse;
+    state.level.objlist = liveCorpse;
     const buffered = object_glyph_info({
         otyp: CORPSE,
         oclass: state.objects[CORPSE].oc_class,
@@ -2408,6 +2426,13 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
     );
     assert.equal(state.context.ident, 2);
     assert.equal(rn2(997), expectedFollowingDraw);
+    assert.equal(state.level.objects[x][y], liveCorpse);
+    assert.equal(state.level.objlist, liveCorpse);
+    assert.equal(liveCorpse.where, OBJ_FLOOR);
+    assert.equal(liveCorpse.nexthere, linkedObject);
+    assert.equal(liveCorpse.nobj, linkedObject);
+    assert.equal(liveCorpse.timed, 0);
+    assert.equal(liveCorpse.oextra, extra);
 });
 
 test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
@@ -2502,6 +2527,56 @@ test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
     }
 });
 
+test('synthetic buffered names retain constructor-selected material and fruit', () => {
+    const x = 7;
+    const y = 4;
+    {
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        enableGlyphNotices(state);
+        init_objects(state, () => 0);
+        const glyph = object_glyph_info({
+            otyp: DIAMOND,
+            oclass: state.objects[DIAMOND].oc_class,
+            dknown: false,
+        }, state);
+        initRng(2);
+
+        show_glyph_cell(x, y, glyph);
+
+        assert.equal(
+            state._glyphUpdateNotices[0].message,
+            '(3south,6east): some stones.',
+            `seed 2 must retain generic ${ROCK}'s mineral identity`,
+        );
+    }
+    {
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        enableGlyphNotices(state);
+        init_objects(state, () => 0);
+        state.context.current_fruit = 7;
+        state.gf = {
+            ffruit: {
+                fname: 'dragon fruit',
+                fid: 7,
+                nextf: null,
+            },
+        };
+        const glyph = object_glyph_info({
+            otyp: SLIME_MOLD,
+            oclass: state.objects[SLIME_MOLD].oc_class,
+            dknown: true,
+        }, state);
+        initRng(2026072420);
+
+        show_glyph_cell(x, y, glyph);
+
+        assert.equal(
+            state._glyphUpdateNotices[0].message,
+            '(3south,6east): a dragon fruit.',
+        );
+    }
+});
+
 test('protected object mimics describe the buffered zeroobj identity', () => {
     const x = 7;
     const y = 4;
@@ -2579,6 +2654,13 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
         'an adjacent synthetic disguise is observed before simple naming',
     );
     assert.ok(potionMonster.m_ap_type & M_AP_F_DKNOWN);
+    state.u.ux = 1;
+    state.u.uy = 1;
+    assert.equal(
+        describeMonster(potionMonster, { state }),
+        'tengu, mimicking a brown potion',
+        'the remembered disguise-known flag observes later distant fakes',
+    );
 
     state.level.flags.hero_memory = false;
     state.u.ux = 1;
@@ -2595,6 +2677,7 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
 
 test('monster look-at descriptions include hidden and region suffixes', () => {
     const state = visibleCellState({ x: 7, y: 4, ux: 6, uy: 4 });
+    enableGlyphNotices(state);
     init_objects(state, () => 0);
     const monster = (species, overrides = {}) => ({
         data: state.mons[species],
@@ -2625,6 +2708,58 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     assert.match(
         describeMonster(monster(PM_GARTER_SNAKE), { state }),
         /, hiding under a chest$/u,
+        'metadata-absent memory retains the live-object fallback',
+    );
+
+    const location = state.level.at(7, 4);
+    location.remembered_glyph = terrain_glyph(location, 7, 4, state);
+    assert.match(
+        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        /, hiding under something$/u,
+        'explicit remembered terrain suppresses the live-object fallback',
+    );
+
+    state.objects[POT_BOOZE].oc_name_known = true;
+    const potions = {
+        otyp: POT_BOOZE,
+        oclass: state.objects[POT_BOOZE].oc_class,
+        dknown: true,
+        quan: 2,
+        where: OBJ_FLOOR,
+        ox: 7,
+        oy: 4,
+        nexthere: null,
+    };
+    state.level.objects[7][4] = potions;
+    location.remembered_glyph = object_glyph_info(potions, state);
+    assert.match(
+        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        /, hiding under potions of booze$/u,
+        'simpleonames pluralizes the noun before a compound suffix',
+    );
+
+    const corpse = {
+        otyp: CORPSE,
+        oclass: state.objects[CORPSE].oc_class,
+        corpsenm: PM_GOBLIN,
+        dknown: true,
+        quan: 1,
+        where: OBJ_FLOOR,
+        ox: 7,
+        oy: 4,
+        nexthere: null,
+    };
+    state.level.objects[7][4] = corpse;
+    location.remembered_glyph = object_glyph_info(corpse, state);
+    assert.match(
+        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        /, hiding under a corpse$/u,
+        'minimal_xname suppresses the hidden corpse species',
+    );
+    assert.equal(
+        _startupA11yInternals.describeObject(corpse, state),
+        'a goblin corpse',
+        'full object descriptions retain the corpse species',
     );
 
     const cloud = create_region();

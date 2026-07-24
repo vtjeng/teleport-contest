@@ -8,6 +8,7 @@ import {
     fruit_from_name,
     fruitadd,
     initoptions_finish,
+    makeplural,
     makesingular,
 } from '../js/fruit.js';
 import { game } from '../js/gstate.js';
@@ -193,6 +194,22 @@ test('makesingular preserves the object-name inflection rules used by fruit', ()
     ];
     for (const [plural, singular] of cases)
         assert.equal(makesingular(plural), singular, plural);
+});
+
+test('makeplural preserves source compounds and irregular object names', () => {
+    const cases = [
+        ['potion of healing', 'potions of healing'],
+        ['knife', 'knives'],
+        ['homunculus', 'homunculi'],
+        ['vortex', 'vortices'],
+        ['human', 'humans'],
+        ['monarch', 'monarchs'],
+        ['pair of boots', 'pair of boots'],
+        ['blueberry', 'blueberries'],
+        ['HE', 'They'],
+    ];
+    for (const [singular, plural] of cases)
+        assert.equal(makeplural(singular), plural, singular);
 });
 
 test('initoptions_finish installs the default source-shaped fruit state', () => {

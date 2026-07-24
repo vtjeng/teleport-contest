@@ -29,7 +29,11 @@ import {
     nonrotting_corpse,
     vegetarian,
 } from './eat.js';
-import { fruit_from_indx, makesingular } from './fruit.js';
+import {
+    fruit_from_indx,
+    makeplural,
+    makesingular,
+} from './fruit.js';
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
 import * as M from './monsters.js';
@@ -199,44 +203,7 @@ function baseObjectName(obj, state) {
     }
 }
 
-function pluralWord(word) {
-    const lower = word.toLowerCase();
-    if (['ya', 'shuriken', 'matzot'].includes(lower)) return word;
-    const irregular = new Map([
-        ['child', 'children'],
-        ['foot', 'feet'],
-        ['goose', 'geese'],
-        ['knife', 'knives'],
-        ['leaf', 'leaves'],
-        ['mouse', 'mice'],
-        ['staff', 'staves'],
-        ['tooth', 'teeth'],
-    ]);
-    if (irregular.has(lower)) {
-        const plural = irregular.get(lower);
-        return /^[A-Z]/u.test(word)
-            ? plural[0].toUpperCase() + plural.slice(1) : plural;
-    }
-    if (lower.endsWith('man')
-        && !/(?:human|shaman|talisman)$/u.test(lower)) {
-        return `${word.slice(0, -2)}en`;
-    }
-    if (/(?:[sxz]|ch|sh)$/u.test(lower)) return `${word}es`;
-    if (/[^aeiou]y$/u.test(lower)) return `${word.slice(0, -1)}ies`;
-    if (/(?:[aeioulr])f$/u.test(lower))
-        return `${word.slice(0, -1)}ves`;
-    return `${word}s`;
-}
-
-function pluralizeBaseName(name) {
-    if (/^pair of /iu.test(name)) return name;
-    const compound = name.indexOf(' of ');
-    const head = compound >= 0 ? name.slice(0, compound) : name;
-    const tail = compound >= 0 ? name.slice(compound) : '';
-    const match = /^(.*?)([^\s]+)$/u.exec(head);
-    if (!match) return `${name}s`;
-    return `${match[1]}${pluralWord(match[2])}${tail}`;
-}
+const pluralizeBaseName = makeplural;
 
 function indefiniteArticle(text) {
     // NetHack's an() has a larger exception table. Startup objects which lack
