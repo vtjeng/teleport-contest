@@ -125,6 +125,7 @@
         "js/makemon.js",
         "js/makemon_create.js",
         "js/mon.js",
+        "js/moncarry.js",
         "js/mondata.js",
         "js/monmove.js",
         "js/monst.js",
