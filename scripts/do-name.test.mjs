@@ -2,11 +2,21 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    bogusmon,
     christen_monst,
     lookup_novel,
     noveltitle,
+    rndmonnam,
     SIR_TERRY_NOVELS,
 } from '../js/do_name.js';
+import {
+    G_NOGEN,
+    LOW_PM,
+    M2_PNAME,
+    SPECIAL_PM,
+    monst_globals_init,
+} from '../js/monsters.js';
+import { xcrypt } from '../js/random_text.js';
 
 function titleDraw(result) {
     let draws = 0;
@@ -30,6 +40,73 @@ test('the source novel catalog has all 41 titles in stable order', () => {
     assert.equal(SIR_TERRY_NOVELS[33], 'Thud!');
     assert.equal(SIR_TERRY_NOVELS[40], "The Shepherd's Crown");
     assert.ok(Object.isFrozen(SIR_TERRY_NOVELS));
+});
+
+test('rndmonnam retries source-excluded monsters before its gender draw', () => {
+    const state = {};
+    monst_globals_init(state);
+    const excluded = state.mons.findIndex((monster, index) => (
+        index >= LOW_PM
+        && index < SPECIAL_PM
+        && ((monster.mflags2 & M2_PNAME) || (monster.geno & G_NOGEN))
+    ));
+    const ordinary = state.mons.findIndex((monster, index) => (
+        index >= LOW_PM
+        && index < SPECIAL_PM
+        && !(monster.mflags2 & M2_PNAME)
+        && !(monster.geno & G_NOGEN)
+        && monster.pmnames[1]
+    ));
+    assert.ok(excluded >= LOW_PM);
+    assert.ok(ordinary >= LOW_PM);
+    const script = [
+        { bound: SPECIAL_PM + 100 - LOW_PM, result: excluded },
+        { bound: SPECIAL_PM + 100 - LOW_PM, result: ordinary },
+        { bound: 2, result: 1 },
+    ];
+
+    assert.equal(rndmonnam({
+        state,
+        random(bound) {
+            const next = script.shift();
+            assert.deepEqual(next?.bound, bound);
+            return next.result;
+        },
+    }), state.mons[ordinary].pmnames[1]);
+    assert.deepEqual(script, []);
+});
+
+test('rndmonnam uses the generated bogusmon byte layout and strips codes', () => {
+    const state = {};
+    monst_globals_init(state);
+    const script = [
+        { bound: SPECIAL_PM + 100 - LOW_PM, result: SPECIAL_PM },
+        // Offset zero skips the generated "grue" default and selects the
+        // first source record.
+        { bound: 7640, result: 0 },
+    ];
+    assert.equal(rndmonnam({
+        state,
+        random(bound) {
+            const next = script.shift();
+            assert.deepEqual(next?.bound, bound);
+            return next.result;
+        },
+    }), 'jumbo shrimp');
+    assert.deepEqual(script, []);
+
+    const comment = "#\tgenerated\n";
+    const pad = (text) => `${text}${'_'.repeat(19 - text.length)}\n`;
+    const files = {
+        bogusmon: comment
+            + xcrypt(pad('discard'))
+            + xcrypt(pad('-Alice')),
+    };
+    const selected = bogusmon({
+        files,
+        random: () => 0,
+    });
+    assert.deepEqual(selected, { name: 'Alice', code: '-' });
 });
 
 test('noveltitle stores a random index only for the -1 sentinel', () => {

@@ -65,6 +65,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(M1_HERBIVORE, 0x40000000);
     assert.equal(M1_METALLIVORE, 0x80000000);
     assert.equal(M2_GREEDY, 0x10000000);
+    assert.equal(monsterExports.M2_PNAME, 0x00080000);
     assert.equal(M3_INFRAVISION, 0x0100);
     assert.equal(MZ_SMALL, 1);
     assert.equal(MZ_MEDIUM, 2);
@@ -86,7 +87,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        '81efe4ee59d209a3936ee752d0ff2d85ced36181ff55f93d38b72e184560a3bd',
+        'bd89083ebda087821e1c7537c9c21b8da841f7bd9bb392abbc041216d3130f83',
     );
 });
 

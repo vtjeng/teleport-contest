@@ -205,7 +205,7 @@ export async function newgame() {
         0,
         g.a11y.mon_notices_blocked - 1,
     );
-    await emitStartupA11yNotices(g);
+    await emitStartupA11yNotices(g, { pline: ttyPline });
 }
 
 // C ref: allmain.c u_calc_moveamt(). Add the hero's next movement ration
@@ -699,7 +699,7 @@ export async function moveloop_core() {
         vision_recalc(0);
         g.vision_full_recalc = 0;
     }
-    await emitGlyphUpdateNotices(g);
+    await emitGlyphUpdateNotices(g, { pline: ttyPline });
     find_ac(g);
     await bot();
     await flush_screen(1);
@@ -708,7 +708,7 @@ export async function moveloop_core() {
         state: g,
         random: { d, rn1, rn2, rnd, rne, rnl, rnz },
     });
-    await emitGlyphUpdateNotices(g);
+    await emitGlyphUpdateNotices(g, { pline: ttyPline });
 
     // C ref: allmain.c moveloop_core(). A positive multi repeats the saved
     // command without another input boundary. For movement, values below
@@ -729,6 +729,10 @@ export async function moveloop_core() {
     } else if ((g.multi ?? 0) === 0) {
         await rhack(0, g);
     }
+    // show_glyph() emits its accessibility pline before returning to the
+    // command loop. Preserve that boundary for command-generated reveals even
+    // when no later region or combat message forces an earlier drain.
+    await emitGlyphUpdateNotices(g, { pline: ttyPline });
 }
 
 // C ref: allmain.c moveloop()

@@ -621,6 +621,34 @@ function blackAndWhiteTerrainCue(index, state) {
     }
 }
 
+function withAccessibilityMetadata(
+    glyph,
+    kind,
+    identity,
+    subject,
+    description = null,
+) {
+    Object.defineProperties(glyph, {
+        a11yKind: {
+            configurable: true,
+            value: kind,
+        },
+        a11yIdentity: {
+            configurable: true,
+            value: identity,
+        },
+        a11ySubject: {
+            configurable: true,
+            value: subject,
+        },
+        a11yDescription: {
+            configurable: true,
+            value: description,
+        },
+    });
+    return glyph;
+}
+
 function terrainCmap(index, color, state, customizationName = null) {
     const customization = customizationName
         ? glyph_customization(customizationName, state) : null;
@@ -628,7 +656,19 @@ function terrainCmap(index, color, state, customizationName = null) {
         cmap_symbol(index, state), color, state, customization,
     );
     if (blackAndWhiteTerrainCue(index, state)) glyph.attr = ATR_INVERSE;
-    return glyph;
+    const kind = index >= S_stone && index <= S_trwall
+        ? 'wall'
+        : index >= S_room && index <= S_darkroom
+            ? 'room'
+            : index >= S_upstair && index <= S_fountain
+                ? 'furniture'
+                : 'cmap';
+    return withAccessibilityMetadata(
+        glyph,
+        kind,
+        `cmap:${index}:${customizationName ?? ''}`,
+        { type: 'cmap', symbol: index },
+    );
 }
 
 function stairwayAt(state, x, y) {
@@ -726,6 +766,7 @@ function withMonsterAccessibility(
     monster,
     species,
     disguise = false,
+    family = 'monster',
 ) {
     const names = species?.pmnames ?? [];
     const speciesName = names[monster.female ? 1 : 0]
@@ -734,11 +775,13 @@ function withMonsterAccessibility(
     const description = disguise
         ? speciesName
         : describeMonster({ ...monster, data: species });
-    Object.defineProperties(glyph, {
-        a11yKind: { value: 'monster' },
-        a11yDescription: { value: description },
-    });
-    return glyph;
+    return withAccessibilityMetadata(
+        glyph,
+        'monster',
+        `monster:${family}:${species?.pmidx ?? -1}:${monster.female ? 1 : 0}`,
+        { type: 'monster', monster, species },
+        description,
+    );
 }
 
 function actualMonsterGlyphInfo(monster, state) {
@@ -752,7 +795,13 @@ function actualMonsterGlyphInfo(monster, state) {
     if (monster.mtame && state.iflags?.wc_hilite_pet) {
         glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE;
     }
-    return withMonsterAccessibility(glyph, monster, monster.data);
+    return withMonsterAccessibility(
+        glyph,
+        monster,
+        monster.data,
+        false,
+        monster.mtame ? 'pet' : 'monster',
+    );
 }
 
 function displayDraw(random, bound) {
@@ -839,7 +888,13 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
     );
     if (detected && state.iflags?.wc_inverse !== false)
         glyph.attr = ATR_INVERSE;
-    return withMonsterAccessibility(glyph, monster, species);
+    return withMonsterAccessibility(
+        glyph,
+        monster,
+        species,
+        false,
+        detected ? 'detected' : 'monster',
+    );
 }
 
 // C ref: display.c display_monster() with sightflags == DETECTED and
@@ -975,11 +1030,17 @@ function warningGlyphInfo(monster, state) {
             Math.trunc((monster.m_lev ?? 0) / 4),
             WARNCOUNT - 1,
         );
-    return glyphPresentation(
+    const glyph = glyphPresentation(
         symbol_at(SYM_OFF_W + warningLevel, state),
         def_warnsyms[warningLevel].color,
         state,
         glyph_customization(`G_warning${warningLevel}`, state),
+    );
+    return withAccessibilityMetadata(
+        glyph,
+        'warning',
+        `warning:${warningLevel}`,
+        { type: 'warning', index: warningLevel },
     );
 }
 
@@ -1027,12 +1088,25 @@ export function object_glyph_info(obj, state = game) {
     const glyph = glyphPresentation(symbol, color, state);
     // C ref: win/tty/wintty.c tty_print_glyph(). Pile highlighting is a tty
     // presentation attribute and is suppressed together with inverse video.
-    if (object_is_piletop(obj, state)
+    const piletop = object_is_piletop(obj, state);
+    if (piletop
         && state.iflags?.hilite_pile
         && state.iflags?.wc_inverse !== false) {
         glyph.attr = ATR_INVERSE;
     }
-    return glyph;
+    const identity = generic
+        ? `object:generic:${obj.oclass}`
+        : obj.otyp === STATUE
+            ? `object:statue:${obj.corpsenm ?? NON_PM}`
+            : obj.otyp === CORPSE
+                ? `object:corpse:${obj.corpsenm ?? NON_PM}`
+                : `object:${obj.otyp}`;
+    return withAccessibilityMetadata(
+        glyph,
+        'object',
+        identity,
+        { type: 'object', object: obj },
+    );
 }
 
 // C ref: display.c map_object(). Return the transient presentation separately
@@ -1230,14 +1304,16 @@ export function show_glyph_cell(x, y, glyph) {
         a11yDescription: glyph.a11yDescription ?? null,
     };
     if (glyph.rgb) logicalPresentation.rgb = [...glyph.rgb];
-    queueGlyphUpdateNotice(
-        x,
-        y,
-        loc.disp_glyph ?? null,
-        logicalPresentation,
-        loc.gnew,
-        game,
-    );
+    for (const field of ['a11yIdentity', 'a11ySubject']) {
+        if (glyph[field] !== undefined) {
+            Object.defineProperty(logicalPresentation, field, {
+                configurable: true,
+                value: glyph[field],
+            });
+        }
+    }
+    const previousPresentation = loc.disp_glyph ?? null;
+    const previousGnew = loc.gnew;
     // C's gbuf retains logical glyph identity even when a UTF-8 customization
     // deliberately leaves the recorder-facing `ch` cell untouched.
     loc.disp_glyph = logicalPresentation;
@@ -1251,6 +1327,14 @@ export function show_glyph_cell(x, y, glyph) {
     loc.disp_browser_color = displayColor ?? (displayCh ? color : null);
     loc.disp_browser_attr = displayCh ? attr | 0 : null;
     loc.gnew = 1;
+    queueGlyphUpdateNotice(
+        x,
+        y,
+        previousPresentation,
+        logicalPresentation,
+        previousGnew,
+        game,
+    );
 }
 
 /**
@@ -1332,7 +1416,12 @@ export function trap_glyph_info(trap, state = game) {
     const color = TRAP_COLORS[trap.ttyp];
     if (color === undefined)
         throw new RangeError(`trap type ${trap.ttyp} has no display color`);
-    return terrainCmap(trap_to_defsym(trap.ttyp), color, state);
+    return withAccessibilityMetadata(
+        terrainCmap(trap_to_defsym(trap.ttyp), color, state),
+        'trap',
+        `trap:${trap.ttyp}`,
+        { type: 'trap', trap, ttyp: trap.ttyp },
+    );
 }
 
 function observeNearbyObject(object, x, y, state) {
@@ -1527,6 +1616,9 @@ export function newsym(x, y) {
             attr: loc.remembered_glyph.attr ?? 0,
             displayCh: loc.remembered_glyph.displayCh,
             displayColor: loc.remembered_glyph.displayColor ?? null,
+            rgb: loc.remembered_glyph.rgb
+                ? [...loc.remembered_glyph.rgb]
+                : undefined,
         });
     }
 }
@@ -2798,6 +2890,14 @@ export async function flush_screen(mode) {
         });
     }
     _buildScreenOutput();
+    // C ref: display.c flush_glyph_buffer(). Once the buffered map has reached
+    // the window port, each gbuf entry is clean until show_glyph() writes it
+    // again. This also makes show_glyph()'s explicit gnew exception precise.
+    if (game.level?.at) {
+        for (let x = 1; x < COLNO; ++x)
+            for (let y = 0; y < ROWNO; ++y)
+                game.level.at(x, y).gnew = 0;
+    }
 }
 
 // ── cls ──

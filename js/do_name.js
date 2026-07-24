@@ -1,12 +1,24 @@
 // Monster names and novel-title data.
-// C ref: src/do_name.c christen_monst(), rndghostname(),
+// C ref: src/do_name.c christen_monst(), rndghostname(), bogusmon(),
+// rndmonnam(),
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
-import { PL_PSIZ } from './const.js';
+import {
+    BOGUSMONFILE,
+    MD_PAD_BOGONS,
+    PL_PSIZ,
+} from './const.js';
 import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
-import { rn2 } from './rng.js';
+import {
+    G_NOGEN,
+    LOW_PM,
+    M2_PNAME,
+    SPECIAL_PM,
+} from './monsters.js';
+import { get_rnd_text } from './random_text.js';
+import { rn2, rn2_on_display_rng } from './rng.js';
 
 const GHOST_NAMES = Object.freeze([
     'Adri',
@@ -76,6 +88,61 @@ export function rndghostname(env = {}) {
     return random.rn2(7)
         ? GHOST_NAMES[random.rn2(GHOST_NAMES.length)]
         : String(state.plname ?? '');
+}
+
+function displayRandomFunction(random) {
+    if (typeof random === 'function') return random;
+    if (random && typeof random.rn2 === 'function')
+        return (bound) => random.rn2(bound);
+    throw new TypeError('rndmonnam random injection requires rn2');
+}
+
+// C ref: do_name.c bogusmon(). Prefix codes affect capitalization and
+// personal-name handling in other callers; glyph-update descriptions only
+// need the stripped text, so expose the code alongside it for future users.
+export function bogusmon(env = {}) {
+    const random = displayRandomFunction(
+        env.random ?? rn2_on_display_rng,
+    );
+    const selected = get_rnd_text(
+        BOGUSMONFILE,
+        random,
+        MD_PAD_BOGONS,
+        env,
+    );
+    if (!selected) return { name: 'bogon', code: '' };
+    const code = '-_+|='.includes(selected[0]) ? selected[0] : '';
+    return {
+        name: code ? selected.slice(1) : selected,
+        code,
+    };
+}
+
+// C ref: do_name.c rndmonnam(). The first draw shares the display RNG with
+// monster glyph randomization. Actual monster names consume a second gender
+// draw; bogus names consume get_rnd_text()'s byte-offset draw instead.
+export function rndmonnam(env = {}) {
+    const state = env.state ?? game;
+    const random = displayRandomFunction(
+        env.random ?? rn2_on_display_rng,
+    );
+    let index;
+    do {
+        index = random(SPECIAL_PM + 100 - LOW_PM) + LOW_PM;
+    } while (index < SPECIAL_PM
+        && ((state.mons?.[index]?.mflags2 & M2_PNAME)
+            || (state.mons?.[index]?.geno & G_NOGEN)));
+
+    if (index >= SPECIAL_PM)
+        return bogusmon({ ...env, random }).name;
+
+    const species = state.mons?.[index];
+    if (!species)
+        throw new Error('rndmonnam requires the complete monster catalog');
+    const gender = random(2);
+    return species.pmnames?.[gender]
+        ?? species.pmnames?.[2]
+        ?? 'monster';
 }
 
 export const SIR_TERRY_NOVELS = Object.freeze([

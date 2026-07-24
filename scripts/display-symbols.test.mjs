@@ -86,8 +86,10 @@ import {
     remembered_glyph_from_presentation,
     show_glyph_cell,
     terrain_glyph,
+    trap_glyph_info,
     weapon_status,
 } from '../js/display.js';
+import { rndmonnam } from '../js/do_name.js';
 import { make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -1949,12 +1951,183 @@ test('protected monster disguises queue their transient glyph update', async () 
     const returned = await emitGlyphUpdateNotices(state, {
         pline: async (message, receivedState) => {
             assert.equal(receivedState, state);
+            assert.deepEqual(
+                glyphPresentationRecord(location.disp_glyph),
+                glyphPresentationRecord(expectedDisguise),
+                'the notice flush sees the disguise frame',
+            );
             emitted.push(message);
         },
     });
     assert.deepEqual(returned, ['(3south,6east): goblin.']);
     assert.deepEqual(emitted, returned);
     assert.deepEqual(state._glyphUpdateNotices, []);
+    assert.deepEqual(
+        glyphPresentationRecord(location.disp_glyph),
+        glyphPresentationRecord(expectedReal),
+        'the later real form remains buffered after the notice',
+    );
+});
+
+test('glyph updates describe newly revealed objects, traps, and furniture', async () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.a11y = {
+        accessiblemsg: false,
+        glyph_updates: true,
+        mon_notices: false,
+        mon_notices_blocked: 0,
+    };
+    state.program_state = {};
+    init_objects(state, () => 0);
+    const location = state.level.at(x, y);
+    const object = {
+        otyp: CHEST,
+        oclass: state.objects[CHEST].oc_class,
+        dknown: true,
+        quan: 1,
+        ox: x,
+        oy: y,
+    };
+    const cases = [
+        [object_glyph_info(object, state), 'a chest.'],
+        [trap_glyph_info({ ttyp: PIT }, state), 'pit.'],
+        [
+            terrain_glyph({ ...location, typ: FOUNTAIN }, x, y, state),
+            'fountain.',
+        ],
+    ];
+
+    for (const [glyph, suffix] of cases) {
+        location.disp_glyph = null;
+        location.gnew = 0;
+        show_glyph_cell(x, y, glyph);
+        assert.equal(
+            state._glyphUpdateNotices?.at(-1)?.message,
+            `(3south,6east): ${suffix}`,
+        );
+        await emitGlyphUpdateNotices(state, {
+            pline: async () => {},
+        });
+    }
+});
+
+test('glyph update identity ignores pile highlighting', async () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.a11y = {
+        accessiblemsg: false,
+        glyph_updates: true,
+        mon_notices: false,
+        mon_notices_blocked: 0,
+    };
+    state.program_state = {};
+    state.iflags = {
+        wc_color: true,
+        wc_inverse: true,
+        hilite_pile: false,
+    };
+    const object = {
+        otyp: ARROW,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: { otyp: SPEAR },
+    };
+    state.level.objects[x][y] = object;
+    const location = state.level.at(x, y);
+
+    show_glyph_cell(x, y, object_glyph_info(object, state));
+    await emitGlyphUpdateNotices(state, { pline: async () => {} });
+    assert.equal(location.gnew, 0);
+
+    state.iflags.hilite_pile = true;
+    show_glyph_cell(x, y, object_glyph_info(object, state));
+
+    assert.equal(location.disp_glyph.attr, ATR_INVERSE);
+    assert.deepEqual(
+        state._glyphUpdateNotices,
+        [],
+        'glyph flags can dirty gbuf without changing its numeric glyph',
+    );
+});
+
+test('docrt suppresses glyph notices for its entire redraw', async () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.a11y = {
+        accessiblemsg: false,
+        glyph_updates: true,
+        mon_notices: false,
+        mon_notices_blocked: 0,
+    };
+    state.program_state = {};
+    state.u.uprops = [];
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+        intrinsic: 1,
+        extrinsic: 0,
+    };
+    state.level.monsters[x][y] = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        mtame: 0,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: M_AP_MONSTER,
+        mappearance: PM_GOBLIN,
+        mx: x,
+        my: y,
+    };
+
+    await docrt();
+
+    assert.equal(state.program_state.in_docrt, false);
+    assert.deepEqual(state._glyphUpdateNotices ?? [], []);
+});
+
+test('hallucinated monster glyph notices consume rndmonnam display RNG', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.a11y = {
+        accessiblemsg: false,
+        glyph_updates: true,
+        mon_notices: false,
+        mon_notices_blocked: 0,
+    };
+    state.program_state = {};
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    const monster = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        mtame: 0,
+        minvis: true,
+        mundetected: false,
+        m_ap_type: 0,
+        mx: x,
+        my: y,
+    };
+    const seed = 0x5a17n;
+
+    initRng(seed);
+    show_glyph_cell(x, y, monster_glyph_info(monster, state));
+    const followingDraw = rn2_on_display_rng(997);
+
+    initRng(seed);
+    rn2_on_display_rng(NUMMONS); // hallucinated on-map species
+    const expectedName = rndmonnam({ state });
+    const expectedFollowingDraw = rn2_on_display_rng(997);
+
+    assert.equal(
+        state._glyphUpdateNotices?.[0]?.message,
+        `(3south,6east): invisible ${expectedName}.`,
+    );
+    assert.equal(followingDraw, expectedFollowingDraw);
 });
 
 test('newsym maps a visible object mimic as its remembered chest', () => {
@@ -3024,6 +3197,21 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
         'rgb(0, 150, 255)',
     );
     assert.deepEqual(live.level.at(7, 4).remembered_glyph.rgb, [0, 150, 255]);
+
+    live.viz_array[4][7] = 0;
+    live.level.at(7, 4).disp_glyph = null;
+    live.level.at(7, 4).disp_browser_ch = null;
+    live.level.at(7, 4).disp_browser_color = null;
+    newsym(7, 4);
+    assert.deepEqual(
+        live.level.at(7, 4).disp_glyph.rgb,
+        [0, 150, 255],
+        'out-of-sight reconstruction retains the remembered custom RGB',
+    );
+    assert.equal(
+        live.level.at(7, 4).disp_browser_color,
+        'rgb(0, 150, 255)',
+    );
 });
 
 test('standalone SYMBOLS validates but does not apply G_* customizations', () => {

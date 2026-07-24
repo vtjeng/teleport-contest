@@ -24,6 +24,8 @@ import {
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
     GRAVE,
+    HALLUC,
+    HALLUC_RES,
     ICE,
     IRONBARS,
     INFRAVISION,
@@ -53,6 +55,7 @@ import {
     WARN_OF_MON,
     WATER,
     W_SADDLE,
+    def_warnsyms,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -64,7 +67,7 @@ import { cansee } from './vision.js';
 import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
-import { ttyPline } from './tty_message.js';
+import { rndmonnam } from './do_name.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -101,6 +104,7 @@ import {
 } from './objects.js';
 import { M1_MINDLESS } from './monsters.js';
 import {
+    S_air,
     S_altar,
     S_bars,
     S_brupstair,
@@ -126,6 +130,7 @@ import {
     S_litcorr,
     S_ndoor,
     S_pool,
+    S_poisoncloud,
     S_room,
     S_sink,
     S_stone,
@@ -237,33 +242,129 @@ function messageAt(text, x, y, state, forceLocation = false) {
     return text;
 }
 
-function sameGlyphPresentation(left, right) {
+function sameGlyphIdentity(left, right) {
     if (!left || !right) return left === right;
-    const scalarFieldsMatch = [
-        'ch',
-        'color',
-        'dec',
-        'attr',
-        'displayCh',
-        'displayColor',
-        'a11yKind',
-        'a11yDescription',
-    ].every((field) => left[field] === right[field]);
-    const leftRgb = left.rgb ?? null;
-    const rightRgb = right.rgb ?? null;
-    return scalarFieldsMatch
-        && (leftRgb === rightRgb
+    if (left.a11yIdentity != null || right.a11yIdentity != null)
+        return left.a11yIdentity === right.a11yIdentity;
+    // Hand-authored presentations have no source glyph number. Matching
+    // categories and recorder characters are the best logical identity
+    // available; presentation-only color, attribute, UTF-8, and RGB changes
+    // do not satisfy display.c's oldglyph != glyph test.
+    return left.a11yKind === right.a11yKind && left.ch === right.ch;
+}
+
+const GLYPH_BUFFER_FIELDS = Object.freeze([
+    'disp_ch',
+    'disp_color',
+    'disp_decgfx',
+    'disp_attr',
+    'disp_browser_ch',
+    'disp_browser_color',
+    'disp_browser_attr',
+    'disp_glyph',
+    'gnew',
+]);
+
+function clonePresentation(glyph) {
+    if (!glyph) return glyph;
+    const clone = { ...glyph };
+    if (glyph.rgb) clone.rgb = [...glyph.rgb];
+    for (const field of ['a11yIdentity', 'a11ySubject']) {
+        if (glyph[field] !== undefined) {
+            Object.defineProperty(clone, field, {
+                configurable: true,
+                value: glyph[field],
+            });
+        }
+    }
+    return clone;
+}
+
+function captureGlyphBuffer(state) {
+    const snapshot = [];
+    for (let x = 1; x < COLNO; ++x) {
+        snapshot[x] = [];
+        for (let y = 0; y < ROWNO; ++y) {
+            const location = state.level?.at(x, y);
+            if (!location) continue;
+            snapshot[x][y] = {
+                disp_ch: location.disp_ch,
+                disp_color: location.disp_color,
+                disp_decgfx: location.disp_decgfx,
+                disp_attr: location.disp_attr,
+                disp_browser_ch: location.disp_browser_ch,
+                disp_browser_color: location.disp_browser_color,
+                disp_browser_attr: location.disp_browser_attr,
+                disp_glyph: clonePresentation(location.disp_glyph),
+                gnew: location.gnew,
+            };
+        }
+    }
+    return snapshot;
+}
+
+function sameBufferedPresentation(left, right) {
+    if (!left || !right) return left === right;
+    for (const field of GLYPH_BUFFER_FIELDS) {
+        if (field === 'gnew') continue;
+        if (field !== 'disp_glyph') {
+            if (left[field] !== right[field]) return false;
+            continue;
+        }
+        const leftGlyph = left.disp_glyph;
+        const rightGlyph = right.disp_glyph;
+        if (!leftGlyph || !rightGlyph) {
+            if (leftGlyph !== rightGlyph) return false;
+            continue;
+        }
+        const scalarMatch = [
+            'ch',
+            'color',
+            'dec',
+            'attr',
+            'displayCh',
+            'displayColor',
+            'a11yKind',
+            'a11yDescription',
+            'a11yIdentity',
+        ].every((name) => leftGlyph[name] === rightGlyph[name]);
+        const leftRgb = leftGlyph.rgb ?? null;
+        const rightRgb = rightGlyph.rgb ?? null;
+        const rgbMatch = leftRgb === rightRgb
             || (Array.isArray(leftRgb)
                 && Array.isArray(rightRgb)
                 && leftRgb.length === rightRgb.length
                 && leftRgb.every((channel, index) => (
                     channel === rightRgb[index]
-                ))));
+                )));
+        if (!scalarMatch || !rgbMatch) return false;
+    }
+    return true;
 }
 
-// C ref: display.c show_glyph(). Capture the accessibility decision while
-// both the old and new logical presentations are still available; scanning
-// the final map later cannot recover an intermediate disguise.
+function restoreGlyphBuffer(state, snapshot, cleanAgainst = null) {
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const location = state.level?.at(x, y);
+            const saved = snapshot?.[x]?.[y];
+            if (!location || !saved) continue;
+            for (const field of GLYPH_BUFFER_FIELDS) {
+                location[field] = field === 'disp_glyph'
+                    ? clonePresentation(saved[field])
+                    : saved[field];
+            }
+            if (cleanAgainst
+                && sameBufferedPresentation(saved, cleanAgainst[x]?.[y])) {
+                location.gnew = 0;
+            }
+        }
+    }
+}
+
+// C ref: display.c show_glyph(). The caller invokes this after installing the
+// presentation, matching show_glyph()'s gbuf update before
+// do_screen_description() and pline_xy(). Saving that buffer preserves an
+// intermediate disguise even though JavaScript performs message I/O later.
 export function queueGlyphUpdateNotice(
     x,
     y,
@@ -280,7 +381,7 @@ export function queueGlyphUpdateNotice(
         || program.gameover
         || program.in_getlev
         || program.stopprint
-        || (sameGlyphPresentation(previous, current) && !previousGnew)) {
+        || (sameGlyphIdentity(previous, current) && !previousGnew)) {
         return false;
     }
 
@@ -295,32 +396,54 @@ export function queueGlyphUpdateNotice(
         || newKind === 'room'
         || (a11y.mon_notices && newKind === 'monster')
         || oldKind === 'monster'
-        || (state.u?.ux === x && state.u?.uy === y)
-        || !current?.a11yDescription) {
+        || (state.u?.ux === x && state.u?.uy === y)) {
         return false;
     }
 
+    const description = describeGlyphUpdate(current, x, y, state);
+    if (!description) return false;
     const notice = {
         x,
         y,
         previous,
         current,
         message: messageAt(
-            `${current.a11yDescription}.`,
+            `${description}.`,
             x,
             y,
             state,
             true,
         ),
+        glyphBuffer: captureGlyphBuffer(state),
     };
     (state._glyphUpdateNotices ??= []).push(notice);
     return true;
 }
 
 export async function emitGlyphUpdateNotices(state, env = {}) {
-    const pline = env.pline ?? ttyPline;
+    const pline = env.pline;
+    if (typeof pline !== 'function') {
+        throw new TypeError(
+            'emitGlyphUpdateNotices requires a pline callback',
+        );
+    }
+    if (state._emittingGlyphUpdateNotices) return [];
     const pending = state._glyphUpdateNotices?.splice(0) ?? [];
-    for (const notice of pending) await pline(notice.message, state);
+    if (!pending.length) return [];
+
+    const finalBuffer = captureGlyphBuffer(state);
+    let lastFlushedBuffer = null;
+    state._emittingGlyphUpdateNotices = true;
+    try {
+        for (const notice of pending) {
+            restoreGlyphBuffer(state, notice.glyphBuffer);
+            await pline(notice.message, state);
+            lastFlushedBuffer = notice.glyphBuffer;
+        }
+    } finally {
+        restoreGlyphBuffer(state, finalBuffer, lastFlushedBuffer);
+        state._emittingGlyphUpdateNotices = false;
+    }
     return pending.map((notice) => notice.message);
 }
 
@@ -467,17 +590,55 @@ function monsterBaseName(monster, called) {
     return speciesName(monster);
 }
 
-export function describeMonster(monster) {
-    let text = monsterBaseName(monster, true);
-    if (monster.misc_worn_check & W_SADDLE) text = `saddled ${text}`;
+function heroHallucinating(state) {
+    return Boolean(state?.u?.uprops?.[HALLUC]?.intrinsic)
+        && !propertyActive(state.u, HALLUC_RES);
+}
+
+// C ref: pager.c look_at_monster() and do_name.c distant_monnam(). The
+// optional species is the actual buffered monster glyph (including a
+// monster-shaped mimic appearance); hallucination replaces the name through
+// rndmonnam() but retains invisible and mobility suffixes.
+export function describeMonster(monster, env = {}) {
+    const state = env.state;
+    const hallucinating = env.hallucinating
+        ?? (state ? heroHallucinating(state) : false);
+    const namedMonster = env.species
+        ? { ...monster, data: env.species }
+        : monster;
+    let text = hallucinating
+        ? rndmonnam({
+            state,
+            random: env.random,
+            files: env.files,
+        })
+        : monsterBaseName(namedMonster, true);
+    if (!hallucinating
+        && !heroIsBlind(state ?? {})
+        && (monster.misc_worn_check & W_SADDLE)) {
+        text = `saddled ${text}`;
+    }
     if (monster.minvis) text = `invisible ${text}`;
-    if (monster.mtame) text = `tame ${text}`;
-    else if (monster.mpeaceful) text = `peaceful ${text}`;
+    if (!hallucinating && monster.mtame) text = `tame ${text}`;
+    else if (!hallucinating && monster.mpeaceful) text = `peaceful ${text}`;
     if (monster.mfrozen)
         text += ", can't move (paralyzed or sleeping or busy)";
     else if (monster.msleeping) text += ', asleep';
     else if (monster.mstrategy & STRAT_WAITMASK) text += ', meditating';
     if (monster.mleashed) text += ', leashed to you';
+    if (monster.mtrapped
+        && state
+        && cansee(monster.mx, monster.my, state)) {
+        const trap = t_at(monster.mx, monster.my, state);
+        const description = TRAP_DESCRIPTIONS[trap?.ttyp];
+        if (description
+            && ['bear trap', 'pit', 'spiked pit', 'web'].includes(
+                description,
+            )) {
+            text += `, trapped in ${indefiniteArticle(description)} ${description}`;
+            trap.tseen = true;
+        }
+    }
     return text;
 }
 
@@ -571,6 +732,52 @@ function terrainDescription(location) {
     case SINK: return 'sink';
     case FOUNTAIN: return 'fountain';
     case DRAWBRIDGE_DOWN: return 'lowered drawbridge';
+    case DRAWBRIDGE_UP: return 'raised drawbridge';
+    case POOL: return 'pool of water';
+    case MOAT: return 'moat';
+    case ICE: return 'ice';
+    case LAVAPOOL: return 'molten lava';
+    case LAVAWALL: return 'wall of lava';
+    case WATER: return 'wall of water';
+    case IRONBARS: return 'iron bars';
+    case TREE: return 'tree';
+    case CORR: return 'corridor';
+    default: return null;
+    }
+}
+
+function cmapDescription(symbol, x, y, state) {
+    const location = state.level?.at(x, y);
+    if (symbol === S_altar && location?.typ === ALTAR)
+        return altarDescription(location);
+    if ([S_ndoor, S_vodoor, S_hodoor, S_vcdoor, S_hcdoor].includes(
+        symbol,
+    ) && location?.typ === DOOR) {
+        return doorDescription(location);
+    }
+    if (symbol === S_pool
+        && [POOL, MOAT].includes(location?.typ)) {
+        return terrainDescription(location);
+    }
+    const furniture = furnitureDescription(symbol);
+    if (furniture) return furniture;
+    switch (symbol) {
+    case S_bars: return 'iron bars';
+    case S_tree: return 'tree';
+    case S_room: return 'floor of a room';
+    case S_darkroom:
+    case S_stone: return 'dark part of a room';
+    case S_corr: return 'corridor';
+    case S_litcorr: return 'lit corridor';
+    case S_pool: return 'pool';
+    case S_ice: return 'ice';
+    case S_lava: return 'molten lava';
+    case S_lavawall: return 'wall of lava';
+    case S_air: return 'air';
+    case S_cloud: return 'cloud';
+    case S_water: return location?.typ === WATER
+        ? 'wall of water' : 'water';
+    case S_poisoncloud: return 'poison cloud';
     default: return null;
     }
 }
@@ -674,6 +881,29 @@ function describeObject(object, state) {
         return `${vagueQuantity ? 'some' : quantity} ${pluralize(base)}`;
     }
     return `${indefiniteArticle(base)} ${base}`;
+}
+
+function describeGlyphUpdate(glyph, x, y, state) {
+    const subject = glyph?.a11ySubject;
+    switch (subject?.type) {
+    case 'monster':
+        return describeMonster(subject.monster, {
+            state,
+            species: subject.species,
+        });
+    case 'object':
+        return describeObject(subject.object, state);
+    case 'trap':
+        return TRAP_DESCRIPTIONS[subject.trap?.ttyp]
+            ?? TRAP_DESCRIPTIONS[subject.ttyp]
+            ?? 'trap';
+    case 'warning':
+        return def_warnsyms[subject.index]?.desc ?? null;
+    case 'cmap':
+        return cmapDescription(subject.symbol, x, y, state);
+    default:
+        return glyph?.a11yDescription ?? null;
+    }
 }
 
 function floorCovered(location) {
@@ -893,7 +1123,12 @@ export function collectMonsterNoticeMessages(state) {
 }
 
 export async function emitStartupA11yNotices(state, env = {}) {
-    const pline = env.pline ?? ttyPline;
+    const pline = env.pline;
+    if (typeof pline !== 'function') {
+        throw new TypeError(
+            'emitStartupA11yNotices requires a pline callback',
+        );
+    }
     let messages = [];
     if (state.a11y?.glyph_updates) messages = collectLookaroundMessages(state);
     else if (state.a11y?.mon_notices

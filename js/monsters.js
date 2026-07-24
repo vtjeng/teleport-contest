@@ -83,6 +83,7 @@ export const M2_SHAPESHIFTER = 16384;
 export const M2_MALE = 65536;
 export const M2_FEMALE = 131072;
 export const M2_NEUTER = 262144;
+export const M2_PNAME = 524288;
 export const M2_HOSTILE = 1048576;
 export const M2_PEACEFUL = 2097152;
 export const M2_DOMESTIC = 4194304;

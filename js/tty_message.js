@@ -5,6 +5,7 @@ import { game } from './gstate.js';
 import { flush_screen } from './display.js';
 import { encodeUtf8ByteString } from './hacklib.js';
 import { nhgetch } from './input.js';
+import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { NO_COLOR } from './terminal.js';
 
 const MORE_PROMPT = '--More--';
@@ -205,6 +206,13 @@ function rememberSuppressedMessage(state, message, columns) {
 // for a future --More--. PLINE_NOREPEAT compares the new individual message
 // against gp.prevmsg before the window port sees it.
 async function ttyPlineCore(message, state, noRepeat) {
+    // display.c show_glyph() calls pline_xy() synchronously. JS defers the
+    // awaitable TTY work, so a later ordinary message must first drain every
+    // source-earlier glyph notice. emitGlyphUpdateNotices marks its recursive
+    // ttyPline() calls to avoid re-entering this boundary.
+    if (!state._emittingGlyphUpdateNotices) {
+        await emitGlyphUpdateNotices(state, { pline: ttyPline });
+    }
     const next = ttyByteText(message);
     if (noRepeat && next === state._ttyPreviousMessage) return;
     const deathMessage = next.startsWith('You die');

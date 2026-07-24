@@ -502,6 +502,16 @@ test('startup accessibility notices preserve complete command-boundary state', a
             [2, '55184f9159866256ba9694b4fb630440b6dd61924d29ce37a7d95c91bd628eb3'],
         ],
     );
+    assert.equal(
+        game.a11y.mon_notices_blocked,
+        0,
+        'newgame re-enables notices only after the welcome boundary',
+    );
+    assert.deepEqual(
+        game._glyphUpdateNotices ?? [],
+        [],
+        'the protected pre-welcome redraw does not leak deferred notices',
+    );
 
     const spotMonsters = await runWithGridCapture({
         seed: 103,

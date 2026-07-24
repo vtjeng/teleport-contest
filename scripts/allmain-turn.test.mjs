@@ -6,6 +6,7 @@ import {
     maybe_generate_rnd_mon,
     maybeRunClairvoyance,
     maybeWipeHeroEngraving,
+    moveloop_core,
     u_calc_moveamt,
 } from '../js/allmain.js';
 import {
@@ -19,25 +20,34 @@ import {
     HVY_ENCUMBER,
     INTRINSIC,
     LEVITATION,
+    M_AP_MONSTER,
     MOD_ENCUMBER,
     NO_SPELL,
     OVERLOADED,
     PIT,
+    PROT_FROM_SHAPE_CHANGERS,
     DOOR,
     SLT_ENCUMBER,
     SV0,
     W_ARMF,
+    W_RINGL,
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { newMonster, place_monster } from '../js/monst.js';
 import {
     AT_HUGS,
     M1_CLING,
     M1_HIDE,
+    PM_GOBLIN,
     PM_KITTEN,
     PM_LICHEN,
+    PM_TENGU,
 } from '../js/monsters.js';
+import { create_region } from '../js/region.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { cansee, vision_recalc } from '../js/vision.js';
 import {
     loadFirstCompleteTurnRecipe,
 } from './run-first-complete-turn.mjs';
@@ -609,6 +619,172 @@ test('first unobstructed move records its destination before the next prompt', a
     );
     assert.equal(game.gn.notonhead, false);
 });
+
+test('movement glyph notices precede later first-turn region messages',
+    async () => {
+        const input = firstTurnInput({
+            seed: 2026072302,
+            datetime: '20260723124500',
+            name: 'NoticeOrder',
+            role: 'Wizard',
+            race: 'human',
+            gender: 'male',
+            align: 'neutral',
+            command: '',
+        });
+        // Stop at the first command boundary so this test can install a
+        // source-reachable reveal immediately before parse() reads movement.
+        input.moves = '';
+        const replay = await runSegment(input);
+        clearTtyMessageWindow(game);
+
+        const oldHero = { x: game.u.ux, y: game.u.uy };
+        const target = { x: oldHero.x + 2, y: oldHero.y + 1 };
+        for (let x = oldHero.x - 3; x <= oldHero.x + 4; ++x) {
+            for (let y = oldHero.y - 3; y <= oldHero.y + 3; ++y) {
+                const location = game.level.at(x, y);
+                if (!location) continue;
+                location.lit = false;
+                location.waslit = false;
+            }
+        }
+        vision_recalc(0);
+        assert.equal(cansee(target.x, target.y), false);
+
+        const targetLocation = game.level.at(target.x, target.y);
+        Object.assign(targetLocation, {
+            disp_ch: null,
+            disp_glyph: null,
+            gnew: 0,
+            remembered_glyph: null,
+            seenv: 0,
+        });
+        game._glyphUpdateNotices = [];
+        game.a11y = {
+            ...game.a11y,
+            glyph_updates: true,
+            mon_notices: false,
+            mon_notices_blocked: 0,
+        };
+        game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+            intrinsic: 0,
+            extrinsic: W_RINGL,
+            blocked: 0,
+        };
+        place_monster(newMonster({
+            data: game.mons[PM_TENGU],
+            mnum: PM_TENGU,
+            mhp: 10,
+            mhpmax: 10,
+            m_lev: 6,
+            mcansee: true,
+            mcanmove: true,
+            m_ap_type: M_AP_MONSTER,
+            mappearance: PM_GOBLIN,
+        }), target.x, target.y, game);
+
+        const inputFrames = [];
+        const captureInputBoundary = game._preNhgetchHook;
+        game._preNhgetchHook = async () => {
+            inputFrames.push({
+                message: game.nhDisplay.grid[0]
+                    .map((cell) => cell.ch)
+                    .join('')
+                    .trimEnd(),
+                target: {
+                    ...game.nhDisplay.grid[target.y + 1][target.x - 1],
+                },
+                cursor: [
+                    game.nhDisplay.cursorCol,
+                    game.nhDisplay.cursorRow,
+                ],
+            });
+            await captureInputBoundary();
+        };
+
+        game.nhDisplay.pushKey('l'.charCodeAt(0));
+        await moveloop_core();
+
+        assert.deepEqual(
+            [game.u.ux, game.u.uy],
+            [oldHero.x + 1, oldHero.y],
+        );
+        assert.equal(cansee(target.x, target.y), true);
+        assert.equal(
+            game._pending_message,
+            '(west): branch staircase up.  (southeast): goblin.',
+        );
+        assert.equal(game._glyphUpdateNotices.length, 0);
+        // display.c installs and flushes the transient disguise for
+        // show_glyph()'s pline_xy(), then leaves the real monster in gbuf.
+        assert.equal(
+            game.nhDisplay.grid[target.y + 1][target.x - 1].ch,
+            'o',
+        );
+        assert.equal(targetLocation.disp_ch, 'i');
+        assert.deepEqual(
+            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+            [game.u.ux - 1, game.u.uy + 1],
+        );
+
+        // C ref: allmain.c moveloop_core() runs region expiry after movement
+        // allocation on the next elapsed turn. Its ordinary pline first
+        // exposes the source-earlier glyph notice at a More boundary.
+        const cloud = create_region([{
+            lx: oldHero.x,
+            ly: oldHero.y,
+            hx: oldHero.x,
+            hy: oldHero.y,
+        }]);
+        Object.assign(cloud, {
+            ttl: 0,
+            visible: true,
+            expire_f: 1,
+            arg: 0,
+        });
+        game.level.regions.push(cloud);
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await assert.rejects(
+            moveloop_core(),
+            /Input queue empty/u,
+        );
+
+        assert.equal(game.level.regions.includes(cloud), false);
+        assert.equal(
+            game._pending_message,
+            'You see a gas cloud dissipate.',
+        );
+        assert.equal(targetLocation.disp_ch, 'i');
+        assert.deepEqual(
+            inputFrames.map(({ message, target: cell, cursor }) => ({
+                message,
+                target: cell.ch,
+                cursor,
+            })),
+            [
+                {
+                    message: '',
+                    target: ' ',
+                    cursor: [oldHero.x - 1, oldHero.y + 1],
+                },
+                {
+                    message: '(west): branch staircase up.  '
+                        + '(southeast): goblin.--More--',
+                    target: 'i',
+                    cursor: [58, 0],
+                },
+                {
+                    message: 'You see a gas cloud dissipate.',
+                    target: 'i',
+                    cursor: [game.u.ux - 1, game.u.uy + 1],
+                },
+            ],
+        );
+        assert.deepEqual(
+            replay.getCursors().slice(-3),
+            inputFrames.map(({ cursor }) => [...cursor, 1]),
+        );
+    });
 
 test('blind first-turn search maps a discovered door by touch', async () => {
     // Reuse the seed sighted first.  The contestant module serves multiple

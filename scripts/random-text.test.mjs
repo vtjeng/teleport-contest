@@ -42,11 +42,12 @@ function scriptedRandom(script) {
 
 test('generated random-text data matches the pinned source and byte layout', () => {
     const sourceHashes = {
-        // These hashes pin the four upstream data inputs at revision 16ff591.
+        // These hashes pin the five upstream data inputs at revision 16ff591.
         'rumors.tru': '86464822e8e09ca653f9e588f696b7af3d986fe17145454a5c101e2bdf98b012',
         'rumors.fal': '2f1ca072a66c1ee83aa3e87762f84721c91ea97dc1949fd01d65ecc55f6fda06',
         'engrave.txt': '9dbe56e0a14786d9a406778ddb1bcaba31fbba758b21149dff5210f32df93585',
         'epitaph.txt': '35e7176fa4cab2496c23b46b8ae39babcb8681c067750d491782e0497e1f7a1d',
+        'bogusmon.txt': '3a788fee5f241732f4da8072e2d7790052b27a8b2792320afc1bf85d96248731',
     };
     for (const [filename, expected] of Object.entries(sourceHashes)) {
         const source = readFileSync(
@@ -69,6 +70,7 @@ test('generated random-text data matches the pinned source and byte layout', () 
         rumors: '1e5958f52212d0792a5e62953f7a5f530dedd0f192bb4077d8faf2b848c94c30',
         engrave: '997a0b2ecc90a46f58e8c9df0682710fa3aaaacbe3464f12d0300d234159849d',
         epitaph: 'a5325ff6040e99103a245b90521dee0f47b0f64e4c628f75765e837ffcd56318',
+        bogusmon: '889f9966974ad5d714d7bdd33619b4636bb751004459655d6d7c0a450b3e0681',
     });
     for (const [filename, data] of Object.entries(RANDOM_TEXT_FILES))
         assert.equal(sha256(data, 'latin1'), RANDOM_TEXT_FILE_HASHES[filename]);
@@ -90,6 +92,8 @@ test('rumor header retains the generated section offsets and byte bounds', () =>
     // The random-access files have one 60-byte generated comment record.
     assert.equal(RANDOM_TEXT_FILES.engrave.length - 60, 2894);
     assert.equal(RANDOM_TEXT_FILES.epitaph.length - 60, 24075);
+    // Hallucinatory monster names use makedefs' separate 20-byte padding.
+    assert.equal(RANDOM_TEXT_FILES.bogusmon.length - 60, 7640);
 });
 
 test('xcrypt resets its five-bit mask and decrypts its own output', () => {
