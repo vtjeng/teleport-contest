@@ -33,10 +33,13 @@ upstream source.
 search, doors, traps, pickup, stairs, terrain effects, vision, and status
 updates.
 
-**Current focus:** Investigate the historical development-score regression
-between `080242cdc7e5a633e99e301a17cdfbca1c257872` and
-`54c3a846cf1fc6c8b37e7e23c3450889da543f1c` before selecting the next
-source-faithful exploration slice.
+**Current focus:** Extend source-faithful turn ownership past the completed
+first turn, beginning with the general active-monster and later-turn replay
+boundary needed by multi-step exploration. The historical 302-to-204
+development-score drop at
+`68472ba3aa99786e5c3e01f4407b07bc853ea89b` intentionally removed matches
+earned after those behaviors became unowned; do not recover that credit by
+relaxing the fail-closed boundary.
 
 ## Later milestones
 
