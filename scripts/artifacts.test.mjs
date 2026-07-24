@@ -17,9 +17,17 @@ import {
     NROFARTIFACTS,
     createArtifactTable,
     init_artifacts,
+    touch_artifact,
 } from '../js/artifacts.js';
 import { A_NONE, NON_PM } from '../js/const.js';
-import { PM_ELF, PM_ORC } from '../js/monsters.js';
+import {
+    M2_DEMON,
+    M3_COVETOUS,
+    PM_ELF,
+    PM_KITTEN,
+    PM_ORC,
+    PM_WIZARD,
+} from '../js/monsters.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     ROLE_ALIGNMASK,
@@ -180,6 +188,54 @@ test('role and race-sensitive records keep their distinct startup behavior', () 
         knight.artilist[ART_MAGIC_MIRROR_OF_MERLIN].role,
         knight.urole.mnum,
     );
+});
+
+test('monster artifact touching applies alignment, class, and bane gates', () => {
+    const state = stateFor('Wiz', 'neutral');
+    init_artifacts(state);
+    const kitten = {
+        data: {
+            pmidx: PM_KITTEN,
+            maligntyp: 0,
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    };
+    const demonbane = { oartifact: ART_DEMONBANE };
+
+    // A neutral kitten refuses restricted lawful Demonbane, while an
+    // otherwise identical lawful monster can touch it.
+    assert.equal(touch_artifact(demonbane, kitten, { state }), false);
+    const lawful = {
+        data: { ...kitten.data, maligntyp: 5 },
+    };
+    assert.equal(touch_artifact(demonbane, lawful, { state }), true);
+
+    // Demonbane's DFLAG2 bane check still rejects a coaligned demon.
+    const lawfulDemon = {
+        data: { ...lawful.data, mflags2: M2_DEMON },
+    };
+    assert.equal(touch_artifact(demonbane, lawfulDemon, { state }), false);
+
+    // Covetous monsters and role-player monsters bypass ordinary class and
+    // alignment restrictions, but not a category bane.
+    const covetous = {
+        data: { ...kitten.data, mflags3: M3_COVETOUS },
+    };
+    assert.equal(touch_artifact(demonbane, covetous, { state }), true);
+    const playerMonster = {
+        data: { ...kitten.data, pmidx: PM_WIZARD },
+    };
+    assert.equal(touch_artifact(demonbane, playerMonster, { state }), true);
+
+    // An ordinary monster also refuses a self-willed role artifact even when
+    // no artifact alignment mismatch is needed to reject it.
+    assert.equal(touch_artifact(
+        { oartifact: ART_MAGIC_MIRROR_OF_MERLIN },
+        lawful,
+        { state },
+    ), false);
 });
 
 test('per-game tables and tracking state do not leak across initialization', () => {

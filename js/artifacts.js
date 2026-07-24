@@ -30,6 +30,7 @@ import {
     M2_ORC,
     M2_UNDEAD,
     M2_WERE,
+    M3_COVETOUS,
     PM_ARCHEOLOGIST,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
@@ -424,6 +425,78 @@ export function init_artifacts(state = game) {
     state.artilist = createArtifactTable();
     hack_artifacts(state);
     return state.artilist;
+}
+
+function monsterAlignment(monster) {
+    const raw = monster.ispriest
+        ? monster.mextra?.epri?.shralign
+        : monster.isminion
+            ? monster.mextra?.emin?.min_align
+            : monster.data?.maligntyp;
+    if (raw === A_NONE) return A_NONE;
+    return Math.sign(raw ?? 0);
+}
+
+function isMonsterPlayer(monster) {
+    const pmidx = monster.data?.pmidx ?? monster.mnum;
+    return pmidx >= PM_ARCHEOLOGIST && pmidx <= PM_WIZARD;
+}
+
+// C ref: artifact.c bane_applies()/spec_applies(). touch_artifact() only asks
+// this about SPFX_DBONUS category artifacts, so none of the attack-resistance
+// cases (including their random magic-resistance check) can execute here.
+function artifactBaneApplies(artifact, monster) {
+    if (!(artifact.spfx & SPFX_DBONUS)) return false;
+    const species = monster.data ?? {};
+    if (artifact.spfx & SPFX_DMONS)
+        return species.pmidx === artifact.mtype;
+    if (artifact.spfx & SPFX_DCLAS)
+        return species.mlet === artifact.mtype;
+    if (artifact.spfx & SPFX_DFLAG1)
+        return Boolean((species.mflags1 ?? 0) & artifact.mtype);
+    if (artifact.spfx & SPFX_DFLAG2)
+        return Boolean((species.mflags2 ?? 0) & artifact.mtype);
+    if (artifact.spfx & SPFX_DALIGN) {
+        const alignment = monsterAlignment(monster);
+        return alignment === A_NONE || alignment !== artifact.alignment;
+    }
+    return false;
+}
+
+// C ref: artifact.c touch_artifact(), non-hero branch. Monsters either accept
+// or refuse an artifact without messages, damage, state changes, or PRNG.
+export function touch_artifact(obj, monster, env = game) {
+    const state = artifactTables(env);
+    const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
+    if (index === ART_NONARTIFACT) return true;
+    if (index < 1 || index > NROFARTIFACTS
+        || !state.artilist[index].otyp) {
+        throw new RangeError(`invalid artifact index ${index}`);
+    }
+    if (monster === state.youmonst)
+        throw new Error('hero touch_artifact is outside the monster owner');
+
+    const artifact = state.artilist[index];
+    const selfWilled = Boolean(artifact.spfx & SPFX_INTEL);
+    const specialMonster = Boolean(
+        (monster.data?.mflags3 ?? 0) & M3_COVETOUS,
+    ) || isMonsterPlayer(monster);
+    let badclass = false;
+    let badalign = false;
+    if (!specialMonster) {
+        badclass = selfWilled
+            && artifact.role !== NON_PM
+            && index !== ART_EXCALIBUR;
+        badalign = Boolean(artifact.spfx & SPFX_RESTR)
+            && artifact.alignment !== A_NONE
+            && artifact.alignment !== monsterAlignment(monster);
+    }
+    if (!badalign)
+        badalign = artifactBaneApplies(artifact, monster);
+
+    if (((badclass || badalign) && selfWilled) || badalign)
+        return false;
+    return !(badclass && badalign && selfWilled);
 }
 
 const ORIGIN_FLAGS = Object.freeze([
