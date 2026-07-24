@@ -699,6 +699,8 @@ export async function moveloop_core() {
         vision_recalc(0);
         g.vision_full_recalc = 0;
     }
+    // Close the elapsed turn's display work before status calculation and
+    // flushing can expose the completed frame.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
     find_ac(g);
     await bot();
@@ -708,6 +710,7 @@ export async function moveloop_core() {
         state: g,
         random: { d, rn1, rn2, rnd, rne, rnl, rnz },
     });
+    // Close glyph work produced by region hooks before command dispatch.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
 
     // C ref: allmain.c moveloop_core(). A positive multi repeats the saved

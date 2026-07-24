@@ -630,6 +630,9 @@ function withAccessibilityMetadata(
     subject,
     description = null,
 ) {
+    // Keep these sidecars non-enumerable so ordinary presentation copies retain
+    // their established shape. Display-buffer and map-memory boundaries copy
+    // the selected metadata they need explicitly.
     Object.defineProperties(glyph, {
         a11yKind: {
             configurable: true,
@@ -769,13 +772,13 @@ function withMonsterAccessibility(
     monster,
     species,
     state,
-    family = 'monster',
+    identityVariant = 'monster',
 ) {
     if (!state.a11y?.glyph_updates) return glyph;
     return withAccessibilityMetadata(
         glyph,
         'monster',
-        `monster:${family}:${species?.pmidx ?? -1}:${monster.female ? 1 : 0}`,
+        `monster:${identityVariant}:${species?.pmidx ?? -1}:${monster.female ? 1 : 0}`,
         { type: 'monster', monster, species },
     );
 }
@@ -1341,6 +1344,10 @@ export function show_glyph_cell(x, y, glyph) {
     loc.disp_browser_color = displayColor ?? (displayCh ? color : null);
     loc.disp_browser_attr = displayCh ? attr | 0 : null;
     loc.gnew = 1;
+    // This order is the sparse-frame contract: install the buffer write, record
+    // its mutation, then test notice eligibility and queue it. The first
+    // eligible notice captures a full frame; filtered intervening writes remain
+    // in the delta applied before the next eligible notice.
     noteGlyphBufferMutation(x, y, game);
     queueGlyphUpdateNotice(
         x,
@@ -1358,7 +1365,9 @@ export function show_glyph_cell(x, y, glyph) {
  * fields (`dec`, optional browser/RGB metadata); the result uses the
  * persistent `decgfx` field. Pass `trap` only when the remembered layer itself
  * represents that trap; hidden traps beneath another remembered layer must not
- * contribute their logical identity.
+ * contribute their logical identity. Accessibility identity and subject are
+ * canonical remembered-glyph state used to describe hero-memory mimics and
+ * hiders, so this boundary copies those sidecars explicitly.
  */
 export function remembered_glyph_from_presentation(glyph, trap = null) {
     if (!glyph || typeof glyph !== 'object'

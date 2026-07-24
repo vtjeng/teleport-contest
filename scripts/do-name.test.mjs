@@ -10,6 +10,9 @@ import {
     SIR_TERRY_NOVELS,
 } from '../js/do_name.js';
 import {
+    MD_PAD_BOGONS,
+} from '../js/const.js';
+import {
     G_NOGEN,
     LOW_PM,
     M2_PNAME,
@@ -17,6 +20,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { xcrypt } from '../js/random_text.js';
+import { RANDOM_TEXT_FILES } from '../js/random_text_data.js';
 
 function titleDraw(result) {
     let draws = 0;
@@ -79,11 +83,15 @@ test('rndmonnam retries source-excluded monsters before its gender draw', () => 
 test('rndmonnam uses the generated bogusmon byte layout and strips codes', () => {
     const state = {};
     monst_globals_init(state);
+    // makedefs emits one 60-byte header record before the 7,640-byte selectable
+    // bogusmon payload used as get_rnd_text()'s offset bound.
+    const selectableBytes = RANDOM_TEXT_FILES.bogusmon.length - 60;
+    assert.equal(selectableBytes, 7640);
     const script = [
         { bound: SPECIAL_PM + 100 - LOW_PM, result: SPECIAL_PM },
         // Offset zero skips the generated "grue" default and selects the
         // first source record.
-        { bound: 7640, result: 0 },
+        { bound: selectableBytes, result: 0 },
     ];
     assert.equal(rndmonnam({
         state,
@@ -96,7 +104,10 @@ test('rndmonnam uses the generated bogusmon byte layout and strips codes', () =>
     assert.deepEqual(script, []);
 
     const comment = "#\tgenerated\n";
-    const pad = (text) => `${text}${'_'.repeat(19 - text.length)}\n`;
+    // MD_PAD_BOGONS includes the trailing newline in each padded record.
+    const pad = (text) => `${text}${
+        '_'.repeat(MD_PAD_BOGONS - 1 - text.length)
+    }\n`;
     const files = {
         bogusmon: comment
             + xcrypt(pad('discard'))

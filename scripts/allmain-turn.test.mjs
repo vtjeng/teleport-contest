@@ -632,6 +632,9 @@ test('movement glyph notices precede later first-turn region messages',
             align: 'neutral',
             command: '',
         });
+        // This seed supplies an unobstructed east step. From the new square,
+        // the branch staircase is west and the newly revealed disguised
+        // monster is southeast.
         // Stop at the first command boundary so this test can install a
         // source-reachable reveal immediately before parse() reads movement.
         input.moves = '';
@@ -771,6 +774,8 @@ test('movement glyph notices precede later first-turn region messages',
                     message: '(west): branch staircase up.  '
                         + '(southeast): goblin.--More--',
                     target: 'i',
+                    // The 50-byte notice plus the eight-byte --More-- prompt
+                    // leaves the tty cursor at column 58.
                     cursor: [58, 0],
                 },
                 {

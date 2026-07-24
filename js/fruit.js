@@ -287,9 +287,9 @@ function chKsound(value) {
         && CH_K_SOUND.some((suffix) => endsWithCI(value, suffix));
 }
 
-// C ref: objnam.c makeplural(). Object names use this after any compound
-// suffix has been separated, so "potion of healing" becomes "potions of
-// healing" rather than "potion of healings".
+// C ref: objnam.c makeplural(). This accepts the complete name and separates a
+// compound suffix itself before pluralizing the leading noun, so "potion of
+// healing" becomes "potions of healing" rather than "potion of healings".
 export function makeplural(oldstr) {
     const original = String(oldstr ?? '').replace(/^ +/u, '');
     if (!original) return 's';

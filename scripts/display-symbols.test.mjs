@@ -2115,7 +2115,7 @@ test('disabled glyph updates do not decorate ordinary render records', () => {
     }
 });
 
-test('queued glyph notices retain each distinct sparse frame', async () => {
+test('cumulative sparse notice frames retain filtered writes', async () => {
     const state = visibleCellState();
     enableGlyphNotices(state);
     const first = state.level.at(7, 4);
@@ -2143,6 +2143,8 @@ test('queued glyph notices retain each distinct sparse frame', async () => {
     );
 
     show_glyph_cell(7, 4, fountain);
+    // ROOM is ineligible for a notice, but its intervening buffer write must be
+    // present when the subsequent pit notice replays its cumulative frame.
     show_glyph_cell(9, 4, room);
     show_glyph_cell(8, 4, pit);
     show_glyph_cell(10, 4, altar);
@@ -2267,6 +2269,9 @@ test('warning notices preserve ordinary and hallucinated display RNG', () => {
             mx: 7,
             my: 4,
         };
+        // m_lev 8 maps to warning level 2 and clears the warnlevel-1 threshold.
+        // The fixed seed makes the hallucinated warning reproducible;
+        // rn2(997) is a sentinel for the next draw on the display stream.
         const seed = 0x2a17n;
         initRng(seed);
         newsym(7, 4);
@@ -2379,7 +2384,7 @@ test('object-shaped mimic notices name buffered object classes and bodies', () =
     }
 });
 
-test('buffered corpse identity does not displace a live corpse of that type', () => {
+test('buffered goblin corpse uses the live tengu corpse of that object type', () => {
     const x = 7;
     const y = 4;
     const state = visibleCellState({ x, y, ux: 1, uy: 1 });
@@ -2432,6 +2437,8 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
         corpsenm: PM_GOBLIN,
         dknown: true,
     }, state);
+    // pager.c:object_from_map() matches the live object by CORPSE otyp only;
+    // the goblin species in the buffered glyph does not displace the tengu.
     const seed = 2026072412;
     initRng(seed);
     const expectedFollowingDraw = rn2(997);
@@ -2459,6 +2466,10 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
 });
 
 test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
+    // These cases cover a direct mksobj(), generic-class mkobj(), and corpse
+    // finalization plus timer cleanup. trace is the complete constructor draw
+    // sequence, ident is next_ident state afterward, and following verifies the
+    // next gameplay RNG draw after reconstruction and cleanup.
     const scenarios = [
         {
             name: 'regular',

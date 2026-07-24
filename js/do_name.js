@@ -121,9 +121,10 @@ export function bogusmon(env = {}) {
     };
 }
 
-// C ref: do_name.c rndmonnam(). The first draw shares the display RNG with
-// monster glyph randomization. Actual monster names consume a second gender
-// draw; bogus names consume get_rnd_text()'s byte-offset draw instead.
+// C ref: do_name.c rndmonnam(). Candidate selection shares the display RNG
+// with monster glyph randomization and may retry excluded species. An ordinary
+// monster then draws its gender; a bogus name instead uses get_rnd_text()'s
+// byte-offset selection, which may retry when it lands in a long record.
 export function rndmonnam(env = {}) {
     const state = env.state ?? game;
     const random = displayRandomFunction(

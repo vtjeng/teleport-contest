@@ -1,6 +1,7 @@
-// Startup accessibility notices.
+// Accessibility notices for startup scans and turn-time glyph updates.
 // C refs: allmain.c:newgame(); cmd.c:dolookaround();
-// hack.c:notice_all_mons(); getpos.c:coord_desc().
+// hack.c:notice_all_mons(); getpos.c:coord_desc(); display.c:show_glyph();
+// pager.c:do_screen_description(), look_at_monster(), object_from_map().
 
 import {
     ALTAR,
@@ -302,6 +303,9 @@ function sameGlyphIdentity(left, right) {
     return left.a11yKind === right.a11yKind && left.ch === right.ch;
 }
 
+// Complete levl location schema replayed around queued notice frames.
+// Reconciliation compares every field here and the nested disp_glyph
+// presentation, so capture, restore, and delta application must stay coupled.
 const GLYPH_BUFFER_FIELDS = Object.freeze([
     'disp_ch',
     'disp_color',
@@ -374,6 +378,9 @@ function sameBufferedPresentation(left, right) {
             if (leftGlyph !== rightGlyph) return false;
             continue;
         }
+        // a11ySubject may point at mutable monster or object state, so comparing
+        // it would make frame equality depend on later mutations. a11yIdentity
+        // carries the stable logical distinction needed for reconciliation.
         const scalarMatch = [
             'ch',
             'color',
@@ -476,9 +483,10 @@ function reconcileFinalGlyphBuffer(state, finalBuffer, flushedBuffer) {
     }
 }
 
-// Called by display.c's JavaScript show_glyph() boundary after the buffered
-// cell has been installed. Once a notice sequence starts, retain only cells
-// mutated since its preceding source-order pline instead of another full map.
+// Called by display.js:show_glyph_cell(), the local display.c:show_glyph()
+// boundary, after the buffered cell has been installed. Once a notice sequence
+// starts, retain only cells mutated since its preceding source-order pline
+// instead of another full map.
 export function noteGlyphBufferMutation(x, y, state) {
     const tracker = state._glyphNoticeFrameTracker;
     if (!tracker || state._emittingGlyphUpdateNotices) return;
@@ -776,6 +784,10 @@ function monsterSurfaceDescription(monster, state) {
         ? 'floor' : 'ground';
 }
 
+// Distinguish three buffered-subject states. Present null or non-object
+// metadata blocks inference; only a remembered glyph without the sidecar may
+// use the legacy mimic fallback. A live glyph in no-memory mode never falls
+// back because it is the current display source.
 function bufferedGlyphSubjectAt(monster, state) {
     const location = state.level?.at(
         monster.mx,
@@ -814,6 +826,9 @@ function bufferedObjectSubjectAt(monster, state) {
     };
 }
 
+// describe is synchronous and may return derived data but must not retain its
+// argument. Synthetic objects are deallocated as soon as it returns; live
+// objects remain owned by the level.
 function withBufferedObject(subject, x, y, state, describe) {
     const resolved = objectFromBufferedGlyph(subject, x, y, state);
     try {
@@ -910,7 +925,10 @@ function monsterHiddenDescription(monster, state) {
 // C ref: pager.c look_at_monster() and do_name.c distant_monnam(). The
 // optional species is the actual buffered monster glyph (including a
 // monster-shaped mimic appearance); hallucination replaces the name through
-// rndmonnam() but retains invisible and mobility suffixes.
+// rndmonnam() but retains invisible and mobility suffixes. env.state is
+// required for full pager semantics: hero status and equipment, visibility,
+// terrain, regions, catalog state, and display RNG all affect the result.
+// Omitting it intentionally exposes only the reduced naming behavior.
 export function describeMonster(monster, env = {}) {
     const state = env.state;
     const hallucinating = env.hallucinating
@@ -1293,7 +1311,9 @@ function objectDamageModifiers(object, type) {
     return result;
 }
 
-function objectMatchesBufferedSubject(object, subject) {
+// pager.c:object_from_map() matches live floor and buried objects by otyp only;
+// the buffered corpse species or other instance fields do not refine lookup.
+function objectMatchesBufferedObjectType(object, subject) {
     if (!object) return false;
     // Generic glyphs encode their class in glyph_to_obj(), and no live
     // object uses those reserved pre-FIRST_OBJECT type slots.
@@ -1316,11 +1336,12 @@ function observeBufferedObject(object, synthetic, x, y, state) {
 // C ref: pager.c object_from_map(). The rendered object used to choose a
 // glyph is not necessarily the semantic object being described: hallucination
 // and object-shaped mimics reconstruct from buffered identity and map state.
-// The ownership tag mirrors object_from_map()'s fakeobj return so callers
-// cannot accidentally retain or mutate a temporary as linked game state.
+// The ownership tag mirrors object_from_map()'s fakeobj return and lets
+// withBufferedObject() clean up synthetic results instead of treating them as
+// linked game state.
 function objectFromBufferedGlyph(subject, x, y, state) {
     let object = state.level?.objects?.[x]?.[y] ?? null;
-    while (object && !objectMatchesBufferedSubject(object, subject))
+    while (object && !objectMatchesBufferedObjectType(object, subject))
         object = object.nexthere;
     if (!object) {
         for (let buried = state.level?.buriedobjlist
@@ -1328,7 +1349,7 @@ function objectFromBufferedGlyph(subject, x, y, state) {
             buried;
             buried = buried.nobj) {
             if (buried.ox === x && buried.oy === y
-                && objectMatchesBufferedSubject(buried, subject)) {
+                && objectMatchesBufferedObjectType(buried, subject)) {
                 object = buried;
                 break;
             }
@@ -1407,6 +1428,10 @@ function describeObject(object, state) {
     return `${indefiniteArticle(base)} ${base}`;
 }
 
+// Stateful pager.c:do_screen_description() boundary. Object reconstruction can
+// consume gameplay RNG and update discoveries; hallucinated descriptions can
+// consume display RNG. queueGlyphUpdateNotice() must call this exactly once
+// while queuing and cache the resulting notice text for later emission.
 function describeGlyphUpdate(glyph, x, y, state) {
     const subject = glyph?.a11ySubject;
     switch (subject?.type) {
