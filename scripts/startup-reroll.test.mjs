@@ -451,6 +451,18 @@ test('reroll rows compute glyphs before names and honor artifact fruit articles'
         identifiedStartingObjectName(fruit, state),
         'the uncursed Orb of Detection',
     );
+
+    fruit.quan = 2;
+    state.gf.ffruit.fname = 'blueberries';
+    assert.equal(
+        identifiedStartingObjectName(fruit, state),
+        '2 uncursed blueberries',
+    );
+    state.gf.ffruit.fname = 'foo@';
+    assert.equal(
+        identifiedStartingObjectName(fruit, state),
+        '2 uncursed foo@s',
+    );
 });
 
 test('reroll choice increments only for y and supports cancel fallback', async () => {

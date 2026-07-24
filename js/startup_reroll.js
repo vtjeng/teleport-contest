@@ -32,6 +32,7 @@ import {
 import {
     fruit_from_indx,
     makeplural,
+    matching_artifact_fruit,
     makesingular,
 } from './fruit.js';
 import { game } from './gstate.js';
@@ -121,22 +122,6 @@ function foodBaseName(obj, state) {
     return objectActualName(obj, state);
 }
 
-function matchingArtifactFruit(name, state) {
-    const candidate = String(name).replace(/^the /iu, '').toLowerCase();
-    for (let index = 1; state.artilist?.[index]?.otyp; ++index) {
-        const artifactName = state.artilist[index].name;
-        if (typeof artifactName !== 'string') continue;
-        const comparable = artifactName.replace(/^the /iu, '').toLowerCase();
-        if (candidate === comparable) {
-            return {
-                forceThe: /^the /iu.test(artifactName),
-                name: artifactName,
-            };
-        }
-    }
-    return null;
-}
-
 function gemBaseName(obj, state) {
     const type = objectType(obj, state);
     let name = objectActualName(obj, state);
@@ -224,7 +209,7 @@ function identifiedStartingObjectName(obj, state) {
     const quantity = Math.trunc(obj.quan ?? 1);
     let base = baseObjectName(obj, state);
     const artifactFruit = obj.otyp === O.SLIME_MOLD
-        ? matchingArtifactFruit(base, state) : null;
+        ? matching_artifact_fruit(base, state) : null;
     if (quantity !== 1) {
         if (obj.otyp === O.SLIME_MOLD) {
             // xname() first singularizes user fruit names to avoid adding a

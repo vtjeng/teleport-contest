@@ -206,6 +206,7 @@ test('makeplural preserves source compounds and irregular object names', () => {
         ['monarch', 'monarchs'],
         ['pair of boots', 'pair of boots'],
         ['blueberry', 'blueberries'],
+        ['foo@', 'foo@s'],
         ['HE', 'They'],
     ];
     for (const [singular, plural] of cases)

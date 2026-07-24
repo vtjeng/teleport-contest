@@ -90,6 +90,7 @@ import { hliquid, rndmonnam } from './do_name.js';
 import {
     fruit_from_indx,
     makeplural,
+    matching_artifact_fruit,
     makesingular,
 } from './fruit.js';
 import { m_at } from './monst.js';
@@ -833,9 +834,9 @@ function simpleObjectName(object, state) {
 
 function hiddenObjectPhrase(object, state) {
     const name = simpleObjectName(object, state);
-    return Math.trunc(object.quan ?? 1) === 1
-        ? `${indefiniteArticle(name)} ${name}`
-        : name;
+    if (Math.trunc(object.quan ?? 1) !== 1) return name;
+    return /^the /iu.test(name)
+        ? name : `${indefiniteArticle(name)} ${name}`;
 }
 
 function monsterHiddenDescription(monster, state) {
@@ -1390,12 +1391,17 @@ function describeObject(object, state) {
     const type = state.objects?.[object.otyp];
     const modifiers = `${object.greased ? 'greased ' : ''}`
         + objectDamageModifiers(object, type);
-    const base = `${modifiers}${objectBaseName(object, state)}`;
+    const name = objectBaseName(object, state);
+    const base = `${modifiers}${name}`;
     if (quantity !== 1) {
-        return `${vagueQuantity ? 'some' : quantity} ${
-            pluralObjectName(object, base)
-        }`;
+        const plural = `${modifiers}${pluralObjectName(object, name)}`;
+        return `${vagueQuantity ? 'some' : quantity} ${plural}`;
     }
+    const artifactFruit = object.otyp === SLIME_MOLD
+        ? matching_artifact_fruit(name, state) : null;
+    if (artifactFruit?.forceThe)
+        return `the ${modifiers}${name.replace(/^the /iu, '')}`;
+    if (artifactFruit) return base;
     return `${indefiniteArticle(base)} ${base}`;
 }
 

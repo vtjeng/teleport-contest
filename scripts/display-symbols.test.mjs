@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { createArtifactTable } from '../js/artifacts.js';
 import {
     AM_CHAOTIC,
     AM_LAWFUL,
@@ -48,6 +49,7 @@ import {
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    ROT_CORPSE,
     SCORR,
     SDOOR,
     SEE_INVIS,
@@ -68,6 +70,7 @@ import {
     TRCORNER,
     TRWALL,
     TUWALL,
+    TIMER_OBJECT,
     VWALL,
     WATER,
     WARNING,
@@ -159,8 +162,9 @@ import {
     T_SHIRT,
     TWO_HANDED_SWORD,
     WEAPON_CLASS,
+    WORTHLESS_BLACK_GLASS,
 } from '../js/objects.js';
-import { timeout_globals_init } from '../js/timeout.js';
+import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { HLIQUIDS } from '../js/random_text_data.js';
 import {
     ATR_BOLD,
@@ -2381,7 +2385,7 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
     const state = visibleCellState({ x, y, ux: 1, uy: 1 });
     enableGlyphNotices(state);
     init_objects(state, () => 0);
-    const linkedObject = {
+    const pileSuccessor = {
         otyp: ARROW,
         oclass: state.objects[ARROW].oc_class,
         where: OBJ_FLOOR,
@@ -2389,6 +2393,15 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
         oy: y,
         nexthere: null,
         nobj: null,
+    };
+    const listSuccessor = {
+        otyp: SPEAR,
+        oclass: state.objects[SPEAR].oc_class,
+        where: OBJ_FLOOR,
+        ox: x + 1,
+        oy: y,
+        nexthere: null,
+        nobj: pileSuccessor,
     };
     const extra = { marker: 'object extra' };
     const liveCorpse = {
@@ -2400,13 +2413,19 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
         where: OBJ_FLOOR,
         ox: x,
         oy: y,
-        nexthere: linkedObject,
-        nobj: linkedObject,
+        nexthere: pileSuccessor,
+        nobj: listSuccessor,
         timed: 0,
         oextra: extra,
     };
     state.level.objects[x][y] = liveCorpse;
+    state.level.objects[x + 1][y] = listSuccessor;
     state.level.objlist = liveCorpse;
+    assert.equal(
+        start_timer(25, TIMER_OBJECT, ROT_CORPSE, liveCorpse, state),
+        true,
+    );
+    const liveTimer = state.gt.timer_base;
     const buffered = object_glyph_info({
         otyp: CORPSE,
         oclass: state.objects[CORPSE].oc_class,
@@ -2429,9 +2448,13 @@ test('buffered corpse identity does not displace a live corpse of that type', ()
     assert.equal(state.level.objects[x][y], liveCorpse);
     assert.equal(state.level.objlist, liveCorpse);
     assert.equal(liveCorpse.where, OBJ_FLOOR);
-    assert.equal(liveCorpse.nexthere, linkedObject);
-    assert.equal(liveCorpse.nobj, linkedObject);
-    assert.equal(liveCorpse.timed, 0);
+    assert.equal(liveCorpse.nexthere, pileSuccessor);
+    assert.equal(liveCorpse.nobj, listSuccessor);
+    assert.equal(listSuccessor.nobj, pileSuccessor);
+    assert.equal(liveCorpse.timed, 1);
+    assert.equal(state.gt.timer_base, liveTimer);
+    assert.equal(liveTimer.arg, liveCorpse);
+    assert.equal(liveTimer.next, null);
     assert.equal(liveCorpse.oextra, extra);
 });
 
@@ -2530,7 +2553,21 @@ test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
 test('synthetic buffered names retain constructor-selected material and fruit', () => {
     const x = 7;
     const y = 4;
-    {
+    const gemScenarios = [
+        {
+            seed: 2,
+            selected: ROCK,
+            trace: ['rnd(1000)=934', 'rnd(2)=1', 'rn2(6)=2'],
+            message: '(3south,6east): some stones.',
+        },
+        {
+            seed: 1,
+            selected: WORTHLESS_BLACK_GLASS,
+            trace: ['rnd(1000)=646', 'rnd(2)=1', 'rn2(6)=0'],
+            message: '(3south,6east): some gems.',
+        },
+    ];
+    for (const scenario of gemScenarios) {
         const state = visibleCellState({ x, y, ux: 1, uy: 1 });
         enableGlyphNotices(state);
         init_objects(state, () => 0);
@@ -2539,14 +2576,19 @@ test('synthetic buffered names retain constructor-selected material and fruit', 
             oclass: state.objects[DIAMOND].oc_class,
             dknown: false,
         }, state);
-        initRng(2);
+        initRng(scenario.seed);
+        enableRngLog();
 
         show_glyph_cell(x, y, glyph);
 
+        assert.deepEqual([...getRngLog()], scenario.trace);
+        assert.equal(state.context.ident, 3);
         assert.equal(
             state._glyphUpdateNotices[0].message,
-            '(3south,6east): some stones.',
-            `seed 2 must retain generic ${ROCK}'s mineral identity`,
+            scenario.message,
+            `seed ${scenario.seed} must retain generic ${
+                scenario.selected
+            }'s material identity`,
         );
     }
     {
@@ -2770,6 +2812,107 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     assert.match(
         describeMonster(monster(PM_TENGU, { mundetected: false }), { state }),
         /, in a cloud of poison gas$/u,
+    );
+});
+
+test('fruit object descriptions preserve source articles and plural order', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: x - 1, uy: y });
+    enableGlyphNotices(state);
+    init_objects(state, () => 0);
+    state.artilist = createArtifactTable();
+    state.gf = {
+        ffruit: {
+            fname: 'Excalibur',
+            fid: 7,
+            nextf: null,
+        },
+    };
+    const fruit = {
+        otyp: SLIME_MOLD,
+        oclass: state.objects[SLIME_MOLD].oc_class,
+        spe: 7,
+        dknown: true,
+        quan: 1,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: null,
+    };
+    const hider = {
+        data: state.mons[PM_GARTER_SNAKE],
+        mtame: 0,
+        minvis: false,
+        mundetected: true,
+        m_ap_type: 0,
+        mx: x,
+        my: y,
+    };
+    state.level.objects[x][y] = fruit;
+    const location = state.level.at(x, y);
+    location.remembered_glyph = object_glyph_info(fruit, state);
+
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        'Excalibur',
+        'full fake-artifact fruit omits an indefinite article',
+    );
+    assert.match(
+        describeMonster(hider, { state }),
+        /, hiding under an Excalibur$/u,
+        'hidden simple naming still applies an() to Excalibur',
+    );
+
+    state.gf.ffruit.fname = 'The Orb of Detection';
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        'the Orb of Detection',
+        'full fake-artifact fruit forces its canonical definite article',
+    );
+    assert.match(
+        describeMonster(hider, { state }),
+        /, hiding under The Orb of Detection$/u,
+        'hidden an() suppresses a second article before an existing the',
+    );
+
+    state.gf.ffruit.fname = 'pair of boots';
+    fruit.greased = true;
+    fruit.quan = 2;
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        '2 greased pair of boots',
+        'fruit pluralization precedes outer doname modifiers',
+    );
+    show_glyph_cell(x, y, object_glyph_info(fruit, state));
+    assert.equal(
+        state._glyphUpdateNotices.at(-1).message,
+        '(east): 2 greased pair of boots.',
+    );
+
+    state.gf.ffruit.fname = 'blueberries';
+    fruit.greased = false;
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        '2 blueberries',
+        'already-plural fruit is singularized before being pluralized again',
+    );
+    location.remembered_glyph = object_glyph_info(fruit, state);
+    assert.match(
+        describeMonster(hider, { state }),
+        /, hiding under blueberries$/u,
+    );
+
+    state.gf.ffruit.fname = 'foo@';
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        '2 foo@s',
+        "NetHack's letter() treats @ as a pluralizable letter",
+    );
+    location.remembered_glyph = object_glyph_info(fruit, state);
+    assert.match(
+        describeMonster(hider, { state }),
+        /, hiding under foo@s$/u,
     );
 });
 

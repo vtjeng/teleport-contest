@@ -318,7 +318,8 @@ export function makeplural(oldstr) {
         .replace(/ +$/u, '');
     const len = base.length;
     const last = base.at(-1);
-    if (len === 1 || !/[A-Za-z]/u.test(last))
+    // C's letter() intentionally treats '@' as a letter alongside A-Z/a-z.
+    if (len === 1 || !/[A-Za-z@]/u.test(last))
         return appendCase(base, "'s") + excess;
 
     const lookup = pluralLookup(base);
@@ -501,6 +502,24 @@ function fruitNodes(state) {
 
 export function fruit_from_indx(indx, state = game) {
     return fruitNodes(state).find((fruit) => fruit.fid === indx) ?? null;
+}
+
+// C ref: objnam.c doname_base()'s fake_arti handling. Named fruit can borrow
+// an artifact's proper-name article rules without becoming an artifact.
+export function matching_artifact_fruit(name, state = game) {
+    const candidate = String(name).replace(/^the /iu, '').toLowerCase();
+    for (let index = 1; state.artilist?.[index]?.otyp; ++index) {
+        const artifactName = state.artilist[index].name;
+        if (typeof artifactName !== 'string') continue;
+        const comparable = artifactName.replace(/^the /iu, '').toLowerCase();
+        if (candidate === comparable) {
+            return {
+                forceThe: /^the /iu.test(artifactName),
+                name: artifactName,
+            };
+        }
+    }
+    return null;
 }
 
 function fruitLookup(fname, exact, state) {
