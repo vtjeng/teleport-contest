@@ -197,6 +197,7 @@ object, and combat module.
      carrying-effect, merge, and ownership order now share the source-owned
      transfer. The live pet pickup consumer still closes in C9.
 8. **C8 — `dog.c:dogfood()` and its source-required food predicates.**
+   Complete in `e558d75494a3479b29d73633fd6a5914e5bfa3df`.
 9. **C9 — `dogmove.c` in three bounded commits:** goals/reachability;
    inventory/eating; active movement. Combat and trap effects remain calls to
    their upstream owners.
@@ -308,6 +309,15 @@ the named milestone decision recorded above.
   979 lines, and world-effects at three commits and 142 lines. The
   special-level loader is a real consumer; no fresh second-turn differential
   is claimed until C9 connects the live pet pickup consumer.
+- C8 is committed as `e558d75494a3479b29d73633fd6a5914e5bfa3df`
+  with exactly `QUALITY.json`, `js/dogfood.js`, `js/mondata.js`,
+  `scripts/dogfood.test.mjs`, and `scripts/mondata.test.mjs`. Twelve direct
+  food-classification tests and the focused mondata suite pass; the exact
+  staged full suite passes 1,359/1,359 and all six generated-data checks pass.
+  The production diff is 395 changed lines. The quality gate is clear and the
+  monster area is advisory at five commits and 826 lines. No fresh
+  second-turn differential is claimed until C9 connects the live pet
+  `dogmove.c` consumer.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
