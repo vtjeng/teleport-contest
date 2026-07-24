@@ -303,9 +303,10 @@ function sameGlyphIdentity(left, right) {
     return left.a11yKind === right.a11yKind && left.ch === right.ch;
 }
 
-// Complete levl location schema replayed around queued notice frames.
-// Reconciliation compares every field here and the nested disp_glyph
-// presentation, so capture, restore, and delta application must stay coupled.
+// Complete buffered-display subset of a levl location replayed around queued
+// notice frames. Capture, restore, and delta application use every entry;
+// reconciliation compares the display values, including selected nested
+// disp_glyph fields, but deliberately excludes the gnew dirty bit.
 const GLYPH_BUFFER_FIELDS = Object.freeze([
     'disp_ch',
     'disp_color',
@@ -785,9 +786,10 @@ function monsterSurfaceDescription(monster, state) {
 }
 
 // Distinguish three buffered-subject states. Present null or non-object
-// metadata blocks inference; only a remembered glyph without the sidecar may
-// use the legacy mimic fallback. A live glyph in no-memory mode never falls
-// back because it is the current display source.
+// metadata blocks inference. With hero memory, absent remembered data or a
+// remembered glyph without the sidecar permits the legacy mimic fallback. A
+// live glyph in no-memory mode never falls back because it is the current
+// display source.
 function bufferedGlyphSubjectAt(monster, state) {
     const location = state.level?.at(
         monster.mx,

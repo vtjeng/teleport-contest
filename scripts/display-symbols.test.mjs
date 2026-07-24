@@ -2150,6 +2150,15 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
     show_glyph_cell(10, 4, altar);
 
     const frames = [];
+    const sidecars = (glyph) => glyph
+        ? Object.fromEntries(
+            ['a11yIdentity', 'a11ySubject'].map((field) => [
+                field,
+                Object.getOwnPropertyDescriptor(glyph, field),
+            ]),
+        )
+        : null;
+    const roomSidecars = [];
     const messages = await emitGlyphUpdateNotices(state, {
         pline: async () => {
             frames.push([
@@ -2162,6 +2171,7 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
                 third.disp_glyph
                     ? glyphPresentationRecord(third.disp_glyph) : null,
             ]);
+            roomSidecars.push(sidecars(unannounced.disp_glyph));
         },
     });
     assert.deepEqual(messages, [
@@ -2184,6 +2194,17 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
             glyphPresentationRecord(altar),
         ],
     ]);
+    const expectedRoomSidecars = sidecars(room);
+    assert.deepEqual(
+        roomSidecars,
+        [null, expectedRoomSidecars, expectedRoomSidecars],
+        'filtered accessibility sidecars were replayed in later frames',
+    );
+    assert.deepEqual(
+        sidecars(unannounced.disp_glyph),
+        expectedRoomSidecars,
+        'filtered accessibility sidecars survived final-buffer restoration',
+    );
     assert.deepEqual(
         [first.gnew, second.gnew, unannounced.gnew, third.gnew],
         [0, 0, 0, 0],
