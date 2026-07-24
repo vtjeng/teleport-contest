@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { createArtifactTable } from '../js/artifacts.js';
 import {
     _fruitInternals,
     DEFAULT_FRUIT,
@@ -9,6 +10,7 @@ import {
     fruitadd,
     initoptions_finish,
     makeplural,
+    matching_artifact_fruit,
     makesingular,
 } from '../js/fruit.js';
 import { game } from '../js/gstate.js';
@@ -207,10 +209,29 @@ test('makeplural preserves source compounds and irregular object names', () => {
         ['pair of boots', 'pair of boots'],
         ['blueberry', 'blueberries'],
         ['foo@', 'foo@s'],
+        // len == 1 precedes letter(), so neither single letter is pluralized.
+        ['@', "@'s"],
+        ['A', "A's"],
         ['HE', 'They'],
     ];
     for (const [singular, plural] of cases)
         assert.equal(makeplural(singular), plural, singular);
+});
+
+test('artifact fruit matching returns only its article classification', () => {
+    const state = { artilist: createArtifactTable() };
+
+    assert.deepEqual(
+        matching_artifact_fruit('eXcALiBuR', state),
+        { forceThe: false },
+        'artifact_name compares case-insensitively',
+    );
+    assert.deepEqual(
+        matching_artifact_fruit('orb of detection', state),
+        { forceThe: true },
+        'artifact_name ignores an optional leading the',
+    );
+    assert.equal(matching_artifact_fruit('the ordinary fruit', state), null);
 });
 
 test('initoptions_finish installs the default source-shaped fruit state', () => {

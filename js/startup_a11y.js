@@ -835,6 +835,8 @@ function simpleObjectName(object, state) {
 function hiddenObjectPhrase(object, state) {
     const name = simpleObjectName(object, state);
     if (Math.trunc(object.quan ?? 1) !== 1) return name;
+    // C ref: objnam.c just_an() suppresses an added article for every name
+    // beginning with "the ", not only for artifact-named fruit.
     return /^the /iu.test(name)
         ? name : `${indefiniteArticle(name)} ${name}`;
 }

@@ -512,12 +512,8 @@ export function matching_artifact_fruit(name, state = game) {
         const artifactName = state.artilist[index].name;
         if (typeof artifactName !== 'string') continue;
         const comparable = artifactName.replace(/^the /iu, '').toLowerCase();
-        if (candidate === comparable) {
-            return {
-                forceThe: /^the /iu.test(artifactName),
-                name: artifactName,
-            };
-        }
+        if (candidate === comparable)
+            return { forceThe: /^the /iu.test(artifactName) };
     }
     return null;
 }

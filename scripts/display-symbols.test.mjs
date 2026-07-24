@@ -2853,17 +2853,32 @@ test('fruit object descriptions preserve source articles and plural order', () =
     const location = state.level.at(x, y);
     location.remembered_glyph = object_glyph_info(fruit, state);
 
+    state.gf.ffruit.fname = 'eXcALiBuR';
     assert.equal(
         _startupA11yInternals.describeObject(fruit, state),
-        'Excalibur',
-        'full fake-artifact fruit omits an indefinite article',
+        'eXcALiBuR',
+        'fake-artifact lookup ignores case and omits an indefinite article',
     );
     assert.match(
         describeMonster(hider, { state }),
-        /, hiding under an Excalibur$/u,
-        'hidden simple naming still applies an() to Excalibur',
+        /, hiding under an eXcALiBuR$/u,
+        'hidden simple naming still applies an() to case-varied Excalibur',
     );
 
+    fruit.greased = true;
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        'greased eXcALiBuR',
+        'artifact-fruit lookup precedes outer doname modifiers',
+    );
+
+    state.gf.ffruit.fname = 'orb of detection';
+    assert.equal(
+        _startupA11yInternals.describeObject(fruit, state),
+        'the greased orb of detection',
+        'canonical artifact the is optional during lookup and forced outside modifiers',
+    );
+    fruit.greased = false;
     state.gf.ffruit.fname = 'The Orb of Detection';
     assert.equal(
         _startupA11yInternals.describeObject(fruit, state),
@@ -2874,6 +2889,13 @@ test('fruit object descriptions preserve source articles and plural order', () =
         describeMonster(hider, { state }),
         /, hiding under The Orb of Detection$/u,
         'hidden an() suppresses a second article before an existing the',
+    );
+
+    state.gf.ffruit.fname = 'the ordinary fruit';
+    assert.match(
+        describeMonster(hider, { state }),
+        /, hiding under the ordinary fruit$/u,
+        'just_an suppresses an added article for non-artifact names too',
     );
 
     state.gf.ffruit.fname = 'pair of boots';
