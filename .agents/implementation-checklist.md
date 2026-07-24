@@ -184,9 +184,11 @@ object, and combat module.
    remain with `monmove.c` in C14.
 5. **C5 — `mkobj.c` stack-splitting and object-damage substrate.** Complete
    in `315fe27033c78c178e5fb715bef41309ad6989c9`.
-6. **C6 — `objnam.c` early naming used by the active consumers.** Its
-   `artifact.c:find_artifact()` prerequisite is complete in
-   `09922c7b5d13d84331becd891a2f5f16c8606e2d`; naming remains in progress.
+6. **C6 — `objnam.c` early naming used by the active consumers.** Complete in
+   `485357d66902cd4afed9a8d897f1b51ffa38a7ac`; its
+   `artifact.c:find_artifact()` prerequisite is
+   `09922c7b5d13d84331becd891a2f5f16c8606e2d`. Broader naming suffixes
+   remain explicit family-11 seams for their later consumers.
 7. **C7 — `mon.c:can_carry()` and monster inventory transfer.**
 8. **C8 — `dog.c:dogfood()` and its source-required food predicates.**
 9. **C9 — `dogmove.c` in three bounded commits:** goals/reachability;
@@ -274,12 +276,14 @@ the named milestone decision recorded above.
   chain insertion, extra copying, and bill/timer/light order. The pet, combat,
   and trap consumers close in later checkpoints, so no fresh differential is
   claimed for this prerequisite.
-- C6's artifact-owned prerequisite is committed as
-  `09922c7b5d13d84331becd891a2f5f16c8606e2d` with exactly
-  `js/artifacts.js` and `scripts/artifact-generation.test.mjs`. The 12-test
-  focused artifact suite, the 1,357-test full suite, and all six
-  generated-data checks pass. `objnam.c:xname()` is the named consumer and
-  remains in progress.
+- C6 is committed as `485357d66902cd4afed9a8d897f1b51ffa38a7ac`
+  with exactly `QUALITY.json`, `js/obj.js`, `js/objnam.js`, and
+  `scripts/objnam.test.mjs`; its artifact prerequisite is
+  `09922c7b5d13d84331becd891a2f5f16c8606e2d`. Nine focused naming tests,
+  the canonical 1,366-test full suite, and all six generated-data checks pass.
+  The production diff is 491 changed lines. The quality gate is clear and the
+  objects area is advisory at four commits and 703 lines. No fresh differential
+  is claimed until the named movement, pet, or combat consumer commits.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
