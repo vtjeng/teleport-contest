@@ -40,6 +40,7 @@ import {
     LAVAWALL,
     LEVITATION,
     M_AP_FURNITURE,
+    M_AP_MONSTER,
     M_AP_OBJECT,
     OBJ_FLOOR,
     PIT,
@@ -1337,15 +1338,31 @@ test('out-of-sight objects retain memory without display-RNG work', () => {
 });
 
 test('hallucinated revealed object mimics map disguise before real form', () => {
-    for (const reveal of ['detection', 'shape-changer protection']) {
+    const cases = [
+        {
+            label: 'detection',
+            property: DETECT_MONSTERS,
+            source: 'intrinsic',
+        },
+        {
+            label: 'intrinsic shape-changer protection',
+            property: PROT_FROM_SHAPE_CHANGERS,
+            source: 'intrinsic',
+        },
+        {
+            label: 'extrinsic shape-changer protection',
+            property: PROT_FROM_SHAPE_CHANGERS,
+            source: 'extrinsic',
+        },
+    ];
+    for (const { label, property, source } of cases) {
         const x = 7;
         const y = 4;
         const state = visibleCellState({ x, y, ux: 1, uy: 1 });
         state.u.uprops = [];
         state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
-        const property = reveal === 'detection'
-            ? DETECT_MONSTERS : PROT_FROM_SHAPE_CHANGERS;
-        state.u.uprops[property] = { intrinsic: 1, extrinsic: 0 };
+        state.u.uprops[property] = { intrinsic: 0, extrinsic: 0 };
+        state.u.uprops[property][source] = 1;
         const monster = {
             data: state.mons[PM_TENGU],
             mhp: 10,
@@ -1398,17 +1415,220 @@ test('hallucinated revealed object mimics map disguise before real form', () => 
                 expectedMonster.color,
                 expectedMonster.attr ?? 0,
             ],
-            reveal,
+            label,
         );
         assert.deepEqual(
             location.remembered_glyph,
             remembered_glyph_from_presentation(expectedDisguise),
-            reveal,
+            label,
         );
         assert.equal(
             rn2_on_display_rng(NUMMONS),
             followingDraw,
-            reveal,
+            label,
+        );
+    }
+});
+
+test('shape-changer protection does not reveal an unsensed invisible mimic',
+    () => {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        state.u.uprops = [];
+        state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+            intrinsic: 1,
+            extrinsic: 0,
+        };
+        state.level.monsters[x][y] = {
+            data: state.mons[PM_TENGU],
+            mhp: 10,
+            mtame: 0,
+            minvis: true,
+            mundetected: false,
+            m_ap_type: M_AP_OBJECT,
+            mappearance: CHEST,
+            mx: x,
+            my: y,
+        };
+        const expected = terrain_glyph(state.level.at(x, y), x, y, state);
+        const seed = 2026072411;
+        initRng(seed);
+        const firstDraw = rn2_on_display_rng(NUMMONS);
+        initRng(seed);
+
+        newsym(x, y);
+
+        const location = state.level.at(x, y);
+        assert.deepEqual(
+            [
+                location.disp_ch,
+                location.disp_color,
+                location.disp_attr,
+            ],
+            [expected.ch, expected.color, expected.attr ?? 0],
+        );
+        assert.deepEqual(
+            location.remembered_glyph,
+            remembered_glyph_from_presentation(expected),
+        );
+        assert.equal(rn2_on_display_rng(NUMMONS), firstDraw);
+    });
+
+test('protected furniture mimics remember disguise before real form', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    state.u.uprops = [];
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+        intrinsic: 1,
+        extrinsic: 0,
+    };
+    const monster = {
+        data: state.mons[PM_TENGU],
+        mhp: 10,
+        mtame: 0,
+        minvis: false,
+        mundetected: false,
+        m_ap_type: M_AP_FURNITURE,
+        mappearance: S_hcdoor,
+        mx: x,
+        my: y,
+    };
+    state.level.monsters[x][y] = monster;
+
+    const seed = 2026072412;
+    initRng(seed);
+    const randomMonster = rn2_on_display_rng(NUMMONS);
+    const followingDraw = rn2_on_display_rng(NUMMONS);
+    initRng(seed);
+
+    state.u.uprops[HALLUC].intrinsic = 0;
+    const expectedDisguise = monster_glyph_info(monster, state);
+    const expectedMonster = monster_glyph_info({
+        ...monster,
+        data: state.mons[randomMonster],
+        m_ap_type: 0,
+    }, state);
+    state.u.uprops[HALLUC].intrinsic = 1;
+
+    newsym(x, y);
+
+    const location = state.level.at(x, y);
+    assert.deepEqual(
+        [
+            location.disp_ch,
+            location.disp_color,
+            location.disp_attr,
+        ],
+        [
+            expectedMonster.ch,
+            expectedMonster.color,
+            expectedMonster.attr ?? 0,
+        ],
+    );
+    assert.deepEqual(
+        location.remembered_glyph,
+        remembered_glyph_from_presentation(expectedDisguise),
+    );
+    assert.equal(rn2_on_display_rng(NUMMONS), followingDraw);
+});
+
+test('monster disguises are transient and preserve display-RNG order', () => {
+    const cases = [
+        {
+            label: 'physical disguise',
+            protected: false,
+            detectedOnly: false,
+        },
+        {
+            label: 'protected physical disguise',
+            protected: true,
+            detectedOnly: false,
+        },
+        {
+            label: 'detected-only real form',
+            protected: false,
+            detectedOnly: true,
+        },
+    ];
+    for (const { label, protected: protectedHero, detectedOnly } of cases) {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        state.u.uprops = [];
+        state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        if (protectedHero) {
+            state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+                intrinsic: 1,
+                extrinsic: 0,
+            };
+        }
+        if (detectedOnly) {
+            state.u.uprops[DETECT_MONSTERS] = {
+                intrinsic: 1,
+                extrinsic: 0,
+            };
+        }
+        const monster = {
+            data: state.mons[PM_TENGU],
+            mhp: 10,
+            mtame: 0,
+            minvis: detectedOnly,
+            mundetected: false,
+            m_ap_type: M_AP_MONSTER,
+            mappearance: PM_GOBLIN,
+            mx: x,
+            my: y,
+        };
+        state.level.monsters[x][y] = monster;
+        const expectedMemory = remembered_glyph_from_presentation(
+            terrain_glyph(state.level.at(x, y), x, y, state),
+        );
+
+        const seed = 2026072413;
+        initRng(seed);
+        const disguiseSpecies = detectedOnly
+            ? NON_PM : rn2_on_display_rng(NUMMONS);
+        const realSpecies = protectedHero || detectedOnly
+            ? rn2_on_display_rng(NUMMONS) : NON_PM;
+        const followingDraw = rn2_on_display_rng(NUMMONS);
+        initRng(seed);
+
+        state.u.uprops[HALLUC].intrinsic = 0;
+        const shownSpecies = protectedHero || detectedOnly
+            ? realSpecies : disguiseSpecies;
+        const expectedShown = monster_glyph_info({
+            ...monster,
+            data: state.mons[shownSpecies],
+            m_ap_type: 0,
+        }, state);
+        if (detectedOnly) expectedShown.attr = ATR_INVERSE;
+        state.u.uprops[HALLUC].intrinsic = 1;
+
+        newsym(x, y);
+
+        const location = state.level.at(x, y);
+        assert.deepEqual(
+            [
+                location.disp_ch,
+                location.disp_color,
+                location.disp_attr,
+            ],
+            [
+                expectedShown.ch,
+                expectedShown.color,
+                expectedShown.attr ?? 0,
+            ],
+            label,
+        );
+        assert.deepEqual(location.remembered_glyph, expectedMemory, label);
+        assert.equal(
+            rn2_on_display_rng(NUMMONS),
+            followingDraw,
+            label,
         );
     }
 });

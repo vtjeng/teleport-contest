@@ -29,7 +29,8 @@ import {
     WM_W_LEFT, WM_W_RIGHT, WM_W_TOP, WM_W_BOTTOM,
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
-    HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK,
+    HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
+    M_AP_TYPMASK,
     SYM_BOULDER, SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNING, WARNCOUNT,
     PROT_FROM_SHAPE_CHANGERS,
     def_warnsyms,
@@ -826,6 +827,25 @@ function detectedMonsterGlyphInfo(monster, state) {
     return presentedMonsterGlyphInfo(monster, state, true);
 }
 
+function mimickedMonsterGlyphInfo(monster, state) {
+    // C ref: display.c display_monster(), M_AP_MONSTER. This transient
+    // disguise uses mappearance unless Hallucination replaces it with one
+    // display-RNG species draw; tame highlighting does not apply.
+    const speciesIndex = heroHallucinating(state)
+        ? rn2_on_display_rng(NUMMONS) : monster.mappearance;
+    const species = state.mons?.[speciesIndex];
+    if (!species) {
+        throw new Error(
+            'mimicked monster display requires the complete monster catalog',
+        );
+    }
+    return glyphPresentation(
+        monster_class_symbol(species.mlet, state),
+        species.mcolor,
+        state,
+    );
+}
+
 function mimicObject(monster) {
     const storedCorpsenm = monster.mextra?.mcorpsenm;
     return {
@@ -907,6 +927,8 @@ export function monster_glyph_info(monster, state = game) {
         // gem or spellbook remains unobserved.
         return object_glyph_info(mimicObject(monster), state);
     }
+    if (appearanceType === M_AP_MONSTER)
+        return mimickedMonsterGlyphInfo(monster, state);
     return presentedMonsterGlyphInfo(monster, state, false);
 }
 
@@ -1384,23 +1406,29 @@ export function newsym(x, y) {
         const shouldDisplayMonster = Boolean(
             monster && (monsterDirectlyVisible || monsterSensed),
         );
-        // PHYSICALLY_SEEN mimicry maps the disguise before any sensed real
+        const mimicAppearanceType = monster?.m_ap_type & M_AP_TYPMASK;
+        // PHYSICALLY_SEEN mimicry presents the disguise before any sensed real
         // monster presentation. Object disguises therefore own their complete
-        // map_object() draw sequence at this point.
+        // map_object() draw sequence here, while monster disguises consume
+        // their transient what_mon() draw without replacing floor memory.
         const mapsMimicDisguise = shouldDisplayMonster && !detectedOnly
-            && [M_AP_FURNITURE, M_AP_OBJECT].includes(
-                monster.m_ap_type & M_AP_TYPMASK,
+            && [M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER].includes(
+                mimicAppearanceType,
             );
         let mappedMimic = null;
         if (mapsMimicDisguise) {
-            if ((monster.m_ap_type & M_AP_TYPMASK) === M_AP_OBJECT)
+            if (mimicAppearanceType === M_AP_OBJECT)
                 mappedMimic = mappedObjectGlyphInfo(
                     mimicObject(monster),
                     game,
                 );
             else {
                 const glyph = monster_glyph_info(monster, game);
-                mappedMimic = { shown: glyph, remembered: glyph };
+                mappedMimic = {
+                    shown: glyph,
+                    remembered: mimicAppearanceType === M_AP_MONSTER
+                        ? rememberedUnderlying : glyph,
+                };
             }
         }
         // display_monster()'s PHYSICALLY_SEEN category is broader than literal

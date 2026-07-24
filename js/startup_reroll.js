@@ -52,6 +52,8 @@ function propertyActive(state, property) {
 }
 
 function hallucinating(state) {
+    // C ref: youprop.h Hallucination. Unlike ordinary properties, HALLUC's
+    // extrinsic field does not activate it; only the intrinsic timeout does.
     return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
         && !propertyActive(state, HALLUC_RES);
 }
