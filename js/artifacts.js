@@ -427,6 +427,22 @@ export function init_artifacts(state = game) {
     return state.artilist;
 }
 
+// C refs: artifact.c found_artifact() and find_artifact(). The browser port
+// has no livelog sink; the persisted artiexist[].found bit is the gameplay
+// state consumed by later naming and disclosure.
+export function find_artifact(obj, state = game) {
+    const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
+    if (index === ART_NONARTIFACT) return false;
+    artifactTables(state);
+    if (index < 1 || index > NROFARTIFACTS || !state.artilist[index]?.otyp)
+        throw new RangeError(`invalid artifact index ${index}`);
+    if (!state.artiexist[index].exists)
+        throw new Error(`artifact ${index} does not exist`);
+    if (state.artiexist[index].found) return false;
+    state.artiexist[index].found = 1;
+    return true;
+}
+
 function monsterAlignment(monster) {
     const raw = monster.ispriest
         ? monster.mextra?.epri?.shralign

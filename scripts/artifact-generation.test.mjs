@@ -12,6 +12,7 @@ import {
     artifactCount,
     artifact_exists,
     exist_artifact,
+    find_artifact,
     init_artifacts,
     isPermanentlyPoisoned,
     makeArtifact,
@@ -120,6 +121,33 @@ test('artifact origin flags reserve bit 0 exactly as pinned hack.h', () => {
         [0x0000, 0x0002, 0x0004, 0x0008, 0x0010,
             0x0020, 0x0040, 0x0080, 0x0100],
     );
+});
+
+test('find_artifact records the first observation exactly once', () => {
+    const state = stateFor('Arc', 'lawful');
+    const artifact = bareWeapon(LONG_SWORD, {
+        oartifact: ART_GIANTSLAYER,
+    });
+    state.artiexist[ART_GIANTSLAYER].exists = 1;
+
+    assert.equal(find_artifact(artifact, state), true);
+    assert.equal(state.artiexist[ART_GIANTSLAYER].found, 1);
+    assert.equal(find_artifact(artifact, state), false);
+    assert.equal(state.artiexist[ART_GIANTSLAYER].found, 1);
+    assert.equal(find_artifact(bareWeapon(LONG_SWORD), state), false);
+});
+
+test('find_artifact rejects impossible artifact state before mutation', () => {
+    const state = stateFor('Arc', 'lawful');
+    const nonexistent = bareWeapon(LONG_SWORD, {
+        oartifact: ART_GIANTSLAYER,
+    });
+
+    assert.throws(
+        () => find_artifact(nonexistent, state),
+        /artifact .* does not exist/,
+    );
+    assert.equal(state.artiexist[ART_GIANTSLAYER].found, 0);
 });
 
 test('existing-object selection keeps source order and mutation boundaries', () => {
