@@ -18,13 +18,16 @@ import { game, resetGame } from '../js/gstate.js';
 import {
     UnsupportedObjectOperationError,
     blessorcurse,
+    copy_oextra,
     dealloc_obj,
+    isFlammable,
     mksobj,
     mkobj,
     newObject,
     next_ident,
     place_object,
     rnd_class,
+    splitobj,
     weight,
 } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
@@ -59,8 +62,10 @@ import {
     SPE_HEALING,
     SPE_NOVEL,
     SPLINT_MAIL,
+    TALLOW_CANDLE,
     TINNING_KIT,
     TOUCHSTONE,
+    WAN_FIRE,
     WAN_SLEEP,
     WORM_TOOTH,
     objects_globals_init,
@@ -380,6 +385,285 @@ test('next_ident uses the recorder-visible rnd wrapper in production', () => {
     assert.equal(next_ident(), 2);
     assert.match(getRngLog()[0], /^rnd\(2\)=/);
     assert.equal(getRngLog().length, 1);
+});
+
+test('copy_oextra copies C-owned data while retaining monster pointers', () => {
+    const target = newObject();
+    const species = { name: 'little dog' };
+    const inventory = newObject();
+    // A nonzero monster association proves that copy_oextra() copies OMID.
+    const associatedMonsterId = 77;
+    const source = newObject({
+        oextra: {
+            omailcmd: 'reply',
+            omid: associatedMonsterId,
+            oname: 'practice darts',
+            omonst: {
+                data: species,
+                mextra: { edog: { marker: 'deep copy' } },
+                minvent: inventory,
+                // Distinct coordinates prove that the inline track is copied.
+                mtrack: [{ x: 4, y: 5 }],
+                nmon: {},
+            },
+        },
+    });
+
+    copy_oextra(target, source);
+
+    assert.equal(target.oextra.oname, 'practice darts');
+    assert.equal(target.oextra.omailcmd, 'reply');
+    assert.equal(target.oextra.omid, associatedMonsterId);
+    assert.notEqual(target.oextra.omonst, source.oextra.omonst);
+    assert.equal(target.oextra.omonst.data, species);
+    assert.equal(target.oextra.omonst.minvent, inventory);
+    assert.equal(target.oextra.omonst.nmon, null);
+    assert.deepEqual(target.oextra.omonst.mtrack, [{ x: 4, y: 5 }]);
+    assert.notEqual(
+        target.oextra.omonst.mtrack,
+        source.oextra.omonst.mtrack,
+    );
+    assert.deepEqual(
+        target.oextra.omonst.mextra,
+        { edog: { marker: 'deep copy' } },
+    );
+    assert.notEqual(
+        target.oextra.omonst.mextra,
+        source.oextra.omonst.mextra,
+    );
+});
+
+test('splitobj preserves source list placement, ids, and independent extras', () => {
+    const state = initializedFloorState();
+    // Both ids are divisible by four, so the first child candidate preserves
+    // the unidentified-object shop-price class without a retry.
+    const parentId = 8;
+    const childId = 12;
+    const originalQuantity = 5;
+    const splitQuantity = 2;
+    state.context.ident = childId;
+    const successor = plainObject(APPLE, state, {
+        // This distinct id only identifies the original list successor.
+        o_id: 9,
+        where: OBJ_FLOOR,
+    });
+    const stack = plainObject(DART, state, {
+        dknown: false,
+        nobj: successor,
+        o_id: parentId,
+        oextra: {
+            // Object-monster ids stay with the original half of a split.
+            omid: 77,
+            oname: 'practice darts',
+        },
+        // Splitting two from five exercises weight recalculation on both
+        // resulting quantities.
+        quan: originalQuantity,
+        where: OBJ_FLOOR,
+    });
+    stack.nexthere = successor;
+    stack.owt = weight(stack, { state });
+    const random = scriptedRandom([
+        // next_ident() advances the shared id from 12 to 14.
+        { name: 'rnd', args: [2], result: 2 },
+    ]);
+
+    const child = splitobj(stack, splitQuantity, { state, ...random });
+
+    assert.equal(child.o_id, childId);
+    assert.equal(state.context.ident, childId + 2);
+    assert.equal(stack.quan, originalQuantity - splitQuantity);
+    assert.equal(child.quan, splitQuantity);
+    assert.equal(stack.nobj, child);
+    assert.equal(child.nobj, successor);
+    assert.equal(stack.nexthere, child);
+    assert.equal(child.nexthere, successor);
+    assert.equal(child.where, OBJ_FLOOR);
+    assert.equal(child.owornmask, 0);
+    assert.equal(child.oextra.oname, 'practice darts');
+    assert.equal(Object.hasOwn(child.oextra, 'omid'), false);
+    child.oextra.oname = 'split darts';
+    assert.equal(stack.oextra.oname, 'practice darts');
+    assert.deepEqual(state.context.objsplit, {
+        parent_oid: parentId,
+        child_oid: childId,
+    });
+    random.done();
+});
+
+test('splitobj retries ids until the shop-price class matches', () => {
+    const state = initializedState();
+    // Parent id 9 has the normal price class. Candidate 12 has a surcharge,
+    // so nextoid() must select 13 before advancing the shared id.
+    const firstCandidateId = 12;
+    const matchingChildId = 13;
+    const parentId = 9;
+    state.context.ident = firstCandidateId;
+    const stack = plainObject(DART, state, {
+        dknown: false,
+        o_id: parentId,
+        quan: 2,
+    });
+    const random = scriptedRandom([
+        // Advance from the selected id 13 to the next shared id 15.
+        { name: 'rnd', args: [2], result: 2 },
+    ]);
+
+    const child = splitobj(stack, 1, { state, ...random });
+
+    assert.equal(child.o_id, matchingChildId);
+    assert.equal(state.context.ident, matchingChildId + 2);
+    random.done();
+});
+
+test('splitobj runs bill, extra, timer, and light work in source order', () => {
+    const state = initializedState();
+    // Parent and candidate ids both use the normal shop-price class.
+    const parentId = 9;
+    const childId = 10;
+    const originalQuantity = 3;
+    const splitQuantity = 1;
+    state.context.ident = childId;
+    const species = { name: 'little dog' };
+    const inventory = newObject();
+    const stack = plainObject(TALLOW_CANDLE, state, {
+        lamplit: true,
+        o_id: parentId,
+        oextra: {
+            omailcmd: 'reply',
+            // This association must remain only on the original stack.
+            omid: 77,
+            oname: 'practice candles',
+            omonst: {
+                data: species,
+                mextra: { edog: { marker: 'deep copy' } },
+                minvent: inventory,
+                // Distinct coordinates prove the split copied the track.
+                mtrack: [{ x: 4, y: 5 }],
+                nmon: {},
+            },
+        },
+        // Three candles leave two on the parent after a one-candle split.
+        quan: originalQuantity,
+        timed: 1,
+        unpaid: true,
+    });
+    const events = [];
+    const random = scriptedRandom([
+        // next_ident() advances the shared id from 10 to 11.
+        { name: 'rnd', args: [2], result: 1 },
+    ]);
+
+    const child = splitobj(stack, splitQuantity, {
+        state,
+        ...random,
+        hooks: {
+            splitBill(parent, split) {
+                events.push('bill');
+                assert.equal(
+                    parent.quan,
+                    originalQuantity - splitQuantity,
+                );
+                assert.equal(split.quan, splitQuantity);
+                assert.equal(split.oextra, null);
+            },
+            splitObjectTimers(parent, split) {
+                events.push('timers');
+                assert.equal(parent, stack);
+                assert.equal(split.oextra.oname, 'practice candles');
+                assert.equal(Object.hasOwn(split.oextra, 'omid'), false);
+                split.timed = 1;
+            },
+            splitObjectLight(parent, split) {
+                events.push('light');
+                assert.equal(parent, stack);
+                split.lamplit = true;
+            },
+        },
+    });
+
+    assert.deepEqual(events, ['bill', 'timers', 'light']);
+    assert.equal(child.timed, 1);
+    assert.equal(child.lamplit, true);
+    assert.equal(child.oextra.omonst.data, species);
+    assert.equal(child.oextra.omonst.minvent, inventory);
+    assert.equal(child.oextra.omonst.nmon, null);
+    random.done();
+});
+
+test('splitobj tests light ownership with obj_sheds_light()', () => {
+    const state = initializedState();
+    const parentId = 9;
+    const childId = 10;
+    state.context.ident = childId;
+    const stack = plainObject(DART, state, {
+        // This deliberately inconsistent bit isolates obj_sheds_light():
+        // a lit non-light object does not own a light source to split.
+        lamplit: true,
+        o_id: parentId,
+        quan: 2,
+    });
+    const random = scriptedRandom([
+        // next_ident() advances the shared id from 10 to 11.
+        { name: 'rnd', args: [2], result: 1 },
+    ]);
+
+    const child = splitobj(stack, 1, { state, ...random });
+
+    assert.equal(child.lamplit, false);
+    random.done();
+});
+
+test('splitobj rejects missing owners and ids before mutating the stack', () => {
+    const state = initializedState();
+    // A two-object stack split by one is the smallest valid split request.
+    const originalQuantity = 2;
+    const splitQuantity = 1;
+    // Id 9 uses the normal unidentified-object shop-price class.
+    const parentId = 9;
+    const timedStack = plainObject(DART, state, {
+        o_id: parentId,
+        quan: originalQuantity,
+        timed: 1,
+    });
+    const noDraws = scriptedRandom([]);
+
+    assert.throws(
+        () => splitobj(timedStack, splitQuantity, { state, ...noDraws }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'splitObjectTimers',
+    );
+    assert.equal(timedStack.quan, originalQuantity);
+    assert.equal(timedStack.nobj, null);
+    noDraws.done();
+
+    const missingIdState = initializedState();
+    delete missingIdState.context.ident;
+    const unidentifiedStack = plainObject(DART, missingIdState, {
+        o_id: parentId,
+        quan: originalQuantity,
+    });
+    const stillNoDraws = scriptedRandom([]);
+
+    assert.throws(
+        () => splitobj(unidentifiedStack, splitQuantity, {
+            state: missingIdState,
+            ...stillNoDraws,
+        }),
+        /next_ident requires initialized nonzero context\.ident/,
+    );
+    assert.equal(unidentifiedStack.quan, originalQuantity);
+    assert.equal(unidentifiedStack.nobj, null);
+    assert.equal(missingIdState.context.ident, undefined);
+    stillNoDraws.done();
+});
+
+test('isFlammable follows material and source exceptions', () => {
+    const state = initializedState();
+    assert.equal(isFlammable(plainObject(APPLE, state), state), true);
+    assert.equal(isFlammable(plainObject(TALLOW_CANDLE, state), state), false);
+    assert.equal(isFlammable(plainObject(POT_OIL, state), state), false);
+    assert.equal(isFlammable(plainObject(WAN_FIRE, state), state), false);
 });
 
 test('object APIs reject uninitialized catalogs, ids, and partial RNGs', () => {
