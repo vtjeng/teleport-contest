@@ -149,6 +149,31 @@ review.
 
 ### Audit readiness and scope changes
 
+For a behavior slice expected to span sessions, cross subsystems, or approach
+the 500-line review-window limit, create or replace
+`.agents/implementation-checklist.md` from
+`.agents/implementation-checklist-template.md`. If a smaller slice grows to
+meet one of those conditions, create the checklist as soon as that becomes
+clear.
+
+The main agent owns the checklist. Derive its candidate list from upstream
+entry points, dispatch tables, catalogs, reachable helpers, and valid input or
+configuration families. Cross-check the list against JavaScript stops,
+fallbacks, no-ops, and replay code. Maintain it throughout implementation.
+Fresh differentials may reveal a missing candidate, but passing samples do not
+show that the candidate list is complete. When a case reveals an omitted path,
+add it and inspect related branches owned by the same upstream function or
+subsystem.
+
+Remain in **Implementation** mode while the checklist contains `missing` or
+`undecided` entries. The checklist's validation evidence must apply to the
+exact committed head before audit. The checklist supports the readiness note
+below; it does not replace required tests, differentials, source review,
+quality checks, or audits. After the slice closes and its evidence is recorded
+in the existing trackers, remove the checklist or replace it for the next
+qualifying slice. Smaller slices may keep the same information in the working
+plan and readiness note instead of creating a file.
+
 While implementation is incomplete, use direct source review, focused tests,
 the required full suite, and fresh differentials to find and fix gaps. Launch
 an audit only once the main agent believes behavior and evidence are complete.
