@@ -185,9 +185,12 @@ rendering behavior; moves an input or persistence boundary; or requires new
 end-to-end cases because the supported behavior has grown.
 
 When that happens, stop audit-fix work, do not record the audit as covering the
-new implementation, and record the requirement in the audit report. Implement
-the added behavior through its next observable boundary, pass the readiness
-gate again, and run a new full audit over the expanded committed range.
+new implementation, and record the requirement in the audit report. Do not run
+a light delta review or any other audit before returning to Implementation.
+Review the fixes together with the expanded implementation after it passes the
+readiness gate. Implement the added behavior through its next observable
+boundary, pass the readiness gate again, and run a new full audit over the
+expanded committed range.
 
 ### Progress updates
 
