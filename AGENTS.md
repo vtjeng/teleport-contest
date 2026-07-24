@@ -147,6 +147,61 @@ audits; simplification and copyediting use the same independent-process rules
 when their named skills are required, but remain separate kinds of formal
 review.
 
+### Audit readiness and scope changes
+
+While implementation is incomplete, use direct source review, focused tests,
+the required full suite, and fresh differentials to find and fix gaps. Launch
+an audit only once the main agent believes behavior and evidence are complete.
+When the existing rules require an audit, this readiness gate does not replace
+it. Freeze the committed range under review and include this note in the prompt:
+
+- **Boundary and live path:** name the user-visible events that start and end
+  the behavior, and confirm that the real game executes the path.
+- **Source review:** before the audit, the main agent traces every branch and
+  helper reachable within the boundary through its ending event against
+  upstream C or Lua, including state and PRNG order, and identifies stubs,
+  explicit stops, partial implementations, and missing subsystems.
+- **Differential evidence:** run required reproducible fresh differentials,
+  vary relevant inputs, and compare PRNG, complete screens and attributes,
+  cursors, and persisted state.
+- **Completeness:** no known unsupported behavior remains inside the boundary.
+  Any branch reachable from the starting event but excluded from the boundary
+  must stop before changing state, consuming randomness, or producing output.
+- **Checks:** focused tests provide fast implementation feedback. For every
+  coherent implementation chunk, run focused tests and the full suite before
+  committing. Before audit, these and relevant generated checks pass.
+  `npm run quality` reports no unassigned `js/` files or non-exempt review debt
+  outside the frozen range at a batching threshold.
+
+If behavior or evidence is incomplete, stay in **Implementation** mode. An
+auditor receiving a missing or incomplete note reports `NOT READY` without
+launching review agents.
+
+During an audit, **Audit fix** is limited to corrections inside the committed
+range under review: a condition, order, constant, state update, test, name, or
+comment. Return to **Implementation** if a finding requires support for a new
+upstream function family or branch; changes a state or lifecycle owner, PRNG or
+rendering behavior; moves an input or persistence boundary; or requires new
+end-to-end cases because the supported behavior has grown.
+
+When that happens, stop audit-fix work, do not record the audit as covering the
+new implementation, and record the requirement in the audit report. Implement
+the added behavior through its next observable boundary, pass the readiness
+gate again, and run a new full audit over the expanded committed range.
+
+### Progress updates
+
+Use this format for every progress update, including each mode change:
+
+```text
+Mode: <Implementation | Ready for audit | Audit | Audit fix>
+Matches now: <observable behavior that matches upstream through a named event>
+Still missing: <specific behavior or evidence; use None if nothing is missing>
+Next proof: <test or differential that will show completion>
+```
+
+Explain specialized terms on first use.
+
 Use checks in proportion to risk. Formal correctness review may be batched, but
 every implementation commit remains subject to it.
 
