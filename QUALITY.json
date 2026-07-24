@@ -68,6 +68,7 @@
         "js/monster_object.js",
         "js/o_init.js",
         "js/obj.js",
+        "js/objnam.js",
         "js/objnam_data.js",
         "js/objects.js",
         "js/u_init_inventory.js",

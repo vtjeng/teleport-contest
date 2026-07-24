@@ -700,27 +700,27 @@ export function isFlammable(obj, state = game) {
         || type.oc_material === PLASTIC;
 }
 
-function isRottable(obj, state) {
+export function isRottable(obj, state = game) {
     const material = objectType(obj, state).oc_material;
     return (material <= WOOD && material !== LIQUID)
         || material === DRAGON_HIDE;
 }
 
-function isRustprone(obj, state) {
+export function isRustprone(obj, state = game) {
     return objectType(obj, state).oc_material === IRON;
 }
 
-function isCorrodeable(obj, state) {
+export function isCorrodeable(obj, state = game) {
     const material = objectType(obj, state).oc_material;
     return material === COPPER || material === IRON;
 }
 
-function isCrackable(obj, state) {
+export function isCrackable(obj, state = game) {
     return objectType(obj, state).oc_material === GLASS
         && obj.oclass === ARMOR_CLASS;
 }
 
-function isDamageable(obj, state) {
+export function isDamageable(obj, state = game) {
     return isRustprone(obj, state)
         || isFlammable(obj, state)
         || isRottable(obj, state)
