@@ -49,11 +49,19 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(monsterExports.AT_HUGS, 7);
     assert.equal(monsterExports.AT_ENGL, 11);
     assert.equal(monsterExports.AT_BREA, 12);
+    assert.equal(monsterExports.AT_MAGC, 255);
     assert.equal(monsterExports.AD_ANY, -1);
+    assert.equal(monsterExports.AD_PHYS, 0);
+    assert.equal(monsterExports.AD_FIRE, 2);
+    assert.equal(monsterExports.AD_COLD, 3);
+    assert.equal(monsterExports.AD_SLEE, 4);
+    assert.equal(monsterExports.AD_ELEC, 6);
+    assert.equal(monsterExports.AD_ACID, 8);
     assert.equal(monsterExports.AD_DRST, 7);
     assert.equal(monsterExports.AD_RBRE, 242);
     assert.equal(monsterExports.AD_STCK, 19);
     assert.equal(monsterExports.AD_WRAP, 28);
+    assert.equal(monsterExports.AD_POLY, 43);
     assert.equal(monsterExports.M1_CLING, 0x00000010);
     assert.equal(monsterExports.M1_HIDE, 0x00000100);
     assert.equal(M1_NOHANDS, 0x00002000);
@@ -71,6 +79,12 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(MZ_MEDIUM, 2);
     assert.equal(monsterExports.MZ_HUGE, 4);
     assert.equal(MS_GUARDIAN, 38);
+    assert.equal(monsterExports.MR_SLEEP, 4);
+    assert.equal(monsterExports.MR_DISINT, 8);
+    assert.equal(monsterExports.MR_ELEC, 16);
+    assert.equal(monsterExports.MR_POISON, 32);
+    assert.equal(monsterExports.MR_ACID, 64);
+    assert.equal(monsterExports.MR_STONE, 128);
 
     const numericExports = Object.entries(monsterExports)
         .filter(([name, value]) => /^[A-Z][A-Z0-9_]*$/u.test(name)
@@ -87,7 +101,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        'bd89083ebda087821e1c7537c9c21b8da841f7bd9bb392abbc041216d3130f83',
+        '1c50a9d433c03bc4b38a69d5a7605b991d2e13a273c2e1747802c906bf896b28',
     );
 });
 

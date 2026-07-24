@@ -15,6 +15,7 @@ import {
 } from '../js/const.js';
 import {
     _mondataInternals,
+    acidic,
     amorphous,
     attacktype,
     attacktype_fordmg,
@@ -24,18 +25,24 @@ import {
     can_be_hatched,
     dmgtype,
     dead_species,
+    flesh_petrifies,
+    flaming,
     haseyes,
     hides_under,
+    humanoid,
     is_animal,
     is_clinger,
     is_covetous,
     is_demon,
+    is_dwarf,
     is_dlord,
     is_dprince,
     is_displacer,
+    is_elf,
     is_female,
     is_floater,
     is_flyer,
+    is_gnome,
     is_giant,
     is_hider,
     is_human,
@@ -44,6 +51,7 @@ import {
     is_male,
     is_minion,
     is_neuter,
+    is_orc,
     is_prince,
     is_rider,
     is_swimmer,
@@ -51,6 +59,7 @@ import {
     is_wanderer,
     is_were,
     likes_gems,
+    likes_fire,
     likes_gold,
     likes_lava,
     likes_magic,
@@ -67,14 +76,20 @@ import {
     passes_bars,
     passes_walls,
     perceives,
+    poisonous,
     regenerates,
     resist_conflict,
+    same_race,
+    slimeproof,
     slithy,
     strongmonst,
+    thick_skinned,
     throws_rocks,
+    touch_petrifies,
     tunnels,
     undead_to_corpse,
     unsolid,
+    vegan,
     verysmall,
     webmaker,
     zombie_form,
@@ -319,6 +334,73 @@ test('growth conversions take one step and preserve first reverse match', () => 
     assert.equal(big_to_little(M.PM_NEWT), M.PM_NEWT);
     assert.equal(little_to_big(), M.NON_PM);
     assert.equal(big_to_little(), M.NON_PM);
+});
+
+test('combat and diet predicates preserve their source species families', () => {
+    const state = monsterState();
+    const pm = (index) => state.mons[index];
+
+    assert.equal(thick_skinned(pm(M.PM_GRAY_DRAGON)), true);
+    assert.equal(thick_skinned(pm(M.PM_NEWT)), false);
+    assert.equal(humanoid(pm(M.PM_GOBLIN)), true);
+    assert.equal(humanoid(pm(M.PM_GRID_BUG)), false);
+    assert.equal(acidic(pm(M.PM_ACID_BLOB)), true);
+    assert.equal(poisonous(pm(M.PM_KILLER_BEE)), true);
+
+    assert.equal(is_elf(pm(M.PM_WOODLAND_ELF)), true);
+    assert.equal(is_dwarf(pm(M.PM_DWARF)), true);
+    assert.equal(is_gnome(pm(M.PM_GNOME)), true);
+    assert.equal(is_orc(pm(M.PM_HILL_ORC)), true);
+
+    for (const index of [
+        M.PM_FIRE_VORTEX,
+        M.PM_FLAMING_SPHERE,
+        M.PM_FIRE_ELEMENTAL,
+        M.PM_SALAMANDER,
+    ]) {
+        assert.equal(flaming(pm(index)), true);
+        assert.equal(likes_fire(pm(index)), true);
+    }
+    assert.equal(flaming(pm(M.PM_NEWT)), false);
+    assert.equal(likes_fire(pm(M.PM_NEWT)), false);
+
+    assert.equal(touch_petrifies(pm(M.PM_CHICKATRICE)), true);
+    assert.equal(touch_petrifies(pm(M.PM_COCKATRICE)), true);
+    assert.equal(touch_petrifies(pm(M.PM_MEDUSA)), false);
+    assert.equal(flesh_petrifies(pm(M.PM_MEDUSA)), true);
+
+    assert.equal(slimeproof(pm(M.PM_GREEN_SLIME)), true);
+    assert.equal(slimeproof(pm(M.PM_GHOST)), true);
+    assert.equal(slimeproof(pm(M.PM_NEWT)), false);
+    assert.equal(vegan(pm(M.PM_ACID_BLOB)), true);
+    assert.equal(vegan(pm(M.PM_STONE_GOLEM)), true);
+    assert.equal(vegan(pm(M.PM_STALKER)), false);
+    assert.equal(vegan(pm(M.PM_FLESH_GOLEM)), false);
+});
+
+test('same_race follows directional race, class, and growth comparisons', () => {
+    const state = monsterState();
+    const pm = (index) => state.mons[index];
+
+    assert.equal(same_race(pm(M.PM_NEWT), pm(M.PM_NEWT)), true);
+    assert.equal(same_race(pm(M.PM_HUMAN), pm(M.PM_ARCHEOLOGIST)), true);
+    assert.equal(same_race(pm(M.PM_HILL_ORC), pm(M.PM_ORC_ZOMBIE)), true);
+    assert.equal(same_race(pm(M.PM_KOBOLD), pm(M.PM_KOBOLD_MUMMY)), true);
+    assert.equal(same_race(pm(M.PM_KOBOLD_MUMMY), pm(M.PM_KOBOLD)), true);
+
+    // The growth walk crosses both little-dog steps in either direction.
+    assert.equal(same_race(pm(M.PM_LITTLE_DOG), pm(M.PM_LARGE_DOG)), true);
+    assert.equal(same_race(pm(M.PM_LARGE_DOG), pm(M.PM_LITTLE_DOG)), true);
+    assert.equal(same_race(pm(M.PM_GARGOYLE), pm(M.PM_WINGED_GARGOYLE)), true);
+    assert.equal(same_race(pm(M.PM_KILLER_BEE), pm(M.PM_QUEEN_BEE)), true);
+    assert.equal(same_race(pm(M.PM_LONG_WORM_TAIL), pm(M.PM_LONG_WORM)), true);
+
+    assert.equal(same_race(pm(M.PM_TENGU), pm(M.PM_IMP)), false);
+    assert.equal(same_race(pm(M.PM_KOBOLD_ZOMBIE), pm(M.PM_ORC_ZOMBIE)),
+        false);
+    assert.equal(same_race(pm(M.PM_KOBOLD_ZOMBIE), pm(M.PM_KOBOLD_MUMMY)),
+        true);
+    assert.equal(same_race(pm(M.PM_NEWT), pm(M.PM_GRID_BUG)), false);
 });
 
 test('zombie and mummy corpses use their living source species', () => {
