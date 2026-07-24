@@ -1754,6 +1754,489 @@
         ]
       },
       "recordedAt": "2026-07-23T18:24:50.471Z"
+    },
+    {
+      "kind": "simplification",
+      "bases": {
+        "startup": "71e40ad128009c7959c361aaa7946f10a18528fe",
+        "monsters": "61d2bf62cbd692e6bb93ce37c1232efe84e31a34",
+        "world-effects": "61d2bf62cbd692e6bb93ce37c1232efe84e31a34",
+        "display": "7426b1287958b0cd06bce3d9a60331f2a4d71de9"
+      },
+      "head": "e153d07dad0aad333bfb5e51d1ea6ad0aa4bf5ac",
+      "areas": [
+        "startup",
+        "monsters",
+        "world-effects",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Fresh simplify-codebase pass over a6538bf7d11559a9876043819f9eea9f935f6f91..3a7150b8a6af4cde1be43ce5dd2f9b2919c070e2, with all confirmed fixes integrated through e153d07dad0aad333bfb5e51d1ea6ad0aa4bf5ac. Retained session 019f9107-edfc-7943-a0f4-6e1596ba3def; elapsed 2179 seconds; usage 13162600 input, 12941568 cached, 42375 output, 21655 reasoning. Fourteen raw findings became nine deduplicated, eight confirmed and applied, one rejected, with zero deferred, unverified, or warnings. Six production and two test simplifications consolidated monster sensing, observation writes, show-glyph presentation records, seenv, trap-glyph delegation, remembered trap identity, test fixtures, and browser mocks. Deleting two entailed chunk assertions was rejected because it removed useful direct coverage without simplifying a concept. Validation passed 1247 tests, focused suites, all four generated checks, the exact 18-segment fresh matrix with 48825 PRNG calls and 55 screens/cursors, and development totals of 205 screens, 77588 PRNG values, and 243 cursors. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2179,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 9,
+          "confirmed": 8,
+          "applied": 8,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 2,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "reuse one source-ordered monster-sensing core across the two public predicates and newsym",
+            "foundBy": [
+              "duplication",
+              "unnecessary-indirection"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "centralize bhitpos and notonhead observation-state writes without changing their source timing",
+            "foundBy": [
+              "duplication",
+              "unnecessary-indirection"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "make complete presentation records the canonical show-glyph input while keeping memory conversion explicit",
+            "foundBy": [
+              "duplication",
+              "unnecessary-indirection",
+              "control-flow"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "share the immutable seenv matrix between vision and tactile discovery",
+            "foundBy": [
+              "unnecessary-indirection"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "remove the private trap-glyph forwarding layer in favor of the source-facing implementation",
+            "foundBy": [
+              "unnecessary-indirection"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "use canonical remembered map state as the default trap-identity carrier",
+            "foundBy": [
+              "control-flow"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-24T09:08:59.473Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0",
+        "objects": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0",
+        "monsters": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
+        "world-effects": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
+        "commands": "76109518c4e879b444ee53cddd9617f875780888",
+        "display": "82615f42653158d8074f3903e7d2087545ffe05f",
+        "runtime": "4d53ba9ad59b8a658e4a919a84296f7543000b90",
+        "replay": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0"
+      },
+      "head": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime",
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Composite full correctness coverage through the completed first-turn boundary. Exact area-specific ranges are recorded by this ledger entry through 3b6c38de148679a5cc8313d755ec906fa95627c3. The retained independent pass chain produced 176 raw findings, 160 deduplicated, 134 confirmed and applied, 26 rejected, and zero deferred or unverified; confirmed categories were 48 production, 64 tests, 21 clarity, and one simplification. All mandatory correctness, readability, test-quality, and variable-trace finders ran. Performance review ran only where concrete hot-path or allocation risk applied and found metadata and sparse-frame defects that were fixed; concurrency did not apply because the reviewed turn and display flow is serialized and introduces no overlapping lifecycle. Fixes restored source-exact turn scheduling, state and PRNG order, rendering, trap and mimic memory, glyph notices and frame ordering, object description and naming, random text behavior, and their regression coverage. All 26 rejected proposals had source or call-path counter-evidence, including proposals that contradicted logical trap memory, buffered type-only glyph lookup, source article and plural behavior, or already-covered lifecycle paths. The dedicated clarity pass, retained session 019f9314-1df5-7563-9605-c10c106a7789, took 1658 seconds, used 5509726 input, 5337856 cached, 29188 output, and 9824 reasoning tokens, and applied 23 of 27 deduplicated findings with four rejected. Final light-delta sessions 019f933a-89ed-7192-972c-83a58f1fa8a5 and 019f934c-1c5c-7c92-9bd6-55587612fd4f confirmed and applied four test or clarity findings; retained usage was respectively 2638367 input, 2518784 cached, 19672 output, 7649 reasoning and 2226753 input, 2118656 cached, 16795 output, 7218 reasoning. The no-tail delta session 019f9357-52e7-7fc1-9bc7-4888bb61370c took 436 seconds and found zero raw, deduplicated, confirmed, deferred, rejected, or unverified findings and no warnings; usage was 1825867 input, 1750272 cached, 14908 output, and 5347 reasoning. Final validation passed all 1290 tests, mutation checks for glyph sidecar replay and subject references, all generated checks, and the exact 18-segment fresh first-turn matrix with 48825 PRNG calls and 55 complete screens and cursors. Development scoring was 77588 PRNG values, 205 screens, and 243 cursors. Browser validation was not required because no browser renderer or DOM/input/storage contract changed. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 27902,
+        "counts": {
+          "raw": 176,
+          "deduplicated": 160,
+          "confirmed": 134,
+          "applied": 134,
+          "deferred": 0,
+          "rejected": 26,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 48,
+          "tests": 64,
+          "clarity": 21,
+          "simplification": 1,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "complete blind automatic-search tactile trap display instead of aborting after turn mutation",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "correct the blind tactile seenv vertical axis at the mapping implementation",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "correct the blind tactile seenv vertical axis through its persisted value flow",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "compare logical remembered trap identity instead of colliding projected presentation",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preserve the remembered logical layer when newsym leaves memory under a stale overlay",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "pair injected trap-message ownership with its acknowledgement wait",
+            "foundBy": [
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "clear retained display-cell caches before the temporary trap frame",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "honor WIN_STOP by skipping acknowledgement input while still redrawing",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "let a sensed invisible monster override gas and refresh underlying trap memory",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "include generic monster warning in gas-region precedence",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "render detect-only monsters with detected rather than ordinary presentation",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "remember a physically seen sensed mimic disguise rather than the covered trap",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "use canonical remembered-map identity for trap visibility in both collision directions",
+            "foundBy": [
+              "correctness",
+              "end-to-end-variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "keep retained dungeon presentation out of the clutter-clear acknowledgement frame",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "include active See Invisible in direct monster visibility classification",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "randomize hallucinated detected-monster identity with the display RNG",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "let intrinsic or extrinsic resistance suppress hallucinated display presentation",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "consume the physical hallucinated-monster draw when See Invisible also senses the monster",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "map a hallucinated object disguise before its covering monster consumes a display draw",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "reveal a physically presented mimic when shape-changer protection is active",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "ignore extrinsic-only HALLUC state in startup reroll display calculations",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "present an M_AP_MONSTER disguise before its protected real form without replacing floor memory",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "emit the transient M_AP_MONSTER disguise write before the sensed real-form write",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "persist a physically presented furniture mimic disguise when ordinary hero memory is disabled",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "process the intermediate protected monster-disguise glyph-update transition before its real-form overwrite",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "emit command-generated glyph notices before later elapsed-turn effects",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preserve transient disguise frames until their ordered notice flush",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "derive monster descriptions through source-shaped screen-description and hallucination RNG behavior",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "give eligible non-monster glyph updates source-shaped accessibility descriptions",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "retain RGB identity when reconstructing remembered customized glyphs",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "avoid constructing accessibility metadata on the ordinary disabled display path",
+            "foundBy": [
+              "performance"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "use the installed glyph and live monster as the authority for transient disguise descriptions",
+            "foundBy": [
+              "readability-risk"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "keep hallucinated mapped-object rendering surrogates from leaking object knowledge into notices",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "replace complete per-notice map snapshots with cumulative sparse frames",
+            "foundBy": [
+              "performance"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "include source mhidden_description semantics in live monster notices",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "route cmap notices through contextual look-at and hallucination display-RNG behavior",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "reconstruct object-shaped mimic naming from buffered identity rather than zeroobj",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preserve an explicit non-object remembered glyph instead of leaking a live object disguise",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "apply quantity and pluralization semantics to object-mimic descriptions",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "match live corpse and statue objects by buffered object type rather than species",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "construct synthetic buffered objects through upstream object constructors and lifecycle cleanup",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "exclude the commented HLIQUID token from generated data and RNG bounds",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preserve live HLIQUID cardinality through comment-aware source parsing",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "implement simpleonames semantics for hidden object descriptions",
+            "foundBy": [
+              "correctness",
+              "readability-risk",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "retain constructor-selected material and fruit identity in synthetic object naming",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "classify @ as a source letter during object-name pluralization",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "preserve artifact-named slime-mold article semantics",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "pluralize bare object names before adding doname modifiers",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-24T09:09:44.569Z"
     }
   ]
 }

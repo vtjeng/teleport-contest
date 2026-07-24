@@ -14,9 +14,10 @@ at `82615f42653158d8074f3903e7d2087545ffe05f`.
 startup options, match the C recorder's random-number log, terminal screens,
 attributes, and cursor through the first command prompt.
 
-## Current milestone: first complete gameplay turn
+## Completed milestone: first complete gameplay turn
 
-**Status:** in progress.
+**Status:** complete at code commit
+`3b6c38de148679a5cc8313d755ec906fa95627c3`.
 
 **Goal:** Starting at a correctly generated first command prompt, match the C
 game through the next command prompt after either waiting or making one
@@ -24,44 +25,31 @@ unobstructed move. Replace the temporary playback in `fastforward.js` used
 during those turns with the corresponding behavior translated from the
 upstream source.
 
-This boundary includes the ordinary monster and starting-pet actions and normal
-per-turn changes reached before the game next asks for input. Combat, opening
-doors, triggering traps, pickup, stairs, item commands, and movement beyond the
-single unobstructed step remain in later milestones unless the current boundary
-directly requires a shared prerequisite.
+## Current milestone: exploration
 
-**Current focus:** Complete and connect the ordinary initial-level monster and
-pet behavior reached during the turn.
+**Status:** in progress.
 
-Close the milestone with a checked-in fresh differential matrix that:
+**Goal:** Complete movement beyond the first unobstructed step, running,
+search, doors, traps, pickup, stairs, terrain effects, vision, and status
+updates.
 
-- varies inputs that affect the turn, including seeds that produce different
-  layouts, pet configuration, relevant character state, and both commands;
-- covers ordinary cases and rare branches identified in the C source within
-  this boundary, including cases where a monster acts and where it does not;
-- exactly matches random-number logs, complete screens and attributes, cursors,
-  and game state at the next prompt; and
-- reaches that prompt without temporary playback, a fallback, or an unsupported
-  branch.
-
-Meet the validation, quality, review, and score-recording requirements in
-`AGENTS.md` before marking the milestone complete.
+**Current focus:** Investigate the historical development-score regression
+between `080242cdc7e5a633e99e301a17cdfbca1c257872` and
+`54c3a846cf1fc6c8b37e7e23c3450889da543f1c` before selecting the next
+source-faithful exploration slice.
 
 ## Later milestones
 
 After the current milestone, proceed in this order:
 
-1. **Exploration:** complete movement beyond the first unobstructed step,
-   running, search, doors, traps, pickup, stairs, terrain effects, vision, and
-   status updates.
-2. **Combat and creatures:** complete melee, damage and death, the remaining
+1. **Combat and creatures:** complete melee, damage and death, the remaining
    monster and pet behavior, monster inventory, conditions, and common creature
    abilities.
-3. **Item interaction:** inventory commands and menus, wield/wear, eat/quaff,
+2. **Item interaction:** inventory commands and menus, wield/wear, eat/quaff,
    read/zap, apply, throw, drop, identification, and equipment effects.
-4. **Levels and persistence:** level transitions, deeper and special levels,
+3. **Levels and persistence:** level transitions, deeper and special levels,
    save/restore, bones, and cross-segment state.
-5. **Long tail:** shops, advanced spells and effects, rare monsters and items,
+4. **Long tail:** shops, advanced spells and effects, rare monsters and items,
    endgame branches, and remaining valid commands and options.
 
 Update statuses and unresolved ordering here when a milestone closes or source
