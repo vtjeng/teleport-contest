@@ -9,12 +9,20 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-    formatReport,
-    runDifferential,
     validateCleanRecipe,
 } from './diff-fresh.mjs';
+import {
+    chunkRecipe,
+    RECORDER_SEGMENT_LIMIT,
+    runFreshMatrix,
+} from './fresh-matrix.mjs';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+
+export {
+    chunkRecipe,
+    RECORDER_SEGMENT_LIMIT,
+};
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = dirname(SCRIPT_PATH);
@@ -27,27 +35,6 @@ export const FIRST_COMMAND_CLOSURE_FIXTURES = Object.freeze([
     'first-command-closure-themes-3.session.json',
     'first-command-closure-themes-4.session.json',
 ]);
-
-// Recorder runs stopped at the first command retain one live game lock per
-// segment. The installed recorder accepts ten such segments before rejecting
-// another, so run larger clean recipes in independent groups without changing
-// their replay inputs.
-export const RECORDER_SEGMENT_LIMIT = 10;
-
-export function chunkRecipe(recipe, limit = RECORDER_SEGMENT_LIMIT) {
-    validateCleanRecipe(recipe, 'first-command closure recipe');
-    if (!Number.isInteger(limit) || limit < 1) {
-        throw new Error('closure chunk limit must be a positive integer');
-    }
-    const chunks = [];
-    for (let start = 0; start < recipe.segments.length; start += limit) {
-        chunks.push({
-            version: recipe.version,
-            segments: recipe.segments.slice(start, start + limit),
-        });
-    }
-    return chunks;
-}
 
 export function loadClosureRecipe(filename) {
     const path = join(FIXTURE_DIR, filename);
@@ -98,40 +85,21 @@ export async function traceFirstCommandThemeroomSelections(segment) {
     return replay.getThemeroomSelections();
 }
 
+export async function runFirstCommandClosureMatrix() {
+    return runFreshMatrix({
+        entries: FIRST_COMMAND_CLOSURE_FIXTURES.map((filename) => ({
+            label: filename,
+            recipe: loadClosureRecipe(filename),
+        })),
+        summaryLabel: 'FIRST-COMMAND CLOSURE',
+        verifySegment: verifyFirstCommandBoundary,
+    });
+}
+
 async function main(argv) {
     if (argv.length) throw new Error('arguments are not accepted');
-    const totals = { segments: 0, rng: 0, screens: 0, cursors: 0 };
-
-    for (const filename of FIRST_COMMAND_CLOSURE_FIXTURES) {
-        const recipe = loadClosureRecipe(filename);
-        const chunks = chunkRecipe(recipe);
-        for (let index = 0; index < chunks.length; ++index) {
-            const chunk = chunks[index];
-            for (const segment of chunk.segments) {
-                await verifyFirstCommandBoundary(segment);
-            }
-            process.stdout.write(
-                `[${filename} ${index + 1}/${chunks.length}] `
-                + `${chunk.segments.length} segments\n`,
-            );
-            const result = await runDifferential(chunk);
-            if (!result.passed) {
-                process.stdout.write(formatReport(result));
-                return 1;
-            }
-            totals.segments += chunk.segments.length;
-            totals.rng += result.lengths.rng.c;
-            totals.screens += result.lengths.screens.c;
-            totals.cursors += result.lengths.cursors.c;
-        }
-    }
-
-    process.stdout.write(
-        `FIRST-COMMAND CLOSURE: PASS — ${totals.segments} segments, `
-        + `${totals.rng} PRNG calls, ${totals.screens} screens, `
-        + `${totals.cursors} cursors\n`,
-    );
-    return 0;
+    const result = await runFirstCommandClosureMatrix();
+    return result.passed ? 0 : 1;
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {

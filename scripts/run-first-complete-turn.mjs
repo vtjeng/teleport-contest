@@ -8,12 +8,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-    formatReport,
-    runDifferential,
-    validateCleanRecipe,
-} from './diff-fresh.mjs';
-import { chunkRecipe } from './run-first-command-closure.mjs';
+import { validateCleanRecipe } from './diff-fresh.mjs';
+import { runFreshMatrix } from './fresh-matrix.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = dirname(SCRIPT_PATH);
@@ -32,32 +28,13 @@ export function loadFirstCompleteTurnRecipe() {
 }
 
 export async function runFirstCompleteTurnMatrix() {
-    const chunks = chunkRecipe(loadFirstCompleteTurnRecipe());
-    const totals = { segments: 0, rng: 0, screens: 0, cursors: 0 };
-
-    for (let index = 0; index < chunks.length; ++index) {
-        const chunk = chunks[index];
-        process.stdout.write(
-            `[first complete turn ${index + 1}/${chunks.length}] `
-            + `${chunk.segments.length} segments\n`,
-        );
-        const result = await runDifferential(chunk);
-        if (!result.passed) {
-            process.stdout.write(formatReport(result));
-            return { passed: false, totals };
-        }
-        totals.segments += chunk.segments.length;
-        totals.rng += result.lengths.rng.c;
-        totals.screens += result.lengths.screens.c;
-        totals.cursors += result.lengths.cursors.c;
-    }
-
-    process.stdout.write(
-        `FIRST COMPLETE TURN: PASS — ${totals.segments} segments, `
-        + `${totals.rng} PRNG calls, ${totals.screens} screens, `
-        + `${totals.cursors} cursors\n`,
-    );
-    return { passed: true, totals };
+    return runFreshMatrix({
+        entries: [{
+            label: 'first complete turn',
+            recipe: loadFirstCompleteTurnRecipe(),
+        }],
+        summaryLabel: 'FIRST COMPLETE TURN',
+    });
 }
 
 async function main(argv) {

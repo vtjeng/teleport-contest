@@ -113,6 +113,12 @@ Git history do not grant permission to inspect the sealed local holdout.
   recipe or script so another agent can run the same cases. Recipes must
   contain replay inputs only, use `scripts/diff-fresh.mjs`, and never contain
   recorded steps or reference the sealed holdout.
+- When exploring many fresh cases, use
+  `node scripts/scan-fresh.mjs <scan-plan.json>` instead of running them one at
+  a time. It groups cases by their first JavaScript error or PRNG, screen, or
+  cursor difference and keeps one original case per group. Add omitted paths to
+  the implementation checklist and inspect related upstream branches. Run a
+  case individually only to reduce or diagnose a selected failure.
 - When a fresh differential fails, keep the original failing recipe and remove
   irrelevant options and inputs until the smallest useful case remains. Use
   that case to locate the responsible C behavior and add a regression test.
