@@ -296,6 +296,97 @@ export function mon_track_add(monster, x, y) {
     }
 }
 
+// C ref: monmove.c m_avoid_kicked_loc(). Peaceful monsters remember the
+// adjacent square most recently kicked by the hero while they can see and
+// remain unaffected by confusion, stun, or Conflict.
+export function m_avoid_kicked_loc(monster, x, y, state = game) {
+    const kicked = state.gk?.kickedloc;
+    return Boolean(
+        (monster.mpeaceful || monster.mtame)
+        && monster.mcansee
+        && !monster.mconf
+        && !monster.mstun
+        && !propertyActive(state, CONFLICT, true)
+        && isok(kicked?.x, kicked?.y)
+        && x === kicked.x
+        && y === kicked.y
+        && dist2(x, y, state.u.ux, state.u.uy) <= 2
+    );
+}
+
+// C ref: monmove.c m_avoid_soko_push_loc(). A peaceful monster avoids the
+// square two steps from the hero when the intervening Sokoban square holds a
+// boulder.
+export function m_avoid_soko_push_loc(monster, x, y, state = game) {
+    if (!state.level?.flags?.sokoban_rules
+        || (!monster.mpeaceful && !monster.mtame)
+        || monster.mconf
+        || monster.mstun
+        || propertyActive(state, CONFLICT, true)
+        || dist2(x, y, state.u.ux, state.u.uy) !== 4) {
+        return false;
+    }
+    return Boolean(sobj_at(
+        BOULDER,
+        x + Math.sign(state.u.ux - x),
+        y + Math.sign(state.u.uy - y),
+        state,
+    ));
+}
+
+// C ref: monmove.c undesirable_disp(). Pet trap and cursed-square avoidance
+// differs from the trap knowledge used by other monsters.
+export function undesirable_disp(monster, x, y, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('undesirable_disp requires rn2');
+    const trap = t_at(x, y, state);
+    const isPet = monster.mtame && !monster.isminion;
+    if (isPet) {
+        if (trap?.tseen && random.rn2(40)) return true;
+        const cursedObjectAt = env.cursedObjectAt;
+        if (typeof cursedObjectAt !== 'function') {
+            throw new TypeError(
+                'undesirable_disp requires cursedObjectAt for a pet',
+            );
+        }
+        if (cursedObjectAt(x, y, state)) return true;
+    } else if (trap && random.rn2(40)
+        && mon_knows_traps(monster, trap.ttyp)) {
+        return true;
+    }
+    return !accessible(x, y, state)
+        && !(is_pool(x, y, state)
+            && is_pool(monster.mx, monster.my, state));
+}
+
+// C ref: monmove.c should_displace(). A displacement square is useful only
+// when it is the shortest route or no ordinary candidate remains.
+export function should_displace(monster, data, goalX, goalY, env = {}) {
+    const state = env.state ?? game;
+    let withDisplacing = -1;
+    let withoutDisplacing = -1;
+    let ordinaryCount = 0;
+    for (let index = 0; index < data.cnt; ++index) {
+        const { x, y } = data.poss[index];
+        const distance = dist2(x, y, goalX, goalY);
+        if (m_at(x, y, state)
+            && (data.info[index] & ALLOW_MDISP)
+            && !(data.info[index] & ALLOW_M)
+            && !undesirable_disp(monster, x, y, env)) {
+            if (withDisplacing < 0 || distance < withDisplacing)
+                withDisplacing = distance;
+        } else {
+            if (withoutDisplacing < 0 || distance < withoutDisplacing)
+                withoutDisplacing = distance;
+            ordinaryCount++;
+        }
+    }
+    return withDisplacing >= 0
+        && (withDisplacing < withoutDisplacing || !ordinaryCount);
+}
+
 // C ref: monmove.c closed_door().
 export function closed_door(x, y, state = game) {
     const location = state.level?.at(x, y);

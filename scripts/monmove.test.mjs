@@ -44,6 +44,8 @@ import {
     LAVAPOOL,
     LAVAWALL,
     M_AP_OBJECT,
+    MMOVE_MOVED,
+    MMOVE_NOMOVES,
     NOGARLIC,
     NOTONL,
     OPENDOOR,
@@ -79,6 +81,8 @@ import {
     disturb,
     in_your_sanctuary,
     m_can_break_boulder,
+    m_avoid_kicked_loc,
+    m_avoid_soko_push_loc,
     m_everyturn_effect,
     m_harmless_trap,
     m_in_air,
@@ -92,7 +96,10 @@ import {
     monnear,
     onscary,
     set_apparxy,
+    should_displace,
+    undesirable_disp,
 } from '../js/monmove.js';
+import { m_move_fresh } from '../js/monmove_move.js';
 import {
     M1_CLING,
     M1_NEEDPICK,
@@ -160,6 +167,116 @@ test('mon_track_add shifts older positions toward the tail', () => {
         { x: 0, y: 0 },
         { x: 0, y: 0 },
     ]);
+});
+
+test('peaceful monsters avoid the hero most recently kicked square', () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mcansee: true,
+        mpeaceful: true,
+    });
+    // The kicked square is adjacent to the hero and is the tested candidate.
+    state.gk = { kickedloc: { x: 9, y: 10 } };
+
+    assert.equal(m_avoid_kicked_loc(monster, 9, 10, state), true);
+    monster.mconf = true;
+    assert.equal(m_avoid_kicked_loc(monster, 9, 10, state), false);
+    monster.mconf = false;
+    state.u.uprops[CONFLICT] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    assert.equal(m_avoid_kicked_loc(monster, 9, 10, state), false);
+});
+
+test('peaceful monsters avoid pushing an intervening Sokoban boulder', () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, { mpeaceful: true });
+    state.level.flags.sokoban_rules = true;
+    // Candidate (8,10) is two squares away; the boulder occupies (9,10).
+    state.level.objects[9][10] = objectFor(state, BOULDER);
+
+    assert.equal(m_avoid_soko_push_loc(monster, 8, 10, state), true);
+    state.level.flags.sokoban_rules = false;
+    assert.equal(m_avoid_soko_push_loc(monster, 8, 10, state), false);
+});
+
+test('undesirable_disp preserves pet and ordinary trap knowledge', () => {
+    const { state } = makeState();
+    const trap = {
+        tx: 5,
+        ty: 4,
+        tseen: true,
+        ttyp: ARROW_TRAP,
+    };
+    state.level.traps.push(trap);
+    const pet = ordinaryMonster(state, {
+        isminion: false,
+        mtame: 5,
+    });
+
+    assert.equal(undesirable_disp(pet, trap.tx, trap.ty, {
+        cursedObjectAt: () => assert.fail('seen-trap return is immediate'),
+        random: {
+            rn2(bound) {
+                assert.equal(bound, 40);
+                return 1; // The usual seen-trap result rejects the square.
+            },
+        },
+        state,
+    }), true);
+
+    assert.equal(undesirable_disp(pet, trap.tx, trap.ty, {
+        cursedObjectAt: () => true,
+        random: {
+            rn2(bound) {
+                assert.equal(bound, 40);
+                return 0; // The one-in-forty exception reaches curse safety.
+            },
+        },
+        state,
+    }), true);
+
+    const ordinary = ordinaryMonster(state, {
+        // Arrow trap is type one, so its knowledge bit is the low bit.
+        mtrapseen: 1,
+    });
+    assert.equal(undesirable_disp(ordinary, trap.tx, trap.ty, {
+        random: { rn2: () => 1 },
+        state,
+    }), true);
+});
+
+test('should_displace compares the shortest ordinary route', () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        isminion: false,
+        mtame: 5,
+    });
+    const occupant = ordinaryMonster(state, { mx: 6, my: 5 });
+    state.level.monsters[6][5] = occupant;
+    const data = {
+        cnt: 2,
+        info: [
+            ALLOW_MDISP,
+            0, // The second candidate is an unoccupied ordinary square.
+        ],
+        poss: [
+            { x: 6, y: 5 },
+            { x: 5, y: 6 },
+        ],
+    };
+    const env = {
+        cursedObjectAt: () => false,
+        random: { rn2: () => 0 },
+        state,
+    };
+
+    // Goal (7,5) is one squared step from displacement and five from ordinary.
+    assert.equal(should_displace(monster, data, 7, 5, env), true);
+    data.poss[1] = { x: 7, y: 5 };
+    assert.equal(should_displace(monster, data, 7, 5, env), false);
 });
 
 function makeState() {
@@ -286,6 +403,65 @@ function deferred() {
     const promise = new Promise((accept) => { resolve = accept; });
     return { promise, resolve };
 }
+
+test('m_move ordinary path updates the monster before postmov', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, {
+        mpeaceful: true,
+        mhp: 5, // A living monster is required by the placement index.
+        mx: 4,
+        my: 4,
+        // The hero is far enough away that this test exercises movement
+        // selection rather than an adjacent hero attack.
+        mux: 10,
+        muy: 10,
+    });
+    state.level.monsters[monster.mx][monster.my] = monster;
+    const events = [];
+
+    const result = await m_move_fresh(monster, {
+        state,
+        random: {
+            rn2(bound) {
+                events.push(`rn2(${bound})`);
+                return 0; // Select each eligible tie; the final one wins.
+            },
+        },
+        resolveTrappedMonster: () => false,
+        resistsTrapEffect: () => false,
+        unsupported: (reason) => assert.fail(reason),
+        postMonsterMove(subject, oldX, oldY, status) {
+            events.push(`post:${oldX},${oldY}:${subject.mx},${subject.my}`);
+            assert.equal(state.level.monsters[oldX][oldY], null);
+            assert.equal(state.level.monsters[subject.mx][subject.my], subject);
+            assert.equal(status, MMOVE_MOVED);
+            return status;
+        },
+    });
+
+    assert.equal(result, MMOVE_MOVED);
+    assert.notDeepEqual([monster.mx, monster.my], [4, 4]);
+    assert.match(events.at(-1), /^post:4,4:/u);
+});
+
+test('m_move ordinary path reports no moves from a sealed square', async () => {
+    const { locations, state } = makeState();
+    const monster = ordinaryMonster(state, { mx: 4, my: 4 });
+    state.level.monsters[monster.mx][monster.my] = monster;
+    sealNeighborhood(locations, monster.mx, monster.my);
+
+    const result = await m_move_fresh(monster, {
+        state,
+        random: { rn2: () => 0 },
+        resolveTrappedMonster: () => false,
+        resistsTrapEffect: () => false,
+        unsupported: (reason) => assert.fail(reason),
+        postMonsterMove: () => assert.fail('no move cannot reach postmov'),
+    });
+
+    assert.equal(result, MMOVE_NOMOVES);
+    assert.deepEqual([monster.mx, monster.my], [4, 4]);
+});
 
 function sanctuaryFixture() {
     const { locations, state } = makeState();
