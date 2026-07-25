@@ -224,7 +224,11 @@ object, and combat module.
     movement; `postmov()`, with special movers kept separate if needed. This
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior.
 15. **C15 — elapsed-loop owners:** separate `allmain.c`, `timeout.c`,
-    `light.c`, and `vision.c` commits, followed by turn-loop wiring.
+    `light.c`, and `vision.c` commits, followed by turn-loop wiring. The
+    behavior-preserving `allmain.c` extraction of shared fresh elapsed-turn
+    upkeep is complete in
+    `05c87bb0d718ee589a0c9ebe55f50e90fcb643c3`; second-turn dispatch and the
+    remaining elapsed branches are still open.
 16. **C16 — `hack.c:domove()` and `spoteffects()`.** Close the accepted
     milestone's non-trap spot effects here. Hero-triggered traps and hero level
     transitions remain separate named follow-up milestones.
@@ -390,6 +394,15 @@ its follow-up milestone.
   clear and world-effects is advisory at six commits and 935 changed lines.
   The boulder-fill floor effect and dangerous-corpse self-touch remain
   explicit later-owner seams.
+- The first C15 `allmain.c` extraction is committed as
+  `05c87bb0d718ee589a0c9ebe55f50e90fcb643c3` with exactly
+  `js/allmain.js`. It moves the already-live fresh elapsed-turn upkeep into a
+  shared source-owned helper without changing first-turn behavior. Seventeen
+  focused turn-loop tests, the exact 1,394-test full suite, and all four
+  generated-data checks pass. The exact candidate quality gate is clear at
+  one startup commit and 110 changed lines. The fixed development set remains
+  at 77,588 PRNG values, 205 screens, and 243 cursors; second-turn dispatch
+  and the remaining elapsed-loop branches are still open.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   The worktree fix was then checked with `scripts/scan-fresh.mjs`: four strict
