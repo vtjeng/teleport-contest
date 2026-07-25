@@ -124,6 +124,7 @@
       "paths": [
         "js/dog.js",
         "js/dogfood.js",
+        "js/dogmove_hunger.js",
         "js/dogmove_inventory.js",
         "js/makemon.js",
         "js/makemon_create.js",
