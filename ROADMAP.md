@@ -51,6 +51,15 @@ and the final fresh comparison matrix passes at the committed integration
 head. The future-work paths below are retained as known gaps in the broader
 exploration milestone, but do not block this checkpoint.
 
+**Current implementation sequence:** Finish stable-D:1 monster relocation and
+land mines under their `dog.c`, `teleport.c`, and `trap.c` owners; connect the
+trap owners through the active `monmove.c` consumer; finish starting-pet,
+reachable combat, monster-action, elapsed-loop, and non-trap spot-effect
+families; then commit the second-turn runner, fixture, integration test, live
+wiring, and replay removal together. Each source-owned implementation commit
+must stay below the review-size limit. The detailed sequence and evidence live
+in `.agents/implementation-checklist.md`.
+
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
 development-score drop at
@@ -61,7 +70,8 @@ relaxing the fail-closed boundary.
 **Explicit future exploration work, outside the active goal:**
 
 - Hero-triggered traps, including teleport and living-statue effects.
-- Hero level transitions, D:2 generation, and rolling-boulder traps.
+- Hero level transitions, including deferred transitions after monster scans;
+  D:2 generation; and rolling-boulder traps.
 - The broader monster and combat catalogs introduced only by those excluded
   trap and transition paths.
 - Combat, spellcasting, item use, speech, and special movement whose first
@@ -71,6 +81,9 @@ relaxing the fail-closed boundary.
   its current upkeep, shape, inventory use, and reachable movement are not.
 - Mounted, leashed, arriving, conflicted, confused, or ranged-pet behavior
   that cannot arise for the starting pet during two waits or legal moves.
+- Monster migration variants whose first eligible caller needs a leash, a
+  shopkeeper, a long worm, a furniture/object disguise, the Wizard's Tower, a
+  boulder-filled pit, or one-shot vault teleportation.
 - Artifact and petrifying-corpse monster weapon paths, petrifying hurtle
   collisions, and boulder-filled monster pits, none of which has an eligible
   object or monster source at this D:1 boundary.
@@ -80,6 +93,8 @@ relaxing the fail-closed boundary.
 - Running, search commands, obstructed movement, doors, pickup, stairs, and
   other exploration commands beyond the current two-command checkpoint.
   Automatic pickup caused by an in-scope move remains current work.
+- Naming, billing, hero-inventory damage, and other helper branches whose first
+  consumer is one of the future inputs or catalogs above.
 
 ## Later milestones
 
