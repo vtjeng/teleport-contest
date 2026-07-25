@@ -199,11 +199,19 @@ function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
             'shopkeeper or priest random relocation',
         );
     }
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        // rloc_to_core() changes carried shop goods only when no_charge or
+        // billing applies. Ordinary carried objects are source-inert here.
+        if (obj.no_charge || obj.unpaid) {
+            throw new UnsupportedPositionCheckError(
+                'random relocation of carried shop goods',
+            );
+        }
+    }
     if (monster.wormno
         || monster === env.state.u?.ustuck
         || monster.mtrapped
         || monster.mundetected
-        || monster.minvent
         || env.state.occupation
         || (monster.mstrategy & STRAT_APPEARMSG)) {
         throw new UnsupportedPositionCheckError(

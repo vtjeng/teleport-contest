@@ -387,6 +387,79 @@ test('rloc returns immediately when random selection finds the current square',
         assert.equal(state.level.monsters[12][9], monster);
     });
 
+test('rloc carries ordinary inventory without invoking shop side effects',
+    () => {
+        const state = positionState();
+        const carried = {
+            no_charge: false,
+            unpaid: false,
+            nobj: null,
+        };
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2, // A live carrier is required for relocation.
+            mhpmax: 2,
+            m_id: 88, // A nonzero id selects live-monster scary checks.
+            minvent: carried,
+        });
+        state.level.at(10, 11).typ = ROOM;
+        state.level.at(12, 9).typ = ROOM;
+        place_monster(monster, 10, 11, state);
+
+        assert.equal(rloc(monster, 0, {
+            state,
+            random: {
+                rnd: () => 12, // The prepared accessible destination column.
+                rn2: () => 9, // The prepared accessible destination row.
+            },
+            newsym: () => {},
+            onscary: () => false,
+            setApparxy: () => {},
+        }), true);
+
+        assert.deepEqual([monster.mx, monster.my], [12, 9]);
+        assert.equal(monster.minvent, carried);
+        assert.deepEqual(
+            [carried.no_charge, carried.unpaid],
+            [false, false],
+        );
+    });
+
+test('rloc rejects carried shop state before its first destination draw', () => {
+    for (const property of ['no_charge', 'unpaid']) {
+        const state = positionState();
+        const carried = {
+            no_charge: false,
+            unpaid: false,
+            nobj: null,
+            [property]: true,
+        };
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2, // A live carrier is required for relocation.
+            mhpmax: 2,
+            m_id: 89, // A nonzero id selects live-monster scary checks.
+            minvent: carried,
+        });
+        state.level.at(10, 11).typ = ROOM;
+        place_monster(monster, 10, 11, state);
+        let draws = 0;
+
+        assert.throws(() => rloc(monster, 0, {
+            state,
+            random: {
+                rnd: () => ++draws,
+                rn2: () => ++draws,
+            },
+            newsym: () => {},
+            onscary: () => false,
+            setApparxy: () => {},
+        }), /random relocation of carried shop goods/u);
+        assert.equal(draws, 0);
+        assert.deepEqual([monster.mx, monster.my], [10, 11]);
+    }
+});
+
 test('rloc exhausts fifty trials before its unshuffled fallback and backup',
     () => {
         const state = positionState();
