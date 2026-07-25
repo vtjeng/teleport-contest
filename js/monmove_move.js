@@ -2,11 +2,16 @@
 // C ref: monmove.c m_move(), ordinary not_special path through postmov().
 
 import {
+    A_STR,
     ALLOW_M,
     ALLOW_MDISP,
     ALLOW_ROCK,
     ALLOW_U,
+    BOLT_LIM,
     INVIS,
+    IS_OBSTRUCTED,
+    IS_WATERWALL,
+    LAVAWALL,
     MMOVE_DONE,
     MMOVE_MOVED,
     MMOVE_NOMOVES,
@@ -14,13 +19,17 @@ import {
     MTSZ,
     NOTONL,
 } from './const.js';
+import { effective_attribute } from './attrib.js';
+import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import { dist2, distmin, online2 } from './hacklib.js';
+import { m_carrying } from './mon.js';
 import {
     haseyes,
     is_unicorn,
     is_wanderer,
     perceives,
+    throws_rocks,
 } from './mondata.js';
 import {
     PM_STALKER,
@@ -33,11 +42,14 @@ import {
     remove_monster,
 } from './monst.js';
 import {
+    closed_door,
     mfndpos,
     mon_allowflags,
     mon_track_add,
     set_apparxy,
 } from './monmove.js';
+import { sobj_at } from './obj.js';
+import { BOULDER, WAN_STRIKING } from './objects.js';
 import { m_in_out_region } from './region.js';
 import { rn2 } from './rng.js';
 import { gettrack } from './track.js';
@@ -54,6 +66,68 @@ function requiredOperation(env, name) {
     if (typeof operation !== 'function')
         throw new TypeError(`m_move requires a ${name} operation`);
     return operation;
+}
+
+function lineTerrain(monster, state) {
+    const goalX = monster.mux;
+    const goalY = monster.muy;
+    const deltaX = goalX - monster.mx;
+    const deltaY = goalY - monster.my;
+    if ((!deltaX && !deltaY)
+        || !online2(goalX, goalY, monster.mx, monster.my)
+        || distmin(deltaX, deltaY, 0, 0) >= BOLT_LIM) {
+        return { clear: false, boulders: 0 };
+    }
+
+    const stepX = Math.sign(deltaX);
+    const stepY = Math.sign(deltaY);
+    let x = monster.mx;
+    let y = monster.my;
+    let boulders = 0;
+    do {
+        x += stepX;
+        y += stepY;
+        const location = state.level?.at(x, y);
+        if (!location || IS_OBSTRUCTED(location.typ)
+            || IS_WATERWALL(location.typ)
+            || location.typ === LAVAWALL
+            || closed_door(x, y, state)) {
+            return { clear: false, boulders };
+        }
+        if (sobj_at(BOULDER, x, y, state)) boulders++;
+    } while (x !== goalX || y !== goalY);
+    return { clear: boulders === 0, boulders };
+}
+
+// C refs: mthrowu.c lined_up()/linedup(), as used only by m_move()'s item
+// search admission. The current fresh-game boundary cannot polymorph the hero,
+// so m_lined_up()'s Upolyd concealment draw is not reachable here.
+export function monsterItemSearchInLine(monster, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const terrain = lineTerrain(monster, state);
+    if (!online2(monster.mx, monster.my, monster.mux, monster.muy)
+        || distmin(
+            monster.mx,
+            monster.my,
+            monster.mux,
+            monster.muy,
+        ) >= BOLT_LIM) {
+        return false;
+    }
+
+    const goalIsHero = monster.mux === state.u.ux
+        && monster.muy === state.u.uy;
+    if ((goalIsHero && couldsee(monster.mx, monster.my, state))
+        || (!goalIsHero && terrain.clear)) {
+        return true;
+    }
+    if (!terrain.clear && terrain.boulders === 0) return false;
+
+    const ignoresBoulders = throws_rocks(monster.data)
+        || Boolean(m_carrying(monster, WAN_STRIKING, state));
+    return ignoresBoulders
+        || random.rn2(2 + terrain.boulders) < 2;
 }
 
 // This bounded m_move() owner covers the ordinary new-game path. Special
@@ -112,11 +186,23 @@ export async function m_move_fresh(monster, rawEnv = {}) {
     }
 
     // m_search_items() is inert under the simple-turn preflight's empty
-    // search area. Preserve its source gate and let that preflight verify the
-    // assumption only when the search is reached.
-    if ((!monster.mpeaceful || !random.rn2(10))
-        && typeof rawEnv.assertEmptyItemSearch === 'function') {
-        rawEnv.assertEmptyItemSearch(monster, env);
+    // search area. Preserve every source admission term and its evaluation
+    // order before asking the preflight to verify that assumption.
+    const passesPeacefulGate = !monster.mpeaceful || !random.rn2(10);
+    if (passesPeacefulGate
+        && !on_level(state.u?.uz, state.rogue_level)) {
+        const linedUp = (
+            rawEnv.itemSearchInLine ?? monsterItemSearchInLine
+        )(monster, env);
+        const throwRange = throws_rocks(state.youmonst?.data)
+            ? 20
+            : Math.trunc(effective_attribute(state, A_STR) / 2) + 1;
+        const inLine = linedUp
+            && distmin(oldX, oldY, monster.mux, monster.muy) <= throwRange;
+        if ((approach !== 1 || !inLine)
+            && typeof rawEnv.assertEmptyItemSearch === 'function') {
+            rawEnv.assertEmptyItemSearch(monster, env);
+        }
     }
 
     const data = { cnt: 0, poss: [], info: [] };
@@ -192,9 +278,9 @@ export async function m_move_fresh(monster, rawEnv = {}) {
         monster.muy = state.u.uy;
         return MMOVE_NOTHING;
     }
-    if ((data.info[chosen] & ALLOW_M)
-        || (nextX === monster.mux && nextY === monster.muy
-            && m_at(nextX, nextY, state))) {
+    const attacksImage = nextX === monster.mux && nextY === monster.muy;
+    if ((data.info[chosen] & ALLOW_M) || attacksImage) {
+        if (!m_at(nextX, nextY, state)) return MMOVE_DONE;
         unsupported('ordinary monster aggression');
     }
     if (data.info[chosen] & ALLOW_MDISP)
