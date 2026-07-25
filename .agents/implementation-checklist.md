@@ -149,7 +149,7 @@ allowed labels.
 | 23 | Path selection, tracking, trap avoidance, collisions, aggression, and displacement | Ordinary movement ranks squares using hero/monster tracks, trap knowledge, occupancy, aggression, and displacement. Common walking exists; aggression/displacement still stop explicitly. | `js/track.js`, `js/monmove.js`; temporary action code | partial | `undecided` | C4 tracking, C13 trap routing, then C14 candidate selection. |
 | 24 | Normal movement and `postmov()` doors, traps, objects, and hiding | Chosen movement updates position and track, then applies door, trap, object, hiding, redraw, and message effects in source order. Exact subsets match, not the complete family. | `js/monst.js`, `js/obj.js`, `js/monmove.js`; temporary action code | partial | `undecided` | Existing placement plus C5/C13 prerequisites, then C14 normal movement and `postmov()`. |
 | 25 | `dogmove.c` hunger and inventory | A starting pet can become hungry, carry objects, select droppables, drop, or starve before/after movement. Ordinary carry/drop cases match; thresholds and special inventory effects remain. | `js/dogmove.js`, `js/moncarry.js`, `js/dogfood.js` | partial | `undecided` | C7-C9: carrying, food, then dog inventory/eating subcommit. |
-| 26 | Pet goals and reachability | `dog_goal()` chooses hero, food, apport, and follow goals, subject to reachability and object safety. Artifact refusal is complete; the full goal family is not. | `js/dogmove.js`, `js/track.js`, `js/moncarry.js` | partial | `undecided` | C4/C7/C8, then C9 goals/reachability subcommit. |
+| 26 | Pet goals and reachability | `dog_goal()` chooses hero, food, apport, and follow goals, subject to reachability and object safety. Artifact refusal and `do_clear_area()` traversal are complete; the full goal family is not. | `js/dogmove.js`, `js/track.js`, `js/moncarry.js`, `js/vision.js` | partial | `undecided` | C4/C7/C8 and the committed vision prerequisite, then C9 goals/reachability subcommit. |
 | 27 | Pet candidate selection, trap/cursed-square avoidance, and scary-square flight | A pet ranks moves while avoiding known traps/cursed objects and reacts to a scare-monster scroll under the hero. Strict seed 979597 reaches the explicit unsupported pre-move flight callback after source-required PRNG draws. | `js/dogmove.js`, `js/monmove.js`; caller in `js/monster_action.js` | confirmed gap | `missing` | C9 candidate logic plus C14 `distfleeck()`/`monflee()` connection; rerun seed 979597. |
 | 28 | Pet combat, ranged attacks, and displacement | Candidate selection can attack or displace a monster, use a ranged attack, or in altered states attack the hero. Explicit unsupported consumers remain. | `js/dogmove.js`, `js/mhitm.js`, `js/mhitu.js` | confirmed gap | `missing` | C9 movement dispatch after C10-C11 combat owners exist. |
 | 29 | Pet movement, eating, dropping, and pickup execution | Once selected, a pet can move, eat, drop, or pick up, updating `edog`, floor objects, inventory, messages, and PRNG. Several exact cases match, including carried-gold drop; special floor/food effects remain. | `js/dogmove.js`, `js/dogfood.js`, `js/moncarry.js`, `js/obj.js` | partial | `undecided` | C5-C9, split so goals, inventory/eating, and active movement each stay under 500 production lines. |
@@ -206,7 +206,9 @@ object, and combat module.
    prerequisite is complete in
    `8385846f3064fb3c6f5251e1493d1f914a7883d6`; the hunger-state
    prerequisite is complete in
-   `a20cd18f4f243f41e7361709cb081ca38a36d3f1`.
+   `a20cd18f4f243f41e7361709cb081ca38a36d3f1`; the
+   `vision.c:do_clear_area()` prerequisite is complete in
+   `db880ce6648710d234c6ec6c9ed6b181725144ec`.
 10. **C10 — `mhitm.c` in bounded commits:** attack iteration; damage/death and
     growth/corpses; passives/knockback/collision as line counts and source
     seams require.
@@ -342,6 +344,14 @@ its follow-up milestone.
   at seven commits and 974 committed lines. No fresh second-turn differential
   is claimed until later C9 commits connect `dog_hunger()` to the live
   `dog_move()` path.
+- The C9 clear-area prerequisite is committed as
+  `db880ce6648710d234c6ec6c9ed6b181725144ec` with exactly `js/vision.js`
+  and `scripts/light-vision.test.mjs`. Focused vision and dependent pet tests
+  pass; the exact staged full suite passes 1,376/1,376 and all six
+  generated-data checks pass. The production diff is 135 changed lines. The
+  quality gate is clear and world-effects is advisory at four commits and 192
+  committed lines. No fresh second-turn differential is claimed until C9
+  connects the live `dog_move()` consumer.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
