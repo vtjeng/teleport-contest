@@ -75,14 +75,22 @@ only behavior that can run before this checkpoint's ending event.
   introduce.
 - Dispatch tables and catalogs: The ordinary D:1 generation catalog contains
   jackal, fox, kobold, goblin, sewer rat, grid bug, lichen, kobold zombie, and
-  newt. Starting pets are little dog, kitten, and pony. Reachable themed-level
-  additions include sleeping fog clouds, wood nymphs, a waiting ghost, and
-  chest-disguised mimics.
+  newt. Starting pets are little dog, kitten, and pony. D:1 themed generation
+  also reaches sleeping fog clouds and wood nymphs, a waiting ghost,
+  chest-disguised mimics, the 21 Mausoleum mummy/vampire/lich/zombie
+  candidates, and one of giant zombie, ettin zombie, or vampire lord in the
+  water-surrounded vault. Mausoleum monsters retain `STRAT_WAITFORU`, and the
+  water-vault monster starts isolated; their upkeep, shape, wait, and reachable
+  movement paths are current, while actions that first require release or
+  contact are future work.
 - Trap catalog: Ordinary D:1 generation reaches arrow, dart, falling-rock,
   squeaky-board, bear, rust, pit, hole, trapdoor, teleport, magic, and
   anti-magic traps. Themes add web, land mine, sleep gas, and fixed teleport
-  traps. Hero statue activation and D:2 rolling-boulder eligibility are future
-  work because the current valid-input boundary excludes them.
+  traps. D:1 themes also add ice, pools, lava, gas regions, fountains, graves,
+  sinks, and altars. Those non-trap terrain and region effects remain current.
+  Hero statue activation and difficulty-2-or-later rolling-boulder eligibility
+  are future work because the current valid-input boundary excludes the first
+  and D:1 generation excludes the second.
 - Reachable helpers: Calls were grouped by the upstream subsystem that owns
   their state and PRNG order. Shared placement, tracking, object, naming,
   carrying, food, combat, trap, and turn-loop prerequisites are separate
@@ -95,9 +103,10 @@ only behavior that can run before this checkpoint's ending event.
   `scripts/scan-fresh.mjs`.
 - Remaining limits: The current table has 28 partial families that still
   require source closure and live-consumer differentials. The future-work
-  table retains excluded hero-trap, transition, D:2, and statue-only catalogs
-  so they are not mistaken for completed behavior. A passing discovery range
-  is not closure proof.
+  table retains excluded hero-trap, transition, deeper-generation, dormant
+  themed-monster, later-pet, and catalog-only paths so they are not mistaken
+  for current blockers or completed behavior. A passing discovery range is not
+  closure proof.
 
 ## Coverage summary
 
@@ -131,29 +140,29 @@ allowed labels.
 | 7 | `cmd.c:dowait()` | A wait command has no movement target and consumes time through the shared loop. Live first- and second-wait fresh cases reach the next prompt. | `js/cmd.js` | covered | `done` | C17: retain focused command tests and final exact differentials. |
 | 8 | `hack.c:domove()` prechecks and hero-position update | Every allowed move enters the movement command, checks the target, and updates hero position before spot effects. The clear-square subset is active but not source-closed. | `js/cmd.js`, `js/allmain.js` | partial | `undecided` | C16: port the coherent `domove()` path after prerequisites. |
 | 9 | Region entry, hero track, vision, and engraving smudge | A successful move can enter/leave regions, update `utrack`, recalculate vision, and smudge or read an engraving before elapsed monster work. Destination reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`, and post-move smudging is live at `a2c0a1e355ea6271c5f59f5e634f2fabc517bb87`. Second-turn track and full region/vision ordering are not closed. | `js/track.js`, `js/vision.js`, `js/hack.js`, region and engraving owners | partial | `undecided` | Finish C15/C16 movement ordering and prove the second-turn track consumer. |
-| 10 | `hack.c:spoteffects()` terrain, rooms, and regions | An accessible destination can trigger terrain, room, and region effects before monsters move; sleeping gas can add elapsed turns. The leading room-membership update is live at `ab62aa2fb388aea112678130a6da9a8f7a00dc86`, and reachable terrain-status switching is live at `a2be24a9cf170e45441e4601127ba4770cd4b3d6`. Liquid, sink, region, and deeper special-room effects remain open. Scanner cases do not prove every variant. | `js/hack.js`, `js/dungeon.js`, `js/mkroom.js`, `js/display.js`, `js/cmd.js`, region/terrain owners | partial | `undecided` | Continue C16 with source-owned non-trap spot effects, including extra-turn cases. |
-| 11 | Destination objects, pickup/description, and engraving reading | A destination can contain an object or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. The ordinary sighted single-object description is live at `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination engraving reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; piles, pickup, terrain modifiers, blindness, and special objects remain. | `js/invent.js`, `js/engrave.js`, `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | Continue C16 with source-owned pile, pickup, terrain, and blind-floor paths. |
+| 10 | `hack.c:spoteffects()` terrain, rooms, and regions | An accessible destination can trigger terrain, room, and region effects before monsters move; sleeping gas can add elapsed turns. D:1 themed rooms make ice, pool, lava, gas-region, fountain, sink, grave, and altar paths current. The leading room-membership update is live at `ab62aa2fb388aea112678130a6da9a8f7a00dc86`, and reachable terrain-status switching is live at `a2be24a9cf170e45441e4601127ba4770cd4b3d6`. Liquid, sink, and region effects remain open. Scanner cases do not prove every variant. | `js/hack.js`, `js/dungeon.js`, `js/mkroom.js`, `js/display.js`, `js/cmd.js`, region/terrain owners | partial | `undecided` | Continue C16 with source-owned D:1 non-trap spot effects, including relocation, termination, and extra-turn cases. |
+| 11 | Destination objects, automatic pickup/description, terrain decoration, and engraving reading | A destination can contain an object, passable feature, or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. The ordinary sighted single-object description is live at `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination engraving reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; piles, automatic pickup, decoration ordering, blindness, and special objects remain. | `js/invent.js`, `js/engrave.js`, `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | Continue C16 with source-owned decoration, pile, automatic-pickup, and blind-floor paths. |
 | 14 | `mon.c:movemon_singlemon()` dead/off-map/every-turn/ration gates | Each monster scan filters dead, migrating, or ineligible monsters and handles rationed movement before dispatch. Active cases exercise common gates only. | `js/allmain.js`, `js/monster_action.js` pending extraction | partial | `undecided` | Reuse the existing placement state, then C15 turn-loop dispatch. |
-| 15 | Bypass/split, `minliquid()`, equipment, and hider handling | Eligible monsters can clear bypass state, split, interact with liquid, equip, or hide before ordinary action selection. Some equipment and trap cases match; the family is incomplete. | Future `mon.c` owner plus object/equipment helpers | partial | `undecided` | C5-C7 prerequisites, C11 weapons, then source-shaped `mon.c` extraction. |
+| 15 | Bypass/split-object cleanup, `minliquid()`, equipment, and hider handling | Eligible monsters clear transient object state, interact with D:1 themed liquid, equip, or hide before ordinary action selection. Water-vault vampshifter forms keep the liquid checks current. Some equipment and hider cases match; the family is incomplete. | Future `mon.c` owner plus object/equipment helpers | partial | `undecided` | C5-C7 prerequisites, C11 weapons, then source-shaped `mon.c` extraction. |
 | 16 | `movemon()` terminal light, purge, and deferred transition | After scans, source updates monster-carried light, purges dead monsters, and performs deferred level transitions before prompt rendering. Only reached subsets are wired. | `js/allmain.js`, `js/light.js`, `js/monst.js` | partial | `undecided` | Reuse the existing placement substrate; complete light and turn-loop ownership in C15. |
 | 17 | `mcalcdistress()` regeneration, shape, and timers | Before actions, monsters can heal, change shape, and tick status timers; species predicates and ordering control effects and PRNG. Catalog support is incomplete. | `js/mondata.js`, future `mon.c` distress owner | partial | `undecided` | C2 generated fields/predicates, then a source-owned distress commit. |
-| 18 | `monmove.c:dochug()` phase 1: arrival, wait, sleep, status, flee, respond, release | Runs before movement for pets and ordinary monsters. The reachable ordinary and starting-pet caller order is extracted in the worktree; arrival, status recovery, special responses, and release branches remain unsupported. | `js/monmove.js`; worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`; integration adapters remain in `js/monster_action.js` | confirmed gap | `missing` | Finish the C14 pre-action phase and connect the remaining source-owned response/release helpers. |
-| 19 | `dochug()` phase 2: apparent hero, scary checks, defensive/miscellaneous actions, wielding, special actions | Monsters choose apparent hero coordinates, react to scary squares, use defensive or miscellaneous actions, and decide whether to wield before movement/attack. The worktree callers own apparent-hero and scary-square ordering; defensive, miscellaneous, wielding, and other special actions remain. | `js/monmove.js`, worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`, `js/weapon.js`, future action owners | confirmed gap | `missing` | C11 weapon helpers, then finish C14 phase 2 and retain the strict scary-square batch. |
-| 20 | `dochug()` phase 3: movement, ranged attack, and hero attack dispatch | The phase chooses mutually ordered movement, ranged, or melee action for the D:1 and starting-pet catalog. Reachable ordinary and pet movement dispatch is extracted in the worktree; reachable ranged and hero attacks still stop explicitly. Spellcasting from species introduced only by excluded statue animation is future work. | Worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`, `js/mhitu.js`, ranged owners | confirmed gap | `missing` | C11 and C14 finish the reachable dispatch family; retain statue-only spell dispatch in future work. |
+| 18 | `monmove.c:dochug()` phase 1: wait, sleep, status, and flee | Runs before movement for pets and ordinary monsters. The current catalog includes sleeping theme monsters, waiting Mausoleum monsters and a ghost, trap-frozen monsters, and scary-square flight. The reachable ordinary and starting-pet caller order is extracted in the worktree; current status recovery and wait/flee branches remain unsupported. Arrival, special response, and conflict-release callers require later state and are future work. | `js/monmove.js`; worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`; integration adapters remain in `js/monster_action.js` | confirmed gap | `missing` | Finish the current C14 pre-action phase without adding the future arrival/response/release catalogs. |
+| 19 | `dochug()` phase 2: apparent hero, scary checks, defensive/miscellaneous actions, and wielding | Monsters choose apparent hero coordinates, react to scary squares, use reachable defensive or miscellaneous inventory, and decide whether to wield before movement/attack. The worktree callers own apparent-hero and scary-square ordering; current inventory use and wielding remain. Covetous tactics, demon/watch/mind-flayer actions, and other catalog-gated special actions are future work. | `js/monmove.js`, worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`, `js/weapon.js`, item-action owners | confirmed gap | `missing` | C11 weapon helpers, then finish the current C14 phase 2 and retain the strict scary-square batch. |
+| 20 | `dochug()` phase 3: movement, ranged attack, and hero attack dispatch | The phase chooses mutually ordered movement, ranged, or melee action for active D:1 monsters and starting pets. Reachable ordinary and pet movement dispatch is extracted in the worktree; current ranged and hero attacks still stop explicitly. Spellcasters available only behind the Mausoleum wait boundary or excluded catalogs are future work. | Worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`, `js/mhitu.js`, ranged owners | confirmed gap | `missing` | C11 and C14 finish the current dispatch family; retain dormant and later-catalog spell dispatch in future work. |
 | 21 | `monmove.c:m_move()` trapped/eating/hide/setup branches | Movement setup can release a trapped monster, continue eating, reveal/hide, or stop before candidate selection. Web, bear, and pit subsets exist. | `js/monmove.js`; temporary code in `js/monster_action.js` | partial | `undecided` | C13 trap primitives, then C14 `m_move()` setup extraction. |
-| 22 | Item goals, doors, and non-ordinary movement | Reachable D:1 species can select object goals, doors, or boulder handling instead of ordinary walking; explicit unsupported paths remain. Covetous movement and tunneling species introduced only by excluded catalogs are future work. | Future `monmove.js` and subsystem owners | confirmed gap | `missing` | C14 closes reachable D:1 goal, door, and boulder handling after object and weapon prerequisites. |
+| 22 | Item goals, doors, and ordinary obstacle handling | Reachable active D:1 species can select object goals or open doors instead of ordinary walking; explicit unsupported paths remain. Boulder breaking, covetous movement, tunneling, and shop/guard/priest movement have no eligible current caller and are future work. | Future `monmove.js` and subsystem owners | confirmed gap | `missing` | C14 closes current D:1 item goals and door handling after object and weapon prerequisites. |
 | 23 | Path selection, tracking, trap avoidance, collisions, aggression, and displacement | Ordinary movement ranks squares using hero/monster tracks, trap knowledge, occupancy, aggression, and displacement. Common path selection and coordinate movement are extracted in the worktree; aggression/displacement still stop explicitly. | `js/track.js`, `js/monmove.js`, worktree `js/monmove_move.js` | partial | `undecided` | Finish C13 trap routing and C14 aggression/displacement candidate selection. |
 | 24 | Normal movement and `postmov()` doors, traps, objects, and hiding | Chosen movement updates position and track, then applies door, trap, object, hiding, redraw, and message effects in source order. The ordinary coordinate update is extracted in the worktree; `postmov()` and its remaining door/object/hiding branches are not closed. | `js/monst.js`, `js/obj.js`, `js/monmove.js`, worktree `js/monmove_move.js`; `postmov()` integration remains in `js/monster_action.js` | partial | `undecided` | Existing placement plus C5/C13 prerequisites, then finish C14 `postmov()`. |
 | 25 | `dogmove.c` hunger and inventory | A starting pet can become hungry, carry objects, select droppables, drop, or starve before/after movement. Ordinary carry/drop cases match; thresholds and special inventory effects remain. | `js/dogmove.js`, `js/moncarry.js`, `js/dogfood.js` | partial | `undecided` | C7-C9: carrying, food, then dog inventory/eating subcommit. |
 | 26 | Pet goals and reachability | `dog_goal()` chooses hero, food, apport, and follow goals, subject to reachability and object safety. Artifact refusal and `do_clear_area()` traversal are complete; the full goal family is not. | `js/dogmove.js`, `js/track.js`, `js/moncarry.js`, `js/vision.js` | partial | `undecided` | C4/C7/C8 and the committed vision prerequisite, then C9 goals/reachability subcommit. |
 | 27 | Pet candidate selection, trap/cursed-square avoidance, and scary-square flight | A pet ranks moves while avoiding known traps/cursed objects and reacts to a scare-monster scroll under the hero. The worktree connects `distfleeck()`/`monflee()`, preserves the next-command `rn2(40)` flee check, and extracts the pet caller into `monmove.c` ownership; a four-case strict seed-979597 batch passes after the split. Candidate-selection closure and a committed live owner remain open. | `js/dogmove.js`, `js/monmove.js`, worktree `js/monmove_dochug_pet.js` | worktree-covered subset | `undecided` | Finish C9 candidate logic, then retain seed 979597 in C17. |
-| 28 | Pet combat, ranged attacks, and displacement | Candidate selection can attack or displace a monster, use a ranged attack, or in altered states attack the hero. Explicit unsupported consumers remain. | `js/dogmove.js`, `js/mhitm.js`, `js/mhitu.js` | confirmed gap | `missing` | C9 movement dispatch after C10-C11 combat owners exist. |
+| 28 | Starting-pet combat and displacement | Candidate selection can attack or displace a reachable monster. Those live consumers remain unsupported. The little dog, kitten, and pony have no ranged attack, and cannot attack the hero without a later conflict or altered-state source; those branches are future work. | `js/dogmove.js`, `js/mhitm.js` | confirmed gap | `missing` | C9 movement dispatch after the reachable C10 combat owner exists. |
 | 29 | Pet movement, eating, dropping, and pickup execution | Once selected, a pet can move, eat, drop, or pick up, updating `edog`, floor objects, inventory, messages, and PRNG. Several exact cases match, including carried-gold drop; special floor/food effects remain. | `js/dogmove.js`, `js/dogfood.js`, `js/moncarry.js`, `js/obj.js` | partial | `undecided` | C5-C9, split so goals, inventory/eating, and active movement each stay under 500 production lines. |
 | 30 | `dog.c`, `mon.c`, and object lifecycle: food, nutrition, consumption, corpse, carry, artifact, ownership, naming | Pet and combat paths classify and consume food, apply corpse effects, carry/split/stack objects, check artifacts, and name output. Non-hero artifact touch is complete at `3d33c40c0862755a1a989223128b649704bd2d75`; the combined family is not. | `js/dogfood.js`, `js/moncarry.js`, `js/obj.js`, `js/objnam.js`, `js/artifacts.js` | partial | `undecided` | C5-C8, retaining C1 artifact evidence and adding live food/corpse cases. |
 | 31 | Monster trap immunity, avoidance, and routing | Species data and trap knowledge decide whether a monster avoids, resists, triggers, or escapes a trap while choosing/making a move. Several generated traps match, but all trap/species combinations are not closed. | `js/mondata.js`, future `trap.js`/`monmove.js` owners | partial | `undecided` | C2 predicates, then C13 routing and C14 consumer proof. |
 | 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. Projectile and holding owners are committed. Sleep and anti-magic have source-owned worktree modules, focused tests, and live owner wiring; `wake_nearto()` also reaches the worktree `hack.c` buried-zombie timer owner. Rust and full live-consumer closure remain. | `js/trap_monster_projectiles.js`, `js/trap_monster_holding.js`, `js/trap_monster_shared.js`; worktree `js/trap_monster_sleep.js`, `js/trap_monster_antimagic.js`, and `js/hack.js`; rust remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 status family, then commit and run grouped strict cases after the live C14 consumer is committed. |
 | 33 | Magic/fire/item damage and ignition trap effects | D:1 magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. Seeds 962639 and 966115 match implemented subsets. | Future `trap.js` plus object/damage owners; temporary action code | partial | `undecided` | C5 object support, then the current D:1 C13 magic/fire/item-damage commit. |
-| 34 | Hole/trapdoor/teleport/migration and land mine | D:1 monster traps can relocate or migrate a monster, consume one-shot traps, or explode land mines. Fixed/random teleport and stable-D:1 hole migration have a source-owned worktree module and focused tests. Random relocation now permits source-inert ordinary carried inventory while failing closed on carried shop state. Steeds, leashes, the one-shot vault teleport, and land mines remain. D:2-only rolling-boulder traps are future work. | `js/teleport.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine code remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the current D:1 C13 relocation family after C12 hurtling, then run grouped strict cases through the C14 consumer. |
+| 34 | Hole/trapdoor/teleport/migration and land mine | D:1 monster traps can relocate or migrate a monster or explode a themed-room land mine. Fixed/random teleport and stable-D:1 hole migration have a source-owned worktree module and focused tests. Random relocation now permits source-inert ordinary carried inventory while failing closed on carried shop state. Land mines remain current. Steeds, leashes, one-shot vault teleportation, and rolling-boulder traps are future work. | `js/teleport.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine code remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the current D:1 C13 relocation and land-mine family after C12 hurtling, then run grouped strict cases through the C14 consumer. |
 | 35 | `mhitm.c` attack iteration, reachable contact/ranged/special attacks, and passives | Pet/monster encounters among the D:1 and starting-pet catalog iterate attack descriptors in source order and can invoke contact, ranged, special, and passive effects. Physical subsets have focused and fresh evidence. Statue-only attack methods are future work. | `js/mhitm.js` | partial | `undecided` | C10: reachable attack-loop commit followed by its passives and special effects. |
 | 36 | `mhitm.c` damage, death, growth, corpse, knockback, collision, and retaliation | A reachable hit can damage or kill either monster, grow the attacker, create a corpse, knock back or collide, or trigger retaliation. Strict visible/blind seed 962576 covers one-square hurtling; remaining current-catalog branches are open. | `js/mhitm.js`, object/placement owners, future `dothrow.js` | partial | `undecided` | C10 reachable damage/death and knockback commits, then C12 hurtling owner. |
 | 37 | `mhitu.c` apparent image, to-hit, weapons, reachable special damage, and hero death | A nearby D:1 monster can attack the hero or displaced image and can end the run before the prompt. Seed 971455 covers one armed miss and a focused hit covers weapon-die ordering; reachable damage types and death still stop explicitly. Statue-only damage types are future work. | `js/mhitu.js`, `js/weapon.js`, hero/termination owners | confirmed gap | `missing` | C11 weapon helpers and reachable `mhitu()` damage-type and termination matrices. |
@@ -171,7 +180,12 @@ not count toward current-goal readiness.
 | 13 | Hero trap relocation, living-statue animation, termination, and level transitions | `trap.c:dotrap()`, `teleport.c`, `makemon.c`, level-transition owners | Current inputs must remain on the stable level through the ending event. | Future hero-trap and level-transition checkpoints. |
 | 13, 20, 22, 35-37 | Living-statue species and the additional spell, breath, engulfing, explosion, theft, seduction, poison, paralysis, petrification, rust, decay, hallucination, and other attack/effect branches they introduce beyond the current catalog | `trap.c` living-statue branch and `rndmonnum_adj(3, 6)`, then `monmove.c`, `mhitm.c`, and `mhitu.c` | The 105 difficulty-3-through-7 species become eligible only after excluded hero statue activation. | Future combat checkpoints after hero statue activation is live. |
 | 13, 34 | D:2 generation and rolling-boulder traps | level-transition code, `trap.c` rolling-boulder branch | Rolling-boulder traps first become eligible after an excluded hero transition to D:2. | Future level-transition and D:2 trap checkpoints. |
-| 22 | Covetous movement and tunneling species absent from the D:1/current catalog | `monmove.c:m_move()` special movement dispatch | No valid current-goal monster can select these branches. | Future monster-movement checkpoint when its species catalog becomes reachable. |
+| 10, 11, 15, 18, 19, 22, 34 | Ordinary shops, temples, swamps, shopkeepers, priests, vault guards, billing, and one-shot vault teleportation | `mklev.c`, `mkroom.c`, `invent.c`, `mon.c`, `monmove.c`, `trap.c` | Random shops require depth greater than 1, Twin businesses requires difficulty 4, and the other room and role gates are deeper still. The disconnected D:1 vault cannot create a guard or reach its one-shot teleport without excluded hero entry. | Future D:2-and-later room, shop, and role checkpoints. |
+| 15, 18-20, 35-37 | Attack, speech, item-use, response, release, and spell branches of waiting Mausoleum monsters; contact-only combat for the isolated water-vault monster | `mon.c`, `monmove.c:dochug()`, `mhitm.c`, `mhitu.c` | Mausoleum actions first require clearing `STRAT_WAITFORU`; water-vault combat first requires leaving isolation and making contact after this checkpoint's ending event. Current upkeep, shape, wait gates, active inventory use, and reachable movement stay in the current table. | Future exploration or combat checkpoint that reaches and activates those monsters. |
+| 18, 28, 34 | Pet arrival/wait strategies, teleport-capable flight, conflict or confusion attacks on the hero, ranged attacks, leashes, and steeds | `monmove.c:dochug()`, `dogmove.c:dog_move()`, `trap.c` | A new game has one little dog, kitten, or pony with no ranged attack, leash, mount, arrival state, conflict, or confusion source during two allowed commands. Sleep and ordinary trap status on that starting pet remain current. | Future pet-state and item-command checkpoints. |
+| 19, 20, 22 | Covetous tactics, tunneling, boulder breaking, demon/watch/mind-flayer actions, and active spellcasting | `monmove.c:dochug()`, `monmove.c:m_move()` | No active current-goal monster satisfies those predicates. Mausoleum spellcasters stay behind their wait gate. | Future monster-movement checkpoint when an eligible caller is active. |
+| 19, 20, 35-37 | Artifact and petrifying-corpse monster weapons, negative-AC and later hero-equipment branches, and later-catalog attack types | `weapon.c`, `mhitm.c`, `mhitu.c` | Initial D:1 generation and the two allowed commands cannot supply an artifact or petrifying corpse as a monster weapon, or produce the excluded hero equipment/state. Poisoned ordinary weapons remain current because trap-generated projectiles can supply them. | Future item-interaction and combat checkpoints with the first eligible source. |
+| 32, 34, 36 | Boulder-filled monster pits, petrifying self-touch after a fall, and petrifying hurtle collisions | `trap.c`, `dothrow.c`, monster/object catalogs | D:1 cannot generate the rolling-boulder setup or a live petrifying monster/corpse source before this boundary. Ordinary pit holding, land mines, and non-petrifying hurtling remain current. | Future D:2 trap and petrifying-monster combat checkpoints. |
 | — | Running, search commands, obstructed movement, doors, pickup commands, stairs, and later exploration inputs | Command handlers and their gameplay owners | The current valid inputs contain only waits and legal one-square moves. | Later exploration checkpoints after C17. |
 
 ## Ordered source-owned checkpoints
@@ -232,17 +246,18 @@ object, and combat module.
     mine. D:2-only rolling-boulder behavior remains future work.
     Projectiles are committed in `04898bab19eb3716ea73f956bf17a61de17d5ef1`.
     Holding traps are committed in
-    `10e85bdd8801f59ef61e6e93fb362468099e870c`; the injected boulder-floor
-    effect and dangerous-corpse self-touch owners remain open. Sleep,
-    anti-magic, and stable-D:1 relocation are extracted in the worktree but
-    remain uncommitted until their source families and quality gate are ready.
+    `10e85bdd8801f59ef61e6e93fb362468099e870c`. Boulder-filled pits and
+    dangerous-corpse self-touch have no D:1 source at this boundary and remain
+    explicit future work. Sleep, anti-magic, and stable-D:1 relocation are
+    extracted in the worktree but remain uncommitted until their source
+    families and quality gate are ready.
 14. **C14 — reachable `monmove.c` in source-owned groups:** pre-action phases;
-    ordinary movement; item/door/boulder choices; and `postmov()`. This
+    ordinary movement; current item/door choices; and `postmov()`. This
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior. The
     ordinary and starting-pet `dochug()` callers plus ordinary `m_move()`
     selection are extracted in the worktree; `postmov()` and reachable
-    sibling branches remain. Covetous and tunneling species absent from the
-    current catalog remain future work.
+    sibling branches remain. Covetous, tunneling, boulder-breaking, and
+    dormant-catalog special actions remain future work.
 15. **C15 — elapsed-loop owners:** separate `allmain.c`, `timeout.c`,
     `light.c`, and `vision.c` commits, followed by turn-loop wiring. The
     behavior-preserving `allmain.c` extraction of shared fresh elapsed-turn
@@ -296,10 +311,12 @@ its follow-up milestone.
 3. C10-C12 resolve attack, hero-combat, and hurtling seams reachable from the
    D:1 and starting-pet catalog in families 28 and 35-37.
 4. C13 resolves current D:1 monster-trap families 31-34 in grouped scanner
-   batches. D:2 rolling boulders remain future work.
+   batches. Boulder-filled pits, petrifying self-touch, and D:2 rolling
+   boulders remain future work.
 5. C14 resolves current-catalog monster action families 18-24, including
-   strict seed 979597 for scary-square flight. Covetous and tunneling species
-   remain future work.
+   strict seed 979597 for scary-square flight. Arrival/response/release,
+   covetous, tunneling, boulder-breaking, dormant spellcasting, and deeper
+   special-role actions remain future work.
 6. C15 closes elapsed work and the pre-prompt turn loop in families 1-6 and
    14-17.
 7. C16 closes non-trap movement spot effects. Hero `dotrap()`, statue
@@ -428,8 +445,8 @@ its follow-up milestone.
   1,393-test full suite, and all four generated-data checks pass. The
   production diff is 424 changed lines. The exact candidate quality gate is
   clear and world-effects is advisory at six commits and 935 changed lines.
-  The boulder-fill floor effect and dangerous-corpse self-touch remain
-  explicit later-owner seams.
+  Boulder-fill floor effects and dangerous-corpse self-touch have no eligible
+  current D:1 source and remain explicit future-owner seams.
 - The first C15 `allmain.c` extraction is committed as
   `05c87bb0d718ee589a0c9ebe55f50e90fcb643c3` with exactly
   `js/allmain.js`. It moves the already-live fresh elapsed-turn upkeep into a
@@ -545,6 +562,17 @@ its follow-up milestone.
   claimed fresh live hit yet. The current worktree checkpoint passes 3/3
   focused tests, the full 1,506-test suite, and all four declared
   generated-data checks.
+- Seeds 998000 through 1000999 completed all 3,000 discovery cases without an
+  unsupported error; one case used a command-family fallback. The batch found
+  120 object destinations, 12 engraving destinations, 79 special-terrain
+  destinations, and 40 room crossings. Its special terrain was 53 fountains,
+  11 sinks, 4 graves, and 11 altars. This is discovery evidence, not parity or
+  proof that source-reachable themed ice, pool, lava, and region paths are
+  covered.
+- Converting the current 46-segment C17 recipe to a strict
+  `scripts/scan-fresh.mjs` plan produces a 46/46 passing worktree batch with no
+  failure groups. The final runner still needs `runFreshMatrix()`, the source
+  families above remain open, and this batch does not close the checkpoint.
 
 ## Validation required at final integration
 
@@ -574,5 +602,7 @@ Current mode: Implementation
 
 Reason: Six current-goal families have confirmed missing behavior, 28 are only
 partially implemented or proved, and second-turn replay remains. Hero-triggered
-traps, level transitions, D:2 rolling boulders, and statue-only combat catalogs
-are explicit future work and do not count toward this checkpoint's readiness.
+traps, level transitions, deeper room and role gates, later pet states,
+D:2 rolling boulders, dormant themed-monster actions, and catalog-only combat
+paths are explicit future work and do not count toward this checkpoint's
+readiness.

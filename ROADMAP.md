@@ -29,17 +29,21 @@ upstream source.
 
 **Status:** in progress.
 
-**Goal:** Complete movement beyond the first unobstructed step, running,
-search, doors, traps, pickup, stairs, terrain effects, vision, and status
-updates.
+**Milestone objective:** Complete movement beyond the first unobstructed step,
+then running, search, doors, traps, pickup, stairs, terrain effects, vision,
+and status updates. The active checkpoint below is the only current
+implementation goal; the rest of the exploration objective remains ordered
+future work.
 
-**Current checkpoint: Second stable-level non-trap command.** Starting at the
-first command prompt, match through the prompt or termination after any two
-waits or legal one-square moves. Entering objects, regions, engravings, and
-special terrain remains in scope. The entered hero square must not activate
+**Active implementation goal: Second stable-level non-trap command.** Starting
+at the first command prompt, match through the prompt or termination after any
+two waits or legal one-square moves. Entering objects, regions, engravings,
+ice, pools, lava, fountains, sinks, graves, altars, and other passable terrain
+remains in scope. So do automatic pickup, same-level relocation, or termination
+caused by those non-trap paths. The entered hero square must not activate
 `trap.c:dotrap()`, and the hero must not change levels before the ending
-boundary. Monster-triggered traps and termination from in-scope monster
-actions remain in scope.
+boundary. Monster-triggered traps, themed D:1 monster upkeep and movement, and
+termination from in-scope monster actions remain in scope.
 
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
@@ -54,8 +58,22 @@ relaxing the fail-closed boundary.
 - Hero level transitions, D:2 generation, and rolling-boulder traps.
 - The broader monster and combat catalogs introduced only by those excluded
   trap and transition paths.
+- Combat, spellcasting, item use, speech, and special movement whose first
+  eligible caller is a still-waiting Mausoleum monster or a deeper-level
+  shopkeeper, priest, guard, covetous monster, tunneler, or boulder breaker.
+  Contact-only combat for the isolated water-vault monster is also future;
+  its current upkeep, shape, inventory use, and reachable movement are not.
+- Mounted, leashed, arriving, conflicted, confused, or ranged-pet behavior
+  that cannot arise for the starting pet during two waits or legal moves.
+- Artifact and petrifying-corpse monster weapon paths, petrifying hurtle
+  collisions, and boulder-filled monster pits, none of which has an eligible
+  object or monster source at this D:1 boundary.
+- D:1-ineligible shops and room types, including their billing, guard, priest,
+  swamp, and one-shot vault-teleport behavior. D:1 themed pools, lava, ice,
+  gas regions, and passable room features remain current work.
 - Running, search commands, obstructed movement, doors, pickup, stairs, and
   other exploration commands beyond the current two-command checkpoint.
+  Automatic pickup caused by an in-scope move remains current work.
 
 ## Later milestones
 
