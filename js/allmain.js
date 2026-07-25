@@ -89,6 +89,7 @@ import {
 import {
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
+    UnsupportedSimpleMonsterActionError,
 } from './monmove_simple.js';
 import {
     create_gas_cloud,
@@ -659,7 +660,15 @@ async function moveSecondTurnMonster(monster, env) {
 async function advanceSecondFreshTurn(state) {
     if (state.moves !== 2)
         firstTurnBoundary(`unexpected second-turn move counter ${state.moves}`);
-    await preflightSimpleMonsterActions(state);
+    try {
+        await preflightSimpleMonsterActions(state);
+    } catch (error) {
+        if (!(error instanceof UnsupportedSimpleMonsterActionError))
+            throw error;
+        const boundary = new UnsupportedTurnBoundaryError(error.message);
+        boundary.reason = error.reason;
+        throw boundary;
+    }
     nh_timeout_fresh_turn({ ...state, moves: 3 });
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 

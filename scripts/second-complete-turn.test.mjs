@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { moveloop_core } from '../js/allmain.js';
+import {
+    moveloop_core,
+    UnsupportedTurnBoundaryError,
+} from '../js/allmain.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import {
-    UnsupportedSimpleMonsterActionError,
-} from '../js/monmove_simple.js';
 import { PM_LITTLE_DOG } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 import {
@@ -134,16 +134,13 @@ test('an excluded selected trap remains retryable at the live boundary',
                 + '!splash_screen',
             moves: ' ..',
         };
-        await assert.rejects(
-            runSegment(input),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'trap activation',
-        );
+        const replay = await runSegment(input);
+        assert.equal(replay.getScreens().length, 3);
         const beforeRetry = retrySnapshot();
 
         await assert.rejects(
             moveloop_core(),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
+            (error) => error instanceof UnsupportedTurnBoundaryError
                 && error.reason === 'trap activation',
         );
 
