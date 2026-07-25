@@ -2,6 +2,7 @@
 // C ref: display.c — newsym, show_glyph, docrt, cls, flush_screen.
 
 import { game } from './gstate.js';
+import { update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
 import { cansee } from './vision.js';
 import {
@@ -1497,6 +1498,11 @@ export function newsym(x, y) {
     const monsterDirectlyVisible = Boolean(
         monster && monsterVisible(monster, game),
     );
+    if (visible) {
+        update_lastseentyp(x, y, game, {
+            canSeeMonster: (subject) => monsterVisible(subject, game),
+        });
+    }
     const sensedWithoutDetection = Boolean(
         monster && sensesMonsterWithoutDetection(monster, game),
     );
@@ -1933,7 +1939,13 @@ export function classify_terrain(state = game) {
     }
 
     state.iflags ??= {};
-    state.iflags.terrain_typ = typ;
+    if (typ !== state.iflags.terrain_typ) {
+        state.iflags.terrain_typ = typ;
+        if (state.flags?.terrainstatus && !state.context?.run) {
+            state.disp ??= {};
+            state.disp.botl = true;
+        }
+    }
     return typ;
 }
 

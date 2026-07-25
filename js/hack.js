@@ -3,11 +3,13 @@
 import {
     FLYING,
     LEVITATION,
+    MAX_TYPE,
     STEALTH,
     TIMER_OBJECT,
     WT_ELF,
     ZOMBIFY_MON,
 } from './const.js';
+import { classify_terrain } from './display.js';
 import { game } from './gstate.js';
 import { is_flyer } from './mondata.js';
 import { CORPSE } from './objects.js';
@@ -37,6 +39,24 @@ export function hero_tread_disturbs_buried_zombies(state = game) {
         && !flying
         && !propertyActiveUnblocked(state, STEALTH)
         && (state.youmonst?.data?.cwt ?? 0) >= (WT_ELF / 2);
+}
+
+// C ref: hack.c spoteffects() -> switch_terrain() -> classify_terrain().
+// Within the stable-level legal-move checkpoint, the destination cannot be
+// solid terrain and the starting hero cannot carry terrain-blocked levitation
+// or flight into this call. Those earlier switch_terrain() branches therefore
+// have no effect; this owns its reachable terrain-status tail.
+export function switch_terrain_for_legal_move(state = game) {
+    const { u } = state;
+    const current = state.level?.at(u?.ux, u?.uy);
+    const previous = state.level?.at(u?.ux0, u?.uy0);
+    if (!current || !previous) return false;
+    if (current.typ === previous.typ
+        && state.iflags?.terrain_typ !== MAX_TYPE) {
+        return false;
+    }
+    if (state.flags?.terrainstatus) classify_terrain(state);
+    return true;
 }
 
 // C ref: hack.c disturb_buried_zombies(). Nearby noise shortens only active

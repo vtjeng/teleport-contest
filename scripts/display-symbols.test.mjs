@@ -3289,6 +3289,7 @@ test('newsym maps a visible furniture mimic into display and memory', () => {
     assert.equal(state.level.at(x, y).disp_color, CLR_BROWN);
     assert.equal(state.level.at(x, y).remembered_glyph.ch, '+');
     assert.equal(state.level.at(x, y).remembered_glyph.color, CLR_BROWN);
+    assert.equal(state.level.lastseentyp[x][y], DOOR);
 });
 
 test('a visible gas region covers the hero without refreshing map memory', () => {
@@ -4053,6 +4054,7 @@ test('newsym snapshots permanent lighting only at the visible boundary', () => {
     newsym(x, y);
     assert.equal(loc.waslit, true);
     assert.equal(loc.disp_color, CLR_WHITE);
+    assert.equal(state.level.lastseentyp[x][y], CORR);
 
     loc.lit = false;
     newsym(x, y);

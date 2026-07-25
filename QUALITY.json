@@ -93,6 +93,7 @@
         "js/dungeon_data.js",
         "js/mineralize.js",
         "js/mklev.js",
+        "js/mkroom.js",
         "js/object_generation.js",
         "js/rect.js",
         "js/room_coordinates.js",

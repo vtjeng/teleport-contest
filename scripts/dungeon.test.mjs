@@ -6,6 +6,9 @@ import {
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    DB_ICE,
+    DRAWBRIDGE_UP,
+    ICE,
 } from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
@@ -21,6 +24,7 @@ import {
     level_range,
     maxledgerno,
     on_level,
+    update_lastseentyp,
 } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -91,6 +95,23 @@ test('on_level is null-safe raw dungeon coordinate equality', () => {
     assert.equal(on_level({ dnum: 2, dlevel: 3 }, undefined), false);
     // Lassigned semantics belong to callers; raw zero coordinates are equal.
     assert.equal(on_level({ dnum: 0, dlevel: 0 }, { dnum: 0, dlevel: 0 }), true);
+});
+
+test('update_lastseentyp remembers a raised drawbridge underlay', () => {
+    // The arbitrary interior coordinate isolates the topology projection from
+    // edge handling. DB_ICE exercises db_under_typ() rather than levl.typ.
+    const x = 7;
+    const y = 4;
+    const location = { typ: DRAWBRIDGE_UP, flags: DB_ICE };
+    const state = {
+        level: {
+            at: (atX, atY) => atX === x && atY === y ? location : null,
+            monsters: [],
+        },
+    };
+
+    assert.equal(update_lastseentyp(x, y, state), ICE);
+    assert.equal(state.level.lastseentyp[x][y], ICE);
 });
 
 test('induced_align short-circuits special, dungeon, then random masks', () => {

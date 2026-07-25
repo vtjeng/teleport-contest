@@ -5,7 +5,24 @@
 import { game } from './gstate.js';
 import { rn2 } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
-import { AGGRAVATE_MONSTER, Align2amask } from './const.js';
+import {
+    AGGRAVATE_MONSTER,
+    Align2amask,
+    COLNO,
+    DB_ICE,
+    DB_LAVA,
+    DB_MOAT,
+    DB_UNDER,
+    DRAWBRIDGE_UP,
+    ICE,
+    LAVAPOOL,
+    M_AP_FURNITURE,
+    M_AP_TYPMASK,
+    MOAT,
+    ROWNO,
+    STONE,
+} from './const.js';
+import { cmap_to_type } from './mkroom.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -663,6 +680,38 @@ export function on_level(left, right) {
     return Boolean(left && right
         && left.dnum === right.dnum
         && left.dlevel === right.dlevel);
+}
+
+// C ref: dungeon.c update_lastseentyp(). The caller supplies canseemon()
+// because dungeon topology does not own hero sensing.
+export function update_lastseentyp(
+    x,
+    y,
+    state = game,
+    { canSeeMonster = () => false } = {},
+) {
+    const location = state.level?.at(x, y);
+    if (!location) return STONE;
+    let typ = location.typ;
+    if (typ === DRAWBRIDGE_UP) {
+        const under = (location.flags || location.drawbridgemask || 0)
+            & DB_UNDER;
+        typ = under === DB_ICE ? ICE
+            : under === DB_LAVA ? LAVAPOOL
+                : under === DB_MOAT ? MOAT : STONE;
+    }
+    const monster = state.level?.monsters?.[x]?.[y] ?? null;
+    if (monster
+        && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE
+        && canSeeMonster(monster)) {
+        typ = cmap_to_type(monster.mappearance);
+    }
+    state.level.lastseentyp ??= Array.from(
+        { length: COLNO },
+        () => new Array(ROWNO).fill(STONE),
+    );
+    state.level.lastseentyp[x][y] = typ;
+    return typ;
 }
 
 // C ref: dungeon.c induced_align(). Special-level and dungeon alignment masks

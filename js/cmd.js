@@ -31,6 +31,7 @@ import { game } from './gstate.js';
 import {
     disturb_buried_zombies,
     hero_tread_disturbs_buried_zombies,
+    switch_terrain_for_legal_move,
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { is_hider, noattacks } from './mondata.js';
@@ -397,6 +398,7 @@ export async function domove(state = game) {
     newsym(oldx, oldy);
     vision_recalc(1);
     newsym(newx, newy);
+    switch_terrain_for_legal_move(state);
     check_special_room_state(false, state);
     await read_engr_at(newx, newy, state, {
         pline: ttyPline,

@@ -3,8 +3,12 @@ import test from 'node:test';
 
 import {
     FLYING,
+    FOUNTAIN,
     LEVITATION,
+    MAX_TYPE,
+    ROOM,
     ROT_CORPSE,
+    STAIRS,
     STEALTH,
     TIMER_OBJECT,
     WT_ELF,
@@ -13,6 +17,7 @@ import {
 import {
     disturb_buried_zombies,
     hero_tread_disturbs_buried_zombies,
+    switch_terrain_for_legal_move,
 } from '../js/hack.js';
 import { M1_FLY } from '../js/monsters.js';
 import { CORPSE, DAGGER } from '../js/objects.js';
@@ -42,6 +47,24 @@ function treadState(overrides = {}) {
         // WT_ELF / 2 is the inclusive source threshold for a heavy tread.
         youmonst: { data: { cwt: WT_ELF / 2 } },
         ...overrides,
+    };
+}
+
+function terrainState(currentTyp, previousTyp = STAIRS) {
+    const locations = new Map([
+        ['4,4', { typ: previousTyp }],
+        ['5,4', { typ: currentTyp }],
+    ]);
+    return {
+        u: { ux: 5, uy: 4, ux0: 4, uy0: 4, uinwater: false },
+        level: {
+            at: (x, y) => locations.get(`${x},${y}`),
+            flags: {},
+        },
+        iflags: { terrain_typ: previousTyp },
+        flags: { terrainstatus: true },
+        context: { run: 0 },
+        disp: { botl: false },
     };
 }
 
@@ -79,6 +102,32 @@ test('hero tread uses the source weight and grounded-property gates', () => {
         hero_tread_disturbs_buried_zombies(blockedStealth),
         true,
     );
+});
+
+test('legal-move terrain switching classifies only at the source gate', () => {
+    // botl.c reserves pseudo-type 39 for ordinary floor status.
+    const X_FLOOR = 39;
+    const fountain = terrainState(FOUNTAIN);
+    assert.equal(switch_terrain_for_legal_move(fountain), true);
+    assert.equal(fountain.iflags.terrain_typ, FOUNTAIN);
+    assert.equal(fountain.disp.botl, true);
+
+    const running = terrainState(FOUNTAIN);
+    running.context.run = 1;
+    assert.equal(switch_terrain_for_legal_move(running), true);
+    assert.equal(running.iflags.terrain_typ, FOUNTAIN);
+    assert.equal(running.disp.botl, false);
+
+    const unchanged = terrainState(ROOM, ROOM);
+    unchanged.iflags.terrain_typ = STAIRS;
+    assert.equal(switch_terrain_for_legal_move(unchanged), false);
+    assert.equal(unchanged.iflags.terrain_typ, STAIRS);
+
+    const forced = terrainState(ROOM, ROOM);
+    forced.iflags.terrain_typ = MAX_TYPE;
+    assert.equal(switch_terrain_for_legal_move(forced), true);
+    assert.equal(forced.iflags.terrain_typ, X_FLOOR);
+    assert.equal(forced.disp.botl, true);
 });
 
 test('disturb_buried_zombies shortens only nearby zombification timers', () => {
