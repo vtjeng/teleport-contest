@@ -86,6 +86,7 @@ import {
     may_passwall,
     mfndpos,
     mon_allowflags,
+    mon_track_add,
     monhaskey,
     monflee,
     monnear,
@@ -147,6 +148,19 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { S_poisoncloud } from '../js/symbols.js';
+
+test('mon_track_add shifts older positions toward the tail', () => {
+    const monster = newMonster();
+    // Two distinct prior squares expose the newest-first source shift.
+    mon_track_add(monster, 10, 5);
+    mon_track_add(monster, 11, 5);
+    assert.deepEqual(monster.mtrack, [
+        { x: 11, y: 5 },
+        { x: 10, y: 5 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+    ]);
+});
 
 function makeState() {
     const locations = new Map();

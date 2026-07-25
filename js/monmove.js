@@ -282,6 +282,20 @@ function drawbridgeMask(location) {
     return location?.flags || location?.drawbridgemask || 0;
 }
 
+// C ref: monmove.c mon_track_add(). Index zero is the newest square.
+export function mon_track_add(monster, x, y) {
+    if (!Array.isArray(monster?.mtrack))
+        throw new TypeError('mon_track_add requires monster tracking state');
+    for (let index = monster.mtrack.length - 1; index > 0; --index) {
+        monster.mtrack[index].x = monster.mtrack[index - 1].x;
+        monster.mtrack[index].y = monster.mtrack[index - 1].y;
+    }
+    if (monster.mtrack.length) {
+        monster.mtrack[0].x = x;
+        monster.mtrack[0].y = y;
+    }
+}
+
 // C ref: monmove.c closed_door().
 export function closed_door(x, y, state = game) {
     const location = state.level?.at(x, y);
