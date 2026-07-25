@@ -120,6 +120,11 @@ source-owned movement functions into the repeated monster scan, retain
 pre-command atomicity for every excluded branch, run the already-owned elapsed
 upkeep, and remove replay row 2.
 
+The source-gated ordinary item-search assertion, selected region-crossing
+operation, and pet cursed-object predicate needed by the atomic preflight are
+committed at `1f004deb020d763e857485998de1885ae1f5b44e`. The dry action planner
+and live adapter remain uncommitted.
+
 Expected implementation files:
 
 - `js/allmain.js`
