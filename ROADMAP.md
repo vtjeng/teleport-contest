@@ -35,30 +35,34 @@ and status updates. The active checkpoint below is the only current
 implementation goal; the rest of the exploration objective remains ordered
 future work.
 
-**Active implementation goal: Second stable-level non-trap command.** Starting
-at the first command prompt, match through the prompt or termination after any
-two waits or legal one-square moves. Entering objects, regions, engravings,
-ice, pools, lava, fountains, sinks, graves, altars, and other passable terrain
-remains in scope. So do automatic pickup, same-level relocation, or termination
-caused by those non-trap paths. The entered hero square must not activate
-`trap.c:dotrap()`, and the hero must not change levels before the ending
-boundary. Monster-triggered traps, themed D:1 monster upkeep and movement, and
-termination from in-scope monster actions remain in scope.
+**Active implementation goal: Simple second command.** Starting at a correctly
+generated first command prompt, accept two time-consuming commands where each
+command is either a wait or a one-square walk onto ordinary clear floor or
+corridor. Match through the prompt after the second command. During elapsed
+work, ordinary initial D:1 monsters and the starting little dog, kitten, or
+pony may move normally or stay put.
 
-This named checkpoint is the complete current goal. It closes only when every
-current-goal family in `.agents/implementation-checklist.md` is source-closed
-and the final fresh comparison matrix passes at the committed integration
-head. The future-work paths below are retained as known gaps in the broader
-exploration milestone, but do not block this checkpoint.
+This checkpoint deliberately stops before any path that requires combat, trap
+activation, teleportation or other relocation, a level change, item
+interaction, a door or other special terrain interaction, or a monster
+special ability. Those are explicit future work below. An excluded path must
+fail closed before changing gameplay state or consuming gameplay PRNG so the
+same input can be retried after its owner is implemented.
 
-**Current implementation sequence:** Finish stable-D:1 monster relocation and
-land mines under their `dog.c`, `teleport.c`, and `trap.c` owners; connect the
-trap owners through the active `monmove.c` consumer; finish starting-pet,
-reachable combat, monster-action, elapsed-loop, and non-trap spot-effect
-families; then commit the second-turn runner, fixture, integration test, live
-wiring, and replay removal together. Each source-owned implementation commit
-must stay below the review-size limit. The detailed sequence and evidence live
-in `.agents/implementation-checklist.md`.
+The active goal closes only when every current family in
+`.agents/implementation-checklist.md` is source-closed, focused and repository
+validation passes, several strict fresh comparisons reach the second prompt,
+the committed range is reviewed, and the repository is clean.
+
+**Current implementation sequence:** Commit the ordinary `monmove.c`
+move-or-stay path, then the starting-pet `dogmove.c` move-or-stay path, then
+the `allmain.c` second-command integration and replay removal. Commit the
+second-turn runner, fixture, and integration test together only with the final
+integration. Keep each implementation commit below the review-size limit and
+keep functions with their upstream subsystem; do not turn
+`js/monster_action.js` into a combined movement, trap, object, and combat
+owner. The detailed source inventory, safe-stop seams, checkpoints, and
+evidence live in `.agents/implementation-checklist.md`.
 
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
@@ -69,32 +73,33 @@ relaxing the fail-closed boundary.
 
 **Explicit future exploration work, outside the active goal:**
 
-- Hero-triggered traps, including teleport and living-statue effects.
-- Hero level transitions, including deferred transitions after monster scans;
-  D:2 generation; and rolling-boulder traps.
-- The broader monster and combat catalogs introduced only by those excluded
-  trap and transition paths.
-- Combat, spellcasting, item use, speech, and special movement whose first
-  eligible caller is a still-waiting Mausoleum monster or a deeper-level
-  shopkeeper, priest, guard, covetous monster, tunneler, or boulder breaker.
-  Contact-only combat for the isolated water-vault monster is also future;
-  its current upkeep, shape, inventory use, and reachable movement are not.
-- Mounted, leashed, arriving, conflicted, confused, or ranged-pet behavior
-  that cannot arise for the starting pet during two waits or legal moves.
-- Monster migration variants whose first eligible caller needs a leash, a
-  shopkeeper, a long worm, a furniture/object disguise, the Wizard's Tower, a
-  boulder-filled pit, or one-shot vault teleportation.
-- Artifact and petrifying-corpse monster weapon paths, petrifying hurtle
-  collisions, and boulder-filled monster pits, none of which has an eligible
-  object or monster source at this D:1 boundary.
-- D:1-ineligible shops and room types, including their billing, guard, priest,
-  swamp, and one-shot vault-teleport behavior. D:1 themed pools, lava, ice,
-  gas regions, and passable room features remain current work.
-- Running, search commands, obstructed movement, doors, pickup, stairs, and
-  other exploration commands beyond the current two-command checkpoint.
-  Automatic pickup caused by an in-scope move remains current work.
-- Naming, billing, hero-inventory damage, and other helper branches whose first
-  consumer is one of the future inputs or catalogs above.
+- Hero or monster combat, including attacks, retaliation, displacement,
+  knockback, damage, death, corpses, weapon selection, ranged attacks, spells,
+  passives, and special damage.
+- Hero- or monster-triggered traps, including holding, projectiles, status,
+  magic, fire, land mines, teleportation, holes, trapdoors, migration, and
+  living-statue effects.
+- Hero or monster relocation and every level transition, including deferred
+  transitions, D:2 generation, and rolling-boulder traps.
+- Objects and inventory behavior, including automatic pickup, floor
+  descriptions, pet food and fetching, monster pickup, equipment, naming,
+  billing, and object damage.
+- Regions, engravings, ice, pools, lava, fountains, sinks, graves, altars,
+  gas clouds, liquid effects, and every other special-terrain or room effect.
+- Closed, locked, trapped, broken, or obstructing doors; tunneling; boulder
+  breaking; iron bars; and other non-clear destination handling.
+- Special monster movement or actions, including hiding, shapechanging,
+  covetous tactics, fleeing teleportation, conflict, watch or quest behavior,
+  speech, item use, and themed-room monster behavior beyond an inert wait.
+- Pet states beyond an ordinary active starting pet, including eating,
+  carrying, leashes, steeds, arrival or wait strategies, conflict, confusion,
+  stun, fear, ranged attacks, and combat.
+- Running, search, obstructed movement, force-fight, travel, pickup commands,
+  stairs, and all commands other than waiting or a one-square clear walk.
+
+Several source-faithful helpers for these future families are already
+committed. They remain preserved prerequisites, but their existence does not
+make their live behavior part of the active checkpoint.
 
 ## Later milestones
 
