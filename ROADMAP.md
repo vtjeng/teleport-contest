@@ -45,6 +45,12 @@ caused by those non-trap paths. The entered hero square must not activate
 boundary. Monster-triggered traps, themed D:1 monster upkeep and movement, and
 termination from in-scope monster actions remain in scope.
 
+This named checkpoint is the complete current goal. It closes only when every
+current-goal family in `.agents/implementation-checklist.md` is source-closed
+and the final fresh comparison matrix passes at the committed integration
+head. The future-work paths below are retained as known gaps in the broader
+exploration milestone, but do not block this checkpoint.
+
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
 development-score drop at
@@ -52,7 +58,7 @@ development-score drop at
 earned after those behaviors became unowned; do not recover that credit by
 relaxing the fail-closed boundary.
 
-**Explicit future exploration work:**
+**Explicit future exploration work, outside the active goal:**
 
 - Hero-triggered traps, including teleport and living-statue effects.
 - Hero level transitions, D:2 generation, and rolling-boulder traps.
