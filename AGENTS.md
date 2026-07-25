@@ -8,7 +8,7 @@ arbitrary valid seeds, datetimes, options, and input sequences.
 - Treat `nethack-c/upstream/` as the game-behavior specification and
   `nethack-c/patches/` as the recorder's deterministic changes.
 - Derive implementation from those sources. Development recordings are
-  regression tests, not implementation specifications.
+  regression tests. Do not treat them as implementation specifications.
 - Follow the milestone order in `ROADMAP.md`.
 
 ## Always-loaded safety rules
@@ -29,8 +29,9 @@ The files under `sessions/holdout/` are a fixed, sealed holdout.
 - `node scripts/score-holdout.mjs --check` may verify the seal; it reports only
   the file count.
 - Only the primary agent may run `node scripts/score-holdout.mjs`, and only
-  after the user explicitly authorizes that milestone's evaluation. Use only
-  its aggregate result to assess transfer. Never use it to select or tune
+  after the user explicitly authorizes a holdout evaluation for a specific
+  milestone. Use only its aggregate result to assess how well results on the
+  development set carry over to the holdout set. Never use it to select or tune
   changes.
 - Never inspect temporary files, caches, CI logs, or artifacts to recover
   per-session holdout results.
@@ -67,9 +68,9 @@ Use progressive disclosure instead of carrying every procedure in every task.
 | When | Read |
 | --- | --- |
 | Implementing or validating gameplay | `ROADMAP.md` and `.agents/validation.md` |
-| Planning a multi-session, cross-subsystem, or large behavior slice | `.agents/quality-workflow.md` and `.agents/implementation-checklist-template.md` |
-| Continuing a qualifying active slice | `.agents/implementation-checklist.md` |
-| Committing implementation or scheduling review | `.agents/quality-workflow.md` and `QUALITY.json` |
+| Planning a qualifying behavior slice: one expected to span sessions, cross subsystems, or approach the shared review-window limit | `.agents/quality-workflow.md` and `.agents/implementation-checklist-template.md` |
+| Continuing an active qualifying behavior slice | `.agents/implementation-checklist.md` |
+| Committing implementation, checking review debt, or scheduling review | `.agents/quality-workflow.md` and `QUALITY.json` |
 | Running fresh recordings, differentials, scans, scoring, browser checks, or an authorized holdout evaluation | `.agents/validation.md` |
 | Running or recording a formal pass | `.agents/quality-workflow.md` and the named skill |
 
@@ -77,27 +78,30 @@ The referenced instructions are mandatory when their trigger applies.
 
 ## Implementation loop
 
-1. Define a live boundary from an existing input or call through state changes,
-   PRNG calls, messages, rendering, persistence, and the next observable event.
+1. Define a live boundary from an existing input or call through the next
+   observable event. Include state changes, PRNG calls, messages, rendering,
+   and persistence within that boundary.
 2. Trace every reachable upstream branch and helper inside that boundary.
    Finish one complete path before starting partial implementations of several
    commands.
 3. Add prerequisites only for named consumers in the current roadmap item.
-   Connect them before the item closes. When a small prerequisite and its first
-   consumer fit one reviewable chunk, implement and commit them together.
-4. Keep each C state value in one canonical JavaScript location. Document
-   non-obvious mappings and their initialization, reset, mutation, and
-   persistence boundaries. Duplicate state only when source behavior requires
-   distinct values; centralize their updates and tests.
+   Connect each prerequisite to the named consumers that need it before the
+   item closes. When a small prerequisite and its first consumer fit one
+   reviewable chunk, implement and commit them together.
+4. Keep each C state value in one canonical JavaScript location. Document each
+   non-obvious mapping and the mapped state value's initialization, reset,
+   mutation, and persistence boundaries. Duplicate state only when source
+   behavior requires distinct values; centralize their updates and tests.
 5. Generate large static tables deterministically from upstream C or Lua.
    Commit the generator, plain-JavaScript output, and a regeneration check.
    Translate behavioral control flow directly.
 6. Validate the live path as required by `.agents/validation.md`. Focused unit
-   tests can prove a prerequisite, but only a fresh end-to-end differential
+   tests can validate a prerequisite, but only a fresh end-to-end differential
    through the next boundary can close a behavior slice.
 7. Follow `.agents/quality-workflow.md` for chunk size, quality-area assignment,
    commits, score evidence, review scheduling, and formal-pass records.
 
 Keep implementation updates brief and specific: say what now matches upstream,
-what remains, and what check comes next. Use the formal structures required by
-the quality workflow only at their stated boundaries.
+what remains, and what check comes next. Use each checklist, note, report, or
+record format required by `.agents/quality-workflow.md` only when that file's
+trigger applies.

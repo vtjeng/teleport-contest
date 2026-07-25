@@ -1,7 +1,9 @@
 # Quality and formal review workflow
 
-Read this file when planning a qualifying behavior slice, committing
-implementation, checking review debt, or running or recording a formal pass.
+Read this file when planning a qualifying behavior slice, meaning one
+expected to span sessions, cross subsystems, or approach the shared
+review-window limit; when committing implementation or checking review debt;
+or when running or recording a formal pass.
 
 ## Terms
 
@@ -10,26 +12,27 @@ A **check** is routine diff inspection, testing, source comparison, or
 
 An **audit** is an independent structured review of a fixed committed change.
 A fresh top-level Codex process runs a named audit skill and reports possible
-problems; the primary agent verifies and applies any fixes. Correctness and
-clarity reviews are audits. Simplification and copyediting use the same
-independent-process rules when their named skills are required, but remain
-separate formal passes.
+problems; the primary agent reviews each finding and applies only fixes for
+confirmed findings. Correctness and clarity reviews are audits. Simplification
+and copyediting are separate formal passes. When either named skill is
+required, follow the same process rules in the Running formal passes section.
 
 A long-running goal or roadmap milestone can contain several implementation
-and review slices. Keep the goal active while completing small source-owned
-checkpoints within the limits below.
+and review slices. Keep the goal active while completing small, coherent
+source-faithful implementation chunks within the limits below.
 
 ## Per-chunk workflow
 
 For every coherent implementation chunk:
 
-1. Connect the real consumer and run the checks in `.agents/validation.md`.
+1. Connect the production game path that consumes the new behavior (the real
+   consumer), then run the checks in `.agents/validation.md`.
 2. Assign every new `js/` file to exactly one `QUALITY.json` area as soon as
    the file is created. Count untracked production files toward review limits
    before the dashboard can measure them. A clear dashboard does not override
    unassigned files or a manually evident threshold overrun.
-3. Commit the implementation and run `npm run quality` as the scheduling
-   dashboard.
+3. Commit the implementation, then run `npm run quality` to display the
+   scheduling dashboard.
 4. Directly review source behavior, PRNG and evaluation order, parsing, state
    ownership, persistence, input boundaries, and rendering. Small mechanical
    or test-only changes may rely on immediate diff inspection and tests, but
@@ -57,15 +60,16 @@ expected to:
 
 Create it as soon as a smaller slice grows to meet any condition.
 
-The main agent owns the checklist. Build the candidate list from upstream entry
-points, dispatch tables, catalogs, reachable helpers, and valid input or
-configuration families. Cross-check JavaScript stops, fallbacks, no-ops, and
-replay code. Maintain the list throughout implementation. Passing samples do
-not prove completeness. When a fresh case exposes an omitted path, add it and
-inspect related branches owned by the same upstream function or subsystem.
+The main agent owns the checklist. Build the checklist's candidate entries from
+upstream entry points, dispatch tables, catalogs, reachable helpers, and valid
+input or configuration families. Cross-check those entries against JavaScript
+stops, fallbacks, no-ops, and replay code. Maintain the list throughout
+implementation. Passing samples do not prove completeness. When a fresh case
+exposes an omitted path, add it and inspect related branches owned by the same
+upstream function or subsystem.
 
 Remain in **Implementation** mode while any checklist entry is `missing` or
-`undecided`. Before audit, the checklist evidence must apply to the exact
+`undecided`. Before an audit, the checklist evidence must apply to the exact
 committed head. After the slice closes and its evidence is recorded in existing
 trackers, remove the checklist or replace it for the next qualifying slice.
 Smaller slices may keep equivalent information in the working plan and
@@ -74,26 +78,26 @@ readiness note.
 ## Audit readiness
 
 While implementation is incomplete, use source review, focused tests, the full
-suite, and fresh differentials to find and fix gaps. Launch an audit only when
-the main agent believes the behavior and evidence are complete. Freeze the
+test suite, and fresh differentials to find and fix gaps. Launch an audit only
+when the main agent believes the behavior and evidence are complete. Freeze the
 committed range and include this readiness note:
 
 - **Boundary and live path:** Name the user-visible starting and ending events
   and confirm the real game executes the path.
 - **Source review:** Confirm that the main agent traced every branch and helper
-  reachable before the ending event against upstream C or Lua, including state
-  and PRNG order, and identified stubs, explicit stops, partial
-  implementations, and missing subsystems.
+  reachable before the ending event against upstream C or Lua. Confirm that
+  this source review covered state and PRNG order and identified stubs,
+  explicit stops, partial implementations, and missing subsystems.
 - **Differential evidence:** List reproducible fresh differentials that vary
   relevant inputs and compare PRNG, complete screens and attributes, cursors,
   and persisted state.
 - **Completeness:** Confirm that no known unsupported behavior remains inside
   the boundary. Any reachable excluded branch must stop before changing state,
   consuming randomness, or producing output.
-- **Checks:** Confirm that focused tests, the full suite, relevant generated
-  checks, and `npm run quality` pass for the exact head. There must be no
-  unassigned `js/` files or non-exempt review debt at a batching threshold
-  outside the frozen range.
+- **Checks:** Confirm that focused tests, the full test suite, relevant
+  generated checks, and `npm run quality` pass for the exact head. There must
+  be no unassigned `js/` files or non-exempt review debt at a batching
+  threshold outside the frozen range.
 
 The checklist supports this note; it does not replace tests, differentials,
 source review, generated checks, quality checks, or audits. If the note or
@@ -110,13 +114,15 @@ Generated outputs declared in `QUALITY.json` do not count toward changed-line
 thresholds. Their generators do count, and a commit touching a generator or
 output counts toward the commit threshold unless it is a linked audit-fix
 commit. Each declaration names the generator and regeneration check; reviews
-cover both. Ledger-only commits do not count toward path-scoped commit totals.
-A commit that also changes an area-owned path is not ledger-only.
+cover both. A ledger-only commit changes only correctness or simplification
+records and no area-owned path. It does not count toward path-scoped commit
+totals.
 
 ### Correctness thresholds
 
-- Three unreviewed implementation commits or 500 changed production lines in
-  an affected area are an advisory checkpoint.
+- Treat three unreviewed implementation commits or 500 changed production
+  lines in an affected area as an advisory checkpoint; this threshold does not
+  require a full correctness pass by itself.
 - Run a full correctness pass no later than ten unreviewed implementation
   commits or 1,000 changed production lines under `js/` in an affected area.
 - A full pass is also due after an unexplained direct-review or differential
@@ -142,17 +148,20 @@ Audit the exact window before:
 - adding a fourth implementation commit;
 - accepting a change that would exceed 500 changed production lines;
 - starting another behavior slice or roadmap item; or
-- reaching an external or no-tail boundary.
+- reaching a pull request, release, authorized holdout evaluation, or
+  first-command closure.
 
 An unexplained source-review or differential mismatch ends the window and makes
 the pass due immediately.
 
 ### Evidence-triggered passes
 
-Before recording a correctness pass, state whether each trigger below applies.
-Omitting an untriggered pass is compliant and creates no debt. Commit counts,
-line counts, milestones, and prior correctness passes do not trigger these
-passes by themselves.
+Before recording a correctness pass, state whether the formal-milestone
+trigger, each optional finder trigger, and each separate-pass trigger below
+applies. Omitting an untriggered optional finder or separate pass is compliant
+and creates no debt. Commit counts, line counts, milestones, and prior
+correctness passes do not trigger an optional finder or separate pass by
+themselves.
 
 - At a formal milestone, run a `full` `$audit-diff-correctness` pass. Its
   behavior, readability-risk, test-quality, and variable-flow finders are
@@ -187,8 +196,9 @@ passes by themselves.
 
 ## Audit findings and scope changes
 
-During an audit, **Audit fix** is limited to corrections inside the reviewed
-range: a condition, order, constant, state update, test, name, or comment.
+During an audit, **Audit fix** is limited to corrections to changes in the
+reviewed range: a condition, order, constant, state update, test, name, or
+comment.
 
 Return to **Implementation** when a finding:
 
@@ -199,11 +209,13 @@ Return to **Implementation** when a finding:
 
 Stop audit-fix work, record the requirement in the audit report, and do not
 claim the audit covers the new implementation. Do not run a light delta review
-or another audit first. Implement through the next observable boundary, pass
-readiness again, and run a new full audit over the expanded range.
+or another audit first. Implement through the next observable boundary,
+satisfy the audit-readiness requirements again, and run a new full correctness
+pass over the expanded range.
 
-After applying in-scope audit fixes, inspect the fix diff and run proportionate
-focused and broad validation. A commit confined to confirmed findings may use
+After applying in-scope audit fixes, inspect the fix diff and run the focused
+and broad validation specified in the validation instructions for the affected
+behavior. A commit confined to confirmed findings may use
 `Audit-fix-for: <full-reviewed-head-sha>`. Never use that trailer for unrelated
 changes. The dashboard excludes a valid linked audit-fix commit from the commit
 threshold but still counts its production lines.
@@ -213,7 +225,8 @@ them in the next scheduled correctness range. Before a pull request, release,
 authorized holdout evaluation, or first-command closure, fixes confined to
 confirmed findings may instead receive a `light` delta review covering source
 fidelity, end-to-end state and PRNG effects, test adequacy, and collateral
-changes. A clean light review closes the tail. Run a full pass if fixes expand
+changes. A clean review of that kind clears the correctness debt for the
+reviewed audit-fix commits. Run a full pass if fixes expand
 scope, change a shared contract, cause an unexplained mismatch, or independently
 meet a normal full-review trigger.
 
@@ -231,13 +244,15 @@ copyediting passes:
   or reasoning override unless the user explicitly requests one. Run with
   `--json`; preserve the session identifier and `turn.completed.usage`.
 - The profile selects `gpt-5.6-sol` with `high` reasoning for the top-level
-  process and subagents. Spot-check the retained top-level `turn_context` and
-  one child rollout before accepting the pass.
+  process and subagents. Before accepting the pass, verify the selected model
+  and reasoning setting in the retained top-level `turn_context` and one child
+  rollout (subagent transcript).
 - Give reviewers only the exact committed range or document snapshots, affected
   areas, relevant sources or artifacts, compact prior validation, decided
   non-issues, and applicable constraints. Require them to read `AGENTS.md`.
   Explicitly prohibit access to `sessions/holdout/`.
-- Include a declared generated output's generator and regeneration check.
+- For a declared generated output, include its generator and regeneration
+  check in the reviewers' materials.
 - For `$audit-diff-correctness`, use default skill context routing. Add finder
   `audiences` only for exceptions or unusually large context; use `all` only
   for universal constraints.
@@ -260,11 +275,12 @@ state. Simplification must preserve PRNG and evaluation order.
 - Record correctness with `npm run quality -- record-review ...`.
 - Record simplification with
   `npm run quality -- record-simplification ...`.
-- Advance a frontier only through the exact integrated commit covered by the
-  pass. Audit-fix commits remain debt until a later correctness pass covers
-  them. Correctness does not create simplification debt; the dashboard may show
-  the last simplification frontier for context. Prose passes are not ledger
-  records.
+- A review frontier is the latest integrated commit covered by a recorded pass.
+  Advance it only through the exact integrated commit covered by that pass.
+  Audit-fix commits remain debt until a later correctness pass covers them.
+  Correctness does not create simplification debt; the dashboard may show the
+  last simplification frontier for context. Separate clarity and copyedit
+  passes are not ledger records.
 - For every new correctness or simplification record, include elapsed wall time;
   raw, deduplicated, confirmed, applied, deferred, rejected, and unverified
   counts; confirmed totals by production, tests, clarity, simplification, and
@@ -275,11 +291,14 @@ state. Simplification must preserve PRNG and evaluation order.
   counter-evidence, warnings, and validation. Record clarity separately only
   when it ran.
 - For non-ledger clarity and copyedit passes, include elapsed time and finding
-  counts in the surrounding review or publication evidence.
+  counts in the complete formal-pass report required under Running formal
+  passes. Retain that report as part of the related review or publication
+  evidence.
 - Finish each formal milestone with `npm run quality -- --check`. Resolve
   review debt at a batching threshold and all unassigned `js/` files. A smaller
-  audit-fix tail may remain except at the external and first-command boundaries
-  above. Resolve concrete simplification or clarity triggers, but do not invent
+  set of audit-fix commits may remain as correctness debt except before a pull
+  request, release, authorized holdout evaluation, or first-command closure.
+  Resolve concrete simplification or clarity triggers, but do not invent
   a formal pass when none exists. Historical `BASELINE` debt remains exempt
   until that area's first recorded pass.
 
