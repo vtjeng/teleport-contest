@@ -31,9 +31,9 @@ upstream source.
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`.
 The review confirmed seven production gaps and six test gaps in the active
 checkpoint. Hero destination admission and monster goal/selection fixes are
-committed at `dad2732` and `11a724d`. Further formal review is paused while
-the remaining gaps are fixed in source-owned commits and the exact candidate
-is revalidated.
+committed at `dad2732` and `11a724d`; elapsed preflight and shared-RNG fixes
+are committed at `3104b21`. The three-commit implementation window is paused
+for correctness review before wake and post-move notice work begins.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
