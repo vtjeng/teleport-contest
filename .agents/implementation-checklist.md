@@ -210,7 +210,8 @@ At the current head, finish family 34 in these source-owned commits before its
 live movement integration:
 
 1. `dog.c:migrate_to_level()` in `js/dog.js` with
-   `scripts/dog-migrate.test.mjs`.
+   `scripts/dog-migrate.test.mjs`. Complete in
+   `aaa9c542d58fcef483442d13facc6eb59afa45fe`.
 2. The reachable `teleport.c` monster teleport and level-teleport helpers with
    their focused test.
 3. The thin `trap.c` hole, trapdoor, and teleport effect layer, extracted from
@@ -219,7 +220,7 @@ live movement integration:
 5. The C14 `monmove.c` consumer, followed by grouped strict family-34 cases
    through `scripts/scan-fresh.mjs`.
 
-The current first commit is item 1. The combined relocation module and
+The current next commit is item 2. The combined relocation module and
 `monster_action.js` remain temporary sources for extraction, not commit
 targets.
 
@@ -304,7 +305,8 @@ targets.
     `3871663d108410b1106442f3810030e7e24c3e11`. Stable-D:1 relocation is
     now the active C13 subseries listed above; land mines follow it. Connect
     these owners through the C14 movement consumer only after their isolated
-    checkpoints pass.
+    checkpoints pass. Its `dog.c` owner is complete at
+    `aaa9c542d58fcef483442d13facc6eb59afa45fe`.
 14. **C14 — reachable `monmove.c` in source-owned groups:** pre-action phases;
     ordinary movement; current item/door choices; and `postmov()`. This
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior. The
@@ -398,6 +400,14 @@ its follow-up milestone.
   pass. The fixed development set remains at 77,588 PRNG values, 206 screens,
   and 243 cursors. Its `dog.c` migration consumer and the relocation trap path
   remain open, so no fresh second-turn claim is made.
+- The bounded `dog.c:migrate_to_level()` owner is committed as
+  `aaa9c542d58fcef483442d13facc6eb59afa45fe` with exactly `js/dog.js` and
+  `scripts/dog-migrate.test.mjs`. Four focused tests, the exact isolated
+  1,478-test full suite, and all four generated-data checks pass. The fixed
+  development set remains at 77,588 PRNG values, 206 screens, and 243 cursors.
+  Future lifecycle variants fail before mutation. The source-owned
+  `teleport.c` helper, thin `trap.c` effect layer, and C14 live movement
+  consumer remain open, so no fresh second-turn claim is made.
 - C4 is committed as `a93f4dd2f89f5b1405294886d967e42a1e68c0d0`
   with exactly `js/track.js` and `scripts/track.test.mjs`. Four focused tests,
   the 1,349-test full suite, and all six generated-data checks pass. Its live
@@ -679,9 +689,10 @@ its follow-up milestone.
   consolidated focused checkpoint passes 60/60; the full worktree suite passes
   1,504/1,504; and all four declared generated-data checks pass. Development
   reaches 77,890 PRNG values, 213 screens, and 251 cursors.
-- Stable-D:1 relocation and land-mine siblings remain uncommitted. Rust is
-  committed, and the affected monsters and world-effects areas have reached
-  mandatory review thresholds while the milestone checklist still requires
+- Stable-D:1 relocation's `dog.c` owner is committed; its `teleport.c` and
+  thin `trap.c` siblings plus land mines remain uncommitted. Rust is committed,
+  and the affected monsters and world-effects areas have reached mandatory
+  review thresholds while the milestone checklist still requires
   Implementation mode.
 - The C14 worktree now separates ordinary `m_move()` into
   `js/monmove_move.js`, ordinary `dochug()` into `js/monmove_dochug.js`, and
