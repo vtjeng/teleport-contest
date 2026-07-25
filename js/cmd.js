@@ -31,6 +31,7 @@ import { game } from './gstate.js';
 import {
     disturb_buried_zombies,
     hero_tread_disturbs_buried_zombies,
+    maybe_smudge_engr,
     switch_terrain_for_legal_move,
 } from './hack.js';
 import { nhgetch } from './input.js';
@@ -414,6 +415,7 @@ export async function domove(state = game) {
             { message: ttyPline },
         );
     }
+    maybe_smudge_engr(oldx, oldy, newx, newy, state);
     state.domoveAttempting = 0;
 }
 

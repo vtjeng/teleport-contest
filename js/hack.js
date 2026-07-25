@@ -2,6 +2,7 @@
 
 import {
     FLYING,
+    HEADSTONE,
     LEVITATION,
     MAX_TYPE,
     STEALTH,
@@ -10,9 +11,15 @@ import {
     ZOMBIFY_MON,
 } from './const.js';
 import { classify_terrain } from './display.js';
+import {
+    can_reach_floor,
+    engr_at,
+    wipe_engr_at,
+} from './engrave.js';
 import { game } from './gstate.js';
 import { is_flyer } from './mondata.js';
 import { CORPSE } from './objects.js';
+import { rn2, rnd } from './rng.js';
 import {
     peek_timer,
     start_timer,
@@ -57,6 +64,29 @@ export function switch_terrain_for_legal_move(state = game) {
     }
     if (state.flags?.terrainstatus) classify_terrain(state);
     return true;
+}
+
+// C ref: hack.c maybe_smudge_engr(). Each eligible engraving consumes rnd(5)
+// before wipe_engr_at() applies its type-specific erosion draws.
+export function maybe_smudge_engr(
+    x1,
+    y1,
+    x2,
+    y2,
+    state = game,
+    random = { rn2, rnd },
+) {
+    if (!can_reach_floor(true, state)) return false;
+    let smudged = false;
+    const smudge = (x, y) => {
+        const engraving = engr_at(x, y, state);
+        if (!engraving || engraving.engr_type === HEADSTONE) return;
+        wipe_engr_at(x, y, random.rnd(5), false, { state, random });
+        smudged = true;
+    };
+    smudge(x1, y1);
+    if (x2 !== x1 || y2 !== y1) smudge(x2, y2);
+    return smudged;
 }
 
 // C ref: hack.c disturb_buried_zombies(). Nearby noise shortens only active

@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    DUST,
     FLYING,
     FOUNTAIN,
+    HEADSTONE,
     LEVITATION,
     MAX_TYPE,
     ROOM,
@@ -17,6 +19,7 @@ import {
 import {
     disturb_buried_zombies,
     hero_tread_disturbs_buried_zombies,
+    maybe_smudge_engr,
     switch_terrain_for_legal_move,
 } from '../js/hack.js';
 import { M1_FLY } from '../js/monsters.js';
@@ -65,6 +68,41 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
         flags: { terrainstatus: true },
         context: { run: 0 },
         disp: { botl: false },
+    };
+}
+
+function smudgeState(engravings) {
+    const uprops = [];
+    uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    return {
+        u: {
+            ux: 5,
+            uy: 4,
+            uprops,
+            uswallow: false,
+            usteed: null,
+            uundetected: false,
+            weapon_skills: [],
+        },
+        youmonst: {
+            data: { mflags1: 0, msize: 2, mattk: [] },
+        },
+        level: {
+            at: () => ({ typ: ROOM }),
+            traps: [],
+        },
+        head_engr: engravings,
+    };
+}
+
+function engraving(x, y, type, next = null) {
+    return {
+        engr_x: x,
+        engr_y: y,
+        engr_type: type,
+        engr_txt: ['_', '_', '_'],
+        nowipeout: false,
+        nxt_engr: next,
     };
 }
 
@@ -129,6 +167,52 @@ test('legal-move terrain switching classifies only at the source gate', () => {
     assert.equal(forced.iflags.terrain_typ, X_FLOOR);
     assert.equal(forced.disp.botl, true);
 });
+
+test('movement smudges old then new engravings in source RNG order', () => {
+    const destination = engraving(5, 4, DUST);
+    const state = smudgeState(engraving(4, 4, DUST, destination));
+    const draws = [];
+    const random = {
+        rnd(bound) {
+            draws.push(['rnd', bound]);
+            return 1;
+        },
+        rn2(bound) {
+            draws.push(['rn2', bound]);
+            // Selecting the only byte, then a nonzero rubout, erases '_'.
+            return bound === 1 ? 0 : 3;
+        },
+    };
+
+    assert.equal(maybe_smudge_engr(4, 4, 5, 4, state, random), true);
+    assert.deepEqual(draws, [
+        ['rnd', 5], ['rn2', 1], ['rn2', 4],
+        ['rnd', 5], ['rn2', 1], ['rn2', 4],
+    ]);
+    assert.equal(state.head_engr, null);
+});
+
+test('movement smudging skips headstones, duplicate spots, and high floors',
+    () => {
+        const headstone = engraving(4, 4, HEADSTONE);
+        const state = smudgeState(headstone);
+        const noDraw = {
+            rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+            rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+        };
+
+        assert.equal(
+            maybe_smudge_engr(4, 4, 4, 4, state, noDraw),
+            false,
+        );
+        state.u.uprops[LEVITATION].extrinsic = 1;
+        headstone.engr_type = DUST;
+        assert.equal(
+            maybe_smudge_engr(4, 4, 5, 4, state, noDraw),
+            false,
+        );
+        assert.equal(state.head_engr, headstone);
+    });
 
 test('disturb_buried_zombies shortens only nearby zombification timers', () => {
     const state = {

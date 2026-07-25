@@ -210,9 +210,17 @@ test('domove updates room membership after entering the destination', async () =
         dx: 1,
         dy: 0,
         uprops: [],
+        weapon_skills: [],
+        uswallow: false,
+        usteed: null,
+        uundetected: false,
         urooms: roomBuffer([origin]),
     };
-    state.youmonst = { data: { cwt: 0, mlet: 53 } };
+    // An ordinary medium hero makes can_reach_floor() true while preserving
+    // this fixture's zero-weight tread and non-hiding form.
+    state.youmonst = {
+        data: { cwt: 0, mlet: 53, mflags1: 0, msize: 2, mattk: [] },
+    };
     state.context = { move: 1, mv: 0, run: 0, travel: 0 };
     state.level.at(10, 10).typ = ROOM;
     state.level.at(10, 10).roomno = origin;
