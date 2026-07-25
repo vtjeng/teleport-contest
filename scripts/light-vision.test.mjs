@@ -58,6 +58,7 @@ import {
     clear_path,
     couldsee,
     does_block,
+    do_clear_area,
     init_vision_globals,
     vision_recalc,
     vision_reset,
@@ -108,6 +109,58 @@ test('vision_recalc marks the hero square seen from every direction', () => {
     vision_recalc(0);
 
     assert.equal(heroLocation.seenv, SVALL);
+});
+
+test('do_clear_area uses the cached hero-centered vision circle', () => {
+    const state = darkRoomState();
+    const visited = [];
+
+    vision_reset();
+    vision_recalc(0);
+    // Radius two exercises the source offsets [2, 2, 1] around the hero.
+    do_clear_area(
+        state.u.ux,
+        state.u.uy,
+        2,
+        (x, y, argument) => visited.push([x, y, argument]),
+        'hero',
+        state,
+    );
+
+    assert.deepEqual(visited, [
+        [4, 5, 'hero'], [5, 5, 'hero'], [6, 5, 'hero'],
+        [3, 6, 'hero'], [4, 6, 'hero'], [5, 6, 'hero'],
+        [6, 6, 'hero'], [7, 6, 'hero'],
+        [3, 7, 'hero'], [4, 7, 'hero'], [5, 7, 'hero'],
+        [6, 7, 'hero'], [7, 7, 'hero'],
+        [3, 8, 'hero'], [4, 8, 'hero'], [5, 8, 'hero'],
+        [6, 8, 'hero'], [7, 8, 'hero'],
+        [4, 9, 'hero'], [5, 9, 'hero'], [6, 9, 'hero'],
+    ]);
+});
+
+test('do_clear_area preserves off-hero Algorithm C callback order', () => {
+    const state = darkRoomState();
+    const visited = [];
+
+    vision_reset();
+    // A one-square radius exposes the starting row, downward right/left
+    // quadrants, then upward right/left quadrants. Both halves intentionally
+    // visit the center column of each adjacent row.
+    do_clear_area(
+        10,
+        10,
+        1,
+        (x, y) => visited.push([x, y]),
+        null,
+        state,
+    );
+
+    assert.deepEqual(visited, [
+        [9, 10], [10, 10], [11, 10],
+        [10, 11], [11, 11], [9, 11], [10, 11],
+        [10, 9], [11, 9], [9, 9], [10, 9],
+    ]);
 });
 
 test('a floor candle projects the source circle into initial vision', () => {

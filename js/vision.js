@@ -12,6 +12,7 @@ import {
     BLINDED, CLOUD, COLNO, COULD_SEE, DB_MOAT, DB_UNDER, DRAWBRIDGE_UP,
     IN_SIGHT, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR, POOL, WATER,
     D_CLOSED, D_LOCKED, D_TRAPPED,
+    MAX_RADIUS,
     M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7, SVALL,
     IS_WALL, TEMP_LIT,
@@ -72,9 +73,14 @@ const cs_rmin0 = new Int16Array(ROWNO).fill(COLNO);
 const cs_rmax0 = new Int16Array(ROWNO).fill(0);
 const cs_rmin1 = new Int16Array(ROWNO).fill(COLNO);
 const cs_rmax1 = new Int16Array(ROWNO).fill(0);
+let clearAreaCallback = null;
 
 function mark_visible_range(row, left, right) {
     if (left > right) return;
+    if (clearAreaCallback) {
+        for (let i = left; i <= right; ++i) clearAreaCallback(i, row);
+        return;
+    }
     const rowp = game.cs_rows?.[row];
     if (!rowp) return;
     for (let i = left; i <= right; i++) rowp[i] = COULD_SEE;
@@ -465,44 +471,117 @@ function left_side(row, left_mark, right, limitsIdx) {
 }
 
 // C ref: vision.c view_from()
-function view_from(srow, scol, cs_rows, cs_left, cs_right, range = 0) {
+function view_from(
+    srow,
+    scol,
+    cs_rows,
+    cs_left,
+    cs_right,
+    range = 0,
+    callback = null,
+) {
     game.vis_start_col = scol;
     game.vis_start_row = srow;
     game.cs_rows = cs_rows;
     game.cs_left = cs_left;
     game.cs_right = cs_right;
+    clearAreaCallback = callback;
 
-    let left, right;
-    if (viz_clear[srow][scol]) {
-        left = left_ptrs[srow][scol];
-        right = right_ptrs[srow][scol];
-    } else {
-        left = !scol ? 0
-            : (viz_clear[srow][scol - 1] ? left_ptrs[srow][scol - 1] : scol - 1);
-        right = scol === COLNO - 1 ? COLNO - 1
-            : (viz_clear[srow][scol + 1] ? right_ptrs[srow][scol + 1] : scol + 1);
+    try {
+        let left, right;
+        if (viz_clear[srow][scol]) {
+            left = left_ptrs[srow][scol];
+            right = right_ptrs[srow][scol];
+        } else {
+            left = !scol ? 0
+                : (viz_clear[srow][scol - 1]
+                    ? left_ptrs[srow][scol - 1] : scol - 1);
+            right = scol === COLNO - 1 ? COLNO - 1
+                : (viz_clear[srow][scol + 1]
+                    ? right_ptrs[srow][scol + 1] : scol + 1);
+        }
+
+        let limitsIdx = -1;
+        if (range) {
+            if (left < scol - range) left = scol - range;
+            if (right > scol + range) right = scol + range;
+            limitsIdx = circle_start[range] + 1;
+        }
+
+        mark_visible_range(srow, left, right);
+
+        const nrow_down = srow + 1;
+        if (nrow_down < ROWNO) {
+            game.vis_step = 1;
+            if (scol < COLNO - 1)
+                right_side(nrow_down, scol, right, limitsIdx);
+            if (scol) left_side(nrow_down, left, scol, limitsIdx);
+        }
+        const nrow_up = srow - 1;
+        if (nrow_up >= 0) {
+            game.vis_step = -1;
+            if (scol < COLNO - 1)
+                right_side(nrow_up, scol, right, limitsIdx);
+            if (scol) left_side(nrow_up, left, scol, limitsIdx);
+        }
+    } finally {
+        clearAreaCallback = null;
+    }
+}
+
+// C ref: vision.c do_clear_area(). Callback order is significant for clients
+// such as dogmove.c wantdoor(), which keeps the first square at a tied
+// distance.
+export function do_clear_area(
+    scol,
+    srow,
+    range,
+    callback,
+    argument = null,
+    state = game,
+) {
+    if (state !== game)
+        throw new TypeError('do_clear_area requires the active game state');
+    if (typeof callback !== 'function')
+        throw new TypeError('do_clear_area requires a callback');
+    if (range > MAX_RADIUS || range < 1)
+        throw new RangeError(`do_clear_area: illegal range ${range}`);
+
+    if (scol !== state.u.ux || srow !== state.u.uy) {
+        const prior = {
+            cs_rows: game.cs_rows,
+            cs_left: game.cs_left,
+            cs_right: game.cs_right,
+            vis_start_col: game.vis_start_col,
+            vis_start_row: game.vis_start_row,
+            vis_step: game.vis_step,
+        };
+        try {
+            view_from(
+                srow,
+                scol,
+                null,
+                null,
+                null,
+                range,
+                (x, y) => callback(x, y, argument),
+            );
+        } finally {
+            Object.assign(game, prior);
+        }
+        return;
     }
 
-    let limitsIdx = -1;
-    if (range) {
-        if (left < scol - range) left = scol - range;
-        if (right > scol + range) right = scol + range;
-        limitsIdx = circle_start[range] + 1;
-    }
-
-    mark_visible_range(srow, left, right);
-
-    const nrow_down = srow + 1;
-    if (nrow_down < ROWNO) {
-        game.vis_step = 1;
-        if (scol < COLNO - 1) right_side(nrow_down, scol, right, limitsIdx);
-        if (scol) left_side(nrow_down, left, scol, limitsIdx);
-    }
-    const nrow_up = srow - 1;
-    if (nrow_up >= 0) {
-        game.vis_step = -1;
-        if (scol < COLNO - 1) right_side(nrow_up, scol, right, limitsIdx);
-        if (scol) left_side(nrow_up, left, scol, limitsIdx);
+    if (game.vision_full_recalc) vision_recalc(0);
+    const minY = Math.max(0, srow - range);
+    const maxY = Math.min(ROWNO - 1, srow + range);
+    for (let y = minY; y <= maxY; ++y) {
+        const offset = circle_offset(range, Math.abs(y - srow));
+        const minX = Math.max(1, scol - offset);
+        const maxX = Math.min(COLNO - 1, scol + offset);
+        for (let x = minX; x <= maxX; ++x) {
+            if (couldsee(x, y, state)) callback(x, y, argument);
+        }
     }
 }
 
