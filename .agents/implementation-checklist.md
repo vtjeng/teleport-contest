@@ -50,11 +50,11 @@ validated.
 | 4 | `allmain.c` movement debit and repeated monster scans | Debit `u.umovement`, call `movemon()` until the source stopping condition, and respect a fast hero's retained ration. | `js/allmain.js` | partial | Commit C3 after the two movement owners. |
 | 5 | `mon.c:movemon_singlemon()` scan gates | Preserve dead/off-map, every-turn upkeep, movement-ration, vision, and ration-spend order for each list node. | `js/mon.js`, `js/allmain.js` adapter | partial | C1 focused scan-order tests and strict cases. |
 | 6 | `mon.c:movemon()` terminal cleanup | Clear transient state, purge dead entries, update light/vision state, and return whether another scan is needed. Level transition is a future safe-stop. | `js/mon.js`, `js/allmain.js` adapter | partial | C1/C3 focused repeated-scan cases. |
-| 7 | `monmove.c:dochugw()` notice wrapper | Run the ordinary action while preserving the occupation-interruption seam. New games have no active occupation. | `js/monmove.js` | partial | C1 direct ordering test. |
-| 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | partial | C1 sleep, wait, and no-ration cases. |
-| 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | partial | C1 source-order PRNG tests and strict stay/move cases. |
-| 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` | partial | C1 candidate and tie-break tests. |
-| 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | partial | C1 safe-stop atomicity tests plus strict fresh cases. |
+| 7 | `monmove.c:dochugw()` notice wrapper | Run the ordinary action while preserving the occupation-interruption seam. New games have no active occupation. | `js/monmove.js` | partial | Source owner committed at `e74c756`; C3 live consumer proof remains. |
+| 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | partial | Source owner committed at `e74c756`; C3 no-ration and sleep differentials remain. |
+| 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | partial | Source owner committed at `e74c756`; C3 safe-stop and strict cases remain. |
+| 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` | partial | Source owner committed at `e74c756`; C3 live candidate proof remains. |
+| 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | partial | Source owner committed at `e74c756`; C3 atomic integration and strict cases remain. |
 | 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. | `js/dogmove_goal.js` | partial | C2 goal and source-order PRNG tests. |
 | 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Stop before inventory, eating, leash, steed, conflict, altered-state, ranged, or combat paths. | `js/dogmove.js` | partial | C2 focused gate and atomicity tests. |
 | 14 | `dogmove.c:dog_move()` candidates and tie-breaking | Run `mon_allowflags()`, `mfndpos()`, candidate filtering, follow-distance scoring, and source tie-breaking over ordinary clear squares. | `js/dogmove.js` | partial | C2 candidate-order tests and strict pet stay/move cases. |
@@ -69,19 +69,18 @@ validated.
 - 0 in-boundary families are marked missing because each has an existing
   committed substrate or worktree implementation, but no partial family is
   closure evidence.
-- Closure verdict: **not ready**. The movement owners and integration remain
-  uncommitted and the fail-closed destination checks are incomplete.
+- Closure verdict: **not ready**. The ordinary movement owner is committed;
+  the pet owner and integration remain uncommitted, and the fail-closed
+  destination checks are incomplete.
 
 ## Confirmed gap clusters
 
 ### C1 — ordinary `monmove.c` move or stay
 
-Own families 5 through 11 without importing trap, object, or combat behavior.
-The current worktree can reach excluded combat, displacement, trap, object,
-door, region, and special post-move branches after earlier state or PRNG work.
-Classify those destinations before the live command mutates state, then keep
-the in-boundary `dochug()` and `m_move()` control flow under their upstream
-owner.
+The source-owned movement functions and focused tests are committed at
+`e74c75679cfe3e03e91e9c9a900344a4c221441d`. Their C3 live adapter still must
+classify combat, displacement, trap, object, door, region, and special
+post-move destinations before the command mutates state or consumes PRNG.
 
 Expected implementation files:
 
