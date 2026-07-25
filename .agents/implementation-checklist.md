@@ -78,7 +78,9 @@ The full audit of
 produced 23 raw candidates, 20 after same-site deduplication, 14 confirmed,
 six rejected, and none unverified. The confirmed set contains seven production
 defects, six test defects, and one maintenance-contract defect. A1 and A2 are
-committed; A3 is committed and the review window is frozen before A4.
+committed; A3 is committed and A4 is the next source-owned checkpoint. The
+current audit-readiness rules keep this slice in Implementation mode until the
+remaining source families and validation evidence are complete.
 
 Implement and commit the follow-up in this order. Each checkpoint keeps its
 tests with the upstream owner and stays below the review-size limit.
@@ -217,7 +219,8 @@ not change the active scope or count as live simple-turn closure.
   205/7,765 screens, and 236/7,765 cursors matched. Excluded later paths retain
   their supported prefix.
 - Quality check: `npm run quality` reports the correctness gate due. The
-  A1–A3 implementation window is frozen for review before A4.
+  checklist remains incomplete, so the audit-readiness rule keeps the slice in
+  Implementation mode for A4 through A7 before the next formal review.
 - Browser check: not required because no browser renderer, DOM, input,
   storage, or browser-only presentation contract changed.
 - Holdout: not accessed.
@@ -226,9 +229,9 @@ not change the active scope or count as live simple-turn closure.
 
 Current mode: Implementation
 
-Reason: A1 through A3 are committed, but A4 through A7 remain incomplete. The
-current review is an intermediate window gate; the active slice stays in
-Implementation mode.
+Reason: A1 through A3 are committed, but A4 through A7 remain incomplete.
+Formal review waits until those known gaps and their validation evidence are
+complete.
 
 ## Completed commit gates
 

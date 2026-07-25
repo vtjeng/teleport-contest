@@ -32,8 +32,9 @@ upstream source.
 The review confirmed seven production gaps and six test gaps in the active
 checkpoint. Hero destination admission and monster goal/selection fixes are
 committed at `dad2732` and `11a724d`; elapsed preflight and shared-RNG fixes
-are committed at `3104b21`. The three-commit implementation window is paused
-for correctness review before wake and post-move notice work begins.
+are committed at `3104b21`. The checklist still has known wake, post-move
+notice, replay, and integration-oracle gaps, so work remains in Implementation
+mode. The next source-owned checkpoint is wake and post-move notice behavior.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
