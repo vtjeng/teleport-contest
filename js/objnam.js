@@ -17,17 +17,19 @@ import {
 } from './obj.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
 import {
-    AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, ARM_BOOTS, ARM_GLOVES,
-    ARM_SHIELD, BALL_CLASS,
+    ALCHEMY_SMOCK, AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, ARM_BOOTS,
+    ARM_GLOVES, ARM_HELM, ARM_SHIELD, BALL_CLASS,
     BLACK_OPAL, BOULDER, BRASS_LANTERN, CANDELABRUM_OF_INVOCATION, CHAIN_CLASS,
     CHEST, COIN_CLASS, CORPSE, CRYSKNIFE, DIAMOND, DILITHIUM_CRYSTAL, EGG,
     ELVEN_SHIELD, EMERALD, FAKE_AMULET_OF_YENDOR, FIGURINE, FLINT, FOOD_CLASS,
-    GEMSTONE, GEM_CLASS, GRAY_DRAGON_SCALES, LARGE_BOX, LENSES, MAGIC_HARP,
-    MAGIC_LAMP, MINERAL, OBJ_DESCR, OBJ_NAME, OIL_LAMP, OPAL, ORCISH_SHIELD,
-    POTION_CLASS, POT_OIL, POT_WATER, RING_CLASS, ROCK_CLASS, RUBY, SAPPHIRE,
-    SCR_MAIL, SCROLL_CLASS, SHIELD_OF_REFLECTION, SLIME_MOLD, SPBOOK_CLASS,
-    SPE_BOOK_OF_THE_DEAD, SPE_NOVEL, STATUE, TIN, TOOL_CLASS, TOWEL,
-    VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WOODEN_HARP, YELLOW_DRAGON_SCALES,
+    GEMSTONE, GEM_CLASS, GRAY_DRAGON_SCALE_MAIL, GRAY_DRAGON_SCALES, IRON,
+    LARGE_BOX, LENSES, MAGIC_HARP, MAGIC_LAMP, MINERAL, MITHRIL,
+    MUMMY_WRAPPING, OBJ_DESCR, OBJ_NAME, OIL_LAMP, OPAL, ORCISH_SHIELD,
+    POTION_CLASS, POT_OIL, POT_WATER, RING_CLASS, ROBE, ROCK_CLASS, RUBY,
+    SAPPHIRE, SCR_MAIL, SCROLL_CLASS, SHIELD_OF_REFLECTION, SLIME_MOLD,
+    SPBOOK_CLASS, SPE_BOOK_OF_THE_DEAD, SPE_NOVEL, STATUE, TIN, TOOL_CLASS,
+    TOWEL, VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WOODEN_HARP,
+    YELLOW_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES,
 } from './objects.js';
 
 export class UnsupportedObjectNameError extends Error {
@@ -104,6 +106,58 @@ function sourceDescription(obj, type, state, actual) {
         return 'koto';
     }
     return OBJ_DESCR(type, state) ?? actual;
+}
+
+// C refs: objnam.c suit_simple_name(), cloak_simple_name(),
+// helm_simple_name(), and gloves_simple_name().
+export function suit_simple_name(suit, state = game) {
+    if (!suit) return 'suit';
+    if (suit.otyp >= GRAY_DRAGON_SCALE_MAIL
+        && suit.otyp <= YELLOW_DRAGON_SCALE_MAIL) {
+        return 'dragon mail';
+    }
+    if (suit.otyp >= GRAY_DRAGON_SCALES
+        && suit.otyp <= YELLOW_DRAGON_SCALES) {
+        return 'dragon scales';
+    }
+    const name = OBJ_NAME(objectType(suit, state), state) ?? '';
+    if (name.endsWith(' mail')) return 'mail';
+    if (name.endsWith(' jacket')) return 'jacket';
+    return 'suit';
+}
+
+export function cloak_simple_name(cloak, state = game) {
+    if (!cloak) return 'cloak';
+    if (cloak.otyp === ROBE) return 'robe';
+    if (cloak.otyp === MUMMY_WRAPPING) return 'wrapping';
+    if (cloak.otyp === ALCHEMY_SMOCK) {
+        const type = objectType(cloak, state);
+        return type.oc_name_known && cloak.dknown ? 'smock' : 'apron';
+    }
+    return 'cloak';
+}
+
+export function helm_simple_name(helmet, state = game) {
+    if (!helmet) return 'hat';
+    const type = objectType(helmet, state);
+    const isHelmet = helmet.oclass === ARMOR_CLASS
+        && type.oc_armcat === ARM_HELM;
+    const metallic = type.oc_material >= IRON
+        && type.oc_material <= MITHRIL;
+    return isHelmet && (metallic || isCrackable(helmet, state))
+        ? 'helm'
+        : 'hat';
+}
+
+export function gloves_simple_name(gloves, state = game) {
+    if (!gloves?.dknown) return 'gloves';
+    const type = objectType(gloves, state);
+    const name = type.oc_name_known
+        ? OBJ_NAME(type, state)
+        : OBJ_DESCR(type, state);
+    return name?.toLowerCase().includes('gauntlets')
+        ? 'gauntlets'
+        : 'gloves';
 }
 function preflightObjectName(obj, type, state, forDoname = false) {
     if (state.iflags?.override_ID)

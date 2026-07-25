@@ -15,6 +15,10 @@ import { look_here_single_object } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
+    cloak_simple_name,
+    gloves_simple_name,
+    helm_simple_name,
+    suit_simple_name,
     UnsupportedObjectNameError,
     donameFresh,
     xnameFresh,
@@ -26,15 +30,28 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import {
+    ALCHEMY_SMOCK,
     CHEST,
+    CHAIN_MAIL,
     CORPSE,
     DART,
+    DWARVISH_IRON_HELM,
+    ELVEN_LEATHER_HELM,
     FOOD_RATION,
+    GAUNTLETS_OF_POWER,
     GOLD_PIECE,
+    HELM_OF_BRILLIANCE,
+    LEATHER_ARMOR,
+    LEATHER_GLOVES,
+    LEATHER_JACKET,
     LONG_SWORD,
+    MUMMY_WRAPPING,
     OBJ_DESCR,
     POT_HEALING,
     POT_WATER,
+    RED_DRAGON_SCALE_MAIL,
+    RED_DRAGON_SCALES,
+    ROBE,
     SLIME_MOLD,
     STATUE,
     TALLOW_CANDLE,
@@ -96,6 +113,78 @@ function objectOf(state, otyp, overrides = {}) {
         ...overrides,
     });
 }
+
+test('simple suit names preserve dragon, suffix, and fallback categories',
+    () => {
+        const state = namingState();
+        assert.equal(
+            suit_simple_name(objectOf(state, RED_DRAGON_SCALE_MAIL), state),
+            'dragon mail',
+        );
+        assert.equal(
+            suit_simple_name(objectOf(state, RED_DRAGON_SCALES), state),
+            'dragon scales',
+        );
+        assert.equal(
+            suit_simple_name(objectOf(state, CHAIN_MAIL), state),
+            'mail',
+        );
+        assert.equal(
+            suit_simple_name(objectOf(state, LEATHER_JACKET), state),
+            'jacket',
+        );
+        assert.equal(
+            suit_simple_name(objectOf(state, LEATHER_ARMOR), state),
+            'suit',
+        );
+        assert.equal(suit_simple_name(null, state), 'suit');
+    });
+
+test('simple cloak names retain the discovery-sensitive smock branch', () => {
+    const state = namingState();
+    assert.equal(cloak_simple_name(objectOf(state, ROBE), state), 'robe');
+    assert.equal(
+        cloak_simple_name(objectOf(state, MUMMY_WRAPPING), state),
+        'wrapping',
+    );
+    const smock = objectOf(state, ALCHEMY_SMOCK, { dknown: true });
+    assert.equal(cloak_simple_name(smock, state), 'apron');
+    state.objects[ALCHEMY_SMOCK].oc_name_known = true;
+    assert.equal(cloak_simple_name(smock, state), 'smock');
+    assert.equal(cloak_simple_name(null, state), 'cloak');
+});
+
+test('simple helm names distinguish hard headgear from hats', () => {
+    const state = namingState();
+    assert.equal(
+        helm_simple_name(objectOf(state, DWARVISH_IRON_HELM), state),
+        'helm',
+    );
+    assert.equal(
+        helm_simple_name(objectOf(state, HELM_OF_BRILLIANCE), state),
+        'helm',
+    );
+    assert.equal(
+        helm_simple_name(objectOf(state, ELVEN_LEATHER_HELM), state),
+        'hat',
+    );
+    assert.equal(helm_simple_name(null, state), 'hat');
+});
+
+test('simple glove names use only the currently discoverable text', () => {
+    const state = namingState();
+    const gauntlets = objectOf(state, GAUNTLETS_OF_POWER, { dknown: true });
+    assert.equal(gloves_simple_name(gauntlets, state), 'gloves');
+    state.objects[GAUNTLETS_OF_POWER].oc_name_known = true;
+    assert.equal(gloves_simple_name(gauntlets, state), 'gauntlets');
+    assert.equal(
+        gloves_simple_name(objectOf(state, LEATHER_GLOVES, {
+            dknown: true,
+        }), state),
+        'gloves',
+    );
+    assert.equal(gloves_simple_name(null, state), 'gloves');
+});
 
 test('xname observes sighted objects but preserves blind descriptions', () => {
     const sighted = namingState();
