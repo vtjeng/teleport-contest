@@ -26,6 +26,7 @@ import {
     isok,
 } from './const.js';
 import { flush_screen, newsym } from './display.js';
+import { can_reach_floor, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
 import { is_hider, noattacks } from './mondata.js';
@@ -388,6 +389,10 @@ export async function domove(state = game) {
     newsym(oldx, oldy);
     vision_recalc(1);
     newsym(newx, newy);
+    await read_engr_at(newx, newy, state, {
+        pline: ttyPline,
+        canReachFloor: can_reach_floor,
+    });
     const floorObject = state.level?.objects?.[newx]?.[newy] ?? null;
     if (floorObject && !floorObject.nexthere) {
         // C ref: domove() -> spoteffects(TRUE) -> pickup(1) -> check_here()
