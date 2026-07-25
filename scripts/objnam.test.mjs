@@ -8,8 +8,10 @@ import {
 import {
     BLINDED,
     NON_PM,
+    PLNMSG_ONE_ITEM_HERE,
     W_WEP,
 } from '../js/const.js';
+import { look_here_single_object } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
@@ -137,6 +139,20 @@ test('type discovery and holy water follow class branches', () => {
         'a potion of holy water',
     );
 });
+
+test('single-object look_here reports the item and records its message kind',
+    async () => {
+        const state = namingState();
+        const dart = objectOf(state, DART);
+        const messages = [];
+
+        await look_here_single_object(dart, state, {
+            message: async (text, owner) => messages.push([text, owner]),
+        });
+
+        assert.deepEqual(messages, [['You see here a dart.', state]]);
+        assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+    });
 
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {
     const state = namingState();

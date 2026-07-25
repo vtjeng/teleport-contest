@@ -27,6 +27,7 @@ import {
     P_CROSSBOW,
     P_DAGGER,
     P_DART,
+    PLNMSG_ONE_ITEM_HERE,
     P_SABER,
     P_SHORT_SWORD,
     P_SPEAR,
@@ -74,9 +75,25 @@ import {
     preflightWeight,
     weight,
 } from './obj.js';
+import { donameFresh } from './objnam.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
+
+// C ref: invent.c look_here(), ordinary sighted single-object branch.
+export async function look_here_single_object(
+    obj,
+    state = game,
+    { message } = {},
+) {
+    if (!obj || obj.nexthere || typeof message !== 'function') {
+        throw new TypeError(
+            'single-object look_here needs one object and a message owner',
+        );
+    }
+    await message(`You see here ${donameFresh(obj, state)}.`, state);
+    state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
+}
 
 function inventoryEnv(env = {}) {
     return {
