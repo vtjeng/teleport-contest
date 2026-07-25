@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BEAR_TRAP,
     FORCETRAP,
+    HURTLING,
     PIT,
     WEB,
 } from '../js/const.js';
@@ -126,6 +127,31 @@ test('an unseen owlbear is caught instead of tearing through a web',
         assert.equal(monster.mtrapped, true);
         assert.equal(game.level.traps[0], trap);
         assert.equal(trap.tseen, false);
+    });
+
+test('a hurtling grounded monster skips a floor trap before avoidance',
+    async () => {
+        const monster = await initializedMonster(982416, 'HurtlingBear');
+        monster.data = game.mons[PM_HUMAN];
+        const trap = ordinaryTrap(monster, BEAR_TRAP);
+
+        await trigger_monster_bear_trap(monster, trap, {
+            killMonster: () => {
+                assert.fail('hurtling skips the bear-trap selector');
+            },
+            monsterName,
+            random: {
+                d: () => assert.fail('hurtling skips trap damage'),
+                rn2: () => assert.fail(
+                    'hurtling skips the known-trap avoidance draw',
+                ),
+            },
+            state: game,
+            trapFlags: HURTLING,
+        });
+
+        assert.equal(monster.mtrapseen, 0);
+        assert.equal(monster.mtrapped, false);
     });
 
 test('pit self-touch resolves before the pit damage roll', async () => {

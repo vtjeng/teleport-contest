@@ -6,12 +6,17 @@ import {
     FORCETRAP,
     FORCEBUNGLE,
     HOLE,
+    HURTLING,
+    TOOKPLUNGE,
+    VIASITTING,
 } from './const.js';
 import { newsym } from './display.js';
 import { dist2 } from './hacklib.js';
 import {
     haseyes,
     is_animal,
+    is_floater,
+    is_flyer,
     mindless,
 } from './mondata.js';
 import { clear_path } from './vision.js';
@@ -63,6 +68,15 @@ export function trap_at_monster(monster, state) {
     return (state.level?.traps ?? []).find(
         (trap) => trap.tx === monster.mx && trap.ty === monster.my,
     ) ?? null;
+}
+
+export function monster_skips_floor_trap(monster, env) {
+    const flags = env.trapFlags ?? 0;
+    if (flags & FORCETRAP) return false;
+    const plunged = Boolean(flags & (TOOKPLUNGE | VIASITTING));
+    return Boolean(flags & HURTLING)
+        || is_floater(monster.data)
+        || (is_flyer(monster.data) && !plunged);
 }
 
 export function monster_avoids_known_trap(monster, trap, env) {

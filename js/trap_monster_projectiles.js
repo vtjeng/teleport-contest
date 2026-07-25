@@ -4,12 +4,7 @@
 
 import { newsym } from './display.js';
 import { stackobj } from './invent.js';
-import {
-    is_floater,
-    is_flyer,
-    passes_walls,
-    unsolid,
-} from './mondata.js';
+import { passes_walls, unsolid } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { donameFresh } from './objnam.js';
 import {
@@ -31,6 +26,7 @@ import {
     delete_monster_trap,
     monster_avoids_known_trap,
     monster_learns_trap,
+    monster_skips_floor_trap,
     nearby_monsters_learn_trap,
     reveal_monster_trap,
 } from './trap_monster_shared.js';
@@ -78,7 +74,7 @@ async function triggerMissileTrap(
     },
 ) {
     const { random, state } = env;
-    if (is_flyer(monster.data) || is_floater(monster.data)) return false;
+    if (monster_skips_floor_trap(monster, env)) return false;
     const killMonster = projectileOperation(env, 'killMonster');
     const missileDamage = projectileOperation(env, 'missileDamage');
     const monsterArmorClass = projectileOperation(
@@ -177,7 +173,7 @@ export async function trigger_monster_dart_trap(monster, trap, env) {
 // on the floor after either survival or death.
 export async function trigger_monster_rock_trap(monster, trap, env) {
     const { random, state } = env;
-    if (is_flyer(monster.data) || is_floater(monster.data)) return false;
+    if (monster_skips_floor_trap(monster, env)) return false;
     const killMonster = projectileOperation(env, 'killMonster');
     projectileOperation(env, 'monsterName');
     if (monster_avoids_known_trap(monster, trap, env)) return false;

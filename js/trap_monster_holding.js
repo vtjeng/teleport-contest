@@ -55,6 +55,7 @@ import {
     delete_monster_trap,
     monster_avoids_known_trap,
     monster_learns_trap,
+    monster_skips_floor_trap,
     nearby_monsters_learn_trap,
     reveal_monster_trap,
     trap_at_monster,
@@ -214,10 +215,7 @@ export async function trigger_monster_bear_trap(monster, trap, env) {
     const { random, state } = env;
     const killMonster = holdingOperation(env, 'killMonster');
     holdingOperation(env, 'monsterName');
-    if (!(env.trapFlags & FORCETRAP)
-        && (is_floater(monster.data) || is_flyer(monster.data))) {
-        return false;
-    }
+    if (monster_skips_floor_trap(monster, env)) return false;
     if (monster_avoids_known_trap(monster, trap, env)) return false;
     monster_learns_trap(monster, trap.ttyp);
     nearby_monsters_learn_trap(trap, state);
@@ -278,10 +276,7 @@ export async function trigger_monster_pit(monster, trap, env) {
     const killMonster = holdingOperation(env, 'killMonster');
     const selfTouch = holdingOperation(env, 'selfTouch');
     holdingOperation(env, 'monsterName');
-    if (!(env.trapFlags & FORCETRAP)
-        && (is_flyer(monster.data) || is_floater(monster.data))) {
-        return false;
-    }
+    if (monster_skips_floor_trap(monster, env)) return false;
     if (monster_avoids_known_trap(monster, trap, env)) return false;
     monster_learns_trap(monster, trap.ttyp);
     nearby_monsters_learn_trap(trap, state);
