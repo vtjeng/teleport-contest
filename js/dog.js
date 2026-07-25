@@ -9,20 +9,28 @@ import {
     HALLUC,
     HALLUC_RES,
     M_AP_MONSTER,
+    M_AP_NOTHING,
     M_AP_TYPMASK,
+    MON_MIGRATING,
     MM_EDOG,
     NO_MINVENT,
     TELEPAT,
     W_SADDLE,
     isok,
 } from './const.js';
+import {
+    depth,
+    ledger_to_dlev,
+    ledger_to_dnum,
+} from './dungeon.js';
+import { newsym } from './display.js';
 import { christen_monst } from './do_name.js';
 import { game } from './gstate.js';
 import { add_to_minv, update_inventory } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
-import { m_at } from './monst.js';
+import { m_at, remove_monster } from './monst.js';
 import {
     M1_AMORPHOUS,
     M1_HUMANOID,
@@ -31,8 +39,13 @@ import {
     MZ_MEDIUM,
     NON_PM,
     PM_AIR_ELEMENTAL,
+    PM_BABY_GOLD_DRAGON,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
+    PM_FIRE_ELEMENTAL,
+    PM_FIRE_VORTEX,
+    PM_FLAMING_SPHERE,
+    PM_GOLD_DRAGON,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_LONG_WORM,
@@ -40,6 +53,8 @@ import {
     PM_PONY,
     PM_RANGER,
     PM_SAMURAI,
+    PM_SHOCKING_SPHERE,
+    S_LIGHT,
     S_ANGEL,
     S_CENTAUR,
     S_DRAGON,
@@ -50,13 +65,19 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import { mksobj, unknow_object } from './obj.js';
-import { EXPENSIVE_CAMERA, SADDLE } from './objects.js';
+import {
+    BOULDER,
+    COIN_CLASS,
+    EXPENSIVE_CAMERA,
+    SADDLE,
+} from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     canSeeMonster,
     sensesMonster,
 } from './startup_a11y.js';
 import { effective_attribute } from './attrib.js';
+import { vision_recalc } from './vision.js';
 
 export { christen_monst } from './do_name.js';
 
@@ -443,5 +464,160 @@ export function makedog(env = {}) {
         });
     }
     initedog(monster, true, normalized);
+    return monster;
+}
+
+function clearContainedNoCharge(container) {
+    for (let obj = container.cobj; obj; obj = obj.nobj) {
+        if (obj.oclass !== COIN_CLASS) obj.no_charge = false;
+        if (obj.cobj) clearContainedNoCharge(obj);
+    }
+}
+
+function monsterEmitsLight(monster) {
+    const species = monster.data;
+    return species?.mlet === S_LIGHT
+        || species?.pmidx === PM_FLAMING_SPHERE
+        || species?.pmidx === PM_SHOCKING_SPHERE
+        || species?.pmidx === PM_BABY_GOLD_DRAGON
+        || species?.pmidx === PM_FIRE_VORTEX
+        || species?.pmidx === PM_FIRE_ELEMENTAL
+        || species?.pmidx === PM_GOLD_DRAGON;
+}
+
+function migratingOperation(env, name, fallback) {
+    const operation = env[name] ?? fallback;
+    if (typeof operation !== 'function')
+        throw new TypeError(`migrate_to_level requires a ${name} operation`);
+    return operation;
+}
+
+function levelMonsterPredecessor(monster, state) {
+    let previous = null;
+    for (let current = state.level.monlist;
+        current && current !== monster;
+        current = current.nmon) {
+        previous = current;
+    }
+    const current = previous ? previous.nmon : state.level.monlist;
+    if (current !== monster)
+        throw new Error('migrate_to_level: monster is not on the level chain');
+    return previous;
+}
+
+function floorBoulder(x, y, state) {
+    for (let obj = state.level?.objects?.[x]?.[y] ?? null;
+        obj;
+        obj = obj.nexthere) {
+        if (obj.otyp === BOULDER) return obj;
+    }
+    return null;
+}
+
+function sameLevel(left, right) {
+    return Boolean(left && right
+        && left.dnum === right.dnum
+        && left.dlevel === right.dlevel);
+}
+
+// C refs: dog.c mon_leave()/migrate_to_level() and mon.c relmon()/
+// mon_leaving_level(), bounded to ordinary stable-level monsters.
+export function migrate_to_level(
+    monster,
+    destinationLedger,
+    destinationCode,
+    coordinate,
+    rawEnv = {},
+) {
+    const env = dogEnv(rawEnv);
+    const { state } = env;
+    const destination = {
+        dnum: ledger_to_dnum(destinationLedger, state),
+        dlevel: ledger_to_dlev(destinationLedger, state),
+    };
+    if (monster.mleashed)
+        throw new RangeError('leashed monster migration is future work');
+    if (monster.isshk)
+        throw new RangeError('shopkeeper migration is future work');
+    if (monster.wormno)
+        throw new RangeError('long-worm migration is future work');
+    const appearance = monster.m_ap_type & M_AP_TYPMASK;
+    if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER)
+        throw new RangeError('disguised monster migration is future work');
+    if (monster === state.u.ustuck)
+        throw new RangeError('stuck-monster migration is future work');
+    const onWizardTowerLevel = [
+        state.wiz1_level,
+        state.wiz2_level,
+        state.wiz3_level,
+    ].some((level) => sameLevel(level, state.u.uz));
+    const inWizardTower = onWizardTowerLevel
+        ? migratingOperation(env, 'inWizardTower')
+        : null;
+    if (m_at(monster.mx, monster.my, state) !== monster)
+        throw new Error('migrate_to_level: monster is not on the map');
+    if (!Array.isArray(monster.mtrack)
+        || monster.mtrack.length < 3
+        || monster.mtrack.slice(0, 3).some((entry) => !entry)) {
+        throw new TypeError('migrate_to_level requires monster track state');
+    }
+    if (coordinate
+        && (!Number.isInteger(coordinate.x)
+            || !Number.isInteger(coordinate.y))) {
+        throw new TypeError(
+            'migrate_to_level requires an integer destination coordinate',
+        );
+    }
+    const previous = levelMonsterPredecessor(monster, state);
+    const oldX = monster.mx;
+    const oldY = monster.my;
+    const boulder = floorBoulder(oldX, oldY, state);
+    const fillPit = boulder
+        ? migratingOperation(env, 'fillPit')
+        : null;
+    const redraw = migratingOperation(env, 'newsym', newsym);
+    const recalculateVision = monsterEmitsLight(monster)
+        ? migratingOperation(env, 'visionRecalc', vision_recalc)
+        : null;
+
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.cobj) clearContainedNoCharge(obj);
+        obj.no_charge = false;
+    }
+    monster.mtrapped = false;
+    remove_monster(oldX, oldY, state);
+    monster.mundetected = false;
+    if (boulder) fillPit(oldX, oldY, boulder, env);
+    redraw(oldX, oldY, state);
+
+    if (previous) previous.nmon = monster.nmon;
+    else state.level.monlist = monster.nmon;
+    if (state.context?.polearm?.hitmon === monster)
+        state.context.polearm.hitmon = null;
+    state.gm ??= {};
+    monster.nmon = state.gm.migrating_mons ?? null;
+    state.gm.migrating_mons = monster;
+    monster.mstate |= MON_MIGRATING;
+
+    let xyFlags = depth(destination, state) < depth(state.u.uz, state)
+        ? 1
+        : 0;
+    if (inWizardTower
+        && inWizardTower(oldX, oldY, state.u.uz, state)) {
+        xyFlags |= 2;
+    }
+    monster.wormno = 0;
+    monster.mlstmv = state.moves;
+    monster.mtrack[2].x = state.u.uz.dnum;
+    monster.mtrack[2].y = state.u.uz.dlevel;
+    monster.mtrack[1].x = coordinate ? coordinate.x : oldX;
+    monster.mtrack[1].y = coordinate ? coordinate.y : oldY;
+    monster.mtrack[0].x = destinationCode;
+    monster.mtrack[0].y = xyFlags;
+    monster.mux = destination.dnum;
+    monster.muy = destination.dlevel;
+    monster.mx = 0;
+    monster.my = 0;
+    if (recalculateVision) recalculateVision(0);
     return monster;
 }
