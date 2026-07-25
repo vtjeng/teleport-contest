@@ -492,5 +492,8 @@ export async function dog_move(monster, after, rawEnv = {}) {
             env,
         );
     }
+    // Upstream reports a completed pet movement opportunity as MMOVE_MOVED
+    // even when no candidate changed the coordinates.  m_move() uses this
+    // result to run postmov() and finish the action.
     return MMOVE_MOVED;
 }

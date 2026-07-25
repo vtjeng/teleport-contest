@@ -410,6 +410,25 @@ test('dog_move preserves x-major candidate draws and relocates the pet',
         );
     });
 
+test('dog_move reports a completed opportunity when no candidate exists',
+    async () => {
+        const { state, monster } = activePetState();
+        const origin = [monster.mx, monster.my];
+
+        const result = await dog_move(monster, false, movementEnv(state, {
+            findPositions: fixedCandidates([]),
+        }));
+
+        assert.equal(result, MMOVE_MOVED);
+        assert.deepEqual([monster.mx, monster.my], origin);
+        assert.deepEqual(monster.mtrack, [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+        ]);
+    });
+
 test('dog_move throws a conflicted steed before inventory work', async () => {
     const { state, monster } = activePetState();
     state.u.usteed = monster;

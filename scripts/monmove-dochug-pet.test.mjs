@@ -69,7 +69,8 @@ function baseEnv(events) {
     };
 }
 
-test('pet dochug keeps the flee draw before movement and postmov', async () => {
+test('pet dochug sends an unchanged MMOVE_MOVED result through postmov',
+    async () => {
     const events = [];
     const monster = makeMonster({
         mflee: true,
@@ -89,6 +90,16 @@ test('pet dochug keeps the flee draw before movement and postmov', async () => {
         distanceAndFear: () => {
             events.push(`range-${++rangeCall}`);
             return { nearby: true, scared: false };
+        },
+        movePet: (subject) => {
+            events.push('move');
+            assert.deepEqual([subject.mx, subject.my], [4, 4]);
+            return MMOVE_MOVED;
+        },
+        postMonsterMove(subject, oldX, oldY, status) {
+            events.push(`post:${oldX},${oldY}:${status}`);
+            assert.deepEqual([subject.mx, subject.my], [oldX, oldY]);
+            return status;
         },
     };
 
