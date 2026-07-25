@@ -51,10 +51,10 @@ validated.
 | 5 | `mon.c:movemon_singlemon()` scan gates | Preserve dead/off-map, every-turn upkeep, movement-ration, vision, and ration-spend order for each list node. | `js/mon.js`, `js/allmain.js` adapter | done | Due and inert parked-guard ordering committed at `3104b21`. |
 | 6 | `mon.c:movemon()` terminal cleanup | Clear transient state, purge dead entries, update light/vision state, and return whether another scan is needed. Level transition is a future safe-stop. | `js/mon.js`, `js/allmain.js` adapter | done | Repeated-scan command tests and live prompt completion. |
 | 7 | `monmove.c:dochugw()` notice wrapper | Run the ordinary action while preserving the occupation-interruption seam. New games have no active occupation. | `js/monmove.js` | done | Source owner `e74c756`, live consumer `2283141`. |
-| 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | audit gap | Await visible wake output before sleep state or action RNG changes. |
+| 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | done | Source-owned `wake_msg()` and awaited live wiring committed at `d327351`. |
 | 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | done | Focused action tests; excluded paths stop in the atomic planner. |
 | 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` | done | Audit fixes and exact selection cases committed at `11a724d`. |
-| 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | audit gap | Selected-action atomicity is covered at `3104b21`; port source-ordered `notice_mon()` state and messages. |
+| 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | done | Source-ordered notice state/output and unchanged-result `postmov()` committed at `d327351`. |
 | 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. | `js/dogmove_goal.js` | done | Source owner `b01722b`; dog, cat, and pony live cases. |
 | 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Stop before inventory, eating, leash, steed, conflict, altered-state, ranged, or combat paths. | `js/dogmove.js` | done | Owners `fe22783` and `61d9276`; live pet matrix. |
 | 14 | `dogmove.c:dog_move()` candidates and tie-breaking | Run `mon_allowflags()`, `mfndpos()`, candidate filtering, follow-distance scoring, and source tie-breaking over ordinary clear squares. | `js/dogmove.js` | done | Focused tie-breaking tests and four dog command combinations. |
@@ -65,11 +65,12 @@ validated.
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 15 done, three remain open after correctness audit.
+- 18 in-boundary families: 17 done, one remains open after correctness audit.
 - Closure verdict: **implementation in progress**. The first full correctness
   pass confirmed gaps in families 3, 5, 8, 10, 11, and 18. Families 3 and 10
   are fixed at `dad2732` and `11a724d`, and family 5 plus family 11 atomicity
-  coverage are fixed at `3104b21`. Families 8, 11, and 18 remain open.
+  coverage are fixed at `3104b21`. Families 8 and 11 are fixed at `d327351`;
+  family 18 and the separate pet-result contract remain open.
 
 ## Correctness-audit return to implementation
 
@@ -77,9 +78,9 @@ The full audit of
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`
 produced 23 raw candidates, 20 after same-site deduplication, 14 confirmed,
 six rejected, and none unverified. The confirmed set contains seven production
-defects, six test defects, and one maintenance-contract defect. A1 and A2 are
-committed; A3 is committed and A4 is the next source-owned checkpoint. The
-current audit-readiness rules keep this slice in Implementation mode until the
+defects, six test defects, and one maintenance-contract defect. A1 through A4
+are committed and A5 is the next source-owned checkpoint. The current
+audit-readiness rules keep this slice in Implementation mode until the
 remaining source families and validation evidence are complete.
 
 Implement and commit the follow-up in this order. Each checkpoint keeps its
@@ -90,7 +91,7 @@ tests with the upstream owner and stays below the review-size limit.
 | A1 — hero destination admission | done at `dad2732` | Reject any object or pile before `domove()` mutates coordinates, rendering, pending state, or gameplay RNG. Add representative trap, object, pile, and special-terrain admission cases; only the object defect needs new production behavior. | `js/cmd.js`, `js/jsmain.js`, `scripts/cmd.test.mjs` |
 | A2 — monster goal and selection | done at `11a724d` | Port the complete `getitems` approach/line predicate, spend an attack on an empty displacement image, and pin exact source candidate enumeration and reservoir tie-breaking. | `js/monmove_move.js`, `scripts/monmove.test.mjs` |
 | A3 — elapsed preflight and RNG | done at `3104b21` | Check eligible parked guards before on-map/ration early returns. Share or exactly align live and cloned RNG wrapper edge behavior. Expand whole-scan selected-action atomicity coverage. | `js/rng.js`, `js/monmove_simple.js`, `js/monmove_move.js`, focused RNG and scan tests |
-| A4 — wake and post-move notices | pending | Await visible wake messages before state/action progress. Port source-ordered `notice_mon()` state and messages, including dry-plan state without output. | `js/monmove_simple.js`, corresponding focused monster tests |
+| A4 — wake and post-move notices | done at `d327351` | Await visible wake messages before state/action progress. Port source-ordered `notice_mon()` state and messages, including dry-plan state without output. | `js/mon.js`, `js/startup_a11y.js`, thin movement wiring, and corresponding focused monster tests |
 | A5 — pet result contract | pending | Document the upstream `dog_move()` quirk where a completed opportunity may return `MMOVE_MOVED` without coordinate change, and pin the downstream `postmov()` behavior. | `js/dogmove.js`, corresponding focused pet test |
 | A6 — replay ownership | pending | Make replay step 2 explicitly return no events and test both the removed-row and fallback boundaries. | `js/fastforward.js`, `scripts/fastforward.test.mjs` |
 | A7 — complete integration oracle | pending | Compare complete normalized retry state and retained output, then run every checked-in no-pet/pet/fast-hero and command-order case under `npm test`. Keep the runner, fixture, and integration test together if any of the three changes. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
@@ -201,26 +202,30 @@ not change the active scope or count as live simple-turn closure.
 
 ## Validation
 
-- Commit checked: `3104b21e`.
-- Source review: A1 through A3 were checked against `hack.c:domove()`,
+- Commit checked: `d3273515`.
+- Source review: A1 through A4 were checked against `hack.c:domove()`,
   `mon.c:movemon_singlemon()`, `monmove.c:m_move()`, and `rnd.c`. The review
   covered destination admission, item-search and displacement selection,
   parked-guard order, wrapper return values, PRNG order, and fail-closed scan
-  state. A4 through A7 remain open below.
-- Focused tests: the A3 checkpoint passed 111 focused RNG, movement, and
-  whole-scan atomicity tests.
-- Full suite: `npm test` passed 1,559 tests.
+  state, plus `mon.c:wake_msg()`, `hack.c:notice_mon()`, and source-ordered
+  `postmov()` behavior. A5 through A7 remain open below.
+- Focused tests: the A4 checkpoint passed 138 focused wake, notice, movement,
+  and whole-scan tests.
+- Full suite: `npm test` passed 1,564 tests.
 - Generated-file checks: `check:monsters`, `check:objects`, `check:symbols`,
   and `check:themerooms` all passed.
-- Fresh differentials: the batch scanner passed all 11 checked-in cases with
-  no failure groups. The canonical matrix matched 31,168 PRNG calls and 44
-  complete screens, attributes, and cursors.
+- Fresh differentials: a four-case `spot_monsters` batch passed with no
+  failure groups. The canonical 11-case matrix matched 31,168 PRNG calls and
+  44 complete screens, attributes, and cursors. Temporary discovery found no
+  initial sleeping monster in 10,000 D:1 starts and no notice-state transition
+  in 4,000 legal two-command trials, so those rare branches have focused
+  source-state coverage rather than a fresh construction.
 - Development suite: 0/33 sessions fully matched; 77,557/610,816 PRNG values,
   205/7,765 screens, and 236/7,765 cursors matched. Excluded later paths retain
   their supported prefix.
 - Quality check: `npm run quality` reports the correctness gate due. The
   checklist remains incomplete, so the audit-readiness rule keeps the slice in
-  Implementation mode for A4 through A7 before the next formal review.
+  Implementation mode for A5 through A7 before the next formal review.
 - Browser check: not required because no browser renderer, DOM, input,
   storage, or browser-only presentation contract changed.
 - Holdout: not accessed.
@@ -229,7 +234,7 @@ not change the active scope or count as live simple-turn closure.
 
 Current mode: Implementation
 
-Reason: A1 through A3 are committed, but A4 through A7 remain incomplete.
+Reason: A1 through A4 are committed, but A5 through A7 remain incomplete.
 Formal review waits until those known gaps and their validation evidence are
 complete.
 

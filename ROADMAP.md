@@ -32,9 +32,10 @@ upstream source.
 The review confirmed seven production gaps and six test gaps in the active
 checkpoint. Hero destination admission and monster goal/selection fixes are
 committed at `dad2732` and `11a724d`; elapsed preflight and shared-RNG fixes
-are committed at `3104b21`. The checklist still has known wake, post-move
-notice, replay, and integration-oracle gaps, so work remains in Implementation
-mode. The next source-owned checkpoint is wake and post-move notice behavior.
+are committed at `3104b21`; wake and post-move notice behavior is committed at
+`d327351`. The checklist still has known pet-result, replay, and
+integration-oracle gaps, so work remains in Implementation mode. The next
+source-owned checkpoint is the starting-pet result contract.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
@@ -69,11 +70,11 @@ The second-turn runner, fixture, and integration test were committed together
 with the live integration. The audit follow-up is split by upstream owner:
 hero destination admission; monster goal and displacement selection;
 elapsed-turn preflight and cloned-RNG parity; wake and `notice_mon()`
-post-move behavior; replay step ownership; then the complete retry and strict
-matrix oracles. `js/monster_action.js` remains future work rather than a
-combined movement, trap, object, and combat owner. The detailed source
-inventory, safe-stop seams, checkpoints, and evidence live in
-`.agents/implementation-checklist.md`.
+post-move behavior; the starting-pet result contract; replay step ownership;
+then the complete retry and strict matrix oracles. `js/monster_action.js`
+remains future work rather than a combined movement, trap, object, and combat
+owner. The detailed source inventory, safe-stop seams, checkpoints, and
+evidence live in `.agents/implementation-checklist.md`.
 
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
