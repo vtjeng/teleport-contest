@@ -1,71 +1,274 @@
 {
-  "version": 5,
-  "segments": [
+  "version": 1,
+  "recipe": {
+    "version": 5,
+    "segments": [
+      {
+        "seed": 2026072001,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:NoPetWaitWait,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+        "moves": " .."
+      },
+      {
+        "seed": 2026072001,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:NoPetWaitWalk,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+        "moves": " .h"
+      },
+      {
+        "seed": 2026072001,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:NoPetWalkWait,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+        "moves": " h."
+      },
+      {
+        "seed": 2026072001,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:NoPetWalkWalk,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+        "moves": " hh"
+      },
+      {
+        "seed": 2026072201,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:DogWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+        "moves": " .."
+      },
+      {
+        "seed": 2026072201,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:DogWaitWalk,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+        "moves": " .j"
+      },
+      {
+        "seed": 2026072201,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:DogWalkWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+        "moves": " l."
+      },
+      {
+        "seed": 2026072201,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:DogWalkWalk,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+        "moves": " nn"
+      },
+      {
+        "seed": 2026072201,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:CatWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
+        "moves": " .."
+      },
+      {
+        "seed": 2026072257,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:PonyWalkWait,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\n",
+        "moves": " k."
+      },
+      {
+        "seed": 2026072311,
+        "datetime": "20261029013000",
+        "nethackrc": "OPTIONS=name:MonkSpeed,role:Monk,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
+        "moves": " .."
+      }
+    ]
+  },
+  "expectations": [
     {
-      "seed": 2026072001,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:NoPetWaitWait,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " .."
+      "name": "NoPetWaitWait",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 9, "y": 18 },
+        "monsterCount": 2,
+        "pet": null,
+        "stateDigest": "14687f51115c5389a734869cd7b24a9211aad218c9bcad7169eff35ff85469ff",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[8, 19, 1], [8, 19, 1], [8, 19, 1], [8, 19, 1]],
+          "messages": [],
+          "rngCount": 2679,
+          "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
+          "screenCount": 4,
+          "screenDigest": "71b5bd751c684cd3b428817192a384dee16b9c1b5d1713690e875d06afd96fe1"
+        }
+      }
     },
     {
-      "seed": 2026072001,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:NoPetWaitWalk,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " .h"
+      "name": "NoPetWaitWalk",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 8, "y": 18 },
+        "monsterCount": 2,
+        "pet": null,
+        "stateDigest": "7e6910e9f899979f6546172bf2aee1e57c207a55d73e52889dc06cfa044cfd51",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[8, 19, 1], [8, 19, 1], [8, 19, 1], [7, 19, 1]],
+          "messages": [],
+          "rngCount": 2679,
+          "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
+          "screenCount": 4,
+          "screenDigest": "df7855a61df8e1052c6358f93ef21cd46fd7d2a290ea021800a8abee07725515"
+        }
+      }
     },
     {
-      "seed": 2026072001,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:NoPetWalkWait,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " h."
+      "name": "NoPetWalkWait",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 8, "y": 18 },
+        "monsterCount": 2,
+        "pet": null,
+        "stateDigest": "6b12b1ffddc2bf7b8d518674644792f434ef8e7340733e6491b827f92649a17d",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[8, 19, 1], [8, 19, 1], [7, 19, 1], [7, 19, 1]],
+          "messages": [],
+          "rngCount": 2679,
+          "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
+          "screenCount": 4,
+          "screenDigest": "befc464ffe7ea1f029e92cc52cc099214221c40128c41ee68d13a761f0fd89b7"
+        }
+      }
     },
     {
-      "seed": 2026072001,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:NoPetWalkWalk,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " hh"
+      "name": "NoPetWalkWalk",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 7, "y": 18 },
+        "monsterCount": 2,
+        "pet": null,
+        "stateDigest": "e45145a4d111296dd2eb286f869a3d2fb189d8a49c53058dfd65745d682b7db9",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[8, 19, 1], [8, 19, 1], [7, 19, 1], [6, 19, 1]],
+          "messages": [],
+          "rngCount": 2679,
+          "rngDigest": "fa3f1be45cb47f3acd0b0e3364eddf637e68ad462652ba7cb3d1e93272d52ba5",
+          "screenCount": 4,
+          "screenDigest": "a58d674935e65492487c7e584c6a551c256eb405125c9255f023f51879a97fd2"
+        }
+      }
     },
     {
-      "seed": 2026072201,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:DogWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
-      "moves": " .."
+      "name": "DogWaitWait",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 42, "y": 12 },
+        "monsterCount": 2,
+        "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
+        "stateDigest": "5976121cb74b2876ebb6ef6e2dc9a172d65e0bacf33d3e3294459fa912105b84",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1], [41, 13, 1]],
+          "messages": [],
+          "rngCount": 2975,
+          "rngDigest": "9ffa4b0cde8d8f921a56385228c19f38bab2293b2b12b92474ea731b6fd65fc9",
+          "screenCount": 4,
+          "screenDigest": "eeb072c75ad7a43c500dd6dead4405d6ad222042ebc9601a5bb378739c2dbd76"
+        }
+      }
     },
     {
-      "seed": 2026072201,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:DogWaitWalk,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
-      "moves": " .j"
+      "name": "DogWaitWalk",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 42, "y": 13 },
+        "monsterCount": 2,
+        "pet": { "id": 26, "movement": 24, "mx": 42, "my": 14, "pmidx": 16 },
+        "stateDigest": "c09609e01a6962b49c6f9b6f67b1de47fabb2006825fb4ada9f11d2047370b4c",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1], [41, 14, 1]],
+          "messages": [],
+          "rngCount": 2976,
+          "rngDigest": "fae0019347bb0d0eb8d57e046d328edd0302bccbe40036f65a3844ebdbc7a2d2",
+          "screenCount": 4,
+          "screenDigest": "2105d1be8a1479567c6dd128d8023fe6675b6e29bc1de59c77977a4c21c0c649"
+        }
+      }
     },
     {
-      "seed": 2026072201,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:DogWalkWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
-      "moves": " l."
+      "name": "DogWalkWait",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 43, "y": 12 },
+        "monsterCount": 2,
+        "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
+        "stateDigest": "150219266a090c5f94dcea614b30aabfb757ed9d534fb64071cde83c746b4771",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[41, 13, 1], [41, 13, 1], [42, 13, 1], [42, 13, 1]],
+          "messages": [],
+          "rngCount": 2975,
+          "rngDigest": "9ffa4b0cde8d8f921a56385228c19f38bab2293b2b12b92474ea731b6fd65fc9",
+          "screenCount": 4,
+          "screenDigest": "178e684b4752972c78f5d49983d6e7e2ac1ebb5c161dc31774acbdf3b76f7c2b"
+        }
+      }
     },
     {
-      "seed": 2026072201,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:DogWalkWalk,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
-      "moves": " nn"
+      "name": "DogWalkWalk",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 44, "y": 14 },
+        "monsterCount": 2,
+        "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
+        "stateDigest": "b7867a6c326f890c9dd5ea79d64cae00f53e80207c8b5f759451a4e503b6fc5d",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[41, 13, 1], [41, 13, 1], [42, 14, 1], [43, 15, 1]],
+          "messages": [],
+          "rngCount": 2975,
+          "rngDigest": "9ffa4b0cde8d8f921a56385228c19f38bab2293b2b12b92474ea731b6fd65fc9",
+          "screenCount": 4,
+          "screenDigest": "98a67733480028ed7f9217f43f518ae4393dae6841b66f1166cdf933b24f2a2f"
+        }
+      }
     },
     {
-      "seed": 2026072201,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:CatWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
-      "moves": " .."
+      "name": "CatWaitWait",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 42, "y": 12 },
+        "monsterCount": 2,
+        "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 32 },
+        "stateDigest": "5d89046e0d78d7048f24fd9afb0f3e6beb42914548a2e311e186495c7e334997",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1], [41, 13, 1]],
+          "messages": [],
+          "rngCount": 2976,
+          "rngDigest": "48cd09c7c06dd9b8a4939c7c348d7ba6311df85353ca4994e0cd79fb2d1ae8f7",
+          "screenCount": 4,
+          "screenDigest": "6819c5b57d25aafe9c328a5c7f35b506b4e930c213cd9bf3df7fbe5243ba9bc9"
+        }
+      }
     },
     {
-      "seed": 2026072201,
-      "datetime": "20260725120000",
-      "nethackrc": "OPTIONS=name:PonyWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:horse\n",
-      "moves": " .."
+      "name": "PonyWalkWait",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 10, "y": 17 },
+        "monsterCount": 4,
+        "pet": { "id": 38, "movement": 24, "mx": 11, "my": 17, "pmidx": 100 },
+        "stateDigest": "f2812a2608f203a28a75e563e571e945090f61d9d6a47da219999d9f8afc6b3d",
+        "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[15, 1, 1], [9, 19, 1], [9, 18, 1], [9, 18, 1]],
+          "messages": [],
+          "rngCount": 2650,
+          "rngDigest": "06824c90f4bf15ba3d1002556ae407633f58f27d49611f7fb332b991e81effc3",
+          "screenCount": 4,
+          "screenDigest": "cd7b6628ec144edaae06cc01efb969b78def5ef66a92396604291f0686d8d846"
+        }
+      }
     },
     {
-      "seed": 2026072311,
-      "datetime": "20261029013000",
-      "nethackrc": "OPTIONS=name:MonkSpeed,role:Monk,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
-      "moves": " .."
+      "name": "MonkSpeed",
+      "oracle": {
+        "hero": { "hunger": 900, "movement": 12, "x": 11, "y": 2 },
+        "monsterCount": 4,
+        "pet": { "id": 42, "movement": 0, "mx": 10, "my": 2, "pmidx": 32 },
+        "stateDigest": "3ccf6d87ad8e2c2a9e6037cd9e2596fe3683809e44cb31e4f00b2efba6631401",
+        "turn": { "commandDispatchCount": 3, "heroSeq": null, "moves": 1 },
+        "output": {
+          "cursors": [[10, 3, 1], [10, 3, 1], [10, 3, 1], [10, 3, 1]],
+          "messages": [],
+          "rngCount": 2598,
+          "rngDigest": "4ca8c619f561db40d9efefb081be09a0656d608d4cd236686e2c96239695c057",
+          "screenCount": 4,
+          "screenDigest": "5e228ac74e16c74d4eed2ba5c16746ad63068d3f8eaa5ff7c5966f344cc0be87"
+        }
+      }
     }
   ]
 }

@@ -22,11 +22,49 @@ export const SECOND_COMPLETE_TURN_FIXTURE = join(
     'second-complete-turn.session.json',
 );
 
-export function loadSecondCompleteTurnRecipe() {
-    const recipe = JSON.parse(
+export function loadSecondCompleteTurnFixture() {
+    const fixture = JSON.parse(
         readFileSync(SECOND_COMPLETE_TURN_FIXTURE, 'utf8'),
     );
-    return validateCleanRecipe(recipe, SECOND_COMPLETE_TURN_FIXTURE);
+    if (!fixture || fixture.version !== 1
+        || !Array.isArray(fixture.expectations)) {
+        throw new Error(
+            `${SECOND_COMPLETE_TURN_FIXTURE} must be a v1 second-turn fixture`,
+        );
+    }
+    const recipe = validateCleanRecipe(
+        fixture.recipe,
+        `${SECOND_COMPLETE_TURN_FIXTURE} recipe`,
+    );
+    if (fixture.expectations.length !== recipe.segments.length) {
+        throw new Error(
+            `${SECOND_COMPLETE_TURN_FIXTURE} must have one expectation `
+            + 'per recipe segment',
+        );
+    }
+    const names = new Set();
+    for (let index = 0; index < fixture.expectations.length; ++index) {
+        const expectation = fixture.expectations[index];
+        const name = expectation?.name;
+        if (typeof name !== 'string' || !name.length || names.has(name)) {
+            throw new Error(
+                `${SECOND_COMPLETE_TURN_FIXTURE} expectation ${index + 1} `
+                + 'must have a unique name',
+            );
+        }
+        if (!recipe.segments[index].nethackrc.includes(`name:${name},`)) {
+            throw new Error(
+                `${SECOND_COMPLETE_TURN_FIXTURE} expectation ${index + 1} `
+                + 'does not match its recipe segment',
+            );
+        }
+        names.add(name);
+    }
+    return { ...fixture, recipe };
+}
+
+export function loadSecondCompleteTurnRecipe() {
+    return loadSecondCompleteTurnFixture().recipe;
 }
 
 export async function runSecondCompleteTurnMatrix() {
