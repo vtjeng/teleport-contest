@@ -455,7 +455,12 @@ its follow-up milestone.
   focused tests, the 1,399-test full suite, all four generated-data checks,
   and the quality gate. Development remains at 77,588 PRNG values, 206
   screens, and 243 cursors; no fresh screen gain is claimed because ordinary
-  D:1 generation has no shop or other message-producing special room.
+  D:1 generation has no shop or other message-producing special room. After
+  the temporary scanner's closed-door predicate was corrected to read the
+  live `flags` union alias, a four-case strict fresh batch of
+  doorway-to-corridor departures passed with no failure groups. The corrected
+  full 995000-through-997999 discovery range completed 3,000/3,000 cases,
+  including 70 legal room crossings.
 - Strict fresh seed 980221 covers the live anti-magic adapter, seed 980409
   covers buried-zombie disturbance, and seed 981228 covers random relocation
   of a pony carrying its saddle; all three pass. The grouped discovery range
