@@ -78,8 +78,8 @@ The full audit of
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`
 produced 23 raw candidates, 20 after same-site deduplication, 14 confirmed,
 six rejected, and none unverified. The confirmed set contains seven production
-defects, six test defects, and one maintenance-contract defect. A1 through A4
-are committed and A5 is the next source-owned checkpoint. The current
+defects, six test defects, and one maintenance-contract defect. A1 through A5
+are committed and A6 is the next source-owned checkpoint. The current
 audit-readiness rules keep this slice in Implementation mode until the
 remaining source families and validation evidence are complete.
 
@@ -92,7 +92,7 @@ tests with the upstream owner and stays below the review-size limit.
 | A2 — monster goal and selection | done at `11a724d` | Port the complete `getitems` approach/line predicate, spend an attack on an empty displacement image, and pin exact source candidate enumeration and reservoir tie-breaking. | `js/monmove_move.js`, `scripts/monmove.test.mjs` |
 | A3 — elapsed preflight and RNG | done at `3104b21` | Check eligible parked guards before on-map/ration early returns. Share or exactly align live and cloned RNG wrapper edge behavior. Expand whole-scan selected-action atomicity coverage. | `js/rng.js`, `js/monmove_simple.js`, `js/monmove_move.js`, focused RNG and scan tests |
 | A4 — wake and post-move notices | done at `d327351` | Await visible wake messages before state/action progress. Port source-ordered `notice_mon()` state and messages, including dry-plan state without output. | `js/mon.js`, `js/startup_a11y.js`, thin movement wiring, and corresponding focused monster tests |
-| A5 — pet result contract | pending | Document the upstream `dog_move()` quirk where a completed opportunity may return `MMOVE_MOVED` without coordinate change, and pin the downstream `postmov()` behavior. | `js/dogmove.js`, corresponding focused pet test |
+| A5 — pet result contract | done at `c6de861` | Document the upstream `dog_move()` quirk where a completed opportunity may return `MMOVE_MOVED` without coordinate change, and pin the downstream `postmov()` behavior. | `js/dogmove.js`, corresponding focused pet test |
 | A6 — replay ownership | pending | Make replay step 2 explicitly return no events and test both the removed-row and fallback boundaries. | `js/fastforward.js`, `scripts/fastforward.test.mjs` |
 | A7 — complete integration oracle | pending | Compare complete normalized retry state and retained output, then run every checked-in no-pet/pet/fast-hero and command-order case under `npm test`. Keep the runner, fixture, and integration test together if any of the three changes. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
 
@@ -202,16 +202,19 @@ not change the active scope or count as live simple-turn closure.
 
 ## Validation
 
-- Commit checked: `d3273515`.
-- Source review: A1 through A4 were checked against `hack.c:domove()`,
+- Commit checked: `c6de861d`.
+- Source review: A1 through A5 were checked against `hack.c:domove()`,
   `mon.c:movemon_singlemon()`, `monmove.c:m_move()`, and `rnd.c`. The review
   covered destination admission, item-search and displacement selection,
   parked-guard order, wrapper return values, PRNG order, and fail-closed scan
   state, plus `mon.c:wake_msg()`, `hack.c:notice_mon()`, and source-ordered
-  `postmov()` behavior. A5 through A7 remain open below.
-- Focused tests: the A4 checkpoint passed 138 focused wake, notice, movement,
-  and whole-scan tests.
-- Full suite: `npm test` passed 1,564 tests.
+  `postmov()` behavior, including an unchanged pet result reported as moved.
+  A6 and A7 remain open below.
+- Focused tests: the A5 checkpoint passed 30 focused pet movement and
+  downstream `postmov()` tests.
+- Full suite: the compact full rerun passed 1,565 tests. The one recording
+  signal-harness timing failure from the preceding run passed both in
+  isolation and in the full rerun.
 - Generated-file checks: `check:monsters`, `check:objects`, `check:symbols`,
   and `check:themerooms` all passed.
 - Fresh differentials: a four-case `spot_monsters` batch passed with no
@@ -225,7 +228,7 @@ not change the active scope or count as live simple-turn closure.
   their supported prefix.
 - Quality check: `npm run quality` reports the correctness gate due. The
   checklist remains incomplete, so the audit-readiness rule keeps the slice in
-  Implementation mode for A5 through A7 before the next formal review.
+  Implementation mode for A6 and A7 before the next formal review.
 - Browser check: not required because no browser renderer, DOM, input,
   storage, or browser-only presentation contract changed.
 - Holdout: not accessed.
@@ -234,7 +237,7 @@ not change the active scope or count as live simple-turn closure.
 
 Current mode: Implementation
 
-Reason: A1 through A4 are committed, but A5 through A7 remain incomplete.
+Reason: A1 through A5 are committed, but A6 and A7 remain incomplete.
 Formal review waits until those known gaps and their validation evidence are
 complete.
 

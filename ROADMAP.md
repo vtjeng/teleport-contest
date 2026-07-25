@@ -33,9 +33,10 @@ The review confirmed seven production gaps and six test gaps in the active
 checkpoint. Hero destination admission and monster goal/selection fixes are
 committed at `dad2732` and `11a724d`; elapsed preflight and shared-RNG fixes
 are committed at `3104b21`; wake and post-move notice behavior is committed at
-`d327351`. The checklist still has known pet-result, replay, and
-integration-oracle gaps, so work remains in Implementation mode. The next
-source-owned checkpoint is the starting-pet result contract.
+`d327351`. The checklist still has known replay and integration-oracle gaps,
+so work remains in Implementation mode. The next source-owned checkpoint is
+replay step ownership. The starting-pet result contract is committed at
+`c6de861`.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
