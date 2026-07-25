@@ -57,7 +57,8 @@ When a fresh differential fails:
 
 ## Score evidence
 
-End each completed implementation chunk with an estimate formatted:
+Continue to calculate and report an estimate for each completed implementation
+chunk, formatted:
 
 `<shown> shown + <hidden> hidden = <total> total`
 
@@ -65,9 +66,32 @@ Use current published aggregates when available. Otherwise estimate from
 development and fresh-differential evidence and state the uncertainty. Never
 run the sealed holdout merely to produce an estimate.
 
-After committing a completed implementation chunk, add its exact code commit
-SHA, estimate, evidence, and uncertainty to `SCORE.md`. Tracker-only commits do
-not need their own score entry.
+Collect routine chunk evidence without appending a `SCORE.md` row. Preserve one
+evidence snapshot when:
+
+- a live behavior slice closes;
+- a frozen review window completes its required review, fixes, and validation;
+- the estimate changes; or
+- a result is published.
+
+Each snapshot records the exact integrated code state at one full commit SHA,
+estimate, evidence, and uncertainty. Formal review ranges remain in
+`QUALITY.json` and retained pass reports. Combine coincident triggers into one
+row per SHA.
+
+One optional row may be a mutable `current candidate` for an open slice or
+review window after a selected handoff checkpoint has complete validation.
+Replace it only after a later selected handoff is validated; do not update it
+merely because the code head advanced. If that same SHA later meets a permanent
+snapshot trigger, relabel the row with that trigger. Otherwise delete the
+candidate when a later permanent snapshot supersedes it. Evidence-only commits
+do not receive snapshots.
+
+Recorded correctness and simplification frontiers and metrics remain in
+`QUALITY.json`; complete reports not yet represented there remain with their
+related durable review evidence. Required clarity and copyedit reports remain
+with their related durable review or publication evidence. A score snapshot
+may reference these sources but does not replace them.
 
 Prefer source-faithful subsystem improvements to isolated score gains. If an
 authorized aggregate holdout evaluation shows that development results did not

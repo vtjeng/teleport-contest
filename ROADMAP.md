@@ -33,10 +33,10 @@ The review confirmed seven production gaps and six test gaps in the active
 checkpoint. Hero destination admission and monster goal/selection fixes are
 committed at `dad2732` and `11a724d`; elapsed preflight and shared-RNG fixes
 are committed at `3104b21`; wake and post-move notice behavior is committed at
-`d327351`. The checklist still has known replay and integration-oracle gaps,
-so work remains in Implementation mode. The next source-owned checkpoint is
-replay step ownership. The starting-pet result contract is committed at
-`c6de861`.
+`d327351`; the starting-pet result contract is committed at `c6de861`; and
+replay step ownership is committed at `604caa2`. The checklist still has a
+known integration-oracle gap, so work remains in Implementation mode. The
+next source-owned checkpoint is the complete retry and strict matrix oracle.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
@@ -129,5 +129,6 @@ After the current milestone, proceed in this order:
    endgame branches, and remaining valid commands and options.
 
 Update statuses and unresolved ordering here when a milestone closes or source
-tracing materially changes dependencies. Keep completed validation detail in
-`SCORE.md` and the quality ledger rather than duplicating it here.
+tracing materially changes dependencies. Keep completed boundary and score
+snapshots in `SCORE.md`; keep formal-pass metadata and review frontiers in
+`QUALITY.json` and the retained pass reports.

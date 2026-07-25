@@ -7,6 +7,25 @@ or when running or recording a formal pass.
 
 ## Terms
 
+A **coherent implementation chunk** is one reviewable production change with
+its focused tests. A chunk may be one of several commits inside a behavior
+slice.
+
+A **behavior slice** is a live source-to-observable boundary. It closes only
+when its real consumer runs and a fresh end-to-end differential verifies the
+boundary.
+
+A **review window** is the bounded group of related implementation chunks
+covered by one scheduled correctness review. A review window completes when
+that review, its required fixes, and the required post-fix validation are
+finished.
+
+An **evidence snapshot** is one `SCORE.md` row for the exact integrated code
+state at a full commit SHA. Preserve a snapshot when a behavior slice or review
+window completes, the score changes, or a result is published. Formal review
+ranges remain in the quality ledger and retained pass reports. Routine chunks
+collect the same validation evidence without publishing another row.
+
 A **check** is routine diff inspection, testing, source comparison, or
 `npm run quality`.
 
@@ -37,7 +56,9 @@ For every coherent implementation chunk:
    ownership, persistence, input boundaries, and rendering. Small mechanical
    or test-only changes may rely on immediate diff inspection and tests, but
    include them in the next scheduled correctness pass.
-5. Add the exact code commit and score estimate to `SCORE.md`.
+5. Collect score and validation evidence for the current behavior slice or
+   review window. Publish it as specified in `.agents/validation.md`; do not
+   add a routine per-chunk `SCORE.md` row.
 
 A final integration runner, fixture, or test may remain uncommitted while it is
 changing. Commit completed production behavior and focused tests earlier; then
@@ -95,9 +116,9 @@ committed range and include this readiness note:
   the boundary. Any reachable excluded branch must stop before changing state,
   consuming randomness, or producing output.
 - **Checks:** Confirm that focused tests, the full test suite, relevant
-  generated checks, and `npm run quality` pass for the exact head. There must
-  be no unassigned `js/` files or non-exempt review debt at a batching
-  threshold outside the frozen range.
+  generated checks, and `npm run quality -- --check` pass for the exact head.
+  There must be no unassigned `js/` files or non-exempt review debt at a
+  batching threshold outside the frozen range.
 
 The checklist supports this note; it does not replace tests, differentials,
 source review, generated checks, quality checks, or audits. If the note or
@@ -114,9 +135,11 @@ Generated outputs declared in `QUALITY.json` do not count toward changed-line
 thresholds. Their generators do count, and a commit touching a generator or
 output counts toward the commit threshold unless it is a linked audit-fix
 commit. Each declaration names the generator and regeneration check; reviews
-cover both. A ledger-only commit changes only correctness or simplification
-records and no area-owned path. It does not count toward path-scoped commit
-totals.
+cover both. An **evidence-only commit** changes only `SCORE.md`, correctness or
+simplification records, or their supporting documentation, and no area-owned
+path. A **quality-ledger-only commit** is the correctness or simplification
+subtype. Evidence-only commits do not count toward path-scoped commit totals
+and do not receive their own evidence snapshots.
 
 ### Correctness thresholds
 
@@ -272,6 +295,8 @@ state. Simplification must preserve PRNG and evaluation order.
 
 ## Recording formal passes
 
+- A `SCORE.md` evidence snapshot may reference these records and retained
+  reports, but it does not replace them or advance a review frontier.
 - Record correctness with `npm run quality -- record-review ...`.
 - Record simplification with
   `npm run quality -- record-simplification ...`.

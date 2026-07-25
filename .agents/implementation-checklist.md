@@ -61,7 +61,7 @@ validated.
 | 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | done | Live dog action state test and strict pet matrix. |
 | 16 | `allmain.c` new-turn allocation and upkeep | Run monster distress, movement allocation, possible random generation, hero movement allocation, track update, turn counters, timeouts, regions, sounds, hunger, engraving wear, and the already-owned first-turn upkeep sequence. | Existing source owners, coordinated by `js/allmain.js` | done | Command allocation/upkeep tests and fast-hero differential. |
 | 17 | `allmain.c` once-per-hero-action effects | Advance `hero_seq`, refresh encumbrance/display state, and run the already-owned post-action visibility work. | Existing source owners, coordinated by `js/allmain.js` | done | Direct `hero_seq`/hunger tests and all strict cases. |
-| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | audit gap | Make replay step 2 explicitly unowned and run all 11 checked-in cases in the normal suite with a complete retry snapshot. |
+| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | missing | Replay step 2 is explicitly unowned at `604caa2`; run all 11 checked-in cases in the normal suite with a complete retry snapshot. |
 
 ### Inventory count and readiness
 
@@ -69,8 +69,8 @@ validated.
 - Closure verdict: **implementation in progress**. The first full correctness
   pass confirmed gaps in families 3, 5, 8, 10, 11, and 18. Families 3 and 10
   are fixed at `dad2732` and `11a724d`, and family 5 plus family 11 atomicity
-  coverage are fixed at `3104b21`. Families 8 and 11 are fixed at `d327351`;
-  family 18 and the separate pet-result contract remain open.
+  coverage are fixed at `3104b21`. Families 8 and 11 are fixed at `d327351`,
+  and the pet-result contract is fixed at `c6de861`. Family 18 remains open.
 
 ## Correctness-audit return to implementation
 
@@ -78,8 +78,8 @@ The full audit of
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`
 produced 23 raw candidates, 20 after same-site deduplication, 14 confirmed,
 six rejected, and none unverified. The confirmed set contains seven production
-defects, six test defects, and one maintenance-contract defect. A1 through A5
-are committed and A6 is the next source-owned checkpoint. The current
+defects, six test defects, and one maintenance-contract defect. A1 through A6
+are committed and A7 is the next source-owned checkpoint. The current
 audit-readiness rules keep this slice in Implementation mode until the
 remaining source families and validation evidence are complete.
 
@@ -93,7 +93,7 @@ tests with the upstream owner and stays below the review-size limit.
 | A3 — elapsed preflight and RNG | done at `3104b21` | Check eligible parked guards before on-map/ration early returns. Share or exactly align live and cloned RNG wrapper edge behavior. Expand whole-scan selected-action atomicity coverage. | `js/rng.js`, `js/monmove_simple.js`, `js/monmove_move.js`, focused RNG and scan tests |
 | A4 — wake and post-move notices | done at `d327351` | Await visible wake messages before state/action progress. Port source-ordered `notice_mon()` state and messages, including dry-plan state without output. | `js/mon.js`, `js/startup_a11y.js`, thin movement wiring, and corresponding focused monster tests |
 | A5 — pet result contract | done at `c6de861` | Document the upstream `dog_move()` quirk where a completed opportunity may return `MMOVE_MOVED` without coordinate change, and pin the downstream `postmov()` behavior. | `js/dogmove.js`, corresponding focused pet test |
-| A6 — replay ownership | pending | Make replay step 2 explicitly return no events and test both the removed-row and fallback boundaries. | `js/fastforward.js`, `scripts/fastforward.test.mjs` |
+| A6 — replay ownership | done at `604caa2` | Make replay step 2 explicitly return no events and test both the removed-row and fallback boundaries. | `js/fastforward.js`, `scripts/fastforward.test.mjs` |
 | A7 — complete integration oracle | pending | Compare complete normalized retry state and retained output, then run every checked-in no-pet/pet/fast-hero and command-order case under `npm test`. Keep the runner, fixture, and integration test together if any of the three changes. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
 
 After A1 through A7, rerun focused tests, the full suite, all generated checks,
@@ -200,7 +200,7 @@ The completed artifact, generated monster-data, relocation, tracking, object,
 pet-food, trap-effect, and other prerequisite commits remain valid. They do
 not change the active scope or count as live simple-turn closure.
 
-## Validation
+## Validation snapshot at `c6de861d`
 
 - Commit checked: `c6de861d`.
 - Source review: A1 through A5 were checked against `hack.c:domove()`,
@@ -237,9 +237,8 @@ not change the active scope or count as live simple-turn closure.
 
 Current mode: Implementation
 
-Reason: A1 through A5 are committed, but A6 and A7 remain incomplete.
-Formal review waits until those known gaps and their validation evidence are
-complete.
+Reason: A1 through A6 are committed, but A7 remains incomplete. Formal review
+waits until that integration evidence is complete.
 
 ## Completed commit gates
 
@@ -252,9 +251,11 @@ Each implementation checkpoint followed these gates:
 3. Run strict fresh comparisons from a checked-in case list with
    `scripts/scan-fresh.mjs`. Use the temporary scanner only for discovery and
    group its complete range by unsupported reason.
-4. Record the required development score and quality evidence from
+4. Collect the required development score and quality evidence from
    `.agents/validation.md` and `.agents/quality-workflow.md`.
-5. Commit tracker-only evidence separately from implementation when required.
+5. Publish one `SCORE.md` snapshot when the live slice or review window
+   completes. Commit evidence-only changes separately when required, without
+   creating another snapshot for that commit.
 
 At C4, the focused integration tests, full test suite, generated-data checks,
 development score, and fresh comparisons passed at the committed integration
