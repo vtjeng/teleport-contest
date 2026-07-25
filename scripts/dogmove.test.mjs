@@ -28,6 +28,7 @@ import {
     dog_goal,
     dog_move,
     droppables,
+    find_targ,
 } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
 import { initrack, settrack } from '../js/track.js';
@@ -161,6 +162,57 @@ function fixedCandidates(candidates) {
         return candidates.length;
     };
 }
+
+test('find_targ preserves hero, visibility, and worm-head boundaries', () => {
+    const { monster, state } = petState();
+    // These central room coordinates leave the complete seven-square source
+    // ray in bounds while making each target distance explicit.
+    monster.mx = 5;
+    monster.my = 5;
+    monster.mux = 7;
+    monster.muy = 5;
+    state.youmonst = { kind: 'remembered hero' };
+    const distant = { minvis: false, mundetected: false, mx: 8, my: 5 };
+    const monsterAt = (x, y) => x === 8 && y === 5 ? distant : null;
+    const visible = () => true;
+
+    assert.equal(find_targ(monster, 1, 0, 7, {
+        state,
+        monsterAt,
+        monsterCanSee: visible,
+    }), state.youmonst);
+
+    monster.mux = 12;
+    const invisible = {
+        minvis: true,
+        mundetected: false,
+        mx: 6,
+        my: 5,
+    };
+    const worm = {
+        minvis: false,
+        mundetected: false,
+        mx: 8,
+        my: 5,
+    };
+    assert.equal(find_targ(monster, 1, 0, 7, {
+        state,
+        monsterAt(x, y) {
+            if (x === 6 && y === 5) return invisible;
+            // The same long-worm object occupies a tail alias at distance
+            // two and its real head at distance three.
+            if ((x === 7 || x === 8) && y === 5) return worm;
+            return null;
+        },
+        monsterCanSee: visible,
+    }), worm);
+
+    assert.equal(find_targ(monster, 1, 0, 7, {
+        state,
+        monsterAt: () => assert.fail('blocked sight ends the ray'),
+        monsterCanSee: () => false,
+    }), null);
+});
 
 test('could_reach_item preserves water, lava, and boulder gates', () => {
     const { state, monster } = petState();

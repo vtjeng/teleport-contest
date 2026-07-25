@@ -630,3 +630,27 @@ test('simple preflight rejects a selected trap without live mutation',
 
         assert.deepEqual(preflightSnapshot(), before);
     });
+
+test('simple preflight stops before unowned pet target scoring', async () => {
+    const replay = await runSegment({
+        // This fresh-derived Knight layout lines the pony up with a distant
+        // monster after one clear diagonal walk.
+        seed: 2026072220,
+        datetime: DATETIME,
+        nethackrc: 'OPTIONS=name:PonyWalkWait,role:Knight,race:human,'
+            + 'gender:male,align:lawful,!legacy,!tutorial,!splash_screen',
+        moves: ' u.',
+    });
+    assert.equal(game.context.startingpet_typ, PM_PONY);
+    assert.equal(game.moves, 2);
+    const before = completePreflightSnapshot(replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'pet ranged targeting',
+        );
+        assert.deepEqual(completePreflightSnapshot(replay), before);
+    }
+});

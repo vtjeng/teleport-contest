@@ -22,6 +22,7 @@ import { newsym } from './display.js';
 import {
     dog_move,
     droppables,
+    find_targ,
 } from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
@@ -354,6 +355,21 @@ async function moveSimpleOrdinary(monster, env) {
     });
 }
 
+function rejectPetRangedTarget(monster, _forced, env) {
+    if (!monster.mcansee) return MMOVE_NOTHING;
+    for (let dy = -1; dy <= 1; ++dy) {
+        for (let dx = -1; dx <= 1; ++dx) {
+            if (!dx && !dy) continue;
+            const target = find_targ(monster, dx, dy, 7, env);
+            // score_targ() rejects the remembered hero before its random
+            // fuzz. Any monster target enters the unowned scoring branch.
+            if (target && target !== env.state.youmonst)
+                unsupported('pet ranged targeting');
+        }
+    }
+    return MMOVE_NOTHING;
+}
+
 async function moveSimplePet(monster, after, env) {
     return dog_move(monster, after, {
         ...env,
@@ -372,7 +388,7 @@ async function moveSimplePet(monster, after, env) {
         maxPassiveDamage: () => unsupported('pet combat evaluation'),
         mayCrossRegion: assertSimpleDestination,
         monsterReflects: () => unsupported('pet combat evaluation'),
-        petRangedAttack: () => MMOVE_NOTHING,
+        petRangedAttack: rejectPetRangedTarget,
         pickObject: () => unsupported('pet object pickup'),
         reportCursedStep: () => unsupported('pet cursed-object feedback'),
         resistsStone: () => unsupported('pet combat evaluation'),

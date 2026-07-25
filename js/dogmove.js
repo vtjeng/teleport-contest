@@ -28,7 +28,11 @@ import {
 } from './dogmove_goal.js';
 import { dog_invent } from './dogmove_inventory.js';
 import { game } from './gstate.js';
-import { dist2, distmin } from './hacklib.js';
+import {
+    dist2,
+    distmin,
+    isok,
+} from './hacklib.js';
 import { can_carry } from './moncarry.js';
 import {
     haseyes,
@@ -56,6 +60,7 @@ import {
     should_displace,
     undesirable_disp,
 } from './monmove.js';
+import { clear_path } from './vision.js';
 
 export {
     can_reach_location,
@@ -66,6 +71,42 @@ export {
 } from './dogmove_goal.js';
 export { dog_hunger } from './dogmove_hunger.js';
 export { dog_invent } from './dogmove_inventory.js';
+
+// C ref: dogmove.c find_targ(). Walk one of best_target()'s eight rays,
+// skipping unseen occupants and long-worm tail aliases.
+export function find_targ(
+    monster,
+    dx,
+    dy,
+    maxDistance,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const monsterAt = rawEnv.monsterAt
+        ?? ((x, y) => m_at(x, y, state));
+    const monsterCanSee = rawEnv.monsterCanSee
+        ?? ((subject, x, y) => clear_path(subject.mx, subject.my, x, y));
+    let x = monster.mx;
+    let y = monster.my;
+    for (let distance = 0; distance < maxDistance; ++distance) {
+        x += dx;
+        y += dy;
+        if (!isok(x, y) || !monsterCanSee(monster, x, y, rawEnv))
+            break;
+        if (x === monster.mux && y === monster.muy)
+            return state.youmonst;
+
+        const target = monsterAt(x, y, rawEnv);
+        if (target
+            && (!target.minvis || perceives(monster.data))
+            && !target.mundetected
+            && target.mx === x
+            && target.my === y) {
+            return target;
+        }
+    }
+    return null;
+}
 
 function petMoveOperation(rawEnv, name) {
     const operation = rawEnv[name];
