@@ -21,6 +21,8 @@ import {
     induced_align,
     init_dungeons,
     ledger_no,
+    ledger_to_dlev,
+    ledger_to_dnum,
     level_range,
     maxledgerno,
     on_level,
@@ -95,6 +97,32 @@ test('on_level is null-safe raw dungeon coordinate equality', () => {
     assert.equal(on_level({ dnum: 2, dlevel: 3 }, undefined), false);
     // Lassigned semantics belong to callers; raw zero coordinates are equal.
     assert.equal(on_level({ dnum: 0, dlevel: 0 }, { dnum: 0, dlevel: 0 }), true);
+});
+
+test('ledger mapping preserves every dungeon boundary and rejects gaps', () => {
+    const state = {
+        dungeons: [
+            { ledger_start: 0, num_dunlevs: 3 },
+            { ledger_start: 3, num_dunlevs: 2 },
+            { ledger_start: 5, num_dunlevs: 1 },
+        ],
+    };
+    for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {
+        const dungeon = state.dungeons[dnum];
+        for (let dlevel = 1; dlevel <= dungeon.num_dunlevs; ++dlevel) {
+            const ledger = ledger_no({ dnum, dlevel }, state);
+            assert.equal(ledger_to_dnum(ledger, state), dnum);
+            assert.equal(ledger_to_dlev(ledger, state), dlevel);
+        }
+    }
+    assert.throws(
+        () => ledger_to_dnum(0, state),
+        /ledger_to_dnum\(0\)/u,
+    );
+    assert.throws(
+        () => ledger_to_dlev(7, state),
+        /ledger_to_dnum\(7\)/u,
+    );
 });
 
 test('update_lastseentyp remembers a raised drawbridge underlay', () => {

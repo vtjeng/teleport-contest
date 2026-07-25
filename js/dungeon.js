@@ -547,6 +547,26 @@ export function ledger_no(level, state = game) {
     return level.dlevel + state.dungeons[level.dnum].ledger_start;
 }
 
+// C refs: dungeon.c ledger_to_dnum() and ledger_to_dlev().
+export function ledger_to_dnum(ledgerNumber, state = game) {
+    const ledger = Math.trunc(ledgerNumber);
+    for (let dnum = 0; dnum < state.dungeons.length; ++dnum) {
+        const dungeon = state.dungeons[dnum];
+        if (dungeon.ledger_start < ledger
+            && ledger <= dungeon.ledger_start + dungeon.num_dunlevs) {
+            return dnum;
+        }
+    }
+    throw new RangeError(
+        `level number out of range [ledger_to_dnum(${ledger})]`,
+    );
+}
+
+export function ledger_to_dlev(ledgerNumber, state = game) {
+    const dnum = ledger_to_dnum(ledgerNumber, state);
+    return Math.trunc(ledgerNumber) - state.dungeons[dnum].ledger_start;
+}
+
 export function maxledgerno(state = game) {
     const last = state.dungeons[state.n_dgns - 1];
     return last.ledger_start + last.num_dunlevs;
