@@ -31,11 +31,16 @@ import {
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import {
+    candle_light_range,
     del_light_source,
     light_globals_init,
     new_light_source,
 } from '../js/light.js';
-import { BOULDER, TALLOW_CANDLE } from '../js/objects.js';
+import {
+    BOULDER,
+    CANDELABRUM_OF_INVOCATION,
+    TALLOW_CANDLE,
+} from '../js/objects.js';
 import {
     add_rect_to_reg,
     add_region,
@@ -99,6 +104,23 @@ function floorCandle(state, x, y) {
     assert.equal(state.gl.light_base.type, LS_OBJECT);
     return candle;
 }
+
+test('the candelabrum uses its source candle-count light bands', () => {
+    const cases = [
+        // One through three candles use the minimum range.
+        [1, 2], [3, 2],
+        // Four through six candles match a normal lamp.
+        [4, 3], [6, 3],
+        // The complete seven-candle candelabrum is brighter.
+        [7, 4],
+    ];
+    for (const [spe, expected] of cases) {
+        assert.equal(candle_light_range({
+            otyp: CANDELABRUM_OF_INVOCATION,
+            spe,
+        }), expected);
+    }
+});
 
 test('vision_recalc marks the hero square seen from every direction', () => {
     const state = darkRoomState();

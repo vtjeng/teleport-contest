@@ -170,9 +170,19 @@ export function get_obj_location(obj, locflags = 0, state = game) {
     }
 }
 
-// light.c:candle_light_range(), restricted to ordinary candle stacks. Radius
-// increases when radius squared is no longer greater than the stack size.
+// C ref: light.c candle_light_range(). Ordinary candle stacks grow at square
+// thresholds; the invocation candelabrum uses its source-specific 1..7-candle
+// bands.
 export function candle_light_range(obj) {
+    if (obj?.otyp === CANDELABRUM_OF_INVOCATION) {
+        const candles = Math.trunc(obj.spe);
+        if (candles < 1 || candles > 7) {
+            throw new RangeError(
+                `candle_light_range: invalid candelabrum count ${obj.spe}`,
+            );
+        }
+        return candles < 4 ? 2 : candles < 7 ? 3 : 4;
+    }
     if (obj?.otyp !== TALLOW_CANDLE && obj?.otyp !== WAX_CANDLE)
         throw new UnsupportedLightOperationError('candle_light_range object type');
     const quantity = Math.trunc(obj.quan);
