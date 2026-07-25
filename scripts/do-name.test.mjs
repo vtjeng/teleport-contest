@@ -3,14 +3,20 @@ import test from 'node:test';
 
 import {
     bogusmon,
+    capitalizedAlwaysVisibleMonsterName,
+    capitalizedMonsterName,
     christen_monst,
     lookup_novel,
+    monsterCommonName,
+    monsterPossessive,
     noveltitle,
     rndmonnam,
     SIR_TERRY_NOVELS,
 } from '../js/do_name.js';
 import {
+    BLINDED,
     MD_PAD_BOGONS,
+    W_SADDLE,
 } from '../js/const.js';
 import {
     G_NOGEN,
@@ -37,6 +43,45 @@ function titleDraw(result) {
         get draws() { return draws; },
     };
 }
+
+test('ordinary monster names preserve article, saddle, pet, and possessive rules',
+    () => {
+        const state = {
+            u: {
+                uprops: [],
+                uroleplay: { blind: false },
+            },
+        };
+        const monster = {
+            data: { pmnames: ['pony'] },
+            mextra: {},
+            misc_worn_check: W_SADDLE,
+            mtame: 10, // A positive tame value selects ARTICLE_YOUR.
+        };
+
+        assert.equal(monsterCommonName(monster, state), 'the saddled pony');
+        assert.equal(
+            capitalizedMonsterName(monster, state),
+            'The saddled pony',
+        );
+        assert.equal(
+            capitalizedAlwaysVisibleMonsterName(monster, state),
+            'Your saddled pony',
+        );
+        assert.equal(
+            monsterPossessive(monster, state, true),
+            "The saddled pony's",
+        );
+
+        state.u.uprops[BLINDED] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        assert.equal(monsterCommonName(monster, state), 'the pony');
+        monster.mextra.mgivenname = 'Horses';
+        assert.equal(monsterPossessive(monster, state), "Horses'");
+    });
 
 test('the source novel catalog has all 41 titles in stable order', () => {
     assert.equal(SIR_TERRY_NOVELS.length, 41);

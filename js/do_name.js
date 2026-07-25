@@ -4,11 +4,13 @@
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
+    BLINDED,
     BOGUSMONFILE,
     HALLUC,
     HALLUC_RES,
     MD_PAD_BOGONS,
     PL_PSIZ,
+    W_SADDLE,
 } from './const.js';
 import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
@@ -81,6 +83,61 @@ export function christen_monst(monster, name, env = {}) {
     );
     if (monster.mleashed) updateInventory(env);
     return monster;
+}
+
+function namingPropertyActive(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic)
+        && !value?.blocked;
+}
+
+// C ref: do_name.c mon_nam() and x_monnam(), early ordinary-monster subset.
+// A given name suppresses the article. An unnamed visible monster retains the
+// saddle adjective unless blindness or hallucination prevents recognition.
+export function monsterCommonName(monster, state = game) {
+    const speciesName = monster.data?.pmnames?.[2]
+        ?? monster.data?.pmnames?.find(Boolean)
+        ?? 'monster';
+    const givenName = monster.mextra?.mgivenname
+        || monster.mgivenname
+        || monster.name;
+    if (givenName) return givenName;
+    const blind = namingPropertyActive(state, BLINDED)
+        || Boolean(state.u?.uroleplay?.blind);
+    const hallucinating = namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES);
+    const saddled = !blind && !hallucinating
+        && Boolean(monster.misc_worn_check & W_SADDLE);
+    return `the ${saddled ? 'saddled ' : ''}${speciesName}`;
+}
+
+export function capitalizedMonsterName(monster, state = game) {
+    const name = monsterCommonName(monster, state);
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
+
+// C ref: do_name.c noit_Monnam(). ARTICLE_YOUR becomes "your" for an
+// unnamed tame monster and "the" otherwise; a given name has no article.
+export function capitalizedAlwaysVisibleMonsterName(
+    monster,
+    state = game,
+) {
+    let name = monsterCommonName(monster, state);
+    if (monster.mtame
+        && !monster.mextra?.mgivenname
+        && !monster.mgivenname
+        && !monster.name
+        && name.startsWith('the ')) {
+        name = `your ${name.slice(4)}`;
+    }
+    return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
+
+export function monsterPossessive(monster, state = game, capitalized = false) {
+    const name = capitalized
+        ? capitalizedMonsterName(monster, state)
+        : monsterCommonName(monster, state);
+    return `${name}${name.endsWith('s') ? "'" : "'s"}`;
 }
 
 export function rndghostname(env = {}) {

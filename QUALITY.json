@@ -75,7 +75,8 @@
         "js/u_init_inventory.js",
         "js/u_init_inventory_data.js",
         "js/u_init_inventory_use.js",
-        "js/worn.js"
+        "js/worn.js",
+        "js/zap_destroy_items.js"
       ],
       "generatedOutputs": [
         {
