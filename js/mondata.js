@@ -7,6 +7,7 @@ import {
     A_CHA,
     ALL_TRAPS,
     ACID_RES,
+    ANTIMAGIC,
     FEMALE,
     G_GENOD,
     MALE,
@@ -20,6 +21,7 @@ import {
     W_WEP,
 } from './const.js';
 import { effective_attribute } from './attrib.js';
+import { artifact_defends } from './artifacts.js';
 import { game } from './gstate.js';
 import * as M from './monsters.js';
 import { ALCHEMY_SMOCK } from './objects.js';
@@ -294,6 +296,28 @@ export function monster_resists_element(monster, property, state = game) {
                 damageType,
                 state,
             )) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// C ref: mondata.c resists_magm(), monster arm. General magic resistance
+// includes species attacks, gray-dragon ancestry, wielded artifact defense,
+// worn property grants, and carried artifact defense.
+export function resists_magm(monster, state = game) {
+    if (dmgtype(monster.data, M.AD_MAGM)
+        || monster.data?.pmidx === M.PM_BABY_GRAY_DRAGON
+        || dmgtype(monster.data, M.AD_RBRE)) {
+        return true;
+    }
+    if (artifact_defends(monster.mw, M.AD_MAGM, state)) return true;
+
+    const slotmask = W_ARMOR | W_ACCESSORY | W_WEP;
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (((obj.owornmask & slotmask)
+                && state.objects?.[obj.otyp]?.oc_oprop === ANTIMAGIC)
+            || artifact_defends(obj, M.AD_MAGM, state, true)) {
             return true;
         }
     }
