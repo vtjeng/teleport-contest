@@ -58,6 +58,7 @@
       "id": "objects",
       "label": "Objects and inventory",
       "paths": [
+        "js/apply_catch_lit.js",
         "js/artifacts.js",
         "js/corpstat.js",
         "js/do_name.js",
