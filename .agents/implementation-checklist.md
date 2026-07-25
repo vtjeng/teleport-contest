@@ -132,9 +132,9 @@ allowed labels.
 | 6 | Final display and next prompt | Every surviving path flushes messages, redraws, saves state, and requests the next command at the ending boundary. Passing cases match, but missing action families can alter the result. | `js/allmain.js`, renderer and persistence owners | partial | `undecided` | C17: verify complete screens, attributes, cursors, storage, and termination. |
 | 7 | `cmd.c:dowait()` | A wait command has no movement target and consumes time through the shared loop. Live first- and second-wait fresh cases reach the next prompt. | `js/cmd.js` | covered | `done` | C17: retain focused command tests and final exact differentials. |
 | 8 | `hack.c:domove()` prechecks and hero-position update | Every allowed move enters the movement command, checks the target, and updates hero position before spot effects. The clear-square subset is active but not source-closed. | `js/cmd.js`, `js/allmain.js` | partial | `undecided` | C16: port the coherent `domove()` path after prerequisites. |
-| 9 | Region entry, hero track, vision, and engraving smudge | A successful move can enter/leave regions, update `utrack`, recalculate vision, and smudge an engraving before elapsed monster work. Focused tracking exists; the live path is not closed. | `js/track.js`, `js/vision.js`, region and engraving owners | partial | `undecided` | C4 tracking, C15 vision, then C16 movement integration. |
+| 9 | Region entry, hero track, vision, and engraving smudge | A successful move can enter/leave regions, update `utrack`, recalculate vision, and smudge or read an engraving before elapsed monster work. Destination reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; track updates, smudging, and full region/vision ordering are not closed. | `js/track.js`, `js/vision.js`, region and engraving owners | partial | `undecided` | C4 tracking and committed read wiring, then finish C16 movement ordering and smudging. |
 | 10 | `hack.c:spoteffects()` terrain, rooms, and regions | An accessible destination can trigger terrain, room, and region effects before monsters move; sleeping gas can add elapsed turns. Scanner cases do not prove every variant. | `js/cmd.js`, region/terrain owners | partial | `undecided` | C16: trace and port non-trap spot effects, including extra-turn cases. |
-| 11 | Destination objects, pickup/description, and engraving reading | A destination can contain an object or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. The ordinary sighted single-object description and message-state branch is live at `a61681496d5712aa17ddee750d1a72a5275ab627`; piles, pickup, engraving, terrain modifiers, blindness, and special objects remain. | `js/invent.js`, `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | Continue C16 with source-owned pile, pickup, and engraving paths. |
+| 11 | Destination objects, pickup/description, and engraving reading | A destination can contain an object or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. The ordinary sighted single-object description is live at `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination engraving reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; piles, pickup, terrain modifiers, blindness, and special objects remain. | `js/invent.js`, `js/engrave.js`, `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | Continue C16 with source-owned pile, pickup, terrain, and blind-floor paths. |
 | 12 | `trap.c:dotrap()` hero trap effects | The accepted valid-input condition requires that entering the destination not activate `dotrap()`, so this family cannot run in this milestone. It remains required for the later hero-trap milestone. | Trap and hero-state owners not yet integrated | outside current milestone | `cannot-occur` | Retain the source inventory and schedule every reachable hero trap effect in the follow-up milestone. |
 | 13 | Hero teleport, statue animation, level transition, and termination | The accepted valid-input condition also excludes hero level transitions before the ending event. Hero trap relocation, statue animation, D:2 generation, and trap termination remain required follow-up work. | `js/teleport.js`, `js/monst.js`, turn/termination owners | outside current milestone | `cannot-occur` | Prove transition, termination, D:2 generation, and expanded attack catalogs in the follow-up milestone. |
 | 14 | `mon.c:movemon_singlemon()` dead/off-map/every-turn/ration gates | Each monster scan filters dead, migrating, or ineligible monsters and handles rationed movement before dispatch. Active cases exercise common gates only. | `js/allmain.js`, `js/monster_action.js` pending extraction | partial | `undecided` | Reuse the existing placement state, then C15 turn-loop dispatch. |
@@ -237,7 +237,9 @@ object, and combat module.
 16. **C16 — `hack.c:domove()` and `spoteffects()`.** Close the accepted
     milestone's non-trap spot effects here. The ordinary sighted
     `invent.c:look_here()` single-object branch is complete in
-    `a61681496d5712aa17ddee750d1a72a5275ab627`. The shared
+    `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination
+    `engrave.c:read_engr_at()` wiring is complete in
+    `c36479c5f51decaf0477a29ba0f6a7913661a027`. The shared
     `hack.c:disturb_buried_zombies()` prerequisite is complete in the
     worktree. Hero-triggered traps and hero level transitions remain separate
     named follow-up milestones.
@@ -451,7 +453,13 @@ its follow-up milestone.
   pass. A strict fresh first-move case enters a solitary object square and
   matches the complete C output. The fixed development set reaches 206
   screens while retaining 77,588 PRNG values and 243 cursors. Piles, pickup,
-  engraving, terrain, blindness, and special-object branches remain open.
+  terrain, blindness, and special-object branches remain open.
+- The C16 destination-engraving wiring is
+  `c36479c5f51decaf0477a29ba0f6a7913661a027`, containing only `js/cmd.js`.
+  Eleven focused engraving tests, the exact 1,395-test full suite, and all
+  four generated-data checks pass. An exact first-move engraving differential
+  and four live second-turn engraving cases pass. Development remains at
+  77,588 PRNG values, 206 screens, and 243 cursors.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   The worktree fix was then checked with `scripts/scan-fresh.mjs`: four strict
@@ -463,6 +471,10 @@ its follow-up milestone.
   command-family fallback was needed. It found both solitary-object and
   object-pile destinations for C16 grouping. This is discovery evidence, not
   a C/JavaScript parity claim.
+- Seeds 989000 through 991999 likewise completed all 3,000 discovery cases
+  without an unsupported error; two cases used command-family fallbacks. The
+  batch found eight engraving-entry cases and 117 object-entry cases for C16
+  grouping. This is discovery evidence, not a parity claim.
 
 ## Validation required at final integration
 
