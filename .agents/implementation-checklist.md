@@ -204,7 +204,9 @@ object, and combat module.
    decisions; eating and object mutations; active movement. Combat and trap
    effects remain calls to their upstream owners. The inventory-decision
    prerequisite is complete in
-   `8385846f3064fb3c6f5251e1493d1f914a7883d6`.
+   `8385846f3064fb3c6f5251e1493d1f914a7883d6`; the hunger-state
+   prerequisite is complete in
+   `a20cd18f4f243f41e7361709cb081ca38a36d3f1`.
 10. **C10 — `mhitm.c` in bounded commits:** attack iteration; damage/death and
     growth/corpses; passives/knockback/collision as line counts and source
     seams require.
@@ -331,6 +333,15 @@ its follow-up milestone.
   monster area is advisory at six commits and 942 lines. No fresh
   second-turn differential is claimed until later C9 commits connect
   `dog_invent()` to the live `dog_move()` path.
+- The C9 hunger-state prerequisite is committed as
+  `a20cd18f4f243f41e7361709cb081ca38a36d3f1` with exactly `QUALITY.json`,
+  `js/dogmove_hunger.js`, and `scripts/dogmove-hunger.test.mjs`. Six direct
+  hunger tests and 53 focused C9 tests pass; the exact staged full suite passes
+  1,374/1,374 and all six generated-data checks pass. The production diff is
+  49 changed lines. The quality gate is clear and the monster area is advisory
+  at seven commits and 974 committed lines. No fresh second-turn differential
+  is claimed until later C9 commits connect `dog_hunger()` to the live
+  `dog_move()` path.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
