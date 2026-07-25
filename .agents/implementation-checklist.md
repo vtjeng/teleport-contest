@@ -255,9 +255,10 @@ object, and combat module.
     `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination
     `engrave.c:read_engr_at()` wiring is complete in
     `c36479c5f51decaf0477a29ba0f6a7913661a027`. The shared
-    `hack.c:disturb_buried_zombies()` prerequisite is complete in the
-    worktree. Hero-triggered traps and hero level transitions remain explicit
-    future exploration checkpoints.
+    `hack.c:disturb_buried_zombies()` owner and heavy-tread `domove()` caller
+    are complete in `c92c073976f192285d649b1a979d54b6b9d238f8`.
+    Hero-triggered traps and hero level transitions remain explicit future
+    exploration checkpoints.
 17. **C17 — final integration:** live wiring and replay removal, plus
     `scripts/run-second-complete-turn.mjs` refactored to `runFreshMatrix()`,
     `scripts/fixtures/second-complete-turn.session.json`, and
@@ -436,10 +437,12 @@ its follow-up milestone.
   passes 5/5; relocation passes 2/2. The anti-magic live adapter now supplies
   its `mhitm.c` death owner, and random relocation permits ordinary carried
   inventory while retaining an explicit shop-state seam.
-- The worktree `hack.c:disturb_buried_zombies()` owner shortens only nearby
-  active zombification timers and is connected through `mon.c:wake_nearto()`
-  and the heavy-tread branch of `hack.c:domove()`. Its direct suite passes
-  3/3, including the weight, levitation, flight, and stealth gates.
+- The `hack.c:disturb_buried_zombies()` owner and its heavy-tread
+  `hack.c:domove()` caller are committed in
+  `c92c073976f192285d649b1a979d54b6b9d238f8`. The exact candidate passes 3/3
+  focused tests, the 1,398-test full suite, and all four generated-data
+  checks. The worktree `mon.c:wake_nearto()` consumer remains for its later
+  source-owned commit.
 - Strict fresh seed 980221 covers the live anti-magic adapter, seed 980409
   covers buried-zombie disturbance, and seed 981228 covers random relocation
   of a pony carrying its saddle; all three pass. The grouped discovery range
