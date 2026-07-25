@@ -155,9 +155,9 @@ allowed labels.
 | 29 | Pet movement, eating, dropping, and pickup execution | Once selected, a pet can move, eat, drop, or pick up, updating `edog`, floor objects, inventory, messages, and PRNG. Several exact cases match, including carried-gold drop; special floor/food effects remain. | `js/dogmove.js`, `js/dogfood.js`, `js/moncarry.js`, `js/obj.js` | partial | `undecided` | C5-C9, split so goals, inventory/eating, and active movement each stay under 500 production lines. |
 | 30 | `dog.c`, `mon.c`, and object lifecycle: food, nutrition, consumption, corpse, carry, artifact, ownership, naming | Pet and combat paths classify and consume food, apply corpse effects, carry/split/stack objects, check artifacts, and name output. Non-hero artifact touch is complete at `3d33c40c0862755a1a989223128b649704bd2d75`; the combined family is not. | `js/dogfood.js`, `js/moncarry.js`, `js/obj.js`, `js/objnam.js`, `js/artifacts.js` | partial | `undecided` | C5-C8, retaining C1 artifact evidence and adding live food/corpse cases. |
 | 31 | Monster trap immunity, avoidance, and routing | Species data and trap knowledge decide whether a monster avoids, resists, triggers, or escapes a trap while choosing/making a move. Several generated traps match, but all trap/species combinations are not closed. | `js/mondata.js`, future `trap.js`/`monmove.js` owners | partial | `undecided` | C2 predicates, then C13 routing and C14 consumer proof. |
-| 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. Projectile and holding owners are committed. Sleep and anti-magic have source-owned worktree modules and focused tests; rust and live-consumer closure remain. | `js/trap_monster_projectiles.js`, `js/trap_monster_holding.js`, `js/trap_monster_shared.js`; worktree `js/trap_monster_sleep.js` and `js/trap_monster_antimagic.js`; rust remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 status family, then commit and run grouped strict cases after the live C14 consumer is committed. |
+| 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. Projectile and holding owners are committed. Sleep and anti-magic have source-owned worktree modules, focused tests, and live owner wiring; `wake_nearto()` also reaches the worktree `hack.c` buried-zombie timer owner. Rust and full live-consumer closure remain. | `js/trap_monster_projectiles.js`, `js/trap_monster_holding.js`, `js/trap_monster_shared.js`; worktree `js/trap_monster_sleep.js`, `js/trap_monster_antimagic.js`, and `js/hack.js`; rust remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 status family, then commit and run grouped strict cases after the live C14 consumer is committed. |
 | 33 | Magic/fire/item damage and ignition trap effects | Magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. Seeds 962639 and 966115 match implemented subsets. | Future `trap.js` plus object/damage owners; temporary action code | partial | `undecided` | C5 object support, then C13 magic/fire/item-damage commit. |
-| 34 | Hole/trapdoor/teleport/migration, land mine, and rolling boulder | Monster traps can relocate or migrate a monster, consume one-shot traps, explode land mines, or launch boulders; D:2 expands reachability. Fixed/random teleport and stable-D:1 hole migration have a source-owned worktree module and focused tests. Steeds, leashes, the one-shot vault teleport, land mines, and rolling boulders remain. | `js/teleport.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine and rolling-boulder code remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 relocation family after C12 hurtling, then commit and run grouped strict cases through the C14 consumer. |
+| 34 | Hole/trapdoor/teleport/migration, land mine, and rolling boulder | Monster traps can relocate or migrate a monster, consume one-shot traps, explode land mines, or launch boulders; D:2 expands reachability. Fixed/random teleport and stable-D:1 hole migration have a source-owned worktree module and focused tests. Random relocation now permits source-inert ordinary carried inventory while failing closed on carried shop state. Steeds, leashes, the one-shot vault teleport, land mines, and rolling boulders remain. | `js/teleport.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine and rolling-boulder code remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 relocation family after C12 hurtling, then commit and run grouped strict cases through the C14 consumer. |
 | 35 | `mhitm.c` attack iteration, contact/ranged/special attacks, and passives | Pet/monster encounters iterate attack descriptors in source order and can invoke contact, ranged, special, and passive effects. Physical subsets have focused and fresh evidence. | `js/mhitm.js` | partial | `undecided` | C10: attack-loop commit followed by a passives/special-effects commit. |
 | 36 | `mhitm.c` damage, death, growth, corpse, knockback, collision, and retaliation | A hit can damage/kill either monster, grow the attacker, create a corpse, knock back/collide, or trigger retaliation. Strict visible/blind seed 962576 covers one-square hurtling; remaining branches are open. | `js/mhitm.js`, object/placement owners, future `dothrow.js` | partial | `undecided` | C10 damage/death and knockback commits, then C12 hurtling owner. |
 | 37 | `mhitu.c` apparent image, to-hit, weapons, special damage, and hero death | A nearby ordinary monster can attack the hero or displaced image and can end the run before the prompt. Seed 971455 covers one armed miss and a focused hit covers weapon-die ordering; many damage types and death still stop explicitly. | `js/mhitu.js`, `js/weapon.js`, hero/termination owners | confirmed gap | `missing` | C11 weapon helpers and `mhitu()` commit with damage-type and termination matrices. |
@@ -235,8 +235,10 @@ object, and combat module.
     `05c87bb0d718ee589a0c9ebe55f50e90fcb643c3`; second-turn dispatch and the
     remaining elapsed branches are still open.
 16. **C16 — `hack.c:domove()` and `spoteffects()`.** Close the accepted
-    milestone's non-trap spot effects here. Hero-triggered traps and hero level
-    transitions remain separate named follow-up milestones.
+    milestone's non-trap spot effects here. The shared
+    `hack.c:disturb_buried_zombies()` prerequisite is complete in the
+    worktree. Hero-triggered traps and hero level transitions remain separate
+    named follow-up milestones.
 17. **C17 — final integration:** live wiring and replay removal, plus
     `scripts/run-second-complete-turn.mjs` refactored to `runFreshMatrix()`,
     `scripts/fixtures/second-complete-turn.session.json`, and
@@ -410,12 +412,23 @@ its follow-up milestone.
   and the remaining elapsed-loop branches are still open.
 - The C13 worktree now separates sleep, anti-magic, and stable-D:1 relocation
   into `trap.c`-owned modules. The direct sleep suite passes 6/6; anti-magic
-  passes 5/5; relocation passes 2/2. After the relocation extraction the full
-  worktree suite passes 1,492/1,492 and all four declared generated-data checks
-  pass. Development remains at 205 screens and 243 cursors. These pieces are
-  not yet commits: rust and broader relocation siblings remain open, and the
-  affected world-effects area has reached its mandatory review threshold while
-  the milestone checklist still requires Implementation mode.
+  passes 5/5; relocation passes 2/2. The anti-magic live adapter now supplies
+  its `mhitm.c` death owner, and random relocation permits ordinary carried
+  inventory while retaining an explicit shop-state seam.
+- The worktree `hack.c:disturb_buried_zombies()` owner shortens only nearby
+  active zombification timers and is connected through
+  `mon.c:wake_nearto()`. Its direct suite passes 2/2.
+- Strict fresh seed 980221 covers the live anti-magic adapter, seed 980409
+  covers buried-zombie disturbance, and seed 981228 covers random relocation
+  of a pony carrying its saddle; all three pass. The grouped discovery range
+  980000 through 982999 passes all 3,000 cases after those fixes. The
+  consolidated focused checkpoint passes 60/60; the full worktree suite passes
+  1,504/1,504; and all four declared generated-data checks pass. Development
+  reaches 77,890 PRNG values, 213 screens, and 251 cursors.
+- These pieces are not yet commits: rust and broader relocation siblings
+  remain open, and the affected monsters and world-effects areas have reached
+  mandatory review thresholds while the milestone checklist still requires
+  Implementation mode.
 - The C14 worktree now separates ordinary `m_move()` into
   `js/monmove_move.js`, ordinary `dochug()` into `js/monmove_dochug.js`, and
   the starting-pet caller into `js/monmove_dochug_pet.js`. Their combined
