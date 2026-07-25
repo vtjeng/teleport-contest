@@ -170,7 +170,7 @@ branches and live consumers are closed.
 | 31 | Monster trap immunity, avoidance, and routing | Species data and trap knowledge decide whether a monster avoids, resists, triggers, or escapes a trap while choosing/making a move. The generic `trap.c:mintrap()` selector is committed at `1f386ff4704a56ae3605f44507f8bebb211e9380`; trap/species routing and the live movement consumer are not closed. | `js/mondata.js`, `js/trap_monster.js`, and planned `monmove.js` owners | partial | `undecided` | Finish C13 routing, then prove the C14 consumer with grouped strict cases. |
 | 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. All current source-owned effect modules and their prerequisites are committed, including `mon.c:wake_nearto()` through the buried-zombie timer owner. Rust is complete at `fbf62ff58f0ebdea714b8163b22e5f1e6d2a7976`; full live-consumer closure remains. | `js/trap_monster_projectiles.js`, `js/trap_monster_holding.js`, `js/trap_monster_shared.js`, `js/trap_monster_sleep.js`, `js/trap_monster_antimagic.js`, `js/trap_monster_rust.js`, `js/trap_erode_obj.js`, `js/apply_splash_lit.js`, `js/trap_water_damage.js`, `js/polyself.js`, `js/objnam.js`, `js/mon.js`, `js/hack.js`, `js/artifacts.js`, and `js/mondata.js` | source owner complete; live closure pending | `undecided` | Commit the C14 movement consumer, then run the grouped strict status-trap cases. |
 | 33 | Magic/fire/item damage and ignition trap effects | D:1 magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. The `trap.c`, `zap.c`, `apply.c`, naming, and generic selector owners are committed, and seeds 962639 and 966115 match the live worktree consumer. The movement consumer remains uncommitted. | `js/trap_monster.js`, `js/trap_monster_fire.js`, `js/zap_destroy_items.js`, `js/apply_catch_lit.js`, and `js/do_name.js` | source owner complete; live closure pending | `undecided` | Commit the C14 movement consumer, then retain the grouped magic/fire batch as closure evidence. |
-| 34 | Hole/trapdoor/teleport/migration and land mine | D:1 monster traps can relocate or migrate a monster or explode a themed-room land mine. The bounded random-relocation inventory prerequisite is committed at `f763cb458afc8bfe8b036cff9c10c8ffa0a12c88`, and inverse dungeon ledger mapping at `c4edad81ebd0ce87e6c75c539db9353b42d1f619`. Fixed teleport and stable-D:1 hole migration have focused worktree coverage, but their current combined module must be split into `teleport.c`, `dog.c`, and `trap.c` owners before commit. Land mines remain current. | `js/teleport.js`, `js/dungeon.js`, `js/dog.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine code remains temporary in `js/monster_action.js` | partial | `undecided` | Commit the `dog.c` migration owner, then the source-owned teleport prerequisite and thin C13 trap layer; finish land mines and prove the family through the C14 consumer with grouped strict cases. |
+| 34 | Hole/trapdoor/teleport/migration and land mine | D:1 monster traps can relocate or migrate a monster or explode a themed-room land mine. Random-relocation inventory, inverse dungeon ledgers, ordinary migration, and the reachable `teleport.c` trap helpers are committed. Their current combined trap module still needs extraction into a thin `trap.c` owner. Land mines remain current. | `js/teleport.js`, `js/dungeon.js`, `js/dog.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine code remains temporary in `js/monster_action.js` | partial | `undecided` | Commit the thin C13 trap layer, finish land mines, and prove the family through the C14 consumer with grouped strict cases. |
 | 35 | `mhitm.c` attack iteration, reachable contact/ranged/special attacks, and passives | Pet/monster encounters among the D:1 and starting-pet catalog iterate attack descriptors in source order and can invoke contact, ranged, special, and passive effects. Physical subsets have focused and fresh evidence. | `js/mhitm.js` | partial | `undecided` | C10: reachable attack-loop commit followed by its passives and special effects. |
 | 36 | `mhitm.c` damage, death, growth, corpse, knockback, collision, and retaliation | A reachable hit can damage or kill either monster, grow the attacker, create a corpse, knock back or collide, or trigger retaliation. Strict visible/blind seed 962576 covers one-square hurtling; remaining current-catalog branches are open. | `js/mhitm.js`, object/placement owners, future `dothrow.js` | partial | `undecided` | C10 reachable damage/death and knockback commits, then C12 hurtling owner. |
 | 37 | `mhitu.c` apparent image, to-hit, weapons, reachable special damage, and hero death | A nearby D:1 monster can attack the hero or displaced image and can end the run before the prompt. Seed 971455 covers one armed miss and a focused hit covers weapon-die ordering; reachable damage types and death still stop explicitly. | `js/mhitu.js`, `js/weapon.js`, hero/termination owners | confirmed gap | `missing` | C11 weapon helpers and reachable `mhitu()` damage-type and termination matrices. |
@@ -213,14 +213,15 @@ live movement integration:
    `scripts/dog-migrate.test.mjs`. Complete in
    `aaa9c542d58fcef483442d13facc6eb59afa45fe`.
 2. The reachable `teleport.c` monster teleport and level-teleport helpers with
-   their focused test.
+   their focused test. Complete in
+   `11107da9030c861d5952ad20a5980667418270b1`.
 3. The thin `trap.c` hole, trapdoor, and teleport effect layer, extracted from
    `js/trap_monster_relocation.js`, with its focused test.
 4. The reachable `trap.c` land-mine effect in its own module and focused test.
 5. The C14 `monmove.c` consumer, followed by grouped strict family-34 cases
    through `scripts/scan-fresh.mjs`.
 
-The current next commit is item 2. The combined relocation module and
+The current next commit is item 3. The combined relocation module and
 `monster_action.js` remain temporary sources for extraction, not commit
 targets.
 
@@ -306,7 +307,9 @@ targets.
     now the active C13 subseries listed above; land mines follow it. Connect
     these owners through the C14 movement consumer only after their isolated
     checkpoints pass. Its `dog.c` owner is complete at
-    `aaa9c542d58fcef483442d13facc6eb59afa45fe`.
+    `aaa9c542d58fcef483442d13facc6eb59afa45fe`, and its reachable
+    `teleport.c` helpers are complete at
+    `11107da9030c861d5952ad20a5980667418270b1`.
 14. **C14 — reachable `monmove.c` in source-owned groups:** pre-action phases;
     ordinary movement; current item/door choices; and `postmov()`. This
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior. The
@@ -406,7 +409,15 @@ its follow-up milestone.
   1,478-test full suite, and all four generated-data checks pass. The fixed
   development set remains at 77,588 PRNG values, 206 screens, and 243 cursors.
   Future lifecycle variants fail before mutation. The source-owned
-  `teleport.c` helper, thin `trap.c` effect layer, and C14 live movement
+  thin `trap.c` effect layer and C14 live movement consumer remain open, so no
+  fresh second-turn claim is made.
+- The bounded `teleport.c:mtele_trap()` and hole/trapdoor arm of
+  `mlevel_tele_trap()` are committed as
+  `11107da9030c861d5952ad20a5980667418270b1` with exactly `js/teleport.js`
+  and `scripts/teleport-monster-traps.test.mjs`. Twenty focused tests, the
+  exact isolated 1,482-test full suite, and all four generated-data checks
+  pass. The fixed development set remains at 77,588 PRNG values, 206 screens,
+  and 243 cursors. The thin `trap.c` effect layer and C14 live movement
   consumer remain open, so no fresh second-turn claim is made.
 - C4 is committed as `a93f4dd2f89f5b1405294886d967e42a1e68c0d0`
   with exactly `js/track.js` and `scripts/track.test.mjs`. Four focused tests,
@@ -689,11 +700,11 @@ its follow-up milestone.
   consolidated focused checkpoint passes 60/60; the full worktree suite passes
   1,504/1,504; and all four declared generated-data checks pass. Development
   reaches 77,890 PRNG values, 213 screens, and 251 cursors.
-- Stable-D:1 relocation's `dog.c` owner is committed; its `teleport.c` and
-  thin `trap.c` siblings plus land mines remain uncommitted. Rust is committed,
-  and the affected monsters and world-effects areas have reached mandatory
-  review thresholds while the milestone checklist still requires
-  Implementation mode.
+- Stable-D:1 relocation's `dog.c` and reachable `teleport.c` owners are
+  committed; its thin `trap.c` sibling plus land mines remain uncommitted.
+  Rust is committed, and the affected monsters and world-effects areas have
+  reached mandatory review thresholds while the milestone checklist still
+  requires Implementation mode.
 - The C14 worktree now separates ordinary `m_move()` into
   `js/monmove_move.js`, ordinary `dochug()` into `js/monmove_dochug.js`, and
   the starting-pet caller into `js/monmove_dochug_pet.js`. Their combined
