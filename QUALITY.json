@@ -152,6 +152,7 @@
       "id": "world-effects",
       "label": "Terrain, traps, vision, and effects",
       "paths": [
+        "js/apply_splash_lit.js",
         "js/bury.js",
         "js/detect.js",
         "js/engrave.js",
