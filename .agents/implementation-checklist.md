@@ -105,11 +105,11 @@ The source survey has 38 families:
 - 2 covered families, represented as checklist status `done`;
 - 27 partially implemented or partially proved families, represented as
   `undecided`;
-- 7 confirmed implementation gaps, represented as `missing`; and
+- 6 confirmed implementation gaps, represented as `missing`; and
 - 2 hero-trap follow-up families, represented as `cannot-occur` for this
   milestone.
 
-Thus the checklist-status totals are 2 `done`, 7 `missing`, 27 `undecided`,
+Thus the checklist-status totals are 2 `done`, 6 `missing`, 28 `undecided`,
 and 2 `cannot-occur`. No family is currently classified as `no-effect-yet` or
 `later`.
 
@@ -150,12 +150,12 @@ allowed labels.
 | 24 | Normal movement and `postmov()` doors, traps, objects, and hiding | Chosen movement updates position and track, then applies door, trap, object, hiding, redraw, and message effects in source order. Exact subsets match, not the complete family. | `js/monst.js`, `js/obj.js`, `js/monmove.js`; temporary action code | partial | `undecided` | Existing placement plus C5/C13 prerequisites, then C14 normal movement and `postmov()`. |
 | 25 | `dogmove.c` hunger and inventory | A starting pet can become hungry, carry objects, select droppables, drop, or starve before/after movement. Ordinary carry/drop cases match; thresholds and special inventory effects remain. | `js/dogmove.js`, `js/moncarry.js`, `js/dogfood.js` | partial | `undecided` | C7-C9: carrying, food, then dog inventory/eating subcommit. |
 | 26 | Pet goals and reachability | `dog_goal()` chooses hero, food, apport, and follow goals, subject to reachability and object safety. Artifact refusal and `do_clear_area()` traversal are complete; the full goal family is not. | `js/dogmove.js`, `js/track.js`, `js/moncarry.js`, `js/vision.js` | partial | `undecided` | C4/C7/C8 and the committed vision prerequisite, then C9 goals/reachability subcommit. |
-| 27 | Pet candidate selection, trap/cursed-square avoidance, and scary-square flight | A pet ranks moves while avoiding known traps/cursed objects and reacts to a scare-monster scroll under the hero. Strict seed 979597 reaches the explicit unsupported pre-move flight callback after source-required PRNG draws. | `js/dogmove.js`, `js/monmove.js`; caller in `js/monster_action.js` | confirmed gap | `missing` | C9 candidate logic plus C14 `distfleeck()`/`monflee()` connection; rerun seed 979597. |
+| 27 | Pet candidate selection, trap/cursed-square avoidance, and scary-square flight | A pet ranks moves while avoiding known traps/cursed objects and reacts to a scare-monster scroll under the hero. The worktree connects `distfleeck()`/`monflee()` and preserves the next-command `rn2(40)` flee check; a four-case strict seed-979597 batch now passes. Candidate-selection closure and a committed live owner remain open. | `js/dogmove.js`, `js/monmove.js`; caller pending extraction from `js/monster_action.js` | worktree-covered subset | `undecided` | Finish C9 candidate logic, extract the C14 caller by upstream owner, and retain seed 979597 in C17. |
 | 28 | Pet combat, ranged attacks, and displacement | Candidate selection can attack or displace a monster, use a ranged attack, or in altered states attack the hero. Explicit unsupported consumers remain. | `js/dogmove.js`, `js/mhitm.js`, `js/mhitu.js` | confirmed gap | `missing` | C9 movement dispatch after C10-C11 combat owners exist. |
 | 29 | Pet movement, eating, dropping, and pickup execution | Once selected, a pet can move, eat, drop, or pick up, updating `edog`, floor objects, inventory, messages, and PRNG. Several exact cases match, including carried-gold drop; special floor/food effects remain. | `js/dogmove.js`, `js/dogfood.js`, `js/moncarry.js`, `js/obj.js` | partial | `undecided` | C5-C9, split so goals, inventory/eating, and active movement each stay under 500 production lines. |
 | 30 | `dog.c`, `mon.c`, and object lifecycle: food, nutrition, consumption, corpse, carry, artifact, ownership, naming | Pet and combat paths classify and consume food, apply corpse effects, carry/split/stack objects, check artifacts, and name output. Non-hero artifact touch is complete at `3d33c40c0862755a1a989223128b649704bd2d75`; the combined family is not. | `js/dogfood.js`, `js/moncarry.js`, `js/obj.js`, `js/objnam.js`, `js/artifacts.js` | partial | `undecided` | C5-C8, retaining C1 artifact evidence and adding live food/corpse cases. |
 | 31 | Monster trap immunity, avoidance, and routing | Species data and trap knowledge decide whether a monster avoids, resists, triggers, or escapes a trap while choosing/making a move. Several generated traps match, but all trap/species combinations are not closed. | `js/mondata.js`, future `trap.js`/`monmove.js` owners | partial | `undecided` | C2 predicates, then C13 routing and C14 consumer proof. |
-| 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. Exact subsets and persistence tests exist. | Future `trap.js`; temporary code in `js/monster_action.js` | partial | `undecided` | C13 projectile commit, then holding/status commit with grouped strict cases. |
+| 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. Projectile and holding owners are committed; status effects and live owner wiring remain. | `js/trap_monster_projectiles.js`, `js/trap_monster_holding.js`, `js/trap_monster_shared.js`; status code remains temporary in `js/monster_action.js` | partial | `undecided` | C13 status commit, then grouped strict cases after the live C14 consumer is committed. |
 | 33 | Magic/fire/item damage and ignition trap effects | Magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. Seeds 962639 and 966115 match implemented subsets. | Future `trap.js` plus object/damage owners; temporary action code | partial | `undecided` | C5 object support, then C13 magic/fire/item-damage commit. |
 | 34 | Hole/trapdoor/teleport/migration, land mine, and rolling boulder | Monster traps can relocate or migrate a monster, consume one-shot traps, explode land mines, or launch boulders; D:2 expands reachability. Several relocation cases match, but the family is incomplete. | `js/teleport.js`, `js/monst.js`, future `trap.js`; temporary action code | partial | `undecided` | C3, C12 hurtling, then C13 relocation and land-mine/boulder commits. |
 | 35 | `mhitm.c` attack iteration, contact/ranged/special attacks, and passives | Pet/monster encounters iterate attack descriptors in source order and can invoke contact, ranged, special, and passive effects. Physical subsets have focused and fresh evidence. | `js/mhitm.js` | partial | `undecided` | C10: attack-loop commit followed by a passives/special-effects commit. |
@@ -214,8 +214,12 @@ object, and combat module.
     seams require.
 11. **C11 — `weapon.c` monster weapon helpers, then `mhitu.c`.**
 12. **C12 — `dothrow.c` hurtling and collision movement.**
-13. **C13 — `trap.c` in source-owned groups:** projectiles; holding/status;
+13. **C13 — `trap.c` in source-owned groups:** projectiles; holding; status;
     magic/fire/item damage; hole/teleport/migration; land mine/rolling boulder.
+    Projectiles are committed in `04898bab19eb3716ea73f956bf17a61de17d5ef1`.
+    Holding traps are committed in
+    `10e85bdd8801f59ef61e6e93fb362468099e870c`; the injected boulder-floor
+    effect and dangerous-corpse self-touch owners remain open.
 14. **C14 — `monmove.c` in source-owned groups:** pre-action phases; ordinary
     movement; `postmov()`, with special movers kept separate if needed. This
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior.
@@ -358,12 +362,40 @@ its follow-up milestone.
   monster-instance tests pass; the exact staged full suite passes
   1,377/1,377 and all six generated-data checks pass. The production diff is
   14 changed lines. The quality gate is clear and monsters are advisory at
-  eight commits and 988 committed lines. No fresh second-turn differential
+  eight commits and 991 committed lines. No fresh second-turn differential
   is claimed until the live movement consumers commit.
+- Checkpoint validation is automated in
+  `84d8cc531e4cea61f8e796055c0d8e69408d8f49`: `npm run checkpoint --
+  --focus <test>` runs the focused test, full suite, declared generated-data
+  checks, and development score while preserving every result in its summary.
+- Effective-Charisma pet apport is committed as
+  `4cd8bbb23ebfad5d71ae142432f6151ec8ed98e8`; candelabrum light range is
+  committed as `4dfccdd6444265a4865539dc96f6c63affa768eb`; and the remaining
+  candelabrum, magic-lamp, and diluted-oil burn-source branches are committed
+  as `61237dad85379671df77bd1901b0ed32c8ed6c47`. Their focused tests, exact
+  full suites, and declared generated-data checks passed before commit.
+- The C13 projectile-trap prerequisite is committed as
+  `04898bab19eb3716ea73f956bf17a61de17d5ef1` with exactly
+  `QUALITY.json`, `js/trap_monster_shared.js`,
+  `js/trap_monster_projectiles.js`, and
+  `scripts/trap-monster-projectiles.test.mjs`. Two focused tests, the exact
+  1,388-test full suite, and all four generated-data checks pass.
+- The C13 holding-trap prerequisite is committed as
+  `10e85bdd8801f59ef61e6e93fb362468099e870c` with exactly
+  `QUALITY.json`, `js/trap_monster_holding.js`,
+  `js/trap_monster_shared.js`, and
+  `scripts/trap-monster-holding.test.mjs`. Five focused tests, the exact
+  1,393-test full suite, and all four generated-data checks pass. The
+  production diff is 424 changed lines. The exact candidate quality gate is
+  clear and world-effects is advisory at six commits and 935 changed lines.
+  The boulder-fill floor effect and dangerous-corpse self-touch remain
+  explicit later-owner seams.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
-  Strict seed 979597 reproduces that pet scary-square gap with
-  `scripts/scan-fresh.mjs`.
+  The worktree fix was then checked with `scripts/scan-fresh.mjs`: four strict
+  seed-979597 cases, including a legal north move onto the scare-monster
+  scroll and a still-fleeing pony on command two, all pass. Broad discovery
+  remains paused while this behavior is extracted from `monster_action.js`.
 
 ## Validation required at final integration
 
@@ -390,7 +422,7 @@ its follow-up milestone.
 
 Current mode: Implementation
 
-Reason: Seven families have confirmed missing behavior, 27 are only partially
+Reason: Six families have confirmed missing behavior, 28 are only partially
 implemented or proved, and second-turn replay remains. The accepted
 stable-level non-trap milestone is active; hero-triggered trap and transition
 families are scheduled follow-up work.
