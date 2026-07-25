@@ -182,6 +182,7 @@
       "paths": [
         "js/cmd.js",
         "js/command_bindings.js",
+        "js/hack.js",
         "js/input.js",
         "js/tty_menu.js",
         "js/tty_message.js"

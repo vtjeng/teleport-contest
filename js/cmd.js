@@ -28,6 +28,10 @@ import {
 import { flush_screen, newsym } from './display.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import {
+    disturb_buried_zombies,
+    hero_tread_disturbs_buried_zombies,
+} from './hack.js';
 import { nhgetch } from './input.js';
 import { is_hider, noattacks } from './mondata.js';
 import { m_at } from './monst.js';
@@ -385,6 +389,9 @@ export async function domove(state = game) {
     u.ux = newx;
     u.uy = newy;
     u.umoved = true;
+
+    if (hero_tread_disturbs_buried_zombies(state))
+        disturb_buried_zombies(newx, newy, state);
 
     newsym(oldx, oldy);
     vision_recalc(1);
