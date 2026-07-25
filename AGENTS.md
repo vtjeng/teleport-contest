@@ -77,6 +77,11 @@ Git history do not grant permission to inspect the sealed local holdout.
   connect it to that consumer before the roadmap item closes. Do not accumulate
   helpers for later roadmap items.
 
+- When a small prerequisite and its first live consumer fit in one reviewable
+  chunk, implement and commit them together. Do not create separate
+  implementation and score commits for a tiny dormant helper unless it must
+  land independently.
+
 - Store each C state value in one canonical JavaScript location. For a
   non-obvious mapping, name the corresponding C global or struct field and
   document when the JavaScript value is initialized, reset, changed, and
@@ -257,14 +262,18 @@ every implementation commit remains subject to it.
 For each coherent implementation chunk:
 
 1. Inspect the diff and run focused tests plus the relevant broader checks.
-2. Commit the implementation and run `npm run quality` as a scheduling
-   dashboard. Assign every new file under `js/` to exactly one quality area.
-3. Directly review source behavior, PRNG and evaluation order, parsing, state
+2. Assign every new file under `js/` to exactly one quality area as soon as it
+   is created. Count new untracked production files toward review limits even
+   before the dashboard can measure them; a clear dashboard does not override
+   unassigned files or a manually evident threshold overrun.
+3. Commit the implementation and run `npm run quality` as a scheduling
+   dashboard.
+4. Directly review source behavior, PRNG and evaluation order, parsing, state
    ownership, persistence, input boundaries, and rendering against upstream.
    Small mechanical or test-only changes may rely on diff inspection and tests
    for immediate validation, but include them in the next scheduled correctness
    pass.
-4. Add the exact code commit and score estimate to `SCORE.md`.
+5. Add the exact code commit and score estimate to `SCORE.md`.
 
 - Close a behavior slice only after its real consumer executes the new path and
   a fresh end-to-end differential verifies the PRNG log, complete screens and
