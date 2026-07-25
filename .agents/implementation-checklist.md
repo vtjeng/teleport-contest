@@ -56,9 +56,9 @@ validated.
 | 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` | partial | Source owner committed at `e74c756`; C3 live candidate proof remains. |
 | 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | partial | Source owner committed at `e74c756`; C3 atomic integration and strict cases remain. |
 | 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. | `js/dogmove_goal.js` | partial | Source owner committed at `b01722b`; C3 safe-stop and live goal proof remain. |
-| 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Stop before inventory, eating, leash, steed, conflict, altered-state, ranged, or combat paths. | `js/dogmove.js` | partial | Source owner committed at `fe22783`; C2 wrapper and C3 live safe-stop proof remain. |
+| 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Stop before inventory, eating, leash, steed, conflict, altered-state, ranged, or combat paths. | `js/dogmove.js` | partial | Source owner committed at `fe22783` and wrapper at `61d9276`; C3 live safe-stop proof remains. |
 | 14 | `dogmove.c:dog_move()` candidates and tie-breaking | Run `mon_allowflags()`, `mfndpos()`, candidate filtering, follow-distance scoring, and source tie-breaking over ordinary clear squares. | `js/dogmove.js` | partial | Source owner committed at `fe22783`; C3 strict pet stay/move cases remain. |
-| 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | partial | Source owner committed at `fe22783`; C2 wrapper and C3 atomic integration remain. |
+| 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | partial | Source owner committed at `fe22783` and wrapper at `61d9276`; C3 atomic integration remains. |
 | 16 | `allmain.c` new-turn allocation and upkeep | Run monster distress, movement allocation, possible random generation, hero movement allocation, track update, turn counters, timeouts, regions, sounds, hunger, engraving wear, and the already-owned first-turn upkeep sequence. | Existing source owners, coordinated by `js/allmain.js` | partial | C3 mixed speed/allocation fresh cases. |
 | 17 | `allmain.c` once-per-hero-action effects | Advance `hero_seq`, refresh encumbrance/display state, and run the already-owned post-action visibility work. | Existing source owners, coordinated by `js/allmain.js` | partial | C3 direct state tests and fresh comparisons. |
 | 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | partial | C3/C4 exact screens, attributes, cursors, storage, and prompt. |
@@ -69,9 +69,9 @@ validated.
 - 0 in-boundary families are marked missing because each has an existing
   committed substrate or worktree implementation, but no partial family is
   closure evidence.
-- Closure verdict: **not ready**. The ordinary and pet movement owners are
-  committed; the pet `dochug` wrapper and live integration remain uncommitted,
-  and the fail-closed destination checks are incomplete.
+- Closure verdict: **not ready**. The ordinary and pet movement owners and
+  their source-phase wrappers are committed; live integration remains
+  uncommitted, and the fail-closed destination checks are incomplete.
 
 ## Confirmed gap clusters
 
@@ -97,11 +97,11 @@ modules, or the final integration trio.
 The complete `dog_goal()` source owner and focused tests are committed at
 `b01722b27afbfc79903920597d93a689ebf919e0`. The `dog_move()` source owner and
 focused tests are committed at
-`fe22783c04803b708ec6c111421fbf098ab108db`. Finish its thin `dochug` wrapper
-for families 13 through 15. The live adapter must stop before goal selection
-when food or fetchable objects would make item interaction relevant, and
-movement must stop before inventory, eating, combat, displacement, traps,
-regions, doors, or special terrain.
+`fe22783c04803b708ec6c111421fbf098ab108db`, and its thin `dochug` wrapper is
+committed at `61d927638c668ffc542e34a5831cf12701778fac`. C2 source ownership is
+complete. C3 must stop before goal selection when food or fetchable objects
+would make item interaction relevant, and movement must stop before inventory,
+eating, combat, displacement, traps, regions, doors, or special terrain.
 
 Expected implementation files:
 
