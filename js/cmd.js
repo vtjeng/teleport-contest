@@ -38,6 +38,7 @@ import { m_at } from './monst.js';
 import { onscary } from './monmove.js';
 import { look_here_single_object } from './invent.js';
 import { in_out_region } from './region.js';
+import { check_special_room_state } from './rooms.js';
 import { canSpotMonster } from './startup_a11y.js';
 import {
     clearTtyMessageWindow,
@@ -396,6 +397,7 @@ export async function domove(state = game) {
     newsym(oldx, oldy);
     vision_recalc(1);
     newsym(newx, newy);
+    check_special_room_state(false, state);
     await read_engr_at(newx, newy, state, {
         pline: ttyPline,
         canReachFloor: can_reach_floor,

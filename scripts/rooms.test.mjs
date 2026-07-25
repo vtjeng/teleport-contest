@@ -3,14 +3,17 @@ import test from 'node:test';
 
 import {
     OROOM,
+    ROOM,
     ROOMOFFSET,
     SHARED,
     SHARED_PLUS,
     SHOPBASE,
 } from '../js/const.js';
+import { domove } from '../js/cmd.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { in_rooms, move_update } from '../js/rooms.js';
+import { init_vision_globals, vision_reset } from '../js/vision.js';
 
 const ROOM_BUFFER_SIZE = 5;
 
@@ -190,4 +193,37 @@ test('move_update preserves bytes beyond the first NUL like fixed C buffers', ()
 
     assert.deepEqual(state.u.urooms0, [previous, 0, 23, 24, 0]);
     assert.deepEqual(state.u.urooms, [current, 0, 31, 32, 33]);
+});
+
+test('domove updates room membership after entering the destination', async () => {
+    const state = initializedState();
+    const origin = ROOMOFFSET;
+    const destination = ROOMOFFSET + 1;
+    defineRoom(state, origin, OROOM);
+    defineRoom(state, destination, OROOM);
+    state.u = {
+        ...state.u,
+        ux: 10,
+        uy: 10,
+        ux0: 10,
+        uy0: 10,
+        dx: 1,
+        dy: 0,
+        uprops: [],
+        urooms: roomBuffer([origin]),
+    };
+    state.youmonst = { data: { cwt: 0, mlet: 53 } };
+    state.context = { move: 1, mv: 0, run: 0, travel: 0 };
+    state.level.at(10, 10).typ = ROOM;
+    state.level.at(10, 10).roomno = origin;
+    state.level.at(11, 10).typ = ROOM;
+    state.level.at(11, 10).roomno = destination;
+    init_vision_globals();
+    vision_reset();
+
+    await domove(state);
+
+    assert.deepEqual(state.u.urooms0, roomBuffer([origin]));
+    assert.deepEqual(state.u.urooms, roomBuffer([destination]));
+    assert.deepEqual(state.u.uentered, roomBuffer([destination]));
 });
