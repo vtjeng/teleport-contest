@@ -16,9 +16,13 @@ import {
     ROOM,
     STRAT_ARRIVE,
     STRAT_CLOSE,
+    W_SADDLE,
 } from './const.js';
 import { newsym } from './display.js';
-import { dog_move } from './dogmove.js';
+import {
+    dog_move,
+    droppables,
+} from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { wake_msg } from './mon.js';
@@ -54,6 +58,7 @@ import {
     dochug_fresh_pet,
 } from './monmove_dochug_pet.js';
 import { m_move_fresh } from './monmove_move.js';
+import { SADDLE } from './objects.js';
 import {
     inside_region,
     mon_in_region,
@@ -108,6 +113,20 @@ function liveOnMap(monster) {
         && (monster.mstate ?? MON_FLOOR) === MON_FLOOR;
 }
 
+// C refs: dog.c:makedog(), dogmove.c:droppables(). A Knight's starting pony
+// carries a worn saddle, but dog_invent() cannot select that saddle to drop.
+export function hasOnlyInertStartingSaddle(monster, state) {
+    const saddle = monster.minvent;
+    return monster.data?.pmidx === PM_PONY
+        && state.context?.startingpet_mid === monster.m_id
+        && monster.misc_worn_check === W_SADDLE
+        && saddle?.otyp === SADDLE
+        && saddle.owornmask === W_SADDLE
+        && saddle.leashmon === monster.m_id
+        && !saddle.nobj
+        && droppables(monster) === null;
+}
+
 function assertSimpleScanState(monster, state) {
     const parkedGuard = monster.isgd
         && !monster.mx
@@ -153,8 +172,10 @@ function assertSimpleActionState(monster, state) {
         }
         if (!monster.mextra?.edog)
             unsupported('missing starting-pet state');
-        if (monster.minvent)
+        if (monster.minvent
+            && !hasOnlyInertStartingSaddle(monster, state)) {
             unsupported('pet inventory');
+        }
         return;
     }
 

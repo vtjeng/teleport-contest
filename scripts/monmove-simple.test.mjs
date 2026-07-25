@@ -12,22 +12,27 @@ import {
     STONE,
     W_NONDIGGABLE,
     W_NONPASSWALL,
+    W_SADDLE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     PM_DISPLACER_BEAST,
     PM_GIANT_RAT,
+    PM_LITTLE_DOG,
+    PM_PONY,
     PM_PURPLE_WORM,
     PM_SHRIEKER,
     S_HUMAN,
 } from '../js/monsters.js';
 import {
+    hasOnlyInertStartingSaddle,
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
 } from '../js/monmove_simple.js';
 import { newMonster } from '../js/monst.js';
+import { SADDLE } from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import { getRngLog } from '../js/rng.js';
 
@@ -260,6 +265,60 @@ function installObject(target, object) {
     game.level.objlist = object;
     target.object = object;
 }
+
+test('simple preflight recognizes only the starting pony worn saddle', () => {
+    const monsterId = 7301; // A distinct live id couples saddle and pet state.
+    const nonSaddleType = SADDLE - 1; // A valid unequal catalog index.
+    const makeSubject = () => {
+        const saddle = {
+            leashmon: monsterId,
+            nobj: null,
+            otyp: SADDLE,
+            owornmask: W_SADDLE,
+        };
+        const monster = {
+            data: { mflags1: 0, pmidx: PM_PONY },
+            m_id: monsterId,
+            minvent: saddle,
+            misc_worn_check: W_SADDLE,
+            mw: null,
+        };
+        const state = {
+            context: { startingpet_mid: monsterId },
+        };
+        return { monster, saddle, state };
+    };
+
+    const admitted = makeSubject();
+    assert.equal(
+        hasOnlyInertStartingSaddle(admitted.monster, admitted.state),
+        true,
+    );
+
+    const rejected = [
+        ({ monster }) => { monster.data.pmidx = PM_LITTLE_DOG; },
+        ({ state }) => { state.context.startingpet_mid = monsterId + 1; },
+        ({ monster }) => { monster.misc_worn_check = 0; },
+        ({ saddle }) => { saddle.otyp = nonSaddleType; },
+        ({ saddle }) => { saddle.owornmask = 0; },
+        ({ saddle }) => { saddle.leashmon = monsterId + 1; },
+        ({ saddle }) => {
+            saddle.nobj = {
+                nobj: null,
+                otyp: nonSaddleType,
+                owornmask: 0,
+            };
+        },
+    ];
+    for (const mutate of rejected) {
+        const subject = makeSubject();
+        mutate(subject);
+        assert.equal(
+            hasOnlyInertStartingSaddle(subject.monster, subject.state),
+            false,
+        );
+    }
+});
 
 test('simple preflight plans a starting-dog action without live mutation',
     async () => {
