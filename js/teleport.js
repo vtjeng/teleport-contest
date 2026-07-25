@@ -5,6 +5,8 @@
 import {
     ACCESSIBLE,
     ALTAR,
+    BLINDED,
+    BOLT_LIM,
     CC_INCL_CENTER,
     CC_NO_FLAGS,
     CC_RING_PAIRS,
@@ -25,27 +27,39 @@ import {
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
     HEADSTONE,
+    HOLE,
     ICE,
     IS_LAVA,
     IS_STWALL,
     LAVAPOOL,
     LR_MONGEN,
+    MIGR_RANDOM,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
     MON_FLOOR,
     MOAT,
+    NO_TRAP,
     POOL,
     ROWNO,
     STONE,
     STRAT_APPEARMSG,
+    TRAPDOOR,
     WATER,
     W_NONPASSWALL,
     ZAP_POS,
     isok,
 } from './const.js';
-import { on_level } from './dungeon.js';
+import {
+    ledger_no,
+    on_level,
+} from './dungeon.js';
+import {
+    capitalizedMonsterName,
+    monsterCommonName,
+} from './do_name.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
 import {
     is_covetous,
     is_dlord,
@@ -81,6 +95,13 @@ import { BOULDER, SCR_SCARE_MONSTER } from './objects.js';
 import { within_bounded_area } from './rect.js';
 import { update_monster_region } from './region.js';
 import { rn2, rnd } from './rng.js';
+import {
+    canSeeMonster,
+    canSpotMonster,
+    sensesMonster,
+} from './startup_a11y.js';
+import { ttyPline } from './tty_message.js';
+import { couldsee } from './vision.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -336,6 +357,240 @@ export function noteleport_level(monster, state = game) {
         return true;
     return Math.trunc(state.level?.flags?.stasis_until ?? 0)
         >= Math.trunc(state.moves ?? 0);
+}
+
+function monsterTeleportOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function') {
+        throw new TypeError(
+            `monster teleport requires a ${name} operation`,
+        );
+    }
+    return operation;
+}
+
+function heroBlind(state) {
+    const property = state.u?.uprops?.[BLINDED];
+    return (Boolean(property?.intrinsic || property?.extrinsic)
+        && !property?.blocked)
+        || Boolean(state.u?.uroleplay?.blind);
+}
+
+function fixedRelocationSuffix(monster, oldX, oldY, state) {
+    const distance = dist2(
+        monster.mx,
+        monster.my,
+        state.u.ux,
+        state.u.uy,
+    );
+    if (distance <= 2) return ' next to you';
+    if (distance <= BOLT_LIM * BOLT_LIM) return ' close by';
+    const oldDistance = dist2(oldX, oldY, state.u.ux, state.u.uy);
+    if (oldDistance === distance) return '';
+    return distance < oldDistance
+        ? ' closer to you'
+        : ' farther away';
+}
+
+function fixedArrivalSuffix(monster, state) {
+    const distance = dist2(
+        monster.mx,
+        monster.my,
+        state.u.ux,
+        state.u.uy,
+    );
+    if (distance <= 2) return ' next to you';
+    return distance <= BOLT_LIM * BOLT_LIM ? ' close by' : '';
+}
+
+// C ref: teleport.c rloc_to_core() with RLOC_MSG, bounded to the ordinary
+// fixed-destination monster path reached by a current D:1 teleport trap.
+async function relocateToFixedDestination(monster, x, y, env) {
+    const { state } = env;
+    const redraw = monsterTeleportOperation(env, 'newsym');
+    const setApparxy = monsterTeleportOperation(env, 'setApparxy');
+    const message = env.message ?? ttyPline;
+    if (typeof message !== 'function')
+        throw new TypeError('monster teleport requires a message operation');
+    const oldX = monster.mx;
+    const oldY = monster.my;
+    const name = capitalizedMonsterName(monster, state);
+    let appearMessage = Boolean(monster.mstrategy & STRAT_APPEARMSG);
+    const oldSpotted = canSpotMonster(monster, state);
+    const sensedAtOldSquare = sensesMonster(monster, state);
+    let teleportMessage = false;
+
+    if (oldSpotted) {
+        if (couldsee(x, y, state) || sensedAtOldSquare) {
+            teleportMessage = true;
+        } else {
+            await message(`${name} vanishes!`, state);
+        }
+        appearMessage = false;
+    }
+
+    relocate_monster(monster, x, y, state);
+    redraw(oldX, oldY, env);
+    redraw(monster.mx, monster.my, env);
+    setApparxy(monster, env);
+
+    const newSpotted = canSpotMonster(monster, state);
+    const sensedAtNewSquare = sensesMonster(monster, state);
+    if (newSpotted || appearMessage) {
+        monster.mstrategy &= ~STRAT_APPEARMSG;
+        if (teleportMessage
+            && (couldsee(monster.mx, monster.my, state)
+                || sensedAtNewSquare)) {
+            await message(
+                `${name} vanishes and reappears`
+                + `${fixedRelocationSuffix(
+                    monster,
+                    oldX,
+                    oldY,
+                    state,
+                )}.`,
+                state,
+            );
+        } else {
+            await message(
+                `${appearMessage ? name.replace(/^The /u, 'A ') : name}`
+                + `${appearMessage ? ' suddenly' : ''} `
+                + `${heroBlind(state) ? 'arrives' : 'appears'}`
+                + `${fixedArrivalSuffix(monster, state)}!`,
+                state,
+            );
+        }
+    }
+}
+
+// C ref: teleport.c mtele_trap(), bounded to ordinary fixed or random D:1
+// destinations. Leashed pets and one-shot vault teleportation retain their
+// explicit future owners.
+export async function mtele_trap(
+    monster,
+    trap,
+    inSight,
+    rawEnv = {},
+) {
+    const env = teleportEnv(rawEnv);
+    const { state } = env;
+    if (noteleport_level(monster, state)) return;
+    if (monster === state.u?.usteed) return;
+    if (monster.mleashed) {
+        throw new UnsupportedPositionCheckError(
+            'leashed-pet teleportation',
+        );
+    }
+    if (trap.once) {
+        throw new UnsupportedPositionCheckError(
+            'one-shot vault teleportation',
+        );
+    }
+    const message = inSight ? (env.message ?? ttyPline) : null;
+    if (inSight && typeof message !== 'function') {
+        throw new TypeError(
+            'monster teleport requires a message operation',
+        );
+    }
+    const seeTrap = inSight
+        ? monsterTeleportOperation(env, 'seeTrap')
+        : null;
+
+    const name = capitalizedMonsterName(monster, state);
+    const destinationX = trap.teledest?.x;
+    const destinationY = trap.teledest?.y;
+    if (isok(destinationX, destinationY)) {
+        if (!m_at(destinationX, destinationY, state)
+            && (state.u.ux !== destinationX
+                || state.u.uy !== destinationY)) {
+            await relocateToFixedDestination(
+                monster,
+                destinationX,
+                destinationY,
+                env,
+            );
+        }
+    } else {
+        rloc(monster, 0, env);
+    }
+
+    if (inSight) {
+        await message(
+            canSeeMonster(monster, state)
+                ? `${name} seems disoriented.`
+                : `${name} suddenly disappears!`,
+            state,
+        );
+        seeTrap(trap, env);
+    }
+}
+
+// C ref: teleport.c mlevel_tele_trap(), bounded to an ordinary D:1 monster
+// falling through a hole or trap door. Portal, level-teleport, leash, steed,
+// stronghold, bottom-level, and forced-off-level branches are future work.
+export async function mlevel_tele_trap(
+    monster,
+    trap,
+    forceIt,
+    inSight,
+    rawEnv = {},
+) {
+    const env = teleportEnv(rawEnv);
+    const { state } = env;
+    const trapType = trap?.ttyp ?? NO_TRAP;
+    if (monster === state.u?.ustuck) return 'finished';
+    if (monster === state.u?.usteed) return 'finished';
+    if (monster.mleashed) {
+        throw new UnsupportedPositionCheckError(
+            forceIt
+                ? 'forced leashed-pet level teleportation'
+                : 'leashed-pet level teleportation',
+        );
+    }
+    if (trapType !== HOLE && trapType !== TRAPDOOR) {
+        throw new UnsupportedPositionCheckError(
+            'non-hole monster level teleportation',
+        );
+    }
+    if (!trap.dst
+        || !Number.isInteger(trap.dst.dnum)
+        || !Number.isInteger(trap.dst.dlevel)) {
+        throw new TypeError(
+            'monster level teleport requires a destination level',
+        );
+    }
+    const migrateToLevel = monsterTeleportOperation(
+        env,
+        'migrateToLevel',
+    );
+    const seeTrap = inSight
+        ? monsterTeleportOperation(env, 'seeTrap')
+        : null;
+    const message = env.message ?? ttyPline;
+    if (inSight && typeof message !== 'function') {
+        throw new TypeError(
+            'monster teleport requires a message operation',
+        );
+    }
+
+    if (inSight) {
+        await message(
+            `Suddenly, ${monsterCommonName(monster, state)} `
+            + `${trapType === HOLE
+                ? 'falls into a hole'
+                : 'falls through a trap door'}.`,
+            state,
+        );
+        seeTrap(trap, env);
+    }
+    migrateToLevel(
+        monster,
+        ledger_no(trap.dst, state),
+        MIGR_RANDOM,
+        null,
+        env,
+    );
+    return 'moved';
 }
 
 function inEndgame(state) {
