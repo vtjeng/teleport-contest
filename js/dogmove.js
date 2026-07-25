@@ -213,7 +213,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             && !(data.info[index] & (ALLOW_M | ALLOW_MDISP))) {
             continue;
         }
-        if (!cursed_object_at(x, y, state)) uncursedCount++;
+        if (!env.cursedObjectAt(x, y, state)) uncursedCount++;
     }
 
     const betterWithDisplacing = should_displace(

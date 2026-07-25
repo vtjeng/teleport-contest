@@ -44,6 +44,7 @@ import {
     LAVAPOOL,
     LAVAWALL,
     M_AP_OBJECT,
+    MMOVE_DONE,
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     NOGARLIC,
@@ -462,6 +463,78 @@ test('m_move ordinary path reports no moves from a sealed square', async () => {
     assert.equal(result, MMOVE_NOMOVES);
     assert.deepEqual([monster.mx, monster.my], [4, 4]);
 });
+
+test('m_move checks an item search only after its peaceful source gate',
+    async () => {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, {
+            mpeaceful: true,
+            mhp: 5,
+            mx: 4,
+            my: 4,
+            mux: 10,
+            muy: 10,
+        });
+        state.level.monsters[monster.mx][monster.my] = monster;
+        const events = [];
+        const stop = new Error('item search reached');
+
+        await assert.rejects(
+            m_move_fresh(monster, {
+                state,
+                random: {
+                    rn2(bound) {
+                        events.push(`rn2(${bound})`);
+                        return 0;
+                    },
+                },
+                resolveTrappedMonster: () => false,
+                resistsTrapEffect: () => false,
+                unsupported: (reason) => assert.fail(reason),
+                postMonsterMove: () => assert.fail('search stops movement'),
+                assertEmptyItemSearch() {
+                    events.push('search');
+                    throw stop;
+                },
+            }),
+            (error) => error === stop,
+        );
+        assert.deepEqual(events, ['rn2(10)', 'search']);
+    });
+
+test('m_move delegates the selected region crossing before map mutation',
+    async () => {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, {
+            mpeaceful: true,
+            mhp: 5,
+            mx: 4,
+            my: 4,
+            mux: 10,
+            muy: 10,
+        });
+        state.level.monsters[monster.mx][monster.my] = monster;
+        const events = [];
+
+        const result = await m_move_fresh(monster, {
+            state,
+            random: { rn2: () => 0 },
+            resolveTrappedMonster: () => false,
+            resistsTrapEffect: () => false,
+            unsupported: (reason) => assert.fail(reason),
+            mayCrossRegion(subject, x, y) {
+                events.push(`region:${x},${y}`);
+                assert.equal(subject, monster);
+                return false;
+            },
+            postMonsterMove: () => assert.fail('denied move skips postmov'),
+        });
+
+        assert.equal(result, MMOVE_DONE);
+        assert.deepEqual([monster.mx, monster.my], [4, 4]);
+        assert.equal(state.level.monsters[4][4], monster);
+        assert.match(events[0], /^region:/u);
+    });
 
 function sanctuaryFixture() {
     const { locations, state } = makeState();

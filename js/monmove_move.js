@@ -111,9 +111,13 @@ export async function m_move_fresh(monster, rawEnv = {}) {
         }
     }
 
-    // m_search_items() is inert under preflight's empty search square, but
-    // peaceful monsters retain its source one-in-ten gate.
-    if (monster.mpeaceful) random.rn2(10);
+    // m_search_items() is inert under the simple-turn preflight's empty
+    // search area. Preserve its source gate and let that preflight verify the
+    // assumption only when the search is reached.
+    if ((!monster.mpeaceful || !random.rn2(10))
+        && typeof rawEnv.assertEmptyItemSearch === 'function') {
+        rawEnv.assertEmptyItemSearch(monster, env);
+    }
 
     const data = { cnt: 0, poss: [], info: [] };
     const count = mfndpos(
@@ -195,7 +199,8 @@ export async function m_move_fresh(monster, rawEnv = {}) {
     }
     if (data.info[chosen] & ALLOW_MDISP)
         unsupported('ordinary monster displacement');
-    if (!await m_in_out_region(monster, nextX, nextY, env))
+    const mayCrossRegion = rawEnv.mayCrossRegion ?? m_in_out_region;
+    if (!await mayCrossRegion(monster, nextX, nextY, env))
         return MMOVE_DONE;
     if (data.info[chosen] & ALLOW_ROCK)
         unsupported('ordinary monster boulder breaking');

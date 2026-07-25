@@ -698,12 +698,18 @@ test('dog_move reports a cursed landing seen before movement', async () => {
         nexthere: null,
     };
     const events = [];
+    const cursedChecks = [];
 
     const result = await dog_move(monster, false, movementEnv(state, {
         findPositions: fixedCandidates([{
             ...destination,
             info: 0, // An ordinary candidate carries no occupancy flags.
         }]),
+        cursedObjectAt(x, y, checkedState) {
+            assert.equal(checkedState, state);
+            cursedChecks.push([x, y]);
+            return x === destination.x && y === destination.y;
+        },
         canSeeMonster(subject) {
             events.push(`see:${subject.mx},${subject.my}`);
             return subject.mx === 5;
@@ -715,6 +721,7 @@ test('dog_move reports a cursed landing seen before movement', async () => {
     }));
 
     assert.equal(result, MMOVE_MOVED);
+    assert.deepEqual(cursedChecks, [[destination.x, destination.y]]);
     assert.deepEqual(events, [
         'see:5,5',
         'report:6,5',
