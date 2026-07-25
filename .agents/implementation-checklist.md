@@ -421,7 +421,10 @@ its follow-up milestone.
 - Strict fresh seed 980221 covers the live anti-magic adapter, seed 980409
   covers buried-zombie disturbance, and seed 981228 covers random relocation
   of a pony carrying its saddle; all three pass. The grouped discovery range
-  980000 through 982999 passes all 3,000 cases after those fixes. The
+  980000 through 982999 passes all 3,000 cases after those fixes. The next
+  grouped range, 983000 through 985999, also passes all 3,000 cases with no
+  failure groups; seed 984786 uses a wait-wait fallback because its selected
+  command family had no legal non-trap first move. The
   consolidated focused checkpoint passes 60/60; the full worktree suite passes
   1,504/1,504; and all four declared generated-data checks pass. Development
   reaches 77,890 PRNG values, 213 screens, and 251 cursors.
