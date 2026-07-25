@@ -5,6 +5,7 @@ import {
     FIRE_RES,
     OBJ_MINVENT,
 } from './const.js';
+import { obj_resists } from './bury.js';
 import {
     monsterPossessive,
 } from './do_name.js';
@@ -78,6 +79,13 @@ function destroyedItemSubject(monster, obj, destroyed, available, state) {
         : destroyed < available ? 'Some of '
             : available === 2 ? 'Both of ' : 'All of ';
     return `${prefix}${owner} ${plural}`;
+}
+
+function floorBurnMessageNames(obj, state) {
+    return {
+        singular: fire_object_name_at_quantity(obj, 1, state),
+        plural: fire_object_name_at_quantity(obj, 2, state),
+    };
 }
 
 async function maybeDestroyMonsterFireItem(monster, obj, env) {
@@ -176,4 +184,63 @@ export async function destroy_monster_fire_items(monster, damage, env) {
         }
     }
     return extraDamage;
+}
+
+// Monster-caused floor fire is the current consumer. Hero-caused shop
+// charging remains outside the stable-level non-trap boundary.
+export async function burn_floor_objects(
+    x,
+    y,
+    giveFeedback,
+    uCaused,
+    env,
+) {
+    if (uCaused) {
+        const unsupported = env.unsupported ?? ((reason) => {
+            throw new RangeError(`unsupported floor fire: ${reason}`);
+        });
+        return unsupported('hero-caused object destruction');
+    }
+    if (typeof env.igniteItems !== 'function') {
+        throw new TypeError(
+            'floor fire requires an igniteItems operation',
+        );
+    }
+
+    let count = 0;
+    for (let obj = env.state.level.objects[x][y]; obj;) {
+        const next = obj.nexthere;
+        if ((obj.oclass === SCROLL_CLASS
+                || obj.oclass === SPBOOK_CLASS
+                || obj.otyp === GLOB_OF_GREEN_SLIME)
+            && obj.otyp !== SCR_FIRE
+            && obj.otyp !== SPE_FIREBALL
+            && !obj_resists(obj, 2, 100, objectGenerationEnv(env))) {
+            const originalQuantity = Math.trunc(obj.quan);
+            let destroyed = 0;
+            for (let index = 0; index < originalQuantity; ++index) {
+                if (!env.random.rn2(3)) ++destroyed;
+            }
+            if (destroyed) {
+                const names = giveFeedback
+                    ? floorBurnMessageNames(obj, env.state)
+                    : null;
+                await removeObjectQuantity(obj, destroyed, env);
+                count += destroyed;
+                if (names) {
+                    await ttyPline(
+                        destroyed > 1
+                            ? `${destroyed} ${names.plural} burn.`
+                            : `${/^[aeiou]/iu.test(names.singular)
+                                ? 'An'
+                                : 'A'} ${names.singular} burns.`,
+                        env.state,
+                    );
+                }
+            }
+        }
+        obj = next;
+    }
+    await env.igniteItems(env.state.level.objects[x][y], env);
+    return count;
 }

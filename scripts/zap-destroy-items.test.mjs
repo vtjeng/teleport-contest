@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    OBJ_FLOOR,
     OBJ_MINVENT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -13,6 +14,7 @@ import {
 } from '../js/obj.js';
 import { SCR_TELEPORTATION } from '../js/objects.js';
 import {
+    burn_floor_objects,
     destroy_monster_fire_items,
 } from '../js/zap_destroy_items.js';
 
@@ -111,4 +113,79 @@ test('reservoir selection precedes per-item destruction draws', async () => {
         [3, 1],
     ]);
     assert.equal(script.length, 0);
+});
+
+test('monster-caused floor fire destroys quantities before ignition',
+    async () => {
+        const monster = await initializedMonster(982433, 'FloorFire');
+        const scroll = mksobj(
+            SCR_TELEPORTATION,
+            false,
+            false,
+            { state: game },
+        );
+        scroll.quan = 2;
+        scroll.owt = weight(scroll, { state: game });
+        scroll.where = OBJ_FLOOR;
+        scroll.ox = monster.mx;
+        scroll.oy = monster.my;
+        scroll.nexthere =
+            game.level.objects[monster.mx][monster.my] ?? null;
+        scroll.nobj = game.level.objlist ?? null;
+        game.level.objects[monster.mx][monster.my] = scroll;
+        game.level.objlist = scroll;
+        const script = [
+            [100, 99], // the ordinary scroll does not resist fire
+            [3, 0], // destroy one scroll
+            [3, 1], // preserve the other scroll
+        ];
+        const ignited = [];
+
+        const burned = await burn_floor_objects(
+            monster.mx,
+            monster.my,
+            false,
+            false,
+            {
+                igniteItems: (head) => {
+                    ignited.push(head);
+                },
+                random: {
+                    rn1: () => assert.fail('floor fire does not call rn1'),
+                    rn2: (bound) => {
+                        const [expectedBound, result] = script.shift();
+                        assert.equal(bound, expectedBound);
+                        return result;
+                    },
+                    rne: () => assert.fail('floor fire does not call rne'),
+                    rnd: () => assert.fail('floor fire does not call rnd'),
+                },
+                state: game,
+            },
+        );
+
+        assert.equal(burned, 1);
+        assert.equal(scroll.quan, 1);
+        assert.equal(scroll.where, OBJ_FLOOR);
+        assert.deepEqual(ignited, [scroll]);
+        assert.equal(script.length, 0);
+    });
+
+test('hero-caused floor fire fails before traversal', async () => {
+    const state = {
+        level: {
+            objects: [[null]],
+        },
+    };
+
+    await assert.rejects(
+        burn_floor_objects(0, 0, false, true, {
+            igniteItems: () => assert.fail('unsupported fire cannot ignite'),
+            random: {
+                rn2: () => assert.fail('unsupported fire cannot draw'),
+            },
+            state,
+        }),
+        /hero-caused object destruction/u,
+    );
 });
