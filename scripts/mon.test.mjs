@@ -11,6 +11,7 @@ import {
     MSLOW,
     NORMAL_SPEED,
     STRAT_WAITFORU,
+    STRAT_WAITMASK,
 } from '../js/const.js';
 import {
     counter_were,
@@ -24,8 +25,10 @@ import {
     mon_regen,
     movemon,
     movemon_singlemon,
+    wake_nearto,
 } from '../js/mon.js';
 import {
+    G_UNIQ,
     M1_HIDE,
     M1_REGEN,
     M2_WERE,
@@ -144,6 +147,76 @@ function actionOperations(overrides = {}) {
         ...overrides,
     };
 }
+
+test('wake_nearto wakes only living monsters inside the strict range',
+    async () => {
+        const ordinary = actionMonster({
+            data: {
+                geno: 0,
+                mflags1: 0,
+                mlet: 0,
+                pmnames: ['jackal'],
+            },
+            msleeping: true,
+            mstrategy: STRAT_WAITMASK,
+            mx: 1,
+            my: 1,
+        });
+        const unique = actionMonster({
+            data: {
+                geno: G_UNIQ,
+                mflags1: 0,
+                mlet: 0,
+                pmnames: ['unique monster'],
+            },
+            msleeping: true,
+            mstrategy: STRAT_WAITMASK,
+            mx: 1,
+            my: 0,
+        });
+        const boundary = actionMonster({
+            msleeping: true,
+            mstrategy: STRAT_WAITMASK,
+            mx: 2,
+            my: 0,
+        });
+        const dead = actionMonster({
+            mhp: 0,
+            msleeping: true,
+            mstrategy: STRAT_WAITMASK,
+            mx: 0,
+            my: 0,
+        });
+        ordinary.nmon = unique;
+        unique.nmon = boundary;
+        boundary.nmon = dead;
+        dead.nmon = null;
+        const state = schedulerState([ordinary, unique, boundary, dead]);
+        const messages = [];
+        const buriedCalls = [];
+
+        await wake_nearto(0, 0, 4, {
+            canSeeMonster: (subject) => subject === ordinary,
+            disturbBuriedZombies: (...args) => {
+                buriedCalls.push(args);
+            },
+            message: (text) => {
+                messages.push(text);
+            },
+            state,
+        });
+
+        assert.equal(ordinary.msleeping, false);
+        assert.equal(ordinary.mstrategy & STRAT_WAITMASK, 0);
+        assert.equal(unique.msleeping, false);
+        assert.equal(unique.mstrategy & STRAT_WAITMASK, STRAT_WAITMASK);
+        assert.equal(boundary.msleeping, true);
+        assert.equal(dead.msleeping, true);
+        assert.deepEqual(messages, ['The jackal wakes up.']);
+        assert.equal(buriedCalls.length, 1);
+        assert.deepEqual(buriedCalls[0].slice(0, 2), [0, 0]);
+        assert.equal(buriedCalls[0][2].state, state);
+    });
 
 function deferred() {
     let resolve;

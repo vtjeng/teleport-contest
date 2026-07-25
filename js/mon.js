@@ -31,6 +31,7 @@ import {
 import { night } from './calendar.js';
 import { newsym } from './display.js';
 import { game } from './gstate.js';
+import { disturb_buried_zombies } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { any_light_source } from './light.js';
 import {
@@ -661,11 +662,20 @@ export async function new_were(monster, rawEnv = {}) {
     return true;
 }
 
-async function wakeNearForWereHowl(x, y, distance, normalized) {
-    const { state } = normalized;
-    if (state.level?.buriedobjlist) {
-        throw new UnsupportedMonsterDistressError(
-            'howl disturbance of buried zombies',
+// C ref: mon.c wake_nearto_core(). Frontend sound is cosmetic; wake messages,
+// sleep and wait-strategy state, and buried-zombie disturbance are observable.
+export async function wake_nearto(x, y, distance, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const seeMonster = rawEnv.canSeeMonster
+        ?? ((monster) => canSeeMonster(monster, state));
+    const message = rawEnv.message ?? ttyPline;
+    const disturbBuriedZombies = rawEnv.disturbBuriedZombies
+        ?? ((nearX, nearY) =>
+            disturb_buried_zombies(nearX, nearY, state));
+    if (typeof seeMonster !== 'function'
+        || typeof message !== 'function') {
+        throw new TypeError(
+            'wake_nearto requires visibility and message owners',
         );
     }
     for (let monster = state.level?.monlist ?? null;
@@ -676,20 +686,29 @@ async function wakeNearForWereHowl(x, y, distance, normalized) {
                 && dist2(monster.mx, monster.my, x, y) >= distance)) {
             continue;
         }
-        if (monster.msleeping
-            && normalized.canSeeMonster(monster, normalized)) {
+        if (monster.msleeping && seeMonster(monster, rawEnv)) {
             const alive = monster.data?.pmidx === PM_FLESH_GOLEM
                 ? " It's alive!" : '';
-            await normalized.message(
+            await message(
                 `${distressMonnam(monster)} wakes up.${alive}`,
                 state,
-                normalized,
+                rawEnv,
             );
         }
         monster.msleeping = false;
         if (!(monster.data?.geno & G_UNIQ))
             monster.mstrategy &= ~STRAT_WAITMASK;
     }
+    await disturbBuriedZombies(x, y, rawEnv);
+}
+
+async function wakeNearForWereHowl(x, y, distance, normalized) {
+    return wake_nearto(x, y, distance, {
+        ...normalized,
+        canSeeMonster: (monster) =>
+            normalized.canSeeMonster(monster, normalized),
+        message: normalized.message,
+    });
 }
 
 // C ref: were.c were_change(). The chance denominator and draw placement
