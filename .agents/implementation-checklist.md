@@ -123,7 +123,9 @@ upkeep, and remove replay row 2.
 The source-gated ordinary item-search assertion, selected region-crossing
 operation, and pet cursed-object predicate needed by the atomic preflight are
 committed at `1f004deb020d763e857485998de1885ae1f5b44e`. The dry action planner
-and live adapter remain uncommitted.
+and live action adapter are committed at
+`76db5c6fab8078e2d6a603d22a29c5ea2bcadf14`; `allmain.c` consumption remains
+uncommitted.
 
 Expected implementation files:
 
