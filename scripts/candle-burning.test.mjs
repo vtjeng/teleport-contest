@@ -22,7 +22,10 @@ import {
 } from '../js/light.js';
 import {
     BRASS_LANTERN,
+    CANDELABRUM_OF_INVOCATION,
+    MAGIC_LAMP,
     OIL_LAMP,
+    POT_OIL,
     TALLOW_CANDLE,
     WAX_CANDLE,
 } from '../js/objects.js';
@@ -309,6 +312,54 @@ test('oil lamps and brass lanterns use every source warning boundary', () => {
             assert.equal(state.gl.light_base.id, lamp, `${otyp} age ${age}`);
         }
     }
+});
+
+test('a diluted potion of oil burns for three quarters of its fuel', () => {
+    const state = burnState();
+    const oil = candle(POT_OIL, {
+        // Fuel 100 exercises the source's rounded 3/4 dilution formula.
+        age: 100,
+        odiluted: true,
+    });
+    begin_burn(oil, false, { state });
+
+    assert.equal(oil.age, 25);
+    assert.equal(oil.lamplit, true);
+    // The fixture starts at move 10; 75 turns of diluted fuel expire at 85.
+    assert.equal(peek_timer(BURN_OBJECT, oil, state), 85);
+    assert.equal(state.gl.light_base.range, 1);
+});
+
+test('a magic lamp emits ordinary lamp light without a burn timer', () => {
+    const state = burnState();
+    const magic = candle(MAGIC_LAMP, {
+        // Zero age exercises the magic-lamp exception to exhausted fuel.
+        age: 0,
+        spe: 1,
+    });
+    begin_burn(magic, false, { state });
+
+    assert.equal(magic.lamplit, true);
+    assert.equal(magic.timed, 0);
+    assert.equal(state.gt.timer_base, null);
+    assert.equal(state.gl.light_base.range, 3);
+});
+
+test('a full candelabrum uses the candle warning and bright-light bands', () => {
+    const state = burnState();
+    const candelabrum = candle(CANDELABRUM_OF_INVOCATION, {
+        // Fuel 100 reaches the first candle warning after 25 turns.
+        age: 100,
+        // Seven candles select the candelabrum's maximum radius.
+        spe: 7,
+    });
+    begin_burn(candelabrum, false, { state });
+
+    assert.equal(candelabrum.age, 75);
+    assert.equal(candelabrum.lamplit, true);
+    // The fixture starts at move 10; the first 25-turn segment expires at 35.
+    assert.equal(peek_timer(BURN_OBJECT, candelabrum, state), 35);
+    assert.equal(state.gl.light_base.range, 4);
 });
 
 test('unsupported burn and light paths fail before claiming ownership', () => {

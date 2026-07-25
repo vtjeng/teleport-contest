@@ -46,10 +46,12 @@ import {
 } from './monsters.js';
 import {
     BRASS_LANTERN,
+    CANDELABRUM_OF_INVOCATION,
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_DRAGON_SCALES,
     MAGIC_LAMP,
     OIL_LAMP,
+    POT_OIL,
     TALLOW_CANDLE,
     WAX_CANDLE,
 } from './objects.js';
@@ -470,31 +472,43 @@ export function obj_has_timer(obj, funcIndex, state = game) {
     return peek_timer(funcIndex, obj, state) !== 0;
 }
 
-// C ref: timeout.c begin_burn(), ordinary candle and lamp cases. age is fuel
-// remaining before this segment; after scheduling it stores the fuel remaining
-// when the segment expires.
+// C ref: timeout.c begin_burn(). age is fuel remaining before this segment;
+// after scheduling it stores the fuel remaining when the segment expires.
 export function begin_burn(obj, alreadyLit = false, env = {}) {
     const state = env.state ?? game;
     const normalized = { ...env, state, hooks: env.hooks ?? {} };
     const isCandle = obj?.otyp === TALLOW_CANDLE || obj?.otyp === WAX_CANDLE;
     const isLamp = obj?.otyp === BRASS_LANTERN || obj?.otyp === OIL_LAMP;
-    if (!isCandle && !isLamp)
+    const isCandelabrum = obj?.otyp === CANDELABRUM_OF_INVOCATION;
+    const isMagicLamp = obj?.otyp === MAGIC_LAMP;
+    const isOilPotion = obj?.otyp === POT_OIL;
+    if (!isCandle && !isLamp && !isCandelabrum
+        && !isMagicLamp && !isOilPotion) {
         throw new UnsupportedBurnObjectError(obj);
+    }
 
     const age = Math.trunc(obj.age ?? 0);
-    if (age === 0) return;
+    if (age === 0 && !isMagicLamp) return;
     if (age < 0)
         throw new RangeError(`begin_burn: invalid candle age ${obj.age}`);
 
-    let turns;
+    let turns = 0;
     let radius = 3;
-    if (isLamp) {
+    let usesTimer = true;
+    if (isMagicLamp) {
+        usesTimer = false;
+    } else if (isOilPotion) {
+        turns = obj.odiluted
+            ? Math.trunc((3 * age + 2) / 4)
+            : age;
+        radius = 1;
+    } else if (isLamp) {
         if (age > 150) turns = age - 150;
         else if (age > 100) turns = age - 100;
         else if (age > 50) turns = age - 50;
         else if (age > 25) turns = age - 25;
         else turns = age;
-    } else {
+    } else if (isCandle || isCandelabrum) {
         if (age > 75) turns = age - 75;
         else if (age > 15) turns = age - 15;
         else turns = age;
@@ -523,12 +537,17 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
             throw new Error('light sources require light_globals_init()');
     }
 
-    if (start_timer(turns, TIMER_OBJECT, BURN_OBJECT, obj, state)) {
-        obj.lamplit = true;
-        obj.age = age - turns;
-        runBurnInventoryRefresh(updateInventory, state);
+    if (usesTimer) {
+        if (start_timer(turns, TIMER_OBJECT, BURN_OBJECT, obj, state)) {
+            obj.lamplit = true;
+            obj.age = age - turns;
+            runBurnInventoryRefresh(updateInventory, state);
+        } else {
+            obj.lamplit = false;
+        }
     } else {
-        obj.lamplit = false;
+        obj.lamplit = true;
+        runBurnInventoryRefresh(updateInventory, state);
     }
 
     if (obj.lamplit && !alreadyLit) {
