@@ -390,21 +390,22 @@ test('a counted wait repeats without reading another command key', async () => {
 
 test('the segment runner preserves output at a known turn boundary', async () => {
     const replay = await runSegment({
-        seed: 840003,
+        seed: 2026072001,
         datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:BoundaryStop,role:Healer,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        moves: '3.',
+        nethackrc: 'OPTIONS=name:BoundaryStop,role:Ranger,race:elf,'
+            + 'gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none',
+        moves: '2.',
     });
 
-    // Two waits are dispatched before startup monsters acquire a complete
-    // action. The third repeat stays pending; no later input boundary is read.
+    // Both counted waits are dispatched. The live second elapsed turn,
+    // including ordinary startup-monster actions, then reaches its prompt.
     assert.equal(game._commandDispatchCount, 2);
-    assert.equal(game.multi, 1);
-    assert.equal(game.moves, 2);
-    assert.equal(game.hero_seq, 17);
-    assert.equal(game.u.uhunger, 899);
-    assert.equal(replay.getScreens().length, 2);
+    assert.equal(game.multi, 0);
+    assert.equal(game.moves, 3);
+    assert.equal(game.hero_seq, 25);
+    assert.equal(game.u.uhunger, 898);
+    assert.equal(replay.getScreens().length, 3);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
     let actionableMonster = false;
     for (let monster = game.level.monlist; monster; monster = monster.nmon) {
@@ -413,7 +414,7 @@ test('the segment runner preserves output at a known turn boundary', async () =>
             break;
         }
     }
-    assert.equal(actionableMonster, true);
+    assert.equal(actionableMonster, false);
 });
 
 test('the segment runner budget covers counts through the portable limit', () => {
@@ -638,23 +639,37 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.deepEqual(getRngLog(), elapsedLog);
 
     // Neither the unbound command nor blocked movement advances the source
-    // turn counter. The next elapsed boundary must stop before an allocated
-    // live monster acts, preserving both its action and the queued command.
+    // turn counter. The synthetic monsters deliberately omit mcanmove, so
+    // they spend an available ration without taking a map action. This
+    // isolates the next allocation boundary from movement-path randomness.
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
     assert.equal(game.moves, 2);
     assert.equal(game.u.uhunger, 899);
     assert.deepEqual(getRngLog(), elapsedLog);
     game.nhDisplay.pushKey(commandKeyCode('~'));
-    await assert.rejects(moveloop_core(), /unported monster-action phase/u);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
-    assert.equal(game.moves, 2);
-    assert.equal(game.hero_seq, 17);
-    assert.equal(game.u.uhunger, 899);
-    assert.deepEqual([head.movement, tail.movement], elapsedMovement);
-    assert.deepEqual(getRngLog(), elapsedLog);
-    await assert.rejects(moveloop_core(), /unported monster-action phase/u);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    await moveloop_core();
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    assert.equal(game.moves, 3);
+    // moves * 8 + one completed hero action is the source sequence owner.
+    assert.equal(game.hero_seq, 25);
+    assert.equal(game.u.uhunger, 898);
+    // The head spends NORMAL_SPEED from 19; the tail's 11 is below the
+    // action threshold and remains untouched.
+    assert.deepEqual([head.movement, tail.movement], [7, 11]);
+    assert.deepEqual(
+        getRngLog().slice(elapsedLog.length)
+            .map((entry) => entry.replace(/=.*/u, '')),
+        // The second elapsed turn repeats allocation, generation, sound,
+        // region, and engraving gates. Clairvoyance is not due this turn.
+        ['rn2(12)', 'rn2(12)', 'rn2(70)', 'rn2(400)', 'rn2(20)',
+            'rn2(67)'],
+    );
+    await assert.rejects(
+        moveloop_core(),
+        /Input queue empty/u,
+    );
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
 test('first-turn fog upkeep and later monster work stay source-owned', async () => {
@@ -707,8 +722,8 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 
     // movemon_singlemon() runs fog upkeep before its movement-ration gate.
-    // Once residual replay owns later turns, a missing cloud must therefore
-    // reject before any hero or PRNG state changes.
+    // The live second-turn scan must recreate the cloud even though it has no
+    // movement ration, then proceed through the next input boundary.
     game.level.regions = [];
     fogCloud.movement = 0;
     game.context.move = 1;
@@ -717,21 +732,17 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
         hunger: game.u.uhunger,
         moves: game.moves,
         movement: game.u.umovement,
-        rng: [...getRngLog()],
     };
-    await assert.rejects(
-        moveloop_core(),
-        /unported monster-action phase/u,
-    );
-    assert.deepEqual({
-        hunger: game.u.uhunger,
-        moves: game.moves,
-        movement: game.u.umovement,
-        rng: getRngLog(),
-    }, beforeFogBoundary);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    await moveloop_core();
+    assert.equal(game.moves, beforeFogBoundary.moves + 1);
+    assert.equal(game.u.uhunger, beforeFogBoundary.hunger - 1);
+    assert.equal(game.u.umovement, beforeFogBoundary.movement);
+    assert.equal(game.level.regions.length, 1);
+    assert.deepEqual(game.level.regions[0].monsters, [fogCloud.m_id]);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
 
-    // A parked guard is handled even when dead and below a movement ration.
+    // A later parked guard is still outside the residual replay boundary,
+    // even when dead and below a movement ration.
     game.level.monsters[x][y] = null;
     game.level.monlist = {
         isgd: true,
@@ -744,6 +755,7 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
         nmon: null,
     };
     game.context.move = 1;
+    game.nhDisplay.pushKey(commandKeyCode('~'));
     const parked = {
         hunger: game.u.uhunger,
         moves: game.moves,
@@ -826,12 +838,16 @@ test('moveloop zero generation gate creates before the next allocation', async (
     assert.ok(created.every((monster) => monster.movement === 0));
 
     // The unbound command consumed no time. A following wait, then another
-    // unbound command, reaches the next allocation round for the same nodes.
+    // unbound command, reaches the next allocation and live-action round for
+    // the same nodes. Any allocated ration is spent before the prompt.
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
     game.nhDisplay.pushKey(commandKeyCode('~'));
     await moveloop_core();
-    assert.ok(created.every((monster) => monster.movement > 0));
+    assert.ok(created.every(
+        (monster) => monster.movement >= 0
+            && monster.movement < NORMAL_SPEED,
+    ));
 });
 
 test('a fast hero spends surplus movement without allocating a new turn', async () => {

@@ -6,8 +6,8 @@
 
 import { rn2 } from './rng.js';
 
-// Residual per-step leaf RNG calls begin at source turn 2.  Turn 1 now runs
-// through allmain.c-shaped gameplay code and deliberately has no replay row.
+// Residual per-step leaf RNG calls begin at source turn 3. Turns 1 and 2 now
+// run through allmain.c-shaped gameplay code and have no replay rows.
 // purgeAndAllocateMonsterMovement replaces the former block of four
 // trace-derived rn2(12) calls at its source position.
 // generateRandomMonster replaces the residual rn2(70) random-monster gate;
@@ -40,7 +40,6 @@ export async function fastforward_step(
         await finishHeroTimeEffects();
     };
     const steps = {
-        2: async () => { rn2(5); rn2(5); rn2(5); rn2(5); await finishTurn(); },
         3: async () => { rn2(5); rn2(32); rn2(5); rn2(5); rn2(32); rn2(5); await finishTurn(); },
         4: async () => { rn2(5); rn2(24); rn2(5); rn2(5); rn2(24); rn2(5); await finishTurn(); },
         5: async () => { rn2(5); rn2(16); rn2(5); await finishTurn(); },

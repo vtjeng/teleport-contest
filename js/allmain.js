@@ -63,6 +63,7 @@ import { domove, endRunning, rhack } from './cmd.js';
 import { docrt, cls, bot, flush_screen, newsym } from './display.js';
 import { ttyPline } from './tty_message.js';
 import {
+    canSeeMonster,
     emitGlyphUpdateNotices,
     emitStartupA11yNotices,
 } from './startup_a11y.js';
@@ -81,7 +82,14 @@ import {
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
 import { gethungry } from './eat.js';
-import { closed_door, m_everyturn_effect } from './monmove.js';
+import {
+    closed_door,
+    m_everyturn_effect,
+} from './monmove.js';
+import {
+    preflightSimpleMonsterActions,
+    runSimpleMonsterAction,
+} from './monmove_simple.js';
 import {
     create_gas_cloud,
     run_regions,
@@ -616,6 +624,73 @@ async function advanceFirstFreshTurn(state) {
     see_nearby_monsters(state);
 }
 
+function unavailableSecondTurnOperation(operation) {
+    return () => {
+        throw new UnsupportedTurnBoundaryError(
+            `second fresh turn reached ${operation}`,
+        );
+    };
+}
+
+async function moveSecondTurnMonster(monster, env) {
+    return movemon_singlemon(monster, {
+        ...env,
+        everyTurnEffect: runEveryTurnEffectWithRegionHooks,
+        visionRecalc: vision_recalc,
+        clearBypasses: unavailableSecondTurnOperation(
+            'monster bypass cleanup',
+        ),
+        minLiquid: freshTurnMinLiquid,
+        dowear: unavailableSecondTurnOperation('monster equipment changes'),
+        restrap: unavailableSecondTurnOperation('monster hiding'),
+        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        hideUnder: unavailableSecondTurnOperation('eel concealment'),
+        canSeeHero: () => true,
+        canSeeSquare: (x, y) => cansee(x, y, env.state),
+        fightMonster: unavailableSecondTurnOperation('conflict combat'),
+        moveMonster: runSimpleMonsterAction,
+    });
+}
+
+// C ref: allmain.c moveloop_core(), second elapsed new-game turn. Monster
+// movement can require multiple complete list scans while the hero lacks a
+// ration. A fast hero's retained ration ends the scan even when a fast pet
+// could act again; once-per-turn upkeep waits until both sides are out.
+async function advanceSecondFreshTurn(state) {
+    if (state.moves !== 2)
+        firstTurnBoundary(`unexpected second-turn move counter ${state.moves}`);
+    await preflightSimpleMonsterActions(state);
+    nh_timeout_fresh_turn({ ...state, moves: 3 });
+    const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
+
+    state.u.umovement -= NORMAL_SPEED;
+    state.context.mon_moving = true;
+    try {
+        let monstersCanMove;
+        do {
+            monstersCanMove = await movemon({
+                state,
+                random,
+                moveSingleMonster: moveSecondTurnMonster,
+                clearBypasses: unavailableSecondTurnOperation(
+                    'terminal monster bypass cleanup',
+                ),
+                deferredGoto: unavailableSecondTurnOperation(
+                    'a deferred monster level transition',
+                ),
+            });
+            if (state.u.umovement >= NORMAL_SPEED) break;
+        } while (monstersCanMove);
+    } finally {
+        state.context.mon_moving = false;
+    }
+
+    if (state.u.umovement < NORMAL_SPEED)
+        await finishFreshElapsedTurn(state, random);
+    finishHeroTimeEffects(state, { random });
+    see_nearby_monsters(state);
+}
+
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
@@ -630,6 +705,8 @@ export async function moveloop_core() {
         const elapsedReplayStep = g.moves || 1;
         if (elapsedReplayStep === 1) {
             await advanceFirstFreshTurn(g);
+        } else if (elapsedReplayStep === 2) {
+            await advanceSecondFreshTurn(g);
         } else {
             // Later replay rows still lack general active monster actions.
             // Reject that boundary before debiting the hero so retries cannot

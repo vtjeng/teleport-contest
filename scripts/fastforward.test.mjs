@@ -55,12 +55,8 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
     assert.equal(firstRowCallback, false);
     // Each remaining row pins one residual replay step. The literal bounds
     // distinguish every recorded prefix and step 9's unique pre-engraving
-    // rn2(19); source turn 1 deliberately has no playback row.
+    // rn2(19); source turns 1 and 2 deliberately have no playback rows.
     const expectedRows = [
-        ['rn2(5)', 'rn2(5)', 'rn2(5)', 'rn2(5)',
-            'monster-allocation', 'random-monster-generation', 'hero-movement',
-            'initial-level-sounds', 'hunger', 'engraving-wear',
-            'hero-time-effects'],
         ['rn2(5)', 'rn2(32)', 'rn2(5)', 'rn2(5)', 'rn2(32)',
             'rn2(5)', 'monster-allocation', 'random-monster-generation',
             'hero-movement',
@@ -99,7 +95,7 @@ test('fastforward_step preserves source-owned turn boundaries', async () => {
             'hero-time-effects'],
     ];
     for (let index = 0; index < expectedRows.length; ++index) {
-        assert.deepEqual(await eventsForStep(index + 2), expectedRows[index]);
+        assert.deepEqual(await eventsForStep(index + 3), expectedRows[index]);
     }
 
     initRng(918273);
@@ -138,7 +134,7 @@ test('fastforward_step awaits each source callback before continuing', async () 
         .map((entry) => entry.replace(/=.*/u, ''));
 
     const execution = fastforward_step(
-        2,
+        3,
         waitAt('monster', monster),
         waitAt('random-monster', randomMonster),
         waitAt('hero', hero),

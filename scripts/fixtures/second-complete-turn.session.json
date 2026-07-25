@@ -1,0 +1,71 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2026072001,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:NoPetWaitWait,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " .."
+    },
+    {
+      "seed": 2026072001,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:NoPetWaitWalk,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " .h"
+    },
+    {
+      "seed": 2026072001,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:NoPetWalkWait,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " h."
+    },
+    {
+      "seed": 2026072001,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:NoPetWalkWalk,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " hh"
+    },
+    {
+      "seed": 2026072201,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:DogWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+      "moves": " .."
+    },
+    {
+      "seed": 2026072201,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:DogWaitWalk,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+      "moves": " .j"
+    },
+    {
+      "seed": 2026072201,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:DogWalkWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+      "moves": " l."
+    },
+    {
+      "seed": 2026072201,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:DogWalkWalk,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:dog\n",
+      "moves": " nn"
+    },
+    {
+      "seed": 2026072201,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:CatWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
+      "moves": " .."
+    },
+    {
+      "seed": 2026072201,
+      "datetime": "20260725120000",
+      "nethackrc": "OPTIONS=name:PonyWaitWait,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:horse\n",
+      "moves": " .."
+    },
+    {
+      "seed": 2026072311,
+      "datetime": "20261029013000",
+      "nethackrc": "OPTIONS=name:MonkSpeed,role:Monk,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
+      "moves": " .."
+    }
+  ]
+}
