@@ -27,7 +27,9 @@ upstream source.
 
 ## Current milestone: exploration
 
-**Status:** in progress.
+**Status:** implementation complete at
+`4cd8bbccf60cd6c792444c457a2f358660b552d9`; required committed-range review
+and repository cleanup are in progress.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
@@ -46,23 +48,23 @@ This checkpoint deliberately stops before any path that requires combat, trap
 activation, teleportation or other relocation, a level change, item
 interaction, a door or other special terrain interaction, or a monster
 special ability. Those are explicit future work below. An excluded path must
-fail closed before changing gameplay state or consuming gameplay PRNG so the
-same input can be retried after its owner is implemented.
+fail closed before that elapsed branch changes gameplay state or consumes
+gameplay PRNG. The segment runner retains the already-supported output, and
+the pending elapsed phase remains retryable after its owner is implemented.
 
 The active goal closes only when every current family in
 `.agents/implementation-checklist.md` is source-closed, focused and repository
 validation passes, several strict fresh comparisons reach the second prompt,
 the committed range is reviewed, and the repository is clean.
 
-**Current implementation sequence:** Commit the ordinary `monmove.c`
-move-or-stay path, then the starting-pet `dogmove.c` move-or-stay path, then
-the `allmain.c` second-command integration and replay removal. Commit the
-second-turn runner, fixture, and integration test together only with the final
-integration. Keep each implementation commit below the review-size limit and
-keep functions with their upstream subsystem; do not turn
-`js/monster_action.js` into a combined movement, trap, object, and combat
-owner. The detailed source inventory, safe-stop seams, checkpoints, and
-evidence live in `.agents/implementation-checklist.md`.
+**Completed implementation sequence:** The ordinary `monmove.c` move-or-stay
+owner, starting-pet `dogmove.c` move-or-stay owner, atomic action adapter, and
+`allmain.c` integration were committed as separate source-owned checkpoints.
+The second-turn runner, fixture, and integration test were committed together
+with the final live integration. `js/monster_action.js` remains future work
+rather than a combined movement, trap, object, and combat owner. The detailed
+source inventory, safe-stop seams, checkpoints, and evidence live in
+`.agents/implementation-checklist.md`.
 
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
