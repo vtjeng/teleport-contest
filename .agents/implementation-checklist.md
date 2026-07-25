@@ -33,12 +33,12 @@ containing objects, regions, special terrain, engravings, or a hidden trap.
 The temporary scanner's predicate still requires no monster and no trap, so it
 covers only a subset of the formal boundary.
 
-The broad boundary is impractical as one reviewable implementation slice.
-`hack.c:spoteffects()` and `trap.c:dotrap()` can add elapsed turns, move the
-hero to D:2 and require another level's generation and catalogs, terminate the
-game, or animate any of 105 difficulty-3-through-7 statue species before the
-ending event. Those species reach broad spell, special-damage, death, and
-object-effect families which ordinary D:1 generation does not.
+The superseded broader legal-entry boundary was impractical as one reviewable
+implementation slice. `hack.c:spoteffects()` and `trap.c:dotrap()` can add
+elapsed turns, move the hero to D:2 and require another level's generation and
+catalogs, terminate the game, or animate any of 105
+difficulty-3-through-7 statue species before the ending event. Those paths are
+retained below as future work.
 
 The user accepted **Second stable-level non-trap command** as the current
 implementation milestone:
@@ -52,37 +52,37 @@ implementation milestone:
 - Monster-triggered traps and termination from in-scope monster actions remain
   included.
 
-This split does not shrink the full objective. Hero-triggered trap effects and
-their transitions are explicit later named milestones.
+Hero-triggered trap effects, their transitions, and the broader catalogs they
+introduce are explicit future exploration work. They do not block this
+checkpoint.
 
 ## How the candidate list was built
 
-The inventory below is the complete source-derived family list for the stated
-boundary at this checkpoint. It replaces the former broad, explicitly
-incomplete summary.
+The inventory below separates the complete source-derived list into
+current-goal families and explicit future work. The current-goal table includes
+only behavior that can run before this checkpoint's ending event.
 
-- Upstream entry points: `allmain.c:moveloop_core()`, `cmd.c:dowait()`,
-  `hack.c:domove()`, `hack.c:spoteffects()`, `trap.c:dotrap()`,
-  `mon.c:movemon()`, `mon.c:movemon_singlemon()`,
+- Current upstream entry points: `allmain.c:moveloop_core()`,
+  `cmd.c:dowait()`, `hack.c:domove()`, the non-trap branches of
+  `hack.c:spoteffects()`, `mon.c:movemon()`,
+  `mon.c:movemon_singlemon()`,
   `monmove.c:dochugw()`, `monmove.c:dochug()`, `monmove.c:m_move()`,
   `dogmove.c:dog_move()`, `mhitm.c:mattackm()`, `mhitu.c:mattacku()`, and
   the object, trap, movement, rendering, and persistence helpers they call
   before the ending event.
+- Future entry points retained separately: `trap.c:dotrap()`, hero relocation
+  and level transition, living-statue animation, and the catalogs those paths
+  introduce.
 - Dispatch tables and catalogs: The ordinary D:1 generation catalog contains
   jackal, fox, kobold, goblin, sewer rat, grid bug, lichen, kobold zombie, and
   newt. Starting pets are little dog, kitten, and pony. Reachable themed-level
   additions include sleeping fog clouds, wood nymphs, a waiting ghost, and
   chest-disguised mimics.
-- Statue-trap catalog: A living-statue trap at D:1 calls
-  `rndmonnum_adj(3, 6)`, making 105 difficulty-3-through-7 species eligible.
-  Their attack catalog reaches breath, engulfing, explosions, magic, theft,
-  seduction, poison, paralysis, petrification, rust, decay, hallucination, and
-  other special damage methods. The implementation plan therefore follows
-  attack and damage owners rather than enumerated discovery seeds.
 - Trap catalog: Ordinary D:1 generation reaches arrow, dart, falling-rock,
   squeaky-board, bear, rust, pit, hole, trapdoor, teleport, magic, and
-  anti-magic traps. Themes add web, land mine, sleep gas, statue, and fixed
-  teleport traps. A transition to D:2 makes the rolling-boulder trap eligible.
+  anti-magic traps. Themes add web, land mine, sleep gas, and fixed teleport
+  traps. Hero statue activation and D:2 rolling-boulder eligibility are future
+  work because the current valid-input boundary excludes them.
 - Reachable helpers: Calls were grouped by the upstream subsystem that owns
   their state and PRNG order. Shared placement, tracking, object, naming,
   carrying, food, combat, trap, and turn-loop prerequisites are separate
@@ -93,25 +93,23 @@ incomplete summary.
   replay. The temporary discovery scanner now traverses its complete requested
   range and groups failures by unsupported reason. Strict case lists use
   `scripts/scan-fresh.mjs`.
-- Remaining limits: Families 12 and 13 remain confirmed in the full legal-entry
-  objective but cannot occur for the accepted stable-level non-trap inputs.
-  The 27 partial families still require source closure and live-consumer
-  differentials; a passing discovery range is not closure proof.
+- Remaining limits: The current table has 28 partial families that still
+  require source closure and live-consumer differentials. The future-work
+  table retains excluded hero-trap, transition, D:2, and statue-only catalogs
+  so they are not mistaken for completed behavior. A passing discovery range
+  is not closure proof.
 
 ## Coverage summary
 
-The source survey has 38 families:
+The source survey retains 38 top-level families:
 
-- 2 covered families, represented as checklist status `done`;
-- 27 partially implemented or partially proved families, represented as
-  `undecided`;
-- 6 confirmed implementation gaps, represented as `missing`; and
-- 2 hero-trap follow-up families, represented as `cannot-occur` for this
-  milestone.
+- 36 current-goal families: 2 `done`, 6 `missing`, and 28 `undecided`;
+- 2 families moved to explicit future work because their first effect requires
+  excluded hero trap activation or a hero level transition.
 
-Thus the checklist-status totals are 2 `done`, 6 `missing`, 28 `undecided`,
-and 2 `cannot-occur`. No family is currently classified as `no-effect-yet` or
-`later`.
+No current-goal family is classified as `no-effect-yet`, `later`, or
+`cannot-occur`. Future-only subpaths inside mixed families are listed
+separately below and do not count toward current-goal readiness.
 
 ## Status values
 
@@ -120,7 +118,7 @@ This checklist uses the status definitions in
 the more precise survey classification; `Status` uses only the template's
 allowed labels.
 
-## Complete 38-family implementation table
+## Current-goal implementation table: 36 families
 
 | # | Upstream function or branch family | Reachability, effects, and current evidence | JavaScript owner | Coverage | Status | Checkpoint or next proof |
 | ---: | --- | --- | --- | --- | --- | --- |
@@ -135,17 +133,15 @@ allowed labels.
 | 9 | Region entry, hero track, vision, and engraving smudge | A successful move can enter/leave regions, update `utrack`, recalculate vision, and smudge or read an engraving before elapsed monster work. Destination reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; track updates, smudging, and full region/vision ordering are not closed. | `js/track.js`, `js/vision.js`, region and engraving owners | partial | `undecided` | C4 tracking and committed read wiring, then finish C16 movement ordering and smudging. |
 | 10 | `hack.c:spoteffects()` terrain, rooms, and regions | An accessible destination can trigger terrain, room, and region effects before monsters move; sleeping gas can add elapsed turns. Scanner cases do not prove every variant. | `js/cmd.js`, region/terrain owners | partial | `undecided` | C16: trace and port non-trap spot effects, including extra-turn cases. |
 | 11 | Destination objects, pickup/description, and engraving reading | A destination can contain an object or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. The ordinary sighted single-object description is live at `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination engraving reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; piles, pickup, terrain modifiers, blindness, and special objects remain. | `js/invent.js`, `js/engrave.js`, `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | Continue C16 with source-owned pile, pickup, terrain, and blind-floor paths. |
-| 12 | `trap.c:dotrap()` hero trap effects | The accepted valid-input condition requires that entering the destination not activate `dotrap()`, so this family cannot run in this milestone. It remains required for the later hero-trap milestone. | Trap and hero-state owners not yet integrated | outside current milestone | `cannot-occur` | Retain the source inventory and schedule every reachable hero trap effect in the follow-up milestone. |
-| 13 | Hero teleport, statue animation, level transition, and termination | The accepted valid-input condition also excludes hero level transitions before the ending event. Hero trap relocation, statue animation, D:2 generation, and trap termination remain required follow-up work. | `js/teleport.js`, `js/monst.js`, turn/termination owners | outside current milestone | `cannot-occur` | Prove transition, termination, D:2 generation, and expanded attack catalogs in the follow-up milestone. |
 | 14 | `mon.c:movemon_singlemon()` dead/off-map/every-turn/ration gates | Each monster scan filters dead, migrating, or ineligible monsters and handles rationed movement before dispatch. Active cases exercise common gates only. | `js/allmain.js`, `js/monster_action.js` pending extraction | partial | `undecided` | Reuse the existing placement state, then C15 turn-loop dispatch. |
 | 15 | Bypass/split, `minliquid()`, equipment, and hider handling | Eligible monsters can clear bypass state, split, interact with liquid, equip, or hide before ordinary action selection. Some equipment and trap cases match; the family is incomplete. | Future `mon.c` owner plus object/equipment helpers | partial | `undecided` | C5-C7 prerequisites, C11 weapons, then source-shaped `mon.c` extraction. |
 | 16 | `movemon()` terminal light, purge, and deferred transition | After scans, source updates monster-carried light, purges dead monsters, and performs deferred level transitions before prompt rendering. Only reached subsets are wired. | `js/allmain.js`, `js/light.js`, `js/monst.js` | partial | `undecided` | Reuse the existing placement substrate; complete light and turn-loop ownership in C15. |
 | 17 | `mcalcdistress()` regeneration, shape, and timers | Before actions, monsters can heal, change shape, and tick status timers; species predicates and ordering control effects and PRNG. Catalog support is incomplete. | `js/mondata.js`, future `mon.c` distress owner | partial | `undecided` | C2 generated fields/predicates, then a source-owned distress commit. |
 | 18 | `monmove.c:dochug()` phase 1: arrival, wait, sleep, status, flee, respond, release | Runs before movement for pets and ordinary monsters. The reachable ordinary and starting-pet caller order is extracted in the worktree; arrival, status recovery, special responses, and release branches remain unsupported. | `js/monmove.js`; worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`; integration adapters remain in `js/monster_action.js` | confirmed gap | `missing` | Finish the C14 pre-action phase and connect the remaining source-owned response/release helpers. |
 | 19 | `dochug()` phase 2: apparent hero, scary checks, defensive/miscellaneous actions, wielding, special actions | Monsters choose apparent hero coordinates, react to scary squares, use defensive or miscellaneous actions, and decide whether to wield before movement/attack. The worktree callers own apparent-hero and scary-square ordering; defensive, miscellaneous, wielding, and other special actions remain. | `js/monmove.js`, worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`, `js/weapon.js`, future action owners | confirmed gap | `missing` | C11 weapon helpers, then finish C14 phase 2 and retain the strict scary-square batch. |
-| 20 | `dochug()` phase 3: movement, spell, ranged attack, and hero attack dispatch | The phase chooses mutually ordered movement, spell, ranged, or melee action. Reachable ordinary and pet movement dispatch is extracted in the worktree; spellcasting and special attacks still stop explicitly. | Worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`, `js/mhitu.js`, ranged/spell owners | confirmed gap | `missing` | C11 and C14 finish dispatch; close each special consumer in its source-owned module. |
+| 20 | `dochug()` phase 3: movement, ranged attack, and hero attack dispatch | The phase chooses mutually ordered movement, ranged, or melee action for the D:1 and starting-pet catalog. Reachable ordinary and pet movement dispatch is extracted in the worktree; reachable ranged and hero attacks still stop explicitly. Spellcasting from species introduced only by excluded statue animation is future work. | Worktree `js/monmove_dochug.js` and `js/monmove_dochug_pet.js`, `js/mhitu.js`, ranged owners | confirmed gap | `missing` | C11 and C14 finish the reachable dispatch family; retain statue-only spell dispatch in future work. |
 | 21 | `monmove.c:m_move()` trapped/eating/hide/setup branches | Movement setup can release a trapped monster, continue eating, reveal/hide, or stop before candidate selection. Web, bear, and pit subsets exist. | `js/monmove.js`; temporary code in `js/monster_action.js` | partial | `undecided` | C13 trap primitives, then C14 `m_move()` setup extraction. |
-| 22 | Special movers, item goals, doors, and tunneling | Species and strategy can select covetous/special movement, object goals, doors, tunneling, or boulder handling instead of ordinary walking. Explicit unsupported paths remain. | Future `monmove.js` and subsystem owners | confirmed gap | `missing` | C14 special-mover checkpoint after object and weapon prerequisites. |
+| 22 | Item goals, doors, and non-ordinary movement | Reachable D:1 species can select object goals, doors, or boulder handling instead of ordinary walking; explicit unsupported paths remain. Covetous movement and tunneling species introduced only by excluded catalogs are future work. | Future `monmove.js` and subsystem owners | confirmed gap | `missing` | C14 closes reachable D:1 goal, door, and boulder handling after object and weapon prerequisites. |
 | 23 | Path selection, tracking, trap avoidance, collisions, aggression, and displacement | Ordinary movement ranks squares using hero/monster tracks, trap knowledge, occupancy, aggression, and displacement. Common path selection and coordinate movement are extracted in the worktree; aggression/displacement still stop explicitly. | `js/track.js`, `js/monmove.js`, worktree `js/monmove_move.js` | partial | `undecided` | Finish C13 trap routing and C14 aggression/displacement candidate selection. |
 | 24 | Normal movement and `postmov()` doors, traps, objects, and hiding | Chosen movement updates position and track, then applies door, trap, object, hiding, redraw, and message effects in source order. The ordinary coordinate update is extracted in the worktree; `postmov()` and its remaining door/object/hiding branches are not closed. | `js/monst.js`, `js/obj.js`, `js/monmove.js`, worktree `js/monmove_move.js`; `postmov()` integration remains in `js/monster_action.js` | partial | `undecided` | Existing placement plus C5/C13 prerequisites, then finish C14 `postmov()`. |
 | 25 | `dogmove.c` hunger and inventory | A starting pet can become hungry, carry objects, select droppables, drop, or starve before/after movement. Ordinary carry/drop cases match; thresholds and special inventory effects remain. | `js/dogmove.js`, `js/moncarry.js`, `js/dogfood.js` | partial | `undecided` | C7-C9: carrying, food, then dog inventory/eating subcommit. |
@@ -156,12 +152,27 @@ allowed labels.
 | 30 | `dog.c`, `mon.c`, and object lifecycle: food, nutrition, consumption, corpse, carry, artifact, ownership, naming | Pet and combat paths classify and consume food, apply corpse effects, carry/split/stack objects, check artifacts, and name output. Non-hero artifact touch is complete at `3d33c40c0862755a1a989223128b649704bd2d75`; the combined family is not. | `js/dogfood.js`, `js/moncarry.js`, `js/obj.js`, `js/objnam.js`, `js/artifacts.js` | partial | `undecided` | C5-C8, retaining C1 artifact evidence and adding live food/corpse cases. |
 | 31 | Monster trap immunity, avoidance, and routing | Species data and trap knowledge decide whether a monster avoids, resists, triggers, or escapes a trap while choosing/making a move. Several generated traps match, but all trap/species combinations are not closed. | `js/mondata.js`, future `trap.js`/`monmove.js` owners | partial | `undecided` | C2 predicates, then C13 routing and C14 consumer proof. |
 | 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. Projectile and holding owners are committed. Sleep and anti-magic have source-owned worktree modules, focused tests, and live owner wiring; `wake_nearto()` also reaches the worktree `hack.c` buried-zombie timer owner. Rust and full live-consumer closure remain. | `js/trap_monster_projectiles.js`, `js/trap_monster_holding.js`, `js/trap_monster_shared.js`; worktree `js/trap_monster_sleep.js`, `js/trap_monster_antimagic.js`, and `js/hack.js`; rust remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 status family, then commit and run grouped strict cases after the live C14 consumer is committed. |
-| 33 | Magic/fire/item damage and ignition trap effects | Magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. Seeds 962639 and 966115 match implemented subsets. | Future `trap.js` plus object/damage owners; temporary action code | partial | `undecided` | C5 object support, then C13 magic/fire/item-damage commit. |
-| 34 | Hole/trapdoor/teleport/migration, land mine, and rolling boulder | Monster traps can relocate or migrate a monster, consume one-shot traps, explode land mines, or launch boulders; D:2 expands reachability. Fixed/random teleport and stable-D:1 hole migration have a source-owned worktree module and focused tests. Random relocation now permits source-inert ordinary carried inventory while failing closed on carried shop state. Steeds, leashes, the one-shot vault teleport, land mines, and rolling boulders remain. | `js/teleport.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine and rolling-boulder code remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 relocation family after C12 hurtling, then commit and run grouped strict cases through the C14 consumer. |
-| 35 | `mhitm.c` attack iteration, contact/ranged/special attacks, and passives | Pet/monster encounters iterate attack descriptors in source order and can invoke contact, ranged, special, and passive effects. Physical subsets have focused and fresh evidence. | `js/mhitm.js` | partial | `undecided` | C10: attack-loop commit followed by a passives/special-effects commit. |
-| 36 | `mhitm.c` damage, death, growth, corpse, knockback, collision, and retaliation | A hit can damage/kill either monster, grow the attacker, create a corpse, knock back/collide, or trigger retaliation. Strict visible/blind seed 962576 covers one-square hurtling; remaining branches are open. | `js/mhitm.js`, object/placement owners, future `dothrow.js` | partial | `undecided` | C10 damage/death and knockback commits, then C12 hurtling owner. |
-| 37 | `mhitu.c` apparent image, to-hit, weapons, special damage, and hero death | A nearby ordinary monster can attack the hero or displaced image and can end the run before the prompt. Seed 971455 covers one armed miss and a focused hit covers weapon-die ordering; many damage types and death still stop explicitly. | `js/mhitu.js`, `js/weapon.js`, hero/termination owners | confirmed gap | `missing` | C11 weapon helpers and `mhitu()` commit with damage-type and termination matrices. |
+| 33 | Magic/fire/item damage and ignition trap effects | D:1 magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. Seeds 962639 and 966115 match implemented subsets. | Future `trap.js` plus object/damage owners; temporary action code | partial | `undecided` | C5 object support, then the current D:1 C13 magic/fire/item-damage commit. |
+| 34 | Hole/trapdoor/teleport/migration and land mine | D:1 monster traps can relocate or migrate a monster, consume one-shot traps, or explode land mines. Fixed/random teleport and stable-D:1 hole migration have a source-owned worktree module and focused tests. Random relocation now permits source-inert ordinary carried inventory while failing closed on carried shop state. Steeds, leashes, the one-shot vault teleport, and land mines remain. D:2-only rolling-boulder traps are future work. | `js/teleport.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine code remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the current D:1 C13 relocation family after C12 hurtling, then run grouped strict cases through the C14 consumer. |
+| 35 | `mhitm.c` attack iteration, reachable contact/ranged/special attacks, and passives | Pet/monster encounters among the D:1 and starting-pet catalog iterate attack descriptors in source order and can invoke contact, ranged, special, and passive effects. Physical subsets have focused and fresh evidence. Statue-only attack methods are future work. | `js/mhitm.js` | partial | `undecided` | C10: reachable attack-loop commit followed by its passives and special effects. |
+| 36 | `mhitm.c` damage, death, growth, corpse, knockback, collision, and retaliation | A reachable hit can damage or kill either monster, grow the attacker, create a corpse, knock back or collide, or trigger retaliation. Strict visible/blind seed 962576 covers one-square hurtling; remaining current-catalog branches are open. | `js/mhitm.js`, object/placement owners, future `dothrow.js` | partial | `undecided` | C10 reachable damage/death and knockback commits, then C12 hurtling owner. |
+| 37 | `mhitu.c` apparent image, to-hit, weapons, reachable special damage, and hero death | A nearby D:1 monster can attack the hero or displaced image and can end the run before the prompt. Seed 971455 covers one armed miss and a focused hit covers weapon-die ordering; reachable damage types and death still stop explicitly. Statue-only damage types are future work. | `js/mhitu.js`, `js/weapon.js`, hero/termination owners | confirmed gap | `missing` | C11 weapon helpers and reachable `mhitu()` damage-type and termination matrices. |
 | 38 | Messages, rendering, persistence, replay removal, input, and termination integration | Every family can affect ordered messages, full screen/attributes, cursor, saved state, replay ownership, next input, or termination. Current fresh cases cover subsets while second-turn replay remains. | `js/allmain.js`, live owners, `js/fastforward.js`, runner/test files | partial | `undecided` | C17 final integration and exact end-to-end validation at the committed head. |
+
+## Explicit future work retained from the 38-family inventory
+
+These paths are known gaps in the broader exploration objective, but their
+first effect requires an input excluded from the current checkpoint. They do
+not count toward current-goal readiness.
+
+| Original family | Future boundary | Source authority | Why outside the current goal | Planned owner |
+| ---: | --- | --- | --- | --- |
+| 12 | Hero-triggered trap activation | `hack.c:spoteffects()`, `trap.c:dotrap()` | Current inputs must not activate `dotrap()`. | Future hero-trap checkpoint under trap and hero-state owners. |
+| 13 | Hero trap relocation, living-statue animation, termination, and level transitions | `trap.c:dotrap()`, `teleport.c`, `makemon.c`, level-transition owners | Current inputs must remain on the stable level through the ending event. | Future hero-trap and level-transition checkpoints. |
+| 13, 20, 22, 35-37 | Living-statue species and the additional spell, breath, engulfing, explosion, theft, seduction, poison, paralysis, petrification, rust, decay, hallucination, and other attack/effect branches they introduce beyond the current catalog | `trap.c` living-statue branch and `rndmonnum_adj(3, 6)`, then `monmove.c`, `mhitm.c`, and `mhitu.c` | The 105 difficulty-3-through-7 species become eligible only after excluded hero statue activation. | Future combat checkpoints after hero statue activation is live. |
+| 13, 34 | D:2 generation and rolling-boulder traps | level-transition code, `trap.c` rolling-boulder branch | Rolling-boulder traps first become eligible after an excluded hero transition to D:2. | Future level-transition and D:2 trap checkpoints. |
+| 22 | Covetous movement and tunneling species absent from the D:1/current catalog | `monmove.c:m_move()` special movement dispatch | No valid current-goal monster can select these branches. | Future monster-movement checkpoint when its species catalog becomes reachable. |
+| — | Running, search commands, obstructed movement, doors, pickup commands, stairs, and later exploration inputs | Command handlers and their gameplay owners | The current valid inputs contain only waits and legal one-square moves. | Later exploration checkpoints after C17. |
 
 ## Ordered source-owned checkpoints
 
@@ -209,40 +220,44 @@ object, and combat module.
    `a20cd18f4f243f41e7361709cb081ca38a36d3f1`; the
    `vision.c:do_clear_area()` prerequisite is complete in
    `db880ce6648710d234c6ec6c9ed6b181725144ec`.
-10. **C10 — `mhitm.c` in bounded commits:** attack iteration; damage/death and
-    growth/corpses; passives/knockback/collision as line counts and source
-    seams require.
-11. **C11 — `weapon.c` monster weapon helpers, then `mhitu.c`.**
+10. **C10 — reachable `mhitm.c` in bounded commits:** attack iteration;
+    damage/death and growth/corpses; passives/knockback/collision as line
+    counts and source seams require. Statue-only attack methods remain future
+    work.
+11. **C11 — `weapon.c` monster weapon helpers, then reachable D:1
+    `mhitu.c`.** Statue-only damage methods remain future work.
 12. **C12 — `dothrow.c` hurtling and collision movement.**
-13. **C13 — `trap.c` in source-owned groups:** projectiles; holding; status;
-    magic/fire/item damage; hole/teleport/migration; land mine/rolling boulder.
+13. **C13 — current D:1 `trap.c` in source-owned groups:** projectiles;
+    holding; status; magic/fire/item damage; hole/teleport/migration; land
+    mine. D:2-only rolling-boulder behavior remains future work.
     Projectiles are committed in `04898bab19eb3716ea73f956bf17a61de17d5ef1`.
     Holding traps are committed in
     `10e85bdd8801f59ef61e6e93fb362468099e870c`; the injected boulder-floor
     effect and dangerous-corpse self-touch owners remain open. Sleep,
     anti-magic, and stable-D:1 relocation are extracted in the worktree but
     remain uncommitted until their source families and quality gate are ready.
-14. **C14 — `monmove.c` in source-owned groups:** pre-action phases; ordinary
-    movement; `postmov()`, with special movers kept separate if needed. This
+14. **C14 — reachable `monmove.c` in source-owned groups:** pre-action phases;
+    ordinary movement; item/door/boulder choices; and `postmov()`. This
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior. The
     ordinary and starting-pet `dochug()` callers plus ordinary `m_move()`
-    selection are extracted in the worktree; `postmov()` and the unsupported
-    sibling branches remain.
+    selection are extracted in the worktree; `postmov()` and reachable
+    sibling branches remain. Covetous and tunneling species absent from the
+    current catalog remain future work.
 15. **C15 — elapsed-loop owners:** separate `allmain.c`, `timeout.c`,
     `light.c`, and `vision.c` commits, followed by turn-loop wiring. The
     behavior-preserving `allmain.c` extraction of shared fresh elapsed-turn
     upkeep is complete in
     `05c87bb0d718ee589a0c9ebe55f50e90fcb643c3`; second-turn dispatch and the
     remaining elapsed branches are still open.
-16. **C16 — `hack.c:domove()` and `spoteffects()`.** Close the accepted
-    milestone's non-trap spot effects here. The ordinary sighted
+16. **C16 — `hack.c:domove()` and non-trap `spoteffects()`.** Close the
+    accepted checkpoint's non-trap spot effects here. The ordinary sighted
     `invent.c:look_here()` single-object branch is complete in
     `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination
     `engrave.c:read_engr_at()` wiring is complete in
     `c36479c5f51decaf0477a29ba0f6a7913661a027`. The shared
     `hack.c:disturb_buried_zombies()` prerequisite is complete in the
-    worktree. Hero-triggered traps and hero level transitions remain separate
-    named follow-up milestones.
+    worktree. Hero-triggered traps and hero level transitions remain explicit
+    future exploration checkpoints.
 17. **C17 — final integration:** live wiring and replay removal, plus
     `scripts/run-second-complete-turn.mjs` refactored to `runFreshMatrix()`,
     `scripts/fixtures/second-complete-turn.session.json`, and
@@ -270,16 +285,18 @@ its follow-up milestone.
    prerequisites used by active pet, trap, and combat paths. C2-C4 and the
    shared placement/index substrate are complete.
 2. C9 resolves families 25-29 without absorbing trap or combat behavior.
-3. C10-C12 resolve the attack, hero-combat, and hurtling seams in families
-   28 and 35-37.
-4. C13 resolves monster trap families 31-34 in grouped scanner batches.
-5. C14 resolves monster action families 18-24, including strict seed 979597
-   for scary-square flight.
+3. C10-C12 resolve attack, hero-combat, and hurtling seams reachable from the
+   D:1 and starting-pet catalog in families 28 and 35-37.
+4. C13 resolves current D:1 monster-trap families 31-34 in grouped scanner
+   batches. D:2 rolling boulders remain future work.
+5. C14 resolves current-catalog monster action families 18-24, including
+   strict seed 979597 for scary-square flight. Covetous and tunneling species
+   remain future work.
 6. C15 closes elapsed work and the pre-prompt turn loop in families 1-6 and
    14-17.
-7. C16 closes movement spot effects. Under the current broad boundary it also
-   integrates families 12-13; under the proposed named milestone those
-   families move to explicit follow-up milestones.
+7. C16 closes non-trap movement spot effects. Hero `dotrap()`, statue
+   animation, and level transitions are explicit future work and are not C16
+   closure requirements.
 8. C17 removes obsolete replay and proves family 38 through the next observable
    boundary.
 
@@ -420,8 +437,9 @@ its follow-up milestone.
   its `mhitm.c` death owner, and random relocation permits ordinary carried
   inventory while retaining an explicit shop-state seam.
 - The worktree `hack.c:disturb_buried_zombies()` owner shortens only nearby
-  active zombification timers and is connected through
-  `mon.c:wake_nearto()`. Its direct suite passes 2/2.
+  active zombification timers and is connected through `mon.c:wake_nearto()`
+  and the heavy-tread branch of `hack.c:domove()`. Its direct suite passes
+  3/3, including the weight, levitation, flight, and stealth gates.
 - Strict fresh seed 980221 covers the live anti-magic adapter, seed 980409
   covers buried-zombie disturbance, and seed 981228 covers random relocation
   of a pony carrying its saddle; all three pass. The grouped discovery range
@@ -475,12 +493,22 @@ its follow-up milestone.
   without an unsupported error; two cases used command-family fallbacks. The
   batch found eight engraving-entry cases and 117 object-entry cases for C16
   grouping. This is discovery evidence, not a parity claim.
+- Seeds 992000 through 994999 completed all 3,000 discovery cases without an
+  unsupported error or command-family fallback. A second full-range pass over
+  seeds 980000 through 982999 prioritized legal destinations adjacent to
+  active buried-zombie timers; all 3,000 cases completed without an
+  unsupported error, but neither batch found such a destination. The
+  hero-tread branch therefore has focused source-condition evidence but no
+  claimed fresh live hit yet. The current worktree checkpoint passes 3/3
+  focused tests, the full 1,506-test suite, and all four declared
+  generated-data checks.
 
 ## Validation required at final integration
 
 - Commit checked: Not yet available; implementation remains in progress.
-- Source review: Recheck all 38 families and every reachable helper at the
-  exact C17 head.
+- Source review: Recheck all 36 current-goal families and every reachable
+  helper at the exact C17 head; confirm that each future-work path still
+  requires an excluded input before its first effect.
 - Focused tests: Run each owner suite during its checkpoint and the combined
   focused set at C17.
 - Full suite: Run `npm test` before every implementation commit and at C17.
@@ -501,7 +529,7 @@ its follow-up milestone.
 
 Current mode: Implementation
 
-Reason: Six families have confirmed missing behavior, 28 are only partially
-implemented or proved, and second-turn replay remains. The accepted
-stable-level non-trap milestone is active; hero-triggered trap and transition
-families are scheduled follow-up work.
+Reason: Six current-goal families have confirmed missing behavior, 28 are only
+partially implemented or proved, and second-turn replay remains. Hero-triggered
+traps, level transitions, D:2 rolling boulders, and statue-only combat catalogs
+are explicit future work and do not count toward this checkpoint's readiness.

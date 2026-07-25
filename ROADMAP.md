@@ -33,13 +33,29 @@ upstream source.
 search, doors, traps, pickup, stairs, terrain effects, vision, and status
 updates.
 
-**Current focus:** Extend source-faithful turn ownership past the completed
-first turn, beginning with the general active-monster and later-turn replay
+**Current checkpoint: Second stable-level non-trap command.** Starting at the
+first command prompt, match through the prompt or termination after any two
+waits or legal one-square moves. Entering objects, regions, engravings, and
+special terrain remains in scope. The entered hero square must not activate
+`trap.c:dotrap()`, and the hero must not change levels before the ending
+boundary. Monster-triggered traps and termination from in-scope monster
+actions remain in scope.
+
+This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
 development-score drop at
 `68472ba3aa99786e5c3e01f4407b07bc853ea89b` intentionally removed matches
 earned after those behaviors became unowned; do not recover that credit by
 relaxing the fail-closed boundary.
+
+**Explicit future exploration work:**
+
+- Hero-triggered traps, including teleport and living-statue effects.
+- Hero level transitions, D:2 generation, and rolling-boulder traps.
+- The broader monster and combat catalogs introduced only by those excluded
+  trap and transition paths.
+- Running, search commands, obstructed movement, doors, pickup, stairs, and
+  other exploration commands beyond the current two-command checkpoint.
 
 ## Later milestones
 
