@@ -175,6 +175,7 @@
         "js/trap_monster_fire.js",
         "js/trap_monster_antimagic.js",
         "js/trap_monster_projectiles.js",
+        "js/trap_monster_rust.js",
         "js/trap_monster_shared.js",
         "js/trap_monster_sleep.js",
         "js/vision.js"
