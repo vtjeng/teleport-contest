@@ -163,9 +163,9 @@ branches and live consumers are closed.
 | 28 | Starting-pet combat and displacement | Candidate selection can attack or displace a reachable monster. Those live consumers remain unsupported. The little dog, kitten, and pony have no ranged attack, and cannot attack the hero without a later conflict or altered-state source; those branches are future work. | `js/dogmove.js`, `js/mhitm.js` | confirmed gap | `missing` | C9 movement dispatch after the reachable C10 combat owner exists. |
 | 29 | Pet movement, eating, dropping, and pickup execution | Once selected, a pet can move, eat, drop, or pick up, updating `edog`, floor objects, inventory, messages, and PRNG. Several exact cases match, including carried-gold drop; special floor/food effects remain. | `js/dogmove.js`, `js/dogfood.js`, `js/moncarry.js`, `js/obj.js` | partial | `undecided` | C5-C9, split so goals, inventory/eating, and active movement each stay under 500 production lines. |
 | 30 | `dog.c`, `mon.c`, and object lifecycle: food, nutrition, consumption, corpse, carry, artifact, ownership, naming | Pet and combat paths classify and consume food, apply corpse effects, carry/split/stack objects, check artifacts, and name output. Non-hero artifact touch is complete at `3d33c40c0862755a1a989223128b649704bd2d75`; the combined family is not. | `js/dogfood.js`, `js/moncarry.js`, `js/obj.js`, `js/objnam.js`, `js/artifacts.js` | partial | `undecided` | C5-C8, retaining C1 artifact evidence and adding live food/corpse cases. |
-| 31 | Monster trap immunity, avoidance, and routing | Species data and trap knowledge decide whether a monster avoids, resists, triggers, or escapes a trap while choosing/making a move. Several generated traps match, but all trap/species combinations are not closed. | `js/mondata.js`, future `trap.js`/`monmove.js` owners | partial | `undecided` | C2 predicates, then C13 routing and C14 consumer proof. |
+| 31 | Monster trap immunity, avoidance, and routing | Species data and trap knowledge decide whether a monster avoids, resists, triggers, or escapes a trap while choosing/making a move. The generic `trap.c:mintrap()` selector is committed at `1f386ff4704a56ae3605f44507f8bebb211e9380`; trap/species routing and the live movement consumer are not closed. | `js/mondata.js`, `js/trap_monster.js`, and future `monmove.js` owners | partial | `undecided` | Finish C13 routing, then prove the C14 consumer with grouped strict cases. |
 | 32 | Projectile, holding, and status trap effects on monsters | Arrow/dart/rock attacks, bear/pit/web holding, rust, sleep, anti-magic, and related status changes can occur before the prompt. Projectile, holding, sleep, and squeaky-board owners are committed; `mon.c:wake_nearto()` now reaches the committed buried-zombie timer owner. Anti-magic has a source-owned worktree module and focused tests. Rust and full live-consumer closure remain. | `js/trap_monster_projectiles.js`, `js/trap_monster_holding.js`, `js/trap_monster_shared.js`, `js/trap_monster_sleep.js`, `js/mon.js`, and `js/hack.js`; worktree `js/trap_monster_antimagic.js`; rust remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the C13 status family, then run grouped strict cases after the live C14 consumer is committed. |
-| 33 | Magic/fire/item damage and ignition trap effects | D:1 magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. The `trap.c`, `zap.c`, `apply.c`, and naming owners are committed, and seeds 962639 and 966115 match the live worktree consumer. The generic trap selector and movement consumer remain uncommitted. | `js/trap_monster_fire.js`, `js/zap_destroy_items.js`, `js/apply_catch_lit.js`, and `js/do_name.js`; selector wiring remains in worktree | source owner complete; live closure pending | `undecided` | Commit the source-owned generic C13 selector, then its C14 movement consumer; retain the grouped magic/fire batch as closure evidence. |
+| 33 | Magic/fire/item damage and ignition trap effects | D:1 magic traps can select ordinary or fire-burst outcomes, damaging monsters, armor, inventory, and floor objects in strict PRNG order. The `trap.c`, `zap.c`, `apply.c`, naming, and generic selector owners are committed, and seeds 962639 and 966115 match the live worktree consumer. The movement consumer remains uncommitted. | `js/trap_monster.js`, `js/trap_monster_fire.js`, `js/zap_destroy_items.js`, `js/apply_catch_lit.js`, and `js/do_name.js` | source owner complete; live closure pending | `undecided` | Commit the C14 movement consumer, then retain the grouped magic/fire batch as closure evidence. |
 | 34 | Hole/trapdoor/teleport/migration and land mine | D:1 monster traps can relocate or migrate a monster or explode a themed-room land mine. Fixed/random teleport and stable-D:1 hole migration have a source-owned worktree module and focused tests. Random relocation now permits source-inert ordinary carried inventory while failing closed on carried shop state. Land mines remain current. Steeds, leashes, one-shot vault teleportation, and rolling-boulder traps are future work. | `js/teleport.js`, `js/monst.js`, worktree `js/trap_monster_relocation.js`; land-mine code remains temporary in `js/monster_action.js` | partial | `undecided` | Finish the current D:1 C13 relocation and land-mine family after C12 hurtling, then run grouped strict cases through the C14 consumer. |
 | 35 | `mhitm.c` attack iteration, reachable contact/ranged/special attacks, and passives | Pet/monster encounters among the D:1 and starting-pet catalog iterate attack descriptors in source order and can invoke contact, ranged, special, and passive effects. Physical subsets have focused and fresh evidence. Statue-only attack methods are future work. | `js/mhitm.js` | partial | `undecided` | C10: reachable attack-loop commit followed by its passives and special effects. |
 | 36 | `mhitm.c` damage, death, growth, corpse, knockback, collision, and retaliation | A reachable hit can damage or kill either monster, grow the attacker, create a corpse, knock back or collide, or trigger retaliation. Strict visible/blind seed 962576 covers one-square hurtling; remaining current-catalog branches are open. | `js/mhitm.js`, object/placement owners, future `dothrow.js` | partial | `undecided` | C10 reachable damage/death and knockback commits, then C12 hurtling owner. |
@@ -255,11 +255,13 @@ object, and combat module.
     explicit future work. Sleeping-gas and squeaky-board effects plus
     `mon.c:wake_nearto()` are committed in
     `a624c4d499c305ffe0014fedaff2d3fbfb0fef51`. Anti-magic and stable-D:1
-    relocation remain extracted in the worktree. Finish the remaining C13
-    work in this order: the generic `mintrap()` selector; anti-magic; rust
-    with its source-owned water and lit-item helpers; stable-D:1 relocation;
-    and land mines. Connect these owners through the C14 movement consumer
-    only after the owner commits pass their isolated checkpoints.
+    relocation remain extracted in the worktree. The generic `mintrap()`
+    selector is committed in
+    `1f386ff4704a56ae3605f44507f8bebb211e9380`. Finish the remaining C13
+    work in this order: anti-magic; rust with its source-owned water and
+    lit-item helpers; stable-D:1 relocation; and land mines. Connect these
+    owners through the C14 movement consumer only after the owner commits pass
+    their isolated checkpoints.
 14. **C14 — reachable `monmove.c` in source-owned groups:** pre-action phases;
     ordinary movement; current item/door choices; and `postmov()`. This
     checkpoint connects scary-square `distfleeck()`/`monflee()` behavior. The
@@ -508,9 +510,17 @@ its follow-up milestone.
   `QUALITY.json`, `js/trap_monster_fire.js`, and
   `scripts/trap-monster-fire.test.mjs`. Four focused tests, the exact
   isolated 1,425-test full suite, and all four generated-data checks pass.
-  The same six-case strict live batch passes after wiring. Family 33's source
-  owners are complete; the family remains open only because the generic
-  selector and live movement consumer are not committed yet.
+  The same six-case strict live batch passes after wiring. At that checkpoint,
+  family 33's source owners were complete and the generic selector and live
+  movement consumer remained uncommitted.
+- The generic `trap.c:mintrap()` selector is committed as
+  `1f386ff4704a56ae3605f44507f8bebb211e9380` with exactly
+  `QUALITY.json`, `js/trap_monster.js`, and
+  `scripts/trap-monster.test.mjs`. Four focused tests, the exact isolated
+  1,429-test full suite, and all four generated-data checks pass. The same
+  six-case strict live batch passes after wiring. Family 33 now waits only on
+  the C14 movement consumer; routing variants in family 31 and the remaining
+  C13 status and relocation owners stay open.
 - The `hack.c:disturb_buried_zombies()` owner and its heavy-tread
   `hack.c:domove()` caller are committed in
   `c92c073976f192285d649b1a979d54b6b9d238f8`. The exact candidate passes 3/3
