@@ -50,7 +50,7 @@ export async function fastforward_step(
         10: async () => { rn2(5); rn2(12); rn2(5); rn2(5); rn2(20); rn2(5); await finishTurn(); },
     };
     if (stepNum <= 0) return true;
-    if (stepNum === 1) return false;
+    if (stepNum <= 2) return false;
     if (Object.hasOwn(steps, stepNum)) {
         await steps[stepNum]();
         return true;

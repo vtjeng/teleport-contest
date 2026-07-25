@@ -40,19 +40,22 @@ async function flushMicrotasks() {
 test('fastforward_step preserves source-owned turn boundaries', async () => {
     assert.deepEqual(await eventsForStep(0), []);
     assert.deepEqual(await eventsForStep(1), []);
-    let firstRowCallback = false;
-    const firstRowComplete = await fastforward_step(
-        1,
-        () => { firstRowCallback = true; },
-        () => { firstRowCallback = true; },
-        () => { firstRowCallback = true; },
-        () => { firstRowCallback = true; },
-        () => { firstRowCallback = true; },
-        () => { firstRowCallback = true; },
-        () => { firstRowCallback = true; },
-    );
-    assert.equal(firstRowComplete, false);
-    assert.equal(firstRowCallback, false);
+    assert.deepEqual(await eventsForStep(2), []);
+    let ownedStepCallback = false;
+    for (const stepNum of [1, 2]) {
+        const replayComplete = await fastforward_step(
+            stepNum,
+            () => { ownedStepCallback = true; },
+            () => { ownedStepCallback = true; },
+            () => { ownedStepCallback = true; },
+            () => { ownedStepCallback = true; },
+            () => { ownedStepCallback = true; },
+            () => { ownedStepCallback = true; },
+            () => { ownedStepCallback = true; },
+        );
+        assert.equal(replayComplete, false);
+        assert.equal(ownedStepCallback, false);
+    }
     // Each remaining row pins one residual replay step. The literal bounds
     // distinguish every recorded prefix and step 9's unique pre-engraving
     // rn2(19); source turns 1 and 2 deliberately have no playback rows.
