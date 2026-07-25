@@ -513,6 +513,62 @@ function unavailableFirstTurnOperation(operation) {
     return () => firstTurnBoundary(operation);
 }
 
+async function finishFreshElapsedTurn(state, random) {
+    const wtcap = UNENCUMBERED;
+    const regionEnv = regionEffectEnv(state, random);
+    state.gw.were_changes = 0;
+    await mcalcdistress(state, {
+        state,
+        random,
+        visionRecalc: vision_recalc,
+        minLiquid: freshTurnMinLiquid,
+        decideToShapeshift: decide_to_shapeshift,
+        wereChange: were_change,
+    });
+
+    for (let monster = state.level.monlist;
+        monster;
+        monster = monster.nmon) {
+        monster.movement += mcalcmove(
+            monster,
+            true,
+            state,
+            random.rn2,
+        );
+    }
+    maybe_generate_rnd_mon(state, { random });
+    u_calc_moveamt(wtcap, state, random.rn2);
+    settrack(state);
+
+    state.moves++;
+    state.hero_seq = state.moves * 8;
+    if (state.flags?.time && !state.context?.run) {
+        state.disp ??= {};
+        state.disp.time_botl = true;
+    }
+
+    nh_timeout_fresh_turn(state);
+    await run_regions(regionEnv);
+
+    if (state.u.ublesscnt) state.u.ublesscnt--;
+    if (!state.u.uinvulnerable)
+        regen_hp(wtcap, state, { random });
+    regen_pw(wtcap, state, { random });
+
+    if (propertyActive(state, SEARCHING)
+        && !state.level.flags?.noautosearch
+        && (state.multi ?? 0) >= 0) {
+        await automatic_search({ state, random });
+    }
+    await dosoundsInitialLevel(state, { random: random.rn2 });
+    gethungry(state, {
+        random,
+        nearCapacity: () => wtcap,
+    });
+    age_spells(state);
+    maybeWipeHeroEngraving(state, random);
+}
+
 // C ref: allmain.c moveloop_core(), specialized to the first elapsed turn of
 // a new game.  Every live starting monster and pet reaches movemon() in list
 // order; they begin with zero movement, so only their source every-turn effect
@@ -520,7 +576,6 @@ function unavailableFirstTurnOperation(operation) {
 async function advanceFirstFreshTurn(state) {
     preflightFirstFreshTurn(state);
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
-    const regionEnv = regionEffectEnv(state, random);
 
     state.u.umovement -= NORMAL_SPEED;
     state.context.mon_moving = true;
@@ -549,63 +604,12 @@ async function advanceFirstFreshTurn(state) {
     // monsters start below an action ration.  Retain C's surplus-action gate
     // so this helper cannot accidentally run once-per-turn work twice.
     if (!monstersCanMove && state.u.umovement < NORMAL_SPEED) {
-        const wtcap = UNENCUMBERED;
-        state.gw.were_changes = 0;
-        await mcalcdistress(state, {
-            state,
-            random,
-            visionRecalc: vision_recalc,
-            minLiquid: freshTurnMinLiquid,
-            decideToShapeshift: decide_to_shapeshift,
-            wereChange: were_change,
-        });
-
-        for (let monster = state.level.monlist;
-            monster;
-            monster = monster.nmon) {
-            monster.movement += mcalcmove(
-                monster,
-                true,
-                state,
-                random.rn2,
-            );
-        }
-        maybe_generate_rnd_mon(state, { random });
-        u_calc_moveamt(wtcap, state, random.rn2);
-        settrack(state);
-
-        state.moves++;
-        state.hero_seq = state.moves * 8;
-        if (state.flags?.time && !state.context?.run) {
-            state.disp ??= {};
-            state.disp.time_botl = true;
-        }
-
         // l_nhcore_call(), Glib, overexertion, spontaneous hero
         // teleportation/polymorph, warnings, storms, exercise checks, vault
         // guards, Amulet/demigod upkeep, bubbles/fumaroles, and negative-multi
         // recovery are source-inert under preflightFirstFreshTurn()'s new-game
         // invariants and the guaranteed unencumbered starting inventory.
-        nh_timeout_fresh_turn(state);
-        await run_regions(regionEnv);
-
-        if (state.u.ublesscnt) state.u.ublesscnt--;
-        if (!state.u.uinvulnerable)
-            regen_hp(wtcap, state, { random });
-        regen_pw(wtcap, state, { random });
-
-        if (propertyActive(state, SEARCHING)
-            && !state.level.flags?.noautosearch
-            && (state.multi ?? 0) >= 0) {
-            await automatic_search({ state, random });
-        }
-        await dosoundsInitialLevel(state, { random: random.rn2 });
-        gethungry(state, {
-            random,
-            nearCapacity: () => wtcap,
-        });
-        age_spells(state);
-        maybeWipeHeroEngraving(state, random);
+        await finishFreshElapsedTurn(state, random);
     }
 
     finishHeroTimeEffects(state, { random });
