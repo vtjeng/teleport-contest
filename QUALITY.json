@@ -165,6 +165,7 @@
         "js/region.js",
         "js/sounds.js",
         "js/terrain.js",
+        "js/trap_water_damage.js",
         "js/track.js",
         "js/trap.js",
         "js/trap_erode_obj.js",
