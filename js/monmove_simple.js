@@ -11,6 +11,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOTHING,
     MON_FLOOR,
+    MON_MIGRATING,
     NORMAL_SPEED,
     ROOM,
     STRAT_ARRIVE,
@@ -20,7 +21,6 @@ import { newsym } from './display.js';
 import { dog_move } from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { isaac64_next_uint64 } from './isaac64.js';
 import {
     attacktype,
     can_teleport,
@@ -57,7 +57,16 @@ import {
     inside_region,
     mon_in_region,
 } from './region.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import {
+    createCoreRandom,
+    d,
+    rn1,
+    rn2,
+    rnd,
+    rne,
+    rnl,
+    rnz,
+} from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -98,9 +107,15 @@ function liveOnMap(monster) {
 }
 
 function assertSimpleScanState(monster, state) {
+    const parkedGuard = monster.isgd
+        && !monster.mx
+        && !((monster.mstate ?? MON_FLOOR) & MON_MIGRATING);
+    if (parkedGuard) {
+        if ((state.moves ?? 0) > (monster.mlstmv ?? 0))
+            unsupported('parked guard handling');
+        return false;
+    }
     if (!liveOnMap(monster) || monster.movement < NORMAL_SPEED) return false;
-    if (monster.isgd && !monster.mx)
-        unsupported('parked guard handling');
     if (monster.misc_worn_check & I_SPECIAL)
         unsupported('monster equipment changes');
     if (is_pool(monster.mx, monster.my, state)
@@ -174,49 +189,7 @@ function cloneIsaacContext(context) {
 
 function clonedRandom(state) {
     const context = cloneIsaacContext(state.coreCtx);
-    const core = (bound) => {
-        if (bound <= 0) return 0;
-        return Number(isaac64_next_uint64(context) % BigInt(bound));
-    };
-    const random = {
-        rn2: core,
-        rnd: (bound) => core(bound) + 1,
-        rn1: (range, base) => core(range) + base,
-        d: (count, sides) => {
-            let result = count;
-            for (let index = 0; index < count; ++index)
-                result += core(sides);
-            return result;
-        },
-    };
-    random.rne = (bound) => {
-        const limit = (state.u?.ulevel ?? 1) < 15
-            ? 5 : Math.trunc((state.u?.ulevel ?? 1) / 3);
-        let result = 1;
-        while (result < limit && !random.rn2(bound)) ++result;
-        return result;
-    };
-    random.rnl = (bound) => {
-        let adjustment = (state.u?.uluck ?? 0) + (state.u?.moreluck ?? 0);
-        if (bound <= 15) {
-            adjustment = Math.trunc((Math.abs(adjustment) + 1) / 3)
-                * Math.sign(adjustment);
-        }
-        let result = core(bound);
-        if (adjustment && random.rn2(37 + Math.abs(adjustment))) {
-            result -= adjustment;
-            result = Math.max(0, Math.min(bound - 1, result));
-        }
-        return result;
-    };
-    random.rnz = (value) => {
-        let scale = (1000 + random.rn2(1000)) * random.rne(4);
-        if (random.rn2(2))
-            return Math.trunc(value * scale / 1000);
-        scale = Math.trunc(value * 1000 / scale);
-        return scale;
-    };
-    return random;
+    return createCoreRandom(context, state);
 }
 
 function cloneMonster(monster) {

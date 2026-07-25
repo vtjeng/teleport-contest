@@ -33,14 +33,19 @@ import {
 import { LEATHER_ARMOR, WAN_WISHING } from '../js/objects.js';
 import { str2role } from '../js/roles.js';
 import {
+    createCoreRandom,
     d,
     enableRngLog,
     getRngLog,
     initRng,
+    rn1,
     rn2,
     rn2_on_display_rng,
+    rnd,
     rnd_on_display_rng,
+    rne,
     rnl,
+    rnz,
 } from '../js/rng.js';
 import { vfsWriteFile } from '../js/storage.js';
 import { CLR_BRIGHT_BLUE, Terminal } from '../js/terminal.js';
@@ -160,6 +165,68 @@ test('rnl applies small-range Luck and logs its internal rn2 first', () => {
         `rn2(39)=${luckCheck}`,
         `rnl(10)=${expected}`,
     ]);
+});
+
+test('cloned and live core RNG wrappers share results and context order', () => {
+    const live = { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const scenarios = [
+        {
+            // Level one uses rne()'s fixed five-result cap without Luck.
+            seed: 0x0102030405060708n,
+            u: { ulevel: 1, uluck: 0, moreluck: 0 },
+        },
+        {
+            // Level 15 reaches the level-derived cap; split positive Luck
+            // confirms that both uluck and moreluck feed rnl().
+            seed: 0x1122334455667788n,
+            u: { ulevel: 15, uluck: 7, moreluck: 3 },
+        },
+        {
+            // Level 30 and negative Luck exercise the other adjustment sign
+            // and a cap larger than the fixed low-level value.
+            seed: 0x8877665544332211n,
+            u: { ulevel: 30, uluck: -7, moreluck: 0 },
+        },
+    ];
+    const calls = [
+        // Zero proves the no-draw contract; one consumes a draw with the only
+        // legal result; 97 is a non-power-of-two ordinary modulus.
+        ['rn2', 0], ['rn2', 1], ['rn2', 97],
+        ['rnd', 0], ['rnd', 1], ['rnd', 6],
+        // The zero-width rn1 result must be exactly its negative base.
+        ['rn1', 0, -3], ['rn1', 1, 7], ['rn1', 13, -4],
+        // d(0, 0) is the source-valid zero-dice boundary.
+        ['d', 0, 0], ['d', 1, 1], ['d', 3, 6],
+        // Zero makes rne reach its level cap without a draw.
+        ['rne', 0], ['rne', 1], ['rne', 4],
+        // Fifteen is the last small-range Luck divisor; sixteen uses full
+        // Luck. Zero must return before either adjustment path.
+        ['rnl', 0], ['rnl', 1], ['rnl', 15], ['rnl', 16],
+        // rnz still consumes its three-stage draw sequence for zero.
+        ['rnz', 0], ['rnz', 1], ['rnz', 100],
+    ];
+
+    for (const scenario of scenarios) {
+        resetGame();
+        game.u = { ...scenario.u };
+        initRng(scenario.seed);
+        const plannedContext = isaac64_init(seedBytes(scenario.seed));
+        const planned = createCoreRandom(
+            plannedContext,
+            { u: { ...scenario.u } },
+        );
+
+        for (const [name, ...args] of calls) {
+            assert.equal(
+                planned[name](...args),
+                live[name](...args),
+                `${name} with ${JSON.stringify(args)} at level `
+                    + `${scenario.u.ulevel}, Luck `
+                    + `${scenario.u.uluck + scenario.u.moreluck}`,
+            );
+        }
+        assert.deepEqual(plannedContext, game.coreCtx);
+    }
 });
 
 test('runSegment preserves datetime and installs the supplied storage', async () => {

@@ -47,6 +47,7 @@ import {
     mon_allowflags,
     mon_track_add,
     set_apparxy,
+    should_displace,
 } from './monmove.js';
 import { sobj_at } from './obj.js';
 import { BOULDER, WAN_STRIKING } from './objects.js';
@@ -230,6 +231,13 @@ export async function m_move_fresh(monster, rawEnv = {}) {
     if (is_unicorn(monster.data) && rawEnv.noTeleportLevel?.(monster)) {
         avoidLine = data.info.some((info) => !(info & NOTONL));
     }
+    const betterWithDisplacing = should_displace(
+        monster,
+        data,
+        goalX,
+        goalY,
+        env,
+    );
     const trackLimit = Math.min(MTSZ, count - 1);
     for (let index = 0; index < count; ++index) {
         if (avoidLine && (data.info[index] & NOTONL)) continue;
@@ -237,7 +245,8 @@ export async function m_move_fresh(monster, rawEnv = {}) {
         if (rawEnv.avoidKicked?.(monster, x, y, env)) continue;
         if (m_at(x, y, state)
             && (data.info[index] & ALLOW_MDISP)
-            && !(data.info[index] & ALLOW_M)) {
+            && !(data.info[index] & ALLOW_M)
+            && !betterWithDisplacing) {
             continue;
         }
         let rejectTrack = false;
