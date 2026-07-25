@@ -55,7 +55,7 @@ validated.
 | 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | partial | Source owner committed at `e74c756`; C3 safe-stop and strict cases remain. |
 | 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` | partial | Source owner committed at `e74c756`; C3 live candidate proof remains. |
 | 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | partial | Source owner committed at `e74c756`; C3 atomic integration and strict cases remain. |
-| 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. | `js/dogmove_goal.js` | partial | C2 goal and source-order PRNG tests. |
+| 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. | `js/dogmove_goal.js` | partial | Source owner committed at `b01722b`; C3 safe-stop and live goal proof remain. |
 | 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Stop before inventory, eating, leash, steed, conflict, altered-state, ranged, or combat paths. | `js/dogmove.js` | partial | C2 focused gate and atomicity tests. |
 | 14 | `dogmove.c:dog_move()` candidates and tie-breaking | Run `mon_allowflags()`, `mfndpos()`, candidate filtering, follow-distance scoring, and source tie-breaking over ordinary clear squares. | `js/dogmove.js` | partial | C2 candidate-order tests and strict pet stay/move cases. |
 | 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | partial | C2 safe-stop atomicity tests plus strict fresh cases. |
@@ -94,10 +94,12 @@ modules, or the final integration trio.
 
 ### C2 — starting-pet `dogmove.c` move or stay
 
-Own families 12 through 15 for an ordinary active starting pet. Goal selection
-must not scan food or fetchable objects in this checkpoint. Movement must stop
-before inventory, eating, combat, displacement, traps, regions, doors, or
-special terrain.
+The complete `dog_goal()` source owner and focused tests are committed at
+`b01722b27afbfc79903920597d93a689ebf919e0`. Finish families 13 through 15 for
+an ordinary active starting pet. The live adapter must stop before goal
+selection when food or fetchable objects would make item interaction relevant,
+and movement must stop before inventory, eating, combat, displacement, traps,
+regions, doors, or special terrain.
 
 Expected implementation files:
 
