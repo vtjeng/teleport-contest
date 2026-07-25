@@ -178,12 +178,12 @@ object, and combat module.
    `89db11da70dbb42442a0688e50cf9d681d21a134`.
 3. **C3 — `teleport.c:rloc()` ordinary live-monster relocation.** Complete
    in `ff24365bd6134a2f46d2b24dd015769f41b35a75`. The shared monster
-   placement/index substrate was already committed. Keep
-   `monmove.c:mon_track_add()` for C14 rather than adding it to the instance
-   module checkpoint.
+   placement/index substrate was already committed. The shared
+   `monmove.c:mon_track_add()` prerequisite is complete in
+   `604b52ae2cd52ea5cc0bb7dad7b99132be7071f2` under its upstream owner.
 4. **C4 — `track.c:gettrack()` hero-track lookup.** Complete in
-   `a93f4dd2f89f5b1405294886d967e42a1e68c0d0`. Monster-local track updates
-   remain with `monmove.c` in C14.
+   `a93f4dd2f89f5b1405294886d967e42a1e68c0d0`. The monster-local track
+   update is now committed with `monmove.c` as noted above.
 5. **C5 — `mkobj.c` stack-splitting and object-damage substrate.** Complete
    in `315fe27033c78c178e5fb715bef41309ad6989c9`.
 6. **C6 — `objnam.c` early naming used by the active consumers.** Complete in
@@ -352,6 +352,14 @@ its follow-up milestone.
   quality gate is clear and world-effects is advisory at four commits and 192
   committed lines. No fresh second-turn differential is claimed until C9
   connects the live `dog_move()` consumer.
+- The shared C9/C14 monster-track prerequisite is committed as
+  `604b52ae2cd52ea5cc0bb7dad7b99132be7071f2` with exactly `js/monmove.js`
+  and `scripts/monmove.test.mjs`. Focused `monmove`, pet-movement, and
+  monster-instance tests pass; the exact staged full suite passes
+  1,377/1,377 and all six generated-data checks pass. The production diff is
+  14 changed lines. The quality gate is clear and monsters are advisory at
+  eight commits and 988 committed lines. No fresh second-turn differential
+  is claimed until the live movement consumers commit.
 - The full-range temporary scan of seeds 977100 through 979999 completed all
   2,900 cases: 2,899 passed and one grouped unsupported reason remained.
   Strict seed 979597 reproduces that pet scary-square gap with
