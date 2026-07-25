@@ -27,9 +27,11 @@ upstream source.
 
 ## Current milestone: exploration
 
-**Status:** implementation complete at
-`4cd8bbccf60cd6c792444c457a2f358660b552d9`; required committed-range review
-and repository cleanup are in progress.
+**Status:** implementation resumed after the full correctness review of
+`3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`.
+The review confirmed seven production gaps and six test gaps in the active
+checkpoint. Further formal review is paused until those gaps are fixed in
+source-owned commits and the exact candidate is revalidated.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
@@ -57,13 +59,17 @@ The active goal closes only when every current family in
 validation passes, several strict fresh comparisons reach the second prompt,
 the committed range is reviewed, and the repository is clean.
 
-**Completed implementation sequence:** The ordinary `monmove.c` move-or-stay
-owner, starting-pet `dogmove.c` move-or-stay owner, atomic action adapter, and
+**Implementation sequence:** The ordinary `monmove.c` move-or-stay owner,
+starting-pet `dogmove.c` move-or-stay owner, atomic action adapter, and
 `allmain.c` integration were committed as separate source-owned checkpoints.
 The second-turn runner, fixture, and integration test were committed together
-with the final live integration. `js/monster_action.js` remains future work
-rather than a combined movement, trap, object, and combat owner. The detailed
-source inventory, safe-stop seams, checkpoints, and evidence live in
+with the live integration. The audit follow-up is split by upstream owner:
+hero destination admission; monster goal and displacement selection;
+elapsed-turn preflight and cloned-RNG parity; wake and `notice_mon()`
+post-move behavior; replay step ownership; then the complete retry and strict
+matrix oracles. `js/monster_action.js` remains future work rather than a
+combined movement, trap, object, and combat owner. The detailed source
+inventory, safe-stop seams, checkpoints, and evidence live in
 `.agents/implementation-checklist.md`.
 
 This checkpoint establishes the general active-monster and later-turn replay

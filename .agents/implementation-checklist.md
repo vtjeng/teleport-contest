@@ -46,28 +46,58 @@ validated.
 | ---: | --- | --- | --- | --- | --- |
 | 1 | `allmain.c:moveloop_core()` input cleanup and dispatch | Clear per-input state, read one command, and preserve input ordering. | `js/allmain.js` | done | Retain command tests and final fresh matrix. |
 | 2 | `cmd.c:dowait()` | Consume time without a movement target. | `js/cmd.js` | done | Two-wait and mixed-order fresh cases. |
-| 3 | `hack.c:domove()` ordinary-clear branch | Run new-game prechecks, enter an unoccupied clear floor or corridor square, update hero coordinates, vision, and movement flags. | `js/cmd.js` and existing movement owners | done | Clear-walk cases in both command positions. |
+| 3 | `hack.c:domove()` ordinary-clear branch | Run new-game prechecks, admit only an unoccupied object-free clear floor or corridor square, then update hero coordinates, vision, and movement flags. | `js/cmd.js` and existing movement owners | audit gap | Reject object-bearing destinations before coordinate, output, or RNG mutation; retain empty-square controls. |
 | 4 | `allmain.c` movement debit and repeated monster scans | Debit `u.umovement`, call `movemon()` until the source stopping condition, and respect a fast hero's retained ration. | `js/allmain.js` | done | Live at `2283141`; command tests and the fast-Monk differential cover both stopping conditions. |
-| 5 | `mon.c:movemon_singlemon()` scan gates | Preserve dead/off-map, every-turn upkeep, movement-ration, vision, and ration-spend order for each list node. | `js/mon.js`, `js/allmain.js` adapter | done | Focused scan-order tests plus the 11-case live matrix. |
+| 5 | `mon.c:movemon_singlemon()` scan gates | Preserve dead/off-map, every-turn upkeep, movement-ration, vision, and ration-spend order for each list node. | `js/mon.js`, `js/allmain.js` adapter | audit gap | Eligible parked guards must be rejected by preflight before the hero debit; inert guards remain skipped. |
 | 6 | `mon.c:movemon()` terminal cleanup | Clear transient state, purge dead entries, update light/vision state, and return whether another scan is needed. Level transition is a future safe-stop. | `js/mon.js`, `js/allmain.js` adapter | done | Repeated-scan command tests and live prompt completion. |
 | 7 | `monmove.c:dochugw()` notice wrapper | Run the ordinary action while preserving the occupation-interruption seam. New games have no active occupation. | `js/monmove.js` | done | Source owner `e74c756`, live consumer `2283141`. |
-| 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | done | Focused stay/sleep tests and live no-pet matrix cases. |
+| 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | audit gap | Await visible wake output before sleep state or action RNG changes. |
 | 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | done | Focused action tests; excluded paths stop in the atomic planner. |
-| 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` | done | Source owner `e74c756`; no-pet wait/walk live cases. |
-| 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | done | Atomic adapter `76db5c6`, live integration and fresh matrix. |
+| 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` | audit gap | Restore the full source item-search predicate, empty displacement-image attack result, and exact tie-breaking oracle. |
+| 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, redraw, or return the source no-move status. Stop before combat, displacement, traps, objects, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js` and a thin `monmove.c` adapter | audit gap | Port source-ordered `notice_mon()` state/messages and strengthen selected-action atomicity coverage. |
 | 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. | `js/dogmove_goal.js` | done | Source owner `b01722b`; dog, cat, and pony live cases. |
 | 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Stop before inventory, eating, leash, steed, conflict, altered-state, ranged, or combat paths. | `js/dogmove.js` | done | Owners `fe22783` and `61d9276`; live pet matrix. |
 | 14 | `dogmove.c:dog_move()` candidates and tie-breaking | Run `mon_allowflags()`, `mfndpos()`, candidate filtering, follow-distance scoring, and source tie-breaking over ordinary clear squares. | `js/dogmove.js` | done | Focused tie-breaking tests and four dog command combinations. |
 | 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | done | Live dog action state test and strict pet matrix. |
 | 16 | `allmain.c` new-turn allocation and upkeep | Run monster distress, movement allocation, possible random generation, hero movement allocation, track update, turn counters, timeouts, regions, sounds, hunger, engraving wear, and the already-owned first-turn upkeep sequence. | Existing source owners, coordinated by `js/allmain.js` | done | Command allocation/upkeep tests and fast-hero differential. |
 | 17 | `allmain.c` once-per-hero-action effects | Advance `hero_seq`, refresh encumbrance/display state, and run the already-owned post-action visibility work. | Existing source owners, coordinated by `js/allmain.js` | done | Direct `hero_seq`/hunger tests and all strict cases. |
-| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | done | Replay row removed at `2283141`; 44 exact screens/cursors and next prompts match C. |
+| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | audit gap | Make replay step 2 explicitly unowned and run all 11 checked-in cases in the normal suite with a complete retry snapshot. |
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 18 done.
-- Closure verdict: **implementation complete**. The exact committed head is
-  ready for the required correctness audit.
+- 18 in-boundary families: 12 done, 6 reopened by correctness audit.
+- Closure verdict: **implementation in progress**. The first full correctness
+  pass confirmed gaps in families 3, 5, 8, 10, 11, and 18. Formal review
+  remains paused until the follow-up checkpoints below are committed and the
+  exact candidate passes routine validation.
+
+## Correctness-audit return to implementation
+
+The full audit of
+`3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`
+produced 23 raw candidates, 20 after same-site deduplication, 14 confirmed,
+six rejected, and none unverified. The confirmed set contains seven production
+defects, six test defects, and one maintenance-contract defect. No fix has
+been applied yet.
+
+Implement and commit the follow-up in this order. Each checkpoint keeps its
+tests with the upstream owner and stays below the review-size limit.
+
+| Checkpoint | Complete source-owned change | Planned files |
+| --- | --- | --- |
+| A1 — hero destination admission | Reject any object or pile before `domove()` mutates coordinates, rendering, pending state, or gameplay RNG. Add representative trap, object, pile, and special-terrain admission cases; only the object defect needs new production behavior. | `js/cmd.js`, `scripts/cmd.test.mjs` |
+| A2 — monster goal and selection | Port the complete `getitems` approach/line predicate, spend an attack on an empty displacement image, and pin exact source candidate enumeration and reservoir tie-breaking. | `js/monmove_move.js`, corresponding `scripts/monmove*.test.mjs` |
+| A3 — elapsed preflight and RNG | Check eligible parked guards before on-map/ration early returns. Share or exactly align live and cloned RNG wrapper edge behavior. Expand whole-scan selected-action atomicity coverage. | `js/monmove_simple.js`, `scripts/monmove-simple.test.mjs` |
+| A4 — wake and post-move notices | Await visible wake messages before state/action progress. Port source-ordered `notice_mon()` state and messages, including dry-plan state without output. | `js/monmove_simple.js`, corresponding focused monster tests |
+| A5 — pet result contract | Document the upstream `dog_move()` quirk where a completed opportunity may return `MMOVE_MOVED` without coordinate change, and pin the downstream `postmov()` behavior. | `js/dogmove.js`, corresponding focused pet test |
+| A6 — replay ownership | Make replay step 2 explicitly return no events and test both the removed-row and fallback boundaries. | `js/fastforward.js`, `scripts/fastforward.test.mjs` |
+| A7 — complete integration oracle | Compare complete normalized retry state and retained output, then run every checked-in no-pet/pet/fast-hero and command-order case under `npm test`. Keep the runner, fixture, and integration test together if any of the three changes. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
+
+After A1 through A7, rerun focused tests, the full suite, all generated checks,
+the 11-case strict fresh matrix, development scoring, and fresh comparisons
+for object admission, aligned item-search suppression, displacement images,
+wake ordering, and `spot_monsters`. Then freeze the new exact head and repeat
+the required review before recording quality evidence.
 
 ## Confirmed gap clusters
 
@@ -199,12 +229,11 @@ not change the active scope or count as live simple-turn closure.
 
 ## Readiness
 
-Current mode: Ready for audit
+Current mode: Implementation
 
-Reason: All 18 in-boundary families are done at the exact committed head,
-strict fresh comparisons reach the ending prompt, excluded selected paths stop
-before live monster mutation or gameplay PRNG, and routine validation passes.
-The remaining quality gate is the correctness audit itself.
+Reason: The first full correctness audit confirmed source-behavior and
+validation gaps inside the active boundary. The source-owned A1 through A7
+checkpoints must be complete before the candidate can return to audit.
 
 ## Completed commit gates
 
