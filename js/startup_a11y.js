@@ -1647,6 +1647,31 @@ function canNoticeMonster(monster, state) {
     return true;
 }
 
+function updateMonsterNotice(monster, state) {
+    const spot = canNoticeMonster(monster, state);
+    if (!spot) {
+        monster.mspotted = false;
+        return null;
+    }
+    if (monster.mspotted) return null;
+
+    monster.mspotted = true;
+    return messageAt(
+        `You ${canSeeMonster(monster, state) ? 'see' : 'notice'} ${noticeMonsterName(monster)}.`,
+        monster.mx,
+        monster.my,
+        state,
+    );
+}
+
+// C ref: hack.c notice_mon(). postmov() calls this for one monster at a time;
+// unlike notice_all_mons(), the option gate belongs to this function.
+export function collectMonsterNoticeMessage(monster, state) {
+    if (!state.a11y?.mon_notices || state.a11y?.mon_notices_blocked)
+        return null;
+    return updateMonsterNotice(monster, state);
+}
+
 export function collectMonsterNoticeMessages(state) {
     const monsters = [];
     for (let monster = state.level?.monlist; monster; monster = monster.nmon) {
@@ -1663,18 +1688,8 @@ export function collectMonsterNoticeMessages(state) {
 
     const messages = [];
     for (const monster of monsters) {
-        if (!canNoticeMonster(monster, state)) {
-            monster.mspotted = false;
-            continue;
-        }
-        if (monster.mspotted) continue;
-        monster.mspotted = true;
-        messages.push(messageAt(
-            `You ${canSeeMonster(monster, state) ? 'see' : 'notice'} ${noticeMonsterName(monster)}.`,
-            monster.mx,
-            monster.my,
-            state,
-        ));
+        const message = updateMonsterNotice(monster, state);
+        if (message) messages.push(message);
     }
     return messages;
 }

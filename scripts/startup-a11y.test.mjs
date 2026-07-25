@@ -44,6 +44,7 @@ import { parseNethackrc } from '../js/options.js';
 import {
     _startupA11yInternals,
     collectLookaroundMessages,
+    collectMonsterNoticeMessage,
     collectMonsterNoticeMessages,
     emitStartupA11yNotices,
     sensesMonster,
@@ -346,6 +347,46 @@ test('notice_all_mons distinguishes sight, infravision, and sensing', () => {
     hidden.mundetected = false;
     hidden.m_ap_type = M_AP_FURNITURE;
     assert.deepEqual(notice(hidden), []);
+});
+
+test('notice_mon updates one monster only while its option is active', () => {
+    const state = startupState(20, 10);
+    const subject = {
+        data: {
+            pmnames: [null, null, 'goblin'],
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+        mx: 21, // One visible square east exercises the single-monster path.
+        my: 10,
+        mhp: 4,
+        mtame: 0,
+        mpeaceful: false,
+        m_ap_type: 0,
+        mspotted: false,
+    };
+    reveal(state, subject.mx, subject.my);
+
+    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(subject.mspotted, false);
+
+    state.a11y.mon_notices = true;
+    assert.equal(
+        collectMonsterNoticeMessage(subject, state),
+        'You see a goblin.',
+    );
+    assert.equal(subject.mspotted, true);
+    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+
+    state.viz_array[subject.my][subject.mx] = 0;
+    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(subject.mspotted, false);
+
+    subject.mspotted = true;
+    state.a11y.mon_notices = false;
+    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(subject.mspotted, true);
 });
 
 test('monster notices retain saddle adjectives except for given names', () => {

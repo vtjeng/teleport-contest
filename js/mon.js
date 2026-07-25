@@ -662,6 +662,29 @@ export async function new_were(monster, rawEnv = {}) {
     return true;
 }
 
+// C ref: mon.c wake_msg(). The caller owns clearing msleeping after this
+// visibility-dependent message has completed.
+export async function wake_msg(monster, interesting, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const seeMonster = rawEnv.canSeeMonster
+        ?? ((subject) => canSeeMonster(subject, state));
+    const message = rawEnv.message ?? ttyPline;
+    if (typeof seeMonster !== 'function' || typeof message !== 'function') {
+        throw new TypeError(
+            'wake_msg requires visibility and message owners',
+        );
+    }
+    if (!monster.msleeping || !seeMonster(monster, rawEnv)) return;
+
+    const alive = monster.data?.pmidx === PM_FLESH_GOLEM
+        ? " It's alive!" : '';
+    await message(
+        `${distressMonnam(monster)} wakes up${interesting ? '!' : '.'}${alive}`,
+        state,
+        rawEnv,
+    );
+}
+
 // C ref: mon.c wake_nearto_core(). Frontend sound is cosmetic; wake messages,
 // sleep and wait-strategy state, and buried-zombie disturbance are observable.
 export async function wake_nearto(x, y, distance, rawEnv = {}) {
@@ -686,15 +709,12 @@ export async function wake_nearto(x, y, distance, rawEnv = {}) {
                 && dist2(monster.mx, monster.my, x, y) >= distance)) {
             continue;
         }
-        if (monster.msleeping && seeMonster(monster, rawEnv)) {
-            const alive = monster.data?.pmidx === PM_FLESH_GOLEM
-                ? " It's alive!" : '';
-            await message(
-                `${distressMonnam(monster)} wakes up.${alive}`,
-                state,
-                rawEnv,
-            );
-        }
+        await wake_msg(monster, false, {
+            ...rawEnv,
+            state,
+            canSeeMonster: seeMonster,
+            message,
+        });
         monster.msleeping = false;
         if (!(monster.data?.geno & G_UNIQ))
             monster.mstrategy &= ~STRAT_WAITMASK;

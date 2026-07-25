@@ -21,6 +21,7 @@ import { newsym } from './display.js';
 import { dog_move } from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { wake_msg } from './mon.js';
 import {
     attacktype,
     can_teleport,
@@ -70,6 +71,7 @@ import {
 import {
     canSeeMonster,
     canSpotMonster,
+    collectMonsterNoticeMessage,
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import {
@@ -257,16 +259,6 @@ function freshMonsterCanSeeHero(monster, state) {
         && couldsee(monster.mx, monster.my, state);
 }
 
-function wakeMessage(monster, interesting, env) {
-    if (!monster.msleeping || !canSeeMonster(monster, env.state)) return;
-    const givenName = monster.mgivenname || monster.name;
-    const speciesName = monster.data?.pmnames?.[2]
-        ?? monster.data?.pmnames?.find(Boolean)
-        ?? 'monster';
-    const name = givenName || `The ${speciesName}`;
-    ttyPline(`${name} wakes up${interesting ? '!' : '.'}`, env.state);
-}
-
 function resistsTrapEffect() {
     unsupported('monster trap-resistance evaluation');
 }
@@ -313,12 +305,18 @@ function wipeSimpleEngraving(x, y, _count, _magical, env) {
     unsupported('monster engraving wear');
 }
 
-function postSimpleMove(monster, oldX, oldY, status, env) {
+async function postSimpleMove(monster, oldX, oldY, status, env) {
+    const notice = collectMonsterNoticeMessage(monster, env.state);
+    if (notice && !env.planning) {
+        const message = env.message ?? ttyPline;
+        await message(notice, env.state, env);
+    }
     if (status !== MMOVE_MOVED) return status;
     assertSimpleDestination(monster, monster.mx, monster.my, env);
     if (!env.planning) {
-        newsym(oldX, oldY);
-        newsym(monster.mx, monster.my);
+        const redraw = env.redraw ?? newsym;
+        redraw(oldX, oldY);
+        redraw(monster.mx, monster.my);
     }
     return status;
 }
@@ -389,7 +387,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 monsterCanSeeHero: freshMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
                 preflightMonster: assertSimpleActionState,
-                wakeMessage: env.planning ? () => {} : wakeMessage,
+                wakeMessage: env.planning ? () => {} : wake_msg,
                 wipeEngraving: wipeSimpleEngraving,
             }),
         stopOccupation: () => unsupported('occupation interruption'),

@@ -48,6 +48,7 @@ import {
     MMOVE_DONE,
     MMOVE_MOVED,
     MMOVE_NOMOVES,
+    MMOVE_NOTHING,
     NOGARLIC,
     NOTONL,
     OPENDOOR,
@@ -481,6 +482,52 @@ test('m_move ordinary path reports no moves from a sealed square', async () => {
     assert.equal(result, MMOVE_NOMOVES);
     assert.deepEqual([monster.mx, monster.my], [4, 4]);
 });
+
+test('m_move sends a rejected candidate through postmov as no movement',
+    async () => {
+        const { locations, state } = makeState();
+        const monster = ordinaryMonster(state, {
+            mx: 4,
+            my: 4,
+            mux: 10,
+            muy: 10,
+        });
+        state.level.monsters[monster.mx][monster.my] = monster;
+        sealNeighborhood(locations, monster.mx, monster.my);
+        // One otherwise legal western candidate makes cnt nonzero; the
+        // injected kicked-square owner rejects it after enumeration.
+        locations.set('3,4', { typ: ROOM, flags: 0 });
+        const postCalls = [];
+
+        const result = await m_move_fresh(monster, {
+            state,
+            random: { rn2: () => 0 },
+            resolveTrappedMonster: () => false,
+            resistsTrapEffect: () => false,
+            avoidKicked: () => true,
+            unsupported: (reason) => assert.fail(reason),
+            postMonsterMove(subject, oldX, oldY, status) {
+                postCalls.push({
+                    oldX,
+                    oldY,
+                    status,
+                    x: subject.mx,
+                    y: subject.my,
+                });
+                return status;
+            },
+        });
+
+        assert.equal(result, MMOVE_NOTHING);
+        assert.deepEqual(postCalls, [{
+            oldX: 4,
+            oldY: 4,
+            status: MMOVE_NOTHING,
+            x: 4,
+            y: 4,
+        }]);
+        assert.equal(state.level.monsters[4][4], monster);
+    });
 
 test('m_move item search requires the complete approach and line predicate',
     async () => {

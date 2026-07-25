@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     COULD_SEE,
     FOUNTAIN,
+    IN_SIGHT,
     MON_FLOOR,
     NORMAL_SPEED,
     PIT,
@@ -19,9 +20,11 @@ import {
     PM_GIANT_RAT,
     PM_PURPLE_WORM,
     PM_SHRIEKER,
+    S_HUMAN,
 } from '../js/monsters.js';
 import {
     preflightSimpleMonsterActions,
+    runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
 } from '../js/monmove_simple.js';
 import { newMonster } from '../js/monst.js';
@@ -39,6 +42,12 @@ function rngSnapshot() {
         m: [...game.coreCtx.m],
         r: [...game.coreCtx.r],
     };
+}
+
+function deferred() {
+    let resolve;
+    const promise = new Promise((accept) => { resolve = accept; });
+    return { promise, resolve };
 }
 
 function monsterSnapshot() {
@@ -267,6 +276,93 @@ test('simple preflight plans a starting-dog action without live mutation',
         await preflightSimpleMonsterActions(game);
 
         assert.deepEqual(preflightSnapshot(), before);
+    });
+
+test('simple wake output completes before sleep state and action progress',
+    async () => {
+        const target = await prepareSelectedAction();
+        target.monster.data = {
+            ...target.monster.data,
+            // Human-class monsters wake without the ordinary one-in-seven
+            // draw, isolating the message boundary from later action RNG.
+            mlet: S_HUMAN,
+        };
+        target.monster.msleeping = true;
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const output = deferred();
+        const beforeRng = rngSnapshot();
+        let rendered;
+        let settled = false;
+        const pending = runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: (text) => {
+                rendered = text;
+                return output.promise;
+            },
+        });
+        pending.then(() => { settled = true; });
+
+        await Promise.resolve();
+        await Promise.resolve();
+        assert.equal(rendered, 'The giant rat wakes up!');
+        assert.equal(target.monster.msleeping, true);
+        assert.deepEqual(
+            [target.monster.mx, target.monster.my],
+            [target.monsterX, target.heroY],
+        );
+        assert.deepEqual(rngSnapshot(), beforeRng);
+        assert.equal(settled, false);
+
+        output.resolve();
+        await pending;
+        assert.equal(target.monster.msleeping, false);
+        assert.equal(settled, true);
+    });
+
+test('simple postmov plans notice state and awaits live notice before redraw',
+    async () => {
+        const target = await prepareSelectedAction();
+        game.a11y.mon_notices = true;
+        game.a11y.mon_notices_blocked = 0;
+        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
+        target.monster.mspotted = false;
+
+        await preflightSimpleMonsterActions(game);
+        assert.equal(
+            target.monster.mspotted,
+            false,
+            'clone-only planning cannot change live notice state',
+        );
+
+        const output = deferred();
+        const events = [];
+        const pending = runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: (text) => {
+                events.push(`message:${text}`);
+                return output.promise;
+            },
+            redraw: (x, y) => events.push(`redraw:${x},${y}`),
+        });
+        // Region admission and postmov each cross an async boundary before
+        // the notice; eight microtasks leave headroom without using a timer.
+        for (let turn = 0; turn < 8 && !events.length; ++turn)
+            await Promise.resolve();
+
+        assert.deepEqual(events, ['message:You see a giant rat.']);
+        assert.equal(target.monster.mspotted, true);
+        assert.deepEqual(
+            [target.monster.mx, target.monster.my],
+            [target.destinationX, target.heroY],
+        );
+
+        output.resolve();
+        await pending;
+        assert.deepEqual(events, [
+            'message:You see a giant rat.',
+            `redraw:${target.monsterX},${target.heroY}`,
+            `redraw:${target.destinationX},${target.heroY}`,
+        ]);
     });
 
 test('simple preflight preserves parked-guard source ordering', async () => {

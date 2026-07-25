@@ -25,6 +25,7 @@ import {
     mon_regen,
     movemon,
     movemon_singlemon,
+    wake_msg,
     wake_nearto,
 } from '../js/mon.js';
 import {
@@ -35,6 +36,7 @@ import {
     M2_ROCKTHROW,
     M2_STRONG,
     MZ_HUGE,
+    PM_FLESH_GOLEM,
     PM_HUMAN_WEREWOLF,
     PM_VAMPIRE,
     PM_WEREWOLF,
@@ -223,6 +225,42 @@ function deferred() {
     const promise = new Promise((accept) => { resolve = accept; });
     return { promise, resolve };
 }
+
+test('wake_msg awaits visible output before its caller can clear sleep',
+    async () => {
+        const subject = actionMonster({
+            data: {
+                pmidx: PM_FLESH_GOLEM,
+                pmnames: ['flesh golem'],
+            },
+            msleeping: true,
+        });
+        const output = deferred();
+        let rendered;
+        let settled = false;
+        const pending = wake_msg(subject, true, {
+            state: {},
+            canSeeMonster: () => true,
+            message: (text) => {
+                rendered = text;
+                return output.promise;
+            },
+        });
+        pending.then(() => { settled = true; });
+
+        await Promise.resolve();
+        assert.equal(
+            rendered,
+            "The flesh golem wakes up! It's alive!",
+        );
+        assert.equal(settled, false);
+        assert.equal(subject.msleeping, true);
+
+        output.resolve();
+        await pending;
+        assert.equal(settled, true);
+        assert.equal(subject.msleeping, true);
+    });
 
 test('m_carrying returns the first matching object from the source inventory', () => {
     const firstDagger = { otyp: DAGGER, nobj: null };

@@ -277,7 +277,15 @@ export async function m_move_fresh(monster, rawEnv = {}) {
             moved = MMOVE_MOVED;
         }
     }
-    if (moved === MMOVE_NOTHING) return moved;
+    if (moved === MMOVE_NOTHING) {
+        return postMonsterMove(
+            monster,
+            oldX,
+            oldY,
+            moved,
+            env,
+        );
+    }
     if (data.info[chosen] & ALLOW_U) {
         nextX = monster.mux;
         nextY = monster.muy;
