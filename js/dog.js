@@ -56,6 +56,7 @@ import {
     canSeeMonster,
     sensesMonster,
 } from './startup_a11y.js';
+import { effective_attribute } from './attrib.js';
 
 export { christen_monst } from './do_name.js';
 
@@ -124,7 +125,7 @@ export function initedog(monster, everything = true, env = {}) {
         monster.meating = 0;
         edog.droptime = 0;
         edog.dropdist = 10000;
-        edog.apport = Math.trunc(state.u?.acurr?.a?.[A_CHA] ?? 0);
+        edog.apport = effective_attribute(state, A_CHA);
         edog.whistletime = 0;
         edog.ogoal = { x: -1, y: -1 };
         edog.abuse = 0;

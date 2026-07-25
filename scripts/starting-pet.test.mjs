@@ -218,7 +218,7 @@ test('makedog creates a named random dog with exact startup state and RNG', () =
         parentmid: 0,
         droptime: 0,
         dropdist: 10000,
-        apport: 0,
+        apport: 3, // ACURR clamps the fixture's zero Charisma to its minimum.
         whistletime: 0,
         hungrytime: 1000,
         ogoal: { x: -1, y: -1 },
