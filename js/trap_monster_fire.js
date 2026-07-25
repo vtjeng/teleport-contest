@@ -3,8 +3,9 @@
 // thitm(), burnarmor(), and erode_obj().
 
 import {
+    EF_GREASE,
+    ERODE_BURN,
     FIRE_RES,
-    MAX_ERODE,
     W_ARM,
     W_ARMC,
     W_ARMF,
@@ -29,8 +30,6 @@ import {
     PM_WOOD_GOLEM,
 } from './monsters.js';
 import {
-    erosionMatters,
-    isFlammable,
     objectType,
 } from './obj.js';
 import {
@@ -56,6 +55,7 @@ import {
 import {
     ignite_items,
 } from './apply_catch_lit.js';
+import { erode_monster_object } from './trap_erode_obj.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
 import { which_armor } from './weapon.js';
@@ -100,10 +100,6 @@ const MATERIAL_NAMES = Object.freeze([
     'stone',
 ]);
 
-function pluralArmorDescription(description) {
-    return /(?:boots|gloves|gauntlets|shoes)$/u.test(description);
-}
-
 function armorDescription(obj, slot, state) {
     const type = objectType(obj, state);
     const actual = OBJ_NAME(type, state) ?? '';
@@ -145,49 +141,6 @@ function armorDescription(obj, slot, state) {
     }
 }
 
-async function erodeMonsterArmor(obj, description, monster, env) {
-    if (!obj
-        || !erosionMatters(obj, env.state)
-        || !isFlammable(obj, env.state)) {
-        return false;
-    }
-    if (obj.oerodeproof && obj.rknown) return false;
-
-    if (obj.oerodeproof
-        || (obj.blessed && !env.random.rnl(4))) {
-        if (obj.oerodeproof
-            && env.state.flags?.verbose !== false
-            && canSeeMonster(monster, env.state)) {
-            const verb = pluralArmorDescription(description) ? 'are' : 'is';
-            await ttyPline(
-                `Somehow, ${monsterPossessive(monster, env.state)} `
-                + `${description} ${verb} not affected by the heat.`,
-                env.state,
-            );
-        }
-        if (obj.oerodeproof) obj.rknown = true;
-        return false;
-    }
-    if (Math.trunc(obj.oeroded ?? 0) >= MAX_ERODE) return false;
-
-    const nextErosion = Math.trunc(obj.oeroded ?? 0) + 1;
-    if (canSeeMonster(monster, env.state)) {
-        const verb = pluralArmorDescription(description)
-            ? 'smoulder'
-            : 'smoulders';
-        const adverb = nextErosion === MAX_ERODE
-            ? ' completely'
-            : nextErosion > 1 ? ' further' : '';
-        await ttyPline(
-            `${monsterPossessive(monster, env.state, true)} `
-            + `${description} ${verb}${adverb}!`,
-            env.state,
-        );
-    }
-    obj.oeroded = nextErosion;
-    return true;
-}
-
 // The no-equipment branch is observable: rn2(5) repeats until the torso
 // case, which returns true even without torso armor and short-circuits the
 // caller's rn2(3).
@@ -223,10 +176,11 @@ export async function burn_monster_armor(monster, env) {
                 const torsoSlot = torso.owornmask & W_ARMC
                     ? W_ARMC
                     : torso.owornmask & W_ARM ? W_ARM : W_ARMU;
-                await erodeMonsterArmor(
+                await erode_monster_object(
                     torso,
                     armorDescription(torso, torsoSlot, state),
-                    monster,
+                    ERODE_BURN,
+                    EF_GREASE,
                     env,
                 );
             }
@@ -240,10 +194,11 @@ export async function burn_monster_armor(monster, env) {
         }
         const armor = which_armor(monster, slot);
         if (!armor) continue;
-        const damaged = await erodeMonsterArmor(
+        const damaged = await erode_monster_object(
             armor,
             armorDescription(armor, slot, state),
-            monster,
+            ERODE_BURN,
+            EF_GREASE,
             env,
         );
         if (damaged) return false;

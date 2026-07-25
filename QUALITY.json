@@ -166,6 +166,7 @@
         "js/terrain.js",
         "js/track.js",
         "js/trap.js",
+        "js/trap_erode_obj.js",
         "js/trap_monster.js",
         "js/trap_monster_holding.js",
         "js/trap_monster_fire.js",

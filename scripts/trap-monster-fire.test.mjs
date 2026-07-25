@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
     FIRE_TRAP,
     MAGIC_TRAP,
+    OBJ_MINVENT,
+    W_ARMG,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -11,6 +13,10 @@ import {
     PM_NEWT,
     PM_PAPER_GOLEM,
 } from '../js/monsters.js';
+import {
+    ARMOR_CLASS,
+    LEATHER_GLOVES,
+} from '../js/objects.js';
 import {
     burn_monster_armor,
     trigger_monster_fire,
@@ -93,6 +99,41 @@ test('no-equipment burnarmor repeats until the torso case', async () => {
     assert.equal(hitTorso, true);
     assert.equal(script.length, 0);
 });
+
+test('burnarmor delegates worn-item erosion to the shared trap owner',
+    async () => {
+        const monster = await initializedMonster(982445, 'SharedBurnErosion');
+        const gloves = {
+            blessed: false,
+            greased: false,
+            nobj: null,
+            ocarry: monster,
+            oclass: ARMOR_CLASS,
+            oeroded: 0,
+            oeroded2: 0,
+            oerodeproof: false,
+            otyp: LEATHER_GLOVES,
+            owornmask: W_ARMG,
+            quan: 1,
+            rknown: false,
+            where: OBJ_MINVENT,
+        };
+        monster.minvent = gloves;
+
+        const result = await burn_monster_armor(monster, {
+            random: {
+                rnl: () => assert.fail('ordinary gloves need no luck draw'),
+                rn2: (bound) => {
+                    assert.equal(bound, 5);
+                    return 3; // Case 3 aims directly at worn gloves.
+                },
+            },
+            state: game,
+        });
+
+        assert.equal(result, false);
+        assert.equal(gloves.oeroded, 1);
+    });
 
 test('paper golem death still runs the later fire owners', async () => {
     const monster = await initializedMonster(982443, 'PaperFire');
