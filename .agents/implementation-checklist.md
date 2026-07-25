@@ -131,7 +131,7 @@ allowed labels.
 | 7 | `cmd.c:dowait()` | A wait command has no movement target and consumes time through the shared loop. Live first- and second-wait fresh cases reach the next prompt. | `js/cmd.js` | covered | `done` | C17: retain focused command tests and final exact differentials. |
 | 8 | `hack.c:domove()` prechecks and hero-position update | Every allowed move enters the movement command, checks the target, and updates hero position before spot effects. The clear-square subset is active but not source-closed. | `js/cmd.js`, `js/allmain.js` | partial | `undecided` | C16: port the coherent `domove()` path after prerequisites. |
 | 9 | Region entry, hero track, vision, and engraving smudge | A successful move can enter/leave regions, update `utrack`, recalculate vision, and smudge or read an engraving before elapsed monster work. Destination reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; track updates, smudging, and full region/vision ordering are not closed. | `js/track.js`, `js/vision.js`, region and engraving owners | partial | `undecided` | C4 tracking and committed read wiring, then finish C16 movement ordering and smudging. |
-| 10 | `hack.c:spoteffects()` terrain, rooms, and regions | An accessible destination can trigger terrain, room, and region effects before monsters move; sleeping gas can add elapsed turns. The leading room-membership update is live at `ab62aa2fb388aea112678130a6da9a8f7a00dc86`; terrain, liquid, sink, and deeper special-room effects remain open. Scanner cases do not prove every variant. | `js/cmd.js`, region/terrain owners | partial | `undecided` | Continue C16 with source-owned non-trap spot effects, including extra-turn cases. |
+| 10 | `hack.c:spoteffects()` terrain, rooms, and regions | An accessible destination can trigger terrain, room, and region effects before monsters move; sleeping gas can add elapsed turns. The leading room-membership update is live at `ab62aa2fb388aea112678130a6da9a8f7a00dc86`, and reachable terrain-status switching is live at `a2be24a9cf170e45441e4601127ba4770cd4b3d6`. Liquid, sink, region, and deeper special-room effects remain open. Scanner cases do not prove every variant. | `js/hack.js`, `js/dungeon.js`, `js/mkroom.js`, `js/display.js`, `js/cmd.js`, region/terrain owners | partial | `undecided` | Continue C16 with source-owned non-trap spot effects, including extra-turn cases. |
 | 11 | Destination objects, pickup/description, and engraving reading | A destination can contain an object or engraving without being obstructed; this changes messages, floor ownership, inventory, and rendering. The ordinary sighted single-object description is live at `a61681496d5712aa17ddee750d1a72a5275ab627`, and destination engraving reading is live at `c36479c5f51decaf0477a29ba0f6a7913661a027`; piles, pickup, terrain modifiers, blindness, and special objects remain. | `js/invent.js`, `js/engrave.js`, `js/obj.js`, `js/objnam.js`, command/output owners | partial | `undecided` | Continue C16 with source-owned pile, pickup, terrain, and blind-floor paths. |
 | 14 | `mon.c:movemon_singlemon()` dead/off-map/every-turn/ration gates | Each monster scan filters dead, migrating, or ineligible monsters and handles rationed movement before dispatch. Active cases exercise common gates only. | `js/allmain.js`, `js/monster_action.js` pending extraction | partial | `undecided` | Reuse the existing placement state, then C15 turn-loop dispatch. |
 | 15 | Bypass/split, `minliquid()`, equipment, and hider handling | Eligible monsters can clear bypass state, split, interact with liquid, equip, or hide before ordinary action selection. Some equipment and trap cases match; the family is incomplete. | Future `mon.c` owner plus object/equipment helpers | partial | `undecided` | C5-C7 prerequisites, C11 weapons, then source-shaped `mon.c` extraction. |
@@ -260,7 +260,9 @@ object, and combat module.
     `check_special_room()` room-membership update is connected in
     `ab62aa2fb388aea112678130a6da9a8f7a00dc86`; current D:1 generation has
     no shop or message-producing special room, while deeper room effects
-    remain with their first reachable consumers.
+    remain with their first reachable consumers. Reachable terrain-status
+    switching and visible physical-terrain memory are connected in
+    `a2be24a9cf170e45441e4601127ba4770cd4b3d6`.
     Hero-triggered traps and hero level transitions remain explicit future
     exploration checkpoints.
 17. **C17 — final integration:** live wiring and replay removal, plus
@@ -461,6 +463,16 @@ its follow-up milestone.
   doorway-to-corridor departures passed with no failure groups. The corrected
   full 995000-through-997999 discovery range completed 3,000/3,000 cases,
   including 70 legal room crossings.
+- The C16 terrain-status checkpoint is committed in
+  `a2be24a9cf170e45441e4601127ba4770cd4b3d6`. Source-owned
+  `mkroom.c:cmap_to_type()` and `dungeon.c:update_lastseentyp()` now preserve
+  physical and visible furniture-mimic terrain memory, while the live legal
+  movement path runs the reachable `hack.c:switch_terrain()` status tail.
+  The exact candidate passes 104/104 focused tests, the 1,402-test full suite,
+  all four generated-data checks, and the quality gate. A three-case strict
+  fresh batch covering fountain and sink status transitions passes 3/3 with
+  no failure groups. Two mixed terrain cases still fail in later object and
+  decoration effects and remain separate C16 work.
 - Strict fresh seed 980221 covers the live anti-magic adapter, seed 980409
   covers buried-zombie disturbance, and seed 981228 covers random relocation
   of a pony carrying its saddle; all three pass. The grouped discovery range
