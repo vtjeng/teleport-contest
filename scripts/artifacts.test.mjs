@@ -15,12 +15,15 @@ import {
     ART_STING,
     AFTER_LAST_ARTIFACT,
     NROFARTIFACTS,
+    artifact_defends,
     createArtifactTable,
     init_artifacts,
     touch_artifact,
 } from '../js/artifacts.js';
 import { A_NONE, NON_PM } from '../js/const.js';
 import {
+    AD_FIRE,
+    AD_MAGM,
     M2_DEMON,
     M3_COVETOUS,
     PM_ELF,
@@ -55,6 +58,17 @@ function stateFor(filecode, alignmentName, raceName = 'human') {
         urace: { ...race },
     };
 }
+
+test('artifact defense distinguishes wielded and carried records', () => {
+    const state = { artilist: ARTILIST_TEMPLATE };
+    const magicbane = { oartifact: ART_MAGICBANE };
+    const mitre = { oartifact: ART_MITRE_OF_HOLINESS };
+
+    assert.equal(artifact_defends(magicbane, AD_MAGM, state), true);
+    assert.equal(artifact_defends(magicbane, AD_FIRE, state), false);
+    assert.equal(artifact_defends(mitre, AD_FIRE, state, true), true);
+    assert.equal(artifact_defends(mitre, AD_FIRE, state), false);
+});
 
 test('artilist matches the complete pinned NetHack 5.0 source table', () => {
     assert.equal(NROFARTIFACTS, 33);

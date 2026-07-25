@@ -79,9 +79,28 @@ import {
     TSURUGI,
     WAR_HAMMER,
 } from './objects.js';
+
 import { aligns } from './roles.js';
 import { rn2 } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
+
+// C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
+// defense, and carry records all use the same damage-type encoding.
+export function artifact_defends(
+    obj,
+    damageType,
+    state = game,
+    carried = false,
+) {
+    if (!obj?.oartifact) return false;
+    const artifact = state.artilist?.[obj.oartifact];
+    if (!artifact) {
+        throw new Error(
+            `artifact defense requires artifact ${obj.oartifact} data`,
+        );
+    }
+    return artifact[carried ? 'cary' : 'defn']?.adtyp === damageType;
+}
 
 export const SPFX_NONE = 0x00000000;
 export const SPFX_NOGEN = 0x00000001;
