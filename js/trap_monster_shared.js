@@ -3,6 +3,7 @@
 // mon_knows_traps(), and deltrap().
 
 import {
+    FORCETRAP,
     FORCEBUNGLE,
     HOLE,
 } from './const.js';
@@ -69,6 +70,7 @@ export function monster_avoids_known_trap(monster, trap, env) {
         (monster.mtrapseen ?? 0) & (1 << (trap.ttyp - 1)),
     ) || (trap.ttyp === HOLE && !mindless(monster.data));
     return known
+        && !(env.trapFlags & FORCETRAP)
         && !(env.trapFlags & FORCEBUNGLE)
         && Boolean(env.random.rn2(4));
 }

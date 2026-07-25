@@ -163,6 +163,7 @@
         "js/terrain.js",
         "js/track.js",
         "js/trap.js",
+        "js/trap_monster_holding.js",
         "js/trap_monster_projectiles.js",
         "js/trap_monster_shared.js",
         "js/vision.js"
