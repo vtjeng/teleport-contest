@@ -84,10 +84,11 @@ The referenced instructions are mandatory when their trigger applies.
 2. Trace every reachable upstream branch and helper inside that boundary.
    Finish one complete path before starting partial implementations of several
    commands.
-3. Add prerequisites only for named consumers in the current roadmap item.
-   Connect each prerequisite to the named consumers that need it before the
-   item closes. When a small prerequisite and its first consumer fit one
-   reviewable chunk, implement and commit them together.
+3. Before implementing a helper, data structure, or game mechanic, identify
+   the exact player action in the current roadmap item that will use it.
+   Implement that player action at the same time. If no current player action
+   needs the code, defer it. Do not prepare code for future commands or
+   branches.
 4. Keep each C state value in one canonical JavaScript location. Document each
    non-obvious mapping and the mapped state value's initialization, reset,
    mutation, and persistence boundaries. Duplicate state only when source
