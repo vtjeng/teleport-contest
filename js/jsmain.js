@@ -10,7 +10,10 @@
 // For browser play, see nethack.js (uses NethackGame directly).
 
 import { game, resetGame } from './gstate.js';
-import { MAX_COMMAND_COUNT } from './cmd.js';
+import {
+    MAX_COMMAND_COUNT,
+    UnsupportedHeroMoveBoundaryError,
+} from './cmd.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import {
     newgame,
@@ -467,7 +470,10 @@ export async function runSegment(
             // A known, fail-closed gameplay boundary preserves all output
             // produced through the supported prefix. It must not turn that
             // prefix into a zero-session scorer error.
-            if (e instanceof UnsupportedTurnBoundaryError) break;
+            if (e instanceof UnsupportedTurnBoundaryError
+                || e instanceof UnsupportedHeroMoveBoundaryError) {
+                break;
+            }
             throw e;
         }
     }

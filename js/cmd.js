@@ -9,6 +9,7 @@ import {
 } from './command_bindings.js';
 import {
     COLNO,
+    CORR,
     DOOR,
     D_CLOSED,
     D_LOCKED,
@@ -18,6 +19,7 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
+    ROOM,
     SICK,
     SLIMED,
     STONE,
@@ -26,7 +28,7 @@ import {
     isok,
 } from './const.js';
 import { flush_screen, newsym } from './display.js';
-import { can_reach_floor, read_engr_at } from './engrave.js';
+import { can_reach_floor, engr_at, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
     disturb_buried_zombies,
@@ -39,9 +41,10 @@ import { is_hider, noattacks } from './mondata.js';
 import { m_at } from './monst.js';
 import { onscary } from './monmove.js';
 import { look_here_single_object } from './invent.js';
-import { in_out_region } from './region.js';
+import { in_out_region, inside_region } from './region.js';
 import { check_special_room_state } from './rooms.js';
 import { canSpotMonster } from './startup_a11y.js';
+import { t_at } from './trap.js';
 import {
     clearTtyMessageWindow,
     ttyNorep,
@@ -55,6 +58,14 @@ const BACKSPACE = 0x08;
 const DELETE = 0x7F;
 const DOMOVE_WALK = 0x01;
 const DOMOVE_RUSH = 0x02;
+
+export class UnsupportedHeroMoveBoundaryError extends Error {
+    constructor(reason) {
+        super(`unsupported hero move: ${reason}`);
+        this.name = 'UnsupportedHeroMoveBoundaryError';
+        this.reason = reason;
+    }
+}
 
 // Each value is [u.dx, u.dy, context.run]: 0 walks, 1 runs, and 3 rushes.
 // Preserve these source numeric modes; downstream code groups them by
@@ -362,6 +373,39 @@ function blocksMove(x, y, state) {
     return loc.typ === DOOR && (loc.doormask & (D_CLOSED | D_LOCKED));
 }
 
+// The named simple-second-command checkpoint owns only entry into an
+// unoccupied ROOM or CORR square with no spot effect. These checks are a
+// temporary admission seam in front of hack.c:domove_core(); each rejected
+// branch will move to its upstream owner when that behavior is ported.
+function requireSimpleHeroDestination(x, y, state) {
+    if (m_at(x, y, state))
+        throw new UnsupportedHeroMoveBoundaryError(
+            'hero combat or displacement',
+        );
+
+    const location = state.level?.at(x, y);
+    if (!location || (location.typ !== ROOM && location.typ !== CORR)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'door or special terrain movement',
+        );
+    }
+    if (state.level?.objects?.[x]?.[y]) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'floor object interaction',
+        );
+    }
+    if (t_at(x, y, state))
+        throw new UnsupportedHeroMoveBoundaryError('trap activation');
+
+    for (const region of state.level?.regions ?? []) {
+        if (region.attach_2_u) continue;
+        if (Boolean(region.hero_inside) !== inside_region(region, x, y))
+            throw new UnsupportedHeroMoveBoundaryError('region crossing');
+    }
+    if (engr_at(x, y, state))
+        throw new UnsupportedHeroMoveBoundaryError('engraving interaction');
+}
+
 // C ref: hack.c domove(). This remains the narrow ordinary-floor subset; the
 // movement milestone will replace its collision and terrain branches in source
 // order without changing the command intent established by executeMovement().
@@ -383,6 +427,7 @@ export async function domove(state = game) {
         state.domoveAttempting = 0;
         return;
     }
+    requireSimpleHeroDestination(newx, newy, state);
 
     const oldx = u.ux;
     const oldy = u.uy;

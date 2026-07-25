@@ -9,21 +9,26 @@ import {
 } from '../js/command_bindings.js';
 import { moveloop_core } from '../js/allmain.js';
 import {
+    domove,
     MAX_COMMAND_COUNT,
     monsterNearby,
     parseCommand,
     resetCommandVars,
     rhack,
+    UnsupportedHeroMoveBoundaryError,
 } from '../js/cmd.js';
 import {
     COLNO,
+    CORR,
     FAST,
+    FOUNTAIN,
     HALLUC,
     IN_SIGHT,
     INTRINSIC,
     M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
+    PIT,
     ROOM,
     ROWNO,
     STONE,
@@ -35,6 +40,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { PM_FOG_CLOUD } from '../js/monsters.js';
 import { parseNethackrc } from '../js/options.js';
+import { create_region } from '../js/region.js';
 import {
     enableRngLog,
     getRngLog,
@@ -70,6 +76,177 @@ function topLine(state) {
     return state.nhDisplay.grid[0]
         .map(({ ch }) => ch).join('').trimEnd();
 }
+
+function heroMoveAdmissionSnapshot(replay) {
+    return {
+        context: structuredClone(game.context),
+        cursor: replay.getCursors().map((cursor) => [...cursor]),
+        display: structuredClone(game.nhDisplay.grid),
+        domoveAttempting: game.domoveAttempting,
+        hero: {
+            umoved: game.u.umoved,
+            ux: game.u.ux,
+            ux0: game.u.ux0,
+            uy: game.u.uy,
+            uy0: game.u.uy0,
+        },
+        multi: game.multi,
+        pendingMessage: game._pending_message,
+        regions: game.level.regions.map((region) => region.hero_inside),
+        rngContext: {
+            a: game.coreCtx.a,
+            b: game.coreCtx.b,
+            c: game.coreCtx.c,
+            m: [...game.coreCtx.m],
+            n: game.coreCtx.n,
+            r: [...game.coreCtx.r],
+        },
+        rngLog: [...getRngLog()],
+        screens: [...replay.getScreens()],
+    };
+}
+
+async function prepareHeroMoveAdmission() {
+    const replay = await runSegment({
+        seed: 840004,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:MoveAdmission,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none',
+        moves: '',
+    });
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    const destination = game.level.at(x, y);
+    destination.typ = ROOM;
+    destination.flags = destination.doormask = 0;
+    game.level.monsters[x][y] = null;
+    game.level.monlist = null;
+    game.level.objects[x][y] = null;
+    game.level.traps = [];
+    game.level.regions = [];
+    game.head_engr = null;
+    game.u.dx = 1;
+    game.u.dy = 0;
+    game.u.umoved = false;
+    game.context.move = 1;
+    game.domoveAttempting = 1;
+    return { destination, replay, x, y };
+}
+
+test('simple hero movement rejects spot effects before mutation', async () => {
+    const cases = [
+        {
+            name: 'single floor object',
+            reason: 'floor object interaction',
+            setup: ({ x, y }) => {
+                game.level.objects[x][y] = { o_id: 1, nexthere: null };
+            },
+        },
+        {
+            name: 'floor object pile',
+            reason: 'floor object interaction',
+            setup: ({ x, y }) => {
+                // Two linked objects exercise the pile path, not merely the
+                // single-object floor-description branch.
+                game.level.objects[x][y] = {
+                    o_id: 1,
+                    nexthere: { o_id: 2, nexthere: null },
+                };
+            },
+        },
+        {
+            name: 'hidden pit',
+            reason: 'trap activation',
+            setup: ({ x, y }) => {
+                // tseen=false models a legally enterable hidden trap.
+                game.level.traps.push({
+                    tx: x, ty: y, ttyp: PIT, tseen: false,
+                });
+            },
+        },
+        {
+            name: 'fountain terrain',
+            reason: 'door or special terrain movement',
+            setup: ({ destination }) => {
+                destination.typ = FOUNTAIN;
+            },
+        },
+        {
+            name: 'region entry',
+            reason: 'region crossing',
+            setup: ({ x, y }) => {
+                // A one-cell region isolates the false -> true membership
+                // transition at this destination.
+                game.level.regions.push(create_region([
+                    { lx: x, ly: y, hx: x, hy: y },
+                ]));
+            },
+        },
+        {
+            name: 'floor engraving',
+            reason: 'engraving interaction',
+            setup: ({ x, y }) => {
+                game.head_engr = {
+                    engr_x: x,
+                    engr_y: y,
+                    engr_txt: ['Elbereth'],
+                    nxt_engr: null,
+                };
+            },
+        },
+        {
+            name: 'monster at destination',
+            reason: 'hero combat or displacement',
+            setup: ({ x, y }) => {
+                game.level.monsters[x][y] = {
+                    mx: x, my: y, mhp: 1,
+                };
+            },
+        },
+    ];
+
+    for (const admissionCase of cases) {
+        const target = await prepareHeroMoveAdmission();
+        admissionCase.setup(target);
+        const destinationObject = game.level.objects[target.x][target.y];
+        const before = heroMoveAdmissionSnapshot(target.replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                domove(game),
+                (error) => (
+                    error instanceof UnsupportedHeroMoveBoundaryError
+                    && error.reason === admissionCase.reason
+                ),
+                `${admissionCase.name}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                heroMoveAdmissionSnapshot(target.replay),
+                before,
+                `${admissionCase.name}, attempt ${attempt + 1}`,
+            );
+            assert.equal(
+                game.level.objects[target.x][target.y],
+                destinationObject,
+                admissionCase.name,
+            );
+        }
+    }
+});
+
+test('simple hero movement admits empty room and corridor controls',
+    async () => {
+        for (const terrain of [ROOM, CORR]) {
+            const { destination, x, y } = await prepareHeroMoveAdmission();
+            destination.typ = terrain;
+
+            await domove(game);
+
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+            assert.equal(game.u.umoved, true);
+        }
+    });
 
 function resetSafeWaitTestGame(options = '') {
     const state = resetParserTestGame([]);
@@ -1041,15 +1218,22 @@ test('all source direction families dispatch their exact movement intent', async
         ['run', (key) => key.toUpperCase().charCodeAt(0), 1],
         ['rush', (key) => key.toUpperCase().charCodeAt(0) & 0x1F, 3],
     ];
+    game.level.traps = [];
+    game.level.regions = [];
+    game.head_engr = null;
 
     for (const [mode, keyCode, expectedRun] of modes) {
         for (const [key, dx, dy] of directions) {
             resetCommandVars(game);
             game.u.ux = start[0];
             game.u.uy = start[1];
-            const square = game.level.at(start[0] + dx, start[1] + dy);
+            const x = start[0] + dx;
+            const y = start[1] + dy;
+            const square = game.level.at(x, y);
             square.typ = ROOM;
             square.flags = square.doormask = 0;
+            game.level.monsters[x][y] = null;
+            game.level.objects[x][y] = null;
 
             await rhack(keyCode(key), game);
 
