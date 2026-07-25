@@ -9,6 +9,7 @@
     "check:objects": "node scripts/generate-objects.mjs --check",
     "check:symbols": "node scripts/generate-symbol-data.mjs --check",
     "check:themerooms": "node scripts/generate-themeroom-data.mjs --check",
+    "checkpoint": "node scripts/checkpoint-checks.mjs",
     "quality": "node scripts/quality-status.mjs",
     "score": "bash frozen/score.sh",
     "play": "echo 'Open index.html in a browser to play'"
