@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     COULD_SEE,
+    CORR,
     FOUNTAIN,
     IN_SIGHT,
     MMOVE_NOTHING,
@@ -885,6 +886,48 @@ test('simple monster movement continues through an ignored object',
         );
     });
 
+test('simple ordinary monster and starting pet can land in a corridor',
+    async () => {
+        const cases = [
+            {
+                name: 'ordinary monster',
+                prepare: () => prepareSelectedAction(),
+            },
+            {
+                name: 'starting pet',
+                prepare: () => prepareStartingPetAction(PM_LITTLE_DOG),
+            },
+        ];
+
+        for (const movementCase of cases) {
+            const target = await movementCase.prepare();
+            game.level.at(target.destinationX, target.heroY).typ = CORR;
+            const before = completeSecondTurnSnapshot(game, target.replay);
+
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                movementCase.name,
+            );
+
+            const result = await runSimpleMonsterAction(target.monster, {
+                state: game,
+            });
+            assert.equal(result, MMOVE_NOTHING, movementCase.name);
+            assert.deepEqual(
+                [target.monster.mx, target.monster.my],
+                [target.destinationX, target.heroY],
+                movementCase.name,
+            );
+            assert.equal(
+                game.level.at(target.destinationX, target.heroY).typ,
+                CORR,
+                movementCase.name,
+            );
+        }
+    });
+
 test('simple preflight rejects a selected trap without live mutation',
     async () => {
         await runSegment({
@@ -970,6 +1013,23 @@ test('simple preflight keeps starting-pet owner seams retryable',
                         target,
                         floorObject(
                             target.monsterX,
+                            target.heroY,
+                            9101,
+                            TRIPE_RATION,
+                        ),
+                    );
+                    return target;
+                },
+            },
+            {
+                name: 'kitten moving onto adjacent food',
+                reason: 'pet eating',
+                prepare: async () => {
+                    const target = await prepareStartingPetAction(PM_KITTEN);
+                    installObject(
+                        target,
+                        floorObject(
+                            target.destinationX,
                             target.heroY,
                             9101,
                             TRIPE_RATION,
