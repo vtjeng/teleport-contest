@@ -381,7 +381,7 @@ not change the active scope or count as live simple-turn closure.
 
 ## Latest implementation checkpoint
 
-- Commit checked: `ea815b9194a090e3c26ec5472c94fd70fa4fc2cb`
+- Commit checked: `ea815b9114c1d367800770c12cb9dcd452b17f2c`
 - Live player action: from the first command prompt, the game accepts two
   waits or ordinary-clear one-square walks, runs elapsed ordinary-monster and
   starting-pet work, renders and persists the result, and reaches the prompt
@@ -449,7 +449,7 @@ Reason: every source family is done, the real game executes the full
 source-to-prompt path, the 17-case strict fresh matrix and complete retry
 oracles cover the reopened behaviors, and focused, full, generated, scoring,
 and quality evidence applies to exact integrated code head
-`ea815b9194a090e3c26ec5472c94fd70fa4fc2cb`. The correctness audit is recorded
+`ea815b9114c1d367800770c12cb9dcd452b17f2c`. The correctness audit is recorded
 and every confirmed finding is resolved. The remaining formal gate is the
 concrete reviewer-facing clarity trigger around `dog_goal()` and the live
 environment adapter.
