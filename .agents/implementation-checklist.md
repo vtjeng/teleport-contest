@@ -61,17 +61,16 @@ validated.
 | 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | done | Live dog action state test, strict dog/cat cases, and four source-valid Knight pony walk/wait cases. |
 | 16 | `allmain.c` new-turn allocation and upkeep | Run monster distress, movement allocation, possible random generation, hero movement allocation, track update, turn counters, timeouts, regions, sounds, hunger, engraving wear, and the already-owned first-turn upkeep sequence. | Existing source owners, coordinated by `js/allmain.js` | done | Command allocation/upkeep tests and fast-hero differential. |
 | 17 | `allmain.c` once-per-hero-action effects | Advance `hero_seq`, refresh encumbrance/display state, and run the already-owned post-action visibility work. | Existing source owners, coordinated by `js/allmain.js` | done | Direct `hero_seq`/hunger tests and all strict cases. |
-| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | missing | Extend the three-file integration bundle with fast mixed walk/wait and kitten walk cases, plus hero-track and root scheduler fields in the complete snapshot. |
+| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | done | The v2 integration oracle, fast mixed walk/wait, kitten walking, ordered hero track, scheduler state, exact output, and complete two-retry excluded-path snapshot are committed together at `4927b9a`. |
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 17 done and one open after the second correctness
-  audit and B6.
-- Closure verdict: **implementation in progress**. Families 11, 12, 13,
-  and 18 had confirmed production, contract, or coverage gaps; family 18
-  remains open. The slice
-  must be revalidated through the next prompt and receive a new full
-  correctness audit before it can close.
+- 18 in-boundary families: all 18 done after the second correctness audit and
+  B7.
+- Closure verdict: **ready for audit**. The six confirmed gap families now
+  have committed implementation or coverage and exact-head validation. The
+  slice still needs the required new full correctness audit before it can
+  close.
 
 ## Correctness-audit return to implementation
 
@@ -106,7 +105,7 @@ list.
 | B4 — monster movement accessibility output | done at `f9f7ab6` | For an ordinary monster move during the second command, canonicalize the `mon_movement` option in the accessibility owner and port `msg_mon_movement()` through output, redraw, persistence, and the next prompt. | `js/options.js`, `js/mondata.js`, `js/startup_a11y.js`, `js/monmove_move.js`, and corresponding focused tests |
 | B5 — pet goal and target contracts | done at `d1b07b9` | Clarify the `dog_goal()` return/scratch contract and pin the inclusive distance-seven `find_targ()` ray boundary without changing the live supported path. | `js/dogmove_goal.js`, `scripts/dogmove-goal.test.mjs`, `scripts/dogmove.test.mjs` |
 | B6 — no-move and pet safe-stop coverage | done at `402d68d` | Drive visible `MMOVE_NOTHING` notice ordering through the complete adapter, then cover the reachable pet combat-evaluation, eating, pickup, cursed-feedback, and non-inert-inventory seams with complete two-retry state. Preserve upstream's tame `ALLOW_M` precedence instead of manufacturing an unreachable starting-pet displacement callback. | `scripts/monmove-simple.test.mjs` |
-| B7 — complete integration oracle | pending | Keep the runner, fixture, and integration test together. Add fast mixed walking, kitten walking, hero-track order, and the root scheduler flags to exact fresh and retry oracles. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
+| B7 — complete integration oracle | done at `4927b9a` | Keep the runner, fixture, and integration test together. Add fast mixed walking, kitten walking, hero-track order, and the root scheduler flags to exact fresh and retry oracles. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
 
 After B1 through B7, rerun focused tests, the full suite, all generated checks,
 the expanded strict fresh matrix, development scoring, and the focused batch
@@ -278,37 +277,63 @@ not change the active scope or count as live simple-turn closure.
 
 ## Latest implementation checkpoint
 
-- Commit checked: `402d68d6`.
-- Live player action: the starting dog, kitten, or pony reaches `dog_move()`
-  during elapsed work after the second wait or one-square walk. The complete
-  adapter also runs `notice_mon()` when `dog_move()` returns
-  `MMOVE_NOTHING`.
-- Source review: `dogmove.c:dog_move()`, `mon.c:mon_allowflags()`, and
-  `mon.c:mfndpos()` were checked upstream. Eating, pickup, cursed feedback,
-  combat evaluation, and non-inert inventory stop at their first unowned
-  owner. Starting pets set `ALLOW_M`, so occupied squares take the combat
-  branch before displacement classification; there is no source-valid
-  dog/kitten/pony displacement seam to synthesize.
-- Focused tests: 12/12 passed in the complete simple-action adapter.
+- Commit checked: `4927b9aa`.
+- Live player action: from the first command prompt, the game accepts two
+  waits or ordinary-clear one-square walks, runs elapsed ordinary-monster and
+  starting-pet work, renders and persists the result, and reaches the prompt
+  after the second command.
+- Source review: all 18 branch families were traced through the ending prompt
+  against their upstream owners. The review covered state and PRNG order,
+  output and redraw order, persistence, replay removal, explicit unsupported
+  stops, and the complete input boundary.
+- Focused tests: 3/3 passed in the complete second-turn integration owner.
 - Full suite: 1,593/1,593 passed.
 - Generated-file checks: monsters, objects, symbols, and themed-room data all
   passed.
-- Fresh differentials: not rerun for this test-only checkpoint. The prior
-  fixed dog, kitten, and pony batch remains 3/3.
+- Fresh differentials: `node scripts/run-second-complete-turn.mjs` passed all
+  13 checked-in segments with 36,424 matching PRNG calls and 52 matching
+  complete screens, attributes, and cursors. The matrix varies no-pet, dog,
+  kitten, pony, ordinary-speed, fast-hero, wait/walk order, and walk/walk
+  inputs. Its recipes contain replay inputs only.
 - Development suite: 0/33 sessions fully matched; 77,632/610,816 PRNG values,
   207/7,765 screens, and 238/7,765 cursors matched.
+- Quality check: `npm run quality -- --check` found no unassigned production
+  files. Its three due areas are inside the frozen range that this audit will
+  review; there is no threshold debt outside that range.
+- Browser check: not required because this slice changes no browser-only
+  renderer, DOM, input, or storage contract.
 - Estimate: `206 shown + 194 hidden = 400 total`, uncertain.
 - Holdout: not accessed.
 
+## Audit readiness note
+
+- **Boundary and live path:** The live game starts at the first command prompt
+  and reaches the prompt after two time-consuming simple commands. The 13-case
+  integration matrix executes this path through display and persistence.
+- **Source review:** Every branch and helper reachable through the ending
+  prompt was traced against upstream C, including state and PRNG order. The
+  review also identified explicit stops, replay seams, partial owners, and
+  missing subsystems; no unresolved item remains inside the boundary.
+- **Differential evidence:** The checked-in 13-case fresh matrix varies command
+  order, hero speed, pets, and no-pet starts. It compares PRNG, complete 24x80
+  screens and attributes, cursors, and the persisted prompt state. Fixed batch
+  scans also cover ordinary monster output and dog, kitten, and pony movement.
+- **Completeness:** All 18 source families are done. Reachable exclusions stop
+  in clone-only preflight before live state, gameplay randomness, or output
+  changes, with complete two-retry snapshots for representative hero,
+  ordinary-monster, and starting-pet paths.
+- **Checks:** Focused tests pass 3/3, the full suite passes 1,593/1,593, all
+  generated checks pass, the fresh matrix passes 13/13, and development
+  scoring completed. The quality check has no unassigned files or threshold
+  debt outside the frozen review range.
+
 ## Readiness
 
-Current mode: Implementation
+Current mode: Ready for audit
 
-Reason: the second correctness audit confirmed missing source behavior and
-coverage in families 11, 12, 13, and 18. B6 is complete; B7 is the final
-implementation checkpoint.
-Broad seed discovery remains paused until these persisted checkpoints guide
-fixed case lists.
+Reason: every source-derived family is done at the validated implementation
+head `4927b9aa`, and the readiness evidence above is complete. The required new
+full correctness audit is the next step.
 
 ## Completed commit gates
 

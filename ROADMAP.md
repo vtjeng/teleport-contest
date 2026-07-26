@@ -51,8 +51,10 @@ interaction boundary are committed at `aa7b9e4`. Source-ordered ordinary
 monster movement accessibility output is committed at `f9f7ab6`. The pet goal
 and seven-square target contracts are committed at `d1b07b9`. Complete
 no-move notice ordering and starting-pet safe-stop coverage are committed at
-`402d68d`. The final three-file integration oracle is the only remaining
-checkpoint.
+`402d68d`. The final three-file integration oracle is committed at `4927b9a`.
+Implementation and validation are complete for the active boundary. The slice
+is ready for its required full correctness audit and remains open until that
+review and any confirmed fixes are complete.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
