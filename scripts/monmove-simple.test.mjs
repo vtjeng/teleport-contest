@@ -22,6 +22,7 @@ import {
     PM_LITTLE_DOG,
     PM_PONY,
     PM_PURPLE_WORM,
+    PM_ROCK_MOLE,
     PM_SHRIEKER,
     S_HUMAN,
 } from '../js/monsters.js';
@@ -32,7 +33,11 @@ import {
     UnsupportedSimpleMonsterActionError,
 } from '../js/monmove_simple.js';
 import { newMonster } from '../js/monst.js';
-import { SADDLE } from '../js/objects.js';
+import {
+    DAGGER,
+    ROCK,
+    SADDLE,
+} from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import { getRngLog } from '../js/rng.js';
 
@@ -176,14 +181,20 @@ function ordinaryMonster(pmidx, x, y, overrides = {}) {
     });
 }
 
-function floorObject(x, y, id = 9101) {
+function floorObject(x, y, id = 9101, otyp = ROCK) {
+    const type = game.objects[otyp];
     return {
         cobj: null,
         nobj: null,
         nexthere: null,
         o_id: id,
+        oclass: type.oc_class,
         ox: x,
         oy: y,
+        otyp,
+        owt: type.oc_weight,
+        quan: 1,
+        spe: 0,
         where: 1,
     };
 }
@@ -551,9 +562,11 @@ test('simple preflight rejects every selected excluded action atomically',
             },
             {
                 name: 'item search',
-                reason: 'ordinary monster item search',
+                reason: 'ordinary monster item interaction',
                 prepare: async () => {
-                    const target = await prepareSelectedAction();
+                    const target = await prepareSelectedAction({
+                        pmidx: PM_ROCK_MOLE,
+                    });
                     // A blind hostile sets approach=0, so m_move() enters
                     // m_search_items() regardless of line-of-fire geometry.
                     target.monster.mcansee = false;
@@ -561,7 +574,12 @@ test('simple preflight rejects every selected excluded action atomically',
                         &= ~COULD_SEE;
                     installObject(
                         target,
-                        floorObject(target.monsterX, target.heroY),
+                        floorObject(
+                            target.destinationX,
+                            target.heroY,
+                            9101,
+                            DAGGER,
+                        ),
                     );
                     return target;
                 },
@@ -608,6 +626,24 @@ test('simple preflight rejects every selected excluded action atomically',
                 );
             }
         }
+    });
+
+test('simple preflight ignores an unselected rock during item search',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_ROCK_MOLE,
+        });
+        target.monster.mcansee = false;
+        game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+        installObject(
+            target,
+            floorObject(target.monsterX, target.heroY),
+        );
+        const before = completePreflightSnapshot(target.replay);
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.deepEqual(completePreflightSnapshot(target.replay), before);
     });
 
 test('simple preflight rejects a selected trap without live mutation',

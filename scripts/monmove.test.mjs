@@ -439,7 +439,6 @@ test('m_move pins source candidate order and reservoir tie-breaking',
         resolveTrappedMonster: () => false,
         resistsTrapEffect: () => false,
         itemSearchInLine: () => false,
-        assertEmptyItemSearch: () => {},
         unsupported: (reason) => assert.fail(reason),
         postMonsterMove(subject, oldX, oldY, status) {
             events.push(`post:${oldX},${oldY}:${subject.mx},${subject.my}`);
@@ -551,7 +550,7 @@ test('m_move item search requires the complete approach and line predicate',
                 alignedEvents.push('line');
                 return true;
             },
-            assertEmptyItemSearch: () => assert.fail(
+            searchItems: () => assert.fail(
                 'aligned approach skips item search',
             ),
             unsupported: (reason) => assert.fail(reason),
@@ -578,7 +577,7 @@ test('m_move item search requires the complete approach and line predicate',
                 resolveTrappedMonster: () => false,
                 resistsTrapEffect: () => false,
                 itemSearchInLine: () => false,
-                assertEmptyItemSearch: () => { throw stop; },
+                searchItems: () => { throw stop; },
                 unsupported: (reason) => assert.fail(reason),
                 postMonsterMove: () => assert.fail('search stops movement'),
             }),
@@ -604,7 +603,7 @@ test('m_move item search requires the complete approach and line predicate',
                 resolveTrappedMonster: () => false,
                 resistsTrapEffect: () => false,
                 itemSearchInLine: () => true,
-                assertEmptyItemSearch: () => { throw confusedStop; },
+                searchItems: () => { throw confusedStop; },
                 unsupported: (reason) => assert.fail(reason),
                 postMonsterMove: () => assert.fail('search stops movement'),
             }),
@@ -635,7 +634,7 @@ test('m_move item-search gate preserves peaceful and rogue-level order',
             itemSearchInLine: () => assert.fail(
                 'rogue level skips line evaluation',
             ),
-            assertEmptyItemSearch: () => assert.fail(
+            searchItems: () => assert.fail(
                 'rogue level skips item search',
             ),
             unsupported: (reason) => assert.fail(reason),

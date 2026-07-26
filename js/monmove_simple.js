@@ -285,26 +285,11 @@ function resistsTrapEffect() {
     unsupported('monster trap-resistance evaluation');
 }
 
-function assertEmptyItemSearch(monster, env) {
-    for (let object = env.state.level?.objlist ?? null;
-        object;
-        object = object.nobj) {
-        if (Math.max(
-            Math.abs(object.ox - monster.mx),
-            Math.abs(object.oy - monster.my),
-        ) <= 5) {
-            unsupported('ordinary monster item search');
-        }
-    }
-}
-
 function assertSimpleDestination(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
     if (location?.typ !== ROOM && location?.typ !== CORR)
         unsupported('door or special terrain movement');
-    if (state.level.objects[x]?.[y])
-        unsupported('a floor object');
     if (t_at(x, y, state))
         unsupported('trap activation');
     for (const region of state.level.regions) {
@@ -346,9 +331,12 @@ async function postSimpleMove(monster, oldX, oldY, status, env) {
 async function moveSimpleOrdinary(monster, env) {
     return m_move_fresh(monster, {
         ...env,
-        assertEmptyItemSearch,
         mayCrossRegion: assertSimpleDestination,
         postMonsterMove: postSimpleMove,
+        preflightFloorItems: (_monster, _x, _y, selectedItem) =>
+            unsupported(selectedItem
+                ? 'ordinary monster item interaction'
+                : 'a floor object'),
         resolveTrappedMonster: () => false,
         resistsTrapEffect,
         unsupported,
