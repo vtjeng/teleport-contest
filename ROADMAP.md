@@ -27,7 +27,8 @@ upstream source.
 
 ## Current milestone: exploration
 
-**Status:** implementation resumed after the full correctness review of
+**Status:** implementation resumed after the second full correctness review.
+The first review covered
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`.
 The review confirmed seven production gaps and six test gaps in the active
 checkpoint. Hero destination admission and monster goal/selection fixes are
@@ -37,9 +38,16 @@ are committed at `3104b21`; wake and post-move notice behavior is committed at
 replay step ownership is committed at `604caa2`. Source tracing of valid
 starting ponies added two small prerequisites: exact admission of their inert
 worn saddle at `c1e5f89`, and a preflight stop before unsupported pet
-ranged-target scoring at `723da26`. The checklist still has a known
-integration-oracle gap, so work remains in Implementation mode. The next
-source-owned checkpoint is the complete retry and strict matrix oracle.
+ranged-target scoring at `723da26`. The complete retry and strict matrix
+oracle is committed at `9288ced`.
+
+The second review of
+`3b6c38de148679a5cc8313d755ec906fa95627c3..9288ced3372da17588cc70ec30cf2f3fe6302e25`
+confirmed omitted source behavior and missing coverage in six branch families.
+The active slice is back in Implementation. The next checkpoint makes rejected
+hero walks completely atomic; the remaining checkpoints are split among the
+`monmove.c` line predicate, item search, and accessibility-output owners, the
+pet goal and safe-stop owners, and the final three-file integration oracle.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
@@ -76,10 +84,15 @@ hero destination admission; monster goal and displacement selection;
 elapsed-turn preflight and cloned-RNG parity; wake and `notice_mon()`
 post-move behavior; the starting-pet result contract; replay step ownership;
 the inert starting-pony saddle admission; the pet ranged-target preflight;
-then the complete retry and strict matrix oracles. `js/monster_action.js`
-remains future work rather than a combined movement, trap, object, and combat
-owner. The detailed source inventory, safe-stop seams, checkpoints, and
-evidence live in `.agents/implementation-checklist.md`.
+then the complete retry and strict matrix oracles at `9288ced`. The second
+audit follow-up is ordered as atomic hero command admission; the monster line
+predicate; monster item-search selection; monster movement accessibility
+output; pet goal and target contracts; no-move and pet safe-stop coverage; and
+the final integration-oracle bundle.
+`js/monster_action.js` remains future work rather than a combined movement,
+trap, object, and combat owner. The detailed source inventory, safe-stop
+seams, checkpoints, and evidence live in
+`.agents/implementation-checklist.md`.
 
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
