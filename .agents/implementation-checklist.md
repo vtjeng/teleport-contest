@@ -61,11 +61,11 @@ validated.
 | 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | open | Add focused and fresh starting-pet corridor-landing proof. |
 | 16 | `allmain.c` new-turn allocation and upkeep | Run monster distress, movement allocation, possible random generation, hero movement allocation, track update, turn counters, timeouts, regions, sounds, hunger, engraving wear, and the already-owned first-turn upkeep sequence. | Existing source owners, coordinated by `js/allmain.js` | done | Command allocation/upkeep tests and fast-hero differential. |
 | 17 | `allmain.c` once-per-hero-action effects | Advance `hero_seq`, refresh encumbrance/display state, and run the already-owned post-action visibility work. | Existing source owners, coordinated by `js/allmain.js` | done | Direct `hero_seq`/hunger tests and all strict cases. |
-| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | open | Share scheduler-root retry snapshots and commit all new strict fresh cases in one final runner, fixture, and integration-test bundle. |
+| 18 | display, persistence, replay, and next input | Render and persist the complete result, remove only the second-turn replay now owned by gameplay, and request the next command. | `js/allmain.js`, `js/fastforward.js`, runner/test files | open | The shared complete retry snapshot is committed at `bdf14d8`; commit all new strict fresh cases in one final runner, fixture, and integration-test bundle. |
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 14 done and four remain open after D3.
+- 18 in-boundary families: 14 done and four remain open after D4.
 - Closure verdict: **Implementation**. The confirmed production, test, and
   maintenance findings below must be committed and validated before another
   exact head can be frozen.
@@ -96,7 +96,7 @@ D6, when all three remain one final integration commit.
 | D2a — pre-move item selection | done at `9dfa7f2` | Follow the preceding `muse.c:find_defensive()` / `find_misc()` selection gates needed by ordinary initial monsters. Admit inert inventory, preserve selection-time PRNG, and stop atomically when upstream selects unsupported item use. | `js/muse.js`, `js/monmove_dochug.js`, `js/monmove_simple.js`, focused muse and two-retry tests |
 | D2b — source-selected weapon action | done at `eb71e3d` | Follow `monmove.c` weapon gates in source order. Admit inert `AT_WEAP` capability and inventory, and stop atomically only when upstream selects an unsupported wield action. | `js/monmove_dochug.js`, `js/monmove_simple.js`, focused weapon and two-retry tests |
 | D3 — source-selected post-move object action | done at `322b6b5` | Continue through destination objects that upstream ignores. Stop only when the take or consume predicates select an unsupported interaction. Add the own-square item-search retry proof in the same source-owned item checkpoint. | `js/monmove_items.js`, `js/monmove_move.js`, `js/monmove_simple.js`, focused item and atomic-preflight tests |
-| D4 — complete atomic snapshot contract | pending | Centralize the complete second-turn retry snapshot and include command, turn, scheduler, vision, purge, and hero-track roots. Apply it to all focused two-retry excluded-action tests. | shared test snapshot helper, `scripts/monmove-simple.test.mjs` |
+| D4 — complete atomic snapshot contract | done at `bdf14d8` | Centralize the complete second-turn retry snapshot and include command, turn, scheduler, vision, purge, and hero-track roots. Apply it to all focused two-retry excluded-action tests. | shared test snapshot helper, `scripts/monmove-simple.test.mjs` |
 | D5 — pet food and corridor focused coverage | pending | Add adjacent starting-pet food clone-preflight atomicity and ordinary-monster plus starting-pet corridor landing tests without expanding supported item behavior. | focused `scripts/dogmove*.test.mjs`, `scripts/monmove*.test.mjs` |
 | D6 — final fresh integration bundle | pending | Keep the runner, fixture, and integration test together. Add exact fresh cases for inert weapon-capable monsters, ignored objects, corridor landings, and parsed `mon_movement`; reuse the complete retry snapshot. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
 
@@ -119,6 +119,12 @@ D3 focused validation passes 109/109, the full suite passes 1,604/1,604, and
 all four generated-data checks pass. The development score is 0/33 sessions,
 77,658/610,816 PRNG values, 207/7,765 screens, and 238/7,765 cursors. Its
 read-only `postmov()` selection and adapter changes add 177 production lines.
+
+D4 focused validation passes 16/16, the full suite passes 1,605/1,605, and all
+four generated-data checks pass. Every focused two-retry monster preflight now
+compares command state, turn counters, scheduler and purge flags, full vision,
+hero tracking, world state, PRNG, display, input, and retained output through
+the shared snapshot that D6 will reuse.
 
 After D1 through D6, rerun focused tests, the full suite,
 all generated checks, the fixed strict fresh matrix with
@@ -332,7 +338,7 @@ not change the active scope or count as live simple-turn closure.
 
 ## Latest implementation checkpoint
 
-- Commit checked: `322b6b5e29d285fe2578e94b784ea521e6d5bcf5`
+- Commit checked: `bdf14d87a9561ea65e2998ee1a51be5c99868639`
 - Live player action: from the first command prompt, the game accepts two
   waits or ordinary-clear one-square walks, runs elapsed ordinary-monster and
   starting-pet work, and reaches the prompt after the second command. D3 now
@@ -341,10 +347,10 @@ not change the active scope or count as live simple-turn closure.
 - Source review: D3 was checked against `monmove.c:m_move()` and `postmov()`,
   plus `mon.c:meatmetal()`, `meatcorpse()`, `mpickstuff()`, and
   `can_carry()`. Its selector preserves pile order, selection-time PRNG, and
-  touch and carry predicates. D4 through D6 remain incomplete.
-- Focused tests: 109/109 passed across the item, movement, and complete
-  atomic-preflight owners.
-- Full suite: 1,604/1,604 passed.
+  touch and carry predicates. D4 adds the complete shared retry snapshot; D5
+  and D6 remain incomplete.
+- Focused tests: 16/16 passed in the complete atomic-preflight owner.
+- Full suite: 1,605/1,605 passed.
 - Generated-file checks: monsters, objects, symbols, and themed-room data all
   passed.
 - Fresh differentials: D6 will add and run the new fixed strict cases. The
@@ -388,7 +394,7 @@ Current mode: Implementation
 
 Reason: the full audit of the frozen head
 `b754646b7aec6cd2dc934845b41aa6183c7fe315` confirmed two production defects,
-five test gaps, and one maintenance-contract gap. D4 through D6 remain active
+five test gaps, and one maintenance-contract gap. D5 and D6 remain active
 source-owned checkpoints. Audit readiness must be rebuilt after they are
 committed and validated.
 
@@ -411,4 +417,4 @@ Each implementation checkpoint followed these gates:
 
 At C4, the focused integration tests, full test suite, generated-data checks,
 development score, and fresh comparisons passed at the committed integration
-head. The third review reopened implementation; D4 through D6 remain.
+head. The third review reopened implementation; D5 and D6 remain.
