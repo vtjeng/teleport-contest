@@ -115,6 +115,8 @@ Follow all instructions in those files.
    exactly where the current goal will use it in the running game. Implement
    that use at the same time. If the current goal does not use the code in the
    running game, defer it. Do not prepare code for future commands or branches.
+   This applies to code that makes a random-number call, writes output, or
+   changes game state. Pure functions follow "Port pure functions in bulk".
 
 ### Keep each game value in one place
 
@@ -124,6 +126,45 @@ initialized, reset, changed, saved, restored, or discarded. Create separate
 JavaScript values only when the C code treats them as separate. Keep their
 update logic together. If the C code changes separate values together, test
 that the JavaScript does the same.
+
+### Keep each source file's port in one place
+
+Some code in `js/` is ported from the C or Lua source. The rest only stops
+paths that are not ported yet, and is deleted when they are.
+
+- Put everything ported from one C file into one JavaScript file with the same
+  name, so the C file name tells you which JavaScript file to open.
+  `monmove.c` becomes `js/monmove.js`.
+- Give each function the name of the C function it comes from. If it covers
+  only part of that function, keep the name and say which branches it covers
+  in a comment.
+- Keep the code that stops unported paths in its own file, named for what it
+  stops.
+- Do not name a file or function after a checkpoint, a review window, or the
+  work that added it. Those names stop making sense once that work is done.
+- Split a ported file only where the C file has separate groups of functions.
+  Name each part for the functions it holds, and name the C file and functions
+  in a header comment. A large file is fine; the C file is large too.
+
+### Port pure functions in bulk
+
+A function is pure here when it makes no random-number call, writes no message
+or screen output, and changes no game state. Porting one cannot change what
+already-working code does, so it does not need a live consumer first.
+
+- Port the pure functions of one C file as a batch, without waiting for a
+  caller. Keep them in that file's JavaScript port, in its definition order.
+- Confirm purity by reading the C source, not by judging the name. A function
+  that turns out to use randomness, write output, or change state leaves the
+  batch and follows "Complete common gameplay first" instead.
+- Before committing a batch, show that it changed nothing that already worked:
+  the full test suite passes and the development score is identical, call for
+  call and screen for screen.
+- Give every ported function a test that pins its result to values read from
+  the C source. The score cannot check a function the game does not call yet,
+  so its test is the only proof it is correct.
+- When a ported function replaces an injected operation that stood in for it,
+  delete the injection in the same batch.
 
 ### Generate large fixed tables from source
 

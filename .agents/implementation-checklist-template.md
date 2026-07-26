@@ -51,6 +51,10 @@ own row when it has different state changes, random-number use or order,
 messages, rendering, persistence, or input handling. Small branches may share a
 row when those behaviors and their implementation owner are the same.
 
+An owner names the JavaScript file that already corresponds to the upstream
+source file, and the function inside it. It does not authorize a new file. See
+"Keep each source file's port in one place" in `AGENTS.md`.
+
 ## Status values
 
 Assign exactly one status to every row:

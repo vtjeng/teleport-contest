@@ -148,6 +148,18 @@ and do not receive their own evidence snapshots.
   require a full correctness pass by itself.
 - Run a full correctness pass no later than ten unreviewed implementation
   commits or 1,000 changed production lines under `js/` in an affected area.
+- These limits count changed lines per area, not per file. Splitting a file
+  into several files does not reduce review debt, and is not a reason to split
+  one. See "Keep each source file's port in one place" in `AGENTS.md`.
+- Two kinds of commit are counted but reviewed differently, because an
+  identical development score already proves they changed no live behavior.
+  Review each against its C source and its own tests, and do not let either
+  trigger a full pass on its own:
+  - a bulk batch of pure functions, as defined in `AGENTS.md`;
+  - a behavior-preserving move that relocates or renames code without
+    changing it.
+  Record which C file a batch covers and that its score was identical. Any
+  other change in the same commit is counted and reviewed normally.
 - A full pass is also due after an unexplained direct-review or differential
   mismatch, and before a release, pull request, authorized holdout evaluation,
   or closure of the first-command milestone.
