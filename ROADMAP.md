@@ -27,7 +27,7 @@ upstream source.
 
 ## Current milestone: exploration
 
-**Status:** implementation resumed after the second full correctness review.
+**Status:** implementation resumed after the third full correctness review.
 The first review covered
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`.
 The review confirmed seven production gaps and six test gaps in the active
@@ -52,9 +52,14 @@ monster movement accessibility output is committed at `f9f7ab6`. The pet goal
 and seven-square target contracts are committed at `d1b07b9`. Complete
 no-move notice ordering and starting-pet safe-stop coverage are committed at
 `402d68d`. The final three-file integration oracle is committed at `4927b9a`.
-Implementation and validation are complete for the active boundary. The slice
-is ready for its required full correctness audit and remains open until that
-review and any confirmed fixes are complete.
+The third review of
+`3b6c38de148679a5cc8313d755ec906fa95627c3..b754646b7aec6cd2dc934845b41aa6183c7fe315`
+confirmed two production gaps and six test or maintenance gaps. The active
+slice is back in Implementation. The production gaps are source-selected
+weapon handling and post-move object handling: inert capability, inventory, or
+objects must not stop an otherwise ordinary move. The remaining work adds the
+explicit live-environment adapter and closes corridor, accessibility-option,
+atomic retry, scheduler-root, and fresh integration coverage.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
@@ -95,7 +100,10 @@ then the complete retry and strict matrix oracles at `9288ced`. The second
 audit follow-up is ordered as atomic hero command admission; the monster line
 predicate; monster item-search selection; monster movement accessibility
 output; pet goal and target contracts; no-move and pet safe-stop coverage; and
-the final integration-oracle bundle.
+the final integration-oracle bundle. The third audit follow-up is ordered as
+the live monster-action environment adapter; source-selected weapon handling;
+post-move object selection; shared complete retry snapshots; pet-food and
+corridor coverage; and one final runner, fixture, and integration-test bundle.
 `js/monster_action.js` remains future work rather than a combined movement,
 trap, object, and combat owner. The detailed source inventory, safe-stop
 seams, checkpoints, and evidence live in
