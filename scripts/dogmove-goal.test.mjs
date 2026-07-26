@@ -289,32 +289,33 @@ test('can_reach_location refuses closed doors', () => {
     );
 });
 
-test('dog_goal follows the hero and preserves the rn2(4) gate', () => {
-    const { state, monster, edog } = petState();
-    const bounds = [];
-    const approach = dog_goal(
-        monster,
-        edog,
-        false,
-        4, // Distance greater than one reaches the room-following draw.
-        false,
-        goalEnv(state, {
-            random: {
-                rn2(bound) {
-                    bounds.push(bound);
-                    return 1; // Miss the one-in-four close-following gate.
+test('dog_goal returns approach separately from its shared goal scratch',
+    () => {
+        const { state, monster, edog } = petState();
+        const bounds = [];
+        const approach = dog_goal(
+            monster,
+            edog,
+            false,
+            4, // Distance greater than one reaches the room-following draw.
+            false,
+            goalEnv(state, {
+                random: {
+                    rn2(bound) {
+                        bounds.push(bound);
+                        return 1; // Miss the one-in-four close-following gate.
+                    },
                 },
-            },
-        }),
-    );
-    assert.equal(approach, 0);
-    assert.deepEqual(bounds, [4]);
-    assert.deepEqual(state.gg, {
-        gtyp: UNDEF,
-        gx: state.u.ux,
-        gy: state.u.uy,
+            }),
+        );
+        assert.equal(approach, 0);
+        assert.deepEqual(bounds, [4]);
+        assert.deepEqual(state.gg, {
+            gtyp: UNDEF,
+            gx: state.u.ux,
+            gy: state.u.uy,
+        });
     });
-});
 
 test('dog_goal applies its early follow and confusion branches', () => {
     const afterCase = petState();

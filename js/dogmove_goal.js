@@ -244,8 +244,11 @@ function nearestVisibleGoal(monster, state, clearArea) {
     return goal;
 }
 
-// C ref: dogmove.c dog_goal(). Food classification, droppable selection,
-// carry capacity, and the fallback clear-area scan retain source control flow.
+// C ref: dogmove.c dog_goal(). The integer return is `appr`, the pet's
+// approach direction. Like C's separate gg globals, state.gg is a second
+// output carrying gtyp/gx/gy for dog_move() candidate scoring. Food
+// classification, droppable selection, carry capacity, and the fallback
+// clear-area scan retain source control flow.
 export function dog_goal(
     monster,
     edog,

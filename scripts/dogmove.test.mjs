@@ -182,7 +182,44 @@ test('find_targ preserves hero, visibility, and worm-head boundaries', () => {
         monsterCanSee: visible,
     }), state.youmonst);
 
+    // Starting at x=5, x=12 is the seventh and final square examined by
+    // best_target()'s fixed maxdist=7 call.
     monster.mux = 12;
+    assert.equal(find_targ(monster, 1, 0, 7, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: visible,
+    }), state.youmonst);
+    monster.mux = 13;
+    const boundaryTarget = {
+        minvis: false,
+        mundetected: false,
+        mx: 12,
+        my: 5,
+    };
+    assert.equal(find_targ(monster, 1, 0, 7, {
+        state,
+        monsterAt: (x, y) =>
+            x === boundaryTarget.mx && y === boundaryTarget.my
+                ? boundaryTarget
+                : null,
+        monsterCanSee: visible,
+    }), boundaryTarget);
+    const outsideTarget = {
+        minvis: false,
+        mundetected: false,
+        mx: 13,
+        my: 5,
+    };
+    assert.equal(find_targ(monster, 1, 0, 7, {
+        state,
+        monsterAt: (x, y) =>
+            x === outsideTarget.mx && y === outsideTarget.my
+                ? outsideTarget
+                : null,
+        monsterCanSee: visible,
+    }), null);
+
     const invisible = {
         minvis: true,
         mundetected: false,
