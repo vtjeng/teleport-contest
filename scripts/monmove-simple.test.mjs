@@ -2,16 +2,21 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BURN,
     COULD_SEE,
     CORR,
+    DUST,
     FOUNTAIN,
+    HEADSTONE,
     IN_SIGHT,
+    LAVAPOOL,
     MMOVE_NOTHING,
     MON_FLOOR,
     NEED_WEAPON,
     NORMAL_SPEED,
     OBJ_MINVENT,
     PIT,
+    POOL,
     ROOM,
     STONE,
     W_NONDIGGABLE,
@@ -163,6 +168,25 @@ function monsterObject(otyp, id = 9201) {
     };
 }
 
+function installCurrentSquareEngraving(target, overrides = {}) {
+    const text = 'Elbereth';
+    game.head_engr = {
+        engr_alloc: text.length * 3 + 3,
+        engr_szeach: text.length + 1,
+        engr_time: game.moves,
+        engr_txt: [text, text, text],
+        engr_type: DUST,
+        engr_x: target.monsterX,
+        engr_y: target.heroY,
+        eread: false,
+        erevealed: false,
+        guardobjects: false,
+        nowipeout: false,
+        nxt_engr: null,
+        ...overrides,
+    };
+}
+
 async function prepareSelectedAction({
     adjacentHero = false,
     pmidx = PM_GIANT_RAT,
@@ -308,6 +332,87 @@ test('complete retry snapshot includes every audited scheduler root',
             snapshot.world.vision,
             game.viz_array.map((row) => [...row]),
         );
+    });
+
+test('simple preflight stops before current-square liquid and engraving effects',
+    async () => {
+        const cases = [
+            {
+                name: 'pool',
+                reason: 'monster liquid effects',
+                setup: (target) => {
+                    game.level.at(target.monsterX, target.heroY).typ = POOL;
+                },
+            },
+            {
+                name: 'lava',
+                reason: 'monster liquid effects',
+                setup: (target) => {
+                    game.level.at(target.monsterX, target.heroY).typ
+                        = LAVAPOOL;
+                },
+            },
+            {
+                name: 'dust engraving',
+                reason: 'monster engraving wear',
+                setup: installCurrentSquareEngraving,
+            },
+        ];
+
+        for (const actionCase of cases) {
+            const target = await prepareSelectedAction();
+            actionCase.setup(target);
+            const before = completeSecondTurnSnapshot(game, target.replay);
+
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await assert.rejects(
+                    preflightSimpleMonsterActions(game),
+                    (error) => (
+                        error instanceof UnsupportedSimpleMonsterActionError
+                        && error.reason === actionCase.reason
+                    ),
+                    `${actionCase.name}, attempt ${attempt + 1}`,
+                );
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, target.replay),
+                    before,
+                    `${actionCase.name}, attempt ${attempt + 1}`,
+                );
+            }
+        }
+    });
+
+test('simple preflight admits engravings that source wipe leaves intact',
+    async () => {
+        const cases = [
+            {
+                name: 'headstone',
+                engraving: { engr_type: HEADSTONE },
+            },
+            {
+                name: 'protected engraving',
+                engraving: { nowipeout: true },
+            },
+            {
+                name: 'burned room engraving',
+                engraving: { engr_type: BURN },
+            },
+        ];
+
+        for (const actionCase of cases) {
+            const target = await prepareSelectedAction();
+            installCurrentSquareEngraving(target, actionCase.engraving);
+            const before = completeSecondTurnSnapshot(game, target.replay);
+
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await preflightSimpleMonsterActions(game);
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, target.replay),
+                    before,
+                    `${actionCase.name}, attempt ${attempt + 1}`,
+                );
+            }
+        }
     });
 
 test('simple preflight recognizes only the starting pony worn saddle', () => {
