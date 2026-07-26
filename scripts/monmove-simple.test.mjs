@@ -22,6 +22,7 @@ import {
     PM_GIANT_RAT,
     PM_KITTEN,
     PM_LITTLE_DOG,
+    PM_ORC_SHAMAN,
     PM_PONY,
     PM_PURPLE_WORM,
     PM_ROCK_MOLE,
@@ -37,6 +38,8 @@ import {
 import { newMonster } from '../js/monst.js';
 import {
     DAGGER,
+    POT_HEALING,
+    POT_SPEED,
     ROCK,
     SADDLE,
     TRIPE_RATION,
@@ -199,6 +202,15 @@ function floorObject(x, y, id = 9101, otyp = ROCK) {
         quan: 1,
         spe: 0,
         where: 1,
+    };
+}
+
+function monsterObject(otyp, id = 9201) {
+    return {
+        ...floorObject(0, 0, id, otyp),
+        ox: 0,
+        oy: 0,
+        where: OBJ_MINVENT,
     };
 }
 
@@ -680,6 +692,22 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
+                name: 'pre-move item use',
+                reason: 'monster item use',
+                prepare: async () => {
+                    const target = await prepareSelectedAction();
+                    target.monster.data = {
+                        ...game.mons[PM_ORC_SHAMAN],
+                        mattk: [],
+                    };
+                    target.monster.mnum = PM_ORC_SHAMAN;
+                    target.monster.minvent = monsterObject(
+                        POT_SPEED,
+                    );
+                    return target;
+                },
+            },
+            {
                 name: 'item search',
                 reason: 'ordinary monster item interaction',
                 prepare: async () => {
@@ -746,6 +774,28 @@ test('simple preflight rejects every selected excluded action atomically',
             }
         }
     });
+
+test('simple preflight admits source-inert monster inventory', async () => {
+    const target = await prepareSelectedAction();
+    target.monster.data = {
+        ...game.mons[PM_ORC_SHAMAN],
+        mattk: [],
+    };
+    target.monster.mnum = PM_ORC_SHAMAN;
+    target.monster.minvent = monsterObject(
+        POT_HEALING,
+    );
+    const before = completePreflightSnapshot(target.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completePreflightSnapshot(target.replay),
+            before,
+            `inert inventory, attempt ${attempt + 1}`,
+        );
+    }
+});
 
 test('simple preflight ignores an unselected rock during item search',
     async () => {

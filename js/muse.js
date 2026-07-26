@@ -3,28 +3,248 @@
 // mcould_eat_tin(); mondata.c can_blow().
 
 import {
-    MFAST, NON_PM, OBJ_FLOOR, P_DAGGER, P_KNIFE, W_ARMG,
+    MFAST,
+    NON_PM,
+    OBJ_FLOOR,
+    P_DAGGER,
+    P_KNIFE,
+    POLY_TRAP,
+    SEE_INVIS,
+    W_ACCESSORY,
+    W_ARMOR,
+    W_ARMF,
+    W_ARMG,
+    W_SADDLE,
+    isok,
 } from './const.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
 import {
     acidic, attacktype, breathless, has_head, is_animal, is_floater,
-    is_unicorn, is_vampshifter, mindless, needspick, nonliving, slimeproof,
-    touch_petrifies, verysmall,
+    is_unicorn, is_vampshifter, mindless, needspick, nohands, nonliving,
+    passes_walls, slimeproof, throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
 import * as M from './monsters.js';
 import {
     isContainer,
     objectType,
+    sobj_at,
 } from './obj.js';
 import * as O from './objects.js';
 import { onscary } from './monmove.js';
-import { mwelded } from './weapon.js';
+import { rn2 } from './rng.js';
+import { t_at } from './trap.js';
+import { mwelded, which_armor } from './weapon.js';
 
 // The generated catalog stores these values but does not currently export
 // their source enum names.
 const AT_GAZE = 15;
 const MS_SILENT = 0;
 const MS_BUZZ = 10;
+
+function activeHeroProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function healingAction(monster) {
+    for (const otyp of [
+        O.POT_FULL_HEALING,
+        O.POT_EXTRA_HEALING,
+        O.POT_HEALING,
+    ]) {
+        for (let obj = monster.minvent; obj; obj = obj.nobj) {
+            if (obj.otyp === otyp) return { kind: 'healing', object: obj };
+        }
+    }
+    return null;
+}
+
+function canLetGoWithoutDiscovery(obj, state) {
+    if (!obj) return false;
+    if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) return false;
+    if (obj === state.uwep && mwelded(obj, state)) return false;
+    if (obj.otyp === O.LOADSTONE && obj.cursed) return false;
+    if (obj.otyp === O.LEASH && obj.leashmon) return false;
+    return !(obj.owornmask & W_SADDLE);
+}
+
+// C ref: muse.c find_misc(). This is selection only; use_misc() remains
+// outside the simple-turn boundary.
+export function select_misc_action(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const species = monster.data;
+    const hero = state.u;
+
+    if (is_animal(species) || mindless(species)) return null;
+    if (hero?.uswallow && monster === hero.ustuck) return null;
+    if (dist2(
+        monster.mx,
+        monster.my,
+        monster.mux,
+        monster.muy,
+    ) > 36) return null;
+
+    const mobile = species?.mmove !== 0;
+    if (monster !== hero?.ustuck && mobile && !monster.mtrapped
+        && monster.cham === NON_PM && species?.difficulty < 6) {
+        const ignoresBoulders = verysmall(species)
+            || throws_rocks(species)
+            || passes_walls(species);
+        const diagonal = species?.pmidx !== M.PM_GRID_BUG;
+        const shoes = which_armor(monster, W_ARMF);
+        const ironShoes = shoes
+            && objectType(shoes, state).oc_material === O.IRON;
+        for (let x = monster.mx - 1; x <= monster.mx + 1; ++x) {
+            for (let y = monster.my - 1; y <= monster.my + 1; ++y) {
+                if (!isok(x, y)
+                    || (hero?.ux === x && hero?.uy === y)
+                    || (!diagonal && x !== monster.mx && y !== monster.my)
+                    || ((x !== monster.mx || y !== monster.my)
+                        && state.level.monsters[x]?.[y])) {
+                    continue;
+                }
+                const trap = t_at(x, y, state);
+                if (trap?.ttyp === POLY_TRAP
+                    && (ignoresBoulders
+                        || !sobj_at(O.BOULDER, x, y, state))
+                    && !onscary(x, y, monster, state)
+                    && !ironShoes) {
+                    return {
+                        kind: 'polymorph trap',
+                        object: null,
+                        x,
+                        y,
+                    };
+                }
+            }
+        }
+    }
+    if (nohands(species)) return null;
+
+    let selected = null;
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.otyp === O.POT_GAIN_LEVEL
+            && (!obj.cursed
+                || (!monster.isgd
+                    && !monster.isshk
+                    && !monster.ispriest))) {
+            selected = { kind: 'gain level', object: obj };
+        }
+        if (selected?.kind === 'bullwhip') continue;
+        if (obj.otyp === O.BULLWHIP && !monster.mpeaceful
+            && state.uwep && !random.rn2(5) && obj === monster.mw
+            && monster.mux === hero?.ux && monster.muy === hero?.uy
+            && dist2(monster.mx, monster.my, hero.ux, hero.uy) <= 2
+            && !hero.uswallow
+            && (canLetGoWithoutDiscovery(state.uwep, state)
+                || (hero.twoweap
+                    && canLetGoWithoutDiscovery(state.uswapwep, state)))) {
+            selected = { kind: 'bullwhip', object: obj };
+        }
+        if (selected?.kind === 'make invisible') continue;
+        if (obj.otyp === O.WAN_MAKE_INVISIBLE && obj.spe > 0
+            && !monster.minvis && !monster.invis_blkd
+            && (!monster.mpeaceful
+                || activeHeroProperty(state, SEE_INVIS))
+            && (!attacktype(species, AT_GAZE) || monster.mcan)) {
+            selected = { kind: 'make invisible', object: obj };
+        }
+        if (selected?.kind === 'invisibility') continue;
+        if (obj.otyp === O.POT_INVISIBILITY
+            && !monster.minvis && !monster.invis_blkd
+            && (!monster.mpeaceful
+                || activeHeroProperty(state, SEE_INVIS))
+            && (!attacktype(species, AT_GAZE) || monster.mcan)) {
+            selected = { kind: 'invisibility', object: obj };
+        }
+        if (selected?.kind === 'speed wand') continue;
+        if (obj.otyp === O.WAN_SPEED_MONSTER && obj.spe > 0
+            && monster.mspeed !== MFAST && !monster.isgd) {
+            selected = { kind: 'speed wand', object: obj };
+        }
+        if (selected?.kind === 'speed potion') continue;
+        if (obj.otyp === O.POT_SPEED
+            && monster.mspeed !== MFAST && !monster.isgd) {
+            selected = { kind: 'speed potion', object: obj };
+        }
+        if (selected?.kind === 'polymorph wand') continue;
+        if (obj.otyp === O.WAN_POLYMORPH && obj.spe > 0
+            && monster.cham === NON_PM && species?.difficulty < 6) {
+            selected = { kind: 'polymorph wand', object: obj };
+        }
+        if (selected?.kind === 'polymorph potion') continue;
+        if (obj.otyp === O.POT_POLYMORPH
+            && monster.cham === NON_PM && species?.difficulty < 6) {
+            selected = { kind: 'polymorph potion', object: obj };
+        }
+        if (selected?.kind === 'container') continue;
+        if (isContainer(obj) && obj.otyp !== O.BAG_OF_TRICKS
+            && !random.rn2(5)
+            && !(obj.otyp === O.LARGE_BOX && obj.spe === 1)
+            && !selected && obj.cobj && !obj.olocked && !obj.otrapped) {
+            selected = { kind: 'container', object: obj };
+        }
+    }
+    return selected;
+}
+
+// Complete source path for an ordinary, unaltered initial monster. The
+// full-health branch makes find_defensive(FALSE) inert before its escape and
+// inventory scan; all find_misc() selection gates then run in source order.
+export function select_fresh_monster_item_action(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const species = monster.data;
+    if (!is_animal(species) && !mindless(species)
+        && dist2(
+            monster.mx,
+            monster.my,
+            monster.mux,
+            monster.muy,
+        ) <= 25) {
+        if (monster.mconf || monster.mstun) {
+            return { kind: 'altered defensive state', object: null };
+        }
+        if (!monster.mcansee) {
+            if (!nohands(species)) {
+                for (let obj = monster.minvent; obj; obj = obj.nobj) {
+                    if (obj.otyp === O.UNICORN_HORN && !obj.cursed)
+                        return { kind: 'unicorn horn', object: obj };
+                }
+            }
+            if (is_unicorn(species)
+                || species?.pmidx === M.PM_KI_RIN) {
+                return { kind: 'unicorn horn', object: null };
+            }
+            if (!nohands(species)
+                && species?.pmidx !== M.PM_PESTILENCE) {
+                const healing = healingAction(monster);
+                if (healing) return healing;
+            }
+        }
+        if (!monster.mpeaceful && !nohands(species)
+            && state.uwep?.otyp === O.CORPSE) {
+            return { kind: 'corpse defense evaluation', object: null };
+        }
+        const fraction = (state.u?.ulevel ?? 1) < 10
+            ? 5
+            : (state.u?.ulevel ?? 1) < 14 ? 4 : 3;
+        if (monster.mhp < monster.mhpmax
+            && (monster.mhp < 10
+                || monster.mhp * fraction < monster.mhpmax)) {
+            if (monster.mpeaceful) {
+                if (!nohands(species)) {
+                    const healing = healingAction(monster);
+                    if (healing) return healing;
+                }
+                return select_misc_action(monster, rawEnv);
+            }
+            return { kind: 'wounded defensive state', object: null };
+        }
+    }
+    return select_misc_action(monster, rawEnv);
+}
 
 function resistsStoning(monster) {
     const resistanceBits = (monster.data?.mresists ?? 0)

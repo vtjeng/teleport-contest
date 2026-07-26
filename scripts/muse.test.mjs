@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     MFAST,
     OBJ_FLOOR,
+    POLY_TRAP,
     W_ARMG,
     W_WEP,
 } from '../js/const.js';
@@ -12,6 +13,8 @@ import {
     cures_stoning,
     mcould_eat_tin,
     searches_for_item,
+    select_fresh_monster_item_action,
+    select_misc_action,
 } from '../js/muse.js';
 import {
     M1_ANIMAL,
@@ -48,7 +51,9 @@ import {
     POT_ACID,
     POT_BLINDNESS,
     POT_HEALING,
+    POT_GAIN_LEVEL,
     POT_INVISIBILITY,
+    POT_POLYMORPH,
     POT_SPEED,
     SCR_FIRE,
     SCR_SCARE_MONSTER,
@@ -57,7 +62,9 @@ import {
     UNICORN_HORN,
     WAN_DIGGING,
     WAN_MAGIC_MISSILE,
+    WAN_MAKE_INVISIBLE,
     WAN_POLYMORPH,
+    WAN_SPEED_MONSTER,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -93,6 +100,126 @@ function makeObject(state, otyp, overrides = {}) {
         ...overrides,
     });
 }
+
+function makeSelectionState() {
+    const state = makeState();
+    state.u = {
+        ulevel: 1,
+        uprops: [],
+        uswallow: false,
+        ustuck: null,
+        ux: 11,
+        uy: 10,
+    };
+    state.level = {
+        at: () => ({ typ: 16 }),
+        monsters: Array.from({ length: 80 }, () => Array(21).fill(null)),
+        objects: Array.from({ length: 80 }, () => Array(21).fill(null)),
+        traps: [],
+    };
+    return state;
+}
+
+test('fresh monster item selection admits inert inventory at full health',
+    () => {
+        const state = makeSelectionState();
+        const monster = makeMonster(state, PM_HUMAN, {
+            cham: -1,
+            mhp: 8,
+            mhpmax: 8,
+            minvent: makeObject(state, POT_HEALING),
+            mspeed: 0,
+            mux: state.u.ux,
+            muy: state.u.uy,
+        });
+        assert.equal(
+            select_fresh_monster_item_action(monster, {
+                state,
+                random: {
+                    rn2: (bound) =>
+                        assert.fail(`unexpected rn2(${bound})`),
+                },
+            }),
+            null,
+        );
+
+        monster.minvent = makeObject(state, POT_SPEED);
+        assert.equal(
+            select_fresh_monster_item_action(monster, { state })?.kind,
+            'speed potion',
+        );
+    });
+
+test('find_misc selection covers initial miscellaneous item families',
+    () => {
+        const state = makeSelectionState();
+        const cases = [
+            [POT_GAIN_LEVEL, 'gain level'],
+            [WAN_MAKE_INVISIBLE, 'make invisible'],
+            [POT_INVISIBILITY, 'invisibility'],
+            [WAN_SPEED_MONSTER, 'speed wand'],
+            [POT_SPEED, 'speed potion'],
+            [WAN_POLYMORPH, 'polymorph wand'],
+            [POT_POLYMORPH, 'polymorph potion'],
+        ];
+        for (const [otyp, kind] of cases) {
+            const monster = makeMonster(state, PM_HUMAN, {
+                cham: -1,
+                minvent: makeObject(state, otyp),
+                mspeed: 0,
+                mux: state.u.ux,
+                muy: state.u.uy,
+            });
+            assert.equal(
+                select_misc_action(monster, {
+                    state,
+                    random: {
+                        rn2: (bound) =>
+                            assert.fail(`unexpected rn2(${bound})`),
+                    },
+                })?.kind,
+                kind,
+                kind,
+            );
+        }
+    });
+
+test('find_misc preserves trap precedence and inert-container RNG', () => {
+    const state = makeSelectionState();
+    const monster = makeMonster(state, PM_HUMAN, {
+        cham: -1,
+        mspeed: 0,
+        mux: state.u.ux,
+        muy: state.u.uy,
+    });
+    state.level.monsters[monster.mx][monster.my] = monster;
+    state.level.traps.push({
+        tx: monster.mx,
+        ty: monster.my,
+        ttyp: POLY_TRAP,
+    });
+    assert.equal(
+        select_misc_action(monster, { state })?.kind,
+        'polymorph trap',
+    );
+
+    state.level.traps = [];
+    monster.minvent = makeObject(state, LARGE_BOX);
+    const bounds = [];
+    assert.equal(
+        select_misc_action(monster, {
+            state,
+            random: {
+                rn2: (bound) => {
+                    bounds.push(bound);
+                    return 1;
+                },
+            },
+        }),
+        null,
+    );
+    assert.deepEqual(bounds, [5]);
+});
 
 test('can_blow preserves the silent-or-buzzing anatomy conjunction', () => {
     const state = makeState();

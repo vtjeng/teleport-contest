@@ -57,6 +57,10 @@ function baseEnv(state, events) {
         },
         moveMonster: () => MMOVE_NOTHING,
         preflightMonster: () => events.push('preflight'),
+        usePreMoveItems: () => {
+            events.push('items');
+            return false;
+        },
         wakeMessage: () => events.push('wake-message'),
         wipeEngraving: () => events.push('wipe'),
         setApparentHero: () => events.push('apparxy'),
@@ -92,6 +96,7 @@ test('dochug clears arrival and wait state before ordinary movement', async () =
         'wipe',
         'apparxy',
         'range-1',
+        'items',
         'move',
         'range-2',
     ]);
@@ -116,6 +121,7 @@ test('dochug attacks a nearby hostile after declining movement', async () => {
         'wipe',
         'apparxy',
         'range',
+        'items',
         'attack',
     ]);
 });
@@ -142,7 +148,36 @@ test('dochug stops when m_move reports the monster died', async () => {
         'wipe',
         'apparxy',
         'range',
+        'items',
         'move-died',
+    ]);
+});
+
+test('dochug stops after a pre-move item action', async () => {
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster();
+    const env = {
+        ...baseEnv(state, events),
+        distanceAndFear: () => {
+            events.push('range');
+            return { nearby: false, scared: false };
+        },
+        usePreMoveItems: () => {
+            events.push('use-item');
+            return true;
+        },
+        moveMonster: () => assert.fail('item use spends the action'),
+        attackHero: () => assert.fail('item use suppresses attack'),
+    };
+
+    assert.equal(await dochug_fresh_monster(monster, env), 1);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'use-item',
     ]);
 });
 
@@ -198,6 +233,7 @@ test('dochug does not attack after m_move spends the action', async () => {
         'wipe',
         'apparxy',
         'range-1',
+        'items',
         'move-done',
         'range-2',
     ]);

@@ -42,6 +42,7 @@ export async function dochug_fresh_monster(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2 };
     const preflightMonster = requiredOperation(rawEnv, 'preflightMonster');
+    const usePreMoveItems = requiredOperation(rawEnv, 'usePreMoveItems');
     const moveMonster = requiredOperation(rawEnv, 'moveMonster');
     const attackHero = requiredOperation(rawEnv, 'attackHero');
     const wakeMessage = requiredOperation(rawEnv, 'wakeMessage');
@@ -84,6 +85,7 @@ export async function dochug_fresh_monster(monster, rawEnv = {}) {
     wipeEngraving(monster.mx, monster.my, 1, false, env);
     setApparentHero(monster, env);
     let range = await distanceAndFear(monster, { ...env, monFlee });
+    if (await usePreMoveItems(monster, env)) return 1;
 
     const mayMove = !range.nearby
         || monster.mflee

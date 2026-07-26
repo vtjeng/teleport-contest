@@ -59,6 +59,7 @@ import {
     dochug_fresh_pet,
 } from './monmove_dochug_pet.js';
 import { m_move_fresh } from './monmove_move.js';
+import { select_fresh_monster_item_action } from './muse.js';
 import { SADDLE } from './objects.js';
 import {
     inside_region,
@@ -192,10 +193,9 @@ function assertSimpleActionState(monster, state) {
         || monster.data?.pmidx === PM_GELATINOUS_CUBE) {
         unsupported('a special monster action');
     }
-    if (monster.minvent || attacktype(monster.data, AT_WEAP)
-        || attacktype(monster.data, AT_MAGC)) {
-        unsupported('monster item or ranged action');
-    }
+    if (attacktype(monster.data, AT_WEAP)
+        || attacktype(monster.data, AT_MAGC))
+        unsupported('monster weapon or ranged action');
 }
 
 function cloneIsaacContext(context) {
@@ -412,6 +412,14 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 monsterCanSeeHero: freshMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
                 preflightMonster: assertSimpleActionState,
+                usePreMoveItems: (itemUser, itemEnv) => {
+                    const selected = select_fresh_monster_item_action(
+                        itemUser,
+                        itemEnv,
+                    );
+                    if (selected) unsupported('monster item use');
+                    return false;
+                },
                 wakeMessage: env.planning ? () => {} : wake_msg,
                 wipeEngraving: wipeSimpleEngraving,
             }),
