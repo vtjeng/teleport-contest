@@ -467,6 +467,24 @@ export async function domove(state = game) {
 // C ref: cmd.c set_move_cmd() and rhack()'s DOMOVE_WALK/DOMOVE_RUSH paths.
 async function executeMovement(command, firstTime, state) {
     const [dx, dy, run] = MOVEMENT_INTENTS[command];
+
+    // moveloop_core() optimistically sets context.move before rhack(), as C
+    // does.  This port's temporary unsupported-destination seam must run
+    // before movement intent is committed; otherwise the next loop mistakes
+    // the rejected command for elapsed time.  A normal blocked square still
+    // reaches domove() and follows its source behavior below.
+    const newx = state.u.ux + dx;
+    const newy = state.u.uy + dy;
+    if (!blocksMove(newx, newy, state)) {
+        try {
+            requireSimpleHeroDestination(newx, newy, state);
+        } catch (error) {
+            if (error instanceof UnsupportedHeroMoveBoundaryError)
+                resetCommandVars(state);
+            throw error;
+        }
+    }
+
     state.u.dx = dx;
     state.u.dy = dy;
     state.u.dz = 0;

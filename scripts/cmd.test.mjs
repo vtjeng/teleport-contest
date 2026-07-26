@@ -106,6 +106,77 @@ function heroMoveAdmissionSnapshot(replay) {
     };
 }
 
+function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
+    const retained = (values) => values.slice(
+        0,
+        trimInputCaptures ? -trimInputCaptures : undefined,
+    );
+    return {
+        context: structuredClone(game.context),
+        display: {
+            cursor: [
+                game.nhDisplay.cursorCol,
+                game.nhDisplay.cursorRow,
+                game.nhDisplay.cursorVisible,
+            ],
+            grid: structuredClone(game.nhDisplay.grid),
+            messages: [...game.nhDisplay.messages],
+            pending: game._pending_message,
+            topMessage: game.nhDisplay.topMessage,
+            toplin: game.nhDisplay.toplin,
+            toplines: game.nhDisplay.toplines,
+            ttyToplines: game._ttyToplines,
+        },
+        domoveAttempting: game.domoveAttempting,
+        hero: structuredClone(game.u),
+        iflags: structuredClone(game.iflags),
+        input: {
+            queue: [...(game.nhDisplay.terminal._inputQueue ?? [])],
+            waiting: game.nhDisplay.isWaitingForInput,
+        },
+        multi: game.multi,
+        output: {
+            animations: structuredClone(retained(
+                replay.getAnimationFramesByStep(),
+            )),
+            cursors: structuredClone(retained(replay.getCursors())),
+            rngSlices: structuredClone(retained(replay.getRngSlices())),
+            screens: retained(replay.getScreens()),
+        },
+        rng: {
+            context: {
+                a: game.coreCtx.a,
+                b: game.coreCtx.b,
+                c: game.coreCtx.c,
+                m: [...game.coreCtx.m],
+                n: game.coreCtx.n,
+                r: [...game.coreCtx.r],
+            },
+            log: [...getRngLog()],
+        },
+        scheduler: {
+            heroSeq: game.hero_seq ?? null,
+            moves: game.moves,
+            purgeMonsters: game.iflags.purge_monsters,
+            somebodyCanMove: game.somebody_can_move,
+            visionFullRecalc: game.vision_full_recalc,
+        },
+        world: {
+            headEngraving: structuredClone(game.head_engr),
+            locations: structuredClone(game.level.locations),
+            monsterGrid: game.level.monsters.map(
+                (column) => column.map((monster) => monster?.m_id ?? 0),
+            ),
+            objectGrid: game.level.objects.map(
+                (column) => column.map((object) => object?.o_id ?? 0),
+            ),
+            regions: structuredClone(game.level.regions),
+            traps: structuredClone(game.level.traps),
+            vision: game.viz_array.map((row) => [...row]),
+        },
+    };
+}
+
 async function prepareHeroMoveAdmission() {
     const replay = await runSegment({
         seed: 840004,
@@ -232,6 +303,142 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 admissionCase.name,
             );
         }
+    }
+});
+
+test('runtime hero refusals do not become phantom elapsed turns', async () => {
+    const cases = [
+        {
+            name: 'floor object',
+            reason: 'floor object interaction',
+            install: ({ x, y }) => {
+                game.level.objects[x][y] = {
+                    o_id: 7001,
+                    nexthere: null,
+                };
+            },
+            remove: ({ x, y }) => {
+                game.level.objects[x][y] = null;
+            },
+        },
+        {
+            name: 'hidden trap',
+            reason: 'trap activation',
+            install: ({ x, y }) => {
+                game.level.traps = [{
+                    tx: x, ty: y, ttyp: PIT, tseen: false,
+                }];
+            },
+            remove: () => {
+                game.level.traps = [];
+            },
+        },
+        {
+            name: 'special terrain',
+            reason: 'door or special terrain movement',
+            install: ({ destination }) => {
+                destination.typ = FOUNTAIN;
+            },
+            remove: ({ destination }) => {
+                destination.typ = ROOM;
+            },
+        },
+    ];
+
+    for (const refusal of cases) {
+        const replay = await runSegment({
+            seed: 840004,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:MoveRetry,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: '',
+        });
+        // Finish the harness-only empty-input attempt with a real zero-time
+        // command. This leaves the same reset state that a live command loop
+        // has before reading the refused movement key.
+        game.nhDisplay.pushKey(0x1B);
+        await rhack(0, game);
+        await assert.rejects(moveloop_core(), /Input queue empty/u);
+        resetCommandVars(game);
+        const x = game.u.ux + 1;
+        const y = game.u.uy;
+        const destination = game.level.at(x, y);
+        destination.typ = ROOM;
+        destination.flags = destination.doormask = 0;
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.objects[x][y] = null;
+        game.level.traps = [];
+        game.level.regions = [];
+        game.head_engr = null;
+        refusal.install({ destination, x, y });
+
+        const expected = heroCommandRetrySnapshot(replay);
+        Object.assign(expected.context, {
+            forcefight: 0,
+            move: 0,
+            mv: 0,
+            nopick: 0,
+            run: 0,
+            travel: 0,
+            travel1: 0,
+        });
+        expected.domoveAttempting = 0;
+        expected.iflags.menu_requested = false;
+        expected.multi = 0;
+        const initialDispatches = game._commandDispatchCount;
+        let refusalScreen;
+        let refusalCursor;
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            game.nhDisplay.pushKey(commandKeyCode('l'));
+            await assert.rejects(
+                moveloop_core(),
+                (error) => (
+                    error instanceof UnsupportedHeroMoveBoundaryError
+                    && error.reason === refusal.reason
+                ),
+                `${refusal.name}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                heroCommandRetrySnapshot(replay, attempt + 1),
+                expected,
+                `${refusal.name}, attempt ${attempt + 1}`,
+            );
+            assert.equal(
+                game._commandDispatchCount,
+                initialDispatches + attempt + 1,
+                refusal.name,
+            );
+            if (attempt === 0) {
+                refusalScreen = replay.getScreens().at(-1);
+                refusalCursor = replay.getCursors().at(-1);
+            } else {
+                assert.equal(replay.getScreens().at(-1), refusalScreen);
+                assert.deepEqual(
+                    replay.getCursors().at(-1),
+                    refusalCursor,
+                );
+            }
+            assert.deepEqual(replay.getRngSlices().at(-1), []);
+            assert.deepEqual(
+                replay.getAnimationFramesByStep().at(-1),
+                [],
+            );
+        }
+
+        refusal.remove({ destination, x, y });
+        game.nhDisplay.pushKey(commandKeyCode('l'));
+        await moveloop_core();
+        await assert.rejects(moveloop_core(), /Input queue empty/u);
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y], refusal.name);
+        assert.equal(game.moves, expected.scheduler.moves + 1, refusal.name);
+        assert.equal(
+            game._commandDispatchCount,
+            initialDispatches + 3,
+            refusal.name,
+        );
     }
 });
 
