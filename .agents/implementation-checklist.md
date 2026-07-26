@@ -52,7 +52,7 @@ validated.
 | 6 | `mon.c:movemon()` terminal cleanup | Clear transient state, purge dead entries, update light/vision state, and return whether another scan is needed. Level transition is a future safe-stop. | `js/mon.js`, `js/allmain.js` adapter | done | Repeated-scan command tests and live prompt completion. |
 | 7 | `monmove.c:dochugw()` notice wrapper | Run the ordinary action while preserving the occupation-interruption seam. New games have no active occupation. | `js/monmove.js` | done | Source owner `e74c756`, live consumer `2283141`. |
 | 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | done | Source-owned `wake_msg()` and awaited live wiring committed at `d327351`. |
-| 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | done | Focused action tests; excluded paths stop in the atomic planner. |
+| 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. After a move, follow the source gate into ranged-weapon selection; admit an empty selection and stop before a selected wield or attack. Stop before every other attack or special-action dispatch. | `js/monmove_dochug.js`, `js/weapon.js` | done | Post-move `AT_WEAP` selection and its atomic stop are committed at `2ce30ba`; excluded paths stop in the atomic planner. |
 | 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, source-ordered weapon selection, `m_search_items()`, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js`, dedicated source owners for weapon and item selection, and `js/muse.js` | done | Source-selected pre-move item use and wielding are committed at `9dfa7f2` and `eb71e3d`; the own-square selected-item retry is committed at `322b6b5`. |
 | 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, emit source-ordered movement accessibility output, redraw, or return the source no-move status. Stop before combat, displacement, traps, selected object interactions, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js`, the item-selection owner, the canonical accessibility option owner, and a thin `monmove.c` adapter | open | Source-selected post-move object handling is committed at `322b6b5`; add corridor plus parsed `mon_movement` live-turn proof. |
 | 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. Preserve the source output-parameter contract for `gtyp`, `gx`, and `gy`. | `js/dogmove_goal.js` | done | The separate returned approach and `state.gg` scratch outputs, plus the inclusive seven-square `find_targ()` boundary, are committed at `d1b07b9`. |
@@ -98,6 +98,7 @@ D6, when all three remain one final integration commit.
 | D3 — source-selected post-move object action | done at `322b6b5` | Continue through destination objects that upstream ignores. Stop only when the take or consume predicates select an unsupported interaction. Add the own-square item-search retry proof in the same source-owned item checkpoint. | `js/monmove_items.js`, `js/monmove_move.js`, `js/monmove_simple.js`, focused item and atomic-preflight tests |
 | D4 — complete atomic snapshot contract | done at `bdf14d8` | Centralize the complete second-turn retry snapshot and include command, turn, scheduler, vision, purge, and hero-track roots. Apply it to all focused two-retry excluded-action tests. | shared test snapshot helper, `scripts/monmove-simple.test.mjs` |
 | D5 — pet food and corridor focused coverage | done at `2d03208` | Add adjacent starting-pet food clone-preflight atomicity and ordinary-monster plus starting-pet corridor landing tests without expanding supported item behavior. | focused `scripts/dogmove*.test.mjs`, `scripts/monmove*.test.mjs` |
+| D5a — post-move ranged-weapon selection | done at `2ce30ba` | Follow a moved non-adjacent `AT_WEAP` monster through `mhitu.c:mattacku()` into the read-only `weapon.c:select_rwep()` decision used by `mthrowu.c:thrwmu()`. Admit empty or unsuitable inventory and stop atomically when source selects an unsupported wield or ranged attack. | `js/weapon.js`, `js/monmove_dochug.js`, `js/monmove_simple.js`, focused weapon, `dochug`, and complete two-retry tests |
 | D6 — final fresh integration bundle | pending | Keep the runner, fixture, and integration test together. Add exact fresh cases for inert weapon-capable monsters, ignored objects, corridor landings, and parsed `mon_movement`; reuse the complete retry snapshot. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
 
 D1 focused validation passes, the full suite passes 1,594/1,594, and all four
@@ -130,6 +131,13 @@ D5 focused validation passes 17/17, the full suite passes 1,606/1,606, and all
 four generated-data checks pass. Source-owned coverage now proves ordinary
 monster and starting-pet corridor landings, plus two complete unchanged
 retries when a starting kitten selects adjacent food before its unowned eat.
+
+D5a focused validation passes 40/40, the full suite passes 1,609/1,609, and all
+four generated-data checks pass. The development score remains 0/33 sessions,
+77,658/610,816 PRNG values, 207/7,765 screens, and 238/7,765 cursors. A fixed
+five-case batch retains four strict parity passes; the fifth source-derived
+case now stops twice with `monster ranged weapon action` before live elapsed
+state or PRNG changes, rather than diverging inside `thrwmu()`.
 
 After D1 through D6, rerun focused tests, the full suite,
 all generated checks, the fixed strict fresh matrix with

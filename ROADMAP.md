@@ -57,9 +57,15 @@ The third review of
 confirmed two production gaps and six test or maintenance gaps. The active
 slice is back in Implementation. The production gaps are source-selected
 weapon handling and post-move object handling: inert capability, inventory, or
-objects must not stop an otherwise ordinary move. The remaining work adds the
-explicit live-environment adapter and closes corridor, accessibility-option,
-atomic retry, scheduler-root, and fresh integration coverage.
+objects must not stop an otherwise ordinary move. The live-environment adapter
+is committed at `60099e6`; source-selected pre-move item and weapon handling is
+committed at `9dfa7f2` and `eb71e3d`; source-selected post-move object handling
+is committed at `322b6b5`; and the complete retry snapshot plus focused pet
+food and corridor coverage is committed at `bdf14d8` and `2d03208`. Fresh
+comparison then exposed the later `dochug()` branch into
+`mthrowu.c:thrwmu()`: complete read-only ranged-weapon selection and its atomic
+unsupported-action stop are committed at `2ce30ba`. The final runner, fixture,
+and integration-test bundle remains open.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
@@ -103,7 +109,8 @@ output; pet goal and target contracts; no-move and pet safe-stop coverage; and
 the final integration-oracle bundle. The third audit follow-up is ordered as
 the live monster-action environment adapter; source-selected weapon handling;
 post-move object selection; shared complete retry snapshots; pet-food and
-corridor coverage; and one final runner, fixture, and integration-test bundle.
+corridor coverage; post-move ranged-weapon selection exposed by fresh
+comparison; and one final runner, fixture, and integration-test bundle.
 `js/monster_action.js` remains future work rather than a combined movement,
 trap, object, and combat owner. The detailed source inventory, safe-stop
 seams, checkpoints, and evidence live in
