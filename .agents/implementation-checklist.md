@@ -93,7 +93,8 @@ D6, when all three remain one final integration commit.
 | Checkpoint | Status | Complete source-owned change | Planned files |
 | --- | --- | --- | --- |
 | D1 — live action environment adapter | done at `60099e6` | Replace the accidental three-argument call into the bare monster action with an explicit adapter that passes the normalized live state and RNG. Pin the contract with sentinel non-global values. | `js/mon.js`, `js/allmain.js`, `scripts/mon.test.mjs` |
-| D2 — source-selected weapon action | pending | Follow `monmove.c` weapon gates in source order. Admit inert `AT_WEAP` capability and inventory, and stop atomically only when upstream selects an unsupported wield or weapon action. | dedicated `monmove.c` weapon owner if needed, `js/monmove_simple.js`, focused weapon and two-retry tests |
+| D2a — pre-move item selection | done at `9dfa7f2` | Follow the preceding `muse.c:find_defensive()` / `find_misc()` selection gates needed by ordinary initial monsters. Admit inert inventory, preserve selection-time PRNG, and stop atomically when upstream selects unsupported item use. | `js/muse.js`, `js/monmove_dochug.js`, `js/monmove_simple.js`, focused muse and two-retry tests |
+| D2b — source-selected weapon action | pending | Follow `monmove.c` weapon gates in source order. Admit inert `AT_WEAP` capability and inventory, and stop atomically only when upstream selects an unsupported wield action. | `js/monmove_dochug.js`, `js/monmove_simple.js`, focused weapon and two-retry tests |
 | D3 — source-selected post-move object action | pending | Continue through destination objects that upstream ignores. Stop only when the take or consume predicates select an unsupported interaction. Add the own-square item-search retry proof in the same source-owned item checkpoint. | `js/monmove_items.js`, `js/monmove_move.js`, `js/monmove_simple.js`, focused item and atomic-preflight tests |
 | D4 — complete atomic snapshot contract | pending | Centralize the complete second-turn retry snapshot and include command, turn, scheduler, vision, purge, and hero-track roots. Apply it to all focused two-retry excluded-action tests. | shared test snapshot helper, `scripts/monmove-simple.test.mjs` |
 | D5 — pet food and corridor focused coverage | pending | Add adjacent starting-pet food clone-preflight atomicity and ordinary-monster plus starting-pet corridor landing tests without expanding supported item behavior. | focused `scripts/dogmove*.test.mjs`, `scripts/monmove*.test.mjs` |
@@ -104,12 +105,18 @@ generated-data checks pass. Its live consumer changes only which already
 normalized environment reaches the action; D6 retains the fresh end-to-end
 proof for the integrated behavior.
 
-After D1 through D6, rerun focused tests, the full suite, all generated checks,
-the fixed strict fresh matrix with `scripts/scan-fresh.mjs`, development
-scoring, and the quality check. Freeze the new exact head only after all six
-reopened families are done, then run a new full correctness audit over the
-expanded range. The existing `dog_goal()` explanation trigger and the new live
-environment adapter require a clarity pass after correctness succeeds.
+D2a focused validation passes, the full suite passes 1,599/1,599, and all four
+generated-data checks pass. The quality dashboard reports no unassigned
+production files; the three due areas remain the frozen range reopened by the
+third audit plus its active follow-up.
+
+After D1, D2a, D2b, and D3 through D6, rerun focused tests, the full suite,
+all generated checks, the fixed strict fresh matrix with
+`scripts/scan-fresh.mjs`, development scoring, and the quality check. Freeze
+the new exact head only after all six reopened families are done, then run a
+new full correctness audit over the expanded range. The existing `dog_goal()`
+explanation trigger and the new live environment adapter require a clarity
+pass after correctness succeeds.
 
 The full audit of
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`
@@ -373,7 +380,7 @@ Current mode: Implementation
 
 Reason: the full audit of the frozen head
 `b754646b7aec6cd2dc934845b41aa6183c7fe315` confirmed two production defects,
-five test gaps, and one maintenance-contract gap. D1 through D6 are the active
+five test gaps, and one maintenance-contract gap. D2b through D6 remain active
 source-owned checkpoints. Audit readiness must be rebuilt after they are
 committed and validated.
 
@@ -396,4 +403,4 @@ Each implementation checkpoint followed these gates:
 
 At C4, the focused integration tests, full test suite, generated-data checks,
 development score, and fresh comparisons passed at the committed integration
-head. The third review reopened implementation; D1 through D6 remain.
+head. The third review reopened implementation; D2b through D6 remain.
