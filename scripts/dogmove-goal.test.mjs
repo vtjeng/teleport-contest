@@ -167,11 +167,13 @@ test('droppables preserves one useful tool and skips worn equipment', () => {
     assert.equal(droppables(monster), key);
 });
 
-test('droppables sentinel rejects artifact tools an animal cannot use', () => {
+test('droppables leaves an unusable animal artifact available to drop', () => {
     const { monster } = petState();
     const artifactHorn = {
         cursed: false,
-        oartifact: 1, // Any artifact exercises replacement of the C dummy.
+        // C's unusable dummy is itself an artifact, so this real artifact
+        // cannot replace the reserved sentinel and remains droppable.
+        oartifact: 1,
         otyp: UNICORN_HORN,
         owornmask: 0,
         nobj: null,
@@ -628,7 +630,7 @@ test('dog_goal reuses then clears an unseen previous goal', () => {
     assert.equal(edog.ogoal.x, 0);
 });
 
-test('dog_goal fallback keeps the first nearest clear-area square', () => {
+test('dog_goal fallback retains the closest visited clear-area square', () => {
     const { state, monster, edog } = petState();
     state.u.ux = 20;
     state.u.uy = 10;
@@ -640,6 +642,8 @@ test('dog_goal fallback keeps the first nearest clear-area square', () => {
             assert.equal(range, 9);
             assert.equal(argument, null);
             assert.equal(suppliedState, state);
+            // Each callback is strictly closer to the hero than its
+            // predecessor, so the last square should become the goal.
             for (const square of [
                 { x: 6, y: 5 },
                 { x: 7, y: 5 },

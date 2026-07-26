@@ -244,10 +244,12 @@ function nearestVisibleGoal(monster, state, clearArea) {
     return goal;
 }
 
-// C ref: dogmove.c dog_goal(). The integer return is `appr`, the pet's
-// approach direction. Like C's separate gg globals, state.gg is a second
-// output carrying gtyp/gx/gy for dog_move() candidate scoring. Food
-// classification, droppable selection, carry capacity, and the fallback
+// C ref: dogmove.c dog_goal(). Return -1 to retreat, 0 to stay, 1 to approach,
+// or -2 to abort the move. On normal paths, state.gg mirrors C's temporary
+// gtyp/gx/gy globals and dog_move() consumes it immediately; a ridden-steed
+// abort leaves that scratch untouched, while the close-following abort writes
+// the hero goal first. Goal fallback may also update the persistent edog.ogoal.
+// Food classification, droppable selection, carry capacity, and the fallback
 // clear-area scan retain source control flow.
 export function dog_goal(
     monster,
@@ -287,7 +289,7 @@ export function dog_goal(
     const goal = state.gg ??= {};
     const originX = monster.mx;
     const originY = monster.my;
-    const masterVisible = couldSee(originX, originY, operationEnv);
+    const inMastersSight = couldSee(originX, originY, operationEnv);
     const hasDroppable = Boolean(findDroppable(monster, operationEnv));
 
     if (!edog || monster.mleashed) {
@@ -333,7 +335,7 @@ export function dog_goal(
                     goal.gy = y;
                     goal.gtyp = foodType;
                 }
-            } else if (goal.gtyp === UNDEF && masterVisible
+            } else if (goal.gtyp === UNDEF && inMastersSight
                 && !hasDroppable
                 && (!state.level.at(originX, originY).lit
                     || state.level.at(hero.ux, hero.uy).lit)
@@ -390,7 +392,7 @@ export function dog_goal(
     }
     if (monster.mconf) approach = 0;
 
-    if (goal.gx === hero.ux && goal.gy === hero.uy && !masterVisible) {
+    if (goal.gx === hero.ux && goal.gy === hero.uy && !inMastersSight) {
         const track = gettrack(originX, originY, state);
         if (track) {
             goal.gx = track.x;

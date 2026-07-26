@@ -837,6 +837,8 @@ test('dog_move reports a cursed landing seen before movement', async () => {
 });
 
 test('dog_move applies the source leashed-pet reposition quirk', async () => {
+    // activePetState puts the hero at (7,5); this pet at (12,5) has squared
+    // distance 25, selecting the source's udist > 4 leash branch.
     const { state, monster } = activePetState(12, 5);
     monster.mleashed = true;
     const events = [];
