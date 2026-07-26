@@ -55,7 +55,7 @@ validated.
 | 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | done | Focused action tests; excluded paths stop in the atomic planner. |
 | 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `m_search_items()`, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js`, `js/monmove_items.js`, and `js/muse.js` | done | Blocking-terrain admission is fixed at `419b7c1`; source-ordered item preference, scan, goal selection, ignored objects, and atomic selected-interaction stops are committed at `aa7b9e4`. |
 | 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, emit source-ordered movement accessibility output, redraw, or return the source no-move status. Stop before combat, displacement, traps, selected object interactions, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js`, the canonical accessibility option owner, and a thin `monmove.c` adapter | done | `msg_mon_movement()` option state, visibility gates, wording, coordinates, and ordering are committed at `f9f7ab6`. B6 retains the no-move `notice_mon()` integration case. |
-| 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. Preserve the source output-parameter contract for `gtyp`, `gx`, and `gy`. | `js/dogmove_goal.js` | missing | Document and test both the returned approach and the `state.gg` scratch result; pin the distance-seven `find_targ()` boundary with the pet owner. |
+| 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. Preserve the source output-parameter contract for `gtyp`, `gx`, and `gy`. | `js/dogmove_goal.js` | done | The separate returned approach and `state.gg` scratch outputs, plus the inclusive seven-square `find_targ()` boundary, are committed at `d1b07b9`. |
 | 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Admit only the source-inert worn saddle created with a Knight's starting pony. Stop before every selected inventory action and before non-hero ranged-target scoring, eating, leash, steed, conflict, altered-state, or combat paths. | `js/dogmove.js`, `js/monmove_simple.js` | missing | Retain the committed source behavior and add complete two-retry snapshots for combat, displacement, eating, pickup, cursed feedback, and non-inert inventory seams across dog, kitten, and pony. |
 | 14 | `dogmove.c:dog_move()` candidates and tie-breaking | Run `mon_allowflags()`, `mfndpos()`, candidate filtering, follow-distance scoring, and source tie-breaking over ordinary clear squares. | `js/dogmove.js` | done | Focused tie-breaking tests and four dog command combinations. |
 | 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | done | Live dog action state test, strict dog/cat cases, and four source-valid Knight pony walk/wait cases. |
@@ -65,11 +65,11 @@ validated.
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 15 done and three open after the second correctness
-  audit and B4.
+- 18 in-boundary families: 16 done and two open after the second correctness
+  audit and B5.
 - Closure verdict: **implementation in progress**. Families 11, 12, 13,
-  and 18 had confirmed production, contract, or coverage gaps; families 12,
-  13, and 18 remain open. The slice
+  and 18 had confirmed production, contract, or coverage gaps; families 13
+  and 18 remain open. The slice
   must be revalidated through the next prompt and receive a new full
   correctness audit before it can close.
 
@@ -104,7 +104,7 @@ list.
 | B2 — monster line predicate | done at `419b7c1` | For `m_move()` during the second command, keep blocking terrain distinct from earlier boulders and reject wall or door lines before the boulder RNG branch. | `js/monmove_move.js`, `scripts/monmove.test.mjs` |
 | B3 — monster item-search selection | done at `aa7b9e4` | For the same live `m_move()` preflight, port the source-ordered read-only `m_search_items()` selection pass. Continue ordinary movement past ignored objects; stop atomically only when upstream selects an unsupported item interaction. Use a dedicated `monmove.c` item-search module if the movement owner would exceed the review limit. | `js/muse.js`, `js/monmove_items.js`, `js/monmove_move.js`, `js/monmove_simple.js`, focused item-search and atomic-preflight tests, and `QUALITY.json` |
 | B4 — monster movement accessibility output | done at `f9f7ab6` | For an ordinary monster move during the second command, canonicalize the `mon_movement` option in the accessibility owner and port `msg_mon_movement()` through output, redraw, persistence, and the next prompt. | `js/options.js`, `js/mondata.js`, `js/startup_a11y.js`, `js/monmove_move.js`, and corresponding focused tests |
-| B5 — pet goal and target contracts | pending | Clarify the `dog_goal()` return/scratch contract and pin the inclusive distance-seven `find_targ()` ray boundary without changing the live supported path. | `js/dogmove_goal.js`, `scripts/dogmove-goal.test.mjs`, `scripts/dogmove.test.mjs` |
+| B5 — pet goal and target contracts | done at `d1b07b9` | Clarify the `dog_goal()` return/scratch contract and pin the inclusive distance-seven `find_targ()` ray boundary without changing the live supported path. | `js/dogmove_goal.js`, `scripts/dogmove-goal.test.mjs`, `scripts/dogmove.test.mjs` |
 | B6 — no-move and pet safe-stop coverage | pending | Drive visible `MMOVE_NOTHING` notice ordering through the complete adapter, then cover the pet combat, displacement, eating, pickup, cursed-feedback, and non-inert-inventory seams with complete two-retry state. | `scripts/monmove-simple.test.mjs` |
 | B7 — complete integration oracle | pending | Keep the runner, fixture, and integration test together. Add fast mixed walking, kitten walking, hero-track order, and the root scheduler flags to exact fresh and retry oracles. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
 
@@ -278,24 +278,21 @@ not change the active scope or count as live simple-turn closure.
 
 ## Latest implementation checkpoint
 
-- Commit checked: `f9f7ab6a`.
-- Live player action: an already-spotted ordinary monster moves during the
-  elapsed phase after the second wait or one-square walk while
-  `mon_movement` is enabled.
-- Source review: `optlist.h:mon_movement`, `mondata.c:locomotion()`,
-  `objnam.c:vtense()` as called with no subject, and
-  `monmove.c:msg_mon_movement()` were checked against upstream. The message
-  uses the monster's new square, the hero's current square, the old and new
-  squared distances, source naming and locomotion, and is awaited after
-  placement but before monster-track update and `postmov()`.
-- Focused tests: 86/86 passed across the option, locomotion, accessibility,
-  and live atomic-movement owners.
+- Commit checked: `d1b07b9e`.
+- Live player action: the starting dog, kitten, or pony calls `dog_goal()`
+  during elapsed work after the second wait or one-square walk, then
+  `dog_move()` consumes both the returned approach and `state.gg` goal
+  coordinates.
+- Source review: `dogmove.c:dog_goal()` and `find_targ()` were checked against
+  upstream. The goal selector's integer return remains distinct from the
+  `gtyp/gx/gy` scratch output, and a maximum distance of seven examines the
+  seventh ray square but not the eighth.
+- Focused tests: 46/46 passed across the goal and live pet-movement owners.
 - Full suite: 1,591/1,591 passed.
 - Generated-file checks: monsters, objects, symbols, and themed-room data all
   passed.
-- Fresh differentials: a fixed three-case `scan-fresh.mjs` batch using a
-  noticed moving kobold zombie passed 3/3, including ordinary output,
-  accessible coordinates, and a wait/walk command sequence.
+- Fresh differentials: a fixed three-case `scan-fresh.mjs` batch covering a
+  starting dog, kitten, and pony passed 3/3.
 - Development suite: 0/33 sessions fully matched; 77,632/610,816 PRNG values,
   207/7,765 screens, and 238/7,765 cursors matched.
 - Estimate: `206 shown + 194 hidden = 400 total`, uncertain.
@@ -306,7 +303,7 @@ not change the active scope or count as live simple-turn closure.
 Current mode: Implementation
 
 Reason: the second correctness audit confirmed missing source behavior and
-coverage in families 11, 12, 13, and 18. B4 is complete; B5 is the next
+coverage in families 11, 12, 13, and 18. B5 is complete; B6 is the next
 checkpoint.
 Broad seed discovery remains paused until these persisted checkpoints guide
 fixed case lists.

@@ -48,9 +48,10 @@ The active slice is back in Implementation. Rejected hero walks are completely
 atomic at `daec422`, and the `monmove.c` line predicate is fixed at `419b7c1`.
 The source-ordered ordinary-monster item-search selector and its unsupported
 interaction boundary are committed at `aa7b9e4`. Source-ordered ordinary
-monster movement accessibility output is committed at `f9f7ab6`. The next
-checkpoint is the pet goal contract; the remaining checkpoints are split
-among the pet safe-stop owner and the final three-file integration oracle.
+monster movement accessibility output is committed at `f9f7ab6`. The pet goal
+and seven-square target contracts are committed at `d1b07b9`. The
+remaining checkpoints are the pet safe-stop owner and the final three-file
+integration oracle.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
