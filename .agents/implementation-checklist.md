@@ -66,8 +66,34 @@ validated.
 ### Inventory count and readiness
 
 - 18 in-boundary families: all 18 are done after D6.
-- Closure verdict: **Ready for audit**. The expanded exact range through
-  `f97bd58` is frozen for a new full correctness pass.
+- Closure verdict: **Correctness reviewed; ready for the required clarity
+  pass**. The full audit covered the expanded exact range through `f97bd58`;
+  all six confirmed findings are resolved in linked audit-fix commits through
+  `ea815b9`.
+
+## Final correctness audit and fixes
+
+The fresh full correctness audit of
+`3b6c38de148679a5cc8313d755ec906fa95627c3..f97bd584d5cd9262f27921953b8f55e792a58f10`
+produced 12 raw and deduplicated findings: six confirmed and applied, six
+rejected with source or call-path counter-evidence, and none deferred or
+unverified. The fixes stop closed and locked door moves before hero-intent
+mutation, compare fresh output at each segment boundary, complete the retry
+snapshot's deferred-output and display-RNG ownership, pin excluded trap and
+ranged prefixes to fresh C output, and cover current-square liquid and
+engraving stops. The complete report is retained at
+`/tmp/simple-second-command-audit-run4-report.md`; session
+`019f9c7a-086b-7f80-a4e9-b94d52bfa03f` and adjudicator
+`019f9c95-b889-7ec3-820c-7a256cbe6b1c` completed without a lost verdict.
+
+Post-fix validation passes 23 focused tests, all 1,613 tests, all four
+generated-data checks, and the exact 17-case fresh matrix with 46,255 PRNG
+calls and 68 screens/cursors. The two excluded prefixes separately match fresh
+C through their last supported prompts for 5,793 PRNG calls and six
+screens/cursors. Development totals remain 77,658 PRNG values, 207 screens,
+and 238 cursors. The recorded correctness pass clears the quality gate and
+advisory; the linked audit-fix tail is tracked for the next scheduled
+correctness range.
 
 ## Correctness-audit return to implementation
 
@@ -355,7 +381,7 @@ not change the active scope or count as live simple-turn closure.
 
 ## Latest implementation checkpoint
 
-- Commit checked: `f97bd584d5cd9262f27921953b8f55e792a58f10`
+- Commit checked: `ea815b9194a090e3c26ec5472c94fd70fa4fc2cb`
 - Live player action: from the first command prompt, the game accepts two
   waits or ordinary-clear one-square walks, runs elapsed ordinary-monster and
   starting-pet work, renders and persists the result, and reaches the prompt
@@ -369,9 +395,8 @@ not change the active scope or count as live simple-turn closure.
   source comparison included state and PRNG order, output and redraw order,
   persistence, replay removal, explicit unsupported stops, and source-inert
   inventory or destination objects.
-- Focused tests: the final integration owner passes 3/3; the preceding
-  ranged-selection checkpoint passes 40/40.
-- Full suite: 1,609/1,609 passed.
+- Focused tests: the retry-snapshot and final integration owners pass 23/23.
+- Full suite: 1,613/1,613 passed.
 - Generated-file checks: monsters, objects, symbols, and themed-room data all
   passed.
 - Fresh differentials: `node scripts/run-second-complete-turn.mjs` passes all
@@ -379,15 +404,16 @@ not change the active scope or count as live simple-turn closure.
   screens and attributes, and 68 cursors. Cases vary waits and walks in both
   orders, no pet, dog, kitten, pony, fast hero movement, empty weapon-capable
   movement, ignored destination objects, a starting-pet corridor landing, and
-  parsed `mon_movement`. The source-derived inventory-bearing ranged case is
-  excluded from strict parity because C attacks; two complete retries prove
-  the JavaScript boundary stops before live state or PRNG changes.
+  parsed `mon_movement`. The source-derived trap and inventory-bearing ranged
+  cases are excluded from strict parity because C continues into unsupported
+  actions; their exact fresh-C prefixes and two complete retries prove the
+  JavaScript boundary stops before live state, PRNG, or output changes.
 - Development suite: 0/33 sessions fully matched; 77,658/610,816 PRNG values,
   207/7,765 screens, and 238/7,765 cursors matched.
 - Quality dashboard: no production file is unassigned. `npm run quality --
-  --check` exits blocked only because objects, monsters, and world effects are
-  due inside the frozen expanded review range; there is no threshold debt
-  outside that range.
+  --check` reports a clear gate and advisory after recording the exact full
+  correctness pass through `f97bd58`; linked audit fixes remain below the next
+  scheduled-review threshold.
 - Browser check: not required because this slice changes no browser-only
   renderer, DOM, input, or storage contract.
 - Holdout: not accessed.
@@ -422,10 +448,11 @@ Current mode: Ready for audit
 Reason: every source family is done, the real game executes the full
 source-to-prompt path, the 17-case strict fresh matrix and complete retry
 oracles cover the reopened behaviors, and focused, full, generated, scoring,
-and quality evidence applies to exact head
-`f97bd584d5cd9262f27921953b8f55e792a58f10`. Every reachable excluded branch
-stops before live state, PRNG, or output changes. The only quality thresholds
-due are inside the frozen range assigned to this full correctness audit.
+and quality evidence applies to exact integrated code head
+`ea815b9194a090e3c26ec5472c94fd70fa4fc2cb`. The correctness audit is recorded
+and every confirmed finding is resolved. The remaining formal gate is the
+concrete reviewer-facing clarity trigger around `dog_goal()` and the live
+environment adapter.
 
 ## Completed commit gates
 
