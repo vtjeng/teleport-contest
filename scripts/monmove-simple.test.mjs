@@ -48,7 +48,7 @@ import {
     TRIPE_RATION,
 } from '../js/objects.js';
 import { create_region } from '../js/region.js';
-import { getRngLog } from '../js/rng.js';
+import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 
 const DATETIME = '20260725120000';
 
@@ -108,62 +108,6 @@ function linkedObjects(head, link) {
         objects.push(structuredClone(copy));
     }
     return objects;
-}
-
-function completePreflightSnapshot(replay) {
-    return {
-        context: structuredClone(game.context),
-        display: {
-            cursor: [
-                game.nhDisplay.cursorCol,
-                game.nhDisplay.cursorRow,
-                game.nhDisplay.cursorVisible,
-            ],
-            grid: structuredClone(game.nhDisplay.grid),
-            messages: [...game.nhDisplay.messages],
-            pending: game._pending_message,
-            topMessage: game.nhDisplay.topMessage,
-            toplines: game.nhDisplay.toplines,
-        },
-        gg: structuredClone(game.gg),
-        hero: structuredClone(game.u),
-        input: {
-            queue: [
-                ...(game.nhDisplay.terminal._inputQueue ?? []),
-            ],
-            waiting: game.nhDisplay.isWaitingForInput,
-        },
-        monsters: monsterSnapshot(),
-        output: {
-            animations: structuredClone(
-                replay.getAnimationFramesByStep(),
-            ),
-            cursors: structuredClone(replay.getCursors()),
-            rngSlices: structuredClone(replay.getRngSlices()),
-            screens: [...replay.getScreens()],
-        },
-        rng: {
-            context: rngSnapshot(),
-            log: [...getRngLog()],
-        },
-        world: {
-            locations: structuredClone(game.level.locations),
-            monsterGrid: game.level.monsters.map(
-                (column) => column.map(
-                    (monster) => monster?.m_id ?? 0,
-                ),
-            ),
-            objectGrid: game.level.objects.map(
-                (column) => column.map(
-                    (object) => object?.o_id ?? 0,
-                ),
-            ),
-            objects: linkedObjects(game.level.objlist, 'nobj'),
-            regions: structuredClone(game.level.regions),
-            traps: structuredClone(game.level.traps),
-            vision: game.viz_array.map((row) => [...row]),
-        },
-    };
 }
 
 function clearCoordinateGrid(grid) {
@@ -333,6 +277,36 @@ function installPetDefender(target) {
     target.monster.nmon = defender;
     game.level.monsters[target.destinationX][target.heroY] = defender;
 }
+
+test('complete retry snapshot includes every audited scheduler root',
+    async () => {
+        const target = await prepareSelectedAction();
+        const snapshot = completeSecondTurnSnapshot(game, target.replay);
+
+        assert.equal(
+            snapshot.command.commandDispatchCount,
+            game._commandDispatchCount,
+        );
+        assert.equal(snapshot.turn.moves, game.moves);
+        assert.equal(snapshot.turn.heroSeq, game.hero_seq ?? null);
+        assert.equal(
+            snapshot.scheduler.somebodyCanMove,
+            game.somebody_can_move ?? null,
+        );
+        assert.equal(
+            snapshot.scheduler.visionFullRecalc,
+            game.vision_full_recalc ?? null,
+        );
+        assert.equal(
+            snapshot.scheduler.purgeMonsters,
+            game.iflags.purge_monsters ?? null,
+        );
+        assert.deepEqual(snapshot.track, game.track);
+        assert.deepEqual(
+            snapshot.world.vision,
+            game.viz_array.map((row) => [...row]),
+        );
+    });
 
 test('simple preflight recognizes only the starting pony worn saddle', () => {
     const monsterId = 7301; // A distinct live id couples saddle and pet state.
@@ -579,7 +553,7 @@ test('simple preflight preserves parked-guard source ordering', async () => {
         // moves=2 makes mlstmv=1 due and mlstmv=2 already handled.
         target.monster.mlstmv = due ? 1 : 2;
         target.monster.movement = NORMAL_SPEED - 1;
-        const before = completePreflightSnapshot(target.replay);
+        const before = completeSecondTurnSnapshot(game, target.replay);
 
         for (let attempt = 0; attempt < 2; ++attempt) {
             if (due) {
@@ -594,7 +568,7 @@ test('simple preflight preserves parked-guard source ordering', async () => {
                 await preflightSimpleMonsterActions(game);
             }
             assert.deepEqual(
-                completePreflightSnapshot(target.replay),
+                completeSecondTurnSnapshot(game, target.replay),
                 before,
                 `${due ? 'due' : 'inert'} guard, attempt ${attempt + 1}`,
             );
@@ -804,7 +778,7 @@ test('simple preflight rejects every selected excluded action atomically',
 
         for (const actionCase of cases) {
             const target = await actionCase.prepare();
-            const before = completePreflightSnapshot(target.replay);
+            const before = completeSecondTurnSnapshot(game, target.replay);
             for (let attempt = 0; attempt < 2; ++attempt) {
                 await assert.rejects(
                     preflightSimpleMonsterActions(game),
@@ -815,7 +789,7 @@ test('simple preflight rejects every selected excluded action atomically',
                     `${actionCase.name}, attempt ${attempt + 1}`,
                 );
                 assert.deepEqual(
-                    completePreflightSnapshot(target.replay),
+                    completeSecondTurnSnapshot(game, target.replay),
                     before,
                     `${actionCase.name}, attempt ${attempt + 1}`,
                 );
@@ -833,12 +807,12 @@ test('simple preflight admits source-inert monster inventory', async () => {
     target.monster.minvent = monsterObject(
         POT_HEALING,
     );
-    const before = completePreflightSnapshot(target.replay);
+    const before = completeSecondTurnSnapshot(game, target.replay);
 
     for (let attempt = 0; attempt < 2; ++attempt) {
         await preflightSimpleMonsterActions(game);
         assert.deepEqual(
-            completePreflightSnapshot(target.replay),
+            completeSecondTurnSnapshot(game, target.replay),
             before,
             `inert inventory, attempt ${attempt + 1}`,
         );
@@ -849,12 +823,12 @@ test('simple preflight admits inert AT_WEAP capability and inventory',
     async () => {
         const target = await prepareSelectedAction({ pmidx: PM_GNOME });
         target.monster.minvent = monsterObject(POT_HEALING);
-        const before = completePreflightSnapshot(target.replay);
+        const before = completeSecondTurnSnapshot(game, target.replay);
 
         for (let attempt = 0; attempt < 2; ++attempt) {
             await preflightSimpleMonsterActions(game);
             assert.deepEqual(
-                completePreflightSnapshot(target.replay),
+                completeSecondTurnSnapshot(game, target.replay),
                 before,
                 `inert AT_WEAP inventory, attempt ${attempt + 1}`,
             );
@@ -872,11 +846,14 @@ test('simple preflight ignores an unselected rock during item search',
             target,
             floorObject(target.monsterX, target.heroY),
         );
-        const before = completePreflightSnapshot(target.replay);
+        const before = completeSecondTurnSnapshot(game, target.replay);
 
         await preflightSimpleMonsterActions(game);
 
-        assert.deepEqual(completePreflightSnapshot(target.replay), before);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
     });
 
 test('simple monster movement continues through an ignored object',
@@ -884,10 +861,13 @@ test('simple monster movement continues through an ignored object',
         const target = await prepareSelectedAction();
         const rock = floorObject(target.destinationX, target.heroY);
         installObject(target, rock);
-        const before = completePreflightSnapshot(target.replay);
+        const before = completeSecondTurnSnapshot(game, target.replay);
 
         await preflightSimpleMonsterActions(game);
-        assert.deepEqual(completePreflightSnapshot(target.replay), before);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
 
         const result = await runSimpleMonsterAction(target.monster, {
             state: game,
@@ -938,7 +918,7 @@ test('simple preflight stops before unowned pet target scoring', async () => {
     });
     assert.equal(game.context.startingpet_typ, PM_PONY);
     assert.equal(game.moves, 2);
-    const before = completePreflightSnapshot(replay);
+    const before = completeSecondTurnSnapshot(game, replay);
 
     for (let attempt = 0; attempt < 2; ++attempt) {
         await assert.rejects(
@@ -946,7 +926,10 @@ test('simple preflight stops before unowned pet target scoring', async () => {
             (error) => error instanceof UnsupportedSimpleMonsterActionError
                 && error.reason === 'pet ranged targeting',
         );
-        assert.deepEqual(completePreflightSnapshot(replay), before);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, replay),
+            before,
+        );
     }
 });
 
@@ -1054,7 +1037,7 @@ test('simple preflight keeps starting-pet owner seams retryable',
 
         for (const actionCase of cases) {
             const target = await actionCase.prepare();
-            const before = completePreflightSnapshot(target.replay);
+            const before = completeSecondTurnSnapshot(game, target.replay);
             for (let attempt = 0; attempt < 2; ++attempt) {
                 await assert.rejects(
                     preflightSimpleMonsterActions(game),
@@ -1065,7 +1048,7 @@ test('simple preflight keeps starting-pet owner seams retryable',
                     `${actionCase.name}, attempt ${attempt + 1}`,
                 );
                 assert.deepEqual(
-                    completePreflightSnapshot(target.replay),
+                    completeSecondTurnSnapshot(game, target.replay),
                     before,
                     `${actionCase.name}, attempt ${attempt + 1}`,
                 );

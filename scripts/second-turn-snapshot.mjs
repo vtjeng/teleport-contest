@@ -1,0 +1,127 @@
+import { getRngLog } from '../js/rng.js';
+
+function linkedObjects(head, link) {
+    const objects = [];
+    for (let object = head; object; object = object[link]) {
+        const copy = {
+            ...object,
+            cobj: linkedObjects(object.cobj, 'nobj'),
+            v: object.v?.o_id
+                ? { objectId: object.v.o_id }
+                : (object.v?.m_id ? { monsterId: object.v.m_id } : null),
+        };
+        delete copy[link];
+        objects.push(structuredClone(copy));
+    }
+    return objects;
+}
+
+function liveMonsters(state) {
+    const monsters = [];
+    for (let monster = state.level.monlist;
+        monster;
+        monster = monster.nmon) {
+        const copy = {
+            ...monster,
+            data: monster.data?.pmidx ?? null,
+            minvent: linkedObjects(monster.minvent, 'nobj'),
+        };
+        delete copy.nmon;
+        monsters.push(structuredClone(copy));
+    }
+    return monsters;
+}
+
+function rngContext(state) {
+    return {
+        a: state.coreCtx.a,
+        b: state.coreCtx.b,
+        c: state.coreCtx.c,
+        m: [...state.coreCtx.m],
+        n: state.coreCtx.n,
+        r: [...state.coreCtx.r],
+    };
+}
+
+// Complete state and retained-output snapshot for retrying a rejected action
+// inside the simple second-command boundary.
+export function completeSecondTurnSnapshot(state, replay) {
+    return {
+        command: {
+            cmdKey: state.cmdKey,
+            commandDispatchCount: state._commandDispatchCount,
+            domoveAttempting: state.domoveAttempting,
+            multi: state.multi,
+        },
+        context: structuredClone(state.context),
+        display: {
+            cursor: [
+                state.nhDisplay.cursorCol,
+                state.nhDisplay.cursorRow,
+                state.nhDisplay.cursorVisible,
+            ],
+            grid: structuredClone(state.nhDisplay.grid),
+            messages: [...state.nhDisplay.messages],
+            pending: state._pending_message,
+            topMessage: state.nhDisplay.topMessage,
+            toplin: state.nhDisplay.toplin,
+            toplines: state.nhDisplay.toplines,
+            ttyToplines: state._ttyToplines,
+        },
+        gg: structuredClone(state.gg),
+        hero: structuredClone(state.u),
+        input: {
+            queue: [...(state.nhDisplay.terminal._inputQueue ?? [])],
+            waitEpoch: state.nhDisplay.waitEpoch,
+            waiting: state.nhDisplay.isWaitingForInput,
+        },
+        monsters: liveMonsters(state),
+        output: {
+            animations: structuredClone(
+                replay.getAnimationFramesByStep(),
+            ),
+            cursors: structuredClone(replay.getCursors()),
+            rngSlices: structuredClone(replay.getRngSlices()),
+            screens: [...replay.getScreens()],
+        },
+        rng: {
+            context: rngContext(state),
+            log: [...getRngLog()],
+        },
+        scheduler: {
+            purgeMonsters: state.iflags?.purge_monsters ?? null,
+            somebodyCanMove: state.somebody_can_move ?? null,
+            visionFullRecalc: state.vision_full_recalc ?? null,
+        },
+        track: structuredClone(state.track),
+        turn: {
+            heroSeq: state.hero_seq ?? null,
+            monstermoves: state.monstermoves,
+            moves: state.moves,
+        },
+        world: {
+            buriedObjects: linkedObjects(
+                state.level.buriedobjlist,
+                'nobj',
+            ),
+            flags: structuredClone(state.level.flags),
+            headEngraving: structuredClone(state.head_engr),
+            heroInventory: linkedObjects(state.invent, 'nobj'),
+            locations: structuredClone(state.level.locations),
+            monsterGrid: state.level.monsters.map(
+                (column) => column.map(
+                    (monster) => monster?.m_id ?? 0,
+                ),
+            ),
+            objectGrid: state.level.objects.map(
+                (column) => column.map(
+                    (object) => object?.o_id ?? 0,
+                ),
+            ),
+            objects: linkedObjects(state.level.objlist, 'nobj'),
+            regions: structuredClone(state.level.regions),
+            traps: structuredClone(state.level.traps),
+            vision: state.viz_array.map((row) => [...row]),
+        },
+    };
+}
