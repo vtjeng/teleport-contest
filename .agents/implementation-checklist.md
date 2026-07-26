@@ -48,7 +48,7 @@ validated.
 | 2 | `cmd.c:dowait()` | Consume time without a movement target. | `js/cmd.js` | done | Two-wait and mixed-order fresh cases. |
 | 3 | `hack.c:domove()` ordinary-clear branch | Run new-game prechecks, admit only an unoccupied object-free clear floor or corridor square, then update hero coordinates, vision, and movement flags. | `js/cmd.js` and existing movement owners | done | Atomic intent admission and repeated runner-level object, hidden-trap, and special-terrain refusals are committed at `daec422`. |
 | 4 | `allmain.c` movement debit and repeated monster scans | Debit `u.umovement`, call `movemon()` until the source stopping condition, and respect a fast hero's retained ration. | `js/allmain.js` | done | Live at `2283141`; command tests and the fast-Monk differential cover both stopping conditions. |
-| 5 | `mon.c:movemon_singlemon()` scan gates | Preserve dead/off-map, every-turn upkeep, movement-ration, vision, and ration-spend order for each list node. | `js/mon.js`, `js/allmain.js` adapter | open | Pass the normalized live action environment through an explicit signature adapter and pin non-global state and RNG ownership. |
+| 5 | `mon.c:movemon_singlemon()` scan gates | Preserve dead/off-map, every-turn upkeep, movement-ration, vision, and ration-spend order for each list node. | `js/mon.js`, `js/allmain.js` adapter | done | The explicit action adapter and sentinel non-global state/RNG contract are committed at `60099e6`. |
 | 6 | `mon.c:movemon()` terminal cleanup | Clear transient state, purge dead entries, update light/vision state, and return whether another scan is needed. Level transition is a future safe-stop. | `js/mon.js`, `js/allmain.js` adapter | done | Repeated-scan command tests and live prompt completion. |
 | 7 | `monmove.c:dochugw()` notice wrapper | Run the ordinary action while preserving the occupation-interruption seam. New games have no active occupation. | `js/monmove.js` | done | Source owner `e74c756`, live consumer `2283141`. |
 | 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | done | Source-owned `wake_msg()` and awaited live wiring committed at `d327351`. |
@@ -65,8 +65,7 @@ validated.
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 12 done and six reopened by the third correctness
-  audit.
+- 18 in-boundary families: 13 done and five remain open after D1.
 - Closure verdict: **Implementation**. The confirmed production, test, and
   maintenance findings below must be committed and validated before another
   exact head can be frozen.
@@ -93,12 +92,17 @@ D6, when all three remain one final integration commit.
 
 | Checkpoint | Status | Complete source-owned change | Planned files |
 | --- | --- | --- | --- |
-| D1 — live action environment adapter | pending | Replace the accidental three-argument call into the bare monster action with an explicit adapter that passes the normalized live state and RNG. Pin the contract with sentinel non-global values. | `js/mon.js`, `js/allmain.js`, focused monster scan test |
+| D1 — live action environment adapter | done at `60099e6` | Replace the accidental three-argument call into the bare monster action with an explicit adapter that passes the normalized live state and RNG. Pin the contract with sentinel non-global values. | `js/mon.js`, `js/allmain.js`, `scripts/mon.test.mjs` |
 | D2 — source-selected weapon action | pending | Follow `monmove.c` weapon gates in source order. Admit inert `AT_WEAP` capability and inventory, and stop atomically only when upstream selects an unsupported wield or weapon action. | dedicated `monmove.c` weapon owner if needed, `js/monmove_simple.js`, focused weapon and two-retry tests |
 | D3 — source-selected post-move object action | pending | Continue through destination objects that upstream ignores. Stop only when the take or consume predicates select an unsupported interaction. Add the own-square item-search retry proof in the same source-owned item checkpoint. | `js/monmove_items.js`, `js/monmove_move.js`, `js/monmove_simple.js`, focused item and atomic-preflight tests |
 | D4 — complete atomic snapshot contract | pending | Centralize the complete second-turn retry snapshot and include command, turn, scheduler, vision, purge, and hero-track roots. Apply it to all focused two-retry excluded-action tests. | shared test snapshot helper, `scripts/monmove-simple.test.mjs` |
 | D5 — pet food and corridor focused coverage | pending | Add adjacent starting-pet food clone-preflight atomicity and ordinary-monster plus starting-pet corridor landing tests without expanding supported item behavior. | focused `scripts/dogmove*.test.mjs`, `scripts/monmove*.test.mjs` |
 | D6 — final fresh integration bundle | pending | Keep the runner, fixture, and integration test together. Add exact fresh cases for inert weapon-capable monsters, ignored objects, corridor landings, and parsed `mon_movement`; reuse the complete retry snapshot. | `scripts/run-second-complete-turn.mjs`, `scripts/fixtures/second-complete-turn.session.json`, `scripts/second-complete-turn.test.mjs` |
+
+D1 focused validation passes, the full suite passes 1,594/1,594, and all four
+generated-data checks pass. Its live consumer changes only which already
+normalized environment reaches the action; D6 retains the fresh end-to-end
+proof for the integrated behavior.
 
 After D1 through D6, rerun focused tests, the full suite, all generated checks,
 the fixed strict fresh matrix with `scripts/scan-fresh.mjs`, development
