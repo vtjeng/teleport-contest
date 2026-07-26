@@ -7,6 +7,7 @@ import {
     IN_SIGHT,
     MON_FLOOR,
     NORMAL_SPEED,
+    OBJ_MINVENT,
     PIT,
     ROOM,
     STONE,
@@ -19,6 +20,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     PM_DISPLACER_BEAST,
     PM_GIANT_RAT,
+    PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
     PM_PURPLE_WORM,
@@ -37,6 +39,7 @@ import {
     DAGGER,
     ROCK,
     SADDLE,
+    TRIPE_RATION,
 } from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import { getRngLog } from '../js/rng.js';
@@ -271,10 +274,49 @@ async function prepareSelectedAction({
     };
 }
 
+async function prepareStartingPetAction(pmidx) {
+    const target = await prepareSelectedAction({ pmidx });
+    const { monster } = target;
+    monster.data = game.mons[pmidx];
+    monster.mnum = pmidx;
+    monster.m_lev = Math.max(1, monster.data.mlevel);
+    monster.mhp = monster.mhpmax = 8;
+    monster.mpeaceful = true;
+    monster.mtame = 10;
+    monster.mextra = {
+        edog: {
+            apport: 10,
+            dropdist: 10000,
+            droptime: 0,
+            hungrytime: 1000,
+            mhpmax_penalty: 0,
+            ogoal: { x: 0, y: 0 },
+            whistletime: 0,
+        },
+    };
+    game.context.startingpet_mid = monster.m_id;
+    game.context.startingpet_typ = pmidx;
+    return target;
+}
+
 function installObject(target, object) {
     game.level.objects[object.ox][object.oy] = object;
     game.level.objlist = object;
     target.object = object;
+}
+
+function installPetDefender(target) {
+    const defender = ordinaryMonster(
+        PM_GIANT_RAT,
+        target.destinationX,
+        target.heroY,
+        {
+            m_id: 9002,
+            movement: 0,
+        },
+    );
+    target.monster.nmon = defender;
+    game.level.monsters[target.destinationX][target.heroY] = defender;
 }
 
 test('simple preflight recognizes only the starting pony worn saddle', () => {
@@ -469,6 +511,47 @@ test('simple movement output precedes track update and redraw', async () => {
         `redraw:${target.monsterX},${target.heroY}`,
         `redraw:${target.destinationX},${target.heroY}`,
     ]);
+});
+
+test('simple no-move notice completes before the adapter returns', async () => {
+    const target = await prepareStartingPetAction(PM_LITTLE_DOG);
+    // dogmove.c:dog_move() explicitly returns MMOVE_NOTHING when the pet and
+    // hero share a square. That isolates the unchanged-coordinate postmov()
+    // branch while retaining the complete runSimpleMonsterAction() adapter.
+    game.level.monsters[target.monsterX][target.heroY] = null;
+    target.monster.mx = game.u.ux;
+    target.monster.my = game.u.uy;
+    target.monster.mux = game.u.ux;
+    target.monster.muy = game.u.uy;
+    game.level.monsters[game.u.ux][game.u.uy] = target.monster;
+    game.viz_array[game.u.uy][game.u.ux] |= IN_SIGHT;
+    game.a11y.mon_notices = true;
+    game.a11y.mon_notices_blocked = 0;
+    target.monster.mspotted = false;
+
+    const output = deferred();
+    const events = [];
+    let settled = false;
+    const pending = runSimpleMonsterAction(target.monster, {
+        state: game,
+        message: (text) => {
+            events.push(`message:${text}`);
+            return output.promise;
+        },
+        redraw: (x, y) => events.push(`redraw:${x},${y}`),
+    });
+    pending.then(() => { settled = true; });
+    for (let turn = 0; turn < 8 && !events.length; ++turn)
+        await Promise.resolve();
+
+    assert.deepEqual(events, ['message:You see your little dog.']);
+    assert.equal(target.monster.mspotted, true);
+    assert.equal(settled, false);
+
+    output.resolve();
+    await pending;
+    assert.deepEqual(events, ['message:You see your little dog.']);
+    assert.equal(settled, true);
 });
 
 test('simple preflight preserves parked-guard source ordering', async () => {
@@ -726,3 +809,126 @@ test('simple preflight stops before unowned pet target scoring', async () => {
         assert.deepEqual(completePreflightSnapshot(replay), before);
     }
 });
+
+test('simple preflight keeps starting-pet owner seams retryable',
+    async () => {
+        const cases = [
+            {
+                name: 'dog combat evaluation',
+                reason: 'pet combat evaluation',
+                prepare: async () => {
+                    const target = await prepareStartingPetAction(
+                        PM_LITTLE_DOG,
+                    );
+                    installPetDefender(target);
+                    return target;
+                },
+            },
+            {
+                // mon_allowflags() gives tame pets ALLOW_M, so an occupied
+                // square reaches combat evaluation before mfndpos() can
+                // classify it as ALLOW_MDISP. Keep that source precedence
+                // explicit instead of fabricating an unreachable pet
+                // displacement callback.
+                name: 'pony occupied-square displacement precedence',
+                reason: 'pet combat evaluation',
+                prepare: async () => {
+                    const target = await prepareStartingPetAction(PM_PONY);
+                    installPetDefender(target);
+                    return target;
+                },
+            },
+            {
+                name: 'kitten eating',
+                reason: 'pet eating',
+                prepare: async () => {
+                    const target = await prepareStartingPetAction(PM_KITTEN);
+                    installObject(
+                        target,
+                        floorObject(
+                            target.monsterX,
+                            target.heroY,
+                            9101,
+                            TRIPE_RATION,
+                        ),
+                    );
+                    return target;
+                },
+            },
+            {
+                name: 'pony pickup',
+                reason: 'pet object pickup',
+                prepare: async () => {
+                    const target = await prepareStartingPetAction(PM_PONY);
+                    target.monster.mextra.edog.apport = 20;
+                    installObject(
+                        target,
+                        floorObject(
+                            target.monsterX,
+                            target.heroY,
+                            9101,
+                            DAGGER,
+                        ),
+                    );
+                    return target;
+                },
+            },
+            {
+                name: 'dog cursed-object feedback',
+                reason: 'pet cursed-object feedback',
+                prepare: async () => {
+                    const target = await prepareStartingPetAction(
+                        PM_LITTLE_DOG,
+                    );
+                    const object = floorObject(
+                        target.destinationX,
+                        target.heroY,
+                        9101,
+                        ROCK,
+                    );
+                    object.cursed = true;
+                    installObject(target, object);
+                    game.viz_array[target.heroY][target.monsterX]
+                        |= IN_SIGHT;
+                    game.viz_array[target.heroY][target.destinationX]
+                        |= IN_SIGHT;
+                    return target;
+                },
+            },
+            {
+                name: 'kitten non-inert inventory',
+                reason: 'pet inventory',
+                prepare: async () => {
+                    const target = await prepareStartingPetAction(PM_KITTEN);
+                    target.monster.minvent = floorObject(
+                        0,
+                        0,
+                        9101,
+                        DAGGER,
+                    );
+                    target.monster.minvent.where = OBJ_MINVENT;
+                    return target;
+                },
+            },
+        ];
+
+        for (const actionCase of cases) {
+            const target = await actionCase.prepare();
+            const before = completePreflightSnapshot(target.replay);
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await assert.rejects(
+                    preflightSimpleMonsterActions(game),
+                    (error) => (
+                        error instanceof UnsupportedSimpleMonsterActionError
+                        && error.reason === actionCase.reason
+                    ),
+                    `${actionCase.name}, attempt ${attempt + 1}`,
+                );
+                assert.deepEqual(
+                    completePreflightSnapshot(target.replay),
+                    before,
+                    `${actionCase.name}, attempt ${attempt + 1}`,
+                );
+            }
+        }
+    });
