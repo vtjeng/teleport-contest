@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "recipe": {
     "version": 5,
     "segments": [
@@ -58,6 +58,12 @@
         "moves": " .."
       },
       {
+        "seed": 2026072201,
+        "datetime": "20260725120000",
+        "nethackrc": "OPTIONS=name:CatWaitWalk,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
+        "moves": " .j"
+      },
+      {
         "seed": 2026072257,
         "datetime": "20260725120000",
         "nethackrc": "OPTIONS=name:PonyWalkWait,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\n",
@@ -68,6 +74,12 @@
         "datetime": "20261029013000",
         "nethackrc": "OPTIONS=name:MonkSpeed,role:Monk,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
         "moves": " .."
+      },
+      {
+        "seed": 2026072311,
+        "datetime": "20261029013000",
+        "nethackrc": "OPTIONS=name:MonkWaitWalk,role:Monk,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:cat\n",
+        "moves": " .l"
       }
     ]
   },
@@ -76,9 +88,11 @@
       "name": "NoPetWaitWait",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 9, "y": 18 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 9, "y": 18 }, { "x": 9, "y": 18 }] },
         "monsterCount": 2,
         "pet": null,
-        "stateDigest": "14687f51115c5389a734869cd7b24a9211aad218c9bcad7169eff35ff85469ff",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "a6b281d8ea56e9ce1cd7c5d83c5f5bda701328591a680922d4216d0c71e0c013",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [8, 19, 1], [8, 19, 1]],
@@ -94,9 +108,11 @@
       "name": "NoPetWaitWalk",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 8, "y": 18 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 8, "y": 18 }, { "x": 9, "y": 18 }] },
         "monsterCount": 2,
         "pet": null,
-        "stateDigest": "7e6910e9f899979f6546172bf2aee1e57c207a55d73e52889dc06cfa044cfd51",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "e58160ae3651f63693b5b6f969cd274858577e5a20076539424bdad96dc77159",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [8, 19, 1], [7, 19, 1]],
@@ -112,9 +128,11 @@
       "name": "NoPetWalkWait",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 8, "y": 18 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 8, "y": 18 }, { "x": 8, "y": 18 }] },
         "monsterCount": 2,
         "pet": null,
-        "stateDigest": "6b12b1ffddc2bf7b8d518674644792f434ef8e7340733e6491b827f92649a17d",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "8b31480c36214eed95f92b5da0e7c7035d494d98236a988fcf3df20d4daf8e81",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [7, 19, 1], [7, 19, 1]],
@@ -130,9 +148,11 @@
       "name": "NoPetWalkWalk",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 7, "y": 18 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 7, "y": 18 }, { "x": 8, "y": 18 }] },
         "monsterCount": 2,
         "pet": null,
-        "stateDigest": "e45145a4d111296dd2eb286f869a3d2fb189d8a49c53058dfd65745d682b7db9",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "2a65ab59831de8166d1c0477e58852c1d00db489c260d028e10571f3bcb84cf1",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [7, 19, 1], [6, 19, 1]],
@@ -148,9 +168,11 @@
       "name": "DogWaitWait",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 42, "y": 12 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 42, "y": 12 }, { "x": 42, "y": 12 }] },
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
-        "stateDigest": "5976121cb74b2876ebb6ef6e2dc9a172d65e0bacf33d3e3294459fa912105b84",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "98a6dedd2a18d16c9be9230be853e1e1f5305d96e0fdc6f0c2b302385772e12d",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1], [41, 13, 1]],
@@ -166,9 +188,11 @@
       "name": "DogWaitWalk",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 42, "y": 13 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 42, "y": 13 }, { "x": 42, "y": 12 }] },
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 14, "pmidx": 16 },
-        "stateDigest": "c09609e01a6962b49c6f9b6f67b1de47fabb2006825fb4ada9f11d2047370b4c",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "17ad609d8830aad138d5b6f95f833fe6ef90064e85e8039ac92f93b269b81f23",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1], [41, 14, 1]],
@@ -184,9 +208,11 @@
       "name": "DogWalkWait",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 43, "y": 12 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 43, "y": 12 }, { "x": 43, "y": 12 }] },
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
-        "stateDigest": "150219266a090c5f94dcea614b30aabfb757ed9d534fb64071cde83c746b4771",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "5de06af521ad7bc3851349545f3c66046a6bbd0f0c46add72a0edef45bd0f2c0",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [42, 13, 1], [42, 13, 1]],
@@ -202,9 +228,11 @@
       "name": "DogWalkWalk",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 44, "y": 14 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 44, "y": 14 }, { "x": 43, "y": 13 }] },
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
-        "stateDigest": "b7867a6c326f890c9dd5ea79d64cae00f53e80207c8b5f759451a4e503b6fc5d",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "fd7cc1f4ef6b54525ea9b0e177ba04e1af3a32d78a90363e2300f5f33c8fe5a5",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [42, 14, 1], [43, 15, 1]],
@@ -220,9 +248,11 @@
       "name": "CatWaitWait",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 42, "y": 12 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 42, "y": 12 }, { "x": 42, "y": 12 }] },
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 32 },
-        "stateDigest": "5d89046e0d78d7048f24fd9afb0f3e6beb42914548a2e311e186495c7e334997",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "913f25723ecb2be6a6cb1143ca5623280883041bdf74bbcd4a2083bdd562cbc1",
         "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1], [41, 13, 1]],
@@ -235,12 +265,34 @@
       }
     },
     {
+      "name": "CatWaitWalk",
+      "oracle": {
+        "hero": { "hunger": 898, "movement": 12, "x": 42, "y": 13 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 42, "y": 13 }, { "x": 42, "y": 12 }] },
+        "monsterCount": 2,
+        "pet": { "id": 26, "movement": 12, "mx": 42, "my": 14, "pmidx": 32 },
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "f00ebbfee45ecc18793aaa1660fc7dee39209bf81ea2028dbf2932975bb5ab1f",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 25, "moves": 3 },
+        "output": {
+          "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1], [41, 14, 1]],
+          "messages": [],
+          "rngCount": 2977,
+          "rngDigest": "9493a5fe2d0474a14596b33a1b088471d1aa884664543668ec55ab8dcd8c61ec",
+          "screenCount": 4,
+          "screenDigest": "79962aa565c5905e349f71ad1d82a23766d212b6a69fda4754382723a43f958d"
+        }
+      }
+    },
+    {
       "name": "PonyWalkWait",
       "oracle": {
         "hero": { "hunger": 898, "movement": 12, "x": 10, "y": 17 },
+        "heroTrack": { "count": 2, "nextIndex": 2, "newestFirst": [{ "x": 10, "y": 17 }, { "x": 10, "y": 17 }] },
         "monsterCount": 4,
         "pet": { "id": 38, "movement": 24, "mx": 11, "my": 17, "pmidx": 100 },
-        "stateDigest": "f2812a2608f203a28a75e563e571e945090f61d9d6a47da219999d9f8afc6b3d",
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "b7f324a1a935398825f75fc707c576bb837f31943e45252e11d1d4253266726e",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[15, 1, 1], [9, 19, 1], [9, 18, 1], [9, 18, 1]],
@@ -256,9 +308,11 @@
       "name": "MonkSpeed",
       "oracle": {
         "hero": { "hunger": 900, "movement": 12, "x": 11, "y": 2 },
+        "heroTrack": { "count": 0, "nextIndex": 0, "newestFirst": [] },
         "monsterCount": 4,
         "pet": { "id": 42, "movement": 0, "mx": 10, "my": 2, "pmidx": 32 },
-        "stateDigest": "3ccf6d87ad8e2c2a9e6037cd9e2596fe3683809e44cb31e4f00b2efba6631401",
+        "scheduler": { "purgeMonsters": null, "somebodyCanMove": null, "visionFullRecalc": 0 },
+        "stateDigest": "d949575ad620231ea7f4540ca0d860dd59f0b5bcc9ea7a165c1db78fc8acc161",
         "turn": { "commandDispatchCount": 3, "heroSeq": null, "moves": 1 },
         "output": {
           "cursors": [[10, 3, 1], [10, 3, 1], [10, 3, 1], [10, 3, 1]],
@@ -267,6 +321,26 @@
           "rngDigest": "4ca8c619f561db40d9efefb081be09a0656d608d4cd236686e2c96239695c057",
           "screenCount": 4,
           "screenDigest": "5e228ac74e16c74d4eed2ba5c16746ad63068d3f8eaa5ff7c5966f344cc0be87"
+        }
+      }
+    },
+    {
+      "name": "MonkWaitWalk",
+      "oracle": {
+        "hero": { "hunger": 899, "movement": 12, "x": 12, "y": 2 },
+        "heroTrack": { "count": 1, "nextIndex": 1, "newestFirst": [{ "x": 12, "y": 2 }] },
+        "monsterCount": 4,
+        "pet": { "id": 42, "movement": 24, "mx": 10, "my": 2, "pmidx": 32 },
+        "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
+        "stateDigest": "3bcaac7593dc4dd4c84b013182895dfeb5685c187b1ba4feba98731b59d36971",
+        "turn": { "commandDispatchCount": 3, "heroSeq": 17, "moves": 2 },
+        "output": {
+          "cursors": [[10, 3, 1], [10, 3, 1], [10, 3, 1], [11, 3, 1]],
+          "messages": [],
+          "rngCount": 2606,
+          "rngDigest": "d0fc6de77e671f19d11077f3453bb086a75894096219e2e98dc8342044ea67ee",
+          "screenCount": 4,
+          "screenDigest": "370370a51a7eea112808a329301719142da351f4023e23fff9c35b63dbbd9065"
         }
       }
     }

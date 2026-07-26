@@ -26,10 +26,10 @@ export function loadSecondCompleteTurnFixture() {
     const fixture = JSON.parse(
         readFileSync(SECOND_COMPLETE_TURN_FIXTURE, 'utf8'),
     );
-    if (!fixture || fixture.version !== 1
+    if (!fixture || fixture.version !== 2
         || !Array.isArray(fixture.expectations)) {
         throw new Error(
-            `${SECOND_COMPLETE_TURN_FIXTURE} must be a v1 second-turn fixture`,
+            `${SECOND_COMPLETE_TURN_FIXTURE} must be a v2 second-turn fixture`,
         );
     }
     const recipe = validateCleanRecipe(
@@ -56,6 +56,17 @@ export function loadSecondCompleteTurnFixture() {
             throw new Error(
                 `${SECOND_COMPLETE_TURN_FIXTURE} expectation ${index + 1} `
                 + 'does not match its recipe segment',
+            );
+        }
+        const oracle = expectation?.oracle;
+        if (!oracle
+            || !Array.isArray(oracle.heroTrack?.newestFirst)
+            || !Object.hasOwn(oracle.scheduler ?? {}, 'somebodyCanMove')
+            || !Object.hasOwn(oracle.scheduler ?? {}, 'visionFullRecalc')
+            || !Object.hasOwn(oracle.scheduler ?? {}, 'purgeMonsters')) {
+            throw new Error(
+                `${SECOND_COMPLETE_TURN_FIXTURE} expectation ${index + 1} `
+                + 'must include hero-track and scheduler oracles',
             );
         }
         names.add(name);

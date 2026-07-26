@@ -74,6 +74,14 @@ function normalizedRngLog() {
         .filter((entry) => RNG_CALL.test(entry));
 }
 
+function schedulerSnapshot() {
+    return {
+        purgeMonsters: game.iflags?.purge_monsters ?? null,
+        somebodyCanMove: game.somebody_can_move ?? null,
+        visionFullRecalc: game.vision_full_recalc ?? null,
+    };
+}
+
 function completeTurnSnapshot(replay) {
     return {
         context: structuredClone(game.context),
@@ -111,6 +119,8 @@ function completeTurnSnapshot(replay) {
             context: rngContext(),
             log: [...getRngLog()],
         },
+        scheduler: schedulerSnapshot(),
+        track: structuredClone(game.track),
         turn: {
             cmdKey: game.cmdKey,
             commandDispatchCount: game._commandDispatchCount,
@@ -145,6 +155,21 @@ function completeTurnSnapshot(replay) {
     };
 }
 
+function heroTrackOracle() {
+    const track = game.track;
+    const newestFirst = [];
+    let index = track.utpnt;
+    for (let remaining = track.utcnt; remaining > 0; --remaining) {
+        index = index === 0 ? track.utrack.length - 1 : index - 1;
+        newestFirst.push({ ...track.utrack[index] });
+    }
+    return {
+        count: track.utcnt,
+        nextIndex: track.utpnt,
+        newestFirst,
+    };
+}
+
 function digest(value) {
     const json = JSON.stringify(value, (_key, item) => (
         typeof item === 'bigint' ? `${item}n` : item
@@ -173,8 +198,10 @@ function integrationOracle(replay) {
             x: game.u.ux,
             y: game.u.uy,
         },
+        heroTrack: heroTrackOracle(),
         monsterCount: monsters.length,
         pet: pet ? semanticMonster(pet) : null,
+        scheduler: schedulerSnapshot(),
         stateDigest: digest(completeTurnSnapshot(replay)),
         turn: {
             commandDispatchCount: game._commandDispatchCount,
@@ -208,9 +235,9 @@ async function withSerializedGrids(action) {
 test('second-turn fresh recipe contains only simple replay inputs', () => {
     const fixture = loadSecondCompleteTurnFixture();
     const recipe = loadSecondCompleteTurnRecipe();
-    assert.equal(fixture.version, 1);
+    assert.equal(fixture.version, 2);
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 11);
+    assert.equal(recipe.segments.length, 13);
     assert.equal(fixture.expectations.length, recipe.segments.length);
     assert.deepEqual(
         new Set(recipe.segments.map(({ moves }) => moves)),
@@ -220,6 +247,7 @@ test('second-turn fresh recipe contains only simple replay inputs', () => {
             ' h.',
             ' hh',
             ' .j',
+            ' .l',
             ' l.',
             ' nn',
             ' k.',
