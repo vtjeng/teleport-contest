@@ -16,7 +16,7 @@ function linkedObjects(head, link) {
     return objects;
 }
 
-function liveMonsters(state) {
+function monsterListSnapshot(state) {
     const monsters = [];
     for (let monster = state.level.monlist;
         monster;
@@ -83,7 +83,7 @@ export function completeSecondTurnSnapshot(state, replay) {
             waitEpoch: state.nhDisplay.waitEpoch,
             waiting: state.nhDisplay.isWaitingForInput,
         },
-        monsters: liveMonsters(state),
+        monsters: monsterListSnapshot(state),
         output: {
             animations: structuredClone(
                 replay.getAnimationFramesByStep(),

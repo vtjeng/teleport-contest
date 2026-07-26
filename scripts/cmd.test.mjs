@@ -814,6 +814,8 @@ test('the segment runner preserves output at a known turn boundary', async () =>
     assert.equal(game._commandDispatchCount, 2);
     assert.equal(game.multi, 0);
     assert.equal(game.moves, 3);
+    // Three moves contribute 3 * 8 hero-sequence ticks, then the completed
+    // action adds one; two elapsed turns reduce initial hunger 900 by two.
     assert.equal(game.hero_seq, 25);
     assert.equal(game.u.uhunger, 898);
     assert.equal(replay.getScreens().length, 3);

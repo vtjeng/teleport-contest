@@ -429,6 +429,9 @@ test('m_search_items reverses flight after its source radius reduction',
     () => {
         const state = makeState();
         const monster = placeMonster(state, makeMonster(state, PM_ROCK_MOLE, {
+            // From (10,10), mux 14 is four squares away. That exceeds the
+            // reduced radius of three and reverses flight; (3,3) is the
+            // prior-goal sentinel that must remain selected.
             mux: 14,
             muy: 10,
         }));
@@ -442,6 +445,8 @@ test('m_search_items reverses flight after its source radius reduction',
         assert.equal(far.approach, 1);
         assert.deepEqual([far.goalX, far.goalY], [3, 3]);
 
+        // Three squares is the source's inclusive exception, so flight and
+        // the remembered hero square remain selected.
         monster.mux = 13;
         const near = m_search_items(
             monster,

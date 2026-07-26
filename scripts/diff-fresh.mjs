@@ -456,6 +456,9 @@ export function compareSessionOutputs(recording, jsOutput) {
     const jsRng = (jsOutput.rng || []).filter(isRngCall);
     const jsScreens = jsOutput.screens || [];
     const jsCursors = jsOutput.cursors || [];
+    // The flat streams are authoritative for value comparison. When present,
+    // segments must be their ordered partition; they detect output shifted
+    // across runSegment() boundaries by comparing each partition's length.
     const jsSegments = Array.isArray(jsOutput.segments)
         ? jsOutput.segments.map((segment) => ({
             rng: (segment.rng || []).filter(isRngCall),

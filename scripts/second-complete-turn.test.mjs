@@ -45,7 +45,7 @@ function linkedObjects(head, link) {
     return objects;
 }
 
-function liveMonsters() {
+function monsterListSnapshot() {
     const monsters = [];
     for (let monster = game.level.monlist;
         monster;
@@ -111,7 +111,7 @@ function semanticMonster(monster) {
 }
 
 function integrationOracle(replay) {
-    const monsters = liveMonsters();
+    const monsters = monsterListSnapshot();
     const pet = monsters.find((monster) => monster.mtame);
     const rng = normalizedRngLog();
     return {
@@ -197,7 +197,7 @@ function assertNamedCoverage(name) {
         }
         assert.equal(found, true, 'ordinary monster did not retain an object');
     } else if (name === 'PetCorridor') {
-        const pet = liveMonsters().find((monster) => monster.mtame);
+        const pet = monsterListSnapshot().find((monster) => monster.mtame);
         assert.ok(pet, 'starting pet is missing');
         assert.equal(
             game.level.at(pet.mx, pet.my).typ,
