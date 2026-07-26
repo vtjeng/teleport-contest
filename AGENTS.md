@@ -1,108 +1,203 @@
 # Teleport agent instructions
 
-## Mission and source of truth
+## Goal and authoritative sources
 
 Build a maintainable JavaScript port of NetHack 5.0 that behaves correctly for
-arbitrary valid seeds, datetimes, options, and input sequences.
+every valid seed, date and time, set of options, and input sequence.
 
-- Treat `nethack-c/upstream/` as the game-behavior specification and
-  `nethack-c/patches/` as the recorder's deterministic changes.
-- Derive implementation from those sources. Development recordings are
-  regression tests. Do not treat them as implementation specifications.
-- Follow the milestone order in `ROADMAP.md`.
+- `nethack-c/upstream/` contains the original NetHack C source. Implement game
+  behavior from that source.
+- `nethack-c/patches/` contains changes applied to the C program used for
+  comparison. These changes control the seed and time, stabilize sorting, log
+  random-number calls, and capture terminal screens. Match the behavior and
+  output produced after these changes are applied.
+- Complete the milestones in the order listed in `ROADMAP.md`.
 
-## Always-loaded safety rules
+## Recorded test sessions
 
-### Sealed local holdout
+The patched C program records games as session files. Each file contains the
+seed, date and time, options, and player inputs, along with the random-number
+calls, terminal screens, and cursor positions produced as the game runs.
 
-The files under `sessions/holdout/` are a fixed, sealed holdout.
+The session files stored directly under `sessions/` are the development
+sessions. Agents may inspect and replay them during development to find
+mismatches and detect regressions. When a session reveals a mismatch, determine
+the correct behavior from the C source and patches before changing the
+JavaScript port.
 
-- Outside the permitted aggregate commands below, never open, read, enumerate,
-  search, parse, diff, summarize, copy, visualize, or expose their contents or
-  filenames.
-- Never send holdout files to another agent or tool. In particular, do not pass
-  `sessions/holdout/` or any path below it to `frozen/ps_test_runner.mjs`, the
-  Session Viewer, recording utilities, or audit processes.
-- Use `node scripts/score-development.mjs` for routine scoring. It evaluates
-  the fixed development set in a temporary workspace without replacing
-  judge-owned files under `js/`.
-- `node scripts/score-holdout.mjs --check` may verify the seal; it reports only
-  the file count.
-- Only the primary agent may run `node scripts/score-holdout.mjs`, and only
-  after the user explicitly authorizes a holdout evaluation for a specific
-  milestone. Use only its aggregate result to assess how well results on the
-  development set carry over to the holdout set. Never use it to select or tune
-  changes.
-- Never inspect temporary files, caches, CI logs, or artifacts to recover
-  per-session holdout results.
-- Do not change or rotate the split without explicit user approval.
+`sessions/holdout/` contains a fixed set of holdout evaluation sessions. Their
+contents remain hidden during development. At approved milestones, their
+combined results show whether progress on the development sessions carries
+over to previously unseen sessions.
 
-These rules rely on agent compliance. Filesystem access and public Git history
-do not grant permission to inspect the holdout.
+## Prevent overfitting to the holdout sessions
 
-### Source-faithful implementation
+Agents must not inspect individual holdout sessions because their contents
+could influence implementation decisions and make the holdout results less
+meaningful.
 
-- Port complete upstream functions or coherent subsystems. Preserve C control
-  flow, state changes, integer behavior, evaluation order, input boundaries,
-  rendering order, pseudorandom number generator (PRNG) calls, and upstream
-  quirks.
-- Keep modules and function names traceable to C or Lua. When the translation
-  is not structurally obvious, comment with the upstream file and function.
-- Never depend on a known session, seed, datetime, move string, trace position,
-  expected output, corpus-wide total, recorded PRNG trace, or recorded screen.
-- `js/fastforward.js` is temporary seed-specific replay scaffolding. Its
-  trace-derived calls may stay unchanged or shrink, but must never grow. Remove
-  a replay call only after source-faithful gameplay performs that call and its
-  associated state changes; keep the gameplay implementation.
-- Do not modify `js/isaac64.js`, `js/terminal.js`, or `js/storage.js`; the judge
-  replaces them.
-- Contestant code must remain plain JavaScript ES modules that run directly in
-  Node 22+ and modern Chrome. Do not add WebAssembly, build steps, runtime
-  filesystem or network access, subprocesses, native addons, or threads.
-  Persist cross-segment state only through `input.storage`.
+Only these commands may access `sessions/holdout/`:
 
-## Load the relevant instructions
+- `node scripts/score-holdout.mjs --check` confirms that the directory contains
+  the expected number of session files without reading their contents. It
+  reports only the file count.
+- `node scripts/score-holdout.mjs` runs the JavaScript port against all holdout
+  sessions and compares its screens and random-number calls with the recorded C
+  results. It reports only combined counts for sessions, screens, and
+  random-number calls. Only the primary agent may run it, and only after the
+  user explicitly authorizes an evaluation for a specific milestone.
 
-Use progressive disclosure instead of carrying every procedure in every task.
+The holdout result measures whether completed work generalizes to unseen
+sessions. In contrast, implementation decisions come from the C source and
+evidence gathered with the development sessions.
 
-| When | Read |
+For routine scoring, run `node scripts/score-development.mjs`. It scores the
+development sessions in a temporary workspace and leaves the judge-supplied
+files under `js/` unchanged.
+
+All other access to `sessions/holdout/` is prohibited:
+
+- Do not list the directory or open, read, search, parse, compare, summarize,
+  copy, display, or reveal its files, filenames, or contents.
+- Do not pass the directory, any path inside it, or any file from it to another
+  agent or tool. This includes `frozen/ps_test_runner.mjs`, the Session Viewer,
+  recording tools, and audit tools.
+- Do not inspect temporary files, caches, continuous-integration logs, or other
+  artifacts to recover results for individual holdout sessions.
+- Do not change which sessions belong to the development and holdout sets
+  without explicit user approval.
+- These restrictions apply even when the files are accessible through the
+  filesystem or public Git history.
+
+## Read the instructions for your task
+
+Before starting work, find every matching row below and read every listed file.
+Follow all instructions in those files.
+
+| Before you... | Read... |
 | --- | --- |
-| Implementing or validating gameplay | `ROADMAP.md` and `.agents/validation.md` |
-| Planning a qualifying behavior slice: one expected to span sessions, cross subsystems, or approach the shared review-window limit | `.agents/quality-workflow.md` and `.agents/implementation-checklist-template.md` |
-| Continuing an active qualifying behavior slice | `.agents/implementation-checklist.md` |
-| Committing implementation, checking review debt, or scheduling review | `.agents/quality-workflow.md` and `QUALITY.json` |
-| Running fresh recordings, differentials, scans, scoring, browser checks, or an authorized holdout evaluation | `.agents/validation.md` |
-| Running or recording a formal pass | `.agents/quality-workflow.md` and the named skill |
+| Implement game behavior | `ROADMAP.md`, `.agents/validation.md`, `.agents/quality-workflow.md`, and `QUALITY.json` |
+| Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
+| Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/quality-workflow.md` and `.agents/implementation-checklist-template.md` |
+| Continue the active work described in `.agents/implementation-checklist.md` | `.agents/implementation-checklist.md` |
+| Commit game implementation, record a development score, check how much unreviewed code has accumulated, or schedule a review | `.agents/quality-workflow.md` and `QUALITY.json`, which lists the tracked parts of the code, review limits, and completed correctness and simplification passes |
+| Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md` |
+| Run or record a correctness, clarity, simplification, or copyediting pass | `.agents/quality-workflow.md` and the skill named for that pass |
 
-The referenced instructions are mandatory when their trigger applies.
+## Implementation rules
 
-## Implementation loop
+### Implement NetHack behavior from source
 
-1. Define a live boundary from an existing input or call through the next
-   observable event. Include state changes, PRNG calls, messages, rendering,
-   and persistence within that boundary.
-2. Trace every reachable upstream branch and helper inside that boundary.
-   Finish one complete path before starting partial implementations of several
-   commands.
+- Translate whole C functions or self-contained groups of related functions.
+  Match the C code's branches, loops, state changes, integer arithmetic,
+  expression order, random-number calls, screen updates, and points where the
+  game waits for input. Preserve behavior even when it appears accidental.
+- Choose JavaScript module and function names that make the corresponding C or
+  Lua code easy to find. If the JavaScript structure differs substantially,
+  add a comment naming the original file and function.
+- Do not special-case a recorded session or any value taken from one. This
+  includes its identity, seed, date and time, input sequence, replay position,
+  expected output, totals across all sessions, random-number log, and screen
+  contents.
+
+### Complete common gameplay first
+
+1. Within the current goal, implement gameplay that is likely to happen often
+   before rare or special cases. Leave rare or special cases for later unless
+   the current goal includes them or they are required to complete the common
+   case.
+2. For each case you implement, choose an existing starting point in the
+   running game: either a player input or a call to a game function. Choose the
+   next result that the player or scoring system can observe. Implement all
+   behavior between those points. Match every game-state change, random-number
+   call, message, screen update, and saved value.
 3. Before implementing a helper, data structure, or game mechanic, identify
-   the exact player action in the current roadmap item that will use it.
-   Implement that player action at the same time. If no current player action
-   needs the code, defer it. Do not prepare code for future commands or
-   branches.
-4. Keep each C state value in one canonical JavaScript location. Document each
-   non-obvious mapping and the mapped state value's initialization, reset,
-   mutation, and persistence boundaries. Duplicate state only when source
-   behavior requires distinct values; centralize their updates and tests.
-5. Generate large static tables deterministically from upstream C or Lua.
-   Commit the generator, plain-JavaScript output, and a regeneration check.
-   Translate behavioral control flow directly.
-6. Validate the live path as required by `.agents/validation.md`. Focused unit
-   tests can validate a prerequisite, but only a fresh end-to-end differential
-   through the next boundary can close a behavior slice.
-7. Follow `.agents/quality-workflow.md` for chunk size, quality-area assignment,
-   commits, score evidence, review scheduling, and formal-pass records.
+   exactly where the current goal will use it in the running game. Implement
+   that use at the same time. If the current goal does not use the code in the
+   running game, defer it. Do not prepare code for future commands or branches.
 
-Keep implementation updates brief and specific: say what now matches upstream,
-what remains, and what check comes next. Use each checklist, note, report, or
-record format required by `.agents/quality-workflow.md` only when that file's
-trigger applies.
+### Keep each game value in one place
+
+Store each C state value in one JavaScript location. If the connection is not
+obvious, explain which C value it represents and when the JavaScript value is
+initialized, reset, changed, saved, restored, or discarded. Create separate
+JavaScript values only when the C code treats them as separate. Keep their
+update logic together. If the C code changes separate values together, test
+that the JavaScript does the same.
+
+### Generate large fixed tables from source
+
+When copying a large fixed table from C or Lua, write a script that produces
+the JavaScript table the same way every time. Commit the script, the generated
+JavaScript file, and a check that compares the committed JavaScript file with
+freshly generated output.
+
+### Keep the game compatible with the scoring system
+
+- Leave `js/isaac64.js`, `js/terminal.js`, and `js/storage.js` unchanged. The
+  judge replaces them with its official versions before scoring.
+- Submit JavaScript ES modules that run directly in Node 22 or later and modern
+  Chrome, with no build step during scoring or runtime. Game code must not
+  perform runtime filesystem or network operations, start other programs, load
+  native extensions, create threads, or run WebAssembly.
+- A session can contain more than one segment. The scorer calls
+  `runSegment(input)` separately for each segment and does not pass the
+  returned game object to the next call. Store game state that must survive
+  between segments through `input.storage`.
+
+## Temporary code
+
+This section describes temporary code that remains in the repository, why it
+exists, and when to remove it.
+
+### Random-number replay in `js/fastforward.js`
+
+`js/fastforward.js` contains random-number calls copied from one recorded run.
+It temporarily keeps later random-number calls aligned while the game logic
+that should produce those calls is still missing.
+
+Leave each existing replay call in place until game logic derived from the C
+source makes that call and its related state changes. Then delete the replay
+call. Never add calls to this file.
+
+Delete `js/fastforward.js` and this subsection after real game logic has
+replaced every replay call.
+
+## Validate completed work
+
+A focused unit test can show that one function works by itself. It does not
+show that the running game reaches that function or produces the complete
+result correctly.
+
+Before calling a gameplay case complete, record a new case with the C reference
+program and replay the same inputs with the JavaScript port. Compare everything
+from the chosen starting point through the chosen result.
+
+When choosing new cases:
+
+- Choose the smallest repeatable set of cases that together covers the behavior
+  and outcomes in the current goal. Save the inputs for each case.
+- Cover each meaningful branch in the C code that belongs to the current goal,
+  including less common branches.
+- When the goal has an explicit limit, run a representative case just outside
+  that limit. If the current goal says how the program should handle that case,
+  add a passing test for the specified result. If the case belongs to future
+  work and does not match the C reference yet, keep it out of the normal
+  passing test suite and record its inputs and expected failure in the active
+  implementation checklist.
+- Change the seed, date and time, options, character choices, or input sequence
+  only when that input can affect the behavior being checked.
+- Choose inputs independently instead of copying values from an existing
+  recorded session.
+
+## Commit, review, and report the work
+
+`SCORE.md` summarizes development-score results for completed work. Add entries
+at the points listed in `.agents/quality-workflow.md`. You do not need to add
+an entry after every commit.
+
+Keep progress updates short. State what now matches the C source, what remains
+unfinished, and what check comes next.
+
+Create or update a checklist, note, report, or permanent record only when the
+conditions in `.agents/quality-workflow.md` require it.
