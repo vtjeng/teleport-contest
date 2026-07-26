@@ -20,6 +20,9 @@ import {
 import {
     COLNO,
     CORR,
+    D_CLOSED,
+    D_LOCKED,
+    DOOR,
     FAST,
     FOUNTAIN,
     HALLUC,
@@ -341,6 +344,30 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             },
             remove: ({ destination }) => {
                 destination.typ = ROOM;
+            },
+        },
+        {
+            name: 'closed door',
+            reason: 'door or special terrain movement',
+            install: ({ destination }) => {
+                destination.typ = DOOR;
+                destination.doormask = D_CLOSED;
+            },
+            remove: ({ destination }) => {
+                destination.typ = ROOM;
+                destination.doormask = 0;
+            },
+        },
+        {
+            name: 'locked door',
+            reason: 'door or special terrain movement',
+            install: ({ destination }) => {
+                destination.typ = DOOR;
+                destination.doormask = D_LOCKED;
+            },
+            remove: ({ destination }) => {
+                destination.typ = ROOM;
+                destination.doormask = 0;
             },
         },
     ];

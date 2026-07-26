@@ -471,11 +471,14 @@ async function executeMovement(command, firstTime, state) {
     // moveloop_core() optimistically sets context.move before rhack(), as C
     // does.  This port's temporary unsupported-destination seam must run
     // before movement intent is committed; otherwise the next loop mistakes
-    // the rejected command for elapsed time.  A normal blocked square still
-    // reaches domove() and follows its source behavior below.
+    // the rejected command for elapsed time. Doors have their own upstream
+    // behavior even when closed or locked, so classify every door before the
+    // generic blocked-terrain path. A wall or stone square still reaches
+    // domove() and follows its source behavior below.
     const newx = state.u.ux + dx;
     const newy = state.u.uy + dy;
-    if (!blocksMove(newx, newy, state)) {
+    const destination = state.level?.at(newx, newy);
+    if (destination?.typ === DOOR || !blocksMove(newx, newy, state)) {
         try {
             requireSimpleHeroDestination(newx, newy, state);
         } catch (error) {
