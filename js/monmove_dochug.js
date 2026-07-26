@@ -155,7 +155,20 @@ export async function dochug_fresh_monster(monster, rawEnv = {}) {
             });
         }
         if (status === MMOVE_DIED) return 1;
-        if (status === MMOVE_MOVED) return 0;
+        if (status === MMOVE_MOVED) {
+            if (!range.nearby
+                && range.inrange
+                && !range.scared
+                && !monster.mpeaceful
+                && attacktype(monster.data, AT_WEAP)) {
+                const postMoveRangedAttack = requiredOperation(
+                    rawEnv,
+                    'postMoveRangedAttack',
+                );
+                await postMoveRangedAttack(monster, env);
+            }
+            return 0;
+        }
     }
     if (status !== MMOVE_DONE && !monster.mpeaceful && range.nearby)
         await attackHero(monster, env);

@@ -13,6 +13,7 @@ import {
     MMOVE_NOTHING,
     MON_FLOOR,
     MON_MIGRATING,
+    NEED_WEAPON,
     NORMAL_SPEED,
     ROOM,
     STRAT_ARRIVE,
@@ -89,7 +90,11 @@ import {
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { couldsee } from './vision.js';
-import { mon_wield_item, select_hwep } from './weapon.js';
+import {
+    mon_wield_item,
+    select_hwep,
+    select_rwep,
+} from './weapon.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 const SPECIAL_RESPONDERS = new Set([PM_SHRIEKER, PM_MEDUSA, PM_ERINYS]);
@@ -424,6 +429,20 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: freshMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
+                postMoveRangedAttack: (weaponUser, weaponEnv) => {
+                    const selected = select_rwep(weaponUser, {
+                        ...weaponEnv,
+                        touchArtifact: () => unsupported(
+                            'monster artifact weapon selection',
+                        ),
+                    });
+                    if (selected)
+                        unsupported('monster ranged weapon action');
+                    if (weaponUser.weapon_check === NEED_WEAPON
+                        || !weaponUser.mw) {
+                        weaponUser.weapon_check = NEED_WEAPON;
+                    }
+                },
                 preflightMonster: assertSimpleActionState,
                 selectRangedWeapon: () =>
                     unsupported('monster ranged weapon selection'),

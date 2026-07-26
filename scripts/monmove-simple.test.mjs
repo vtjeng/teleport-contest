@@ -17,6 +17,7 @@ import {
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_SADDLE,
+    W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -701,6 +702,21 @@ test('simple preflight rejects every selected excluded action atomically',
                         pmidx: PM_GNOME,
                     });
                     target.monster.minvent = monsterObject(DAGGER);
+                    target.monster.weapon_check = NEED_WEAPON;
+                    return target;
+                },
+            },
+            {
+                name: 'post-move ranged weapon',
+                reason: 'monster ranged weapon action',
+                prepare: async () => {
+                    const target = await prepareSelectedAction({
+                        pmidx: PM_GNOME,
+                    });
+                    const dagger = monsterObject(DAGGER);
+                    dagger.owornmask = W_WEP;
+                    target.monster.minvent = dagger;
+                    target.monster.mw = dagger;
                     target.monster.weapon_check = NEED_WEAPON;
                     return target;
                 },

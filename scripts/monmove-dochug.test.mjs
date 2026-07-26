@@ -105,6 +105,50 @@ test('dochug clears arrival and wait state before ordinary movement', async () =
     ]);
 });
 
+test('dochug reaches the post-move ranged weapon phase', async () => {
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_WEAP }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+        mux: 6,
+        muy: 4,
+    });
+    let rangeCall = 0;
+    const env = {
+        ...baseEnv(state, events),
+        distanceAndFear: () => {
+            events.push(`range-${++rangeCall}`);
+            return {
+                inrange: true,
+                nearby: false,
+                scared: false,
+            };
+        },
+        moveMonster: () => {
+            events.push('move');
+            return MMOVE_MOVED;
+        },
+        postMoveRangedAttack: () => events.push('ranged-weapon'),
+        wieldMonsterItem: () => false,
+    };
+
+    assert.equal(await dochug_fresh_monster(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range-1',
+        'items',
+        'move',
+        'range-2',
+        'ranged-weapon',
+    ]);
+});
+
 test('dochug attacks a nearby hostile after declining movement', async () => {
     const state = makeState();
     const events = [];

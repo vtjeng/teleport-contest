@@ -27,12 +27,16 @@ import {
 import { newObject } from '../js/obj.js';
 import {
     AXE,
+    ARROW,
     BATTLE_AXE,
     BELL_OF_OPENING,
+    BOW,
     CLUB,
     CORPSE,
     DAGGER,
     DWARVISH_MATTOCK,
+    EGG,
+    HALBERD,
     LONG_SWORD,
     PICK_AXE,
     SILVER_DAGGER,
@@ -43,6 +47,7 @@ import {
     mon_wield_item,
     mwelded,
     select_hwep,
+    select_rwep,
     setmnotwielded,
     which_armor,
 } from '../js/weapon.js';
@@ -199,6 +204,53 @@ test('select_hwep considers only petrifying corpses as weapons', () => {
     const dagger = object(state, DAGGER);
     subject.minvent = inventory(ordinaryCorpse, dagger);
     assert.equal(select_hwep(subject, { state }), dagger);
+});
+
+test('select_rwep preserves source preference and visibility gates', () => {
+    const state = makeState();
+    const subject = monster(state, PM_GIANT, {
+        mx: 4,
+        my: 4,
+        mux: 6,
+        muy: 4,
+    });
+    const dagger = object(state, DAGGER);
+    const polearm = object(state, HALBERD);
+    subject.minvent = inventory(dagger, polearm);
+
+    assert.equal(select_rwep(subject, {
+        state,
+        couldSee: () => true,
+    }), polearm);
+    assert.equal(select_rwep(subject, {
+        state,
+        couldSee: () => false,
+    }), dagger);
+});
+
+test('select_rwep requires launchers and only selects petrifying eggs', () => {
+    const state = makeState();
+    const subject = monster(state, PM_NEWT, {
+        mx: 4,
+        my: 4,
+        mux: 9,
+        muy: 4,
+    });
+    const arrow = object(state, ARROW);
+    const dagger = object(state, DAGGER);
+    subject.minvent = inventory(arrow, dagger);
+    assert.equal(select_rwep(subject, { state }), dagger);
+
+    const bow = object(state, BOW);
+    subject.minvent = inventory(arrow, dagger, bow);
+    assert.equal(select_rwep(subject, { state }), arrow);
+
+    const ordinaryEgg = object(state, EGG, { corpsenm: PM_NEWT });
+    const cockatriceEgg = object(state, EGG, {
+        corpsenm: PM_COCKATRICE,
+    });
+    subject.minvent = inventory(ordinaryEgg, dagger, cockatriceEgg);
+    assert.equal(select_rwep(subject, { state }), cockatriceEgg);
 });
 
 test('mon_wield_item selects hand-to-hand weapons and reports welded state', async () => {

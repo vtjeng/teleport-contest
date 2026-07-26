@@ -1,9 +1,10 @@
 // weapon.js -- Monster weapon selection and wield state.
-// C refs: weapon.c oselect(), select_hwep(), mon_wield_item(),
+// C refs: weapon.c oselect(), select_rwep(), select_hwep(), mon_wield_item(),
 // setmnotwielded(); wield.c mwelded().
 
-import { ART_SUNSWORD } from './artifacts.js';
+import { ART_SNICKERSNEE, ART_SUNSWORD } from './artifacts.js';
 import {
+    AKLYS_LIM,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -11,81 +12,126 @@ import {
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
     NO_WEAPON_WANTED,
+    P_BOW,
+    P_CROSSBOW,
+    P_SLING,
     W_ARM,
     W_ARMG,
     W_ARMS,
     W_WEP,
 } from './const.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
 import { m_carrying } from './mon.js';
 import {
+    is_animal,
     is_covetous,
     is_giant,
     is_rider,
+    likes_gems,
+    mindless,
     mon_hates_silver,
     strongmonst,
+    throws_rocks,
 } from './mondata.js';
 import {
     PM_BALROG,
     PM_CHICKATRICE,
     PM_COCKATRICE,
+    S_KOP,
 } from './monsters.js';
 import { isWeptool, objectType } from './obj.js';
 import {
     AKLYS,
+    ARROW,
     ATHAME,
     AXE,
+    BARDICHE,
     BATTLE_AXE,
+    BEC_DE_CORBIN,
     BELL_OF_OPENING,
+    BILL_GUISARME,
+    BOULDER,
+    BOW,
     BROADSWORD,
     BULLWHIP,
     CLUB,
     CORPSE,
+    CREAM_PIE,
+    CROSSBOW,
+    CROSSBOW_BOLT,
     CRYSKNIFE,
     DAGGER,
+    DART,
     DWARVISH_MATTOCK,
     DWARVISH_SHORT_SWORD,
     DWARVISH_SPEAR,
+    EGG,
+    ELVEN_ARROW,
     ELVEN_BROADSWORD,
+    ELVEN_BOW,
     ELVEN_DAGGER,
     ELVEN_SHORT_SWORD,
     ELVEN_SPEAR,
+    FAUCHARD,
     FLAIL,
+    FLINT,
+    GEM_CLASS,
+    GLAIVE,
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_DRAGON_SCALES,
+    GUISARME,
+    HALBERD,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
     JAVELIN,
     KATANA,
     KNIFE,
+    LANCE,
     LONG_SWORD,
+    LOADSTONE,
+    LUCKSTONE,
+    LUCERN_HAMMER,
     MACE,
     MORNING_STAR,
     ORCISH_DAGGER,
+    ORCISH_ARROW,
+    ORCISH_BOW,
     ORCISH_SHORT_SWORD,
     ORCISH_SPEAR,
+    PARTISAN,
     PICK_AXE,
     QUARTERSTAFF,
+    RANSEUR,
+    ROCK,
     RUBBER_HOSE,
     RUNESWORD,
     SCALPEL,
     SCIMITAR,
+    SHURIKEN,
     SHORT_SWORD,
     SILVER,
+    SILVER_ARROW,
     SILVER_DAGGER,
     SILVER_MACE,
     SILVER_SABER,
     SILVER_SPEAR,
+    SLING,
     SPEAR,
+    SPETUM,
     TIN_OPENER,
     TRIDENT,
     TSURUGI,
     TWO_HANDED_SWORD,
     UNICORN_HORN,
+    VOULGE,
     WAR_HAMMER,
     WEAPON_CLASS,
     WORM_TOOTH,
+    YA,
+    YUMI,
 } from './objects.js';
+import { couldsee } from './vision.js';
 
 const MR_STONE = 0x80;
 
@@ -136,6 +182,49 @@ const HAND_TO_HAND_WEAPONS = Object.freeze([
     SCALPEL,
     KNIFE,
     WORM_TOOTH,
+]);
+
+const RANGED_WEAPONS = Object.freeze([
+    DWARVISH_SPEAR,
+    SILVER_SPEAR,
+    ELVEN_SPEAR,
+    SPEAR,
+    ORCISH_SPEAR,
+    JAVELIN,
+    SHURIKEN,
+    YA,
+    SILVER_ARROW,
+    ELVEN_ARROW,
+    ARROW,
+    ORCISH_ARROW,
+    CROSSBOW_BOLT,
+    SILVER_DAGGER,
+    ELVEN_DAGGER,
+    DAGGER,
+    ORCISH_DAGGER,
+    KNIFE,
+    FLINT,
+    ROCK,
+    LOADSTONE,
+    LUCKSTONE,
+    DART,
+    CREAM_PIE,
+]);
+
+const POLEARMS = Object.freeze([
+    HALBERD,
+    BARDICHE,
+    SPETUM,
+    BILL_GUISARME,
+    VOULGE,
+    RANSEUR,
+    GUISARME,
+    GLAIVE,
+    LUCERN_HAMMER,
+    BEC_DE_CORBIN,
+    FAUCHARD,
+    PARTISAN,
+    LANCE,
 ]);
 
 function weaponEnv(env = {}) {
@@ -212,12 +301,139 @@ export function can_touch_safely(monster, obj, env = {}) {
 function selectObject(monster, type, env) {
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj.otyp !== type) continue;
-        if (type === CORPSE) {
+        if (type === CORPSE || type === EGG) {
             const species = env.state.mons?.[obj.corpsenm];
             if (!species || !touchPetrifies(species)) continue;
         }
         if (!can_touch_safely(monster, obj, env)) continue;
         return obj;
+    }
+    return null;
+}
+
+function launcherFor(monster, skill, env) {
+    switch (skill) {
+    case P_BOW:
+        return selectObject(monster, YUMI, env)
+            || selectObject(monster, ELVEN_BOW, env)
+            || selectObject(monster, BOW, env)
+            || selectObject(monster, ORCISH_BOW, env);
+    case P_SLING:
+        return selectObject(monster, SLING, env);
+    case P_CROSSBOW:
+        return selectObject(monster, CROSSBOW, env);
+    default:
+        return null;
+    }
+}
+
+// C ref: weapon.c select_rwep(). The C propellor global is deliberately not
+// copied here: current callers only need the selected object, and launcher
+// choice remains a local prerequisite of that selection.
+export function select_rwep(monster, env = {}) {
+    const normalized = weaponEnv(env);
+    const state = normalized.state;
+    const canSeeSquare = normalized.couldSee ?? couldsee;
+    let selected = selectObject(monster, EGG, normalized);
+    if (selected) return selected;
+    if (monster.data?.mlet === S_KOP) {
+        selected = selectObject(monster, CREAM_PIE, normalized);
+        if (selected) return selected;
+    }
+    if (throws_rocks(monster.data)) {
+        selected = selectObject(monster, BOULDER, normalized);
+        if (selected) return selected;
+    }
+
+    const current = monster.mw;
+    const wieldedOnly = mwelded(current, state)
+        && monster.weapon_check === NO_WEAPON_WANTED;
+    const seesHeroLine = () => canSeeSquare(
+        monster.mx,
+        monster.my,
+        state,
+    );
+    if (dist2(
+        monster.mx,
+        monster.my,
+        monster.mux,
+        monster.muy,
+    ) <= 13 && seesHeroLine()) {
+        if (current?.oartifact === ART_SNICKERSNEE) return current;
+        const strong = strongmonst(monster.data);
+        const wearingShield = Boolean(monster.misc_worn_check & W_ARMS);
+        for (const type of POLEARMS) {
+            const objectData = objectType(type, state);
+            if (!((strong && !wearingShield) || !objectData.oc_bimanual)
+                || (objectData.oc_material === SILVER
+                    && mon_hates_silver(monster))) {
+                continue;
+            }
+            selected = selectObject(monster, type, normalized);
+            if (selected && (selected === current || !wieldedOnly))
+                return selected;
+        }
+    }
+
+    if (!mindless(monster.data)
+        && !is_animal(monster.data)
+        && !wieldedOnly
+        && dist2(
+            monster.mx,
+            monster.my,
+            monster.mux,
+            monster.muy,
+        ) <= AKLYS_LIM * AKLYS_LIM
+        && seesHeroLine()) {
+        const aklysData = objectType(AKLYS, state);
+        if (!(monster.misc_worn_check & W_ARMS)
+            || !aklysData.oc_bimanual) {
+            if (aklysData.oc_material !== SILVER
+                || !mon_hates_silver(monster)) {
+                selected = selectObject(monster, AKLYS, normalized);
+                if (selected && (selected === current || !wieldedOnly))
+                    return selected;
+            }
+        }
+    }
+
+    for (const type of RANGED_WEAPONS) {
+        if (type === DART
+            && !likes_gems(monster.data)
+            && m_carrying(monster, SLING, state)) {
+            for (let obj = monster.minvent; obj; obj = obj.nobj) {
+                if (obj.oclass === GEM_CLASS
+                    && (obj.otyp !== LOADSTONE || !obj.cursed)) {
+                    return obj;
+                }
+            }
+        }
+
+        const skill = objectType(type, state).oc_skill;
+        let launcher = skill < 0
+            ? launcherFor(monster, -skill, normalized)
+            : true;
+        if (skill < 0
+            && current
+            && mwelded(current, state)
+            && current !== launcher
+            && monster.weapon_check === NO_WEAPON_WANTED) {
+            launcher = null;
+        }
+        if (!launcher) continue;
+
+        if (type === LOADSTONE) {
+            for (let obj = monster.minvent; obj; obj = obj.nobj) {
+                if (obj.otyp === LOADSTONE && !obj.cursed) return obj;
+            }
+            continue;
+        }
+        selected = selectObject(monster, type, normalized);
+        if (selected
+            && !selected.oartifact
+            && !(selected === current && mwelded(selected, state))) {
+            return selected;
+        }
     }
     return null;
 }
@@ -455,6 +671,8 @@ export async function mon_wield_item(monster, env = {}) {
 
 export const _weaponInternals = Object.freeze({
     HAND_TO_HAND_WEAPONS,
+    POLEARMS,
+    RANGED_WEAPONS,
     artifactLight,
     resistsStoning,
     willWeld,
