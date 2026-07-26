@@ -77,7 +77,7 @@ function lineTerrain(monster, state) {
     if ((!deltaX && !deltaY)
         || !online2(goalX, goalY, monster.mx, monster.my)
         || distmin(deltaX, deltaY, 0, 0) >= BOLT_LIM) {
-        return { clear: false, boulders: 0 };
+        return { blocked: false, clear: false, boulders: 0 };
     }
 
     const stepX = Math.sign(deltaX);
@@ -93,11 +93,11 @@ function lineTerrain(monster, state) {
             || IS_WATERWALL(location.typ)
             || location.typ === LAVAWALL
             || closed_door(x, y, state)) {
-            return { clear: false, boulders };
+            return { blocked: true, clear: false, boulders };
         }
         if (sobj_at(BOULDER, x, y, state)) boulders++;
     } while (x !== goalX || y !== goalY);
-    return { clear: boulders === 0, boulders };
+    return { blocked: false, clear: boulders === 0, boulders };
 }
 
 // C refs: mthrowu.c lined_up()/linedup(), as used only by m_move()'s item
@@ -123,7 +123,10 @@ export function monsterItemSearchInLine(monster, env = {}) {
         || (!goalIsHero && terrain.clear)) {
         return true;
     }
-    if (!terrain.clear && terrain.boulders === 0) return false;
+    if (terrain.blocked
+        || (!terrain.clear && terrain.boulders === 0)) {
+        return false;
+    }
 
     const ignoresBoulders = throws_rocks(monster.data)
         || Boolean(m_carrying(monster, WAN_STRIKING, state));

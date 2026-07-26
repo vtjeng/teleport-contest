@@ -667,8 +667,21 @@ test('monster item-search line check preserves visibility and boulder draws',
         }), true);
 
         state.viz_array[monster.my][monster.mx] = 0;
-        // One intervening boulder makes linedup(..., 2) use rn2(3).
+        // blocking_terrain() wins even when an earlier boulder was counted.
+        // In C, neither wall nor closed-door rays reach rn2(2 + boulders).
         state.level.objects[7][7] = objectFor(state, BOULDER);
+        for (const blocking of [
+            { typ: STONE, flags: 0 },
+            { typ: DOOR, flags: D_CLOSED },
+        ]) {
+            locations.set('8,8', blocking);
+            assert.equal(monsterItemSearchInLine(monster, {
+                state, random: noDraw,
+            }), false);
+        }
+        locations.delete('8,8');
+
+        // A boulder-only ray reaches the conditional linedup(..., 2) draw.
         const calls = [];
         assert.equal(monsterItemSearchInLine(monster, {
             state,
