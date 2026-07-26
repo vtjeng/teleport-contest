@@ -8,10 +8,13 @@ import {
     MMOVE_DONE,
     MMOVE_MOVED,
     MMOVE_NOTHING,
+    NEED_HTH_WEAPON,
+    NEED_WEAPON,
     STRAT_ARRIVE,
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { dochug_fresh_monster } from '../js/monmove_dochug.js';
+import { AT_WEAP } from '../js/monsters.js';
 
 function makeState() {
     const uprops = [];
@@ -180,6 +183,50 @@ test('dochug stops after a pre-move item action', async () => {
         'use-item',
     ]);
 });
+
+test('dochug spends the action when its weapon gate selects a wield',
+    async () => {
+        const state = makeState();
+        const events = [];
+        const monster = makeMonster({
+            data: {
+                mattk: [{ aatyp: AT_WEAP }],
+                mflags2: 0,
+                mflags3: 0,
+            },
+            mux: 6,
+            muy: 4,
+            weapon_check: NEED_WEAPON,
+        });
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => {
+                events.push('range');
+                return {
+                    inrange: true,
+                    nearby: false,
+                    scared: false,
+                };
+            },
+            wieldMonsterItem: (subject) => {
+                assert.equal(subject.weapon_check, NEED_HTH_WEAPON);
+                events.push('wield');
+                return true;
+            },
+            moveMonster: () => assert.fail('wielding spends the action'),
+            attackHero: () => assert.fail('wielding suppresses attack'),
+        };
+
+        assert.equal(await dochug_fresh_monster(monster, env), 0);
+        assert.deepEqual(events, [
+            'preflight',
+            'wipe',
+            'apparxy',
+            'range',
+            'items',
+            'wield',
+        ]);
+    });
 
 test('dochug redraws a sleeping monster that stays asleep during hallucination',
     async () => {

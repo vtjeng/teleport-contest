@@ -36,7 +36,6 @@ import {
 } from './mondata.js';
 import {
     AT_MAGC,
-    AT_WEAP,
     PM_ERINYS,
     PM_GELATINOUS_CUBE,
     PM_KILLER_BEE,
@@ -88,6 +87,7 @@ import {
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { couldsee } from './vision.js';
+import { mon_wield_item, select_hwep } from './weapon.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 const SPECIAL_RESPONDERS = new Set([PM_SHRIEKER, PM_MEDUSA, PM_ERINYS]);
@@ -104,10 +104,10 @@ function unsupported(reason) {
     throw new UnsupportedSimpleMonsterActionError(reason);
 }
 
-function activeProperty(state, property) {
+function activeProperty(state, property, blockedMatters = true) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic)
-        && !value?.blocked;
+        && (!blockedMatters || !value?.blocked);
 }
 
 function liveOnMap(monster) {
@@ -147,7 +147,7 @@ function assertSimpleScanState(monster, state) {
     }
     if (is_hider(monster.data) || monster.data?.mlet === S_EEL)
         unsupported('monster hiding');
-    if (activeProperty(state, CONFLICT))
+    if (activeProperty(state, CONFLICT, false))
         unsupported('conflict combat');
     return true;
 }
@@ -193,9 +193,8 @@ function assertSimpleActionState(monster, state) {
         || monster.data?.pmidx === PM_GELATINOUS_CUBE) {
         unsupported('a special monster action');
     }
-    if (attacktype(monster.data, AT_WEAP)
-        || attacktype(monster.data, AT_MAGC))
-        unsupported('monster weapon or ranged action');
+    if (attacktype(monster.data, AT_MAGC))
+        unsupported('monster ranged or magical action');
 }
 
 function cloneIsaacContext(context) {
@@ -412,6 +411,8 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 monsterCanSeeHero: freshMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
                 preflightMonster: assertSimpleActionState,
+                selectRangedWeapon: () =>
+                    unsupported('monster ranged weapon selection'),
                 usePreMoveItems: (itemUser, itemEnv) => {
                     const selected = select_fresh_monster_item_action(
                         itemUser,
@@ -419,6 +420,22 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                     );
                     if (selected) unsupported('monster item use');
                     return false;
+                },
+                wieldMonsterItem: async (weaponUser, weaponEnv) => {
+                    const selectionEnv = {
+                        ...weaponEnv,
+                        touchArtifact: () =>
+                            unsupported('monster artifact weapon selection'),
+                    };
+                    const selected = select_hwep(
+                        weaponUser,
+                        selectionEnv,
+                    );
+                    if (selected
+                        && weaponUser.mw?.otyp !== selected.otyp) {
+                        unsupported('monster wield action');
+                    }
+                    return mon_wield_item(weaponUser, selectionEnv);
                 },
                 wakeMessage: env.planning ? () => {} : wake_msg,
                 wipeEngraving: wipeSimpleEngraving,

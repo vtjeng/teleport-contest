@@ -6,6 +6,7 @@ import {
     FOUNTAIN,
     IN_SIGHT,
     MON_FLOOR,
+    NEED_WEAPON,
     NORMAL_SPEED,
     OBJ_MINVENT,
     PIT,
@@ -20,6 +21,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     PM_DISPLACER_BEAST,
     PM_GIANT_RAT,
+    PM_GNOME,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_ORC_SHAMAN,
@@ -708,6 +710,19 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
+                name: 'pre-move wield',
+                reason: 'monster wield action',
+                prepare: async () => {
+                    const target = await prepareSelectedAction({
+                        adjacentHero: true,
+                        pmidx: PM_GNOME,
+                    });
+                    target.monster.minvent = monsterObject(DAGGER);
+                    target.monster.weapon_check = NEED_WEAPON;
+                    return target;
+                },
+            },
+            {
                 name: 'item search',
                 reason: 'ordinary monster item interaction',
                 prepare: async () => {
@@ -796,6 +811,22 @@ test('simple preflight admits source-inert monster inventory', async () => {
         );
     }
 });
+
+test('simple preflight admits inert AT_WEAP capability and inventory',
+    async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+        target.monster.minvent = monsterObject(POT_HEALING);
+        const before = completePreflightSnapshot(target.replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(
+                completePreflightSnapshot(target.replay),
+                before,
+                `inert AT_WEAP inventory, attempt ${attempt + 1}`,
+            );
+        }
+    });
 
 test('simple preflight ignores an unselected rock during item search',
     async () => {
