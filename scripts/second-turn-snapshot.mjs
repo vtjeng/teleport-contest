@@ -32,14 +32,14 @@ function liveMonsters(state) {
     return monsters;
 }
 
-function rngContext(state) {
+function rngContext(context) {
     return {
-        a: state.coreCtx.a,
-        b: state.coreCtx.b,
-        c: state.coreCtx.c,
-        m: [...state.coreCtx.m],
-        n: state.coreCtx.n,
-        r: [...state.coreCtx.r],
+        a: context.a,
+        b: context.b,
+        c: context.c,
+        m: [...context.m],
+        n: context.n,
+        r: [...context.r],
     };
 }
 
@@ -67,6 +67,14 @@ export function completeSecondTurnSnapshot(state, replay) {
             toplin: state.nhDisplay.toplin,
             toplines: state.nhDisplay.toplines,
             ttyToplines: state._ttyToplines,
+            glyphNotices: structuredClone(
+                state._glyphUpdateNotices ?? null,
+            ),
+            glyphNoticeFrameTracker: structuredClone(
+                state._glyphNoticeFrameTracker ?? null,
+            ),
+            emittingGlyphNotices:
+                state._emittingGlyphUpdateNotices ?? false,
         },
         gg: structuredClone(state.gg),
         hero: structuredClone(state.u),
@@ -81,11 +89,16 @@ export function completeSecondTurnSnapshot(state, replay) {
                 replay.getAnimationFramesByStep(),
             ),
             cursors: structuredClone(replay.getCursors()),
+            lastRngIndex: replay._lastRngIdx,
+            pendingAnimations: structuredClone(
+                replay._pendingAnimFrames,
+            ),
             rngSlices: structuredClone(replay.getRngSlices()),
             screens: [...replay.getScreens()],
         },
         rng: {
-            context: rngContext(state),
+            coreContext: rngContext(state.coreCtx),
+            displayContext: rngContext(state.displayCtx),
             log: [...getRngLog()],
         },
         scheduler: {

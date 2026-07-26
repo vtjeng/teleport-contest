@@ -13,6 +13,7 @@ import { attacktype } from '../js/mondata.js';
 import { AT_WEAP } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 import { Terminal } from '../js/terminal.js';
+import { renderCell } from '../frozen/screen-decode.mjs';
 import {
     loadSecondCompleteTurnFixture,
     loadSecondCompleteTurnRecipe,
@@ -141,6 +142,33 @@ function integrationOracle(replay) {
     };
 }
 
+function canonicalGrid(grid) {
+    return grid.map((row) => row.map((cell) => {
+        const ch = renderCell(cell);
+        if (ch === ' ') {
+            // Match diff-fresh's scorer-equivalent treatment: bold and
+            // foreground color are invisible on a blank cell.
+            const attr = (cell.attr ?? 0) & 0x5;
+            return [ch, attr ? cell.color : null, attr];
+        }
+        return [ch, cell.color, cell.attr ?? 0];
+    }));
+}
+
+function cPrefixOracle(replay) {
+    const rng = normalizedRngLog();
+    const screens = replay.getScreens().map(
+        (screen) => canonicalGrid(JSON.parse(screen)),
+    );
+    return {
+        cursors: structuredClone(replay.getCursors()),
+        rngCount: rng.length,
+        rngDigest: digest(rng),
+        screenCount: screens.length,
+        screenDigest: digest(screens),
+    };
+}
+
 function assertNamedCoverage(name) {
     if (name === 'WeaponEmpty') {
         let found = false;
@@ -197,10 +225,14 @@ async function withSerializedGrids(action) {
 test('second-turn fresh recipe contains only simple replay inputs', () => {
     const fixture = loadSecondCompleteTurnFixture();
     const recipe = loadSecondCompleteTurnRecipe();
-    assert.equal(fixture.version, 2);
+    assert.equal(fixture.version, 3);
     assert.equal(recipe.version, 5);
     assert.equal(recipe.segments.length, 17);
     assert.equal(fixture.expectations.length, recipe.segments.length);
+    assert.deepEqual(
+        fixture.excludedPrefixes.map(({ name }) => name),
+        ['TrapBoundary', 'WeaponInventory'],
+    );
     assert.deepEqual(
         new Set(recipe.segments.map(({ moves }) => moves)),
         new Set([
@@ -254,43 +286,21 @@ test('all checked-in second-turn cases reach their exact prompt state',
 
 test('excluded selected actions remain completely retryable',
     async () => {
-        const cases = [
-            {
-                name: 'trap',
-                reason: 'trap activation',
-                // This source-derived seed selects an initial monster move
-                // onto a trap during the second elapsed phase.
-                input: {
-                    seed: 840003,
-                    datetime: DATETIME,
-                    nethackrc: 'OPTIONS=name:TrapBoundary,role:Healer,'
-                        + 'race:human,gender:female,align:neutral,!legacy,'
-                        + '!tutorial,!splash_screen',
-                    moves: ' ..',
-                },
-            },
-            {
-                name: 'ranged weapon',
-                reason: 'monster ranged weapon action',
-                // Fresh comparison showed this carried weapon is selected
-                // after the monster moves, before thrwmu() attacks.
-                input: {
-                    seed: 2026073002,
-                    datetime: '20260724100000',
-                    nethackrc: 'OPTIONS=name:WeaponInventory,role:Healer,'
-                        + 'race:human,gender:female,align:neutral,!legacy,'
-                        + '!tutorial,!splash_screen',
-                    moves: ' n.',
-                },
-            },
-        ];
+        const { excludedPrefixes: cases } = loadSecondCompleteTurnFixture();
         await withSerializedGrids(async () => {
             for (const actionCase of cases) {
                 const replay = await runSegment({
                     ...actionCase.input,
                     recorderIsDst: RECORDER_IS_DST,
                 });
-                assert.equal(replay.getScreens().length, 3, actionCase.name);
+                // These literal output oracles come from new C recordings
+                // truncated at the last supported prompt. The untruncated
+                // recordings continue into the excluded source action.
+                assert.deepEqual(
+                    cPrefixOracle(replay),
+                    actionCase.oracle,
+                    `${actionCase.name} C prefix`,
+                );
                 const beforeRetry = completeSecondTurnSnapshot(game, replay);
 
                 for (let attempt = 0; attempt < 2; ++attempt) {

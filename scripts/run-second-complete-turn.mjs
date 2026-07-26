@@ -28,10 +28,11 @@ export function loadSecondCompleteTurnFixture() {
     const fixture = JSON.parse(
         readFileSync(SECOND_COMPLETE_TURN_FIXTURE, 'utf8'),
     );
-    if (!fixture || fixture.version !== 2
-        || !Array.isArray(fixture.expectations)) {
+    if (!fixture || fixture.version !== 3
+        || !Array.isArray(fixture.expectations)
+        || !Array.isArray(fixture.excludedPrefixes)) {
         throw new Error(
-            `${SECOND_COMPLETE_TURN_FIXTURE} must be a v2 second-turn fixture`,
+            `${SECOND_COMPLETE_TURN_FIXTURE} must be a v3 second-turn fixture`,
         );
     }
     const recipe = validateCleanRecipe(
@@ -69,6 +70,36 @@ export function loadSecondCompleteTurnFixture() {
             throw new Error(
                 `${SECOND_COMPLETE_TURN_FIXTURE} expectation ${index + 1} `
                 + 'must include hero-track and scheduler oracles',
+            );
+        }
+        names.add(name);
+    }
+    for (let index = 0; index < fixture.excludedPrefixes.length; ++index) {
+        const excluded = fixture.excludedPrefixes[index];
+        const name = excluded?.name;
+        const oracle = excluded?.oracle;
+        if (typeof name !== 'string' || !name.length || names.has(name)
+            || typeof excluded.reason !== 'string'
+            || !excluded.reason.length
+            || !oracle
+            || !Array.isArray(oracle.cursors)
+            || !Number.isInteger(oracle.rngCount)
+            || typeof oracle.rngDigest !== 'string'
+            || !Number.isInteger(oracle.screenCount)
+            || typeof oracle.screenDigest !== 'string') {
+            throw new Error(
+                `${SECOND_COMPLETE_TURN_FIXTURE} excluded prefix `
+                + `${index + 1} is incomplete`,
+            );
+        }
+        validateCleanRecipe(
+            { version: 5, segments: [excluded.input] },
+            `${SECOND_COMPLETE_TURN_FIXTURE} excluded prefix ${index + 1}`,
+        );
+        if (!excluded.input.nethackrc.includes(`name:${name},`)) {
+            throw new Error(
+                `${SECOND_COMPLETE_TURN_FIXTURE} excluded prefix `
+                + `${index + 1} does not match its input`,
             );
         }
         names.add(name);

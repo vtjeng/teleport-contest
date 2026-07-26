@@ -334,6 +334,64 @@ test('complete retry snapshot includes every audited scheduler root',
         );
     });
 
+test('complete retry snapshot detects each deferred output owner',
+    async () => {
+        const cases = [
+            {
+                name: 'display RNG',
+                mutate: ({ state }) => {
+                    state.displayCtx.a += 1n;
+                },
+            },
+            {
+                name: 'glyph notice queue',
+                mutate: ({ state }) => {
+                    state._glyphUpdateNotices = [{ message: 'pending' }];
+                },
+            },
+            {
+                name: 'glyph frame tracker',
+                mutate: ({ state }) => {
+                    state._glyphNoticeFrameTracker = {
+                        pending: new Map([[17, { gnew: 1 }]]),
+                    };
+                },
+            },
+            {
+                name: 'glyph notice emission',
+                mutate: ({ state }) => {
+                    state._emittingGlyphUpdateNotices = true;
+                },
+            },
+            {
+                name: 'pending animation frame',
+                mutate: ({ replay }) => {
+                    replay._pendingAnimFrames.push({
+                        cursor: [3, 4, 1],
+                        screen: 'pending',
+                    });
+                },
+            },
+            {
+                name: 'RNG capture index',
+                mutate: ({ replay }) => {
+                    replay._lastRngIdx += 1;
+                },
+            },
+        ];
+
+        for (const owner of cases) {
+            const target = await prepareSelectedAction();
+            const before = completeSecondTurnSnapshot(game, target.replay);
+            owner.mutate({ replay: target.replay, state: game });
+            assert.notDeepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                owner.name,
+            );
+        }
+    });
+
 test('simple preflight stops before current-square liquid and engraving effects',
     async () => {
         const cases = [
