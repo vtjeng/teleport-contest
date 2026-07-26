@@ -41,9 +41,11 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
+import { M1_FLY } from '../js/monsters.js';
 import {
     _startupA11yInternals,
     collectLookaroundMessages,
+    collectMonsterMovementMessage,
     collectMonsterNoticeMessage,
     collectMonsterNoticeMessages,
     emitStartupA11yNotices,
@@ -142,16 +144,19 @@ test('accessibility startup options retain their source-owned state', () => {
     assert.deepEqual(parseNethackrc('').a11y, {
         accessiblemsg: false,
         glyph_updates: false,
+        mon_movement: false,
         mon_notices: false,
         mon_notices_blocked: 0,
     });
     assert.deepEqual(
         parseNethackrc(
-            'OPTIONS=accessiblemsg,mention_map,spot_monsters,!accessiblemsg',
+            'OPTIONS=accessiblemsg,mention_map,mon_movement,'
+                + 'spot_monsters,!accessiblemsg',
         ).a11y,
         {
             accessiblemsg: true,
             glyph_updates: true,
+            mon_movement: true,
             mon_notices: true,
             mon_notices_blocked: 0,
         },
@@ -388,6 +393,91 @@ test('notice_mon updates one monster only while its option is active', () => {
     assert.equal(collectMonsterNoticeMessage(subject, state), null);
     assert.equal(subject.mspotted, true);
 });
+
+test('monster movement messages classify source-relative distance', () => {
+    const state = startupState(20, 10);
+    state.a11y.mon_movement = true;
+    const subject = {
+        data: {
+            pmnames: [null, null, 'goblin'],
+            mflags1: 0,
+            mmove: 12,
+        },
+        mx: 21,
+        my: 10,
+        mhp: 4,
+        mspotted: true,
+    };
+    const moved = (oldX, oldY, newX, newY) => {
+        subject.mx = newX;
+        subject.my = newY;
+        state.viz_array = Array.from(
+            { length: ROWNO },
+            () => new Uint8Array(COLNO),
+        );
+        reveal(state, newX, newY);
+        return collectMonsterMovementMessage(
+            subject,
+            oldX,
+            oldY,
+            state,
+        );
+    };
+
+    // Squared distances 1, 16, 25, and 81 cover next-to, close in either
+    // direction, and beyond BOLT_LIM.
+    assert.equal(moved(22, 10, 21, 10), 'The goblin moves next to you.');
+    assert.equal(moved(25, 10, 24, 10), 'The goblin moves closer.');
+    assert.equal(moved(24, 10, 25, 10), 'The goblin moves further away.');
+    assert.equal(
+        moved(28, 10, 29, 10),
+        'The goblin moves in the distance.',
+    );
+
+    state.a11y.accessiblemsg = true;
+    assert.equal(
+        moved(25, 10, 24, 10),
+        '(4east): The goblin moves closer.',
+    );
+});
+
+test('monster movement messages require the option, sight, and prior notice',
+    () => {
+        const state = startupState(20, 10);
+        const subject = {
+            data: {
+                pmnames: [null, null, 'fog cloud'],
+                mflags1: M1_FLY,
+                mmove: 12,
+            },
+            mx: 22,
+            my: 10,
+            mhp: 4,
+            mspotted: true,
+        };
+        reveal(state, subject.mx, subject.my);
+
+        assert.equal(
+            collectMonsterMovementMessage(subject, 23, 10, state),
+            null,
+        );
+        state.a11y.mon_movement = true;
+        assert.equal(
+            collectMonsterMovementMessage(subject, 23, 10, state),
+            'The fog cloud flies closer.',
+        );
+        subject.mspotted = false;
+        assert.equal(
+            collectMonsterMovementMessage(subject, 23, 10, state),
+            null,
+        );
+        subject.mspotted = true;
+        state.viz_array[subject.my][subject.mx] = 0;
+        assert.equal(
+            collectMonsterMovementMessage(subject, 23, 10, state),
+            null,
+        );
+    });
 
 test('monster notices retain saddle adjectives except for given names', () => {
     const state = startupState(20, 10);

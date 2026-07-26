@@ -341,21 +341,25 @@ test('use_darkgray preserves the source option state', () => {
 
 test('explicit boolean values reach their source-owned state', () => {
     const parsed = parseNethackrc(
-        'OPTIONS=mention_map:true,spot_monsters:false,menu_overlay:false,'
-            + 'altmeta:true',
+        'OPTIONS=mention_map:true,mon_movement:true,'
+            + 'spot_monsters:false,menu_overlay:false,altmeta:true',
     );
     assert.equal(parsed.a11y.glyph_updates, true);
+    assert.equal(parsed.a11y.mon_movement, true);
     assert.equal(parsed.a11y.mon_notices, false);
     assert.equal(parsed.iflags.menu_overlay, false);
     assert.equal(parsed.iflags.altmeta, true);
     assert.equal(Object.hasOwn(parsed.flags, 'mention_map'), false);
+    assert.equal(Object.hasOwn(parsed.flags, 'mon_movement'), false);
     assert.equal(Object.hasOwn(parsed.flags, 'spot_monsters'), false);
     assert.equal(Object.hasOwn(parsed.flags, 'menu_overlay'), false);
 
     const negated = parseNethackrc(
-        'OPTIONS=!mention_map,!spot_monsters,!menu_overlay,!altmeta',
+        'OPTIONS=!mention_map,!mon_movement,!spot_monsters,'
+            + '!menu_overlay,!altmeta',
     );
     assert.equal(negated.a11y.glyph_updates, false);
+    assert.equal(negated.a11y.mon_movement, false);
     assert.equal(negated.a11y.mon_notices, false);
     assert.equal(negated.iflags.menu_overlay, false);
     assert.equal(negated.iflags.altmeta, false);

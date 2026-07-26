@@ -319,6 +319,7 @@ function defaultResult() {
         a11y: {
             accessiblemsg: false,
             glyph_updates: false,
+            mon_movement: false,
             mon_notices: false,
             mon_notices_blocked: 0,
         },
@@ -1691,6 +1692,8 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.a11y.accessiblemsg = enabled;
     } else if (name === 'mention_map') {
         result.a11y.glyph_updates = enabled;
+    } else if (name === 'mon_movement') {
+        result.a11y.mon_movement = enabled;
     } else if (name === 'spot_monsters') {
         result.a11y.mon_notices = enabled;
     } else if (name === 'menu_overlay') {
@@ -1727,7 +1730,8 @@ const HANDLED_BOOLEAN_OPTIONS = new Set([
     'use_inverse',
     'hilite_pet', 'hilite_pile', 'hitpointbar', 'legacy', 'tutorial',
     'splash_screen',
-    'status_updates', 'accessiblemsg', 'mention_map', 'spot_monsters',
+    'status_updates', 'accessiblemsg', 'mention_map', 'mon_movement',
+    'spot_monsters',
     'menu_overlay', 'eight_bit_tty', 'customcolors', 'customsymbols',
     'altmeta', 'cmdassist', 'safe_wait', 'pushweapon', 'rest_on_space',
     'showexp', 'time', 'verbose',

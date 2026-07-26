@@ -435,6 +435,42 @@ test('simple postmov plans notice state and awaits live notice before redraw',
         ]);
     });
 
+test('simple movement output precedes track update and redraw', async () => {
+    const target = await prepareSelectedAction();
+    game.a11y.mon_movement = true;
+    game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
+    target.monster.mspotted = true;
+
+    const output = deferred();
+    const events = [];
+    const pending = runSimpleMonsterAction(target.monster, {
+        state: game,
+        message: (text) => {
+            events.push(`message:${text}`);
+            assert.deepEqual(target.monster.mtrack[0], { x: 0, y: 0 });
+            return output.promise;
+        },
+        redraw: (x, y) => events.push(`redraw:${x},${y}`),
+    });
+    for (let turn = 0; turn < 8 && !events.length; ++turn)
+        await Promise.resolve();
+
+    assert.deepEqual(events, ['message:The giant rat moves closer.']);
+    assert.deepEqual(target.monster.mtrack[0], { x: 0, y: 0 });
+
+    output.resolve();
+    await pending;
+    assert.deepEqual(target.monster.mtrack[0], {
+        x: target.monsterX,
+        y: target.heroY,
+    });
+    assert.deepEqual(events, [
+        'message:The giant rat moves closer.',
+        `redraw:${target.monsterX},${target.heroY}`,
+        `redraw:${target.destinationX},${target.heroY}`,
+    ]);
+});
+
 test('simple preflight preserves parked-guard source ordering', async () => {
     for (const due of [true, false]) {
         const target = await prepareSelectedAction();

@@ -115,6 +115,21 @@ export function mindless(species) { return flag1(species, M.M1_MINDLESS); }
 export function humanoid(species) { return flag1(species, M.M1_HUMANOID); }
 export function is_animal(species) { return flag1(species, M.M1_ANIMAL); }
 export function slithy(species) { return flag1(species, M.M1_SLITHY); }
+
+// C ref: mondata.c locomotion(). This is used by the live
+// monmove.c:msg_mon_movement() path.
+export function locomotion(species, fallback) {
+    const capitalized = fallback[0] === fallback[0].toUpperCase();
+    const forms = (lower, upper) => capitalized ? upper : lower;
+    if (is_floater(species)) return forms('float', 'Float');
+    if (is_flyer(species)) return forms('fly', 'Fly');
+    if (slithy(species)) return forms('slither', 'Slither');
+    if (amorphous(species)) return forms('ooze', 'Ooze');
+    if (!species?.mmove) return forms('wiggle', 'Wiggle');
+    if (nolimbs(species)) return forms('crawl', 'Crawl');
+    return fallback;
+}
+
 export function regenerates(species) { return flag1(species, M.M1_REGEN); }
 export function perceives(species) { return flag1(species, M.M1_SEE_INVIS); }
 export function can_teleport(species) { return flag1(species, M.M1_TPORT); }

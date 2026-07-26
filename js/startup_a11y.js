@@ -12,6 +12,7 @@ import {
     AM_NEUTRAL,
     AM_SANCTUM,
     BLINDED,
+    BOLT_LIM,
     COLNO,
     CLOUD,
     COULD_SEE,
@@ -87,7 +88,11 @@ import { cansee } from './vision.js';
 import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
-import { hliquid, rndmonnam } from './do_name.js';
+import {
+    capitalizedMonsterName,
+    hliquid,
+    rndmonnam,
+} from './do_name.js';
 import {
     fruit_from_indx,
     makeplural,
@@ -104,6 +109,7 @@ import {
     is_clinger,
     is_flyer,
     is_hider,
+    locomotion,
 } from './mondata.js';
 import {
     AMULET_CLASS,
@@ -1634,6 +1640,55 @@ export function sensesMonster(monster, state) {
 export function canSpotMonster(monster, state) {
     if (!monster || monster.mhp < 1) return false;
     return canSeeMonster(monster, state) || sensesMonster(monster, state);
+}
+
+function singularMovementVerb(species) {
+    const verb = locomotion(species, 'move');
+    const last = verb.at(-1).toLowerCase();
+    const prior = verb.at(-2)?.toLowerCase() ?? '';
+    if ('zxs'.includes(last)
+        || (last === 'h' && 'cs'.includes(prior))) {
+        return `${verb}es`;
+    }
+    if (last === 'y' && !'aeiou'.includes(prior))
+        return `${verb.slice(0, -1)}ies`;
+    return `${verb}s`;
+}
+
+// C ref: monmove.c msg_mon_movement(). The old and new squared distances
+// are measured from the hero's current square after the command.
+export function collectMonsterMovementMessage(
+    monster,
+    oldX,
+    oldY,
+    state,
+) {
+    if (!state.a11y?.mon_movement
+        || !canSpotMonster(monster, state)
+        || !monster.mspotted) {
+        return null;
+    }
+
+    const dx = monster.mx - state.u.ux;
+    const dy = monster.my - state.u.uy;
+    const distance = dx * dx + dy * dy;
+    const oldDx = oldX - state.u.ux;
+    const oldDy = oldY - state.u.uy;
+    const oldDistance = oldDx * oldDx + oldDy * oldDy;
+    const nextToHero = distance <= 2;
+    const close = !nextToHero && distance <= BOLT_LIM * BOLT_LIM;
+    const suffix = nextToHero
+        ? ' next to you'
+        : close
+            ? distance <= oldDistance ? ' closer' : ' further away'
+            : ' in the distance';
+    return messageAt(
+        `${capitalizedMonsterName(monster, state)} `
+            + `${singularMovementVerb(monster.data)}${suffix}.`,
+        monster.mx,
+        monster.my,
+        state,
+    );
 }
 
 function canNoticeMonster(monster, state) {

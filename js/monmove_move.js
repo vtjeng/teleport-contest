@@ -56,6 +56,8 @@ import { m_in_out_region } from './region.js';
 import { rn2 } from './rng.js';
 import { gettrack } from './track.js';
 import { couldsee } from './vision.js';
+import { collectMonsterMovementMessage } from './startup_a11y.js';
+import { ttyPline } from './tty_message.js';
 
 function activeProperty(state, property) {
     const value = state.u?.uprops?.[property];
@@ -350,6 +352,16 @@ export async function m_move_fresh(monster, rawEnv = {}) {
 
     remove_monster(oldX, oldY, state);
     place_monster(monster, nextX, nextY, state);
+    const movementMessage = collectMonsterMovementMessage(
+        monster,
+        oldX,
+        oldY,
+        state,
+    );
+    if (movementMessage && !env.planning) {
+        const message = rawEnv.message ?? ttyPline;
+        await message(movementMessage, state, env);
+    }
     mon_track_add(monster, oldX, oldY);
     return postMonsterMove(
         monster,

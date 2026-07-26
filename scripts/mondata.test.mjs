@@ -75,6 +75,7 @@ import {
     likes_magic,
     likes_objs,
     little_to_big,
+    locomotion,
     mon_knows_traps,
     monster_resists_element,
     name_to_mon,
@@ -641,6 +642,28 @@ test('movement predicates are exact projections of permonst flags', () => {
                 || species.mattk.some((attack) => attack.aatyp === M.AT_WEAP),
         );
     }
+});
+
+test('locomotion follows source trait precedence for movement messages', () => {
+    const ordinary = {
+        mflags1: 0,
+        mlet: M.S_ANT,
+        mmove: 12,
+        msize: M.MZ_MEDIUM,
+    };
+    const form = (overrides, fallback = 'move') => locomotion(
+        { ...ordinary, ...overrides },
+        fallback,
+    );
+
+    assert.equal(form({ mlet: M.S_EYE }), 'float');
+    assert.equal(form({ mflags1: M.M1_FLY }), 'fly');
+    assert.equal(form({ mflags1: M.M1_SLITHY }), 'slither');
+    assert.equal(form({ mflags1: M.M1_AMORPHOUS }), 'ooze');
+    assert.equal(form({ mmove: 0 }), 'wiggle');
+    assert.equal(form({ mflags1: M.M1_NOLIMBS }), 'crawl');
+    assert.equal(form({}), 'move');
+    assert.equal(form({ mflags1: M.M1_FLY }, 'Move'), 'Fly');
 });
 
 test('demon rank and conflict resistance preserve source composition', () => {
