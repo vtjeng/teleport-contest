@@ -27,7 +27,9 @@ upstream source.
 
 ## Current milestone: exploration
 
-**Status:** implementation resumed after the third full correctness review.
+**Status:** implementation and end-to-end evidence are complete after the
+third full correctness review; the expanded range is ready for a new full
+correctness audit.
 The first review covered
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`.
 The review confirmed seven production gaps and six test gaps in the active
@@ -65,7 +67,9 @@ food and corridor coverage is committed at `bdf14d8` and `2d03208`. Fresh
 comparison then exposed the later `dochug()` branch into
 `mthrowu.c:thrwmu()`: complete read-only ranged-weapon selection and its atomic
 unsupported-action stop are committed at `2ce30ba`. The final runner, fixture,
-and integration-test bundle remains open.
+and integration-test bundle is committed at `fe906f7`. Its 17-case fresh
+matrix covers the live simple second-command boundary, and the paired
+integration test keeps selected trap and ranged-weapon exclusions retryable.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
