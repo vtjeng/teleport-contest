@@ -2275,6 +2275,66 @@
         ]
       },
       "recordedAt": "2026-07-24T09:09:44.569Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+        "hero": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73",
+        "objects": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+        "generation": "76109518c4e879b444ee53cddd9617f875780888",
+        "monsters": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+        "world-effects": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+        "commands": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+        "display": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+        "runtime": "3b6c38de148679a5cc8313d755ec906fa95627c3",
+        "replay": "3b6c38de148679a5cc8313d755ec906fa95627c3"
+      },
+      "head": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime",
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full correctness audit of exact range 3b6c38de148679a5cc8313d755ec906fa95627c3..f97bd584d5cd9262f27921953b8f55e792a58f10. Session 019f9c7a-086b-7f80-a4e9-b94d52bfa03f; consolidated adjudicator 019f9c95-b889-7ec3-820c-7a256cbe6b1c; gpt-5.6-sol high; elapsed 2600 seconds; final usage 7332324 input, 7184128 cached input, 18658 output, and 5602 reasoning tokens. Correctness, readability-risk, test-quality, variable-flow, concurrency, and one consolidated adjudicator completed; performance was omitted because the range introduced no plausible material resource-cost trigger. Counts: 12 raw and deduplicated, 6 confirmed and applied in linked audit-fix commits 84964f8, a07da14, 835795e, and ea815b9, 6 rejected, 0 deferred or unverified. The production fix stops closed and locked door moves before hero intent mutates. Five test-oracle fixes cover all deferred output and display-RNG owners, exact fresh-C prefixes for excluded trap and ranged actions, per-segment fresh output boundaries, and two-retry current-square liquid and engraving stops. Rejected proposals concerned shared clone aliases, mandatory public preflight, all-upkeep preflight, a runSegment termination tag, readable state digests, and storage assertions; direct call-path and source counter-evidence resolved each. Warning: two retry-snapshot findings overlap operationally but cover distinct owners; no finder or adjudication verdict was lost. Post-fix validation passed 23 focused tests, all 1613 tests, all four generated-data checks, the exact 17-case fresh matrix with 46255 PRNG calls and 68 screens/cursors, two exact excluded fresh-C prefixes totaling 5793 PRNG calls and 6 screens/cursors, and diff checks. Development remained 77658 RNG values, 207 screens, and 238 cursors. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2600,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 12,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 5,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "Closed and locked doors bypassed atomic second-command admission before mutating hero intent",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-26T04:31:48.714Z"
     }
   ]
 }
