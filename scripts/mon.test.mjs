@@ -14,7 +14,7 @@ import {
     STRAT_WAITMASK,
 } from '../js/const.js';
 import {
-    adaptMonsterActionEnvironment,
+    adaptMonsterActionToDochugwSignature,
     counter_were,
     curr_mon_load,
     decide_to_shapeshift,
@@ -146,28 +146,31 @@ function actionOperations(overrides = {}) {
         canSeeHero: () => false,
         canSeeSquare: () => false,
         fightMonster: () => false,
-        moveMonster() {},
+        dochugwAction() {},
         ...overrides,
     };
 }
 
-test('monster action adapter passes the normalized state and RNG environment',
+test('monster action adapter skips chug, forwards env, and returns the result',
     async () => {
         const subject = { sentinel: 'monster' };
         const state = { sentinel: 'state' };
         const random = { sentinel: 'random' };
         const env = { state, random };
-        const action = adaptMonsterActionEnvironment(
+        const expectedResult = 17;
+        const action = adaptMonsterActionToDochugwSignature(
             async (monsterArg, envArg) => {
                 assert.equal(monsterArg, subject);
                 assert.equal(envArg, env);
                 assert.equal(envArg.state, state);
                 assert.equal(envArg.random, random);
-                return 17;
+                return expectedResult;
             },
         );
 
-        assert.equal(await action(subject, true, env), 17);
+        // true occupies C dochugw()'s middle chug argument, which the
+        // environment-owned action does not accept.
+        assert.equal(await action(subject, true, env), expectedResult);
     });
 
 test('wake_nearto wakes only living monsters inside the strict range',
@@ -757,7 +760,7 @@ test('movemon_singlemon preserves active-monster cleanup and move order', async 
             });
             return false;
         },
-        moveMonster(_monster, chug) {
+        dochugwAction(_monster, chug) {
             events.push(`move:${chug}`);
         },
     });
@@ -795,7 +798,9 @@ test('movemon_singlemon stops after a lethal or relocating liquid effect', async
                 events.push('liquid');
                 return true;
             },
-            moveMonster: () => assert.fail('liquid effect ends the action'),
+            dochugwAction: () => assert.fail(
+                'liquid effect ends the action',
+            ),
         }),
     }), false);
     assert.deepEqual(events, ['every', 'bypasses', 'liquid']);
@@ -825,7 +830,7 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
             // A different ordinary worn bit proves runtime gear changed.
             current.misc_worn_check |= 0x10;
         },
-        moveMonster: () => assert.fail('equipping consumes this action'),
+        dochugwAction: () => assert.fail('equipping consumes this action'),
     });
 
     assert.equal(await movemon_singlemon(equipping, {
@@ -845,7 +850,7 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
         state: unchangedState,
         ...actionOperations({
             dowear() {},
-            moveMonster: () => { ++unchangedMoves; },
+            dochugwAction: () => { ++unchangedMoves; },
         }),
     }), false);
     assert.equal(unchangedMoves, 1);
@@ -866,7 +871,7 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
         state: closeState,
         ...actionOperations({
             dowear: () => assert.fail('close hostile retains I_SPECIAL'),
-            moveMonster: () => { ++moved; },
+            dochugwAction: () => { ++moved; },
         }),
     }), false);
     assert.equal(moved, 1);
@@ -890,7 +895,7 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
                 ++wore;
                 current.misc_worn_check |= 0x10;
             },
-            moveMonster: () => assert.fail('remembered distance equips'),
+            dochugwAction: () => assert.fail('remembered distance equips'),
         }),
     }), false);
     assert.equal(wore, 1);
@@ -911,7 +916,7 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
         state: mistakenCloseState,
         ...actionOperations({
             dowear: () => assert.fail('remembered proximity defers gear'),
-            moveMonster: () => { ++mistakenCloseMoves; },
+            dochugwAction: () => { ++mistakenCloseMoves; },
         }),
     }), false);
     assert.equal(mistakenCloseMoves, 1);
@@ -928,7 +933,7 @@ test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
         state: hiddenState,
         ...actionOperations({
             restrap: () => true,
-            moveMonster: () => { ++moves; },
+            dochugwAction: () => { ++moves; },
         }),
     }), false);
     assert.equal(moves, 0);
@@ -939,7 +944,7 @@ test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
         state: hiddenState,
         ...actionOperations({
             restrap: () => false,
-            moveMonster: () => { ++moves; },
+            dochugwAction: () => { ++moves; },
         }),
     }), false);
     assert.equal(moves, 0);
@@ -951,7 +956,7 @@ test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
         state: hiddenState,
         ...actionOperations({
             restrap: () => false,
-            moveMonster: () => { ++moves; },
+            dochugwAction: () => { ++moves; },
         }),
     }), false);
     assert.equal(moves, 0);
@@ -962,7 +967,7 @@ test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
         state: hiddenState,
         ...actionOperations({
             restrap: () => false,
-            moveMonster: () => { ++moves; },
+            dochugwAction: () => { ++moves; },
         }),
     }), false);
     assert.equal(moves, 1);
@@ -984,7 +989,7 @@ test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
         ...actionOperations({
             canSeeMonster: () => false,
             hideUnder: () => true,
-            moveMonster: () => { ++moves; },
+            dochugwAction: () => { ++moves; },
         }),
     }), false);
     assert.deepEqual(bounds, [4]);
@@ -997,7 +1002,7 @@ test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
         ...actionOperations({
             canSeeMonster: () => true,
             hideUnder: () => assert.fail('visible eel must not re-hide'),
-            moveMonster: () => { ++moves; },
+            dochugwAction: () => { ++moves; },
         }),
     }), false);
     assert.equal(moves, 2);
@@ -1031,7 +1036,9 @@ test('movemon_singlemon keeps conflict combat as the last pre-move action', asyn
                 events.push('fight');
                 return true;
             },
-            moveMonster: () => assert.fail('successful fight ends the action'),
+            dochugwAction: () => assert.fail(
+                'successful fight ends the action',
+            ),
         }),
     }), false);
     assert.deepEqual(events, ['every', 'liquid', 'hero', 'square', 'fight']);
@@ -1041,14 +1048,14 @@ test('movemon_singlemon preflights downstream owners before mutation', async () 
     const subject = actionMonster();
     const state = actionState(subject);
     const operations = actionOperations();
-    delete operations.moveMonster;
+    delete operations.dochugwAction;
     let everyTurnCalls = 0;
     operations.everyTurnEffect = () => { ++everyTurnCalls; };
 
     await assert.rejects(movemon_singlemon(subject, {
         state,
         ...operations,
-    }), /moveMonster/);
+    }), /dochugwAction/);
     assert.equal(subject.movement, NORMAL_SPEED);
     assert.equal(everyTurnCalls, 0);
     assert.deepEqual(state.context.objsplit, {
