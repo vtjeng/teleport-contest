@@ -53,7 +53,7 @@ validated.
 | 7 | `monmove.c:dochugw()` notice wrapper | Run the ordinary action while preserving the occupation-interruption seam. New games have no active occupation. | `js/monmove.js` | done | Source owner `e74c756`, live consumer `2283141`. |
 | 8 | `monmove.c:dochug()` ordinary stay gates | Preserve immobile, waiting, sleeping/disturb, and no-action results for ordinary D:1 monsters. | `js/monmove_dochug.js` | done | Source-owned `wake_msg()` and awaited live wiring committed at `d327351`. |
 | 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. Stop before attack or special-action dispatch. | `js/monmove_dochug.js` | done | Focused action tests; excluded paths stop in the atomic planner. |
-| 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `m_search_items()`, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js` plus a dedicated item-search owner if needed to stay reviewable | missing | The blocking-terrain predicate is fixed at `419b7c1`. Port the source-ordered read-only item-selection pass so ignored objects do not stop a supported move. |
+| 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, `m_search_items()`, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js`, `js/monmove_items.js`, and `js/muse.js` | done | Blocking-terrain admission is fixed at `419b7c1`; source-ordered item preference, scan, goal selection, ignored objects, and atomic selected-interaction stops are committed at `aa7b9e4`. |
 | 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, emit source-ordered movement accessibility output, redraw, or return the source no-move status. Stop before combat, displacement, traps, selected object interactions, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js`, the canonical accessibility option owner, and a thin `monmove.c` adapter | missing | Port `msg_mon_movement()` with its option state, conditions, wording, coordinates, and ordering. Add the no-move `notice_mon()` integration case. |
 | 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. Preserve the source output-parameter contract for `gtyp`, `gx`, and `gy`. | `js/dogmove_goal.js` | missing | Document and test both the returned approach and the `state.gg` scratch result; pin the distance-seven `find_targ()` boundary with the pet owner. |
 | 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Admit only the source-inert worn saddle created with a Knight's starting pony. Stop before every selected inventory action and before non-hero ranged-target scoring, eating, leash, steed, conflict, altered-state, or combat paths. | `js/dogmove.js`, `js/monmove_simple.js` | missing | Retain the committed source behavior and add complete two-retry snapshots for combat, displacement, eating, pickup, cursed feedback, and non-inert inventory seams across dog, kitten, and pony. |
@@ -65,9 +65,9 @@ validated.
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 13 done and five open after the second correctness
-  audit.
-- Closure verdict: **implementation in progress**. Families 10, 11, 12, 13,
+- 18 in-boundary families: 14 done and four open after the second correctness
+  audit and B3.
+- Closure verdict: **implementation in progress**. Families 11, 12, 13,
   and 18 have confirmed production, contract, or coverage gaps. The slice
   must be revalidated through the next prompt and receive a new full
   correctness audit before it can close.
@@ -101,7 +101,7 @@ list.
 | --- | --- | --- | --- |
 | B1 — atomic hero command admission | done at `daec422` | For the current one-square walk consumer, perform local destination admission before setting elapsed command intent. Prove that two identical refused walks and a following legal command preserve complete state, RNG, screens, cursors, and retained output. | `js/cmd.js`, `scripts/cmd.test.mjs` |
 | B2 — monster line predicate | done at `419b7c1` | For `m_move()` during the second command, keep blocking terrain distinct from earlier boulders and reject wall or door lines before the boulder RNG branch. | `js/monmove_move.js`, `scripts/monmove.test.mjs` |
-| B3 — monster item-search selection | pending | For the same live `m_move()` preflight, port the source-ordered read-only `m_search_items()` selection pass. Continue ordinary movement past ignored objects; stop atomically only when upstream selects an unsupported item interaction. Use a dedicated `monmove.c` item-search module if the movement owner would exceed the review limit. | `js/monmove_items.js` or `js/monmove_move.js`, `js/monmove_simple.js`, focused item-search and atomic-preflight tests, and `QUALITY.json` only if a new production file is created |
+| B3 — monster item-search selection | done at `aa7b9e4` | For the same live `m_move()` preflight, port the source-ordered read-only `m_search_items()` selection pass. Continue ordinary movement past ignored objects; stop atomically only when upstream selects an unsupported item interaction. Use a dedicated `monmove.c` item-search module if the movement owner would exceed the review limit. | `js/muse.js`, `js/monmove_items.js`, `js/monmove_move.js`, `js/monmove_simple.js`, focused item-search and atomic-preflight tests, and `QUALITY.json` |
 | B4 — monster movement accessibility output | pending | For an ordinary monster move during the second command, canonicalize the `mon_movement` option in the accessibility owner and port `msg_mon_movement()` through output, redraw, persistence, and the next prompt. | `js/monmove_move.js`, `js/monmove_simple.js`, the existing accessibility option owner, and corresponding focused tests |
 | B5 — pet goal and target contracts | pending | Clarify the `dog_goal()` return/scratch contract and pin the inclusive distance-seven `find_targ()` ray boundary without changing the live supported path. | `js/dogmove_goal.js`, `scripts/dogmove-goal.test.mjs`, `scripts/dogmove.test.mjs` |
 | B6 — no-move and pet safe-stop coverage | pending | Drive visible `MMOVE_NOTHING` notice ordering through the complete adapter, then cover the pet combat, displacement, eating, pickup, cursed-feedback, and non-inert-inventory seams with complete two-retry state. | `scripts/monmove-simple.test.mjs` |
@@ -275,12 +275,35 @@ not change the active scope or count as live simple-turn closure.
   storage, or browser-only presentation contract changed.
 - Holdout: not accessed.
 
+## Latest implementation checkpoint
+
+- Commit checked: `aa7b9e44`.
+- Live player action: ordinary `monmove.c:m_move()` work during the elapsed
+  phase after the second wait or one-square walk.
+- Source review: `muse.c:searches_for_item()`, its item-usability helpers,
+  `monmove.c:mon_would_take_item()`, `mon_would_consume_item()`, and the
+  source-ordered `m_search_items()` rectangle, filtering, goal, approach, and
+  shop-draw behavior were checked against upstream. Ignored rocks continue
+  through movement; a selected pickup or consumption stops before live state
+  or PRNG changes.
+- Focused tests: 111/111 passed across the two new item owners and the movement
+  and atomic-preflight consumers.
+- Full suite: 1,587/1,587 passed.
+- Generated-file checks: monsters, objects, symbols, and themed-room data all
+  passed.
+- Fresh differentials: a fixed three-case `scan-fresh.mjs` batch varying
+  ordinary wait/walk order and a dog plus ordinary monster passed 3/3.
+- Development suite: 0/33 sessions fully matched; 77,632/610,816 PRNG values,
+  207/7,765 screens, and 238/7,765 cursors matched.
+- Estimate: `206 shown + 194 hidden = 400 total`, uncertain.
+- Holdout: not accessed.
+
 ## Readiness
 
 Current mode: Implementation
 
 Reason: the second correctness audit confirmed missing source behavior and
-coverage in families 10, 11, 12, 13, and 18. B3 is the next checkpoint.
+coverage in families 11, 12, 13, and 18. B4 is the next checkpoint.
 Broad seed discovery remains paused until these persisted checkpoints guide
 fixed case lists.
 
