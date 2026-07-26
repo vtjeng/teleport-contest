@@ -6,8 +6,11 @@ import {
     moveloop_core,
     UnsupportedTurnBoundaryError,
 } from '../js/allmain.js';
+import { CORR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { attacktype } from '../js/mondata.js';
+import { AT_WEAP } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 import { Terminal } from '../js/terminal.js';
 import {
@@ -15,10 +18,13 @@ import {
     loadSecondCompleteTurnRecipe,
     SECOND_COMPLETE_TURN_FIXTURE,
 } from './run-second-complete-turn.mjs';
+import {
+    completeSecondTurnSnapshot,
+} from './second-turn-snapshot.mjs';
 
 const DATETIME = '20260725120000';
-// Canonical America/New_York recordings for both fixture dates are in DST.
-// Supplying the recorded bit keeps this test independent of the host timezone.
+// The canonical America/New_York recorder run used for these cases was in
+// DST. The recorder supplies that process bit independently of fixedDatetime.
 const RECORDER_IS_DST = true;
 const RNG_CALL = /^(?:\d+\s+)?(?:rn2|rnd|rn1|rne|rnl|rnz|d)\(/u;
 
@@ -54,17 +60,6 @@ function liveMonsters() {
     return monsters;
 }
 
-function rngContext() {
-    return {
-        a: game.coreCtx.a,
-        b: game.coreCtx.b,
-        c: game.coreCtx.c,
-        m: [...game.coreCtx.m],
-        n: game.coreCtx.n,
-        r: [...game.coreCtx.r],
-    };
-}
-
 function normalizedRngLog() {
     return getRngLog()
         .map((entry) => String(entry)
@@ -79,79 +74,6 @@ function schedulerSnapshot() {
         purgeMonsters: game.iflags?.purge_monsters ?? null,
         somebodyCanMove: game.somebody_can_move ?? null,
         visionFullRecalc: game.vision_full_recalc ?? null,
-    };
-}
-
-function completeTurnSnapshot(replay) {
-    return {
-        context: structuredClone(game.context),
-        display: {
-            cursor: [
-                game.nhDisplay.cursorCol,
-                game.nhDisplay.cursorRow,
-                game.nhDisplay.cursorVisible,
-            ],
-            grid: structuredClone(game.nhDisplay.grid),
-            messages: [...game.nhDisplay.messages],
-            pending: game._pending_message,
-            topMessage: game.nhDisplay.topMessage,
-            toplin: game.nhDisplay.toplin,
-            toplines: game.nhDisplay.toplines,
-            ttyToplines: game._ttyToplines,
-        },
-        gg: structuredClone(game.gg),
-        hero: structuredClone(game.u),
-        input: {
-            queue: [...(game.nhDisplay.terminal._inputQueue ?? [])],
-            waitEpoch: game.nhDisplay.waitEpoch,
-            waiting: game.nhDisplay.isWaitingForInput,
-        },
-        monsters: liveMonsters(),
-        output: {
-            animations: structuredClone(
-                replay.getAnimationFramesByStep(),
-            ),
-            cursors: structuredClone(replay.getCursors()),
-            rngSlices: structuredClone(replay.getRngSlices()),
-            screens: [...replay.getScreens()],
-        },
-        rng: {
-            context: rngContext(),
-            log: [...getRngLog()],
-        },
-        scheduler: schedulerSnapshot(),
-        track: structuredClone(game.track),
-        turn: {
-            cmdKey: game.cmdKey,
-            commandDispatchCount: game._commandDispatchCount,
-            domoveAttempting: game.domoveAttempting,
-            heroSeq: game.hero_seq ?? null,
-            multi: game.multi,
-            moves: game.moves,
-        },
-        world: {
-            buriedObjects: linkedObjects(
-                game.level.buriedobjlist,
-                'nobj',
-            ),
-            flags: structuredClone(game.level.flags),
-            heroInventory: linkedObjects(game.invent, 'nobj'),
-            locations: structuredClone(game.level.locations),
-            monsterGrid: game.level.monsters.map(
-                (column) => column.map(
-                    (monster) => monster?.m_id ?? 0,
-                ),
-            ),
-            objectGrid: game.level.objects.map(
-                (column) => column.map(
-                    (object) => object?.o_id ?? 0,
-                ),
-            ),
-            objects: linkedObjects(game.level.objlist, 'nobj'),
-            regions: structuredClone(game.level.regions),
-            traps: structuredClone(game.level.traps),
-            vision: game.viz_array.map((row) => [...row]),
-        },
     };
 }
 
@@ -202,7 +124,7 @@ function integrationOracle(replay) {
         monsterCount: monsters.length,
         pet: pet ? semanticMonster(pet) : null,
         scheduler: schedulerSnapshot(),
-        stateDigest: digest(completeTurnSnapshot(replay)),
+        stateDigest: digest(completeSecondTurnSnapshot(game, replay)),
         turn: {
             commandDispatchCount: game._commandDispatchCount,
             heroSeq: game.hero_seq ?? null,
@@ -217,6 +139,46 @@ function integrationOracle(replay) {
             screenDigest: digest(replay.getScreens()),
         },
     };
+}
+
+function assertNamedCoverage(name) {
+    if (name === 'WeaponEmpty') {
+        let found = false;
+        for (let monster = game.level.monlist;
+            monster;
+            monster = monster.nmon) {
+            if (!monster.mtame
+                && attacktype(monster.data, AT_WEAP)
+                && !monster.minvent
+                && monster.mtrack.some(({ x, y }) => x || y)) {
+                found = true;
+                break;
+            }
+        }
+        assert.equal(found, true, 'empty AT_WEAP monster did not move');
+    } else if (name === 'IgnoredObject') {
+        let found = false;
+        for (let monster = game.level.monlist;
+            monster;
+            monster = monster.nmon) {
+            if (!monster.mtame
+                && game.level.objects[monster.mx]?.[monster.my]) {
+                found = true;
+                break;
+            }
+        }
+        assert.equal(found, true, 'ordinary monster did not retain an object');
+    } else if (name === 'PetCorridor') {
+        const pet = liveMonsters().find((monster) => monster.mtame);
+        assert.ok(pet, 'starting pet is missing');
+        assert.equal(
+            game.level.at(pet.mx, pet.my).typ,
+            CORR,
+            'starting pet did not land in a corridor',
+        );
+    } else if (name === 'ParsedMonMovement') {
+        assert.equal(game.a11y.mon_movement, true);
+    }
 }
 
 async function withSerializedGrids(action) {
@@ -237,7 +199,7 @@ test('second-turn fresh recipe contains only simple replay inputs', () => {
     const recipe = loadSecondCompleteTurnRecipe();
     assert.equal(fixture.version, 2);
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 13);
+    assert.equal(recipe.segments.length, 17);
     assert.equal(fixture.expectations.length, recipe.segments.length);
     assert.deepEqual(
         new Set(recipe.segments.map(({ moves }) => moves)),
@@ -251,6 +213,8 @@ test('second-turn fresh recipe contains only simple replay inputs', () => {
             ' l.',
             ' nn',
             ' k.',
+            ' hk',
+            ' j.',
         ]),
     );
     for (const segment of recipe.segments) {
@@ -283,39 +247,67 @@ test('all checked-in second-turn cases reach their exact prompt state',
                     expectations[index].oracle,
                     expectations[index].name,
                 );
+                assertNamedCoverage(expectations[index].name);
             }
         });
     });
 
-test('an excluded selected trap remains completely retryable',
+test('excluded selected actions remain completely retryable',
     async () => {
-        const input = {
-            // This source-derived seed selects an initial monster move onto a
-            // trap during the second elapsed phase.
-            seed: 840003,
-            datetime: DATETIME,
-            nethackrc: 'OPTIONS=name:TrapBoundary,role:Healer,race:human,'
-                + 'gender:female,align:neutral,!legacy,!tutorial,'
-                + '!splash_screen',
-            moves: ' ..',
-            recorderIsDst: RECORDER_IS_DST,
-        };
+        const cases = [
+            {
+                name: 'trap',
+                reason: 'trap activation',
+                // This source-derived seed selects an initial monster move
+                // onto a trap during the second elapsed phase.
+                input: {
+                    seed: 840003,
+                    datetime: DATETIME,
+                    nethackrc: 'OPTIONS=name:TrapBoundary,role:Healer,'
+                        + 'race:human,gender:female,align:neutral,!legacy,'
+                        + '!tutorial,!splash_screen',
+                    moves: ' ..',
+                },
+            },
+            {
+                name: 'ranged weapon',
+                reason: 'monster ranged weapon action',
+                // Fresh comparison showed this carried weapon is selected
+                // after the monster moves, before thrwmu() attacks.
+                input: {
+                    seed: 2026073002,
+                    datetime: '20260724100000',
+                    nethackrc: 'OPTIONS=name:WeaponInventory,role:Healer,'
+                        + 'race:human,gender:female,align:neutral,!legacy,'
+                        + '!tutorial,!splash_screen',
+                    moves: ' n.',
+                },
+            },
+        ];
         await withSerializedGrids(async () => {
-            const replay = await runSegment(input);
-            assert.equal(replay.getScreens().length, 3);
-            const beforeRetry = completeTurnSnapshot(replay);
+            for (const actionCase of cases) {
+                const replay = await runSegment({
+                    ...actionCase.input,
+                    recorderIsDst: RECORDER_IS_DST,
+                });
+                assert.equal(replay.getScreens().length, 3, actionCase.name);
+                const beforeRetry = completeSecondTurnSnapshot(game, replay);
 
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    moveloop_core(),
-                    (error) => error instanceof UnsupportedTurnBoundaryError
-                        && error.reason === 'trap activation',
-                );
-                assert.deepEqual(
-                    completeTurnSnapshot(replay),
-                    beforeRetry,
-                    `retry ${attempt + 1} changed state or retained output`,
-                );
+                for (let attempt = 0; attempt < 2; ++attempt) {
+                    await assert.rejects(
+                        moveloop_core(),
+                        (error) => (
+                            error instanceof UnsupportedTurnBoundaryError
+                            && error.reason === actionCase.reason
+                        ),
+                    );
+                    assert.deepEqual(
+                        completeSecondTurnSnapshot(game, replay),
+                        beforeRetry,
+                        `${actionCase.name} retry ${attempt + 1} changed `
+                            + 'state or retained output',
+                    );
+                }
             }
         });
     });

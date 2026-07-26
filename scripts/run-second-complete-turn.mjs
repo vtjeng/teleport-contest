@@ -2,7 +2,9 @@
 
 // Run the checked-in second-complete-turn matrix through fresh C recordings.
 // Recipe segments contain replay inputs only; each run records new reference
-// output in an isolated temporary workspace.
+// output in an isolated temporary workspace. Source-selected paths that stop
+// at the current boundary stay out of this strict matrix and are covered by
+// repeated complete-state retries in the paired integration test.
 
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
