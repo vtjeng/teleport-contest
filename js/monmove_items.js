@@ -3,8 +3,10 @@
 // and m_search_items().
 
 import {
-    ACCFOOD, COLNO, MANFOOD, ROOMOFFSET, ROWNO, SHOPBASE, SQSRCHRADIUS,
+    ACCFOOD, COLNO, MANFOOD, POISON_RES, ROOMOFFSET, ROWNO, SHOPBASE,
+    SQSRCHRADIUS, STONE_RES,
 } from './const.js';
+import { obj_resists } from './bury.js';
 import { on_level } from './dungeon.js';
 import { dogfood } from './dogfood.js';
 import { could_reach_item } from './dogmove_goal.js';
@@ -15,8 +17,10 @@ import {
 } from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
-    hides_under, is_animal, is_unicorn, likes_gems, likes_gold, likes_magic,
-    likes_objs, mindless, mon_knows_traps, throws_rocks, touch_petrifies,
+    acidic, flesh_petrifies, hides_under, is_animal, is_rider, is_unicorn,
+    likes_gems, likes_gold, likes_magic, likes_objs, metallivorous, mindless,
+    mon_knows_traps, monster_resists_element, throws_rocks, touch_petrifies,
+    vegan,
 } from './mondata.js';
 import * as M from './monsters.js';
 import { m_at } from './monst.js';
@@ -90,6 +94,16 @@ function costlySpot(x, y, state) {
         && (x !== eshk.shk.x || y !== eshk.shk.y));
 }
 
+function artifactTouchable(obj, monster, env) {
+    if (!obj.oartifact) return true;
+    if (typeof env.touchArtifact !== 'function') {
+        throw new TypeError(
+            'postmov object selection requires a touchArtifact operation',
+        );
+    }
+    return Boolean(env.touchArtifact(obj, monster, env));
+}
+
 export function mon_would_take_item(monster, obj, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const species = monster.data;
@@ -135,6 +149,109 @@ export function mon_would_consume_item(monster, obj, rawEnv = {}) {
             && (foodType < ACCFOOD || edog.hungrytime <= state.moves);
     }
     return false;
+}
+
+// C refs: monmove.c postmov(); mon.c meatmetal(), meatcorpse(), and
+// mpickstuff(). Clone-only planning runs this read-only selector before any
+// live action; the live postmov() adapter repeats its selection and PRNG calls
+// after movement output, track updates, and redraws.
+export function select_postmove_object_action(
+    monster,
+    x,
+    y,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const env = { ...rawEnv, state, random };
+    const objects = state.level?.objects?.[x]?.[y] ?? null;
+    if (!objects || !monster.mcanmove) return null;
+
+    // Tests and bounded preflight callers may ask about another square. Give
+    // source predicates those coordinates without mutating the real monster.
+    const subject = monster.mx === x && monster.my === y
+        ? monster
+        : { ...monster, mx: x, my: y };
+    const species = subject.data;
+
+    if (!subject.mtame && metallivorous(species)) {
+        const rustMonster = species?.pmidx === M.PM_RUST_MONSTER;
+        for (let obj = objects; obj; obj = obj.nexthere) {
+            const material = objectType(obj, state).oc_material;
+            if ((rustMonster && material !== O.IRON)
+                || obj.otyp === O.AMULET_OF_STRANGULATION
+                || obj.otyp === O.RIN_SLOW_DIGESTION
+                || (obj.opoisoned
+                    && !monster_resists_element(
+                        subject,
+                        POISON_RES,
+                        state,
+                    ))) {
+                continue;
+            }
+            if (material >= O.IRON && material <= O.MITHRIL
+                && !obj_resists(obj, 5, 95, env)
+                && artifactTouchable(obj, subject, env)) {
+                return {
+                    kind: rustMonster && obj.oerodeproof
+                        ? 'reject rustproof metal'
+                        : 'eat metal',
+                    object: obj,
+                };
+            }
+        }
+    }
+
+    if (!subject.mtame && CORPSE_EATERS.has(species?.pmidx)) {
+        for (let obj = objects; obj; obj = obj.nexthere) {
+            if (obj.otyp !== O.CORPSE) continue;
+            const corpseSpecies = state.mons?.[obj.corpsenm];
+            if (!corpseSpecies || vegan(corpseSpecies)
+                || (flesh_petrifies(corpseSpecies)
+                    && !monster_resists_element(
+                        subject,
+                        STONE_RES,
+                        state,
+                    ))) {
+                continue;
+            }
+            return {
+                kind: is_rider(corpseSpecies)
+                    ? 'revive rider corpse'
+                    : 'eat corpse',
+                object: obj,
+            };
+        }
+    }
+
+    if (subject.isshk && inHisShop(subject, state)) return null;
+    if (!subject.mtame && in_rooms(x, y, SHOPBASE, state).length
+        && random.rn2(25)) {
+        return null;
+    }
+    const canReach = rawEnv.couldReachItem ?? could_reach_item;
+    if (!canReach(subject, x, y, state)) return null;
+
+    for (let obj = objects; obj; obj = obj.nexthere) {
+        if (prizeObject(obj, state)
+            || !mon_would_take_item(subject, obj, env)) {
+            continue;
+        }
+        if (obj.otyp === O.CORPSE && species?.mlet !== M.S_NYMPH) {
+            const corpseSpecies = state.mons?.[obj.corpsenm];
+            if (corpseSpecies && !touch_petrifies(corpseSpecies)
+                && obj.corpsenm !== M.PM_LIZARD
+                && !acidic(corpseSpecies)) {
+                continue;
+            }
+        }
+        if (!can_touch_safely(subject, obj, env)
+            || can_carry(subject, obj, env) === 0) {
+            continue;
+        }
+        return { kind: 'pick up', object: obj };
+    }
+    return null;
 }
 
 export function m_search_items(

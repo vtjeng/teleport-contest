@@ -192,7 +192,6 @@ export async function m_move_fresh(monster, rawEnv = {}) {
         }
     }
 
-    let selectedItem = null;
     let getItems = false;
     const passesPeacefulGate = !monster.mpeaceful || !random.rn2(10);
     if (passesPeacefulGate
@@ -218,15 +217,7 @@ export async function m_move_fresh(monster, rawEnv = {}) {
         goalX = search.goalX;
         goalY = search.goalY;
         approach = search.approach;
-        selectedItem = search.object;
         if (search.complete) {
-            rawEnv.preflightFloorItems?.(
-                monster,
-                oldX,
-                oldY,
-                selectedItem,
-                env,
-            );
             return postMonsterMove(
                 monster,
                 oldX,
@@ -336,17 +327,6 @@ export async function m_move_fresh(monster, rawEnv = {}) {
     const mayCrossRegion = rawEnv.mayCrossRegion ?? m_in_out_region;
     if (!await mayCrossRegion(monster, nextX, nextY, env))
         return MMOVE_DONE;
-    if (state.level.objects[nextX]?.[nextY]) {
-        rawEnv.preflightFloorItems?.(
-            monster,
-            nextX,
-            nextY,
-            selectedItem?.ox === nextX && selectedItem?.oy === nextY
-                ? selectedItem
-                : null,
-            env,
-        );
-    }
     if (data.info[chosen] & ALLOW_ROCK)
         unsupported('ordinary monster boulder breaking');
 

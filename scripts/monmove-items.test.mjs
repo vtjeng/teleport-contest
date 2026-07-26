@@ -13,9 +13,13 @@ import {
     mon_would_consume_item,
     mon_would_take_item,
     m_search_items,
+    select_postmove_object_action,
 } from '../js/monmove_items.js';
 import {
     PM_COCKATRICE,
+    PM_GIANT_RAT,
+    PM_GHOUL,
+    PM_GNOME,
     PM_HUMAN,
     PM_PURPLE_WORM,
     PM_ROCK_MOLE,
@@ -29,6 +33,7 @@ import {
     DAGGER,
     EMERALD,
     FOOD_RATION,
+    IRON_CHAIN,
     ROCK,
     objects_globals_init,
 } from '../js/objects.js';
@@ -194,6 +199,100 @@ test('monster corpse consumption excludes petrifying corpses', () => {
         ),
         false,
     );
+});
+
+test('postmov object selection follows consume then pickup order', () => {
+    const state = makeState();
+    const mole = makeMonster(state, PM_ROCK_MOLE);
+    const chain = placeObject(
+        state,
+        makeObject(state, IRON_CHAIN, 9, 10),
+    );
+    const resistedCalls = [];
+    const resisted = select_postmove_object_action(mole, 9, 10, {
+        random: {
+            rn2(bound) {
+                resistedCalls.push(bound);
+                return 4; // The last value inside the 5% resistance range.
+            },
+        },
+        state,
+    });
+    assert.deepEqual(resistedCalls, [100]);
+    assert.equal(resisted, null);
+
+    const calls = [];
+    const metal = select_postmove_object_action(mole, 9, 10, {
+        random: {
+            rn2(bound) {
+                calls.push(bound);
+                return 5; // At the 5% boundary, ordinary metal does not resist.
+            },
+        },
+        state,
+    });
+    assert.deepEqual(calls, [100]);
+    assert.equal(metal.kind, 'eat metal');
+    assert.equal(metal.object, chain);
+
+    state.level.objects[9][10] = null;
+    const corpse = placeObject(
+        state,
+        makeObject(state, CORPSE, 9, 10, {
+            corpsenm: PM_HUMAN,
+        }),
+    );
+    const ghoul = makeMonster(state, PM_GHOUL);
+    const eaten = select_postmove_object_action(ghoul, 9, 10, {
+        state,
+    });
+    assert.equal(eaten.kind, 'eat corpse');
+    assert.equal(eaten.object, corpse);
+
+    state.level.objects[9][10] = null;
+    const dagger = placeObject(
+        state,
+        makeObject(state, DAGGER, 9, 10),
+    );
+    const gnome = makeMonster(state, PM_GNOME);
+    const picked = select_postmove_object_action(gnome, 9, 10, {
+        state,
+    });
+    assert.equal(picked.kind, 'pick up');
+    assert.equal(picked.object, dagger);
+});
+
+test('postmov object selection preserves inert object and shop draws', () => {
+    const state = makeState();
+    const rat = makeMonster(state, PM_GIANT_RAT);
+    placeObject(state, makeObject(state, ROCK, 9, 10));
+    assert.equal(
+        select_postmove_object_action(rat, 9, 10, {
+            random: {
+                rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+            },
+            state,
+        }),
+        null,
+    );
+
+    state.level.objects[9][10] = null;
+    placeObject(state, makeObject(state, DAGGER, 9, 10));
+    const gnome = makeMonster(state, PM_GNOME);
+    state.level.at(9, 10).roomno = ROOMOFFSET;
+    state.level.rooms[0] = { rtype: SHOPBASE };
+    const calls = [];
+    const ignored = select_postmove_object_action(gnome, 9, 10, {
+        random: {
+            rn2(bound) {
+                calls.push(bound);
+                return 1; // Any nonzero one-in-25 shop result skips pickup.
+            },
+        },
+        state,
+    });
+    assert.deepEqual(calls, [25]);
+    assert.equal(ignored, null);
 });
 
 test('m_search_items ignores rocks and reports an own-square selection',

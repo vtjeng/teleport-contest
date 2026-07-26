@@ -8,6 +8,7 @@ import {
     HEADSTONE,
     I_SPECIAL,
     INVIS,
+    MMOVE_DONE,
     MMOVE_MOVED,
     MMOVE_NOTHING,
     MON_FLOOR,
@@ -57,6 +58,7 @@ import {
 import {
     dochug_fresh_pet,
 } from './monmove_dochug_pet.js';
+import { select_postmove_object_action } from './monmove_items.js';
 import { m_move_fresh } from './monmove_move.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { SADDLE } from './objects.js';
@@ -317,12 +319,28 @@ async function postSimpleMove(monster, oldX, oldY, status, env) {
         const message = env.message ?? ttyPline;
         await message(notice, env.state, env);
     }
-    if (status !== MMOVE_MOVED) return status;
-    assertSimpleDestination(monster, monster.mx, monster.my, env);
-    if (!env.planning) {
-        const redraw = env.redraw ?? newsym;
-        redraw(oldX, oldY);
-        redraw(monster.mx, monster.my);
+    if (status === MMOVE_MOVED) {
+        assertSimpleDestination(monster, monster.mx, monster.my, env);
+        if (!env.planning) {
+            const redraw = env.redraw ?? newsym;
+            redraw(oldX, oldY);
+            redraw(monster.mx, monster.my);
+        }
+    }
+    if ((status === MMOVE_MOVED || status === MMOVE_DONE)
+        && env.state.level.objects[monster.mx]?.[monster.my]) {
+        const selected = select_postmove_object_action(
+            monster,
+            monster.mx,
+            monster.my,
+            {
+                ...env,
+                touchArtifact: () =>
+                    unsupported('monster artifact item interaction'),
+            },
+        );
+        if (selected)
+            unsupported('ordinary monster item interaction');
     }
     return status;
 }
@@ -332,10 +350,6 @@ async function moveSimpleOrdinary(monster, env) {
         ...env,
         mayCrossRegion: assertSimpleDestination,
         postMonsterMove: postSimpleMove,
-        preflightFloorItems: (_monster, _x, _y, selectedItem) =>
-            unsupported(selectedItem
-                ? 'ordinary monster item interaction'
-                : 'a floor object'),
         resolveTrappedMonster: () => false,
         resistsTrapEffect,
         unsupported,

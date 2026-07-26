@@ -5,6 +5,7 @@ import {
     COULD_SEE,
     FOUNTAIN,
     IN_SIGHT,
+    MMOVE_NOTHING,
     MON_FLOOR,
     NEED_WEAPON,
     NORMAL_SPEED,
@@ -656,13 +657,20 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
-                name: 'floor object',
-                reason: 'a floor object',
+                name: 'post-move object pickup',
+                reason: 'ordinary monster item interaction',
                 prepare: async () => {
-                    const target = await prepareSelectedAction();
+                    const target = await prepareSelectedAction({
+                        pmidx: PM_GNOME,
+                    });
                     installObject(
                         target,
-                        floorObject(target.destinationX, target.heroY),
+                        floorObject(
+                            target.destinationX,
+                            target.heroY,
+                            9101,
+                            DAGGER,
+                        ),
                     );
                     return target;
                 },
@@ -738,6 +746,31 @@ test('simple preflight rejects every selected excluded action atomically',
                         target,
                         floorObject(
                             target.destinationX,
+                            target.heroY,
+                            9101,
+                            DAGGER,
+                        ),
+                    );
+                    return target;
+                },
+            },
+            {
+                name: 'own-square item search',
+                reason: 'ordinary monster item interaction',
+                prepare: async () => {
+                    const target = await prepareSelectedAction({
+                        pmidx: PM_ROCK_MOLE,
+                    });
+                    // A blind hostile searches items, and finding this metal
+                    // object on its own square completes m_search_items()
+                    // before candidate movement.
+                    target.monster.mcansee = false;
+                    game.viz_array[target.heroY][target.monsterX]
+                        &= ~COULD_SEE;
+                    installObject(
+                        target,
+                        floorObject(
+                            target.monsterX,
                             target.heroY,
                             9101,
                             DAGGER,
@@ -844,6 +877,32 @@ test('simple preflight ignores an unselected rock during item search',
         await preflightSimpleMonsterActions(game);
 
         assert.deepEqual(completePreflightSnapshot(target.replay), before);
+    });
+
+test('simple monster movement continues through an ignored object',
+    async () => {
+        const target = await prepareSelectedAction();
+        const rock = floorObject(target.destinationX, target.heroY);
+        installObject(target, rock);
+        const before = completePreflightSnapshot(target.replay);
+
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(completePreflightSnapshot(target.replay), before);
+
+        const result = await runSimpleMonsterAction(target.monster, {
+            state: game,
+        });
+        // dochug() converts a successful m_move() result to zero so the
+        // caller may continue the monster's remaining action dispatch.
+        assert.equal(result, MMOVE_NOTHING);
+        assert.deepEqual(
+            [target.monster.mx, target.monster.my],
+            [target.destinationX, target.heroY],
+        );
+        assert.equal(
+            game.level.objects[target.destinationX][target.heroY],
+            rock,
+        );
     });
 
 test('simple preflight rejects a selected trap without live mutation',
