@@ -46,7 +46,7 @@ validated.
 | ---: | --- | --- | --- | --- | --- |
 | 1 | `allmain.c:moveloop_core()` input cleanup and dispatch | Clear per-input state, read one command, and preserve input ordering. | `js/allmain.js` | done | Retain command tests and final fresh matrix. |
 | 2 | `cmd.c:dowait()` | Consume time without a movement target. | `js/cmd.js` | done | Two-wait and mixed-order fresh cases. |
-| 3 | `hack.c:domove()` ordinary-clear branch | Run new-game prechecks, admit only an unoccupied object-free clear floor or corridor square, then update hero coordinates, vision, and movement flags. | `js/cmd.js` and existing movement owners | missing | Admit the destination before committing command intent so a rejected move leaves the complete elapsed-turn state retryable. Cover repeated refusals through the segment runner. |
+| 3 | `hack.c:domove()` ordinary-clear branch | Run new-game prechecks, admit only an unoccupied object-free clear floor or corridor square, then update hero coordinates, vision, and movement flags. | `js/cmd.js` and existing movement owners | done | Atomic intent admission and repeated runner-level object, hidden-trap, and special-terrain refusals are committed at `daec422`. |
 | 4 | `allmain.c` movement debit and repeated monster scans | Debit `u.umovement`, call `movemon()` until the source stopping condition, and respect a fast hero's retained ration. | `js/allmain.js` | done | Live at `2283141`; command tests and the fast-Monk differential cover both stopping conditions. |
 | 5 | `mon.c:movemon_singlemon()` scan gates | Preserve dead/off-map, every-turn upkeep, movement-ration, vision, and ration-spend order for each list node. | `js/mon.js`, `js/allmain.js` adapter | done | Due and inert parked-guard ordering committed at `3104b21`. |
 | 6 | `mon.c:movemon()` terminal cleanup | Clear transient state, purge dead entries, update light/vision state, and return whether another scan is needed. Level transition is a future safe-stop. | `js/mon.js`, `js/allmain.js` adapter | done | Repeated-scan command tests and live prompt completion. |
@@ -65,10 +65,10 @@ validated.
 
 ### Inventory count and readiness
 
-- 18 in-boundary families: 12 done and six open after the second correctness
+- 18 in-boundary families: 13 done and five open after the second correctness
   audit.
-- Closure verdict: **implementation in progress**. Families 3, 10, 11, 12,
-  13, and 18 have confirmed production, contract, or coverage gaps. The slice
+- Closure verdict: **implementation in progress**. Families 10, 11, 12, 13,
+  and 18 have confirmed production, contract, or coverage gaps. The slice
   must be revalidated through the next prompt and receive a new full
   correctness audit before it can close.
 
@@ -99,7 +99,7 @@ list.
 
 | Checkpoint | Status | Complete source-owned change | Planned files |
 | --- | --- | --- | --- |
-| B1 — atomic hero command admission | pending | For the current one-square walk consumer, perform local destination admission before setting elapsed command intent. Prove that two identical refused walks and a following legal command preserve complete state, RNG, screens, cursors, and retained output. | `js/cmd.js`, `scripts/cmd.test.mjs` |
+| B1 — atomic hero command admission | done at `daec422` | For the current one-square walk consumer, perform local destination admission before setting elapsed command intent. Prove that two identical refused walks and a following legal command preserve complete state, RNG, screens, cursors, and retained output. | `js/cmd.js`, `scripts/cmd.test.mjs` |
 | B2 — monster line predicate | pending | For `m_move()` during the second command, keep blocking terrain distinct from earlier boulders and reject wall or door lines before the boulder RNG branch. | `js/monmove_move.js`, `scripts/monmove.test.mjs` |
 | B3 — monster item-search selection | pending | For the same live `m_move()` preflight, port the source-ordered read-only `m_search_items()` selection pass. Continue ordinary movement past ignored objects; stop atomically only when upstream selects an unsupported item interaction. Use a dedicated `monmove.c` item-search module if the movement owner would exceed the review limit. | `js/monmove_items.js` or `js/monmove_move.js`, `js/monmove_simple.js`, focused item-search and atomic-preflight tests, and `QUALITY.json` only if a new production file is created |
 | B4 — monster movement accessibility output | pending | For an ordinary monster move during the second command, canonicalize the `mon_movement` option in the accessibility owner and port `msg_mon_movement()` through output, redraw, persistence, and the next prompt. | `js/monmove_move.js`, `js/monmove_simple.js`, the existing accessibility option owner, and corresponding focused tests |
@@ -280,7 +280,7 @@ not change the active scope or count as live simple-turn closure.
 Current mode: Implementation
 
 Reason: the second correctness audit confirmed missing source behavior and
-coverage in families 3, 10, 11, 12, 13, and 18. B1 is the next checkpoint.
+coverage in families 10, 11, 12, 13, and 18. B2 is the next checkpoint.
 Broad seed discovery remains paused until these persisted checkpoints guide
 fixed case lists.
 

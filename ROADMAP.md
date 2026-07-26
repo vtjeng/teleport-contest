@@ -44,10 +44,11 @@ oracle is committed at `9288ced`.
 The second review of
 `3b6c38de148679a5cc8313d755ec906fa95627c3..9288ced3372da17588cc70ec30cf2f3fe6302e25`
 confirmed omitted source behavior and missing coverage in six branch families.
-The active slice is back in Implementation. The next checkpoint makes rejected
-hero walks completely atomic; the remaining checkpoints are split among the
-`monmove.c` line predicate, item search, and accessibility-output owners, the
-pet goal and safe-stop owners, and the final three-file integration oracle.
+The active slice is back in Implementation. Rejected hero walks are completely
+atomic at `daec422`. The next checkpoint is the `monmove.c` line predicate;
+the remaining checkpoints are split among the item-search and
+accessibility-output owners, the pet goal and safe-stop owners, and the final
+three-file integration oracle.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
