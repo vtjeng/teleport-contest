@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { dog_hunger } from '../js/dogmove_hunger.js';
+import { dog_hunger } from '../js/dogmove.js';
 import {
     M1_CARNIVORE,
 } from '../js/monsters.js';

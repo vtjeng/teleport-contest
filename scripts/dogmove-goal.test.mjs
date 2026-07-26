@@ -21,7 +21,7 @@ import {
     cursed_object_at,
     dog_goal,
     droppables,
-} from '../js/dogmove_goal.js';
+} from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
 import {
     M1_ANIMAL,

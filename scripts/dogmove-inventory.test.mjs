@@ -9,7 +9,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOTHING,
 } from '../js/const.js';
-import { dog_invent } from '../js/dogmove_inventory.js';
+import { dog_invent } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
 import {
     BALL_CLASS,

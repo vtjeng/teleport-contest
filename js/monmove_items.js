@@ -9,7 +9,7 @@ import {
 import { obj_resists } from './bury.js';
 import { on_level } from './dungeon.js';
 import { dogfood } from './dogfood.js';
-import { could_reach_item } from './dogmove_goal.js';
+import { could_reach_item } from './dogmove.js';
 import { game } from './gstate.js';
 import { distmin } from './hacklib.js';
 import {
