@@ -122,6 +122,251 @@ export function encodeUtf8ByteString(value) {
     return bytes;
 }
 
+// hacklib.c's string helpers edit a caller-supplied buffer in place and return
+// it.  JavaScript strings are immutable, so each one below takes a string and
+// returns the edited string; callers use the returned buffer either way.  The
+// ones returning a rotating static buffer in C (s_suffix, ing_suffix, visctrl,
+// sitoa) return a fresh string, which is what their callers read immediately.
+//
+// Not ported, because they exist only to manipulate C pointers and have no
+// behavior to reproduce: eos(), c_eos(), strkitten(), copynchars(), and
+// strcasecpy() (which reads dst[-1] and needs a real buffer behind it).
+
+// C ref: hacklib.c BUFSZ truncation limit for tabexpand() and stripchars().
+// Duplicated rather than imported, matching this file's existing avoidance of a
+// const.js import cycle.
+const BUFSZ = 256;
+
+// C ref: hacklib.c digit().
+export function digit(c) {
+    return c >= '0' && c <= '9';
+}
+
+// C ref: hacklib.c letter().  '@' counts as a letter, so the first range runs
+// '@' through 'Z' and excludes '[' through '_'.
+export function letter(c) {
+    return (c >= '@' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
+
+// C ref: hacklib.c highc().  Clears bit 040 only for 'a'-'z'.
+export function highc(c) {
+    return (c >= 'a' && c <= 'z')
+        ? String.fromCharCode(c.charCodeAt(0) & ~0o40) : c;
+}
+
+// C ref: hacklib.c lowc().  Sets bit 040 only for 'A'-'Z'.
+export function lowc(c) {
+    return (c >= 'A' && c <= 'Z')
+        ? String.fromCharCode(c.charCodeAt(0) | 0o40) : c;
+}
+
+// C ref: hacklib.c lcase().
+export function lcase(s) {
+    let out = '';
+    for (const ch of s) out += (ch >= 'A' && ch <= 'Z') ? lowc(ch) : ch;
+    return out;
+}
+
+// C ref: hacklib.c ucase().
+export function ucase(s) {
+    let out = '';
+    for (const ch of s) out += (ch >= 'a' && ch <= 'z') ? highc(ch) : ch;
+    return out;
+}
+
+// C ref: hacklib.c upstart().
+export function upstart(s) {
+    if (!s) return s;
+    return highc(s[0]) + s.slice(1);
+}
+
+// C ref: hacklib.c upwords().  Only a space starts a new word, and only a
+// letter() is capitalized, so "it's" keeps its lowercase 's'.
+export function upwords(s) {
+    let out = '';
+    let space = true;
+    for (const ch of s) {
+        if (ch === ' ') {
+            space = true;
+            out += ch;
+        } else if (space && letter(ch)) {
+            out += highc(ch);
+            space = false;
+        } else {
+            out += ch;
+            space = false;
+        }
+    }
+    return out;
+}
+
+// C ref: hacklib.c trimspaces().  Drops leading and trailing spaces and tabs.
+export function trimspaces(txt) {
+    let start = 0;
+    while (start < txt.length
+           && (txt[start] === ' ' || txt[start] === '\t')) ++start;
+    let end = txt.length;
+    while (end > start
+           && (txt[end - 1] === ' ' || txt[end - 1] === '\t')) --end;
+    return txt.slice(start, end);
+}
+
+// C ref: hacklib.c strip_newline().  Truncates at the LAST newline, taking a
+// preceding carriage return with it.  Text after that newline is discarded.
+export function strip_newline(str) {
+    const at = str.lastIndexOf('\n');
+    if (at < 0) return str;
+    const cut = (at > 0 && str[at - 1] === '\r') ? at - 1 : at;
+    return str.slice(0, cut);
+}
+
+// C ref: hacklib.c str_end_is().
+export function str_end_is(str, chkstr) {
+    if (str.length < chkstr.length) return false;
+    return str.slice(str.length - chkstr.length) === chkstr;
+}
+
+// C ref: hacklib.c str_lines_maxlen().  Longest newline-separated run.
+export function str_lines_maxlen(str) {
+    let maxLen = 0;
+    let start = 0;
+    while (start < str.length) {
+        const at = str.indexOf('\n', start);
+        const len = at < 0 ? str.length - start : at - start;
+        if (len > maxLen) maxLen = len;
+        if (at < 0) break;
+        start = at + 1;
+    }
+    return maxLen;
+}
+
+// C ref: hacklib.c chrcasecpy().  Return nc in oc's case, leaving nc alone
+// when oc is not a letter.
+export function chrcasecpy(oc, nc) {
+    if (oc >= 'a' && oc <= 'z') return (nc >= 'A' && nc <= 'Z') ? lowc(nc) : nc;
+    if (oc >= 'A' && oc <= 'Z') return (nc >= 'a' && nc <= 'z') ? highc(nc) : nc;
+    return nc;
+}
+
+// C ref: hacklib.c s_suffix().  "it" and "you" are special-cased case-blind;
+// a trailing 's' takes a bare apostrophe.
+export function s_suffix(s) {
+    if (s.toLowerCase() === 'it') return `${s}s`;
+    if (s.toLowerCase() === 'you') return `${s}r`;
+    if (s.slice(-1) === 's') return `${s}'`;
+    return `${s}'s`;
+}
+
+// C ref: hacklib.c ing_suffix().  A trailing " on", " off", or " with" is set
+// aside, the stem is adjusted, then "ing" and the preposition are reattached.
+export function ing_suffix(s) {
+    const vowel = 'aeiouwy';
+    let buf = s;
+    let onoff = '';
+    for (const tail of [' on', ' off', ' with']) {
+        if (buf.length >= tail.length
+            && buf.slice(-tail.length).toLowerCase() === tail) {
+            const at = buf.lastIndexOf(' ');
+            onoff = buf.slice(at);
+            buf = buf.slice(0, at);
+            break;
+        }
+    }
+    const n = buf.length;
+    if (n >= 2 && buf.slice(-2).toLowerCase() === 'er') {
+        // slither -> slithering; no stem change.
+    } else if (n >= 3 && !vowel.includes(buf[n - 1])
+               && vowel.includes(buf[n - 2])
+               && !vowel.includes(buf[n - 3])) {
+        buf += buf[n - 1]; // tip -> tipp
+    } else if (n >= 2 && buf.slice(-2).toLowerCase() === 'ie') {
+        buf = `${buf.slice(0, n - 2)}y`; // vie -> vy
+    } else if (n >= 1 && buf[n - 1] === 'e') {
+        buf = buf.slice(0, n - 1); // grease -> greas
+    }
+    return `${buf}ing${onoff}`;
+}
+
+// C ref: hacklib.c onlyspace().
+export function onlyspace(s) {
+    for (const ch of s) if (ch !== ' ' && ch !== '\t') return false;
+    return true;
+}
+
+// C ref: hacklib.c tabexpand().  Tabs advance to the next multiple of 8, and
+// the result is truncated to BUFSZ-1 characters.
+export function tabexpand(sbuf) {
+    if (!sbuf) return sbuf;
+    let out = '';
+    let idx = 0;
+    for (const ch of sbuf) {
+        if (ch === '\t') {
+            do {
+                out += ' ';
+            } while (++idx % 8);
+        } else {
+            out += ch;
+            ++idx;
+        }
+        if (idx >= BUFSZ) return out.slice(0, BUFSZ - 1);
+    }
+    return out;
+}
+
+// C ref: hacklib.c visctrl().  Renders a control byte as ^X, meta as M-, and
+// 0177 as ^?.
+export function visctrl(c) {
+    let byte = typeof c === 'string' ? c.charCodeAt(0) : c;
+    let out = '';
+    if (byte & 0o200) out += 'M-';
+    byte &= 0o177;
+    if (byte < 0o40) out += `^${String.fromCharCode(byte | 0o100)}`;
+    else if (byte === 0o177) out += `^${String.fromCharCode(byte & ~0o100)}`;
+    else out += String.fromCharCode(byte);
+    return out;
+}
+
+// C ref: hacklib.c stripchars().  Keeps at most BUFSZ-1 characters.
+export function stripchars(stuffToStrip, orig) {
+    let out = '';
+    for (const ch of orig) {
+        if (out.length >= BUFSZ - 1) break;
+        if (!stuffToStrip.includes(ch)) out += ch;
+    }
+    return out;
+}
+
+// C ref: hacklib.c stripdigits().
+export function stripdigits(s) {
+    let out = '';
+    for (const ch of s) if (ch < '0' || ch > '9') out += ch;
+    return out;
+}
+
+// C ref: hacklib.c strsubst().  Replaces only the first occurrence.
+export function strsubst(bp, orig, replacement) {
+    const at = bp.indexOf(orig);
+    if (at < 0) return bp;
+    return bp.slice(0, at) + replacement + bp.slice(at + orig.length);
+}
+
+// C ref: hacklib.c ordin().  The teens all take "th".
+export function ordin(n) {
+    const dd = n % 10;
+    if (dd === 0 || dd > 3 || Math.trunc((n % 100) / 10) === 1) return 'th';
+    return dd === 1 ? 'st' : dd === 2 ? 'nd' : 'rd';
+}
+
+// C ref: hacklib.c sitoa().  Non-negative values carry an explicit '+'.
+export function sitoa(n) {
+    return n < 0 ? `${n}` : `+${n}`;
+}
+
+// C ref: hacklib.c sgn().
+export function sgn(n) {
+    return n < 0 ? -1 : (n !== 0 ? 1 : 0);
+}
+
 // C ref: hacklib.c xcrypt().  The five-bit mask advances for every byte,
 // including bytes which are not transformed, and resets for each call.
 export function xcrypt(text) {
