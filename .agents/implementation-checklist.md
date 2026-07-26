@@ -55,7 +55,7 @@ validated.
 | 9 | `monmove.c:dochug()` ordinary action decision | Set apparent hero position, compute range/fear, and decide whether the monster moves or stays. After a move, follow the source gate into ranged-weapon selection; admit an empty selection and stop before a selected wield or attack. Stop before every other attack or special-action dispatch. | `js/monmove_dochug.js`, `js/weapon.js` | done | Post-move `AT_WEAP` selection and its atomic stop are committed at `2ce30ba`; excluded paths stop in the atomic planner. |
 | 10 | `monmove.c:m_move()` ordinary goal and candidates | Compute approach, hero tracking, movement flags, source-ordered weapon selection, `m_search_items()`, `mfndpos()` candidates, and source tie-breaking for ordinary clear destinations. | `js/monmove_move.js`, dedicated source owners for weapon and item selection, and `js/muse.js` | done | Source-selected pre-move item use and wielding are committed at `9dfa7f2` and `eb71e3d`; the own-square selected-item retry is committed at `322b6b5`. |
 | 11 | `monmove.c:m_move()` coordinate move and inert `postmov()` | Move one ordinary monster, update the map and monster track, emit source-ordered movement accessibility output, redraw, or return the source no-move status. Stop before combat, displacement, traps, selected object interactions, regions, doors, terrain, or special post-move effects. | `js/monmove_move.js`, the item-selection owner, the canonical accessibility option owner, and a thin `monmove.c` adapter | done | Source-selected post-move object handling is committed at `322b6b5`; the ignored-object and parsed `mon_movement` live-turn cases are committed at `fe906f7`. |
-| 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. Preserve the source output-parameter contract for `gtyp`, `gx`, and `gy`. | `js/dogmove_goal.js` | done | The separate returned approach and `state.gg` scratch outputs, plus the inclusive seven-square `find_targ()` boundary, are committed at `d1b07b9`. |
+| 12 | `dogmove.c:dog_goal()` ordinary follow/stay goal | Choose the hero or existing track as the starting pet's goal without selecting food, carried objects, doors, or special locations. Preserve C's split result contract: return `appr` and update the temporary `gg.gtyp/gx/gy` scratch except at the ridden-steed early abort. | `js/dogmove_goal.js` | done | The separate returned approach and `state.gg` scratch outputs, plus the inclusive seven-square `find_targ()` boundary, are committed at `d1b07b9`. |
 | 13 | `dogmove.c:dog_move()` starting-pet gates | Preserve ordinary hunger, distance, whistle, and no-action gates for an active little dog, kitten, or pony. Admit only the source-inert worn saddle created with a Knight's starting pony. Stop before every selected inventory action and before non-hero ranged-target scoring, eating, leash, steed, conflict, altered-state, or combat paths. | `js/dogmove.js`, `js/monmove_simple.js` | done | Complete two-retry clone-preflight proof for adjacent pet food is committed at `2d03208`. |
 | 14 | `dogmove.c:dog_move()` candidates and tie-breaking | Run `mon_allowflags()`, `mfndpos()`, candidate filtering, follow-distance scoring, and source tie-breaking over ordinary clear squares. | `js/dogmove.js` | done | Focused tie-breaking tests and four dog command combinations. |
 | 15 | `dogmove.c:dog_move()` coordinate move | Move the pet, update its map slot and track, or preserve its square. Stop before combat, displacement, trap, object, region, door, terrain, and other special effects. | `js/dogmove.js` and a thin `monmove.c` adapter | done | Focused ordinary and pet corridor cases are committed at `2d03208`; the strict fresh pet corridor landing is committed at `fe906f7`. |
@@ -66,10 +66,10 @@ validated.
 ### Inventory count and readiness
 
 - 18 in-boundary families: all 18 are done after D6.
-- Closure verdict: **Correctness reviewed; ready for the required clarity
-  pass**. The full audit covered the expanded exact range through `f97bd58`;
-  all six confirmed findings are resolved in linked audit-fix commits through
-  `ea815b9`.
+- Closure verdict: **Complete**. The full correctness audit covered the
+  expanded exact range through `f97bd58`; all six confirmed findings are
+  resolved through `ea815b9`. The required full clarity pass is complete and
+  all 15 confirmed exposition findings are applied through `3352321`.
 
 ## Final correctness audit and fixes
 
@@ -95,7 +95,29 @@ and 238 cursors. The recorded correctness pass clears the quality gate and
 advisory; the linked audit-fix tail is tracked for the next scheduled
 correctness range.
 
-## Correctness-audit return to implementation
+## Final clarity audit and fixes
+
+The fresh full `audit-diff-clarity` pass covered
+`3b6c38de148679a5cc8313d755ec906fa95627c3..ea815b9114c1d367800770c12cb9dcd452b17f2c`.
+Its six independent finder roles produced 22 raw findings and 18 after
+same-site deduplication. The independent adjudicator confirmed 15
+exposition-only findings, rejected three with direct counter-evidence, and
+left none unverified. No finder or judgment was lost. The fixes clarify pet
+goal ownership at `7c0b6b5`, the outer `dochugw()` action boundary at
+`f2de7a7`, and comparison/test oracles at `3352321`; tracker corrections are
+part of the closure evidence commit. The complete report is retained at
+`/tmp/simple-second-command-clarity-report.md`; top-level session
+`019f9cb5-309f-7b43-a837-e27dc3b24495` used `gpt-5.6-sol` with high reasoning
+and completed in 24 minutes 51 seconds.
+
+Post-clarity focused checkpoints pass 46 pet tests, 49 monster-turn tests, and
+58 comparison/oracle tests. Each checkpoint also passes all 1,613 tests and
+all four generated-data checks. Development totals remain 77,658 PRNG values,
+207 screens, and 238 cursors. The strict fresh matrix remains the final live
+behavior check because these fixes change names, diagnostics, comments, and
+test exposition without expanding supported gameplay.
+
+## Historical third-audit return to implementation
 
 The third full audit of
 `3b6c38de148679a5cc8313d755ec906fa95627c3..b754646b7aec6cd2dc934845b41aa6183c7fe315`
@@ -110,10 +132,10 @@ required. The complete report is retained at
 `019f9c02-6831-7213-907b-79399369192e` both verified
 `gpt-5.6-sol` with high reasoning.
 
-Implement and commit the third follow-up in this order. Each checkpoint stays
-below the review-size limit and keeps behavior or tests with its upstream
-owner. Do not change the second-turn runner, fixture, or integration test until
-D6, when all three remain one final integration commit.
+The third follow-up was implemented in this order. Each checkpoint stayed
+below the review-size limit and kept behavior or tests with its upstream owner.
+The second-turn runner, fixture, and integration test remained together until
+D6.
 
 | Checkpoint | Status | Complete source-owned change | Planned files |
 | --- | --- | --- | --- |
@@ -172,10 +194,9 @@ cursors. Its paired integration test uses the shared complete snapshot for
 every state digest and for two unchanged retries of both selected trap and
 ranged-weapon exclusions.
 
-All D1 through D6 checkpoints are complete. The exact head is frozen for a new
-full correctness audit over the expanded range. The existing `dog_goal()`
-explanation trigger and the new live environment adapter require a clarity
-pass after correctness succeeds.
+After D1 through D6 completed, the exact head entered a new full correctness
+audit over the expanded range. The `dog_goal()` explanation trigger and live
+environment adapter then entered the clarity pass recorded above.
 
 The full audit of
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`
@@ -194,11 +215,10 @@ test gaps, and one maintenance-contract gap. The omitted
 rendered output, so the audit verdict is **not ready** and the slice returns to
 Implementation. This audit is not a recorded correctness pass.
 
-Implement and commit the second follow-up in this order. Each checkpoint keeps
-its tests with the upstream owner, names its live player-action consumer, and
-stays below the review-size limit. Do not resume broad seed discovery until
-this sequence is current; use the batch scanner for each fixed strict case
-list.
+The second follow-up was implemented in this order. Each checkpoint kept its
+tests with the upstream owner, named its live player-action consumer, and
+stayed below the review-size limit. Broad seed discovery remained paused until
+the sequence was current; fixed strict lists used the batch scanner.
 
 | Checkpoint | Status | Complete source-owned change | Planned files |
 | --- | --- | --- | --- |
@@ -313,10 +333,10 @@ state and retained output. The selected trap remains excluded behavior.
 
 ## Explicit future work
 
-These are known gaps or already-started helpers outside the active goal. They
-must not be pulled into C1 through C4 merely because a generated level makes
-one reachable; the current command must fail closed when the source selects
-one.
+These are known gaps or already-started helpers outside the completed goal.
+They must not be treated as part of C1 through C4 merely because a generated
+level makes one reachable; the completed command boundary fails closed when
+the source selects one.
 
 | Future boundary | Representative source owners | Preserved work |
 | --- | --- | --- |
@@ -327,12 +347,12 @@ one.
 | Regions, engravings, liquids, ice, gas, fountains, sinks, graves, altars, and themed-room effects | `region.c`, `engrave.c`, `hack.c`, room and terrain owners | Existing first-turn/clear-square behavior stays; entry or monster interaction is future. |
 | Doors, tunneling, boulders, iron bars, and obstructed terrain | `monmove.c`, `hack.c`, door and terrain owners | Destination selection stops before these branches. |
 | Hiding, shapechanging, covetous tactics, fleeing teleportation, conflict, quest/watch/speech, item use, and other monster special actions | `mon.c`, `monmove.c`, `muse.c`, role-specific owners | Preserve worktree special-action modules for later source-owned checkpoints. |
-| Pet inventory actions, food, leashes, steeds, arrival/wait strategy, altered state, fear, ranged scoring or attacks, combat, and special movement | `dogmove.c`, `dog.c`, `monmove.c` | Preserve worktree pet modules; only ordinary move/stay and the inert worn starting saddle are current. |
+| Pet inventory actions, food, leashes, steeds, arrival/wait strategy, altered state, fear, ranged scoring or attacks, combat, and special movement | `dogmove.c`, `dog.c`, `monmove.c` | Preserve worktree pet modules; only ordinary move/stay and the inert worn starting saddle belong to the completed checkpoint. |
 | Hero traps, special terrain entry, objects, pickup, running, search, travel, force-fight, stairs, obstructed moves, and other commands | `hack.c`, `cmd.c`, trap, object, terrain, and level owners | Later exploration checkpoints. |
 
 The completed artifact, generated monster-data, relocation, tracking, object,
 pet-food, trap-effect, and other prerequisite commits remain valid. They do
-not change the active scope or count as live simple-turn closure.
+not change the completed scope or count as live simple-turn closure.
 
 ## Last complete validation before the second audit
 
@@ -381,7 +401,7 @@ not change the active scope or count as live simple-turn closure.
 
 ## Latest implementation checkpoint
 
-- Commit checked: `ea815b9114c1d367800770c12cb9dcd452b17f2c`
+- Commit checked: `33523218ed285430300f14e725bf43928b8b65e1`
 - Live player action: from the first command prompt, the game accepts two
   waits or ordinary-clear one-square walks, runs elapsed ordinary-monster and
   starting-pet work, renders and persists the result, and reaches the prompt
@@ -395,7 +415,8 @@ not change the active scope or count as live simple-turn closure.
   source comparison included state and PRNG order, output and redraw order,
   persistence, replay removal, explicit unsupported stops, and source-inert
   inventory or destination objects.
-- Focused tests: the retry-snapshot and final integration owners pass 23/23.
+- Focused tests: post-clarity checkpoints pass 46 pet, 49 monster-turn, and 58
+  comparison/oracle tests.
 - Full suite: 1,613/1,613 passed.
 - Generated-file checks: monsters, objects, symbols, and themed-room data all
   passed.
@@ -443,16 +464,16 @@ its completeness verdict and reopened six families above.
 
 ## Readiness
 
-Current mode: Ready for audit
+Current mode: Complete
 
 Reason: every source family is done, the real game executes the full
 source-to-prompt path, the 17-case strict fresh matrix and complete retry
 oracles cover the reopened behaviors, and focused, full, generated, scoring,
 and quality evidence applies to exact integrated code head
-`ea815b9114c1d367800770c12cb9dcd452b17f2c`. The correctness audit is recorded
-and every confirmed finding is resolved. The remaining formal gate is the
-concrete reviewer-facing clarity trigger around `dog_goal()` and the live
-environment adapter.
+`33523218ed285430300f14e725bf43928b8b65e1`. The correctness audit is recorded,
+its confirmed findings are resolved, and the required clarity pass completed
+all six finder roles plus independent adjudication. Every confirmed clarity
+finding is applied without expanding the gameplay boundary.
 
 ## Completed commit gates
 
@@ -473,5 +494,5 @@ Each implementation checkpoint followed these gates:
 
 At D6, the focused integration tests, full test suite, generated-data checks,
 development score, and 17-case fresh matrix passed at the committed
-integration head. The expanded range is frozen for the required new full
-correctness audit.
+integration head. That expanded range then entered the full correctness and
+clarity passes recorded above.

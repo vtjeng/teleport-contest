@@ -27,9 +27,23 @@ upstream source.
 
 ## Current milestone: exploration
 
-**Status:** implementation and end-to-end evidence are complete after the
-third full correctness review; the expanded range is ready for a new full
-correctness audit.
+**Status:** the simple second-command checkpoint is complete at validated code
+commit `33523218ed285430300f14e725bf43928b8b65e1`. The recorded full
+correctness pass covered the exact implementation range through `f97bd58`; its
+six confirmed findings were applied through `ea815b9`. The required full
+clarity pass then confirmed 15 exposition-only findings, all applied through
+the validated handoff. The quality gate and advisory are clear.
+
+The next implementation goal has not been selected. Choose another common
+exploration boundary from the explicit future-work list below before adding
+code; rare branches and helper-only prerequisites remain deferred under
+“Complete common gameplay first.”
+
+### Historical review sequence
+
+The following paragraphs preserve the review and return-to-Implementation
+sequence that produced the completed checkpoint.
+
 The first review covered
 `3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`.
 The review confirmed seven production gaps and six test gaps in the active
@@ -73,16 +87,15 @@ integration test keeps selected trap and ranged-weapon exclusions retryable.
 
 **Milestone objective:** Complete movement beyond the first unobstructed step,
 then running, search, doors, traps, pickup, stairs, terrain effects, vision,
-and status updates. The active checkpoint below is the only current
-implementation goal; the rest of the exploration objective remains ordered
-future work.
+and status updates. The completed checkpoint below is the first source-closed
+slice of that objective; the rest remains ordered future work.
 
-**Active implementation goal: Simple second command.** Starting at a correctly
-generated first command prompt, accept two time-consuming commands where each
-command is either a wait or a one-square walk onto ordinary clear floor or
-corridor. Match through the prompt after the second command. During elapsed
-work, ordinary initial D:1 monsters and the starting little dog, kitten, or
-pony may move normally or stay put.
+**Completed implementation goal: Simple second command.** Starting at a
+correctly generated first command prompt, accept two time-consuming commands
+where each command is either a wait or a one-square walk onto ordinary clear
+floor or corridor. Match through the prompt after the second command. During
+elapsed work, ordinary initial D:1 monsters and the starting little dog,
+kitten, or pony may move normally or stay put.
 
 This checkpoint deliberately stops before any path that requires combat, trap
 activation, teleportation or other relocation, a level change, item
@@ -92,10 +105,10 @@ fail closed before that elapsed branch changes gameplay state or consumes
 gameplay PRNG. The segment runner retains the already-supported output, and
 the pending elapsed phase remains retryable after its owner is implemented.
 
-The active goal closes only when every current family in
-`.agents/implementation-checklist.md` is source-closed, focused and repository
-validation passes, several strict fresh comparisons reach the second prompt,
-the committed range is reviewed, and the repository is clean.
+This goal closed after every family in
+`.agents/implementation-checklist.md` was source-closed, focused and repository
+validation passed, strict fresh comparisons reached the second prompt, the
+committed range was reviewed, and the repository was clean.
 
 **Implementation sequence:** The ordinary `monmove.c` move-or-stay owner,
 starting-pet `dogmove.c` move-or-stay owner, atomic action adapter, and
@@ -127,7 +140,7 @@ development-score drop at
 earned after those behaviors became unowned; do not recover that credit by
 relaxing the fail-closed boundary.
 
-**Explicit future exploration work, outside the active goal:**
+**Explicit future exploration work, outside the completed goal:**
 
 - Hero or monster combat, including attacks, retaliation, displacement,
   knockback, damage, death, corpses, weapon selection, ranged attacks, spells,
