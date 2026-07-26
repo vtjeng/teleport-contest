@@ -284,6 +284,60 @@ test('strict parity rejects trailing JS output beyond the scorer total', () => {
     assert.equal(result.cursorMismatch.cCursor, undefined);
 });
 
+test('strict parity preserves output boundaries between replay segments', () => {
+    const recording = {
+        version: 5,
+        segments: [
+            {
+                seed: 10101,
+                datetime: '20311224010203',
+                nethackrc: '',
+                moves: '',
+                steps: [{
+                    key: null,
+                    rng: ['rn2(2)=1 @ first(segment.c:10)'],
+                    screen: 'A',
+                    cursor: [1, 0, 1],
+                }],
+            },
+            {
+                seed: 20202,
+                datetime: '20311224010203',
+                nethackrc: '',
+                moves: '',
+                steps: [{
+                    key: null,
+                    rng: ['rn2(3)=2 @ second(segment.c:20)'],
+                    screen: 'B',
+                    cursor: [2, 0, 1],
+                }],
+            },
+        ],
+    };
+    const result = compareSessionOutputs(recording, {
+        // The flattened streams match exactly. Moving the first segment's
+        // output into the second must still fail at the persistence boundary.
+        rng: ['rn2(2)=1', 'rn2(3)=2'],
+        screens: ['A', 'B'],
+        cursors: [[1, 0, 1], [2, 0, 1]],
+        segments: [
+            { rng: [], screens: [], cursors: [] },
+            {
+                rng: ['rn2(2)=1', 'rn2(3)=2'],
+                screens: ['A', 'B'],
+                cursors: [[1, 0, 1], [2, 0, 1]],
+            },
+        ],
+    });
+
+    assert.equal(result.passed, false);
+    assert.deepEqual(result.lengths.rng, { c: 2, js: 2 });
+    assert.deepEqual(result.lengths.screens, { c: 2, js: 2 });
+    assert.equal(result.rngMismatch.location.segmentIndex, 0);
+    assert.equal(result.screenMismatch.location.segmentIndex, 0);
+    assert.equal(result.cursorMismatch.location.segmentIndex, 0);
+});
+
 test('records a recipe through record-session before running the judge contract', async (t) => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'diff-fresh-test-'));
     t.after(() => fs.rm(tempRoot, { recursive: true, force: true }));

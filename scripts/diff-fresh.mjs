@@ -355,32 +355,40 @@ function appendAll(target, source) {
     for (const value of source) target.push(value);
 }
 
-function recordedTrace(recording) {
+function recordedSegmentTrace(segment, segmentIndex) {
     const rng = [];
     const screens = [];
     const cursors = [];
-    const segments = normalizeSession(recording).segments;
-    for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex++) {
-        const segment = segments[segmentIndex];
-        for (let stepIndex = 0; stepIndex < (segment.steps || []).length; stepIndex++) {
-            const step = segment.steps[stepIndex];
-            const location = {
-                segmentIndex,
-                stepIndex,
-                key: step.key ?? null,
-            };
-            for (const entry of step.rng || []) {
-                if (isRngCall(entry)) rng.push({ entry, location });
-            }
-            // Match the official scorer: only a truthy canonical screen enters
-            // the positional screen/cursor streams.
-            if (step.screen) {
-                screens.push({ screen: step.screen, location });
-                cursors.push(Array.isArray(step.cursor) ? step.cursor : null);
-            }
+    for (let stepIndex = 0; stepIndex < (segment.steps || []).length; stepIndex++) {
+        const step = segment.steps[stepIndex];
+        const location = {
+            segmentIndex,
+            stepIndex,
+            key: step.key ?? null,
+        };
+        for (const entry of step.rng || []) {
+            if (isRngCall(entry)) rng.push({ entry, location });
+        }
+        // Match the official scorer: only a truthy canonical screen enters
+        // the positional screen/cursor streams.
+        if (step.screen) {
+            screens.push({ screen: step.screen, location });
+            cursors.push(Array.isArray(step.cursor) ? step.cursor : null);
         }
     }
     return { rng, screens, cursors };
+}
+
+function recordedTrace(recording) {
+    const segments = normalizeSession(recording).segments.map(
+        recordedSegmentTrace,
+    );
+    return {
+        rng: segments.flatMap(({ rng }) => rng),
+        screens: segments.flatMap(({ screens }) => screens),
+        cursors: segments.flatMap(({ cursors }) => cursors),
+        segments,
+    };
 }
 
 function preDecode(screen) {
@@ -419,11 +427,42 @@ function cursorsEqual(cCursor, jsCursor) {
         && cCursor[2] === jsCursor[2];
 }
 
+function firstSegmentLengthMismatch(cSegments, jsSegments, field) {
+    let cOffset = 0;
+    const count = Math.max(cSegments.length, jsSegments.length);
+    for (let segmentIndex = 0; segmentIndex < count; ++segmentIndex) {
+        const cValues = cSegments[segmentIndex]?.[field] ?? [];
+        const jsValues = jsSegments[segmentIndex]?.[field] ?? [];
+        if (cValues.length !== jsValues.length) {
+            return {
+                cOffset,
+                cValues,
+                jsValues,
+                localIndex: Math.min(cValues.length, jsValues.length),
+                location: cSegments[segmentIndex]?.screens[0]?.location ?? {
+                    segmentIndex,
+                    stepIndex: 0,
+                    key: null,
+                },
+            };
+        }
+        cOffset += cValues.length;
+    }
+    return null;
+}
+
 export function compareSessionOutputs(recording, jsOutput) {
     const c = recordedTrace(recording);
     const jsRng = (jsOutput.rng || []).filter(isRngCall);
     const jsScreens = jsOutput.screens || [];
     const jsCursors = jsOutput.cursors || [];
+    const jsSegments = Array.isArray(jsOutput.segments)
+        ? jsOutput.segments.map((segment) => ({
+            rng: (segment.rng || []).filter(isRngCall),
+            screens: segment.screens || [],
+            cursors: segment.cursors || [],
+        }))
+        : null;
 
     let rngMismatch = null;
     const rngCommon = Math.min(c.rng.length, jsRng.length);
@@ -449,6 +488,27 @@ export function compareSessionOutputs(recording, jsOutput) {
             location: c.rng[i]?.location,
         };
     }
+    if (!rngMismatch && jsSegments) {
+        const boundary = firstSegmentLengthMismatch(
+            c.segments,
+            jsSegments,
+            'rng',
+        );
+        if (boundary) {
+            const i = boundary.localIndex;
+            const cEntry = boundary.cValues[i]?.entry;
+            const jsEntry = boundary.jsValues[i];
+            rngMismatch = {
+                index: boundary.cOffset + i,
+                cEntry: cEntry === undefined
+                    ? undefined : normalizeRng(cEntry),
+                cCaller: cEntry === undefined ? null : rngCaller(cEntry),
+                jsEntry: jsEntry === undefined
+                    ? undefined : normalizeRng(jsEntry),
+                location: boundary.location,
+            };
+        }
+    }
 
     let screenMismatch = null;
     const screenCommon = Math.min(c.screens.length, jsScreens.length);
@@ -469,6 +529,21 @@ export function compareSessionOutputs(recording, jsOutput) {
             location: c.screens[screenCommon]?.location,
             kind: c.screens[screenCommon] ? 'js-missing' : 'c-missing',
         };
+    }
+    if (!screenMismatch && jsSegments) {
+        const boundary = firstSegmentLengthMismatch(
+            c.segments,
+            jsSegments,
+            'screens',
+        );
+        if (boundary) {
+            const i = boundary.localIndex;
+            screenMismatch = {
+                index: boundary.cOffset + i,
+                location: boundary.location,
+                kind: boundary.cValues[i] ? 'js-missing' : 'c-missing',
+            };
+        }
     }
 
     let cursorMismatch = null;
@@ -493,6 +568,27 @@ export function compareSessionOutputs(recording, jsOutput) {
             jsCursor: jsCursors[i],
         };
     }
+    if (!cursorMismatch && jsSegments) {
+        const boundary = firstSegmentLengthMismatch(
+            c.segments,
+            jsSegments,
+            'cursors',
+        );
+        if (boundary) {
+            const i = boundary.localIndex;
+            cursorMismatch = {
+                index: boundary.cOffset + i,
+                location: boundary.location,
+                cCursor: boundary.cValues[i],
+                jsCursor: boundary.jsValues[i],
+            };
+        }
+    }
+
+    const segmentMismatch = jsSegments
+        && c.segments.length !== jsSegments.length
+        ? { c: c.segments.length, js: jsSegments.length }
+        : null;
 
     const lengths = {
         rng: { c: c.rng.length, js: jsRng.length },
@@ -500,12 +596,14 @@ export function compareSessionOutputs(recording, jsOutput) {
         cursors: { c: c.cursors.length, js: jsCursors.length },
     };
     return {
-        passed: !jsOutput.error && !rngMismatch && !screenMismatch && !cursorMismatch,
+        passed: !jsOutput.error && !segmentMismatch
+            && !rngMismatch && !screenMismatch && !cursorMismatch,
         error: jsOutput.error || null,
         lengths,
         rngMismatch,
         screenMismatch,
         cursorMismatch,
+        segmentMismatch,
     };
 }
 
@@ -530,7 +628,13 @@ function storageHandle() {
 export async function runJsSession(recording, scoringRoot) {
     const runnerUrl = pathToFileURL(join(scoringRoot, 'js', 'jsmain.js')).href;
     const { runSegment } = await import(runnerUrl);
-    const output = { rng: [], screens: [], cursors: [], error: null };
+    const output = {
+        rng: [],
+        screens: [],
+        cursors: [],
+        segments: [],
+        error: null,
+    };
     const storage = storageHandle();
 
     try {
@@ -544,9 +648,15 @@ export async function runJsSession(recording, scoringRoot) {
                 storage,
             });
             const rng = (game.getRngLog?.() || []).map(withoutJsIndex).filter(isRngCall);
-            appendAll(output.rng, rng);
-            appendAll(output.screens, game.getScreens?.() || []);
-            appendAll(output.cursors, game.getCursors?.() || []);
+            const segmentOutput = {
+                rng,
+                screens: game.getScreens?.() || [],
+                cursors: game.getCursors?.() || [],
+            };
+            output.segments.push(segmentOutput);
+            appendAll(output.rng, segmentOutput.rng);
+            appendAll(output.screens, segmentOutput.screens);
+            appendAll(output.cursors, segmentOutput.cursors);
         }
     } catch (error) {
         output.error = error?.message || String(error);
@@ -662,6 +772,12 @@ function cellText(cell) {
 export function formatReport(result) {
     const lines = [];
     if (result.error) lines.push(`JS error: ${result.error}`);
+    if (result.segmentMismatch) {
+        lines.push(
+            'Segment count mismatch: '
+            + `C=${result.segmentMismatch.c}, JS=${result.segmentMismatch.js}`,
+        );
+    }
 
     lines.push(lengthLine('PRNG', result.lengths.rng));
     if (result.rngMismatch) {
