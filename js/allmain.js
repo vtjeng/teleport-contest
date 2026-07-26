@@ -33,6 +33,7 @@ import { makedog, see_nearby_monsters } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { m_at } from './monst.js';
 import {
+    adaptMonsterActionEnvironment,
     decide_to_shapeshift,
     mcalcdistress,
     mcalcmove,
@@ -633,6 +634,9 @@ function unavailableSecondTurnOperation(operation) {
     };
 }
 
+const runSecondTurnMonsterAction =
+    adaptMonsterActionEnvironment(runSimpleMonsterAction);
+
 async function moveSecondTurnMonster(monster, env) {
     return movemon_singlemon(monster, {
         ...env,
@@ -649,7 +653,7 @@ async function moveSecondTurnMonster(monster, env) {
         canSeeHero: () => true,
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: unavailableSecondTurnOperation('conflict combat'),
-        moveMonster: runSimpleMonsterAction,
+        moveMonster: runSecondTurnMonsterAction,
     });
 }
 

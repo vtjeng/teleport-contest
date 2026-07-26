@@ -14,6 +14,7 @@ import {
     STRAT_WAITMASK,
 } from '../js/const.js';
 import {
+    adaptMonsterActionEnvironment,
     counter_were,
     curr_mon_load,
     decide_to_shapeshift,
@@ -149,6 +150,25 @@ function actionOperations(overrides = {}) {
         ...overrides,
     };
 }
+
+test('monster action adapter passes the normalized state and RNG environment',
+    async () => {
+        const subject = { sentinel: 'monster' };
+        const state = { sentinel: 'state' };
+        const random = { sentinel: 'random' };
+        const env = { state, random };
+        const action = adaptMonsterActionEnvironment(
+            async (monsterArg, envArg) => {
+                assert.equal(monsterArg, subject);
+                assert.equal(envArg, env);
+                assert.equal(envArg.state, state);
+                assert.equal(envArg.random, random);
+                return 17;
+            },
+        );
+
+        assert.equal(await action(subject, true, env), 17);
+    });
 
 test('wake_nearto wakes only living monsters inside the strict range',
     async () => {

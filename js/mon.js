@@ -149,6 +149,13 @@ function requiredSingleMonsterOperation(env, name) {
     return operation;
 }
 
+// movemon_singlemon() calls dochugw(monster, true) after normalizing its
+// action environment. Adapt an environment-owned action without letting the
+// source `chug` argument displace that environment.
+export function adaptMonsterActionEnvironment(action) {
+    return (monster, _chug, env) => action(monster, env);
+}
+
 function activeMonsterOperations(env) {
     return {
         visionRecalc: requiredSingleMonsterOperation(env, 'visionRecalc'),
