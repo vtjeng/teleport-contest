@@ -580,7 +580,6 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
         .filter((spell) => spell.sp_id !== NO_SPELL);
     assert.ok(knownSpells.length > 0);
     assert.ok(knownSpells.every((spell) => spell.sp_know === 19999));
-    assert.notEqual(game.context.turn_replay_blocked, true);
 });
 
 test('first unobstructed move records its destination before the next prompt', async () => {

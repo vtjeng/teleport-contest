@@ -78,7 +78,9 @@ export function loadRepeatedSimpleCommandsRecipe() {
                     role: 'Tourist',
                     options: 'mention_walls,safe_pet',
                 }),
-                moves: 'y',
+                // Refusal is zero-time; the waits prove its timed fleeing pet
+                // state remains inside the supported action continuation.
+                moves: 'y....',
             },
             {
                 seed: 32003,

@@ -53,26 +53,34 @@ function baseState() {
     };
 }
 
-function queuedRandom(values) {
+function queuedRandom(values, expectedCalls) {
     const queue = [...values];
-    const take = (bound) => {
+    const calls = [];
+    const take = (descriptor, bound) => {
+        calls.push(descriptor);
         assert.ok(queue.length > 0, `missing deterministic value for bound ${bound}`);
         const value = queue.shift();
         assert.ok(value >= 0 && value < bound, `${value} is outside bound ${bound}`);
         return value;
     };
     return {
-        rn2: take,
-        rn1: (range, base) => take(range) + base,
-        rnd: (bound) => take(bound) + 1,
-        done: () => assert.equal(queue.length, 0),
+        rn2: (bound) => take(`rn2(${bound})`, bound),
+        rn1: (range, base) => take(`rn1(${range},${base})`, range) + base,
+        rnd: (bound) => take(`rnd(${bound})`, bound) + 1,
+        done() {
+            assert.equal(queue.length, 0);
+            assert.deepEqual(calls, expectedCalls);
+        },
     };
 }
 
 test('newhp and newpw preserve initial advancement order and alignment state', () => {
     const state = baseState();
     // Draws exercise role HP, race HP, role Pw, then race Pw in source order.
-    const random = queuedRandom([2, 0, 3, 1]);
+    const random = queuedRandom(
+        [2, 0, 3, 1],
+        ['rnd(4)', 'rnd(2)', 'rnd(4)', 'rnd(2)'],
+    );
     assert.equal(newhp(state, random), 14);
     assert.deepEqual(state.u.ualign, { type: 0, record: 10 });
     assert.equal(state.u.uhpinc[0], 14);
@@ -86,7 +94,7 @@ test('newhp reads initial alignment from the canonical role table', () => {
     // Chaotic catches the old state.aligns fallback, which silently produced
     // neutral when a normal game state did not carry a duplicate table.
     state.flags.initalign = 2;
-    const random = queuedRandom([2, 0]);
+    const random = queuedRandom([2, 0], ['rnd(4)', 'rnd(2)']);
     assert.equal(newhp(state, random), 14);
     assert.deepEqual(state.u.ualign, { type: -1, record: 10 });
     random.done();
@@ -98,7 +106,10 @@ test('level advancement applies constitution and role energy modifiers', () => {
     // Constitution 17 adds two HP; Wisdom 14 contributes seven to Pw range.
     state.u.acurr = { a: [10, 10, 14, 10, 17, 10] };
     // HP role d6=4 and race d2=2; Pw rn1 range draw is 5.
-    const random = queuedRandom([3, 1, 5]);
+    const random = queuedRandom(
+        [3, 1, 5],
+        ['rnd(6)', 'rnd(2)', 'rn1(11,1)'],
+    );
     assert.equal(newhp(state, random), 9);
     // Healer's 3/2 modifier applies after rn1(11,1) returns 6.
     assert.equal(newpw(state, random), 9);
@@ -116,10 +127,13 @@ test('advancement uses effective Constitution and Wisdom with source caps', () =
     assert.equal(effective_attribute(state, A_CON), 18);
     assert.equal(effective_attribute(state, A_WIS), 18);
 
-    const random = queuedRandom([
-        3, 1, // newhp(): role d6=4, race d2=2.
-        12, // newpw(): rn1(13,1) returns 13.
-    ]);
+    const random = queuedRandom(
+        [
+            3, 1, // newhp(): role d6=4, race d2=2.
+            12, // newpw(): rn1(13,1) returns 13.
+        ],
+        ['rnd(6)', 'rnd(2)', 'rn1(13,1)'],
+    );
     assert.equal(newhp(state, random), 10);
     assert.equal(state.u.uhpinc[5], 10);
     assert.equal(newpw(state, random), 19);
@@ -136,7 +150,10 @@ test('init_attr distributes the requested total with role weights', () => {
     const state = baseState();
     // Six base attributes total 42. These weighted draws assign the remaining
     // three points to Strength, Intelligence, and Charisma respectively.
-    const random = queuedRandom([0, 20, 99]);
+    const random = queuedRandom(
+        [0, 20, 99],
+        ['rn2(100)', 'rn2(100)', 'rn2(100)'],
+    );
     assert.equal(init_attr(45, state, random), 0);
     assert.deepEqual(state.u.acurr.a, [8, 8, 7, 7, 7, 8]);
     assert.deepEqual(state.u.amax.a, [8, 8, 7, 7, 7, 8]);
@@ -148,7 +165,13 @@ test('vary_init_attr consumes the source checks and clamps a decrease', () => {
     state.u.acurr = { a: [7, 7, 7, 7, 7, 7] };
     state.u.amax = { a: [7, 7, 7, 7, 7, 7] };
     // Attribute 0 varies by -2; the other five rn2(20) checks do not vary.
-    const random = queuedRandom([0, 0, 1, 1, 1, 1, 1]);
+    const random = queuedRandom(
+        [0, 0, 1, 1, 1, 1, 1],
+        [
+            'rn2(20)', 'rn2(7)', 'rn2(20)', 'rn2(20)',
+            'rn2(20)', 'rn2(20)', 'rn2(20)',
+        ],
+    );
     vary_init_attr(state, random);
     assert.equal(state.u.acurr.a[0], 5);
     assert.equal(state.u.amax.a[0], 5);
@@ -249,7 +272,7 @@ test('adjattrib preserves below-minimum base and maximum handling', async () => 
     const messages = [];
     // Decreasing Strength by two makes the tentative base 1. C draws rn2(3)
     // for how much of maximum 10 is lost; value 1 leaves maximum 9.
-    const random = queuedRandom([1]);
+    const random = queuedRandom([1], ['rn2(3)']);
 
     assert.equal(
         await adjattrib(A_STR, -2, 0, state, {
@@ -284,7 +307,10 @@ test('exerchk applies and reschedules the move-600 attribute check', async () =>
     // rn2(19)=0 leaves Constitution exercise unchanged. rn2(50)=0 passes
     // Strength's threshold; 49 misses Wisdom's. rn1(200,800)=817 schedules
     // the next check at move 1,417.
-    const random = queuedRandom([0, 0, 49, 17]);
+    const random = queuedRandom(
+        [0, 0, 49, 17],
+        ['rn2(19)', 'rn2(50)', 'rn2(50)', 'rn1(200,800)'],
+    );
 
     assert.equal(
         await exerchk(state, {
@@ -308,6 +334,47 @@ test('exerchk applies and reschedules the move-600 attribute check', async () =>
     ]);
     random.done();
 });
+
+test('exerchk applies a scheduled Wisdom abuse and reschedules it',
+    async () => {
+        const state = baseState();
+        state.moves = 601;
+        state.multi = 0;
+        state.context = { next_attrib_check: 600 };
+        state.program_state = { in_moveloop: 1 };
+        state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+        state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+        state.u.aexe = [0, 0, -4, 0, 0, 0];
+        state.u.uhunger = 900;
+        state.u.uprops = {};
+        const messages = [];
+        const random = queuedRandom(
+            [0, 17],
+            ['rn2(50)', 'rn1(200,800)'],
+        );
+
+        assert.equal(
+            await exerchk(state, {
+                random,
+                nearCapacity: () => 0,
+                encumberMessage: () => assert.fail(
+                    'Wisdom abuse has no physical encumbrance message',
+                ),
+                message: (message) => messages.push(message),
+            }),
+            true,
+        );
+
+        assert.equal(state.u.acurr.a[A_WIS], 9);
+        assert.equal(state.u.aexe[A_WIS], 0);
+        assert.equal(state.disp.botl, true);
+        assert.equal(state.context.next_attrib_check, 1417);
+        assert.deepEqual(messages, [
+            'You feel foolish!',
+            "You haven't been paying attention.",
+        ]);
+        random.done();
+    });
 
 test('newuexp keeps the three source ranges', () => {
     // Levels 1, 10, and 20 select each branch of exper.c newuexp().

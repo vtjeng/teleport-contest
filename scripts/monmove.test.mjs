@@ -406,6 +406,103 @@ function deferred() {
     return { promise, resolve };
 }
 
+test('m_move owns trapped, eating, and tame prologue order', async () => {
+    {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state);
+        const events = [];
+        assert.equal(
+            await m_move(monster, {
+                state,
+                random: { rn2: () => assert.fail('trapped path RNG') },
+                resolveTrappedMonster: () => {
+                    events.push('trap');
+                    return true;
+                },
+                finishEating: () => assert.fail('trapped path eating'),
+                movePet: () => assert.fail('trapped path pet move'),
+                resistsTrapEffect: () => false,
+                postMonsterMove: () => assert.fail('trapped path postmov'),
+                unsupported: (reason) => assert.fail(reason),
+            }),
+            MMOVE_NOTHING,
+        );
+        assert.deepEqual(events, ['trap']);
+    }
+
+    {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, { meating: 1 });
+        const events = [];
+        assert.equal(
+            await m_move(monster, {
+                state,
+                random: { rn2: () => assert.fail('eating path RNG') },
+                resolveTrappedMonster: () => {
+                    events.push('trap');
+                    return false;
+                },
+                finishEating: (subject) => {
+                    assert.equal(subject, monster);
+                    events.push('finish');
+                },
+                movePet: () => assert.fail('eating path pet move'),
+                resistsTrapEffect: () => false,
+                postMonsterMove: () => assert.fail('eating path postmov'),
+                unsupported: (reason) => assert.fail(reason),
+            }),
+            MMOVE_DONE,
+        );
+        assert.equal(monster.meating, 0);
+        assert.deepEqual(events, ['trap', 'finish']);
+    }
+
+    {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, {
+            mtame: 10,
+            mx: 4,
+            my: 4,
+            mux: 0,
+            muy: 0,
+        });
+        state.level.monsters[4][4] = monster;
+        const events = [];
+        assert.equal(
+            await m_move(monster, {
+                state,
+                random: { rn2: () => assert.fail('tame dispatch RNG') },
+                resolveTrappedMonster: () => {
+                    events.push('trap');
+                    return false;
+                },
+                finishEating: () => assert.fail('tame path eating'),
+                movePet(subject, after) {
+                    assert.equal(subject, monster);
+                    assert.equal(after, false);
+                    assert.deepEqual(
+                        [subject.mux, subject.muy],
+                        [state.u.ux, state.u.uy],
+                    );
+                    events.push('dog_move');
+                    return MMOVE_MOVED;
+                },
+                resistsTrapEffect: () => false,
+                postMonsterMove(subject, oldX, oldY, status) {
+                    assert.equal(subject, monster);
+                    assert.deepEqual([oldX, oldY], [4, 4]);
+                    assert.equal(status, MMOVE_MOVED);
+                    events.push('postmov');
+                    return status;
+                },
+                unsupported: (reason) => assert.fail(reason),
+            }),
+            MMOVE_MOVED,
+        );
+        assert.deepEqual(events, ['trap', 'dog_move', 'postmov']);
+    }
+});
+
 test('m_move pins source candidate order and reservoir tie-breaking',
     async () => {
     const { locations, state } = makeState();

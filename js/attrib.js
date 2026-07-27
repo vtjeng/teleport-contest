@@ -1,5 +1,6 @@
-// attrib.js — hero attribute initialization and hit-point advancement.
-// C ref: src/attrib.c newhp(), init_attr(), and vary_init_attr().
+// attrib.js — hero attributes, advancement, exercise, and adjustment.
+// C ref: src/attrib.c newhp(), init_attr(), vary_init_attr(), exercise(),
+// exerper(), adjattrib(), and exerchk().
 
 import {
     A_CHA,

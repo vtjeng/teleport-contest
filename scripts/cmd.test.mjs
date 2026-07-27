@@ -362,6 +362,46 @@ test('simple hero movement rejects spot effects before mutation', async () => {
     }
 });
 
+test('live !safe_pet collision is a zero-PRNG retryable boundary',
+    async () => {
+        const replay = await runSegment({
+            seed: 31009,
+            datetime: '20300102030405',
+            nethackrc: 'OPTIONS=name:UnsafePet,role:Tourist,race:human,'
+                + 'gender:male,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,mention_walls,!safe_pet,!acoustics',
+            moves: '',
+        });
+        let pet = game.level.monlist;
+        while (pet && pet.m_id !== game.context.startingpet_mid)
+            pet = pet.nmon;
+        assert.ok(pet);
+        assert.equal(game.flags.safe_dog, false);
+        game.u.dx = pet.mx - game.u.ux;
+        game.u.dy = pet.my - game.u.uy;
+        assert.ok(Math.abs(game.u.dx) <= 1 && Math.abs(game.u.dy) <= 1);
+        assert.notDeepEqual([game.u.dx, game.u.dy], [0, 0]);
+        game.u.umoved = false;
+        game.context.move = 1;
+        game.domoveAttempting = 1;
+        const before = heroMoveAdmissionSnapshot(replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                domove(game),
+                (error) => (
+                    error instanceof UnsupportedHeroMoveBoundaryError
+                    && error.reason === 'hero combat or displacement'
+                ),
+            );
+            assert.deepEqual(
+                heroMoveAdmissionSnapshot(replay),
+                before,
+                `attempt ${attempt + 1}`,
+            );
+        }
+    });
+
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
         {

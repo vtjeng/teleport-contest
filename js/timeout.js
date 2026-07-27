@@ -229,17 +229,16 @@ function currentMove(state) {
 
 export class UnsupportedHeroTimeoutBoundaryError extends Error {
     constructor(reason) {
-        super(`fresh-turn nh_timeout requires ${reason}`);
+        super(`elapsed-turn nh_timeout requires ${reason}`);
         this.name = 'UnsupportedHeroTimeoutBoundaryError';
     }
 }
 
 // C ref: timeout.c nh_timeout() and timer.c run_timers(), specialized to the
-// source-guaranteed fresh-game state admitted by the first complete turn.
-// Fresh heroes have no active property/scalar timeout, and every creation-time
-// object timer expires well after move 2.  Validate those invariants rather
-// than silently skipping a newly reachable timeout branch.
-export function nh_timeout_fresh_turn(state = game) {
+// source-inert timeout state admitted by the current repeated-command
+// boundary. Validate those invariants rather than silently skipping a newly
+// reachable timeout branch.
+export function nh_timeout_elapsed_turn(state = game) {
     const u = state.u ?? {};
     if (u.uinvulnerable) return;
     for (const [name, value] of [

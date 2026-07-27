@@ -174,7 +174,7 @@ function assertSimpleActionState(monster, state) {
         unsupported('inconsistent frozen monster state');
     if (monster.mtrapped)
         unsupported('a trapped monster');
-    if (monster.mconf || monster.mstun || monster.mflee || monster.meating)
+    if (monster.mconf || monster.mstun || monster.meating)
         unsupported('altered monster movement state');
 
     if (monster.mtame && !monster.isminion) {
@@ -186,6 +186,16 @@ function assertSimpleActionState(monster, state) {
         }
         if (!monster.mextra?.edog)
             unsupported('missing starting-pet state');
+        // uhitm.c:do_attack() can call monflee(rnd(6), FALSE, FALSE) when
+        // safe_pet refuses an attack.  mon.c:movemon_singlemon() decrements
+        // this seven-bit timer before dochug(), so a live fleeing starting
+        // pet must retain a positive source-bounded timeout here.
+        if (monster.mflee
+            && (!Number.isInteger(monster.mfleetim)
+                || monster.mfleetim < 1
+                || monster.mfleetim > 127)) {
+            unsupported('altered monster movement state');
+        }
         if (monster.minvent
             && !hasOnlyInertStartingSaddle(monster, state)) {
             unsupported('pet inventory');
@@ -195,6 +205,8 @@ function assertSimpleActionState(monster, state) {
 
     if (monster.mtame || monster.isminion)
         unsupported('minion movement');
+    if (monster.mflee)
+        unsupported('altered monster movement state');
     if (monster.wormno || monster.isshk || monster.isgd
         || monster.ispriest || is_covetous(monster.data)) {
         unsupported('special monster movement');
