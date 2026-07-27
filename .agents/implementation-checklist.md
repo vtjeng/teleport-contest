@@ -103,7 +103,7 @@ None.
 
 Record evidence for the exact committed head that will be reviewed.
 
-- Commit checked: `6a479d0fc5bd6929b5d9a59cc4ffbc94c44a07ff`.
+- Commit checked: `6a479d0fc5bd6929b5d9a59cc4ffbc94c44a07ff`
 - Source review: retained the periodic-upkeep review and compared the newly
   live paths with `hack.c:test_move()` and `domove_swap_with_pet()`,
   `uhitm.c:do_attack()`, `pickup.c:pickup()` and `check_here()`, and
