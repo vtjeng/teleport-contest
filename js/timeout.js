@@ -231,6 +231,7 @@ export class UnsupportedHeroTimeoutBoundaryError extends Error {
     constructor(reason) {
         super(`elapsed-turn nh_timeout requires ${reason}`);
         this.name = 'UnsupportedHeroTimeoutBoundaryError';
+        this.reason = reason;
     }
 }
 

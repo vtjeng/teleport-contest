@@ -322,6 +322,9 @@ async function readSimpleCommand(state) {
 
 // C ref: cmd.c reset_cmd_vars(). Command queues and travel-map ownership stay
 // with their future subsystems; this resets the state already owned here.
+// context.pendingCommand is the JS retry owner rather than a C command
+// variable, so this reset deliberately preserves it until rhack() either
+// completes that command or reaches a non-retryable result.
 export function resetCommandVars(state = game) {
     state.context ??= {};
     state.iflags ??= {};
@@ -413,10 +416,12 @@ function rejectedPhysicalCommand(pending) {
 
 // C ref: cmd.c rhack(). Only the source handlers owned by this milestone are
 // dispatched here; later command families retain the existing unknown-command
-// behavior until their complete handlers are ported. key === 0 reads and
-// parses a fresh command; any nonzero key is supplied command input (normally
-// cmdKey during a repeat) and dispatches without another read. rhack() has no
-// command-result return; context.move reports whether the command took time.
+// behavior until their complete handlers are ported. key === 0 normally reads
+// and parses a fresh command, except that a retained pendingCommand restores
+// its physical or parsed retry phase first. Any nonzero key is supplied
+// command input (normally cmdKey during a repeat) and dispatches without
+// another read. rhack() has no command-result return; context.move reports
+// whether the command took time.
 export async function rhack(key, state = game) {
     state.iflags ??= {};
     state.context ??= {};

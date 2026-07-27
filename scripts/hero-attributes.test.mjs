@@ -320,6 +320,39 @@ test('adjattrib preserves all three source message modes', async () => {
     }
 });
 
+test('adjattrib awaits change output before encumbrance follow-up',
+    async () => {
+        const state = baseState();
+        state.program_state = { in_moveloop: 1 };
+        state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+        state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+        state.u.aexe = [4, 0, 0, 0, 0, 0];
+        state.u.abon = [0, 0, 0, 0, 0, 0];
+        state.u.atemp = [0, 0, 0, 0, 0, 0];
+        state.u.uprops = {};
+        const events = [];
+        let releaseMessage;
+        const messageGate = new Promise((resolve) => {
+            releaseMessage = resolve;
+        });
+
+        const adjustment = adjattrib(A_STR, 1, -1, state, {
+            message() {
+                events.push('message');
+                return messageGate;
+            },
+            encumberMessage() {
+                events.push('encumber');
+            },
+        });
+        await Promise.resolve();
+        assert.deepEqual(events, ['message']);
+
+        releaseMessage();
+        assert.equal(await adjustment, true);
+        assert.deepEqual(events, ['message', 'encumber']);
+    });
+
 test('exerchk applies and reschedules the move-600 attribute check', async () => {
     const state = baseState();
     state.moves = 600;

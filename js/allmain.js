@@ -93,6 +93,7 @@ import {
     run_regions,
 } from './region.js';
 import {
+    UnsupportedHeroTimeoutBoundaryError,
     nh_timeout_elapsed_turn,
     preflight_nh_timeout_elapsed_turn,
 } from './timeout.js';
@@ -516,8 +517,9 @@ async function moveElapsedTurnMonster(monster, env) {
 // once-per-turn upkeep waits until both sides are out. This serves every turn
 // after the first.
 async function advanceElapsedTurn(state) {
+    let preflight;
     try {
-        await preflightSimpleMonsterActions(state);
+        preflight = await preflightSimpleMonsterActions(state);
     } catch (error) {
         if (!(error instanceof UnsupportedSimpleMonsterActionError))
             throw error;
@@ -525,24 +527,40 @@ async function advanceElapsedTurn(state) {
         boundary.reason = error.reason;
         throw boundary;
     }
-    try {
-        preflightGetHungry(state, {
-            nearCapacity: () => UNENCUMBERED,
-            message: ttyPline,
-            endRunning,
-            statusRefresh: () => bot(),
-        });
-    } catch (error) {
-        if (!(error instanceof UnsupportedHungerTransitionError)) throw error;
-        const boundary = new UnsupportedTurnBoundaryError(error.message);
-        boundary.reason = error.reason;
-        throw boundary;
+    // C reaches hunger and timeout work only after the current monster scans
+    // leave both sides without a movement ration.  The cloned scan above
+    // determines that gate without changing live state, so unsupported upkeep
+    // can still stop atomically without rejecting a fast hero who retains a
+    // ration and does not allocate a new turn.
+    if (preflight.runsOncePerTurnUpkeep) {
+        try {
+            preflightGetHungry(state, {
+                nearCapacity: () => UNENCUMBERED,
+                message: ttyPline,
+                endRunning,
+                statusRefresh: () => bot(),
+            });
+        } catch (error) {
+            if (!(error instanceof UnsupportedHungerTransitionError))
+                throw error;
+            const boundary = new UnsupportedTurnBoundaryError(error.message);
+            boundary.reason = error.reason;
+            throw boundary;
+        }
+        try {
+            // C runs the per-turn timeouts against the turn it is entering.
+            preflight_nh_timeout_elapsed_turn({
+                ...state,
+                moves: (state.moves || 1) + 1,
+            });
+        } catch (error) {
+            if (!(error instanceof UnsupportedHeroTimeoutBoundaryError))
+                throw error;
+            const boundary = new UnsupportedTurnBoundaryError(error.message);
+            boundary.reason = error.reason;
+            throw boundary;
+        }
     }
-    // C runs the per-turn timeouts against the turn it is entering.
-    preflight_nh_timeout_elapsed_turn({
-        ...state,
-        moves: (state.moves || 1) + 1,
-    });
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero
@@ -573,7 +591,14 @@ async function advanceElapsedTurn(state) {
             state.context.mon_moving = false;
         }
 
-        if (!monstersCanMove && state.u.umovement < NORMAL_SPEED)
+        const runsOncePerTurnUpkeep =
+            !monstersCanMove && state.u.umovement < NORMAL_SPEED;
+        if (runsOncePerTurnUpkeep !== preflight.runsOncePerTurnUpkeep) {
+            throw new Error(
+                'elapsed-turn preflight disagreed with the live movement gate',
+            );
+        }
+        if (runsOncePerTurnUpkeep)
             await finishElapsedTurn(state, random);
     } while (state.u.umovement < NORMAL_SPEED);
 

@@ -2,6 +2,7 @@
 
 import {
     ACCESSIBLE,
+    BLINDED,
     CORR,
     DOOR,
     D_CLOSED,
@@ -29,7 +30,12 @@ import {
     ZOMBIFY_MON,
     isok,
 } from './const.js';
-import { classify_terrain, newsym, wall_angle } from './display.js';
+import {
+    classify_terrain,
+    feel_location,
+    newsym,
+    wall_angle,
+} from './display.js';
 import { alwaysVisibleMonsterName } from './do_name.js';
 import {
     can_reach_floor,
@@ -59,7 +65,7 @@ import { onscary } from './monmove.js';
 import { in_out_region, inside_region } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { check_special_room_state } from './rooms.js';
-import { canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { S_stone } from './symbols.js';
 import {
     peek_timer,
@@ -125,15 +131,24 @@ export function monsterNearby(state = game) {
     return false;
 }
 
-// C ref: hack.c end_running(TRUE). The current finite-movement caller always
-// requests travel cancellation, so this helper clears travel, travel1, and mv.
-// Status refresh and travel-map cleanup remain with their owning subsystems.
+// C ref: hack.c end_running(TRUE). Finite movement, hunger transitions, and
+// safe-pet refusal share this owner for run, travel, movement-repeat, and count
+// cancellation. Status refresh and travel-map cleanup remain with their
+// owning subsystems.
 export function endRunning(state = game) {
     state.context.run = 0;
     state.context.travel = 0;
     state.context.travel1 = 0;
     state.context.mv = 0;
     if (state.multi > 0) state.multi = 0;
+}
+
+function heroIsBlind(state) {
+    const blindness = state.u?.uprops?.[BLINDED];
+    return Boolean(
+        (blindness?.intrinsic || blindness?.extrinsic)
+        && !blindness?.blocked,
+    );
 }
 
 function blocksMove(x, y, state) {
@@ -281,6 +296,10 @@ export async function test_move(
         return true;
     }
 
+    const x = ux + dx;
+    const y = uy + dy;
+    if (heroIsBlind(state)) feel_location(x, y, state);
+
     if (state.flags?.mention_walls) {
         const symbol = location.typ === STONE
             ? S_stone : wall_angle(location);
@@ -288,7 +307,10 @@ export async function test_move(
         const message = env.message;
         if (typeof message !== 'function')
             throw new TypeError('wall refusal requires a message operation');
-        await message(`It's ${description}.`, state);
+        await message(
+            messageAt(`It's ${description}.`, x, y, state),
+            state,
+        );
     }
     return false;
 }
@@ -372,10 +394,6 @@ export async function domove(state = game) {
     newsym(newx, newy);
     switch_terrain_for_legal_move(state);
     check_special_room_state(false, state);
-    await read_engr_at(newx, newy, state, {
-        pline: ttyPline,
-        canReachFloor: can_reach_floor,
-    });
     const floorObject = state.level?.objects?.[newx]?.[newy] ?? null;
     if (floorObject && !floorObject.nexthere) {
         // C ref: domove() -> spoteffects(TRUE) -> pickup(1) -> check_here()
@@ -383,8 +401,19 @@ export async function domove(state = game) {
         await look_here_single_object(
             floorObject,
             state,
-            { message: ttyPline },
+            {
+                message: ttyPline,
+                readEngraving: () => read_engr_at(newx, newy, state, {
+                    pline: ttyPline,
+                    canReachFloor: can_reach_floor,
+                }),
+            },
         );
+    } else {
+        await read_engr_at(newx, newy, state, {
+            pline: ttyPline,
+            canReachFloor: can_reach_floor,
+        });
     }
     maybe_smudge_engr(oldx, oldy, newx, newy, state);
     state.domoveAttempting = 0;

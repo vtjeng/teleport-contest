@@ -303,6 +303,49 @@ test('gethungry owns the first increasing hunger transition in source order',
         ]);
     });
 
+test('gethungry awaits transition output before later state and status work',
+    async () => {
+        const threshold = hungerState();
+        threshold.u.uhunger = 151;
+        const events = [];
+        let releaseMessage;
+        let releaseStatus;
+        const messageGate = new Promise((resolve) => {
+            releaseMessage = resolve;
+        });
+        const statusGate = new Promise((resolve) => {
+            releaseStatus = resolve;
+        });
+
+        const transition = gethungry(threshold, {
+            random: { rn2: () => 2 },
+            nearCapacity: () => UNENCUMBERED,
+            message() {
+                events.push('message');
+                return messageGate;
+            },
+            endRunning() {
+                events.push('end_running');
+            },
+            statusRefresh() {
+                events.push('bot');
+                return statusGate;
+            },
+        });
+        await Promise.resolve();
+        assert.deepEqual(events, ['message']);
+        assert.equal(threshold.u.uhs, NOT_HUNGRY);
+
+        releaseMessage();
+        await Promise.resolve();
+        await Promise.resolve();
+        assert.deepEqual(events, ['message', 'end_running', 'bot']);
+        assert.equal(threshold.u.uhs, HUNGRY);
+
+        releaseStatus();
+        assert.equal(await transition, 1);
+    });
+
 test('gethungry preflights only unsupported reachable transitions',
     async () => {
     const lowLoss = hungerState();

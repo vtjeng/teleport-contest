@@ -84,14 +84,29 @@ export const NOINVSYM = '#';
 export async function look_here_single_object(
     obj,
     state = game,
-    { message } = {},
+    { message, readEngraving } = {},
 ) {
     if (!obj || obj.nexthere || typeof message !== 'function') {
         throw new TypeError(
             'single-object look_here needs one object and a message owner',
         );
     }
-    await message(`You see here ${donameFresh(obj, state)}.`, state);
+    const blindness = state.u?.uprops?.[BLINDED];
+    const blind = Boolean(
+        (blindness?.intrinsic || blindness?.extrinsic)
+        && !blindness?.blocked,
+    );
+    if (blind) {
+        await message(
+            'You try to feel what is lying here on the floor.',
+            state,
+        );
+    }
+    if (readEngraving) await readEngraving(state);
+    await message(
+        `You ${blind ? 'feel' : 'see'} here ${donameFresh(obj, state)}.`,
+        state,
+    );
     state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
 }
 

@@ -4,7 +4,7 @@
 import { game } from './gstate.js';
 import { update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
-import { cansee } from './vision.js';
+import { cansee, seenv_matrix } from './vision.js';
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
@@ -1399,6 +1399,38 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
         }
     }
     return remembered;
+}
+
+// C ref: display.c feel_location(), adjacent obstructed-location branch used
+// by hack.c:test_move(). Other tactile layers remain with their live owners.
+// The caller has already established blindness and an ordinary wall or stone
+// destination, so this subset owns the source seenv, memory, and display write.
+export function feel_location(x, y, state = game) {
+    if (state !== game) {
+        throw new Error(
+            'feel_location requires the active display state',
+        );
+    }
+    if (!isok(x, y)) return;
+    const location = state.level?.at(x, y);
+    if (!location) return;
+    const dx = x - state.u.ux;
+    const dy = y - state.u.uy;
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || (!dx && !dy)) {
+        throw new Error(
+            'feel_location obstacle subset requires an adjacent square',
+        );
+    }
+    location.seenv = (location.seenv ?? 0)
+        | seenv_matrix[1 - dy][dx + 1];
+    const glyph = terrain_glyph(location, x, y, state);
+    if (state.level?.flags?.hero_memory) {
+        location.remembered_glyph =
+            remembered_glyph_from_presentation(glyph);
+    }
+    show_glyph_cell(x, y, glyph);
+    if (state.level.lastseentyp?.[x])
+        state.level.lastseentyp[x][y] = location.typ;
 }
 
 // C refs: engrave.h engraving_to_defsym()/spot_shows_engravings();

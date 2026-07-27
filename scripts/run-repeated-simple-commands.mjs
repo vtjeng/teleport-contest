@@ -16,10 +16,11 @@ const DATETIME = '20300102030405';
 function nethackrc({
     name,
     role,
+    gender = 'male',
     options,
 }) {
     return [
-        `OPTIONS=name:${name},role:${role},race:human,gender:male,align:neutral`,
+        `OPTIONS=name:${name},role:${role},race:human,gender:${gender},align:neutral`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         `OPTIONS=${options}`,
         '',
@@ -115,6 +116,31 @@ export function loadRepeatedSimpleCommandsRecipe() {
                     options: 'mention_walls,!autopickup',
                 }),
                 moves: 'h',
+            },
+            {
+                seed: 51001,
+                datetime: '20320405060708',
+                nethackrc: nethackrc({
+                    name: 'BWall',
+                    role: 'Healer',
+                    gender: 'female',
+                    options: 'blind,mention_walls,accessiblemsg,'
+                        + '!autopickup,pettype:none,!acoustics',
+                }),
+                moves: 'h',
+            },
+            {
+                seed: 51001,
+                datetime: '20320405060708',
+                nethackrc: nethackrc({
+                    name: 'BObj',
+                    role: 'Healer',
+                    gender: 'female',
+                    options: 'blind,!autopickup,pettype:none,!acoustics',
+                }),
+                // Blind look_here() pauses between the tactile preamble and
+                // the item message; Space dismisses that in-command More.
+                moves: 'l ',
             },
         ],
     }, 'repeated simple commands recipe');

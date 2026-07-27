@@ -25,6 +25,7 @@ import {
     LEVITATION,
     M_AP_MONSTER,
     MOD_ENCUMBER,
+    NORMAL_SPEED,
     NO_SPELL,
     OVERLOADED,
     PIT,
@@ -628,6 +629,79 @@ test('later hunger boundaries stop before any elapsed-turn mutation',
         }
     }
 });
+
+test('retained hero movement skips upkeep that C does not reach', async () => {
+    await runSegment({
+        seed: 2026072301,
+        datetime: '20260723120000',
+        nethackrc: 'OPTIONS=name:RetainedRation,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.u.umovement = NORMAL_SPEED * 2;
+    game.hero_seq = game.moves * 8;
+    game.context.seer_turn = 1000;
+    game.u.uhunger = 51;
+    game.u.uhs = HUNGRY;
+    game.gt.timer_base = {
+        timeout: game.moves + 1,
+        next: null,
+    };
+    game.context.move = 1;
+    game.nhDisplay.pushKey('.'.charCodeAt(0));
+
+    await moveloop_core();
+
+    assert.equal(game.moves, 1);
+    assert.equal(game.u.umovement, NORMAL_SPEED);
+    assert.equal(game.u.uhunger, 51);
+    assert.equal(game.gt.timer_base.timeout, 2);
+});
+
+test('due timeout retries stop at the elapsed coordinator before mutation',
+    async () => {
+        const replay = await runSegment({
+            seed: 2026072301,
+            datetime: '20260723120000',
+            nethackrc: 'OPTIONS=name:TimeoutBoundary,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.context.move = 1;
+        game.context.seer_turn = 1000;
+        game.u.umovement = NORMAL_SPEED;
+        game.gt.timer_base = {
+            timeout: game.moves + 1,
+            next: null,
+        };
+        const before = completeSecondTurnSnapshot(game, replay);
+        const timerBefore = structuredClone(game.gt.timer_base);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                moveloop_core(),
+                (error) => error instanceof UnsupportedTurnBoundaryError
+                    && error.reason === 'no timer due by move 2',
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, replay),
+                before,
+            );
+            assert.deepEqual(game.gt.timer_base, timerBefore);
+        }
+
+        game.gt.timer_base.timeout = game.moves + 100;
+        game.nhDisplay.pushKey('.'.charCodeAt(0));
+        await moveloop_core();
+        assert.equal(game.moves, 2);
+        assert.equal(game.gt.timer_base.timeout, 101);
+    });
 
 test('the live elapsed path reaches the scheduled move-600 attribute check',
     async () => {

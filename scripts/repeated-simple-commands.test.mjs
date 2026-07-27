@@ -26,10 +26,10 @@ test('repeated-simple-command matrix contains only source-selected inputs',
     () => {
         const recipe = loadRepeatedSimpleCommandsRecipe();
         assert.equal(recipe.version, 5);
-        assert.equal(recipe.segments.length, 8);
+        assert.equal(recipe.segments.length, 10);
         assert.deepEqual(
             recipe.segments.map(({ moves }) => moves.length),
-            [250, 600, 12, 4, 12, 1, 5, 1],
+            [250, 600, 12, 4, 12, 1, 5, 1, 1, 2],
         );
         assert.deepEqual(
             recipe.segments.map(({ moves }) => new Set(moves)),
@@ -42,6 +42,8 @@ test('repeated-simple-command matrix contains only source-selected inputs',
                 new Set(['l']),
                 new Set(['y', '.']),
                 new Set(['h']),
+                new Set(['h']),
+                new Set(['l', ' ']),
             ],
         );
         for (const segment of recipe.segments) {
@@ -155,4 +157,16 @@ test('repeated-simple-command cases retain their source branch markers',
         const object = game.level.objects[game.u.ux][game.u.uy];
         assert.ok(object);
         assert.equal(object.quan, 5);
+
+        await runSegment(segments[8]);
+        assert.equal(topLine(), "(west): It's a wall.");
+        const feltWall = game.level.at(game.u.ux - 1, game.u.uy);
+        assert.notEqual(feltWall.seenv, 0);
+        assert.ok(feltWall.remembered_glyph);
+
+        await runSegment(segments[9]);
+        assert.equal(topLine(), 'You feel here 2 gold pieces.');
+        const feltObject = game.level.objects[game.u.ux][game.u.uy];
+        assert.ok(feltObject);
+        assert.equal(feltObject.quan, 2);
     });

@@ -18,12 +18,18 @@ import {
 import {
     COLNO,
     CORR,
+    CROSSWALL,
+    D_BROKEN,
     D_CLOSED,
+    D_ISOPEN,
     D_LOCKED,
+    D_NODOOR,
+    D_TRAPPED,
     DOOR,
     FAST,
     FOUNTAIN,
     HALLUC,
+    HWALL,
     IN_SIGHT,
     INTRINSIC,
     M_AP_FURNITURE,
@@ -34,6 +40,14 @@ import {
     ROWNO,
     STONE,
     STONED,
+    TDWALL,
+    TLCORNER,
+    TLWALL,
+    TRCORNER,
+    TRWALL,
+    TUWALL,
+    BLCORNER,
+    BRCORNER,
     VWALL,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -105,23 +119,36 @@ test('test_move describes remembered walls without time or PRNG work',
             message: (message) => messages.push(message),
         };
 
-        // A fully remembered vertical wall maps to a wall defsym; an
-        // unrevealed stone square maps to S_stone's "solid stone" wording.
-        destination.typ = VWALL;
+        // Every ordinary wall geometry maps to a wall defsym; DBWALL is a
+        // separate drawbridge branch and is intentionally not in this family.
         destination.seenv = 0xFF;
-        assert.equal(
-            await test_move(ux, uy, 1, 0, state, env),
-            false,
-        );
+        for (const wall of [
+            VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
+            CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
+        ]) {
+            destination.typ = wall;
+            assert.equal(
+                await test_move(ux, uy, 1, 0, state, env),
+                false,
+            );
+        }
         destination.typ = STONE;
         assert.equal(
             await test_move(ux, uy, 1, 0, state, env),
             false,
         );
         assert.deepEqual(messages, [
-            "It's a wall.",
+            ...Array(11).fill("It's a wall."),
             "It's solid stone.",
         ]);
+
+        state.a11y = { accessiblemsg: true };
+        state.iflags = {};
+        state.u = { ux, uy, uprops: [] };
+        destination.typ = VWALL;
+        messages.length = 0;
+        assert.equal(await test_move(ux, uy, 1, 0, state, env), false);
+        assert.deepEqual(messages, ["(east): It's a wall."]);
 
         // mention_walls is the exact source output gate. The refusal itself
         // remains in force when the option is disabled.
@@ -137,6 +164,36 @@ test('test_move describes remembered walls without time or PRNG work',
         // ROOM is outside this ported test_move() branch and remains legal.
         destination.typ = ROOM;
         assert.equal(await test_move(ux, uy, 1, 0, state), true);
+    });
+
+test('blind wall refusal records tactile memory even without a message',
+    async () => {
+        await runSegment({
+            seed: 840002,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:BlindWall,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,blind,pettype:none',
+            moves: '',
+        });
+        const x = game.u.ux + 1;
+        const y = game.u.uy;
+        const destination = game.level.at(x, y);
+        destination.typ = HWALL;
+        destination.seenv = 0;
+        destination.remembered_glyph = null;
+        game.flags.mention_walls = false;
+
+        assert.equal(
+            await test_move(game.u.ux, game.u.uy, 1, 0, game, {
+                message: () => assert.fail('mention_walls is disabled'),
+            }),
+            false,
+        );
+
+        assert.notEqual(destination.seenv, 0);
+        assert.ok(destination.remembered_glyph);
+        assert.equal(destination.disp_ch, destination.remembered_glyph.ch);
     });
 
 function heroMoveAdmissionSnapshot(replay) {
@@ -199,6 +256,14 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
             cursors: structuredClone(retained(replay.getCursors())),
             rngSlices: structuredClone(retained(replay.getRngSlices())),
             screens: retained(replay.getScreens()),
+        },
+        terminal: {
+            cursor: [
+                game.nhDisplay.cursorCol,
+                game.nhDisplay.cursorRow,
+                game.nhDisplay.cursorVisible,
+            ],
+            waitEpoch: game.nhDisplay.waitEpoch,
         },
         rng: {
             context: {
@@ -443,30 +508,26 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 destination.typ = ROOM;
             },
         },
-        {
-            name: 'closed door',
+        ...[
+            ['doorless door', D_NODOOR],
+            ['open door', D_ISOPEN],
+            ['broken door', D_BROKEN],
+            ['closed door', D_CLOSED],
+            ['locked door', D_LOCKED],
+            ['trapped open door', D_ISOPEN | D_TRAPPED],
+            ['trapped closed door', D_CLOSED | D_TRAPPED],
+        ].map(([name, mask]) => ({
+            name,
             reason: 'door or special terrain movement',
             install: ({ destination }) => {
                 destination.typ = DOOR;
-                destination.doormask = D_CLOSED;
+                destination.flags = destination.doormask = mask;
             },
             remove: ({ destination }) => {
                 destination.typ = ROOM;
-                destination.doormask = 0;
+                destination.flags = destination.doormask = 0;
             },
-        },
-        {
-            name: 'locked door',
-            reason: 'door or special terrain movement',
-            install: ({ destination }) => {
-                destination.typ = DOOR;
-                destination.doormask = D_LOCKED;
-            },
-            remove: ({ destination }) => {
-                destination.typ = ROOM;
-                destination.doormask = 0;
-            },
-        },
+        })),
         ...[ROOM, CORR].map((typ) => ({
             name: `${typ === ROOM ? 'room' : 'corridor'} boulder`,
             reason: 'boulder movement',
@@ -535,6 +596,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         let refusalOutput;
         let refusalScreen;
         let refusalCursor;
+        let refusalTerminal;
 
         game.nhDisplay.pushKey(commandKeyCode('l'));
         for (let attempt = 0; attempt < 2; ++attempt) {
@@ -548,12 +610,17 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             );
             const actual = heroCommandRetrySnapshot(replay);
             const actualOutput = actual.output;
+            const actualTerminal = actual.terminal;
             delete actual.output;
+            delete actual.terminal;
+            const expectedTerminal = expected.terminal;
+            delete expected.terminal;
             assert.deepEqual(
                 actual,
                 expected,
                 `${refusal.name}, attempt ${attempt + 1}`,
             );
+            expected.terminal = expectedTerminal;
             assert.equal(
                 game._commandDispatchCount,
                 initialDispatches + attempt + 1,
@@ -579,8 +646,10 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 );
                 refusalScreen = replay.getScreens().at(-1);
                 refusalCursor = replay.getCursors().at(-1);
+                refusalTerminal = structuredClone(actualTerminal);
             } else {
                 assert.deepEqual(actualOutput, refusalOutput);
+                assert.deepEqual(actualTerminal, refusalTerminal);
                 assert.equal(replay.getScreens().at(-1), refusalScreen);
                 assert.deepEqual(
                     replay.getCursors().at(-1),
@@ -998,6 +1067,47 @@ test('a count prefix is retained before parsing or command dispatch',
         moveloop_core(),
         (error) => error instanceof UnsupportedHeroCommandBoundaryError
             && error.key === commandKeyCode('3'),
+    );
+    assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
+});
+
+test('a number-pad count prefix retains its physical retry phase', async () => {
+    const replay = await runSegment({
+        seed: 840003,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:NumpadCount,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,number_pad,pettype:none',
+        moves: '',
+    });
+    game.level.monlist = null;
+    const prefix = commandKeyCode('n');
+    game.nhDisplay.pushKey(prefix);
+    game.nhDisplay.pushKey(commandKeyCode('.'));
+
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === prefix,
+    );
+    const rejected = heroCommandRetrySnapshot(replay);
+    assert.deepEqual(game.context.pendingCommand, {
+        phase: 'physical',
+        key: prefix,
+    });
+    assert.deepEqual(
+        game.nhDisplay.terminal._inputQueue,
+        [commandKeyCode('.')],
+    );
+
+    game.nhDisplay.cursorCol++;
+    assert.notDeepEqual(heroCommandRetrySnapshot(replay), rejected);
+    game.nhDisplay.cursorCol--;
+
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === prefix,
     );
     assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
 });

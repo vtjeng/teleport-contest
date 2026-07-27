@@ -523,4 +523,8 @@ export async function preflightSimpleMonsterActions(state = game) {
         }
         if (heroMovement >= NORMAL_SPEED) break;
     } while (somebodyCanMove);
+    return {
+        runsOncePerTurnUpkeep:
+            !somebodyCanMove && heroMovement < NORMAL_SPEED,
+    };
 }

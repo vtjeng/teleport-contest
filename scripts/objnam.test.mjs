@@ -243,6 +243,30 @@ test('single-object look_here reports the item and records its message kind',
         assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
     });
 
+test('blind single-object look_here waits through tactile output in order',
+    async () => {
+        const state = namingState();
+        state.u.uprops[BLINDED] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        const dart = objectOf(state, DART);
+        const events = [];
+
+        await look_here_single_object(dart, state, {
+            message: async (text) => events.push(text),
+            readEngraving: async () => events.push('read engraving'),
+        });
+
+        assert.deepEqual(events, [
+            'You try to feel what is lying here on the floor.',
+            'read engraving',
+            'You feel here a dart.',
+        ]);
+        assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+    });
+
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {
     const state = namingState();
     const unknownUncursed = objectOf(state, DART, {

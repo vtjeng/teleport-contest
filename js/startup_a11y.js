@@ -291,7 +291,7 @@ function coordinateDescription(x, y, state) {
     return '';
 }
 
-function messageAt(text, x, y, state, forceLocation = false) {
+export function messageAt(text, x, y, state, forceLocation = false) {
     if (forceLocation || state.a11y?.accessiblemsg) {
         return `${coordinateDescription(x, y, state)}: ${text}`;
     }
