@@ -14,6 +14,7 @@ import {
     BURN,
     CONFLICT,
     CORR,
+    DOOR,
     HEADSTONE,
     I_SPECIAL,
     INVIS,
@@ -298,7 +299,12 @@ function resistsTrapEffect() {
 function assertSimpleDestination(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
-    if (location?.typ !== ROOM && location?.typ !== CORR)
+    const doorMask = location?.flags || location?.doormask || 0;
+    const ordinaryDestination = location
+        && (location.typ === ROOM
+            || location.typ === CORR
+            || (location.typ === DOOR && doorMask === 0));
+    if (!ordinaryDestination)
         unsupported('door or special terrain movement');
     if (t_at(x, y, state))
         unsupported('trap activation');

@@ -5,7 +5,9 @@ import {
     BURN,
     COULD_SEE,
     CORR,
+    D_CLOSED,
     DUST,
+    DOOR,
     FOUNTAIN,
     HEADSTONE,
     IN_SIGHT,
@@ -472,6 +474,52 @@ test('simple preflight admits engravings that source wipe leaves intact',
             }
         }
     });
+
+test('simple movement admits only a doorless doorway', async () => {
+    const doorway = await prepareSelectedAction();
+    const location = game.level.at(
+        doorway.destinationX,
+        doorway.heroY,
+    );
+    location.typ = DOOR;
+    location.flags = location.doormask = 0;
+    const before = preflightSnapshot();
+
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(preflightSnapshot(), before);
+    await runSimpleMonsterAction(doorway.monster, { state: game });
+    assert.deepEqual(
+        [doorway.monster.mx, doorway.monster.my],
+        [doorway.destinationX, doorway.heroY],
+    );
+
+    const closedDoor = await prepareSelectedAction({ pmidx: PM_GNOME });
+    const closedLocation = game.level.at(
+        closedDoor.destinationX,
+        closedDoor.heroY,
+    );
+    closedLocation.typ = DOOR;
+    closedLocation.flags = closedLocation.doormask = D_CLOSED;
+    const closedBefore = completeSecondTurnSnapshot(
+        game,
+        closedDoor.replay,
+    );
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'door or special terrain movement'
+            ),
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, closedDoor.replay),
+            closedBefore,
+            `closed door, attempt ${attempt + 1}`,
+        );
+    }
+});
 
 test('simple preflight recognizes only the starting pony worn saddle', () => {
     const monsterId = 7301; // A distinct live id couples saddle and pet state.
