@@ -236,24 +236,35 @@ test('second-turn fresh recipe contains only simple replay inputs', () => {
     assert.deepEqual(
         new Set(recipe.segments.map(({ moves }) => moves)),
         new Set([
-            ' ..',
-            ' .h',
-            ' h.',
-            ' hh',
-            ' .j',
-            ' .l',
-            ' l.',
-            ' nn',
+            '..',
+            '.h',
+            'h.',
+            'hh',
+            '.j',
+            '.l',
+            'l.',
+            'nn',
+            'hk',
+            'j.',
             ' k.',
-            ' hk',
-            ' j.',
+            ' ..',
         ]),
     );
-    for (const segment of recipe.segments) {
+    const startupDismissals = new Set([
+        'PonyWalkWait',
+        'IgnoredObject',
+        'ParsedMonMovement',
+    ]);
+    for (let index = 0; index < recipe.segments.length; ++index) {
+        const segment = recipe.segments[index];
+        const prefix = startupDismissals.has(
+            fixture.expectations[index].name,
+        ) ? ' ' : '';
         assert.equal(Object.hasOwn(segment, 'steps'), false);
-        // The leading space dismisses startup; the remaining two characters
-        // are exactly the two time-consuming commands under test.
-        assert.match(segment.moves, /^ [hjklyubn.]{2}$/u);
+        assert.match(segment.moves, new RegExp(
+            `^${prefix}[hjklyubn.]{2}$`,
+            'u',
+        ));
     }
     assert.match(
         SECOND_COMPLETE_TURN_FIXTURE,

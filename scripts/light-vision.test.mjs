@@ -185,6 +185,21 @@ test('do_clear_area preserves off-hero Algorithm C callback order', () => {
     ]);
 });
 
+test('off-hero clear-area clones must share active transparency', () => {
+    const state = darkRoomState();
+    vision_reset();
+    const alternate = {
+        ...state,
+        level: new GameMap(),
+    };
+    alternate.level.at(10, 10).typ = ROOM;
+
+    assert.throws(
+        () => do_clear_area(10, 10, 1, () => {}, null, alternate),
+        /must share active vision transparency/u,
+    );
+});
+
 test('a floor candle projects the source circle into initial vision', () => {
     const state = darkRoomState();
     floorCandle(state, 10, 7);

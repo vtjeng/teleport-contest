@@ -546,6 +546,13 @@ export function do_clear_area(
         throw new RangeError(`do_clear_area: illegal range ${range}`);
 
     if (scol !== state.u.ux || srow !== state.u.uy) {
+        if (state !== game
+            && state.level?._visionTransparencyOwner !== game.level) {
+            throw new Error(
+                'do_clear_area alternate state must share active '
+                    + 'vision transparency',
+            );
+        }
         view_from(
             srow,
             scol,
@@ -761,12 +768,6 @@ export function init_vision_globals() {
     game.viz_array = cs_buf0;
     game.active_buf = 0;
     game.vision_full_recalc = 0;
-    game.vis_step = 0;
-    game.vis_start_col = 0;
-    game.vis_start_row = 0;
-    game.cs_rows = null;
-    game.cs_left = null;
-    game.cs_right = null;
     game._viz_rmin = null;
     game._viz_rmax = null;
 }

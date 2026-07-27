@@ -430,10 +430,13 @@ async function emitAttributeMessage(env, text, state) {
 // C ref: attrib.c adjattrib(). The periodic check is its live consumer here.
 // Keeping the whole state and message contract together avoids giving the
 // scheduled path a second attribute-adjustment implementation.
+// messageMode preserves msgflg's three source modes: positive suppresses all
+// messages, zero reports success or a verbose no-change result, and negative
+// reports only a successful change.
 export async function adjattrib(
     index,
     increment,
-    messageFlag,
+    messageMode,
     state = game,
     env = {},
 ) {
@@ -441,7 +444,7 @@ export async function adjattrib(
 
     if ((index === A_INT || index === A_WIS)
         && state.uarmh?.otyp === DUNCE_CAP) {
-        if (messageFlag === 0) {
+        if (messageMode === 0) {
             await emitAttributeMessage(
                 env,
                 'Your cap constricts briefly, then relaxes again.',
@@ -490,7 +493,7 @@ export async function adjattrib(
     }
 
     if (effective_attribute(state, index) === oldCurrent) {
-        if (messageFlag === 0 && state.flags?.verbose) {
+        if (messageMode === 0 && state.flags?.verbose) {
             if (attrs.base[index] === oldBase
                 && attrs.max[index] === oldMaximum) {
                 await emitAttributeMessage(
@@ -514,7 +517,7 @@ export async function adjattrib(
     attrs.exercise[index] = 0;
     state.disp ??= {};
     state.disp.botl = true;
-    if (messageFlag <= 0) {
+    if (messageMode <= 0) {
         await emitAttributeMessage(
             env,
             `You feel ${Math.abs(increment) > 1 ? 'very ' : ''}`

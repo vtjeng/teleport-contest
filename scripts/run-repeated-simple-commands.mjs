@@ -61,6 +61,18 @@ export function loadRepeatedSimpleCommandsRecipe() {
                 moves: 'h'.repeat(4),
             },
             {
+                seed: 33003,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'WalkRepeat',
+                    role: 'Healer',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Each destination is an empty ROOM or CORR cell. The path
+                // exercises twelve consecutive successful domove() calls.
+                moves: 'hklllljhhjhh',
+            },
+            {
                 seed: 31006,
                 datetime: DATETIME,
                 nethackrc: nethackrc({

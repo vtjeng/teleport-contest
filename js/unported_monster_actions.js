@@ -279,6 +279,10 @@ function planningState(state) {
                 ...region,
                 monsters: [...(region.monsters ?? [])],
             })),
+            // vision.c keeps one cached transparency index. Planning replaces
+            // only monster identities and retains the active geometry which
+            // produced that index, so off-hero do_clear_area() may share it.
+            _visionTransparencyOwner: state.level,
         },
     );
     const hero = {

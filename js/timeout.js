@@ -238,7 +238,7 @@ export class UnsupportedHeroTimeoutBoundaryError extends Error {
 // source-inert timeout state admitted by the current repeated-command
 // boundary. Validate those invariants rather than silently skipping a newly
 // reachable timeout branch.
-export function nh_timeout_elapsed_turn(state = game) {
+export function preflight_nh_timeout_elapsed_turn(state = game) {
     const u = state.u ?? {};
     if (u.uinvulnerable) return;
     for (const [name, value] of [
@@ -266,6 +266,14 @@ export function nh_timeout_elapsed_turn(state = game) {
             `no timer due by move ${currentMove(state)}`,
         );
     }
+}
+
+// Source-ordered elapsed-turn owner. The admitted state has no timeout effect,
+// so its only current work is the pure validation above; keeping this wrapper
+// distinct prevents the earlier atomic preflight from looking like a second
+// execution of timeout.c:nh_timeout().
+export function nh_timeout_elapsed_turn(state = game) {
+    preflight_nh_timeout_elapsed_turn(state);
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to

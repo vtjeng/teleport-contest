@@ -1,14 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { moveloop_core } from '../js/allmain.js';
+import { ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
 } from '../js/monsters.js';
+import { initRng } from '../js/rng.js';
 import { do_attack } from '../js/uhitm.js';
 
 const DATETIME = '20300102030405';
@@ -25,6 +29,11 @@ function petRc({
         + `${pettype ? `,pettype:${pettype}` : ''}`;
 }
 const RC = petRc();
+
+function topLine() {
+    return game.nhDisplay.grid[0]
+        .map(({ ch }) => ch).join('').trimEnd();
+}
 
 function deferred() {
     let resolve;
@@ -51,7 +60,7 @@ async function startingPet({
     return pet;
 }
 
-test('do_attack passes the safe-pet gate for every starting-pet species',
+test('live movement swaps every starting-pet species through safe-pet attack',
     async () => {
         const cases = [
             { expectedPm: PM_KITTEN, pettype: 'cat' },
@@ -66,32 +75,40 @@ test('do_attack passes the safe-pet gate for every starting-pet species',
 
         for (const configuration of cases) {
             const pet = await startingPet(configuration);
-            const bounds = [];
-            assert.equal(
-                await do_attack(pet, game, {
-                    random: {
-                        rn2(bound) {
-                            bounds.push(bound);
-                            return 6;
-                        },
-                        rnd() {
-                            assert.fail(
-                                'successful pet gate must not draw rnd(6)',
-                            );
-                        },
-                    },
-                    message: () => assert.fail(
-                        'successful gate has no message',
-                    ),
-                    endRunning: () => assert.fail(
-                        'successful gate keeps movement',
-                    ),
-                    unsupported: (reason) => assert.fail(reason),
-                }),
-                false,
+            const oldHero = [game.u.ux, game.u.uy];
+            const destination = [game.u.ux + 1, game.u.uy];
+            const occupant = m_at(destination[0], destination[1], game);
+            assert.ok(!occupant || occupant === pet);
+            remove_monster(pet.mx, pet.my, game);
+            game.level.at(...destination).typ = ROOM;
+            game.level.at(...destination).flags = 0;
+            game.level.at(...destination).doormask = 0;
+            game.level.objects[destination[0]][destination[1]] = null;
+            game.level.traps = [];
+            game.level.regions = [];
+            game.head_engr = null;
+            place_monster(pet, ...destination, game);
+            initRng(1); // first rn2(7) is 5, the successful swap branch
+            game.nhDisplay.pushKey('l'.charCodeAt(0));
+
+            await moveloop_core();
+
+            assert.deepEqual([game.u.ux, game.u.uy], destination);
+            assert.deepEqual([pet.mx, pet.my], oldHero);
+            assert.equal(m_at(...oldHero, game), pet);
+            assert.equal(m_at(...destination, game), null);
+            assert.match(
+                game._pending_message,
+                /^You swap places with your /u,
             );
-            assert.deepEqual(bounds, [7]);
             assert.equal(pet.mflee, false);
+            let listCount = 0;
+            for (let monster = game.level.monlist;
+                monster;
+                monster = monster.nmon) {
+                if (monster === pet) ++listCount;
+            }
+            assert.equal(listCount, 1);
         }
     });
 

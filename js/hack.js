@@ -160,6 +160,8 @@ function requireSimpleHeroDestination(x, y, state) {
         );
     }
     const floorObject = state.level?.objects?.[x]?.[y] ?? null;
+    if (sobj_at(BOULDER, x, y, state))
+        throw new UnsupportedHeroMoveBoundaryError('boulder movement');
     if (floorObject && state.flags?.pickup)
         throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
     if (floorObject?.nexthere)
@@ -389,8 +391,9 @@ export async function domove(state = game) {
 }
 
 // C ref: hack.c domove_swap_with_pet(), successful ordinary starting-pet
-// branch. The caller preflights traps, liquids, boulders, inaccessible source
-// terrain, and special monster state before either position changes.
+// branch. domove() reaches this helper only after its admission seam has
+// accepted ordinary terrain, an object-free destination, no source or
+// destination trap, an accessible source square, and ordinary pet state.
 export async function domove_swap_with_pet(
     monster,
     x,

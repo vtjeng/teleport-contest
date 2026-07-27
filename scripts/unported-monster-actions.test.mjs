@@ -583,7 +583,7 @@ test('simple preflight plans a starting-dog action without live mutation',
             nethackrc: 'OPTIONS=name:Pet2026072201,role:Healer,race:human,'
                 + 'gender:female,align:neutral,!legacy,!tutorial,'
                 + '!splash_screen,pettype:dog',
-            moves: ' .',
+            moves: '.',
         });
         const before = preflightSnapshot();
 
@@ -1182,7 +1182,7 @@ test('simple preflight rejects a selected trap without live mutation',
             nethackrc: 'OPTIONS=name:BoundaryStop,role:Healer,race:human,'
                 + 'gender:female,align:neutral,!legacy,!tutorial,'
                 + '!splash_screen',
-            moves: ' .',
+            moves: '.',
         });
         const before = preflightSnapshot();
 

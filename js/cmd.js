@@ -37,6 +37,15 @@ const DELETE = 0x7F;
 const DOMOVE_WALK = 0x01;
 const DOMOVE_RUSH = 0x02;
 
+export class UnsupportedHeroCommandBoundaryError extends Error {
+    constructor(reason, key) {
+        super(`unsupported hero command: ${reason}`);
+        this.name = 'UnsupportedHeroCommandBoundaryError';
+        this.reason = reason;
+        this.key = key;
+    }
+}
+
 // Each value is [u.dx, u.dy, context.run]: 0 walks, 1 runs, and 3 rushes.
 // Preserve these source numeric modes; downstream code groups them by
 // truthiness only where cmd.c does.
@@ -219,20 +228,46 @@ async function getCount(state, inkey = 0) {
     return { key, count };
 }
 
-// C ref: cmd.c parse(). Reads one logical command, stores its parsed count in
-// commandCount/lastCommandCount, remaining repeats in multi, and its command
-// byte in cmdKey. It restores parse/input state, clears the physical TTY
-// message row, and returns cmdKey.
-export async function parseCommand(state = game) {
+async function beginCommandParse(state) {
     state.iflags ??= {};
     state.program_state ??= {};
     state.context ??= {};
     state.commandCount = 0;
     state.context.move = 1;
     await flush_screen(1);
-
     state.iflags.in_parse = true;
     state.program_state.input_state = 'command';
+}
+
+function abortCommandParse(state) {
+    state.context.move = 0;
+    state.iflags.in_parse = false;
+    state.program_state.input_state = 'other';
+}
+
+function finishCommandParse(parsed, state) {
+    state.commandCount = parsed.count;
+    state.lastCommandCount = parsed.count;
+    if (parsed.key === ESC) {
+        clearTtyMessageWindow(state);
+        state.commandCount = 0;
+        state.lastCommandCount = 0;
+    }
+    state.multi = state.commandCount;
+    if (state.multi) --state.multi;
+    state.cmdKey = parsed.key;
+    clearTtyMessageWindow(state);
+    state.iflags.in_parse = false;
+    state.program_state.input_state = 'other';
+    return state.cmdKey;
+}
+
+// C ref: cmd.c parse(). Reads one logical command, stores its parsed count in
+// commandCount/lastCommandCount, remaining repeats in multi, and its command
+// byte in cmdKey. It restores parse/input state, clears the physical TTY
+// message row, and returns cmdKey.
+export async function parseCommand(state = game) {
+    await beginCommandParse(state);
     let parsed;
     try {
         if (!state.iflags.num_pad) {
@@ -253,26 +288,36 @@ export async function parseCommand(state = game) {
         // A replay can intentionally stop at this live input wait. C never
         // returns from readchar() in that state, so undo parse()'s provisional
         // time assumption for the runner's boundary diagnostics.
-        state.context.move = 0;
-        state.iflags.in_parse = false;
-        state.program_state.input_state = 'other';
+        abortCommandParse(state);
         throw error;
     }
 
-    state.commandCount = parsed.count;
-    state.lastCommandCount = parsed.count;
-    if (parsed.key === ESC) {
-        clearTtyMessageWindow(state);
-        state.commandCount = 0;
-        state.lastCommandCount = 0;
+    return finishCommandParse(parsed, state);
+}
+
+// The repeated-simple-command milestone admits only one uncounted wait or
+// run-mode-zero walk byte. Classify that first logical byte before get_count()
+// can consume a prefix byte or expose transient count output.
+async function readSimpleCommand(state) {
+    await beginCommandParse(state);
+    let key;
+    try {
+        key = await readCommandKey(state);
+    } catch (error) {
+        abortCommandParse(state);
+        throw error;
     }
-    state.multi = state.commandCount;
-    if (state.multi) --state.multi;
-    state.cmdKey = parsed.key;
-    clearTtyMessageWindow(state);
-    state.iflags.in_parse = false;
-    state.program_state.input_state = 'other';
-    return state.cmdKey;
+    const command = commandForKey(commandBindings(state), key);
+    const movement = MOVEMENT_INTENTS[command];
+    if (command !== 'wait' && (!movement || movement[2] !== 0)) {
+        abortCommandParse(state);
+        throw new UnsupportedHeroCommandBoundaryError(
+            'the repeated-command boundary admits only an uncounted wait '
+                + 'or one-square walk',
+            key,
+        );
+    }
+    return finishCommandParse({ key, count: 0 }, state);
 }
 
 // C ref: cmd.c reset_cmd_vars(). Command queues and travel-map ownership stay
@@ -336,6 +381,36 @@ async function executeMovement(command, firstTime, state) {
     state.iflags.menu_requested = false;
 }
 
+// pendingCommand owns either one rejected physical byte which has not entered
+// cmd.c parsing, or the complete parsed state needed to retry a destination
+// admission failure. Parser UI state and prefix flags are deliberately absent:
+// neither kind of retry resumes inside get_count() or a prefix handler.
+function captureParsedCommand(key, state) {
+    return {
+        phase: 'parsed',
+        key,
+        commandCount: state.commandCount,
+        lastCommandCount: state.lastCommandCount,
+        multi: state.multi,
+    };
+}
+
+function restoreParsedCommand(pending, state) {
+    state.cmdKey = pending.key;
+    state.commandCount = pending.commandCount;
+    state.lastCommandCount = pending.lastCommandCount;
+    state.multi = pending.multi;
+    return pending.key;
+}
+
+function rejectedPhysicalCommand(pending) {
+    return new UnsupportedHeroCommandBoundaryError(
+        'the repeated-command boundary admits only an uncounted wait '
+            + 'or one-square walk',
+        pending.key,
+    );
+}
+
 // C ref: cmd.c rhack(). Only the source handlers owned by this milestone are
 // dispatched here; later command families retain the existing unknown-command
 // behavior until their complete handlers are ported. key === 0 reads and
@@ -350,32 +425,41 @@ export async function rhack(key, state = game) {
     state.context.nopick = 0;
 
     const firstTime = key === 0;
-    if (firstTime) {
-        const pending = state.context.pendingCommand;
-        if (pending) {
-            key = pending.key;
-            state.cmdKey = pending.key;
-            state.commandCount = pending.commandCount;
-            state.lastCommandCount = pending.lastCommandCount;
-            state.multi = pending.multi;
-        } else {
-            key = await parseCommand(state);
-            state.context.pendingCommand = {
-                key,
-                commandCount: state.commandCount,
-                lastCommandCount: state.lastCommandCount,
-                multi: state.multi,
-            };
-        }
-    }
-
-    // A command is dispatched only after its input wait returns. Keep this
-    // diagnostic independent of turn consumption so the first-command gate can
-    // distinguish a blocked or zero-time command from an untouched prompt.
-    state._commandDispatchCount = (state._commandDispatchCount ?? 0) + 1;
-
     let retryableBoundary = false;
     try {
+        if (firstTime) {
+            const pending = state.context.pendingCommand;
+            if (pending?.phase === 'physical') {
+                resetCommandVars(state);
+                throw rejectedPhysicalCommand(pending);
+            }
+            if (pending) {
+                key = restoreParsedCommand(pending, state);
+            } else {
+                try {
+                    key = await readSimpleCommand(state);
+                } catch (error) {
+                    if (error instanceof UnsupportedHeroCommandBoundaryError) {
+                        resetCommandVars(state);
+                        state.context.pendingCommand = {
+                            phase: 'physical',
+                            key: error.key,
+                        };
+                    }
+                    throw error;
+                }
+                state.context.pendingCommand =
+                    captureParsedCommand(key, state);
+            }
+        }
+
+        // A command is dispatched only after its input wait returns. Keep this
+        // diagnostic independent of turn consumption so the first-command
+        // gate can distinguish a blocked or zero-time command from an
+        // untouched prompt.
+        state._commandDispatchCount =
+            (state._commandDispatchCount ?? 0) + 1;
+
         if (!key || key === 0xFF || key === ESC) {
             resetCommandVars(state);
             return;
@@ -388,12 +472,8 @@ export async function rhack(key, state = game) {
             // dispatches the following command in the same input cycle.
             key = await parseCommand(state);
             if (firstTime) {
-                state.context.pendingCommand = {
-                    key,
-                    commandCount: state.commandCount,
-                    lastCommandCount: state.lastCommandCount,
-                    multi: state.multi,
-                };
+                state.context.pendingCommand =
+                    captureParsedCommand(key, state);
             }
             command = commandForKey(commandBindings(state), key);
             if (command === 'reqmenu') {
@@ -420,7 +500,8 @@ export async function rhack(key, state = game) {
         state.multi = 0;
     } catch (error) {
         retryableBoundary =
-            error instanceof UnsupportedHeroMoveBoundaryError;
+            error instanceof UnsupportedHeroMoveBoundaryError
+            || error instanceof UnsupportedHeroCommandBoundaryError;
         throw error;
     } finally {
         if (firstTime && !retryableBoundary)

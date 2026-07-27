@@ -1086,11 +1086,11 @@ test('tutorial movement text follows number-pad and gameplay bindings', async ()
     }
 });
 
-test('a command message remains on the next command screen', async () => {
+test('an excluded command stops before its diagnostic or dispatch', async () => {
     const nhGame = await runSegment({
         // The long name forces welcome() through More. With rest_on_space
-        // disabled, the following Space is an invalid command whose source
-        // diagnostic must survive the next redraw.
+        // disabled, the following Space is outside the current atomic command
+        // boundary and must stop before its source diagnostic.
         seed: 730204,
         datetime: '20260129120000',
         nethackrc: 'OPTIONS=name:MessageRetention,role:Tourist,race:human,'
@@ -1101,8 +1101,13 @@ test('a command message remains on the next command screen', async () => {
     const topline = game.nhDisplay.grid[0]
         .map((cell) => cell.ch).join('').trimEnd();
 
-    assert.equal(nhGame.getScreens().length, 3);
-    assert.equal(topline, "Unknown command ' '.");
+    assert.equal(nhGame.getScreens().length, 2);
+    assert.equal(topline, '');
+    assert.equal(game._commandDispatchCount, 0);
+    assert.deepEqual(game.context.pendingCommand, {
+        phase: 'physical',
+        key: ' '.charCodeAt(0),
+    });
 });
 
 test('version constants match the pinned NetHack release', () => {

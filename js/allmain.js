@@ -77,7 +77,11 @@ import {
 } from './vision.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
-import { gethungry } from './eat.js';
+import {
+    gethungry,
+    preflightGetHungry,
+    UnsupportedHungerTransitionError,
+} from './eat.js';
 import { m_everyturn_effect } from './monmove.js';
 import {
     preflightSimpleMonsterActions,
@@ -88,7 +92,10 @@ import {
     create_gas_cloud,
     run_regions,
 } from './region.js';
-import { nh_timeout_elapsed_turn } from './timeout.js';
+import {
+    nh_timeout_elapsed_turn,
+    preflight_nh_timeout_elapsed_turn,
+} from './timeout.js';
 import { regen_hp, regen_pw } from './regen.js';
 import { automatic_search } from './detect.js';
 import { age_spells } from './spell.js';
@@ -518,8 +525,24 @@ async function advanceElapsedTurn(state) {
         boundary.reason = error.reason;
         throw boundary;
     }
+    try {
+        preflightGetHungry(state, {
+            nearCapacity: () => UNENCUMBERED,
+            message: ttyPline,
+            endRunning,
+            statusRefresh: () => bot(),
+        });
+    } catch (error) {
+        if (!(error instanceof UnsupportedHungerTransitionError)) throw error;
+        const boundary = new UnsupportedTurnBoundaryError(error.message);
+        boundary.reason = error.reason;
+        throw boundary;
+    }
     // C runs the per-turn timeouts against the turn it is entering.
-    nh_timeout_elapsed_turn({ ...state, moves: (state.moves || 1) + 1 });
+    preflight_nh_timeout_elapsed_turn({
+        ...state,
+        moves: (state.moves || 1) + 1,
+    });
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero

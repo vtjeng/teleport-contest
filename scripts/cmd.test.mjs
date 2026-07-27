@@ -13,6 +13,7 @@ import {
     parseCommand,
     resetCommandVars,
     rhack,
+    UnsupportedHeroCommandBoundaryError,
 } from '../js/cmd.js';
 import {
     COLNO,
@@ -46,6 +47,7 @@ import {
 } from '../js/hack.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { PM_FOG_CLOUD } from '../js/monsters.js';
+import { BOULDER } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import { create_region } from '../js/region.js';
 import {
@@ -54,7 +56,10 @@ import {
     initRng,
 } from '../js/rng.js';
 import { CLR_GRAY } from '../js/terminal.js';
-import { ttyPline } from '../js/tty_message.js';
+import {
+    clearTtyMessageWindow,
+    ttyPline,
+} from '../js/tty_message.js';
 
 // This non-Friday-the-13th, non-moon-boundary afternoon keeps command tests
 // free of calendar messages while still exercising fixed-datetime startup.
@@ -171,11 +176,6 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
     return {
         context: structuredClone(game.context),
         display: {
-            cursor: [
-                game.nhDisplay.cursorCol,
-                game.nhDisplay.cursorRow,
-                game.nhDisplay.cursorVisible,
-            ],
             grid: structuredClone(game.nhDisplay.grid),
             messages: [...game.nhDisplay.messages],
             pending: game._pending_message,
@@ -467,6 +467,22 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 destination.doormask = 0;
             },
         },
+        ...[ROOM, CORR].map((typ) => ({
+            name: `${typ === ROOM ? 'room' : 'corridor'} boulder`,
+            reason: 'boulder movement',
+            install: ({ destination, x, y }) => {
+                game.flags.pickup = false;
+                destination.typ = typ;
+                game.level.objects[x][y] = {
+                    o_id: 7002,
+                    otyp: BOULDER,
+                    nexthere: null,
+                };
+            },
+            remove: ({ x, y }) => {
+                game.level.objects[x][y] = null;
+            },
+        })),
     ];
 
     for (const refusal of cases) {
@@ -478,12 +494,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 + '!splash_screen,pettype:none',
             moves: '',
         });
-        // Finish the harness-only empty-input attempt with a real zero-time
-        // command. This leaves the same reset state that a live command loop
-        // has before reading the refused movement key.
-        game.nhDisplay.pushKey(0x1B);
-        await rhack(0, game);
-        await assert.rejects(moveloop_core(), /Input queue empty/u);
+        clearTtyMessageWindow(game);
         resetCommandVars(game);
         const x = game.u.ux + 1;
         const y = game.u.uy;
@@ -512,12 +523,16 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         expected.iflags.menu_requested = false;
         expected.multi = 0;
         expected.context.pendingCommand = {
+            phase: 'parsed',
             key: commandKeyCode('l'),
             commandCount: 0,
             lastCommandCount: 0,
             multi: 0,
         };
+        const expectedOutput = expected.output;
+        delete expected.output;
         const initialDispatches = game._commandDispatchCount;
+        let refusalOutput;
         let refusalScreen;
         let refusalCursor;
 
@@ -532,10 +547,8 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 `${refusal.name}, attempt ${attempt + 1}`,
             );
             const actual = heroCommandRetrySnapshot(replay);
-            // Input capture counts differ between the initial parse and a
-            // pending-command redispatch. The streams are asserted below;
-            // compare every gameplay/input owner independently of length.
-            actual.output = expected.output;
+            const actualOutput = actual.output;
+            delete actual.output;
             assert.deepEqual(
                 actual,
                 expected,
@@ -547,9 +560,27 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 refusal.name,
             );
             if (attempt === 0) {
+                refusalOutput = structuredClone(actualOutput);
+                assert.equal(
+                    actualOutput.screens.length,
+                    expectedOutput.screens.length + 1,
+                );
+                assert.deepEqual(
+                    actualOutput.screens.slice(0, -1),
+                    expectedOutput.screens,
+                );
+                assert.equal(
+                    actualOutput.cursors.length,
+                    expectedOutput.cursors.length + 1,
+                );
+                assert.deepEqual(
+                    actualOutput.cursors.slice(0, -1),
+                    expectedOutput.cursors,
+                );
                 refusalScreen = replay.getScreens().at(-1);
                 refusalCursor = replay.getCursors().at(-1);
             } else {
+                assert.deepEqual(actualOutput, refusalOutput);
                 assert.equal(replay.getScreens().at(-1), refusalScreen);
                 assert.deepEqual(
                     replay.getCursors().at(-1),
@@ -586,9 +617,7 @@ test('unsupported movement retains its byte ahead of the next command',
                 + '!splash_screen,pettype:none',
             moves: '',
         });
-        game.nhDisplay.pushKey(0x1B);
-        await rhack(0, game);
-        await assert.rejects(moveloop_core(), /Input queue empty/u);
+        clearTtyMessageWindow(game);
         resetCommandVars(game);
         const start = [game.u.ux, game.u.uy];
         const east = game.level.at(start[0] + 1, start[1]);
@@ -939,36 +968,42 @@ test('number-pad count prefix feeds the same saturating parser', async () => {
     assert.equal(topLine(state), '');
 });
 
-test('a counted wait repeats without reading another command key', async () => {
+test('a count prefix is retained before parsing or command dispatch',
+    async () => {
     const replay = await runSegment({
-        // This independent seed has no fixture role; it exercises three waits
-        // while the residual turn scaffold is still responsible for turn RNG.
         seed: 840003,
         datetime: COMMAND_DATETIME,
         nethackrc: 'OPTIONS=name:CountTest,role:Healer,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        moves: ' ',
+        moves: '',
     });
-    // Command repetition is independent of the not-yet-ported monster-action
-    // phase, so remove startup monsters before driving the three waits.
     game.level.monlist = null;
-    const initialScreens = replay.getScreens().length;
     const initialDispatches = game._commandDispatchCount;
     game.nhDisplay.pushKey(commandKeyCode('3'));
     game.nhDisplay.pushKey(commandKeyCode('.'));
-    for (let turn = 0; turn < 3; ++turn) await moveloop_core();
-    await assert.rejects(moveloop_core(), /Input queue empty/u);
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === commandKeyCode('3'),
+    );
+    const rejected = heroCommandRetrySnapshot(replay);
+    assert.deepEqual(game.context.pendingCommand, {
+        phase: 'physical',
+        key: commandKeyCode('3'),
+    });
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(game._commandDispatchCount, initialDispatches);
 
-    assert.equal(game.moves, 4);
-    assert.equal(game.multi, 0);
-    assert.equal(game.lastCommandCount, 3);
-    assert.equal(game._commandDispatchCount - initialDispatches, 3);
-    // Input is read for the digit, the command, then the next live prompt;
-    // the two repeated waits introduce no input boundary of their own.
-    assert.equal(replay.getScreens().length - initialScreens, 3);
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === commandKeyCode('3'),
+    );
+    assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
 });
 
-test('the segment runner preserves output at a known turn boundary', async () => {
+test('the segment runner preserves output at an excluded count boundary',
+    async () => {
     const replay = await runSegment({
         seed: 2026072001,
         datetime: COMMAND_DATETIME,
@@ -978,25 +1013,17 @@ test('the segment runner preserves output at a known turn boundary', async () =>
         moves: '2.',
     });
 
-    // Both counted waits are dispatched. The live second elapsed turn,
-    // including ordinary startup-monster actions, then reaches its prompt.
-    assert.equal(game._commandDispatchCount, 2);
-    assert.equal(game.multi, 0);
-    assert.equal(game.moves, 3);
-    // Three moves contribute 3 * 8 hero-sequence ticks, then the completed
-    // action adds one; two elapsed turns reduce initial hunger 900 by two.
-    assert.equal(game.hero_seq, 25);
-    assert.equal(game.u.uhunger, 898);
-    assert.equal(replay.getScreens().length, 3);
-    assert.equal(game.nhDisplay.inputQueueLength, 0);
-    let actionableMonster = false;
-    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-        if (monster.mhp > 0 && monster.movement >= NORMAL_SPEED) {
-            actionableMonster = true;
-            break;
-        }
-    }
-    assert.equal(actionableMonster, false);
+    assert.equal(game._commandDispatchCount ?? 0, 0);
+    assert.equal(game.multi ?? 0, 0);
+    assert.equal(game.moves, 1);
+    assert.equal(game.hero_seq ?? 0, 0);
+    assert.equal(game.u.uhunger, 900);
+    assert.deepEqual(game.context.pendingCommand, {
+        phase: 'physical',
+        key: commandKeyCode('2'),
+    });
+    assert.equal(replay.getScreens().length, 1);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
 });
 
 test('the segment runner budget covers counts through the portable limit', () => {
@@ -1079,19 +1106,40 @@ test('safe wait rejects a nearby hostile with the bound force prefix', async () 
     assert.equal(state.did_nothing_flag, 3);
 });
 
-test('reqmenu prefix forces a wait which safe_wait would reject', async () => {
+test('reqmenu prefix stops before consuming its following command', async () => {
     const { state } = resetSafeWaitTestGame(
         'OPTIONS=!cmdassist\nBINDINGS=x:reqmenu',
     );
     state.nhDisplay.pushKey(commandKeyCode('x'));
     state.nhDisplay.pushKey(commandKeyCode('.'));
 
-    await rhack(0, state);
+    await assert.rejects(
+        rhack(0, state),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === commandKeyCode('x'),
+    );
+    const rejected = structuredClone({
+        context: state.context,
+        iflags: state.iflags,
+        input: state.nhDisplay.terminal._inputQueue,
+        pendingMessage: state._pending_message,
+    });
+    await assert.rejects(
+        rhack(0, state),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === commandKeyCode('x'),
+    );
 
-    assert.equal(state.context.move, 1);
-    assert.equal(state.iflags.menu_requested, true);
-    assert.equal(state.did_nothing_flag, 0);
-    assert.equal(state.nhDisplay.inputQueueLength, 0);
+    assert.deepEqual(structuredClone({
+        context: state.context,
+        iflags: state.iflags,
+        input: state.nhDisplay.terminal._inputQueue,
+        pendingMessage: state._pending_message,
+    }), rejected);
+    assert.equal(state.context.move, 0);
+    assert.equal(state.iflags.menu_requested, false);
+    assert.equal(state.did_nothing_flag ?? 0, 0);
+    assert.equal(state.nhDisplay.inputQueueLength, 1);
 });
 
 test('dangerous hero properties reject waiting and success resets its counter', async () => {
@@ -1114,36 +1162,43 @@ test('dangerous hero properties reject waiting and success resets its counter', 
     assert.equal(state.did_nothing_flag, 0);
 });
 
-test('counted movement repeats intent without extra dispatch or input', async () => {
-    const replay = await runSegment({
-        seed: 840004,
-        datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:MoveCount,role:Healer,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n'
-            + 'BINDINGS=x:movewest',
-        moves: '',
-    });
-    game.level.monlist = null;
-    const start = [game.u.ux, game.u.uy];
-    const initialScreens = replay.getScreens().length;
-    for (let distance = 1; distance <= 3; ++distance) {
-        const square = game.level.at(start[0] - distance, start[1]);
-        square.typ = ROOM;
-        square.flags = square.doormask = 0;
+test('run, rush, search, and pickup bytes remain atomic boundaries',
+    async () => {
+    const cases = [
+        { name: 'run', key: 'x', binding: 'BINDINGS=x:runwest' },
+        { name: 'rush', key: 'x', binding: 'BINDINGS=x:rushwest' },
+        { name: 'search', key: 's', binding: '' },
+        { name: 'pickup', key: ',', binding: '' },
+    ];
+    for (const commandCase of cases) {
+        const replay = await runSegment({
+            seed: 840004,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:ExcludedCommand,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen\n'
+                + commandCase.binding,
+            moves: '',
+        });
+        const key = commandKeyCode(commandCase.key);
+        const initialDispatches = game._commandDispatchCount;
+        game.nhDisplay.pushKey(key);
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error instanceof UnsupportedHeroCommandBoundaryError
+                && error.key === key,
+            commandCase.name,
+        );
+        const rejected = heroCommandRetrySnapshot(replay);
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error instanceof UnsupportedHeroCommandBoundaryError
+                && error.key === key,
+            commandCase.name,
+        );
+        assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
+        assert.equal(game._commandDispatchCount, initialDispatches);
     }
-    game.nhDisplay.pushKey(commandKeyCode('3'));
-    game.nhDisplay.pushKey(commandKeyCode('x'));
-
-    for (let turn = 0; turn < 3; ++turn) await moveloop_core();
-    await assert.rejects(moveloop_core(), /Input queue empty/u);
-
-    assert.deepEqual([game.u.ux, game.u.uy], [start[0] - 3, start[1]]);
-    assert.equal(game.moves, 4);
-    assert.equal(game.multi, 0);
-    assert.equal(game.context.mv, 0);
-    assert.equal(game.context.run, 0);
-    assert.equal(game._commandDispatchCount, 1);
-    assert.equal(replay.getScreens().length - initialScreens, 3);
 });
 
 test('moveloop allocates live monster movement once after elapsed input', async () => {
@@ -1175,6 +1230,8 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     game.context.seer_turn = 2;
     initRng(918273);
     enableRngLog();
+    const west = game.level.at(game.u.ux - 1, game.u.uy);
+    west.typ = STONE;
 
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
@@ -1182,8 +1239,8 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.moves, 1);
     assert.equal(game.u.uhunger, 900);
 
-    // Tilde has no default binding in the upstream command table.
-    game.nhDisplay.pushKey(commandKeyCode('~'));
+    // A wall refusal consumes no time after exposing the elapsed phase.
+    game.nhDisplay.pushKey(commandKeyCode('h'));
     await moveloop_core();
     assert.equal(game.level.monlist, head);
     assert.equal(head.nmon, tail);
@@ -1208,8 +1265,6 @@ test('moveloop allocates live monster movement once after elapsed input', async 
 
     const elapsedLog = [...getRngLog()];
     const elapsedMovement = [head.movement, tail.movement];
-    const west = game.level.at(game.u.ux - 1, game.u.uy);
-    west.typ = STONE;
     game.nhDisplay.pushKey(commandKeyCode('h'));
     await moveloop_core();
     assert.equal(game.context.move, 0);
@@ -1220,8 +1275,8 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.deepEqual([head.movement, tail.movement], elapsedMovement);
     assert.deepEqual(getRngLog(), elapsedLog);
 
-    // Neither the unbound command nor blocked movement advances the source
-    // turn counter. The synthetic monsters deliberately omit mcanmove, so
+    // Blocked movement does not advance the source turn counter. The
+    // synthetic monsters deliberately omit mcanmove, so
     // they spend an available ration without taking a map action. This
     // isolates the next allocation boundary from movement-path randomness.
     game.nhDisplay.pushKey(commandKeyCode('.'));
@@ -1229,7 +1284,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.moves, 2);
     assert.equal(game.u.uhunger, 899);
     assert.deepEqual(getRngLog(), elapsedLog);
-    game.nhDisplay.pushKey(commandKeyCode('~'));
+    game.nhDisplay.pushKey(commandKeyCode('h'));
     await moveloop_core();
     assert.equal(game.nhDisplay.inputQueueLength, 0);
     assert.equal(game.moves, 3);
@@ -1284,6 +1339,7 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
     game.level.monlist = fogCloud;
     game.level.monsters[x][y] = fogCloud;
     game.level.regions = [];
+    game.level.at(game.u.ux - 1, game.u.uy).typ = STONE;
 
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
@@ -1292,7 +1348,7 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
         moves: game.moves,
         movement: game.u.umovement,
     };
-    game.nhDisplay.pushKey(commandKeyCode('~'));
+    game.nhDisplay.pushKey(commandKeyCode('h'));
 
     await moveloop_core();
     assert.equal(game.moves, unchanged.moves + 1);
@@ -1309,7 +1365,7 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
     game.level.regions = [];
     fogCloud.movement = 0;
     game.context.move = 1;
-    game.nhDisplay.pushKey(commandKeyCode('~'));
+    game.nhDisplay.pushKey(commandKeyCode('h'));
     const beforeFogBoundary = {
         hunger: game.u.uhunger,
         moves: game.moves,
@@ -1365,11 +1421,12 @@ test('hero fog upkeep keeps its every-input region owner', async () => {
         nethackrc: 'OPTIONS=name:HeroFogWork,role:Healer,'
             + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
             + '!splash_screen,!acoustics',
-        moves: ' ',
+        moves: '',
     });
     game.youmonst.data = game.mons[PM_FOG_CLOUD];
     game.level.regions = [];
-    game.nhDisplay.pushKey(commandKeyCode('~'));
+    game.level.at(game.u.ux - 1, game.u.uy).typ = STONE;
+    game.nhDisplay.pushKey(commandKeyCode('h'));
 
     await moveloop_core();
 
@@ -1408,10 +1465,11 @@ test('moveloop zero generation gate creates before the next allocation', async (
     // allmain.c:maybe_generate_rnd_mon() branch without mocking makemon().
     initRng(167);
     enableRngLog();
+    game.level.at(game.u.ux - 1, game.u.uy).typ = STONE;
 
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
-    game.nhDisplay.pushKey(commandKeyCode('~'));
+    game.nhDisplay.pushKey(commandKeyCode('h'));
     await moveloop_core();
 
     const created = [];
@@ -1422,12 +1480,12 @@ test('moveloop zero generation gate creates before the next allocation', async (
     assert.ok(created.every((monster) => !monster.mgenmklev));
     assert.ok(created.every((monster) => monster.movement === 0));
 
-    // The unbound command consumed no time. A following wait, then another
-    // unbound command, reaches the next allocation and live-action round for
-    // the same nodes. Any allocated ration is spent before the prompt.
+    // The wall refusal consumed no time. A following wait, then another wall
+    // refusal, reaches the next allocation and live-action round for the same
+    // nodes. Any allocated ration is spent before the prompt.
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
-    game.nhDisplay.pushKey(commandKeyCode('~'));
+    game.nhDisplay.pushKey(commandKeyCode('h'));
     await moveloop_core();
     assert.ok(created.every(
         (monster) => monster.movement >= 0
@@ -1441,8 +1499,7 @@ test('a fast hero spends surplus movement without allocating a new turn', async 
         datetime: COMMAND_DATETIME,
         nethackrc: 'OPTIONS=name:FastSurplus,role:Healer,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        // Dismiss startup, then let the test drive each command boundary.
-        moves: ' ',
+        moves: '',
     });
     game.level.monlist = null;
     game.u.uprops[FAST].intrinsic = INTRINSIC;
@@ -1621,7 +1678,8 @@ test('all source direction families dispatch their exact movement intent', async
     }
 });
 
-test('a first-time altmeta number-pad run establishes run state', async () => {
+test('a first-time altmeta number-pad run remains an atomic boundary',
+    async () => {
     await runSegment({
         seed: 840004,
         datetime: COMMAND_DATETIME,
@@ -1641,13 +1699,17 @@ test('a first-time altmeta number-pad run establishes run state', async () => {
     game.nhDisplay.pushKey(0x1B);
     game.nhDisplay.pushKey(commandKeyCode('4'));
 
-    await rhack(0, game);
+    await assert.rejects(
+        rhack(0, game),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === 0xB4,
+    );
 
-    assert.deepEqual([game.u.dx, game.u.dy, game.u.dz], [-1, 0, 0]);
-    assert.equal(game.context.run, 1);
-    assert.equal(game.context.mv, 1);
-    assert.equal(game.multi, COLNO);
-    assert.equal(game.u.last_str_turn, 0);
+    assert.deepEqual([game.u.ux, game.u.uy], start);
+    assert.equal(game.context.run ?? 0, 0);
+    assert.equal(game.context.mv ?? 0, 0);
+    assert.equal(game.multi ?? 0, 0);
+    assert.equal(game.u.last_str_turn, 99);
 });
 
 test('runtime dispatch applies a configured movement binding', async () => {

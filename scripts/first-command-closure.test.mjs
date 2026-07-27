@@ -78,7 +78,7 @@ test('closure recipes reach the first command without executing it', async () =>
     }
 });
 
-test('closure boundary rejects an appended zero-time command', async () => {
+test('closure boundary rejects an appended unsupported command', async () => {
     const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[0])
         .segments[0];
     await assert.rejects(
@@ -86,14 +86,14 @@ test('closure boundary rejects an appended zero-time command', async () => {
             ...segment,
             moves: `${segment.moves} `,
         }),
-        /dispatched a command/u,
+        /unsupported gameplay command/u,
     );
     await assert.rejects(
         traceFirstCommandThemeroomSelections({
             ...segment,
             moves: `${segment.moves} `,
         }),
-        /dispatched a command/u,
+        /unsupported gameplay command/u,
     );
 });
 

@@ -149,26 +149,30 @@ function requireHungerTransitionOperation(env, name) {
     return operation;
 }
 
-// C ref: eat.c gethungry() and its live newuhs(TRUE) consumer. This owns the
-// nutrition decision for an alert hero plus the first source-reachable
-// NOT_HUNGRY -> HUNGRY transition. Later weakness, fainting, and death
-// transitions remain fail-closed before their tick's accessory draw.
-export async function gethungry(state = game, env = {}) {
+export class UnsupportedHungerTransitionError extends Error {
+    constructor(reason) {
+        super(`gethungry reached ${reason}`);
+        this.name = 'UnsupportedHungerTransitionError';
+        this.reason = reason;
+    }
+}
+
+// Pure admission for eat.c:gethungry(). allmain.c uses this before changing
+// any elapsed-turn state; gethungry() reuses the returned source inputs at its
+// actual source-ordered call site.
+export function preflightGetHungry(state = game, env = {}) {
     const u = state.u;
     if (!u || !Number.isSafeInteger(u.uhunger)) {
         throw new Error('gethungry requires initialized hero nutrition');
     }
-    if (u.uinvulnerable || state.iflags?.debug_hunger) return 0;
+    if (u.uinvulnerable || state.iflags?.debug_hunger)
+        return { skipped: true };
     if (Math.trunc(state.multi ?? 0) < 0) {
-        throw new Error(
-            'gethungry reached unported unconscious or immobile state',
+        throw new UnsupportedHungerTransitionError(
+            'unported unconscious or immobile state',
         );
     }
 
-    const random = env.random ?? { rn2 };
-    if (typeof random.rn2 !== 'function') {
-        throw new TypeError('gethungry random injection requires rn2');
-    }
     if (typeof env.nearCapacity !== 'function') {
         throw new Error('gethungry requires nearCapacity');
     }
@@ -178,8 +182,8 @@ export async function gethungry(state = game, env = {}) {
     }
 
     if (u.uhs === FAINTED || hungerStatus(u.uhunger) !== u.uhs) {
-        throw new Error(
-            'gethungry reached unported hunger-status transition',
+        throw new UnsupportedHungerTransitionError(
+            'unported hunger-status transition',
         );
     }
     // Either ring can be selected by rn2(20). Validate both definitions
@@ -235,11 +239,49 @@ export async function gethungry(state = game, env = {}) {
     // not rejected before their source draw. The first increasing transition
     // is fully owned, so every parity outcome around that threshold is safe.
     if (earliestStatus !== u.uhs && !mayReachSupportedTransition) {
-        throw new Error(
-            'gethungry reached unported hunger-status transition',
+        throw new UnsupportedHungerTransitionError(
+            'unported hunger-status transition',
         );
     }
 
+    return {
+        capacity,
+        conflictLoss,
+        hungerLoss,
+        message,
+        ordinaryLoss,
+        regenerationLoss,
+        skipped: false,
+        slowDigestion,
+        statusRefresh,
+        stopRunning,
+    };
+}
+
+// C ref: eat.c gethungry() and its live newuhs(TRUE) consumer. This owns the
+// nutrition decision for an alert hero plus the first source-reachable
+// NOT_HUNGRY -> HUNGRY transition. Later weakness, fainting, and death
+// transitions remain fail-closed before any elapsed-turn mutation.
+export async function gethungry(state = game, env = {}) {
+    const plan = preflightGetHungry(state, env);
+    if (plan.skipped) return 0;
+
+    const random = env.random ?? { rn2 };
+    if (typeof random.rn2 !== 'function') {
+        throw new TypeError('gethungry random injection requires rn2');
+    }
+    const {
+        capacity,
+        conflictLoss,
+        hungerLoss,
+        message,
+        ordinaryLoss,
+        regenerationLoss,
+        slowDigestion,
+        statusRefresh,
+        stopRunning,
+    } = plan;
+    const { u } = state;
     let nutritionLoss = ordinaryLoss;
 
     const accessoryTime = random.rn2(20);
@@ -282,8 +324,8 @@ export async function gethungry(state = game, env = {}) {
     const nextStatus = hungerStatus(nextNutrition);
     if (nextStatus !== u.uhs
         && !supportedIncreasingHungerTransition(u.uhs, nextStatus)) {
-        throw new Error(
-            'gethungry reached unported hunger-status transition',
+        throw new UnsupportedHungerTransitionError(
+            'unported hunger-status transition',
         );
     }
     u.uhunger = nextNutrition;

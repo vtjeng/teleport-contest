@@ -289,6 +289,37 @@ test('adjattrib preserves below-minimum base and maximum handling', async () => 
     random.done();
 });
 
+test('adjattrib preserves all three source message modes', async () => {
+    for (const changed of [false, true]) {
+        for (const mode of [1, 0, -1]) {
+            const state = baseState();
+            const value = changed ? 10 : 18;
+            state.flags.verbose = true;
+            state.u.acurr = { a: [value, 10, 10, 10, 10, 10] };
+            state.u.amax = { a: [value, 10, 10, 10, 10, 10] };
+            state.u.aexe = [4, 0, 0, 0, 0, 0];
+            state.u.abon = [0, 0, 0, 0, 0, 0];
+            state.u.atemp = [0, 0, 0, 0, 0, 0];
+            state.u.uprops = {};
+            state.program_state = { in_moveloop: 0 };
+            const messages = [];
+
+            assert.equal(
+                await adjattrib(A_STR, 1, mode, state, {
+                    message: (message) => messages.push(message),
+                }),
+                changed,
+            );
+            const shouldMessage = changed ? mode <= 0 : mode === 0;
+            assert.equal(
+                messages.length,
+                shouldMessage ? 1 : 0,
+                `${changed ? 'changed' : 'unchanged'} mode ${mode}`,
+            );
+        }
+    }
+});
+
 test('exerchk applies and reschedules the move-600 attribute check', async () => {
     const state = baseState();
     state.moves = 600;

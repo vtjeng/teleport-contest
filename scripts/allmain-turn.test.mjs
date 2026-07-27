@@ -7,6 +7,7 @@ import {
     maybeRunClairvoyance,
     maybeWipeHeroEngraving,
     moveloop_core,
+    UnsupportedTurnBoundaryError,
     u_calc_moveamt,
 } from '../js/allmain.js';
 import {
@@ -17,7 +18,9 @@ import {
     FLYING,
     FROMOUTSIDE,
     HOLE,
+    HUNGER,
     HVY_ENCUMBER,
+    HUNGRY,
     INTRINSIC,
     LEVITATION,
     M_AP_MONSTER,
@@ -55,6 +58,7 @@ import {
     chunkRecipe,
     RECORDER_SEGMENT_LIMIT,
 } from './run-first-command-closure.mjs';
+import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
@@ -519,6 +523,7 @@ function firstTurnInput({
     align,
     command,
     options = '',
+    startupKeys = '',
 }) {
     return {
         seed,
@@ -526,9 +531,9 @@ function firstTurnInput({
         nethackrc: `OPTIONS=name:${name},role:${role},race:${race},`
             + `gender:${gender},align:${align},!legacy,!tutorial,`
             + `!splash_screen${options}\n`,
-        // The leading space dismisses the welcome message; command is the
-        // first gameplay input. Queue exhaustion captures the next prompt.
-        moves: ` ${command}`,
+        // The command is the first gameplay input. Queue exhaustion captures
+        // the next prompt after its complete elapsed-turn continuation.
+        moves: `${startupKeys}${command}`,
     };
 }
 
@@ -554,7 +559,7 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
         command: '.',
     }));
 
-    assert.equal(replay.getScreens().length, 3);
+    assert.equal(replay.getScreens().length, 2);
     assert.equal(game.moves, 2);
     assert.equal(game.hero_seq, 17);
     assert.equal(game.u.umovement, 12);
@@ -582,6 +587,81 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
     assert.ok(knownSpells.every((spell) => spell.sp_know === 19999));
 });
 
+test('later hunger boundaries stop before any elapsed-turn mutation',
+    async () => {
+    const cases = [
+        { nutrition: 51, hungerProperty: false },
+        { nutrition: 52, hungerProperty: true },
+    ];
+    for (const hungerCase of cases) {
+        const replay = await runSegment({
+            seed: 2026072301,
+            datetime: '20260723120000',
+            nethackrc: 'OPTIONS=name:HungerBoundary,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.u.uhunger = hungerCase.nutrition;
+        game.u.uhs = HUNGRY;
+        game.u.uprops[HUNGER] = {
+            intrinsic: hungerCase.hungerProperty ? FROMOUTSIDE : 0,
+            extrinsic: 0,
+        };
+        game.context.move = 1;
+        const before = completeSecondTurnSnapshot(game, replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                moveloop_core(),
+                (error) => error instanceof UnsupportedTurnBoundaryError
+                    && error.reason
+                        === 'unported hunger-status transition',
+                `nutrition ${hungerCase.nutrition}, attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, replay),
+                before,
+            );
+        }
+    }
+});
+
+test('the live elapsed path reaches the scheduled move-600 attribute check',
+    async () => {
+    await runSegment({
+        seed: 2026072301,
+        datetime: '20260723120000',
+        nethackrc: 'OPTIONS=name:LiveAttributeCheck,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.moves = 599;
+    game.hero_seq = 599 * 8;
+    game.context.next_attrib_check = 600;
+    game.context.seer_turn = 1000;
+    game.context.move = 1;
+    game.multi = 0;
+    game.u.umovement = 12;
+    game.u.uhunger = 900;
+    game.u.acurr.a.fill(18);
+    game.u.amax.a.fill(18);
+    game.u.aexe.fill(0);
+
+    await assert.rejects(moveloop_core(), /Input queue empty/u);
+
+    assert.equal(game.moves, 600);
+    assert.ok(
+        game.context.next_attrib_check >= 1400
+            && game.context.next_attrib_check <= 1599,
+    );
+});
+
 test('first unobstructed move records its destination before the next prompt', async () => {
     const replay = await runSegment(firstTurnInput({
         seed: 2026072302,
@@ -594,7 +674,7 @@ test('first unobstructed move records its destination before the next prompt', a
         command: 'l',
     }));
 
-    assert.equal(replay.getScreens().length, 3);
+    assert.equal(replay.getScreens().length, 2);
     assert.deepEqual(
         [game.u.ux, game.u.uy],
         [game.u.ux0 + 1, game.u.uy0],
@@ -814,6 +894,7 @@ test('blind first-turn search maps a discovered door by touch', async () => {
         align: 'neutral',
         command: '.',
         options: ',blind',
+        startupKeys: ' ',
     }));
 
     assert.equal(replay.getScreens().length, 3);
