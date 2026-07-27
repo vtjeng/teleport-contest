@@ -415,12 +415,12 @@ function rejectedPhysicalCommand(pending) {
 }
 
 // C ref: cmd.c rhack(). Only the source handlers owned by this milestone are
-// dispatched here; later command families retain the existing unknown-command
-// behavior until their complete handlers are ported. key === 0 normally reads
-// and parses a fresh command, except that a retained pendingCommand restores
-// its physical or parsed retry phase first. Any nonzero key is supplied
-// command input (normally cmdKey during a repeat) and dispatches without
-// another read. rhack() has no command-result return; context.move reports
+// dispatched here. A fresh excluded physical byte stops retryably before
+// parsing or an unknown-command diagnostic. A supplied nonzero key (normally
+// cmdKey during a repeat) is already logical input and retains the diagnostic
+// behavior until that handler is ported. key === 0 normally reads a fresh
+// command, except that pendingCommand restores its physical or parsed retry
+// phase first. rhack() has no command-result return; context.move reports
 // whether the command took time.
 export async function rhack(key, state = game) {
     state.iflags ??= {};

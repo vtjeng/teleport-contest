@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_STR,
     CONFLICT,
     FROMFORM,
     FROMOUTSIDE,
     HEALTHY_TIN,
+    HALLUC,
     HUNGER,
     HUNGRY,
     MOD_ENCUMBER,
@@ -16,6 +18,7 @@ import {
     SLOW_DIGESTION,
     SPINACH_TIN,
     UNENCUMBERED,
+    WEAK,
     W_ARTI,
     W_RINGL,
     W_RINGR,
@@ -37,14 +40,18 @@ import {
     M1_HERBIVORE,
     M1_METALLIVORE,
     NON_PM,
+    PM_ELF,
     PM_GHOST,
+    PM_HEALER,
     PM_HUMAN,
     PM_KOBOLD,
     PM_LICHEN,
     PM_LIZARD,
     PM_PONY,
     PM_RUST_MONSTER,
+    PM_VALKYRIE,
     PM_WRAITH,
+    PM_WIZARD,
     monst_globals_init,
 } from '../js/monsters.js';
 
@@ -60,12 +67,15 @@ function hungerState() {
     result.iflags = { debug_hunger: false };
     result.multi = 0;
     result.u = {
+        atemp: [0, 0, 0, 0, 0, 0],
         uhunger: 900,
         uhs: NOT_HUNGRY,
         uhave: { amulet: false },
         uinvulnerable: false,
         uprops: [],
     };
+    result.urole = { mnum: PM_HEALER, name: { m: 'Healer' } };
+    result.urace = { mnum: PM_HUMAN };
     result.youmonst = { data: result.mons[PM_HUMAN] };
     return result;
 }
@@ -346,6 +356,94 @@ test('gethungry awaits transition output before later state and status work',
         assert.equal(await transition, 1);
     });
 
+test('gethungry owns HUNGRY to WEAK state and output in source order',
+    async () => {
+        const threshold = hungerState();
+        threshold.u.uhunger = 51;
+        threshold.u.uhs = HUNGRY;
+        const events = [];
+
+        assert.equal(await gethungry(threshold, {
+            random: { rn2: () => 2 },
+            nearCapacity: () => UNENCUMBERED,
+            message(text) {
+                events.push(`message:${text}:str${threshold.u.atemp[A_STR]}`);
+            },
+            endRunning() {
+                events.push('end_running');
+            },
+            statusRefresh() {
+                events.push(`bot:${threshold.u.uhs}`);
+            },
+        }), 1);
+
+        assert.equal(threshold.u.uhunger, 50);
+        assert.equal(threshold.u.uhs, WEAK);
+        assert.equal(threshold.u.atemp[A_STR], -1);
+        assert.equal(threshold.disp.botl, true);
+        assert.deepEqual(events, [
+            'message:You are beginning to feel weak.:str-1',
+            'end_running',
+            `bot:${WEAK}`,
+        ]);
+    });
+
+test('weakness messages preserve hallucination, role, and race branches',
+    async () => {
+        for (const [name, configure, expected] of [
+            [
+                'hallucinating',
+                (stateValue) => {
+                    property(stateValue, HALLUC).intrinsic = FROMOUTSIDE;
+                },
+                'The munchies are interfering with your motor capabilities.',
+            ],
+            [
+                'Wizard',
+                (stateValue) => {
+                    stateValue.urole = {
+                        mnum: PM_WIZARD,
+                        name: { m: 'Wizard' },
+                    };
+                },
+                'Wizard needs food, badly!',
+            ],
+            [
+                'Valkyrie',
+                (stateValue) => {
+                    stateValue.urole = {
+                        mnum: PM_VALKYRIE,
+                        name: { m: 'Valkyrie' },
+                    };
+                },
+                'Valkyrie needs food, badly!',
+            ],
+            [
+                'Elf',
+                (stateValue) => {
+                    stateValue.urace = { mnum: PM_ELF };
+                },
+                'Elf needs food, badly!',
+            ],
+        ]) {
+            const threshold = hungerState();
+            threshold.u.uhunger = 51;
+            threshold.u.uhs = HUNGRY;
+            configure(threshold);
+            const messages = [];
+
+            await gethungry(threshold, {
+                random: { rn2: () => 2 },
+                nearCapacity: () => UNENCUMBERED,
+                message: (text) => messages.push(text),
+                endRunning: () => {},
+                statusRefresh: () => {},
+            });
+
+            assert.deepEqual(messages, [expected], name);
+        }
+    });
+
 test('gethungry preflights only unsupported reachable transitions',
     async () => {
     const lowLoss = hungerState();
@@ -365,38 +463,21 @@ test('gethungry preflights only unsupported reachable transitions',
     assert.equal(lowLoss.u.uhunger, 151);
     assert.equal(lowLoss.u.uhs, NOT_HUNGRY);
 
-    const weakness = hungerState();
-    weakness.u.uhunger = 52;
-    weakness.u.uhs = HUNGRY;
-    property(weakness, HUNGER).intrinsic = FROMOUTSIDE;
+    const fainting = hungerState();
+    fainting.u.uhunger = 2;
+    fainting.u.uhs = WEAK;
+    property(fainting, REGENERATION).intrinsic = FROMOUTSIDE;
     await assert.rejects(
-        gethungry(weakness, {
+        gethungry(fainting, {
             random: {
-                rn2: () => assert.fail('weakness transition preflights'),
-            },
-            nearCapacity: () => UNENCUMBERED,
-        }),
-        /unported hunger-status transition/u,
-    );
-    assert.equal(weakness.u.uhunger, 52);
-    assert.equal(weakness.u.uhs, HUNGRY);
-
-    const oddAggregate = hungerState();
-    // The maximum odd-parity loss is 3, so nutrition 53 can reach WEAK.
-    oddAggregate.u.uhunger = 53;
-    oddAggregate.u.uhs = HUNGRY;
-    property(oddAggregate, REGENERATION).intrinsic = FROMOUTSIDE;
-    await assert.rejects(
-        gethungry(oddAggregate, {
-            random: {
-                rn2: () => assert.fail('aggregate transition preflights'),
+                rn2: () => assert.fail('fainting transition preflights'),
             },
             nearCapacity: () => MOD_ENCUMBER,
         }),
         /unported hunger-status transition/u,
     );
-    assert.equal(oddAggregate.u.uhunger, 53);
-    assert.equal(oddAggregate.u.uhs, HUNGRY);
+    assert.equal(fainting.u.uhunger, 2);
+    assert.equal(fainting.u.uhs, WEAK);
 });
 
 test('spinach tins clear species and do not draw', () => {

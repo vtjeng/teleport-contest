@@ -2,6 +2,7 @@
 // C ref: src/eat.c nonrotting_corpse(), tin_variety(), set_tin_variety().
 
 import {
+    A_STR,
     CONFLICT,
     FAINTED,
     FAINTING,
@@ -10,6 +11,8 @@ import {
     HOMEMADE_TIN,
     HUNGER,
     HUNGRY,
+    HALLUC,
+    HALLUC_RES,
     NOT_HUNGRY,
     PROTECTION,
     RANDOM_TIN,
@@ -36,10 +39,13 @@ import {
     PM_ACID_BLOB,
     PM_BLACK_PUDDING,
     PM_FLESH_GOLEM,
+    PM_ELF,
     PM_LEATHER_GOLEM,
     PM_LICHEN,
     PM_LIZARD,
     PM_STALKER,
+    PM_VALKYRIE,
+    PM_WIZARD,
     S_BLOB,
     S_ELEMENTAL,
     S_FUNGUS,
@@ -139,7 +145,8 @@ function preflightNutritionRing(ring, state) {
 }
 
 function supportedIncreasingHungerTransition(oldStatus, newStatus) {
-    return oldStatus === NOT_HUNGRY && newStatus === HUNGRY;
+    return (oldStatus === NOT_HUNGRY && newStatus === HUNGRY)
+        || (oldStatus === HUNGRY && newStatus === WEAK);
 }
 
 function requireHungerTransitionOperation(env, name) {
@@ -223,6 +230,15 @@ export function preflightGetHungry(state = game, env = {}) {
     );
     const mayReachSupportedTransition =
         supportedIncreasingHungerTransition(u.uhs, earliestStatus);
+    if (u.uhs === HUNGRY && earliestStatus === WEAK
+        && (!Array.isArray(u.atemp)
+            || !Number.isInteger(u.atemp[A_STR])
+            || !Number.isInteger(state.urole?.mnum)
+            || !Number.isInteger(state.urace?.mnum))) {
+        throw new Error(
+            'weakness transition requires hero attributes, role, and race',
+        );
+    }
     const message = mayReachSupportedTransition
         ? requireHungerTransitionOperation(env, 'message')
         : null;
@@ -259,9 +275,9 @@ export function preflightGetHungry(state = game, env = {}) {
 }
 
 // C ref: eat.c gethungry() and its live newuhs(TRUE) consumer. This owns the
-// nutrition decision for an alert hero plus the first source-reachable
-// NOT_HUNGRY -> HUNGRY transition. Later weakness, fainting, and death
-// transitions remain fail-closed before any elapsed-turn mutation.
+// nutrition decision for an alert hero through the source-reachable HUNGRY
+// and WEAK transitions. Fainting and death remain fail-closed before any
+// elapsed-turn mutation.
 export async function gethungry(state = game, env = {}) {
     const plan = preflightGetHungry(state, env);
     if (plan.skipped) return 0;
@@ -330,12 +346,33 @@ export async function gethungry(state = game, env = {}) {
     }
     u.uhunger = nextNutrition;
     if (nextStatus !== u.uhs) {
-        await message(
-            u.uhunger < 145
+        let transitionMessage;
+        if (nextStatus === HUNGRY) {
+            transitionMessage = u.uhunger < 145
                 ? 'You feel hungry.'
-                : 'You are beginning to feel hungry.',
-            state,
-        );
+                : 'You are beginning to feel hungry.';
+        } else {
+            u.atemp[A_STR] = -1;
+            const hallucinating =
+                hungerPropertyActive(state, HALLUC)
+                && !hungerPropertyActive(state, HALLUC_RES);
+            const specialRole = state.urole.mnum === PM_WIZARD
+                || state.urole.mnum === PM_VALKYRIE;
+            if (hallucinating) {
+                transitionMessage =
+                    'The munchies are interfering with your motor '
+                    + 'capabilities.';
+            } else if (specialRole || state.urace.mnum === PM_ELF) {
+                transitionMessage = `${
+                    specialRole ? state.urole.name.m : 'Elf'
+                } needs food, badly!`;
+            } else {
+                transitionMessage = u.uhunger < 45
+                    ? 'You feel weak.'
+                    : 'You are beginning to feel weak.';
+            }
+        }
+        await message(transitionMessage, state);
         stopRunning(state);
         u.uhs = nextStatus;
         state.disp ??= {};

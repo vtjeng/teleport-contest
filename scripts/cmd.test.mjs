@@ -70,6 +70,7 @@ import {
     initRng,
 } from '../js/rng.js';
 import { CLR_GRAY } from '../js/terminal.js';
+import { seenv_matrix } from '../js/vision.js';
 import {
     clearTtyMessageWindow,
     ttyPline,
@@ -166,7 +167,7 @@ test('test_move describes remembered walls without time or PRNG work',
         assert.equal(await test_move(ux, uy, 1, 0, state), true);
     });
 
-test('blind wall refusal records tactile memory even without a message',
+test('blind obstacle refusal records exact tactile viewing vectors',
     async () => {
         await runSegment({
             seed: 840002,
@@ -176,24 +177,60 @@ test('blind wall refusal records tactile memory even without a message',
                 + '!splash_screen,blind,pettype:none',
             moves: '',
         });
-        const x = game.u.ux + 1;
-        const y = game.u.uy;
-        const destination = game.level.at(x, y);
-        destination.typ = HWALL;
-        destination.seenv = 0;
-        destination.remembered_glyph = null;
         game.flags.mention_walls = false;
+        for (const typ of [HWALL, STONE]) {
+            for (let dy = -1; dy <= 1; ++dy) {
+                for (let dx = -1; dx <= 1; ++dx) {
+                    if (!dx && !dy) continue;
+                    const x = game.u.ux + dx;
+                    const y = game.u.uy + dy;
+                    const destination = game.level.at(x, y);
+                    destination.typ = typ;
+                    destination.seenv = 0;
+                    destination.remembered_glyph = null;
 
+                    assert.equal(
+                        await test_move(
+                            game.u.ux,
+                            game.u.uy,
+                            dx,
+                            dy,
+                            game,
+                            {
+                                message: () => assert.fail(
+                                    'mention_walls is disabled',
+                                ),
+                            },
+                        ),
+                        false,
+                    );
+
+                    assert.equal(
+                        destination.seenv,
+                        seenv_matrix[1 - dy][dx + 1],
+                    );
+                    assert.ok(destination.remembered_glyph);
+                    assert.equal(
+                        destination.disp_ch,
+                        destination.remembered_glyph.ch,
+                    );
+                }
+            }
+        }
+
+        const stone = game.level.at(game.u.ux + 1, game.u.uy);
+        stone.typ = STONE;
+        stone.seenv = 0;
+        game.flags.mention_walls = true;
+        game.a11y = { accessiblemsg: true };
+        const messages = [];
         assert.equal(
             await test_move(game.u.ux, game.u.uy, 1, 0, game, {
-                message: () => assert.fail('mention_walls is disabled'),
+                message: (text) => messages.push(text),
             }),
             false,
         );
-
-        assert.notEqual(destination.seenv, 0);
-        assert.ok(destination.remembered_glyph);
-        assert.equal(destination.disp_ch, destination.remembered_glyph.ch);
+        assert.deepEqual(messages, ["(east): It's solid stone."]);
     });
 
 function heroMoveAdmissionSnapshot(replay) {

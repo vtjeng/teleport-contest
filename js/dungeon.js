@@ -14,12 +14,14 @@ import {
     DB_MOAT,
     DB_UNDER,
     DRAWBRIDGE_UP,
+    CORR,
     ICE,
     LAVAPOOL,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
     MOAT,
     ROWNO,
+    ROOM,
     STONE,
 } from './const.js';
 import { cmap_to_type } from './mkroom.js';
@@ -700,6 +702,16 @@ export function on_level(left, right) {
     return Boolean(left && right
         && left.dnum === right.dnum
         && left.dlevel === right.dlevel);
+}
+
+// C ref: dungeon.c surface(), ordinary repeated-command subset.  The live
+// caller admits only ROOM and CORR destinations; terrain with liquid,
+// drawbridge, stair, or hallucination behavior remains with those owners.
+export function surface(x, y, state = game) {
+    const typ = state.level?.at(x, y)?.typ;
+    if (typ === ROOM) return 'floor';
+    if (typ === CORR) return 'ground';
+    throw new Error('surface requires an ordinary room or corridor square');
 }
 
 // C ref: dungeon.c update_lastseentyp(). The caller supplies canseemon()

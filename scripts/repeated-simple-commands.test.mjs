@@ -26,14 +26,15 @@ test('repeated-simple-command matrix contains only source-selected inputs',
     () => {
         const recipe = loadRepeatedSimpleCommandsRecipe();
         assert.equal(recipe.version, 5);
-        assert.equal(recipe.segments.length, 10);
+        assert.equal(recipe.segments.length, 11);
         assert.deepEqual(
             recipe.segments.map(({ moves }) => moves.length),
-            [250, 600, 12, 4, 12, 1, 5, 1, 1, 2],
+            [250, 600, 851, 12, 4, 12, 1, 5, 1, 1, 2],
         );
         assert.deepEqual(
             recipe.segments.map(({ moves }) => new Set(moves)),
             [
+                new Set(['.']),
                 new Set(['.']),
                 new Set(['.']),
                 new Set(['h']),
@@ -87,23 +88,32 @@ test('repeated-simple-command cases retain their source branch markers',
         assert.ok(game.context.next_attrib_check > 600);
         assert.equal(move600.getRngSlices().length, 601);
 
-        const wallWithMessage = await runSegment(segments[2]);
+        await runSegment(segments[2]);
+        assert.equal(game.u.uhunger, 49);
+        assert.equal(game.u.uhs, 3);
+        assert.equal(game.u.atemp[0], -1);
+        assert.equal(
+            game.nhDisplay.toplines,
+            'You are beginning to feel weak.',
+        );
+
+        const wallWithMessage = await runSegment(segments[3]);
         assert.equal(topLine(), "It's a wall.");
         assert.ok(
             wallWithMessage.getRngSlices().slice(1)
                 .every((slice) => slice.length === 0),
         );
 
-        const silentWall = await runSegment(segments[3]);
+        const silentWall = await runSegment(segments[4]);
         assert.equal(topLine(), '');
         assert.ok(
             silentWall.getRngSlices().slice(1)
                 .every((slice) => slice.length === 0),
         );
 
-        await runSegment({ ...segments[4], moves: '' });
+        await runSegment({ ...segments[5], moves: '' });
         const walkStart = [game.u.ux, game.u.uy];
-        const repeatedWalk = await runSegment(segments[4]);
+        const repeatedWalk = await runSegment(segments[5]);
         assert.equal(game._commandDispatchCount, 12);
         assert.deepEqual(
             [game.u.ux, game.u.uy],
@@ -111,7 +121,7 @@ test('repeated-simple-command cases retain their source branch markers',
         );
         assert.equal(repeatedWalk.getRngSlices().length, 13);
 
-        const petSwap = await runSegment(segments[5]);
+        const petSwap = await runSegment(segments[6]);
         const swappedPet = startingPet();
         assert.ok(swappedPet);
         assert.equal(topLine(), 'You swap places with your kitten.');
@@ -141,30 +151,30 @@ test('repeated-simple-command cases retain their source branch markers',
         await moveloop_core();
         assertSinglePetIdentity();
 
-        const petRefusal = await runSegment(segments[6]);
+        const petRefusal = await runSegment(segments[7]);
         const refusedPet = startingPet();
         assert.ok(refusedPet);
         assert.deepEqual(
             petRefusal.getRngSlices()[1].slice(0, 2),
             ['rn2(7)=0', 'rnd(6)=3'],
         );
-        assert.equal(petRefusal.getRngSlices()[2][0], 'rn2(40)=5');
+        assert.equal(petRefusal.getRngSlices()[2][0], 'rn2(7)=1');
         assert.equal(refusedPet.mflee, false);
         assert.equal(refusedPet.mfleetim, 0);
 
-        await runSegment(segments[7]);
+        await runSegment(segments[8]);
         assert.equal(topLine(), 'You see here 5 gold pieces.');
         const object = game.level.objects[game.u.ux][game.u.uy];
         assert.ok(object);
         assert.equal(object.quan, 5);
 
-        await runSegment(segments[8]);
+        await runSegment(segments[9]);
         assert.equal(topLine(), "(west): It's a wall.");
         const feltWall = game.level.at(game.u.ux - 1, game.u.uy);
         assert.notEqual(feltWall.seenv, 0);
         assert.ok(feltWall.remembered_glyph);
 
-        await runSegment(segments[9]);
+        await runSegment(segments[10]);
         assert.equal(topLine(), 'You feel here 2 gold pieces.');
         const feltObject = game.level.objects[game.u.ux][game.u.uy];
         assert.ok(feltObject);

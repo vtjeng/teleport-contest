@@ -54,6 +54,18 @@ export function loadRepeatedSimpleCommandsRecipe() {
                 moves: '.'.repeat(600),
             },
             {
+                seed: 52284,
+                datetime: '20320506070809',
+                nethackrc: nethackrc({
+                    name: 'HungerFind',
+                    role: 'Healer',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // This independently selected quiet seed crosses both live
+                // hunger messages and reaches the prompt after weakness.
+                moves: '.'.repeat(851),
+            },
+            {
                 seed: 31001,
                 datetime: DATETIME,
                 nethackrc: nethackrc({
@@ -103,9 +115,9 @@ export function loadRepeatedSimpleCommandsRecipe() {
                     role: 'Tourist',
                     options: 'mention_walls,safe_pet',
                 }),
-                // Refusal consumes the hero action; the waits prove its timed
-                // fleeing-pet state remains inside the supported continuation.
-                moves: 'y....',
+                // The first collision refuses, the second swaps while the pet
+                // is still fleeing, and the waits reach timer expiry.
+                moves: 'yy...',
             },
             {
                 seed: 32003,

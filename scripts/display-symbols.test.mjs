@@ -4782,6 +4782,15 @@ test('status uses source attribute order and exceptional strength text', async (
         assert.match(row(22), new RegExp(`St:${expected.replace('/', '\\/')} `));
     }
 
+    state.u.atemp = [-1, 0, 0, 0, 0, 0];
+    await bot();
+    assert.match(
+        row(22),
+        /St:18\/\*\* Dx:15 Co:16 In:13 Wi:14 Ch:17 Chaotic$/u,
+        'status renders ACURR rather than raw base attributes',
+    );
+    state.u.atemp[0] = 0;
+
     state.flags.showexp = false;
     state.flags.time = false;
     await bot();

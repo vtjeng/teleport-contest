@@ -208,12 +208,16 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
             'hero combat or displacement',
         );
     }
+    const ordinaryTimedFlee = !monster.mflee
+        || (Number.isInteger(monster.mfleetim)
+            && monster.mfleetim >= 1
+            && monster.mfleetim <= 127);
     const specialState = monster.mhp < 1
         || !monster.mcanmove
         || monster.mfrozen
         || monster.msleeping
         || monster.mtrapped
-        || monster.mflee
+        || !ordinaryTimedFlee
         || monster.meating
         || monster.wormno;
     if (specialState) {

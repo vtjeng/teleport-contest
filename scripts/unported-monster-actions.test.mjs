@@ -5,7 +5,12 @@ import {
     BURN,
     COULD_SEE,
     CORR,
+    D_BROKEN,
     D_CLOSED,
+    D_ISOPEN,
+    D_LOCKED,
+    D_NODOOR,
+    D_TRAPPED,
     DUST,
     DOOR,
     FOUNTAIN,
@@ -482,7 +487,8 @@ test('simple movement admits only a doorless doorway', async () => {
         doorway.heroY,
     );
     location.typ = DOOR;
-    location.flags = location.doormask = 0;
+    location.flags = D_NODOOR;
+    delete location.doormask;
     const before = preflightSnapshot();
 
     await preflightSimpleMonsterActions(game);
@@ -493,31 +499,56 @@ test('simple movement admits only a doorless doorway', async () => {
         [doorway.destinationX, doorway.heroY],
     );
 
-    const closedDoor = await prepareSelectedAction({ pmidx: PM_GNOME });
-    const closedLocation = game.level.at(
-        closedDoor.destinationX,
-        closedDoor.heroY,
-    );
-    closedLocation.typ = DOOR;
-    closedLocation.flags = closedLocation.doormask = D_CLOSED;
-    const closedBefore = completeSecondTurnSnapshot(
-        game,
-        closedDoor.replay,
-    );
+    for (const representation of ['flags', 'doormask']) {
+        for (const mask of [
+            D_BROKEN,
+            D_ISOPEN,
+            D_CLOSED,
+            D_LOCKED,
+            D_ISOPEN | D_TRAPPED,
+            D_CLOSED | D_TRAPPED,
+        ]) {
+            const activeDoor = await prepareSelectedAction({
+                pmidx: PM_GNOME,
+            });
+            const activeLocation = game.level.at(
+                activeDoor.destinationX,
+                activeDoor.heroY,
+            );
+            activeLocation.typ = DOOR;
+            activeLocation.flags = 0;
+            activeLocation.doormask = 0;
+            activeLocation[representation] = mask;
+            const activeBefore = completeSecondTurnSnapshot(
+                game,
+                activeDoor.replay,
+            );
 
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'door or special terrain movement'
-            ),
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, closedDoor.replay),
-            closedBefore,
-            `closed door, attempt ${attempt + 1}`,
-        );
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                if (mask === D_LOCKED) {
+                    // This gnome has no unlocking tool, so mfndpos() does not
+                    // select the locked square and no excluded action is due.
+                    await preflightSimpleMonsterActions(game);
+                } else {
+                    await assert.rejects(
+                        preflightSimpleMonsterActions(game),
+                        (error) => (
+                            error
+                                instanceof UnsupportedSimpleMonsterActionError
+                            && error.reason
+                                === 'door or special terrain movement'
+                        ),
+                        `${representation} mask ${mask}, `
+                            + `attempt ${attempt + 1}`,
+                    );
+                }
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, activeDoor.replay),
+                    activeBefore,
+                    `${representation} mask ${mask}, attempt ${attempt + 1}`,
+                );
+            }
+        }
     }
 });
 

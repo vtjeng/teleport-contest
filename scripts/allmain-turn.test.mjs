@@ -33,6 +33,7 @@ import {
     DOOR,
     SLT_ENCUMBER,
     SV0,
+    WEAK,
     W_ARMF,
     W_RINGL,
 } from '../js/const.js';
@@ -588,11 +589,11 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
     assert.ok(knownSpells.every((spell) => spell.sp_know === 19999));
 });
 
-test('later hunger boundaries stop before any elapsed-turn mutation',
+test('fainting boundaries stop before any elapsed-turn mutation',
     async () => {
     const cases = [
-        { nutrition: 51, hungerProperty: false },
-        { nutrition: 52, hungerProperty: true },
+        { nutrition: 1, hungerProperty: false },
+        { nutrition: 2, hungerProperty: true },
     ];
     for (const hungerCase of cases) {
         const replay = await runSegment({
@@ -606,7 +607,7 @@ test('later hunger boundaries stop before any elapsed-turn mutation',
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
         game.u.uhunger = hungerCase.nutrition;
-        game.u.uhs = HUNGRY;
+        game.u.uhs = WEAK;
         game.u.uprops[HUNGER] = {
             intrinsic: hungerCase.hungerProperty ? FROMOUTSIDE : 0,
             extrinsic: 0,

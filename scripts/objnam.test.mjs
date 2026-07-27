@@ -7,8 +7,10 @@ import {
 } from '../js/artifacts.js';
 import {
     BLINDED,
+    CORR,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
+    ROOM,
     W_WEP,
 } from '../js/const.js';
 import { look_here_single_object } from '../js/invent.js';
@@ -232,39 +234,67 @@ test('type discovery and holy water follow class branches', () => {
 test('single-object look_here reports the item and records its message kind',
     async () => {
         const state = namingState();
-        const dart = objectOf(state, DART);
-        const messages = [];
-
-        await look_here_single_object(dart, state, {
-            message: async (text, owner) => messages.push([text, owner]),
-        });
-
-        assert.deepEqual(messages, [['You see here a dart.', state]]);
-        assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
-    });
-
-test('blind single-object look_here waits through tactile output in order',
-    async () => {
-        const state = namingState();
-        state.u.uprops[BLINDED] = {
-            intrinsic: 1,
-            extrinsic: 0,
-            blocked: 0,
-        };
+        state.u.ux = state.u.uy = 1;
+        state.level = { at: () => ({ typ: ROOM }) };
         const dart = objectOf(state, DART);
         const events = [];
 
         await look_here_single_object(dart, state, {
-            message: async (text) => events.push(text),
-            readEngraving: async () => events.push('read engraving'),
+            message: async (text, owner) =>
+                events.push(['message', text, owner]),
+            readEngraving: async () => events.push(['engraving']),
         });
 
         assert.deepEqual(events, [
-            'You try to feel what is lying here on the floor.',
-            'read engraving',
-            'You feel here a dart.',
+            ['engraving'],
+            ['message', 'You see here a dart.', state],
         ]);
         assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+    });
+
+test('blind single-object look_here uses the source surface and output order',
+    async () => {
+        for (const [typ, surfaceName] of [
+            [ROOM, 'floor'],
+            [CORR, 'ground'],
+        ]) {
+            const state = namingState();
+            state.u.ux = state.u.uy = 1;
+            state.u.uprops[BLINDED] = {
+                intrinsic: 1,
+                extrinsic: 0,
+                blocked: 0,
+            };
+            state.level = { at: () => ({ typ }) };
+            const dart = objectOf(state, DART);
+            const events = [];
+
+            await look_here_single_object(dart, state, {
+                message: async (text) => events.push(text),
+                readEngraving: async () => events.push('read engraving'),
+            });
+
+            assert.deepEqual(events, [
+                `You try to feel what is lying here on the ${surfaceName}.`,
+                'read engraving',
+                'You feel here a dart.',
+            ]);
+            assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+        }
+    });
+
+test('single-object look_here requires its engraving owner before output',
+    async () => {
+        const state = namingState();
+        const dart = objectOf(state, DART);
+        const messages = [];
+        await assert.rejects(
+            look_here_single_object(dart, state, {
+                message: (text) => messages.push(text),
+            }),
+            /engraving owners/u,
+        );
+        assert.deepEqual(messages, []);
     });
 
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {

@@ -2,6 +2,7 @@
 // C ref: display.c — newsym, show_glyph, docrt, cls, flush_screen.
 
 import { game } from './gstate.js';
+import { effective_attribute } from './attrib.js';
 import { update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
 import { cansee, seenv_matrix } from './vision.js';
@@ -2387,7 +2388,14 @@ function _statusLine1Layout(includeAlignment = true) {
     }
 
     column = Math.max(31, column + 1);
-    const attrs = u.acurr?.a ?? [];
+    const attrs = [
+        effective_attribute(game, A_STR),
+        effective_attribute(game, A_INT),
+        effective_attribute(game, A_WIS),
+        effective_attribute(game, A_DEX),
+        effective_attribute(game, A_CON),
+        effective_attribute(game, A_CHA),
+    ];
     const fields = [
         ['strength', `St:${attrs[A_STR] ? get_strength_str(attrs[A_STR]) : '?'}`],
         ['dexterity', `Dx:${attrs[A_DEX] || '?'}`],
@@ -2600,7 +2608,14 @@ function _criticallyLowHp(onlyIfInjured) {
 
 function _statusFieldData(field) {
     const u = game.u;
-    const attrs = u?.acurr?.a ?? [];
+    const attrs = [
+        effective_attribute(game, A_STR),
+        effective_attribute(game, A_INT),
+        effective_attribute(game, A_WIS),
+        effective_attribute(game, A_DEX),
+        effective_attribute(game, A_CON),
+        effective_attribute(game, A_CHA),
+    ];
     const title = _statusTitle();
     switch (field) {
     case 'title':
