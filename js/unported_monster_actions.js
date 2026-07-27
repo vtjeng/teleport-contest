@@ -187,9 +187,10 @@ function assertSimpleActionState(monster, state) {
         if (!monster.mextra?.edog)
             unsupported('missing starting-pet state');
         // uhitm.c:do_attack() can call monflee(rnd(6), FALSE, FALSE) when
-        // safe_pet refuses an attack.  mon.c:movemon_singlemon() decrements
-        // this seven-bit timer before dochug(), so a live fleeing starting
-        // pet must retain a positive source-bounded timeout here.
+        // safe_pet refuses an attack. mon.c:m_calcdistress() decrements this
+        // seven-bit timer during once-per-turn distress, before the later
+        // dochug() action scan, so a live fleeing starting pet must retain a
+        // positive source-bounded timeout here.
         if (monster.mflee
             && (!Number.isInteger(monster.mfleetim)
                 || monster.mfleetim < 1
@@ -298,7 +299,7 @@ function actionRandom(rawEnv) {
     return rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
 }
 
-function freshMonsterCanSeeHero(monster, state) {
+function ordinaryMonsterCanSeeHero(monster, state) {
     return (!activeProperty(state, INVIS) || perceives(monster.data))
         && !state.u.uinwater
         && couldsee(monster.mx, monster.my, state);
@@ -439,7 +440,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 ...actionEnv,
                 attackHero: () => unsupported('monster attack on the hero'),
                 monFlee: () => unsupported('monster flight'),
-                monsterCanSeeHero: freshMonsterCanSeeHero,
+                monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
                 postMoveRangedAttack: (weaponUser, weaponEnv) => {
                     const selected = select_rwep(weaponUser, {

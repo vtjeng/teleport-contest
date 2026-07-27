@@ -7,6 +7,7 @@ import {
     FROMOUTSIDE,
     HEALTHY_TIN,
     HUNGER,
+    HUNGRY,
     MOD_ENCUMBER,
     NOT_HUNGRY,
     PROTECTION,
@@ -76,9 +77,13 @@ function property(stateValue, index) {
     };
 }
 
-function hungerTick(stateValue, accessoryTime, capacity = UNENCUMBERED) {
+async function hungerTick(
+    stateValue,
+    accessoryTime,
+    capacity = UNENCUMBERED,
+) {
     const bounds = [];
-    const loss = gethungry(stateValue, {
+    const loss = await gethungry(stateValue, {
         random: {
             rn2: (bound) => {
                 bounds.push(bound);
@@ -91,16 +96,17 @@ function hungerTick(stateValue, accessoryTime, capacity = UNENCUMBERED) {
     return loss;
 }
 
-test('gethungry applies ordinary alert-hero nutrition loss', () => {
+test('gethungry applies ordinary alert-hero nutrition loss', async () => {
     const current = hungerState();
     assert.ok(current.youmonst.data.mflags1 & M1_CARNIVORE);
 
-    assert.equal(hungerTick(current, 2), 1);
+    assert.equal(await hungerTick(current, 2), 1);
     assert.equal(current.u.uhunger, 899);
     assert.equal(current.u.uhs, NOT_HUNGRY);
 });
 
-test('gethungry derives ordinary nutrition loss from the source diet flags', () => {
+test('gethungry derives ordinary nutrition loss from the source diet flags',
+    async () => {
     for (const [name, monster, flag, expected] of [
         ['no diet', PM_GHOST, 0, 0],
         ['carnivore', PM_HUMAN, M1_CARNIVORE, 1],
@@ -118,95 +124,98 @@ test('gethungry derives ordinary nutrition loss from the source diet flags', () 
                 name,
             );
         }
-        assert.equal(hungerTick(current, 2), expected, name);
+        assert.equal(await hungerTick(current, 2), expected, name);
     }
 });
 
-test('gethungry skips invulnerable and debug-hunger turns without drawing', () => {
+test('gethungry skips invulnerable and debug-hunger turns without drawing',
+    async () => {
     for (const setup of [
         (current) => { current.u.uinvulnerable = true; },
         (current) => { current.iflags.debug_hunger = true; },
     ]) {
         const current = hungerState();
         setup(current);
-        assert.equal(gethungry(current, {
+        assert.equal(await gethungry(current, {
             random: { rn2: () => assert.fail('skipped turn drew') },
         }), 0);
         assert.equal(current.u.uhunger, 900);
     }
 });
 
-test('gethungry preserves odd-turn regeneration and encumbrance masks', () => {
+test('gethungry preserves odd-turn regeneration and encumbrance masks',
+    async () => {
     const excluded = hungerState();
     property(excluded, REGENERATION).intrinsic = FROMFORM;
     property(excluded, REGENERATION).extrinsic = W_ARTI | W_WEP;
-    assert.equal(hungerTick(excluded, 1), 1);
+    assert.equal(await hungerTick(excluded, 1), 1);
 
     const active = hungerState();
     property(active, REGENERATION).intrinsic = FROMFORM | FROMOUTSIDE;
-    assert.equal(hungerTick(active, 1), 2);
+    assert.equal(await hungerTick(active, 1), 2);
 
     const worn = hungerState();
     property(worn, REGENERATION).intrinsic = FROMFORM;
     property(worn, REGENERATION).extrinsic = W_ARTI | W_RINGL;
-    assert.equal(hungerTick(worn, 1, MOD_ENCUMBER), 3);
+    assert.equal(await hungerTick(worn, 1, MOD_ENCUMBER), 3);
     assert.equal(worn.u.uhunger, 897);
 });
 
-test('gethungry applies even-turn property and accessory costs', () => {
+test('gethungry applies even-turn property and accessory costs', async () => {
     const properties = hungerState();
     property(properties, HUNGER).intrinsic = FROMOUTSIDE;
     property(properties, CONFLICT).extrinsic = W_ARTI | W_RINGL;
-    assert.equal(hungerTick(properties, 2), 3);
+    assert.equal(await hungerTick(properties, 2), 3);
 
     const intrinsicConflict = hungerState();
     property(intrinsicConflict, CONFLICT).intrinsic = FROMOUTSIDE;
     property(intrinsicConflict, CONFLICT).extrinsic = W_ARTI;
-    assert.equal(hungerTick(intrinsicConflict, 2), 2);
+    assert.equal(await hungerTick(intrinsicConflict, 2), 2);
 
     const slowArmor = hungerState();
     property(slowArmor, SLOW_DIGESTION).extrinsic = W_WEP;
-    assert.equal(hungerTick(slowArmor, 0), 1);
+    assert.equal(await hungerTick(slowArmor, 0), 1);
     const slowRing = hungerState();
     property(slowRing, SLOW_DIGESTION).extrinsic = W_RINGR;
     slowRing.uright = { otyp: RIN_SLOW_DIGESTION, spe: 0 };
-    assert.equal(hungerTick(slowRing, 0), 0);
+    assert.equal(await hungerTick(slowRing, 0), 0);
 
     const amulet = hungerState();
     amulet.uamul = { otyp: AMULET_OF_LIFE_SAVING };
-    assert.equal(hungerTick(amulet, 8), 2);
+    assert.equal(await hungerTick(amulet, 8), 2);
     const fakeAmulet = hungerState();
     fakeAmulet.uamul = { otyp: FAKE_AMULET_OF_YENDOR };
-    assert.equal(hungerTick(fakeAmulet, 8), 1);
+    assert.equal(await hungerTick(fakeAmulet, 8), 1);
 
     const possessed = hungerState();
     possessed.u.uhave.amulet = true;
-    assert.equal(hungerTick(possessed, 16), 2);
+    assert.equal(await hungerTick(possessed, 16), 2);
 });
 
-test('gethungry follows ring charge and duplicate-protection rules', () => {
+test('gethungry follows ring charge and duplicate-protection rules',
+    async () => {
     const chargedZero = hungerState();
     chargedZero.uleft = { otyp: RIN_ADORNMENT, spe: 0 };
-    assert.equal(hungerTick(chargedZero, 4), 1);
+    assert.equal(await hungerTick(chargedZero, 4), 1);
 
     const charged = hungerState();
     charged.uleft = { otyp: RIN_ADORNMENT, spe: 1 };
-    assert.equal(hungerTick(charged, 4), 2);
+    assert.equal(await hungerTick(charged, 4), 2);
 
     const uncharged = hungerState();
     uncharged.uleft = { otyp: RIN_SEARCHING, spe: 0 };
-    assert.equal(hungerTick(uncharged, 4), 2);
+    assert.equal(await hungerTick(uncharged, 4), 2);
 
     const meat = hungerState();
     meat.uleft = { otyp: MEAT_RING, spe: 1 };
-    assert.equal(hungerTick(meat, 4), 1);
+    assert.equal(await hungerTick(meat, 4), 1);
 
     const duplicateProtection = hungerState();
     duplicateProtection.uleft = { otyp: RIN_PROTECTION, spe: 0 };
     duplicateProtection.uright = { otyp: RIN_PROTECTION, spe: 0 };
     property(duplicateProtection, PROTECTION).extrinsic = W_RINGL | W_RINGR;
-    assert.equal(hungerTick(duplicateProtection, 4), 2);
-    assert.equal(hungerTick(duplicateProtection, 12), 1);
+    assert.equal(await hungerTick(duplicateProtection, 4), 2);
+    assert.equal(await hungerTick(duplicateProtection, 12), 1);
 
     for (const [name, ring, expected, configure] of [
         ['charged zero', { otyp: RIN_ADORNMENT, spe: 0 }, 1],
@@ -221,16 +230,17 @@ test('gethungry follows ring charge and duplicate-protection rules', () => {
         const current = hungerState();
         current.uright = ring;
         configure?.(current);
-        assert.equal(hungerTick(current, 12), expected, name);
+        assert.equal(await hungerTick(current, 12), expected, name);
     }
 });
 
-test('gethungry fails closed at unported awareness and status boundaries', () => {
+test('gethungry fails closed at unported awareness and status boundaries',
+    async () => {
     const immobile = hungerState();
     immobile.multi = -1;
     const immobileDraws = [];
-    assert.throws(
-        () => gethungry(immobile, {
+    await assert.rejects(
+        gethungry(immobile, {
             random: {
                 rn2: (bound) => { immobileDraws.push(bound); return 2; },
             },
@@ -241,26 +251,12 @@ test('gethungry fails closed at unported awareness and status boundaries', () =>
     assert.deepEqual(immobileDraws, []);
     assert.equal(immobile.u.uhunger, 900);
 
-    const threshold = hungerState();
-    threshold.u.uhunger = 151;
-    const thresholdDraws = [];
-    assert.throws(
-        () => gethungry(threshold, {
-            random: { rn2: (bound) => { thresholdDraws.push(bound); return 2; } },
-            nearCapacity: () => UNENCUMBERED,
-        }),
-        /unported hunger-status transition/u,
-    );
-    assert.deepEqual(thresholdDraws, []);
-    assert.equal(threshold.u.uhunger, 151);
-    assert.equal(threshold.u.uhs, NOT_HUNGRY);
-
     const missingRing = hungerState();
     missingRing.uleft = { otyp: RIN_ADORNMENT, spe: 1 };
     missingRing.objects[RIN_ADORNMENT] = undefined;
     const missingRingDraws = [];
-    assert.throws(
-        () => gethungry(missingRing, {
+    await assert.rejects(
+        gethungry(missingRing, {
             random: {
                 rn2: (bound) => { missingRingDraws.push(bound); return 4; },
             },
@@ -272,12 +268,48 @@ test('gethungry fails closed at unported awareness and status boundaries', () =>
     assert.equal(missingRing.u.uhunger, 900);
 });
 
-test('gethungry preflights only nutrition losses reachable this tick', () => {
+test('gethungry owns the first increasing hunger transition in source order',
+    async () => {
+        const threshold = hungerState();
+        threshold.u.uhunger = 151;
+        const events = [];
+
+        assert.equal(await gethungry(threshold, {
+            random: {
+                rn2(bound) {
+                    events.push(`rn2(${bound})`);
+                    return 2;
+                },
+            },
+            nearCapacity: () => UNENCUMBERED,
+            async message(text) {
+                events.push(`message:${text}`);
+            },
+            endRunning() {
+                events.push('end_running');
+            },
+            async statusRefresh() {
+                events.push('bot');
+            },
+        }), 1);
+        assert.equal(threshold.u.uhunger, 150);
+        assert.equal(threshold.u.uhs, HUNGRY);
+        assert.equal(threshold.disp.botl, true);
+        assert.deepEqual(events, [
+            'rn2(20)',
+            'message:You are beginning to feel hungry.',
+            'end_running',
+            'bot',
+        ]);
+    });
+
+test('gethungry preflights only unsupported reachable transitions',
+    async () => {
     const lowLoss = hungerState();
     lowLoss.u.uhunger = 152;
     const lowLossDraws = [];
 
-    assert.equal(gethungry(lowLoss, {
+    assert.equal(await gethungry(lowLoss, {
         random: {
             rn2(bound) {
                 lowLossDraws.push(bound);
@@ -290,28 +322,29 @@ test('gethungry preflights only nutrition losses reachable this tick', () => {
     assert.equal(lowLoss.u.uhunger, 151);
     assert.equal(lowLoss.u.uhs, NOT_HUNGRY);
 
-    const reachableTransition = hungerState();
-    reachableTransition.u.uhunger = 152;
-    property(reachableTransition, HUNGER).intrinsic = FROMOUTSIDE;
-    assert.throws(
-        () => gethungry(reachableTransition, {
+    const weakness = hungerState();
+    weakness.u.uhunger = 52;
+    weakness.u.uhs = HUNGRY;
+    property(weakness, HUNGER).intrinsic = FROMOUTSIDE;
+    await assert.rejects(
+        gethungry(weakness, {
             random: {
-                rn2: () => assert.fail('reachable transition preflights'),
+                rn2: () => assert.fail('weakness transition preflights'),
             },
             nearCapacity: () => UNENCUMBERED,
         }),
         /unported hunger-status transition/u,
     );
-    assert.equal(reachableTransition.u.uhunger, 152);
+    assert.equal(weakness.u.uhunger, 52);
+    assert.equal(weakness.u.uhs, HUNGRY);
 
     const oddAggregate = hungerState();
-    // The maximum reachable odd-parity loss is 153 - 1 ordinary
-    // - 1 Regeneration - 1 moderate encumbrance = 150, crossing the Not Hungry
-    // threshold. Preflight must reject before parity selection calls rn2().
-    oddAggregate.u.uhunger = 153;
+    // The maximum odd-parity loss is 3, so nutrition 53 can reach WEAK.
+    oddAggregate.u.uhunger = 53;
+    oddAggregate.u.uhs = HUNGRY;
     property(oddAggregate, REGENERATION).intrinsic = FROMOUTSIDE;
-    assert.throws(
-        () => gethungry(oddAggregate, {
+    await assert.rejects(
+        gethungry(oddAggregate, {
             random: {
                 rn2: () => assert.fail('aggregate transition preflights'),
             },
@@ -319,8 +352,8 @@ test('gethungry preflights only nutrition losses reachable this tick', () => {
         }),
         /unported hunger-status transition/u,
     );
-    assert.equal(oddAggregate.u.uhunger, 153);
-    assert.equal(oddAggregate.u.uhs, NOT_HUNGRY);
+    assert.equal(oddAggregate.u.uhunger, 53);
+    assert.equal(oddAggregate.u.uhs, HUNGRY);
 });
 
 test('spinach tins clear species and do not draw', () => {

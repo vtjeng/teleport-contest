@@ -592,6 +592,25 @@ test('simple preflight plans a starting-dog action without live mutation',
         assert.deepEqual(preflightSnapshot(), before);
     });
 
+test('simple preflight retries a lost-sight pet goal scan without mutation',
+    async () => {
+        const target = await prepareStartingPetAction(PM_KITTEN);
+        const { monster } = target;
+        game.viz_array[monster.my][monster.mx] &= ~COULD_SEE;
+        game.track = { utcnt: 0, utpnt: 0, utrack: [] };
+        monster.mextra.edog.ogoal = { x: 0, y: 0 };
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `attempt ${attempt + 1}`,
+            );
+        }
+    });
+
 test('simple wake output completes before sleep state and action progress',
     async () => {
         const target = await prepareSelectedAction();

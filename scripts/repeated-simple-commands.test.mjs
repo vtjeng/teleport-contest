@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { moveloop_core } from '../js/allmain.js';
 import { DOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { m_at } from '../js/monst.js';
 import {
     loadRepeatedSimpleCommandsRecipe,
 } from './run-repeated-simple-commands.mjs';
@@ -97,6 +99,26 @@ test('repeated-simple-command cases retain their source branch markers',
             [swappedPet.mx, swappedPet.my],
             [game.u.ux - 1, game.u.uy],
         );
+        const assertSinglePetIdentity = () => {
+            assert.equal(m_at(swappedPet.mx, swappedPet.my, game), swappedPet);
+            assert.equal(m_at(game.u.ux, game.u.uy, game), null);
+            assert.equal(
+                game.level.monsters.flat()
+                    .filter((monster) => monster === swappedPet).length,
+                1,
+            );
+            let listCount = 0;
+            for (let monster = game.level.monlist;
+                monster;
+                monster = monster.nmon) {
+                if (monster === swappedPet) ++listCount;
+            }
+            assert.equal(listCount, 1);
+        };
+        assertSinglePetIdentity();
+        game.nhDisplay.pushKey('.'.charCodeAt(0));
+        await moveloop_core();
+        assertSinglePetIdentity();
 
         const petRefusal = await runSegment(segments[4]);
         const refusedPet = startingPet();

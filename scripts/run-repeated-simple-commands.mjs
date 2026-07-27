@@ -78,8 +78,8 @@ export function loadRepeatedSimpleCommandsRecipe() {
                     role: 'Tourist',
                     options: 'mention_walls,safe_pet',
                 }),
-                // Refusal is zero-time; the waits prove its timed fleeing pet
-                // state remains inside the supported action continuation.
+                // Refusal consumes the hero action; the waits prove its timed
+                // fleeing-pet state remains inside the supported continuation.
                 moves: 'y....',
             },
             {

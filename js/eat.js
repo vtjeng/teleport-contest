@@ -138,11 +138,22 @@ function preflightNutritionRing(ring, state) {
     }
 }
 
-// C ref: eat.c gethungry(). This owns the complete nutrition-consumption
-// decision for an alert hero. Hunger-status transitions still require their
-// message, occupation, fainting, and death owners, so this first-command slice
-// fails before changing nutrition when a tick would cross one of them.
-export function gethungry(state = game, env = {}) {
+function supportedIncreasingHungerTransition(oldStatus, newStatus) {
+    return oldStatus === NOT_HUNGRY && newStatus === HUNGRY;
+}
+
+function requireHungerTransitionOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`gethungry transition requires ${name}`);
+    return operation;
+}
+
+// C ref: eat.c gethungry() and its live newuhs(TRUE) consumer. This owns the
+// nutrition decision for an alert hero plus the first source-reachable
+// NOT_HUNGRY -> HUNGRY transition. Later weakness, fainting, and death
+// transitions remain fail-closed before their tick's accessory draw.
+export async function gethungry(state = game, env = {}) {
     const u = state.u;
     if (!u || !Number.isSafeInteger(u.uhunger)) {
         throw new Error('gethungry requires initialized hero nutrition');
@@ -203,12 +214,27 @@ export function gethungry(state = game, env = {}) {
     );
     const evenLoss = ordinaryLoss + hungerLoss + conflictLoss + accessoryLoss;
     const maximumReachableLoss = Math.max(oddLoss, evenLoss);
+    const earliestStatus = hungerStatus(
+        u.uhunger - maximumReachableLoss,
+    );
+    const mayReachSupportedTransition =
+        supportedIncreasingHungerTransition(u.uhs, earliestStatus);
+    const message = mayReachSupportedTransition
+        ? requireHungerTransitionOperation(env, 'message')
+        : null;
+    const stopRunning = mayReachSupportedTransition
+        ? requireHungerTransitionOperation(env, 'endRunning')
+        : null;
+    const statusRefresh = mayReachSupportedTransition
+        ? requireHungerTransitionOperation(env, 'statusRefresh')
+        : null;
 
     // The admitted alert-hero slice must remain within one hunger status for
     // every possible rn2(20) branch. Use only costs reachable from the current
     // form, properties, burden, and equipment so harmless low-loss ticks are
-    // not rejected before their source draw.
-    if (hungerStatus(u.uhunger - maximumReachableLoss) !== u.uhs) {
+    // not rejected before their source draw. The first increasing transition
+    // is fully owned, so every parity outcome around that threshold is safe.
+    if (earliestStatus !== u.uhs && !mayReachSupportedTransition) {
         throw new Error(
             'gethungry reached unported hunger-status transition',
         );
@@ -254,12 +280,26 @@ export function gethungry(state = game, env = {}) {
 
     const nextNutrition = u.uhunger - nutritionLoss;
     const nextStatus = hungerStatus(nextNutrition);
-    if (nextStatus !== u.uhs) {
+    if (nextStatus !== u.uhs
+        && !supportedIncreasingHungerTransition(u.uhs, nextStatus)) {
         throw new Error(
             'gethungry reached unported hunger-status transition',
         );
     }
     u.uhunger = nextNutrition;
+    if (nextStatus !== u.uhs) {
+        await message(
+            u.uhunger < 145
+                ? 'You feel hungry.'
+                : 'You are beginning to feel hungry.',
+            state,
+        );
+        stopRunning(state);
+        u.uhs = nextStatus;
+        state.disp ??= {};
+        state.disp.botl = true;
+        await statusRefresh(state);
+    }
     return nutritionLoss;
 }
 

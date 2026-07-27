@@ -54,7 +54,8 @@ import {
 } from './startup_skills.js';
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
-import { domove, endRunning, rhack } from './cmd.js';
+import { rhack } from './cmd.js';
+import { domove, endRunning } from './hack.js';
 import { docrt, cls, bot, flush_screen, newsym } from './display.js';
 import { ttyPline } from './tty_message.js';
 import {
@@ -450,9 +451,12 @@ async function finishElapsedTurn(state, random) {
         await automatic_search({ state, random });
     }
     await dosoundsInitialLevel(state, { random: random.rn2 });
-    gethungry(state, {
+    await gethungry(state, {
         random,
         nearCapacity: () => wtcap,
+        message: ttyPline,
+        endRunning,
+        statusRefresh: () => bot(),
     });
     age_spells(state);
     // C ref: allmain.c moveloop_core() calls exerchk() here, before invault()

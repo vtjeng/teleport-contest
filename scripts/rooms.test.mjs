@@ -9,9 +9,9 @@ import {
     SHARED_PLUS,
     SHOPBASE,
 } from '../js/const.js';
-import { domove } from '../js/cmd.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
+import { domove } from '../js/hack.js';
 import { in_rooms, move_update } from '../js/rooms.js';
 import { init_vision_globals, vision_reset } from '../js/vision.js';
 

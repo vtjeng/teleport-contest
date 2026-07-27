@@ -73,19 +73,17 @@ const cs_rmin0 = new Int16Array(ROWNO).fill(COLNO);
 const cs_rmax0 = new Int16Array(ROWNO).fill(0);
 const cs_rmin1 = new Int16Array(ROWNO).fill(COLNO);
 const cs_rmax1 = new Int16Array(ROWNO).fill(0);
-let clearAreaCallback = null;
-
-function mark_visible_range(row, left, right) {
+function mark_visible_range(row, left, right, scan) {
     if (left > right) return;
-    if (clearAreaCallback) {
-        for (let i = left; i <= right; ++i) clearAreaCallback(i, row);
+    if (scan.callback) {
+        for (let i = left; i <= right; ++i) scan.callback(i, row);
         return;
     }
-    const rowp = game.cs_rows?.[row];
+    const rowp = scan.rows?.[row];
     if (!rowp) return;
     for (let i = left; i <= right; i++) rowp[i] = COULD_SEE;
-    if (game.cs_left[row] > left) game.cs_left[row] = left;
-    if (game.cs_right[row] < right) game.cs_right[row] = right;
+    if (scan.left[row] > left) scan.left[row] = left;
+    if (scan.right[row] < right) scan.right[row] = right;
 }
 
 function heroSeesInvisible() {
@@ -339,12 +337,12 @@ function circle_offset(range, rowOffset) {
 }
 
 // C ref: vision.c right_side()
-function right_side(row, left, right_mark, limitsIdx) {
-    const nrow = row + game.vis_step;
+function right_side(row, left, right_mark, limitsIdx, scan) {
+    const nrow = row + scan.step;
     const deeper = nrow >= 0 && nrow < ROWNO
         && (limitsIdx < 0 || circle_data[limitsIdx] >= circle_data[limitsIdx + 1]);
     const lim_max = limitsIdx >= 0
-        ? Math.min(COLNO - 1, game.vis_start_col + circle_data[limitsIdx])
+        ? Math.min(COLNO - 1, scan.startCol + circle_data[limitsIdx])
         : COLNO - 1;
     if (right_mark > lim_max) right_mark = lim_max;
     const nextLimIdx = limitsIdx >= 0 ? limitsIdx + 1 : -1;
@@ -355,24 +353,24 @@ function right_side(row, left, right_mark, limitsIdx) {
 
         if (!viz_clear[row][left]) {
             if (right_edge > right_mark) {
-                right_edge = (row - game.vis_step >= 0 && row - game.vis_step < ROWNO && viz_clear[row - game.vis_step][right_mark])
+                right_edge = (row - scan.step >= 0 && row - scan.step < ROWNO && viz_clear[row - scan.step][right_mark])
                     ? right_mark + 1 : right_mark;
             }
-            mark_visible_range(row, left, right_edge);
+            mark_visible_range(row, left, right_edge, scan);
             left = right_edge + 1;
             continue;
         }
 
-        if (left !== game.vis_start_col) {
+        if (left !== scan.startCol) {
             for (; left <= right_edge; left++) {
-                const result = game.vis_step < 0
-                    ? q1_path(game.vis_start_row, game.vis_start_col, row, left)
-                    : q4_path(game.vis_start_row, game.vis_start_col, row, left);
+                const result = scan.step < 0
+                    ? q1_path(scan.startRow, scan.startCol, row, left)
+                    : q4_path(scan.startRow, scan.startCol, row, left);
                 if (result) break;
             }
             if (left > lim_max) return;
             if (left === lim_max) {
-                mark_visible_range(row, lim_max, lim_max);
+                mark_visible_range(row, lim_max, lim_max, scan);
                 return;
             }
             if (left >= right_edge) { left = right_edge; continue; }
@@ -381,9 +379,9 @@ function right_side(row, left, right_mark, limitsIdx) {
         let right;
         if (right_mark < right_edge) {
             for (right = right_mark; right <= right_edge; right++) {
-                const result = game.vis_step < 0
-                    ? q1_path(game.vis_start_row, game.vis_start_col, row, right)
-                    : q4_path(game.vis_start_row, game.vis_start_col, row, right);
+                const result = scan.step < 0
+                    ? q1_path(scan.startRow, scan.startCol, row, right)
+                    : q4_path(scan.startRow, scan.startCol, row, right);
                 if (!result) break;
             }
             right--;
@@ -392,25 +390,27 @@ function right_side(row, left, right_mark, limitsIdx) {
         }
 
         if (left <= right) {
-            if (left === right && left === game.vis_start_col && game.vis_start_col < COLNO - 1
-                && !viz_clear[row][game.vis_start_col + 1]) {
-                right = game.vis_start_col + 1;
+            if (left === right && left === scan.startCol
+                && scan.startCol < COLNO - 1
+                && !viz_clear[row][scan.startCol + 1]) {
+                right = scan.startCol + 1;
             }
             if (right > lim_max) right = lim_max;
-            mark_visible_range(row, left, right);
-            if (deeper) right_side(nrow, left, right, nextLimIdx);
+            mark_visible_range(row, left, right, scan);
+            if (deeper)
+                right_side(nrow, left, right, nextLimIdx, scan);
             left = right + 1;
         }
     }
 }
 
 // C ref: vision.c left_side()
-function left_side(row, left_mark, right, limitsIdx) {
-    const nrow = row + game.vis_step;
+function left_side(row, left_mark, right, limitsIdx, scan) {
+    const nrow = row + scan.step;
     const deeper = nrow >= 0 && nrow < ROWNO
         && (limitsIdx < 0 || circle_data[limitsIdx] >= circle_data[limitsIdx + 1]);
     const lim_min = limitsIdx >= 0
-        ? Math.max(0, game.vis_start_col - circle_data[limitsIdx])
+        ? Math.max(0, scan.startCol - circle_data[limitsIdx])
         : 0;
     if (left_mark < lim_min) left_mark = lim_min;
     const nextLimIdx = limitsIdx >= 0 ? limitsIdx + 1 : -1;
@@ -421,24 +421,24 @@ function left_side(row, left_mark, right, limitsIdx) {
 
         if (!viz_clear[row][right]) {
             if (left_edge < left_mark) {
-                left_edge = (row - game.vis_step >= 0 && row - game.vis_step < ROWNO && viz_clear[row - game.vis_step][left_mark])
+                left_edge = (row - scan.step >= 0 && row - scan.step < ROWNO && viz_clear[row - scan.step][left_mark])
                     ? left_mark - 1 : left_mark;
             }
-            mark_visible_range(row, left_edge, right);
+            mark_visible_range(row, left_edge, right, scan);
             right = left_edge - 1;
             continue;
         }
 
-        if (right !== game.vis_start_col) {
+        if (right !== scan.startCol) {
             for (; right >= left_edge; right--) {
-                const result = game.vis_step < 0
-                    ? q2_path(game.vis_start_row, game.vis_start_col, row, right)
-                    : q3_path(game.vis_start_row, game.vis_start_col, row, right);
+                const result = scan.step < 0
+                    ? q2_path(scan.startRow, scan.startCol, row, right)
+                    : q3_path(scan.startRow, scan.startCol, row, right);
                 if (result) break;
             }
             if (right < lim_min) return;
             if (right === lim_min) {
-                mark_visible_range(row, lim_min, lim_min);
+                mark_visible_range(row, lim_min, lim_min, scan);
                 return;
             }
             if (right <= left_edge) { right = left_edge; continue; }
@@ -447,9 +447,9 @@ function left_side(row, left_mark, right, limitsIdx) {
         let left;
         if (left_mark > left_edge) {
             for (left = left_mark; left >= left_edge; left--) {
-                const result = game.vis_step < 0
-                    ? q2_path(game.vis_start_row, game.vis_start_col, row, left)
-                    : q3_path(game.vis_start_row, game.vis_start_col, row, left);
+                const result = scan.step < 0
+                    ? q2_path(scan.startRow, scan.startCol, row, left)
+                    : q3_path(scan.startRow, scan.startCol, row, left);
                 if (!result) break;
             }
             left++;
@@ -458,13 +458,15 @@ function left_side(row, left_mark, right, limitsIdx) {
         }
 
         if (left <= right) {
-            if (left === right && right === game.vis_start_col && game.vis_start_col > 0
-                && !viz_clear[row][game.vis_start_col - 1]) {
-                left = game.vis_start_col - 1;
+            if (left === right && right === scan.startCol
+                && scan.startCol > 0
+                && !viz_clear[row][scan.startCol - 1]) {
+                left = scan.startCol - 1;
             }
             if (left < lim_min) left = lim_min;
-            mark_visible_range(row, left, right);
-            if (deeper) left_side(nrow, left, right, nextLimIdx);
+            mark_visible_range(row, left, right, scan);
+            if (deeper)
+                left_side(nrow, left, right, nextLimIdx, scan);
             right = left - 1;
         }
     }
@@ -480,52 +482,50 @@ function view_from(
     range = 0,
     callback = null,
 ) {
-    game.vis_start_col = scol;
-    game.vis_start_row = srow;
-    game.cs_rows = cs_rows;
-    game.cs_left = cs_left;
-    game.cs_right = cs_right;
-    clearAreaCallback = callback;
+    const scan = {
+        callback,
+        left: cs_left,
+        right: cs_right,
+        rows: cs_rows,
+        startCol: scol,
+        startRow: srow,
+        step: 0,
+    };
+    let left, right;
+    if (viz_clear[srow][scol]) {
+        left = left_ptrs[srow][scol];
+        right = right_ptrs[srow][scol];
+    } else {
+        left = !scol ? 0
+            : (viz_clear[srow][scol - 1]
+                ? left_ptrs[srow][scol - 1] : scol - 1);
+        right = scol === COLNO - 1 ? COLNO - 1
+            : (viz_clear[srow][scol + 1]
+                ? right_ptrs[srow][scol + 1] : scol + 1);
+    }
 
-    try {
-        let left, right;
-        if (viz_clear[srow][scol]) {
-            left = left_ptrs[srow][scol];
-            right = right_ptrs[srow][scol];
-        } else {
-            left = !scol ? 0
-                : (viz_clear[srow][scol - 1]
-                    ? left_ptrs[srow][scol - 1] : scol - 1);
-            right = scol === COLNO - 1 ? COLNO - 1
-                : (viz_clear[srow][scol + 1]
-                    ? right_ptrs[srow][scol + 1] : scol + 1);
-        }
+    let limitsIdx = -1;
+    if (range) {
+        if (left < scol - range) left = scol - range;
+        if (right > scol + range) right = scol + range;
+        limitsIdx = circle_start[range] + 1;
+    }
 
-        let limitsIdx = -1;
-        if (range) {
-            if (left < scol - range) left = scol - range;
-            if (right > scol + range) right = scol + range;
-            limitsIdx = circle_start[range] + 1;
-        }
+    mark_visible_range(srow, left, right, scan);
 
-        mark_visible_range(srow, left, right);
-
-        const nrow_down = srow + 1;
-        if (nrow_down < ROWNO) {
-            game.vis_step = 1;
-            if (scol < COLNO - 1)
-                right_side(nrow_down, scol, right, limitsIdx);
-            if (scol) left_side(nrow_down, left, scol, limitsIdx);
-        }
-        const nrow_up = srow - 1;
-        if (nrow_up >= 0) {
-            game.vis_step = -1;
-            if (scol < COLNO - 1)
-                right_side(nrow_up, scol, right, limitsIdx);
-            if (scol) left_side(nrow_up, left, scol, limitsIdx);
-        }
-    } finally {
-        clearAreaCallback = null;
+    const nrow_down = srow + 1;
+    if (nrow_down < ROWNO) {
+        scan.step = 1;
+        if (scol < COLNO - 1)
+            right_side(nrow_down, scol, right, limitsIdx, scan);
+        if (scol) left_side(nrow_down, left, scol, limitsIdx, scan);
+    }
+    const nrow_up = srow - 1;
+    if (nrow_up >= 0) {
+        scan.step = -1;
+        if (scol < COLNO - 1)
+            right_side(nrow_up, scol, right, limitsIdx, scan);
+        if (scol) left_side(nrow_up, left, scol, limitsIdx, scan);
     }
 }
 
@@ -540,39 +540,25 @@ export function do_clear_area(
     argument = null,
     state = game,
 ) {
-    if (state !== game)
-        throw new TypeError('do_clear_area requires the active game state');
     if (typeof callback !== 'function')
         throw new TypeError('do_clear_area requires a callback');
     if (range > MAX_RADIUS || range < 1)
         throw new RangeError(`do_clear_area: illegal range ${range}`);
 
     if (scol !== state.u.ux || srow !== state.u.uy) {
-        const prior = {
-            cs_rows: game.cs_rows,
-            cs_left: game.cs_left,
-            cs_right: game.cs_right,
-            vis_start_col: game.vis_start_col,
-            vis_start_row: game.vis_start_row,
-            vis_step: game.vis_step,
-        };
-        try {
-            view_from(
-                srow,
-                scol,
-                null,
-                null,
-                null,
-                range,
-                (x, y) => callback(x, y, argument),
-            );
-        } finally {
-            Object.assign(game, prior);
-        }
+        view_from(
+            srow,
+            scol,
+            null,
+            null,
+            null,
+            range,
+            (x, y) => callback(x, y, argument),
+        );
         return;
     }
 
-    if (game.vision_full_recalc) vision_recalc(0);
+    if (state === game && game.vision_full_recalc) vision_recalc(0);
     const minY = Math.max(0, srow - range);
     const maxY = Math.min(ROWNO - 1, srow + range);
     for (let y = minY; y <= maxY; ++y) {

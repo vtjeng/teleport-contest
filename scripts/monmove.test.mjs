@@ -459,6 +459,30 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
 
     {
         const { state } = makeState();
+        const monster = ordinaryMonster(state, { meating: 2 });
+        const events = [];
+        assert.equal(
+            await m_move(monster, {
+                state,
+                random: { rn2: () => assert.fail('eating path RNG') },
+                resolveTrappedMonster: () => {
+                    events.push('trap');
+                    return false;
+                },
+                finishEating: () => assert.fail('still eating'),
+                movePet: () => assert.fail('eating path pet move'),
+                resistsTrapEffect: () => false,
+                postMonsterMove: () => assert.fail('eating path postmov'),
+                unsupported: (reason) => assert.fail(reason),
+            }),
+            MMOVE_DONE,
+        );
+        assert.equal(monster.meating, 1);
+        assert.deepEqual(events, ['trap']);
+    }
+
+    {
+        const { state } = makeState();
         const monster = ordinaryMonster(state, {
             mtame: 10,
             mx: 4,

@@ -26,6 +26,12 @@ function petRc({
 }
 const RC = petRc();
 
+function deferred() {
+    let resolve;
+    const promise = new Promise((accept) => { resolve = accept; });
+    return { promise, resolve };
+}
+
 async function startingPet({
     seed = 31006,
     expectedPm = PM_KITTEN,
@@ -172,6 +178,36 @@ test('do_attack preserves refusal draw, flee, message, and stop order',
             'monflee clears all remembered hero-track coordinates',
         );
     });
+
+test('do_attack awaits flee and message before stopping the hero', async () => {
+    const kitten = await startingPet();
+    const fleeGate = deferred();
+    const messageGate = deferred();
+    const events = [];
+    const pending = do_attack(kitten, game, {
+        random: { rn2: () => 0, rnd: () => 3 },
+        monFlee() {
+            events.push('monflee');
+            return fleeGate.promise;
+        },
+        message() {
+            events.push('message');
+            return messageGate.promise;
+        },
+        endRunning() {
+            events.push('end_running');
+        },
+        unsupported: (reason) => assert.fail(reason),
+    });
+
+    assert.deepEqual(events, ['monflee']);
+    fleeGate.resolve();
+    await Promise.resolve();
+    assert.deepEqual(events, ['monflee', 'message']);
+    messageGate.resolve();
+    assert.equal(await pending, true);
+    assert.deepEqual(events, ['monflee', 'message', 'end_running']);
+});
 
 test('safe-pet refusal continues through the timed fleeing pet turns',
     async () => {

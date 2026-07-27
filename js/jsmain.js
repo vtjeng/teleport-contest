@@ -10,10 +10,8 @@
 // For browser play, see nethack.js (uses NethackGame directly).
 
 import { game, resetGame } from './gstate.js';
-import {
-    MAX_COMMAND_COUNT,
-    UnsupportedHeroMoveBoundaryError,
-} from './cmd.js';
+import { MAX_COMMAND_COUNT } from './cmd.js';
+import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import {
     newgame,

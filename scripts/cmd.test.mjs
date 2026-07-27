@@ -9,13 +9,10 @@ import {
 } from '../js/command_bindings.js';
 import { moveloop_core } from '../js/allmain.js';
 import {
-    domove,
     MAX_COMMAND_COUNT,
-    monsterNearby,
     parseCommand,
     resetCommandVars,
     rhack,
-    UnsupportedHeroMoveBoundaryError,
 } from '../js/cmd.js';
 import {
     COLNO,
@@ -41,7 +38,12 @@ import {
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
-import { test_move } from '../js/hack.js';
+import {
+    domove,
+    monsterNearby,
+    test_move,
+    UnsupportedHeroMoveBoundaryError,
+} from '../js/hack.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { PM_FOG_CLOUD } from '../js/monsters.js';
 import { parseNethackrc } from '../js/options.js';
@@ -509,12 +511,18 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         expected.domoveAttempting = 0;
         expected.iflags.menu_requested = false;
         expected.multi = 0;
+        expected.context.pendingCommand = {
+            key: commandKeyCode('l'),
+            commandCount: 0,
+            lastCommandCount: 0,
+            multi: 0,
+        };
         const initialDispatches = game._commandDispatchCount;
         let refusalScreen;
         let refusalCursor;
 
+        game.nhDisplay.pushKey(commandKeyCode('l'));
         for (let attempt = 0; attempt < 2; ++attempt) {
-            game.nhDisplay.pushKey(commandKeyCode('l'));
             await assert.rejects(
                 moveloop_core(),
                 (error) => (
@@ -523,8 +531,13 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 ),
                 `${refusal.name}, attempt ${attempt + 1}`,
             );
+            const actual = heroCommandRetrySnapshot(replay);
+            // Input capture counts differ between the initial parse and a
+            // pending-command redispatch. The streams are asserted below;
+            // compare every gameplay/input owner independently of length.
+            actual.output = expected.output;
             assert.deepEqual(
-                heroCommandRetrySnapshot(replay, attempt + 1),
+                actual,
                 expected,
                 `${refusal.name}, attempt ${attempt + 1}`,
             );
@@ -551,7 +564,6 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         }
 
         refusal.remove({ destination, x, y });
-        game.nhDisplay.pushKey(commandKeyCode('l'));
         await moveloop_core();
         await assert.rejects(moveloop_core(), /Input queue empty/u);
         assert.deepEqual([game.u.ux, game.u.uy], [x, y], refusal.name);
@@ -563,6 +575,68 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         );
     }
 });
+
+test('unsupported movement retains its byte ahead of the next command',
+    async () => {
+        const replay = await runSegment({
+            seed: 840004,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:PendingMove,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: '',
+        });
+        game.nhDisplay.pushKey(0x1B);
+        await rhack(0, game);
+        await assert.rejects(moveloop_core(), /Input queue empty/u);
+        resetCommandVars(game);
+        const start = [game.u.ux, game.u.uy];
+        const east = game.level.at(start[0] + 1, start[1]);
+        east.typ = FOUNTAIN;
+        east.flags = east.doormask = 0;
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.objects[start[0] + 1][start[1]] = null;
+        game.level.traps = [];
+        game.level.regions = [];
+        game.head_engr = null;
+        game.nhDisplay.pushKey(commandKeyCode('l'));
+        game.nhDisplay.pushKey(commandKeyCode('.'));
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                moveloop_core(),
+                (error) => (
+                    error instanceof UnsupportedHeroMoveBoundaryError
+                    && error.reason === 'door or special terrain movement'
+                ),
+            );
+            assert.equal(
+                game.context.pendingCommand.key,
+                commandKeyCode('l'),
+            );
+            assert.deepEqual(
+                game.nhDisplay.terminal._inputQueue,
+                [commandKeyCode('.')],
+            );
+            assert.deepEqual(replay.getRngSlices().at(-1), []);
+        }
+
+        east.typ = ROOM;
+        await moveloop_core();
+        assert.deepEqual(
+            [game.u.ux, game.u.uy],
+            [start[0] + 1, start[1]],
+        );
+        assert.equal(game.context.pendingCommand, undefined);
+
+        await moveloop_core();
+        assert.deepEqual(
+            [game.u.ux, game.u.uy],
+            [start[0] + 1, start[1]],
+        );
+        assert.equal(game.context.pendingCommand, undefined);
+    });
 
 test('simple hero movement admits empty room and corridor controls',
     async () => {
@@ -1249,7 +1323,7 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
     assert.deepEqual(game.level.regions[0].monsters, [fogCloud.m_id]);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 
-    // A later parked guard is still outside the residual replay boundary,
+    // A later parked guard remains outside the live monster-action boundary,
     // even when dead and below a movement ration.
     game.level.monsters[x][y] = null;
     game.level.monlist = {

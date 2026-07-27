@@ -1,5 +1,5 @@
 // cmd.js -- Command parsing, dispatch, and movement intent.
-// C refs: cmd.c get_count(), parse(), rhack(), set_move_cmd(); hack.c domove().
+// C refs: cmd.c get_count(), parse(), rhack(), set_move_cmd().
 
 import {
     commandForKey,
@@ -8,58 +8,27 @@ import {
     visibleCommandKey,
 } from './command_bindings.js';
 import {
-    ACCESSIBLE,
     COLNO,
-    CORR,
-    DOOR,
-    D_CLOSED,
-    D_LOCKED,
-    HALLUC,
-    HALLUC_RES,
-    IS_WALL,
-    M_AP_FURNITURE,
-    M_AP_OBJECT,
-    M_AP_TYPMASK,
-    ROOM,
     SICK,
     SLIMED,
-    STONE,
     STONED,
     STRANGLED,
-    isok,
 } from './const.js';
-import { flush_screen, newsym } from './display.js';
-import { can_reach_floor, engr_at, read_engr_at } from './engrave.js';
+import { flush_screen } from './display.js';
 import { game } from './gstate.js';
 import {
-    disturb_buried_zombies,
-    domove_swap_with_pet,
-    hero_tread_disturbs_buried_zombies,
-    maybe_smudge_engr,
-    switch_terrain_for_legal_move,
-    test_move,
+    domove,
+    endRunning,
+    monsterNearby,
+    preflightDomoveDestination,
+    UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { nhgetch } from './input.js';
-import { is_hider, noattacks } from './mondata.js';
-import { m_at } from './monst.js';
-import { onscary } from './monmove.js';
-import { look_here_single_object } from './invent.js';
-import { in_out_region, inside_region } from './region.js';
-import { check_special_room_state } from './rooms.js';
-import {
-    PM_KITTEN,
-    PM_LITTLE_DOG,
-    PM_PONY,
-} from './monsters.js';
-import { canSpotMonster } from './startup_a11y.js';
-import { t_at } from './trap.js';
 import {
     clearTtyMessageWindow,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
-import { vision_recalc } from './vision.js';
-import { do_attack, is_safemon } from './uhitm.js';
 
 export const MAX_COMMAND_COUNT = 32767;
 const ESC = 0x1B;
@@ -67,15 +36,6 @@ const BACKSPACE = 0x08;
 const DELETE = 0x7F;
 const DOMOVE_WALK = 0x01;
 const DOMOVE_RUSH = 0x02;
-const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
-
-export class UnsupportedHeroMoveBoundaryError extends Error {
-    constructor(reason) {
-        super(`unsupported hero move: ${reason}`);
-        this.name = 'UnsupportedHeroMoveBoundaryError';
-        this.reason = reason;
-    }
-}
 
 // Each value is [u.dx, u.dy, context.run]: 0 walks, 1 runs, and 3 rushes.
 // Preserve these source numeric modes; downstream code groups them by
@@ -114,40 +74,6 @@ function commandBindings(state) {
 
 function propertyIntrinsic(state, property) {
     return Boolean(state.u?.uprops?.[property]?.intrinsic);
-}
-
-function heroHallucinating(state) {
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    return propertyIntrinsic(state, HALLUC)
-        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
-}
-
-// C ref: hack.c monster_nearby(). This deliberately has stricter concealment,
-// disposition, helplessness, and scare checks than canspotmon().
-export function monsterNearby(state = game) {
-    const { ux, uy } = state.u;
-    const hallucinating = heroHallucinating(state);
-    for (let x = ux - 1; x <= ux + 1; ++x) {
-        for (let y = uy - 1; y <= uy + 1; ++y) {
-            if (!isok(x, y) || (x === ux && y === uy)) continue;
-            const monster = m_at(x, y, state);
-            if (!monster) continue;
-            const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
-            if (appearance === M_AP_FURNITURE
-                || appearance === M_AP_OBJECT) {
-                continue;
-            }
-            if (!hallucinating
-                && (monster.mpeaceful || noattacks(monster.data))) {
-                continue;
-            }
-            if (is_hider(monster.data) && monster.mundetected) continue;
-            if (monster.msleeping || !monster.mcanmove) continue;
-            if (onscary(ux, uy, monster, state)) continue;
-            if (canSpotMonster(monster, state)) return true;
-        }
-    }
-    return false;
 }
 
 // C ref: do.c danger_uprops(). These four properties are timeout bits; unlike
@@ -366,265 +292,22 @@ export function resetCommandVars(state = game) {
     state.iflags.menu_requested = false;
 }
 
-// C ref: hack.c end_running(TRUE). The current finite-movement caller always
-// requests travel cancellation, so this helper clears travel, travel1, and mv.
-// Status refresh and travel-map cleanup remain with their owning subsystems.
-export function endRunning(state = game) {
-    state.context.run = 0;
-    state.context.travel = 0;
-    state.context.travel1 = 0;
-    state.context.mv = 0;
-    if (state.multi > 0) state.multi = 0;
-}
-
-function blocksMove(x, y, state) {
-    const loc = state.level?.at(x, y);
-    if (!loc || loc.typ === STONE || IS_WALL(loc.typ)) return true;
-    return loc.typ === DOOR && (loc.doormask & (D_CLOSED | D_LOCKED));
-}
-
-// This repeated-command boundary owns entry into an unoccupied ROOM or CORR
-// square plus the ordinary single-object description produced when autopickup
-// is disabled. These checks are a temporary admission seam in front of
-// hack.c:domove_core(); each rejected branch will move to its upstream owner
-// when that behavior is ported.
-function requireSimpleHeroDestination(x, y, state) {
-    if (m_at(x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError(
-            'hero combat or displacement',
-        );
-
-    const location = state.level?.at(x, y);
-    if (!location || (location.typ !== ROOM && location.typ !== CORR)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'door or special terrain movement',
-        );
-    }
-    const floorObject = state.level?.objects?.[x]?.[y] ?? null;
-    if (floorObject && state.flags?.pickup)
-        throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
-    if (floorObject?.nexthere)
-        throw new UnsupportedHeroMoveBoundaryError('floor object pile');
-    if (t_at(x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError('trap activation');
-
-    for (const region of state.level?.regions ?? []) {
-        if (region.attach_2_u) continue;
-        if (Boolean(region.hero_inside) !== inside_region(region, x, y))
-            throw new UnsupportedHeroMoveBoundaryError('region crossing');
-    }
-    if (engr_at(x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError('engraving interaction');
-}
-
-function doorMask(location) {
-    return location?.flags || location?.doormask || 0;
-}
-
-function requireOrdinaryStartingPetSwap(monster, x, y, state) {
-    const startingPet = monster
-        && monster.m_id === state.context?.startingpet_mid
-        && STARTING_PETS.has(monster.data?.pmidx)
-        && monster.mtame
-        && monster.mpeaceful;
-    if (!startingPet || !is_safemon(monster, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'hero combat or displacement',
-        );
-    }
-    const specialState = monster.mhp < 1
-        || !monster.mcanmove
-        || monster.mfrozen
-        || monster.msleeping
-        || monster.mtrapped
-        || monster.mflee
-        || monster.meating
-        || monster.wormno;
-    if (specialState) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'hero combat or exceptional pet displacement',
-        );
-    }
-
-    const destination = state.level?.at(x, y);
-    const ordinaryDestination = destination
-        && (destination.typ === ROOM
-            || destination.typ === CORR
-            || (destination.typ === DOOR && doorMask(destination) === 0));
-    if (!ordinaryDestination) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'door or special terrain movement',
-        );
-    }
-
-    const source = state.level?.at(state.u.ux, state.u.uy);
-    const sourceAccessible = source
-        && ACCESSIBLE(source.typ)
-        && !(source.typ === DOOR
-            && (doorMask(source) & (D_CLOSED | D_LOCKED)));
-    if (!sourceAccessible) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'exceptional pet displacement terrain',
-        );
-    }
-    if (t_at(x, y, state)
-        || t_at(state.u.ux, state.u.uy, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'pet swap trap interaction',
-        );
-    }
-    if (state.level?.objects?.[x]?.[y]) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'combined pet and floor object interaction',
-        );
-    }
-    if (state.level?.regions?.length) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'pet swap region crossing',
-        );
-    }
-    if (engr_at(x, y, state)
-        || engr_at(state.u.ux, state.u.uy, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'pet swap engraving interaction',
-        );
-    }
-}
-
-// C ref: hack.c domove(). This remains the narrow ordinary-floor subset; the
-// movement milestone will replace its collision and terrain branches in source
-// order without changing the command intent established by executeMovement().
-// It requires established u.dx/u.dy and context.move = 1. Success updates the
-// position and leaves that turn flag untouched; a blocked step sets it to 0
-// and cancels multi, context.mv, and context.run. moveloop_core() calls this
-// directly only for already-established movement intent. Like hack.c, a
-// changed hero position sets u.umoved for the subsequent turn effects.
-export async function domove(state = game) {
-    const u = state.u;
-    const newx = u.ux + u.dx;
-    const newy = u.uy + u.dy;
-
-    if (blocksMove(newx, newy, state)) {
-        await test_move(u.ux, u.uy, u.dx, u.dy, state, {
-            message: ttyPline,
-        });
-        state.context.move = 0;
-        state.multi = 0;
-        state.context.mv = 0;
-        state.context.run = 0;
-        state.domoveAttempting = 0;
-        return;
-    }
-    const destinationMonster = m_at(newx, newy, state);
-    if (destinationMonster) {
-        requireOrdinaryStartingPetSwap(
-            destinationMonster,
-            newx,
-            newy,
-            state,
-        );
-    } else {
-        requireSimpleHeroDestination(newx, newy, state);
-    }
-
-    const oldx = u.ux;
-    const oldy = u.uy;
-    u.ux0 = oldx;
-    u.uy0 = oldy;
-    if (destinationMonster) {
-        const attackConsumedMove = await do_attack(
-            destinationMonster,
-            state,
-            {
-                endRunning,
-                message: ttyPline,
-                unsupported: (reason) => {
-                    throw new UnsupportedHeroMoveBoundaryError(reason);
-                },
-            },
-        );
-        if (attackConsumedMove) {
-            state.domoveAttempting = 0;
-            return;
-        }
-    }
-    if (!await in_out_region(newx, newy, { state })) return;
-    u.ux = newx;
-    u.uy = newy;
-    if (destinationMonster) {
-        await domove_swap_with_pet(
-            destinationMonster,
-            newx,
-            newy,
-            state,
-            { message: ttyPline },
-        );
-    }
-    u.umoved = true;
-
-    if (hero_tread_disturbs_buried_zombies(state))
-        disturb_buried_zombies(newx, newy, state);
-
-    newsym(oldx, oldy);
-    vision_recalc(1);
-    newsym(newx, newy);
-    switch_terrain_for_legal_move(state);
-    check_special_room_state(false, state);
-    await read_engr_at(newx, newy, state, {
-        pline: ttyPline,
-        canReachFloor: can_reach_floor,
-    });
-    const floorObject = state.level?.objects?.[newx]?.[newy] ?? null;
-    if (floorObject && !floorObject.nexthere) {
-        // C ref: domove() -> spoteffects(TRUE) -> pickup(1) -> check_here()
-        // -> invent.c look_here().
-        await look_here_single_object(
-            floorObject,
-            state,
-            { message: ttyPline },
-        );
-    }
-    maybe_smudge_engr(oldx, oldy, newx, newy, state);
-    state.domoveAttempting = 0;
-}
-
 // C ref: cmd.c set_move_cmd() and rhack()'s DOMOVE_WALK/DOMOVE_RUSH paths.
 async function executeMovement(command, firstTime, state) {
     const [dx, dy, run] = MOVEMENT_INTENTS[command];
 
     // moveloop_core() optimistically sets context.move before rhack(), as C
-    // does.  This port's temporary unsupported-destination seam must run
-    // before movement intent is committed; otherwise the next loop mistakes
-    // the rejected command for elapsed time. Doors have their own upstream
-    // behavior even when closed or locked, so classify every door before the
-    // generic blocked-terrain path. A wall or stone square still reaches
-    // domove() and follows its source behavior below.
+    // does. This port's temporary hack.c admission seam must run before
+    // movement intent is committed; otherwise the next loop mistakes the
+    // rejected command for elapsed time.
     const newx = state.u.ux + dx;
     const newy = state.u.uy + dy;
-    const destination = state.level?.at(newx, newy);
-    const destinationMonster = m_at(newx, newy, state);
-    if (destinationMonster) {
-        try {
-            requireOrdinaryStartingPetSwap(
-                destinationMonster,
-                newx,
-                newy,
-                state,
-            );
-        } catch (error) {
-            if (error instanceof UnsupportedHeroMoveBoundaryError)
-                resetCommandVars(state);
-            throw error;
-        }
-    } else if (destination?.typ === DOOR
-        || !blocksMove(newx, newy, state)) {
-        try {
-            requireSimpleHeroDestination(newx, newy, state);
-        } catch (error) {
-            if (error instanceof UnsupportedHeroMoveBoundaryError)
-                resetCommandVars(state);
-            throw error;
-        }
+    try {
+        preflightDomoveDestination(newx, newy, state);
+    } catch (error) {
+        if (error instanceof UnsupportedHeroMoveBoundaryError)
+            resetCommandVars(state);
+        throw error;
     }
 
     state.u.dx = dx;
@@ -667,45 +350,80 @@ export async function rhack(key, state = game) {
     state.context.nopick = 0;
 
     const firstTime = key === 0;
-    if (firstTime) key = await parseCommand(state);
+    if (firstTime) {
+        const pending = state.context.pendingCommand;
+        if (pending) {
+            key = pending.key;
+            state.cmdKey = pending.key;
+            state.commandCount = pending.commandCount;
+            state.lastCommandCount = pending.lastCommandCount;
+            state.multi = pending.multi;
+        } else {
+            key = await parseCommand(state);
+            state.context.pendingCommand = {
+                key,
+                commandCount: state.commandCount,
+                lastCommandCount: state.lastCommandCount,
+                multi: state.multi,
+            };
+        }
+    }
 
     // A command is dispatched only after its input wait returns. Keep this
     // diagnostic independent of turn consumption so the first-command gate can
     // distinguish a blocked or zero-time command from an untouched prompt.
     state._commandDispatchCount = (state._commandDispatchCount ?? 0) + 1;
 
-    if (!key || key === 0xFF || key === ESC) {
-        resetCommandVars(state);
-        return;
-    }
-
-    let command = commandForKey(commandBindings(state), key);
-    if (command === 'reqmenu') {
-        state.iflags.menu_requested = true;
-        // do_reqmenu() is a PREFIXCMD, so rhack() immediately reads and
-        // dispatches the following command in the same input cycle.
-        key = await parseCommand(state);
-        command = commandForKey(commandBindings(state), key);
-        if (command === 'reqmenu') {
-            const prefix = keyForCommand(commandBindings(state), 'reqmenu');
-            await ttyNorep(
-                `Double ${visibleCommandKey(prefix)} prefix, canceled.`,
-                state,
-            );
+    let retryableBoundary = false;
+    try {
+        if (!key || key === 0xFF || key === ESC) {
             resetCommandVars(state);
             return;
         }
-    }
-    if (command === 'wait') {
-        if (!await donull(state)) resetCommandVars(state);
-        return;
-    }
-    if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
-        await executeMovement(command, firstTime, state);
-        return;
-    }
 
-    await ttyPline(`Unknown command '${visibleCommandKey(key)}'.`, state);
-    state.context.move = 0;
-    state.multi = 0;
+        let command = commandForKey(commandBindings(state), key);
+        if (command === 'reqmenu') {
+            state.iflags.menu_requested = true;
+            // do_reqmenu() is a PREFIXCMD, so rhack() immediately reads and
+            // dispatches the following command in the same input cycle.
+            key = await parseCommand(state);
+            if (firstTime) {
+                state.context.pendingCommand = {
+                    key,
+                    commandCount: state.commandCount,
+                    lastCommandCount: state.lastCommandCount,
+                    multi: state.multi,
+                };
+            }
+            command = commandForKey(commandBindings(state), key);
+            if (command === 'reqmenu') {
+                const prefix = keyForCommand(commandBindings(state), 'reqmenu');
+                await ttyNorep(
+                    `Double ${visibleCommandKey(prefix)} prefix, canceled.`,
+                    state,
+                );
+                resetCommandVars(state);
+                return;
+            }
+        }
+        if (command === 'wait') {
+            if (!await donull(state)) resetCommandVars(state);
+            return;
+        }
+        if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
+            await executeMovement(command, firstTime, state);
+            return;
+        }
+
+        await ttyPline(`Unknown command '${visibleCommandKey(key)}'.`, state);
+        state.context.move = 0;
+        state.multi = 0;
+    } catch (error) {
+        retryableBoundary =
+            error instanceof UnsupportedHeroMoveBoundaryError;
+        throw error;
+    } finally {
+        if (firstTime && !retryableBoundary)
+            delete state.context.pendingCommand;
+    }
 }
