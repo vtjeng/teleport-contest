@@ -82,7 +82,6 @@ import {
     dochugw,
     distfleeck,
     disturb,
-    in_your_sanctuary,
     m_can_break_boulder,
     m_avoid_kicked_loc,
     m_avoid_soko_push_loc,
@@ -104,6 +103,7 @@ import {
     should_displace,
     undesirable_disp,
 } from '../js/monmove.js';
+import { in_your_sanctuary } from '../js/priest.js';
 import {
     M1_CLING,
     M1_NEEDPICK,

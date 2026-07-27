@@ -17,13 +17,10 @@ import {
     ALLOW_TRAPS,
     ALLOW_U,
     ALLOW_WALL,
-    AM_SHRINE,
     ANTI_MAGIC,
     ARROW_TRAP,
     A_LAWFUL,
-    A_NONE,
     A_STR,
-    Amask2align,
     BEAR_TRAP,
     BOLT_LIM,
     BUSTDOOR,
@@ -283,9 +280,15 @@ import {
     WAN_STRIKING,
     WEAPON_CLASS,
 } from './objects.js';
+import {
+    in_your_sanctuary,
+    inhistemple,
+    mon_aligntyp,
+} from './priest.js';
 import { m_in_out_region, visible_region_at } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
+import { inhishop } from './shk.js';
 import { collectMonsterMovementMessage } from './startup_a11y.js';
 import { S_poisoncloud } from './symbols.js';
 import { noteleport_level } from './teleport.js';
@@ -297,8 +300,6 @@ import { can_touch_safely, which_armor } from './weapon.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
 
-const ALGN_SINNED = -4;
-const ROOM_STRING_SIZE = 5;
 
 function movementEnv(env = {}) {
     const state = env.state ?? game;
@@ -1321,112 +1322,9 @@ function isSpecies(monster, pmidx, state) {
         || monster.data?.pmidx === pmidx;
 }
 
-function monsterAlignment(monster) {
-    let alignment = monster.ispriest
-        ? monster.mextra?.epri?.shralign
-        : monster.isminion
-            ? monster.mextra?.emin?.min_align
-            : monster.data?.maligntyp;
-    if (alignment === A_NONE) return A_NONE;
-    alignment = Math.sign(alignment ?? 0);
-    return alignment;
-}
-
 function isLawfulMinion(monster) {
     return is_minion(monster.data)
-        && monsterAlignment(monster) === A_LAWFUL;
-}
-
-function altarMask(location) {
-    return location?.altarmask ?? location?.flags ?? 0;
-}
-
-function hasShrine(priest, state) {
-    if (!priest?.ispriest) return false;
-    const extension = priest.mextra?.epri;
-    const location = state.level?.at(
-        extension?.shrpos?.x,
-        extension?.shrpos?.y,
-    );
-    const mask = altarMask(location);
-    return IS_ALTAR(location?.typ)
-        && Boolean(mask & AM_SHRINE)
-        && extension.shralign === Amask2align(mask & ~AM_SHRINE);
-}
-
-function histempleAt(priest, x, y, state) {
-    const extension = priest?.mextra?.epri;
-    return Boolean(priest?.ispriest
-        && extension
-        && extension.shroom === (in_rooms(x, y, TEMPLE, state)[0] ?? 0)
-        && on_level(extension.shrlevel, state.u?.uz));
-}
-
-function inhistemple(priest, state) {
-    return Boolean(priest?.ispriest
-        && histempleAt(priest, priest.mx, priest.my, state)
-        && hasShrine(priest, state));
-}
-
-function inhishop(shopkeeper, state) {
-    const extension = shopkeeper?.mextra?.eshk;
-    return Boolean(extension
-        && on_level(extension.shoplevel, state.u?.uz)
-        && in_rooms(
-            shopkeeper.mx,
-            shopkeeper.my,
-            SHOPBASE,
-            state,
-        ).includes(extension.shoproom));
-}
-
-function templeOccupied(roomBuffer, state) {
-    for (let index = 0; index < ROOM_STRING_SIZE; ++index) {
-        const roomNumber = Math.trunc(roomBuffer?.[index] ?? 0);
-        if (!roomNumber) break;
-        if (state.level?.rooms?.[roomNumber - ROOMOFFSET]?.rtype === TEMPLE)
-            return roomNumber;
-    }
-    return 0;
-}
-
-function findPriest(roomNumber, state) {
-    for (let monster = state.level?.monlist ?? null;
-        monster;
-        monster = monster.nmon) {
-        if (monster.mhp < 1) continue;
-        if (monster.ispriest
-            && monster.mextra?.epri?.shroom === roomNumber
-            && histempleAt(monster, monster.mx, monster.my, state)) {
-            return monster;
-        }
-    }
-    return null;
-}
-
-// C ref: priest.c in_your_sanctuary().
-export function in_your_sanctuary(
-    monster,
-    x = 0,
-    y = 0,
-    state = game,
-) {
-    if (monster) {
-        if (is_minion(monster.data) || is_rider(monster.data)) return false;
-        x = monster.mx;
-        y = monster.my;
-    }
-    if (state.u?.ualign?.record <= ALGN_SINNED) return false;
-    const roomNumber = templeOccupied(state.u?.urooms, state);
-    if (!roomNumber
-        || roomNumber !== (in_rooms(x, y, TEMPLE, state)[0] ?? 0)) {
-        return false;
-    }
-    const priest = findPriest(roomNumber, state);
-    return Boolean(priest
-        && hasShrine(priest, state)
-        && monsterAlignment(priest) === state.u?.ualign?.type
-        && priest.mpeaceful);
+        && mon_aligntyp(monster) === A_LAWFUL;
 }
 
 function inHell(state) {
