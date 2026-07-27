@@ -9,7 +9,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOTHING,
 } from '../js/const.js';
-import { dochug_fresh_pet } from '../js/monmove.js';
+import { dochug } from '../js/monmove.js';
 
 function makeMonster(overrides = {}) {
     return {
@@ -54,6 +54,26 @@ function baseEnv(events) {
         },
         finishEating: () => events.push('finish-eating'),
         monFlee: () => events.push('monflee'),
+        // dochug() calls m_move(), which owns the mintrap() and meating
+        // prologue and the tame dog_move() dispatch. This double stands in
+        // for m_move() so these cases keep asserting dochug()'s ordering
+        // around it. m_move()'s own prologue is covered in monmove.test.mjs.
+        moveMonster: async (subject, moveEnv) => {
+            if (await moveEnv.resolveTrappedMonster(subject, moveEnv))
+                return MMOVE_NOTHING;
+            if (subject.meating) {
+                --subject.meating;
+                if (subject.meating <= 0) moveEnv.finishEating(subject);
+                return MMOVE_DONE;
+            }
+            const oldX = subject.mx;
+            const oldY = subject.my;
+            moveEnv.setApparentHero(subject, moveEnv);
+            const status = await moveEnv.movePet(subject, false, moveEnv);
+            return moveEnv.postMonsterMove(
+                subject, oldX, oldY, status, moveEnv,
+            );
+        },
         movePet: () => {
             events.push('move');
             return MMOVE_MOVED;
@@ -62,7 +82,17 @@ function baseEnv(events) {
             events.push(`post:${oldX},${oldY}:${status}`);
             return status;
         },
-        preflightPet: () => events.push('preflight'),
+        preflight: () => events.push('preflight'),
+        // The merged dochug() runs C's pre-move item and weapon gates for
+        // every monster, pets included. C's weapon gate additionally requires
+        // (!mpeaceful || Conflict), so a peaceful pet never reaches it.
+        usePreMoveItems: () => {
+            events.push('items');
+            return false;
+        },
+        attackHero: () => events.push('attack'),
+        wakeMessage: () => events.push('wake-message'),
+        monsterCanSeeHero: () => true,
         resolveTrappedMonster: () => false,
         setApparentHero: () => events.push('apparxy'),
         wipeEngraving: () => events.push('wipe'),
@@ -103,13 +133,14 @@ test('pet dochug sends an unchanged MMOVE_MOVED result through postmov',
         },
     };
 
-    assert.equal(await dochug_fresh_pet(monster, env), 0);
+    assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
         'rn2(40)',
         'apparxy',
         'range-1',
+        'items',
         'apparxy',
         'move',
         `post:4,4:${MMOVE_MOVED}`,
@@ -137,13 +168,14 @@ test('pet dochug finishes eating without entering dog_move or postmov',
             postMonsterMove: () => assert.fail('eating bypasses postmov'),
         };
 
-        assert.equal(await dochug_fresh_pet(monster, env), 0);
+        assert.equal(await dochug(monster, env), 0);
         assert.equal(monster.meating, 0);
         assert.deepEqual(events, [
             'preflight',
             'wipe',
             'apparxy',
             'range-1',
+            'items',
             'finish-eating',
             'range-2',
         ]);
@@ -171,12 +203,13 @@ test('pet dochug returns a still-trapped result without entering postmov',
         },
     };
 
-    assert.equal(await dochug_fresh_pet(monster, env), 0);
+    assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
         'apparxy',
         'range-1',
+        'items',
         'trap',
         'range-2',
     ]);
@@ -201,12 +234,13 @@ test('pet dochug skips the second range check after postmov kills the pet',
             },
         };
 
-        assert.equal(await dochug_fresh_pet(monster, env), 1);
+        assert.equal(await dochug(monster, env), 1);
         assert.deepEqual(events, [
             'preflight',
             'wipe',
             'apparxy',
             'range',
+            'items',
             'apparxy',
             'move',
             'post-died',
@@ -230,12 +264,16 @@ test('pet dochug does not recalculate range when movement is not selected',
             postMonsterMove: () => assert.fail('movement is not selected'),
         };
 
-        assert.equal(await dochug_fresh_pet(monster, env), 0);
+        assert.equal(await dochug(monster, env), 0);
+        // Clearing mpeaceful to suppress movement also opens C's phase-four
+        // attack gate, which a genuine peaceful pet never reaches.
         assert.deepEqual(events, [
             'preflight',
             'wipe',
             'apparxy',
             'range',
+            'items',
+            'attack',
         ]);
     });
 
@@ -254,12 +292,13 @@ test('pet dochug redraws a no-action pet during hallucination', async () => {
     env.postMonsterMove = (_monster, _oldX, _oldY, status) => status;
     env.redraw = (x, y) => events.push(`redraw:${x},${y}`);
 
-    assert.equal(await dochug_fresh_pet(makeMonster(), env), 0);
+    assert.equal(await dochug(makeMonster(), env), 0);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
         'apparxy',
         'range',
+        'items',
         'apparxy',
         'range',
         'redraw:4,4',

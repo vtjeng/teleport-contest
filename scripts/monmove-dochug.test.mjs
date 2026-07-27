@@ -13,7 +13,7 @@ import {
     STRAT_ARRIVE,
     STRAT_WAITFORU,
 } from '../js/const.js';
-import { dochug_fresh_monster } from '../js/monmove.js';
+import { dochug } from '../js/monmove.js';
 import { AT_WEAP } from '../js/monsters.js';
 
 function makeState() {
@@ -59,7 +59,7 @@ function baseEnv(state, events) {
             return true;
         },
         moveMonster: () => MMOVE_NOTHING,
-        preflightMonster: () => events.push('preflight'),
+        preflight: () => events.push('preflight'),
         usePreMoveItems: () => {
             events.push('items');
             return false;
@@ -91,7 +91,7 @@ test('dochug clears arrival and wait state before ordinary movement', async () =
         },
     };
 
-    assert.equal(await dochug_fresh_monster(monster, env), 0);
+    assert.equal(await dochug(monster, env), 0);
     assert.equal(monster.mstrategy, 0);
     assert.deepEqual(events, [
         'preflight',
@@ -136,7 +136,7 @@ test('dochug reaches the post-move ranged weapon phase', async () => {
         wieldMonsterItem: () => false,
     };
 
-    assert.equal(await dochug_fresh_monster(monster, env), 0);
+    assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
@@ -162,7 +162,7 @@ test('dochug attacks a nearby hostile after declining movement', async () => {
         moveMonster: () => assert.fail('nearby hostile does not move'),
     };
 
-    assert.equal(await dochug_fresh_monster(monster, env), 0);
+    assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
@@ -189,7 +189,7 @@ test('dochug stops when m_move reports the monster died', async () => {
         },
     };
 
-    assert.equal(await dochug_fresh_monster(monster, env), 1);
+    assert.equal(await dochug(monster, env), 1);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
@@ -218,7 +218,7 @@ test('dochug stops after a pre-move item action', async () => {
         attackHero: () => assert.fail('item use suppresses attack'),
     };
 
-    assert.equal(await dochug_fresh_monster(monster, env), 1);
+    assert.equal(await dochug(monster, env), 1);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
@@ -261,7 +261,7 @@ test('dochug spends the action when its weapon gate selects a wield',
             attackHero: () => assert.fail('wielding suppresses attack'),
         };
 
-        assert.equal(await dochug_fresh_monster(monster, env), 0);
+        assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
             'preflight',
             'wipe',
@@ -289,7 +289,7 @@ test('dochug redraws a sleeping monster that stays asleep during hallucination',
             moveMonster: () => assert.fail('sleep bypasses movement'),
         };
 
-        assert.equal(await dochug_fresh_monster(monster, env), 0);
+        assert.equal(await dochug(monster, env), 0);
         assert.deepEqual(events, [
             'preflight',
             'disturb',
@@ -318,7 +318,7 @@ test('dochug does not attack after m_move spends the action', async () => {
         attackHero: () => assert.fail('MMOVE_DONE suppresses attack'),
     };
 
-    assert.equal(await dochug_fresh_monster(monster, env), 0);
+    assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(events, [
         'preflight',
         'wipe',
