@@ -229,15 +229,42 @@ export function excludeGeneratedLines(metrics, generatedMetrics) {
 export function parseAuditFixCommitLog(output) {
   if (!output) return [];
   return output.split('\n').filter(Boolean).map((line) => {
-    const separator = line.indexOf('\t');
-    const sha = separator === -1 ? line : line.slice(0, separator);
+    const [sha, auditTrailers = '', relocationTrailers = ''] = line.split('\t');
     if (!SHA_PATTERN.test(sha)) fail(`invalid commit log row: ${line}`);
-    const trailers = separator === -1 ? '' : line.slice(separator + 1);
+    const list = (value) => value.split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean);
     return {
       sha,
-      auditFixFor: trailers.split(',').map((value) => value.trim()).filter(Boolean),
+      auditFixFor: list(auditTrailers),
+      scoreIdenticalWith: list(relocationTrailers),
     };
   });
+}
+
+// A commit that only relocates or renames code, proven by a development score
+// identical to the named ancestor, carries review debt against its C source
+// rather than against a full pass. Its lines stay out of the gate; the report
+// still names them. See "Keep each source file's port in one place" in
+// AGENTS.md and the review-limit rules in .agents/quality-workflow.md.
+export function relocationCommits(rows, ancestorCheck = () => true) {
+  return rows.filter((row) => row.scoreIdenticalWith.some(
+    (baseline) => SHA_PATTERN.test(baseline) && ancestorCheck(baseline, row.sha),
+  ));
+}
+
+export function excludeRelocatedLines(metrics, relocatedMetrics) {
+  // Later commits can rewrite relocated lines, so a per-commit sum may exceed
+  // the range total. Clamp rather than fail; the gate only needs the remainder.
+  const additions = Math.min(metrics.additions, relocatedMetrics.additions);
+  const deletions = Math.min(metrics.deletions, relocatedMetrics.deletions);
+  if (additions + deletions === 0) return metrics;
+  return {
+    ...metrics,
+    additions: metrics.additions - additions,
+    deletions: metrics.deletions - deletions,
+    excludedRelocatedLines: additions + deletions,
+  };
 }
 
 export function countReviewCommits(
@@ -260,16 +287,14 @@ function committedMetrics(base, head, area, validReviewHeads) {
   const paths = areaMetricPaths(area);
   const commitLog = git([
     'log',
-    '--format=%H%x09%(trailers:key=Audit-fix-for,valueonly,separator=%x2C)',
+    '--format=%H%x09%(trailers:key=Audit-fix-for,valueonly,separator=%x2C)'
+      + '%x09%(trailers:key=Score-identical-with,valueonly,separator=%x2C)',
     `${base}..${head}`,
     '--',
     ...paths,
   ]);
-  const commitCounts = countReviewCommits(
-    parseAuditFixCommitLog(commitLog),
-    validReviewHeads,
-    isAncestor,
-  );
+  const rows = parseAuditFixCommitLog(commitLog);
+  const commitCounts = countReviewCommits(rows, validReviewHeads, isAncestor);
   const stats = parseNumstat(
     git(['diff', '--numstat', `${base}..${head}`, '--', ...paths]),
   );
@@ -279,7 +304,21 @@ function committedMetrics(base, head, area, validReviewHeads) {
     : parseNumstat(
       git(['diff', '--numstat', `${base}..${head}`, '--', ...generatedPaths]),
     );
-  return { ...commitCounts, ...excludeGeneratedLines(stats, generatedStats) };
+  const relocated = parseNumstat('');
+  for (const row of relocationCommits(rows, isAncestor)) {
+    const commitStats = parseNumstat(
+      git(['diff', '--numstat', `${row.sha}^`, row.sha, '--', ...paths]),
+    );
+    relocated.additions += commitStats.additions;
+    relocated.deletions += commitStats.deletions;
+  }
+  return {
+    ...commitCounts,
+    ...excludeRelocatedLines(
+      excludeGeneratedLines(stats, generatedStats),
+      relocated,
+    ),
+  };
 }
 
 function rawWorkingTreeMetrics(paths) {
@@ -348,6 +387,9 @@ export function formatMetrics(metrics, includeCommits = true) {
   }
   if ((metrics.excludedGeneratedLines ?? 0) > 0) {
     parts.push(`${plural(metrics.excludedGeneratedLines, 'generated line')} excluded`);
+  }
+  if ((metrics.excludedRelocatedLines ?? 0) > 0) {
+    parts.push(`${plural(metrics.excludedRelocatedLines, 'relocated line')} excluded`);
   }
   if (metrics.binaryFiles > 0) {
     parts.push(plural(metrics.binaryFiles, 'binary file'));

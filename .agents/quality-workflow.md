@@ -160,6 +160,14 @@ and do not receive their own evidence snapshots.
     changing it.
   Record which C file a batch covers and that its score was identical. Any
   other change in the same commit is counted and reviewed normally.
+- To keep a behavior-preserving move out of the gate, add a
+  `Score-identical-with: <full SHA>` trailer naming the ancestor commit whose
+  development score the move reproduced exactly. `npm run quality` then
+  subtracts that commit's lines from the area's gate total and reports them as
+  relocated lines, so the remaining debt is the work that still needs review.
+  Add the trailer only after scoring both commits and confirming every session
+  matched, call for call and screen for screen. Put nothing else in that
+  commit.
 - A full pass is also due after an unexplained direct-review or differential
   mismatch, and before a release, pull request, authorized holdout evaluation,
   or closure of the first-command milestone.

@@ -7,9 +7,11 @@ import {
   excludeGeneratedLines,
   formatMetrics,
   formatReviewDebt,
+  excludeRelocatedLines,
   parseAuditFixCommitLog,
   parseNumstat,
   qualityGateBlocked,
+  relocationCommits,
   thresholdReached,
   validateAuditMetrics,
   validateConfigShape,
@@ -153,6 +155,65 @@ test('only audit-fix commits linked to a recorded ancestor are excluded', () => 
     }),
     '2 commits, 1 file, 5 changed lines, 1 audit-fix commit excluded',
   );
+});
+
+test('only relocation commits naming an ancestor are excluded', () => {
+    const baseline = '1'.repeat(40);
+    const ordinary = '2'.repeat(40);
+    const relocation = '3'.repeat(40);
+    // Names a commit that is not an ancestor, so it stays in the gate.
+    const unlinked = '4'.repeat(40);
+    const rows = parseAuditFixCommitLog([
+        `${ordinary}\t\t`,
+        `${relocation}\t\t${baseline}`,
+        `${unlinked}\t\t${'5'.repeat(40)}`,
+    ].join('\n'));
+
+    const excluded = relocationCommits(
+        rows,
+        (base, head) => base === baseline && head === relocation,
+    );
+    assert.deepEqual(excluded.map((row) => row.sha), [relocation]);
+});
+
+test('a relocation trailer coexists with an audit-fix trailer', () => {
+    const [row] = parseAuditFixCommitLog(
+        `${'6'.repeat(40)}\t${'7'.repeat(40)}\t${'8'.repeat(40)}`,
+    );
+    assert.deepEqual(row.auditFixFor, ['7'.repeat(40)]);
+    assert.deepEqual(row.scoreIdenticalWith, ['8'.repeat(40)]);
+});
+
+test('relocated lines leave the gate but stay named in the report', () => {
+    const metrics = {
+        commits: 2,
+        files: new Set(['js/monmove.js', 'js/dogmove.js']),
+        additions: 1000,
+        deletions: 900,
+        binaryFiles: 0,
+    };
+    // 950 of the 1,900 changed lines came from the relocation commit.
+    const reduced = excludeRelocatedLines(metrics, {
+        files: new Set(), additions: 500, deletions: 450, binaryFiles: 0,
+    });
+    assert.equal(reduced.additions + reduced.deletions, 950);
+    assert.equal(reduced.excludedRelocatedLines, 950);
+    assert.equal(
+        formatMetrics(reduced),
+        '2 commits, 2 files, 950 changed lines, 950 relocated lines excluded',
+    );
+});
+
+test('relocated line totals clamp to the range they are subtracted from', () => {
+    // A later commit rewrote relocated lines, so the per-commit sum exceeds
+    // the range total. The remainder floors at zero instead of going negative.
+    const reduced = excludeRelocatedLines(
+        { files: new Set(), additions: 10, deletions: 4, binaryFiles: 0 },
+        { files: new Set(), additions: 25, deletions: 9, binaryFiles: 0 },
+    );
+    assert.equal(reduced.additions, 0);
+    assert.equal(reduced.deletions, 0);
+    assert.equal(reduced.excludedRelocatedLines, 14);
 });
 
 test('excluded audit-fix commits retain visible line-based review debt', () => {
