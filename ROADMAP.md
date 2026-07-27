@@ -34,10 +34,31 @@ six confirmed findings were applied through `ea815b9`. The required full
 clarity pass then confirmed 15 exposition-only findings, all applied through
 the validated handoff. The quality gate and advisory are clear.
 
-The next implementation goal has not been selected. Choose another common
-exploration boundary from the explicit future-work list below before adding
-code; rare branches and helper-only prerequisites remain deferred under
-“Complete common gameplay first.”
+**Selected goal: repeated simple commands.** Starting at a correctly generated
+first command prompt, accept an unbounded sequence of single-keystroke commands
+on D:1, each either a wait or a one-square walk, and match through the prompt
+after every command. Walk destinations in scope are an unoccupied object-free
+ordinary clear square, a `test_move()` refusal against wall or rock that
+consumes no time, a swap with an ordinary active starting pet, and a square
+whose objects only produce a floor description. Ordinary D:1 monsters,
+including ones generated part-way through the sequence, and the starting little
+dog, kitten, or pony may move normally or stay put.
+
+Excluded: the future-work list below, count prefixes, running, travel, every
+other command, pickup, doorways, and monster-initiated displacement of the
+hero. Each excluded path fails closed before any gameplay state change or PRNG
+consumption, preserving the supported prefix and leaving the pending phase
+retryable.
+
+The goal closes when `js/fastforward.js` and the turn-index special cases in
+`moveloop_core()` are gone, not when a particular score is reached. A
+development-score decrease is acceptable where real behavior stops earlier than
+a deleted replay row did.
+
+`.agents/implementation-checklist.md` holds the working record: the branch
+inventory, per-row status, and the baseline at the starting commit. Read it
+before adding code. Rare branches and helper-only prerequisites remain deferred
+under “Complete common gameplay first.”
 
 ### Historical review sequence
 
