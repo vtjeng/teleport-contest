@@ -105,9 +105,6 @@ import { settrack } from './track.js';
 import { is_lava, is_pool } from './trap.js';
 import { is_were } from './mondata.js';
 import { clear_splitobjs } from './obj.js';
-import {
-    fastforward_step,
-} from './fastforward.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
 // allmain.c:newgame() calls mklev().
@@ -626,47 +623,43 @@ async function advanceFirstFreshTurn(state) {
     see_nearby_monsters(state);
 }
 
-function unavailableSecondTurnOperation(operation) {
+function unavailableElapsedTurnOperation(operation) {
     return () => {
         throw new UnsupportedTurnBoundaryError(
-            `second fresh turn reached ${operation}`,
+            `elapsed turn reached ${operation}`,
         );
     };
 }
 
-const runSecondTurnMonsterAction =
+const runElapsedTurnMonsterAction =
     adaptMonsterActionToDochugwSignature(runSimpleMonsterAction);
 
-async function moveSecondTurnMonster(monster, env) {
+async function moveElapsedTurnMonster(monster, env) {
     return movemon_singlemon(monster, {
         ...env,
         everyTurnEffect: runEveryTurnEffectWithRegionHooks,
         visionRecalc: vision_recalc,
-        clearBypasses: unavailableSecondTurnOperation(
+        clearBypasses: unavailableElapsedTurnOperation(
             'monster bypass cleanup',
         ),
         minLiquid: freshTurnMinLiquid,
-        dowear: unavailableSecondTurnOperation('monster equipment changes'),
-        restrap: unavailableSecondTurnOperation('monster hiding'),
+        dowear: unavailableElapsedTurnOperation('monster equipment changes'),
+        restrap: unavailableElapsedTurnOperation('monster hiding'),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
-        hideUnder: unavailableSecondTurnOperation('eel concealment'),
+        hideUnder: unavailableElapsedTurnOperation('eel concealment'),
         canSeeHero: () => true,
         canSeeSquare: (x, y) => cansee(x, y, env.state),
-        fightMonster: unavailableSecondTurnOperation('conflict combat'),
-        dochugwAction: runSecondTurnMonsterAction,
+        fightMonster: unavailableElapsedTurnOperation('conflict combat'),
+        dochugwAction: runElapsedTurnMonsterAction,
     });
 }
 
-// C ref: allmain.c moveloop_core(), second elapsed new-game turn. Monster
-// movement can require multiple complete list scans while the hero lacks a
-// ration. A fast hero's retained ration ends the scan even when a fast pet
-// could act again; once-per-turn upkeep waits until both sides are out.
-async function advanceSecondFreshTurn(state) {
-    if (state.moves !== 2) {
-        throw new UnsupportedTurnBoundaryError(
-            `second fresh turn reached unexpected move counter ${state.moves}`,
-        );
-    }
+// C ref: allmain.c moveloop_core(), elapsed turn. Monster movement can require
+// multiple complete list scans while the hero lacks a ration. A fast hero's
+// retained ration ends the scan even when a fast pet could act again;
+// once-per-turn upkeep waits until both sides are out. This serves every turn
+// after the first.
+async function advanceFreshTurn(state) {
     try {
         await preflightSimpleMonsterActions(state);
     } catch (error) {
@@ -676,7 +669,8 @@ async function advanceSecondFreshTurn(state) {
         boundary.reason = error.reason;
         throw boundary;
     }
-    nh_timeout_fresh_turn({ ...state, moves: 3 });
+    // C runs the per-turn timeouts against the turn it is entering.
+    nh_timeout_fresh_turn({ ...state, moves: (state.moves || 1) + 1 });
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 
     state.u.umovement -= NORMAL_SPEED;
@@ -687,11 +681,11 @@ async function advanceSecondFreshTurn(state) {
             monstersCanMove = await movemon({
                 state,
                 random,
-                moveSingleMonster: moveSecondTurnMonster,
-                clearBypasses: unavailableSecondTurnOperation(
+                moveSingleMonster: moveElapsedTurnMonster,
+                clearBypasses: unavailableElapsedTurnOperation(
                     'terminal monster bypass cleanup',
                 ),
-                deferredGoto: unavailableSecondTurnOperation(
+                deferredGoto: unavailableElapsedTurnOperation(
                     'a deferred monster level transition',
                 ),
             });
@@ -718,71 +712,13 @@ export async function moveloop_core() {
     // context.move value. Capture that value before the next command dispatch
     // below (including an internal repeat) resets it optimistically.
     if (g.context?.move) {
-        const elapsedReplayStep = g.moves || 1;
-        if (elapsedReplayStep === 1) {
+        // C has one elapsed path for every turn. The first turn keeps its
+        // own helper only because a new game's balance and monster rations
+        // are known exactly there; every later turn runs the general path.
+        if ((g.moves || 1) === 1) {
             await advanceFirstFreshTurn(g);
-        } else if (elapsedReplayStep === 2) {
-            await advanceSecondFreshTurn(g);
         } else {
-            // Later replay rows still lack general active monster actions.
-            // Reject that boundary before debiting the hero so retries cannot
-            // duplicate partial elapsed-time state changes.
-            requireNoPendingMonsterAction(g);
-            g.u.umovement -= NORMAL_SPEED;
-            // A fast hero can retain a complete action after paying for the
-            // prior command. C still scans monsters before noticing that
-            // surplus; later rows retain the residual replay boundary.
-            if (g.u.umovement < NORMAL_SPEED) {
-                // g.moves still names the preceding source turn here. This
-                // replay phase uses that one-behind value, then the
-                // hero-allocation callback advances moves before later
-                // once-per-turn effects.
-                const replayComplete = await fastforward_step(
-                    elapsedReplayStep,
-                    () => {
-                        // C ref: mon.c movemon() and allmain.c
-                        // moveloop_core(). Later replay rows still temporarily
-                        // combine terminal purge and list-order allocation.
-                        dmonsfree(g);
-                        for (let monster = g.level?.monlist ?? null;
-                            monster;
-                            monster = monster.nmon) {
-                            monster.movement += mcalcmove(monster, true, g);
-                        }
-                    }, () => {
-                        maybe_generate_rnd_mon(g);
-                    }, () => {
-                        // near_capacity() follows movemon() in C. Current
-                        // reachable commands cannot change the startup
-                        // inventory, whose initializer guarantees an
-                        // unencumbered load.
-                        u_calc_moveamt(UNENCUMBERED, g);
-                        g.moves = (g.moves || 1) + 1;
-                        g.hero_seq = g.moves * 8;
-                    }, async () => {
-                        await dosoundsInitialLevel(g);
-                    }, () => {
-                        gethungry(g, {
-                            random: { rn2 },
-                            nearCapacity: () => UNENCUMBERED,
-                        });
-                    }, () => {
-                        maybeWipeHeroEngraving(g);
-                    }, () => {
-                        finishHeroTimeEffects(g);
-                    },
-                );
-                if (!replayComplete) {
-                    g.context.turn_replay_blocked = true;
-                    throw new UnsupportedTurnBoundaryError(
-                        TURN_REPLAY_BOUNDARY,
-                    );
-                }
-            } else {
-                // A fast hero's surplus action does not start a new turn, but
-                // it still advances the per-action sequence and seer cadence.
-                finishHeroTimeEffects(g);
-            }
+            await advanceFreshTurn(g);
         }
     }
 

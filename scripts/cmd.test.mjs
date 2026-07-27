@@ -1174,9 +1174,12 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
         moves: game.moves,
         movement: game.u.umovement,
     };
+    // The elapsed path used to reject here with a replay-boundary message.
+    // Every turn now runs the general path, so the real monster-action
+    // boundary is what stops it, and it names the branch it could not take.
     await assert.rejects(
         moveloop_core(),
-        /unported monster-action phase/u,
+        /parked guard handling/u,
     );
     assert.deepEqual({
         hunger: game.u.uhunger,
@@ -1341,61 +1344,6 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     }, before);
 });
 
-test('moveloop makes residual replay exhaustion persistent', async () => {
-    await runSegment({
-        seed: 840015,
-        datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:ReplayBoundary,role:Healer,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        moves: ' ',
-    });
-    const monster = {
-        data: { mmove: 6 }, mspeed: 0, movement: 0, mhp: 1, nmon: null,
-    };
-    game.level.monlist = monster;
-    game.iflags.purge_monsters = 0;
-    game.moves = 11;
-    game.hero_seq = 88;
-    game.u.umovement = 12;
-    game.context.move = 1;
-    const before = {
-        dispatches: game._commandDispatchCount,
-        heroSeq: game.hero_seq,
-        hunger: game.u.uhunger,
-        moves: game.moves,
-    };
-    game.nhDisplay.pushKey(commandKeyCode('~'));
-
-    await assert.rejects(
-        moveloop_core(),
-        /end of the residual turn replay/u,
-    );
-    assert.equal(game.context.turn_replay_blocked, true);
-    assert.equal(game.u.umovement, 0);
-    const allocatedMovement = monster.movement;
-    assert.ok(allocatedMovement > 0);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
-    assert.deepEqual({
-        dispatches: game._commandDispatchCount,
-        heroSeq: game.hero_seq,
-        hunger: game.u.uhunger,
-        moves: game.moves,
-    }, before);
-
-    await assert.rejects(
-        moveloop_core(),
-        /end of the residual turn replay/u,
-    );
-    assert.equal(game.u.umovement, 0);
-    assert.equal(monster.movement, allocatedMovement);
-    assert.equal(game.nhDisplay.inputQueueLength, 1);
-    assert.deepEqual({
-        dispatches: game._commandDispatchCount,
-        heroSeq: game.hero_seq,
-        hunger: game.u.uhunger,
-        moves: game.moves,
-    }, before);
-});
 
 test('movement repeat counts preserve the COLNO sentinel threshold', async () => {
     await runSegment({
