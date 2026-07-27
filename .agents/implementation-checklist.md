@@ -79,8 +79,8 @@ or passing development recording is evidence to investigate, not a status.
 
 | # | Upstream function or branch family | Reachability and ordering | JavaScript owner | State, randomness, and output | Evidence | Status | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `monmove.c:dochug()`, merged from its two ports | Runs once per monster per elapsed phase, for tame and non-tame alike. C has one function; the port has two. | `js/monmove.js` `dochug_fresh_monster()` and `dochug_fresh_pet()` | Both halves consume the same `mayMove` draws. The pet half additionally holds an `rn2(40)` teleport draw and an `rn2(25)` courage draw. | `assertSimpleActionState()` in `js/unported_monster_actions.js` rejects `mconf`, `mstun`, `mflee`, and `meating` before either half runs, so both extra draws are unreachable today. | missing | Merge into one `dochug()` in C's branch order. Keep the unreachable draws; the boundary that excludes them is temporary. |
-| 2 | `monmove.c:m_move()` prologue and tame dispatch | `m_move()` owns the `mtrapped`/`mintrap()` and `meating` prologue and `if (mtmp->mtame) return postmov(..., dog_move(...))`. The port inlines all three into `dochug_fresh_pet()`. | `js/monmove.js` `m_move()` | `mintrap()` and `finish_meating()` change state; the dispatch selects the mover. | The header comment on `m_move()` already records these as uncovered. | missing | Move the prologue and tame dispatch into `m_move()` so both `dochug()` paths converge on one `m_move()` call. Do with row 1 in a single change. |
+| 1 | `monmove.c:dochug()`, merged from its two ports | Runs once per monster per elapsed phase, for tame and non-tame alike, as in C. | `js/monmove.js` `dochug()` | Reconciled four asymmetries: both kinds now redraw a hallucinated monster that did not move, both run the pre-move item and weapon gates, and both hold the `mflee` draws. | Merged at `73ada94`. Full suite 1,625 tests; development score identical across all 33 sessions. | done | None. Row 3 still owes the two omitted `mayMove` terms. |
+| 2 | `monmove.c:m_move()` prologue and tame dispatch | `m_move()` owns the `mintrap()` and `meating` prologue and the tame `dog_move()` dispatch through `postmov()`. | `js/monmove.js` `m_move()` | `mintrap()` and `finish_meating()` change state; the dispatch selects the mover. | `m_move()` already held `mintrap()` and `set_apparxy()`; it gained the `meating` countdown and the tame dispatch at `73ada94`. Both `dochug()` paths now make one `m_move()` call. | done | Give `m_move()`'s prologue its own focused test; the pet cases currently exercise it through a double. |
 | 3 | `dochug()` omitted `mayMove` terms | The leprechaun gold term and `(Conflict && !mtmp->iswiz)` sit between `is_wanderer` and `!mcansee` in C's disjunction. Both ports omit them. | `js/monmove.js` `dochug()` | Omitting a short-circuiting term changes whether the later `!mcansee && rn2(4)` draw happens. | Read from `monmove.c:dochug()` phase three. | undecided | Determine whether the boundary excludes Conflict and leprechauns. If so, state the exact source condition; otherwise port both terms. |
 | 4 | `allmain.c:moveloop_core()` elapsed phase | Runs before each command dispatch when the preceding command consumed time. | `js/allmain.js` `moveloop_core()` | Owns the hero movement debit, monster allocation, random monster generation, sounds, hunger, engraving wear, and timeouts. | Three turn-index branches around `js/allmain.js:719`. | missing | Replace the `elapsedReplayStep` dispatch with one source-shaped path. Closure condition 2. |
 | 5 | `js/fastforward.js` replay rows | Reached for every turn after the second. | `js/fastforward.js` | 30 literal `rn2()` calls copied from one recording. | Eight rows covering source turns 3 through 10. | missing | Delete each row once real logic makes its calls. Never add rows. Closure condition 1. |
@@ -92,14 +92,10 @@ or passing development recording is evidence to investigate, not a status.
 
 ## Missing work by owner
 
-1. `js/monmove.js` `dochug()` and `m_move()`: rows 1 and 2. These are one
-   change. Splitting them leaves a `dochug()` that still inlines `m_move()`'s
-   prologue. Do this first, because every later row runs through the merged
-   path.
-2. `js/allmain.js` `moveloop_core()` and `js/fastforward.js`: rows 4 and 5. A
+1. `js/allmain.js` `moveloop_core()` and `js/fastforward.js`: rows 4 and 5. A
    replay row can only be deleted once the general path makes its calls, so
-   these advance together.
-3. Source tracing: rows 3 and 6 through 10. Each needs its upstream branches
+   these advance together. This is now the front of the queue.
+2. Source tracing: rows 3 and 6 through 10. Each needs its upstream branches
    traced through the ending event before it can take a status other than
    `undecided`.
 
@@ -140,7 +136,8 @@ conclusions about where the sequence breaks.
 
 Current mode: Implementation
 
-Reason: rows 1, 2, 4, and 5 are `missing`, and rows 3 and 6 through 10 are
+Reason: rows 4 and 5 are `missing`, and rows 3 and 6 through 10 are
 `undecided` pending source tracing. Neither closure condition is met:
 `js/fastforward.js` still holds eight replay rows, and `moveloop_core()` still
-branches on the turn index.
+branches on the turn index. Rows 1 and 2 are `done` at `73ada94`, which is the
+prerequisite for the rest: every later row runs through the merged path.
