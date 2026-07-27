@@ -42,13 +42,26 @@ import { initialize_symbols_from_options } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 
 const RECORDER_SYSTEM_OPTIONS = Object.freeze({
-    // nethack-c/upstream/sys/libnh/sysconf.  Login identity is not part of
-    // the contest input, so an unset login name represents the ordinary
-    // unprivileged recorder user rather than granting browser-side wizard
-    // access.
+    // nethack-c/upstream/sys/unix/sysconf, which nethack-c/build-recorder.sh
+    // installs into the recorder's HACKDIR.
     wizards: 'root games',
     explorers: '*',
 });
+
+// The account that owns the recorder process.  check_user_string() matches it
+// against sysopt.wizards above, reading it from get_unix_pw() rather than from
+// any game input, so like the pinned seed and date it belongs to the fixed
+// recorder environment.
+//
+// Recorded evidence for both halves of that environment: sessions without a
+// name option reach tty_askname(), so USER, LOGNAME, and getlogin() are all
+// unset and whoami() never fills plname; and no playmode:debug session carries
+// the "Only users root or games may access debug (wizard) mode." message that
+// wd_message() prints on denial, so getpwuid() resolves to an authorized
+// account.  Debug mode changes starting inventory and dungeon PRNG order, so a
+// port that denies it diverges from the reference within the first hundred
+// random-number calls.
+const RECORDER_ACCOUNT = 'root';
 
 function buildEnglishList(value) {
     const words = String(value).trim().split(/\s+/u).filter(Boolean);
@@ -59,8 +72,8 @@ function buildEnglishList(value) {
 
 // C refs: options.c:set_playmode() and unixmain.c:check_user_string().
 // This runs after tty initialization and before plnamesuffix(), matching the
-// Unix startup owner.  A caller can supply loginName for focused authorization
-// tests; the replay contract deliberately has no operating-system identity.
+// Unix startup owner.  loginName defaults to RECORDER_ACCOUNT; a caller can
+// pass another name, or '' for an unauthorized account, to test either branch.
 export function set_playmode(state = game, { loginName } = {}) {
     const flags = state.flags ??= {};
     const iflags = state.iflags ??= {};
@@ -68,7 +81,9 @@ export function set_playmode(state = game, { loginName } = {}) {
     sysopt.wizards ??= RECORDER_SYSTEM_OPTIONS.wizards;
     sysopt.explorers ??= RECORDER_SYSTEM_OPTIONS.explorers;
 
-    const username = String(loginName ?? state.loginName ?? '');
+    const username = String(
+        loginName ?? state.loginName ?? RECORDER_ACCOUNT,
+    );
     const authorized = (configuredUsers) => {
         const text = String(configuredUsers ?? '');
         if (text.startsWith('*')) return true;
@@ -303,6 +318,13 @@ export class NethackGame {
         // plnamesuffix().  Its decision changes initial inventory and dungeon
         // PRNG order, so it cannot be deferred to wd_message().
         set_playmode(g);
+
+        // unixmain.c overwrites the plnamelen that set_playmode() just set for
+        // wizard mode: gp.plnamelen = exact_username ? strlen(plname) : 0.
+        // exact_username comes from whoami(), which never fills plname in the
+        // recorder environment (see RECORDER_ACCOUNT), so this is always 0 and
+        // plnamesuffix() searches the whole name for a hyphen.
+        g.gp.plnamelen = 0;
 
         // C filters generic Unix usernames, prompts when necessary, then
         // strips any role/race/gender/alignment suffix before selection.

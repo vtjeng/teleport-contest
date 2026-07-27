@@ -736,38 +736,43 @@ test('wd_message preserves denied-mode message and cleanup order', async () => {
 });
 
 test('set_playmode applies recorder authorization before new-game state', () => {
+    // No loginName means the recorder account, which sysopt.wizards lists.
+    const authorized = {
+        plname: 'FreshDiff',
+        flags: { debug: true, explore: false },
+        iflags: {},
+        gp: {},
+    };
+    set_playmode(authorized);
+    assert.equal(authorized.wizard, true);
+    assert.equal(authorized.discover, false);
+    assert.equal(authorized.plname, 'wizard');
+    // options.c:set_playmode() sets plnamelen from the new plname; the
+    // unixmain.c caller then overwrites it with 0.
+    assert.equal(authorized.gp.plnamelen, 6);
+    assert.equal(authorized.iflags.wiz_error_flag, undefined);
+    assert.deepEqual(authorized.sysopt, {
+        wizards: 'root games',
+        explorers: '*',
+    });
+
+    // An account outside sysopt.wizards falls through to explore mode.
     const denied = {
         plname: 'FreshDiff',
         flags: { debug: true, explore: false },
         iflags: {},
         gp: {},
     };
-    set_playmode(denied);
+    set_playmode(denied, { loginName: 'nobody' });
     assert.equal(denied.wizard, false);
     assert.equal(denied.discover, true);
     assert.deepEqual(denied.flags, { debug: false, explore: true });
     assert.equal(denied.iflags.wiz_error_flag, true);
     assert.equal(denied.iflags.deferred_X, false);
-    assert.deepEqual(denied.sysopt, {
-        wizards: 'root games',
-        explorers: '*',
-    });
-
-    const authorized = {
-        plname: 'FreshDiff',
-        flags: { debug: true, explore: false },
-        iflags: {},
-        gp: {},
-        sysopt: { wizards: 'root games', explorers: '*' },
-    };
-    set_playmode(authorized, { loginName: 'root' });
-    assert.equal(authorized.wizard, true);
-    assert.equal(authorized.discover, false);
-    assert.equal(authorized.plname, 'wizard');
-    assert.equal(authorized.gp.plnamelen, 6);
+    assert.equal(denied.plname, 'FreshDiff');
 });
 
-test('denied debug mode becomes explore before initial inventory generation', async () => {
+test('debug mode is authorized and diverges from explore mode', async () => {
     const runMode = async (mode) => {
         const session = await runSegment({
             seed: 9_753_186,
@@ -796,24 +801,38 @@ test('denied debug mode becomes explore before initial inventory generation', as
     };
 
     const explore = await runMode('explore');
-    const deniedDebug = await runMode('debug');
+    const debug = await runMode('debug');
+
+    // u_init.c:u_init() adds the wand of wishing on `if (discover)` alone, so
+    // authorized wizard mode does not receive one.  Before authorization
+    // worked, playmode:debug fell through to explore and wrongly got it.
     assert.equal(explore.inventory.some(([otyp]) => otyp === WAN_WISHING), true);
-    assert.deepEqual(deniedDebug.inventory, explore.inventory);
-    assert.deepEqual(deniedDebug.rng, explore.rng);
+    assert.equal(debug.inventory.some(([otyp]) => otyp === WAN_WISHING), false);
+
     assert.deepEqual(
         {
-            discover: deniedDebug.discover,
-            wizard: deniedDebug.wizard,
-            flags: deniedDebug.flags,
-            wizError: deniedDebug.wizError,
+            discover: debug.discover,
+            wizard: debug.wizard,
+            flags: debug.flags,
+            wizError: debug.wizError,
         },
         {
-            discover: true,
-            wizard: false,
-            flags: { debug: false, explore: true },
-            wizError: true,
+            discover: false,
+            wizard: true,
+            flags: { debug: true, explore: false },
+            wizError: false,
         },
     );
+
+    // dungeon.c short-circuits `!wizard && ... rn2(100)` in both
+    // place_level() and dungeon branch placement, so wizard mode skips
+    // random-number calls that explore mode makes.
+    assert.equal(debug.rng.length < explore.rng.length, true);
+    // The two runs share the startup calls that precede dungeon placement.
+    const divergence = debug.rng.findIndex(
+        (call, index) => call !== explore.rng[index],
+    );
+    assert.equal(divergence > 0, true);
 });
 
 test('runSegment shows welcome More before an unset tutorial query', async () => {
