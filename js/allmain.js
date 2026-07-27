@@ -514,8 +514,8 @@ async function moveElapsedTurnMonster(monster, env) {
 // C ref: allmain.c moveloop_core(), elapsed turn. Monster movement can require
 // multiple complete list scans while the hero lacks a ration. A fast hero's
 // retained ration ends the scan even when a fast pet could act again;
-// once-per-turn upkeep waits until both sides are out. This serves every turn
-// after the first.
+// once-per-turn upkeep waits until both sides are out. This serves the first
+// elapsed command and every subsequent elapsed command.
 async function advanceElapsedTurn(state) {
     let preflight;
     try {

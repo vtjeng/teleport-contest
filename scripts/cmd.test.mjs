@@ -178,6 +178,8 @@ test('blind obstacle refusal records exact tactile viewing vectors',
             moves: '',
         });
         game.flags.mention_walls = false;
+        const heroLastSeenType = 0x7F;
+        game.level.lastseentyp[game.u.ux][game.u.uy] = heroLastSeenType;
         for (const typ of [HWALL, STONE]) {
             for (let dy = -1; dy <= 1; ++dy) {
                 for (let dx = -1; dx <= 1; ++dx) {
@@ -188,6 +190,7 @@ test('blind obstacle refusal records exact tactile viewing vectors',
                     destination.typ = typ;
                     destination.seenv = 0;
                     destination.remembered_glyph = null;
+                    game.level.lastseentyp[x][y] = 0x7E;
 
                     assert.equal(
                         await test_move(
@@ -213,6 +216,16 @@ test('blind obstacle refusal records exact tactile viewing vectors',
                     assert.equal(
                         destination.disp_ch,
                         destination.remembered_glyph.ch,
+                    );
+                    assert.equal(
+                        game.level.lastseentyp[x][y],
+                        typ,
+                        'feel_location records the tactile terrain type',
+                    );
+                    assert.equal(
+                        game.level.lastseentyp[game.u.ux][game.u.uy],
+                        heroLastSeenType,
+                        'feel_location does not rewrite unrelated cells',
                     );
                 }
             }

@@ -62,6 +62,12 @@ import {
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 
+function deferred() {
+    let resolve;
+    const promise = new Promise((accept) => { resolve = accept; });
+    return { promise, resolve };
+}
+
 function namingState() {
     const archeologist = roles.find((role) => role.filecode === 'Arc');
     const state = {
@@ -281,6 +287,62 @@ test('blind single-object look_here uses the source surface and output order',
             ]);
             assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
         }
+    });
+
+test('blind single-object look_here awaits each output owner in source order',
+    async () => {
+        const state = namingState();
+        state.u.ux = state.u.uy = 1;
+        state.u.uprops[BLINDED] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        state.level = { at: () => ({ typ: ROOM }) };
+        const dart = objectOf(state, DART);
+        const tactile = deferred();
+        const engraving = deferred();
+        const item = deferred();
+        const events = [];
+
+        const output = look_here_single_object(dart, state, {
+            message: (text) => {
+                events.push(text);
+                return text.startsWith('You try') ? tactile.promise
+                    : item.promise;
+            },
+            readEngraving: () => {
+                events.push('read engraving');
+                return engraving.promise;
+            },
+        });
+
+        await Promise.resolve();
+        assert.deepEqual(events, [
+            'You try to feel what is lying here on the floor.',
+        ]);
+        assert.notEqual(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+
+        tactile.resolve();
+        await Promise.resolve();
+        assert.deepEqual(events, [
+            'You try to feel what is lying here on the floor.',
+            'read engraving',
+        ]);
+        assert.notEqual(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+
+        engraving.resolve();
+        await Promise.resolve();
+        assert.deepEqual(events, [
+            'You try to feel what is lying here on the floor.',
+            'read engraving',
+            'You feel here a dart.',
+        ]);
+        assert.notEqual(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+
+        item.resolve();
+        await output;
+        assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
     });
 
 test('single-object look_here requires its engraving owner before output',

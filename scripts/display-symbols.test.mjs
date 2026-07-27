@@ -4789,7 +4789,25 @@ test('status uses source attribute order and exceptional strength text', async (
         /St:18\/\*\* Dx:15 Co:16 In:13 Wi:14 Ch:17 Chaotic$/u,
         'status renders ACURR rather than raw base attributes',
     );
+
+    state.iflags = parseNethackrc(
+        'OPTIONS=hilite_status:strength/<119/red',
+    ).iflags;
+    await bot();
+    const strengthColumn = row(22).indexOf('St:18/**');
+    assert.notEqual(strengthColumn, -1);
+    assert.equal(
+        state.nhDisplay.grid[22][strengthColumn].color,
+        CLR_RED,
+        'numeric status highlighting receives effective Strength',
+    );
     state.u.atemp[0] = 0;
+    await bot();
+    assert.equal(
+        state.nhDisplay.grid[22][strengthColumn].color,
+        NO_COLOR,
+        'numeric highlighting exits when effective Strength crosses threshold',
+    );
 
     state.flags.showexp = false;
     state.flags.time = false;

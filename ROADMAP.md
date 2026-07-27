@@ -53,13 +53,14 @@ prefix and leaving the pending phase retryable.
 The two structural replay conditions are complete: `js/fastforward.js` is gone
 at `263540f`, and the turn-index special cases in `moveloop_core()` are gone at
 `9afade25`. Periodic attribute upkeep now restores the long-run PRNG order.
-Natural runtime monster generation, doorless-doorway movement, the later
-safe-wait tail, wall refusal, ordinary starting-pet interaction, and
-single-object floor description all match the checked-in six-case matrix
-through `7363380`, including the timed fleeing continuation after a safe-pet
-refusal. The boundary inventory has no remaining missing or undecided row; the
-first fixed-range pass's production and test findings are resolved, and the
-expanded range is ready for a new full correctness pass. The goal does not
+Natural runtime monster generation, doorless-doorway movement, the move-600
+safe-wait tail, wall and stone refusal, ordinary and immediately fleeing
+starting-pet interaction, sighted and blind single-object description, and the
+HUNGRY-to-WEAK transition all match the checked-in eleven-case matrix through
+`f509366`. That matrix covers 64,581 PRNG calls and 1,750 complete screens,
+attributes, and cursors. The boundary inventory has no remaining missing or
+undecided row; both fixed-range audit passes' production findings are resolved,
+and the expanded range is undergoing its final review. The goal does not
 close at a particular score; `.agents/implementation-checklist.md` records the
 source evidence and audit-readiness handoff.
 
