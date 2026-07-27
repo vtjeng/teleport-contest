@@ -8,13 +8,31 @@ import {
     ALL_TRAPS,
     ACID_RES,
     ANTIMAGIC,
+    COLD_RES,
+    DISINT_RES,
     FEMALE,
+    FIRE_RES,
     G_GENOD,
+    M_SEEN_ACID,
+    M_SEEN_COLD,
+    M_SEEN_DISINT,
+    M_SEEN_ELEC,
+    M_SEEN_FIRE,
+    M_SEEN_MAGR,
+    M_SEEN_NOTHING,
+    M_SEEN_POISON,
+    M_SEEN_REFL,
+    M_SEEN_SLEEP,
     MALE,
+    NATTK,
     NEUTRAL,
     NO_TRAP,
     NUM_MGENDERS,
     POISON_RES,
+    REFLECTING,
+    SHOCK_RES,
+    SLEEP_RES,
+    Upolyd,
     W_ACCESSORY,
     W_ARMC,
     W_ARMOR,
@@ -23,6 +41,7 @@ import {
 import { effective_attribute } from './attrib.js';
 import { artifact_defends } from './artifacts.js';
 import { game } from './gstate.js';
+import { highc } from './hacklib.js';
 import * as M from './monsters.js';
 import { ALCHEMY_SMOCK } from './objects.js';
 import { rn2, rnd } from './rng.js';
@@ -973,6 +992,416 @@ export function dead_species(m_idx, egg = false, env = {}) {
     }
     return Boolean((current.mvflags & G_GENOD)
         || (alternate.mvflags & G_GENOD));
+}
+
+// Pure functions of mondata.c, in that file's definition order, together with
+// the mondata.h and monattk.h macros they need.  None of these makes a
+// random-number call, writes output, or changes state, so porting one cannot
+// change what already-working code does.  The game does not call most of them
+// yet; scripts/mondata-pure.test.mjs pins each result to values read from C.
+//
+// Left for later, with the reason each one is not pure or not yet portable:
+//   Resists_Elem            already ported above as monster_resists_element
+//   resists_blnd            calls impossible()
+//   defended, resists_drli, resists_blnd_by_arti, can_blnd
+//                           need artifact and inventory support that the port
+//                           does not have yet
+//   get_atkdam_type         ROLL_FROM() is a random-number call
+//   pronoun_gender          calls rn2()
+//   set_mon_data, give_u_to_m_resistances, mon_learns_traps, mons_see_trap,
+//   monstseesu, monstunseesu
+//                           change monster or hero state
+//   can_blow, can_chant, can_be_strangled
+//                           their hero branches read Strangled and Breathless,
+//                           which the port does not model yet
+//   levl_follower           needs mon_has_amulet() and is_fshk()
+//   can_track               needs u_wield_art()
+//   name_to_monclass        needs def_monsyms[], makesingular(), strstri()
+
+// C ref: mondata.h monsndx().
+export function monsndx(species) { return species?.pmidx; }
+
+// C compares a species against a mons[] entry by pointer, as in
+// `ptr == &mons[PM_GREMLIN]`. pmidx is that entry's index, so comparing it
+// against the same constant gives the same answer without needing the table.
+function speciesIs(species, ...indexes) {
+    return indexes.includes(monsndx(species));
+}
+
+// C ref: mondata.h hates_light().
+export function hates_light(species) {
+    return speciesIs(species, M.PM_GREMLIN);
+}
+
+// C refs: mondata.h completelyburns(), completelyrots(), completelyrusts().
+export function completelyburns(species) {
+    return speciesIs(species, M.PM_PAPER_GOLEM, M.PM_STRAW_GOLEM);
+}
+export function completelyrots(species) {
+    return speciesIs(species, M.PM_WOOD_GOLEM, M.PM_LEATHER_GOLEM);
+}
+export function completelyrusts(species) {
+    return speciesIs(species, M.PM_IRON_GOLEM);
+}
+
+// C ref: monattk.h DISTANCE_ATTK_TYPE().
+function DISTANCE_ATTK_TYPE(aatyp) {
+    return aatyp === M.AT_SPIT || aatyp === M.AT_BREA
+        || aatyp === M.AT_MAGC || aatyp === M.AT_GAZE;
+}
+
+// C ref: mondata.c poly_when_stoned(). G_EXTINCT is deliberately allowed.
+export function poly_when_stoned(species, state = game) {
+    return is_golem(species) && !speciesIs(species, M.PM_STONE_GOLEM)
+        && !((state.svm?.mvitals?.[M.PM_STONE_GOLEM]?.mvflags ?? 0) & G_GENOD);
+}
+
+// C ref: mondata.c ranged_attk().
+export function ranged_attk(species) {
+    return Boolean(species?.mattk?.some(
+        (attack) => DISTANCE_ATTK_TYPE(attack.aatyp),
+    ));
+}
+
+// C ref: mondata.c mstrength(). The three name comparisons use the neutral
+// pmname, which is pmnames[NEUTRAL] in C.
+export function mstrength(species) {
+    let tmp = species.mlevel;
+    if (tmp > 49) tmp = Math.trunc((2 * (tmp - 6)) / 4);
+
+    let n = (species.geno & M.G_SGROUP) ? 1 : 0;
+    n += ((species.geno & M.G_LGROUP) ? 1 : 0) << 1;
+    if (mstrength_ranged_attk(species)) n++;
+    n += species.ac < 4 ? 1 : 0;
+    n += species.ac < 0 ? 1 : 0;
+    n += species.mmove >= 18 ? 1 : 0;
+
+    const neutralName = species.pmnames?.[NEUTRAL];
+    for (let i = 0; i < NATTK; i++) {
+        const aatyp = species.mattk[i].aatyp;
+        n += aatyp > 0 ? 1 : 0;
+        n += aatyp === M.AT_MAGC ? 1 : 0;
+        n += (aatyp === M.AT_WEAP && (species.mflags2 & M.M2_STRONG)) ? 1 : 0;
+        if (aatyp === M.AT_EXPL) {
+            const adtyp = species.mattk[i].adtyp;
+            // Freezing, flaming, and shocking spheres can destroy equipment;
+            // yellow and black lights cannot.
+            n += (adtyp === M.AD_COLD || adtyp === M.AD_FIRE) ? 3
+                : adtyp === M.AD_ELEC ? 5
+                    : 0;
+        }
+    }
+
+    for (let i = 0; i < NATTK; i++) {
+        const adtyp = species.mattk[i].adtyp;
+        if (adtyp === M.AD_DRLI || adtyp === M.AD_STON || adtyp === M.AD_DRST
+            || adtyp === M.AD_DRDX || adtyp === M.AD_DRCO
+            || adtyp === M.AD_WERE) {
+            n += 2;
+        } else if (neutralName !== 'grid bug') {
+            // C's strcmp() is non-zero for every name except "grid bug".
+            n += adtyp !== M.AD_PHYS ? 1 : 0;
+        }
+        n += (species.mattk[i].damd * species.mattk[i].damn) > 23 ? 1 : 0;
+    }
+
+    // Leprechauns have many hit dice but do little damage.
+    if (neutralName === 'leprechaun') n -= 2;
+    // Soldier ants and killer bees are underestimated by the formula, so they
+    // get +2 here, which becomes +1 after the division below.
+    if (neutralName === 'killer bee' || neutralName === 'soldier ant') n += 2;
+
+    if (n === 0) tmp -= 1;
+    else if (n < 6) tmp += Math.trunc(n / 3) + 1;
+    else tmp += Math.trunc(n / 2);
+    return tmp >= 0 ? tmp : 0;
+}
+
+// C ref: mondata.c mstrength_ranged_attk(), which is static in C.
+function mstrength_ranged_attk(species) {
+    const mask = (1 << M.AT_BREA) | (1 << M.AT_SPIT) | (1 << M.AT_GAZE);
+    for (let i = 0; i < NATTK; i++) {
+        const aatyp = species.mattk[i].aatyp;
+        if (aatyp >= M.AT_WEAP || (aatyp < 32 && (mask & (1 << aatyp)) !== 0))
+            return true;
+    }
+    return false;
+}
+
+// C ref: mondata.c mon_hates_blessings().
+export function mon_hates_blessings(monster) {
+    return is_vampshifter(monster) || hates_blessings(monster.data);
+}
+
+// C ref: mondata.c hates_blessings().
+export function hates_blessings(species) {
+    return is_undead(species) || is_demon(species);
+}
+
+// C ref: mondata.c mon_hates_light().
+export function mon_hates_light(monster) {
+    return hates_light(monster.data);
+}
+
+// C ref: mondata.c sliparm().
+export function sliparm(species) {
+    return is_whirly(species) || species.msize <= M.MZ_SMALL
+        || noncorporeal(species);
+}
+
+// C ref: mondata.c breakarm().
+export function breakarm(species) {
+    if (sliparm(species)) return false;
+    return bigmonst(species)
+        || (species.msize > M.MZ_SMALL && !humanoid(species))
+        // Humanoids that still cannot wear a suit.
+        || speciesIs(species, M.PM_MARILITH, M.PM_WINGED_GARGOYLE);
+}
+
+// C ref: mondata.c cantvomit(). Rats, mice, and horses cannot vomit.
+export function cantvomit(species) {
+    if (species.mlet === M.S_RODENT
+        && !speciesIs(species, M.PM_ROCK_MOLE, M.PM_WOODCHUCK)) {
+        return true;
+    }
+    return speciesIs(species, M.PM_WARHORSE, M.PM_HORSE, M.PM_PONY);
+}
+
+// C ref: mondata.c num_horns().
+export function num_horns(species) {
+    switch (monsndx(species)) {
+    case M.PM_HORNED_DEVIL:
+    case M.PM_MINOTAUR:
+    case M.PM_ASMODEUS:
+    case M.PM_BALROG:
+        return 2;
+    case M.PM_WHITE_UNICORN:
+    case M.PM_GRAY_UNICORN:
+    case M.PM_BLACK_UNICORN:
+    case M.PM_KI_RIN:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+// C ref: mondata.c dmgtype_fromattack(). C returns a pointer into mattk[] and
+// null when nothing matches; this returns the attack object or null.
+export function dmgtype_fromattack(species, dtyp, atyp) {
+    for (let i = 0; i < NATTK; i++) {
+        const attack = species.mattk[i];
+        if (attack.adtyp === dtyp
+            && (atyp === M.AT_ANY || attack.aatyp === atyp)) {
+            return attack;
+        }
+    }
+    return null;
+}
+
+// C ref: mondata.c max_passive_dmg(). resists_acid() and its siblings are the
+// monst.h macros for Resists_Elem(), ported above as
+// monster_resists_element().
+export function max_passive_dmg(mdef, magr, state = game) {
+    let multi2 = 0;
+    // Each of magr's attacks can draw passive damage.
+    for (let i = 0; i < NATTK; i++) {
+        switch (magr.data.mattk[i].aatyp) {
+        case M.AT_CLAW: case M.AT_BITE: case M.AT_KICK: case M.AT_BUTT:
+        case M.AT_TUCH: case M.AT_STNG: case M.AT_HUGS: case M.AT_ENGL:
+        case M.AT_TENT: case M.AT_WEAP:
+            multi2++;
+            break;
+        default:
+            break;
+        }
+    }
+
+    let dmg = 0;
+    for (let i = 0; i < NATTK; i++) {
+        const attack = mdef.data.mattk[i];
+        if (attack.aatyp !== M.AT_NONE && attack.aatyp !== M.AT_BOOM) continue;
+        const adtyp = attack.adtyp;
+        if ((adtyp === M.AD_FIRE && completelyburns(magr.data))
+            || (adtyp === M.AD_DCAY && completelyrots(magr.data))
+            || (adtyp === M.AD_RUST && completelyrusts(magr.data))) {
+            dmg = magr.mhp;
+        } else if ((adtyp === M.AD_ACID
+                && !monster_resists_element(magr, ACID_RES, state))
+            || (adtyp === M.AD_COLD
+                && !monster_resists_element(magr, COLD_RES, state))
+            || (adtyp === M.AD_FIRE
+                && !monster_resists_element(magr, FIRE_RES, state))
+            || (adtyp === M.AD_ELEC
+                && !monster_resists_element(magr, SHOCK_RES, state))
+            || adtyp === M.AD_PHYS) {
+            dmg = attack.damn;
+            if (!dmg) dmg = mdef.data.mlevel + 1;
+            dmg *= attack.damd;
+        }
+        dmg *= multi2;
+        break;
+    }
+    return dmg;
+}
+
+// C ref: mondata.c gender(). Returns 2 for neuter, else the female flag.
+export function gender(monster) {
+    if (is_neuter(monster.data)) return 2;
+    return monster.female;
+}
+
+// C ref: mondata.c big_little_match().
+export function big_little_match(montyp1, montyp2, state = game) {
+    if (montyp1 === montyp2) return true;
+    // Growing from one class letter to another is assumed impossible.
+    if (state.mons[montyp1].mlet !== state.mons[montyp2].mlet) return false;
+    for (let l = montyp1, b; (b = little_to_big(l)) !== l; l = b) {
+        if (b === montyp2) return true;
+    }
+    for (let l = montyp2, b; (b = little_to_big(l)) !== l; l = b) {
+        if (b === montyp1) return true;
+    }
+    return false;
+}
+
+// C ref: mondata.c raceptr().
+export function raceptr(monster, state = game) {
+    if (monster === state.youmonst && !Upolyd(state))
+        return state.mons[state.urace.mnum];
+    return monster.data;
+}
+
+// C ref: mondata.c locoverbs[]. locomotion() above reads indexes 0 and 1,
+// where flys and flyl hold the same words, so it does not distinguish the two.
+// stagger() reads indexes 2 and 3, where they differ.
+const LOCOVERBS = Object.freeze({
+    levitate: ['float', 'Float', 'wobble', 'Wobble'],
+    flys: ['fly', 'Fly', 'flutter', 'Flutter'],
+    flyl: ['fly', 'Fly', 'stagger', 'Stagger'],
+    slither: ['slither', 'Slither', 'falter', 'Falter'],
+    ooze: ['ooze', 'Ooze', 'tremble', 'Tremble'],
+    immobile: ['wiggle', 'Wiggle', 'pulsate', 'Pulsate'],
+    crawl: ['crawl', 'Crawl', 'falter', 'Falter'],
+});
+
+// C ref: mondata.c stagger().
+export function stagger(species, def) {
+    const locoindx = def[0] !== highc(def[0]) ? 2 : 3;
+    if (is_floater(species)) return LOCOVERBS.levitate[locoindx];
+    if (is_flyer(species) && species.msize <= M.MZ_SMALL)
+        return LOCOVERBS.flys[locoindx];
+    if (is_flyer(species) && species.msize > M.MZ_SMALL)
+        return LOCOVERBS.flyl[locoindx];
+    if (slithy(species)) return LOCOVERBS.slither[locoindx];
+    if (amorphous(species)) return LOCOVERBS.ooze[locoindx];
+    if (!species.mmove) return LOCOVERBS.immobile[locoindx];
+    if (nolimbs(species)) return LOCOVERBS.crawl[locoindx];
+    return def;
+}
+
+// C ref: mondata.c on_fire().
+export function on_fire(species, mattk) {
+    switch (monsndx(species)) {
+    case M.PM_FLAMING_SPHERE:
+    case M.PM_FIRE_VORTEX:
+    case M.PM_FIRE_ELEMENTAL:
+    case M.PM_SALAMANDER:
+        return 'already on fire';
+    case M.PM_WATER_ELEMENTAL:
+    case M.PM_FOG_CLOUD:
+    case M.PM_STEAM_VORTEX:
+        return 'boiling';
+    case M.PM_ICE_VORTEX:
+    case M.PM_GLASS_GOLEM:
+        return 'melting';
+    case M.PM_STONE_GOLEM:
+    case M.PM_CLAY_GOLEM:
+    case M.PM_GOLD_GOLEM:
+    case M.PM_AIR_ELEMENTAL:
+    case M.PM_EARTH_ELEMENTAL:
+    case M.PM_DUST_VORTEX:
+    case M.PM_ENERGY_VORTEX:
+        return 'heating up';
+    default:
+        return mattk.aatyp === M.AT_HUGS ? 'being roasted' : 'on fire';
+    }
+}
+
+// C ref: mondata.c msummon_environ(). C returns the substance and writes the
+// container word through a pointer; this returns both.
+export function msummon_environ(species) {
+    const mndx = species.mlet === M.S_ANGEL ? M.PM_ANGEL
+        : species.mlet === M.S_LIGHT ? M.PM_YELLOW_LIGHT
+            : monsndx(species);
+    switch (mndx) {
+    case M.PM_WATER_DEMON:
+    case M.PM_AIR_ELEMENTAL:
+    case M.PM_WATER_ELEMENTAL:
+    case M.PM_FOG_CLOUD:
+    case M.PM_ICE_VORTEX:
+    case M.PM_FREEZING_SPHERE:
+        return { what: 'vapor', cloud: 'cloud' };
+    case M.PM_STEAM_VORTEX:
+        return { what: 'steam', cloud: 'cloud' };
+    case M.PM_ENERGY_VORTEX:
+    case M.PM_SHOCKING_SPHERE:
+        return { what: 'sparks', cloud: 'shower' };
+    case M.PM_EARTH_ELEMENTAL:
+    case M.PM_DUST_VORTEX:
+        return { what: 'dust', cloud: 'cloud' };
+    case M.PM_FIRE_ELEMENTAL:
+    case M.PM_FIRE_VORTEX:
+    case M.PM_FLAMING_SPHERE:
+        return { what: 'flame', cloud: 'ball' };
+    case M.PM_ANGEL:        // any 'A'-class
+    case M.PM_YELLOW_LIGHT: // any 'y'-class
+        return { what: 'light', cloud: 'flash' };
+    default:
+        return { what: 'smoke', cloud: 'cloud' };
+    }
+}
+
+// C ref: mondata.c olfaction().
+export function olfaction(species) {
+    return !(is_golem(species)
+        || species.mlet === M.S_EYE      // spheres
+        || species.mlet === M.S_JELLY || species.mlet === M.S_PUDDING
+        || species.mlet === M.S_BLOB || species.mlet === M.S_VORTEX
+        || species.mlet === M.S_ELEMENTAL
+        || species.mlet === M.S_FUNGUS   // mushrooms and fungi
+        || species.mlet === M.S_LIGHT);
+}
+
+// C ref: mondata.c cvt_adtyp_to_mseenres().
+export function cvt_adtyp_to_mseenres(adtyp) {
+    switch (adtyp) {
+    case M.AD_MAGM: return M_SEEN_MAGR;
+    case M.AD_FIRE: return M_SEEN_FIRE;
+    case M.AD_COLD: return M_SEEN_COLD;
+    case M.AD_SLEE: return M_SEEN_SLEEP;
+    case M.AD_DISN: return M_SEEN_DISINT;
+    case M.AD_ELEC: return M_SEEN_ELEC;
+    case M.AD_DRST: return M_SEEN_POISON;
+    case M.AD_ACID: return M_SEEN_ACID;
+    // M_SEEN_REFL has no matching AD_foo type.
+    default: return M_SEEN_NOTHING;
+    }
+}
+
+// C ref: mondata.c cvt_prop_to_mseenres().
+export function cvt_prop_to_mseenres(prop) {
+    switch (prop) {
+    case ANTIMAGIC: return M_SEEN_MAGR;
+    case FIRE_RES: return M_SEEN_FIRE;
+    case COLD_RES: return M_SEEN_COLD;
+    case SLEEP_RES: return M_SEEN_SLEEP;
+    case DISINT_RES: return M_SEEN_DISINT;
+    case POISON_RES: return M_SEEN_POISON;
+    case SHOCK_RES: return M_SEEN_ELEC;
+    case ACID_RES: return M_SEEN_ACID;
+    case REFLECTING: return M_SEEN_REFL;
+    default: return M_SEEN_NOTHING;
+    }
 }
 
 export const _mondataInternals = Object.freeze({
