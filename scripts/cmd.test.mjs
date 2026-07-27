@@ -1320,6 +1320,12 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     });
     const monster = {
         data: { mmove: 12 }, movement: 12, mhp: 1, nmon: null,
+        // C's mcanmove is a bitfield every real monster carries. Without it
+        // assertSimpleActionState() returns early and never checks anything,
+        // so this fixture would not be the actionable monster it claims.
+        mcanmove: true,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
     };
     game.level.monlist = monster;
     game.u.umovement = 24;
@@ -1332,7 +1338,12 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     };
     game.nhDisplay.pushKey(commandKeyCode('~'));
 
-    await assert.rejects(moveloop_core(), /unported monster-action phase/u);
+    // The replay path rejected with a generic message. The real boundary
+    // names the branch it could not take.
+    await assert.rejects(
+        moveloop_core(),
+        /monster attack on the hero/u,
+    );
     assert.equal(game.u.umovement, 24);
     assert.equal(monster.movement, 12);
     assert.equal(game.nhDisplay.inputQueueLength, 1);
