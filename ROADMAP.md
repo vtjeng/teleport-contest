@@ -52,13 +52,15 @@ retryable.
 
 The two structural replay conditions are complete: `js/fastforward.js` is gone
 at `263540f`, and the turn-index special cases in `moveloop_core()` are gone at
-`9afade25`. The newly confirmed periodic-attribute-upkeep gap is implemented
-and its exact 60-wait reproduction now matches. Behavioral closure remains
-blocked by the confirmed in-boundary wall-refusal, starting-pet-swap, and
-floor-description gaps, plus natural runtime-monster-generation evidence that
-has not yet been repeated with the restored upkeep PRNG order. The goal does
-not close at a particular score; `.agents/implementation-checklist.md` records
-the source evidence and dependency order.
+`9afade25`. Periodic attribute upkeep now restores the long-run PRNG order.
+Natural runtime monster generation through the generated monster's first
+action, wall refusal, ordinary starting-pet interaction, and single-object
+floor description all match fresh C reproductions at `aa57304`. Behavioral
+closure remains blocked: extending the natural-generation case by one wait
+exposes an in-boundary ordinary-monster move through a doorless doorway that
+the JavaScript admission seam still rejects. The goal does not close at a
+particular score; `.agents/implementation-checklist.md` records the source
+evidence and dependency order.
 
 `.agents/implementation-checklist.md` holds the working record: the branch
 inventory, per-row status, and the baseline at the starting commit. Read it

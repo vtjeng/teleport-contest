@@ -66,10 +66,10 @@ path is `cmd.c:rhack()` into `hack.c:domove()`.
   floor-description paths have now been traced from `hack.c:domove()` through
   `test_move()`, `do_attack()`, `domove_swap_with_pet()`, and
   `invent.c:look_here()`.
-- Remaining limits: natural mid-sequence monster generation has not been
-  verified end to end. The first suitable long fresh case originally reached
-  the earlier missing `exerchk()` draw; row 6 now restores that source PRNG
-  order, so the natural-generation path is the next evidence task.
+- Remaining limits: natural mid-sequence monster generation is now verified
+  through the generated monster's first move-or-stay result. Extending the
+  same fresh case by one wait exposed a separate in-boundary stop when an
+  ordinary monster selected a doorless doorway; row 12 records that gap.
 
 ## Status values
 
@@ -87,45 +87,51 @@ or passing development recording is evidence to investigate, not a status.
 | 3 | `dochug()` omitted `mayMove` terms | The leprechaun gold term and `(Conflict && !mtmp->iswiz)` sit between `is_wanderer` and `!mcansee` in C's disjunction. Both ports omit them. | `js/monmove.js` `dochug()` | Omitting a short-circuiting term would change whether the later `!mcansee && rn2(4)` draw happens. | Conflict cannot be established by the allowed commands or starting inventory. D:1 runtime generation admits difficulty at most 1 for a level-one hero; the leprechaun has difficulty 4. Neither term is reachable before this boundary. | cannot-occur | Keep the source comment and revisit when a later command or level can establish either term. |
 | 4 | `allmain.c:moveloop_core()` elapsed phase | Runs before each command dispatch when the preceding command consumed time. | `js/allmain.js` `moveloop_core()` | Owns the hero movement debit, monster allocation, random monster generation, sounds, hunger, engraving wear, and timeouts. | Completed at `9afade25`. `advanceFreshTurn()` now serves every turn, including the first; it preserves C's outer hero-ration loop and the `!monscanmove && u.umovement < NORMAL_SPEED` once-per-turn gate. The MonkSpeed oracle, all 1,622 tests, and the development score pass unchanged from `263540f`. | done | None. Closure condition 2 is met. |
 | 5 | `js/fastforward.js` replay rows | Reached for every turn after the second. | Deleted. | 30 literal `rn2()` calls copied from one recording. | Deleted whole at `263540f`, with `scripts/fastforward.test.mjs`. The score rose rather than fell: 98,270 to 98,306 PRNG values, 241 to 242 screens, 256 to 258 cursors. | done | None. Closure condition 1 is met. |
-| 6 | `attrib.c:exerper()` and `exerchk()` | `allmain.c:moveloop_core()` calls `exerchk()` once per allocated turn, after `age_spells()` and before `invault()` and engraving wear. `exerper()` runs status checks every 5 turns and hunger and encumbrance checks every 10; `exerchk()` also owns the scheduled check beginning at `context.next_attrib_check == 600`. | `js/attrib.js` `exerper()`, `exerchk()`, and their live `adjattrib()` consumer; `js/allmain.js:finishFreshElapsedTurn()` calls the upkeep in source order. | The periodic call changes attribute exercise state and PRNG order before later generation, movement, or rendering. | Implemented at `6b721cd`. Before the port, `node scripts/diff-fresh.mjs --seed 42510 --datetime 20310203040506 --moves ............................................................ --name RuntimeFind --role Healer --race human --gender male --align neutral --options pettype:none,!acoustics` matched all 61 screens and cursors but first differed at PRNG call 2,823 on step 10: C called `rn2(19)=12` from `exercise(attrib.c:509)` while JS called the later engraving-wear `rn2(64)=40`; totals were C 2,983 and JS 3,041. With the source-owned upkeep installed, the same strict command matches all 2,983 PRNG calls, 61 screens, and 61 cursors. Focused tests pin ten-turn hunger and encumbrance order, five-turn status property semantics, attribute adjustment, the move-600 scheduled check, exercise decay, messages, and rescheduling. | done | None. Re-run row 7 now that preceding PRNG order is restored. |
-| 7 | `makemon.c` mid-sequence monster generation | `maybe_generate_rnd_mon()` runs once per allocated turn and can add a monster after current monsters receive movement. The new monster first receives a ration on the following allocation. | `js/allmain.js`, `js/makemon.js`, `js/makemon_create.js` | Consumes randomness, extends the monster list, and then feeds the new monster to `movemon()`. | Direct tests force the zero gate, create a live D:1 monster, and exercise its following allocation. The natural seed-42510 path selected for end-to-end validation originally reached row 6's earlier PRNG divergence; it has not yet been rerun far enough with the restored stream to classify the generated species, timing, and first action. | undecided | Re-run a natural fresh generation case and trace the created monster through its first move-or-stay result. |
-| 8 | `hack.c:test_move()` refusal against wall or rock | Reached when a walk targets an obstructed square. It consumes no time. With `mention_walls`, C describes the remembered background glyph through `pline_dir()`; without it, the refusal is silent. | `js/cmd.js:blocksMove()` returns silently before a `hack.c:test_move()` owner exists in `js/hack.js`. | Message output and command state differ; PRNG must remain unchanged. | Fresh seed 31001, datetime `20300102030405`, Healer `WallWestA`, `mention_walls`, and 12 west moves: all 3,235 PRNG calls and 13 cursors match, but screen 2 begins with C's wall message while JS is blank. The companion with `!mention_walls` and four west moves matches all 3,235 calls, five screens, and five cursors. | missing | Port the in-boundary physical-obstacle branch under its `hack.c` owner. |
-| 9 | `hack.c:domove()` ordinary starting-pet swap | A movement command into a visible safe starting pet calls `do_attack()` first. Its `rn2(7)` refusal gate can consume the move; otherwise `domove_swap_with_pet()` exchanges positions, prints the swap message, and applies the pet's destination effects. | `js/cmd.js:requireSimpleHeroDestination()` rejects every occupied destination before the source branch can draw or change state. | Consumes randomness, changes hero and pet positions, redraws both squares, prints output, and consumes time on a successful swap. | Fresh seed 31006, datetime `20300102030405`, Tourist `PetSafe`, east move, and `mention_walls,safe_pet`: C reaches `do_attack()` and calls `rn2(7)=6`; JS stops before that call and produces no second screen or cursor. | missing | Port the ordinary active starting-pet subset and retain atomic stops for pet attack and exceptional displacement outcomes. |
-| 10 | Floor description for an object on the destination | With autopickup disabled, `hack.c:domove()` reaches `spoteffects(TRUE)`, `pickup(1)`, `check_here()`, and `invent.c:look_here()` after the legal move. | `js/cmd.js:requireSimpleHeroDestination()` rejects every floor object, so its later `look_here_single_object()` call is unreachable on a live movement command. | Moves the hero, consumes time, and produces the one-object floor description without picking the object up. | A fresh startup scan selected seed 32003 independently of development sessions. Strict case: datetime `20300102030405`, Tourist `ObjectFind`, west move, and `mention_walls,!autopickup`. C completes the move and begins elapsed work; JS stops before the second screen and before C's first subsequent `mcalcmove()` draw. | missing | Admit only the source-traced one-object description path; pickup remains outside the boundary. |
-| 11 | Repeated wait | The simplest repeated command exercises the elapsed phase with no hero movement. | `js/cmd.js`, `js/allmain.js` | Consumes time and runs the full elapsed phase. | Fresh Healer four-wait and Monk six-wait cases match completely. After row 6, the exact 60-wait RuntimeFind command in that row matches all 2,983 PRNG calls, 61 screens, and 61 cursors through its last prompt. The boundary is unbounded, so natural runtime generation in row 7 still needs end-to-end proof. | undecided | Resolve row 7, then extend repeated-wait evidence through the first naturally generated monster's first move-or-stay result. |
+| 6 | `attrib.c:exerper()` and `exerchk()` | `allmain.c:moveloop_core()` calls `exerchk()` once per allocated turn, after `age_spells()` and before `invault()` and engraving wear. `exerper()` runs status checks every 5 turns and hunger and encumbrance checks every 10; `exerchk()` also owns the scheduled check beginning at `context.next_attrib_check == 600`. | `js/attrib.js` `exerper()`, `exerchk()`, and their live `adjattrib()` consumer; `js/allmain.js:finishFreshElapsedTurn()` calls the upkeep in source order. | The periodic call changes attribute exercise state and PRNG order before later generation, movement, or rendering. | Implemented at `6b721cd`. Before the port, `node scripts/diff-fresh.mjs --seed 42510 --datetime 20310203040506 --moves ............................................................ --name RuntimeFind --role Healer --race human --gender male --align neutral --options pettype:none,!acoustics` matched all 61 screens and cursors but first differed at PRNG call 2,823 on step 10: C called `rn2(19)=12` from `exercise(attrib.c:509)` while JS called the later engraving-wear `rn2(64)=40`; totals were C 2,983 and JS 3,041. With the source-owned upkeep installed, the same strict command matches all 2,983 PRNG calls, 61 screens, and 61 cursors. Focused tests pin ten-turn hunger and encumbrance order, five-turn status property semantics, attribute adjustment, the move-600 scheduled check, exercise decay, messages, and rescheduling. | done | None. |
+| 7 | `makemon.c` mid-sequence monster generation | `maybe_generate_rnd_mon()` runs once per allocated turn and can add a monster after current monsters receive movement. The new monster first receives a ration on the following allocation. | `js/allmain.js`, `js/makemon.js`, `js/makemon_create.js` | Consumes randomness, extends the monster list, and then feeds the new monster to `movemon()`. | At `aa57304216fd4e15b976bd7483e89a1ff55f8a93`, the strict seed-42510 RuntimeFind case with 140 waits matches 3,545 PRNG calls, 141 screens and attributes, and 141 cursors. Its recorded step 75 calls `rn2(70)=0` in `maybe_generate_rnd_mon()`, creates a jackal, and the new monster reaches its first move-or-stay work on step 77 without divergence. Direct tests separately force the zero gate and following allocation. | done | None. |
+| 8 | `hack.c:test_move()` refusal against wall or rock | Reached when a walk targets an obstructed square. It consumes no time. With `mention_walls`, C describes the remembered background glyph through `pline_dir()`; without it, the refusal is silent. | `js/hack.js:test_move()` owns the physical wall and rock subset; `js/cmd.js:domove()` retains command-state cleanup. | Prints the source wall or solid-stone message when enabled, consumes no PRNG, consumes no time, and clears the attempted movement state. | Implemented at `aa57304216fd4e15b976bd7483e89a1ff55f8a93`. Fresh seed 31001, datetime `20300102030405`, Healer `WallWestA`, `mention_walls`, and 12 west moves matches all 3,183 PRNG calls, 13 screens and attributes, and 13 cursors. The `!mention_walls` four-west-move companion matches all 3,183 calls, five screens, and five cursors. A focused test pins wall, solid-stone, silent, and legal-square results. | done | None. |
+| 9 | `hack.c:domove()` ordinary starting-pet swap | A movement command into a visible safe starting pet calls `do_attack()` first. Its `rn2(7)` refusal gate can consume the move; otherwise `domove_swap_with_pet()` exchanges positions, prints the swap message, and applies the pet's destination effects. | `js/uhitm.js:do_attack()` owns the safe-pet gate and refusal; `js/hack.js:domove_swap_with_pet()` owns the successful exchange; `js/cmd.js` admits only the ordinary active starting-pet subset. | Consumes randomness, either makes the tame monster flee and stops with a message or changes hero and pet positions and redraws both squares; either outcome consumes time. | Implemented at `aa57304216fd4e15b976bd7483e89a1ff55f8a93`. Fresh Tourist seed 31006 reaches `rn2(7)=6`, swaps with the kitten, prints `You swap places with your kitten.`, and matches 2,756 PRNG calls and both screens/cursors. Independently selected seed 31009 reaches `rn2(7)=0`, then `rnd(6)=3`, prints `You stop.  Your kitten is in the way!`, and matches 2,841 calls and both screens/cursors. Focused tests pin both draw and state-transition orders. | done | None. |
+| 10 | Floor description for an object on the destination | With autopickup disabled, `hack.c:domove()` reaches `spoteffects(TRUE)`, `pickup(1)`, `check_here()`, and `invent.c:look_here()` after the legal move. | `js/cmd.js:requireSimpleHeroDestination()` admits exactly one object only when autopickup is disabled; the live `domove()` calls `js/invent.js:look_here_single_object()`. | Moves the hero, consumes time, and produces the one-object floor description without picking the object up. Piles and automatic pickup remain atomic stops. | Implemented at `aa57304216fd4e15b976bd7483e89a1ff55f8a93`. Fresh seed 32003, datetime `20300102030405`, Tourist `ObjectFind`, west move, and `mention_walls,!autopickup` prints `You see here 5 gold pieces.` and matches all 2,301 PRNG calls and both screens/cursors. Focused tests retain atomic rejection for piles and automatic pickup and pin the single-object message owner. | done | None. |
+| 11 | Repeated wait | The simplest repeated command exercises the elapsed phase with no hero movement. | `js/cmd.js`, `js/allmain.js` | Consumes time and runs the full elapsed phase. | Fresh Healer four-wait and Monk six-wait cases match completely. After row 6, the exact 60-wait RuntimeFind command matches 2,983 PRNG calls and all 61 screens/cursors. At `aa57304216fd4e15b976bd7483e89a1ff55f8a93`, its 140-wait extension matches 3,545 calls and all 141 screens/cursors through natural generation and the new monster's first action. The 141st wait reaches row 12. | undecided | Resolve row 12, then continue the same source-selected long-run procedure to the next independent boundary. |
+| 12 | `monmove.c:m_move()` ordinary movement through a doorless doorway | `mfndpos()` treats a `DOOR` square with `D_NODOOR` as accessible. An ordinary monster may select it during any elapsed phase; `postmov()` has no door-opening work when the mask is already doorless. | `js/unported_monster_actions.js:assertSimpleDestination()` currently admits only `ROOM` and `CORR`, despite `js/monmove.js` already modeling door accessibility. | The premature stop omits the selected monster move and all later PRNG, screen, and cursor output, but preserves the retryable prefix. | Extending the exact seed-42510 RuntimeFind reproduction from 140 to 141 waits stops atomically at the JavaScript reason `door or special terrain movement`. C continues at boundary 142 with `rn2(5)=3` in `distfleeck()`; totals are C 3,552 versus JS 3,545 PRNG calls, 142 versus 141 screens, and 142 versus 141 cursors. Direct state inspection identifies the selected destination as `DOOR` with `doormask=0`. | missing | Extend the ordinary monster destination and post-move subset to a doorless doorway, then rerun the 141-wait case and its adjacent source branches. |
 
 ## Missing work by owner
 
-1. Natural mid-sequence monster generation and repeated-wait closure: rows 7
-   and 11. With row 6's preceding PRNG order restored, re-run the natural fresh
-   generation case and trace the new monster through its first move-or-stay
-   result.
-2. `hack.c` hero movement: rows 8 through 10, in source order. These are
-   confirmed gaps but are not part of the periodic-upkeep chunk.
+1. `monmove.c` ordinary doorway movement and repeated-wait closure: rows 12
+   and 11. Admit only the source-accessible doorless doorway path first, then
+   extend the same natural-generation reproduction to the next independent
+   boundary.
 
 ## Validation
 
 Record evidence for the exact committed head that will be reviewed.
 
-- Commit checked: `6b721cdbb8750255cb70e832a3bab655bd02964f`.
-- Source review: compared `attrib.c:exercise()`, `exerper()`, `adjattrib()`,
-  and `exerchk()` with `allmain.c:moveloop_core()`, including five- and
-  ten-turn cadence, raw versus blocked property bits, hunger and burden order,
-  scheduled-check limits and decay, messages, and `rn1(200, 800)`
-  rescheduling.
-- Focused tests: `npm run checkpoint -- --focus
-  scripts/hero-attributes.test.mjs`; 11 focused tests passed.
-- Full suite: the same checkpoint ran all 1,626 tests; all passed.
+- Commit checked: `aa57304216fd4e15b976bd7483e89a1ff55f8a93`.
+- Source review: retained the periodic-upkeep review and compared the newly
+  live paths with `hack.c:test_move()` and `domove_swap_with_pet()`,
+  `uhitm.c:do_attack()`, `pickup.c:pickup()` and `check_here()`, and
+  `invent.c:look_here()`. The review covered output gates, safe-pet draw and
+  refusal order, position and display updates, and the distinction between
+  one-object description, piles, and automatic pickup. Extending the natural
+  generation case also identified the separate `monmove.c:m_move()`
+  doorless-doorway gap in row 12.
+- Focused tests: `npm run checkpoint -- --focus scripts/cmd.test.mjs`; all 31
+  command tests passed. `node scripts/options.test.mjs`,
+  `node scripts/objnam.test.mjs`, and `node scripts/uhitm.test.mjs` also passed
+  all 40, 14, and two tests respectively.
+- Full suite: the checkpoint ran all 1,629 tests; all passed.
 - Generated-file checks: the same checkpoint passed `check:monsters`,
   `check:objects`, `check:symbols`, and `check:themerooms`.
-- Fresh differentials: the exact 60-wait RuntimeFind command recorded in row
-  6 passed strictly with 2,983 matching PRNG calls, 61 matching complete
-  screens and attributes, and 61 matching cursors.
+- Fresh differentials: at the checked commit, the 140-wait RuntimeFind case,
+  wall-message and silent-wall cases, both safe-pet outcomes, and the
+  one-object description all passed strictly. Together they matched 17,809
+  PRNG calls, 165 complete screens and attributes, and 165 cursors. The
+  one-wait extension is retained as the expected row-12 failure, not counted
+  as passing evidence.
 - Development suite: the same checkpoint reported 0/33 sessions; RNG
-  98,306/610,816; screens 242/7,765; cursors 258/7,765. These aggregates are
-  unchanged.
-- Quality check: `npm run quality -- --check` passed with a clear gate and a
-  two-area advisory checkpoint.
+  98,598/610,816; screens 259/7,765; cursors 277/7,765.
+- Quality check: `npm run quality -- --check` passed at the exact commit with
+  a clear gate and a two-area advisory checkpoint.
 - Browser check: not required; this changes shared engine behavior without
   browser-specific code, DOM/CSS, input/storage, or renderer changes.
 
@@ -152,8 +158,9 @@ current development-screen selection.
 Current mode: Implementation
 
 Reason: both structural replay conditions are complete: row 5 at `263540f`
-and row 4 at `9afade25`. Row 6's periodic upkeep is now `done`, including the
-exact 60-wait strict reproduction. Behavioral closure remains blocked by the
-confirmed hero-movement gaps in rows 8 through 10 and the unverified natural
-generation/repeated-wait path in rows 7 and 11. Rows 1, 2, 4, 5, and 6 are
-`done`; row 3 is `cannot-occur`.
+and row 4 at `9afade25`. Periodic upkeep, natural generation through the new
+monster's first action, wall refusal, ordinary starting-pet interaction, and
+single-object floor description are now `done`. Behavioral closure remains
+blocked by the confirmed ordinary-monster doorless-doorway gap in row 12 and
+the dependent unbounded repeated-wait classification in row 11. Rows 1, 2, 4
+through 10 are `done`; row 3 is `cannot-occur`.
