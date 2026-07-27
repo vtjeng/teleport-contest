@@ -2319,6 +2319,77 @@
         ]
       },
       "recordedAt": "2026-07-26T04:31:48.714Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "f97bd584d5cd9262f27921953b8f55e792a58f10"
+      },
+      "head": "d29414adb650373a3c25cbbb6b650ad586688ba9",
+      "areas": [
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full correctness audit of exact range f97bd584d5cd9262f27921953b8f55e792a58f10..d29414adb650373a3c25cbbb6b650ad586688ba9, restricted to the monsters area paths. Workflow run wf_9eb1b1b2-c1b; 5 agents; elapsed 1474 seconds; 597813 subagent tokens across 275 tool uses. Correctness, readability-risk, test-quality, and variable-flow finders plus one consolidated adjudicator completed; performance and concurrency were omitted because the range is pure data-table and predicate code with no shared-state, asynchronous, or resource-cost trigger. Counts: 22 raw, 17 deduplicated, 17 confirmed and applied in linked audit-fix commit 5affc313ef52c662772099857cabd36596676767, 0 rejected, 0 deferred or unverified, 0 warnings. Root cause of five production defects: js/monsters.js never exported AD_STON, AD_DRLI, AD_DRDX, AD_DRCO, AD_WERE, AT_EXPL, AD_DISN, or AD_DCAY, so the new mondata.c ports compared a numeric adtyp against undefined and those branches could never fire; mstrength() was wrong for 13 species and max_passive_dmg()'s AD_DCAY instakill arm was dead. gender() returned the port's JavaScript boolean where C returns an int used to index pmnames[]. raceptr() passed the whole game state to Upolyd(), which reads the hero's mtimedone, so a polymorphed hero received the racial species. locomotion() duplicated the locoverbs words inline and collapsed C's flys and flyl rows; it now shares locoverb() with stagger(), which exposed an incomplete species fixture missing msize in scripts/startup-a11y.test.mjs. Nine test-quality findings covered vacuous and self-confirming assertions, including an AD_DISN case that passed only because switch (undefined) matched case undefined, and an acid-resistance case whose attacker had no attack counting toward multi2. Tests now pin mstrength against the difficulty stored in every monsters.h entry, which would have caught all eight missing constants at once, and guard that every M.* name js/mondata.js reads is a number. Post-fix validation passed all 1625 tests, npm run check:monsters, and the development suite at 98270 RNG values, 241 screens, and 256 cursors with zero sessions differing. No holdout access.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1474,
+        "counts": {
+          "raw": 22,
+          "deduplicated": 17,
+          "confirmed": 17,
+          "applied": 17,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 9,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "Eight AD_*/AT_* constants unexported, so mstrength() scored 13 species wrong",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "max_passive_dmg() AD_DCAY instakill arm could never evaluate true",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "gender() returned a JavaScript boolean where C returns a pmnames[] index",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "raceptr() passed the game state to Upolyd(), so the polymorph guard never fired",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "cvt_adtyp_to_mseenres() returned M_SEEN_NOTHING for AD_DISN",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-27T00:00:00.000Z"
     }
   ]
 }
