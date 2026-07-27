@@ -50,10 +50,15 @@ hero. Each excluded path fails closed before any gameplay state change or PRNG
 consumption, preserving the supported prefix and leaving the pending phase
 retryable.
 
-The goal closes when `js/fastforward.js` and the turn-index special cases in
-`moveloop_core()` are gone, not when a particular score is reached. A
-development-score decrease is acceptable where real behavior stops earlier than
-a deleted replay row did.
+The two structural replay conditions are complete: `js/fastforward.js` is gone
+at `263540f`, and the turn-index special cases in `moveloop_core()` are gone at
+`9afade25`. The newly confirmed periodic-attribute-upkeep gap is implemented
+and its exact 60-wait reproduction now matches. Behavioral closure remains
+blocked by the confirmed in-boundary wall-refusal, starting-pet-swap, and
+floor-description gaps, plus natural runtime-monster-generation evidence that
+has not yet been repeated with the restored upkeep PRNG order. The goal does
+not close at a particular score; `.agents/implementation-checklist.md` records
+the source evidence and dependency order.
 
 `.agents/implementation-checklist.md` holds the working record: the branch
 inventory, per-row status, and the baseline at the starting commit. Read it

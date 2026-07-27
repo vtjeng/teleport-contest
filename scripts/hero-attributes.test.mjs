@@ -2,13 +2,29 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    adjattrib,
     effective_attribute,
+    exerchk,
+    exerper,
     init_attr,
     newhp,
     vary_init_attr,
 } from '../js/attrib.js';
-import { A_CON, A_STR, A_WIS } from '../js/const.js';
+import {
+    A_CON,
+    A_STR,
+    A_WIS,
+    CLAIRVOYANT,
+    CONFUSION,
+    HALLUC,
+    HALLUC_RES,
+    HVY_ENCUMBER,
+    REGENERATION,
+    SICK,
+    WOUNDED_LEGS,
+} from '../js/const.js';
 import { newpw, newuexp } from '../js/exper.js';
+import { PM_MONK } from '../js/monsters.js';
 
 function advancement(infix, inrnd, lofix, lornd, hifix, hirnd) {
     return { infix, inrnd, lofix, lornd, hifix, hirnd };
@@ -136,6 +152,160 @@ test('vary_init_attr consumes the source checks and clamps a decrease', () => {
     vary_init_attr(state, random);
     assert.equal(state.u.acurr.a[0], 5);
     assert.equal(state.u.amax.a[0], 5);
+    random.done();
+});
+
+test('exerper preserves ten-turn hunger, burden, and status draw order', () => {
+    const state = baseState();
+    state.moves = 10;
+    state.urole.mnum = PM_MONK;
+    state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.aexe = [0, 0, 0, 0, 0, 0];
+    // Nutrition 1,001 is the first SATIATED value. Together with Monk,
+    // heavy burden, and the five active statuses below, this reaches every
+    // source-ordered exercise call in one ten-turn pass.
+    state.u.uhunger = 1001;
+    state.u.uprops = {
+        [CLAIRVOYANT]: { intrinsic: 1 },
+        // These properties have no source blocker. A populated blocked field
+        // must not suppress their exercise effects.
+        [REGENERATION]: { intrinsic: 1, blocked: 1 },
+        [SICK]: { intrinsic: 1, blocked: 1 },
+        [CONFUSION]: { intrinsic: 1, blocked: 1 },
+        [HALLUC]: { intrinsic: 1 },
+        [WOUNDED_LEGS]: { intrinsic: 1, blocked: 1 },
+    };
+    const bounds = [];
+    // Decreases use one of rn2(2); 18 beats effective attribute 10 for each
+    // rn2(19) increase. The values make every selected call change AEXE.
+    const values = [1, 1, 18, 1, 18, 18, 1, 1, 1];
+    const random = {
+        rn2(bound) {
+            bounds.push(bound);
+            const value = values.shift();
+            assert.ok(value < bound);
+            return value;
+        },
+    };
+    let encumberMessages = 0;
+
+    exerper(state, {
+        random,
+        // Heavy burden selects Strength gain followed by Dexterity loss.
+        nearCapacity: () => HVY_ENCUMBER,
+        encumberMessage: () => encumberMessages++,
+    });
+
+    assert.deepEqual(
+        bounds,
+        [2, 2, 19, 2, 19, 19, 2, 2, 2],
+    );
+    assert.deepEqual(
+        state.u.aexe,
+        [2, 0, -1, -3, -1, 0],
+    );
+    // exercise() calls encumber_msg() after both Strength gains and the
+    // Constitution loss, regardless of whether the random gain succeeded.
+    assert.equal(encumberMessages, 3);
+    assert.deepEqual(values, []);
+});
+
+test('exerper applies clairvoyance blocking and hallucination resistance', () => {
+    const state = baseState();
+    state.moves = 5;
+    state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.aexe = [0, 0, 0, 0, 0, 0];
+    state.u.uhunger = 900;
+    state.u.uprops = {
+        [CLAIRVOYANT]: { intrinsic: 1, blocked: 1 },
+        [HALLUC]: { intrinsic: 1 },
+        // Hallucination resistance has no blocker in the source macro, so
+        // even this otherwise inconsistent blocked field still resists.
+        [HALLUC_RES]: { extrinsic: 1, blocked: 1 },
+    };
+
+    exerper(state, {
+        random: {
+            rn2() {
+                assert.fail('blocked clairvoyance and resisted hallucination draw');
+            },
+        },
+        nearCapacity: () => 0,
+        encumberMessage: () => {},
+    });
+
+    assert.deepEqual(state.u.aexe, [0, 0, 0, 0, 0, 0]);
+});
+
+test('adjattrib preserves below-minimum base and maximum handling', async () => {
+    const state = baseState();
+    state.moves = 1;
+    state.flags.verbose = true;
+    state.u.acurr = { a: [3, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.aexe = [4, 0, 0, 0, 0, 0];
+    const messages = [];
+    // Decreasing Strength by two makes the tentative base 1. C draws rn2(3)
+    // for how much of maximum 10 is lost; value 1 leaves maximum 9.
+    const random = queuedRandom([1]);
+
+    assert.equal(
+        await adjattrib(A_STR, -2, 0, state, {
+            random,
+            message: (message) => messages.push(message),
+        }),
+        false,
+    );
+
+    assert.equal(state.u.acurr.a[A_STR], 3);
+    assert.equal(state.u.amax.a[A_STR], 9);
+    assert.equal(state.u.aexe[A_STR], 4);
+    assert.deepEqual(messages, ['Your innate strength has declined.']);
+    random.done();
+});
+
+test('exerchk applies and reschedules the move-600 attribute check', async () => {
+    const state = baseState();
+    state.moves = 600;
+    state.multi = 0;
+    state.context = { next_attrib_check: 600 };
+    state.program_state = { in_moveloop: 1 };
+    state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+    // Strength succeeds; Wisdom fails and decays from -4 to -2.
+    state.u.aexe = [3, 0, -4, 0, 0, 0];
+    // NOT_HUNGRY runs Constitution exercise before the scheduled check.
+    state.u.uhunger = 900;
+    state.u.uprops = {};
+    const messages = [];
+    let encumberMessages = 0;
+    // rn2(19)=0 leaves Constitution exercise unchanged. rn2(50)=0 passes
+    // Strength's threshold; 49 misses Wisdom's. rn1(200,800)=817 schedules
+    // the next check at move 1,417.
+    const random = queuedRandom([0, 0, 49, 17]);
+
+    assert.equal(
+        await exerchk(state, {
+            random,
+            nearCapacity: () => 0,
+            encumberMessage: () => encumberMessages++,
+            message: (message) => messages.push(message),
+        }),
+        true,
+    );
+
+    assert.equal(state.u.acurr.a[A_STR], 11);
+    assert.equal(state.u.aexe[A_STR], 0);
+    assert.equal(state.u.aexe[A_WIS], -2);
+    assert.equal(state.context.next_attrib_check, 1417);
+    assert.equal(state.disp.botl, true);
+    assert.equal(encumberMessages, 2);
+    assert.deepEqual(messages, [
+        'You feel strong!',
+        'You must have been exercising diligently.',
+    ]);
     random.done();
 });
 

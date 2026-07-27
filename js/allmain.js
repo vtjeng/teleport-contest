@@ -28,7 +28,7 @@ import {
     UNENCUMBERED,
     WARNING,
 } from './const.js';
-import { effective_attribute } from './attrib.js';
+import { effective_attribute, exerchk } from './attrib.js';
 import { makedog, see_nearby_monsters } from './dog.js';
 import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
 import { m_at } from './monst.js';
@@ -573,6 +573,15 @@ async function finishFreshElapsedTurn(state, random) {
         nearCapacity: () => wtcap,
     });
     age_spells(state);
+    // C ref: allmain.c moveloop_core() calls exerchk() here, before invault()
+    // and engraving wear. The repeated-simple-command boundary cannot change
+    // inventory burden, so encumber_msg() is source-inert at this call site.
+    await exerchk(state, {
+        random,
+        nearCapacity: () => wtcap,
+        encumberMessage: () => {},
+        message: ttyPline,
+    });
     maybeWipeHeroEngraving(state, random);
 }
 

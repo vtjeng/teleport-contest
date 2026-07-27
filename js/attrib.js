@@ -4,17 +4,77 @@
 import {
     A_CHA,
     A_CON,
+    A_DEX,
     A_INT,
     A_STR,
     A_WIS,
+    CLAIRVOYANT,
+    CONFUSION,
+    EXT_ENCUMBER,
+    FAINTED,
+    FAINTING,
+    FIXED_ABIL,
+    FUMBLING,
+    HALLUC,
+    HALLUC_RES,
+    HUNGRY,
+    HVY_ENCUMBER,
     MAXULEV,
+    MOD_ENCUMBER,
+    NOT_HUNGRY,
     NUM_ATTRS,
+    REGENERATION,
+    SATIATED,
+    SICK,
+    STUNNED,
     Upolyd,
+    VOMITING,
+    WEAK,
+    WOUNDED_LEGS,
 } from './const.js';
 import { game } from './gstate.js';
-import { PM_AMOROUS_DEMON, S_NYMPH } from './monsters.js';
-import { rn2, rnd } from './rng.js';
+import {
+    PM_AMOROUS_DEMON,
+    PM_MONK,
+    S_NYMPH,
+} from './monsters.js';
+import { DUNCE_CAP } from './objects.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
+
+const EXERCISE_LIMIT = 50;
+const ATTRIBUTE_NAMES = Object.freeze([
+    'strength',
+    'intelligence',
+    'wisdom',
+    'dexterity',
+    'constitution',
+    'charisma',
+]);
+const POSITIVE_ATTRIBUTE_DESCRIPTIONS = Object.freeze([
+    'strong',
+    'smart',
+    'wise',
+    'agile',
+    'tough',
+    'charismatic',
+]);
+const NEGATIVE_ATTRIBUTE_DESCRIPTIONS = Object.freeze([
+    'weak',
+    'stupid',
+    'foolish',
+    'clumsy',
+    'fragile',
+    'repulsive',
+]);
+const EXERCISE_EXPLANATIONS = Object.freeze([
+    Object.freeze(['exercising diligently', 'exercising properly']),
+    Object.freeze([null, null]),
+    Object.freeze(['very observant', 'paying attention']),
+    Object.freeze(['working on your reflexes', 'working on reflexes lately']),
+    Object.freeze(['leading a healthy life-style', 'watching your health']),
+    Object.freeze([null, null]),
+]);
 
 function roleAndRace(state) {
     if (!state?.urole || !state?.urace) {
@@ -235,7 +295,7 @@ export function exercise(
 
     const attrs = attributeArrays(state.u);
     let adjustment = 0;
-    if (Math.abs(attrs.exercise[index]) < 50) {
+    if (Math.abs(attrs.exercise[index]) < EXERCISE_LIMIT) {
         adjustment = increase
             ? (random.rn2(19) > effective_attribute(state, index) ? 1 : 0)
             : -random.rn2(2);
@@ -243,6 +303,300 @@ export function exercise(
     }
     if (physicalMessage) encumberMessage(state);
     return adjustment;
+}
+
+function propertyPresent(hero, index) {
+    const property = hero?.uprops?.[index];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function intrinsicPropertyPresent(hero, index) {
+    return Boolean(hero?.uprops?.[index]?.intrinsic);
+}
+
+function requiredOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`attribute upkeep requires ${name}`);
+    return operation;
+}
+
+function exerciseWithEnvironment(index, increase, state, env) {
+    return exercise(index, increase, state, env.random, {
+        encumberMessage: env.encumberMessage,
+    });
+}
+
+// C ref: attrib.c exerper(). This owns the five-turn status cadence and the
+// ten-turn hunger and encumbrance cadence. nearCapacity is injected because
+// the active repeated-command boundary has a fixed unencumbered inventory;
+// the eventual inventory owner will supply the general near_capacity().
+export function exerper(state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    const encumberMessage = requiredOperation(env, 'encumberMessage');
+    const nearCapacity = requiredOperation(env, 'nearCapacity');
+    const normalized = {
+        ...env,
+        random,
+        encumberMessage,
+        nearCapacity,
+    };
+    const moves = Math.trunc(state.moves ?? 0);
+    const hero = state.u;
+    if (!hero || !Number.isSafeInteger(hero.uhunger))
+        throw new Error('periodic exercise requires initialized hero hunger');
+
+    if (moves % 10 === 0) {
+        const hunger = hero.uhunger > 1000
+            ? SATIATED
+            : hero.uhunger > 150
+                ? NOT_HUNGRY
+                : hero.uhunger > 50
+                    ? HUNGRY
+                    : hero.uhunger > 0 ? WEAK : FAINTING;
+        switch (hunger) {
+        case SATIATED:
+            exerciseWithEnvironment(A_DEX, false, state, normalized);
+            if (state.urole?.mnum === PM_MONK)
+                exerciseWithEnvironment(A_WIS, false, state, normalized);
+            break;
+        case NOT_HUNGRY:
+            exerciseWithEnvironment(A_CON, true, state, normalized);
+            break;
+        case WEAK:
+            exerciseWithEnvironment(A_STR, false, state, normalized);
+            if (state.urole?.mnum === PM_MONK)
+                exerciseWithEnvironment(A_WIS, true, state, normalized);
+            break;
+        case FAINTING:
+        case FAINTED:
+            exerciseWithEnvironment(A_CON, false, state, normalized);
+            break;
+        default:
+            break;
+        }
+
+        switch (nearCapacity(state)) {
+        case MOD_ENCUMBER:
+            exerciseWithEnvironment(A_STR, true, state, normalized);
+            break;
+        case HVY_ENCUMBER:
+            exerciseWithEnvironment(A_STR, true, state, normalized);
+            exerciseWithEnvironment(A_DEX, false, state, normalized);
+            break;
+        case EXT_ENCUMBER:
+            exerciseWithEnvironment(A_DEX, false, state, normalized);
+            exerciseWithEnvironment(A_CON, false, state, normalized);
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (moves % 5 === 0) {
+        if (intrinsicPropertyPresent(hero, CLAIRVOYANT)
+            && !hero.uprops?.[CLAIRVOYANT]?.blocked) {
+            exerciseWithEnvironment(A_WIS, true, state, normalized);
+        }
+        if (intrinsicPropertyPresent(hero, REGENERATION))
+            exerciseWithEnvironment(A_STR, true, state, normalized);
+        if (intrinsicPropertyPresent(hero, SICK)
+            || intrinsicPropertyPresent(hero, VOMITING)) {
+            exerciseWithEnvironment(A_CON, false, state, normalized);
+        }
+        const hallucinating = intrinsicPropertyPresent(hero, HALLUC)
+            && !propertyPresent(hero, HALLUC_RES);
+        if (intrinsicPropertyPresent(hero, CONFUSION) || hallucinating) {
+            exerciseWithEnvironment(A_WIS, false, state, normalized);
+        }
+        if ((propertyPresent(hero, WOUNDED_LEGS) && !hero.usteed)
+            || propertyPresent(hero, FUMBLING)
+            || intrinsicPropertyPresent(hero, STUNNED)) {
+            exerciseWithEnvironment(A_DEX, false, state, normalized);
+        }
+    }
+}
+
+function attributeBonus(hero, index) {
+    return Math.trunc(attributeArray(hero?.abon)?.[index] ?? 0);
+}
+
+async function emitAttributeMessage(env, text, state) {
+    const message = requiredOperation(env, 'message');
+    await message(text, state);
+}
+
+// C ref: attrib.c adjattrib(). The periodic check is its live consumer here.
+// Keeping the whole state and message contract together avoids giving the
+// scheduled path a second attribute-adjustment implementation.
+export async function adjattrib(
+    index,
+    increment,
+    messageFlag,
+    state = game,
+    env = {},
+) {
+    if (state.u?.uprops?.[FIXED_ABIL]?.extrinsic || !increment) return false;
+
+    if ((index === A_INT || index === A_WIS)
+        && state.uarmh?.otyp === DUNCE_CAP) {
+        if (messageFlag === 0) {
+            await emitAttributeMessage(
+                env,
+                'Your cap constricts briefly, then relaxes again.',
+                state,
+            );
+        }
+        return false;
+    }
+
+    const random = env.random ?? { rn2 };
+    const attrs = attributeArrays(state.u);
+    const oldCurrent = effective_attribute(state, index);
+    const oldBase = attrs.base[index];
+    const oldMaximum = attrs.max[index];
+    const racialMinimum = Math.trunc(
+        state.urace?.attrmin?.[index] ?? attrs.base[index],
+    );
+    const racialMaximum = Math.trunc(
+        state.urace?.attrmax?.[index] ?? attrs.max[index],
+    );
+    attrs.base[index] += increment;
+
+    let description;
+    let bonusOpposesChange;
+    if (increment > 0) {
+        if (attrs.base[index] > attrs.max[index]) {
+            attrs.max[index] = attrs.base[index];
+            if (attrs.max[index] > racialMaximum)
+                attrs.base[index] = attrs.max[index] = racialMaximum;
+        }
+        description = POSITIVE_ATTRIBUTE_DESCRIPTIONS[index];
+        bonusOpposesChange = attributeBonus(state.u, index) < 0;
+    } else {
+        if (attrs.base[index] < racialMinimum) {
+            const decrease = random.rn2(
+                racialMinimum - attrs.base[index] + 1,
+            );
+            attrs.base[index] = racialMinimum;
+            attrs.max[index] = Math.max(
+                attrs.max[index] - decrease,
+                racialMinimum,
+            );
+        }
+        description = NEGATIVE_ATTRIBUTE_DESCRIPTIONS[index];
+        bonusOpposesChange = attributeBonus(state.u, index) > 0;
+    }
+
+    if (effective_attribute(state, index) === oldCurrent) {
+        if (messageFlag === 0 && state.flags?.verbose) {
+            if (attrs.base[index] === oldBase
+                && attrs.max[index] === oldMaximum) {
+                await emitAttributeMessage(
+                    env,
+                    `You're ${bonusOpposesChange ? 'currently' : 'already'} `
+                        + `as ${description} as you can get.`,
+                    state,
+                );
+            } else {
+                await emitAttributeMessage(
+                    env,
+                    `Your innate ${ATTRIBUTE_NAMES[index]} has `
+                        + `${increment > 0 ? 'improved' : 'declined'}.`,
+                    state,
+                );
+            }
+        }
+        return false;
+    }
+
+    attrs.exercise[index] = 0;
+    state.disp ??= {};
+    state.disp.botl = true;
+    if (messageFlag <= 0) {
+        await emitAttributeMessage(
+            env,
+            `You feel ${Math.abs(increment) > 1 ? 'very ' : ''}`
+                + `${description}!`,
+            state,
+        );
+    }
+    if (state.program_state?.in_moveloop
+        && (index === A_STR || index === A_CON)) {
+        requiredOperation(env, 'encumberMessage')(state);
+    }
+    return true;
+}
+
+function halveExercise(value) {
+    return Math.trunc(Math.abs(value) / 2) * Math.sign(value);
+}
+
+// C ref: attrib.c exerchk(). The scheduled check begins at move 600 in a new
+// game and advances by rn1(200, 800) after every completed check.
+export async function exerchk(state = game, env = {}) {
+    const random = env.random ?? { rn1, rn2 };
+    if (typeof random.rn1 !== 'function'
+        || typeof random.rn2 !== 'function') {
+        throw new TypeError('attribute check random injection requires rn1 and rn2');
+    }
+    const normalized = { ...env, random };
+    exerper(state, normalized);
+
+    const moves = Math.trunc(state.moves ?? 0);
+    const nextCheck = state.context?.next_attrib_check;
+    if (!Number.isSafeInteger(nextCheck) || nextCheck < 0)
+        throw new Error('attribute check requires next_attrib_check');
+    if (moves < nextCheck || state.multi) return false;
+
+    const attrs = attributeArrays(state.u);
+    for (let index = 0; index < NUM_ATTRS; ++index) {
+        let accumulated = attrs.exercise[index];
+        if (!accumulated) continue;
+
+        const direction = Math.sign(accumulated);
+        const minimum = Math.trunc(
+            state.urace?.attrmin?.[index] ?? attrs.base[index],
+        );
+        const maximum = Math.min(
+            Math.trunc(
+                state.urace?.attrmax?.[index] ?? attrs.max[index],
+            ),
+            18,
+        );
+        const atLimit = accumulated < 0
+            ? attrs.base[index] <= minimum
+            : attrs.base[index] >= maximum;
+        const temporaryBody = Upolyd(state.u) && index !== A_WIS;
+        const threshold = index === A_WIS
+            ? Math.abs(accumulated)
+            : Math.trunc(Math.abs(accumulated) * 2 / 3);
+
+        if (!atLimit && !temporaryBody
+            && random.rn2(EXERCISE_LIMIT) <= threshold) {
+            if (await adjattrib(
+                index,
+                direction,
+                -1,
+                state,
+                normalized,
+            )) {
+                accumulated = 0;
+                const explanation =
+                    EXERCISE_EXPLANATIONS[index][direction > 0 ? 0 : 1];
+                await emitAttributeMessage(
+                    normalized,
+                    `You ${direction > 0 ? 'must have' : "haven't"} been `
+                        + `${explanation}.`,
+                    state,
+                );
+            }
+        }
+        attrs.exercise[index] = halveExercise(accumulated);
+    }
+
+    state.context.next_attrib_check += random.rn1(200, 800);
+    return true;
 }
 
 export const _attribInternals = Object.freeze({

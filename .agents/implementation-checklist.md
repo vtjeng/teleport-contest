@@ -27,18 +27,17 @@
 
 ### Closure conditions
 
-This slice closes when both pieces of replay scaffolding are gone, not when a
-particular score is reached:
+The two structural replay conditions are complete, but they are not sufficient
+for behavioral closure. This slice closes only after they remain complete and
+every reachable in-boundary row below is `done`, `no-effect-yet`, or
+`cannot-occur`, with strict fresh evidence through the repeated prompt. It does
+not close at a particular score.
 
 1. `js/fastforward.js` is deleted, along with `scripts/fastforward.test.mjs`.
-   It currently holds eight replay rows for source turns 3 through 10,
-   containing 30 literal `rn2()` calls copied from
-   `seed8000-tourist-starter`.
+   This was completed at `263540f`.
 2. The turn-index special cases in `allmain.c:moveloop_core()` are gone. It
-   currently branches on `elapsedReplayStep = g.moves || 1` into
-   `advanceFirstFreshTurn()` for turn 1, `advanceSecondFreshTurn()` for turn 2,
-   and a manual hero debit plus `fastforward_step()` for every later turn. One
-   source-shaped path must serve every turn.
+   now has one source-shaped elapsed path for every turn, completed at
+   `9afade25`.
 
 A development-score decrease is acceptable where real behavior stops earlier
 than a deleted replay row did. Record the decrease and its cause rather than
@@ -57,16 +56,20 @@ path is `cmd.c:rhack()` into `hack.c:domove()`.
 - Dispatch tables and catalogs: the `cmd.c` command table for the accepted
   keystrokes; `dochug()`'s four documented phases; `m_move()`'s `not_special`
   candidate loop.
-- Reachable helpers: traced for rows 1 through 5 only.
-- JavaScript cross-check: `js/fastforward.js` and the `elapsedReplayStep`
-  dispatch in `js/allmain.js` are the two replay sites. Fail-closed stops live
-  in `js/unported_monster_actions.js`, which holds 50 `unsupported()` calls,
-  and in `firstTurnBoundary()` in `js/allmain.js`.
-- Remaining limits: **the candidate list is incomplete.** It was derived from
-  the two closure conditions and from reading `dochug()` and `m_move()` against
-  their ports. The hero-side `domove()` and `test_move()` branches and the
-  mid-sequence monster generation path have not been traced. Rows 6 through 10
-  name work rather than record a finished inventory.
+- Once-per-turn helpers: traced from `allmain.c:moveloop_core()` through
+  `attrib.c:exerchk()` and `exerper()`. The source calls `exerchk()` after
+  `age_spells()` and before `invault()` and engraving wear.
+- JavaScript cross-check: both replay sites are gone. Fail-closed stops remain
+  in `js/unported_monster_actions.js` and in the hero-destination admission
+  seam in `js/cmd.js`.
+- Hero movement helpers: the in-boundary physical-obstacle, starting-pet, and
+  floor-description paths have now been traced from `hack.c:domove()` through
+  `test_move()`, `do_attack()`, `domove_swap_with_pet()`, and
+  `invent.c:look_here()`.
+- Remaining limits: natural mid-sequence monster generation has not been
+  verified end to end. The first suitable long fresh case originally reached
+  the earlier missing `exerchk()` draw; row 6 now restores that source PRNG
+  order, so the natural-generation path is the next evidence task.
 
 ## Status values
 
@@ -79,25 +82,26 @@ or passing development recording is evidence to investigate, not a status.
 
 | # | Upstream function or branch family | Reachability and ordering | JavaScript owner | State, randomness, and output | Evidence | Status | Next action |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `monmove.c:dochug()`, merged from its two ports | Runs once per monster per elapsed phase, for tame and non-tame alike, as in C. | `js/monmove.js` `dochug()` | Reconciled four asymmetries: both kinds now redraw a hallucinated monster that did not move, both run the pre-move item and weapon gates, and both hold the `mflee` draws. | Merged at `73ada94`. Full suite 1,625 tests; development score identical across all 33 sessions. | done | None. Row 3 still owes the two omitted `mayMove` terms. |
+| 1 | `monmove.c:dochug()`, merged from its two ports | Runs once per monster per elapsed phase, for tame and non-tame alike, as in C. | `js/monmove.js` `dochug()` | Reconciled four asymmetries: both kinds now redraw a hallucinated monster that did not move, both run the pre-move item and weapon gates, and both hold the `mflee` draws. | Merged at `73ada94`. Full suite 1,625 tests; development score identical across all 33 sessions. | done | None. |
 | 2 | `monmove.c:m_move()` prologue and tame dispatch | `m_move()` owns the `mintrap()` and `meating` prologue and the tame `dog_move()` dispatch through `postmov()`. | `js/monmove.js` `m_move()` | `mintrap()` and `finish_meating()` change state; the dispatch selects the mover. | `m_move()` already held `mintrap()` and `set_apparxy()`; it gained the `meating` countdown and the tame dispatch at `73ada94`. Both `dochug()` paths now make one `m_move()` call. | done | Give `m_move()`'s prologue its own focused test; the pet cases currently exercise it through a double. |
-| 3 | `dochug()` omitted `mayMove` terms | The leprechaun gold term and `(Conflict && !mtmp->iswiz)` sit between `is_wanderer` and `!mcansee` in C's disjunction. Both ports omit them. | `js/monmove.js` `dochug()` | Omitting a short-circuiting term changes whether the later `!mcansee && rn2(4)` draw happens. | Read from `monmove.c:dochug()` phase three. | undecided | Determine whether the boundary excludes Conflict and leprechauns. If so, state the exact source condition; otherwise port both terms. |
-| 4 | `allmain.c:moveloop_core()` elapsed phase | Runs before each command dispatch when the preceding command consumed time. | `js/allmain.js` `moveloop_core()` | Owns the hero movement debit, monster allocation, random monster generation, sounds, hunger, engraving wear, and timeouts. | Three branches became two at `263540f`; `advanceFreshTurn()` serves every turn after the first. The final collapse was attempted and reverted. Diagnosis: `finishHeroTimeEffects()` (`js/allmain.js:350`) requires an initialized `hero_seq`, but `hero_seq` is only assigned at `js/allmain.js:551` inside `finishFreshElapsedTurn()`, which a fast hero skips because `umovement >= NORMAL_SPEED`. The first-turn helper hid this by rejecting earlier through its own stubs. Separately, `assertSimpleActionState()` (`js/unported_monster_actions.js:168`) early-returns on `!monster.mcanmove`, so the synthetic fixture in `scripts/cmd.test.mjs:1321`, which omits `mcanmove` entirely, is admitted without any checks. | missing | Two attempts, both reverted, both with concrete evidence. C's `gh.hero_seq` is a zero-initialized global assigned `moves << 3` in the once-per-turn block and incremented after the loop, so a hero with surplus movement reaches the increment without the assignment. Adding `g.hero_seq ??= 0` to `newgame_pre_mklev()` clears the raw error but is **not** behavior-neutral: it turns the MonkSpeed fail-closed stop into execution and breaks the checked-in second-turn case. Separately, the earlier claim that the two finish gates agree on turn 1 is **false for a fast role**: `advanceFirstFreshTurn()` requires `!monstersCanMove` as well as a spent ration, and a Monk starts with surplus movement, so collapsing changes MonkSpeed even with `hero_seq` fixed. Next: work out what C does for a fast hero on turn 1, check that against the MonkSpeed oracle, and only then reconcile the gates. Closure condition 2. |
+| 3 | `dochug()` omitted `mayMove` terms | The leprechaun gold term and `(Conflict && !mtmp->iswiz)` sit between `is_wanderer` and `!mcansee` in C's disjunction. Both ports omit them. | `js/monmove.js` `dochug()` | Omitting a short-circuiting term would change whether the later `!mcansee && rn2(4)` draw happens. | Conflict cannot be established by the allowed commands or starting inventory. D:1 runtime generation admits difficulty at most 1 for a level-one hero; the leprechaun has difficulty 4. Neither term is reachable before this boundary. | cannot-occur | Keep the source comment and revisit when a later command or level can establish either term. |
+| 4 | `allmain.c:moveloop_core()` elapsed phase | Runs before each command dispatch when the preceding command consumed time. | `js/allmain.js` `moveloop_core()` | Owns the hero movement debit, monster allocation, random monster generation, sounds, hunger, engraving wear, and timeouts. | Completed at `9afade25`. `advanceFreshTurn()` now serves every turn, including the first; it preserves C's outer hero-ration loop and the `!monscanmove && u.umovement < NORMAL_SPEED` once-per-turn gate. The MonkSpeed oracle, all 1,622 tests, and the development score pass unchanged from `263540f`. | done | None. Closure condition 2 is met. |
 | 5 | `js/fastforward.js` replay rows | Reached for every turn after the second. | Deleted. | 30 literal `rn2()` calls copied from one recording. | Deleted whole at `263540f`, with `scripts/fastforward.test.mjs`. The score rose rather than fell: 98,270 to 98,306 PRNG values, 241 to 242 screens, 256 to 258 cursors. | done | None. Closure condition 1 is met. |
-| 6 | `makemon.c` mid-sequence monster generation | `maybe_generate_rnd_mon()` runs once per elapsed turn and can add a monster part-way through the sequence. | `js/allmain.js`, `js/makemon.js` | Consumes randomness and extends the monster list, which then feeds `movemon()`. | Called today only from inside the replay branch. | undecided | Trace the generation path and how a newly generated monster meets the action boundary. |
-| 7 | `hack.c:test_move()` refusal against wall or rock | Reached when a walk targets an obstructed square. Consumes no time, so no elapsed phase follows. | `js/hack.js`, `js/cmd.js` | Produces a message; leaves the turn counter unchanged. | Named in the goal as in scope. | undecided | Trace `test_move()`'s refusal branches and which produce output. |
-| 8 | `hack.c:domove()` pet swap | Reached when a walk targets a square holding an ordinary active starting pet. | `js/hack.js`, `js/dogmove.js` | Swaps positions, produces a message, consumes time. | Named in the goal as in scope. | undecided | Trace the swap branch, its message, and the displacement refusal that the goal excludes. |
-| 9 | Floor description for objects on the destination | Reached when a walk enters a square whose objects only produce a floor description. | `js/hack.js`, `js/invent.js` | Produces output only; pickup is excluded. | Named in the goal as in scope. | undecided | Trace the look-here path and find exactly where pickup would begin, so the exclusion fails closed there. |
-| 10 | Repeated wait | The simplest repeated command; exercises the elapsed phase with no hero movement. | `js/cmd.js`, `js/allmain.js` | Consumes time and runs the full elapsed phase. | Already reached at turns 1 and 2. | undecided | Confirm the third and later waits once rows 1, 2, and 4 land. |
+| 6 | `attrib.c:exerper()` and `exerchk()` | `allmain.c:moveloop_core()` calls `exerchk()` once per allocated turn, after `age_spells()` and before `invault()` and engraving wear. `exerper()` runs status checks every 5 turns and hunger and encumbrance checks every 10; `exerchk()` also owns the scheduled check beginning at `context.next_attrib_check == 600`. | `js/attrib.js` `exerper()`, `exerchk()`, and their live `adjattrib()` consumer; `js/allmain.js:finishFreshElapsedTurn()` calls the upkeep in source order. | The periodic call changes attribute exercise state and PRNG order before later generation, movement, or rendering. | Before the port, `node scripts/diff-fresh.mjs --seed 42510 --datetime 20310203040506 --moves ............................................................ --name RuntimeFind --role Healer --race human --gender male --align neutral --options pettype:none,!acoustics` matched all 61 screens and cursors but first differed at PRNG call 2,823 on step 10: C called `rn2(19)=12` from `exercise(attrib.c:509)` while JS called the later engraving-wear `rn2(64)=40`; totals were C 2,983 and JS 3,041. With the source-owned upkeep installed, the same strict command matches all 2,983 PRNG calls, 61 screens, and 61 cursors. Focused tests pin ten-turn hunger and encumbrance order, five-turn status property semantics, attribute adjustment, the move-600 scheduled check, exercise decay, messages, and rescheduling. | done | None. Re-run row 7 now that preceding PRNG order is restored. |
+| 7 | `makemon.c` mid-sequence monster generation | `maybe_generate_rnd_mon()` runs once per allocated turn and can add a monster after current monsters receive movement. The new monster first receives a ration on the following allocation. | `js/allmain.js`, `js/makemon.js`, `js/makemon_create.js` | Consumes randomness, extends the monster list, and then feeds the new monster to `movemon()`. | Direct tests force the zero gate, create a live D:1 monster, and exercise its following allocation. The natural seed-42510 path selected for end-to-end validation reaches row 6's earlier PRNG divergence, so its generated species and timing are not yet trustworthy evidence. | undecided | After row 6 passes, re-run a natural fresh generation case and trace the created monster through its first move-or-stay result. |
+| 8 | `hack.c:test_move()` refusal against wall or rock | Reached when a walk targets an obstructed square. It consumes no time. With `mention_walls`, C describes the remembered background glyph through `pline_dir()`; without it, the refusal is silent. | `js/cmd.js:blocksMove()` returns silently before a `hack.c:test_move()` owner exists in `js/hack.js`. | Message output and command state differ; PRNG must remain unchanged. | Fresh seed 31001, datetime `20300102030405`, Healer `WallWestA`, `mention_walls`, and 12 west moves: all 3,235 PRNG calls and 13 cursors match, but screen 2 begins with C's wall message while JS is blank. The companion with `!mention_walls` and four west moves matches all 3,235 calls, five screens, and five cursors. | missing | After row 6 closes, port the in-boundary physical-obstacle branch under its `hack.c` owner. |
+| 9 | `hack.c:domove()` ordinary starting-pet swap | A movement command into a visible safe starting pet calls `do_attack()` first. Its `rn2(7)` refusal gate can consume the move; otherwise `domove_swap_with_pet()` exchanges positions, prints the swap message, and applies the pet's destination effects. | `js/cmd.js:requireSimpleHeroDestination()` rejects every occupied destination before the source branch can draw or change state. | Consumes randomness, changes hero and pet positions, redraws both squares, prints output, and consumes time on a successful swap. | Fresh seed 31006, datetime `20300102030405`, Tourist `PetSafe`, east move, and `mention_walls,safe_pet`: C reaches `do_attack()` and calls `rn2(7)=6`; JS stops before that call and produces no second screen or cursor. | missing | After row 6 closes, port the ordinary active starting-pet subset and retain atomic stops for pet attack and exceptional displacement outcomes. |
+| 10 | Floor description for an object on the destination | With autopickup disabled, `hack.c:domove()` reaches `spoteffects(TRUE)`, `pickup(1)`, `check_here()`, and `invent.c:look_here()` after the legal move. | `js/cmd.js:requireSimpleHeroDestination()` rejects every floor object, so its later `look_here_single_object()` call is unreachable on a live movement command. | Moves the hero, consumes time, and produces the one-object floor description without picking the object up. | A fresh startup scan selected seed 32003 independently of development sessions. Strict case: datetime `20300102030405`, Tourist `ObjectFind`, west move, and `mention_walls,!autopickup`. C completes the move and begins elapsed work; JS stops before the second screen and before C's first subsequent `mcalcmove()` draw. | missing | After row 6 closes, admit only the source-traced one-object description path; pickup remains outside the boundary. |
+| 11 | Repeated wait | The simplest repeated command exercises the elapsed phase with no hero movement. | `js/cmd.js`, `js/allmain.js` | Consumes time and runs the full elapsed phase. | Fresh Healer four-wait and Monk six-wait cases match completely. After row 6, the exact 60-wait RuntimeFind command in that row matches all 2,983 PRNG calls, 61 screens, and 61 cursors through its last prompt. The boundary is unbounded, so natural runtime generation in row 7 still needs end-to-end proof. | undecided | Resolve row 7, then extend repeated-wait evidence through the first naturally generated monster's first move-or-stay result. |
 
 ## Missing work by owner
 
-1. `js/allmain.js` `moveloop_core()` and `js/fastforward.js`: rows 4 and 5. A
-   replay row can only be deleted once the general path makes its calls, so
-   these advance together. This is now the front of the queue.
-2. Source tracing: rows 3 and 6 through 10. Each needs its upstream branches
-   traced through the ending event before it can take a status other than
-   `undecided`.
+1. Natural mid-sequence monster generation and repeated-wait closure: rows 7
+   and 11. With row 6's preceding PRNG order restored, re-run the natural fresh
+   generation case and trace the new monster through its first move-or-stay
+   result.
+2. `hack.c` hero movement: rows 8 through 10, in source order. These are
+   confirmed gaps but are not part of the periodic-upkeep chunk.
 
 ## Validation
 
@@ -128,16 +132,17 @@ understanding before choosing where to spend effort.
 
 An attempt to locate the first differing screen per session used an ad-hoc
 script whose results contradicted the scorer, so it was discarded. **There is
-no reliable per-screen divergence data yet.** Build that diagnostic from
-`scripts/diff-fresh.mjs` and `scripts/scan-fresh.mjs` before drawing
-conclusions about where the sequence breaks.
+no reliable per-development-session divergence diagnostic yet.** The strict
+fresh cases above supply source-selected branch evidence without relying on the
+current development-screen selection.
 
 ## Readiness
 
 Current mode: Implementation
 
-Reason: row 4 is `missing`, and rows 3 and 6 through 10 are
-`undecided` pending source tracing. Neither closure condition is met:
-closure condition 1 is met at `263540f` and closure condition 2 is not:
-`moveloop_core()` still branches on `(g.moves || 1) === 1`. Rows 1, 2, and 5
-are `done`.
+Reason: both structural replay conditions are complete: row 5 at `263540f`
+and row 4 at `9afade25`. Row 6's periodic upkeep is now `done`, including the
+exact 60-wait strict reproduction. Behavioral closure remains blocked by the
+confirmed hero-movement gaps in rows 8 through 10 and the unverified natural
+generation/repeated-wait path in rows 7 and 11. Rows 1, 2, 4, 5, and 6 are
+`done`; row 3 is `cannot-occur`.
