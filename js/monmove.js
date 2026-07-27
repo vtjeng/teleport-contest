@@ -1,8 +1,9 @@
-// Monster movement decisions and shared movement predicates.
-// C ref: monmove.c set_apparxy(), can_ooze(), and can_fog().
+// Monster movement decisions, actions, and item search.
+// C ref: monmove.c.  Every function ported from that file lives here.
 
 import {
     ACCESSIBLE,
+    ACCFOOD,
     AGGRAVATE_MONSTER,
     ALLOW_ALL,
     ALLOW_BARS,
@@ -12,21 +13,23 @@ import {
     ALLOW_ROCK,
     ALLOW_SANCT,
     ALLOW_SSM,
-    ALLOW_TRAPS,
     ALLOW_TM,
+    ALLOW_TRAPS,
     ALLOW_U,
     ALLOW_WALL,
-    A_LAWFUL,
-    A_NONE,
     AM_SHRINE,
-    Amask2align,
     ANTI_MAGIC,
     ARROW_TRAP,
+    A_LAWFUL,
+    A_NONE,
+    A_STR,
+    Amask2align,
     BEAR_TRAP,
     BOLT_LIM,
     BUSTDOOR,
     COLNO,
     CONFLICT,
+    DART_TRAP,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -35,7 +38,6 @@ import {
     DISPLACED,
     DOOR,
     DRAWBRIDGE_UP,
-    DART_TRAP,
     D_BROKEN,
     D_CLOSED,
     D_LOCKED,
@@ -59,31 +61,46 @@ import {
     LEVEL_TELEP,
     MAGIC_PORTAL,
     MAGIC_TRAP,
+    MANFOOD,
+    MMOVE_DIED,
+    MMOVE_DONE,
+    MMOVE_MOVED,
+    MMOVE_NOMOVES,
+    MMOVE_NOTHING,
+    MOAT,
+    MTSZ,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
-    MOAT,
+    NEED_HTH_WEAPON,
+    NEED_WEAPON,
     NOGARLIC,
-    NO_WEAPON_WANTED,
     NOTONL,
+    NO_WEAPON_WANTED,
     OPENDOOR,
     PIT,
+    POISON_RES,
     POLY_TRAP,
+    PROT_FROM_SHAPE_CHANGERS,
     P_AXE,
     P_PICK_AXE,
-    PROT_FROM_SHAPE_CHANGERS,
-    ROOMOFFSET,
     ROCKTRAP,
     ROLLING_BOULDER_TRAP,
+    ROOMOFFSET,
     ROWNO,
     RUST_TRAP,
     SHOPBASE,
     SLP_GAS_TRAP,
     SPIKED_PIT,
     SQKY_BOARD,
+    SQSRCHRADIUS,
     STATUE_TRAP,
     STEALTH,
     STONE,
+    STONE_RES,
+    STRAT_ARRIVE,
+    STRAT_WAITFORU,
+    STRAT_WAITMASK,
     TELEP_TRAP,
     TEMPLE,
     TRAPDOOR,
@@ -92,26 +109,38 @@ import {
     UNLOCKDOOR,
     VIBRATING_SQUARE,
     WEB,
+    WT_TOOMUCH_DIAGONAL,
     W_ARM,
     W_ARMS,
     W_NONDIGGABLE,
     W_NONPASSWALL,
-    WT_TOOMUCH_DIAGONAL,
     isok,
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
+import { effective_attribute } from './attrib.js';
+import { obj_resists } from './bury.js';
+import { newsym } from './display.js';
+import { dogfood } from './dogfood.js';
+import { could_reach_item } from './dogmove.js';
 import { on_level } from './dungeon.js';
-import { sengr_at } from './engrave.js';
+import { sengr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { dist2, online2 } from './hacklib.js';
+import { dist2, distmin, online2 } from './hacklib.js';
 import { money_cnt } from './invent.js';
-import { curr_mon_load, m_carrying } from './mon.js';
+import { curr_mon_load, m_carrying, max_mon_load } from './mon.js';
+import { can_carry } from './moncarry.js';
 import {
+    acidic,
     amorphous,
+    attacktype,
     attacktype_fordmg,
     bigmonst,
     breathless,
     dmgtype,
+    flesh_petrifies,
+    haseyes,
+    hides_under,
+    is_animal,
     is_clinger,
     is_displacer,
     is_floater,
@@ -124,13 +153,20 @@ import {
     is_undead,
     is_unicorn,
     is_vampshifter,
+    is_wanderer,
     is_whirly,
+    likes_gems,
+    likes_gold,
     likes_lava,
+    likes_magic,
+    likes_objs,
+    metallivorous,
     mindless,
     mon_knows_traps,
+    monster_resists_element,
     needspick,
-    nohands,
     noattacks,
+    nohands,
     noncorporeal,
     nonliving,
     passes_bars,
@@ -139,18 +175,27 @@ import {
     resist_conflict,
     slithy,
     throws_rocks,
+    touch_petrifies,
     tunnels,
     unsolid,
+    vegan,
     verysmall,
     webmaker,
     zombie_form,
 } from './mondata.js';
 import {
-    AD_DRST,
+    m_at,
+    mon_track_clear,
+    place_monster,
+    remove_monster,
+} from './monst.js';
+import {
     AD_CORR,
+    AD_DRST,
     AD_RBRE,
     AD_RUST,
     AT_BREA,
+    AT_WEAP,
     G_UNIQ,
     MS_LEADER,
     MZ_SMALL,
@@ -158,8 +203,8 @@ import {
     PM_BABY_PURPLE_WORM,
     PM_DISPLACER_BEAST,
     PM_ETTIN,
-    PM_FOG_CLOUD,
     PM_FLOATING_EYE,
+    PM_FOG_CLOUD,
     PM_GHOUL,
     PM_GREMLIN,
     PM_GRID_BUG,
@@ -170,25 +215,23 @@ import {
     PM_PURPLE_WORM,
     PM_SHRIEKER,
     PM_SKELETON,
+    PM_STALKER,
     PM_VROCK,
     PM_XORN,
+    S_BAT,
     S_DOG,
     S_EEL,
     S_GHOST,
     S_HUMAN,
     S_LEPRECHAUN,
     S_LICH,
+    S_LIGHT,
     S_NYMPH,
     S_VAMPIRE,
     S_ZOMBIE,
 } from './monsters.js';
-import { m_at, mon_track_clear } from './monst.js';
-import {
-    isCandle,
-    isContainer,
-    objectType,
-    sobj_at,
-} from './obj.js';
+import { searches_for_item } from './muse.js';
+import { isCandle, isContainer, objectType, sobj_at } from './obj.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -201,11 +244,11 @@ import {
     BAG_OF_TRICKS,
     BATTLE_AXE,
     BLINDFOLD,
-    BOULDER,
     BOOMERANG,
+    BOULDER,
     CANDY_BAR,
-    COIN_CLASS,
     CLOVE_OF_GARLIC,
+    COIN_CLASS,
     CORPSE,
     CREDIT_CARD,
     CRYSKNIFE,
@@ -214,8 +257,8 @@ import {
     FEDORA,
     FORTUNE_COOKIE,
     GEM_CLASS,
-    GOLD_DRAGON_SCALE_MAIL,
     GOLD_DRAGON_SCALES,
+    GOLD_DRAGON_SCALE_MAIL,
     LEASH,
     LEATHER_JACKET,
     LEMBAS_WAFER,
@@ -234,18 +277,25 @@ import {
     STETHOSCOPE,
     TIN_OPENER,
     TIN_WHISTLE,
+    TOOL_CLASS,
     TOWEL,
     VENOM_CLASS,
+    WAN_STRIKING,
+    WEAPON_CLASS,
 } from './objects.js';
-import { visible_region_at } from './region.js';
+import { m_in_out_region, visible_region_at } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
+import { collectMonsterMovementMessage } from './startup_a11y.js';
 import { S_poisoncloud } from './symbols.js';
 import { noteleport_level } from './teleport.js';
-import { hastrack } from './track.js';
+import { gettrack, hastrack } from './track.js';
 import { is_lava, is_pool, t_at } from './trap.js';
-import { couldsee } from './vision.js';
-import { which_armor } from './weapon.js';
+import { ttyPline } from './tty_message.js';
+import { cansee, clear_path, couldsee } from './vision.js';
+import { can_touch_safely, which_armor } from './weapon.js';
+import * as M from './monsters.js';
+import * as O from './objects.js';
 
 const ALGN_SINNED = -4;
 const ROOM_STRING_SIZE = 5;
@@ -1770,4 +1820,867 @@ export function set_apparxy(monster, env = {}) {
 
     monster.mux = mx;
     monster.muy = my;
+}
+
+// ---- from monmove_dochug.js ----
+function activeProperty(state, property, blockedMatters = true) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic)
+        && (!blockedMatters || !value?.blocked);
+}
+
+function requireDochugOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`dochug requires a ${name} operation`);
+    return operation;
+}
+
+// C ref: monmove.c dochug(), pre-move AT_WEAP gate. Weapon selection and
+// wield state remain owned by weapon.js through the injected operation.
+export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if ((monster.mpeaceful && !activeProperty(state, CONFLICT, false))
+        || !range.inrange
+        || dist2(
+            monster.mx,
+            monster.my,
+            monster.mux,
+            monster.muy,
+        ) > 8
+        || !attacktype(monster.data, AT_WEAP)) {
+        return false;
+    }
+
+    const current = monster.mw;
+    const currentIsPick = current
+        && (current.oclass === WEAPON_CLASS
+            || current.oclass === TOOL_CLASS)
+        && objectType(current, state).oc_skill === P_PICK_AXE;
+    if ((range.scared && currentIsPick)
+        || monster.weapon_check !== NEED_WEAPON) {
+        return false;
+    }
+    if (monster.mtrapped && !range.nearby) {
+        const selectRangedWeapon = requireDochugOperation(
+            rawEnv,
+            'selectRangedWeapon',
+        );
+        if (await selectRangedWeapon(monster, rawEnv)) return false;
+    }
+
+    monster.weapon_check = NEED_HTH_WEAPON;
+    const wieldMonsterItem = requireDochugOperation(rawEnv, 'wieldMonsterItem');
+    return Boolean(await wieldMonsterItem(monster, rawEnv));
+}
+
+// Cover the source phases reached by ordinary new-game monsters. Special
+// actions and unsupported attacks remain callbacks owned by their subsystems.
+export async function dochug_fresh_monster(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const preflightMonster = requireDochugOperation(rawEnv, 'preflightMonster');
+    const usePreMoveItems = requireDochugOperation(rawEnv, 'usePreMoveItems');
+    const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
+    const attackHero = requireDochugOperation(rawEnv, 'attackHero');
+    const wakeMessage = requireDochugOperation(rawEnv, 'wakeMessage');
+    const monFlee = requireDochugOperation(rawEnv, 'monFlee');
+    const monsterCanSeeHero = requireDochugOperation(
+        rawEnv,
+        'monsterCanSeeHero',
+    );
+    const distanceAndFear = rawEnv.distanceAndFear ?? distfleeck;
+    const disturbMonster = rawEnv.disturbMonster ?? disturb;
+    const setApparentHero = rawEnv.setApparentHero ?? set_apparxy;
+    const wipeEngraving = rawEnv.wipeEngraving ?? wipe_engr_at;
+    const wieldPreMoveWeapon = rawEnv.wieldPreMoveWeapon
+        ?? wield_pre_move_weapon;
+    const redraw = rawEnv.redraw ?? newsym;
+    const env = { ...rawEnv, state, random };
+
+    preflightMonster(monster, state);
+    monster.mstrategy &= ~STRAT_ARRIVE;
+    if ((monster.mstrategy & STRAT_WAITFORU)
+        && (monsterCanSeeHero(monster, state)
+            || monster.mhp < monster.mhpmax)) {
+        monster.mstrategy &= ~STRAT_WAITFORU;
+    }
+    if (!monster.mcanmove || (monster.mstrategy & STRAT_WAITMASK)) {
+        if (activeProperty(state, HALLUC)
+            && !activeProperty(state, HALLUC_RES)) {
+            redraw(monster.mx, monster.my);
+        }
+        return 0;
+    }
+    if (monster.msleeping) {
+        if (!await disturbMonster(monster, { ...env, wakeMessage })) {
+            if (activeProperty(state, HALLUC)
+                && !activeProperty(state, HALLUC_RES)) {
+                redraw(monster.mx, monster.my);
+            }
+            return 0;
+        }
+    }
+
+    wipeEngraving(monster.mx, monster.my, 1, false, env);
+    setApparentHero(monster, env);
+    let range = await distanceAndFear(monster, { ...env, monFlee });
+    if (await usePreMoveItems(monster, env)) return 1;
+    if (await wieldPreMoveWeapon(monster, range, env)) return 0;
+
+    const mayMove = !range.nearby
+        || monster.mflee
+        || range.scared
+        || monster.mconf
+        || monster.mstun
+        || (monster.minvis && !random.rn2(3))
+        || (is_wanderer(monster.data) && !random.rn2(4))
+        || (!monster.mcansee && !random.rn2(4))
+        || monster.mpeaceful;
+    let status = MMOVE_NOTHING;
+    if (mayMove) {
+        status = await moveMonster(monster, env);
+        if (status !== MMOVE_DIED) {
+            range = await distanceAndFear(monster, {
+                ...env,
+                monFlee,
+            });
+        }
+        if (status === MMOVE_DIED) return 1;
+        if (status === MMOVE_MOVED) {
+            if (!range.nearby
+                && range.inrange
+                && !range.scared
+                && !monster.mpeaceful
+                && attacktype(monster.data, AT_WEAP)) {
+                const postMoveRangedAttack = requireDochugOperation(
+                    rawEnv,
+                    'postMoveRangedAttack',
+                );
+                await postMoveRangedAttack(monster, env);
+            }
+            return 0;
+        }
+    }
+    if (status !== MMOVE_DONE && !monster.mpeaceful && range.nearby)
+        await attackHero(monster, env);
+    return 0;
+}
+
+// ---- from monmove_dochug_pet.js ----
+function requirePetDochugOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`pet dochug requires a ${name} operation`);
+    return operation;
+}
+
+// This is the complete source ordering for the reachable starting-pet action:
+// pre-move upkeep, exact apparent hero location, two distfleeck() evaluations,
+// dog movement, and postmov(). The integration preflight excludes unowned
+// branches before action state or PRNG is changed.
+export async function dochug_fresh_pet(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const preflightPet = requirePetDochugOperation(rawEnv, 'preflightPet');
+    const resolveTrappedMonster = requirePetDochugOperation(
+        rawEnv,
+        'resolveTrappedMonster',
+    );
+    const finishEating = requirePetDochugOperation(rawEnv, 'finishEating');
+    const movePet = requirePetDochugOperation(rawEnv, 'movePet');
+    const postMonsterMove = requirePetDochugOperation(rawEnv, 'postMonsterMove');
+    const monFlee = requirePetDochugOperation(rawEnv, 'monFlee');
+    const distanceAndFear = rawEnv.distanceAndFear ?? distfleeck;
+    const setApparentHero = rawEnv.setApparentHero ?? set_apparxy;
+    const wipeEngraving = rawEnv.wipeEngraving ?? wipe_engr_at;
+    const redraw = rawEnv.redraw ?? newsym;
+    const env = { ...rawEnv, state, random };
+
+    preflightPet(monster, state);
+    if (!monster.mcanmove) return 0;
+
+    wipeEngraving(monster.mx, monster.my, 1, false, env);
+    if (monster.mflee) {
+        // The source draws before discovering that starting dogs, cats, and
+        // ponies lack intrinsic teleportation.
+        random.rn2(40);
+        // m_respond() is inert for all three starting-pet species.
+        if (!monster.mfleetim
+            && monster.mhp === monster.mhpmax
+            && !random.rn2(25)) {
+            monster.mflee = false;
+        }
+    }
+    setApparentHero(monster, env);
+    const range = await distanceAndFear(monster, { ...env, monFlee });
+
+    const oldX = monster.mx;
+    const oldY = monster.my;
+    // The source evaluates every earlier disjunct before the final mpeaceful
+    // term, so wandering pets can still consume their one-in-four draw.
+    const mayMove = !range.nearby
+        || monster.mflee
+        || range.scared
+        || monster.mconf
+        || monster.mstun
+        || (monster.minvis && !random.rn2(3))
+        || (is_wanderer(monster.data) && !random.rn2(4))
+        || (!monster.mcansee && !random.rn2(4))
+        || monster.mpeaceful;
+    let status;
+    if (mayMove && await resolveTrappedMonster(monster, env)) {
+        status = MMOVE_NOTHING;
+    } else if (mayMove && monster.meating) {
+        --monster.meating;
+        if (monster.meating <= 0) finishEating(monster);
+        status = MMOVE_DONE;
+    } else if (mayMove) {
+        // m_move() refreshes the apparent hero location immediately before
+        // dispatching its tame-monster branch.
+        setApparentHero(monster, env);
+        status = await movePet(monster, false, env);
+        status = await postMonsterMove(
+            monster,
+            oldX,
+            oldY,
+            status,
+            env,
+        );
+    } else {
+        status = MMOVE_NOTHING;
+    }
+    if (mayMove && status !== MMOVE_DIED) {
+        await distanceAndFear(monster, { ...env, monFlee });
+    }
+
+    if (status === MMOVE_DIED) return 1;
+    if ((status === MMOVE_NOTHING || status === MMOVE_DONE)
+        && activeProperty(state, HALLUC)
+        && !activeProperty(state, HALLUC_RES)) {
+        redraw(monster.mx, monster.my);
+    }
+    return 0;
+}
+
+// ---- from monmove_items.js ----
+const PRACTICAL = new Set([
+    O.WEAPON_CLASS,
+    O.ARMOR_CLASS,
+    O.GEM_CLASS,
+    O.FOOD_CLASS,
+]);
+const MAGICAL = new Set([
+    O.AMULET_CLASS,
+    O.POTION_CLASS,
+    O.SCROLL_CLASS,
+    O.WAND_CLASS,
+    O.RING_CLASS,
+    O.SPBOOK_CLASS,
+]);
+const CORPSE_EATERS = new Set([
+    M.PM_PURPLE_WORM,
+    M.PM_BABY_PURPLE_WORM,
+    M.PM_GHOUL,
+    M.PM_PIRANHA,
+]);
+
+function isMercenary(species) {
+    return Boolean((species?.mflags2 ?? 0) & M.M2_MERC);
+}
+
+function prizeObject(obj, state) {
+    const tracking = state.context?.achieveo;
+    return Boolean(tracking
+        && ((tracking.mines_prize_oid
+            && obj.o_id === tracking.mines_prize_oid)
+            || (tracking.soko_prize_oid
+                && obj.o_id === tracking.soko_prize_oid)));
+}
+
+function inHisShop(shopkeeper, state) {
+    const eshk = shopkeeper?.mextra?.eshk;
+    return Boolean(eshk
+        && on_level(eshk.shoplevel, state.u?.uz)
+        && in_rooms(
+            shopkeeper.mx,
+            shopkeeper.my,
+            SHOPBASE,
+            state,
+        ).includes(eshk.shoproom));
+}
+
+function costlySpot(x, y, state) {
+    if (!state.level?.flags?.has_shop) return false;
+    const room = in_rooms(x, y, SHOPBASE, state)[0];
+    const shopkeeper = room >= ROOMOFFSET
+        ? state.level.rooms?.[room - ROOMOFFSET]?.resident
+        : null;
+    const location = state.level.at(x, y);
+    const eshk = shopkeeper?.mextra?.eshk;
+    return Boolean(shopkeeper && inHisShop(shopkeeper, state)
+        && location?.roomno === room && !location.edge
+        && state.level.rooms?.[room - ROOMOFFSET]?.rtype >= SHOPBASE
+        && (x !== eshk.shk.x || y !== eshk.shk.y));
+}
+
+function artifactTouchable(obj, monster, env) {
+    if (!obj.oartifact) return true;
+    if (typeof env.touchArtifact !== 'function') {
+        throw new TypeError(
+            'postmov object selection requires a touchArtifact operation',
+        );
+    }
+    return Boolean(env.touchArtifact(obj, monster, env));
+}
+
+export function mon_would_take_item(monster, obj, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const species = monster.data;
+    const type = objectType(obj, state);
+    const percentLoad = Math.trunc(
+        curr_mon_load(monster) * 100 / max_mon_load(monster),
+    );
+
+    if (obj === state.uball || obj === state.uchain) return false;
+    if (monster.mtame && obj.cursed) return false;
+    if (is_unicorn(species) && type.oc_material !== O.GEMSTONE) return false;
+    if (!mindless(species) && !is_animal(species) && percentLoad < 75
+        && searches_for_item(monster, obj, state)) {
+        return true;
+    }
+    if (likes_gold(species) && obj.otyp === O.GOLD_PIECE
+        && percentLoad < 95) return true;
+    if (likes_gems(species) && obj.oclass === O.GEM_CLASS
+        && type.oc_material !== O.MINERAL && percentLoad < 85) return true;
+    if (likes_objs(species) && PRACTICAL.has(obj.oclass)
+        && percentLoad < 75) return true;
+    if (likes_magic(species) && MAGICAL.has(obj.oclass)
+        && percentLoad < 85) return true;
+    if (throws_rocks(species) && obj.otyp === O.BOULDER
+        && percentLoad < 50 && !state.level?.flags?.sokoban_rules) return true;
+    if (species?.pmidx === M.PM_GELATINOUS_CUBE
+        && obj.oclass !== O.ROCK_CLASS && obj.oclass !== O.BALL_CLASS
+        && !(obj.otyp === O.CORPSE
+            && touch_petrifies(state.mons?.[obj.corpsenm]))) return true;
+    return false;
+}
+
+export function mon_would_consume_item(monster, obj, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (obj.otyp === O.CORPSE
+        && !touch_petrifies(state.mons?.[obj.corpsenm])
+        && CORPSE_EATERS.has(monster.data?.pmidx)) return true;
+
+    const edog = monster.mextra?.edog;
+    if (monster.mtame && edog) {
+        const foodType = dogfood(monster, obj, { ...rawEnv, state });
+        return foodType < MANFOOD
+            && (foodType < ACCFOOD || edog.hungrytime <= state.moves);
+    }
+    return false;
+}
+
+// C refs: monmove.c postmov(); mon.c meatmetal(), meatcorpse(), and
+// mpickstuff(). Clone-only planning runs this read-only selector before any
+// live action; the live postmov() adapter repeats its selection and PRNG calls
+// after movement output, track updates, and redraws.
+export function select_postmove_object_action(
+    monster,
+    x,
+    y,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const env = { ...rawEnv, state, random };
+    const objects = state.level?.objects?.[x]?.[y] ?? null;
+    if (!objects || !monster.mcanmove) return null;
+
+    // Tests and bounded preflight callers may ask about another square. Give
+    // source predicates those coordinates without mutating the real monster.
+    const subject = monster.mx === x && monster.my === y
+        ? monster
+        : { ...monster, mx: x, my: y };
+    const species = subject.data;
+
+    if (!subject.mtame && metallivorous(species)) {
+        const rustMonster = species?.pmidx === M.PM_RUST_MONSTER;
+        for (let obj = objects; obj; obj = obj.nexthere) {
+            const material = objectType(obj, state).oc_material;
+            if ((rustMonster && material !== O.IRON)
+                || obj.otyp === O.AMULET_OF_STRANGULATION
+                || obj.otyp === O.RIN_SLOW_DIGESTION
+                || (obj.opoisoned
+                    && !monster_resists_element(
+                        subject,
+                        POISON_RES,
+                        state,
+                    ))) {
+                continue;
+            }
+            if (material >= O.IRON && material <= O.MITHRIL
+                && !obj_resists(obj, 5, 95, env)
+                && artifactTouchable(obj, subject, env)) {
+                return {
+                    kind: rustMonster && obj.oerodeproof
+                        ? 'reject rustproof metal'
+                        : 'eat metal',
+                    object: obj,
+                };
+            }
+        }
+    }
+
+    if (!subject.mtame && CORPSE_EATERS.has(species?.pmidx)) {
+        for (let obj = objects; obj; obj = obj.nexthere) {
+            if (obj.otyp !== O.CORPSE) continue;
+            const corpseSpecies = state.mons?.[obj.corpsenm];
+            if (!corpseSpecies || vegan(corpseSpecies)
+                || (flesh_petrifies(corpseSpecies)
+                    && !monster_resists_element(
+                        subject,
+                        STONE_RES,
+                        state,
+                    ))) {
+                continue;
+            }
+            return {
+                kind: is_rider(corpseSpecies)
+                    ? 'revive rider corpse'
+                    : 'eat corpse',
+                object: obj,
+            };
+        }
+    }
+
+    if (subject.isshk && inHisShop(subject, state)) return null;
+    if (!subject.mtame && in_rooms(x, y, SHOPBASE, state).length
+        && random.rn2(25)) {
+        return null;
+    }
+    const canReach = rawEnv.couldReachItem ?? could_reach_item;
+    if (!canReach(subject, x, y, state)) return null;
+
+    for (let obj = objects; obj; obj = obj.nexthere) {
+        if (prizeObject(obj, state)
+            || !mon_would_take_item(subject, obj, env)) {
+            continue;
+        }
+        if (obj.otyp === O.CORPSE && species?.mlet !== M.S_NYMPH) {
+            const corpseSpecies = state.mons?.[obj.corpsenm];
+            if (corpseSpecies && !touch_petrifies(corpseSpecies)
+                && obj.corpsenm !== M.PM_LIZARD
+                && !acidic(corpseSpecies)) {
+                continue;
+            }
+        }
+        if (!can_touch_safely(subject, obj, env)
+            || can_carry(subject, obj, env) === 0) {
+            continue;
+        }
+        return { kind: 'pick up', object: obj };
+    }
+    return null;
+}
+
+export function m_search_items(
+    monster,
+    initialGoalX,
+    initialGoalY,
+    initialApproach,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const env = { ...rawEnv, state, random };
+    const canReach = rawEnv.couldReachItem ?? could_reach_item;
+    const canSee = rawEnv.canSee ?? cansee;
+    const mCanSee = rawEnv.monsterCanSee ?? clear_path;
+    const isCostly = rawEnv.costlySpot ?? costlySpot;
+    let goalX = initialGoalX;
+    let goalY = initialGoalY;
+    let approach = initialApproach;
+    let selectedObject = null;
+    let minRadius = SQSRCHRADIUS;
+    const originX = monster.mx;
+    const originY = monster.my;
+
+    if (distmin(monster.mux, monster.muy, originX, originY)
+        < SQSRCHRADIUS && !monster.mpeaceful) minRadius--;
+    if (!monster.mpeaceful && isMercenary(monster.data)) minRadius = 1;
+    if (in_rooms(originX, originY, SHOPBASE, state).length
+        && (random.rn2(25) || monster.isshk)) {
+        return finishSearch();
+    }
+
+    const highX = Math.min(COLNO - 1, originX + minRadius);
+    const highY = Math.min(ROWNO - 1, originY + minRadius);
+    const lowX = Math.max(1, originX - minRadius);
+    const lowY = Math.max(0, originY - minRadius);
+    for (let x = lowX; x <= highX; ++x) {
+        for (let y = lowY; y <= highY; ++y) {
+            if (!state.level.objects[x]?.[y]
+                || minRadius < distmin(originX, originY, x, y)
+                || !canReach(monster, x, y, state)
+                || (hides_under(monster.data) && canSee(x, y, state))) continue;
+
+            const occupant = m_at(x, y, state);
+            if (occupant && (occupant.msleeping || !occupant.mcanmove
+                || occupant.mundetected
+                || (occupant.mappearance && !occupant.iswiz)
+                || !occupant.data?.mmove)) continue;
+            if (onscary(x, y, monster, state)) continue;
+
+            const trap = t_at(x, y, state);
+            if (trap && mon_knows_traps(monster, trap.ttyp)) {
+                if (goalX === x && goalY === y) {
+                    goalX = monster.mux;
+                    goalY = monster.muy;
+                }
+                continue;
+            }
+            if (!mCanSee(originX, originY, x, y)) continue;
+
+            const costly = isCostly(x, y, state);
+            for (let obj = state.level.objects[x][y];
+                obj;
+                obj = obj.nexthere) {
+                if (obj.otyp === O.ROCK || prizeObject(obj, state)
+                    || (costly && !obj.no_charge)) continue;
+                const wanted = mon_would_take_item(monster, obj, env)
+                    && can_carry(monster, obj, env) > 0;
+                if ((wanted
+                    || mon_would_consume_item(monster, obj, env))
+                    && can_touch_safely(monster, obj, env)) {
+                    minRadius = distmin(originX, originY, x, y);
+                    selectedObject = obj;
+                    goalX = obj.ox;
+                    goalY = obj.oy;
+                    if (goalX === originX && goalY === originY) {
+                        return {
+                            approach,
+                            complete: true,
+                            goalX,
+                            goalY,
+                            object: selectedObject,
+                        };
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    return finishSearch();
+
+    function finishSearch() {
+        if (minRadius < SQSRCHRADIUS && approach === -1) {
+            if (distmin(
+                originX,
+                originY,
+                monster.mux,
+                monster.muy,
+            ) <= 3) {
+                goalX = monster.mux;
+                goalY = monster.muy;
+            } else {
+                approach = 1;
+            }
+        }
+        return {
+            approach,
+            complete: false,
+            goalX,
+            goalY,
+            object: selectedObject,
+        };
+    }
+}
+
+// ---- from monmove_move.js ----
+function requireMoveOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`m_move requires a ${name} operation`);
+    return operation;
+}
+
+function lineTerrain(monster, state) {
+    const goalX = monster.mux;
+    const goalY = monster.muy;
+    const deltaX = goalX - monster.mx;
+    const deltaY = goalY - monster.my;
+    if ((!deltaX && !deltaY)
+        || !online2(goalX, goalY, monster.mx, monster.my)
+        || distmin(deltaX, deltaY, 0, 0) >= BOLT_LIM) {
+        return { blocked: false, clear: false, boulders: 0 };
+    }
+
+    const stepX = Math.sign(deltaX);
+    const stepY = Math.sign(deltaY);
+    let x = monster.mx;
+    let y = monster.my;
+    let boulders = 0;
+    do {
+        x += stepX;
+        y += stepY;
+        const location = state.level?.at(x, y);
+        if (!location || IS_OBSTRUCTED(location.typ)
+            || IS_WATERWALL(location.typ)
+            || location.typ === LAVAWALL
+            || closed_door(x, y, state)) {
+            return { blocked: true, clear: false, boulders };
+        }
+        if (sobj_at(BOULDER, x, y, state)) boulders++;
+    } while (x !== goalX || y !== goalY);
+    return { blocked: false, clear: boulders === 0, boulders };
+}
+
+// C refs: mthrowu.c lined_up()/linedup(), as used only by m_move()'s item
+// search admission. The current fresh-game boundary cannot polymorph the hero,
+// so m_lined_up()'s Upolyd concealment draw is not reachable here.
+export function monsterItemSearchInLine(monster, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const terrain = lineTerrain(monster, state);
+    if (!online2(monster.mx, monster.my, monster.mux, monster.muy)
+        || distmin(
+            monster.mx,
+            monster.my,
+            monster.mux,
+            monster.muy,
+        ) >= BOLT_LIM) {
+        return false;
+    }
+
+    const goalIsHero = monster.mux === state.u.ux
+        && monster.muy === state.u.uy;
+    if ((goalIsHero && couldsee(monster.mx, monster.my, state))
+        || (!goalIsHero && terrain.clear)) {
+        return true;
+    }
+    if (terrain.blocked
+        || (!terrain.clear && terrain.boulders === 0)) {
+        return false;
+    }
+
+    const ignoresBoulders = throws_rocks(monster.data)
+        || Boolean(m_carrying(monster, WAN_STRIKING, state));
+    return ignoresBoulders
+        || random.rn2(2 + terrain.boulders) < 2;
+}
+
+// This bounded m_move() owner covers the ordinary new-game path. Special
+// movers, aggression, displacement, and boulder breaking remain explicit
+// seams until their source owners are connected.
+export async function m_move_fresh(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const resolveTrappedMonster = requireMoveOperation(
+        rawEnv,
+        'resolveTrappedMonster',
+    );
+    const resistsTrapEffect = requireMoveOperation(
+        rawEnv,
+        'resistsTrapEffect',
+    );
+    const postMonsterMove = requireMoveOperation(rawEnv, 'postMonsterMove');
+    const unsupported = requireMoveOperation(rawEnv, 'unsupported');
+    const env = { ...rawEnv, state, random };
+    const oldX = monster.mx;
+    const oldY = monster.my;
+
+    if (await resolveTrappedMonster(monster, env))
+        return MMOVE_NOTHING;
+    set_apparxy(monster, env);
+    let goalX = monster.mux;
+    let goalY = monster.muy;
+    let approach = monster.mflee ? -1 : 1;
+
+    if (monster.mconf) {
+        approach = 0;
+    } else {
+        const sourceSquare = state.level.at(oldX, oldY);
+        const goalSquare = state.level.at(goalX, goalY);
+        const shouldSee = couldsee(oldX, oldY, state)
+            && (goalSquare.lit || !sourceSquare.lit)
+            && dist2(oldX, oldY, goalX, goalY) <= 36;
+        if (!monster.mcansee
+            || (shouldSee && activeProperty(state, INVIS)
+                && !perceives(monster.data) && random.rn2(11))
+            || state.u.uundetected
+            || (monster.mpeaceful && !monster.isshk)
+            || ((monster.data?.pmidx === PM_STALKER
+                || monster.data?.mlet === S_BAT
+                || monster.data?.mlet === S_LIGHT)
+                && !random.rn2(3))) {
+            approach = 0;
+        }
+        if (!shouldSee && haseyes(monster.data)) {
+            const track = gettrack(oldX, oldY, state);
+            if (track) {
+                goalX = track.x;
+                goalY = track.y;
+            }
+        }
+    }
+
+    let getItems = false;
+    const passesPeacefulGate = !monster.mpeaceful || !random.rn2(10);
+    if (passesPeacefulGate
+        && !on_level(state.u?.uz, state.rogue_level)) {
+        const linedUp = (
+            rawEnv.itemSearchInLine ?? monsterItemSearchInLine
+        )(monster, env);
+        const throwRange = throws_rocks(state.youmonst?.data)
+            ? 20
+            : Math.trunc(effective_attribute(state, A_STR) / 2) + 1;
+        const inLine = linedUp
+            && distmin(oldX, oldY, monster.mux, monster.muy) <= throwRange;
+        getItems = approach !== 1 || !inLine;
+    }
+    if (getItems) {
+        const search = (rawEnv.searchItems ?? m_search_items)(
+            monster,
+            goalX,
+            goalY,
+            approach,
+            env,
+        );
+        goalX = search.goalX;
+        goalY = search.goalY;
+        approach = search.approach;
+        if (search.complete) {
+            return postMonsterMove(
+                monster,
+                oldX,
+                oldY,
+                MMOVE_DONE,
+                env,
+            );
+        }
+    }
+
+    const data = { cnt: 0, poss: [], info: [] };
+    const count = mfndpos(
+        monster,
+        data,
+        mon_allowflags(monster, env),
+        { ...env, resistsTrapEffect },
+    );
+    if (!count && !is_unicorn(monster.data)) return MMOVE_NOMOVES;
+
+    let nextX = oldX;
+    let nextY = oldY;
+    let chosen = -1;
+    let choiceCount = 0;
+    let moved = MMOVE_NOTHING;
+    let nearestDistance = dist2(oldX, oldY, goalX, goalY);
+    if (!monster.mpeaceful && state.level.flags?.shortsighted
+        && nearestDistance > (couldsee(oldX, oldY, state) ? 144 : 36)
+        && approach === 1) {
+        approach = 0;
+    }
+
+    let avoidLine = false;
+    if (is_unicorn(monster.data) && rawEnv.noTeleportLevel?.(monster)) {
+        avoidLine = data.info.some((info) => !(info & NOTONL));
+    }
+    const betterWithDisplacing = should_displace(
+        monster,
+        data,
+        goalX,
+        goalY,
+        env,
+    );
+    const trackLimit = Math.min(MTSZ, count - 1);
+    for (let index = 0; index < count; ++index) {
+        if (avoidLine && (data.info[index] & NOTONL)) continue;
+        const { x, y } = data.poss[index];
+        if (rawEnv.avoidKicked?.(monster, x, y, env)) continue;
+        if (m_at(x, y, state)
+            && (data.info[index] & ALLOW_MDISP)
+            && !(data.info[index] & ALLOW_M)
+            && !betterWithDisplacing) {
+            continue;
+        }
+        let rejectTrack = false;
+        if (approach !== 0) {
+            for (let trackIndex = 0;
+                trackIndex < trackLimit;
+                ++trackIndex) {
+                if (x === monster.mtrack[trackIndex].x
+                    && y === monster.mtrack[trackIndex].y
+                    && random.rn2(4 * (count - trackIndex))) {
+                    rejectTrack = true;
+                    break;
+                }
+            }
+        }
+        if (rejectTrack) continue;
+
+        const distance = dist2(x, y, goalX, goalY);
+        const nearer = distance < nearestDistance;
+        if ((approach === 1 && nearer)
+            || (approach === -1 && !nearer)
+            || (!approach && !random.rn2(++choiceCount))
+            || moved === MMOVE_NOTHING) {
+            nextX = x;
+            nextY = y;
+            nearestDistance = distance;
+            chosen = index;
+            moved = MMOVE_MOVED;
+        }
+    }
+    if (moved === MMOVE_NOTHING) {
+        return postMonsterMove(
+            monster,
+            oldX,
+            oldY,
+            moved,
+            env,
+        );
+    }
+    if (data.info[chosen] & ALLOW_U) {
+        nextX = monster.mux;
+        nextY = monster.muy;
+    }
+    if (nextX === state.u.ux && nextY === state.u.uy) {
+        monster.mux = state.u.ux;
+        monster.muy = state.u.uy;
+        return MMOVE_NOTHING;
+    }
+    const attacksImage = nextX === monster.mux && nextY === monster.muy;
+    if ((data.info[chosen] & ALLOW_M) || attacksImage) {
+        if (!m_at(nextX, nextY, state)) return MMOVE_DONE;
+        unsupported('ordinary monster aggression');
+    }
+    if (data.info[chosen] & ALLOW_MDISP)
+        unsupported('ordinary monster displacement');
+    const mayCrossRegion = rawEnv.mayCrossRegion ?? m_in_out_region;
+    if (!await mayCrossRegion(monster, nextX, nextY, env))
+        return MMOVE_DONE;
+    if (data.info[chosen] & ALLOW_ROCK)
+        unsupported('ordinary monster boulder breaking');
+
+    remove_monster(oldX, oldY, state);
+    place_monster(monster, nextX, nextY, state);
+    const movementMessage = collectMonsterMovementMessage(
+        monster,
+        oldX,
+        oldY,
+        state,
+    );
+    if (movementMessage && !env.planning) {
+        const message = rawEnv.message ?? ttyPline;
+        await message(movementMessage, state, env);
+    }
+    mon_track_add(monster, oldX, oldY);
+    return postMonsterMove(
+        monster,
+        oldX,
+        oldY,
+        MMOVE_MOVED,
+        env,
+    );
 }

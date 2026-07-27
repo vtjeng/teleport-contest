@@ -13,7 +13,7 @@ import {
     STRAT_ARRIVE,
     STRAT_WAITFORU,
 } from '../js/const.js';
-import { dochug_fresh_monster } from '../js/monmove_dochug.js';
+import { dochug_fresh_monster } from '../js/monmove.js';
 import { AT_WEAP } from '../js/monsters.js';
 
 function makeState() {

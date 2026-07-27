@@ -97,15 +97,13 @@ import {
     monhaskey,
     monflee,
     monnear,
+    m_move_fresh,
+    monsterItemSearchInLine,
     onscary,
     set_apparxy,
     should_displace,
     undesirable_disp,
 } from '../js/monmove.js';
-import {
-    monsterItemSearchInLine,
-    m_move_fresh,
-} from '../js/monmove_move.js';
 import {
     M1_CLING,
     M1_NEEDPICK,

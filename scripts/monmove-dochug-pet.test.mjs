@@ -9,7 +9,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOTHING,
 } from '../js/const.js';
-import { dochug_fresh_pet } from '../js/monmove_dochug_pet.js';
+import { dochug_fresh_pet } from '../js/monmove.js';
 
 function makeMonster(overrides = {}) {
     return {

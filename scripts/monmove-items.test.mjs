@@ -14,7 +14,7 @@ import {
     mon_would_take_item,
     m_search_items,
     select_postmove_object_action,
-} from '../js/monmove_items.js';
+} from '../js/monmove.js';
 import {
     PM_COCKATRICE,
     PM_GIANT_RAT,
