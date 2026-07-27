@@ -2348,10 +2348,13 @@ export function monsterItemSearchInLine(monster, env = {}) {
         || random.rn2(2 + terrain.boulders) < 2;
 }
 
-// This bounded m_move() owner covers the ordinary new-game path. Special
-// movers, aggression, displacement, and boulder breaking remain explicit
-// seams until their source owners are connected.
-export async function m_move_fresh(monster, rawEnv = {}) {
+// C ref: monmove.c m_move().  This covers the ordinary not_special path
+// through postmov().  Not covered yet: the mtrapped mintrap() and meating
+// prologue and the `if (mtmp->mtame)` dog_move() dispatch, which
+// dochug_fresh_pet() currently inlines instead; the wormno branch; the
+// is_covetous() tactics branch; m_move_aggress(); displacement; and boulder
+// breaking.  Those remain explicit seams until their source owners connect.
+export async function m_move(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2 };
     const resolveTrappedMonster = requireMoveOperation(

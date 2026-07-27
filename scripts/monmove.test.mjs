@@ -93,7 +93,7 @@ import {
     monhaskey,
     monflee,
     monnear,
-    m_move_fresh,
+    m_move,
     monsterItemSearchInLine,
     onscary,
     set_apparxy,
@@ -429,7 +429,7 @@ test('m_move pins source candidate order and reservoir tie-breaking',
     const randomCalls = [];
     const random = sequenceRandom([0, 1, 0], randomCalls);
 
-    const result = await m_move_fresh(monster, {
+    const result = await m_move(monster, {
         state,
         random,
         resolveTrappedMonster: () => false,
@@ -465,7 +465,7 @@ test('m_move ordinary path reports no moves from a sealed square', async () => {
     state.level.monsters[monster.mx][monster.my] = monster;
     sealNeighborhood(locations, monster.mx, monster.my);
 
-    const result = await m_move_fresh(monster, {
+    const result = await m_move(monster, {
         state,
         random: { rn2: () => 0 },
         resolveTrappedMonster: () => false,
@@ -494,7 +494,7 @@ test('m_move sends a rejected candidate through postmov as no movement',
         locations.set('3,4', { typ: ROOM, flags: 0 });
         const postCalls = [];
 
-        const result = await m_move_fresh(monster, {
+        const result = await m_move(monster, {
             state,
             random: { rn2: () => 0 },
             resolveTrappedMonster: () => false,
@@ -537,7 +537,7 @@ test('m_move item search requires the complete approach and line predicate',
         });
         aligned.level.monsters[4][4] = approaching;
         const alignedEvents = [];
-        await m_move_fresh(approaching, {
+        await m_move(approaching, {
             state: aligned,
             random: { rn2: () => 0 },
             resolveTrappedMonster: () => false,
@@ -567,7 +567,7 @@ test('m_move item search requires the complete approach and line predicate',
         offLine.level.monsters[4][4] = searching;
         const stop = new Error('off-line item search reached');
         await assert.rejects(
-            m_move_fresh(searching, {
+            m_move(searching, {
                 state: offLine,
                 random: { rn2: () => 0 },
                 resolveTrappedMonster: () => false,
@@ -593,7 +593,7 @@ test('m_move item search requires the complete approach and line predicate',
         confused.level.monsters[4][4] = nonApproaching;
         const confusedStop = new Error('non-approach item search reached');
         await assert.rejects(
-            m_move_fresh(nonApproaching, {
+            m_move(nonApproaching, {
                 state: confused,
                 random: { rn2: () => 0 },
                 resolveTrappedMonster: () => false,
@@ -622,7 +622,7 @@ test('m_move item-search gate preserves peaceful and rogue-level order',
         state.level.monsters[monster.mx][monster.my] = monster;
         sealNeighborhood(locations, monster.mx, monster.my);
         const calls = [];
-        const result = await m_move_fresh(monster, {
+        const result = await m_move(monster, {
             state,
             random: sequenceRandom([0], calls),
             resolveTrappedMonster: () => false,
@@ -707,7 +707,7 @@ test('m_move spends an attack on an empty displacement image', async () => {
     locations.set('9,10', { typ: ROOM, flags: 0 });
     const calls = [];
 
-    const result = await m_move_fresh(monster, {
+    const result = await m_move(monster, {
         state,
         random: sequenceRandom([1, 1, 2], calls),
         couldSee: () => true,
@@ -748,7 +748,7 @@ test('m_move delegates the selected region crossing before map mutation',
         state.level.monsters[monster.mx][monster.my] = monster;
         const events = [];
 
-        const result = await m_move_fresh(monster, {
+        const result = await m_move(monster, {
             state,
             random: { rn2: () => 0 },
             resolveTrappedMonster: () => false,

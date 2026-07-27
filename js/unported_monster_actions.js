@@ -63,7 +63,7 @@ import {
     dochugw,
     m_avoid_kicked_loc,
     m_avoid_soko_push_loc,
-    m_move_fresh,
+    m_move,
     select_postmove_object_action,
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
@@ -356,7 +356,7 @@ async function postSimpleMove(monster, oldX, oldY, status, env) {
 }
 
 async function moveSimpleOrdinary(monster, env) {
-    return m_move_fresh(monster, {
+    return m_move(monster, {
         ...env,
         mayCrossRegion: assertSimpleDestination,
         postMonsterMove: postSimpleMove,
