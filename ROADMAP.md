@@ -142,29 +142,29 @@ relaxing the fail-closed boundary.
 
 **Explicit future exploration work, outside the completed goal:**
 
-- Hero or monster combat, including attacks, retaliation, displacement,
-  knockback, damage, death, corpses, weapon selection, ranged attacks, spells,
-  passives, and special damage.
+- Hero or monster combat, including attacks, retaliation, monster-initiated
+  displacement, knockback, damage, death, corpses, weapon selection, ranged
+  attacks, spells, passives, and special damage.
 - Hero- or monster-triggered traps, including holding, projectiles, status,
   magic, fire, land mines, teleportation, holes, trapdoors, migration, and
   living-statue effects.
 - Hero or monster relocation and every level transition, including deferred
   transitions, D:2 generation, and rolling-boulder traps.
-- Objects and inventory behavior, including automatic pickup, floor
-  descriptions, pet food and fetching, monster pickup, equipment, naming,
-  billing, and object damage.
+- Objects and inventory behavior, including automatic pickup, pet food and
+  fetching, monster pickup, equipment, naming, billing, and object damage.
 - Regions, engravings, ice, pools, lava, fountains, sinks, graves, altars,
   gas clouds, liquid effects, and every other special-terrain or room effect.
 - Closed, locked, trapped, broken, or obstructing doors; tunneling; boulder
-  breaking; iron bars; and other non-clear destination handling.
+  breaking; iron bars; and other non-clear destination handling beyond a
+  no-time refusal against wall or rock.
 - Special monster movement or actions, including hiding, shapechanging,
   covetous tactics, fleeing teleportation, conflict, watch or quest behavior,
   speech, item use, and themed-room monster behavior beyond an inert wait.
 - Pet states beyond an ordinary active starting pet, including eating,
   carrying, leashes, steeds, arrival or wait strategies, conflict, confusion,
   stun, fear, ranged attacks, and combat.
-- Running, search, obstructed movement, force-fight, travel, pickup commands,
-  stairs, and all commands other than waiting or a one-square clear walk.
+- Running, search, force-fight, travel, pickup commands, stairs, and all
+  commands other than waiting or a one-square walk.
 
 Several source-faithful helpers for these future families are already
 committed. They remain preserved prerequisites, but their existence does not
