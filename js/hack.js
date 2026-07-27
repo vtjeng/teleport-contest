@@ -6,16 +6,19 @@ import {
     IS_OBSTRUCTED,
     IS_STWALL,
     IS_TREE,
+    IS_WALL,
     LEVITATION,
     MAX_TYPE,
     STEALTH,
+    STONE,
     TIMER_OBJECT,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
     ZOMBIFY_MON,
 } from './const.js';
-import { classify_terrain } from './display.js';
+import { classify_terrain, newsym, wall_angle } from './display.js';
+import { alwaysVisibleMonsterName } from './do_name.js';
 import {
     can_reach_floor,
     engr_at,
@@ -30,7 +33,9 @@ import {
 } from './mondata.js';
 import { sobj_at } from './obj.js';
 import { BOULDER, CORPSE } from './objects.js';
+import { place_monster, remove_monster } from './monst.js';
 import { rn2, rnd } from './rng.js';
+import { S_stone } from './symbols.js';
 import {
     peek_timer,
     start_timer,
@@ -41,6 +46,65 @@ function propertyActiveUnblocked(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic)
         && !value?.blocked;
+}
+
+// C ref: hack.c test_move(), physical-obstacle branch for ordinary wall and
+// rock refusals. Other test_move() terrain and ability branches remain at the
+// command admission boundary. This live subset consumes no time or PRNG.
+export async function test_move(
+    ux,
+    uy,
+    dx,
+    dy,
+    state = game,
+    env = {},
+) {
+    const location = state.level?.at?.(ux + dx, uy + dy);
+    if (!location
+        || (location.typ !== STONE && !IS_WALL(location.typ))) {
+        return true;
+    }
+
+    if (state.flags?.mention_walls) {
+        const symbol = location.typ === STONE
+            ? S_stone : wall_angle(location);
+        const description = symbol === S_stone ? 'solid stone' : 'a wall';
+        const message = env.message;
+        if (typeof message !== 'function')
+            throw new TypeError('wall refusal requires a message operation');
+        await message(`It's ${description}.`, state);
+    }
+    return false;
+}
+
+// C ref: hack.c domove_swap_with_pet(), successful ordinary starting-pet
+// branch. The caller preflights traps, liquids, boulders, inaccessible source
+// terrain, and special monster state before either position changes.
+export async function domove_swap_with_pet(
+    monster,
+    x,
+    y,
+    state = game,
+    env = {},
+) {
+    const message = env.message;
+    if (typeof message !== 'function')
+        throw new TypeError('pet swap requires a message operation');
+    const { u } = state;
+    const oldX = u.ux0;
+    const oldY = u.uy0;
+
+    monster.mundetected = false;
+    monster.mtrapped = false;
+    remove_monster(x, y, state);
+    place_monster(monster, oldX, oldY, state);
+    newsym(x, y);
+    newsym(oldX, oldY);
+    await message(
+        `You swap places with ${alwaysVisibleMonsterName(monster, state)}.`,
+        state,
+    );
+    return true;
 }
 
 // C ref: hack.c domove(), the heavy-tread branch immediately after the hero

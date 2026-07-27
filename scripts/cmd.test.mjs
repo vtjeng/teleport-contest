@@ -36,10 +36,12 @@ import {
     ROWNO,
     STONE,
     STONED,
+    VWALL,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
+import { test_move } from '../js/hack.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { PM_FOG_CLOUD } from '../js/monsters.js';
 import { parseNethackrc } from '../js/options.js';
@@ -79,6 +81,56 @@ function topLine(state) {
     return state.nhDisplay.grid[0]
         .map(({ ch }) => ch).join('').trimEnd();
 }
+
+test('test_move describes remembered walls without time or PRNG work',
+    async () => {
+        const state = {
+            flags: { mention_walls: true },
+            level: new GameMap(),
+        };
+        // Interior coordinate (10,10) and eastward delta isolate the
+        // destination lookup from map-edge refusal.
+        const ux = 10;
+        const uy = 10;
+        const destination = state.level.at(ux + 1, uy);
+        const messages = [];
+        const env = {
+            message: (message) => messages.push(message),
+        };
+
+        // A fully remembered vertical wall maps to a wall defsym; an
+        // unrevealed stone square maps to S_stone's "solid stone" wording.
+        destination.typ = VWALL;
+        destination.seenv = 0xFF;
+        assert.equal(
+            await test_move(ux, uy, 1, 0, state, env),
+            false,
+        );
+        destination.typ = STONE;
+        assert.equal(
+            await test_move(ux, uy, 1, 0, state, env),
+            false,
+        );
+        assert.deepEqual(messages, [
+            "It's a wall.",
+            "It's solid stone.",
+        ]);
+
+        // mention_walls is the exact source output gate. The refusal itself
+        // remains in force when the option is disabled.
+        state.flags.mention_walls = false;
+        destination.typ = VWALL;
+        assert.equal(
+            await test_move(ux, uy, 1, 0, state, {
+                message: () => assert.fail('disabled wall message'),
+            }),
+            false,
+        );
+
+        // ROOM is outside this ported test_move() branch and remains legal.
+        destination.typ = ROOM;
+        assert.equal(await test_move(ux, uy, 1, 0, state), true);
+    });
 
 function heroMoveAdmissionSnapshot(replay) {
     return {
@@ -211,15 +263,16 @@ async function prepareHeroMoveAdmission() {
 test('simple hero movement rejects spot effects before mutation', async () => {
     const cases = [
         {
-            name: 'single floor object',
-            reason: 'floor object interaction',
+            name: 'automatic pickup',
+            reason: 'automatic pickup',
             setup: ({ x, y }) => {
+                game.flags.pickup = true;
                 game.level.objects[x][y] = { o_id: 1, nexthere: null };
             },
         },
         {
             name: 'floor object pile',
-            reason: 'floor object interaction',
+            reason: 'floor object pile',
             setup: ({ x, y }) => {
                 // Two linked objects exercise the pile path, not merely the
                 // single-object floor-description branch.
@@ -312,9 +365,10 @@ test('simple hero movement rejects spot effects before mutation', async () => {
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
         {
-            name: 'floor object',
-            reason: 'floor object interaction',
+            name: 'automatic pickup',
+            reason: 'automatic pickup',
             install: ({ x, y }) => {
+                game.flags.pickup = true;
                 game.level.objects[x][y] = {
                     o_id: 7001,
                     nexthere: null,
@@ -322,6 +376,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             },
             remove: ({ x, y }) => {
                 game.level.objects[x][y] = null;
+                game.flags.pickup = false;
             },
         },
         {

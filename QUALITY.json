@@ -199,7 +199,8 @@
         "js/hack.js",
         "js/input.js",
         "js/tty_menu.js",
-        "js/tty_message.js"
+        "js/tty_message.js",
+        "js/uhitm.js"
       ]
     },
     {

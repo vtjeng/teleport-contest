@@ -118,7 +118,7 @@ export function capitalizedMonsterName(monster, state = game) {
 
 // C ref: do_name.c noit_Monnam(). ARTICLE_YOUR becomes "your" for an
 // unnamed tame monster and "the" otherwise; a given name has no article.
-export function capitalizedAlwaysVisibleMonsterName(
+export function alwaysVisibleMonsterName(
     monster,
     state = game,
 ) {
@@ -130,6 +130,14 @@ export function capitalizedAlwaysVisibleMonsterName(
         && name.startsWith('the ')) {
         name = `your ${name.slice(4)}`;
     }
+    return name;
+}
+
+export function capitalizedAlwaysVisibleMonsterName(
+    monster,
+    state = game,
+) {
+    const name = alwaysVisibleMonsterName(monster, state);
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
 }
 
