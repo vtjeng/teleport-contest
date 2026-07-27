@@ -41,6 +41,18 @@ export function loadRepeatedSimpleCommandsRecipe() {
                 moves: '.'.repeat(250),
             },
             {
+                seed: 50586,
+                datetime: '20310203040506',
+                nethackrc: nethackrc({
+                    name: 'Move600',
+                    role: 'Ranger',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // This independently selected quiet seed reaches the first
+                // scheduled exerchk() boundary without leaving simple waits.
+                moves: '.'.repeat(600),
+            },
+            {
                 seed: 31001,
                 datetime: DATETIME,
                 nethackrc: nethackrc({

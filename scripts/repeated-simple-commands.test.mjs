@@ -26,14 +26,15 @@ test('repeated-simple-command matrix contains only source-selected inputs',
     () => {
         const recipe = loadRepeatedSimpleCommandsRecipe();
         assert.equal(recipe.version, 5);
-        assert.equal(recipe.segments.length, 7);
+        assert.equal(recipe.segments.length, 8);
         assert.deepEqual(
             recipe.segments.map(({ moves }) => moves.length),
-            [250, 12, 4, 12, 1, 5, 1],
+            [250, 600, 12, 4, 12, 1, 5, 1],
         );
         assert.deepEqual(
             recipe.segments.map(({ moves }) => new Set(moves)),
             [
+                new Set(['.']),
                 new Set(['.']),
                 new Set(['h']),
                 new Set(['h']),
@@ -77,23 +78,30 @@ test('repeated-simple-command cases retain their source branch markers',
             runtimeSlices.slice(171).every((slice) => slice.length === 0),
             'the final 80 safe waits consume no PRNG',
         );
-        const wallWithMessage = await runSegment(segments[1]);
+
+        const move600 = await runSegment(segments[1]);
+        assert.equal(game._commandDispatchCount, 600);
+        assert.equal(game.moves, 601);
+        assert.ok(game.context.next_attrib_check > 600);
+        assert.equal(move600.getRngSlices().length, 601);
+
+        const wallWithMessage = await runSegment(segments[2]);
         assert.equal(topLine(), "It's a wall.");
         assert.ok(
             wallWithMessage.getRngSlices().slice(1)
                 .every((slice) => slice.length === 0),
         );
 
-        const silentWall = await runSegment(segments[2]);
+        const silentWall = await runSegment(segments[3]);
         assert.equal(topLine(), '');
         assert.ok(
             silentWall.getRngSlices().slice(1)
                 .every((slice) => slice.length === 0),
         );
 
-        await runSegment({ ...segments[3], moves: '' });
+        await runSegment({ ...segments[4], moves: '' });
         const walkStart = [game.u.ux, game.u.uy];
-        const repeatedWalk = await runSegment(segments[3]);
+        const repeatedWalk = await runSegment(segments[4]);
         assert.equal(game._commandDispatchCount, 12);
         assert.deepEqual(
             [game.u.ux, game.u.uy],
@@ -101,7 +109,7 @@ test('repeated-simple-command cases retain their source branch markers',
         );
         assert.equal(repeatedWalk.getRngSlices().length, 13);
 
-        const petSwap = await runSegment(segments[4]);
+        const petSwap = await runSegment(segments[5]);
         const swappedPet = startingPet();
         assert.ok(swappedPet);
         assert.equal(topLine(), 'You swap places with your kitten.');
@@ -131,7 +139,7 @@ test('repeated-simple-command cases retain their source branch markers',
         await moveloop_core();
         assertSinglePetIdentity();
 
-        const petRefusal = await runSegment(segments[5]);
+        const petRefusal = await runSegment(segments[6]);
         const refusedPet = startingPet();
         assert.ok(refusedPet);
         assert.deepEqual(
@@ -142,7 +150,7 @@ test('repeated-simple-command cases retain their source branch markers',
         assert.equal(refusedPet.mflee, false);
         assert.equal(refusedPet.mfleetim, 0);
 
-        await runSegment(segments[6]);
+        await runSegment(segments[7]);
         assert.equal(topLine(), 'You see here 5 gold pieces.');
         const object = game.level.objects[game.u.ux][game.u.uy];
         assert.ok(object);
