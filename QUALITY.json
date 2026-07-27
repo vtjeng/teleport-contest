@@ -141,7 +141,6 @@
         "js/moncarry.js",
         "js/mondata.js",
         "js/monmove.js",
-        "js/monmove_simple.js",
         "js/monst.js",
         "js/monster_action.js",
         "js/monsters.js",
@@ -149,6 +148,7 @@
         "js/priest.js",
         "js/shk.js",
         "js/teleport.js",
+        "js/unported_monster_actions.js",
         "js/weapon.js"
       ],
       "generatedOutputs": [

@@ -44,7 +44,7 @@ import {
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
-} from '../js/monmove_simple.js';
+} from '../js/unported_monster_actions.js';
 import { newMonster } from '../js/monst.js';
 import {
     DAGGER,

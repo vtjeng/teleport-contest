@@ -1,5 +1,15 @@
 // Monster movement decisions, actions, and item search.
 // C ref: monmove.c.  Every function ported from that file lives here.
+//
+// Five functions here come from other C files and have not moved yet:
+//   mon.c    mon_allowflags(), m_in_air(), mfndpos(), monnear()
+//   trap.c   m_harmless_trap()
+// mfndpos() and its helpers are about 540 lines and call back into can_fog(),
+// monhaskey(), m_can_break_boulder(), closed_door(), accessible(), and
+// onscary(), all of which are monmove.c and stay here.  Moving them to
+// js/mon.js would make js/mon.js and this file import each other.
+// m_harmless_trap() needs isSpecies() below, which duplicates speciesIs() in
+// js/mondata.js; unify those two first, then the move is small.
 
 import {
     ACCESSIBLE,
