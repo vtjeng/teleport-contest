@@ -76,7 +76,6 @@ import { online2 } from '../js/hacklib.js';
 import { create_region } from '../js/region.js';
 import {
     accessible,
-    bad_rock,
     can_fog,
     can_ooze,
     dochugw,
@@ -88,8 +87,6 @@ import {
     m_everyturn_effect,
     m_harmless_trap,
     m_in_air,
-    may_dig,
-    may_passwall,
     mfndpos,
     mon_allowflags,
     mon_track_add,
@@ -103,6 +100,7 @@ import {
     should_displace,
     undesirable_disp,
 } from '../js/monmove.js';
+import { bad_rock, may_dig, may_passwall } from '../js/hack.js';
 import { in_your_sanctuary } from '../js/priest.js';
 import {
     M1_CLING,

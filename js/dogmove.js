@@ -72,13 +72,13 @@ import {
     remove_monster,
 } from './monst.js';
 import {
-    may_dig,
     mfndpos,
     mon_allowflags,
     mon_track_add,
     should_displace,
     undesirable_disp,
 } from './monmove.js';
+import { may_dig } from './hack.js';
 import { sobj_at } from './obj.js';
 import {
     BALL_CLASS,

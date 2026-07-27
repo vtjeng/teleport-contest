@@ -51,6 +51,7 @@ import {
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_STWALL,
+    IS_TREE,
     IS_WATERWALL,
     LANDMINE,
     LAVAPOOL,
@@ -102,7 +103,6 @@ import {
     TEMPLE,
     TRAPDOOR,
     TRAPNUM,
-    TREE,
     UNLOCKDOOR,
     VIBRATING_SQUARE,
     WEB,
@@ -110,7 +110,6 @@ import {
     W_ARM,
     W_ARMS,
     W_NONDIGGABLE,
-    W_NONPASSWALL,
     isok,
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
@@ -120,6 +119,7 @@ import { newsym } from './display.js';
 import { dogfood } from './dogfood.js';
 import { could_reach_item } from './dogmove.js';
 import { on_level } from './dungeon.js';
+import { bad_rock, may_dig, may_passwall } from './hack.js';
 import { sengr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { dist2, distmin, online2 } from './hacklib.js';
@@ -637,39 +637,6 @@ export function m_in_air(monster, state = game) {
             && monster.mundetected);
 }
 
-function isTreeTerrain(type, state) {
-    return type === TREE
-        || (type === STONE && state.level?.flags?.arboreal);
-}
-
-// C refs: hack.c may_dig() and may_passwall().
-export function may_dig(x, y, state = game) {
-    const location = state.level?.at?.(x, y);
-    if (!location) return false;
-    return !((IS_STWALL(location.typ) || isTreeTerrain(location.typ, state))
-        && ((location.wall_info ?? 0) & W_NONDIGGABLE));
-}
-
-export function may_passwall(x, y, state = game) {
-    const location = state.level?.at?.(x, y);
-    if (!location) return false;
-    return !(IS_STWALL(location.typ)
-        && ((location.wall_info ?? 0) & W_NONPASSWALL));
-}
-
-// C ref: hack.c bad_rock(), specialized only by its supplied monster species.
-export function bad_rock(species, x, y, state = game) {
-    const location = state.level?.at?.(x, y);
-    if (!location) return true;
-    return Boolean(
-        (state.level?.flags?.sokoban_rules && sobj_at(BOULDER, x, y, state))
-        || (IS_OBSTRUCTED(location.typ)
-            && (!tunnels(species) || needspick(species)
-                || !may_dig(x, y, state))
-            && !(passes_walls(species) && may_passwall(x, y, state))),
-    );
-}
-
 // mfndpos() never passes the hero to hack.c cant_squeeze_thru(). Preserve the
 // complete monster branch without importing the later hero burden subsystem.
 function monsterCantSqueezeThrough(monster, state) {
@@ -1061,7 +1028,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 if (IS_OBSTRUCTED(nextType)
                     && !((flags & ALLOW_WALL)
                         && may_passwall(nx, ny, state))
-                    && !((isTreeTerrain(nextType, state)
+                    && !((IS_TREE(nextType, state)
                         ? treeOkay : rockOkay) && may_dig(nx, ny, state))) {
                     continue;
                 }

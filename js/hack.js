@@ -3,10 +3,15 @@
 import {
     FLYING,
     HEADSTONE,
+    IS_OBSTRUCTED,
+    IS_STWALL,
+    IS_TREE,
     LEVITATION,
     MAX_TYPE,
     STEALTH,
     TIMER_OBJECT,
+    W_NONDIGGABLE,
+    W_NONPASSWALL,
     WT_ELF,
     ZOMBIFY_MON,
 } from './const.js';
@@ -17,8 +22,14 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
-import { is_flyer } from './mondata.js';
-import { CORPSE } from './objects.js';
+import {
+    is_flyer,
+    needspick,
+    passes_walls,
+    tunnels,
+} from './mondata.js';
+import { sobj_at } from './obj.js';
+import { BOULDER, CORPSE } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import {
     peek_timer,
@@ -113,4 +124,32 @@ export function disturb_buried_zombies(x, y, state = game) {
             state,
         );
     }
+}
+
+// C refs: hack.c may_dig() and may_passwall().
+export function may_dig(x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    if (!location) return false;
+    return !((IS_STWALL(location.typ) || IS_TREE(location.typ, state))
+        && ((location.wall_info ?? 0) & W_NONDIGGABLE));
+}
+
+export function may_passwall(x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    if (!location) return false;
+    return !(IS_STWALL(location.typ)
+        && ((location.wall_info ?? 0) & W_NONPASSWALL));
+}
+
+// C ref: hack.c bad_rock(), specialized only by its supplied monster species.
+export function bad_rock(species, x, y, state = game) {
+    const location = state.level?.at?.(x, y);
+    if (!location) return true;
+    return Boolean(
+        (state.level?.flags?.sokoban_rules && sobj_at(BOULDER, x, y, state))
+        || (IS_OBSTRUCTED(location.typ)
+            && (!tunnels(species) || needspick(species)
+                || !may_dig(x, y, state))
+            && !(passes_walls(species) && may_passwall(x, y, state))),
+    );
 }

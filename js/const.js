@@ -2395,7 +2395,8 @@ export const INVALID_TYPE    = 127;
 // Level type utility macros (from include/rm.h, lines 104-128)
 export function IS_SDOOR(typ)      { return typ === SDOOR; }
 // C ref: rm.h — IS_TREE includes STONE on arboreal levels
-export function IS_TREE(typ)       { return typ === TREE || (game?.level?.flags?.arboreal && typ === STONE); }
+// C reads svl.level directly; callers holding an explicit state pass it here.
+export function IS_TREE(typ, state = game) { return typ === TREE || (state?.level?.flags?.arboreal && typ === STONE); }
 export function ZAP_POS(typ)       { return typ >= POOL; }
 export function SPACE_POS(typ)     { return typ > DOOR; }
 export function IS_THRONE(typ)     { return typ === THRONE; }
