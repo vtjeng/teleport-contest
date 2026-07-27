@@ -45,10 +45,10 @@ including ones generated part-way through the sequence, and the starting little
 dog, kitten, or pony may move normally or stay put.
 
 Excluded: the future-work list below, count prefixes, running, travel, every
-other command, pickup, doorways, and monster-initiated displacement of the
-hero. Each excluded path fails closed before any gameplay state change or PRNG
-consumption, preserving the supported prefix and leaving the pending phase
-retryable.
+other command, pickup, hero traversal of active doorways, and
+monster-initiated displacement of the hero. Each excluded path fails closed
+before any gameplay state change or PRNG consumption, preserving the supported
+prefix and leaving the pending phase retryable.
 
 The two structural replay conditions are complete: `js/fastforward.js` is gone
 at `263540f`, and the turn-index special cases in `moveloop_core()` are gone at
@@ -56,10 +56,12 @@ at `263540f`, and the turn-index special cases in `moveloop_core()` are gone at
 Natural runtime monster generation, doorless-doorway movement, the later
 safe-wait tail, wall refusal, ordinary starting-pet interaction, and
 single-object floor description all match the checked-in six-case matrix
-through `6a479d0`. The boundary inventory has no remaining missing or
-undecided row and is ready for its fixed-range correctness pass. The goal does
-not close at a particular score; `.agents/implementation-checklist.md` records
-the source evidence and audit-readiness handoff.
+through `7363380`, including the timed fleeing continuation after a safe-pet
+refusal. The boundary inventory has no remaining missing or undecided row; the
+first fixed-range pass's production and test findings are resolved, and the
+expanded range is ready for a new full correctness pass. The goal does not
+close at a particular score; `.agents/implementation-checklist.md` records the
+source evidence and audit-readiness handoff.
 
 `.agents/implementation-checklist.md` holds the working record: the branch
 inventory, per-row status, and the baseline at the starting commit. Read it
