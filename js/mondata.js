@@ -25,6 +25,7 @@ import {
     M_SEEN_SLEEP,
     MALE,
     NATTK,
+    NEUTER,
     NEUTRAL,
     NO_TRAP,
     NUM_MGENDERS,
@@ -135,18 +136,39 @@ export function humanoid(species) { return flag1(species, M.M1_HUMANOID); }
 export function is_animal(species) { return flag1(species, M.M1_ANIMAL); }
 export function slithy(species) { return flag1(species, M.M1_SLITHY); }
 
+// C ref: mondata.c locoverbs[]. Each row holds the plain verb, its
+// capitalized form, then the staggering verb and its capitalized form.
+// locomotion() reads indexes 0 and 1; stagger() reads 2 and 3.
+const LOCOVERBS = Object.freeze({
+    levitate: ['float', 'Float', 'wobble', 'Wobble'],
+    flys: ['fly', 'Fly', 'flutter', 'Flutter'],
+    flyl: ['fly', 'Fly', 'stagger', 'Stagger'],
+    slither: ['slither', 'Slither', 'falter', 'Falter'],
+    ooze: ['ooze', 'Ooze', 'tremble', 'Tremble'],
+    immobile: ['wiggle', 'Wiggle', 'pulsate', 'Pulsate'],
+    crawl: ['crawl', 'Crawl', 'falter', 'Falter'],
+});
+
+// C ref: mondata.c locomotion(). locomotion() and stagger() share one branch
+// order and differ only in which pair of indexes they read.
+function locoverb(species, def, locoindx) {
+    if (is_floater(species)) return LOCOVERBS.levitate[locoindx];
+    if (is_flyer(species) && species.msize <= M.MZ_SMALL)
+        return LOCOVERBS.flys[locoindx];
+    if (is_flyer(species) && species.msize > M.MZ_SMALL)
+        return LOCOVERBS.flyl[locoindx];
+    if (slithy(species)) return LOCOVERBS.slither[locoindx];
+    if (amorphous(species)) return LOCOVERBS.ooze[locoindx];
+    if (!species?.mmove) return LOCOVERBS.immobile[locoindx];
+    if (nolimbs(species)) return LOCOVERBS.crawl[locoindx];
+    return def;
+}
+
 // C ref: mondata.c locomotion(). This is used by the live
 // monmove.c:msg_mon_movement() path.
 export function locomotion(species, fallback) {
-    const capitalized = fallback[0] === fallback[0].toUpperCase();
-    const forms = (lower, upper) => capitalized ? upper : lower;
-    if (is_floater(species)) return forms('float', 'Float');
-    if (is_flyer(species)) return forms('fly', 'Fly');
-    if (slithy(species)) return forms('slither', 'Slither');
-    if (amorphous(species)) return forms('ooze', 'Ooze');
-    if (!species?.mmove) return forms('wiggle', 'Wiggle');
-    if (nolimbs(species)) return forms('crawl', 'Crawl');
-    return fallback;
+    return locoverb(species, fallback, fallback[0] !== highc(fallback[0])
+        ? 0 : 1);
 }
 
 export function regenerates(species) { return flag1(species, M.M1_REGEN); }
@@ -1244,10 +1266,12 @@ export function max_passive_dmg(mdef, magr, state = game) {
     return dmg;
 }
 
-// C ref: mondata.c gender(). Returns 2 for neuter, else the female flag.
+// C ref: mondata.c gender(). C returns the `unsigned female:1` bitfield, so
+// callers get 0 or 1 and can index pmnames[]. The port stores female as a
+// JavaScript boolean, so convert it the way monst.h's Mgender() does.
 export function gender(monster) {
-    if (is_neuter(monster.data)) return 2;
-    return monster.female;
+    if (is_neuter(monster.data)) return NEUTER;
+    return monster.female ? FEMALE : MALE;
 }
 
 // C ref: mondata.c big_little_match().
@@ -1266,37 +1290,16 @@ export function big_little_match(montyp1, montyp2, state = game) {
 
 // C ref: mondata.c raceptr().
 export function raceptr(monster, state = game) {
-    if (monster === state.youmonst && !Upolyd(state))
+    // Upolyd() reads the hero struct's mtimedone, so it takes state.u.
+    if (monster === state.youmonst && !Upolyd(state.u))
         return state.mons[state.urace.mnum];
     return monster.data;
 }
 
-// C ref: mondata.c locoverbs[]. locomotion() above reads indexes 0 and 1,
-// where flys and flyl hold the same words, so it does not distinguish the two.
-// stagger() reads indexes 2 and 3, where they differ.
-const LOCOVERBS = Object.freeze({
-    levitate: ['float', 'Float', 'wobble', 'Wobble'],
-    flys: ['fly', 'Fly', 'flutter', 'Flutter'],
-    flyl: ['fly', 'Fly', 'stagger', 'Stagger'],
-    slither: ['slither', 'Slither', 'falter', 'Falter'],
-    ooze: ['ooze', 'Ooze', 'tremble', 'Tremble'],
-    immobile: ['wiggle', 'Wiggle', 'pulsate', 'Pulsate'],
-    crawl: ['crawl', 'Crawl', 'falter', 'Falter'],
-});
-
-// C ref: mondata.c stagger().
+// C ref: mondata.c stagger(). Shares locoverb() with locomotion() above,
+// reading the staggering pair of indexes instead of the plain pair.
 export function stagger(species, def) {
-    const locoindx = def[0] !== highc(def[0]) ? 2 : 3;
-    if (is_floater(species)) return LOCOVERBS.levitate[locoindx];
-    if (is_flyer(species) && species.msize <= M.MZ_SMALL)
-        return LOCOVERBS.flys[locoindx];
-    if (is_flyer(species) && species.msize > M.MZ_SMALL)
-        return LOCOVERBS.flyl[locoindx];
-    if (slithy(species)) return LOCOVERBS.slither[locoindx];
-    if (amorphous(species)) return LOCOVERBS.ooze[locoindx];
-    if (!species.mmove) return LOCOVERBS.immobile[locoindx];
-    if (nolimbs(species)) return LOCOVERBS.crawl[locoindx];
-    return def;
+    return locoverb(species, def, def[0] !== highc(def[0]) ? 2 : 3);
 }
 
 // C ref: mondata.c on_fire().

@@ -1,5 +1,14 @@
-// Atomic ordinary monster and starting-pet actions for the simple second turn.
-// C refs: monmove.c dochugw(), dochug(), m_move(); dogmove.c dog_move().
+// The fail-closed boundary for monster actions. This file holds no port; the
+// ports of monmove.c and dogmove.c live in js/monmove.js and js/dogmove.js.
+//
+// Every action is first dry-run against a cloned ISAAC context and cloned
+// monster state. If the dry run selects a branch that is not ported yet, it
+// throws before the live game or its PRNG has changed, so the replay stops on
+// the last matching screen instead of diverging. runSimpleMonsterAction()
+// executes one already-preflighted action and is shared by the clone-only
+// planning pass and the live movemon() adapter.
+//
+// Delete this file once ported coverage makes the boundary unnecessary.
 
 import {
     BURN,

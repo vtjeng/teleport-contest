@@ -1822,7 +1822,8 @@ export function set_apparxy(monster, env = {}) {
     monster.muy = my;
 }
 
-// ---- from monmove_dochug.js ----
+// ---- monmove.c dochug(), ordinary-monster path, and its pre-move
+// ---- AT_WEAP weapon gate ----
 function activeProperty(state, property, blockedMatters = true) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic)
@@ -1967,7 +1968,8 @@ export async function dochug_fresh_monster(monster, rawEnv = {}) {
     return 0;
 }
 
-// ---- from monmove_dochug_pet.js ----
+// ---- monmove.c dochug(), tame-monster path, which inlines m_move()'s
+// ---- mintrap() and meating prologue and its dog_move() dispatch ----
 function requirePetDochugOperation(env, name) {
     const operation = env[name];
     if (typeof operation !== 'function')
@@ -2063,7 +2065,8 @@ export async function dochug_fresh_pet(monster, rawEnv = {}) {
     return 0;
 }
 
-// ---- from monmove_items.js ----
+// ---- monmove.c mon_would_take_item(), mon_would_consume_item(), and
+// ---- m_search_items() ----
 const PRACTICAL = new Set([
     O.WEAPON_CLASS,
     O.ARMOR_CLASS,
@@ -2397,7 +2400,7 @@ export function m_search_items(
     }
 }
 
-// ---- from monmove_move.js ----
+// ---- monmove.c m_move(), ordinary not_special path through postmov() ----
 function requireMoveOperation(env, name) {
     const operation = env[name];
     if (typeof operation !== 'function')

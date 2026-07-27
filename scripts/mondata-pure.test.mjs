@@ -5,6 +5,7 @@
 // JavaScript and recording what it produced.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -120,31 +121,91 @@ test('mstrength reproduces the C difficulty formula', () => {
     // Each expectation below is computed by hand from mondata.c:mstrength()
     // and the species' monsters.h entry.
     //
-    // newt: mlevel 0, geno has neither G_SGROUP nor G_LGROUP, no ranged
-    // attack, ac 8, mmove 6, one AT_CLAW/AD_PHYS 1d3 attack.
-    //   n = 0 (groups) + 0 (ranged) + 0 (ac) + 0 (speed)
-    //     + 1 (aatyp > 0) + 0 (AT_MAGC) + 0 (AT_WEAP&STRONG)
-    //     + 0 (special damage; AD_PHYS) + 0 (damd*damn = 3 <= 23) = 1
-    //   n < 6 so tmp = 0 + (1/3 + 1) = 1
+    // newt (monsters.h): LVL(0, 6, 8, 0, 0), G_GENO | 5, one
+    // ATTK(AT_BITE, AD_PHYS, 1, 2).
+    //   n = 0 (no G_SGROUP or G_LGROUP) + 0 (ranged) + 0 (ac 8) + 0 (mmove 6)
+    //     + 1 (aatyp > 0) + 0 (AT_MAGC) + 0 (AT_WEAP & M2_STRONG)
+    //     + 0 (AD_PHYS is not special, and the strcmp branch adds
+    //          (adtyp != AD_PHYS) = 0)
+    //     + 0 (damd * damn = 2, not > 23) = 1
+    //   n < 6, so tmp = 0 + (trunc(1/3) + 1) = 1
     assert.equal(mstrength(pm(M.PM_NEWT)), 1);
 
-    // grid bug is the one species the AD_PHYS increment is skipped for, via
-    // C's `else if (strcmp(pmnames[NEUTRAL], "grid bug"))`.
-    // mlevel 0, ac 9, mmove 12, one AT_BITE/AD_ELEC 1d1 attack.
-    //   n = 1 (aatyp > 0) + 1 (AD_ELEC is a "special" damage type through the
-    //   strcmp branch being skipped? no: AD_ELEC is not in the DRLI/STON/DRST/
-    //   DRDX/DRCO/WERE list, and the strcmp is false for "grid bug", so the
-    //   n += (tmp2 != AD_PHYS) increment does not run) = 1
-    //   n < 6 so tmp = 0 + (1/3 + 1) = 1
+    // grid bug is the one species C's
+    // `else if (strcmp(pmnames[NEUTRAL], "grid bug"))` skips, so its
+    // (adtyp != AD_PHYS) increment never runs.
+    // monsters.h: LVL(0, 12, 9, 0, 0), G_GENO | G_SGROUP | G_NOCORPSE | 3,
+    // one ATTK(AT_BITE, AD_ELEC, 1, 1).
+    //   n = 1 (G_SGROUP) + 0 (ranged) + 0 (ac 9) + 0 (mmove 12)
+    //     + 1 (aatyp > 0) + 0 (skipped AD_ELEC increment)
+    //     + 0 (damd * damn = 1) = 2
+    //   n < 6, so tmp = 0 + (trunc(2/3) + 1) = 1.
+    // Without the grid-bug special case n would be 3 and tmp would be 2.
     assert.equal(mstrength(pm(M.PM_GRID_BUG)), 1);
 
     // killer bee takes the artificial +2 from the named-species adjustment.
-    // mlevel 1, G_LGROUP, ac -1, mmove 18, one AT_STNG/AD_DRST 1d3 attack.
+    // monsters.h: LVL(1, 18, -1, 0, 0), G_GENO | G_LGROUP | 2, one
+    // ATTK(AT_STNG, AD_DRST, 1, 3).
     //   n = 2 (G_LGROUP << 1) + 0 (ranged) + 1 (ac < 4) + 1 (ac < 0)
     //     + 1 (mmove >= 18) + 1 (aatyp > 0) + 2 (AD_DRST is special)
-    //     + 0 (damd*damn = 3) + 2 (killer bee adjustment) = 10
-    //   n >= 6 so tmp = 1 + 10/2 = 6
+    //     + 0 (damd * damn = 3) + 2 (killer bee adjustment) = 10
+    //   n >= 6, so tmp = 1 + trunc(10/2) = 6
     assert.equal(mstrength(pm(M.PM_KILLER_BEE)), 6);
+
+    // chickatrice exercises AD_STON, which scores +2 per attack slot rather
+    // than the +1 the generic branch gives.
+    // monsters.h: LVL(4, 4, 8, 30, 0), G_GENO | G_SGROUP | 1, with
+    // ATTK(AT_BITE, AD_PHYS, 1, 2), ATTK(AT_TUCH, AD_STON, 0, 0), and
+    // ATTK(AT_NONE, AD_STON, 0, 0).
+    //   n = 1 (G_SGROUP) + 0 (ranged) + 0 (ac 8) + 0 (mmove 4)
+    //     + 2 (two attacks with aatyp > 0)
+    //     + 0 (AD_PHYS) + 2 + 2 (two AD_STON slots) = 7
+    //   n >= 6, so tmp = 4 + trunc(7/2) = 7
+    assert.equal(mstrength(pm(M.PM_CHICKATRICE)), 7);
+
+    // shocking sphere exercises the AT_EXPL bonus, which is +5 for AD_ELEC.
+    assert.equal(mstrength(pm(M.PM_SHOCKING_SPHERE)), 10);
+});
+
+test('mstrength agrees with the difficulty C stores for every species', () => {
+    // C keeps a hardcoded difficulty in each monsters.h entry and provides the
+    // #mondifficulty wizard command (wizcmds.c) to report where mstrength()
+    // disagrees with it. mondata.c's own comment says a discrepancy means the
+    // table or the algorithm needs updating, so upstream tolerates a few. This
+    // sweep pins every attack-type and damage-type constant the formula reads
+    // at once; a single missing enum export shows up here as a batch of
+    // mismatches. C's loop stops at the terminator row, which has mlet 0.
+    const KNOWN_UPSTREAM_MISMATCHES = new Set([
+        M.PM_CLERIC, M.PM_WIZARD,
+    ]);
+    const mismatched = [];
+    for (let index = 0; index < M.NUMMONS; index++) {
+        const species = state.mons[index];
+        if (!species || !species.mlet) continue;
+        if (KNOWN_UPSTREAM_MISMATCHES.has(index)) continue;
+        if (mstrength(species) !== species.difficulty) {
+            mismatched.push(
+                `${species.pmnames[2]}: ${mstrength(species)} `
+                + `!= ${species.difficulty}`,
+            );
+        }
+    }
+    assert.deepEqual(mismatched, []);
+});
+
+test('every monster constant mondata.js reads is actually exported', () => {
+    // A missing export makes `adtyp === M.AD_FOO` compare a number against
+    // undefined, so the branch silently never fires. That is how AD_STON,
+    // AD_DRLI, AD_DRDX, AD_DRCO, AD_WERE, AT_EXPL, AD_DCAY, and AD_DISN were
+    // all dead at once. This guard fails the moment another one goes missing.
+    const source = readFileSync(
+        new URL('../js/mondata.js', import.meta.url), 'utf8');
+    const referenced = [...new Set(
+        [...source.matchAll(/\bM\.([A-Za-z_][A-Za-z0-9_]*)/gu)]
+            .map((match) => match[1]),
+    )].sort();
+    assert.equal(referenced.length > 300, true);
+    assert.deepEqual(referenced.filter((name) => M[name] === undefined), []);
 });
 
 test('hates_blessings covers undead and demons', () => {
@@ -234,6 +295,15 @@ test('max_passive_dmg multiplies passive damage by the attacker attack count',
         assert.equal(max_passive_dmg(mdef, ant, state), 16);
 
         // An acid-resistant attacker takes nothing from an AD_ACID passive.
+        // The attacker must have an attack that counts toward multi2, or the
+        // trailing `dmg *= multi2` would force 0 whatever the resistance
+        // check returned. A gray ooze resists acid and has one AT_BITE.
+        const ooze = { data: pm(M.PM_GRAY_OOZE), mhp: 11, mextrinsics: 0,
+            mintrinsics: 0, minvent: null };
+        assert.equal(max_passive_dmg(mdef, ooze, state), 0);
+
+        // The acid blob itself has only AT_NONE, so multi2 stays 0 and the
+        // product is 0 through a different path than resistance.
         const blob = { data: pm(M.PM_ACID_BLOB), mhp: 12, mextrinsics: 0,
             mintrinsics: 0, minvent: null };
         assert.equal(max_passive_dmg(mdef, blob, state), 0);
@@ -260,10 +330,46 @@ test('max_passive_dmg wipes out an attacker its passive completely destroys',
         assert.equal(max_passive_dmg(mdef, jackal, state), 8);
     });
 
-test('gender reports 2 for neuter and the female flag otherwise', () => {
-    assert.equal(gender({ data: pm(M.PM_ACID_BLOB), female: 0 }), 2);
-    assert.equal(gender({ data: pm(M.PM_HUMAN), female: 1 }), 1);
-    assert.equal(gender({ data: pm(M.PM_HUMAN), female: 0 }), 0);
+test('max_passive_dmg covers the rot and rust instakill arms too', () => {
+    // completelyrots: the brown pudding's first attack is AT_BITE/AD_DCAY,
+    // which the passive loop skips, so use a synthetic defender whose passive
+    // slot carries AD_DCAY. C's three arms are written identically, so each
+    // needs its own case; only the AD_FIRE one was exercised before.
+    const decaying = { data: {
+        mlevel: 5,
+        mattk: [{ aatyp: M.AT_NONE, adtyp: M.AD_DCAY, damn: 0, damd: 0 }],
+    } };
+    const wood = { data: pm(M.PM_WOOD_GOLEM), mhp: 50, mextrinsics: 0,
+        mintrinsics: 0, minvent: null };
+    // The wood golem has one AT_CLAW, so multi2 is 1 and dmg is its mhp.
+    assert.equal(max_passive_dmg(decaying, wood, state), 50);
+    // A leather golem also completely rots. It has two AT_CLAW attacks, so
+    // multi2 is 2 and its mhp is doubled by the trailing `dmg *= multi2`.
+    const leather = { data: pm(M.PM_LEATHER_GOLEM), mhp: 40, mextrinsics: 0,
+        mintrinsics: 0, minvent: null };
+    assert.equal(max_passive_dmg(decaying, leather, state), 80);
+
+    // completelyrusts: the rust monster's first attack really is a passive
+    // AT_NONE/AD_RUST, and only the iron golem completely rusts.
+    const rusting = { data: pm(M.PM_RUST_MONSTER), mhp: 30 };
+    const iron = { data: pm(M.PM_IRON_GOLEM), mhp: 80, mextrinsics: 0,
+        mintrinsics: 0, minvent: null };
+    assert.equal(max_passive_dmg(rusting, iron, state), 80);
+    // A wood golem does not rust, and AD_RUST is not in the elif chain, so
+    // dmg stays at its initial 0.
+    assert.equal(max_passive_dmg(rusting, wood, state), 0);
+});
+
+test('gender returns C ints for the boolean the port stores', () => {
+    // The running game stores `female` as a JavaScript boolean (js/monst.js
+    // and js/makemon_create.js), while C holds an `unsigned female:1` and
+    // callers index pmnames[] with the result. Pass booleans, as the game
+    // does, and require the numeric C values back.
+    assert.equal(gender({ data: pm(M.PM_ACID_BLOB), female: false }), 2);
+    assert.equal(gender({ data: pm(M.PM_HUMAN), female: true }), 1);
+    assert.equal(gender({ data: pm(M.PM_HUMAN), female: false }), 0);
+    // A neuter species reports 2 whatever the flag says.
+    assert.equal(gender({ data: pm(M.PM_ACID_BLOB), female: true }), 2);
 });
 
 test('big_little_match walks the growth chain in both directions', () => {
@@ -283,11 +389,20 @@ test('raceptr returns the racial species only for an unpolymorphed hero', () => 
     const monster = { data: pm(M.PM_NEWT) };
     assert.equal(raceptr(monster, state), pm(M.PM_NEWT));
 
+    // An unpolymorphed hero reports the racial species, not the current data.
     const hero = { data: pm(M.PM_GRAY_DRAGON) };
     const heroState = {
         ...state, youmonst: hero, urace: { mnum: M.PM_HUMAN }, u: {},
     };
     assert.equal(raceptr(hero, heroState), pm(M.PM_HUMAN));
+
+    // A polymorphed hero reports the current form. Upolyd() reads
+    // u.mtimedone, so this also pins that raceptr passes state.u rather than
+    // the whole state, which would make the guard permanently false.
+    const polymorphed = {
+        ...heroState, u: { mtimedone: 100 },
+    };
+    assert.equal(raceptr(hero, polymorphed), pm(M.PM_GRAY_DRAGON));
 });
 
 test('stagger picks the third and fourth locomotion verbs', () => {

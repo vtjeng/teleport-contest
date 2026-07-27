@@ -41,7 +41,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
-import { M1_FLY } from '../js/monsters.js';
+import { M1_FLY, MZ_HUGE } from '../js/monsters.js';
 import {
     _startupA11yInternals,
     collectLookaroundMessages,
@@ -449,6 +449,10 @@ test('monster movement messages require the option, sight, and prior notice',
                 pmnames: [null, null, 'fog cloud'],
                 mflags1: M1_FLY,
                 mmove: 12,
+                // locomotion() splits flyers on msize, as C does, so a
+                // species fixture has to carry it. The real fog cloud is
+                // MZ_HUGE (monsters.h).
+                msize: MZ_HUGE,
             },
             mx: 22,
             my: 10,
