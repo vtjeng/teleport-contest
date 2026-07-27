@@ -89,7 +89,7 @@ function makeFixture(t) {
     writeFileSync(
         promptPath,
         `Read AGENTS.md. Run audit-diff-correctness for ${
-            base}..${head}. Do not access sessions/holdout.\n`,
+            base}..${head}. Do not access the sealed holdout directory.\n`,
     );
     return {
         base,

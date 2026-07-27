@@ -231,7 +231,8 @@ function validatePrompt(text, {
     const skillName = typeof skill === 'string' ? skill : skill.name;
     const missing = [];
     if (!text.includes('AGENTS.md')) missing.push('AGENTS.md instruction');
-    if (!text.includes('sessions/holdout')) {
+    if (!text.includes('sessions/holdout')
+        && !/\bsealed holdout directory\b/iu.test(text)) {
         missing.push('sealed-holdout prohibition');
     }
     if (!text.includes(base) || !text.includes(head)) {
