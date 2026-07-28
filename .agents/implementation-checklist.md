@@ -4,7 +4,7 @@
 
 - Roadmap item: "Commands that consume no game time", slice 1, `invent.c`
   `ddoinv()` and the inventory display.
-- Starting code commit: `a62b13fdf4a3a1fdbec4bd91cf1b6cbe19e6b3ad`
+- Starting code commit: `a62b13fbb7b476e2be447d46f50a0b8b54530c62`
 - Starting event: the `i` keystroke at a ready D:1 command prompt.
 - Ending event: the next ready command prompt, reached after the menu is
   dismissed with Escape.
