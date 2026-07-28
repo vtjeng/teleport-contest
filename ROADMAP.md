@@ -92,24 +92,11 @@ it is deleted from this file.
 
 ## Next goals, in order
 
-Selected from the `scan-stops.mjs` census taken on 2026-07-28 at `8f0bbde`,
-where the port emits 254 of 7,765 recorded screens. Session and step counts
+Selected from the `scan-stops.mjs` census taken on 2026-07-28 at `03c2add`,
+where the port emits 265 of 7,765 recorded screens. Session and step counts
 below are ceilings.
 
-### 1. Monster and pet movement onto stairs
-
-`assertSimpleDestination()` in `js/unported_monster_actions.js` admits `ROOM`,
-`CORR`, and a `DOOR` with `D_NODOOR`. Two sessions stop there with a tame
-monster stepping onto `STAIRS`, the monster-side mirror of the hero admission
-committed at `a0d6283`. Trace what an ordinary non-covetous monster does on a
-stairs square before widening the guard: the goal rests on the answer being
-"nothing special", and that has to come from the source rather than from the
-stop message.
-
-A third session on the same boundary is a monster at a `D_CLOSED` door, which
-stays excluded along with closed doors generally.
-
-### 2. Commands that consume no game time
+### 1. Commands that consume no game time
 
 Accept, at a ready D:1 prompt, the commands whose `rhack()` result carries no
 `ECMD_TIME`, so `svc.context.move` stays FALSE, no monster moves, no gameplay
@@ -120,7 +107,7 @@ behavior the milestone already owns.
 Beyond its own ceiling, this goal gates the closing sequence that 24 of the 33
 development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismissed
 with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
-outside this goal, belonging to goal 4 below; the `:` that ends those sessions
+outside this goal, belonging to goal 3 below; the `:` that ends those sessions
 is slice 2 here. No session finishes without this goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
@@ -152,14 +139,14 @@ measured at gitlink `16ff591`; they set expectations, not limits.
    while a `js/` file has no area. Nothing in slices 1 through 4 depends on this
    one.
 
-### 3. Running and rushing
+### 2. Running and rushing
 
 `hack.c:domove_core()` under `svc.context.run`, with `hack.c:lookaround()`
 deciding where a run stops. Six sessions stop here with 1,275 steps behind
 them. Larger than the two goals above: `lookaround()` is a substantial function
 and a run spans several turns.
 
-### 4. Search
+### 3. Search
 
 `detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
 `mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Four sessions
