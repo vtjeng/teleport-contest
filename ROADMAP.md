@@ -68,9 +68,9 @@ review confirmed six production defects plus test, tooling, and handoff gaps;
 their implementation is complete and the repository checkpoint is green at
 1,668 tests. The twelve-case fresh matrix remains exact across 83,269 PRNG
 calls and 2,351 complete screens, attributes, and cursors. The goal does not
-close at a particular score. The completed implementation checklist is
-preserved in history through `dc0ae1b`; the exact-head review handoff carries
-its final snapshot. Rare branches and helper-only prerequisites remain deferred
+close at a particular score. The second full re-audit reopened five focused
+production and oracle rows; `.agents/implementation-checklist.md` is again the
+active handoff. Rare branches and helper-only prerequisites remain deferred
 under “Complete common gameplay first.”
 
 ### Historical review sequence
