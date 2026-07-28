@@ -22,6 +22,20 @@ import {
     OBJ_MINVENT,
     OBJ_ONBILL,
     NON_PM,
+    DBWALL,
+    D_BROKEN,
+    D_ISOPEN,
+    D_NODOOR,
+    DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
+    IRONBARS,
+    IS_ALTAR,
+    IS_DOOR,
+    IS_FOUNTAIN,
+    IS_GRAVE,
+    IS_SINK,
+    IS_THRONE,
+    TREE,
     P_BOOMERANG,
     P_BOW,
     P_CROSSBOW,
@@ -34,6 +48,23 @@ import {
     W_QUIVER,
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
+import {
+    S_fountain,
+    S_grave,
+    S_lava,
+    S_ndoor,
+    S_sink,
+    S_throne,
+    S_tree,
+    S_vcdbridge,
+    S_vcdoor,
+    S_vodbridge,
+    S_vodoor,
+} from './symbols.js';
+import { stairs_description, stairway_at } from './stairs.js';
+import { is_ice } from './terrain.js';
+import { is_lava, is_pool } from './trap.js';
 import { game } from './gstate.js';
 import { surface } from './dungeon.js';
 import {
@@ -80,6 +111,96 @@ import { donameFresh } from './objnam.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
+
+// Thrown where invent.c reads a terrain description this port has not reached
+// yet. dfeature_at() is otherwise a complete translation, so every stop below
+// names the C helper that is missing rather than the caller that hit it.
+export class UnsupportedFeatureDescriptionError extends Error {
+    constructor(helper) {
+        super(`feature description requires ${helper}`);
+        this.name = 'UnsupportedFeatureDescriptionError';
+        this.helper = helper;
+    }
+}
+
+// C ref: invent.c dfeature_at(). Returns the description of the terrain
+// feature at x,y, or null where C returns 0. C writes the same text into the
+// caller's buffer; the JavaScript caller uses the return value alone.
+export function dfeature_at(x, y, state = game) {
+    const lev = state.level?.at(x, y);
+    const ltyp = lev?.typ;
+    let cmap = -1;
+    let dfeature = null;
+
+    if (IS_DOOR(ltyp)) {
+        switch (lev.doormask || lev.flags || 0) {
+        case D_NODOOR:
+            cmap = S_ndoor;
+            break;
+        case D_ISOPEN:
+            cmap = S_vodoor;
+            break;
+        case D_BROKEN:
+            dfeature = 'broken door';
+            break;
+        default:
+            cmap = S_vcdoor;
+            break;
+        }
+        // C overrides the door description for an open drawbridge.
+        // dbridge.c is_drawbridge_wall() is not ported; a DOOR square can
+        // only sit beside a drawbridge, so this stop is reachable.
+        throwIfDrawbridgeUnported(x, y, state);
+    } else if (IS_FOUNTAIN(ltyp)) {
+        cmap = S_fountain;
+    } else if (IS_THRONE(ltyp)) {
+        cmap = S_throne;
+    } else if (is_lava(x, y, state)) {
+        cmap = S_lava;
+    } else if (is_ice(x, y, state)) {
+        // C calls ice_descr(), which distinguishes solid from thin ice.
+        throw new UnsupportedFeatureDescriptionError('ice_descr()');
+    } else if (is_pool(x, y, state)) {
+        dfeature = 'pool of water';
+    } else if (IS_SINK(ltyp)) {
+        cmap = S_sink;
+    } else if (IS_ALTAR(ltyp)) {
+        // C composes "altar to <deity> (<alignment>)" from a_gname() and
+        // align_str(), neither of which is ported.
+        throw new UnsupportedFeatureDescriptionError('a_gname()');
+    } else if (stairway_at(x, y, state)) {
+        dfeature = stairs_description(stairway_at(x, y, state), true, state);
+    } else if (ltyp === DRAWBRIDGE_DOWN) {
+        cmap = S_vodbridge;
+    } else if (ltyp === DBWALL) {
+        cmap = S_vcdbridge;
+    } else if (IS_GRAVE(ltyp)) {
+        cmap = S_grave;
+    } else if (ltyp === TREE) {
+        cmap = S_tree;
+    } else if (ltyp === IRONBARS) {
+        dfeature = 'set of iron bars';
+    }
+
+    if (cmap >= 0) dfeature = CMAP_EXPLANATIONS[cmap];
+    return dfeature || null;
+}
+
+// dbridge.c is_drawbridge_wall() is unported. It answers false everywhere no
+// drawbridge exists, which is every level this port generates, so the stop
+// fires only once drawbridge generation arrives.
+function throwIfDrawbridgeUnported(x, y, state) {
+    for (let row = -1; row <= 1; ++row) {
+        for (let column = -1; column <= 1; ++column) {
+            const typ = state.level?.at(x + column, y + row)?.typ;
+            if (typ === DRAWBRIDGE_UP || typ === DRAWBRIDGE_DOWN) {
+                throw new UnsupportedFeatureDescriptionError(
+                    'is_drawbridge_wall()',
+                );
+            }
+        }
+    }
+}
 
 // C ref: invent.c look_here(), ordinary single-object branch.  This helper
 // owns both the sighted and blind output sequence; hack.c supplies the
