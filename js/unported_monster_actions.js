@@ -38,6 +38,7 @@ import {
 } from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { any_light_source } from './light.js';
 import {
     adaptMonsterActionToDochugwSignature,
     movemon_singlemon,
@@ -156,6 +157,12 @@ function assertSimpleScanState(monster, state) {
         return false;
     }
     if (!liveOnMap(monster)) return false;
+    // Returning true means "hand this monster to movemon_singlemon", not
+    // "this monster will act". mon.c runs m_everyturn_effect() before its
+    // `movement < NORMAL_SPEED` return, so a monster below its ration still
+    // has to be scanned. None of the guards below can be reached on that
+    // path -- they all describe branches mon.c only takes after the movement
+    // debit -- so they are deliberately skipped rather than merely bypassed.
     if (monster.movement < NORMAL_SPEED) return true;
     if (monster.misc_worn_check & I_SPECIAL)
         unsupported('monster equipment changes');
@@ -623,7 +630,6 @@ export async function preflightSimpleMonsterActions(
     planned.u.umovement -= NORMAL_SPEED;
     let somebodyCanMove;
     let upkeepCount = 0;
-    let terminal = false;
     do {
         // C brackets only the monster scan with context.mon_moving, so the
         // once-per-turn upkeep below sees it clear just as the live loop does.
@@ -640,6 +646,14 @@ export async function preflightSimpleMonsterActions(
                     planning: true,
                 });
             }
+            // C ref: mon.c movemon()'s tail, which runs after iter_mons_safe.
+            // Of its four steps only the light-source recheck can change what
+            // a later monster does, and this planning state owns a cloned
+            // gl.light_base, so it must run here too. clear_bypasses() cannot
+            // apply because this function refuses a state with
+            // context.bypasses set; clear_splitobjs() and dmonsfree() would
+            // only touch the discarded clone.
+            if (any_light_source(planned)) planned.vision_full_recalc = 1;
             somebodyCanMove = Boolean(planned.somebody_can_move);
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);
@@ -650,12 +664,13 @@ export async function preflightSimpleMonsterActions(
         if (!runsUpkeep) break;
         ++upkeepCount;
         if (!advanceRound) break;
-        terminal = await advanceRound(planned, random);
-        if (terminal) break;
+        // A truthy result ends the plan early. The live advanceRound never
+        // returns one, so this only serves callers that inject their own
+        // round to stop after a single allocation.
+        if (await advanceRound(planned, random)) break;
     } while (planned.u.umovement < NORMAL_SPEED);
     return {
         runsOncePerTurnUpkeep: upkeepCount > 0,
-        terminal,
         upkeepCount,
     };
 }

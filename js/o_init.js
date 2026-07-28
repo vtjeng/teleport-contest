@@ -1,7 +1,7 @@
 // Object initialization and unidentified-description shuffling.
 // C ref: src/o_init.c setgemprobs through oinit.
 
-import { exercise } from './attrib.js';
+import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
 import { preflight_update_inventory, update_inventory } from './invent.js';
 import { PM_SAMURAI } from './monsters.js';
@@ -444,7 +444,7 @@ export function discover_object(
     if (learnsName) {
         objectType.oc_name_known = 1;
         if (creditHero)
-            exercise(A_WIS, true, state, env.random, env.hooks);
+            exercise_nonphysical(A_WIS, true, state, env.random);
         if (liveKnowledge) {
             if (objectClass === GEM_CLASS) gemLearned(oindx, env);
             update_inventory(env);

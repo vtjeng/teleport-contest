@@ -481,6 +481,13 @@ async function finishElapsedTurn(
     }
 
     nh_timeout_elapsed_turn(state);
+    // `planning` is true only on the burdened multi-allocation path, because
+    // advanceElapsedTurn supplies advanceRound only when projected_capacity()
+    // is above zero. So these two stops read as "burdened", and an unburdened
+    // turn runs run_regions() and automatic_search() live with no prior dry
+    // run. That asymmetry is deliberate: an unburdened hero regains a ration
+    // in one allocation, so there is no second cycle whose mid-turn failure
+    // would need to be rejected atomically.
     if (planning && state.level.regions.length)
         elapsedTurnBoundary('burdened multi-cycle region upkeep');
     if (!planning) await run_regions(regionEnv);
@@ -528,7 +535,6 @@ async function finishElapsedTurn(
         message: planning ? async () => {} : ttyPline,
     });
     maybeWipeHeroEngraving(state, random);
-    return false;
 }
 
 
@@ -665,8 +671,7 @@ async function advanceElapsedTurn(state) {
         }
         if (runsOncePerTurnUpkeep) {
             ++upkeepCount;
-            if (await finishElapsedTurn(state, random))
-                return;
+            await finishElapsedTurn(state, random);
         }
     } while (state.u.umovement < NORMAL_SPEED);
     if (initialCapacity > 0 && upkeepCount !== preflight.upkeepCount) {

@@ -274,26 +274,17 @@ export function vary_init_attr(state = game, random = { rn2 }) {
     }
 }
 
-// C ref: attrib.c exercise(). The inventory-identification path exercises
-// Wisdom, but keeping the complete small routine here preserves the source's
-// draw boundary for other callers too. encumberMessage owns encumber_msg(),
-// which only follows physical exercise after play has begun.
-export function exercise(
-    index,
-    increase,
-    state = game,
-    random = { rn2 },
-    { encumberMessage } = {},
-) {
-    if (index === A_INT || index === A_CHA) return 0;
-    if (Upolyd(state.u) && index !== A_WIS) return 0;
+// C ref: attrib.c exercise(), everything above its trailing encumber_msg().
+// Returns the adjustment and whether that call is due, so the async owner and
+// the synchronous startup caller below share one copy of the arithmetic and
+// one draw boundary.
+function exerciseAttribute(index, increase, state, random) {
+    if (index === A_INT || index === A_CHA)
+        return { adjustment: 0, encumbranceDue: false };
+    if (Upolyd(state.u) && index !== A_WIS)
+        return { adjustment: 0, encumbranceDue: false };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('exercise random injection requires rn2');
-
-    const physicalMessage = Math.trunc(state.moves ?? 0) > 0
-        && (index === A_STR || index === A_CON);
-    if (physicalMessage && typeof encumberMessage !== 'function')
-        throw new Error('exercise requires encumber_msg');
 
     const attrs = attributeArrays(state.u);
     let adjustment = 0;
@@ -303,13 +294,54 @@ export function exercise(
             : -random.rn2(2);
         attrs.exercise[index] += adjustment;
     }
-    if (physicalMessage) {
-        const completion = encumberMessage(state);
-        if (completion && typeof completion.then === 'function') {
-            return completion.then(() => adjustment);
-        }
+    return {
+        adjustment,
+        encumbranceDue: Math.trunc(state.moves ?? 0) > 0
+            && (index === A_STR || index === A_CON),
+    };
+}
+
+// C ref: attrib.c exercise(). encumberMessage owns the trailing
+// encumber_msg(), which C runs only for Strength or Constitution after play
+// has begun. Always await this: dropping the completion would emit the
+// encumbrance line after whatever the caller printed next.
+export async function exercise(
+    index,
+    increase,
+    state = game,
+    random = { rn2 },
+    { encumberMessage } = {},
+) {
+    const { adjustment, encumbranceDue } = exerciseAttribute(
+        index,
+        increase,
+        state,
+        random,
+    );
+    if (encumbranceDue) {
+        if (typeof encumberMessage !== 'function')
+            throw new Error('exercise requires encumber_msg');
+        await encumberMessage(state);
     }
     return adjustment;
+}
+
+// C ref: attrib.c exercise() reached from o_init.c discover_object(), which
+// runs inside synchronous startup. Only Wisdom arrives from there, and C's
+// trailing encumber_msg() is unreachable for it, so this cannot silently drop
+// a message; it refuses the two indices that could produce one.
+export function exercise_nonphysical(
+    index,
+    increase,
+    state = game,
+    random = { rn2 },
+) {
+    if (index === A_STR || index === A_CON) {
+        throw new Error(
+            'exercise_nonphysical cannot own encumber_msg(); await exercise()',
+        );
+    }
+    return exerciseAttribute(index, increase, state, random).adjustment;
 }
 
 function propertyPresent(hero, index) {
