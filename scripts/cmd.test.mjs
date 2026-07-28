@@ -605,10 +605,10 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 destination.typ = ROOM;
             },
         },
+        // A doorless, open, or broken doorway is now an admitted destination
+        // (hack.c test_move() reaches only its testdiag arm for those), so
+        // only the closed, locked, and trapped masks refuse here.
         ...[
-            ['doorless door', D_NODOOR],
-            ['open door', D_ISOPEN],
-            ['broken door', D_BROKEN],
             ['closed door', D_CLOSED],
             ['locked door', D_LOCKED],
             ['trapped open door', D_ISOPEN | D_TRAPPED],

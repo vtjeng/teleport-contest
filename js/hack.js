@@ -9,6 +9,7 @@ import {
     DOOR,
     D_CLOSED,
     D_LOCKED,
+    D_TRAPPED,
     FLYING,
     HALLUC,
     HALLUC_RES,
@@ -23,6 +24,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPMASK,
     ROOM,
+    STAIRS,
     STEALTH,
     STONE,
     TIMER_OBJECT,
@@ -253,10 +255,46 @@ function requireSimpleHeroDestination(x, y, state) {
         );
 
     const location = state.level?.at(x, y);
-    if (!location || (location.typ !== ROOM && location.typ !== CORR)) {
+    // hack.c test_move() admits STAIRS untouched: it is neither
+    // IS_OBSTRUCTED nor IS_DOOR, so no branch there applies to it. A DOOR
+    // that is not closed_door() reaches only test_move()'s testdiag arm,
+    // which refuses a diagonal entry and allows an orthogonal one; the
+    // diagonal case is refused below.
+    // D_TRAPPED is excluded: C admits an open trapped door here because its
+    // trap fires from doopen(), not from entry, but that path is not traced
+    // yet, so it stays refused.
+    const doorway = location?.typ === DOOR
+        && !(doorMask(location) & (D_CLOSED | D_LOCKED | D_TRAPPED));
+    const ordinaryDestination = location
+        && (location.typ === ROOM
+            || location.typ === CORR
+            || location.typ === STAIRS
+            || doorway);
+    if (!ordinaryDestination) {
         throw new UnsupportedHeroMoveBoundaryError(
             'door or special terrain movement',
         );
+    }
+    // test_move()'s testdiag arm: a diagonal move into a doorway is refused
+    // unless the doorway is doorless. That refusal consumes no time, which is
+    // a different owner from this seam, so it stays here until that branch is
+    // ported.
+    if (doorway
+        && doorMask(location) !== 0
+        && state.u.ux !== x
+        && state.u.uy !== y) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'diagonal doorway refusal',
+        );
+    }
+    // pickup.c pickup() returns before look_here() when the square holds no
+    // object, running only describe_decor() and read_engr_at(). So a bare
+    // staircase or doorway prints nothing with mention_decor off. With it on,
+    // describe_decor() owns the line and tracks iflags.prev_decor, neither of
+    // which is ported.
+    if (state.flags?.mention_decor
+        && (location.typ === STAIRS || doorway)) {
+        throw new UnsupportedHeroMoveBoundaryError('decor description');
     }
     const floorObject = state.level?.objects?.[x]?.[y] ?? null;
     if (sobj_at(BOULDER, x, y, state))

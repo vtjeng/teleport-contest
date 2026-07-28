@@ -166,6 +166,20 @@ export function loadRepeatedSimpleCommandsRecipe() {
                 // the item message; Space dismisses that in-command More.
                 moves: 'l ',
             },
+            ...[771001, 771003, 771004].map((seed) => ({
+                seed,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: `Stair${seed}`,
+                    role: 'Healer',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // The hero starts on the upstairs, so stepping off and back
+                // walks onto a STAIRS square. Each of these three fails
+                // against the destination seam that admitted only ROOM and
+                // CORR, and passes once STAIRS is admitted.
+                moves: 'lh',
+            })),
         ],
     }, 'repeated simple commands recipe');
 }

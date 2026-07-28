@@ -43,10 +43,10 @@ test('repeated-simple-command matrix contains only source-selected inputs',
     () => {
         const recipe = loadRepeatedSimpleCommandsRecipe();
         assert.equal(recipe.version, 5);
-        assert.equal(recipe.segments.length, 12);
+        assert.equal(recipe.segments.length, 15);
         assert.deepEqual(
             recipe.segments.map(({ moves }) => moves.length),
-            [250, 600, 600, 851, 12, 4, 12, 1, 5, 1, 1, 2],
+            [250, 600, 600, 851, 12, 4, 12, 1, 5, 1, 1, 2, 2, 2, 2],
         );
         assert.deepEqual(
             recipe.segments.map(({ moves }) => new Set(moves)),
@@ -63,6 +63,10 @@ test('repeated-simple-command matrix contains only source-selected inputs',
                 new Set(['h']),
                 new Set(['h']),
                 new Set(['l', ' ']),
+                // Three stair cases: step off the upstairs and back onto it.
+                new Set(['l', 'h']),
+                new Set(['l', 'h']),
+                new Set(['l', 'h']),
             ],
         );
         for (const segment of recipe.segments) {
