@@ -108,9 +108,9 @@ Beyond its own ceiling, this goal gates the closing sequence that 24 of the 33
 development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismissed
 with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
 outside this goal, belonging to goal 3 below. The `:` that ends those sessions
-already runs; the unbound keystroke and the look command are closed, and the
-inventory display is the first open slice. No session finishes without this
-goal.
+already runs, and so do the unbound keystroke and the inventory display. The
+discovery and spell lists are the first open slice. No session finishes
+without this goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
 and planned for; work the slices in order and take the intermediate passes as
@@ -119,12 +119,9 @@ and planned for; work the slices in order and take the intermediate passes as
 **Behavior slices, each closed on its own.** Line counts are the C to trace,
 measured at gitlink `16ff591`; they set expectations, not limits.
 
-1. **`invent.c:ddoinv()` and the inventory display.** `display_inventory()` and
-   `display_pickinv()`, about 390 lines, against the paging, selection, and
-   dismissal `js/tty_menu.js` already provides. Three sessions, 110 steps.
-2. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
+1. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
    together; both display a list and consume no time.
-3. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
+2. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
    1,200 lines in a file with no ported counterpart. Two prerequisites before
    the first commit: scope it to the branches the development sessions reach,
    since a starting character reaches few of them, and give `js/insight.js` a

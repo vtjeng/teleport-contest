@@ -67,8 +67,7 @@ As defined in `.agents/implementation-checklist-template.md`.
 
 ## Validation
 
-- Commit checked: pending for the `doname()` work; the display chain is
-  committed and its stop is covered by `scripts/cmd.test.mjs`.
+- Commit checked: `e05118c6cce47f3cb8d139b4728367b6010416c6`.
 - Full suite and generated checks: 1,719 tests, four generated-data checks,
   and `check:namespace-members` pass. All four fresh matrices pass, including
   the 107-segment first-command closure matrix, which is the gate on the menu
@@ -83,7 +82,7 @@ As defined in `.agents/implementation-checklist-template.md`.
 
 ## Readiness
 
-Ready for its audit once the remaining rows close. All three sessions that
+Ready for its audit; every row is `done`, `cannot-occur`, or `later`. All three sessions that
 press `i` now display and dismiss the menu; the development score rose from
 273 to 279 screens and no session regressed, confirmed session by session
 against the parent. Seven fresh recordings match C cell for cell, five of them
