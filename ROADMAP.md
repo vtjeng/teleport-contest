@@ -82,6 +82,13 @@ deferred. The fix commit itself is correctness debt for the next pass, which is
 where the third of these findings that the previous cycle's own fixes
 introduced would show up again.
 
+No checkpoint remains in this goal, so nothing here is startable. Do not
+schedule a pass over the fix tail on its own: `.agents/quality-workflow.md`
+folds audit-fix debt into the next scheduled correctness range, and the
+thresholds pull it in when they fire. Start at "Next goals, in order" below.
+This goal stays listed only until its debt clears and it closes, at which point
+it is deleted from this file.
+
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
