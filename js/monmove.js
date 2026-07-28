@@ -2310,7 +2310,7 @@ export async function m_move(monster, rawEnv = {}) {
     // C ref: m_move() prologue.  mintrap() runs first, then the meating
     // countdown, then hides_under (which the boundary rejects), then
     // set_apparxy(), then the tame dispatch.
-    if (await resolveTrappedMonster(monster, env))
+    if (monster.mtrapped && await resolveTrappedMonster(monster, env))
         return MMOVE_NOTHING;
     if (monster.meating) {
         --monster.meating;

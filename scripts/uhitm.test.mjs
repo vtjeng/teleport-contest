@@ -63,10 +63,19 @@ async function startingPet({
 test('live movement swaps every starting-pet species through safe-pet attack',
     async () => {
         const cases = [
-            { expectedPm: PM_KITTEN, pettype: 'cat' },
-            { expectedPm: PM_LITTLE_DOG, pettype: 'dog' },
+            {
+                expectedMessage: 'You swap places with your kitten.',
+                expectedPm: PM_KITTEN,
+                pettype: 'cat',
+            },
+            {
+                expectedMessage: 'You swap places with your little dog.',
+                expectedPm: PM_LITTLE_DOG,
+                pettype: 'dog',
+            },
             {
                 seed: 2026072257,
+                expectedMessage: 'You swap places with your saddled pony.',
                 expectedPm: PM_PONY,
                 role: 'Knight',
                 align: 'lawful',
@@ -97,9 +106,9 @@ test('live movement swaps every starting-pet species through safe-pet attack',
             assert.deepEqual([pet.mx, pet.my], oldHero);
             assert.equal(m_at(...oldHero, game), pet);
             assert.equal(m_at(...destination, game), null);
-            assert.match(
+            assert.equal(
                 game._pending_message,
-                /^You swap places with your /u,
+                configuration.expectedMessage,
             );
             assert.equal(pet.mflee, false);
             let listCount = 0;

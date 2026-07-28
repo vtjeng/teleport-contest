@@ -274,6 +274,7 @@ function planningState(state) {
                     (monster) => monsterMap.get(monster) ?? null,
                 ),
             ),
+            flags: { ...state.level.flags },
             monlist: monsterMap.get(state.level.monlist) ?? null,
             regions: state.level.regions.map((region) => ({
                 ...region,
@@ -287,14 +288,44 @@ function planningState(state) {
     );
     const hero = {
         ...state.u,
+        abon: [...(state.u?.abon ?? [])],
+        acurr: state.u?.acurr
+            ? { ...state.u.acurr, a: [...state.u.acurr.a] }
+            : state.u?.acurr,
+        aexe: Array.isArray(state.u?.aexe)
+            ? [...state.u.aexe]
+            : state.u?.aexe,
+        amax: state.u?.amax
+            ? { ...state.u.amax, a: [...state.u.amax.a] }
+            : state.u?.amax,
+        atemp: [...(state.u?.atemp ?? [])],
+        atime: [...(state.u?.atime ?? [])],
+        uevent: { ...(state.u?.uevent ?? {}) },
+        uhave: { ...(state.u?.uhave ?? {}) },
+        uprops: state.u?.uprops?.map(
+            (property) => property ? { ...property } : property,
+        ) ?? [],
         usteed: monsterMap.get(state.u?.usteed) ?? state.u?.usteed,
         ustuck: monsterMap.get(state.u?.ustuck) ?? state.u?.ustuck,
     };
     return {
         ...state,
-        context: { ...state.context },
+        context: structuredClone(state.context),
+        disp: structuredClone(state.disp),
         gg: { ...state.gg },
+        go: { ...(state.go ?? {}) },
+        gw: { ...(state.gw ?? {}) },
+        head_engr: structuredClone(state.head_engr),
+        iflags: structuredClone(state.iflags),
         level,
+        program_state: structuredClone(state.program_state),
+        svs: state.svs ? {
+            ...state.svs,
+            spl_book: state.svs.spl_book?.map(
+                (spell) => ({ ...spell }),
+            ),
+        } : state.svs,
+        track: structuredClone(state.track),
         u: hero,
     };
 }
@@ -500,31 +531,45 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
 // Dry-run every action scan against cloned coordinates and a cloned ISAAC
 // context. Any excluded selected path throws while the live game and PRNG
 // remain unchanged and retryable.
-export async function preflightSimpleMonsterActions(state = game) {
+export async function preflightSimpleMonsterActions(
+    state = game,
+    { advanceRound = null } = {},
+) {
     if (state.context?.bypasses || state.u?.utotype || state.occupation)
         unsupported('deferred monster cleanup or level transition');
     const planned = planningState(state);
-    const random = clonedRandom(state);
-    const heroMovement = state.u.umovement - NORMAL_SPEED;
+    const random = clonedRandom(planned);
+    planned.u.umovement -= NORMAL_SPEED;
     let somebodyCanMove;
+    let upkeepCount = 0;
     do {
-        somebodyCanMove = false;
-        for (let monster = planned.level.monlist;
-            monster;
-            monster = monster.nmon) {
-            if (!assertSimpleScanState(monster, planned)) continue;
-            monster.movement -= NORMAL_SPEED;
-            if (monster.movement >= NORMAL_SPEED) somebodyCanMove = true;
-            await runSimpleMonsterAction(monster, {
-                state: planned,
-                random,
-                planning: true,
-            });
-        }
-        if (heroMovement >= NORMAL_SPEED) break;
-    } while (somebodyCanMove);
+        do {
+            somebodyCanMove = false;
+            for (let monster = planned.level.monlist;
+                monster;
+                monster = monster.nmon) {
+                if (!assertSimpleScanState(monster, planned)) continue;
+                monster.movement -= NORMAL_SPEED;
+                if (monster.movement >= NORMAL_SPEED)
+                    somebodyCanMove = true;
+                await runSimpleMonsterAction(monster, {
+                    state: planned,
+                    random,
+                    planning: true,
+                });
+            }
+            if (planned.u.umovement >= NORMAL_SPEED) break;
+        } while (somebodyCanMove);
+
+        const runsUpkeep =
+            !somebodyCanMove && planned.u.umovement < NORMAL_SPEED;
+        if (!runsUpkeep) break;
+        ++upkeepCount;
+        if (!advanceRound) break;
+        await advanceRound(planned, random);
+    } while (planned.u.umovement < NORMAL_SPEED);
     return {
-        runsOncePerTurnUpkeep:
-            !somebodyCanMove && heroMovement < NORMAL_SPEED,
+        runsOncePerTurnUpkeep: upkeepCount > 0,
+        upkeepCount,
     };
 }

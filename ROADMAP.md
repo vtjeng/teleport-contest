@@ -58,11 +58,16 @@ safe-wait tail, wall and stone refusal, ordinary and immediately fleeing
 starting-pet interaction, sighted and blind single-object description, and the
 HUNGRY-to-WEAK transition all match the checked-in eleven-case matrix through
 `f509366`. That matrix covers 64,581 PRNG calls and 1,750 complete screens,
-attributes, and cursors. The boundary inventory has no remaining missing or
-undecided row; both fixed-range audit passes' production findings are resolved,
-and the expanded range is undergoing its final review. The goal does not
-close at a particular score; `.agents/implementation-checklist.md` records the
-source evidence and audit-readiness handoff.
+attributes, and cursors. The pre-audit boundary inventory had no remaining
+missing or undecided row, but the full review through `7892b21` reopened
+implementation with four live source gaps: weakness-driven encumbrance,
+move-600 basal luck, the one-billion-turn termination, and trapped-monster
+prologue admission. The same review identified six evidence and tooling gaps.
+All ten findings are implemented, the twelve-case fresh matrix now covers
+83,269 PRNG calls and 2,351 complete screens, attributes, and cursors, and the
+repository checkpoint is green. The goal does not close at a particular
+score; `.agents/implementation-checklist.md` records the exact-commit audit
+handoff.
 
 `.agents/implementation-checklist.md` holds the working record: the branch
 inventory, per-row status, and the baseline at the starting commit. Read it

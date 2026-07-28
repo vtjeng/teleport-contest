@@ -2,6 +2,8 @@
 
 import {
     ACCESSIBLE,
+    A_CON,
+    A_STR,
     BLINDED,
     CORR,
     DOOR,
@@ -28,8 +30,10 @@ import {
     W_NONPASSWALL,
     WT_ELF,
     ZOMBIFY_MON,
+    OVERLOADED,
     isok,
 } from './const.js';
+import { effective_attribute } from './attrib.js';
 import {
     classify_terrain,
     feel_location,
@@ -51,10 +55,15 @@ import {
     needspick,
     noattacks,
     passes_walls,
+    throws_rocks,
     tunnels,
 } from './mondata.js';
 import { sobj_at } from './obj.js';
-import { BOULDER, CORPSE } from './objects.js';
+import {
+    BOULDER,
+    COIN_CLASS,
+    CORPSE,
+} from './objects.js';
 import {
     PM_KITTEN,
     PM_LITTLE_DOG,
@@ -78,6 +87,57 @@ import { do_attack, is_safemon } from './uhitm.js';
 import { vision_recalc } from './vision.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
+
+function capacityStrength(state) {
+    const strength = effective_attribute(state, A_STR);
+    if (strength <= 18) return strength;
+    if (strength <= 121) return 19 + Math.trunc(strength / 50);
+    return Math.min(strength, 125) - 100;
+}
+
+// C ref: hack.c weight_cap(), for the live unpolymorphed, unmounted,
+// non-levitating repeated-command boundary. Unlike the former startup-only
+// helper, this reads effective Strength on every call, so hunger weakness can
+// change carrying capacity before the next monster/allocation cycle.
+export function weight_cap(state = game) {
+    let capacity = 25 * (
+        capacityStrength(state) + effective_attribute(state, A_CON)
+    ) + 50;
+    capacity = Math.min(capacity, 1000);
+    return Math.max(Math.trunc(capacity), 1);
+}
+
+// C ref: hack.c inv_weight(). The inventory is stable throughout the current
+// repeated-command boundary, but its capacity component is deliberately live.
+export function inv_weight(state = game) {
+    let weight = 0;
+    for (let object = state.invent; object; object = object.nobj) {
+        if (object.oclass === COIN_CLASS) {
+            weight += Math.trunc((Math.trunc(object.quan) + 50) / 100);
+        } else if (object.otyp !== BOULDER
+            || !throws_rocks(state.youmonst?.data)) {
+            weight += Math.trunc(object.owt ?? 0);
+        }
+    }
+    state.gw ??= {};
+    state.gw.wc = weight_cap(state);
+    return weight - state.gw.wc;
+}
+
+// C ref: hack.c calc_capacity() and near_capacity().
+export function calc_capacity(extraWeight = 0, state = game) {
+    const excess = inv_weight(state) + Math.trunc(extraWeight);
+    if (excess <= 0) return 0;
+    if (state.gw.wc <= 1) return OVERLOADED;
+    return Math.min(
+        Math.trunc(excess * 2 / state.gw.wc) + 1,
+        OVERLOADED,
+    );
+}
+
+export function near_capacity(state = game) {
+    return calc_capacity(0, state);
+}
 
 export class UnsupportedHeroMoveBoundaryError extends Error {
     constructor(reason) {

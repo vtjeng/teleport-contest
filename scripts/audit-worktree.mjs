@@ -231,8 +231,13 @@ function validatePrompt(text, {
     const skillName = typeof skill === 'string' ? skill : skill.name;
     const missing = [];
     if (!text.includes('AGENTS.md')) missing.push('AGENTS.md instruction');
-    if (!text.includes('sessions/holdout')
-        && !/\bsealed holdout directory\b/iu.test(text)) {
+    const hasLiteralHoldoutProhibition =
+        /\b(?:do not|don't|never|must not)\b[^\r\n]*\bsessions\/holdout\b/iu
+            .test(text);
+    const hasSealedHoldoutProhibition =
+        /\b(?:do not|don't|never|must not)\b[^\r\n]*\bsealed holdout directory\b/iu
+            .test(text);
+    if (!hasLiteralHoldoutProhibition && !hasSealedHoldoutProhibition) {
         missing.push('sealed-holdout prohibition');
     }
     if (!text.includes(base) || !text.includes(head)) {

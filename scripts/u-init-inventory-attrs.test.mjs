@@ -10,6 +10,7 @@ import {
 } from '../js/const.js';
 import { init_dungeons } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
+import { near_capacity } from '../js/hack.js';
 import { initoptions_finish } from '../js/fruit.js';
 import { init_objects } from '../js/o_init.js';
 import { initRng } from '../js/rng.js';
@@ -256,6 +257,26 @@ test('carry boost raises Strength first, then Constitution at its cap', () => {
     state.invent.owt = 225;
     u_init_carry_attr_boost(state);
     assert.deepEqual(state.u.acurr.a, [3, 3, 3, 3, 4, 3]);
+});
+
+test('live capacity crosses into burden after temporary Strength loss', () => {
+    const state = initialState('Knight', 'human');
+    state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+    state.u.abon = [0, 0, 0, 0, 0, 0];
+    state.u.atemp = [0, 0, 0, 0, 0, 0];
+    state.invent = {
+        oclass: O.TOOL_CLASS,
+        otyp: O.SACK,
+        owt: 530,
+        nobj: null,
+    };
+
+    assert.equal(initial_weight_cap(state), 550);
+    assert.equal(near_capacity(state), 0);
+    state.u.atemp[0] = -1;
+    assert.equal(initial_weight_cap(state), 525);
+    assert.equal(near_capacity(state), 1);
 });
 
 test('hidden_gold follows known-container recursion', () => {

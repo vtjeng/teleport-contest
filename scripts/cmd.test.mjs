@@ -319,11 +319,25 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
             waiting: game.nhDisplay.isWaitingForInput,
         },
         multi: game.multi,
+        monsters: (() => {
+            const monsters = [];
+            for (let monster = game.level.monlist;
+                monster;
+                monster = monster.nmon) {
+                const { nmon: _next, ...fields } = monster;
+                monsters.push(structuredClone(fields));
+            }
+            return monsters;
+        })(),
         output: {
             animations: structuredClone(retained(
                 replay.getAnimationFramesByStep(),
             )),
             cursors: structuredClone(retained(replay.getCursors())),
+            lastRngIndex: replay._lastRngIdx,
+            pendingAnimations: structuredClone(
+                replay._pendingAnimFrames,
+            ),
             rngSlices: structuredClone(retained(replay.getRngSlices())),
             screens: retained(replay.getScreens()),
         },
@@ -343,6 +357,14 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
                 m: [...game.coreCtx.m],
                 n: game.coreCtx.n,
                 r: [...game.coreCtx.r],
+            },
+            displayContext: {
+                a: game.displayCtx.a,
+                b: game.displayCtx.b,
+                c: game.displayCtx.c,
+                m: [...game.displayCtx.m],
+                n: game.displayCtx.n,
+                r: [...game.displayCtx.r],
             },
             log: [...getRngLog()],
         },
@@ -1190,6 +1212,58 @@ test('a number-pad count prefix retains its physical retry phase', async () => {
     );
     assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
 });
+
+test('command retry snapshot detects monster, display RNG, and recorder owners',
+    async () => {
+        const cases = [
+            {
+                name: 'monster state',
+                mutate(replay) {
+                    assert.ok(game.level.monlist);
+                    game.level.monlist.mfleetim += 1;
+                },
+            },
+            {
+                name: 'display RNG',
+                mutate() {
+                    game.displayCtx.a += 1n;
+                },
+            },
+            {
+                name: 'pending recorder frame',
+                mutate(replay) {
+                    replay._pendingAnimFrames.push({
+                        cursor: [1, 2, 1],
+                        screen: 'pending',
+                    });
+                },
+            },
+            {
+                name: 'recorder RNG index',
+                mutate(replay) {
+                    replay._lastRngIdx += 1;
+                },
+            },
+        ];
+
+        for (const owner of cases) {
+            const replay = await runSegment({
+                seed: 840003,
+                datetime: COMMAND_DATETIME,
+                nethackrc: 'OPTIONS=name:RetryOwner,role:Healer,'
+                    + 'race:human,gender:female,align:neutral,!legacy,'
+                    + '!tutorial,!splash_screen',
+                moves: '',
+            });
+            const before = heroCommandRetrySnapshot(replay);
+            owner.mutate(replay);
+            assert.notDeepEqual(
+                heroCommandRetrySnapshot(replay),
+                before,
+                owner.name,
+            );
+        }
+    });
 
 test('the segment runner preserves output at an excluded count boundary',
     async () => {

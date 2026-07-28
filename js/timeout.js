@@ -11,6 +11,7 @@ import {
     BURIED_TOO,
     CONTAINED_TOO,
     FIG_TRANSFORM,
+    FULL_MOON,
     HATCH_EGG,
     MAX_EGG_HATCH_TIME,
     NUM_TIME_FUNCS,
@@ -31,6 +32,7 @@ import {
     ZOMBIFY_MON,
 } from './const.js';
 import { ART_SUNSWORD } from './artifacts.js';
+import { stone_luck } from './attrib.js';
 import { game } from './gstate.js';
 import {
     candle_light_range,
@@ -40,6 +42,7 @@ import {
 import { is_rider, zombie_form } from './mondata.js';
 import {
     PM_DEATH,
+    PM_ARCHEOLOGIST,
     PM_LICHEN,
     PM_LIZARD,
     S_TROLL,
@@ -47,8 +50,10 @@ import {
 import {
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
+    FEDORA,
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_DRAGON_SCALES,
+    LUCKSTONE,
     MAGIC_LAMP,
     OIL_LAMP,
     POT_OIL,
@@ -269,12 +274,47 @@ export function preflight_nh_timeout_elapsed_turn(state = game) {
     }
 }
 
-// Source-ordered elapsed-turn owner. The admitted state has no timeout effect,
-// so its only current work is the pure validation above; keeping this wrapper
-// distinct prevents the earlier atomic preflight from looking like a second
-// execution of timeout.c:nh_timeout().
+function carrying(type, state) {
+    for (let object = state.invent; object; object = object.nobj) {
+        if (object.otyp === type) return object;
+    }
+    return null;
+}
+
+// C ref: timeout.c nh_timeout(), through its always-live basal-luck prefix.
+// This precedes invulnerability and every property/timer branch.
+export function adjust_timeout_luck(state = game) {
+    let baseline = state.flags?.moonphase === FULL_MOON ? 1 : 0;
+    if (state.flags?.friday13) baseline -= 1;
+    if (state.svq?.quest_status?.killed_leader) baseline -= 4;
+    if (state.urole?.mnum === PM_ARCHEOLOGIST
+        && state.uarmh?.otyp === FEDORA) {
+        baseline += 1;
+    }
+
+    const u = state.u;
+    const cadence = u.uhave?.amulet || u.ugangr ? 300 : 600;
+    if (u.uluck === baseline
+        || currentMove(state) % cadence !== 0) {
+        return false;
+    }
+    const timedLuck = stone_luck(false, state);
+    const noStone = !carrying(LUCKSTONE, state)
+        && !stone_luck(true, state);
+    if (u.uluck > baseline && (noStone || timedLuck < 0))
+        --u.uluck;
+    else if (u.uluck < baseline && (noStone || timedLuck > 0))
+        ++u.uluck;
+    else
+        return false;
+    return true;
+}
+
+// Source-ordered elapsed-turn owner. The remaining admitted timeout state is
+// source-inert after the live luck prefix.
 export function nh_timeout_elapsed_turn(state = game) {
     preflight_nh_timeout_elapsed_turn(state);
+    adjust_timeout_luck(state);
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to

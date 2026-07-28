@@ -409,7 +409,7 @@ function deferred() {
 test('m_move owns trapped, eating, and tame prologue order', async () => {
     {
         const { state } = makeState();
-        const monster = ordinaryMonster(state);
+        const monster = ordinaryMonster(state, { mtrapped: true });
         const events = [];
         assert.equal(
             await m_move(monster, {
@@ -438,10 +438,8 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             await m_move(monster, {
                 state,
                 random: { rn2: () => assert.fail('eating path RNG') },
-                resolveTrappedMonster: () => {
-                    events.push('trap');
-                    return false;
-                },
+                resolveTrappedMonster: () =>
+                    assert.fail('untrapped eating path trap resolution'),
                 finishEating: (subject) => {
                     assert.equal(subject, monster);
                     events.push('finish');
@@ -454,7 +452,7 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             MMOVE_DONE,
         );
         assert.equal(monster.meating, 0);
-        assert.deepEqual(events, ['trap', 'finish']);
+        assert.deepEqual(events, ['finish']);
     }
 
     {
@@ -465,10 +463,8 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             await m_move(monster, {
                 state,
                 random: { rn2: () => assert.fail('eating path RNG') },
-                resolveTrappedMonster: () => {
-                    events.push('trap');
-                    return false;
-                },
+                resolveTrappedMonster: () =>
+                    assert.fail('untrapped eating path trap resolution'),
                 finishEating: () => assert.fail('still eating'),
                 movePet: () => assert.fail('eating path pet move'),
                 resistsTrapEffect: () => false,
@@ -478,7 +474,7 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             MMOVE_DONE,
         );
         assert.equal(monster.meating, 1);
-        assert.deepEqual(events, ['trap']);
+        assert.deepEqual(events, []);
     }
 
     {
@@ -496,10 +492,8 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             await m_move(monster, {
                 state,
                 random: { rn2: () => assert.fail('tame dispatch RNG') },
-                resolveTrappedMonster: () => {
-                    events.push('trap');
-                    return false;
-                },
+                resolveTrappedMonster: () =>
+                    assert.fail('untrapped tame path trap resolution'),
                 finishEating: () => assert.fail('tame path eating'),
                 movePet(subject, after) {
                     assert.equal(subject, monster);
@@ -523,7 +517,7 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             }),
             MMOVE_MOVED,
         );
-        assert.deepEqual(events, ['trap', 'dog_move', 'postmov']);
+        assert.deepEqual(events, ['dog_move', 'postmov']);
     }
 });
 

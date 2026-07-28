@@ -49,11 +49,17 @@ export function completeSecondTurnSnapshot(state, replay) {
     return {
         command: {
             cmdKey: state.cmdKey,
+            commandCount: state.commandCount,
             commandDispatchCount: state._commandDispatchCount,
             domoveAttempting: state.domoveAttempting,
+            lastCommandCount: state.lastCommandCount,
             multi: state.multi,
         },
         context: structuredClone(state.context),
+        commandOutput: {
+            didNothingFlag: state.did_nothing_flag,
+            disp: structuredClone(state.disp),
+        },
         display: {
             cursor: [
                 state.nhDisplay.cursorCol,
@@ -78,6 +84,7 @@ export function completeSecondTurnSnapshot(state, replay) {
         },
         gg: structuredClone(state.gg),
         hero: structuredClone(state.u),
+        iflags: structuredClone(state.iflags),
         input: {
             queue: [...(state.nhDisplay.terminal._inputQueue ?? [])],
             waitEpoch: state.nhDisplay.waitEpoch,
@@ -101,6 +108,7 @@ export function completeSecondTurnSnapshot(state, replay) {
             displayContext: rngContext(state.displayCtx),
             log: [...getRngLog()],
         },
+        programState: structuredClone(state.program_state),
         scheduler: {
             purgeMonsters: state.iflags?.purge_monsters ?? null,
             somebodyCanMove: state.somebody_can_move ?? null,

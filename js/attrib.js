@@ -33,13 +33,14 @@ import {
     WEAK,
     WOUNDED_LEGS,
 } from './const.js';
+import { SPFX_LUCK } from './artifacts.js';
 import { game } from './gstate.js';
 import {
     PM_AMOROUS_DEMON,
     PM_MONK,
     S_NYMPH,
 } from './monsters.js';
-import { DUNCE_CAP } from './objects.js';
+import { DUNCE_CAP, LUCKSTONE } from './objects.js';
 import { rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
 
@@ -527,7 +528,7 @@ export async function adjattrib(
     }
     if (state.program_state?.in_moveloop
         && (index === A_STR || index === A_CON)) {
-        requiredOperation(env, 'encumberMessage')(state);
+        await requiredOperation(env, 'encumberMessage')(state);
     }
     return true;
 }
@@ -601,6 +602,25 @@ export async function exerchk(state = game, env = {}) {
 
     state.context.next_attrib_check += random.rn1(200, 800);
     return true;
+}
+
+function confersLuck(object, state) {
+    if (object.otyp === LUCKSTONE) return true;
+    if (!object.oartifact) return false;
+    return Boolean(state.artilist?.[object.oartifact]?.spfx & SPFX_LUCK);
+}
+
+// C ref: attrib.c stone_luck(). Quantity contributes before the final sign;
+// uncursed stones are counted only when the caller asks for them.
+export function stone_luck(includeUncursed, state = game) {
+    let bonus = 0;
+    for (let object = state.invent; object; object = object.nobj) {
+        if (!confersLuck(object, state)) continue;
+        const quantity = Math.trunc(object.quan ?? 0);
+        if (object.cursed) bonus -= quantity;
+        else if (object.blessed || includeUncursed) bonus += quantity;
+    }
+    return Math.sign(bonus);
 }
 
 export const _attribInternals = Object.freeze({

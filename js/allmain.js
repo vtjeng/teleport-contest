@@ -11,6 +11,7 @@ import {
     CLAIRVOYANT,
     COLNO,
     EXT_ENCUMBER,
+    ESCAPED,
     FAST,
     HVY_ENCUMBER,
     INTRINSIC,
@@ -20,7 +21,6 @@ import {
     RLOC_NOMSG,
     SEARCHING,
     SLT_ENCUMBER,
-    UNENCUMBERED,
 } from './const.js';
 import { effective_attribute, exerchk } from './attrib.js';
 import { makedog, see_nearby_monsters } from './dog.js';
@@ -55,9 +55,17 @@ import {
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { rhack } from './cmd.js';
-import { domove, endRunning } from './hack.js';
+import {
+    domove,
+    endRunning,
+    near_capacity,
+} from './hack.js';
+import { encumber_msg } from './pickup.js';
 import { docrt, cls, bot, flush_screen, newsym } from './display.js';
-import { ttyPline } from './tty_message.js';
+import {
+    dismissPendingTtyMessage,
+    ttyPline,
+} from './tty_message.js';
 import {
     canSeeMonster,
     emitGlyphUpdateNotices,
@@ -411,14 +419,22 @@ function elapsedTurnMinLiquid(monster, env) {
     return false;
 }
 
-async function finishElapsedTurn(state, random) {
-    const wtcap = UNENCUMBERED;
-    const regionEnv = regionEffectEnv(state, random);
+async function finishElapsedTurn(
+    state,
+    random,
+    { planning = false } = {},
+) {
+    const wtcap = near_capacity(state);
+    if (planning && state.level.regions.length)
+        elapsedTurnBoundary('burdened multi-cycle region upkeep');
+    if (planning && propertyActive(state, SEARCHING))
+        elapsedTurnBoundary('burdened multi-cycle automatic search');
+    const regionEnv = planning ? null : regionEffectEnv(state, random);
     state.gw.were_changes = 0;
     await mcalcdistress(state, {
         state,
         random,
-        visionRecalc: vision_recalc,
+        visionRecalc: planning ? () => {} : vision_recalc,
         minLiquid: elapsedTurnMinLiquid,
         decideToShapeshift: decide_to_shapeshift,
         wereChange: were_change,
@@ -439,6 +455,17 @@ async function finishElapsedTurn(state, random) {
     settrack(state);
 
     state.moves++;
+    if (state.moves >= 1000000000) {
+        if (!planning && state._pending_message)
+            await dismissPendingTtyMessage(state);
+        if (!planning)
+            await ttyPline('The dungeon capitulates.', state);
+        state.program_state ??= {};
+        state.program_state.gameover = true;
+        state.end ??= {};
+        state.end.how = ESCAPED;
+        return true;
+    }
     state.hero_seq = state.moves * 8;
     if (state.flags?.time && !state.context?.run) {
         state.disp ??= {};
@@ -446,7 +473,7 @@ async function finishElapsedTurn(state, random) {
     }
 
     nh_timeout_elapsed_turn(state);
-    await run_regions(regionEnv);
+    if (!planning) await run_regions(regionEnv);
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
     if (!state.u.uinvulnerable)
@@ -458,25 +485,33 @@ async function finishElapsedTurn(state, random) {
         && (state.multi ?? 0) >= 0) {
         await automatic_search({ state, random });
     }
-    await dosoundsInitialLevel(state, { random: random.rn2 });
+    await dosoundsInitialLevel(state, {
+        random: random.rn2,
+        pline: planning ? async () => {} : ttyPline,
+    });
     await gethungry(state, {
         random,
         nearCapacity: () => wtcap,
-        message: ttyPline,
+        message: planning ? async () => {} : ttyPline,
         endRunning,
-        statusRefresh: () => bot(),
+        statusRefresh: planning ? async () => {} : () => bot(),
     });
     age_spells(state);
     // C ref: allmain.c moveloop_core() calls exerchk() here, before invault()
-    // and engraving wear. The repeated-simple-command boundary cannot change
-    // inventory burden, so encumber_msg() is source-inert at this call site.
+    // and engraving wear.
     await exerchk(state, {
         random,
         nearCapacity: () => wtcap,
-        encumberMessage: () => {},
-        message: ttyPline,
+        encumberMessage: planning
+            ? (subject) => encumber_msg(
+                subject,
+                { message: async () => {} },
+            )
+            : encumber_msg,
+        message: planning ? async () => {} : ttyPline,
     });
     maybeWipeHeroEngraving(state, random);
+    return false;
 }
 
 
@@ -517,9 +552,18 @@ async function moveElapsedTurnMonster(monster, env) {
 // once-per-turn upkeep waits until both sides are out. This serves the first
 // elapsed command and every subsequent elapsed command.
 async function advanceElapsedTurn(state) {
+    const initialCapacity = near_capacity(state);
     let preflight;
     try {
-        preflight = await preflightSimpleMonsterActions(state);
+        preflight = await preflightSimpleMonsterActions(state, {
+            advanceRound: initialCapacity > 0
+                ? (planned, planningRandom) => finishElapsedTurn(
+                    planned,
+                    planningRandom,
+                    { planning: true },
+                )
+                : null,
+        });
     } catch (error) {
         if (!(error instanceof UnsupportedSimpleMonsterActionError))
             throw error;
@@ -532,10 +576,12 @@ async function advanceElapsedTurn(state) {
     // determines that gate without changing live state, so unsupported upkeep
     // can still stop atomically without rejecting a fast hero who retains a
     // ration and does not allocate a new turn.
-    if (preflight.runsOncePerTurnUpkeep) {
+    const reachesTurnLimit = preflight.runsOncePerTurnUpkeep
+        && (state.moves || 1) + 1 >= 1000000000;
+    if (preflight.runsOncePerTurnUpkeep && !reachesTurnLimit) {
         try {
             preflightGetHungry(state, {
-                nearCapacity: () => UNENCUMBERED,
+                nearCapacity: () => initialCapacity,
                 message: ttyPline,
                 endRunning,
                 statusRefresh: () => bot(),
@@ -569,7 +615,9 @@ async function advanceElapsedTurn(state) {
     // when both sides are out, which is why the gate carries !monstersCanMove
     // as well as the movement test.
     state.u.umovement -= NORMAL_SPEED;
+    let upkeepCount = 0;
     do {
+        await encumber_msg(state);
         state.context.mon_moving = true;
         let monstersCanMove;
         try {
@@ -598,9 +646,17 @@ async function advanceElapsedTurn(state) {
                 'elapsed-turn preflight disagreed with the live movement gate',
             );
         }
-        if (runsOncePerTurnUpkeep)
-            await finishElapsedTurn(state, random);
+        if (runsOncePerTurnUpkeep) {
+            ++upkeepCount;
+            if (await finishElapsedTurn(state, random))
+                return;
+        }
     } while (state.u.umovement < NORMAL_SPEED);
+    if (initialCapacity > 0 && upkeepCount !== preflight.upkeepCount) {
+        throw new Error(
+            'elapsed-turn preflight disagreed with live allocation count',
+        );
+    }
 
     // C runs the once-per-hero-action block outside both loops.
     finishHeroTimeEffects(state, { random });
@@ -618,6 +674,7 @@ export async function moveloop_core() {
         // C ref: allmain.c moveloop_core() has one elapsed path for every
         // turn, and so does this.
         await advanceElapsedTurn(g);
+        if (g.program_state?.gameover) return;
     }
 
     // C has a separate clear_splitobjs() at movemon()'s terminal boundary.

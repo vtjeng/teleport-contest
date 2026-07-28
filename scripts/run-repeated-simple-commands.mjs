@@ -14,13 +14,14 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20300102030405';
 
 function nethackrc({
+    align = 'neutral',
     name,
     role,
     gender = 'male',
     options,
 }) {
     return [
-        `OPTIONS=name:${name},role:${role},race:human,gender:${gender},align:neutral`,
+        `OPTIONS=name:${name},role:${role},race:human,gender:${gender},align:${align}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         `OPTIONS=${options}`,
         '',
@@ -51,6 +52,17 @@ export function loadRepeatedSimpleCommandsRecipe() {
                 }),
                 // This independently selected quiet seed reaches the first
                 // scheduled exerchk() boundary without leaving simple waits.
+                moves: '.'.repeat(600),
+            },
+            {
+                seed: 42,
+                datetime: '20310203040506',
+                nethackrc: nethackrc({
+                    name: 'ArcLuck',
+                    role: 'Archeologist',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A worn starting fedora raises basal luck at move 600.
                 moves: '.'.repeat(600),
             },
             {

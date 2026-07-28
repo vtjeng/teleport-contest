@@ -128,6 +128,19 @@ test('parses lifecycle commands and exact two-dot ranges', () => {
     );
 });
 
+test('audit prompts require an explicit sealed-data prohibition', t => {
+    const fixture = makeFixture(t);
+    writeFileSync(
+        fixture.promptPath,
+        `Read AGENTS.md. Run audit-diff-correctness for ${
+            fixture.base}..${fixture.head}. Inspect the sealed holdout directory.\n`,
+    );
+    assert.throws(
+        () => prepare(fixture),
+        /sealed-holdout prohibition/u,
+    );
+});
+
 test('requires a ready checklist tied to the exact head', () => {
     const head = 'a'.repeat(40);
     assert.doesNotThrow(() => validateChecklist(readyChecklist(head), head));

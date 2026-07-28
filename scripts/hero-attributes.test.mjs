@@ -440,6 +440,42 @@ test('exerchk applies a scheduled Wisdom abuse and reschedules it',
         random.done();
     });
 
+test('exerchk gives only Wisdom the full exercise threshold', async () => {
+    for (const [index, changes] of [
+        [A_STR, false],
+        [A_WIS, true],
+    ]) {
+        const state = baseState();
+        state.moves = 600;
+        state.multi = 0;
+        state.context = { next_attrib_check: 600 };
+        state.program_state = { in_moveloop: 0 };
+        state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+        state.u.amax = { a: [10, 10, 10, 10, 10, 10] };
+        state.u.aexe = [0, 0, 0, 0, 0, 0];
+        state.u.aexe[index] = 3;
+        // HUNGRY has no exerper() attribute draw at this ten-turn boundary,
+        // isolating the scheduled Strength/Wisdom threshold comparison.
+        state.u.uhunger = 100;
+        state.u.uprops = {};
+        const random = queuedRandom(
+            [3, 0],
+            ['rn2(50)', 'rn1(200,800)'],
+        );
+
+        await exerchk(state, {
+            random,
+            nearCapacity: () => 0,
+            encumberMessage: () => assert.fail('not in the move loop'),
+            message: () => {},
+        });
+
+        assert.equal(state.u.acurr.a[index], changes ? 11 : 10);
+        assert.equal(state.u.aexe[index], changes ? 0 : 1);
+        random.done();
+    }
+});
+
 test('newuexp keeps the three source ranges', () => {
     // Levels 1, 10, and 20 select each branch of exper.c newuexp().
     assert.equal(newuexp(1), 20);

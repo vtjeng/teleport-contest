@@ -3,6 +3,7 @@
 
 import { game } from './gstate.js';
 import { effective_attribute } from './attrib.js';
+import { near_capacity } from './hack.js';
 import { update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
 import { cansee, seenv_matrix } from './vision.js';
@@ -2636,7 +2637,21 @@ function _statusFieldData(field) {
     case 'charisma': return { value: attrs[A_CHA] ?? 0 };
     case 'alignment': return { text: _statusAlignment(u) };
     case 'score': return { value: 0 };
-    case 'carrying-capacity': return { value: 0, text: '' };
+    case 'carrying-capacity': {
+        const capacity = near_capacity(game);
+        const labels = [
+            '',
+            'Burdened',
+            'Stressed',
+            'Strained',
+            'Overtaxed',
+            'Overloaded',
+        ];
+        return {
+            value: capacity,
+            text: labels[capacity] ?? '',
+        };
+    }
     case 'gold': return { value: money_cnt(game.invent) };
     case 'power':
         return {

@@ -14,6 +14,7 @@ import {
     CLAIRVOYANT,
     DUST,
     EXT_ENCUMBER,
+    ESCAPED,
     FAST,
     FLYING,
     FROMOUTSIDE,
@@ -39,6 +40,7 @@ import {
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
+import { weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
@@ -50,6 +52,7 @@ import {
     PM_LICHEN,
     PM_TENGU,
 } from '../js/monsters.js';
+import { SACK, TOOL_CLASS } from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { cansee, vision_recalc } from '../js/vision.js';
@@ -703,6 +706,80 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
         assert.equal(game.moves, 2);
         assert.equal(game.gt.timer_base.timeout, 101);
     });
+
+test('the billionth turn capitulates before hero sequence and upkeep',
+    async () => {
+        await runSegment({
+            seed: 2026072301,
+            datetime: '20260723120000',
+            nethackrc: 'OPTIONS=name:TurnLimit,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        clearTtyMessageWindow(game);
+        game.context.move = 1;
+        game.u.umovement = NORMAL_SPEED;
+        game.moves = 999999999;
+        game.hero_seq = game.moves * 8;
+        const priorHeroSequence = game.hero_seq;
+        const priorHunger = game.u.uhunger;
+
+        await moveloop_core();
+
+        assert.equal(game.moves, 1000000000);
+        assert.equal(game.hero_seq, priorHeroSequence);
+        assert.equal(game.u.uhunger, priorHunger);
+        assert.equal(game._pending_message, 'The dungeon capitulates.');
+        assert.equal(game.program_state.gameover, true);
+        assert.equal(game.end.how, ESCAPED);
+    });
+
+test('weak burden drives the live multi-allocation elapsed path', async () => {
+    await runSegment({
+        seed: 2026072301,
+        datetime: '20260723120000',
+        nethackrc: 'OPTIONS=name:LiveBurden,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.level.regions = [];
+    game.head_engr = null;
+    clearTtyMessageWindow(game);
+    game.u.atemp[0] = -1;
+    game.u.uhs = WEAK;
+    game.u.uhunger = 49;
+    game.invent = {
+        oclass: TOOL_CLASS,
+        otyp: SACK,
+        owt: weight_cap(game) + 5,
+        nobj: null,
+    };
+    game.go = { oldcap: 0 };
+    game.context.move = 1;
+    game.context.seer_turn = 100000;
+    game.context.next_attrib_check = 100000;
+    game.u.umovement = NORMAL_SPEED;
+    const priorMoves = game.moves;
+    const priorHunger = game.u.uhunger;
+    game.nhDisplay.pushKey('.'.charCodeAt(0));
+
+    await moveloop_core();
+
+    assert.equal(game.go.oldcap, 1);
+    assert.equal(game.moves, priorMoves + 2);
+    assert.equal(game.u.umovement, 18);
+    assert.equal(game.u.uhunger, priorHunger - 2);
+    assert.equal(
+        game.nhDisplay.toplines,
+        'Your movements are slowed slightly because of your load.',
+    );
+});
 
 test('the live elapsed path reaches the scheduled move-600 attribute check',
     async () => {

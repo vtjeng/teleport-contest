@@ -19,6 +19,7 @@ import {
 } from '../js/const.js';
 import {
     PM_DEATH,
+    PM_ARCHEOLOGIST,
     PM_FAMINE,
     PM_KOBOLD,
     PM_LICHEN,
@@ -26,6 +27,7 @@ import {
     PM_TROLL,
     monst_globals_init,
 } from '../js/monsters.js';
+import { FEDORA, LUCKSTONE } from '../js/objects.js';
 import {
     UnsupportedTimerCleanupError,
     attach_egg_hatch_timeout,
@@ -99,6 +101,46 @@ test('elapsed-turn timeout upkeep preserves invulnerability short circuit', () =
     const state = timerState(2);
     state.u = { uinvulnerable: true, mtimedone: 5, uprops: [] };
     assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
+});
+
+test('move-600 timeout luck uses basal role and luckstone gates', () => {
+    const state = timerState(600);
+    state.flags = { moonphase: 0, friday13: false };
+    state.svq = { quest_status: {} };
+    state.urole = { mnum: PM_ARCHEOLOGIST };
+    state.uarmh = { otyp: FEDORA };
+    state.invent = null;
+    state.u = {
+        uinvulnerable: false,
+        mtimedone: 0,
+        ucreamed: 0,
+        usptime: 0,
+        ugallop: 0,
+        uprops: [],
+        uhave: { amulet: false },
+        ugangr: 0,
+        uluck: 0,
+    };
+
+    nh_timeout_elapsed_turn(state);
+    assert.equal(state.u.uluck, 1);
+
+    state.moves = 1200;
+    state.u.uluck = 3;
+    state.invent = {
+        otyp: LUCKSTONE,
+        quan: 1,
+        blessed: true,
+        cursed: false,
+        nobj: null,
+    };
+    nh_timeout_elapsed_turn(state);
+    assert.equal(state.u.uluck, 3, 'blessed luckstone retains good luck');
+
+    state.invent.blessed = false;
+    state.invent.cursed = true;
+    nh_timeout_elapsed_turn(state);
+    assert.equal(state.u.uluck, 2, 'cursed luckstone lets good luck time out');
 });
 
 test('start_timer orders expiries and puts equal expiries newest first', () => {

@@ -345,6 +345,44 @@ test('complete retry snapshot detects each deferred output owner',
     async () => {
         const cases = [
             {
+                name: 'command count',
+                mutate: ({ state }) => {
+                    state.commandCount = 7;
+                },
+            },
+            {
+                name: 'last command count',
+                mutate: ({ state }) => {
+                    state.lastCommandCount = 9;
+                },
+            },
+            {
+                name: 'did nothing output flag',
+                mutate: ({ state }) => {
+                    state.did_nothing_flag = !state.did_nothing_flag;
+                },
+            },
+            {
+                name: 'status display owner',
+                mutate: ({ state }) => {
+                    state.disp.botl = !state.disp.botl;
+                },
+            },
+            {
+                name: 'complete interface flags',
+                mutate: ({ state }) => {
+                    state.iflags.menu_requested =
+                        !state.iflags.menu_requested;
+                },
+            },
+            {
+                name: 'program state',
+                mutate: ({ state }) => {
+                    state.program_state.gameover =
+                        !state.program_state.gameover;
+                },
+            },
+            {
                 name: 'display RNG',
                 mutate: ({ state }) => {
                     state.displayCtx.a += 1n;
