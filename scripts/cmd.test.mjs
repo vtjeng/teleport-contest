@@ -303,6 +303,13 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
         domoveAttempting: game.domoveAttempting,
         hero: structuredClone(game.u),
         iflags: structuredClone(game.iflags),
+        parser: {
+            cmdKey: game.cmdKey,
+            commandCount: game.commandCount,
+            dispatchCount: game._commandDispatchCount,
+            lastCommandCount: game.lastCommandCount,
+        },
+        programState: structuredClone(game.program_state),
         input: {
             queue: [...(game.nhDisplay.terminal._inputQueue ?? [])],
             waiting: game.nhDisplay.isWaitingForInput,
@@ -642,6 +649,11 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         expected.domoveAttempting = 0;
         expected.iflags.menu_requested = false;
         expected.multi = 0;
+        Object.assign(expected.parser, {
+            cmdKey: commandKeyCode('l'),
+            commandCount: 0,
+            lastCommandCount: 0,
+        });
         expected.context.pendingCommand = {
             phase: 'parsed',
             key: commandKeyCode('l'),
@@ -672,6 +684,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             const actualTerminal = actual.terminal;
             delete actual.output;
             delete actual.terminal;
+            expected.parser.dispatchCount = initialDispatches + attempt + 1;
             const expectedTerminal = expected.terminal;
             delete expected.terminal;
             assert.deepEqual(
@@ -1353,6 +1366,14 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
             moves: ' ',
         });
         const key = commandKeyCode(commandCase.key);
+        assert.equal(
+            game._commandDispatchCount,
+            0,
+            'the setup space dismisses startup output, not a gameplay wait',
+        );
+        assert.equal(game.moves, 1);
+        assert.equal(game.hero_seq ?? 0, 0);
+        assert.equal(game.u.uhunger, 900);
         const initialDispatches = game._commandDispatchCount;
         game.nhDisplay.pushKey(key);
         const beforeFirstRejection = heroCommandRetrySnapshot(replay);
@@ -1363,10 +1384,37 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
             commandCase.name,
         );
         const rejected = heroCommandRetrySnapshot(replay);
-        assert.deepEqual(rejected.hero, beforeFirstRejection.hero);
-        assert.deepEqual(rejected.rng, beforeFirstRejection.rng);
-        assert.deepEqual(rejected.scheduler, beforeFirstRejection.scheduler);
-        assert.deepEqual(rejected.world, beforeFirstRejection.world);
+        const expected = structuredClone(beforeFirstRejection);
+        Object.assign(expected.context, {
+            forcefight: 0,
+            move: 0,
+            mv: 0,
+            nopick: 0,
+            run: 0,
+            travel: 0,
+            travel1: 0,
+            pendingCommand: {
+                phase: 'physical',
+                key,
+            },
+        });
+        expected.domoveAttempting = 0;
+        expected.iflags.in_parse = false;
+        expected.iflags.menu_requested = false;
+        expected.input.queue = [];
+        expected.multi = 0;
+        expected.output.animations.push([]);
+        expected.output.cursors.push(
+            structuredClone(expected.output.cursors.at(-1)),
+        );
+        expected.output.rngSlices.push([]);
+        expected.output.screens.push(expected.output.screens.at(-1));
+        expected.terminal.waitEpoch++;
+        assert.deepEqual(
+            rejected,
+            expected,
+            `${commandCase.name} first rejection has only documented deltas`,
+        );
         assert.deepEqual(game.context.pendingCommand, {
             phase: 'physical',
             key,
@@ -1376,35 +1424,6 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
             game.nhDisplay.waitEpoch,
             beforeFirstRejection.terminal.waitEpoch + 1,
         );
-        assert.deepEqual(
-            rejected.terminal.cursor,
-            replay.getCursors().at(-1),
-            'classification leaves the cursor at the captured prompt',
-        );
-        assert.deepEqual(
-            replay.getCursors().at(-1),
-            beforeFirstRejection.output.cursors.at(-1),
-            'the new prompt independently matches the pre-attempt cursor',
-        );
-        assert.equal(
-            replay.getScreens().at(-1),
-            beforeFirstRejection.output.screens.at(-1),
-            'the new prompt independently matches the pre-attempt display',
-        );
-        for (const field of [
-            'messages',
-            'pending',
-            'topMessage',
-            'toplin',
-            'toplines',
-            'ttyToplines',
-        ]) {
-            assert.deepEqual(
-                rejected.display[field],
-                beforeFirstRejection.display[field],
-                `${commandCase.name} preserves display field ${field}`,
-            );
-        }
         assert.equal(
             replay.getScreens().length,
             beforeFirstRejection.output.screens.length + 1,
