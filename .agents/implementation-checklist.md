@@ -42,11 +42,11 @@ As defined in `.agents/implementation-checklist-template.md`.
 | `ddoinv()` and `dispinv_with_action()` with `lets == NULL` | Reached by `i` with no prefix; `menumode` is TRUE because `len != 1` | None | Returns `ECMD_OK`, so no game time | `invent.c` `dispinv_with_action()` | missing | Port both, with the Escape return that skips `itemactions()` |
 | `display_inventory()` | Called with `want_reply` TRUE; its `cmdq_pop()` branch cannot fire while no command queue is ported | None | No state change | `invent.c:3428` | missing | Port the non-queue path |
 | `display_pickinv()` menu construction | The main path: builds the menu window, one entry per object, with class headers when `flags.sortpack` is set | None, needs `js/tty_menu.js` | Screen output only | `invent.c:3057` | missing | Port the entry and header construction |
-| `sortloot()` ordering | `flags.sortloot` defaults to `'l'`; `flags.sortpack` defaults on, so entries group by class in `flags.inv_order` order | Unported | Order decides the screen | `invent.c`, `sortloot()` | undecided | Trace which sort the default options select before porting either |
+| `sortloot()` ordering | Traced. `options.c:7208` sets `flags.sortloot = 'l'`, and `display_pickinv()` compares against `'f'`, so the flags are `SORTLOOT_INVLET`; `optlist.h:687` defaults `sortpack` On, adding `SORTLOOT_PACK`. The menu loop then walks `flags.inv_order`, whose default is `def_inv_order[]` at `options.c:118`, and lists each class in invlet order | None | Order decides the screen | `options.c:118`, `options.c:7208`, `optlist.h:687`, `invent.c:3175` | missing | Port the class walk with that order; a full `sortloot()` is not needed for `SORTLOOT_INVLET` |
 | Empty inventory, `Not carrying anything` | Cannot occur for a starting character, which always carries items | None | One message rather than a menu | `invent.c:3066` | cannot-occur | None |
 | Single-item inventory shortcut | `n == 1 && !force_invmenu && !menu_requested`; unreachable from `i` because `menumode` forces the menu | None | Would print one line instead | `invent.c:3149` | cannot-occur | None |
 | `!flags.invlet_constant` reassignment | `invlet_constant` defaults on, so `reassign()` does not run | None | Would renumber every invlet | `invent.c:3146` | cannot-occur | None |
-| Escape dismissal | The three sessions send Escape; `select_menu()` returns 0 and `display_inventory()` returns `'\033'` | `js/tty_menu.js` `dismissTtyMenu()` | Restores the map screen | `invent.c` `dispinv_with_action()` | undecided | Confirm the existing dismissal restores the same cells C redraws |
+| Escape dismissal | The three sessions send Escape; `select_menu()` returns 0 and `display_inventory()` returns `'\033'` | `js/tty_menu.js` `selectTtyMenu()` and `dismissTtyMenu()` | Restores the map screen | `invent.c` `dispinv_with_action()`; the menu spec `js/tty_menu.js` takes is `{title, items, how}`, and an item without a selector renders as a plain line, which is what a class header needs | undecided | Decide by fresh differential rather than by inspection: the existing owner serves the role-filter menu, whose title style and paging may differ from the inventory menu's |
 | `itemactions()` after a letter | Excluded; no development session selects an item | None | Would consume time | Session census at `4b07735` | later | None |
 
 ## Missing work by owner
@@ -55,6 +55,10 @@ As defined in `.agents/implementation-checklist-template.md`.
   and `display_pickinv()`.
 - `js/cmd.js`: admit the `inventory` command at the seam and dispatch it, as
   `look` is dispatched.
+- `js/options.js`: none of `sortloot`, `sortpack`, `invlet_constant`, or
+  `inv_order` is in the port's `flags` yet; only their names are accepted.
+  Each needs its `options.c` default, the way `pile_limit` gained one at
+  `7f4c101`, and adding a flag moves the second-turn fixture's state digests.
 - `js/tty_menu.js`: only if the inventory menu needs a spec shape the role
   filter menu does not already produce.
 
