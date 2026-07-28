@@ -141,6 +141,25 @@ test('audit prompts require an explicit sealed-data prohibition', t => {
     );
 });
 
+test('audit prompts reject double-negative sealed-data instructions', t => {
+    const fixture = makeFixture(t);
+    for (const instruction of [
+        'Do not forget to inspect the sealed holdout directory.',
+        'Never avoid reading the sealed holdout directory.',
+    ]) {
+        writeFileSync(
+            fixture.promptPath,
+            `Read AGENTS.md. Run audit-diff-correctness for ${
+                fixture.base}..${fixture.head}. ${instruction}\n`,
+        );
+        assert.throws(
+            () => prepare(fixture),
+            /sealed-holdout prohibition/u,
+            instruction,
+        );
+    }
+});
+
 test('requires a ready checklist tied to the exact head', () => {
     const head = 'a'.repeat(40);
     assert.doesNotThrow(() => validateChecklist(readyChecklist(head), head));

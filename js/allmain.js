@@ -59,6 +59,7 @@ import {
     domove,
     endRunning,
     near_capacity,
+    projected_capacity,
 } from './hack.js';
 import { encumber_msg } from './pickup.js';
 import { docrt, cls, bot, flush_screen, newsym } from './display.js';
@@ -425,10 +426,6 @@ async function finishElapsedTurn(
     { planning = false } = {},
 ) {
     const wtcap = near_capacity(state);
-    if (planning && state.level.regions.length)
-        elapsedTurnBoundary('burdened multi-cycle region upkeep');
-    if (planning && propertyActive(state, SEARCHING))
-        elapsedTurnBoundary('burdened multi-cycle automatic search');
     const regionEnv = planning ? null : regionEffectEnv(state, random);
     state.gw.were_changes = 0;
     await mcalcdistress(state, {
@@ -458,8 +455,15 @@ async function finishElapsedTurn(
     if (state.moves >= 1000000000) {
         if (!planning && state._pending_message)
             await dismissPendingTtyMessage(state);
-        if (!planning)
+        if (!planning) {
             await ttyPline('The dungeon capitulates.', state);
+            await flush_screen(1);
+            // Recorder patch 006 captures one final boundary from end.c when
+            // no later nhgetch() exists. Reuse the installed capture hook
+            // without requesting or consuming another key.
+            if (typeof state._preNhgetchHook === 'function')
+                await state._preNhgetchHook();
+        }
         state.program_state ??= {};
         state.program_state.gameover = true;
         state.end ??= {};
@@ -473,6 +477,8 @@ async function finishElapsedTurn(
     }
 
     nh_timeout_elapsed_turn(state);
+    if (planning && state.level.regions.length)
+        elapsedTurnBoundary('burdened multi-cycle region upkeep');
     if (!planning) await run_regions(regionEnv);
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
@@ -483,6 +489,8 @@ async function finishElapsedTurn(
     if (propertyActive(state, SEARCHING)
         && !state.level.flags?.noautosearch
         && (state.multi ?? 0) >= 0) {
+        if (planning)
+            elapsedTurnBoundary('burdened multi-cycle automatic search');
         await automatic_search({ state, random });
     }
     await dosoundsInitialLevel(state, {
@@ -552,7 +560,7 @@ async function moveElapsedTurnMonster(monster, env) {
 // once-per-turn upkeep waits until both sides are out. This serves the first
 // elapsed command and every subsequent elapsed command.
 async function advanceElapsedTurn(state) {
-    const initialCapacity = near_capacity(state);
+    const initialCapacity = projected_capacity(state);
     let preflight;
     try {
         preflight = await preflightSimpleMonsterActions(state, {
@@ -666,6 +674,7 @@ async function advanceElapsedTurn(state) {
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
+    if (g.program_state?.gameover) return;
 
     // C gates its entire elapsed-time block on the preceding command's
     // context.move value. Capture that value before the next command dispatch

@@ -308,17 +308,38 @@ function planningState(state) {
         usteed: monsterMap.get(state.u?.usteed) ?? state.u?.usteed,
         ustuck: monsterMap.get(state.u?.ustuck) ?? state.u?.ustuck,
     };
+    const mvitals = state.mvitals?.map(
+        (vital) => vital ? { ...vital } : vital,
+    );
+    const cloneLightList = (source) => {
+        if (!source) return null;
+        return {
+            ...source,
+            id: monsterMap.get(source.id) ?? source.id,
+            next: cloneLightList(source.next),
+        };
+    };
     return {
         ...state,
         context: structuredClone(state.context),
         disp: structuredClone(state.disp),
+        flags: structuredClone(state.flags),
         gg: { ...state.gg },
+        gl: state.gl ? {
+            ...state.gl,
+            light_base: cloneLightList(state.gl.light_base),
+        } : state.gl,
         go: { ...(state.go ?? {}) },
         gw: { ...(state.gw ?? {}) },
         head_engr: structuredClone(state.head_engr),
         iflags: structuredClone(state.iflags),
         level,
+        mvitals,
         program_state: structuredClone(state.program_state),
+        svm: state.svm ? {
+            ...state.svm,
+            mvitals,
+        } : state.svm,
         svs: state.svs ? {
             ...state.svs,
             spl_book: state.svs.spl_book?.map(
@@ -542,6 +563,7 @@ export async function preflightSimpleMonsterActions(
     planned.u.umovement -= NORMAL_SPEED;
     let somebodyCanMove;
     let upkeepCount = 0;
+    let terminal = false;
     do {
         do {
             somebodyCanMove = false;
@@ -566,10 +588,12 @@ export async function preflightSimpleMonsterActions(
         if (!runsUpkeep) break;
         ++upkeepCount;
         if (!advanceRound) break;
-        await advanceRound(planned, random);
+        terminal = await advanceRound(planned, random);
+        if (terminal) break;
     } while (planned.u.umovement < NORMAL_SPEED);
     return {
         runsOncePerTurnUpkeep: upkeepCount > 0,
+        terminal,
         upkeepCount,
     };
 }

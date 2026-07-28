@@ -303,7 +303,12 @@ export function exercise(
             : -random.rn2(2);
         attrs.exercise[index] += adjustment;
     }
-    if (physicalMessage) encumberMessage(state);
+    if (physicalMessage) {
+        const completion = encumberMessage(state);
+        if (completion && typeof completion.then === 'function') {
+            return completion.then(() => adjustment);
+        }
+    }
     return adjustment;
 }
 
@@ -323,17 +328,17 @@ function requiredOperation(env, name) {
     return operation;
 }
 
-function exerciseWithEnvironment(index, increase, state, env) {
+async function exerciseWithEnvironment(index, increase, state, env) {
     return exercise(index, increase, state, env.random, {
         encumberMessage: env.encumberMessage,
     });
 }
 
 // C ref: attrib.c exerper(). This owns the five-turn status cadence and the
-// ten-turn hunger and encumbrance cadence. nearCapacity is injected because
-// the active repeated-command boundary has a fixed unencumbered inventory;
-// the eventual inventory owner will supply the general near_capacity().
-export function exerper(state = game, env = {}) {
+// ten-turn hunger and encumbrance cadence. Inventory contents remain stable in
+// the active boundary, but nearCapacity is live: temporary Strength changes
+// can change capacity and burden before the next allocation.
+export async function exerper(state = game, env = {}) {
     const random = env.random ?? { rn2 };
     const encumberMessage = requiredOperation(env, 'encumberMessage');
     const nearCapacity = requiredOperation(env, 'nearCapacity');
@@ -358,21 +363,21 @@ export function exerper(state = game, env = {}) {
                     : hero.uhunger > 0 ? WEAK : FAINTING;
         switch (hunger) {
         case SATIATED:
-            exerciseWithEnvironment(A_DEX, false, state, normalized);
+            await exerciseWithEnvironment(A_DEX, false, state, normalized);
             if (state.urole?.mnum === PM_MONK)
-                exerciseWithEnvironment(A_WIS, false, state, normalized);
+                await exerciseWithEnvironment(A_WIS, false, state, normalized);
             break;
         case NOT_HUNGRY:
-            exerciseWithEnvironment(A_CON, true, state, normalized);
+            await exerciseWithEnvironment(A_CON, true, state, normalized);
             break;
         case WEAK:
-            exerciseWithEnvironment(A_STR, false, state, normalized);
+            await exerciseWithEnvironment(A_STR, false, state, normalized);
             if (state.urole?.mnum === PM_MONK)
-                exerciseWithEnvironment(A_WIS, true, state, normalized);
+                await exerciseWithEnvironment(A_WIS, true, state, normalized);
             break;
         case FAINTING:
         case FAINTED:
-            exerciseWithEnvironment(A_CON, false, state, normalized);
+            await exerciseWithEnvironment(A_CON, false, state, normalized);
             break;
         default:
             break;
@@ -380,15 +385,15 @@ export function exerper(state = game, env = {}) {
 
         switch (nearCapacity(state)) {
         case MOD_ENCUMBER:
-            exerciseWithEnvironment(A_STR, true, state, normalized);
+            await exerciseWithEnvironment(A_STR, true, state, normalized);
             break;
         case HVY_ENCUMBER:
-            exerciseWithEnvironment(A_STR, true, state, normalized);
-            exerciseWithEnvironment(A_DEX, false, state, normalized);
+            await exerciseWithEnvironment(A_STR, true, state, normalized);
+            await exerciseWithEnvironment(A_DEX, false, state, normalized);
             break;
         case EXT_ENCUMBER:
-            exerciseWithEnvironment(A_DEX, false, state, normalized);
-            exerciseWithEnvironment(A_CON, false, state, normalized);
+            await exerciseWithEnvironment(A_DEX, false, state, normalized);
+            await exerciseWithEnvironment(A_CON, false, state, normalized);
             break;
         default:
             break;
@@ -398,23 +403,23 @@ export function exerper(state = game, env = {}) {
     if (moves % 5 === 0) {
         if (intrinsicPropertyPresent(hero, CLAIRVOYANT)
             && !hero.uprops?.[CLAIRVOYANT]?.blocked) {
-            exerciseWithEnvironment(A_WIS, true, state, normalized);
+            await exerciseWithEnvironment(A_WIS, true, state, normalized);
         }
         if (intrinsicPropertyPresent(hero, REGENERATION))
-            exerciseWithEnvironment(A_STR, true, state, normalized);
+            await exerciseWithEnvironment(A_STR, true, state, normalized);
         if (intrinsicPropertyPresent(hero, SICK)
             || intrinsicPropertyPresent(hero, VOMITING)) {
-            exerciseWithEnvironment(A_CON, false, state, normalized);
+            await exerciseWithEnvironment(A_CON, false, state, normalized);
         }
         const hallucinating = intrinsicPropertyPresent(hero, HALLUC)
             && !propertyPresent(hero, HALLUC_RES);
         if (intrinsicPropertyPresent(hero, CONFUSION) || hallucinating) {
-            exerciseWithEnvironment(A_WIS, false, state, normalized);
+            await exerciseWithEnvironment(A_WIS, false, state, normalized);
         }
         if ((propertyPresent(hero, WOUNDED_LEGS) && !hero.usteed)
             || propertyPresent(hero, FUMBLING)
             || intrinsicPropertyPresent(hero, STUNNED)) {
-            exerciseWithEnvironment(A_DEX, false, state, normalized);
+            await exerciseWithEnvironment(A_DEX, false, state, normalized);
         }
     }
 }
@@ -546,7 +551,7 @@ export async function exerchk(state = game, env = {}) {
         throw new TypeError('attribute check random injection requires rn1 and rn2');
     }
     const normalized = { ...env, random };
-    exerper(state, normalized);
+    await exerper(state, normalized);
 
     const moves = Math.trunc(state.moves ?? 0);
     const nextCheck = state.context?.next_attrib_check;

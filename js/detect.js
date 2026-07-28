@@ -344,8 +344,8 @@ function defaultNomulZero(env) {
     state.travelmap = null;
 }
 
-function defaultExerciseWisdom(env) {
-    exercise(A_WIS, true, env.state, env.random, env.hooks);
+async function defaultExerciseWisdom(env) {
+    await exercise(A_WIS, true, env.state, env.random, env.hooks);
 }
 
 function injectedOperation(rawEnv, name) {
@@ -551,7 +551,7 @@ async function findTrap(trap, env) {
     // hallucination) owns reveal -> message -> acknowledgement -> redraw;
     // WIN_STOP may suppress the acknowledgement while retaining the redraw.
     trap.tseen = true;
-    env.exerciseWisdom(env);
+    await env.exerciseWisdom(env);
     const trapVisible = await env.displayFoundTrap(
         trap,
         trap.tx,
@@ -619,7 +619,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 preflightSecretDoor(env);
                 cvt_sdoor_to_door(location, state);
                 env.recalcBlockPoint(x, y, env);
-                env.exerciseWisdom(env);
+                await env.exerciseWisdom(env);
                 env.nomulZero(env);
                 await env.feelLocation(x, y, env);
                 await env.message(
@@ -630,7 +630,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 preflightSecretCorridor(env);
                 location.typ = CORR;
                 env.unblockPoint(x, y, env);
-                env.exerciseWisdom(env);
+                await env.exerciseWisdom(env);
                 env.nomulZero(env);
                 await env.feelNewSym(x, y, env);
                 await env.message(
@@ -645,7 +645,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                     const animated = await env.activateStatueTrap(
                         trap, x, y, false, env,
                     );
-                    if (animated) env.exerciseWisdom(env);
+                    if (animated) await env.exerciseWisdom(env);
                     return 1;
                 }
                 await findTrap(trap, env);

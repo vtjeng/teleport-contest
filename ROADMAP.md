@@ -63,11 +63,13 @@ missing or undecided row, but the full review through `7892b21` reopened
 implementation with four live source gaps: weakness-driven encumbrance,
 move-600 basal luck, the one-billion-turn termination, and trapped-monster
 prologue admission. The same review identified six evidence and tooling gaps.
-All ten findings are implemented, the twelve-case fresh matrix now covers
-83,269 PRNG calls and 2,351 complete screens, attributes, and cursors, and the
-repository checkpoint is green. The goal does not close at a particular
-score; `.agents/implementation-checklist.md` records the exact-commit audit
-handoff.
+All ten findings from that review were implemented at `e30ea05`. The next full
+review confirmed six production defects plus test, tooling, and handoff gaps;
+their implementation is complete and the repository checkpoint is green at
+1,668 tests. The twelve-case fresh matrix remains exact across 83,269 PRNG
+calls and 2,351 complete screens, attributes, and cursors. The goal does not
+close at a particular score; `.agents/implementation-checklist.md` records the
+post-review implementation and exact-commit audit handoff.
 
 `.agents/implementation-checklist.md` holds the working record: the branch
 inventory, per-row status, and the baseline at the starting commit. Read it

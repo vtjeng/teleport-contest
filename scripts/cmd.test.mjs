@@ -305,6 +305,8 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
             ttyToplines: game._ttyToplines,
         },
         domoveAttempting: game.domoveAttempting,
+        go: structuredClone(game.go),
+        gw: structuredClone(game.gw),
         hero: structuredClone(game.u),
         iflags: structuredClone(game.iflags),
         parser: {
@@ -713,7 +715,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             const actualTerminal = actual.terminal;
             delete actual.output;
             delete actual.terminal;
-            expected.parser.dispatchCount = initialDispatches + attempt + 1;
+            expected.parser.dispatchCount = initialDispatches + 1;
             const expectedTerminal = expected.terminal;
             delete expected.terminal;
             assert.deepEqual(
@@ -724,7 +726,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             expected.terminal = expectedTerminal;
             assert.equal(
                 game._commandDispatchCount,
-                initialDispatches + attempt + 1,
+                initialDispatches + 1,
                 refusal.name,
             );
             if (attempt === 0) {
@@ -771,7 +773,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         assert.equal(game.moves, expected.scheduler.moves + 1, refusal.name);
         assert.equal(
             game._commandDispatchCount,
-            initialDispatches + 3,
+            initialDispatches + 1,
             refusal.name,
         );
     }
@@ -1227,6 +1229,18 @@ test('command retry snapshot detects monster, display RNG, and recorder owners',
                 name: 'display RNG',
                 mutate() {
                     game.displayCtx.a += 1n;
+                },
+            },
+            {
+                name: 'burden message state',
+                mutate() {
+                    game.go.oldcap += 1;
+                },
+            },
+            {
+                name: 'capacity cache',
+                mutate() {
+                    game.gw.wc += 1;
                 },
             },
             {
@@ -1900,8 +1914,10 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     game.level.monlist = monster;
     game.u.umovement = 24;
     game.context.move = 1;
+    game.gw.wc = 12345;
     const before = {
         dispatches: game._commandDispatchCount,
+        capacityCache: game.gw.wc,
         heroSeq: game.hero_seq,
         hunger: game.u.uhunger,
         moves: game.moves,
@@ -1919,6 +1935,7 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     assert.equal(game.nhDisplay.inputQueueLength, 1);
     assert.deepEqual({
         dispatches: game._commandDispatchCount,
+        capacityCache: game.gw.wc,
         heroSeq: game.hero_seq,
         hunger: game.u.uhunger,
         moves: game.moves,

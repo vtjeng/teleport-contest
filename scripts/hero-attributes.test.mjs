@@ -21,6 +21,7 @@ import {
     HVY_ENCUMBER,
     REGENERATION,
     SICK,
+    WEAK,
     WOUNDED_LEGS,
 } from '../js/const.js';
 import { newpw, newuexp } from '../js/exper.js';
@@ -178,7 +179,8 @@ test('vary_init_attr consumes the source checks and clamps a decrease', () => {
     random.done();
 });
 
-test('exerper preserves ten-turn hunger, burden, and status draw order', () => {
+test('exerper preserves ten-turn hunger, burden, and status draw order',
+    async () => {
     const state = baseState();
     state.moves = 10;
     state.urole.mnum = PM_MONK;
@@ -213,7 +215,7 @@ test('exerper preserves ten-turn hunger, burden, and status draw order', () => {
     };
     let encumberMessages = 0;
 
-    exerper(state, {
+    await exerper(state, {
         random,
         // Heavy burden selects Strength gain followed by Dexterity loss.
         nearCapacity: () => HVY_ENCUMBER,
@@ -234,7 +236,8 @@ test('exerper preserves ten-turn hunger, burden, and status draw order', () => {
     assert.deepEqual(values, []);
 });
 
-test('exerper applies clairvoyance blocking and hallucination resistance', () => {
+test('exerper applies clairvoyance blocking and hallucination resistance',
+    async () => {
     const state = baseState();
     state.moves = 5;
     state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
@@ -249,7 +252,7 @@ test('exerper applies clairvoyance blocking and hallucination resistance', () =>
         [HALLUC_RES]: { extrinsic: 1, blocked: 1 },
     };
 
-    exerper(state, {
+    await exerper(state, {
         random: {
             rn2() {
                 assert.fail('blocked clairvoyance and resisted hallucination draw');
@@ -261,6 +264,47 @@ test('exerper applies clairvoyance blocking and hallucination resistance', () =>
 
     assert.deepEqual(state.u.aexe, [0, 0, 0, 0, 0, 0]);
 });
+
+test('exerper awaits physical encumbrance output before later upkeep',
+    async () => {
+        const state = baseState();
+        state.moves = 10;
+        state.u.uhunger = 50;
+        state.u.uhs = WEAK;
+        let releaseMessage;
+        const messageGate = new Promise((resolve) => {
+            releaseMessage = resolve;
+        });
+        const order = [];
+
+        const upkeep = exerper(state, {
+            random: {
+                rn2(bound) {
+                    assert.equal(bound, 2);
+                    return 0;
+                },
+            },
+            encumberMessage: async () => {
+                order.push('message start');
+                await messageGate;
+                order.push('message end');
+            },
+            nearCapacity: () => {
+                order.push('capacity');
+                return 0;
+            },
+        });
+        await Promise.resolve();
+        assert.deepEqual(order, ['message start']);
+
+        releaseMessage();
+        await upkeep;
+        assert.deepEqual(order, [
+            'message start',
+            'message end',
+            'capacity',
+        ]);
+    });
 
 test('adjattrib preserves below-minimum base and maximum handling', async () => {
     const state = baseState();

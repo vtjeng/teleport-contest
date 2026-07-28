@@ -21,6 +21,7 @@ import {
     PM_DEATH,
     PM_ARCHEOLOGIST,
     PM_FAMINE,
+    PM_HEALER,
     PM_KOBOLD,
     PM_LICHEN,
     PM_LIZARD,
@@ -141,6 +142,35 @@ test('move-600 timeout luck uses basal role and luckstone gates', () => {
     state.invent.cursed = true;
     nh_timeout_elapsed_turn(state);
     assert.equal(state.u.uluck, 2, 'cursed luckstone lets good luck time out');
+});
+
+test('fedora basal luck requires both the role and worn helmet', () => {
+    const state = timerState(600);
+    state.flags = { moonphase: 0, friday13: false };
+    state.svq = { quest_status: {} };
+    state.invent = null;
+    state.u = {
+        uinvulnerable: false,
+        mtimedone: 0,
+        ucreamed: 0,
+        usptime: 0,
+        ugallop: 0,
+        uprops: [],
+        uhave: { amulet: false },
+        ugangr: 0,
+        uluck: 1,
+    };
+
+    state.urole = { mnum: PM_HEALER };
+    state.uarmh = { otyp: FEDORA };
+    nh_timeout_elapsed_turn(state);
+    assert.equal(state.u.uluck, 0, 'another role gets no fedora baseline');
+
+    state.urole.mnum = PM_ARCHEOLOGIST;
+    state.uarmh = null;
+    state.u.uluck = 1;
+    nh_timeout_elapsed_turn(state);
+    assert.equal(state.u.uluck, 0, 'Archeologist must wear the fedora');
 });
 
 test('start_timer orders expiries and puts equal expiries newest first', () => {

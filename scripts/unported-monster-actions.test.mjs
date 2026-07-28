@@ -383,6 +383,18 @@ test('complete retry snapshot detects each deferred output owner',
                 },
             },
             {
+                name: 'burden message state',
+                mutate: ({ state }) => {
+                    state.go.oldcap += 1;
+                },
+            },
+            {
+                name: 'capacity cache',
+                mutate: ({ state }) => {
+                    state.gw.wc += 1;
+                },
+            },
+            {
                 name: 'display RNG',
                 mutate: ({ state }) => {
                     state.displayCtx.a += 1n;
@@ -435,6 +447,79 @@ test('complete retry snapshot detects each deferred output owner',
                 owner.name,
             );
         }
+    });
+
+test('multi-round planning isolates every monster-generation global',
+    async () => {
+        const target = await prepareSelectedAction();
+        const liveLight = {
+            flags: 0,
+            id: target.monster,
+            next: null,
+            range: 1,
+            type: 1,
+            x: target.monster.mx,
+            y: target.monster.my,
+        };
+        game.gl.light_base = liveLight;
+        const liveVitals = structuredClone(game.mvitals);
+        const liveFlags = structuredClone(game.flags);
+        let reachedRound = false;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(planned) {
+                reachedRound = true;
+                assert.notStrictEqual(planned.mvitals, game.mvitals);
+                assert.strictEqual(planned.svm.mvitals, planned.mvitals);
+                assert.notStrictEqual(planned.flags, game.flags);
+                assert.notStrictEqual(planned.gl, game.gl);
+                assert.strictEqual(
+                    planned.gl.light_base.id,
+                    planned.level.monlist,
+                );
+                planned.mvitals[PM_GNOME].born =
+                    (planned.mvitals[PM_GNOME].born ?? 0) + 1;
+                planned.flags.made_fruit = !planned.flags.made_fruit;
+                planned.gl.light_base = {
+                    flags: 0,
+                    id: planned.level.monlist,
+                    next: planned.gl.light_base,
+                    range: 1,
+                    type: 1,
+                    x: 1,
+                    y: 1,
+                };
+                return true;
+            },
+        });
+
+        assert.equal(reachedRound, true);
+        assert.deepEqual(game.mvitals, liveVitals);
+        assert.strictEqual(game.svm.mvitals, game.mvitals);
+        assert.deepEqual(game.flags, liveFlags);
+        assert.strictEqual(game.gl.light_base, liveLight);
+        assert.strictEqual(game.gl.light_base.id, target.monster);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    planned.mvitals[PM_GNOME].born =
+                        (planned.mvitals[PM_GNOME].born ?? 0) + 1;
+                    planned.flags.made_fruit = true;
+                    planned.gl.light_base = null;
+                    throw new UnsupportedSimpleMonsterActionError(
+                        'a later planned generation result',
+                    );
+                },
+            }),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'a later planned generation result'
+            ),
+        );
+        assert.deepEqual(game.mvitals, liveVitals);
+        assert.deepEqual(game.flags, liveFlags);
+        assert.strictEqual(game.gl.light_base, liveLight);
     });
 
 test('simple preflight stops before current-square liquid and engraving effects',

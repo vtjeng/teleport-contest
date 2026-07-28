@@ -107,9 +107,7 @@ export function weight_cap(state = game) {
     return Math.max(Math.trunc(capacity), 1);
 }
 
-// C ref: hack.c inv_weight(). The inventory is stable throughout the current
-// repeated-command boundary, but its capacity component is deliberately live.
-export function inv_weight(state = game) {
+function inventory_weight(state) {
     let weight = 0;
     for (let object = state.invent; object; object = object.nobj) {
         if (object.oclass === COIN_CLASS) {
@@ -119,24 +117,45 @@ export function inv_weight(state = game) {
             weight += Math.trunc(object.owt ?? 0);
         }
     }
+    return weight;
+}
+
+function capacity_from_excess(excess, capacity) {
+    if (excess <= 0) return 0;
+    if (capacity <= 1) return OVERLOADED;
+    return Math.min(
+        Math.trunc(excess * 2 / capacity) + 1,
+        OVERLOADED,
+    );
+}
+
+// C ref: hack.c inv_weight(). The inventory is stable throughout the current
+// repeated-command boundary, but its capacity component is deliberately live.
+export function inv_weight(state = game) {
     state.gw ??= {};
     state.gw.wc = weight_cap(state);
-    return weight - state.gw.wc;
+    return inventory_weight(state) - state.gw.wc;
 }
 
 // C ref: hack.c calc_capacity() and near_capacity().
 export function calc_capacity(extraWeight = 0, state = game) {
     const excess = inv_weight(state) + Math.trunc(extraWeight);
-    if (excess <= 0) return 0;
-    if (state.gw.wc <= 1) return OVERLOADED;
-    return Math.min(
-        Math.trunc(excess * 2 / state.gw.wc) + 1,
-        OVERLOADED,
-    );
+    return capacity_from_excess(excess, state.gw.wc);
 }
 
 export function near_capacity(state = game) {
     return calc_capacity(0, state);
+}
+
+// Read-only projection for the fail-closed elapsed-turn admission pass. The
+// live near_capacity() call remains at hack.c's source-ordered point after
+// monster actions have been admitted.
+export function projected_capacity(state = game) {
+    const capacity = weight_cap(state);
+    return capacity_from_excess(
+        inventory_weight(state) - capacity,
+        capacity,
+    );
 }
 
 export class UnsupportedHeroMoveBoundaryError extends Error {

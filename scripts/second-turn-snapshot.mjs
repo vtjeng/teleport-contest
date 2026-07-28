@@ -83,6 +83,8 @@ export function completeSecondTurnSnapshot(state, replay) {
                 state._emittingGlyphUpdateNotices ?? false,
         },
         gg: structuredClone(state.gg),
+        go: structuredClone(state.go),
+        gw: structuredClone(state.gw),
         hero: structuredClone(state.u),
         iflags: structuredClone(state.iflags),
         input: {

@@ -31,6 +31,7 @@ import {
     OVERLOADED,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
+    SEARCHING,
     DOOR,
     SLT_ENCUMBER,
     SV0,
@@ -40,7 +41,7 @@ import {
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
-import { weight_cap } from '../js/hack.js';
+import { projected_capacity, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
@@ -54,7 +55,7 @@ import {
 } from '../js/monsters.js';
 import { SACK, TOOL_CLASS } from '../js/objects.js';
 import { create_region } from '../js/region.js';
-import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { cansee, vision_recalc } from '../js/vision.js';
 import {
     loadFirstCompleteTurnRecipe,
@@ -709,7 +710,7 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
 
 test('the billionth turn capitulates before hero sequence and upkeep',
     async () => {
-        await runSegment({
+        const replay = await runSegment({
             seed: 2026072301,
             datetime: '20260723120000',
             nethackrc: 'OPTIONS=name:TurnLimit,role:Healer,'
@@ -720,12 +721,32 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
         clearTtyMessageWindow(game);
+        await ttyPline('A prior message.', game);
+        const terminalScreenCount = replay.getScreens().length;
+        const terminalCursorCount = replay.getCursors().length;
+        const waitEpoch = game.nhDisplay.waitEpoch;
         game.context.move = 1;
         game.u.umovement = NORMAL_SPEED;
         game.moves = 999999999;
         game.hero_seq = game.moves * 8;
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) + 5,
+            nobj: null,
+        };
+        game.u.uprops[SEARCHING] = { intrinsic: 1, extrinsic: 0 };
+        const laterRegion = create_region([{
+            lx: game.u.ux,
+            ly: game.u.uy,
+            hx: game.u.ux,
+            hy: game.u.uy,
+        }]);
+        game.level.regions.push(laterRegion);
         const priorHeroSequence = game.hero_seq;
         const priorHunger = game.u.uhunger;
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
 
         await moveloop_core();
 
@@ -733,11 +754,35 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         assert.equal(game.hero_seq, priorHeroSequence);
         assert.equal(game.u.uhunger, priorHunger);
         assert.equal(game._pending_message, 'The dungeon capitulates.');
+        assert.equal(game.nhDisplay.toplines, 'The dungeon capitulates.');
+        assert.equal(game.nhDisplay.waitEpoch, waitEpoch + 2);
+        assert.equal(replay.getScreens().length, terminalScreenCount + 3);
+        assert.equal(replay.getCursors().length, terminalCursorCount + 3);
+        assert.deepEqual(
+            replay.getCursors().at(-1),
+            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow, 1],
+        );
+        assert.deepEqual(
+            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+            [game.u.ux - 1, game.u.uy + 1],
+        );
+        assert.equal(
+            game.nhDisplay.grid[0]
+                .slice(0, 'The dungeon capitulates.'.length)
+                .map((cell) => cell.ch)
+                .join(''),
+            'The dungeon capitulates.',
+        );
+        assert.equal(game.level.regions.includes(laterRegion), true);
         assert.equal(game.program_state.gameover, true);
         assert.equal(game.end.how, ESCAPED);
+
+        await moveloop_core();
+        assert.equal(replay.getScreens().length, terminalScreenCount + 3);
+        assert.equal(replay.getCursors().length, terminalCursorCount + 3);
     });
 
-test('weak burden drives the live multi-allocation elapsed path', async () => {
+test('hunger weakness drives the next live multi-allocation path', async () => {
     await runSegment({
         seed: 2026072301,
         datetime: '20260723120000',
@@ -751,15 +796,25 @@ test('weak burden drives the live multi-allocation elapsed path', async () => {
     game.level.regions = [];
     game.head_engr = null;
     clearTtyMessageWindow(game);
-    game.u.atemp[0] = -1;
-    game.u.uhs = WEAK;
-    game.u.uhunger = 49;
+    game.u.acurr.a[0] = 10;
+    game.u.acurr.a[4] = 10;
+    game.u.abon[0] = game.u.abon[4] = 0;
+    game.u.atemp[0] = game.u.atemp[4] = 0;
+    game.u.uhs = HUNGRY;
+    game.u.uhunger = 51;
+    // Independent hack.c arithmetic: 25 * (Str 10 + Con 10) + 50
+    // gives 550 before weakness and 525 after its -1 Strength penalty.
+    const preWeakCapacity = 550;
+    const weakCapacity = 525;
+    const carriedWeight = weakCapacity + 5;
+    assert.ok(carriedWeight <= preWeakCapacity);
     game.invent = {
         oclass: TOOL_CLASS,
         otyp: SACK,
-        owt: weight_cap(game) + 5,
+        owt: carriedWeight,
         nobj: null,
     };
+    assert.equal(projected_capacity(game), 0);
     game.go = { oldcap: 0 };
     game.context.move = 1;
     game.context.seer_turn = 100000;
@@ -770,11 +825,20 @@ test('weak burden drives the live multi-allocation elapsed path', async () => {
     game.nhDisplay.pushKey('.'.charCodeAt(0));
 
     await moveloop_core();
+    assert.equal(game.u.uhs, WEAK);
+    assert.equal(game.u.atemp[0], -1);
+    assert.equal(projected_capacity(game), 1);
+    assert.equal(game.moves, priorMoves + 1);
+    assert.equal(game.u.uhunger, priorHunger - 1);
+
+    game.nhDisplay.pushKey('.'.charCodeAt(0));
+    await moveloop_core();
 
     assert.equal(game.go.oldcap, 1);
-    assert.equal(game.moves, priorMoves + 2);
+    assert.equal(game.gw.wc, weakCapacity);
+    assert.equal(game.moves, priorMoves + 3);
     assert.equal(game.u.umovement, 18);
-    assert.equal(game.u.uhunger, priorHunger - 2);
+    assert.equal(game.u.uhunger, priorHunger - 3);
     assert.equal(
         game.nhDisplay.toplines,
         'Your movements are slowed slightly because of your load.',

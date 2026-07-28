@@ -430,6 +430,7 @@ export async function rhack(key, state = game) {
     state.context.nopick = 0;
 
     const firstTime = key === 0;
+    let newLogicalCommand = !firstTime;
     let retryableBoundary = false;
     try {
         if (firstTime) {
@@ -455,15 +456,17 @@ export async function rhack(key, state = game) {
                 }
                 state.context.pendingCommand =
                     captureParsedCommand(key, state);
+                newLogicalCommand = true;
             }
         }
 
-        // A command is dispatched only after its input wait returns. Keep this
-        // diagnostic independent of turn consumption so the first-command
-        // gate can distinguish a blocked or zero-time command from an
-        // untouched prompt.
-        state._commandDispatchCount =
-            (state._commandDispatchCount ?? 0) + 1;
+        // Count one dispatch per logical parsed command. A retained parsed
+        // command has already been dispatched even when destination admission
+        // rejects more than once before it can complete.
+        if (newLogicalCommand) {
+            state._commandDispatchCount =
+                (state._commandDispatchCount ?? 0) + 1;
+        }
 
         if (!key || key === 0xFF || key === ESC) {
             resetCommandVars(state);

@@ -488,6 +488,7 @@ export async function runSegment(
     for (let iter = 0; iter < maxIter; iter++) {
         try {
             await moveloop_core();
+            if (game.program_state?.gameover) break;
         } catch (e) {
             if (String(e?.message || '').includes('Input queue empty')) break;
             // A known, fail-closed gameplay boundary preserves all output
