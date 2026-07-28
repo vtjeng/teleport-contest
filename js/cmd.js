@@ -9,6 +9,7 @@ import {
 } from './command_bindings.js';
 import {
     COLNO,
+    PICK_ONE,
     SICK,
     SLIMED,
     STONED,
@@ -17,7 +18,13 @@ import {
 import { flush_screen } from './display.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { dolook } from './invent.js';
+import {
+    ddoinv,
+    dolook,
+    UnsupportedFeatureDescriptionError,
+} from './invent.js';
+import { UnsupportedObjectNameError } from './objnam.js';
+import { selectTtyMenu } from './tty_menu.js';
 import {
     domove,
     endRunning,
@@ -328,6 +335,7 @@ async function readSimpleCommand(state) {
     const command = commandForKey(model, key);
     const movement = MOVEMENT_INTENTS[command];
     const admitted = command === 'wait' || command === 'look'
+        || command === 'inventory'
         || (movement && movement[2] === 0)
         || unboundCommandKey(key, command, model);
     if (!admitted) {
@@ -435,6 +443,26 @@ function rejectedPhysicalCommand(pending) {
     );
 }
 
+// A command whose port is complete except for branches that are not, such as
+// an object name doname() cannot format yet. Those throw their owner's error;
+// converting it here keeps the segment's supported prefix and leaves the
+// keystroke retryable, the same contract the admission seam provides.
+async function failClosedCommand(key, state, run) {
+    try {
+        return await run();
+    } catch (error) {
+        if (error instanceof UnsupportedFeatureDescriptionError
+            || error instanceof UnsupportedObjectNameError) {
+            resetCommandVars(state);
+            throw new UnsupportedHeroCommandBoundaryError(
+                `an unported branch of this command: ${error.message}`,
+                key,
+            );
+        }
+        throw error;
+    }
+}
+
 // C ref: cmd.c rhack(). Only the source handlers owned by this milestone are
 // dispatched here. A fresh excluded physical byte stops retryably before
 // parsing or an unknown-command diagnostic. A supplied nonzero key (normally
@@ -517,6 +545,24 @@ export async function rhack(key, state = game) {
         }
         if (command === 'wait') {
             if (!await donull(state)) resetCommandVars(state);
+            return;
+        }
+        if (command === 'inventory') {
+            // Every entry is formatted before the menu draws anything, so an
+            // unported object name or display branch stops here with the
+            // screen untouched and the keystroke still retryable.
+            const elapsed = await failClosedCommand(key, state, () => ddoinv(state, {
+                // invent.c display_pickinv() ends its menu with no prompt and
+                // asks select_menu() for PICK_ONE; Escape answers null.
+                menu: (items) => selectTtyMenu(state, {
+                    items,
+                    how: PICK_ONE,
+                    cancelValue: null,
+                    overlay: state.iflags?.menu_overlay !== false,
+                }),
+            }));
+            resetCommandVars(state);
+            if (elapsed) state.context.move = 1;
             return;
         }
         if (command === 'look') {

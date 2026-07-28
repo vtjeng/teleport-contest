@@ -56,6 +56,23 @@ import {
     encodeUtf8Text,
 } from './hacklib.js';
 import { sourceGlyphName } from './glyph_ids.js';
+import {
+    AMULET_CLASS,
+    ARMOR_CLASS,
+    BALL_CLASS,
+    CHAIN_CLASS,
+    COIN_CLASS,
+    FOOD_CLASS,
+    GEM_CLASS,
+    POTION_CLASS,
+    RING_CLASS,
+    ROCK_CLASS,
+    SCROLL_CLASS,
+    SPBOOK_CLASS,
+    TOOL_CLASS,
+    WAND_CLASS,
+    WEAPON_CLASS,
+} from './objects.js';
 import { rn2 } from './rng.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
@@ -277,6 +294,20 @@ function defaultResult() {
             safe_wait: true,
             // options.c initoptions_init(): PILE_LIMIT_DFLT.
             pile_limit: 5,
+            // options.c initoptions_init() sets sortloot to 'l', which sorts
+            // loot but not inventory; display_pickinv() compares against 'f'.
+            sortloot: 'l',
+            // optlist.h defaults sortpack and invlet_constant On.
+            sortpack: true,
+            invlet_constant: true,
+            // options.c def_inv_order[], the class order the inventory menu
+            // walks. The trailing 0 terminates the list in C.
+            inv_order: [
+                COIN_CLASS, AMULET_CLASS, WEAPON_CLASS, ARMOR_CLASS,
+                FOOD_CLASS, SCROLL_CLASS, SPBOOK_CLASS, POTION_CLASS,
+                RING_CLASS, WAND_CLASS, TOOL_CLASS, GEM_CLASS, ROCK_CLASS,
+                BALL_CLASS, CHAIN_CLASS,
+            ],
             pushweapon: false,
             showexp: false,
             showvers: false,

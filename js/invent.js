@@ -115,6 +115,7 @@ import {
     weight,
 } from './obj.js';
 import { an, donameFresh, vtense } from './objnam.js';
+import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
@@ -207,6 +208,116 @@ function throwIfDrawbridgeUnported(x, y, state) {
             }
         }
     }
+}
+
+// C ref: invent.c names[]. Indexed by object class.
+const CLASS_NAMES = Object.freeze([
+    null, 'Illegal objects', 'Weapons', 'Armor', 'Rings', 'Amulets', 'Tools',
+    'Comestibles', 'Potions', 'Scrolls', 'Spellbooks', 'Wands', 'Coins',
+    'Gems/Stones', 'Boulders/Statues', 'Iron balls', 'Chains', 'Venoms',
+]);
+
+// C ref: invent.c let_to_name(). Covers the object-class headings the
+// inventory menu asks for. The CONTAINED_SYM heading and the unpaid prefix
+// belong to callers this milestone does not reach.
+export function let_to_name(letter, unpaid, showsym) {
+    // C's parameter is named `let`, which JavaScript reserves.
+    if (unpaid) throw new UnsupportedFeatureDescriptionError('unpaid headings');
+    const oclass = (letter >= 1 && letter < MAXOCLASSES) ? letter : 0;
+    const class_name = CLASS_NAMES[oclass] ?? CLASS_NAMES[ILLOBJ_CLASS];
+    if (!oclass || !showsym) return class_name;
+    // C appends the class symbol from def_oc_syms[], padded to eight columns.
+    // Only iflags.menu_head_objsym asks for that, and it is not ported.
+    throw new UnsupportedFeatureDescriptionError('menu_head_objsym');
+}
+
+// C ref: invent.c display_pickinv(). Covers the branch `i` reaches: the full
+// inventory, no letter subset, no extra choice, want_reply true, and the
+// default sort. Everything else stops.
+export async function display_pickinv(
+    lets,
+    xtra_choice,
+    query,
+    allowxtra,
+    want_reply,
+    state = game,
+    { menu } = {},
+) {
+    if (lets || xtra_choice || allowxtra || !want_reply)
+        throw new UnsupportedFeatureDescriptionError('a partial inventory');
+    if (typeof menu !== 'function')
+        throw new TypeError('display_pickinv needs a menu owner');
+    if (state.iflags.force_invmenu || state.iflags.menu_requested)
+        throw new UnsupportedFeatureDescriptionError('a forced inventory menu');
+    if (state.flags.sortloot === 'i' || state.flags.sortloot === 'f')
+        throw new UnsupportedFeatureDescriptionError('a reordered inventory');
+    if (!state.flags.invlet_constant)
+        throw new UnsupportedFeatureDescriptionError('reassign()');
+    if (!state.flags.sortpack)
+        throw new UnsupportedFeatureDescriptionError('an unpacked inventory');
+
+    // C's n counts 0, 1, or "more than 1"; with no letter subset it then adds
+    // one, so the single-item message-line shortcut cannot apply here.
+    // C answers "Not carrying anything." here. Every starting character
+    // carries items, and nothing this milestone runs can empty the pack.
+    if (!state.invent)
+        throw new UnsupportedFeatureDescriptionError('an empty inventory');
+
+    // sortloot() with SORTLOOT_INVLET|SORTLOOT_PACK keeps invent order, and
+    // the class walk below is what groups it, exactly as C's nextclass loop
+    // does over flags.inv_order.
+    const items = [];
+    for (const oclass of state.flags.inv_order) {
+        let classcount = 0;
+        for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+            if (otmp.oclass !== oclass) continue;
+            if (!classcount) {
+                items.push({
+                    text: let_to_name(
+                        oclass,
+                        false,
+                        want_reply && state.iflags.menu_head_objsym,
+                    ),
+                    heading: true,
+                });
+                classcount++;
+            }
+            items.push({
+                selector: otmp.invlet,
+                label: donameFresh(otmp, state),
+                value: otmp.invlet,
+            });
+        }
+    }
+    if (query)
+        throw new UnsupportedFeatureDescriptionError('a menu prompt');
+    return menu(items, state);
+}
+
+// C ref: invent.c display_inventory(). Its queued-key branch needs a command
+// queue, which is not ported; nothing can push one yet.
+export async function display_inventory(lets, want_reply, state, hooks) {
+    return display_pickinv(
+        lets, null, null, false, want_reply, state, hooks,
+    );
+}
+
+// C ref: invent.c dispinv_with_action(). `i` supplies no letters, so menumode
+// is true; a selected letter would reach itemactions(), which stops.
+export async function dispinv_with_action(lets, state = game, hooks = {}) {
+    const menumode = true;
+    // The menu owner answers null for Escape, which is C's '\033' reaching
+    // dispinv_with_action() without matching any invlet.
+    const chosen = await display_inventory(lets, menumode, state, hooks);
+    if (chosen != null)
+        throw new UnsupportedFeatureDescriptionError('itemactions()');
+    return false;
+}
+
+// C ref: invent.c ddoinv(). Returns whether the command consumed game time,
+// which for the inventory display is never.
+export async function ddoinv(state = game, hooks = {}) {
+    return dispinv_with_action(null, state, hooks);
 }
 
 // C ref: hack.h Blind. The engraving and description code below reads only

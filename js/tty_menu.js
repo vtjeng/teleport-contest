@@ -123,6 +123,10 @@ function menuLines(spec) {
                 ? { text: line, attr: 0, item: null }
                 : { ...line, item: null }
         ));
+    // tty_end_menu() writes a prompt line and its blank separator only when
+    // the caller supplied one; invent.c display_pickinv() passes none for a
+    // plain inventory display.
+    if (spec.title == null) return body;
     return [
         {
             text: spec.title,

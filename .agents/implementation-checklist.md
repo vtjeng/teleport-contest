@@ -39,9 +39,10 @@ As defined in `.agents/implementation-checklist-template.md`.
 
 | Upstream function or branch family | Reachability and ordering | JavaScript owner | State, randomness, and output | Evidence | Status | Next action |
 | --- | --- | --- | --- | --- | --- | --- |
-| `ddoinv()` and `dispinv_with_action()` with `lets == NULL` | Reached by `i` with no prefix; `menumode` is TRUE because `len != 1` | None | Returns `ECMD_OK`, so no game time | `invent.c` `dispinv_with_action()` | missing | Port both, with the Escape return that skips `itemactions()` |
-| `display_inventory()` | Called with `want_reply` TRUE; its `cmdq_pop()` branch cannot fire while no command queue is ported | None | No state change | `invent.c:3428` | missing | Port the non-queue path |
-| `display_pickinv()` menu construction | The main path: builds the menu window, one entry per object, with class headers when `flags.sortpack` is set | None, needs `js/tty_menu.js` | Screen output only | `invent.c:3057` | missing | Port the entry and header construction |
+| `ddoinv()` and `dispinv_with_action()` with `lets == NULL` | Reached by `i` with no prefix; `menumode` is TRUE because `len != 1` | `js/invent.js` | Returns `ECMD_OK`, so no game time | Ported at this head; a selected letter stops rather than reaching `itemactions()` | done | None |
+| `display_inventory()` | Called with `want_reply` TRUE; its `cmdq_pop()` branch cannot fire while no command queue is ported | `js/invent.js` | No state change | Ported at this head | done | None |
+| `display_pickinv()` menu construction | The main path: builds the menu window, one entry per object, with class headers when `flags.sortpack` is set | `js/invent.js`, drawing through `js/tty_menu.js` | Screen output only | Ported at this head, but no session reaches the menu yet because `doname()` stops first | missing | Nothing here; the block is `doname()` below |
+| `doname()` worn and wielded suffixes | Every starting character wears armor and wields a weapon, so the first entry the menu formats needs `(being worn)` or `(weapon in hand)` | `js/objnam.js` | Text only | All three sessions now stop exactly here; `objnam.c:1382` onward and the `W_WEP` block at `objnam.c:1561` | missing | Port the armor, weapon, alternate-weapon, and quiver suffixes; this is what makes the menu reachable |
 | `sortloot()` ordering | Traced. `options.c:7208` sets `flags.sortloot = 'l'`, and `display_pickinv()` compares against `'f'`, so the flags are `SORTLOOT_INVLET`; `optlist.h:687` defaults `sortpack` On, adding `SORTLOOT_PACK`. The menu loop then walks `flags.inv_order`, whose default is `def_inv_order[]` at `options.c:118`, and lists each class in invlet order | None | Order decides the screen | `options.c:118`, `options.c:7208`, `optlist.h:687`, `invent.c:3175` | missing | Port the class walk with that order; a full `sortloot()` is not needed for `SORTLOOT_INVLET` |
 | Empty inventory, `Not carrying anything` | Cannot occur for a starting character, which always carries items | None | One message rather than a menu | `invent.c:3066` | cannot-occur | None |
 | Single-item inventory shortcut | `n == 1 && !force_invmenu && !menu_requested`; unreachable from `i` because `menumode` forces the menu | None | Would print one line instead | `invent.c:3149` | cannot-occur | None |
@@ -64,8 +65,10 @@ As defined in `.agents/implementation-checklist-template.md`.
 
 ## Validation
 
-- Commit checked: pending
-- Full suite and generated checks: pending
+- Commit checked: pending for the `doname()` work; the display chain is
+  committed and its stop is covered by `scripts/cmd.test.mjs`.
+- Full suite and generated checks: 1,718 tests, four generated-data checks,
+  and `check:namespace-members` pass with the chain in place.
 - Fresh differentials: pending. Plan at least four: a starting character of
   two roles, since role decides the starting inventory; a game where `i` is
   pressed twice; and one where Escape is replaced by a second `i`, to check
@@ -74,4 +77,6 @@ As defined in `.agents/implementation-checklist-template.md`.
 
 ## Readiness
 
-Not ready. No production code is written yet.
+Not ready. The chain from `i` to the menu is ported and fails closed while
+`doname()` cannot format a worn item, so no session reaches the menu and no
+fresh differential of the menu exists yet.

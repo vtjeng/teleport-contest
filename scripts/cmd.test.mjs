@@ -1698,6 +1698,47 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
     }
 });
 
+test('the inventory command stops before drawing an unformattable item',
+    async () => {
+    // Every starting character wears armor, and doname()'s "(being worn)"
+    // suffix is not ported, so the display chain stops while formatting.
+    // The stop has to leave the screen and the keystroke exactly as the
+    // admission seam would.
+    const replay = await runSegment({
+        seed: 840022,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:InventoryStop,role:Valkyrie,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    const key = commandKeyCode('i');
+    const screens = replay.getScreens().length;
+    const startingMoves = game.moves;
+    game.nhDisplay.pushKey(key);
+
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === key
+            && /worn-object suffix/u.test(error.message),
+    );
+
+    assert.equal(game.context.move, 0);
+    assert.equal(game.moves, startingMoves);
+    // One capture for the prompt the refused keystroke was read at, and no
+    // menu cells anywhere on it.
+    assert.equal(replay.getScreens().length, screens + 1);
+    assert.deepEqual(replay.getScreens().at(-1), replay.getScreens().at(-2));
+    assert.deepEqual(replay.getRngSlices().at(-1), []);
+    // The retry contract: pressing it again reaches the same stop.
+    game.nhDisplay.pushKey(key);
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError,
+    );
+});
+
 test('an unbound byte answers rhack bad-command output and takes no time',
     async () => {
     // Space, percent, and the two control bytes below have no binding in the
