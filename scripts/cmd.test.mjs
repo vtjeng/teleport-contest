@@ -7,7 +7,10 @@ import {
     createCommandBindingModel,
     keyForCommand,
 } from '../js/command_bindings.js';
-import { moveloop_core } from '../js/allmain.js';
+import {
+    moveloop_core,
+    UnsupportedTurnBoundaryError,
+} from '../js/allmain.js';
 import {
     MAX_COMMAND_COUNT,
     parseCommand,
@@ -1699,43 +1702,47 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
     game.level.regions = [];
     game.level.at(game.u.ux - 1, game.u.uy).typ = STONE;
 
+    // mon.c runs m_everyturn_effect() before the movement-ration gate, so this
+    // ration-less fog cloud still reaches gas-cloud creation. region.c's
+    // block_point() rebuilds vision.c's transparency index, and the dry run
+    // cannot reproduce that on a cloned state, so the whole turn stops before
+    // any live state or PRNG moves rather than admitting a scan whose later
+    // monsters would take different vision-dependent branches.
+    // This call only dispatches the wait; its elapsed turn runs on the next
+    // moveloop_core().
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
-    const unchanged = {
+    const beforeFog = {
         hunger: game.u.uhunger,
         moves: game.moves,
         movement: game.u.umovement,
     };
-    game.nhDisplay.pushKey(commandKeyCode('h'));
 
-    await moveloop_core();
-    assert.equal(game.moves, unchanged.moves + 1);
-    assert.equal(game.u.uhunger, unchanged.hunger - 1);
-    assert.equal(game.u.umovement, NORMAL_SPEED);
-    assert.equal(game.level.regions.length, 1);
-    assert.equal(game.level.regions[0].visible, true);
-    assert.deepEqual(game.level.regions[0].monsters, [fogCloud.m_id]);
-    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    // Two attempts, to show the stop leaves the turn retryable. No key is
+    // queued: the elapsed turn throws before the next command is read, so the
+    // pending input is exactly what it was.
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        game.context.move = 1;
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedTurnBoundaryError
+                && error.reason === 'monster region creation'
+            ),
+            `attempt ${attempt}`,
+        );
+        assert.equal(game.moves, beforeFog.moves, `attempt ${attempt}`);
+        assert.equal(game.u.uhunger, beforeFog.hunger, `attempt ${attempt}`);
+        assert.equal(
+            game.u.umovement,
+            beforeFog.movement,
+            `attempt ${attempt}`,
+        );
+        assert.deepEqual(game.level.regions, [], `attempt ${attempt}`);
+    }
 
-    // movemon_singlemon() runs fog upkeep before its movement-ration gate.
-    // The live second-turn scan must recreate the cloud even though it has no
-    // movement ration, then proceed through the next input boundary.
     game.level.regions = [];
     fogCloud.movement = 0;
-    game.context.move = 1;
-    game.nhDisplay.pushKey(commandKeyCode('h'));
-    const beforeFogBoundary = {
-        hunger: game.u.uhunger,
-        moves: game.moves,
-        movement: game.u.umovement,
-    };
-    await moveloop_core();
-    assert.equal(game.moves, beforeFogBoundary.moves + 1);
-    assert.equal(game.u.uhunger, beforeFogBoundary.hunger - 1);
-    assert.equal(game.u.umovement, beforeFogBoundary.movement);
-    assert.equal(game.level.regions.length, 1);
-    assert.deepEqual(game.level.regions[0].monsters, [fogCloud.m_id]);
-    assert.equal(game.nhDisplay.inputQueueLength, 0);
 
     // A later parked guard remains outside the live monster-action boundary,
     // even when dead and below a movement ration.

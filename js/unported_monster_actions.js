@@ -74,7 +74,6 @@ import {
 import { select_fresh_monster_item_action } from './muse.js';
 import { SADDLE } from './objects.js';
 import {
-    create_gas_cloud,
     inside_region,
     mon_in_region,
 } from './region.js';
@@ -100,7 +99,7 @@ import {
     t_at,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { couldsee } from './vision.js';
+import { cansee, couldsee } from './vision.js';
 import {
     mon_wield_item,
     select_hwep,
@@ -326,6 +325,18 @@ function planningState(state) {
             next: cloneLightList(source.next),
         };
     };
+    // timeout.c keeps one timer queue and one timer_id counter. A planning
+    // round can generate a monster whose starting inventory lights a candle,
+    // and start_timer() would otherwise prepend that timer to the live queue
+    // and advance the live counter, leaving an orphan behind on every retry.
+    const cloneTimerList = (source) => {
+        if (!source) return null;
+        return {
+            ...source,
+            arg: monsterMap.get(source.arg) ?? source.arg,
+            next: cloneTimerList(source.next),
+        };
+    };
     return {
         ...state,
         context: structuredClone(state.context),
@@ -337,6 +348,10 @@ function planningState(state) {
             light_base: cloneLightList(state.gl.light_base),
         } : state.gl,
         go: { ...(state.go ?? {}) },
+        gt: state.gt ? {
+            ...state.gt,
+            timer_base: cloneTimerList(state.gt.timer_base),
+        } : state.gt,
         gw: { ...(state.gw ?? {}) },
         head_engr: structuredClone(state.head_engr),
         iflags: structuredClone(state.iflags),
@@ -347,6 +362,7 @@ function planningState(state) {
             ...state.svm,
             mvitals,
         } : state.svm,
+        svt: state.svt ? { ...state.svt } : state.svt,
         svs: state.svs ? {
             ...state.svs,
             spl_book: state.svs.spl_book?.map(
@@ -559,14 +575,15 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
 async function planningEveryTurnEffect(monster, env) {
     await m_everyturn_effect(monster, {
         ...env,
-        createGasCloud: (x, y, size, damage, effectEnv) =>
-            create_gas_cloud(x, y, size, damage, {
-                ...effectEnv,
-                blockPoint: () => {},
-                canSee: () => false,
-                message: async () => {},
-                newsym: () => {},
-            }),
+        // The live owner passes region.c's real block_point(), which rebuilds
+        // vision.c's transparency index and sets vision_full_recalc, so every
+        // monster after this one in the live scan sees a darker map. Planning
+        // cannot reproduce that: rebuildVisionPoint() refuses any state other
+        // than the live game. Stubbing it out instead would admit a scan whose
+        // later monsters then take different vision-dependent dochug()
+        // branches live, spending PRNG the dry run never charged. Stop here so
+        // the whole scan stays retryable.
+        createGasCloud: () => unsupported('monster region creation'),
     });
 }
 
@@ -582,7 +599,10 @@ async function planSimpleMonsterScan(monster, env) {
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: () => unsupported('eel concealment'),
         canSeeHero: () => true,
-        canSeeSquare: (x, y) => couldsee(x, y, env.state),
+        // mon.c's conflict arm calls cansee(); the live scan injects cansee()
+        // too, so planning must not substitute couldsee() and test a different
+        // visibility mask.
+        canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: () => unsupported('conflict combat'),
         dochugwAction:
             adaptMonsterActionToDochugwSignature(runSimpleMonsterAction),

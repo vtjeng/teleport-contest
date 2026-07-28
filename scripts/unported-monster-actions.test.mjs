@@ -583,28 +583,18 @@ test('fog upkeep is planned below and at its movement ration atomically',
             game.level.regions = [];
             const before = completeSecondTurnSnapshot(game, target.replay);
             const beforeRandom = rngSnapshot();
-            const options = movement === 0 ? {
-                advanceRound(planned) {
-                    assert.equal(planned.level.regions.length, 1);
-                    assert.deepEqual(
-                        planned.level.regions[0].monsters,
-                        [target.monster.m_id],
-                    );
-                    throw new UnsupportedSimpleMonsterActionError(
-                        'after fog upkeep',
-                    );
-                },
-            } : undefined;
-            const expectedReason = movement === 0
-                ? 'after fog upkeep'
-                : 'a region transition';
 
+            // mon.c runs m_everyturn_effect() before the movement-ration test,
+            // so both rations reach the fog cloud's gas-cloud upkeep. Planning
+            // cannot reproduce region.c's block_point() side effect on a
+            // cloned state, so it stops there either way rather than admitting
+            // a scan whose later monsters would diverge live.
             for (let attempt = 0; attempt < 2; ++attempt) {
                 await assert.rejects(
-                    preflightSimpleMonsterActions(game, options),
+                    preflightSimpleMonsterActions(game),
                     (error) => (
                         error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === expectedReason
+                        && error.reason === 'monster region creation'
                     ),
                 );
                 assert.deepEqual(
@@ -613,6 +603,7 @@ test('fog upkeep is planned below and at its movement ration atomically',
                     `movement ${movement}, attempt ${attempt}`,
                 );
                 assert.deepEqual(rngSnapshot(), beforeRandom);
+                assert.deepEqual(game.level.regions, []);
             }
         }
     });
