@@ -605,10 +605,11 @@ async function planSimpleMonsterScan(monster, env) {
         restrap: () => unsupported('monster hiding'),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: () => unsupported('eel concealment'),
+        // movemon_singlemon() requires these three, but its conflict arm is
+        // unreachable from here: assertSimpleScanState() refuses an active
+        // CONFLICT before this function is ever called. They match the live
+        // scan's owners anyway, so the two agree if that guard is ever lifted.
         canSeeHero: () => true,
-        // mon.c's conflict arm calls cansee(); the live scan injects cansee()
-        // too, so planning must not substitute couldsee() and test a different
-        // visibility mask.
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         fightMonster: () => unsupported('conflict combat'),
         dochugwAction:
@@ -646,15 +647,23 @@ export async function preflightSimpleMonsterActions(
                     planning: true,
                 });
             }
-            // C ref: mon.c movemon()'s tail, which runs after iter_mons_safe.
-            // Of its four steps only the light-source recheck can change what
-            // a later monster does, and this planning state owns a cloned
-            // gl.light_base, so it must run here too. clear_bypasses() cannot
-            // apply because this function refuses a state with
-            // context.bypasses set; clear_splitobjs() and dmonsfree() would
-            // only touch the discarded clone.
-            if (any_light_source(planned)) planned.vision_full_recalc = 1;
             somebodyCanMove = Boolean(planned.somebody_can_move);
+            // C ref: mon.c movemon()'s tail. When a light source is present it
+            // sets vision_full_recalc, and movemon_singlemon() then runs
+            // vision_recalc(0) before the next ration-spending monster, which
+            // rebuilds viz_array. The dry run cannot reproduce that --
+            // vision_recalc writes the live global buffers -- so planning the
+            // following scan would test visibility against a stale index.
+            // Setting the flag on the clone would be inert, because every
+            // planning-side reader of it is an injected no-op. Refuse instead.
+            // clear_bypasses() cannot apply here, since this function already
+            // refused a state with context.bypasses set, and clear_splitobjs()
+            // and dmonsfree() would only touch the discarded clone.
+            if (somebodyCanMove
+                && planned.u.umovement < NORMAL_SPEED
+                && any_light_source(planned)) {
+                unsupported('monster light-source vision recalculation');
+            }
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);
         planned.context.mon_moving = false;

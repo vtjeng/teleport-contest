@@ -42,6 +42,7 @@ import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import { projected_capacity, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { getRngLog } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AT_HUGS,
@@ -1319,3 +1320,61 @@ test('burdened multi-cycle upkeep stops before region and search work',
             }
         }
     });
+
+test('the billionth turn stops atomically for an unburdened hero too',
+    () => withSerializedGrids(async () => {
+        const replay = await runSegment({
+            seed: 2026072301,
+            datetime: '20260723120000',
+            nethackrc: 'OPTIONS=name:TurnLimitLight,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        clearTtyMessageWindow(game);
+        await ttyPline('A prior message.', game);
+
+        // No burden, so advanceElapsedTurn supplies no advanceRound and the
+        // dry run never reaches finishElapsedTurn. The stop must still be
+        // atomic, or the segment is left with moves past the wrap value and
+        // the ISAAC stream advanced, which no retry can reproduce.
+        assert.equal(projected_capacity(game), 0);
+        game.context.move = 1;
+        game.u.umovement = NORMAL_SPEED;
+        game.moves = 999999999;
+        game.hero_seq = game.moves * 8;
+        const before = {
+            moves: game.moves,
+            heroSeq: game.hero_seq,
+            hunger: game.u.uhunger,
+            pending: game._pending_message,
+            waitEpoch: game.nhDisplay.waitEpoch,
+            screens: replay.getScreens().length,
+            cursors: replay.getCursors().length,
+            rng: getRngLog().length,
+        };
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            game.context.move = 1;
+            await assert.rejects(
+                () => moveloop_core(),
+                (error) => (
+                    error instanceof UnsupportedTurnBoundaryError
+                    && /done\(ESCAPED\)/u.test(error.message)
+                ),
+                `attempt ${attempt}`,
+            );
+            assert.deepEqual({
+                moves: game.moves,
+                heroSeq: game.hero_seq,
+                hunger: game.u.uhunger,
+                pending: game._pending_message,
+                waitEpoch: game.nhDisplay.waitEpoch,
+                screens: replay.getScreens().length,
+                cursors: replay.getCursors().length,
+                rng: getRngLog().length,
+            }, before, `attempt ${attempt}`);
+        }
+    }));

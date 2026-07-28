@@ -32,6 +32,7 @@ import {
     mcalcmove,
     movemon,
     movemon_singlemon,
+    UnsupportedMonsterDistressError,
     were_change,
 } from './mon.js';
 import { dmonsfree, makemon } from './makemon_create.js';
@@ -546,6 +547,16 @@ function unavailableElapsedTurnOperation(operation) {
     };
 }
 
+// Every refusal class the cloned once-per-turn round can raise. Each becomes
+// an UnsupportedTurnBoundaryError so the segment stops on its last matching
+// screen rather than throwing out of runSegment().
+const ELAPSED_TURN_PLANNING_REFUSALS = [
+    UnsupportedSimpleMonsterActionError,
+    UnsupportedHeroTimeoutBoundaryError,
+    UnsupportedHungerTransitionError,
+    UnsupportedMonsterDistressError,
+];
+
 const runElapsedTurnMonsterAction =
     adaptMonsterActionToDochugwSignature(runSimpleMonsterAction);
 
@@ -588,8 +599,17 @@ async function advanceElapsedTurn(state) {
                 : null,
         });
     } catch (error) {
-        if (!(error instanceof UnsupportedSimpleMonsterActionError))
+        // The planning round runs the whole once-per-turn block on the clone,
+        // so any owner it reaches can refuse: monster distress, the timeout
+        // preflight, and the hunger transition all raise their own class.
+        // js/jsmain.js breaks the segment only for the three boundary types,
+        // so anything not converted here escapes as a hard failure and
+        // discards the matching prefix instead of stopping on it.
+        if (!ELAPSED_TURN_PLANNING_REFUSALS.some(
+            (type) => error instanceof type,
+        )) {
             throw error;
+        }
         const boundary = new UnsupportedTurnBoundaryError(error.message);
         boundary.reason = error.reason;
         throw boundary;
@@ -601,7 +621,15 @@ async function advanceElapsedTurn(state) {
     // ration and does not allocate a new turn.
     const reachesTurnLimit = preflight.runsOncePerTurnUpkeep
         && (state.moves || 1) + 1 >= 1000000000;
-    if (preflight.runsOncePerTurnUpkeep && !reachesTurnLimit) {
+    // The turn C would finish with done(ESCAPED) is refused here, beside the
+    // other preflight boundaries, so both capacity paths stop identically. A
+    // burdened hero's dry run also reaches the limit inside finishElapsedTurn,
+    // but an unburdened hero has no dry run of that block at all, and letting
+    // the live pass discover the limit would leave moves at the wrap value
+    // with an ISAAC draw already spent.
+    if (reachesTurnLimit)
+        elapsedTurnBoundary('game end through done(ESCAPED)');
+    if (preflight.runsOncePerTurnUpkeep) {
         try {
             preflightGetHungry(state, {
                 nearCapacity: () => initialCapacity,

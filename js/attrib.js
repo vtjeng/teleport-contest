@@ -278,13 +278,21 @@ export function vary_init_attr(state = game, random = { rn2 }) {
 // Returns the adjustment and whether that call is due, so the async owner and
 // the synchronous startup caller below share one copy of the arithmetic and
 // one draw boundary.
-function exerciseAttribute(index, increase, state, random) {
+function exerciseAttribute(index, increase, state, random, encumberMessage) {
     if (index === A_INT || index === A_CHA)
         return { adjustment: 0, encumbranceDue: false };
     if (Upolyd(state.u) && index !== A_WIS)
         return { adjustment: 0, encumbranceDue: false };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('exercise random injection requires rn2');
+
+    // Both owner checks must precede the draw. Rejecting afterwards would
+    // leave the PRNG advanced and AEXE(i) already changed, so a caller that
+    // retried would not repeat the same call sequence.
+    const encumbranceDue = Math.trunc(state.moves ?? 0) > 0
+        && (index === A_STR || index === A_CON);
+    if (encumbranceDue && typeof encumberMessage !== 'function')
+        throw new Error('exercise requires encumber_msg');
 
     const attrs = attributeArrays(state.u);
     let adjustment = 0;
@@ -294,11 +302,7 @@ function exerciseAttribute(index, increase, state, random) {
             : -random.rn2(2);
         attrs.exercise[index] += adjustment;
     }
-    return {
-        adjustment,
-        encumbranceDue: Math.trunc(state.moves ?? 0) > 0
-            && (index === A_STR || index === A_CON),
-    };
+    return { adjustment, encumbranceDue };
 }
 
 // C ref: attrib.c exercise(). encumberMessage owns the trailing
@@ -317,12 +321,9 @@ export async function exercise(
         increase,
         state,
         random,
+        encumberMessage,
     );
-    if (encumbranceDue) {
-        if (typeof encumberMessage !== 'function')
-            throw new Error('exercise requires encumber_msg');
-        await encumberMessage(state);
-    }
+    if (encumbranceDue) await encumberMessage(state);
     return adjustment;
 }
 

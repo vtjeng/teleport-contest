@@ -1652,14 +1652,13 @@ test('planning rescans while a monster outruns the hero', async () => {
     assert.equal(target.monster.movement, NORMAL_SPEED * 2);
 });
 
-test('planning and live monster scans inject the same visibility owners',
+test('planning refuses an active conflict before the scan begins',
     async () => {
         const target = await prepareSelectedAction();
-        // mon.c's conflict arm calls cansee(); both scans must agree on it, or
-        // the dry run admits a branch the live run does not take. The planning
-        // scan is not exported, so this pins the observable consequence: with
-        // conflict inactive, neither scan may consult a visibility owner at
-        // all, and with it active both must refuse identically.
+        // This pins where conflict is refused, not which visibility owner the
+        // conflict arm would use: assertSimpleScanState() rejects an active
+        // CONFLICT before movemon_singlemon() is entered, so that arm and its
+        // canSeeSquare injection are unreachable from the planning pass.
         game.level.regions = [];
         // assertSimpleScanState refuses conflict before movemon_singlemon is
         // reached, so the plan stops without touching live state or the PRNG.
