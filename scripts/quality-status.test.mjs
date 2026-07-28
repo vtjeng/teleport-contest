@@ -13,6 +13,7 @@ import {
   qualityGateBlocked,
   relocationCommits,
   thresholdReached,
+  validateAuditedRangeCoverage,
   validateAuditMetrics,
   validateConfigShape,
 } from './quality-status.mjs';
@@ -324,6 +325,93 @@ test('recording a pass requires a rejections entry for every rejected finding', 
   assert.doesNotThrow(
     () => validateAuditMetrics(EMPTY_AUDIT_METRICS, { requireRejections: true }),
   );
+});
+
+test('an audited range must start at or before every claimed frontier', () => {
+  // A three-commit line of history: OLDEST is an ancestor of MIDDLE, which is
+  // an ancestor of NEWEST.
+  const OLDEST = '1'.repeat(40);
+  const MIDDLE = '2'.repeat(40);
+  const NEWEST = '3'.repeat(40);
+  const order = [OLDEST, MIDDLE, NEWEST];
+  const ancestorCheck = (base, head) => order.indexOf(base) <= order.indexOf(head);
+
+  // Frontiers diverge: hero was last reviewed at OLDEST, monsters at MIDDLE.
+  // One range starting at the older frontier covers both areas' debt.
+  assert.doesNotThrow(() => validateAuditedRangeCoverage(
+    'review',
+    OLDEST,
+    { hero: OLDEST, monsters: MIDDLE },
+    ancestorCheck,
+  ));
+
+  // Starting at the newer frontier skips hero's OLDEST..MIDDLE commits, which
+  // recording the pass would mark reviewed. The message names the area, the
+  // frontier it expected, and the base it received.
+  assert.throws(
+    () => validateAuditedRangeCoverage(
+      'review',
+      MIDDLE,
+      { hero: OLDEST, monsters: MIDDLE },
+      ancestorCheck,
+    ),
+    new RegExp(
+      `starts at ${MIDDLE}, after the review frontier ${OLDEST} for hero`,
+    ),
+  );
+
+  // Auditing more than the frontier requires is safe: NEWEST is claimed from a
+  // base older than both frontiers.
+  assert.doesNotThrow(() => validateAuditedRangeCoverage(
+    'simplification',
+    OLDEST,
+    { hero: MIDDLE, monsters: NEWEST },
+    ancestorCheck,
+  ));
+});
+
+test('a stored audited range must end at the pass head', () => {
+  const trackingBase = '1'.repeat(40);
+  const head = '2'.repeat(40);
+  const pass = {
+    kind: 'review',
+    bases: { first: trackingBase },
+    head,
+    // The range ends one commit short of the pass head, so the recorded pass
+    // would advance the frontier past commits the audit never read.
+    auditedRange: `${trackingBase}..${'3'.repeat(40)}`,
+    areas: ['first'],
+    level: 'light',
+    outcome: 'no-change',
+    evidence: 'No findings.',
+    auditMetrics: EMPTY_AUDIT_METRICS,
+    recordedAt: '2026-07-27T00:00:00.000Z',
+  };
+  const config = {
+    version: 4,
+    trackingBase,
+    enforcementBase: head,
+    legacyPassCount: 0,
+    thresholds: {
+      reviewAdvisoryCommits: 3,
+      reviewAdvisoryChangedLines: 500,
+      reviewCommits: 10,
+      reviewChangedLines: 1000,
+    },
+    legacyAreaExpansions: {},
+    areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
+    passes: [pass],
+  };
+
+  assert.throws(
+    () => validateConfigShape(config),
+    new RegExp(`auditedRange ends at ${'3'.repeat(40)}; expected pass head ${head}`),
+  );
+  pass.auditedRange = `${trackingBase}..${head}`;
+  assert.doesNotThrow(() => validateConfigShape(config));
+  // Passes recorded before the range was validated omit the field entirely.
+  delete pass.auditedRange;
+  assert.doesNotThrow(() => validateConfigShape(config));
 });
 
 test('review thresholds separate the advisory checkpoint from the gate', () => {

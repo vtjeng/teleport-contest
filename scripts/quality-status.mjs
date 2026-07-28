@@ -13,6 +13,10 @@ import {
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// `record-review --range` and `audit-worktree.mjs prepare --range` name the
+// same audited range, so they share one parser and accept one syntax.
+import { parseRange } from './audit-worktree.mjs';
+
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
@@ -171,6 +175,23 @@ export function validateAuditMetrics(metrics, { requireRejections = false } = {}
     );
   }
   return metrics;
+}
+
+// The per-area frontier is where an area's unreviewed debt starts. An audit
+// that begins after a claimed area's frontier never read the commits in
+// between, yet recording it would mark them reviewed forever. Require the
+// range to begin at or before every claimed frontier. Auditing extra already
+// reviewed commits is harmless; skipping unreviewed ones is not.
+export function validateAuditedRangeCoverage(kind, base, bases, ancestorCheck) {
+  for (const [areaId, frontier] of Object.entries(bases)) {
+    if (ancestorCheck(base, frontier)) continue;
+    fail(
+      `the audited range starts at ${base}, after the ${kind} frontier `
+        + `${frontier} for ${areaId}. Those commits would become reviewed `
+        + `history without being audited. Re-run the audit from ${frontier}, `
+        + `or drop ${areaId} from --areas and record it separately.`,
+    );
+  }
 }
 
 function git(args, options = {}) {
@@ -629,6 +650,18 @@ export function validateConfigShape(config) {
     if (typeof pass.recordedAt !== 'string' || Number.isNaN(Date.parse(pass.recordedAt))) {
       fail('every pass needs an ISO recordedAt timestamp');
     }
+    // Passes recorded before record-review validated the audited range have no
+    // auditedRange. Their bases stay authoritative; only the recorded range is
+    // missing, and the ledger is append-only, so it cannot be reconstructed.
+    if (pass.auditedRange !== undefined) {
+      const { base, head: rangeHead } = parseRange(pass.auditedRange);
+      if (!SHA_PATTERN.test(base) || !SHA_PATTERN.test(rangeHead)) {
+        fail('pass auditedRange must name two full commit SHAs');
+      }
+      if (rangeHead !== pass.head) {
+        fail(`pass auditedRange ends at ${rangeHead}; expected pass head ${pass.head}`);
+      }
+    }
     if (pass.auditMetrics !== undefined) validateAuditMetrics(pass.auditMetrics);
     if (passIndex >= config.legacyPassCount && pass.auditMetrics === undefined) {
       fail('new quality passes require structured auditMetrics');
@@ -691,6 +724,10 @@ function validateHistory(config, head) {
         }
         frontiers[pass.kind].set(areaId, pass.head);
       }
+    }
+    if (pass.auditedRange !== undefined) {
+      const { base } = parseRange(pass.auditedRange);
+      validateAuditedRangeCoverage(pass.kind, base, pass.bases, isAncestor);
     }
   }
 
@@ -925,6 +962,7 @@ function preparePass(kind, options) {
     options,
     new Set([
       'areas',
+      'range',
       'head',
       'outcome',
       'evidence',
@@ -938,7 +976,20 @@ function preparePass(kind, options) {
   const repositoryHead = resolveCommit('HEAD');
   const frontiers = validateHistory(config, repositoryHead);
   const areas = selectedAreas(config, options.areas);
-  const head = resolveCommit(options.head ?? 'HEAD');
+  if (!options.range?.trim()) fail('--range <base>..<head> is required');
+  const revisions = parseRange(options.range.trim());
+  const rangeBase = resolveCommit(revisions.base);
+  const head = resolveCommit(revisions.head);
+  // --head is an optional restatement of the range head. It cannot select a
+  // different commit; a disagreement means the operator recorded a pass for
+  // something other than the range that was audited.
+  if (options.head !== undefined && resolveCommit(options.head) !== head) {
+    fail(`--head ${resolveCommit(options.head)} does not match the --range head ${head}`);
+  }
+  if (rangeBase === head) fail('--range covers no commits');
+  if (!isAncestor(rangeBase, head)) {
+    fail(`--range base ${rangeBase} is not an ancestor of its head ${head}`);
+  }
   if (!isAncestor(head, repositoryHead)) {
     fail(`pass head ${head} is not an ancestor of HEAD`);
   }
@@ -969,11 +1020,13 @@ function preparePass(kind, options) {
       fail(`head ${head} does not cover the existing ${kind} frontier for ${areaId}`);
     }
   }
+  validateAuditedRangeCoverage(kind, rangeBase, bases, isAncestor);
 
   const pass = {
     kind,
     bases,
     head,
+    auditedRange: `${rangeBase}..${head}`,
     areas,
     ...(kind === 'review' ? { level: options.level } : {}),
     outcome: options.outcome,
@@ -987,6 +1040,7 @@ function preparePass(kind, options) {
   }
 
   console.log(`${options['dry-run'] ? 'Would record' : 'Recorded'} ${kind} pass through ${head}:`);
+  console.log(`  audited range: ${rangeBase}..${head}`);
   for (const areaId of areas) {
     console.log(`  ${areaId}: ${bases[areaId]}..${head}`);
   }
@@ -1010,17 +1064,22 @@ function printHelp() {
   npm run quality
   npm run quality -- --check
   npm run quality -- --verbose
-  npm run quality -- record-review --areas <id,...> --level <light|full> \\
-    --outcome <changed|no-change> --evidence <text> \\
+  npm run quality -- record-review --areas <id,...> --range <base>..<head> \\
+    --level <light|full> --outcome <changed|no-change> --evidence <text> \\
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
     [--head <commit>] [--dry-run]
   npm run quality -- record-simplification --areas <id,...> \\
-    --outcome <changed|no-change> --evidence <text> \\
+    --range <base>..<head> --outcome <changed|no-change> --evidence <text> \\
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
     [--head <commit>] [--dry-run]
 
 Status is derived from Git. A recorded pass advances each selected area's
-frontier from its prior exact commit through --head (HEAD by default).
+frontier from its prior exact commit through the --range head.
+
+--range is the commit range the audit actually read. Its base must be at or
+before every selected area's frontier, so no unaudited commit becomes reviewed
+history; when frontiers differ, audit from the oldest one or record the areas
+separately. --head, when given, must name the same commit as the range head.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
 for every rejected finding.`);

@@ -317,9 +317,22 @@ state. Simplification must preserve PRNG and evaluation order.
 
 - A `SCORE.md` evidence snapshot may reference these records and retained
   reports, but it does not replace them or advance a review frontier.
-- Record correctness with `npm run quality -- record-review ...`.
-- Record simplification with
-  `npm run quality -- record-simplification ...`.
+- Record correctness with
+  `npm run quality -- record-review --range <base>..<head> ...`. Record
+  simplification with
+  `npm run quality -- record-simplification --range <base>..<head> ...`.
+  `--range` is the commit range the audit actually read, in the same form
+  `scripts/audit-worktree.mjs prepare` takes. The recorder stores it as the
+  pass's `auditedRange`. Pass `--head` only to restate the range head; it must
+  name the same commit.
+- The range base must be at or before the current frontier of every area named
+  in `--areas`. The recorder refuses a range that starts after a claimed
+  frontier and names the area, the frontier it expected, and the base it
+  received, because recording that pass would turn the skipped commits into
+  reviewed history. Frontiers diverge per area, and one range cannot start at
+  two commits. Either audit from the oldest frontier among the areas you claim,
+  which re-reads commits already covered and is harmless, or audit and record
+  each frontier group separately.
 - A review frontier is the latest integrated commit covered by a recorded pass.
   Advance it only through the exact integrated commit covered by that pass.
   Audit-fix commits remain debt until a later correctness pass covers them.
