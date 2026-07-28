@@ -36,6 +36,7 @@ import {
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { game } from './gstate.js';
+import { On_stairs } from './stairs.js';
 import {
     dist2,
     distmin,
@@ -130,13 +131,6 @@ function goalOperation(rawEnv, name, fallback) {
     if (typeof operation !== 'function')
         throw new TypeError(`dog_goal requires a ${name} operation`);
     return operation;
-}
-
-function onStairs(x, y, state) {
-    for (let stairway = state.stairs; stairway; stairway = stairway.next) {
-        if (stairway.sx === x && stairway.sy === y) return true;
-    }
-    return false;
 }
 
 function hungerOperation(env, name) {
@@ -558,7 +552,7 @@ export function dog_goal(
             approach = 1;
         }
         if (approach === 0) {
-            if (onStairs(hero.ux, hero.uy, state)) {
+            if (On_stairs(hero.ux, hero.uy, state)) {
                 approach = 1;
             } else {
                 for (let obj = state.invent ?? state.gi?.invent ?? null;

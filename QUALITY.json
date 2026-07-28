@@ -105,6 +105,7 @@
         "js/rooms.js",
         "js/shknam.js",
         "js/sp_lev_object.js",
+        "js/stairs.js",
         "js/themeroom_data.js",
         "js/themeroom_fill.js",
         "js/themerooms.js",

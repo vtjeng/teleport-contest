@@ -2,6 +2,7 @@
 // C ref: display.c — newsym, show_glyph, docrt, cls, flush_screen.
 
 import { game } from './gstate.js';
+import { known_branch_stairs, stairway_at } from './stairs.js';
 import { effective_attribute } from './attrib.js';
 import { near_capacity } from './hack.js';
 import { update_lastseentyp } from './dungeon.js';
@@ -680,13 +681,6 @@ function terrainCmap(index, color, state, customizationName = null) {
     );
 }
 
-function stairwayAt(state, x, y) {
-    for (let stairway = state.stairs; stairway; stairway = stairway.next) {
-        if (stairway.sx === x && stairway.sy === y) return stairway;
-    }
-    return null;
-}
-
 function glyphPresentation(symbol, color, state, customization = null) {
     const displayCh = customization?.displayCh ?? symbol.displayCh;
     const result = {
@@ -704,11 +698,6 @@ function glyphPresentation(symbol, color, state, customization = null) {
         result.displayColor = `rgb(${customization.rgb.join(', ')})`;
     }
     return result;
-}
-
-function knownBranchStairway(stairway, state) {
-    return Boolean(stairway?.u_traversed
-        && stairway.tolev?.dnum !== state.u?.uz?.dnum);
 }
 
 function drawbridgeMask(loc) {
@@ -1240,9 +1229,9 @@ export function terrain_glyph(loc, x, y, state = game) {
     }
     case STAIRS: {
         // C refs: display.c:back_to_glyph(), stairs.c:known_branch_stairs().
-        const stairway = stairwayAt(state, x, y);
+        const stairway = stairway_at(x, y, state);
         const down = Boolean(loc.ladder & LA_DOWN);
-        const knownBranch = knownBranchStairway(stairway, state);
+        const knownBranch = known_branch_stairs(stairway, state);
         return terrainCmap(
             knownBranch
                 ? down ? S_brdnstair : S_brupstair
@@ -1252,9 +1241,9 @@ export function terrain_glyph(loc, x, y, state = game) {
         );
     }
     case LADDER: {
-        const stairway = stairwayAt(state, x, y);
+        const stairway = stairway_at(x, y, state);
         const down = Boolean(loc.ladder & LA_DOWN);
-        const knownBranch = knownBranchStairway(stairway, state);
+        const knownBranch = known_branch_stairs(stairway, state);
         return terrainCmap(
             knownBranch
                 ? down ? S_brdnladder : S_brupladder

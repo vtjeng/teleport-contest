@@ -120,6 +120,11 @@ import {
     S_VAMPIRE,
     S_ZOMBIE,
 } from './monsters.js';
+import {
+    stairway_add,
+    stairway_find_dir,
+    stairway_find_special_dir,
+} from './stairs.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
@@ -179,29 +184,6 @@ const TRAP_ENGRAVINGS = new Map([
     [TELEP_TRAP, 'ad aerarium'],
     [LEVEL_TELEP, 'ad aerarium'],
 ]);
-
-// Stairway list management
-function stairway_add(x, y, up, isladder, dest) {
-    const node = { sx: x, sy: y, up, isladder, tolev: { ...dest }, next: game.stairs };
-    game.stairs = node;
-}
-
-// ── Stairway lookup ──
-
-function stairway_find_dir(up) {
-    const direction = Boolean(up);
-    for (let s = game.stairs; s; s = s.next)
-        if (Boolean(s.up) === direction) return s;
-    return null;
-}
-
-function stairway_find_special_dir(up) {
-    const direction = Boolean(up);
-    for (let s = game.stairs; s; s = s.next)
-        if (s.tolev.dnum !== (game.u?.uz?.dnum ?? 0)
-            && Boolean(s.up) !== direction) return s;
-    return null;
-}
 
 // ── Hero placement (C ref: stairs.c, mkmaze.c) ──
 
