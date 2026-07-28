@@ -45,6 +45,32 @@ input/storage, or browser-only presentation. Shared engine or glyph-output
 changes do not need browser validation when the renderer is unchanged and
 focused tests cover the renderer's input contract.
 
+## Choosing what to implement next
+
+Run `node scripts/scan-stops.mjs`. For each development session it reports the
+fail-closed boundary the port reaches first, the recorded keystroke it refused,
+that keystroke's command under the session's own bindings, and C's message on
+that step. It then censuses boundaries and commands, carrying the count of
+recorded steps standing behind each one. `--json` emits the same rows, which is
+how a candidate change is measured across two runs.
+
+The census names upstream owners to trace. It does not rank them, and two rules
+keep its numbers honest:
+
+- The steps standing behind a boundary are a ceiling, not a forecast. Sessions
+  blocked on one owner routinely block again on another, and the keystrokes
+  after a stop include prompt answers, count prefixes, and menu selections
+  rather than commands. To turn a candidate into a number, make the change and
+  re-run the scan; that delta is a measurement.
+- C's message at a stop points at the upstream owner. It is not a
+  specification: implement from the C function that produces it.
+
+The scan reports the screens each session emitted. `scripts/score-development.mjs`
+remains the authority on how many of those screens match.
+
+The scanned directory is fixed and the script accepts no path argument, so it
+cannot be aimed at `sessions/holdout/`.
+
 ## Fresh differentials
 
 - Record fresh cases in the canonical `America/New_York` timezone. Recorder
