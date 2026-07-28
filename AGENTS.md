@@ -84,6 +84,17 @@ Follow all instructions in those files.
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md` |
 | Run or record a correctness, clarity, simplification, or copyediting pass | `.agents/quality-workflow.md` and the skill named for that pass |
 
+### Claude Code only
+
+`.agents/quality-workflow.md` launches every formal pass with
+`codex exec --profile audit-high`. Claude Code runs the named audit skill
+through its Workflow tool instead. What that section requires of the pass is
+unchanged: a frozen committed range, an isolated worktree pinned to the
+reviewed commit, no access to `sessions/holdout/`, the complete report, and the
+matching `record-review` or `record-simplification` entry.
+
+Every other agent follows the launch procedure as written.
+
 ## Implementation rules
 
 ### Implement NetHack behavior from source
