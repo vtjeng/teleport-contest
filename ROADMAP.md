@@ -68,12 +68,9 @@ review confirmed six production defects plus test, tooling, and handoff gaps;
 their implementation is complete and the repository checkpoint is green at
 1,668 tests. The twelve-case fresh matrix remains exact across 83,269 PRNG
 calls and 2,351 complete screens, attributes, and cursors. The goal does not
-close at a particular score; `.agents/implementation-checklist.md` records the
-post-review implementation and exact-commit audit handoff.
-
-`.agents/implementation-checklist.md` holds the working record: the branch
-inventory, per-row status, and the baseline at the starting commit. Read it
-before adding code. Rare branches and helper-only prerequisites remain deferred
+close at a particular score. The completed implementation checklist is
+preserved in history through `dc0ae1b`; the exact-head review handoff carries
+its final snapshot. Rare branches and helper-only prerequisites remain deferred
 under “Complete common gameplay first.”
 
 ### Historical review sequence
@@ -142,10 +139,10 @@ fail closed before that elapsed branch changes gameplay state or consumes
 gameplay PRNG. The segment runner retains the already-supported output, and
 the pending elapsed phase remains retryable after its owner is implemented.
 
-This goal closed after every family in
-`.agents/implementation-checklist.md` was source-closed, focused and repository
-validation passed, strict fresh comparisons reached the second prompt, the
-committed range was reviewed, and the repository was clean.
+This goal closed after every family in the then-active implementation checklist
+was source-closed, focused and repository validation passed, strict fresh
+comparisons reached the second prompt, the committed range was reviewed, and
+the repository was clean.
 
 **Implementation sequence:** The ordinary `monmove.c` move-or-stay owner,
 starting-pet `dogmove.c` move-or-stay owner, atomic action adapter, and
@@ -167,8 +164,7 @@ corridor coverage; post-move ranged-weapon selection exposed by fresh
 comparison; and one final runner, fixture, and integration-test bundle.
 `js/monster_action.js` remains future work rather than a combined movement,
 trap, object, and combat owner. The detailed source inventory, safe-stop
-seams, checkpoints, and evidence live in
-`.agents/implementation-checklist.md`.
+seams, checkpoints, and evidence are preserved in the checklist commits.
 
 This checkpoint establishes the general active-monster and later-turn replay
 boundary needed by multi-step exploration. The historical 302-to-204
