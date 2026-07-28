@@ -1232,3 +1232,90 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
     }
     assert.equal(dismissalSegments, 1);
 });
+
+// Row 2 of the third re-audit: both burdened planning stops deleted cleanly
+// with the whole suite green, because the capitulation case only proved they
+// stay silent. These reach them without the turn limit.
+test('burdened multi-cycle upkeep stops before region and search work',
+    async () => {
+        for (const [name, reason, install] of [
+            [
+                'region upkeep',
+                'burdened multi-cycle region upkeep',
+                () => {
+                    game.level.regions.push(create_region([{
+                        lx: game.u.ux,
+                        ly: game.u.uy,
+                        hx: game.u.ux,
+                        hy: game.u.uy,
+                    }]));
+                },
+            ],
+            [
+                'automatic search',
+                'burdened multi-cycle automatic search',
+                () => {
+                    // FROMOUTSIDE rather than a small integer: the low bits
+                    // of intrinsic are nh_timeout()'s property countdown, and
+                    // a countdown of 1 would stop the turn earlier.
+                    game.u.uprops[SEARCHING] = {
+                        intrinsic: FROMOUTSIDE,
+                        extrinsic: 0,
+                        blocked: 0,
+                    };
+                    game.level.flags.noautosearch = false;
+                    game.multi = 0;
+                },
+            ],
+        ]) {
+            await runSegment({
+                seed: 2026072807,
+                datetime: '20260728120000',
+                nethackrc: 'OPTIONS=name:BurdenedUpkeep,role:Healer,'
+                    + 'race:human,gender:female,align:neutral,!legacy,'
+                    + '!tutorial,!splash_screen,pettype:none,!acoustics',
+                moves: '',
+            });
+            for (const column of game.level.monsters) column.fill(null);
+            game.level.monlist = null;
+            game.level.regions = [];
+            // A burdened hero is what makes advanceElapsedTurn supply
+            // advanceRound, so finishElapsedTurn runs on the clone first.
+            game.invent = {
+                oclass: TOOL_CLASS,
+                otyp: SACK,
+                owt: weight_cap(game) + 5,
+                nobj: null,
+            };
+            assert.ok(projected_capacity(game) > 0, name);
+            install();
+
+            game.context.move = 1;
+            game.u.umovement = 0;
+            const before = {
+                moves: game.moves,
+                hunger: game.u.uhunger,
+                regions: game.level.regions.length,
+            };
+
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                game.context.move = 1;
+                await assert.rejects(
+                    () => moveloop_core(),
+                    (error) => (
+                        error instanceof UnsupportedTurnBoundaryError
+                        && error.message === `elapsed turn reached ${reason}`
+                    ),
+                    `${name}, attempt ${attempt}`,
+                );
+                // The dry run refuses before any live state moves.
+                assert.equal(game.moves, before.moves, name);
+                assert.equal(game.u.uhunger, before.hunger, name);
+                assert.equal(
+                    game.level.regions.length,
+                    before.regions,
+                    name,
+                );
+            }
+        }
+    });

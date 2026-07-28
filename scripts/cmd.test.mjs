@@ -2102,3 +2102,30 @@ test('runtime dispatch applies a configured movement binding', async () => {
     assert.equal(game.context.move, 1);
     assert.equal(game._commandDispatchCount, 1);
 });
+
+test('every nonzero-key rhack entry counts one logical dispatch', async () => {
+    await runSegment({
+        seed: 840015,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:DispatchCount,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,!acoustics',
+        moves: '',
+    });
+    // C's repeat path re-enters rhack(gc.cmd_key) with the key already in
+    // hand, skipping the parse. That entry is still a fresh logical command,
+    // so it must count. The retry direction -- re-entering with key 0 while a
+    // pendingCommand is retained -- is what must NOT count, and is covered by
+    // the boundary-retry cases above.
+    game.context.pendingCommand = null;
+    const before = game._commandDispatchCount ?? 0;
+
+    await rhack(commandKeyCode('.'), game);
+    assert.equal(game._commandDispatchCount, before + 1);
+
+    // The same key again is a second logical command, not a repeat of the
+    // first, so the counter advances again.
+    game.context.pendingCommand = null;
+    await rhack(commandKeyCode('.'), game);
+    assert.equal(game._commandDispatchCount, before + 2);
+});

@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     BURN,
+    CONFLICT,
     COULD_SEE,
     CORR,
     D_BROKEN,
@@ -1599,5 +1600,90 @@ test('simple preflight keeps starting-pet owner seams retryable',
                     `${actionCase.name}, attempt ${attempt + 1}`,
                 );
             }
+        }
+    });
+
+test('planning brackets only the monster scan with context.mon_moving',
+    async () => {
+        const target = await prepareSelectedAction();
+        // Below its ration, so the scan reaches m_everyturn_effect() and
+        // returns without acting, leaving the round free to reach upkeep.
+        target.monster.movement = 0;
+        game.u.umovement = 0;
+        let rounds = 0;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(planned) {
+                ++rounds;
+                // allmain.c clears context.mon_moving after the monster loop
+                // and before the once-per-turn block, and the live loop does
+                // the same in its finally. The plan must agree, or a planned
+                // round would take mon_moving-gated branches the live round
+                // does not.
+                assert.equal(planned.context.mon_moving, false);
+                return true;
+            },
+        });
+        assert.equal(rounds, 1);
+        // The live state owns its own flag and must be untouched.
+        assert.notEqual(game.context.mon_moving, true);
+    });
+
+test('planning rescans while a monster outruns the hero', async () => {
+    const target = await prepareSelectedAction();
+    // Two rations for the monster, none for the hero: mon.c sets
+    // somebody_can_move on the first scan because movement is still at least
+    // NORMAL_SPEED after the debit, so the inner loop must run a second scan
+    // before any once-per-turn upkeep is considered.
+    target.monster.movement = NORMAL_SPEED * 2;
+    game.u.umovement = 0;
+    let rounds = 0;
+
+    await preflightSimpleMonsterActions(game, {
+        advanceRound(planned) {
+            ++rounds;
+            // Both rations are spent by the time upkeep is reached.
+            assert.ok(planned.level.monlist.movement < NORMAL_SPEED);
+            return true;
+        },
+    });
+    assert.equal(rounds, 1);
+    // The live monster keeps both rations: the scan ran only on the clone.
+    assert.equal(target.monster.movement, NORMAL_SPEED * 2);
+});
+
+test('planning and live monster scans inject the same visibility owners',
+    async () => {
+        const target = await prepareSelectedAction();
+        // mon.c's conflict arm calls cansee(); both scans must agree on it, or
+        // the dry run admits a branch the live run does not take. The planning
+        // scan is not exported, so this pins the observable consequence: with
+        // conflict inactive, neither scan may consult a visibility owner at
+        // all, and with it active both must refuse identically.
+        game.level.regions = [];
+        // assertSimpleScanState refuses conflict before movemon_singlemon is
+        // reached, so the plan stops without touching live state or the PRNG.
+        game.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0 };
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const beforeRandom = rngSnapshot();
+        try {
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await assert.rejects(
+                    preflightSimpleMonsterActions(game),
+                    (error) => (
+                        error instanceof UnsupportedSimpleMonsterActionError
+                        && error.reason === 'conflict combat'
+                    ),
+                    `attempt ${attempt}`,
+                );
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, target.replay),
+                    before,
+                    `attempt ${attempt}`,
+                );
+                assert.deepEqual(rngSnapshot(), beforeRandom);
+            }
+        } finally {
+            game.u.uprops[CONFLICT] = { intrinsic: 0, extrinsic: 0 };
         }
     });
