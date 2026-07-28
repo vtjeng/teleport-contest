@@ -8,6 +8,7 @@ import {
 import {
     fruit_from_indx, makeplural, makesingular, matching_artifact_fruit,
 } from './fruit.js';
+import { lowc, strcasecpy } from './hacklib.js';
 import { PM_CLERIC, PM_SAMURAI } from './monsters.js';
 import { observe_object } from './o_init.js';
 import {
@@ -353,6 +354,128 @@ function theUniqueObject(obj, type) {
     return Boolean(type.oc_unique
         && (obj.known || obj.otyp === AMULET_OF_YENDOR));
 }
+// C ref: decl.c vowels[].
+const VOWELS = 'aeiouAEIOU';
+
+function startsWithFold(text, prefix) {
+    return text.slice(0, prefix.length).toLowerCase() === prefix.toLowerCase();
+}
+
+// C ref: objnam.c just_an(). Returns the article, with its trailing space,
+// that an() would prepend, or the empty string where C leaves outbuf empty.
+export function just_an(str) {
+    const c0 = lowc(str[0] ?? '');
+    if (!str[1] || str[1] === ' ') {
+        // A single letter, as used for a named fruit or a musical note.
+        return 'aefhilmnosx'.includes(c0) ? 'an ' : 'a ';
+    }
+    if (startsWithFold(str, 'the ')
+        || str.toLowerCase() === 'molten lava'
+        || str.toLowerCase() === 'iron bars'
+        || str.toLowerCase() === 'ice') {
+        return '';
+    }
+    // The normal case is "an <vowel>" or "a <consonant>".
+    const vowelStart = VOWELS.includes(c0)
+        // 'wun' initial sound
+        && (!startsWithFold(str, 'one')
+            || (str[3] && !'-_ '.includes(str[3])))
+        // long 'u' initial sound
+        && !startsWithFold(str, 'eu') // "eucalyptus leaf"
+        && !startsWithFold(str, 'uke') && !startsWithFold(str, 'ukulele')
+        && !startsWithFold(str, 'unicorn') && !startsWithFold(str, 'uranium')
+        && !startsWithFold(str, 'useful'); // "useful tool"
+    return (vowelStart || (c0 === 'x' && !VOWELS.includes(lowc(str[1]))))
+        ? 'an ' : 'a ';
+}
+
+// C ref: objnam.c an(). C answers "an []" through impossible() for an empty
+// name; nothing in the port can supply one, so that stays a thrown error.
+export function an(str) {
+    if (!str) throw new Error(`an() requires a name; got ${String(str)}`);
+    return just_an(str) + str;
+}
+
+// C ref: objnam.c special_subjs[]. Singular subjects that end in 's'.
+const SPECIAL_SUBJS = Object.freeze([
+    'erinys', 'manes', /* this one is ambiguous */
+    'Cyclops', 'Hippocrates', 'Pelias', 'aklys',
+    'amnesia', 'detect monsters', 'paralysis', 'shape changers',
+    'nemesis',
+]);
+
+// C ref: objnam.c vtense(). `verb` arrives in the plural, without a trailing
+// s, and comes back agreeing with `subj`. A null subject asks for the
+// singular third person directly.
+export function vtense(subj, verb) {
+    let singular = !subj;
+    if (subj) {
+        if (startsWithFold(subj, 'a ') || startsWithFold(subj, 'an ')) {
+            singular = true;
+        } else {
+            // C scans for the first " of "/" from "/" called "/" named "/
+            // " labeled " and takes the character before it as the subject's
+            // head; otherwise the head is the last character.
+            let spot = -1;
+            for (let index = subj.indexOf(' '); index >= 0;
+                index = subj.indexOf(' ', index + 1)) {
+                const tail = subj.slice(index);
+                if (startsWithFold(tail, ' of ')
+                    || startsWithFold(tail, ' from ')
+                    || startsWithFold(tail, ' called ')
+                    || startsWithFold(tail, ' named ')
+                    || startsWithFold(tail, ' labeled ')) {
+                    if (index !== 0) spot = index - 1;
+                    break;
+                }
+            }
+            if (spot < 0) spot = subj.length - 1;
+            const endsWith = (offset, text) => (
+                spot - offset >= 0
+                && subj.slice(spot - offset, spot - offset + text.length)
+                    .toLowerCase() === text
+            );
+            const plural = (lowc(subj[spot]) === 's' && spot !== 0
+                    && !'us'.includes(lowc(subj[spot - 1])))
+                || endsWith(3, 'eeth') || endsWith(3, 'feet')
+                || endsWith(1, 'ia') || endsWith(1, 'ae');
+            if (plural) {
+                const len = spot + 1;
+                const special = SPECIAL_SUBJS.some((entry) => (
+                    (len === entry.length
+                        && subj.slice(0, len).toLowerCase()
+                            === entry.toLowerCase())
+                    || (len > entry.length && subj[spot - entry.length] === ' '
+                        && subj.slice(spot - entry.length + 1, spot + 1)
+                            .toLowerCase() === entry.toLowerCase())
+                ));
+                if (!special) return verb;
+            } else if (subj.toLowerCase() === 'they'
+                || subj.toLowerCase() === 'you') {
+                // Third person plural without a telltale s, and second person
+                // singular, which behaves as if plural.
+                return verb;
+            }
+        }
+    }
+    void singular;
+
+    const buf = verb;
+    const last = buf.length - 1;
+    if (buf.toLowerCase() === 'are') return strcasecpy(buf, 0, 'is');
+    if (buf.toLowerCase() === 'have') return strcasecpy(buf, last - 1, 's');
+    if ('zxs'.includes(lowc(buf[last]))
+        || (buf.length >= 2 && lowc(buf[last]) === 'h'
+            && 'cs'.includes(lowc(buf[last - 1])))
+        || (buf.length === 2 && lowc(buf[last]) === 'o')) {
+        // Ends in z, x, s, ch, or sh, so the third person adds "es".
+        return `${buf}es`;
+    }
+    if (lowc(buf[last]) === 'y' && !VOWELS.includes(lowc(buf[last - 1])))
+        return strcasecpy(buf, last, 'ies');
+    return `${buf}s`;
+}
+
 // The normal xname() entry point: it observes a nearby object, marks a
 // displayed artifact found, formats its class branch, pluralizes, and appends
 // an instance name.

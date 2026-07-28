@@ -17,12 +17,15 @@ import { look_here_single_object } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
+    an,
     cloak_simple_name,
     gloves_simple_name,
     helm_simple_name,
+    just_an,
     suit_simple_name,
     UnsupportedObjectNameError,
     donameFresh,
+    vtense,
     xnameFresh,
 } from '../js/objnam.js';
 import {
@@ -564,4 +567,79 @@ test('unsupported naming branches fail before discovery or state changes', () =>
             && error.branch === 'lit candle timer adjustment',
     );
     assert.equal(litCandle.dknown, false);
+});
+
+test('an() applies just_an()\'s article rules', () => {
+    // Each case names the objnam.c just_an() branch it exercises. The
+    // article-free names are the three that dfeature_at() can return and
+    // just_an() lists literally, plus a "the " prefix.
+    for (const [name, expected] of [
+        ['ice', 'ice'],
+        ['molten lava', 'molten lava'],
+        ['iron bars', 'iron bars'],
+        ['the Gnomish Mines', 'the Gnomish Mines'],
+        // Single letters: "aefhilmnosx" take "an", everything else "a".
+        ['a', 'an a'],
+        ['b', 'a b'],
+        ['x', 'an x'],
+        // The ordinary vowel and consonant cases.
+        ['open door', 'an open door'],
+        ['fountain', 'a fountain'],
+        ['opulent throne', 'an opulent throne'],
+        // Exceptions warranting "a" before a vowel.
+        ['one-eyed newt', 'a one-eyed newt'],
+        ['eucalyptus leaf', 'a eucalyptus leaf'],
+        ['unicorn horn', 'a unicorn horn'],
+        ['uranium wand', 'a uranium wand'],
+        ['useful tool', 'a useful tool'],
+        // "one" only counts with a separator after it; "oneself" does not.
+        ['oneself', 'an oneself'],
+        // Initial x before a consonant takes "an", before a vowel "a".
+        ['xylophone', 'an xylophone'],
+        ['xan', 'a xan'],
+    ]) {
+        assert.equal(an(name), expected, name);
+        assert.equal(just_an(name) + name, expected, `just_an ${name}`);
+    }
+    assert.throws(() => an(''), /an\(\) requires a name/u);
+});
+
+test('vtense() agrees with the subject objnam.c inspects', () => {
+    for (const [subject, verb, expected] of [
+        // An "a"/"an" subject is singular however it ends.
+        ['a pair of iron bars', 'are', 'is'],
+        ['an aklys', 'are', 'is'],
+        // Plural: ends in s, but not us or ss.
+        ['iron bars', 'are', 'are'],
+        ['bus', 'are', 'is'],
+        ['glass', 'are', 'is'],
+        // The other plural endings objnam.c lists.
+        ['teeth', 'are', 'are'],
+        ['feet', 'are', 'are'],
+        ['larvae', 'are', 'are'],
+        // special_subjs[] entries end in s but are singular.
+        ['erinys', 'are', 'is'],
+        ['aklys', 'are', 'is'],
+        ['the invisible erinys', 'are', 'is'],
+        // The head noun is what precedes " of ", so this is singular.
+        ['pair of gloves', 'are', 'is'],
+        // Pronouns handled explicitly.
+        ['they', 'are', 'are'],
+        ['you', 'are', 'are'],
+        // A null subject asks for the singular third person directly.
+        [null, 'are', 'is'],
+        // Verb inflection: are/have are special-cased, then the s, es, and
+        // ies rules.
+        ['staircase up', 'have', 'has'],
+        ['staircase up', 'push', 'pushes'],
+        ['staircase up', 'fizz', 'fizzes'],
+        ['staircase up', 'go', 'goes'],
+        ['staircase up', 'fly', 'flies'],
+        ['staircase up', 'obey', 'obeys'],
+        ['staircase up', 'lie', 'lies'],
+        // Strcasecpy() keeps the case of the character it overwrites.
+        ['staircase up', 'ARE', 'IS'],
+    ]) {
+        assert.equal(vtense(subject, verb), expected, `${subject} ${verb}`);
+    }
 });

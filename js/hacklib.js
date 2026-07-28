@@ -129,8 +129,8 @@ export function encodeUtf8ByteString(value) {
 // sitoa) return a fresh string, which is what their callers read immediately.
 //
 // Not ported, because they exist only to manipulate C pointers and have no
-// behavior to reproduce: eos(), c_eos(), strkitten(), copynchars(), and
-// strcasecpy() (which reads dst[-1] and needs a real buffer behind it).
+// behavior to reproduce: eos(), c_eos(), strkitten(), and copynchars().
+// strcasecpy() takes the offset its callers reach by pointer arithmetic.
 
 // C ref: hacklib.c BUFSZ truncation limit for tabexpand() and stripchars().
 // Duplicated rather than imported, matching this file's existing avoidance of a
@@ -246,6 +246,23 @@ export function chrcasecpy(oc, nc) {
     if (oc >= 'a' && oc <= 'z') return (nc >= 'A' && nc <= 'Z') ? lowc(nc) : nc;
     if (oc >= 'A' && oc <= 'Z') return (nc >= 'a' && nc <= 'z') ? highc(nc) : nc;
     return nc;
+}
+
+// C ref: hacklib.c strcasecpy(). C's caller passes a pointer into dst; this
+// port passes dst and that offset. Each character of src takes the case of the
+// character it overwrites; once dst runs out, src takes the case of the last
+// character written, which is what C's dst[-1] reads. C terminates the result
+// where src ends, so anything after it in dst is dropped.
+export function strcasecpy(dst, offset, src) {
+    let out = dst.slice(0, offset);
+    let exhausted = false;
+    for (let index = 0; index < src.length; ++index) {
+        const at = offset + index;
+        if (!exhausted && at >= dst.length) exhausted = true;
+        const oc = exhausted ? out[out.length - 1] : dst[at];
+        out += chrcasecpy(oc ?? '', src[index]);
+    }
+    return out;
 }
 
 // C ref: hacklib.c s_suffix().  "it" and "you" are special-cased case-blind;
