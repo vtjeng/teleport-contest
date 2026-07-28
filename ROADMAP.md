@@ -17,8 +17,10 @@ stops, censused by fail-closed boundary and by the command the port refused.
 The loop is:
 
 1. Run the scan. Each boundary names an upstream owner a goal could port.
-2. Select a goal, trace it to its C functions, and record its boundary and its
-   exclusions here.
+2. Select a goal, trace it to its C functions, and record its boundary, its
+   exclusions, and its ordered checkpoints here. Selecting the next goal is the
+   agent's job, not a question for the user; "Continuous operation" in
+   `.agents/quality-workflow.md` holds the loop this sits inside.
 3. Implement from the C source. The scan says where to look; it never says what
    the behavior is.
 4. Re-run the scan. The change in emitted screens is that goal's measured

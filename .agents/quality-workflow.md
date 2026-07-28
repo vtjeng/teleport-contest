@@ -40,6 +40,39 @@ A long-running goal or roadmap milestone can contain several implementation
 and review slices. Keep the goal active while completing small, coherent
 source-faithful implementation chunks within the limits below.
 
+## Continuous operation
+
+Implementation, review, and further implementation alternate inside one goal.
+Run that loop without returning to the user between its steps:
+
+1. Take the first unfinished checkpoint of the open `ROADMAP.md` goal. Trace it
+   to upstream source, implement it, validate it as `.agents/validation.md`
+   requires, and commit it.
+2. Run `npm run quality`. When a threshold fires, run the required pass now,
+   apply its confirmed findings, and carry on. A pass is a step in this loop,
+   not an interruption to it. An advisory checkpoint does not pause
+   implementation at all.
+3. When a checkpoint closes, start the next one. When the last one closes,
+   satisfy the audit-readiness note below and run the goal's full correctness
+   pass.
+4. When a goal closes, delete it from `ROADMAP.md`, record its evidence, run
+   `node scripts/scan-stops.mjs`, and select the next goal from that census.
+   Write the goal and its ordered checkpoints into `ROADMAP.md`, then continue
+   at step 1.
+
+Commits landing while a pass reviews a frozen range are expected. They fall
+outside that range and belong to the next one; they do not block the pass and
+the pass does not block them. What they do affect is the *next* audit-readiness
+note, which requires no non-exempt review debt at a batching threshold outside
+the frozen range. Clear that debt when declaring readiness, not before writing
+code.
+
+Stop and ask the user only for an authorized holdout evaluation, a change to
+the development and holdout split, publishing anything outside the repository,
+or a decision neither this file nor `AGENTS.md` settles. Report progress when
+the user asks and when the loop stops. Do not stop merely to report, and do not
+ask for a new goal that this loop can select.
+
 ## Per-chunk workflow
 
 For every coherent implementation chunk:
