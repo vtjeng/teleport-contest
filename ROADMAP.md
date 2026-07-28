@@ -273,12 +273,22 @@ stop message:
   is not `closed_door()` reaches only the `testdiag` arm, which rejects a
   *diagonal* move into an intact doorway and allows an orthogonal one. So the
   work is not in admission; it is in what follows the move.
-- The stairs message comes from `invent.c:dfeature_at()`, which delegates to
-  `stairs.c:stairs_description()` when a `stairway` is at the square, and is
-  printed by `invent.c:look_here()`. The port already owns the single-object
-  floor description, so this extends an existing owner rather than adding one.
-- A doorless doorway needs no message; the open-door case shares the same
-  `look_here()` path through `dfeature_at()`'s `IS_DOOR` arm.
+- Stepping onto stairs with nothing else on the square prints **nothing** by
+  default. `domove()` reaches `spoteffects(TRUE)` -> `pickup(1)`, and
+  `pickup.c:698-708` returns early when `!OBJ_AT(u.ux, u.uy)`, running only
+  `describe_decor()` (gated on `flags.mention_decor`) and `read_engr_at()`.
+  `look_here()` is never reached. So the "There is a staircase up here."
+  wording in `invent.c:dfeature_at()` and `stairs.c:stairs_description()`
+  applies only when an object shares the square, which is the path the port
+  already owns.
+- With `mention_decor` set, `pickup.c:describe_decor()` is the owner instead,
+  and it deliberately suppresses the doorway cases: it clears `dfeature` when
+  the description is "open door" or "doorway". It also keys off
+  `iflags.prev_decor`, which is per-square memory the port does not have yet.
+- So the slice splits cleanly. Admitting `STAIRS` and a non-closed `DOOR` as
+  destinations with `mention_decor` off should need no new output at all, and
+  `describe_decor()` plus `prev_decor` is a separate, later piece of work.
+  Confirm that split with a fresh recording before writing either.
 - Watch `context.door_opened`, which `test_move()` clears on entry and the
   closed-door branch sets. It stays out of scope while closed doors do, but it
   is the seam where that future work attaches.
