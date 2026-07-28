@@ -295,9 +295,24 @@ export async function parseCommand(state = game) {
     return finishCommandParse(parsed, state);
 }
 
+// A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
+// bad-command path, which this file owns. parse() returns such a byte
+// unchanged except for the ones get_count() consumes first: every digit when
+// num_pad is off, and the count key itself when it is on. Those start a count
+// rather than a command, so they stay outside this boundary. ESC and the two
+// empty-key values leave rhack() through its earlier return instead.
+function unboundCommandKey(key, command, model) {
+    if (command !== null) return false;
+    if (!key || key === 0xFF || key === ESC) return false;
+    return model.numPad
+        ? key !== model.specialKeys.count
+        : !isDigit(key);
+}
+
 // The repeated-simple-command milestone admits only one uncounted wait or
-// run-mode-zero walk byte. Classify that first logical byte before get_count()
-// can consume a prefix byte or expose transient count output.
+// run-mode-zero walk byte, plus a byte bound to no command at all. Classify
+// that first logical byte before get_count() can consume a prefix byte or
+// expose transient count output.
 async function readSimpleCommand(state) {
     await beginCommandParse(state);
     let key;
@@ -307,9 +322,11 @@ async function readSimpleCommand(state) {
         abortCommandParse(state);
         throw error;
     }
-    const command = commandForKey(commandBindings(state), key);
+    const model = commandBindings(state);
+    const command = commandForKey(model, key);
     const movement = MOVEMENT_INTENTS[command];
-    if (command !== 'wait' && (!movement || movement[2] !== 0)) {
+    if (command !== 'wait' && (!movement || movement[2] !== 0)
+        && !unboundCommandKey(key, command, model)) {
         abortCommandParse(state);
         throw new UnsupportedHeroCommandBoundaryError(
             'the repeated-command boundary admits only an uncounted wait '
@@ -502,7 +519,25 @@ export async function rhack(key, state = game) {
             await executeMovement(command, firstTime, state);
             return;
         }
+        if (command !== null) {
+            // A bound command whose handler this milestone excludes. The
+            // fresh-read seam above rejects it before parsing; reaching here
+            // means a repeat supplied it as logical input.
+            resetCommandVars(state);
+            throw new UnsupportedHeroCommandBoundaryError(
+                'the repeated-command boundary admits only an uncounted wait '
+                    + 'or one-square walk',
+                key,
+            );
+        }
 
+        // C ref: cmd.c rhack()'s bad-command path. Its custompline() differs
+        // from pline() only in SUPPRESS_HISTORY, which keeps the line out of
+        // the message history that doprev_message() recalls; no message
+        // history is ported. Its cmdq_clear(CQ_CANNED) and
+        // cmdq_clear(CQ_REPEAT) have no queue to clear while no command queue
+        // is ported, and iflags.sanity_no_check suppresses only the debug
+        // sanity check.
         await ttyPline(`Unknown command '${visibleCommandKey(key)}'.`, state);
         state.context.move = 0;
         state.multi = 0;

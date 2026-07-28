@@ -56,6 +56,7 @@ import {
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
+import { flush_screen } from '../js/display.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     domove,
@@ -1694,6 +1695,106 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
         );
         assert.deepEqual(heroCommandRetrySnapshot(replay), rejected);
         assert.equal(game._commandDispatchCount, initialDispatches);
+    }
+});
+
+test('an unbound byte answers rhack bad-command output and takes no time',
+    async () => {
+    // Space, percent, and the two control bytes below have no binding in the
+    // default set; '^^' also checks that the line uses visctrl() form. A digit
+    // and Escape are excluded because cmd.c parse() consumes the first into
+    // get_count() and rhack() answers the second before its bad-command path.
+    const admitted = [
+        { key: commandKeyCode(' '), shown: ' ' },
+        { key: commandKeyCode('%'), shown: '%' },
+        { key: 30, shown: '^^' }, // ^^, unbound and outside the ASCII letters
+        { key: 3, shown: '^C' }, // ^C, unbound in the source command table
+    ];
+    const refused = [
+        commandKeyCode('7'), // a count digit while num_pad is off
+        0x1B, // Escape
+    ];
+    const replay = await runSegment({
+        seed: 840021,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:UnboundCommand,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none',
+        // The space dismisses startup output and stops at the first gameplay
+        // command prompt, so no keystroke below is a message dismissal.
+        moves: ' ',
+    });
+    assert.equal(game._commandDispatchCount, 0);
+    const startingMoves = game.moves;
+
+    for (const { key, shown } of admitted) {
+        const dispatches = game._commandDispatchCount;
+        const screens = replay.getScreens().length;
+        game.nhDisplay.pushKey(key);
+        await moveloop_core();
+        // pline() leaves the line pending; the next loop iteration's
+        // flush_screen(1) paints it, which is the same order the recorded
+        // screens capture.
+        await flush_screen(1);
+        assert.equal(topLine(game), `Unknown command '${shown}'.`);
+        assert.equal(game.context.move, 0, `${shown} consumed no time`);
+        assert.equal(game.moves, startingMoves, `${shown} elapsed no turn`);
+        assert.equal(game.multi, 0);
+        assert.equal(game._commandDispatchCount, dispatches + 1);
+        assert.equal(replay.getScreens().length, screens + 1);
+        assert.deepEqual(
+            replay.getRngSlices().at(-1),
+            [],
+            `${shown} drew no gameplay randomness`,
+        );
+    }
+
+    // With number_pad on, cmd.c parse() reads the byte directly and only the
+    // count key enters get_count(); the digits become movement commands. The
+    // admission has to follow the option rather than the ASCII class.
+    await runSegment({
+        seed: 840021,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:UnboundCommand,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none\n'
+            + 'OPTIONS=number_pad:1',
+        moves: ' ',
+    });
+    const numberPadMoves = game.moves;
+    game.nhDisplay.pushKey(commandKeyCode('%'));
+    await moveloop_core();
+    await flush_screen(1);
+    assert.equal(topLine(game), "Unknown command '%'.");
+    assert.equal(game.moves, numberPadMoves);
+    game.nhDisplay.pushKey(commandKeyCode('n'));
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === commandKeyCode('n'),
+        'the number-pad count key stays a count prefix',
+    );
+
+    // A rejected physical byte is retained for retry, so each refusal needs
+    // its own segment rather than another key pushed at the same prompt.
+    for (const key of refused) {
+        await runSegment({
+            seed: 840021,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:UnboundCommand,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none',
+            moves: ' ',
+        });
+        const refusedFrom = game.moves;
+        game.nhDisplay.pushKey(key);
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error instanceof UnsupportedHeroCommandBoundaryError
+                && error.key === key,
+            `key ${key} stays outside the bad-command path`,
+        );
+        assert.equal(game.moves, refusedFrom);
     }
 });
 

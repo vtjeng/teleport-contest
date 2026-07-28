@@ -1086,11 +1086,14 @@ test('tutorial movement text follows number-pad and gameplay bindings', async ()
     }
 });
 
-test('an excluded command stops before its diagnostic or dispatch', async () => {
+test('an unbound byte answers its diagnostic after a More dismissal',
+    async () => {
     const nhGame = await runSegment({
-        // The long name forces welcome() through More. With rest_on_space
-        // disabled, the following Space is outside the current atomic command
-        // boundary and must stop before its source diagnostic.
+        // The long name forces welcome() through More, which the first Space
+        // dismisses. With rest_on_space disabled, Space is bound to no
+        // command, so the second one reaches cmd.c rhack()'s bad-command path
+        // rather than resting. A fresh recording of these exact inputs matches
+        // C call for call across all three screens.
         seed: 730204,
         datetime: '20260129120000',
         nethackrc: 'OPTIONS=name:MessageRetention,role:Tourist,race:human,'
@@ -1101,13 +1104,13 @@ test('an excluded command stops before its diagnostic or dispatch', async () => 
     const topline = game.nhDisplay.grid[0]
         .map((cell) => cell.ch).join('').trimEnd();
 
-    assert.equal(nhGame.getScreens().length, 2);
-    assert.equal(topline, '');
-    assert.equal(game._commandDispatchCount, 0);
-    assert.deepEqual(game.context.pendingCommand, {
-        phase: 'physical',
-        key: ' '.charCodeAt(0),
-    });
+    assert.equal(nhGame.getScreens().length, 3);
+    assert.equal(topline, "Unknown command ' '.");
+    assert.equal(game._commandDispatchCount, 1);
+    assert.equal(game.context.pendingCommand, undefined);
+    // The command took no time, so the turn counter stays at its first value.
+    assert.equal(game.context.move, 0);
+    assert.equal(game.moves, 1);
 });
 
 test('version constants match the pinned NetHack release', () => {
