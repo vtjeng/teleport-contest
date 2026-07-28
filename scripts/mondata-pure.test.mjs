@@ -3,33 +3,22 @@
 // expected value below is derived by reading mondata.c, mondata.h, monattk.h,
 // and the monsters.h entry for the species involved, not by running the
 // JavaScript and recording what it produced.
+//
+// Where a function branches on an enum, the test writes the C number with the
+// header and line it came from rather than importing the port's own constant.
+// Doing both sides from the port hides the defect it should catch: an
+// undefined M.AD_DISN made `switch (adtyp)` match `case undefined`, so
+// `cvt_adtyp_to_mseenres(M.AD_DISN)` returned the expected answer for the
+// wrong reason and the test passed over a dead branch.
+//
+// Species are still named by their PM_ constant. Those name a row of the
+// generated mons[] table, and no literal index would say which species a case
+// is about.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import {
-    ACID_RES,
-    ANTIMAGIC,
-    COLD_RES,
-    DISINT_RES,
-    FIRE_RES,
-    G_GENOD,
-    M_SEEN_ACID,
-    M_SEEN_COLD,
-    M_SEEN_DISINT,
-    M_SEEN_ELEC,
-    M_SEEN_FIRE,
-    M_SEEN_MAGR,
-    M_SEEN_NOTHING,
-    M_SEEN_POISON,
-    M_SEEN_REFL,
-    M_SEEN_SLEEP,
-    POISON_RES,
-    REFLECTING,
-    SHOCK_RES,
-    SLEEP_RES,
-} from '../js/const.js';
 import * as M from '../js/monsters.js';
 import {
     big_little_match,
@@ -104,7 +93,9 @@ test('poly_when_stoned excludes the stone golem and honors genocide', () => {
     assert.equal(poly_when_stoned(pm(M.PM_STONE_GOLEM), vitals), false);
 
     // With the stone golem genocided there is nothing to turn into.
-    vitals.svm.mvitals[M.PM_STONE_GOLEM].mvflags |= G_GENOD;
+    // poly_when_stoned() masks mvflags with G_GENOD, which is 0x02
+    // (monflag.h:209).
+    vitals.svm.mvitals[M.PM_STONE_GOLEM].mvflags |= 0x02;
     assert.equal(poly_when_stoned(pm(M.PM_PAPER_GOLEM), vitals), false);
 });
 
@@ -198,6 +189,9 @@ test('every monster constant mondata.js reads is actually exported', () => {
     // undefined, so the branch silently never fires. That is how AD_STON,
     // AD_DRLI, AD_DRDX, AD_DRCO, AD_WERE, AT_EXPL, AD_DCAY, and AD_DISN were
     // all dead at once. This guard fails the moment another one goes missing.
+    // scripts/check-namespace-members.mjs applies the same rule to every
+    // namespace import in js/ and scripts/; this one keeps the failure next to
+    // the functions it breaks.
     const source = readFileSync(
         new URL('../js/mondata.js', import.meta.url), 'utf8');
     const referenced = [...new Set(
@@ -213,12 +207,14 @@ test('hates_blessings covers undead and demons', () => {
     assert.equal(hates_blessings(pm(M.PM_WATER_DEMON)), true);  // demon
     assert.equal(hates_blessings(pm(M.PM_NEWT)), false);
     // mon_hates_blessings adds vampshifters, which a plain newt is not.
+    // is_vampshifter() tests `cham >= LOW_PM`, so cham is written as the C
+    // value NON_PM = -1 (permonst.h:14) that means "not shape-shifted".
     assert.equal(
-        mon_hates_blessings({ data: pm(M.PM_NEWT), cham: M.NON_PM }),
+        mon_hates_blessings({ data: pm(M.PM_NEWT), cham: -1 }),
         false,
     );
     assert.equal(
-        mon_hates_blessings({ data: pm(M.PM_HUMAN_ZOMBIE), cham: M.NON_PM }),
+        mon_hates_blessings({ data: pm(M.PM_HUMAN_ZOMBIE), cham: -1 }),
         true,
     );
 });
@@ -265,17 +261,21 @@ test('num_horns returns two, one, or none', () => {
 
 test('dmgtype_fromattack matches damage type and honors the AT_ANY wildcard',
     () => {
+        // dmgtype_fromattack() compares its arguments against the species'
+        // stored attack numbers, so the arguments and the expectations are
+        // written as the C numbers rather than as the port's own constants:
+        // AT_ANY -1 (monattk.h:11), AT_BITE 2 (monattk.h:14),
+        // AT_SPIT 10 (monattk.h:20), AD_BLND 11 (monattk.h:53).
         const cobra = pm(M.PM_COBRA);
         // The cobra spits blinding venom: AT_SPIT with AD_BLND.
-        const spit = dmgtype_fromattack(cobra, M.AD_BLND, M.AT_SPIT);
-        assert.equal(spit.aatyp, M.AT_SPIT);
-        assert.equal(spit.adtyp, M.AD_BLND);
+        const spit = dmgtype_fromattack(cobra, 11, 10);
+        assert.equal(spit.aatyp, 10);
+        assert.equal(spit.adtyp, 11);
         // The same damage type under AT_ANY finds the first matching attack.
-        assert.equal(dmgtype_fromattack(cobra, M.AD_BLND, M.AT_ANY), spit);
+        assert.equal(dmgtype_fromattack(cobra, 11, -1), spit);
         // A specific attack type that does not carry that damage type fails.
-        assert.equal(dmgtype_fromattack(cobra, M.AD_BLND, M.AT_BITE), null);
-        assert.equal(dmgtype_fromattack(pm(M.PM_NEWT), M.AD_BLND, M.AT_ANY),
-            null);
+        assert.equal(dmgtype_fromattack(cobra, 11, 2), null);
+        assert.equal(dmgtype_fromattack(pm(M.PM_NEWT), 11, -1), null);
     });
 
 test('max_passive_dmg multiplies passive damage by the attacker attack count',
@@ -335,9 +335,12 @@ test('max_passive_dmg covers the rot and rust instakill arms too', () => {
     // which the passive loop skips, so use a synthetic defender whose passive
     // slot carries AD_DCAY. C's three arms are written identically, so each
     // needs its own case; only the AD_FIRE one was exercised before.
+    // AT_NONE is 0 (monattk.h:12) and AD_DCAY is 34 (monattk.h:76). Both are
+    // written as C numbers because max_passive_dmg() branches on exactly these
+    // two values, and this arm was dead while AD_DCAY was undefined.
     const decaying = { data: {
         mlevel: 5,
-        mattk: [{ aatyp: M.AT_NONE, adtyp: M.AD_DCAY, damn: 0, damd: 0 }],
+        mattk: [{ aatyp: 0, adtyp: 34, damn: 0, damd: 0 }],
     } };
     const wood = { data: pm(M.PM_WOOD_GOLEM), mhp: 50, mextrinsics: 0,
         mintrinsics: 0, minvent: null };
@@ -426,7 +429,9 @@ test('stagger picks the third and fourth locomotion verbs', () => {
 });
 
 test('on_fire names what burning does to each special species', () => {
-    const claw = { aatyp: M.AT_CLAW };
+    // on_fire() switches on the attack type, so the type is written as the C
+    // number: AT_CLAW 1 (monattk.h:13).
+    const claw = { aatyp: 1 };
     for (const index of [M.PM_FLAMING_SPHERE, M.PM_FIRE_VORTEX,
         M.PM_FIRE_ELEMENTAL, M.PM_SALAMANDER]) {
         assert.equal(on_fire(pm(index), claw), 'already on fire');
@@ -441,8 +446,9 @@ test('on_fire names what burning does to each special species', () => {
     assert.equal(on_fire(pm(M.PM_STONE_GOLEM), claw), 'heating up');
     // The default branch varies on the attack type.
     assert.equal(on_fire(pm(M.PM_NEWT), claw), 'on fire');
-    assert.equal(on_fire(pm(M.PM_NEWT), { aatyp: M.AT_HUGS }),
-        'being roasted');
+    // AT_HUGS is 7 (monattk.h:19); it is the one attack type that reads
+    // "being roasted" instead of "on fire".
+    assert.equal(on_fire(pm(M.PM_NEWT), { aatyp: 7 }), 'being roasted');
 });
 
 test('msummon_environ returns both the substance and its container word', () => {
@@ -480,25 +486,38 @@ test('olfaction denies smell to golems and seven class letters', () => {
 });
 
 test('the two mseenres converters map their own key sets', () => {
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_MAGM), M_SEEN_MAGR);
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_FIRE), M_SEEN_FIRE);
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_COLD), M_SEEN_COLD);
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_SLEE), M_SEEN_SLEEP);
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_DISN), M_SEEN_DISINT);
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_ELEC), M_SEEN_ELEC);
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_DRST), M_SEEN_POISON);
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_ACID), M_SEEN_ACID);
-    // No AD_foo type maps to M_SEEN_REFL.
-    assert.equal(cvt_adtyp_to_mseenres(M.AD_PHYS), M_SEEN_NOTHING);
+    // Both converters are pure switches, so passing the port's own constant in
+    // and expecting the port's own constant back proves nothing: an undefined
+    // AD_DISN matched `case undefined` and this test passed while the branch
+    // was dead. Every number below is transcribed from the C headers instead.
+    //
+    // Inputs are AD_foo from monattk.h lines 42-50, in the order
+    // cvt_adtyp_to_mseenres() lists its cases. Expectations are M_SEEN_foo
+    // from the enum at monst.h lines 77-86.
+    assert.equal(cvt_adtyp_to_mseenres(1), 0x0001);   // AD_MAGM -> M_SEEN_MAGR
+    assert.equal(cvt_adtyp_to_mseenres(2), 0x0002);   // AD_FIRE -> M_SEEN_FIRE
+    assert.equal(cvt_adtyp_to_mseenres(3), 0x0004);   // AD_COLD -> M_SEEN_COLD
+    assert.equal(cvt_adtyp_to_mseenres(4), 0x0008);   // AD_SLEE -> M_SEEN_SLEEP
+    assert.equal(cvt_adtyp_to_mseenres(5), 0x0010);   // AD_DISN -> M_SEEN_DISINT
+    assert.equal(cvt_adtyp_to_mseenres(6), 0x0020);   // AD_ELEC -> M_SEEN_ELEC
+    assert.equal(cvt_adtyp_to_mseenres(7), 0x0040);   // AD_DRST -> M_SEEN_POISON
+    assert.equal(cvt_adtyp_to_mseenres(8), 0x0080);   // AD_ACID -> M_SEEN_ACID
+    // AD_PHYS (monattk.h:42) reaches the default arm: no AD_foo type maps to
+    // M_SEEN_REFL, and M_SEEN_NOTHING is 0x0000 at monst.h:77.
+    assert.equal(cvt_adtyp_to_mseenres(0), 0x0000);
 
-    assert.equal(cvt_prop_to_mseenres(ANTIMAGIC), M_SEEN_MAGR);
-    assert.equal(cvt_prop_to_mseenres(FIRE_RES), M_SEEN_FIRE);
-    assert.equal(cvt_prop_to_mseenres(COLD_RES), M_SEEN_COLD);
-    assert.equal(cvt_prop_to_mseenres(SLEEP_RES), M_SEEN_SLEEP);
-    assert.equal(cvt_prop_to_mseenres(DISINT_RES), M_SEEN_DISINT);
-    assert.equal(cvt_prop_to_mseenres(POISON_RES), M_SEEN_POISON);
-    assert.equal(cvt_prop_to_mseenres(SHOCK_RES), M_SEEN_ELEC);
-    assert.equal(cvt_prop_to_mseenres(ACID_RES), M_SEEN_ACID);
+    // Inputs are prop_types from prop.h: FIRE_RES through ACID_RES at lines
+    // 15-21, ANTIMAGIC at line 30, and REFLECTING at line 88.
+    assert.equal(cvt_prop_to_mseenres(12), 0x0001);  // ANTIMAGIC -> M_SEEN_MAGR
+    assert.equal(cvt_prop_to_mseenres(1), 0x0002);   // FIRE_RES -> M_SEEN_FIRE
+    assert.equal(cvt_prop_to_mseenres(2), 0x0004);   // COLD_RES -> M_SEEN_COLD
+    assert.equal(cvt_prop_to_mseenres(3), 0x0008);   // SLEEP_RES -> M_SEEN_SLEEP
+    assert.equal(cvt_prop_to_mseenres(4), 0x0010);   // DISINT_RES -> M_SEEN_DISINT
+    assert.equal(cvt_prop_to_mseenres(6), 0x0040);   // POISON_RES -> M_SEEN_POISON
+    assert.equal(cvt_prop_to_mseenres(5), 0x0020);   // SHOCK_RES -> M_SEEN_ELEC
+    assert.equal(cvt_prop_to_mseenres(7), 0x0080);   // ACID_RES -> M_SEEN_ACID
     // REFLECTING is the one property the adtyp converter cannot produce.
-    assert.equal(cvt_prop_to_mseenres(REFLECTING), M_SEEN_REFL);
+    assert.equal(cvt_prop_to_mseenres(65), 0x0100);  // REFLECTING -> M_SEEN_REFL
+    // STONE_RES (prop.h:22) has no arm, so it takes the default.
+    assert.equal(cvt_prop_to_mseenres(8), 0x0000);
 });

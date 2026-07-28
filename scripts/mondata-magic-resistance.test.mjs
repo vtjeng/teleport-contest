@@ -1,3 +1,12 @@
+// Pin mondata.c's resists_magm(). Every gate it applies is an equality or a
+// mask against a named constant, so a monster or object fabricated from the
+// port's own constant would satisfy the gate even if the constant were missing
+// or wrong. The damage types, the property number, and the worn-slot bit below
+// are therefore the numbers written in the C headers.
+//
+// `pmidx` keeps its PM_ constant: C generates those from the row order of
+// monsters.h and writes no numeral, so there is nothing to transcribe.
+
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -6,17 +15,16 @@ import {
     ART_MAGICBANE,
     ART_ORB_OF_DETECTION,
 } from '../js/artifacts.js';
-import { ANTIMAGIC, W_ARM } from '../js/const.js';
 import { resists_magm } from '../js/mondata.js';
-import {
-    AD_MAGM,
-    AD_PHYS,
-    AD_RBRE,
-    AT_BREA,
-    AT_NONE,
-    PM_BABY_GRAY_DRAGON,
-    PM_NEWT,
-} from '../js/monsters.js';
+import { PM_BABY_GRAY_DRAGON, PM_NEWT } from '../js/monsters.js';
+
+const AD_PHYS = 0;    // monattk.h:42
+const AD_MAGM = 1;    // monattk.h:43
+const AD_RBRE = 242;  // monattk.h:89, random breath weapon
+const AT_NONE = 0;    // monattk.h:12
+const AT_BREA = 12;   // monattk.h:22
+const ANTIMAGIC = 12; // prop.h:30, enum prop_types
+const W_ARM = 0x00000001;  // prop.h:101, body-armor slot
 
 function monster(overrides = {}) {
     return {

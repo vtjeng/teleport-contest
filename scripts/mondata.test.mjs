@@ -4,19 +4,9 @@ import test from 'node:test';
 
 import {
     A_CHA,
-    ACID_RES,
-    ALL_TRAPS,
-    ARROW_TRAP,
     FEMALE,
-    FIRE_RES,
-    G_EXTINCT,
-    G_GENOD,
     MALE,
     NEUTRAL,
-    NO_TRAP,
-    POISON_RES,
-    W_ARMC,
-    W_RINGL,
 } from '../js/const.js';
 import {
     ARTILIST_TEMPLATE,
@@ -113,6 +103,91 @@ import {
     RIN_POISON_RESISTANCE,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+
+// Monster flags, sizes, class letters, and attack types, transcribed from the
+// C headers. mondata.c's predicates test these exact values, so a case built
+// from the port's own export would select its branch even if the export were
+// missing or wrong: `undefined === undefined` is true and `x & undefined` is 0
+// on both sides of the assertion. PM_ constants stay as exports, because C
+// generates them from the row order of monsters.h and writes no numeral.
+
+// include/monflag.h, permonst mflags1 bits.
+const M1_FLY = 0x00000001;        // monflag.h:85
+const M1_SWIM = 0x00000002;       // monflag.h:86
+const M1_AMORPHOUS = 0x00000004;  // monflag.h:87
+const M1_WALLWALK = 0x00000008;   // monflag.h:88
+const M1_CLING = 0x00000010;      // monflag.h:89
+const M1_TUNNEL = 0x00000020;     // monflag.h:90
+const M1_NEEDPICK = 0x00000040;   // monflag.h:91
+const M1_CONCEAL = 0x00000080;    // monflag.h:92
+const M1_HIDE = 0x00000100;       // monflag.h:93
+const M1_NOTAKE = 0x00000800;     // monflag.h:96
+const M1_NOEYES = 0x00001000;     // monflag.h:97
+const M1_NOHANDS = 0x00002000;    // monflag.h:98
+const M1_NOLIMBS = 0x00006000;    // monflag.h:99, NOHANDS plus a second bit
+const M1_ANIMAL = 0x00040000;     // monflag.h:103
+const M1_SLITHY = 0x00080000;     // monflag.h:104
+const M1_UNSOLID = 0x00100000;    // monflag.h:105
+const M1_REGEN = 0x00800000;      // monflag.h:108
+const M1_SEE_INVIS = 0x01000000;  // monflag.h:109
+const M1_TPORT = 0x02000000;      // monflag.h:110
+
+// include/monflag.h, permonst mflags2 bits.
+const M2_UNDEAD = 0x00000002;     // monflag.h:124
+const M2_WERE = 0x00000004;       // monflag.h:125
+const M2_HUMAN = 0x00000008;      // monflag.h:126
+const M2_ELF = 0x00000010;        // monflag.h:127
+const M2_DEMON = 0x00000100;      // monflag.h:131
+const M2_LORD = 0x00000400;       // monflag.h:133
+const M2_PRINCE = 0x00000800;     // monflag.h:134
+const M2_MINION = 0x00001000;     // monflag.h:135
+const M2_GIANT = 0x00002000;      // monflag.h:136
+const M2_MALE = 0x00010000;       // monflag.h:138
+const M2_FEMALE = 0x00020000;     // monflag.h:139
+const M2_NEUTER = 0x00040000;     // monflag.h:140
+const M2_WANDER = 0x00800000;     // monflag.h:145
+const M2_STRONG = 0x04000000;     // monflag.h:148
+const M2_ROCKTHROW = 0x08000000;  // monflag.h:149
+const M2_GREEDY = 0x10000000;     // monflag.h:150
+const M2_JEWELS = 0x20000000;     // monflag.h:151
+const M2_COLLECT = 0x40000000;    // monflag.h:152
+const M2_MAGIC = 0x80000000;      // monflag.h:154
+
+// include/monflag.h, permonst mflags3 bits and monster sizes.
+const M3_COVETOUS = 0x001f;       // monflag.h:168
+const M3_DISPLACES = 0x0400;      // monflag.h:175
+const MZ_SMALL = 1;               // monflag.h:178
+const MZ_MEDIUM = 2;              // monflag.h:179
+const MZ_LARGE = 3;               // monflag.h:181
+
+// include/monflag.h, mvitals mvflags bits.
+const G_GENOD = 0x02;             // monflag.h:209
+const G_EXTINCT = 0x01;           // monflag.h:210
+
+// include/defsym.h MONSYM() rows, monster class letters.
+const S_ANT = 1;                  // defsym.h:295
+const S_EYE = 5;                  // defsym.h:299
+const S_KOP = 37;                 // defsym.h:338
+
+// include/monattk.h, attack and damage types.
+const AD_ANY = -1;                // monattk.h:41, dmgtype wildcard
+const AD_DRST = 7;                // monattk.h:49
+const AD_RUST = 24;               // monattk.h:66
+const AD_RBRE = 242;              // monattk.h:89
+const AT_BREA = 12;               // monattk.h:22
+const AT_WEAP = 254;              // monattk.h:28
+
+// include/prop.h, property numbers and worn-equipment slot bits.
+const FIRE_RES = 1;               // prop.h:15
+const POISON_RES = 6;             // prop.h:20
+const ACID_RES = 7;               // prop.h:21
+const W_ARMC = 0x00000002;        // prop.h:102, cloak slot
+const W_RINGL = 0x00020000;       // prop.h:118, left-ring slot
+
+// include/trap.h, enum trap_types.
+const ALL_TRAPS = -1;             // trap.h:59
+const NO_TRAP = 0;                // trap.h:60
+const ARROW_TRAP = 1;             // trap.h:61
 
 // Source callers use -1 when no monster-name gender has been selected yet.
 const UNSPECIFIED_GENDER = -1;
@@ -465,7 +540,7 @@ test('zombie_form follows monster class and race flags', () => {
     assert.equal(zombie_form(), M.NON_PM);
 
     // Kops share the human branch, but its elf test precedes the fallback.
-    assert.equal(zombie_form({ mlet: M.S_KOP, mflags2: M.M2_ELF }),
+    assert.equal(zombie_form({ mlet: S_KOP, mflags2: M2_ELF }),
         M.PM_ELF_ZOMBIE);
 });
 
@@ -477,11 +552,11 @@ test('rider and fixed-gender predicates mirror permonst fields', () => {
     assert.equal(is_rider(state.mons[M.PM_NEWT]), false);
     assert.equal(is_rider(), false);
 
-    assert.equal(is_male({ mflags2: M.M2_MALE }), true);
-    assert.equal(is_male({ mflags2: M.M2_FEMALE }), false);
-    assert.equal(is_female({ mflags2: M.M2_FEMALE }), true);
-    assert.equal(is_female({ mflags2: M.M2_NEUTER }), false);
-    assert.equal(is_neuter({ mflags2: M.M2_NEUTER }), true);
+    assert.equal(is_male({ mflags2: M2_MALE }), true);
+    assert.equal(is_male({ mflags2: M2_FEMALE }), false);
+    assert.equal(is_female({ mflags2: M2_FEMALE }), true);
+    assert.equal(is_female({ mflags2: M2_NEUTER }), false);
+    assert.equal(is_neuter({ mflags2: M2_NEUTER }), true);
     assert.equal(is_neuter({ mflags2: 0 }), false);
     assert.equal(is_male(), false);
     assert.equal(is_female(), false);
@@ -590,39 +665,39 @@ test('dead_species uses the first reverse growth match and fails closed', () => 
 
 test('movement predicates are exact projections of permonst flags', () => {
     const flagCases = [
-        [is_flyer, 'mflags1', M.M1_FLY],
-        [is_clinger, 'mflags1', M.M1_CLING],
-        [is_swimmer, 'mflags1', M.M1_SWIM],
-        [amorphous, 'mflags1', M.M1_AMORPHOUS],
-        [passes_walls, 'mflags1', M.M1_WALLWALK],
-        [tunnels, 'mflags1', M.M1_TUNNEL],
-        [needspick, 'mflags1', M.M1_NEEDPICK],
-        [hides_under, 'mflags1', M.M1_CONCEAL],
-        [is_hider, 'mflags1', M.M1_HIDE],
-        [nohands, 'mflags1', M.M1_NOHANDS],
-        [notake, 'mflags1', M.M1_NOTAKE],
-        [unsolid, 'mflags1', M.M1_UNSOLID],
-        [is_animal, 'mflags1', M.M1_ANIMAL],
-        [slithy, 'mflags1', M.M1_SLITHY],
-        [regenerates, 'mflags1', M.M1_REGEN],
-        [perceives, 'mflags1', M.M1_SEE_INVIS],
-        [can_teleport, 'mflags1', M.M1_TPORT],
-        [is_undead, 'mflags2', M.M2_UNDEAD],
-        [is_were, 'mflags2', M.M2_WERE],
-        [is_demon, 'mflags2', M.M2_DEMON],
-        [is_lord, 'mflags2', M.M2_LORD],
-        [is_prince, 'mflags2', M.M2_PRINCE],
-        [is_human, 'mflags2', M.M2_HUMAN],
-        [is_giant, 'mflags2', M.M2_GIANT],
-        [is_wanderer, 'mflags2', M.M2_WANDER],
-        [strongmonst, 'mflags2', M.M2_STRONG],
-        [throws_rocks, 'mflags2', M.M2_ROCKTHROW],
-        [is_minion, 'mflags2', M.M2_MINION],
-        [likes_gold, 'mflags2', M.M2_GREEDY],
-        [likes_gems, 'mflags2', M.M2_JEWELS],
-        [likes_magic, 'mflags2', M.M2_MAGIC],
-        [is_covetous, 'mflags3', M.M3_COVETOUS],
-        [is_displacer, 'mflags3', M.M3_DISPLACES],
+        [is_flyer, 'mflags1', M1_FLY],
+        [is_clinger, 'mflags1', M1_CLING],
+        [is_swimmer, 'mflags1', M1_SWIM],
+        [amorphous, 'mflags1', M1_AMORPHOUS],
+        [passes_walls, 'mflags1', M1_WALLWALK],
+        [tunnels, 'mflags1', M1_TUNNEL],
+        [needspick, 'mflags1', M1_NEEDPICK],
+        [hides_under, 'mflags1', M1_CONCEAL],
+        [is_hider, 'mflags1', M1_HIDE],
+        [nohands, 'mflags1', M1_NOHANDS],
+        [notake, 'mflags1', M1_NOTAKE],
+        [unsolid, 'mflags1', M1_UNSOLID],
+        [is_animal, 'mflags1', M1_ANIMAL],
+        [slithy, 'mflags1', M1_SLITHY],
+        [regenerates, 'mflags1', M1_REGEN],
+        [perceives, 'mflags1', M1_SEE_INVIS],
+        [can_teleport, 'mflags1', M1_TPORT],
+        [is_undead, 'mflags2', M2_UNDEAD],
+        [is_were, 'mflags2', M2_WERE],
+        [is_demon, 'mflags2', M2_DEMON],
+        [is_lord, 'mflags2', M2_LORD],
+        [is_prince, 'mflags2', M2_PRINCE],
+        [is_human, 'mflags2', M2_HUMAN],
+        [is_giant, 'mflags2', M2_GIANT],
+        [is_wanderer, 'mflags2', M2_WANDER],
+        [strongmonst, 'mflags2', M2_STRONG],
+        [throws_rocks, 'mflags2', M2_ROCKTHROW],
+        [is_minion, 'mflags2', M2_MINION],
+        [likes_gold, 'mflags2', M2_GREEDY],
+        [likes_gems, 'mflags2', M2_JEWELS],
+        [likes_magic, 'mflags2', M2_MAGIC],
+        [is_covetous, 'mflags3', M3_COVETOUS],
+        [is_displacer, 'mflags3', M3_DISPLACES],
     ];
 
     for (const species of M.MONSTER_TEMPLATES) {
@@ -633,13 +708,13 @@ test('movement predicates are exact projections of permonst flags', () => {
                 `${predicate.name}(${species.pmidx})`,
             );
         }
-        assert.equal(haseyes(species), !(species.mflags1 & M.M1_NOEYES));
-        assert.equal(verysmall(species), species.msize < M.MZ_SMALL);
-        assert.equal(bigmonst(species), species.msize >= M.MZ_LARGE);
+        assert.equal(haseyes(species), !(species.mflags1 & M1_NOEYES));
+        assert.equal(verysmall(species), species.msize < MZ_SMALL);
+        assert.equal(bigmonst(species), species.msize >= MZ_LARGE);
         assert.equal(
             likes_objs(species),
-            Boolean(species.mflags2 & M.M2_COLLECT)
-                || species.mattk.some((attack) => attack.aatyp === M.AT_WEAP),
+            Boolean(species.mflags2 & M2_COLLECT)
+                || species.mattk.some((attack) => attack.aatyp === AT_WEAP),
         );
     }
 });
@@ -647,31 +722,31 @@ test('movement predicates are exact projections of permonst flags', () => {
 test('locomotion follows source trait precedence for movement messages', () => {
     const ordinary = {
         mflags1: 0,
-        mlet: M.S_ANT,
+        mlet: S_ANT,
         mmove: 12,
-        msize: M.MZ_MEDIUM,
+        msize: MZ_MEDIUM,
     };
     const form = (overrides, fallback = 'move') => locomotion(
         { ...ordinary, ...overrides },
         fallback,
     );
 
-    assert.equal(form({ mlet: M.S_EYE }), 'float');
-    assert.equal(form({ mflags1: M.M1_FLY }), 'fly');
-    assert.equal(form({ mflags1: M.M1_SLITHY }), 'slither');
-    assert.equal(form({ mflags1: M.M1_AMORPHOUS }), 'ooze');
+    assert.equal(form({ mlet: S_EYE }), 'float');
+    assert.equal(form({ mflags1: M1_FLY }), 'fly');
+    assert.equal(form({ mflags1: M1_SLITHY }), 'slither');
+    assert.equal(form({ mflags1: M1_AMORPHOUS }), 'ooze');
     assert.equal(form({ mmove: 0 }), 'wiggle');
-    assert.equal(form({ mflags1: M.M1_NOLIMBS }), 'crawl');
+    assert.equal(form({ mflags1: M1_NOLIMBS }), 'crawl');
     assert.equal(form({}), 'move');
-    assert.equal(form({ mflags1: M.M1_FLY }, 'Move'), 'Fly');
+    assert.equal(form({ mflags1: M1_FLY }, 'Move'), 'Fly');
 });
 
 test('demon rank and conflict resistance preserve source composition', () => {
     const demonLord = {
-        mflags2: M.M2_DEMON | M.M2_LORD,
+        mflags2: M2_DEMON | M2_LORD,
     };
     const mortalPrince = {
-        mflags2: M.M2_PRINCE,
+        mflags2: M2_PRINCE,
     };
     assert.equal(is_dlord(demonLord), true);
     assert.equal(is_dprince(demonLord), false);
@@ -765,8 +840,8 @@ test('compound movement predicates preserve source special cases', () => {
     assert.equal(likes_lava(species(M.PM_SALAMANDER)), true);
     assert.equal(likes_lava(species(M.PM_FIRE_VORTEX)), false);
 
-    assert.equal(attacktype(species(M.PM_SOLDIER), M.AT_WEAP), true);
-    assert.equal(dmgtype(species(M.PM_RUST_MONSTER), M.AD_RUST), true);
+    assert.equal(attacktype(species(M.PM_SOLDIER), AT_WEAP), true);
+    assert.equal(dmgtype(species(M.PM_RUST_MONSTER), AD_RUST), true);
     assert.equal(noattacks(species(M.PM_GAS_SPORE)), true);
     assert.equal(noattacks(species(M.PM_JACKAL)), false);
 
@@ -791,19 +866,19 @@ test('movement attack, life-state, web, and trap queries match source tables', (
     const state = monsterState();
     const species = (mndx) => state.mons[mndx];
     const poisonBreath = {
-        mattk: [{ aatyp: M.AT_BREA, adtyp: M.AD_DRST }],
+        mattk: [{ aatyp: AT_BREA, adtyp: AD_DRST }],
     };
 
     assert.equal(
-        attacktype_fordmg(poisonBreath, M.AT_BREA, M.AD_DRST),
+        attacktype_fordmg(poisonBreath, AT_BREA, AD_DRST),
         true,
     );
     assert.equal(
-        attacktype_fordmg(poisonBreath, M.AT_BREA, M.AD_ANY),
+        attacktype_fordmg(poisonBreath, AT_BREA, AD_ANY),
         true,
     );
     assert.equal(
-        attacktype_fordmg(poisonBreath, M.AT_BREA, M.AD_RBRE),
+        attacktype_fordmg(poisonBreath, AT_BREA, AD_RBRE),
         false,
     );
 
