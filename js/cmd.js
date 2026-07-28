@@ -24,7 +24,7 @@ import {
     UnsupportedFeatureDescriptionError,
 } from './invent.js';
 import { UnsupportedObjectNameError } from './objnam.js';
-import { selectTtyMenu } from './tty_menu.js';
+import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
 import {
     domove,
     endRunning,
@@ -555,7 +555,15 @@ export async function rhack(key, state = game) {
                 // invent.c display_pickinv() ends its menu with no prompt and
                 // asks select_menu() for PICK_ONE; Escape answers null.
                 menu: (items) => selectTtyMenu(state, {
-                    items,
+                    // add_menu_heading() draws a class heading with
+                    // iflags.menu_headings, which menuTitleStyle() reads.
+                    items: items.map((item) => (item.heading
+                        ? {
+                            ...item,
+                            attr: menuTitleStyle(state).titleAttr,
+                            color: menuTitleStyle(state).titleColor,
+                        }
+                        : item)),
                     how: PICK_ONE,
                     cancelValue: null,
                     overlay: state.iflags?.menu_overlay !== false,

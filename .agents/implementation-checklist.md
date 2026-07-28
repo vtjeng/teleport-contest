@@ -41,13 +41,14 @@ As defined in `.agents/implementation-checklist-template.md`.
 | --- | --- | --- | --- | --- | --- | --- |
 | `ddoinv()` and `dispinv_with_action()` with `lets == NULL` | Reached by `i` with no prefix; `menumode` is TRUE because `len != 1` | `js/invent.js` | Returns `ECMD_OK`, so no game time | Ported at this head; a selected letter stops rather than reaching `itemactions()` | done | None |
 | `display_inventory()` | Called with `want_reply` TRUE; its `cmdq_pop()` branch cannot fire while no command queue is ported | `js/invent.js` | No state change | Ported at this head | done | None |
-| `display_pickinv()` menu construction | The main path: builds the menu window, one entry per object, with class headers when `flags.sortpack` is set | `js/invent.js`, drawing through `js/tty_menu.js` | Screen output only | Ported at this head, but no session reaches the menu yet because `doname()` stops first | missing | Nothing here; the block is `doname()` below |
-| `doname()` worn and wielded suffixes | Every starting character wears armor and wields a weapon, so the first entry the menu formats needs `(being worn)` or `(weapon in hand)` | `js/objnam.js` | Text only | All three sessions now stop exactly here; `objnam.c:1382` onward and the `W_WEP` block at `objnam.c:1561` | missing | Port the armor, weapon, alternate-weapon, and quiver suffixes; this is what makes the menu reachable |
+| `display_pickinv()` menu construction | The main path: builds the menu window, one entry per object, with class headers when `flags.sortpack` is set | `js/invent.js`, drawing through `js/tty_menu.js` | Screen output only | Five fresh recordings match C cell for cell across three roles, a repeated menu, and a game with a pet | done | None |
+| `doname()` worn and wielded suffixes | Every starting character wears armor and wields a weapon | `js/objnam.js` `wornSuffix()` | Text only | Ported: worn amulets, armor, and tools; the wielded and alternate phrasings; the alternate weapon; and all three quiver phrases. Five fresh recordings match C cell for cell | done | None |
+| `doname()` container contents and tin naming | A Rogue starts with a sack and a Tourist with tins, which are the two remaining stops on the way to the menu | `js/objnam.js` | Text only | The three sessions now stop on `known container state` and `identified tin contents` | missing | Port `Has_contents()`'s " containing N items" and the identified-tin name |
 | `sortloot()` ordering | Traced. `options.c:7208` sets `flags.sortloot = 'l'`, and `display_pickinv()` compares against `'f'`, so the flags are `SORTLOOT_INVLET`; `optlist.h:687` defaults `sortpack` On, adding `SORTLOOT_PACK`. The menu loop then walks `flags.inv_order`, whose default is `def_inv_order[]` at `options.c:118`, and lists each class in invlet order | None | Order decides the screen | `options.c:118`, `options.c:7208`, `optlist.h:687`, `invent.c:3175` | missing | Port the class walk with that order; a full `sortloot()` is not needed for `SORTLOOT_INVLET` |
 | Empty inventory, `Not carrying anything` | Cannot occur for a starting character, which always carries items | None | One message rather than a menu | `invent.c:3066` | cannot-occur | None |
 | Single-item inventory shortcut | `n == 1 && !force_invmenu && !menu_requested`; unreachable from `i` because `menumode` forces the menu | None | Would print one line instead | `invent.c:3149` | cannot-occur | None |
 | `!flags.invlet_constant` reassignment | `invlet_constant` defaults on, so `reassign()` does not run | None | Would renumber every invlet | `invent.c:3146` | cannot-occur | None |
-| Escape dismissal | The three sessions send Escape; `select_menu()` returns 0 and `display_inventory()` returns `'\033'` | `js/tty_menu.js` `selectTtyMenu()` and `dismissTtyMenu()` | Restores the map screen | `invent.c` `dispinv_with_action()`; the menu spec `js/tty_menu.js` takes is `{title, items, how}`, and an item without a selector renders as a plain line, which is what a class header needs | undecided | Decide by fresh differential rather than by inspection: the existing owner serves the role-filter menu, whose title style and paging may differ from the inventory menu's |
+| Escape dismissal | The three sessions send Escape; `select_menu()` returns 0 and `display_inventory()` returns `'\033'` | `js/tty_menu.js` `selectTtyMenu()` and `dismissTtyMenu()` | Restores the map screen | Settled by fresh differential: the existing owner restores exactly the cells C redraws, given a title-less spec and headings styled with `iflags.menu_headings` | done | None |
 | `itemactions()` after a letter | Excluded; no development session selects an item | None | Would consume time | Session census at `4b07735` | later | None |
 
 ## Missing work by owner
@@ -69,14 +70,15 @@ As defined in `.agents/implementation-checklist-template.md`.
   committed and its stop is covered by `scripts/cmd.test.mjs`.
 - Full suite and generated checks: 1,718 tests, four generated-data checks,
   and `check:namespace-members` pass with the chain in place.
-- Fresh differentials: pending. Plan at least four: a starting character of
-  two roles, since role decides the starting inventory; a game where `i` is
-  pressed twice; and one where Escape is replaced by a second `i`, to check
-  that the second menu redraws identically.
+- Fresh differentials: five recorded and matching, three of them checked into
+  `scripts/run-no-time-commands.mjs`, which now matches 24,563 PRNG calls and
+  63 screens and cursors across ten segments. They cover a Valkyrie, a
+  Tourist, a Ranger with a quiver and an alternate weapon, two menus in a row,
+  and a game with a pet on the level.
 - Development score: 273 screens at the starting commit.
 
 ## Readiness
 
-Not ready. The chain from `i` to the menu is ported and fails closed while
-`doname()` cannot format a worn item, so no session reaches the menu and no
-fresh differential of the menu exists yet.
+Not ready. The menu itself matches C across five fresh recordings, but no
+development session reaches it: a Rogue's sack and a Tourist's tins stop
+`doname()` first. Those two branches are the remaining work.

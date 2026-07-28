@@ -11,8 +11,11 @@ import { loadNoTimeCommandsRecipe } from './run-no-time-commands.mjs';
 // setting context.move, which is the property the assertions below measure.
 const UNBOUND_BYTES = new Set([...' %\'~]M}{']);
 
-// invent.c dolook()'s default binding.
+// invent.c dolook()'s and ddoinv()'s default bindings, and the Escape that
+// dismisses a menu.
 const LOOK_KEY = ':';
+const INVENTORY_KEY = 'i';
+const ESCAPE_KEY = '\u001b';
 
 function topLine() {
     return game.nhDisplay.grid[0]
@@ -20,7 +23,8 @@ function topLine() {
 }
 
 function noTimeKey(key) {
-    return UNBOUND_BYTES.has(key) || key === LOOK_KEY;
+    return UNBOUND_BYTES.has(key) || key === LOOK_KEY
+        || key === INVENTORY_KEY || key === ESCAPE_KEY;
 }
 
 function stripNoTime(moves) {
@@ -30,18 +34,16 @@ function stripNoTime(moves) {
 test('no-time-command matrix contains only source-selected inputs', () => {
     const recipe = loadNoTimeCommandsRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 7);
+    assert.equal(recipe.segments.length, 10);
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [11, 10, 7, 5, 4, 3, 2],
+        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
         assert.ok(
-            [...segment.moves].some(
-                (key) => UNBOUND_BYTES.has(key) || key === LOOK_KEY,
-            ),
+            [...segment.moves].some(noTimeKey),
             'every segment exercises a command that takes no game time',
         );
     }
@@ -55,7 +57,13 @@ test('no-time-command matrix contains only source-selected inputs', () => {
     );
     assert.equal(
         recipe.segments.filter(({ moves }) => moves.includes(LOOK_KEY)).length,
-        4,
+        5,
+    );
+    assert.equal(
+        recipe.segments.filter(
+            ({ moves }) => moves.includes(INVENTORY_KEY),
+        ).length,
+        3,
     );
 });
 

@@ -1700,15 +1700,15 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
 
 test('the inventory command stops before drawing an unformattable item',
     async () => {
-    // Every starting character wears armor, and doname()'s "(being worn)"
-    // suffix is not ported, so the display chain stops while formatting.
-    // The stop has to leave the screen and the keystroke exactly as the
-    // admission seam would.
+    // A Rogue starts with a sack, and doname()'s container-contents branch is
+    // not ported, so the display chain stops while formatting that entry. The
+    // stop has to leave the screen and the keystroke exactly as the admission
+    // seam would.
     const replay = await runSegment({
         seed: 840022,
         datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:InventoryStop,role:Valkyrie,'
-            + 'race:human,gender:female,align:neutral,!legacy,'
+        nethackrc: 'OPTIONS=name:InventoryStop,role:Rogue,'
+            + 'race:human,gender:female,align:chaotic,!legacy,'
             + '!tutorial,!splash_screen,pettype:none',
         moves: ' ',
     });
@@ -1721,7 +1721,7 @@ test('the inventory command stops before drawing an unformattable item',
         moveloop_core(),
         (error) => error instanceof UnsupportedHeroCommandBoundaryError
             && error.key === key
-            && /worn-object suffix/u.test(error.message),
+            && /known container state/u.test(error.message),
     );
 
     assert.equal(game.context.move, 0);

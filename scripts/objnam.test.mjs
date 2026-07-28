@@ -12,6 +12,7 @@ import {
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
     ROOM,
+    W_RINGR,
     W_WEP,
 } from '../js/const.js';
 import { look_here } from '../js/invent.js';
@@ -64,6 +65,7 @@ import {
     TALLOW_CANDLE,
     WAN_SLEEP,
     objects_globals_init,
+    RIN_PROTECTION,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 
@@ -544,15 +546,18 @@ test('unsupported naming branches fail before discovery or state changes', () =>
     assert.equal(quoted.dknown, false);
     assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
 
-    const worn = objectOf(state, DART, { owornmask: W_WEP });
-    assert.throws(
-        () => donameFresh(worn, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'worn-object suffix',
-    );
-    assert.equal(worn.dknown, false);
 
     state.iflags.pricequotes = false;
+
+    // A worn ring is still refused: doname() names the hand it is on, which
+    // needs the ring branch of its class switch.
+    const wornRing = objectOf(state, RIN_PROTECTION, { owornmask: W_RINGR });
+    assert.throws(
+        () => donameFresh(wornRing, state),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'worn-ring suffix',
+    );
+    assert.equal(wornRing.dknown, false);
     state.objects[WAN_SLEEP].oc_uname = 'napper';
     const calledWand = objectOf(state, WAN_SLEEP);
     assert.throws(

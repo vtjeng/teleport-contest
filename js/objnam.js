@@ -3,12 +3,17 @@
 
 import { find_artifact, permapoisoned } from './artifacts.js';
 import {
-    BLINDED, CORPSTAT_HISTORIC, NON_PM,
+    BLINDED, CORPSTAT_HISTORIC, HAND, NON_PM, P_BOW,
+    W_AMUL, W_ARMG, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
+    W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
 import {
     fruit_from_indx, makeplural, makesingular, matching_artifact_fruit,
 } from './fruit.js';
 import { lowc, strcasecpy } from './hacklib.js';
+import { body_part } from './polyself.js';
+import { RIGHT_HANDED } from './u_init.js';
+import { bimanual, is_ammo, is_missile } from './worn.js';
 import { PM_CLERIC, PM_SAMURAI } from './monsters.js';
 import { observe_object } from './o_init.js';
 import {
@@ -18,6 +23,7 @@ import {
 } from './obj.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
 import {
+    AKLYS,
     ALCHEMY_SMOCK, AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, ARM_BOOTS,
     ARM_GLOVES, ARM_HELM, ARM_SHIELD, BALL_CLASS,
     BLACK_OPAL, BOULDER, BRASS_LANTERN, CANDELABRUM_OF_INVOCATION, CHAIN_CLASS,
@@ -174,8 +180,17 @@ function preflightObjectName(obj, type, state, forDoname = false) {
         unsupported('shop price suffix', obj);
     if (state.iflags?.pricequotes && !type.oc_name_known)
         unsupported('price quote suffix', obj);
-    if (obj.owornmask)
-        unsupported('worn-object suffix', obj);
+    if (obj.owornmask & (W_RING | W_RINGL | W_RINGR))
+        unsupported('worn-ring suffix', obj);
+    if (obj.owornmask && state.u?.twoweap)
+        unsupported('two-weapon suffix', obj);
+    if ((obj.owornmask & W_WEP) && obj.otyp === AKLYS)
+        unsupported('tethered weapon suffix', obj);
+    if ((obj.owornmask & W_ARMOR) && (obj === state.u?.uskin
+        || obj.owornmask & W_ARMG))
+        unsupported('embedded or gloved armor suffix', obj);
+    if (obj.owornmask && obj.lamplit)
+        unsupported('lit worn-object suffix', obj);
     if ((isContainer(obj) || obj.otyp === STATUE)
         && (obj.cknown || obj.lknown || obj.tknown)) {
         unsupported('known container state', obj);
@@ -576,6 +591,60 @@ function corpseDoname(obj, modifiers, state) {
     const body = [...modifiers, corpse].join(' ');
     return articleName(body);
 }
+// C ref: objnam.c doname(), the owornmask suffixes. Amulets, armor, and worn
+// tools are answered inside its class switch; the wielded, alternate-weapon,
+// and quiver phrases follow the charge and lit text, which is the order the
+// port assembles them in too. doffing() and donning() cannot hold here,
+// because no Wear or Take-off is in progress while a name is formatted.
+function wornSuffix(obj, type, state) {
+    const mask = obj.owornmask ?? 0;
+    if (!mask) return '';
+    const classForSuffix = isWeptool(obj, state) ? WEAPON_CLASS : obj.oclass;
+    let suffix = '';
+    if ((classForSuffix === AMULET_CLASS && (mask & W_AMUL))
+        || (classForSuffix === ARMOR_CLASS && (mask & W_ARMOR))
+        || (classForSuffix === TOOL_CLASS && (mask & (W_TOOL | W_SADDLE)))) {
+        suffix += ' (being worn)';
+    }
+    if (mask & W_WEP) {
+        // C uses the alternate phrasing for stacks, for wielded ammo and
+        // missiles, and for non-weapons that are not weapon-tools.
+        const alternate = obj.quan !== 1
+            || (obj.oclass === WEAPON_CLASS
+                ? (is_ammo(obj, state) || is_missile(obj, state))
+                : !isWeptool(obj, state));
+        if (alternate) {
+            suffix += ' (wielded)';
+        } else {
+            const hand = body_part(HAND, state.youmonst);
+            const hands = bimanual(obj, state)
+                ? makeplural(hand)
+                : `${state.u.uhandedness === RIGHT_HANDED ? 'right' : 'left'
+                } ${hand}`;
+            suffix += ` (weapon in ${hands})`;
+        }
+    }
+    if (mask & W_SWAPWEP)
+        suffix += ` (alternate weapon${obj.quan === 1 ? '' : 's'}; not wielded)`;
+    if (mask & W_QUIVER) {
+        // C's Qtyp: 1 is bow ammo, 2 is anything small enough for the pouch,
+        // and 3 is everything else.
+        let qtyp;
+        if (obj.oclass === WEAPON_CLASS) {
+            qtyp = !is_ammo(obj, state) ? 3
+                : (type.oc_skill !== -P_BOW) ? 2 : 1;
+        } else if ([RING_CLASS, AMULET_CLASS, WAND_CLASS, COIN_CLASS,
+            GEM_CLASS].includes(obj.oclass)) {
+            qtyp = 2;
+        } else {
+            qtyp = 3;
+        }
+        suffix += ` (${qtyp === 1 ? 'in quiver'
+            : qtyp === 2 ? 'in quiver pouch' : 'at the ready'})`;
+    }
+    return suffix;
+}
+
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and
 // lit-candle branches stop before xname() can mutate discovery state.
 export function donameFresh(obj, state) {
@@ -642,6 +711,7 @@ export function donameFresh(obj, state) {
         || (obj.oclass === TOOL_CLASS && type.oc_charged)) {
         base += chargedSuffix(obj, type);
     }
+    base += wornSuffix(obj, type, state);
     const words = [...modifiers, base].join(' ');
     if (quantity !== 1)
         return `${quantity} ${words}`;

@@ -112,6 +112,13 @@ function isSpecies(species, pmidx) {
     return species?.pmidx === pmidx;
 }
 
+// C ref: polyself.c body_part(). The hero's own anatomy, which is
+// mbodypart() applied to youmonst. The caller supplies youmonst because this
+// file holds no game-state import.
+export function body_part(part, youmonst) {
+    return mbodypart(youmonst, part);
+}
+
 export function mbodypart(monster, part) {
     if (part <= NO_PART || part > STOMACH) return 'mystery part';
     const species = monster?.data;

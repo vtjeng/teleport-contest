@@ -118,6 +118,45 @@ export function loadNoTimeCommandsRecipe() {
                 // describes after the engraving read.
                 moves: 'l:',
             },
+            // The inventory display, which also consumes no game time. Role
+            // decides the starting pack, so each of these formats a different
+            // set of doname() suffixes.
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'Unbound',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Worn armor and a wielded long sword, dismissed with Escape.
+                moves: 'i\u001b.',
+            },
+            {
+                seed: 8820002,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'InvRanger',
+                    role: 'Ranger',
+                    gender: 'male',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Ranger carries quivered arrows and an alternate weapon,
+                // which are the other two owornmask phrases.
+                moves: 'i\u001b.',
+            },
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'Unbound',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Two menus in a row, then a look, so a redrawn menu and the
+                // restored map are both compared.
+                moves: 'i\u001bi\u001b:',
+            },
         ],
     }, 'no-time commands recipe');
 }
