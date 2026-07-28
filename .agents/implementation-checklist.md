@@ -34,30 +34,32 @@ cycle's own fixes introduced. The full report is at
 
 ## Validation
 
-- Commit checked: pending
-- Full suite and generated checks: 1,690 tests, four generated-data checks, and
-  `check:namespace-members` pass at `0652be7`.
-- Fresh 12-case differential: 83,269 PRNG calls and all 2,351 screens match.
-- Development score: 98,385 PRNG values, 250 screens, 250 cursors, unchanged.
-- Quality check: pending for the closing commit.
+- Commit checked: 4fc57d807d8e780714c2a3725d1fb8b7eabca92c
+- Full suite and generated checks: 1,692 tests, four generated-data checks, and
+  `check:namespace-members` pass at `4fc57d8`.
+- Fresh differential: `node scripts/run-repeated-simple-commands.mjs` records
+  the checked-in 17-segment matrix against C and matches 97,771 PRNG calls,
+  2,367 screens, and 2,367 cursors.
+- Development score: 98,436 PRNG values, 254 screens, 254 cursors, raised from
+  250 screens by the two stairs and doorway commits.
+- Quality check: `npm run quality -- --check` reports a clear review gate at
+  `4fc57d8`, with four areas at the advisory checkpoint and no unassigned
+  `js/` file.
 
 ## Readiness
 
-Current mode: Implementation
+Current mode: Ready for audit
 
-Reason: all fifteen findings of the third pass are closed. Every new oracle was
-checked by re-applying the mutation it is meant to catch.
+Reason: all fifteen findings of the third pass are closed, and every new oracle
+was checked by re-applying the mutation it is meant to catch. `a0d6283` and
+`10613b8`, which admit STAIRS and non-blocking doorways as hero destinations,
+are traced to `test_move()` and covered by the three stair and two doorway
+segments of the checked-in matrix.
 
-What remains before this slice can close is a full correctness pass over the
-expanded range. It must cover the two commits that admit STAIRS and
-non-blocking doorways, which raised the development score from 250 to 254
-screens and 98,385 to 98,436 PRNG values, and which sit past the per-slice
-review window.
-
-The slice also grew: `a0d6283` and `10613b8` admit STAIRS and non-blocking
-doorways as hero destinations, raising the development score from 250 to 254
-screens and 98,385 to 98,436 PRNG values. That work is unreviewed and sits past
-the per-slice review window, so the next full correctness pass must cover it.
+The pass reviews `e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`,
+which is the whole slice since the last recorded frontier. That range covers
+both the third cycle's fixes and the stairs and doorway commits, which sit past
+the per-slice review window.
 
 Note for the next cycle: two consecutive passes have found that this slice's
 fixes introduce new defects at roughly a third the rate they close them. The
