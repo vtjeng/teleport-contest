@@ -265,6 +265,24 @@ six sessions) and search (`s`, four sessions) follow; `dosearch0(1)` is already
 ported, and the explicit command needs only `mfind0()` and
 `unmap_invisible()` plus the `aflag == 0` branches.
 
+Source tracing for that slice, so it can start from the C rather than from the
+stop message:
+
+- `hack.c:test_move()` already admits both destinations. `STAIRS` is neither
+  `IS_OBSTRUCTED` nor `IS_DOOR`, so it falls through untouched. A `DOOR` that
+  is not `closed_door()` reaches only the `testdiag` arm, which rejects a
+  *diagonal* move into an intact doorway and allows an orthogonal one. So the
+  work is not in admission; it is in what follows the move.
+- The stairs message comes from `invent.c:dfeature_at()`, which delegates to
+  `stairs.c:stairs_description()` when a `stairway` is at the square, and is
+  printed by `invent.c:look_here()`. The port already owns the single-object
+  floor description, so this extends an existing owner rather than adding one.
+- A doorless doorway needs no message; the open-door case shares the same
+  `look_here()` path through `dfeature_at()`'s `IS_DOOR` arm.
+- Watch `context.door_opened`, which `test_move()` clears on entry and the
+  closed-door branch sets. It stays out of scope while closed doors do, but it
+  is the seam where that future work attaches.
+
 **Explicit future exploration work, outside the completed goal:**
 
 - Hero or monster combat, including attacks, retaliation, monster-initiated
