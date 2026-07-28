@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import {
@@ -15,7 +14,6 @@ import {
     CLAIRVOYANT,
     DUST,
     EXT_ENCUMBER,
-    ESCAPED,
     FAST,
     FLYING,
     FROMOUTSIDE,
@@ -76,12 +74,6 @@ function movementState(speed = 12, umovement = 0) {
         youmonst: { data: { mmove: speed } },
         context: {},
     };
-}
-
-function digest(value) {
-    return createHash('sha256')
-        .update(JSON.stringify(value))
-        .digest('hex');
 }
 
 function randomMonsterTurnState({ demigod = false, depth = 1 } = {}) {
@@ -770,68 +762,37 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         game.nhDisplay.pushKey(' '.charCodeAt(0));
         game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-        await moveloop_core();
+        // allmain.c reaches done(ESCAPED) here, which is not ported. The turn
+        // must stop rather than invent the disclosure, summary, and topten
+        // frames that C's nh_terminate() capture would show.
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedTurnBoundaryError
+                && /done\(ESCAPED\)/u.test(error.message)
+            ),
+        );
 
-        assert.equal(game.moves, 1000000000);
+        // The hero is burdened, so advanceElapsedTurn supplies advanceRound
+        // and the dry run reaches the limit first. The rejection is therefore
+        // atomic: the live turn never starts, so moves does not even reach
+        // 1,000,000,000 and no key is consumed.
+        assert.equal(game.moves, 999999999);
         assert.equal(game.hero_seq, priorHeroSequence);
         assert.equal(game.u.uhunger, priorHunger);
-        assert.equal(game._pending_message, 'The dungeon capitulates.');
-        assert.equal(game.nhDisplay.toplines, 'The dungeon capitulates.');
-        assert.equal(game.nhDisplay.waitEpoch, waitEpoch + 2);
-        assert.equal(replay.getScreens().length, terminalScreenCount + 3);
-        assert.equal(replay.getCursors().length, terminalCursorCount + 3);
-        assert.deepEqual(
-            replay.getCursors().at(-1),
-            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow, 1],
-        );
-        assert.deepEqual(
-            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
-            [game.u.ux - 1, game.u.uy + 1],
-        );
-        assert.equal(
-            game.nhDisplay.grid[0]
-                .slice(0, 'The dungeon capitulates.'.length)
-                .map((cell) => cell.ch)
-                .join(''),
+        assert.equal(game.nhDisplay.waitEpoch, waitEpoch);
+        assert.equal(replay.getScreens().length, terminalScreenCount);
+        assert.equal(replay.getCursors().length, terminalCursorCount);
+        // "The dungeon capitulates." is urgent_pline() output belonging to the
+        // unported branch, so it must never reach the topline.
+        assert.equal(game._pending_message, 'A prior message.');
+        assert.notEqual(
+            game.nhDisplay.toplines,
             'The dungeon capitulates.',
         );
+        // The once-per-turn upkeep beyond the limit never ran.
         assert.equal(game.level.regions.includes(laterRegion), true);
-        assert.equal(game.program_state.gameover, true);
-        assert.equal(game.end.how, ESCAPED);
-
-        await moveloop_core();
-        assert.equal(replay.getScreens().length, terminalScreenCount + 3);
-        assert.equal(replay.getCursors().length, terminalCursorCount + 3);
-        // Recorder patch 006 captures a final frame with no pending key, and
-        // the assertions above only reach the topline text and the cursor.
-        // These digests cover every one of the 24x80 cells, including color
-        // and attribute, so a regression anywhere else in the capitulation
-        // frame fails here. Both were produced by this test at the commit
-        // that added them; regenerate with digest(...) after confirming
-        // against a fresh C recording that the frame really changed.
-        assert.equal(
-            digest(JSON.parse(replay.getScreens().at(-1))),
-            '1d139e145ce9d421cf6417ce48ae0095856e0b1ef2026cd2691799543f9b3554',
-        );
-        // The three-frame digest is the stale-frame discriminator: the single
-        // digest above still passes if the recorder repeats one frame three
-        // times, this one does not.
-        assert.equal(
-            digest(replay.getScreens().slice(-3).map(JSON.parse)),
-            'eb13b5ba8d3b4565041e9cc2b4f406dd6710517c0d3a822321b6632ac586abfe',
-        );
-        // The three captures own their cursors independently of the frames.
-        // Each column is the end of that frame's topline: 24 ends
-        // "A prior message.--More--", 64 ends "Your movements are slowed
-        // slightly because of your load.--More--" (the encumber_msg() the
-        // hero-time block now runs), and 43 leaves the topline for the hero
-        // at (u.ux - 1, u.uy + 1), the position asserted above. All three
-        // captures report a visible cursor (1).
-        assert.deepEqual(replay.getCursors().slice(-3), [
-            [24, 0, 1],
-            [64, 0, 1],
-            [43, 5, 1],
-        ]);
+        assert.notEqual(game.program_state?.gameover, true);
     }));
 
 test('hunger weakness drives the next live multi-allocation path', async () => {

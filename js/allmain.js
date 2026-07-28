@@ -11,7 +11,6 @@ import {
     CLAIRVOYANT,
     COLNO,
     EXT_ENCUMBER,
-    ESCAPED,
     FAST,
     HVY_ENCUMBER,
     INTRINSIC,
@@ -429,6 +428,12 @@ async function finishElapsedTurn(
     random,
     { planning = false } = {},
 ) {
+    // C ref: allmain.c moveloop_core()'s mvl_wtcap, taken once after the
+    // monster loop. C reuses this snapshot only for u_calc_moveamt(),
+    // regen_hp(), regen_pw(), and the overexertion check. eat.c gethungry()
+    // and attrib.c exerper() each call near_capacity() themselves, so they get
+    // a live evaluator below rather than this value, which nh_timeout() and
+    // the hunger transition can already have invalidated.
     const wtcap = near_capacity(state);
     const regionEnv = planning ? null : regionEffectEnv(state, random);
     state.gw.were_changes = 0;
@@ -457,22 +462,17 @@ async function finishElapsedTurn(
 
     state.moves++;
     if (state.moves >= 1000000000) {
+        // C ref: allmain.c moveloop_core() runs display_nhwindow(WIN_MESSAGE,
+        // TRUE), then urgent_pline("The dungeon capitulates."), then
+        // done(ESCAPED). Only the first is ported. done() drives the
+        // disclosure prompts, the "You escaped from the dungeon" summary, and
+        // topten, and recorder patch 006 writes its single final capture
+        // inside nh_terminate() after topten has painted. Printing the pline
+        // and capturing a frame here would invent a boundary no C run
+        // produces, so stop after the dismissal C performs first.
         if (!planning && state._pending_message)
             await dismissPendingTtyMessage(state);
-        if (!planning) {
-            await ttyPline('The dungeon capitulates.', state);
-            await flush_screen(1);
-            // Recorder patch 006 captures one final boundary from end.c when
-            // no later nhgetch() exists. Reuse the installed capture hook
-            // without requesting or consuming another key.
-            if (typeof state._preNhgetchHook === 'function')
-                await state._preNhgetchHook();
-        }
-        state.program_state ??= {};
-        state.program_state.gameover = true;
-        state.end ??= {};
-        state.end.how = ESCAPED;
-        return true;
+        elapsedTurnBoundary('game end through done(ESCAPED)');
     }
     state.hero_seq = state.moves * 8;
     if (state.flags?.time && !state.context?.run) {
@@ -503,7 +503,9 @@ async function finishElapsedTurn(
     });
     await gethungry(state, {
         random,
-        nearCapacity: () => wtcap,
+        // eat.c gethungry() calls near_capacity() live at its accessory-time
+        // branch, before newuhs() can lower capacity.
+        nearCapacity: () => near_capacity(state),
         message: planning ? async () => {} : ttyPline,
         endRunning,
         statusRefresh: planning ? async () => {} : () => bot(),
@@ -513,7 +515,10 @@ async function finishElapsedTurn(
     // and engraving wear.
     await exerchk(state, {
         random,
-        nearCapacity: () => wtcap,
+        // attrib.c exerper() switches on near_capacity() live, after
+        // gethungry() has run. A WEAK transition lowers weight_cap() through
+        // ATEMP(A_STR), so the snapshot above can be a whole band too low.
+        nearCapacity: () => near_capacity(state),
         encumberMessage: planning
             ? (subject) => encumber_msg(
                 subject,
