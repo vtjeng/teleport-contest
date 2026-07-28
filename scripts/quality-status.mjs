@@ -61,7 +61,34 @@ function validateExactNonnegativeCounts(value, fields, label) {
   }
 }
 
-export function validateAuditMetrics(metrics) {
+// An audit's rejections are the only record of why a proposed finding was
+// turned down. Without them the next audit re-derives the same claim and the
+// operator has to reconstruct the counter-evidence. Store each rejection with
+// its wording intact, including any condition for reopening it.
+function validateAuditRejections(rejections, rejectedCount) {
+  if (!Array.isArray(rejections)) fail('auditMetrics.rejections must be an array');
+  if (rejections.length !== rejectedCount) {
+    fail(
+      `auditMetrics.rejections lists ${rejections.length} findings but the `
+        + `rejected count is ${rejectedCount}`,
+    );
+  }
+  for (const [index, rejection] of rejections.entries()) {
+    const label = `auditMetrics.rejections[${index}]`;
+    if (!rejection || typeof rejection !== 'object' || Array.isArray(rejection)) {
+      fail(`${label} must be an object`);
+    }
+    if (typeof rejection.summary !== 'string' || rejection.summary.trim().length === 0) {
+      fail(`${label}.summary must be nonempty`);
+    }
+    if (typeof rejection.counterEvidence !== 'string'
+        || rejection.counterEvidence.trim().length === 0) {
+      fail(`${label}.counterEvidence must be nonempty`);
+    }
+  }
+}
+
+export function validateAuditMetrics(metrics, { requireRejections = false } = {}) {
   if (!metrics || typeof metrics !== 'object' || Array.isArray(metrics)) {
     fail('auditMetrics must be an object');
   }
@@ -133,6 +160,15 @@ export function validateAuditMetrics(metrics) {
   }
   if (appliedProduction > counts.applied || deferredProduction > counts.deferred) {
     fail('auditMetrics production resolutions exceed the overall resolution counts');
+  }
+
+  if (metrics.rejections !== undefined) {
+    validateAuditRejections(metrics.rejections, counts.rejected);
+  } else if (requireRejections && counts.rejected > 0) {
+    fail(
+      `auditMetrics.rejections must record all ${counts.rejected} rejected `
+        + 'findings with their counter-evidence',
+    );
   }
   return metrics;
 }
@@ -881,7 +917,7 @@ function auditMetricsFromOptions(options) {
   } catch (error) {
     fail(`audit metrics must be valid JSON: ${error.message}`);
   }
-  return validateAuditMetrics(metrics);
+  return validateAuditMetrics(metrics, { requireRejections: true });
 }
 
 function preparePass(kind, options) {
@@ -984,7 +1020,10 @@ function printHelp() {
     [--head <commit>] [--dry-run]
 
 Status is derived from Git. A recorded pass advances each selected area's
-frontier from its prior exact commit through --head (HEAD by default).`);
+frontier from its prior exact commit through --head (HEAD by default).
+
+Audit metrics must list one rejections entry, with summary and counterEvidence,
+for every rejected finding.`);
 }
 
 function main(argv) {

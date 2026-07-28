@@ -331,6 +331,14 @@ state. Simplification must preserve PRNG and evaluation order.
   counts; confirmed totals by production, tests, clarity, simplification, and
   other categories; and each confirmed production defect with every finder that
   reported it. Preserve unique finder attribution.
+- Give every rejected finding a `rejections` entry in `auditMetrics`, with a
+  `summary` of the claim and the `counterEvidence` that settled it. The
+  recorder refuses a pass whose entry count differs from the rejected count.
+  Write any condition for reopening into that text, such as "do not reopen
+  without a source-reachable input and a diff-causal line", and keep the
+  wording when copying it forward. The ledger is where the next audit looks to
+  avoid re-deriving a claim that was already answered; a working note that is
+  deleted with its slice is not.
 - A full correctness record also names the exact range, enabled optional
   finders, fixes, deferrals, unverified judgments, notable rejections and
   counter-evidence, warnings, and validation. Record clarity separately only

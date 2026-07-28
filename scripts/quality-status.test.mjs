@@ -275,6 +275,57 @@ test('structured audit metrics preserve categories and finder attribution', () =
   );
 });
 
+test('rejected findings are stored with their counter-evidence verbatim', () => {
+  // One rejected finding, so a rejections list of any other length is wrong.
+  const metrics = {
+    ...EMPTY_AUDIT_METRICS,
+    counts: { ...EMPTY_AUDIT_METRICS.counts, raw: 1, deduplicated: 1, rejected: 1 },
+    rejections: [{
+      summary: 'add an elapsed-time preflight before the turn loop',
+      // Conditional wording an operator writes so a later change that makes the
+      // input reachable can reopen the finding. It must survive unaltered.
+      counterEvidence: 'no source-reachable input reaches it; do not reopen '
+        + 'without a source-reachable input and a diff-causal line',
+    }],
+  };
+
+  assert.equal(validateAuditMetrics(metrics), metrics);
+  assert.match(
+    metrics.rejections[0].counterEvidence,
+    /do not reopen without a source-reachable input and a diff-causal line$/,
+  );
+  assert.throws(
+    () => validateAuditMetrics({ ...metrics, rejections: [] }),
+    /rejections lists 0 findings but the rejected count is 1/,
+  );
+  assert.throws(
+    () => validateAuditMetrics({
+      ...metrics,
+      rejections: [{ summary: 'add an elapsed-time preflight', counterEvidence: '  ' }],
+    }),
+    /rejections\[0\]\.counterEvidence must be nonempty/,
+  );
+});
+
+test('recording a pass requires a rejections entry for every rejected finding', () => {
+  // Two rejected findings with no rejections list: valid for a pass already in
+  // the ledger, refused when recording a new one.
+  const metrics = {
+    ...EMPTY_AUDIT_METRICS,
+    counts: { ...EMPTY_AUDIT_METRICS.counts, raw: 2, deduplicated: 2, rejected: 2 },
+  };
+
+  assert.doesNotThrow(() => validateAuditMetrics(metrics));
+  assert.throws(
+    () => validateAuditMetrics(metrics, { requireRejections: true }),
+    /rejections must record all 2 rejected findings/,
+  );
+  // An audit that rejected nothing has nothing to record.
+  assert.doesNotThrow(
+    () => validateAuditMetrics(EMPTY_AUDIT_METRICS, { requireRejections: true }),
+  );
+});
+
 test('review thresholds separate the advisory checkpoint from the gate', () => {
   // Three ten-line fixes reach the commit advisory while remaining below both
   // the ten-commit and 1,000-line blocking thresholds.
