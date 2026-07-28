@@ -1347,7 +1347,10 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
                 + 'race:human,gender:female,align:neutral,!legacy,'
                 + '!tutorial,!splash_screen\n'
                 + commandCase.binding,
-            moves: '',
+            // Dismiss the startup welcome and stop at the first gameplay
+            // command prompt so the pre-attempt capture is a true peer of
+            // the rejected-command capture.
+            moves: ' ',
         });
         const key = commandKeyCode(commandCase.key);
         const initialDispatches = game._commandDispatchCount;
@@ -1378,6 +1381,30 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
             replay.getCursors().at(-1),
             'classification leaves the cursor at the captured prompt',
         );
+        assert.deepEqual(
+            replay.getCursors().at(-1),
+            beforeFirstRejection.output.cursors.at(-1),
+            'the new prompt independently matches the pre-attempt cursor',
+        );
+        assert.equal(
+            replay.getScreens().at(-1),
+            beforeFirstRejection.output.screens.at(-1),
+            'the new prompt independently matches the pre-attempt display',
+        );
+        for (const field of [
+            'messages',
+            'pending',
+            'topMessage',
+            'toplin',
+            'toplines',
+            'ttyToplines',
+        ]) {
+            assert.deepEqual(
+                rejected.display[field],
+                beforeFirstRejection.display[field],
+                `${commandCase.name} preserves display field ${field}`,
+            );
+        }
         assert.equal(
             replay.getScreens().length,
             beforeFirstRejection.output.screens.length + 1,

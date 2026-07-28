@@ -22,6 +22,23 @@ function startingPet() {
     return pet;
 }
 
+function assertSinglePetIdentity(pet) {
+    assert.equal(m_at(pet.mx, pet.my, game), pet);
+    assert.equal(m_at(game.u.ux, game.u.uy, game), null);
+    assert.equal(
+        game.level.monsters.flat()
+            .filter((monster) => monster === pet).length,
+        1,
+    );
+    let listCount = 0;
+    for (let monster = game.level.monlist;
+        monster;
+        monster = monster.nmon) {
+        if (monster === pet) ++listCount;
+    }
+    assert.equal(listCount, 1);
+}
+
 test('repeated-simple-command matrix contains only source-selected inputs',
     () => {
         const recipe = loadRepeatedSimpleCommandsRecipe();
@@ -130,31 +147,16 @@ test('repeated-simple-command cases retain their source branch markers',
             [swappedPet.mx, swappedPet.my],
             [game.u.ux - 1, game.u.uy],
         );
-        const assertSinglePetIdentity = () => {
-            assert.equal(m_at(swappedPet.mx, swappedPet.my, game), swappedPet);
-            assert.equal(m_at(game.u.ux, game.u.uy, game), null);
-            assert.equal(
-                game.level.monsters.flat()
-                    .filter((monster) => monster === swappedPet).length,
-                1,
-            );
-            let listCount = 0;
-            for (let monster = game.level.monlist;
-                monster;
-                monster = monster.nmon) {
-                if (monster === swappedPet) ++listCount;
-            }
-            assert.equal(listCount, 1);
-        };
-        assertSinglePetIdentity();
+        assertSinglePetIdentity(swappedPet);
         game.nhDisplay.pushKey('.'.charCodeAt(0));
         await moveloop_core();
-        assertSinglePetIdentity();
+        assertSinglePetIdentity(swappedPet);
 
         await runSegment({ ...segments[7], moves: '' });
         const immediatePet = startingPet();
         assert.ok(immediatePet);
         const collisionStart = [game.u.ux, game.u.uy];
+        const petStart = [immediatePet.mx, immediatePet.my];
         game.nhDisplay.pushKey('y'.charCodeAt(0));
         await moveloop_core();
         assert.equal(
@@ -162,8 +164,11 @@ test('repeated-simple-command cases retain their source branch markers',
             'You stop.  Your kitten is in the way!',
         );
         assert.deepEqual([game.u.ux, game.u.uy], collisionStart);
+        assert.deepEqual([immediatePet.mx, immediatePet.my], petStart);
+        assert.equal(game.context.move, 1);
         assert.equal(immediatePet.mflee, true);
         assert.equal(immediatePet.mfleetim, 3);
+        assertSinglePetIdentity(immediatePet);
 
         game.nhDisplay.pushKey('y'.charCodeAt(0));
         await moveloop_core();
@@ -184,6 +189,7 @@ test('repeated-simple-command cases retain their source branch markers',
         assert.equal(game.context.move, 1);
         assert.equal(immediatePet.mflee, true);
         assert.equal(immediatePet.mfleetim, 2);
+        assertSinglePetIdentity(immediatePet);
 
         const petRefusal = await runSegment(segments[7]);
         const refusedPet = startingPet();
