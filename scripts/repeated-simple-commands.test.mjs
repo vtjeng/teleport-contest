@@ -43,10 +43,10 @@ test('repeated-simple-command matrix contains only source-selected inputs',
     () => {
         const recipe = loadRepeatedSimpleCommandsRecipe();
         assert.equal(recipe.version, 5);
-        assert.equal(recipe.segments.length, 15);
+        assert.equal(recipe.segments.length, 17);
         assert.deepEqual(
             recipe.segments.map(({ moves }) => moves.length),
-            [250, 600, 600, 851, 12, 4, 12, 1, 5, 1, 1, 2, 2, 2, 2],
+            [250, 600, 600, 851, 12, 4, 12, 1, 5, 1, 1, 2, 2, 2, 2, 1, 4],
         );
         assert.deepEqual(
             recipe.segments.map(({ moves }) => new Set(moves)),
@@ -67,6 +67,9 @@ test('repeated-simple-command matrix contains only source-selected inputs',
                 new Set(['l', 'h']),
                 new Set(['l', 'h']),
                 new Set(['l', 'h']),
+                // Doorless and open doorway cases.
+                new Set(['h']),
+                new Set(['l', 'j']),
             ],
         );
         for (const segment of recipe.segments) {

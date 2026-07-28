@@ -180,6 +180,29 @@ export function loadRepeatedSimpleCommandsRecipe() {
                 // CORR, and passes once STAIRS is admitted.
                 moves: 'lh',
             })),
+            {
+                seed: 990003,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'DoorFind',
+                    role: 'Healer',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // One step west onto a doorless doorway (D_NODOOR).
+                moves: 'h',
+            },
+            {
+                seed: 990002,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'DoorFind',
+                    role: 'Healer',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Four steps onto an open doorway (D_ISOPEN), the other mask
+                // this slice admits.
+                moves: 'ljjj',
+            },
         ],
     }, 'repeated simple commands recipe');
 }
