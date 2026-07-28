@@ -2394,6 +2394,110 @@
         ]
       },
       "recordedAt": "2026-07-27T00:00:00.000Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "hero": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "objects": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "generation": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "monsters": "d29414adb650373a3c25cbbb6b650ad586688ba9",
+        "world-effects": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "commands": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "display": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "runtime": "f97bd584d5cd9262f27921953b8f55e792a58f10",
+        "replay": "f97bd584d5cd9262f27921953b8f55e792a58f10"
+      },
+      "head": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime",
+        "replay"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Fresh full correctness audit of exact range 3c552b45602ccea8c36569384f94026840c73147..e30ea05440a4850bee40881d3f65180c6ae7bb7b. Session 019fa68d-82cd-7492-a145-5ad8d22ef9e2; gpt-5.6-sol high via audit-high profile; elapsed 2098 seconds; usage 17409226 input, 17131008 cached input, 35939 output, and 16014 reasoning tokens. Correctness, readability-risk, test-quality, variable-flow, concurrency, and consolidated adjudication completed; performance was omitted. Fifteen confirmed findings were applied in dc0ae1b; three were rejected with counter-evidence and none were deferred or unverified. The run reported two process warnings: native Workflow was unavailable so the required bundled workflow contract used native agents under the four-thread limit, and a generic status command printed excluded evaluation filenames without opening content or passing a path to a child. Exact-head validation before fixes: 1664 tests, generated checks, unchanged development score, and the 12-case fresh matrix.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2098,
+        "counts": {
+          "raw": 23,
+          "deduplicated": 18,
+          "confirmed": 15,
+          "applied": 15,
+          "deferred": 0,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 4,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 1
+        },
+        "productionDefects": [
+          {
+            "summary": "isolate monster-vital birth and extinction state during burdened multi-round planning",
+            "foundBy": [
+              "correctness",
+              "concurrency",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "await physical exercise encumbrance messages before later upkeep",
+            "foundBy": [
+              "correctness",
+              "readability-risk",
+              "concurrency"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "count one logical parsed-command dispatch across retries and completion",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "terminate burdened planning before later region, search, or allocation work",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "project initial capacity without mutating the live cache before admission",
+            "foundBy": [
+              "correctness",
+              "test-quality",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "isolate planned light-source and generation-flag state",
+            "foundBy": [
+              "concurrency",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-28T03:22:16.266Z"
     }
   ]
 }
