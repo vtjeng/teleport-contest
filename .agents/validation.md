@@ -12,6 +12,28 @@ evaluation. The sealed-holdout rules in `AGENTS.md` always apply.
   tests plus the full test suite before committing. Use
   `npm run checkpoint -- --focus <test-file>` to run focused tests, the full
   test suite, generated-data checks, and the development score in one command.
+- Redirect every checkpoint run to a log and read only its tail:
+
+  ```
+  npm run checkpoint > /tmp/checkpoint.log 2>&1 && tail -40 /tmp/checkpoint.log
+  ```
+
+  A green checkpoint prints about 133,000 bytes over 1,724 lines. An agent
+  reading that directly loses most of it to truncation and spends thousands of
+  tokens on passing test names. The tail is about 1,100 bytes and ends with the
+  per-check `PASS`/`FAIL` summary, and the full output stays on disk.
+
+  When the checkpoint fails, `&&` suppresses the tail and the command exits
+  nonzero. Read the log instead. `tail -40 /tmp/checkpoint.log` still ends with
+  the summary, because every check runs whether or not an earlier one failed.
+  `grep -n '✖' /tmp/checkpoint.log` gives the line number of each failing test,
+  and the default reporter repeats them with their assertion output at the end
+  of the log.
+
+  Keep the default test reporter. `node --test --test-reporter=dot` prints no
+  pass or fail summary on a green run, discards test-process stdout and stderr,
+  and reduces an import-time throw in a `js/` module to `test failed` with no
+  message or stack. `npm test -- --test-reporter=dot` ignores the flag.
 - For nontrivial behavior, differentially test against the C recorder using
   newly chosen seeds, datetimes, options, character configurations, and input
   sequences.
