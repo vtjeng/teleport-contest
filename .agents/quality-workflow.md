@@ -45,18 +45,18 @@ source-faithful implementation chunks within the limits below.
 Implementation, review, and further implementation alternate inside one goal.
 Run that loop without returning to the user between its steps:
 
-1. Take the first unfinished checkpoint of the open `ROADMAP.md` goal. Trace it
+1. Take the first unfinished behavior slice of the open `ROADMAP.md` goal. Trace it
    to upstream source, implement it, validate it as `.agents/validation.md`
    requires, and commit it.
 2. Run `npm run quality`. When a threshold fires, run the required pass, apply
    its confirmed findings, and continue the loop. A pass is a step in this loop.
    An advisory checkpoint leaves implementation running.
-3. When a checkpoint closes, start the next one. When the last one closes,
+3. When a slice closes, start the next one. When the last one closes,
    satisfy the audit-readiness note below and run the goal's full correctness
    pass.
 4. When a goal closes, delete it from `ROADMAP.md`, record its evidence, run
    `node scripts/scan-stops.mjs`, and select the next goal from that census by
-   the reading rules in `ROADMAP.md`. Write the goal and its ordered checkpoints
+   the reading rules in `ROADMAP.md`. Write the goal and its ordered slices
    there, then continue at step 1.
 
 Commits landing while a pass reviews a frozen range are expected. They fall
@@ -198,7 +198,7 @@ and do not receive their own evidence snapshots.
   commit.
 - A full pass is also due after an unexplained direct-review or differential
   mismatch, and before a release, pull request, authorized holdout evaluation,
-  or closure of the first-command milestone.
+  or closure of the open milestone named in `ROADMAP.md`.
 - Other small cohesive fixes may batch until a required condition applies.
   Do not repeat the same formal pass until another threshold is met or the
   design materially changes.
@@ -227,7 +227,7 @@ Audit the exact window before:
 - accepting a change that would exceed 1,000 changed production lines;
 - starting another behavior slice or roadmap item; or
 - reaching a pull request, release, authorized holdout evaluation, or
-  first-command closure.
+  closure of the open milestone named in `ROADMAP.md`.
 
 An unexplained source-review or differential mismatch ends the window and makes
 the pass due immediately.
@@ -300,7 +300,8 @@ threshold but still counts its production lines.
 
 Audit-fix commits remain correctness debt. Away from a no-tail boundary, include
 them in the next scheduled correctness range. Before a pull request, release,
-authorized holdout evaluation, or first-command closure, fixes confined to
+authorized holdout evaluation, or closure of the open milestone named in
+`ROADMAP.md`, fixes confined to
 confirmed findings may instead receive a `light` delta review covering source
 fidelity, end-to-end state and PRNG effects, test adequacy, and collateral
 changes. A clean review of that kind clears the correctness debt for the
@@ -420,7 +421,8 @@ started again from scratch. Set up each launch as follows.
 - Finish each formal milestone with `npm run quality -- --check`. Resolve
   review debt at a batching threshold and all unassigned `js/` files. A smaller
   set of audit-fix commits may remain as correctness debt except before a pull
-  request, release, authorized holdout evaluation, or first-command closure.
+  request, release, authorized holdout evaluation, or closure of the open
+  milestone named in `ROADMAP.md`.
   Resolve concrete simplification or clarity triggers, but do not invent
   a formal pass when none exists. Historical `BASELINE` debt remains exempt
   until that area's first recorded pass.

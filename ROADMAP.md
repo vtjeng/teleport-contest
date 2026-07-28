@@ -15,11 +15,13 @@ stay short enough to read.
 `node scripts/scan-stops.mjs` reports where each development session first
 stops, censused by fail-closed boundary and by the command the port refused.
 Each boundary names an upstream owner that a goal could port, and the census
-ranks those owners by the recorded steps standing behind each one. "Continuous
-operation" in `.agents/quality-workflow.md` holds the loop that runs the scan,
-selects a goal from it, and writes the result back here. Selecting that goal is
-the agent's job, never a question for the user. Three rules govern how to read
-the census.
+counts, for each owner, the sessions stopped there and the recorded steps
+standing behind it. Its output order sorts by session count and breaks ties by
+step count; that order is a display order, and `.agents/validation.md` states
+why it is not a priority ranking. "Continuous operation" in
+`.agents/quality-workflow.md` holds the loop that runs the scan, selects a goal
+from it, and writes the result back here. Selecting that goal is the agent's
+job, never a question for the user. Three rules govern how to read the census.
 
 The steps standing behind a boundary are a ceiling on what a goal can earn,
 never a forecast. A session blocked on one owner routinely blocks again on
@@ -34,13 +36,14 @@ large ceiling does not justify jumping milestones. The level-change family
 stands in front of more recorded steps than anything else and still waits for
 its milestone.
 
-A goal may be larger than one session. When it is, it lists ordered checkpoints,
-each committed on its own, and `.agents/implementation-checklist.md` carries its
-state between sessions. The thresholds in `QUALITY.json` schedule reviews inside
-a goal; they do not bound one. Size decides whether a goal needs a checklist and
-how its checkpoints are ordered. Size never justifies refusing a stated goal,
-deferring it, or narrowing it silently. Start at the first unfinished
-checkpoint.
+A goal may be larger than one session. When it is, it lists ordered behavior
+slices, each closed on its own, and `.agents/implementation-checklist.md`
+carries its state between sessions. `.agents/quality-workflow.md` defines a
+behavior slice and states the evidence that closes one. The thresholds in
+`QUALITY.json` schedule reviews inside a goal; they do not bound one. Size
+decides whether a goal needs a checklist and how its slices are ordered. Size
+never justifies refusing a stated goal, deferring it, or narrowing it silently.
+Start at the first unfinished slice.
 
 ## Current milestone: exploration
 
@@ -77,7 +80,7 @@ deferred. The fix commit itself is correctness debt for the next pass, which is
 where the third of these findings that the previous cycle's own fixes
 introduced would show up again.
 
-No checkpoint remains in this goal, so nothing here is startable. Do not
+No behavior slice remains in this goal, so nothing here is startable. Do not
 schedule a pass over the fix tail on its own: `.agents/quality-workflow.md`
 folds audit-fix debt into the next scheduled correctness range, and the
 thresholds pull it in when they fire. Start at "Next goals, in order" below.
@@ -114,15 +117,17 @@ PRNG is drawn, and only the screen and message window change. That property is
 the goal's boundary, and it is why these commands cannot regress the turn
 behavior the milestone already owns.
 
-Beyond its own ceiling, this goal gates the closing sequence of 24 of the 33
-development sessions, which end with `i`, `+`, `\`, and `^X` in that order, each
-dismissed with ESC. No session finishes without it.
+Beyond its own ceiling, this goal gates the closing sequence that 24 of the 33
+development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismissed
+with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
+outside this goal, belonging to goal 4 below; the `:` that ends those sessions
+is slice 2 here. No session finishes without this goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
-and planned for; work the checkpoints in order and take the intermediate passes
-as `.agents/quality-workflow.md` schedules them.
+and planned for; work the slices in order and take the intermediate passes as
+`.agents/quality-workflow.md` schedules them.
 
-**Checkpoints, each committed on its own.** Line counts are the C to trace,
+**Behavior slices, each closed on its own.** Line counts are the C to trace,
 measured at gitlink `16ff591`; they set expectations, not limits.
 
 1. **Unbound keystroke.** `cmd.c:rhack()`'s bad-command path answers
@@ -143,8 +148,9 @@ measured at gitlink `16ff591`; they set expectations, not limits.
    1,200 lines in a file with no ported counterpart. Two prerequisites before
    the first commit: scope it to the branches the development sessions reach,
    since a starting character reaches few of them, and give `js/insight.js` a
-   `QUALITY.json` area, because `npm run quality` rejects an unassigned `js/`
-   file. Nothing in checkpoints 1 through 4 depends on this one.
+   `QUALITY.json` area, because `npm run quality -- --check` exits nonzero
+   while a `js/` file has no area. Nothing in slices 1 through 4 depends on this
+   one.
 
 ### 3. Running and rushing
 

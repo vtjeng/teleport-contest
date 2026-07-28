@@ -87,8 +87,9 @@ Follow all instructions in those files.
 ### Claude Code only
 
 `.agents/quality-workflow.md` launches every formal pass with
-`codex exec --profile audit-high`. Claude Code runs the named audit skill
-through its Workflow tool instead. What that section requires of the pass is
+`codex exec --profile audit-high`. Claude Code invokes the named audit skill
+with its Skill tool instead; that skill runs its own reviewers as parallel
+subagents. What that section requires of the pass is
 unchanged: a frozen committed range, an isolated worktree pinned to the
 reviewed commit, no access to `sessions/holdout/`, the complete report, and the
 matching `record-review` or `record-simplification` entry.
@@ -151,8 +152,8 @@ paths that are not ported yet, and is deleted when they are.
   in a comment.
 - Keep the code that stops unported paths in its own file, named for what it
   stops.
-- Do not name a file or function after a checkpoint, a review window, or the
-  work that added it. Those names stop making sense once that work is done.
+- Do not name a file or function after a behavior slice, a review window, or
+  the work that added it. Those names stop making sense once that work is done.
 - Split a ported file only where the C file has separate groups of functions.
   Name each part for the functions it holds, and name the C file and functions
   in a header comment. A large file is fine; the C file is large too.
@@ -197,24 +198,6 @@ freshly generated output.
   returned game object to the next call. Store game state that must survive
   between segments through `input.storage`.
 
-## Temporary code
-
-This section describes temporary code that remains in the repository, why it
-exists, and when to remove it.
-
-### Random-number replay in `js/fastforward.js`
-
-`js/fastforward.js` contains random-number calls copied from one recorded run.
-It temporarily keeps later random-number calls aligned while the game logic
-that should produce those calls is still missing.
-
-Leave each existing replay call in place until game logic derived from the C
-source makes that call and its related state changes. Then delete the replay
-call. Never add calls to this file.
-
-Delete `js/fastforward.js` and this subsection after real game logic has
-replaced every replay call.
-
 ## Validate completed work
 
 A focused unit test can show that one function works by itself. It does not
@@ -248,8 +231,8 @@ When choosing new cases:
 at the points listed in `.agents/quality-workflow.md`. You do not need to add
 an entry after every commit.
 
-Keep progress updates short. State what now matches the C source, what remains
-unfinished, and what check comes next.
+Keep progress updates short. "Progress reports" in
+`.agents/quality-workflow.md` states their required shape.
 
 Create or update a checklist, note, report, or permanent record only when the
 conditions in `.agents/quality-workflow.md` require it.

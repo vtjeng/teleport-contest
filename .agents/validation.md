@@ -11,7 +11,11 @@ evaluation. The sealed-holdout rules in `AGENTS.md` always apply.
 - For each coherent implementation chunk, inspect the diff and run focused
   tests plus the full test suite before committing. Use
   `npm run checkpoint -- --focus <test-file>` to run focused tests, the full
-  test suite, generated-data checks, and the development score in one command.
+  test suite, the four generated-data checks, `check:namespace-members`, and the
+  development score in one command. Repeat `--focus` to add more test files.
+  `--skip-score` omits the development score for a quick run; the score still
+  has to pass before the commit. `checkpoint-checks.mjs` rejects every other
+  option and prints no help text.
 - Redirect every checkpoint run to a log and read only its tail:
 
   ```
