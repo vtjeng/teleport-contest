@@ -43,7 +43,8 @@ As defined in `.agents/implementation-checklist-template.md`.
 | `display_inventory()` | Called with `want_reply` TRUE; its `cmdq_pop()` branch cannot fire while no command queue is ported | `js/invent.js` | No state change | Ported at this head | done | None |
 | `display_pickinv()` menu construction | The main path: builds the menu window, one entry per object, with class headers when `flags.sortpack` is set | `js/invent.js`, drawing through `js/tty_menu.js` | Screen output only | Five fresh recordings match C cell for cell across three roles, a repeated menu, and a game with a pet | done | None |
 | `doname()` worn and wielded suffixes | Every starting character wears armor and wields a weapon | `js/objnam.js` `wornSuffix()` | Text only | Ported: worn amulets, armor, and tools; the wielded and alternate phrasings; the alternate weapon; and all three quiver phrases. Five fresh recordings match C cell for cell | done | None |
-| `doname()` container contents and tin naming | A Rogue starts with a sack and a Tourist with tins, which are the two remaining stops on the way to the menu | `js/objnam.js` | Text only | The three sessions now stop on `known container state` and `identified tin contents` | missing | Port `Has_contents()`'s " containing N items" and the identified-tin name |
+| `doname()` container and tin naming | A Rogue starts with a sack and a Tourist with tins | `js/objnam.js`, with `tin_details()` in `js/eat.js` | Text only | Ported: the "empty" prefix, a box's known trap and lock state, and a tin's contents. A container that holds something still stops, because counting its stacks is `pickup.c count_contents()` | done | None |
+| tty menu dismissal with Space | `process_menu_window()` finishes a menu when Space arrives on its last page | `js/tty_menu.js` | Screen only | The port only finished when the spec declared an empty completion, so a Space left the inventory menu on screen. Fixed and covered by a fresh recording | done | None |
 | `sortloot()` ordering | Traced. `options.c:7208` sets `flags.sortloot = 'l'`, and `display_pickinv()` compares against `'f'`, so the flags are `SORTLOOT_INVLET`; `optlist.h:687` defaults `sortpack` On, adding `SORTLOOT_PACK`. The menu loop then walks `flags.inv_order`, whose default is `def_inv_order[]` at `options.c:118`, and lists each class in invlet order | None | Order decides the screen | `options.c:118`, `options.c:7208`, `optlist.h:687`, `invent.c:3175` | missing | Port the class walk with that order; a full `sortloot()` is not needed for `SORTLOOT_INVLET` |
 | Empty inventory, `Not carrying anything` | Cannot occur for a starting character, which always carries items | None | One message rather than a menu | `invent.c:3066` | cannot-occur | None |
 | Single-item inventory shortcut | `n == 1 && !force_invmenu && !menu_requested`; unreachable from `i` because `menumode` forces the menu | None | Would print one line instead | `invent.c:3149` | cannot-occur | None |
@@ -68,17 +69,22 @@ As defined in `.agents/implementation-checklist-template.md`.
 
 - Commit checked: pending for the `doname()` work; the display chain is
   committed and its stop is covered by `scripts/cmd.test.mjs`.
-- Full suite and generated checks: 1,718 tests, four generated-data checks,
-  and `check:namespace-members` pass with the chain in place.
-- Fresh differentials: five recorded and matching, three of them checked into
-  `scripts/run-no-time-commands.mjs`, which now matches 24,563 PRNG calls and
-  63 screens and cursors across ten segments. They cover a Valkyrie, a
-  Tourist, a Ranger with a quiver and an alternate weapon, two menus in a row,
+- Full suite and generated checks: 1,719 tests, four generated-data checks,
+  and `check:namespace-members` pass. All four fresh matrices pass, including
+  the 107-segment first-command closure matrix, which is the gate on the menu
+  change reaching startup selection.
+- Fresh differentials: seven recorded and matching, five checked into
+  `scripts/run-no-time-commands.mjs`, which now matches 29,459 PRNG calls and
+  71 screens and cursors across twelve segments. They cover a Valkyrie, a
+  Tourist, a Ranger with a quiver and an alternate weapon, a Rogue with an
+  empty sack dismissed by Space, a Tourist carrying a tin, two menus in a row,
   and a game with a pet on the level.
 - Development score: 273 screens at the starting commit.
 
 ## Readiness
 
-Not ready. The menu itself matches C across five fresh recordings, but no
-development session reaches it: a Rogue's sack and a Tourist's tins stop
-`doname()` first. Those two branches are the remaining work.
+Ready for its audit once the remaining rows close. All three sessions that
+press `i` now display and dismiss the menu; the development score rose from
+273 to 279 screens and no session regressed, confirmed session by session
+against the parent. Seven fresh recordings match C cell for cell, five of them
+checked into `scripts/run-no-time-commands.mjs`.

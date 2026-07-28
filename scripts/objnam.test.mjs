@@ -36,6 +36,7 @@ import {
     PM_NEWT,
     PM_SAMURAI,
     monst_globals_init,
+    PM_FOX,
 } from '../js/monsters.js';
 import {
     ALCHEMY_SMOCK,
@@ -66,6 +67,9 @@ import {
     WAN_SLEEP,
     objects_globals_init,
     RIN_PROTECTION,
+    SACK,
+    LARGE_BOX,
+    TIN,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 
@@ -376,6 +380,58 @@ test('single-object look_here requires its engraving owner before output',
         assert.deepEqual(messages, []);
     });
 
+test('container and tin names follow doname()\'s own branches', () => {
+    const state = namingState();
+    // An empty container the hero has looked into: "empty" precedes the BUC
+    // word, and doname() adds no lock text because a sack is not a box. This
+    // state has not identified the type, so xname() uses the appearance
+    // "bag"; a starting inventory's sack is identified and reads "sack".
+    const sack = objectOf(state, SACK, { cknown: true, bknown: true });
+    assert.equal(donameFresh(sack, state), 'an empty uncursed bag');
+
+    // A box adds its known lock state, and its known trap before that.
+    const box = objectOf(state, LARGE_BOX, {
+        cknown: true, bknown: true, dknown: true, lknown: true,
+        olocked: true, otrapped: true, tknown: true,
+    });
+    assert.equal(
+        donameFresh(box, state),
+        'an empty uncursed trapped locked large box',
+    );
+    const brokenBox = objectOf(state, LARGE_BOX, {
+        cknown: true, bknown: true, lknown: true, obroken: true,
+    });
+    assert.equal(
+        donameFresh(brokenBox, state), 'an empty uncursed broken large box',
+    );
+    const unlockedBox = objectOf(state, LARGE_BOX, {
+        cknown: true, bknown: true, lknown: true,
+    });
+    assert.equal(
+        donameFresh(unlockedBox, state),
+        'an empty uncursed unlocked large box',
+    );
+
+    // A tin whose contents are known names them. spe of -14 selects
+    // tintxts[13], but the variety word appears only once cknown is set;
+    // PM_FOX is a carnivore, so its meat is named.
+    const tin = objectOf(state, TIN, {
+        known: true, bknown: true, spe: -14, corpsenm: PM_FOX,
+    });
+    assert.equal(donameFresh(tin, state), 'an uncursed tin of fox meat');
+    const knownTin = objectOf(state, TIN, {
+        known: true, bknown: true, cknown: true, spe: -14, corpsenm: PM_FOX,
+    });
+    assert.equal(
+        donameFresh(knownTin, state), 'an uncursed tin of candied fox meat',
+    );
+    // spe 1 is spinach, whatever the monster index says.
+    const spinach = objectOf(state, TIN, {
+        known: true, bknown: true, spe: 1, corpsenm: NON_PM,
+    });
+    assert.equal(donameFresh(spinach, state), 'an uncursed tin of spinach');
+});
+
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {
     const state = namingState();
     const unknownUncursed = objectOf(state, DART, {
@@ -567,13 +623,18 @@ test('unsupported naming branches fail before discovery or state changes', () =>
     );
     assert.equal(calledWand.dknown, false);
 
-    const knownChest = objectOf(state, CHEST, { cknown: true });
+    // A container whose contents are known and present still stops, because
+    // naming them needs pickup.c count_contents().
+    const fullChest = objectOf(state, CHEST, {
+        cknown: true,
+        cobj: objectOf(state, DART),
+    });
     assert.throws(
-        () => donameFresh(knownChest, state),
+        () => donameFresh(fullChest, state),
         (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'known container state',
+            && error.branch === 'container contents count',
     );
-    assert.equal(knownChest.dknown, false);
+    assert.equal(fullChest.dknown, false);
 
     const litCandle = objectOf(state, TALLOW_CANDLE, {
         lamplit: true,

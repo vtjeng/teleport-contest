@@ -648,6 +648,17 @@ export function isContainer(obj) {
     return obj.otyp >= LARGE_BOX && obj.otyp <= BAG_OF_TRICKS;
 }
 
+// C ref: obj.h Is_box().
+export function isBox(obj) {
+    return obj.otyp === LARGE_BOX || obj.otyp === CHEST;
+}
+
+// C ref: obj.h Has_contents(). The commented-out class test in C is left out
+// there too, so any object with a contents chain answers true.
+export function hasContents(obj) {
+    return Boolean(obj.cobj);
+}
+
 export function isCandle(obj) {
     return obj.otyp === TALLOW_CANDLE || obj.otyp === WAX_CANDLE;
 }

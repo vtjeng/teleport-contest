@@ -57,6 +57,7 @@ import {
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { flush_screen } from '../js/display.js';
+import { DART, SACK, WEAPON_CLASS } from '../js/objects.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     domove,
@@ -1700,10 +1701,10 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
 
 test('the inventory command stops before drawing an unformattable item',
     async () => {
-    // A Rogue starts with a sack, and doname()'s container-contents branch is
-    // not ported, so the display chain stops while formatting that entry. The
-    // stop has to leave the screen and the keystroke exactly as the admission
-    // seam would.
+    // Every starting pack formats, so this puts an object inside the Rogue's
+    // sack: naming a container's contents needs pickup.c count_contents(),
+    // which is not ported. The stop has to leave the screen and the keystroke
+    // exactly as the admission seam would.
     const replay = await runSegment({
         seed: 840022,
         datetime: COMMAND_DATETIME,
@@ -1712,6 +1713,12 @@ test('the inventory command stops before drawing an unformattable item',
             + '!tutorial,!splash_screen,pettype:none',
         moves: ' ',
     });
+    let sack = null;
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj.otyp === SACK) sack = obj;
+    }
+    assert.ok(sack, 'the Rogue carries a sack');
+    sack.cobj = { otyp: DART, oclass: WEAPON_CLASS, quan: 1, nobj: null };
     const key = commandKeyCode('i');
     const screens = replay.getScreens().length;
     const startingMoves = game.moves;
@@ -1721,7 +1728,7 @@ test('the inventory command stops before drawing an unformattable item',
         moveloop_core(),
         (error) => error instanceof UnsupportedHeroCommandBoundaryError
             && error.key === key
-            && /known container state/u.test(error.message),
+            && /container contents count/u.test(error.message),
     );
 
     assert.equal(game.context.move, 0);

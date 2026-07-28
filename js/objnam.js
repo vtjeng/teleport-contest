@@ -10,6 +10,7 @@ import {
 import {
     fruit_from_indx, makeplural, makesingular, matching_artifact_fruit,
 } from './fruit.js';
+import { tin_details } from './eat.js';
 import { lowc, strcasecpy } from './hacklib.js';
 import { body_part } from './polyself.js';
 import { RIGHT_HANDED } from './u_init.js';
@@ -17,7 +18,8 @@ import { bimanual, is_ammo, is_missile } from './worn.js';
 import { PM_CLERIC, PM_SAMURAI } from './monsters.js';
 import { observe_object } from './o_init.js';
 import {
-    erosionMatters, isCandle, isContainer, isCorrodeable, isCrackable,
+    erosionMatters, hasContents, isBox, isCandle, isContainer,
+    isCorrodeable, isCrackable,
     isDamageable, isFlammable, isMultigen, isRottable, isRustprone,
     isWeptool, objectType,
 } from './obj.js';
@@ -25,6 +27,7 @@ import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
 import {
     AKLYS,
     ALCHEMY_SMOCK, AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, ARM_BOOTS,
+    BAG_OF_TRICKS,
     ARM_GLOVES, ARM_HELM, ARM_SHIELD, BALL_CLASS,
     BLACK_OPAL, BOULDER, BRASS_LANTERN, CANDELABRUM_OF_INVOCATION, CHAIN_CLASS,
     CHEST, COIN_CLASS, CORPSE, CRYSKNIFE, DIAMOND, DILITHIUM_CRYSTAL, EGG,
@@ -37,6 +40,7 @@ import {
     SPBOOK_CLASS, SPE_BOOK_OF_THE_DEAD, SPE_NOVEL, STATUE, TIN, TOOL_CLASS,
     TOWEL, VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WOODEN_HARP,
     YELLOW_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES,
+    HORN_OF_PLENTY,
 } from './objects.js';
 
 export class UnsupportedObjectNameError extends Error {
@@ -173,8 +177,7 @@ function preflightObjectName(obj, type, state, forDoname = false) {
         unsupported('end-of-game object text', obj);
     if (type.oc_uname)
         unsupported('user-assigned type name', obj);
-    if (obj.otyp === TIN && obj.known)
-        unsupported('identified tin contents', obj);
+
     if (!forDoname) return;
     if (obj.unpaid)
         unsupported('shop price suffix', obj);
@@ -191,14 +194,15 @@ function preflightObjectName(obj, type, state, forDoname = false) {
         unsupported('embedded or gloved armor suffix', obj);
     if (obj.owornmask && obj.lamplit)
         unsupported('lit worn-object suffix', obj);
-    if ((isContainer(obj) || obj.otyp === STATUE)
-        && (obj.cknown || obj.lknown || obj.tknown)) {
-        unsupported('known container state', obj);
-    }
-    if ((obj.otyp === LARGE_BOX || obj.otyp === CHEST)
-        && (obj.olocked || obj.obroken || obj.otrapped)
-        && (obj.lknown || obj.tknown)) {
-        unsupported('known box state', obj);
+    // C names a container's contents only when it holds some; counting them
+    // is pickup.c count_contents(), which is not ported.
+    if (obj.cknown && hasContents(obj))
+        unsupported('container contents count', obj);
+    // These two judge emptiness by charges rather than contents, and the
+    // charge suffix that makes the prefix redundant is a separate branch.
+    if (obj.cknown
+        && (obj.otyp === BAG_OF_TRICKS || obj.otyp === HORN_OF_PLENTY)) {
+        unsupported('charge-based emptiness', obj);
     }
     if (isCandle(obj) && obj.lamplit)
         unsupported('lit candle timer adjustment', obj);
@@ -266,6 +270,10 @@ function xnameBase(obj, type, state) {
                     : obj.owt <= 500 ? 'large' : 'very large';
             return `${size} ${actual}`;
         }
+        // C ref: objnam.c xname(). `known` here is the object's own flag, set
+        // when the hero knows what is inside the tin, not the type's.
+        if (obj.otyp === TIN && obj.known)
+            return tin_details(obj, obj.corpsenm, actual, { state });
         return actual;
     case COIN_CLASS:
     case CHAIN_CLASS:
@@ -655,6 +663,23 @@ export function donameFresh(obj, state) {
     const modifiers = [];
     const buc = bucWord(obj, type, state);
     if (buc) modifiers.push(buc);
+    // C ref: objnam.c doname(). "empty" comes first, before the blessed or
+    // uncursed word, when the contents are known and there are none. A bag of
+    // tricks or horn of plenty judges emptiness by its charges instead, and
+    // both stop above.
+    if (obj.cknown && (isContainer(obj) || obj.otyp === STATUE)
+        && !hasContents(obj)) {
+        modifiers.unshift('empty');
+    }
+    // A box announces a known trap and its known lock state before the
+    // greased prefix.
+    if (isBox(obj) && obj.otrapped && obj.tknown && obj.dknown)
+        modifiers.push('trapped');
+    if (obj.lknown && isBox(obj)) {
+        modifiers.push(
+            obj.obroken ? 'broken' : obj.olocked ? 'locked' : 'unlocked',
+        );
+    }
     if (obj.greased) modifiers.push('greased');
     const classForModifiers = isWeptool(obj, state)
         ? WEAPON_CLASS : obj.oclass;

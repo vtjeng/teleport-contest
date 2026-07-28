@@ -34,10 +34,10 @@ function stripNoTime(moves) {
 test('no-time-command matrix contains only source-selected inputs', () => {
     const recipe = loadNoTimeCommandsRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 10);
+    assert.equal(recipe.segments.length, 12);
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5],
+        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
@@ -47,11 +47,14 @@ test('no-time-command matrix contains only source-selected inputs', () => {
             'every segment exercises a command that takes no game time',
         );
     }
-    // The first three segments own the unbound byte; the rest own the look
-    // command. Both classes must stay represented as the matrix grows.
+    // Three segments own the unbound byte at a command prompt; the rest own
+    // the look and inventory commands. All three classes must stay
+    // represented as the matrix grows. A Space inside a menu segment
+    // dismisses the menu rather than reaching rhack(), so those are excluded.
     assert.equal(
         recipe.segments.filter(
-            ({ moves }) => [...moves].some((key) => UNBOUND_BYTES.has(key)),
+            ({ moves }) => !moves.includes(INVENTORY_KEY)
+                && [...moves].some((key) => UNBOUND_BYTES.has(key)),
         ).length,
         3,
     );
@@ -63,7 +66,7 @@ test('no-time-command matrix contains only source-selected inputs', () => {
         recipe.segments.filter(
             ({ moves }) => moves.includes(INVENTORY_KEY),
         ).length,
-        3,
+        5,
     );
 });
 
@@ -146,6 +149,8 @@ test('each unbound byte answers with its own visctrl name', async () => {
     const { segments } = loadNoTimeCommandsRecipe();
 
     for (const [index, segment] of segments.entries()) {
+        // A Space in a menu segment is the menu's dismissal, not a command.
+        if (segment.moves.includes(INVENTORY_KEY)) continue;
         for (const [position, key] of [...segment.moves].entries()) {
             if (!UNBOUND_BYTES.has(key)) continue;
             await runSegment({

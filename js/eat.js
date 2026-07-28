@@ -27,6 +27,7 @@ import {
     W_RINGL,
     W_RINGR,
     W_WEP,
+    NEUTRAL,
 } from './const.js';
 import { game } from './gstate.js';
 import { is_rider } from './mondata.js';
@@ -409,7 +410,10 @@ export function vegetarian(monster) {
             && monster.pmidx !== PM_BLACK_PUDDING);
 }
 
-function tin_variety(obj, env) {
+// C ref: eat.c tin_variety(). `displ` means the caller is only formatting a
+// name, which skips the chance that a homemade tin has gone bad, and with it
+// that branch's rn2() call.
+function tin_variety(obj, env, displ = false) {
     const { random, state } = env;
     let variety;
     if (obj.spe === 1) variety = SPINACH_TIN;
@@ -417,13 +421,36 @@ function tin_variety(obj, env) {
     else if (obj.spe < 0) variety = -obj.spe - 1;
     else variety = random.rn2(TIN_VARIETY_COUNT);
 
-    if (variety === HOMEMADE_TIN && !obj.blessed && !random.rn2(7))
+    if (!displ && variety === HOMEMADE_TIN && !obj.blessed && !random.rn2(7))
         variety = ROTTEN_TIN;
     if (variety === ROTTEN_TIN
         && nonrotting_corpse(obj.corpsenm, state)) {
         variety = HOMEMADE_TIN;
     }
     return variety;
+}
+
+// C ref: eat.c tin_details(). Appends the contents to a tin's name; the
+// caller supplies the name xname() built so far.
+export function tin_details(obj, mnum, base, env = {}) {
+    const normalized = tinEnv(env);
+    const variety = tin_variety(obj, normalized, true);
+    if (variety === SPINACH_TIN) return `${base} of spinach`;
+    if (mnum === NON_PM) return 'empty tin';
+
+    let text;
+    if ((obj.cknown || normalized.state.iflags?.override_ID) && obj.spe < 0) {
+        const word = TIN_VARIETIES[variety].name;
+        // C puts these two before the word "tin" and the rest after it.
+        text = (variety === ROTTEN_TIN || variety === HOMEMADE_TIN)
+            ? `${word} ${base} of `
+            : `${base} of ${word} `;
+    } else {
+        text = `${base} of `;
+    }
+    const monster = normalized.state.mons[mnum];
+    const name = monster.pmnames[NEUTRAL];
+    return text + (vegetarian(monster) ? name : `${name} meat`);
 }
 
 export function set_tin_variety(obj, forcetype, env = {}) {

@@ -673,9 +673,12 @@ async function selectOneTtyMenu(state, spec) {
                 rendered = renderTtyMenu(
                     state, workingSpec, pageIndex,
                 );
-            } else if (ch === ' ' && hasEmptyCompletion) {
+            } else if (ch === ' ') {
+                // process_menu_window()'s MENU_NEXT_PAGE arm: on the last
+                // page a space finishes the menu, while '>' does not.
                 dismissTtyMenu(state, rendered);
-                return emptyCompletion;
+                return hasEmptyCompletion
+                    ? emptyCompletion : (spec.cancelValue ?? null);
             }
             continue;
         }

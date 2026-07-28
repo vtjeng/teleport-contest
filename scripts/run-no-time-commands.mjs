@@ -14,10 +14,11 @@ import { runFreshMatrix } from './fresh-matrix.mjs';
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310203040506';
 
-function nethackrc({ name, role, gender = 'female', options }) {
+function nethackrc({ name, role, gender = 'female', align = 'neutral',
+    options }) {
     return [
         `OPTIONS=name:${name},role:${role},race:human,gender:${gender},`
-        + 'align:neutral',
+        + `align:${align}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         `OPTIONS=${options}`,
         '',
@@ -156,6 +157,31 @@ export function loadNoTimeCommandsRecipe() {
                 // Two menus in a row, then a look, so a redrawn menu and the
                 // restored map are both compared.
                 moves: 'i\u001bi\u001b:',
+            },
+            {
+                seed: 8830001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'InvRogue',
+                    role: 'Rogue',
+                    align: 'chaotic',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Rogue's empty sack exercises the "empty" prefix, and the
+                // Space dismissal is the other way out of a one-page menu.
+                moves: 'i .',
+            },
+            {
+                seed: 8840001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'InvTourist',
+                    role: 'Tourist',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // This Tourist carries a tin, which names its contents
+                // through eat.c tin_details().
+                moves: 'i\u001b.',
             },
         ],
     }, 'no-time commands recipe');
