@@ -1,9 +1,8 @@
 # Implementation checklist template
 
 Use this template for a behavior slice, meaning a bounded implementation unit,
-that is expected to span multiple work sessions, cross subsystems, or approach
-the review-window limit of 500 changed production lines across its affected
-quality areas. Copy it to
+that is expected to span multiple work sessions, cross subsystems, or reach
+about 500 changed production lines across its affected quality areas. Copy it to
 `.agents/implementation-checklist.md` and replace every prompt in square
 brackets. The main agent owns the completed checklist and verifies evidence
 provided by any helper.

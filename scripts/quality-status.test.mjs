@@ -457,6 +457,37 @@ test('review thresholds separate the advisory checkpoint from the gate', () => {
   );
 });
 
+test('the per-area line advisory must stay below the per-area line gate', () => {
+  // The per-slice review window in `.agents/quality-workflow.md` allows 1,000
+  // changed lines summed across areas, while `reviewAdvisoryChangedLines` is a
+  // per-area checkpoint. Raising the advisory to the window's 1,000 would
+  // collapse the advisory tier into the gate, so validateConfigShape refuses
+  // it. Full-length placeholder SHAs only satisfy the schema.
+  const config = {
+    version: 4,
+    trackingBase: '1'.repeat(40),
+    enforcementBase: '2'.repeat(40),
+    legacyPassCount: 0,
+    thresholds: {
+      reviewAdvisoryCommits: 3,
+      reviewAdvisoryChangedLines: 1000,
+      reviewCommits: 10,
+      reviewChangedLines: 1000,
+    },
+    legacyAreaExpansions: {},
+    areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
+    passes: [],
+  };
+
+  assert.throws(
+    () => validateConfigShape(config),
+    /the review line advisory must be below the review gate/,
+  );
+  // The repository's 500 keeps a usable advisory band below the 1,000 gate.
+  config.thresholds.reviewAdvisoryChangedLines = 500;
+  assert.doesNotThrow(() => validateConfigShape(config));
+});
+
 test('review debt and path ownership block the quality gate', () => {
   assert.equal(qualityGateBlocked({ reviewDue: 0, unassignedCount: 0 }), false);
   // One due review area and one unassigned file exercise the two blocking inputs.

@@ -1,8 +1,8 @@
 # Quality and formal review workflow
 
 Read this file when planning a qualifying behavior slice, meaning one
-expected to span sessions, cross subsystems, or approach the shared
-review-window limit; when committing implementation or checking review debt;
+expected to span sessions, cross subsystems, or reach about 500 changed
+production lines; when committing implementation or checking review debt;
 or when running or recording a formal pass.
 
 ## Terms
@@ -77,7 +77,7 @@ expected to:
 
 - span sessions;
 - cross subsystems; or
-- approach the 500-line shared review-window limit.
+- reach about 500 changed production lines.
 
 Create it as soon as a smaller slice grows to meet any condition.
 
@@ -182,14 +182,21 @@ and wiring that consume an existing contract do not cross areas by themselves.
 
 Related shared-contract changes within one named behavior slice and roadmap
 item may share a review window through the next observable boundary. The window
-may contain at most three unreviewed implementation commits and 500 changed
-production lines across affected areas. Apply the per-chunk workflow throughout
-and run fresh end-to-end differentials once the real consumer executes.
+may contain at most three unreviewed implementation commits and 1,000 changed
+production lines summed across affected areas. The line ceiling is sized to hold
+three implementation commits of typical size, so the commit clause and the line
+clause reach their limits at about the same point. Apply the per-chunk workflow
+throughout and run fresh end-to-end differentials once the real consumer
+executes.
+
+This window is a per-slice rule that agents apply by inspection. It is separate
+from the per-area advisory checkpoint and gate above, which `QUALITY.json`
+configures and `npm run quality` measures. No threshold key encodes this window.
 
 Audit the exact window before:
 
 - adding a fourth implementation commit;
-- accepting a change that would exceed 500 changed production lines;
+- accepting a change that would exceed 1,000 changed production lines;
 - starting another behavior slice or roadmap item; or
 - reaching a pull request, release, authorized holdout evaluation, or
   first-command closure.
