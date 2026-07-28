@@ -50,7 +50,7 @@ changes rendering behavior and row 5 changes PRNG behavior.
 
 ## Validation
 
-- Commit checked: pending, set when the closing commit exists
+- Commit checked: 2f92a4a83197c7e233b24a3e2b3b341b6700fd63
 - Direct review: done, against `allmain.c`, `mon.c`, `monmove.c`, `region.c`,
   `pickup.c`, `eat.c`, `attrib.c`, and `hack.c`. It found one site the audit
   did not name: `gethungry()` reads `near_capacity()` live in C too, so it got
@@ -69,7 +69,7 @@ changes rendering behavior and row 5 changes PRNG behavior.
 
 ## Readiness
 
-Current mode: Implementation
+Current mode: Ready for audit
 
 Reason: all 18 confirmed findings are closed and validated. Rows 1 and 5
 changed rendering and PRNG behavior, so this cycle was Implementation rather
