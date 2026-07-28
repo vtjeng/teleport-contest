@@ -1,299 +1,128 @@
 # Source-faithful port roadmap
 
-This file records milestone order and unresolved work. `AGENTS.md` remains the
-authority for implementation, validation, holdout, quality, and attribution
-rules. `SCORE.md` records completed evidence; it is not a prospective backlog.
+This file records the open goal, the goals selected after it, and unresolved
+debt. `AGENTS.md` remains the authority for implementation, validation,
+holdout, quality, and attribution rules.
 
-## Completed milestone: arbitrary new game to first command
+A closed milestone or goal is deleted from this file when it closes. Its score
+evidence stays in `SCORE.md`, its review metadata in `QUALITY.json` and the
+retained pass reports, and its implementation history in Git. Keeping only open
+work here is deliberate: every task starts by reading this file, so it has to
+stay short enough to read.
 
-**Status:** complete at production commit
-`f0624a759f50fbf061ab7e48ff7e83a08ea57ef1`, with the final test-only follow-up
-at `82615f42653158d8074f3903e7d2087545ffe05f`.
+## How the next goal is chosen
 
-**Goal:** For arbitrary valid seeds, datetimes, character configurations, and
-startup options, match the C recorder's random-number log, terminal screens,
-attributes, and cursor through the first command prompt.
+`node scripts/scan-stops.mjs` reports where each development session first
+stops, censused by fail-closed boundary and by the command the port refused.
+The loop is:
 
-## Completed milestone: first complete gameplay turn
+1. Run the scan. Each boundary names an upstream owner a goal could port.
+2. Select a goal, trace it to its C functions, and record its boundary and its
+   exclusions here.
+3. Implement from the C source. The scan says where to look; it never says what
+   the behavior is.
+4. Re-run the scan. The change in emitted screens is that goal's measured
+   result, and the new census selects what follows.
 
-**Status:** complete at code commit
-`3b6c38de148679a5cc8313d755ec906fa95627c3`.
-
-**Goal:** Starting at a correctly generated first command prompt, match the C
-game through the next command prompt after either waiting or making one
-unobstructed move. Replace the temporary playback in `fastforward.js` used
-during those turns with the corresponding behavior translated from the
-upstream source.
+The recorded steps standing behind a boundary are a ceiling on what a goal can
+earn, never a forecast: a session blocked on one owner routinely blocks again
+on another. `.agents/validation.md` holds the full rule.
 
 ## Current milestone: exploration
 
-**Status:** the simple second-command checkpoint is complete at validated code
-commit `33523218ed285430300f14e725bf43928b8b65e1`. The recorded full
-correctness pass covered the exact implementation range through `f97bd58`; its
-six confirmed findings were applied through `ea815b9`. The required full
-clarity pass then confirmed 15 exposition-only findings, all applied through
-the validated handoff. The quality gate and advisory are clear.
+**Objective:** movement beyond the first unobstructed step, then running,
+search, doors, traps, pickup, stairs, terrain effects, vision, and status
+updates.
 
-**Selected goal: repeated simple commands.** Starting at a correctly generated
-first command prompt, accept an unbounded sequence of single-keystroke commands
-on D:1, each either a wait or a one-square walk, and match through the prompt
-after every command. Walk destinations in scope are an unoccupied object-free
-ordinary clear square, a `test_move()` refusal against wall or rock that
-consumes no time, a swap with an ordinary active starting pet, and a square
-whose objects only produce a floor description. Ordinary D:1 monsters,
-including ones generated part-way through the sequence, and the starting little
-dog, kitten, or pony may move normally or stay put.
+### Open goal: repeated simple commands
+
+Starting at a correctly generated first command prompt, accept an unbounded
+sequence of single-keystroke commands on D:1, each either a wait or a one-square
+walk, and match through the prompt after every command. Walk destinations in
+scope are an unoccupied object-free ordinary clear square, a `test_move()`
+refusal against wall or rock that consumes no time, a swap with an ordinary
+active starting pet, a square whose objects only produce a floor description,
+`STAIRS`, and a `DOOR` that is not closed, locked, or trapped. Ordinary D:1
+monsters, including ones generated part-way through the sequence, and the
+starting little dog, kitten, or pony may move normally or stay put.
 
 Excluded: the future-work list below, count prefixes, running, travel, every
-other command, pickup, hero traversal of active doorways, and
-monster-initiated displacement of the hero. Each excluded path fails closed
-before any gameplay state change or PRNG consumption, preserving the supported
-prefix and leaving the pending phase retryable.
+other command, pickup, a diagonal entry into a doorway that is not doorless,
+every closed, locked, or trapped door, and monster-initiated displacement of
+the hero. Each excluded path fails closed before any gameplay state change or
+PRNG consumption, preserving the supported prefix and leaving the pending phase
+retryable.
 
-The two structural replay conditions are complete: `js/fastforward.js` is gone
-at `263540f`, and the turn-index special cases in `moveloop_core()` are gone at
-`9afade25`. Periodic attribute upkeep now restores the long-run PRNG order.
-Natural runtime monster generation, doorless-doorway movement, the move-600
-safe-wait tail, wall and stone refusal, ordinary and immediately fleeing
-starting-pet interaction, sighted and blind single-object description, and the
-HUNGRY-to-WEAK transition all match the checked-in eleven-case matrix through
-`f509366`. That matrix covers 64,581 PRNG calls and 1,750 complete screens,
-attributes, and cursors. The pre-audit boundary inventory had no remaining
-missing or undecided row, but the full review through `7892b21` reopened
-implementation with four live source gaps: weakness-driven encumbrance,
-move-600 basal luck, the one-billion-turn termination, and trapped-monster
-prologue admission. The same review identified six evidence and tooling gaps.
-All ten findings from that review were implemented at `e30ea05`. The next full
-review confirmed six production defects plus test, tooling, and handoff gaps;
-their implementation is complete and the repository checkpoint is green at
-1,668 tests. The twelve-case fresh matrix remains exact across 83,269 PRNG
-calls and 2,351 complete screens, attributes, and cursors. The goal does not
-close at a particular score. The second full re-audit reopened five focused
-production and oracle rows; `.agents/implementation-checklist.md` is again the
-active handoff. Rare branches and helper-only prerequisites remain deferred
-under “Complete common gameplay first.”
+**Status:** behaviorally complete, awaiting review. The full correctness pass
+over `e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`
+is the last thing between this goal and closure;
+`.agents/implementation-checklist.md` holds its validation evidence and
+readiness note. Two consecutive passes found that this slice's fixes introduce
+new defects at roughly a third the rate they close them, so budget for a
+follow-up cycle rather than assuming the pass closes it.
 
-### Unreviewed commits behind a review frontier
+`js/fastforward.js` is gone at `263540f` and the turn-index special cases in
+`moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
-A review frontier is the latest commit a recorded correctness pass covers;
-`npm run quality` treats everything behind it as reviewed. Until `5e7fb47`,
-`npm run quality -- record-review` derived each area's frontier from the stored
-ledger and took the audited commit range only as free-text `evidence`, which it
-checked for non-emptiness and never parsed, so a pass could advance a frontier
-past commits its reviewers never read. `5e7fb47` now requires `--range` and refuses a base that falls after
-any claimed area's frontier, so this cannot recur. It cannot repair the existing
-ledger, because `validateHistory` fails when a recorded base is not the stored
-frontier and passes are therefore append-only in effect.
+## Next goals, in order
 
-Sixteen recorded review passes advanced at least one area's frontier past the
-base of the range they audited. Eleven commits changed area-owned production
-code inside those gaps. Six of the eleven are debt; the other five are exempt
-for the reasons below. Line counts are the production lines
-`scripts/quality-status.mjs` charges to the area: its `js/` paths plus its
-generator scripts, less its declared generated outputs.
+Selected from the `scan-stops.mjs` census taken on 2026-07-28 at `8f0bbde`,
+where the port emits 254 of 7,765 recorded screens. Session and step counts
+below are ceilings.
 
-| Commits | Area | Lines | Why the audit never read them |
-| --- | --- | --- | --- |
-| `5affc31` | monsters | +56/-42 | The pass recorded at `e30ea05` set the monsters base to `d29414a` but audited `3c552b45..e30ea05`, seven commits later. `5affc31` also carries `Audit-fix-for: d29414ad`. |
-| `f8911ff`, `f2de7a7` | startup | +37/-12 | The same pass set the startup base to `f97bd58`, 29 commits before its audited base. |
-| `84964f8` | commands | +6/-3 | The same 29-commit gap. It also carries `Audit-fix-for: f97bd58`. |
-| `54a2b86`, `4607698` | hero | +133/-4 | The pass recorded at `f97bd58` moved the hero frontier up from `f140abf` while auditing only `3b6c38d..f97bd58`, a 221-commit gap. `4607698` also carries `Audit-fix-for: 10dd52be`. |
+### 1. Monster and pet movement onto stairs
 
-Those six commits total 232 added and 61 removed production lines. Three of them
-are audit-fix commits, which `.agents/quality-workflow.md` keeps as correctness
-debt until a later correctness pass covers them.
+`assertSimpleDestination()` in `js/unported_monster_actions.js` admits `ROOM`,
+`CORR`, and a `DOOR` with `D_NODOOR`. Two sessions stop there with a tame
+monster stepping onto `STAIRS`, the monster-side mirror of the hero admission
+committed at `a0d6283`. Trace what an ordinary non-covetous monster does on a
+stairs square before widening the guard: the goal rests on the answer being
+"nothing special", and that has to come from the source rather than from the
+stop message.
 
-The remaining five commits in the same gaps need no pass of their own:
+A third session on the same boundary is a monster at a `D_CLOSED` door, which
+stays excluded along with closed doors generally.
 
-- `8677023` adds 245 runtime lines to `js/hacklib.js`. It is a bulk port of
-  `hacklib.c` pure functions, which "Port pure functions in bulk" in `AGENTS.md`
-  and the correctness thresholds in `.agents/quality-workflow.md` exempt from
-  triggering a pass. `scripts/hacklib-strings.test.mjs` pins each ported
-  function to values read from the C source.
-- `17b1fb0`, `d8ab43c`, `5626cf0`, and `f3ebcc2` carry `Score-identical-with`
-  trailers: 680 added and 152 removed monsters lines, plus 1 added and 1 removed
-  in startup, 41 added and 2 removed in commands, and 2 added and 1 removed in
-  runtime. `npm run quality` already subtracts them from the gate and reports
-  them as relocated lines.
+### 2. Commands that consume no game time
 
-Clear the six debt commits at the next milestone rather than scheduling a
-re-audit now. Give the next full correctness pass in each area a `--range` base
-at or before that area's oldest debt commit: `d29414a` for monsters, `f97bd58`
-for startup and commands, and `f140abf` for hero. The recorder accepts a base at
-or before the stored frontier, so this re-reads commits an earlier pass already
-covered and needs no ledger edit. One pass claiming all four areas has to start
-at the oldest of those bases, `f140abf`; recording each area group separately
-keeps each range smaller. Recording those passes clears these rows and the
-audit-fix debt on `5affc31`, `84964f8`, and `4607698`.
+Accept, at a ready D:1 prompt, the commands whose `rhack()` result carries no
+`ECMD_TIME`, so `svc.context.move` stays FALSE, no monster moves, no gameplay
+PRNG is drawn, and only the screen and message window change. That property is
+the goal's boundary, and it is why these commands cannot regress the turn
+behavior the milestone already owns.
 
-This accounting covers the passes recorded after the 21 unstructured passes that
-`legacyPassCount` in `QUALITY.json` names. Those earlier passes record no
-per-area ranges, and `.agents/quality-workflow.md` keeps historical `BASELINE`
-debt exempt until each area's first recorded pass.
+In scope, because development sessions stop on exactly these:
 
-### Historical review sequence
+- an unbound keystroke, which `cmd.c:rhack()` answers with
+  `Unknown command '<key>'.` and no state change (one session, 1,952 steps);
+- `invent.c:dolook()`, bound to `:` (one session, 36 steps);
+- `invent.c:ddoinv()` and the inventory menu it displays, including dismissal
+  (three sessions, 110 steps);
+- `o_init.c:dodiscovered()`, `spell.c:dovspell()`, and
+  `insight.c:doattributes()`, which those sessions reach immediately after `i`.
 
-The following paragraphs preserve the review and return-to-Implementation
-sequence that produced the completed checkpoint.
+`doattributes()` is the heaviest member and has no ported file yet. Split it
+into its own goal if tracing shows it reaches past what the sessions exercise.
 
-The first review covered
-`3b6c38de148679a5cc8313d755ec906fa95627c3..4cd8bbccf60cd6c792444c457a2f358660b552d9`.
-The review confirmed seven production gaps and six test gaps in the active
-checkpoint. Hero destination admission and monster goal/selection fixes are
-committed at `dad2732` and `11a724d`; elapsed preflight and shared-RNG fixes
-are committed at `3104b21`; wake and post-move notice behavior is committed at
-`d327351`; the starting-pet result contract is committed at `c6de861`; and
-replay step ownership is committed at `604caa2`. Source tracing of valid
-starting ponies added two small prerequisites: exact admission of their inert
-worn saddle at `c1e5f89`, and a preflight stop before unsupported pet
-ranged-target scoring at `723da26`. The complete retry and strict matrix
-oracle is committed at `9288ced`.
+Beyond its own ceiling, this goal gates the closing sequence of 24 of the 33
+development sessions, which end with `i`, `+`, `\`, and `^X` in that order, each
+dismissed with ESC. No session finishes without it.
 
-The second review of
-`3b6c38de148679a5cc8313d755ec906fa95627c3..9288ced3372da17588cc70ec30cf2f3fe6302e25`
-confirmed omitted source behavior and missing coverage in six branch families.
-The active slice is back in Implementation. Rejected hero walks are completely
-atomic at `daec422`, and the `monmove.c` line predicate is fixed at `419b7c1`.
-The source-ordered ordinary-monster item-search selector and its unsupported
-interaction boundary are committed at `aa7b9e4`. Source-ordered ordinary
-monster movement accessibility output is committed at `f9f7ab6`. The pet goal
-and seven-square target contracts are committed at `d1b07b9`. Complete
-no-move notice ordering and starting-pet safe-stop coverage are committed at
-`402d68d`. The final three-file integration oracle is committed at `4927b9a`.
-The third review of
-`3b6c38de148679a5cc8313d755ec906fa95627c3..b754646b7aec6cd2dc934845b41aa6183c7fe315`
-confirmed two production gaps and six test or maintenance gaps. The active
-slice is back in Implementation. The production gaps are source-selected
-weapon handling and post-move object handling: inert capability, inventory, or
-objects must not stop an otherwise ordinary move. The live-environment adapter
-is committed at `60099e6`; source-selected pre-move item and weapon handling is
-committed at `9dfa7f2` and `eb71e3d`; source-selected post-move object handling
-is committed at `322b6b5`; and the complete retry snapshot plus focused pet
-food and corridor coverage is committed at `bdf14d8` and `2d03208`. Fresh
-comparison then exposed the later `dochug()` branch into
-`mthrowu.c:thrwmu()`: complete read-only ranged-weapon selection and its atomic
-unsupported-action stop are committed at `2ce30ba`. The final runner, fixture,
-and integration-test bundle is committed at `fe906f7`. Its 17-case fresh
-matrix covers the live simple second-command boundary, and the paired
-integration test keeps selected trap and ranged-weapon exclusions retryable.
+### 3. Running and rushing
 
-**Milestone objective:** Complete movement beyond the first unobstructed step,
-then running, search, doors, traps, pickup, stairs, terrain effects, vision,
-and status updates. The completed checkpoint below is the first source-closed
-slice of that objective; the rest remains ordered future work.
+`hack.c:domove_core()` under `svc.context.run`, with `hack.c:lookaround()`
+deciding where a run stops. Six sessions stop here with 1,275 steps behind
+them. Larger than the two goals above: `lookaround()` is a substantial function
+and a run spans several turns.
 
-**Completed implementation goal: Simple second command.** Starting at a
-correctly generated first command prompt, accept two time-consuming commands
-where each command is either a wait or a one-square walk onto ordinary clear
-floor or corridor. Match through the prompt after the second command. During
-elapsed work, ordinary initial D:1 monsters and the starting little dog,
-kitten, or pony may move normally or stay put.
+### 4. Search
 
-This checkpoint deliberately stops before any path that requires combat, trap
-activation, teleportation or other relocation, a level change, item
-interaction, a door or other special terrain interaction, or a monster
-special ability. Those are explicit future work below. An excluded path must
-fail closed before that elapsed branch changes gameplay state or consumes
-gameplay PRNG. The segment runner retains the already-supported output, and
-the pending elapsed phase remains retryable after its owner is implemented.
+`detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
+`mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Four sessions
+stop here, but each reaches an extended command within one or two keystrokes,
+so the immediate return is small.
 
-This goal closed after every family in the then-active implementation checklist
-was source-closed, focused and repository validation passed, strict fresh
-comparisons reached the second prompt, the committed range was reviewed, and
-the repository was clean.
-
-**Implementation sequence:** The ordinary `monmove.c` move-or-stay owner,
-starting-pet `dogmove.c` move-or-stay owner, atomic action adapter, and
-`allmain.c` integration were committed as separate source-owned checkpoints.
-The second-turn runner, fixture, and integration test were committed together
-with the live integration. The audit follow-up is split by upstream owner:
-hero destination admission; monster goal and displacement selection;
-elapsed-turn preflight and cloned-RNG parity; wake and `notice_mon()`
-post-move behavior; the starting-pet result contract; replay step ownership;
-the inert starting-pony saddle admission; the pet ranged-target preflight;
-then the complete retry and strict matrix oracles at `9288ced`. The second
-audit follow-up is ordered as atomic hero command admission; the monster line
-predicate; monster item-search selection; monster movement accessibility
-output; pet goal and target contracts; no-move and pet safe-stop coverage; and
-the final integration-oracle bundle. The third audit follow-up is ordered as
-the live monster-action environment adapter; source-selected weapon handling;
-post-move object selection; shared complete retry snapshots; pet-food and
-corridor coverage; post-move ranged-weapon selection exposed by fresh
-comparison; and one final runner, fixture, and integration-test bundle.
-`js/monster_action.js` remains future work rather than a combined movement,
-trap, object, and combat owner. The detailed source inventory, safe-stop
-seams, checkpoints, and evidence are preserved in the checklist commits.
-
-This checkpoint establishes the general active-monster and later-turn replay
-boundary needed by multi-step exploration. The historical 302-to-204
-development-score drop at
-`68472ba3aa99786e5c3e01f4407b07bc853ea89b` intentionally removed matches
-earned after those behaviors became unowned; do not recover that credit by
-relaxing the fail-closed boundary.
-
-### Measured ordering for the next exploration slice
-
-Where each development session first stops, measured on 2026-07-28 by
-instrumenting scratch copies of `js/jsmain.js` and the frozen runner inside a
-scoring workspace. The scorer's `screens.matched` is a total, not a prefix
-length, so the first mismatching index was computed separately; for all 33
-sessions the two agree, which is what makes the attribution below sound.
-
-| Sessions | Stop reason |
-| --- | --- |
-| 27 | an unsupported command |
-| 5 | `door or special terrain movement` |
-| 1 | `pet object pickup` |
-
-The 27 command stops break down by keystroke as `#`x7, `L`/`H`/`K`x6, `s`x4,
-`i`x2, `Ctrl-V`x2, and one each of `m`, `a`, `:`, `Z`, `q`, `y`, and Space.
-
-The five terrain stops are the better next slice, because the sessions blocked
-on them continue with long runs of ordinary movement, while the four `s`
-sessions immediately reach `#ride`, `#twoweapon`, and `#wizwish`. By
-destination terrain they are:
-
-- `STAIRS`, three sessions, one of which has 409 screens;
-- a doorless doorway (`DOOR` with `D_NODOOR`), one session;
-- an open doorway (`DOOR` with `D_ISOPEN`), one session.
-
-So the next slice is hero movement onto stairs and non-blocking doorways.
-`requireSimpleHeroDestination()` in `js/hack.js` currently rejects every
-destination that is not `ROOM` or `CORR`, even though the starting-pet swap
-seam beside it already admits a `D_NODOOR` doorway. Running (`L`, `H`, `K`,
-six sessions) and search (`s`, four sessions) follow; `dosearch0(1)` is already
-ported, and the explicit command needs only `mfind0()` and
-`unmap_invisible()` plus the `aflag == 0` branches.
-
-Source tracing for that slice, so it can start from the C rather than from the
-stop message:
-
-- `hack.c:test_move()` already admits both destinations. `STAIRS` is neither
-  `IS_OBSTRUCTED` nor `IS_DOOR`, so it falls through untouched. A `DOOR` that
-  is not `closed_door()` reaches only the `testdiag` arm, which rejects a
-  *diagonal* move into an intact doorway and allows an orthogonal one. So the
-  work is not in admission; it is in what follows the move.
-- Stepping onto stairs with nothing else on the square prints **nothing** by
-  default. `domove()` reaches `spoteffects(TRUE)` -> `pickup(1)`, and
-  `pickup.c:698-708` returns early when `!OBJ_AT(u.ux, u.uy)`, running only
-  `describe_decor()` (gated on `flags.mention_decor`) and `read_engr_at()`.
-  `look_here()` is never reached. So the "There is a staircase up here."
-  wording in `invent.c:dfeature_at()` and `stairs.c:stairs_description()`
-  applies only when an object shares the square, which is the path the port
-  already owns.
-- With `mention_decor` set, `pickup.c:describe_decor()` is the owner instead,
-  and it deliberately suppresses the doorway cases: it clears `dfeature` when
-  the description is "open door" or "doorway". It also keys off
-  `iflags.prev_decor`, which is per-square memory the port does not have yet.
-- So the slice splits cleanly. Admitting `STAIRS` and a non-closed `DOOR` as
-  destinations with `mention_decor` off should need no new output at all, and
-  `describe_decor()` plus `prev_decor` is a separate, later piece of work.
-  Confirm that split with a fresh recording before writing either.
-- Watch `context.door_opened`, which `test_move()` clears on entry and the
-  closed-door branch sets. It stays out of scope while closed doors do, but it
-  is the seam where that future work attaches.
-
-**Explicit future exploration work, outside the completed goal:**
+## Explicit future exploration work, outside the open goal
 
 - Hero or monster combat, including attacks, retaliation, monster-initiated
   displacement, knockback, damage, death, corpses, weapon selection, ranged
@@ -302,14 +131,24 @@ stop message:
   magic, fire, land mines, teleportation, holes, trapdoors, migration, and
   living-statue effects.
 - Hero or monster relocation and every level transition, including deferred
-  transitions, D:2 generation, and rolling-boulder traps.
+  transitions, D:2 generation, and rolling-boulder traps. Five sessions stop on
+  `#levelchange` and two on `wizlevelport`, so this family stands in front of
+  more recorded steps than any other, at a correspondingly larger cost. The
+  other two sessions the census groups under `#` stop on `#name` and `#chat`,
+  which belong to other families.
 - Objects and inventory behavior, including automatic pickup, pet food and
-  fetching, monster pickup, equipment, naming, billing, and object damage.
-- Regions, engravings, ice, pools, lava, fountains, sinks, graves, altars,
-  gas clouds, liquid effects, and every other special-terrain or room effect.
+  fetching, monster pickup, equipment, naming, billing, and object damage. One
+  session stops on a pet picking up a food ration.
+- Regions, engravings, ice, pools, lava, fountains, sinks, graves, altars, gas
+  clouds, liquid effects, and every other special-terrain or room effect.
 - Closed, locked, trapped, broken, or obstructing doors; tunneling; boulder
   breaking; iron bars; and other non-clear destination handling beyond a
-  no-time refusal against wall or rock.
+  no-time refusal against wall or rock. `svc.context.door_opened`, which
+  `test_move()` clears on entry and the closed-door branch sets, is the seam
+  this attaches to. One session stops on a diagonal doorway refusal.
+- `pickup.c:describe_decor()` and the `iflags.prev_decor` per-square memory it
+  keys off, needed once `mention_decor` is set. It deliberately suppresses the
+  open-door and doorway cases.
 - Special monster movement or actions, including hiding, shapechanging,
   covetous tactics, fleeing teleportation, conflict, watch or quest behavior,
   speech, item use, and themed-room monster behavior beyond an inert wait.
@@ -317,12 +156,61 @@ stop message:
   carrying, leashes, steeds, arrival or wait strategies, conflict, confusion,
   stun, fear except for the source-bounded continuation after this milestone's
   safe-pet refusal, ranged attacks, and combat.
-- Running, search, force-fight, travel, pickup commands, stairs, and all
-  commands other than waiting or a one-square walk.
+- Every remaining command, including count prefixes, travel, force-fight,
+  pickup commands, and the extended-command set.
 
-Several source-faithful helpers for these future families are already
-committed. They remain preserved prerequisites, but their existence does not
-make their live behavior part of the active checkpoint.
+Several source-faithful helpers for these families are already committed. They
+remain preserved prerequisites; their existence does not make their live
+behavior part of an open goal.
+
+## Unresolved: unreviewed commits behind a review frontier
+
+A review frontier is the latest commit a recorded correctness pass covers;
+`npm run quality` treats everything behind it as reviewed. Until `5e7fb47`,
+`npm run quality -- record-review` derived each frontier from the stored ledger
+and never parsed the audited range, so a pass could advance a frontier past
+commits its reviewers never read. `5e7fb47` now requires `--range` and refuses a
+base that falls after any claimed area's frontier, so this cannot recur. It
+cannot repair the existing ledger, because `validateHistory` fails when a
+recorded base is not the stored frontier, which makes passes append-only in
+effect.
+
+Sixteen recorded passes advanced a frontier past the base of the range they
+audited. Six commits changed area-owned production code inside those gaps and
+are debt. Line counts are the production lines `scripts/quality-status.mjs`
+charges to the area.
+
+| Commits | Area | Lines | Why the audit never read them |
+| --- | --- | --- | --- |
+| `5affc31` | monsters | +56/-42 | The pass recorded at `e30ea05` set the monsters base to `d29414a` but audited `3c552b45..e30ea05`, seven commits later. `5affc31` also carries `Audit-fix-for: d29414ad`. |
+| `f8911ff`, `f2de7a7` | startup | +37/-12 | The same pass set the startup base to `f97bd58`, 29 commits before its audited base. |
+| `84964f8` | commands | +6/-3 | The same 29-commit gap. It also carries `Audit-fix-for: f97bd58`. |
+| `54a2b86`, `4607698` | hero | +133/-4 | The pass recorded at `f97bd58` moved the hero frontier up from `f140abf` while auditing only `3b6c38d..f97bd58`, a 221-commit gap. `4607698` also carries `Audit-fix-for: 10dd52be`. |
+
+Those six total 232 added and 61 removed production lines, and three are
+audit-fix commits, which `.agents/quality-workflow.md` keeps as correctness debt
+until a later pass covers them.
+
+Five further commits in the same gaps need no pass. `8677023` adds 245 runtime
+lines to `js/hacklib.js` as a bulk port of `hacklib.c` pure functions, which
+`AGENTS.md` and the correctness thresholds exempt, and
+`scripts/hacklib-strings.test.mjs` pins each to values read from the C source.
+`17b1fb0`, `d8ab43c`, `5626cf0`, and `f3ebcc2` carry `Score-identical-with`
+trailers, which `npm run quality` already subtracts and reports as relocated
+lines.
+
+**Action:** clear the six at the next milestone rather than scheduling a
+re-audit now. Give the next full correctness pass in each area a `--range` base
+at or before that area's oldest debt commit: `d29414a` for monsters, `f97bd58`
+for startup and commands, and `f140abf` for hero. The recorder accepts a base at
+or before the stored frontier, so this re-reads commits an earlier pass already
+covered and needs no ledger edit. One pass claiming all four areas has to start
+at `f140abf`; recording each area group separately keeps each range smaller.
+
+This accounting covers the passes recorded after the 21 unstructured passes that
+`legacyPassCount` in `QUALITY.json` names. Those record no per-area ranges, and
+`.agents/quality-workflow.md` keeps historical `BASELINE` debt exempt until each
+area's first recorded pass.
 
 ## Later milestones
 
@@ -337,8 +225,3 @@ After the current milestone, proceed in this order:
    save/restore, bones, and cross-segment state.
 4. **Long tail:** shops, advanced spells and effects, rare monsters and items,
    endgame branches, and remaining valid commands and options.
-
-Update statuses and unresolved ordering here when a milestone closes or source
-tracing materially changes dependencies. Keep completed boundary and score
-snapshots in `SCORE.md`; keep formal-pass metadata and review frontiers in
-`QUALITY.json` and the retained pass reports.
