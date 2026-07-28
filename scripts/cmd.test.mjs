@@ -41,6 +41,7 @@ import {
     PIT,
     ROOM,
     ROWNO,
+    STAIRS,
     STONE,
     STONED,
     TDWALL,
@@ -605,12 +606,15 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 destination.typ = ROOM;
             },
         },
-        // A doorless, open, or broken doorway is now an admitted destination
-        // (hack.c test_move() reaches only its testdiag arm for those), so
-        // only the closed, locked, and trapped masks refuse here.
+        // A doorless or open doorway is now an admitted destination
+        // (hack.c test_move() reaches only its testdiag arm for those), so the
+        // closed, locked, and trapped masks refuse here. D_BROKEN is doorless
+        // to test_move() but has its own dfeature_at() description and no
+        // recording, so it stays refused with the rest.
         ...[
             ['closed door', D_CLOSED],
             ['locked door', D_LOCKED],
+            ['broken door', D_BROKEN],
             ['trapped open door', D_ISOPEN | D_TRAPPED],
             ['trapped closed door', D_CLOSED | D_TRAPPED],
         ].map(([name, mask]) => ({
@@ -641,6 +645,88 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 game.level.objects[x][y] = null;
             },
         })),
+        // hack.c test_move()'s testdiag arm refuses a diagonal move into a
+        // doorway that is not doorless_door(). D_ISOPEN is the admitted mask
+        // that fails that predicate.
+        {
+            name: 'diagonal entry into an open doorway',
+            reason: 'diagonal doorway refusal',
+            key: 'u',
+            dx: 1,
+            dy: -1,
+            install: ({ destination }) => {
+                destination.typ = DOOR;
+                destination.flags = destination.doormask = D_ISOPEN;
+            },
+            remove: ({ destination }) => {
+                destination.typ = ROOM;
+                destination.flags = destination.doormask = 0;
+            },
+        },
+        // test_move() reads ust = &levl[ux][uy] and refuses a diagonal move
+        // out of a doorway that still has its door. Only the destination side
+        // was ported, so this case pins the source side of the same rule.
+        {
+            name: 'diagonal exit from an open doorway',
+            reason: 'diagonal intact doorway exit',
+            key: 'u',
+            dx: 1,
+            dy: -1,
+            install: () => {
+                const heroSquare = game.level.at(game.u.ux, game.u.uy);
+                heroSquare.typ = DOOR;
+                heroSquare.flags = heroSquare.doormask = D_ISOPEN;
+            },
+            remove: () => {
+                const heroSquare = game.level.at(game.u.ux, game.u.uy);
+                heroSquare.typ = ROOM;
+                heroSquare.flags = heroSquare.doormask = 0;
+            },
+        },
+        // pickup.c describe_decor() owns the line an arrival on a decorated
+        // square prints when mention_decor is on, and tracks iflags.prev_decor
+        // across arrivals; neither is ported.
+        {
+            name: 'stairs arrival with mention_decor',
+            reason: 'decor description',
+            install: ({ destination }) => {
+                game.flags.mention_decor = true;
+                destination.typ = STAIRS;
+            },
+            remove: ({ destination }) => {
+                game.flags.mention_decor = false;
+                destination.typ = ROOM;
+            },
+        },
+        // invent.c look_here() prints dfeature_at()'s line before "You see
+        // here" when a decorated square holds exactly one object. ROOM and
+        // CORR have no dfeature, which is why only these two terrain types
+        // reach the stop.
+        ...[
+            ['stairs', (destination) => {
+                destination.typ = STAIRS;
+            }],
+            ['open doorway', (destination) => {
+                destination.typ = DOOR;
+                destination.flags = destination.doormask = D_ISOPEN;
+            }],
+        ].map(([name, decorate]) => ({
+            name: `${name} arrival over one object`,
+            reason: 'terrain feature description',
+            install: ({ destination, x, y }) => {
+                game.flags.pickup = false;
+                decorate(destination);
+                game.level.objects[x][y] = {
+                    o_id: 7003,
+                    nexthere: null,
+                };
+            },
+            remove: ({ destination, x, y }) => {
+                game.level.objects[x][y] = null;
+                destination.typ = ROOM;
+                destination.flags = destination.doormask = 0;
+            },
+        })),
     ];
 
     for (const refusal of cases) {
@@ -654,8 +740,12 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         });
         clearTtyMessageWindow(game);
         resetCommandVars(game);
-        const x = game.u.ux + 1;
-        const y = game.u.uy;
+        // Every case moves one square; the diagonal ones carry their own
+        // offset and movement key so that the same retry snapshot covers both
+        // orientations.
+        const moveKey = refusal.key ?? 'l';
+        const x = game.u.ux + (refusal.dx ?? 1);
+        const y = game.u.uy + (refusal.dy ?? 0);
         const destination = game.level.at(x, y);
         destination.typ = ROOM;
         destination.flags = destination.doormask = 0;
@@ -684,13 +774,13 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         expected.iflags.menu_requested = false;
         expected.multi = 0;
         Object.assign(expected.parser, {
-            cmdKey: commandKeyCode('l'),
+            cmdKey: commandKeyCode(moveKey),
             commandCount: 0,
             lastCommandCount: 0,
         });
         expected.context.pendingCommand = {
             phase: 'parsed',
-            key: commandKeyCode('l'),
+            key: commandKeyCode(moveKey),
             commandCount: 0,
             lastCommandCount: 0,
             multi: 0,
@@ -703,7 +793,7 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         let refusalCursor;
         let refusalTerminal;
 
-        game.nhDisplay.pushKey(commandKeyCode('l'));
+        game.nhDisplay.pushKey(commandKeyCode(moveKey));
         for (let attempt = 0; attempt < 2; ++attempt) {
             await assert.rejects(
                 moveloop_core(),
@@ -781,6 +871,51 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         );
     }
 });
+
+// hack.c doorless_door() masks off D_NODOOR and D_BROKEN together, so
+// test_move()'s exit arm lets the hero step diagonally off either one. The
+// destination seam refuses D_BROKEN as an arrival, so the only way to observe
+// that half of the predicate is to place the hero on one directly.
+test('a doorless mask leaves both diagonal doorway rules unarmed',
+    async () => {
+        for (const [name, mask] of [
+            ['doorless', D_NODOOR],
+            ['broken', D_BROKEN],
+        ]) {
+            await runSegment({
+                seed: 840004,
+                datetime: COMMAND_DATETIME,
+                nethackrc: 'OPTIONS=name:DoorlessExit,role:Healer,race:human,'
+                    + 'gender:female,align:neutral,!legacy,!tutorial,'
+                    + '!splash_screen,pettype:none',
+                moves: '',
+            });
+            clearTtyMessageWindow(game);
+            resetCommandVars(game);
+            const start = [game.u.ux, game.u.uy];
+            const heroSquare = game.level.at(start[0], start[1]);
+            heroSquare.typ = DOOR;
+            heroSquare.flags = heroSquare.doormask = mask;
+            const destination = game.level.at(start[0] + 1, start[1] - 1);
+            destination.typ = ROOM;
+            destination.flags = destination.doormask = 0;
+            for (const column of game.level.monsters) column.fill(null);
+            game.level.monlist = null;
+            game.level.objects[start[0] + 1][start[1] - 1] = null;
+            game.level.traps = [];
+            game.level.regions = [];
+            game.head_engr = null;
+
+            game.nhDisplay.pushKey(commandKeyCode('u'));
+            await moveloop_core();
+            await assert.rejects(moveloop_core(), /Input queue empty/u);
+            assert.deepEqual(
+                [game.u.ux, game.u.uy],
+                [start[0] + 1, start[1] - 1],
+                `${name} doorway diagonal exit`,
+            );
+        }
+    });
 
 test('unsupported movement retains its byte ahead of the next command',
     async () => {

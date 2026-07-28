@@ -40,7 +40,11 @@ import {
 } from '../js/const.js';
 import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
-import { projected_capacity, weight_cap } from '../js/hack.js';
+import {
+    near_capacity,
+    projected_capacity,
+    weight_cap,
+} from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
@@ -397,10 +401,22 @@ test('hero time effects order sequence, encumbrance, then seer cadence',
     async () => {
     const state = clairvoyanceTurnState();
     const order = [];
-    await finishHeroTimeEffects(state, {
+    // A fake that records during its synchronous prologue reports the same
+    // order whether or not the caller awaits it. encumber_msg() writes through
+    // ttyPline, which can raise a --More-- and consume input, so the caller
+    // must be blocked until it resolves. Holding the fake open on an
+    // unresolved promise is what makes the missing await observable.
+    let releaseEncumbrance;
+    const encumbranceStarted = new Promise((resolve) => {
+        releaseEncumbrance = resolve;
+    });
+    let started = false;
+    const finished = finishHeroTimeEffects(state, {
         encumberMessage: async () => {
+            started = true;
             order.push('encumbrance');
             assert.equal(state.hero_seq, 161);
+            await encumbranceStarted;
         },
         random: {
             rn1(range, base) {
@@ -411,6 +427,12 @@ test('hero time effects order sequence, encumbrance, then seer cadence',
             },
         },
     });
+    await Promise.resolve();
+    assert.equal(started, true, 'encumbrance owner ran');
+    assert.deepEqual(order, ['encumbrance'], 'clairvoyance waits');
+    assert.equal(state.context.seer_turn, 20, 'seer cadence waits');
+    releaseEncumbrance();
+    await finished;
     assert.deepEqual(order, ['encumbrance', 'clairvoyance']);
     assert.equal(state.hero_seq, 161);
     assert.equal(state.context.seer_turn, 35);
@@ -795,6 +817,59 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         assert.equal(game.level.regions.includes(laterRegion), true);
         assert.notEqual(game.program_state?.gameover, true);
     }));
+
+// allmain.c gives an invulnerable hero UNENCUMBERED in place of the snapshot
+// before regen_pw() and the overexertion check, so both read the substituted
+// value. regen_pw() regenerates only below MOD_ENCUMBER, which makes its
+// energy draw the observable difference between substituting and not.
+test('an invulnerable hero regenerates energy as if unencumbered',
+    async () => {
+        await runSegment({
+            seed: 2026072301,
+            datetime: '20260723120000',
+            nethackrc: 'OPTIONS=name:Invulnerable,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) * 2,
+            nobj: null,
+        };
+        assert.equal(near_capacity(game), HVY_ENCUMBER);
+        // encumber_msg() prints only on a change, and its message would need
+        // a More dismissal that has nothing to do with this branch.
+        game.go = { oldcap: HVY_ENCUMBER };
+        // regen_pw()'s divisor is (MAXULEV + 8 - ulevel) * 4 / 6 for a
+        // non-Wizard, which is 24 at experience level 1; the read happens
+        // after moves is incremented.
+        game.moves = 23;
+        game.hero_seq = game.moves * 8;
+        game.u.umoved = false;
+        game.u.uen = 0;
+        game.u.uenmax = 5;
+        game.u.uinvulnerable = true;
+        game.context.move = 1;
+        game.u.umovement = 0;
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+        game.nhDisplay.pushKey('.'.charCodeAt(0));
+
+        await moveloop_core();
+
+        // A burdened hero needs several allocations for one command, so the
+        // turn whose moves reach the divisor is one of them rather than the
+        // last. rn1(upper, 1) always adds at least one energy point, so the
+        // regeneration is observable without pinning the count.
+        assert.ok(game.moves >= 24, `moves reached ${game.moves}`);
+        assert.ok(game.u.uen > 0, 'invulnerable hero regenerated energy');
+    });
 
 test('hunger weakness drives the next live multi-allocation path', async () => {
     await runSegment({
@@ -1268,6 +1343,28 @@ test('burdened multi-cycle upkeep stops before region and search work',
                     game.multi = 0;
                 },
             ],
+            [
+                'overexertion',
+                'overexertion hit point loss',
+                () => {
+                    // allmain.c runs overexert_hp() only above MOD_ENCUMBER.
+                    // calc_capacity() returns excess * 2 / wc + 1, so an
+                    // inventory of twice the carrying capacity leaves an
+                    // excess of one capacity and lands on HVY_ENCUMBER.
+                    game.invent = {
+                        oclass: TOOL_CLASS,
+                        otyp: SACK,
+                        owt: weight_cap(game) * 2,
+                        nobj: null,
+                    };
+                    assert.equal(near_capacity(game), HVY_ENCUMBER);
+                    // Below EXT_ENCUMBER the cadence is svm.moves % 30, read
+                    // after the increment, and the hero must have moved.
+                    game.moves = 29;
+                    game.hero_seq = game.moves * 8;
+                    game.u.umoved = true;
+                },
+            ],
         ]) {
             const replay = await runSegment({
                 seed: 2026072807,
@@ -1318,6 +1415,66 @@ test('burdened multi-cycle upkeep stops before region and search work',
                 );
                 assert.equal(getRngLog().length, beforeRng, name);
             }
+        }
+    });
+
+// The cloned round reaches makemon() through maybe_generate_rnd_mon(), so
+// UnsupportedMonsterCreationError is one of the classes it can raise. Unlike
+// the boundary classes, js/jsmain.js does not break the segment for it, so a
+// conversion that misses it discards every matching screen the segment had
+// already produced instead of stopping on the last one.
+test('a refused planned monster becomes a turn boundary, not a hard failure',
+    async () => {
+        const replay = await runSegment({
+            // At this seed the first planned round's rn2(70) selects a random
+            // monster, which is what carries the refusal below into the
+            // caller.
+            seed: 2026080005,
+            datetime: '20260728120000',
+            nethackrc: 'OPTIONS=name:PlannedMonGen,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) + 5,
+            nobj: null,
+        };
+        assert.ok(projected_capacity(game) > 0);
+        game.go = { oldcap: 1 };
+        // makemon() supports the species mklev places on D:1. Moving the hero
+        // off that level makes every random creation refuse, so the branch
+        // under test is the conversion rather than which species was rolled.
+        game.u.uz.dlevel = 2;
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+        game.u.umovement = 0;
+        game.context.move = 1;
+
+        const before = completeSecondTurnSnapshot(game, replay);
+        const beforeRng = getRngLog().length;
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            game.context.move = 1;
+            await assert.rejects(
+                () => moveloop_core(),
+                (error) => (
+                    error instanceof UnsupportedTurnBoundaryError
+                    && /monster creation/u.test(error.message)
+                ),
+                `rejects attempt ${attempt}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, replay),
+                before,
+                `snapshot attempt ${attempt}`,
+            );
+            assert.equal(getRngLog().length, beforeRng, `rng attempt ${attempt}`);
         }
     });
 

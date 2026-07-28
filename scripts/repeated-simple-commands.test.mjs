@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { moveloop_core } from '../js/allmain.js';
-import { DOOR } from '../js/const.js';
+import { DOOR, D_ISOPEN, D_NODOOR, STAIRS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
@@ -231,4 +231,42 @@ test('repeated-simple-command cases retain their source branch markers',
         const feltObject = game.level.objects[game.u.ux][game.u.uy];
         assert.ok(feltObject);
         assert.equal(feltObject.quan, 2);
+
+        // The five destinations the stairs and doorway commits added. Each
+        // segment steps off its starting square and back onto the terrain
+        // under test, so the end square is the admitted one. A bare staircase
+        // or doorway prints nothing, because pickup.c pickup() returns before
+        // look_here() when the square holds no object.
+        for (const index of [12, 13, 14]) {
+            const stairs = await runSegment(segments[index]);
+            assert.equal(
+                game.level.at(game.u.ux, game.u.uy).typ,
+                STAIRS,
+                `segment ${index} ends on stairs`,
+            );
+            assert.equal(topLine(), '', `segment ${index} prints nothing`);
+            // Both keystrokes elapsed a turn, so each drew from the stream.
+            assert.equal(stairs.getRngSlices().length, 3);
+            for (const slice of stairs.getRngSlices().slice(1))
+                assert.ok(slice.length > 0, `segment ${index} elapsed a turn`);
+        }
+
+        for (const [index, mask] of [
+            [15, D_NODOOR],
+            [16, D_ISOPEN],
+        ]) {
+            const doorway = await runSegment(segments[index]);
+            const square = game.level.at(game.u.ux, game.u.uy);
+            assert.equal(square.typ, DOOR, `segment ${index} ends on a door`);
+            assert.equal(
+                square.flags,
+                mask,
+                `segment ${index} door mask`,
+            );
+            assert.equal(topLine(), '', `segment ${index} prints nothing`);
+            assert.equal(
+                doorway.getRngSlices().length,
+                segments[index].moves.length + 1,
+            );
+        }
     });

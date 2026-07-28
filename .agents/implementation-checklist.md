@@ -9,68 +9,100 @@ the elapsed-turn stop that replaces C's `done(ESCAPED)`.
 ## Candidate construction
 
 The full `$audit-diff-correctness` pass over
-`e30ea05440a4850bee40881d3f65180c6ae7bb7b..2f92a4a83197c7e233b24a3e2b3b341b6700fd63`
-reported 22 raw, 20 deduplicated, and 15 confirmed findings, with five rejected,
-none unverified, and no warnings. Six of the fifteen were defects the previous
-cycle's own fixes introduced. The full report is at
-`scratchpad/findings3.md`.
+`e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`
+reported 23 raw, 22 deduplicated, and 19 confirmed findings, with three
+rejected, none unverified, and no warnings. It ran the four mandatory finders
+plus concurrency, which was enabled because the range converts `exercise()`,
+`exerper()`, `finishHeroTimeEffects()`, and `detect.js`'s `exerciseWisdom()`
+injection to `async`.
 
 ## Implementation table
 
 | # | JavaScript owner | What is wrong | Status |
 | --- | --- | --- | --- |
-| 1 | `js/allmain.js` turn limit | The `done(ESCAPED)` stop was atomic only for a burdened hero; unburdened threw mid-turn with `moves` at the wrap value and an ISAAC draw spent. | done |
-| 2 | `js/allmain.js` preflight catch | Three refusal classes the cloned round can raise escaped as hard failures instead of fail-closed boundaries. | done |
-| 3 | `js/allmain.js:515` | The live `near_capacity()` switch for `gethungry()`/`exerchk()` has no oracle: reverting both injections leaves the suite green and the 12-case matrix exact. | done |
-| 4 | `js/attrib.js` | The split moved the missing-`encumberMessage` rejection after the rn2 draw. | done |
-| 5 | `js/unported_monster_actions.js` | The `gt`/`svt` clone has no test. | done |
-| 6, 7 | `js/unported_monster_actions.js` | The planning `cansee` injection is unreachable dead code; its test pinned a different guard. | done |
-| 8, 9 | `js/unported_monster_actions.js` | The `movemon()` light-source recheck was inert; the divergence it claimed to close stayed open. | done |
-| 10 | `scripts/allmain-turn.test.mjs` | No unburdened twin of the capitulation test. | done |
-| 11 | `scripts/allmain-turn.test.mjs` | No test for the live-capacity switch. Same gap as row 3. | done |
-| 12 | `scripts/allmain-turn.test.mjs` | The burdened-upkeep test checked three scalars where its siblings compare a complete snapshot plus an RNG snapshot. | done |
-| 13, 14 | `scripts/unported-monster-actions.test.mjs` | The isolation test claims "every monster-generation global" but omits `gt`/`svt`, and returns before `finishElapsedTurn` runs, so no monster is generated and no timer started. | done |
-| 15 | `scripts/unported-monster-actions.test.mjs` | The visibility test cannot observe `canSeeSquare`. | done |
+| 1 | `js/allmain.js` elapsed turn | `moveloop_core()` omits C's `mvl_wtcap = UNENCUMBERED` substitution for an invulnerable hero and its `overexert_hp()` block, with no stop above `MOD_ENCUMBER`. | done |
+| 2 | `js/allmain.js:516` | The `gethungry()` half of the live-capacity switch has no oracle; reverting it alone leaves the suite green. | done |
+| 3 | `js/allmain.js:550` | The refusal-list comment claims a completeness the code does not have, and calls a pass-through an escape. | done |
+| 4 | `js/allmain.js:553` | The cloned round reaches `makemon()`, whose `UnsupportedMonsterCreationError` was rethrown unconverted and escapes `runSegment()`. | done |
+| 5 | `js/allmain.js`, `js/jsmain.js` | The range deleted the only in-play writer of `program_state.gameover` and added two more reads of it. | done |
+| 6 | `js/attrib.js:420` | Only `exerper()`'s WEAK arm pinned its new `await`; the three encumbrance arms and the five-turn cadence could all drop theirs. | done |
+| 7 | `js/hack.js:246` | The destination seam's contract comment still described ROOM and CORR only. | done |
+| 8, 10, 13 | `js/hack.js` | Admitting `D_ISOPEN` doorways made `test_move()`'s "diagonal out of an intact doorway" arm reachable, and nothing implemented it: the port moved the hero and elapsed a turn C refuses. | done |
+| 9 | `js/hack.js:268` | Arriving on `STAIRS` or a doorway holding one object skipped `look_here()`'s `dfeature_at()` line. | done |
+| 11 | `js/hack.js:279` | The diagonal comment named `doorless_door()` but the code tested `mask !== 0`, which C treats differently for `D_BROKEN`. | done |
+| 12 | `js/hack.js:282` | Neither refusal added beside the doorway admission had a test. | done |
+| 14 | `js/unported_monster_actions.js:603` | The planning `minLiquid` stub was silently permissive where the live owner refuses. | done |
+| 15 | `js/unported_monster_actions.js:662` | The light-source refusal could not fire on the allocation-to-allocation edge, which is the burdened path the preflight exists for. | done |
+| 16 | `scripts/allmain-turn.test.mjs:401` | The only test for `finishHeroTimeEffects()`'s new `await` recorded its marker synchronously. | done |
+| 17 | `scripts/repeated-simple-commands.test.mjs:70` | The five stairs and doorway segments were asserted for shape only. | done |
+| 18 | `scripts/run-repeated-simple-commands.mjs:202` | The predicate admitted three doorway masks where the recordings and comments covered two. | done |
+| 19 | `scripts/second-turn-snapshot.mjs:86` | The retryability oracle omitted every global the sibling isolation commits added to `planningState()`. | done |
+
+Rows 1, 8/10/13, and 9 closed as fail-closed stops rather than ports, because
+each needs an upstream function family this goal excludes. `ROADMAP.md` carries
+them as future work. Row 18 closed by narrowing the admitted masks to the two
+the recordings cover, so `D_BROKEN` refuses with the other masks.
 
 ## Validation
 
-- Commit checked: 4fc57d807d8e780714c2a3725d1fb8b7eabca92c
-- Full suite and generated checks: 1,692 tests, four generated-data checks, and
-  `check:namespace-members` pass at `4fc57d8`.
-- Fresh differential: `node scripts/run-repeated-simple-commands.mjs` records
-  the checked-in 17-segment matrix against C and matches 97,771 PRNG calls,
-  2,367 screens, and 2,367 cursors.
-- Development score: 98,436 PRNG values, 254 screens, 254 cursors, raised from
-  250 screens by the two stairs and doorway commits.
-- Quality check: `npm run quality -- --check` reports a clear review gate at
-  `4fc57d8`, with four areas at the advisory checkpoint and no unassigned
-  `js/` file.
+- Commit checked: pending for the fix commit
+- Full suite and generated checks: 1,704 tests, four generated-data checks, and
+  `check:namespace-members` pass.
+- Fresh differentials: `node scripts/run-repeated-simple-commands.mjs` matches
+  97,771 PRNG calls and 2,367 screens and cursors across 17 segments;
+  `node scripts/run-second-complete-turn.mjs` matches 46,255 PRNG calls and 54
+  screens and cursors across 17 segments.
+- Development score: 98,436 PRNG values, 254 screens, 254 cursors, unchanged
+  through every fix.
+- Mutation evidence: every new guard was re-checked by re-applying the mutation
+  it is meant to catch. Six mutations of the two diagonal doorway rules, the
+  `dfeature_at()` stop, the `mention_decor` stop, and the `D_BROKEN`
+  admission are caught; so are the overexertion stop, the `UNENCUMBERED`
+  substitution, the monster-creation conversion, both halves of the
+  light-source refusal, the dropped `await` in `finishHeroTimeEffects()`, each
+  of the four `exerper()` physical arms, and removing `STAIRS` and doorways
+  from the admitted destinations.
+
+### Case recorded against C but not yet matching
+
+Seed 990002, datetime `20300102030405`, the `DoorFind` rc of matrix segment 16,
+inputs `ljjjy`. The fifth key is a diagonal step off the `D_ISOPEN` doorway the
+first four reach. C refuses it in `test_move()` and consumes no time: all 2,633
+PRNG calls match and C's sixth cursor is `[6,9,1]`, the hero's own square. The
+port stops fail-closed there, so it emits five screens against C's six. It
+matches once `test_move()`'s zero-time refusal is ported, and it is kept out of
+the passing matrix until then.
+
+Before the fix, the same recording showed the defect the pass predicted: the
+port drew an `rn2(5)` C never draws, moved the hero to cursor `[5,8,1]`, and
+painted `@` where C shows `.`.
+
+### Oracle gap carried forward
+
+The `gethungry()` half of the live-capacity switch at `js/allmain.js` still has
+no reachable oracle. Nothing between `moveloop_core()`'s `mvl_wtcap` snapshot
+and `eat.c gethungry()` can change `weight_cap()` in the ported subset: C's own
+reason for the live read is a Levitation timeout expiring in `nh_timeout()`,
+which is unported. Reverting that one injection to the snapshot leaves the whole
+suite green, so do not read the commit title as coverage for it. The `exerchk()`
+half twelve lines below is pinned through the WEAK transition.
 
 ## Readiness
 
-Current mode: Ready for audit
+Current mode: Implementation
 
-Reason: all fifteen findings of the third pass are closed, and every new oracle
-was checked by re-applying the mutation it is meant to catch. `a0d6283` and
-`10613b8`, which admit STAIRS and non-blocking doorways as hero destinations,
-are traced to `test_move()` and covered by the three stair and two doorway
-segments of the checked-in matrix.
-
-The pass reviews `e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`,
-which is the whole slice since the last recorded frontier. That range covers
-both the third cycle's fixes and the stairs and doorway commits, which sit past
-the per-slice review window.
-
-Note for the next cycle: two consecutive passes have found that this slice's
-fixes introduce new defects at roughly a third the rate they close them. The
-next pass over the expanded range is due before the slice closes, and before
-any new roadmap slice starts.
+Reason: the pass is complete and all nineteen findings are closed, but the fix
+commit is itself unreviewed. Three of the last four passes over this slice
+found defects that the previous pass's own fixes introduced, and this fix tail
+is larger than the last: it changes production code in four files and adds a
+refusal the previous cycles never had. It is correctness debt for the next
+scheduled pass.
 
 ## Rejected findings, not to reopen
 
-Five findings were rejected with counter-evidence in the pass report retained at
-`scratchpad/findings3.md`. The previous cycle's rejection also stands:
-`capacity_from_excess()`'s `capacity <= 1` arm and `weight_cap()`'s
+The pass rejected three findings with counter-evidence; `QUALITY.json` records
+each with the evidence that settled it. The previous cycle's rejection also
+stands: `capacity_from_excess()`'s `capacity <= 1` arm and `weight_cap()`'s
 `max(carrcap, 1)` floor are structurally unreachable, and the identical mutation
-survives at `e30ea05`. Do not reopen either without a source-reachable input and
-a diff-causal line.
+survives at `e30ea05`. Do not reopen any of them without a source-reachable
+input and a diff-causal line.

@@ -53,24 +53,26 @@ walk, and match through the prompt after every command. Walk destinations in
 scope are an unoccupied object-free ordinary clear square, a `test_move()`
 refusal against wall or rock that consumes no time, a swap with an ordinary
 active starting pet, a square whose objects only produce a floor description,
-`STAIRS`, and a `DOOR` that is not closed, locked, or trapped. Ordinary D:1
-monsters, including ones generated part-way through the sequence, and the
-starting little dog, kitten, or pony may move normally or stay put.
+and an object-free `STAIRS` square or `DOOR` whose mask is exactly `D_NODOOR`
+or `D_ISOPEN`. Ordinary D:1 monsters, including ones generated part-way through
+the sequence, and the starting little dog, kitten, or pony may move normally or
+stay put.
 
 Excluded: the future-work list below, count prefixes, running, travel, every
-other command, pickup, a diagonal entry into a doorway that is not doorless,
-every closed, locked, or trapped door, and monster-initiated displacement of
-the hero. Each excluded path fails closed before any gameplay state change or
-PRNG consumption, preserving the supported prefix and leaving the pending phase
+other command, pickup, a diagonal move into or out of a doorway that is not
+doorless, every closed, locked, trapped, or broken door, a `STAIRS` or doorway
+square holding an object, and monster-initiated displacement of the hero. Each
+excluded path fails closed before any gameplay state change or PRNG
+consumption, preserving the supported prefix and leaving the pending phase
 retryable.
 
-**Status:** behaviorally complete, awaiting review. The full correctness pass
-over `e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`
-is the last thing between this goal and closure;
-`.agents/implementation-checklist.md` holds its validation evidence and
-readiness note. Two consecutive passes found that this slice's fixes introduce
-new defects at roughly a third the rate they close them, so budget for a
-follow-up cycle rather than assuming the pass closes it.
+**Status:** behaviorally complete. The full correctness pass over
+`e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`
+ran and its nineteen confirmed findings are closed;
+`.agents/implementation-checklist.md` holds the results and the cases the fixes
+deferred. The fix commit itself is correctness debt for the next pass, which is
+where the third of these findings that the previous cycle's own fixes
+introduced would show up again.
 
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
@@ -175,6 +177,19 @@ so the immediate return is small.
 - `pickup.c:describe_decor()` and the `iflags.prev_decor` per-square memory it
   keys off, needed once `mention_decor` is set. It deliberately suppresses the
   open-door and doorway cases.
+- `invent.c:dfeature_at()` and `stairs_description()`, which `look_here()`
+  prints before `You see here` when the square holds exactly one object. They
+  return nothing for `ROOM` and `CORR`, so admitting `STAIRS` and doorways as
+  destinations is what made them reachable; a decorated square holding an
+  object stops until they are ported.
+- `hack.c:overexert_hp()`, the hit point `moveloop_core()` costs a hero who
+  moved above `MOD_ENCUMBER` every thirtieth turn, and the `fall_asleep()`
+  pass-out at one hit point. The elapsed turn stops there instead.
+- `hack.c:test_move()`'s two zero-time diagonal doorway refusals, which set
+  `svc.context.move` to FALSE, call `nomul(0)`, and print through
+  `flags.mention_walls`. Both are refusals rather than moves, so the admission
+  seam stops on them; porting them means owning a no-time refusal that still
+  paints a frame.
 - Special monster movement or actions, including hiding, shapechanging,
   covetous tactics, fleeing teleportation, conflict, watch or quest behavior,
   speech, item use, and themed-room monster behavior beyond an inert wait.

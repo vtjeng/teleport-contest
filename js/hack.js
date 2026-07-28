@@ -7,8 +7,11 @@ import {
     BLINDED,
     CORR,
     DOOR,
+    D_BROKEN,
     D_CLOSED,
+    D_ISOPEN,
     D_LOCKED,
+    D_NODOOR,
     D_TRAPPED,
     FLYING,
     HALLUC,
@@ -243,9 +246,10 @@ function blocksMove(x, y, state) {
     return loc.typ === DOOR && (loc.doormask & (D_CLOSED | D_LOCKED));
 }
 
-// This repeated-command boundary owns entry into an unoccupied ROOM or CORR
-// square plus the ordinary single-object description produced when autopickup
-// is disabled. These checks are a temporary admission seam in front of
+// This repeated-command boundary owns entry into an unoccupied ROOM, CORR, or
+// STAIRS square, or a doorway whose mask is exactly D_NODOOR or D_ISOPEN,
+// plus the ordinary single-object description produced when autopickup is
+// disabled. These checks are a temporary admission seam in front of
 // hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
 function requireSimpleHeroDestination(x, y, state) {
@@ -260,11 +264,17 @@ function requireSimpleHeroDestination(x, y, state) {
     // that is not closed_door() reaches only test_move()'s testdiag arm,
     // which refuses a diagonal entry and allows an orthogonal one; the
     // diagonal case is refused below.
-    // D_TRAPPED is excluded: C admits an open trapped door here because its
-    // trap fires from doopen(), not from entry, but that path is not traced
-    // yet, so it stays refused.
+    // Only D_NODOOR and D_ISOPEN are admitted, the two masks recorded against
+    // the C program. D_BROKEN behaves like D_NODOOR in doorless_door() but
+    // differs in dfeature_at(), which returns the literal "broken door" where
+    // the other two go through the cmap; sp_lev.c rnddoor() can produce it on
+    // a themed-room door, so it is refused rather than assumed equivalent.
+    // D_TRAPPED is excluded too: C admits an open trapped door here because
+    // its trap fires from doopen(), not from entry, but that path is not
+    // traced yet, so it stays refused.
+    const mask = doorMask(location);
     const doorway = location?.typ === DOOR
-        && !(doorMask(location) & (D_CLOSED | D_LOCKED | D_TRAPPED));
+        && (mask === D_NODOOR || mask === D_ISOPEN);
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
@@ -275,16 +285,27 @@ function requireSimpleHeroDestination(x, y, state) {
             'door or special terrain movement',
         );
     }
+    const diagonal = state.u.ux !== x && state.u.uy !== y;
     // test_move()'s testdiag arm: a diagonal move into a doorway is refused
-    // unless the doorway is doorless. That refusal consumes no time, which is
-    // a different owner from this seam, so it stays here until that branch is
-    // ported.
-    if (doorway
-        && doorMask(location) !== 0
-        && state.u.ux !== x
-        && state.u.uy !== y) {
+    // unless doorless_door() holds and block_door() is false. That refusal
+    // consumes no time, which is a different owner from this seam, so it stays
+    // here until that branch is ported. block_door() is shop-only and cannot
+    // hold at this boundary.
+    if (doorway && !doorless_door(location) && diagonal) {
         throw new UnsupportedHeroMoveBoundaryError(
             'diagonal doorway refusal',
+        );
+    }
+    // test_move() takes ust = &levl[ux][uy] and refuses a diagonal move out of
+    // a doorway that still has its door, for the same reason and with the same
+    // zero-time result. Nothing else in this seam reads the hero's own square,
+    // so admitting doorways as destinations is what makes this arm reachable.
+    // block_entry() is the shop counterpart of block_door() and likewise
+    // cannot hold here.
+    const heroSquare = state.level?.at(state.u.ux, state.u.uy);
+    if (heroSquare?.typ === DOOR && !doorless_door(heroSquare) && diagonal) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'diagonal intact doorway exit',
         );
     }
     // pickup.c pickup() returns before look_here() when the square holds no
@@ -303,6 +324,16 @@ function requireSimpleHeroDestination(x, y, state) {
         throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
     if (floorObject?.nexthere)
         throw new UnsupportedHeroMoveBoundaryError('floor object pile');
+    // invent.c look_here() computes dfeature_at() unconditionally and prints
+    // it before "You see here" when the square holds exactly one object.
+    // dfeature_at() describes a stairway through stairs_description() and
+    // every IS_DOOR mask through the cmap, and returns 0 for ROOM and CORR,
+    // so only the two terrain types admitted above can produce that line.
+    // Neither dfeature_at() nor stairs_description() is ported.
+    if (floorObject && (location.typ === STAIRS || doorway))
+        throw new UnsupportedHeroMoveBoundaryError(
+            'terrain feature description',
+        );
     if (t_at(x, y, state))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
 
@@ -317,6 +348,16 @@ function requireSimpleHeroDestination(x, y, state) {
 
 function doorMask(location) {
     return location?.flags || location?.doormask || 0;
+}
+
+// C ref: hack.c doorless_door(). A doorway lacks its door when no mask bit
+// outside D_NODOOR and D_BROKEN is set. Both of test_move()'s diagonal rules
+// turn on this predicate, so they read it here rather than testing masks
+// themselves. The Is_rogue_level() arm is not ported: the rogue level is not
+// reachable from this boundary.
+function doorless_door(location) {
+    return location?.typ === DOOR
+        && (doorMask(location) & ~(D_NODOOR | D_BROKEN)) === 0;
 }
 
 function requireOrdinaryStartingPetSwap(monster, x, y, state) {

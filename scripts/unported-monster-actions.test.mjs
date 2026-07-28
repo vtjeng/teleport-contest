@@ -19,6 +19,7 @@ import {
     HEADSTONE,
     IN_SIGHT,
     LAVAPOOL,
+    LS_OBJECT,
     MMOVE_NOTHING,
     MON_FLOOR,
     NEED_WEAPON,
@@ -399,6 +400,55 @@ test('complete retry snapshot detects each deferred output owner',
                     state.gw.wc += 1;
                 },
             },
+            // The five owners below are the globals planningState() clones.
+            // Without them the snapshot cannot see a planned round that left
+            // a timer, a light source, or a birth count behind, which is
+            // exactly what the stop tests use it to prove.
+            {
+                name: 'timer queue',
+                mutate: ({ state }) => {
+                    state.gt.timer_base = {
+                        func_index: 0,
+                        kind: TIMER_OBJECT,
+                        timeout: (state.moves ?? 0) + 50,
+                        timer_id: (state.svt?.timer_id ?? 0) + 1,
+                        arg: { o_id: 8801 },
+                        next: state.gt.timer_base,
+                    };
+                },
+            },
+            {
+                name: 'next timer identifier',
+                mutate: ({ state }) => {
+                    state.svt.timer_id += 1;
+                },
+            },
+            {
+                name: 'monster vitals',
+                mutate: ({ state }) => {
+                    state.mvitals[PM_GNOME].born += 1;
+                },
+            },
+            {
+                name: 'light source list',
+                mutate: ({ state }) => {
+                    state.gl.light_base = {
+                        x: state.u.ux,
+                        y: state.u.uy,
+                        range: 2,
+                        type: LS_OBJECT,
+                        flags: 0,
+                        id: { o_id: 8802 },
+                        next: state.gl.light_base,
+                    };
+                },
+            },
+            {
+                name: 'game option flags',
+                mutate: ({ state }) => {
+                    state.flags.mention_walls = !state.flags.mention_walls;
+                },
+            },
             {
                 name: 'display RNG',
                 mutate: ({ state }) => {
@@ -575,6 +625,54 @@ test('multi-round planning isolates every monster-generation global',
         assert.deepEqual(game.mvitals, liveVitals);
         assert.deepEqual(game.flags, liveFlags);
         assert.strictEqual(game.gl.light_base, liveLight);
+    });
+
+// mon.c movemon() sets vision_full_recalc whenever a light source is present,
+// and movemon_singlemon() rebuilds viz_array for the next ration-spending
+// monster. The scan after an allocation crosses that same tail, so a guard
+// that only covers a repeat of the inner scan leaves the burdened path this
+// preflight exists for planning against an index the live pass replaces.
+test('a scan after a planned allocation refuses the light-source rebuild',
+    async () => {
+        const target = await prepareSelectedAction();
+        game.gl.light_base = {
+            flags: 0,
+            id: { o_id: 9802 },
+            next: null,
+            range: 1,
+            type: LS_OBJECT,
+            x: target.monsterX,
+            y: target.heroY,
+        };
+        game.u.umovement = 0;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        let rounds = 0;
+        await assert.rejects(
+            preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    // The second call ends the plan, so a build that never
+                    // refuses resolves instead of looping forever.
+                    if (++rounds > 1) return true;
+                    for (let monster = planned.level.monlist;
+                        monster;
+                        monster = monster.nmon) {
+                        monster.movement = NORMAL_SPEED;
+                    }
+                    return false;
+                },
+            }),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason
+                    === 'monster light-source vision recalculation'
+            ),
+        );
+        assert.equal(rounds, 1);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
     });
 
 test('fog upkeep is planned below and at its movement ration atomically',

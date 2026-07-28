@@ -32,6 +32,39 @@ function monsterListSnapshot(state) {
     return monsters;
 }
 
+// timeout.c keeps one queue whose nodes carry a monster or object reference in
+// `arg`; light.c keeps one list whose nodes carry the same in `id`. Serialize
+// both by identifier so a leaked node is visible without cloning live monster
+// objects through them.
+function timerListSnapshot(state) {
+    const timers = [];
+    for (let timer = state.gt?.timer_base; timer; timer = timer.next) {
+        timers.push({
+            func_index: timer.func_index ?? null,
+            kind: timer.kind ?? null,
+            timeout: timer.timeout ?? null,
+            timer_id: timer.timer_id ?? null,
+            arg: timer.arg?.m_id ?? timer.arg?.o_id ?? timer.arg ?? null,
+        });
+    }
+    return timers;
+}
+
+function lightSourceSnapshot(state) {
+    const sources = [];
+    for (let source = state.gl?.light_base; source; source = source.next) {
+        sources.push({
+            x: source.x ?? null,
+            y: source.y ?? null,
+            range: source.range ?? null,
+            type: source.type ?? null,
+            flags: source.flags ?? null,
+            id: source.id?.m_id ?? source.id?.o_id ?? source.id ?? null,
+        });
+    }
+    return sources;
+}
+
 function rngContext(context) {
     return {
         a: context.a,
@@ -82,11 +115,17 @@ export function completeSecondTurnSnapshot(state, replay) {
             emittingGlyphNotices:
                 state._emittingGlyphUpdateNotices ?? false,
         },
+        flags: structuredClone(state.flags),
         gg: structuredClone(state.gg),
         go: structuredClone(state.go),
         gw: structuredClone(state.gw),
         hero: structuredClone(state.u),
         iflags: structuredClone(state.iflags),
+        // Every global the planning clone isolates belongs here; a stop that
+        // leaks one of them into the live game is not retryable, and the
+        // snapshot is what the stop tests compare.
+        lightSources: lightSourceSnapshot(state),
+        monsterVitals: structuredClone(state.mvitals ?? null),
         input: {
             queue: [...(state.nhDisplay.terminal._inputQueue ?? [])],
             waitEpoch: state.nhDisplay.waitEpoch,
@@ -115,6 +154,10 @@ export function completeSecondTurnSnapshot(state, replay) {
             purgeMonsters: state.iflags?.purge_monsters ?? null,
             somebodyCanMove: state.somebody_can_move ?? null,
             visionFullRecalc: state.vision_full_recalc ?? null,
+        },
+        timers: {
+            nextId: state.svt?.timer_id ?? null,
+            queue: timerListSnapshot(state),
         },
         track: structuredClone(state.track),
         turn: {

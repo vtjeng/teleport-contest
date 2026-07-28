@@ -20,6 +20,7 @@ import {
     RLOC_NOMSG,
     SEARCHING,
     SLT_ENCUMBER,
+    UNENCUMBERED,
 } from './const.js';
 import { effective_attribute, exerchk } from './attrib.js';
 import { makedog, see_nearby_monsters } from './dog.js';
@@ -35,7 +36,11 @@ import {
     UnsupportedMonsterDistressError,
     were_change,
 } from './mon.js';
-import { dmonsfree, makemon } from './makemon_create.js';
+import {
+    dmonsfree,
+    makemon,
+    UnsupportedMonsterCreationError,
+} from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
@@ -431,11 +436,12 @@ async function finishElapsedTurn(
 ) {
     // C ref: allmain.c moveloop_core()'s mvl_wtcap, taken once after the
     // monster loop. C reuses this snapshot only for u_calc_moveamt(),
-    // regen_hp(), regen_pw(), and the overexertion check. eat.c gethungry()
-    // and attrib.c exerper() each call near_capacity() themselves, so they get
-    // a live evaluator below rather than this value, which nh_timeout() and
-    // the hunger transition can already have invalidated.
-    const wtcap = near_capacity(state);
+    // regen_hp(), regen_pw(), and the overexertion check, and substitutes
+    // UNENCUMBERED for the last two when the hero is invulnerable. eat.c
+    // gethungry() and attrib.c exerper() each call near_capacity() themselves,
+    // so they get a live evaluator below rather than this value, which
+    // nh_timeout() and the hunger transition can already have invalidated.
+    let wtcap = near_capacity(state);
     const regionEnv = planning ? null : regionEffectEnv(state, random);
     state.gw.were_changes = 0;
     await mcalcdistress(state, {
@@ -494,8 +500,24 @@ async function finishElapsedTurn(
     if (!planning) await run_regions(regionEnv);
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
-    if (!state.u.uinvulnerable)
-        regen_hp(wtcap, state, { random });
+    // C ref: allmain.c substitutes UNENCUMBERED for an invulnerable hero
+    // instead of healing, and the two consumers below then read the
+    // substituted value rather than the snapshot taken above.
+    if (state.u.uinvulnerable) wtcap = UNENCUMBERED;
+    else regen_hp(wtcap, state, { random });
+    // C ref: allmain.c's "moving around while encumbered is hard work" block,
+    // between regen_hp() and regen_pw(). overexert_hp() costs a hit point and
+    // refreshes the status line, and at uhp <= 1 it also prints a message,
+    // draws rn2 through exercise(A_CON, FALSE), and calls fall_asleep(). None
+    // of that is ported, so the branch stops instead. Only a burdened hero can
+    // reach wtcap > MOD_ENCUMBER, and a burdened turn is planned on the clone
+    // first, so the live pass stops before spending anything on this turn.
+    if (wtcap > MOD_ENCUMBER && state.u.umoved
+        && !(wtcap < EXT_ENCUMBER
+            ? state.moves % 30
+            : state.moves % 10)) {
+        elapsedTurnBoundary('overexertion hit point loss');
+    }
     regen_pw(wtcap, state, { random });
 
     if (propertyActive(state, SEARCHING)
@@ -547,14 +569,21 @@ function unavailableElapsedTurnOperation(operation) {
     };
 }
 
-// Every refusal class the cloned once-per-turn round can raise. Each becomes
-// an UnsupportedTurnBoundaryError so the segment stops on its last matching
-// screen rather than throwing out of runSegment().
+// The refusal classes the cloned once-per-turn round can raise that must be
+// converted to UnsupportedTurnBoundaryError, so the segment stops on its last
+// matching screen rather than throwing out of runSegment(). The clone also
+// raises UnsupportedTurnBoundaryError directly, from finishElapsedTurn()'s own
+// stops and from the operations unavailableElapsedTurnOperation() covers;
+// those pass through the catch below unchanged because js/jsmain.js already
+// treats that class as a segment boundary. A refusal class that is neither in
+// this list nor already an UnsupportedTurnBoundaryError escapes runSegment()
+// as a hard failure, so a newly invented one belongs here.
 const ELAPSED_TURN_PLANNING_REFUSALS = [
     UnsupportedSimpleMonsterActionError,
     UnsupportedHeroTimeoutBoundaryError,
     UnsupportedHungerTransitionError,
     UnsupportedMonsterDistressError,
+    UnsupportedMonsterCreationError,
 ];
 
 const runElapsedTurnMonsterAction =
@@ -601,10 +630,11 @@ async function advanceElapsedTurn(state) {
     } catch (error) {
         // The planning round runs the whole once-per-turn block on the clone,
         // so any owner it reaches can refuse: monster distress, the timeout
-        // preflight, and the hunger transition all raise their own class.
-        // js/jsmain.js breaks the segment only for the three boundary types,
-        // so anything not converted here escapes as a hard failure and
-        // discards the matching prefix instead of stopping on it.
+        // preflight, the hunger transition, and random monster generation all
+        // raise their own class. js/jsmain.js breaks the segment only for the
+        // three boundary types, so a class that is neither converted here nor
+        // already one of those escapes as a hard failure and discards the
+        // matching prefix instead of stopping on it.
         if (!ELAPSED_TURN_PLANNING_REFUSALS.some(
             (type) => error instanceof type,
         )) {
@@ -719,7 +749,6 @@ async function advanceElapsedTurn(state) {
 // C ref: allmain.c moveloop_core()
 export async function moveloop_core() {
     const g = game;
-    if (g.program_state?.gameover) return;
 
     // C gates its entire elapsed-time block on the preceding command's
     // context.move value. Capture that value before the next command dispatch
@@ -728,7 +757,6 @@ export async function moveloop_core() {
         // C ref: allmain.c moveloop_core() has one elapsed path for every
         // turn, and so does this.
         await advanceElapsedTurn(g);
-        if (g.program_state?.gameover) return;
     }
 
     // C has a separate clear_splitobjs() at movemon()'s terminal boundary.
@@ -787,6 +815,11 @@ export async function moveloop(resuming) {
     await docrt();
     await flush_screen(1);
 
+    // C ref: allmain.c moveloop() runs until program_state.gameover. The only
+    // writer in the port is js/jsmain.js's player-selection abort, which
+    // returns before this loop starts, so every game-ending path currently
+    // leaves through a thrown boundary instead. done() will restore the
+    // in-play writer.
     for (;;) {
         await moveloop_core();
         if (game.program_state?.gameover) break;

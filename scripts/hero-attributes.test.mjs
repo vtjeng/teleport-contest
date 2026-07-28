@@ -16,9 +16,13 @@ import {
     A_WIS,
     CLAIRVOYANT,
     CONFUSION,
+    EXT_ENCUMBER,
+    FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
     HVY_ENCUMBER,
+    MOD_ENCUMBER,
+    NOT_HUNGRY,
     REGENERATION,
     SICK,
     WEAK,
@@ -305,6 +309,75 @@ test('exerper awaits physical encumbrance output before later upkeep',
             'capacity',
         ]);
     });
+
+// The hunger arm above is only one of the five places exerper() awaits a
+// physical exercise. Each encumbrance band and the five-turn cadence reach
+// exercise(A_STR) or exercise(A_CON) as well, and encumber_msg() assigns
+// go.oldcap only after its message resolves, so an unawaited call there would
+// both reorder output and defer the comparison the next call reads.
+test('every exerper physical arm awaits its encumbrance output', async () => {
+    // Every case runs at a multiple of ten with Regeneration and Sickness
+    // intrinsic, so the ten-turn hunger and capacity arms are followed by two
+    // more physical exercises. A dropped await inside an arm therefore starts
+    // the next message before this test releases the current one, and a
+    // dropped await on the last arm resolves exerper() while a message is
+    // still open. Both are invisible without a trailing observer.
+    const cases = [
+        // Not hungry keeps the hunger switch on exercise(A_CON, TRUE), whose
+        // own await the WEAK case above already covers.
+        { name: 'unencumbered', capacity: 0, messages: 3 },
+        // Moderate and heavy exercise Strength, extreme exercises Dexterity
+        // then Constitution, and only Strength and Constitution reach
+        // encumber_msg(), so each band adds exactly one message.
+        { name: 'moderate encumbrance', capacity: MOD_ENCUMBER, messages: 4 },
+        { name: 'heavy encumbrance', capacity: HVY_ENCUMBER, messages: 4 },
+        { name: 'extreme encumbrance', capacity: EXT_ENCUMBER, messages: 4 },
+    ];
+
+    for (const exerciseCase of cases) {
+        const state = baseState();
+        state.moves = 10;
+        state.u.uhunger = 900;
+        state.u.uhs = NOT_HUNGRY;
+        // Regeneration exercises Strength and Sickness exercises Constitution
+        // in the five-turn block, in that order, after the capacity switch.
+        state.u.uprops = {
+            [REGENERATION]: { intrinsic: FROMOUTSIDE, extrinsic: 0 },
+            [SICK]: { intrinsic: FROMOUTSIDE, extrinsic: 0 },
+        };
+        const gates = [];
+        let settled = false;
+
+        const upkeep = exerper(state, {
+            random: { rn2: () => 0 },
+            encumberMessage: () => new Promise((resolve) => {
+                gates.push(resolve);
+            }),
+            nearCapacity: () => exerciseCase.capacity,
+        }).then(() => {
+            settled = true;
+        });
+
+        for (let index = 0; index < exerciseCase.messages; ++index) {
+            // Drain the microtask queue so however many awaits separate two
+            // exercise() calls, the count below is the number started.
+            await new Promise((resolve) => { setImmediate(resolve); });
+            assert.equal(
+                gates.length,
+                index + 1,
+                `${exerciseCase.name} held at message ${index}`,
+            );
+            assert.equal(
+                settled,
+                false,
+                `${exerciseCase.name} still owed message ${index}`,
+            );
+            gates[index]();
+        }
+        await upkeep;
+        assert.equal(gates.length, exerciseCase.messages, exerciseCase.name);
+    }
+});
 
 test('adjattrib preserves below-minimum base and maximum handling', async () => {
     const state = baseState();
