@@ -11,34 +11,89 @@ import { loadNoTimeCommandsRecipe } from './run-no-time-commands.mjs';
 // setting context.move, which is the property the assertions below measure.
 const UNBOUND_BYTES = new Set([...' %\'~]M}{']);
 
+// invent.c dolook()'s default binding.
+const LOOK_KEY = ':';
+
 function topLine() {
     return game.nhDisplay.grid[0]
         .map(({ ch }) => ch).join('').trimEnd();
 }
 
-function stripUnbound(moves) {
-    return [...moves].filter((key) => !UNBOUND_BYTES.has(key)).join('');
+function noTimeKey(key) {
+    return UNBOUND_BYTES.has(key) || key === LOOK_KEY;
+}
+
+function stripNoTime(moves) {
+    return [...moves].filter((key) => !noTimeKey(key)).join('');
 }
 
 test('no-time-command matrix contains only source-selected inputs', () => {
     const recipe = loadNoTimeCommandsRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 3);
+    assert.equal(recipe.segments.length, 7);
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [11, 10, 7],
+        [11, 10, 7, 5, 4, 3, 2],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
         assert.ok(
-            [...segment.moves].some((key) => UNBOUND_BYTES.has(key)),
-            'every segment exercises at least one unbound byte',
+            [...segment.moves].some(
+                (key) => UNBOUND_BYTES.has(key) || key === LOOK_KEY,
+            ),
+            'every segment exercises a command that takes no game time',
+        );
+    }
+    // The first three segments own the unbound byte; the rest own the look
+    // command. Both classes must stay represented as the matrix grows.
+    assert.equal(
+        recipe.segments.filter(
+            ({ moves }) => [...moves].some((key) => UNBOUND_BYTES.has(key)),
+        ).length,
+        3,
+    );
+    assert.equal(
+        recipe.segments.filter(({ moves }) => moves.includes(LOOK_KEY)).length,
+        4,
+    );
+});
+
+test('the look command reports the square and takes no game time', async () => {
+    const { segments } = loadNoTimeCommandsRecipe();
+    // Each expectation is the line C printed in the recording that admitted
+    // the segment: a staircase, a bare floor, a doorway, and one object.
+    for (const [index, prefix, expected] of [
+        [3, 3, 'There is a staircase up out of the dungeon here.'],
+        [4, 2, 'You see no objects here.'],
+        [5, 2, 'There is a doorway here.'],
+        [6, 2, 'You see here 2 gold pieces.'],
+    ]) {
+        const segment = segments[index];
+        assert.equal(segment.moves[prefix - 1], LOOK_KEY);
+        const before = await runSegment({
+            ...segment,
+            moves: segment.moves.slice(0, prefix - 1),
+        });
+        const { moves, ux, uy } = { ...game.u, moves: game.moves };
+        const rng = before.getRngLog().length;
+
+        const after = await runSegment({
+            ...segment,
+            moves: segment.moves.slice(0, prefix),
+        });
+        await flush_screen(1);
+        assert.equal(topLine(), expected, `segment ${index}`);
+        assert.deepEqual(
+            [game.moves, game.u.ux, game.u.uy, after.getRngLog().length],
+            [moves, ux, uy, rng],
+            `segment ${index} spent no turn and no randomness`,
         );
     }
 });
 
-test('unbound bytes leave the game where dropping them would', async () => {
+test('no-time commands leave the game where dropping them would',
+    async () => {
     const { segments } = loadNoTimeCommandsRecipe();
 
     for (const [index, segment] of segments.entries()) {
@@ -55,11 +110,11 @@ test('unbound bytes leave the game where dropping them would', async () => {
             `segment ${index} emits one screen per key plus the first prompt`,
         );
 
-        const strippedMoves = stripUnbound(segment.moves);
+        const strippedMoves = stripNoTime(segment.moves);
         assert.notEqual(
             strippedMoves.length,
             segment.moves.length,
-            `segment ${index} carries unbound bytes to strip`,
+            `segment ${index} carries a no-time command to strip`,
         );
         const stripped = await runSegment({
             ...segment,
@@ -73,8 +128,8 @@ test('unbound bytes leave the game where dropping them would', async () => {
                 rng: stripped.getRngLog().length,
             },
             afterFull,
-            `segment ${index} spent no turn and no randomness on an `
-                + 'unbound byte',
+            `segment ${index} spent no turn and no randomness on a `
+                + 'no-time command',
         );
     }
 });

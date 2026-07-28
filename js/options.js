@@ -275,6 +275,8 @@ function defaultResult() {
             safe_dog: true,
             // optlist.h: safe_wait is opt_out and defaults On.
             safe_wait: true,
+            // options.c initoptions_init(): PILE_LIMIT_DFLT.
+            pile_limit: 5,
             pushweapon: false,
             showexp: false,
             showvers: false,

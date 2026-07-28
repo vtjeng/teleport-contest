@@ -65,6 +65,59 @@ export function loadNoTimeCommandsRecipe() {
                 // count digit, so the unbound set follows the option.
                 moves: '.%.2%~.',
             },
+            // The look command, `:`, whose look_here() branches also take no
+            // game time for a sighted hero.
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'Unbound',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // The hero starts on the upstairs, so this looks at a terrain
+                // feature: dfeature_at() through stairs_description().
+                moves: '..:..',
+            },
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'Unbound',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // One step west reaches a bare floor square, where look_here()
+                // has no feature to name and answers "You see no objects
+                // here."; the step back looks at the staircase again.
+                moves: 'h:l:',
+            },
+            {
+                seed: 990003,
+                datetime: '20300102030405',
+                nethackrc: nethackrc({
+                    name: 'DoorFind',
+                    role: 'Healer',
+                    gender: 'male',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A doorless doorway, the other dfeature_at() branch this
+                // milestone reaches, looked at twice so the repeated message
+                // is covered too.
+                moves: 'h::',
+            },
+            {
+                seed: 51001,
+                datetime: '20320405060708',
+                nethackrc: nethackrc({
+                    name: 'BObj',
+                    role: 'Healer',
+                    options: '!autopickup,pettype:none,!acoustics',
+                }),
+                // A square holding exactly one object, which look_here()
+                // describes after the engraving read.
+                moves: 'l:',
+            },
         ],
     }, 'no-time commands recipe');
 }

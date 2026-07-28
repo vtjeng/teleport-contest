@@ -15,7 +15,9 @@ import {
     STRANGLED,
 } from './const.js';
 import { flush_screen } from './display.js';
+import { can_reach_floor, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { dolook } from './invent.js';
 import {
     domove,
     endRunning,
@@ -309,10 +311,10 @@ function unboundCommandKey(key, command, model) {
         : !isDigit(key);
 }
 
-// The repeated-simple-command milestone admits only one uncounted wait or
-// run-mode-zero walk byte, plus a byte bound to no command at all. Classify
-// that first logical byte before get_count() can consume a prefix byte or
-// expose transient count output.
+// This milestone admits one uncounted wait, one-square walk, or look byte,
+// plus a byte bound to no command at all. Classify that first logical byte
+// before get_count() can consume a prefix byte or expose transient count
+// output.
 async function readSimpleCommand(state) {
     await beginCommandParse(state);
     let key;
@@ -325,8 +327,10 @@ async function readSimpleCommand(state) {
     const model = commandBindings(state);
     const command = commandForKey(model, key);
     const movement = MOVEMENT_INTENTS[command];
-    if (command !== 'wait' && (!movement || movement[2] !== 0)
-        && !unboundCommandKey(key, command, model)) {
+    const admitted = command === 'wait' || command === 'look'
+        || (movement && movement[2] === 0)
+        || unboundCommandKey(key, command, model);
+    if (!admitted) {
         abortCommandParse(state);
         throw new UnsupportedHeroCommandBoundaryError(
             'the repeated-command boundary admits only an uncounted wait '
@@ -513,6 +517,23 @@ export async function rhack(key, state = game) {
         }
         if (command === 'wait') {
             if (!await donull(state)) resetCommandVars(state);
+            return;
+        }
+        if (command === 'look') {
+            const elapsed = await dolook(state, {
+                message: ttyPline,
+                readEngraving: () => read_engr_at(
+                    state.u.ux,
+                    state.u.uy,
+                    state,
+                    { pline: ttyPline, canReachFloor: can_reach_floor },
+                ),
+            });
+            // C ref: rhack()'s result handling. dolook() returns ECMD_OK for
+            // a sighted hero, which reaches reset_cmd_vars(); only ECMD_TIME
+            // puts context.move back to TRUE.
+            resetCommandVars(state);
+            if (elapsed) state.context.move = 1;
             return;
         }
         if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
