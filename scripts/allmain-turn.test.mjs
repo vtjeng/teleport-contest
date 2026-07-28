@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import {
@@ -65,6 +66,7 @@ import {
     RECORDER_SEGMENT_LIMIT,
 } from './run-first-command-closure.mjs';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
@@ -74,6 +76,12 @@ function movementState(speed = 12, umovement = 0) {
         youmonst: { data: { mmove: speed } },
         context: {},
     };
+}
+
+function digest(value) {
+    return createHash('sha256')
+        .update(JSON.stringify(value))
+        .digest('hex');
 }
 
 function randomMonsterTurnState({ demigod = false, depth = 1 } = {}) {
@@ -392,26 +400,36 @@ test('clairvoyance cadence preserves gating, mapping, and update order', () => {
     }
 });
 
-test('hero time effects increment the sequence before seer cadence', () => {
+test('hero time effects order sequence, encumbrance, then seer cadence',
+    async () => {
     const state = clairvoyanceTurnState();
-    finishHeroTimeEffects(state, {
+    const order = [];
+    await finishHeroTimeEffects(state, {
+        encumberMessage: async () => {
+            order.push('encumbrance');
+            assert.equal(state.hero_seq, 161);
+        },
         random: {
             rn1(range, base) {
+                order.push('clairvoyance');
                 assert.deepEqual([range, base], [31, 15]);
                 assert.equal(state.hero_seq, 161);
                 return 15;
             },
         },
     });
+    assert.deepEqual(order, ['encumbrance', 'clairvoyance']);
     assert.equal(state.hero_seq, 161);
     assert.equal(state.context.seer_turn, 35);
 });
 
-test('hero time effects validate due clairvoyance owners atomically', () => {
+test('hero time effects validate due clairvoyance owners atomically',
+    async () => {
     const missingMap = clairvoyanceTurnState();
     missingMap.u.uprops[CLAIRVOYANT].extrinsic = 1;
-    assert.throws(
+    await assert.rejects(
         () => finishHeroTimeEffects(missingMap, {
+            encumberMessage: () => assert.fail('missing map must not notify'),
             random: { rn1: () => assert.fail('missing map must not draw') },
         }),
         /requires doVicinityMap/u,
@@ -420,8 +438,12 @@ test('hero time effects validate due clairvoyance owners atomically', () => {
     assert.equal(missingMap.context.seer_turn, 20);
 
     const missingRandom = clairvoyanceTurnState();
-    assert.throws(
-        () => finishHeroTimeEffects(missingRandom, { random: {} }),
+    await assert.rejects(
+        () => finishHeroTimeEffects(missingRandom, {
+            encumberMessage: () =>
+                assert.fail('missing random must not notify'),
+            random: {},
+        }),
         /requires rn1/u,
     );
     assert.equal(missingRandom.hero_seq, 160);
@@ -709,7 +731,7 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
     });
 
 test('the billionth turn capitulates before hero sequence and upkeep',
-    async () => {
+    () => withSerializedGrids(async () => {
         const replay = await runSegment({
             seed: 2026072301,
             datetime: '20260723120000',
@@ -780,7 +802,37 @@ test('the billionth turn capitulates before hero sequence and upkeep',
         await moveloop_core();
         assert.equal(replay.getScreens().length, terminalScreenCount + 3);
         assert.equal(replay.getCursors().length, terminalCursorCount + 3);
-    });
+        // Recorder patch 006 captures a final frame with no pending key, and
+        // the assertions above only reach the topline text and the cursor.
+        // These digests cover every one of the 24x80 cells, including color
+        // and attribute, so a regression anywhere else in the capitulation
+        // frame fails here. Both were produced by this test at the commit
+        // that added them; regenerate with digest(...) after confirming
+        // against a fresh C recording that the frame really changed.
+        assert.equal(
+            digest(JSON.parse(replay.getScreens().at(-1))),
+            '1d139e145ce9d421cf6417ce48ae0095856e0b1ef2026cd2691799543f9b3554',
+        );
+        // The three-frame digest is the stale-frame discriminator: the single
+        // digest above still passes if the recorder repeats one frame three
+        // times, this one does not.
+        assert.equal(
+            digest(replay.getScreens().slice(-3).map(JSON.parse)),
+            'eb13b5ba8d3b4565041e9cc2b4f406dd6710517c0d3a822321b6632ac586abfe',
+        );
+        // The three captures own their cursors independently of the frames.
+        // Each column is the end of that frame's topline: 24 ends
+        // "A prior message.--More--", 64 ends "Your movements are slowed
+        // slightly because of your load.--More--" (the encumber_msg() the
+        // hero-time block now runs), and 43 leaves the topline for the hero
+        // at (u.ux - 1, u.uy + 1), the position asserted above. All three
+        // captures report a visible cursor (1).
+        assert.deepEqual(replay.getCursors().slice(-3), [
+            [24, 0, 1],
+            [64, 0, 1],
+            [43, 5, 1],
+        ]);
+    }));
 
 test('hunger weakness drives the next live multi-allocation path', async () => {
     await runSegment({
@@ -822,14 +874,21 @@ test('hunger weakness drives the next live multi-allocation path', async () => {
     game.u.umovement = NORMAL_SPEED;
     const priorMoves = game.moves;
     const priorHunger = game.u.uhunger;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
     game.nhDisplay.pushKey('.'.charCodeAt(0));
 
     await moveloop_core();
     assert.equal(game.u.uhs, WEAK);
     assert.equal(game.u.atemp[0], -1);
     assert.equal(projected_capacity(game), 1);
+    assert.equal(game.go.oldcap, 1);
+    assert.equal(game.gw.wc, weakCapacity);
     assert.equal(game.moves, priorMoves + 1);
     assert.equal(game.u.uhunger, priorHunger - 1);
+    assert.equal(
+        game.nhDisplay.toplines,
+        'Your movements are slowed slightly because of your load.',
+    );
 
     game.nhDisplay.pushKey('.'.charCodeAt(0));
     await moveloop_core();

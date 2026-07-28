@@ -10,11 +10,21 @@ import {
 } from '../js/const.js';
 import { init_dungeons } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
-import { near_capacity } from '../js/hack.js';
+import {
+    calc_capacity,
+    inv_weight,
+    near_capacity,
+    projected_capacity,
+    weight_cap,
+} from '../js/hack.js';
 import { initoptions_finish } from '../js/fruit.js';
 import { init_objects } from '../js/o_init.js';
 import { initRng } from '../js/rng.js';
-import { monst_globals_init, reset_mvitals } from '../js/monsters.js';
+import {
+    M2_ROCKTHROW,
+    monst_globals_init,
+    reset_mvitals,
+} from '../js/monsters.js';
 import * as O from '../js/objects.js';
 import { role_init } from '../js/role_init.js';
 import {
@@ -278,6 +288,88 @@ test('live capacity crosses into burden after temporary Strength loss', () => {
     assert.equal(initial_weight_cap(state), 525);
     assert.equal(near_capacity(state), 1);
 });
+
+test('live capacity pins exceptional Strength, weight, and cache boundaries',
+    () => {
+        const state = initialState('Caveman', 'human');
+        state.u.acurr = { a: [3, 3, 3, 3, 3, 3] };
+        state.u.abon = [0, 0, 0, 0, 0, 0];
+        state.u.atemp = [0, 0, 0, 0, 0, 0];
+        state.youmonst = { data: { mflags2: 0 } };
+        state.gw = { wc: 777 };
+
+        // hack.c weight_cap() is 25 * (ACURRSTR + ACURR(A_CON)) + 50, and
+        // attrib.c acurrstr() folds encoded Strength (3..125) down to 3..25.
+        // Capacity therefore steps only where that folding does: at 18/01
+        // (encoded 19), 18/32 (50), 18/82 (100), and 22 (122).  Each pair
+        // below brackets one of those steps from its last unchanged value.
+        // Constitution three keeps every result under MAX_CARR_CAP, which
+        // the assertion after the loop tests on its own.
+        const strengthCapacities = new Map([
+            [18, 575],
+            [19, 600],
+            [49, 600],
+            [50, 625],
+            [99, 625],
+            [100, 650],
+            [121, 650],
+            [122, 675],
+            [125, 750],
+        ]);
+        for (const [strength, capacity] of strengthCapacities) {
+            state.u.acurr.a[0] = strength;
+            assert.equal(weight_cap(state), capacity, `Strength ${strength}`);
+        }
+        state.u.acurr.a[4] = 25;
+        assert.equal(weight_cap(state), 1000);
+
+        state.u.acurr.a[0] = state.u.acurr.a[4] = 3;
+        const coins = {
+            oclass: O.COIN_CLASS,
+            quan: 150,
+            nobj: null,
+        };
+        const boulder = {
+            oclass: O.ROCK_CLASS,
+            otyp: O.BOULDER,
+            owt: 600,
+            nobj: coins,
+        };
+        state.invent = boulder;
+
+        // Projection is admission-only and must not refresh hack.c's live
+        // cached capacity.  Without rock throwing, 600 weight plus the
+        // rounded two-unit coin stack is overloaded.
+        assert.equal(projected_capacity(state), 5);
+        assert.equal(state.gw.wc, 777);
+        assert.equal(inv_weight(state), 402);
+        assert.equal(state.gw.wc, 200);
+        assert.equal(calc_capacity(98, state), 5);
+
+        // Rock throwers exclude boulders from inventory weight but retain
+        // the source's (quan + 50) / 100 coin rounding.
+        state.youmonst.data.mflags2 = M2_ROCKTHROW;
+        state.gw.wc = 888;
+        assert.equal(projected_capacity(state), 0);
+        assert.equal(state.gw.wc, 888);
+        assert.equal(inv_weight(state), -198);
+        assert.equal(state.gw.wc, 200);
+
+        for (const [quantity, expectedWeight] of [
+            [49, 0],
+            [50, 1],
+            [149, 1],
+            [150, 2],
+        ]) {
+            coins.quan = quantity;
+            state.invent = coins;
+            assert.equal(
+                inv_weight(state) + state.gw.wc,
+                expectedWeight,
+                `${quantity} coins`,
+            );
+        }
+    });
 
 test('hidden_gold follows known-container recursion', () => {
     // Seventeen coins sit in an unknown sack nested in a known outer sack.

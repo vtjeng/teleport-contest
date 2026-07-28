@@ -35,6 +35,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     PM_DISPLACER_BEAST,
+    PM_FOG_CLOUD,
     PM_GIANT_RAT,
     PM_GNOME,
     PM_KITTEN,
@@ -452,10 +453,41 @@ test('complete retry snapshot detects each deferred output owner',
 test('multi-round planning isolates every monster-generation global',
     async () => {
         const target = await prepareSelectedAction();
+        const tailMonster = ordinaryMonster(
+            PM_GNOME,
+            target.monsterX,
+            target.heroY + 1,
+            {
+                m_id: target.monster.m_id + 1,
+                movement: 0,
+            },
+        );
+        game.level.at(tailMonster.mx, tailMonster.my).typ = ROOM;
+        target.monster.nmon = tailMonster;
+        game.level.monsters[tailMonster.mx][tailMonster.my] = tailMonster;
+        const lightObject = { o_id: 9801 };
+        const tailLight = {
+            flags: 0,
+            id: tailMonster,
+            next: null,
+            range: 1,
+            type: 1,
+            x: tailMonster.mx,
+            y: tailMonster.my,
+        };
+        const objectLight = {
+            flags: 0,
+            id: lightObject,
+            next: tailLight,
+            range: 1,
+            type: 0,
+            x: 4,
+            y: 5,
+        };
         const liveLight = {
             flags: 0,
             id: target.monster,
-            next: null,
+            next: objectLight,
             range: 1,
             type: 1,
             x: target.monster.mx,
@@ -473,10 +505,24 @@ test('multi-round planning isolates every monster-generation global',
                 assert.strictEqual(planned.svm.mvitals, planned.mvitals);
                 assert.notStrictEqual(planned.flags, game.flags);
                 assert.notStrictEqual(planned.gl, game.gl);
+                const plannedHead = planned.gl.light_base;
+                const plannedObject = plannedHead.next;
+                const plannedTail = plannedObject.next;
+                assert.notStrictEqual(plannedHead, liveLight);
+                assert.notStrictEqual(plannedObject, objectLight);
+                assert.notStrictEqual(plannedTail, tailLight);
                 assert.strictEqual(
-                    planned.gl.light_base.id,
+                    plannedHead.id,
                     planned.level.monlist,
                 );
+                assert.strictEqual(plannedObject.id, lightObject);
+                assert.strictEqual(
+                    plannedTail.id,
+                    planned.level.monlist.nmon,
+                );
+                assert.strictEqual(plannedTail.next, null);
+                plannedObject.range = 99;
+                plannedTail.x = 77;
                 planned.mvitals[PM_GNOME].born =
                     (planned.mvitals[PM_GNOME].born ?? 0) + 1;
                 planned.flags.made_fruit = !planned.flags.made_fruit;
@@ -499,6 +545,11 @@ test('multi-round planning isolates every monster-generation global',
         assert.deepEqual(game.flags, liveFlags);
         assert.strictEqual(game.gl.light_base, liveLight);
         assert.strictEqual(game.gl.light_base.id, target.monster);
+        assert.strictEqual(game.gl.light_base.next, objectLight);
+        assert.equal(objectLight.range, 1);
+        assert.strictEqual(objectLight.next, tailLight);
+        assert.equal(tailLight.x, tailMonster.mx);
+        assert.strictEqual(tailLight.id, tailMonster);
 
         await assert.rejects(
             preflightSimpleMonsterActions(game, {
@@ -520,6 +571,50 @@ test('multi-round planning isolates every monster-generation global',
         assert.deepEqual(game.mvitals, liveVitals);
         assert.deepEqual(game.flags, liveFlags);
         assert.strictEqual(game.gl.light_base, liveLight);
+    });
+
+test('fog upkeep is planned below and at its movement ration atomically',
+    async () => {
+        for (const movement of [0, NORMAL_SPEED]) {
+            const target = await prepareSelectedAction({
+                pmidx: PM_FOG_CLOUD,
+            });
+            target.monster.movement = movement;
+            game.level.regions = [];
+            const before = completeSecondTurnSnapshot(game, target.replay);
+            const beforeRandom = rngSnapshot();
+            const options = movement === 0 ? {
+                advanceRound(planned) {
+                    assert.equal(planned.level.regions.length, 1);
+                    assert.deepEqual(
+                        planned.level.regions[0].monsters,
+                        [target.monster.m_id],
+                    );
+                    throw new UnsupportedSimpleMonsterActionError(
+                        'after fog upkeep',
+                    );
+                },
+            } : undefined;
+            const expectedReason = movement === 0
+                ? 'after fog upkeep'
+                : 'a region transition';
+
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await assert.rejects(
+                    preflightSimpleMonsterActions(game, options),
+                    (error) => (
+                        error instanceof UnsupportedSimpleMonsterActionError
+                        && error.reason === expectedReason
+                    ),
+                );
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, target.replay),
+                    before,
+                    `movement ${movement}, attempt ${attempt}`,
+                );
+                assert.deepEqual(rngSnapshot(), beforeRandom);
+            }
+        }
     });
 
 test('simple preflight stops before current-square liquid and engraving effects',

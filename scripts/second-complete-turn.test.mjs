@@ -12,7 +12,6 @@ import { runSegment } from '../js/jsmain.js';
 import { attacktype } from '../js/mondata.js';
 import { AT_WEAP } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
-import { Terminal } from '../js/terminal.js';
 import { renderCell } from '../frozen/screen-decode.mjs';
 import {
     loadSecondCompleteTurnFixture,
@@ -22,6 +21,7 @@ import {
 import {
     completeSecondTurnSnapshot,
 } from './second-turn-snapshot.mjs';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 const DATETIME = '20260725120000';
 // The canonical America/New_York recorder run used for these cases was in
@@ -206,19 +206,6 @@ function assertNamedCoverage(name) {
         );
     } else if (name === 'ParsedMonMovement') {
         assert.equal(game.a11y.mon_movement, true);
-    }
-}
-
-async function withSerializedGrids(action) {
-    const previous = Terminal.prototype.serialize;
-    Terminal.prototype.serialize = function serializeGridForTest() {
-        return JSON.stringify(this.grid);
-    };
-    try {
-        return await action();
-    } finally {
-        if (previous) Terminal.prototype.serialize = previous;
-        else delete Terminal.prototype.serialize;
     }
 }
 

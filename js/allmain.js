@@ -353,14 +353,18 @@ export function maybeRunClairvoyance(state = game, env = {}) {
 // C ref: allmain.c moveloop_core()'s once-per-hero-took-time boundary.
 // New-turn allocation establishes moves*8; each action within that turn then
 // receives the next sequence number before clairvoyance cadence is checked.
-export function finishHeroTimeEffects(state = game, env = {}) {
+export async function finishHeroTimeEffects(state = game, env = {}) {
     if (!Number.isSafeInteger(state.hero_seq) || state.hero_seq < 0) {
         throw new Error('hero time effects require initialized hero_seq');
     }
+    if (typeof env.encumberMessage !== 'function') {
+        throw new Error('hero time effects require encumber_msg');
+    }
     // Validate injected owners before changing hero_seq. Once admitted,
-    // preserve C's increment -> map -> schedule order.
+    // preserve C's increment -> encumbrance -> map -> schedule order.
     const plan = clairvoyancePlan(state, env);
     state.hero_seq++;
+    await env.encumberMessage(state);
     applyClairvoyancePlan(plan, state, env);
 }
 
@@ -667,7 +671,10 @@ async function advanceElapsedTurn(state) {
     }
 
     // C runs the once-per-hero-action block outside both loops.
-    finishHeroTimeEffects(state, { random });
+    await finishHeroTimeEffects(state, {
+        random,
+        encumberMessage: encumber_msg,
+    });
     see_nearby_monsters(state);
 }
 

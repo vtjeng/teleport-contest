@@ -38,7 +38,11 @@ import {
 } from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { wake_msg } from './mon.js';
+import {
+    adaptMonsterActionToDochugwSignature,
+    movemon_singlemon,
+    wake_msg,
+} from './mon.js';
 import {
     attacktype,
     can_teleport,
@@ -63,12 +67,14 @@ import {
     dochugw,
     m_avoid_kicked_loc,
     m_avoid_soko_push_loc,
+    m_everyturn_effect,
     m_move,
     select_postmove_object_action,
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { SADDLE } from './objects.js';
 import {
+    create_gas_cloud,
     inside_region,
     mon_in_region,
 } from './region.js';
@@ -150,7 +156,8 @@ function assertSimpleScanState(monster, state) {
             unsupported('parked guard handling');
         return false;
     }
-    if (!liveOnMap(monster) || monster.movement < NORMAL_SPEED) return false;
+    if (!liveOnMap(monster)) return false;
+    if (monster.movement < NORMAL_SPEED) return true;
     if (monster.misc_worn_check & I_SPECIAL)
         unsupported('monster equipment changes');
     if (is_pool(monster.mx, monster.my, state)
@@ -549,6 +556,39 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     });
 }
 
+async function planningEveryTurnEffect(monster, env) {
+    await m_everyturn_effect(monster, {
+        ...env,
+        createGasCloud: (x, y, size, damage, effectEnv) =>
+            create_gas_cloud(x, y, size, damage, {
+                ...effectEnv,
+                blockPoint: () => {},
+                canSee: () => false,
+                message: async () => {},
+                newsym: () => {},
+            }),
+    });
+}
+
+async function planSimpleMonsterScan(monster, env) {
+    return movemon_singlemon(monster, {
+        ...env,
+        everyTurnEffect: planningEveryTurnEffect,
+        visionRecalc: async () => {},
+        clearBypasses: () => unsupported('monster bypass cleanup'),
+        minLiquid: async () => false,
+        dowear: () => unsupported('monster equipment changes'),
+        restrap: () => unsupported('monster hiding'),
+        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        hideUnder: () => unsupported('eel concealment'),
+        canSeeHero: () => true,
+        canSeeSquare: (x, y) => couldsee(x, y, env.state),
+        fightMonster: () => unsupported('conflict combat'),
+        dochugwAction:
+            adaptMonsterActionToDochugwSignature(runSimpleMonsterAction),
+    });
+}
+
 // Dry-run every action scan against cloned coordinates and a cloned ISAAC
 // context. Any excluded selected path throws while the live game and PRNG
 // remain unchanged and retryable.
@@ -565,23 +605,25 @@ export async function preflightSimpleMonsterActions(
     let upkeepCount = 0;
     let terminal = false;
     do {
+        // C brackets only the monster scan with context.mon_moving, so the
+        // once-per-turn upkeep below sees it clear just as the live loop does.
+        planned.context.mon_moving = true;
         do {
-            somebodyCanMove = false;
+            planned.somebody_can_move = false;
             for (let monster = planned.level.monlist;
                 monster;
                 monster = monster.nmon) {
                 if (!assertSimpleScanState(monster, planned)) continue;
-                monster.movement -= NORMAL_SPEED;
-                if (monster.movement >= NORMAL_SPEED)
-                    somebodyCanMove = true;
-                await runSimpleMonsterAction(monster, {
+                await planSimpleMonsterScan(monster, {
                     state: planned,
                     random,
                     planning: true,
                 });
             }
+            somebodyCanMove = Boolean(planned.somebody_can_move);
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);
+        planned.context.mon_moving = false;
 
         const runsUpkeep =
             !somebodyCanMove && planned.u.umovement < NORMAL_SPEED;
