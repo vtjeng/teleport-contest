@@ -231,6 +231,40 @@ development-score drop at
 earned after those behaviors became unowned; do not recover that credit by
 relaxing the fail-closed boundary.
 
+### Measured ordering for the next exploration slice
+
+Where each development session first stops, measured on 2026-07-28 by
+instrumenting scratch copies of `js/jsmain.js` and the frozen runner inside a
+scoring workspace. The scorer's `screens.matched` is a total, not a prefix
+length, so the first mismatching index was computed separately; for all 33
+sessions the two agree, which is what makes the attribution below sound.
+
+| Sessions | Stop reason |
+| --- | --- |
+| 27 | an unsupported command |
+| 5 | `door or special terrain movement` |
+| 1 | `pet object pickup` |
+
+The 27 command stops break down by keystroke as `#`x7, `L`/`H`/`K`x6, `s`x4,
+`i`x2, `Ctrl-V`x2, and one each of `m`, `a`, `:`, `Z`, `q`, `y`, and Space.
+
+The five terrain stops are the better next slice, because the sessions blocked
+on them continue with long runs of ordinary movement, while the four `s`
+sessions immediately reach `#ride`, `#twoweapon`, and `#wizwish`. By
+destination terrain they are:
+
+- `STAIRS`, three sessions, one of which has 409 screens;
+- a doorless doorway (`DOOR` with `D_NODOOR`), one session;
+- an open doorway (`DOOR` with `D_ISOPEN`), one session.
+
+So the next slice is hero movement onto stairs and non-blocking doorways.
+`requireSimpleHeroDestination()` in `js/hack.js` currently rejects every
+destination that is not `ROOM` or `CORR`, even though the starting-pet swap
+seam beside it already admits a `D_NODOOR` doorway. Running (`L`, `H`, `K`,
+six sessions) and search (`s`, four sessions) follow; `dosearch0(1)` is already
+ported, and the explicit command needs only `mfind0()` and
+`unmap_invisible()` plus the `aflag == 0` branches.
+
 **Explicit future exploration work, outside the completed goal:**
 
 - Hero or monster combat, including attacks, retaliation, monster-initiated
