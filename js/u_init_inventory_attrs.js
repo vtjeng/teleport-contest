@@ -226,6 +226,10 @@ export function u_init_role(
 ) {
     const env = normalizedEnvironment(state, random, options);
     state.moves = 1;
+    // C decl.c initializes gh.hero_seq to moves << 3 before new-game role
+    // inventory setup. Keep the two turn-sequence roots synchronized at the
+    // JS point which establishes the source's initial moves value.
+    state.hero_seq = state.moves << 3;
 
     switch (state.urole.mnum) {
     case PM_ARCHEOLOGIST:

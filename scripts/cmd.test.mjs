@@ -291,6 +291,10 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
     );
     return {
         context: structuredClone(game.context),
+        commandOutput: {
+            didNothingFlag: game.did_nothing_flag,
+            disp: structuredClone(game.disp),
+        },
         display: {
             grid: structuredClone(game.nhDisplay.grid),
             messages: [...game.nhDisplay.messages],
@@ -635,6 +639,9 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         game.level.regions = [];
         game.head_engr = null;
         refusal.install({ destination, x, y });
+        game.cmdKey = commandKeyCode('k');
+        game.commandCount = 17;
+        game.lastCommandCount = 19;
 
         const expected = heroCommandRetrySnapshot(replay);
         Object.assign(expected.context, {
@@ -1198,7 +1205,7 @@ test('the segment runner preserves output at an excluded count boundary',
     assert.equal(game._commandDispatchCount ?? 0, 0);
     assert.equal(game.multi ?? 0, 0);
     assert.equal(game.moves, 1);
-    assert.equal(game.hero_seq ?? 0, 0);
+    assert.equal(game.hero_seq, 8);
     assert.equal(game.u.uhunger, 900);
     assert.deepEqual(game.context.pendingCommand, {
         phase: 'physical',
@@ -1372,11 +1379,19 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
             'the setup space dismisses startup output, not a gameplay wait',
         );
         assert.equal(game.moves, 1);
-        assert.equal(game.hero_seq ?? 0, 0);
+        assert.equal(game.hero_seq, 8);
         assert.equal(game.u.uhunger, 900);
         const initialDispatches = game._commandDispatchCount;
+        game.cmdKey = commandKeyCode('k');
+        game.commandCount = 17;
+        game.lastCommandCount = 19;
         game.nhDisplay.pushKey(key);
         const beforeFirstRejection = heroCommandRetrySnapshot(replay);
+        assert.deepEqual(
+            beforeFirstRejection.terminal.cursor,
+            beforeFirstRejection.output.cursors.at(-1),
+            'the baseline terminal and recorder cursor owners agree',
+        );
         await assert.rejects(
             moveloop_core(),
             (error) => error instanceof UnsupportedHeroCommandBoundaryError
@@ -1403,6 +1418,7 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
         expected.iflags.menu_requested = false;
         expected.input.queue = [];
         expected.multi = 0;
+        expected.parser.commandCount = 0;
         expected.output.animations.push([]);
         expected.output.cursors.push(
             structuredClone(expected.output.cursors.at(-1)),
@@ -1414,6 +1430,11 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
             rejected,
             expected,
             `${commandCase.name} first rejection has only documented deltas`,
+        );
+        assert.deepEqual(
+            rejected.terminal.cursor,
+            rejected.output.cursors.at(-1),
+            'the rejected terminal and recorder cursor owners agree',
         );
         assert.deepEqual(game.context.pendingCommand, {
             phase: 'physical',

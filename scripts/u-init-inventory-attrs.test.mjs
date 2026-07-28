@@ -108,6 +108,7 @@ test('u_init_role preserves conditional inventory and random-call order', () => 
         u_init_role(state, random, { iniInv: inventoryTracer(given) });
         assert.deepEqual(given, ['Archeologist', 'Magicmarker']);
         assert.equal(state.moves, 1);
+        assert.equal(state.hero_seq, 8);
         assert.deepEqual(
             [state.gn.nocreate, state.gn.nocreate2,
                 state.gn.nocreate3, state.gn.nocreate4],

@@ -336,8 +336,8 @@
         "monsterCount": 4,
         "pet": { "id": 42, "movement": 0, "mx": 10, "my": 2, "pmidx": 32 },
         "scheduler": { "purgeMonsters": null, "somebodyCanMove": null, "visionFullRecalc": 0 },
-        "stateDigest": "e58aca90e238266c83f7767466aae80fed5ef853d94f0b42c5309384d8df46c9",
-        "turn": { "commandDispatchCount": 2, "heroSeq": null, "moves": 1 },
+        "stateDigest": "f22a91178f6cfe400628759ae4589f60f638c9547956d6d8a53563411af67396",
+        "turn": { "commandDispatchCount": 2, "heroSeq": 8, "moves": 1 },
         "output": {
           "cursors": [[10, 3, 1], [10, 3, 1], [10, 3, 1]],
           "messages": [],
