@@ -169,6 +169,15 @@ test('test_move describes remembered walls without time or PRNG work',
 
 test('blind obstacle refusal records exact tactile viewing vectors',
     async () => {
+        // C display.c seenv_matrix. Keep this oracle independent of the
+        // production table so a directional-table mutation cannot update both
+        // the implementation and its expected value.
+        const expectedSeenvMatrix = [
+            [0x04, 0x02, 0x01],
+            [0x08, 0xFF, 0x80],
+            [0x10, 0x20, 0x40],
+        ];
+        assert.deepEqual(seenv_matrix, expectedSeenvMatrix);
         await runSegment({
             seed: 840002,
             datetime: COMMAND_DATETIME,
@@ -210,7 +219,7 @@ test('blind obstacle refusal records exact tactile viewing vectors',
 
                     assert.equal(
                         destination.seenv,
-                        seenv_matrix[1 - dy][dx + 1],
+                        expectedSeenvMatrix[1 - dy][dx + 1],
                     );
                     assert.ok(destination.remembered_glyph);
                     assert.equal(
@@ -1343,6 +1352,7 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
         const key = commandKeyCode(commandCase.key);
         const initialDispatches = game._commandDispatchCount;
         game.nhDisplay.pushKey(key);
+        const beforeFirstRejection = heroCommandRetrySnapshot(replay);
         await assert.rejects(
             moveloop_core(),
             (error) => error instanceof UnsupportedHeroCommandBoundaryError
@@ -1350,6 +1360,39 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
             commandCase.name,
         );
         const rejected = heroCommandRetrySnapshot(replay);
+        assert.deepEqual(rejected.hero, beforeFirstRejection.hero);
+        assert.deepEqual(rejected.rng, beforeFirstRejection.rng);
+        assert.deepEqual(rejected.scheduler, beforeFirstRejection.scheduler);
+        assert.deepEqual(rejected.world, beforeFirstRejection.world);
+        assert.deepEqual(game.context.pendingCommand, {
+            phase: 'physical',
+            key,
+        });
+        assert.deepEqual(game.nhDisplay.terminal._inputQueue, []);
+        assert.equal(
+            game.nhDisplay.waitEpoch,
+            beforeFirstRejection.terminal.waitEpoch + 1,
+        );
+        assert.deepEqual(
+            rejected.terminal.cursor,
+            replay.getCursors().at(-1),
+            'classification leaves the cursor at the captured prompt',
+        );
+        assert.equal(
+            replay.getScreens().length,
+            beforeFirstRejection.output.screens.length + 1,
+            'the first classification retains exactly its prompt capture',
+        );
+        assert.deepEqual(
+            replay.getScreens().slice(0, -1),
+            beforeFirstRejection.output.screens,
+        );
+        assert.deepEqual(
+            replay.getCursors().slice(0, -1),
+            beforeFirstRejection.output.cursors,
+        );
+        assert.deepEqual(replay.getRngSlices().at(-1), []);
+        assert.deepEqual(replay.getAnimationFramesByStep().at(-1), []);
         await assert.rejects(
             moveloop_core(),
             (error) => error instanceof UnsupportedHeroCommandBoundaryError

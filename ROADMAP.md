@@ -192,7 +192,8 @@ relaxing the fail-closed boundary.
   speech, item use, and themed-room monster behavior beyond an inert wait.
 - Pet states beyond an ordinary active starting pet, including eating,
   carrying, leashes, steeds, arrival or wait strategies, conflict, confusion,
-  stun, fear, ranged attacks, and combat.
+  stun, fear except for the source-bounded continuation after this milestone's
+  safe-pet refusal, ranged attacks, and combat.
 - Running, search, force-fight, travel, pickup commands, stairs, and all
   commands other than waiting or a one-square walk.
 

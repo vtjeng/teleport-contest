@@ -151,6 +151,40 @@ test('repeated-simple-command cases retain their source branch markers',
         await moveloop_core();
         assertSinglePetIdentity();
 
+        await runSegment({ ...segments[7], moves: '' });
+        const immediatePet = startingPet();
+        assert.ok(immediatePet);
+        const collisionStart = [game.u.ux, game.u.uy];
+        game.nhDisplay.pushKey('y'.charCodeAt(0));
+        await moveloop_core();
+        assert.equal(
+            game._pending_message,
+            'You stop.  Your kitten is in the way!',
+        );
+        assert.deepEqual([game.u.ux, game.u.uy], collisionStart);
+        assert.equal(immediatePet.mflee, true);
+        assert.equal(immediatePet.mfleetim, 3);
+
+        game.nhDisplay.pushKey('y'.charCodeAt(0));
+        await moveloop_core();
+        assert.equal(
+            game._pending_message,
+            'You swap places with your kitten.',
+        );
+        assert.deepEqual(
+            [game.u.ux, game.u.uy],
+            [collisionStart[0] - 1, collisionStart[1] - 1],
+        );
+        assert.deepEqual(
+            [immediatePet.mx, immediatePet.my],
+            collisionStart,
+        );
+        assert.equal(m_at(immediatePet.mx, immediatePet.my, game), immediatePet);
+        assert.equal(m_at(game.u.ux, game.u.uy, game), null);
+        assert.equal(game.context.move, 1);
+        assert.equal(immediatePet.mflee, true);
+        assert.equal(immediatePet.mfleetim, 2);
+
         const petRefusal = await runSegment(segments[7]);
         const refusedPet = startingPet();
         assert.ok(refusedPet);
