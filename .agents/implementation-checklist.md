@@ -28,7 +28,7 @@ cycle's own fixes introduced. The full report is at
 | 8, 9 | `js/unported_monster_actions.js` | The `movemon()` light-source recheck was inert; the divergence it claimed to close stayed open. | done |
 | 10 | `scripts/allmain-turn.test.mjs` | No unburdened twin of the capitulation test. | done |
 | 11 | `scripts/allmain-turn.test.mjs` | No test for the live-capacity switch. Same gap as row 3. | done |
-| 12 | `scripts/allmain-turn.test.mjs` | The burdened-upkeep test checks three scalars where its siblings compare a complete snapshot plus an RNG snapshot. | missing |
+| 12 | `scripts/allmain-turn.test.mjs` | The burdened-upkeep test checked three scalars where its siblings compare a complete snapshot plus an RNG snapshot. | done |
 | 13, 14 | `scripts/unported-monster-actions.test.mjs` | The isolation test claims "every monster-generation global" but omits `gt`/`svt`, and returns before `finishElapsedTurn` runs, so no monster is generated and no timer started. | done |
 | 15 | `scripts/unported-monster-actions.test.mjs` | The visibility test cannot observe `canSeeSquare`. | done |
 
@@ -45,12 +45,14 @@ cycle's own fixes introduced. The full report is at
 
 Current mode: Implementation
 
-Reason: one of the fifteen findings remains: row 12, which asks the
-burdened-upkeep test to compare a complete snapshot plus an RNG snapshot rather
-than three scalars. Rows 3, 5, 11, 13, and 14 are closed. The live-capacity
-switch now has an oracle that fails when either injection is reverted, and a
-planning round that starts a timer is proven unable to reach the live queue or
-counter -- removing the `gt`/`svt` clone fails that test.
+Reason: all fifteen findings of the third pass are closed. Every new oracle was
+checked by re-applying the mutation it is meant to catch.
+
+What remains before this slice can close is a full correctness pass over the
+expanded range. It must cover the two commits that admit STAIRS and
+non-blocking doorways, which raised the development score from 250 to 254
+screens and 98,385 to 98,436 PRNG values, and which sit past the per-slice
+review window.
 
 The slice also grew: `a0d6283` and `10613b8` admit STAIRS and non-blocking
 doorways as hero destinations, raising the development score from 250 to 254

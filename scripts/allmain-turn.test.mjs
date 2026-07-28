@@ -1269,7 +1269,7 @@ test('burdened multi-cycle upkeep stops before region and search work',
                 },
             ],
         ]) {
-            await runSegment({
+            const replay = await runSegment({
                 seed: 2026072807,
                 datetime: '20260728120000',
                 nethackrc: 'OPTIONS=name:BurdenedUpkeep,role:Healer,'
@@ -1293,11 +1293,12 @@ test('burdened multi-cycle upkeep stops before region and search work',
 
             game.context.move = 1;
             game.u.umovement = 0;
-            const before = {
-                moves: game.moves,
-                hunger: game.u.uhunger,
-                regions: game.level.regions.length,
-            };
+            // Siblings compare a complete snapshot rather than a few
+            // scalars, because a stop that leaves any live state or the PRNG
+            // moved is not retryable even when moves and hunger happen to
+            // match.
+            const before = completeSecondTurnSnapshot(game, replay);
+            const beforeRng = getRngLog().length;
 
             for (let attempt = 0; attempt < 2; ++attempt) {
                 game.context.move = 1;
@@ -1310,13 +1311,12 @@ test('burdened multi-cycle upkeep stops before region and search work',
                     `${name}, attempt ${attempt}`,
                 );
                 // The dry run refuses before any live state moves.
-                assert.equal(game.moves, before.moves, name);
-                assert.equal(game.u.uhunger, before.hunger, name);
-                assert.equal(
-                    game.level.regions.length,
-                    before.regions,
-                    name,
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, replay),
+                    before,
+                    `${name}, attempt ${attempt}`,
                 );
+                assert.equal(getRngLog().length, beforeRng, name);
             }
         }
     });
