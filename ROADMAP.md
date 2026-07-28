@@ -73,6 +73,64 @@ production and oracle rows; `.agents/implementation-checklist.md` is again the
 active handoff. Rare branches and helper-only prerequisites remain deferred
 under “Complete common gameplay first.”
 
+### Unreviewed commits behind a review frontier
+
+A review frontier is the latest commit a recorded correctness pass covers;
+`npm run quality` treats everything behind it as reviewed. Until `5e7fb47`,
+`npm run quality -- record-review` derived each area's frontier from the stored
+ledger and took the audited commit range only as free-text `evidence`, which it
+checked for non-emptiness and never parsed, so a pass could advance a frontier
+past commits its reviewers never read. `5e7fb47` now requires `--range` and refuses a base that falls after
+any claimed area's frontier, so this cannot recur. It cannot repair the existing
+ledger, because `validateHistory` fails when a recorded base is not the stored
+frontier and passes are therefore append-only in effect.
+
+Sixteen recorded review passes advanced at least one area's frontier past the
+base of the range they audited. Eleven commits changed area-owned production
+code inside those gaps. Six of the eleven are debt; the other five are exempt
+for the reasons below. Line counts are the production lines
+`scripts/quality-status.mjs` charges to the area: its `js/` paths plus its
+generator scripts, less its declared generated outputs.
+
+| Commits | Area | Lines | Why the audit never read them |
+| --- | --- | --- | --- |
+| `5affc31` | monsters | +56/-42 | The pass recorded at `e30ea05` set the monsters base to `d29414a` but audited `3c552b45..e30ea05`, seven commits later. `5affc31` also carries `Audit-fix-for: d29414ad`. |
+| `f8911ff`, `f2de7a7` | startup | +37/-12 | The same pass set the startup base to `f97bd58`, 29 commits before its audited base. |
+| `84964f8` | commands | +6/-3 | The same 29-commit gap. It also carries `Audit-fix-for: f97bd58`. |
+| `54a2b86`, `4607698` | hero | +133/-4 | The pass recorded at `f97bd58` moved the hero frontier up from `f140abf` while auditing only `3b6c38d..f97bd58`, a 221-commit gap. `4607698` also carries `Audit-fix-for: 10dd52be`. |
+
+Those six commits total 232 added and 61 removed production lines. Three of them
+are audit-fix commits, which `.agents/quality-workflow.md` keeps as correctness
+debt until a later correctness pass covers them.
+
+The remaining five commits in the same gaps need no pass of their own:
+
+- `8677023` adds 245 runtime lines to `js/hacklib.js`. It is a bulk port of
+  `hacklib.c` pure functions, which "Port pure functions in bulk" in `AGENTS.md`
+  and the correctness thresholds in `.agents/quality-workflow.md` exempt from
+  triggering a pass. `scripts/hacklib-strings.test.mjs` pins each ported
+  function to values read from the C source.
+- `17b1fb0`, `d8ab43c`, `5626cf0`, and `f3ebcc2` carry `Score-identical-with`
+  trailers: 680 added and 152 removed monsters lines, plus 1 added and 1 removed
+  in startup, 41 added and 2 removed in commands, and 2 added and 1 removed in
+  runtime. `npm run quality` already subtracts them from the gate and reports
+  them as relocated lines.
+
+Clear the six debt commits at the next milestone rather than scheduling a
+re-audit now. Give the next full correctness pass in each area a `--range` base
+at or before that area's oldest debt commit: `d29414a` for monsters, `f97bd58`
+for startup and commands, and `f140abf` for hero. The recorder accepts a base at
+or before the stored frontier, so this re-reads commits an earlier pass already
+covered and needs no ledger edit. One pass claiming all four areas has to start
+at the oldest of those bases, `f140abf`; recording each area group separately
+keeps each range smaller. Recording those passes clears these rows and the
+audit-fix debt on `5affc31`, `84964f8`, and `4607698`.
+
+This accounting covers the passes recorded after the 21 unstructured passes that
+`legacyPassCount` in `QUALITY.json` names. Those earlier passes record no
+per-area ranges, and `.agents/quality-workflow.md` keeps historical `BASELINE`
+debt exempt until each area's first recorded pass.
+
 ### Historical review sequence
 
 The following paragraphs preserve the review and return-to-Implementation
