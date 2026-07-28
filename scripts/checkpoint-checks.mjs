@@ -37,6 +37,14 @@ export function checkpointCommands(focusedTests = [], {
             args: ['run', check],
         });
     }
+    // Not a generated-data comparison: this one reads the hand-written sources
+    // in js/ and scripts/ and rejects a namespace member that no module
+    // exports. See scripts/check-namespace-members.mjs.
+    commands.push({
+        label: 'static sources (check:namespace-members)',
+        command: 'npm',
+        args: ['run', 'check:namespace-members'],
+    });
     if (includeScore) {
         commands.push({
             label: 'development score',

@@ -8,7 +8,7 @@ import {
     summarizeDevelopmentScore,
 } from './checkpoint-checks.mjs';
 
-test('checkpoint commands run focused, full, generated, and score checks', () => {
+test('checkpoint runs focused, full, generated, static, and score checks', () => {
     const commands = checkpointCommands([
         'scripts/dogmove.test.mjs',
         'scripts/monmove.test.mjs',
@@ -23,6 +23,7 @@ test('checkpoint commands run focused, full, generated, and score checks', () =>
             'generated data (check:objects)',
             'generated data (check:symbols)',
             'generated data (check:themerooms)',
+            'static sources (check:namespace-members)',
             'development score',
         ],
     );

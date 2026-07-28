@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test scripts/*.test.mjs",
+    "check:namespace-members": "node scripts/check-namespace-members.mjs",
     "check:monsters": "node scripts/generate-monsters.mjs --check",
     "check:objects": "node scripts/generate-objects.mjs --check",
     "check:symbols": "node scripts/generate-symbol-data.mjs --check",
