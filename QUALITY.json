@@ -2498,6 +2498,129 @@
         ]
       },
       "recordedAt": "2026-07-28T03:22:16.266Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+        "hero": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+        "objects": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+        "monsters": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+        "world-effects": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+        "commands": "e30ea05440a4850bee40881d3f65180c6ae7bb7b"
+      },
+      "head": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+      "auditedRange": "e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full correctness pass over exact range e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c, the whole repeated-simple-command slice since the previous frontier. Per the Claude Code section of AGENTS.md the pass ran the audit-diff-correctness skill through the Workflow tool rather than codex exec, so there is no external session identifier; the run used six agents over 2,973 seconds and 1,238,874 subagent tokens, in an isolated worktree pinned to 4fc57d80 that scripts/audit-worktree.mjs prepared and checked immediately before launch. The four mandatory finders ran plus concurrency, enabled because the range converts exercise(), exerper(), finishHeroTimeEffects(), and detect.js's exerciseWisdom() injection to async; the stated risk was a dropped or misplaced await, not a data race. Performance was omitted: the range adds clone deepening and source-required traversal only. Counts: 23 raw, 22 deduplicated, 19 confirmed, 19 applied in 88e2193, 0 deferred, 3 rejected, 0 unverified, no warnings. The one finding that produced wrong output is the diagonal move out of an intact doorway, which the range's own D_ISOPEN admission made reachable: a fresh recording of seed 990002 with inputs ljjjy showed the port drawing an rn2(5) C never draws and moving the hero to cursor [5,8,1] where C holds him at [6,9,1]; with the source-square rule all 2,633 PRNG calls match and the port stops fail-closed one screen short of C's zero-time refusal frame, which is recorded as a known non-matching case in the active checklist. Three findings closed as fail-closed stops rather than ports because each needs an upstream family this goal excludes: hack.c overexert_hp(), invent.c dfeature_at() and stairs_description(), and test_move()'s two zero-time diagonal refusals; ROADMAP.md carries all three as future work. D_BROKEN was narrowed out of the admitted doorway masks because only D_NODOOR and D_ISOPEN have recordings. Every new guard was re-checked by re-applying the mutation it is meant to catch, including the two diagonal rules, the dfeature and mention_decor stops, the D_BROKEN admission, the overexertion stop, the UNENCUMBERED substitution, the monster-creation conversion, both halves of the light-source refusal, the finishHeroTimeEffects await, all four exerper physical arms, and the STAIRS and doorway admission itself. Validation at the fix head: 1,704 tests, four generated-data checks, and check:namespace-members pass; the development score holds at 98,436 PRNG values, 254 screens, and 254 cursors; the repeated-simple-command matrix matches 97,771 calls and 2,367 screens and cursors over 17 segments, and the second-complete-turn matrix 46,255 calls and 54 screens and cursors over 17 segments. The retry snapshot gained the five globals planningState() isolates, so the checked-in second-turn state digests moved while every other oracle field in that fixture stayed identical. No holdout evaluation or holdout access occurred. Commits 8f0bbde, a90098b, 5c09a14, and 44e53af landed on main from another session while the frozen range was under review and are outside it; the fix commit 88e2193 remains correctness debt for the next scheduled pass.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2973,
+        "counts": {
+          "raw": 23,
+          "deduplicated": 22,
+          "confirmed": 19,
+          "applied": 19,
+          "deferred": 0,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 9,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "port test_move()'s source-side refusal: only the destination-side diagonal arm was ported, so the hero could step diagonally off an intact doorway",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "the unported diagonal exit made the port move the hero and elapse a turn C refuses with no time, a silent divergence rather than a stop",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "nothing covered leaving a doorway, the state the range's own D_ISOPEN recording ends in",
+            "foundBy": [
+              "tests"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "stop on a STAIRS or doorway destination holding one object, where look_here() prints dfeature_at() before 'You see here'",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "refuse D_BROKEN with the other unrecorded masks instead of admitting three masks on two recordings",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "substitute UNENCUMBERED for an invulnerable hero and stop at C's overexertion block between regen_hp() and regen_pw()",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "convert the cloned round's UnsupportedMonsterCreationError into a turn boundary instead of a hard failure that discards the matching prefix",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "fire the planning light-source refusal wherever movemon()'s tail would rebuild the vision index, including the allocation-to-allocation edge",
+            "foundBy": [
+              "concurrency"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "make the planning minLiquid stub refuse the branch its live counterpart refuses instead of returning false",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "The comment above the moves >= 1e9 stop was said to claim a dismissal the slice never performs.",
+            "counterEvidence": "js/allmain.js executes dismissPendingTtyMessage() before elapsedTurnBoundary() whenever that line is reached with planning false, so the comment describes its own site accurately and makes no reachability claim. The live do/while can call finishElapsedTurn more than once per advanceElapsedTurn, so the site is a live guard rather than dead by construction, and the range's game-end test pins the burdened dry run where planning is true and the dismissal is deliberately skipped. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "projected_capacity() was said to duplicate inv_weight()/calc_capacity() arithmetic that can silently drift, justified by a cache hazard no reader can experience.",
+            "counterEvidence": "Both paths reduce to capacity_from_excess(inventory_weight(state) - weight_cap(state), weight_cap(state)) and share all three helpers, so no divergence is possible without editing one both call. The gw.wc write the comment avoids is observable: the retry snapshot covers gw and cmd.test.mjs asserts game.gw.wc equality across retries, so calling near_capacity() in the admission pass would fail those tests. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "blocksMove() reads loc.doormask while level generation writes loc.flags, so its closed-door arm is dead on every generated door.",
+            "counterEvidence": "The reading is correct but neither blocksMove() nor doorMask() is changed by this range, and the dead arm is protective: requireSimpleHeroDestination() refuses closed, locked, and trapped masks through doorMask() itself. Both proposed repairs create new defects. Renaming the generated field is wrong for the C union, where include/rm.h overloads the same flags bitfield as doormask, altarmask, wall_info, ladder, drawbridgemask, and looted. Routing a closed door into domove()'s blocked branch produces a silent zero-time stop where C prints 'That door is closed.', because the ported test_move() returns true for a non-STONE, non-wall square. Reopen only with a ported closed-door owner to attach it to."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-28T17:19:19.021Z"
     }
   ]
 }
