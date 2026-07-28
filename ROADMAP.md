@@ -125,7 +125,13 @@ measured at gitlink `16ff591`; they set expectations, not limits.
 2. **`invent.c:dolook()`**, bound to `:`. 13 lines plus the `look_here()`
    branches these sessions reach; `look_here_single_object()` already covers
    the ordinary single-object branch, so trace what remains rather than
-   assuming all 212 lines are new. One session, 36 steps.
+   assuming all 212 lines are new. One session, 36 steps. Three things the
+   trace found: `look_here()` returns `ECMD_TIME` for a blind hero, so that
+   variant leaves this goal; the line the session records comes from
+   `invent.c:dfeature_at()` through `stairs.c:stairs_description()`, both
+   unported, which the future-work list below also names; and the state those
+   two read is present already, since `js/mklev.js` sets `u_traversed` on the
+   D:1 upstairs and `js/symbol_data.js` holds the `defsyms` explanations.
 3. **`invent.c:ddoinv()` and the inventory display.** `display_inventory()` and
    `display_pickinv()`, about 390 lines, against the paging, selection, and
    dismissal `js/tty_menu.js` already provides. Three sessions, 110 steps.
