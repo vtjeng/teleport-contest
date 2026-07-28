@@ -10,42 +10,37 @@ retained pass reports, and its implementation history in Git. Keeping only open
 work here is deliberate: every task starts by reading this file, so it has to
 stay short enough to read.
 
-## How the next goal is chosen
+## How to read the census and size a goal
 
 `node scripts/scan-stops.mjs` reports where each development session first
 stops, censused by fail-closed boundary and by the command the port refused.
-The loop is:
+Each boundary names an upstream owner that a goal could port, and the census
+ranks those owners by the recorded steps standing behind each one. "Continuous
+operation" in `.agents/quality-workflow.md` holds the loop that runs the scan,
+selects a goal from it, and writes the result back here. Selecting that goal is
+the agent's job, never a question for the user. Three rules govern how to read
+the census.
 
-1. Run the scan. Each boundary names an upstream owner a goal could port.
-2. Select a goal, trace it to its C functions, and record its boundary, its
-   exclusions, and its ordered checkpoints here. Selecting the next goal is the
-   agent's job, not a question for the user; "Continuous operation" in
-   `.agents/quality-workflow.md` holds the loop this sits inside.
-3. Implement from the C source. The scan says where to look; it never says what
-   the behavior is.
-4. Re-run the scan. The change in emitted screens is that goal's measured
-   result, and the new census selects what follows.
+The steps standing behind a boundary are a ceiling on what a goal can earn,
+never a forecast. A session blocked on one owner routinely blocks again on
+another. `.agents/validation.md` states the full rule and why the estimate a
+census invites is unsound.
 
-The census orders goals **inside** the open milestone; it never reorders the
+The census orders goals inside the open milestone. It never reorders the
 milestones themselves. When every boundary it names belongs to a later
 milestone, the open one is exhausted: close it, take the next milestone from
-"Later milestones" below, and let the census order goals inside that one. The
-largest ceiling in a census is not a reason to jump milestones — the level-change
-family stands in front of more recorded steps than anything else and still waits
-for its milestone.
+"Later milestones" below, and let the census order goals inside that one. A
+large ceiling does not justify jumping milestones. The level-change family
+stands in front of more recorded steps than anything else and still waits for
+its milestone.
 
-The recorded steps standing behind a boundary are a ceiling on what a goal can
-earn, never a forecast: a session blocked on one owner routinely blocks again
-on another. `.agents/validation.md` holds the full rule.
-
-A goal may be larger than one session. When it is, it lists ordered
-checkpoints, each committed on its own, and
-`.agents/implementation-checklist.md` carries its state between sessions. The
-thresholds in `QUALITY.json` schedule intermediate reviews inside a goal; they
-do not bound one. Size is a planning input: it decides whether a goal needs a
-checklist and how its checkpoints are ordered. It is never a reason to refuse a
-stated goal, defer it, or narrow it without saying so. Start at the first
-unfinished checkpoint.
+A goal may be larger than one session. When it is, it lists ordered checkpoints,
+each committed on its own, and `.agents/implementation-checklist.md` carries its
+state between sessions. The thresholds in `QUALITY.json` schedule reviews inside
+a goal; they do not bound one. Size decides whether a goal needs a checklist and
+how its checkpoints are ordered. Size never justifies refusing a stated goal,
+deferring it, or narrowing it silently. Start at the first unfinished
+checkpoint.
 
 ## Current milestone: exploration
 

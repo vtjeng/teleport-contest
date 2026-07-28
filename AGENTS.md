@@ -253,3 +253,17 @@ unfinished, and what check comes next.
 
 Create or update a checklist, note, report, or permanent record only when the
 conditions in `.agents/quality-workflow.md` require it.
+
+### When to stop and ask the user
+
+"Continuous operation" in `.agents/quality-workflow.md` describes a loop that
+alternates implementation and review without returning to the user between its
+steps. Stop that loop and ask the user only for:
+
+- an authorized holdout evaluation;
+- a change to which sessions belong to the development and holdout sets;
+- publishing anything outside this repository;
+- a decision that this file and the files it names do not settle.
+
+Report progress when the user asks and when the loop stops. Do not stop merely
+to report, and do not ask for a goal that the loop selects.
