@@ -28,6 +28,15 @@ The recorded steps standing behind a boundary are a ceiling on what a goal can
 earn, never a forecast: a session blocked on one owner routinely blocks again
 on another. `.agents/validation.md` holds the full rule.
 
+A goal may be larger than one session. When it is, it lists ordered
+checkpoints, each committed on its own, and
+`.agents/implementation-checklist.md` carries its state between sessions. The
+thresholds in `QUALITY.json` schedule intermediate reviews inside a goal; they
+do not bound one. Size is a planning input: it decides whether a goal needs a
+checklist and how its checkpoints are ordered. It is never a reason to refuse a
+stated goal, defer it, or narrow it without saying so. Start at the first
+unfinished checkpoint.
+
 ## Current milestone: exploration
 
 **Objective:** movement beyond the first unobstructed step, then running,
@@ -91,22 +100,37 @@ PRNG is drawn, and only the screen and message window change. That property is
 the goal's boundary, and it is why these commands cannot regress the turn
 behavior the milestone already owns.
 
-In scope, because development sessions stop on exactly these:
-
-- an unbound keystroke, which `cmd.c:rhack()` answers with
-  `Unknown command '<key>'.` and no state change (one session, 1,952 steps);
-- `invent.c:dolook()`, bound to `:` (one session, 36 steps);
-- `invent.c:ddoinv()` and the inventory menu it displays, including dismissal
-  (three sessions, 110 steps);
-- `o_init.c:dodiscovered()`, `spell.c:dovspell()`, and
-  `insight.c:doattributes()`, which those sessions reach immediately after `i`.
-
-`doattributes()` is the heaviest member and has no ported file yet. Split it
-into its own goal if tracing shows it reaches past what the sessions exercise.
-
 Beyond its own ceiling, this goal gates the closing sequence of 24 of the 33
 development sessions, which end with `i`, `+`, `\`, and `^X` in that order, each
 dismissed with ESC. No session finishes without it.
+
+This goal spans sessions and will cross the review thresholds. That is expected
+and planned for; work the checkpoints in order and take the intermediate passes
+as `.agents/quality-workflow.md` schedules them.
+
+**Checkpoints, each committed on its own.** Line counts are the C to trace,
+measured at gitlink `16ff591`; they set expectations, not limits.
+
+1. **Unbound keystroke.** `cmd.c:rhack()`'s bad-command path answers
+   `Unknown command '<key>'.`, clears the command queues, and leaves
+   `svc.context.move` FALSE. About 10 lines. One session stops here with 1,952
+   steps behind it, the largest ceiling of any single refused command in the
+   census.
+2. **`invent.c:dolook()`**, bound to `:`. 13 lines plus the `look_here()`
+   branches these sessions reach; `look_here_single_object()` already covers
+   the ordinary single-object branch, so trace what remains rather than
+   assuming all 212 lines are new. One session, 36 steps.
+3. **`invent.c:ddoinv()` and the inventory display.** `display_inventory()` and
+   `display_pickinv()`, about 390 lines, against the paging, selection, and
+   dismissal `js/tty_menu.js` already provides. Three sessions, 110 steps.
+4. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
+   together; both display a list and consume no time.
+5. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
+   1,200 lines in a file with no ported counterpart. Two prerequisites before
+   the first commit: scope it to the branches the development sessions reach,
+   since a starting character reaches few of them, and give `js/insight.js` a
+   `QUALITY.json` area, because `npm run quality` rejects an unassigned `js/`
+   file. Nothing in checkpoints 1 through 4 depends on this one.
 
 ### 3. Running and rushing
 
