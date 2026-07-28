@@ -93,8 +93,8 @@ it is deleted from this file.
 ## Next goals, in order
 
 Selected from the `scan-stops.mjs` census taken on 2026-07-28 at `03c2add`,
-where the port emits 265 of 7,765 recorded screens. Session and step counts
-below are ceilings.
+where the port emitted 265 of 7,765 recorded screens; it emits 273 at
+`4b07735`. Session and step counts below are ceilings.
 
 ### 1. Commands that consume no game time
 
@@ -107,8 +107,10 @@ behavior the milestone already owns.
 Beyond its own ceiling, this goal gates the closing sequence that 24 of the 33
 development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismissed
 with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
-outside this goal, belonging to goal 3 below; the `:` that ends those sessions
-is slice 2 here. No session finishes without this goal.
+outside this goal, belonging to goal 3 below. The `:` that ends those sessions
+already runs; the unbound keystroke and the look command are closed, and the
+inventory display is the first open slice. No session finishes without this
+goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
 and planned for; work the slices in order and take the intermediate passes as
@@ -117,32 +119,17 @@ and planned for; work the slices in order and take the intermediate passes as
 **Behavior slices, each closed on its own.** Line counts are the C to trace,
 measured at gitlink `16ff591`; they set expectations, not limits.
 
-1. **Unbound keystroke.** `cmd.c:rhack()`'s bad-command path answers
-   `Unknown command '<key>'.`, clears the command queues, and leaves
-   `svc.context.move` FALSE. About 10 lines. One session stops here with 1,952
-   steps behind it, the largest ceiling of any single refused command in the
-   census.
-2. **`invent.c:dolook()`**, bound to `:`. 13 lines plus the `look_here()`
-   branches these sessions reach; `look_here_single_object()` already covers
-   the ordinary single-object branch, so trace what remains rather than
-   assuming all 212 lines are new. One session, 36 steps. Three things the
-   trace found: `look_here()` returns `ECMD_TIME` for a blind hero, so that
-   variant leaves this goal; the line the session records comes from
-   `invent.c:dfeature_at()` through `stairs.c:stairs_description()`, both
-   unported, which the future-work list below also names; and the state those
-   two read is present already, since `js/mklev.js` sets `u_traversed` on the
-   D:1 upstairs and `js/symbol_data.js` holds the `defsyms` explanations.
-3. **`invent.c:ddoinv()` and the inventory display.** `display_inventory()` and
+1. **`invent.c:ddoinv()` and the inventory display.** `display_inventory()` and
    `display_pickinv()`, about 390 lines, against the paging, selection, and
    dismissal `js/tty_menu.js` already provides. Three sessions, 110 steps.
-4. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
+2. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
    together; both display a list and consume no time.
-5. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
+3. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
    1,200 lines in a file with no ported counterpart. Two prerequisites before
    the first commit: scope it to the branches the development sessions reach,
    since a starting character reaches few of them, and give `js/insight.js` a
    `QUALITY.json` area, because `npm run quality -- --check` exits nonzero
-   while a `js/` file has no area. Nothing in slices 1 through 4 depends on this
+   while a `js/` file has no area. Nothing in the slices above depends on this
    one.
 
 ### 2. Running and rushing
@@ -186,11 +173,11 @@ so the immediate return is small.
 - `pickup.c:describe_decor()` and the `iflags.prev_decor` per-square memory it
   keys off, needed once `mention_decor` is set. It deliberately suppresses the
   open-door and doorway cases.
-- `invent.c:dfeature_at()` and `stairs_description()`, which `look_here()`
-  prints before `You see here` when the square holds exactly one object. They
-  return nothing for `ROOM` and `CORR`, so admitting `STAIRS` and doorways as
-  destinations is what made them reachable; a decorated square holding an
-  object stops until they are ported.
+- The hero-destination stop for a decorated square that holds an object.
+  `invent.c:dfeature_at()` and `stairs.c:stairs_description()` are ported now,
+  so what remains is admitting that square in `js/hack.js` and recording the
+  fresh differential for a walk onto a staircase or doorway holding one
+  object.
 - `hack.c:overexert_hp()`, the hit point `moveloop_core()` costs a hero who
   moved above `MOD_ENCUMBER` every thirtieth turn, and the `fall_asleep()`
   pass-out at one hit point. The elapsed turn stops there instead.
