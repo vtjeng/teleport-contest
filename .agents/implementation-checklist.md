@@ -4,7 +4,7 @@
 
 - Roadmap item: Repeated simple commands beyond the first turn.
 - Starting code commit: `7892b219a2b060f14e064668f2916396f4bb24da`
-- Starting event: an admitted repeated movement, wait, search, or starting-pet
+- Starting event: an admitted repeated movement, wait, or starting-pet
   collision command at a ready gameplay prompt.
 - Ending event: the next ready prompt, or the source terminal event at move
   1,000,000,000.
@@ -55,24 +55,36 @@
 | Physical-command retry snapshot | Atomic rejection also owns full monster state, display RNG, and pending recorder state | `scripts/cmd.test.mjs:heroCommandRetrySnapshot` | monster fields, `displayCtx`, pending frames and RNG index | All owners included and individually sensitized | done | None |
 | Starting-pet swap names | All three starting species reach successful swap | `scripts/uhitm.test.mjs` | exact `x_monnam` message | Exact kitten, little dog, and saddled pony messages | done | None |
 | Non-Wisdom exercise threshold | Move-600 attribute check reaches both threshold formulas | `scripts/hero-attributes.test.mjs` | attribute change and truncating exercise decay | Paired draw-3 Strength miss and Wisdom success with exact decay | done | None |
+| Manual-search boundary contract | ROADMAP excludes every command except wait and walk; the prior checklist accidentally admitted search | `ROADMAP.md`; this checklist; `js/cmd.js` | Fail-closed command admission and maintainer handoff | Full audit findings 0 and 17; existing atomic physical-byte oracle | missing | Reconcile the checklist with the authoritative selected goal without expanding the milestone |
+| Planned monster-generation globals | Burdened multi-cycle preflight can generate a monster before live admission | `js/unported_monster_actions.js:planningState` | `mvitals`/`svm`, `flags.made_fruit`, `gl.light_base`, owner aliases | Full audit findings 1 and 10 | missing | Clone all mutable generation owners and sensitize birth, light, fruit, and rejection cases |
+| Physical exercise message ordering | Strength and Constitution exercise synchronously call `encumber_msg` in C | `js/attrib.js:exercise`; `exerper`; `exerchk` | Message wait, `go.oldcap`, status dirty flag, later RNG/output | Full audit finding 2 | missing | Await the async TTY owner through the periodic exercise call chain |
+| Parsed-command dispatch ownership | One retained parsed command is one logical dispatch across every retry and eventual completion | `js/cmd.js:rhack` | `_commandDispatchCount`, pending command, retry digest | Full audit finding 3 | missing | Increment only for a newly parsed or supplied logical command |
+| Adversarial sealed-data prompt grammar | Direct prohibitions pass; reversal and double-negative instructions fail | `scripts/audit-worktree.mjs:validatePrompt` | Formal-review safety gate | Full audit finding 4 | missing | Require a direct prohibited operation immediately after the negator |
+| Exact-head checklist lifecycle | A committed Implementation checklist must not contradict a green ROADMAP handoff | `.agents/implementation-checklist.md`; `ROADMAP.md` | Formal-review readiness | Full audit finding 5 | missing | Preserve implementation history, then retire the active checklist at closure and supply an exact-head snapshot |
+| Capacity retry snapshot owners | `near_capacity` and `encumber_msg` make `gw` and `go` live retry state | Both canonical retry snapshots | `gw.wc`, `go.oldcap` | Full audit finding 6 | missing | Add and sensitize both owners |
+| Exercise contract documentation | Inventory remains stable but effective-attribute capacity is live | `js/attrib.js:exerper` comment | Shared ownership contract | Full audit finding 7 | missing | Replace the obsolete fixed-unencumbered statement |
+| Burdened terminal planning order | Move-limit termination precedes region/search upkeep and stops later planned rounds | `js/allmain.js:finishElapsedTurn`; `preflightSimpleMonsterActions` | Terminal state, unsupported seams, later mutation/RNG | Full audit finding 8 | missing | Move planning checks to source order and propagate terminal completion |
+| Read-only capacity admission | Preflight must not update live `gw.wc` before an unsupported monster action is admitted | `js/hack.js`; `js/allmain.js:advanceElapsedTurn` | Capacity cache and retry atomicity | Full audit finding 9 | missing | Add a read-only capacity projection for the admission decision |
+| Billion-turn output oracle | Terminal evidence must pin pending-message acknowledgement and final message/cursor order | `scripts/allmain-turn.test.mjs` | TTY and recorder output plus no later upkeep | Full audit finding 14 | missing | Strengthen the terminal integration oracle from source order |
+| Real weakness-to-burden transition oracle | Begin HUNGRY with an independently calculated threshold inventory and continue through the next allocation | `scripts/allmain-turn.test.mjs` | Strength penalty, capacity class, moves, hunger, messages, RNG/output | Full audit finding 15 | missing | Replace the post-transition production-derived fixture |
+| Fedora conjunction controls | The basal bonus requires both Archeologist and worn fedora | `scripts/timeout.test.mjs` | Basal luck | Full audit finding 16 | missing | Add role-negative and helmet-negative controls |
 
 ## Missing work by owner
 
-None. Every confirmed finding is implemented and has a direct oracle.
+The thirteen grouped rows added after the full audit are open. Manual search is
+not implementation work: it remains an atomic future boundary under ROADMAP.
 
 ## Validation
 
-- Commit checked: pending initial remediation commit
+- Commit checked: pending post-audit remediation commit
 - Source review: each gameplay row traced against the cited upstream function
   and its call order.
-- Focused tests: all changed owners and strengthened oracles pass.
-- Full suite: 1,664 tests pass.
-- Generated-file checks: monsters, objects, symbols, and themed-room data pass.
-- Fresh differentials: 12 segments; 83,269 PRNG calls; 2,351 screens and
-  cursors; replay-input recipes contain no recorded `steps`.
-- Development suite: unchanged at 0/33 sessions; 98,385/610,816 PRNG calls;
-  250/7,765 screens and cursors.
-- Quality check: pending
+- Focused tests: pending for the reopened rows.
+- Full suite: pending after remediation.
+- Generated-file checks: pending after remediation.
+- Fresh differentials: pending after remediation.
+- Development suite: pending after remediation.
+- Quality check: pending after remediation.
 - Browser check: not required because these changes are in the shared Node and
   browser game engine without browser-only behavior.
 
@@ -80,5 +92,5 @@ None. Every confirmed finding is implemented and has a direct oracle.
 
 Current mode: Implementation
 
-Reason: every reopened row and repository validation gate is complete; the
-implementation is awaiting its exact-commit quality check and new full audit.
+Reason: the full audit confirmed planning isolation, ordering, retry, oracle,
+and handoff gaps. Every grouped row above must be closed before re-audit.
