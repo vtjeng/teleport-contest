@@ -1378,3 +1378,68 @@ test('the billionth turn stops atomically for an unburdened hero too',
             }, before, `attempt ${attempt}`);
         }
     }));
+
+// Audit rows 3 and 11: the switch from moveloop_core()'s mvl_wtcap snapshot to
+// a live near_capacity() for gethungry() and exerchk() had no oracle at all --
+// reverting both injections left the whole suite green and the development
+// score unchanged. attrib.c exerper() switches on near_capacity() after
+// gethungry() has run, and a HUNGRY-to-WEAK transition lowers weight_cap()
+// through ATEMP(A_STR), so the snapshot can sit a whole encumbrance band low.
+test('exerper sees the capacity the weakness transition produced', async () => {
+    await runSegment({
+        seed: 2026072301,
+        datetime: '20260723120000',
+        nethackrc: 'OPTIONS=name:LiveExerper,role:Healer,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.level.regions = [];
+    game.head_engr = null;
+    clearTtyMessageWindow(game);
+    game.u.acurr.a[0] = 10;
+    game.u.acurr.a[4] = 10;
+    game.u.abon[0] = game.u.abon[4] = 0;
+    game.u.atemp[0] = game.u.atemp[4] = 0;
+    game.u.uhs = HUNGRY;
+    game.u.uhunger = 51;
+
+    // Independent hack.c arithmetic. weight_cap() is 25 * (Str + Con) + 50,
+    // so 550 before the transition and 525 after its -1 Strength penalty.
+    // calc_capacity() is trunc(excess * 2 / cap) + 1 for a positive excess:
+    //   800 - 550 = 250 -> trunc(500 / 550) + 1 = 1 = SLT_ENCUMBER
+    //   800 - 525 = 275 -> trunc(550 / 525) + 1 = 2 = MOD_ENCUMBER
+    // Only MOD_ENCUMBER reaches exerper()'s exercise(A_STR, TRUE), so the
+    // snapshot spends no draw here and the live read spends one rn2(19).
+    game.invent = {
+        oclass: TOOL_CLASS,
+        otyp: SACK,
+        owt: 800,
+        nobj: null,
+    };
+    assert.equal(projected_capacity(game), 1);
+    game.go = { oldcap: 1 };
+    // exerper()'s encumbrance cadence runs when the turn it enters is a
+    // multiple of ten.
+    game.moves = 9;
+    game.u.umovement = NORMAL_SPEED;
+    game.context.move = 1;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('.'.charCodeAt(0));
+
+    const before = getRngLog().length;
+    await moveloop_core();
+
+    // A burdened hero can need more than one allocation, so the turn counter
+    // may pass ten rather than land on it; the cadence still fires once.
+    assert.ok(game.moves >= 10, `moves ${game.moves}`);
+    assert.ok(game.moves < 20, `moves ${game.moves}`);
+    assert.equal(game.u.uhs, WEAK);
+    assert.equal(game.u.atemp[0], -1);
+    // The Strength exercise draw attrib.c makes only at MOD_ENCUMBER or above.
+    const drawn = getRngLog().slice(before)
+        .filter((entry) => entry.startsWith('rn2(19)'));
+    assert.equal(drawn.length, 1);
+});
