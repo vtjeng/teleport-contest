@@ -203,6 +203,38 @@ export function loadRepeatedSimpleCommandsRecipe() {
                 // this slice admits.
                 moves: 'ljjj',
             },
+            // The monster side of the same terrain admission. The hero starts
+            // on the upstairs, so a monster reaches a staircase only once the
+            // hero steps off it or once it reaches the downstairs. Both fail
+            // against the monster destination seam that admitted ROOM, CORR,
+            // and a D_NODOOR doorway alone.
+            {
+                seed: 7730029,
+                datetime: '20310203040506',
+                nethackrc: nethackrc({
+                    name: 'StairPet',
+                    role: 'Ranger',
+                    gender: 'female',
+                    options: 'pettype:cat,!acoustics',
+                }),
+                // The hero walks two squares south and the kitten takes the
+                // vacated upstairs, then 50 waits keep the pet moving.
+                moves: `jj${'.'.repeat(50)}`,
+            },
+            {
+                seed: 7710223,
+                datetime: '20310203040506',
+                nethackrc: nethackrc({
+                    name: 'StairPet',
+                    role: 'Valkyrie',
+                    gender: 'female',
+                    options: 'pettype:dog,!acoustics',
+                }),
+                // The hero waits on the upstairs throughout. An untamed
+                // monster crosses the downstairs on the fifth wait, so this
+                // case runs through m_move() rather than dog_move().
+                moves: '.'.repeat(120),
+            },
         ],
     }, 'repeated simple commands recipe');
 }

@@ -18,6 +18,7 @@ import {
     FOUNTAIN,
     HEADSTONE,
     IN_SIGHT,
+    LADDER,
     LAVAPOOL,
     LS_OBJECT,
     MMOVE_NOTHING,
@@ -28,6 +29,7 @@ import {
     PIT,
     POOL,
     ROOM,
+    STAIRS,
     STONE,
     TIMER_OBJECT,
     W_NONDIGGABLE,
@@ -790,6 +792,48 @@ test('simple preflight admits engravings that source wipe leaves intact',
             }
         }
     });
+
+// mon.c mfndpos() and teleport.c goodpos() admit STAIRS as ordinary
+// accessible terrain and monmove.c postmov() has no stair branch, so an
+// ordinary monster steps onto a staircase with no extra effect. LADDER shares
+// that C treatment but no recorded case reaches it, so it stays refused.
+test('simple movement admits a staircase but not a ladder', async () => {
+    const staircase = await prepareSelectedAction();
+    const location = game.level.at(
+        staircase.destinationX,
+        staircase.heroY,
+    );
+    location.typ = STAIRS;
+    const before = preflightSnapshot();
+
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(preflightSnapshot(), before);
+    await runSimpleMonsterAction(staircase.monster, { state: game });
+    assert.deepEqual(
+        [staircase.monster.mx, staircase.monster.my],
+        [staircase.destinationX, staircase.heroY],
+    );
+
+    const ladder = await prepareSelectedAction();
+    game.level.at(ladder.destinationX, ladder.heroY).typ = LADDER;
+    const ladderBefore = completeSecondTurnSnapshot(game, ladder.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'door or special terrain movement'
+            ),
+            `ladder attempt ${attempt + 1}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, ladder.replay),
+            ladderBefore,
+            `ladder attempt ${attempt + 1}`,
+        );
+    }
+});
 
 test('simple movement admits only a doorless doorway', async () => {
     const doorway = await prepareSelectedAction();

@@ -26,6 +26,7 @@ import {
     NEED_WEAPON,
     NORMAL_SPEED,
     ROOM,
+    STAIRS,
     STRAT_ARRIVE,
     STRAT_CLOSE,
     W_SADDLE,
@@ -399,9 +400,18 @@ function assertSimpleDestination(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
     const doorMask = location?.flags || location?.doormask || 0;
+    // STAIRS is ordinary terrain for a monster that is not covetous: it is
+    // ACCESSIBLE, so mon.c mfndpos() and teleport.c goodpos() admit it with no
+    // stair-specific branch, and monmove.c postmov() has none either. No
+    // ordinary movement path changes a monster's level; every
+    // migrate_to_level() caller is item use (muse.c), digging (dig.c),
+    // teleportation (teleport.c), a shopkeeper (shk.c), or a wizard command.
+    // dogmove.c reads stairs only through dog_goal()'s On_stairs(u.ux, u.uy),
+    // which asks where the hero stands, not where the pet steps.
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
+            || location.typ === STAIRS
             || (location.typ === DOOR && doorMask === 0));
     if (!ordinaryDestination)
         unsupported('door or special terrain movement');

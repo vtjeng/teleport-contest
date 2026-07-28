@@ -43,10 +43,13 @@ test('repeated-simple-command matrix contains only source-selected inputs',
     () => {
         const recipe = loadRepeatedSimpleCommandsRecipe();
         assert.equal(recipe.version, 5);
-        assert.equal(recipe.segments.length, 17);
+        assert.equal(recipe.segments.length, 19);
         assert.deepEqual(
             recipe.segments.map(({ moves }) => moves.length),
-            [250, 600, 600, 851, 12, 4, 12, 1, 5, 1, 1, 2, 2, 2, 2, 1, 4],
+            [
+                250, 600, 600, 851, 12, 4, 12, 1, 5, 1, 1, 2, 2, 2, 2, 1, 4,
+                52, 120,
+            ],
         );
         assert.deepEqual(
             recipe.segments.map(({ moves }) => new Set(moves)),
@@ -70,6 +73,9 @@ test('repeated-simple-command matrix contains only source-selected inputs',
                 // Doorless and open doorway cases.
                 new Set(['h']),
                 new Set(['l', 'j']),
+                // Monster arrivals on a staircase.
+                new Set(['j', '.']),
+                new Set(['.']),
             ],
         );
         for (const segment of recipe.segments) {
@@ -267,6 +273,36 @@ test('repeated-simple-command cases retain their source branch markers',
             assert.equal(
                 doorway.getRngSlices().length,
                 segments[index].moves.length + 1,
+            );
+        }
+
+        // The monster side of the same admission. Each prefix below is the
+        // first input boundary at which the monster stands on the staircase,
+        // so the assertion fails if that square stops admitting monsters.
+        // A monster reaching a staircase mid-turn and leaving it before the
+        // next boundary would be invisible here, which is why the checked-in
+        // segments run on past these prefixes.
+        for (const [index, prefix, square, tame] of [
+            // The kitten takes the upstairs the hero vacated.
+            [17, 2, { x: 10, y: 8 }, true],
+            // An untamed monster crosses the downstairs while the hero waits.
+            [18, 5, { x: 12, y: 8 }, false],
+        ]) {
+            await runSegment({
+                ...segments[index],
+                moves: segments[index].moves.slice(0, prefix),
+            });
+            assert.equal(
+                game.level.at(square.x, square.y).typ,
+                STAIRS,
+                `segment ${index} square is stairs`,
+            );
+            const monster = m_at(square.x, square.y, game);
+            assert.ok(monster, `segment ${index} monster on the stairs`);
+            assert.equal(
+                Boolean(monster.mtame),
+                tame,
+                `segment ${index} monster tameness`,
             );
         }
     });
