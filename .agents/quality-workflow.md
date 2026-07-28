@@ -320,6 +320,28 @@ Preserve source-shaped code, planned dependency seams, generated data, and
 temporary scaffolding until a source-faithful replacement owns the behavior and
 state. Simplification must preserve PRNG and evaluation order.
 
+### Launching the audit process
+
+A formal audit takes 15 to 41 minutes and reads and writes many small files in
+the prepared worktree. Across 21 launches on 2026-07-27, 8 re-audited a head an
+earlier launch had already covered, because a launch died or stalled and was
+started again from scratch. Set up each launch as follows.
+
+- Give the launching shell call a timeout of at least 3,600,000 ms. Launches at
+  1,000 ms, 1,000 ms, and 120,000 ms died with exit code 124 partway through;
+  the three at 3,600,000 ms finished.
+- Put the scratch root on a local filesystem. `audit-worktree.mjs prepare`
+  creates its temporary root under `os.tmpdir()`, which resolves to the Windows
+  `/mnt/c` DrvFS mount when `TMPDIR` is unset and `TEMP` and `TMP` are inherited
+  from Windows. Export `TMPDIR=/tmp` for `prepare` and for the audit process.
+  DrvFS is 15 to 77 times slower for this workload.
+- Export `PATH` once at the start of the session so `node` resolves in every
+  later command. One session prefixed `PATH` in 306 separate commands.
+- Stream the run and yield in 50-second waits instead of blocking on it. A run
+  that stalls on a security-approval prompt is visible only in the stream.
+  Answer the prompt and let the same run continue; relaunching restarts the
+  audit at zero and produces a duplicate pass over the same head.
+
 ## Recording formal passes
 
 - A `SCORE.md` evidence snapshot may reference these records and retained
