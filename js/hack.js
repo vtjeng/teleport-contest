@@ -22,6 +22,7 @@ import {
     IS_TREE,
     IS_WALL,
     LEVITATION,
+    LOOKHERE_NOFLAGS,
     MAX_TYPE,
     M_AP_FURNITURE,
     M_AP_OBJECT,
@@ -53,7 +54,7 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
-import { look_here_single_object } from './invent.js';
+import { look_here } from './invent.js';
 import {
     is_flyer,
     is_hider,
@@ -565,8 +566,9 @@ export async function domove(state = game) {
     if (floorObject && !floorObject.nexthere) {
         // C ref: domove() -> spoteffects(TRUE) -> pickup(1) -> check_here()
         // -> invent.c look_here().
-        await look_here_single_object(
-            floorObject,
+        await look_here(
+            0,
+            LOOKHERE_NOFLAGS,
             state,
             {
                 message: ttyPline,

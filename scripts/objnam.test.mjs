@@ -8,12 +8,13 @@ import {
 import {
     BLINDED,
     CORR,
+    LOOKHERE_NOFLAGS,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
     ROOM,
     W_WEP,
 } from '../js/const.js';
-import { look_here_single_object } from '../js/invent.js';
+import { look_here } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
@@ -29,6 +30,7 @@ import {
     xnameFresh,
 } from '../js/objnam.js';
 import {
+    MZ_MEDIUM,
     PM_CLERIC,
     PM_NEWT,
     PM_SAMURAI,
@@ -240,15 +242,39 @@ test('type discovery and holy water follow class branches', () => {
     );
 });
 
+// look_here() reads more of the level than the naming helpers do: the object
+// under the hero, the region and trap lists, the stairway list, and
+// flags.pile_limit. This builds the smallest state that satisfies all of them
+// for a hero standing on one ordinary square.
+function lookState(typ, otmp, { blind = false } = {}) {
+    const state = namingState();
+    state.u.ux = state.u.uy = 1;
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.flags.pile_limit = 5;
+    state.stairs = null;
+    state.level = {
+        at: () => ({ typ }),
+        objects: [[null, null], [null, otmp]],
+        regions: [],
+        traps: [],
+    };
+    if (blind) {
+        state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        // can_reach_floor() needs a hero form; an unpolymorphed Archeologist
+        // stands on the floor and can reach it.
+        // MZ_MEDIUM is monsters.h's MZ_HUMAN, the unpolymorphed hero size.
+        state.youmonst = { data: { mflags1: 0, msize: MZ_MEDIUM, mattk: [] } };
+    }
+    return state;
+}
+
 test('single-object look_here reports the item and records its message kind',
     async () => {
-        const state = namingState();
-        state.u.ux = state.u.uy = 1;
-        state.level = { at: () => ({ typ: ROOM }) };
-        const dart = objectOf(state, DART);
+        const dart = objectOf(namingState(), DART);
+        const state = lookState(ROOM, dart);
         const events = [];
 
-        await look_here_single_object(dart, state, {
+        await look_here(0, LOOKHERE_NOFLAGS, state, {
             message: async (text, owner) =>
                 events.push(['message', text, owner]),
             readEngraving: async () => events.push(['engraving']),
@@ -267,18 +293,11 @@ test('blind single-object look_here uses the source surface and output order',
             [ROOM, 'floor'],
             [CORR, 'ground'],
         ]) {
-            const state = namingState();
-            state.u.ux = state.u.uy = 1;
-            state.u.uprops[BLINDED] = {
-                intrinsic: 1,
-                extrinsic: 0,
-                blocked: 0,
-            };
-            state.level = { at: () => ({ typ }) };
-            const dart = objectOf(state, DART);
+            const dart = objectOf(namingState(), DART);
+            const state = lookState(typ, dart, { blind: true });
             const events = [];
 
-            await look_here_single_object(dart, state, {
+            await look_here(0, LOOKHERE_NOFLAGS, state, {
                 message: async (text) => events.push(text),
                 readEngraving: async () => events.push('read engraving'),
             });
@@ -294,21 +313,14 @@ test('blind single-object look_here uses the source surface and output order',
 
 test('blind single-object look_here awaits each output owner in source order',
     async () => {
-        const state = namingState();
-        state.u.ux = state.u.uy = 1;
-        state.u.uprops[BLINDED] = {
-            intrinsic: 1,
-            extrinsic: 0,
-            blocked: 0,
-        };
-        state.level = { at: () => ({ typ: ROOM }) };
-        const dart = objectOf(state, DART);
+        const dart = objectOf(namingState(), DART);
+        const state = lookState(ROOM, dart, { blind: true });
         const tactile = deferred();
         const engraving = deferred();
         const item = deferred();
         const events = [];
 
-        const output = look_here_single_object(dart, state, {
+        const output = look_here(0, LOOKHERE_NOFLAGS, state, {
             message: (text) => {
                 events.push(text);
                 return text.startsWith('You try') ? tactile.promise
@@ -350,11 +362,11 @@ test('blind single-object look_here awaits each output owner in source order',
 
 test('single-object look_here requires its engraving owner before output',
     async () => {
-        const state = namingState();
-        const dart = objectOf(state, DART);
+        const dart = objectOf(namingState(), DART);
+        const state = lookState(ROOM, dart);
         const messages = [];
         await assert.rejects(
-            look_here_single_object(dart, state, {
+            look_here(0, LOOKHERE_NOFLAGS, state, {
                 message: (text) => messages.push(text),
             }),
             /engraving owners/u,

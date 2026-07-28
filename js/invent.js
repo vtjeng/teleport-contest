@@ -41,6 +41,9 @@ import {
     P_CROSSBOW,
     P_DAGGER,
     P_DART,
+    is_pit,
+    Is_airlevel,
+    Is_waterlevel,
     LOOKHERE_NOFLAGS,
     LOOKHERE_SKIP_DFEATURE,
     PLNMSG_ONE_ITEM_HERE,
@@ -70,6 +73,7 @@ import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { game } from './gstate.js';
 import { surface } from './dungeon.js';
+import { can_reach_floor } from './engrave.js';
 import {
     AMULET_OF_YENDOR,
     AKLYS,
@@ -235,9 +239,9 @@ export async function look_here(
         throw new TypeError('look_here needs message and engraving owners');
     if (state.u.uswallow)
         throw new UnsupportedFeatureDescriptionError('an engulfer\'s inventory');
-    if (heroIsBlind(state))
-        throw new UnsupportedFeatureDescriptionError('the blind look_here()');
 
+    const blind = heroIsBlind(state);
+    const verb = blind ? 'feel' : 'see';
     const { ux, uy } = state.u;
     let skip_dfeature = (lookhere_flags & LOOKHERE_SKIP_DFEATURE) !== 0;
     // A pile_limit of 0 means "never skip"; the default is 5.
@@ -258,6 +262,27 @@ export async function look_here(
     let dfeature = dfeature_at(ux, uy, state);
     if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
 
+    if (blind) {
+        // C's drift case belongs to the Air and Water levels, and its ice
+        // case to a square dfeature_at() already stops on.
+        if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz))
+            throw new UnsupportedFeatureDescriptionError('a drifting level');
+        const cant_reach = !can_reach_floor(true, state);
+        const surf = surface(ux, uy, state);
+        await message(
+            `You try to feel what is ${
+                cant_reach ? 'lying beneath you' : `lying here on the ${surf}`
+            }.`,
+            state,
+        );
+        if (dfeature === surf) skip_dfeature = true;
+        const trap = t_at(ux, uy, state);
+        if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
+            await message("But you can't reach it!", state);
+            return false;
+        }
+    }
+
     let fbuf = '';
     if (dfeature && !skip_dfeature) {
         // "molten lava", "iron bars", and plain ice are special cases in an(),
@@ -275,9 +300,9 @@ export async function look_here(
         || (is_pool(ux, uy, state) && !state.u.uinwater)) {
         if (dfeature && !skip_dfeature) await message(fbuf, state);
         await readEngraving(state);
-        if (!skip_objects && !dfeature)
-            await message('You see no objects here.', state);
-        return false;
+        if (!skip_objects && (blind || !dfeature))
+            await message(`You ${verb} no objects here.`, state);
+        return blind;
     }
     if (skip_objects || otmp.nexthere) {
         throw new UnsupportedFeatureDescriptionError(
@@ -287,11 +312,11 @@ export async function look_here(
     // Only one object.
     if (dfeature && !skip_dfeature) await message(fbuf, state);
     await readEngraving(state);
-    await message(`You see here ${donameFresh(otmp, state)}.`, state);
+    await message(`You ${verb} here ${donameFresh(otmp, state)}.`, state);
     state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
     if (otmp.otyp === CORPSE)
         throw new UnsupportedFeatureDescriptionError('feel_cockatrice()');
-    return false;
+    return blind;
 }
 
 // C ref: invent.c dolook(). C hides the norep and noshow message types around
@@ -299,39 +324,6 @@ export async function look_here(
 // no message-type configuration is ported, so only look_here() remains.
 export async function dolook(state = game, hooks = {}) {
     return look_here(0, LOOKHERE_NOFLAGS, state, hooks);
-}
-
-// C ref: invent.c look_here(), ordinary single-object branch.  This helper
-// owns both the sighted and blind output sequence; hack.c supplies the
-// preceding engraving read so it remains ordered between the blind tactile
-// preamble and the final item description.
-export async function look_here_single_object(
-    obj,
-    state = game,
-    { message, readEngraving } = {},
-) {
-    if (!obj || obj.nexthere || typeof message !== 'function'
-        || typeof readEngraving !== 'function') {
-        throw new TypeError(
-            'single-object look_here needs one object plus message '
-                + 'and engraving owners',
-        );
-    }
-    const blind = heroIsBlind(state);
-    if (blind) {
-        await message(
-            `You try to feel what is lying here on the ${
-                surface(state.u.ux, state.u.uy, state)
-            }.`,
-            state,
-        );
-    }
-    await readEngraving(state);
-    await message(
-        `You ${blind ? 'feel' : 'see'} here ${donameFresh(obj, state)}.`,
-        state,
-    );
-    state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
 }
 
 function inventoryEnv(env = {}) {
