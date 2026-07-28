@@ -26,6 +26,14 @@ The loop is:
 4. Re-run the scan. The change in emitted screens is that goal's measured
    result, and the new census selects what follows.
 
+The census orders goals **inside** the open milestone; it never reorders the
+milestones themselves. When every boundary it names belongs to a later
+milestone, the open one is exhausted: close it, take the next milestone from
+"Later milestones" below, and let the census order goals inside that one. The
+largest ceiling in a census is not a reason to jump milestones — the level-change
+family stands in front of more recorded steps than anything else and still waits
+for its milestone.
+
 The recorded steps standing behind a boundary are a ceiling on what a goal can
 earn, never a forecast: a session blocked on one owner routinely blocks again
 on another. `.agents/validation.md` holds the full rule.
@@ -255,7 +263,9 @@ area's first recorded pass.
 
 ## Later milestones
 
-After the current milestone, proceed in this order:
+This list selects the next milestone; `scripts/scan-stops.mjs` selects goals
+inside whichever milestone is open. After the current milestone, proceed in
+this order:
 
 1. **Combat and creatures:** complete melee, damage and death, the remaining
    monster and pet behavior, monster inventory, conditions, and common creature
