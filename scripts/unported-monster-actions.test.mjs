@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     BURN,
+    BURN_OBJECT,
     CONFLICT,
     COULD_SEE,
     CORR,
@@ -27,6 +28,7 @@ import {
     POOL,
     ROOM,
     STONE,
+    TIMER_OBJECT,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_SADDLE,
@@ -64,6 +66,7 @@ import {
     TRIPE_RATION,
 } from '../js/objects.js';
 import { create_region } from '../js/region.js';
+import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 
 const DATETIME = '20260725120000';
@@ -1686,3 +1689,64 @@ test('planning refuses an active conflict before the scan begins',
             game.u.uprops[CONFLICT] = { intrinsic: 0, extrinsic: 0 };
         }
     });
+
+// Audit rows 5, 13, and 14: planningState() clones the timer queue head and
+// the timer_id counter so a monster generated during a dry run cannot leave an
+// orphan timer behind, but the isolation test above never reaches
+// finishElapsedTurn, so nothing exercised that clone. A planning round that
+// starts a timer must leave the live queue and counter untouched, on every
+// retry.
+test('planning rounds cannot reach the live timer queue', async () => {
+    const target = await prepareSelectedAction();
+    target.monster.movement = 0;
+    game.u.umovement = 0;
+    game.level.regions = [];
+
+    const liveTimerBase = game.gt.timer_base;
+    const liveTimerId = game.svt.timer_id;
+    const beforeRandom = rngSnapshot();
+    const before = completeSecondTurnSnapshot(game, target.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    // What makemon() -> m_initinv() -> begin_burn() does for a
+                    // gnome carrying a lit candle, without needing that draw.
+                    start_timer(
+                        50,
+                        TIMER_OBJECT,
+                        BURN_OBJECT,
+                        { age: 200 },
+                        planned,
+                    );
+                    assert.notStrictEqual(
+                        planned.gt.timer_base,
+                        liveTimerBase,
+                    );
+                    assert.equal(planned.svt.timer_id, liveTimerId + 1);
+                    throw new UnsupportedSimpleMonsterActionError(
+                        'after a planned timer',
+                    );
+                },
+            }),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'after a planned timer'
+            ),
+            `attempt ${attempt}`,
+        );
+        assert.strictEqual(
+            game.gt.timer_base,
+            liveTimerBase,
+            `attempt ${attempt}`,
+        );
+        assert.equal(game.svt.timer_id, liveTimerId, `attempt ${attempt}`);
+        assert.deepEqual(rngSnapshot(), beforeRandom, `attempt ${attempt}`);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            `attempt ${attempt}`,
+        );
+    }
+});
