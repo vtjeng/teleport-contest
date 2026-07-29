@@ -28,8 +28,14 @@ export const ECM_NO1CHARCMD = 0x0004;
 
 // ef_funct holds the C function name.  js/cmd.js maps the names it
 // has ported to JavaScript handlers and refuses the rest.
-function row(key, ef_txt, ef_desc, ef_funct, flags) {
-    return Object.freeze({ key, ef_txt, ef_desc, ef_funct, flags });
+//
+// f_text is extcmdlist[]'s sixth column, the occupation name
+// rhack() passes to set_occupation() when the command runs under a
+// count.  Only 'search' and 'wait' carry one.
+function row(key, ef_txt, ef_desc, ef_funct, flags, f_text = null) {
+    return Object.freeze({
+        key, ef_txt, ef_desc, ef_funct, flags, f_text,
+    });
 }
 
 // extcmdlist[] in source order, without its Null-ef_txt sentinel.
@@ -108,7 +114,7 @@ export const extcmdlist = Object.freeze([
     row(0x67, "rush", "prefix: rush until something interesting is seen", "do_rush", PREFIXCMD),
     row(0x53, "save", "save the game and exit", "dosave", IFBURIED | GENERALCMD | NOFUZZERCMD),
     row(0x00, "saveoptions", "save the game configuration", "do_write_config_file", IFBURIED | GENERALCMD | NOFUZZERCMD),
-    row(0x73, "search", "search for traps and secret doors", "dosearch", IFBURIED | CMD_M_PREFIX),
+    row(0x73, "search", "search for traps and secret doors", "dosearch", IFBURIED | CMD_M_PREFIX, "searching"),
     row(0x2A, "seeall", "show all equipment in use", "doprinuse", IFBURIED | GENERALCMD | CMD_M_PREFIX),
     row(0x22, "seeamulet", "show the amulet currently worn", "dopramulet", IFBURIED | GENERALCMD | CMD_M_PREFIX),
     row(0x5B, "seearmor", "show the armor currently worn", "doprarm", IFBURIED | GENERALCMD | CMD_M_PREFIX),
@@ -141,7 +147,7 @@ export const extcmdlist = Object.freeze([
     row(0xF6, "version", "list compile time options for this version of NetHack", "doextversion", IFBURIED | AUTOCOMPLETE | GENERALCMD),
     row(0x56, "versionshort", "show version and date+time program was built", "doversion", IFBURIED | GENERALCMD | CMD_M_PREFIX),
     row(0x00, "vision", "show vision array", "wiz_show_vision", IFBURIED | AUTOCOMPLETE | WIZMODECMD),
-    row(0x2E, "wait", "rest one move while doing nothing", "donull", IFBURIED | CMD_M_PREFIX),
+    row(0x2E, "wait", "rest one move while doing nothing", "donull", IFBURIED | CMD_M_PREFIX, "waiting"),
     row(0x57, "wear", "wear a piece of armor", "dowear", 0),
     row(0x26, "whatdoes", "tell what a command does", "dowhatdoes", IFBURIED | GENERALCMD),
     row(0x2F, "whatis", "show what type of thing a symbol corresponds to", "dowhatis", IFBURIED | GENERALCMD),

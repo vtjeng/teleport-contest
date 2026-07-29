@@ -216,6 +216,30 @@ Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
 behavior part of a goal in progress.
 
+## Unresolved: `flush_screen()` rebuilds the whole screen
+
+`js/display.js flush_screen()` calls `_buildScreenOutput()`, which clears the
+terminal and repaints from `game.level`. `display.c`'s writes only the glyph
+buffer entries whose `gnew` is set and never clears, and `select_menu()` sets
+`gb.bot_disabled` so `bot()` is skipped while a menu owns the screen.
+
+That difference became reachable when `js/getline.js` ported
+`pline.c vpline()`'s `if (u.ux) flush_screen(...)`, which the `#` prompt
+genuinely needs. The call is faithful; the function it calls is not. At the two
+pre-existing menu-search call sites the rebuild erases the open menu, and the
+correctness pass over `60bf3d0..f826ba5` reproduced it end to end.
+
+`.agents/review.md` puts this outside audit-fix scope: it changes rendering
+behavior and needs a mechanism the port lacks. Do not paper over it by dropping
+the `flush_screen(1)` call, which `vpline()` really does make. Port the `gnew`
+dirty discipline and `gb.bot_disabled` so `flush_screen()` repaints only changed
+cells, then satisfy the readiness note again and run a new full correctness pass
+over the expanded range, as that file requires.
+
+Three findings from that pass are the same defect seen from three angles: the
+menu erasure itself, the two menu call sites left untested against it, and the
+missing `state === game` guard that the other port of the same C line carries.
+
 ## Unresolved: recording a debug-mode session needs local setup
 
 Two constraints bind anyone recording a `playmode:debug` case, both found while

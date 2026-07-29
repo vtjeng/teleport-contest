@@ -67,7 +67,18 @@ test('the generated table reproduces cmd.c extcmdlist[]', () => {
             ef_desc: 'enter and perform an extended command',
             ef_funct: 'doextcmd',
             flags: IFBURIED | GENERALCMD | CMD_M_PREFIX,
+            f_text: null,
         },
+    );
+
+    // extcmdlist[]'s sixth column, f_text, is the occupation name rhack()
+    // hands set_occupation() when a count is pending. cmd.c gives exactly two
+    // rows one, and every other row leaves it Null.
+    assert.deepEqual(
+        extcmdlist
+            .filter(({ f_text }) => f_text !== null)
+            .map(({ ef_txt, f_text }) => [ef_txt, f_text]),
+        [['search', 'searching'], ['wait', 'waiting']],
     );
     // cmd.c:2059-2066, the last four internal rows before the sentinel.
     assert.deepEqual(

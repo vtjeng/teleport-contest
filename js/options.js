@@ -1771,6 +1771,11 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
         result.iflags.altmeta = enabled;
     } else if (name === 'cmdassist') {
         result.iflags.cmdassist = enabled;
+    } else if (name === 'extmenu') {
+        // C ref: options.c. tty_get_ext_cmd() reads this as its first test, so
+        // it has to reach iflags rather than being accepted and dropped;
+        // extcmd_via_menu() is unported and the guard there stops on it.
+        result.iflags.extmenu = enabled;
     } else if (name === 'customcolors' || name === 'customsymbols') {
         result.iflags[name] = enabled;
     } else if (name === 'safe_pet') result.flags.safe_dog = enabled;

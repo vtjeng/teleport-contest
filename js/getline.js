@@ -44,6 +44,10 @@ const ERASE_CHAR = 0x7F;
 const KILL_CHAR = 0x15;
 const BACKSPACE = 0x08;
 const ESC = 0x1B;
+// cmd.c:452 `return (char) ch;` makes a 0xFF byte read back as -1, which
+// getline.c:85 tests as EOF. tty_nhgetch() never delivers EOF itself, so this
+// signed cast is the only route to that arm.
+const EOF_BYTE = 0xFF;
 const CTRL_P = 0x10;
 
 // C ref: win/tty/getline.c's file-static suppress_history, which the two
@@ -136,8 +140,21 @@ async function hooked_tty_getlin(query, hook, state) {
         const c = (await nhgetch(state)) & 0xFF;
 
         // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
-        if (c === 0 || c === ESC) {
-            if (text) {
+        //
+        // 0xFF joins them by accident, which cmd.c:452 preserves: pgetchar()
+        // ends `return (char) ch;`, and char is signed here, so the 255 that
+        // getchar() returns becomes -1. getline.c:120 tests `c == EOF`, so the
+        // line is cancelled. tty_nhgetch() cannot deliver EOF itself, mapping
+        // both NUL and EOF to Escape, so the signed cast is the only route to
+        // this arm.
+        if (c === 0 || c === ESC || c === EOF_BYTE) {
+            if (c === EOF_BYTE) state.iflags.term_gone = 1;
+            // getline.c:88 gates the restart on `c == '\033'` alone, so EOF
+            // never restarts: it always takes the cancel arm below, even over
+            // existing text, where Escape would clear and redraw the prompt.
+            // NUL still restarts, because tty_nhgetch() has already turned it
+            // into Escape by the time this test runs.
+            if (c !== EOF_BYTE && text) {
                 // Escape over existing text restarts the prompt and then falls
                 // through the remaining tests, every one of which declines it.
                 text = '';
@@ -234,9 +251,14 @@ function ext_cmd_getlin_hook(base, state) {
 
 // C ref: win/tty/getline.c tty_get_ext_cmd().  Returns the extcmdlist[] index
 // of the command the player named, or -1 for a cancelled or unknown one.
-// iflags.extmenu is off in every recorded configuration, so extcmd_via_menu()
-// stays unported.
 export async function tty_get_ext_cmd(state = game) {
+    // C's first statement is `if (iflags.extmenu) return extcmd_via_menu();`.
+    // That function is not ported, so the option has to stop here rather than
+    // fall through to the typed prompt, which is a different command entirely.
+    // The test keeps C's position, before anything paints.
+    if (state.iflags?.extmenu) {
+        throw new UnsupportedGetlinBoundaryError('extcmd_via_menu()');
+    }
     const extcmdChar = extcmd_initiator(state);
 
     suppress_history = true;
