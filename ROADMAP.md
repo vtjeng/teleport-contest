@@ -210,6 +210,23 @@ Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
 behavior part of an open goal.
 
+## Unresolved: a live monster refusal escapes as a hard failure
+
+`UnsupportedMonsterCreationError` is listed in
+`ELAPSED_TURN_PLANNING_REFUSALS`, which converts it to a turn boundary, but
+that conversion covers only the cloned planning round. `advanceElapsedTurn()`
+supplies that round only when `projected_capacity(state) > 0`, so an
+unencumbered hero never dry-runs the turn, and the same refusal thrown by the
+live `maybe_generate_rnd_mon()` leaves `runSegment()` as a hard failure. A
+segment then loses its matching screens instead of keeping the prefix.
+
+The correctness pass recorded at `eb7e17e` confirmed this and verified it is
+older than the range it audited: the identical probe at the parent produces
+identical output. Converting on the live path alone would not be enough,
+because moves and the regeneration draws are already spent by then, so the fix
+is a preflight for the unburdened path, as `preflightGetHungry()` and
+`preflight_nh_timeout_elapsed_turn()` already do for theirs.
+
 ## Unresolved: unreviewed commits behind a review frontier
 
 A review frontier is the latest commit a recorded correctness pass covers;

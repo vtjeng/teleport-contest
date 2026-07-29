@@ -2622,6 +2622,159 @@
         ]
       },
       "recordedAt": "2026-07-28T17:19:19.021Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+        "objects": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+        "monsters": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+        "hero": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+        "startup": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+        "world-effects": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c"
+      },
+      "head": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+      "auditedRange": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c..eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+      "areas": [
+        "commands",
+        "objects",
+        "monsters",
+        "hero",
+        "startup",
+        "world-effects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Two audit-diff-correctness passes covering this range end to end: a full pass over 03c2add..e05118c (four finders; 26 raw, 21 deduplicated, 19 confirmed, all applied at a6bd5af) and a light pass over 4fc57d8..03c2add (three finders; 7 raw, 6 deduplicated, 4 confirmed, three applied at eb7e17e and one deferred as a verified pre-existing gap). Four rejections carry counter-evidence; none unverified; no warnings. Validation at eb7e17e: 1,724 tests, four generated-data checks, check:namespace-members, and four fresh matrices re-recorded against C (no-time commands 29,459 PRNG calls with 71 screens; repeated simple commands 104,649 with 2,541; second complete turn 46,255 with 54; first-command closure 311,439 with 119). Development score 98,759 PRNG values, 279 screens, 279 cursors.",
+      "auditMetrics": {
+        "wallTimeSeconds": 4183,
+        "counts": {
+          "raw": 33,
+          "deduplicated": 27,
+          "confirmed": 23,
+          "applied": 22,
+          "deferred": 1,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 12,
+          "tests": 7,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "look_here() threw on any corpse, but C's feel_cockatrice(otmp, FALSE) is a no-op unless will_feel_cockatrice() holds, so walking onto an ordinary corpse aborted the segment, and after its messages had already printed.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "rhack()'s look dispatch called dolook() outside failClosedCommand(), so every unported look_here() branch escaped runSegment() instead of stopping retryably.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Return and Linefeed did not finish a PICK_ONE menu without an empty completion, though process_menu_window() finishes on \\0, \\n, \\r and Space alike.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The packorder option was parsed and discarded, so display_pickinv() would have listed the default class order for a session that set it; change_inv_order() is unported.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The generated CMAP_EXPLANATIONS entry for S_web held \"',  S_web, \" because the extractor scanned the whole entry for its last quoted string and that entry's character literal is a double quote.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "objnam.c just_an() was ported twice in js/objnam.js.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "vtense()'s es and s branches appended lowercase literals where C writes them through Strcasecpy(), dropping case propagation.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "dfeature_at() read the door mask as doormask||flags, reversing the precedence every other reader in the port uses.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/hack.js passed a literal 0 for look_here()'s obj_cnt where pickup.c check_here() passes the counted objects, which pile_limit is compared against.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "display_pickinv() formatted names one at a time, and formatting marks a type discovered, so a pack whose later item could not be named left the earlier ones discovered and still refused the command.",
+            "foundBy": [
+              "tests",
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "88e2193 added test_move()'s diagonal-out-of-an-intact-doorway refusal to the destination seam only, so a hero on an open doorway swapped diagonally with the pet and elapsed a turn C refuses.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "UnsupportedMonsterCreationError is converted only on the cloned planning round, so for an unencumbered hero the live maybe_generate_rnd_mon() refusal escapes runSegment() rather than ending the segment at a boundary. Verified pre-existing: the identical probe at the parent produces identical output. The fix must be a preflight, because a live conversion is not atomic.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "The Space-dismissal change to selectOneTtyMenu() shipped with no test.",
+            "counterEvidence": "Reverting the Space arm to require hasEmptyCompletion fails the committed test 'no-time commands leave the game where dropping them would' in scripts/no-time-commands.test.mjs, whose Rogue segment dismisses the inventory menu with Space."
+          },
+          {
+            "summary": "The displ argument added to tin_variety() has no test distinguishing displ=true from displ=false.",
+            "counterEvidence": "Deleting the !displ guard in js/eat.js adds one failure to the committed suite: the same no-time matrix detects the extra rn2(7) draw as 2733 PRNG calls against 2734, through its Tourist segment that formats a tin."
+          },
+          {
+            "summary": "The new test_move() ust rule (refuse a diagonal step out of a doorway that still has its door) was added only to requireSimpleHeroDestination(); requireOrdinaryStartingPetSwap() still admits the same move, so a diagonal pet swap out of an open doorway succeeds where C refuses.",
+            "counterEvidence": "causality refute: Pre-existing and unchanged by the range, for the same reasons as index 1: the pet-swap admission function has no hunk in this diff, and the hero could already stand on a D_ISOPEN doorway under the pre-diff destination predicate. Counter-evidence: `git show 4fc57d80:js/hack.js` shows requireOrdinaryStartingPetSwap() with an identical source-square check and no diagonal rule, and `doorway = location?.typ === DOOR && !(doorMask(location) & (D_CLOSED | D_LOCKED | D_TRAPPED))` already admitting D_ISOPEN as a destination. The pet-swap probe run against the parent tree returned the same swaps as at 03c2add for seeds 777, 5150, 840004, 31009 and 1234 (e.g. `31009 RETURNED hero [ 63"
+          },
+          {
+            "summary": "The tests for stopStepIndex and ceilingFor restate the one-line implementations (identity and subtraction), and the seed8000-tourist-starter census cited as their independent anchor is false at this range's HEAD, so the stop-attribution convention has no working oracle.",
+            "counterEvidence": "evidence refute: The finding's central factual claim is false at the reviewed commit, and the assertions it calls tautological do in fact pin the convention. Counter-evidence: I ran `node scripts/scan-stops.mjs --json` in a tree exported at 03c2add (the range's HEAD). The seed8000-tourist-starter row is `{'screensEmitted': 11, 'recordedSteps': 23, 'key': 'i', 'command': 'inventory', ...}` — exactly the numbers the comments state ('11 is seed8000-tourist-starter's emitted count, where step 11 is the \"i\" the repeated-command boundary refuses' and '23 recorded steps, 11 emitted screens'), and ceilingFor({23, 11}) = 12 as asserted. The 13-emitted/'+'/showspells figures come from the current work"
+          }
+        ]
+      },
+      "recordedAt": "2026-07-29T01:19:43.869Z"
     }
   ]
 }
