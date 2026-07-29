@@ -296,7 +296,7 @@ export function validateAudited(pass) {
 // Whether a pass read one particular commit. A range covers what
 // `git rev-list base..head` lists: at or before the head, and strictly after
 // the base, so the base commit itself is excluded. A list covers exactly what
-// it names. An unrecorded pass covers nothing, whatever its frontier asserts.
+// it names. An unrecorded pass establishes no coverage; its frontier stands.
 function auditedCovers(audited, sha, ancestorCheck) {
   if (audited?.commits !== undefined) return audited.commits.includes(sha);
   if (audited?.range === undefined) return false;
