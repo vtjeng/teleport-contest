@@ -162,11 +162,14 @@ small.
   magic, fire, land mines, teleportation, holes, trapdoors, migration, and
   living-statue effects.
 - Hero or monster relocation and every level transition, including deferred
-  transitions, D:2 generation, and rolling-boulder traps. Five sessions stop on
-  `#levelchange` and two on `wizlevelport`, so this family stands in front of
-  more recorded steps than any other, at a correspondingly larger cost. The
-  other two sessions the census groups under `#` stop on `#name` and `#chat`,
-  which belong to other families.
+  transitions, D:2 generation, and rolling-boulder traps. Two sessions stop on
+  `wizlevelport`, which belongs here. `#levelchange` does not, despite the name:
+  `wizcmds.c wiz_level_change()` prompts "To what experience level do you want
+  to be set?" and drives `exper.c pluslvl()` and `losexp()` on `u.ulevel`, and
+  its body contains no `goto_level`, `u.uz` or `dunlev` reference at all. The
+  five sessions and 1,785 steps behind it belong to an experience-level family,
+  not to this one, and treating them as relocation work would overstate this
+  family and understate that one when the next goal is selected.
 - Objects and inventory behavior, including automatic pickup, pet food and
   fetching, monster pickup, equipment, naming, billing, and object damage. One
   session stops on a pet picking up a food ration.
@@ -239,6 +242,24 @@ over the expanded range, as that file requires.
 Three findings from that pass are the same defect seen from three angles: the
 menu erasure itself, the two menu call sites left untested against it, and the
 missing `state === game` guard that the other port of the same C line carries.
+A fourth, `clearMessageWindow()` blanking map rows where C repaints them
+through `docorner()`, shares the cause and belongs with them.
+
+This is a goal of its own, not a slice of the extended-command goal. Its
+upstream owners are `display.c flush_screen()` (2207-2266) with the
+`gbuf_start[]`/`gbuf_stop[]` bounding box that `show_glyph()`, `cls()` and the
+`reset_glyph_bbox` macro maintain; `windows.c select_menu()` (1855-1865) and
+`getlin()` (1867-1901), which save, set and restore `gb.bot_disabled`; and
+`botl.c bot()` and `timebot()`, whose early returns read it. None of that is in
+`cmd.c`, `extcmdlist[]`, or `win/tty/getline.c`; the `#` prompt is a witness
+rather than the owner, and the two victims in `js/tty_menu.js` predate it.
+
+Size it as a goal with a checklist. `_buildScreenOutput()` in
+`js/display.js:2799-2863` is the port's only map renderer, behind `docrt()` and
+all eleven `flush_screen()` call sites, so converting it to per-cell
+`print_glyph` puts every currently matching screen at risk. It is not urgent:
+it owns no fail-closed boundary, and every one of the 398 emitted screens
+matches today, so nothing is emitted-and-wrong.
 
 ## Unresolved: nine deferred findings from the extended-command pass
 
