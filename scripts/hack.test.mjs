@@ -410,17 +410,96 @@ test('lookaround stops a grid bug asked to move diagonally', async () => {
     assert.equal(state.multi, 0);
 });
 
-test('lookaround refuses a run whose hero is not standing on a room square',
+// A hero on a corridor square at <10,10> running east, with the square in
+// front of it, <11,10>, left as stone. hack.c lookaround()'s bcorr label needs
+// levl[u.ux][u.uy].typ != ROOM, which the room strip runState() carves does
+// not satisfy, so each corner-turn test starts from this shape and carves the
+// corridor squares its branch needs.
+function corridorRunState(overrides = {}) {
+    const state = runState(overrides);
+    for (let x = 8; x <= 14; ++x) state.level.at(x, 10).typ = STONE;
+    state.level.at(9, 10).typ = CORR;
+    state.level.at(10, 10).typ = CORR;
+    return state;
+}
+
+test('lookaround turns a half turn right around a corridor corner',
     async () => {
-        // Every corridor arm of hack.c lookaround() hangs off this test, and
-        // corridor running is outside this boundary.
-        const state = runState();
-        state.level.at(10, 10).typ = CORR;
-        await assert.rejects(
-            lookaround(state),
-            (error) => error.name === 'UnsupportedHeroMoveBoundaryError',
-        );
+        const state = corridorRunState();
+        // The only corridor square bcorr counts is <11,11>, diagonally ahead:
+        // corrct is 1, dist2(11,11, 11,10) is 1 so i0 is 1, and m0 is 0. The
+        // u.dx && u.dy arm is skipped because u.dy is 0, so the last arm runs
+        // with x0 - u.ux == y0 - u.uy == 1 and !u.dy, giving i = 1.
+        state.level.at(11, 11).typ = CORR;
+        await lookaround(state);
+        assert.equal(state.context.run, 1);
+        assert.deepEqual([state.u.dx, state.u.dy], [1, 1]);
+        assert.equal(state.u.last_str_turn, 1);
     });
+
+test('lookaround turns a straight turn right around a corridor corner',
+    async () => {
+        const state = corridorRunState();
+        // <10,11> lies at dist2 2 from the square in front, so i0 is 2 and the
+        // first arm applies: u.dx == y0 - u.uy (1) and u.dy == u.ux - x0 (0),
+        // so i is 2 and the run turns fully south.
+        state.level.at(10, 11).typ = CORR;
+        await lookaround(state);
+        assert.deepEqual([state.u.dx, state.u.dy], [0, 1]);
+        assert.equal(state.u.last_str_turn, 2);
+    });
+
+test('lookaround marks noturn when two corridor squares are not adjacent',
+    async () => {
+        const state = corridorRunState();
+        // <11,9> is counted first, so corrct is 1 when <11,11> is examined;
+        // dist2 between them is 4, which sets noturn and blocks the turn even
+        // though corrct == 2 and i0 == 1 would otherwise allow it.
+        state.level.at(11, 9).typ = CORR;
+        state.level.at(11, 11).typ = CORR;
+        await lookaround(state);
+        assert.deepEqual([state.u.dx, state.u.dy], [1, 0]);
+        assert.equal(state.u.last_str_turn, 0);
+        // corrct above 1 stops the run only at svc.context.run == 2.
+        assert.equal(state.context.run, 1);
+    });
+
+test('lookaround refuses a corner turn that would turn too far', async () => {
+    // u.last_str_turn already holds 2, so the half turn right adds up to 3 and
+    // fails hack.c's `i <= 2 && i >= -2` guard. Neither u.dx/u.dy nor
+    // u.last_str_turn is written.
+    const state = corridorRunState();
+    state.u.last_str_turn = 2;
+    state.level.at(11, 11).typ = CORR;
+    await lookaround(state);
+    assert.deepEqual([state.u.dx, state.u.dy], [1, 0]);
+    assert.equal(state.u.last_str_turn, 2);
+});
+
+test('lookaround refuses a corner turn onto a monster', async () => {
+    // bcorr sets m0 from m_at() alone, and the corner turn needs !m0. The
+    // monster is invisible so lookaround()'s mon_visible() arm does not stop
+    // the run first.
+    const state = corridorRunState();
+    state.level.at(11, 11).typ = CORR;
+    state.level.monsters[11][11] = {
+        mx: 11, my: 11, minvis: 1, mundetected: 0, m_ap_type: 0,
+    };
+    await lookaround(state);
+    assert.equal(state.context.run, 1);
+    assert.deepEqual([state.u.dx, state.u.dy], [1, 0]);
+});
+
+test('lookaround leaves a straight corridor run alone', async () => {
+    // The one square bcorr counts is the square being moved onto, so i0 stays
+    // 0 and the corner turn's `i0` term fails.
+    const state = corridorRunState();
+    state.level.at(11, 10).typ = CORR;
+    await lookaround(state);
+    assert.equal(state.context.run, 1);
+    assert.deepEqual([state.u.dx, state.u.dy], [1, 0]);
+    assert.equal(state.u.last_str_turn, 0);
+});
 
 test('runmode_delay_output follows each source cadence', async () => {
     // hack.c runmode_delay_output(): RUN_TPORT emits nothing, RUN_LEAP emits

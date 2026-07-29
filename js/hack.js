@@ -795,20 +795,12 @@ export async function lookaround(state = game) {
     if (heroIsBlind(state) || state.context.run === 0) return;
 
     const here = state.level.at(u.ux, u.uy);
-    // Every corridor arm below hangs off this one test, and it is also the
-    // only way the corner-turning block at the end can fire. A run inside a
-    // room reaches none of them: leaving a room crosses a doorway, and
-    // domove_core() ends the run on the doorway square before this runs
-    // again. Corridor running is the next slice, so stop instead of running
-    // arms no differential covers.
-    if (here.typ !== ROOM) {
-        throw new UnsupportedHeroMoveBoundaryError('a run outside a room');
-    }
 
     // C ref: lookaround()'s bcorr label. Its body counts corridor squares
-    // around the hero and picks the one a corner turn would follow. The guard
-    // above means only its `continue` is live today; the counting arm becomes
-    // reachable with corridor running.
+    // around the hero and picks the one a corner turn would follow. A hero
+    // standing in a room skips the count entirely, which is why a run that
+    // starts and ends inside one room can neither widen-stop nor turn a
+    // corner.
     const bcorr = (x, y, mtmp) => {
         if (here.typ !== ROOM) {
             const run = state.context.run;
@@ -932,9 +924,6 @@ export async function lookaround(state = game) {
         }
     }
 
-    // corrct is zero for every square a room run sees, so neither the
-    // rush-only widening stop nor the corner turn below can fire until the
-    // guard above lifts. Both are kept with the function they belong to.
     if (corrct > 1 && state.context.run === 2) {
         if (state.flags?.mention_walls)
             await ttyPline('The corridor widens here.', state);
