@@ -662,9 +662,11 @@ async function selectOneTtyMenu(state, spec) {
 
         if (ch === '\n' || ch === '\r') {
             pendingCount = null;
-            if (!hasEmptyCompletion) continue;
+            // process_menu_window()'s '\0', '\n', and '\r' cases set
+            // finished = TRUE unconditionally, the same commit Space takes.
             dismissTtyMenu(state, rendered);
-            return emptyCompletion;
+            return hasEmptyCompletion
+                ? emptyCompletion : (spec.cancelValue ?? null);
         }
         if (ch === ' ' || ch === MENU_NEXT_PAGE) {
             pendingCount = null;

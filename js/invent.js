@@ -46,6 +46,7 @@ import {
     Is_waterlevel,
     LOOKHERE_NOFLAGS,
     LOOKHERE_SKIP_DFEATURE,
+    STONE_RES,
     PLNMSG_ONE_ITEM_HERE,
     P_SABER,
     P_SHORT_SWORD,
@@ -67,6 +68,7 @@ import {
     S_vodbridge,
     S_vodoor,
 } from './symbols.js';
+import { touch_petrifies } from './mondata.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
@@ -114,7 +116,12 @@ import {
     preflightWeight,
     weight,
 } from './obj.js';
-import { an, donameFresh, vtense } from './objnam.js';
+import {
+    an,
+    assertObjectNameable,
+    donameFresh,
+    vtense,
+} from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 
 export const INVLET_BASIC = 52;
@@ -141,7 +148,9 @@ export function dfeature_at(x, y, state = game) {
     let dfeature = null;
 
     if (IS_DOOR(ltyp)) {
-        switch (lev.doormask || lev.flags || 0) {
+        // Every other reader in the port takes flags first; both fields
+        // stand for C's single doormask, and this one had them reversed.
+        switch (lev.flags || lev.doormask || 0) {
         case D_NODOOR:
             cmap = S_ndoor;
             break;
@@ -255,6 +264,11 @@ export async function display_pickinv(
         throw new UnsupportedFeatureDescriptionError('reassign()');
     if (!state.flags.sortpack)
         throw new UnsupportedFeatureDescriptionError('an unpacked inventory');
+    // options.c change_inv_order() would have rewritten flags.inv_order from
+    // a packorder setting; the port keeps the default order, so a session
+    // that sets packorder stops rather than listing the wrong order.
+    if (state.flags.packorder)
+        throw new UnsupportedFeatureDescriptionError('change_inv_order()');
 
     // C's n counts 0, 1, or "more than 1"; with no letter subset it then adds
     // one, so the single-item message-line shortcut cannot apply here.
@@ -262,6 +276,13 @@ export async function display_pickinv(
     // carries items, and nothing this milestone runs can empty the pack.
     if (!state.invent)
         throw new UnsupportedFeatureDescriptionError('an empty inventory');
+
+    // Formatting a name marks its type discovered, so every object is checked
+    // for an unported naming branch before any of them is formatted. Without
+    // this, a pack whose fifth item cannot be named would leave the first
+    // four discovered and still refuse the command.
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj)
+        assertObjectNameable(otmp, state);
 
     // sortloot() with SORTLOOT_INVLET|SORTLOOT_PACK keeps invent order, and
     // the class walk below is what groups it, exactly as C's nextclass loop
@@ -330,13 +351,32 @@ function heroIsBlind(state) {
     );
 }
 
-// C ref: invent.c look_here(). Covers a sighted hero standing on an ordinary
-// square: the region and trap line, the terrain feature line, the engraving
-// read, and either "You see no objects here." or the single-object
-// description. The branches left out each stop, because they belong to
-// subsystems this milestone excludes: being swallowed, blindness (which
-// returns ECMD_TIME rather than ECMD_OK), a pile large enough for the menu,
-// and a corpse that can be felt.
+// C ref: invent.c will_feel_cockatrice(). A sighted hero without forced touch
+// never feels a corpse, whatever it is, so feel_cockatrice() is a no-op there.
+export function will_feel_cockatrice(otmp, force_touch, state = game) {
+    return Boolean((heroIsBlind(state) || force_touch)
+        && !state.uarmg
+        && !activeStoneResistance(state)
+        && otmp.otyp === CORPSE
+        && touch_petrifies(state.mons[otmp.corpsenm]));
+}
+
+function activeStoneResistance(state) {
+    const property = state.u?.uprops?.[STONE_RES];
+    return Boolean(
+        (property?.intrinsic || property?.extrinsic) && !property?.blocked,
+    );
+}
+
+// C ref: invent.c look_here(). Covers a hero standing on an ordinary square,
+// sighted or blind: the region and trap line, the terrain feature line, the
+// engraving read, and either "You see no objects here." or the single-object
+// description. Blindness is not excluded; it selects the tactile wording and
+// is this function's whole return value, because C returns ECMD_TIME for a
+// blind look and ECMD_OK otherwise. The branches left out each stop, because
+// they belong to subsystems this milestone excludes: being swallowed, a
+// visible region or seen trap, a drifting level, a pile large enough for the
+// menu, and a corpse that will_feel_cockatrice() says the hero would feel.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
@@ -420,13 +460,15 @@ export async function look_here(
             skip_objects ? 'the skipped-pile count' : 'the object-pile menu',
         );
     }
-    // Only one object.
+    // Only one object. C ends this branch with feel_cockatrice(otmp, FALSE),
+    // which does nothing unless will_feel_cockatrice() holds; that case is
+    // unported, so it stops here, before any of the branch's output.
+    if (will_feel_cockatrice(otmp, false, state))
+        throw new UnsupportedFeatureDescriptionError('feel_cockatrice()');
     if (dfeature && !skip_dfeature) await message(fbuf, state);
     await readEngraving(state);
     await message(`You ${verb} here ${donameFresh(otmp, state)}.`, state);
     state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
-    if (otmp.otyp === CORPSE)
-        throw new UnsupportedFeatureDescriptionError('feel_cockatrice()');
     return blind;
 }
 

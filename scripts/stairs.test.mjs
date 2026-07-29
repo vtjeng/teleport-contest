@@ -89,12 +89,42 @@ test('stairs_description reproduces each stairs.c sentence', async () => {
         'ladder down',
     );
 
-    // Traversed ordinary stairs name depth(), which is dlevel here because
-    // the main dungeon starts at depth 1.
+    // Traversed ordinary stairs name depth(), which is dlevel here only
+    // because the main dungeon starts at depth 1.
     assert.equal(
         stairs_description({ ...plain, u_traversed: true }, true, state),
         'staircase down to level 2',
     );
+    // A branch whose depth_start differs separates depth() from dunlev().
+    // These three cases put the hero inside the destination's own branch, so
+    // known_branch_stairs() is false and this arm runs.
+    const inBranch = (dnum, dlevel) => {
+        state.u.uz = { dnum, dlevel: 1 };
+        return stairs_description(
+            { ...plain, u_traversed: true, tolev: { dnum, dlevel } },
+            true,
+            state,
+        );
+    };
+    // The Gnomish Mines begin below level 1, so absolute depth exceeds the
+    // level number within the branch, and an ordinary branch reports depth().
+    const minesDungeon = state.dungeons[state.mines_dnum];
+    assert.notEqual(minesDungeon.depth_start, 1);
+    assert.equal(
+        inBranch(state.mines_dnum, 2),
+        `staircase down to level ${minesDungeon.depth_start + 2 - 1}`,
+    );
+    // The two specialdepth arms report dunlev() instead: the Quest, and a
+    // single-level branch, which single_level_branch() defines as Knox.
+    const questDungeon = state.dungeons[state.quest_dnum];
+    assert.notEqual(questDungeon.depth_start, 1);
+    assert.equal(inBranch(state.quest_dnum, 3), 'staircase down to level 3');
+    const knox = state.knox_level;
+    assert.equal(
+        inBranch(knox.dnum, knox.dlevel),
+        `staircase down to level ${knox.dlevel}`,
+    );
+    state.u.uz = { ...dungeonOne };
 
     // The D:1 upstairs: a traversed branch stairway, so stairs_description()
     // takes its level-one special case. Without the Amulet C prints
@@ -226,8 +256,22 @@ test('the generated cmap explanations match defsym.h', () => {
         [26, 'staircase down'],
         [37, 'fountain'],
         [80, ''], // S_boomleft, one of the entries with an empty explanation
+        // S_web's character literal is a double quote, which a scan for the
+        // last quoted string in the whole entry pairs with the opening quote
+        // of its explanation.
+        [66, 'web'],
     ]) {
         assert.equal(CMAP_EXPLANATIONS[index], expected, `cmap ${index}`);
     }
     assert.equal(CMAP_EXPLANATIONS.length, 105); // MAXPCHARS
+    // Every entry is either a non-empty explanation or one of the beam,
+    // shield, and explosion entries defsym.h leaves empty; nothing may hold
+    // fragments of its own source line.
+    for (const [index, text] of CMAP_EXPLANATIONS.entries()) {
+        assert.equal(
+            /[",()]|S_/u.test(text),
+            false,
+            `cmap ${index} carries source punctuation: ${text}`,
+        );
+    }
 });

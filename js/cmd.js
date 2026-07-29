@@ -304,6 +304,14 @@ export async function parseCommand(state = game) {
     return finishCommandParse(parsed, state);
 }
 
+// Every command this milestone dispatches, named once so the comment above
+// readSimpleCommand(), both boundary messages, and the admission test cannot
+// drift apart as more commands land.
+const ADMITTED_COMMANDS = Object.freeze(['wait', 'look', 'inventory']);
+const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
+    + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, or a `
+    + 'byte bound to no command';
+
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
 // bad-command path, which this file owns. parse() returns such a byte
 // unchanged except for the ones get_count() consumes first: every digit when
@@ -318,10 +326,10 @@ function unboundCommandKey(key, command, model) {
         : !isDigit(key);
 }
 
-// This milestone admits one uncounted wait, one-square walk, or look byte,
-// plus a byte bound to no command at all. Classify that first logical byte
-// before get_count() can consume a prefix byte or expose transient count
-// output.
+// ADMITTED_COMMANDS above lists what this milestone dispatches; a one-square
+// walk and a byte bound to no command join them here. Classify that first
+// logical byte before get_count() can consume a prefix byte or expose
+// transient count output.
 async function readSimpleCommand(state) {
     await beginCommandParse(state);
     let key;
@@ -334,17 +342,12 @@ async function readSimpleCommand(state) {
     const model = commandBindings(state);
     const command = commandForKey(model, key);
     const movement = MOVEMENT_INTENTS[command];
-    const admitted = command === 'wait' || command === 'look'
-        || command === 'inventory'
+    const admitted = ADMITTED_COMMANDS.includes(command)
         || (movement && movement[2] === 0)
         || unboundCommandKey(key, command, model);
     if (!admitted) {
         abortCommandParse(state);
-        throw new UnsupportedHeroCommandBoundaryError(
-            'the repeated-command boundary admits only an uncounted wait '
-                + 'or one-square walk',
-            key,
-        );
+        throw new UnsupportedHeroCommandBoundaryError(ADMITTED_BOUNDARY, key);
     }
     return finishCommandParse({ key, count: 0 }, state);
 }
@@ -437,8 +440,7 @@ function restoreParsedCommand(pending, state) {
 
 function rejectedPhysicalCommand(pending) {
     return new UnsupportedHeroCommandBoundaryError(
-        'the repeated-command boundary admits only an uncounted wait '
-            + 'or one-square walk',
+        ADMITTED_BOUNDARY,
         pending.key,
     );
 }
@@ -574,15 +576,18 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'look') {
-            const elapsed = await dolook(state, {
-                message: ttyPline,
-                readEngraving: () => read_engr_at(
-                    state.u.ux,
-                    state.u.uy,
-                    state,
-                    { pline: ttyPline, canReachFloor: can_reach_floor },
-                ),
-            });
+            const elapsed = await failClosedCommand(key, state, () => dolook(
+                state,
+                {
+                    message: ttyPline,
+                    readEngraving: () => read_engr_at(
+                        state.u.ux,
+                        state.u.uy,
+                        state,
+                        { pline: ttyPline, canReachFloor: can_reach_floor },
+                    ),
+                },
+            ));
             // C ref: rhack()'s result handling. dolook() returns ECMD_OK for
             // a sighted hero, which reaches reset_cmd_vars(); only ECMD_TIME
             // puts context.move back to TRUE.
@@ -600,8 +605,7 @@ export async function rhack(key, state = game) {
             // means a repeat supplied it as logical input.
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
-                'the repeated-command boundary admits only an uncounted wait '
-                    + 'or one-square walk',
+                ADMITTED_BOUNDARY,
                 key,
             );
         }

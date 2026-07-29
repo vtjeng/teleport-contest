@@ -565,9 +565,13 @@ export async function domove(state = game) {
     const floorObject = state.level?.objects?.[newx]?.[newy] ?? null;
     if (floorObject && !floorObject.nexthere) {
         // C ref: domove() -> spoteffects(TRUE) -> pickup(1) -> check_here()
-        // -> invent.c look_here().
+        // -> invent.c look_here(). check_here() counts the objects on the
+        // square and passes that count, which look_here() compares against
+        // flags.pile_limit; the guard above means the count is one.
+        let objectCount = 0;
+        for (let obj = floorObject; obj; obj = obj.nexthere) ++objectCount;
         await look_here(
-            0,
+            objectCount,
             LOOKHERE_NOFLAGS,
             state,
             {

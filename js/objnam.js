@@ -60,33 +60,11 @@ function heroIsBlind(state) {
         && !blinded?.blocked);
 }
 
-// C ref: objnam.c just_an().
-function justAn(text) {
-    const lower = String(text).toLowerCase();
-    const first = lower[0] ?? '';
-    if (!lower[1] || lower[1] === ' ')
-        return 'aefhilmnosx'.includes(first) ? 'an' : 'a';
-    if (lower.startsWith('the ')
-        || lower === 'molten lava'
-        || lower === 'iron bars'
-        || lower === 'ice') {
-        return '';
-    }
-    const vowel = 'aeiou'.includes(first);
-    const oneException = lower.startsWith('one')
-        && (!lower[3] || '-_ '.includes(lower[3]));
-    const longU = lower.startsWith('eu')
-        || lower.startsWith('uke')
-        || lower.startsWith('ukulele')
-        || lower.startsWith('unicorn')
-        || lower.startsWith('uranium')
-        || lower.startsWith('useful');
-    const xVowelSound = first === 'x' && !'aeiou'.includes(lower[1] ?? '');
-    return (vowel && !oneException && !longU) || xVowelSound ? 'an' : 'a';
-}
+// C ref: objnam.c an(), whose article comes from just_an(). That helper is
+// defined below with the other name formatters; C's own an() returns the
+// article joined to the name, which is what this returns.
 function articleName(text) {
-    const article = justAn(text);
-    return article ? `${article} ${text}` : text;
+    return an(text);
 }
 function monsterObjectName(obj, state) {
     if (obj.corpsenm === NON_PM) return 'thing';
@@ -431,11 +409,9 @@ const SPECIAL_SUBJS = Object.freeze([
 // s, and comes back agreeing with `subj`. A null subject asks for the
 // singular third person directly.
 export function vtense(subj, verb) {
-    let singular = !subj;
     if (subj) {
-        if (startsWithFold(subj, 'a ') || startsWithFold(subj, 'an ')) {
-            singular = true;
-        } else {
+        // C jumps straight to its `sing:` label for an "a "/"an " subject.
+        if (!startsWithFold(subj, 'a ') && !startsWithFold(subj, 'an ')) {
             // C scans for the first " of "/" from "/" called "/" named "/
             // " labeled " and takes the character before it as the subject's
             // head; otherwise the head is the last character.
@@ -481,8 +457,6 @@ export function vtense(subj, verb) {
             }
         }
     }
-    void singular;
-
     const buf = verb;
     const last = buf.length - 1;
     if (buf.toLowerCase() === 'are') return strcasecpy(buf, 0, 'is');
@@ -491,12 +465,14 @@ export function vtense(subj, verb) {
         || (buf.length >= 2 && lowc(buf[last]) === 'h'
             && 'cs'.includes(lowc(buf[last - 1])))
         || (buf.length === 2 && lowc(buf[last]) === 'o')) {
-        // Ends in z, x, s, ch, or sh, so the third person adds "es".
-        return `${buf}es`;
+        // Ends in z, x, s, ch, or sh, so the third person adds "es". C writes
+        // it with Strcasecpy(bspot + 1, "es"), which takes the case of the
+        // last character already there.
+        return strcasecpy(buf, last + 1, 'es');
     }
     if (lowc(buf[last]) === 'y' && !VOWELS.includes(lowc(buf[last - 1])))
         return strcasecpy(buf, last, 'ies');
-    return `${buf}s`;
+    return strcasecpy(buf, last + 1, 's');
 }
 
 // The normal xname() entry point: it observes a nearby object, marks a
@@ -599,6 +575,14 @@ function corpseDoname(obj, modifiers, state) {
     const body = [...modifiers, corpse].join(' ');
     return articleName(body);
 }
+// The mutation-free half of naming an object: every branch this port has not
+// reached throws here, and nothing is written. xnameFresh() calls
+// observe_object() as it formats, so a caller that must not change discovery
+// state until every object is nameable runs this over all of them first.
+export function assertObjectNameable(obj, state = game) {
+    preflightObjectName(obj, objectType(obj, state), state, true);
+}
+
 // C ref: objnam.c doname(), the owornmask suffixes. Amulets, armor, and worn
 // tools are answered inside its class switch; the wielded, alternate-weapon,
 // and quiver phrases follow the charge and lit text, which is the order the

@@ -14,9 +14,15 @@ import {
     ROOM,
     W_RINGR,
     W_WEP,
+    W_AMUL,
+    W_ARM,
+    W_TOOL,
+    W_SWAPWEP,
+    W_QUIVER,
 } from '../js/const.js';
 import { look_here } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
+import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
 import {
     an,
@@ -37,6 +43,7 @@ import {
     PM_SAMURAI,
     monst_globals_init,
     PM_FOX,
+    M1_HUMANOID,
 } from '../js/monsters.js';
 import {
     ALCHEMY_SMOCK,
@@ -70,6 +77,13 @@ import {
     SACK,
     LARGE_BOX,
     TIN,
+    AMULET_OF_ESP,
+    BLINDFOLD,
+    ARROW,
+    TWO_HANDED_SWORD,
+    DAGGER,
+    DIAMOND,
+    CROSSBOW_BOLT,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 
@@ -379,6 +393,57 @@ test('single-object look_here requires its engraving owner before output',
         );
         assert.deepEqual(messages, []);
     });
+
+test('worn and wielded suffixes follow doname()\'s owornmask branches', () => {
+    const state = namingState();
+    // MZ_MEDIUM is monsters.h's MZ_HUMAN, the unpolymorphed hero size, and
+    // M1_HUMANOID is what makes mbodypart() answer "hand" rather than a
+    // claw; bimanual() and body_part() read both.
+    state.youmonst = {
+        data: { mflags1: M1_HUMANOID, msize: MZ_MEDIUM, mattk: [] },
+    };
+    state.u.uhandedness = RIGHT_HANDED;
+    const worn = (otyp, mask, overrides = {}) => donameFresh(
+        objectOf(state, otyp, { owornmask: mask, bknown: true, ...overrides }),
+        state,
+    );
+
+    // The class switch answers these three with the same phrase.
+    assert.match(worn(AMULET_OF_ESP, W_AMUL), / \(being worn\)$/u);
+    assert.match(worn(LEATHER_ARMOR, W_ARM), / \(being worn\)$/u);
+    assert.match(worn(BLINDFOLD, W_TOOL), / \(being worn\)$/u);
+
+    // A wielded stack, and wielded ammo or a missile whatever the count, take
+    // C's alternate phrasing; a single ordinary weapon names the hand.
+    assert.match(worn(DAGGER, W_WEP, { quan: 2 }), / \(wielded\)$/u);
+    assert.match(worn(ARROW, W_WEP, { quan: 1 }), / \(wielded\)$/u);
+    assert.match(worn(DART, W_WEP, { quan: 1 }), / \(wielded\)$/u);
+    assert.match(worn(LONG_SWORD, W_WEP), / \(weapon in right hand\)$/u);
+    state.u.uhandedness = LEFT_HANDED;
+    assert.match(worn(LONG_SWORD, W_WEP), / \(weapon in left hand\)$/u);
+    state.u.uhandedness = RIGHT_HANDED;
+    // A two-handed weapon pluralizes the hand instead of naming a side.
+    assert.match(worn(TWO_HANDED_SWORD, W_WEP), / \(weapon in hands\)$/u);
+
+    // The alternate weapon pluralizes with the stack, not the hands.
+    assert.match(
+        worn(DAGGER, W_SWAPWEP), / \(alternate weapon; not wielded\)$/u,
+    );
+    assert.match(
+        worn(DAGGER, W_SWAPWEP, { quan: 3 }),
+        / \(alternate weapons; not wielded\)$/u,
+    );
+
+    // The three Qtyp values. Ammunition for a bow goes in the quiver;
+    // non-bow ammunition and the small classes go in its pouch; anything
+    // else, a dart included because is_ammo() is false for a missile, is at
+    // the ready.
+    assert.match(worn(ARROW, W_QUIVER), / \(in quiver\)$/u);
+    assert.match(worn(CROSSBOW_BOLT, W_QUIVER), / \(in quiver pouch\)$/u);
+    assert.match(worn(DIAMOND, W_QUIVER), / \(in quiver pouch\)$/u);
+    assert.match(worn(DART, W_QUIVER), / \(at the ready\)$/u);
+    assert.match(worn(LONG_SWORD, W_QUIVER), / \(at the ready\)$/u);
+});
 
 test('container and tin names follow doname()\'s own branches', () => {
     const state = namingState();
@@ -715,8 +780,14 @@ test('vtense() agrees with the subject objnam.c inspects', () => {
         ['staircase up', 'fly', 'flies'],
         ['staircase up', 'obey', 'obeys'],
         ['staircase up', 'lie', 'lies'],
-        // Strcasecpy() keeps the case of the character it overwrites.
+        // Strcasecpy() keeps the case of the character it overwrites, in
+        // every branch that writes one, not just the "are" special case.
         ['staircase up', 'ARE', 'IS'],
+        ['staircase up', 'HAVE', 'HAS'],
+        ['staircase up', 'PUSH', 'PUSHES'],
+        ['staircase up', 'GO', 'GOES'],
+        ['staircase up', 'FLY', 'FLIES'],
+        ['staircase up', 'OBEY', 'OBEYS'],
     ]) {
         assert.equal(vtense(subject, verb), expected, `${subject} ${verb}`);
     }

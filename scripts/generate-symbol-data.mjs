@@ -90,12 +90,14 @@ export function extractSymbolLayout(source) {
     const lines = source.split(/\r?\n/u);
     // A PCHAR entry may wrap onto a second physical line, so read the
     // explanations from whole argument lists rather than from single lines.
-    // Past the character literal, which is `')'` for two entries, no argument
-    // contains a parenthesis, so the next one closes the entry.
+    // Two details of defsym.h shape this: the character literal is `')'` for
+    // two entries, so the first parenthesis after it closes the entry, and it
+    // is `'"'` for S_web, so the arguments have to be scanned past the
+    // literal rather than from the start of the entry.
     const pcharEntry =
-        /^[ \t]*PCHAR2?\(\s*(\d+)\s*,\s*'(?:\\.|[^'])+'\s*,[^)]*\)/gmu;
+        /^[ \t]*PCHAR2?\(\s*(\d+)\s*,\s*'(?:\\.|[^'])+'\s*,([^)]*)\)/gmu;
     for (const entry of source.matchAll(pcharEntry)) {
-        const quoted = [...entry[0].matchAll(/"((?:\\.|[^"])*)"/gu)];
+        const quoted = [...entry[2].matchAll(/"((?:\\.|[^"])*)"/gu)];
         if (!quoted.length)
             throw new Error(`PCHAR entry ${entry[1]} has no explanation`);
         explanations[Number(entry[1])] = quoted.at(-1)[1];

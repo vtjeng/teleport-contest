@@ -57,7 +57,13 @@ import {
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { flush_screen } from '../js/display.js';
-import { DART, SACK, WEAPON_CLASS } from '../js/objects.js';
+import {
+    CORPSE,
+    DART,
+    FOOD_CLASS,
+    SACK,
+    WEAPON_CLASS,
+} from '../js/objects.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     domove,
@@ -66,7 +72,7 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
-import { PM_FOG_CLOUD } from '../js/monsters.js';
+import { PM_FOG_CLOUD, PM_NEWT } from '../js/monsters.js';
 import { BOULDER } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import { create_region } from '../js/region.js';
@@ -1699,6 +1705,41 @@ test('run, rush, search, and pickup bytes remain atomic boundaries',
     }
 });
 
+test('a sighted hero looks at an ordinary corpse without stopping',
+    async () => {
+    // invent.c look_here() ends its single-object branch with
+    // feel_cockatrice(otmp, FALSE), which does nothing unless
+    // will_feel_cockatrice() holds. A sighted hero without gloves off in a
+    // petrifying corpse's presence therefore reads the line and plays on.
+    const replay = await runSegment({
+        seed: 840023,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:CorpseLook,role:Valkyrie,'
+            + 'race:human,gender:female,align:neutral,!legacy,'
+            + '!tutorial,!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    game.level.objects[game.u.ux][game.u.uy] = {
+        otyp: CORPSE,
+        oclass: FOOD_CLASS,
+        corpsenm: PM_NEWT,
+        quan: 1,
+        nobj: null,
+        nexthere: null,
+        dknown: true,
+    };
+    game.nhDisplay.pushKey(commandKeyCode(':'));
+    // The startup line is still pending, so the new message wraps it in a
+    // More prompt; the Space answers that, as a player would.
+    game.nhDisplay.pushKey(commandKeyCode(' '));
+
+    await moveloop_core();
+    await flush_screen(1);
+
+    assert.match(topLine(game), /You see here a newt corpse\./u);
+    assert.equal(game.context.move, 0);
+});
+
 test('the inventory command stops before drawing an unformattable item',
     async () => {
     // Every starting pack formats, so this puts an object inside the Rogue's
@@ -1722,6 +1763,10 @@ test('the inventory command stops before drawing an unformattable item',
     const key = commandKeyCode('i');
     const screens = replay.getScreens().length;
     const startingMoves = game.moves;
+    const discoveryState = () => game.objects.map((type) => [
+        type.oc_name_known, type.oc_encountered,
+    ]);
+    const discoveryBefore = discoveryState();
     game.nhDisplay.pushKey(key);
 
     await assert.rejects(
@@ -1733,6 +1778,10 @@ test('the inventory command stops before drawing an unformattable item',
 
     assert.equal(game.context.move, 0);
     assert.equal(game.moves, startingMoves);
+    // Formatting a name marks its type discovered, so a refusal part-way
+    // through the pack would leave earlier items discovered. Nothing may
+    // move.
+    assert.deepEqual(discoveryState(), discoveryBefore);
     // One capture for the prompt the refused keystroke was read at, and no
     // menu cells anywhere on it.
     assert.equal(replay.getScreens().length, screens + 1);

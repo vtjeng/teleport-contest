@@ -301,7 +301,9 @@ function defaultResult() {
             sortpack: true,
             invlet_constant: true,
             // options.c def_inv_order[], the class order the inventory menu
-            // walks. The trailing 0 terminates the list in C.
+            // walks. The trailing 0 terminates the list in C. options.c
+            // change_inv_order() rewrites this from the packorder option,
+            // which is not ported; js/invent.js stops when a session sets it.
             inv_order: [
                 COIN_CLASS, AMULET_CLASS, WEAPON_CLASS, ARMOR_CLASS,
                 FOOD_CLASS, SCROLL_CLASS, SPBOOK_CLASS, POTION_CLASS,
@@ -1993,6 +1995,12 @@ function applyOption(result, optionState, option, lineNumber) {
             lineNumber,
             `menu command option '${parsedName}' requires its full canonical name`,
         );
+    } else if (name === 'packorder') {
+        // options.c change_inv_order() rewrites flags.inv_order from this
+        // value. That is not ported, so the value is retained and
+        // invent.c display_pickinv()'s port stops when it is present rather
+        // than listing the inventory in the default order.
+        result.flags.packorder = negated ? null : value;
     } else if (name === 'pettype') {
         setPettype(result, value, negated, lineNumber);
     } else if (name === 'fruit') {
