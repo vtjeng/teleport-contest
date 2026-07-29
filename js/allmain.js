@@ -66,6 +66,7 @@ import {
     endRunning,
     lookaround,
     near_capacity,
+    nomul,
     projected_capacity,
     runmode_delay_output,
 } from './hack.js';
@@ -399,6 +400,22 @@ function elapsedTurnBoundary(reason) {
     );
 }
 
+// C ref: allmain.c interrupt_multi(), which regen_hp() and regen_pw() reach
+// when the hero regains the last hit point or the last power point during a
+// multi-turn action. A run and a travel are deliberately exempt, and a run is
+// the only way this port reaches a positive multi, so this is a no-op today.
+// A counted repeat would print through Norep(); regen_hp() and regen_pw() are
+// synchronous, so that arm stops before nomul(0) changes anything.
+export function interrupt_multi(message, state) {
+    if (!((state.multi ?? 0) > 0)
+        || state.context.travel || state.context.run) {
+        return;
+    }
+    if (state.flags?.verbose && message)
+        elapsedTurnBoundary('a multi-turn interruption message');
+    nomul(0, state);
+}
+
 function regionEffectEnv(state, random) {
     return {
         state,
@@ -512,7 +529,7 @@ async function finishElapsedTurn(
     // instead of healing, and the two consumers below then read the
     // substituted value rather than the snapshot taken above.
     if (state.u.uinvulnerable) wtcap = UNENCUMBERED;
-    else regen_hp(wtcap, state, { random });
+    else regen_hp(wtcap, state, { random, interruptMulti: interrupt_multi });
     // C ref: allmain.c's "moving around while encumbered is hard work" block,
     // between regen_hp() and regen_pw(). overexert_hp() costs a hit point and
     // refreshes the status line, and at uhp <= 1 it also prints a message,
@@ -526,7 +543,7 @@ async function finishElapsedTurn(
             : state.moves % 10)) {
         elapsedTurnBoundary('overexertion hit point loss');
     }
-    regen_pw(wtcap, state, { random });
+    regen_pw(wtcap, state, { random, interruptMulti: interrupt_multi });
 
     if (propertyActive(state, SEARCHING)
         && !state.level.flags?.noautosearch

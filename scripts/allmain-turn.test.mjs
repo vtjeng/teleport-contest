@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     finishHeroTimeEffects,
+    interrupt_multi,
     maybe_generate_rnd_mon,
     maybeRunClairvoyance,
     maybeWipeHeroEngraving,
@@ -12,6 +13,7 @@ import {
 } from '../js/allmain.js';
 import {
     CLAIRVOYANT,
+    COLNO,
     DUST,
     EXT_ENCUMBER,
     FAST,
@@ -1673,4 +1675,64 @@ test('the overexertion cadence follows both of allmain.c\'s divisors',
         }
         void replay;
     }
+});
+
+// ── interrupt_multi() ──
+
+function multiState(overrides = {}) {
+    return {
+        u: { uinvulnerable: true, usleep: 3 },
+        context: { run: 1, travel: 0, travel1: 0, mv: 1 },
+        disp: {},
+        flags: { verbose: true },
+        multi: COLNO,
+        ...overrides,
+    };
+}
+
+test('interrupt_multi exempts a run and a travel', () => {
+    // allmain.c interrupt_multi() acts only when multi > 0 and neither
+    // context.travel nor context.run is set. A run is the only way this port
+    // reaches a positive multi, so both exemptions must hold.
+    for (const context of [
+        { run: 1, travel: 0, travel1: 0, mv: 1 },
+        { run: 0, travel: 1, travel1: 0, mv: 1 },
+    ]) {
+        const state = multiState({ context });
+        interrupt_multi('You are in full health.', state);
+        assert.equal(state.multi, COLNO);
+        assert.equal(state.u.uinvulnerable, true);
+    }
+});
+
+test('interrupt_multi ignores a multi that is not positive', () => {
+    const state = multiState({ multi: 0, context: { run: 0, travel: 0 } });
+    interrupt_multi('You feel full of energy.', state);
+    assert.equal(state.multi, 0);
+    assert.equal(state.u.usleep, 3);
+});
+
+test('interrupt_multi ends a silent counted repeat through nomul(0)', () => {
+    // With flags.verbose off, C calls nomul(0) and prints nothing.
+    const state = multiState({
+        context: { run: 0, travel: 0, travel1: 0, mv: 0 },
+        flags: { verbose: false },
+    });
+    interrupt_multi('You are in full health.', state);
+    assert.equal(state.multi, 0);
+    assert.equal(state.u.usleep, 0);
+    assert.equal(state.disp.botl, true);
+});
+
+test('interrupt_multi stops before Norep on a verbose counted repeat', () => {
+    // Norep() needs the message window and regen_hp() is synchronous, so this
+    // arm stops before nomul(0) writes anything.
+    const state = multiState({
+        context: { run: 0, travel: 0, travel1: 0, mv: 0 },
+    });
+    assert.throws(
+        () => interrupt_multi('You are in full health.', state),
+        (error) => error instanceof UnsupportedTurnBoundaryError,
+    );
+    assert.equal(state.multi, COLNO);
 });
