@@ -44,8 +44,9 @@ Only these commands may access `sessions/holdout/`:
 - `node scripts/score-holdout.mjs` runs the JavaScript port against all holdout
   sessions and compares its screens and random-number calls with the recorded C
   results. It reports only combined counts for sessions, screens, and
-  random-number calls. Only the primary agent may run it, and only after the
-  user explicitly authorizes an evaluation for a specific milestone.
+  random-number calls. Only the orchestrator may run it. The user authorizes one
+  evaluation at the close of each goal in advance; an evaluation at any other
+  time needs explicit authorization for that specific run.
 
 The holdout result measures whether completed work generalizes to unseen
 sessions. In contrast, implementation decisions come from the C source and
@@ -76,25 +77,16 @@ Follow all instructions in those files.
 
 | Before you... | Read... |
 | --- | --- |
-| Implement game behavior | `ROADMAP.md`, `.agents/validation.md`, `.agents/quality-workflow.md`, and `QUALITY.json` |
+| Choose which goal or behavior slice to implement next | `.agents/selection.md` and `ROADMAP.md` |
+| Implement game behavior | `ROADMAP.md`, `.agents/workflow.md`, `.agents/validation.md`, and `QUALITY.json` |
 | Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
-| Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/quality-workflow.md` and `.agents/implementation-checklist-template.md` |
+| Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/workflow.md` and `.agents/implementation-checklist-template.md` |
 | Continue the active work described in `.agents/implementation-checklist.md` | `.agents/implementation-checklist.md` |
-| Commit game implementation, record a development score, check how much unreviewed code has accumulated, or schedule a review | `.agents/quality-workflow.md` and `QUALITY.json`, which lists the tracked parts of the code, review limits, and completed correctness and simplification passes |
+| Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
+| Commit game implementation or record a development score | `.agents/workflow.md` and `.agents/validation.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md` |
-| Run or record a correctness, clarity, simplification, or copyediting pass | `.agents/quality-workflow.md` and the skill named for that pass |
-
-### Claude Code only
-
-`.agents/quality-workflow.md` launches every formal pass with
-`codex exec --profile audit-high`. Claude Code invokes the named audit skill
-with its Skill tool instead; that skill runs its own reviewers as parallel
-subagents. What that section requires of the pass is
-unchanged: a frozen committed range, an isolated worktree pinned to the
-reviewed commit, no access to `sessions/holdout/`, the complete report, and the
-matching `record-review` or `record-simplification` entry.
-
-Every other agent follows the launch procedure as written.
+| Check how much unreviewed code has accumulated, or schedule a review (orchestrator only) | `.agents/review.md` and `QUALITY.json`, which lists the tracked parts of the code, review limits, and completed correctness and simplification passes |
+| Run or record a correctness, clarity, simplification, or copyediting pass (orchestrator only) | `.agents/review.md` and the skill named for that pass |
 
 ## Implementation rules
 
@@ -111,6 +103,10 @@ Every other agent follows the launch procedure as written.
   includes its identity, seed, date and time, input sequence, replay position,
   expected output, totals across all sessions, random-number log, and screen
   contents.
+- Implement from the C function, never from observed output. A message the
+  program prints, a screen it draws, or a recorded trace points at the upstream
+  owner; it does not specify it. Find the function that produces the output and
+  translate that.
 
 ### Complete common gameplay first
 
@@ -228,22 +224,22 @@ When choosing new cases:
 ## Commit, review, and report the work
 
 `SCORE.md` summarizes development-score results for completed work. Add entries
-at the points listed in `.agents/quality-workflow.md`. You do not need to add
-an entry after every commit.
+at the points listed in `.agents/validation.md`, "Score evidence". You do not
+need to add an entry after every commit.
 
-Keep progress updates short. "Progress reports" in
-`.agents/quality-workflow.md` states their required shape.
+Keep progress updates short. "Progress reports" in `.agents/workflow.md` states
+their required shape.
 
-Create or update a checklist, note, report, or permanent record only when the
-conditions in `.agents/quality-workflow.md` require it.
+Create or update a checklist, note, report, or permanent record only when
+`.agents/workflow.md` or `.agents/review.md` requires it.
 
 ### When to stop and ask the user
 
-"Continuous operation" in `.agents/quality-workflow.md` describes a loop that
+"Continuous operation" in `.agents/workflow.md` describes a loop that
 alternates implementation and review without returning to the user between its
 steps. Stop that loop and ask the user only for:
 
-- an authorized holdout evaluation;
+- a holdout evaluation outside the close of a goal;
 - a change to which sessions belong to the development and holdout sets;
 - publishing anything outside this repository;
 - a decision that this file and the files it names do not settle.

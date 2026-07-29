@@ -1,55 +1,19 @@
 # Source-faithful port roadmap
 
 This file records the open goal, the goals selected after it, and unresolved
-debt. `AGENTS.md` remains the authority for implementation, validation,
-holdout, quality, and attribution rules.
-
-A closed milestone or goal is deleted from this file when it closes. Its score
-evidence stays in `SCORE.md`, its review metadata in `QUALITY.json` and the
-retained pass reports, and its implementation history in Git. Keeping only open
-work here is deliberate: every task starts by reading this file, so it has to
-stay short enough to read.
-
-## How to read the census and size a goal
-
-`node scripts/scan-stops.mjs` reports where each development session first
-stops, censused by fail-closed boundary and by the command the port refused.
-Each boundary names an upstream owner that a goal could port, and the census
-counts, for each owner, the sessions stopped there and the recorded steps
-standing behind it. Its output order sorts by session count and breaks ties by
-step count; that order is a display order, and `.agents/validation.md` states
-why it is not a priority ranking. "Continuous operation" in
-`.agents/quality-workflow.md` holds the loop that runs the scan, selects a goal
-from it, and writes the result back here. Selecting that goal is the agent's
-job, never a question for the user. Three rules govern how to read the census.
-
-The steps standing behind a boundary are a ceiling on what a goal can earn,
-never a forecast. A session blocked on one owner routinely blocks again on
-another. `.agents/validation.md` states the full rule and why the estimate a
-census invites is unsound.
-
-The census orders goals inside the open milestone. It never reorders the
-milestones themselves. When every boundary it names belongs to a later
-milestone, the open one is exhausted: close it, take the next milestone from
-"Later milestones" below, and let the census order goals inside that one. A
-large ceiling does not justify jumping milestones. The level-change family
-stands in front of more recorded steps than anything else and still waits for
-its milestone.
-
-A goal may be larger than one session. When it is, it lists ordered behavior
-slices, each closed on its own, and `.agents/implementation-checklist.md`
-carries its state between sessions. `.agents/quality-workflow.md` defines a
-behavior slice and states the evidence that closes one. The thresholds in
-`QUALITY.json` schedule reviews inside a goal; they do not bound one. Size
-decides whether a goal needs a checklist and how its slices are ordered. Size
-never justifies refusing a stated goal, deferring it, or narrowing it silently.
-Start at the first unfinished slice.
+debt. It holds state, not rules. `AGENTS.md` remains the authority for
+implementation, validation, holdout, quality, and attribution rules, and
+`.agents/selection.md` states how to read the `scan-stops.mjs` census, how the
+census picks a goal inside the open milestone, how a goal is sized, and how this
+file is kept short.
 
 ## Current milestone: exploration
 
 **Objective:** movement beyond the first unobstructed step, then running,
 search, doors, traps, pickup, stairs, terrain effects, vision, and status
-updates.
+updates. This is what a hero does moving around a level before fighting or using
+items, and it comes first because a hero who cannot walk cannot reach a monster,
+an object, or the stairs.
 
 ### Open goal: repeated simple commands
 
@@ -74,14 +38,14 @@ retryable.
 
 **Status:** behaviorally complete. The full correctness pass over
 `e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`
-ran and its nineteen confirmed findings are closed;
-`.agents/implementation-checklist.md` holds the results and the cases the fixes
+ran and its nineteen confirmed findings are closed. The fix commit `88e2193`
+records the results, and the future-work list below carries the cases the fixes
 deferred. The fix commit itself is correctness debt for the next pass, which is
 where the third of these findings that the previous cycle's own fixes
 introduced would show up again.
 
 No behavior slice remains in this goal, so nothing here is startable. Do not
-schedule a pass over the fix tail on its own: `.agents/quality-workflow.md`
+schedule a pass over the fix tail on its own: `.agents/review.md`
 folds audit-fix debt into the next scheduled correctness range, and the
 thresholds pull it in when they fire. Start at "Next goals, in order" below.
 This goal stays listed only until its debt clears and it closes, at which point
@@ -92,9 +56,10 @@ it is deleted from this file.
 
 ## Next goals, in order
 
-Selected from the `scan-stops.mjs` census taken on 2026-07-28 at `03c2add`,
-where the port emitted 265 of 7,765 recorded screens; it emits 273 at
-`4b07735`. Session and step counts below are ceilings.
+Selected from the `scan-stops.mjs` census at `03c2add`. Every session and step
+count below is a ceiling taken from that census and goes stale as the port
+advances; re-run the scan for current numbers. The traced source findings do not
+go stale, which is why they are recorded here rather than re-derived.
 
 ### 1. Commands that consume no game time
 
@@ -114,10 +79,11 @@ without this goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
 and planned for; work the slices in order and take the intermediate passes as
-`.agents/quality-workflow.md` schedules them.
+`.agents/review.md` schedules them.
 
 **Behavior slices, each closed on its own.** Line counts are the C to trace,
-measured at gitlink `16ff591`; they set expectations, not limits.
+measured at `nethack-c/upstream` submodule commit `16ff591`; they set
+expectations, not limits.
 
 1. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
    together, but a traced reading shrinks what the sessions reach. Both
@@ -250,7 +216,7 @@ charges to the area.
 | `54a2b86`, `4607698` | hero | +133/-4 | The pass recorded at `f97bd58` moved the hero frontier up from `f140abf` while auditing only `3b6c38d..f97bd58`, a 221-commit gap. `4607698` also carries `Audit-fix-for: 10dd52be`. |
 
 Those six total 232 added and 61 removed production lines, and three are
-audit-fix commits, which `.agents/quality-workflow.md` keeps as correctness debt
+audit-fix commits, which `.agents/review.md` keeps as correctness debt
 until a later pass covers them.
 
 Five further commits in the same gaps need no pass. `8677023` adds 245 runtime
@@ -271,7 +237,7 @@ at `f140abf`; recording each area group separately keeps each range smaller.
 
 This accounting covers the passes recorded after the 21 unstructured passes that
 `legacyPassCount` in `QUALITY.json` names. Those record no per-area ranges, and
-`.agents/quality-workflow.md` keeps historical `BASELINE` debt exempt until each
+`.agents/review.md` keeps historical `BASELINE` debt exempt until each
 area's first recorded pass.
 
 ## Later milestones

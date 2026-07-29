@@ -303,7 +303,7 @@ export function parseAuditFixCommitLog(output) {
 // identical to the named ancestor, carries review debt against its C source
 // rather than against a full pass. Its lines stay out of the gate; the report
 // still names them. See "Keep each source file's port in one place" in
-// AGENTS.md and the review-limit rules in .agents/quality-workflow.md.
+// AGENTS.md and the review-limit rules in .agents/review.md.
 export function relocationCommits(rows, ancestorCheck = () => true) {
   return rows.filter((row) => row.scoreIdenticalWith.some(
     (baseline) => SHA_PATTERN.test(baseline) && ancestorCheck(baseline, row.sha),
