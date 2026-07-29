@@ -109,6 +109,20 @@ export function practice_needed_to_advance(level) {
     return rank * rank * 20;
 }
 
+// C ref: skills.h P_SKILL(), P_MAX_SKILL(), P_ADVANCE(). skillSlots() fills
+// every slot, so these never see a hole the way the C array cannot.
+export function P_SKILL(skill, state = game) {
+    return skillSlots(state)[skill].skill;
+}
+
+export function P_MAX_SKILL(skill, state = game) {
+    return skillSlots(state)[skill].max_skill;
+}
+
+export function P_ADVANCE(skill, state = game) {
+    return skillSlots(state)[skill].advance;
+}
+
 export function spell_skilltype(booktype, state = game) {
     return objectSkill(booktype, state);
 }

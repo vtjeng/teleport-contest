@@ -65,6 +65,14 @@ import {
 } from './objects.js';
 import { rn2 } from './rng.js';
 
+// C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
+// insight.c. Every entry is eight columns wide, so a reader that wants the
+// bare word runs mungspaces() over it as insight.c does.
+export const hu_stat = Object.freeze([
+    'Satiated', '        ', 'Hungry  ', 'Weak    ',
+    'Fainting', 'Fainted ', 'Starved ',
+]);
+
 // C ref: eat.c tintxts[]. obj.spe stores the index (negated and offset), so
 // table order is part of the object representation.
 export const TIN_VARIETIES = Object.freeze([

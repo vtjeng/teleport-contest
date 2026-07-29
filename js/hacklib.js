@@ -200,6 +200,22 @@ export function upwords(s) {
     return out;
 }
 
+// C ref: hacklib.c mungspaces().  Collapses each run of spaces or tabs to one
+// space, drops a leading and a trailing one, and truncates at the first
+// newline.  C edits its buffer in place; this returns the shortened string.
+export function mungspaces(bp) {
+    let out = '';
+    let was_space = true;
+    for (const raw of bp) {
+        if (raw === '\n') break; /* treat newline the same as end-of-string */
+        const c = raw === '\t' ? ' ' : raw;
+        if (c !== ' ' || !was_space) out += c;
+        was_space = (c === ' ');
+    }
+    if (was_space && out.length > 0) out = out.slice(0, -1);
+    return out;
+}
+
 // C ref: hacklib.c trimspaces().  Drops leading and trailing spaces and tabs.
 export function trimspaces(txt) {
     let start = 0;

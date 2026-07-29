@@ -65,13 +65,16 @@ import {
     depth as dungeonDepth,
     dist2,
     encodeUtf8ByteString,
+    mungspaces,
 } from './hacklib.js';
+import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
-import { objectType, isWeptool } from './obj.js';
+import { isWeptool } from './obj.js';
 import { newuexp } from './exper.js';
 import { weapon_type } from './startup_skills.js';
+import { weapon_descr } from './weapon.js';
 import { bimanual } from './worn.js';
 import {
     ART_MITRE_OF_HOLINESS,
@@ -80,50 +83,27 @@ import {
 import {
     AKLYS,
     AMULET_OF_GUARDING,
-    ARMOR_CLASS,
-    AMULET_CLASS,
-    BALL_CLASS,
     BOULDER,
-    CHAIN_CLASS,
     CLOAK_OF_PROTECTION,
-    COIN_CLASS,
     CORPSE,
     CORNUTHAUM,
     CREAM_PIE,
     DUNCE_CAP,
-    DWARVISH_MATTOCK,
-    EGG,
     ELVEN_LEATHER_HELM,
     FEDORA,
     FIRST_OBJECT,
     FIRST_REAL_GEM,
     FIRST_SPELL,
-    FLINT,
     FOOD_CLASS,
-    GEM_CLASS,
-    GRAPPLING_HOOK,
     ILLOBJ_CLASS,
     LAST_GENERIC,
     LAST_GLASS_GEM,
     LAST_SPELL,
-    LUCKSTONE,
     NUM_OBJECTS,
-    OBJ_NAME,
     POTION_CLASS,
     RIN_PROTECTION,
-    RING_CLASS,
-    ROCK,
-    ROCK_CLASS,
-    SCROLL_CLASS,
-    SPBOOK_CLASS,
     STATUE,
     STRANGE_OBJECT,
-    TIN,
-    TIN_OPENER,
-    TOOL_CLASS,
-    TOWEL,
-    VENOM_CLASS,
-    WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
 import {
@@ -1718,100 +1698,6 @@ export function get_strength_str(strength) {
     return '18/**';
 }
 
-// C ref: weapon.c P_NAME() and weapon_descr(). These are the singular skill
-// descriptions which survive botl.c:weapon_status()'s special cases.
-const WEAPON_SKILL_DESCRIPTIONS = Object.freeze({
-    [P_DAGGER]: 'dagger',
-    [P_KNIFE]: 'knife',
-    [P_AXE]: 'axe',
-    [P_PICK_AXE]: 'pick-axe',
-    [P_CLUB]: 'club',
-    [P_MACE]: 'mace',
-    [P_MORNING_STAR]: 'morning star',
-    [P_FLAIL]: 'flail',
-    [P_HAMMER]: 'hammer',
-    [P_QUARTERSTAFF]: 'quarterstaff',
-    [P_POLEARMS]: 'polearms',
-    [P_SPEAR]: 'spear',
-    [P_TRIDENT]: 'trident',
-    [P_LANCE]: 'lance',
-    [P_BOW]: 'bow',
-    [P_SLING]: 'sling',
-    [P_CROSSBOW]: 'crossbow',
-    [P_DART]: 'dart',
-    [P_SHURIKEN]: 'shuriken',
-    [P_BOOMERANG]: 'boomerang',
-    [P_WHIP]: 'whip',
-    [P_UNICORN_HORN]: 'unicorn horn',
-});
-
-// C ref: drawing.c def_oc_syms[].name after weapon.c makesingular().
-const OBJECT_CLASS_DESCRIPTIONS = Object.freeze({
-    [ILLOBJ_CLASS]: 'illegal object',
-    [WEAPON_CLASS]: 'weapon',
-    [ARMOR_CLASS]: 'armor',
-    [RING_CLASS]: 'ring',
-    [AMULET_CLASS]: 'amulet',
-    [TOOL_CLASS]: 'tool',
-    [FOOD_CLASS]: 'food',
-    [POTION_CLASS]: 'potion',
-    [SCROLL_CLASS]: 'scroll',
-    [SPBOOK_CLASS]: 'spellbook',
-    [WAND_CLASS]: 'wand',
-    [COIN_CLASS]: 'coin',
-    [GEM_CLASS]: 'rock',
-    [ROCK_CLASS]: 'large stone',
-    [BALL_CLASS]: 'iron ball',
-    [CHAIN_CLASS]: 'chain',
-    [VENOM_CLASS]: 'venom',
-});
-
-function _objectName(obj, state) {
-    return OBJ_NAME(objectType(obj, state), state)
-        ?? OBJECT_CLASS_DESCRIPTIONS[obj.oclass]
-        ?? 'object';
-}
-
-function _statusAmmo(obj, state) {
-    const type = objectType(obj, state);
-    const skill = Math.trunc(type.oc_skill ?? type.oc_subtyp ?? 0);
-    return (obj.oclass === WEAPON_CLASS || obj.oclass === GEM_CLASS)
-        && skill >= -P_CROSSBOW && skill <= -P_BOW;
-}
-
-// C ref: weapon.c weapon_descr().
-function _weaponDescr(obj, state) {
-    const skill = weapon_type(obj, state);
-    let description = WEAPON_SKILL_DESCRIPTIONS[skill];
-
-    if (skill === 0) {
-        if ([CORPSE, TIN, EGG, STATUE, BOULDER, TOWEL, TIN_OPENER]
-            .includes(obj.otyp)) {
-            description = _objectName(obj, state);
-        } else if (obj.globby) {
-            description = 'glob';
-        } else {
-            description = OBJECT_CLASS_DESCRIPTIONS[obj.oclass] ?? 'object';
-        }
-    } else if (skill === P_SLING && _statusAmmo(obj, state)) {
-        description = obj.otyp === ROCK
-            || (obj.otyp >= LUCKSTONE && obj.otyp <= FLINT)
-            ? 'stone'
-            : obj.oclass === GEM_CLASS
-                ? 'gem'
-                : OBJECT_CLASS_DESCRIPTIONS[obj.oclass] ?? 'object';
-    } else if (skill === P_BOW && _statusAmmo(obj, state)) {
-        description = 'arrow';
-    } else if (skill === P_CROSSBOW && _statusAmmo(obj, state)) {
-        description = 'bolt';
-    } else if (skill === P_FLAIL && obj.otyp === GRAPPLING_HOOK) {
-        description = 'hook';
-    } else if (skill === P_PICK_AXE && obj.otyp === DWARVISH_MATTOCK) {
-        description = 'mattock';
-    }
-    return description ?? _objectName(obj, state);
-}
-
 // C ref: botl.c weapon_status().
 export function weapon_status(state = game) {
     const u = state.u;
@@ -1842,7 +1728,7 @@ export function weapon_status(state = game) {
         case P_POLEARMS: description = 'pole'; break;
         case P_UNICORN_HORN: description = 'unihorn'; break;
         default:
-            description = _weaponDescr(weapon, state);
+            description = weapon_descr(weapon, state);
             if (description.toLowerCase() === 'food'
                 && weapon.otyp === CREAM_PIE) description = 'pie';
             break;
@@ -2051,8 +1937,14 @@ function _statusAlignment(u = game.u) {
         ? 'Neutral' : u?.ualign?.type > 0 ? 'Lawful' : 'Chaotic';
 }
 
-const HUNGER_STATUS = Object.freeze([
-    'Satiated', '', 'Hungry', 'Weak', 'Fainting', 'Fainted', 'Starved',
+// botl.c reads eat.c's hu_stat[] and stores the bare word in the status
+// field; the eight-column padding belongs to the table, not to the field.
+const HUNGER_STATUS = Object.freeze(hu_stat.map(mungspaces));
+
+// C ref: botl.c enc_stat[], indexed by near_capacity(). insight.c reads it too.
+export const enc_stat = Object.freeze([
+    '', 'Burdened', 'Stressed',
+    'Strained', 'Overtaxed', 'Overloaded',
 ]);
 
 function _propertyActive(u, index) {
@@ -2628,17 +2520,9 @@ function _statusFieldData(field) {
     case 'score': return { value: 0 };
     case 'carrying-capacity': {
         const capacity = near_capacity(game);
-        const labels = [
-            '',
-            'Burdened',
-            'Stressed',
-            'Strained',
-            'Overtaxed',
-            'Overloaded',
-        ];
         return {
             value: capacity,
-            text: labels[capacity] ?? '',
+            text: enc_stat[capacity] ?? '',
         };
     }
     case 'gold': return { value: money_cnt(game.invent) };

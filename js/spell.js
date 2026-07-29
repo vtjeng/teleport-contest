@@ -36,7 +36,11 @@ import {
     SPE_REMOVE_CURSE,
     SPE_RESTORE_ABILITY,
 } from './objects.js';
-import { SPELL_KNOWLEDGE_KEEN, spell_skilltype } from './startup_skills.js';
+import {
+    P_SKILL,
+    SPELL_KNOWLEDGE_KEEN,
+    spell_skilltype,
+} from './startup_skills.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells; SPELLMENU_CAST (-2) and SPELLMENU_DUMP
@@ -88,13 +92,6 @@ export function spellet(spell) {
     return spell < 26
         ? String.fromCharCode('a'.charCodeAt(0) + spell)
         : String.fromCharCode('A'.charCodeAt(0) + spell - 26);
-}
-
-// C ref: u.h P_SKILL(). The hero's current skill in one discipline.
-function P_SKILL(skill, state) {
-    const slot = state.u?.weapon_skills?.[skill];
-    if (!slot) throw new RangeError(`P_SKILL: no skill slot ${skill}`);
-    return slot.skill;
 }
 
 // C ref: spell.c spelltypemnemonic().

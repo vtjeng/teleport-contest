@@ -3,6 +3,22 @@ import test from 'node:test';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
+    P_ATTACK_SPELL,
+    P_BARE_HANDED_COMBAT,
+    P_BASIC,
+    P_EXPERT,
+    P_GRAND_MASTER,
+    P_ISRESTRICTED,
+    P_LONG_SWORD,
+    P_MASTER,
+    P_NONE,
+    P_NUM_SKILLS,
+    P_PICK_AXE,
+    P_POLEARMS,
+    P_SABER,
+    P_SKILLED,
+    P_TWO_WEAPON_COMBAT,
+    P_UNSKILLED,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -19,27 +35,37 @@ import {
     M2_STRONG,
     PM_COCKATRICE,
     PM_DEATH,
+    PM_MONK,
+    PM_VALKYRIE,
     PM_GIANT,
     PM_HUMAN_WEREWOLF,
     PM_NEWT,
     monst_globals_init,
 } from '../js/monsters.js';
+import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
     AXE,
     ARROW,
     BATTLE_AXE,
     BELL_OF_OPENING,
+    BOULDER,
     BOW,
     CLUB,
     CORPSE,
+    CROSSBOW_BOLT,
     DAGGER,
     DWARVISH_MATTOCK,
     EGG,
+    GRAPPLING_HOOK,
     HALBERD,
     LONG_SWORD,
+    LUCKSTONE,
     PICK_AXE,
+    POT_WATER,
+    ROCK,
     SILVER_DAGGER,
+    TIN,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -50,6 +76,10 @@ import {
     select_rwep,
     setmnotwielded,
     which_armor,
+    can_advance,
+    P_NAME,
+    skill_level_name,
+    weapon_descr,
 } from '../js/weapon.js';
 
 function makeState() {
@@ -543,4 +573,101 @@ test('setmnotwielded clears ordinary state and preflights lit artifacts', async 
     );
     assert.equal(subject.mw, lit);
     assert.equal(lit.owornmask, W_WEP);
+});
+
+// A hero state carrying nothing but the skill slots and the role identity
+// P_NAME() and can_advance() read.
+function makeHeroState(overrides = {}) {
+    const state = makeState();
+    // OBJ_NAME() reads obj_descr through oc_name_idx, which init_objects()
+    // assigns; the zero-returning rn2 keeps its shuffles deterministic.
+    init_objects(state, () => 0);
+    state.u = {
+        weapon_skills: Array.from(
+            { length: P_NUM_SKILLS },
+            () => ({ skill: P_ISRESTRICTED, max_skill: P_ISRESTRICTED,
+                advance: 0 }),
+        ),
+        skills_advanced: 0,
+        weapon_slots: 0,
+    };
+    state.urole = { mnum: PM_VALKYRIE };
+    return Object.assign(state, overrides);
+}
+
+test('P_NAME picks an object name, an odd skill name, or the bare hands', () => {
+    const state = makeHeroState();
+    // weapon.c skill_names_indices[] stores an object type for a skill named
+    // after a representative item and a negative PN_* code for the rest.
+    assert.equal(P_NAME(P_LONG_SWORD, state), 'long sword');
+    assert.equal(P_NAME(P_PICK_AXE, state), 'pick-axe');
+    // odd_skill_names[], reached through the negative codes.
+    assert.equal(P_NAME(P_NONE, state), 'no skill');
+    assert.equal(P_NAME(P_SABER, state), 'saber');
+    assert.equal(P_NAME(P_POLEARMS, state), 'polearms');
+    assert.equal(P_NAME(P_ATTACK_SPELL, state), 'attack spells');
+    assert.equal(P_NAME(P_TWO_WEAPON_COMBAT, state), 'two weapon combat');
+    // barehands_or_martial[], selected by martial_bonus().
+    assert.equal(P_NAME(P_BARE_HANDED_COMBAT, state), 'bare handed combat');
+    state.urole = { mnum: PM_MONK };
+    assert.equal(P_NAME(P_BARE_HANDED_COMBAT, state), 'martial arts');
+});
+
+test('weapon_descr names a weapon by its skill and everything else by class',
+    () => {
+    const state = makeHeroState();
+    // The plain case: the skill category name, singularized.
+    assert.equal(weapon_descr(object(state, LONG_SWORD), state), 'long sword');
+    assert.equal(weapon_descr(object(state, HALBERD), state), 'polearm');
+    // The five special cases weapon.c switches on.
+    assert.equal(weapon_descr(object(state, ARROW), state), 'arrow');
+    assert.equal(weapon_descr(object(state, CROSSBOW_BOLT), state), 'bolt');
+    assert.equal(weapon_descr(object(state, ROCK), state), 'stone');
+    assert.equal(weapon_descr(object(state, LUCKSTONE), state), 'stone');
+    assert.equal(weapon_descr(object(state, GRAPPLING_HOOK), state), 'hook');
+    assert.equal(
+        weapon_descr(object(state, DWARVISH_MATTOCK), state), 'mattock',
+    );
+    // P_NONE: the object class name, or the type name for the seven items
+    // whose class name would sound strange.
+    assert.equal(weapon_descr(object(state, POT_WATER), state), 'potion');
+    assert.equal(weapon_descr(object(state, TIN), state), 'tin');
+    assert.equal(weapon_descr(object(state, BOULDER), state), 'boulder');
+});
+
+test('skill_level_name and can_advance read the hero skill slots', () => {
+    const state = makeHeroState();
+    // weapon.c skill_level_name(); P_ISRESTRICTED falls to the default arm.
+    const slot = state.u.weapon_skills[P_LONG_SWORD];
+    assert.equal(skill_level_name(P_LONG_SWORD, state), 'Unknown');
+    for (const [level, name] of [
+        [P_UNSKILLED, 'Unskilled'], [P_BASIC, 'Basic'],
+        [P_SKILLED, 'Skilled'], [P_EXPERT, 'Expert'],
+        [P_MASTER, 'Master'], [P_GRAND_MASTER, 'Grand Master'],
+    ]) {
+        slot.skill = level;
+        assert.equal(skill_level_name(P_LONG_SWORD, state), name);
+    }
+
+    // weapon.c can_advance(): restricted, already at the maximum, or short of
+    // either the practice or the slots all answer FALSE.
+    slot.skill = P_ISRESTRICTED;
+    slot.max_skill = P_EXPERT;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), false);
+    slot.skill = P_EXPERT;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), false);
+    // practice_needed_to_advance(P_BASIC) is 2 * 2 * 20 == 80, and
+    // slots_required() for a weapon skill is the current level, 2.
+    slot.skill = P_BASIC;
+    slot.advance = 79;
+    state.u.weapon_slots = 2;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), false);
+    slot.advance = 80;
+    state.u.weapon_slots = 1;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), false);
+    state.u.weapon_slots = 2;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), true);
+    // P_SKILL_LIMIT is 60 advancements in total.
+    state.u.skills_advanced = 60;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), false);
 });

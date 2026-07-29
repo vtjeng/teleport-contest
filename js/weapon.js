@@ -12,9 +12,23 @@ import {
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
     NO_WEAPON_WANTED,
+    P_BASIC,
+    P_BARE_HANDED_COMBAT,
     P_BOW,
     P_CROSSBOW,
+    P_EXPERT,
+    P_FLAIL,
+    P_GRAND_MASTER,
+    P_ISRESTRICTED,
+    P_LAST_WEAPON,
+    P_MASTER,
+    P_NONE,
+    P_PICK_AXE,
+    P_SKILLED,
+    P_SKILL_LIMIT,
     P_SLING,
+    P_TWO_WEAPON_COMBAT,
+    P_UNSKILLED,
     W_ARM,
     W_ARMG,
     W_ARMS,
@@ -38,9 +52,11 @@ import {
     PM_BALROG,
     PM_CHICKATRICE,
     PM_COCKATRICE,
+    PM_MONK,
+    PM_SAMURAI,
     S_KOP,
 } from './monsters.js';
-import { isWeptool, objectType } from './obj.js';
+import { is_ammo, is_graystone, isWeptool, objectType } from './obj.js';
 import {
     AKLYS,
     ARROW,
@@ -51,6 +67,7 @@ import {
     BEC_DE_CORBIN,
     BELL_OF_OPENING,
     BILL_GUISARME,
+    BOOMERANG,
     BOULDER,
     BOW,
     BROADSWORD,
@@ -80,6 +97,7 @@ import {
     GLAIVE,
     GOLD_DRAGON_SCALE_MAIL,
     GOLD_DRAGON_SCALES,
+    GRAPPLING_HOOK,
     GUISARME,
     HALBERD,
     HEAVY_IRON_BALL,
@@ -116,10 +134,14 @@ import {
     SILVER_MACE,
     SILVER_SABER,
     SILVER_SPEAR,
+    OBJ_NAME,
     SLING,
     SPEAR,
     SPETUM,
+    STATUE,
+    TIN,
     TIN_OPENER,
+    TOWEL,
     TRIDENT,
     TSURUGI,
     TWO_HANDED_SWORD,
@@ -131,6 +153,14 @@ import {
     YA,
     YUMI,
 } from './objects.js';
+import { makesingular } from './fruit.js';
+import {
+    P_ADVANCE,
+    P_MAX_SKILL,
+    P_SKILL,
+    practice_needed_to_advance,
+    weapon_type,
+} from './startup_skills.js';
 import { couldsee } from './vision.js';
 
 const MR_STONE = 0x80;
@@ -667,6 +697,170 @@ export async function mon_wield_item(monster, env = {}) {
 
     monster.weapon_check = NEED_WEAPON;
     return 0;
+}
+
+// C ref: weapon.c's PN_* pseudo-indices. skill_names_indices[] stores an
+// object type for a skill named after a representative item and one of these
+// negative codes for every other skill.
+const PN_BARE_HANDED = -1;
+const PN_TWO_WEAPONS = -2;
+const PN_RIDING = -3;
+const PN_POLEARMS = -4;
+const PN_SABER = -5;
+const PN_HAMMER = -6;
+const PN_WHIP = -7;
+const PN_ATTACK_SPELL = -8;
+const PN_HEALING_SPELL = -9;
+const PN_DIVINATION_SPELL = -10;
+const PN_ENCHANTMENT_SPELL = -11;
+const PN_CLERIC_SPELL = -12;
+const PN_ESCAPE_SPELL = -13;
+const PN_MATTER_SPELL = -14;
+
+// C ref: weapon.c skill_names_indices[], indexed by skill and listed in the
+// same order as the p_skills enum.
+const skill_names_indices = Object.freeze([
+    /* Weapon */
+    0, DAGGER, KNIFE, AXE, PICK_AXE, SHORT_SWORD, BROADSWORD, LONG_SWORD,
+    TWO_HANDED_SWORD, PN_SABER, CLUB, MACE, MORNING_STAR, FLAIL, PN_HAMMER,
+    QUARTERSTAFF, PN_POLEARMS, SPEAR, TRIDENT, LANCE, BOW, SLING, CROSSBOW,
+    DART, SHURIKEN, BOOMERANG, PN_WHIP, UNICORN_HORN,
+    /* Spell */
+    PN_ATTACK_SPELL, PN_HEALING_SPELL, PN_DIVINATION_SPELL,
+    PN_ENCHANTMENT_SPELL, PN_CLERIC_SPELL, PN_ESCAPE_SPELL, PN_MATTER_SPELL,
+    /* Other */
+    PN_BARE_HANDED, PN_TWO_WEAPONS, PN_RIDING,
+]);
+
+// C ref: weapon.c odd_skill_names[], indexed by the negated PN_* code. Entry
+// zero serves P_NONE, whose skill_names_indices[] entry is 0.
+const odd_skill_names = Object.freeze([
+    'no skill', 'bare hands', /* use barehands_or_martial[] instead */
+    'two weapon combat', 'riding', 'polearms', 'saber', 'hammer', 'whip',
+    'attack spells', 'healing spells', 'divination spells',
+    'enchantment spells', 'clerical spells', 'escape spells', 'matter spells',
+]);
+
+// C ref: weapon.c barehands_or_martial[], indexed via martial_bonus().
+const barehands_or_martial = Object.freeze([
+    'bare handed combat', 'martial arts',
+]);
+
+// C ref: skills.h martial_bonus().
+function martial_bonus(state) {
+    const mnum = state.urole?.mnum;
+    return mnum === PM_SAMURAI || mnum === PM_MONK;
+}
+
+// C ref: drawing.c def_oc_syms[].name, the plural class names oc_to_str()'s
+// neighbours use. weapon_descr() singularizes whichever one it picks.
+const def_oc_syms_names = Object.freeze([
+    '', 'illegal objects', 'weapons', 'armor', 'rings', 'amulets', 'tools',
+    'food', 'potions', 'scrolls', 'spellbooks', 'wands', 'coins', 'rocks',
+    'large stones', 'iron balls', 'chains', 'venoms',
+]);
+
+// C ref: weapon.c P_NAME().
+export function P_NAME(type, state = game) {
+    const index = skill_names_indices[type];
+    if (index > 0) return OBJ_NAME(objectType(index, state), state);
+    if (type === P_BARE_HANDED_COMBAT)
+        return barehands_or_martial[martial_bonus(state) ? 1 : 0];
+    return odd_skill_names[-index];
+}
+
+// C ref: weapon.c skill_name().
+export function skill_name(skill, state = game) {
+    return P_NAME(skill, state);
+}
+
+// C ref: weapon.c weapon_descr(). The skill category name that stands in for
+// a weapon, or the object class name for something that is not one.
+export function weapon_descr(obj, state = game) {
+    const skill = weapon_type(obj, state);
+    let descr = P_NAME(skill, state);
+
+    /* assorted special cases */
+    switch (skill) {
+    case P_NONE:
+        descr = ([CORPSE, TIN, EGG, STATUE, BOULDER, TOWEL, TIN_OPENER]
+            .includes(obj.otyp))
+            ? OBJ_NAME(objectType(obj, state), state)
+            : obj.globby ? 'glob'
+                : def_oc_syms_names[obj.oclass];
+        break;
+    case P_SLING:
+        if (is_ammo(obj, state))
+            descr = (obj.otyp === ROCK || is_graystone(obj))
+                ? 'stone'
+                : (obj.oclass === GEM_CLASS)
+                    ? 'gem'
+                    : def_oc_syms_names[obj.oclass];
+        break;
+    case P_BOW:
+        if (is_ammo(obj, state)) descr = 'arrow';
+        break;
+    case P_CROSSBOW:
+        if (is_ammo(obj, state)) descr = 'bolt';
+        break;
+    case P_FLAIL:
+        if (obj.otyp === GRAPPLING_HOOK) descr = 'hook';
+        break;
+    case P_PICK_AXE:
+        /* even if "dwarvish mattock" hasn't been discovered yet */
+        if (obj.otyp === DWARVISH_MATTOCK) descr = 'mattock';
+        break;
+    default:
+        break;
+    }
+    return makesingular(descr);
+}
+
+// C ref: weapon.c skill_level_name(). P_ISRESTRICTED reaches the default arm.
+export function skill_level_name(skill, state = game) {
+    switch (P_SKILL(skill, state)) {
+    case P_UNSKILLED: return 'Unskilled';
+    case P_BASIC: return 'Basic';
+    case P_SKILLED: return 'Skilled';
+    case P_EXPERT: return 'Expert';
+    /* these are for unarmed combat/martial arts only */
+    case P_MASTER: return 'Master';
+    case P_GRAND_MASTER: return 'Grand Master';
+    default: return 'Unknown';
+    }
+}
+
+// C ref: weapon.c slots_required().
+function slots_required(skill, state) {
+    const tmp = P_SKILL(skill, state);
+
+    if (skill <= P_LAST_WEAPON || skill === P_TWO_WEAPON_COMBAT) return tmp;
+    /* fewer slots used up for unarmed or martial */
+    return Math.trunc((tmp + 1) / 2);
+}
+
+// C ref: weapon.c can_advance(). `speedy` only matters in wizard mode, which
+// this port does not start, so the caller's FALSE is the only value reached.
+export function can_advance(skill, speedy, state = game) {
+    if (speedy)
+        throw new UnsupportedWeaponSkillError('can_advance(speedy)');
+    if (P_SKILL(skill, state) === P_ISRESTRICTED
+        || P_SKILL(skill, state) >= P_MAX_SKILL(skill, state)
+        || state.u.skills_advanced >= P_SKILL_LIMIT)
+        return false;
+
+    return P_ADVANCE(skill, state)
+            >= practice_needed_to_advance(P_SKILL(skill, state))
+        && state.u.weapon_slots >= slots_required(skill, state);
+}
+
+// Thrown where weapon.c reaches a skill branch this port has not ported.
+export class UnsupportedWeaponSkillError extends Error {
+    constructor(branch) {
+        super(`weapon skill handling requires ${branch}`);
+        this.name = 'UnsupportedWeaponSkillError';
+        this.branch = branch;
+    }
 }
 
 export const _weaponInternals = Object.freeze({
