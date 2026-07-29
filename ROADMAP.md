@@ -305,9 +305,17 @@ mutation that survives the suite today:
   six existing `arm: 'door'` rush seeds with `mention_walls` prepended.
 
 The last two need a fresh C recording with the option set, which is why they
-were not closed with the rest. Clear all six before the next holdout
-evaluation, and prefer adding a `mention_walls` variant of an existing rush
-seed over widening the production code to suit a test.
+were not closed with the rest. Prefer adding a `mention_walls` variant of an
+existing rush seed over widening the production code to suit a test.
+
+These six do not hold up the goal-closing holdout evaluation, and an earlier
+draft of this entry said they should. That was the wrong test to apply. A
+holdout evaluation measures whether ported *behavior* generalizes to unseen
+seeds, and the two findings that bore on behavior were the production defects,
+both applied at `374fb85`. What is left identifies places where a mutation
+would survive the suite, which is a reason to distrust the tests, not a reason
+to distrust the result. Carry them into the next goal's correctness range
+instead, where they are ordinary recorded debt.
 
 ## Unresolved: `newsym()` omits the infrared arm
 
