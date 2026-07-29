@@ -4,6 +4,7 @@
 // tty_select_menu().
 
 import { game } from './gstate.js';
+import { tty_getlin } from './getline.js';
 import { nhgetch } from './input.js';
 import { MORE_PROMPT, xwaitforspace } from './tty_message.js';
 import { PICK_ANY, PICK_NONE, PICK_ONE } from './const.js';
@@ -33,6 +34,9 @@ import {
     NO_COLOR,
 } from './terminal.js';
 
+// C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
+// calls tty_getlin("Search for:") and skips an empty or Escaped answer.
+const SEARCH_PROMPT = 'Search for:';
 const END_PROMPT = '(end)';
 const MENU_FIRST_PAGE = '^';
 const MENU_LAST_PAGE = '|';
@@ -48,7 +52,6 @@ const MENU_SEARCH = ':';
 // C defsym.h: GOLD_SYM is the exceptional selector which can also act as a
 // group accelerator for gold that is not on the current page.
 const GOLD_SYM = '$';
-const SEARCH_PROMPT = 'Search for: ';
 
 export function menuTitleStyle(state = game) {
     const style = state.iflags?.menu_headings;
@@ -419,100 +422,6 @@ function isDefaultMenuResponse(ch) {
         || '^|><.-@,\\~:'.includes(ch);
 }
 
-function writeToplineCharacter(display, ch) {
-    // topl_putsym() wraps before the terminal's final column, leaving that
-    // column unused.  tty_getlin() limits input to COLNO characters.
-    if (display.cursorCol === display.cols - 1) {
-        display.clearToEol();
-        display.setCursor(0, display.cursorRow + 1);
-    }
-    display.setCell(
-        display.cursorCol,
-        display.cursorRow,
-        ch,
-        NO_COLOR,
-        0,
-    );
-    display.setCursor(display.cursorCol + 1, display.cursorRow);
-}
-
-function eraseToplineCharacter(display) {
-    let column = display.cursorCol;
-    let row = display.cursorRow;
-    if (column === 0 && row > 0) {
-        --row;
-        column = display.cols - 1;
-    }
-    if (column > 0) --column;
-    display.setCell(column, row, ' ', NO_COLOR, 0);
-    display.setCursor(column, row);
-}
-
-function clearTtyGetlinPrompt(display) {
-    // tty_clear_nhwindow(WIN_MESSAGE) clears the top line after getlin.
-    // When input wrapped, docorner() repairs the additional message rows;
-    // menu windows do not redraw their overwritten lines until a new page.
-    const lastRow = Math.max(0, display.cursorRow);
-    for (let row = 0; row <= lastRow && row < display.rows; ++row)
-        display.clearRow(row);
-    display.setCursor(0, 0);
-}
-
-function startTtyGetlinPrompt(display) {
-    display.clearRow(0);
-    display.setCursor(0, 0);
-    for (const ch of SEARCH_PROMPT) writeToplineCharacter(display, ch);
-}
-
-// C ref: win/tty/getline.c tty_getlin().  EDIT_GETLIN is disabled in the
-// pinned configuration; the recorder supplies DEL for erase and ^U for kill.
-async function ttyGetlinSearch(state) {
-    const display = state.nhDisplay;
-    const input = [];
-    startTtyGetlinPrompt(display);
-
-    for (;;) {
-        const code = await nhgetch(state);
-        if (code === 10 || code === 13) {
-            const result = input.join('');
-            clearTtyGetlinPrompt(display);
-            return result;
-        }
-        // pgetchar() reaches tty_nhgetch(), which maps NUL to Escape.
-        if (code === 0 || code === 27) {
-            if (input.length === 0) {
-                clearTtyGetlinPrompt(display);
-                return null;
-            }
-            input.length = 0;
-            clearTtyGetlinPrompt(display);
-            startTtyGetlinPrompt(display);
-            continue;
-        }
-        if (code === 8 || code === 127) {
-            if (input.length > 0) {
-                input.pop();
-                eraseToplineCharacter(display);
-            }
-            continue;
-        }
-        if (code === 21) {
-            while (input.length > 0) {
-                input.pop();
-                eraseToplineCharacter(display);
-            }
-            continue;
-        }
-
-        const byte = code & 0xFF;
-        if (byte >= 32 && byte !== 127 && input.length < display.cols) {
-            const ch = String.fromCharCode(byte);
-            input.push(ch);
-            writeToplineCharacter(display, ch);
-        }
-    }
-}
-
 function lowercaseAscii(ch) {
     const code = ch.charCodeAt(0);
     return code >= 65 && code <= 90
@@ -776,9 +685,9 @@ async function selectOneTtyMenu(state, spec) {
                 pendingCount = null;
                 continue;
             }
-            const searchText = await ttyGetlinSearch(state);
+            const searchText = await tty_getlin(SEARCH_PROMPT, state);
             pendingCount = null;
-            if (searchText !== null && searchText.length > 0) {
+            if (searchText && searchText[0] !== '\x1B') {
                 const pattern = `*${searchText}*`;
                 const match = pickOneSearchEntries(state, spec)
                     .find((entry) => pmatchi(pattern, entry.text));
@@ -1005,10 +914,10 @@ async function selectAnyTtyMenu(state, spec) {
         }
 
         if (ch === MENU_SEARCH) {
-            const searchText = await ttyGetlinSearch(state);
+            const searchText = await tty_getlin(SEARCH_PROMPT, state);
             const searchCount = pendingCount;
             pendingCount = null;
-            if (searchText !== null && searchText.length > 0) {
+            if (searchText && searchText[0] !== '\x1B') {
                 const pattern = `*${searchText}*`;
                 const matches = new Set();
                 for (const item of allItems) {

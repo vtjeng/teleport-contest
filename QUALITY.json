@@ -203,6 +203,7 @@
         "js/cmd.js",
         "js/command_bindings.js",
         "js/extcmdlist_data.js",
+        "js/getline.js",
         "js/hack.js",
         "js/input.js",
         "js/tty_menu.js",

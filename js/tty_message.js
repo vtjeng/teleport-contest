@@ -11,8 +11,10 @@ import { NO_COLOR } from './terminal.js';
 // C ref: win/tty/wintty.c defmorestr[], the prompt both more() and dmore()
 // print when no window supplies its own.
 export const MORE_PROMPT = '--More--';
-const TOPLINE_EMPTY = 0;
-const TOPLINE_NEED_MORE = 1;
+// C ref: include/wintty.h. TOPLINE_SPECIAL_PROMPT is set only inside
+// hooked_tty_getlin() and tty_yn_function(), which own it themselves.
+export const TOPLINE_EMPTY = 0;
+export const TOPLINE_NEED_MORE = 1;
 
 function ttyByteText(value) {
     // topl.c keeps the raw byte string for wrapping and message history.
