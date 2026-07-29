@@ -2865,6 +2865,57 @@
         ]
       },
       "recordedAt": "2026-07-29T09:17:25.185Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "60bf2c3cf1fc8d7313970a91417547af466206c3",
+        "hero": "60bf2c3cf1fc8d7313970a91417547af466206c3",
+        "objects": "60bf2c3cf1fc8d7313970a91417547af466206c3",
+        "monsters": "60bf2c3cf1fc8d7313970a91417547af466206c3",
+        "world-effects": "60bf2c3cf1fc8d7313970a91417547af466206c3",
+        "commands": "60bf2c3cf1fc8d7313970a91417547af466206c3"
+      },
+      "head": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+      "auditedRange": "60bf2c3cf1fc8d7313970a91417547af466206c3..2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review clearing the audit-fix debt from the no-time-command correctness pass, as .agents/review.md allows before a review deadline; the deadline is the holdout evaluation at that goal's close. Three finders ran (correctness, tests, variable-trace); readability is what the light mode drops. 9 raw findings, 8 after deduplication, 7 confirmed and all 7 applied at acf05a3, 1 rejected with counter-evidence, 0 unverified, 0 warnings. No production defect: five findings were against comments and tests the audit fixes themselves added, including a hasProperty() header that stated the direction of divergence backwards for four youprop.h macros and a can_advance() ordering test that passed with the bug reinstated. The rejected finding, a real Deaf mismatch in js/dogmove.js, is outside the range and unreachable, and is recorded in ROADMAP.md for the leashed-pet work. Validation at acf05a3: 1,767 tests passing, four generated-data checks, check:namespace-members, development score unchanged at 98,759 PRNG values with 286 screens and cursors, and the no-time matrix matching 71,967 calls with 158 screens across 29 segments.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1338,
+        "counts": {
+          "raw": 9,
+          "deduplicated": 8,
+          "confirmed": 7,
+          "applied": 7,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 4,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [
+          {
+            "summary": "js/dogmove.js heroDeaf() reads u.uprops[DEAF] alone and adds a `blocked` term youprop.h:125 has no counterpart for, so OPTIONS=deaf was said to still diverge in dogmove.c's leashed-pet trap arm.",
+            "counterEvidence": "The mismatch is real but the path is unreachable and the file is outside the reviewed range. js/unported_monster_actions.js refuses a leashed pet before dog_move() runs, and dog_move() has that one caller, so no live path reaches the arm. git diff --stat 60bf2c3..2adc5af does not list js/dogmove.js, and heroDeaf() is unchanged by both commits; widening the Deaf fix into it would breach the confinement rule this delta review exists to enforce. Recorded in ROADMAP.md as future work to fix with the leashed-pet slice. Do not reopen as a finding against this range; reopen against the leashed-pet work."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-29T09:54:18.070Z"
     }
   ]
 }
