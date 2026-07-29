@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { PICK_NONE } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { parseNethackrc } from '../js/options.js';
@@ -311,4 +312,45 @@ test('PICK_ONE can expose an empty commit without changing startup defaults', as
         items: [{ selector: 'a', label: 'alpha', value: 'alpha' }],
         emptyValue: 'rebuild',
     }), 'rebuild');
+});
+
+test('PICK_NONE refuses every selection and ends only on a dismissal', async () => {
+    // 'a' is a live selector, ':' opens the search prompt under PICK_ONE, and
+    // '3' starts a count. process_menu_window() bells for the first two when
+    // cw->how is PICK_NONE, so only the closing Escape ends the menu.
+    const state = menuState('a:3');
+    const boundaries = [];
+    state._preNhgetchHook = () => boundaries.push(rowText(state, 0).slice(41));
+
+    assert.equal(await selectTtyMenu(state, {
+        title: 'Synthetic display-only menu',
+        titleAttr: 0,
+        how: PICK_NONE,
+        items: [{ selector: 'a', label: 'alpha', value: 'alpha' }],
+        cancelValue: null,
+    }), null);
+    // The search prompt never replaced the menu's own first row, and the menu
+    // was still up for each of the five keystrokes: the first Escape only
+    // cancelled the pending count.
+    assert.deepEqual(
+        boundaries,
+        new Array(5).fill('Synthetic display-only menu'),
+    );
+});
+
+test('a highlighted line drops its style across a compressed space run', () => {
+    // record-session.mjs turns every run of at least five spaces into
+    // cursor-forward movement, which never carries the highlight; a shorter
+    // run stays literal and keeps it.
+    const state = menuState();
+    const rendered = renderTtyMenu(state, {
+        title: null,
+        lines: [{ text: 'A    B     C', attr: 1 }],
+    });
+    const { startColumn } = rendered.layout;
+    const attrs = [];
+    for (let index = 0; index < 12; ++index)
+        attrs.push(state.nhDisplay.grid[0][startColumn + index].attr);
+    assert.deepEqual(attrs, [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1]);
+    dismissTtyMenu(state, rendered);
 });

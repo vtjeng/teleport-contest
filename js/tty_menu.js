@@ -6,7 +6,7 @@
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
 import { MORE_PROMPT, xwaitforspace } from './tty_message.js';
-import { PICK_ANY, PICK_ONE } from './const.js';
+import { PICK_ANY, PICK_NONE, PICK_ONE } from './const.js';
 import {
     ok_align,
     ok_gend,
@@ -58,6 +58,29 @@ export function menuTitleStyle(state = game) {
         titleColor: Number.isInteger(style?.color)
             ? style.color : NO_COLOR,
     };
+}
+
+// record-session.mjs compresses every maximal run of at least five literal
+// spaces into cursor-forward movement. A compressed run was never written into
+// the recorder shadow grid, so it retains terminal defaults even when the
+// bytes around it were highlighted. js/display.js writes the status line under
+// the same rule.
+function writeStyledText(display, column, row, text, color, attr) {
+    for (let index = 0; index < text.length;) {
+        const spaces = text[index] === ' ';
+        let end = index + 1;
+        while (end < text.length && (text[end] === ' ') === spaces) ++end;
+        const compressed = spaces && end - index >= 5;
+        for (; index < end; ++index) {
+            display.setCell(
+                column + index,
+                row,
+                text[index],
+                compressed ? NO_COLOR : color,
+                compressed ? 0 : attr,
+            );
+        }
+    }
 }
 
 function copyRegion(display, firstColumn, rowCount) {
@@ -219,16 +242,14 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0) {
     for (let row = 0; row < layout.lines.length; row++) {
         const line = layout.lines[row];
         const text = String(line.text ?? '');
-        const attr = line.attr ?? 0;
-        for (let index = 0; index < text.length; index++) {
-            display.setCell(
-                layout.startColumn + index,
-                row,
-                text[index],
-                line.color ?? NO_COLOR,
-                attr,
-            );
-        }
+        writeStyledText(
+            display,
+            layout.startColumn,
+            row,
+            text,
+            line.color ?? NO_COLOR,
+            line.attr ?? 0,
+        );
     }
     for (let index = 0; index < layout.footerText.length; index++) {
         display.setCell(
@@ -354,11 +375,9 @@ export async function displayTtyTextWindow(state = game, lines) {
         const line = lines[i];
         const text = String(line.text ?? '');
         clearRow(display, n);
-        for (let index = 0; index < text.length; index++) {
-            display.setCell(
-                index, n, text[index], line.color ?? NO_COLOR, line.attr ?? 0,
-            );
-        }
+        writeStyledText(
+            display, 0, n, text, line.color ?? NO_COLOR, line.attr ?? 0,
+        );
         n++;
     }
 
@@ -691,7 +710,12 @@ async function selectOneTtyMenu(state, spec) {
         )),
         items: spec.items?.map(copyMenuItem),
     };
-    const groupChoices = pickOneGroupChoices(workingSpec);
+    // process_menu_window() collects no group accelerators for PICK_NONE and
+    // bells for every explicit selector, so a display-only menu can end only
+    // by cancelling or committing with nothing selected.
+    const pickNone = (spec.how ?? PICK_ONE) === PICK_NONE;
+    const groupChoices = pickNone
+        ? new Map() : pickOneGroupChoices(workingSpec);
     const hasEmptyCompletion = Object.hasOwn(spec, 'preselected')
         || Object.hasOwn(spec, 'emptyValue');
     const emptyCompletion = Object.hasOwn(spec, 'preselected')
@@ -708,6 +732,13 @@ async function selectOneTtyMenu(state, spec) {
             rendered, workingSpec, groupChoices, incoming,
         );
         if (explicit.found) {
+            if (pickNone) {
+                // tty_nhbell() and break; the byte was in resp[], so
+                // xwaitforspace() returned it and the pending count resets on
+                // the next pass.
+                pendingCount = null;
+                continue;
+            }
             dismissTtyMenu(state, rendered);
             return explicit.value;
         }
@@ -739,6 +770,12 @@ async function selectOneTtyMenu(state, spec) {
             continue;
         }
         if (ch === MENU_SEARCH) {
+            if (pickNone) {
+                // process_menu_window()'s MENU_SEARCH arm bells for PICK_NONE
+                // instead of opening the tty_getlin() prompt.
+                pendingCount = null;
+                continue;
+            }
             const searchText = await ttyGetlinSearch(state);
             pendingCount = null;
             if (searchText !== null && searchText.length > 0) {
@@ -1056,7 +1093,9 @@ async function selectAnyTtyMenu(state, spec) {
 // optional emptyValue fields let source callers interpret select_menu()'s
 // unusual zero-selection result. PICK_ANY mirrors tty_select_menu() with an
 // ordered array of { value, count } entries, an empty array for an empty
-// commit, and cancelValue (null by default) for Esc.
+// commit, and cancelValue (null by default) for Esc. PICK_NONE shares the
+// PICK_ONE loop, which refuses every selection and so always answers
+// cancelValue.
 export async function selectTtyMenu(state = game, spec) {
     const how = spec.how ?? PICK_ONE;
     return how === PICK_ANY

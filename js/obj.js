@@ -125,6 +125,7 @@ import {
     MAGIC_LAMP,
     MAGIC_MARKER,
     MEAT_RING,
+    MITHRIL,
     OILSKIN_SACK,
     OIL_LAMP,
     NODIR,
@@ -694,6 +695,12 @@ export function isRottable(obj, state = game) {
     const material = objectType(obj, state).oc_material;
     return (material <= WOOD && material !== LIQUID)
         || material === DRAGON_HIDE;
+}
+
+// C ref: objclass.h is_metallic().
+export function isMetallic(obj, state = game) {
+    const material = objectType(obj, state).oc_material;
+    return material >= IRON && material <= MITHRIL;
 }
 
 export function isRustprone(obj, state = game) {

@@ -419,6 +419,22 @@ export function dist2(x1, y1, x2, y2) {
     return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 }
 
+// C ref: hacklib.c isqrt().  Integer square root by repeated subtraction of
+// the odd numbers, which is exactly how C computes it; a floating-point
+// Math.sqrt() would round differently for a perfect square near the limit of
+// double precision.
+export function isqrt(val) {
+    let rt = 0;
+    let odd = 1;
+    let remaining = val;
+    while (remaining >= odd) {
+        remaining -= odd;
+        odd += 2;
+        rt += 1;
+    }
+    return rt;
+}
+
 // C ref: hacklib.c online2(). Orthogonal and 45-degree diagonal lines count.
 export function online2(x0, y0, x1, y1) {
     const dx = x0 - x1;

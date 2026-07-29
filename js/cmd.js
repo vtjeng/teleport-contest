@@ -595,7 +595,31 @@ export async function rhack(key, state = game) {
         }
         if (command === 'showspells') {
             const elapsed = await failClosedCommand(
-                key, state, () => dovspell(state, { message: ttyPline }),
+                key, state, () => dovspell(state, {
+                    message: ttyPline,
+                    // spell.c dospellmenu() ends its menu with
+                    // end_menu(prompt) and asks select_menu() for PICK_ONE,
+                    // or PICK_NONE when only one spell is known; Escape
+                    // answers null either way.
+                    menu: (items, how, prompt) => selectTtyMenu(state, {
+                        // add_menu_heading() draws the column heading with
+                        // iflags.menu_headings, and allmain.c hands the same
+                        // style to tty_end_menu()'s prompt line through
+                        // adjust_menu_promptstyle().
+                        items: items.map((item) => (item.heading
+                            ? {
+                                ...item,
+                                attr: menuTitleStyle(state).titleAttr,
+                                color: menuTitleStyle(state).titleColor,
+                            }
+                            : item)),
+                        how,
+                        title: prompt,
+                        ...menuTitleStyle(state),
+                        cancelValue: null,
+                        overlay: state.iflags?.menu_overlay !== false,
+                    }),
+                }),
             );
             resetCommandVars(state);
             if (elapsed) state.context.move = 1;

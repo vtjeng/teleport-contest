@@ -195,6 +195,74 @@ export function loadNoTimeCommandsRecipe() {
                 // dovspell()'s empty answer and consumes no time.
                 moves: '.+.',
             },
+            // The known-spell list `+` opens for the four roles whose starting
+            // inventory contains a spellbook. Every one of these turns off
+            // menu_headings: with the default ATR_INVERSE, dospellmenu()'s
+            // column heading begins with four highlighted spaces, and the
+            // judge's Terminal.serialize() drops every attribute before a
+            // row's first non-space cell while record-session.mjs keeps a
+            // space run shorter than five. No implementation can reconcile
+            // those two encodings, so the option keeps the matrix on the
+            // behavior rather than the encoding.
+            {
+                seed: 8860001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'SpellHeal',
+                    role: 'Healer',
+                    options: 'pettype:none,!acoustics,menu_headings:none',
+                }),
+                // A Healer starts with three spellbooks, so dospellmenu()
+                // keeps PICK_ONE and appends the [sort spells] entry. Two of
+                // the three rows exercise percent_success()'s isqrt() branch.
+                moves: '.+\u001b.',
+            },
+            {
+                seed: 8860011,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'SpMonk',
+                    role: 'Monk',
+                    gender: 'male',
+                    options: 'pettype:none,!acoustics,menu_headings:none',
+                }),
+                // A Monk starts with exactly one spellbook, so spellid(1) is
+                // NO_SPELL and the menu becomes PICK_NONE with no sort entry.
+                // The second '+' is a selector-free key that a display-only
+                // menu answers with a bell.
+                moves: '.++\u001b.',
+            },
+            {
+                seed: 8860021,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'SpPriest',
+                    role: 'Priest',
+                    gender: 'male',
+                    align: 'chaotic',
+                    options: 'pettype:none,!acoustics,menu_headings:none',
+                }),
+                // A Priest's two random spellbooks are drawn from the level
+                // one to three range, so the list covers spells outside the
+                // healing school and the spelheal bonus.
+                moves: '.+\u001b.',
+            },
+            {
+                seed: 8860031,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'SpWiz',
+                    role: 'Wizard',
+                    gender: 'male',
+                    align: 'chaotic',
+                    options: 'pettype:none,!acoustics,menu_headings:none',
+                }),
+                // A Wizard wields a quarterstaff and wears a cloak that is
+                // not a robe, the other two percent_success() equipment
+                // branches a starting hero reaches. Space is the other way
+                // out of a one-page menu.
+                moves: '+ .',
+            },
             // The discoveries list, `\`, which also consumes no game time.
             {
                 seed: 8810001,

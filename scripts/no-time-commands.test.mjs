@@ -30,10 +30,19 @@ function noTimeKey(key) {
         || key === SPELL_KEY || key === DISCOVERIES_KEY;
 }
 
-// A Space inside one of these segments answers the menu's selection prompt or
+// u_init.c u_init_role() gives these four roles a starting spellbook, and
+// ini_inv_use_obj() learns every non-blank one, so `+` reaches
+// spell.c dospellmenu() rather than dovspell()'s empty answer.
+const SPELLBOOK_ROLES = ['Healer', 'Monk', 'Priest', 'Wizard'];
+
+// A key inside one of these segments answers the menu's selection prompt or
 // the text window's --More--, so it never reaches rhack()'s bad-command path.
-function opensWindow(moves) {
-    return moves.includes(INVENTORY_KEY) || moves.includes(DISCOVERIES_KEY);
+function opensWindow(segment) {
+    const { moves, nethackrc } = segment;
+    return moves.includes(INVENTORY_KEY) || moves.includes(DISCOVERIES_KEY)
+        || (moves.includes(SPELL_KEY) && SPELLBOOK_ROLES.some(
+            (role) => nethackrc.includes(`role:${role}`),
+        ));
 }
 
 function stripNoTime(moves) {
@@ -43,10 +52,10 @@ function stripNoTime(moves) {
 test('no-time-command matrix contains only source-selected inputs', () => {
     const recipe = loadNoTimeCommandsRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 17);
+    assert.equal(recipe.segments.length, 21);
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3, 3, 6, 3, 6, 3],
+        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3, 3, 4, 5, 4, 3, 6, 3, 6, 3],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
@@ -57,14 +66,14 @@ test('no-time-command matrix contains only source-selected inputs', () => {
         );
     }
     // Three segments own the unbound byte at a command prompt; the rest own
-    // the look, inventory, and discoveries commands. All four classes must
-    // stay represented as the matrix grows. A Space inside a window segment
-    // dismisses that window rather than reaching rhack(), so those are
-    // excluded.
+    // the look, inventory, spell-list, and discoveries commands. All five
+    // classes must stay represented as the matrix grows. A Space inside a
+    // window segment dismisses that window rather than reaching rhack(), so
+    // those are excluded.
     assert.equal(
         recipe.segments.filter(
-            ({ moves }) => !opensWindow(moves)
-                && [...moves].some((key) => UNBOUND_BYTES.has(key)),
+            (segment) => !opensWindow(segment)
+                && [...segment.moves].some((key) => UNBOUND_BYTES.has(key)),
         ).length,
         3,
     );
@@ -84,6 +93,13 @@ test('no-time-command matrix contains only source-selected inputs', () => {
         ).length,
         4,
     );
+    // One spell-list segment per role that starts without a spellbook, plus
+    // the four that reach dospellmenu().
+    assert.equal(
+        recipe.segments.filter(({ moves }) => moves.includes(SPELL_KEY)).length,
+        5,
+    );
+    assert.equal(recipe.segments.filter(opensWindow).length, 13);
 });
 
 test('the look command reports the square and takes no game time', async () => {
@@ -167,7 +183,7 @@ test('each unbound byte answers with its own visctrl name', async () => {
     for (const [index, segment] of segments.entries()) {
         // A Space in a window segment is that window's dismissal, not a
         // command.
-        if (opensWindow(segment.moves)) continue;
+        if (opensWindow(segment)) continue;
         for (const [position, key] of [...segment.moves].entries()) {
             if (!UNBOUND_BYTES.has(key)) continue;
             await runSegment({
