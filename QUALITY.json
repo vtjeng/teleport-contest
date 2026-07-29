@@ -2779,6 +2779,92 @@
         ]
       },
       "recordedAt": "2026-07-29T01:19:43.869Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+        "hero": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+        "objects": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+        "monsters": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+        "world-effects": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+        "commands": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef"
+      },
+      "head": "60bf2c3cf1fc8d7313970a91417547af466206c3",
+      "auditedRange": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef..60bf2c3cf1fc8d7313970a91417547af466206c3",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the no-time-command goal: dodiscovered(), dospellmenu(), doattributes() and enlightenment(), plus weapon_descr()'s move into js/weapon.js. Four finders ran (correctness, readability, tests, variable-trace); performance and concurrency were not enabled, because the range adds no hot-path work and no new shared mutable state. 17 raw findings, 16 after deduplication, 14 confirmed and all 14 applied across 7d11c53 and 2adc5af; 2 rejected with counter-evidence, 0 unverified, 0 warnings. The four production defects were Fixed_abil read as intrinsic-or-extrinsic, a stop on every wielded towel rather than a wet one, a deafness guard that missed u.uroleplay.deaf, and can_advance() refusing on speedy ahead of the three tests C answers FALSE from. Validation at 2adc5af: 1,765 tests passing, four generated-data checks, check:namespace-members, development score unchanged at 98,759 PRNG values and 286 screens and cursors with no session regressed, and the no-time matrix matching 71,967 calls with 158 screens and cursors across 29 segments.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2753,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 16,
+          "confirmed": 14,
+          "applied": 14,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "one_characteristic() tested Fixed_abil through hasProperty(), which ORs the intrinsic and the extrinsic. youprop.h:385 defines the macro as the extrinsic alone, with no HFixed_abil term, so an intrinsic in that slot stopped the command where C prints the six characteristics.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "weapon_insight() refused every wielded towel, but obj.h defines is_wet_towel(o) as otyp == TOWEL && spe > 0 and weapon.c lists TOWEL among weapon_descr()'s P_NONE overrides, so a dry towel prints \"You are wielding a towel.\"",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The deafness guard read u.uprops[DEAF] only, but youprop.h:245 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf). OPTIONS=deaf sets the third term alone, so the port printed a window where C prints \" You are deaf.\"",
+            "foundBy": [
+              "correctness",
+              "variable-trace",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "can_advance() refused on speedy before evaluating the three tests C answers FALSE from, so a restricted or maxed skill ended the segment instead of answering FALSE. C's shortcut is wizard && speedy and sits after those tests.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "status_enlightenment() accepts mode and never reads it, said to hide that C's `boolean magic = (mode & MAGICENLIGHTENMENT)` gate on the Fumbling, Sleepy and Hunger arms was replaced by unconditional stops.",
+            "counterEvidence": "insight.c:728 declares basics_enlightenment(int mode UNUSED, int final), so upstream itself carries an unread mode on a section function and mirroring the C signature is the faithful choice; the port also threads mode to one_characteristic(), which reads it. The over-broad stops fail closed for states no supported path can produce, so no screen, message or random-number call differs from the C. The proposed lint check would equally flag a faithful port of insight.c:728. Do not reopen without a source-reachable input that makes an unread mode change output."
+          },
+          {
+            "summary": "None of js/insight.js's 16 stops is exercised by any test, and the fail-closed property is said not to hold because 12 of the 16 run after basics_enlightenment() has called find_ac().",
+            "counterEvidence": "find_ac()'s write is conditional on armorClass !== u.uac, matching do_wear.c:2508-2510 at the same point in the same sequence, and js/u_init_inventory_attrs.js is untouched by the reviewed range. Measured on a live game at a ready D:1 prompt, u.uac and disp.botl read the same before and after an extra find_ac() call, so no stop leaves state the prompt did not already have; C calls find_ac() before the same points regardless. The residual true claim, that no test threw a stop, was addressed separately: the applied fixes add tests that throw the towel, stuck_ring() and deafness stops. Do not reopen without a state where find_ac() writes before a stop and the write is observable."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-29T09:17:25.185Z"
     }
   ]
 }
