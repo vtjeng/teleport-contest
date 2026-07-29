@@ -94,9 +94,9 @@ Four agents run that loop, and no agent performs more than one of these jobs.
 
 The orchestrator repeats, without returning to the user between its steps:
 
-1. Take the first unfinished slice of the open `ROADMAP.md` goal when one is
-   already named. Otherwise ask the slice-selector for the next slice inside
-   that goal.
+1. Take the first unfinished slice that the goal in progress lists in
+   `ROADMAP.md`. When that goal lists no unfinished slice, ask the
+   slice-selector for the next slice inside it.
 2. Spawn a worker for that slice. When it returns, establish independently what
    landed: `git log --oneline` and `git status --short` for the commits and the
    tree, and `npm run checkpoint` for the suite and the development score.
@@ -136,8 +136,10 @@ the next iteration.
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
 each time: a worker for each slice, a slice-selector when no slice is named,
 a goal-selector when a goal closes. None of them persists between steps.
-Name the agent type rather than pasting its brief, run it in the background,
-and let its completion notification advance the loop.
+Spawn each one by its agent type, such as `slice-worker`. The type loads the
+brief and the model its definition pins; copying the brief into a prompt
+instead loses that. Run it in the background and let its completion
+notification advance the loop.
 
 When the loop runs under `/loop`, the wake signal is a worker or a pass
 completing, and the scheduled wakeup is only a watchdog against a broken

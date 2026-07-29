@@ -32,7 +32,7 @@ formal correctness audit and not NetHack item-inventory work.
 
 State the exact behavior being closed, its success criteria, valid input
 dimensions, expected observable parity, and excluded later work. Use the
-earliest open `ROADMAP.md` milestone when the user has not supplied a narrower
+earliest `ROADMAP.md` milestone still in progress when the user has not supplied a narrower
 boundary and the repository makes the choice unambiguous.
 
 ### 2. Build the candidate universe
