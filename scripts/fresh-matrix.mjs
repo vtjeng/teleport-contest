@@ -28,6 +28,7 @@ function addLengths(totals, result, segmentCount) {
     totals.rng += result.lengths.rng.c;
     totals.screens += result.lengths.screens.c;
     totals.cursors += result.lengths.cursors.c;
+    totals.animFrames += result.lengths.animFrames?.c ?? 0;
 }
 
 export async function runFreshMatrix({
@@ -48,7 +49,9 @@ export async function runFreshMatrix({
         throw new Error('fresh matrix segment verifier must be a function');
     }
 
-    const totals = { segments: 0, rng: 0, screens: 0, cursors: 0 };
+    const totals = {
+        segments: 0, rng: 0, screens: 0, cursors: 0, animFrames: 0,
+    };
     for (const entry of entries) {
         if (!entry || typeof entry.label !== 'string'
             || entry.label.length === 0) {
@@ -86,7 +89,7 @@ export async function runFreshMatrix({
     write(
         `${summaryLabel}: PASS: ${totals.segments} segments, `
         + `${totals.rng} PRNG calls, ${totals.screens} screens, `
-        + `${totals.cursors} cursors\n`,
+        + `${totals.cursors} cursors, ${totals.animFrames} animation frames\n`,
     );
     return { passed: true, totals };
 }

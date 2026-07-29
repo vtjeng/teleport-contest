@@ -359,6 +359,7 @@ function recordedSegmentTrace(segment, segmentIndex) {
     const rng = [];
     const screens = [];
     const cursors = [];
+    const animFrames = [];
     for (let stepIndex = 0; stepIndex < (segment.steps || []).length; stepIndex++) {
         const step = segment.steps[stepIndex];
         const location = {
@@ -374,9 +375,20 @@ function recordedSegmentTrace(segment, segmentIndex) {
         if (step.screen) {
             screens.push({ screen: step.screen, location });
             cursors.push(Array.isArray(step.cursor) ? step.cursor : null);
+            // The recorder writes one entry per KIND=anim marker, which its
+            // patched nh_delay_output() emits. getAnimationFramesByStep()
+            // produces one array per input boundary, so both streams are
+            // indexed by the steps that carry a screen.
+            animFrames.push({
+                frames: (Array.isArray(step.animation_frames)
+                    ? step.animation_frames
+                    : []
+                ).map((frame) => frame?.screen ?? ''),
+                location,
+            });
         }
     }
-    return { rng, screens, cursors };
+    return { rng, screens, cursors, animFrames };
 }
 
 function recordedTrace(recording) {
@@ -387,8 +399,13 @@ function recordedTrace(recording) {
         rng: segments.flatMap(({ rng }) => rng),
         screens: segments.flatMap(({ screens }) => screens),
         cursors: segments.flatMap(({ cursors }) => cursors),
+        animFrames: segments.flatMap(({ animFrames }) => animFrames),
         segments,
     };
+}
+
+function totalFrames(steps) {
+    return steps.reduce((sum, step) => sum + (step.frames ?? step).length, 0);
 }
 
 function preDecode(screen) {
@@ -456,6 +473,9 @@ export function compareSessionOutputs(recording, jsOutput) {
     const jsRng = (jsOutput.rng || []).filter(isRngCall);
     const jsScreens = jsOutput.screens || [];
     const jsCursors = jsOutput.cursors || [];
+    const jsAnim = (jsOutput.animFrames || []).map(
+        (frames) => (frames || []).map((frame) => frame?.screen ?? ''),
+    );
     // The flat streams are authoritative for value comparison. When present,
     // segments must be their ordered partition; they detect output shifted
     // across runSegment() boundaries by comparing each partition's length.
@@ -588,6 +608,44 @@ export function compareSessionOutputs(recording, jsOutput) {
         }
     }
 
+    // The scorer counts animation frames supplementally, so a shortfall costs
+    // frames rather than screens. Compare them strictly here, per step and
+    // then cell by cell, so a missing or extra nh_delay_output() shows up.
+    let animMismatch = null;
+    const animCommon = Math.min(c.animFrames.length, jsAnim.length);
+    for (let i = 0; i < animCommon && !animMismatch; i++) {
+        const cFrames = c.animFrames[i].frames;
+        const jsFrames = jsAnim[i];
+        const { location } = c.animFrames[i];
+        if (cFrames.length !== jsFrames.length) {
+            animMismatch = {
+                index: i,
+                location,
+                kind: 'count',
+                cCount: cFrames.length,
+                jsCount: jsFrames.length,
+            };
+            break;
+        }
+        for (let frame = 0; frame < cFrames.length; frame++) {
+            const cell = firstCellMismatch(cFrames[frame], jsFrames[frame]);
+            if (cell) {
+                animMismatch = { index: i, frame, location, ...cell };
+                break;
+            }
+        }
+    }
+    if (!animMismatch && c.animFrames.length !== jsAnim.length
+        && !screenMismatch) {
+        animMismatch = {
+            index: animCommon,
+            location: c.animFrames[animCommon]?.location,
+            kind: 'count',
+            cCount: c.animFrames[animCommon]?.frames.length,
+            jsCount: jsAnim[animCommon]?.length,
+        };
+    }
+
     const segmentMismatch = jsSegments
         && c.segments.length !== jsSegments.length
         ? { c: c.segments.length, js: jsSegments.length }
@@ -597,15 +655,18 @@ export function compareSessionOutputs(recording, jsOutput) {
         rng: { c: c.rng.length, js: jsRng.length },
         screens: { c: c.screens.length, js: jsScreens.length },
         cursors: { c: c.cursors.length, js: jsCursors.length },
+        animFrames: { c: totalFrames(c.animFrames), js: totalFrames(jsAnim) },
     };
     return {
         passed: !jsOutput.error && !segmentMismatch
-            && !rngMismatch && !screenMismatch && !cursorMismatch,
+            && !rngMismatch && !screenMismatch && !cursorMismatch
+            && !animMismatch,
         error: jsOutput.error || null,
         lengths,
         rngMismatch,
         screenMismatch,
         cursorMismatch,
+        animMismatch,
         segmentMismatch,
     };
 }
@@ -635,6 +696,7 @@ export async function runJsSession(recording, scoringRoot) {
         rng: [],
         screens: [],
         cursors: [],
+        animFrames: [],
         segments: [],
         error: null,
     };
@@ -660,6 +722,10 @@ export async function runJsSession(recording, scoringRoot) {
             appendAll(output.rng, segmentOutput.rng);
             appendAll(output.screens, segmentOutput.screens);
             appendAll(output.cursors, segmentOutput.cursors);
+            appendAll(
+                output.animFrames,
+                game.getAnimationFramesByStep?.() || [],
+            );
         }
     } catch (error) {
         output.error = error?.message || String(error);
@@ -820,6 +886,22 @@ export function formatReport(result) {
         lines.push(`  JS: ${mismatch.jsCursor === undefined ? '<missing>' : JSON.stringify(mismatch.jsCursor)}`);
     } else {
         lines.push('Cursor values: match');
+    }
+
+    lines.push(lengthLine('Animation frame', result.lengths.animFrames));
+    if (result.animMismatch) {
+        const mismatch = result.animMismatch;
+        lines.push(`First animation mismatch at boundary ${mismatch.index + 1}${locationText(mismatch.location)}:`);
+        if (mismatch.kind === 'count') {
+            lines.push(`  C: ${printable(mismatch.cCount)} frame(s)`);
+            lines.push(`  JS: ${printable(mismatch.jsCount)} frame(s)`);
+        } else {
+            lines.push(`  Frame ${mismatch.frame + 1}, cell row ${mismatch.row + 1}, column ${mismatch.column + 1} (${mismatch.kind}):`);
+            lines.push(`  C: ${cellText(mismatch.cCell)}`);
+            lines.push(`  JS: ${cellText(mismatch.jsCell)}`);
+        }
+    } else {
+        lines.push('Animation frames: match');
     }
 
     lines.push(`RESULT: ${result.passed ? 'PASS' : 'FAIL'}`);

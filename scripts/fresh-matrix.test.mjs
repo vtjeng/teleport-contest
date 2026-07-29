@@ -26,6 +26,7 @@ function passingResult(segmentCount) {
             rng: { c: segmentCount * 2, js: segmentCount * 2 },
             screens: { c: segmentCount * 3, js: segmentCount * 3 },
             cursors: { c: segmentCount * 4, js: segmentCount * 4 },
+            animFrames: { c: segmentCount * 5, js: segmentCount * 5 },
         },
         rngMismatch: null,
         screenMismatch: null,
@@ -99,6 +100,7 @@ test('runs entries in order and totals every passing chunk', async () => {
         rng: 8,
         screens: 12,
         cursors: 16,
+        animFrames: 20,
     });
     assert.match(output, /\[alpha 1\/2\] 2 segments/u);
     assert.match(output, /TEST MATRIX: PASS: 4 segments/u);
@@ -136,6 +138,7 @@ test('stops at the first failing chunk and keeps prior passing totals', async ()
         rng: 4,
         screens: 6,
         cursors: 8,
+        animFrames: 10,
     });
     assert.deepEqual(
         { entry: result.failure.entry, chunk: result.failure.chunk },
