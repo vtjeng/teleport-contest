@@ -133,8 +133,12 @@ function actionState(subject) {
     return state;
 }
 
+// An override whose key does not name a real operation is silently replaced by
+// the default below, which turns an assert.fail oracle into a no-op and leaves
+// the suite green. Reject the unknown key instead, so a renamed operation
+// cannot leave dead oracles behind.
 function actionOperations(overrides = {}) {
-    return {
+    const defaults = {
         everyTurnEffect() {},
         visionRecalc() {},
         clearBypasses() {},
@@ -147,8 +151,12 @@ function actionOperations(overrides = {}) {
         canSeeSquare: () => false,
         fightMonster: () => false,
         dochugwAction() {},
-        ...overrides,
     };
+    for (const key of Object.keys(overrides)) {
+        if (!Object.hasOwn(defaults, key))
+            assert.fail(`actionOperations has no operation named ${key}`);
+    }
+    return { ...defaults, ...overrides };
 }
 
 test('monster action adapter skips chug, forwards env, and returns the result',
