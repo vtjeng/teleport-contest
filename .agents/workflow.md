@@ -16,10 +16,11 @@ a **behavior slice**; slices make up a **goal**; goals make up a **milestone**.
 A slice is the unit of evidence, a goal is the unit of review, and a milestone
 fixes the order in which game systems are built.
 
-A slice, a goal, and a milestone are each **in progress** until they
-**close**. Closing takes more than stopping work: a slice closes on the
-evidence stated below, a goal closes when its last slice does, and a milestone
-closes when every boundary the census names belongs to a later one.
+A slice, a goal, or a milestone is **in progress** from the moment work starts
+on it until it **closes**. Work listed but not started is neither. Closing
+takes more than stopping: a slice closes on the evidence stated below, a goal
+closes when its last slice does, and a milestone closes when every boundary
+the census names belongs to a later one.
 
 A **coherent implementation chunk** is one reviewable production change with
 its focused tests. A chunk may be one of several commits inside a behavior
@@ -90,18 +91,22 @@ Four agents run that loop, and no agent performs more than one of these jobs.
 - The **slice-selector** runs while a goal is in progress. It applies
   `.agents/selection.md` to identify the next slice inside that goal. It writes
   nothing. `.claude/agents/slice-selector.md` is its brief.
-- The **worker** completes exactly one slice: trace it to upstream source,
-  implement it, validate it as `.agents/validation.md` requires, and commit it.
-  It runs no formal review pass, reads no threshold, and records nothing in
-  the quality ledger. `.claude/agents/slice-worker.md` is its brief.
+- The **worker** closes exactly one slice, taking it from not started to
+  closed in a single run: trace it to upstream source, implement it, record a
+  fresh case with the C reference program and replay it as
+  `.agents/validation.md` requires, and commit the result. A worker that
+  cannot reach that state commits nothing and reports what blocked it, so the
+  slice stays not started. It runs no formal review pass, reads no threshold,
+  and records nothing in the quality ledger. `.claude/agents/slice-worker.md`
+  is its brief.
 - The **orchestrator** spawns the other three, measures independently what the
   worker landed, and owns every formal review pass.
 
 The orchestrator repeats, without returning to the user between its steps:
 
-1. Take the first unfinished slice that the goal in progress lists in
-   `ROADMAP.md`. When that goal lists no unfinished slice, ask the
-   slice-selector for the next slice inside it.
+1. Take the first slice the goal in progress lists in `ROADMAP.md` that has
+   not closed. When every slice it lists has closed, ask the slice-selector
+   for the next slice inside that goal.
 2. Spawn a worker for that slice. When it returns, establish independently what
    landed: `git log --oneline` and `git status --short` for the commits and the
    tree, and `npm run checkpoint` for the suite and the development score.

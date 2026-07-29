@@ -58,7 +58,7 @@ in turn while the goal is in progress. The thresholds in `QUALITY.json`
 schedule reviews inside a goal; they do not limit how large a goal may be.
 Size decides whether a goal needs a checklist and how its slices are ordered.
 Size never justifies refusing a stated goal, deferring it, or narrowing it
-silently. Start at the first unfinished slice.
+silently. Start at the first slice that has not closed.
 
 The agent selecting work chooses the goal. Do not ask the user which goal to
 take.
