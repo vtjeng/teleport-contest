@@ -8,6 +8,10 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    RUN_CRAWL,
+    RUN_LEAP,
+    RUN_STEP,
+    RUN_TPORT,
 } from './const.js';
 import {
     ROLE_ALIGNMASK,
@@ -311,6 +315,8 @@ function defaultResult() {
                 BALL_CLASS, CHAIN_CLASS,
             ],
             pushweapon: false,
+            // options.c initoptions_init() sets flags.runmode = RUN_LEAP.
+            runmode: RUN_LEAP,
             showexp: false,
             showvers: false,
             time: false,
@@ -1679,6 +1685,30 @@ function setNumberPadOption(result, value, negated, lineNumber) {
     });
 }
 
+// C ref: options.c optfn_runmode(). Its four names are matched with
+// str_start_is(name, value, TRUE), so any nonempty prefix of a name selects
+// it and the first match in this order wins.
+const RUNMODE_NAMES = Object.freeze([
+    ['teleport', RUN_TPORT],
+    ['run', RUN_LEAP],
+    ['walk', RUN_STEP],
+    ['crawl', RUN_CRAWL],
+]);
+
+function setRunmode(result, value, negated, lineNumber) {
+    if (negated) {
+        result.flags.runmode = RUN_TPORT;
+        return;
+    }
+    if (value == null || value === '')
+        optionError(lineNumber, 'Value is mandatory for runmode');
+    const lowered = value.toLowerCase();
+    const match = RUNMODE_NAMES.find(([name]) => name.startsWith(lowered));
+    if (!match)
+        optionError(lineNumber, `Unknown runmode parameter '${value}'`);
+    result.flags.runmode = match[1];
+}
+
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
 // their suffix, so the rightmost alias is appended first and wins collisions.
 function applyMenuBindings(result, bindings, lineNumber) {
@@ -2036,6 +2066,8 @@ function applyOption(result, optionState, option, lineNumber) {
         setNumberPadOption(result, value, negated, lineNumber);
     } else if (name === 'whatis_coord') {
         setWhatisCoord(result, value, negated, lineNumber);
+    } else if (name === 'runmode') {
+        setRunmode(result, value, negated, lineNumber);
     } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
         applyBooleanOption(result, name, value, negated, lineNumber);
     } else if (value != null) {
