@@ -125,9 +125,14 @@ measured at gitlink `16ff591`; they set expectations, not limits.
    answers `You haven't discovered anything yet...` without opening its text
    window; and with `spellid(0) == NO_SPELL` a starting non-caster reaches
    `dovspell()`'s `You don't know any spells right now.` for the same reason.
-   Both consume no time. The list bodies, `disco_output_sorted()` and
-   `dospellmenu()`, are reached only by a character who has discovered
-   something or knows a spell, which is a later slice. Which roles start
+   Both consume no time. `dovspell()`'s empty answer is ported; the census
+   then showed that the session reaching `\` has discovered its own starting
+   items, so C prints `Discoveries, by order of discovery within each class`
+   and the empty `ct == 0` answer never runs there. The list body is what that
+   session needs: `interesting_to_discover()`, the class walk over
+   `flags.inv_order`, `disco_append_typename()`, and the text window, with
+   `disco_fmt_uniq()` and `disp_artifact_discoveries()` answering nothing for
+   a starting character. `dospellmenu()` is the matching body for `+`. Which roles start
    knowing a spell is settled: `u_init.c:ini_inv_adjust_obj()` calls
    `initialspell()` for every starting object of `SPBOOK_CLASS` that is not
    blank paper, so a Healer, Priest, Monk, Valkyrie, or Wizard reaches

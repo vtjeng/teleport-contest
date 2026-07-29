@@ -1863,6 +1863,31 @@ test('the inventory command stops before drawing an unformattable item',
     );
 });
 
+test('Escape at a command prompt prints nothing and takes no time',
+    async () => {
+    // rhack() returns at its empty-key test before any command lookup, so
+    // Escape is neither a command nor a bad command; parse() has already
+    // cleared the message window by then.
+    await runSegment({
+        seed: 840026,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:EscapeCommand,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    const startingMoves = game.moves;
+    game.nhDisplay.pushKey(0x1B);
+
+    await moveloop_core();
+    await flush_screen(1);
+
+    assert.equal(topLine(game), '');
+    assert.equal(game.context.move, 0);
+    assert.equal(game.moves, startingMoves);
+    assert.equal(game.context.pendingCommand, undefined);
+});
+
 test('an unbound byte answers rhack bad-command output and takes no time',
     async () => {
     // Space, percent, and the two control bytes below have no binding in the
@@ -1877,7 +1902,6 @@ test('an unbound byte answers rhack bad-command output and takes no time',
     ];
     const refused = [
         commandKeyCode('7'), // a count digit while num_pad is off
-        0x1B, // Escape
     ];
     const replay = await runSegment({
         seed: 840021,

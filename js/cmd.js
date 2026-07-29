@@ -323,6 +323,10 @@ const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
 // empty-key values leave rhack() through its earlier return instead.
 function unboundCommandKey(key, command, model) {
     if (command !== null) return false;
+    // Escape is admitted separately: it never reaches the bad-command path,
+    // because rhack() returns at its empty-key test before looking a command
+    // up. The two empty-key values stay refused; C rings the bell for them
+    // and nhbell() is not ported.
     if (!key || key === 0xFF || key === ESC) return false;
     return model.numPad
         ? key !== model.specialKeys.count
@@ -345,7 +349,11 @@ async function readSimpleCommand(state) {
     const model = commandBindings(state);
     const command = commandForKey(model, key);
     const movement = MOVEMENT_INTENTS[command];
-    const admitted = ADMITTED_COMMANDS.includes(command)
+    // parse() answers Escape by clearing the message window and zeroing both
+    // count fields, which finishCommandParse() already does, and rhack() then
+    // returns without a message or a turn.
+    const admitted = key === ESC
+        || ADMITTED_COMMANDS.includes(command)
         || (movement && movement[2] === 0)
         || unboundCommandKey(key, command, model);
     if (!admitted) {
