@@ -1,5 +1,10 @@
-// display.js — Map rendering and terminal output.
+// display.js — Map rendering, terminal output, and the bottom status lines.
 // C ref: display.c — newsym, show_glyph, docrt, cls, flush_screen.
+// C ref: botl.c — this file is that file's port too, and holds every botl.c
+// function and table the game reaches: enc_stat[], terrain_descr[],
+// weapon_status(), armor_status(), bot_via_windowport(), describe_level(),
+// get_hilite(), and the condition tables. eat.c's hu_stat[] is the one status
+// table that lives elsewhere, in js/eat.js, because eat.c defines it.
 
 import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';

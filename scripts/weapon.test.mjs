@@ -77,6 +77,7 @@ import {
     setmnotwielded,
     which_armor,
     can_advance,
+    UnsupportedWeaponSkillError,
     P_NAME,
     skill_level_name,
     weapon_descr,
@@ -669,5 +670,58 @@ test('skill_level_name and can_advance read the hero skill slots', () => {
     assert.equal(can_advance(P_LONG_SWORD, false, state), true);
     // P_SKILL_LIMIT is 60 advancements in total.
     state.u.skills_advanced = 60;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), false);
+});
+
+test('can_advance answers FALSE before it consults speedy', () => {
+    const state = makeHeroState();
+    const slot = state.u.weapon_skills[P_LONG_SWORD];
+
+    // weapon.c can_advance() evaluates the restricted, maxed and
+    // skill-limit tests first and returns FALSE from them; only after that
+    // does it reach `if (wizard && speedy) return TRUE`. Each of those three
+    // answers is an ordinary FALSE that needs nothing this port lacks, so a
+    // speedy caller must still receive it rather than a refusal.
+    slot.skill = P_ISRESTRICTED;
+    slot.max_skill = P_EXPERT;
+    assert.equal(can_advance(P_LONG_SWORD, true, state), false);
+    slot.skill = P_EXPERT;
+    assert.equal(can_advance(P_LONG_SWORD, true, state), false);
+    slot.skill = P_BASIC;
+    state.u.skills_advanced = 60; /* P_SKILL_LIMIT */
+    assert.equal(can_advance(P_LONG_SWORD, true, state), false);
+
+    // Past those three, `speedy` alone still does nothing: C requires
+    // `wizard && speedy`, and this port has no wizard-mode game to reach it.
+    state.u.skills_advanced = 0;
+    slot.advance = 80;
+    state.u.weapon_slots = 2;
+    assert.equal(can_advance(P_LONG_SWORD, false, state), true);
+    state.wizard = true;
+    assert.throws(
+        () => can_advance(P_LONG_SWORD, true, state),
+        (error) => error instanceof UnsupportedWeaponSkillError
+            && error.branch === 'can_advance(speedy)',
+    );
+});
+
+test('slots_required halves the cost for martial and bare-handed skills',
+    () => {
+    const state = makeHeroState();
+    const slot = state.u.weapon_skills[P_BARE_HANDED_COMBAT];
+    slot.skill = P_BASIC;
+    slot.max_skill = P_EXPERT;
+    slot.advance = 80; /* practice_needed_to_advance(P_BASIC) */
+
+    // weapon.c slots_required(): a weapon skill costs its current level, but
+    // bare-handed and martial skills cost (tmp + 1) / 2, so P_BASIC costs 1
+    // rather than 2. One slot is therefore enough here and not for a weapon.
+    state.u.weapon_slots = 1;
+    assert.equal(can_advance(P_BARE_HANDED_COMBAT, false, state), true);
+
+    const weaponSlot = state.u.weapon_skills[P_LONG_SWORD];
+    weaponSlot.skill = P_BASIC;
+    weaponSlot.max_skill = P_EXPERT;
+    weaponSlot.advance = 80;
     assert.equal(can_advance(P_LONG_SWORD, false, state), false);
 });

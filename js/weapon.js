@@ -839,15 +839,17 @@ function slots_required(skill, state) {
     return Math.trunc((tmp + 1) / 2);
 }
 
-// C ref: weapon.c can_advance(). `speedy` only matters in wizard mode, which
-// this port does not start, so the caller's FALSE is the only value reached.
+// C ref: weapon.c can_advance(). C answers FALSE for a restricted, maxed, or
+// limit-reached skill before it consults `speedy`, and `speedy` alone does
+// nothing: the shortcut is `wizard && speedy`. Keeping that order matters,
+// because a restricted skill is an ordinary FALSE that needs nothing unported.
 export function can_advance(skill, speedy, state = game) {
-    if (speedy)
-        throw new UnsupportedWeaponSkillError('can_advance(speedy)');
     if (P_SKILL(skill, state) === P_ISRESTRICTED
         || P_SKILL(skill, state) >= P_MAX_SKILL(skill, state)
         || state.u.skills_advanced >= P_SKILL_LIMIT)
         return false;
+    if (state.wizard && speedy)
+        throw new UnsupportedWeaponSkillError('can_advance(speedy)');
 
     return P_ADVANCE(skill, state)
             >= practice_needed_to_advance(P_SKILL(skill, state))

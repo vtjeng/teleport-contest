@@ -23,7 +23,13 @@ import {
 } from '../js/const.js';
 import { init_objects } from '../js/o_init.js';
 import {
+    GAUNTLETS_OF_POWER,
+    HELMET,
+    IRON_SHOES,
     MAXSPELL,
+    PLATE_MAIL,
+    ROBE,
+    SMALL_SHIELD,
     SPE_EXTRA_HEALING,
     SPE_HEALING,
     SPE_STONE_TO_FLESH,
@@ -79,6 +85,7 @@ function spellState({
     ulevel = 1,
     healingSkill = P_BASIC,
     spells = [],
+    worn = {},
 } = {}) {
     const attributes = new Array(NUM_ATTRS).fill(0);
     attributes[A_WIS] = wisdom;
@@ -102,6 +109,11 @@ function spellState({
         flags: {},
     };
     state.u.weapon_skills[P_HEALING_SPELL].skill = healingSkill;
+    // percent_success() reads the worn slots straight off the state, so a
+    // bare { otyp } is all is_metallic() and the ROBE tests need.
+    for (const [slot, otyp] of Object.entries(worn)) {
+        state[slot] = { otyp, quan: 1, spe: 0 };
+    }
     // Fixed zero choices initialize the object catalog and its descriptions
     // without consuming randomness.
     init_objects(state, () => 0);
@@ -321,4 +333,36 @@ test('dovspell stops before drawing a tab-separated menu', async () => {
             && error.branch === 'menu_tab_sep columns',
     );
     assert.equal(recorder.calls.length, 0);
+});
+
+test('percent_success applies spell.c\'s worn-equipment adjustments', () => {
+    // Every case below casts extra healing, which an unequipped Healer casts
+    // at 38%: splcaster is 3 + spelheal(-3) == 0, and chance is
+    // 82 - isqrt(2900) == 29, so 29 * 20 / 15 == 38. Extra healing is used
+    // rather than healing because healing's 100 clamps and hides the
+    // adjustment. Expected values step spell.c's arithmetic by hand.
+    const cast = (worn) => percent_success(0, spellState({
+        worn, spells: [{ otyp: SPE_EXTRA_HEALING }],
+    }));
+
+    assert.equal(cast({}), 38);
+    // A metallic suit adds the Healer's spelarmr, 10: splcaster 3 + 10 - 3
+    // == 10, and 29 * (20 - 10) / 15 == 19, minus 10.
+    assert.equal(cast({ uarm: PLATE_MAIL }), 9);
+    // A robe over that suit halves spelarmr with C's integer division,
+    // 10 / 2 == 5: splcaster 3 + 5 - 3 == 5, and 29 * 15 / 15 == 29,
+    // minus 5. This is the case that pins the truncation.
+    assert.equal(cast({ uarm: PLATE_MAIL, uarmc: ROBE }), 24);
+    // A robe with no metallic suit takes the else-if arm and subtracts
+    // spelarmr instead: splcaster 3 - 10 - 3 == -10, so 29 * 30 / 15 == 58,
+    // plus 10.
+    assert.equal(cast({ uarmc: ROBE }), 68);
+    // The three metal-piece penalties, each with the suit absent so only one
+    // term moves: helmet 4, gloves 6, boots 2.
+    assert.equal(cast({ uarmh: HELMET }), 26);
+    assert.equal(cast({ uarmg: GAUNTLETS_OF_POWER }), 21);
+    assert.equal(cast({ uarmf: IRON_SHOES }), 32);
+    // spelshld is 2 for a Healer. A small shield is not heavier than
+    // SMALL_SHIELD, so the quartering clamp below does not fire.
+    assert.equal(cast({ uarms: SMALL_SHIELD }), 32);
 });

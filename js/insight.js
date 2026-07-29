@@ -8,8 +8,11 @@
 // `doattributes()` is the only ported caller, so `mode` is BASICENLIGHTENMENT
 // alone and `final` is ENL_GAMEINPROGRESS. `enlightenment()` refuses every
 // other pair, which is what keeps end-of-game disclosure and the magic
-// sections out. The `final` parameter is still threaded through the sections
-// because `enl_msg()` chooses between its present and past wording from it.
+// sections out. The `final` parameter is still threaded through the sections,
+// so the signatures and call shapes match the C, but it is provably always
+// ENL_GAMEINPROGRESS: no past-tense arm in this file has ever executed, and
+// none has been validated. A site that collapses C's three-way choice on
+// `final` says so in a comment, so end-of-game disclosure can find it.
 //
 // C interleaves add_menu_str() with the walk that produces each line. Nothing
 // between them waits for input or draws, so this collects the finished list
@@ -100,6 +103,7 @@ import {
     ROLE_GENDMASK,
     ROLE_MALE,
 } from './roles.js';
+import { costly_spot } from './shk.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { hidden_gold } from './vault.js';
 import {
@@ -152,10 +156,21 @@ function Upolyd(state) {
     return state.u.umonnum !== state.u.umonster;
 }
 
-// C ref: youprop.h's property macros, which all reduce to "does the hero have
-// this property from any source". The guards below only ask whether a
-// condition is present at all, so the intrinsic-versus-extrinsic distinction
-// each macro draws does not change their answer.
+// C ref: youprop.h. This asks only whether a property is present as an
+// intrinsic or an extrinsic. Several macros read more than those two fields,
+// so a new output path must check youprop.h before reusing this helper rather
+// than assuming the answers agree:
+//
+// - `Deaf` also reads u.uroleplay.deaf, `Wwalking` also reads !Is_waterlevel,
+//   and `Blind`, `Levitation` and `Hallucination` subtract a blocking term.
+//   For these, this helper answers FALSE where the macro answers TRUE.
+// - `Fixed_abil` (youprop.h:385) is the extrinsic alone, and Stunned,
+//   Confusion, Sick, Stoned, Strangled, Vomiting, Glib and Slimed are the
+//   intrinsic alone. For these, this helper is a superset of the macro.
+//
+// A guard that only has to notice an unported condition may use the superset
+// deliberately, because refusing early is safe. A guard whose answer selects
+// between two ported outputs may not.
 function hasProperty(state, propidx) {
     const property = state.u.uprops?.[propidx];
     return Boolean(property?.intrinsic || property?.extrinsic);
@@ -362,6 +377,10 @@ function background_enlightenment(final, state, lines) {
             '');
     }
     if (state.flags.friday13) {
+        // insight.c:678 chooses among three: "can happen" when !final,
+        // "could have happened" for ENL_GAMEOVERALIVE, and "happened"
+        // otherwise. Only the first is reachable here, so the middle arm is
+        // not reproduced; restore it with end-of-game disclosure.
         enlght_out(lines, ` Bad things ${!final ? 'can happen'
             : 'happened'} on Friday the 13th.`);
     }
@@ -429,6 +448,11 @@ function basics_enlightenment(final, state, lines) {
     }
 
     if (state.flags.pickup) {
+        // C splits here: inside a shop the line ends ", but temporarily
+        // disabled while inside the shop" and never reaches oc_to_str().
+        // costly_spot() answers FALSE on a shopless level and stops on a shop
+        // level, so each arm's stop names the source it actually needs.
+        costly_spot(state.u.ux, state.u.uy, state);
         // options.c optfn_pickup_types() is what turns the option into
         // flags.pickup_types; it is not ported, so oc_to_str() has nothing
         // to read and this branch stops.
@@ -443,7 +467,10 @@ function one_characteristic(mode, final, attrindx, state, lines) {
 
     /* being polymorphed or wearing certain cursed items prevents the hero
        from reliably tracking changes to characteristics */
-    if (hasProperty(state, FIXED_ABIL)) {
+    // youprop.h:385 defines Fixed_abil as the extrinsic alone; there is no
+    // HFixed_abil term, so an intrinsic in this slot leaves the macro FALSE
+    // and C prints the characteristic normally.
+    if (state.u.uprops?.[FIXED_ABIL]?.extrinsic) {
         // stuck_ring() needs the welded-ring rules, which are not ported.
         throw new UnsupportedEnlightenmentError('stuck_ring()');
     }
@@ -529,7 +556,10 @@ function weapon_insight(final, state, lines) {
     } else {
         if (uwep.otyp === SHIELD_OF_REFLECTION)
             throw new UnsupportedEnlightenmentError('shield_simple_name()');
-        if (uwep.otyp === TOWEL)
+        // obj.h defines is_wet_towel(o) as otyp == TOWEL && spe > 0, so a dry
+        // towel keeps the weapon_descr() result below. The stop above tests
+        // otyp alone because insight.c:1288 does the same for the shield.
+        if (uwep.otyp === TOWEL && uwep.spe > 0)
             throw new UnsupportedEnlightenmentError('is_wet_towel()');
         const what = weapon_descr(uwep, state);
 
@@ -573,6 +603,12 @@ function weapon_insight(final, state, lines) {
 // Conditions status_enlightenment() reports one by one. A starting hero on
 // D:1 carries none of them, and each one's wording needs source this slice
 // does not port, so their presence stops the command instead.
+//
+// A row may carry its own predicate. Plain rows use hasProperty(), whose
+// intrinsic-or-extrinsic answer is a superset of the macro for every one of
+// them, so the stop only ever fires early. A macro that reads state outside
+// u.uprops needs its own predicate, or the condition escapes the stop and the
+// command prints a window C would not have printed.
 const UNPORTED_STATUS_PROPERTIES = Object.freeze([
     [LEVITATION, 'the levitation status'],
     [FLYING, 'the flying status'],
@@ -586,7 +622,11 @@ const UNPORTED_STATUS_PROPERTIES = Object.freeze([
     [CONFUSION, 'the confusion status'],
     [HALLUC, 'the hallucination status'],
     [BLINDED, 'the blindness status'],
-    [DEAF, 'the deafness status'],
+    // youprop.h:245 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).
+    // OPTIONS=deaf sets only the third term, which u.uprops never sees.
+    [DEAF, 'the deafness status',
+        (state) => hasProperty(state, DEAF)
+            || Boolean(state.u.uroleplay?.deaf)],
     [WOUNDED_LEGS, 'the wounded-legs status'],
     [GLIB, 'the slippery-fingers status'],
     [FUMBLING, 'the fumbling status'],
@@ -603,8 +643,8 @@ function status_enlightenment(mode, final, state, lines) {
         throw new UnsupportedEnlightenmentError('the riding status');
     if (u.uinwater)
         throw new UnsupportedEnlightenmentError('the in-water status');
-    for (const [propidx, branch] of UNPORTED_STATUS_PROPERTIES) {
-        if (hasProperty(state, propidx))
+    for (const [propidx, branch, present] of UNPORTED_STATUS_PROPERTIES) {
+        if (present ? present(state) : hasProperty(state, propidx))
             throw new UnsupportedEnlightenmentError(branch);
     }
     if (state.uball)
