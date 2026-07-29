@@ -62,16 +62,23 @@ complete first.
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
-## Next goals, in order
-
-### 1. Running and rushing
+### Goal in progress: running and rushing
 
 `hack.c:domove_core()` under `svc.context.run`, with `hack.c:lookaround()`
 deciding where a run stops. Six sessions stop here with 1,275 steps behind
 them. `lookaround()` is a substantial function and a run spans several turns,
 so this is larger than either goal that closed before it.
 
-### 2. The extended-command prompt
+Unlike the goal that closed before it, this one consumes game time: a run moves
+the hero and the turn advances, so every existing turn behavior is in scope for
+regression. Take the intermediate correctness passes as `.agents/review.md`
+schedules them.
+
+No behavior slice is listed yet. The slice-selector identifies each in turn.
+
+## Next goals, in order
+
+### 1. The extended-command prompt
 
 `cmd.c:doextcmd()` at `cmd.c:493`, with `extcmds_match()` at `2523`,
 `can_do_extcmd()`, the `extcmdlist[]` table at `1667`, and
@@ -96,7 +103,7 @@ cursor still at column 3, so NEWAUTOCOMP expansion paints ahead of an unmoved
 cursor. And `extcmds_match()` is gated on `wizard`, which `#levelchange`
 depends on.
 
-### 3. Search
+### 2. Search
 
 `detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
 `mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Four sessions
