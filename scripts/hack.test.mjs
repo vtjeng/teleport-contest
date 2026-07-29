@@ -4,6 +4,9 @@ import test from 'node:test';
 import {
     BLINDED,
     COLNO,
+    M_AP_FURNITURE,
+    PROT_FROM_SHAPE_CHANGERS,
+    TELEPAT,
     CORR,
     DUST,
     FLYING,
@@ -32,8 +35,10 @@ import {
     maybe_smudge_engr,
     nomul,
     runmode_delay_output,
+    runStopsBeforeMonster,
     switch_terrain_for_legal_move,
 } from '../js/hack.js';
+import { game } from '../js/gstate.js';
 import { M1_FLY, PM_GRID_BUG } from '../js/monsters.js';
 import { CORPSE, DAGGER } from '../js/objects.js';
 import {
@@ -513,16 +518,63 @@ test('runmode_delay_output follows each source cadence', async () => {
         { runmode: RUN_STEP, moves: 3, expected: 1 },
         { runmode: RUN_CRAWL, moves: 3, expected: 5 },
     ];
-    for (const { runmode, moves, expected } of cases) {
-        let frames = 0;
-        const state = runState({ moves });
-        state.flags = { runmode, time: true };
-        state._animationFrameHook = () => { frames++; };
-        await runmode_delay_output(state);
-        assert.equal(frames, expected, `runmode ${runmode} at moves ${moves}`);
-        if (expected) assert.equal(state.disp.time_botl, true);
+    // curs_on_u() flushes the module-global `game`, so this drives that object
+    // rather than a synthetic state: threading another one would write
+    // disp.time_botl where flush_screen() would never read it.
+    const saved = {
+        context: game.context, multi: game.multi, moves: game.moves,
+        flags: game.flags, disp: game.disp, hook: game._animationFrameHook,
+    };
+    try {
+        for (const { runmode, moves, expected } of cases) {
+            let frames = 0;
+            let botlWhenDrawn = null;
+            game.context = { run: 1 };
+            game.multi = 80;
+            game.moves = moves;
+            game.flags = { runmode, time: true };
+            game.disp = {};
+            // C sets disp.time_botl, then curs_on_u() flushes, and only then
+            // does the frame land; bot() clears the flag on the way through.
+            // Sampling inside the hook pins that order rather than the value
+            // left behind afterwards.
+            game._animationFrameHook = () => {
+                frames++;
+                botlWhenDrawn ??= game.disp.time_botl;
+            };
+            await runmode_delay_output(game);
+            assert.equal(
+                frames, expected, `runmode ${runmode} at moves ${moves}`,
+            );
+            // The flag is consumed by the flush, so a frame that saw it still
+            // set would mean the status refresh had not happened yet.
+            if (expected) assert.equal(botlWhenDrawn, false);
+        }
+    } finally {
+        game.context = saved.context;
+        game.multi = saved.multi;
+        game.moves = saved.moves;
+        game.flags = saved.flags;
+        game.disp = saved.disp;
+        game._animationFrameHook = saved.hook;
     }
 });
+
+test('runmode_delay_output refuses a state that is not the global game',
+    async () => {
+        // curs_on_u() -> flush_screen() reads the module-global `game`. A
+        // caller threading another object would write disp.time_botl into one
+        // state and have bot() read and clear it from another, so the mismatch
+        // has to fail loudly rather than flush the wrong game.
+        const state = runState({ moves: 3 });
+        state.flags = { runmode: RUN_STEP, time: true };
+        state._animationFrameHook = () => {};
+        await assert.rejects(
+            () => runmode_delay_output(state),
+            (error) => error instanceof TypeError
+                && /global game state/u.test(error.message),
+        );
+    });
 
 test('runmode_delay_output stays silent with no run and no multi', async () => {
     let frames = 0;
@@ -533,3 +585,46 @@ test('runmode_delay_output stays silent with no run and no multi', async () => {
     await runmode_delay_output(state);
     assert.equal(frames, 0);
 });
+
+test('the run stop before a monster reads each of C\'s three terms', () => {
+    // hack.c:2764: `context.run && ((!Blind && mon_visible(mtmp)
+    // && ((M_AP_TYPE != M_AP_FURNITURE && != M_AP_OBJECT)
+    // || Protection_from_shape_changers)) || sensemon(mtmp))`.
+    // Each case below moves exactly one term.
+    const base = () => {
+        const state = runState({ moves: 3 });
+        state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        state.u.uprops[PROT_FROM_SHAPE_CHANGERS] =
+            { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        return state;
+    };
+    const hostile = { mpeaceful: 0, mtame: 0, m_ap_type: 0, data: {} };
+
+    // run 0 short-circuits before anything else is read.
+    assert.equal(runStopsBeforeMonster(hostile, 0, base()), false);
+    // The ordinary case: sighted hero, visible hostile.
+    assert.equal(runStopsBeforeMonster(hostile, 1, base()), true);
+
+    // Blindness alone clears the first disjunct, and with no sensemon the
+    // run does not stop: C falls through and attacks.
+    const blind = base();
+    blind.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(runStopsBeforeMonster(hostile, 1, blind), false);
+
+    // sensemon alone restores the stop while still blind, which is the
+    // second disjunct C tests independently.
+    const sensed = base();
+    sensed.u.uprops[BLINDED].intrinsic = 1;
+    sensed.u.uprops[TELEPAT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    sensed.youmonst = { ...sensed.youmonst, data: { mlevel: 1 } };
+    assert.equal(runStopsBeforeMonster(hostile, 1, sensed), true);
+
+    // A monster mimicking furniture is not "seen" for this purpose unless the
+    // hero has protection from shape changers.
+    const mimic = base();
+    const disguised = { ...hostile, m_ap_type: M_AP_FURNITURE };
+    assert.equal(runStopsBeforeMonster(disguised, 1, mimic), false);
+    mimic.u.uprops[PROT_FROM_SHAPE_CHANGERS].intrinsic = 1;
+    assert.equal(runStopsBeforeMonster(disguised, 1, mimic), true);
+});
+

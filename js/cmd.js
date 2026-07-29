@@ -325,11 +325,18 @@ const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
 // context.run values this boundary dispatches. cmd.c set_move_cmd() takes the
 // value from the command the key is bound to: 0 for do_move_<dir>, 1 for
 // do_run_<dir>, which the shift-direction keys use, and 3 for do_rush_<dir>
-// at cmd.c:1461-1512, which the ctrl-direction keys use. The remaining values
-// come from the two prefixes and from travel, and stay refused: do_rush() at
-// cmd.c:1599 sets 2, do_run() at cmd.c:1606 sets 3, and dotravel_target()
-// sets 8. Both prefixes need rhack()'s PREFIXCMD dispatch, which is unported,
-// so no ported path reaches run 2.
+// at cmd.c:1461-1512, which the ctrl-direction keys use.
+//
+// Two values are refused here, by value: 2, which only do_rush() behind the `g`
+// prefix sets at cmd.c:1599, and 8, which dotravel_target() sets.
+//
+// The `g` and `G` prefixes are refused one level earlier instead, and this list
+// cannot refuse them. `js/command_bindings.js` binds them to the commands
+// `rush` and `run`, which no `MOVEMENT_INTENTS` entry covers, so the lookup
+// below throws before any run value exists. That matters for `G`: do_run() at
+// cmd.c:1606 sets 3, the same value do_rush_<dir> sets, so this list cannot
+// tell a `G` run from a ctrl-direction rush. Porting PREFIXCMD dispatch has to
+// bring its own seam for `G`, or it will admit prefixed runs by accident.
 const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s

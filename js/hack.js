@@ -242,10 +242,25 @@ export function monsterNearby(state = game) {
 
 // C ref: hack.c end_running(TRUE). Finite movement, hunger transitions, and
 // safe-pet refusal share this owner for run, travel, movement-repeat, and count
-// cancellation. Status refresh and travel-map cleanup remain with their
-// owning subsystems.
+// cancellation.
+//
+// The status catch-up belongs here and nowhere else. moveloop_core() suppresses
+// the turn counter while context.run is set, and classify_terrain() suppresses
+// its own disp.botl write for the same reason, so both have to be made up once
+// the run ends. nomul() masks half of that by setting disp.botl itself, but the
+// direct callers in js/uhitm.js and js/eat.js reach here without it.
+//
+// gt.travelmap has no ported counterpart, so its selection_free() is absent.
 export function endRunning(state = game) {
-    state.context.run = 0;
+    if (state.context.run) {
+        state.context.run = 0;
+        state.disp ??= {};
+        if (state.flags?.time) state.disp.time_botl = true;
+        if (state.flags?.terrainstatus) {
+            state.iflags.terrain_typ = MAX_TYPE; /* "none of the above" */
+            classify_terrain(state);
+        }
+    }
     state.context.travel = 0;
     state.context.travel1 = 0;
     state.context.mv = 0;
@@ -546,9 +561,15 @@ function known_lwalking(state) {
 }
 
 // C ref: hack.c avoid_moving_on_trap(). Its message needs trapname() and an(),
-// neither of which is ported. Only lookaround()'s trap arm at run values above
-// 1 and avoid_running_into_trap_or_liquid() pass msg = TRUE, and both belong
-// to the rush and travel modes this boundary excludes.
+// neither of which is ported, so a msg = TRUE caller stops instead.
+//
+// Two callers pass TRUE. lookaround()'s trap arm does, at run values above 1,
+// which the ctrl-direction rush now reaches. The other is
+// avoid_running_into_trap_or_liquid(), which is `domove_core()`'s first run arm
+// and is not ported at all: at run 1 it can only act on a destination trap or
+// liquid, and both are refused before domove() reaches them, so nothing is
+// dropped today. Port it with the trap work, where C stops a rush cleanly with
+// no time spent and the port's destination seam throws instead.
 function avoid_moving_on_trap(x, y, msg, state) {
     const trap = t_at(x, y, state);
     if (trap && trap.tseen && trap.ttyp !== VIBRATING_SQUARE) {
@@ -601,7 +622,12 @@ async function avoid_moving_on_liquid(x, y, msg, state) {
 // C ref: hack.c domove_core()'s "Don't attack if you're running" arm. The
 // hero stops without spending the move; the destination monster is left
 // alone.
-function runStopsBeforeMonster(monster, run, state) {
+// C ref: hack.c domove_core()'s don't-attack-while-running condition at 2764,
+// `svc.context.run && ((!Blind && mon_visible(mtmp) && (...)) || sensemon(mtmp))`.
+// Exported so each of its three terms can be pinned on its own: the live path
+// reaches it only through domove(), where a hostile in front is also being
+// attacked, which hides which term decided the stop.
+export function runStopsBeforeMonster(monster, run, state) {
     if (!run || !monster || is_safemon(monster, state))
         return false;
     const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
@@ -726,8 +752,15 @@ async function nh_delay_output(state) {
     await state._animationFrameHook?.();
 }
 
-// C ref: display.c curs_on_u().
-async function curs_on_u() {
+// C ref: display.c curs_on_u(). flush_screen() reads the module-global `game`,
+// here and at every other call site in the port, so a caller threading some
+// other state would write disp.time_botl into one object and have it read and
+// cleared from another. The production path only ever runs on `game`; this
+// refuses anything else rather than flushing the wrong game silently.
+async function curs_on_u(state) {
+    if (state !== game) {
+        throw new TypeError('curs_on_u() flushes the global game state');
+    }
     await flush_screen(1);
 }
 
@@ -743,7 +776,7 @@ export async function runmode_delay_output(state = game) {
             state.disp ??= {};
             // moveloop_core() suppresses time_botl while running.
             state.disp.time_botl = Boolean(state.flags.time);
-            await curs_on_u();
+            await curs_on_u(state);
             await nh_delay_output(state);
             if (state.flags.runmode === RUN_CRAWL) {
                 await nh_delay_output(state);
