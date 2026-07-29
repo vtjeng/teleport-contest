@@ -1653,10 +1653,14 @@ test('dangerous hero properties reject waiting and success resets its counter', 
     assert.equal(state.did_nothing_flag, 0);
 });
 
-test('rush, search, and pickup bytes remain atomic boundaries',
+test('travel, search, and pickup bytes remain atomic boundaries',
     async () => {
     const cases = [
-        { name: 'rush', key: 'x', binding: 'BINDINGS=x:rushwest' },
+        // cmd.c dotravel() reaches dotravel_target(), which sets
+        // svc.context.run to 8. Travel is not one of the movement commands
+        // this boundary dispatches, unlike the ctrl-direction rush commands
+        // the same binding table names, which sit at run 3.
+        { name: 'travel', key: 'x', binding: 'BINDINGS=x:travel' },
         { name: 'search', key: 's', binding: '' },
         { name: 'pickup', key: ',', binding: '' },
     ];

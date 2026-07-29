@@ -320,10 +320,17 @@ const ADMITTED_COMMANDS = Object.freeze([
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
-    + 'uncounted shift-direction run, or a byte bound to no command';
-// context.run values this boundary dispatches: 0 walks and 1 runs. Rush and
-// #run are 2 and 3, and travel is 8; all three stay refused.
-const ADMITTED_RUN_MODES = Object.freeze([0, 1]);
+    + 'uncounted shift-direction run, an uncounted ctrl-direction rush, or a '
+    + 'byte bound to no command';
+// context.run values this boundary dispatches. cmd.c set_move_cmd() takes the
+// value from the command the key is bound to: 0 for do_move_<dir>, 1 for
+// do_run_<dir>, which the shift-direction keys use, and 3 for do_rush_<dir>
+// at cmd.c:1461-1512, which the ctrl-direction keys use. The remaining values
+// come from the two prefixes and from travel, and stay refused: do_rush() at
+// cmd.c:1599 sets 2, do_run() at cmd.c:1606 sets 3, and dotravel_target()
+// sets 8. Both prefixes need rhack()'s PREFIXCMD dispatch, which is unported,
+// so no ported path reaches run 2.
+const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
 // bad-command path, which this file owns. parse() returns such a byte
