@@ -134,6 +134,34 @@ A fresh scan supersedes the census figure above: seven sessions stop on
    applies, and a turn cannot start from a doorway because `nomul(0)` zeroes
    `multi` first.
 
+3. **Ctrl-direction rush, `context.run == 3`.** The admission list
+   `ADMITTED_RUN_MODES` at `js/cmd.js:326` is the whole production delta, the
+   same guard shape as the slice above: `js/command_bindings.js` and
+   `MOVEMENT_INTENTS` already produce `rusheast -> [1, 0, 3]`.
+
+   Settle the run values first, because "rush" names two commands at two
+   values. `cmd.c:1461-1512` `do_rush_<dir>`, which the ctrl-direction keys
+   bind to, calls `set_move_cmd(dir, 3)`. The `g` prefix, `cmd.c:1599`
+   `do_rush()`, sets 2. The `G` prefix, `cmd.c:1606` `do_run()`, sets 3. The
+   comment at `js/cmd.js:324` reads "Rush and #run are 2 and 3", which is right
+   for the two prefixes and wrong for the ctrl-direction keys; correct it with
+   this slice.
+
+   Its ceiling is zero: no development session stops on a run boundary, and
+   the `^L` rush that both `seed0013` sessions record at step 5 sits behind
+   their step-4 stop on traps. It is worth doing anyway because it is named in
+   this goal and because run 3 is the first thing to execute three arms of
+   already-ported code: `lookaround()`'s pet stop at `js/hack.js:852`, its
+   closed-door stop at `:888`, and `avoid_moving_on_trap(..., infront && run >
+   1)` at `:874`. Evidence has to come from fresh recordings, a
+   `run-rush-runs.mjs` sibling.
+
+   The `g` and `G` prefixes stay out: they need `rhack()`'s PREFIXCMD dispatch,
+   the same unit `m`/`reqmenu` needs, which belongs with the extended-command
+   goal. `lookaround()`'s widening stop at `corrct > 1 && run === 2` is
+   therefore still unreachable after this slice, since only the `g` prefix
+   sets 2.
+
 ## Next goals, in order
 
 ### 1. The extended-command prompt
