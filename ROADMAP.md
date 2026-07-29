@@ -119,6 +119,21 @@ same `extcmdlist[]` table. `cmd.c:1669` gives `#` the flags
    the repeat queue, and `can_do_extcmd`'s WIZMODECMD arm, which the prompt
    cannot reach.
 
+   Closed at `f826ba5` for 77 screens, the figure it was selected on. The
+   prompt dispatches all six handlers `ADMITTED_COMMANDS` already names, not
+   the three closers the slice described: `#inventory`, `#known` and
+   `#showspells` reach the identical handlers as their single-key forms, so
+   refusing them would have been a rule with no counterpart in the C. Left
+   unported are `doextlist`, `extcmd_via_menu`, the repeat queue, and ctrl-P at
+   a getlin prompt, which needs `tty_doprev_message` and message history that
+   nothing ports; it throws before painting. `ge.ext_tlist` is deliberately
+   absent, because no dispatchable row is PREFIXCMD or MOVEMENTCMD, so the
+   substitution has nothing to change.
+
+   `doextcmd()`'s `accept_menu_prefix` branch is dormant: `m#wait` cannot be
+   reached because `readSimpleCommand` refuses `m` on a fresh read, which
+   predates this slice. Prefix dispatch is what wakes it.
+
    Two complications to plan for. `extcmdlist[]` carries seven `#if` regions
    (CRASHREPORT, DEBUG_MIGRATING_MONS, SHELL, SUSPEND, DEBUG, NH_DEVEL_STATUS)
    that the generator has to resolve against the pinned build. And NEWAUTOCOMP
@@ -200,6 +215,26 @@ small.
 Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
 behavior part of a goal in progress.
+
+## Unresolved: recording a debug-mode session needs local setup
+
+Two constraints bind anyone recording a `playmode:debug` case, both found while
+closing the `#` prompt slice at `f826ba5`.
+
+The recorder denies debug mode unless its `sysconf` names the running user:
+`WIZARDS=root games vtjeng`. That file is gitignored and uncommitted, so a fresh
+checkout does not have it. Without it the recorder falls back to explore mode
+and diverges from the intended run at PRNG call 202, which looks like a port
+defect rather than a setup problem.
+
+And a debug segment cannot be followed by another segment in one recording.
+`set_playmode()` renames the hero to "wizard", and `record-session.mjs`
+`clearStaleState` strips those files only before a recording's first segment, so
+a second debug game in the same recording dies. Record debug cases one segment
+at a time; the four in `scripts/run-extended-command-prompt.mjs` are.
+
+This matters beyond the current slice: five development sessions stop at
+`wiz_level_change`, so every one of them will need debug-mode recordings.
 
 ## Unresolved: six deferred test-coverage findings from the running pass
 
