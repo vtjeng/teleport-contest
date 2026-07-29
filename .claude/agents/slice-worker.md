@@ -82,6 +82,8 @@ Report to the orchestrator in one message of under 300 words. Cover:
 - Each decision the C source did not settle immediately, and the evidence you
   settled it on.
 - What you expect the next iteration to trip over.
+- Whether the slice matched its description. Say so if closing it needed far
+  more C traced, or touched more subsystems, than the description implied.
 
 The orchestrator independently measures which commits you landed, the
 development score, and the test-suite result, so spend no words on those.

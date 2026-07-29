@@ -5,8 +5,9 @@ behavior slice that is expected to span multiple work sessions, cross
 subsystems, or reach about 500 changed production lines across the quality
 areas it affects, which `QUALITY.json` lists. Copy it to
 `.agents/implementation-checklist.md` and replace every prompt in square
-brackets. The main agent owns the completed checklist and verifies evidence
-provided by any helper.
+brackets. The orchestrator owns the completed checklist and verifies every
+piece of evidence recorded here against the repository. A subagent's report of
+that evidence is a claim to check.
 
 This checklist is a working record of implementation evidence. It supplements
 the required source review, tests, fresh differentials, the workflows in

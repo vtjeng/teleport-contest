@@ -61,8 +61,8 @@ All other access to `sessions/holdout/` is prohibited:
 - Do not list the directory or open, read, search, parse, compare, summarize,
   copy, display, or reveal its files, filenames, or contents.
 - Do not pass the directory, any path inside it, or any file from it to another
-  agent or tool. This includes `frozen/ps_test_runner.mjs`, the Session Viewer,
-  recording tools, and audit tools.
+  agent or tool. This includes `frozen/ps_test_runner.mjs`, the Session Viewer
+  in `tools/session-viewer/`, recording tools, and audit tools.
 - Do not inspect temporary files, caches, continuous-integration logs, or other
   artifacts to recover results for individual holdout sessions.
 - Do not change which sessions belong to the development and holdout sets
