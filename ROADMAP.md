@@ -15,8 +15,8 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-The goal in progress and the goals after it were selected from the
-`scan-stops.mjs` census at `03c2add`. Every session and step count in those
+The goals below were selected from the `scan-stops.mjs` census at `03c2add`,
+except where a later scan is named. Every session and step count in those
 sections is a ceiling taken from that census and goes stale as the port
 advances; re-run the scan for current numbers. The traced source findings do not
 go stale, which is why they are recorded here rather than re-derived.
@@ -62,57 +62,41 @@ complete first.
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
-### Goal in progress: commands that consume no game time
-
-Accept, at a ready D:1 prompt, the commands whose `rhack()` result carries no
-`ECMD_TIME`, so `svc.context.move` stays FALSE, no monster moves, no gameplay
-PRNG is drawn, and only the screen and message window change. That property is
-the goal's boundary, and it is why these commands cannot regress the turn
-behavior the milestone already owns.
-
-Beyond its own ceiling, this goal gates the closing sequence that 24 of the 33
-development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismissed
-with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
-outside this goal, belonging to the search goal below. The `:` that ends those
-sessions already runs, and so do the unbound keystroke, the inventory display,
-the discovery list, and the spell list. `^X` is the last of the four still
-stopping. No session finishes without this goal.
-
-This goal spans sessions and will cross the review thresholds. That is expected
-and planned for; work the slices in order and take the intermediate passes as
-`.agents/review.md` schedules them.
-
-**Behavior slices, each closed on its own.** Line counts are the C to trace,
-measured at `nethack-c/upstream` submodule commit `16ff591`; they set
-expectations, not limits.
-
-1. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
-   1,200 lines in a file with no ported counterpart. Two prerequisites before
-   the first commit: scope it to the branches the development sessions reach,
-   since a starting character reaches few of them, and give `js/insight.js` a
-   `QUALITY.json` area, because `npm run quality -- --check` exits nonzero
-   while a `js/` file has no area. `seed8000-tourist-starter` is the one
-   development session stopping here, six screens short of its end.
-
-The slice covering `o_init.c:dodiscovered()` and `spell.c:dovspell()` closed at
-`ff6efb9`. Two of its traced findings correct what this file recorded before it:
-`u_init.c:ini_inv_use_obj()`, not `ini_inv_adjust_obj()`, calls
-`initialspell()`, and the Valkyrie's `trobj` array carries no `SPBOOK_CLASS`
-entry, so only a Healer, Monk, Priest, or Wizard starts knowing a spell. The
-`s`, `c`, and `a` discovery orders still stop, because they need
-`disco_output_sorted()`, and `dospellmenu()`'s two sorting branches and its
-`menu_tab_sep` columns stop with them.
-
 ## Next goals, in order
 
 ### 1. Running and rushing
 
 `hack.c:domove_core()` under `svc.context.run`, with `hack.c:lookaround()`
 deciding where a run stops. Six sessions stop here with 1,275 steps behind
-them. Larger than the goal in progress: `lookaround()` is a substantial function
-and a run spans several turns.
+them. `lookaround()` is a substantial function and a run spans several turns,
+so this is larger than either goal that closed before it.
 
-### 2. Search
+### 2. The extended-command prompt
+
+`cmd.c:doextcmd()` at `cmd.c:493`, with `extcmds_match()` at `2523`,
+`can_do_extcmd()`, the `extcmdlist[]` table at `1667`, and
+`win/tty/getline.c:tty_get_ext_cmd()` at `292` with `ext_cmd_getlin_hook()`.
+`js/tty_menu.js` already has a search-prompt-only version of the hook to
+generalize. The prompt itself carries no `ECMD_TIME` on either termination, the
+ESC or empty cancel and the `"…: unknown extended command."` answer, which is
+why the no-time-command goal considered it and left it out: `extcmdlist[]` runs
+to about 165 rows and needs a generator, and the prompt is the entry point to
+the extended-command set that "Explicit future exploration work" below defers.
+It is its own goal for that reason, not a slice of another.
+
+Seven of the 33 development sessions stop on `#`, with 1,892 recorded steps
+behind them, the largest ceiling the census names. Most of those steps stand
+behind the command each session then types, not behind the prompt:
+`#levelchange` and `wizlevelport` belong to the relocation family below, and
+`#name` and `#chat` to families of their own. Expect the prompt alone to unblock
+a few screens per session and stop again immediately.
+
+Two traced findings to start from. `seed0102` step 5 shows `# name` with the
+cursor still at column 3, so NEWAUTOCOMP expansion paints ahead of an unmoved
+cursor. And `extcmds_match()` is gated on `wizard`, which `#levelchange`
+depends on.
+
+### 3. Search
 
 `detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
 `mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Four sessions
