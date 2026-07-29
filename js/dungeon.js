@@ -466,6 +466,11 @@ export function depth(level, state = game) {
     return state.dungeons[level.dnum].depth_start + level.dlevel - 1;
 }
 
+// C ref: dungeon.c dunlev(). The level number within its own dungeon branch.
+export function dunlev(level) {
+    return level.dlevel;
+}
+
 // C ref: dungeon.c Invocation_lev(), Can_dig_down(), and Can_fall_thru().
 // Falling retains the Castle exception even when digging is blocked there.
 export function Invocation_lev(level, state = game) {

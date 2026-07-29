@@ -44,15 +44,18 @@
         "js/attrib.js",
         "js/calendar.js",
         "js/exper.js",
+        "js/insight.js",
         "js/polyself.js",
+        "js/pray.js",
         "js/regen.js",
         "js/role_init.js",
         "js/role_skills.js",
         "js/roles.js",
         "js/spell.js",
         "js/startup_skills.js",
+        "js/u_init.js",
         "js/u_init_inventory_attrs.js",
-        "js/u_init.js"
+        "js/wield.js"
       ]
     },
     {
@@ -70,14 +73,15 @@
         "js/monster_object.js",
         "js/o_init.js",
         "js/obj.js",
+        "js/objects.js",
         "js/objnam.js",
         "js/objnam_data.js",
-        "js/objects.js",
         "js/pickup.js",
         "js/steal.js",
         "js/u_init_inventory.js",
         "js/u_init_inventory_data.js",
         "js/u_init_inventory_use.js",
+        "js/vault.js",
         "js/worn.js",
         "js/zap_destroy_items.js"
       ],
@@ -178,10 +182,10 @@
         "js/region.js",
         "js/sounds.js",
         "js/terrain.js",
-        "js/trap_water_damage.js",
         "js/track.js",
         "js/trap.js",
         "js/trap_erode_obj.js",
+        "js/trap_water_damage.js",
         "js/vision.js"
       ],
       "generatedOutputs": [

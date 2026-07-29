@@ -4,6 +4,8 @@
 import { BUFSZ, SHOPBASE } from './const.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { hasContents } from './obj.js';
+import { COIN_CLASS } from './objects.js';
 import { in_rooms } from './rooms.js';
 
 // C ref: shk.c inhishop().
@@ -53,4 +55,33 @@ export function append_price_quote(buf, otyp, state = game) {
 
     buf2 += '}';
     return buf2.length < BUFSZ - buf.length - 1 ? buf2 : '';
+}
+
+// C ref: shk.c contained_gold(). `even_if_unknown` false limits the tally to
+// containers whose contents the hero has seen.
+export function contained_gold(obj, even_if_unknown) {
+    let value = 0;
+    for (let otmp = obj.cobj; otmp; otmp = otmp.nobj) {
+        if (otmp.oclass === COIN_CLASS) value += otmp.quan;
+        else if (hasContents(otmp) && (otmp.cknown || even_if_unknown))
+            value += contained_gold(otmp, even_if_unknown);
+    }
+    return value;
+}
+
+// C ref: shk.c costly_spot(). A level with no shop answers FALSE before any
+// shopkeeper lookup, which is every level this port generates; the rest of
+// the test needs the shopkeeper subsystem.
+export function costly_spot(x, y, state = game) {
+    if (!state.level?.flags?.has_shop) return false;
+    throw new UnsupportedShopError('costly_spot() inside a shop level');
+}
+
+// Thrown where shk.c reaches shop bookkeeping this port has not ported.
+export class UnsupportedShopError extends Error {
+    constructor(branch) {
+        super(`shop handling requires ${branch}`);
+        this.name = 'UnsupportedShopError';
+        this.branch = branch;
+    }
 }

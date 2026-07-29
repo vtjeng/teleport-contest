@@ -54,6 +54,7 @@ import {
     W_QUIVER,
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
+import { makeplural } from './fruit.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     S_fountain,
@@ -1691,6 +1692,16 @@ export function resetInventory(env = {}) {
     while (inventoryHead(normalized.state))
         useupall(inventoryHead(normalized.state), normalized);
     return normalized.state;
+}
+
+// C ref: invent.c currency(). Hallucination picks a random name from
+// currencies[] through ROLL_FROM(), which draws from the display RNG; that
+// branch is not ported, so a hallucinating hero stops here.
+export function currency(amount, state = game) {
+    if (isHallucinating({ state }))
+        throw new UnsupportedFeatureDescriptionError('hallucinated currency');
+    const res = 'zorkmid';
+    return amount !== 1 ? makeplural(res) : res;
 }
 
 export function money_cnt(head = inventoryHead(game)) {

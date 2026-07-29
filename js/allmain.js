@@ -5,6 +5,7 @@
 // Unsupported command and monster branches stop before live state changes;
 // UUID, notice, and glyph-map setup remain to be ported.
 
+import { getnow } from './calendar.js';
 import { game } from './gstate.js';
 import {
     A_DEX,
@@ -215,6 +216,11 @@ export async function newgame() {
 
     // C ref: allmain.c newgame() -> com_pager("legacy").
     await ttyLegacyIntroduction(g);
+
+    // C ref: allmain.c newgame(). The elapsed-time clock starts here, which
+    // insight.c fmt_elapsed_time() reads for the ^X window's closing line.
+    g.urealtime.realtime = 0;
+    g.urealtime.start_timing = getnow(g);
 
     // C ref: allmain.c welcome(TRUE) -> pline().
     await ttyPline(welcomeMessage(g), g);
@@ -824,4 +830,10 @@ export async function moveloop(resuming) {
         await moveloop_core();
         if (game.program_state?.gameover) break;
     }
+}
+
+// C ref: allmain.c timet_delta(). The number of seconds between two time_t
+// values, which C obtains from difftime().
+export function timet_delta(etim, stim) {
+    return etim - stim;
 }

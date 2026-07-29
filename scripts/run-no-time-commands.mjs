@@ -14,10 +14,10 @@ import { runFreshMatrix } from './fresh-matrix.mjs';
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310203040506';
 
-function nethackrc({ name, role, gender = 'female', align = 'neutral',
-    options }) {
+function nethackrc({ name, role, race = 'human', gender = 'female',
+    align = 'neutral', options }) {
     return [
-        `OPTIONS=name:${name},role:${role},race:human,gender:${gender},`
+        `OPTIONS=name:${name},role:${role},race:${race},gender:${gender},`
         + `align:${align}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         `OPTIONS=${options}`,
@@ -326,6 +326,129 @@ export function loadNoTimeCommandsRecipe() {
                 // English name in brackets. Escape at the first of its four
                 // pages abandons the rest, the cancelled-window path.
                 moves: '\\\u001b.',
+            },
+            // The attributes window, `^X`, the last of the four no-time
+            // display commands. Each of these varies what
+            // background_enlightenment(), basics_enlightenment(),
+            // characteristics_enlightenment(), and status_enlightenment()
+            // find to report.
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'AttrValk',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Two elapsed turns before the window, so
+                // background_enlightenment() writes "entered the dungeon 2
+                // turns ago" rather than "just started your adventure", and
+                // the 04:05 clock makes it nighttime. Escape leaves the first
+                // of the two pages; the trailing wait shows no turn passed.
+                moves: '.\u0018\u001b.',
+            },
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'AttrValk',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Space reaches the second page, which holds the rest of the
+                // characteristics, the whole Status section, and the elapsed
+                // playing time. Escape then abandons the window.
+                moves: '\u0018 \u001b',
+            },
+            {
+                seed: 8840001,
+                datetime: '20260401090000',
+                nethackrc: nethackrc({
+                    name: 'AttrTour',
+                    role: 'Tourist',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Tourist starts with gold, so the wallet line counts
+                // zorkmids instead of reporting an empty wallet, and the
+                // role's absent feminine title makes the role line say
+                // "female human Tourist". The second Space commits the last
+                // page with nothing selected, the other way out of the menu.
+                moves: '.\u0018  .',
+            },
+            {
+                seed: 772002,
+                datetime: '20251103120000',
+                nethackrc: nethackrc({
+                    name: 'AttrHeal',
+                    role: 'Healer',
+                    race: 'gnome',
+                    gender: 'male',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A gnome's racial limits differ from a human's, so
+                // one_characteristic() appends "(current; limit:...)" to
+                // three of the six lines, and a Healer's larger energy pool
+                // takes basics_enlightenment()'s "all N" branch.
+                moves: '\u0018 \u001b',
+            },
+            {
+                seed: 773003,
+                datetime: '20250901000030',
+                nethackrc: nethackrc({
+                    name: 'AttrRog',
+                    role: 'Rogue',
+                    race: 'orc',
+                    gender: 'male',
+                    align: 'chaotic',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Half a minute past midnight reaches the midnight line
+                // ahead of the nighttime one, and a chaotic hero names the
+                // lawful and neutral deities in the opposed-pantheon list.
+                moves: '\u0018 \u001b',
+            },
+            {
+                seed: 771001,
+                datetime: '20250613235930',
+                nethackrc: nethackrc({
+                    name: 'AttrArch',
+                    role: 'Archeologist',
+                    race: 'dwarf',
+                    align: 'lawful',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // Friday the 13th under a full moon writes both environment
+                // lines. The two leading Spaces answer the start-up
+                // --More-- prompts those two events add.
+                moves: '  \u0018 \u001b',
+            },
+            {
+                seed: 8860011,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'AttrMonk',
+                    role: 'Monk',
+                    gender: 'male',
+                    align: 'lawful',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Monk wields nothing and wears gloves, so weapon_insight()
+                // reports empty_handed() and then names the martial-arts
+                // skill rather than a weapon's.
+                moves: '  \u0018 \u001b',
+            },
+            {
+                seed: 781011,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'AttrNude',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics,nudist',
+                }),
+                // The nudist conduct starts the hero with no armor, which is
+                // the only way a fresh character reaches
+                // status_enlightenment()'s closing 'nudity' report.
+                moves: '  \u0018 \u001b',
             },
         ],
     }, 'no-time commands recipe');

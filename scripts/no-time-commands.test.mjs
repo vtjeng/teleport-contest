@@ -17,6 +17,8 @@ const LOOK_KEY = ':';
 const INVENTORY_KEY = 'i';
 const SPELL_KEY = '+';
 const DISCOVERIES_KEY = '\\';
+// insight.c doattributes()'s default binding, ^X.
+const ATTRIBUTES_KEY = '\u0018';
 const ESCAPE_KEY = '\u001b';
 
 function topLine() {
@@ -27,7 +29,8 @@ function topLine() {
 function noTimeKey(key) {
     return UNBOUND_BYTES.has(key) || key === LOOK_KEY
         || key === INVENTORY_KEY || key === ESCAPE_KEY
-        || key === SPELL_KEY || key === DISCOVERIES_KEY;
+        || key === SPELL_KEY || key === DISCOVERIES_KEY
+        || key === ATTRIBUTES_KEY;
 }
 
 // u_init.c u_init_role() gives these four roles a starting spellbook, and
@@ -40,22 +43,33 @@ const SPELLBOOK_ROLES = ['Healer', 'Monk', 'Priest', 'Wizard'];
 function opensWindow(segment) {
     const { moves, nethackrc } = segment;
     return moves.includes(INVENTORY_KEY) || moves.includes(DISCOVERIES_KEY)
+        || moves.includes(ATTRIBUTES_KEY)
         || (moves.includes(SPELL_KEY) && SPELLBOOK_ROLES.some(
             (role) => nethackrc.includes(`role:${role}`),
         ));
 }
 
+// A segment whose start-up messages overflow the top line opens with the
+// Spaces that answer their --More-- prompts. Those reach xwaitforspace()
+// before the first command prompt exists, so they are not commands and
+// dropping them would leave the game somewhere else entirely.
 function stripNoTime(moves) {
-    return [...moves].filter((key) => !noTimeKey(key)).join('');
+    const firstCommand = [...moves].findIndex((key) => key !== ' ');
+    const at = firstCommand < 0 ? moves.length : firstCommand;
+    return moves.slice(0, at)
+        + [...moves.slice(at)].filter((key) => !noTimeKey(key)).join('');
 }
 
 test('no-time-command matrix contains only source-selected inputs', () => {
     const recipe = loadNoTimeCommandsRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 21);
+    assert.equal(recipe.segments.length, 29);
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3, 3, 4, 5, 4, 3, 6, 3, 6, 3],
+        [
+            11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3, 3, 4, 5, 4, 3, 6, 3, 6, 3,
+            4, 3, 5, 3, 3, 5, 5, 5,
+        ],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
@@ -99,7 +113,13 @@ test('no-time-command matrix contains only source-selected inputs', () => {
         recipe.segments.filter(({ moves }) => moves.includes(SPELL_KEY)).length,
         5,
     );
-    assert.equal(recipe.segments.filter(opensWindow).length, 13);
+    assert.equal(
+        recipe.segments.filter(
+            ({ moves }) => moves.includes(ATTRIBUTES_KEY),
+        ).length,
+        8,
+    );
+    assert.equal(recipe.segments.filter(opensWindow).length, 21);
 });
 
 test('the look command reports the square and takes no game time', async () => {

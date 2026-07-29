@@ -1337,6 +1337,8 @@ export const LUCKMIN = (-10);
 export const AC_MAX = 99;
 
 // ===== hack.h =====
+// C ref: hack.h plur(). The plural suffix for a count.
+export function plur(x) { return x === 1 ? '' : 's'; }
 export const ZAPPED_WAND = 0;
 export const THROWN_WEAPON = 1;
 export const THROWN_TETHERED_WEAPON = 2;
@@ -2868,5 +2870,6 @@ export function Is_botlevel(uz) {
 }
 export function Is_rogue_level(uz) { const g = game; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }
 export function Is_oracle_level(uz) { const g = game; return g?.oracle_level && (uz ?? g?.u?.uz)?.dnum === g.oracle_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.oracle_level.dlevel; }
+export function Is_bigroom(uz) { const g = game; return g?.bigroom_level && (uz ?? g?.u?.uz)?.dnum === g.bigroom_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.bigroom_level.dlevel; }
 export function Is_knox_level(uz) { const g = game; return g?.knox_level && (uz ?? g?.u?.uz)?.dnum === g.knox_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.knox_level.dlevel; }
 export function Is_juiblex_level(uz) { return false; /* TODO */ }

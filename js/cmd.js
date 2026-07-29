@@ -9,6 +9,7 @@ import {
 } from './command_bindings.js';
 import {
     COLNO,
+    PICK_NONE,
     PICK_ONE,
     SICK,
     SLIMED,
@@ -24,9 +25,12 @@ import {
     dolook,
     UnsupportedFeatureDescriptionError,
 } from './invent.js';
+import { doattributes, UnsupportedEnlightenmentError } from './insight.js';
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
+import { UnsupportedShopError } from './shk.js';
 import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
+import { UnsupportedWeaponSkillError } from './weapon.js';
 import {
     displayTtyTextWindow, menuTitleStyle, selectTtyMenu,
 } from './tty_menu.js';
@@ -313,7 +317,7 @@ export async function parseCommand(state = game) {
 // readSimpleCommand(), both boundary messages, and the admission test cannot
 // drift apart as more commands land.
 const ADMITTED_COMMANDS = Object.freeze([
-    'wait', 'look', 'inventory', 'showspells', 'known',
+    'wait', 'look', 'inventory', 'showspells', 'known', 'attributes',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, or a `
@@ -472,6 +476,9 @@ async function failClosedCommand(key, state, run) {
             || error instanceof UnsupportedObjectNameError
             || error instanceof UnsupportedSpellDisplayError
             || error instanceof UnsupportedDiscoveryDisplayError
+            || error instanceof UnsupportedEnlightenmentError
+            || error instanceof UnsupportedShopError
+            || error instanceof UnsupportedWeaponSkillError
             || error instanceof UnsupportedArtifactDisplayError) {
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
@@ -642,6 +649,26 @@ export async function rhack(key, state = game) {
                             }
                             : line)),
                     ),
+                })
+            ));
+            resetCommandVars(state);
+            if (elapsed) state.context.move = 1;
+            return;
+        }
+        if (command === 'attributes') {
+            const elapsed = await failClosedCommand(key, state, () => (
+                doattributes(state, {
+                    // insight.c enlightenment() ends its menu with
+                    // end_menu(win, NULL), so the window carries no prompt
+                    // line, and asks select_menu() for PICK_NONE; every line
+                    // is an add_menu_str() entry with no selector or
+                    // highlight. Escape answers null.
+                    menu: (lines) => selectTtyMenu(state, {
+                        lines,
+                        how: PICK_NONE,
+                        cancelValue: null,
+                        overlay: state.iflags?.menu_overlay !== false,
+                    }),
                 })
             ));
             resetCommandVars(state);
