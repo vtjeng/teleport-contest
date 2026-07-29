@@ -24,6 +24,7 @@ import {
     UnsupportedFeatureDescriptionError,
 } from './invent.js';
 import { UnsupportedObjectNameError } from './objnam.js';
+import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
 import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
 import {
     domove,
@@ -307,7 +308,9 @@ export async function parseCommand(state = game) {
 // Every command this milestone dispatches, named once so the comment above
 // readSimpleCommand(), both boundary messages, and the admission test cannot
 // drift apart as more commands land.
-const ADMITTED_COMMANDS = Object.freeze(['wait', 'look', 'inventory']);
+const ADMITTED_COMMANDS = Object.freeze([
+    'wait', 'look', 'inventory', 'showspells',
+]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, or a `
     + 'byte bound to no command';
@@ -454,7 +457,8 @@ async function failClosedCommand(key, state, run) {
         return await run();
     } catch (error) {
         if (error instanceof UnsupportedFeatureDescriptionError
-            || error instanceof UnsupportedObjectNameError) {
+            || error instanceof UnsupportedObjectNameError
+            || error instanceof UnsupportedSpellDisplayError) {
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
                 `an unported branch of this command: ${error.message}`,
@@ -571,6 +575,14 @@ export async function rhack(key, state = game) {
                     overlay: state.iflags?.menu_overlay !== false,
                 }),
             }));
+            resetCommandVars(state);
+            if (elapsed) state.context.move = 1;
+            return;
+        }
+        if (command === 'showspells') {
+            const elapsed = await failClosedCommand(
+                key, state, () => dovspell(state, { message: ttyPline }),
+            );
             resetCommandVars(state);
             if (elapsed) state.context.move = 1;
             return;

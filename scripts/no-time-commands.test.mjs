@@ -15,6 +15,7 @@ const UNBOUND_BYTES = new Set([...' %\'~]M}{']);
 // dismisses a menu.
 const LOOK_KEY = ':';
 const INVENTORY_KEY = 'i';
+const SPELL_KEY = '+';
 const ESCAPE_KEY = '\u001b';
 
 function topLine() {
@@ -24,7 +25,8 @@ function topLine() {
 
 function noTimeKey(key) {
     return UNBOUND_BYTES.has(key) || key === LOOK_KEY
-        || key === INVENTORY_KEY || key === ESCAPE_KEY;
+        || key === INVENTORY_KEY || key === ESCAPE_KEY
+        || key === SPELL_KEY;
 }
 
 function stripNoTime(moves) {
@@ -34,10 +36,10 @@ function stripNoTime(moves) {
 test('no-time-command matrix contains only source-selected inputs', () => {
     const recipe = loadNoTimeCommandsRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 12);
+    assert.equal(recipe.segments.length, 13);
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3],
+        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3, 3],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);

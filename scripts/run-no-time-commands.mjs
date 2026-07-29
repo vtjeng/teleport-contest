@@ -183,6 +183,18 @@ export function loadNoTimeCommandsRecipe() {
                 // through eat.c tin_details().
                 moves: 'i\u001b.',
             },
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'Unbound',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Valkyrie carries no spellbook, so `+` reaches
+                // dovspell()'s empty answer and consumes no time.
+                moves: '.+.',
+            },
         ],
     }, 'no-time commands recipe');
 }
