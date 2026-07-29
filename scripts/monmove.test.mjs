@@ -59,6 +59,8 @@ import {
     ROOMOFFSET,
     ROWNO,
     RUST_TRAP,
+    ANTI_MAGIC,
+    FIRE_TRAP,
     SLP_GAS_TRAP,
     STEALTH,
     STONE,
@@ -1584,6 +1586,32 @@ test('mfndpos remaps a displaced scary image to the real hero square', () => {
         },
     }), 0);
     assert.deepEqual(checked, [[10, 10]]);
+
+    // mon.c gates the remap on monseeu, `mon->mcansee && (!Invis ||
+    // perceives(mdat))`. A blind monster fails the first half and a sighted
+    // one under an invisible hero fails the second, so both check the
+    // remembered image rather than the hero's square.
+    for (const [label, overrides, invisible] of [
+        ['blind monster', { mcansee: false }, false],
+        ['invisible hero', {}, true],
+    ]) {
+        const unseeing = makeState();
+        sealNeighborhood(unseeing.locations, 4, 4);
+        unseeing.locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+        unseeing.state.u.uprops[DISPLACED].intrinsic = 1;
+        if (invisible) unseeing.state.u.uprops[INVIS].intrinsic = 1;
+        const blindly = [];
+        assert.equal(mfndpos(
+            ordinaryMonster(unseeing.state, { mux: 3, muy: 4, ...overrides }),
+            {},
+            0,
+            {
+                state: unseeing.state,
+                onScary(x, y) { blindly.push([x, y]); return false; },
+            },
+        ), 0);
+        assert.deepEqual(blindly, [[3, 4]], label);
+    }
 });
 
 test('mfndpos reveals an adjacent hero before rejecting the square', () => {
@@ -1645,6 +1673,31 @@ test('mfndpos rolls back partial output when trap resistance is unavailable', ()
     state.u.ux = 3;
     state.u.uy = 3;
     state.level.traps = [{ tx: 5, ty: 5, ttyp: SLP_GAS_TRAP }];
+    // hasAdjacentResistanceTrap() owns three trap types and trapResistance()
+    // is reached through each, so the rollback must hold for all three rather
+    // than for whichever one the fixture happens to place.
+    for (const ttyp of [SLP_GAS_TRAP, FIRE_TRAP, ANTI_MAGIC]) {
+        const each = makeState();
+        sealNeighborhood(each.locations, 4, 4);
+        each.locations.set('3,3', { typ: ROOM, flags: 0, wall_info: 0 });
+        each.locations.set('5,5', { typ: ROOM, flags: 0, wall_info: 0 });
+        each.state.u.ux = 3;
+        each.state.u.uy = 3;
+        each.state.level.traps = [{ tx: 5, ty: 5, ttyp }];
+        const eachMonster = ordinaryMonster(each.state, { mux: 12, muy: 12 });
+        const eachData = { cnt: 4, poss: [], info: [] };
+        assert.throws(
+            () => mfndpos(eachMonster, eachData, ALLOW_U, {
+                state: each.state,
+                onScary: () => false,
+            }),
+            /resistsTrapEffect/,
+            String(ttyp),
+        );
+        assert.deepEqual([eachMonster.mux, eachMonster.muy], [12, 12], String(ttyp));
+        assert.equal(eachData.cnt, 4, String(ttyp));
+    }
+
     const monster = ordinaryMonster(state, { mux: 12, muy: 12 });
     const positions = Array.from({ length: 9 }, (_, index) => ({
         x: 100 + index,
@@ -1884,6 +1937,15 @@ test('mfndpos applies zombie aggression and Wizard Tower partitioning', () => {
     assert.equal(mfndpos(attacker, data, 0, env), 1);
     assert.ok(data.info[0] & ALLOW_M);
 
+    // mfndpos records ALLOW_TM only for a tame occupant, and only when the
+    // aggression result carries it, so the second half of
+    // mm_2way_aggression()'s `ALLOW_M | ALLOW_TM` needs a tame defender.
+    defender.mtame = 1;
+    assert.equal(mfndpos(attacker, data, 0, env), 1);
+    assert.ok(data.info[0] & ALLOW_M);
+    assert.ok(data.info[0] & ALLOW_TM);
+    defender.mtame = 0;
+
     attacker.mgenmklev = true;
     defender.mgenmklev = true;
     assert.equal(mfndpos(attacker, data, 0, env), 0);
@@ -1895,6 +1957,16 @@ test('mfndpos applies zombie aggression and Wizard Tower partitioning', () => {
     // the attacker is inside, so cross-partition aggression is suppressed.
     state.dndest = { nlx: 4, nly: 4, nhx: 4, nhy: 4 };
     assert.equal(mfndpos(attacker, data, 0, env), 0);
+
+    // The other arm of C's ternary: with the hero inside the tower, both
+    // monsters must be inside too. Only the all-inside case allows the attack,
+    // and the previous case covered hero-outside with the attacker inside.
+    state.u.ux = 4;
+    state.u.uy = 4;
+    assert.equal(mfndpos(attacker, data, 0, env), 0, 'defender outside');
+    state.dndest = { nlx: 4, nly: 4, nhx: 5, nhy: 4 };
+    assert.equal(mfndpos(attacker, data, 0, env), 1, 'all three inside');
+    assert.ok(data.info[0] & ALLOW_M);
 });
 
 test('mfndpos retries eel movement on land only when no pool is adjacent', () => {

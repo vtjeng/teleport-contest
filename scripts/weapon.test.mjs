@@ -426,6 +426,41 @@ test('mon_wield_item preserves combined pick-or-axe source priority', async () =
     }), 1);
     assert.equal(shielded.mw.otyp, PICK_AXE);
     assert.equal(events.at(-1), `wield:${PICK_AXE}:false:false`);
+
+    // Both fixtures above stock every tool, so two of C's four m_carrying()
+    // lookups are never the one that decides. These make each decisive.
+    const carrying = async (otyps, wornShield) => {
+        const held = otyps.map((otyp) => object(state, otyp));
+        const subject = monster(state, PM_NEWT, {
+            minvent: inventory(...(wornShield
+                ? [object(state, DAGGER, { owornmask: W_ARMS }), ...held]
+                : held)),
+            ...(wornShield ? { misc_worn_check: W_ARMS } : {}),
+            weapon_check: NEED_PICK_OR_AXE,
+        });
+        const result = await mon_wield_item(subject, {
+            state,
+            ...visibleOperations(events),
+        });
+        return { result, otyp: subject.mw?.otyp };
+    };
+
+    // Shielded with no battle-axe reaches the AXE fallback of the inner pair.
+    assert.deepEqual(
+        await carrying([DWARVISH_MATTOCK, AXE], true),
+        { result: 1, otyp: AXE },
+    );
+    // Unshielded with no mattock stops at BATTLE_AXE, skipping the inner pair.
+    assert.deepEqual(
+        await carrying([BATTLE_AXE], false),
+        { result: 1, otyp: BATTLE_AXE },
+    );
+    // C's dead end: shielded with only a mattock re-enters the inner pair,
+    // finds neither pick nor axe, and leaves obj NULL, so nothing is wielded.
+    assert.deepEqual(
+        await carrying([DWARVISH_MATTOCK], true),
+        { result: 0, otyp: undefined },
+    );
 });
 
 test('mon_wield_item delegates ranged selection and artifact-light lifecycle', async () => {
