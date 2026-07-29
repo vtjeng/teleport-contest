@@ -62,126 +62,7 @@ complete first.
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
-### Goal in progress: running and rushing
-
-`hack.c:domove_core()` under `svc.context.run`, with `hack.c:lookaround()`
-deciding where a run stops. Six sessions stop here with 1,275 steps behind
-them. `lookaround()` is a substantial function and a run spans several turns,
-so this is larger than either goal that closed before it.
-
-Unlike the goal that closed before it, this one consumes game time: a run moves
-the hero and the turn advances, so every existing turn behavior is in scope for
-regression. Take the intermediate correctness passes as `.agents/review.md`
-schedules them.
-
-A fresh scan supersedes the census figure above: seven sessions stop on
-`runeast`, `runnorth` or `runwest`, with 1,668 steps behind them, not six with
-1,275.
-
-**Behavior slices, each closed on its own.**
-
-1. **A shift-direction run that starts and ends inside one room.** `L`, `H`, `J`
-   or `K` from a hero standing in a room. `hack.c:lookaround()` (3898-4050)
-   whole, `domove_core()`'s two run arms at 2764 and 2936, `nomul()` (4160),
-   `runmode_delay_output()` (2996), `pickup.c:check_here()`'s run stop (449),
-   and the `moveloop_core()` calls at `allmain.c:515`. A run reads no input, so
-   one keystroke is one recorded step whose screen is where the run stopped;
-   the per-turn refreshes land in `animation_frames`, which the scorer counts
-   supplementally. Corridor running is excluded: its turning and `corrct`
-   logic never fires from a room, and all five first-run sessions decoded start
-   in a room and stop within four squares. Rush, `#run` and travel, which are
-   `context.run` 2, 3 and 8, are excluded with it.
-   Closed at `bc6b5aa`. Every one of the checklist's nine `context.run` rows
-   was settled: `allmain.c:262` and `:978` are ported, and the rest are
-   unreachable at run 1 by their own `!run` or `run >= 2` terms, by
-   `ParanoidTrap` defaulting off, or behind seams that refuse the destination
-   first. Corridor running is refused inside `lookaround()` itself, where
-   `levl[u.ux][u.uy].typ != ROOM` is the single source test every corridor arm
-   hangs off.
-
-   One recorded case stays unexplained and outside the slice: `seed0013` steps
-   4-5 record an input boundary three turns into a run, then a zero-time `\f`
-   redraw step carrying 363 PRNG calls, six animation frames and a cursor
-   moving from x=12 to x=32. Nineteen fresh recordings failed to reproduce a
-   mid-run input boundary, so nothing was fitted to it. Resolve it with a fresh
-   recording before targeting that session.
-
-2. **Corridor running at `context.run == 1`.** Small in production terms and
-   large in evidence. `lookaround()` is already ported whole at
-   `js/hack.js:777-975`, `bcorr`, `corrct` and `noturn` included; the guard at
-   `js/hack.js:804`, `here.typ !== ROOM`, is all that suppresses them. The
-   delta is that guard plus `domove_core()`'s doorway stop at `hack.c:2936`,
-   and the real work is a `run-corridor-runs.mjs` sibling to the 211-line
-   `scripts/run-room-runs.mjs`. `seed0017` step 11 and `seed0004` step 16 both
-   start a run from a doorway with corridor beyond, so one `L` is one recorded
-   step. Needs no checklist.
-
-   The census credits two sessions and 449 steps, but that ceiling deflates on
-   inspection: `seed0004`'s next key is `u` into a locked door, worth about one
-   step, and only `seed0017` has further run keys behind it. Expect corner
-   turns to set a diagonal `u.dx`/`u.dy` that collides with
-   `requireNonDiagonalDoorway()`.
-
-   Rush (`context.run` 2), `#run` (3) and travel (8) stay out, all three with no
-   census ceiling, along with `mention_walls` text and `test_move()`'s
-   closed-door bump at `hack.c:1097`.
-
-   Closed at `e9cd289`, for 31 screens, the largest single-slice gain recorded
-   so far. The ceiling deflation above held for `seed0004`, which gained its one
-   step; `seed0017` supplied the other 30 and now stops on `#`. The corner-turn
-   collision was settled from the C: `test_move()`'s `testdiag` and `ust` arms
-   both hang on `doorless_door()`, which `requireNonDiagonalDoorway()` already
-   applies, and a turn cannot start from a doorway because `nomul(0)` zeroes
-   `multi` first.
-
-3. **Ctrl-direction rush, `context.run == 3`.** The admission list
-   `ADMITTED_RUN_MODES` at `js/cmd.js:326` is the whole production delta, the
-   same guard shape as the slice above: `js/command_bindings.js` and
-   `MOVEMENT_INTENTS` already produce `rusheast -> [1, 0, 3]`.
-
-   Settle the run values first, because "rush" names two commands at two
-   values. `cmd.c:1461-1512` `do_rush_<dir>`, which the ctrl-direction keys
-   bind to, calls `set_move_cmd(dir, 3)`. The `g` prefix, `cmd.c:1599`
-   `do_rush()`, sets 2. The `G` prefix, `cmd.c:1606` `do_run()`, sets 3. The
-   comment at `js/cmd.js:324` reads "Rush and #run are 2 and 3", which is right
-   for the two prefixes and wrong for the ctrl-direction keys; correct it with
-   this slice.
-
-   Its ceiling is zero: no development session stops on a run boundary, and
-   the `^L` rush that both `seed0013` sessions record at step 5 sits behind
-   their step-4 stop on traps. It is worth doing anyway because it is named in
-   this goal and because run 3 is the first thing to execute three arms of
-   already-ported code: `lookaround()`'s pet stop at `js/hack.js:852`, its
-   closed-door stop at `:888`, and `avoid_moving_on_trap(..., infront && run >
-   1)` at `:874`. Evidence has to come from fresh recordings, a
-   `run-rush-runs.mjs` sibling.
-
-   The `g` and `G` prefixes stay out: they need `rhack()`'s PREFIXCMD dispatch,
-   the same unit `m`/`reqmenu` needs, which belongs with the extended-command
-   goal. `lookaround()`'s widening stop at `corrct > 1 && run === 2` is
-   therefore still unreachable after this slice, since only the `g` prefix
-   sets 2.
-
-   Closed at `60bf3d0`, with the score identical across all 33 sessions, as
-   expected. All three never-executed arms read correctly against the C. Two
-   findings for later. The trap arm's TRUE result is still unreached, because
-   `avoid_moving_on_trap()` answers TRUE only for a `tseen` trap and the only
-   D:1 route to one is `themerms.lua`'s teleportation hub, which the port's
-   seams refuse first. And `requireSimpleHeroDestination()` throws for any
-   trap, where C at run >= 2 stops cleanly in
-   `avoid_running_into_trap_or_liquid()` with no time spent; that seam is the
-   next thing a run will hit, and it belongs with the trap work.
-
-   One case is undecided and belongs with `mention_walls`: seed 6100003 ends
-   against the top map edge, which C answers in `move_out_of_bounds()` with
-   `nomul(0)` and `context.move = 0`, and the port folds into
-   `blocksMove`/`test_move`. The two agree with `mention_walls` off, which the
-   recording confirms; with it on, C prints "You have already gone as far north
-   as possible" and the port prints nothing.
-
-## Next goals, in order
-
-### 1. The extended-command prompt
+### Goal in progress: the extended-command prompt
 
 `cmd.c:doextcmd()` at `cmd.c:493`, with `extcmds_match()` at `2523`,
 `can_do_extcmd()`, the `extcmdlist[]` table at `1667`, and
@@ -208,7 +89,9 @@ cursor still at column 3, so NEWAUTOCOMP expansion paints ahead of an unmoved
 cursor. And `extcmds_match()` is gated on `wizard`, which `#levelchange`
 depends on.
 
-### 2. Search
+## Next goals, in order
+
+### 1. Search
 
 `detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
 `mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Five sessions
