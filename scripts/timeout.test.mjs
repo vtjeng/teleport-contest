@@ -85,6 +85,24 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state', () =>
     start_timer(100, TIMER_OBJECT, ROT_CORPSE, { timed: 0 }, state);
     assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
 
+    // Each scalar the guard names must stop the turn on its own. The guard
+    // returns early when uinvulnerable is set, so these all run with it false.
+    for (const field of ['mtimedone', 'ucreamed', 'usptime', 'ugallop']) {
+        state.u[field] = 1;
+        assert.throws(
+            () => nh_timeout_elapsed_turn(state),
+            new RegExp(`zero ${field}`, 'u'),
+            field,
+        );
+        state.u[field] = 0;
+    }
+    // Invulnerability precedes every scalar, so the same state passes with it.
+    state.u.mtimedone = 1;
+    state.u.uinvulnerable = true;
+    assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
+    state.u.uinvulnerable = false;
+    state.u.mtimedone = 0;
+
     state.u.uprops[0].intrinsic = 3;
     assert.throws(
         () => nh_timeout_elapsed_turn(state),

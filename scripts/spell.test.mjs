@@ -54,16 +54,20 @@ test('age_spells decrements contiguous nonzero spell knowledge once', () => {
             spl_book: [
                 { sp_id: 400, sp_know: 20_000 },
                 { sp_id: 401, sp_know: 1 },
+                // spell.c age_spells() skips a forgotten spell and keeps
+                // going; only NO_SPELL ends the loop. A known spell after the
+                // forgotten one is what separates skipping from breaking.
                 { sp_id: 402, sp_know: 0 },
+                { sp_id: 403, sp_know: 5 },
                 { sp_id: NO_SPELL, sp_know: 99 },
-                { sp_id: 403, sp_know: 99 },
+                { sp_id: 404, sp_know: 99 },
             ],
         },
     };
     age_spells(state);
     assert.deepEqual(
         state.svs.spl_book.map(({ sp_know }) => sp_know),
-        [19_999, 0, 0, 99, 99],
+        [19_999, 0, 0, 4, 99, 99],
     );
 });
 

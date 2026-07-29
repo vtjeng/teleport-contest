@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { RIN_STEALTH } from '../js/objects.js';
+import { FROMEXPER, STEALTH } from '../js/const.js';
+import { RIN_PROTECTION, RIN_STEALTH } from '../js/objects.js';
 import {
     gettrack,
     hastrack,
@@ -38,10 +39,27 @@ test('settrack is suppressed only by a worn ring of stealth', () => {
         assert.equal(state.track.utpnt, 0, hand);
     }
 
-    const intrinsicOnly = stateAt();
-    intrinsicOnly.u.uprops = [];
-    assert.equal(settrack(intrinsicOnly), true);
-    assert.equal(hastrack(10, 5, intrinsicOnly), true);
+    // track.c settrack() tests the two ring slots for RIN_STEALTH and nothing
+    // else, so Stealth from any other source still leaves footprints.
+    for (const source of ['intrinsic', 'extrinsic']) {
+        const stealthy = stateAt();
+        initrack(stealthy);
+        stealthy.u.uprops = [];
+        stealthy.u.uprops[STEALTH] = { intrinsic: 0, extrinsic: 0 };
+        stealthy.u.uprops[STEALTH][source] = FROMEXPER;
+        assert.equal(settrack(stealthy), true, source);
+        assert.equal(hastrack(10, 5, stealthy), true, source);
+    }
+
+    // A worn ring that is not RIN_STEALTH fails the otyp test in both slots.
+    for (const hand of ['uleft', 'uright']) {
+        const other = stateAt();
+        initrack(other);
+        other[hand] = { otyp: RIN_PROTECTION };
+        assert.equal(settrack(other), true, hand);
+        assert.equal(other.track.utcnt, 1, hand);
+        assert.deepEqual(other.track.utrack[0], { x: 10, y: 5 }, hand);
+    }
 });
 
 test('gettrack searches newest first and stops on the monster square', () => {
