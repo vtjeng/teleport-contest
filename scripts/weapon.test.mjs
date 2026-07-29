@@ -680,8 +680,12 @@ test('can_advance answers FALSE before it consults speedy', () => {
     // weapon.c can_advance() evaluates the restricted, maxed and
     // skill-limit tests first and returns FALSE from them; only after that
     // does it reach `if (wizard && speedy) return TRUE`. Each of those three
-    // answers is an ordinary FALSE that needs nothing this port lacks, so a
-    // speedy caller must still receive it rather than a refusal.
+    // answers is an ordinary FALSE that needs nothing this port lacks.
+    //
+    // wizard is TRUE for all three, which is what makes this a test of the
+    // order rather than of the refusal's condition: with the refusal hoisted
+    // back above them, every one of these calls throws instead of answering.
+    state.wizard = true;
     slot.skill = P_ISRESTRICTED;
     slot.max_skill = P_EXPERT;
     assert.equal(can_advance(P_LONG_SWORD, true, state), false);
@@ -691,12 +695,13 @@ test('can_advance answers FALSE before it consults speedy', () => {
     state.u.skills_advanced = 60; /* P_SKILL_LIMIT */
     assert.equal(can_advance(P_LONG_SWORD, true, state), false);
 
-    // Past those three, `speedy` alone still does nothing: C requires
-    // `wizard && speedy`, and this port has no wizard-mode game to reach it.
+    // Past those three the refusal does fire, but only in C's own arm:
+    // `speedy` alone does nothing while wizard is FALSE.
     state.u.skills_advanced = 0;
     slot.advance = 80;
     state.u.weapon_slots = 2;
-    assert.equal(can_advance(P_LONG_SWORD, false, state), true);
+    state.wizard = false;
+    assert.equal(can_advance(P_LONG_SWORD, true, state), true);
     state.wizard = true;
     assert.throws(
         () => can_advance(P_LONG_SWORD, true, state),

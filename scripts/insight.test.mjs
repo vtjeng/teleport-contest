@@ -200,7 +200,7 @@ test('Fixed_abil reads the extrinsic alone', async () => {
     );
 });
 
-// youprop.h:245 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).
+// youprop.h:125 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).
 // OPTIONS=deaf sets only the third term, which u.uprops never sees, so a
 // property-only guard would print a window C would have given a deafness line.
 test('OPTIONS=deaf reaches the deafness stop', async () => {

@@ -161,16 +161,20 @@ function Upolyd(state) {
 // so a new output path must check youprop.h before reusing this helper rather
 // than assuming the answers agree:
 //
-// - `Deaf` also reads u.uroleplay.deaf, `Wwalking` also reads !Is_waterlevel,
-//   and `Blind`, `Levitation` and `Hallucination` subtract a blocking term.
-//   For these, this helper answers FALSE where the macro answers TRUE.
-// - `Fixed_abil` (youprop.h:385) is the extrinsic alone, and Stunned,
-//   Confusion, Sick, Stoned, Strangled, Vomiting, Glib and Slimed are the
-//   intrinsic alone. For these, this helper is a superset of the macro.
+// - Two macros read a term that makes them TRUE where this helper is FALSE:
+//   `Deaf` (youprop.h:125) also reads u.uroleplay.deaf, and `Flying`
+//   (youprop.h:253) also reads `u.usteed && is_flyer(u.usteed->data)`. Only
+//   these two can let a condition slip past a guard built on this helper.
+// - Every other macro's extra terms only remove TRUEs, so this helper is a
+//   superset of the macro. `Blind` (:103), `Hallucination` (:120),
+//   `Levitation` (:240) and `Wwalking` (:260) each subtract a blocking term;
+//   `Fixed_abil` (:385) is the extrinsic alone; and Stunned, Confusion, Sick,
+//   Stoned, Strangled, Vomiting, Glib and Slimed are the intrinsic alone.
 //
 // A guard that only has to notice an unported condition may use the superset
 // deliberately, because refusing early is safe. A guard whose answer selects
-// between two ported outputs may not.
+// between two ported outputs may not, and neither may a guard for one of the
+// two macros in the first bullet.
 function hasProperty(state, propidx) {
     const property = state.u.uprops?.[propidx];
     return Boolean(property?.intrinsic || property?.extrinsic);
@@ -605,10 +609,17 @@ function weapon_insight(final, state, lines) {
 // does not port, so their presence stops the command instead.
 //
 // A row may carry its own predicate. Plain rows use hasProperty(), whose
-// intrinsic-or-extrinsic answer is a superset of the macro for every one of
-// them, so the stop only ever fires early. A macro that reads state outside
+// intrinsic-or-extrinsic answer is a superset of the macro for all of them but
+// FLYING, so those stops only ever fire early. A macro that reads state outside
 // u.uprops needs its own predicate, or the condition escapes the stop and the
-// command prints a window C would not have printed.
+// command prints a window C would not have printed. DEAF has one.
+//
+// FLYING is the exception, and it is safe only by ordering: youprop.h:253 adds
+// `u.usteed && is_flyer(u.usteed->data)`, which is TRUE for a hero on a flying
+// steed carrying no flying property, and the plain row would miss it. The
+// u.usteed stop below runs before this loop and refuses that hero first.
+// Porting the riding status means giving FLYING its own predicate at the same
+// time.
 const UNPORTED_STATUS_PROPERTIES = Object.freeze([
     [LEVITATION, 'the levitation status'],
     [FLYING, 'the flying status'],
@@ -622,7 +633,7 @@ const UNPORTED_STATUS_PROPERTIES = Object.freeze([
     [CONFUSION, 'the confusion status'],
     [HALLUC, 'the hallucination status'],
     [BLINDED, 'the blindness status'],
-    // youprop.h:245 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).
+    // youprop.h:125 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).
     // OPTIONS=deaf sets only the third term, which u.uprops never sees.
     [DEAF, 'the deafness status',
         (state) => hasProperty(state, DEAF)

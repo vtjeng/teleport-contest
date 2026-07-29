@@ -146,6 +146,15 @@ so the immediate return is small.
 - Special monster movement or actions, including hiding, shapechanging,
   covetous tactics, fleeing teleportation, conflict, watch or quest behavior,
   speech, item use, and themed-room monster behavior beyond an inert wait.
+- `js/dogmove.js` `heroDeaf()` does not match youprop.h:125, which defines
+  `Deaf` as `(HDeaf || EDeaf || u.uroleplay.deaf)`. It reads `u.uprops[DEAF]`
+  alone and adds a `blocked` term the macro has no counterpart for, so
+  `OPTIONS=deaf` will diverge in dogmove.c's leashed-pet trap arm. The delta
+  review recorded at `2adc5af` confirmed the mismatch and rejected it as a
+  finding, because `js/unported_monster_actions.js` refuses a leashed pet
+  before `dog_move()` runs, which makes the arm unreachable today. Fix it with
+  the leashed-pet work; every other `Deaf` reader in the port already ORs the
+  conduct in.
 - Pet states beyond an ordinary active starting pet, including eating,
   carrying, leashes, steeds, arrival or wait strategies, conflict, confusion,
   stun, fear except for the source-bounded continuation after this milestone's

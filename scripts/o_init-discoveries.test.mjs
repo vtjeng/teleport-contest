@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { NROFARTIFACTS } from '../js/artifacts.js';
-import { init_objects, dodiscovered } from '../js/o_init.js';
+import {
+    dodiscovered,
+    init_objects,
+    UnsupportedDiscoveryDisplayError,
+} from '../js/o_init.js';
 import {
     objects_globals_init,
     POT_WATER,
@@ -102,10 +106,18 @@ test('dodiscovered heads each class and marks unencountered types', async () => 
 test('dodiscovered stops on the three orders it does not sort', async () => {
     // Only 'o' needs no disco_output_sorted(); 's', 'c' and 'a' all buffer
     // their lines for it, and it is not ported.
+    //
+    // Each case discovers a type first. C does not consult the sort order
+    // until it has gathered, so with nothing discovered it reaches its
+    // `ct == 0` arm and prints the "nothing yet" answer instead; a fixture
+    // that discovers nothing would assert against a state C never sorts.
     for (const discosort of ['s', 'c', 'a']) {
+        const sorted = discoveryState({ discosort });
+        discover(sorted, POT_WATER);
         await assert.rejects(
-            () => run(discoveryState({ discosort })),
-            (error) => error.branch === 'disco_output_sorted()',
+            () => run(sorted),
+            (error) => error instanceof UnsupportedDiscoveryDisplayError
+                && error.branch === 'disco_output_sorted()',
             `discosort ${discosort}`,
         );
     }

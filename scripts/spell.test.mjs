@@ -26,10 +26,12 @@ import {
     GAUNTLETS_OF_POWER,
     HELMET,
     IRON_SHOES,
+    LARGE_SHIELD,
     MAXSPELL,
     PLATE_MAIL,
     ROBE,
     SMALL_SHIELD,
+    SPE_CURE_SICKNESS,
     SPE_EXTRA_HEALING,
     SPE_HEALING,
     SPE_STONE_TO_FLESH,
@@ -349,9 +351,9 @@ test('percent_success applies spell.c\'s worn-equipment adjustments', () => {
     // A metallic suit adds the Healer's spelarmr, 10: splcaster 3 + 10 - 3
     // == 10, and 29 * (20 - 10) / 15 == 19, minus 10.
     assert.equal(cast({ uarm: PLATE_MAIL }), 9);
-    // A robe over that suit halves spelarmr with C's integer division,
-    // 10 / 2 == 5: splcaster 3 + 5 - 3 == 5, and 29 * 15 / 15 == 29,
-    // minus 5. This is the case that pins the truncation.
+    // A robe over that suit halves spelarmr: splcaster 3 + 5 - 3 == 5, and
+    // 29 * 15 / 15 == 29, minus 5. The Healer's spelarmr is even, so this
+    // case does not exercise C's integer division; the Knight below does.
     assert.equal(cast({ uarm: PLATE_MAIL, uarmc: ROBE }), 24);
     // A robe with no metallic suit takes the else-if arm and subtracts
     // spelarmr instead: splcaster 3 - 10 - 3 == -10, so 29 * 30 / 15 == 58,
@@ -365,4 +367,40 @@ test('percent_success applies spell.c\'s worn-equipment adjustments', () => {
     // spelshld is 2 for a Healer. A small shield is not heavier than
     // SMALL_SHIELD, so the quartering clamp below does not fire.
     assert.equal(cast({ uarms: SMALL_SHIELD }), 32);
+
+    // Anything heavier than a small shield quarters the chance first, and
+    // only halves it for the role's own special spell. LARGE_SHIELD weighs
+    // 100 against SMALL_SHIELD's 30. Not the Healer's spelspec, so: splcaster
+    // 3 + 2 - 3 == 2, chance 29 / 4 == 7, then 7 * 18 / 15 == 8, minus 2.
+    assert.equal(cast({ uarms: LARGE_SHIELD }), 6);
+});
+
+test('percent_success halves rather than quarters the role\'s own spell', () => {
+    // SPE_CURE_SICKNESS is the Healer's spelspec, so it takes spelsbon -4 and,
+    // being on spelheal's list, another -3: splcaster 3 + 2 - 4 - 3 == -2.
+    // It is level 3 like extra healing, so chance is 29 again; the heavy
+    // shield halves it to 14, and 14 * 22 / 15 == 20, plus 2.
+    assert.equal(
+        percent_success(0, spellState({
+            worn: { uarms: LARGE_SHIELD },
+            spells: [{ otyp: SPE_CURE_SICKNESS }],
+        })),
+        22,
+    );
+});
+
+test('percent_success truncates an odd spelarmr under a robe', () => {
+    // A Knight has spelarmr 9, so C's `gu.urole.spelarmr / 2` truncates to 4
+    // where an exact halving would give 4.5. paladin_bonus needs
+    // P_CLERIC_SPELL, and extra healing is a healing-school spell, so the
+    // metal-armor arms still apply. splcaster 8 + 4 + spelheal(-2) == 10, and
+    // chance 29 * (20 - 10) / 15 == 19, minus 10.
+    assert.equal(
+        percent_success(0, spellState({
+            filecode: 'Kni',
+            worn: { uarm: PLATE_MAIL, uarmc: ROBE },
+            spells: [{ otyp: SPE_EXTRA_HEALING }],
+        })),
+        9,
+    );
 });
