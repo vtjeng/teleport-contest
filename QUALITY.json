@@ -3000,6 +3000,95 @@
         ]
       },
       "recordedAt": "2026-07-29T13:47:09.111Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+        "hero": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+        "objects": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+        "monsters": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+        "world-effects": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+        "commands": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5"
+      },
+      "head": "f826ba5392d313da8951095111b8201f5be497fe",
+      "auditedRange": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5..f826ba5392d313da8951095111b8201f5be497fe",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full pass over the extended-command prompt, which fired the commands gate at 1,289 of 1,000 unreviewed lines. Four finders ran; performance and concurrency were not enabled. 19 raw findings, 16 after deduplication, all 16 confirmed and none rejected. Four are applied at 2640c9f: three production defects and the generated-table test that pins the restored column. Twelve are deferred, and three of those are one defect seen from three angles — the port's flush_screen() is a whole-screen rebuild where display.c's re-emits only dirty cells, so the faithful vpline() flush_screen(1) call this range added erases an open tty menu at the two pre-existing menu-search call sites. .agents/review.md puts that outside audit-fix scope, because it changes rendering behavior and needs the gnew dirty discipline and gb.bot_disabled, which the port lacks; it is recorded in ROADMAP.md with the instruction to implement it and then run a new full pass over the expanded range rather than a delta. This pass does not cover that implementation. The applied fixes: tty_get_ext_cmd() had dropped C's iflags.extmenu guard entirely and the option was parsed and discarded, so a path meant to fail closed gave the typed prompt; a 0xFF byte was stored as text where C's signed char cast makes it EOF and cancels the line; and the generated table had dropped extcmdlist[]'s f_text column, which rhack() reads to name a counted command's occupation. Validation at 2640c9f: 1,808 tests passing, five generated-data checks including check:extcmds, check:namespace-members, development unchanged at 398 screens and 99,496 PRNG values, and the matrix matching 71,359 calls with 370 screens plus 12,261 calls with 33 screens in debug mode.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3001,
+        "counts": {
+          "raw": 19,
+          "deduplicated": 16,
+          "confirmed": 16,
+          "applied": 4,
+          "deferred": 12,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "tty_get_ext_cmd() dropped C's first statement, `if (iflags.extmenu) return extcmd_via_menu();`, replacing it with a comment. Nothing read the option at all: parseNethackrc accepted `extmenu` and discarded it, so a deliberately unported path did not fail closed and silently gave the typed prompt instead.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "A 0xFF input byte was stored as ordinary text. cmd.c:452 ends pgetchar() with `return (char) ch;` and char is signed, so 255 arrives as -1 and getline.c:85 treats it as EOF, cancelling the line and setting iflags.term_gone. The restart arm is gated on Escape alone, so EOF cancels even over existing text.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The generated extcmdlist[] table dropped the sixth column, f_text, which rhack() reads at cmd.c:102 to name the occupation a counted command starts. 'search' and 'wait' are the two rows carrying one, and neither the file nor the generator said a column was missing.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "hooked_tty_getlin()'s new flush_screen(1) erases an open tty menu, because the port's flush_screen() is a whole-screen rebuild through _buildScreenOutput() while display.c's re-emits only dirty glyph-buffer cells and select_menu() sets gb.bot_disabled. The call itself is faithful to pline.c vpline(); the function it calls is not.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "The two pre-existing ttyGetlinSearch menu call sites now run the new unconditional flush_screen(1) and are untested against the menu erasure it causes.",
+            "foundBy": [
+              "tests"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "hooked_tty_getlin() ports pline.c vpline()'s `if (u.ux) flush_screen(...)` without the `state === game` guard that the other port of the same C line carries, so a non-global state would flush the wrong game.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": []
+      },
+      "recordedAt": "2026-07-29T15:40:04.110Z"
     }
   ]
 }
