@@ -119,7 +119,7 @@ None. Every row is `done` or `cannot-occur`.
 
 ## Readiness
 
-Current readiness: `Ready for audit`
+Current mode: Ready for audit
 
 Reason: every row is `done` or `cannot-occur` with evidence; the source review
 above traces every branch reachable through the ending event; the full suite,
