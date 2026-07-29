@@ -162,7 +162,7 @@ async function hooked_tty_getlin(query, hook, state) {
         //
         // 0xFF joins them by accident, which cmd.c:452 preserves: pgetchar()
         // ends `return (char) ch;`, and char is signed here, so the 255 that
-        // getchar() returns becomes -1. getline.c:120 tests `c == EOF`, so the
+        // getchar() returns becomes -1. getline.c:85 tests `c == EOF`, so the
         // line is cancelled. tty_nhgetch() cannot deliver EOF itself, mapping
         // both NUL and EOF to Escape, so the signed cast is the only route to
         // this arm.

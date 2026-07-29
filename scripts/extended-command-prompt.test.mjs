@@ -539,6 +539,77 @@ test('a named command with no ported handler stops the segment, not the key',
     assert.equal(replay.getScreens().length, moves.length);
 });
 
+test('extmenu stops the prompt before it opens, through either spelling',
+    async () => {
+    // getline.c:296 makes iflags.extmenu tty_get_ext_cmd()'s first test:
+    // `if (iflags.extmenu) return extcmd_via_menu();`.  extcmd_via_menu() is
+    // unported, so the port has to stop there rather than substitute the
+    // typed prompt, which would paint different screens and draw different
+    // random numbers.  No matrix segment can hold this: C opens a menu.
+    const base = segmentFor(`${EXTCMD_KEY}wait${NEWLINE_KEY}`);
+    const moves = `.${EXTCMD_KEY}wait${NEWLINE_KEY}`;
+
+    // Both spellings, because the bare form reaches applyBooleanOption()
+    // directly while the value-carrying form only arrives through
+    // HANDLED_BOOLEAN_OPTIONS.
+    for (const line of ['OPTIONS=extmenu\n', 'OPTIONS=extmenu:true\n']) {
+        let boundary = null;
+        const replay = await runSegment(
+            { ...base, nethackrc: base.nethackrc + line, moves },
+            { onBoundary: (error) => { boundary = error; } },
+        );
+        assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError', line);
+        assert.match(boundary.message, /extcmd_via_menu\(\)/u);
+        // The test precedes extcmd_initiator() and the custompline() paint, so
+        // the prompt never reaches row zero and only the screens before the
+        // '#' keystroke were drawn.
+        assert.equal(topLine(), '', line);
+        assert.equal(replay.getScreens().length, 2, line);
+    }
+
+    // The negated form must leave the typed prompt working, which is what
+    // separates the guard from an unconditional refusal.
+    const off = await runSegment(
+        { ...base, nethackrc: `${base.nethackrc}OPTIONS=!extmenu\n`, moves },
+    );
+    assert.equal(game.iflags.extmenu, false);
+    assert.equal(off.getScreens().length, moves.length + 1);
+});
+
+test('an EOF byte cancels the prompt where Escape would restart it',
+    async () => {
+    // tty_nhgetch() maps NUL to Escape and cannot deliver EOF itself, but
+    // cmd.c:452 ends pgetchar() with `return (char) ch;` and char is signed,
+    // so a 0xFF byte arrives as -1.  getline.c:85 tests `c == '\033' || c ==
+    // EOF` and sets iflags.term_gone for the EOF half; getline.c:88 then gates
+    // the restart on `c == '\033'` alone, so EOF always cancels -- even over
+    // text, where Escape clears the buffer and redraws the prompt instead.
+    const EOF_KEY = '\xFF';
+    const base = segmentFor(`${EXTCMD_KEY}xyzzy${NEWLINE_KEY}`);
+
+    // Over an empty buffer both arms would cancel, so this pins term_gone.
+    await runSegment({ ...base, moves: `.${EXTCMD_KEY}${EOF_KEY}` });
+    assert.equal(topLine(), '');
+    assert.equal(game.iflags.term_gone, 1);
+
+    // Over existing text the two arms diverge, which is the whole gate.
+    await runSegment({ ...base, moves: `.${EXTCMD_KEY}wa${EOF_KEY}` });
+    assert.equal(topLine(), '');
+    assert.equal(game.iflags.term_gone, 1);
+
+    // The NUL control: tty_nhgetch() has already turned it into Escape by the
+    // time the gate runs, so it restarts and leaves term_gone alone.  Without
+    // this case a gate that cancelled on every byte would still pass above.
+    await runSegment({ ...base, moves: `.${EXTCMD_KEY}wa\x00` });
+    assert.equal(topLine(), EXTCMD_KEY);
+    assert.equal(game.iflags.term_gone, undefined);
+
+    // And the untouched prompt, so the two cancels are read against a row
+    // that does hold the typed text.
+    await runSegment({ ...base, moves: `.${EXTCMD_KEY}wa` });
+    assert.equal(topLine(), `${EXTCMD_KEY} wa`);
+});
+
 test('a 77-character answer fills the prompt row without wrapping',
     async () => {
     // hooked_tty_getlin() takes printable bytes while pos < BUFSZ - 1 and

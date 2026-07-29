@@ -427,6 +427,35 @@ test('safe interaction options keep their source defaults and state owners',
     assert.equal(enabled.iflags.cmdassist, false);
 });
 
+test('extmenu reaches iflags through every spelling the source accepts', () => {
+    // optlist.h:303 declares extmenu with a default of Off, so the port leaves
+    // it unset rather than storing a false: iflags booleans that default off
+    // are absent here by convention, and tty_get_ext_cmd() reads it as a
+    // truth test.  cmdassist above is the exception because it defaults On.
+    const defaults = parseNethackrc('');
+    assert.equal(Object.hasOwn(defaults.iflags, 'extmenu'), false);
+
+    // options.c:5224-5233 maps a boolean's parameter: true, yes, on and 1 make
+    // it not-negated, false, no, off and 0 negate it.  Every spelling has to
+    // land in iflags, because tty_get_ext_cmd() at getline.c:296 tests
+    // iflags.extmenu alone and the port stops on the unported
+    // extcmd_via_menu() behind it.  A spelling that misses iflags fails open
+    // and runs the typed prompt where C opens a menu.
+    for (const line of ['OPTIONS=extmenu', 'OPTIONS=extmenu:true',
+        'OPTIONS=extmenu:yes', 'OPTIONS=extmenu:on', 'OPTIONS=extmenu:1']) {
+        const parsed = parseNethackrc(line);
+        assert.equal(parsed.iflags.extmenu, true, line);
+        // The compound-option path would park the raw parameter string here.
+        assert.equal(Object.hasOwn(parsed.flags, 'extmenu'), false, line);
+    }
+    for (const line of ['OPTIONS=!extmenu', 'OPTIONS=extmenu:false',
+        'OPTIONS=extmenu:no', 'OPTIONS=extmenu:off', 'OPTIONS=extmenu:0']) {
+        const parsed = parseNethackrc(line);
+        assert.equal(parsed.iflags.extmenu, false, line);
+        assert.equal(Object.hasOwn(parsed.flags, 'extmenu'), false, line);
+    }
+});
+
 test('whatis_coord selects each source coordinate presentation', () => {
     assert.equal(parseNethackrc('').iflags.getpos_coords, GPCOORDS_NONE);
     for (const [value, expected] of [

@@ -3058,7 +3058,7 @@
             "resolution": "applied"
           },
           {
-            "summary": "The generated extcmdlist[] table dropped the sixth column, f_text, which rhack() reads at cmd.c:102 to name the occupation a counted command starts. 'search' and 'wait' are the two rows carrying one, and neither the file nor the generator said a column was missing.",
+            "summary": "The generated extcmdlist[] table dropped the sixth column, f_text, which rhack() reads at cmd.c:3728 to name the occupation a counted command starts. 'search' and 'wait' are the two rows carrying one, and neither the file nor the generator said a column was missing.",
             "foundBy": [
               "correctness"
             ],

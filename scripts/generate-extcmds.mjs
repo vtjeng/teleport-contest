@@ -331,7 +331,7 @@ function parseRows(body, flagValues, objectClassSymbols) {
                     ef_funct: fields[3].trim(),
                     flags: flagNames(fields[4], flagValues),
                     // The sixth column, f_text. rhack() reads it at
-                    // cmd.c:102 as `if (tlist->f_text && !go.occupation &&
+                    // cmd.c:3728 as `if (tlist->f_text && !go.occupation &&
                     // gm.multi) set_occupation(func, tlist->f_text, gm.multi)`,
                     // so dropping it would lose the occupation name. Only
                     // 'search' and 'wait' carry one.
