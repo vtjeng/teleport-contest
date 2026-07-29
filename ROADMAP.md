@@ -194,8 +194,10 @@ to about 165 rows and needs a generator, and the prompt is the entry point to
 the extended-command set that "Explicit future exploration work" below defers.
 It is its own goal for that reason, not a slice of another.
 
-Seven of the 33 development sessions stop on `#`, with 1,892 recorded steps
-behind them, the largest ceiling the census names. Most of those steps stand
+Nine of the 33 development sessions stop on `#`, with 2,204 recorded steps
+behind them, the largest ceiling the census names. That figure comes from a
+scan at `60bf3d0`, after the running goal closed, and supersedes the seven
+sessions and 1,892 steps a scan at `03c2add` reported. Most of those steps stand
 behind the command each session then types, not behind the prompt:
 `#levelchange` and `wizlevelport` belong to the relocation family below, and
 `#name` and `#chat` to families of their own. Expect the prompt alone to unblock
@@ -209,9 +211,10 @@ depends on.
 ### 2. Search
 
 `detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
-`mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Four sessions
-stop here, but each reaches an extended command within one or two keystrokes,
-so the immediate return is small.
+`mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Five sessions
+stop here with 490 steps behind them, measured at `60bf3d0`, but each reaches
+an extended command within one or two keystrokes, so the immediate return is
+small.
 
 ## Explicit future exploration work, outside the goal in progress
 
