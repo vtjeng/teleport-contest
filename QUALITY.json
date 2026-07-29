@@ -3089,6 +3089,57 @@
         "rejections": []
       },
       "recordedAt": "2026-07-29T15:40:04.110Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "f826ba5392d313da8951095111b8201f5be497fe",
+        "commands": "f826ba5392d313da8951095111b8201f5be497fe"
+      },
+      "head": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
+      "auditedRange": "f826ba5392d313da8951095111b8201f5be497fe..4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
+      "areas": [
+        "startup",
+        "commands"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review of the audit-fix and debt-clearing tail behind the extended-command pass. Three finders (correctness, tests, variable-trace); readability skipped, which the clarity audit covers. 8 raw findings, 6 after deduplication, 5 confirmed. All five applied in 61f41f9: extmenu added to HANDLED_BOOLEAN_OPTIONS so every spelling options.c:5224 accepts reaches iflags; getline.c:120 corrected to getline.c:85 and cmd.c:102 to cmd.c:3728; six tests pinning the EOF gate and the extmenu guard, each verified by applying a mutation and watching it fail. Suite 1,823 passing, up from 1,817. Development unchanged at 398 screens and 99,496 random-number values across 33 sessions; the extended-command matrix unchanged at 31 segments and 71,392 calls plus 4 debug segments and 12,261 calls.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1280,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 6,
+          "confirmed": 5,
+          "applied": 5,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 2,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "applyBooleanOption() gained an extmenu arm but HANDLED_BOOLEAN_OPTIONS did not gain the name, so OPTIONS=extmenu:true fell through to the compound-option path: iflags.extmenu stayed undefined and the raw string was parked in flags. options.c:5224 maps true, yes, on and 1 to not-negated for any boolean, so C ran extcmd_via_menu() where the port opened the typed prompt. The fail-open the arm was added to close stayed open for one of the three spellings.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "The correctness finder filed the missing tests for the EOF gate and the extmenu guard a third time as one correctness defect anchored at js/getline.js:176.",
+            "counterEvidence": "The anchor line is correct and the finder's own probes say so: '.#wa\\xFF' ends with term_gone 1, '.#wa\\x00' restarts to '#', and the text concedes 'the gap is validation, not behavior'. js/getline.js:176 reads `if (c !== EOF_BYTE && text)`, which matches getline.c:88's `if (c == '\\033' && obufp[0] != '\\0')` because only Escape and EOF reach the arm. Its two mutations are identical to ones already carried by the confirmed test findings at js/getline.js:169 and js/getline.js:278. Do not reopen without a divergence at this line that the confirmed test findings do not already cover."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-29T16:59:26.628Z"
     }
   ]
 }
