@@ -127,8 +127,13 @@ measured at gitlink `16ff591`; they set expectations, not limits.
    `dovspell()`'s `You don't know any spells right now.` for the same reason.
    Both consume no time. The list bodies, `disco_output_sorted()` and
    `dospellmenu()`, are reached only by a character who has discovered
-   something or knows a spell, which is a later slice. Trace which starting
-   roles know a spell before assuming the empty path always holds.
+   something or knows a spell, which is a later slice. Which roles start
+   knowing a spell is settled: `u_init.c:ini_inv_adjust_obj()` calls
+   `initialspell()` for every starting object of `SPBOOK_CLASS` that is not
+   blank paper, so a Healer, Priest, Monk, Valkyrie, or Wizard reaches
+   `dospellmenu()` on its first `+` while the other roles reach the empty
+   answer. Both paths therefore belong to this slice, and the sessions that
+   stop on `+` decide which is needed first.
 2. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
    1,200 lines in a file with no ported counterpart. Two prerequisites before
    the first commit: scope it to the branches the development sessions reach,
