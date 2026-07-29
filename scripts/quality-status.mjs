@@ -250,6 +250,78 @@ export function validateAuditMetrics(metrics, {
   return metrics;
 }
 
+// What a pass read, in one of three shapes. A range ends at the pass head and
+// may advance a frontier, since it leaves no gap behind that head. A commit
+// list may not: it covers only what it names, so nothing can be concluded
+// about the commits between. `unrecorded` belongs to the 48 passes that
+// predate `5e7fb47`, which stored no audited range at all; their frontiers
+// stand because the ledger is append-only, but they establish no coverage,
+// which is exactly why ROADMAP.md had to name the gap by hand.
+export function validateAudited(pass) {
+  const audited = pass.audited;
+  if (!audited || typeof audited !== 'object' || Array.isArray(audited)) {
+    fail('every pass needs an audited object');
+  }
+  const shapes = ['range', 'commits', 'unrecorded'].filter((k) => k in audited);
+  if (shapes.length !== 1) {
+    fail(`audited must have exactly one of range, commits, or unrecorded; got ${
+      shapes.length === 0 ? 'none' : shapes.join(' and ')}`);
+  }
+  if ('range' in audited) {
+    const { base, head: rangeHead } = parseRange(audited.range);
+    if (!SHA_PATTERN.test(base) || !SHA_PATTERN.test(rangeHead)) {
+      fail('audited.range must name two full commit SHAs');
+    }
+    if (rangeHead !== pass.head) {
+      fail(`audited.range ends at ${rangeHead}; expected pass head ${pass.head}`);
+    }
+    return;
+  }
+  if ('commits' in audited) {
+    if (!Array.isArray(audited.commits) || audited.commits.length === 0) {
+      fail('audited.commits must be a non-empty array');
+    }
+    const seen = new Set();
+    for (const sha of audited.commits) {
+      if (!SHA_PATTERN.test(sha ?? '')) {
+        fail(`audited.commits has an entry that is not a full SHA: ${sha}`);
+      }
+      if (seen.has(sha)) fail(`audited.commits names ${sha} twice`);
+      seen.add(sha);
+    }
+    return;
+  }
+  if (audited.unrecorded !== true) fail('audited.unrecorded must be true when present');
+}
+
+// Whether a pass read one particular commit. A range covers what
+// `git rev-list base..head` lists: at or before the head, and strictly after
+// the base, so the base commit itself is excluded. A list covers exactly what
+// it names. An unrecorded pass covers nothing, whatever its frontier claims.
+function auditedCovers(audited, sha, ancestorCheck) {
+  if (audited?.commits !== undefined) return audited.commits.includes(sha);
+  if (audited?.range === undefined) return false;
+  const { base, head } = parseRange(audited.range);
+  return ancestorCheck(sha, head) && !ancestorCheck(sha, base);
+}
+
+// Declared behind-the-frontier debt, less whatever a later pass has since
+// read. A pass only clears commits in the areas it claimed, because --areas is
+// the scope its reviewers were given; auditing a range that happens to contain
+// a commit says nothing about an area the pass never looked at.
+export function remainingUnreviewed(areas, passes, ancestorCheck) {
+  const remaining = new Map();
+  for (const area of areas) {
+    const declared = area.unreviewedCommits ?? [];
+    if (declared.length === 0) continue;
+    const open = declared.filter((sha) => !passes.some((pass) => pass.kind === 'review'
+      && (pass.areas ?? []).includes(area.id)
+      && auditedCovers(pass.audited, sha, ancestorCheck)));
+    if (open.length > 0) remaining.set(area.id, open);
+  }
+  return remaining;
+}
+
 // The per-area frontier is where an area's unreviewed debt starts. An audit
 // that begins after a claimed area's frontier never read the commits in
 // between, yet recording it would mark them reviewed forever. Require the
@@ -560,7 +632,7 @@ export function formatReviewDebt(total, current, dirty, thresholds) {
 
 export function validateConfigShape(config) {
   if (!config || typeof config !== 'object') fail('QUALITY.json must contain an object');
-  if (config.version !== 4) fail('QUALITY.json version must be 4');
+  if (config.version !== 5) fail('QUALITY.json version must be 5');
   if (!SHA_PATTERN.test(config.trackingBase ?? '')) fail('trackingBase must be a full commit SHA');
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
@@ -748,18 +820,7 @@ export function validateConfigShape(config) {
     if (typeof pass.recordedAt !== 'string' || Number.isNaN(Date.parse(pass.recordedAt))) {
       fail('every pass needs an ISO recordedAt timestamp');
     }
-    // Passes recorded before record-review validated the audited range have no
-    // auditedRange. Their bases stay authoritative; only the recorded range is
-    // missing, and the ledger is append-only, so it cannot be reconstructed.
-    if (pass.auditedRange !== undefined) {
-      const { base, head: rangeHead } = parseRange(pass.auditedRange);
-      if (!SHA_PATTERN.test(base) || !SHA_PATTERN.test(rangeHead)) {
-        fail('pass auditedRange must name two full commit SHAs');
-      }
-      if (rangeHead !== pass.head) {
-        fail(`pass auditedRange ends at ${rangeHead}; expected pass head ${pass.head}`);
-      }
-    }
+    validateAudited(pass);
     if (pass.auditMetrics !== undefined) validateAuditMetrics(pass.auditMetrics);
     if (passIndex >= config.legacyPassCount && pass.auditMetrics === undefined) {
       fail('new quality passes require structured auditMetrics');
@@ -808,6 +869,9 @@ function validateHistory(config, head) {
     if (!isAncestor(pass.head, head)) {
       fail(`pass head ${pass.head} is not an ancestor of HEAD`);
     }
+    // A commit list covers only what it names, so nothing follows about the
+    // commits between its entries. Advancing a frontier would claim otherwise.
+    if (pass.audited?.commits !== undefined) continue;
     for (const recordedAreaId of pass.areas) {
       for (const areaId of currentAreaIds(config, recordedAreaId)) {
         const expectedBase = frontiers[pass.kind].get(areaId);
@@ -823,8 +887,8 @@ function validateHistory(config, head) {
         frontiers[pass.kind].set(areaId, pass.head);
       }
     }
-    if (pass.auditedRange !== undefined) {
-      const { base } = parseRange(pass.auditedRange);
+    if (pass.audited?.range !== undefined) {
+      const { base } = parseRange(pass.audited.range);
       validateAuditedRangeCoverage(pass.kind, base, pass.bases, isAncestor);
     }
   }
@@ -893,6 +957,7 @@ function printStatus(config, head, status, verbose) {
   );
   console.log('');
 
+  const openUnreviewed = remainingUnreviewed(config.areas, config.passes, isAncestor);
   let reviewDue = 0;
   let reviewAdvisory = 0;
   for (const row of status.rows) {
@@ -924,7 +989,7 @@ function printStatus(config, head, status, verbose) {
     // Printed separately from the review debt above, which counts commits
     // ahead of the frontier. These sit behind it, so no threshold can reach
     // them and the area would otherwise report clear while holding them.
-    const unreviewed = row.area.unreviewedCommits ?? [];
+    const unreviewed = openUnreviewed.get(row.area.id) ?? [];
     if (unreviewed.length > 0) {
       console.log(
         `  Behind frontier: ${plural(unreviewed.length, 'commit')} never audited `
@@ -954,10 +1019,8 @@ function printStatus(config, head, status, verbose) {
         + 'the advisory threshold).'
       : 'Review advisory: clear.',
   );
-  const behindFrontier = config.areas.reduce(
-    (total, area) => total + (area.unreviewedCommits?.length ?? 0),
-    0,
-  );
+  const behindFrontier = [...openUnreviewed.values()]
+    .reduce((total, commits) => total + commits.length, 0);
   if (behindFrontier > 0) {
     console.log(
       `Behind the frontier: ${plural(behindFrontier, 'commit')} that no pass read. `
@@ -1096,6 +1159,7 @@ function preparePass(kind, options) {
     new Set([
       'areas',
       'range',
+      'commits',
       'head',
       'outcome',
       'evidence',
@@ -1109,22 +1173,46 @@ function preparePass(kind, options) {
   const repositoryHead = resolveCommit('HEAD');
   const frontiers = validateHistory(config, repositoryHead);
   const areas = selectedAreas(config, options.areas);
-  if (!options.range?.trim()) fail('--range <base>..<head> is required');
-  const revisions = parseRange(options.range.trim());
-  const rangeBase = resolveCommit(revisions.base);
-  const head = resolveCommit(revisions.head);
-  // --head is an optional restatement of the range head. It cannot select a
-  // different commit; a disagreement means the operator recorded a pass for
-  // something other than the range that was audited.
-  if (options.head !== undefined && resolveCommit(options.head) !== head) {
-    fail(`--head ${resolveCommit(options.head)} does not match the --range head ${head}`);
+  if (options.range?.trim() && options.commits?.trim()) {
+    fail('provide only one of --range or --commits');
   }
-  if (rangeBase === head) fail('--range covers no commits');
-  if (!isAncestor(rangeBase, head)) {
-    fail(`--range base ${rangeBase} is not an ancestor of its head ${head}`);
+  if (!options.range?.trim() && !options.commits?.trim()) {
+    fail('--range <base>..<head> or --commits <sha,...> is required');
   }
-  if (!isAncestor(head, repositoryHead)) {
-    fail(`pass head ${head} is not an ancestor of HEAD`);
+  // A commit list names scattered commits that no contiguous range can hold
+  // without dragging in everything between them. It records coverage and
+  // advances no frontier, so it has no range base and takes the repository
+  // head only to place itself in history.
+  const listed = options.commits?.trim()
+    ? options.commits.split(',').map((sha) => resolveCommit(sha.trim()))
+    : null;
+  let rangeBase = null;
+  let head = repositoryHead;
+  if (listed) {
+    if (new Set(listed).size !== listed.length) fail('--commits names a commit twice');
+    for (const sha of listed) {
+      if (!isAncestor(sha, repositoryHead)) {
+        fail(`--commits names ${sha}, which is not an ancestor of HEAD`);
+      }
+    }
+    if (options.head !== undefined) fail('--head does not apply to --commits');
+  } else {
+    const revisions = parseRange(options.range.trim());
+    rangeBase = resolveCommit(revisions.base);
+    head = resolveCommit(revisions.head);
+    // --head is an optional restatement of the range head. It cannot select a
+    // different commit; a disagreement means the operator recorded a pass for
+    // something other than the range that was audited.
+    if (options.head !== undefined && resolveCommit(options.head) !== head) {
+      fail(`--head ${resolveCommit(options.head)} does not match the --range head ${head}`);
+    }
+    if (rangeBase === head) fail('--range covers no commits');
+    if (!isAncestor(rangeBase, head)) {
+      fail(`--range base ${rangeBase} is not an ancestor of its head ${head}`);
+    }
+    if (!isAncestor(head, repositoryHead)) {
+      fail(`pass head ${head} is not an ancestor of HEAD`);
+    }
   }
   if (!PASS_OUTCOMES.has(options.outcome)) {
     fail('--outcome must be changed or no-change');
@@ -1148,18 +1236,20 @@ function preparePass(kind, options) {
   }
 
   const bases = Object.fromEntries(areas.map((id) => [id, frontiers[kind].get(id)]));
-  for (const [areaId, base] of Object.entries(bases)) {
-    if (!isAncestor(base, head)) {
-      fail(`head ${head} does not cover the existing ${kind} frontier for ${areaId}`);
+  if (!listed) {
+    for (const [areaId, base] of Object.entries(bases)) {
+      if (!isAncestor(base, head)) {
+        fail(`head ${head} does not cover the existing ${kind} frontier for ${areaId}`);
+      }
     }
+    validateAuditedRangeCoverage(kind, rangeBase, bases, isAncestor);
   }
-  validateAuditedRangeCoverage(kind, rangeBase, bases, isAncestor);
 
   const pass = {
     kind,
     bases,
     head,
-    auditedRange: `${rangeBase}..${head}`,
+    audited: listed ? { commits: listed } : { range: `${rangeBase}..${head}` },
     areas,
     ...(kind === 'review' ? { level: options.level } : {}),
     outcome: options.outcome,
@@ -1173,9 +1263,14 @@ function preparePass(kind, options) {
   }
 
   console.log(`${options['dry-run'] ? 'Would record' : 'Recorded'} ${kind} pass through ${head}:`);
-  console.log(`  audited range: ${rangeBase}..${head}`);
-  for (const areaId of areas) {
-    console.log(`  ${areaId}: ${bases[areaId]}..${head}`);
+  if (listed) {
+    console.log(`  audited commits: ${listed.map(shortSha).join(', ')}`);
+    console.log(`  areas: ${areas.join(', ')} (no frontier advances)`);
+  } else {
+    console.log(`  audited range: ${rangeBase}..${head}`);
+    for (const areaId of areas) {
+      console.log(`  ${areaId}: ${bases[areaId]}..${head}`);
+    }
   }
   if (options['dry-run']) {
     console.log('Dry run: QUALITY.json was not changed.');
@@ -1213,6 +1308,11 @@ frontier from its prior exact commit through the --range head.
 before every selected area's frontier, so no unaudited commit becomes reviewed
 history; when frontiers differ, audit from the oldest one or record the areas
 separately. --head, when given, must name the same commit as the range head.
+
+--commits records an audit of scattered commits that no contiguous range holds
+without dragging in everything between them. It advances no frontier, because a
+list says nothing about the commits between its entries; it clears the
+unreviewedCommits the dashboard reports for the areas it claims.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
 for every rejected finding, and one deferrals entry, with summary and a

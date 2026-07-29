@@ -14,7 +14,9 @@ import {
   parseNumstat,
   qualityGateBlocked,
   relocationCommits,
+  remainingUnreviewed,
   thresholdReached,
+  validateAudited,
   validateAuditedRangeCoverage,
   validateAuditMetrics,
   validateConfigShape,
@@ -47,7 +49,7 @@ test('the checked-in quality ledger has a valid schema', async () => {
   );
 
   assert.doesNotThrow(() => validateConfigShape(config));
-  assert.equal(config.version, 4);
+  assert.equal(config.version, 5);
   assert.equal(config.legacyPassCount, 21);
   assert.equal(
     config.passes.slice(config.legacyPassCount).every((pass) => pass.auditMetrics),
@@ -531,7 +533,7 @@ test('a stored audited range must end at the pass head', () => {
     head,
     // The range ends one commit short of the pass head, so the recorded pass
     // would advance the frontier past commits the audit never read.
-    auditedRange: `${trackingBase}..${'3'.repeat(40)}`,
+    audited: { range: `${trackingBase}..${'3'.repeat(40)}` },
     areas: ['first'],
     level: 'light',
     outcome: 'no-change',
@@ -540,7 +542,7 @@ test('a stored audited range must end at the pass head', () => {
     recordedAt: '2026-07-27T00:00:00.000Z',
   };
   const config = {
-    version: 4,
+    version: 5,
     trackingBase,
     enforcementBase: head,
     legacyPassCount: 0,
@@ -557,12 +559,13 @@ test('a stored audited range must end at the pass head', () => {
 
   assert.throws(
     () => validateConfigShape(config),
-    new RegExp(`auditedRange ends at ${'3'.repeat(40)}; expected pass head ${head}`),
+    new RegExp(`audited.range ends at ${'3'.repeat(40)}; expected pass head ${head}`),
   );
-  pass.auditedRange = `${trackingBase}..${head}`;
+  pass.audited = { range: `${trackingBase}..${head}` };
   assert.doesNotThrow(() => validateConfigShape(config));
-  // Passes recorded before the range was validated omit the field entirely.
-  delete pass.auditedRange;
+  // Passes recorded before the range was validated recorded no range at all,
+  // and carry the unrecorded shape instead.
+  pass.audited = { unrecorded: true };
   assert.doesNotThrow(() => validateConfigShape(config));
 });
 
@@ -616,7 +619,7 @@ test('the per-area line advisory must stay below the per-area line gate', () => 
   // collapse the advisory tier into the gate, so validateConfigShape refuses
   // it. Full-length placeholder SHAs only satisfy the schema.
   const config = {
-    version: 4,
+    version: 5,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
@@ -665,7 +668,7 @@ test('the ledger declares the six commits that sit behind a frontier', async () 
 
 test('declared unreviewed commits must be full SHAs owned by one area', () => {
   const base = {
-    version: 4,
+    version: 5,
     trackingBase: 'a'.repeat(40),
     enforcementBase: 'b'.repeat(40),
     legacyPassCount: 0,
@@ -714,11 +717,75 @@ test('declared unreviewed commits must be full SHAs owned by one area', () => {
   );
 });
 
+test('a pass clears declared debt only for what it read in the areas it claimed', () => {
+  // A three-commit line: OLD is an ancestor of DEBT, which is an ancestor of
+  // NEW. DEBT is the declared unreviewed commit in every case below.
+  const OLD = 'a'.repeat(40);
+  const DEBT = 'b'.repeat(40);
+  const NEW = 'c'.repeat(40);
+  const order = [OLD, DEBT, NEW];
+  const ancestor = (a, b) => order.indexOf(a) <= order.indexOf(b);
+  const areas = [{ id: 'hero', unreviewedCommits: [DEBT] }];
+  const open = (passes) => remainingUnreviewed(areas, passes, ancestor).get('hero') ?? [];
+  const pass = (audited, extra = {}) => ({
+    kind: 'review', areas: ['hero'], audited, ...extra,
+  });
+
+  // A list naming it, and a range containing it, both clear it.
+  assert.deepEqual(open([pass({ commits: [DEBT] })]), []);
+  assert.deepEqual(open([pass({ range: `${OLD}..${NEW}` })]), []);
+  // A range whose base is the commit does not: base..head excludes the base.
+  assert.deepEqual(open([pass({ range: `${DEBT}..${NEW}` })]), [DEBT]);
+  // A range that ends before it never reached it.
+  assert.deepEqual(open([pass({ range: `${OLD}..${DEBT}` })]), []);
+  // The 48 legacy passes advanced frontiers but establish no coverage.
+  assert.deepEqual(open([pass({ unrecorded: true })]), [DEBT]);
+  // --areas is the scope the reviewers were given, so another area's pass
+  // says nothing about this one, and simplification is not correctness.
+  assert.deepEqual(open([pass({ commits: [DEBT] }, { areas: ['objects'] })]), [DEBT]);
+  assert.deepEqual(open([pass({ commits: [DEBT] }, { kind: 'simplification' })]), [DEBT]);
+  // An area with no declared debt never appears in the result.
+  assert.equal(remainingUnreviewed([{ id: 'objects' }], [], ancestor).size, 0);
+});
+
+test('a pass records exactly one shape of what it audited', () => {
+  const head = 'd'.repeat(40);
+  const base = 'e'.repeat(40);
+
+  assert.doesNotThrow(() => validateAudited({ head, audited: { range: `${base}..${head}` } }));
+  assert.doesNotThrow(() => validateAudited({ head, audited: { commits: [base] } }));
+  assert.doesNotThrow(() => validateAudited({ head, audited: { unrecorded: true } }));
+  assert.throws(() => validateAudited({ head }), /needs an audited object/);
+  assert.throws(
+    () => validateAudited({ head, audited: {} }),
+    /exactly one of range, commits, or unrecorded; got none/,
+  );
+  // Two shapes would leave the frontier rule ambiguous.
+  assert.throws(
+    () => validateAudited({ head, audited: { commits: [base], unrecorded: true } }),
+    /got commits and unrecorded/,
+  );
+  // A range must end where the pass claims to end, or the pass records a
+  // frontier advance its reviewers never reached.
+  assert.throws(
+    () => validateAudited({ head, audited: { range: `${base}..${'f'.repeat(40)}` } }),
+    /expected pass head/,
+  );
+  assert.throws(
+    () => validateAudited({ head, audited: { commits: [] } }),
+    /must be a non-empty array/,
+  );
+  assert.throws(
+    () => validateAudited({ head, audited: { commits: [base, base] } }),
+    /names .* twice/,
+  );
+});
+
 test('an implementation path cannot belong to two quality areas', () => {
   // Full-length placeholder SHAs satisfy the schema while the configured
   // thresholds mirror repository policy; this test isolates path ownership.
   const config = {
-    version: 4,
+    version: 5,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
@@ -752,10 +819,11 @@ test('new ledger passes require structured audit metrics', () => {
     level: 'light',
     outcome: 'no-change',
     evidence: 'No findings.',
+    audited: { unrecorded: true },
     recordedAt: '2026-07-23T00:00:00.000Z',
   };
   const config = {
-    version: 4,
+    version: 5,
     trackingBase: sha,
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
