@@ -36,7 +36,6 @@ import {
 } from './tty_menu.js';
 import {
     domove,
-    endRunning,
     monsterNearby,
     preflightDomoveDestination,
     UnsupportedHeroMoveBoundaryError,
@@ -320,8 +319,11 @@ const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
-    + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, or a `
-    + 'byte bound to no command';
+    + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
+    + 'uncounted shift-direction run, or a byte bound to no command';
+// context.run values this boundary dispatches: 0 walks and 1 runs. Rush and
+// #run are 2 and 3, and travel is 8; all three stay refused.
+const ADMITTED_RUN_MODES = Object.freeze([0, 1]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
 // bad-command path, which this file owns. parse() returns such a byte
@@ -362,7 +364,7 @@ async function readSimpleCommand(state) {
     // returns without a message or a turn.
     const admitted = key === ESC
         || ADMITTED_COMMANDS.includes(command)
-        || (movement && movement[2] === 0)
+        || (movement && ADMITTED_RUN_MODES.includes(movement[2]))
         || unboundCommandKey(key, command, model);
     if (!admitted) {
         abortCommandParse(state);
@@ -402,7 +404,7 @@ async function executeMovement(command, firstTime, state) {
     const newx = state.u.ux + dx;
     const newy = state.u.uy + dy;
     try {
-        preflightDomoveDestination(newx, newy, state);
+        preflightDomoveDestination(newx, newy, state, run);
     } catch (error) {
         if (error instanceof UnsupportedHeroMoveBoundaryError)
             resetCommandVars(state);

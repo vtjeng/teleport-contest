@@ -1653,10 +1653,9 @@ test('dangerous hero properties reject waiting and success resets its counter', 
     assert.equal(state.did_nothing_flag, 0);
 });
 
-test('run, rush, search, and pickup bytes remain atomic boundaries',
+test('rush, search, and pickup bytes remain atomic boundaries',
     async () => {
     const cases = [
-        { name: 'run', key: 'x', binding: 'BINDINGS=x:runwest' },
         { name: 'rush', key: 'x', binding: 'BINDINGS=x:rushwest' },
         { name: 'search', key: 's', binding: '' },
         { name: 'pickup', key: ',', binding: '' },
@@ -2388,6 +2387,10 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
     const destination = game.level.at(start[0] + 1, start[1]);
     destination.typ = ROOM;
     destination.flags = destination.doormask = 0;
+    // A new game starts the hero on the upstairs, and hack.c lookaround()
+    // reads levl[u.ux][u.uy].typ; only a ROOM square stays inside the
+    // running boundary this port admits.
+    game.level.at(start[0], start[1]).typ = ROOM;
 
     for (const [initial, expected] of [
         [2, 1],
@@ -2471,7 +2474,7 @@ test('all source direction families dispatch their exact movement intent', async
     }
 });
 
-test('a first-time altmeta number-pad run remains an atomic boundary',
+test('a first-time altmeta number-pad run establishes the run sentinel',
     async () => {
     await runSegment({
         seed: 840004,
@@ -2481,6 +2484,7 @@ test('a first-time altmeta number-pad run remains an atomic boundary',
             + 'number_pad,altmeta',
         moves: '',
     });
+    game.level.monlist = null;
     const start = [game.u.ux, game.u.uy];
     const west = game.level.at(start[0] - 1, start[1]);
     west.typ = ROOM;
@@ -2492,17 +2496,16 @@ test('a first-time altmeta number-pad run remains an atomic boundary',
     game.nhDisplay.pushKey(0x1B);
     game.nhDisplay.pushKey(commandKeyCode('4'));
 
-    await assert.rejects(
-        rhack(0, game),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === 0xB4,
-    );
+    await rhack(0, game);
 
-    assert.deepEqual([game.u.ux, game.u.uy], start);
-    assert.equal(game.context.run ?? 0, 0);
-    assert.equal(game.context.mv ?? 0, 0);
-    assert.equal(game.multi ?? 0, 0);
-    assert.equal(game.u.last_str_turn, 99);
+    // cmd.c rhack()'s DOMOVE_RUSH arm: a first-time run without a count sets
+    // multi to max(COLNO, ROWNO), zeroes last_str_turn, marks context.mv and
+    // calls domove(), which takes the run's first step immediately.
+    assert.deepEqual([game.u.ux, game.u.uy], [start[0] - 1, start[1]]);
+    assert.equal(game.context.run, 1);
+    assert.equal(game.context.mv, 1);
+    assert.equal(game.multi, COLNO);
+    assert.equal(game.u.last_str_turn, 0);
 });
 
 test('runtime dispatch applies a configured movement binding', async () => {

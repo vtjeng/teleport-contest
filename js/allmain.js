@@ -64,8 +64,10 @@ import { rhack } from './cmd.js';
 import {
     domove,
     endRunning,
+    lookaround,
     near_capacity,
     projected_capacity,
+    runmode_delay_output,
 } from './hack.js';
 import { encumber_msg } from './pickup.js';
 import { docrt, cls, bot, flush_screen, newsym } from './display.js';
@@ -799,6 +801,13 @@ export async function moveloop_core() {
     g.context.move = 1;
     g.u.umoved = false;
     if ((g.multi ?? 0) > 0) {
+        await lookaround(g);
+        await runmode_delay_output(g);
+        // lookaround() may clear multi.
+        if (!g.multi) {
+            g.context.move = 0;
+            return;
+        }
         if (g.context.mv) {
             if (g.multi < COLNO && !--g.multi) endRunning(g);
             await domove(g);

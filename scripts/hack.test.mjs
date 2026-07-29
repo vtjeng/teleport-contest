@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
+    COLNO,
+    CORR,
     DUST,
     FLYING,
     FOUNTAIN,
@@ -10,6 +13,12 @@ import {
     MAX_TYPE,
     ROOM,
     ROT_CORPSE,
+    ROWNO,
+    RUN_CRAWL,
+    RUN_LEAP,
+    RUN_STEP,
+    RUN_TPORT,
+    STONE,
     STAIRS,
     STEALTH,
     TIMER_OBJECT,
@@ -19,10 +28,13 @@ import {
 import {
     disturb_buried_zombies,
     hero_tread_disturbs_buried_zombies,
+    lookaround,
     maybe_smudge_engr,
+    nomul,
+    runmode_delay_output,
     switch_terrain_for_legal_move,
 } from '../js/hack.js';
-import { M1_FLY } from '../js/monsters.js';
+import { M1_FLY, PM_GRID_BUG } from '../js/monsters.js';
 import { CORPSE, DAGGER } from '../js/objects.js';
 import {
     peek_timer,
@@ -260,4 +272,185 @@ test('disturb_buried_zombies keeps a one-turn timer at one', () => {
 
     assert.equal(peek_timer(ZOMBIFY_MON, corpse, state), 8);
     assert.equal(corpse.timed, 1);
+});
+
+// ── nomul(), lookaround() and runmode_delay_output() ──
+
+// A synthetic 80x21 level whose squares are all STONE, so a test can carve
+// exactly the terrain the branch under test needs. levl[x][y] is indexed the
+// way js/mklev.js builds it: level.at(x, y).
+function runLevel() {
+    const grid = [];
+    const monsters = [];
+    for (let x = 0; x < COLNO; ++x) {
+        grid.push([]);
+        monsters.push([]);
+        for (let y = 0; y < ROWNO; ++y) {
+            grid[x].push({ typ: STONE, flags: 0, doormask: 0, lit: 1 });
+            monsters[x].push(null);
+        }
+    }
+    return {
+        at: (x, y) => grid[x]?.[y],
+        monsters,
+        monlist: null,
+        objects: [],
+        regions: [],
+        flags: {},
+    };
+}
+
+// A hero at <10,10> inside a five-square-wide strip of ROOM running east.
+function runState(overrides = {}) {
+    const level = runLevel();
+    for (let x = 8; x <= 14; ++x) level.at(x, 10).typ = ROOM;
+    const uprops = [];
+    uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    return {
+        level,
+        u: {
+            ux: 10, uy: 10, dx: 1, dy: 0, umonnum: 0,
+            last_str_turn: 0, uinvulnerable: true, usleep: 5,
+            uprops,
+        },
+        youmonst: { data: {} },
+        context: { run: 1, travel: 0, travel1: 0, mv: 1, move: 1 },
+        disp: { botl: false },
+        flags: { runmode: RUN_LEAP, time: false },
+        multi: COLNO,
+        moves: 3,
+        ...overrides,
+    };
+}
+
+test('nomul(0) clears the run and the source fields around it', () => {
+    const state = runState();
+    nomul(0, state);
+    // hack.c nomul(): disp.botl is set only for a non-negative multi, and
+    // end_running(TRUE) then zeroes run, travel, travel1 and mv.
+    assert.equal(state.multi, 0);
+    assert.equal(state.context.run, 0);
+    assert.equal(state.context.mv, 0);
+    assert.equal(state.disp.botl, true);
+    assert.equal(state.u.uinvulnerable, false);
+    assert.equal(state.u.usleep, 0);
+});
+
+test('nomul returns early when multi is already lower than the request', () => {
+    // hack.c nomul()'s "bug fix by ab@unido": a paralysis of -5 outlasts a
+    // later request for -2, so nothing is written.
+    const state = runState({ multi: -5 });
+    nomul(-2, state);
+    assert.equal(state.multi, -5);
+    assert.equal(state.context.run, 1);
+    assert.equal(state.disp.botl, false);
+});
+
+test('lookaround leaves an empty room run alone', async () => {
+    const state = runState();
+    await lookaround(state);
+    assert.equal(state.context.run, 1);
+    assert.equal(state.multi, COLNO);
+    // corrct stays 0 inside a room, so the corner-turning block cannot fire.
+    assert.deepEqual([state.u.dx, state.u.dy], [1, 0]);
+});
+
+test('lookaround stops the run for a visible monster directly in front',
+    async () => {
+        const state = runState();
+        // hack.c lookaround(): at run == 1 only the infront arm applies, and
+        // it needs mon_visible(), which is minvis and mundetected only.
+        state.level.monsters[11][10] = {
+            mx: 11, my: 10, minvis: 0, mundetected: 0, m_ap_type: 0,
+        };
+        await lookaround(state);
+        assert.equal(state.context.run, 0);
+        assert.equal(state.multi, 0);
+    });
+
+test('lookaround ignores a visible monster that is not in front', async () => {
+    const state = runState();
+    // <10,9> is adjacent but off the line of travel, so neither the infront
+    // arm nor the run != 1 arm applies.
+    state.level.at(10, 9).typ = ROOM;
+    state.level.monsters[10][9] = {
+        mx: 10, my: 9, minvis: 0, mundetected: 0, m_ap_type: 0,
+    };
+    await lookaround(state);
+    assert.equal(state.context.run, 1);
+});
+
+test('lookaround ignores an unseen monster in front', async () => {
+    const state = runState();
+    state.level.monsters[11][10] = {
+        mx: 11, my: 10, minvis: 1, mundetected: 0, m_ap_type: 0,
+    };
+    await lookaround(state);
+    assert.equal(state.context.run, 1);
+});
+
+test('lookaround returns immediately for a blind hero', async () => {
+    const state = runState();
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.level.monsters[11][10] = {
+        mx: 11, my: 10, minvis: 0, mundetected: 0, m_ap_type: 0,
+    };
+    await lookaround(state);
+    assert.equal(state.context.run, 1);
+});
+
+test('lookaround stops a grid bug asked to move diagonally', async () => {
+    const state = runState();
+    state.u.umonnum = PM_GRID_BUG;
+    state.u.dy = 1;
+    // hack.c lookaround()'s first branch runs before the Blind test and
+    // before any square is examined, and it ends the run outright.
+    await lookaround(state);
+    assert.equal(state.context.run, 0);
+    assert.equal(state.multi, 0);
+});
+
+test('lookaround refuses a run whose hero is not standing on a room square',
+    async () => {
+        // Every corridor arm of hack.c lookaround() hangs off this test, and
+        // corridor running is outside this boundary.
+        const state = runState();
+        state.level.at(10, 10).typ = CORR;
+        await assert.rejects(
+            lookaround(state),
+            (error) => error.name === 'UnsupportedHeroMoveBoundaryError',
+        );
+    });
+
+test('runmode_delay_output follows each source cadence', async () => {
+    // hack.c runmode_delay_output(): RUN_TPORT emits nothing, RUN_LEAP emits
+    // one delay only when moves % 7 is zero, RUN_STEP emits one every call,
+    // and RUN_CRAWL emits five.
+    const cases = [
+        { runmode: RUN_TPORT, moves: 7, expected: 0 },
+        { runmode: RUN_LEAP, moves: 3, expected: 0 },
+        { runmode: RUN_LEAP, moves: 7, expected: 1 },
+        { runmode: RUN_LEAP, moves: 14, expected: 1 },
+        { runmode: RUN_STEP, moves: 3, expected: 1 },
+        { runmode: RUN_CRAWL, moves: 3, expected: 5 },
+    ];
+    for (const { runmode, moves, expected } of cases) {
+        let frames = 0;
+        const state = runState({ moves });
+        state.flags = { runmode, time: true };
+        state._animationFrameHook = () => { frames++; };
+        await runmode_delay_output(state);
+        assert.equal(frames, expected, `runmode ${runmode} at moves ${moves}`);
+        if (expected) assert.equal(state.disp.time_botl, true);
+    }
+});
+
+test('runmode_delay_output stays silent with no run and no multi', async () => {
+    let frames = 0;
+    const state = runState({ multi: 0 });
+    state.context.run = 0;
+    state.flags = { runmode: RUN_STEP, time: false };
+    state._animationFrameHook = () => { frames++; };
+    await runmode_delay_output(state);
+    assert.equal(frames, 0);
 });

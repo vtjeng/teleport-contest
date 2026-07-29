@@ -13,48 +13,59 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    FIRE_RES,
     FLYING,
     HALLUC,
     HALLUC_RES,
     HEADSTONE,
+    ICE,
+    IS_AIR,
+    IS_DOOR,
+    IS_FURNITURE,
     IS_OBSTRUCTED,
     IS_STWALL,
     IS_TREE,
     IS_WALL,
+    IS_WATERWALL,
+    LAVAWALL,
     LEVITATION,
-    LOOKHERE_NOFLAGS,
     MAX_TYPE,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     ROOM,
+    RUN_CRAWL,
+    RUN_LEAP,
+    RUN_TPORT,
     STAIRS,
     STEALTH,
     STONE,
     TIMER_OBJECT,
+    VIBRATING_SQUARE,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
     ZOMBIFY_MON,
     OVERLOADED,
+    PROT_FROM_SHAPE_CHANGERS,
     isok,
 } from './const.js';
 import { effective_attribute } from './attrib.js';
 import {
     classify_terrain,
     feel_location,
+    flush_screen,
     newsym,
     wall_angle,
 } from './display.js';
-import { alwaysVisibleMonsterName } from './do_name.js';
+import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
+import { dist2 } from './hacklib.js';
 import {
     can_reach_floor,
     engr_at,
-    read_engr_at,
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
-import { look_here } from './invent.js';
 import {
     is_flyer,
     is_hider,
@@ -64,30 +75,38 @@ import {
     throws_rocks,
     tunnels,
 } from './mondata.js';
-import { sobj_at } from './obj.js';
+import { objectType, sobj_at } from './obj.js';
 import {
     BOULDER,
     COIN_CLASS,
     CORPSE,
+    WATER_WALKING_BOOTS,
 } from './objects.js';
 import {
+    PM_GRID_BUG,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
 } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { onscary } from './monmove.js';
+import { closed_door, onscary } from './monmove.js';
+import { check_here } from './pickup.js';
 import { in_out_region, inside_region } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { check_special_room_state } from './rooms.js';
-import { canSpotMonster, messageAt } from './startup_a11y.js';
-import { S_stone } from './symbols.js';
+import {
+    canSpotMonster,
+    messageAt,
+    monsterVisible,
+    sensesMonster,
+} from './startup_a11y.js';
+import { S_hcdoor, S_stone, S_vcdoor } from './symbols.js';
 import {
     peek_timer,
     start_timer,
     stop_timer,
 } from './timeout.js';
-import { t_at } from './trap.js';
+import { is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { do_attack, is_safemon } from './uhitm.js';
 import { vision_recalc } from './vision.js';
@@ -231,6 +250,21 @@ export function endRunning(state = game) {
     state.context.travel1 = 0;
     state.context.mv = 0;
     if (state.multi > 0) state.multi = 0;
+}
+
+// C ref: hack.c nomul(). Interrupts a multi-turn action: a run, a travel, or
+// a counted repeat. Its cmdq_clear(CQ_CANNED) has no ported command queue,
+// and gm.multi_reason/gm.multireasonbuf have no ported reader, so neither is
+// represented here.
+export function nomul(nval, state = game) {
+    const multi = state.multi ?? 0;
+    if (multi < nval) return; /* This is a bug fix by ab@unido */
+    state.disp ??= {};
+    if (multi >= 0) state.disp.botl = true;
+    state.u.uinvulnerable = false;
+    state.u.usleep = 0;
+    state.multi = nval;
+    endRunning(state);
 }
 
 function heroIsBlind(state) {
@@ -441,10 +475,15 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
 
 // cmd.c establishes movement intent only after this hack.c admission seam has
 // shown that the destination is inside the currently ported domove() subset.
-export function preflightDomoveDestination(x, y, state = game) {
+export function preflightDomoveDestination(x, y, state = game, run = 0) {
     const destination = state.level?.at(x, y);
     const destinationMonster = m_at(x, y, state);
     if (destinationMonster) {
+        // domove_core()'s run arm stops in front of a monster the hero can
+        // make out, without attacking it and without spending the move. That
+        // arm is ported, so admit the command and let domove() run it; the
+        // pet-displacement seam below owns every other destination monster.
+        if (runStopsBeforeMonster(destinationMonster, run, state)) return;
         requireOrdinaryStartingPetSwap(destinationMonster, x, y, state);
     } else if (destination?.typ === DOOR || !blocksMove(x, y, state)) {
         requireSimpleHeroDestination(x, y, state);
@@ -487,6 +526,92 @@ export async function test_move(
     return false;
 }
 
+// C ref: hack.c Known_wwalking. Water walking boots are the only source, and
+// the hero has to have identified them.
+function known_wwalking(state) {
+    const boots = state.uarmf;
+    return Boolean(boots
+        && boots.otyp === WATER_WALKING_BOOTS
+        && objectType(boots, state).oc_name_known
+        && !state.u.usteed);
+}
+
+// C ref: hack.c Known_lwalking.
+function known_lwalking(state) {
+    return known_wwalking(state)
+        && (propertyIntrinsic(state, FIRE_RES)
+            || Boolean(state.u?.uprops?.[FIRE_RES]?.extrinsic))
+        && Boolean(state.uarmf.oerodeproof)
+        && Boolean(state.uarmf.rknown);
+}
+
+// C ref: hack.c avoid_moving_on_trap(). Its message needs trapname() and an(),
+// neither of which is ported. Only lookaround()'s trap arm at run values above
+// 1 and avoid_running_into_trap_or_liquid() pass msg = TRUE, and both belong
+// to the rush and travel modes this boundary excludes.
+function avoid_moving_on_trap(x, y, msg, state) {
+    const trap = t_at(x, y, state);
+    if (trap && trap.tseen && trap.ttyp !== VIBRATING_SQUARE) {
+        if (msg && state.flags?.mention_walls) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'a trap stop message while rushing',
+            );
+        }
+        return true;
+    }
+    return false;
+}
+
+// C ref: hack.c avoid_moving_on_liquid(). The clinging-polyform case the
+// source marks XXX is absent there too.
+async function avoid_moving_on_liquid(x, y, msg, state) {
+    const inAir = propertyActiveUnblocked(state, LEVITATION)
+        || heroIsFlying(state);
+    const destination = state.level?.at(x, y);
+    const here = state.level?.at(state.u.ux, state.u.uy);
+    const pool = is_pool(x, y, state);
+    if ((destination?.typ === here?.typ
+        || ((state.context.run ?? 0) < 2 && (!is_lava(x, y, state) || inAir))
+        || state.context.travel)
+        && (inAir || known_lwalking(state) || (pool && known_wwalking(state)))
+        && !(IS_WATERWALL(destination.typ)
+            || destination.typ === LAVAWALL)) {
+        return false; /* liquid is safe to traverse */
+    }
+    if ((pool || is_lava(x, y, state)) && destination?.seenv) {
+        if (msg && state.flags?.mention_walls) {
+            await ttyPline(
+                messageAt(
+                    `You stop at the edge of the ${hliquid(
+                        pool ? 'water' : 'lava',
+                        { state },
+                    )}.`,
+                    x,
+                    y,
+                    state,
+                ),
+                state,
+            );
+        }
+        return true;
+    }
+    return false;
+}
+
+// C ref: hack.c domove_core()'s "Don't attack if you're running" arm. The
+// hero stops without spending the move; the destination monster is left
+// alone.
+function runStopsBeforeMonster(monster, run, state) {
+    if (!run || !monster || is_safemon(monster, state))
+        return false;
+    const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
+    const seen = !heroIsBlind(state)
+        && monsterVisible(monster, state)
+        && ((appearance !== M_AP_FURNITURE && appearance !== M_AP_OBJECT)
+            || propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS));
+    return seen || sensesMonster(monster, state);
+}
+
 // C ref: hack.c domove(). This remains the narrow ordinary-floor subset; the
 // movement milestone will replace its collision and terrain branches in source
 // order without changing the command intent established by cmd.c. It requires
@@ -504,14 +629,21 @@ export async function domove(state = game) {
         await test_move(u.ux, u.uy, u.dx, u.dy, state, {
             message: ttyPline,
         });
+        // C ref: domove_core()'s failed test_move() arm. context.door_opened
+        // belongs to the closed-door branch, which is not ported, so the
+        // no-time refusal always runs.
         state.context.move = 0;
-        state.multi = 0;
-        state.context.mv = 0;
-        state.context.run = 0;
+        nomul(0, state);
         state.domoveAttempting = 0;
         return;
     }
     const destinationMonster = m_at(newx, newy, state);
+    if (runStopsBeforeMonster(destinationMonster, state.context.run, state)) {
+        nomul(0, state);
+        state.context.move = 0;
+        state.domoveAttempting = 0;
+        return;
+    }
     if (destinationMonster) {
         requireOrdinaryStartingPetSwap(
             destinationMonster,
@@ -556,6 +688,19 @@ export async function domove(state = game) {
             { message: ttyPline },
         );
     }
+
+    // C ref: domove_core()'s run arm after u_on_newpos(). A run that walks
+    // onto a doorway or a furniture square such as a staircase ends there.
+    // reset_occupations() precedes it in C and has no ported occupation to
+    // reset. The run < 8 test excludes travel only.
+    const destination = state.level?.at(newx, newy);
+    if (state.context.run && state.context.run < 8
+        && (IS_DOOR(destination.typ)
+            || IS_OBSTRUCTED(destination.typ)
+            || IS_FURNITURE(destination.typ))) {
+        nomul(0, state);
+    }
+
     u.umoved = true;
 
     if (hero_tread_disturbs_buried_zombies(state))
@@ -566,34 +711,267 @@ export async function domove(state = game) {
     newsym(newx, newy);
     switch_terrain_for_legal_move(state);
     check_special_room_state(false, state);
-    const floorObject = state.level?.objects?.[newx]?.[newy] ?? null;
-    if (floorObject && !floorObject.nexthere) {
-        // C ref: domove() -> spoteffects(TRUE) -> pickup(1) -> check_here()
-        // -> invent.c look_here(). check_here() counts the objects on the
-        // square and passes that count, which look_here() compares against
-        // flags.pile_limit; the guard above means the count is one.
-        let objectCount = 0;
-        for (let obj = floorObject; obj; obj = obj.nexthere) ++objectCount;
-        await look_here(
-            objectCount,
-            LOOKHERE_NOFLAGS,
-            state,
-            {
-                message: ttyPline,
-                readEngraving: () => read_engr_at(newx, newy, state, {
-                    pline: ttyPline,
-                    canReachFloor: can_reach_floor,
-                }),
-            },
-        );
-    } else {
-        await read_engr_at(newx, newy, state, {
-            pline: ttyPline,
-            canReachFloor: can_reach_floor,
-        });
-    }
+    // C ref: domove_core() -> spoteffects(TRUE) -> pickup(1) -> check_here().
+    await check_here(false, state);
+    await runmode_delay_output(state);
     maybe_smudge_engr(oldx, oldy, newx, newy, state);
     state.domoveAttempting = 0;
+}
+
+// C ref: hack.c nh_delay_output()'s window-port entry. Recorder patch 006
+// makes the patched tty capture one animation frame and return immediately
+// whenever NETHACK_NO_DELAY is set, which is how every recording runs, so the
+// frame capture is the whole of its observable behavior.
+async function nh_delay_output(state) {
+    await state._animationFrameHook?.();
+}
+
+// C ref: display.c curs_on_u().
+async function curs_on_u() {
+    await flush_screen(1);
+}
+
+// C ref: hack.c runmode_delay_output(). Called once per turn from
+// moveloop_core() while a multi-turn action is running and once more at the
+// end of each domove().
+export async function runmode_delay_output(state = game) {
+    if ((state.context.run || state.multi)
+        && state.flags.runmode !== RUN_TPORT) {
+        // For normal (leap) mode, update the display every 7th step relative
+        // to the turn counter; walk and crawl update after every step.
+        if (state.flags.runmode !== RUN_LEAP || !(state.moves % 7)) {
+            state.disp ??= {};
+            // moveloop_core() suppresses time_botl while running.
+            state.disp.time_botl = Boolean(state.flags.time);
+            await curs_on_u();
+            await nh_delay_output(state);
+            if (state.flags.runmode === RUN_CRAWL) {
+                await nh_delay_output(state);
+                await nh_delay_output(state);
+                await nh_delay_output(state);
+                await nh_delay_output(state);
+            }
+        }
+    }
+}
+
+// C ref: hack.h NODIAG(). Only grid bugs are barred from diagonal movement.
+function NODIAG(monnum) {
+    return monnum === PM_GRID_BUG;
+}
+
+// C ref: monst.h is_door_mappear().
+function is_door_mappear(monster) {
+    return ((monster.m_ap_type ?? 0) & M_AP_TYPMASK) === M_AP_FURNITURE
+        && (monster.mappearance === S_hcdoor
+            || monster.mappearance === S_vcdoor);
+}
+
+const LOOKAROUND_CONTINUE = 0;
+const LOOKAROUND_STOP = 1;
+
+// C ref: hack.c lookaround(). Stop running if something interesting is next
+// to the hero; turn around a corner if that is the only way to proceed; never
+// turn left or right twice. The two labels the source jumps to become the
+// bcorr() closure and the LOOKAROUND_STOP result of examine().
+export async function lookaround(state = game) {
+    const u = state.u;
+    let i = 0;
+    let x0 = 0;
+    let y0 = 0;
+    let m0 = 1;
+    let i0 = 9;
+    let corrct = 0;
+    let noturn = 0;
+
+    // Grid bugs stop if trying to move diagonal, even if blind. Maybe they
+    // polymorphed while in the middle of a long move.
+    if (NODIAG(u.umonnum) && u.dx && u.dy) {
+        await ttyPline('You cannot move diagonally.', state);
+        nomul(0, state);
+        return;
+    }
+
+    if (heroIsBlind(state) || state.context.run === 0) return;
+
+    const here = state.level.at(u.ux, u.uy);
+    // Every corridor arm below hangs off this one test, and it is also the
+    // only way the corner-turning block at the end can fire. A run inside a
+    // room reaches none of them: leaving a room crosses a doorway, and
+    // domove_core() ends the run on the doorway square before this runs
+    // again. Corridor running is the next slice, so stop instead of running
+    // arms no differential covers.
+    if (here.typ !== ROOM) {
+        throw new UnsupportedHeroMoveBoundaryError('a run outside a room');
+    }
+
+    // C ref: lookaround()'s bcorr label. Its body counts corridor squares
+    // around the hero and picks the one a corner turn would follow. The guard
+    // above means only its `continue` is live today; the counting arm becomes
+    // reachable with corridor running.
+    const bcorr = (x, y, mtmp) => {
+        if (here.typ !== ROOM) {
+            const run = state.context.run;
+            /* running or traveling */
+            if (run === 1 || run === 3 || run === 8) {
+                /* distance from x,y to the location we're moving to */
+                i = dist2(x, y, u.ux + u.dx, u.uy + u.dy);
+                /* ignore if not on or directly adjacent to it */
+                if (i > 2) return LOOKAROUND_CONTINUE;
+                /* x,y is (adjacent to) the location we're moving to; if we've
+                   seen one corridor, and x,y is not directly orthogonally
+                   next to it, mark noturn */
+                if (corrct === 1 && dist2(x, y, x0, y0) !== 1) noturn = 1;
+                /* if previous x,y was diagonal, now x,y is orthogonal (or
+                   this is the first time we're here) */
+                if (i < i0) {
+                    i0 = i;
+                    x0 = x;
+                    y0 = y;
+                    m0 = mtmp ? 1 : 0;
+                }
+            }
+            corrct++;
+        }
+        return LOOKAROUND_CONTINUE;
+    };
+
+    const examine = async (x, y) => {
+        const infront = (x === u.ux + u.dx && y === u.uy + u.dy);
+
+        /* ignore out of bounds, and our own location */
+        if (!isok(x, y) || (x === u.ux && y === u.uy))
+            return LOOKAROUND_CONTINUE;
+        /* (grid bugs) ignore diagonals */
+        if (NODIAG(u.umonnum) && x !== u.ux && y !== u.uy)
+            return LOOKAROUND_CONTINUE;
+
+        const mtmp = m_at(x, y, state);
+        const location = state.level.at(x, y);
+
+        /* can we see a monster there? */
+        if (mtmp) {
+            const appearance = (mtmp.m_ap_type ?? 0) & M_AP_TYPMASK;
+            if (appearance !== M_AP_FURNITURE
+                && appearance !== M_AP_OBJECT
+                && monsterVisible(mtmp, state)) {
+                /* running movement and not a hostile monster, OR it blocks
+                   our move direction and we're not traveling */
+                if ((state.context.run !== 1 && !is_safemon(mtmp, state))
+                    || (infront && !state.context.travel)) {
+                    if (state.flags?.mention_walls) {
+                        // "%s blocks your path." needs a_monnam(), which has
+                        // no ported owner.
+                        throw new UnsupportedHeroMoveBoundaryError(
+                            'a blocked-path message',
+                        );
+                    }
+                    return LOOKAROUND_STOP;
+                }
+            }
+        }
+
+        /* stone is never interesting */
+        if (location.typ === STONE) return LOOKAROUND_CONTINUE;
+        /* ignore the square we're moving away from */
+        if (x === u.ux - u.dx && y === u.uy - u.dy)
+            return LOOKAROUND_CONTINUE;
+
+        /* stop for traps, sometimes */
+        if (avoid_moving_on_trap(
+            x, y, infront && state.context.run > 1, state,
+        )) {
+            if (state.context.run === 1) return bcorr(x, y, mtmp);
+            if (infront) return LOOKAROUND_STOP;
+        }
+
+        /* more uninteresting terrain */
+        if (IS_OBSTRUCTED(location.typ) || location.typ === ROOM
+            || IS_AIR(location.typ) || location.typ === ICE) {
+            return LOOKAROUND_CONTINUE;
+        } else if (closed_door(x, y, state)
+            || (mtmp && is_door_mappear(mtmp))) {
+            /* a closed door? ignore if diagonal */
+            if (x !== u.ux && y !== u.uy) return LOOKAROUND_CONTINUE;
+            if (state.context.run !== 1 && !state.context.travel) {
+                if (state.flags?.mention_walls) {
+                    await ttyPline(
+                        messageAt(
+                            'You stop in front of the door.', x, y, state,
+                        ),
+                        state,
+                    );
+                }
+                return LOOKAROUND_STOP;
+            }
+            /* orthogonal to a closed door, consider it a corridor */
+            return bcorr(x, y, mtmp);
+        } else if (location.typ === CORR) {
+            return bcorr(x, y, mtmp);
+        } else if (is_pool(x, y, state) || is_lava(x, y, state)) {
+            if (infront && await avoid_moving_on_liquid(x, y, true, state))
+                return LOOKAROUND_STOP;
+            return LOOKAROUND_CONTINUE;
+        }
+        /* e.g. objects or trap or stairs */
+        if (state.context.run === 1) return bcorr(x, y, mtmp);
+        if (state.context.run === 8) return LOOKAROUND_CONTINUE;
+        if (mtmp) return LOOKAROUND_CONTINUE; /* d */
+        if (((x === u.ux - u.dx) && (y !== u.uy + u.dy))
+            || ((y === u.uy - u.dy) && (x !== u.ux + u.dx)))
+            return LOOKAROUND_CONTINUE;
+        return LOOKAROUND_STOP;
+    };
+
+    for (let x = u.ux - 1; x <= u.ux + 1; ++x) {
+        for (let y = u.uy - 1; y <= u.uy + 1; ++y) {
+            if (await examine(x, y) === LOOKAROUND_STOP) {
+                nomul(0, state);
+                return;
+            }
+        }
+    }
+
+    // corrct is zero for every square a room run sees, so neither the
+    // rush-only widening stop nor the corner turn below can fire until the
+    // guard above lifts. Both are kept with the function they belong to.
+    if (corrct > 1 && state.context.run === 2) {
+        if (state.flags?.mention_walls)
+            await ttyPline('The corridor widens here.', state);
+        nomul(0, state);
+        return;
+    }
+    if ((state.context.run === 1 || state.context.run === 3
+        || state.context.run === 8)
+        && !noturn && !m0 && i0
+        && (corrct === 1 || (corrct === 2 && i0 === 1))) {
+        /* make sure that we do not turn too far */
+        if (i0 === 2) {
+            if (u.dx === y0 - u.uy && u.dy === u.ux - x0)
+                i = 2; /* straight turn right */
+            else
+                i = -2; /* straight turn left */
+        } else if (u.dx && u.dy) {
+            if ((u.dx === u.dy && y0 === u.uy)
+                || (u.dx !== u.dy && y0 !== u.uy))
+                i = -1; /* half turn left */
+            else
+                i = 1; /* half turn right */
+        } else {
+            if ((x0 - u.ux === y0 - u.uy && !u.dy)
+                || (x0 - u.ux !== y0 - u.uy && u.dy))
+                i = 1; /* half turn right */
+            else
+                i = -1; /* half turn left */
+        }
+
+        i += u.last_str_turn;
+        if (i <= 2 && i >= -2) {
+            u.last_str_turn = i;
+            u.dx = x0 - u.ux;
+            u.dy = y0 - u.uy;
+        }
+    }
 }
 
 // C ref: hack.c domove_swap_with_pet(), successful ordinary starting-pet
@@ -627,18 +1005,22 @@ export async function domove_swap_with_pet(
     return true;
 }
 
-// C ref: hack.c domove(), the heavy-tread branch immediately after the hero
-// position update. Flying includes a flying steed, as the C macro does.
-export function hero_tread_disturbs_buried_zombies(state = game) {
+// C ref: youprop.h Flying, which counts a flying steed as carrying the hero.
+function heroIsFlying(state) {
     const flyingProperty = state.u?.uprops?.[FLYING] ?? {};
-    const flying = Boolean(
+    return Boolean(
         (flyingProperty.intrinsic
             || flyingProperty.extrinsic
             || (state.u?.usteed && is_flyer(state.u.usteed.data)))
         && !flyingProperty.blocked,
     );
+}
+
+// C ref: hack.c domove(), the heavy-tread branch immediately after the hero
+// position update.
+export function hero_tread_disturbs_buried_zombies(state = game) {
     return !propertyActiveUnblocked(state, LEVITATION)
-        && !flying
+        && !heroIsFlying(state)
         && !propertyActiveUnblocked(state, STEALTH)
         && (state.youmonst?.data?.cwt ?? 0) >= (WT_ELF / 2);
 }

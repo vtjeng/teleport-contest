@@ -351,6 +351,10 @@ export class NethackGame {
 
     _installCaptureHook() {
         const nhGame = this;
+        // hack.c nh_delay_output() is where the recorder's patched tty
+        // captures an intermediate frame, so js/hack.js calls this hook from
+        // its port of that function.
+        game._animationFrameHook = () => nhGame.animationFrame();
         game._preNhgetchHook = async () => {
             // Capture RNG slice since last capture
             const fullLog = getRngLog() || [];
