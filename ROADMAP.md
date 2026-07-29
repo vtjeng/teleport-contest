@@ -89,6 +89,45 @@ cursor still at column 3, so NEWAUTOCOMP expansion paints ahead of an unmoved
 cursor. And `extcmds_match()` is gated on `wizard`, which `#levelchange`
 depends on.
 
+The goal does not drag in `rhack()`'s PREFIXCMD dispatch, despite needing the
+same `extcmdlist[]` table. `cmd.c:1669` gives `#` the flags
+`IFBURIED | GENERALCMD | CMD_M_PREFIX`, with no `PREFIXCMD`, so `g`, `G` and
+`m` stay outside it.
+
+**Behavior slices, each closed on its own.**
+
+1. **The `#` prompt through one dispatch.** `cmd.c` `extcmd_initiator`
+   (457-461), `can_do_extcmd` (463-489), `doextcmd` (493-519), `extcmds_match`
+   (2523-2557), and `extcmdlist[]` (1667-2067, 171 rows, which needs a
+   generator); `win/tty/getline.c` `hooked_tty_getlin` (43-215, about 110 live
+   lines), `ext_cmd_getlin_hook` (272-286) and `tty_get_ext_cmd` (292-325).
+   `ttyGetlinSearch` at `js/tty_menu.js:467` generalizes into a `js/getline.js`.
+
+   Every prompt keystroke paints a recorded screen, so the boundary is dense.
+   The terminations are the ESC or empty cancel, the
+   `"…: unknown extended command."` answer, and — the one that proves the
+   dispatch — `#attributes`, `#look` and `#wait`, whose consumers are already
+   ported, giving an end-to-end differential both with and without `ECMD_TIME`.
+
+   Its ceiling is about 77 further steps, counted keystroke by keystroke, not
+   the 2,204 this goal carries: **none of the nine sessions passes the command
+   it types after the prompt.** Five stop at `wiz_level_change` and one each at
+   `docallcmd`, `dotalk`, `dopray` and `doloot`. Treat 2,204 as the goal's
+   figure and 77 as this slice's.
+
+   Left out: `doextlist` (`#?`), `extcmd_via_menu` (no session sets `extmenu`),
+   the repeat queue, and `can_do_extcmd`'s WIZMODECMD arm, which the prompt
+   cannot reach.
+
+   Two complications to plan for. `extcmdlist[]` carries seven `#if` regions
+   (CRASHREPORT, DEBUG_MIGRATING_MONS, SHELL, SUSPEND, DEBUG, NH_DEVEL_STATUS)
+   that the generator has to resolve against the pinned build. And NEWAUTOCOMP
+   is a rewrite rather than a parameterization: it paints the expansion ahead
+   of an unmoved cursor and changes erase and kill handling, where the existing
+   search getlin implements the non-NEWAUTOCOMP shape. Wizard gating is live
+   from the first keystroke: `l` expands to `loot` in the four non-debug
+   sessions and stays ambiguous in the five `playmode:debug` ones.
+
 ## Next goals, in order
 
 ### 1. Search
