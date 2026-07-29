@@ -30,6 +30,7 @@ import {
 } from '../js/const.js';
 import {
     disturb_buried_zombies,
+    domove,
     hero_tread_disturbs_buried_zombies,
     lookaround,
     maybe_smudge_engr,
@@ -454,6 +455,54 @@ test('lookaround turns a straight turn right around a corridor corner',
         assert.equal(state.u.last_str_turn, 2);
     });
 
+test('lookaround widens a corridor only at run 2, and says so', async () => {
+    // hack.c:4025-4029: `if (corrct > 1 && svc.context.run == 2)`. The rush
+    // commands set svc.context.run to 3 and the run commands to 1, and
+    // js/cmd.js admits no command that sets 2, so nothing in a recorded game
+    // reaches this arm; the port carries it because lookaround() is ported
+    // whole. Two corridor squares ahead give corrct == 2.
+    const widening = corridorRunState();
+    widening.flags.mention_walls = true;
+    widening.context.run = 2;
+    widening.level.at(11, 9).typ = CORR;
+    widening.level.at(11, 11).typ = CORR;
+    await lookaround(widening);
+    assert.equal(widening.context.run, 0);
+    assert.equal(widening.multi, 0);
+    assert.equal(widening._ttyToplines, 'The corridor widens here.');
+
+    // The same corridor at run 1 walks past the widening without a word.
+    const running = corridorRunState();
+    running.flags.mention_walls = true;
+    running.level.at(11, 9).typ = CORR;
+    running.level.at(11, 11).typ = CORR;
+    await lookaround(running);
+    assert.equal(running.context.run, 1);
+    assert.equal(running._ttyToplines, undefined);
+});
+
+test('lookaround refuses the blocked-path message rather than inventing it',
+    async () => {
+    // hack.c:3933-3939 prints "%s blocks your path." through a_monnam(),
+    // which has no ported owner, so the port converts the arm into a
+    // fail-closed boundary. The arm needs svc.context.run != 1, which is why
+    // no run matrix reaches it even with the option on.
+    const state = runState({ context: { run: 3, travel: 0, travel1: 0, mv: 1,
+        move: 1 } });
+    state.flags.mention_walls = true;
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] =
+        { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.level.monsters[11][10] = {
+        mx: 11, my: 10, minvis: 0, mundetected: 0, m_ap_type: 0,
+        mpeaceful: 0, mtame: 0, data: {},
+    };
+
+    await assert.rejects(
+        () => lookaround(state),
+        /a blocked-path message/u,
+    );
+});
+
 test('lookaround marks noturn when two corridor squares are not adjacent',
     async () => {
         const state = corridorRunState();
@@ -584,6 +633,67 @@ test('runmode_delay_output stays silent with no run and no multi', async () => {
     state._animationFrameHook = () => { frames++; };
     await runmode_delay_output(state);
     assert.equal(frames, 0);
+});
+
+// hack.c domove_core() ends a run through nomul(0), never by writing multi,
+// context.run and context.mv itself. The extra state nomul() touches is
+// invisible in an ordinary game, because a running hero is neither asleep nor
+// invulnerable, so these two tests set it up deliberately: without them, both
+// call sites could be replaced by three assignments and every recorded matrix
+// would still match byte for byte.
+function interruptibleRunState(overrides = {}) {
+    const state = runState(overrides);
+    // hack.c nomul() clears both, and end_running() clears the travel pair.
+    state.u.uinvulnerable = true;
+    state.u.usleep = 5;
+    state.context.travel = 1;
+    state.context.travel1 = 1;
+    state.disp.botl = false;
+    return state;
+}
+
+function assertRunEndedThroughNomul(state, label) {
+    assert.equal(state.multi, 0, `${label} multi`);
+    assert.equal(state.context.run, 0, `${label} run`);
+    assert.equal(state.context.mv, 0, `${label} mv`);
+    // The five fields the explicit zeroing never wrote.
+    assert.equal(state.u.uinvulnerable, false, `${label} uinvulnerable`);
+    assert.equal(state.u.usleep, 0, `${label} usleep`);
+    assert.equal(state.disp.botl, true, `${label} botl`);
+    assert.equal(state.context.travel, 0, `${label} travel`);
+    assert.equal(state.context.travel1, 0, `${label} travel1`);
+}
+
+test('a run refused by test_move ends through nomul, not by zeroing fields',
+    async () => {
+    // hack.c:2843-2849. <11,10> is the square in front; leaving it STONE makes
+    // test_move() fail, which is the arm that gives up the move.
+    const state = interruptibleRunState();
+    state.level.at(11, 10).typ = STONE;
+
+    await domove(state);
+
+    assert.equal(state.context.move, 0);
+    assert.deepEqual([state.u.ux, state.u.uy], [10, 10]);
+    assertRunEndedThroughNomul(state, 'test_move refusal');
+});
+
+test('a run stopped before a monster ends through nomul too', async () => {
+    // hack.c:2768-2775, the don't-attack-while-running arm. A visible hostile
+    // in front stops the run without spending the move.
+    const state = interruptibleRunState();
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] =
+        { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.level.monsters[11][10] = {
+        mx: 11, my: 10, minvis: 0, mundetected: 0, m_ap_type: 0,
+        mpeaceful: 0, mtame: 0, data: {},
+    };
+
+    await domove(state);
+
+    assert.equal(state.context.move, 0);
+    assert.deepEqual([state.u.ux, state.u.uy], [10, 10]);
+    assertRunEndedThroughNomul(state, 'monster in front');
 });
 
 test('the run stop before a monster reads each of C\'s three terms', () => {

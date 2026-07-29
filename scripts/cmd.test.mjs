@@ -1066,6 +1066,44 @@ test('simple hero movement admits empty room and corridor controls',
         }
     });
 
+test('a run onto a doorway or a staircase ends on the square it reaches',
+    async () => {
+    // hack.c:2937-2941, domove_core()'s arm after u_on_newpos():
+    // `if (svc.context.run && svc.context.run < 8
+    //      && (IS_DOOR(typ) || IS_OBSTRUCTED(typ) || IS_FURNITURE(typ)))
+    //          nomul(0);`
+    // The three run matrices only ever reach the IS_DOOR term, so without the
+    // staircase case below the IS_FURNITURE term can be deleted outright.
+    // rm.h:138 puts STAIRS at the bottom of IS_FURNITURE's range, and
+    // requireSimpleHeroDestination() admits no other type in it yet.
+    for (const [label, typ, doormask] of [
+        ['doorway', DOOR, D_NODOOR],
+        ['staircase', STAIRS, 0],
+    ]) {
+        const { destination, x, y } = await prepareHeroMoveAdmission();
+        destination.typ = typ;
+        destination.flags = destination.doormask = doormask;
+        game.context.run = 1;
+        game.multi = 12;
+        // nomul() clears these two and sets disp.botl; the three field
+        // assignments this call site replaced wrote none of them, and a
+        // running hero is never asleep or invulnerable in a recorded game,
+        // which is why no matrix can tell the two apart.
+        game.u.uinvulnerable = true;
+        game.u.usleep = 5;
+        game.disp.botl = false;
+
+        await domove(game);
+
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+        assert.equal(game.context.run, 0, `${label} run`);
+        assert.equal(game.multi, 0, `${label} multi`);
+        assert.equal(game.u.uinvulnerable, false, `${label} uinvulnerable`);
+        assert.equal(game.u.usleep, 0, `${label} usleep`);
+        assert.equal(game.disp.botl, true, `${label} botl`);
+    }
+});
+
 function resetSafeWaitTestGame(options = '') {
     const state = resetParserTestGame([]);
     const parsed = parseNethackrc(options);

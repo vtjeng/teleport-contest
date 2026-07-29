@@ -54,10 +54,21 @@ const CTRL_P = 0x10;
 // public entry points set before calling hooked_tty_getlin().
 let suppress_history = false;
 
-// C ref: win/tty/topl.c topl_putsym().  Backspace steps the cursor back,
-// wrapping onto the previous row's last written column; an ordinary byte is
-// written where the cursor stands after wrapping at the terminal's final
+// C ref: win/tty/topl.c topl_putsym() at 305.  Backspace steps the cursor
+// back, wrapping onto the previous row's last written column; an ordinary byte
+// is written where the cursor stands after wrapping at the terminal's final
 // column, which topl_putsym() keeps unused.
+//
+// The newline arm below is incomplete on purpose.  C runs cl_end() twice: once
+// at topl.c:322 on the row it leaves, and once at topl.c:340, where
+// `if (cw->curx == 0) cl_end()` wipes the whole row it moved onto.  Only the
+// first is ported, so the port leaves the old map row visible to the right of a
+// wrapped prompt.  Nothing reaches the arm yet, because the only caller that
+// wraps is the default arm below and no ported prompt runs past column 79.
+// Porting the second cl_end() belongs with tty_clear_nhwindow(WIN_MESSAGE)'s
+// docorner() repair, which ROADMAP.md records: both are wrapped-prompt
+// rendering and neither can be validated against a C recording without the
+// other.
 function topl_putsym(display, ch) {
     if (ch === '\b') {
         if (display.cursorCol === 0 && display.cursorRow > 0) {
@@ -116,8 +127,16 @@ async function hooked_tty_getlin(query, hook, state) {
 
     if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped)
         await dismissPendingTtyMessage(state);
-    // cw->flags &= ~WIN_STOP, then ttyDisplay->toplin = TOPLINE_SPECIAL_PROMPT.
+    // getline.c:55 clears cw->flags' WIN_STOP bit, which this line ports.
     state._ttyMessageStopped = false;
+    // getline.c:56 then assigns ttyDisplay->toplin = TOPLINE_SPECIAL_PROMPT,
+    // which this port does not model: js/tty_message.js carries only
+    // TOPLINE_EMPTY and TOPLINE_NEED_MORE, and the field keeps whatever the
+    // previous message left until show_topl() below repaints.  Both readers of
+    // that state, topl.c:139 and topl.c:163, are gated on ttyDisplay->cury,
+    // so they act only once the top line has wrapped onto a second row.  No
+    // ported prompt wraps, so the omission is unobservable today; a wrapped
+    // prompt has to bring the state with it.
 
     // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
     // flushes the map first; remember_topl() then moves whatever the top line

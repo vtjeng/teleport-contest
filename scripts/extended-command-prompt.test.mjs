@@ -4,8 +4,13 @@ import test from 'node:test';
 import { extcmds_match } from '../js/cmd.js';
 import {
     AUTOCOMPLETE,
+    AUTOCOMP_ADJ,
+    CMD_INSANE,
+    CMD_MOVE_PREFIXES,
     CMD_M_PREFIX,
     CMD_NOT_AVAILABLE,
+    CMD_PARAM,
+    CMD_gGF_PREFIX,
     ECM_EXACTMATCH,
     ECM_IGNOREAC,
     ECM_NO1CHARCMD,
@@ -13,7 +18,10 @@ import {
     GENERALCMD,
     IFBURIED,
     INTERNALCMD,
+    MOUSECMD,
+    MOVEMENTCMD,
     NOFUZZERCMD,
+    PREFIXCMD,
     WIZMODECMD,
     extcmdlist,
 } from '../js/extcmdlist_data.js';
@@ -50,6 +58,160 @@ function segmentFor(moves) {
     assert.ok(found, `the matrix contains a segment typing ${moves}`);
     return found;
 }
+
+// cmd.c:1667-2067 in source order, read off the initializers rather than off
+// the generated module. `check:extcmds` regenerates js/extcmdlist_data.js from
+// cmd.c and diffs it, so it catches an edit to the generated file; it cannot
+// catch a wrong generator, because the check and the file come out of the same
+// code. These literals are the independent copy that can.
+const SOURCE_EXTCMD_NAMES = [
+    '#', '?', 'adjust', 'annotate', 'apply', 'attributes', 'autopickup',
+    'bugreport', 'call', 'cast', 'chat', 'chronicle', 'close', 'conduct',
+    'debugfuzzer', 'dip', 'down', 'drop', 'droptype', 'eat', 'engrave',
+    'enhance', 'exploremode', 'fight', 'fire', 'force', 'genocided', 'glance',
+    'help', 'herecmdmenu', 'history', 'inventory', 'inventtype', 'invoke',
+    'jump', 'kick', 'known', 'knownclass', 'levelchange', 'lightsources',
+    'look', 'lookaround', 'loot', 'migratemons', 'monster', 'name', 'offer',
+    'open', 'options', 'optionsfull', 'overview', 'panic', 'pay', 'perminv',
+    'pickup', 'polyself', 'pray', 'prevmsg', 'puton', 'quaff', 'quit',
+    'quiver', 'read', 'redraw', 'remove', 'repeat', 'reqmenu', 'retravel',
+    'ride', 'rub', 'run', 'rush', 'save', 'saveoptions', 'search', 'seeall',
+    'seeamulet', 'seearmor', 'seerings', 'seetools', 'seeweapon', 'shell',
+    'showgold', 'showspells', 'showtrap', 'sit', 'stats', 'suspend', 'swap',
+    'takeoff', 'takeoffall', 'teleport', 'terrain', 'therecmdmenu', 'throw',
+    'timeout', 'tip', 'toggle', 'travel', 'turn', 'twoweapon', 'untrap', 'up',
+    'vanquished', 'version', 'versionshort', 'vision', 'wait', 'wear',
+    'whatdoes', 'whatis', 'wield', 'wipe', 'wizborn', 'wizbury', 'wizcast',
+    'wizcustom', 'wizdetect', 'wizdispmacros', 'wizfliplevel', 'wizgenesis',
+    'wizidentify', 'wizintrinsic', 'wizkill', 'wizlevelport', 'wizloaddes',
+    'wizloadlua', 'wizobjprobs', 'wizmakemap', 'wizmap', 'wizmondiff',
+    'wizrumorcheck', 'wizseenv', 'wizshownhuuid', 'wizsmell', 'wiztelekinesis',
+    'wizwhere', 'wizwish', 'wmode', 'zap',
+    // cmd.c:1994-2058, the movement rows commands_init() also walks.
+    'movewest', 'movenorthwest', 'movenorth', 'movenortheast', 'moveeast',
+    'movesoutheast', 'movesouth', 'movesouthwest',
+    'rushwest', 'rushnorthwest', 'rushnorth', 'rushnortheast', 'rusheast',
+    'rushsoutheast', 'rushsouth', 'rushsouthwest',
+    'runwest', 'runnorthwest', 'runnorth', 'runnortheast', 'runeast',
+    'runsoutheast', 'runsouth', 'runsouthwest',
+    'clicklook', 'mouseaction',
+    'altadjust', 'altdip', 'alttakeoff', 'altunwield',
+];
+
+test('the flag constants carry the values include/func_tab.h defines', () => {
+    // func_tab.h:10-31. Pinned as literals because every other assertion in
+    // this file spells an expected flag with the imported constant, which on
+    // its own would agree with any value the generator invented.
+    assert.deepEqual(
+        {
+            IFBURIED,
+            AUTOCOMPLETE,
+            WIZMODECMD,
+            GENERALCMD,
+            CMD_NOT_AVAILABLE,
+            NOFUZZERCMD,
+            INTERNALCMD,
+            CMD_M_PREFIX,
+            CMD_gGF_PREFIX,
+            PREFIXCMD,
+            MOVEMENTCMD,
+            MOUSECMD,
+            CMD_INSANE,
+            AUTOCOMP_ADJ,
+            CMD_PARAM,
+            CMD_MOVE_PREFIXES,
+            ECM_NOFLAGS,
+            ECM_IGNOREAC,
+            ECM_EXACTMATCH,
+            ECM_NO1CHARCMD,
+        },
+        {
+            IFBURIED: 0x0001,
+            AUTOCOMPLETE: 0x0002,
+            WIZMODECMD: 0x0004,
+            GENERALCMD: 0x0008,
+            CMD_NOT_AVAILABLE: 0x0010,
+            NOFUZZERCMD: 0x0020,
+            INTERNALCMD: 0x0040,
+            CMD_M_PREFIX: 0x0080,
+            CMD_gGF_PREFIX: 0x0100,
+            PREFIXCMD: 0x0200,
+            MOVEMENTCMD: 0x0400,
+            MOUSECMD: 0x0800,
+            CMD_INSANE: 0x1000,
+            AUTOCOMP_ADJ: 0x2000,
+            CMD_PARAM: 0x4000,
+            // func_tab.h:19 defines this one as a union of two others.
+            CMD_MOVE_PREFIXES: 0x0080 | 0x0100,
+            ECM_NOFLAGS: 0,
+            ECM_IGNOREAC: 0x01,
+            ECM_EXACTMATCH: 0x02,
+            ECM_NO1CHARCMD: 0x04,
+        },
+    );
+});
+
+test('every extcmdlist[] row is the one cmd.c declares in that position',
+    () => {
+    assert.deepEqual(
+        extcmdlist.map(({ ef_txt }) => ef_txt),
+        SOURCE_EXTCMD_NAMES,
+    );
+
+    // How many rows carry each flag, counted off cmd.c's initializers. The
+    // name list above fixes which rows exist and in what order; these counts
+    // are what stops a generator from mis-resolving a flag on a row that no
+    // individual assertion below happens to name.
+    const rowsCarrying = (flag) => (
+        extcmdlist.filter(({ flags }) => flags & flag).length
+    );
+    assert.deepEqual(
+        {
+            IFBURIED: rowsCarrying(IFBURIED),
+            AUTOCOMPLETE: rowsCarrying(AUTOCOMPLETE),
+            WIZMODECMD: rowsCarrying(WIZMODECMD),
+            GENERALCMD: rowsCarrying(GENERALCMD),
+            CMD_NOT_AVAILABLE: rowsCarrying(CMD_NOT_AVAILABLE),
+            NOFUZZERCMD: rowsCarrying(NOFUZZERCMD),
+            INTERNALCMD: rowsCarrying(INTERNALCMD),
+            CMD_M_PREFIX: rowsCarrying(CMD_M_PREFIX),
+            CMD_gGF_PREFIX: rowsCarrying(CMD_gGF_PREFIX),
+            PREFIXCMD: rowsCarrying(PREFIXCMD),
+            MOVEMENTCMD: rowsCarrying(MOVEMENTCMD),
+            MOUSECMD: rowsCarrying(MOUSECMD),
+            CMD_INSANE: rowsCarrying(CMD_INSANE),
+            AUTOCOMP_ADJ: rowsCarrying(AUTOCOMP_ADJ),
+            CMD_PARAM: rowsCarrying(CMD_PARAM),
+        },
+        {
+            IFBURIED: 94,
+            AUTOCOMPLETE: 52,
+            WIZMODECMD: 35,
+            GENERALCMD: 52,
+            // Only #shell and #suspend can pick this up, and the recorder
+            // build defines both SHELL and SUSPEND.
+            CMD_NOT_AVAILABLE: 0,
+            NOFUZZERCMD: 13,
+            INTERNALCMD: 6,
+            CMD_M_PREFIX: 60,
+            CMD_gGF_PREFIX: 8,
+            PREFIXCMD: 4,
+            MOVEMENTCMD: 24,
+            MOUSECMD: 3,
+            CMD_INSANE: 2,
+            // AUTOCOMP_ADJ is set at runtime by the 'autocomplete' option,
+            // never in the table.
+            AUTOCOMP_ADJ: 0,
+            CMD_PARAM: 1,
+        },
+    );
+
+    // Every row's key has to be a byte, since commands_init() indexes the
+    // binding table with it.
+    assert.ok(extcmdlist.every(
+        ({ key }) => Number.isInteger(key) && key >= 0 && key <= 0xFF,
+    ));
+});
 
 test('the generated table reproduces cmd.c extcmdlist[]', () => {
     // cmd.c:1667-2067 holds 171 initializers; the sentinel row, whose ef_txt
@@ -288,6 +450,10 @@ test('the prompt spends a turn only when the command it names does',
         [`${EXTCMD_KEY}xyzzy${NEWLINE_KEY}`, false],
         [`${EXTCMD_KEY}look${NEWLINE_KEY}`, false],
         [`${EXTCMD_KEY}wait${NEWLINE_KEY}`, true],
+        // '#' names extcmdlist[0], so this dispatches doextcmd() from inside
+        // doextcmd() and the inner #wait's ECMD_TIME has to travel back out
+        // through both frames.
+        [`${EXTCMD_KEY}${EXTCMD_KEY}${NEWLINE_KEY}wait${NEWLINE_KEY}`, true],
     ]) {
         const segment = segmentFor(moves);
         const before = await runSegment({ ...segment, moves: '.' });
@@ -331,4 +497,65 @@ test('an unknown extended command answers with the initiator and the text',
     const cancel = segmentFor(`${EXTCMD_KEY}${ESCAPE_KEY}`);
     await runSegment({ ...cancel, moves: `.${EXTCMD_KEY}${ESCAPE_KEY}` });
     assert.equal(topLine(), '');
+});
+
+test('a named command with no ported handler stops the segment, not the key',
+    async () => {
+    // cmd.c doextcmd()'s switch dispatches six handlers and this port throws
+    // on the rest. '#pray' is an ordinary non-WIZMODECMD row, so extcmds_match()
+    // finds it and can_do_extcmd() admits it; only the switch refuses. Borrow
+    // an existing segment's seed and options, because no matrix segment can
+    // hold these keys: C prays and the port does not.
+    const base = segmentFor(`${EXTCMD_KEY}xyzzy${NEWLINE_KEY}`);
+    const moves = `.${EXTCMD_KEY}pray${NEWLINE_KEY}`;
+    let boundary = null;
+    const replay = await runSegment(
+        { ...base, moves }, { onBoundary: (error) => { boundary = error; } },
+    );
+
+    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
+    assert.match(boundary.message, /the extended command 'pray' is not ported/u);
+
+    // resetCommandVars() runs before the throw, so the turn is given up
+    // rather than half-spent.
+    assert.equal(game.context.move, 0);
+    assert.equal(game.context.run, 0);
+    assert.equal(game.multi, 0);
+    assert.equal(topLine(), '');
+
+    // What the single-key boundaries promise does not hold here. They stop
+    // before the keystroke is consumed, so replaying it reproduces the
+    // command; this one stops after hooked_tty_getlin() has already eaten
+    // "pray\n". pendingCommand therefore names '#' alone, which on a retry
+    // would reopen an empty prompt rather than repeat the command.
+    assert.deepEqual(
+        { phase: game.context.pendingCommand?.phase,
+            key: game.context.pendingCommand?.key },
+        { phase: 'parsed', key: EXTCMD_KEY.charCodeAt(0) },
+    );
+    // A segment that runs to the end records one screen per key plus the one
+    // the game starts on. The refusal paints nothing, so this one is short by
+    // exactly the screen the command would have drawn.
+    assert.equal(replay.getScreens().length, moves.length);
+});
+
+test('a 77-character answer fills the prompt row without wrapping',
+    async () => {
+    // hooked_tty_getlin() takes printable bytes while pos < BUFSZ - 1 and
+    // pos < COLNO. custompline() has put "# " in columns 0 and 1, so the
+    // matrix segment's 77 characters end in column 78 and leave the cursor on
+    // column 79 -- the column topl_putsym() keeps unused, and the last one
+    // reachable before its unported newline arm.
+    const segment = loadExtendedCommandPromptRecipe().segments.find(
+        ({ moves }) => moves.includes('abcdefghijklmnopqrstuvwxyz'),
+    );
+    assert.ok(segment, 'the matrix contains an input-length segment');
+    const typed = segment.moves.slice(2, -2);
+    assert.equal(typed.length, 77);
+
+    await runSegment({ ...segment, moves: `.${EXTCMD_KEY}${typed}` });
+    assert.equal(topLine(), `# ${typed}`);
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow], [79, 0],
+    );
 });

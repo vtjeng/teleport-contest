@@ -573,14 +573,24 @@ async function failClosedCommand(key, state, run) {
     }
 }
 
-// The six extcmdlist[] handlers this milestone owns, each reachable both from
-// the key bound to it and from the extended-command prompt. Every one returns
-// whether its command took time, which its two callers turn into rhack()'s
-// ECMD_TIME.
+// Five of the six extcmdlist[] handlers this milestone owns follow, each
+// reachable both from the key bound to it and from the extended-command
+// prompt: ddoinv(), dovspell(), dodiscovered(), doattributes() and dolook().
+// The sixth is donull(), which doextcmd() and rhack() call directly because it
+// formats nothing that can fail closed. Every wrapper returns whether its
+// command took time, which its two callers turn into rhack()'s ECMD_TIME.
 //
+// Each wrapper routes its handler through failClosedCommand(), and what that
+// preserves differs by caller. Reached from the single key bound to the
+// command, nothing has painted and rhack() can replay that one byte. Reached
+// from the '#' prompt, hooked_tty_getlin() has already painted the prompt,
+// consumed every keystroke of the command name and cleared the top line, so
+// replaying '#' alone would not reproduce them; there the boundary preserves
+// the segment's matching prefix rather than the keystroke.
+
 // C ref: invent.c ddoinv(). Every entry is formatted before the menu draws
-// anything, so an unported object name or display branch stops here with the
-// screen untouched and the keystroke still retryable.
+// anything, so an unported object name or display branch stops before ddoinv()
+// itself writes to the screen.
 async function runInventoryCommand(key, state) {
     return failClosedCommand(key, state, () => ddoinv(state, {
         // invent.c display_pickinv() ends its menu with no prompt and asks

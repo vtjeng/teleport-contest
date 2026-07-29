@@ -346,12 +346,42 @@ const SEQUENCES = [
 //   edge           the square the rush was moving onto is off the map
 //   doorway        the hero standing on a doorway
 //   null           the segment ends on a later command instead of the rush
+// hack.c lookaround()'s closed-door arm (3967-3972) prints "You stop in front
+// of the door." under flags.mention_walls. It is the only line lookaround()
+// prints that this port owns, and nothing else can reach it: the arm needs
+// svc.context.run != 1, which excludes both run matrices by construction, and
+// every other rush here leaves the option off. These two repeat an existing
+// `arm: 'door'` seed with the option turned on rather than hunting for a new
+// one, so the only difference from the case above is the message.
+const MENTION_WALLS_DOORS = [
+    {
+        // Seed 6200031 from ROOM_ARMS: eleven squares west from a room square
+        // to a closed door orthogonally adjacent to the stopping square.
+        seed: 6200031,
+        role: 'Wizard', race: 'human', gender: 'female', align: 'chaotic',
+        options: 'mention_walls',
+        walk: ' ', rush: 'h',
+        arm: 'door',
+    },
+    {
+        // Seed 6100047 from CORRIDOR_RUSHES: the same arm reached from a
+        // corridor square after five corner turns, so the message prints with
+        // bcorr's counts behind it rather than from inside a room.
+        seed: 6100047,
+        role: 'Tourist', race: 'human', gender: 'female', align: 'neutral',
+        options: 'mention_walls',
+        walk: ' ll', rush: 'l',
+        arm: 'door',
+    },
+];
+
 export const RUSH_CASES = Object.freeze([
     ...ROOM_ARMS,
     ...CORRIDOR_RUSHES,
     ...SHARED_STOPS,
     ...CADENCES,
     ...SEQUENCES,
+    ...MENTION_WALLS_DOORS,
 ]);
 
 function segment(entry) {

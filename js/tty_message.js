@@ -11,8 +11,16 @@ import { NO_COLOR } from './terminal.js';
 // C ref: win/tty/wintty.c defmorestr[], the prompt both more() and dmore()
 // print when no window supplies its own.
 export const MORE_PROMPT = '--More--';
-// C ref: include/wintty.h. TOPLINE_SPECIAL_PROMPT is set only inside
-// hooked_tty_getlin() and tty_yn_function(), which own it themselves.
+// C ref: include/wintty.h:85-88, which names four ttyDisplay->toplin states.
+// Only these two are ported. C assigns TOPLINE_SPECIAL_PROMPT in
+// hooked_tty_getlin() at getline.c:56, in tty_yn_function() at topl.c:394, and
+// on tty_wait_synch()'s interrupted-read arm at wintty.c:3639, and
+// TOPLINE_NON_EMPTY in several places including getline.c:213. The port
+// assigns neither. The only reads of either constant are topl.c:139, 155 and
+// 163, and every one is gated on a nonzero ttyDisplay->cury, so the two states
+// become distinguishable only once the top line has wrapped onto a second row.
+// No ported prompt wraps; js/getline.js hooked_tty_getlin() records what the
+// wrapped case would need.
 export const TOPLINE_EMPTY = 0;
 export const TOPLINE_NEED_MORE = 1;
 

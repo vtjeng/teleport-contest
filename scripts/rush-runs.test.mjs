@@ -132,6 +132,7 @@ function stopEvidence(arm) {
 test('each checked-in rush reaches the stop it was chosen for', async () => {
     const recipe = loadRushRunsRecipe();
     const armCounts = new Map();
+    let mentionWallsDoors = 0;
     for (let index = 0; index < recipe.segments.length; ++index) {
         const segment = recipe.segments[index];
         const rushCase = RUSH_CASES[index];
@@ -164,7 +165,23 @@ test('each checked-in rush reaches the stop it was chosen for', async () => {
             `${label} does not end on its ${rushCase.arm} stop`,
         );
         armCounts.set(rushCase.arm, (armCounts.get(rushCase.arm) ?? 0) + 1);
+
+        // hack.c lookaround():3967-3972 is the one line lookaround() prints
+        // that this port owns. It needs the closed-door arm and the option
+        // together, so the option-off door cases have to stay silent and the
+        // option-on ones have to print, or the arm is unpinned either way.
+        const doorMessage = 'You stop in front of the door.';
+        const topLine = game.nhDisplay.grid[0]
+            .map(({ ch }) => ch).join('').trimEnd();
+        if (rushCase.arm === 'door'
+            && (rushCase.options ?? '').includes('mention_walls')) {
+            assert.equal(topLine, doorMessage, `${label} door message`);
+            mentionWallsDoors += 1;
+        } else {
+            assert.notEqual(topLine, doorMessage, `${label} door message`);
+        }
     }
+    assert.ok(mentionWallsDoors >= 2, `${mentionWallsDoors} mention_walls doors`);
     // The three arms that only svc.context.run == 3 reaches each need more
     // than one case, because this matrix is the whole evidence for them.
     for (const arm of ['monster-side', 'door', 'terrain']) {

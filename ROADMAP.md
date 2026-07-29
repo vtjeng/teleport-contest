@@ -213,7 +213,12 @@ small.
   stun, fear except for the source-bounded continuation after this milestone's
   safe-pet refusal, ranged attacks, and combat.
 - Every remaining command, including count prefixes, travel, force-fight,
-  pickup commands, and the extended-command set.
+  pickup commands, and the extended-command set. `hack.c lookaround()`'s
+  corridor-widening arm hangs on this: it needs `svc.context.run == 2`, which
+  only `do_rush()` behind the `g` prefix sets, and `ADMITTED_RUN_MODES` in
+  `js/cmd.js` admits 0, 1 and 3 only. Until the prefix is ported the arm and its
+  `flags.mention_walls` message have no recorded case, and
+  `scripts/hack.test.mjs` is their whole evidence.
 
 Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
@@ -261,55 +266,34 @@ all eleven `flush_screen()` call sites, so converting it to per-cell
 it owns no fail-closed boundary, and every one of the 398 emitted screens
 matches today, so nothing is emitted-and-wrong.
 
-## Unresolved: nine deferred findings from the extended-command pass
+## Unresolved: two more gaps on the same wrapped top line
 
-These are the rest of the twelve the pass recorded at `e892300` deferred; the
-other three are the `flush_screen()` entry above. Each names something concrete
-enough to act on without re-reading the pass output, which is session-scoped and
-will not survive.
+The `clearMessageWindow()` finding folded into the entry above is not alone on
+the row a wrapped prompt spills onto. Two further divergences land on the same
+screen, and none of the three can be validated against a C recording without
+the other two, because one prompt longer than the terminal row exercises them
+together.
 
-One is a correctness defect and should be treated as such:
+- `topl_putsym()`'s newline arm ports the `cl_end()` at `topl.c:322` and drops
+  the one at `topl.c:340`, where `if (cw->curx == 0) cl_end()` wipes the whole
+  row it moved onto, so the old map row stays visible to the right of a wrapped
+  prompt.
+- `ttyDisplay->toplin` never takes `TOPLINE_SPECIAL_PROMPT`, which C assigns at
+  `getline.c:56`. Its readers at `topl.c:139`, `155` and `163` are each gated on
+  a nonzero `ttyDisplay->cury`, so the missing state first matters on that same
+  wrapped line.
 
-- `clearMessageWindow()` in `js/getline.js:85` blanks every terminal row a
-  wrapped prompt reached, where C's `tty_clear_nhwindow(WIN_MESSAGE)` repaints
-  those map rows through `docorner()`. It shares a cause with the
-  `flush_screen()` entry above — the port blanks where C repaints — and should
-  be fixed with it.
+Both sites now say in a comment what they omit and why. Fix them with the
+`flush_screen()` goal, then record a differential for a prompt longer than 78
+characters. `scripts/run-extended-command-prompt.mjs` stops one character short
+of that wrap deliberately: `hooked_tty_getlin()`'s `BUFSZ` and `COLNO` length
+cap sits beyond it and stays unreachable until this lands.
 
-Four are comments that misdescribe the code they sit on:
-
-- `js/cmd.js:576`: the group header is glued onto `runInventoryCommand`'s own
-  C-ref comment, counts six handlers where five functions follow, and claims the
-  screen is untouched and the keystroke retryable, which is false on the `#`
-  path the same change added.
-- `js/command_bindings.js:229`: two adjacent identically shaped loops
-  destructure a local named `key` that holds a raw byte in one and key text in
-  the other, unmarked.
-- `js/getline.js:69`: `topl_putsym()`'s newline arm drops the second `cl_end()`
-  C performs on the row it moves onto, so a wrapped prompt leaves the old map
-  row visible to its right.
-- `js/getline.js:115` and `js/tty_message.js:15` both claim the port sets
-  `ttyDisplay->toplin` to `TOPLINE_SPECIAL_PROMPT`; it never enters that state.
-
-Four are tests that do not pin what they claim:
-
-- `js/cmd.js:739`, `doextcmd()`'s default arm — a named command with no ported
-  handler — is exercised by no test and no recorded case, though it is the first
-  boundary that throws after several keystrokes are already consumed, so the
-  retry invariant the single-key boundaries assert cannot hold and nothing
-  records what does.
-- `scripts/extended-command-prompt.test.mjs:54` pins about a dozen of the 170
-  rows and imports every expected flag value from the module under test, so
-  `check:extcmds` is the only guard on the rest and it regenerates from the same
-  source.
-- `scripts/run-extended-command-prompt.mjs:116`, the segment labelled as
-  covering `##` recursion, types `#`, `#`, `wait`, Enter, which puts a literal
-  `#` in the buffer and lands on the unknown-command answer instead. The
-  recursion the worker found and handled is unpinned.
-- `scripts/run-extended-command-prompt.mjs:172-173`: the only input-length
-  segment is labelled 75 characters but types 73, reaching neither the column
-  wrap nor the `COLNO` cap, so `topl_putsym()`'s newline arm, the length limit
-  and multi-row `clearMessageWindow()` are all unexercised.
+The other eight findings the pass recorded at `e892300` deferred are closed at
+the commit that added this entry: four comments now describe the code they sit
+on, and four tests now fail against the mutations they were supposed to catch —
+`doextcmd()`'s default arm, the generated table's unpinned rows and flag values,
+`##` recursion, and the input-length segment.
 
 The pass record in `QUALITY.json` has one imprecision worth knowing when reading
 it: its `productionDefects` list names the two `flush_screen()` companions but
@@ -336,44 +320,6 @@ at a time; the four in `scripts/run-extended-command-prompt.mjs` are.
 
 This matters beyond the current slice: five development sessions stop at
 `wiz_level_change`, so every one of them will need debug-mode recordings.
-
-## Unresolved: six deferred test-coverage findings from the running pass
-
-The correctness pass over `2adc5af..60bf3d0` confirmed 13 findings. Seven are
-applied at `374fb85`, including both production defects. Six are deferred, all
-of them missing test pins rather than suspected wrong behavior, and each names a
-mutation that survives the suite today:
-
-- `domove()`'s three run-stop sites can be reverted from `nomul(0)` to the
-  explicit field zeroing they replaced, with byte-identical matrix output.
-- `domove_core()`'s run stop on `IS_FURNITURE` is never executed by a test;
-  only its `IS_DOOR` arm runs, so the furniture term can be deleted.
-- `check_here()`'s run stop runs three times during `npm test` with no
-  assertion depending on it; deleting it leaves all tests passing while
-  changing the cursor stream.
-- The animation-frame stream, which this range newly made a compared output, is
-  pinned by nothing stronger than a divisibility check, so a mutation halving
-  the `nh_delay_output()` calls passes.
-- `lookaround()`'s two `flags.mention_walls` arms never execute, because every
-  segment of all three run matrices leaves the option off.
-- The closed-door `mention_walls` line is the only ported *output* the new
-  `lookaround()` adds and no differential or test can reach it: the arm needs
-  `context.run !== 1`, so both run-1 matrices are structurally excluded, and no
-  rush segment sets the option. The pass verified it is reachable by replaying
-  six existing `arm: 'door'` rush seeds with `mention_walls` prepended.
-
-The last two need a fresh C recording with the option set, which is why they
-were not closed with the rest. Prefer adding a `mention_walls` variant of an
-existing rush seed over widening the production code to suit a test.
-
-These six do not hold up the goal-closing holdout evaluation, and an earlier
-draft of this entry said they should. That was the wrong test to apply. A
-holdout evaluation measures whether ported *behavior* generalizes to unseen
-seeds, and the two findings that bore on behavior were the production defects,
-both applied at `374fb85`. What is left identifies places where a mutation
-would survive the suite, which is a reason to distrust the tests, not a reason
-to distrust the result. Carry them into the next goal's correctness range
-instead, where they are ordinary recorded debt.
 
 ## Unresolved: `newsym()` omits the infrared arm
 

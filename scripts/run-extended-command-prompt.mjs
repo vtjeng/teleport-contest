@@ -111,10 +111,15 @@ export function loadExtendedCommandPromptRecipe() {
             segment(8810011, PLAIN_MENUS,
                 `${EXTCMD_KEY}showspells${NEWLINE_KEY}${ESCAPE_KEY}`,
                 { role: 'Wizard' }),
-            // '#' names itself, so '##' opens a second prompt and the command
-            // typed there dispatches through the recursive doextcmd().
+            // '#' names itself, so a buffer holding just '#' exact-matches
+            // extcmdlist[0] and dispatches through the recursive doextcmd(),
+            // which opens a second prompt. The second '#' is an ordinary
+            // printable keystroke inside the first prompt, so the buffer has
+            // to be terminated before the recursion happens; ending the inner
+            // prompt with "wait" proves it returned that command's ECMD_TIME.
             segment(8810001, PLAIN,
-                `${EXTCMD_KEY}${EXTCMD_KEY}wait${NEWLINE_KEY}`),
+                `${EXTCMD_KEY}${EXTCMD_KEY}${NEWLINE_KEY}`
+                + `wait${NEWLINE_KEY}`),
 
             // --- NEWAUTOCOMP completion ---
             // 'n' identifies #name alone, so the hook writes "ame" ahead of an
@@ -169,10 +174,16 @@ export function loadExtendedCommandPromptRecipe() {
             segment(8810001, PLAIN, `${EXTCMD_KEY}l${ESCAPE_KEY}${ESCAPE_KEY}`),
 
             // --- input length, options, and a pet on the level ---
-            // 75 characters, which the printable arm accepts up to COLNO.
+            // 77 characters: custompline() puts "# " in columns 0 and 1, so
+            // the 77th lands in column 78 and leaves the cursor on column 79,
+            // the last column topl_putsym() keeps unused. One more keystroke
+            // would take its newline arm, which ROADMAP.md records as unported
+            // together with tty_clear_nhwindow()'s multi-row repair; the
+            // BUFSZ/COLNO length cap sits beyond that wrap and is unreachable
+            // until both land.
             segment(8810001, PLAIN,
                 `${EXTCMD_KEY}abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv`
-                + `wxyzabcdefghijklmnopqrstu${NEWLINE_KEY}`),
+                + `wxyzabcdefghijklmnopqrstuvwxy${NEWLINE_KEY}`),
             // number_pad moves the count key, which parse() consults before
             // the command byte.
             segment(8810011, 'pettype:none,!acoustics,number_pad:1',

@@ -226,11 +226,14 @@ export function createCommandBindingModel(state) {
         restOnSpace: false,
         unrestOnSpace: null,
     };
-    for (const [key, command] of SOURCE_EXTENDED_COMMAND_DEFAULTS) {
-        setBinding(model.bindings, key, command);
+    // extcmdlist[] stores its key as a byte, so these pairs bind it directly.
+    for (const [keyCode, command] of SOURCE_EXTENDED_COMMAND_DEFAULTS) {
+        setBinding(model.bindings, keyCode, command);
     }
-    for (const [key, command] of SOURCE_COMMAND_ALIASES) {
-        setBinding(model.bindings, commandKeyCode(key), command);
+    // The alias rows above instead spell their key the way cmd.c writes it, so
+    // commandKeyCode() turns "^L" or "M-5" into the byte the first loop holds.
+    for (const [keyText, command] of SOURCE_COMMAND_ALIASES) {
+        setBinding(model.bindings, commandKeyCode(keyText), command);
     }
     resetCommandBindings(model, false, 0, true);
 
