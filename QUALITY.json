@@ -2916,6 +2916,81 @@
         ]
       },
       "recordedAt": "2026-07-29T09:54:18.070Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+        "hero": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+        "objects": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+        "monsters": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+        "world-effects": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+        "commands": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73"
+      },
+      "head": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+      "auditedRange": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73..60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full pass over the whole running and rushing goal: the room run, corridor running, and ctrl-direction rush, plus the runmode option and the animation-frame comparison stream. Four finders ran (correctness, readability, tests, variable-trace); performance and concurrency were not enabled, because the range adds no hot-path work beyond the source-required per-turn traversal and no new shared mutable state. 16 raw findings, 16 after deduplication, 13 confirmed: 7 applied at 374fb85 and 6 deferred, 3 rejected with counter-evidence, 0 unverified, 0 warnings. Both production defects were applied. The first is the one that mattered: endRunning() dropped the disp.time_botl set and terrainstatus recompute that hack.c:4132-4145 performs, while the port had already ported the two places that suppress those updates during a run, so the catch-up had no owner. The six deferred findings are all missing test pins rather than suspected wrong behavior, each naming a mutation the suite survives; they are recorded in ROADMAP.md with the instruction to clear them before the next holdout, and two of them need a fresh C recording with mention_walls set. Validation at 374fb85: 1,800 tests passing, four generated-data checks, check:namespace-members, development score unchanged at 99,496 PRNG values and 321 screens with all 33 sessions identical, and all three run matrices matching 90,877, 87,714 and 57,676 PRNG calls with 115, 126 and 61 screens and 325, 268 and 163 animation frames.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3547,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 16,
+          "confirmed": 13,
+          "applied": 7,
+          "deferred": 6,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 8,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "endRunning() implemented two of end_running()'s four responsibilities, dropping the disp.time_botl set and the terrainstatus recompute that hack.c:4132-4145 performs inside its `if (svc.context.run)` guard. moveloop_core() and classify_terrain() suppress both updates for the whole of a run so this function can make them up; the port had the suppressing halves without the catch-up. nomul() masked it by setting disp.botl itself, but the direct callers in js/uhitm.js and js/eat.js reach endRunning() without nomul.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "curs_on_u() took no state and flushed the module-global game, so runmode_delay_output(state) wrote disp.time_botl into one object while flush_screen()/bot() read and cleared it from another. Production always passes game, so the mismatch was reachable only from a test, and the existing test hit it silently. curs_on_u() now refuses a non-global state and the test drives the real object.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "interrupt_multi() was said to emit its boundary before nomul(0), reversing allmain.c's statement order, with the comment justifying the reversal on the wrong ground.",
+            "counterEvidence": "Refuted against the source order in allmain.c; the reviewers' own verification could not sustain the claimed reversal as a behavioral difference. Do not reopen without a recorded case where the emitted boundary and the nomul(0) produce a different observable order."
+          },
+          {
+            "summary": "endRunning() was said to zero a positive multi, which end_running(TRUE) never does, making it an invented clamp now live on do_attack()'s 'is in the way' path.",
+            "counterEvidence": "The central factual claim is false. hack.c:4153-4156 is `/* cancel multi */ if (gm.multi > 0) gm.multi = 0;`, the closing statements of end_running(), so the port's clamp is a faithful translation. The line is also pre-existing: `git show 2adc5af:js/hack.js` already contains it, and the diff shows it only as context. The proposed fix would introduce the divergence it claims to remove. Do not reopen without a C reading that contradicts hack.c:4153-4156."
+          },
+          {
+            "summary": "totalFrames() in scripts/diff-fresh.mjs duck-types two element shapes, the C side's {frames, location} objects and the JS side's bare arrays, behind `(step.frames ?? step).length`.",
+            "counterEvidence": "Judged not to survive verification as a defect in this range. Do not reopen without a recorded case where the two shapes yield a different frame total than a shape-explicit reading would."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-29T13:47:09.111Z"
     }
   ]
 }
