@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 4,
   "trackingBase": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
   "enforcementBase": "f11f5c2bfb80d323ac171f83b0a3214d9dbaf9b3",
   "legacyPassCount": 21,
@@ -298,10 +298,7 @@
       ],
       "outcome": "changed",
       "evidence": "Recorded frontier range 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad. Fresh startup, world, and runtime passes inspected the pinned 1b6f4dbb15ec3d5a2bcf5a7f8f3177cd3f134242 snapshot; their accepted changes were independently integrated through f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad. Counts: 40 raw, 27 deduplicated, 6 confirmed, 6 applied, 0 deferred, 0 unverified. Removed unused startup imports and a helper parameter, consolidated deity lookup, removed redundant exactMatch, and replaced duplicated runtime error flags with one sentinel. Retained source-shaped mkclass recomputation after measuring 1.9-4.6 microseconds per call because its inputs are mutable. Warnings: bundled independent workflow was unavailable; startup had no independent pool, world hit a thread limit, and runtime used a direct three-lens verification after nested agents were blocked. Validation: 370 tests and monster, object, and dungeon generated-data checks passed; behavior and PRNG order were preserved.",
-      "recordedAt": "2026-07-21T05:27:57.708Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T05:27:57.708Z"
     },
     {
       "kind": "review",
@@ -321,10 +318,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Clarity review exact range 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad: 15 raw, 14 deduplicated, 9 confirmed and applied, 0 deferred, 0 unverified. It clarified the six-field runSegment contract including DST and storage, prompt-versus-menu behavior, source headers, the dungeon pd comment, and test literal intent. Warning: the bundled workflow was unavailable; one independent child ran and the remaining lenses were direct. Correctness review exact range 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..db2ab36938751e3d49b9385a014a3074784669bb: 18 raw, 9 deduplicated, 0 confirmed, 0 applied, 0 deferred, 0 unverified. Notable rejections were transitional replay scaffolding, fixed-time DST normalization, option aliases and catalogs, generated catalogs, timer cleanup, off-screen name retries, mkclass caching, concurrency outside the serial runtime contract, and storage/startup flow; upstream and recorder-patch evidence supported each rejection. Warnings: six finder perspectives and three judgments were reproduced directly because the workflow and native subagents were unavailable; isolated fresh C differentials lacked the recorder install. Main fresh differential evidence separately found the known unported special-level generation boundary, not a regression in this range. Validation: 370 tests, all three generated-data checks, git diff check, and 103 development screens passed; no holdout ran.",
-      "recordedAt": "2026-07-21T05:28:08.211Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T05:28:08.211Z"
     },
     {
       "kind": "simplification",
@@ -337,10 +331,7 @@
       ],
       "outcome": "no-change",
       "evidence": "Exact range 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..db2ab36938751e3d49b9385a014a3074784669bb. Counts: 16 raw, 10 deduplicated, 0 confirmed, 0 applied, 0 deferred, 0 unverified. Rejected generated-catalog compression, replacing C union aliases, replacing fruit byte helpers with string operations, removing inventory preflight and projections, merging generation and lifecycle environments, factoring distinct upstream predicates, inlining source-shaped helpers, deleting compatibility exports, relocating source-local tables, and removing artifact cloning. Upstream traceability, tested atomic failure behavior, byte and union semantics, generated-data integrity, mutable per-game state, and planned seams supplied counter-evidence. Warning: the skill reference was available in the fresh process, but its Claude-based workflow was prohibited; one fresh Codex reviewer reproduced all search lenses and gave every candidate three direct judgments. Validation: focused object tests, 370 full tests, and the generated object check passed; final diff was empty and no holdout ran.",
-      "recordedAt": "2026-07-21T05:34:03.313Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T05:34:03.313Z"
     },
     {
       "kind": "simplification",
@@ -353,10 +344,7 @@
       ],
       "outcome": "changed",
       "evidence": "Composite frontier f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad..7890324121d3ecdd73c21e3a2d2d062c9219bf9a. Gap pass f3e7841..ab46dc9: 3 raw, 3 deduplicated, 2 confirmed, 2 later applied, 0 unverified; all six native-subagent finder categories and nine verifier votes completed. It retained the duplicated selection filter as a local boundary. Themed-room pass ab46dc9..6d425fc: 26 raw, 17 deduplicated, 3 confirmed, 3 applied through 7890324, 0 unverified. It removed duplicate flood visitation state, an unused generated ordinal, and redundant frequency fallback while preserving PRNG order and planned theme seams. Warnings: initial ephemeral subagent launches needed self-contained retries; isolated submodules limited some source checks. Focused and 374-test suites passed; generator, development 103-screen, and fresh differential evidence remained stable; no holdout ran.",
-      "recordedAt": "2026-07-21T07:13:40.187Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T07:13:40.187Z"
     },
     {
       "kind": "simplification",
@@ -369,10 +357,7 @@
       ],
       "outcome": "changed",
       "evidence": "Composite startup frontier f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad..71e40ad128009c7959c361aaa7946f10a18528fe. Native-subagent simplification gap pass: 3 raw, 3 deduplicated, 2 confirmed, 2 applied, 0 unverified. Removed derivable _nhgetchCount state and changed two tests to the public getScreens length; the other applied item was a one-use test helper. The shared selection-filter abstraction was rejected because it widened module boundaries without a true source of truth. Warning: one initial ephemeral fork failed and was retried with no lost coverage; isolated upstream paths limited three source-comparison tests. Focused tests and all 374 tests passed; follow-up correctness found 0 raw, 0 deduplicated, 0 confirmed and explicitly rejected the serialization-exception concern. No holdout ran.",
-      "recordedAt": "2026-07-21T07:13:48.351Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T07:13:48.351Z"
     },
     {
       "kind": "review",
@@ -386,10 +371,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Composite full world review through 0c4714233f3da0deac679a3f8220079136303359. Main clarity ab46dc9..7890324: 23 raw, 10 deduplicated, 5 confirmed and applied, 0 unverified. Main full correctness on the same range: 18 raw, 10 deduplicated, 0 confirmed, 0 applied, 0 unverified; notable rejections covered selection weights, placement bounds, transparent writes, flood equivalence, room flags, sorting and irregular identity, generated extraction, SpLev_Map, test coverage, performance, and concurrency with source counter-evidence. Native-subagent delta clarity 7890324..5b1a8d0: 1 raw, 1 deduplicated, 1 confirmed and applied, 0 unverified; delta correctness: 0 raw, 0 deduplicated, 0 confirmed. Final clarity 5b1a8d0..0c47142: 0 raw, 0 deduplicated, 0 confirmed. Warnings: main-range passes reproduced perspectives directly; later native-subagent passes had initial fork retries but no lost coverage, and isolated submodules limited generator checks. Validation: 374 tests, generated check, development 103 screens, fresh parity through call 1436, first mismatch at fill_special_room call 1437, no holdout.",
-      "recordedAt": "2026-07-21T07:13:59.508Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T07:13:59.508Z"
     },
     {
       "kind": "review",
@@ -403,10 +385,7 @@
       "level": "light",
       "outcome": "no-change",
       "evidence": "Exact reviewed delta 0c4714233f3da0deac679a3f8220079136303359..71e40ad128009c7959c361aaa7946f10a18528fe, advancing the startup frontier from its prior reviewed state. Six native-subagent finders and three adversarial lenses completed: 0 raw, 0 deduplicated, 0 confirmed, 0 applied, 0 unverified, no warnings or agent losses. The verifiers rejected the only plausible exception-path concern because serialization failure propagates and _nhgetchCount had no contractual consumer; getScreens length directly represents successful input captures. Focused tests and all 374 tests passed; rendering, input boundaries, persistence, PRNG and async order were unchanged; no holdout ran.",
-      "recordedAt": "2026-07-21T07:14:10.674Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T07:14:10.674Z"
     },
     {
       "kind": "review",
@@ -424,10 +403,7 @@
       "level": "light",
       "outcome": "changed",
       "evidence": "Light correctness audit b6559f08d548066dfab29fd2c0d09d0a6a7ac2eb..14abaece4f1f7ddb0b5ddf4f333b69f9fcf85fa0 found 3 raw, 3 deduped, and 3 confirmed issues; all 3 were applied in 6053768c3683cf25dcb5f2bcc559c2c063f838b2. Exact delta review 21f5e5e7acc8e6fcdbd2f61c744c76c82f5a29e7..6053768c3683cf25dcb5f2bcc559c2c063f838b2 found no regressions. The world simplification pass had 7 raw and deduped proposals, 5 unanimous confirmations applied in 88ccb28d900bfc81e76f092f7b34218dbcbabba9, and behavior-safety approval. All 392 tests pass; development remains 103 matched screens; the fresh mismatch remains call 1468 with matching cursor. Known limits are the shop billing hook seam and incomplete boulder, mon_moving, gameover, and malformed-byte characterization. No holdout was run.",
-      "recordedAt": "2026-07-21T08:27:53.272Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T08:27:53.272Z"
     },
     {
       "kind": "simplification",
@@ -440,10 +416,7 @@
       ],
       "outcome": "changed",
       "evidence": "Formal six-finder, three-verifier pass over 7890324121d3ecdd73c21e3a2d2d062c9219bf9a..6053768c3683cf25dcb5f2bcc559c2c063f838b2 produced 7 raw, 7 deduped, 5 unanimously confirmed, 5 applied in 88ccb28d900bfc81e76f092f7b34218dbcbabba9, 2 rejected, and 0 unverified proposals. It removed duplicate map defaults and test fixture state while retaining exported themed-room dimensions, the eager vault flag, replay scaffolding, and future subsystem seams. All 392 tests pass; development remains 103 matched screens; the fresh mismatch remains call 1468 with matching cursor. No holdout was run.",
-      "recordedAt": "2026-07-21T08:27:53.682Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T08:27:53.682Z"
     },
     {
       "kind": "review",
@@ -467,10 +440,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Formal full correctness milestone. Exact reviewed ranges: startup 71e40ad128009c7959c361aaa7946f10a18528fe..48ec9a8adbab826305a93f4108bf270535308064; objects/runtime and all three world passes 88ccb28d900bfc81e76f092f7b34218dbcbabba9..48ec9a8adbab826305a93f4108bf270535308064; hero and interaction 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..48ec9a8adbab826305a93f4108bf270535308064. Counts by pass, shown as raw/deduplicated/confirmed/applied/deferred: startup 10/10/10/9/1; objects-runtime 15/14/8/3/5; world-level 13/13/9/2/7; world-creatures 17/16/14/6/8; world-effects 10/10/8/8/0; hero 14/14/9/4/5; interaction 26/23/23/14/9. Combined formal counts: 105 raw, 100 deduplicated, 81 confirmed, 46 applied, 35 deferred, 19 rejected, 0 unverified. Fixes cover complete glyph validation and symbol ownership, play-mode and reroll boundaries, effective attributes and calendar serialization, object preflight/discovery/inventory effects, mineralization and monster relocation, pet/monster/trap ownership, burial and burn lifecycles, visibility, terrain/trap/altar/RGB rendering, state-owned input, TTY menu and message cleanup, and their source-order tests. Deferrals are controlled test gaps and broader unported display/status/perception or world branches; the occupied-arrival-stair integration remains covered only by source-shaped components. Optional performance finders ran for world-level, world-effects, and interaction; optional concurrency ran for startup and interaction; all returned zero findings. Notable rejections retained upstream artifact assignment, disco insertion, lamplit cleanup, complete worn-slot scans, source-shaped world contracts, byyou coordinates, burial naming, duplicated visibility simplification, canonical hero representation, and serial runtime assumptions with source counter-evidence. Audit sessions and usage: startup 019f861e-1d13-7221-aa26-5ee5cda76c02, 1774688 input/1704960 cached/12828 output/2563 reasoning; objects-runtime 019f861e-1258-7d02-96a6-2e31b0025f02, 1708721/1637632/13201/3612; world-level 019f8620-004a-7ba2-8146-b94b44573bb1, 1629837/1558784/12811/1227; world-creatures session unavailable, 2026117/1947392/14642/3122; world-effects 019f8638-ac18-7462-b5dc-65ea16c03386, 906969/853504/11597/929; hero session unavailable, 1760055/1678336/12036/2991; interaction 019f8645-a873-7820-a316-be56e2d3ecf0, 1267813/1200896/13401/2150. Post-audit reconciliation found 5 additional source defects and applied all 5: generated-door flags in vision, complete buried-ball lifecycle callbacks, death-message STOP order, the chain deletion rn2 boundary, and the death-comparison short-circuit. Exact reconciled ranges were b79732d..08f9ce9, 08f9ce9..3344557, and 3344557..f140abf; the final range received two parallel read-only reviews with zero findings. Overall milestone counts including reconciliation: 110 raw, 105 deduplicated, 86 confirmed, 51 applied, 35 deferred, 19 rejected, 0 unverified. Warnings: some read-only diff output truncated and was reopened directly; one coverage temporary-directory creation failed and direct source/test tracing was used; one optional glob and one wait timeout were retried; no audit finder or adjudicator was lost. Validation: 729 tests, all four generated-data checks, git diff checks, 178 development screens, exact fresh 3028-call Enhanced1 and 2394-call IBM differentials with matching screens/cursors, and Chromium recorder/browser glyph and full-screen restoration checks passed. The simplification advisory was inspected; source-shaped seams and planned dependencies were retained, so no simplification pass was manufactured. No sealed holdout evaluation or artifact access occurred.",
-      "recordedAt": "2026-07-21T21:15:58.580Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-21T21:15:58.580Z"
     },
     {
       "kind": "review",
@@ -484,10 +454,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Composite full world correctness frontier f140abfaa499b2e8d7648fffc5c0fb73e33a5c73..61b7fdd519355688de5ce2b17aba7d7124b84512. Four contiguous fresh-process full audits used mandatory correctness, readability-risk, tests, and variable-trace finders; performance and concurrency were disabled. Aggregate counts: 33 raw, 31 deduplicated, 29 confirmed, 29 applied, 0 deferred, 0 unverified. Pass 1 f140abf..9193d06: 12 raw, 12 deduplicated, 11 confirmed, later applied through 043d13a; session 019f86e5-ee23-7853-a7ad-5b41373147c9; usage input 3493309, cached 3363840, output 18786, reasoning 4998. It covered packed humidity, monster-carrier object placement, numeric widths, name identity, trapKnown, tombstoned artifacts, achievement pre-stacking, quantities, default extraction, and Ghost override oracles. Its lifecycle-documentation candidate was rejected because production callers already owned the callback/context boundary and tests distinguished push-only create_object from lspo_object. Pass 2 9193d06..043d13a: 5 raw, 4 deduplicated, 4 confirmed, applied through 9c72196; session 019f8720-23e3-74f3-bc8d-e5327632b62f; usage input 1616853, cached 1523456, output 10886, reasoning 1911. It fixed custom monster-inventory lifecycle, saddle visibility, test-vector rationale, and signed-short spe narrowing. Warnings: saddle visibility was masked until lifecycle activation; signed narrowing follows the supported compiler two-complement behavior; the pre-existing invalid-achievement diagnostic remained out of scope. Pass 3 043d13a..9c72196: 12 raw, 12 deduplicated, 11 confirmed, applied through 61b7fdd; session 019f874d-11dd-7742-b740-ebb9a9fb25d9; usage input 1164365, cached 1108480, output 9210, reasoning 1620. It fixed failed nested scalar-carrier inheritance, I_SPECIAL after worn default disposal, names, and mutation-resistant coverage for default inventory, artifact reversal, wear eligibility, ties/curses, and visibility. The default-inventory ternary readability claim was rejected because strict boolean comparisons state both policies directly. Operational warning: only three subagents could run beside the orchestrator, so the fourth independent finder ran immediately after a slot freed. Pass 4 9c72196..61b7fdd: 4 raw, 3 deduplicated, 3 confirmed, applied in the subsequent test-only 32d5543 delta and reconciled by two read-only readers; session 019f876f-ff5d-70e2-8ae6-eb6571275ff0; usage input 2054204, cached 1943296, output 8465, reasoning 1160. It strengthened inherited-carrier auto-wear, tame-saddle state, and extraction-before-artifact-reversal ordering without adding a production seam. Warning: the tame assertion gap was pre-existing at the range base and failed causality, but confirmed under the required evidence-plus-resolution gate; the artifact order observation remained test-only via an oname getter. A harmless invalid polling interval was corrected without losing a role or judgment. Validation: focused suites passed; npm test passed 798/798 both primarily and inside the final audit; git diff checks passed; all four generated-source checks passed before the later non-generator deltas; fresh seed 284611 matched 2091/2091 PRNG calls and complete screen/cursor streams; development remained 178 matched screens across 33 sessions. A new seed 918273 divergence at themerms.lua:1039 call 509 was identical at both endpoints, establishing a real remaining frontier rather than diff causality. Two parallel read-only reconciliation rounds reported no findings after behavior fixes and after the final test-only delta. The first isolated audit lacked an initialized upstream tree for nine source-projection tests and nested-git generator checks; later pinned audits had upstream initialized and final full validation was clean. No holdout evaluation or holdout access occurred.",
-      "recordedAt": "2026-07-22T01:46:45.488Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T01:46:45.488Z"
     },
     {
       "kind": "review",
@@ -501,10 +468,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Composite full world correctness frontier 61b7fdd519355688de5ce2b17aba7d7124b84512..1a1bda23cf19fa7d3551fa93b858d30cd98c157e. The fresh isolated audit covered 61b7fdd519355688de5ce2b17aba7d7124b84512..acb69cb387f1921da3bf932a4d1de8e35cada9f8 with mandatory behavior, readability-risk, test-quality, and variable-trace finders. Performance and concurrency were disabled. Session 019f87b0-8d68-7273-af69-766232852e5b. Usage: 1578519 input, 1513216 cached input, 9737 output, 1443 reasoning. Counts: 12 raw, 9 deduplicated, 6 confirmed, 6 applied through 604af719d33d97684c95da7d031d38bbf7b70dbd, 0 deferred, 0 unverified. Fixes contained only missing live fill-handler errors after preserving the full source reservoir, changed makerooms to level_difficulty, and added real Boulder composition, direction-wrap and distance-reduction, ownership/redraw, and 25-corpse Massacre coverage. Seven fill handlers remain planned source-parity work, not audit deferrals. Three candidates were rejected: rawEnv.state had no caller contract, Boulder pile-head visibility follows place_object ownership, and launchplace has no current producer. The audit proposed a quantity-two Boulder stack oracle, but objects.h oc_merge=0 proved Boulders nonmergeable; the corrected test asserts two quantity-one objects. Formal report warnings: none. Stderr had one invalid polling interval and nine model-cache TTL EOF renewals, but every finder and adjudication completed. Post-fix source review found no issue. The test review found two regression gaps, both applied in 1a1bda23cf19fa7d3551fa93b858d30cd98c157e. Review of that test delta found one false Sokoban oracle; it was replaced by regular Dungeons-of-Doom D:2 plus extrinsic Aggravate Monster. Two final parallel read-only reviews found no issue. Validation: 55 focused tests, 815 full tests, git diff checks, and the generated themed-room check passed. Fresh seed 710009 Wizard gnome Massacre parity matched all 3192 PRNG calls, full first-prompt screen, and cursor at production commit 604af719; final 1a1bda2 changes tests only. Development scoring at 1a1bda2 remained 178 matched screens over 33 sessions. The simplification advisory was inspected; source-shaped dispatcher seams and planned fill dependencies were retained, so no pass was manufactured. No sealed holdout evaluation or access occurred.",
-      "recordedAt": "2026-07-22T03:29:36.445Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T03:29:36.445Z"
     },
     {
       "kind": "review",
@@ -522,10 +486,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Composite Cloud and Storeroom full correctness milestone. Audit A covered world range 1a1bda23cf19fa7d3551fa93b858d30cd98c157e..587de50edf9dacf0fabf428956483ab0226e860b with mandatory correctness, readability-risk, test-quality, and variable-trace finders; performance and concurrency were disabled. Session 019f882e-ad0a-7c00-9436-d07affdaea79; usage 477873 input, 433664 cached, 10248 output, 927 reasoning. Counts: 14 raw, 14 deduplicated, 8 audit-confirmed, 5 source-validated and applied in 0a3e69db2e26ad59ff5f70c929ee579e4267dc46, 0 deferred, 0 unverified. Primary source validation rejected three exception-retry cleanup findings because Lua clears the queue only after success, NHLpa_panic is fatal, JS rethrows without retry, and queue-only rollback could not restore map or PRNG state. Audit B covered world, interaction, and runtime range 587de50edf9dacf0fabf428956483ab0226e860b..4d53ba9ad59b8a658e4a919a84296f7543000b90 with all four mandatory finders plus performance; concurrency was disabled and performance reported zero findings. Session 019f883b-3417-7412-bf96-67e13c092875; usage 2931939 input, 2837760 cached, 21962 output, 5830 reasoning. Counts: 18 raw, 17 deduplicated, 15 confirmed, 15 applied in 27a35d7a5132045c6c522f90a37860ea03374cab, 0 deferred, 0 unverified, 2 rejected. Rejections: the Cloud glyph-customization branch is unreachable from the current parser and bundled definitions, and the proposed humidity retry oracle contradicted pm_to_humidity, which starts DRY and adds HOT or WET. No formal-pass warnings. The fix tail corrected zeroobj mimic glyph and NON_PM metadata semantics, swap-pop region membership, state ownership, chest-only appearance preflight, named room types and comments, plus exact ordering and boundary tests. Two independent read-only post-fix reviews found and reconciled the subtle zero-class observation, sentinel metadata, boulder-scope, region-order, and test-oracle issues, then reported no remaining must-fix finding. Validation: 848 tests, all four generated-source checks, git diff checks, development aggregate 178 screens, and strict fresh Wizard gnome male neutral first-prompt parity for Cloud seed 441 at 2565 calls, combined Cloud and Storeroom seed 85 at 2394 calls, and Storeroom seed 729 at 2844 calls, with matching full screens and cursors. No holdout evaluation or access occurred. Per policy, audit-fix commits after 4d53ba9 remain review debt.",
-      "recordedAt": "2026-07-22T06:43:26.279Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T06:43:26.279Z"
     },
     {
       "kind": "review",
@@ -541,10 +502,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Exact reviewed range 4d53ba9ad59b8a658e4a919a84296f7543000b90..634ddf65b6f585185bd741e4830c015b02e6ade6 for world and interaction production files and associated tests; roadmap, score, agent-policy, quality-ledger, and quality-tooling changes were excluded. Fresh isolated full correctness audit used mandatory correctness, readability-risk, test-quality, and variable-trace finders; performance and concurrency were disabled. Session 019f88c8-87cf-7af0-96fc-9b336c02f5d2. Usage: 8098048 input, 7918592 cached input, 21988 output, 8140 reasoning. Formal counts: 3 raw, 2 deduplicated, 2 confirmed, 2 applied in dca94d14ca09cc29a9132c33768b921c2e0fe8c5, 0 deferred, 0 rejected, 0 unverified. Fixes restrict the co-aligned unicorn override to the source is_unicorn trait and reverse worn mummy-wrapping effects only when discard_minvent operates on a live monster, preserving unlink, mask, and dead-monster ordering. Formal warnings and agent losses: none. Post-fix reconciliation by two parallel read-only reviewers found one end-to-end mongone ordering test gap; it was applied in c2dc53aad937446676dc9f122bd5e5cf9c2d2a4e, and both reviewers then reported no remaining must-fix finding. Validation: 871 tests, all four generated-data checks, git diff checks, and aggregate development scoring of 178 matched screens across 33 sessions passed at the reconciled head. The simplification advisory was inspected; the source-shaped lifecycle seams remain active dependencies for Statuary, so no cleanup pass was manufactured. No sealed holdout evaluation or access occurred. Per policy, dca94d14 and c2dc53aa remain review debt after the audited frontier.",
-      "recordedAt": "2026-07-22T08:26:01.575Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T08:26:01.575Z"
     },
     {
       "kind": "simplification",
@@ -557,10 +515,7 @@
       ],
       "outcome": "changed",
       "evidence": "Composite simplification frontier 88ccb28d900bfc81e76f092f7b34218dbcbabba9..218748c76f0bce0b9311a195b9e55c99b33de254. Changes through 634ddf65b6f585185bd741e4830c015b02e6ade6 had their simplification advisories directly inspected under the prior policy with source-shaped seams retained; the new formal six-finder scope was 634ddf65b6f585185bd741e4830c015b02e6ade6..1a8adff62f1c769c665e5dc5f46350dffecd9a1f. That pass produced 26 raw proposals, 18 deduplicated, 16 confirmed, and 16 applied in 218748c76f0bce0b9311a195b9e55c99b33de254, with 2 rejected and 0 unverified. Applied changes reused canonical worm and unicorn predicates, introduced a source-shaped Lua dice helper and one packed-coordinate trap primitive, shared themed-generation fixtures, removed unused private returns and exports, removed a redundant trap-environment clone, restored the source try counter and selected-species shape, centralized room field ownership, explicitly discarded the parser-only random door value, and consolidated scripted test fixtures without changing independent oracles. Rejected removal of compatibility room-shape fallbacks and collapsing local room success into aggregate nested failure because both would erase current contracts. Warnings: repository privacy enforcement prevented a fresh top-level process, so retained subagent threads were reused; the isolated source submodule was unpopulated, so source checks used the primary checkout at gitlink 16ff59115315917b93185d026aeefea06db9b0f4. Validation: 884 tests passed at the simplification commit; the stabilized head passes all 892 tests and the themed-room generated-data check, development remains 178 matched screens, and fresh Fake Delphi seeds 250 and 713 plus Statuary seed 820037 retain exact PRNG, screen, attribute, and cursor parity. No holdout evaluation or access occurred.",
-      "recordedAt": "2026-07-22T11:08:39.152Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T11:08:39.152Z"
     },
     {
       "kind": "review",
@@ -574,10 +529,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Full correctness audit of exact world range 634ddf65b6f585185bd741e4830c015b02e6ade6..1a8adff62f1c769c665e5dc5f46350dffecd9a1f. Mandatory behavior, readability-risk, test-quality, and variable-trace finders ran; optional performance and concurrency finders were disabled. Counts: 9 raw, 8 deduplicated, 7 confirmed, 7 applied in 086963f72cbcb156f23e9e08bf59761c91108796, 0 deferred, 1 rejected, and 0 unverified. The audit found no production divergence. Applied work documents and tests local room success versus aggregate nested failure, ordered door-slice shifts, living-statue unicorn retry and cap behavior, long-worm truncation and slot exhaustion, batch dmonsfree cleanup, successful south and west door branches, and chameleon rejection filters and twenty-attempt exhaustion. Duplicate deferred-door documentation was rejected because existing comments and tests already state the contract. Warnings: repository privacy enforcement prevented the required fresh top-level process, retained subagent threads were reused, and the isolated source submodule was unpopulated; upstream checks used the primary checkout at gitlink 16ff59115315917b93185d026aeefea06db9b0f4. Separate clarity audit over the revised-cadence range 0a3e69db2e26ad59ff5f70c929ee579e4267dc46..086963f72cbcb156f23e9e08bf59761c91108796 produced 32 raw, 29 deduplicated, 17 confirmed, 17 applied through 7e362bf and 9ba635d, 12 rejected, and 0 unverified. Clarity fixes cover source bounds and invariants, exact helper names, test-literal rationale, build_room and polymorph target contracts, threshold synchronization, the PM_TENGU display sentinel, ledger chronology, the false long-worm region comment, and the missing score row. Notable clarity rejections retained ROADMAP unchanged until milestone closure and avoided comments or renames where code, source terminology, or existing documentation already made the contract explicit. Clarity shared the retained-thread and unpopulated-submodule warnings. Validation: seven affected suites, all 892 tests, git diff checks, and the themed-room generated-data check passed; development remains 178 matched screens; fresh Fake Delphi seeds 250 and 713 matched 6331 and 2699 PRNG calls and Statuary seed 820037 matched 2677, with complete screen, attribute, and cursor parity. No holdout evaluation or access occurred. The later simplification, regression, and clarity code commits remain review debt after this audited frontier; tracker-only commits do not.",
-      "recordedAt": "2026-07-22T11:08:55.618Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T11:08:55.618Z"
     },
     {
       "kind": "review",
@@ -591,10 +543,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Full correctness audit of 1a8adff62f1c769c665e5dc5f46350dffecd9a1f..fd46453664e4ba4cc0073f9575e4783ca9cb8fd5; final reconciled frontier 44c4f69aed40dc3644b809c52d7bd9c32a667a2d. Mandatory correctness, readability, tests, and variable-trace finders ran; performance and concurrency disabled. 9 raw, 7 deduplicated, 7 confirmed, 7 applied; 0 deferrals, 0 unverified, 0 rejected. Applied waiting-vampire base-form reversion and six regression-strengthening fixes. Two post-fix readers found one overly broad helper API; narrowed in 44c4f69, then both readers rechecked that delta with 0 findings. Warning: fresh top-level Codex process was blocked by private-repository disclosure policy, so no external session ID or usage summary exists; safer fresh-context in-session subagents preserved the finder/adjudication workflow. Prior seed 941182 evidence was discarded as misattributed because it did not generate Mausoleum. Validation: 903/903 tests, themed-room data check, fresh seeds 4481 at 2825 calls and 7414 at 2642 calls exact for PRNG/screens/cursors, development 178 matched screens. No holdout run or access.",
-      "recordedAt": "2026-07-22T12:50:10.697Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T12:50:10.697Z"
     },
     {
       "kind": "review",
@@ -608,10 +557,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Composite committed range 44c4f69aed40dc3644b809c52d7bd9c32a667a2d..67240887f5a10776689c216aa97f1c577e73e509. Initial full correctness pass through c005fab: 14 raw, 14 deduplicated, 9 confirmed, 9 applied in 79505268c80e3b7de485401af793e641c9ff91dd, 0 deferred, 5 rejected, 0 unverified. Two post-fix readers found no must-fix issue. Observable fixes required a final full-range pass: 5 raw, 4 deduplicated, 4 confirmed, 3 applied as test coverage in 67240887f5a10776689c216aa97f1c577e73e509, 1 deferred, 0 rejected, 0 unverified. Two final read-only source/mutation reviewers found no must-fix issue. Combined: 19 raw, 18 deduplicated, 13 confirmed, 12 applied, 1 deferred, 5 rejected, 0 unverified. Mandatory correctness, readability, tests, and variable-trace finders ran; performance and concurrency were disabled as inapplicable. Applied production fixes preserve mongets merge success, gnome candle burn evaluation, and Water vault random chest locking from the Lua olocked typo. Notable rejected claims: failed shop stock still sets has_shop per C; lx/ly/rx/ry are exact Lua fields; Water fixed-offset exclusion is independent; shopkeeper preflight validates call shape rather than caller identity; shop indexes 1 and 4 are documented rtype-SHOPBASE values. The one deferred Water exclusion consumer belongs to later level-arrival integration: generated D:1 always registers the upward branch stair, and current first-command code has no level-transition place_lregion caller. Warning: external top-level codex exec was blocked by private-repository disclosure policy, so fresh in-session independent subagents preserved the required roles and phase order. One proposed source premise that glass escape chests must be unlocked was disproved and corrected before integration. Validation: 919 full tests; generated monster, object, symbol, and themed-room checks; exact fresh C differentials seed 87 at 2973 calls, seed 1297 at 3046 calls, and seed 423 at 3050 calls with exact PRNG/screens/cursors; development score 217 matched screens over 33 sessions; no sealed holdout run.",
-      "recordedAt": "2026-07-22T15:11:54.999Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T15:11:54.999Z"
     },
     {
       "kind": "review",
@@ -625,10 +571,7 @@
       "level": "full",
       "outcome": "changed",
       "evidence": "Exact correctness range 651dbcf5d56c72d90b25b3fafd48a27711045f85..74000203c2a0473051b7d3f8b0a1be6dc4c77a52; fixes and reconciled review frontier through b4c7dcb2a36e0a7726c12c7bf05b368621aea800. Mandatory correctness, readability, tests, and variable-trace finders ran; performance and concurrency were disabled. Counts: 17 raw, 11 deduplicated, 6 confirmed, 6 applied, 0 deferred, 5 rejected, 0 unverified, 0 warnings. Applied one diagnostic clarification and five source-order or ownership regressions; no production behavior defect was confirmed. Buried-ball restoration, synthetic hook, live redraw, blocking, and helper-order concerns were rejected against startup scope and upstream evidence. A private-repository policy blocked the independent top-level process, so fresh-context in-session subagents preserved role independence. Two post-fix read-only delta reviews found no must-fix issue. Validation: 926 tests, generated monster, object, symbol, and themed-room checks, exact fresh seeds 461 and 6916, and an instrumented 10,000-seed default scan covering every D:1-eligible themed room and fill; development score 217; no holdout. The objects frontier was not advanced because preceding object commits were outside this audit. The due simplification advisory was inspected; active source-shaped seams did not warrant cleanup.",
-      "recordedAt": "2026-07-22T16:15:13.264Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T16:15:13.264Z"
     },
     {
       "kind": "simplification",
@@ -641,10 +584,7 @@
       ],
       "outcome": "changed",
       "evidence": "Fresh Codex simplify-codebase session 019f8bad-a861-7352-b95c-49f1ce2bdfba audited 218748c76f0bce0b9311a195b9e55c99b33de254..8222464176b82e03d0c144f0d6b74628ee13fada: 13 raw, 12 deduplicated, 5 confirmed and applied, 0 deferred, 7 rejected, 0 unverified; all six finders and the adjudicator completed. Validation: focused world/tutorial tests, 956/956 full tests, and diff check passed; the supplied 107-case fresh matrix was baseline evidence and was not rerun in the isolated worktree. No warnings. Usage: 4077811 input, 3942656 cached input, 19482 output, 5366 reasoning tokens.",
-      "recordedAt": "2026-07-22T22:12:12.216Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T22:12:12.216Z"
     },
     {
       "kind": "simplification",
@@ -657,10 +597,7 @@
       ],
       "outcome": "changed",
       "evidence": "Fresh Codex simplify-codebase session 019f8bc2-f7ab-76f2-a00b-73ec9acd9f6b audited 37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7..8222464176b82e03d0c144f0d6b74628ee13fada: 23 raw, 22 deduplicated, 21 confirmed, 20 applied, 1 deferred, 1 rejected, 0 unverified; all six finders and the adjudicator completed. Validation: focused display, symbol, input, menu, and message suites; generated symbol check; 956/956 full tests; unchanged development aggregate; and diff check passed. The isolated fresh differential could not launch because detached worktrees omit the untracked recorder installation; integrated main later passed strict seed 31. One transient sandbox spawn EPERM was retried without role or verdict loss. Usage: 7793546 input, 7578624 cached input, 32766 output, 8696 reasoning tokens.",
-      "recordedAt": "2026-07-22T22:12:12.711Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-22T22:12:12.711Z"
     },
     {
       "kind": "review",
@@ -740,10 +677,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:16.249Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:16.249Z"
     },
     {
       "kind": "review",
@@ -789,10 +723,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:16.692Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:16.692Z"
     },
     {
       "kind": "review",
@@ -826,10 +757,7 @@
         },
         "productionDefects": []
       },
-      "recordedAt": "2026-07-23T03:59:17.115Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:17.115Z"
     },
     {
       "kind": "review",
@@ -894,10 +822,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:17.567Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:17.567Z"
     },
     {
       "kind": "review",
@@ -946,10 +871,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:18.008Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:18.008Z"
     },
     {
       "kind": "review",
@@ -985,10 +907,7 @@
         },
         "productionDefects": []
       },
-      "recordedAt": "2026-07-23T03:59:18.473Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:18.473Z"
     },
     {
       "kind": "review",
@@ -1037,10 +956,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:18.935Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:18.935Z"
     },
     {
       "kind": "review",
@@ -1095,10 +1011,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:19.425Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:19.425Z"
     },
     {
       "kind": "review",
@@ -1161,10 +1074,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:19.940Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:19.940Z"
     },
     {
       "kind": "review",
@@ -1213,10 +1123,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:20.458Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:20.458Z"
     },
     {
       "kind": "review",
@@ -1264,10 +1171,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T03:59:20.987Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:20.987Z"
     },
     {
       "kind": "review",
@@ -1301,10 +1205,7 @@
         },
         "productionDefects": []
       },
-      "recordedAt": "2026-07-23T03:59:21.500Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:21.500Z"
     },
     {
       "kind": "review",
@@ -1338,10 +1239,7 @@
         },
         "productionDefects": []
       },
-      "recordedAt": "2026-07-23T03:59:22.008Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T03:59:22.008Z"
     },
     {
       "kind": "review",
@@ -1417,10 +1315,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T05:10:57.060Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T05:10:57.060Z"
     },
     {
       "kind": "review",
@@ -1465,10 +1360,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T06:25:58.860Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T06:25:58.860Z"
     },
     {
       "kind": "review",
@@ -1534,10 +1426,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T07:44:08.289Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T07:44:08.289Z"
     },
     {
       "kind": "review",
@@ -1580,10 +1469,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T08:58:12.271Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T08:58:12.271Z"
     },
     {
       "kind": "review",
@@ -1667,10 +1553,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T10:19:52.391Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T10:19:52.391Z"
     },
     {
       "kind": "review",
@@ -1733,10 +1616,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T12:05:35.871Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T12:05:35.871Z"
     },
     {
       "kind": "review",
@@ -1792,10 +1672,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T13:56:46.893Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T13:56:46.893Z"
     },
     {
       "kind": "review",
@@ -1863,10 +1740,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T18:02:06.129Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T18:02:06.129Z"
     },
     {
       "kind": "review",
@@ -1933,10 +1807,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-23T18:24:50.471Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-23T18:24:50.471Z"
     },
     {
       "kind": "simplification",
@@ -2022,10 +1893,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-24T09:08:59.473Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-24T09:08:59.473Z"
     },
     {
       "kind": "review",
@@ -2422,10 +2290,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-24T09:09:44.569Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-24T09:09:44.569Z"
     },
     {
       "kind": "review",
@@ -2485,10 +2350,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-26T04:31:48.714Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-26T04:31:48.714Z"
     },
     {
       "kind": "review",
@@ -2559,10 +2421,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-27T00:00:00.000Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-27T00:00:00.000Z"
     },
     {
       "kind": "review",
@@ -2666,10 +2525,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-28T03:22:16.266Z",
-      "audited": {
-        "unrecorded": true
-      }
+      "recordedAt": "2026-07-28T03:22:16.266Z"
     },
     {
       "kind": "review",
@@ -2682,6 +2538,7 @@
         "commands": "e30ea05440a4850bee40881d3f65180c6ae7bb7b"
       },
       "head": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
+      "auditedRange": "e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
       "areas": [
         "startup",
         "hero",
@@ -2791,10 +2648,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-28T17:19:19.021Z",
-      "audited": {
-        "range": "e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c"
-      }
+      "recordedAt": "2026-07-28T17:19:19.021Z"
     },
     {
       "kind": "review",
@@ -2807,6 +2661,7 @@
         "world-effects": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c"
       },
       "head": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
+      "auditedRange": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c..eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
       "areas": [
         "commands",
         "objects",
@@ -2946,10 +2801,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-29T01:19:43.869Z",
-      "audited": {
-        "range": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c..eb7e17ec72379124ff7bab6f80ff4b3f773393ef"
-      }
+      "recordedAt": "2026-07-29T01:19:43.869Z"
     },
     {
       "kind": "review",
@@ -2962,6 +2814,7 @@
         "commands": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef"
       },
       "head": "60bf2c3cf1fc8d7313970a91417547af466206c3",
+      "auditedRange": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef..60bf2c3cf1fc8d7313970a91417547af466206c3",
       "areas": [
         "startup",
         "hero",
@@ -3034,10 +2887,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-29T09:17:25.185Z",
-      "audited": {
-        "range": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef..60bf2c3cf1fc8d7313970a91417547af466206c3"
-      }
+      "recordedAt": "2026-07-29T09:17:25.185Z"
     },
     {
       "kind": "review",
@@ -3050,6 +2900,7 @@
         "commands": "60bf2c3cf1fc8d7313970a91417547af466206c3"
       },
       "head": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
+      "auditedRange": "60bf2c3cf1fc8d7313970a91417547af466206c3..2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
       "areas": [
         "startup",
         "hero",
@@ -3087,10 +2938,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-29T09:54:18.070Z",
-      "audited": {
-        "range": "60bf2c3cf1fc8d7313970a91417547af466206c3..2adc5af64b2a6dffc08e56c1ae71d0b453f92d73"
-      }
+      "recordedAt": "2026-07-29T09:54:18.070Z"
     },
     {
       "kind": "review",
@@ -3103,6 +2951,7 @@
         "commands": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73"
       },
       "head": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
+      "auditedRange": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73..60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
       "areas": [
         "startup",
         "hero",
@@ -3164,10 +3013,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-29T13:47:09.111Z",
-      "audited": {
-        "range": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73..60bf3d04c84bce48ff7aadf7989556874ee0f3e5"
-      }
+      "recordedAt": "2026-07-29T13:47:09.111Z"
     },
     {
       "kind": "review",
@@ -3180,6 +3026,7 @@
         "commands": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5"
       },
       "head": "f826ba5392d313da8951095111b8201f5be497fe",
+      "auditedRange": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5..f826ba5392d313da8951095111b8201f5be497fe",
       "areas": [
         "startup",
         "hero",
@@ -3255,10 +3102,7 @@
         ],
         "rejections": []
       },
-      "recordedAt": "2026-07-29T15:40:04.110Z",
-      "audited": {
-        "range": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5..f826ba5392d313da8951095111b8201f5be497fe"
-      }
+      "recordedAt": "2026-07-29T15:40:04.110Z"
     },
     {
       "kind": "review",
@@ -3267,6 +3111,7 @@
         "commands": "f826ba5392d313da8951095111b8201f5be497fe"
       },
       "head": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
+      "auditedRange": "f826ba5392d313da8951095111b8201f5be497fe..4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
       "areas": [
         "startup",
         "commands"
@@ -3308,10 +3153,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-29T16:59:26.628Z",
-      "audited": {
-        "range": "f826ba5392d313da8951095111b8201f5be497fe..4e9a59f8b7098a4f9e80e7d05c7df2bc21363071"
-      }
+      "recordedAt": "2026-07-29T16:59:26.628Z"
     },
     {
       "kind": "review",
@@ -3320,6 +3162,7 @@
         "commands": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071"
       },
       "head": "61f41f9b8255ad5359d491196bde97d69ea7d3eb",
+      "auditedRange": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071..61f41f9b8255ad5359d491196bde97d69ea7d3eb",
       "areas": [
         "startup",
         "commands"
@@ -3366,10 +3209,7 @@
           }
         ]
       },
-      "recordedAt": "2026-07-29T17:28:46.934Z",
-      "audited": {
-        "range": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071..61f41f9b8255ad5359d491196bde97d69ea7d3eb"
-      }
+      "recordedAt": "2026-07-29T17:28:46.934Z"
     },
     {
       "kind": "review",
@@ -3378,6 +3218,7 @@
         "commands": "61f41f9b8255ad5359d491196bde97d69ea7d3eb"
       },
       "head": "2ac43bceb22c833fb670117105f40f85d334cd13",
+      "auditedRange": "61f41f9b8255ad5359d491196bde97d69ea7d3eb..2ac43bceb22c833fb670117105f40f85d334cd13",
       "areas": [
         "startup",
         "commands"
@@ -3405,10 +3246,7 @@
         },
         "productionDefects": []
       },
-      "recordedAt": "2026-07-29T17:53:10.952Z",
-      "audited": {
-        "range": "61f41f9b8255ad5359d491196bde97d69ea7d3eb..2ac43bceb22c833fb670117105f40f85d334cd13"
-      }
+      "recordedAt": "2026-07-29T17:53:10.952Z"
     }
   ]
 }
