@@ -71,6 +71,8 @@ import {
     W_NONPASSWALL,
     W_ARM,
 } from '../js/const.js';
+import { A_CHA } from '../js/const.js';
+import { effective_attribute } from '../js/attrib.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
 import { online2 } from '../js/hacklib.js';
 import { create_region } from '../js/region.js';
@@ -136,6 +138,8 @@ import {
     PM_WHITE_UNICORN,
     PM_WOOD_NYMPH,
     PM_XORN,
+    S_HUMAN,
+    S_NYMPH,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -1399,6 +1403,23 @@ test('mon_allowflags uses polymorphed Charisma for conflict resistance', () => {
     state.youmonst.data = state.mons[PM_HUMAN];
     state.u.umonnum = PM_AMOROUS_DEMON;
     assert.ok(mon_allowflags(peaceful, env) & ALLOW_U);
+
+    // The flag above is one bit derived from acurr(A_CHA). attrib.c raises a
+    // Charisma below 18 to 18 for a nymph or amorous demon and leaves every
+    // other value alone, so the floor needs asserting on the value itself.
+    const charisma = (mlet, umonnum, total) => {
+        state.youmonst.data = { ...state.mons[PM_HUMAN], mlet };
+        state.u.umonnum = umonnum;
+        state.u.acurr = { a: [10, 10, 10, 10, 10, 10] };
+        state.u.acurr.a[A_CHA] = total;
+        state.u.abon = [0, 0, 0, 0, 0, 0];
+        state.u.atemp = [0, 0, 0, 0, 0, 0];
+        return effective_attribute(state, A_CHA);
+    };
+    assert.equal(charisma(S_NYMPH, PM_HUMAN, 10), 18, 'nymph form raises 10');
+    assert.equal(charisma(S_NYMPH, PM_HUMAN, 22), 22, 'the floor never lowers');
+    assert.equal(charisma(S_HUMAN, PM_AMOROUS_DEMON, 10), 18, 'demon raises 10');
+    assert.equal(charisma(S_HUMAN, PM_HUMAN, 10), 10, 'no form, no floor');
 });
 
 test('movement terrain helpers preserve walls, boulders, and ceilings', () => {
