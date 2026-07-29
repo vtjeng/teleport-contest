@@ -167,9 +167,15 @@ function attributeArray(value) {
 }
 
 // C ref: attrib.c acurr(). The shared arithmetic here owns the
-// base/bonus/temporary sum, source caps, and form-specific Charisma floor.
-// Equipment-specific overrides remain with the eventual worn-item attribute
-// subsystem.
+// base/bonus/temporary sum, the source caps, and the A_CHA floor of 18 for a
+// nymph or amorous demon. Three of acurr()'s special cases are unported, and
+// each needs a different owner:
+//   A_STR, gauntlets of power forcing STR19(25)   -> worn items
+//   A_INT and A_WIS, dunce cap forcing 6          -> worn items
+//   A_CON, u_wield_art(ART_OGRESMASHER) forcing 25 -> wielded artifacts
+// The A_CON case is a wielded artifact rather than worn gear, so the worn-item
+// subsystem will not reach it. A hero wielding Ogresmasher gets the plain
+// 3..25 clamp here.
 export function effective_attribute(state = game, index) {
     const u = state.u;
     const base = Math.trunc(u?.acurr?.a?.[index] ?? 0);

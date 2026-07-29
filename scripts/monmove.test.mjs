@@ -1582,26 +1582,29 @@ test('mfndpos reveals an adjacent hero before rejecting the square', () => {
     assert.equal(data.cnt, 0);
 });
 
-test('mfndpos reuses caller-owned fixed scratch buffers', () => {
+test('mfndpos rebuilds the nine output slots on every call', () => {
+    // mon.c mfndpos() memsets a caller-declared local, and both callers here
+    // pass a fresh `{ cnt: 0, poss: [], info: [] }`, so a caller cannot hold a
+    // `data.poss[i]` reference across calls. The values repeat; the objects do
+    // not.
     const { state } = makeState();
     const monster = ordinaryMonster(state, { mcansee: false });
     const data = {};
     const env = { state, onScary: () => false };
 
     assert.equal(mfndpos(monster, data, 0, env), 8);
-    const positions = data.poss;
-    const positionEntries = [...data.poss];
-    const info = data.info;
+    const firstPositions = data.poss;
+    const firstEntry = data.poss[0];
     const firstResult = data.poss.slice(0, data.cnt).map((position, index) => ({
         ...position,
         info: data.info[index],
     }));
 
     assert.equal(mfndpos(monster, data, 0, env), 8);
-    assert.equal(data.poss, positions);
-    assert.equal(data.info, info);
-    for (let index = 0; index < positionEntries.length; ++index)
-        assert.equal(data.poss[index], positionEntries[index]);
+    assert.notEqual(data.poss, firstPositions);
+    assert.notEqual(data.poss[0], firstEntry);
+    assert.equal(data.poss.length, 9);
+    assert.equal(data.info.length, 9);
     assert.deepEqual(
         data.poss.slice(0, data.cnt).map((position, index) => ({
             ...position,

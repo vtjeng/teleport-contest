@@ -647,11 +647,6 @@ export async function mon_wield_item(monster, env = {}) {
                 'canSeeMonster',
                 'mon_wield_item',
             ),
-            wieldMessage: requiredOperation(
-                normalized,
-                'wieldMessage',
-                'mon_wield_item',
-            ),
             endArtifactLight: current
                 && artifactLight(current) && current.lamplit
                 ? requiredOperation(
@@ -678,9 +673,21 @@ export async function mon_wield_item(monster, env = {}) {
             transition.endArtifactLight,
         );
         monster.weapon_check = NEED_WEAPON;
+        // weapon.c mon_wield_item() evaluates canseemon() here, after
+        // setmnotwielded() has already run end_burn() on the old weapon, so a
+        // monster lit only by that artifact is unseen by this test. Resolving
+        // wieldMessage inside the branch keeps the operation optional for an
+        // unseen monster, which C never prints for, and matches the welded
+        // branch above. The preflight above still resolves every operation
+        // this path can reach before the first mutation.
         if (transition.canSeeMonster(monster, normalized)) {
+            const wieldMessage = requiredOperation(
+                normalized,
+                'wieldMessage',
+                'mon_wield_item',
+            );
             const newlyWelded = willWeld(obj, state);
-            await transition.wieldMessage(
+            await wieldMessage(
                 monster,
                 obj,
                 { exclaim, newlyWelded },

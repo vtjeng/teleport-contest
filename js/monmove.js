@@ -870,30 +870,15 @@ function mmDisplacement(attacker, defender, state) {
     return 0;
 }
 
-function hasReusablePositionBuffer(poss) {
-    if (!Array.isArray(poss) || poss.length !== 9) return false;
-    for (let index = 0; index < poss.length; ++index) {
-        if (!poss[index] || typeof poss[index] !== 'object') return false;
-    }
-    return true;
-}
-
+// C ref: mon.c mfndpos()'s `memset(data, 0, sizeof(struct mfndposdata))`. Each
+// C call site declares a fresh local, and so does each caller here, so the
+// nine slots are rebuilt rather than reused.
 function resetMfndposData(data) {
     if (!data || typeof data !== 'object')
         throw new TypeError('mfndpos requires an output data object');
     data.cnt = 0;
-    if (!hasReusablePositionBuffer(data.poss)) {
-        data.poss = Array.from({ length: 9 }, () => ({ x: 0, y: 0 }));
-    } else {
-        for (const position of data.poss) {
-            position.x = 0;
-            position.y = 0;
-        }
-    }
-    if (!Array.isArray(data.info) || data.info.length !== 9)
-        data.info = new Array(9).fill(0);
-    else
-        data.info.fill(0);
+    data.poss = Array.from({ length: 9 }, () => ({ x: 0, y: 0 }));
+    data.info = new Array(9).fill(0);
 }
 
 function snapshotProperty(target, key) {
@@ -909,7 +894,12 @@ function restoreProperty(target, key, snapshot) {
 }
 
 function snapshotMfndposMutation(monster, data) {
-    const reusablePositions = hasReusablePositionBuffer(data.poss);
+    // A caller mid-call holds the nine slots resetMfndposData() built, so the
+    // per-slot values are worth restoring. A caller that has not reached that
+    // point yet passes whatever it declared, and the property snapshots below
+    // restore the arrays themselves.
+    const reusablePositions = Array.isArray(data.poss) && data.poss.length === 9
+        && data.poss.every((position) => position && typeof position === 'object');
     const reusableInfo = Array.isArray(data.info) && data.info.length === 9;
     return {
         mux: snapshotProperty(monster, 'mux'),
@@ -962,9 +952,9 @@ function hasAdjacentResistanceTrap(monster, state) {
     return false;
 }
 
-// C ref: mon.c mfndpos(). Candidate iteration is x-major then y-major; the
-// caller-owned `poss` and `info` arrays are fixed scratch buffers and are
-// reused after their first initialization. `info[i]` describes what accepting
+// C ref: mon.c mfndpos(). Candidate iteration is x-major then y-major, and
+// each call rebuilds the caller's nine `poss` and `info` slots, as C's memset
+// of a caller-declared local does. `info[i]` describes what accepting
 // `poss[i]` entails rather than echoing `initialFlags`: ALLOW_U/ALLOW_M and
 // ALLOW_TM mark attacks, ALLOW_MDISP marks displacement, ALLOW_SSM and
 // ALLOW_SANCT mark protected squares, ALLOW_ROCK marks a boulder,
@@ -1203,13 +1193,17 @@ export function mfndpos(monster, data, initialFlags, env = {}) {
     if (!data || typeof data !== 'object')
         throw new TypeError('mfndpos requires an output data object');
     const state = env.state ?? game;
-    // A missing resistance owner can be discovered after earlier candidates
-    // mutate knowledge and output. Snapshot only that exceptional reachable
-    // neighborhood so ordinary hot-path calls keep allocation-free buffers.
+    // Trap resistance can throw after earlier candidates have already written
+    // monster.mux/muy and data, so an adjacent resistance trap means the call
+    // needs a rollback point. Both callers reach it: m_move() supplies a
+    // resistsTrapEffect that raises the unported-path error, and the pet path
+    // supplies none, so the operation's presence says nothing about whether it
+    // throws. Snapshot on the trap alone, which leaves every other
+    // neighborhood on the allocation-free path. No other throw from the core
+    // is rolled back.
     const usesDefaultHarmlessTrap = env.mHarmlessTrap == null
         || env.mHarmlessTrap === m_harmless_trap;
     const snapshot = usesDefaultHarmlessTrap
-        && typeof env.resistsTrapEffect !== 'function'
         && hasAdjacentResistanceTrap(monster, state)
         ? snapshotMfndposMutation(monster, data)
         : null;
@@ -2415,7 +2409,13 @@ export async function m_move(monster, rawEnv = {}) {
 
     let avoidLine = false;
     if (is_unicorn(monster.data) && rawEnv.noTeleportLevel?.(monster)) {
-        avoidLine = data.info.some((info) => !(info & NOTONL));
+        // C ref: monmove.c:1941-1943, `for (i = 0; i < cnt; i++)`. The bound
+        // matters: resetMfndposData() zero-fills all nine info slots, and a
+        // zero slot satisfies !(info & NOTONL), so scanning the tail past
+        // count would set avoidLine on every call that reaches here.
+        for (let index = 0; index < count; ++index) {
+            if (!(data.info[index] & NOTONL)) avoidLine = true;
+        }
     }
     const betterWithDisplacing = should_displace(
         monster,

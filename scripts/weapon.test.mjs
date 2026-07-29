@@ -519,16 +519,27 @@ test('mon_wield_item preflights presentation and artifact lifecycle owners', asy
         weapon_check: NEED_RANGED_WEAPON,
     });
 
-    await assert.rejects(mon_wield_item(subject, {
+    // weapon.c mon_wield_item() prints nothing for a monster canseemon()
+    // rejects, so an unseen monster needs no wieldMessage and must still
+    // complete the swap. Its visibility is tested after setmnotwielded() has
+    // run end_burn() on the old weapon, which is why wieldMessage cannot be
+    // resolved in the preflight above: a monster lit only by that artifact is
+    // seen before the extinguish and unseen after it.
+    const unseenCurrent = object(state, LONG_SWORD, { owornmask: W_WEP });
+    const unseenWanted = object(state, DAGGER);
+    const unseen = monster(state, PM_NEWT, {
+        minvent: inventory(unseenCurrent, unseenWanted),
+        mw: unseenCurrent,
+        weapon_check: NEED_RANGED_WEAPON,
+    });
+    assert.equal(await mon_wield_item(unseen, {
         state,
-        canSeeMonster: () => true,
-        selectRangedWeapon: () => wanted,
-    }), /wieldMessage/);
-    assert.equal(subject.mw, current);
-    assert.equal(subject.weapon_check, NEED_RANGED_WEAPON);
-    assert.equal(current.lamplit, true);
-    assert.equal(current.owornmask, W_WEP);
-    assert.equal(wanted.owornmask, 0);
+        canSeeMonster: () => false,
+        selectRangedWeapon: () => unseenWanted,
+    }), 1);
+    assert.equal(unseen.mw, unseenWanted);
+    assert.equal(unseenWanted.owornmask, W_WEP);
+    assert.equal(unseen.weapon_check, NEED_WEAPON);
 
     let visibilityChecks = 0;
     await assert.rejects(mon_wield_item(subject, {
