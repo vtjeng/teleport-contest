@@ -162,6 +162,23 @@ A fresh scan supersedes the census figure above: seven sessions stop on
    therefore still unreachable after this slice, since only the `g` prefix
    sets 2.
 
+   Closed at `60bf3d0`, with the score identical across all 33 sessions, as
+   expected. All three never-executed arms read correctly against the C. Two
+   findings for later. The trap arm's TRUE result is still unreached, because
+   `avoid_moving_on_trap()` answers TRUE only for a `tseen` trap and the only
+   D:1 route to one is `themerms.lua`'s teleportation hub, which the port's
+   seams refuse first. And `requireSimpleHeroDestination()` throws for any
+   trap, where C at run >= 2 stops cleanly in
+   `avoid_running_into_trap_or_liquid()` with no time spent; that seam is the
+   next thing a run will hit, and it belongs with the trap work.
+
+   One case is undecided and belongs with `mention_walls`: seed 6100003 ends
+   against the top map edge, which C answers in `move_out_of_bounds()` with
+   `nomul(0)` and `context.move = 0`, and the port folds into
+   `blocksMove`/`test_move`. The two agree with `mention_walls` off, which the
+   recording confirms; with it on, C prints "You have already gone as far north
+   as possible" and the port prints nothing.
+
 ## Next goals, in order
 
 ### 1. The extended-command prompt
