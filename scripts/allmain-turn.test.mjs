@@ -1600,3 +1600,77 @@ test('exerper sees the capacity the weakness transition produced', async () => {
         .filter((entry) => entry.startsWith('rn2(19)'));
     assert.equal(drawn.length, 1);
 });
+
+test('the overexertion cadence follows both of allmain.c\'s divisors',
+    async () => {
+    // allmain.c:298-303 stops only when wtcap > MOD_ENCUMBER, the hero moved,
+    // and the turn count divides: 30 below EXT_ENCUMBER, 10 at or above it.
+    // Each row below moves exactly one of those three away from the stopping
+    // point, so a guard that dropped a term would pass one and fail another.
+    for (const [name, install, expectStop] of [
+        // HVY_ENCUMBER at moves reaching 30 is the stopping point.
+        ['heavy, 30th turn', (state) => {
+            state.moves = 29;
+        }, true],
+        // 20 divides the ext cadence but not the heavy one, so the ternary's
+        // untaken arm must not fire here.
+        ['heavy, 20th turn', (state) => {
+            state.moves = 19;
+        }, false],
+        // The hero has to have moved, whatever the turn count.
+        ['heavy, 30th turn, unmoved', (state) => {
+            state.moves = 29;
+            state.u.umoved = false;
+        }, false],
+    ]) {
+        const replay = await runSegment({
+            seed: 2026072807,
+            datetime: '20260728120000',
+            nethackrc: 'OPTIONS=name:BurdenedUpkeep,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) * 2,
+            nobj: null,
+        };
+        assert.equal(near_capacity(game), HVY_ENCUMBER, name);
+        game.context.move = 1;
+        game.u.umovement = 0;
+        game.u.umoved = true;
+        install(game);
+        game.hero_seq = game.moves * 8;
+        // moves and seer_turn advance together; moving one without the other
+        // trips clairvoyancePlan()'s own consistency check.
+        game.context.seer_turn = game.moves + 1;
+        const startingMoves = game.moves;
+
+        if (expectStop) {
+            await assert.rejects(
+                moveloop_core(),
+                (error) => error instanceof UnsupportedTurnBoundaryError
+                    && /overexertion hit point loss/u.test(error.message),
+                name,
+            );
+            assert.equal(game.moves, startingMoves, name);
+        } else {
+            // The turn's encumbrance message raises a More prompt, and
+            // moveloop_core() then asks for the next command; the Space
+            // answers the first and the wait answers the second.
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+            game.nhDisplay.pushKey('.'.charCodeAt(0));
+            await moveloop_core();
+            // How many turns one command elapses depends on the hero's
+            // movement points, so the assertion is that the cadence point was
+            // crossed without stopping, not the exact count.
+            assert.ok(game.moves > startingMoves, name);
+        }
+        void replay;
+    }
+});

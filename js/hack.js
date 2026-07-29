@@ -253,6 +253,28 @@ function blocksMove(x, y, state) {
 // disabled. These checks are a temporary admission seam in front of
 // hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
+// C ref: hack.c test_move()'s two diagonal doorway rules. Its testdiag arm
+// refuses a diagonal move into a doorway unless doorless_door() holds, and its
+// ust arm refuses a diagonal move out of one for the same reason; both consume
+// no time, which is a different owner from these seams, so they stop here
+// until that branch is ported. block_door() and block_entry() are shop-only
+// and cannot hold at this boundary. test_move() applies both rules to every
+// move that reaches it, including a pet displacement, so both admission seams
+// call this before their own checks.
+function requireNonDiagonalDoorway(x, y, state) {
+    if (state.u.ux === x || state.u.uy === y) return;
+    const destination = state.level?.at(x, y);
+    if (destination?.typ === DOOR && !doorless_door(destination)) {
+        throw new UnsupportedHeroMoveBoundaryError('diagonal doorway refusal');
+    }
+    const source = state.level?.at(state.u.ux, state.u.uy);
+    if (source?.typ === DOOR && !doorless_door(source)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'diagonal intact doorway exit',
+        );
+    }
+}
+
 function requireSimpleHeroDestination(x, y, state) {
     if (m_at(x, y, state))
         throw new UnsupportedHeroMoveBoundaryError(
@@ -286,29 +308,7 @@ function requireSimpleHeroDestination(x, y, state) {
             'door or special terrain movement',
         );
     }
-    const diagonal = state.u.ux !== x && state.u.uy !== y;
-    // test_move()'s testdiag arm: a diagonal move into a doorway is refused
-    // unless doorless_door() holds and block_door() is false. That refusal
-    // consumes no time, which is a different owner from this seam, so it stays
-    // here until that branch is ported. block_door() is shop-only and cannot
-    // hold at this boundary.
-    if (doorway && !doorless_door(location) && diagonal) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'diagonal doorway refusal',
-        );
-    }
-    // test_move() takes ust = &levl[ux][uy] and refuses a diagonal move out of
-    // a doorway that still has its door, for the same reason and with the same
-    // zero-time result. Nothing else in this seam reads the hero's own square,
-    // so admitting doorways as destinations is what makes this arm reachable.
-    // block_entry() is the shop counterpart of block_door() and likewise
-    // cannot hold here.
-    const heroSquare = state.level?.at(state.u.ux, state.u.uy);
-    if (heroSquare?.typ === DOOR && !doorless_door(heroSquare) && diagonal) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'diagonal intact doorway exit',
-        );
-    }
+    requireNonDiagonalDoorway(x, y, state);
     // pickup.c pickup() returns before look_here() when the square holds no
     // object, running only describe_decor() and read_engr_at(). So a bare
     // staircase or doorway prints nothing with mention_decor off. With it on,
@@ -411,6 +411,10 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
             'exceptional pet displacement terrain',
         );
     }
+    // domove_core() reaches test_move() for a pet displacement too, so both
+    // of its diagonal doorway rules apply here exactly as they do to an
+    // ordinary destination.
+    requireNonDiagonalDoorway(x, y, state);
     if (t_at(x, y, state)
         || t_at(state.u.ux, state.u.uy, state)) {
         throw new UnsupportedHeroMoveBoundaryError(

@@ -884,6 +884,74 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
 // test_move()'s exit arm lets the hero step diagonally off either one. The
 // destination seam refuses D_BROKEN as an arrival, so the only way to observe
 // that half of the predicate is to place the hero on one directly.
+test('a diagonal pet swap obeys test_move()\'s doorway rules', async () => {
+    // hack.c domove_core() reaches test_move() for a pet displacement too, so
+    // a hero standing on a doorway that still has its door may not step out
+    // of it diagonally, whatever is on the destination. Before this rule
+    // reached the pet seam, the swap happened and consumed a turn C refuses.
+    const replay = await runSegment({
+        seed: 840024,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:PetDoorway,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const pet = game.level.monlist;
+    assert.ok(pet?.mtame, 'the starting pet is on the level');
+    const [x, y] = [game.u.ux + 1, game.u.uy - 1];
+    game.level.at(game.u.ux, game.u.uy).typ = DOOR;
+    game.level.at(game.u.ux, game.u.uy).flags = D_ISOPEN;
+    const destination = game.level.at(x, y);
+    destination.typ = ROOM;
+    destination.flags = 0;
+    game.level.monsters[pet.mx][pet.my] = null;
+    pet.mx = x;
+    pet.my = y;
+    game.level.monsters[x][y] = pet;
+    const before = { ux: game.u.ux, uy: game.u.uy, moves: game.moves };
+
+    game.nhDisplay.pushKey(commandKeyCode('u'));
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroMoveBoundaryError
+            && /diagonal intact doorway exit/u.test(error.message),
+    );
+    assert.deepEqual(
+        { ux: game.u.ux, uy: game.u.uy, moves: game.moves },
+        before,
+        'the refused swap moved nobody and elapsed no turn',
+    );
+    assert.equal(game.context.move, 0);
+    void replay;
+});
+
+test('a doorless destination admits the diagonal test_move() allows',
+    async () => {
+    // The companion of the hero-square case: test_move()'s testdiag arm
+    // admits a diagonal move into a doorway when doorless_door() holds.
+    // D_BROKEN is not applicable, because the terrain seam refuses it as a
+    // destination, so D_NODOOR is the only mask this rule admits here.
+    await runSegment({
+        seed: 840025,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:DoorwayEntry,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none',
+        moves: ' ',
+    });
+    const [x, y] = [game.u.ux + 1, game.u.uy - 1];
+    const destination = game.level.at(x, y);
+    destination.typ = DOOR;
+    destination.flags = D_NODOOR;
+    destination.doormask = D_NODOOR;
+    game.level.at(game.u.ux, game.u.uy).typ = ROOM;
+
+    game.nhDisplay.pushKey(commandKeyCode('u'));
+    await moveloop_core();
+
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+});
+
 test('a doorless mask leaves both diagonal doorway rules unarmed',
     async () => {
         for (const [name, mask] of [
