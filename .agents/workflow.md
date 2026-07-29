@@ -133,9 +133,11 @@ Implementation commits may land while the debt stands.
 stops it. An iteration ending at a clean committed state is a reason to start
 the next iteration.
 
-Spawn every selector and worker as a background subagent, naming its agent
-type rather than pasting its brief. Their completion notifications are what
-advance the loop.
+Spawn a subagent only at the step that calls for one, and spawn a fresh one
+each time: a worker for each slice, a slice-selector when no slice is named,
+a goal-selector when a goal closes. None of them persists between steps.
+Name the agent type rather than pasting its brief, run it in the background,
+and let its completion notification advance the loop.
 
 When the loop runs under `/loop`, the wake signal is a worker or a pass
 completing, and the scheduled wakeup is only a watchdog against a broken
