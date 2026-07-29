@@ -133,6 +133,10 @@ Implementation commits may land while the debt stands.
 stops it. An iteration ending at a clean committed state is a reason to start
 the next iteration.
 
+Spawn every selector and worker as a background subagent, naming its agent
+type rather than pasting its brief. Their completion notifications are what
+advance the loop.
+
 When the loop runs under `/loop`, the wake signal is a worker or a pass
 completing, and the scheduled wakeup is only a watchdog against a broken
 notification chain. Set the scheduled wakeup to a long interval, and advance
@@ -209,6 +213,11 @@ During implementation, validation, or review work, keep updates brief, natural,
 and specific. Report changed behavior, remaining work, and the next check when
 useful. Do not force routine updates into fixed labels or repeat unchanged
 status. Explain specialized terms on first use.
+
+Under `/loop`, relay one report to the user for each worker iteration: the
+slice that closed, the development score before and after, any bug the worker
+hit, and where the port stops next. Every figure in that report comes from
+your own measurement in step 2 of the loop, never from the worker's report.
 
 State a workflow-mode change once and explain why. Formal readiness notes and
 pass reports keep their required structures. Planning, process discussion,
