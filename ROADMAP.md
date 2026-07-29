@@ -240,6 +240,62 @@ Three findings from that pass are the same defect seen from three angles: the
 menu erasure itself, the two menu call sites left untested against it, and the
 missing `state === game` guard that the other port of the same C line carries.
 
+## Unresolved: nine deferred findings from the extended-command pass
+
+These are the rest of the twelve the pass recorded at `e892300` deferred; the
+other three are the `flush_screen()` entry above. Each names something concrete
+enough to act on without re-reading the pass output, which is session-scoped and
+will not survive.
+
+One is a correctness defect and should be treated as such:
+
+- `clearMessageWindow()` in `js/getline.js:85` blanks every terminal row a
+  wrapped prompt reached, where C's `tty_clear_nhwindow(WIN_MESSAGE)` repaints
+  those map rows through `docorner()`. It shares a cause with the
+  `flush_screen()` entry above — the port blanks where C repaints — and should
+  be fixed with it.
+
+Four are comments that misdescribe the code they sit on:
+
+- `js/cmd.js:576`: the group header is glued onto `runInventoryCommand`'s own
+  C-ref comment, counts six handlers where five functions follow, and claims the
+  screen is untouched and the keystroke retryable, which is false on the `#`
+  path the same change added.
+- `js/command_bindings.js:229`: two adjacent identically shaped loops
+  destructure a local named `key` that holds a raw byte in one and key text in
+  the other, unmarked.
+- `js/getline.js:69`: `topl_putsym()`'s newline arm drops the second `cl_end()`
+  C performs on the row it moves onto, so a wrapped prompt leaves the old map
+  row visible to its right.
+- `js/getline.js:115` and `js/tty_message.js:15` both claim the port sets
+  `ttyDisplay->toplin` to `TOPLINE_SPECIAL_PROMPT`; it never enters that state.
+
+Four are tests that do not pin what they claim:
+
+- `js/cmd.js:739`, `doextcmd()`'s default arm — a named command with no ported
+  handler — is exercised by no test and no recorded case, though it is the first
+  boundary that throws after several keystrokes are already consumed, so the
+  retry invariant the single-key boundaries assert cannot hold and nothing
+  records what does.
+- `scripts/extended-command-prompt.test.mjs:54` pins about a dozen of the 170
+  rows and imports every expected flag value from the module under test, so
+  `check:extcmds` is the only guard on the rest and it regenerates from the same
+  source.
+- `scripts/run-extended-command-prompt.mjs:116`, the segment labelled as
+  covering `##` recursion, types `#`, `#`, `wait`, Enter, which puts a literal
+  `#` in the buffer and lands on the unknown-command answer instead. The
+  recursion the worker found and handled is unpinned.
+- `scripts/run-extended-command-prompt.mjs:172-173`: the only input-length
+  segment is labelled 75 characters but types 73, reaching neither the column
+  wrap nor the `COLNO` cap, so `topl_putsym()`'s newline arm, the length limit
+  and multi-row `clearMessageWindow()` are all unexercised.
+
+The pass record in `QUALITY.json` has one imprecision worth knowing when reading
+it: its `productionDefects` list names the two `flush_screen()` companions but
+omits the `clearMessageWindow()` defect above, listing a test finding in its
+place. The counts are right and the ledger is append-only, so the correction
+lives here rather than in the record.
+
 ## Unresolved: recording a debug-mode session needs local setup
 
 Two constraints bind anyone recording a `playmode:debug` case, both found while
