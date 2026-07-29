@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
+  auditMetricsFromOptions,
   countReviewCommits,
   excludeGeneratedLines,
   formatMetrics,
@@ -391,16 +392,77 @@ test('recording a pass requires a deferrals entry for every deferred finding', (
   );
 });
 
-test('the tracker exposes its debt sections as parsable headings', async () => {
-  const roadmap = await readFile(new URL('../ROADMAP.md', import.meta.url), 'utf8');
-  const headings = parseMarkdownHeadings(roadmap);
-  const unresolved = [...headings].filter((h) => h.startsWith('Unresolved:'));
+test('the recorder entry point enforces both durable-record gates', () => {
+  // The two tests above pin validateAuditMetrics(), which takes its options
+  // from the caller. They stay green if the recorder stops passing them, so
+  // this drives the one place that does. The tracker is injected, so the case
+  // does not depend on what ROADMAP.md happens to contain.
+  const readTracker = () => '## Unresolved: a deferred finding\n';
+  const withMetrics = (metrics) => auditMetricsFromOptions(
+    { 'audit-metrics': JSON.stringify(metrics) }, { readTracker },
+  );
 
-  // The recorder resolves trackedIn against these. An empty set would accept
-  // nothing, and a parser that missed the level would accept the wrong thing.
-  assert.ok(unresolved.length > 0);
-  assert.equal(headings.has('Current milestone: exploration'), true);
-  assert.equal(headings.has('# Current milestone: exploration'), false);
+  assert.throws(
+    () => withMetrics(DEFERRED_TESTS_FINDING),
+    /deferrals must record all 1 deferred findings/,
+  );
+  assert.throws(
+    () => withMetrics({
+      ...DEFERRED_TESTS_FINDING,
+      deferrals: [{ summary: 'a finding', trackedIn: 'Unresolved: absent' }],
+    }),
+    /is not a heading in ROADMAP\.md/,
+  );
+  // A rejected finding needs its counter-evidence through the same entry point.
+  assert.throws(
+    () => withMetrics({
+      ...EMPTY_AUDIT_METRICS,
+      counts: {
+        ...EMPTY_AUDIT_METRICS.counts,
+        raw: 1, deduplicated: 1, rejected: 1,
+      },
+    }),
+    /rejections must record all 1 rejected/,
+  );
+  // The heading the tracker does carry resolves, so the gate is not simply
+  // refusing everything.
+  assert.doesNotThrow(() => withMetrics({
+    ...DEFERRED_TESTS_FINDING,
+    deferrals: [{
+      summary: 'a finding', trackedIn: 'Unresolved: a deferred finding',
+    }],
+  }));
+});
+
+test('heading parsing strips the marker and keeps every level', () => {
+  // parseMarkdownHeadings() is a pure function over text, so it is pinned
+  // against a literal document rather than against ROADMAP.md. Reading the
+  // live tracker would tie the suite to prose the workflow rewrites: clearing
+  // every "Unresolved:" section is the deferral ledger's whole purpose, and
+  // closing a goal deletes its heading, so a repository in exactly the state
+  // the workflow aims for would fail a test about a parser.
+  const document = [
+    '# Title',
+    'body text that is not a heading',
+    '## Current milestone: exploration',
+    '#NotAHeading',
+    '### Unresolved: a deferred finding   ',
+    '###### Deepest',
+    '    ## Indented, so not a heading',
+  ].join('\n');
+  const headings = parseMarkdownHeadings(document);
+
+  assert.deepEqual([...headings].sort(), [
+    'Current milestone: exploration',
+    'Deepest',
+    'Title',
+    'Unresolved: a deferred finding',
+  ]);
+  // The marker is stripped, so a trackedIn value carrying one never resolves.
+  assert.equal(headings.has('## Current milestone: exploration'), false);
+  // A run without spacing is not a heading, and neither is an indented one.
+  assert.equal(headings.has('NotAHeading'), false);
+  assert.equal(headings.has('Indented, so not a heading'), false);
 });
 
 test('an audited range must start at or before every claimed frontier', () => {

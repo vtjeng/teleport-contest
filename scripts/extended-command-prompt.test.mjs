@@ -541,7 +541,7 @@ test('a named command with no ported handler stops the segment, not the key',
 
 test('extmenu stops the prompt before it opens, through either spelling',
     async () => {
-    // getline.c:296 makes iflags.extmenu tty_get_ext_cmd()'s first test:
+    // getline.c:300 makes iflags.extmenu tty_get_ext_cmd()'s first test:
     // `if (iflags.extmenu) return extcmd_via_menu();`.  extcmd_via_menu() is
     // unported, so the port has to stop there rather than substitute the
     // typed prompt, which would paint different screens and draw different

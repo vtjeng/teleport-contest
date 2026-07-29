@@ -335,6 +335,10 @@ function defaultResult() {
             wc_splash_screen: true,
             status_updates: true,
             wc_eight_bit_input: false,
+            // optlist.h:303 declares extmenu opt_in, defaulting Off, three
+            // lines below eight_bit_tty above.  C binds it to &iflags.extmenu,
+            // so its startup value is FALSE rather than absent.
+            extmenu: false,
             wc2_statuslines: 2,
             wc2_petattr: ATR_INVERSE,
             altmeta: false,

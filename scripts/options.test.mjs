@@ -428,16 +428,21 @@ test('safe interaction options keep their source defaults and state owners',
 });
 
 test('extmenu reaches iflags through every spelling the source accepts', () => {
-    // optlist.h:303 declares extmenu with a default of Off, so the port leaves
-    // it unset rather than storing a false: iflags booleans that default off
-    // are absent here by convention, and tty_get_ext_cmd() reads it as a
-    // truth test.  cmdassist above is the exception because it defaults On.
+    // optlist.h:303 declares extmenu opt_in, defaulting Off, and binds it to
+    // &iflags.extmenu, so C's startup value is FALSE.  The port stores that
+    // false rather than leaving the key out, which is what its Off-defaulting
+    // siblings do: eight_bit_tty (optlist.h:300), hilite_pet (365),
+    // hilite_pile (368), hitpointbar (379) and altmeta (159) are all held as
+    // an explicit false.  The distinction is invisible to the guard in
+    // tty_get_ext_cmd(), which is a truth test, but it is visible to an
+    // equality test, an Object.keys() walk, and iflags carried between
+    // segments through input.storage.
     const defaults = parseNethackrc('');
-    assert.equal(Object.hasOwn(defaults.iflags, 'extmenu'), false);
+    assert.equal(defaults.iflags.extmenu, false);
 
     // options.c:5224-5233 maps a boolean's parameter: true, yes, on and 1 make
     // it not-negated, false, no, off and 0 negate it.  Every spelling has to
-    // land in iflags, because tty_get_ext_cmd() at getline.c:296 tests
+    // land in iflags, because tty_get_ext_cmd() at getline.c:300 tests
     // iflags.extmenu alone and the port stops on the unported
     // extcmd_via_menu() behind it.  A spelling that misses iflags fails open
     // and runs the typed prompt where C opens a menu.

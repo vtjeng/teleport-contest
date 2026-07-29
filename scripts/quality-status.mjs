@@ -1005,7 +1005,12 @@ function withLedgerLock(callback) {
   }
 }
 
-function auditMetricsFromOptions(options) {
+// readTracker is injectable so a test can drive this wiring against a literal
+// document. Reading the real ROADMAP.md here would tie the test to prose the
+// workflow rewrites, which is why the heading parser is pinned separately.
+export function auditMetricsFromOptions(options, {
+  readTracker = () => readFileSync(DEFERRAL_TRACKER_PATH, 'utf8'),
+} = {}) {
   if (options['audit-metrics'] && options['audit-metrics-file']) {
     fail('provide only one of --audit-metrics or --audit-metrics-file');
   }
@@ -1029,7 +1034,7 @@ function auditMetricsFromOptions(options) {
   }
   let tracker;
   try {
-    tracker = readFileSync(DEFERRAL_TRACKER_PATH, 'utf8');
+    tracker = readTracker();
   } catch (error) {
     fail(`could not read ${DEFERRAL_TRACKER}: ${error.message}`);
   }
