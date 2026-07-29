@@ -126,7 +126,7 @@ The orchestrator repeats, without returning to the user between its steps:
    threshold key encodes it.
 4. When a slice closes, continue at step 1. When the last slice of the goal
    closes, satisfy the readiness note in `.agents/review.md` and run the
-   goal's full correctness pass.
+   goal's full correctness pass, then continue at step 1.
 5. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Delete the goal from `ROADMAP.md` and
    continue at step 1.
@@ -142,7 +142,8 @@ Implementation commits may land while the debt stands.
 
 `AGENTS.md` lists the four cases that stop this loop for the user. Nothing else
 stops it. An iteration ending at a clean committed state is a reason to start
-the next iteration.
+the next iteration. End each turn with a subagent or a pass running, or with
+the next step started.
 
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
 each time: a worker to take the next queued slice from queued to closed, a
@@ -155,10 +156,10 @@ notification advance the loop.
 
 When the loop runs under `/loop`, the wake signal is a worker or a pass
 completing, and the scheduled wakeup is only a watchdog against a broken
-notification chain. Set the scheduled wakeup to a long interval, and advance
-the loop only on the wake signal. End the loop with `ScheduleWakeup stop` only
-for one of those four cases; running low on context is not one, because the
-loop survives compaction.
+notification chain. Set the wakeup to a long interval while work is in flight
+and a short one when nothing is running, and advance the loop only on the wake
+signal. End the loop with `ScheduleWakeup stop` only for one of those four
+cases; running low on context is not one, because the loop survives compaction.
 
 ## Per-chunk workflow
 

@@ -9,6 +9,7 @@ import {
   formatReviewDebt,
   excludeRelocatedLines,
   parseAuditFixCommitLog,
+  parseMarkdownHeadings,
   parseNumstat,
   qualityGateBlocked,
   relocationCommits,
@@ -326,6 +327,80 @@ test('recording a pass requires a rejections entry for every rejected finding', 
   assert.doesNotThrow(
     () => validateAuditMetrics(EMPTY_AUDIT_METRICS, { requireRejections: true }),
   );
+});
+
+// One deferred finding in the tests category: the case productionDefects cannot
+// hold, so the deferrals entry is its only durable record.
+const DEFERRED_TESTS_FINDING = Object.freeze({
+  ...EMPTY_AUDIT_METRICS,
+  counts: {
+    ...EMPTY_AUDIT_METRICS.counts,
+    raw: 1,
+    deduplicated: 1,
+    confirmed: 1,
+    deferred: 1,
+  },
+  categories: { ...EMPTY_AUDIT_METRICS.categories, tests: 1 },
+});
+
+test('deferred findings name an existing tracker heading', () => {
+  const heading = 'Unresolved: six deferred test-coverage findings';
+  const metrics = {
+    ...DEFERRED_TESTS_FINDING,
+    deferrals: [{
+      summary: 'the generated-table test imports its expected values from the '
+        + 'module under test',
+      trackedIn: heading,
+    }],
+  };
+  const headings = new Set([heading]);
+
+  assert.equal(validateAuditMetrics(metrics, { trackerHeadings: headings }), metrics);
+  assert.throws(
+    () => validateAuditMetrics({ ...metrics, deferrals: [] }),
+    /deferrals lists 0 findings but the deferred count is 1/,
+  );
+  // A heading that names no section leaves the finding untracked, which is the
+  // failure the check exists to catch.
+  assert.throws(
+    () => validateAuditMetrics(metrics, { trackerHeadings: new Set(['Unresolved: something else']) }),
+    /is not a heading in ROADMAP\.md/,
+  );
+  // Debt belongs under an Unresolved heading, not under a roadmap section that
+  // nothing schedules for clearing.
+  assert.throws(
+    () => validateAuditMetrics({
+      ...metrics,
+      deferrals: [{ summary: 'a finding', trackedIn: 'Next goals, in order' }],
+    }),
+    /must name an? "Unresolved:" heading/,
+  );
+  // Stored passes are revalidated on every run, after the heading is deleted.
+  assert.doesNotThrow(() => validateAuditMetrics(metrics));
+});
+
+test('recording a pass requires a deferrals entry for every deferred finding', () => {
+  assert.doesNotThrow(() => validateAuditMetrics(DEFERRED_TESTS_FINDING));
+  assert.throws(
+    () => validateAuditMetrics(DEFERRED_TESTS_FINDING, { requireDeferrals: true }),
+    /deferrals must record all 1 deferred findings with the ROADMAP\.md heading/,
+  );
+  // An audit that deferred nothing has nothing to record.
+  assert.doesNotThrow(
+    () => validateAuditMetrics(EMPTY_AUDIT_METRICS, { requireDeferrals: true }),
+  );
+});
+
+test('the tracker exposes its debt sections as parsable headings', async () => {
+  const roadmap = await readFile(new URL('../ROADMAP.md', import.meta.url), 'utf8');
+  const headings = parseMarkdownHeadings(roadmap);
+  const unresolved = [...headings].filter((h) => h.startsWith('Unresolved:'));
+
+  // The recorder resolves trackedIn against these. An empty set would accept
+  // nothing, and a parser that missed the level would accept the wrong thing.
+  assert.ok(unresolved.length > 0);
+  assert.equal(headings.has('Current milestone: exploration'), true);
+  assert.equal(headings.has('# Current milestone: exploration'), false);
 });
 
 test('an audited range must start at or before every claimed frontier', () => {

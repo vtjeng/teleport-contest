@@ -20,6 +20,11 @@ import { parseRange } from './audit-worktree.mjs';
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
+// Deferred findings are tracked as prose, not as ledger data, so the ledger
+// stores a pointer into the tracker instead of a copy of the finding.
+const DEFERRAL_TRACKER = 'ROADMAP.md';
+const DEFERRAL_TRACKER_PATH = resolve(REPO_ROOT, DEFERRAL_TRACKER);
+const DEFERRAL_HEADING_PREFIX = 'Unresolved:';
 const QUALITY_LOCK_PATH = resolve(REPO_ROOT, '.quality-status.lock');
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const PASS_KINDS = new Set(['review', 'simplification']);
@@ -92,7 +97,66 @@ function validateAuditRejections(rejections, rejectedCount) {
   }
 }
 
-export function validateAuditMetrics(metrics, { requireRejections = false } = {}) {
+// A deferred finding is confirmed work the pass chose not to do, so it has to
+// outlive the session that found it. The pass output sits under the session's
+// temporary directory and goes with it, and productionDefects enumerates the
+// production category alone, so a deferred test, clarity, or simplification
+// finding has no other durable record. Require each one to name the heading
+// that carries it, and check that the heading is really there.
+function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
+  if (!Array.isArray(deferrals)) fail('auditMetrics.deferrals must be an array');
+  if (deferrals.length !== deferredCount) {
+    fail(
+      `auditMetrics.deferrals lists ${deferrals.length} findings but the `
+        + `deferred count is ${deferredCount}`,
+    );
+  }
+  for (const [index, deferral] of deferrals.entries()) {
+    const label = `auditMetrics.deferrals[${index}]`;
+    if (!deferral || typeof deferral !== 'object' || Array.isArray(deferral)) {
+      fail(`${label} must be an object`);
+    }
+    if (typeof deferral.summary !== 'string' || deferral.summary.trim().length === 0) {
+      fail(`${label}.summary must be nonempty`);
+    }
+    if (typeof deferral.trackedIn !== 'string' || deferral.trackedIn.trim().length === 0) {
+      fail(
+        `${label}.trackedIn must name the ${DEFERRAL_TRACKER} heading that `
+          + 'carries this finding',
+      );
+    }
+    const heading = deferral.trackedIn.trim();
+    if (!heading.startsWith(DEFERRAL_HEADING_PREFIX)) {
+      fail(
+        `${label}.trackedIn must name a "${DEFERRAL_HEADING_PREFIX}" heading, `
+          + `not "${heading}"`,
+      );
+    }
+    // Only the recorder passes headings. Stored passes are revalidated on every
+    // run, long after their debt is cleared and the heading is deleted.
+    if (trackerHeadings && !trackerHeadings.has(heading)) {
+      fail(
+        `${label}.trackedIn names "${heading}", which is not a heading in `
+          + `${DEFERRAL_TRACKER}. Write the finding there before recording the pass.`,
+      );
+    }
+  }
+}
+
+export function parseMarkdownHeadings(markdown) {
+  const headings = new Set();
+  for (const line of markdown.split('\n')) {
+    const match = /^#{1,6}\s+(.*?)\s*$/.exec(line);
+    if (match) headings.add(match[1]);
+  }
+  return headings;
+}
+
+export function validateAuditMetrics(metrics, {
+  requireRejections = false,
+  requireDeferrals = false,
+  trackerHeadings = null,
+} = {}) {
   if (!metrics || typeof metrics !== 'object' || Array.isArray(metrics)) {
     fail('auditMetrics must be an object');
   }
@@ -172,6 +236,15 @@ export function validateAuditMetrics(metrics, { requireRejections = false } = {}
     fail(
       `auditMetrics.rejections must record all ${counts.rejected} rejected `
         + 'findings with their counter-evidence',
+    );
+  }
+
+  if (metrics.deferrals !== undefined) {
+    validateAuditDeferrals(metrics.deferrals, counts.deferred, trackerHeadings);
+  } else if (requireDeferrals && counts.deferred > 0) {
+    fail(
+      `auditMetrics.deferrals must record all ${counts.deferred} deferred `
+        + `findings with the ${DEFERRAL_TRACKER} heading that carries each one`,
     );
   }
   return metrics;
@@ -954,7 +1027,17 @@ function auditMetricsFromOptions(options) {
   } catch (error) {
     fail(`audit metrics must be valid JSON: ${error.message}`);
   }
-  return validateAuditMetrics(metrics, { requireRejections: true });
+  let tracker;
+  try {
+    tracker = readFileSync(DEFERRAL_TRACKER_PATH, 'utf8');
+  } catch (error) {
+    fail(`could not read ${DEFERRAL_TRACKER}: ${error.message}`);
+  }
+  return validateAuditMetrics(metrics, {
+    requireRejections: true,
+    requireDeferrals: true,
+    trackerHeadings: parseMarkdownHeadings(tracker),
+  });
 }
 
 function preparePass(kind, options) {
@@ -1082,7 +1165,9 @@ history; when frontiers differ, audit from the oldest one or record the areas
 separately. --head, when given, must name the same commit as the range head.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
-for every rejected finding.`);
+for every rejected finding, and one deferrals entry, with summary and a
+trackedIn naming an existing "${DEFERRAL_HEADING_PREFIX}" heading in
+${DEFERRAL_TRACKER}, for every deferred finding.`);
 }
 
 function main(argv) {
