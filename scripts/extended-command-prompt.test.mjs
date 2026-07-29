@@ -568,10 +568,14 @@ test('extmenu stops the prompt before it opens, through either spelling',
     }
 
     // The negated form must leave the typed prompt working, which is what
-    // separates the guard from an unconditional refusal.
-    const off = await runSegment(
-        { ...base, nethackrc: `${base.nethackrc}OPTIONS=!extmenu\n`, moves },
-    );
+    // separates the guard from an unconditional refusal.  It negates an
+    // enabling line rather than the default, so reaching the prompt proves the
+    // negation wrote iflags instead of merely failing to turn it on.
+    const off = await runSegment({
+        ...base,
+        nethackrc: `${base.nethackrc}OPTIONS=extmenu\nOPTIONS=!extmenu\n`,
+        moves,
+    });
     assert.equal(game.iflags.extmenu, false);
     assert.equal(off.getScreens().length, moves.length + 1);
 });

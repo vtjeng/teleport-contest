@@ -425,13 +425,17 @@ test('the recorder entry point enforces both durable-record gates', () => {
     /rejections must record all 1 rejected/,
   );
   // The heading the tracker does carry resolves, so the gate is not simply
-  // refusing everything.
-  assert.doesNotThrow(() => withMetrics({
+  // refusing everything. The return value is what the recorder writes into
+  // QUALITY.json, so it is asserted rather than merely not throwing: the
+  // entry point must hand back the metrics it parsed, deferrals intact and
+  // unnormalised.
+  const accepted = {
     ...DEFERRED_TESTS_FINDING,
     deferrals: [{
       summary: 'a finding', trackedIn: 'Unresolved: a deferred finding',
     }],
-  }));
+  };
+  assert.deepEqual(withMetrics(accepted), accepted);
 });
 
 test('heading parsing strips the marker and keeps every level', () => {
@@ -448,7 +452,9 @@ test('heading parsing strips the marker and keeps every level', () => {
     '#NotAHeading',
     '### Unresolved: a deferred finding   ',
     '###### Deepest',
-    '    ## Indented, so not a heading',
+    '    ## Four spaces, a code block even in CommonMark',
+    '  ## Two spaces, which CommonMark would accept',
+    '####### Seven marks, past the deepest level',
   ].join('\n');
   const headings = parseMarkdownHeadings(document);
 
@@ -460,9 +466,17 @@ test('heading parsing strips the marker and keeps every level', () => {
   ]);
   // The marker is stripped, so a trackedIn value carrying one never resolves.
   assert.equal(headings.has('## Current milestone: exploration'), false);
-  // A run without spacing is not a heading, and neither is an indented one.
+  // A run of marks with no space after it is not a heading.
   assert.equal(headings.has('NotAHeading'), false);
-  assert.equal(headings.has('Indented, so not a heading'), false);
+  // Any leading whitespace disqualifies a line. That is stricter than
+  // CommonMark, which accepts up to three spaces of indentation, so both
+  // widths are probed rather than only the four-space case where the two
+  // agree. The strictness is harmless here because a trackedIn value is
+  // matched against ROADMAP.md headings, which are never indented.
+  assert.equal(headings.has('Four spaces, a code block even in CommonMark'), false);
+  assert.equal(headings.has('Two spaces, which CommonMark would accept'), false);
+  // Seven marks exceed the deepest level, so the line is not a heading either.
+  assert.equal(headings.has('Seven marks, past the deepest level'), false);
 });
 
 test('an audited range must start at or before every claimed frontier', () => {

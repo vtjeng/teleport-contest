@@ -434,9 +434,10 @@ test('extmenu reaches iflags through every spelling the source accepts', () => {
     // siblings do: eight_bit_tty (optlist.h:300), hilite_pet (365),
     // hilite_pile (368), hitpointbar (379) and altmeta (159) are all held as
     // an explicit false.  The distinction is invisible to the guard in
-    // tty_get_ext_cmd(), which is a truth test, but it is visible to an
-    // equality test, an Object.keys() walk, and iflags carried between
-    // segments through input.storage.
+    // tty_get_ext_cmd(), which is a truth test; what does observe it is the
+    // complete-state snapshot in scripts/second-turn-snapshot.mjs, which
+    // structuredClones iflags, and whose seventeen digests moved when this
+    // default was added.
     const defaults = parseNethackrc('');
     assert.equal(defaults.iflags.extmenu, false);
 
@@ -455,9 +456,21 @@ test('extmenu reaches iflags through every spelling the source accepts', () => {
     }
     for (const line of ['OPTIONS=!extmenu', 'OPTIONS=extmenu:false',
         'OPTIONS=extmenu:no', 'OPTIONS=extmenu:off', 'OPTIONS=extmenu:0']) {
-        const parsed = parseNethackrc(line);
+        // Negate on top of an enabling line.  Against the bare default the
+        // assertion below would hold whether or not the negated spelling ever
+        // reached iflags, because the default it compares against is the value
+        // under test; starting from true means only the negation arm can
+        // produce false.  It also pins that the later line wins, which is the
+        // order options.c applies them in.
+        const parsed = parseNethackrc(`OPTIONS=extmenu\n${line}`);
         assert.equal(parsed.iflags.extmenu, false, line);
         assert.equal(Object.hasOwn(parsed.flags, 'extmenu'), false, line);
+
+        // The spelling on its own must still keep the raw parameter out of
+        // flags, which is the compound-option fall-through this pair catches.
+        assert.equal(
+            Object.hasOwn(parseNethackrc(line).flags, 'extmenu'), false, line,
+        );
     }
 });
 
