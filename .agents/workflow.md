@@ -104,9 +104,13 @@ Four agents run that loop, and no agent performs more than one of these jobs.
 
 The orchestrator repeats, without returning to the user between its steps:
 
-1. Take the first queued slice the goal in progress lists in `ROADMAP.md`.
-   When that goal has no queued slice left, ask the slice-selector for the
-   next slice inside it.
+1. When no goal is in progress, start the first goal queued in `ROADMAP.md`.
+   When no goal is queued either, ask the goal-selector for the next one,
+   write it to `ROADMAP.md` yourself with the traced source findings that
+   justify it, re-pin the commit the census ran against, and start it. Then
+   take the first queued slice that goal lists. When it lists no queued
+   slice, ask the slice-selector for the next slice inside it. Both selectors
+   report; only you write.
 2. Spawn a worker for that slice. When it returns, establish independently what
    landed: `git log --oneline` and `git status --short` for the commits and the
    tree, and `npm run checkpoint` for the suite and the development score.
@@ -124,11 +128,8 @@ The orchestrator repeats, without returning to the user between its steps:
    closes, satisfy the readiness note in `.agents/review.md` and run the
    goal's full correctness pass.
 5. When a goal closes, run the authorized holdout evaluation and record its
-   result with the goal's evidence. Delete the goal from `ROADMAP.md`. Then ask
-   the goal-selector for the next goal, write it and its ordered slices to
-   `ROADMAP.md` yourself, with the traced source findings that justify the
-   ordering, and re-pin the commit the census ran against. Both selectors
-   report; only you write. Continue at step 1.
+   result with the goal's evidence. Delete the goal from `ROADMAP.md` and
+   continue at step 1.
 
 A formal review pass is a step of this loop, and the orchestrator runs it.
 
@@ -144,9 +145,9 @@ stops it. An iteration ending at a clean committed state is a reason to start
 the next iteration.
 
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
-each time: a worker for each slice, a slice-selector when no slice is named,
-a goal-selector when no goal is in progress. None of them persists between
-steps.
+each time: a worker to take the next queued slice from queued to closed, a
+slice-selector when the goal in progress has no queued slice left, a
+goal-selector when no goal is queued. None of them persists between steps.
 Spawn each one by its agent type, such as `slice-worker`. The type loads the
 brief and the model its definition pins; copying the brief into a prompt
 instead loses that. Run it in the background and let its completion
