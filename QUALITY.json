@@ -3196,6 +3196,43 @@
         ]
       },
       "recordedAt": "2026-07-29T17:28:46.934Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "61f41f9b8255ad5359d491196bde97d69ea7d3eb",
+        "commands": "61f41f9b8255ad5359d491196bde97d69ea7d3eb"
+      },
+      "head": "2ac43bceb22c833fb670117105f40f85d334cd13",
+      "auditedRange": "61f41f9b8255ad5359d491196bde97d69ea7d3eb..2ac43bceb22c833fb670117105f40f85d334cd13",
+      "areas": [
+        "startup",
+        "commands"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review of the audit-fix commit 2ac43bc. Three finders (correctness, tests, variable-trace); readability skipped. 7 raw findings, 5 after deduplication. No production defect: every finding concerns the previous commit's own collateral. The workflow confirmed four and rejected one; the orchestrator promoted that rejection to confirmed and applied it, because the indentation probe it named genuinely certified a CommonMark divergence the test never exercised. All five applied in a010008, which touches test files only. The substantive finding is that storing extmenu's Off default drained the negated-spelling assertions: a mutation stopping the negation arm from writing iflags left all 1,824 tests passing, and failed before the default was added. Each fix verified by mutation. Suite 1,824 passing; development unchanged at 398 screens and 99,496 random-number values across 33 sessions; the extended-command matrix unchanged.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1104,
+        "counts": {
+          "raw": 7,
+          "deduplicated": 5,
+          "confirmed": 5,
+          "applied": 5,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 4,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": []
+      },
+      "recordedAt": "2026-07-29T17:53:10.952Z"
     }
   ]
 }
