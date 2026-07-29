@@ -15,7 +15,13 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-### Goal in progress: repeated simple commands
+The goal in progress and the goals after it were selected from the
+`scan-stops.mjs` census at `03c2add`. Every session and step count in those
+sections is a ceiling taken from that census and goes stale as the port
+advances; re-run the scan for current numbers. The traced source findings do not
+go stale, which is why they are recorded here rather than re-derived.
+
+### Awaiting closure: repeated simple commands
 
 Starting at a correctly generated first command prompt, accept an unbounded
 sequence of single-keystroke commands on D:1, each either a wait or a one-square
@@ -47,21 +53,16 @@ introduced would show up again.
 No behavior slice remains in this goal, so nothing here is startable. Do not
 schedule a pass over the fix tail on its own: `.agents/review.md`
 folds audit-fix debt into the next scheduled correctness range, and the
-thresholds pull it in when they fire. Start at "Next goals, in order" below.
-This goal stays listed only until its debt clears and it closes, at which point
-it is deleted from this file.
+thresholds pull it in when they fire. This goal stays listed only until its debt
+clears and it closes, at which point it is deleted from this file. Its holdout
+evaluation waits on that debt, because `.agents/review.md` makes a holdout
+evaluation a review deadline and requires every outstanding review to be
+complete first.
 
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
-## Next goals, in order
-
-Selected from the `scan-stops.mjs` census at `03c2add`. Every session and step
-count below is a ceiling taken from that census and goes stale as the port
-advances; re-run the scan for current numbers. The traced source findings do not
-go stale, which is why they are recorded here rather than re-derived.
-
-### 1. Commands that consume no game time
+### Goal in progress: commands that consume no game time
 
 Accept, at a ready D:1 prompt, the commands whose `rhack()` result carries no
 `ECMD_TIME`, so `svc.context.move` stays FALSE, no monster moves, no gameplay
@@ -72,10 +73,10 @@ behavior the milestone already owns.
 Beyond its own ceiling, this goal gates the closing sequence that 24 of the 33
 development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismissed
 with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
-outside this goal, belonging to goal 3 below. The `:` that ends those sessions
-already runs, and so do the unbound keystroke and the inventory display. The
-discovery and spell lists are the first unfinished slice. No session finishes
-without this goal.
+outside this goal, belonging to the search goal below. The `:` that ends those
+sessions already runs, and so do the unbound keystroke and the inventory
+display. The discovery and spell lists are the first unfinished slice. No
+session finishes without this goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
 and planned for; work the slices in order and take the intermediate passes as
@@ -106,14 +107,16 @@ expectations, not limits.
    while a `js/` file has no area. Nothing in the slices above depends on this
    one.
 
-### 2. Running and rushing
+## Next goals, in order
+
+### 1. Running and rushing
 
 `hack.c:domove_core()` under `svc.context.run`, with `hack.c:lookaround()`
 deciding where a run stops. Six sessions stop here with 1,275 steps behind
-them. Larger than the two goals above: `lookaround()` is a substantial function
+them. Larger than the goal in progress: `lookaround()` is a substantial function
 and a run spans several turns.
 
-### 3. Search
+### 2. Search
 
 `detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
 `mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Four sessions
