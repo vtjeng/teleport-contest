@@ -125,6 +125,11 @@ function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
           + 'carries this finding',
       );
     }
+    if (!AUDIT_CATEGORY_FIELDS.includes(deferral.category)) {
+      fail(
+        `${label}.category must be one of: ${AUDIT_CATEGORY_FIELDS.join(', ')}`,
+      );
+    }
     const heading = deferral.trackedIn.trim();
     if (!heading.startsWith(DEFERRAL_HEADING_PREFIX)) {
       fail(
@@ -138,6 +143,39 @@ function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
       fail(
         `${label}.trackedIn names "${heading}", which is not a heading in `
           + `${DEFERRAL_TRACKER}. Write the finding there before recording the pass.`,
+      );
+    }
+  }
+}
+
+// A deferred production finding is recorded twice: once in productionDefects,
+// which enumerates the production category, and once in deferrals, which
+// enumerates everything the pass deferred. The recorder checks each array
+// against its own count, so an operator can put a tests finding in a
+// production slot and leave a real defect out while both counts still balance.
+// That happened at the extended-command pass, where productionDefects[4] reads
+// as a tests finding by its own foundBy and the clearMessageWindow() defect is
+// absent. Require the two enumerations to agree.
+function validateDeferredProductionAgreement(deferrals, productionDefects) {
+  const fromDeferrals = deferrals
+    .filter((deferral) => deferral.category === 'production')
+    .map((deferral) => deferral.summary.trim())
+    .sort();
+  const fromDefects = productionDefects
+    .filter((defect) => defect.resolution === 'deferred')
+    .map((defect) => defect.summary.trim())
+    .sort();
+  if (fromDeferrals.length !== fromDefects.length) {
+    fail(
+      `auditMetrics.deferrals marks ${fromDeferrals.length} findings as `
+        + `production, but productionDefects defers ${fromDefects.length}`,
+    );
+  }
+  for (const [index, summary] of fromDeferrals.entries()) {
+    if (summary !== fromDefects[index]) {
+      fail(
+        'a deferred production finding is worded differently in deferrals and '
+          + `productionDefects: "${summary.slice(0, 60)}"`,
       );
     }
   }
@@ -241,6 +279,7 @@ export function validateAuditMetrics(metrics, {
 
   if (metrics.deferrals !== undefined) {
     validateAuditDeferrals(metrics.deferrals, counts.deferred, trackerHeadings);
+    validateDeferredProductionAgreement(metrics.deferrals, metrics.productionDefects);
   } else if (requireDeferrals && counts.deferred > 0) {
     fail(
       `auditMetrics.deferrals must record all ${counts.deferred} deferred `

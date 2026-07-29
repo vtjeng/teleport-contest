@@ -351,6 +351,7 @@ test('deferred findings name an existing tracker heading', () => {
     deferrals: [{
       summary: 'the generated-table test imports its expected values from the '
         + 'module under test',
+      category: 'tests',
       trackedIn: heading,
     }],
   };
@@ -372,12 +373,65 @@ test('deferred findings name an existing tracker heading', () => {
   assert.throws(
     () => validateAuditMetrics({
       ...metrics,
-      deferrals: [{ summary: 'a finding', trackedIn: 'Next goals, in order' }],
+      deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'Next goals, in order' }],
     }),
     /must name an? "Unresolved:" heading/,
   );
   // Stored passes are revalidated on every run, after the heading is deleted.
   assert.doesNotThrow(() => validateAuditMetrics(metrics));
+});
+
+test('the two enumerations of a deferred production finding must agree', () => {
+  // The shape that slipped through at the extended-command pass: one deferred
+  // production defect, with a tests finding occupying the production slot and
+  // the real defect left out. Both counts balanced, so nothing caught it.
+  const defect = 'clearMessageWindow() blanks map rows that C repaints '
+    + 'through docorner()';
+  const testFinding = 'the two ttyGetlinSearch call sites are untested';
+  const metrics = {
+    ...EMPTY_AUDIT_METRICS,
+    counts: {
+      ...EMPTY_AUDIT_METRICS.counts, raw: 2, deduplicated: 2, confirmed: 2, deferred: 2,
+    },
+    categories: { ...EMPTY_AUDIT_METRICS.categories, production: 1, tests: 1 },
+    productionDefects: [
+      { summary: defect, foundBy: ['correctness'], resolution: 'deferred' },
+    ],
+    deferrals: [
+      { summary: defect, category: 'production', trackedIn: 'Unresolved: x' },
+      { summary: testFinding, category: 'tests', trackedIn: 'Unresolved: x' },
+    ],
+  };
+  const headings = new Set(['Unresolved: x']);
+
+  assert.equal(validateAuditMetrics(metrics, { trackerHeadings: headings }), metrics);
+  // The misclassification: the tests finding sits in the production slot and
+  // the defect is recorded only among the deferrals.
+  assert.throws(
+    () => validateAuditMetrics({
+      ...metrics,
+      productionDefects: [
+        { summary: testFinding, foundBy: ['tests'], resolution: 'deferred' },
+      ],
+    }, { trackerHeadings: headings }),
+    /worded differently in deferrals and productionDefects/,
+  );
+  // A production deferral that productionDefects never enumerates.
+  assert.throws(
+    () => validateAuditMetrics({
+      ...metrics,
+      deferrals: metrics.deferrals.map((d) => ({ ...d, category: 'production' })),
+    }, { trackerHeadings: headings }),
+    /marks 2 findings as production, but productionDefects defers 1/,
+  );
+  // Every deferral states which category it belongs to.
+  assert.throws(
+    () => validateAuditMetrics({
+      ...metrics,
+      deferrals: [{ summary: defect, trackedIn: 'Unresolved: x' }, metrics.deferrals[1]],
+    }, { trackerHeadings: headings }),
+    /category must be one of: production, tests, clarity, simplification, other/,
+  );
 });
 
 test('recording a pass requires a deferrals entry for every deferred finding', () => {
@@ -409,7 +463,7 @@ test('the recorder entry point enforces both durable-record gates', () => {
   assert.throws(
     () => withMetrics({
       ...DEFERRED_TESTS_FINDING,
-      deferrals: [{ summary: 'a finding', trackedIn: 'Unresolved: absent' }],
+      deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'Unresolved: absent' }],
     }),
     /is not a heading in ROADMAP\.md/,
   );
@@ -432,7 +486,7 @@ test('the recorder entry point enforces both durable-record gates', () => {
   const accepted = {
     ...DEFERRED_TESTS_FINDING,
     deferrals: [{
-      summary: 'a finding', trackedIn: 'Unresolved: a deferred finding',
+      summary: 'a finding', category: 'tests', trackedIn: 'Unresolved: a deferred finding',
     }],
   };
   assert.deepEqual(withMetrics(accepted), accepted);
