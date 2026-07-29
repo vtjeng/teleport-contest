@@ -273,6 +273,78 @@ test('recheck detects changed prompt and cleanup preserves audit changes', t => 
     );
 });
 
+test('cleanup finishes after git worktree remove stranded the root', t => {
+    const fixture = makeFixture(t);
+    const prepared = prepare(fixture);
+
+    // What `git worktree remove` leaves behind: no worktree and no
+    // registration, but the manifest and snapshots still in the root.
+    git(fixture.repositoryRoot, 'worktree', 'remove', '--force',
+        prepared.manifest.worktreePath);
+    assert.equal(existsSync(prepared.manifest.worktreePath), false);
+    assert.equal(existsSync(prepared.manifestPath), true);
+
+    assert.deepEqual(
+        cleanupAuditWorktree({
+            manifestPath: prepared.manifestPath,
+            repositoryRoot: fixture.repositoryRoot,
+        }),
+        { alreadyClean: false, leftoversRemoved: true },
+    );
+    assert.equal(existsSync(prepared.manifest.workRoot), false);
+});
+
+test('cleanup still refuses an unregistered worktree that exists', t => {
+    const fixture = makeFixture(t);
+    const prepared = prepare(fixture);
+    t.after(() => rmSync(prepared.manifest.workRoot, {
+        recursive: true, force: true,
+    }));
+
+    // A directory at the worktree path with no registration may hold audit
+    // changes, so cleanup must not treat it as an interrupted removal.
+    git(fixture.repositoryRoot, 'worktree', 'remove', '--force',
+        prepared.manifest.worktreePath);
+    mkdirSync(prepared.manifest.worktreePath);
+    writeFileSync(
+        join(prepared.manifest.worktreePath, 'audit-note.txt'),
+        'proposed change\n',
+    );
+
+    assert.throws(
+        () => cleanupAuditWorktree({
+            manifestPath: prepared.manifestPath,
+            repositoryRoot: fixture.repositoryRoot,
+        }),
+        /is not registered; refusing cleanup/u,
+    );
+    assert.equal(existsSync(prepared.manifest.workRoot), true);
+});
+
+test('cleanup preserves an unpreserved file when finishing a stranded root', t => {
+    const fixture = makeFixture(t);
+    const prepared = prepare(fixture);
+    t.after(() => rmSync(prepared.manifest.workRoot, {
+        recursive: true, force: true,
+    }));
+
+    git(fixture.repositoryRoot, 'worktree', 'remove', '--force',
+        prepared.manifest.worktreePath);
+    writeFileSync(
+        join(prepared.manifest.workRoot, 'audit-output.jsonl'),
+        '{"result":"must be preserved"}\n',
+    );
+
+    assert.throws(
+        () => cleanupAuditWorktree({
+            manifestPath: prepared.manifestPath,
+            repositoryRoot: fixture.repositoryRoot,
+        }),
+        /unpreserved files: audit-output\.jsonl/u,
+    );
+    assert.equal(existsSync(prepared.manifest.workRoot), true);
+});
+
 test('cleanup rejects a manifest moved outside its prepared root', t => {
     const fixture = makeFixture(t);
     const prepared = prepare(fixture);

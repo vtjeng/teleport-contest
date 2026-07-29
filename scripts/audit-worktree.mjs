@@ -362,8 +362,14 @@ function validateManifestPaths(manifestPath, manifest, repositoryRoot) {
     if (resolve(manifest.repositoryRoot) !== resolve(repositoryRoot)) {
         throw new Error('audit manifest belongs to a different repository');
     }
-    if (lstatSync(workRoot).isSymbolicLink()
-        || lstatSync(manifest.worktreePath).isSymbolicLink()) {
+    // The worktree is absent once an interrupted cleanup has removed it, and a
+    // path that does not exist cannot be a symbolic link. lstat it without
+    // throwing so that case reaches the caller, which decides what to do about
+    // it; a dangling link still reports itself here and is still refused.
+    const worktreeStat = lstatSync(manifest.worktreePath, {
+        throwIfNoEntry: false,
+    });
+    if (lstatSync(workRoot).isSymbolicLink() || worktreeStat?.isSymbolicLink()) {
         throw new Error('audit temporary paths must not be symbolic links');
     }
 }
@@ -610,6 +616,28 @@ export function checkAuditWorktree({
     };
 }
 
+// The temporary root holds the worktree beside the manifest, prompt snapshot,
+// and checklist snapshot. Anything else is a file someone put there and has not
+// preserved, such as an audit report, so removing the root would destroy it.
+function requirePreservedRoot(manifest) {
+    const allowedRootEntries = new Set([
+        MANIFEST_NAME,
+        'prompt.md',
+        'worktree',
+    ]);
+    if (manifest.checklist.snapshotPath) {
+        allowedRootEntries.add('implementation-checklist.md');
+    }
+    const unpreserved = readdirSync(manifest.workRoot)
+        .filter(entry => !allowedRootEntries.has(entry));
+    if (unpreserved.length > 0) {
+        throw new Error(
+            'audit temporary root has unpreserved files: '
+            + unpreserved.join(', '),
+        );
+    }
+}
+
 export function cleanupAuditWorktree({
     manifestPath,
     repositoryRoot = PROJECT_ROOT,
@@ -630,7 +658,17 @@ export function cleanupAuditWorktree({
     validateManifestPaths(resolvedManifest, manifest, root);
     const record = matchingWorktree(root, manifest.worktreePath);
     if (!record) {
-        throw new Error('audit worktree is not registered; refusing cleanup');
+        // `git worktree remove` deletes the worktree and its registration but
+        // not the root that holds them, which strands the manifest, prompt, and
+        // checklist with no way for cleanup to finish. Finish it here, but only
+        // once the worktree is gone from disk too: an unregistered directory
+        // that still exists may hold audit changes for someone to preserve.
+        if (existsSync(manifest.worktreePath)) {
+            throw new Error('audit worktree is not registered; refusing cleanup');
+        }
+        requirePreservedRoot(manifest);
+        rmSync(manifest.workRoot, { recursive: true, force: true });
+        return { alreadyClean: false, leftoversRemoved: true };
     }
     if (record.head !== manifest.head) {
         throw new Error('audit worktree commit does not match its manifest');
@@ -644,22 +682,7 @@ export function cleanupAuditWorktree({
             'audit worktree has changes; preserve or review them before cleanup',
         );
     }
-    const allowedRootEntries = new Set([
-        MANIFEST_NAME,
-        'prompt.md',
-        'worktree',
-    ]);
-    if (manifest.checklist.snapshotPath) {
-        allowedRootEntries.add('implementation-checklist.md');
-    }
-    const unpreserved = readdirSync(manifest.workRoot)
-        .filter(entry => !allowedRootEntries.has(entry));
-    if (unpreserved.length > 0) {
-        throw new Error(
-            'audit temporary root has unpreserved files: '
-            + unpreserved.join(', '),
-        );
-    }
+    requirePreservedRoot(manifest);
 
     if (manifest.upstream) {
         runGit(
@@ -705,11 +728,13 @@ async function main(args) {
     }
     if (parsed.command === 'cleanup') {
         const result = cleanupAuditWorktree(parsed);
-        process.stdout.write(
-            result.alreadyClean
-                ? 'Audit worktree was already removed.\n'
-                : 'Audit worktree removed.\n',
-        );
+        let message = 'Audit worktree removed.';
+        if (result.alreadyClean) message = 'Audit worktree was already removed.';
+        else if (result.leftoversRemoved) {
+            message = 'Audit worktree was already removed; '
+                + 'removed the leftover manifest and snapshots.';
+        }
+        process.stdout.write(`${message}\n`);
     }
 
 }
