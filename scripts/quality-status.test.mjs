@@ -68,6 +68,7 @@ test('the checked-in quality ledger has a valid schema', async () => {
     generatedOutputs.map(({ path }) => path).sort(),
     [
       'js/dungeon_data.js',
+      'js/extcmdlist_data.js',
       'js/monsters.js',
       'js/objects.js',
       'js/random_text_data.js',

@@ -19,6 +19,7 @@ test('checkpoint runs focused, full, generated, static, and score checks', () =>
         [
             'focused tests',
             'full test suite',
+            'generated data (check:extcmds)',
             'generated data (check:monsters)',
             'generated data (check:objects)',
             'generated data (check:symbols)',

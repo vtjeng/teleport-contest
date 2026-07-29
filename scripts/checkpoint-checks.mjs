@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
 const GENERATED_CHECKS = [
+    'check:extcmds',
     'check:monsters',
     'check:objects',
     'check:symbols',

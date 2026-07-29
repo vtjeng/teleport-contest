@@ -202,11 +202,19 @@
       "paths": [
         "js/cmd.js",
         "js/command_bindings.js",
+        "js/extcmdlist_data.js",
         "js/hack.js",
         "js/input.js",
         "js/tty_menu.js",
         "js/tty_message.js",
         "js/uhitm.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/extcmdlist_data.js",
+          "generator": "scripts/generate-extcmds.mjs",
+          "check": "node scripts/generate-extcmds.mjs --check"
+        }
       ]
     },
     {

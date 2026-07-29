@@ -1,36 +1,16 @@
 // command_bindings.js -- Source command-key binding state.
 // C ref: cmd.c extcmdlist[], commands_init(), and reset_commands().
 
-// Keeping list order matters because rebinding an existing key does not move
-// its linked-list node while binding a new key inserts at the head.
-const SOURCE_EXTENDED_COMMAND_DEFAULTS = Object.freeze([
-    ['#', '#'], ['M-?', '?'], ['M-a', 'adjust'], ['M-A', 'annotate'],
-    ['a', 'apply'], ['^X', 'attributes'], ['@', 'autopickup'], ['C', 'call'],
-    ['Z', 'cast'], ['M-c', 'chat'], ['v', 'chronicle'], ['c', 'close'],
-    ['M-C', 'conduct'], ['M-d', 'dip'], ['>', 'down'], ['d', 'drop'],
-    ['D', 'droptype'], ['e', 'eat'], ['E', 'engrave'], ['M-e', 'enhance'],
-    ['M-X', 'exploremode'], ['F', 'fight'], ['f', 'fire'], ['M-f', 'force'],
-    ['M-g', 'genocided'], [';', 'glance'], ['?', 'help'], ['i', 'inventory'],
-    ['I', 'inventtype'], ['M-i', 'invoke'], ['M-j', 'jump'], ['^D', 'kick'],
-    ['\\', 'known'], ['`', 'knownclass'], [':', 'look'], ['M-l', 'loot'],
-    ['M-m', 'monster'], ['M-n', 'name'], ['M-o', 'offer'], ['o', 'open'],
-    ['O', 'options'], ['^O', 'overview'], ['p', 'pay'], ['|', 'perminv'],
-    [',', 'pickup'], ['M-p', 'pray'], ['^P', 'prevmsg'], ['P', 'puton'],
-    ['q', 'quaff'], ['Q', 'quiver'], ['r', 'read'], ['^R', 'redraw'],
-    ['R', 'remove'], ['^A', 'repeat'], ['m', 'reqmenu'], ['^_', 'retravel'],
-    ['M-R', 'ride'], ['M-r', 'rub'], ['G', 'run'], ['g', 'rush'],
-    ['S', 'save'], ['s', 'search'], ['*', 'seeall'], ['"', 'seeamulet'],
-    ['[', 'seearmor'], ['=', 'seerings'], ['(', 'seetools'], [')', 'seeweapon'],
-    ['!', 'shell'], ['$', 'showgold'], ['+', 'showspells'], ['^', 'showtrap'],
-    ['M-s', 'sit'], ['^Z', 'suspend'], ['x', 'swap'], ['T', 'takeoff'],
-    ['A', 'takeoffall'], ['^T', 'teleport'], ['^?', 'terrain'], ['t', 'throw'],
-    ['M-T', 'tip'], ['_', 'travel'], ['M-t', 'turn'], ['X', 'twoweapon'],
-    ['M-u', 'untrap'], ['<', 'up'], ['M-V', 'vanquished'], ['M-v', 'version'],
-    ['V', 'versionshort'], ['.', 'wait'], ['W', 'wear'], ['&', 'whatdoes'],
-    ['/', 'whatis'], ['w', 'wield'], ['M-w', 'wipe'], ['^E', 'wizdetect'],
-    ['^G', 'wizgenesis'], ['^I', 'wizidentify'], ['^V', 'wizlevelport'],
-    ['^F', 'wizmap'], ['^W', 'wizwish'], ['z', 'zap'],
-]);
+import { extcmdlist } from './extcmdlist_data.js';
+
+// C ref: cmd.c commands_init(), which walks extcmdlist[] and binds every row
+// carrying a nonzero key. Keeping that order matters because rebinding an
+// existing key does not move its linked-list node while binding a new key
+// inserts at the head.
+const SOURCE_EXTENDED_COMMAND_DEFAULTS = Object.freeze(
+    extcmdlist.filter((entry) => entry.key)
+        .map((entry) => Object.freeze([entry.key, entry.ef_txt])),
+);
 
 // cmd.c commands_init() registers the number-pad compatibility aliases first,
 // then the unconditional alternate keys. Array order preserves its head
@@ -247,7 +227,7 @@ export function createCommandBindingModel(state) {
         unrestOnSpace: null,
     };
     for (const [key, command] of SOURCE_EXTENDED_COMMAND_DEFAULTS) {
-        setBinding(model.bindings, commandKeyCode(key), command);
+        setBinding(model.bindings, key, command);
     }
     for (const [key, command] of SOURCE_COMMAND_ALIASES) {
         setBinding(model.bindings, commandKeyCode(key), command);
