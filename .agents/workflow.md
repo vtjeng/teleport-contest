@@ -66,8 +66,8 @@ only fixes for confirmed findings. All four kinds follow the process rules in
 `.agents/review.md`, "Running formal review passes".
 
 **Audit** means the same thing. That word is fixed in the skill names
-`$audit-diff-correctness` and `$audit-diff-clarity`, in the `Audit-fix-for:`
-commit trailer, and in the section names of `.agents/review.md`.
+`/audit-diff-correctness` and `/audit-diff-clarity`, and in the `Audit-fix-for:`
+commit trailer.
 
 ## Continuous operation
 
@@ -103,14 +103,15 @@ The orchestrator repeats, without returning to the user between its steps:
    Accept no figure from the worker that these commands measure.
 3. Run `npm run quality` yourself; no worker reports it. The advisory
    checkpoint and the gate are the two per-area thresholds that `QUALITY.json`
-   configures and `npm run quality` measures; `.agents/review.md`, "Correctness
-   thresholds", defines them. An advisory checkpoint leaves implementation
-   running: note it and continue. A fired gate stops implementation until the
-   required pass has run, its confirmed findings are applied, and its entry is
-   recorded. `.agents/review.md` also defines a per-slice shared review window;
-   judge that one by inspection, since no threshold key encodes it.
+   configures and `npm run quality` measures; `.agents/review.md`,
+   "When a correctness pass is due", defines them. An advisory checkpoint leaves
+   implementation running: note it and continue. A fired gate stops
+   implementation until the required pass has run, its confirmed findings are
+   applied, and its entry is recorded. `.agents/review.md` also defines a
+   per-slice shared review window; judge that window by inspection, since no
+   threshold key encodes it.
 4. When a slice closes, continue at step 1. When the last slice of the goal
-   closes, satisfy the audit-readiness note in `.agents/review.md` and run the
+   closes, satisfy the readiness note in `.agents/review.md` and run the
    goal's full correctness pass.
 5. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Delete the goal from `ROADMAP.md`. Then ask
@@ -123,7 +124,7 @@ A formal review pass is a step of this loop, and the orchestrator runs it.
 
 Commits landing while a pass reviews a frozen range are expected. They fall
 outside that range and belong to the next one. They do not block the pass and
-the pass does not block them. They do constrain the audit-readiness note in
+the pass does not block them. They do constrain the readiness note in
 `.agents/review.md`, which requires no non-exempt review debt at a batching
 threshold outside the frozen range. Clear that debt when declaring readiness.
 Implementation commits may land while the debt stands.
@@ -194,20 +195,21 @@ by the same upstream function or subsystem.
 
 Remain in `Implementation` mode while any checklist entry is `missing` or
 `undecided`. `.agents/implementation-checklist-template.md`, under
-"Readiness", defines that mode and the alternative, `Ready for audit`. Before
-an audit, the checklist evidence must apply to the exact committed head. After
+"Readiness", defines that mode and the alternative, `Ready for audit`. Before a
+formal review pass, the checklist evidence must apply to the exact committed
+head. After
 the slice closes and its evidence is recorded in existing trackers, remove the
 checklist or replace it for the next qualifying slice. Smaller slices may keep
-equivalent information in their commit messages and in the audit-readiness note
+equivalent information in their commit messages and in the readiness note
 in `.agents/review.md`.
 
 ## Progress reports
 
-During implementation, validation, or audit work, keep updates brief, natural,
+During implementation, validation, or review work, keep updates brief, natural,
 and specific. Report changed behavior, remaining work, and the next check when
 useful. Do not force routine updates into fixed labels or repeat unchanged
 status. Explain specialized terms on first use.
 
 State a workflow-mode change once and explain why. Formal readiness notes and
-audit reports keep their required structures. Planning, process discussion,
+pass reports keep their required structures. Planning, process discussion,
 questions, and other meta-conversation use ordinary prose.

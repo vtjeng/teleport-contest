@@ -1,20 +1,18 @@
-# When review is due, and how to run a formal review pass
+# Review cadence and methodology
 
 `.agents/workflow.md` defines a formal review pass, states that audit means the
-same thing, and holds the loop these passes are steps in. This file writes the
-skill that runs a pass with a leading `$`, as in `$audit-diff-correctness`; the
-name passed to the Skill tool drops the `$`.
+same thing, and holds the loop these passes are steps in.
 
 Read this file before scheduling, running, or recording a formal review pass.
 Only the orchestrator does this work. "Continuous operation" in
 `.agents/workflow.md` assigns the roles.
 
-## Audit readiness
+## Readiness for a formal review pass
 
 While implementation is incomplete, find and fix gaps with source review,
-focused tests, the full test suite, and fresh differentials. Launch an audit
-only when the orchestrator judges the behavior and evidence complete. Freeze
-the committed range and include this readiness note:
+focused tests, the full test suite, and fresh differentials. Launch a formal
+review pass only when the orchestrator judges the behavior and evidence
+complete. Freeze the committed range and include this readiness note:
 
 - **Boundary and live path:** Name the user-visible starting and ending events
   and confirm the real game executes the path.
@@ -36,7 +34,8 @@ the committed range and include this readiness note:
 The active implementation checklist (`.agents/implementation-checklist.md`,
 created when a qualifying slice opens) supports this note; it does not replace
 tests, differentials, source review, generated checks, quality checks, or
-audits. If the note or evidence is incomplete, stay in Implementation mode.
+formal review passes. If the note or evidence is incomplete, stay in
+Implementation mode.
 The orchestrator that receives an incomplete note reports `NOT READY` and
 launches no reviewers.
 
@@ -62,7 +61,7 @@ that changes only correctness or simplification records. Evidence-only
 commits do not count toward path-scoped commit totals and do not receive
 their own evidence snapshots.
 
-### Correctness review thresholds
+### When a correctness pass is due
 
 - Treat three unreviewed implementation commits or 500 changed production
   lines in an affected area as an advisory checkpoint. Neither trigger
@@ -97,8 +96,8 @@ their own evidence snapshots.
 - A full pass is also due after an unexplained source-review or differential
   mismatch, and before a review deadline.
 - Other small cohesive fixes may batch until one of the conditions in this
-  section makes a full pass due. Do not repeat the same formal review pass until
-  another threshold is met or the design materially changes.
+  section makes a full pass due. Do not repeat the same formal review pass
+  until another threshold is met or the design materially changes.
 
 A change crosses quality areas only when it changes state ownership or
 persistence, PRNG or evaluation order, lifecycle ownership, an input boundary,
@@ -116,7 +115,7 @@ This window is a per-slice rule that agents apply by inspection. It is separate
 from the per-area advisory checkpoint and gate above, which `QUALITY.json`
 configures and `npm run quality` measures. No threshold key encodes this window.
 
-Audit the exact window before:
+Run a formal review pass over the exact window before:
 
 - adding a fourth implementation commit;
 - accepting a change that would exceed 1,000 changed production lines;
@@ -126,7 +125,7 @@ Audit the exact window before:
 An unexplained source-review or differential mismatch ends the window and makes
 the pass due immediately.
 
-### Evidence-triggered passes
+### Which finders and other passes to run
 
 Before recording a correctness pass, state whether the full-pass trigger, each
 optional finder trigger, and each separate-pass trigger below applies.
@@ -136,9 +135,9 @@ correctness passes do not trigger an optional finder or separate pass by
 themselves.
 
 - Whenever a full correctness pass is due, run it as a `full`
-  `$audit-diff-correctness` pass. Its behavior, readability-risk, test-quality,
-  and variable-flow finders are mandatory. "Correctness thresholds" states when
-  a full pass falls due.
+  `/audit-diff-correctness` pass. Its behavior, readability-risk, test-quality,
+  and variable-flow finders are mandatory. "When a correctness pass is due"
+  states when a full pass falls due.
 - Enable the performance finder only when the range plausibly adds a material
   resource regression beyond required source behavior: unbounded or amplified
   work, worse complexity, avoidable repeated hot-path traversal, material
@@ -147,13 +146,13 @@ themselves.
   traversal does not by itself justify enabling the performance finder.
 - Enable the concurrency finder when the range changes shared mutable state,
   asynchronous or reentrant control flow, parallel work, cancellation, retries,
-  cleanup, or lifecycle behavior that can overlap. State the risk in the audit
+  cleanup, or lifecycle behavior that can overlap. State the risk in the pass
   scope.
-- Run `$simplify-codebase` when inspection or a correctness finding identifies
+- Run `/simplify-codebase` when inspection or a correctness finding identifies
   duplicated behavior or state, competing ownership, scattered configuration,
   unnecessary indirection, dead declarations, or obsolete transitional
   scaffolding. Scope it to the implicated committed range and consumers.
-- Run `$audit-diff-clarity` for a concrete reviewer-facing explanation problem:
+- Run `/audit-diff-clarity` for a concrete reviewer-facing explanation problem:
   a new or changed shared contract, non-obvious source correspondence, complex
   state ownership or control flow, unclear test intent, misleading names or
   comments, or conflicting documentation. Scope it to implicated code, tests,
@@ -161,17 +160,19 @@ themselves.
 - Before a review deadline or an external review, inspect for simplification
   and clarity triggers. Run a formal review pass only when inspection
   identifies one,
-  and record its outcome with the evidence the "Audit readiness" note lists
+  and record its outcome with the evidence the "Readiness for a formal review
+  pass" note lists
   for that pass's boundary.
-- Run `$copyedit-technical-prose` after every third scheduled correctness pass
+- Run `/copyedit-technical-prose` after every third scheduled correctness pass
   when published prose has changed since the previous copyedit, and before
   publishing changed documentation or reports outside this repository.
   Tracker-only SHA and score entries do not trigger it. Do not run it on
   unchanged prose.
 
-## Audit findings and scope changes
+## Findings and scope changes
 
-During an audit, **Audit fix** is limited to corrections to changes in the
+During a formal review pass, an **audit fix** is limited to corrections to
+changes in the
 reviewed range: a condition, order, constant, state update, test, name, or
 comment.
 
@@ -182,10 +183,10 @@ Return to **Implementation** when a finding:
   or persistence boundary; or
 - requires new end-to-end cases because supported behavior has grown.
 
-Stop audit-fix work, record the requirement in the audit report, and do not
-claim the audit covers the new implementation. Do not run a light delta review
-or another audit first. Implement through the next observable boundary,
-satisfy the audit-readiness requirements again, and run a new full correctness
+Stop audit-fix work, record the requirement in the pass report, and do not
+claim the pass covers the new implementation. Do not run a light delta review
+or another pass first. Implement through the next observable boundary,
+satisfy the readiness requirements again, and run a new full correctness
 pass over the expanded range.
 
 After applying in-scope audit fixes, inspect the fix diff and run the focused
@@ -222,7 +223,7 @@ copyediting passes:
   Explicitly prohibit access to `sessions/holdout/`.
 - For a declared generated output, include its generator and regeneration
   check in the reviewers' materials.
-- For `$audit-diff-correctness`, use default skill context routing. Add finder
+- For `/audit-diff-correctness`, use default skill context routing. Add finder
   `audiences` only for exceptions or unusually large context; use `all` only
   for universal constraints.
 - Run the pass in an isolated worktree pinned to the reviewed commit. Reviewers
@@ -239,28 +240,20 @@ Preserve source-shaped code, planned dependency seams, generated data, and
 temporary scaffolding until a source-faithful replacement owns the behavior and
 state. Simplification must preserve PRNG and evaluation order.
 
-### Launching the audit process
+### Launching a formal review pass
 
-A formal audit that runs to completion takes 15 to 41 minutes and reads and
-writes many small files in the prepared worktree. Across 21 launches on 2026-07-27, 8 re-audited a head an
-earlier launch had already covered, because a launch died or stalled and was
-started again from scratch. Set up each launch as follows.
-
-- Give the launching shell call a timeout of at least 3,600,000 ms. Three
-  launches given timeouts of 1,000 ms, 1,000 ms, and 120,000 ms died with
-  exit code 124 partway through; three launches given 3,600,000 ms finished.
 - Put the scratch root on a local filesystem. `audit-worktree.mjs prepare`
   creates its temporary root under `os.tmpdir()`, which resolves to the Windows
   `/mnt/c` DrvFS mount when `TMPDIR` is unset and `TEMP` and `TMP` are inherited
-  from Windows. Export `TMPDIR=/tmp` for `prepare` and for the audit process.
-  DrvFS is 15 to 77 times slower than a local filesystem for the audit's
-  many small file reads and writes.
-- Export `PATH` once at the start of the session so `node` resolves in every
-  later command. One session prefixed `PATH` in 306 separate commands.
-- Stream the run and yield in 50-second waits. Do not block on the run. A run
-  that stalls on a security-approval prompt is visible only in the stream.
-  Answer the prompt and let the same run continue; relaunching restarts the
-  audit at zero and produces a duplicate pass over the same head.
+  from Windows. Export `TMPDIR=/tmp` for `prepare` and for the pass. DrvFS is 15
+  to 77 times slower than a local filesystem for the pass's many small file
+  reads and writes.
+- A pass runs as a background task and returns through a task notification. Do
+  not relaunch one that is still running: a second launch restarts the pass at
+  zero and produces a duplicate pass over the same head. When a pass returns a
+  result that looks wrong, read its transcript before relaunching it. The
+  finding work is usually intact and only the final assembly failed, which a
+  re-run of that step alone repairs.
 
 ## Recording formal review passes
 
@@ -282,8 +275,8 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   frontier, because recording that pass would turn the skipped commits into
   reviewed history. The refusal names the area, the frontier it expected, and
   the base it received. Frontiers diverge per area, and one range cannot start at
-  two commits. Either audit from the oldest frontier among the areas you claim,
-  which re-reads commits already covered and is harmless, or audit and record
+  two commits. Either review from the oldest frontier among the areas you claim,
+  which re-reads commits already covered and is harmless, or review and record
   each frontier group separately.
 - Advance a review frontier only through the exact integrated commit that a
   recorded pass covered. Audit-fix commits remain debt until a later
@@ -301,7 +294,7 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   recorder refuses a pass whose entry count differs from the rejected count.
   Write any condition for reopening into that text, such as "do not reopen
   without a source-reachable input and a diff-causal line", and keep the
-  wording when copying it forward. The next audit reads these recorded
+  wording when copying it forward. The next pass reads these recorded
   rejections to avoid re-deriving a claim that was already answered. A
   working note deleted with its slice is unavailable by then.
 - A full correctness record also names the exact range, enabled optional

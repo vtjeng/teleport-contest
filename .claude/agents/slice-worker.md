@@ -13,17 +13,16 @@ end at a committed, fully validated state.
 
 Read these three files:
 
-- `ROADMAP.md` — the open goal and its ordered slices
-- `.agents/validation.md` — what validating this slice requires
-- `.agents/workflow.md`, "Terms" and "Per-chunk workflow" — the work vocabulary
+- `ROADMAP.md` - the open goal and its ordered slices
+- `.agents/validation.md` - what validating this slice requires
+- `.agents/workflow.md`, "Terms" and "Per-chunk workflow" - the work vocabulary
   and the commit sequence
 
 Then read the C source for every function you are porting, before you write
 anything.
 
-`AGENTS.md`, both `CLAUDE.md` files, and `MEMORY.md` are already in your
-context. Do not open them. Do not open `.agents/review.md` or
-`.agents/selection.md` either: review scheduling and slice choice belong to the
+You do not open `.agents/review.md` or
+`.agents/selection.md`: review scheduling and slice choice belong to the
 orchestrator and the selectors.
 
 ## Scope

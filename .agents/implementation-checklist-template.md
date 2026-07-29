@@ -10,7 +10,8 @@ provided by any helper.
 
 This checklist is a working record of implementation evidence. It supplements
 the required source review, tests, fresh differentials, the workflows in
-`.agents/workflow.md` and `.agents/review.md`, and any required audit. A fresh
+`.agents/workflow.md` and `.agents/review.md`, and any required formal review
+pass. A fresh
 differential is a strict comparison between a newly recorded C run and the
 corresponding JavaScript run.
 
