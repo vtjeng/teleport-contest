@@ -74,9 +74,9 @@ Beyond its own ceiling, this goal gates the closing sequence that 24 of the 33
 development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismissed
 with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
 outside this goal, belonging to the search goal below. The `:` that ends those
-sessions already runs, and so do the unbound keystroke and the inventory
-display. The discovery and spell lists are the first unfinished slice. No
-session finishes without this goal.
+sessions already runs, and so do the unbound keystroke, the inventory display,
+the discovery list, and the spell list. `^X` is the last of the four still
+stopping. No session finishes without this goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
 and planned for; work the slices in order and take the intermediate passes as
@@ -86,26 +86,22 @@ and planned for; work the slices in order and take the intermediate passes as
 measured at `nethack-c/upstream` submodule commit `16ff591`; they set
 expectations, not limits.
 
-1. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
-   together, but a traced reading shrinks what the sessions reach. Both
-   commands consume no time. `dovspell()`'s empty answer and the whole of
-   `dodiscovered()`'s default discovery order are ported, along with the tty
-   text window that carries the list. Every role starts with discovered types,
-   so the `ct == 0` answer `You haven't discovered anything yet...` is ported
-   but unreachable from a fresh game; the `s`, `c`, and `a` orders stop,
-   because they need `disco_output_sorted()`. What remains is
-   `dospellmenu()`, the matching body for `+`. Which roles start knowing a
-   spell is settled: `u_init.c:ini_inv_adjust_obj()` calls `initialspell()`
-   for every starting object of `SPBOOK_CLASS` that is not blank paper, so a
-   Healer, Priest, Monk, Valkyrie, or Wizard reaches `dospellmenu()` on its
-   first `+` while the other roles reach the empty answer.
-2. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
+1. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
    1,200 lines in a file with no ported counterpart. Two prerequisites before
    the first commit: scope it to the branches the development sessions reach,
    since a starting character reaches few of them, and give `js/insight.js` a
    `QUALITY.json` area, because `npm run quality -- --check` exits nonzero
-   while a `js/` file has no area. Nothing in the slices above depends on this
-   one.
+   while a `js/` file has no area. `seed8000-tourist-starter` is the one
+   development session stopping here, six screens short of its end.
+
+The slice covering `o_init.c:dodiscovered()` and `spell.c:dovspell()` closed at
+`ff6efb9`. Two of its traced findings correct what this file recorded before it:
+`u_init.c:ini_inv_use_obj()`, not `ini_inv_adjust_obj()`, calls
+`initialspell()`, and the Valkyrie's `trobj` array carries no `SPBOOK_CLASS`
+entry, so only a Healer, Monk, Priest, or Wizard starts knowing a spell. The
+`s`, `c`, and `a` discovery orders still stop, because they need
+`disco_output_sorted()`, and `dospellmenu()`'s two sorting branches and its
+`menu_tab_sep` columns stop with them.
 
 ## Next goals, in order
 
@@ -176,6 +172,30 @@ so the immediate return is small.
 Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
 behavior part of a goal in progress.
+
+## Unresolved: an indented inverse menu heading cannot match
+
+The spell menu's column header records as `\x1b[20C\x1b[7m    Name`: C moves
+the cursor to the window edge, turns inverse video on, prints four spaces, then
+prints `Name`. `serialize()` in `frozen/terminal.js`, which the judge
+substitutes for `js/terminal.js`, finds the first cell in the row whose
+character is not a space and emits the cursor-forward jump ahead of any SGR
+sequence, so those four cells decode as default-attribute spaces. The scorer
+does not forgive that: `SPACE_VISIBLE_ATTRS` in `frozen/screen-decode.mjs`
+counts inverse and underline as visible on a space, so `diffCell()` reports
+`attr` and the screen misses on four cells.
+
+Twelve recorded screens across nine development sessions carry that heading,
+every one of them a spell list under the default
+`menu_headings:[no-color&inverse]`. A heading whose text starts at a glyph, such
+as the options menu's `General`, is unaffected, which is why the inventory menu
+matches. The `+` segments added to `scripts/run-no-time-commands.mjs` at
+`ff6efb9` set `menu_headings:none` to sidestep it.
+
+No fix in game code exists, because `AGENTS.md` requires leaving
+`js/terminal.js` unchanged and the judge replaces it regardless. Treat it as a
+ceiling: a session that displays the spell menu under the default option loses
+that screen however faithful the port is.
 
 ## Unresolved: a live monster refusal escapes as a hard failure
 
