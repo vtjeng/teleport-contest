@@ -74,7 +74,26 @@ the hero and the turn advances, so every existing turn behavior is in scope for
 regression. Take the intermediate correctness passes as `.agents/review.md`
 schedules them.
 
-No behavior slice is listed yet. The slice-selector identifies each in turn.
+A fresh scan supersedes the census figure above: seven sessions stop on
+`runeast`, `runnorth` or `runwest`, with 1,668 steps behind them, not six with
+1,275.
+
+**Behavior slices, each closed on its own.**
+
+1. **A shift-direction run that starts and ends inside one room.** `L`, `H`, `J`
+   or `K` from a hero standing in a room. `hack.c:lookaround()` (3898-4050)
+   whole, `domove_core()`'s two run arms at 2764 and 2936, `nomul()` (4160),
+   `runmode_delay_output()` (2996), `pickup.c:check_here()`'s run stop (449),
+   and the `moveloop_core()` calls at `allmain.c:515`. A run reads no input, so
+   one keystroke is one recorded step whose screen is where the run stopped;
+   the per-turn refreshes land in `animation_frames`, which the scorer counts
+   supplementally. Corridor running is excluded: its turning and `corrct`
+   logic never fires from a room, and all five first-run sessions decoded start
+   in a room and stop within four squares. Rush, `#run` and travel, which are
+   `context.run` 2, 3 and 8, are excluded with it.
+   `.agents/implementation-checklist.md` carries this slice's state, because
+   `context.run` is a shared contract: C gates a dozen already-ported paths on
+   it, and the port has so far only ever run them at 0.
 
 ## Next goals, in order
 
