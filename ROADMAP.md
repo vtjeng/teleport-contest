@@ -1,11 +1,11 @@
 # Source-faithful port roadmap
 
-This file records the open goal, the goals selected after it, and unresolved
-debt. It holds state, not rules. `AGENTS.md` remains the authority for
-implementation, validation, holdout, quality, and attribution rules, and
+This file records the goal in progress, the goals selected after it, and
+unresolved debt. It holds state, not rules. `AGENTS.md` remains the authority
+for implementation, validation, holdout, quality, and attribution rules, and
 `.agents/selection.md` states how to read the `scan-stops.mjs` census, how the
-census picks a goal inside the open milestone, how a goal is sized, and how this
-file is kept short.
+census picks a goal inside the current milestone, how a goal is sized, and how
+this file is kept short.
 
 ## Current milestone: exploration
 
@@ -15,7 +15,7 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-### Open goal: repeated simple commands
+### Goal in progress: repeated simple commands
 
 Starting at a correctly generated first command prompt, accept an unbounded
 sequence of single-keystroke commands on D:1, each either a wait or a one-square
@@ -74,7 +74,7 @@ development sessions share: `i`, `+`, `\`, and `^X` in that order, each dismisse
 with ESC, then `s`, `s`, and a final `:`. Only the two `s` keystrokes fall
 outside this goal, belonging to goal 3 below. The `:` that ends those sessions
 already runs, and so do the unbound keystroke and the inventory display. The
-discovery and spell lists are the first open slice. No session finishes
+discovery and spell lists are the first unfinished slice. No session finishes
 without this goal.
 
 This goal spans sessions and will cross the review thresholds. That is expected
@@ -120,7 +120,7 @@ and a run spans several turns.
 stop here, but each reaches an extended command within one or two keystrokes,
 so the immediate return is small.
 
-## Explicit future exploration work, outside the open goal
+## Explicit future exploration work, outside the goal in progress
 
 - Hero or monster combat, including attacks, retaliation, monster-initiated
   displacement, knockback, damage, death, corpses, weapon selection, ranged
@@ -172,7 +172,7 @@ so the immediate return is small.
 
 Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
-behavior part of an open goal.
+behavior part of a goal in progress.
 
 ## Unresolved: a live monster refusal escapes as a hard failure
 
@@ -243,7 +243,7 @@ area's first recorded pass.
 ## Later milestones
 
 This list selects the next milestone; `scripts/scan-stops.mjs` selects goals
-inside whichever milestone is open. After the current milestone, proceed in
+inside whichever milestone is current. After the current milestone, proceed in
 this order:
 
 1. **Combat and creatures:** complete melee, damage and death, the remaining

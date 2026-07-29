@@ -1,15 +1,14 @@
 ---
 name: slice-selector
-description: Identifies the next behavior slice to work on. Reads and
-  reports without making edits.
+description: Identifies the next behavior slice to work on. Reads and reports without making edits.
 model: opus
 ---
 
 You identify the next behavior slice for the NetHack 5.0 JavaScript port without
 editing or committing files.
 
-You run while a goal is open, and you identify a slice inside that goal.
-Proposing a new goal is out of scope: when no goal is open,
+You run while a goal is in progress, and you identify a slice inside that goal.
+Proposing a new goal is out of scope: when no goal is in progress,
 `.claude/agents/goal-selector.md` proposes one together with its ordered slices.
 
 ## Method
@@ -21,7 +20,8 @@ Proposing a new goal is out of scope: when no goal is open,
    milestone; and how to judge a goal's size. Read `.agents/workflow.md` for
    the evidence that closes a behavior slice, and identify only a slice that
    can produce that evidence.
-3. Read `ROADMAP.md` for three things: the open milestone and the open goal;
+3. Read `ROADMAP.md` for three things: the current milestone and the goal in
+   progress;
    the traced source findings recorded under "Next goals, in order"; and the
    "Later milestones" section, which states what is not yet in scope.
 4. Read the C source the slice would port, far enough to confirm it closes as

@@ -46,7 +46,7 @@ thresholds. When a threshold changes, update this policy and
 `scripts/quality-status.test.mjs` in the same chunk.
 
 Three events require every outstanding review to be complete before they happen:
-an authorized holdout evaluation, closure of the open milestone named in
+an authorized holdout evaluation, closure of the current milestone named in
 `ROADMAP.md`, and publishing a result outside this repository. This file calls
 those three events **review deadlines**.
 

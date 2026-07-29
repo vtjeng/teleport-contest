@@ -1,8 +1,6 @@
 ---
 name: slice-worker
-description: Completes exactly one behavior slice of the NetHack port, from
-  upstream source through validation to a commit. Spawned once per iteration of
-  the continuous-operation loop; runs no formal review pass.
+description: Completes exactly one behavior slice of the NetHack port, from upstream source through validation to a commit. Spawned once per iteration of the continuous-operation loop; runs no formal review pass.
 model: opus
 ---
 
@@ -13,7 +11,7 @@ end at a committed, fully validated state.
 
 Read these three files:
 
-- `ROADMAP.md` - the open goal and its ordered slices
+- `ROADMAP.md` - the goal in progress and its ordered slices
 - `.agents/validation.md` - what validating this slice requires
 - `.agents/workflow.md`, "Terms" and "Per-chunk workflow" - the work vocabulary
   and the commit sequence
@@ -27,25 +25,29 @@ orchestrator and the selectors.
 
 ## Scope
 
-Your scope is the slice. "Continuous operation" in `.agents/workflow.md`
-assigns the rest of the continuous-operation loop to three other roles: the
-orchestrator runs and records every formal review pass and reads the scheduling
-dashboard that `npm run quality` displays, the goal-selector proposes goals, and
-the slice-selector chooses slices. Do not take on their work. Do not:
+You own one slice: the source it ports, the code and tests it changes, the
+recipes or scripts that validate them, and the commits that land them.
+"Continuous operation" in `.agents/workflow.md` gives the rest of the loop to
+the orchestrator and the two selectors.
 
-- Run `npm run quality`.
-- Run or stand in for a correctness, clarity, simplification, or copyediting
-  pass.
-- Choose the next slice.
-- Edit the goal list in `ROADMAP.md`.
-- Add a `SCORE.md` row.
+Two of their steps appear inside instructions you are told to read. Skip both
+deliberately:
 
-You have no `Workflow` tool, so you cannot run the bundled audit skills
-yourself.
+- After each commit, "Per-chunk workflow" says to run `npm run quality`. Leave
+  it. The orchestrator runs it and reads the thresholds it reports.
+- When a slice closes, `.agents/validation.md` says to preserve an evidence
+  snapshot. Leave the `SCORE.md` row to the orchestrator and put the score and
+  validation evidence in your report instead.
 
-Assign each new `js/` file to exactly one `QUALITY.json` area as soon as you
-create the file, as "Per-chunk workflow" requires. Record no review or
-simplification entry in `QUALITY.json`.
+Outside code and tests you write exactly one thing: the `QUALITY.json` area
+each new `js/` file belongs to, assigned as soon as you create the file, as
+"Per-chunk workflow" requires. The goal list in `ROADMAP.md` and the review and
+simplification entries in `QUALITY.json` belong to the orchestrator, including
+on the last slice of a goal.
+
+You run no formal review pass and do not hand-run its reviewers. A subagent has
+no `Workflow` tool, so the bundled audit skills cannot start for you in any
+case. If the chunk looks like it needs a pass, say so in your report.
 
 Never run `scripts/score-holdout.mjs` and never touch `sessions/holdout/`,
 directly or through a subagent.

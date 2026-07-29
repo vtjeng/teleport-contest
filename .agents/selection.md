@@ -1,7 +1,7 @@
 # Choosing what to implement next
 
 Read this file when deciding which behavior to port next: which goal to open
-inside the open milestone, and which slice of that goal comes first.
+inside the current milestone, and which slice of that goal comes first.
 `.agents/workflow.md` defines a milestone, a goal, and a behavior slice, and
 states the evidence that closes a behavior slice and the review a closed goal
 triggers.
@@ -45,17 +45,17 @@ cannot be aimed at `sessions/holdout/`.
 
 ## Choosing a goal
 
-The census orders goals inside the open milestone. It never reorders the
+The census orders goals inside the current milestone. It never reorders the
 milestones themselves. When every boundary it names belongs to a later
-milestone, the open one is exhausted: close it, take the next milestone from
+milestone, the current one is exhausted: close it, take the next milestone from
 `ROADMAP.md`, and let the census order goals inside that one. A large ceiling
 does not justify jumping milestones.
 
 A goal may be larger than one agent session. When it is, it closes through
 several behavior slices, each closed on its own. A goal may list slices it is
 known to need, and it does not have to: the slice-selector identifies each slice
-in turn while the goal is open. The thresholds in `QUALITY.json` schedule reviews
-inside a goal; they do not limit how large a goal may be.
+in turn while the goal is in progress. The thresholds in `QUALITY.json`
+schedule reviews inside a goal; they do not limit how large a goal may be.
 Size decides whether a goal needs a checklist and how its slices are ordered.
 Size never justifies refusing a stated goal, deferring it, or narrowing it
 silently. Start at the first unfinished slice.

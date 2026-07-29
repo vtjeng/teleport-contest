@@ -27,7 +27,7 @@ boundary. The real consumer is the production game path that consumes the new
 behavior; `.agents/validation.md`, "Fresh differentials", states how to run a
 fresh differential. A slice is the unit of evidence.
 
-A **goal** is one coherent unit of behavior inside the open milestone. It may
+A **goal** is one coherent unit of behavior inside the current milestone. It may
 hold several ordered behavior slices. When a slice meets the conditions in
 "Implementation checklist", `.agents/implementation-checklist.md` carries the
 goal's state between sessions. A goal is the unit of review: when its last
@@ -38,8 +38,8 @@ goals: exploration, then combat and creatures, then item interaction, and so on.
 `ROADMAP.md` lists them in the order they are built. The census is the tally
 of fail-closed boundaries and commands that `node scripts/scan-stops.mjs`
 reports; `.agents/selection.md`, "Reading the census", states how to read it.
-The census picks goals inside the open milestone and never changes which
-milestone is open.
+The census picks goals inside the current milestone and never changes which
+milestone is current.
 
 A **review window** is the bounded group of related implementation chunks
 covered by one scheduled correctness review. A review window completes when
@@ -78,11 +78,11 @@ scheduling".
 Implementation, review, and further implementation alternate inside one goal.
 Four agents run that loop, and no agent performs more than one of these jobs.
 
-- The **goal-selector** runs when no goal is open. It applies
+- The **goal-selector** runs when no goal is in progress. It applies
   `.agents/selection.md` to propose the next goal and the ordered behavior
   slices that close it. It writes nothing.
   `.claude/agents/goal-selector.md` is its brief.
-- The **slice-selector** runs while a goal is open. It applies
+- The **slice-selector** runs while a goal is in progress. It applies
   `.agents/selection.md` to identify the next slice inside that goal. It writes
   nothing. `.claude/agents/slice-selector.md` is its brief.
 - The **worker** completes exactly one slice: trace it to upstream source,
