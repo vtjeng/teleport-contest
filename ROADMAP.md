@@ -91,9 +91,20 @@ A fresh scan supersedes the census figure above: seven sessions stop on
    logic never fires from a room, and all five first-run sessions decoded start
    in a room and stop within four squares. Rush, `#run` and travel, which are
    `context.run` 2, 3 and 8, are excluded with it.
-   `.agents/implementation-checklist.md` carries this slice's state, because
-   `context.run` is a shared contract: C gates a dozen already-ported paths on
-   it, and the port has so far only ever run them at 0.
+   Closed at `bc6b5aa`. Every one of the checklist's nine `context.run` rows
+   was settled: `allmain.c:262` and `:978` are ported, and the rest are
+   unreachable at run 1 by their own `!run` or `run >= 2` terms, by
+   `ParanoidTrap` defaulting off, or behind seams that refuse the destination
+   first. Corridor running is refused inside `lookaround()` itself, where
+   `levl[u.ux][u.uy].typ != ROOM` is the single source test every corridor arm
+   hangs off.
+
+   One recorded case stays unexplained and outside the slice: `seed0013` steps
+   4-5 record an input boundary three turns into a run, then a zero-time `\f`
+   redraw step carrying 363 PRNG calls, six animation frames and a cursor
+   moving from x=12 to x=32. Nineteen fresh recordings failed to reproduce a
+   mid-run input boundary, so nothing was fitted to it. Resolve it with a fresh
+   recording before targeting that session.
 
 ## Next goals, in order
 
@@ -191,6 +202,33 @@ so the immediate return is small.
 Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
 behavior part of a goal in progress.
+
+## Unresolved: `newsym()` omits the infrared arm
+
+`display.c newsym()` has an out-of-sight arm that shows a monster when
+`see_with_infrared(mon) && mon_visible(mon)`; `js/display.js newsym()` does not.
+Reproduce with seed 7000063, a female chaotic orcish Rogue, moves `" L"`: C's
+mid-run animation frames show `r` at `<11,13>`, a square the hero could see but
+cannot, and the port leaves it blank.
+
+The room-run slice found this and left it, because `newsym()` is load-bearing
+for every screen the port draws and the slice's own boundary did not need it.
+That case is deliberately absent from `scripts/run-room-runs.mjs`. Fix it with
+the infravision work rather than inside a movement slice.
+
+## Unresolved: `blocksMove()` reads the wrong door field
+
+`js/hack.js blocksMove()` tests `loc.doormask`, but `js/mklev.js` writes an
+ordinary door's mask to `loc.flags` (lines 2554-2565), and the same file's
+`doorMask()` helper already reads `flags || doormask`. A generated closed or
+locked door therefore answers FALSE to `blocksMove()`.
+
+No wrong output follows today: `js/hack.js:488` reaches
+`requireSimpleHeroDestination()` through its `typ === DOOR` arm and refuses the
+square there instead, so the door is still refused, by a different route than
+the code intends. Fix it with the closed-door work, which is where the two
+routes stop agreeing, and take a fresh differential when doing so, because it
+changes which refusal a closed door takes.
 
 ## Unresolved: an indented inverse menu heading cannot match
 
