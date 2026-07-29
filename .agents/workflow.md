@@ -16,6 +16,11 @@ a **behavior slice**; slices make up a **goal**; goals make up a **milestone**.
 A slice is the unit of evidence, a goal is the unit of review, and a milestone
 fixes the order in which game systems are built.
 
+A slice, a goal, and a milestone are each **in progress** until they
+**close**. Closing takes more than stopping work: a slice closes on the
+evidence stated below, a goal closes when its last slice does, and a milestone
+closes when every boundary the census names belongs to a later one.
+
 A **coherent implementation chunk** is one reviewable production change with
 its focused tests. A chunk may be one of several commits inside a behavior
 slice.
@@ -135,7 +140,8 @@ the next iteration.
 
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
 each time: a worker for each slice, a slice-selector when no slice is named,
-a goal-selector when a goal closes. None of them persists between steps.
+a goal-selector when no goal is in progress. None of them persists between
+steps.
 Spawn each one by its agent type, such as `slice-worker`. The type loads the
 brief and the model its definition pins; copying the brief into a prompt
 instead loses that. Run it in the background and let its completion
