@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c=$(jq -r '.tool_input.command // empty'); printf '%s' \"$c\" | tr ';&|()' '\\n\\n\\n\\n\\n' | awk '/^[ \\t]*git[ \\t]+add([ \\t]|$)/{for(i=1;i<=NF;i++)if($i==\"-A\"||$i==\"--all\"||$i==\"-u\"||$i==\"--update\"||$i==\".\")f=1}END{exit f?0:1}' && printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"Bulk staging is blocked in this repository: -A, --all, -u, --update, and a bare dot. Workers, review passes, and other sessions commit to the same branch, so these can sweep in-flight edits by another agent into your commit. Stage the paths you changed by name: `git add path/one path/two`.\"}}'; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
