@@ -120,25 +120,18 @@ and planned for; work the slices in order and take the intermediate passes as
 measured at gitlink `16ff591`; they set expectations, not limits.
 
 1. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
-   together, but a traced reading shrinks what the sessions reach. A starting
-   character has discovered nothing, so `dodiscovered()` reaches `ct == 0` and
-   answers `You haven't discovered anything yet...` without opening its text
-   window; and with `spellid(0) == NO_SPELL` a starting non-caster reaches
-   `dovspell()`'s `You don't know any spells right now.` for the same reason.
-   Both consume no time. `dovspell()`'s empty answer is ported; the census
-   then showed that the session reaching `\` has discovered its own starting
-   items, so C prints `Discoveries, by order of discovery within each class`
-   and the empty `ct == 0` answer never runs there. The list body is what that
-   session needs: `interesting_to_discover()`, the class walk over
-   `flags.inv_order`, `disco_append_typename()`, and the text window, with
-   `disco_fmt_uniq()` and `disp_artifact_discoveries()` answering nothing for
-   a starting character. `dospellmenu()` is the matching body for `+`. Which roles start
-   knowing a spell is settled: `u_init.c:ini_inv_adjust_obj()` calls
-   `initialspell()` for every starting object of `SPBOOK_CLASS` that is not
-   blank paper, so a Healer, Priest, Monk, Valkyrie, or Wizard reaches
-   `dospellmenu()` on its first `+` while the other roles reach the empty
-   answer. Both paths therefore belong to this slice, and the sessions that
-   stop on `+` decide which is needed first.
+   together, but a traced reading shrinks what the sessions reach. Both
+   commands consume no time. `dovspell()`'s empty answer and the whole of
+   `dodiscovered()`'s default discovery order are ported, along with the tty
+   text window that carries the list. Every role starts with discovered types,
+   so the `ct == 0` answer `You haven't discovered anything yet...` is ported
+   but unreachable from a fresh game; the `s`, `c`, and `a` orders stop,
+   because they need `disco_output_sorted()`. What remains is
+   `dospellmenu()`, the matching body for `+`. Which roles start knowing a
+   spell is settled: `u_init.c:ini_inv_adjust_obj()` calls `initialspell()`
+   for every starting object of `SPBOOK_CLASS` that is not blank paper, so a
+   Healer, Priest, Monk, Valkyrie, or Wizard reaches `dospellmenu()` on its
+   first `+` while the other roles reach the empty answer.
 2. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
    1,200 lines in a file with no ported counterpart. Two prerequisites before
    the first commit: scope it to the branches the development sessions reach,

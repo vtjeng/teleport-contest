@@ -11,11 +11,12 @@ import { loadNoTimeCommandsRecipe } from './run-no-time-commands.mjs';
 // setting context.move, which is the property the assertions below measure.
 const UNBOUND_BYTES = new Set([...' %\'~]M}{']);
 
-// invent.c dolook()'s and ddoinv()'s default bindings, and the Escape that
-// dismisses a menu.
+// invent.c dolook()'s and ddoinv()'s default bindings, spell.c dovspell()'s
+// and o_init.c dodiscovered()'s, and the Escape that dismisses a window.
 const LOOK_KEY = ':';
 const INVENTORY_KEY = 'i';
 const SPELL_KEY = '+';
+const DISCOVERIES_KEY = '\\';
 const ESCAPE_KEY = '\u001b';
 
 function topLine() {
@@ -26,7 +27,13 @@ function topLine() {
 function noTimeKey(key) {
     return UNBOUND_BYTES.has(key) || key === LOOK_KEY
         || key === INVENTORY_KEY || key === ESCAPE_KEY
-        || key === SPELL_KEY;
+        || key === SPELL_KEY || key === DISCOVERIES_KEY;
+}
+
+// A Space inside one of these segments answers the menu's selection prompt or
+// the text window's --More--, so it never reaches rhack()'s bad-command path.
+function opensWindow(moves) {
+    return moves.includes(INVENTORY_KEY) || moves.includes(DISCOVERIES_KEY);
 }
 
 function stripNoTime(moves) {
@@ -36,10 +43,10 @@ function stripNoTime(moves) {
 test('no-time-command matrix contains only source-selected inputs', () => {
     const recipe = loadNoTimeCommandsRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 13);
+    assert.equal(recipe.segments.length, 17);
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3, 3],
+        [11, 10, 7, 5, 4, 3, 2, 3, 3, 5, 3, 3, 3, 6, 3, 6, 3],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
@@ -50,12 +57,13 @@ test('no-time-command matrix contains only source-selected inputs', () => {
         );
     }
     // Three segments own the unbound byte at a command prompt; the rest own
-    // the look and inventory commands. All three classes must stay
-    // represented as the matrix grows. A Space inside a menu segment
-    // dismisses the menu rather than reaching rhack(), so those are excluded.
+    // the look, inventory, and discoveries commands. All four classes must
+    // stay represented as the matrix grows. A Space inside a window segment
+    // dismisses that window rather than reaching rhack(), so those are
+    // excluded.
     assert.equal(
         recipe.segments.filter(
-            ({ moves }) => !moves.includes(INVENTORY_KEY)
+            ({ moves }) => !opensWindow(moves)
                 && [...moves].some((key) => UNBOUND_BYTES.has(key)),
         ).length,
         3,
@@ -69,6 +77,12 @@ test('no-time-command matrix contains only source-selected inputs', () => {
             ({ moves }) => moves.includes(INVENTORY_KEY),
         ).length,
         5,
+    );
+    assert.equal(
+        recipe.segments.filter(
+            ({ moves }) => moves.includes(DISCOVERIES_KEY),
+        ).length,
+        4,
     );
 });
 
@@ -151,8 +165,9 @@ test('each unbound byte answers with its own visctrl name', async () => {
     const { segments } = loadNoTimeCommandsRecipe();
 
     for (const [index, segment] of segments.entries()) {
-        // A Space in a menu segment is the menu's dismissal, not a command.
-        if (segment.moves.includes(INVENTORY_KEY)) continue;
+        // A Space in a window segment is that window's dismissal, not a
+        // command.
+        if (opensWindow(segment.moves)) continue;
         for (const [position, key] of [...segment.moves].entries()) {
             if (!UNBOUND_BYTES.has(key)) continue;
             await runSegment({

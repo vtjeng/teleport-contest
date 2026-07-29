@@ -1,17 +1,26 @@
 // Object initialization and unidentified-description shuffling.
 // C ref: src/o_init.c setgemprobs through oinit.
 
+import { disp_artifact_discoveries } from './artifacts.js';
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
-import { preflight_update_inventory, update_inventory } from './invent.js';
+import { strsubst } from './hacklib.js';
+import {
+    let_to_name, preflight_update_inventory, update_inventory,
+} from './invent.js';
 import { PM_SAMURAI } from './monsters.js';
+import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { rn2 } from './rng.js';
-import { A_WIS, HALLUC, HALLUC_RES } from './const.js';
+import { append_price_quote } from './shk.js';
+import { A_WIS, BUFSZ, HALLUC, HALLUC_RES } from './const.js';
 import {
     AMULET_CLASS,
+    AMULET_OF_YENDOR,
     AQUAMARINE,
     ARMOR_CLASS,
+    BELL_OF_OPENING,
+    CANDELABRUM_OF_INVOCATION,
     CLOAK_OF_DISPLACEMENT,
     CLOAK_OF_PROTECTION,
     DIAMOND,
@@ -27,6 +36,7 @@ import {
     LAST_REAL_GEM,
     LEATHER_GLOVES,
     LEVITATION_BOOTS,
+    MAGIC_HARP,
     MAXOCLASSES,
     NODIR,
     NUM_OBJECTS,
@@ -37,10 +47,12 @@ import {
     SCROLL_CLASS,
     SPBOOK_CLASS,
     SPEED_BOOTS,
+    SPE_BOOK_OF_THE_DEAD,
     TURQUOISE,
     VENOM_CLASS,
     WAN_NOTHING,
     WAND_CLASS,
+    WOODEN_HARP,
     OBJ_DESCR,
     OBJ_NAME,
     objects_globals_init,
@@ -462,4 +474,191 @@ export function observe_object(obj, state = game) {
         discover_object(obj.otyp, false, true, false, state);
     }
     return obj;
+}
+
+// Thrown where o_init.c reaches a discoveries branch this port has not
+// reached yet.
+export class UnsupportedDiscoveryDisplayError extends Error {
+    constructor(branch) {
+        super(`discovery display requires ${branch}`);
+        this.name = 'UnsupportedDiscoveryDisplayError';
+        this.branch = branch;
+    }
+}
+
+// C ref: o_init.c interesting_to_discover(). A Samurai sees the Japanese-named
+// types as pre-discovered; every other type qualifies once it has been named
+// or encountered and has a randomized description to reveal.
+export function interesting_to_discover(i, state = game) {
+    const type = state.objects[i];
+
+    if (state.urole?.mnum === PM_SAMURAI && JAPANESE_ITEM_TYPES.has(i))
+        return true;
+
+    return Boolean(type.oc_uname
+        || ((type.oc_name_known || type.oc_encountered)
+            && OBJ_DESCR(type, state) !== null));
+}
+
+// C ref: o_init.c uniq_objs[].
+const UNIQ_OBJS = Object.freeze([
+    AMULET_OF_YENDOR,
+    BELL_OF_OPENING,
+    SPE_BOOK_OF_THE_DEAD,
+    CANDELABRUM_OF_INVOCATION,
+]);
+
+// C refs: o_init.c disco_order_let[] and disco_orders_descr[]. The trailing
+// null that terminates the C descriptions has no JavaScript counterpart.
+const DISCO_ORDER_LET = 'osca';
+const DISCO_ORDERS_DESCR = Object.freeze([
+    'by order of discovery within each class',
+    'sortloot order (by class with some sub-class groupings)',
+    'alphabetical within each class',
+    'alphabetical across all classes',
+]);
+
+// C ref: o_init.c disco_typename(). obj_typename() stops on a type carrying
+// oc_uname, so the " called " form its Samurai branch rewrites cannot reach
+// here; the other two forms can.
+function disco_typename(otyp, state) {
+    let result = obj_typename(otyp, state);
+
+    if (state.urole?.mnum === PM_SAMURAI && JAPANESE_ITEM_TYPES.has(otyp)) {
+        // A wooden harp is non-magic and so pre-discovered; only a magic harp
+        // reaches the fallback, and only once it has been called something.
+        const actualn = ((otyp !== MAGIC_HARP && otyp !== WOODEN_HARP)
+            || state.objects[otyp].oc_name_known)
+            ? OBJ_NAME(state.objects[otyp], state)
+            : 'harp';
+
+        if (result.includes(' ('))
+            result = strsubst(result, ' (', ` [${actualn}] (`);
+        else
+            result += ` [${actualn}]`;
+    }
+    return result;
+}
+
+// C ref: o_init.c disco_append_typename(). C appends into the caller's BUFSZ
+// buffer and truncates when the type name does not fit; JavaScript returns the
+// finished line. Only a type carrying oc_uname can be long enough to truncate,
+// and obj_typename() stops on those, so the two truncating branches are
+// unreachable until user-assigned type names are ported.
+function disco_append_typename(buf, dis, state) {
+    const typnm = disco_typename(dis, state);
+    let out;
+
+    if (buf.length + typnm.length < BUFSZ) {
+        out = buf + typnm;
+    } else {
+        const paren = typnm.lastIndexOf('(');
+        if (paren > 0 && typnm[paren - 1] === ' '
+            && typnm.indexOf(')', paren) >= 0) {
+            // Truncate the user-applied name and keep " (actual type)".
+            const tail = typnm.slice(paren - 1);
+            const room = BUFSZ - 1 - (buf.length + tail.length);
+            out = buf + typnm.slice(0, Math.max(0, room)) + tail;
+        } else {
+            out = buf + typnm.slice(0, Math.max(0, BUFSZ - 1 - buf.length));
+        }
+    }
+    return out + append_price_quote(out, dis, state);
+}
+
+// C ref: o_init.c disco_fmt_uniq().
+function disco_fmt_uniq(uidx, state) {
+    const type = state.objects[uidx];
+    const outbuf = `  ${type.oc_name_known
+        ? OBJ_NAME(type, state) : OBJ_DESCR(type, state)}`;
+    // The relics section says "papyrus spellbook" where the spellbook section
+    // says "spellbook (papyrus)".
+    return (!type.oc_name_known && type.oc_class === SPBOOK_CLASS)
+        ? `${outbuf} spellbook` : outbuf;
+}
+
+// C ref: o_init.c dodiscovered(), bound to '\'. Covers the default discovery
+// order, which needs no sorted output. Returns whether the command took game
+// time, which for this one is never.
+//
+// C interleaves its putstr() calls with the walk that produces them. Nothing
+// between them waits for input or draws, so this collects the lines first and
+// hands the finished list to the window owner, the same shape display_pickinv()
+// uses. `heading` marks the lines C writes with iflags.menu_headings.attr.
+export async function dodiscovered(
+    state = game,
+    { message, textWindow } = {},
+) {
+    if (typeof message !== 'function' || typeof textWindow !== 'function')
+        throw new TypeError('dodiscovered needs message and window owners');
+    // options.c optfn_sortdiscoveries() is what turns this option into
+    // flags.discosort; it is not ported, so js/options.js retains the raw
+    // value and the command stops rather than using the default order.
+    if (state.flags.sortdiscoveries != null)
+        throw new UnsupportedDiscoveryDisplayError('optfn_sortdiscoveries()');
+
+    if (!state.flags.discosort
+        || !DISCO_ORDER_LET.includes(state.flags.discosort))
+        state.flags.discosort = 'o';
+
+    if (state.iflags.menu_requested)
+        throw new UnsupportedDiscoveryDisplayError('choose_disco_sort()');
+    // The three remaining orders all buffer their lines for
+    // disco_output_sorted(), which needs discovered_cmp() and, for 's',
+    // sortloot_descr(); none of the three is ported.
+    if (state.flags.discosort !== 'o')
+        throw new UnsupportedDiscoveryDisplayError('disco_output_sorted()');
+    const sortindx = DISCO_ORDER_LET.indexOf(state.flags.discosort);
+
+    const lines = [];
+    const putstr = (heading, text) => lines.push({ text, heading });
+    putstr(false, `Discoveries, ${DISCO_ORDERS_DESCR[sortindx]}`);
+    putstr(false, '');
+
+    // Gather the unique objects, also called relics, into a pseudo-class;
+    // they also appear individually within their regular class.
+    let uniq_ct = 0;
+    let dis = 0;
+    for (const uidx of UNIQ_OBJS) {
+        const type = state.objects[uidx];
+        if (type.oc_name_known
+            || (type.oc_encountered && uidx !== AMULET_OF_YENDOR)) {
+            if (!dis++)
+                putstr(true, 'Unique items or Relics');
+            ++uniq_ct;
+            putstr(false, disco_fmt_uniq(uidx, state));
+        }
+    }
+    const arti_ct = disp_artifact_discoveries(state);
+
+    // Several classes are omitted from the pack order; one matters here.
+    const classes = [...state.flags.inv_order];
+    if (!classes.includes(VENOM_CLASS)) classes.push(VENOM_CLASS);
+
+    let ct = uniq_ct + arti_ct;
+    for (const oclass of classes) {
+        let prev_class = oclass + 1; /* forced different from oclass */
+        for (let i = state.svb.bases[oclass];
+             i < NUM_OBJECTS && state.objects[i].oc_class === oclass; i++) {
+            dis = state.svd.disco[i];
+            if (dis !== 0 && interesting_to_discover(dis, state)) {
+                ct++;
+                if (oclass !== prev_class) {
+                    putstr(true, let_to_name(oclass, false, false));
+                    prev_class = oclass;
+                }
+                const buf = state.objects[dis].oc_encountered ? '  ' : '* ';
+                putstr(false, disco_append_typename(buf, dis, state));
+            }
+        }
+    }
+
+    if (ct === 0) {
+        // C created the text window before this test and destroys it after,
+        // which draws nothing when nothing was put in it.
+        await message("You haven't discovered anything yet...", state);
+    } else {
+        await textWindow(lines, state);
+    }
+    return false;
 }

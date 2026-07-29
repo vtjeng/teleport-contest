@@ -8,7 +8,9 @@ import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { NO_COLOR } from './terminal.js';
 
-const MORE_PROMPT = '--More--';
+// C ref: win/tty/wintty.c defmorestr[], the prompt both more() and dmore()
+// print when no window supplies its own.
+export const MORE_PROMPT = '--More--';
 const TOPLINE_EMPTY = 0;
 const TOPLINE_NEED_MORE = 1;
 
@@ -50,6 +52,22 @@ function restoreRows(display, snapshot) {
         for (let column = 0; column < snapshot[row].length; ++column) {
             const cell = snapshot[row][column];
             display.setCell(column, row, cell.ch, cell.color, cell.attr);
+        }
+    }
+}
+
+// C ref: win/tty/getline.c xwaitforspace(), called with decl.c quitchars[].
+// Returns morc, the key that ended the wait.  ttyDisplay->dismiss_more starts
+// at 0, which matches no key a session can send, so only quitchars[] and the
+// unconditional CR and LF dismiss the prompt.
+export async function xwaitforspace(state = game) {
+    for (;;) {
+        const code = await nhgetch(state);
+        // tty_nhgetch() maps NUL to Escape.  quitchars[] is " \r\n\033";
+        // all other keys ring the bell and leave this boundary unchanged.
+        if (code === 0 || code === 10 || code === 13
+            || code === 27 || code === 32) {
+            return code;
         }
     }
 }
@@ -148,17 +166,7 @@ export async function dismissPendingTtyMessage(state = game) {
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, 0);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 
-    let response;
-    for (;;) {
-        const code = await nhgetch(state);
-        // tty_nhgetch() maps NUL to Escape.  xwaitforspace("\033 ") also
-        // accepts CR and LF; all other keys leave this boundary unchanged.
-        if (code === 0 || code === 10 || code === 13
-            || code === 27 || code === 32) {
-            response = code;
-            break;
-        }
-    }
+    const response = await xwaitforspace(state);
 
     if (snapshot) {
         restoreRows(display, snapshot);

@@ -462,6 +462,31 @@ export function find_artifact(obj, state = game) {
     return true;
 }
 
+// Thrown where artifact.c reaches a display branch this port has not ported.
+export class UnsupportedArtifactDisplayError extends Error {
+    constructor(branch) {
+        super(`artifact display requires ${branch}`);
+        this.name = 'UnsupportedArtifactDisplayError';
+        this.branch = branch;
+    }
+}
+
+// C ref: artifact.c disp_artifact_discoveries(). Returns how many artifacts
+// the hero has discovered, writing one line for each into the text window
+// dodiscovered() supplies. discover_artifact() is the only writer of
+// artidisco[] and is not ported, so this loop always exits on the first empty
+// slot and writes nothing; that is why it takes no window. Naming an entry
+// needs artiname(), align_str(), and simple_typename(), none of them ported.
+export function disp_artifact_discoveries(state = game) {
+    let i = 0;
+    for (; i < NROFARTIFACTS; i++) {
+        if (state.artidisco[i] === 0)
+            break;
+        throw new UnsupportedArtifactDisplayError('artiname()');
+    }
+    return i;
+}
+
 function monsterAlignment(monster) {
     const raw = monster.ispriest
         ? monster.mextra?.epri?.shralign

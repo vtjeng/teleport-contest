@@ -15,6 +15,7 @@ import {
     STONED,
     STRANGLED,
 } from './const.js';
+import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { flush_screen } from './display.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
@@ -23,9 +24,12 @@ import {
     dolook,
     UnsupportedFeatureDescriptionError,
 } from './invent.js';
+import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
 import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
-import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
+import {
+    displayTtyTextWindow, menuTitleStyle, selectTtyMenu,
+} from './tty_menu.js';
 import {
     domove,
     endRunning,
@@ -309,7 +313,7 @@ export async function parseCommand(state = game) {
 // readSimpleCommand(), both boundary messages, and the admission test cannot
 // drift apart as more commands land.
 const ADMITTED_COMMANDS = Object.freeze([
-    'wait', 'look', 'inventory', 'showspells',
+    'wait', 'look', 'inventory', 'showspells', 'known',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, or a `
@@ -466,7 +470,9 @@ async function failClosedCommand(key, state, run) {
     } catch (error) {
         if (error instanceof UnsupportedFeatureDescriptionError
             || error instanceof UnsupportedObjectNameError
-            || error instanceof UnsupportedSpellDisplayError) {
+            || error instanceof UnsupportedSpellDisplayError
+            || error instanceof UnsupportedDiscoveryDisplayError
+            || error instanceof UnsupportedArtifactDisplayError) {
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
                 `an unported branch of this command: ${error.message}`,
@@ -591,6 +597,29 @@ export async function rhack(key, state = game) {
             const elapsed = await failClosedCommand(
                 key, state, () => dovspell(state, { message: ttyPline }),
             );
+            resetCommandVars(state);
+            if (elapsed) state.context.move = 1;
+            return;
+        }
+        if (command === 'known') {
+            const elapsed = await failClosedCommand(key, state, () => (
+                dodiscovered(state, {
+                    message: ttyPline,
+                    // o_init.c dodiscovered() writes its headings with
+                    // iflags.menu_headings, the same style the inventory
+                    // menu's class headings use.
+                    textWindow: (lines) => displayTtyTextWindow(
+                        state,
+                        lines.map((line) => (line.heading
+                            ? {
+                                ...line,
+                                attr: menuTitleStyle(state).titleAttr,
+                                color: menuTitleStyle(state).titleColor,
+                            }
+                            : line)),
+                    ),
+                })
+            ));
             resetCommandVars(state);
             if (elapsed) state.context.move = 1;
             return;

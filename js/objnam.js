@@ -11,6 +11,7 @@ import {
     fruit_from_indx, makeplural, makesingular, matching_artifact_fruit,
 } from './fruit.js';
 import { tin_details } from './eat.js';
+import { game } from './gstate.js';
 import { lowc, strcasecpy } from './hacklib.js';
 import { body_part } from './polyself.js';
 import { RIGHT_HANDED } from './u_init.js';
@@ -34,6 +35,7 @@ import {
     ELVEN_SHIELD, EMERALD, FAKE_AMULET_OF_YENDOR, FIGURINE, FLINT, FOOD_CLASS,
     GEMSTONE, GEM_CLASS, GRAY_DRAGON_SCALE_MAIL, GRAY_DRAGON_SCALES, IRON,
     LARGE_BOX, LENSES, MAGIC_HARP, MAGIC_LAMP, MINERAL, MITHRIL,
+    MAXOCLASSES,
     MUMMY_WRAPPING, OBJ_DESCR, OBJ_NAME, OIL_LAMP, OPAL, ORCISH_SHIELD,
     POTION_CLASS, POT_OIL, POT_WATER, RING_CLASS, ROBE, ROCK_CLASS, RUBY,
     SAPPHIRE, SCR_MAIL, SCROLL_CLASS, SHIELD_OF_REFLECTION, SLIME_MOLD,
@@ -73,16 +75,17 @@ function monsterObjectName(obj, state) {
 function isPoisonable(obj, state) {
     return isMultigen(obj, state) || permapoisoned(obj);
 }
-function isGemStone(obj, type) {
-    if (obj.otyp === FLINT) return true;
+// C ref: objnam.h GemStone(). Its argument is an object type, not an object.
+function isGemStone(otyp, type) {
+    if (otyp === FLINT) return true;
     if (type.oc_material !== GEMSTONE) return false;
-    return obj.otyp !== DILITHIUM_CRYSTAL
-        && obj.otyp !== RUBY
-        && obj.otyp !== DIAMOND
-        && obj.otyp !== SAPPHIRE
-        && obj.otyp !== BLACK_OPAL
-        && obj.otyp !== EMERALD
-        && obj.otyp !== OPAL;
+    return otyp !== DILITHIUM_CRYSTAL
+        && otyp !== RUBY
+        && otyp !== DIAMOND
+        && otyp !== SAPPHIRE
+        && otyp !== BLACK_OPAL
+        && otyp !== EMERALD
+        && otyp !== OPAL;
 }
 function sourceActualName(obj, type, state) {
     if (state.urole?.mnum === PM_SAMURAI)
@@ -95,6 +98,83 @@ function sourceDescription(obj, type, state, actual) {
         return 'koto';
     }
     return OBJ_DESCR(type, state) ?? actual;
+}
+
+// C ref: objnam.c obj_typename(). Names an object type rather than an object,
+// which is what the discoveries list shows. A type carrying oc_uname reaches
+// xcalled() in four of the branches below; no ported path assigns one, and
+// naming the type without the call would be wrong, so it stops instead.
+export function obj_typename(otyp, state = game) {
+    const ocl = state.objects[otyp];
+    let actualn = OBJ_NAME(ocl, state);
+    let dn = OBJ_DESCR(ocl, state);
+    const un = ocl.oc_uname;
+    let nn = ocl.oc_name_known;
+
+    if (state.urole?.mnum === PM_SAMURAI) {
+        actualn = JAPANESE_ITEM_NAMES.get(otyp) ?? actualn;
+        if (otyp === WOODEN_HARP || otyp === MAGIC_HARP) dn = 'koto';
+    }
+    // Generic items carry no actual name and should never reach here; C
+    // substitutes a placeholder rather than asserting, so this does too.
+    if (!actualn)
+        actualn = (otyp > 0 && otyp < MAXOCLASSES) ? 'generic' : 'object?';
+    if (un) unsupported('user-assigned type name', null);
+
+    let buf = '';
+    switch (ocl.oc_class) {
+    case COIN_CLASS:
+        return actualn;
+    case POTION_CLASS:
+        buf = 'potion';
+        break;
+    case SCROLL_CLASS:
+        buf = 'scroll';
+        break;
+    case WAND_CLASS:
+        buf = 'wand';
+        break;
+    case SPBOOK_CLASS:
+        if (otyp !== SPE_NOVEL) {
+            buf = 'spellbook';
+        } else {
+            buf = !nn ? 'book' : 'novel';
+            nn = 0;
+        }
+        break;
+    case RING_CLASS:
+        buf = 'ring';
+        break;
+    case AMULET_CLASS:
+        buf = nn ? actualn : 'amulet';
+        if (dn) buf += ` (${dn})`;
+        return buf;
+    case ARMOR_CLASS:
+        if (ocl.oc_armcat === ARM_GLOVES || ocl.oc_armcat === ARM_BOOTS)
+            buf = 'pair of ';
+        else if (otyp >= GRAY_DRAGON_SCALES && otyp <= YELLOW_DRAGON_SCALES)
+            buf = 'set of ';
+    // FALLTHROUGH
+    default: // eslint-disable-line no-fallthrough
+        if (nn) {
+            buf += actualn;
+            if (isGemStone(otyp, ocl)) buf += ' stone';
+            if (dn) buf += ` (${dn})`;
+        } else {
+            buf += dn || actualn;
+            if (ocl.oc_class === GEM_CLASS)
+                buf += ocl.oc_material === MINERAL ? ' stone' : ' gem';
+        }
+        return buf;
+    }
+    // Here for ring, scroll, potion, wand, and spellbook.
+    if (nn) {
+        // oc_unique keeps the Book of the Dead from becoming "spellbook of
+        // Book of the Dead".
+        buf = ocl.oc_unique ? actualn : `${buf} of ${actualn}`;
+    }
+    if (dn) buf += ` (${dn})`;
+    return buf;
 }
 
 // C refs: objnam.c suit_simple_name(), cloak_simple_name(),
@@ -315,7 +395,7 @@ function xnameBase(obj, type, state) {
         if (!knownType) {
             return `${description} ${rock}`;
         }
-        return `${actual}${isGemStone(obj, type) ? ' stone' : ''}`;
+        return `${actual}${isGemStone(obj.otyp, type) ? ' stone' : ''}`;
     }
     default:
         unsupported(`object class ${obj.oclass}`, obj);

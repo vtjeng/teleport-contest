@@ -1,9 +1,11 @@
-// tty_menu.js — Source-shaped TTY menu rendering and input.
+// tty_menu.js — Source-shaped TTY menu and text window rendering and input.
 // C ref: win/tty/wintty.c tty_end_menu(), tty_display_nhwindow(),
-// process_menu_window(), and tty_select_menu().
+// process_menu_window(), process_text_window(), dmore(), and
+// tty_select_menu().
 
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
+import { MORE_PROMPT, xwaitforspace } from './tty_message.js';
 import { PICK_ANY, PICK_ONE } from './const.js';
 import {
     ok_align,
@@ -279,6 +281,98 @@ export function dismissTtyMenu(state = game, rendered) {
             rendered.snapshot,
         );
     }
+}
+
+// C ref: win/tty/termcap.c cl_end(), reached before process_text_window()
+// writes each line and again before each --More--.
+function clearRow(display, row) {
+    for (let column = 0; column < display.cols; column++)
+        display.setCell(column, row, ' ', NO_COLOR, 0);
+}
+
+// C ref: win/tty/getline.c xwaitforspace(), which sets morc to Escape for
+// both the Escape key and the NUL that tty_nhgetch() maps to it.
+function isEscapeResponse(morc) {
+    return morc === 0 || morc === 0x1B;
+}
+
+// C ref: win/tty/wintty.c dmore(). Writes the prompt at the cursor and waits
+// for a key that dismisses it, returning morc. flags.standout, which would
+// draw the prompt in reverse video, defaults off and no option sets it.
+async function dmore(state, display, row) {
+    clearRow(display, row);
+    // A text window offsets the prompt by one column where a menu offsets it
+    // by two; both start from a curx that tty_curs() has just homed to 0.
+    for (let index = 0; index < MORE_PROMPT.length; index++)
+        display.setCell(index, row, MORE_PROMPT[index], NO_COLOR, 0);
+    display.setCursor(MORE_PROMPT.length, row);
+    return xwaitforspace(state);
+}
+
+// C ref: win/tty/wintty.c tty_display_nhwindow(NHW_TEXT) followed by
+// process_text_window(). With H2344_BROKEN a text window's offx is 0, so its
+// lines begin in column 0 rather than after the one-cell margin an offset
+// window writes. Returns morc, the key that dismissed the last --More--.
+export async function displayTtyTextWindow(state = game, lines) {
+    const display = state.nhDisplay;
+    if (!display)
+        throw new Error('tty text window requires an initialized display');
+    const maxrow = lines.length;
+    const lastRow = display.rows - 1;
+
+    // tty_dismiss_nhwindow() repairs a column-zero text window with
+    // docrt()+flush_screen(), the same repair dismissTtyMenu() models for a
+    // full-screen menu.
+    const snapshot = copyRegion(display, 0, display.rows);
+    const baseCursor = [display.cursorCol, display.cursorRow];
+
+    if (maxrow >= display.rows || state.iflags?.menu_overlay === false) {
+        display.clearScreen();
+    } else {
+        // A window short enough to overlay clears only the message window
+        // here, the same clear renderTtyMenu() performs for a corner menu.
+        // The per-line cl_end() below and the cl_eos() after the last line
+        // still cover every row, so the two branches agree on screen.
+        display.clearRow(0);
+    }
+
+    let n = 0;
+    let cancelled = false;
+    let response = null;
+    for (let i = 0; i < maxrow; i++) {
+        if (n === lastRow) {
+            response = await dmore(state, display, n);
+            if (isEscapeResponse(response)) {
+                // morc == ESC marks the window cancelled and abandons the
+                // remaining lines without a closing prompt.
+                cancelled = true;
+                break;
+            }
+            display.clearScreen();
+            n = 0;
+        }
+        const line = lines[i];
+        const text = String(line.text ?? '');
+        clearRow(display, n);
+        for (let index = 0; index < text.length; index++) {
+            display.setCell(
+                index, n, text[index], line.color ?? NO_COLOR, line.attr ?? 0,
+            );
+        }
+        n++;
+    }
+
+    if (!cancelled) {
+        // A text window clears from the row after its last line before
+        // homing to the bottom row for the closing prompt.
+        for (let row = n; row < display.rows; row++)
+            clearRow(display, row);
+        response = await dmore(state, display, lastRow);
+    }
+
+    restoreRegion(display, 0, snapshot);
+    display.setCursor(...baseCursor);
+    return response;
 }
 
 function keyCharacter(code) {

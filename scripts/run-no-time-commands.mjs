@@ -195,6 +195,70 @@ export function loadNoTimeCommandsRecipe() {
                 // dovspell()'s empty answer and consumes no time.
                 moves: '.+.',
             },
+            // The discoveries list, `\`, which also consumes no game time.
+            {
+                seed: 8810001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'Unbound',
+                    role: 'Valkyrie',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Valkyrie's 51 lines fill three pages, so walking through
+                // them answers two mid-list --More-- prompts before the
+                // closing one. The trailing wait shows that none of it spent
+                // game time.
+                moves: '.\\  \u001b.',
+            },
+            {
+                seed: 8850001,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'DiscoHealer',
+                    role: 'Healer',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Healer's 15 lines fit one page, and its pack spans armor,
+                // spellbooks, potions, and a wand, so the class walk writes
+                // several headings. Space is one of the two ways out of the
+                // closing --More--.
+                moves: '\\ .',
+            },
+            {
+                seed: 8850002,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    name: 'DiscoWizard',
+                    role: 'Wizard',
+                    gender: 'male',
+                    align: 'chaotic',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Wizard's 35 lines fill two pages: Space advances to the
+                // second and Escape, the other dismissal, ends it. The second
+                // `\` then checks that the first one's repair restored the
+                // map underneath.
+                moves: '\\ \u001b\\\u001b.',
+            },
+            {
+                seed: 8850003,
+                datetime: DATETIME,
+                nethackrc: nethackrc({
+                    // A longer name pushes the welcome line onto a second
+                    // terminal row, whose more() would swallow the first key.
+                    name: 'Samu',
+                    role: 'Samurai',
+                    gender: 'male',
+                    align: 'lawful',
+                    options: 'pettype:none,!acoustics',
+                }),
+                // A Samurai treats the Japanese-named types as discovered,
+                // which is the branch where interesting_to_discover() answers
+                // TRUE without a description and disco_typename() appends the
+                // English name in brackets. Escape at the first of its four
+                // pages abandons the rest, the cancelled-window path.
+                moves: '\\\u001b.',
+            },
         ],
     }, 'no-time commands recipe');
 }
