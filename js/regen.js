@@ -28,11 +28,15 @@ function canRegenerate(hero) {
         || (propertyActive(hero, SLEEPY) && Boolean(hero.usleep));
 }
 
+// allmain.c regen_hp() and regen_pw() call interrupt_multi() unconditionally
+// on reaching full, and interrupt_multi() owns the `gm.multi > 0 && !travel
+// && !run` test. Keeping that condition here too would give one C test two
+// owners, and would leave the injected dependency unchecked on every call that
+// happens to have multi <= 0.
 function reachedFull(kind, state, env) {
-    if ((state.multi ?? 0) <= 0) return;
     if (typeof env.interruptMulti !== 'function') {
         throw new TypeError(
-            `${kind} reaching full during multi requires interruptMulti`,
+            `${kind} reaching full requires interruptMulti`,
         );
     }
     env.interruptMulti(
