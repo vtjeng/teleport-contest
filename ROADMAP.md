@@ -126,6 +126,14 @@ A fresh scan supersedes the census figure above: seven sessions stop on
    census ceiling, along with `mention_walls` text and `test_move()`'s
    closed-door bump at `hack.c:1097`.
 
+   Closed at `e9cd289`, for 31 screens, the largest single-slice gain recorded
+   so far. The ceiling deflation above held for `seed0004`, which gained its one
+   step; `seed0017` supplied the other 30 and now stops on `#`. The corner-turn
+   collision was settled from the C: `test_move()`'s `testdiag` and `ust` arms
+   both hang on `doorless_door()`, which `requireNonDiagonalDoorway()` already
+   applies, and a turn cannot start from a doorway because `nomul(0)` zeroes
+   `multi` first.
+
 ## Next goals, in order
 
 ### 1. The extended-command prompt
