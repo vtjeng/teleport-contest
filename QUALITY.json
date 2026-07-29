@@ -3140,6 +3140,62 @@
         ]
       },
       "recordedAt": "2026-07-29T16:59:26.628Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
+        "commands": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071"
+      },
+      "head": "61f41f9b8255ad5359d491196bde97d69ea7d3eb",
+      "auditedRange": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071..61f41f9b8255ad5359d491196bde97d69ea7d3eb",
+      "areas": [
+        "startup",
+        "commands"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review of the audit-fix tail 61f41f9 together with 671c4fb, the recorder change that sits between it and the previous frontier. Three finders (correctness, tests, variable-trace); readability skipped. 9 raw findings, 7 after deduplication. The workflow confirmed six; the orchestrator rejected one of those on counter-evidence the adjudicator lacked, namely that the range spans two commits and the recorder feature it treats as bundled is 671c4fb's own fully described commit. Five applied in 2ac43bc: extmenu's Off default stored to match optlist.h:303, a third wrong C citation corrected in two files, the tracker test decoupled from live ROADMAP.md prose, and the recorder's own gate given a test through an injectable tracker read. Every fix verified by mutation. Suite 1,824 passing. Development unchanged at 398 screens and 99,496 random-number values across 33 sessions; all four matrices unchanged.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1009,
+        "counts": {
+          "raw": 9,
+          "deduplicated": 7,
+          "confirmed": 5,
+          "applied": 5,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 2,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/options.js left iflags.extmenu out of the default state while every other Off-defaulting iflags boolean is stored as an explicit false: eight_bit_tty (optlist.h:300), hilite_pet (365), hilite_pile (368), hitpointbar (379) and altmeta (159). optlist.h:303 binds extmenu to &iflags.extmenu with a default of Off, so C's startup value is FALSE rather than absent. The difference is invisible to the truth test in tty_get_ext_cmd() but visible in the second-turn state snapshot, where it is the single differing path across all seventeen cases.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "The correctness finder reported that 61f41f9 bundles an unreviewed recorder feature (deferral validation in scripts/quality-status.mjs plus policy edits) that its commit message never mentions, violating the rule that an audit-fix commit is limited to corrections for confirmed findings.",
+            "counterEvidence": "The premise mistakes the range for the commit. `git log --oneline 4e9a59f..61f41f9` lists two commits, and `git show --stat 61f41f9` touches only QUALITY.json, js/getline.js, js/options.js, scripts/generate-extcmds.mjs and the two test files. The recorder feature belongs to 671c4fb, a separate commit whose message describes it in full. The range spanned both because the orchestrator chose it that way, so there is nothing to split. The residual concern, that 671c4fb was never independently reviewed, is answered by this pass covering it: two of its confirmed findings came from that commit and both were applied. Do not reopen without showing that a single commit bundles work outside its stated findings.",
+            "reopenIf": "a single commit is shown to bundle work outside its stated findings"
+          },
+          {
+            "summary": "The variable-trace finder reported that the deferral requirement is enforced only at record time, so the 21 already-stored deferred findings across five passes keep no durable record permanently.",
+            "counterEvidence": "The adjudicator refuted both causality and resolution. The gap predates the range: `git show 4e9a59f:scripts/quality-status.mjs` shows validateAuditMetrics() taking only requireRejections, so no pass carried a deferrals array and no mechanism to require one existed; the change adds a record for future passes and leaves the historical state as it found it. The proposed backfill is also impossible for the majority of the data it targets, because the commit message records that nine of the twelve findings deferred by the extended-command pass existed solely in session-scoped output under /tmp, which is gone. Do not reopen without a recoverable source for the historical deferrals."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-29T17:28:46.934Z"
     }
   ]
 }
