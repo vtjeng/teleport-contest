@@ -106,6 +106,26 @@ A fresh scan supersedes the census figure above: seven sessions stop on
    mid-run input boundary, so nothing was fitted to it. Resolve it with a fresh
    recording before targeting that session.
 
+2. **Corridor running at `context.run == 1`.** Small in production terms and
+   large in evidence. `lookaround()` is already ported whole at
+   `js/hack.js:777-975`, `bcorr`, `corrct` and `noturn` included; the guard at
+   `js/hack.js:804`, `here.typ !== ROOM`, is all that suppresses them. The
+   delta is that guard plus `domove_core()`'s doorway stop at `hack.c:2936`,
+   and the real work is a `run-corridor-runs.mjs` sibling to the 211-line
+   `scripts/run-room-runs.mjs`. `seed0017` step 11 and `seed0004` step 16 both
+   start a run from a doorway with corridor beyond, so one `L` is one recorded
+   step. Needs no checklist.
+
+   The census credits two sessions and 449 steps, but that ceiling deflates on
+   inspection: `seed0004`'s next key is `u` into a locked door, worth about one
+   step, and only `seed0017` has further run keys behind it. Expect corner
+   turns to set a diagonal `u.dx`/`u.dy` that collides with
+   `requireNonDiagonalDoorway()`.
+
+   Rush (`context.run` 2), `#run` (3) and travel (8) stay out, all three with no
+   census ceiling, along with `mention_walls` text and `test_move()`'s
+   closed-door bump at `hack.c:1097`.
+
 ## Next goals, in order
 
 ### 1. The extended-command prompt
