@@ -120,7 +120,15 @@ and planned for; work the slices in order and take the intermediate passes as
 measured at gitlink `16ff591`; they set expectations, not limits.
 
 1. **`o_init.c:dodiscovered()` and `spell.c:dovspell()`.** About 240 lines
-   together; both display a list and consume no time.
+   together, but a traced reading shrinks what the sessions reach. A starting
+   character has discovered nothing, so `dodiscovered()` reaches `ct == 0` and
+   answers `You haven't discovered anything yet...` without opening its text
+   window; and with `spellid(0) == NO_SPELL` a starting non-caster reaches
+   `dovspell()`'s `You don't know any spells right now.` for the same reason.
+   Both consume no time. The list bodies, `disco_output_sorted()` and
+   `dospellmenu()`, are reached only by a character who has discovered
+   something or knows a spell, which is a later slice. Trace which starting
+   roles know a spell before assuming the empty path always holds.
 2. **`insight.c:doattributes()`.** `enlightenment()` and its cascade, about
    1,200 lines in a file with no ported counterpart. Two prerequisites before
    the first commit: scope it to the branches the development sessions reach,
