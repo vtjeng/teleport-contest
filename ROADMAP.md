@@ -279,6 +279,36 @@ Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
 behavior part of a goal in progress.
 
+## Unresolved: six deferred test-coverage findings from the running pass
+
+The correctness pass over `2adc5af..60bf3d0` confirmed 13 findings. Seven are
+applied at `374fb85`, including both production defects. Six are deferred, all
+of them missing test pins rather than suspected wrong behavior, and each names a
+mutation that survives the suite today:
+
+- `domove()`'s three run-stop sites can be reverted from `nomul(0)` to the
+  explicit field zeroing they replaced, with byte-identical matrix output.
+- `domove_core()`'s run stop on `IS_FURNITURE` is never executed by a test;
+  only its `IS_DOOR` arm runs, so the furniture term can be deleted.
+- `check_here()`'s run stop runs three times during `npm test` with no
+  assertion depending on it; deleting it leaves all tests passing while
+  changing the cursor stream.
+- The animation-frame stream, which this range newly made a compared output, is
+  pinned by nothing stronger than a divisibility check, so a mutation halving
+  the `nh_delay_output()` calls passes.
+- `lookaround()`'s two `flags.mention_walls` arms never execute, because every
+  segment of all three run matrices leaves the option off.
+- The closed-door `mention_walls` line is the only ported *output* the new
+  `lookaround()` adds and no differential or test can reach it: the arm needs
+  `context.run !== 1`, so both run-1 matrices are structurally excluded, and no
+  rush segment sets the option. The pass verified it is reachable by replaying
+  six existing `arm: 'door'` rush seeds with `mention_walls` prepended.
+
+The last two need a fresh C recording with the option set, which is why they
+were not closed with the rest. Clear all six before the next holdout
+evaluation, and prefer adding a `mention_walls` variant of an existing rush
+seed over widening the production code to suit a test.
+
 ## Unresolved: `newsym()` omits the infrared arm
 
 `display.c newsym()` has an out-of-sight arm that shows a monster when
