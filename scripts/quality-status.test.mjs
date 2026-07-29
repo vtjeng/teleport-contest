@@ -369,8 +369,8 @@ test('deferred findings name an existing tracker heading', () => {
     () => validateAuditMetrics(metrics, { trackerHeadings: new Set(['Unresolved: something else']) }),
     /is not a heading in ROADMAP\.md/,
   );
-  // Debt belongs under an Unresolved heading, not under a roadmap section that
-  // nothing schedules for clearing.
+  // Debt belongs under an Unresolved heading. A roadmap section that nothing
+  // schedules for clearing would strand it.
   assert.throws(
     () => validateAuditMetrics({
       ...metrics,

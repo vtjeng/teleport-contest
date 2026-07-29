@@ -20,8 +20,8 @@ import { parseRange } from './audit-worktree.mjs';
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
-// Deferred findings are tracked as prose, not as ledger data, so the ledger
-// stores a pointer into the tracker instead of a copy of the finding.
+// ROADMAP.md holds each deferred finding as prose. The ledger stores a
+// pointer to the heading that carries it.
 const DEFERRAL_TRACKER = 'ROADMAP.md';
 const DEFERRAL_TRACKER_PATH = resolve(REPO_ROOT, DEFERRAL_TRACKER);
 const DEFERRAL_HEADING_PREFIX = 'Unresolved:';
@@ -252,11 +252,10 @@ export function validateAuditMetrics(metrics, {
 
 // What a pass read, in one of three shapes. A range ends at the pass head and
 // may advance a frontier, since it leaves no gap behind that head. A commit
-// list may not: it covers only what it names, so nothing can be concluded
-// about the commits between. `unrecorded` belongs to the 48 passes that
-// predate `5e7fb47`, which stored no audited range at all; their frontiers
-// stand because the ledger is append-only, but they establish no coverage,
-// which is exactly why ROADMAP.md had to name the gap by hand.
+// list may not: it covers what it names and establishes nothing about the
+// commits between its entries. `unrecorded` belongs to the 48 passes that
+// predate `5e7fb47` and stored no audited range. Their frontiers stand
+// because the ledger is append-only, and they establish no coverage.
 export function validateAudited(pass) {
   const audited = pass.audited;
   if (!audited || typeof audited !== 'object' || Array.isArray(audited)) {
@@ -297,7 +296,7 @@ export function validateAudited(pass) {
 // Whether a pass read one particular commit. A range covers what
 // `git rev-list base..head` lists: at or before the head, and strictly after
 // the base, so the base commit itself is excluded. A list covers exactly what
-// it names. An unrecorded pass covers nothing, whatever its frontier claims.
+// it names. An unrecorded pass covers nothing, whatever its frontier asserts.
 function auditedCovers(audited, sha, ancestorCheck) {
   if (audited?.commits !== undefined) return audited.commits.includes(sha);
   if (audited?.range === undefined) return false;
@@ -306,9 +305,9 @@ function auditedCovers(audited, sha, ancestorCheck) {
 }
 
 // Declared behind-the-frontier debt, less whatever a later pass has since
-// read. A pass only clears commits in the areas it claimed, because --areas is
-// the scope its reviewers were given; auditing a range that happens to contain
-// a commit says nothing about an area the pass never looked at.
+// read. A pass clears commits in the areas it claimed, because --areas is the
+// scope its reviewers received. A range containing a commit establishes
+// nothing about an area the pass never read.
 export function remainingUnreviewed(areas, passes, ancestorCheck) {
   const remaining = new Map();
   for (const area of areas) {
@@ -986,14 +985,14 @@ function printStatus(config, head, status, verbose) {
         config.thresholds,
       )}`,
     );
-    // Printed separately from the review debt above, which counts commits
-    // ahead of the frontier. These sit behind it, so no threshold can reach
-    // them and the area would otherwise report clear while holding them.
+    // The review debt above counts commits ahead of the frontier. These sit
+    // behind it, where no threshold reaches them, so the area reports clear
+    // while holding them.
     const unreviewed = openUnreviewed.get(row.area.id) ?? [];
     if (unreviewed.length > 0) {
       console.log(
-        `  Behind frontier: ${plural(unreviewed.length, 'commit')} never audited `
-          + `(${unreviewed.map(shortSha).join(', ')}) — see ROADMAP.md`,
+        `  Unread:  ${plural(unreviewed.length, 'commit')} of review debt behind `
+          + `the frontier (${unreviewed.map(shortSha).join(', ')}). See ROADMAP.md.`,
       );
     }
     if (verbose) {
@@ -1023,8 +1022,8 @@ function printStatus(config, head, status, verbose) {
     .reduce((total, commits) => total + commits.length, 0);
   if (behindFrontier > 0) {
     console.log(
-      `Behind the frontier: ${plural(behindFrontier, 'commit')} that no pass read. `
-        + 'No threshold reaches these; a pass must name them explicitly.',
+      `Review debt behind a frontier: ${plural(behindFrontier, 'commit')} that no `
+        + 'pass read. No threshold reaches them; a pass must name them.',
     );
   }
   if (status.rows.some((row) => row.kinds.review.frontier === config.trackingBase)) {
@@ -1179,10 +1178,10 @@ function preparePass(kind, options) {
   if (!options.range?.trim() && !options.commits?.trim()) {
     fail('--range <base>..<head> or --commits <sha,...> is required');
   }
-  // A commit list names scattered commits that no contiguous range can hold
-  // without dragging in everything between them. It records coverage and
-  // advances no frontier, so it has no range base and takes the repository
-  // head only to place itself in history.
+  // A commit list names scattered commits that no contiguous range holds
+  // without also covering everything between them. It records coverage and
+  // advances no frontier, so it stores no range base, and stores the
+  // repository head only to locate itself in history.
   const listed = options.commits?.trim()
     ? options.commits.split(',').map((sha) => resolveCommit(sha.trim()))
     : null;
