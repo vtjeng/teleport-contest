@@ -344,13 +344,15 @@ lines to `js/hacklib.js` as a bulk port of `hacklib.c` pure functions, which
 trailers, which `npm run quality` already subtracts and reports as relocated
 lines.
 
-**Action:** clear the six at the next milestone rather than scheduling a
-re-audit now. Give the next full correctness pass in each area a `--range` base
-at or before that area's oldest debt commit: `d29414a` for monsters, `f97bd58`
-for startup and commands, and `f140abf` for hero. The recorder accepts a base at
-or before the stored frontier, so this re-reads commits an earlier pass already
-covered and needs no ledger edit. One pass claiming all four areas has to start
-at `f140abf`; recording each area group separately keeps each range smaller.
+**Action:** audit the six commits directly. A range reaching the oldest of them
+cannot be reviewed: `f140abf..HEAD` is 611 commits and 90,301 changed lines
+against a full-pass gate of 1,000, and the tightest contiguous range holding all
+six is 258 commits and 37,295 lines. The six diffs total 1,497 lines, and 1,257
+of the 1,322 lines they added are still live at HEAD, so each finding settles
+against the code at the head. That audit began on 29 July 2026; when it lands,
+its outcome replaces this section, the `unreviewedCommits` declaration in
+`QUALITY.json`, and the `Unread:` line that declaration drives. No area needs a
+separate pass for these commits.
 
 This accounting covers the passes recorded after the 21 unstructured passes that
 `legacyPassCount` in `QUALITY.json` names. Those record no per-area ranges, and
