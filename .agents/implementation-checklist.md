@@ -131,7 +131,7 @@ None.
 Record evidence for the exact committed head that will be reviewed.
 
 - Commit checked:
-  b51b1d2f
+  b51b1d2fd167f297bd36e5a2248bb1ba7c5a7c50
 - Source review: every branch reachable from `postmov()`'s `mintrap()` call
   through the end of the hero's command was traced against
   `nethack-c/upstream/src/trap.c`, `mondata.c`, `mon.c` and `worn.c` at that
