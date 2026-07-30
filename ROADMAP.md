@@ -15,15 +15,78 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-No goal is in progress and none is queued. The search goal closed at
-`19b8ed1`, taking the repeated-simple-commands goal with it, and the census has
-not been re-run since. Run `node scripts/scan-stops.mjs` and select the next
-goal from it; `.agents/selection.md` states how to read it.
+The goal below was selected from the `scan-stops.mjs` census at `ede91cd`.
+Every session and step count in it is a ceiling taken from that census and goes
+stale as the port advances; re-run the scan for current numbers. The traced
+source findings do not go stale, which is why they are recorded here rather
+than re-derived.
 
-Every session and step count written into a goal is a ceiling taken from the
-census that selected it, and goes stale as the port advances. Traced source
-findings do not go stale, which is why they are recorded here rather than
-re-derived.
+### In progress: walking into a closed door
+
+A hero who walks into a closed or locked door tries to open it, as
+`flags.autoopen` directs. The player sees `The door opens.`,
+`The door resists!`, or `This door is locked.`, and an opened door becomes a
+square the hero can then walk onto.
+
+In scope: `hack.c test_move()`'s `IS_DOOR && closed_door(x, y)` arm
+(1074-1137) and every `lock.c doopen_indir()` (780-923) path a hero in ordinary
+form carrying no unlocking tool can reach.
+
+Excluded, each guarded by a state that arm cannot hold: `nohands`,
+`Passes_walls`, `can_ooze`/`amorphous`, `Underwater`, `tunnels`, `u.utrap`,
+`u.usteed`, drawbridges and portcullises, `stumble_on_door_mimic()`,
+`D_TRAPPED` with its `b_trapped()` and shop `add_damage()` tail, and the
+`flags.autounlock` arms — that is, any hero for whom `autokey(TRUE)` returns a
+skeleton key, lock pick or credit card, which routes into `pick_lock()`.
+
+**Traced source findings.**
+
+- The step costs no game time. The autoopen branch sets
+  `svc.context.move = (ux != u.ux || uy != u.uy)` at `hack.c:1111`, which is
+  always FALSE from `domove_core()`'s only `DO_MOVE` call, and sets
+  `svc.context.door_opened = !closed_door(x, y)`, which suppresses the
+  `move = 0; nomul(0)` at `hack.c:2844-2847`.
+- `doopen_indir()`'s return value is discarded here. `hack.c:1104` reads `tmp`
+  only to detect a queued `dokick`, which needs `AUTOUNLOCK_KICK`. So
+  `update_mapseen_for()` and the 187-line `recalc_mapseen()` at
+  `dungeon.c:3075` set `res` alone and change no observable output. The
+  `newsym(cc.x, cc.y)` beside them does, and is already ported.
+- The failure arm draws and the locked arm does not. `The door resists!` costs
+  `rnl(20)` plus `rn2(19)` from `exercise()` at `attrib.c:509`; a hero with no
+  key reaches the locked message with `autokey(TRUE)` returning null and draws
+  nothing.
+- The orthogonal bump arm is separate and inverted:
+  `pline("Ouch!  You bump into a door.")` sets
+  `svc.context.door_opened = svc.context.move = TRUE` and calls `nomul(0)`,
+  because C has lied about moving and must stop a run by hand. Its sibling
+  prints `That door is closed.` and does neither.
+- Only one helper is missing. `rnl()`, `exercise()`, `recalc_block_point()` and
+  `set_msg_xy()` are ported; `feel_newsym()` is five lines at `display.c:726`.
+  There is no `js/lock.js`, so one is created and assigned a `QUALITY.json`
+  area in the chunk that creates it.
+- This is where `blocksMove()`'s wrong door field gets fixed. The entry under
+  `## Unresolved` already routes that debt here: the two refusal routes stop
+  agreeing exactly at this arm.
+
+**Census.** Three sessions stop here with 2,356 steps behind them, the largest
+step count in the census and the only exploration row above 200. That figure is
+a ceiling, not a prediction: two of the three advance one or two steps before
+stopping again, on `apply` and on pet object pickup.
+
+**Queued slices.**
+
+1. `test_move()`'s closed-door arm and `doopen_indir()`'s `rnl(20)` roll: the
+   open and resist outcomes, with the `door_opened` and `move` bookkeeping,
+   `newsym()`, `feel_newsym()`, `recalc_block_point()` and `exercise(A_STR)`.
+2. The `!(doormask & D_CLOSED)` message switch — locked, already open, broken,
+   no door — with `autokey()` empty.
+3. Autoopen suppressed, where `!svc.context.run` fails because the hero ran
+   into the door, plus the orthogonal `That door is closed.` and
+   `Ouch!  You bump into a door.` arm.
+
+Each slice is expected to stay well under 500 production lines and confined to
+`js/hack.js` and a new `js/lock.js`, so no implementation checklist is created.
+Revisit that if slice 2 pulls in `pick_lock()`.
 
 ## Explicit future exploration work, outside the goal in progress
 
