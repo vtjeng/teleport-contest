@@ -367,57 +367,6 @@ There are 223 `?? fallback` resolutions across 49 files in `js/`. Most are
 covered by no tripwire and need nothing. These seams shrink as the port
 advances, so fix the proven six and leave the rest.
 
-#### unreviewed commits behind a review frontier
-
-A review frontier is the latest commit a recorded correctness pass covers;
-`npm run quality` treats everything behind it as reviewed. Until `5e7fb47`,
-`npm run quality -- record-review` derived each frontier from the stored ledger
-and never parsed the audited range, so a pass could advance a frontier past
-commits its reviewers never read. `5e7fb47` now requires `--range` and refuses a
-base that falls after any claimed area's frontier, so this cannot recur. It
-cannot repair the existing ledger, because `validateHistory` fails when a
-recorded base is not the stored frontier, which makes passes append-only in
-effect.
-
-Sixteen recorded passes advanced a frontier past the base of the range they
-audited. Six commits changed area-owned production code inside those gaps and
-are debt. Line counts are the production lines `scripts/quality-status.mjs`
-charges to the area.
-
-| Commits | Area | Lines | Why the audit never read them |
-| --- | --- | --- | --- |
-| `5affc31` | monsters | +56/-42 | The pass recorded at `e30ea05` set the monsters base to `d29414a` but audited `3c552b45..e30ea05`, seven commits later. `5affc31` also carries `Audit-fix-for: d29414ad`. |
-| `f8911ff`, `f2de7a7` | startup | +37/-12 | The same pass set the startup base to `f97bd58`, 29 commits before its audited base. |
-| `84964f8` | commands | +6/-3 | The same 29-commit gap. It also carries `Audit-fix-for: f97bd58`. |
-| `54a2b86`, `4607698` | hero | +133/-4 | The pass recorded at `f97bd58` moved the hero frontier up from `f140abf` while auditing only `3b6c38d..f97bd58`, a 221-commit gap. `4607698` also carries `Audit-fix-for: 10dd52be`. |
-
-Those six total 232 added and 61 removed production lines, and three are
-audit-fix commits, which `.agents/review.md` keeps as correctness debt
-until a later pass covers them.
-
-Five further commits in the same gaps need no pass. `8677023` adds 245 runtime
-lines to `js/hacklib.js` as a bulk port of `hacklib.c` pure functions, which
-`AGENTS.md` and the correctness thresholds exempt, and
-`scripts/hacklib-strings.test.mjs` pins each to values read from the C source.
-`17b1fb0`, `d8ab43c`, `5626cf0`, and `f3ebcc2` carry `Score-identical-with`
-trailers, which `npm run quality` already subtracts and reports as relocated
-lines.
-
-**Action:** audit the six commits directly. A range reaching the oldest of them
-cannot be reviewed: `f140abf..HEAD` is 611 commits and 90,301 changed lines
-against a full-pass gate of 1,000, and the tightest contiguous range holding all
-six is 258 commits and 37,295 lines. The six diffs total 1,497 lines, and 1,257
-of the 1,322 lines they added are still live at HEAD, so each finding settles
-against the code at the head. That audit began on 29 July 2026; when it lands,
-its outcome replaces this section, the `unreviewedCommits` declaration in
-`QUALITY.json`, and the `Unread:` line that declaration drives. No area needs a
-separate pass for these commits.
-
-This accounting covers the passes recorded after the 21 unstructured passes that
-`legacyPassCount` in `QUALITY.json` names. Those record no per-area ranges, and
-`.agents/review.md` keeps historical `BASELINE` debt exempt until each
-area's first recorded pass.
-
 ## Later milestones
 
 This list selects the next milestone; `scripts/scan-stops.mjs` selects goals

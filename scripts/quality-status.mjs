@@ -647,7 +647,6 @@ export function validateConfigShape(config) {
   const areaIds = new Set();
   const claimedPaths = new Map();
   const claimedGenerators = new Map();
-  const claimedUnreviewed = new Map();
   for (const area of config.areas) {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(area.id ?? '')) {
       fail(`invalid area id: ${area.id}`);
@@ -668,30 +667,6 @@ export function validateConfigShape(config) {
         fail(`${path} belongs to both ${claimedPaths.get(path)} and ${area.id}`);
       }
       claimedPaths.set(path, area.id);
-    }
-    // A frontier asserts that every commit behind it is reviewed. Passes
-    // recorded before 5e7fb47 stored no audited range, so some advanced a
-    // frontier past commits their reviewers never read, and the ledger holds
-    // nothing to derive that from. These are those commits, established by
-    // hand and named in ROADMAP.md. The set is closed:
-    // validateAuditedRangeCoverage refuses a base after the frontier, so no
-    // later pass can add to it.
-    if (area.unreviewedCommits !== undefined) {
-      if (!Array.isArray(area.unreviewedCommits) || area.unreviewedCommits.length === 0) {
-        fail(`area ${area.id} unreviewedCommits must be a non-empty array`);
-      }
-      for (const sha of area.unreviewedCommits) {
-        if (!SHA_PATTERN.test(sha ?? '')) {
-          fail(`area ${area.id} lists an unreviewed commit that is not a full SHA: ${sha}`);
-        }
-        if (claimedUnreviewed.has(sha)) {
-          fail(
-            `commit ${sha} is listed unreviewed by both `
-              + `${claimedUnreviewed.get(sha)} and ${area.id}`,
-          );
-        }
-        claimedUnreviewed.set(sha, area.id);
-      }
     }
     if (area.generatedOutputs !== undefined && !Array.isArray(area.generatedOutputs)) {
       fail(`area ${area.id} generatedOutputs must be an array`);
@@ -967,16 +942,6 @@ function printStatus(config, head, status, verbose) {
         config.thresholds,
       )}`,
     );
-    // The review debt above counts commits ahead of the frontier. These sit
-    // behind it, where no threshold reaches them, so the area reports clear
-    // while holding them.
-    const unreviewed = row.area.unreviewedCommits ?? [];
-    if (unreviewed.length > 0) {
-      console.log(
-        `  Unread:  ${plural(unreviewed.length, 'commit')} of review debt behind `
-          + `the frontier (${unreviewed.map(shortSha).join(', ')}). See ROADMAP.md.`,
-      );
-    }
     if (verbose) {
       console.log(
         `  Frontiers: review ${shortSha(review.frontier)}, `
@@ -1000,16 +965,6 @@ function printStatus(config, head, status, verbose) {
         + 'the advisory threshold).'
       : 'Review advisory: clear.',
   );
-  const behindFrontier = config.areas.reduce(
-    (total, area) => total + (area.unreviewedCommits?.length ?? 0),
-    0,
-  );
-  if (behindFrontier > 0) {
-    console.log(
-      `Review debt behind a frontier: ${plural(behindFrontier, 'commit')} that no `
-        + 'pass read. No threshold reaches them. See ROADMAP.md.',
-    );
-  }
   if (status.rows.some((row) => row.kinds.review.frontier === config.trackingBase)) {
     console.log(
       'BASELINE debt is visible but exempt from the gate until that area '

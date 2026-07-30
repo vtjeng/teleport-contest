@@ -35,10 +35,6 @@
         "js/startup_a11y.js",
         "js/tty_startup.js",
         "js/tutorial_startup.js"
-      ],
-      "unreviewedCommits": [
-        "f2de7a73aab37805e331ea4b7fa02fb0d32a3d82",
-        "f8911ff71ac9800094d4251fe7911cb8bcceb7cc"
       ]
     },
     {
@@ -60,10 +56,6 @@
         "js/u_init.js",
         "js/u_init_inventory_attrs.js",
         "js/wield.js"
-      ],
-      "unreviewedCommits": [
-        "4607698b36e976b398303b1308794d818dd01ab9",
-        "54a2b86329a69b6cfcc65da9d56b55583bcb2f87"
       ]
     },
     {
@@ -171,9 +163,6 @@
           "generator": "scripts/generate-monsters.mjs",
           "check": "node scripts/generate-monsters.mjs --check"
         }
-      ],
-      "unreviewedCommits": [
-        "5affc313ef52c662772099857cabd36596676767"
       ]
     },
     {
@@ -227,9 +216,6 @@
           "generator": "scripts/generate-extcmds.mjs",
           "check": "node scripts/generate-extcmds.mjs --check"
         }
-      ],
-      "unreviewedCommits": [
-        "84964f8fdb28547421565f8e3f41c70742aa2cf8"
       ]
     },
     {
