@@ -361,6 +361,36 @@ the default, so a session setting it would run identically and the port stops
 instead. Porting the parser is the fix, and it belongs with `pick_lock()` and
 `autokey()`, which are what the flag selects between.
 
+#### `dochug()` returns where C breaks into PHASE FOUR
+
+`dochug()`'s `MMOVE_MOVED` arm returns in the port where C breaks out of the
+movement phase and continues into its attack phase, so a monster that moves and
+*then* throws diverges silently — no refusal, no boundary, just a missing
+action.
+
+Reproduce with seed 8930452, `pettype:none`, moves `lllsssjjjss`. Two seeds
+were dropped from `scripts/run-monster-pickup.mjs` for this rather than have
+the matrix encode the wrong behavior.
+
+The neighbouring gate was corrected at `77fa460`: `dochug()`'s standard-attack
+test used adjacency where C uses `inrange && !scared`, which let ranged
+attackers through in silence. This is the same phase structure seen from one
+step further on, and it belongs with the combat work.
+
+#### the planning clone must copy non-enumerable catalog aliases
+
+`js/objects.js defineObjclassAliases()` installs eight aliases — `oc_skill`,
+`oc_armcat`, `a_ac`, `a_can`, `oc_bimanual`, `oc_bulky`, `oc_hitbon` and
+`oc_level` — as non-enumerable properties, so a spread copy silently drops
+them. `planningState()` cloned the catalog with `{ ...entry }` from `8bd4d6a`
+until `39e5df1`, which meant the dry run read `undefined` for all eight and
+took different branches from the live pass.
+
+`copyObjclassEntry()` in `js/objects.js` is now the only correct way to copy a
+catalog entry, and the generator emits it. The general lesson is recorded here
+because the same trap applies to any state the port clones: a spread is not a
+copy when the source uses `Object.defineProperty`.
+
 #### five pickup assertions do not discriminate
 
 The correctness pass over `f826ba53..4d78313` confirmed five test gaps that its
