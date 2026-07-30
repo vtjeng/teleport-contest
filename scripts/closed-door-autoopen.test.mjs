@@ -11,12 +11,24 @@ import {
     PASSES_WALLS,
     D_CLOSED,
     D_ISOPEN,
+    D_LOCKED,
+    D_TRAPPED,
 } from '../js/const.js';
+import {
+    CREDIT_CARD,
+    LOCK_PICK,
+    PICK_AXE,
+    SKELETON_KEY,
+    TOOL_CLASS,
+} from '../js/objects.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import { moveloop_core } from '../js/allmain.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { loadClosedDoorAutoopenRecipe } from './run-closed-door-autoopen.mjs';
+import {
+    loadClosedDoorAutoopenRecipe,
+    loadLockedDoorRecipe,
+} from './run-closed-door-autoopen.mjs';
 
 // cmd.c cmdlist[] binds these keys to the eight walking directions.
 const DIRECTIONS = {
@@ -338,6 +350,189 @@ test('an off-map step refuses silently, or fails closed when it would speak', as
         await assert.rejects(
             moveloop_core(),
             (error) => error.reason === 'move out of bounds',
+            label,
+        );
+    }
+});
+
+// Replay each prefix of a segment and report where the hero stands, what the
+// turn counter reads, and the terrain one square ahead in the walking
+// direction. Every locked segment walks in one direction throughout.
+async function replayEachKey(segment, [dx, dy]) {
+    const states = [];
+    for (let keys = 0; keys <= segment.moves.length; ++keys) {
+        await runSegment({ ...segment, moves: segment.moves.slice(0, keys) });
+        const ahead = game.level.at(game.u.ux + dx, game.u.uy + dy);
+        states.push({
+            x: game.u.ux,
+            y: game.u.uy,
+            turn: game.moves,
+            message: game.nhDisplay?.topMessage,
+            accessible: Boolean(game.a11y?.accessiblemsg),
+            aheadTyp: ahead?.typ,
+            aheadMask: ahead?.flags,
+        });
+    }
+    return states;
+}
+
+test('the locked matrix contains only source-selected inputs', () => {
+    const recipe = loadLockedDoorRecipe();
+    assert.equal(recipe.version, 5);
+    assert.equal(recipe.segments.length, 9);
+    for (const segment of recipe.segments) {
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
+        // Each segment walks one direction throughout, which is what lets the
+        // replay helper above read the door off the hero's facing.
+        for (const key of segment.moves) {
+            assert.equal(key, segment.moves[0], 'one direction per segment');
+        }
+    }
+    // The three options that make otherwise invisible parts of the arm
+    // observable, one segment each: the turn counter, a pet that must not
+    // move, and set_msg_xy()'s coordinate prefix.
+    for (const option of ['time', 'pettype:dog', 'accessiblemsg']) {
+        assert.equal(
+            recipe.segments.filter(
+                ({ nethackrc }) => nethackrc.includes(option),
+            ).length,
+            1,
+            `one segment sets ${option}`,
+        );
+    }
+});
+
+// C ref: lock.c:855-875. A locked door takes the message switch instead of the
+// rnl(20) roll, so nothing about the door changes and the hero stays put. The
+// message itself is compared against fresh C by
+// scripts/run-closed-door-autoopen.mjs; what this pins is that every segment
+// really reaches the arm and that repeating the key repeats the refusal.
+test('every locked segment stops at a door that stays locked', async () => {
+    const { segments } = loadLockedDoorRecipe();
+    for (const [index, segment] of segments.entries()) {
+        const direction = segment.moves[0];
+        const states = await replayEachKey(segment, DIRECTIONS[direction]);
+        let pulls = 0;
+        for (let keys = 1; keys < states.length; ++keys) {
+            const before = states[keys - 1];
+            const after = states[keys];
+            const label = `segment ${index} key ${keys}`;
+            if (before.x !== after.x || before.y !== after.y) {
+                // An ordinary step across the room on the way to the door.
+                assert.equal(after.turn, before.turn + 1, label);
+                continue;
+            }
+            ++pulls;
+            // js/startup_a11y.js messageAt() prefixes the line with the
+            // direction set_msg_xy() named, but only with accessiblemsg on.
+            assert.equal(
+                after.message,
+                after.accessible
+                    ? `(${DIRECTION_NAMES[direction]}): This door is locked.`
+                    : 'This door is locked.',
+                label,
+            );
+            // hack.c:1111 leaves svc.context.move FALSE, so the refused pull
+            // costs no game time however often it repeats.
+            assert.equal(after.turn, before.turn, label);
+            assert.equal(after.aheadTyp, DOOR, label);
+            assert.equal(after.aheadMask, D_LOCKED, label);
+        }
+        assert.ok(pulls >= 1, `segment ${index} pulls at a locked door`);
+    }
+});
+
+// requireAutoopenClosedDoor() gained three terms with the locked arm, and the
+// recorded matrix covers none of them: a fresh case can only show the states C
+// and the port agree on. Each case below installs the locked door the recipe
+// already provides and adds the single state that diverges, so it fails if and
+// only if its own term is removed.
+test('the locked arm refuses what doopen_indir cannot answer for', async () => {
+    const base = loadLockedDoorRecipe().segments[0];
+    const walkNorth = commandKeyCode(base.moves[0]);
+    // A tool needs only the fields inventory_weight() reads; nothing on a
+    // refused path looks at the rest.
+    const carrying = (otyp) => (state) => {
+        state.invent = {
+            otyp, oclass: TOOL_CLASS, owt: 4, quan: 1, nobj: state.invent,
+        };
+    };
+
+    const refusals = [
+        // lock.c:907's D_TRAPPED half fires b_trapped() and bills a shop.
+        ['trapped door', 'trapped or unusual door',
+            (state, door) => { door.flags = D_LOCKED | D_TRAPPED; }],
+        // lock.c:880-883, the three object types autokey(TRUE) can return.
+        ['skeleton key', 'door unlocking tool', carrying(SKELETON_KEY)],
+        ['lock pick', 'door unlocking tool', carrying(LOCK_PICK)],
+        ['credit card', 'door unlocking tool', carrying(CREDIT_CARD)],
+        // lock.c:884-893 needs AUTOUNLOCK_KICK, and js/options.js leaves an
+        // explicit autounlock value uninterpreted, so any setting refuses.
+        // `!autounlock` reaches the same term through applyBooleanOption();
+        // refusing it gives up a case C treats like the default, which is the
+        // price of not parsing the option.
+        ['autounlock kick', 'autounlock setting',
+            (state) => { state.flags.autounlock = 'kick'; }],
+        ['autounlock negated', 'autounlock setting',
+            (state) => { state.flags.autounlock = false; }],
+    ];
+
+    for (const [label, reason, apply] of refusals) {
+        await runSegment({ ...base, moves: '' });
+        const door = game.level.at(game.u.ux, game.u.uy - 1);
+        assert.equal(door.flags, D_LOCKED, label);
+        apply(game, door);
+
+        game.nhDisplay.pushKey(walkNorth);
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error.reason === reason,
+            label,
+        );
+    }
+});
+
+// The counterpart to the refusals above. Each term has to be narrow enough to
+// leave the ported case running, or the arm the fresh recordings cover would
+// disappear behind a guard the suite still reports as green.
+test('the locked arm still runs for the states it owns', async () => {
+    const locked = loadLockedDoorRecipe().segments[0];
+    const closed = loadClosedDoorAutoopenRecipe()
+        .segments.find((segment) => segment.moves[0] === 'h');
+
+    const admitted = [
+        // A tool outside autokey()'s three object types leaves the locked
+        // door on the ported path.
+        ['pick-axe at a locked door', locked, 'k', (state) => {
+            state.invent = {
+                otyp: PICK_AXE, oclass: TOOL_CLASS, owt: 100, quan: 1,
+                nobj: state.invent,
+            };
+        }],
+        // lock.c reaches the autounlock tail only from the message switch, so
+        // a key changes nothing at a door that is merely closed.
+        ['skeleton key at a closed door', closed, 'h', (state) => {
+            state.invent = {
+                otyp: SKELETON_KEY, oclass: TOOL_CLASS, owt: 3, quan: 1,
+                nobj: state.invent,
+            };
+        }],
+    ];
+
+    for (const [label, segment, direction, apply] of admitted) {
+        await runSegment({ ...segment, moves: '' });
+        const [dx, dy] = DIRECTIONS[direction];
+        const door = game.level.at(game.u.ux + dx, game.u.uy + dy);
+        const mask = door.flags;
+        assert.ok([D_CLOSED, D_LOCKED].includes(mask), label);
+        apply(game);
+
+        game.nhDisplay.pushKey(commandKeyCode(direction));
+        await moveloop_core();
+        assert.equal(
+            game.nhDisplay.topMessage,
+            mask === D_LOCKED ? 'This door is locked.' : 'The door opens.',
             label,
         );
     }

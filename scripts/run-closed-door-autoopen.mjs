@@ -148,11 +148,108 @@ export function loadClosedDoorAutoopenRecipe() {
     }, 'closed door autoopen recipe');
 }
 
+// The same walk against a door whose mask is D_LOCKED, which reaches
+// doopen_indir()'s `!(doormask & D_CLOSED)` message switch instead of its
+// rnl(20) roll. The hero carries no skeleton key, lock pick or credit card, so
+// autokey(TRUE) is empty and the autounlock tail below the message does
+// nothing. Nothing about the door changes, so the boundary is the next command
+// prompt and repeated keys repeat the same line.
+export function loadLockedDoorRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // The base case: one step north into a locked door in a
+            // horizontal wall, then a second key that finds it locked again.
+            {
+                seed: 9500074,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie('LockDoor'),
+                moves: 'kk',
+            },
+            // A locked door in a vertical wall, entered from the west, so
+            // newsym() refreshes a different cmap symbol.
+            {
+                seed: 9500483,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie('LockDoor'),
+                moves: 'll',
+            },
+            // Two ordinary steps and then the pull. The steps spend a move
+            // each and the pull spends none, which separates the two costs
+            // inside one segment.
+            {
+                seed: 9500040,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie('LockWalk'),
+                moves: 'lll',
+            },
+            // A diagonal walk into a locked door. test_move() reaches the
+            // closed-door arm before its diagonal doorway rules, so the
+            // message is the same one an orthogonal walk gets.
+            {
+                seed: 9500257,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie('LockCorner'),
+                moves: 'y',
+            },
+            // With `time` on, the status line carries the turn counter, which
+            // is the visible proof that the refused pull costs no move.
+            {
+                seed: 9500074,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'LockTime',
+                    'pettype:none,!acoustics,time',
+                ),
+                moves: 'kk',
+            },
+            // accessiblemsg is what makes set_msg_xy() observable: the line
+            // becomes "(north): This door is locked."
+            {
+                seed: 9500074,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'LockSpeak',
+                    'pettype:none,!acoustics,accessiblemsg',
+                ),
+                moves: 'kk',
+            },
+            // A pet beside the hero. No turn elapses while the door refuses,
+            // so the kitten must stay where it is.
+            {
+                seed: 9500074,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie('LockPet', 'pettype:dog,!acoustics'),
+                moves: 'kk',
+            },
+            // A Healer on a different date, walking three squares south into
+            // a locked door.
+            {
+                seed: 9610156,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer('LockHeal'),
+                moves: 'jjj',
+            },
+            // A Healer's diagonal walk, southwest, at a door in the opposite
+            // corner arrangement from the Valkyrie's northwest case.
+            {
+                seed: 9610313,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer('LockHeal'),
+                moves: 'bb',
+            },
+        ],
+    }, 'locked door recipe');
+}
+
 export async function runClosedDoorAutoopenMatrix() {
     return runFreshMatrix({
         entries: [{
             label: 'closed door autoopen',
             recipe: loadClosedDoorAutoopenRecipe(),
+        }, {
+            label: 'locked door message',
+            recipe: loadLockedDoorRecipe(),
         }],
         summaryLabel: 'CLOSED DOOR AUTOOPEN',
     });
