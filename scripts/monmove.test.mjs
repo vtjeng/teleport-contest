@@ -647,6 +647,40 @@ test('postmov opens the door silently for verbose, Deaf and acoustics',
 // C ref: monmove.c:1624-1647. Iron bars are the door block's sibling: a rust
 // monster or a metallivore eats through them and anything else squeezes past
 // with a Norep() message. Neither is ported.
+// C ref: monmove.c:1509. mintrap() runs for every MMOVE_MOVED, including a
+// monster whose square did not change — dog_move() returns MMOVE_MOVED even
+// when the pet stays put. The pre-move gate only inspects a square a monster is
+// about to enter, so this guard is the only thing covering a monster that ends
+// its move standing on an untriggered trap. It was lost once already, when
+// postSimpleMove() was evacuated out of the boundary file, and was reinstated
+// with no test; deleting it left the whole suite green.
+test('postmov refuses a move that ends on a trap square', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+    state.level.traps = [{ tx: 5, ty: 4, ttyp: 1, tseen: false }];
+    const { env } = postmovEnv(state, {
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await assert.rejects(
+        postmov(monster, 5, 4, MMOVE_MOVED, false, false, true, env),
+        (error) => error.message === 'trap activation',
+    );
+});
+
+// The sibling: the guard must not widen into a blanket refusal, or every
+// ordinary move would stop.
+test('postmov admits a move that ends on a trapless square', async () => {
+    const { state } = makeState();
+    const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+    state.level.traps = [];
+    const { env } = postmovEnv(state, {
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+});
+
 test('postmov refuses a move that ends on iron bars', async () => {
     const { locations, state } = makeState();
     const monster = ordinaryMonster(state, { mx: 5, my: 4 });

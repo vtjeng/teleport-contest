@@ -83,7 +83,11 @@ import {
     WAX_CANDLE,
 } from '../js/objects.js';
 import { create_region } from '../js/region.js';
-import { clear_path, recalc_block_point } from '../js/vision.js';
+import {
+    clear_path,
+    recalc_block_point,
+    vision_recalc,
+} from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
@@ -2400,4 +2404,37 @@ test('a planned pickup raises the naming class the turn must convert',
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedObjectNameError,
         );
+    });
+
+// The transparency-index restore in preflightSimpleMonsterActions()'s finally
+// calls recalc_block_point(), and rebuildVisionPoint() sets vision_full_recalc
+// whenever the change touches the hero's current vision. That is the normal
+// case for a door in a lit room, and it made the dry run leave a flag set that
+// the live scan then consumes as a vision_recalc(0) C never performs.
+//
+// prepareClosedDoorArrival() cannot show it: its viz_array entry at the door is
+// 0, so rebuildVisionPoint() takes the other branch. This case puts the door
+// inside the hero's vision first, which is what the leak needs.
+test('a planned door opening leaves vision_full_recalc as it found it',
+    async () => {
+        const target = await prepareClosedDoorArrival();
+        // Clear the square between hero and door, then recompute so the live
+        // vision genuinely covers the door.
+        for (let x = target.heroX + 1; x < target.destinationX; ++x) {
+            const between = game.level.at(x, target.heroY);
+            between.typ = ROOM;
+            between.flags = 0;
+            recalc_block_point(x, target.heroY, game);
+        }
+        vision_recalc(0);
+        assert.notEqual(
+            game.viz_array[target.heroY][target.destinationX] & COULD_SEE,
+            0,
+            'the fixture must put the door inside the hero vision',
+        );
+
+        game.vision_full_recalc = 0;
+        await preflightSimpleMonsterActions(game);
+
+        assert.equal(game.vision_full_recalc, 0);
     });

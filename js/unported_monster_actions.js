@@ -860,9 +860,19 @@ export async function preflightSimpleMonsterActions(
         // admitDoorOpening() rebuilt js/vision.js's shared transparency index
         // from the planned map. Deriving it again from the live map restores
         // it, whether the plan finished or refused partway through.
+        //
+        // recalc_block_point() is not side-effect-free on the live state:
+        // rebuildVisionPoint() sets vision_full_recalc whenever the change
+        // touches the hero's current vision, which is the normal case for a
+        // door in a lit room. Leaving that set would make the live scan run a
+        // vision_recalc(0) C never performs, so the flag is saved and written
+        // back — the restore has to restore everything it touches, not only
+        // the index it came for.
         if (planned._plannedDoorOpening) {
             const { x, y } = planned._plannedDoorOpening;
+            const fullRecalcBefore = state.vision_full_recalc;
             recalc_block_point(x, y, state);
+            state.vision_full_recalc = fullRecalcBefore;
         }
     }
     return {

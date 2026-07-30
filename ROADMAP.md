@@ -458,6 +458,43 @@ imports `copyObjclassEntry`, which no line of the file calls now that the
 catalog clone is `state.objects?.map((entry) => Object.create(entry))`. Delete
 the import with the next simplification pass.
 
+#### eight door-opening findings are deferred
+
+The correctness pass over `c706db8..06a5629` confirmed ten findings; two were
+applied and eight are recorded here. Most concern the vision isolation the
+slice built as a precondition.
+
+**The isolation's own seams.**
+
+- `isolatePlannedVision()` guards the cloned terrain grid behind
+  `state._visionBuffers`, so two unrelated isolations share one early return.
+  Nothing sets that field early today — the adjudicator confirmed it is written
+  in exactly one place, after both isolations — but a later change that
+  allocates planning buffers first would silently leave `level.locations`
+  pointing at the live array, and `postmov()` writes `D_ISOPEN` through it.
+  Give the two isolations independent guards.
+- No test plans two door openings in one scan, so the private COULD_SEE buffer
+  pair the settled design rests on is never exercised twice.
+- The transparency-index restore is in a `finally` specifically so it runs
+  after a refusal, and no test covers the refusal path: moving the restore out
+  of the `finally` leaves the suite green.
+- `visionSnapshot()` and `preflightSnapshot()` omit `game.vision_full_recalc`,
+  which is how the leak fixed at this cycle's head stayed invisible.
+
+**Comments that outlived their code.** `planningEveryTurnEffect()`'s refusal
+cites a guard in `rebuildVisionPoint()` that this same range deleted;
+`planSimpleMonsterScan()`'s `visionRecalc` refusal still says the dry run
+cannot reproduce the live buffers, which `planningVisionRecalc()` now does; and
+`scripts/monmove.test.mjs`'s two in-sight door tests are justified by a claim
+that `admitDoorOpening()` refuses a door inside the hero's vision, which was
+the abandoned first design.
+
+**One production gap.** `refuseHeroAttack()` gates on
+`monnear(monster, monster.mux, monster.muy)`, C's `range2` — whether the
+monster *thinks* it is near — where the arm it stands in front of needs the
+real position. It belongs with the combat work that already owns
+`refuseHeroAttack()`'s missing `find_offensive()` path.
+
 #### nine postmov findings are deferred
 
 The correctness pass over `c64d350..005ea20` confirmed eleven findings; two
