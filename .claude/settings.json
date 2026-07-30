@@ -1,4 +1,10 @@
 {
+  "worktree": {
+    "baseRef": "head",
+    "symlinkDirectories": [
+      "nethack-c/upstream"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
