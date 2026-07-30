@@ -387,20 +387,6 @@ seed as a lead rather than as recorded evidence.
 general unbound-or-unadmitted path. It belongs with the prefix work that
 `hack.c lookaround()`'s corridor-widening arm also waits on.
 
-#### `blocksMove()` reads the wrong door field
-
-`js/hack.js blocksMove()` tests `loc.doormask`, but `js/mklev.js` writes an
-ordinary door's mask to `loc.flags` (lines 2554-2565), and the same file's
-`doorMask()` helper already reads `flags || doormask`. A generated closed or
-locked door therefore answers FALSE to `blocksMove()`.
-
-No wrong output follows today: `js/hack.js:488` reaches
-`requireSimpleHeroDestination()` through its `typ === DOOR` arm and refuses the
-square there instead, so the door is still refused, by a different route than
-the code intends. Fix it with the closed-door work, which is where the two
-routes stop agreeing, and take a fresh differential when doing so, because it
-changes which refusal a closed door takes.
-
 #### a live monster refusal escapes as a hard failure
 
 `UnsupportedMonsterCreationError` is listed in
