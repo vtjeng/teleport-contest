@@ -25,6 +25,7 @@ import {
     MON_FLOOR,
     NEED_WEAPON,
     NORMAL_SPEED,
+    OBJ_FLOOR,
     OBJ_MINVENT,
     PIT,
     POOL,
@@ -1671,24 +1672,6 @@ test('simple preflight keeps starting-pet owner seams retryable',
                 },
             },
             {
-                name: 'pony pickup',
-                reason: 'pet object pickup',
-                prepare: async () => {
-                    const target = await prepareStartingPetAction(PM_PONY);
-                    target.monster.mextra.edog.apport = 20;
-                    installObject(
-                        target,
-                        floorObject(
-                            target.monsterX,
-                            target.heroY,
-                            9101,
-                            DAGGER,
-                        ),
-                    );
-                    return target;
-                },
-            },
-            {
                 name: 'dog cursed-object feedback',
                 reason: 'pet cursed-object feedback',
                 prepare: async () => {
@@ -1745,6 +1728,47 @@ test('simple preflight keeps starting-pet owner seams retryable',
                     `${actionCase.name}, attempt ${attempt + 1}`,
                 );
             }
+        }
+    });
+
+test('a planned pet pickup leaves the live object graph untouched',
+    async () => {
+        // The planning scan runs dog_invent()'s carry arm for real, and it
+        // splits stacks, unlinks floor objects and rewrites monster
+        // inventories. Every one of those has to land on the clone.
+        const target = await prepareStartingPetAction(PM_PONY);
+        target.monster.mextra.edog.apport = 20;
+        const dagger = floorObject(
+            target.monsterX,
+            target.heroY,
+            9101,
+            DAGGER,
+        );
+        installObject(target, dagger);
+        // A second pile ahead of the dagger in the level list: removing the
+        // dagger has to find its predecessor among the cloned objects.
+        const rock = floorObject(target.destinationX, target.heroY, 9102);
+        game.level.objects[rock.ox][rock.oy] = rock;
+        rock.nobj = dagger;
+        game.level.objlist = rock;
+        // A lit square, so the carry arm names the dagger and prints.
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `attempt ${attempt + 1}`,
+            );
+            assert.equal(
+                game.level.objects[target.monsterX][target.heroY],
+                dagger,
+                `attempt ${attempt + 1}`,
+            );
+            assert.equal(dagger.where, OBJ_FLOOR);
+            assert.equal(target.monster.minvent, null);
         }
     });
 

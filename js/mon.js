@@ -312,6 +312,12 @@ export function m_carrying(monster, type, state = game) {
     return null;
 }
 
+// C ref: mon.c check_gear_next_turn(). Setting misc_worn_check's I_SPECIAL bit
+// asks dochug() to reassess this monster's gear at the start of its next move.
+export function check_gear_next_turn(monster) {
+    monster.misc_worn_check |= I_SPECIAL;
+}
+
 // C ref: mon.c curr_mon_load(). Boulder throwers' boulders do not contribute
 // to their current load, matching their unlimited-boulder carrying rule.
 export function curr_mon_load(monster) {

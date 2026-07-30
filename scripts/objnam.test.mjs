@@ -7,11 +7,15 @@ import {
 } from '../js/artifacts.js';
 import {
     BLINDED,
+    COLNO,
     CORR,
+    IN_SIGHT,
     LOOKHERE_NOFLAGS,
+    OBJ_FLOOR,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
     ROOM,
+    ROWNO,
     W_RINGR,
     W_WEP,
     W_AMUL,
@@ -20,6 +24,7 @@ import {
     W_SWAPWEP,
     W_QUIVER,
 } from '../js/const.js';
+import { GameMap } from '../js/game.js';
 import { look_here } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
@@ -29,6 +34,7 @@ import {
     cloak_simple_name,
     gloves_simple_name,
     helm_simple_name,
+    distant_name,
     just_an,
     suit_simple_name,
     UnsupportedObjectNameError,
@@ -791,4 +797,107 @@ test('vtense() agrees with the subject objnam.c inspects', () => {
     ]) {
         assert.equal(vtense(subject, verb), expected, `${subject} ${verb}`);
     }
+});
+
+// distant_name() asks whether the hero could have inspected the object where
+// it lies, so its cases need a lit square and a hero position. IN_SIGHT is the
+// only viz_array bit cansee() reads.
+function distantNamingState(objectX, objectY) {
+    const state = namingState();
+    state.level = new GameMap();
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Array(COLNO).fill(0),
+    );
+    state.viz_array[objectY][objectX] = IN_SIGHT;
+    // distu() measures from the hero; place him on the object's row so a
+    // single coordinate controls the squared distance.
+    state.u.ux = objectX;
+    state.u.uy = objectY;
+    state.u.xray_range = 0;
+    return state;
+}
+
+function floorPotion(state, x, y) {
+    return objectOf(state, POT_HEALING, {
+        ox: x,
+        oy: y,
+        where: OBJ_FLOOR,
+    });
+}
+
+test('distant_name observes an object inside the rounded near square', () => {
+    // r == 2 and neardist == 2*2*2 - 2 == 6, so distu() of 4 is inside it.
+    const state = distantNamingState(10, 5);
+    const potion = floorPotion(state, 10, 5);
+    state.u.ux = 8; // dist2 == 4 <= 6.
+    const description = OBJ_DESCR(state.objects[POT_HEALING], state);
+
+    assert.equal(
+        distant_name(potion, donameFresh, state),
+        `a ${description} potion`,
+    );
+    assert.equal(potion.dknown, true);
+    assert.equal(state.objects[POT_HEALING].oc_encountered, 1);
+    assert.equal(state.gd?.distantname ?? 0, 0);
+});
+
+test('distant_name suppresses discovery outside the near square', () => {
+    // dist2 of (3,0) is 9, the first squared distance past neardist == 6.
+    const state = distantNamingState(10, 5);
+    const potion = floorPotion(state, 10, 5);
+    state.u.ux = 7;
+
+    // Without dknown, xname()'s potion branch drops the appearance entirely.
+    assert.equal(distant_name(potion, donameFresh, state), 'a potion');
+    assert.equal(potion.dknown, false);
+    assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
+    assert.equal(state.gd.distantname, 0);
+});
+
+test('distant_name rounds the corners of the near square', () => {
+    // The diagonal at (2,2) has dist2 8. Two squares away on either axis alone
+    // is dist2 4 and near, so only the `- r` term in neardist == r*r*2 - r
+    // pushes this corner out.
+    const state = distantNamingState(10, 5);
+    const potion = floorPotion(state, 10, 5);
+    state.u.ux = 8;
+    state.u.uy = 3;
+
+    distant_name(potion, donameFresh, state);
+    assert.equal(potion.dknown, false);
+});
+
+test('distant_name treats an unseen square as distant however close', () => {
+    const state = distantNamingState(10, 5);
+    const potion = floorPotion(state, 10, 5);
+    state.viz_array[5][10] = 0; // cansee() fails on the object's own square.
+
+    distant_name(potion, donameFresh, state);
+    assert.equal(potion.dknown, false);
+    assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
+});
+
+test('distant_name widens the near square with the hero xray range', () => {
+    // xray_range 3 raises neardist to 3*3*2 - 3 == 15, which admits dist2 9.
+    const state = distantNamingState(10, 5);
+    const potion = floorPotion(state, 10, 5);
+    state.u.ux = 7;
+    state.u.xray_range = 3;
+
+    distant_name(potion, donameFresh, state);
+    assert.equal(potion.dknown, true);
+});
+
+test('distant_name lowers its counter when the formatter refuses', () => {
+    const state = distantNamingState(10, 5);
+    const potion = floorPotion(state, 10, 5);
+    state.viz_array[5][10] = 0; // Force the counted branch.
+    state.iflags.pricequotes = true; // donameFresh() refuses this object.
+
+    assert.throws(
+        () => distant_name(potion, donameFresh, state),
+        (error) => error instanceof UnsupportedObjectNameError,
+    );
+    assert.equal(state.gd.distantname, 0);
 });

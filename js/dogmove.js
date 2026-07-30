@@ -29,21 +29,28 @@ import {
     MMOVE_MOVED,
     MMOVE_NOTHING,
     MTSZ,
+    NEED_HTH_WEAPON,
+    NEED_WEAPON,
     ROWNO,
     UNDEF,
     W_ARMS,
 } from './const.js';
+import { newsym } from './display.js';
+import { capitalizedMonsterName } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { game } from './gstate.js';
+import { obj_extract_self } from './invent.js';
 import { On_stairs } from './stairs.js';
 import {
     dist2,
     distmin,
     isok,
 } from './hacklib.js';
+import { check_gear_next_turn } from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
+    attacktype,
     carnivorous,
     haseyes,
     herbivorous,
@@ -62,6 +69,7 @@ import {
     verysmall,
 } from './mondata.js';
 import {
+    AT_WEAP,
     MS_GUARDIAN,
     MS_LEADER,
     PM_FLOATING_EYE,
@@ -80,7 +88,9 @@ import {
     undesirable_disp,
 } from './monmove.js';
 import { may_dig } from './hack.js';
-import { sobj_at } from './obj.js';
+import { sobj_at, splitobj } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { distant_name, donameFresh } from './objnam.js';
 import {
     BALL_CLASS,
     BOULDER,
@@ -96,13 +106,17 @@ import {
     UNICORN_HORN,
 } from './objects.js';
 import { rn2 } from './rng.js';
+import { messageAt } from './startup_a11y.js';
+import { mpickobj } from './steal.js';
 import { gettrack } from './track.js';
+import { ttyPline } from './tty_message.js';
 import {
     is_lava,
     is_pool,
     t_at,
 } from './trap.js';
 import {
+    cansee,
     clear_path,
     couldsee,
     do_clear_area,
@@ -369,6 +383,10 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_invent random injection requires rn2');
     const operationEnv = { ...rawEnv, state, random };
+    // pline_xy() and newsym() on the carry arm. A planning scan overrides both
+    // with no-ops, because it re-runs the same turn against the live display.
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? newsym;
     const findDroppable = inventoryOperation(
         rawEnv,
         'droppables',
@@ -420,12 +438,45 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         && random.rn2(20) < edog.apport + 3
         && (random.rn2(heroDistance)
             || !random.rn2(edog.apport))) {
-        await inventoryOperation(rawEnv, 'pickObject')(
-            monster,
-            obj,
-            amount,
-            operationEnv,
-        );
+        // splitobj(), remove_object() and add_to_minv() each reach owners
+        // that obj.js expects the caller to supply.
+        const objectEnv = objectGenerationEnv(operationEnv);
+        // can_carry() caps a nohands pet at one item, so any stack of more
+        // than one splits here and the pet takes the child.
+        const taken = amount !== obj.quan
+            ? splitobj(obj, amount, objectEnv)
+            : obj;
+        if (cansee(monster.mx, monster.my, state)) {
+            // C ref: dogmove.c:452-462. distant_name() runs for its side
+            // effects even when verbose is off and the name is discarded, and
+            // it runs before the extract so that doname() -> xname() ->
+            // find_artifact() still sees the object on the floor.
+            const takenName = distant_name(taken, donameFresh, state);
+            if (state.flags?.verbose) {
+                await message(
+                    messageAt(
+                        `${capitalizedMonsterName(monster, state)}`
+                        + ` picks up ${takenName}.`,
+                        monster.mx,
+                        monster.my,
+                        state,
+                    ),
+                    state,
+                );
+            }
+        }
+        obj_extract_self(taken, objectEnv);
+        redraw(monster.mx, monster.my, state);
+        mpickobj(monster, taken, objectEnv);
+        if (attacktype(monster.data, AT_WEAP)
+            && monster.weapon_check === NEED_WEAPON) {
+            monster.weapon_check = NEED_HTH_WEAPON;
+            await inventoryOperation(rawEnv, 'wieldPickedItem')(
+                monster,
+                operationEnv,
+            );
+        }
+        check_gear_next_turn(monster);
     }
     return MMOVE_NOTHING;
 }

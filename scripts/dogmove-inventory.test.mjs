@@ -4,19 +4,40 @@ import test from 'node:test';
 import {
     ACCFOOD,
     CADAVER,
+    COLNO,
+    I_SPECIAL,
+    IN_SIGHT,
     MANFOOD,
     MMOVE_DIED,
     MMOVE_MOVED,
     MMOVE_NOTHING,
+    NEED_HTH_WEAPON,
+    NEED_WEAPON,
+    NON_PM,
+    OBJ_FLOOR,
+    OBJ_MINVENT,
+    ROWNO,
 } from '../js/const.js';
 import { dog_invent } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
+import { init_objects } from '../js/o_init.js';
+import { newObject } from '../js/obj.js';
+import {
+    AT_WEAP,
+    PM_KITTEN,
+    monst_globals_init,
+} from '../js/monsters.js';
 import {
     BALL_CLASS,
     CHAIN_CLASS,
+    DAGGER,
     FOOD_CLASS,
+    FOOD_RATION,
+    GOLD_PIECE,
+    POT_HEALING,
     ROCK_CLASS,
     SCR_MAIL,
+    objects_globals_init,
 } from '../js/objects.js';
 
 const HERO_DISTANCE = 4; // A nonzero distu() result for an ordinary pet.
@@ -80,6 +101,107 @@ function noFloorActionEnv(state, overrides = {}) {
         random: {
             rn2: () => 1,
         },
+        state,
+        ...overrides,
+    };
+}
+
+
+// The pickup arm runs the real splitobj(), obj_extract_self(), mpickobj() and
+// doname(), so it needs the object and monster catalogs, a map, and a hero
+// position from which the pet's square is both visible and near.
+function pickupState() {
+    const state = {
+        context: {
+            achieveo: { mines_prize_oid: 0, soko_prize_oid: 0 },
+            ident: 500, // Any live object-id counter for splitobj().
+        },
+        flags: { verbose: true, implicit_uncursed: true },
+        iflags: {},
+        level: new GameMap(),
+        moves: 17,
+        program_state: {},
+        u: {
+            ux: PET_X,
+            uy: PET_Y,
+            uprops: [],
+            xray_range: 0,
+        },
+        viz_array: Array.from(
+            { length: ROWNO },
+            () => new Array(COLNO).fill(0),
+        ),
+    };
+    objects_globals_init(state);
+    // Zero choices deterministically initialize every randomized description.
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    state.viz_array[PET_Y][PET_X] = IN_SIGHT;
+    const monster = {
+        data: state.mons[PM_KITTEN],
+        mcanmove: true,
+        meating: 0,
+        minvent: null,
+        misc_worn_check: 0,
+        msleeping: false,
+        mtame: 1,
+        mx: PET_X,
+        my: PET_Y,
+    };
+    const edog = {
+        apport: PET_APPORT,
+        dropdist: 0,
+        droptime: 0,
+        mhpmax_penalty: 0,
+    };
+    return { state, monster, edog };
+}
+
+function floorStack(state, otyp, quan) {
+    const obj = newObject({
+        corpsenm: NON_PM,
+        o_id: 101, // A live non-prize object id.
+        oclass: state.objects[otyp].oc_class,
+        otyp,
+        ox: PET_X,
+        oy: PET_Y,
+        quan,
+        where: OBJ_FLOOR,
+    });
+    obj.owt = quan;
+    state.level.objects[PET_X][PET_Y] = obj;
+    state.level.objlist = obj;
+    return obj;
+}
+
+// obj.js requires the whole source random set even though the only draw the
+// pickup arm reaches through it is next_ident()'s rnd(2).
+function pickupRandom(bounds, values) {
+    const unreached = (name) => () => {
+        throw new Error(`pickup test reached ${name}`);
+    };
+    return {
+        d: unreached('d'),
+        rn1: unreached('rn1'),
+        rne: unreached('rne'),
+        rnl: unreached('rnl'),
+        rnz: unreached('rnz'),
+        rnd: () => 1, // next_ident() advances context.ident by rnd(2).
+        rn2(bound) {
+            bounds.push(bound);
+            const next = values.shift();
+            if (next === undefined)
+                throw new Error(`pickup test ran out of rn2(${bound}) values`);
+            return next;
+        },
+    };
+}
+
+function pickupEnv(state, overrides = {}) {
+    return {
+        couldReachItem: () => true,
+        dogfood: () => MANFOOD,
+        droppables: () => null,
         state,
         ...overrides,
     };
@@ -261,75 +383,193 @@ test('dog_invent admits acceptable food only for a starving pet', async () => {
     }
 });
 
-test('dog_invent preserves pickup draws and awaits the owner', async () => {
-    const { state, monster, edog } = inventoryState();
-    const obj = floorObject(state);
+test('dog_invent picks a whole stack up, names it, and redraws', async () => {
+    const { state, monster, edog } = pickupState();
+    const ration = floorStack(state, FOOD_RATION, 1);
     const bounds = [];
     const values = [
         PET_APPORT + 2, // rn2(20) still passes the strict apport+3 test.
         0, // rn2(udist) fails, so the apport fallback is evaluated.
         0, // rn2(apport) succeeds.
     ];
-    const events = [];
+    const messages = [];
+    const redraws = [];
+
     const result = await dog_invent(
         monster,
         edog,
         HERO_DISTANCE,
-        noFloorActionEnv(state, {
-            canCarry: () => 3, // A partial-stack pickup amount.
-            pickObject: async (_monster, picked, amount, env) => {
-                events.push(['start', picked, amount, env.state]);
-                await Promise.resolve();
-                events.push(['finish']);
+        pickupEnv(state, {
+            message: async (text) => { messages.push(text); },
+            // C redraws after obj_extract_self(), so the pile is already
+            // empty by the time newsym() reads the square.
+            redraw: (x, y) => {
+                redraws.push([x, y, state.level.objects[x][y]]);
             },
-            random: {
-                rn2(bound) {
-                    bounds.push(bound);
-                    return values.shift();
-                },
-            },
+            random: pickupRandom(bounds, values),
         }),
     );
-    events.push(['returned']);
 
     assert.equal(result, MMOVE_NOTHING);
     assert.deepEqual(bounds, [20, HERO_DISTANCE, PET_APPORT]);
-    assert.deepEqual(events, [
-        ['start', obj, 3, state],
-        ['finish'],
-        ['returned'],
-    ]);
+    assert.deepEqual(messages, ['The kitten picks up a food ration.']);
+    assert.deepEqual(redraws, [[PET_X, PET_Y, null]]);
+    assert.equal(state.level.objects[PET_X][PET_Y], null);
+    assert.equal(state.level.objlist, null);
+    assert.equal(monster.minvent, ration);
+    assert.equal(ration.where, OBJ_MINVENT);
+    assert.equal(ration.ocarry, monster);
+    // check_gear_next_turn() asks dochug() to reassess gear next move.
+    assert.equal(monster.misc_worn_check & I_SPECIAL, I_SPECIAL);
+});
+
+test('dog_invent splits a stack it can only carry part of', async () => {
+    const { state, monster, edog } = pickupState();
+    // A nohands pet takes one coin from a pile; can_carry() caps it at 1.
+    const gold = floorStack(state, GOLD_PIECE, 4);
+    const messages = [];
+
+    await dog_invent(
+        monster,
+        edog,
+        HERO_DISTANCE,
+        pickupEnv(state, {
+            canCarry: () => 1,
+            message: async (text) => { messages.push(text); },
+            random: pickupRandom([], [PET_APPORT + 2, 0, 0]),
+        }),
+    );
+
+    assert.deepEqual(messages, ['The kitten picks up a gold piece.']);
+    assert.equal(state.level.objects[PET_X][PET_Y], gold);
+    assert.equal(gold.quan, 3);
+    assert.equal(gold.where, OBJ_FLOOR);
+    const taken = monster.minvent;
+    assert.notEqual(taken, gold);
+    assert.equal(taken.otyp, GOLD_PIECE);
+    assert.equal(taken.quan, 1);
+    assert.equal(taken.nobj, null);
+});
+
+test('dog_invent runs distant_name for its side effects when quiet',
+    async () => {
+        // flags.verbose off suppresses the line but not the naming call, so
+        // the type still enters the discoveries list.
+        const { state, monster, edog } = pickupState();
+        state.flags.verbose = false;
+        const potion = floorStack(state, POT_HEALING, 1);
+        const messages = [];
+
+        await dog_invent(
+            monster,
+            edog,
+            HERO_DISTANCE,
+            pickupEnv(state, {
+                message: async (text) => { messages.push(text); },
+                random: pickupRandom([], [PET_APPORT + 2, 0, 0]),
+            }),
+        );
+
+        assert.deepEqual(messages, []);
+        assert.equal(potion.dknown, true);
+        assert.equal(state.objects[POT_HEALING].oc_encountered, 1);
+        assert.equal(monster.minvent, potion);
+    });
+
+test('dog_invent leaves a visible but far stack unidentified', async () => {
+    // The pet's square is lit, so the line prints, but distu() is 9 and
+    // distant_name()'s near square only reaches 6. C names it with
+    // gd.distantname raised, which withholds dknown and the discovery.
+    const { state, monster, edog } = pickupState();
+    state.u.ux = PET_X + 3;
+    const potion = floorStack(state, POT_HEALING, 1);
+    const messages = [];
+
+    await dog_invent(
+        monster,
+        edog,
+        HERO_DISTANCE,
+        pickupEnv(state, {
+            message: async (text) => { messages.push(text); },
+            random: pickupRandom([], [PET_APPORT + 2, 0, 0]),
+        }),
+    );
+
+    assert.deepEqual(messages, ['The kitten picks up a potion.']);
+    assert.equal(potion.dknown, false);
+    assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
+});
+
+test('dog_invent names nothing on a square the hero cannot see', async () => {
+    const { state, monster, edog } = pickupState();
+    state.viz_array[PET_Y][PET_X] = 0;
+    const potion = floorStack(state, POT_HEALING, 1);
+    const messages = [];
+
+    await dog_invent(
+        monster,
+        edog,
+        HERO_DISTANCE,
+        pickupEnv(state, {
+            message: async (text) => { messages.push(text); },
+            random: pickupRandom([], [PET_APPORT + 2, 0, 0]),
+        }),
+    );
+
+    assert.deepEqual(messages, []);
+    // distant_name() never ran, so nothing observed the potion at all.
+    assert.equal(potion.dknown, false);
+    assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
+    assert.equal(monster.minvent, potion);
+});
+
+test('dog_invent hands an AT_WEAP carrier to its weapon owner', async () => {
+    const { state, monster, edog } = pickupState();
+    // A soldier ant has no AT_WEAP attack; give the pet one so the arm fires.
+    monster.data = { ...monster.data, mattk: [{ aatyp: AT_WEAP }] };
+    monster.weapon_check = NEED_WEAPON;
+    floorStack(state, DAGGER, 1);
+    const wields = [];
+
+    await dog_invent(
+        monster,
+        edog,
+        HERO_DISTANCE,
+        pickupEnv(state, {
+            message: async () => {},
+            random: pickupRandom([], [PET_APPORT + 2, 0, 0]),
+            wieldPickedItem: (subject) => {
+                wields.push(subject.weapon_check);
+            },
+        }),
+    );
+
+    // C sets NEED_HTH_WEAPON before calling mon_wield_item().
+    assert.deepEqual(wields, [NEED_HTH_WEAPON]);
+    assert.equal(monster.misc_worn_check & I_SPECIAL, I_SPECIAL);
 });
 
 test('dog_invent short-circuits the apport pickup draw after movement wins',
     async () => {
-        const { state, monster, edog } = inventoryState();
-        floorObject(state);
+        const { state, monster, edog } = pickupState();
+        floorStack(state, FOOD_RATION, 1);
         const bounds = [];
         const values = [
             0, // rn2(20) passes.
             1, // rn2(udist) succeeds and skips rn2(apport).
         ];
-        let picked = false;
+
         await dog_invent(
             monster,
             edog,
             HERO_DISTANCE,
-            noFloorActionEnv(state, {
-                canCarry: () => 1,
-                pickObject: async () => {
-                    picked = true;
-                },
-                random: {
-                    rn2(bound) {
-                        bounds.push(bound);
-                        return values.shift();
-                    },
-                },
+            pickupEnv(state, {
+                message: async () => {},
+                random: pickupRandom(bounds, values),
             }),
         );
 
-        assert.equal(picked, true);
+        assert.notEqual(monster.minvent, null);
         assert.deepEqual(bounds, [20, HERO_DISTANCE]);
     });
 

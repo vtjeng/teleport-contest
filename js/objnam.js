@@ -1,5 +1,5 @@
 // Runtime object naming for the early movement, pet, trap, and combat paths.
-// C refs: objnam.c xname(), corpse_xname(), and doname().
+// C refs: objnam.c xname(), corpse_xname(), doname(), and distant_name().
 
 import { find_artifact, permapoisoned } from './artifacts.js';
 import {
@@ -12,7 +12,9 @@ import {
 } from './fruit.js';
 import { tin_details } from './eat.js';
 import { game } from './gstate.js';
-import { lowc, strcasecpy } from './hacklib.js';
+import { dist2, lowc, strcasecpy } from './hacklib.js';
+import { get_obj_location } from './light.js';
+import { cansee } from './vision.js';
 import { body_part } from './polyself.js';
 import { RIGHT_HANDED } from './u_init.js';
 import { bimanual, is_ammo, is_missile } from './worn.js';
@@ -568,7 +570,11 @@ export function xnameFresh(obj, state) {
     preflightObjectName(obj, type, state);
     if (!type.oc_name_known && type.oc_uses_known && type.oc_unique)
         obj.known = false;
-    if (!heroIsBlind(state))
+    // C ref: objnam.c xname_flags():627, `if (!Blind && !gd.distantname)`.
+    // distant_name() raises that counter around a formatting call for an
+    // object the hero cannot inspect up close, so naming it neither sets
+    // dknown nor enters the type in the discoveries list.
+    if (!heroIsBlind(state) && !state.gd?.distantname)
         observe_object(obj, state);
     if (state.urole?.mnum === PM_CLERIC)
         obj.bknown = true;
@@ -813,4 +819,41 @@ export function donameFresh(obj, state) {
     }
     if (fakeArtifact) return words;
     return articleName(words);
+}
+
+// C ref: objnam.c distant_name(). Format an object seen from wherever the
+// hero stands. `func` is xname() or doname(); the near test rounds the corners
+// of a square whose radius is 2, or the hero's larger xray range, and an
+// artifact always counts as near. Everything else formats with
+// gd.distantname raised, which suppresses the dknown and discovery writes
+// xname() would otherwise make.
+//
+// C also saves obj->o_id and zeroes it while `program_state.gameover` is set,
+// so that a disclosure name omits a T-shirt slogan or candy wrapper label.
+// preflightObjectName() refuses gameover outright, so no path here reaches
+// that save and restore.
+export function distant_name(obj, func, state = game) {
+    if (typeof func !== 'function')
+        throw new TypeError('distant_name requires a formatting function');
+    const range = state.u?.xray_range > 2 ? state.u.xray_range : 2;
+    const neardist = range * range * 2 - range;
+    const location = get_obj_location(obj, 0, state);
+    if (location
+        && cansee(location.x, location.y, state)
+        && (obj.oartifact
+            || dist2(location.x, location.y, state.u?.ux, state.u?.uy)
+                <= neardist)) {
+        return func(obj, state);
+    }
+    state.gd ??= {};
+    state.gd.distantname = (state.gd.distantname ?? 0) + 1;
+    try {
+        return func(obj, state);
+    } finally {
+        // C's `--gd.distantname` cannot be skipped; a JavaScript formatter
+        // that refuses an unported name branch throws instead of returning,
+        // and leaving the counter raised would silence observe_object() for
+        // every later name in the same game.
+        state.gd.distantname -= 1;
+    }
 }

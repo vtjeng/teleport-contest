@@ -74,6 +74,7 @@ import {
     select_postmove_object_action,
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
+import { newObject } from './obj.js';
 import { SADDLE } from './objects.js';
 import {
     inside_region,
@@ -269,6 +270,50 @@ function cloneMonster(monster) {
     };
 }
 
+// Copy every object on this level's floor. A pet picking an item up splits a
+// stack, unlinks it from the pile and the level list, and hands it to a
+// monster, so without this the dry run would empty the live square and leave
+// the live pass with nothing to find. C has no counterpart: the dry run is
+// this port's own device for keeping a refusal atomic, and floor objects are
+// shared state that device has to isolate, exactly as it already isolates
+// monsters, light sources and timers.
+//
+// Monster inventories, the hero's belongings and the buried list stay shared,
+// because no action the scan admits writes to one. A monster picking an item
+// up is the only object mutation the boundary lets through, and
+// assertSimpleActionState() refuses any pet already carrying something other
+// than its inert starting saddle, which is what keeps add_to_minv() from
+// merging into a live stack. Extend this walk when that refusal goes.
+//
+// obj.v is C's union: nexthere on the floor and ocontainer inside a container.
+// The level list is the only root, because obj.js keeps it and the coordinate
+// grid in step: place_object() writes both and remove_object() refuses an
+// object missing from either.
+function cloneFloorObjects(state) {
+    const objectMap = new Map();
+    const pending = [];
+    const enqueue = (obj) => {
+        if (obj && !objectMap.has(obj)) pending.push(obj);
+    };
+    enqueue(state.level?.objlist);
+    while (pending.length) {
+        const original = pending.pop();
+        if (objectMap.has(original)) continue;
+        const copy = newObject({ ...original });
+        if (original.oextra) copy.oextra = { ...original.oextra };
+        objectMap.set(original, copy);
+        enqueue(original.nobj);
+        enqueue(original.cobj);
+        enqueue(original.v);
+    }
+    for (const [original, copy] of objectMap) {
+        copy.nobj = objectMap.get(original.nobj) ?? null;
+        copy.cobj = objectMap.get(original.cobj) ?? null;
+        copy.v = objectMap.get(original.v) ?? null;
+    }
+    return objectMap;
+}
+
 function planningState(state) {
     const monsterMap = new Map();
     for (let monster = state.level?.monlist ?? null;
@@ -276,6 +321,15 @@ function planningState(state) {
         monster = monster.nmon) {
         monsterMap.set(monster, cloneMonster(monster));
     }
+    const objectMap = cloneFloorObjects(state);
+    const clonedObject = (obj) => {
+        if (!obj) return null;
+        const copy = objectMap.get(obj);
+        // Dropping the object instead would hide it from the whole scan.
+        if (!copy)
+            throw new Error('planning clone: floor object outside objlist');
+        return copy;
+    };
     for (const [original, clone] of monsterMap)
         clone.nmon = monsterMap.get(original.nmon) ?? null;
 
@@ -288,6 +342,10 @@ function planningState(state) {
                     (monster) => monsterMap.get(monster) ?? null,
                 ),
             ),
+            objects: state.level.objects.map(
+                (column) => column.map(clonedObject),
+            ),
+            objlist: clonedObject(state.level.objlist),
             flags: { ...state.level.flags },
             monlist: monsterMap.get(state.level.monlist) ?? null,
             regions: state.level.regions.map((region) => ({
@@ -329,7 +387,9 @@ function planningState(state) {
         if (!source) return null;
         return {
             ...source,
-            id: monsterMap.get(source.id) ?? source.id,
+            id: monsterMap.get(source.id)
+                ?? objectMap.get(source.id)
+                ?? source.id,
             next: cloneLightList(source.next),
         };
     };
@@ -341,7 +401,9 @@ function planningState(state) {
         if (!source) return null;
         return {
             ...source,
-            arg: monsterMap.get(source.arg) ?? source.arg,
+            arg: monsterMap.get(source.arg)
+                ?? objectMap.get(source.arg)
+                ?? source.arg,
             next: cloneTimerList(source.next),
         };
     };
@@ -512,12 +574,17 @@ async function moveSimplePet(monster, after, env) {
         eatObject: () => unsupported('pet eating'),
         maxPassiveDamage: () => unsupported('pet combat evaluation'),
         mayCrossRegion: assertSimpleDestination,
+        // dog_invent()'s carry arm prints through pline_xy() and repaints the
+        // square. The planning scan replays the same turn against the live
+        // display afterwards, so it must produce neither.
+        message: env.planning ? async () => {} : ttyPline,
         monsterReflects: () => unsupported('pet combat evaluation'),
         petRangedAttack: rejectPetRangedTarget,
-        pickObject: () => unsupported('pet object pickup'),
+        redraw: env.planning ? () => {} : newsym,
         reportCursedStep: () => unsupported('pet cursed-object feedback'),
         resistsStone: () => unsupported('pet combat evaluation'),
         resistsTrapEffect,
+        wieldPickedItem: () => unsupported('pet weapon selection'),
     });
 }
 
