@@ -166,11 +166,16 @@ export function blankCommentsAndStrings(source) {
                 enclosing.braces -= 1;
             }
         }
-        if (!/\s/u.test(ch)) {
-            lastSignificant = /[\w$]/u.test(ch)
-                ? readIdentifier(source, index)
-                : ch;
+        if (/[\w$]/u.test(ch)) {
+            // Advance past the whole word. Stepping through it one character at
+            // a time would leave its last character as the preceding token, so
+            // `return /x/` would read `n` and treat the `/` as division.
+            const identifier = readIdentifier(source, index);
+            lastSignificant = identifier;
+            index += identifier.length;
+            continue;
         }
+        if (!/\s/u.test(ch)) lastSignificant = ch;
         index += 1;
     }
     return out.join('');

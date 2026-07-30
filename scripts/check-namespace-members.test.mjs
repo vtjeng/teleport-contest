@@ -114,6 +114,29 @@ test('comments, strings, and regular expressions are blanked in place', () => {
     assert.equal(blanked.split('\n').length, source.split('\n').length);
 });
 
+test('a regular expression directly after a keyword is blanked', () => {
+    // `return /.../` is the common spelling in scripts/, and the keyword has to
+    // survive as the preceding token for the `/` to read as a regular
+    // expression. Scanning a keyword one character at a time leaves `n` as the
+    // preceding token for `return`, which reads as division and leaves the
+    // whole pattern visible.
+    const source = [
+        'const divided = count / 2;',
+        'function keyword(text) { return /M.GONE/u.test(text); }',
+        'const arrow = (t) => /M.ALSO_GONE/u.test(t);',
+        'const listed = [/M.THIRD_GONE/u];',
+    ].join('\n');
+
+    const blanked = blankCommentsAndStrings(source);
+
+    assert.equal(blanked.includes('M.GONE'), false);
+    assert.equal(blanked.includes('M.ALSO_GONE'), false);
+    assert.equal(blanked.includes('M.THIRD_GONE'), false);
+    // The first line divides, so the rest of the file must stay visible;
+    // blanking to the next `/` would swallow it.
+    assert.equal(blanked.includes('count / 2'), true);
+});
+
 test('an import spelled out inside a string is not treated as an import',
     async () => {
         // This very test file contains the literal below, so the scan of
