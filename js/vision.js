@@ -66,13 +66,30 @@ const viz_clear = Array.from({ length: ROWNO }, () => new Int8Array(COLNO));
 const left_ptrs = Array.from({ length: ROWNO }, () => new Int16Array(COLNO));
 const right_ptrs = Array.from({ length: ROWNO }, () => new Int16Array(COLNO));
 
-// Double-buffered COULD_SEE bitmap
-const cs_buf0 = Array.from({ length: ROWNO }, () => new Uint8Array(COLNO));
-const cs_buf1 = Array.from({ length: ROWNO }, () => new Uint8Array(COLNO));
-const cs_rmin0 = new Int16Array(ROWNO).fill(COLNO);
-const cs_rmax0 = new Int16Array(ROWNO).fill(0);
-const cs_rmin1 = new Int16Array(ROWNO).fill(COLNO);
-const cs_rmax1 = new Int16Array(ROWNO).fill(0);
+// Double-buffered COULD_SEE bitmap.  C ref: vision.c's cs_rows0/cs_rows1 with
+// their rmin/rmax pairs, which are file-static there and belong to the one
+// running game.  A caller that recomputes vision for a state other than the
+// live game supplies its own set through state._visionBuffers, so that the
+// live game's current view and its spare buffer both survive.
+export function makeVisionBuffers() {
+    return {
+        rows: [
+            Array.from({ length: ROWNO }, () => new Uint8Array(COLNO)),
+            Array.from({ length: ROWNO }, () => new Uint8Array(COLNO)),
+        ],
+        rmin: [
+            new Int16Array(ROWNO).fill(COLNO),
+            new Int16Array(ROWNO).fill(COLNO),
+        ],
+        rmax: [new Int16Array(ROWNO).fill(0), new Int16Array(ROWNO).fill(0)],
+    };
+}
+
+const liveVisionBuffers = makeVisionBuffers();
+
+function visionBuffers(state) {
+    return state._visionBuffers ?? liveVisionBuffers;
+}
 function mark_visible_range(row, left, right, scan) {
     if (left > right) return;
     if (scan.callback) {
@@ -86,8 +103,8 @@ function mark_visible_range(row, left, right, scan) {
     if (scan.right[row] < right) scan.right[row] = right;
 }
 
-function heroSeesInvisible() {
-    const property = game.u?.uprops?.[SEE_INVIS];
+function heroSeesInvisible(state) {
+    const property = state.u?.uprops?.[SEE_INVIS];
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
@@ -99,9 +116,9 @@ function isWallMimicAppearance(appearance) {
 }
 
 // C refs: monst.h is_lightblocker_mappear(); vision.c does_block().
-function mimicBlocksLight(x, y) {
-    const monster = m_at(x, y, game);
-    if (!monster || (monster.minvis && !heroSeesInvisible())) return false;
+function mimicBlocksLight(x, y, state) {
+    const monster = m_at(x, y, state);
+    if (!monster || (monster.minvis && !heroSeesInvisible(state))) return false;
     const appearanceType = monster.m_ap_type & M_AP_TYPMASK;
     if (appearanceType === M_AP_OBJECT)
         return monster.mappearance === BOULDER;
@@ -112,10 +129,8 @@ function mimicBlocksLight(x, y) {
             || monster.mappearance === S_tree);
 }
 
-function blocksVisionAt(x, y) {
-    // Vision state is a game-global singleton, like vision.c's levl,
-    // level.objects, monster grid, and region registry.
-    const level = game.level;
+function blocksVisionAt(x, y, state) {
+    const level = state.level;
     const loc = level.at(x, y);
     if (!loc) return true;
     const typ = loc.typ ?? 0;
@@ -127,12 +142,12 @@ function blocksVisionAt(x, y) {
         if (mask & (D_CLOSED | D_LOCKED | D_TRAPPED)) return true;
     }
     const drawbridgeMask = loc.flags || loc.drawbridgemask || 0;
-    const moat = !on_level(game.u?.uz, game.juiblex_level)
+    const moat = !on_level(state.u?.uz, state.juiblex_level)
         && (typ === MOAT
             || (typ === DRAWBRIDGE_UP
                 && (drawbridgeMask & DB_UNDER) === DB_MOAT));
     if (typ === CLOUD || typ === WATER || typ === LAVAWALL
-        || (game.u?.uinwater && moat)) {
+        || (state.u?.uinwater && moat)) {
         return true;
     }
     for (let object = level.objects?.[x]?.[y] ?? null;
@@ -140,26 +155,26 @@ function blocksVisionAt(x, y) {
         object = object.nexthere) {
         if (object.otyp === BOULDER) return true;
     }
-    if (mimicBlocksLight(x, y)) return true;
-    if (visible_region_at(x, y, game)) return true;
+    if (mimicBlocksLight(x, y, state)) return true;
+    if (visible_region_at(x, y, state)) return true;
     return false;
 }
 
-// C ref: vision.c does_block(). The level and vision arrays are game-global
-// singletons in both implementations.
+// C ref: vision.c does_block().
 export function does_block(x, y, _location = null, state = game) {
-    if (state !== game)
-        throw new Error('does_block requires the active game state');
-    return blocksVisionAt(x, y);
+    return blocksVisionAt(x, y, state);
 }
 
+// The compact transparency index below (viz_clear and the left/right pointers)
+// is a pure function of the map, so it is derived rather than owned: rebuilding
+// it from a different state and rebuilding it again from the live one restores
+// exactly what was there. js/unported_monster_actions.js relies on that to let
+// its cloned monster scan see a door it opened.
 function rebuildVisionPoint(x, y, state) {
-    if (state !== game)
-        throw new Error('vision point mutation requires the active game state');
     const affectedCurrentVision = Boolean(state.viz_array?.[y]?.[x]);
     const oldVisionMin = state._viz_rmin;
     const oldVisionMax = state._viz_rmax;
-    vision_reset();
+    vision_reset(state);
     state._viz_rmin = oldVisionMin;
     state._viz_rmax = oldVisionMax;
     if (affectedCurrentVision) state.vision_full_recalc = 1;
@@ -181,8 +196,8 @@ export function recalc_block_point(x, y, state = game) {
 }
 
 // C ref: vision_reset() — rebuild viz_clear and left/right ptrs
-export function vision_reset() {
-    const level = game.level;
+export function vision_reset(state = game) {
+    const level = state.level;
     if (!level) return;
 
     for (let y = 0; y < ROWNO; y++) {
@@ -190,7 +205,7 @@ export function vision_reset() {
         let dig_left = 0;
         let block = true;
         for (let x = 1; x < COLNO; x++) {
-            const cur_block = blocksVisionAt(x, y);
+            const cur_block = blocksVisionAt(x, y, state);
             if (block !== cur_block) {
                 if (block) {
                     for (let i = dig_left; i < x; i++) {
@@ -218,8 +233,8 @@ export function vision_reset() {
             viz_clear[y][i] = block ? 0 : 1;
         }
     }
-    game._viz_rmin = null;
-    game._viz_rmax = null;
+    state._viz_rmin = null;
+    state._viz_rmax = null;
 }
 
 // Bresenham quadrant path functions (C ref: vision.c q1-q4_path)
@@ -578,17 +593,25 @@ export function do_clear_area(
     }
 }
 
-// C ref: vision_recalc(control)
-export function vision_recalc(control = 0) {
-    const u = game.u;
-    if (!u || !game.level) return;
-    game.vision_full_recalc = 0;
-    if (game.in_mklev) return;
+// C ref: vision_recalc(control).  `env` names the three things C reaches
+// through globals: the game state, its pair of COULD_SEE buffers, and
+// display.c's redraw.  js/unported_monster_actions.js supplies all three so
+// that its cloned monster scan can recompute vision for the map it planned
+// without touching the live view or painting a frame.
+export function vision_recalc(control = 0, env = {}) {
+    const state = env.state ?? game;
+    const redraw = env.redraw ?? newsym;
+    const u = state.u;
+    if (!u || !state.level) return;
+    state.vision_full_recalc = 0;
+    if (state.in_mklev) return;
 
     // Swap to unused buffer
-    const next = game.active_buf === 0 ? cs_buf1 : cs_buf0;
-    const next_rmin = game.active_buf === 0 ? cs_rmin1 : cs_rmin0;
-    const next_rmax = game.active_buf === 0 ? cs_rmax1 : cs_rmax0;
+    const buffers = visionBuffers(state);
+    const spare = state.active_buf === 0 ? 1 : 0;
+    const next = buffers.rows[spare];
+    const next_rmin = buffers.rmin[spare];
+    const next_rmax = buffers.rmax[spare];
 
     for (let y = 0; y < ROWNO; y++) {
         next[y].fill(0);
@@ -600,25 +623,25 @@ export function vision_recalc(control = 0) {
         view_from(u.uy, u.ux, next, next_rmin, next_rmax);
     }
 
-    const level = game.level;
+    const level = state.level;
     const ux = u.ux, uy = u.uy;
 
     // C ref: vision.c vision_recalc(), Blind branch. Keep COULD_SEE so
     // monster line-of-sight remains available, but grant the hero no
     // IN_SIGHT cells and remove anything which was visible previously.
     if (control !== 2 && heroIsBlind(u)) {
-        const oldArray = game.viz_array;
-        game.viz_array = next;
-        game.active_buf = game.active_buf === 0 ? 1 : 0;
+        const oldArray = state.viz_array;
+        state.viz_array = next;
+        state.active_buf = spare;
         if (oldArray) {
             for (let row = 0; row < ROWNO; ++row) {
                 for (let col = 0; col < COLNO; ++col) {
-                    if (oldArray[row][col] & IN_SIGHT) newsym(col, row);
+                    if (oldArray[row][col] & IN_SIGHT) redraw(col, row);
                 }
             }
         }
-        game._viz_rmin = next_rmin;
-        game._viz_rmax = next_rmax;
+        state._viz_rmin = next_rmin;
+        state._viz_rmax = next_rmax;
         return;
     }
 
@@ -634,7 +657,7 @@ export function vision_recalc(control = 0) {
 
     // C ref: vision.c vision_recalc() -> light.c do_light_sources().
     do_light_sources(next, {
-        state: game,
+        state,
         clearPath: clear_path,
         circleOffset: circle_offset,
     });
@@ -666,13 +689,13 @@ export function vision_recalc(control = 0) {
     }
 
     // Swap viz_array and run newsym updates
-    const old_array = game.viz_array;
-    game.viz_array = next;
-    game.active_buf = game.active_buf === 0 ? 1 : 0;
+    const old_array = state.viz_array;
+    state.viz_array = next;
+    state.active_buf = spare;
 
-    const old_rmin = game._viz_rmin;
-    const old_rmax = game._viz_rmax;
-    if (old_array && control !== 2 && game.level) {
+    const old_rmin = state._viz_rmin;
+    const old_rmax = state._viz_rmax;
+    if (old_array && control !== 2 && state.level) {
         for (let row = 0; row < ROWNO; row++) {
             const old_row = old_array[row];
             const next_row = next[row];
@@ -687,7 +710,7 @@ export function vision_recalc(control = 0) {
             for (let col = start; col <= stop; col++) {
                 const nv = next_row[col];
                 const ov = old_row[col];
-                const loc = game.level.at(col, row);
+                const loc = state.level.at(col, row);
                 if (!loc) continue;
 
                 if (nv & IN_SIGHT) {
@@ -695,14 +718,14 @@ export function vision_recalc(control = 0) {
                     const sv = seenv_matrix[dy + 1][(col < ux) ? 0 : (col > ux ? 2 : 1)];
                     loc.seenv = (loc.seenv || 0) | sv;
                     if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv) {
-                        newsym(col, row);
+                        redraw(col, row);
                     }
                 } else if ((nv & COULD_SEE)
                     && (loc.lit || (nv & TEMP_LIT))) {
                     if ((IS_WALL(loc.typ) || loc.typ === DOOR || loc.typ === SDOOR)
                         && !viz_clear[row][col]) {
                         const dx = Math.sign(ux - col);
-                        const adjLoc = game.level.at(col + dx, row + dy);
+                        const adjLoc = state.level.at(col + dx, row + dy);
                         if (adjLoc?.lit
                             || (next[row + dy]?.[col + dx] & TEMP_LIT)) {
                             next_row[col] |= IN_SIGHT;
@@ -710,7 +733,7 @@ export function vision_recalc(control = 0) {
                             const sv = seenv_matrix[dy + 1][(col < ux) ? 0 : (col > ux ? 2 : 1)];
                             loc.seenv = (loc.seenv || 0) | sv;
                             if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv)
-                                newsym(col, row);
+                                redraw(col, row);
                         }
                     } else {
                         next_row[col] |= IN_SIGHT;
@@ -718,24 +741,24 @@ export function vision_recalc(control = 0) {
                         const sv = seenv_matrix[dy + 1][(col < ux) ? 0 : (col > ux ? 2 : 1)];
                         loc.seenv = (loc.seenv || 0) | sv;
                         if (!(ov & IN_SIGHT) || oldseenv !== loc.seenv)
-                            newsym(col, row);
+                            redraw(col, row);
                     }
                 } else if ((nv & COULD_SEE) && loc.waslit) {
                     loc.waslit = 0;
-                    newsym(col, row);
+                    redraw(col, row);
                 } else {
                     if ((ov & IN_SIGHT)
                         || ((nv & COULD_SEE) ^ (ov & COULD_SEE))) {
-                        newsym(col, row);
+                        redraw(col, row);
                     }
                 }
             }
         }
-        if (ux > 0) newsym(ux, uy);
+        if (ux > 0) redraw(ux, uy);
     }
 
-    game._viz_rmin = next_rmin;
-    game._viz_rmax = next_rmax;
+    state._viz_rmin = next_rmin;
+    state._viz_rmax = next_rmax;
 }
 
 // C ref: cansee(x, y). The optional state keeps focused rendering calls on
@@ -758,14 +781,14 @@ export function init_vision_globals() {
     // buffers explicitly so a prior game cannot redraw stale visible cells
     // while initializing a blind hero.
     for (let row = 0; row < ROWNO; ++row) {
-        cs_buf0[row].fill(0);
-        cs_buf1[row].fill(0);
+        liveVisionBuffers.rows[0][row].fill(0);
+        liveVisionBuffers.rows[1][row].fill(0);
     }
-    cs_rmin0.fill(COLNO);
-    cs_rmax0.fill(0);
-    cs_rmin1.fill(COLNO);
-    cs_rmax1.fill(0);
-    game.viz_array = cs_buf0;
+    liveVisionBuffers.rmin[0].fill(COLNO);
+    liveVisionBuffers.rmax[0].fill(0);
+    liveVisionBuffers.rmin[1].fill(COLNO);
+    liveVisionBuffers.rmax[1].fill(0);
+    game.viz_array = liveVisionBuffers.rows[0];
     game.active_buf = 0;
     game.vision_full_recalc = 0;
     game._viz_rmin = null;

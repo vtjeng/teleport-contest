@@ -65,6 +65,7 @@ import {
     does_block,
     do_clear_area,
     init_vision_globals,
+    makeVisionBuffers,
     vision_recalc,
     vision_reset,
 } from '../js/vision.js';
@@ -131,6 +132,54 @@ test('vision_recalc marks the hero square seen from every direction', () => {
     vision_recalc(0);
 
     assert.equal(heroLocation.seenv, SVALL);
+});
+
+// vision_recalc()'s env names what C reads through globals. A caller that
+// hands it another state, that state's own COULD_SEE buffers and no painter
+// has to leave the live game's view alone however often it runs, and the
+// second run is what needs the separate pair: it lands on the buffer the live
+// game is holding. js/unported_monster_actions.js is that caller.
+test('vision_recalc against another state leaves the live view alone', () => {
+    const state = darkRoomState();
+    vision_reset();
+    vision_recalc(0);
+    const liveArray = state.viz_array;
+    const liveRows = liveArray.map((row) => [...row]);
+    const liveActive = state.active_buf;
+
+    // A wall the live map does not have, so the two views genuinely differ.
+    const plannedLevel = Object.assign(
+        Object.create(Object.getPrototypeOf(state.level)),
+        state.level,
+        {
+            locations: state.level.locations.map(
+                (column) => column.map((cell) => ({ ...cell })),
+            ),
+        },
+    );
+    plannedLevel.at(state.u.ux + 1, state.u.uy).typ = HWALL;
+    const planned = {
+        ...state,
+        level: plannedLevel,
+        _visionBuffers: makeVisionBuffers(),
+    };
+
+    let painted = 0;
+    vision_reset(planned);
+    for (let round = 0; round < 2; ++round)
+        vision_recalc(0, { state: planned, redraw: () => { painted += 1; } });
+    vision_reset(state);
+
+    assert.ok(painted > 0);
+    assert.equal(state.viz_array, liveArray);
+    assert.equal(state.active_buf, liveActive);
+    assert.deepEqual(liveArray.map((row) => [...row]), liveRows);
+    // The wall cost the clone the squares beyond it, which is the difference
+    // that would have leaked into the live view.
+    assert.notDeepEqual(
+        planned.viz_array.map((row) => [...row]),
+        liveRows,
+    );
 });
 
 test('do_clear_area uses the cached hero-centered vision circle', () => {
