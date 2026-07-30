@@ -297,6 +297,64 @@ No fix in game code exists, because `AGENTS.md` requires leaving
 ceiling: a session that displays the spell menu under the default option loses
 that screen however faithful the port is.
 
+### Planning clone
+
+#### the planning clone leaks by omission, and should be made loud or removed
+
+`planningState()` in `js/unported_monster_actions.js` builds a copy of the game
+state so `preflightSimpleMonsterActions()` can dry-run a whole monster turn
+before it happens for real. The dry run has to consume the identical PRNG
+stream the live pass will consume, and write nothing live. It is a port-side
+invention: C never needs it, because C implements everything and never asks
+whether it can support a turn.
+
+**The evidence.** `QUALITY.json` records **nine** production defects in this
+construct, across passes from `e30ea05` onward — monster-vital state, the
+light-source refusal, the `minLiquid` stub, an unconverted refusal class, the
+object discovery ledger, a spread that dropped eight non-enumerable catalog
+aliases, a 6.4 ms per turn cost from fixing that spread by materializing, a
+restore that set live `vision_full_recalc`, and `level.traps`. Two of the nine
+were introduced by the fix for a previous one. No other construct in this
+repository comes close.
+
+**Why it keeps happening.** Isolation is opt-in and silent when omitted.
+`planningState()` spreads the live state and then names about thirty fields to
+copy; anything a new action writes that is not on that list is shared by
+reference, and nothing fails. There is no upstream source to check the list
+against, because the construct has no C counterpart — so a reviewer cannot
+derive the correct answer, only notice the symptom. Every one of the nine was
+found by symptom.
+
+**Options, roughly costed.**
+
+1. *Freeze the live state during planning.* `Object.freeze()` the live objects
+   the dry run can reach, so any leaked write throws immediately instead of
+   diverging silently. This detects rather than prevents, and it would have
+   caught all nine. Cost: small, but every deliberate live write must be
+   declared — the transparency-index restore is one today, and there may be
+   others nobody has had to name.
+2. *Copy-on-write.* Put the planned state behind a proxy whose writes land on
+   an overlay, so isolation is the default and the field list disappears.
+   Cost: larger, and it must not perturb PRNG order or hot-path cost; the
+   catalog copy already showed this clone sits on a per-turn path where a
+   naive approach cost 80-92% of a scored turn.
+3. *Journal and roll back.* Run against the live state, record every mutation,
+   undo on refusal. Removes the clone, but replaces one omission problem with
+   another: an unrecorded mutation is exactly as silent as an uncopied field.
+
+**Recommendation.** Option 1 first, on its own, as a detector. It converts the
+whole defect class from silent to loud at small cost, and it makes option 2
+safe to attempt afterwards by giving it a failing test whenever isolation is
+incomplete. Do not attempt option 3.
+
+**When.** Not urgent by the usual test: it owns no fail-closed boundary and the
+score is correct today. But it is not like the other entries here — those are
+known single defects, whereas this is a mechanism that has produced a new
+defect in four of the last five correctness passes, and the trap goal in
+progress writes to object and trap state through it. If the current goal's
+remaining slices produce another, take this before the next goal rather than
+after.
+
 ### Game behavior
 
 #### `nomul()` has two owners and they disagree
@@ -431,6 +489,9 @@ would diverge without erroring. No creation-time route grants one today.
 
 #### the planning clone's object copy is still expensive
 
+One symptom of the mechanism described under `### Planning clone` above; fix
+it there rather than in isolation if that plan is taken.
+
 `cloneObjects()` builds each copy with `newObject({ ...original })`, which
 constructs a 60-field default and installs 16 alias accessors before
 overwriting them. Measured at 27-38 microseconds per object, about 0.9 ms per
@@ -554,6 +615,10 @@ attackers through in silence. This is the same phase structure seen from one
 step further on, and it belongs with the combat work.
 
 #### the planning clone must copy non-enumerable catalog aliases
+
+One of the nine defects counted under `### Planning clone` above, kept here for
+the general trap it records: a spread is not a copy when the source uses
+`Object.defineProperty`.
 
 `js/objects.js defineObjclassAliases()` installs eight aliases — `oc_skill`,
 `oc_armcat`, `a_ac`, `a_can`, `oc_bimanual`, `oc_bulky`, `oc_hitbon` and
