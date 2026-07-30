@@ -110,6 +110,25 @@
 // of them and 52 minutes if it kills none. Both figures extrapolate from the
 // two ranges above and assume the same density and the same 13 s suite.
 
+// This file belongs to no `QUALITY.json` area, which is deliberate. Areas
+// partition `js/`, the ported game code, and own 135 paths, none outside it;
+// `unassignedJsFiles()` in scripts/quality-status.mjs enforces that coverage
+// over `js/` alone. Owning a tool here would put code that changes no scored
+// behavior into a gate that measures ported-behavior debt, and would aim a
+// correctness pass's source-versus-port finders at a file with no C source
+// behind it. Every other tool under `scripts/` sits outside the areas by the
+// same rule, including scripts/quality-status.mjs, which `.agents/review.md`
+// depends on just as heavily.
+//
+// What covers this file instead: its own tests, which pin each reported line
+// and each refusal, and the breakage record in the commit that added each one.
+// The residual risk is real and worth stating: no independent reader reviews
+// this tool, while `.agents/review.md` requires its output. A wrong answer here
+// is visible in opposite directions, which is the reason to accept that risk.
+// A false survivor costs the test-quality finder one trace, and a false kill
+// hides a gap silently, so a change to the verdict path needs a test that
+// distinguishes the two.
+
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
     cpSync,
