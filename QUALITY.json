@@ -3559,6 +3559,47 @@
         ]
       },
       "recordedAt": "2026-07-30T07:27:18.564Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "cdb83a481180205a8f011ee67b066116a93aaad6"
+      },
+      "head": "4d54fa81d05cc763102b5a17dfc44125325ce46b",
+      "auditedRange": "cdb83a481180205a8f011ee67b066116a93aaad6..4d54fa81d05cc763102b5a17dfc44125325ce46b",
+      "areas": [
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the third and last slice of the closed-door goal, hack.c test_move()'s bump and That-door-is-closed arms. Four mandatory finders (correctness, readability, tests, variable-trace); performance and concurrency not triggered and not enabled. 17 raw findings, 17 after deduplication, 16 confirmed, all 16 applied at 1dc06e8, none deferred, 1 rejected with counter-evidence, none unverified, no warnings. No production defect: the range's own behavior was right. What the pass found was seven test findings and nine comment or citation defects, which matters here more than usual because no development session reaches this arm and the fresh matrix plus the tests are the whole of the evidence. Four assertions could not fail, two of them introduced by the previous cycle's own audit fixes: game.rng?.log?.length compares 0 with 0 because nothing assigns game.rng. The slice's central placement decision - hoisting u.usteed, m_at() and u.utrap above the suppressed-arm early return - was pinned in neither direction, and its mirror case tested two states against a door mask the seam already excludes, so both passed regardless. The silent diagonal arm was pinned only by nothing-observable-happened, and the reviewer's own mutation refusing that arm passed the entire suite; every suppressed segment now asserts its screen count per key and that mutation fails. One guard turned out to be shadowed rather than live: preflightDomoveDestination() tests m_at() before its closed_door() arm, so a monster-occupied door is refused as combat and the door arm's m_at() guard is defensive only. Four C citations pointed at the wrong statement, including a bump gate cited as hack.c:1120, which is exercise(A_DEX, FALSE), and a steed line cited as 1101, which is a comment inside the pull arm. Development score identical before and after the fixes at 442 of 7,765 screens, 443 cursors and 99,625 PRNG calls; scripts/run-closed-door-autoopen.mjs matches 37 segments, 98,012 PRNG calls, 111 screens and 111 cursors. The range also absorbs b8323b1, the previous slice's audit-fix commit, which had been correctness debt since it landed.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3009,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 17,
+          "confirmed": 16,
+          "applied": 16,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 7,
+          "clarity": 9,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [
+          {
+            "summary": "The mask guard was widened to admit D_LOCKED | D_TRAPPED into doopen_indir() without a fresh C recording covering it.",
+            "counterEvidence": "The widening was made and validated in the previous range, 5879bed..cdb83a4, not this one, and its basis is a direct source reading: lock.c:855 tests only D_CLOSED, so 0x18 takes the message switch and returns at :895 before the b_trapped() tail. Unit coverage exists in scripts/lock.test.mjs and an end-to-end case pins it in scripts/closed-door-autoopen.test.mjs. Do not reopen without a recorded C case whose behavior differs from the port for that mask."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T09:07:14.126Z"
     }
   ]
 }
