@@ -15,10 +15,11 @@ import {
     CONFLICT,
     CORR,
     DOOR,
+    D_BROKEN,
+    D_ISOPEN,
+    D_NODOOR,
     HEADSTONE,
     INVIS,
-    MMOVE_DONE,
-    MMOVE_MOVED,
     MMOVE_NOTHING,
     MON_FLOOR,
     MON_MIGRATING,
@@ -44,7 +45,6 @@ import { m_dowear } from './makemon_create.js';
 import {
     adaptMonsterActionToDochugwSignature,
     movemon_singlemon,
-    mpickstuff,
     wake_msg,
 } from './mon.js';
 import {
@@ -78,7 +78,6 @@ import {
     m_everyturn_effect,
     m_move,
     monnear,
-    select_postmove_object_action,
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { newObject } from './obj.js';
@@ -100,7 +99,6 @@ import {
 import {
     canSeeMonster,
     canSpotMonster,
-    collectMonsterNoticeMessage,
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import {
@@ -512,11 +510,18 @@ function assertSimpleDestination(monster, x, y, env) {
     // teleportation (teleport.c), a shopkeeper (shk.c), or a wizard command.
     // dogmove.c reads stairs only through dog_goal()'s On_stairs(u.ux, u.uy),
     // which asks where the hero stands, not where the pet steps.
+    // A doorway a monster can stand in without acting on it: monmove.c
+    // postmov()'s door block tests D_LOCKED or D_CLOSED in every arm, so
+    // D_NODOOR, D_BROKEN and D_ISOPEN fall through it. Any other mask reaches
+    // an arm that rewrites the doormask, which is not ported.
+    const inertDoorway = location?.typ === DOOR
+        && (doorMask === D_NODOOR || doorMask === D_BROKEN
+            || doorMask === D_ISOPEN);
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
             || location.typ === STAIRS
-            || (location.typ === DOOR && doorMask === 0));
+            || inertDoorway);
     if (!ordinaryDestination)
         unsupported('door or special terrain movement');
     if (t_at(x, y, state))
@@ -541,66 +546,10 @@ function wipeSimpleEngraving(x, y, _count, _magical, env) {
     unsupported('monster engraving wear');
 }
 
-async function postSimpleMove(monster, oldX, oldY, status, env) {
-    const notice = collectMonsterNoticeMessage(monster, env.state);
-    if (notice && !env.planning) {
-        const message = env.message ?? ttyPline;
-        await message(notice, env.state, env);
-    }
-    if (status === MMOVE_MOVED) {
-        assertSimpleDestination(monster, monster.mx, monster.my, env);
-        if (!env.planning) {
-            const redraw = env.redraw ?? newsym;
-            redraw(oldX, oldY);
-            redraw(monster.mx, monster.my);
-        }
-    }
-    let outcome = status;
-    if ((status === MMOVE_MOVED || status === MMOVE_DONE)
-        && env.state.level.objects[monster.mx]?.[monster.my]) {
-        const selected = select_postmove_object_action(
-            monster,
-            monster.mx,
-            monster.my,
-            {
-                ...env,
-                touchArtifact: () =>
-                    unsupported('monster artifact item interaction'),
-            },
-        );
-        // Only mpickstuff()'s arm is ported; meatmetal() and meatcorpse()
-        // still stop the scan, and they precede it in postmov().
-        if (selected && selected.kind !== 'pick up')
-            unsupported('ordinary monster item interaction');
-        if (selected) {
-            const picked = await mpickstuff(
-                monster,
-                selected.object,
-                selected.carryamt,
-                {
-                    ...env,
-                    // mpickstuff() prints through pline_mon() and repaints the
-                    // square. The planning scan replays the same turn against
-                    // the live display afterwards, so it must produce neither.
-                    message: env.planning ? async () => {} : ttyPline,
-                    redraw: env.planning ? () => {} : newsym,
-                },
-            );
-            // C ref: monmove.c:1680, `if (mpickstuff(mtmp)) mmoved =
-            // MMOVE_DONE;`. dochug() reads that: MMOVE_DONE skips the
-            // post-move ranged attack and reaches the standard-attack gate,
-            // where MMOVE_DONE then suppresses the attack.
-            if (picked) outcome = MMOVE_DONE;
-        }
-    }
-    return outcome;
-}
-
 async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
         mayCrossRegion: assertSimpleDestination,
-        postMonsterMove: postSimpleMove,
         resolveTrappedMonster: () => false,
         resistsTrapEffect,
         unsupported,
@@ -743,7 +692,6 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 wipeEngraving: wipeSimpleEngraving,
                 finishEating: () => unsupported('pet eating'),
                 movePet: moveSimplePet,
-                postMonsterMove: postSimpleMove,
                 preflight: assertSimpleActionState,
             }),
         stopOccupation: () => unsupported('occupation interruption'),

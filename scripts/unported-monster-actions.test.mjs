@@ -47,6 +47,7 @@ import {
     AT_BREA,
     AT_GAZE,
     AT_SPIT,
+    PM_CAVE_SPIDER,
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
     PM_GIANT_RAT,
@@ -57,6 +58,7 @@ import {
     PM_PONY,
     PM_PURPLE_WORM,
     PM_ROCK_MOLE,
+    PM_RUST_MONSTER,
     PM_SHRIEKER,
     S_HUMAN,
 } from '../js/monsters.js';
@@ -847,29 +849,38 @@ test('simple movement admits a staircase but not a ladder', async () => {
     }
 });
 
-test('simple movement admits only a doorless doorway', async () => {
-    const doorway = await prepareSelectedAction();
-    const location = game.level.at(
-        doorway.destinationX,
-        doorway.heroY,
-    );
-    location.typ = DOOR;
-    location.flags = D_NODOOR;
-    delete location.doormask;
-    const before = preflightSnapshot();
-
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(preflightSnapshot(), before);
-    await runSimpleMonsterAction(doorway.monster, { state: game });
-    assert.deepEqual(
-        [doorway.monster.mx, doorway.monster.my],
-        [doorway.destinationX, doorway.heroY],
-    );
-
+// C ref: monmove.c postmov()'s door block (1520-1622). A monster that ends its
+// move on a doorless, broken or open doorway reaches no arm of that block, so
+// the move completes with the doormask, the map and the message window
+// untouched. Every other mask reaches an arm that rewrites the doormask.
+test('simple movement admits an inert doorway and no other mask', async () => {
     for (const representation of ['flags', 'doormask']) {
+        for (const mask of [D_NODOOR, D_BROKEN, D_ISOPEN]) {
+            const doorway = await prepareSelectedAction();
+            const location = game.level.at(
+                doorway.destinationX,
+                doorway.heroY,
+            );
+            location.typ = DOOR;
+            location.flags = 0;
+            location.doormask = 0;
+            location[representation] = mask;
+            const label = `${representation} mask ${mask}`;
+            const before = preflightSnapshot();
+
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(preflightSnapshot(), before, label);
+            await runSimpleMonsterAction(doorway.monster, { state: game });
+            assert.deepEqual(
+                [doorway.monster.mx, doorway.monster.my],
+                [doorway.destinationX, doorway.heroY],
+                label,
+            );
+            assert.equal(location.typ, DOOR, label);
+            assert.equal(location[representation], mask, label);
+        }
+
         for (const mask of [
-            D_BROKEN,
-            D_ISOPEN,
             D_CLOSED,
             D_LOCKED,
             D_ISOPEN | D_TRAPPED,
@@ -1334,8 +1345,11 @@ test('simple preflight rejects every selected excluded action atomically',
                 name: 'item search',
                 reason: 'ordinary monster item interaction',
                 prepare: async () => {
+                    // A rust monster is metallivorous without tunneling: a
+                    // tunneler's move reaches mdig_tunnel() first, which the
+                    // port refuses before this arm.
                     const target = await prepareSelectedAction({
-                        pmidx: PM_ROCK_MOLE,
+                        pmidx: PM_RUST_MONSTER,
                     });
                     // A blind hostile sets approach=0, so m_move() enters
                     // m_search_items() regardless of line-of-fire geometry.
@@ -1358,12 +1372,14 @@ test('simple preflight rejects every selected excluded action atomically',
                 name: 'own-square item search',
                 reason: 'ordinary monster item interaction',
                 prepare: async () => {
+                    // A blind hostile searches items, and finding this metal
+                    // object on its own square completes m_search_items()
+                    // before candidate movement. The monster never moves, so
+                    // MMOVE_DONE skips postmov()'s dig arm and this rock
+                    // mole's tunneling stays out of the way.
                     const target = await prepareSelectedAction({
                         pmidx: PM_ROCK_MOLE,
                     });
-                    // A blind hostile searches items, and finding this metal
-                    // object on its own square completes m_search_items()
-                    // before candidate movement.
                     target.monster.mcansee = false;
                     game.viz_array[target.heroY][target.monsterX]
                         &= ~COULD_SEE;
@@ -1398,6 +1414,25 @@ test('simple preflight rejects every selected excluded action atomically',
                 reason: 'a special monster action',
                 prepare: () => prepareSelectedAction({
                     pmidx: PM_SHRIEKER,
+                }),
+            },
+            {
+                // dig.c mdig_tunnel() draws rnd(12) before deciding that
+                // ordinary floor holds nothing to dig, so a tunneler's plain
+                // move already spends a call this port cannot make.
+                name: 'tunneling monster',
+                reason: 'monster tunneling',
+                prepare: () => prepareSelectedAction({
+                    pmidx: PM_ROCK_MOLE,
+                }),
+            },
+            {
+                // monmove.c maybe_spin_web() draws rn2(1000) for a webmaker
+                // standing on a trapless square.
+                name: 'web-spinning monster',
+                reason: 'monster web spinning',
+                prepare: () => prepareSelectedAction({
+                    pmidx: PM_CAVE_SPIDER,
                 }),
             },
         ];
@@ -1463,8 +1498,11 @@ test('simple preflight admits inert AT_WEAP capability and inventory',
 
 test('simple preflight ignores an unselected rock during item search',
     async () => {
+        // A gnome is M2_COLLECT, so m_search_items() would select this
+        // object were it not the rock its source skips. A rock mole would too,
+        // but its move reaches postmov()'s dig arm first.
         const target = await prepareSelectedAction({
-            pmidx: PM_ROCK_MOLE,
+            pmidx: PM_GNOME,
         });
         target.monster.mcansee = false;
         game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;

@@ -47,7 +47,9 @@ import {
     DRAWBRIDGE_UP,
     D_BROKEN,
     D_CLOSED,
+    D_ISOPEN,
     D_LOCKED,
+    D_NODOOR,
     FAINTED,
     FIRE_TRAP,
     G_GENOD,
@@ -134,7 +136,12 @@ import { sengr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { dist2, distmin, online2 } from './hacklib.js';
 import { money_cnt } from './invent.js';
-import { curr_mon_load, m_carrying, max_mon_load } from './mon.js';
+import {
+    curr_mon_load,
+    m_carrying,
+    max_mon_load,
+    mpickstuff,
+} from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
     acidic,
@@ -299,7 +306,10 @@ import { m_in_out_region, visible_region_at } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
-import { collectMonsterMovementMessage } from './startup_a11y.js';
+import {
+    collectMonsterMovementMessage,
+    collectMonsterNoticeMessage,
+} from './startup_a11y.js';
 import { S_poisoncloud } from './symbols.js';
 import { noteleport_level } from './teleport.js';
 import { gettrack, hastrack } from './track.js';
@@ -2293,6 +2303,111 @@ export function monsterItemSearchInLine(monster, env = {}) {
         || random.rn2(2 + terrain.boulders) < 2;
 }
 
+// The door masks postmov()'s door block leaves alone.  Every arm of that block
+// tests D_LOCKED or D_CLOSED, so a monster standing on a doorless, broken or
+// open doorway falls through it without touching the doormask, the map or the
+// message window.
+const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
+
+// C ref: monmove.c postmov() (1454-1705).  Covers notice_mon(), the redraw of
+// the square the monster left, the door block's fall-through for an inert
+// doormask, the redraw of the square it reached, and the object arm's
+// mpickstuff() branch.  The injected `unsupported` refuses the rest: the
+// vamp_shift() sequencing hack, mintrap(), every door arm that rewrites a
+// doormask, IRONBARS, mdig_tunnel(), the engulfed-hero relocation, and
+// maybe_spin_web().  meatmetal(), meatobj() and meatcorpse() are refused
+// through select_postmove_object_action(), which selects them.  hideunder()
+// and after_shk_move() need a hider, an eel or a shopkeeper, each refused
+// before the scan by js/unported_monster_actions.js.
+//
+// C passes `ptr` because mintrap() can polymorph the monster.  It refreshes
+// that cache from mtmp->data straight after the mintrap() call, and every use
+// below stands after that point, so this reads monster.data instead.
+export async function postmov(
+    monster,
+    omx,
+    omy,
+    mmoved,
+    canTunnel,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    const unsupported = requireMoveOperation(rawEnv, 'unsupported');
+    // pline() and newsym().  The planning scan replays the same turn against
+    // the live display afterwards, so a dry run must produce neither.
+    const message = env.planning
+        ? async () => {}
+        : (rawEnv.message ?? ttyPline);
+    const redraw = env.planning ? () => {} : (rawEnv.redraw ?? newsym);
+    const species = monster.data;
+
+    const notice = collectMonsterNoticeMessage(monster, state);
+    if (notice) await message(notice, state, env);
+
+    let outcome = mmoved;
+    if (mmoved === MMOVE_MOVED) {
+        redraw(omx, omy);
+        // mintrap() runs here, at monmove.c:1509, before the door block.  A
+        // square holding a trap is refused before the monster steps onto it,
+        // by assertSimpleDestination() in js/unported_monster_actions.js.
+        const here = state.level?.at(monster.mx, monster.my);
+        if (IS_DOOR(here?.typ) && !passes_walls(species) && !canTunnel) {
+            if (!INERT_DOOR_MASKS.has(doorMask(here)))
+                unsupported('a monster opening a door');
+        } else if (here?.typ === IRONBARS) {
+            unsupported('monster iron-bar movement');
+        }
+        if (canTunnel && may_dig(monster.mx, monster.my, state))
+            unsupported('monster tunneling');
+        // C ref: monmove.c:1649-1656.  A monster that has swallowed the hero
+        // drags them to its new square instead of repainting the old one.
+        if (state.u?.uswallow && state.u?.ustuck === monster)
+            unsupported('an engulfing monster moving');
+        redraw(monster.mx, monster.my);
+    }
+
+    if (mmoved === MMOVE_MOVED || mmoved === MMOVE_DONE) {
+        if (state.level?.objects?.[monster.mx]?.[monster.my]) {
+            const selected = select_postmove_object_action(
+                monster,
+                monster.mx,
+                monster.my,
+                {
+                    ...env,
+                    touchArtifact: () =>
+                        unsupported('monster artifact item interaction'),
+                },
+            );
+            // Only mpickstuff()'s arm is ported; meatmetal(), meatobj() and
+            // meatcorpse() still stop the scan, and they precede it here.
+            if (selected && selected.kind !== 'pick up')
+                unsupported('ordinary monster item interaction');
+            if (selected) {
+                const picked = await mpickstuff(
+                    monster,
+                    selected.object,
+                    selected.carryamt,
+                    { ...env, message, redraw },
+                );
+                // C ref: monmove.c:1680, `if (mpickstuff(mtmp)) mmoved =
+                // MMOVE_DONE;`.  dochug() reads that: MMOVE_DONE skips the
+                // post-move ranged attack and reaches the standard-attack
+                // gate, where MMOVE_DONE then suppresses the attack.
+                if (picked) outcome = MMOVE_DONE;
+            }
+            // monmove.c:1683-1687 repeats newsym() when mtmp->minvis is set.
+            // ROADMAP.md records why no case can reach that arm.
+        }
+        // maybe_spin_web(), called at monmove.c:1690 and defined at :1269,
+        // draws rn2(1000) for any webmaker standing on a trapless square, so
+        // skipping it silently would move the whole PRNG log.  Its own guards are narrower than this refusal:
+        // helpless() and soko_allow_web() are not ported.
+        if (webmaker(species)) unsupported('monster web spinning');
+    }
+    return outcome;
+}
+
 // C ref: monmove.c m_move().  Covers the prologue, the tame dog_move()
 // dispatch, and the ordinary not_special path through postmov().  Not covered:
 // the hides_under() early return, the wormno branch, the is_covetous() tactics
@@ -2309,7 +2424,6 @@ export async function m_move(monster, rawEnv = {}) {
         rawEnv,
         'resistsTrapEffect',
     );
-    const postMonsterMove = requireMoveOperation(rawEnv, 'postMonsterMove');
     const finishEating = requireMoveOperation(rawEnv, 'finishEating');
     const movePet = requireMoveOperation(rawEnv, 'movePet');
     const unsupported = requireMoveOperation(rawEnv, 'unsupported');
@@ -2328,6 +2442,25 @@ export async function m_move(monster, rawEnv = {}) {
         return MMOVE_DONE;
     }
     set_apparxy(monster, env);
+    // C ref: monmove.c:1763-1766.  mon_allowflags() computes the same three
+    // capabilities for mfndpos(); m_move() keeps its own can_tunnel because it
+    // clears that copy again below, after the item search.  can_open and
+    // can_unlock are left out: every door arm that reads one is refused in
+    // postmov(), so neither can change a result yet.
+    let canTunnel = !on_level(state.u?.uz, state.rogue_level)
+        && tunnels(monster.data);
+    // Tests substitute their own postmov() to isolate m_move(); the running
+    // game uses the port above.
+    const postMonsterMove = rawEnv.postMonsterMove
+        ?? ((subject, subjectOldX, subjectOldY, status, moveEnv) =>
+            postmov(
+                subject,
+                subjectOldX,
+                subjectOldY,
+                status,
+                canTunnel,
+                moveEnv,
+            ));
     if (monster.mtame) {
         // C: `return postmov(mtmp, ptr, omx, omy, dog_move(mtmp, after), ...)`.
         // dochug() is the only reachable caller and passes after == 0.
@@ -2400,6 +2533,16 @@ export async function m_move(monster, rawEnv = {}) {
                 env,
             );
         }
+    }
+
+    // C ref: monmove.c:1910-1914, "don't tunnel if hostile and close enough to
+    // prefer a weapon".  The two postmov() calls above run before this, so a
+    // pet and a monster that finished an item search both carry the value the
+    // capability block set.
+    if (canTunnel && needspick(monster.data)
+        && (!monster.mpeaceful || propertyActive(state, CONFLICT))
+        && dist2(monster.mx, monster.my, monster.mux, monster.muy) <= 8) {
+        canTunnel = false;
     }
 
     const data = { cnt: 0, poss: [], info: [] };
