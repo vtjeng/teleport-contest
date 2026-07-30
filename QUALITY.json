@@ -3986,6 +3986,109 @@
         ]
       },
       "recordedAt": "2026-07-30T16:28:07.847Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world-effects": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
+        "monsters": "005ea20e047e76958b57d78c39ed3136f3ebe1d1"
+      },
+      "head": "06a5629b044794642e83fd6127cddc7f942680d0",
+      "auditedRange": "c706db8a6f372d28630d0f8e9bb06eba929a1123..06a5629b044794642e83fd6127cddc7f942680d0",
+      "areas": [
+        "world-effects",
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the slice that ported monmove.c postmov()'s D_CLOSED door-opening arm and, as its precondition, gave vision_recalc() a state parameter. Five finders including performance, enabled because the cloned scan now owns a terrain grid and vision buffers and the preflight re-derives the transparency index every elapsed turn; the performance finder confirmed nothing. 14 raw findings, 11 after deduplication, 10 confirmed, 2 applied at d7dd150, 8 deferred to ROADMAP.md, 1 rejected, none unverified, no warnings. The material defect was at the seam the pass was pointed at: the transparency-index restore was not side-effect-free, because recalc_block_point() runs rebuildVisionPoint(), which sets vision_full_recalc whenever the change touches the hero's current vision — the normal case for a door in a lit room — so the dry run left a flag the live scan then consumed as a vision_recalc(0) C never performs. The checked-in fixture could not show it, since its viz_array entry at the door is zero and rebuildVisionPoint() takes the other branch; the new test clears the squares between hero and door and recomputes first. The second applied finding is the orchestrator's own from the previous cycle: the trap guard reinstated at monmove.c:1509's position had no test, so deleting it left the whole suite green and the repaired defect could return silently. Of the eight deferred, four are comments that outlived the code they describe — including two that still describe the design the implementer abandoned when a focused test disproved it — and three are gaps in the isolation's own coverage. Development score identical before and after at 452 of 7,765 screens, 452 cursors and 99,971 PRNG calls; both door matrices match, 8 segments with 22,622 calls and 248 screens, and 6 segments with 17,436 calls and 146 screens.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2927,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 11,
+          "confirmed": 10,
+          "applied": 2,
+          "deferred": 8,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 4,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The transparency-index restore in preflightSimpleMonsterActions()'s finally was not side-effect-free: recalc_block_point() runs rebuildVisionPoint(), which sets vision_full_recalc whenever the change touches the hero's current vision — the normal case for a door in a lit room — so the dry run left a flag set that the live scan consumes as a vision_recalc(0) C never performs.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "refuseHeroAttack() gates on monnear(monster, monster.mux, monster.muy), which is C's range2 — whether the monster thinks it is near — where the arm it stands in front of needs the real position.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "refuseHeroAttack() gates on monnear(monster, monster.mux, monster.muy), which is C's range2 — whether the monster thinks it is near — where the arm it stands in front of needs the real position.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "production"
+          },
+          {
+            "summary": "isolatePlannedVision() guards the cloned terrain grid behind state._visionBuffers, so two unrelated isolations share one early return and a later change allocating buffers first would leave level.locations pointing at the live array.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "planningEveryTurnEffect()'s refusal cites a guard in rebuildVisionPoint() that this same range deleted.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "planSimpleMonsterScan()'s visionRecalc refusal still says the dry run cannot reproduce the live buffers, which planningVisionRecalc() now does.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "scripts/monmove.test.mjs's two in-sight door tests are justified by a claim that admitDoorOpening() refuses a door inside the hero's vision, which was the abandoned first design.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "No test plans two door openings in one scan, so the private COULD_SEE buffer pair the settled design rests on is never exercised twice.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "The transparency-index restore is in a finally so it runs after a refusal, but no test covers the refusal path: moving the restore out of the finally leaves the suite green.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "visionSnapshot() and preflightSnapshot() omit game.vision_full_recalc, which is how the flag leak stayed invisible.",
+            "trackedIn": "eight door-opening findings are deferred",
+            "category": "tests"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "A claim about the door-block structure that the adjudicator could not confirm against source.",
+            "counterEvidence": "Failed its source trace with no reproduction recorded. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T18:11:53.460Z"
     }
   ]
 }
