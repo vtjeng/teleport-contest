@@ -4089,6 +4089,105 @@
         ]
       },
       "recordedAt": "2026-07-30T18:11:53.460Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "4d54fa81d05cc763102b5a17dfc44125325ce46b",
+        "monsters": "06a5629b044794642e83fd6127cddc7f942680d0"
+      },
+      "head": "27761926cb6f41e6b236d9b27b9a7ab809c7d608",
+      "auditedRange": "4d54fa81d05cc763102b5a17dfc44125325ce46b..27761926cb6f41e6b236d9b27b9a7ab809c7d608",
+      "areas": [
+        "commands",
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the monster-door goal's last slice, the hero's two diagonal doorway refusals. Four mandatory finders; performance and concurrency not triggered. 17 raw findings, 12 after deduplication, 10 confirmed, 2 applied at 3471a99, 8 deferred to ROADMAP.md, 2 rejected, none unverified, no warnings. The pass caught a regression the slice introduced, and it is this goal's failure mode for the seventh time: a silent divergence rather than a stop. preflightDomoveDestination() short-circuited on refusedDiagonalDoorway() before its destination-monster branch, inverting domove_core()'s order, so a monster diagonally adjacent to a hero on an intact doorway was admitted and then refused inside test_move() instead of raising 'hero combat or displacement' — the port never attacked where C attacks, and with mention_walls on printed a line C never prints. The comment licensing the short-circuit stated the false rule outright. No existing case covered it: the one monster case the slice added uses a tame pet, which C also refuses, and every direct test_move() test clears the monster grid first. The fix restores C's order and adds a hostile-on-the-diagonal case that fails when the short-circuit is reinstated. Development score identical before and after at 459 of 7,765 screens, 459 cursors and 99,980 PRNG calls; the diagonal doorway matrix matches 14 segments, 35,931 PRNG calls and 38 screens.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1770,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 12,
+          "confirmed": 10,
+          "applied": 2,
+          "deferred": 8,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 5,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "preflightDomoveDestination()'s new refusedDiagonalDoorway() short-circuit ran before the destination-monster branch, inverting domove_core()'s order: C takes m_at() at hack.c:2762, runs its run-stop, reaches domove_bump_mon() and domove_attackmon_at() at 2786-2796, and only calls test_move() at 2841, and uhitm.c do_attack() has no diagonal-doorway test. A monster diagonally adjacent to a hero on an intact doorway was therefore admitted and then silently refused inside test_move() instead of raising 'hero combat or displacement', and with mention_walls on the port printed a line C never prints. The comment licensing the short-circuit stated the false rule outright.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "tests"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "The new diagonal arms, the consolidated cant_squeeze_thru() and the obstacle-arm ordering each have coverage that survives mutation.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "A second assertion in the same group survives mutation.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "A third assertion in the same group survives mutation.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "A fourth assertion in the same group survives mutation.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "A fifth assertion in the same group survives mutation.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "A comment overstates what the obstacle-arm ordering establishes.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "A second comment overstates what its code establishes.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "Two vision comments in js/unported_monster_actions.js remain unsettled: the slice worker declined to invent a justification it could not derive, and the pass did not settle them either.",
+            "trackedIn": "eight diagonal-doorway findings are deferred",
+            "category": "clarity"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Two further claims about test_move()'s new arms that the adjudicator could not confirm against source.",
+            "counterEvidence": "Each failed its source trace or diff-causality check with no reproduction recorded. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A second claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T19:26:41.427Z"
     }
   ]
 }
