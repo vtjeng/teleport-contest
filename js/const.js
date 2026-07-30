@@ -158,10 +158,10 @@ export function Amask2align(x) {
     return masked - 2; // 2->0 (NEUTRAL), 1->-1 (CHAOTIC)
 }
 
-// Gender
+// Gender. The third member of monflag.h:214 `enum mgender` is exported as
+// NEUTRAL under the monflag.h heading below.
 export const MALE = 0;
 export const FEMALE = 1;
-export const NEUTER = 2;
 
 // Races
 export const RACE_HUMAN = 0;

@@ -25,7 +25,6 @@ import {
     M_SEEN_SLEEP,
     MALE,
     NATTK,
-    NEUTER,
     NEUTRAL,
     NO_TRAP,
     NUM_MGENDERS,
@@ -1270,7 +1269,10 @@ export function max_passive_dmg(mdef, magr, state = game) {
 // callers get 0 or 1 and can index pmnames[]. The port stores female as a
 // JavaScript boolean, so convert it the way monst.h's Mgender() does.
 export function gender(monster) {
-    if (is_neuter(monster.data)) return NEUTER;
+    // C's literal 2 is monflag.h:214 `enum mgender`'s NEUTRAL member, the same
+    // pmnames[] index this file uses elsewhere. C has no NEUTER gender; the
+    // similarly named M2_NEUTER is the species flag is_neuter() tests.
+    if (is_neuter(monster.data)) return NEUTRAL;
     return monster.female ? FEMALE : MALE;
 }
 

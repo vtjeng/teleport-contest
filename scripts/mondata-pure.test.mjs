@@ -20,6 +20,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import * as M from '../js/monsters.js';
+import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 import {
     big_little_match,
     breakarm,
@@ -155,6 +156,16 @@ test('mstrength reproduces the C difficulty formula', () => {
     assert.equal(mstrength(pm(M.PM_CHICKATRICE)), 7);
 
     // shocking sphere exercises the AT_EXPL bonus, which is +5 for AD_ELEC.
+    // monsters.h: LVL(6, 13, 4, 0, 0), G_NOCORPSE | G_GENO | 2, one
+    // ATTK(AT_EXPL, AD_ELEC, 4, 6).
+    //   n = 0 (no G_SGROUP or G_LGROUP)
+    //     + 0 (ranged: AT_EXPL is 13, below AT_WEAP and outside the
+    //          AT_BREA|AT_SPIT|AT_GAZE mask, monattk.h:23)
+    //     + 0 (ac 4 is not < 4) + 0 (mmove 13 < 18)
+    //     + 1 (aatyp > 0) + 5 (AT_EXPL carrying AD_ELEC)
+    //     + 1 (AD_ELEC != AD_PHYS through the non-grid-bug strcmp arm)
+    //     + 1 (damd * damn = 6 * 4 = 24 > 23) = 8
+    //   n >= 6, so tmp = 6 + trunc(8/2) = 10
     assert.equal(mstrength(pm(M.PM_SHOCKING_SPHERE)), 10);
 });
 
@@ -165,23 +176,54 @@ test('mstrength agrees with the difficulty C stores for every species', () => {
     // table or the algorithm needs updating, so upstream tolerates a few. This
     // sweep pins every attack-type and damage-type constant the formula reads
     // at once; a single missing enum export shows up here as a batch of
-    // mismatches. C's loop stops at the terminator row, which has mlet 0.
-    const KNOWN_UPSTREAM_MISMATCHES = new Set([
-        M.PM_CLERIC, M.PM_WIZARD,
+    // mismatches.
+    //
+    // The two rows where upstream's own table disagrees carry the value
+    // mstrength() must return instead, so the exclusion is re-derived rather
+    // than assumed. The priest/cleric (monsters.h:3396, LVL(10, 12, 10, 2, 0),
+    // G_NOGEN, AT_WEAP/AD_PHYS 1d6 + AT_MAGC/AD_CLRC, M2_STRONG, stored 12) and
+    // the wizard (monsters.h:3453, same shape with AD_SPEL, stored 12) both
+    // give
+    //   n = 1 (ranged: AT_WEAP is 254, so `j >= AT_WEAP` holds)
+    //     + 0 (ac 10) + 0 (mmove 12 < 18)
+    //     + 1 (AT_WEAP aatyp > 0) + 1 (AT_WEAP with M2_STRONG)
+    //     + 1 (AT_MAGC aatyp > 0) + 1 (tmp2 == AT_MAGC)
+    //     + 1 (AD_CLRC/AD_SPEL != AD_PHYS) + 0 (damd * damn = 6, not > 23) = 6
+    //   n >= 6, so tmp = 10 + trunc(6/2) = 13, one above the stored 12.
+    const KNOWN_UPSTREAM_MISMATCHES = new Map([
+        [M.PM_CLERIC, 13],
+        [M.PM_WIZARD, 13],
     ]);
     const mismatched = [];
+    let checked = 0;
     for (let index = 0; index < M.NUMMONS; index++) {
         const species = state.mons[index];
+        // Defensive only. C's loops over mons[] stop at the terminator row,
+        // whose mlet is 0 (wizcmds.c:1806 `for (ptr = &mons[0]; ptr->mlet;`),
+        // but NUMMONS already excludes that row, so this never fires. The
+        // `checked` assertion below is what proves the sweep is not vacuous.
         if (!species || !species.mlet) continue;
-        if (KNOWN_UPSTREAM_MISMATCHES.has(index)) continue;
-        if (mstrength(species) !== species.difficulty) {
+        checked++;
+        const strength = mstrength(species);
+        const upstream = KNOWN_UPSTREAM_MISMATCHES.get(index);
+        const expected = upstream ?? species.difficulty;
+        if (strength !== expected) {
             mismatched.push(
-                `${species.pmnames[2]}: ${mstrength(species)} `
-                + `!= ${species.difficulty}`,
+                `${species.pmnames[2]}: ${strength} != ${expected}`,
+            );
+        }
+        // The exclusion is only justified while the stored value really does
+        // disagree. If upstream corrects its table, this entry must go.
+        if (upstream !== undefined && strength === species.difficulty) {
+            mismatched.push(
+                `${species.pmnames[2]}: no longer disagrees with `
+                + `monsters.h (${species.difficulty})`,
             );
         }
     }
     assert.deepEqual(mismatched, []);
+    // Every non-terminator row was compared, so no skip silenced the sweep.
+    assert.equal(checked, M.NUMMONS);
 });
 
 test('every monster constant mondata.js reads is actually exported', () => {
@@ -191,13 +233,18 @@ test('every monster constant mondata.js reads is actually exported', () => {
     // all dead at once. This guard fails the moment another one goes missing.
     // scripts/check-namespace-members.mjs applies the same rule to every
     // namespace import in js/ and scripts/; this one keeps the failure next to
-    // the functions it breaks.
-    const source = readFileSync(
-        new URL('../js/mondata.js', import.meta.url), 'utf8');
+    // the functions it breaks. Reuse that module's blankCommentsAndStrings()
+    // so both apply the rule identically: a comment naming an unported
+    // upstream constant, such as `// upstream also handles M.AD_CLRC here`, is
+    // not a member access and must not fail this test.
+    const source = blankCommentsAndStrings(readFileSync(
+        new URL('../js/mondata.js', import.meta.url), 'utf8'));
     const referenced = [...new Set(
         [...source.matchAll(/\bM\.([A-Za-z_][A-Za-z0-9_]*)/gu)]
             .map((match) => match[1]),
     )].sort();
+    // A tripwire against the match silently collapsing. mondata.js reads 342
+    // distinct members today, so the floor leaves room to add and remove a few.
     assert.equal(referenced.length > 300, true);
     assert.deepEqual(referenced.filter((name) => M[name] === undefined), []);
 });
@@ -330,10 +377,46 @@ test('max_passive_dmg wipes out an attacker its passive completely destroys',
         assert.equal(max_passive_dmg(mdef, jackal, state), 8);
     });
 
+test('max_passive_dmg covers the cold and shock resistance arms too', () => {
+    // C writes the AD_ACID, AD_COLD, AD_FIRE and AD_ELEC arms of the same
+    // else-if chain identically (mondata.c:754-757), so each needs its own
+    // case; the tests above exercise only AD_ACID and AD_FIRE.
+    //
+    // The blue jelly's only attack is ATTK(AT_NONE, AD_COLD, 0, 6) at mlevel 4
+    // (monsters.h:591), so damn 0 substitutes mlevel + 1 = 5 and the product
+    // is 5 * damd(6) per counted attacker attack.
+    const chilling = { data: pm(M.PM_BLUE_JELLY), mhp: 30 };
+    const jackal = { data: pm(M.PM_JACKAL), mhp: 7, mextrinsics: 0,
+        mintrinsics: 0, minvent: null };
+    // A jackal has one AT_BITE, so multi2 is 1, and it does not resist cold.
+    assert.equal(max_passive_dmg(chilling, jackal, state), 30);
+    // The winter wolf cub carries MR_COLD (monsters.h:280) and one counted
+    // attack, AT_BITE; its AT_BREA slot is not in C's multi2 switch. multi2 is
+    // therefore 1, so only the resistance term can zero the result.
+    const wolfCub = { data: pm(M.PM_WINTER_WOLF_CUB), mhp: 25,
+        mextrinsics: 0, mintrinsics: 0, minvent: null };
+    assert.equal(max_passive_dmg(chilling, wolfCub, state), 0);
+
+    // The energy vortex's passive is its third slot, ATTK(AT_NONE, AD_ELEC, 0,
+    // 4) at mlevel 6 (monsters.h:1081); the loop skips its two AT_ENGL slots
+    // first. damn 0 substitutes mlevel + 1 = 7, giving 7 * damd(4) per counted
+    // attack.
+    const shocking = { data: pm(M.PM_ENERGY_VORTEX), mhp: 40 };
+    assert.equal(max_passive_dmg(shocking, jackal, state), 28);
+    // An energy vortex attacking one of its own resists MR_ELEC, and its two
+    // AT_ENGL attacks put multi2 at 2, so a lost resistance check would show
+    // as 56 rather than 0.
+    const vortex = { data: pm(M.PM_ENERGY_VORTEX), mhp: 40, mextrinsics: 0,
+        mintrinsics: 0, minvent: null };
+    assert.equal(max_passive_dmg(shocking, vortex, state), 0);
+});
+
 test('max_passive_dmg covers the rot and rust instakill arms too', () => {
-    // completelyrots: the brown pudding's first attack is AT_BITE/AD_DCAY,
-    // which the passive loop skips, so use a synthetic defender whose passive
-    // slot carries AD_DCAY. C's three arms are written identically, so each
+    // completelyrots: the brown pudding (monsters.h:2092) is the table's only
+    // AD_DCAY row, and its one attack is AT_BITE/AD_DCAY, which the passive
+    // loop skips. No real species pairs AD_DCAY with AT_NONE or AT_BOOM, so
+    // the arm is unreachable from table data in C too and the case needs a
+    // synthetic defender. C's three arms are written identically, so each
     // needs its own case; only the AD_FIRE one was exercised before.
     // AT_NONE is 0 (monattk.h:12) and AD_DCAY is 34 (monattk.h:76). Both are
     // written as C numbers because max_passive_dmg() branches on exactly these
@@ -352,8 +435,10 @@ test('max_passive_dmg covers the rot and rust instakill arms too', () => {
         mintrinsics: 0, minvent: null };
     assert.equal(max_passive_dmg(decaying, leather, state), 80);
 
-    // completelyrusts: the rust monster's first attack really is a passive
-    // AT_NONE/AD_RUST, and only the iron golem completely rusts.
+    // completelyrusts: the rust monster's first two slots are AT_TUCH/AD_RUST
+    // and only its third is AT_NONE/AD_RUST (monsters.h:2149), so this case
+    // also exercises the loop's skip-and-continue before the passive slot is
+    // found. Only the iron golem completely rusts.
     const rusting = { data: pm(M.PM_RUST_MONSTER), mhp: 30 };
     const iron = { data: pm(M.PM_IRON_GOLEM), mhp: 80, mextrinsics: 0,
         mintrinsics: 0, minvent: null };
@@ -416,6 +501,11 @@ test('stagger picks the third and fourth locomotion verbs', () => {
     // flys (MZ_SMALL or smaller) flutters; flyl (larger) staggers. These two
     // rows are identical at the indexes locomotion() reads and differ here.
     assert.equal(stagger(pm(M.PM_BAT), 'stumble'), 'flutter');
+    // The giant bat is SIZ(..., MZ_SMALL) (monsters.h:1280) with M1_FLY, so it
+    // sits on the inclusive end of C's `ptr->msize <= MZ_SMALL` (mondata.c
+    // locomotion()). MZ_SMALL is 1 and MZ_TINY is 0 (monflag.h:177-178), so
+    // PM_BAT above is strictly below the bound and pins nothing at it.
+    assert.equal(stagger(pm(M.PM_GIANT_BAT), 'stumble'), 'flutter');
     assert.equal(stagger(pm(M.PM_GRAY_DRAGON), 'stumble'), 'stagger');
     assert.equal(stagger(pm(M.PM_GARTER_SNAKE), 'stumble'), 'falter');
     assert.equal(stagger(pm(M.PM_BROWN_PUDDING), 'stumble'), 'tremble');
