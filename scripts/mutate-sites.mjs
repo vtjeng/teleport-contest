@@ -21,22 +21,25 @@
 // an object-literal key position (`{ 3: x }`) is a name. Mutating any of the
 // four produces noise, so the enumerator skips all four.
 //
-// Every mutant is judged by the whole suite, in two waves. The first wave is
-// the test files that reach the module without passing through another js/
-// module, so a test that imports the module through a helper under scripts/
-// counts. A failure there kills the mutant and the rest of the suite is
-// skipped. A mutant that passes its first wave then runs every remaining test
-// file, and only a mutant the whole suite passed is reported as a survivor.
+// Every mutant runs a first wave: the test files that reach the module without
+// passing through another js/ module, so a test that imports the module through
+// a helper under scripts/ counts. A failure there kills the mutant.
 //
-// The ordering exists because a correct subset costs nearly what the whole
-// suite costs. Following js/-to-js/ imports puts 72 of the 132 test files
-// behind js/hack.js and 102 behind js/mondata.js, and the slowest files sit in
-// those sets, so `node --test`'s concurrency leaves the subset almost as slow
-// as the full run. Judging by the first wave alone is cheaper and wrong: on
-// `ce9c59f~1..ce9c59f` it reported five survivors, and the rest of the suite
-// killed four of them, including a mutant of js/hack.js that scripts/closed-
-// door-autoopen.test.mjs fails on while all seven files importing js/hack.js
-// directly pass.
+// What happens next depends on `--full`. Without it the first wave is the
+// verdict, which is fast and reports false survivors. With it, a mutant that
+// passed its first wave runs every remaining test file, and only a mutant the
+// whole suite passed is reported as a survivor. On `ce9c59f~1..ce9c59f` the
+// first wave alone reported five survivors and the rest of the suite killed
+// four of them, among them a mutant of js/hack.js that
+// `scripts/closed-door-autoopen.test.mjs` fails on while all seven files
+// importing js/hack.js directly pass. The report states which verdict it
+// applied.
+//
+// Judging by a transitive import set would cost nearly what the whole suite
+// costs, so it buys nothing over `--full`. Following js/-to-js/ imports puts 72
+// of the 132 test files behind js/hack.js and 102 behind js/mondata.js, and the
+// slowest files sit in those sets, so `node --test`'s concurrency leaves the
+// subset almost as slow as the full run.
 //
 // Usage:
 //
@@ -46,6 +49,9 @@
 // `--range` mutates the lines that range changed. `--file` repeats and mutates
 // every line of each file, which is the form to reach for when the question is
 // whether a module's tests pin its behavior at all. The two cannot be combined.
+// `--full` judges every mutant that survives its first wave by the whole
+// suite, at the cost the figures below give. A correctness pass wants it; a
+// quick local check does not.
 //
 // Both forms take `--enumerate-only`, which prints the site and mutant counts
 // per file and stops before running any test, and `--limit <n>`, which stops
@@ -63,28 +69,30 @@
 // own set, which `scripts/mutate-sites.test.mjs` asserts against whichever
 // commit last changed js/.
 //
-// Cost has two parts. A first wave costs what its own files cost, from 0.14 s
-// per mutant for a one-file wave to 2.20 s for js/hack.js's seven. Every mutant
-// that passes its first wave then costs about 13 s, the time the 122-file
-// verdict suite takes. The total is therefore set by how many mutants the first
-// wave kills, and a module whose own tests are weak pays the suite for nearly
-// every mutant.
+// A first wave costs what its own files cost, from 0.14 s per mutant for a
+// one-file wave to 2.20 s for js/hack.js's seven. Under `--full`, every mutant
+// that passes its first wave costs about 13 s more, the time the 122-file
+// verdict suite takes, so the total depends on how many the first wave kills. A
+// module whose own tests are weak pays the suite for nearly every mutant.
 //
-// Measured on 30 July 2026, wall clock for the whole command:
+// Measured on 30 July 2026, wall clock for the whole command, without `--full`
+// and with it:
 //
-// - `ce9c59f~1..ce9c59f`, 8 mutants over js/hack.js and js/lock.js: the first
-//   wave killed 3 at 1.36 s each, 5 reached the suite at 12.7 s each, 84 s in
-//   total including a 13 s baseline of 1,795 tests over 122 files;
-// - `c67aa92~1..c67aa92`, 17 mutants over js/regen.js alone: the first wave
-//   killed 1 at 0.14 s, 16 reached the suite at 13.0 s each, 228 s in total.
+// - `ce9c59f~1..ce9c59f`, 8 mutants over js/hack.js and js/lock.js: 12.7 s and
+//   84.0 s. The first wave killed 3 at 1.36 s each; the 5 that reached the
+//   suite cost 12.7 s each, and it killed 4 of them;
+// - `c67aa92~1..c67aa92`, 17 mutants over js/regen.js alone: 3.0 s and 224.2 s.
+//   The first wave killed 1 at 0.14 s; the 16 that reached the suite cost
+//   13.0 s each and it killed none, so `--full` cost 75 times as much for the
+//   same answer.
 //
 // Site density measured 0.165 per line in scope over the 692 lines
 // `HEAD~40..HEAD` changed at 049ebb0 on 29 July 2026, at 1.45 mutants per site.
 // Extrapolating that density, the 1,000-line review window that
-// `.agents/review.md` sets as the full-pass gate holds about 239 mutants, which
-// runs in roughly 26 minutes if the first wave kills half of them and 52
-// minutes if it kills none. Those two figures are extrapolations from the two
-// ranges above and assume the same density and the same 13 s suite.
+// `.agents/review.md` sets as the full-pass gate holds about 239 mutants. Under
+// `--full` that runs in roughly 26 minutes if the first wave kills half of them
+// and 52 minutes if it kills none. Both figures extrapolate from the two ranges
+// above and assume the same density and the same 13 s suite.
 
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
@@ -619,6 +627,12 @@ export function reportedTestCount(output) {
 }
 
 function runTests(workspace, testFiles, timeoutMs) {
+    // `node --test` with no file argument discovers and runs everything it can
+    // find, so an empty list would quietly run the whole workspace, including
+    // fixtures meant to fail. Every caller has to decide what an empty set
+    // means.
+    if (!testFiles.length)
+        throw new Error('runTests needs at least one test file');
     const args = ['--test', ...testFiles.map((name) => join('scripts', name))];
     const started = process.hrtime.bigint();
     const result = spawnSync(process.execPath, args, {
@@ -696,25 +710,48 @@ export function partitionTestFiles(rootPath = REPO_ROOT) {
  * baseline kills every mutant, so the result would say nothing about the tests.
  */
 export function runMutants({ workspace, targets,
-    allTests = partitionTestFiles().suite, limit = Infinity,
-    log = () => {} }) {
-    const measurable = targets.filter((target) => target.sites.length);
+    allTests = partitionTestFiles().suite, fullSuite = false,
+    limit = Infinity, log = () => {} }) {
+    const withSites = targets.filter((target) => target.sites.length);
+    // Without the whole suite, a module no test file reaches has no verdict at
+    // all, and reporting its mutants as survivors would claim a gap that was
+    // never tested for.
+    const measurable = fullSuite
+        ? withSites
+        : withSites.filter((target) => target.tests.length);
+    const unmeasured = fullSuite
+        ? []
+        : withSites.filter((target) => !target.tests.length);
+    const baselineFiles = fullSuite
+        ? allTests
+        : [...new Set(measurable.flatMap((target) => target.tests))].sort();
 
-    log(`baseline: ${allTests.length} test file(s)`);
-    const baseline = runTests(workspace, allTests, 15 * 60 * 1000);
+    // With no first wave and no `--full`, nothing can run and nothing is known.
+    if (!baselineFiles.length) {
+        return { survivors: [], killed: 0, timeouts: 0, ran: 0, perFile: [],
+            scheduled: 0, unmeasured, fullSuite, suiteSize: allTests.length,
+            ranSeconds: 0, firstWaveKilled: 0, firstWaveRuns: 0,
+            firstWaveSeconds: 0, fullSuiteKilled: 0, fullSuiteRuns: 0,
+            fullSuiteSeconds: 0, baselineSeconds: 0, baselineFiles: [],
+            baselineTests: 0 };
+    }
+
+    log(`baseline: ${baselineFiles.length} test file(s)`);
+    const baseline = runTests(workspace, baselineFiles, 15 * 60 * 1000);
     const baselineSeconds = baseline.seconds;
     const baselineTests = reportedTestCount(baseline.output);
     if (!baseline.passed) {
         throw new Error('the unmutated tests do not pass, so no mutant '
             + 'result would be meaningful; fix them first. '
-            + `node --test ${allTests.join(' ')} reported:\n`
+            + `node --test ${baselineFiles.join(' ')} reported:\n`
             + failureLines(baseline.output));
     }
     // A run that executes nothing also exits 0, and every mutant would then
     // look like a survivor.
     if (baselineTests === 0) {
-        throw new Error(`the baseline run of ${allTests.length} test file(s) `
-            + 'reported no tests, so no mutant result would be meaningful');
+        throw new Error(`the baseline run of ${baselineFiles.length} test `
+            + 'file(s) reported no tests, so no mutant result would be '
+            + 'meaningful');
     }
     log(`baseline passed ${baselineTests} test(s) in `
         + `${baselineSeconds.toFixed(1)} s`);
@@ -765,6 +802,13 @@ export function runMutants({ workspace, targets,
                     }
                 }
 
+                // An empty remainder means the first wave was the whole suite,
+                // so passing it is already the whole suite's verdict.
+                if (!fullSuite || !remaining.length) {
+                    survivors.push({ ...site, path: target.path,
+                        tests: target.tests });
+                    continue;
+                }
                 const rest = runTests(workspace, remaining, timeoutMs);
                 fullSuiteRuns += 1;
                 fullSuiteSeconds += rest.seconds;
@@ -786,11 +830,12 @@ export function runMutants({ workspace, targets,
         if (ran >= limit) break;
     }
 
-    return { survivors, killed, timeouts, ran, perFile, scheduled,
+    return { survivors, killed, timeouts, ran, perFile, scheduled, unmeasured,
+        fullSuite, suiteSize: allTests.length,
         ranSeconds: firstWaveSeconds + fullSuiteSeconds,
         firstWaveKilled, firstWaveRuns, firstWaveSeconds,
         fullSuiteKilled, fullSuiteRuns, fullSuiteSeconds,
-        baselineSeconds, baselineFiles: allTests, baselineTests };
+        baselineSeconds, baselineFiles, baselineTests };
 }
 
 function failureLines(output) {
@@ -813,10 +858,15 @@ const perMutant = (seconds, runs) =>
 
 export function formatReport(result) {
     const lines = [];
+    lines.push(result.fullSuite
+        ? `verdict: the whole suite, ${result.suiteSize} test file(s)`
+        : 'verdict: the first wave only, so a survivor below may still be '
+            + 'killed by a test that reaches its module through another js/ '
+            + 'module; pass --full to judge every mutant by the whole suite');
     for (const site of result.survivors) {
         lines.push(`survived ${describeSite(site)} `
-            + '(the whole suite passed; first wave was '
-            + `${site.tests.length} file(s): `
+            + `(${result.fullSuite ? 'the whole suite passed; ' : ''}`
+            + `first wave was ${site.tests.length} file(s): `
             + `${site.tests.join(', ') || 'none'})`);
     }
     // Per-file cost, split by phase. The first-wave figure follows from how
@@ -826,16 +876,27 @@ export function formatReport(result) {
     for (const tally of result.perFile) {
         lines.push(`cost ${tally.path}: ${tally.mutants} mutant(s), `
             + `${tally.tests} first-wave file(s) at `
-            + `${perMutant(tally.firstWaveSeconds, tally.mutants)} s, `
-            + `${tally.reachedFullSuite} reached the full suite at `
-            + `${perMutant(tally.fullSuiteSeconds, tally.reachedFullSuite)} s`);
+            + `${perMutant(tally.firstWaveSeconds, tally.mutants)} s`
+            + (result.fullSuite
+                ? `, ${tally.reachedFullSuite} reached the full suite at `
+                    + `${perMutant(tally.fullSuiteSeconds,
+                        tally.reachedFullSuite)} s`
+                : ''));
+    }
+    for (const target of result.unmeasured) {
+        lines.push(`unmeasured ${target.path}: ${target.sites.length} site(s), `
+            + 'no test file reaches this module without passing through another '
+            + 'js/ module; --full would judge it by the whole suite');
     }
     lines.push(`first wave: ${result.firstWaveKilled} of ${result.ran} `
         + `mutant(s) killed over ${result.firstWaveRuns} run(s) at `
         + `${perMutant(result.firstWaveSeconds, result.firstWaveRuns)} s each`);
-    lines.push(`full suite: ${result.fullSuiteRuns} mutant(s) reached it, `
-        + `${result.fullSuiteKilled} killed, at `
-        + `${perMutant(result.fullSuiteSeconds, result.fullSuiteRuns)} s each`);
+    if (result.fullSuite) {
+        lines.push(`full suite: ${result.fullSuiteRuns} mutant(s) reached it, `
+            + `${result.fullSuiteKilled} killed, at `
+            + `${perMutant(result.fullSuiteSeconds, result.fullSuiteRuns)} `
+            + 's each');
+    }
     if (result.ran < result.scheduled) {
         // Say what the limit dropped. A truncated run that reported only its
         // own totals would read as a complete measurement of the target set.
@@ -903,7 +964,7 @@ export function formatSiteCounts(targets, scopedLines) {
  */
 export function parseArgs(argv) {
     const options = { range: null, paths: [], enumerateOnly: false,
-        limit: Infinity };
+        full: false, limit: Infinity };
     for (let i = 0; i < argv.length; ++i) {
         const separator = argv[i].indexOf('=');
         const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
@@ -921,6 +982,10 @@ export function parseArgs(argv) {
             if (inlineValue !== null)
                 throw new Error('--enumerate-only takes no value');
             options.enumerateOnly = true;
+        } else if (name === '--full') {
+            if (inlineValue !== null)
+                throw new Error('--full takes no value');
+            options.full = true;
         } else if (name === '--range') {
             if (options.range) throw new Error('pass one --range');
             const range = valueOf();
@@ -996,13 +1061,16 @@ async function main(argv) {
     const workspace = createWorkspace();
     try {
         const { suite, unaffected } = partitionTestFiles();
-        console.log(`suite: ${suite.length} test file(s) import a js/ module; `
-            + `${unaffected.length} cannot be affected by a mutation and are `
-            + `not run (${unaffected.join(', ')})`);
+        if (options.full) {
+            console.log(`suite: ${suite.length} test file(s) import a js/ `
+                + `module; ${unaffected.length} cannot be affected by a `
+                + `mutation and are not run (${unaffected.join(', ')})`);
+        }
         const result = runMutants({
             workspace,
             targets: targets.filter((target) => target.sites.length),
             allTests: suite,
+            fullSuite: options.full,
             limit: options.limit,
             log: (message) => console.log(message),
         });

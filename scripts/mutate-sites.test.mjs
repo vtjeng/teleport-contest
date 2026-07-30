@@ -301,6 +301,7 @@ test('a run that executes no test file is not a run of survivors', () => {
         workspace,
         targets: [fixtureTarget()],
         allTests: FIXTURE_SUITE,
+        fullSuite: true,
         limit: 1,
     }));
 
@@ -365,6 +366,7 @@ test('the fixture run reports exactly the mutants its test leaves alive',
             workspace,
             targets: [fixtureTarget()],
             allTests: FIXTURE_SUITE,
+            fullSuite: true,
         }));
 
         // js/bounds.js documents why these five survive: nearEdge() is tested
@@ -387,7 +389,8 @@ test('the fixture run reports exactly the mutants its test leaves alive',
         assert.deepEqual(result.baselineFiles, FIXTURE_SUITE);
 
         const report = formatReport(result);
-        assert.equal(report[0], 'survived js/bounds.js:21:14: relational '
+        assert.equal(report[0], 'verdict: the whole suite, 2 test file(s)');
+        assert.equal(report[1], 'survived js/bounds.js:21:14: relational '
             + '`<` -> `<=` (the whole suite passed; first wave was 1 file(s): '
             + 'bounds.test.mjs)');
         assert.match(report.at(-1),
@@ -406,6 +409,7 @@ test('a mutant the first wave passes and a wider file kills counts as killed',
             workspace,
             targets: [fixtureTarget({ lines: new Set([63]) })],
             allTests: ['bounds.test.mjs', 'wrapper.test.mjs'],
+            fullSuite: true,
         }));
 
         assert.equal(result.ran, 1);
@@ -416,11 +420,52 @@ test('a mutant the first wave passes and a wider file kills counts as killed',
         assert.equal(result.fullSuiteKilled, 1);
     });
 
+test('without --full the first wave is the verdict and the report says so',
+    () => {
+        const result = withWorkspace((workspace) => runMutants({
+            workspace,
+            targets: [fixtureTarget({ lines: new Set([63]) })],
+            allTests: FIXTURE_SUITE,
+        }));
+
+        // The same mutant the previous test sees killed. Without the second
+        // wave, scripts/wrapper.test.mjs never runs and the mutant survives, so
+        // the report has to say the verdict came from the first wave alone.
+        assert.equal(result.ran, 1);
+        assert.equal(result.survivors.length, 1);
+        assert.equal(result.fullSuiteRuns, 0);
+        // Only the first wave ran, so the baseline is the first wave too, and
+        // scripts/wrapper.test.mjs is left out of both.
+        assert.deepEqual(result.baselineFiles, ['bounds.test.mjs']);
+
+        const report = formatReport(result);
+        assert.match(report[0], /^verdict: the first wave only,/u);
+        assert.match(report[0], /pass --full/u);
+        assert.equal(report.some((line) => line.startsWith('full suite:')),
+            false);
+    });
+
+test('without --full a module with no first wave is reported as unmeasured',
+    () => {
+        const result = withWorkspace((workspace) => runMutants({
+            workspace,
+            targets: [fixtureTarget({ tests: [], lines: new Set([10]) })],
+            allTests: FIXTURE_SUITE,
+        }));
+
+        // Nothing ran, so nothing is known. Reporting the two mutants of line 10
+        // as survivors would claim a gap that was never tested for.
+        assert.equal(result.ran, 0);
+        assert.deepEqual(result.survivors, []);
+        assert.equal(formatReport(result).some((line) => line.startsWith(
+            'unmeasured js/bounds.js: 2 site(s)')), true);
+    });
+
 test('the module is restored after the last mutant', () => {
     const before = fixtureSource();
     withWorkspace((workspace) => {
         runMutants({ workspace, targets: [fixtureTarget()], limit: 3,
-            allTests: FIXTURE_SUITE });
+            allTests: FIXTURE_SUITE, fullSuite: true });
         // The workspace copy, not the repository file, is what a mutation
         // rewrites; it has to be put back so the next file's baseline holds.
         assert.equal(readFileSync(`${workspace}/js/bounds.js`, 'utf8'), before);
@@ -433,6 +478,7 @@ test('a limit stops the run early', () => {
         workspace,
         targets: [fixtureTarget()],
         allTests: FIXTURE_SUITE,
+        fullSuite: true,
         limit: 2,
     }));
 
@@ -457,6 +503,7 @@ test('a red baseline stops the run before the first mutant',
                 workspace,
                 targets: [fixtureTarget()],
                 allTests: ['red-baseline.test.mjs'],
+                fullSuite: true,
             })),
             /the unmutated tests do not pass/u,
         );
@@ -467,6 +514,7 @@ test('a module with an empty first wave is still judged by the suite', () => {
         workspace,
         targets: [fixtureTarget({ tests: [], lines: new Set([10]) })],
         allTests: FIXTURE_SUITE,
+        fullSuite: true,
     }));
 
     // Line 10 is `export const LIMIT = 4;`, which scripts/bounds.test.mjs
@@ -486,14 +534,15 @@ test('a module with an empty first wave is still judged by the suite', () => {
 
 test('every target is named by --range or --file', () => {
     assert.deepEqual(parseArgs(['--range', 'a..b']),
-        { range: 'a..b', paths: [], enumerateOnly: false, limit: Infinity });
+        { range: 'a..b', paths: [], enumerateOnly: false, full: false,
+            limit: Infinity });
     assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
         { range: null, paths: ['js/a.js', 'js/b.js'], enumerateOnly: false,
-            limit: Infinity });
+            full: false, limit: Infinity });
     // `--name=value` and `--name value` are the same option.
     assert.deepEqual(parseArgs(['--range=a..b', '--limit=5',
-        '--enumerate-only']),
-    { range: 'a..b', paths: [], enumerateOnly: true, limit: 5 });
+        '--enumerate-only', '--full']),
+    { range: 'a..b', paths: [], enumerateOnly: true, full: true, limit: 5 });
 
     assert.throws(() => parseArgs(['--range', 'a..b', '--all']),
         /unknown option/u);
@@ -516,6 +565,7 @@ test('every target is named by --range or --file', () => {
     assert.throws(() => parseArgs(['a..b']), /unexpected argument/u);
     assert.throws(() => parseArgs(['--enumerate-only=yes']),
         /takes no value/u);
+    assert.throws(() => parseArgs(['--full=yes']), /--full takes no value/u);
 });
 
 test('a path outside js/ is refused', () => {

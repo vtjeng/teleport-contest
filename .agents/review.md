@@ -30,12 +30,13 @@ complete. Freeze the committed range and include this readiness note:
   generated checks, and `npm run quality -- --check` pass for the exact head.
   There must be no unassigned `js/` files or non-exempt review debt at a
   batching threshold declared in `QUALITY.json`, outside the frozen range.
-- **Mutation survivors:** Run `npm run mutate -- --range <base>..<head>` over
-  the frozen range and attach its survivor list, its mutant count, and its
-  survivor count to this note. "Mutation-test the reviewed lines" states how to
-  read the list and how to pass it to the review. The run reports `the unmutated
-  tests do not pass` and exits 2 when the head is red, which means the head is
-  not ready for review.
+- **Mutation survivors:** Run
+  `npm run mutate -- --range <base>..<head> --full` over the frozen range and
+  attach its survivor list, its mutant count, and its survivor count to this
+  note. `--full` is what makes a survivor trustworthy, and
+  "Mutation-test the reviewed lines" states why, what it costs, and how to pass
+  the list to the review. The run reports `the unmutated tests do not pass` and
+  exits 2 when the head is red, which means the head is not ready for review.
 
 The active implementation checklist (`.agents/implementation-checklist.md`,
 created when a qualifying slice opens) supports this note; it does not replace
@@ -178,35 +179,43 @@ themselves.
 ### Mutation-test the reviewed lines
 
 `scripts/mutate-sites.mjs` rewrites one relational operator, `&&`, `||`, boolean
-literal, or integer bound at a time in the lines under review, runs the test
-files that import that module, and prints every mutant that no test failed on.
-The script calls such a mutant a **survivor**: a reviewed line whose behavior
-the suite does not distinguish from a wrong version of that line. Its header
-comment states the site set, the four contexts where an integer is skipped, how
-the covering test files are found, and the measured cost per mutant.
+literal, or integer bound at a time in the lines under review, runs the tests,
+and prints every mutant that no test failed on. The script calls such a mutant a
+**survivor**: a reviewed line whose behavior the tests do not distinguish from a
+wrong version of that line. Its header comment states the site set, the four
+contexts where an integer is skipped, which test files each wave runs, and the
+measured cost per mutant.
 
 Run both commands over the frozen range before requesting a full correctness
 pass:
 
 ```
 npm run mutate -- --range <base>..<head> --enumerate-only
-npm run mutate -- --range <base>..<head>
+npm run mutate -- --range <base>..<head> --full
 ```
 
 The first prints the lines in scope, the mutable sites, the mutants, and the
-covering test files for each file in the range, then stops before running any
+first-wave test files for each file in the range, then stops before running any
 test. Read its mutant count to know what the second command will cost. The
 second runs the mutants and prints the survivors. Both exit 0 whatever they
 find, because a survivor is a finding to read. A missing argument, a path
 outside `js/`, or a red baseline exits 2.
 
+`--full` is required for a pass. Without it the tool stops at each mutant's
+first wave, which is fast and reports survivors that a wider test file kills:
+over `ce9c59f~1..ce9c59f` the first wave reported five survivors and the rest of
+the suite killed four of them. The report names the verdict it applied, so a
+list produced without `--full` is recognizable. Use the default for a quick
+local check, and `--full` for anything a pass or another reader relies on.
+
 Cost has two parts. Each mutant first runs the test files that reach its module
 without passing through another `js/` module, and a failure there kills it and
-stops. A mutant that passes that first wave then runs the rest of the suite,
-which costs about the same for every mutant. The total therefore depends on how
-many mutants the first wave kills, and a module whose own tests are weak pays
-the suite for nearly every mutant. The script's header comment records the
-measured figures.
+stops. Under `--full`, a mutant that passes that first wave then runs the rest
+of the suite, which costs about the same for every mutant. The total therefore
+depends on how many mutants the first wave kills, and a module whose own tests
+are weak pays the suite for nearly every mutant: one measured range cost 75
+times as much under `--full` and reached the same verdict. The script's header
+comment records the measured figures for both modes.
 
 Hand the survivor list to the correctness pass as a `validation` context item
 addressed to the `tests` finder, which is how `/audit-diff-correctness` routes
@@ -217,11 +226,11 @@ distinguishes. An integer moved by one is often a constant that no observable
 behavior depends on, and a range near the full-pass gate can hold enough of
 those to spend the finder's whole finding budget.
 
-One limit bounds what a survivor proves: a line holding no mutable site
-produces no mutant, so a line the list omits has no evidence either way. The
-verdict itself comes from every test file that imports a `js/` module, so a
-survivor is a mutant the whole suite passed. The ten test files that import no
-`js/` module are left out, and the report names them; no mutation of a `js/`
+One limit bounds what a survivor proves under `--full`: a line holding no
+mutable site produces no mutant, so a line the list omits has no evidence
+either way. The verdict comes from every test file that imports a `js/` module,
+so a survivor is a mutant the whole suite passed. The ten test files that import
+no `js/` module are left out, and the report names them; no mutation of a `js/`
 line can reach them.
 
 The pass report states how many mutants ran, how many survived, and what the
