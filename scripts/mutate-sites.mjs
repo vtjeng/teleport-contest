@@ -122,7 +122,7 @@ import {
     writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
@@ -786,11 +786,12 @@ export function runMutants({ workspace, targets,
     // With no first wave and no `--whole-suite`, nothing runs and nothing is
     // known.
     if (!baselineFiles.length) {
-        return { survivors: [], killed: 0, timeouts: 0, ran: 0, perFile: [],
+        return { survivors: [], kills: [], killed: 0, timeouts: 0, ran: 0,
+            perFile: [],
             unmeasured, wholeSuite, suiteSize: allTests.length,
             ranSeconds: 0, firstWaveKilled: 0, firstWaveRuns: 0,
-            firstWaveSeconds: 0, fullSuiteKilled: 0, fullSuiteRuns: 0,
-            fullSuiteSeconds: 0, baselineSeconds: 0, baselineFiles: [],
+            firstWaveSeconds: 0, wholeSuiteKilled: 0, wholeSuiteRuns: 0,
+            wholeSuiteSeconds: 0, baselineSeconds: 0, baselineFiles: [],
             baselineTests: 0, byKind: new Map() };
     }
 
@@ -819,6 +820,7 @@ export function runMutants({ workspace, targets,
     // a hang, and a hung mutant counts as killed.
     const timeoutMs = Math.max(60_000, Math.ceil(baselineSeconds * 3) * 1000);
     const survivors = [];
+    const kills = [];
     const perFile = [];
     // Kill rates differ sharply by kind, and that is the signal worth reading:
     // a surviving relational operator marks an untested boundary, while a
@@ -836,9 +838,9 @@ export function runMutants({ workspace, targets,
     let firstWaveKilled = 0;
     let firstWaveRuns = 0;
     let firstWaveSeconds = 0;
-    let fullSuiteKilled = 0;
-    let fullSuiteRuns = 0;
-    let fullSuiteSeconds = 0;
+    let wholeSuiteKilled = 0;
+    let wholeSuiteRuns = 0;
+    let wholeSuiteSeconds = 0;
 
     for (const target of measurable) {
         const absolute = join(workspace, target.path);
@@ -848,7 +850,7 @@ export function runMutants({ workspace, targets,
             .filter((name) => !target.tests.includes(name));
         const tally = { path: target.path, tests: target.tests.length,
             mutants: 0, firstWaveSeconds: 0, reachedFullSuite: 0,
-            fullSuiteSeconds: 0 };
+            wholeSuiteSeconds: 0 };
         try {
             for (const site of target.sites) {
                 writeFileSync(absolute, applyMutation(target.source, site));
@@ -865,6 +867,8 @@ export function runMutants({ workspace, targets,
                         killed += 1;
                         firstWaveKilled += 1;
                         recordKind(site.kind, true);
+                        kills.push({ ...site, path: target.path, wave: 'first',
+                            killedBy: killingTestFiles(wave.output) });
                         continue;
                     }
                 }
@@ -878,17 +882,19 @@ export function runMutants({ workspace, targets,
                     continue;
                 }
                 const rest = runTests(workspace, remaining, timeoutMs);
-                fullSuiteRuns += 1;
-                fullSuiteSeconds += rest.seconds;
+                wholeSuiteRuns += 1;
+                wholeSuiteSeconds += rest.seconds;
                 tally.reachedFullSuite += 1;
-                tally.fullSuiteSeconds += rest.seconds;
+                tally.wholeSuiteSeconds += rest.seconds;
                 if (rest.timedOut) timeouts += 1;
                 if (rest.passed) {
                     survivors.push({ ...site, path: target.path,
                         tests: target.tests });
                 } else {
                     killed += 1;
-                    fullSuiteKilled += 1;
+                    wholeSuiteKilled += 1;
+                    kills.push({ ...site, path: target.path, wave: 'suite',
+                        killedBy: killingTestFiles(rest.output) });
                 }
                 recordKind(site.kind, !rest.passed);
             }
@@ -898,12 +904,36 @@ export function runMutants({ workspace, targets,
         if (tally.mutants) perFile.push(tally);
     }
 
-    return { survivors, killed, timeouts, ran, perFile, unmeasured,
+    return { survivors, kills, killed, timeouts, ran, perFile, unmeasured,
         byKind, wholeSuite, suiteSize: allTests.length,
-        ranSeconds: firstWaveSeconds + fullSuiteSeconds,
+        ranSeconds: firstWaveSeconds + wholeSuiteSeconds,
         firstWaveKilled, firstWaveRuns, firstWaveSeconds,
-        fullSuiteKilled, fullSuiteRuns, fullSuiteSeconds,
+        wholeSuiteKilled, wholeSuiteRuns, wholeSuiteSeconds,
         baselineSeconds, baselineFiles, baselineTests };
+}
+
+/**
+ * The test files a failing run blamed, read from the reporter's failing-tests
+ * section, which prints `test at <path>:<line>:<col>` once per failure.
+ *
+ * That format is the reporter's, not an API, so `scripts/mutate-sites.test.mjs`
+ * pins it against a file that genuinely fails. Two other routes were measured
+ * and rejected. `--test-reporter=tap` names the test and not its file, so
+ * `not ok 2 - b fails` cannot attribute. Running a wave one file at a time to
+ * attribute by position costs 2.72 times the concurrent wall clock for
+ * js/monmove.js's six files and 2.58 times for js/hack.js's eight, because
+ * `node --test` runs files concurrently and one file at a time turns a maximum
+ * into a sum.
+ *
+ * A run whose module throws at import can fail without naming a test, so an
+ * empty result means the killer went unattributed.
+ */
+export function killingTestFiles(output) {
+    const files = new Set();
+    for (const match of output.matchAll(
+        /^test at (\S+\.test\.mjs):\d+:\d+$/gmu))
+        files.add(basename(match[1]));
+    return [...files].sort();
 }
 
 function failureLines(output) {
@@ -954,9 +984,13 @@ export function formatReport(result, population = result.ran) {
             + `${perMutant(tally.firstWaveSeconds, tally.mutants)} s`
             + (result.wholeSuite
                 ? `, ${tally.reachedFullSuite} reached the full suite at `
-                    + `${perMutant(tally.fullSuiteSeconds,
+                    + `${perMutant(tally.wholeSuiteSeconds,
                         tally.reachedFullSuite)} s`
                 : ''));
+    }
+    for (const kill of result.kills ?? []) {
+        lines.push(`killed ${describeSite(kill)} (${kill.wave} wave: `
+            + `${kill.killedBy.join(', ') || 'killer unattributed'})`);
     }
     for (const target of result.unmeasured) {
         lines.push(`unmeasured ${target.path}: ${target.sites.length} site(s), `
@@ -967,9 +1001,9 @@ export function formatReport(result, population = result.ran) {
         + `mutant(s) killed over ${result.firstWaveRuns} run(s) at `
         + `${perMutant(result.firstWaveSeconds, result.firstWaveRuns)} s each`);
     if (result.wholeSuite) {
-        lines.push(`full suite: ${result.fullSuiteRuns} mutant(s) reached it, `
-            + `${result.fullSuiteKilled} killed, at `
-            + `${perMutant(result.fullSuiteSeconds, result.fullSuiteRuns)} `
+        lines.push(`full suite: ${result.wholeSuiteRuns} mutant(s) reached it, `
+            + `${result.wholeSuiteKilled} killed, at `
+            + `${perMutant(result.wholeSuiteSeconds, result.wholeSuiteRuns)} `
             + 's each');
     }
     for (const [kind, tally] of [...(result.byKind ?? new Map())].sort()) {

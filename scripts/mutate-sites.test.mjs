@@ -30,6 +30,7 @@ import {
     enumerateSites,
     formatReport,
     formatSiteCounts,
+    killingTestFiles,
     killRateInterval,
     parseAddedLines,
     parseArgs,
@@ -387,7 +388,7 @@ test('the fixture run reports exactly the mutants its test leaves alive',
         // scripts/wrapper.test.mjs in the second wave.
         assert.equal(result.killed, 8);
         assert.equal(result.firstWaveKilled, 7);
-        assert.equal(result.fullSuiteKilled, 1);
+        assert.equal(result.wholeSuiteKilled, 1);
         assert.equal(result.ran, 13);
         assert.equal(result.timeouts, 0);
         assert.deepEqual(result.baselineFiles, FIXTURE_SUITE);
@@ -421,7 +422,7 @@ test('a mutant the first wave passes and a wider file kills counts as killed',
         // The first wave passed it and the rest of the suite killed it, so the
         // verdict cannot come from the first wave alone.
         assert.equal(result.firstWaveKilled, 0);
-        assert.equal(result.fullSuiteKilled, 1);
+        assert.equal(result.wholeSuiteKilled, 1);
     });
 
 test('without --whole-suite the first wave is the verdict and the report says so',
@@ -437,7 +438,7 @@ test('without --whole-suite the first wave is the verdict and the report says so
         // the report has to say the verdict came from the first wave alone.
         assert.equal(result.ran, 1);
         assert.equal(result.survivors.length, 1);
-        assert.equal(result.fullSuiteRuns, 0);
+        assert.equal(result.wholeSuiteRuns, 0);
         // Only the first wave ran, so the baseline is the first wave too, and
         // scripts/wrapper.test.mjs is left out of both.
         assert.deepEqual(result.baselineFiles, ['bounds.test.mjs']);
@@ -506,7 +507,7 @@ test('a module with an empty first wave is still judged by the suite', () => {
     // a module unmeasurable and ran nothing.
     assert.equal(result.ran, 2);
     assert.equal(result.firstWaveRuns, 0);
-    assert.equal(result.fullSuiteRuns, 2);
+    assert.equal(result.wholeSuiteRuns, 2);
     assert.equal(result.killed, 2);
     assert.deepEqual(result.survivors, []);
 });
@@ -813,6 +814,73 @@ test('the uncommitted diff is scoped by its working-tree line numbers', () => {
         assert.deepEqual(targets[0].sites.map((site) => site.line).sort(),
             [1, 1, 1, 2, 2, 2]);
     });
+});
+
+test('the killing test file is read from a run that genuinely fails', () => {
+    // The reporter's format is not an API, so this pins it against real output
+    // instead of a handwritten string. Two files, one failing, one passing: only
+    // the failing file may be named.
+    const root = mkdtempSync(join(tmpdir(), 'mutate-sites-report-'));
+    try {
+        mkdirSync(join(root, 'scripts'));
+        writeFileSync(join(root, 'scripts', 'red.test.mjs'),
+            "import assert from 'node:assert/strict';\n"
+            + "import test from 'node:test';\n"
+            + "test('a passes', () => { assert.equal(1, 1); });\n"
+            + "test('b fails', () => { assert.equal(1, 2); });\n");
+        writeFileSync(join(root, 'scripts', 'green.test.mjs'),
+            "import assert from 'node:assert/strict';\n"
+            + "import test from 'node:test';\n"
+            + "test('c passes', () => { assert.equal(1, 1); });\n");
+        const run = spawnSync(process.execPath, ['--test',
+            'scripts/red.test.mjs', 'scripts/green.test.mjs'], {
+            cwd: root,
+            encoding: 'utf8',
+            env: { ...process.env, NODE_TEST_CONTEXT: undefined },
+        });
+
+        assert.equal(run.status, 1);
+        assert.deepEqual(
+            killingTestFiles(`${run.stdout}${run.stderr}`),
+            ['red.test.mjs'],
+        );
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+    // A run that fails without naming a test, such as a module that throws at
+    // import, attributes nothing. Reporting no killer beats inventing one.
+    assert.deepEqual(killingTestFiles('SyntaxError: Unexpected token'), []);
+});
+
+test('each killed mutant records the test file that killed it', () => {
+    const result = withWorkspace((workspace) => runMutants({
+        workspace,
+        targets: [fixtureTarget()],
+        allTests: FIXTURE_SUITE,
+        wholeSuite: true,
+    }));
+    const killedAt = (line) =>
+        result.kills.filter((kill) => kill.line === line);
+
+    // Line 10 is `export const LIMIT = 4;`, which scripts/bounds.test.mjs
+    // asserts, so its first wave kills both mutants.
+    assert.equal(killedAt(10).length, 2);
+    for (const kill of killedAt(10)) {
+        assert.equal(kill.wave, 'first');
+        assert.deepEqual(kill.killedBy, ['bounds.test.mjs']);
+    }
+    // Line 63 is forwarded(), which only js/wrapper.js reaches, so the first
+    // wave passes it and the second wave's scripts/wrapper.test.mjs kills it.
+    // That names both the wave and a file outside the first wave.
+    assert.deepEqual(killedAt(63).map((kill) => kill.wave), ['suite']);
+    assert.deepEqual(killedAt(63)[0].killedBy, ['wrapper.test.mjs']);
+
+    // Every killed mutant is on the record, and the report prints each one.
+    assert.equal(result.kills.length, result.killed);
+    const report = formatReport(result, result.ran);
+    assert.equal(report.some((line) => line.startsWith(
+        'killed js/bounds.js:63:14: relational `>=` -> `>` (suite wave: '
+        + 'wrapper.test.mjs)')), true);
 });
 
 test('a workspace is removed when a run is killed', async () => {

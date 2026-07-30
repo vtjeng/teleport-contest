@@ -31,6 +31,24 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['test'],
     });
+    // Informational, and ordered after the suite on purpose: a red suite makes
+    // the mutator exit 2 without measuring anything, and the suite has already
+    // reported that. On a clean tree there is no mutant and the run costs
+    // 0.59 s, so this bills only while js/ work is uncommitted, which is when
+    // an added assertion is cheapest to write.
+    commands.push({
+        label: 'uncommitted mutants',
+        command: process.execPath,
+        args: [
+            'scripts/mutate-sites.mjs',
+            '--worktree',
+            '--kind',
+            'relational,logical,boolean',
+        ],
+        capture: true,
+        informational: true,
+        summarize: summarizeMutation,
+    });
     for (const check of GENERATED_CHECKS) {
         commands.push({
             label: `generated data (${check})`,
@@ -53,6 +71,9 @@ export function checkpointCommands(focusedTests = [], {
             args: ['scripts/score-development.mjs'],
             capture: true,
             informational: true,
+            summarize: ({ stdout }) => ({
+                body: summarizeDevelopmentScore(stdout),
+            }),
         });
     }
     return commands;
@@ -88,27 +109,62 @@ export function runCheckpointChecks(commands, {
         args,
         capture = false,
         informational = false,
+        summarize = null,
     } of commands) {
         output(`\n== ${label} ==`);
         const result = run(command, args, capture
             ? { encoding: 'utf8' }
             : { stdio: 'inherit' });
-        if (capture && result.stdout)
-            output(summarizeDevelopmentScore(result.stdout));
+        const summary = summarize ? summarize(result) : {};
+        if (summary.body) output(summary.body);
         if (capture && result.stderr && result.status !== 0)
             output(result.stderr.trimEnd());
         const passed = result.status === 0;
-        results.push({ label, passed, informational });
+        results.push({ label, passed, informational,
+            skipped: Boolean(summary.skipped), detail: summary.detail ?? '' });
     }
 
     output('\nCheckpoint summary');
     for (const result of results) {
-        const status = result.passed && result.informational
-            ? 'DONE'
-            : result.passed ? 'PASS' : 'FAIL';
-        output(`${status}  ${result.label}`);
+        const status = result.skipped ? 'SKIP'
+            : result.passed && result.informational ? 'DONE'
+                : result.passed ? 'PASS' : 'FAIL';
+        // The detail rides the summary line because `.agents/validation.md` has
+        // agents read the tail of the log, which the body never reaches.
+        output(`${status}  ${result.label}`
+            + (result.detail ? `: ${result.detail}` : ''));
     }
-    return results.every(({ passed }) => passed);
+    // An informational check carries evidence, so it never fails the run.
+    return results.every(({ passed, informational }) => passed || informational);
+}
+
+/**
+ * Read the mutation run's outcome for the checkpoint.
+ *
+ * Survivors are evidence and never a failure. The mutator exits 2 without
+ * measuring anything when the tests covering the changed modules are red, and
+ * the suite check above has already reported that, so this reports itself
+ * skipped.
+ */
+export function summarizeMutation({ stdout = '', stderr = '', status }) {
+    const output = `${stdout}${stderr}`;
+    if (status !== 0) {
+        const reason = /the unmutated tests do not pass/u.test(output)
+            ? 'the tests covering the changed js/ files are red, so no mutant '
+                + 'was measured'
+            : `the mutator exited ${status}`;
+        return { body: output.trimEnd(), detail: reason, skipped: true };
+    }
+    const survivors = output.split('\n')
+        .filter((line) => line.startsWith('survived '));
+    const summary = /^(\d+) mutant\(s\): (\d+) killed/mu.exec(output);
+    if (!summary)
+        return { body: output.trimEnd(), detail: 'no js/ line in scope' };
+    return {
+        body: output.trimEnd(),
+        detail: `${survivors.length} survivor(s) of ${summary[1]} mutant(s) `
+            + 'over the uncommitted js/ diff',
+    };
 }
 
 export function summarizeDevelopmentScore(stdout) {
