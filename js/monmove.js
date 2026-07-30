@@ -2082,11 +2082,13 @@ export function select_postmove_object_action(
                 continue;
             }
         }
-        if (!can_touch_safely(subject, obj, env)
-            || can_carry(subject, obj, env) === 0) {
-            continue;
-        }
-        return { kind: 'pick up', object: obj };
+        if (!can_touch_safely(subject, obj, env)) continue;
+        // C's carryamt. mpickstuff() compares it with obj->quan to decide
+        // whether to split, so the caller that performs the pickup needs the
+        // value this loop already computed rather than a second call.
+        const carryamt = can_carry(subject, obj, env);
+        if (carryamt === 0) continue;
+        return { kind: 'pick up', object: obj, carryamt };
     }
     return null;
 }

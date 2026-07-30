@@ -2,17 +2,24 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    COLNO,
     CONFLICT,
+    IN_SIGHT,
     I_SPECIAL,
     M_AP_FURNITURE,
     MFAST,
     MON_FLOOR,
     MON_MIGRATING,
     MSLOW,
+    NON_PM,
     NORMAL_SPEED,
+    OBJ_FLOOR,
+    OBJ_MINVENT,
+    ROWNO,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
 } from '../js/const.js';
+import { GameMap } from '../js/game.js';
 import {
     adaptMonsterActionToDochugwSignature,
     counter_were,
@@ -26,6 +33,7 @@ import {
     mon_regen,
     movemon,
     movemon_singlemon,
+    mpickstuff,
     wake_msg,
     wake_nearto,
 } from '../js/mon.js';
@@ -38,12 +46,24 @@ import {
     M2_STRONG,
     MZ_HUGE,
     PM_FLESH_GOLEM,
+    PM_GNOME,
     PM_HUMAN_WEREWOLF,
     PM_VAMPIRE,
     PM_WEREWOLF,
     S_EEL,
+    monst_globals_init,
 } from '../js/monsters.js';
-import { BOULDER, DAGGER, LONG_SWORD } from '../js/objects.js';
+import { init_objects } from '../js/o_init.js';
+import { newObject } from '../js/obj.js';
+import {
+    BOULDER,
+    DAGGER,
+    FOOD_RATION,
+    GOLD_PIECE,
+    LONG_SWORD,
+    POT_HEALING,
+    objects_globals_init,
+} from '../js/objects.js';
 
 function monster(mmove, mspeed = 0) {
     return { data: { mmove }, mspeed };
@@ -1411,4 +1431,245 @@ test('movemon preflights every unported operation before state changes', async (
             child_oid: 8,
         });
     }
+});
+
+// ---- mon.c mpickstuff() ----
+
+const PICKUP_X = 5; // An ordinary room coordinate away from the map edges.
+const PICKUP_Y = 5; // An ordinary room coordinate away from the map edges.
+
+// The effect half runs the real splitobj(), obj_extract_self(), mpickobj()
+// and doname(), so it needs the object and monster catalogs, a map, and a
+// hero position from which the monster's square is both visible and near.
+function pickupState() {
+    const state = {
+        context: {
+            achieveo: { mines_prize_oid: 0, soko_prize_oid: 0 },
+            ident: 500, // Any live object-id counter for splitobj().
+        },
+        flags: { verbose: true, implicit_uncursed: true },
+        iflags: {},
+        level: new GameMap(),
+        moves: 17,
+        program_state: {},
+        u: {
+            ux: PICKUP_X,
+            uy: PICKUP_Y,
+            uprops: [],
+            xray_range: 0,
+        },
+        viz_array: Array.from(
+            { length: ROWNO },
+            () => new Array(COLNO).fill(0),
+        ),
+    };
+    objects_globals_init(state);
+    // Zero choices deterministically initialize every randomized description.
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    state.viz_array[PICKUP_Y][PICKUP_X] = IN_SIGHT;
+    // A gnome has hands and is M2_GREEDY and M2_COLLECT, which is what puts
+    // it on mpickstuff()'s path for both gold and ordinary goods.
+    const monster = {
+        data: state.mons[PM_GNOME],
+        mcanmove: true,
+        minvent: null,
+        misc_worn_check: 0,
+        mx: PICKUP_X,
+        my: PICKUP_Y,
+    };
+    return { state, monster };
+}
+
+function pickupStack(state, otyp, quan, overrides = {}) {
+    const obj = newObject({
+        corpsenm: NON_PM,
+        o_id: 101, // A live non-prize object id.
+        oclass: state.objects[otyp].oc_class,
+        otyp,
+        ox: PICKUP_X,
+        oy: PICKUP_Y,
+        quan,
+        where: OBJ_FLOOR,
+        ...overrides,
+    });
+    obj.owt = quan;
+    state.level.objects[PICKUP_X][PICKUP_Y] = obj;
+    state.level.objlist = obj;
+    return obj;
+}
+
+// obj.js requires the whole source random set even though the only draw the
+// pickup reaches through it is next_ident()'s rnd(2).
+function pickupRandom() {
+    const unreached = (name) => () => {
+        throw new Error(`mpickstuff test reached ${name}`);
+    };
+    return {
+        d: unreached('d'),
+        rn1: unreached('rn1'),
+        rne: unreached('rne'),
+        rnl: unreached('rnl'),
+        rnz: unreached('rnz'),
+        rn2: unreached('rn2'),
+        rnd: () => 1, // next_ident() advances context.ident by rnd(2).
+    };
+}
+
+test('mpickstuff lifts a whole stack, names it, and redraws last', async () => {
+    const { state, monster } = pickupState();
+    const ration = pickupStack(state, FOOD_RATION, 1);
+    const messages = [];
+    const redraws = [];
+
+    const result = await mpickstuff(monster, ration, ration.quan, {
+        message: async (text) => { messages.push(text); },
+        // C ref: mon.c:1907-1909. newsym() is the last statement before the
+        // return, after mpickobj() and check_gear_next_turn(), so the square
+        // is empty and the monster already carries the stack when it runs.
+        // dogmove.c's carry arm redraws between the extract and mpickobj().
+        redraw: (x, y) => {
+            redraws.push([x, y, state.level.objects[x][y], monster.minvent]);
+        },
+        random: pickupRandom(),
+        state,
+    });
+
+    assert.equal(result, true);
+    assert.deepEqual(messages, ['The gnome picks up a food ration.']);
+    assert.deepEqual(redraws, [[PICKUP_X, PICKUP_Y, null, ration]]);
+    assert.equal(state.level.objects[PICKUP_X][PICKUP_Y], null);
+    assert.equal(state.level.objlist, null);
+    assert.equal(monster.minvent, ration);
+    assert.equal(ration.where, OBJ_MINVENT);
+    assert.equal(ration.ocarry, monster);
+    // check_gear_next_turn() asks movemon_singlemon() to reassess gear.
+    assert.equal(monster.misc_worn_check & I_SPECIAL, I_SPECIAL);
+});
+
+test('mpickstuff names the stack left behind, not the portion taken',
+    async () => {
+        // C ref: mon.c:1889-1895. splitobj() returns the carried portion as
+        // otmp3 and leaves the remainder in otmp, and mpickstuff() hands otmp
+        // to distant_name(). A four-coin pile from which one coin is taken
+        // therefore announces the three that stay on the floor.
+        const { state, monster } = pickupState();
+        const gold = pickupStack(state, GOLD_PIECE, 4);
+        const messages = [];
+
+        await mpickstuff(monster, gold, 1, {
+            message: async (text) => { messages.push(text); },
+            random: pickupRandom(),
+            redraw: () => {},
+            state,
+        });
+
+        assert.deepEqual(messages, ['The gnome picks up 3 gold pieces.']);
+        assert.equal(state.level.objects[PICKUP_X][PICKUP_Y], gold);
+        assert.equal(gold.quan, 3);
+        assert.equal(gold.where, OBJ_FLOOR);
+        const taken = monster.minvent;
+        assert.notEqual(taken, gold);
+        assert.equal(taken.otyp, GOLD_PIECE);
+        assert.equal(taken.quan, 1);
+        assert.equal(taken.nobj, null);
+    });
+
+test('mpickstuff merges into a stack the monster already carries', async () => {
+    const { state, monster } = pickupState();
+    const carried = newObject({
+        corpsenm: NON_PM,
+        o_id: 102, // A second live object id, distinct from the floor pile.
+        oclass: state.objects[GOLD_PIECE].oc_class,
+        otyp: GOLD_PIECE,
+        quan: 6,
+        where: OBJ_MINVENT,
+    });
+    carried.owt = 6;
+    carried.ocarry = monster;
+    monster.minvent = carried;
+    const gold = pickupStack(state, GOLD_PIECE, 4);
+
+    await mpickstuff(monster, gold, gold.quan, {
+        message: async () => {},
+        random: pickupRandom(),
+        redraw: () => {},
+        state,
+    });
+
+    // add_to_minv() merged and freed the floor stack rather than prepending
+    // it, so the carried quantity absorbs all four coins.
+    assert.equal(monster.minvent, carried);
+    assert.equal(carried.nobj, null);
+    assert.equal(carried.quan, 10);
+    assert.equal(state.level.objects[PICKUP_X][PICKUP_Y], null);
+});
+
+test('mpickstuff runs distant_name for its side effects when quiet',
+    async () => {
+        // flags.verbose off suppresses the line but not the naming call, so
+        // the type still enters the discoveries list.
+        const { state, monster } = pickupState();
+        state.flags.verbose = false;
+        const potion = pickupStack(state, POT_HEALING, 1);
+        const messages = [];
+
+        await mpickstuff(monster, potion, potion.quan, {
+            message: async (text) => { messages.push(text); },
+            random: pickupRandom(),
+            redraw: () => {},
+            state,
+        });
+
+        assert.deepEqual(messages, []);
+        assert.equal(potion.dknown, true);
+        assert.equal(state.objects[POT_HEALING].oc_encountered, 1);
+        assert.equal(monster.minvent, potion);
+    });
+
+test('mpickstuff names nothing on a square the hero cannot see', async () => {
+    const { state, monster } = pickupState();
+    state.viz_array[PICKUP_Y][PICKUP_X] = 0;
+    const potion = pickupStack(state, POT_HEALING, 1);
+    const messages = [];
+
+    await mpickstuff(monster, potion, potion.quan, {
+        message: async (text) => { messages.push(text); },
+        random: pickupRandom(),
+        redraw: () => {},
+        state,
+    });
+
+    assert.deepEqual(messages, []);
+    // distant_name() never ran, so nothing observed the potion at all.
+    assert.equal(potion.dknown, false);
+    assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
+    assert.equal(monster.minvent, potion);
+});
+
+test('mpickstuff demands the whole random set only when it splits', async () => {
+    const whole = pickupState();
+    const ration = pickupStack(whole.state, FOOD_RATION, 1);
+    // A whole-stack pickup never reaches splitobj(), so rnd() alone suffices.
+    await mpickstuff(whole.monster, ration, ration.quan, {
+        message: async () => {},
+        random: { rnd: () => 1 },
+        redraw: () => {},
+        state: whole.state,
+    });
+    assert.equal(whole.monster.minvent, ration);
+
+    const split = pickupState();
+    const gold = pickupStack(split.state, GOLD_PIECE, 4);
+    await assert.rejects(
+        mpickstuff(split.monster, gold, 1, {
+            message: async () => {},
+            random: { rnd: () => 1 },
+            redraw: () => {},
+            state: split.state,
+        }),
+        /mpickstuff splitting requires rn2, rnd, rn1, and rne/,
+    );
+    assert.equal(split.monster.minvent, null);
+    assert.equal(gold.quan, 4);
 });

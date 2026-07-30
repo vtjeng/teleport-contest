@@ -23,6 +23,7 @@ import {
     LS_OBJECT,
     MMOVE_NOTHING,
     MON_FLOOR,
+    NEED_HTH_WEAPON,
     NEED_WEAPON,
     NORMAL_SPEED,
     OBJ_FLOOR,
@@ -61,8 +62,10 @@ import {
     UnsupportedSimpleMonsterActionError,
 } from '../js/unported_monster_actions.js';
 import { newMonster } from '../js/monst.js';
+import { newObject } from '../js/obj.js';
 import {
     DAGGER,
+    FOOD_RATION,
     POT_HEALING,
     POT_SPEED,
     ROCK,
@@ -1251,25 +1254,6 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
-                name: 'post-move object pickup',
-                reason: 'ordinary monster item interaction',
-                prepare: async () => {
-                    const target = await prepareSelectedAction({
-                        pmidx: PM_GNOME,
-                    });
-                    installObject(
-                        target,
-                        floorObject(
-                            target.destinationX,
-                            target.heroY,
-                            9101,
-                            DAGGER,
-                        ),
-                    );
-                    return target;
-                },
-            },
-            {
                 name: 'special terrain',
                 reason: 'door or special terrain movement',
                 prepare: async () => {
@@ -1800,6 +1784,119 @@ test('a planned pet pickup leaves the live object graph untouched',
             assert.equal(dagger.where, OBJ_FLOOR);
             assert.equal(target.monster.minvent, null);
         }
+    });
+
+test('a planned monster pickup leaves a live carried stack untouched',
+    async () => {
+        // mpickstuff() hands the floor stack to mpickobj() -> add_to_minv(),
+        // whose merge loop adds the quantity to a matching stack the monster
+        // already carries and frees the floor object. That write lands on an
+        // object the level list never reaches, so the planning clone has to
+        // root itself at every monster's minvent as well as at objlist.
+        // A gnome is M2_COLLECT but not M2_GREEDY, so food is a class it
+        // takes and gold is not.
+        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+        // Both stacks go through newObject(), because mergable() compares
+        // every flag it finds and the clone is built with newObject()'s
+        // defaults: a sparse literal would differ from its own copy and the
+        // merge this test is about would never happen.
+        const carried = newObject({
+            ...monsterObject(FOOD_RATION, 9201),
+            quan: 6, // Any stack the floor pile can merge into.
+        });
+        carried.ocarry = target.monster;
+        target.monster.minvent = carried;
+        const pile = newObject({
+            ...floorObject(
+                target.destinationX,
+                target.heroY,
+                9101,
+                FOOD_RATION,
+            ),
+            // Distinct from the carried quantity, so a merge shows.
+            quan: 4,
+        });
+        installObject(target, pile);
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `attempt ${attempt + 1}`,
+            );
+            assert.equal(target.monster.minvent, carried);
+            assert.equal(carried.quan, 6, `attempt ${attempt + 1}`);
+            assert.equal(carried.ocarry, target.monster);
+            assert.equal(
+                game.level.objects[target.destinationX][target.heroY],
+                pile,
+            );
+            assert.equal(pile.quan, 4, `attempt ${attempt + 1}`);
+            assert.equal(pile.where, OBJ_FLOOR);
+        }
+
+        // Everything the plan rehearsed then happens for real, which is what
+        // keeps the assertions above from passing on a monster that never
+        // reached mpickstuff() at all.
+        target.monster.weapon_check = NEED_HTH_WEAPON;
+        await runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: async () => {},
+            redraw: () => {},
+        });
+        assert.equal(target.monster.minvent, carried);
+        assert.equal(carried.quan, 10);
+        assert.equal(
+            game.level.objects[target.destinationX][target.heroY],
+            null,
+        );
+        assert.equal(game.level.objlist, null);
+        // C ref: monmove.c:1680 turns a successful pickup into MMOVE_DONE, and
+        // dochug() reaches its post-move ranged attack only on MMOVE_MOVED.
+        // That arm would reset an empty-handed gnome to NEED_WEAPON.
+        assert.equal(target.monster.weapon_check, NEED_HTH_WEAPON);
+    });
+
+test('the planning clone gives each monster its own pack and weapon',
+    async () => {
+        // Cloning inventories is only half the job: a monster also points at
+        // its wielded object through MON_WEP(), and every carried object
+        // points back at its carrier through ocarry. Both live in obj.v's
+        // union, so both have to be remapped or the clone would name live
+        // objects from cloned monsters and vice versa.
+        const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+        const dagger = newObject({
+            ...monsterObject(DAGGER, 9201),
+            owornmask: W_WEP,
+        });
+        dagger.ocarry = target.monster;
+        target.monster.minvent = dagger;
+        target.monster.mw = dagger;
+        // Below its ration, so the scan returns before acting and the round
+        // reaches the upkeep hook that hands the cloned state back.
+        target.monster.movement = 0;
+        game.u.umovement = 0;
+        let planned = null;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(state) {
+                planned = state;
+                return true;
+            },
+        });
+
+        const clone = planned.level.monlist;
+        assert.notEqual(clone, target.monster);
+        assert.notEqual(clone.minvent, dagger);
+        assert.equal(clone.minvent.o_id, dagger.o_id);
+        assert.equal(clone.mw, clone.minvent);
+        assert.equal(clone.minvent.ocarry, clone);
+        // The live monster keeps its own pointers into live objects.
+        assert.equal(target.monster.minvent, dagger);
+        assert.equal(target.monster.mw, dagger);
+        assert.equal(dagger.ocarry, target.monster);
     });
 
 test('planning brackets only the monster scan with context.mon_moving',

@@ -25,6 +25,7 @@ import {
     MON_MIGRATING,
     NEED_WEAPON,
     NORMAL_SPEED,
+    OBJ_MINVENT,
     ROOM,
     STAIRS,
     STRAT_ARRIVE,
@@ -43,6 +44,7 @@ import { any_light_source } from './light.js';
 import {
     adaptMonsterActionToDochugwSignature,
     movemon_singlemon,
+    mpickstuff,
     wake_msg,
 } from './mon.js';
 import {
@@ -270,36 +272,40 @@ function cloneMonster(monster) {
     };
 }
 
-// Copy every object on this level's floor. A pet picking an item up splits a
-// stack, unlinks it from the pile and the level list, and hands it to a
-// monster, so without this the dry run would empty the live square and leave
-// the live pass with nothing to find. C has no counterpart: the dry run is
-// this port's own device for keeping a refusal atomic, and floor objects are
-// shared state that device has to isolate, exactly as it already isolates
-// monsters, light sources and timers.
+// Copy every object on this level's floor and in every monster's pack. A
+// monster picking an item up splits a stack, unlinks it from the pile and the
+// level list, and merges it into its own inventory, so without this the dry
+// run would empty the live square and change a live carried stack's quantity.
+// C has no counterpart: the dry run is this port's own device for keeping a
+// refusal atomic, and objects are shared state that device has to isolate,
+// exactly as it already isolates monsters, light sources and timers.
 //
 // The discovery ledger is cloned beside this, in planningState(): naming an
 // object writes objects[].oc_encountered, svd.disco[] and artiexist[].found,
 // which the spread would otherwise share.
 //
-// Monster inventories, the hero's belongings and the buried list stay shared,
-// because no action the scan admits writes to one. A monster picking an item
-// up is the only object mutation the boundary lets through, and
-// assertSimpleActionState() refuses any pet already carrying something other
-// than its inert starting saddle, which is what keeps add_to_minv() from
-// merging into a live stack. Extend this walk when that refusal goes.
+// The hero's belongings and the buried list stay shared, because no action the
+// scan admits writes to one: mpickstuff() and dog_invent()'s carry arm move an
+// object from the floor into a monster's pack and touch nothing else. Extend
+// this walk before admitting an action that steals from the hero or digs.
 //
-// obj.v is C's union: nexthere on the floor and ocontainer inside a container.
-// The level list is the only root, because obj.js keeps it and the coordinate
-// grid in step: place_object() writes both and remove_object() refuses an
-// object missing from either.
-function cloneFloorObjects(state) {
+// obj.v is C's union: nexthere on the floor, ocontainer inside a container,
+// and ocarry inside a monster's pack, so an inventory object's `v` remaps
+// through the monster map rather than the object map. The matching guard in
+// the walk keeps a carrier out of the object queue; it changes no result on
+// its own, since the remap already discriminates on `where`, and it exists so
+// that no `newObject({ ...monster })` is ever built. The two roots are the
+// level list and each monster's minvent, because obj.js keeps the level list
+// and the coordinate grid in step: place_object() writes both and
+// remove_object() refuses an object missing from either.
+function cloneObjects(state, monsterMap) {
     const objectMap = new Map();
     const pending = [];
     const enqueue = (obj) => {
         if (obj && !objectMap.has(obj)) pending.push(obj);
     };
     enqueue(state.level?.objlist);
+    for (const monster of monsterMap.keys()) enqueue(monster.minvent);
     while (pending.length) {
         const original = pending.pop();
         if (objectMap.has(original)) continue;
@@ -308,12 +314,14 @@ function cloneFloorObjects(state) {
         objectMap.set(original, copy);
         enqueue(original.nobj);
         enqueue(original.cobj);
-        enqueue(original.v);
+        if (original.where !== OBJ_MINVENT) enqueue(original.v);
     }
     for (const [original, copy] of objectMap) {
         copy.nobj = objectMap.get(original.nobj) ?? null;
         copy.cobj = objectMap.get(original.cobj) ?? null;
-        copy.v = objectMap.get(original.v) ?? null;
+        copy.v = original.where === OBJ_MINVENT
+            ? monsterMap.get(original.v) ?? original.v
+            : objectMap.get(original.v) ?? null;
     }
     return objectMap;
 }
@@ -325,7 +333,7 @@ function planningState(state) {
         monster = monster.nmon) {
         monsterMap.set(monster, cloneMonster(monster));
     }
-    const objectMap = cloneFloorObjects(state);
+    const objectMap = cloneObjects(state, monsterMap);
     const clonedObject = (obj) => {
         if (!obj) return null;
         const copy = objectMap.get(obj);
@@ -334,8 +342,13 @@ function planningState(state) {
             throw new Error('planning clone: floor object outside objlist');
         return copy;
     };
-    for (const [original, clone] of monsterMap)
+    for (const [original, clone] of monsterMap) {
         clone.nmon = monsterMap.get(original.nmon) ?? null;
+        clone.minvent = objectMap.get(original.minvent) ?? null;
+        // MON_WEP(). A wielded weapon is also in minvent, so the clone's
+        // pointer has to name the copy the pack now holds.
+        clone.mw = objectMap.get(original.mw) ?? null;
+    }
 
     const level = Object.assign(
         Object.create(Object.getPrototypeOf(state.level)),
@@ -530,6 +543,7 @@ async function postSimpleMove(monster, oldX, oldY, status, env) {
             redraw(monster.mx, monster.my);
         }
     }
+    let outcome = status;
     if ((status === MMOVE_MOVED || status === MMOVE_DONE)
         && env.state.level.objects[monster.mx]?.[monster.my]) {
         const selected = select_postmove_object_action(
@@ -542,10 +556,32 @@ async function postSimpleMove(monster, oldX, oldY, status, env) {
                     unsupported('monster artifact item interaction'),
             },
         );
-        if (selected)
+        // Only mpickstuff()'s arm is ported; meatmetal() and meatcorpse()
+        // still stop the scan, and they precede it in postmov().
+        if (selected && selected.kind !== 'pick up')
             unsupported('ordinary monster item interaction');
+        if (selected) {
+            const picked = await mpickstuff(
+                monster,
+                selected.object,
+                selected.carryamt,
+                {
+                    ...env,
+                    // mpickstuff() prints through pline_mon() and repaints the
+                    // square. The planning scan replays the same turn against
+                    // the live display afterwards, so it must produce neither.
+                    message: env.planning ? async () => {} : ttyPline,
+                    redraw: env.planning ? () => {} : newsym,
+                },
+            );
+            // C ref: monmove.c:1680, `if (mpickstuff(mtmp)) mmoved =
+            // MMOVE_DONE;`. dochug() reads that: MMOVE_DONE skips the
+            // post-move ranged attack and reaches the standard-attack gate,
+            // where MMOVE_DONE then suppresses the attack.
+            if (picked) outcome = MMOVE_DONE;
+        }
     }
-    return status;
+    return outcome;
 }
 
 async function moveSimpleOrdinary(monster, env) {

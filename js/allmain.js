@@ -612,11 +612,12 @@ const ELAPSED_TURN_PLANNING_REFUSALS = [
     UnsupportedHungerTransitionError,
     UnsupportedMonsterDistressError,
     UnsupportedMonsterCreationError,
-    // The pet pickup arm calls distant_name(), splitobj() and mpickobj() from
-    // inside the monster scan, so these three reach here from a path that used
-    // to stop at an injected refusal of the first class above. Without them a
-    // naming, split or pickup refusal discards the whole segment instead of
-    // stopping on its last matching screen.
+    // Both pickup arms -- dogmove.c dog_invent()'s and mon.c mpickstuff()'s --
+    // call distant_name(), splitobj() and mpickobj() from inside the monster
+    // scan, so these three reach here from a path that used to stop at an
+    // injected refusal of the first class above. Without them a naming, split
+    // or pickup refusal discards the whole segment instead of stopping on its
+    // last matching screen.
     UnsupportedObjectNameError,
     UnsupportedObjectOperationError,
     UnsupportedMonsterPickupOperationError,

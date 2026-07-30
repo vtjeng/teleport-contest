@@ -1,6 +1,6 @@
 // mon.js -- Runtime monster turn and inventory state.
-// C refs: mon.c movemon(), mcalcmove(), curr_mon_load(), max_mon_load();
-// mthrowu.c m_carrying().
+// C refs: mon.c movemon(), mcalcmove(), mpickstuff(), curr_mon_load(),
+// max_mon_load(); mthrowu.c m_carrying().
 
 import {
     BOLT_LIM,
@@ -30,9 +30,11 @@ import {
 } from './const.js';
 import { night } from './calendar.js';
 import { newsym } from './display.js';
+import { capitalizedMonsterName } from './do_name.js';
 import { game } from './gstate.js';
 import { disturb_buried_zombies } from './hack.js';
 import { dist2 } from './hacklib.js';
+import { obj_extract_self } from './invent.js';
 import { any_light_source } from './light.js';
 import {
     dmonsfree,
@@ -68,11 +70,19 @@ import {
     S_EEL,
     S_VAMPIRE,
 } from './monsters.js';
-import { clear_splitobjs } from './obj.js';
+import { clear_splitobjs, splitobj } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { BOULDER } from './objects.js';
+import { distant_name, donameFresh } from './objnam.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
-import { canSeeMonster, canSpotMonster } from './startup_a11y.js';
+import {
+    canSeeMonster,
+    canSpotMonster,
+    messageAt,
+} from './startup_a11y.js';
+import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
+import { cansee } from './vision.js';
 
 function monsterTurnEnv(env = {}) {
     const state = env.state ?? game;
@@ -317,6 +327,77 @@ export function m_carrying(monster, type, state = game) {
 // movemon_singlemon(), not dochug(), which never reads misc_worn_check.
 export function check_gear_next_turn(monster) {
     monster.misc_worn_check |= I_SPECIAL;
+}
+
+// C ref: mon.c mpickstuff() (1847-1912), the effect half: everything from the
+// stack split at 1888 through `return TRUE` at 1910.
+//
+// The decision half is ported in monmove.js select_postmove_object_action():
+// the shopkeeper and shop-draw returns, could_reach_item(), and the loop's
+// prize, mon_would_take_item(), corpse, can_touch_safely() and can_carry()
+// filters. It lives there because the fail-closed monster boundary has to
+// choose between postmov()'s meatmetal(), meatobj(), meatcorpse() and
+// mpickstuff() arms before any of them changes state, and only mpickstuff()'s
+// arm is ported. This function is handed the object that loop selected and the
+// can_carry() amount it computed, and takes over where the loop stopped.
+//
+// The caller returns MMOVE_DONE on a true result, as postmov() does at
+// monmove.c:1680.
+export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const env = { ...rawEnv, state, random };
+    // pline_mon() and newsym(). A planning scan overrides both with no-ops,
+    // because it re-runs the same turn against the live display.
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? newsym;
+    // splitobj(), remove_object() and add_to_minv() each reach owners that
+    // obj.js expects the caller to supply.
+    const objectEnv = objectGenerationEnv(env);
+
+    // splitobj() normalizes through js/obj.js objectEnv(), which needs the
+    // whole source random set because next_ident() draws rnd(2). State that
+    // here, at the split, rather than up front where it is not yet true.
+    if (carryamt !== obj.quan) {
+        for (const name of ['rn1', 'rn2', 'rnd', 'rne']) {
+            if (typeof random[name] !== 'function') {
+                throw new TypeError(
+                    'mpickstuff splitting requires rn2, rnd, rn1, and rne',
+                );
+            }
+        }
+    }
+    const taken = carryamt !== obj.quan
+        ? splitobj(obj, carryamt, objectEnv)
+        : obj;
+    if (cansee(monster.mx, monster.my, state)) {
+        // C ref: mon.c:1893-1901. distant_name() runs for its side effects
+        // even when verbose is off and the name is discarded, and it runs
+        // before the extract so that doname() -> xname() -> find_artifact()
+        // still sees the object on the floor. C names `otmp`, the stack that
+        // stays behind, not `otmp3`, the portion the monster takes, so a
+        // partial pickup announces the quantity left on the floor.
+        // dogmove.c's carry arm names the taken portion instead.
+        const remainingName = distant_name(obj, donameFresh, state);
+        if (state.flags?.verbose) {
+            await message(
+                messageAt(
+                    `${capitalizedMonsterName(monster, state)}`
+                    + ` picks up ${remainingName}.`,
+                    monster.mx,
+                    monster.my,
+                    state,
+                ),
+                state,
+            );
+        }
+    }
+    obj_extract_self(taken, objectEnv);
+    mpickobj(monster, taken, objectEnv);
+    // let them try to equip it on the next turn
+    check_gear_next_turn(monster);
+    redraw(monster.mx, monster.my, state);
+    return true;
 }
 
 // C ref: mon.c curr_mon_load(). Boulder throwers' boulders do not contribute
