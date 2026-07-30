@@ -638,15 +638,11 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 D_CLOSED | D_TRAPPED,
                 'trapped or unusual door',
             ],
-            // D_LOCKED | D_TRAPPED is NOT here: lock.c:855 tests only
-            // D_CLOSED, so 0x18 takes the message switch and returns before
-            // the b_trapped() tail, which the port now serves. Only a mask
-            // whose roll can reach that tail stays refused.
-            [
-                'trapped closed door at the seam',
-                D_CLOSED | D_TRAPPED,
-                'trapped or unusual door',
-            ],
+            // D_LOCKED | D_TRAPPED is deliberately absent: lock.c:855 tests
+            // only D_CLOSED, so 0x18 takes the message switch and returns
+            // before the b_trapped() tail, and the port serves it. The
+            // 'trapped closed door' row above is the mask that stays refused,
+            // because its roll can reach that tail.
         ].map(([name, mask, reason]) => ({
             name,
             reason,

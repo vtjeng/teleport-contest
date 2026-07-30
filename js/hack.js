@@ -465,10 +465,12 @@ function requireAutoopenClosedDoor(x, y, state, run) {
     const u = state.u;
     // hack.c:1076 feels the square before the branch, feel_newsym() at
     // lock.c:914 takes its blind arm, and Blind is the first of the four
-    // terms hack.c:1120 gates the bump on. All three stay refused. Blindness
-    // cannot decide this arm on its own: reaching the bump needs the autoopen
-    // test to have failed already, and the gate's other three terms cover it
-    // without blindness, so nothing here is unreachable for want of it. Its
+    // terms hack.c:1113-1114 gates the bump on. All three stay refused.
+    // Blindness cannot decide this arm on its own, but the reason is narrower
+    // than it looks: of the gate's other three terms, Stunned and Fumbling are
+    // refused below in this same function, so `ACURR(A_DEX) < 10` is the only
+    // live one and is what keeps the bump arm reachable at all. If a later
+    // slice narrows or moves the Dexterity test, the arm goes dark. Blindness's
     // only start-of-game source is optlist.h:211's `permablind`, which sets
     // u.uroleplay.blind at u_init.c:1027 and changes what every square of the
     // level draws from turn one, well outside this arm.
@@ -503,9 +505,13 @@ function requireAutoopenClosedDoor(x, y, state, run) {
     if (propertyPresent(state, FUMBLING)) {
         throw new UnsupportedHeroMoveBoundaryError('fumbling movement');
     }
-    // hack.c:1101's "You can't lead <steed> through that closed door." needs
-    // y_monnam(), and lock.c:884's kick guard reads u.usteed as well, so a
-    // mounted hero diverges whichever arm the autoopen test picks.
+    // hack.c:1115-1117's "You can't lead <steed> through that closed door."
+    // needs y_monnam(). That is the whole live basis: it sits inside the
+    // Dexterity gate, so a mounted hero with ACURR(A_DEX) >= 10 takes
+    // hack.c:1132's "That door is closed." exactly as an unmounted one does,
+    // and lock.c:884's kick guard cannot decide the pull either while the
+    // autounlock refusal below stands. The guard is therefore deliberately
+    // wider than C, refusing every mounted case to own the one that diverges.
     if (u.usteed) {
         throw new UnsupportedHeroMoveBoundaryError('closed door on a steed');
     }
@@ -514,6 +520,11 @@ function requireAutoopenClosedDoor(x, y, state, run) {
     // test_move() first, so a monster standing on the closed door would take
     // the door arm here where C attacks it. lock.c:826
     // stumble_on_door_mimic() is the same square seen from doopen_indir().
+    //
+    // This guard is defensive rather than live: preflightDomoveDestination()
+    // tests `m_at()` before its closed_door() arm, so the seam refuses a
+    // monster-occupied door as combat and nothing reaches here. It exists for
+    // the test_move() call inside domove(), which has no such ordering.
     if (m_at(x, y, state)) {
         throw new UnsupportedHeroMoveBoundaryError('monster on a closed door');
     }
@@ -685,8 +696,12 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         if (runStopsBeforeMonster(destinationMonster, run, state)) return;
         requireOrdinaryStartingPetSwap(destinationMonster, x, y, state);
     } else if (closed_door(x, y, state)) {
-        // test_move()'s closed-door arm runs before its diagonal doorway
-        // rules, so a diagonal walk into a closed door still autoopens.
+        // test_move()'s closed-door arm (1074) runs before its testdiag
+        // label (1134-1135), so a diagonal walk into a closed door reaches
+        // the autoopen route rather than the diagonal doorway rules. The
+        // diagonal case is not silent by accident either: hack.c:1112 gates
+        // the bump and its sibling on `x == ux || y == uy`, so a diagonal
+        // step whose autoopen test fails prints nothing and falls through.
         requireAutoopenClosedDoor(x, y, state, run);
     } else if (!blocksMove(x, y, state)) {
         requireSimpleHeroDestination(x, y, state);

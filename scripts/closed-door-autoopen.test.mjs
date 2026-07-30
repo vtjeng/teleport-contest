@@ -28,6 +28,8 @@ import {
 } from '../js/objects.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import { moveloop_core } from '../js/allmain.js';
+import { newMonster } from '../js/monst.js';
+import { S_FELINE } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { effective_attribute } from '../js/attrib.js';
@@ -339,8 +341,8 @@ test('every autoopen refusal term is reachable and individually pinned', async (
             (st) => {
                 st.u.uprops[FUMBLING] = { intrinsic: 0, extrinsic: 1 };
             }],
-        // hack.c:1101 and lock.c:884 both read u.usteed, so a mounted hero
-        // diverges whichever arm the autoopen test picks.
+        // hack.c:1115-1117 prints a different line for a mounted hero, inside
+        // the Dexterity gate; the guard is wider than that to own the case.
         ['mounted hero', 'closed door on a steed',
             (st) => { st.u.usteed = { m_id: 1 }; }],
         ['trapped hero', 'held hero movement',
@@ -652,11 +654,13 @@ test('a trapped locked door is named, not refused', async () => {
     const base = loadLockedDoorRecipe().segments[0];
     const walkNorth = commandKeyCode(base.moves[0]);
 
-    await runSegment({ ...base, moves: '' });
+    const replay = await runSegment({ ...base, moves: '' });
     const door = game.level.at(game.u.ux, game.u.uy - 1);
     assert.equal(door.flags, D_LOCKED);
     door.flags = door.doormask = D_LOCKED | D_TRAPPED;
-    const drawsBefore = game.rng?.log?.length ?? 0;
+    // replay.getRngLog(), not game.rng: nothing assigns game.rng, so a
+    // comparison against it is a constant 0 on both sides.
+    const drawsBefore = replay.getRngLog().length;
 
     game.nhDisplay.pushKey(walkNorth);
     await moveloop_core();
@@ -666,9 +670,8 @@ test('a trapped locked door is named, not refused', async () => {
     assert.equal(game.nhDisplay.topMessage, 'This door is locked.');
     // The trap did not fire: C only reaches b_trapped() through the roll, and
     // this mask never gets there, so the mask is untouched and nothing drew.
-    assert.equal(game.level.at(door.x ?? game.u.ux, game.u.uy - 1).flags,
-        D_LOCKED | D_TRAPPED);
-    assert.equal(game.rng?.log?.length ?? 0, drawsBefore);
+    assert.equal(door.flags, D_LOCKED | D_TRAPPED);
+    assert.equal(replay.getRngLog().length, drawsBefore);
 });
 
 // The keys the suppressed matrix walks with. cmd.c gives each of them a
@@ -740,10 +743,16 @@ test('a suppressed pull repeats one of three results and moves nothing', async (
         let previousExercise = 0;
 
         for (let keys = 0; keys <= segment.moves.length; ++keys) {
-            await runSegment({
+            const replay = await runSegment({
                 ...segment, moves: segment.moves.slice(0, keys),
             });
             const label = `segment ${index} key ${keys}`;
+            // A positive witness that the arm ran, which "nothing observable
+            // happened" is not: a boundary refusal produces the same blank
+            // line and the same unchanged door, but stops the segment short.
+            // The diagonal arm has no other oracle, since hack.c:1112 gates
+            // both messages on `x == ux || y == uy` and it prints neither.
+            assert.equal(replay.getScreens().length, keys + 1, label);
             if (keys === 0) {
                 door = { x: game.u.ux + dx, y: game.u.uy + dy };
                 start = {
@@ -829,21 +838,30 @@ test('a suppressed pull drops the refusals doopen_indir owns', async () => {
             door.flags = door.doormask = D_CLOSED | D_TRAPPED;
         }],
         // lock.c:876-893's autounlock tail hangs off the message switch,
-        // which only the pull reaches.
-        ['skeleton key', (state) => {
+        // which only the pull reaches. These two set D_LOCKED as well: the
+        // seam runs its unlocking-tool and autounlock refusals only for a mask
+        // that is not plain D_CLOSED, so against the recipe's own door they
+        // would be admitted whether or not the early return existed, and could
+        // not fail. With D_LOCKED the refusals genuinely apply and the return
+        // is what drops them.
+        ['skeleton key', (state, door) => {
+            door.flags = door.doormask = D_LOCKED;
             state.invent = {
                 otyp: SKELETON_KEY, oclass: TOOL_CLASS, owt: 3, quan: 1,
                 nobj: state.invent,
             };
         }],
-        ['autounlock setting', (state) => { state.flags.autounlock = 'kick'; }],
+        ['autounlock setting', (state, door) => {
+            door.flags = door.doormask = D_LOCKED;
+            state.flags.autounlock = 'kick';
+        }],
     ];
 
     for (const [label, apply] of admitted) {
-        await runSegment({ ...base, moves: '' });
+        const replay = await runSegment({ ...base, moves: '' });
         const door = game.level.at(game.u.ux - 1, game.u.uy);
         assert.equal(door.flags, D_CLOSED, label);
-        const drawsBefore = game.rng?.log?.length ?? 0;
+        const drawsBefore = replay.getRngLog().length;
         apply(game, door);
 
         game.nhDisplay.pushKey(walkWest);
@@ -854,6 +872,62 @@ test('a suppressed pull drops the refusals doopen_indir owns', async () => {
         assert.equal(game.nhDisplay.topMessage, 'That door is closed.', label);
         // This hero has Dexterity 10, so the arm prints and stops: no draw and
         // no change to the door.
-        assert.equal(game.rng?.log?.length ?? 0, drawsBefore, label);
+        assert.equal(replay.getRngLog().length, drawsBefore, label);
+    }
+});
+
+// The mirror of `a suppressed pull drops the refusals doopen_indir owns`, and
+// the pin for this slice's central placement decision. u.usteed, m_at() and
+// u.utrap sit ABOVE `if (autoopenSuppressed(state, run)) return;` because
+// domove_core() would have routed the step elsewhere before test_move() ran:
+// a mounted hero diverges whichever arm the autoopen test picks, a monster on
+// the destination is attacked at 2786-2796, and a held hero goes to
+// trapmove() at 2830. Move any of them below the return and the suppressed arm
+// walks into the bump instead of refusing, which is what these cases catch.
+test('a suppressed pull keeps the refusals that precede doopen_indir', async () => {
+    const base = loadAutoopenSuppressedRecipe().segments[0];
+    const walkWest = commandKeyCode(base.moves[0]);
+
+    const refusals = [
+        ['steed', 'closed door on a steed',
+            (state) => { state.u.usteed = { mx: 1, my: 1 }; }],
+        ['held hero', 'held hero movement',
+            (state) => { state.u.utrap = 3; }],
+        // Not 'monster on a closed door': preflightDomoveDestination()'s
+        // `if (destinationMonster)` arm precedes its closed_door() arm, so the
+        // seam refuses a monster-occupied door as combat and the m_at() guard
+        // inside requireAutoopenClosedDoor() is shadowed end to end. The guard
+        // is defensive for the test_move() call inside domove(). This case
+        // pins the shadowing, so removing the seam's monster arm shows up
+        // here rather than silently changing which refusal a player sees.
+        ['monster on the door', 'hero combat or displacement',
+            (state, door) => {
+                const monster = newMonster({
+                    mx: door.x, my: door.y, mhp: 3,
+                    data: { pmnames: ['newt', 'newt', 'newt'], mlet: S_FELINE,
+                        mflags1: 0, mflags2: 0, mflags3: 0 },
+                });
+                state.level.monsters[door.x] ??= [];
+                state.level.monsters[door.x][door.y] = monster;
+            }],
+    ];
+
+    for (const [label, reason, apply] of refusals) {
+        const replay = await runSegment({ ...base, moves: '' });
+        const door = { x: game.u.ux - 1, y: game.u.uy };
+        const cell = game.level.at(door.x, door.y);
+        assert.equal(cell.flags, D_CLOSED, label);
+        const drawsBefore = replay.getRngLog().length;
+        apply(game, door);
+
+        game.nhDisplay.pushKey(walkWest);
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error.reason === reason,
+            label,
+        );
+        // Refused before the arm ran: no draw, no message, door untouched.
+        assert.equal(replay.getRngLog().length, drawsBefore, label);
+        assert.equal(cell.flags, D_CLOSED, label);
     }
 });
