@@ -7,6 +7,7 @@ import {
     MMOVE_DIED,
     MMOVE_DONE,
     MMOVE_MOVED,
+    MMOVE_NOMOVES,
     MMOVE_NOTHING,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -14,7 +15,7 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { dochug } from '../js/monmove.js';
-import { AT_WEAP } from '../js/monsters.js';
+import { AT_CLAW, AT_WEAP } from '../js/monsters.js';
 
 function makeState() {
     const uprops = [];
@@ -152,12 +153,22 @@ test('dochug reaches the post-move ranged weapon phase', async () => {
 test('dochug attacks a nearby hostile after declining movement', async () => {
     const state = makeState();
     const events = [];
-    const monster = makeMonster();
+    // C's gate reads noattacks(mdat), so a monster with no attack at all
+    // never reaches mattacku(); give this one a melee attack.
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_CLAW }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
     const env = {
         ...baseEnv(state, events),
         distanceAndFear: () => {
             events.push('range');
-            return { nearby: true, scared: false };
+            // nearby implies inrange in distfleeck(), which is what
+            // dochug()'s standard-attack gate reads.
+            return { inrange: true, nearby: true, scared: false };
         },
         moveMonster: () => assert.fail('nearby hostile does not move'),
     };
@@ -169,6 +180,119 @@ test('dochug attacks a nearby hostile after declining movement', async () => {
         'apparxy',
         'range',
         'items',
+        'attack',
+    ]);
+});
+
+test('dochug attacks an in-range hostile that is not adjacent', async () => {
+    // C ref: monmove.c:965-975. The gate is `inrange && !scared`, not
+    // adjacency: mhitu.c mattacku() runs its range2 arms for a monster that
+    // only believes it is near, which is where a thrown weapon comes from.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_WEAP }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    const env = {
+        ...baseEnv(state, events),
+        distanceAndFear: () => {
+            events.push('range');
+            return { inrange: true, nearby: false, scared: false };
+        },
+        moveMonster: () => {
+            events.push('move');
+            return MMOVE_NOTHING;
+        },
+        wieldMonsterItem: () => false,
+    };
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'items',
+        'move',
+        'range',
+        'attack',
+    ]);
+});
+
+test('dochug leaves a scared in-range hostile alone', async () => {
+    // C's `(inrange && !scared) || panicattk`: fear suppresses the attack
+    // unless the monster had nowhere to move.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_CLAW }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    const env = {
+        ...baseEnv(state, events),
+        distanceAndFear: () => {
+            events.push('range');
+            return { inrange: true, nearby: true, scared: true };
+        },
+        moveMonster: () => {
+            events.push('move');
+            return MMOVE_NOTHING;
+        },
+        attackHero: () => assert.fail('a scared monster does not attack'),
+    };
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'items',
+        'move',
+        'range',
+    ]);
+});
+
+test('dochug lets a cornered scared hostile attack anyway', async () => {
+    // C ref: monmove.c:918-920. MMOVE_NOMOVES plus scared sets panicattk,
+    // which is the one way past the `!scared` term above.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_CLAW }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    const env = {
+        ...baseEnv(state, events),
+        distanceAndFear: () => {
+            events.push('range');
+            return { inrange: true, nearby: true, scared: true };
+        },
+        moveMonster: () => {
+            events.push('move');
+            return MMOVE_NOMOVES;
+        },
+    };
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'items',
+        'move',
+        'range',
         'attack',
     ]);
 });
@@ -308,7 +432,7 @@ test('dochug does not attack after m_move spends the action', async () => {
             events.push(`range-${++rangeCall}`);
             return rangeCall === 1
                 ? { nearby: false, scared: false }
-                : { nearby: true, scared: false };
+                : { inrange: true, nearby: true, scared: false };
         },
         moveMonster: () => {
             events.push('move-done');

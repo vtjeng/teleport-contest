@@ -55,7 +55,11 @@ import {
     perceives,
 } from './mondata.js';
 import {
+    AT_BREA,
+    AT_GAZE,
     AT_MAGC,
+    AT_SPIT,
+    AT_WEAP,
     PM_ERINYS,
     PM_GELATINOUS_CUBE,
     PM_KILLER_BEE,
@@ -73,6 +77,7 @@ import {
     m_avoid_soko_push_loc,
     m_everyturn_effect,
     m_move,
+    monnear,
     select_postmove_object_action,
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
@@ -639,6 +644,35 @@ async function moveSimplePet(monster, after, env) {
     });
 }
 
+// C ref: mhitu.c mattacku(). dochug()'s standard-attack gate admits a monster
+// anywhere inside BOLT_LIM, and what it may do there depends on whether it
+// believes it is adjacent. An adjacent attacker reaches the melee arms, which
+// are not ported at all. A monster that only thinks it is near reaches the
+// range2 arms alone: AT_MAGC's castmu(), refused by assertSimpleActionState()
+// before the scan; AT_BREA, AT_SPIT and AT_GAZE, refused here; and AT_WEAP's
+// thrwmu(), which does nothing at all unless select_rwep() finds a missile.
+// mattacku()'s preamble writes nothing and draws nothing on this path: its
+// nomul(0) is behind !ranged, and the steed, swallow and underwater arms need
+// hero states this boundary already excludes.
+function refuseHeroAttack(monster, env) {
+    if (monnear(monster, monster.mux, monster.muy))
+        unsupported('monster attack on the hero');
+    const species = monster.data;
+    if (attacktype(species, AT_BREA)
+        || attacktype(species, AT_SPIT)
+        || attacktype(species, AT_GAZE)) {
+        unsupported('monster ranged attack on the hero');
+    }
+    if (attacktype(species, AT_WEAP)) {
+        const selected = select_rwep(monster, {
+            ...env,
+            touchArtifact: () =>
+                unsupported('monster artifact weapon selection'),
+        });
+        if (selected) unsupported('monster ranged weapon action');
+    }
+}
+
 // Execute one already-preflighted monster action. The same function is used
 // by the clone-only planning pass and the live movemon() adapter.
 export async function runSimpleMonsterAction(monster, rawEnv = {}) {
@@ -652,7 +686,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
         // One dochug() now serves both, as in C. m_move() picks the mover.
         dochug: (subject, actionEnv) => dochug(subject, {
                 ...actionEnv,
-                attackHero: () => unsupported('monster attack on the hero'),
+                attackHero: refuseHeroAttack,
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,

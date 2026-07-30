@@ -74,7 +74,7 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
-import { PM_FOG_CLOUD, PM_NEWT } from '../js/monsters.js';
+import { AT_CLAW, PM_FOG_CLOUD, PM_NEWT } from '../js/monsters.js';
 import { BOULDER } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import { create_region } from '../js/region.js';
@@ -2399,7 +2399,10 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
         moves: ' ',
     });
     const monster = {
-        data: { mmove: 12 }, movement: 12, mhp: 1, nmon: null,
+        // dochug()'s standard-attack gate reads noattacks(mdat), so an
+        // attackless species would walk past the boundary this test names.
+        data: { mmove: 12, mattk: [{ aatyp: AT_CLAW }] },
+        movement: 12, mhp: 1, nmon: null,
         // C's mcanmove is a bitfield every real monster carries. Without it
         // assertSimpleActionState() returns early and never checks anything,
         // so this fixture would not be the actionable monster it claims.

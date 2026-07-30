@@ -10,6 +10,7 @@ import {
     MMOVE_NOTHING,
 } from '../js/const.js';
 import { dochug } from '../js/monmove.js';
+import { AT_CLAW } from '../js/monsters.js';
 
 function makeMonster(overrides = {}) {
     return {
@@ -250,7 +251,14 @@ test('pet dochug skips the second range check after postmov kills the pet',
 test('pet dochug does not recalculate range when movement is not selected',
     async () => {
         const events = [];
-        const monster = makeMonster({ mpeaceful: false });
+        const monster = makeMonster({
+            data: {
+                mattk: [{ aatyp: AT_CLAW }],
+                mflags2: 0,
+                mflags3: 0,
+            },
+            mpeaceful: false,
+        });
         const env = {
             ...baseEnv(events),
             random: {
@@ -258,7 +266,10 @@ test('pet dochug does not recalculate range when movement is not selected',
             },
             distanceAndFear: () => {
                 events.push('range');
-                return { nearby: true, scared: false };
+                // nearby implies inrange in distfleeck(), and C's gate also
+                // reads noattacks(mdat), which makeMonster()'s attackless
+                // species satisfies; give the pet a melee attack instead.
+                return { inrange: true, nearby: true, scared: false };
             },
             movePet: () => assert.fail('movement is not selected'),
             postMonsterMove: () => assert.fail('movement is not selected'),

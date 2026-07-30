@@ -1834,6 +1834,7 @@ export async function dochug(monster, rawEnv = {}) {
         || (!monster.mcansee && !random.rn2(4))
         || monster.mpeaceful;
     let status = MMOVE_NOTHING;
+    let panicattk = false;
     if (mayMove) {
         status = await moveMonster(monster, env);
         if (status !== MMOVE_DIED) {
@@ -1858,14 +1859,27 @@ export async function dochug(monster, rawEnv = {}) {
             return 0;
         }
         // MMOVE_NOTHING, MMOVE_DONE, and MMOVE_NOMOVES all reach here.  C
-        // redraws a hallucinated monster that did not move.
+        // redraws a hallucinated monster that did not move.  MMOVE_NOMOVES
+        // additionally sets panicattk when the monster is scared: a cornered
+        // monster attacks even though fear would otherwise stop it.
+        if (status === MMOVE_NOMOVES && range.scared) panicattk = true;
         if (hallucinating()) redraw(monster.mx, monster.my);
     }
 
     // PHASE FOUR: standard attacks.  A peaceful monster, including every pet,
-    // fails this gate in C too.
-    if (status !== MMOVE_DONE && !monster.mpeaceful && range.nearby)
+    // fails this gate in C too.  C's `Conflict && !resist_conflict()` disjunct
+    // is unreachable here: assertSimpleScanState() refuses an active CONFLICT
+    // before the scan starts.  So is C's `u.uhp > 0` term, since a dead hero
+    // ends the turn before monsters move.  The gate admits a monster anywhere
+    // inside BOLT_LIM, not only an adjacent one, because mhitu.c mattacku()
+    // runs its range2 arms -- AT_WEAP's thrwmu(), AT_BREA, AT_SPIT and
+    // AT_GAZE -- for a monster that only thinks it is near.
+    if (status !== MMOVE_DONE
+        && !monster.mpeaceful
+        && ((range.inrange && !range.scared) || panicattk)
+        && !noattacks(monster.data)) {
         await attackHero(monster, env);
+    }
     return 0;
 }
 

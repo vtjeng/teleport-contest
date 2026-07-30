@@ -43,6 +43,9 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    AT_BREA,
+    AT_GAZE,
+    AT_SPIT,
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
     PM_GIANT_RAT,
@@ -1945,6 +1948,47 @@ test('the planning clone gives each monster its own pack and weapon',
         assert.equal(target.monster.mw, dagger);
         assert.equal(dagger.ocarry, target.monster);
     });
+
+test('an in-range monster with a ranged attack stops the scan', async () => {
+    // C ref: monmove.c:965-975 with mhitu.c mattacku(). A monster that only
+    // believes it is near the hero still reaches mattacku(), where the range2
+    // arms are AT_BREA's breamu(), AT_SPIT's spitmu() and AT_GAZE's gazemu().
+    // None is ported, and dochug()'s gate used to admit an adjacent attacker
+    // only, so these three passed through in silence.
+    for (const [name, aatyp] of [
+        ['breath', AT_BREA],
+        ['spit', AT_SPIT],
+        ['gaze', AT_GAZE],
+    ]) {
+        const target = await prepareSelectedAction();
+        // The fixture leaves exactly one legal step. Closing it makes
+        // mfndpos() find no candidate, so m_move() returns MMOVE_NOMOVES and
+        // dochug() reaches its standard-attack gate with the monster still
+        // three squares from the hero: in range, and not adjacent.
+        const step = game.level.at(target.destinationX, target.heroY);
+        step.typ = STONE;
+        step.flags = step.doormask = 0;
+        target.monster.data = {
+            ...target.monster.data,
+            mattk: [{ aatyp, adtyp: 0, damn: 1, damd: 2 }],
+        };
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'monster ranged attack on the hero'
+            ),
+            name,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            name,
+        );
+    }
+});
 
 test('the planning clone keeps the object catalog answering its aliases',
     async () => {
