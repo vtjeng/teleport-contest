@@ -15,97 +15,15 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-The goal below was selected from the `scan-stops.mjs` census at `861d2eb`.
-Every session and step count in it is a ceiling taken from that census and goes
-stale as the port advances; re-run the scan for current numbers. The traced
-source findings do not go stale, which is why they are recorded here rather
-than re-derived.
+No goal is in progress and none is queued. The pickup goal closed at
+`e18f534` and the census has not been re-run since. Run
+`node scripts/scan-stops.mjs` and select the next goal from it;
+`.agents/selection.md` states how to read it.
 
-### In progress: a monster or pet picks up an object
-
-A pet or an ordinary monster lifts an object off the floor square it stands on.
-The player sees `The kitten picks up a gold piece.` or
-`Slasher picks up a food ration.`, the square redraws, and play continues.
-
-In scope: a pickup whose C body runs from `can_carry() > 0` through to
-`check_gear_next_turn()` without leaving `dogmove.c dog_invent()` (443-474) or
-`mon.c mpickstuff()` (1847-1912). Two conditions keep it there. The carrier has
-no `AT_WEAP` attack, or its `weapon_check != NEED_WEAPON`, so
-`mon_wield_item()` is never entered. And the object is not a `BOULDER`, so
-`remove_object()` at `mkobj.c:2517-2518` does not call `recalc_block_point()`.
-
-Excluded: `dog_eat()` and `postmov()`'s `meatmetal`, `meatobj` and
-`meatcorpse` arms, which stay refused as pet eating and ordinary monster item
-interaction; `relobj()` dropping; `mon_wield_item()`; and shop billing beyond
-what `mpickobj()` already ports.
-
-**Traced source findings.**
-
-- The decision is ported and only the effect is missing.
-  `js/dogmove.js:418-429` already evaluates `can_carry`, `!obj->cursed`,
-  `could_reach_item()`, `rn2(20) < apport + 3` and
-  `rn2(udist) || !rn2(apport)` in C's nesting order, then throws at the
-  injected `pickObject`. `js/monmove.js:1995 select_postmove_object_action()`
-  likewise spends `mpickstuff()`'s `rn2(25)` shop draw and selects the object
-  before refusing. The PRNG stream up to the boundary is already correct, which
-  is why this goal adds an effect rather than a decision.
-- Nearly every helper has landed: `mpickobj()` with its preflight
-  (`js/steal.js:139`), `obj_extract_self()` (`js/invent.js:828`),
-  `remove_object()` (`js/obj.js:1731`), `splitobj()` (`js/obj.js:511`),
-  `can_carry()` (`js/moncarry.js:30`), and the `objnam.c` naming trio. The
-  genuinely new C is `objnam.c distant_name()` (347-409) and the message.
-- `dog_goal()` already steers the pet onto the boundary. `dogmove.c:510-561`
-  scans a radius-5 box for food and apport goals, and that scan is ported, so
-  the port walks the pet to the object and stops there.
-- No vision debt attaches, provided boulders stay excluded. Nothing on this
-  path calls `vision_recalc()`, so the cloned planning scan's refusal recorded
-  under `## Unresolved` is not in the way.
-
-**Census.** Two sessions stop here with 1,989 steps behind them. That is a
-ceiling, not a prediction: `seed0030` is a ten-deaths session and re-blocks on
-combat quickly. The `mpickstuff()` half owns no first-stop row at all, so its
-value is not visible in the census.
-
-**Why this rather than a larger row.** The closed-door goal's holdout gained
-21 screens on 11 sessions against development's 9 on 33, and the goals before
-it carried over at half, two-thirds and nothing. The distinguishing property
-looks like where a boundary sits: a closed door is met within a few steps of
-most levels, while `s`, `#` and a run command are reached only by sessions that
-get that far and choose them. This boundary fires inside background monster
-movement at steps 7 and 8 of its two sessions, so a session that merely walks
-around reaches it, with no player command required. Expect carry-over above the
-development rate but below the closed door's, since a pickup also needs a
-fetchable object within radius 5 and an apport roll where a doorway is
-unconditional.
-
-The two largest census rows lose on the same axis and are already reassigned.
-`levelchange` (5 sessions, 1,785 steps) is a wizard extended command reached
-only by tour sessions, and this file argues it belongs to an experience-level
-family. The repeated-command row (9 sessions, 2,011 steps) is not one goal: it
-decomposes into apply, eat, quaff and cast, which belong to item interaction,
-`wizlevelport`, which belongs to relocation, and the `@` and `m` prefixes.
-
-**Queued slices.**
-
-1. `distant_name()` and the shared pickup body, wired at `dog_invent()`'s carry
-   arm.
-2. `mpickstuff()` at `postmov()`'s object arm, replacing the take half of the
-   ordinary-monster refusal.
-3. The `minvis` redraw, if slice 2's fresh case does not reach it. The
-   split-stack arm this slice originally listed landed with slice 1:
-   `can_carry()` caps a nohands pet at one item, so every gold pickup splits
-   and refusing it would have been code deleted immediately.
-
-One subsystem and well under 500 production lines, so no implementation
-checklist is created. Revisit that if `preflightObjectName()` forces a broad
-`objnam.c` expansion.
-
-**What slice 1 left for slice 2.** Every pickup poisons the following turn.
-`check_gear_next_turn()` sets `I_SPECIAL`, so `assertSimpleScanState()` stops on
-`monster equipment changes` and `assertSimpleActionState()` stops on
-`pet inventory`. Both have to lift together, and lifting the second forces the
-planning clone to cover monster inventories as well — `cloneFloorObjects()`
-covers only the floor today.
+Every session and step count written into a goal is a ceiling taken from the
+census that selected it, and goes stale as the port advances. Traced source
+findings do not go stale, which is why they are recorded here rather than
+re-derived.
 
 ## Explicit future exploration work, outside the goal in progress
 
