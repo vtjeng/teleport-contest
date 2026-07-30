@@ -53,3 +53,12 @@ export function alwaysReady() {
     // Boolean site. The test asserts the return value, so the mutant is killed.
     return true;
 }
+
+export function forwarded(n) {
+    // Relational site that only js/wrapper.js reaches, and only
+    // scripts/wrapper.test.mjs exercises js/wrapper.js. The first wave for this
+    // module is scripts/bounds.test.mjs, which never calls this function and so
+    // passes every mutation of this line; the rest of the suite kills it. This
+    // is the shape of js/hack.js:544 in the real repository.
+    return n >= LIMIT;
+}

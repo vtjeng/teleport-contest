@@ -21,13 +21,22 @@
 // an object-literal key position (`{ 3: x }`) is a name. Mutating any of the
 // four produces noise, so the enumerator skips all four.
 //
-// The covering test set for a module is the test files that reach it without
-// passing through another js/ module, so a test that imports the module
-// through a helper under scripts/ counts. Transitive js/-to-js/ imports are
-// not followed: they pull 71 to 114 of the 130 test files into every set and
-// cost about as much as the full suite per mutant. A survivor may therefore
-// still be killed by a test that reaches the module through another js/
-// module, so every survivor is a candidate that still needs a reader.
+// Every mutant is judged by the whole suite, in two waves. The first wave is
+// the test files that reach the module without passing through another js/
+// module, so a test that imports the module through a helper under scripts/
+// counts. A failure there kills the mutant and the rest of the suite is
+// skipped. A mutant that passes its first wave then runs every remaining test
+// file, and only a mutant the whole suite passed is reported as a survivor.
+//
+// The ordering exists because a correct subset costs nearly what the whole
+// suite costs. Following js/-to-js/ imports puts 72 of the 132 test files
+// behind js/hack.js and 102 behind js/mondata.js, and the slowest files sit in
+// those sets, so `node --test`'s concurrency leaves the subset almost as slow
+// as the full run. Judging by the first wave alone is cheaper and wrong: on
+// `ce9c59f~1..ce9c59f` it reported five survivors, and the rest of the suite
+// killed four of them, including a mutant of js/hack.js that scripts/closed-
+// door-autoopen.test.mjs fails on while all seven files importing js/hack.js
+// directly pass.
 //
 // Usage:
 //
@@ -40,11 +49,11 @@
 //
 // Both forms take `--enumerate-only`, which prints the site and mutant counts
 // per file and stops before running any test, and `--limit <n>`, which stops
-// after n mutants have run. A limit truncates in
-// path order, so it bounds an exploratory run rather than sampling one, and the
-// report says how many of the target set's mutants went unmeasured. The command
-// exits 0 whether or not mutants survived, because a survivor is a finding to
-// review. A bad argument or a red baseline exits 2.
+// after n mutants have run. A limit truncates in path order, so it bounds an
+// exploratory run and samples nothing, and the report says how many of the
+// target set's mutants went unmeasured. The command exits 0 whether or not
+// mutants survived, because a survivor is a finding to review. A bad argument
+// or a red baseline exits 2.
 //
 // A range's lines are located by `git blame` over the working tree, not by the
 // diff's line numbers, so a range whose head is behind the working tree still
@@ -54,22 +63,28 @@
 // own set, which `scripts/mutate-sites.test.mjs` asserts against whichever
 // commit last changed js/.
 //
-// Cost, measured on 29 July 2026 over `HEAD~40..HEAD` at 049ebb0, 692 lines in
-// scope across 14 files:
+// Cost has two parts. A first wave costs what its own files cost, from 0.14 s
+// per mutant for a one-file wave to 2.20 s for js/hack.js's seven. Every mutant
+// that passes its first wave then costs about 13 s, the time the 122-file
+// verdict suite takes. The total is therefore set by how many mutants the first
+// wave kills, and a module whose own tests are weak pays the suite for nearly
+// every mutant.
 //
-// - 0.165 mutable sites per line in scope, yielding 114 sites and 165 mutants,
-//   1.45 mutants per site;
-// - 0.14 s per mutant against a one-file test set, 0.79 s against six files,
-//   10.43 s against the 98 files that import js/const.js, and 1.38 s averaged
-//   over all 165;
-// - 228 s of test time for the whole range, plus 12 s for the baseline.
+// Measured on 30 July 2026, wall clock for the whole command:
 //
-// Extrapolating the same density and average, the 1,000-line review window
-// that `.agents/review.md` sets as the full-pass gate carries about 165 sites
-// and 239 mutants, or roughly 5.5 minutes run serially. A range dominated by a
-// widely imported module costs several times that. A whole file is denser
-// because it holds no unchanged prose: js/regen.js's 119 lines carry 50 sites
-// and 72 mutants, which took 17 s against its one covering test file.
+// - `ce9c59f~1..ce9c59f`, 8 mutants over js/hack.js and js/lock.js: the first
+//   wave killed 3 at 1.36 s each, 5 reached the suite at 12.7 s each, 84 s in
+//   total including a 13 s baseline of 1,795 tests over 122 files;
+// - `c67aa92~1..c67aa92`, 17 mutants over js/regen.js alone: the first wave
+//   killed 1 at 0.14 s, 16 reached the suite at 13.0 s each, 228 s in total.
+//
+// Site density measured 0.165 per line in scope over the 692 lines
+// `HEAD~40..HEAD` changed at 049ebb0 on 29 July 2026, at 1.45 mutants per site.
+// Extrapolating that density, the 1,000-line review window that
+// `.agents/review.md` sets as the full-pass gate holds about 239 mutants, which
+// runs in roughly 26 minutes if the first wave kills half of them and 52
+// minutes if it kills none. Those two figures are extrapolations from the two
+// ranges above and assume the same density and the same 13 s suite.
 
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
@@ -621,74 +636,148 @@ function runTests(workspace, testFiles, timeoutMs) {
 }
 
 /**
+ * Split the test files into the ones a js/ mutation can affect and the rest.
+ *
+ * `suite` holds every test file that imports at least one js/ module, directly
+ * or through a helper under `scripts/`; the verdict comes from those. A test
+ * file that imports no js/ module cannot fail because a js/ line changed, so
+ * running it would only cost time. One of them would make the verdict wrong
+ * and not merely slow. `scripts/mutate-sites.test.mjs` reads js/ files as text
+ * and compares them with git, so every mutation fails it for a reason that
+ * has nothing to do with game behavior. Those files also need repository state
+ * the workspace does not hold, such as `QUALITY.json` and a `.git` directory.
+  */
+export function partitionTestFiles(rootPath = REPO_ROOT) {
+    const root = resolve(rootPath);
+    const jsPrefix = join(root, 'js') + '/';
+    const suite = [];
+    const unaffected = [];
+    for (const name of readdirSync(join(root, 'scripts'))
+        .filter((entry) => entry.endsWith('.test.mjs')).sort()) {
+        const visited = new Set();
+        const pending = [join(root, 'scripts', name)];
+        let reachesJs = false;
+        while (pending.length && !reachesJs) {
+            const file = pending.pop();
+            if (visited.has(file)) continue;
+            visited.add(file);
+            let imports;
+            try {
+                imports = relativeImportsOf(file);
+            } catch {
+                continue;
+            }
+            for (const target of imports) {
+                if (target.startsWith(jsPrefix)) reachesJs = true;
+                else pending.push(target);
+            }
+        }
+        (reachesJs ? suite : unaffected).push(name);
+    }
+    return { suite, unaffected };
+}
+
+/**
  * Apply each site's substitutions one at a time and report the survivors.
  *
  * `targets` holds one entry per file: `{ path, source, sites, tests }`, where
- * `path` is relative to the workspace and `tests` names test files under
- * `scripts/`. The unmutated tests run first, and a failure there aborts the
- * run: a red baseline marks every mutant killed, so the result would say
- * nothing about the tests.
+ * `path` is relative to the workspace and `tests` names the first-wave test
+ * files under `scripts/`. `allTests` names the verdict suite, which
+ * `partitionTestFiles()` supplies.
+ *
+ * Each mutant runs its first wave, the test files that reach the module without
+ * passing through another js/ module. A failure there kills the mutant and the
+ * rest of the suite is skipped, which is where the ordering pays. A mutant that
+ * survives its first wave then runs every remaining test file, so a survivor is
+ * a mutant the whole suite passed. Node 24 offers no bail flag, so the stop
+ * happens between the two spawns.
+ *
+ * The unmutated suite runs first, and a failure there aborts the run: a red
+ * baseline kills every mutant, so the result would say nothing about the tests.
  */
-export function runMutants({ workspace, targets, limit = Infinity,
+export function runMutants({ workspace, targets,
+    allTests = partitionTestFiles().suite, limit = Infinity,
     log = () => {} }) {
-    const covered = targets.filter((target) => target.tests.length);
-    const uncovered = targets
-        .filter((target) => !target.tests.length && target.sites.length);
-    const baselineFiles = [...new Set(covered.flatMap((t) => t.tests))].sort();
+    const measurable = targets.filter((target) => target.sites.length);
 
-    let baselineSeconds = 0;
-    let baselineTests = 0;
-    if (baselineFiles.length) {
-        log(`baseline: ${baselineFiles.length} test file(s)`);
-        const baseline = runTests(workspace, baselineFiles, 15 * 60 * 1000);
-        baselineSeconds = baseline.seconds;
-        baselineTests = reportedTestCount(baseline.output);
-        if (!baseline.passed) {
-            throw new Error('the unmutated tests do not pass, so no mutant '
-                + 'result would be meaningful; fix them first. '
-                + `node --test ${baselineFiles.join(' ')} reported:\n`
-                + failureLines(baseline.output));
-        }
-        // A run that executes nothing also exits 0, and every mutant would then
-        // look like a survivor.
-        if (baselineTests === 0) {
-            throw new Error(`the baseline run of ${baselineFiles.length} test `
-                + 'file(s) reported no tests, so no mutant result would be '
-                + 'meaningful');
-        }
-        log(`baseline passed ${baselineTests} test(s) in `
-            + `${baselineSeconds.toFixed(1)} s`);
+    log(`baseline: ${allTests.length} test file(s)`);
+    const baseline = runTests(workspace, allTests, 15 * 60 * 1000);
+    const baselineSeconds = baseline.seconds;
+    const baselineTests = reportedTestCount(baseline.output);
+    if (!baseline.passed) {
+        throw new Error('the unmutated tests do not pass, so no mutant '
+            + 'result would be meaningful; fix them first. '
+            + `node --test ${allTests.join(' ')} reported:\n`
+            + failureLines(baseline.output));
     }
+    // A run that executes nothing also exits 0, and every mutant would then
+    // look like a survivor.
+    if (baselineTests === 0) {
+        throw new Error(`the baseline run of ${allTests.length} test file(s) `
+            + 'reported no tests, so no mutant result would be meaningful');
+    }
+    log(`baseline passed ${baselineTests} test(s) in `
+        + `${baselineSeconds.toFixed(1)} s`);
 
-    // A mutant can turn a bounded loop into an unbounded one. The whole
-    // unmutated set is the ceiling for one file's subset, so a run past that
-    // ceiling is a hang, and a hung mutant counts as killed.
+    // A mutant can turn a bounded loop into an unbounded one. The unmutated
+    // suite is the ceiling for any subset of it, so a run past that ceiling is
+    // a hang, and a hung mutant counts as killed.
     const timeoutMs = Math.max(60_000, Math.ceil(baselineSeconds * 3) * 1000);
     const survivors = [];
     const perFile = [];
-    const scheduled = covered.reduce((n, t) => n + t.sites.length, 0);
+    const scheduled = measurable.reduce((n, t) => n + t.sites.length, 0);
     let killed = 0;
     let timeouts = 0;
-    let ranSeconds = 0;
     let ran = 0;
+    let firstWaveKilled = 0;
+    let firstWaveRuns = 0;
+    let firstWaveSeconds = 0;
+    let fullSuiteKilled = 0;
+    let fullSuiteRuns = 0;
+    let fullSuiteSeconds = 0;
 
-    for (const target of covered) {
+    for (const target of measurable) {
         const absolute = join(workspace, target.path);
+        // The first wave already passed, so running the files it holds again
+        // could not change the verdict.
+        const remaining = allTests
+            .filter((name) => !target.tests.includes(name));
         const tally = { path: target.path, tests: target.tests.length,
-            mutants: 0, seconds: 0 };
+            mutants: 0, firstWaveSeconds: 0, reachedFullSuite: 0,
+            fullSuiteSeconds: 0 };
         try {
             for (const site of target.sites) {
                 if (ran >= limit) break;
                 writeFileSync(absolute, applyMutation(target.source, site));
-                const run = runTests(workspace, target.tests, timeoutMs);
                 ran += 1;
-                ranSeconds += run.seconds;
                 tally.mutants += 1;
-                tally.seconds += run.seconds;
-                if (run.timedOut) timeouts += 1;
-                if (run.passed) survivors.push({ ...site, path: target.path,
-                    tests: target.tests });
-                else killed += 1;
+
+                if (target.tests.length) {
+                    const wave = runTests(workspace, target.tests, timeoutMs);
+                    firstWaveRuns += 1;
+                    firstWaveSeconds += wave.seconds;
+                    tally.firstWaveSeconds += wave.seconds;
+                    if (wave.timedOut) timeouts += 1;
+                    if (!wave.passed) {
+                        killed += 1;
+                        firstWaveKilled += 1;
+                        continue;
+                    }
+                }
+
+                const rest = runTests(workspace, remaining, timeoutMs);
+                fullSuiteRuns += 1;
+                fullSuiteSeconds += rest.seconds;
+                tally.reachedFullSuite += 1;
+                tally.fullSuiteSeconds += rest.seconds;
+                if (rest.timedOut) timeouts += 1;
+                if (rest.passed) {
+                    survivors.push({ ...site, path: target.path,
+                        tests: target.tests });
+                } else {
+                    killed += 1;
+                    fullSuiteKilled += 1;
+                }
             }
         } finally {
             writeFileSync(absolute, target.source);
@@ -697,8 +786,11 @@ export function runMutants({ workspace, targets, limit = Infinity,
         if (ran >= limit) break;
     }
 
-    return { survivors, killed, timeouts, uncovered, ran, ranSeconds, perFile,
-        scheduled, baselineSeconds, baselineFiles, baselineTests };
+    return { survivors, killed, timeouts, ran, perFile, scheduled,
+        ranSeconds: firstWaveSeconds + fullSuiteSeconds,
+        firstWaveKilled, firstWaveRuns, firstWaveSeconds,
+        fullSuiteKilled, fullSuiteRuns, fullSuiteSeconds,
+        baselineSeconds, baselineFiles: allTests, baselineTests };
 }
 
 function failureLines(output) {
@@ -716,36 +808,44 @@ export function describeSite(site) {
         + `${site.kind} \`${site.original}\` -> \`${site.replacement}\``;
 }
 
+const perMutant = (seconds, runs) =>
+    runs ? (seconds / runs).toFixed(2) : '0.00';
+
 export function formatReport(result) {
     const lines = [];
     for (const site of result.survivors) {
         lines.push(`survived ${describeSite(site)} `
-            + `(${site.tests.length} test file(s): ${site.tests.join(', ')})`);
+            + '(the whole suite passed; first wave was '
+            + `${site.tests.length} file(s): `
+            + `${site.tests.join(', ') || 'none'})`);
     }
-    for (const target of result.uncovered) {
-        lines.push(`unmeasured ${target.path}: ${target.sites.length} site(s), `
-            + 'no test file imports this module');
-    }
-    // Per-file cost, which follows from how many test files import the module.
-    // Read this figure when deciding whether a range is affordable.
+    // Per-file cost, split by phase. The first-wave figure follows from how
+    // many test files reach the module; the full-suite figure is the same for
+    // every file and applies only to the mutants that got past their first
+    // wave.
     for (const tally of result.perFile) {
-        lines.push(`cost ${tally.path}: ${tally.mutants} mutant(s) against `
-            + `${tally.tests} test file(s), `
-            + `${(tally.seconds / tally.mutants).toFixed(2)} s per mutant`);
+        lines.push(`cost ${tally.path}: ${tally.mutants} mutant(s), `
+            + `${tally.tests} first-wave file(s) at `
+            + `${perMutant(tally.firstWaveSeconds, tally.mutants)} s, `
+            + `${tally.reachedFullSuite} reached the full suite at `
+            + `${perMutant(tally.fullSuiteSeconds, tally.reachedFullSuite)} s`);
     }
+    lines.push(`first wave: ${result.firstWaveKilled} of ${result.ran} `
+        + `mutant(s) killed over ${result.firstWaveRuns} run(s) at `
+        + `${perMutant(result.firstWaveSeconds, result.firstWaveRuns)} s each`);
+    lines.push(`full suite: ${result.fullSuiteRuns} mutant(s) reached it, `
+        + `${result.fullSuiteKilled} killed, at `
+        + `${perMutant(result.fullSuiteSeconds, result.fullSuiteRuns)} s each`);
     if (result.ran < result.scheduled) {
         // Say what the limit dropped. A truncated run that reported only its
         // own totals would read as a complete measurement of the target set.
         lines.push(`limited to ${result.ran} of ${result.scheduled} mutant(s) `
             + 'in path order; the rest were not measured');
     }
-    const perMutant = result.ran
-        ? (result.ranSeconds / result.ran).toFixed(2)
-        : '0.00';
     lines.push(`${result.ran} mutant(s): ${result.killed} killed, `
         + `${result.survivors.length} survived, ${result.timeouts} timed out; `
         + `${result.ranSeconds.toFixed(1)} s of test time, `
-        + `${perMutant} s per mutant; baseline `
+        + `${perMutant(result.ranSeconds, result.ran)} s per mutant; baseline `
         + `${result.baselineTests} test(s) in `
         + `${result.baselineFiles.length} file(s) in `
         + `${result.baselineSeconds.toFixed(1)} s`);
@@ -895,9 +995,14 @@ async function main(argv) {
 
     const workspace = createWorkspace();
     try {
+        const { suite, unaffected } = partitionTestFiles();
+        console.log(`suite: ${suite.length} test file(s) import a js/ module; `
+            + `${unaffected.length} cannot be affected by a mutation and are `
+            + `not run (${unaffected.join(', ')})`);
         const result = runMutants({
             workspace,
             targets: targets.filter((target) => target.sites.length),
+            allTests: suite,
             limit: options.limit,
             log: (message) => console.log(message),
         });

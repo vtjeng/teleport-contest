@@ -3,8 +3,8 @@
 // covering-test walk stops at the first js/ module: wrapper.test.mjs reaches
 // js/bounds.js only through this file and must not be listed as covering it.
 
-import { withinLimit } from './bounds.js';
+import { forwarded } from './bounds.js';
 
 export function allowed(n) {
-    return withinLimit(n);
+    return forwarded(n);
 }

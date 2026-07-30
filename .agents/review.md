@@ -200,9 +200,13 @@ second runs the mutants and prints the survivors. Both exit 0 whatever they
 find, because a survivor is a finding to read. A missing argument, a path
 outside `js/`, or a red baseline exits 2.
 
-Cost per mutant is set by how many test files import the module, so a range
-holding a widely imported module costs several times one that does not. The
-script's header comment records the measured figures.
+Cost has two parts. Each mutant first runs the test files that reach its module
+without passing through another `js/` module, and a failure there kills it and
+stops. A mutant that passes that first wave then runs the rest of the suite,
+which costs about the same for every mutant. The total therefore depends on how
+many mutants the first wave kills, and a module whose own tests are weak pays
+the suite for nearly every mutant. The script's header comment records the
+measured figures.
 
 Hand the survivor list to the correctness pass as a `validation` context item
 addressed to the `tests` finder, which is how `/audit-diff-correctness` routes
@@ -213,11 +217,12 @@ distinguishes. An integer moved by one is often a constant that no observable
 behavior depends on, and a range near the full-pass gate can hold enough of
 those to spend the finder's whole finding budget.
 
-Two limits bound what a survivor proves. The covering test set for a module is
-the test files that reach it without passing through another `js/` module, so a
-test that reaches the module through a `js/` module can fail on a mutant this
-run reports as a survivor. A line holding no mutable site produces no mutant,
-so a line the list omits has no evidence either way.
+One limit bounds what a survivor proves: a line holding no mutable site
+produces no mutant, so a line the list omits has no evidence either way. The
+verdict itself comes from every test file that imports a `js/` module, so a
+survivor is a mutant the whole suite passed. The ten test files that import no
+`js/` module are left out, and the report names them; no mutation of a `js/`
+line can reach them.
 
 The pass report states how many mutants ran, how many survived, and what the
 test-quality finder concluded about the survivors it examined. A survivor the

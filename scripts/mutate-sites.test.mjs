@@ -31,6 +31,7 @@ import {
     formatSiteCounts,
     parseAddedLines,
     parseArgs,
+    partitionTestFiles,
     parseRange,
     removeWorkspace,
     reportedTestCount,
@@ -60,6 +61,11 @@ function fixtureTarget({ lines = null, tests = ['bounds.test.mjs'] } = {}) {
         tests,
     };
 }
+
+// The fixture's whole suite for verdict purposes. red-baseline.test.mjs fails
+// against the unmutated module by design, so only the test that exercises the
+// abort path names it.
+const FIXTURE_SUITE = ['bounds.test.mjs', 'wrapper.test.mjs'];
 
 function withWorkspace(body) {
     const workspace = createWorkspace(FIXTURE_ROOT);
@@ -169,9 +175,10 @@ test('the fixture module yields exactly the documented mutants', () => {
         '45:integer 3->4',
         '45:integer 3->2',
         '54:boolean true->false',
+        '63:relational >=->>',
     ]);
-    // Eight distinct tokens: the three integer tokens each yield two mutants.
-    assert.equal(countSites(sites), 8);
+    // Nine distinct tokens: the three integer tokens each yield two mutants.
+    assert.equal(countSites(sites), 9);
 });
 
 test('sites outside the changed lines are left alone', () => {
@@ -293,16 +300,36 @@ test('a run that executes no test file is not a run of survivors', () => {
     const result = withWorkspace((workspace) => runMutants({
         workspace,
         targets: [fixtureTarget()],
+        allTests: FIXTURE_SUITE,
         limit: 1,
     }));
 
-    // scripts/fixtures/mutate-sites/scripts/bounds.test.mjs holds five tests.
-    assert.equal(result.baselineTests, 5);
+    // bounds.test.mjs holds five tests and wrapper.test.mjs holds one.
+    assert.equal(result.baselineTests, 6);
 });
 
 // ---------------------------------------------------------------------------
 // Which tests cover a module
 // ---------------------------------------------------------------------------
+
+test('the verdict suite is the test files a js/ mutation can affect', () => {
+    const { suite, unaffected } = partitionTestFiles();
+
+    for (const name of [...suite, ...unaffected])
+        assert.match(name, /\.test\.mjs$/u);
+    // scripts/hack.test.mjs imports js/hack.js, so a mutation can fail it.
+    assert.equal(suite.includes('hack.test.mjs'), true);
+    // This file imports no js/ module. It reads js/ files as text and compares
+    // them with git, so running it against a mutated module would fail it for a
+    // reason that has nothing to do with game behavior.
+    assert.equal(unaffected.includes('mutate-sites.test.mjs'), true);
+    // scripts/quality-status.test.mjs reads QUALITY.json and imports no js/
+    // module, so no mutation can reach it.
+    assert.equal(unaffected.includes('quality-status.test.mjs'), true);
+    // A helper module under scripts/ holds no test and appears in neither list.
+    assert.equal([...suite, ...unaffected]
+        .includes('monster-test-state.mjs'), false);
+});
 
 test('the walk stops at the first js/ module it reaches', () => {
     const covering = coveringTests(FIXTURE_ROOT);
@@ -337,6 +364,7 @@ test('the fixture run reports exactly the mutants its test leaves alive',
         const result = withWorkspace((workspace) => runMutants({
             workspace,
             targets: [fixtureTarget()],
+            allTests: FIXTURE_SUITE,
         }));
 
         // js/bounds.js documents why these five survive: nearEdge() is tested
@@ -348,24 +376,51 @@ test('the fixture run reports exactly the mutants its test leaves alive',
             '34:integer 1->2',
             '34:integer 1->0',
         ]);
-        // The other seven of the module's twelve mutants change a value the
-        // fixture test asserts.
-        assert.equal(result.killed, 7);
-        assert.equal(result.ran, 12);
+        // Of the module's thirteen mutants, seven change a value
+        // scripts/bounds.test.mjs asserts and forwarded()'s mutant is killed by
+        // scripts/wrapper.test.mjs in the second wave.
+        assert.equal(result.killed, 8);
+        assert.equal(result.firstWaveKilled, 7);
+        assert.equal(result.fullSuiteKilled, 1);
+        assert.equal(result.ran, 13);
         assert.equal(result.timeouts, 0);
-        assert.deepEqual(result.baselineFiles, ['bounds.test.mjs']);
+        assert.deepEqual(result.baselineFiles, FIXTURE_SUITE);
 
         const report = formatReport(result);
         assert.equal(report[0], 'survived js/bounds.js:21:14: relational '
-            + '`<` -> `<=` (1 test file(s): bounds.test.mjs)');
+            + '`<` -> `<=` (the whole suite passed; first wave was 1 file(s): '
+            + 'bounds.test.mjs)');
         assert.match(report.at(-1),
-            /^12 mutant\(s\): 7 killed, 5 survived, 0 timed out;/u);
+            /^13 mutant\(s\): 8 killed, 5 survived, 0 timed out;/u);
+    });
+
+test('a mutant the first wave passes and a wider file kills counts as killed',
+    () => {
+        // Line 63 of js/bounds.js is forwarded(), which only js/wrapper.js
+        // reaches. scripts/bounds.test.mjs is the entire first wave for
+        // js/bounds.js and passes this mutation; scripts/wrapper.test.mjs fails
+        // on it. This is the shape of js/hack.js:544 in the repository, where
+        // scripts/closed-door-autoopen.test.mjs kills a mutant that all seven
+        // test files importing js/hack.js directly pass.
+        const result = withWorkspace((workspace) => runMutants({
+            workspace,
+            targets: [fixtureTarget({ lines: new Set([63]) })],
+            allTests: ['bounds.test.mjs', 'wrapper.test.mjs'],
+        }));
+
+        assert.equal(result.ran, 1);
+        assert.deepEqual(result.survivors, []);
+        // The first wave passed it and the rest of the suite killed it, so the
+        // verdict cannot come from the first wave alone.
+        assert.equal(result.firstWaveKilled, 0);
+        assert.equal(result.fullSuiteKilled, 1);
     });
 
 test('the module is restored after the last mutant', () => {
     const before = fixtureSource();
     withWorkspace((workspace) => {
-        runMutants({ workspace, targets: [fixtureTarget()], limit: 3 });
+        runMutants({ workspace, targets: [fixtureTarget()], limit: 3,
+            allTests: FIXTURE_SUITE });
         // The workspace copy, not the repository file, is what a mutation
         // rewrites; it has to be put back so the next file's baseline holds.
         assert.equal(readFileSync(`${workspace}/js/bounds.js`, 'utf8'), before);
@@ -377,6 +432,7 @@ test('a limit stops the run early', () => {
     const result = withWorkspace((workspace) => runMutants({
         workspace,
         targets: [fixtureTarget()],
+        allTests: FIXTURE_SUITE,
         limit: 2,
     }));
 
@@ -384,11 +440,11 @@ test('a limit stops the run early', () => {
     // test asserts, so neither survives.
     assert.equal(result.ran, 2);
     assert.deepEqual(result.survivors, []);
-    // The other ten went unmeasured, which the report has to say: 2 killed of 2
-    // run would otherwise read as a clean result for the whole file.
-    assert.equal(result.scheduled, 12);
+    // The other eleven went unmeasured, which the report has to say: 2 killed
+    // of 2 run would otherwise read as a clean result for the whole file.
+    assert.equal(result.scheduled, 13);
     assert.equal(formatReport(result).includes(
-        'limited to 2 of 12 mutant(s) in path order; the rest were not '
+        'limited to 2 of 13 mutant(s) in path order; the rest were not '
         + 'measured'), true);
 });
 
@@ -399,25 +455,29 @@ test('a red baseline stops the run before the first mutant',
         assert.throws(
             () => withWorkspace((workspace) => runMutants({
                 workspace,
-                targets: [fixtureTarget({ tests: ['red-baseline.test.mjs'] })],
+                targets: [fixtureTarget()],
+                allTests: ['red-baseline.test.mjs'],
             })),
             /the unmutated tests do not pass/u,
         );
     });
 
-test('a module no test file imports is reported as unmeasured', () => {
+test('a module with an empty first wave is still judged by the suite', () => {
     const result = withWorkspace((workspace) => runMutants({
         workspace,
-        targets: [fixtureTarget({ tests: [] })],
+        targets: [fixtureTarget({ tests: [], lines: new Set([10]) })],
+        allTests: FIXTURE_SUITE,
     }));
 
-    assert.equal(result.ran, 0);
-    // No test file means no baseline to run and nothing to conclude. The report
-    // says so; counting twelve survivors here would be wrong.
-    assert.deepEqual(result.baselineFiles, []);
-    assert.deepEqual(formatReport(result).slice(0, 1), [
-        'unmeasured js/bounds.js: 12 site(s), no test file imports this module',
-    ]);
+    // Line 10 is `export const LIMIT = 4;`, which scripts/bounds.test.mjs
+    // asserts. With no first wave, both of its mutants go straight to the
+    // suite, which kills them. The covering-set rule this replaced called such
+    // a module unmeasurable and ran nothing.
+    assert.equal(result.ran, 2);
+    assert.equal(result.firstWaveRuns, 0);
+    assert.equal(result.fullSuiteRuns, 2);
+    assert.equal(result.killed, 2);
+    assert.deepEqual(result.survivors, []);
 });
 
 // ---------------------------------------------------------------------------
@@ -449,7 +509,7 @@ test('every target is named by --range or --file', () => {
         /range must be spelled/u);
     assert.throws(() => parseArgs([]), /pass --range/u);
     // A value the shell dropped, or an argument with no option name, is a
-    // mistake to report rather than a target to guess at.
+    // mistake to report, and no kind of target to guess at.
     assert.throws(() => parseArgs(['--range']), /--range takes a value/u);
     assert.throws(() => parseArgs(['--file']), /--file takes a value/u);
     assert.throws(() => parseArgs(['js/a.js']), /unexpected argument/u);
@@ -473,10 +533,10 @@ test('the counts separate sites from mutants and state the density', () => {
     // 8 / 40, is exact.
     const counts = formatSiteCounts([{ ...target, lineCount: 40 }], 40);
 
-    assert.equal(counts.at(-2), '1 file(s), 40 line(s) in scope, 8 site(s), '
-        + '12 mutant(s); 0.200 sites per line in scope');
+    assert.equal(counts.at(-2), '1 file(s), 40 line(s) in scope, 9 site(s), '
+        + '13 mutant(s); 0.225 sites per line in scope');
     assert.equal(counts.at(-1), 'mutants by kind: boolean 1, integer 8, '
-        + 'logical 1, relational 2; an integer site yields one mutant each way');
+        + 'logical 1, relational 3; an integer site yields one mutant each way');
 });
 
 test('a real range resolves to files, lines, and covering tests', () => {
@@ -527,9 +587,9 @@ test('a blamed line holds text that the range added', () => {
     // reviewed line moves it in one scheme and not the other. What must hold is
     // that the text found at each blamed position is text the range wrote.
     //
-    // The newest js/ commit and the fifth newest cover both cases: a range whose
-    // lines have had no chance to move, and one whose lines have had four
-    // commits' worth.
+    // The newest js/ commit and the fifth newest cover both cases: a range
+    // whose lines have had no chance to move, and one whose lines have had
+    // four commits' worth.
     const heads = execFileSync('git',
         ['log', '--format=%H', '-5', '--', 'js/'], { encoding: 'utf8' })
         .trim().split('\n');
