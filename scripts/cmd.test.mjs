@@ -870,12 +870,15 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
 // test_move()'s exit arm lets the hero step diagonally off either one. The
 // destination seam refuses D_BROKEN as an arrival, so the only way to observe
 // that half of the predicate is to place the hero on one directly.
-test('a diagonal pet swap obeys test_move()\'s doorway rules', async () => {
-    // hack.c domove_core() reaches test_move() for a pet displacement too, so
-    // a hero standing on a doorway that still has its door may not step out
-    // of it diagonally, whatever is on the destination -- a tame pet the hero
-    // would otherwise swap with included. The step is refused rather than
-    // stopped: mention_walls is off, so nothing prints and no turn elapses.
+test('a diagonal pet swap stops rather than refusing silently', async () => {
+    // A hero on a doorway that still has its door may not step out of it
+    // diagonally, and C reaches that refusal through do_attack() rather than
+    // before it. uhitm.c:474 evaluates `foo = (Punished || !rn2(7) || ...)`
+    // inside the is_safemon branch, so C spends a draw even for the pet the
+    // hero would otherwise swap with, then returns FALSE and lets
+    // test_move()'s exit rule decline the step. The port has no do_attack()
+    // yet, so declining silently would diverge by exactly that rn2(7); it
+    // fails closed instead.
     const replay = await runSegment({
         seed: 840024,
         datetime: COMMAND_DATETIME,
@@ -897,21 +900,26 @@ test('a diagonal pet swap obeys test_move()\'s doorway rules', async () => {
     game.level.monsters[x][y] = pet;
     const before = { ux: game.u.ux, uy: game.u.uy, moves: game.moves };
 
+    const drawsBefore = replay.getRngLog().length;
     game.nhDisplay.pushKey(commandKeyCode('u'));
-    await moveloop_core();
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error.reason === 'hero combat or displacement',
+    );
 
     assert.deepEqual(
         { ux: game.u.ux, uy: game.u.uy, moves: game.moves },
         before,
-        'the refused swap moved nobody and elapsed no turn',
+        'the stopped swap moved nobody and elapsed no turn',
     );
-    assert.equal(game.context.move, 0);
     assert.deepEqual(
         [pet.mx, pet.my],
         [x, y],
         'the pet stayed on the destination square',
     );
-    void replay;
+    // Fail-closed means before the draw, not instead of it: nothing may be
+    // spent on a step the port cannot finish.
+    assert.equal(replay.getRngLog().length, drawsBefore);
 });
 
 // The mirror of the pet case above, and the ordering it protects.
