@@ -4188,6 +4188,58 @@
         ]
       },
       "recordedAt": "2026-07-30T19:26:41.427Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "27761926cb6f41e6b236d9b27b9a7ab809c7d608"
+      },
+      "head": "3471a99a07b6fb35dbb8a2d63801ee4c787a380a",
+      "auditedRange": "27761926cb6f41e6b236d9b27b9a7ab809c7d608..3471a99a07b6fb35dbb8a2d63801ee4c787a380a",
+      "areas": [
+        "commands"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review of the movement-seam ordering fix, run because the monster-door goal's holdout evaluation is a review deadline and audit-fix debt cannot stand across one. Three finders (correctness, tests, variable-trace); readability is the perspective a light pass drops. 8 raw findings, 6 after deduplication, 6 confirmed and all 6 applied at ff865ec, none deferred, none rejected, none unverified, no warnings. This is the fourth consecutive goal in which a delta review found collateral from the previous fix, and this time it found the fix wrong in two ways. Half of it was dead: the refusal guard added for the safemon path was the last statement of its block with nothing after the chain, so deleting it changed no test, while its comment asserted an invariant that did not hold. And moving the pet-swap seam ahead of the refusal made the port throw a segment-ending boundary for a trap or object on the pet's square, on a step C declines without consulting them. The adjudicator settled the question the finder left open by going to the C: uhitm.c:474 evaluates foo = (Punished || !rn2(7) || ...) inside do_attack()'s is_safemon branch, so C spends a draw even for the pet before returning FALSE and letting test_move() refuse — which means neither the original nor the first-fix ordering matched C, and admitting the step silently diverges by exactly one rn2(7). Any monster on a refused diagonal now fails closed, safemon included, ahead of the swap-consequence gates. The pet test asserted the silent refusal and now asserts the boundary plus an unchanged draw count, since failing closed means before the draw rather than instead of it. Development score identical before and after at 459 of 7,765 screens, 459 cursors and 99,980 PRNG calls; the diagonal doorway matrix matches 14 segments, 35,931 calls and 38 screens.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1277,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 6,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 2,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "Moving requireOrdinaryStartingPetSwap() ahead of the diagonal refusal made the seam throw a boundary for a trap, floor object, region or engraving on the pet's square, on a step C refuses inside test_move() without ever consulting them — reintroducing on the monster arm the hazard already recorded for the empty-square arm.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The refusal guard added for the safemon path was the last statement of the destination-monster block with nothing after the else-if chain, so it had no effect and deleting it changed no test, while its comment asserted that the diagonal refusal claims the step exactly as on an empty square. The adjudicator settled the underlying question: uhitm.c:474 evaluates foo = (Punished || !rn2(7) || ...) inside do_attack()'s is_safemon branch, so C spends a draw even for a pet before returning FALSE and letting test_move() refuse, and admitting the step silently diverges by exactly that rn2(7).",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": []
+      },
+      "recordedAt": "2026-07-30T19:53:11.601Z"
     }
   ]
 }
