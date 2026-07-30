@@ -15,15 +15,107 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-No goal is in progress and none is queued. The pickup goal closed at
-`e18f534` and the census has not been re-run since. Run
-`node scripts/scan-stops.mjs` and select the next goal from it;
-`.agents/selection.md` states how to read it.
+The goal below was selected from the `scan-stops.mjs` census at `2686c62`.
+Every session and step count in it is a ceiling taken from that census and goes
+stale as the port advances; re-run the scan for current numbers. The traced
+source findings do not go stale, which is why they are recorded here rather
+than re-derived.
 
-Every session and step count written into a goal is a ceiling taken from the
-census that selected it, and goes stale as the port advances. Traced source
-findings do not go stale, which is why they are recorded here rather than
-re-derived.
+### In progress: a monster's move that ends on a door
+
+A monster whose move finishes on a door square completes it. It stands in a
+doorless, broken or open doorway with no further effect, or — with hands — opens
+a closed door it steps onto, changing the mask, repainting the square,
+recomputing the blocked vision point, and printing the seen, unseen or deaf
+feedback: `%s opens a door.`, `You see a door open.`, `You hear a door open.`
+
+In scope: `monmove.c postmov()`'s door block (1520-1622), entered when
+`IS_DOOR(levl[mtmp->mx][mtmp->my].typ) && !passes_walls(ptr) && !can_tunnel`,
+restricted to the arms reachable with `can_open` alone — the fall-through no-op
+for `D_NODOOR`, `D_BROKEN` and `D_ISOPEN`, and
+`here->doormask == D_CLOSED && can_open`.
+
+Excluded and still refused: `amorphous`, `can_unlock`, the doorbuster smash arm,
+`btrapped`/`mb_trapped()`, `IRONBARS`, `can_tunnel`/`mdig_tunnel()`,
+`vamp_shift()`, and `postmov()`'s other duties — `mintrap()`,
+`maybe_spin_web()`, `hideunder()` and the shopkeeper arm. Non-door special
+terrain keeps its own refusal.
+
+**Traced source findings.**
+
+- The port has no `postmov()`. `js/monmove.js` injects `postMonsterMove`, which
+  `postSimpleMove()` in `js/unported_monster_actions.js` satisfies, covering
+  only the notice message, the `newsym` pair and the `mpickstuff` arm. This goal
+  creates `postmov()` in `js/monmove.js`, which is where `mintrap()` later
+  attaches: C calls it at `monmove.c:1509`, inside `postmov()` and *before* the
+  door block.
+- A starting pet can never open a door. `can_open = !(nohands(ptr) ||
+  verysmall(ptr))` at `monmove.c:1765`, and the little dog, kitten and pony all
+  carry `M1_NOHANDS`. `mfndpos()` already refuses `D_CLOSED` and `D_LOCKED`
+  without `OPENDOOR`/`UNLOCKDOOR`, and refuses any diagonal into or out of a
+  door whose mask exceeds `D_BROKEN`, so a pet reaches only the no-op arms and
+  the filtering is already ported.
+- `UnblockDoor` is the hard part: it writes `doormask`, then calls `newsym()`,
+  `recalc_block_point()` and `vision_recalc(0)`, then recomputes `canseeit`.
+  That `vision_recalc(0)` lands on the refusal recorded under `## Unresolved`,
+  "a vision recalculation stops the cloned monster scan". Settle that before the
+  closed-door arm's first commit.
+- Terrain measured over the 33 D:1 levels the port generates at each session's
+  stop: 569 door squares, 17.2 per level — 394 `D_NODOOR`, 128 `D_CLOSED`, 25
+  `D_ISOPEN`, 22 `D_LOCKED`, and zero `D_TRAPPED`. Every level has a closed
+  door; the zero is why `mb_trapped()` is excluded.
+- The two stopped sessions split cleanly across the two slices. `seed0004`
+  refuses at `(73,7)` with `typ 23 / mask 2`, `D_ISOPEN`, where C's block does
+  nothing. `seed0015`'s refused step is C printing `You hear a door open.`, the
+  `D_CLOSED && can_open` arm with `!canseeit && !Deaf`.
+- `Deaf` reaches the `You_hear` arm, so `js/dogmove.js heroDeaf()`'s recorded
+  mismatch with `youprop.h:125` gains a second reader here.
+
+**Census.** Two sessions stop here with 417 steps behind them. Both block again
+almost immediately, so expect a development gain in the single digits.
+
+**Why not the higher row.** `simple monster action requires pet inventory`
+carries the same two sessions with 1,988 steps, nearly five times the ceiling.
+It is passed over because the census shows what that ceiling is worth: before
+the pickup goal those same two sessions sat behind `pet object pickup` with
+1,989 steps, so porting a whole goal moved them exactly one step. The remaining
+1,988 are behind a session that re-blocks on combat and a pet-feeding session
+that runs into item use. A step count is a ceiling, and this is the clearest
+measurement the repository has of how little of one ceiling was real.
+
+**On carry-over, and its limits.** Five goals now have holdout results:
+running +0, extended-command +17, search +6, closed door +21, pickup +0,
+against development gains of 35, 77, 35, 35 and 1. The property that fits is
+incidence multiplied by runway — how many unseen sessions reach the boundary,
+and how far they get before the next refusal. Pickup failed on both, and its
+development gain of 1 said so before the holdout confirmed it. This goal is
+honestly mediocre against that measure: door terrain is universal, but a
+*monster* must end a move on the 5.4 non-`D_NODOOR` squares per level, and pets,
+which move most, can only ever use the 0.8 open ones. Predict a single-digit
+development gain and a holdout gain near zero.
+
+The larger observation deserves recording: exploration's high-incidence work is
+done. Plain movement, running, search and the hero's closed door are ported, and
+what the census still holds inside this milestone is a tail of
+coincidence-gated boundaries. Expect flat holdout returns until the milestone
+closes and combat opens. That is a reason to keep choosing on the census rather
+than hunting for a clever pick — five data points, several confounded by where
+unseen sessions stop next, cannot carry more weight than that.
+
+**Queued slices.**
+
+1. Doorless and open doorway arrival: widen `assertSimpleDestination()` to
+   `D_BROKEN` and `D_ISOPEN` under a real `postmov()` skeleton, with no state
+   change and no message. Closes `seed0004`'s boundary.
+2. A monster opens a closed door: `D_CLOSED && can_open` with `UnblockDoor` and
+   the three-way feedback. Needs the vision-recalc decision first. Closes
+   `seed0015`'s.
+3. Optional and last: `test_move()`'s two zero-time diagonal doorway refusals,
+   the same terrain seen from the hero's side, already a listed debt.
+
+About 120 lines of C across one function and two arms in one subsystem, so no
+implementation checklist. Create one if slice 2's vision work becomes a
+subsystem change.
 
 ## Explicit future exploration work, outside the goal in progress
 
