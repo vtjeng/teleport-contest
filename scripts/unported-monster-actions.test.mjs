@@ -17,6 +17,7 @@ import {
     DUST,
     DOOR,
     FOUNTAIN,
+    DART_TRAP,
     HEADSTONE,
     IN_SIGHT,
     I_SPECIAL,
@@ -2520,6 +2521,41 @@ test('a planned pet pickup writes nothing to frozen live state',
         assert.equal(dagger.where, OBJ_FLOOR);
         assert.equal(game.level.objlist, rock);
     });
+
+test('a planned dart trap writes nothing to frozen live state', async () => {
+    // The only admitted path that creates an object inside the dry run.
+    // trap.c trapeffect_dart_trap() writes the trap's `once` bit, mksobj()
+    // reads and advances context.ident through next_ident(), and a missed
+    // dart is linked into the floor grid and the level object list. None of
+    // those is reached by the pickup cases above, which move objects that
+    // already exist.
+    const target = await prepareSelectedAction();
+    game.level.traps = [{
+        tx: target.destinationX,
+        ty: target.heroY,
+        ttyp: DART_TRAP,
+        tseen: false,
+        once: false,
+        madeby_u: false,
+        tnote: 0,
+        vl: {},
+        launch: { x: -1, y: -1 },
+        dst: { dnum: -1, dlevel: -1 },
+        teledest: { x: 0, y: 0 },
+        conjoined: 0,
+    }];
+    const identBefore = game.context.ident;
+    freezeLiveState(game);
+
+    await preflightSimpleMonsterActions(game);
+
+    // The freeze is the detector; these pin that the case still reaches the
+    // arm, so a fixture that stops refusing early cannot pass quietly.
+    assert.equal(game.level.traps[0].once, false);
+    assert.equal(game.context.ident, identBefore);
+    assert.equal(game.level.objlist, null);
+    assert.equal(game.level.objects[target.destinationX][target.heroY], null);
+});
 
 test('a planned distant pet pickup writes nothing to frozen live state',
     async () => {
