@@ -437,11 +437,12 @@ function postmovEnv(state, overrides = {}) {
     return { env, redraws, messages, visionCalls };
 }
 
-// C ref: monmove.c postmov()'s door block (1520-1622). Three of its four arms
-// test D_LOCKED or D_CLOSED and the fourth tests whole-mask equality with
-// D_CLOSED, so a monster standing on a doorless, broken or open doorway falls
-// through the block: the doormask keeps its value and the block prints
-// nothing.
+// C ref: monmove.c postmov()'s door block (1520-1622). Three of its four
+// acting arms test D_LOCKED or D_CLOSED and the fourth tests whole-mask
+// equality with D_CLOSED; the magic-key disarm above them at monmove.c:1539
+// tests D_TRAPPED alone, and these masks carry no D_TRAPPED bit. So a monster
+// standing on a doorless, broken or open doorway falls through the block: the
+// doormask keeps its value and the block prints nothing.
 test('postmov leaves an inert doorway alone', async () => {
     for (const mask of [0 /* D_NODOOR */, D_BROKEN, D_ISOPEN]) {
         const { locations, state } = makeState();
@@ -571,11 +572,13 @@ test('postmov opens a closed door and reports what the hero heard',
         assert.deepEqual(messages, ['You hear a door open.']);
     });
 
-// The two arms below need a hero who can see the door square. No fresh case
-// reaches them: js/unported_monster_actions.js admitDoorOpening() refuses a
-// door inside the hero's vision, because the vision_recalc(0) that UnblockDoor
-// runs there cannot be reproduced against the cloned scan. These tests are
-// their whole evidence until that refusal lifts.
+// The two arms below need a hero who can see the door square. The first is
+// recorded: two segments of scripts/run-monster-door-open.mjs put the hero in
+// sight of the opener, and this test pins the same arm against postmov()
+// directly. The second is not, and cannot be on this level: `You see a door
+// open.` needs canspotmon() to fail for a monster the hero can see, which
+// means an invisible one, and ROADMAP.md records why nothing behind the
+// current boundary sets minvis on dungeon level one.
 test('postmov names a spotted monster that opens a door in sight',
     async () => {
         const { locations, state } = makeState();

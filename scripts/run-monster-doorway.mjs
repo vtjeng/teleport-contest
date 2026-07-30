@@ -5,10 +5,12 @@
 // inputs only; runFreshMatrix() records new reference output in an isolated
 // temporary workspace.
 //
-// The behavior is monmove.c postmov()'s door block (1520-1622). Every arm of
-// that block tests D_LOCKED or D_CLOSED, so a monster standing on a doorless,
-// broken or open doorway falls through it: no doormask changes, nothing is
-// printed, and the move ends with the two newsym() calls that any move makes.
+// The behavior is monmove.c postmov()'s door block (1520-1622). Four of that
+// block's five arms test D_LOCKED or D_CLOSED, and the fifth, the magic-key
+// disarm at monmove.c:1539, tests D_TRAPPED alone, so a monster standing on a
+// doorless, broken or open doorway falls through all five: no doormask
+// changes, nothing is printed, and the move ends with the two newsym() calls
+// that any move makes.
 // What a recording can therefore show is the glyph pair and the PRNG log, so
 // the matrix spreads over who arrives (a starting pet of each species, and an
 // untamed monster), and over whether the hero can see the square.

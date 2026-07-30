@@ -143,7 +143,7 @@ subsystem change.
   breaking; iron bars; and other non-clear destination handling beyond a
   no-time refusal against wall or rock. `svc.context.door_opened`, which
   `test_move()` clears on entry and the closed-door branch sets, is the seam
-  this attaches to. One session stops on a diagonal doorway refusal.
+  this attaches to.
 - `pickup.c:describe_decor()` and the `iflags.prev_decor` per-square memory it
   keys off, needed once `mention_decor` is set. It deliberately suppresses the
   open-door and doorway cases.
@@ -155,11 +155,6 @@ subsystem change.
 - `hack.c:overexert_hp()`, the hit point `moveloop_core()` costs a hero who
   moved above `MOD_ENCUMBER` every thirtieth turn, and the `fall_asleep()`
   pass-out at one hit point. The elapsed turn stops there instead.
-- `hack.c:test_move()`'s two zero-time diagonal doorway refusals, which set
-  `svc.context.move` to FALSE, call `nomul(0)`, and print through
-  `flags.mention_walls`. Both are refusals rather than moves, so the admission
-  seam stops on them; porting them means owning a no-time refusal that still
-  paints a frame.
 - Special monster movement or actions, including hiding, shapechanging,
   covetous tactics, fleeing teleportation, conflict, watch or quest behavior,
   speech, item use, and themed-room monster behavior beyond an inert wait.
@@ -481,13 +476,19 @@ slice built as a precondition.
 - `visionSnapshot()` and `preflightSnapshot()` omit `game.vision_full_recalc`,
   which is how the leak fixed at this cycle's head stayed invisible.
 
-**Comments that outlived their code.** `planningEveryTurnEffect()`'s refusal
-cites a guard in `rebuildVisionPoint()` that this same range deleted;
-`planSimpleMonsterScan()`'s `visionRecalc` refusal still says the dry run
-cannot reproduce the live buffers, which `planningVisionRecalc()` now does; and
-`scripts/monmove.test.mjs`'s two in-sight door tests are justified by a claim
-that `admitDoorOpening()` refuses a door inside the hero's vision, which was
-the abandoned first design.
+**Comments that outlived their code.** The third is closed at the commit that
+added this sentence: `admitDoorOpening()` refuses nothing — it only isolates
+the planning vision buffers — and two segments of
+`scripts/run-monster-door-open.mjs` do record a hero watching a monster open a
+door, so `scripts/monmove.test.mjs` now names the recorded evidence for the
+first arm and the invisible-monster reason the second has none. Two remain,
+and both need a re-derived justification rather than a reworded one:
+`planningEveryTurnEffect()`'s refusal cites a guard in `rebuildVisionPoint()`
+that this same range deleted, and `planSimpleMonsterScan()`'s `visionRecalc`
+refusal still says the dry run cannot reproduce the live buffers, which
+`planningVisionRecalc()` now does. Both refusals may well still be right; what
+is missing is the evidence for why, and inventing one would be worse than the
+stale text.
 
 **One production gap.** `refuseHeroAttack()` gates on
 `monnear(monster, monster.mux, monster.muy)`, C's `range2` — whether the
@@ -500,15 +501,15 @@ real position. It belongs with the combat work that already owns
 The correctness pass over `c64d350..005ea20` confirmed eleven findings; two
 were applied and nine are recorded here.
 
-**Comments that state a false rule.** Four copies of "every arm of C's door
-block tests `D_LOCKED` or `D_CLOSED`" are wrong: `monmove.c:1543-1548`'s first
-arm tests `D_TRAPPED` alone, for a magic-key holder, and writes the doormask.
-The port's whole-mask equality is right *because* of that arm, not despite it,
-and the refusal string for `D_ISOPEN | D_TRAPPED` should name a door trap
-rather than opening a door. Two more misdescribe their own code: the webmaker
-comment lists guards C applies that the port does not, and `const species =
-monster.data` is latched at entry where the header says `ptr` is refreshed
-after `mintrap()`.
+**Comments that state a false rule.** The copies of "every arm of C's door
+block tests `D_LOCKED` or `D_CLOSED`" are closed at the commit that added this
+sentence: `js/monmove.js`, `scripts/monmove.test.mjs` and
+`scripts/run-monster-doorway.mjs` now name the magic-key disarm at
+`monmove.c:1539`, which tests `D_TRAPPED` alone and writes the doormask, and
+the `D_ISOPEN | D_TRAPPED` refusal already named a door trap. Two remain, and
+both misdescribe their own code: the webmaker comment lists guards C applies
+that the port does not, and `const species = monster.data` is latched at entry
+where the header says `ptr` is refreshed after `mintrap()`.
 
 **Assertions that do not discriminate**, each verified by mutation with the
 suite green: the `IRONBARS` refusal is reached by no test; the engulfed-hero
