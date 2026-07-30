@@ -3709,6 +3709,128 @@
         ]
       },
       "recordedAt": "2026-07-30T11:21:17.944Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "5879bed71b42deb7fe8346e75e589c42922d956b",
+        "monsters": "4d78313de6e5ae5735c531bba8982b089bd2ac00",
+        "objects": "4d78313de6e5ae5735c531bba8982b089bd2ac00"
+      },
+      "head": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67",
+      "auditedRange": "5879bed71b42deb7fe8346e75e589c42922d956b..2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67",
+      "areas": [
+        "startup",
+        "monsters",
+        "objects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over slice 2 of the pickup goal, mpickstuff() and worn.c m_dowear()'s non-creation boundary. Five finders including performance, enabled because the planning clone runs on every elapsed turn. 18 raw findings, 18 after deduplication, 14 confirmed, 3 applied at 292f18c, 11 deferred to ROADMAP.md, 4 rejected, none unverified, no warnings. The three applied are all against the orchestrator's own discovery-ledger fix from 8bd4d6a. The material one is a performance regression that fix introduced: materializing a 482-entry catalog copy on every elapsed turn measured 6.4 ms, which the paired before/after put at 80-92% of a scored turn's total time with identical replay depth on both sides. Object.create() gives the dry run the same isolation for free, because reads delegate to the live entry, a write shadows it on the copy, and the non-enumerable aliases work through the prototype chain since their accessor bodies read this[source]. Removing the line still fails two tests, so the isolation stays pinned. The other two were a vacuous artifact oracle and a comment that overstated which cloned containers are deepened. Of the eleven deferred, one is a production gap — refuseHeroAttack() omits mattacku()'s find_offensive()/use_offensive() path — and five are assertions that do not discriminate, the sharpest being carryamt, which leaves mpickstuff()'s whole split-stack arm disableable with both the suite and the differential green. Development score identical before and after at 443 of 7,765 screens, 444 cursors and 99,664 PRNG calls.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3531,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 18,
+          "confirmed": 14,
+          "applied": 3,
+          "deferred": 11,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 6,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 2
+        },
+        "productionDefects": [
+          {
+            "summary": "refuseHeroAttack(), the boundary behind dochug()'s widened standard-attack gate, enumerates only AT_BREA, AT_SPIT, AT_GAZE and AT_WEAP and omits mhitu.c mattacku()'s find_offensive()/use_offensive() path, so a monster that would use an offensive item is admitted where C acts.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "refuseHeroAttack(), the boundary behind dochug()'s widened standard-attack gate, enumerates only AT_BREA, AT_SPIT, AT_GAZE and AT_WEAP and omits mhitu.c mattacku()'s find_offensive()/use_offensive() path, so a monster that would use an offensive item is admitted where C acts.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "production"
+          },
+          {
+            "summary": "select_postmove_object_action()'s carryamt is pinned by no test and no matrix segment, so mpickstuff()'s whole split-stack arm can be disabled with the suite and the differential green.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "panicattk's range.scared condition is untested; the one MMOVE_NOMOVES case sets scared true so the flag can be made unconditional.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "dochug()'s new !noattacks(monster.data) term is untested; four tests were edited to satisfy it rather than pin it.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "refuseHeroAttack()'s AT_WEAP arm, the select_rwep() check, has no test while its three siblings do.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "scripts/mon.test.mjs pickupState() states a false C fact, that a gnome is M2_GREEDY, and two new mpickstuff tests build a gnome-plus-gold fixture on it.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "The planning test's artifact oracle needed a seeded entry to stop being vacuous against a plain-dagger fixture.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "Exporting is_drawbridge_wall() contradicts js/invent.js:207, which still documents the same C predicate as unported.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "postSimpleMove() reads injected message and redraw owners for the movement notice then hardcodes ttyPline/newsym for the pickup.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "The comment calling mattacku()'s preamble inert cites !ranged, which C computes from the hero's real position, while the guard below tests something else.",
+            "trackedIn": "eleven monster-pickup findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "cloneObjects() builds each copy through newObject({ ...original }), constructing a 60-field default and 16 alias accessors before overwriting them, at 27-38 microseconds per object and about 0.9 ms per turn.",
+            "trackedIn": "the planning clone's object copy is still expensive",
+            "category": "other"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Four further claims about the pickup arm, the clone and the attack gate that the adjudicator could not confirm against source.",
+            "counterEvidence": "Each failed its source trace or diff-causality check with no reproduction recorded. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A second claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A third claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A fourth claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T13:47:36.369Z"
     }
   ]
 }
