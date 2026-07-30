@@ -77,6 +77,7 @@ import { A_CHA } from '../js/const.js';
 import { effective_attribute } from '../js/attrib.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
 import { online2 } from '../js/hacklib.js';
+import { noteleport_level } from '../js/teleport.js';
 import { create_region } from '../js/region.js';
 import {
     accessible,
@@ -601,6 +602,319 @@ test('m_move ordinary path reports no moves from a sealed square', async () => {
 
     assert.equal(result, MMOVE_NOMOVES);
     assert.deepEqual([monster.mx, monster.my], [4, 4]);
+});
+
+test('m_move reads unicorn line avoidance from the returned candidate count',
+    async () => {
+        // C ref: monmove.c:1941-1943,
+        // `for (i = 0; i < cnt; i++) if (!(mfp.info[i] & NOTONL)) avoid = TRUE`.
+        // A unicorn on a no-teleport level shuns the hero's row, column, and
+        // diagonal only while some *other* candidate lies off that line. The
+        // loop bound carries that "other": mfndpos() leaves the slots past cnt
+        // zeroed, and a zero slot satisfies !(info & NOTONL), so a scan of all
+        // nine slots invents an off-line candidate and strands the unicorn.
+        for (const [label, offLineSquare, expected] of [
+            // Only the on-line square is open, so no candidate is off the line
+            // and C leaves avoid FALSE: the unicorn steps onto (3,4).
+            ['on-line candidate alone', null, { x: 3, y: 4 }],
+            // (4,3) shares no row, column, or diagonal with the remembered
+            // hero square, so C sets avoid TRUE, skips (3,4), and moves there.
+            ['off-line candidate present', [4, 3], { x: 4, y: 3 }],
+        ]) {
+            const { locations, state } = makeState();
+            // The hero shares row 4 with the unicorn at (4,4). set_apparxy()
+            // overwrites mux/muy with the hero's real square for a sighted
+            // monster under no displacement, so the hero's position, not any
+            // fixture value, decides which candidates mfndpos() marks NOTONL.
+            // Column 10 keeps the hero off the unicorn's eight neighbours, so
+            // no candidate is an attack on the hero.
+            state.u.ux = 10;
+            state.u.uy = 4;
+            // m_move()'s item-search gate reads Strength for the throw range.
+            state.u.acurr = { a: [18, 10, 10, 10, 10, 10] };
+            // mon_allowflags() withholds NOTONL from a unicorn only on a
+            // no-teleport level, and that withholding is what makes mfndpos()
+            // mark an on-line square instead of rejecting it. The same
+            // predicate feeds the m_move() branch under test.
+            state.level.flags = { ...state.level.flags, noteleport: true };
+            const unicorn = ordinaryMonster(state, {
+                data: state.mons[PM_WHITE_UNICORN],
+                mnum: PM_WHITE_UNICORN,
+                mhp: 5, // A living monster is required by the placement index.
+                mx: 4,
+                my: 4,
+            });
+            state.level.monsters[4][4] = unicorn;
+            sealNeighborhood(locations, unicorn.mx, unicorn.my);
+            // (3,4) is orthogonal, which avoids mfndpos()'s tight-squeeze
+            // rejection of a diagonal step between two rock squares, and it
+            // shares the hero's row, so mfndpos() marks it NOTONL.
+            locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
+            if (offLineSquare) {
+                locations.set(`${offLineSquare[0]},${offLineSquare[1]}`,
+                    { typ: ROOM, flags: 0, wall_info: 0 });
+            }
+            const posts = [];
+
+            const result = await m_move(unicorn, {
+                state,
+                random: { rn2: () => 0 },
+                resolveTrappedMonster: () => false,
+                finishEating: () => {},
+                movePet: () => { throw new Error('unexpected pet mover'); },
+                resistsTrapEffect: () => false,
+                noTeleportLevel: (subject) => noteleport_level(subject, state),
+                unsupported: (reason) => assert.fail(reason),
+                postMonsterMove(subject, oldX, oldY, status) {
+                    posts.push({
+                        oldX,
+                        oldY,
+                        status,
+                        x: subject.mx,
+                        y: subject.my,
+                    });
+                    return status;
+                },
+            });
+
+            // Pin the geometry both cases rest on: the square set_apparxy()
+            // left in mux/muy puts (3,4) on the hero's line and (4,3) off it.
+            assert.ok(online2(3, 4, unicorn.mux, unicorn.muy), label);
+            assert.ok(!online2(4, 3, unicorn.mux, unicorn.muy), label);
+            assert.equal(result, MMOVE_MOVED, label);
+            assert.deepEqual([unicorn.mx, unicorn.my],
+                [expected.x, expected.y], label);
+            assert.deepEqual(posts, [{
+                oldX: 4,
+                oldY: 4,
+                status: MMOVE_MOVED,
+                x: expected.x,
+                y: expected.y,
+            }], label);
+            assert.equal(state.level.monsters[4][4], null, label);
+            assert.equal(state.level.monsters[expected.x][expected.y],
+                unicorn, label);
+        }
+    });
+
+test('m_move item search requires the complete approach and line predicate',
+    async () => {
+        const aligned = makeState().state;
+        aligned.u.acurr = { a: [18, 10, 10, 10, 10, 10] };
+        const approaching = ordinaryMonster(aligned, {
+            mhp: 5,
+            mx: 4,
+            my: 4,
+            mux: aligned.u.ux,
+            muy: aligned.u.uy,
+        });
+        aligned.level.monsters[4][4] = approaching;
+        const alignedEvents = [];
+        await m_move(approaching, {
+            state: aligned,
+            random: { rn2: () => 0 },
+            resolveTrappedMonster: () => false,
+        finishEating: () => {},
+        movePet: () => { throw new Error('unexpected pet mover'); },
+            resistsTrapEffect: () => false,
+            itemSearchInLine() {
+                alignedEvents.push('line');
+                return true;
+            },
+            searchItems: () => assert.fail(
+                'aligned approach skips item search',
+            ),
+            unsupported: (reason) => assert.fail(reason),
+            mayCrossRegion: () => false,
+            postMonsterMove: () => assert.fail('region denial stops move'),
+        });
+        assert.deepEqual(alignedEvents, ['line']);
+
+        const offLine = makeState().state;
+        offLine.u.acurr = { a: [18, 10, 10, 10, 10, 10] };
+        const searching = ordinaryMonster(offLine, {
+            mhp: 5,
+            mx: 4,
+            my: 4,
+            mux: offLine.u.ux,
+            muy: offLine.u.uy,
+        });
+        offLine.level.monsters[4][4] = searching;
+        const stop = new Error('off-line item search reached');
+        await assert.rejects(
+            m_move(searching, {
+                state: offLine,
+                random: { rn2: () => 0 },
+                resolveTrappedMonster: () => false,
+        finishEating: () => {},
+        movePet: () => { throw new Error('unexpected pet mover'); },
+                resistsTrapEffect: () => false,
+                itemSearchInLine: () => false,
+                searchItems: () => { throw stop; },
+                unsupported: (reason) => assert.fail(reason),
+                postMonsterMove: () => assert.fail('search stops movement'),
+            }),
+            (error) => error === stop,
+        );
+
+        const confused = makeState().state;
+        confused.u.acurr = { a: [18, 10, 10, 10, 10, 10] };
+        const nonApproaching = ordinaryMonster(confused, {
+            mconf: true,
+            mhp: 5,
+            mx: 4,
+            my: 4,
+            mux: confused.u.ux,
+            muy: confused.u.uy,
+        });
+        confused.level.monsters[4][4] = nonApproaching;
+        const confusedStop = new Error('non-approach item search reached');
+        await assert.rejects(
+            m_move(nonApproaching, {
+                state: confused,
+                random: { rn2: () => 0 },
+                resolveTrappedMonster: () => false,
+        finishEating: () => {},
+        movePet: () => { throw new Error('unexpected pet mover'); },
+                resistsTrapEffect: () => false,
+                itemSearchInLine: () => true,
+                searchItems: () => { throw confusedStop; },
+                unsupported: (reason) => assert.fail(reason),
+                postMonsterMove: () => assert.fail('search stops movement'),
+            }),
+            (error) => error === confusedStop,
+        );
+    });
+
+test('m_move item-search gate preserves peaceful and rogue-level order',
+    async () => {
+        const { locations, state } = makeState();
+        state.rogue_level = { ...state.u.uz };
+        const monster = ordinaryMonster(state, {
+            mpeaceful: true,
+            mhp: 5,
+            mx: 4,
+            my: 4,
+            mux: 10,
+            muy: 10,
+        });
+        state.level.monsters[monster.mx][monster.my] = monster;
+        sealNeighborhood(locations, monster.mx, monster.my);
+        const calls = [];
+        const result = await m_move(monster, {
+            state,
+            random: sequenceRandom([0], calls),
+            resolveTrappedMonster: () => false,
+        finishEating: () => {},
+        movePet: () => { throw new Error('unexpected pet mover'); },
+            resistsTrapEffect: () => false,
+            itemSearchInLine: () => assert.fail(
+                'rogue level skips line evaluation',
+            ),
+            searchItems: () => assert.fail(
+                'rogue level skips item search',
+            ),
+            unsupported: (reason) => assert.fail(reason),
+            postMonsterMove: () => assert.fail('sealed square cannot move'),
+        });
+        assert.equal(result, MMOVE_NOMOVES);
+        assert.deepEqual(calls, [10]);
+    });
+
+test('monster item-search line check preserves visibility and boulder draws',
+    () => {
+        const { locations, state } = makeState();
+        const monster = ordinaryMonster(state, {
+            mx: 4,
+            my: 4,
+            mux: state.u.ux,
+            muy: state.u.uy,
+        });
+        state.viz_array = Array.from(
+            { length: ROWNO },
+            () => new Uint8Array(COLNO),
+        );
+        state.viz_array[monster.my][monster.mx] = COULD_SEE;
+        const noDraw = {
+            rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+        };
+        assert.equal(monsterItemSearchInLine(monster, {
+            state, random: noDraw,
+        }), true);
+
+        state.viz_array[monster.my][monster.mx] = 0;
+        // blocking_terrain() wins even when an earlier boulder was counted.
+        // In C, neither wall nor closed-door rays reach rn2(2 + boulders).
+        state.level.objects[7][7] = objectFor(state, BOULDER);
+        for (const blocking of [
+            { typ: STONE, flags: 0 },
+            { typ: DOOR, flags: D_CLOSED },
+        ]) {
+            locations.set('8,8', blocking);
+            assert.equal(monsterItemSearchInLine(monster, {
+                state, random: noDraw,
+            }), false);
+        }
+        locations.delete('8,8');
+
+        // A boulder-only ray reaches the conditional linedup(..., 2) draw.
+        const calls = [];
+        assert.equal(monsterItemSearchInLine(monster, {
+            state,
+            random: sequenceRandom([2], calls),
+        }), false);
+        assert.deepEqual(calls, [3]);
+
+        state.level.objects[7][7] = null;
+        locations.set('6,6', { typ: STONE, flags: 0 });
+        assert.equal(monsterItemSearchInLine(monster, {
+            state, random: noDraw,
+        }), false);
+    });
+
+test('m_move spends an attack on an empty displacement image', async () => {
+    const { locations, state } = makeState();
+    state.u.uprops[DISPLACED].extrinsic = 1;
+    const monster = ordinaryMonster(state, {
+        mhp: 5,
+        mx: 8,
+        my: 10,
+        mux: 0,
+        muy: 0,
+    });
+    state.level.monsters[monster.mx][monster.my] = monster;
+    sealNeighborhood(locations, monster.mx, monster.my);
+    // set_apparxy() selects this accessible false image one square east.
+    locations.set('9,10', { typ: ROOM, flags: 0 });
+    const calls = [];
+
+    const result = await m_move(monster, {
+        state,
+        random: sequenceRandom([1, 1, 2], calls),
+        couldSee: () => true,
+        itemSearchInLine: () => true,
+        resolveTrappedMonster: () => false,
+        finishEating: () => {},
+        movePet: () => { throw new Error('unexpected pet mover'); },
+        resistsTrapEffect: () => false,
+        unsupported: (reason) => assert.fail(reason),
+        postMonsterMove: () => assert.fail(
+            'an empty-image attack does not run postmov',
+        ),
+    });
+
+    assert.equal(result, MMOVE_DONE);
+    assert.deepEqual(calls, [4, 5, 5]);
+    assert.deepEqual([monster.mux, monster.muy], [9, 10]);
+    assert.deepEqual([monster.mx, monster.my], [8, 10]);
+    assert.equal(state.level.monsters[8][10], monster);
+    assert.equal(state.level.monsters[9][10], null);
+    assert.deepEqual(monster.mtrack, [
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+    ]);
 });
 
 test('m_move sends a rejected candidate through postmov as no movement',
