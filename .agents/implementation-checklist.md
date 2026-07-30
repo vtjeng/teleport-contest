@@ -37,6 +37,19 @@ starts. The existing `aflag == 1` owner resolves its unsupported cases
 (`js/detect.js:609-611`), which is correct for that path and wrong for this
 one; do not copy that shape.
 
+Two exclusions were added during implementation, both for the same reason:
+`preflightTrap()` and the two secret-terrain preflights are capability checks
+the `aflag == 1` owner runs inside the loop, so `preflightExplicitSearch()`
+runs all three over the whole 3x3 as well. That is what moves an adjacent
+unseen `STATUE_TRAP`, and a hallucinating hero's trap discovery, ahead of the
+first `rnl()`.
+
+The `You find <mon>.` message listed under Observables turned out to be
+unreachable from this consumer. `mfind0()` prints it only when
+`found_something` holds, and every input that sets `found_something` is on the
+exclusion list above, so the slice's `mfind0()` covers the `return 0` arm
+alone.
+
 ## How the candidate list was built
 
 A slice-selector traced the upstream functions and I spot-checked every
@@ -63,11 +76,17 @@ differentials expose candidates.
   discovery arms exclusions rather than work. `already_found_flag` returns no
   hits; `cmdSafetyPrevention` models C's `int *` through a `flagName` string,
   so the worker decides where that flag lives.
-- Remaining limits: the worker has not yet traced `rhack()`'s dispatch of the
-  `s` binding, nor confirmed which state object owns `already_found_flag`
-  across segments. `canspotmon` resolves through `js/startup_a11y.js:1637`
-  rather than a `display.h` owner, which needs checking before the preflight
-  relies on it.
+- Resolved limits: `rhack()`'s dispatch of the `s` binding follows the `#`
+  arm's shape, applying the same three `ECMD_*` tests C applies at
+  `cmd.c:3810-3818`, because `dosearch()` returns a result rather than a
+  Boolean. `already_found_flag` lives on the game state beside
+  `did_nothing_flag`, matching C, where both are plain `ga`/`gd` globals that
+  no save file carries and a new process zeroes; a segment is a new process,
+  so nothing has to persist. `canspotmon` resolves through
+  `js/startup_a11y.js canSpotMonster()`, whose `canSeeMonster()` half applies
+  `display.h mon_visible()`'s `!mundetected` term, which is why a hidden
+  monster fails both `mfind0()` arms and the preflight tests the narrower one
+  first.
 
 ## Status values
 
@@ -77,50 +96,81 @@ The template's definitions apply unchanged.
 
 | Upstream function or branch family | Reachability and ordering | JavaScript owner | State, randomness, and output | Evidence | Status | Next action |
 | --- | --- | --- | --- | --- | --- | --- |
-| `dosearch()` 2095-2104 | Entry point for both `s` and `#search`; runs before any `rnl()` | `js/cmd.js`, new `dosearch()` | Reads and sets `already_found_flag`; returns ECMD_TIME or ECMD_OK | `cmdSafetyPrevention` ported at `js/cmd.js:178` | missing | Port it and decide the flag's owner |
-| `s` and `#search` admission | `ADMITTED_COMMANDS` at `js/cmd.js:384` refuses `search` today | `js/cmd.js` | None until admitted | Read at `aa5516a` | missing | Admit both once the preflight lands |
-| `dosearch0()` `aflag == 0` preflight | Must settle all eight squares before the loop's first `rnl()` | `js/detect.js dosearch0()` | None on the refusal path | This file's Boundary section | missing | Build it from the exclusion list |
-| `dosearch0()` `u.uswallow` `!aflag` arm | `u.uswallow` set | `js/detect.js dosearch0()` | `Norep()` output | detect.c:2020-2022 | missing | Fail closed in the preflight |
-| `dosearch0()` `feel_location()` arm | `!aflag && (Blind \|\| visible_region_at())` | `js/display.js feel_location()` | Screen writes before the SDOOR test | `js/display.js:1384` owns the blind-obstacle subset only | missing | Fail closed in the preflight |
-| `dosearch0()` SDOOR and SCORR arms | Already ported for `aflag == 1`; `rnl(7 - fund)` per square | `js/detect.js dosearch0()` | `rnl()`, conversion, Wisdom, `nomul(0)`, message | `js/detect.js:613-637` | undecided | Confirm the `aflag == 0` path reuses them unchanged |
-| `mfind0(mtmp, 0)` return 0 | Adjacent spotted monster, no discovery; runs before the trap `rnl(8)` | `js/detect.js`, new `mfind0()` | `newsym(x, y)` only | detect.c:1971-1992 | missing | Port the common arm |
-| `mfind0()` discovery arms | `M_AP_TYPE`, `!canspotmon()`, or `mundetected` hider | None | `seemimic()`, `map_invisible()`, Wisdom, message | `map_invisible` and `seemimic` absent from `js/` | missing | Fail closed in the preflight |
-| `mfind0()` `via_warning` arms | Only `warnreveal()` passes 1 | None | Danger-sense message | detect.c:1969-1970, 1988-1991 | cannot-occur | None; `dosearch0()` passes 0 |
-| `unmap_invisible()` FALSE arm | `glyph_is_invisible()` false, which holds while `map_invisible()` is excluded | `js/display.js`, new `unmap_invisible()` | None | display.c:387-396 | missing | Port it; fail closed on the TRUE arm |
-| `dosearch0()` trap arm | `t_at() && !tseen && !rnl(8)`; ported for `aflag == 1` | `js/detect.js dosearch0()` | `rnl(8)`, `nomul(0)`, `find_trap()` or statue trap | `js/detect.js:639-653` | undecided | Confirm reuse; statue traps stay excluded |
+| `dosearch()` 2095-2104 | Entry point for both `s` and `#search`; runs before any `rnl()` | `js/detect.js dosearch()` | Reads and sets `already_found_flag`; returns ECMD_TIME or ECMD_OK | Focused test at `scripts/detect.test.mjs`; matrix segments 11-13 | ported | None |
+| `s` and `#search` admission | `ADMITTED_COMMANDS` at `js/cmd.js` now lists `search` | `js/cmd.js rhack()` and `doextcmd()` | None until admitted | Matrix segments 1 and 2 | ported | None |
+| `dosearch0()` `aflag == 0` preflight | Settles all eight squares before the loop's first `rnl()` | `js/detect.js preflightExplicitSearch()` | None on the refusal path | Six focused tests assert an empty draw list on refusal | ported | None |
+| `dosearch0()` `u.uswallow` `!aflag` arm | `u.uswallow` set | `js/detect.js preflightExplicitSearch()` | `Norep()` output | detect.c:2020-2022 | fail-closed | None |
+| `dosearch0()` `feel_location()` arm | `!aflag && (Blind \|\| visible_region_at())` | `js/detect.js preflightExplicitSearch()` | Screen writes before the SDOOR test | `scripts/cmd.test.mjs` blind-hero boundary case | fail-closed | None |
+| `dosearch0()` SDOOR arm | Shared with `aflag == 1`; `rnl(7 - fund)` per square | `js/detect.js dosearch0()` | `rnl()`, conversion, Wisdom, `nomul(0)`, message | Matrix segments 5-7 find the door end to end | ported | None |
+| `dosearch0()` SCORR arm | Shared with `aflag == 1`, unchanged by this slice | `js/detect.js dosearch0()` | `rnl()`, `CORR`, Wisdom, `nomul(0)`, message | Focused test only; see "No fresh case for SCORR" | ported | Record a fresh case when a level with an adjacent secret corridor is reachable |
+| `mfind0(mtmp, 0)` return 0 | Adjacent spotted monster, no discovery; runs before the trap `rnl(8)` | `js/detect.js mfind0()` | `newsym(x, y)` only | detect.c:1971-1992; matrix segment 3 | ported | None |
+| `mfind0()` discovery arms | `M_AP_TYPE`, `!canspotmon()`, or `mundetected` hider | `js/detect.js preflightSearchMonster()` | `seemimic()`, `map_invisible()`, Wisdom, message | Five focused refusal cases, one per species test | fail-closed | None |
+| `mfind0()` `via_warning` arms | Only `warnreveal()` passes 1 | `js/detect.js mfind0()` throws | Danger-sense message | detect.c:1969-1970, 1988-1991 | cannot-occur | None; `dosearch0()` passes 0 |
+| `unmap_invisible()` FALSE arm | `glyph_is_invisible()` false, which holds while `map_invisible()` is excluded | `js/display.js unmap_invisible()` | None | display.c:387-396 | ported | None |
+| `unmap_invisible()` TRUE arm | Needs `unmap_object()` | `js/detect.js preflightExplicitSearch()` refuses; `js/display.js` throws | Would clear remembered `I` | display.c:391-393 | fail-closed | None |
+| `dosearch0()` trap arm | `t_at() && !tseen && !rnl(8)`; shared with `aflag == 1` | `js/detect.js dosearch0()` | `rnl(8)`, `nomul(0)`, `find_trap()` | Matrix segments 8-10 find three trap types | ported | None |
+| `dosearch0()` statue-trap arm | `activate_statue_trap()` is unported | `js/detect.js preflightExplicitSearch()` | Would animate a statue | `preflightTrap()` at `js/detect.js` | fail-closed | None |
+| `set_occupation()` under a count | `extcmdlist[]` gives `search` the occupation text `searching` | None | Repeats the search for `multi` turns | cmd.c:3739-3740 | cannot-occur | None; the admission seam parses no count, so `multi` is 0. `wait` carries the only other occupation text and is admitted on the same terms |
 
-## Missing work by owner
+## Findings outside the slice
 
-1. `js/detect.js dosearch0()`: the `aflag == 0` preflight, the `u.uswallow`
-   arm, the `feel_location()` arm, and confirmation that the SDOOR, SCORR, and
-   trap arms are reused unchanged. Everything else depends on the preflight, so
-   it comes first.
-2. `js/detect.js mfind0()`: the return-0 arm and a fail-closed discovery arm.
-3. `js/display.js unmap_invisible()`: the FALSE arm, failing closed on TRUE.
-4. `js/cmd.js`: `dosearch()`, the `already_found_flag` owner, and admitting
-   `s` and `#search`.
+Three limits were measured while validating and belong to other owners.
+
+1. **Finding a secret door can stop the next turn.** Converting an SDOOR whose
+   square is in current vision sets `vision_full_recalc`, and
+   `preflightSimpleMonsterActions()`'s cloned scan then refuses
+   `visionRecalc` with `monster light-source vision recalculation`
+   (`js/unported_monster_actions.js:618`). The live scan supplies the real
+   `vision_recalc`; only the dry run cannot. Of 40 candidate seeds with an
+   adjacent secret door, 21 stopped that way at the search that found it. The
+   matrix therefore uses the seeds whose door is out of current vision. This is
+   the monster-scan and vision subsystem's debt, not the search command's.
+2. **The `m` prefix paints a frame the port does not.** `m.` and `ms` both
+   diverge at the prefix keystroke itself: C emits a screen and a cursor for
+   `m`, the port emits none. Reproduced at seed 9300001 with `m..`, which fails
+   the same way with `wait` as with `search`, so it predates this slice.
+   `reqmenu` prefix handling owns it.
+3. **No fresh case for SCORR.** 28,000 generated levels across two seed ranges
+   produced no hero with an adjacent secret corridor at the first command
+   prompt, and no straight-line walk of up to eight steps over 400 seeds
+   reached one either. Secret corridors are generated by `dig_corridor()`'s
+   extra-corridor pass, which puts them away from a room the hero starts in.
+   The arm is shared with `aflag == 1` and unchanged by this slice, and its
+   focused test pins the source operation order, but it has no end-to-end
+   evidence.
 
 ## Validation
 
-- Commit checked: pending
-- Source review: pending
-- Focused tests: pending
-- Full suite: pending
-- Generated-file checks: pending
-- Fresh differentials: pending. The planned matrix is `s` with the starting pet
-  adjacent, `s` on a bare corridor square with no adjacent monster, `s`
-  adjacent to an SDOOR both missing and succeeding on `rnl(7 - fund)`, `s`
-  adjacent to an unseen non-statue trap, repeated `s` to pin
-  `already_found_flag`, and `#search` by name. New seeds, canonical
-  `America/New_York`, committed as a runner.
-- Development suite: pending
-- Quality check: pending
+- Commit checked: pending the slice commit; every figure below measured at the
+  working tree that commit contains
+- Source review: done. `detect.c` 1964-2104 and `display.c` 375-396 read in
+  full, plus `cmd.c rhack()` 3627-3843, `include/display.h` 95-134, and
+  `win/tty/getline.c` 275-320 for the `#search` lookup.
+- Focused tests: `scripts/detect.test.mjs` (10 new cases),
+  `scripts/cmd.test.mjs` (1 new case), `scripts/explicit-search.test.mjs`
+  (4 new cases). Every one was observed failing against a mutation of the line
+  it covers before being kept.
+- Full suite: 1,852 tests pass.
+- Generated-file checks: all four pass, plus `check:namespace-members`.
+- Fresh differentials: `scripts/run-explicit-search.mjs`, committed as a
+  runner. 13 segments, 35,560 PRNG calls, 80 screens and 80 cursors, all
+  matching. It covers the bare-square base case, `#search` by name, an adjacent
+  pet, a corridor square, three secret-door finds at eight, six and one search,
+  three trap finds at three, three and one search, and both `cmdassist`
+  branches of `cmd_safety_prevention()`.
+- Development suite: 433 of 7,765 screens and 99,552 PRNG values, against 398
+  and 99,496 at `3011535`. Five sessions improved, none regressed, and
+  `seed8000-tourist-starter` now matches completely, taking the fully matched
+  count from 0 to 1.
+- Quality check: the orchestrator's to run.
 - Browser check: not required; this changes no browser-specific code, DOM, CSS,
-  input, storage, or renderer contract
+  input, storage, or renderer contract.
 
 ## Readiness
 
-Current readiness: `Implementation`
+Current readiness: `Ready for audit`
 
-Reason: every production row is `missing` or `undecided`, and no validation has
-run at any committed head.
+Reason: every production row is `ported`, `fail-closed` or `cannot-occur`; the
+real consumer runs from both the `s` key and `#search`; and the fresh matrix,
+the full suite and the development score were all measured at the tree the
+slice commit contains.
