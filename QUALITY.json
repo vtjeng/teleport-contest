@@ -4240,6 +4240,68 @@
         "rejections": []
       },
       "recordedAt": "2026-07-30T19:53:11.601Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "3471a99a07b6fb35dbb8a2d63801ee4c787a380a"
+      },
+      "head": "ff865ec919042f747f12d44962b8c7b2f782bc2a",
+      "auditedRange": "3471a99a07b6fb35dbb8a2d63801ee4c787a380a..ff865ec919042f747f12d44962b8c7b2f782bc2a",
+      "areas": [
+        "commands"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Second light delta review in the chain repairing the movement seam, run because the monster-door goal's holdout is a review deadline. Three finders (correctness, tests, variable-trace). 10 raw findings, 8 after deduplication, 6 confirmed and all 6 applied at 278bf6c, none deferred, 2 rejected, none unverified, no warnings. Both production findings are against the orchestrator's own previous commit, and the first is a claim that should have been checked before it was written: the comment justifying the fail-closed throw asserted the port has no do_attack() and cannot spend uhitm.c:474's rn2(7) until combat lands, when do_attack() is ported at js/uhitm.js:51 with that draw at :70 and domove() calls it live at :1098 — an ordinary pet swap draws it today. That is the third comment in this chain to assert an invariant the tree does not have. The throw remains load-bearing for a different reason, now stated: domove() runs test_move() at :1065 before the do_attack() call, the reverse of hack.c:2794 and :2841, so admitting the step refuses it inside test_move() and never reaches the draw, and the removal condition is a domove() reorder rather than a trigger that has already fired. The second finding is that the ordering half was pinned by nothing — swapping the throw back after requireOrdinaryStartingPetSwap() left the suite green, because the pet fixture's square holds nothing and every swap gate returns. A trap on the destination distinguishes them and now reports 'pet swap trap interaction' under the base order, a boundary naming a situation C never reaches. Development score identical before and after at 459 of 7,765 screens, 459 cursors and 99,980 PRNG calls.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1513,
+        "counts": {
+          "raw": 10,
+          "deduplicated": 8,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 2,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The justification for the new fail-closed throw was factually wrong: it claimed the port has no do_attack() and cannot spend uhitm.c:474's rn2(7) until combat lands. do_attack() is ported at js/uhitm.js:51 with the draw at :70, and domove() calls it live at :1098, so an ordinary pet swap draws it today. The throw is still load-bearing, but because domove() runs test_move() at :1065 before that call — the reverse of hack.c:2794 and :2841 — so admitting the step refuses it inside test_move() and never reaches the draw. A maintainer greping for do_attack would have read the stated removal condition as already met and deleted the guard.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The half of the change placing the refusal ahead of requireOrdinaryStartingPetSwap() was pinned by no test: swapping the two statements back left the whole suite green, because the pet fixture's square holds no trap, object, region or engraving and every swap gate returns.",
+            "foundBy": [
+              "correctness",
+              "tests"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Two further claims about the refusal's reason string and scope that the adjudicator could not confirm against source.",
+            "counterEvidence": "Each failed its source trace or diff-causality check with no reproduction recorded. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A second claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T20:23:33.794Z"
     }
   ]
 }
