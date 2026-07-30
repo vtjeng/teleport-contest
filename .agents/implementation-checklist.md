@@ -168,7 +168,7 @@ Three limits were measured while validating and belong to other owners.
 
 ## Readiness
 
-Current readiness: `Ready for audit`
+Current mode: Ready for audit
 
 Reason: every production row is `ported`, `fail-closed` or `cannot-occur`; the
 real consumer runs from both the `s` key and `#search`; and the fresh matrix,
