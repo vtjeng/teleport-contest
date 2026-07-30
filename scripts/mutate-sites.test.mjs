@@ -28,7 +28,7 @@ import {
     describeSite,
     enumerateSites,
     formatReport,
-    formatSiteCensus,
+    formatSiteCounts,
     parseAddedLines,
     parseArgs,
     parseRange,
@@ -467,15 +467,15 @@ test('a path outside js/ is refused', () => {
         /is not a file under js\//u);
 });
 
-test('the census separates sites from mutants and states the density', () => {
+test('the counts separate sites from mutants and state the density', () => {
     const target = fixtureTarget();
     // 40 lines is an arbitrary round population; the density it produces,
     // 8 / 40, is exact.
-    const census = formatSiteCensus([{ ...target, lineCount: 40 }], 40);
+    const counts = formatSiteCounts([{ ...target, lineCount: 40 }], 40);
 
-    assert.equal(census.at(-2), '1 file(s), 40 line(s) in scope, 8 site(s), '
+    assert.equal(counts.at(-2), '1 file(s), 40 line(s) in scope, 8 site(s), '
         + '12 mutant(s); 0.200 sites per line in scope');
-    assert.equal(census.at(-1), 'mutants by kind: boolean 1, integer 8, '
+    assert.equal(counts.at(-1), 'mutants by kind: boolean 1, integer 8, '
         + 'logical 1, relational 2; an integer site yields one mutant each way');
 });
 

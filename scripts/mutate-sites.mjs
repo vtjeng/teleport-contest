@@ -38,8 +38,9 @@
 // every line of each file, which is the form to reach for when the question is
 // whether a module's tests pin its behavior at all. The two cannot be combined.
 //
-// Both forms take `--enumerate-only`, which counts the sites and stops, and
-// `--limit <n>`, which stops after n mutants have run. A limit truncates in
+// Both forms take `--enumerate-only`, which prints the site and mutant counts
+// per file and stops before running any test, and `--limit <n>`, which stops
+// after n mutants have run. A limit truncates in
 // path order, so it bounds an exploratory run rather than sampling one, and the
 // report says how many of the target set's mutants went unmeasured. The command
 // exits 0 whether or not mutants survived, because a survivor is a finding to
@@ -756,7 +757,7 @@ export function countSites(sites) {
     return new Set(sites.map((site) => site.offset)).size;
 }
 
-export function formatSiteCensus(targets, scopedLines) {
+export function formatSiteCounts(targets, scopedLines) {
     const lines = [];
     const kinds = new Map();
     let sites = 0;
@@ -888,7 +889,7 @@ async function main(argv) {
     const options = parseArgs(argv);
     const targets = collectTargets(options);
     const scopedLines = targets.reduce((sum, t) => sum + t.lineCount, 0);
-    for (const line of formatSiteCensus(targets, scopedLines))
+    for (const line of formatSiteCounts(targets, scopedLines))
         console.log(line);
     if (options.enumerateOnly) return;
 
