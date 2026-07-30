@@ -3395,6 +3395,101 @@
         "productionDefects": []
       },
       "recordedAt": "2026-07-30T04:08:25.010Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
+        "hero": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
+        "display": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
+        "startup": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674"
+      },
+      "head": "5879bed71b42deb7fe8346e75e589c42922d956b",
+      "auditedRange": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674..5879bed71b42deb7fe8346e75e589c42922d956b",
+      "areas": [
+        "commands",
+        "hero",
+        "display",
+        "startup"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the first slice of the closed-door goal. Four mandatory finders (correctness, readability, tests, variable-trace); performance and concurrency not triggered and not enabled. 16 raw findings, 15 after deduplication, 13 confirmed, all 13 applied at cfbc205, none deferred, 2 rejected with counter-evidence, none unverified, no warnings. Three live production defects: flags.autoopen was never registered as a boolean option so autoopen:false stored a truthy string and defeated the new refusal gate; requireAutoopenClosedDoor() read a state.context.run the admission seam had not yet assigned, so a rush into a closed door committed its movement intent before being refused; and the portcullis guard re-implemented dbridge.c is_drawbridge_wall() without its DB_DIR test, refusing a door whose neighbouring drawbridge faces away. Five test findings were assertions that could not fail, including a refusal-term matrix covering one of six terms and a replay oracle that checked only a screen count. Every new test was observed failing against a named mutation, listed in the fix commit. Development score identical before and after the fixes at 436 of 7,765 screens, 437 cursors and 99,541 PRNG calls; scripts/run-closed-door-autoopen.mjs matches 10 segments, 27,136 PRNG calls, 33 screens and 33 cursors, and the rush matrix 32 segments and 100,341 calls. The range base is the oldest frontier among the claimed areas, so it re-reads the two search audit-fix commits already covered for commands, runtime and world-effects.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3210,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 15,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 5,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "flags.autoopen was never registered in HANDLED_BOOLEAN_OPTIONS, so the `autoopen:value` form fell through to the compound-option preservation path and stored the string \"false\"/\"no\"/\"off\" in flags. requireAutoopenClosedDoor() tests `!state.flags.autoopen` and a non-empty string is truthy, so the port pulled at a door options.c:5229-5233 requires C to refuse.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "requireAutoopenClosedDoor() read state.context.run, which js/cmd.js assigns only after calling the admission preflight, so the run test was dead at the seam. A rush or run into a closed door was admitted there and refused only inside domove(), after the movement intent had committed.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same stale-state defect traced from the call site: preflightDomoveDestination() already threads `run` for runStopsBeforeMonster() but dropped it when calling the closed-door guard. Recorded separately because the variable-trace finder reached it from the caller rather than from the guard.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The portcullis guard re-implemented dbridge.c is_drawbridge_wall() inline and omitted its DB_DIR test, refusing a superset: a DOOR whose orthogonally adjacent drawbridge faces away is not a portcullis and C opens it normally. A faithful port of the C function already existed unexported in js/startup_a11y.js.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The comment justifying the deletion of blocksMove()'s door term claimed js/mklev.js never writes loc.doormask for a generated door. dosdoor() does not, but create_door() and the special-level door path do, so the stated premise is false for doors ordinary levels produce; the deletion remains correct for the second reason the comment gave.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same comment said the closed-door route is now owned \"in both callers\" when blocksMove() has exactly one caller left, so a reader auditing the deletion could not tell whether the second was removed deliberately or overlooked.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "domove() was said to call test_move() before every monster, attack and terrain branch whereas domove_core() calls it last, with the new comment anchoring the call to the wrong C line.",
+            "counterEvidence": "The adjudicator found the ordering claim unsupported against hack.c's actual control flow for this path. Do not reopen without a source-reachable input whose observable output differs because of the claimed ordering, and a diff-causal line."
+          },
+          {
+            "summary": "The comment on the paired door.flags / door.doormask write was said to claim that every reader in the port accepts either spelling, when readers use the `flags || doormask` idiom.",
+            "counterEvidence": "The `flags || doormask` idiom does accept either spelling for every value the port writes, so the comment is accurate as written for the doors this code produces. Do not reopen without a reader that consults only one field and an input that reaches it."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T06:10:42.893Z"
     }
   ]
 }
