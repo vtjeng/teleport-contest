@@ -32,6 +32,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { effective_attribute } from '../js/attrib.js';
 import {
+    loadAutoopenSuppressedRecipe,
     loadClosedDoorAutoopenRecipe,
     loadLockedDoorRecipe,
 } from './run-closed-door-autoopen.mjs';
@@ -668,4 +669,191 @@ test('a trapped locked door is named, not refused', async () => {
     assert.equal(game.level.at(door.x ?? game.u.ux, game.u.uy - 1).flags,
         D_LOCKED | D_TRAPPED);
     assert.equal(game.rng?.log?.length ?? 0, drawsBefore);
+});
+
+// The keys the suppressed matrix walks with. cmd.c gives each of them a
+// svc.context.run value: 0 for a lowercase step, 1 for an uppercase rush
+// (do_rush_<dir>), and 3 for the ctrl byte of the same letter (do_run_<dir>).
+// hack.c:1097 reads only whether that value is nonzero.
+const SUPPRESSED_KEYS = {
+    h: [-1, 0], j: [0, 1], l: [1, 0], u: [1, -1], n: [1, 1],
+    H: [-1, 0], L: [1, 0],
+    '\x08': [-1, 0], '\x0c': [1, 0],
+};
+
+test('the suppressed matrix contains only source-selected inputs', () => {
+    const recipe = loadAutoopenSuppressedRecipe();
+    assert.equal(recipe.version, 5);
+    assert.equal(recipe.segments.length, 18);
+    for (const segment of recipe.segments) {
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
+        for (const key of segment.moves) {
+            assert.ok(SUPPRESSED_KEYS[key], 'every key is a walking key');
+            assert.equal(key, segment.moves[0], 'one direction per segment');
+        }
+    }
+    // hack.c:1097's two ported suppression terms. A segment that does not set
+    // `!autoopen` reaches the arm through svc.context.run instead, and there
+    // are four of those: the uppercase rush and the ctrl run, once for each
+    // side of the Dexterity gate.
+    assert.equal(
+        recipe.segments.filter(
+            ({ nethackrc }) => !nethackrc.includes('!autoopen'),
+        ).length,
+        4,
+    );
+    // The three options that make otherwise invisible parts of the arm
+    // observable. Each gets one segment per outcome, because the bump and
+    // "That door is closed." differ in exactly what these show: the turn
+    // counter, whether the pet gets a move, and which line is printed.
+    for (const option of ['time', 'pettype:dog', 'accessiblemsg']) {
+        assert.equal(
+            recipe.segments.filter(
+                ({ nethackrc }) => nethackrc.includes(option),
+            ).length,
+            2,
+            `two segments set ${option}`,
+        );
+    }
+});
+
+// C ref: hack.c:1099-1128. With autoopen suppressed the door is never touched,
+// so every key in a segment repeats one of three results, chosen by whether
+// the step is orthogonal and by ACURR(A_DEX) < 10. The complete screens and
+// cursors are compared against fresh C by
+// scripts/run-closed-door-autoopen.mjs; what this pins is the line, the turn
+// cost, and that the door and the hero both stay put.
+test('a suppressed pull repeats one of three results and moves nothing', async () => {
+    const { segments } = loadAutoopenSuppressedRecipe();
+    let bumped = 0;
+    let told = 0;
+    let silent = 0;
+    let exercised = 0;
+
+    for (const [index, segment] of segments.entries()) {
+        const [dx, dy] = SUPPRESSED_KEYS[segment.moves[0]];
+        const diagonal = dx !== 0 && dy !== 0;
+        let door = null;
+        let start = null;
+        let previousTurn = 0;
+        let previousExercise = 0;
+
+        for (let keys = 0; keys <= segment.moves.length; ++keys) {
+            await runSegment({
+                ...segment, moves: segment.moves.slice(0, keys),
+            });
+            const label = `segment ${index} key ${keys}`;
+            if (keys === 0) {
+                door = { x: game.u.ux + dx, y: game.u.uy + dy };
+                start = {
+                    x: game.u.ux,
+                    y: game.u.uy,
+                    mask: game.level.at(door.x, door.y).flags,
+                    // acurr(A_DEX) is fixed for the segment: the bump exercises
+                    // Dexterity, and AEXE is a separate counter from ACURR.
+                    dex: effective_attribute(game, A_DEX),
+                };
+                assert.equal(game.level.at(door.x, door.y).typ, DOOR, label);
+                assert.ok(
+                    [D_CLOSED, D_LOCKED].includes(start.mask),
+                    `${label} starts at a closed or locked door`,
+                );
+                previousTurn = game.moves;
+                previousExercise = game.u.aexe[A_DEX];
+                continue;
+            }
+            // Row 0, not topMessage: topMessage is retained history, so the
+            // silent diagonal case would pass against the previous key's line.
+            const message = game.nhDisplay.grid[0]
+                .map(cell => cell.ch).join('').trimEnd();
+            const bumps = !diagonal && start.dex < 10;
+            if (diagonal) ++silent;
+            else if (bumps) ++bumped;
+            else ++told;
+            assert.equal(
+                message,
+                diagonal
+                    ? ''
+                    : bumps
+                        ? 'Ouch!  You bump into a door.'
+                        : 'That door is closed.',
+                label,
+            );
+            // hack.c:1122 sets svc.context.move alongside door_opened, which
+            // is the only closed-door outcome that spends the hero's turn.
+            assert.equal(Boolean(game.context.door_opened), bumps, label);
+            assert.equal(game.moves - previousTurn, bumps ? 1 : 0, label);
+            previousTurn = game.moves;
+            // attrib.c exercise(A_DEX, FALSE) adds -rn2(2) to AEXE(A_DEX), so
+            // a bump either leaves it alone or lowers it by one and no other
+            // outcome may touch it. exerper()'s satiated arm is the only other
+            // caller and this hero is merely not hungry.
+            const exercise = game.u.aexe[A_DEX] - previousExercise;
+            assert.ok(bumps ? exercise === 0 || exercise === -1
+                : exercise === 0, label);
+            if (exercise < 0) ++exercised;
+            previousExercise = game.u.aexe[A_DEX];
+            // Nothing on this arm calls doopen_indir(), so the mask survives
+            // however often the key repeats, and the hero never advances.
+            assert.equal(game.level.at(door.x, door.y).flags, start.mask,
+                label);
+            assert.equal(game.u.ux, start.x, label);
+            assert.equal(game.u.uy, start.y, label);
+        }
+    }
+    // 14 bumps, 14 refusals and 4 silent diagonal steps across the matrix,
+    // counted so a segment that stopped reaching its arm shows up here rather
+    // than passing vacuously. The two orthogonal totals match because the
+    // matrix pairs each Valkyrie segment with a Healer one.
+    assert.equal(bumped, 14);
+    assert.equal(told, 14);
+    assert.equal(silent, 4);
+    // Three of those 14 bumps drew a 1 from rn2(2) and lowered
+    // AEXE(A_DEX). Deleting the exercise() call leaves this at zero.
+    assert.equal(exercised, 3);
+});
+
+// The early return at hack.c:1097 is what stops doopen_indir()'s refusals from
+// applying: with the pull suppressed C never calls that function, so a state
+// only it diverges on must leave the walk admitted. Placing the return below
+// those checks instead would refuse cases C answers.
+test('a suppressed pull drops the refusals doopen_indir owns', async () => {
+    const base = loadAutoopenSuppressedRecipe().segments[0];
+    const walkWest = commandKeyCode(base.moves[0]);
+
+    const admitted = [
+        // lock.c:907's b_trapped() tail sits inside the roll, and the roll
+        // never happens here, so the trap bit cannot fire.
+        ['trapped closed door', (state, door) => {
+            door.flags = door.doormask = D_CLOSED | D_TRAPPED;
+        }],
+        // lock.c:876-893's autounlock tail hangs off the message switch,
+        // which only the pull reaches.
+        ['skeleton key', (state) => {
+            state.invent = {
+                otyp: SKELETON_KEY, oclass: TOOL_CLASS, owt: 3, quan: 1,
+                nobj: state.invent,
+            };
+        }],
+        ['autounlock setting', (state) => { state.flags.autounlock = 'kick'; }],
+    ];
+
+    for (const [label, apply] of admitted) {
+        await runSegment({ ...base, moves: '' });
+        const door = game.level.at(game.u.ux - 1, game.u.uy);
+        assert.equal(door.flags, D_CLOSED, label);
+        const drawsBefore = game.rng?.log?.length ?? 0;
+        apply(game, door);
+
+        game.nhDisplay.pushKey(walkWest);
+        await moveloop_core();
+        // topMessage rather than the rendered row: this case drives
+        // moveloop_core() directly and the frame has advanced past the line by
+        // the time control returns, as the locked siblings above explain.
+        assert.equal(game.nhDisplay.topMessage, 'That door is closed.', label);
+        // This hero has Dexterity 10, so the arm prints and stops: no draw and
+        // no change to the door.
+        assert.equal(game.rng?.log?.length ?? 0, drawsBefore, label);
+    }
 });

@@ -8,8 +8,10 @@
 // Each segment ends on a command prompt. The pull itself costs no game time:
 // hack.c:1111 sets svc.context.move from a comparison that is always false at
 // this call site, so the interesting boundary is the next prompt rather than
-// the next turn. Seeds were chosen by generating levels and reading the door
-// beside the hero, not by copying any recorded session.
+// the next turn. The third recipe is the exception, and deliberately so: the
+// bump at hack.c:1122 sets svc.context.move to TRUE by hand and a turn does
+// elapse. Seeds were chosen by generating levels and reading the door beside
+// the hero, not by copying any recorded session.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,13 +38,19 @@ function valkyrie(name, options = 'pettype:none,!acoustics') {
     return nethackrc({ name, role: 'Valkyrie', options });
 }
 
-function healer(name) {
+function healer(name, options = 'pettype:none,!acoustics') {
     return nethackrc({
         name,
         role: 'Healer',
         gender: 'male',
-        options: 'pettype:none,!acoustics',
+        options,
     });
+}
+
+// cmd.c binds each run to the control byte of its direction key, which
+// js/command_bindings.js registers at `key & 0x1F`.
+function ctrl(key) {
+    return String.fromCharCode(key.charCodeAt(0) & 0x1f);
 }
 
 export function loadClosedDoorAutoopenRecipe() {
@@ -242,6 +250,218 @@ export function loadLockedDoorRecipe() {
     }, 'locked door recipe');
 }
 
+// The same walk with hack.c:1097's autoopen test failing, which sends
+// test_move() to the arm below the pull instead of into doopen_indir(). Two of
+// that test's five terms are ported: `OPTIONS=!autoopen` clears flags.autoopen,
+// and an uppercase or ctrl direction key sets svc.context.run. Neither touches
+// the door, so a repeated key repeats the same result.
+//
+// Below the test, `x == ux || y == uy` splits orthogonal from diagonal and
+// `ACURR(A_DEX) < 10` splits the two orthogonal outcomes. The bump is the
+// expensive one: hack.c:1122 sets svc.context.move as well as
+// svc.context.door_opened, so the hero pays a turn for walking into the door,
+// while "That door is closed." and the silent diagonal cost nothing.
+//
+// Every Valkyrie here rolled Dexterity 10 or more and every Healer rolled 9 or
+// less, which is why the two roles carry the two outcomes. Seeds were chosen by
+// generating levels, reading the door beside the hero and reading acurr(A_DEX),
+// not by copying any recorded session.
+export function loadAutoopenSuppressedRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // The base case: `autoopen` off, one step west into a closed door,
+            // then a second key that finds the door unchanged.
+            {
+                seed: 9700008,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'ShutDoor',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'hh',
+            },
+            // Dexterity exactly 10, the value on the far side of
+            // `ACURR(A_DEX) < 10`. Its Healer counterpart below rolled 9.
+            {
+                seed: 9700219,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'ShutDoor',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'hh',
+            },
+            // A diagonal step at the same closed door. hack.c:1099 admits only
+            // an orthogonal one, so this prints nothing at all.
+            {
+                seed: 9700038,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'ShutCorner',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'uu',
+            },
+            // A locked door. Nothing on this arm reads the mask, so a hero who
+            // would have been told "This door is locked." is told the door is
+            // closed instead.
+            {
+                seed: 9700095,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'ShutLock',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'll',
+            },
+            // `autoopen` left on and svc.context.run == 1 suppressing it, from
+            // the uppercase direction key. moveloop_core() calls lookaround()
+            // only while gm.multi > 0, so the first key of a rush reaches
+            // domove() with the door already in front of the hero.
+            {
+                seed: 9700008,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie('RushDoor'),
+                moves: 'H',
+            },
+            // The same suppression at svc.context.run == 3, from the ctrl
+            // direction key.
+            {
+                seed: 9700008,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie('RunDoor'),
+                moves: ctrl('h'),
+            },
+            // With `time` on, the status line carries the turn counter, which
+            // is where "That door is closed." costing nothing shows up.
+            {
+                seed: 9700008,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'ShutTime',
+                    'pettype:none,!acoustics,!autoopen,time',
+                ),
+                moves: 'hh',
+            },
+            // accessiblemsg is what would expose a set_msg_xy() prefix. Both
+            // lines on this arm are plain pline() calls and pline.c vpline()
+            // clears a11y.msg_loc after every message, so neither may gain one.
+            {
+                seed: 9700008,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'ShutSpeak',
+                    'pettype:none,!acoustics,!autoopen,accessiblemsg',
+                ),
+                moves: 'hh',
+            },
+            // A pet beside the hero. This hero keeps Dexterity 10, so no turn
+            // elapses and the kitten must stay where it is.
+            {
+                seed: 9700008,
+                datetime: VALKYRIE_DATETIME,
+                nethackrc: valkyrie(
+                    'ShutPet',
+                    'pettype:dog,!acoustics,!autoopen',
+                ),
+                moves: 'hh',
+            },
+            // Dexterity 9, the value just inside `ACURR(A_DEX) < 10`: the same
+            // walk bumps instead, and each bump spends a turn.
+            {
+                seed: 9710040,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer(
+                    'BumpDoor',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'll',
+            },
+            // Dexterity 8 at a door in a horizontal wall, entered from above.
+            {
+                seed: 9710117,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer(
+                    'BumpDoor',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'jj',
+            },
+            // Dexterity 8 diagonally. The bump arm is orthogonal-only, so a
+            // clumsy hero gets the same silence a nimble one does.
+            {
+                seed: 9710018,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer(
+                    'BumpCorner',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'nn',
+            },
+            // Dexterity 8 at a locked door, the bump counterpart of the
+            // Valkyrie's locked segment above.
+            {
+                seed: 9710257,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer(
+                    'BumpLock',
+                    'pettype:none,!acoustics,!autoopen',
+                ),
+                moves: 'll',
+            },
+            // A rush that bumps. hack.c:1126 calls nomul(0) by hand here,
+            // because svc.context.move has just been set to a move that never
+            // happened, so the rush has to stop on this one key.
+            {
+                seed: 9710040,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer('BumpRush'),
+                moves: 'L',
+            },
+            // The same bump at svc.context.run == 3.
+            {
+                seed: 9710040,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer('BumpRun'),
+                moves: ctrl('l'),
+            },
+            // With `time` on, the turn counter advances on every bump, which
+            // is the opposite of the Valkyrie's `time` segment above.
+            {
+                seed: 9710040,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer(
+                    'BumpTime',
+                    'pettype:none,!acoustics,!autoopen,time',
+                ),
+                moves: 'll',
+            },
+            // accessiblemsg against the other line on this arm.
+            {
+                seed: 9710040,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer(
+                    'BumpSpeak',
+                    'pettype:none,!acoustics,!autoopen,accessiblemsg',
+                ),
+                moves: 'll',
+            },
+            // A pet beside a hero who does bump, so the turn really elapses
+            // and the kitten takes its move.
+            {
+                seed: 9710117,
+                datetime: HEALER_DATETIME,
+                nethackrc: healer(
+                    'BumpPet',
+                    'pettype:dog,!acoustics,!autoopen',
+                ),
+                moves: 'jj',
+            },
+        ],
+    }, 'autoopen suppressed recipe');
+}
+
 export async function runClosedDoorAutoopenMatrix() {
     return runFreshMatrix({
         entries: [{
@@ -250,6 +470,9 @@ export async function runClosedDoorAutoopenMatrix() {
         }, {
             label: 'locked door message',
             recipe: loadLockedDoorRecipe(),
+        }, {
+            label: 'autoopen suppressed',
+            recipe: loadAutoopenSuppressedRecipe(),
         }],
         summaryLabel: 'CLOSED DOOR AUTOOPEN',
     });
