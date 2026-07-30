@@ -1691,7 +1691,7 @@ test('dangerous hero properties reject waiting and success resets its counter', 
     assert.equal(state.did_nothing_flag, 0);
 });
 
-test('travel, search, and pickup bytes remain atomic boundaries',
+test('travel and pickup bytes remain atomic boundaries',
     async () => {
     const cases = [
         // cmd.c dotravel() reaches dotravel_target(), which sets
@@ -1705,7 +1705,6 @@ test('travel, search, and pickup bytes remain atomic boundaries',
         // them apart. These two pin that the earlier refusal is what holds.
         { name: 'rush prefix', key: 'g', binding: '' },
         { name: 'run prefix', key: 'G', binding: '' },
-        { name: 'search', key: 's', binding: '' },
         { name: 'pickup', key: ',', binding: '' },
     ];
     for (const commandCase of cases) {
@@ -2604,4 +2603,50 @@ test('every nonzero-key rhack entry counts one logical dispatch', async () => {
     game.context.pendingCommand = null;
     await rhack(commandKeyCode('.'), game);
     assert.equal(game._commandDispatchCount, before + 2);
+});
+
+test('a search branch this port lacks stops retryably at the `s` key', async () => {
+    // detect.c dosearch0() feels every adjacent square when the hero is blind,
+    // which reaches feel_location() branches this port does not own. The
+    // refusal has to reach the player as the retryable command boundary, and
+    // it has to be decided before the loop draws its first rnl().
+    const replay = await runSegment({
+        seed: 840021,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:BlindSearch,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,!acoustics,blind',
+        moves: '',
+    });
+    const searchKey = commandKeyCode('s');
+    assert.equal(commandForKey(createCommandBindingModel(game), searchKey),
+        'search');
+    const drawsBefore = replay.getRngLog().length;
+    game.nhDisplay.pushKey(searchKey);
+
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === searchKey
+            && /feels every adjacent square/.test(error.message),
+    );
+    // Nothing was spent: the preflight decided over all eight squares before
+    // dosearch0()'s loop could draw, so the segment keeps its whole prefix and
+    // the command remains retryable.
+    assert.equal(replay.getRngLog().length, drawsBefore);
+    assert.equal(game.moves, 1);
+    assert.equal(game.context.move, 0);
+    assert.deepEqual(replay.getRngSlices().at(-1), []);
+    assert.equal(game.context.pendingCommand.phase, 'parsed');
+    assert.equal(game.context.pendingCommand.key, searchKey);
+
+    // Retrying the retained command reproduces the same refusal and still
+    // spends nothing.
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === searchKey,
+    );
+    assert.equal(replay.getRngLog().length, drawsBefore);
+    assert.equal(game.moves, 1);
 });

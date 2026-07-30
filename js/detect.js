@@ -1,5 +1,6 @@
 // detect.js — searching and discovery.
-// C ref: detect.c dosearch0(), cvt_sdoor_to_door(), and find_trap().
+// C ref: detect.c dosearch0(), dosearch(), mfind0(), cvt_sdoor_to_door(), and
+// find_trap().
 
 import {
     A_WIS,
@@ -10,6 +11,8 @@ import {
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
+    ECMD_OK,
+    ECMD_TIME,
     ENGRAVE,
     GPCOORDS_COMFULL,
     GPCOORDS_COMPASS,
@@ -19,6 +22,7 @@ import {
     HALLUC,
     HALLUC_RES,
     HEADSTONE,
+    M_AP_TYPE,
     SCORR,
     SDOOR,
     STATUE_TRAP,
@@ -27,9 +31,11 @@ import {
 } from './const.js';
 import { SPFX_SEARCH } from './artifacts.js';
 import { exercise } from './attrib.js';
+import { cmdSafetyPrevention } from './cmd.js';
 import {
     cls,
     docrt,
+    glyph_is_invisible,
     hero_glyph_info,
     newsym,
     object_glyph_info,
@@ -37,18 +43,37 @@ import {
     show_glyph_cell,
     terrain_glyph,
     trap_glyph_info,
+    unmap_invisible,
 } from './display.js';
 import { on_level } from './dungeon.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { hides_under, is_hider } from './mondata.js';
+import { S_EEL } from './monsters.js';
+import { m_at } from './monst.js';
 import { LENSES } from './objects.js';
+import { visible_region_at } from './region.js';
 import { rn2, rnl } from './rng.js';
+import { canSpotMonster } from './startup_a11y.js';
 import { t_at } from './trap.js';
 import {
     dismissPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
 import { seenv_matrix, vision_reset } from './vision.js';
+
+/**
+ * A branch of detect.c dosearch0() or mfind0() which this port does not own
+ * yet.  js/cmd.js converts it into the retryable command boundary, which is
+ * sound only because every one of these is decided before the search loop
+ * draws its first rnl().
+ */
+export class UnsupportedSearchError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedSearchError';
+    }
+}
 
 // C's trap names come from defsyms[trap_to_defsym(ttyp)].explanation.
 // Index zero is NO_TRAP and is never passed by find_trap().
@@ -385,6 +410,9 @@ function normalizeSearchEnv(rawEnv = {}) {
             'feelNewSym',
             defaultFeelSearchNewSym,
         ),
+        // detect.c mfind0()'s bare newsym(), which is not routed through
+        // feel_location() the way the two secret-terrain arms are.
+        newSym: operation('newSym', defaultSearchDisplay),
         displayFoundTrap: operation(
             'displayFoundTrap',
             defaultFoundTrapDisplay,
@@ -499,6 +527,115 @@ function preflightTrap(env, trap) {
     }
 }
 
+/**
+ * The three discovery arms of detect.c mfind0(), which decide whether a
+ * monster on an adjacent square is found rather than merely redrawn.  Each one
+ * exercises Wisdom, writes a message and needs a helper this port does not
+ * have: seemimic(), map_invisible(), or the mundetected reveal.
+ *
+ * mfind0() calls this at the square it is looking at and
+ * preflightExplicitSearch() calls it at all eight, so a refusal here always
+ * happens before the loop's first rnl().
+ */
+function preflightSearchMonster(monster, env) {
+    const { state } = env;
+    validateDisplayCapability(env, 'newSym', 'an adjacent monster');
+    if (M_AP_TYPE(monster)) {
+        throw new UnsupportedSearchError(
+            'searching out a mimicking monster needs seemimic()',
+        );
+    }
+    // display.h mon_visible() requires !mundetected, so a hidden monster fails
+    // canspotmon() as well and mfind0() reaches both arms. Test the narrower
+    // condition first so the refusal names the branch that really applies.
+    if (monster.mundetected
+        && (is_hider(monster.data) || hides_under(monster.data)
+            || monster.data?.mlet === S_EEL)) {
+        throw new UnsupportedSearchError(
+            'searching out a hidden monster is not ported',
+        );
+    }
+    if (!canSpotMonster(monster, state)) {
+        throw new UnsupportedSearchError(
+            'searching out an unspotted monster needs map_invisible()',
+        );
+    }
+}
+
+/**
+ * C ref: the aflag == 0 arms of detect.c dosearch0(), plus every capability
+ * its loop body needs.
+ *
+ * dosearch0() draws rnl() once per adjacent square inside its loop, so a case
+ * this port cannot finish has to be refused over the whole 3x3 before the
+ * first draw.  A refusal decided at the fifth square would already have spent
+ * randomness on the first four and could not be retried.
+ */
+function preflightExplicitSearch(env) {
+    const { state } = env;
+    const { u } = state;
+    // detect.c:2020-2022 answers a swallowed hero through Norep().
+    if (u.uswallow) {
+        throw new UnsupportedSearchError(
+            'searching while swallowed is not ported',
+        );
+    }
+    const blind = propertyActiveUnblocked(u, BLINDED);
+    for (let x = u.ux - 1; x < u.ux + 2; ++x) {
+        for (let y = u.uy - 1; y < u.uy + 2; ++y) {
+            if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
+            // detect.c:2038-2039. Explicit searching feels every adjacent
+            // square, whatever is on it; js/display.js feel_location() owns
+            // only the blind-obstacle subset and detect.js's own tactile
+            // mapping only converted secret terrain and ordinary floor traps.
+            if (blind || visible_region_at(x, y, state)) {
+                throw new UnsupportedSearchError(
+                    'explicit searching feels every adjacent square when the '
+                    + 'hero is blind or a visible region covers one',
+                );
+            }
+            const location = state.level.at(x, y);
+            // detect.c deliberately finds nothing else on an SDOOR or SCORR.
+            if (location.typ === SDOOR) {
+                preflightSecretDoor(env);
+                continue;
+            }
+            if (location.typ === SCORR) {
+                preflightSecretCorridor(env);
+                continue;
+            }
+            const monster = m_at(x, y, state);
+            if (monster) {
+                preflightSearchMonster(monster, env);
+            } else if (glyph_is_invisible(location)) {
+                // unmap_invisible()'s TRUE arm needs unmap_object().
+                throw new UnsupportedSearchError(
+                    'clearing a remembered invisible monster is not ported',
+                );
+            }
+            const trap = t_at(x, y, state);
+            if (trap && !trap.tseen) preflightTrap(env, trap);
+        }
+    }
+}
+
+/**
+ * C ref: detect.c mfind0(), restricted to via_warning == 0 and to the
+ * found_something == FALSE result.  warnreveal() is the only caller that
+ * passes 1, and preflightSearchMonster() refuses every input that would set
+ * found_something, so what remains is the redraw and the 0 return.
+ */
+async function mfind0(monster, via_warning, env) {
+    if (via_warning) {
+        throw new UnsupportedSearchError(
+            'mfind0 danger-sense discovery is not ported',
+        );
+    }
+    preflightSearchMonster(monster, env);
+    await env.newSym(monster.mx, monster.my, env);
+    return 0;
+}
+
 function artifactSearchAbility(object, state) {
     if (!object?.oartifact) return false;
     const artifact = state.artilist?.[object.oartifact];
@@ -580,17 +717,25 @@ async function findTrap(trap, env) {
 }
 
 /**
- * C ref: detect.c dosearch0(1).
+ * C ref: detect.c dosearch0().
  *
- * This owner deliberately accepts only intrinsic automatic searching.
- * Explicit #search (aflag == 0) also searches for monsters, reconciles
- * invisible glyphs, and feels every adjacent square; that is a separate
- * command boundary.
+ * aflag == 1 is intrinsic automatic searching, driven by moveloop_core().
+ * aflag == 0 is the explicit `s` command, which additionally feels every
+ * adjacent square, searches out adjacent monsters through mfind0(), and
+ * reconciles a remembered invisible monster through unmap_invisible().
+ *
+ * The two flags resolve their unported cases at opposite ends of the loop, and
+ * deliberately so.  Automatic searching cannot be retried, because the turn
+ * that ran it is already spent, so it refuses inside the loop after the source
+ * rnl() has already succeeded, which keeps the draw sequence intact.  The
+ * explicit command can be retried, so preflightExplicitSearch() decides every
+ * refusal over all eight squares before the first draw.
  */
 export async function dosearch0(aflag, rawEnv = {}) {
-    if (aflag !== 1 && aflag !== true) {
+    const explicit = aflag === 0 || aflag === false;
+    if (!explicit && aflag !== 1 && aflag !== true) {
         throw new RangeError(
-            'this dosearch0 owner implements intrinsic automatic search only',
+            'dosearch0 takes the automatic (1) or explicit (0) search flag',
         );
     }
 
@@ -598,22 +743,27 @@ export async function dosearch0(aflag, rawEnv = {}) {
     const { state } = env;
     const { u } = state;
     if (!u || !state.level?.at) {
-        throw new Error('automatic search requires initialized hero and level');
+        throw new Error('searching requires an initialized hero and level');
     }
+    if (explicit) preflightExplicitSearch(env);
+    // detect.c prints "What are you looking for?  The exit?" through Norep()
+    // for an explicit search; the preflight above has already refused that.
     if (u.uswallow) return 1;
     if (typeof env.random.rnl !== 'function') {
-        throw new TypeError('automatic search requires random.rnl');
+        throw new TypeError('searching requires random.rnl');
     }
 
     const fund = searchFund(state);
 
     // Preserve detect.c's x-major, then y-minor traversal and its continue
-    // boundaries. Discovery-only owners are resolved after the source rnl()
-    // succeeds, so an unsupported hit cannot suppress or reorder a miss.
+    // boundaries.
     for (let x = u.ux - 1; x < u.ux + 2; ++x) {
         for (let y = u.uy - 1; y < u.uy + 2; ++y) {
             if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
             const location = state.level.at(x, y);
+            // detect.c:2038-2039 calls feel_location() here for an explicit
+            // search when Blind or a visible region covers the square. The
+            // preflight refuses both, so nothing reaches it.
             if (location.typ === SDOOR) {
                 if (env.random.rnl(7 - fund)) continue;
                 preflightSecretDoor(env);
@@ -637,6 +787,20 @@ export async function dosearch0(aflag, rawEnv = {}) {
                     'You find a hidden passage.', x, y, env,
                 );
             } else {
+                // "Be careful not to find anything in an SCORR or SDOOR."
+                const monster = explicit ? m_at(x, y, state) : null;
+                if (monster) {
+                    const found = await mfind0(monster, 0, env);
+                    if (found === -1) continue;
+                    if (found > 0) return found;
+                }
+                // See if an invisible monster has moved; when Blind,
+                // feel_location() has already done it. The preflight refuses a
+                // blind explicit search, so that arm never applies here.
+                if (explicit && !monster
+                    && !propertyActiveUnblocked(u, BLINDED)) {
+                    unmap_invisible(x, y, state);
+                }
                 const trap = t_at(x, y, state);
                 if (!trap || trap.tseen || env.random.rnl(8)) continue;
                 preflightTrap(env, trap);
@@ -657,6 +821,26 @@ export async function dosearch0(aflag, rawEnv = {}) {
 
 export async function automatic_search(rawEnv = {}) {
     return dosearch0(1, rawEnv);
+}
+
+/**
+ * C ref: detect.c dosearch(), the handler behind the `s` key and `#search`.
+ *
+ * already_found_flag is C's ga.already_found_flag, the repeat counter
+ * cmd_safety_prevention() keeps for this command alone; it lives beside
+ * did_nothing_flag on the game state, which is what donull() passes for its
+ * own counter.
+ */
+export async function dosearch(state = game, rawEnv = {}) {
+    const prevented = await cmdSafetyPrevention(
+        'Searching',
+        'another search',
+        'You already found a monster.',
+        'already_found_flag',
+        state,
+    );
+    if (prevented) return ECMD_OK;
+    return await dosearch0(0, { state, ...rawEnv }) ? ECMD_TIME : ECMD_OK;
 }
 
 export const _detectInternals = Object.freeze({

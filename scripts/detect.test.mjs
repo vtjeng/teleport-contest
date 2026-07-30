@@ -14,6 +14,8 @@ import {
     D_LOCKED,
     D_TRAPPED,
     DUST,
+    ECMD_OK,
+    ECMD_TIME,
     ENGRAVE,
     HALLUC,
     IN_SIGHT,
@@ -36,14 +38,17 @@ import {
 import {
     _detectInternals,
     cvt_sdoor_to_door,
+    dosearch,
     dosearch0,
 } from '../js/detect.js';
 import {
+    glyph_is_invisible,
     monster_glyph_info,
     object_glyph_info,
     remembered_glyph_from_presentation,
     terrain_glyph,
     trap_glyph_info,
+    unmap_invisible,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -53,7 +58,13 @@ import {
     FOOD_CLASS,
     LENSES,
 } from '../js/objects.js';
-import { S_FELINE } from '../js/monsters.js';
+import {
+    M1_CONCEAL,
+    M1_HIDE,
+    S_EEL,
+    S_FELINE,
+} from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 import { create_region } from '../js/region.js';
 import { ATR_INVERSE, CLR_WHITE } from '../js/terminal.js';
 import {
@@ -104,6 +115,43 @@ function searchState() {
             },
         },
     };
+}
+
+// The explicit search reads three things the automatic one never touches: the
+// monster grid behind m_at(), the region list behind visible_region_at(), and
+// each square's remembered glyph.
+function explicitSearchState() {
+    const state = searchState();
+    state.level.monsters = [];
+    state.level.regions = [];
+    state.viz_array = [];
+    return state;
+}
+
+// A monster the hero can spot: not invisible, not hidden, not mimicking, and
+// standing on a square cansee() reports lit. IN_SIGHT is what canSeeMonster()
+// resolves through cansee().
+function placeTestMonster(state, x, y, overrides = {}, speciesOverrides = {}) {
+    const monster = newMonster({
+        mx: x,
+        my: y,
+        mhp: 5,
+        data: {
+            // pmnames is what a name formatter would read; the arms this
+            // slice reaches never format one.
+            pmnames: ['newt', 'newt', 'newt'],
+            mlet: speciesOverrides.mlet ?? S_FELINE,
+            mflags1: speciesOverrides.mflags1 ?? 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+        ...overrides,
+    });
+    state.level.monsters[x] ??= [];
+    state.level.monsters[x][y] = monster;
+    state.viz_array[y] ??= [];
+    state.viz_array[y][x] = IN_SIGHT;
+    return monster;
 }
 
 function scriptedRandom(events, rnlResults, rn2Results = []) {
@@ -1195,13 +1243,219 @@ test('a blind miss draws before tactile display preflight', async () => {
     random.done();
 });
 
-test('swallowed automatic search is inert and explicit search is out of scope', async () => {
-    const state = searchState();
+test('swallowed search is inert automatically and refused explicitly', async () => {
+    const state = explicitSearchState();
     state.u.uswallow = true;
     assert.equal(await dosearch0(1, { state }), 1);
 
+    // detect.c:2020-2022 answers an explicit search through Norep().
     await assert.rejects(
-        dosearch0(0, { state }),
-        /implements intrinsic automatic search only/,
+        dosearch0(0, { state, ...recordingOperations(state, []) }),
+        /searching while swallowed is not ported/,
     );
+});
+
+test('dosearch0 rejects a flag that is neither automatic nor explicit', async () => {
+    await assert.rejects(
+        dosearch0(2, { state: explicitSearchState() }),
+        /automatic \(1\) or explicit \(0\) search flag/,
+    );
+});
+
+// The explicit `s` command. Every case below asserts the recorded event list,
+// because detect.c dosearch0() draws rnl() once per adjacent square inside its
+// loop: a refusal that reached the loop would leave those draws spent.
+
+test('explicit search reuses the secret-door arm and reconciles bare squares', async () => {
+    const state = explicitSearchState();
+    const location = state.level.at(9, 9);
+    location.typ = SDOOR;
+    const events = [];
+    const random = scriptedRandom(events, [0], [18]);
+
+    assert.equal(await dosearch0(0, {
+        state,
+        random,
+        ...recordingOperations(state, events),
+    }), 1);
+
+    // The same six events the automatic arm records, and nothing more: with
+    // no monster and no remembered invisible glyph, unmap_invisible() and
+    // mfind0() are both silent on the other seven squares.
+    assert.deepEqual(events, [
+        'rnl(7)',
+        `recalc(9,9,${DOOR},${D_CLOSED})`,
+        'rn2(19)',
+        'nomul(0)',
+        'feelLocation(9,9)',
+        'message(9,9,You find a hidden door.)',
+    ]);
+    assert.equal(location.typ, DOOR);
+    random.done();
+});
+
+test('explicit search redraws an adjacent spotted monster and draws for its trap', async () => {
+    const state = explicitSearchState();
+    placeTestMonster(state, 9, 10, { mtame: 1 });
+    const trap = {
+        tx: 9, ty: 10, ttyp: ANTI_MAGIC, tseen: false,
+    };
+    state.level.traps.push(trap);
+    const events = [];
+    const random = scriptedRandom(events, [1]);
+
+    assert.equal(await dosearch0(0, {
+        state,
+        random,
+        ...recordingOperations(state, events),
+        newSym: (x, y) => events.push(`newSym(${x},${y})`),
+    }), 1);
+
+    // mfind0() returns 0 for a spotted, unhidden monster after its newsym(),
+    // and dosearch0() then still tests the trap under it.
+    assert.deepEqual(events, ['newSym(9,10)', 'rnl(8)']);
+    // The rnl(8) missed, so find_trap() never ran.
+    assert.equal(trap.tseen, false);
+    random.done();
+});
+
+test('explicit search refuses every mfind0 discovery arm before any draw', async () => {
+    const cases = [
+        ['a mimic', { m_ap_type: M_AP_OBJECT }, /needs seemimic\(\)/],
+        ['an unspotted monster', { minvis: 1 }, /needs map_invisible\(\)/],
+        // is_hider()/hides_under()/S_EEL, the three species tests mfind0()
+        // applies to a mundetected monster.
+        ['an eel', { mundetected: 1, mlet: S_EEL }, /hidden monster/],
+        ['a ceiling hider', { mundetected: 1, mflags1: M1_HIDE },
+            /hidden monster/],
+        ['an under-hider', { mundetected: 1, mflags1: M1_CONCEAL },
+            /hidden monster/],
+    ];
+    for (const [label, overrides, expected] of cases) {
+        const state = explicitSearchState();
+        const { mlet, mflags1, ...monsterOverrides } = overrides;
+        placeTestMonster(state, 9, 10, monsterOverrides, { mlet, mflags1 });
+        // An adjacent secret door the loop would otherwise draw for.
+        state.level.at(9, 9).typ = SDOOR;
+        const events = [];
+        const random = scriptedRandom(events, []);
+
+        await assert.rejects(dosearch0(0, {
+            state,
+            random,
+            ...recordingOperations(state, events),
+            newSym: (x, y) => events.push(`newSym(${x},${y})`),
+        }), expected, label);
+        assert.deepEqual(events, [], label);
+        assert.equal(state.level.at(9, 9).typ, SDOOR, label);
+        random.done();
+    }
+});
+
+test('explicit search refuses the feel_location arm before any draw', async () => {
+    const blind = explicitSearchState();
+    blind.level.at(9, 9).typ = SDOOR;
+    blind.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    let events = [];
+    let random = scriptedRandom(events, []);
+    await assert.rejects(dosearch0(0, {
+        state: blind, random, ...recordingOperations(blind, events),
+    }), /feels every adjacent square/);
+    assert.deepEqual(events, []);
+    random.done();
+
+    // The other operand of detect.c:2038: a visible region over one square.
+    const covered = explicitSearchState();
+    covered.level.at(9, 9).typ = SDOOR;
+    const region = create_region([{ lx: 11, ly: 11, hx: 11, hy: 11 }]);
+    region.visible = true;
+    covered.level.regions.push(region);
+    events = [];
+    random = scriptedRandom(events, []);
+    await assert.rejects(dosearch0(0, {
+        state: covered, random, ...recordingOperations(covered, events),
+    }), /feels every adjacent square/);
+    assert.deepEqual(events, []);
+    random.done();
+});
+
+test('explicit search refuses a remembered invisible monster before any draw', async () => {
+    const state = explicitSearchState();
+    state.level.at(9, 9).typ = SDOOR;
+    // display.c map_invisible() writes this marker; unmap_invisible()'s TRUE
+    // arm would then need unmap_object().
+    state.level.at(11, 11).remembered_glyph = { invisible_monster: true };
+    const events = [];
+    const random = scriptedRandom(events, []);
+
+    await assert.rejects(dosearch0(0, {
+        state, random, ...recordingOperations(state, events),
+    }), /remembered invisible monster is not ported/);
+    assert.deepEqual(events, []);
+    random.done();
+});
+
+test('explicit search refuses an adjacent statue trap before any draw', async () => {
+    // The automatic arm refuses the same trap only after its rnl(8) hits.
+    const state = explicitSearchState();
+    state.level.at(9, 9).typ = SDOOR;
+    state.level.traps.push({
+        tx: 11, ty: 11, ttyp: STATUE_TRAP, tseen: false,
+    });
+    const events = [];
+    const random = scriptedRandom(events, []);
+
+    await assert.rejects(dosearch0(0, {
+        state, random, ...recordingOperations(state, events),
+    }), /requires activateStatueTrap for a statue trap/);
+    assert.deepEqual(events, []);
+    random.done();
+});
+
+test('unmap_invisible answers false and refuses a remembered invisible glyph', () => {
+    const state = explicitSearchState();
+    assert.equal(glyph_is_invisible(state.level.at(9, 9)), false);
+    assert.equal(unmap_invisible(9, 9, state), false);
+    // isok() guards the call, as display.c does.
+    assert.equal(unmap_invisible(-1, 9, state), false);
+
+    state.level.at(9, 9).remembered_glyph = { invisible_monster: true };
+    assert.equal(glyph_is_invisible(state.level.at(9, 9)), true);
+    assert.throws(
+        () => unmap_invisible(9, 9, state),
+        /unmap_object\(\) is not ported/,
+    );
+});
+
+test('dosearch answers ECMD_TIME and counts prevented searches', async () => {
+    // safe_wait off leaves cmd_safety_prevention() with nothing to test, so
+    // the command runs and reports that it consumed time.
+    const state = explicitSearchState();
+    state.flags = { safe_wait: false };
+    const events = [];
+    const random = scriptedRandom(events, []);
+    assert.equal(await dosearch(state, {
+        random,
+        ...recordingOperations(state, events),
+    }), ECMD_TIME);
+    assert.deepEqual(events, []);
+    random.done();
+    assert.equal(state.already_found_flag, 0);
+
+    // A hostile beside the hero on a real level is what makes
+    // cmd_safety_prevention() answer TRUE. cmdassist off is the branch that
+    // increments ga.already_found_flag; on seed 9300223 a goblin stands next
+    // to the hero at the first prompt, so all three searches are prevented
+    // and none of them spends a turn.
+    await runSegment({
+        seed: 9300223,
+        datetime: '20310203040506',
+        nethackrc: 'OPTIONS=name:Searcher,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen\n'
+            + 'OPTIONS=pettype:none,!acoustics,!cmdassist\n',
+        moves: 'sss',
+    });
+    assert.equal(game.already_found_flag, 3);
+    assert.equal(game.moves, 1);
 });

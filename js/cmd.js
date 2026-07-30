@@ -17,6 +17,7 @@ import {
     STRANGLED,
 } from './const.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
+import { dosearch, UnsupportedSearchError } from './detect.js';
 import { flush_screen } from './display.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import {
@@ -378,11 +379,12 @@ export async function parseCommand(state = game) {
 // Every command this milestone dispatches, named once so the comment above
 // readSimpleCommand(), both boundary messages, and the admission test cannot
 // drift apart as more commands land. '#' opens the extended-command prompt,
-// through which the other six are also reachable by name; every other extended
-// command stops inside doextcmd() instead, after the prompt has painted the
-// frames the reference program painted for the same keystrokes.
+// through which the other seven are also reachable by name; every other
+// extended command stops inside doextcmd() instead, after the prompt has
+// painted the frames the reference program painted for the same keystrokes.
 const ADMITTED_COMMANDS = Object.freeze([
-    'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', '#',
+    'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
+    '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -562,6 +564,7 @@ async function failClosedCommand(key, state, run) {
             || error instanceof UnsupportedShopError
             || error instanceof UnsupportedWeaponSkillError
             || error instanceof UnsupportedGetlinBoundaryError
+            || error instanceof UnsupportedSearchError
             || error instanceof UnsupportedArtifactDisplayError) {
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
@@ -573,12 +576,13 @@ async function failClosedCommand(key, state, run) {
     }
 }
 
-// Five of the six extcmdlist[] handlers this milestone owns follow, each
+// Six of the seven extcmdlist[] handlers this milestone owns follow, each
 // reachable both from the key bound to it and from the extended-command
-// prompt: ddoinv(), dovspell(), dodiscovered(), doattributes() and dolook().
-// The sixth is donull(), which doextcmd() and rhack() call directly because it
-// formats nothing that can fail closed. Every wrapper returns whether its
-// command took time, which its two callers turn into rhack()'s ECMD_TIME.
+// prompt: ddoinv(), dovspell(), dodiscovered(), doattributes(), dolook() and
+// dosearch(). The seventh is donull(), which doextcmd() and rhack() call
+// directly because it formats nothing that can fail closed. The first five
+// wrappers return whether the command took time, which its two callers turn
+// into rhack()'s ECMD_TIME; dosearch() returns the ECMD_* result itself.
 //
 // Each wrapper routes its handler through failClosedCommand(), and what that
 // preserves differs by caller. Reached from the single key bound to the
@@ -675,6 +679,18 @@ async function runAttributesCommand(key, state) {
     }));
 }
 
+// C ref: detect.c dosearch(). Unlike the five wrappers above, this one returns
+// the ECMD_* result its handler produced, because cmd_safety_prevention() and
+// the search itself already distinguish ECMD_OK from ECMD_TIME.
+//
+// extcmdlist[]'s "searching" occupation text would make rhack() call
+// set_occupation() under a count. This boundary parses no count, so multi is 0
+// and that call cannot happen; `wait`, the only other command carrying an
+// occupation text, is admitted on the same terms.
+async function runSearchCommand(key, state) {
+    return failClosedCommand(key, state, () => dosearch(state));
+}
+
 // C ref: invent.c dolook().
 async function runLookCommand(key, state) {
     return failClosedCommand(key, state, () => dolook(state, {
@@ -746,6 +762,8 @@ async function doextcmd(key, state) {
         return await runShowspellsCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'dodiscovered':
         return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
+    case 'dosearch':
+        return await runSearchCommand(key, state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
@@ -849,6 +867,16 @@ export async function rhack(key, state = game) {
             );
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'search') {
+            // C ref: rhack()'s result handling, the same three tests the '#'
+            // arm above applies. dosearch() answers ECMD_TIME for a search
+            // that ran and ECMD_OK when cmd_safety_prevention() stopped it.
+            const res = await runSearchCommand(key, state);
+            if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);
             if (res & ECMD_TIME) state.context.move = 1;
             return;

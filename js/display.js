@@ -1438,6 +1438,39 @@ function sameLevel(a, b) {
         && a.dnum === b.dnum && a.dlevel === b.dlevel);
 }
 
+/**
+ * C ref: display.h glyph_is_invisible().  C compares levl[x][y].glyph with
+ * GLYPH_INVISIBLE; this port's map memory holds a presentation record instead,
+ * so the equivalent state is the `invisible_monster` marker that
+ * display.c map_invisible() writes when it remembers the 'I' it drew.
+ * map_invisible() is not ported, so nothing writes that marker yet and this
+ * predicate is currently always false.  Porting map_invisible() is what makes
+ * it answer TRUE, and unmap_invisible() below is what has to change with it.
+ */
+export function glyph_is_invisible(location) {
+    return Boolean(location?.remembered_glyph?.invisible_monster);
+}
+
+/**
+ * C ref: display.c unmap_invisible().  detect.c dosearch0() calls this for
+ * every adjacent square with no monster on it, to clear the remembered 'I' of
+ * an invisible monster which has since moved away.
+ *
+ * Only the FALSE arm is ported.  The TRUE arm needs display.c unmap_object(),
+ * which is not ported, so it throws rather than leaving stale memory behind.
+ * It is unreachable today: glyph_is_invisible() cannot answer TRUE while
+ * map_invisible(), its only writer, is unported.
+ */
+export function unmap_invisible(x, y, state = game) {
+    if (!isok(x, y)) return false;
+    const location = state.level?.at?.(x, y);
+    if (!glyph_is_invisible(location)) return false;
+    throw new Error(
+        'unmap_invisible cannot clear a remembered invisible monster: '
+        + 'unmap_object() is not ported',
+    );
+}
+
 function floorLayersCovered(loc, state) {
     // C refs: display.h covers_objects()/covers_traps(); dbridge.c is_pool()
     // and is_lava().  A submerged hero sees through water to floor layers.

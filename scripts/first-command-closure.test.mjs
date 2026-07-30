@@ -81,11 +81,11 @@ test('closure recipes reach the first command without executing it', async () =>
 test('closure boundary rejects an appended unsupported command', async () => {
     const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[0])
         .segments[0];
-    // `s` is bound to a command this milestone does not own, so it stops at
+    // `,` is bound to a command this milestone does not own, so it stops at
     // the admission seam before any dispatch. An unbound byte would not:
     // rhack()'s bad-command path answers it and returns without taking time,
-    // and neither would `i` or `:`, whose dispatch this milestone owns.
-    const appended = `${segment.moves}s`;
+    // and neither would `i`, `:` or `s`, whose dispatch this milestone owns.
+    const appended = `${segment.moves},`;
     await assert.rejects(
         verifyFirstCommandBoundary({ ...segment, moves: appended }),
         /unsupported gameplay command/u,
