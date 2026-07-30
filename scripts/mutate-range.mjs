@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 
-// Mutation-test the js/ lines that a commit range added or changed.
+// Mutation-test js/ lines, chosen by commit range or by file.
 //
 // A correctness pass freezes a commit range and asks whether the tests would
 // notice if the reviewed lines were wrong. This script answers that
-// mechanically: it enumerates the mutable sites in the changed lines, applies
+// mechanically: it enumerates the mutable sites in the lines in scope, applies
 // one substitution at a time to a copy of the module, runs the test files that
-// import that module, and prints the mutants that no test killed. Each
-// survivor names a changed line whose behavior no test pins down.
+// import that module, and prints the mutants that no test killed. Each survivor
+// names a line whose behavior no test pins down.
 //
 // The site set is deliberately narrow: relational operators, `&&`, `||`,
 // boolean literals, and plus or minus one on an integer literal. Method calls
-// and statement deletion are out of scope, as are files the range did not
-// touch. Every substitution keeps the module parsable, so a survivor always
-// means "the tests ran and passed", never "the mutant failed to load".
+// and statement deletion are out of scope, as is every file outside the target
+// set. Every substitution keeps the module parsable, so a survivor always means
+// "the tests ran and passed", never "the mutant failed to load".
 //
 // An integer literal is a mutable bound only in some contexts. An integer in a
 // subscript (`row[3]`) is an address, one beside a bitwise operator
@@ -32,18 +32,27 @@
 // Usage:
 //
 //     node scripts/mutate-range.mjs <base>..<head> [--enumerate-only]
-//                                                  [--limit <n>]
+//     node scripts/mutate-range.mjs js/regen.js [js/lock.js ...]
 //
-// `--enumerate-only` counts the sites and stops, which is the cheap way to see
-// what a range would cost. `--limit` caps how many mutants run. The command
-// exits 0 whether or not mutants survived, because a survivor is a finding to
-// review. A bad argument, a red baseline, or a range whose head does not match
-// the working tree exits 2.
+// Both forms take `--enumerate-only`, which counts the sites and stops, and
+// `--limit <n>`, which caps how many mutants run. A range mutates the lines it
+// changed; a path mutates every line of that file, which is the form to reach
+// for when the question is whether a module's tests pin its behavior at all.
+// The command exits 0 whether or not mutants survived, because a survivor is a
+// finding to review. A bad argument or a red baseline exits 2.
 //
-// Cost, measured on 29 July 2026 over `HEAD~40..HEAD` at 049ebb0, 692 added
-// lines across 14 files:
+// A range's lines are located by `git blame` over the working tree, not by the
+// diff's line numbers, so a range whose head is behind the working tree still
+// reports positions the reader can open. A line that a later commit rewrote
+// belongs to that commit and drops out, as does a line edited but not
+// committed. When the head is the working tree, the blamed set is the diff's
+// own set, which `scripts/mutate-range.test.mjs` asserts against whichever
+// commit last changed js/.
 //
-// - 0.165 mutable sites per added line, yielding 114 sites and 165 mutants,
+// Cost, measured on 29 July 2026 over `HEAD~40..HEAD` at 049ebb0, 692 lines in
+// scope across 14 files:
+//
+// - 0.165 mutable sites per line in scope, yielding 114 sites and 165 mutants,
 //   1.45 mutants per site;
 // - 0.14 s per mutant against a one-file test set, 0.79 s against six files,
 //   10.43 s against the 98 files that import js/const.js, and 1.38 s averaged
@@ -53,11 +62,14 @@
 // Extrapolating the same density and average, the 1,000-line review window
 // that `.agents/review.md` sets as the full-pass gate carries about 165 sites
 // and 239 mutants, or roughly 5.5 minutes run serially. A range dominated by a
-// widely imported module costs several times that.
+// widely imported module costs several times that. A whole file is denser
+// because it holds no unchanged prose: js/regen.js's 119 lines carry 50 sites
+// and 72 mutants, which took 17 s against its one covering test file.
 
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
     cpSync,
+    existsSync,
     mkdtempSync,
     readFileSync,
     readdirSync,
@@ -145,22 +157,51 @@ export function changedJsLines(range, cwd = REPO_ROOT) {
 }
 
 /**
- * Confirm that the working tree holds the same bytes as `head` for each path.
+ * Read the working-tree lines of `file` that one of `commits` last wrote.
  *
- * The reported line numbers come from the diff and the mutated bytes come from
- * the working tree, so the two have to agree or a survivor would name a line
- * that does not hold the site.
+ * Blaming the working tree numbers every line by the file the mutator will
+ * read. A commit would number them by its own revision. An uncommitted line
+ * blames to the all-zero commit, so a line edited since the range belongs to no
+ * range and drops out on its own.
+ *
+ * `--incremental` prints one `<commit> <origline> <finalline> <count>` header
+ * per contiguous group of lines, then that commit's metadata. Only the headers
+ * are read.
  */
-export function assertHeadMatchesWorktree(paths, head, cwd = REPO_ROOT) {
-    for (const path of paths) {
-        const committed = git(['show', `${head}:${path}`], cwd);
-        const working = readFileSync(join(cwd, path), 'utf8');
-        if (committed !== working) {
-            throw new Error(`${path} differs between ${head} and the working `
-                + 'tree; commit or stash it, or pass a range ending at the '
-                + 'working tree');
-        }
+function blamedLines(file, commits, cwd) {
+    const blame = git(['blame', '--incremental', '--', file], cwd);
+    const lines = new Set();
+    for (const row of blame.split('\n')) {
+        const header = /^([0-9a-f]{40}) \d+ (\d+) (\d+)$/u.exec(row);
+        if (!header || !commits.has(header[1])) continue;
+        const start = Number(header[2]);
+        for (let n = start; n < start + Number(header[3]); ++n) lines.add(n);
     }
+    return lines;
+}
+
+/**
+ * The lines a range changed, located in the working tree, keyed by path.
+ *
+ * The diff of `<base>..<head>` names the files and `git blame` locates their
+ * lines, so a range whose head is behind the working tree still reports
+ * positions the reader can open. A line that a later commit rewrote belongs to
+ * that commit and is left out. When the head is the working tree, this returns
+ * the diff's own line set.
+ */
+export function survivingRangeLines(range, cwd = REPO_ROOT) {
+    const { base, head } = parseRange(range);
+    const commits = new Set(git(['rev-list', `${base}..${head}`], cwd)
+        .split('\n').filter(Boolean));
+    const surviving = new Map();
+    for (const path of changedJsLines(range, cwd).keys()) {
+        // A file the range changed and a later commit deleted has no line in
+        // the working tree to mutate.
+        if (!existsSync(join(cwd, path))) continue;
+        const lines = blamedLines(path, commits, cwd);
+        if (lines.size) surviving.set(path, lines);
+    }
+    return surviving;
 }
 
 // ---------------------------------------------------------------------------
@@ -704,7 +745,7 @@ export function countSites(sites) {
     return new Set(sites.map((site) => site.offset)).size;
 }
 
-export function formatSiteCensus(targets, addedLines) {
+export function formatSiteCensus(targets, scopedLines) {
     const lines = [];
     const kinds = new Map();
     let sites = 0;
@@ -717,16 +758,16 @@ export function formatSiteCensus(targets, addedLines) {
         }
         sites += countSites(target.sites);
         mutants += target.sites.length;
-        lines.push(`${target.path}: ${target.addedLines} added line(s), `
+        lines.push(`${target.path}: ${target.lineCount} line(s) in scope, `
             + `${countSites(target.sites)} site(s), `
             + `${target.sites.length} mutant(s) [`
             + [...perKind].map(([kind, n]) => `${kind} ${n}`).join(', ')
             + `], ${target.tests.length} covering test file(s)`);
     }
-    const density = addedLines ? (sites / addedLines).toFixed(3) : '0.000';
-    lines.push(`${targets.length} file(s), ${addedLines} added line(s), `
+    const density = scopedLines ? (sites / scopedLines).toFixed(3) : '0.000';
+    lines.push(`${targets.length} file(s), ${scopedLines} line(s) in scope, `
         + `${sites} site(s), ${mutants} mutant(s); `
-        + `${density} sites per added line`);
+        + `${density} sites per line in scope`);
     lines.push('mutants by kind: '
         + [...kinds].sort().map(([kind, n]) => `${kind} ${n}`).join(', ')
         + '; an integer site yields one mutant each way');
@@ -737,8 +778,16 @@ export function formatSiteCensus(targets, addedLines) {
 // Command line
 // ---------------------------------------------------------------------------
 
+/**
+ * Read the target set and the options from the command line.
+ *
+ * An argument holding `..` is a commit range; any other argument is a path
+ * under js/ whose every line is in scope. The two cannot be mixed, because a
+ * range already decides which lines of which files to mutate.
+ */
 export function parseArgs(argv) {
-    const options = { range: null, enumerateOnly: false, limit: Infinity };
+    const options = { range: null, paths: [], enumerateOnly: false,
+        limit: Infinity };
     for (let i = 0; i < argv.length; ++i) {
         const arg = argv[i];
         if (arg === '--enumerate-only') options.enumerateOnly = true;
@@ -749,30 +798,51 @@ export function parseArgs(argv) {
             options.limit = value;
         } else if (arg.startsWith('-')) {
             throw new Error(`unknown option '${arg}'`);
-        } else if (options.range === null) {
+        } else if (arg.includes('..')) {
+            if (options.range) throw new Error('pass one commit range');
+            parseRange(arg);
             options.range = arg;
+        } else if (arg.startsWith('js/')) {
+            options.paths.push(arg);
         } else {
-            throw new Error(`unexpected argument '${arg}'`);
+            // `HEAD` alone reaches here, and a bare revision would otherwise be
+            // read as a path and fail later with a stranger message.
+            throw new Error(`'${arg}' is neither a commit range spelled `
+                + '<base>..<head> nor a path under js/');
         }
     }
-    parseRange(options.range);
+    if (options.range && options.paths.length) {
+        throw new Error('pass a commit range or one or more js/ paths, '
+            + 'not both');
+    }
+    if (!options.range && !options.paths.length) {
+        throw new Error('pass a commit range spelled <base>..<head>, or one or '
+            + 'more js/ paths');
+    }
     return options;
 }
 
-/** Build one `runMutants` target per changed file, in path order. */
-export function collectTargets(range, root = REPO_ROOT) {
-    const { head } = parseRange(range);
-    const changed = changedJsLines(range, root);
-    assertHeadMatchesWorktree([...changed.keys()], head, root);
+/**
+ * Build one `runMutants` target per file, in path order.
+ *
+ * Pass `range` to take the lines that range changed, or `paths` to take every
+ * line of each file. Every target reports the working tree's bytes, so a
+ * reported line number always addresses the file on disk.
+ */
+export function collectTargets({ range = null, paths = [] },
+    root = REPO_ROOT) {
+    const scope = range
+        ? survivingRangeLines(range, root)
+        : new Map(paths.map((path) => [assertJsPath(path, root), null]));
     const covering = coveringTests(root);
     const targets = [];
-    for (const path of [...changed.keys()].sort()) {
-        const lines = changed.get(path);
+    for (const path of [...scope.keys()].sort()) {
+        const lines = scope.get(path);
         const source = readFileSync(join(root, path), 'utf8');
         targets.push({
             path,
             source,
-            addedLines: lines.size,
+            lineCount: lines ? lines.size : source.split('\n').length,
             sites: enumerateSites(source, lines),
             tests: covering.get(path) ?? [],
         });
@@ -780,11 +850,19 @@ export function collectTargets(range, root = REPO_ROOT) {
     return targets;
 }
 
+/** Normalize a path argument, rejecting anything outside js/. */
+function assertJsPath(path, root) {
+    const normalized = relative(root, resolve(root, path));
+    if (!normalized.startsWith('js/') || !existsSync(join(root, normalized)))
+        throw new Error(`'${path}' is not a file under js/`);
+    return normalized;
+}
+
 async function main(argv) {
     const options = parseArgs(argv);
-    const targets = collectTargets(options.range);
-    const addedLines = targets.reduce((sum, t) => sum + t.addedLines, 0);
-    for (const line of formatSiteCensus(targets, addedLines))
+    const targets = collectTargets(options);
+    const scopedLines = targets.reduce((sum, t) => sum + t.lineCount, 0);
+    for (const line of formatSiteCensus(targets, scopedLines))
         console.log(line);
     if (options.enumerateOnly) return;
 

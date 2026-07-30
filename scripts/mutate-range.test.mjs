@@ -6,13 +6,20 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import {
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import {
     applyMutation,
-    assertHeadMatchesWorktree,
     changedJsLines,
     collectTargets,
     countSites,
@@ -28,6 +35,7 @@ import {
     removeWorkspace,
     reportedTestCount,
     runMutants,
+    survivingRangeLines,
     tokenize,
 } from './mutate-range.mjs';
 
@@ -47,7 +55,7 @@ function fixtureTarget({ lines = null, tests = ['bounds.test.mjs'] } = {}) {
     return {
         path: 'js/bounds.js',
         source,
-        addedLines: lines ? lines.size : source.split('\n').length,
+        lineCount: lines ? lines.size : source.split('\n').length,
         sites: enumerateSites(source, lines),
         tests,
     };
@@ -410,32 +418,51 @@ test('a module no test file imports is reported as unmeasured', () => {
 // The command line and the census
 // ---------------------------------------------------------------------------
 
-test('the command line takes a range, a limit, and nothing else', () => {
+test('the command line takes one range or a list of paths', () => {
     assert.deepEqual(parseArgs(['a..b']),
-        { range: 'a..b', enumerateOnly: false, limit: Infinity });
+        { range: 'a..b', paths: [], enumerateOnly: false, limit: Infinity });
+    assert.deepEqual(parseArgs(['js/a.js', 'js/b.js']),
+        { range: null, paths: ['js/a.js', 'js/b.js'], enumerateOnly: false,
+            limit: Infinity });
     assert.deepEqual(parseArgs(['a..b', '--enumerate-only', '--limit', '5']),
-        { range: 'a..b', enumerateOnly: true, limit: 5 });
+        { range: 'a..b', paths: [], enumerateOnly: true, limit: 5 });
+
     assert.throws(() => parseArgs(['a..b', '--all']), /unknown option/u);
-    assert.throws(() => parseArgs(['a..b', 'c..d']), /unexpected argument/u);
+    assert.throws(() => parseArgs(['a..b', 'c..d']), /pass one commit range/u);
+    // A range already decides which lines of which files are in scope, so a
+    // path alongside it would have no meaning.
+    assert.throws(() => parseArgs(['a..b', 'js/a.js']), /not both/u);
     assert.throws(() => parseArgs(['a..b', '--limit', '0']),
         /positive integer/u);
-    assert.throws(() => parseArgs([]), /range must be spelled/u);
+    assert.throws(() => parseArgs([]), /pass a commit range/u);
+    // A bare revision is neither form, and saying so beats reading it as a
+    // path and failing later on a file that does not exist.
+    assert.throws(() => parseArgs(['HEAD']), /neither a commit range/u);
+});
+
+test('a path outside js/ is refused', () => {
+    // The mutator only rewrites the workspace's js/ copy, and a test file it
+    // rewrote instead would report every mutant as killed.
+    assert.throws(() => collectTargets({ paths: ['scripts/lock.test.mjs'] }),
+        /is not a file under js\//u);
+    assert.throws(() => collectTargets({ paths: ['js/no-such-module.js'] }),
+        /is not a file under js\//u);
 });
 
 test('the census separates sites from mutants and states the density', () => {
     const target = fixtureTarget();
-    // 40 added lines is an arbitrary round population; the density it produces,
+    // 40 lines is an arbitrary round population; the density it produces,
     // 8 / 40, is exact.
-    const census = formatSiteCensus([{ ...target, addedLines: 40 }], 40);
+    const census = formatSiteCensus([{ ...target, lineCount: 40 }], 40);
 
-    assert.equal(census.at(-2), '1 file(s), 40 added line(s), 8 site(s), '
-        + '12 mutant(s); 0.200 sites per added line');
+    assert.equal(census.at(-2), '1 file(s), 40 line(s) in scope, 8 site(s), '
+        + '12 mutant(s); 0.200 sites per line in scope');
     assert.equal(census.at(-1), 'mutants by kind: boolean 1, integer 8, '
         + 'logical 1, relational 2; an integer site yields one mutant each way');
 });
 
 test('a real range resolves to files, lines, and covering tests', () => {
-    const targets = collectTargets(`${newestJsCommit()}~1..HEAD`);
+    const targets = collectTargets({ range: `${newestJsCommit()}~1..HEAD` });
 
     // The base is the parent of the newest commit that touched js/, so the
     // range holds at least that commit's changed lines. A range with no js/
@@ -444,7 +471,7 @@ test('a real range resolves to files, lines, and covering tests', () => {
     assert.equal(targets.length > 0, true);
     for (const target of targets) {
         assert.match(target.path, /^js\//u);
-        assert.equal(target.addedLines > 0, true);
+        assert.equal(target.lineCount > 0, true);
         assert.equal(typeof target.source, 'string');
         for (const site of target.sites) {
             // Every site sits on a line the range touched, and its description
@@ -456,19 +483,109 @@ test('a real range resolves to files, lines, and covering tests', () => {
     }
 });
 
-test('a head whose files differ from the working tree is refused', () => {
-    // Reported line numbers come from the diff and the mutated bytes come from
-    // the working tree, so the two have to hold the same content. The parent of
-    // the newest js/ commit fails that by construction: every file in the range
-    // below changed between it and the working tree.
-    const base = `${newestJsCommit()}~1`;
-    const changed = [...changedJsLines(`${base}..HEAD`).keys()];
+test('a range whose head is the working tree blames its whole diff', () => {
+    // The newest js/ commit is the one range whose changed lines are certain to
+    // sit unchanged in the working tree, so blame has to reproduce the diff
+    // exactly. Anything less would mean the blame mapping loses lines that the
+    // diff-based reading found.
+    const head = newestJsCommit();
+    const range = `${head}~1..${head}`;
+    const fromDiff = changedJsLines(range);
+    const fromBlame = survivingRangeLines(range);
 
-    assert.equal(changed.length > 0, true);
-    assert.throws(() => assertHeadMatchesWorktree(changed, base),
-        /differs between .* and the working tree/u);
-    // The same paths at HEAD are the working tree, so the check passes there.
-    assertHeadMatchesWorktree(changed, 'HEAD');
+    assert.equal(fromDiff.size > 0, true);
+    for (const [path, lines] of fromDiff)
+        assert.deepEqual([...fromBlame.get(path)].sort((a, b) => a - b),
+            [...lines].sort((a, b) => a - b));
+});
+
+test('a range behind the working tree keeps only the lines that survive', () => {
+    // Five js/ commits back, so later commits have had the chance to rewrite
+    // some of these lines. Each surviving line must still be one the diff
+    // named, and a line a later commit rewrote belongs to that commit.
+    const head = execFileSync('git',
+        ['log', '--format=%H', '-5', '--', 'js/'], { encoding: 'utf8' })
+        .trim().split('\n').at(-1);
+    const range = `${head}~1..${head}`;
+    const fromDiff = changedJsLines(range);
+    const fromBlame = survivingRangeLines(range);
+
+    assert.equal(fromBlame.size > 0, true);
+    for (const [path, lines] of fromBlame) {
+        assert.equal(lines.size > 0, true);
+        for (const line of lines)
+            assert.equal(fromDiff.get(path).has(line), true);
+    }
+});
+
+/**
+ * Build a throwaway repository and hand `body` its root and a git runner.
+ *
+ * The repository under test cannot supply the cases below: proving that blame
+ * reads the working tree needs an uncommitted edit, and proving that a deleted
+ * file is skipped needs a commit that deletes one. Neither may happen in js/.
+ */
+function withTempRepo(body) {
+    const root = mkdtempSync(join(tmpdir(), 'mutate-range-repo-'));
+    const git = (...args) =>
+        execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+    try {
+        git('init', '--quiet');
+        git('config', 'user.email', 'test@example.invalid');
+        git('config', 'user.name', 'Mutate Range Test');
+        mkdirSync(join(root, 'js'));
+        return body({ root, git });
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+}
+
+test('blame reads the working tree, and skips a file deleted since', () => {
+    withTempRepo(({ root, git }) => {
+        const write = (name, text) =>
+            writeFileSync(join(root, 'js', name), text);
+        const commit = (message) => {
+            git('add', '-A');
+            git('commit', '--quiet', '-m', message);
+            return git('rev-parse', 'HEAD');
+        };
+
+        write('one.js', 'const a = 1;\n');
+        write('two.js', 'const b = 2;\n');
+        const base = commit('first');
+        // The range under test changes both files.
+        write('one.js', 'const a = 1;\nconst added = n < 10;\n');
+        write('two.js', 'const b = 2;\nconst alsoAdded = m < 20;\n');
+        const head = commit('second');
+        // A later commit deletes one of them, so the range names a file the
+        // working tree does not hold.
+        rmSync(join(root, 'js', 'two.js'));
+        commit('third');
+        // An uncommitted edit pushes js/one.js's line 2 down to line 3.
+        write('one.js', '// inserted, never committed\nconst a = 1;\n'
+            + 'const added = n < 10;\n');
+
+        const surviving = survivingRangeLines(`${base}..${head}`, root);
+
+        // js/two.js is absent because it no longer exists to mutate.
+        assert.deepEqual([...surviving.keys()], ['js/one.js']);
+        // Line 3, not line 2: blaming the working tree numbers lines by the
+        // file the mutator reads. Line 1 is uncommitted, so it belongs to no
+        // commit and to no range.
+        assert.deepEqual([...surviving.get('js/one.js')], [3]);
+    });
+});
+
+test('a path puts every line of that file in scope', () => {
+    const [target] = collectTargets({ paths: ['js/lock.js'] });
+    const source = readFileSync('js/lock.js', 'utf8');
+
+    assert.equal(target.path, 'js/lock.js');
+    assert.equal(target.lineCount, source.split('\n').length);
+    // No line filter, so the file's every site is a target, and the covering
+    // test set is the same one a range over this file would use.
+    assert.equal(target.sites.length, enumerateSites(source).length);
+    assert.deepEqual(target.tests, coveringTests().get('js/lock.js'));
 });
 
 test('the command prints a census and rejects a bad argument', () => {
@@ -477,8 +594,14 @@ test('the command prints a census and rejects a bad argument', () => {
         { encoding: 'utf8' });
 
     assert.equal(census.status, 0);
-    assert.match(census.stdout, /\d+ file\(s\), \d+ added line\(s\)/u);
-    assert.match(census.stdout, /sites per added line/u);
+    assert.match(census.stdout, /\d+ file\(s\), \d+ line\(s\) in scope/u);
+    assert.match(census.stdout, /sites per line in scope/u);
+
+    const byPath = spawnSync(process.execPath,
+        [SCRIPT_PATH, 'js/lock.js', '--enumerate-only'], { encoding: 'utf8' });
+
+    assert.equal(byPath.status, 0);
+    assert.match(byPath.stdout, /^js\/lock\.js: \d+ line\(s\) in scope/mu);
 
     // An unusable invocation exits 2 and names the problem. A survivor is a
     // finding to review, so a completed run exits 0 whatever it found; only an
@@ -487,5 +610,5 @@ test('the command prints a census and rejects a bad argument', () => {
         { encoding: 'utf8' });
 
     assert.equal(rejected.status, 2);
-    assert.match(rejected.stderr, /range must be spelled/u);
+    assert.match(rejected.stderr, /neither a commit range/u);
 });
