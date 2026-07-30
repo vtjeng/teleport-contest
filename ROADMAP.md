@@ -297,6 +297,41 @@ No fix in game code exists, because `AGENTS.md` requires leaving
 ceiling: a session that displays the spell menu under the default option loses
 that screen however faithful the port is.
 
+### Trap effects
+
+#### thirteen squeaky-board findings are deferred
+
+The correctness pass over `06a5629..bf96cda` confirmed sixteen findings; three
+were applied at `8de4b76` and thirteen are recorded here.
+
+**Assertions that do not discriminate**, each verified by mutation with the
+suite green: neither diagonal-doorway predicate's `PASSES_WALLS` guard is
+covered, and the test claiming to cover `cant_squeeze_thru()`'s four results
+never takes its `passes_walls` early return; `floor_trigger()`'s fourteen-case
+table has no direct test; `check_in_air()`'s `trflags` arms are unreachable
+from every ported caller; five of `TRAP_NOTE_NAMES`' twelve entries are pinned
+by neither the suite nor the matrix; the `tt === HOLE && !mindless()` half of
+`already_seen` is reachable at depth one and untested; nothing pins
+`mon_learns_traps()` and `mons_see_trap()` to their position after
+`mintrap()`'s two early returns, so hoisting them above the gates passes; and
+**nothing in the repository distinguishes `mons_see_trap()` from a no-op** —
+deleting its only call site leaves the whole suite green.
+
+**A second owner for one C state value.** `mon_learns_traps()` is now the
+port's owner of the `mtrapseen` mask, but `js/shknam.js:232` still writes the
+`ALL_TRAPS` sentinel by hand as `shk.mtrapseen = -1`, where `shknam.c:669`
+calls `mon_learns_traps(shk, ALL_TRAPS)`. The encoding is a port choice — C
+assigns `~0L` to an unsigned field — so the two spellings agree only by
+coincidence, and the shopkeeper's mask is the one value a digest would notice.
+
+**Comments that misdescribe their code:** `postmov()`'s coverage list is in C's
+execution order except for `mintrap()`; its header claims an `unsupported`
+refusal for `vamp_shift()` sequencing that exists nowhere; `js/trap_effects.js`'s
+header states a five-owner env contract that omits `unsupported` and `random`;
+and the comment replacing the deleted trap refusal in
+`js/unported_monster_actions.js` says `postmov()` calls `mintrap()` "after the
+move, and only there", which is false.
+
 ### Planning clone
 
 #### the planning clone leaks by omission, and should be made loud or removed
