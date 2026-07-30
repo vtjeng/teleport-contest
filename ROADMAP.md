@@ -35,7 +35,9 @@ form carrying no unlocking tool can reach.
 Excluded, each guarded by a state that arm cannot hold: `nohands`,
 `Passes_walls`, `can_ooze`/`amorphous`, `Underwater`, `tunnels`, `u.utrap`,
 `u.usteed`, drawbridges and portcullises, `stumble_on_door_mimic()`,
-`D_TRAPPED` with its `b_trapped()` and shop `add_damage()` tail, and the
+`D_CLOSED | D_TRAPPED`, whose successful roll reaches `b_trapped()` and the
+shop `add_damage()` tail — but not `D_LOCKED | D_TRAPPED`, which `lock.c:855`
+sends to the message switch and back out at `:895` before that tail — and the
 `flags.autounlock` arms — that is, any hero for whom `autokey(TRUE)` returns a
 skeleton key, lock pick or credit card, which routes into `pick_lock()`.
 
@@ -317,9 +319,12 @@ leaves it green. Deferred to a `/simplify-codebase` pass, which is what
 #### three arms of the door message switch are dormant
 
 `lock.c doopen_indir()`'s `!(doormask & D_CLOSED)` switch has four arms, and a
-walk can reach only the locked one. `monmove.c closed_door()` answers TRUE for
-`D_LOCKED | D_CLOSED` alone, so the broken, doorless and already-open arms
-arrive solely through `#open`, which is not ported.
+walk can reach only the locked arms. What narrows the input is the seam's own
+mask guard in `js/hack.js`, which admits `D_CLOSED`, `D_LOCKED` and
+`D_LOCKED | D_TRAPPED`; `monmove.c closed_door()` does not, being a bit test
+that answers TRUE for any mask carrying either bit, `D_TRAPPED` combinations
+included. The broken, doorless and already-open arms arrive solely through
+`#open`, which is not ported.
 
 The switch is one C statement and was translated whole, which `AGENTS.md`
 prefers to splitting a source construct. The consequence is three arms that
