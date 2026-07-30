@@ -671,44 +671,6 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 game.level.objects[x][y] = null;
             },
         })),
-        // hack.c test_move()'s testdiag arm refuses a diagonal move into a
-        // doorway that is not doorless_door(). D_ISOPEN is the admitted mask
-        // that fails that predicate.
-        {
-            name: 'diagonal entry into an open doorway',
-            reason: 'diagonal doorway refusal',
-            key: 'u',
-            dx: 1,
-            dy: -1,
-            install: ({ destination }) => {
-                destination.typ = DOOR;
-                destination.flags = destination.doormask = D_ISOPEN;
-            },
-            remove: ({ destination }) => {
-                destination.typ = ROOM;
-                destination.flags = destination.doormask = 0;
-            },
-        },
-        // test_move() reads ust = &levl[ux][uy] and refuses a diagonal move
-        // out of a doorway that still has its door. Only the destination side
-        // was ported, so this case pins the source side of the same rule.
-        {
-            name: 'diagonal exit from an open doorway',
-            reason: 'diagonal intact doorway exit',
-            key: 'u',
-            dx: 1,
-            dy: -1,
-            install: () => {
-                const heroSquare = game.level.at(game.u.ux, game.u.uy);
-                heroSquare.typ = DOOR;
-                heroSquare.flags = heroSquare.doormask = D_ISOPEN;
-            },
-            remove: () => {
-                const heroSquare = game.level.at(game.u.ux, game.u.uy);
-                heroSquare.typ = ROOM;
-                heroSquare.flags = heroSquare.doormask = 0;
-            },
-        },
         // pickup.c describe_decor() owns the line an arrival on a decorated
         // square prints when mention_decor is on, and tracks iflags.prev_decor
         // across arrivals; neither is ported.
@@ -905,8 +867,9 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
 test('a diagonal pet swap obeys test_move()\'s doorway rules', async () => {
     // hack.c domove_core() reaches test_move() for a pet displacement too, so
     // a hero standing on a doorway that still has its door may not step out
-    // of it diagonally, whatever is on the destination. Before this rule
-    // reached the pet seam, the swap happened and consumed a turn C refuses.
+    // of it diagonally, whatever is on the destination -- a tame pet the hero
+    // would otherwise swap with included. The step is refused rather than
+    // stopped: mention_walls is off, so nothing prints and no turn elapses.
     const replay = await runSegment({
         seed: 840024,
         datetime: COMMAND_DATETIME,
@@ -929,17 +892,19 @@ test('a diagonal pet swap obeys test_move()\'s doorway rules', async () => {
     const before = { ux: game.u.ux, uy: game.u.uy, moves: game.moves };
 
     game.nhDisplay.pushKey(commandKeyCode('u'));
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && /diagonal intact doorway exit/u.test(error.message),
-    );
+    await moveloop_core();
+
     assert.deepEqual(
         { ux: game.u.ux, uy: game.u.uy, moves: game.moves },
         before,
         'the refused swap moved nobody and elapsed no turn',
     );
     assert.equal(game.context.move, 0);
+    assert.deepEqual(
+        [pet.mx, pet.my],
+        [x, y],
+        'the pet stayed on the destination square',
+    );
     void replay;
 });
 

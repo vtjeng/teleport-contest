@@ -30,6 +30,7 @@ import {
     IS_TREE,
     IS_WALL,
     IS_WATERWALL,
+    IRONBARS,
     LAVAWALL,
     LEVITATION,
     MAX_TYPE,
@@ -50,6 +51,7 @@ import {
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
+    WT_TOOMUCH_DIAGONAL,
     ZOMBIFY_MON,
     OVERLOADED,
     PROT_FROM_SHAPE_CHANGERS,
@@ -74,12 +76,16 @@ import { game } from './gstate.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
+    bigmonst,
     is_flyer,
     is_hider,
+    is_whirly,
     needspick,
     noattacks,
     nohands,
+    noncorporeal,
     passes_walls,
+    slithy,
     throws_rocks,
     tunnels,
     verysmall,
@@ -100,8 +106,9 @@ import {
     PM_LITTLE_DOG,
     PM_PONY,
 } from './monsters.js';
+import { curr_mon_load } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { closed_door, onscary } from './monmove.js';
+import { can_fog, closed_door, onscary } from './monmove.js';
 import { check_here } from './pickup.js';
 import { in_out_region, inside_region } from './region.js';
 import { rn2, rnd } from './rng.js';
@@ -325,34 +332,56 @@ function blocksMove(x, y, state) {
     return !loc || loc.typ === STONE || IS_WALL(loc.typ);
 }
 
+// C ref: hack.c:1140-1141, the condition on test_move()'s testdiag arm. A
+// doorway that still has its door refuses a diagonal entry.
+//
+// block_door() is omitted. shk.c:5791 answers FALSE unless <x,y> lies in a
+// shop the hero is standing in and owes for, and mklev.c:1349 gates every
+// randomly placed shop on `u_depth > 1`, so no level this boundary reaches
+// holds one. blocksDiagonalDoorwayExit()'s block_entry() (shk.c:5826) is
+// absent for the same reason, and additionally needs a D_BROKEN hero square.
+function blocksDiagonalDoorwayEntry(ux, uy, x, y, state) {
+    return Boolean((x - ux) && (y - uy)
+        && !propertyPresent(state, PASSES_WALLS)
+        && !doorless_door(state.level?.at(x, y)));
+}
+
+// C ref: hack.c:1208-1209. The mirror rule: a doorway that still has its door
+// refuses a diagonal exit, whatever the destination is.
+function blocksDiagonalDoorwayExit(ux, uy, x, y, state) {
+    const source = state.level?.at(ux, uy);
+    return Boolean((x - ux) && (y - uy)
+        && !propertyPresent(state, PASSES_WALLS)
+        && IS_DOOR(source?.typ) && !doorless_door(source));
+}
+
+// TRUE where test_move() refuses the step through one of its two diagonal
+// doorway rules. Both refusals spend no time and change nothing, exactly like
+// the wall blocksMove() reports, so the admission seam admits the command and
+// leaves the refusal to domove().
+//
+// The two arms C reaches before either rule decide nothing here: its obstacle
+// arm (1011) and its closed-door arm (1075) both return before testdiag, and
+// the seam has its own branches for them.
+function refusedDiagonalDoorway(x, y, state) {
+    const { ux, uy } = state.u;
+    const destination = state.level?.at(x, y);
+    if (!destination) return false;
+    if (IS_OBSTRUCTED(destination.typ) || destination.typ === IRONBARS)
+        return false;
+    if (IS_DOOR(destination.typ)) {
+        if (closed_door(x, y, state)) return false;
+        if (blocksDiagonalDoorwayEntry(ux, uy, x, y, state)) return true;
+    }
+    return blocksDiagonalDoorwayExit(ux, uy, x, y, state);
+}
+
 // This repeated-command boundary owns entry into an unoccupied ROOM, CORR, or
 // STAIRS square, or a doorway whose mask is exactly D_NODOOR or D_ISOPEN,
 // plus the ordinary single-object description produced when autopickup is
 // disabled. These checks are a temporary admission seam in front of
 // hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
-// C ref: hack.c test_move()'s two diagonal doorway rules. Its testdiag arm
-// refuses a diagonal move into a doorway unless doorless_door() holds, and its
-// ust arm refuses a diagonal move out of one for the same reason; both consume
-// no time, which is a different owner from these seams, so they stop here
-// until that branch is ported. block_door() and block_entry() are shop-only
-// and cannot hold at this boundary. test_move() applies both rules to every
-// move that reaches it, including a pet displacement, so both admission seams
-// call this before their own checks.
-function requireNonDiagonalDoorway(x, y, state) {
-    if (state.u.ux === x || state.u.uy === y) return;
-    const destination = state.level?.at(x, y);
-    if (destination?.typ === DOOR && !doorless_door(destination)) {
-        throw new UnsupportedHeroMoveBoundaryError('diagonal doorway refusal');
-    }
-    const source = state.level?.at(state.u.ux, state.u.uy);
-    if (source?.typ === DOOR && !doorless_door(source)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'diagonal intact doorway exit',
-        );
-    }
-}
-
 function requireSimpleHeroDestination(x, y, state) {
     if (m_at(x, y, state))
         throw new UnsupportedHeroMoveBoundaryError(
@@ -364,7 +393,8 @@ function requireSimpleHeroDestination(x, y, state) {
     // IS_OBSTRUCTED nor IS_DOOR, so no branch there applies to it. A DOOR
     // that is not closed_door() reaches only test_move()'s testdiag arm,
     // which refuses a diagonal entry and allows an orthogonal one; the
-    // diagonal case is refused below.
+    // diagonal case never arrives here, because preflightDomoveDestination()
+    // admits it for test_move() to refuse.
     // Only D_NODOOR and D_ISOPEN are admitted, the two masks recorded against
     // the C program. D_BROKEN behaves like D_NODOOR in doorless_door() but
     // differs in dfeature_at(), which returns the literal "broken door" where
@@ -386,7 +416,6 @@ function requireSimpleHeroDestination(x, y, state) {
             'door or special terrain movement',
         );
     }
-    requireNonDiagonalDoorway(x, y, state);
     // pickup.c pickup() returns before look_here() when the square holds no
     // object, running only describe_decor() and read_engr_at(). So a bare
     // staircase or doorway prints nothing with mention_decor off. With it on,
@@ -656,10 +685,6 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
             'exceptional pet displacement terrain',
         );
     }
-    // domove_core() reaches test_move() for a pet displacement too, so both
-    // of its diagonal doorway rules apply here exactly as they do to an
-    // ordinary destination.
-    requireNonDiagonalDoorway(x, y, state);
     if (t_at(x, y, state)
         || t_at(state.u.ux, state.u.uy, state)) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -687,6 +712,10 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
 // cmd.c establishes movement intent only after this hack.c admission seam has
 // shown that the destination is inside the currently ported domove() subset.
 export function preflightDomoveDestination(x, y, state = game, run = 0) {
+    // test_move() owns both diagonal doorway refusals, and domove_core()
+    // reaches it before every branch below -- the pet displacement included --
+    // so admit the command whenever one of them will claim the step.
+    if (refusedDiagonalDoorway(x, y, state)) return;
     const destinationMonster = m_at(x, y, state);
     if (destinationMonster) {
         // domove_core()'s run arm stops in front of a monster the hero can
@@ -718,12 +747,12 @@ function requiredMessageOperation(env, arm) {
     return message;
 }
 
-// C ref: hack.c test_move(). Three of its branches are ported: the
+// C ref: hack.c test_move(). Five of its branches are ported: the
 // physical-obstacle refusal for ordinary wall and rock, which consumes no time
 // or randomness, the IS_DOOR/closed_door() arm's autoopen route into lock.c
-// doopen_indir(), and the bump arm that a suppressed autoopen falls into. Its
-// remaining terrain and ability branches, including both diagonal doorway
-// rules, remain at the command admission boundary.
+// doopen_indir(), the bump arm that a suppressed autoopen falls into, and its
+// two diagonal doorway rules, which also spend no time. Its remaining terrain
+// and ability branches remain at the command admission boundary.
 export async function test_move(
     ux,
     uy,
@@ -739,7 +768,18 @@ export async function test_move(
     if (!isok(x, y)) return false;
     const location = state.level?.at?.(x, y);
 
-    if (location.typ === STONE || IS_WALL(location.typ)) {
+    // C ref: hack.c:1011. The obstacle arm claims the square before either
+    // diagonal doorway rule below can look at it, so the types it owns that
+    // this port does not are refused here rather than falling through to them.
+    // They keep the reason requireSimpleHeroDestination() gives them, which is
+    // the only other place that can refuse a TREE, SDOOR, SCORR or IRONBARS
+    // destination.
+    if (IS_OBSTRUCTED(location.typ) || location.typ === IRONBARS) {
+        if (location.typ !== STONE && !IS_WALL(location.typ)) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'door or special terrain movement',
+            );
+        }
         if (heroIsBlind(state)) feel_location(x, y, state);
 
         if (state.flags?.mention_walls) {
@@ -804,6 +844,64 @@ export async function test_move(
             } else {
                 await message('That door is closed.', state);
             }
+        }
+        return false;
+    }
+
+    if (IS_DOOR(location.typ)
+        && blocksDiagonalDoorwayEntry(ux, uy, x, y, state)) {
+        // C ref: hack.c:1139-1150, the testdiag arm, which the closed-door arm
+        // above returns before. Underwater joins mention_walls on this line
+        // and not on the exit rule's below. Neither message goes through
+        // set_msg_xy(), so neither carries a direction prefix under
+        // `accessiblemsg`.
+        if (heroIsBlind(state)) feel_location(x, y, state);
+        if (state.u.uinwater || state.flags?.mention_walls) {
+            const message = requiredMessageOperation(env, 'doorway entry');
+            await message(
+                "You can't move diagonally into an intact doorway.",
+                state,
+            );
+        }
+        return false;
+    }
+
+    // C ref: hack.c:1153-1177. Every refusal the tight-diagonal switch can
+    // print is dormant at this boundary and stays deferred: case 1 needs a
+    // bigmonst polyform, case 3 needs Sokoban, and case 2 needs an inventory
+    // heavier than WT_TOOMUCH_DIAGONAL, which no ported pickup path can build.
+    // The live outcome is the fall-through, which is what lets the hero walk a
+    // diagonal in a corridor, so cant_squeeze_thru() is called rather than
+    // assumed: without it a hero who did cross the weight threshold would
+    // squeeze through in silence where C stops him.
+    const species = state.youmonst?.data;
+    if (dx && dy && bad_rock(species, ux, y, state)
+        && bad_rock(species, x, uy, state)) {
+        if (cant_squeeze_thru(state.youmonst, state)) {
+            throw new UnsupportedHeroMoveBoundaryError('tight diagonal move');
+        }
+    } else if (dx && dy && m_at(ux, y, state)
+        && m_at(ux, y, state) === m_at(x, uy, state)) {
+        // C ref: hack.c:1172-1176 and worm.c worm_cross(), whose first two
+        // tests are these. One monster on both corner squares can only be a
+        // long worm; the consecutive-segment test that decides the refusal
+        // reads wtails[], which has no ported counterpart, and neither does
+        // the YMonnam() in the message.
+        throw new UnsupportedHeroMoveBoundaryError('long worm body crossing');
+    }
+
+    // C ref: hack.c:1181-1205. The run == 8 travel filter and the TEST_TRAP
+    // return above `ust` have no ported caller: DO_MOVE is the only mode
+    // domove_core() passes.
+    if (blocksDiagonalDoorwayExit(ux, uy, x, y, state)) {
+        // C ref: hack.c:1208-1214. No feel_location() here, and mention_walls
+        // is the whole gate.
+        if (state.flags?.mention_walls) {
+            const message = requiredMessageOperation(env, 'doorway exit');
+            await message(
+                "You can't move diagonally out of an intact doorway.",
+                state,
+            );
         }
         return false;
     }
@@ -1431,4 +1529,41 @@ export function bad_rock(species, x, y, state = game) {
                 || !may_dig(x, y, state))
             && !(passes_walls(species) && may_passwall(x, y, state))),
     );
+}
+
+// C ref: hack.c cant_squeeze_thru(). The caller has already decided that the
+// diagonal is tight; this reports why the mover cannot fit through it -- 1:
+// too big, 2: possessions too heavy, 3: Sokoban -- or 0 when it can squeeze.
+//
+// C's `mon == &gy.youmonst` tests are what separate its two callers, so both
+// live here rather than in two files. The hero reads the Passes_walls property
+// and inv_weight() + weight_cap(), which is the plain inventory weight because
+// inv_weight() returns that same total minus that same capacity; a monster
+// reads its species and curr_mon_load(). Only the hero is stopped by Sokoban.
+export function cant_squeeze_thru(mon, state = game) {
+    const hero = mon === state.youmonst;
+    const species = mon?.data;
+    if (hero ? propertyPresent(state, PASSES_WALLS) : passes_walls(species))
+        return 0;
+
+    /* too big? */
+    if (bigmonst(species)
+        && !(amorphous(species) || is_whirly(species)
+            || noncorporeal(species) || slithy(species)
+            || can_fog(mon, state))) {
+        return 1;
+    }
+
+    /* lugging too much junk? */
+    // inv_weight() refreshes gw.wc as C's does; that write belongs wherever C
+    // calls the function, which includes here.
+    const amt = hero
+        ? inv_weight(state) + weight_cap(state)
+        : curr_mon_load(mon);
+    if (amt > WT_TOOMUCH_DIAGONAL) return 2;
+
+    /* Sokoban restriction applies to hero only */
+    if (hero && state.level?.flags?.sokoban_rules) return 3;
+
+    return 0;
 }

@@ -120,7 +120,6 @@ import {
     UNLOCKDOOR,
     VIBRATING_SQUARE,
     WEB,
-    WT_TOOMUCH_DIAGONAL,
     W_ARM,
     W_ARMS,
     W_NONDIGGABLE,
@@ -134,7 +133,12 @@ import { capitalizedMonsterName } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { could_reach_item } from './dogmove.js';
 import { on_level } from './dungeon.js';
-import { bad_rock, may_dig, may_passwall } from './hack.js';
+import {
+    bad_rock,
+    cant_squeeze_thru,
+    may_dig,
+    may_passwall,
+} from './hack.js';
 import { sengr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { dist2, distmin, online2 } from './hacklib.js';
@@ -151,7 +155,6 @@ import {
     amorphous,
     attacktype,
     attacktype_fordmg,
-    bigmonst,
     breathless,
     dmgtype,
     flesh_petrifies,
@@ -184,13 +187,11 @@ import {
     needspick,
     noattacks,
     nohands,
-    noncorporeal,
     nonliving,
     passes_bars,
     passes_walls,
     perceives,
     resist_conflict,
-    slithy,
     throws_rocks,
     touch_petrifies,
     tunnels,
@@ -666,20 +667,6 @@ export function m_in_air(monster, state = game) {
         || (is_clinger(monster.data)
             && currentLevelHasCeiling(state)
             && monster.mundetected);
-}
-
-// mfndpos() never passes the hero to hack.c cant_squeeze_thru(). Preserve the
-// complete monster branch without importing the later hero burden subsystem.
-function monsterCantSqueezeThrough(monster, state) {
-    const species = monster.data;
-    if (passes_walls(species)) return 0;
-    if (bigmonst(species)
-        && !(amorphous(species) || is_whirly(species)
-            || noncorporeal(species) || slithy(species)
-            || can_fog(monster, state))) {
-        return 1;
-    }
-    return curr_mon_load(monster, state) > WT_TOOMUCH_DIAGONAL ? 2 : 0;
 }
 
 function isPick(obj, state) {
@@ -1179,7 +1166,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 }
                 if (diagonal && bad_rock(species, x, ny, state)
                     && bad_rock(species, nx, y, state)
-                    && monsterCantSqueezeThrough(monster, state)) {
+                    && cant_squeeze_thru(monster, state)) {
                     continue;
                 }
                 const trap = t_at(nx, ny, state);
