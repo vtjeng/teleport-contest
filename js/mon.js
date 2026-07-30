@@ -313,7 +313,8 @@ export function m_carrying(monster, type, state = game) {
 }
 
 // C ref: mon.c check_gear_next_turn(). Setting misc_worn_check's I_SPECIAL bit
-// asks dochug() to reassess this monster's gear at the start of its next move.
+// marks this monster's gear for reassessment on its next move. The consumer is
+// movemon_singlemon(), not dochug(), which never reads misc_worn_check.
 export function check_gear_next_turn(monster) {
     monster.misc_worn_check |= I_SPECIAL;
 }

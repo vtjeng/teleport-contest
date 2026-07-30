@@ -72,6 +72,7 @@ import {
 import { create_region } from '../js/region.js';
 import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
+import { UnsupportedObjectNameError } from '../js/objnam.js';
 
 const DATETIME = '20260725120000';
 
@@ -1753,10 +1754,39 @@ test('a planned pet pickup leaves the live object graph untouched',
         game.level.objlist = rock;
         // A lit square, so the carry arm names the dagger and prints.
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        // Naming the dagger runs xname() -> observe_object() ->
+        // discover_object(), which writes objects[otyp].oc_encountered and
+        // svd.disco[], and find_artifact() writes artiexist[].found.
+        // completeSecondTurnSnapshot() covers none of those three, so the
+        // planning pass leaked into the live ledger without any oracle
+        // noticing. Reset the type first, or an already-encountered dagger
+        // makes the write a no-op and the assertion vacuous.
+        // distant_name() only reaches doname() -> xname() -> observe_object()
+        // on its near branch; objnam.c:355 computes neardist from
+        // u.xray_range, so without this the far branch formats a bare type
+        // name, writes no discovery, and the assertion below is vacuous.
+        game.u.xray_range = 3;
+        game.objects[DAGGER].oc_encountered = 0;
+        const discoveryBefore = JSON.stringify({
+            encountered: game.objects.map((entry) => entry.oc_encountered ?? 0),
+            disco: game.svd?.disco ?? [],
+            artifacts: (game.artiexist ?? []).map((entry) => entry.found ?? 0),
+        });
         const before = completeSecondTurnSnapshot(game, target.replay);
 
         for (let attempt = 0; attempt < 2; ++attempt) {
             await preflightSimpleMonsterActions(game);
+            assert.equal(
+                JSON.stringify({
+                    encountered: game.objects
+                        .map((entry) => entry.oc_encountered ?? 0),
+                    disco: game.svd?.disco ?? [],
+                    artifacts: (game.artiexist ?? [])
+                        .map((entry) => entry.found ?? 0),
+                }),
+                discoveryBefore,
+                `discovery ledger, attempt ${attempt + 1}`,
+            );
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
                 before,
@@ -1916,3 +1946,36 @@ test('planning rounds cannot reach the live timer queue', async () => {
         );
     }
 });
+
+// The pickup arm calls distant_name(), splitobj() and mpickobj() from inside
+// the monster scan, so refusal classes that never used to reach the elapsed
+// turn now can. This pins the first half of that: the class the naming path
+// actually raises. The second half -- that js/allmain.js converts it into a
+// turn boundary rather than letting js/jsmain.js rethrow it and discard the
+// segment -- is not pinned here, because advanceElapsedTurn() is not exported
+// and driving moveloop_core() from this fixture does not reach the arm.
+// ROADMAP.md records that gap.
+test('a planned pickup raises the naming class the turn must convert',
+    async () => {
+        const target = await prepareStartingPetAction(PM_PONY);
+        target.monster.mextra.edog.apport = 20;
+        const dagger = floorObject(
+            target.monsterX,
+            target.heroY,
+            9301,
+            DAGGER,
+        );
+        installObject(target, dagger);
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        // distant_name()'s near branch is the one that formats through
+        // doname(); the far branch never reaches preflightObjectName().
+        game.u.xray_range = 3;
+        // objnam.c's shop price suffix is unported. Any guarded branch of
+        // preflightObjectName() would serve; this is the cheapest to set.
+        dagger.unpaid = true;
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedObjectNameError,
+        );
+    });

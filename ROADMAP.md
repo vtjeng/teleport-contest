@@ -361,6 +361,45 @@ the default, so a session setting it would run identically and the port stops
 instead. Porting the parser is the fix, and it belongs with `pick_lock()` and
 `autokey()`, which are what the flag selects between.
 
+#### five pickup assertions do not discriminate
+
+The correctness pass over `f826ba53..4d78313` confirmed five test gaps that its
+fixes did not close, all of the same shape: the assertion holds whether or not
+the behavior it names is present.
+
+- `cloneLightList()` and `cloneTimerList()` gained object-remap arms
+  (`?? objectMap.get(source.id)` and `?? objectMap.get(source.arg)`); removing
+  either leaves the suite green.
+- The `wieldPickedItem: () => unsupported('pet weapon selection')` refusal has
+  no test, and the same diff deleted the `pony pickup` entry from the
+  preflight's starting-pet case list.
+- Nothing pins `newsym()` running when the hero cannot see the pet's square:
+  gating the redraw on `cansee()` leaves every test passing.
+- `dog_invent names nothing on a square the hero cannot see` exercises that
+  branch without pinning it; every assertion holds either way. No fresh case
+  covers it either, because 800 seeds produced none.
+- `distant_name()`'s `obj.oartifact` disjunct, the arm that makes an artifact
+  count as near however far it lies, has no test and can be removed with the
+  suite green.
+
+#### the pickup naming conversion is unpinned end to end
+
+`js/allmain.js` now converts `UnsupportedObjectNameError`,
+`UnsupportedObjectOperationError` and `UnsupportedMonsterPickupOperationError`
+into a turn boundary, because the pet pickup arm can raise all three from
+inside the monster scan and `js/jsmain.js` rethrows anything else, discarding
+the segment.
+
+`scripts/unported-monster-actions.test.mjs` pins the first half — that the
+naming path really raises `UnsupportedObjectNameError` — and removing
+`preflightObjectName()`'s unpaid branch fails it. The conversion itself is not
+pinned: `advanceElapsedTurn()` is not exported, and driving `moveloop_core()`
+from that fixture does not reach the arm. Removing the three classes from
+`ELAPSED_TURN_PLANNING_REFUSALS` leaves the suite green.
+
+Close it with a case that reaches the pickup through a real turn, or by giving
+the elapsed turn a seam a test can drive without exporting internals.
+
 #### a vision recalculation stops the cloned monster scan
 
 Converting a secret door that stands in the hero's current vision sets

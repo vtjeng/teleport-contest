@@ -105,7 +105,7 @@ import {
     SKELETON_KEY,
     UNICORN_HORN,
 } from './objects.js';
-import { rn2 } from './rng.js';
+import { rn1, rn2, rnd, rne } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { mpickobj } from './steal.js';
 import { gettrack } from './track.js';
@@ -379,7 +379,12 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         return MMOVE_NOTHING;
 
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    // Every branch draws through rn2, so that much is required up front. The
+    // carry arm needs more, and asks for it there rather than here: requiring
+    // the whole set eagerly would reject the many callers that never split a
+    // stack, while requiring only rn2 let a caller honouring this contract
+    // fail later inside js/obj.js against a contract it had never seen.
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_invent random injection requires rn2');
     const operationEnv = { ...rawEnv, state, random };
@@ -442,7 +447,20 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         // that obj.js expects the caller to supply.
         const objectEnv = objectGenerationEnv(operationEnv);
         // can_carry() caps a nohands pet at one item, so any stack of more
-        // than one splits here and the pet takes the child.
+        // than one splits here and the pet takes the child. splitobj()
+        // normalizes through js/obj.js objectEnv(), which needs the whole
+        // source random set because next_ident() draws rnd(2); state it here,
+        // where it is true, rather than in the guard above, which every
+        // non-splitting caller also passes.
+        if (amount !== obj.quan) {
+            for (const name of ['rn1', 'rn2', 'rnd', 'rne']) {
+                if (typeof random[name] !== 'function') {
+                    throw new TypeError(
+                        'dog_invent splitting requires rn2, rnd, rn1, and rne',
+                    );
+                }
+            }
+        }
         const taken = amount !== obj.quan
             ? splitobj(obj, amount, objectEnv)
             : obj;

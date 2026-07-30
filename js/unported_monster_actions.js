@@ -278,6 +278,10 @@ function cloneMonster(monster) {
 // shared state that device has to isolate, exactly as it already isolates
 // monsters, light sources and timers.
 //
+// The discovery ledger is cloned beside this, in planningState(): naming an
+// object writes objects[].oc_encountered, svd.disco[] and artiexist[].found,
+// which the spread would otherwise share.
+//
 // Monster inventories, the hero's belongings and the buried list stay shared,
 // because no action the scan admits writes to one. A monster picking an item
 // up is the only object mutation the boundary lets through, and
@@ -441,6 +445,19 @@ function planningState(state) {
         } : state.svs,
         track: structuredClone(state.track),
         u: hero,
+        // The admitted naming path writes the discovery ledger:
+        // distant_name() reaches xname(), which calls observe_object() and
+        // o_init.c discover_object(), setting objects[otyp].oc_encountered and
+        // svd.disco[]; artifacts.c find_artifact() sets artiexist[].found. The
+        // spread above shares all four by reference, so a dry run mutated live
+        // discovery state and the writes survived even a rejected round. Each
+        // is copied one level deeper than the spread reaches: the entries
+        // themselves are replaced, not just the containers.
+        objects: state.objects?.map((entry) => ({ ...entry })),
+        svd: state.svd ? { ...state.svd, disco: [...(state.svd.disco ?? [])] }
+            : state.svd,
+        svb: state.svb ? { ...state.svb } : state.svb,
+        artiexist: state.artiexist?.map((entry) => ({ ...entry })),
     };
 }
 

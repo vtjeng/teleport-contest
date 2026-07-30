@@ -43,6 +43,9 @@ import {
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { init_objects } from './o_init.js';
+import { UnsupportedObjectNameError } from './objnam.js';
+import { UnsupportedObjectOperationError } from './obj.js';
+import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
 import { depth, init_dungeons } from './dungeon.js';
@@ -609,6 +612,14 @@ const ELAPSED_TURN_PLANNING_REFUSALS = [
     UnsupportedHungerTransitionError,
     UnsupportedMonsterDistressError,
     UnsupportedMonsterCreationError,
+    // The pet pickup arm calls distant_name(), splitobj() and mpickobj() from
+    // inside the monster scan, so these three reach here from a path that used
+    // to stop at an injected refusal of the first class above. Without them a
+    // naming, split or pickup refusal discards the whole segment instead of
+    // stopping on its last matching screen.
+    UnsupportedObjectNameError,
+    UnsupportedObjectOperationError,
+    UnsupportedMonsterPickupOperationError,
 ];
 
 const runElapsedTurnMonsterAction =
