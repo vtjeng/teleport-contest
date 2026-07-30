@@ -17,6 +17,7 @@ import {
   unresolvedHeadings,
   validateAuditedRangeCoverage,
   validateAuditMetrics,
+  validateAuditMutation,
   validateConfigShape,
 } from './quality-status.mjs';
 
@@ -278,6 +279,79 @@ test('structured audit metrics preserve categories and finder attribution', () =
     /categories must total the confirmed count/,
   );
 });
+
+test('a pass records what the mutation run reported and what the finder made of it',
+  () => {
+    // The numbers a pass attaches under `.agents/review.md`, "Mutation-test the
+    // reviewed lines": what ran, what survived, the per-kind split, and the
+    // test-quality finder's conclusion about the survivors.
+    const mutation = {
+      mutants: 119,
+      survivors: 49,
+      byKind: {
+        relational: { ran: 30, killed: 12 },
+        logical: { ran: 60, killed: 40 },
+        boolean: { ran: 29, killed: 18 },
+      },
+      finderConclusion: 'traced all 49 survivors; two became test findings',
+    };
+
+    assert.equal(validateAuditMutation(mutation), mutation);
+    assert.equal(
+      validateAuditMetrics({ ...EMPTY_AUDIT_METRICS, mutation }).mutation,
+      mutation,
+    );
+    // The ledger has to reject it too, so a broken record cannot reach
+    // QUALITY.json through the metrics validator that writes it.
+    assert.throws(
+      () => validateAuditMetrics({
+        ...EMPTY_AUDIT_METRICS,
+        mutation: { ...mutation, survivors: 48 },
+      }),
+      /byKind must leave the survivor count unkilled/,
+    );
+
+    // The per-kind split is the record's own arithmetic check: 30 + 60 + 29 is
+    // 119 mutants, and 119 less the 70 killed is 49 survivors. A record whose
+    // headline disagrees with its breakdown states a rate it cannot support.
+    assert.throws(
+      () => validateAuditMutation({ ...mutation, mutants: 120 }),
+      /byKind must total the mutant count/,
+    );
+    assert.throws(
+      () => validateAuditMutation({ ...mutation, survivors: 48 }),
+      /byKind must leave the survivor count unkilled/,
+    );
+    assert.throws(
+      () => validateAuditMutation({ ...mutation, survivors: 200 }),
+      /more survivors than mutants/,
+    );
+    assert.throws(
+      () => validateAuditMutation({
+        ...mutation,
+        byKind: { ...mutation.byKind, statement: { ran: 0, killed: 0 } },
+      }),
+      /is not a mutation kind/,
+    );
+    assert.throws(
+      () => validateAuditMutation({
+        ...mutation,
+        byKind: { relational: { ran: 30, killed: 31 }, logical: { ran: 60, killed: 40 },
+          boolean: { ran: 29, killed: 18 } },
+      }),
+      /cannot kill more mutants than it ran/,
+    );
+    // A run that names no kind measured nothing, and an unexplained survivor
+    // list is what this record exists to prevent.
+    assert.throws(
+      () => validateAuditMutation({ ...mutation, byKind: {} }),
+      /must name the kinds the run covered/,
+    );
+    assert.throws(
+      () => validateAuditMutation({ ...mutation, finderConclusion: '   ' }),
+      /finderConclusion must be nonempty/,
+    );
+  });
 
 test('rejected findings are stored with their counter-evidence verbatim', () => {
   // One rejected finding, so a rejections list of any other length is wrong.

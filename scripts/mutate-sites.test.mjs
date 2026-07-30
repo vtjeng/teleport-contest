@@ -38,6 +38,7 @@ import {
     reportedTestCount,
     runMutants,
     sampleItems,
+    SITE_KINDS,
     survivingRangeLines,
     tokenize,
 } from './mutate-sites.mjs';
@@ -584,6 +585,47 @@ test('the kill rate carries a Wilson interval', () => {
     assert.deepEqual(killRateInterval(0, 0), { rate: 0, low: 0, high: 0 });
 });
 
+test('a kind list narrows the target set to those kinds', () => {
+    const paths = ['js/regen.js'];
+    const whole = collectTargets({ paths });
+    const narrowed = collectTargets({ paths,
+        kinds: ['relational', 'logical', 'boolean'] });
+    const kindsIn = (targets) =>
+        [...new Set(targets.flatMap((target) =>
+            target.sites.map((site) => site.kind)))].sort();
+
+    // A pass runs the three kinds that mark a branch. Integer bounds are the
+    // largest group and the weakest signal, so leaving them out is most of the
+    // saving.
+    assert.deepEqual(kindsIn(whole), SITE_KINDS);
+    assert.deepEqual(kindsIn(narrowed), ['boolean', 'logical', 'relational']);
+    const mutants = (targets) =>
+        targets.reduce((n, target) => n + target.sites.length, 0);
+    assert.equal(mutants(narrowed) < mutants(whole), true);
+    // Whatever survives the filter is a site the unfiltered run also held.
+    const offsets = new Set(whole.flatMap((target) =>
+        target.sites.map((site) => `${target.path}:${site.offset}`)));
+    for (const target of narrowed) {
+        for (const site of target.sites)
+            assert.equal(offsets.has(`${target.path}:${site.offset}`), true);
+    }
+});
+
+test('a file left with no site of the named kinds drops out', () => {
+    // js/dungeon_data.js is generated table data whose only mutable sites are
+    // integers, so a run for the three branch kinds has nothing to mutate
+    // there. It has to leave the target set rather than sit in it with an empty
+    // site list, which the report would print as a file measuring nothing.
+    const paths = ['js/dungeon_data.js', 'js/regen.js'];
+    const unfiltered = collectTargets({ paths });
+    const targets = collectTargets({ paths,
+        kinds: ['relational', 'logical', 'boolean'] });
+
+    assert.equal(unfiltered.length, 2);
+    assert.deepEqual(targets.map((target) => target.path), ['js/regen.js']);
+    for (const target of targets) assert.equal(target.sites.length > 0, true);
+});
+
 test('a sample cuts the target set down and repeats with its seed', () => {
     const mutants = (targets) =>
         targets.flatMap((target) => target.sites.map((site) =>
@@ -643,16 +685,22 @@ test('a sampled run states the interval for the population it sampled', () => {
 
 test('every target is named by --range or --file', () => {
     assert.deepEqual(parseArgs(['--range', 'a..b']),
-        { range: 'a..b', paths: [], enumerateOnly: false, full: false,
-            limit: Infinity, sample: null, seed: 1 });
-    assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
-        { range: null, paths: ['js/a.js', 'js/b.js'], enumerateOnly: false,
+        { range: 'a..b', paths: [], kinds: null, enumerateOnly: false,
             full: false, limit: Infinity, sample: null, seed: 1 });
+    assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
+        { range: null, paths: ['js/a.js', 'js/b.js'], kinds: null,
+            enumerateOnly: false, full: false, limit: Infinity, sample: null,
+            seed: 1 });
     // `--name=value` and `--name value` are the same option.
     assert.deepEqual(parseArgs(['--range=a..b', '--limit=5',
         '--enumerate-only', '--full', '--sample=40', '--seed=7']),
-    { range: 'a..b', paths: [], enumerateOnly: true, full: true, limit: 5,
-        sample: 40, seed: 7 });
+    { range: 'a..b', paths: [], kinds: null, enumerateOnly: true, full: true,
+        limit: 5, sample: 40, seed: 7 });
+    assert.deepEqual(parseArgs(['--range', 'a..b',
+        '--kind', 'logical,relational,logical']).kinds,
+    ['logical', 'relational']);
+    assert.throws(() => parseArgs(['--kind', 'statement']),
+        /--kind takes boolean, integer, logical, relational, not 'statement'/u);
     assert.throws(() => parseArgs(['--sample', '0']), /positive integer/u);
     assert.throws(() => parseArgs(['--seed', 'x']), /positive integer/u);
 

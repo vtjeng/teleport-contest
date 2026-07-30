@@ -350,6 +350,10 @@ const RELATIONAL = new Map([
 
 const LOGICAL = new Map([['&&', '||'], ['||', '&&']]);
 
+// Every kind `enumerateSites()` tags a site with, which is what `--kind`
+// selects from.
+export const SITE_KINDS = ['boolean', 'integer', 'logical', 'relational'];
+
 const BOOLEAN = new Map([['true', 'false'], ['false', 'true']]);
 
 // An integer next to one of these is a bit pattern, not a bound.
@@ -1054,8 +1058,9 @@ export function formatSiteCounts(targets, scopedLines) {
  * Each option accepts `--name value` and `--name=value`.
  */
 export function parseArgs(argv) {
-    const options = { range: null, paths: [], enumerateOnly: false,
-        full: false, limit: Infinity, sample: null, seed: 1 };
+    const options = { range: null, paths: [], kinds: null,
+        enumerateOnly: false, full: false, limit: Infinity, sample: null,
+        seed: 1 };
     for (let i = 0; i < argv.length; ++i) {
         const separator = argv[i].indexOf('=');
         const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
@@ -1089,6 +1094,15 @@ export function parseArgs(argv) {
             if (!Number.isInteger(value) || value < 1)
                 throw new Error('--limit takes a positive integer');
             options.limit = value;
+        } else if (name === '--kind') {
+            const named = valueOf().split(',').map((kind) => kind.trim());
+            for (const kind of named) {
+                if (!SITE_KINDS.includes(kind)) {
+                    throw new Error(`--kind takes ${SITE_KINDS.join(', ')}, `
+                        + `not '${kind}'`);
+                }
+            }
+            options.kinds = [...new Set(named)].sort();
         } else if (name === '--sample') {
             const value = Number(valueOf());
             if (!Number.isInteger(value) || value < 1)
@@ -1122,8 +1136,8 @@ export function parseArgs(argv) {
  * line of each file. Every target reports the working tree's bytes, so a
  * reported line number always addresses the file on disk.
  */
-export function collectTargets({ range = null, paths = [], sample = null,
-    seed = 1 }, root = REPO_ROOT) {
+export function collectTargets({ range = null, paths = [], kinds = null,
+    sample = null, seed = 1 }, root = REPO_ROOT) {
     const scope = range
         ? survivingRangeLines(range, root)
         : new Map(paths.map((path) => [assertJsPath(path, root), null]));
@@ -1132,23 +1146,29 @@ export function collectTargets({ range = null, paths = [], sample = null,
     for (const path of [...scope.keys()].sort()) {
         const lines = scope.get(path);
         const source = readFileSync(join(root, path), 'utf8');
+        const sites = enumerateSites(source, lines);
         targets.push({
             path,
             source,
             lineCount: lines ? lines.size : source.split('\n').length,
-            sites: enumerateSites(source, lines),
+            sites: kinds
+                ? sites.filter((site) => kinds.includes(site.kind))
+                : sites,
             tests: covering.get(path) ?? [],
         });
     }
-    if (sample === null) return targets;
+    const selected = kinds
+        ? targets.filter((target) => target.sites.length)
+        : targets;
+    if (sample === null) return selected;
     // Draw across the whole target set at once, so the sample spans every file
     // in proportion to how many mutants each holds.
     const drawn = new Set(sampleItems(
-        targets.flatMap((target) =>
+        selected.flatMap((target) =>
             target.sites.map((site) => `${target.path}:${site.offset}:`
                 + `${site.replacement}`)),
         sample, seed));
-    return targets
+    return selected
         .map((target) => ({
             ...target,
             sites: target.sites.filter((site) => drawn.has(

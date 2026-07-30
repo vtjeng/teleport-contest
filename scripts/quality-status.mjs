@@ -47,6 +47,14 @@ const AUDIT_CATEGORY_FIELDS = Object.freeze([
   'other',
 ]);
 const AUDIT_RESOLUTIONS = new Set(['applied', 'deferred']);
+// The mutation kinds scripts/mutate-sites.mjs tags a site with. A pass records
+// only the kinds it ran, so a run under `--kind` names a subset.
+const MUTATION_KINDS = Object.freeze([
+  'boolean',
+  'integer',
+  'logical',
+  'relational',
+]);
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 function fail(message) {
@@ -197,6 +205,69 @@ export function unresolvedHeadings(markdown, section = DEFERRAL_SECTION) {
   return headings;
 }
 
+/**
+ * Check one pass's mutation record: what `scripts/mutate-sites.mjs` reported
+ * over the frozen range and what the test-quality finder concluded about it.
+ *
+ * `.agents/review.md`, under "Mutation-test the reviewed lines", states the
+ * command a pass runs. The per-kind counts have to total the mutants and the
+ * survivors, so a record cannot claim a rate its own breakdown contradicts.
+ */
+export function validateAuditMutation(mutation) {
+  if (!mutation || typeof mutation !== 'object' || Array.isArray(mutation)) {
+    fail('auditMetrics.mutation must be an object');
+  }
+  for (const field of ['mutants', 'survivors']) {
+    if (!Number.isInteger(mutation[field]) || mutation[field] < 0) {
+      fail(`auditMetrics.mutation.${field} must be a nonnegative integer`);
+    }
+  }
+  if (mutation.survivors > mutation.mutants) {
+    fail('auditMetrics.mutation cannot report more survivors than mutants');
+  }
+  const { byKind } = mutation;
+  if (!byKind || typeof byKind !== 'object' || Array.isArray(byKind)) {
+    fail('auditMetrics.mutation.byKind must be an object');
+  }
+  const kinds = Object.keys(byKind);
+  if (kinds.length === 0) {
+    fail('auditMetrics.mutation.byKind must name the kinds the run covered');
+  }
+  let ran = 0;
+  let killed = 0;
+  for (const kind of kinds) {
+    const label = `auditMetrics.mutation.byKind.${kind}`;
+    if (!MUTATION_KINDS.includes(kind)) {
+      fail(`${label} is not a mutation kind: ${MUTATION_KINDS.join(', ')}`);
+    }
+    const tally = byKind[kind];
+    if (!tally || typeof tally !== 'object' || Array.isArray(tally)) {
+      fail(`${label} must be an object`);
+    }
+    for (const field of ['ran', 'killed']) {
+      if (!Number.isInteger(tally[field]) || tally[field] < 0) {
+        fail(`${label}.${field} must be a nonnegative integer`);
+      }
+    }
+    if (tally.killed > tally.ran) {
+      fail(`${label} cannot kill more mutants than it ran`);
+    }
+    ran += tally.ran;
+    killed += tally.killed;
+  }
+  if (ran !== mutation.mutants) {
+    fail('auditMetrics.mutation.byKind must total the mutant count');
+  }
+  if (ran - killed !== mutation.survivors) {
+    fail('auditMetrics.mutation.byKind must leave the survivor count unkilled');
+  }
+  if (typeof mutation.finderConclusion !== 'string'
+      || mutation.finderConclusion.trim().length === 0) {
+    fail('auditMetrics.mutation.finderConclusion must be nonempty');
+  }
+  return mutation;
+}
+
 export function validateAuditMetrics(metrics, {
   requireRejections = false,
   requireDeferrals = false,
@@ -274,6 +345,8 @@ export function validateAuditMetrics(metrics, {
   if (appliedProduction > counts.applied || deferredProduction > counts.deferred) {
     fail('auditMetrics production resolutions exceed the overall resolution counts');
   }
+
+  if (metrics.mutation !== undefined) validateAuditMutation(metrics.mutation);
 
   if (metrics.rejections !== undefined) {
     validateAuditRejections(metrics.rejections, counts.rejected);
