@@ -361,6 +361,59 @@ the default, so a session setting it would run identically and the port stops
 instead. Porting the parser is the fix, and it belongs with `pick_lock()` and
 `autokey()`, which are what the flag selects between.
 
+#### eleven monster-pickup findings are deferred
+
+The correctness pass over `5879bed..2fea8eb` confirmed fourteen findings; three
+were applied and eleven are recorded here. They divide into three groups.
+
+**A production gap.** `refuseHeroAttack()` is presented as a complete stand-in
+for `mhitu.c mattacku()` on the range2 path, but it enumerates only `AT_BREA`,
+`AT_SPIT`, `AT_GAZE` and `AT_WEAP` and omits `mattacku()`'s
+`find_offensive()`/`use_offensive()` path, so a monster that would use an
+offensive item is admitted where C acts. Fix it with the combat work, which is
+where `mattacku()` lands.
+
+**Assertions that do not discriminate**, each verified by mutation with the
+suite green:
+
+- `select_postmove_object_action()`'s new `carryamt` is pinned by no test and
+  no matrix segment, so the whole split-stack arm of `mpickstuff()` can be
+  disabled. Reporting the full stack would empty a floor square C leaves a
+  remainder on, print a different quantity, and drop one `rnd(2)` draw, which
+  desynchronises the rest of the segment.
+- `panicattk`'s `range.scared` condition: the one `MMOVE_NOMOVES` case sets
+  `scared` true, so the flag can be made unconditional.
+- `dochug()`'s new `!noattacks(monster.data)` term: the four tests touching the
+  gate were edited to satisfy it rather than to pin it, and an attackless
+  species standing beside the hero would stop a segment C plays through.
+- `refuseHeroAttack()`'s `AT_WEAP` arm, the `select_rwep()` check, has no test
+  while its three siblings do.
+- `scripts/mon.test.mjs pickupState()` states a false C fact — a gnome is not
+  `M2_GREEDY` — and two of the six new `mpickstuff` tests build a
+  gnome-plus-gold fixture on it.
+
+**Comments that misdescribe their code:** `is_drawbridge_wall()`'s export
+contradicts `js/invent.js:207`, which still documents the same predicate as
+unported; `postSimpleMove()` reads injected message and redraw owners for the
+movement notice then hardcodes `ttyPline`/`newsym` for the pickup; and the
+comment calling `mattacku()`'s preamble inert cites `!ranged`, which C computes
+from the hero's real position, where the guard below tests something else.
+
+#### the planning clone's object copy is still expensive
+
+`cloneObjects()` builds each copy with `newObject({ ...original })`, which
+constructs a 60-field default and installs 16 alias accessors before
+overwriting them. Measured at 27-38 microseconds per object, about 0.9 ms per
+turn. Hoisting the alias descriptors to module scope and using
+`Object.defineProperties()` measured 2.2 times cheaper, and `Object.create()`
+was below timer resolution.
+
+The catalog copy beside it was fixed this way already: it had cost 6.4 ms per
+elapsed turn, 80-92% of a scored turn, and prototype delegation removed that at
+no correctness cost. The same treatment probably suits the object copy, but it
+needs its own check, because unlike a catalog entry an object is written
+through more paths.
+
 #### `dochug()` returns where C breaks into PHASE FOUR
 
 `dochug()`'s `MMOVE_MOVED` arm returns in the port where C breaks out of the

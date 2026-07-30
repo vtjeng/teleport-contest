@@ -467,9 +467,18 @@ function planningState(state) {
         // svd.disco[]; artifacts.c find_artifact() sets artiexist[].found. The
         // spread above shares all four by reference, so a dry run mutated live
         // discovery state and the writes survived even a rejected round. Each
-        // is copied one level deeper than the spread reaches: the entries
-        // themselves are replaced, not just the containers.
-        objects: state.objects?.map(copyObjclassEntry),
+        // is isolated, not merely re-wrapped. `svb` is the exception: its own
+        // spread is one level, and nothing on the admitted path writes through
+        // it, so it is carried rather than deepened.
+        //
+        // The catalog uses prototype delegation rather than a copy. A
+        // materialized 482-entry copy cost 6.4 ms on every elapsed turn, which
+        // measured as 80-92% of a scored turn's total time; Object.create()
+        // gives the same isolation for free. Reads fall through to the live
+        // entry, a write shadows it on the copy and never reaches the live
+        // one, and the eight non-enumerable aliases keep working because their
+        // accessor bodies read `this[source]`, so the receiver is the copy.
+        objects: state.objects?.map((entry) => Object.create(entry)),
         svd: state.svd ? { ...state.svd, disco: [...(state.svd.disco ?? [])] }
             : state.svd,
         svb: state.svb ? { ...state.svb } : state.svb,

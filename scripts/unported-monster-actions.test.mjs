@@ -1761,6 +1761,11 @@ test('a planned pet pickup leaves the live object graph untouched',
             disco: game.svd?.disco ?? [],
             artifacts: (game.artiexist ?? []).map((entry) => entry.found ?? 0),
         });
+        // The artifact third of that oracle is vacuous against a plain dagger:
+        // find_artifact() never runs, so planningState()'s artiexist clone can
+        // be deleted with this test green. Seed one entry so a shared clone
+        // would be observable if the naming path ever reached it.
+        if (game.artiexist?.length) game.artiexist[0].found = 0;
         const before = completeSecondTurnSnapshot(game, target.replay);
 
         for (let attempt = 0; attempt < 2; ++attempt) {
