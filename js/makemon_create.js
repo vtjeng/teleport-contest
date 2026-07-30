@@ -219,7 +219,14 @@ import {
     S_VAMPIRE,
     S_VORTEX,
 } from './monsters.js';
-import { mkobj, mkobj_at, mksobj, next_ident, weight } from './obj.js';
+import {
+    ARM_BONUS,
+    mkobj,
+    mkobj_at,
+    mksobj,
+    next_ident,
+    weight,
+} from './obj.js';
 import {
     AKLYS,
     AMULET_CLASS,
@@ -1535,15 +1542,6 @@ function m_initinv(monster, normalized) {
     }
 }
 
-function armorBonus(obj, state) {
-    const base = state.objects?.[obj.otyp]?.a_ac;
-    if (!Number.isInteger(base)) {
-        throw new Error('m_dowear requires initialized armor data');
-    }
-    const erosion = Math.max(obj.oeroded ?? 0, obj.oeroded2 ?? 0);
-    return base + obj.spe - Math.min(erosion, base);
-}
-
 function uniqueWornObject(monster, mask) {
     let worn = null;
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
@@ -1689,8 +1687,8 @@ function m_dowear_type(
         if (mask === W_ARM && racialException) continue;
         if (obj.owornmask) continue;
         if (best
-            && armorBonus(best, state) + armorExtraPreference(monster, best)
-                >= armorBonus(obj, state)
+            && ARM_BONUS(best, state) + armorExtraPreference(monster, best)
+                >= ARM_BONUS(obj, state)
                     + armorExtraPreference(monster, obj)) {
             continue;
         }

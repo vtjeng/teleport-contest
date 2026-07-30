@@ -26,6 +26,7 @@ import {
     weight_cap as initial_weight_cap,
 } from './hack.js';
 import { resetInventory } from './invent.js';
+import { ARM_BONUS } from './obj.js';
 import { discover_object } from './o_init.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import {
@@ -446,15 +447,6 @@ export function u_init_inventory_attrs(
     return state;
 }
 
-function armorBonus(object, state) {
-    const base = Math.trunc(state.objects[object.otyp].a_ac);
-    const erosion = Math.max(
-        Math.trunc(object.oeroded ?? 0),
-        Math.trunc(object.oeroded2 ?? 0),
-    );
-    return base + Math.trunc(object.spe ?? 0) - Math.min(erosion, base);
-}
-
 // C ref: do_wear.c find_ac(). Equipment pointers are flattened globals on
 // state, matching the inventory module's uwep/uquiver representation.
 export function find_ac(state = game) {
@@ -466,7 +458,7 @@ export function find_ac(state = game) {
     for (const slot of [
         'uarm', 'uarmc', 'uarmh', 'uarmf', 'uarms', 'uarmg', 'uarmu',
     ]) {
-        if (state[slot]) armorClass -= armorBonus(state[slot], state);
+        if (state[slot]) armorClass -= ARM_BONUS(state[slot], state);
     }
     if (state.uleft?.otyp === O.RIN_PROTECTION)
         armorClass -= Math.trunc(state.uleft.spe ?? 0);
@@ -493,6 +485,5 @@ export const _uInitInventoryAttrInternals = Object.freeze({
     JAPANESE_OBJECTS,
     ORCISH_OBJECTS,
     adjustCarryAttribute,
-    armorBonus,
     effectiveAttribute: effective_attribute,
 });

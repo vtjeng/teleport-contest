@@ -679,6 +679,21 @@ export function is_ammo(obj, state = game) {
         && skill <= -P_BOW;
 }
 
+// C ref: obj.h greatest_erosion().
+export function greatest_erosion(obj) {
+    const rusted = Math.trunc(obj.oeroded ?? 0);
+    const corroded = Math.trunc(obj.oeroded2 ?? 0);
+    return rusted > corroded ? rusted : corroded;
+}
+
+// C ref: hack.h ARM_BONUS(). Both armor-class calculations read it:
+// do_wear.c find_ac() for the hero and worn.c find_mac() for a monster.
+export function ARM_BONUS(obj, state = game) {
+    const base = Math.trunc(objectType(obj, state).a_ac);
+    return base + Math.trunc(obj.spe ?? 0)
+        - Math.min(greatest_erosion(obj), base);
+}
+
 // C ref: obj.h is_graystone().
 export function is_graystone(obj) {
     return obj.otyp === LUCKSTONE || obj.otyp === LOADSTONE

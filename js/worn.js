@@ -1,8 +1,10 @@
 // Hero worn-object and weapon-slot primitives.
-// C refs: src/worn.c setworn(), setnotworn(), recalc_telepat_range();
+// C refs: src/worn.c setworn(), setnotworn(), recalc_telepat_range(),
+//         find_mac();
 //         src/wield.c setuwep(), setuswapwep(), and setuqwep().
 
 import {
+    AC_MAX,
     BLINDED,
     BOLT_LIM,
     CLAIRVOYANT,
@@ -42,8 +44,9 @@ import {
 import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
 import { PM_WIZARD } from './monsters.js';
-import { isWeptool, objectType } from './obj.js';
+import { ARM_BONUS, isWeptool, objectType } from './obj.js';
 import {
+    AMULET_OF_GUARDING,
     CORNUTHAUM,
     GEM_CLASS,
     GOLD_DRAGON_SCALE_MAIL,
@@ -191,6 +194,28 @@ export function recalc_telepat_range(state = game, hooks = {}) {
         ? BOLT_LIM * BOLT_LIM * count
         : -1;
     return state.u.unblind_telepat_range;
+}
+
+// C ref: worn.c find_mac(). A monster's armor class: its species base, less
+// every ARM_BONUS() it wears, capped at AC_MAX the way do_wear.c find_ac()
+// caps the hero's. misc_worn_check names the slots the monster actually uses,
+// so a wielded weapon in minvent contributes nothing.
+export function find_mac(monster, state = game) {
+    let base = Math.trunc(monster.data.ac);
+    const mwflags = monster.misc_worn_check ?? 0;
+
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (!((obj.owornmask ?? 0) & mwflags)) continue;
+        if (obj.otyp === AMULET_OF_GUARDING)
+            base -= 2; /* fixed amount, not impacted by erosion */
+        else
+            base -= ARM_BONUS(obj, state);
+        /* since ARM_BONUS is positive, subtracting it increases AC */
+    }
+    /* same cap as for hero [find_ac(do_wear.c)] */
+    if (Math.abs(base) > AC_MAX)
+        base = Math.sign(base) * AC_MAX;
+    return base;
 }
 
 export function set_twoweap(enabled, state = game) {
