@@ -43,7 +43,9 @@ import {
     HALLUC,
     HALLUC_RES,
     HEADSTONE,
+    IN_SIGHT,
     INVIS,
+    IRONBARS,
     LAVAPOOL,
     LAVAWALL,
     M_AP_OBJECT,
@@ -421,20 +423,25 @@ function deferred() {
 // case below puts the monster on that square first.
 function postmovEnv(state, overrides = {}) {
     const redraws = [];
+    const messages = [];
+    const visionCalls = [];
     const env = {
         state,
         redraw: (x, y) => { redraws.push([x, y]); },
-        message: () => assert.fail('postmov message'),
+        message: (line) => { messages.push(line); },
+        recalcBlockPoint: (x, y) => { visionCalls.push(['recalc', x, y]); },
+        visionRecalc: (control) => { visionCalls.push(['view', control]); },
         unsupported: (reason) => assert.fail(`unexpected refusal: ${reason}`),
         ...overrides,
     };
-    return { env, redraws };
+    return { env, redraws, messages, visionCalls };
 }
 
-// C ref: monmove.c postmov()'s door block (1520-1622). Every arm of it tests
-// D_LOCKED or D_CLOSED, so a monster standing on a doorless, broken or open
-// doorway falls through the block: the doormask keeps its value and the block
-// prints nothing.
+// C ref: monmove.c postmov()'s door block (1520-1622). Three of its four arms
+// test D_LOCKED or D_CLOSED and the fourth tests whole-mask equality with
+// D_CLOSED, so a monster standing on a doorless, broken or open doorway falls
+// through the block: the doormask keeps its value and the block prints
+// nothing.
 test('postmov leaves an inert doorway alone', async () => {
     for (const mask of [0 /* D_NODOOR */, D_BROKEN, D_ISOPEN]) {
         const { locations, state } = makeState();
@@ -443,7 +450,7 @@ test('postmov leaves an inert doorway alone', async () => {
         const { env, redraws } = postmovEnv(state);
 
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, false, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, false, env),
             MMOVE_MOVED,
             `mask ${mask}`,
         );
@@ -455,26 +462,231 @@ test('postmov leaves an inert doorway alone', async () => {
     }
 });
 
-test('postmov refuses a doormask its block would rewrite', async () => {
-    // D_TRAPPED joins a mask that C's block still acts on, and reaches
-    // mb_trapped() as well; neither is ported.
-    for (const mask of [D_CLOSED, D_LOCKED, D_ISOPEN | D_TRAPPED]) {
+// Each arm of the block that the port does not own, named by the refusal it
+// raises. The fourth case is the doorbuster arm reached from the other side:
+// mfndpos() offers a closed door to a monster without can_open only when it
+// smashes doors down, so C falls past the D_CLOSED arm into it.
+test('postmov refuses every door arm it does not own', async () => {
+    const cases = [
+        {
+            mask: D_ISOPEN | D_TRAPPED,
+            canUnlock: false,
+            canOpen: true,
+            reason: 'a door trap under a monster',
+        },
+        {
+            mask: D_LOCKED,
+            canUnlock: true,
+            canOpen: true,
+            reason: 'a monster unlocking a door',
+        },
+        {
+            mask: D_LOCKED,
+            canUnlock: false,
+            canOpen: true,
+            reason: 'a monster smashing down a door',
+        },
+        {
+            mask: D_CLOSED,
+            canUnlock: false,
+            canOpen: false,
+            reason: 'a monster smashing down a door',
+        },
+    ];
+    for (const { mask, canUnlock, canOpen, reason } of cases) {
         const { locations, state } = makeState();
         const monster = ordinaryMonster(state, { mx: 5, my: 4 });
         locations.set('5,4', { typ: DOOR, flags: mask });
         const { env } = postmovEnv(state, {
-            unsupported: (reason) => { throw new Error(reason); },
+            unsupported: (refusal) => { throw new Error(refusal); },
         });
 
         await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, false, env),
-            (error) => error.message === 'a monster opening a door',
+            postmov(
+                monster, 4, 4, MMOVE_MOVED, false, canUnlock, canOpen, env,
+            ),
+            (error) => error.message === reason,
             `mask ${mask}`,
         );
         // The refusal comes before the arm that would rewrite the mask.
         assert.equal(state.level.at(5, 4).flags, mask, `mask ${mask}`);
     }
 });
+
+// C ref: monmove.c:1548-1553. An amorphous monster flows under a locked or
+// closed door instead of opening it, and leaves the doormask alone.
+test('postmov refuses the amorphous arm ahead of the door it could open',
+    async () => {
+        const { locations, state } = makeState();
+        const fogCloud = ordinaryMonster(state, {
+            data: state.mons[PM_FOG_CLOUD],
+            mnum: PM_FOG_CLOUD,
+            mx: 5,
+            my: 4,
+        });
+        locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+        const { env } = postmovEnv(state, {
+            unsupported: (refusal) => { throw new Error(refusal); },
+        });
+
+        await assert.rejects(
+            postmov(fogCloud, 4, 4, MMOVE_MOVED, false, false, true, env),
+            (error) => error.message === 'a monster oozing under a door',
+        );
+        assert.equal(state.level.at(5, 4).flags, D_CLOSED);
+    });
+
+// A hero-visible square for cansee(); the fixture leaves viz_array unset,
+// which is what makes every other case here an unseen one.
+function seeSquare(state, x, y) {
+    state.viz_array ??= Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    state.viz_array[y][x] = IN_SIGHT | COULD_SEE;
+}
+
+// C ref: monmove.c:1576-1592, the arm this port owns, and the UnblockDoor
+// macro at 1526-1536 that it and its three refused siblings share.
+test('postmov opens a closed door and reports what the hero heard',
+    async () => {
+        const { locations, state } = makeState();
+        state.flags = { verbose: true, acoustics: true };
+        const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+        locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+        const { env, redraws, messages, visionCalls } = postmovEnv(state);
+
+        assert.equal(
+            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            MMOVE_MOVED,
+        );
+        // UnblockDoor writes D_ISOPEN, not the D_NODOOR its `!btrapped`
+        // ternary picks: whole-mask equality with D_CLOSED excludes D_TRAPPED.
+        assert.equal(state.level.at(5, 4).flags, D_ISOPEN);
+        assert.equal(state.level.at(5, 4).doormask, D_ISOPEN);
+        // The old square, then UnblockDoor's redraw of the door, then
+        // monmove.c:1656's redraw of the square the monster reached.
+        assert.deepEqual(redraws, [[4, 4], [5, 4], [5, 4]]);
+        assert.deepEqual(visionCalls, [['recalc', 5, 4], ['view', 0]]);
+        assert.deepEqual(messages, ['You hear a door open.']);
+    });
+
+// The two arms below need a hero who can see the door square. No fresh case
+// reaches them: js/unported_monster_actions.js admitDoorOpening() refuses a
+// door inside the hero's vision, because the vision_recalc(0) that UnblockDoor
+// runs there cannot be reproduced against the cloned scan. These tests are
+// their whole evidence until that refusal lifts.
+test('postmov names a spotted monster that opens a door in sight',
+    async () => {
+        const { locations, state } = makeState();
+        state.flags = { verbose: true, acoustics: true };
+        const monster = ordinaryMonster(state, { mx: 5, my: 4, mhp: 3 });
+        locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+        seeSquare(state, 5, 4);
+        const { env, messages } = postmovEnv(state);
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        assert.deepEqual(messages, ['The giant rat opens a door.']);
+    });
+
+test('postmov describes a door opened in sight by a monster it cannot spot',
+    async () => {
+        const { locations, state } = makeState();
+        state.flags = { verbose: true, acoustics: true };
+        const monster = ordinaryMonster(state, {
+            mx: 5,
+            my: 4,
+            mhp: 3,
+            minvis: true,
+        });
+        locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+        seeSquare(state, 5, 4);
+        const { env, messages } = postmovEnv(state);
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        assert.deepEqual(messages, ['You see a door open.']);
+    });
+
+// Three separate gates silence the same opening: flags.verbose around the
+// whole switch (monmove.c:1583), the Deaf test on its last arm (1588), and
+// You_hear()'s own flags.acoustics return (pline.c:440). The door still opens
+// in each case.
+test('postmov opens the door silently for verbose, Deaf and acoustics',
+    async () => {
+        const silencers = [
+            { label: 'verbose off', flags: { verbose: false, acoustics: true } },
+            { label: 'acoustics off', flags: { verbose: true, acoustics: false } },
+            { label: 'deaf', flags: { verbose: true, acoustics: true },
+                deaf: true },
+            // You_hear() returns early only when Deaf and aware, so a Deaf
+            // hero who is also Unaware reaches its "You dream that you hear"
+            // prefix. What silences that one is the call site's own !Deaf
+            // test, and nothing else in either function.
+            { label: 'deaf while unaware',
+                flags: { verbose: true, acoustics: true },
+                deaf: true, unaware: true },
+        ];
+        for (const { label, flags, deaf, unaware } of silencers) {
+            const { locations, state } = makeState();
+            state.flags = flags;
+            if (deaf) state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+            if (unaware) {
+                state.multi = -1;
+                state.u.usleep = 1;
+            }
+            const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+            locations.set('5,4', { typ: DOOR, flags: D_CLOSED });
+            const { env, messages } = postmovEnv(state);
+
+            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+            assert.deepEqual(messages, [], label);
+            assert.equal(state.level.at(5, 4).flags, D_ISOPEN, label);
+        }
+    });
+
+// C ref: monmove.c:1624-1647. Iron bars are the door block's sibling: a rust
+// monster or a metallivore eats through them and anything else squeezes past
+// with a Norep() message. Neither is ported.
+test('postmov refuses a move that ends on iron bars', async () => {
+    const { locations, state } = makeState();
+    const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+    locations.set('5,4', { typ: IRONBARS, flags: 0 });
+    const { env } = postmovEnv(state, {
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await assert.rejects(
+        postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+        (error) => error.message === 'monster iron-bar movement',
+    );
+});
+
+// C ref: monmove.c:1650-1656. An engulfer drags the hero along, but only when
+// its move changed its square; a stationary engulfer takes the newsym() arm
+// beside it, which the port already owns.
+test('postmov refuses an engulfer that moved and admits one that did not',
+    async () => {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+        state.u.uswallow = 1;
+        state.u.ustuck = monster;
+        const { env } = postmovEnv(state, {
+            unsupported: (refusal) => { throw new Error(refusal); },
+        });
+
+        await assert.rejects(
+            postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            (error) => error.message === 'an engulfing monster moving',
+        );
+
+        const { env: stayEnv, redraws } = postmovEnv(state);
+        assert.equal(
+            await postmov(monster, 5, 4, MMOVE_MOVED, false, false, true,
+                stayEnv),
+            MMOVE_MOVED,
+        );
+        assert.deepEqual(redraws, [[5, 4], [5, 4]]);
+    });
 
 // C ref: monmove.c:1520-1522. The block is entered only for a monster that
 // neither passes walls nor tunnels; a tunneler is "taken care of below" by the
@@ -489,7 +701,7 @@ test('postmov skips the door block for a tunneler and a wall-walker',
         });
 
         await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, true, env),
+            postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, env),
             (error) => error.message === 'monster tunneling',
         );
 
@@ -501,7 +713,7 @@ test('postmov skips the door block for a tunneler and a wall-walker',
         });
         const { env: walkerEnv, redraws } = postmovEnv(state);
         assert.equal(
-            await postmov(wallWalker, 4, 4, MMOVE_MOVED, false, walkerEnv),
+            await postmov(wallWalker, 4, 4, MMOVE_MOVED, false, false, false, walkerEnv),
             MMOVE_MOVED,
         );
         assert.deepEqual(redraws, [[4, 4], [5, 4]]);
@@ -523,7 +735,7 @@ test('postmov refuses the dig arm only where may_dig admits the square',
 
         assert.equal(may_dig(5, 4, state), false);
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_MOVED, true, env),
+            await postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, env),
             MMOVE_MOVED,
         );
         assert.deepEqual(redraws, [[4, 4], [5, 4]]);
@@ -534,7 +746,7 @@ test('postmov refuses the dig arm only where may_dig admits the square',
         });
         assert.equal(may_dig(5, 4, state), true);
         await assert.rejects(
-            postmov(monster, 4, 4, MMOVE_MOVED, true, digging.env),
+            postmov(monster, 4, 4, MMOVE_MOVED, true, false, false, digging.env),
             (error) => error.message === 'monster tunneling',
         );
     });
@@ -556,7 +768,7 @@ test('postmov refuses a webmaker after a move and after a completed action',
             });
 
             await assert.rejects(
-                postmov(monster, 4, 4, mmoved, false, env),
+                postmov(monster, 4, 4, mmoved, false, false, false, env),
                 (error) => error.message === 'monster web spinning',
                 `mmoved ${mmoved}`,
             );
@@ -572,7 +784,7 @@ test('postmov refuses a webmaker after a move and after a completed action',
         });
         const { env, redraws } = postmovEnv(state);
         assert.equal(
-            await postmov(monster, 4, 4, MMOVE_NOTHING, false, env),
+            await postmov(monster, 4, 4, MMOVE_NOTHING, false, false, false, env),
             MMOVE_NOTHING,
         );
         assert.deepEqual(redraws, []);

@@ -15,9 +15,7 @@ import {
     CONFLICT,
     CORR,
     DOOR,
-    D_BROKEN,
-    D_ISOPEN,
-    D_NODOOR,
+    D_CLOSED,
     HEADSTONE,
     INVIS,
     MMOVE_NOTHING,
@@ -52,7 +50,11 @@ import {
     can_teleport,
     is_covetous,
     is_hider,
+    nohands,
+    passes_walls,
     perceives,
+    tunnels,
+    verysmall,
 } from './mondata.js';
 import {
     AT_BREA,
@@ -71,6 +73,7 @@ import {
     S_EEL,
 } from './monsters.js';
 import {
+    INERT_DOOR_MASKS,
     dochug,
     dochugw,
     m_avoid_kicked_loc,
@@ -107,7 +110,13 @@ import {
     t_at,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { cansee, couldsee } from './vision.js';
+import {
+    cansee,
+    couldsee,
+    makeVisionBuffers,
+    recalc_block_point,
+    vision_recalc,
+} from './vision.js';
 import {
     mon_wield_item,
     select_hwep,
@@ -370,9 +379,11 @@ function planningState(state) {
                 ...region,
                 monsters: [...(region.monsters ?? [])],
             })),
-            // vision.c keeps one cached transparency index. Planning replaces
-            // only monster identities and retains the active geometry which
-            // produced that index, so off-hero do_clear_area() may share it.
+            // vision.c keeps one cached transparency index, which the planned
+            // state borrows: it describes the planned map throughout the scan,
+            // because admitDoorOpening() is the only thing that changes the
+            // planned map and it rebuilds the index. Off-hero do_clear_area()
+            // may therefore share it.
             _visionTransparencyOwner: state.level,
         },
     );
@@ -498,6 +509,55 @@ function resistsTrapEffect() {
     unsupported('monster trap-resistance evaluation');
 }
 
+// C ref: monmove.c postmov()'s `here->doormask == D_CLOSED && can_open` arm
+// (1576-1592), plus the block's own entry test at 1520-1522. can_open repeats
+// mon.c mon_allowflags():2067, so mfndpos() has already refused this square to
+// a monster without it; a wall-walker or a tunneler skips the block instead and
+// leaves the door closed, which is a separate behavior and stays refused.
+function opensClosedDoor(monster, location, doorMask) {
+    const species = monster.data;
+    return location?.typ === DOOR
+        && doorMask === D_CLOSED
+        && !(nohands(species) || verysmall(species))
+        && !passes_walls(species)
+        && !tunnels(species);
+}
+
+// UnblockDoor (monmove.c:1526-1536) writes the doormask and then rebuilds the
+// vision system twice: recalc_block_point() rebuilds the compact transparency
+// index, and vision_recalc(0) rebuilds what the hero sees. Both write state
+// the cloned scan shares with the live game, and the second also paints and
+// ORs seenv into every square that has come into view. This gives the cloned
+// scan what it needs to run both, and runs before the first door it opens.
+//
+// The two rebuilds are isolated differently, because vision.c holds them
+// differently. The COULD_SEE buffers and the level are per-state, so the clone
+// takes its own; the terrain grid is copied whole, since vision_recalc() marks
+// squares all over the map rather than only the door. The transparency index
+// is one set of module buffers with no per-state form, so the clone borrows
+// it: it rebuilds it from the planned map, and preflightSimpleMonsterActions()
+// rebuilds it from the live map before returning. Nothing else reads it in
+// between, and either rebuild derives the whole index from the map it is given,
+// so the live game gets back exactly the index it had.
+function isolatePlannedVision(state) {
+    if (state._visionBuffers) return;
+    state.level.locations = state.level.locations.map(
+        (column) => column.map((cell) => ({ ...cell })),
+    );
+    // Only the spare buffer of the pair is written: vision_recalc() fills it,
+    // then points state.viz_array at it. Until then the clone keeps reading
+    // the live game's current view, which is the value it should see, so this
+    // takes the pair and copies nothing.
+    state._visionBuffers = makeVisionBuffers();
+}
+
+function admitDoorOpening(x, y, env) {
+    const { state } = env;
+    if (!env.planning) return;
+    isolatePlannedVision(state);
+    state._plannedDoorOpening ??= { x, y };
+}
+
 function assertSimpleDestination(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
@@ -510,18 +570,18 @@ function assertSimpleDestination(monster, x, y, env) {
     // teleportation (teleport.c), a shopkeeper (shk.c), or a wizard command.
     // dogmove.c reads stairs only through dog_goal()'s On_stairs(u.ux, u.uy),
     // which asks where the hero stands, not where the pet steps.
-    // A doorway a monster can stand in without acting on it: monmove.c
-    // postmov()'s door block tests D_LOCKED or D_CLOSED in every arm, so
-    // D_NODOOR, D_BROKEN and D_ISOPEN fall through it. Any other mask reaches
-    // an arm that rewrites the doormask, which is not ported.
+    // A doorway a monster can stand in without acting on it, or a closed one
+    // it opens. INERT_DOOR_MASKS names the first set; js/monmove.js owns it
+    // beside the block that skips them.
     const inertDoorway = location?.typ === DOOR
-        && (doorMask === D_NODOOR || doorMask === D_BROKEN
-            || doorMask === D_ISOPEN);
+        && INERT_DOOR_MASKS.has(doorMask);
+    const opensDoor = opensClosedDoor(monster, location, doorMask);
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
             || location.typ === STAIRS
-            || inertDoorway);
+            || inertDoorway
+            || opensDoor);
     if (!ordinaryDestination)
         unsupported('door or special terrain movement');
     if (t_at(x, y, state))
@@ -533,6 +593,8 @@ function assertSimpleDestination(monster, x, y, env) {
             unsupported('a region transition');
         }
     }
+    // Last, so that a destination another guard rejects prepares nothing.
+    if (opensDoor) admitDoorOpening(x, y, env);
     return true;
 }
 
@@ -546,9 +608,28 @@ function wipeSimpleEngraving(x, y, _count, _magical, env) {
     unsupported('monster engraving wear');
 }
 
+// UnblockDoor's second rebuild, vision_recalc(0). The cloned scan runs the
+// same function the live scan does, against the buffers and the terrain grid
+// isolatePlannedVision() gave it, and paints nothing: the scan replays the
+// turn against the live display afterwards.
+function planningVisionRecalc(state) {
+    return (control) => vision_recalc(control, { state, redraw: () => {} });
+}
+
+// postmov()'s two vision owners, which reach it through m_move()'s env for a
+// pet as well as for an ordinary monster. recalc_block_point() is the module
+// default in both passes: it derives the transparency index from whichever
+// state it is handed, so the cloned scan gets the index its own map implies.
+function doorVisionOperations(env) {
+    return env.planning
+        ? { visionRecalc: planningVisionRecalc(env.state) }
+        : {};
+}
+
 async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
+        ...doorVisionOperations(env),
         mayCrossRegion: assertSimpleDestination,
         resolveTrappedMonster: () => false,
         resistsTrapEffect,
@@ -772,6 +853,27 @@ export async function preflightSimpleMonsterActions(
     const planned = planningState(state);
     const random = clonedRandom(planned);
     planned.u.umovement -= NORMAL_SPEED;
+    let upkeepCount = 0;
+    try {
+        upkeepCount = await planSimpleMonsterTurn(planned, random, advanceRound);
+    } finally {
+        // admitDoorOpening() rebuilt js/vision.js's shared transparency index
+        // from the planned map. Deriving it again from the live map restores
+        // it, whether the plan finished or refused partway through.
+        if (planned._plannedDoorOpening) {
+            const { x, y } = planned._plannedDoorOpening;
+            recalc_block_point(x, y, state);
+        }
+    }
+    return {
+        runsOncePerTurnUpkeep: upkeepCount > 0,
+        upkeepCount,
+    };
+}
+
+// The body of preflightSimpleMonsterActions()'s scan, split out so that its
+// caller can restore the shared vision buffers on every exit.
+async function planSimpleMonsterTurn(planned, random, advanceRound) {
     let somebodyCanMove;
     let upkeepCount = 0;
     do {
@@ -815,8 +917,5 @@ export async function preflightSimpleMonsterActions(
         // round to stop after a single allocation.
         if (await advanceRound(planned, random)) break;
     } while (planned.u.umovement < NORMAL_SPEED);
-    return {
-        runsOncePerTurnUpkeep: upkeepCount > 0,
-        upkeepCount,
-    };
+    return upkeepCount;
 }

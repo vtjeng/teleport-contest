@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
     BURN,
     BURN_OBJECT,
     CONFLICT,
@@ -82,6 +83,7 @@ import {
     WAX_CANDLE,
 } from '../js/objects.js';
 import { create_region } from '../js/region.js';
+import { clear_path, recalc_block_point } from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
@@ -852,7 +854,8 @@ test('simple movement admits a staircase but not a ladder', async () => {
 // C ref: monmove.c postmov()'s door block (1520-1622). A monster that ends its
 // move on a doorless, broken or open doorway reaches no arm of that block, so
 // the move completes with the doormask, the map and the message window
-// untouched. Every other mask reaches an arm that rewrites the doormask.
+// untouched. Of the masks that do reach an arm, only D_CLOSED under can_open
+// is ported; the test below this one owns that one.
 test('simple movement admits an inert doorway and no other mask', async () => {
     for (const representation of ['flags', 'doormask']) {
         for (const mask of [D_NODOOR, D_BROKEN, D_ISOPEN]) {
@@ -881,7 +884,6 @@ test('simple movement admits an inert doorway and no other mask', async () => {
         }
 
         for (const mask of [
-            D_CLOSED,
             D_LOCKED,
             D_ISOPEN | D_TRAPPED,
             D_CLOSED | D_TRAPPED,
@@ -928,6 +930,98 @@ test('simple movement admits an inert doorway and no other mask', async () => {
             }
         }
     }
+});
+
+// Install a closed door on the square the selected monster will step onto and
+// bring js/vision.js's transparency index into step with it, as every other
+// writer of a doormask does.
+async function prepareClosedDoorArrival() {
+    const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+    const location = game.level.at(target.destinationX, target.heroY);
+    location.typ = DOOR;
+    location.flags = D_CLOSED;
+    location.doormask = D_CLOSED;
+    recalc_block_point(target.destinationX, target.heroY, game);
+    return { ...target, location };
+}
+
+// clear_path() skips both endpoints, so straddling the door reports whether
+// the transparency index still calls that one square opaque.
+function doorLetsLightThrough(target) {
+    return clear_path(
+        target.destinationX - 1,
+        target.heroY,
+        target.destinationX + 1,
+        target.heroY,
+    );
+}
+
+// A live-vision snapshot the cloned scan must not disturb. viz_array is a
+// buffer the scan could swap as well as overwrite, so this pins the object as
+// well as its contents, and seenv is the per-square memory vision_recalc()
+// accumulates.
+function visionSnapshot() {
+    return {
+        buffer: game.viz_array,
+        active: game.active_buf,
+        rows: game.viz_array.map((row) => [...row]),
+        seenv: game.level.locations.map(
+            (column) => column.map((cell) => [cell.seenv ?? 0, cell.waslit ?? 0]),
+        ),
+        cell: game.level.at(8, 10),
+    };
+}
+
+// C ref: monmove.c postmov():1576-1592 through UnblockDoor at 1526-1536. The
+// gnome has hands, so mon_allowflags() gives it OPENDOOR and mfndpos() offers
+// it the closed square. The hero stands three squares away with a clear line,
+// so this is the arm that names the monster.
+test('simple movement opens a closed door and names the opener', async () => {
+    const target = await prepareClosedDoorArrival();
+    assert.equal(doorLetsLightThrough(target), 0);
+    const before = preflightSnapshot();
+    const vision = visionSnapshot();
+
+    // The cloned scan opens the door on its own terrain grid and its own
+    // COULD_SEE buffers, and returns the shared transparency index it borrowed.
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(preflightSnapshot(), before);
+    assert.deepEqual(visionSnapshot(), vision);
+    assert.equal(target.location.flags, D_CLOSED);
+    assert.equal(doorLetsLightThrough(target), 0);
+
+    const messages = [];
+    await runSimpleMonsterAction(target.monster, {
+        state: game,
+        message: (text) => { messages.push(text); },
+    });
+    assert.deepEqual(
+        [target.monster.mx, target.monster.my],
+        [target.destinationX, target.heroY],
+    );
+    assert.equal(target.location.flags, D_ISOPEN);
+    assert.equal(target.location.doormask, D_ISOPEN);
+    assert.equal(doorLetsLightThrough(target), 1);
+    assert.deepEqual(messages, ['The gnome opens a door.']);
+});
+
+// The same opening with the hero blind. vision_recalc()'s Blind branch grants
+// no IN_SIGHT square, so canseeit stays false and the door is heard instead.
+test('simple movement reports a door a blind hero only hears', async () => {
+    const target = await prepareClosedDoorArrival();
+    game.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const vision = visionSnapshot();
+
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(visionSnapshot(), vision);
+
+    const messages = [];
+    await runSimpleMonsterAction(target.monster, {
+        state: game,
+        message: (text) => { messages.push(text); },
+    });
+    assert.equal(target.location.flags, D_ISOPEN);
+    assert.deepEqual(messages, ['You hear a door open.']);
 });
 
 test('simple preflight recognizes only the starting pony worn saddle', () => {

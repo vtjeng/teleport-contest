@@ -32,6 +32,7 @@ import {
     A_LAWFUL,
     A_STR,
     BEAR_TRAP,
+    BLINDED,
     BOLT_LIM,
     BUSTDOOR,
     COLNO,
@@ -50,6 +51,7 @@ import {
     D_ISOPEN,
     D_LOCKED,
     D_NODOOR,
+    D_TRAPPED,
     FAINTED,
     FIRE_TRAP,
     G_GENOD,
@@ -128,6 +130,7 @@ import { ART_SUNSWORD } from './artifacts.js';
 import { effective_attribute } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { newsym } from './display.js';
+import { capitalizedMonsterName } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { could_reach_item } from './dogmove.js';
 import { on_level } from './dungeon.js';
@@ -307,15 +310,23 @@ import { rn2, rnd } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import {
+    canSpotMonster,
     collectMonsterMovementMessage,
     collectMonsterNoticeMessage,
+    messageAt,
 } from './startup_a11y.js';
 import { S_poisoncloud } from './symbols.js';
 import { noteleport_level } from './teleport.js';
 import { gettrack, hastrack } from './track.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { cansee, clear_path, couldsee } from './vision.js';
+import {
+    cansee,
+    clear_path,
+    couldsee,
+    recalc_block_point,
+    vision_recalc,
+} from './vision.js';
 import { can_touch_safely, which_armor } from './weapon.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
@@ -1408,6 +1419,28 @@ function heroDeaf(state) {
         || Boolean(state.u?.uroleplay?.deaf);
 }
 
+// C ref: pline.c You_hear() (435-451).  Returns the composed line, or null
+// where C returns without printing.  Callers that already test Deaf still get
+// the acoustics gate, which C applies here and nowhere else.
+function youHear(line, state) {
+    if ((heroDeaf(state) && !heroUnaware(state)) || !state.flags?.acoustics)
+        return null;
+    if (state.u?.uinwater) return `You barely hear ${line}`;
+    if (heroUnaware(state)) return `You dream that you hear ${line}`;
+    return `You hear ${line}`;
+}
+
+// C ref: pline.c You_see() (453-470).  C's own comment says a caller should
+// have caught the Blind case; every caller in this file reaches it only behind
+// cansee(), which is false while the hero is blind.
+function youSee(line, state) {
+    if (heroUnaware(state)) return `You dream that you see ${line}`;
+    // youprop.h:103 defines Blind as ((HBlinded || EBlinded) && !BBlinded)
+    // and folds OPTIONS=blind into HBlinded, so there is no uroleplay term.
+    if (propertyActive(state, BLINDED, true)) return `You sense ${line}`;
+    return `You see ${line}`;
+}
+
 function fleeingLightSource(state) {
     if (artifactLight(state.uwep)) return state.uwep;
     if (artifactLight(state.uarm)) return state.uarm;
@@ -2303,18 +2336,21 @@ export function monsterItemSearchInLine(monster, env = {}) {
         || random.rn2(2 + terrain.boulders) < 2;
 }
 
-// The door masks postmov()'s door block leaves alone.  Every arm of that block
-// tests D_LOCKED or D_CLOSED, so a monster standing on a doorless, broken or
-// open doorway falls through it without touching the doormask, the map or the
-// message window.
-const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
+// The door masks that leave postmov()'s door block with nothing to do.  Three
+// of the block's four arms test D_LOCKED or D_CLOSED and the fourth tests
+// whole-mask equality with D_CLOSED, so a monster standing on a doorless,
+// broken or open doorway falls through all four without touching the doormask,
+// the map or the message window.  The one arm above them that acts on any
+// other mask is the magic-key disarm at monmove.c:1539, which needs D_TRAPPED.
+export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 
 // C ref: monmove.c postmov() (1454-1705).  Covers notice_mon(), the redraw of
 // the square the monster left, the door block's fall-through for an inert
-// doormask, the redraw of the square it reached, and the object arm's
-// mpickstuff() branch.  The injected `unsupported` refuses the rest: the
-// vamp_shift() sequencing hack, mintrap(), every door arm that rewrites a
-// doormask, IRONBARS, mdig_tunnel(), the engulfed-hero relocation, and
+// doormask and its `doormask == D_CLOSED && can_open` arm, the redraw of the
+// square it reached, and the object arm's mpickstuff() branch.  The injected
+// `unsupported` refuses the rest: the vamp_shift() sequencing hack, mintrap(),
+// every door arm that needs a door trap, amorphous(), can_unlock or a
+// doorbuster, IRONBARS, mdig_tunnel(), the engulfed-hero relocation, and
 // maybe_spin_web().  meatmetal(), meatobj() and meatcorpse() are refused
 // through select_postmove_object_action(), which selects them.  hideunder()
 // and after_shk_move() need a hider, an eel or a shopkeeper, each refused
@@ -2329,6 +2365,8 @@ export async function postmov(
     omy,
     mmoved,
     canTunnel,
+    canUnlock,
+    canOpen,
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
@@ -2340,10 +2378,34 @@ export async function postmov(
         ? async () => {}
         : (rawEnv.message ?? ttyPline);
     const redraw = env.planning ? () => {} : (rawEnv.redraw ?? newsym);
+    // vision.c recalc_block_point() and vision_recalc(), which UnblockDoor
+    // calls in that order.  recalc_block_point() already takes the state it
+    // derives from; the cloned monster scan substitutes vision_recalc() so
+    // that it can name the buffers to fill and paint nothing.
+    const recalcBlockPoint = rawEnv.recalcBlockPoint ?? recalc_block_point;
+    const visionRecalc = rawEnv.visionRecalc ?? vision_recalc;
     const species = monster.data;
+
+    // C ref: monmove.c:1476-1477.  Both are read only by the door block, and
+    // didseeit keeps the value from before UnblockDoor changed the map.
+    let canseeit = cansee(monster.mx, monster.my, state);
+    const didseeit = canseeit;
 
     const notice = collectMonsterNoticeMessage(monster, state);
     if (notice) await message(notice, state, env);
+
+    // C ref: monmove.c:1526-1536, the UnblockDoor macro.  canseeit is the
+    // caller's local there, so this returns the value the macro recomputes.
+    const unblockDoor = (where, who, what) => {
+        // detect.c cvt_sdoor_to_door() sets both spellings of struct rm's
+        // shared mask field; every reader in the port accepts either.
+        where.flags = what;
+        where.doormask = what;
+        redraw(who.mx, who.my);
+        recalcBlockPoint(who.mx, who.my, state);
+        visionRecalc(0);
+        return didseeit || cansee(who.mx, who.my, state);
+    };
 
     let outcome = mmoved;
     if (mmoved === MMOVE_MOVED) {
@@ -2357,18 +2419,67 @@ export async function postmov(
         if (t_at(monster.mx, monster.my, state))
             unsupported('trap activation');
         const here = state.level?.at(monster.mx, monster.my);
+        // C ref: monmove.c:1519-1622, the door block.
         if (IS_DOOR(here?.typ) && !passes_walls(species) && !canTunnel) {
-            if (!INERT_DOOR_MASKS.has(doorMask(here)))
-                unsupported('a monster opening a door');
+            const btrapped = (doorMask(here) & D_TRAPPED) !== 0;
+            // C ref: monmove.c:1538-1547.  A door trap reaches three owners
+            // none of which is ported: the silent disarm a monster carrying
+            // the Master Key of Thievery performs here, which writes the
+            // doormask; mb_trapped(), which every acting arm below calls; and
+            // the fall-through that leaves a D_TRAPPED-only mask alone.  Every
+            // level the port reaches generates zero trapped doors.
+            if (btrapped) unsupported('a door trap under a monster');
+            if ((doorMask(here) & (D_LOCKED | D_CLOSED)) !== 0
+                && amorphous(species)) {
+                unsupported('a monster oozing under a door');
+            } else if ((doorMask(here) & D_LOCKED) !== 0 && canUnlock) {
+                unsupported('a monster unlocking a door');
+            } else if (doorMask(here) === D_CLOSED && canOpen) {
+                // C ref: monmove.c:1576-1592.  Whole-mask equality with
+                // D_CLOSED is what makes btrapped false here, so C's
+                // `!btrapped ? D_ISOPEN : D_NODOOR` can only choose D_ISOPEN
+                // and its mb_trapped() branch below is unreachable.
+                canseeit = unblockDoor(here, monster, D_ISOPEN);
+                // Soundeffect(se_door_open, 100) is a tty-sound hook that
+                // writes nothing to the terminal the recorder captures.
+                if (state.flags?.verbose) {
+                    if (canseeit && canSpotMonster(monster, state)) {
+                        await message(
+                            messageAt(
+                                `${capitalizedMonsterName(monster, state)}`
+                                + ' opens a door.',
+                                monster.mx,
+                                monster.my,
+                                state,
+                            ),
+                            state,
+                            env,
+                        );
+                    } else if (canseeit) {
+                        await message(youSee('a door open.', state), state, env);
+                    } else if (!heroDeaf(state)) {
+                        const heard = youHear('a door open.', state);
+                        if (heard) await message(heard, state, env);
+                    }
+                }
+            } else if ((doorMask(here) & (D_LOCKED | D_CLOSED)) !== 0) {
+                // C ref: monmove.c:1593-1620.  mfndpos() offers this square
+                // only to a doorbuster, whose rn2(2) and add_damage() are
+                // both unported.
+                unsupported('a monster smashing down a door');
+            }
         } else if (here?.typ === IRONBARS) {
             unsupported('monster iron-bar movement');
         }
         if (canTunnel && may_dig(monster.mx, monster.my, state))
             unsupported('monster tunneling');
         // C ref: monmove.c:1649-1656.  A monster that has swallowed the hero
-        // drags them to its new square instead of repainting the old one.
-        if (state.u?.uswallow && state.u?.ustuck === monster)
+        // drags them to its new square instead of repainting the old one, and
+        // only when the move changed its square.
+        if (state.u?.uswallow && state.u?.ustuck === monster
+            && (monster.mx !== omx || monster.my !== omy)) {
             unsupported('an engulfing monster moving');
+        }
         redraw(monster.mx, monster.my);
     }
 
@@ -2458,11 +2569,12 @@ export async function m_move(monster, rawEnv = {}) {
     set_apparxy(monster, env);
     // C ref: monmove.c:1763-1766.  mon_allowflags() computes the same three
     // capabilities for mfndpos(); m_move() keeps its own can_tunnel because it
-    // clears that copy again below, after the item search.  can_open and
-    // can_unlock are left out: every door arm that reads one is refused in
-    // postmov(), so neither can change a result yet.
+    // clears that copy again below, after the item search.
     let canTunnel = !on_level(state.u?.uz, state.rogue_level)
         && tunnels(monster.data);
+    const canOpen = !(nohands(monster.data) || verysmall(monster.data));
+    const canUnlock = (canOpen && monhaskey(monster, true, state))
+        || monster.iswiz || is_rider(monster.data);
     // Tests substitute their own postmov() to isolate m_move(); the running
     // game uses the port above.
     const postMonsterMove = rawEnv.postMonsterMove
@@ -2473,6 +2585,8 @@ export async function m_move(monster, rawEnv = {}) {
                 subjectOldY,
                 status,
                 canTunnel,
+                canUnlock,
+                canOpen,
                 moveEnv,
             ));
     if (monster.mtame) {
