@@ -3876,6 +3876,116 @@
         ]
       },
       "recordedAt": "2026-07-30T14:36:28.160Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "c64d35015524984772317b67783e3cc59228cec3"
+      },
+      "head": "005ea20e047e76958b57d78c39ed3136f3ebe1d1",
+      "auditedRange": "c64d35015524984772317b67783e3cc59228cec3..005ea20e047e76958b57d78c39ed3136f3ebe1d1",
+      "areas": [
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the slice that gave monmove.c postmov() a home and admitted the inert doorway. Four mandatory finders; performance and concurrency not triggered. 16 raw findings, 13 after deduplication, 11 confirmed, 2 applied at 76659e9, 9 deferred to ROADMAP.md, 2 rejected, none unverified, no warnings. Both applied findings are the failure mode the pass was directed at: a call C makes that the port skips, which produces no refusal and no stop. The evacuation of postSimpleMove() out of the boundary file dropped its trap guard on the monster's own square, leaving a monster that reports MMOVE_MOVED without changing square, on a trap, unguarded — the refusal is restored at mintrap()'s own position at monmove.c:1509, reading the live square rather than a destination. And a third silent PRNG gap was found by hunting siblings of the two the slice itself had found: monmove.c:1692-1699 draws rn2(5) for a hides_under() species or an eel, and the pre-scan guard keyed on is_hider(), M1_HIDE, which is a different flag from hides_under(), M1_CONCEAL, so a garter snake, centipede or scorpion reached the arm and the draw was skipped. Of the nine deferred, five are comments stating a false rule about C's door block — its first arm tests D_TRAPPED alone for a magic-key holder and writes the doormask, which is why the port's whole-mask equality is right rather than despite — and four are assertions that do not discriminate. Development score identical before and after the fixes at 446 of 7,765 screens, 446 cursors and 99,840 PRNG calls; scripts/run-monster-doorway.mjs matches 6 segments, 17,436 PRNG calls, 146 screens and 146 cursors.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3220,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 13,
+          "confirmed": 11,
+          "applied": 2,
+          "deferred": 9,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 4,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The boundary evacuation dropped a refusal without replacing it. postSimpleMove() called assertSimpleDestination() for every MMOVE_MOVED, so its trap check covered the monster's own square whether or not the square had changed; postmov() relied on the pre-move gate, which only inspects a square a monster is about to enter, leaving a monster that reports MMOVE_MOVED without changing square, on a trap, with no guard at all.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "A third silent PRNG gap: monmove.c:1692-1699 draws rn2(5) for a hides_under() species or an eel with mundetected clear, and helpless() cannot hold because dochug() returns before m_move() for a sleeping or immobile monster. The pre-scan guard keys on is_hider() (M1_HIDE), a different flag from hides_under() (M1_CONCEAL), so a garter snake, centipede or scorpion reached the arm and the draw was skipped with no refusal and no stop.",
+            "foundBy": [
+              "correctness",
+              "variable-trace",
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "Four copies of the rule that every arm of C's door block tests D_LOCKED or D_CLOSED are false: monmove.c:1543-1548's first arm tests D_TRAPPED alone for a magic-key holder and writes the doormask.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "The refusal string for D_ISOPEN | D_TRAPPED names opening a door, an arm that mask cannot reach.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "The webmaker comment lists guards C applies that the port does not.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "const species = monster.data is latched at entry where the header comment says ptr is refreshed after mintrap().",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "The inert door mask set is written twice, as INERT_DOOR_MASKS and as an inline three-way comparison, with the explanatory comment duplicated.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "The IRONBARS refusal in postmov() is reached by no test; deleting it leaves the suite green.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "The engulfed-hero refusal has no test and drops C's (mtmp->mx != omx || mtmp->my != omy) conjunct from monmove.c:1650.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "m_move()'s can_tunnel clearing is exercised only in the direction that clears, so every conjunct and the literal 8 survive mutation.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "simple preflight ignores an unselected rock during item search gained a comment asserting something about its gnome fixture that the test does not check.",
+            "trackedIn": "nine postmov findings are deferred",
+            "category": "tests"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Two further claims about postmov's structure that the adjudicator could not confirm against source.",
+            "counterEvidence": "Each failed its source trace or diff-causality check with no reproduction recorded. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A second claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T16:28:07.847Z"
     }
   ]
 }
