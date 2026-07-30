@@ -473,8 +473,12 @@ them. `planningState()` cloned the catalog with `{ ...entry }` from `8bd4d6a`
 until `39e5df1`, which meant the dry run read `undefined` for all eight and
 took different branches from the live pass.
 
-`copyObjclassEntry()` in `js/objects.js` is now the only correct way to copy a
-catalog entry, and the generator emits it. The general lesson is recorded here
+`copyObjclassEntry()` in `js/objects.js` is the correct way to *materialize* a
+copy of a catalog entry, and the generator emits it. The planning clone no
+longer needs one: it uses `Object.create(entry)` prototype delegation, which
+gave the same isolation without the 6.4 ms per turn a 482-entry copy cost. The
+import in `js/unported_monster_actions.js` is dead as a result and is left for
+a simplification pass. The general lesson is recorded here
 because the same trap applies to any state the port clones: a spread is not a
 copy when the source uses `Object.defineProperty`.
 
