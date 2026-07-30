@@ -2233,6 +2233,13 @@ export const TRAPPED_DOOR = 24;
 export const TRAPPED_CHEST = 25;
 export const TRAPNUM = 26;
 
+// Trap function results (trap.h enum trap_result)
+export const Trap_Effect_Finished = 0;
+export const Trap_Is_Gone = 0;
+export const Trap_Caught_Mon = 1;
+export const Trap_Killed_Mon = 2;
+export const Trap_Moved_Mon = 3;
+
 // Trap helpers (trap.h)
 export function is_pit(ttyp) { return ttyp === PIT || ttyp === SPIKED_PIT; }
 export function is_hole(ttyp) { return ttyp === HOLE || ttyp === TRAPDOOR; }

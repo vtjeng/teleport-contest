@@ -191,8 +191,14 @@ function conflictActive(state) {
     return Boolean(conflict?.intrinsic || conflict?.extrinsic);
 }
 
+// C ref: monst.h:255 mon_offmap(). A monster whose mstate has left MON_FLOOR
+// is detached, migrating, or in limbo, and is no longer on this level's map.
+export function mon_offmap(monster) {
+    return (monster.mstate ?? MON_FLOOR) !== MON_FLOOR;
+}
+
 function monsterOnMap(monster) {
-    return (monster.mstate ?? MON_FLOOR) === MON_FLOOR;
+    return !mon_offmap(monster);
 }
 
 // C ref: mon.c movemon_singlemon(). The injected operations retain the source

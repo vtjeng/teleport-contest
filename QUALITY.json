@@ -184,6 +184,7 @@
         "js/terrain.js",
         "js/track.js",
         "js/trap.js",
+        "js/trap_effects.js",
         "js/trap_erode_obj.js",
         "js/trap_water_damage.js",
         "js/vision.js"

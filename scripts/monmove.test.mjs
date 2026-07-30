@@ -67,6 +67,7 @@ import {
     FIRE_TRAP,
     SLP_GAS_TRAP,
     STEALTH,
+    SQKY_BOARD,
     STONE,
     TELEP_TRAP,
     TEMPLE,
@@ -652,16 +653,18 @@ test('postmov opens the door silently for verbose, Deaf and acoustics',
 // with a Norep() message. Neither is ported.
 // C ref: monmove.c:1509. mintrap() runs for every MMOVE_MOVED, including a
 // monster whose square did not change — dog_move() returns MMOVE_MOVED even
-// when the pet stays put. The pre-move gate only inspects a square a monster is
-// about to enter, so this guard is the only thing covering a monster that ends
-// its move standing on an untriggered trap. It was lost once already, when
-// postSimpleMove() was evacuated out of the boundary file, and was reinstated
-// with no test; deleting it left the whole suite green.
-test('postmov refuses a move that ends on a trap square', async () => {
+// when the pet stays put, so the call reads the monster's live square rather
+// than a destination. ARROW_TRAP stands for every type whose monster arm is
+// still unported; trapeffect_selector() is what stops the scan.
+test('postmov refuses a move that ends on an unported trap type', async () => {
     const { state } = makeState();
     const monster = ordinaryMonster(state, { mx: 5, my: 4 });
-    state.level.traps = [{ tx: 5, ty: 4, ttyp: 1, tseen: false }];
+    // ARROW_TRAP. Chosen because floor_trigger() admits it and its monster arm
+    // is queued for a later slice, so the refusal has to come from the
+    // selector rather than from a destination check.
+    state.level.traps = [{ tx: 5, ty: 4, ttyp: ARROW_TRAP, tseen: false }];
     const { env } = postmovEnv(state, {
+        random: { rn2: () => assert.fail('no draw is due'), rnl: () => 0 },
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
@@ -671,18 +674,142 @@ test('postmov refuses a move that ends on a trap square', async () => {
     );
 });
 
-// The sibling: the guard must not widen into a blanket refusal, or every
-// ordinary move would stop.
+// The sibling: mintrap() must not widen into a blanket refusal, or every
+// ordinary move would stop. C returns Trap_Effect_Finished with no draw for a
+// monster standing on no trap at all.
 test('postmov admits a move that ends on a trapless square', async () => {
     const { state } = makeState();
-    const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+    const monster = ordinaryMonster(state, { mx: 5, my: 4, mtrapped: 1 });
     state.level.traps = [];
     const { env } = postmovEnv(state, {
+        random: { rn2: () => assert.fail('no draw is due'), rnl: () => 0 },
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
     await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+    // trap.c:3740, the `!trap` arm: "perhaps teleported?"
+    assert.equal(monster.mtrapped, false);
 });
+
+// C ref: trap.c trapeffect_sqky_board() (1457-1473), the arm the hero reads as
+// a sound. The monster stands out of sight, so canseemon() is false, and the
+// hero is far enough away for the "in the distance" half of the threshold.
+test('postmov squeaks a board under a monster the hero cannot see',
+    async () => {
+        const { state } = makeState();
+        // pline.c You_hear() returns without printing when acoustics is off.
+        state.flags = { acoustics: true };
+        const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+        state.level.monlist = monster;
+        // tnote 9 is "A note" in trap.c trapnote()'s tnnames[], the note the
+        // recorded squeaky-board sessions carry.
+        state.level.traps = [
+            { tx: 5, ty: 4, ttyp: SQKY_BOARD, tnote: 9, tseen: false },
+        ];
+        const { env, messages, redraws } = postmovEnv(state, {
+            random: { rn2: () => assert.fail('no draw is due'), rnl: () => 0 },
+            unsupported: (refusal) => { throw new Error(refusal); },
+        });
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+        assert.deepEqual(
+            messages,
+            ['You hear an A note squeak in the distance.'],
+        );
+        // seetrap() belongs to the in-sight arm alone, so an unseen squeak
+        // leaves the trap unmapped and repaints only the two move squares.
+        assert.equal(state.level.traps[0].tseen, false);
+        assert.deepEqual(redraws, [[4, 4], [5, 4]]);
+        // mondata.c mon_learns_traps(): the victim remembers the type, which
+        // is what makes mintrap()'s rn2(4) arm reachable on a later trigger.
+        assert.equal(monster.mtrapseen, 1 << (SQKY_BOARD - 1));
+    });
+
+// C ref: trap.c:1462-1470. The out-of-sight arm reports `nearby` or `in the
+// distance` from mdistu(mtmp) against range squared, where range is BOLT_LIM+1
+// when couldsee() holds for the monster's square and BOLT_LIM-3 when it does
+// not. No fresh recording reaches `nearby`, because a waiting hero stands in a
+// lit room where a monster that close is visible instead;
+// scripts/run-monster-squeaky-board.mjs says why and defers to this test.
+test('postmov chooses the squeak distance from couldsee and mdistu',
+    async () => {
+        // The hero stands at <10,10>. BOLT_LIM is 8, so the thresholds are 81
+        // with couldsee() and 25 without.
+        const cases = [
+            // dx 0, dy 4: mdistu 16, inside 25, so near either way.
+            { mx: 10, my: 6, seen: false, word: 'nearby' },
+            // dx 0, dy 6: mdistu 36, outside 25 and inside 81, so the range
+            // term is the only thing that decides.
+            { mx: 10, my: 4, seen: false, word: 'in the distance' },
+            { mx: 10, my: 4, seen: true, word: 'nearby' },
+            // dx 0, dy 9: mdistu 81, exactly the boundary C admits with <=.
+            { mx: 10, my: 1, seen: true, word: 'nearby' },
+        ];
+        for (const { mx, my, seen, word } of cases) {
+            const { state } = makeState();
+            state.flags = { acoustics: true };
+            const monster = ordinaryMonster(state, { mx, my });
+            state.level.monlist = monster;
+            state.level.traps = [
+                { tx: mx, ty: my, ttyp: SQKY_BOARD, tnote: 9, tseen: false },
+            ];
+            if (seen) {
+                // COULD_SEE without IN_SIGHT: couldsee() holds and cansee()
+                // does not, which is what an unlit room square looks like and
+                // the only way canseemon() can be false this close.
+                state.viz_array = Array.from(
+                    { length: ROWNO },
+                    () => new Uint8Array(COLNO),
+                );
+                state.viz_array[my][mx] = COULD_SEE;
+            }
+            const { env, messages } = postmovEnv(state, {
+                random: {
+                    rn2: () => assert.fail('no draw is due'),
+                    rnl: () => 0,
+                },
+                unsupported: (refusal) => { throw new Error(refusal); },
+            });
+
+            await postmov(monster, mx, my, MMOVE_MOVED, false, false, true, env);
+            assert.deepEqual(
+                messages,
+                [`You hear an A note squeak ${word}.`],
+                `<${mx},${my}> couldsee ${seen}`,
+            );
+        }
+    });
+
+// C ref: trap.c:3812. A monster that already knows the type escapes on three
+// of four draws, before mon_learns_traps(), mons_see_trap() and the effect.
+test('postmov lets a monster that knows the board escape on rn2(4)',
+    async () => {
+        for (const [roll, squeaks] of [[1, false], [0, true]]) {
+            const { state } = makeState();
+            state.flags = { acoustics: true };
+            const monster = ordinaryMonster(state, {
+                mx: 5,
+                my: 4,
+                mtrapseen: 1 << (SQKY_BOARD - 1),
+            });
+            state.level.monlist = monster;
+            state.level.traps = [
+                { tx: 5, ty: 4, ttyp: SQKY_BOARD, tnote: 9, tseen: false },
+            ];
+            const bounds = [];
+            const { env, messages } = postmovEnv(state, {
+                random: {
+                    rn2: (bound) => { bounds.push(bound); return roll; },
+                    rnl: () => 0,
+                },
+                unsupported: (refusal) => { throw new Error(refusal); },
+            });
+
+            await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+            assert.deepEqual(bounds, [4], `roll ${roll}`);
+            assert.equal(messages.length, squeaks ? 1 : 0, `roll ${roll}`);
+        }
+    });
 
 test('postmov refuses a move that ends on iron bars', async () => {
     const { locations, state } = makeState();

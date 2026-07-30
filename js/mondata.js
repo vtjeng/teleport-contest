@@ -41,7 +41,7 @@ import {
 import { effective_attribute } from './attrib.js';
 import { artifact_defends } from './artifacts.js';
 import { game } from './gstate.js';
-import { highc } from './hacklib.js';
+import { dist2, highc } from './hacklib.js';
 import * as M from './monsters.js';
 import { ALCHEMY_SMOCK } from './objects.js';
 import { rn2, rnd } from './rng.js';
@@ -399,6 +399,46 @@ export function mon_knows_traps(monster, trapType) {
     if (trapType === ALL_TRAPS) return Boolean(monster.mtrapseen);
     if (trapType === NO_TRAP) return !monster.mtrapseen;
     return Boolean((monster.mtrapseen ?? 0) & (1 << (trapType - 1)));
+}
+
+// C ref: mondata.c mon_learns_traps(). The inverse of mon_knows_traps(); the
+// two sentinels set and clear the whole mask.
+export function mon_learns_traps(monster, trapType) {
+    if (trapType === ALL_TRAPS) {
+        monster.mtrapseen = -1;
+    } else if (trapType === NO_TRAP) {
+        monster.mtrapseen = 0;
+    } else {
+        monster.mtrapseen = (monster.mtrapseen ?? 0) | (1 << (trapType - 1));
+    }
+}
+
+// C ref: mondata.c mons_see_trap(). Every monster that watches a trap fire
+// remembers that type, which is what makes mintrap()'s `already_seen` arm
+// reachable on a later trigger.
+//
+// m_cansee() is vision.h:42, a clear_path() macro. js/vision.js cannot be
+// imported here: js/vision.js reaches js/mondata.js through js/display.js and
+// js/startup_a11y.js, so the caller supplies the predicate instead.
+export function mons_see_trap(trap, env = {}) {
+    const state = env.state ?? game;
+    const mCansee = env.mCansee;
+    if (typeof mCansee !== 'function')
+        throw new TypeError('mons_see_trap requires the mCansee owner');
+    const tx = trap.tx;
+    const ty = trap.ty;
+    const maxdist = state.level?.at(tx, ty)?.lit ? 7 * 7 : 2;
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (is_animal(monster.data) || mindless(monster.data)
+            || !haseyes(monster.data) || !monster.mcansee) {
+            continue;
+        }
+        if (dist2(monster.mx, monster.my, tx, ty) > maxdist) continue;
+        if (!mCansee(monster, tx, ty)) continue;
+        mon_learns_traps(monster, trap.ttyp);
+    }
 }
 
 // C ref: mondata.c passes_bars(). This combines shape, size, attack, and diet

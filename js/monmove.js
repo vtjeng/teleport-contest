@@ -87,6 +87,7 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     NOGARLIC,
+    NO_TRAP_FLAGS,
     NOTONL,
     NO_WEAPON_WANTED,
     OPENDOOR,
@@ -117,6 +118,8 @@ import {
     TEMPLE,
     TRAPDOOR,
     TRAPNUM,
+    Trap_Killed_Mon,
+    Trap_Moved_Mon,
     UNLOCKDOOR,
     VIBRATING_SQUARE,
     WEB,
@@ -147,6 +150,7 @@ import {
     curr_mon_load,
     m_carrying,
     max_mon_load,
+    mon_offmap,
     mpickstuff,
 } from './mon.js';
 import { can_carry } from './moncarry.js';
@@ -320,6 +324,12 @@ import { S_poisoncloud } from './symbols.js';
 import { noteleport_level } from './teleport.js';
 import { gettrack, hastrack } from './track.js';
 import { is_lava, is_pool, t_at } from './trap.js';
+import {
+    check_in_air,
+    fixed_tele_trap,
+    floor_trigger,
+    mintrap,
+} from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
@@ -694,23 +704,6 @@ function monsterPoisonGasSafe(monster, state) {
         || attacktype_fordmg(species, AT_BREA, AD_RBRE);
 }
 
-const FLOOR_TRIGGER_TRAPS = new Set([
-    ARROW_TRAP,
-    DART_TRAP,
-    ROCKTRAP,
-    SQKY_BOARD,
-    BEAR_TRAP,
-    LANDMINE,
-    ROLLING_BOULDER_TRAP,
-    SLP_GAS_TRAP,
-    RUST_TRAP,
-    FIRE_TRAP,
-    PIT,
-    SPIKED_PIT,
-    HOLE,
-    TRAPDOOR,
-]);
-
 function trapResistance(monster, trap, env) {
     if (typeof env.resistsTrapEffect !== 'function') {
         throw new TypeError(
@@ -727,8 +720,11 @@ export function m_harmless_trap(monster, trap, env = {}) {
     const state = env.state ?? game;
     const species = monster.data;
     const sokoban = Boolean(state.level?.flags?.sokoban_rules);
-    if (!sokoban && FLOOR_TRIGGER_TRAPS.has(trap.ttyp)
-        && (is_floater(species) || is_flyer(species))) {
+    // C ref: trap.c:1112, `check_in_air(mtmp, 0L)`. With no flags set that
+    // reduces to is_floater() || is_flyer(), which is what this call spells
+    // out; sharing the predicate keeps it from drifting from mintrap()'s.
+    if (!sokoban && floor_trigger(trap.ttyp)
+        && check_in_air(monster, 0, state)) {
         return true;
     }
 
@@ -768,11 +764,6 @@ export function m_harmless_trap(monster, trap, env = {}) {
     default:
         return false;
     }
-}
-
-function fixedTeleportTrap(trap) {
-    return trap.ttyp === TELEP_TRAP
-        && isok(trap.teledest?.x, trap.teledest?.y);
 }
 
 function wormCross(x1, y1, x2, y2, state) {
@@ -1172,7 +1163,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 const trap = t_at(nx, ny, state);
                 if (trap) {
                     if (trap.ttyp >= TRAPNUM || trap.ttyp === 0) continue;
-                    if (fixedTeleportTrap(trap) && hastrack(nx, ny, state)) {
+                    if (fixed_tele_trap(trap) && hastrack(nx, ny, state)) {
                         data.info[count] |= ALLOW_TRAPS;
                     } else if (!harmlessTrap(monster, trap, { ...env, state })) {
                         if (!(flags & ALLOW_TRAPS)
@@ -2334,18 +2325,14 @@ export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 // C ref: monmove.c postmov() (1454-1705).  Covers notice_mon(), the redraw of
 // the square the monster left, the door block's fall-through for an inert
 // doormask and its `doormask == D_CLOSED && can_open` arm, the redraw of the
-// square it reached, and the object arm's mpickstuff() branch.  The injected
-// `unsupported` refuses the rest: the vamp_shift() sequencing hack, mintrap(),
+// square it reached, mintrap(), and the object arm's mpickstuff() branch.  The
+// injected `unsupported` refuses the rest: the vamp_shift() sequencing hack,
 // every door arm that needs a door trap, amorphous(), can_unlock or a
 // doorbuster, IRONBARS, mdig_tunnel(), the engulfed-hero relocation, and
 // maybe_spin_web().  meatmetal(), meatobj() and meatcorpse() are refused
 // through select_postmove_object_action(), which selects them.  hideunder()
 // and after_shk_move() need a hider, an eel or a shopkeeper, each refused
 // before the scan by js/unported_monster_actions.js.
-//
-// C passes `ptr` because mintrap() can polymorph the monster.  It refreshes
-// that cache from mtmp->data straight after the mintrap() call, and every use
-// below stands after that point, so this reads monster.data instead.
 export async function postmov(
     monster,
     omx,
@@ -2371,7 +2358,9 @@ export async function postmov(
     // that it can name the buffers to fill and paint nothing.
     const recalcBlockPoint = rawEnv.recalcBlockPoint ?? recalc_block_point;
     const visionRecalc = rawEnv.visionRecalc ?? vision_recalc;
-    const species = monster.data;
+    // C's `ptr` parameter, refreshed from mtmp->data after the mintrap() call
+    // below because a trap can polymorph the monster (monmove.c:1517).
+    let species = monster.data;
 
     // C ref: monmove.c:1476-1477.  Both are read only by the door block, and
     // didseeit keeps the value from before UnblockDoor changed the map.
@@ -2397,14 +2386,24 @@ export async function postmov(
     let outcome = mmoved;
     if (mmoved === MMOVE_MOVED) {
         redraw(omx, omy);
-        // mintrap() runs here, at monmove.c:1509, before the door block.  The
-        // pre-move gate refuses a trap on a square a monster is about to
-        // enter, but MMOVE_MOVED does not imply the square changed, so this
-        // reads the monster's live square: postSimpleMove() used to do that
-        // for every move and deleting it left the standing-still case with no
-        // guard at all.
-        if (t_at(monster.mx, monster.my, state))
-            unsupported('trap activation');
+        // C ref: monmove.c:1509-1516.  mintrap() runs here, before the door
+        // block, on the monster's current square: MMOVE_MOVED does not imply
+        // the square changed, so a monster that stayed put on a trap triggers
+        // it too.
+        const trapResult = await mintrap(monster, NO_TRAP_FLAGS, {
+            ...env,
+            heroDeaf,
+            mInAir: m_in_air,
+            message,
+            redraw,
+            youHear,
+        });
+        if (trapResult === Trap_Killed_Mon || trapResult === Trap_Moved_Mon) {
+            if (monster.mx) redraw(monster.mx, monster.my);
+            return MMOVE_DIED;
+        }
+        if (mon_offmap(monster)) return MMOVE_DONE;
+        species = monster.data; /* in case mintrap() caused polymorph */
         const here = state.level?.at(monster.mx, monster.my);
         // C ref: monmove.c:1519-1622, the door block.
         if (IS_DOOR(here?.typ) && !passes_walls(species) && !canTunnel) {

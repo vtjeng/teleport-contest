@@ -104,11 +104,7 @@ import {
     canSpotMonster,
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
-import {
-    is_lava,
-    is_pool,
-    t_at,
-} from './trap.js';
+import { is_lava, is_pool } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
@@ -379,6 +375,19 @@ function planningState(state) {
                 ...region,
                 monsters: [...(region.monsters ?? [])],
             })),
+            // trap.c seetrap() sets trap->tseen and then repaints the square,
+            // and its `if (!trap->tseen)` guard makes the repaint happen once.
+            // Sharing the live trap would let the dry run consume that first
+            // time, so the live pass would set nothing and draw nothing. Every
+            // struct trap field the port writes lives on the trap itself or in
+            // one of these four nested records.
+            traps: state.level.traps.map((trap) => ({
+                ...trap,
+                vl: trap.vl ? { ...trap.vl } : trap.vl,
+                launch: trap.launch ? { ...trap.launch } : trap.launch,
+                dst: trap.dst ? { ...trap.dst } : trap.dst,
+                teledest: trap.teledest ? { ...trap.teledest } : trap.teledest,
+            })),
             // vision.c keeps one cached transparency index, which the planned
             // state borrows: it describes the planned map throughout the scan,
             // because admitDoorOpening() is the only thing that changes the
@@ -584,8 +593,12 @@ function assertSimpleDestination(monster, x, y, env) {
             || opensDoor);
     if (!ordinaryDestination)
         unsupported('door or special terrain movement');
-    if (t_at(x, y, state))
-        unsupported('trap activation');
+    // A trap on the destination is no longer refused here. C has no such gate:
+    // monmove.c postmov() calls mintrap() after the move, and only there. That
+    // is where an unported trap type now stops the scan, which also covers a
+    // monster standing still on one -- a case this destination check never
+    // saw. preflightSimpleMonsterActions() runs the whole scan on the clone
+    // before the live pass, so a refusal that late is still atomic.
     for (const region of state.level.regions) {
         if (region.attach_2_m === monster.m_id) continue;
         if (mon_in_region(region, monster)
