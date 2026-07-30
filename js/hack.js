@@ -89,6 +89,9 @@ import {
     BOULDER,
     COIN_CLASS,
     CORPSE,
+    CREDIT_CARD,
+    LOCK_PICK,
+    SKELETON_KEY,
     WATER_WALKING_BOOTS,
 } from './objects.js';
 import {
@@ -490,13 +493,50 @@ function requireAutoopenClosedDoor(x, y, state, run) {
     if (is_drawbridge_wall(x, y, state)) {
         throw new UnsupportedHeroMoveBoundaryError('portcullis');
     }
-    // lock.c:851 sends every other mask to the message switch, and the
-    // D_TRAPPED half of lock.c:906 fires the door trap and bills a shop.
-    if (doorMask(state.level?.at(x, y)) !== D_CLOSED) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'locked, trapped, or already open door',
-        );
+    // monmove.c closed_door() admits D_LOCKED and D_CLOSED only, so those are
+    // the two masks js/lock.js has to answer for: D_CLOSED takes lock.c:904's
+    // roll and D_LOCKED takes the lock.c:855 message switch. Any further bit
+    // is refused, because the D_TRAPPED half of lock.c:907 fires the door
+    // trap and bills a shop.
+    const mask = doorMask(state.level?.at(x, y));
+    if (mask !== D_CLOSED && mask !== D_LOCKED) {
+        throw new UnsupportedHeroMoveBoundaryError('trapped or unusual door');
     }
+    if (mask === D_LOCKED) {
+        // lock.c:876-883. A locked door offers itself to flags.autounlock,
+        // whose apply-key arm runs pick_lock() when autokey(TRUE) finds a
+        // tool. autokey() (lock.c:289) returns one exactly when inventory
+        // holds a skeleton key, lock pick or credit card; its quest-artifact
+        // and magic-key preferences only choose among those three, and
+        // pick_lock() is the sole caller that observes which one, so the
+        // function is deferred with it.
+        if (carriesUnlockingTool(state)) {
+            throw new UnsupportedHeroMoveBoundaryError('door unlocking tool');
+        }
+        // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" through ynq() and
+        // queues dokick. options.c:1074 initializes flags.autounlock to
+        // AUTOUNLOCK_APPLY_KEY and js/options.js deliberately leaves an
+        // explicit `autounlock` value uninterpreted on state.flags, so an
+        // absent field is the only state whose bits this port knows.
+        if (state.flags?.autounlock !== undefined) {
+            throw new UnsupportedHeroMoveBoundaryError('autounlock setting');
+        }
+    }
+}
+
+// The inventory test behind lock.c autokey(TRUE) != 0, without picking the
+// tool. Every branch of that function starts from one of these three object
+// types, so carrying any of them is what routes a locked door into
+// pick_lock().
+function carriesUnlockingTool(state) {
+    for (let object = state.invent; object; object = object.nobj) {
+        if (object.otyp === SKELETON_KEY
+            || object.otyp === LOCK_PICK
+            || object.otyp === CREDIT_CARD) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function requireOrdinaryStartingPetSwap(monster, x, y, state) {

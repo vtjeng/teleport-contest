@@ -617,16 +617,16 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             },
         },
         // A doorless or open doorway is now an admitted destination
-        // (hack.c test_move() reaches only its testdiag arm for those), and a
-        // plain D_CLOSED door is admitted too, because autoopen pulls at it.
-        // The masks below are the ones left. closed_door() answers TRUE for
-        // the two that carry D_LOCKED or D_CLOSED, which sends them to
-        // doopen_indir()'s message switch and its D_TRAPPED tail; the other
-        // two reach the ordinary destination checks, where D_BROKEN is
-        // doorless to test_move() but has its own dfeature_at() description
-        // and no recording.
+        // (hack.c test_move() reaches only its testdiag arm for those), and so
+        // are the two masks closed_door() answers TRUE for: autoopen pulls at
+        // a plain D_CLOSED door and names a plain D_LOCKED one. The masks
+        // below are the ones left. The two carrying D_TRAPPED alongside
+        // D_CLOSED or D_LOCKED reach doopen_indir(), whose D_TRAPPED tail
+        // fires the door trap and bills a shop; the other two reach the
+        // ordinary destination checks, where D_BROKEN is doorless to
+        // test_move() but has its own dfeature_at() description and no
+        // recording.
         ...[
-            ['locked door', D_LOCKED, 'locked, trapped, or already open door'],
             ['broken door', D_BROKEN, 'door or special terrain movement'],
             [
                 'trapped open door',
@@ -636,7 +636,12 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             [
                 'trapped closed door',
                 D_CLOSED | D_TRAPPED,
-                'locked, trapped, or already open door',
+                'trapped or unusual door',
+            ],
+            [
+                'trapped locked door',
+                D_LOCKED | D_TRAPPED,
+                'trapped or unusual door',
             ],
         ].map(([name, mask, reason]) => ({
             name,

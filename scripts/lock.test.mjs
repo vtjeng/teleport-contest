@@ -6,8 +6,13 @@ import {
     A_DEX,
     A_STR,
     DOOR,
+    D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
+    D_LOCKED,
+    D_NODOOR,
+    D_TRAPPED,
+    ECMD_OK,
     ECMD_TIME,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -136,6 +141,44 @@ test('a failed pull exercises Strength before it prints', async () => {
     assert.equal(game.u.aexe[A_STR], exerciseBefore + 1);
     assert.equal(door.flags, D_CLOSED);
     assert.equal(result, ECMD_TIME);
+});
+
+// C ref: lock.c:855-896. A mask without D_CLOSED never reaches the roll: the
+// switch names the door and the function returns. Only the default arm is
+// reachable from a walk, because monmove.c closed_door() admits D_LOCKED and
+// D_CLOSED alone; the other three arrive through the unported `#open` command
+// and are pinned here because no recording can reach them.
+test('a door that is not closed is named instead of pulled at', async () => {
+    const cases = [
+        // The live arm. Its message is what a hero walking into a locked door
+        // sees, and the fresh recordings in run-closed-door-autoopen.mjs
+        // compare it against C.
+        [D_LOCKED, 'This door is locked.'],
+        // C switches on the whole mask, so a trapped locked door still lands
+        // on the default arm. js/hack.js refuses D_TRAPPED before the walk;
+        // this pins the switch, not the reachable set.
+        [D_LOCKED | D_TRAPPED, 'This door is locked.'],
+        [D_BROKEN, 'This door is broken.'],
+        [D_NODOOR, 'This doorway has no door.'],
+        [D_ISOPEN, 'This door is already open.'],
+    ];
+    for (const [mask, line] of cases) {
+        const { x, y, door } = await closedDoorBesideHero();
+        door.flags = mask;
+        door.doormask = mask;
+        const events = [];
+
+        // rnl() would return 0 and open the door if the roll were reached, so
+        // an empty draw list is the proof that the switch returned first.
+        const result = await doopen_indir(x, y, game, scriptedPull(events, 0));
+
+        assert.deepEqual(events, [`message(${line})`], `mask ${mask}`);
+        assert.equal(door.flags, mask, `mask ${mask} unchanged`);
+        // lock.c returns `res` here, which is ECMD_OK unless the newsym()
+        // block above learned something; this port does not model that bump,
+        // and hack.c:1104 discards the value on the walking path either way.
+        assert.equal(result, ECMD_OK, `mask ${mask} return`);
+    }
 });
 
 test('doopen_indir rejects a substitution it would never read', async () => {
