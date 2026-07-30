@@ -5,12 +5,15 @@
 // be asserted exactly without a real gap in the game's tests.
 
 import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import {
     applyMutation,
+    assertHeadMatchesWorktree,
+    changedJsLines,
     collectTargets,
     countSites,
     coveringTests,
@@ -28,6 +31,8 @@ import {
     tokenize,
 } from './mutate-range.mjs';
 
+const SCRIPT_PATH = fileURLToPath(
+    new URL('./mutate-range.mjs', import.meta.url));
 const FIXTURE_ROOT = fileURLToPath(
     new URL('./fixtures/mutate-range', import.meta.url));
 const FIXTURE_MODULE = `${FIXTURE_ROOT}/js/bounds.js`;
@@ -59,6 +64,19 @@ function withWorkspace(body) {
 
 const shorthand = (site) =>
     `${site.line}:${site.kind} ${site.original}->${site.replacement}`;
+
+/**
+ * The newest commit that changed a file under js/.
+ *
+ * Ranges built from it hold js/ lines whatever the branch has committed since,
+ * so a test over a real range cannot quietly reduce to an empty one.
+ */
+function newestJsCommit() {
+    const sha = execFileSync('git', ['log', '-1', '--format=%H', '--', 'js/'],
+        { encoding: 'utf8' }).trim();
+    assert.match(sha, /^[0-9a-f]{40}$/u);
+    return sha;
+}
 
 // ---------------------------------------------------------------------------
 // The changed lines
@@ -417,10 +435,13 @@ test('the census separates sites from mutants and states the density', () => {
 });
 
 test('a real range resolves to files, lines, and covering tests', () => {
-    // The last commit on this branch, whichever it is: the shape of the result
-    // is what matters, not the range's contents.
-    const targets = collectTargets('HEAD~1..HEAD');
+    const targets = collectTargets(`${newestJsCommit()}~1..HEAD`);
 
+    // The base is the parent of the newest commit that touched js/, so the
+    // range holds at least that commit's changed lines. A range with no js/
+    // file would let the loop below assert nothing and still pass, which is the
+    // failure this script exists to report.
+    assert.equal(targets.length > 0, true);
     for (const target of targets) {
         assert.match(target.path, /^js\//u);
         assert.equal(target.addedLines > 0, true);
@@ -433,4 +454,38 @@ test('a real range resolves to files, lines, and covering tests', () => {
                 /^js\/[\w.]+:\d+:\d+: \w+ `.*` -> `.*`$/u);
         }
     }
+});
+
+test('a head whose files differ from the working tree is refused', () => {
+    // Reported line numbers come from the diff and the mutated bytes come from
+    // the working tree, so the two have to hold the same content. The parent of
+    // the newest js/ commit fails that by construction: every file in the range
+    // below changed between it and the working tree.
+    const base = `${newestJsCommit()}~1`;
+    const changed = [...changedJsLines(`${base}..HEAD`).keys()];
+
+    assert.equal(changed.length > 0, true);
+    assert.throws(() => assertHeadMatchesWorktree(changed, base),
+        /differs between .* and the working tree/u);
+    // The same paths at HEAD are the working tree, so the check passes there.
+    assertHeadMatchesWorktree(changed, 'HEAD');
+});
+
+test('the command prints a census and rejects a bad argument', () => {
+    const census = spawnSync(process.execPath,
+        [SCRIPT_PATH, `${newestJsCommit()}~1..HEAD`, '--enumerate-only'],
+        { encoding: 'utf8' });
+
+    assert.equal(census.status, 0);
+    assert.match(census.stdout, /\d+ file\(s\), \d+ added line\(s\)/u);
+    assert.match(census.stdout, /sites per added line/u);
+
+    // An unusable invocation exits 2 and names the problem. A survivor is a
+    // finding to review, so a completed run exits 0 whatever it found; only an
+    // error reaches this arm.
+    const rejected = spawnSync(process.execPath, [SCRIPT_PATH, 'HEAD'],
+        { encoding: 'utf8' });
+
+    assert.equal(rejected.status, 2);
+    assert.match(rejected.stderr, /range must be spelled/u);
 });
