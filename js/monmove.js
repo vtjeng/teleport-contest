@@ -311,7 +311,7 @@ import {
     mon_aligntyp,
 } from './priest.js';
 import { m_in_out_region, visible_region_at } from './region.js';
-import { rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import {
@@ -2526,7 +2526,11 @@ export async function postmov(
 // explicit seams until their source owners connect.
 export async function m_move(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    // The full operation set, matching actionRandom()'s. mintrap() needs rnl
+    // as well as rn2, and a fallback narrower than the call graph raises a
+    // bare TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert, so
+    // it would escape runSegment() and discard the segment rather than stop it.
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
     const resolveTrappedMonster = requireMoveOperation(
         rawEnv,
         'resolveTrappedMonster',

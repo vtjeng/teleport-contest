@@ -273,9 +273,16 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     if (monster.mtrapped) unsupported('a monster escaping a trap');
     // Checked here rather than on entry because C makes no draw for a monster
     // standing on no trap, and postmov() calls this on every completed move.
+    // Everything the admitted path can need is proven present here, before the
+    // first write or draw: seetrap() and trapeffect_sqky_board() used to
+    // resolve their own owners, which put those throws after mintrap() had
+    // already written mtrapseen and spent rnl(5), and after the squeak had
+    // been emitted. A refusal has to precede the state change, not follow it.
     const random = env.random;
     if (typeof random?.rn2 !== 'function' || typeof random?.rnl !== 'function')
         throw new TypeError('mintrap requires rn2 and rnl');
+    for (const name of ['redraw', 'mInAir', 'heroDeaf', 'youHear', 'message'])
+        requireTrapOperation(env, name);
 
     const tt = trap.ttyp;
     let flags = mintrapflags;

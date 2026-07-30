@@ -783,8 +783,16 @@ export async function wake_msg(monster, interesting, rawEnv = {}) {
 
     const alive = monster.data?.pmidx === PM_FLESH_GOLEM
         ? " It's alive!" : '';
+    // C uses pline_mon() here (mon.c:4325), which performs set_msg_xy, so the
+    // line carries a coordinate prefix under accessiblemsg. new_were()'s
+    // sibling at were.c:113 uses plain pline() and must NOT be wrapped.
     await message(
-        `${distressMonnam(monster)} wakes up${interesting ? '!' : '.'}${alive}`,
+        messageAt(
+            `${distressMonnam(monster)} wakes up${interesting ? '!' : '.'}${alive}`,
+            monster.mx,
+            monster.my,
+            state,
+        ),
         state,
         rawEnv,
     );
