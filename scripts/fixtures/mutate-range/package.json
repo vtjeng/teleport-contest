@@ -1,6 +1,0 @@
-{
-  "name": "mutate-range-fixture",
-  "private": true,
-  "type": "module",
-  "description": "Workspace root for scripts/mutate-range.test.mjs. createWorkspace() copies js/, scripts/, and this file, so the fixture needs the same module type as the repository."
-}

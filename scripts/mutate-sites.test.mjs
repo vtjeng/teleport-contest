@@ -1,5 +1,5 @@
-// Cover scripts/mutate-range.mjs. The end-to-end tests run against the fixture
-// under scripts/fixtures/mutate-range/, whose module documents, line by line,
+// Cover scripts/mutate-sites.mjs. The end-to-end tests run against the fixture
+// under scripts/fixtures/mutate-sites/, whose module documents, line by line,
 // which of its sites its own test pins and which it leaves loose. The fixture,
 // not js/, therefore carries the surviving mutants, so the expected report can
 // be asserted exactly without a real gap in the game's tests.
@@ -37,12 +37,12 @@ import {
     runMutants,
     survivingRangeLines,
     tokenize,
-} from './mutate-range.mjs';
+} from './mutate-sites.mjs';
 
 const SCRIPT_PATH = fileURLToPath(
-    new URL('./mutate-range.mjs', import.meta.url));
+    new URL('./mutate-sites.mjs', import.meta.url));
 const FIXTURE_ROOT = fileURLToPath(
-    new URL('./fixtures/mutate-range', import.meta.url));
+    new URL('./fixtures/mutate-sites', import.meta.url));
 const FIXTURE_MODULE = `${FIXTURE_ROOT}/js/bounds.js`;
 
 function fixtureSource() {
@@ -296,7 +296,7 @@ test('a run that executes no test file is not a run of survivors', () => {
         limit: 1,
     }));
 
-    // scripts/fixtures/mutate-range/scripts/bounds.test.mjs holds five tests.
+    // scripts/fixtures/mutate-sites/scripts/bounds.test.mjs holds five tests.
     assert.equal(result.baselineTests, 5);
 });
 
@@ -384,6 +384,12 @@ test('a limit stops the run early', () => {
     // test asserts, so neither survives.
     assert.equal(result.ran, 2);
     assert.deepEqual(result.survivors, []);
+    // The other ten went unmeasured, which the report has to say: 2 killed of 2
+    // run would otherwise read as a clean result for the whole file.
+    assert.equal(result.scheduled, 12);
+    assert.equal(formatReport(result).includes(
+        'limited to 2 of 12 mutant(s) in path order; the rest were not '
+        + 'measured'), true);
 });
 
 test('a red baseline stops the run before the first mutant',
@@ -418,26 +424,38 @@ test('a module no test file imports is reported as unmeasured', () => {
 // The command line and the census
 // ---------------------------------------------------------------------------
 
-test('the command line takes one range or a list of paths', () => {
-    assert.deepEqual(parseArgs(['a..b']),
+test('every target is named by --range or --file', () => {
+    assert.deepEqual(parseArgs(['--range', 'a..b']),
         { range: 'a..b', paths: [], enumerateOnly: false, limit: Infinity });
-    assert.deepEqual(parseArgs(['js/a.js', 'js/b.js']),
+    assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
         { range: null, paths: ['js/a.js', 'js/b.js'], enumerateOnly: false,
             limit: Infinity });
-    assert.deepEqual(parseArgs(['a..b', '--enumerate-only', '--limit', '5']),
-        { range: 'a..b', paths: [], enumerateOnly: true, limit: 5 });
+    // `--name=value` and `--name value` are the same option.
+    assert.deepEqual(parseArgs(['--range=a..b', '--limit=5',
+        '--enumerate-only']),
+    { range: 'a..b', paths: [], enumerateOnly: true, limit: 5 });
 
-    assert.throws(() => parseArgs(['a..b', '--all']), /unknown option/u);
-    assert.throws(() => parseArgs(['a..b', 'c..d']), /pass one commit range/u);
+    assert.throws(() => parseArgs(['--range', 'a..b', '--all']),
+        /unknown option/u);
+    assert.throws(() => parseArgs(['--range', 'a..b', '--range', 'c..d']),
+        /pass one --range/u);
     // A range already decides which lines of which files are in scope, so a
-    // path alongside it would have no meaning.
-    assert.throws(() => parseArgs(['a..b', 'js/a.js']), /not both/u);
-    assert.throws(() => parseArgs(['a..b', '--limit', '0']),
+    // file alongside it would have no meaning.
+    assert.throws(() => parseArgs(['--range', 'a..b', '--file', 'js/a.js']),
+        /--range or --file, not both/u);
+    assert.throws(() => parseArgs(['--range', 'a..b', '--limit', '0']),
         /positive integer/u);
-    assert.throws(() => parseArgs([]), /pass a commit range/u);
-    // A bare revision is neither form, and saying so beats reading it as a
-    // path and failing later on a file that does not exist.
-    assert.throws(() => parseArgs(['HEAD']), /neither a commit range/u);
+    assert.throws(() => parseArgs(['--range', 'HEAD']),
+        /range must be spelled/u);
+    assert.throws(() => parseArgs([]), /pass --range/u);
+    // A value the shell dropped, or an argument with no option name, is a
+    // mistake to report rather than a target to guess at.
+    assert.throws(() => parseArgs(['--range']), /--range takes a value/u);
+    assert.throws(() => parseArgs(['--file']), /--file takes a value/u);
+    assert.throws(() => parseArgs(['js/a.js']), /unexpected argument/u);
+    assert.throws(() => parseArgs(['a..b']), /unexpected argument/u);
+    assert.throws(() => parseArgs(['--enumerate-only=yes']),
+        /takes no value/u);
 });
 
 test('a path outside js/ is refused', () => {
@@ -526,7 +544,7 @@ test('a range behind the working tree keeps only the lines that survive', () => 
  * file is skipped needs a commit that deletes one. Neither may happen in js/.
  */
 function withTempRepo(body) {
-    const root = mkdtempSync(join(tmpdir(), 'mutate-range-repo-'));
+    const root = mkdtempSync(join(tmpdir(), 'mutate-sites-repo-'));
     const git = (...args) =>
         execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
     try {
@@ -590,7 +608,8 @@ test('a path puts every line of that file in scope', () => {
 
 test('the command prints a census and rejects a bad argument', () => {
     const census = spawnSync(process.execPath,
-        [SCRIPT_PATH, `${newestJsCommit()}~1..HEAD`, '--enumerate-only'],
+        [SCRIPT_PATH, '--range', `${newestJsCommit()}~1..HEAD`,
+            '--enumerate-only'],
         { encoding: 'utf8' });
 
     assert.equal(census.status, 0);
@@ -598,7 +617,8 @@ test('the command prints a census and rejects a bad argument', () => {
     assert.match(census.stdout, /sites per line in scope/u);
 
     const byPath = spawnSync(process.execPath,
-        [SCRIPT_PATH, 'js/lock.js', '--enumerate-only'], { encoding: 'utf8' });
+        [SCRIPT_PATH, '--file', 'js/lock.js', '--enumerate-only'],
+        { encoding: 'utf8' });
 
     assert.equal(byPath.status, 0);
     assert.match(byPath.stdout, /^js\/lock\.js: \d+ line\(s\) in scope/mu);
@@ -610,5 +630,5 @@ test('the command prints a census and rejects a bad argument', () => {
         { encoding: 'utf8' });
 
     assert.equal(rejected.status, 2);
-    assert.match(rejected.stderr, /neither a commit range/u);
+    assert.match(rejected.stderr, /unexpected argument 'HEAD'/u);
 });

@@ -31,22 +31,26 @@
 //
 // Usage:
 //
-//     node scripts/mutate-range.mjs <base>..<head> [--enumerate-only]
-//     node scripts/mutate-range.mjs js/regen.js [js/lock.js ...]
+//     node scripts/mutate-sites.mjs --range <base>..<head>
+//     node scripts/mutate-sites.mjs --file js/regen.js [--file js/lock.js ...]
+//
+// `--range` mutates the lines that range changed. `--file` repeats and mutates
+// every line of each file, which is the form to reach for when the question is
+// whether a module's tests pin its behavior at all. The two cannot be combined.
 //
 // Both forms take `--enumerate-only`, which counts the sites and stops, and
-// `--limit <n>`, which caps how many mutants run. A range mutates the lines it
-// changed; a path mutates every line of that file, which is the form to reach
-// for when the question is whether a module's tests pin its behavior at all.
-// The command exits 0 whether or not mutants survived, because a survivor is a
-// finding to review. A bad argument or a red baseline exits 2.
+// `--limit <n>`, which stops after n mutants have run. A limit truncates in
+// path order, so it bounds an exploratory run rather than sampling one, and the
+// report says how many of the target set's mutants went unmeasured. The command
+// exits 0 whether or not mutants survived, because a survivor is a finding to
+// review. A bad argument or a red baseline exits 2.
 //
 // A range's lines are located by `git blame` over the working tree, not by the
 // diff's line numbers, so a range whose head is behind the working tree still
 // reports positions the reader can open. A line that a later commit rewrote
 // belongs to that commit and drops out, as does a line edited but not
 // committed. When the head is the working tree, the blamed set is the diff's
-// own set, which `scripts/mutate-range.test.mjs` asserts against whichever
+// own set, which `scripts/mutate-sites.test.mjs` asserts against whichever
 // commit last changed js/.
 //
 // Cost, measured on 29 July 2026 over `HEAD~40..HEAD` at 049ebb0, 692 lines in
@@ -661,6 +665,7 @@ export function runMutants({ workspace, targets, limit = Infinity,
     const timeoutMs = Math.max(60_000, Math.ceil(baselineSeconds * 3) * 1000);
     const survivors = [];
     const perFile = [];
+    const scheduled = covered.reduce((n, t) => n + t.sites.length, 0);
     let killed = 0;
     let timeouts = 0;
     let ranSeconds = 0;
@@ -692,7 +697,7 @@ export function runMutants({ workspace, targets, limit = Infinity,
     }
 
     return { survivors, killed, timeouts, uncovered, ran, ranSeconds, perFile,
-        baselineSeconds, baselineFiles, baselineTests };
+        scheduled, baselineSeconds, baselineFiles, baselineTests };
 }
 
 function failureLines(output) {
@@ -726,6 +731,12 @@ export function formatReport(result) {
         lines.push(`cost ${tally.path}: ${tally.mutants} mutant(s) against `
             + `${tally.tests} test file(s), `
             + `${(tally.seconds / tally.mutants).toFixed(2)} s per mutant`);
+    }
+    if (result.ran < result.scheduled) {
+        // Say what the limit dropped. A truncated run that reported only its
+        // own totals would read as a complete measurement of the target set.
+        lines.push(`limited to ${result.ran} of ${result.scheduled} mutant(s) `
+            + 'in path order; the rest were not measured');
     }
     const perMutant = result.ran
         ? (result.ranSeconds / result.ran).toFixed(2)
@@ -781,43 +792,58 @@ export function formatSiteCensus(targets, scopedLines) {
 /**
  * Read the target set and the options from the command line.
  *
- * An argument holding `..` is a commit range; any other argument is a path
- * under js/ whose every line is in scope. The two cannot be mixed, because a
- * range already decides which lines of which files to mutate.
+ * Every argument is a named option. `--range` and `--file` say which kind of
+ * target follows, so no argument is classified by its shape, and a mistyped
+ * range or path is reported as itself. `--file` repeats; `--range` does not,
+ * and the two cannot be combined, because a range already decides which lines
+ * of which files are in scope.
+ *
+ * Each option accepts `--name value` and `--name=value`.
  */
 export function parseArgs(argv) {
     const options = { range: null, paths: [], enumerateOnly: false,
         limit: Infinity };
     for (let i = 0; i < argv.length; ++i) {
-        const arg = argv[i];
-        if (arg === '--enumerate-only') options.enumerateOnly = true;
-        else if (arg === '--limit') {
-            const value = Number(argv[++i]);
+        const separator = argv[i].indexOf('=');
+        const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
+        const inlineValue = separator < 0 ? null : argv[i].slice(separator + 1);
+        // The value of an option written `--name value`. Reading it here rather
+        // than per option keeps the "missing value" message in one place.
+        const valueOf = () => {
+            const value = inlineValue ?? argv[++i];
+            if (value === undefined || value === '')
+                throw new Error(`${name} takes a value`);
+            return value;
+        };
+
+        if (name === '--enumerate-only') {
+            if (inlineValue !== null)
+                throw new Error('--enumerate-only takes no value');
+            options.enumerateOnly = true;
+        } else if (name === '--range') {
+            if (options.range) throw new Error('pass one --range');
+            const range = valueOf();
+            parseRange(range);
+            options.range = range;
+        } else if (name === '--file') {
+            options.paths.push(valueOf());
+        } else if (name === '--limit') {
+            const value = Number(valueOf());
             if (!Number.isInteger(value) || value < 1)
                 throw new Error('--limit takes a positive integer');
             options.limit = value;
-        } else if (arg.startsWith('-')) {
-            throw new Error(`unknown option '${arg}'`);
-        } else if (arg.includes('..')) {
-            if (options.range) throw new Error('pass one commit range');
-            parseRange(arg);
-            options.range = arg;
-        } else if (arg.startsWith('js/')) {
-            options.paths.push(arg);
+        } else if (name.startsWith('-')) {
+            throw new Error(`unknown option '${name}'`);
         } else {
-            // `HEAD` alone reaches here, and a bare revision would otherwise be
-            // read as a path and fail later with a stranger message.
-            throw new Error(`'${arg}' is neither a commit range spelled `
-                + '<base>..<head> nor a path under js/');
+            throw new Error(`unexpected argument '${argv[i]}': name every `
+                + 'target with --range or --file');
         }
     }
-    if (options.range && options.paths.length) {
-        throw new Error('pass a commit range or one or more js/ paths, '
-            + 'not both');
-    }
+    if (options.range && options.paths.length)
+        throw new Error('pass --range or --file, not both');
     if (!options.range && !options.paths.length) {
-        throw new Error('pass a commit range spelled <base>..<head>, or one or '
-            + 'more js/ paths');
+        throw new Error('pass --range <base>..<head> to mutate the lines a '
+            + 'range changed, or --file <path> to mutate a whole file');
     }
     return options;
 }
@@ -884,7 +910,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     try {
         await main(process.argv.slice(2));
     } catch (error) {
-        console.error(`mutate-range: ${error.message}`);
+        console.error(`mutate-sites: ${error.message}`);
         process.exitCode = 2;
     }
 }

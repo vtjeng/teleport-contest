@@ -1,5 +1,5 @@
-// The covering test file for the mutate-range fixture module. Only
-// scripts/mutate-range.test.mjs runs it, by naming it explicitly inside a
+// The covering test file for the mutate-sites fixture module. Only
+// scripts/mutate-sites.test.mjs runs it, by naming it explicitly inside a
 // workspace; `npm test` globs scripts/*.test.mjs and never reaches this
 // directory.
 //
