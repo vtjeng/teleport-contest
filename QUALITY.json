@@ -3490,6 +3490,75 @@
         ]
       },
       "recordedAt": "2026-07-30T06:10:42.893Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "5879bed71b42deb7fe8346e75e589c42922d956b"
+      },
+      "head": "cdb83a481180205a8f011ee67b066116a93aaad6",
+      "auditedRange": "5879bed71b42deb7fe8346e75e589c42922d956b..cdb83a481180205a8f011ee67b066116a93aaad6",
+      "areas": [
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the second slice of the closed-door goal, the lock.c doopen_indir() message switch. Four mandatory finders (correctness, readability, tests, variable-trace); performance and concurrency not triggered and not enabled. 17 raw findings, 14 after deduplication, 10 confirmed, all 10 applied at b8323b1, none deferred, 4 rejected with counter-evidence, none unverified, no warnings. One live production defect: the seam refused D_LOCKED | D_TRAPPED, a mask lock.c:855 sends through the same message switch as a plain locked door and back out before the trap tail, so the port was refusing a case it fully supports. The second production finding is a premise three comments shared and the C refutes, that closed_door() admits D_LOCKED and D_CLOSED alone; it is a bit test, and the mask guard those comments make look redundant is in fact the only thing keeping a trapped door away from the pull. Six test findings were assertions that could not fail, including two of hack.c:1097's four autoopen terms with no case at all, the drawbridge predicate's vertical arms left unguarded when the range replaced a four-way adjacency check with it, and a replay oracle reading retained message history rather than the rendered line. Every new or changed test was observed failing against a named mutation, each listed in the fix commit. Development score identical before and after the fixes at 442 of 7,765 screens, 443 cursors and 99,625 PRNG calls; scripts/run-closed-door-autoopen.mjs matches 19 segments, 50,018 PRNG calls, 61 screens and 61 cursors. The range also absorbs cfbc205, the previous slice's audit-fix commit, which had been correctness debt since it landed.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2273,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 14,
+          "confirmed": 10,
+          "applied": 10,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 5,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The seam refused D_LOCKED | D_TRAPPED as a door whose trap would fire and whose shop would be billed, but lock.c:855 tests only D_CLOSED, so 0x18 enters the same message switch as a plain locked door, prints the same line and returns at :895. The b_trapped() and add_damage() tail at :907-911 is inside the \"known to be CLOSED\" arm below that return, so the port was refusing a case it fully supports. D_CLOSED | D_TRAPPED stays refused because its roll does reach the tail.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Three comments stated that monmove.c closed_door() admits D_LOCKED and D_CLOSED only. It is a bit test, doormask & (D_LOCKED | D_CLOSED), so D_TRAPPED combinations satisfy it too. The consequence is not merely wording: the mask guard two lines below reads as a restatement of closed_door() when it is the only thing keeping a trapped door away from the pull, and a maintainer deleting it as redundant would let one through to lock.c:904's roll.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "verysmall() and u.usteed were said to be refused ahead of the locked-door arm, where lock.c checks verysmall only after the message switch returns and reads u.usteed inside the kick arm the port already refuses.",
+            "counterEvidence": "Neither term can hold in any state the port produces: js/u_init.js initializes usteed to null and no assignment to it exists, and js/mondata.js verysmall() needs msize < MZ_SMALL, which no playable race satisfies while polymorph is unported. The guard lines are also unchanged context in the range's diff. The finding concedes it is latent rather than live. Do not reopen without a source-reachable input that makes either term true."
+          },
+          {
+            "summary": "The comment above the doopen_indir() call was said to misdescribe how test_move()'s injection contract narrows at the callee.",
+            "counterEvidence": "The adjudicator found the described narrowing accurate for the env keys doopen_indir() accepts. Do not reopen without naming a key the caller forwards that the callee neither accepts nor rejects as described."
+          },
+          {
+            "summary": "Renaming a faithful port of dbridge.c is_drawbridge_wall() to its C name and exporting it from the accessibility-notice module into game logic was said to be the wrong home.",
+            "counterEvidence": "The wrong home is real and is stated in a comment at the function, which records that it belongs in a js/dbridge.js port of that file; moving it is a relocation outside audit-fix scope rather than a defect in this range. Do not reopen as a correctness finding; raise it as a simplification trigger instead."
+          },
+          {
+            "summary": "The dormant-arm test was said to assert result === ECMD_OK for all five masks where C returns ECMD_TIME for one of them.",
+            "counterEvidence": "In the state the fixture builds, C returns ECMD_OK for every mask the test drives, because the flags.autounlock arm that produces ECMD_TIME needs a tool the fixture does not supply. Do not reopen without a fixture state in which autokey(TRUE) returns non-null."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T07:27:18.564Z"
     }
   ]
 }
