@@ -2783,7 +2783,7 @@
           },
           {
             "summary": "The tests for stopStepIndex and ceilingFor restate the one-line implementations (identity and subtraction), and the seed8000-tourist-starter census cited as their independent anchor is false at this range's HEAD, so the stop-attribution convention has no working oracle.",
-            "counterEvidence": "evidence refute: The finding's central factual claim is false at the reviewed commit, and the assertions it calls tautological do in fact pin the convention. Counter-evidence: I ran `node scripts/scan-stops.mjs --json` in a tree exported at 03c2add (the range's HEAD). The seed8000-tourist-starter row is `{'screensEmitted': 11, 'recordedSteps': 23, 'key': 'i', 'command': 'inventory', ...}` \u2014 exactly the numbers the comments state ('11 is seed8000-tourist-starter's emitted count, where step 11 is the \"i\" the repeated-command boundary refuses' and '23 recorded steps, 11 emitted screens'), and ceilingFor({23, 11}) = 12 as asserted. The 13-emitted/'+'/showspells figures come from the current work"
+            "counterEvidence": "evidence refute: The finding's central factual claim is false at the reviewed commit, and the assertions it calls tautological do in fact pin the convention. Counter-evidence: I ran `node scripts/scan-stops.mjs --json` in a tree exported at 03c2add (the range's HEAD). The seed8000-tourist-starter row is `{'screensEmitted': 11, 'recordedSteps': 23, 'key': 'i', 'command': 'inventory', ...}` — exactly the numbers the comments state ('11 is seed8000-tourist-starter's emitted count, where step 11 is the \"i\" the repeated-command boundary refuses' and '23 recorded steps, 11 emitted screens'), and ceilingFor({23, 11}) = 12 as asserted. The 13-emitted/'+'/showspells figures come from the current work"
           }
         ]
       },
@@ -3023,7 +3023,7 @@
       ],
       "level": "full",
       "outcome": "changed",
-      "evidence": "Full pass over the extended-command prompt, which fired the commands gate at 1,289 of 1,000 unreviewed lines. Four finders ran; performance and concurrency were not enabled. 19 raw findings, 16 after deduplication, all 16 confirmed and none rejected. Four are applied at 2640c9f: three production defects and the generated-table test that pins the restored column. Twelve are deferred, and three of those are one defect seen from three angles \u2014 the port's flush_screen() is a whole-screen rebuild where display.c's re-emits only dirty cells, so the faithful vpline() flush_screen(1) call this range added erases an open tty menu at the two pre-existing menu-search call sites. .agents/review.md puts that outside audit-fix scope, because it changes rendering behavior and needs the gnew dirty discipline and gb.bot_disabled, which the port lacks; it is recorded in ROADMAP.md with the instruction to implement it and then run a new full pass over the expanded range rather than a delta. This pass does not cover that implementation. The applied fixes: tty_get_ext_cmd() had dropped C's iflags.extmenu guard entirely and the option was parsed and discarded, so a path meant to fail closed gave the typed prompt; a 0xFF byte was stored as text where C's signed char cast makes it EOF and cancels the line; and the generated table had dropped extcmdlist[]'s f_text column, which rhack() reads to name a counted command's occupation. Validation at 2640c9f: 1,808 tests passing, five generated-data checks including check:extcmds, check:namespace-members, development unchanged at 398 screens and 99,496 PRNG values, and the matrix matching 71,359 calls with 370 screens plus 12,261 calls with 33 screens in debug mode.",
+      "evidence": "Full pass over the extended-command prompt, which fired the commands gate at 1,289 of 1,000 unreviewed lines. Four finders ran; performance and concurrency were not enabled. 19 raw findings, 16 after deduplication, all 16 confirmed and none rejected. Four are applied at 2640c9f: three production defects and the generated-table test that pins the restored column. Twelve are deferred, and three of those are one defect seen from three angles — the port's flush_screen() is a whole-screen rebuild where display.c's re-emits only dirty cells, so the faithful vpline() flush_screen(1) call this range added erases an open tty menu at the two pre-existing menu-search call sites. .agents/review.md puts that outside audit-fix scope, because it changes rendering behavior and needs the gnew dirty discipline and gb.bot_disabled, which the port lacks; it is recorded in ROADMAP.md with the instruction to implement it and then run a new full pass over the expanded range rather than a delta. This pass does not cover that implementation. The applied fixes: tty_get_ext_cmd() had dropped C's iflags.extmenu guard entirely and the option was parsed and discarded, so a path meant to fail closed gave the typed prompt; a 0xFF byte was stored as text where C's signed char cast makes it EOF and cancels the line; and the generated table had dropped extcmdlist[]'s f_text column, which rhack() reads to name a counted command's occupation. Validation at 2640c9f: 1,808 tests passing, five generated-data checks including check:extcmds, check:namespace-members, development unchanged at 398 screens and 99,496 PRNG values, and the matrix matching 71,359 calls with 370 screens plus 12,261 calls with 33 screens in debug mode.",
       "auditMetrics": {
         "wallTimeSeconds": 3001,
         "counts": {
@@ -3233,6 +3233,128 @@
         "productionDefects": []
       },
       "recordedAt": "2026-07-29T17:53:10.952Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "2ac43bceb22c833fb670117105f40f85d334cd13",
+        "hero": "f826ba5392d313da8951095111b8201f5be497fe",
+        "generation": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+        "monsters": "f826ba5392d313da8951095111b8201f5be497fe",
+        "world-effects": "f826ba5392d313da8951095111b8201f5be497fe",
+        "commands": "2ac43bceb22c833fb670117105f40f85d334cd13",
+        "display": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
+        "runtime": "e30ea05440a4850bee40881d3f65180c6ae7bb7b"
+      },
+      "head": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
+      "auditedRange": "e30ea05440a4850bee40881d3f65180c6ae7bb7b..d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
+      "areas": [
+        "startup",
+        "hero",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the explicit search command and the debt accumulated in eight areas. Four mandatory finders (correctness, readability, tests, variable-trace); performance and concurrency not triggered and not enabled. 13 raw findings, 13 after deduplication, 9 confirmed, 7 applied at c706db8, 2 deferred to ROADMAP.md, 4 rejected with counter-evidence, none unverified, no warnings. Two applied production defects were reachable and wrong: M_AP_TYPE() dropped monst.h:73's mask, and the statue-trap and hallucinatory-trap refusals threw a bare Error that escaped runSegment() instead of converting to the retryable command boundary. Neither moved a development session, which is why the fresh matrix and the new end-to-end boundary case are the gate rather than the score. Development score identical before and after the fixes at 433 of 7,765 screens and 99,552 PRNG calls; scripts/run-explicit-search.mjs matches 13 segments, 35,560 PRNG calls, 80 screens and 80 cursors; 1,857 tests, four generated-data checks and check:namespace-members pass at c706db8. Every new test was observed failing against the line it covers, each mutation named in that commit message. The range base is the oldest frontier among the claimed areas, so it re-reads commits already covered for the later ones; it also absorbs 88e2193, the previous pass's audit-fix commit, which had been correctness debt since.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2493,
+        "counts": {
+          "raw": 13,
+          "deduplicated": 13,
+          "confirmed": 9,
+          "applied": 7,
+          "deferred": 2,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 6,
+          "tests": 2,
+          "clarity": 0,
+          "simplification": 1,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "M_AP_TYPE() dropped monst.h:73's & M_AP_TYPMASK, so a monster carrying M_AP_F_DKNOWN with no appearance type read as truthy and the explicit search refused a square where C takes mfind0()'s else arm and calls newsym(). The search slice was the helper's first and only consumer.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The explicit search's statue-trap and hallucination exclusions refused with a bare Error instead of UnsupportedSearchError, so failClosedCommand() did not convert them and the refusal escaped runSegment() as a hard failure rather than the retryable command boundary every other exclusion in the slice uses. Reproduced end to end against the live s key.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same defect traced from preflightTrap(): requireOperation() and requireInjected() raise a bare Error for the statue-trap and hallucination arms, which none of the nine Unsupported* classes failClosedCommand() recognises matches, so the checklist's claim that these exclusions fail closed did not hold at the command boundary. Recorded separately because the variable-trace finder reached it from the throw site rather than from the command path.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/cmd.js held a second definition of the four hack.h ECMD_* codes while js/detect.js built dosearch()'s return from the js/const.js copy, so the producer and the consumer of that value read different tables.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "rhack()'s new search arm applied two of the three result tests cmd.c:3810-3818 applies, omitting the ECMD_CANCEL|ECMD_FAIL test, while its comment claimed parity with the '#' arm. The two forms disagree for (ECMD_TIME|ECMD_CANCEL), the combined result cmd.c:3805-3809 documents by name.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "hack.c nomul() has two JavaScript owners: the faithful js/hack.js nomul(), added at 0d4a4ac inside this range, and js/detect.js's older inline defaultNomulZero(), which omits end_running()'s disp.time_botl write and its iflags.terrain_typ/classify_terrain() catch-up. dosearch0() calls the second on its secret-door and secret-corridor finds.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "hack.c nomul() has two JavaScript owners: the faithful js/hack.js nomul(), added at 0d4a4ac inside this range, and js/detect.js's older inline defaultNomulZero(), which omits end_running()'s disp.time_botl write and its iflags.terrain_typ/classify_terrain() catch-up. dosearch0() calls the second on its secret-door and secret-corridor finds.",
+            "trackedIn": "`nomul()` has two owners and they disagree",
+            "category": "production"
+          },
+          {
+            "summary": "snapshotMfndposMutation()'s per-slot poss/info snapshot and restore are provable no-ops, because resetMfndposData() reassigns both arrays before the core writes anything, and the comment above them justifies the work with a caller state the same commit made impossible. The rollback test cannot distinguish their removal.",
+            "trackedIn": "the mfndpos rollback restores what nothing changed",
+            "category": "simplification"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Two comments introduced with runSearchCommand() were said to miscount the command wrappers in opposite directions.",
+            "counterEvidence": "Only one half is true. The wrapper definitions sit at js/cmd.js:598, 620, 647, 667, 690 and 695, so 'the five wrappers above' was indeed off by one and has been corrected to four. But the section header's 'the first five wrappers' reads against the handler list its own preceding sentence enumerates -- ddoinv(), dovspell(), dodiscovered(), doattributes(), dolook() and dosearch() -- and is right as written. The finding was stated as two miscounts of which 'neither is right', and that compound claim is false. Do not reopen the header without quoting the sentence two lines above it."
+          },
+          {
+            "summary": "preflightSearchMonster()'s doc comment was said to claim that a refusal from it always precedes the loop's first rnl(), while one of its two call sites is mfind0(), which runs inside the loop.",
+            "counterEvidence": "The comment names the dependency the finding says is missing: js/detect.js:530-537 reads 'mfind0() calls this at the square it is looking at and preflightExplicitSearch() calls it at all eight, so a refusal here always happens before the loop's first rnl().' The 'so' clause is derived from the all-eight call site, and the conclusion is true because preflightExplicitSearch() runs to completion before dosearch0() reaches its loop. Do not reopen without a source-reachable input that refuses inside the loop and not in the preflight."
+          },
+          {
+            "summary": "A duplicate of the bare-Error refusal defect, adding that the refusal is mislabelled to the player-facing log as 'automatic search requires ...' and that a doc comment twenty lines above asserts the opposite.",
+            "counterEvidence": "The underlying class mismatch is real and is recorded as an applied production defect above; this entry's two distinguishing claims are not. requireOperation() puts that text in an Error that reaches no window: js/cmd.js discards it into an UnsupportedHeroCommandBoundaryError message when it converts, and js/jsmain.js rethrows it otherwise. Nothing routes it through ttyPline(), ttyNorep(), the status line or the top line. Do not reopen the player-facing half without naming the window call that prints it."
+          },
+          {
+            "summary": "glyph_is_invisible()'s invisible_monster marker was said to be not merely dormant but unimplementable, because remembered_glyph_from_presentation() is the port's sole builder of remembered glyphs and structurally cannot carry it.",
+            "counterEvidence": "display.c:378-385 map_invisible() writes levl[x][y].glyph = GLYPH_INVISIBLE directly, routing through no presentation conversion, so a faithful port writes the marker straight onto location.remembered_glyph. That the field is writable is demonstrated in the tree: scripts/detect.test.mjs sets remembered_glyph = { invisible_monster: true } and glyph_is_invisible() answers true, which the same test asserts. Do not reopen without showing that the direct write is unavailable."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T03:41:22.410Z"
     }
   ]
 }
