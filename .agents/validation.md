@@ -48,6 +48,16 @@ defined there.
 - Verify the PRNG log, complete 24x80 screens and their attributes, cursor
   positions, and persisted state through the next observable boundary.
 
+`scripts/mutate-sites.mjs` rewrites one operator, boolean, or integer bound at
+a time in a set of js/ lines, runs the tests that reach those modules, and
+reports the mutants that no test failed on. `--worktree` scopes uncommitted work
+and `--range <base>..<head>` scopes a commit range. `.agents/review.md`, under
+"Mutation-test the reviewed lines", holds the procedure and states what a
+survivor proves.
+
+This measures the tests. A survivor says the suite would not notice a wrong
+line; a fresh differential says whether the line is right.
+
 Launch a browser only for changes to browser-specific code, DOM/CSS,
 input/storage, or browser-only presentation. Shared engine or glyph-output
 changes do not need browser validation when the renderer is unchanged and

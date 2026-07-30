@@ -179,42 +179,58 @@ themselves.
 ### Mutation-test the reviewed lines
 
 `scripts/mutate-sites.mjs` rewrites one operator, boolean, or integer bound at a
-time in the lines under review, runs the tests, and prints every mutant that no
-test failed on. The script calls such a mutant a **survivor**: a reviewed line
-whose behavior the tests do not distinguish from a wrong version of that line.
-Its header comment states the site set, the two waves, the other target forms,
-and the measured cost.
+time in a set of `js/` lines, runs the tests that reach those modules, and
+reports the mutants that no test failed on. The script calls such a mutant a
+**survivor**: no test distinguishes the changed line from a wrong version of it.
+Its header comment states the site set, the two waves, the target forms, and the
+measured cost.
 
-A pass runs it over the frozen range:
+Both runs below pass `--kind relational,logical,boolean`, which leaves out
+integer bounds, the largest group and the weakest signal, because most of them
+are constants that no test can observe. Both stop at each mutant's first wave,
+the test files that reach its module without passing through another `js/`
+module. `--whole-suite` judges every first-wave survivor by every test file;
+reach for it when a survivor list looks wrong.
+
+**Per slice.** A behavior slice closes with a mutation run over its own lines.
+The worker runs it while the work is uncommitted, which
+`.claude/agents/slice-worker.md` states, and the slice's commit message records
+the mutant count, the survivor count, and the reason no test can kill each
+surviving relational, logical, or boolean mutant. A survivor of those three
+kinds with no recorded reason blocks the slice from closing. Integer survivors
+are not gating.
+
+The commit message carries that record because a slice run measures uncommitted
+work, whose subject is gone once the slice is committed, and because
+`QUALITY.json` holds `auditMetrics` for passes alone.
+
+**Per window.** The readiness note's run over the frozen range stays as it is:
 
 ```
 npm run mutate -- --range <base>..<head> --kind relational,logical,boolean
 ```
 
-That kind list leaves out integer bounds, the largest group and the weakest
-signal, because most of them are constants that no test can observe. It ran two
-review windows in 174 seconds, covering 69 mutants and reporting 24 survivors.
-The run stops at each mutant's first wave, the test files that reach its module
-without passing through another `js/` module. `--whole-suite` judges every
-first-wave survivor by every test file, which cost 735 seconds over those same
-two windows and removed three survivors. Reach for it when a survivor list looks
-wrong.
+It names two commits, so a later reader repeats it and reaches the same target
+set, while a slice run's subject no longer exists after the commit. It also
+covers two things the slice runs leave out. It reaches the `js/` lines of
+commits that close no slice, because an audit fix and a simplification both
+change production lines. And it judges every mutant in the window against the
+suite as it finally stands, so a mutant that a slice run found killed appears
+here as a survivor when a later commit weakened the test that killed it.
 
-`--worktree` puts the uncommitted `js/` diff in scope instead of a range, which
-is how to check work before it is committed. A pass runs over a frozen range, so
-it uses `--range`.
+Record its mutant count, survivor count, per-kind counts, and the test-quality
+finder's conclusion under `mutation` in the pass's `auditMetrics`. Where a
+per-slice record and this run disagree about a mutant, this run is the record.
 
-Two limits bound what the list proves. A line holding no mutable site produces
-no mutant, so a line the list omits carries no evidence either way. A first-wave
-survivor may still be killed by a test that reaches its module through another
-`js/` module, which is what `--whole-suite` settles.
+Two limits bound what either list proves. A line holding no mutable site
+produces no mutant, so a line the list omits carries no evidence either way. A
+first-wave survivor may still be killed by a test that reaches its module
+through another `js/` module, which is what `--whole-suite` settles.
 
 Hand the survivor list to the pass as a `validation` context item addressed to
 the `tests` finder, which is how `/audit-diff-correctness` routes evidence to
 one perspective. That finder traces each survivor against its source, so a false
-survivor costs one trace. Record the mutant count, the survivor count, the
-per-kind counts, and the finder's conclusion under `mutation` in the pass's
-`auditMetrics`.
+survivor costs one trace.
 
 ## Findings and scope changes
 
