@@ -191,6 +191,17 @@ export function effective_attribute(state = game, index) {
     return Math.max(3, Math.min(total, 25));
 }
 
+// C ref: attrib.c acurrstr(), the ACURRSTR macro's implementation. It folds
+// acurr(A_STR)'s 3..125 encoding down to the 3..25 range that arithmetic on
+// Strength uses: 18/01..18/31 become 19, 18/32..18/81 become 20,
+// 18/82..18/100 and 19..21 become 21, and 22..25 come back from 122..125.
+export function acurrstr(state = game) {
+    const str = effective_attribute(state, A_STR);
+    if (str <= 18) return Math.max(str, 3);
+    if (str <= 121) return 19 + Math.trunc(str / 50);
+    return Math.min(str, 125) - 100;
+}
+
 function randomAttribute(role, random) {
     let value = random.rn2(100);
     for (let i = 0; i < NUM_ATTRS; i++) {

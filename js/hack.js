@@ -5,6 +5,7 @@ import {
     A_CON,
     A_STR,
     BLINDED,
+    CONFUSION,
     CORR,
     DOOR,
     D_BROKEN,
@@ -15,12 +16,14 @@ import {
     D_TRAPPED,
     FIRE_RES,
     FLYING,
+    FUMBLING,
     HALLUC,
     HALLUC_RES,
     HEADSTONE,
     ICE,
     IS_AIR,
     IS_DOOR,
+    IS_DRAWBRIDGE,
     IS_FURNITURE,
     IS_OBSTRUCTED,
     IS_STWALL,
@@ -33,6 +36,7 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPMASK,
+    PASSES_WALLS,
     ROOM,
     RUN_CRAWL,
     RUN_LEAP,
@@ -40,6 +44,7 @@ import {
     STAIRS,
     STEALTH,
     STONE,
+    STUNNED,
     TIMER_OBJECT,
     VIBRATING_SQUARE,
     W_NONDIGGABLE,
@@ -50,7 +55,7 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     isok,
 } from './const.js';
-import { effective_attribute } from './attrib.js';
+import { acurrstr, effective_attribute } from './attrib.js';
 import {
     classify_terrain,
     feel_location,
@@ -66,14 +71,18 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
+import { doopen_indir } from './lock.js';
 import {
+    amorphous,
     is_flyer,
     is_hider,
     needspick,
     noattacks,
+    nohands,
     passes_walls,
     throws_rocks,
     tunnels,
+    verysmall,
 } from './mondata.js';
 import { objectType, sobj_at } from './obj.js';
 import {
@@ -113,20 +122,13 @@ import { vision_recalc } from './vision.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
-function capacityStrength(state) {
-    const strength = effective_attribute(state, A_STR);
-    if (strength <= 18) return strength;
-    if (strength <= 121) return 19 + Math.trunc(strength / 50);
-    return Math.min(strength, 125) - 100;
-}
-
 // C ref: hack.c weight_cap(), for the live unpolymorphed, unmounted,
 // non-levitating repeated-command boundary. Unlike the former startup-only
 // helper, this reads effective Strength on every call, so hunger weakness can
 // change carrying capacity before the next monster/allocation cycle.
 export function weight_cap(state = game) {
     let capacity = 25 * (
-        capacityStrength(state) + effective_attribute(state, A_CON)
+        acurrstr(state) + effective_attribute(state, A_CON)
     ) + 50;
     capacity = Math.min(capacity, 1000);
     return Math.max(Math.trunc(capacity), 1);
@@ -204,6 +206,13 @@ function propertyActiveUnblocked(state, property) {
 
 function propertyIntrinsic(state, property) {
     return Boolean(state.u?.uprops?.[property]?.intrinsic);
+}
+
+// C ref: youprop.h's plain `HFoo || EFoo` property macros, such as
+// Passes_walls and Fumbling, which carry no blocked term.
+function propertyPresent(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
 function heroHallucinating(state) {
@@ -290,10 +299,20 @@ function heroIsBlind(state) {
     );
 }
 
+// C ref: hack.c test_move()'s IS_OBSTRUCTED entry test, narrowed to the wall
+// and rock destinations the ported half of test_move() refuses. It answers
+// TRUE exactly where test_move() gives up without changing the game, which is
+// why the command admission seam can skip its destination checks there and
+// leave the refusal to domove().
+//
+// It used to carry a `loc.doormask & (D_CLOSED | D_LOCKED)` term as well. That
+// term read a field js/mklev.js never writes for a generated door, so it
+// always answered FALSE; closed_door() now owns the closed-door route in both
+// callers, which is why the term is deleted rather than corrected into an
+// unreachable branch.
 function blocksMove(x, y, state) {
     const loc = state.level?.at(x, y);
-    if (!loc || loc.typ === STONE || IS_WALL(loc.typ)) return true;
-    return loc.typ === DOOR && (loc.doormask & (D_CLOSED | D_LOCKED));
+    return !loc || loc.typ === STONE || IS_WALL(loc.typ);
 }
 
 // This repeated-command boundary owns entry into an unoccupied ROOM, CORR, or
@@ -410,6 +429,65 @@ function doorless_door(location) {
         && (doorMask(location) & ~(D_NODOOR | D_BROKEN)) === 0;
 }
 
+// This seam owns the one route through hack.c test_move()'s closed-door arm
+// (1074-1137) and lock.c doopen_indir() (780-923) that js/lock.js ports: a
+// walking hero in ordinary form, with `autoopen` set, pulling at a plain
+// D_CLOSED door. Every other state those two functions branch on stops here,
+// named for the C condition that diverges. Both the command admission seam and
+// test_move() call it, as they do requireSimpleHeroDestination().
+function requireAutoopenClosedDoor(x, y, state) {
+    const data = state.youmonst?.data;
+    const u = state.u;
+    // hack.c:1076 feels the square before the branch, and feel_newsym() at
+    // lock.c:914 takes its blind arm. No recorded case reaches either.
+    if (heroIsBlind(state)) {
+        throw new UnsupportedHeroMoveBoundaryError('blind door opening');
+    }
+    // hack.c:1078-1090, the four forms that pass a closed door instead of
+    // opening it. can_ooze() and the "can't squeeze your possessions through"
+    // notice both start at amorphous(), so refusing that covers them; a dwarf
+    // tunnels() but also needspick(), which is why both are read.
+    if (propertyPresent(state, PASSES_WALLS)
+        || amorphous(data)
+        || u.uinwater
+        || (tunnels(data) && !needspick(data))) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'door bypassed rather than opened',
+        );
+    }
+    // hack.c:1097. A failed autoopen test takes the orthogonal bump arm or
+    // "That door is closed.", neither of which is ported.
+    if (!state.flags?.autoopen
+        || state.context?.run
+        || propertyIntrinsic(state, CONFUSION)
+        || propertyIntrinsic(state, STUNNED)
+        || propertyPresent(state, FUMBLING)) {
+        throw new UnsupportedHeroMoveBoundaryError('autoopen suppressed');
+    }
+    // lock.c:790 nohands(), :815 the u.utrap pit refusal, :826
+    // stumble_on_door_mimic(), and :898 verysmall(). u.usteed reaches both
+    // hack.c:1101's "can't lead" line and lock.c:884's kick guard.
+    if (nohands(data) || verysmall(data) || u.utrap || u.usteed
+        || m_at(x, y, state)) {
+        throw new UnsupportedHeroMoveBoundaryError('door opening interrupted');
+    }
+    // lock.c:826 is_drawbridge_wall() answers >= 0 for a DOOR only when an
+    // orthogonally adjacent square holds a drawbridge, which makes the door a
+    // portcullis and diverts the whole function into its drawbridge messages.
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        if (!isok(x + dx, y + dy)) continue;
+        if (IS_DRAWBRIDGE(state.level.at(x + dx, y + dy).typ))
+            throw new UnsupportedHeroMoveBoundaryError('portcullis');
+    }
+    // lock.c:851 sends every other mask to the message switch, and the
+    // D_TRAPPED half of lock.c:906 fires the door trap and bills a shop.
+    if (doorMask(state.level?.at(x, y)) !== D_CLOSED) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'locked, trapped, or already open door',
+        );
+    }
+}
+
 function requireOrdinaryStartingPetSwap(monster, x, y, state) {
     const startingPet = monster
         && monster.m_id === state.context?.startingpet_mid
@@ -491,7 +569,6 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
 // cmd.c establishes movement intent only after this hack.c admission seam has
 // shown that the destination is inside the currently ported domove() subset.
 export function preflightDomoveDestination(x, y, state = game, run = 0) {
-    const destination = state.level?.at(x, y);
     const destinationMonster = m_at(x, y, state);
     if (destinationMonster) {
         // domove_core()'s run arm stops in front of a monster the hero can
@@ -500,14 +577,20 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // pet-displacement seam below owns every other destination monster.
         if (runStopsBeforeMonster(destinationMonster, run, state)) return;
         requireOrdinaryStartingPetSwap(destinationMonster, x, y, state);
-    } else if (destination?.typ === DOOR || !blocksMove(x, y, state)) {
+    } else if (closed_door(x, y, state)) {
+        // test_move()'s closed-door arm runs before its diagonal doorway
+        // rules, so a diagonal walk into a closed door still autoopens.
+        requireAutoopenClosedDoor(x, y, state);
+    } else if (!blocksMove(x, y, state)) {
         requireSimpleHeroDestination(x, y, state);
     }
 }
 
-// C ref: hack.c test_move(), physical-obstacle branch for ordinary wall and
-// rock refusals. Other test_move() terrain and ability branches remain at the
-// command admission boundary. This live subset consumes no time or PRNG.
+// C ref: hack.c test_move(). Two of its branches are ported: the
+// physical-obstacle refusal for ordinary wall and rock, which consumes no time
+// or randomness, and the IS_DOOR/closed_door() arm's autoopen route into
+// lock.c doopen_indir(). Its remaining terrain and ability branches, including
+// both diagonal doorway rules, remain at the command admission boundary.
 export async function test_move(
     ux,
     uy,
@@ -516,29 +599,63 @@ export async function test_move(
     state = game,
     env = {},
 ) {
-    const location = state.level?.at?.(ux + dx, uy + dy);
-    if (!location
-        || (location.typ !== STONE && !IS_WALL(location.typ))) {
-        return true;
-    }
-
+    state.context ??= {};
+    state.context.door_opened = false;
     const x = ux + dx;
     const y = uy + dy;
-    if (heroIsBlind(state)) feel_location(x, y, state);
+    if (!isok(x, y)) return false;
+    const location = state.level?.at?.(x, y);
 
-    if (state.flags?.mention_walls) {
-        const symbol = location.typ === STONE
-            ? S_stone : wall_angle(location);
-        const description = symbol === S_stone ? 'solid stone' : 'a wall';
-        const message = env.message;
-        if (typeof message !== 'function')
-            throw new TypeError('wall refusal requires a message operation');
-        await message(
-            messageAt(`It's ${description}.`, x, y, state),
-            state,
-        );
+    if (location.typ === STONE || IS_WALL(location.typ)) {
+        if (heroIsBlind(state)) feel_location(x, y, state);
+
+        if (state.flags?.mention_walls) {
+            const symbol = location.typ === STONE
+                ? S_stone : wall_angle(location);
+            const description = symbol === S_stone ? 'solid stone' : 'a wall';
+            const message = env.message;
+            if (typeof message !== 'function') {
+                throw new TypeError(
+                    'wall refusal requires a message operation',
+                );
+            }
+            await message(
+                messageAt(`It's ${description}.`, x, y, state),
+                state,
+            );
+        }
+        return false;
     }
-    return false;
+
+    if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
+        requireAutoopenClosedDoor(x, y, state);
+        await doopen_indir(x, y, state, env);
+        // hack.c:1110-1111. door_opened suppresses domove_core()'s
+        // `move = 0; nomul(0)` when the pull succeeded; move itself is FALSE
+        // either way, because domove_core()'s only DO_MOVE call passes the
+        // hero's own square as <ux,uy>.
+        state.context.door_opened = !closed_door(x, y, state);
+        state.context.move = (ux !== state.u.ux || uy !== state.u.uy) ? 1 : 0;
+        return false;
+    }
+    return true;
+}
+
+// C ref: hack.c move_out_of_bounds(). domove_core() calls this ahead of every
+// terrain branch, so a step off the edge of the map ends the run and spends no
+// time before test_move() runs. Its forcefight arm needs domove_fight_empty()
+// and its flags.mention_walls line needs directionname(xytodir()); neither is
+// ported, so both refuse. Until this was ported the refusal happened by
+// accident, through an admission seam that answered "blocked" for a square
+// outside the map.
+function move_out_of_bounds(x, y, state) {
+    if (isok(x, y)) return false;
+    if (state.context.forcefight || state.flags?.mention_walls) {
+        throw new UnsupportedHeroMoveBoundaryError('move out of bounds');
+    }
+    nomul(0, state);
+    state.context.move = 0;
+    return true;
 }
 
 // C ref: hack.c Known_wwalking. Water walking boots are the only source, and
@@ -651,15 +768,20 @@ export async function domove(state = game) {
     const newx = u.ux + u.dx;
     const newy = u.uy + u.dy;
 
-    if (blocksMove(newx, newy, state)) {
-        await test_move(u.ux, u.uy, u.dx, u.dy, state, {
-            message: ttyPline,
-        });
-        // C ref: domove_core()'s failed test_move() arm. context.door_opened
-        // belongs to the closed-door branch, which is not ported, so the
-        // no-time refusal always runs.
-        state.context.move = 0;
-        nomul(0, state);
+    if (move_out_of_bounds(newx, newy, state)) {
+        state.domoveAttempting = 0;
+        return;
+    }
+    // C ref: domove_core():2843-2849. The closed-door arm inside test_move()
+    // sets context.door_opened when the pull succeeded, and that suppresses
+    // the no-time refusal here even though the hero has not moved.
+    if (!await test_move(u.ux, u.uy, u.dx, u.dy, state, {
+        message: ttyPline,
+    })) {
+        if (!state.context.door_opened) {
+            state.context.move = 0;
+            nomul(0, state);
+        }
         state.domoveAttempting = 0;
         return;
     }

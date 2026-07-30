@@ -288,7 +288,10 @@ export class NethackGame {
         // The rc parser owns roleplay options until u_init_misc() preserves
         // them across its source memset boundary.
         g.u = { uroleplay: { ...(opts.uroleplay ?? {}) } };
-        g.context = { move: 0 };
+        // context.h declares door_opened beside move; test_move() clears it on
+        // entry and domove_core() reads it, so it exists from the start rather
+        // than appearing the first time the hero tries to walk.
+        g.context = { move: 0, door_opened: false };
         g.program_state = {};
         g.moves = 0;
         g._commandDispatchCount = 0;

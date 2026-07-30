@@ -1409,6 +1409,16 @@ export function feel_location(x, y, state = game) {
         state.level.lastseentyp[x][y] = location.typ;
 }
 
+// C ref: display.c feel_newsym(). Used where the hero knows what happened to a
+// square whether or not she can see it, such as the door she has just pulled
+// open in lock.c doopen_indir(). js/hack.js refuses a blind hero before the
+// autoopen branch runs, so only the sighted arm is live today; the blind arm
+// reuses feel_location()'s existing adjacent-square subset.
+export function feel_newsym(x, y, state = game) {
+    if (_propertyActiveUnblocked(state.u, BLINDED)) feel_location(x, y, state);
+    else newsym(x, y);
+}
+
 // C refs: engrave.h engraving_to_defsym()/spot_shows_engravings();
 // display.c map_engraving(). Ice uses the room engraving symbol.
 function engravingGlyph(engraving, loc, state) {

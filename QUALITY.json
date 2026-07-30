@@ -206,6 +206,7 @@
         "js/getline.js",
         "js/hack.js",
         "js/input.js",
+        "js/lock.js",
         "js/tty_menu.js",
         "js/tty_message.js",
         "js/uhitm.js"

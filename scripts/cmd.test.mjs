@@ -617,19 +617,30 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             },
         },
         // A doorless or open doorway is now an admitted destination
-        // (hack.c test_move() reaches only its testdiag arm for those), so the
-        // closed, locked, and trapped masks refuse here. D_BROKEN is doorless
-        // to test_move() but has its own dfeature_at() description and no
-        // recording, so it stays refused with the rest.
+        // (hack.c test_move() reaches only its testdiag arm for those), and a
+        // plain D_CLOSED door is admitted too, because autoopen pulls at it.
+        // The masks below are the ones left. closed_door() answers TRUE for
+        // the two that carry D_LOCKED or D_CLOSED, which sends them to
+        // doopen_indir()'s message switch and its D_TRAPPED tail; the other
+        // two reach the ordinary destination checks, where D_BROKEN is
+        // doorless to test_move() but has its own dfeature_at() description
+        // and no recording.
         ...[
-            ['closed door', D_CLOSED],
-            ['locked door', D_LOCKED],
-            ['broken door', D_BROKEN],
-            ['trapped open door', D_ISOPEN | D_TRAPPED],
-            ['trapped closed door', D_CLOSED | D_TRAPPED],
-        ].map(([name, mask]) => ({
+            ['locked door', D_LOCKED, 'locked, trapped, or already open door'],
+            ['broken door', D_BROKEN, 'door or special terrain movement'],
+            [
+                'trapped open door',
+                D_ISOPEN | D_TRAPPED,
+                'door or special terrain movement',
+            ],
+            [
+                'trapped closed door',
+                D_CLOSED | D_TRAPPED,
+                'locked, trapped, or already open door',
+            ],
+        ].map(([name, mask, reason]) => ({
             name,
-            reason: 'door or special terrain movement',
+            reason,
             install: ({ destination }) => {
                 destination.typ = DOOR;
                 destination.flags = destination.doormask = mask;

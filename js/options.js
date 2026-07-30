@@ -286,6 +286,9 @@ function defaultResult() {
             female: false,
             debug: false,
             explore: false,
+            // optlist.h:181 declares autoopen opt_out, so a hero who walks
+            // into a closed door pulls at it unless the option is turned off.
+            autoopen: true,
             pickup: false,
             bones: true,
             acoustics: true,

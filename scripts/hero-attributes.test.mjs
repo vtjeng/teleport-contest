@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    acurrstr,
     adjattrib,
     effective_attribute,
     exerchk,
@@ -78,6 +79,31 @@ function queuedRandom(values, expectedCalls) {
         },
     };
 }
+
+test('acurrstr folds every encoded Strength band the source names', () => {
+    // attrib.c acurrstr()'s own comment lists the bands. acurr(A_STR) holds
+    // 18/xx as 18+xx and 19..25 as 100+n, and acurrstr() maps them back into
+    // the 3..25 range the rest of the game does arithmetic on.
+    const folded = (encoded) => acurrstr({
+        u: { acurr: { a: { [A_STR]: encoded } } },
+    });
+    // acurr() itself floors at 3, so the max(,3) below 18 is redundant there
+    // and the plain value survives.
+    assert.equal(folded(3), 3);
+    assert.equal(folded(18), 18);
+    // 18/01 and 18/31 both become 19.
+    assert.equal(folded(19), 19);
+    assert.equal(folded(49), 19);
+    // 18/32..18/81 become 20.
+    assert.equal(folded(50), 20);
+    assert.equal(folded(99), 20);
+    // 18/82..18/100 and the encoded 19..21 all become 21.
+    assert.equal(folded(100), 21);
+    assert.equal(folded(121), 21);
+    // Encoded 22..25 come back as themselves.
+    assert.equal(folded(122), 22);
+    assert.equal(folded(125), 25);
+});
 
 test('newhp and newpw preserve initial advancement order and alignment state', () => {
     const state = baseState();
