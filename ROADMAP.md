@@ -15,10 +15,11 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-No goal is in progress and none is queued. The monster-door goal closed at
-`2f0e55e` and the census has not been re-run since. Run
-`node scripts/scan-stops.mjs` and select the next goal from it;
-`.agents/selection.md` states how to read it.
+The goal below was selected from the `scan-stops.mjs` census at `5397a2f`.
+Every session and step count in it is a ceiling taken from that census and goes
+stale as the port advances; re-run the scan for current numbers. The traced
+source findings do not go stale, which is why they are recorded here rather
+than re-derived.
 
 Two goals have now closed with zero holdout movement between them, on 17
 development screens. Exploration's high-incidence work is done, and what the
@@ -31,6 +32,86 @@ Every session and step count written into a goal is a ceiling taken from the
 census that selected it, and goes stale as the port advances. Traced source
 findings do not go stale, which is why they are recorded here rather than
 re-derived.
+
+### In progress: a monster triggers a floor trap
+
+A monster or pet walks onto a trap and the trap fires. The hero hears
+`You hear an A note squeak in the distance`, or sees
+`The kitten is almost hit by a dart!`; the dart lands on the floor, and nearby
+monsters wake.
+
+In scope: `trap.c mintrap()` (3733-3840) through `trapeffect_selector()` (2937)
+and the **monster arm** of each `trapeffect_*()` body, for the trap types
+`mklev.c traptype_rnd()` can return at `level_difficulty() == 1` — that is,
+whose case either does not exist or does not force `kind = NO_TRAP` when
+`lvl == 1`: ARROW_TRAP, DART_TRAP, ROCKTRAP, SQKY_BOARD, BEAR_TRAP, RUST_TRAP,
+PIT, MAGIC_TRAP and ANTI_MAGIC. With them come `t_missile()`, `thitm()`,
+`trapnote()`, `floor_trigger()`, `check_in_air()`, and `mondata.c`'s
+`mon_learns_traps()` and `mons_see_trap()`.
+
+Excluded: every type `traptype_rnd()` forces to `NO_TRAP` at depth one; HOLE,
+TRAPDOOR and TELEP_TRAP, whose monster arms relocate the victim and which the
+relocation family below already owns; and **every hero arm**. The caller in
+scope is `mintrap()`, not `dotrap()`, so each `trapeffect_*()`'s
+`mtmp == &gy.youmonst` branch stays refused: it has no live consumer here and
+needs `thitu()`, `losehp()` and `poisoned()`.
+
+**Traced source findings.**
+
+- The call site is `monmove.c:1509`, inside the `postmov()` the previous goal
+  built, which is why that goal left the position open.
+- All three blocked sessions reach only two trap types, read from their
+  recorded top lines: SQKY_BOARD twice and DART_TRAP once. `seed1500`'s dart is
+  a *miss*, `thitm()`'s `!strike` arm, so no monster-death path is needed to
+  close any of them.
+- Nearly every prerequisite has landed: `t_at()`, `maketrap()` and
+  `choose_trapnote()` in `js/trap.js`; `mon_knows_traps()` in `js/mondata.js`;
+  `wake_nearto()` in `js/mon.js`; `You_hear()` in `js/monmove.js`; and
+  `stackobj()`/`place_object()`.
+
+**Census.** Three sessions stop here with 177 steps behind them. Two of them
+stop at step 4, so nearly whole sessions stand behind it, and
+`seed0013-friday13-save-then-fullmoon-restore` is a save-then-restore session,
+so closing it also exercises cross-segment storage. No new command sequence is
+involved.
+
+**The seam this goal must pay for.** Two refusals have to go: `js/monmove.js`'s
+post-move trap guard and `assertSimpleDestination()`'s in
+`js/unported_monster_actions.js` — and the second is the **planning clone**.
+`mintrap()` draws inside the dry run: `rn2(4)` on `already_seen`, `rnl(5)` on
+`madeby_u`, and `rn2(15)` and `rnd(20)` in `thitm()`. The clone must reproduce
+every one call for call. That clone produced eight silent divergences across
+the monster-door goal, two of them introduced by the fixes themselves, so
+budget for it rather than treating it as incidental.
+
+**Why this row.** It is the highest-ranked row that genuinely belongs to
+exploration. The two above it do not: the repeated-command boundary decomposes
+across item interaction, relocation and prefix work, and `#levelchange` is the
+experience-level family this file already reassigned. `pet inventory` carries
+more steps but its ceiling is measured — the pickup goal moved those same two
+sessions exactly one step.
+
+**On choosing the next one.** Six goals now have holdout results, and the last
+two carried nothing on 17 development screens. `incidence x runway` predicted
+that correctly, but the runway term has stopped discriminating: `seed1500`
+re-blocks on `pet inventory` two steps past the dart. The census remains the
+right instrument, because it is the only one that measures incidence at all;
+the tiebreak that should replace runway is **downstream reuse** — how much of
+the ported C a later milestone calls. Traps score well on it: `mintrap()` is
+called from six other C files, `thitm()` serves three trap types, and each
+`trapeffect_*()` body already contains the hero arm combat will need.
+
+**Queued slices.**
+
+1. A squeaky board under an unseen monster: the `mintrap()` wrapper,
+   `trapeffect_selector()`, `trapeffect_sqky_board()`'s monster arm, and
+   `trapnote()`.
+2. A dart trap under a pet that is missed: `t_missile()`, `thitm()`'s miss
+   path, and `trapeffect_dart_trap()`.
+
+This goal crosses `trap.c`, `monmove.c`, `mon.c` and object placement, and is
+expected to span sessions, so an implementation checklist is created when its
+first slice opens.
 
 ## Explicit future exploration work, outside the goal in progress
 
@@ -660,6 +741,24 @@ advances, so fix the proven six and leave the rest.
 This list selects the next milestone; `scripts/scan-stops.mjs` selects goals
 inside whichever milestone is current. After the current milestone, proceed in
 this order:
+
+**An open ordering question, to settle when exploration closes rather than
+now.** The `flush_screen()` goal under `## Unresolved` is not urgent while all
+emitted screens match, and it owns no fail-closed boundary. But it stops being
+optional the moment the extended-command family opens: thirteen of the
+thirty-three development sessions stop on an extended command — five on
+`#levelchange`, two on `#ride`, and one each on `#loot`, `#name`, `#chat`,
+`#twoweapon`, `#pray` and `#wizwish` — and every one of those goals draws a
+prompt or a menu straight into the two defects that entry records. Whether it
+therefore precedes combat is a milestone-order decision, and this file is where
+it gets made. Exploration has roughly two goals left, so it is not due yet;
+what is recorded here is the argument, so it does not have to be rediscovered.
+
+Exploration is not exhausted. Three census rows still belong to it by the
+objective's own wording of doors, traps and pickup — monster trap activation,
+the floor object pile, and door or special terrain movement — plus two
+fragments of the repeated-command row, the `m` prefix and `@` autopickup.
+Everything else the census names belongs to a milestone below.
 
 1. **Combat and creatures:** complete melee, damage and death, the remaining
    monster and pet behavior, monster inventory, conditions, and common creature
