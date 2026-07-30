@@ -274,6 +274,41 @@ that screen however faithful the port is.
 
 ### Game behavior
 
+#### `nomul()` has two owners and they disagree
+
+`hack.c nomul()` is ported twice. `js/hack.js:274-283` `nomul()` is the faithful
+one: it sets `disp.botl`, `u.uinvulnerable`, `u.usleep` and `multi`, then calls
+`endRunning()`, which carries `hack.c:4130-4157`'s `disp.time_botl` write and
+the `iflags.terrain_typ`/`classify_terrain()` pair. `js/detect.js:350-370`
+`defaultNomulZero()` is the older inline copy and has neither.
+
+`dosearch0()` calls `env.nomulZero(env)` on the secret-door and secret-corridor
+finds, so with `flags.time` set, a hero running past a secret door that the
+automatic search converts should get a time update and does not.
+
+The correctness pass over `e30ea05..d1a71f7` confirmed the divergence and
+`0d4a4ac` is where the second owner appeared, inside that range. It is deferred
+rather than fixed there because `.agents/review.md` returns a finding that
+changes a state owner to Implementation: the fix consolidates two owners into
+one and needs its own fresh differential, with `flags.time` on, a Ranger's
+SEARCHING intrinsic, and a secret door beside the run.
+
+#### the mfndpos rollback restores what nothing changed
+
+`snapshotMfndposMutation()` in `js/monmove.js:900` captures each of the nine
+`poss` slots and `info` values before `mfndposCore()` runs, and
+`restoreMfndposMutation()` writes them back. Both loops are dead:
+`resetMfndposData()` now reassigns `data.poss` and `data.info` to fresh arrays
+as its first act, so the core never touches the captured objects, and restoring
+the two array references alone reproduces the pre-call state. The comment above
+the snapshot justifies the per-slot work with a caller state the same commit
+made impossible.
+
+`scripts/monmove.test.mjs:2021-2036` cannot tell: its three assertions are all
+satisfied by the two reference restores, so deleting the per-slot branches
+leaves it green. Deferred to a `/simplify-codebase` pass, which is what
+`.agents/review.md` routes dead declarations to.
+
 #### a vision recalculation stops the cloned monster scan
 
 Converting a secret door that stands in the hero's current vision sets
