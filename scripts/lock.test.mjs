@@ -154,10 +154,15 @@ test('a door that is not closed is named instead of pulled at', async () => {
         // sees, and the fresh recordings in run-closed-door-autoopen.mjs
         // compare it against C.
         [D_LOCKED, 'This door is locked.'],
-        // C switches on the whole mask, so a trapped locked door still lands
-        // on the default arm. js/hack.js refuses D_TRAPPED before the walk;
-        // this pins the switch, not the reachable set.
+        // C switches on the whole mask rather than on the door-state bits, so
+        // a trap bit changes which arm is taken. D_LOCKED | D_TRAPPED is a
+        // poor witness for that: it lands on `default` whether or not the bit
+        // is masked off. These two are the discriminating pair -- masking the
+        // trap bit would send them to the broken and already-open arms, and
+        // C sends them to `default`.
         [D_LOCKED | D_TRAPPED, 'This door is locked.'],
+        [D_BROKEN | D_TRAPPED, 'This door is locked.'],
+        [D_ISOPEN | D_TRAPPED, 'This door is locked.'],
         [D_BROKEN, 'This door is broken.'],
         [D_NODOOR, 'This doorway has no door.'],
         [D_ISOPEN, 'This door is already open.'],

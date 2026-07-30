@@ -31,11 +31,19 @@ function doorMask(location) {
 
 // C ref: lock.c:859-873, the switch that names a door doopen_indir() cannot
 // pull at. It is translated whole because it is one statement, but only its
-// default arm is live: monmove.c closed_door() admits D_LOCKED and D_CLOSED
-// alone, so hack.c test_move()'s autoopen route reaches this with D_LOCKED,
-// and the three doorless masks arrive only through doopen(), the unported
-// `#open` command. C also sets a `locked` flag in the default arm; see the
-// caller for why this port has no reader for it.
+// default arm is live.
+//
+// The reason is the seam's own mask guard, not closed_door(). closed_door() is
+// a bit test (`doormask & (D_LOCKED | D_CLOSED)`), so it admits D_TRAPPED
+// combinations as well; what narrows the input here is
+// requireAutoopenClosedDoor() in js/hack.js, which admits D_CLOSED, D_LOCKED
+// and D_LOCKED | D_TRAPPED alone. The first takes lock.c:904's roll rather
+// than this switch, so this function sees the two locked masks, both of which
+// land on `default`. The three doorless masks arrive only through doopen(),
+// the unported `#open` command.
+//
+// C also sets a `locked` flag in the default arm; see the caller for why this
+// port has no reader for it.
 function notClosedMessage(door) {
     switch (doorMask(door)) {
     case D_BROKEN:

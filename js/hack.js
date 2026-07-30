@@ -23,7 +23,6 @@ import {
     ICE,
     IS_AIR,
     IS_DOOR,
-    IS_DRAWBRIDGE,
     IS_FURNITURE,
     IS_OBSTRUCTED,
     IS_STWALL,
@@ -314,10 +313,12 @@ function heroIsBlind(state) {
 // writes only `loc.flags` for an ordinary dungeon door, so it answered FALSE
 // for those, though create_door() (2731) and the special-level door path (951)
 // do write `doormask` and would have satisfied it. Either way it is
-// unreachable now, because both functions that reach here test closed_door()
-// first: preflightDomoveDestination() at the admission seam and test_move().
-// That is why it is deleted rather than corrected into a branch nothing can
-// take.
+// unreachable now for the one caller there is. blocksMove() is called only
+// from preflightDomoveDestination(), whose else-if chain claims every closed
+// or locked door in its closed_door() arm before reaching here, so the deleted
+// term could never have fired. test_move() is not a second caller: it refuses
+// stone and walls through its own inline test, and additionally does not share
+// blocksMove()'s TRUE answer for a missing location.
 function blocksMove(x, y, state) {
     const loc = state.level?.at(x, y);
     return !loc || loc.typ === STONE || IS_WALL(loc.typ);
@@ -493,16 +494,25 @@ function requireAutoopenClosedDoor(x, y, state, run) {
     if (is_drawbridge_wall(x, y, state)) {
         throw new UnsupportedHeroMoveBoundaryError('portcullis');
     }
-    // monmove.c closed_door() admits D_LOCKED and D_CLOSED only, so those are
-    // the two masks js/lock.js has to answer for: D_CLOSED takes lock.c:904's
-    // roll and D_LOCKED takes the lock.c:855 message switch. Any further bit
-    // is refused, because the D_TRAPPED half of lock.c:907 fires the door
-    // trap and bills a shop.
+    // monmove.c closed_door() is a bit test, not an equality test: it answers
+    // TRUE for any mask carrying D_LOCKED or D_CLOSED, D_TRAPPED included. So
+    // this guard is what selects the masks js/lock.js answers for, rather than
+    // a restatement of closed_door(); deleting it as redundant would let a
+    // trapped door reach the pull.
+    //
+    // D_CLOSED takes lock.c:904's roll and D_LOCKED takes the lock.c:855
+    // message switch. D_LOCKED | D_TRAPPED joins them because lock.c:855 tests
+    // only D_CLOSED, so 0x18 enters the same switch, prints the same line and
+    // returns at :895 -- the b_trapped() and add_damage() tail at :907-911 is
+    // inside the "known to be CLOSED" arm and needs D_CLOSED to run.
+    // D_CLOSED | D_TRAPPED stays refused, because its roll really does reach
+    // that tail on success.
     const mask = doorMask(state.level?.at(x, y));
-    if (mask !== D_CLOSED && mask !== D_LOCKED) {
+    if (mask !== D_CLOSED && mask !== D_LOCKED
+        && mask !== (D_LOCKED | D_TRAPPED)) {
         throw new UnsupportedHeroMoveBoundaryError('trapped or unusual door');
     }
-    if (mask === D_LOCKED) {
+    if (mask !== D_CLOSED) {
         // lock.c:876-883. A locked door offers itself to flags.autounlock,
         // whose apply-key arm runs pick_lock() when autokey(TRUE) finds a
         // tool. autokey() (lock.c:289) returns one exactly when inventory

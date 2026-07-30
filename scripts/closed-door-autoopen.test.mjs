@@ -4,11 +4,15 @@ import test from 'node:test';
 import {
     BLINDED,
     CONFUSION,
+    FUMBLING,
     DB_EAST,
+    DB_NORTH,
+    DB_SOUTH,
     DB_WEST,
     DOOR,
     DRAWBRIDGE_DOWN,
     PASSES_WALLS,
+    STUNNED,
     D_CLOSED,
     D_ISOPEN,
     D_LOCKED,
@@ -63,7 +67,13 @@ async function doorMaskAfterEachKey(segment) {
         masks.push(game.level.at(door.x, door.y).flags);
         turns.push(game.moves);
         doorOpened.push(game.context.door_opened);
-        messages.push(game.nhDisplay?.topMessage);
+        // Row 0 of the grid, not topMessage: topMessage is retained history, so a
+        // port that printed only the first of several identical lines would
+        // still satisfy it. The rendered row witnesses the line this key put
+        // on screen.
+        messages.push(
+            game.nhDisplay.grid[0].map(cell => cell.ch).join('').trimEnd(),
+        );
         accessible.push(Boolean(game.a11y?.accessiblemsg));
     }
     return { door, masks, turns, doorOpened, messages, accessible };
@@ -201,11 +211,17 @@ test('a drawbridge facing away from the door is not a portcullis', async () => {
     const base = segments.find(seg => seg.moves[0] === 'h');
     const walkWest = commandKeyCode('h');
 
-    for (const [label, mask, refused] of [
+    // The predicate has four arms and the horizontal pair alone would leave
+    // the vertical two guarded by nothing, which matters because the range
+    // replaced a four-way adjacency check with this call.
+    for (const [label, offset, mask, refused] of [
         // The bridge sits west of the door, so DB_EAST points back at it and
         // makes the door a portcullis; DB_WEST faces away and does not.
-        ['facing the door', DB_EAST, true],
-        ['facing away', DB_WEST, false],
+        ['west, facing the door', [-1, 0], DB_EAST, true],
+        ['west, facing away', [-1, 0], DB_WEST, false],
+        // North of the door, DB_SOUTH points back at it.
+        ['north, facing the door', [0, -1], DB_SOUTH, true],
+        ['north, facing away', [0, -1], DB_NORTH, false],
     ]) {
         // The mutation has to happen between reaching the prompt and the key,
         // because runSegment() regenerates the level on every call.
@@ -213,7 +229,7 @@ test('a drawbridge facing away from the door is not a portcullis', async () => {
         const door = { x: game.u.ux - 1, y: game.u.uy };
         assert.equal(game.level.at(door.x, door.y).typ, DOOR, label);
         assert.equal(game.level.at(door.x, door.y).flags, D_CLOSED, label);
-        const bridge = game.level.at(door.x - 1, door.y);
+        const bridge = game.level.at(door.x + offset[0], door.y + offset[1]);
         bridge.typ = DRAWBRIDGE_DOWN;
         bridge.flags = mask;
 
@@ -286,6 +302,18 @@ test('every autoopen refusal term is reachable and individually pinned', async (
         ['confused hero', 'autoopen suppressed',
             (st) => {
                 st.u.uprops[CONFUSION] = { intrinsic: 1, extrinsic: 0 };
+            }],
+        // hack.c:1097 lists four terms; Stunned and Fumbling had no case, so
+        // both were deletable with the suite green. Fumbling is read through
+        // propertyPresent(), which has no blocked term, so an extrinsic source
+        // is enough.
+        ['stunned hero', 'autoopen suppressed',
+            (st) => {
+                st.u.uprops[STUNNED] = { intrinsic: 1, extrinsic: 0 };
+            }],
+        ['fumbling hero', 'autoopen suppressed',
+            (st) => {
+                st.u.uprops[FUMBLING] = { intrinsic: 0, extrinsic: 1 };
             }],
         ['autoopen off', 'autoopen suppressed',
             (st) => { st.flags.autoopen = false; }],
@@ -367,7 +395,9 @@ async function replayEachKey(segment, [dx, dy]) {
             x: game.u.ux,
             y: game.u.uy,
             turn: game.moves,
-            message: game.nhDisplay?.topMessage,
+            // Rendered row 0, not the retained topMessage; see
+            // doorMaskAfterEachKey() for why history is the wrong witness.
+            message: game.nhDisplay.grid[0].map(cell => cell.ch).join('').trimEnd(),
             accessible: Boolean(game.a11y?.accessiblemsg),
             aheadTyp: ahead?.typ,
             aheadMask: ahead?.flags,
@@ -453,16 +483,28 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
     const walkNorth = commandKeyCode(base.moves[0]);
     // A tool needs only the fields inventory_weight() reads; nothing on a
     // refused path looks at the rest.
+    // Appended at the TAIL, not the head: prepending leaves the seam's loop
+    // unexercised, so a first-object-only implementation would pass.
     const carrying = (otyp) => (state) => {
-        state.invent = {
-            otyp, oclass: TOOL_CLASS, owt: 4, quan: 1, nobj: state.invent,
+        const tool = {
+            otyp, oclass: TOOL_CLASS, owt: 4, quan: 1, nobj: null,
         };
+        if (!state.invent) {
+            state.invent = tool;
+            return;
+        }
+        let last = state.invent;
+        while (last.nobj) last = last.nobj;
+        last.nobj = tool;
     };
 
     const refusals = [
-        // lock.c:907's D_TRAPPED half fires b_trapped() and bills a shop.
-        ['trapped door', 'trapped or unusual door',
-            (state, door) => { door.flags = D_LOCKED | D_TRAPPED; }],
+        // lock.c:907's D_TRAPPED half fires b_trapped() and bills a shop, but
+        // only from the "known to be CLOSED" arm, so D_CLOSED is what makes it
+        // reachable. D_LOCKED | D_TRAPPED returns at lock.c:895 instead and is
+        // served, which the sibling test below pins.
+        ['trapped closed door', 'trapped or unusual door',
+            (state, door) => { door.flags = D_CLOSED | D_TRAPPED; }],
         // lock.c:880-883, the three object types autokey(TRUE) can return.
         ['skeleton key', 'door unlocking tool', carrying(SKELETON_KEY)],
         ['lock pick', 'door unlocking tool', carrying(LOCK_PICK)],
@@ -530,6 +572,11 @@ test('the locked arm still runs for the states it owns', async () => {
 
         game.nhDisplay.pushKey(commandKeyCode(direction));
         await moveloop_core();
+        // topMessage rather than the rendered row here: these cases drive
+        // moveloop_core() directly and the frame has advanced past the line
+        // by the time control returns, so row 0 is blank. The replay path in
+        // doorMaskAfterEachKey() is where the history-versus-render
+        // distinction bites, and that one reads the grid.
         assert.equal(
             game.nhDisplay.topMessage,
             mask === D_LOCKED ? 'This door is locked.' : 'The door opens.',
@@ -567,4 +614,33 @@ test('each pull prints the message its outcome calls for', async () => {
             );
         }
     }
+});
+
+// lock.c:855 tests only D_CLOSED, so D_LOCKED | D_TRAPPED enters the same
+// message switch as a plain locked door, prints the same line and returns at
+// :895. The b_trapped() and add_damage() tail at :907-911 sits inside the
+// "known to be CLOSED" arm below that return. The seam refused this mask until
+// the pass over 5879bed..cdb83a4, on the premise that any D_TRAPPED bit
+// reached the trap.
+test('a trapped locked door is named, not refused', async () => {
+    const base = loadLockedDoorRecipe().segments[0];
+    const walkNorth = commandKeyCode(base.moves[0]);
+
+    await runSegment({ ...base, moves: '' });
+    const door = game.level.at(game.u.ux, game.u.uy - 1);
+    assert.equal(door.flags, D_LOCKED);
+    door.flags = door.doormask = D_LOCKED | D_TRAPPED;
+    const drawsBefore = game.rng?.log?.length ?? 0;
+
+    game.nhDisplay.pushKey(walkNorth);
+    await moveloop_core();
+
+    // topMessage: see the sibling test above for why the rendered row is
+    // blank after a direct moveloop_core() drive.
+    assert.equal(game.nhDisplay.topMessage, 'This door is locked.');
+    // The trap did not fire: C only reaches b_trapped() through the roll, and
+    // this mask never gets there, so the mask is untouched and nothing drew.
+    assert.equal(game.level.at(door.x ?? game.u.ux, game.u.uy - 1).flags,
+        D_LOCKED | D_TRAPPED);
+    assert.equal(game.rng?.log?.length ?? 0, drawsBefore);
 });
