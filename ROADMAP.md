@@ -62,15 +62,17 @@ complete first.
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
-## Next goals, in order
-
-### 1. Search
+### In progress: search
 
 `detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
 `mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Five sessions
 stop here with 490 steps behind them, measured at `60bf3d0`, but each reaches
 an extended command within one or two keystrokes, so the immediate return is
 small.
+
+This goal opened at `16f22f8` because it was the first goal queued here and the
+goal above has no startable slice. Its slices are not listed; the slice-selector
+identifies each one in turn.
 
 ## Explicit future exploration work, outside the goal in progress
 
