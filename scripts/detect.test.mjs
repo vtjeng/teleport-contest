@@ -19,7 +19,9 @@ import {
     ENGRAVE,
     HALLUC,
     IN_SIGHT,
+    M_AP_F_DKNOWN,
     M_AP_OBJECT,
+    M_AP_TYPE,
     OBJ_FLOOR,
     ROOM,
     SCORR,
@@ -40,6 +42,7 @@ import {
     cvt_sdoor_to_door,
     dosearch,
     dosearch0,
+    UnsupportedSearchError,
 } from '../js/detect.js';
 import {
     glyph_is_invisible,
@@ -1352,6 +1355,42 @@ test('explicit search refuses every mfind0 discovery arm before any draw', async
     }
 });
 
+test('M_AP_TYPE masks off the display-known flag', () => {
+    // monst.h:69-70 splits m_ap_type into a 3-bit type and M_AP_F_DKNOWN at
+    // 0x8; monst.h:73 masks before comparing. An unmasked read answers truthy
+    // for M_AP_NOTHING with the flag set, which would make mfind0()'s mimic
+    // arm swallow a monster C sends down the else arm.
+    assert.equal(M_AP_TYPE({ m_ap_type: M_AP_F_DKNOWN }), 0);
+    assert.equal(
+        M_AP_TYPE({ m_ap_type: M_AP_OBJECT | M_AP_F_DKNOWN }),
+        M_AP_OBJECT,
+    );
+    assert.equal(M_AP_TYPE({ m_ap_type: M_AP_OBJECT }), M_AP_OBJECT);
+    assert.equal(M_AP_TYPE(undefined), 0);
+});
+
+test('explicit search admits a monster carrying only the dknown flag', async () => {
+    // C's mfind0() reads M_AP_TYPE(mtmp), so m_ap_type == M_AP_F_DKNOWN is
+    // M_AP_NOTHING and takes the else arm: newsym() and no discovery. The
+    // port refused it while M_AP_TYPE() answered the unmasked 8.
+    const state = explicitSearchState();
+    placeTestMonster(state, 9, 10, { m_ap_type: M_AP_F_DKNOWN });
+    const events = [];
+    // No draw is expected anywhere: rnl(7 - fund) needs an SDOOR or SCORR and
+    // rnl(8) sits behind `t_at(x, y)`, so eight ordinary empty squares consume
+    // nothing.
+    const random = scriptedRandom(events, []);
+
+    assert.equal(await dosearch0(0, {
+        state,
+        random,
+        ...recordingOperations(state, events),
+        newSym: (x, y) => events.push(`newSym(${x},${y})`),
+    }), 1);
+    assert.ok(events.includes('newSym(9,10)'));
+    random.done();
+});
+
 test('explicit search refuses the feel_location arm before any draw', async () => {
     const blind = explicitSearchState();
     blind.level.at(9, 9).typ = SDOOR;
@@ -1395,6 +1434,11 @@ test('explicit search refuses a remembered invisible monster before any draw', a
     random.done();
 });
 
+// Both arms must raise UnsupportedSearchError, not a bare Error: js/cmd.js
+// failClosedCommand() converts only that class into the retryable command
+// boundary, and anything else escapes runSegment() and costs the segment every
+// screen it had already matched. The class assertion is the point of these two
+// cases; asserting the message alone passed while the refusal was a bare Error.
 test('explicit search refuses an adjacent statue trap before any draw', async () => {
     // The automatic arm refuses the same trap only after its rnl(8) hits.
     const state = explicitSearchState();
@@ -1407,7 +1451,28 @@ test('explicit search refuses an adjacent statue trap before any draw', async ()
 
     await assert.rejects(dosearch0(0, {
         state, random, ...recordingOperations(state, events),
-    }), /requires activateStatueTrap for a statue trap/);
+    }), (error) => error instanceof UnsupportedSearchError
+        && /activate_statue_trap\(\) is not ported/.test(error.message));
+    assert.deepEqual(events, []);
+    random.done();
+});
+
+test('explicit search refuses a hallucinatory trap find before any draw', async () => {
+    const state = explicitSearchState();
+    state.level.at(9, 9).typ = SDOOR;
+    // find_trap()'s hallucinatory arm clears the screen and waits, which the
+    // port does not own. HALLUC is the property hallucinating() reads.
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.level.traps.push({
+        tx: 11, ty: 11, ttyp: 1, tseen: false,
+    });
+    const events = [];
+    const random = scriptedRandom(events, []);
+
+    await assert.rejects(dosearch0(0, {
+        state, random, ...recordingOperations(state, events),
+    }), (error) => error instanceof UnsupportedSearchError
+        && /hallucinatory display is not ported/.test(error.message));
     assert.deepEqual(events, []);
     random.done();
 });
@@ -1429,8 +1494,12 @@ test('unmap_invisible answers false and refuses a remembered invisible glyph', (
 
 test('dosearch answers ECMD_TIME and counts prevented searches', async () => {
     // safe_wait off leaves cmd_safety_prevention() with nothing to test, so
-    // the command runs and reports that it consumed time.
+    // the command runs and reports that it consumed time. multi has to be 0
+    // for that to mean anything: js/cmd.js cmdSafetyPrevention() tests
+    // `safe_wait && !menu_requested && !multi`, so searchState()'s multi of 4
+    // skips the whole block whatever safe_wait holds.
     const state = explicitSearchState();
+    state.multi = 0;
     state.flags = { safe_wait: false };
     const events = [];
     const random = scriptedRandom(events, []);
@@ -1441,6 +1510,24 @@ test('dosearch answers ECMD_TIME and counts prevented searches', async () => {
     assert.deepEqual(events, []);
     random.done();
     assert.equal(state.already_found_flag, 0);
+
+    // The reset arm: with safe_wait on, no adjacent monster and no danger
+    // property, cmd_safety_prevention() answers FALSE and clears the counter
+    // it had accumulated. Seeding the flag at 2 is what makes the final
+    // assertion discriminate; it read 0 both before and after when the block
+    // was being skipped.
+    const cleared = explicitSearchState();
+    cleared.multi = 0;
+    cleared.flags = { safe_wait: true };
+    cleared.already_found_flag = 2;
+    const clearedEvents = [];
+    const clearedRandom = scriptedRandom(clearedEvents, []);
+    assert.equal(await dosearch(cleared, {
+        random: clearedRandom,
+        ...recordingOperations(cleared, clearedEvents),
+    }), ECMD_TIME);
+    clearedRandom.done();
+    assert.equal(cleared.already_found_flag, 0);
 
     // A hostile beside the hero on a real level is what makes
     // cmd_safety_prevention() answer TRUE. cmdassist off is the branch that

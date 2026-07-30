@@ -42,6 +42,7 @@ import {
     ROOM,
     ROWNO,
     STAIRS,
+    STATUE_TRAP,
     STONE,
     STONED,
     TDWALL,
@@ -2603,6 +2604,46 @@ test('every nonzero-key rhack entry counts one logical dispatch', async () => {
     game.context.pendingCommand = null;
     await rhack(commandKeyCode('.'), game);
     assert.equal(game._commandDispatchCount, before + 2);
+});
+
+test('an adjacent statue trap stops retryably at the `s` key', async () => {
+    // detect.c dosearch0() would reach activate_statue_trap(), which is not
+    // ported. This refusal was a bare Error until the audit of
+    // e30ea05..d1a71f7: failClosedCommand() converts only the Unsupported*
+    // classes, so the segment died and lost every screen it had matched
+    // instead of stopping at a boundary the player can retry.
+    const replay = await runSegment({
+        seed: 9300001,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:StatueSearch,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,!acoustics',
+        moves: '',
+    });
+    const screensBefore = replay.getScreens().length;
+    assert.ok(screensBefore > 0);
+    const drawsBefore = replay.getRngLog().length;
+    // STATUE_TRAP on an adjacent square, unseen so the search would find it.
+    game.level.traps.push({
+        tx: game.u.ux + 1, ty: game.u.uy, ttyp: STATUE_TRAP, tseen: false,
+    });
+    const searchKey = commandKeyCode('s');
+    game.nhDisplay.pushKey(searchKey);
+
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === searchKey
+            && /activate_statue_trap\(\) is not ported/.test(error.message),
+    );
+    // The prefix survives and nothing was drawn: the preflight settled the
+    // whole 3x3 before dosearch0()'s loop reached its first rnl(). The screen
+    // count is a floor rather than an equality because the retry prompt paints
+    // one more frame; what must never happen is losing frames already matched.
+    assert.ok(replay.getScreens().length >= screensBefore);
+    assert.equal(replay.getRngLog().length, drawsBefore);
+    assert.equal(game.context.pendingCommand.phase, 'parsed');
+    assert.equal(game.context.pendingCommand.key, searchKey);
 });
 
 test('a search branch this port lacks stops retryably at the `s` key', async () => {

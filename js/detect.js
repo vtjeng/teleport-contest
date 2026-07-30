@@ -614,7 +614,27 @@ function preflightExplicitSearch(env) {
                 );
             }
             const trap = t_at(x, y, state);
-            if (trap && !trap.tseen) preflightTrap(env, trap);
+            if (trap && !trap.tseen) {
+                // Two source branches the port does not own. They are refused
+                // here, with the class js/cmd.js failClosedCommand() converts
+                // into a retryable command boundary, rather than inside
+                // preflightTrap(). That function's other checks catch a
+                // misconfigured env rather than an unported branch, and they
+                // serve the aflag == 1 owner, which reaches allmain.js instead
+                // of failClosedCommand() and so needs no boundary class.
+                if (trap.ttyp === STATUE_TRAP) {
+                    throw new UnsupportedSearchError(
+                        'detect.c activate_statue_trap() is not ported',
+                    );
+                }
+                if (hallucinating(state)) {
+                    throw new UnsupportedSearchError(
+                        "detect.c find_trap()'s hallucinatory display is not "
+                        + 'ported',
+                    );
+                }
+                preflightTrap(env, trap);
+            }
         }
     }
 }

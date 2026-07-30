@@ -9,6 +9,10 @@ import {
 } from './command_bindings.js';
 import {
     COLNO,
+    ECMD_CANCEL,
+    ECMD_FAIL,
+    ECMD_OK,
+    ECMD_TIME,
     PICK_NONE,
     PICK_ONE,
     SICK,
@@ -71,12 +75,6 @@ const BACKSPACE = 0x08;
 const DELETE = 0x7F;
 const DOMOVE_WALK = 0x01;
 const DOMOVE_RUSH = 0x02;
-// C ref: hack.h ECMD_* -- the result every extended command handler returns.
-const ECMD_OK = 0x00;
-const ECMD_TIME = 0x01;
-const ECMD_CANCEL = 0x02;
-const ECMD_FAIL = 0x04;
-
 export class UnsupportedHeroCommandBoundaryError extends Error {
     constructor(reason, key) {
         super(`unsupported hero command: ${reason}`);
@@ -679,7 +677,7 @@ async function runAttributesCommand(key, state) {
     }));
 }
 
-// C ref: detect.c dosearch(). Unlike the five wrappers above, this one returns
+// C ref: detect.c dosearch(). Unlike the four wrappers above, this one returns
 // the ECMD_* result its handler produced, because cmd_safety_prevention() and
 // the search itself already distinguish ECMD_OK from ECMD_TIME.
 //
@@ -872,11 +870,17 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command === 'search') {
-            // C ref: rhack()'s result handling, the same three tests the '#'
-            // arm above applies. dosearch() answers ECMD_TIME for a search
-            // that ran and ECMD_OK when cmd_safety_prevention() stopped it.
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#' arm above applies. dosearch() answers
+            // ECMD_TIME for a search that ran and ECMD_OK when
+            // cmd_safety_prevention() stopped it, so the cancel arm is
+            // unreachable from this handler today and no test pins it. It is
+            // written out anyway because cmd.c:3805-3809 documents
+            // (ECMD_TIME|ECMD_CANCEL) as a real result, and dropping the test
+            // would make this arm disagree with C for it.
             const res = await runSearchCommand(key, state);
-            if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
