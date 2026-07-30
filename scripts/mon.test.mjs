@@ -176,8 +176,12 @@ test('monster action adapter skips chug, forwards env, and returns the result',
             },
         );
 
-        // true occupies C dochugw()'s middle chug argument, which the
-        // environment-owned action does not accept.
+        // true occupies the middle argument of this port's
+        // dochugw(monster, chug, env) (js/monmove.js:495), the slot holding
+        // C's `chug` boolean. C's own dochugw() takes two parameters
+        // (monmove.c:204), with `chug` last; the trailing env is the port's
+        // injection seam. The environment-owned action accepts neither, so
+        // the adapter drops chug and forwards env in its place.
         assert.equal(await action(subject, true, env), expectedResult);
     });
 
@@ -929,6 +933,92 @@ test('movemon_singlemon spends equipment turns at the source distance gate', asy
     }), false);
     assert.equal(mistakenCloseMoves, 1);
     assert.ok(mistakenClose.misc_worn_check & I_SPECIAL);
+
+    // C's gate is `mtmp->mpeaceful || mtmp->mtame || dist2(...) > (3 * 3)`
+    // (mon.c:1276-1277). Every fixture above that sets mpeaceful also sits at
+    // believed dist2 32, so the distance arm alone carried them. These two put
+    // the believed hero one square away, where only the peaceful and tame arms
+    // can open the gate.
+    for (const [label, disposition] of [
+        ['peaceful', { mpeaceful: true }],
+        ['tame', { mpeaceful: false, mtame: 1 }],
+    ]) {
+        const friendly = actionMonster({
+            misc_worn_check: I_SPECIAL | 0x08,
+            mx: 4,
+            my: 4,
+            mux: 5, // believed dist2 = 1, well inside the 3 * 3 gate
+            muy: 4,
+            ...disposition,
+        });
+        const friendlyState = actionState(friendly);
+        friendlyState.u.ux = 5;
+        friendlyState.u.uy = 4;
+        let friendlyWore = 0;
+        assert.equal(await movemon_singlemon(friendly, {
+            state: friendlyState,
+            ...actionOperations({
+                dowear(current) {
+                    ++friendlyWore;
+                    current.misc_worn_check |= 0x10;
+                },
+                dochugwAction: () => assert.fail(
+                    `${label} monster equips whatever it believes`,
+                ),
+            }),
+        }), false);
+        assert.equal(friendlyWore, 1, label);
+        assert.equal(Boolean(friendly.misc_worn_check & I_SPECIAL), false);
+    }
+
+    // The believed distances above are 1, 32 and 256, none of them near the
+    // `3 * 3` C compares against. These two hostiles straddle it exactly:
+    // dist2(4, 4, 7, 4) is 9, which `> 9` rejects, and dist2(4, 4, 7, 5) is
+    // 10, which it accepts.
+    const atGate = actionMonster({
+        misc_worn_check: I_SPECIAL | 0x08,
+        mx: 4,
+        my: 4,
+        mux: 7,
+        muy: 4,
+    });
+    const atGateState = actionState(atGate);
+    atGateState.u.ux = 7;
+    atGateState.u.uy = 4;
+    let atGateMoves = 0;
+    assert.equal(await movemon_singlemon(atGate, {
+        state: atGateState,
+        ...actionOperations({
+            dowear: () => assert.fail('believed dist2 9 is not yet distant'),
+            dochugwAction: () => { ++atGateMoves; },
+        }),
+    }), false);
+    assert.equal(atGateMoves, 1);
+    assert.ok(atGate.misc_worn_check & I_SPECIAL);
+
+    const pastGate = actionMonster({
+        misc_worn_check: I_SPECIAL | 0x08,
+        mx: 4,
+        my: 4,
+        mux: 7,
+        muy: 5,
+    });
+    const pastGateState = actionState(pastGate);
+    pastGateState.u.ux = 7;
+    pastGateState.u.uy = 5;
+    let pastGateWore = 0;
+    assert.equal(await movemon_singlemon(pastGate, {
+        state: pastGateState,
+        ...actionOperations({
+            dowear(current) {
+                ++pastGateWore;
+                current.misc_worn_check |= 0x10;
+            },
+            dochugwAction: () => assert.fail('believed dist2 10 is distant'),
+        }),
+    }), false);
+    assert.equal(pastGateWore, 1);
+    assert.equal(Boolean(pastGate.misc_worn_check & I_SPECIAL), false);
 });
 
 test('movemon_singlemon preserves hider and eel re-hiding gates', async () => {
@@ -1050,6 +1140,68 @@ test('movemon_singlemon keeps conflict combat as the last pre-move action', asyn
         }),
     }), false);
     assert.deepEqual(events, ['every', 'liquid', 'hero', 'square', 'fight']);
+
+    // C guards fightm() with `mdistu(mtmp) <= BOLT_LIM * BOLT_LIM`
+    // (mon.c:1317). BOLT_LIM is 8 (hack.h:49), so the limit is 64. The subject
+    // above stands at dist2 1, which a limit of 8 would also admit; these two
+    // straddle the real bound. dist2(4, 4, 12, 4) is 64, the inclusive end,
+    // and dist2(4, 4, 12, 5) is 65, the first distance outside.
+    const atRangeEnd = actionMonster({ mx: 4, my: 4 });
+    const atRangeEndState = actionState(atRangeEnd);
+    atRangeEndState.u.ux = 12;
+    atRangeEndState.u.uy = 4;
+    atRangeEndState.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0 };
+    let atRangeEndFights = 0;
+    assert.equal(await movemon_singlemon(atRangeEnd, {
+        state: atRangeEndState,
+        ...actionOperations({
+            canSeeHero: () => true,
+            canSeeSquare: () => true,
+            fightMonster: () => { ++atRangeEndFights; return true; },
+            dochugwAction: () => assert.fail('dist2 64 is inside bolt range'),
+        }),
+    }), false);
+    assert.equal(atRangeEndFights, 1);
+
+    const outOfRange = actionMonster({ mx: 4, my: 4 });
+    const outOfRangeState = actionState(outOfRange);
+    outOfRangeState.u.ux = 12;
+    outOfRangeState.u.uy = 5;
+    outOfRangeState.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0 };
+    let outOfRangeMoves = 0;
+    assert.equal(await movemon_singlemon(outOfRange, {
+        state: outOfRangeState,
+        ...actionOperations({
+            // Both perception owners must answer true, or the default false
+            // would stop the chain before the range check is reached.
+            canSeeHero: () => true,
+            canSeeSquare: () => true,
+            fightMonster: () => assert.fail('dist2 65 is out of bolt range'),
+            dochugwAction: () => { ++outOfRangeMoves; },
+        }),
+    }), false);
+    assert.equal(outOfRangeMoves, 1);
+
+    // C exempts the Wizard of Yendor from conflict outright, before it asks
+    // whether he can see the hero (`Conflict && !mtmp->iswiz && m_canseeu`,
+    // mon.c:1305). An adjacent conflicted Wizard must therefore reach dochugw
+    // without either perception owner running.
+    const wizard = actionMonster({ mx: 4, my: 4, iswiz: true });
+    const wizardState = actionState(wizard);
+    wizardState.u.ux = 5;
+    wizardState.u.uy = 4;
+    wizardState.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0 };
+    let wizardMoves = 0;
+    assert.equal(await movemon_singlemon(wizard, {
+        state: wizardState,
+        ...actionOperations({
+            canSeeHero: () => assert.fail('the Wizard is exempt from conflict'),
+            canSeeSquare: () => assert.fail('the Wizard never reaches fightm'),
+            fightMonster: () => assert.fail('the Wizard never reaches fightm'),
+            dochugwAction: () => { ++wizardMoves; },
+        }),
+    }), false);
+    assert.equal(wizardMoves, 1);
 });
 
 test('movemon_singlemon preflights downstream owners before mutation', async () => {

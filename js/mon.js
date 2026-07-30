@@ -149,9 +149,13 @@ function requiredSingleMonsterOperation(env, name) {
     return operation;
 }
 
-// movemon_singlemon() calls dochugw(monster, true) after normalizing its
-// action environment. Adapt an environment-owned action without letting the
-// source `chug` argument displace that environment.
+// C ref: mon.c movemon_singlemon() ends in `(void) dochugw(mtmp, TRUE);`
+// (mon.c:1320). This file never calls dochugw() itself: the port injects that
+// call as the `dochugwAction` operation, which movemon_singlemon() below
+// invokes with the normalized action environment as a third argument that C's
+// two-parameter dochugw() has no counterpart for. Adapt an environment-owned
+// action to that signature without letting the source `chug` argument
+// displace the environment.
 export function adaptMonsterActionToDochugwSignature(action) {
     return (monster, _chug, env) => action(monster, env);
 }
