@@ -237,11 +237,16 @@ The pass report states how many mutants ran, how many survived, and what the
 test-quality finder concluded about the survivors it examined. A survivor the
 finder did not reach stays in the report as an unexamined item.
 
-Two forms apply outside a pass. `--file js/<module>.js` puts every line of one
-module in scope and needs no commit range, which answers whether that module's
-tests pin its behavior at all. `--limit <n>` stops after n mutants in path
-order, and the report then states how many of the target set's mutants went
-unmeasured.
+Three forms apply outside a pass. `--file js/<module>.js` puts every line of
+one module in scope and needs no commit range, which answers whether that
+module's tests pin its behavior at all. `--sample <n>` draws n mutants
+uniformly from the whole target set and reports the kill rate with a 95%
+interval, which is how to measure a population too large to run: the 126 files
+under `js/` hold 94,899 mutants, and the seven generated outputs `QUALITY.json`
+declares supply 65,298 of them, where a regeneration check owns the values and
+a kill rate says nothing. `--limit <n>` stops after n mutants in path order and
+the report states how many went unmeasured; prefer `--sample` for an estimate,
+because path order is no sample.
 
 ## Findings and scope changes
 

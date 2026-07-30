@@ -29,6 +29,7 @@ import {
     enumerateSites,
     formatReport,
     formatSiteCounts,
+    killRateInterval,
     parseAddedLines,
     parseArgs,
     partitionTestFiles,
@@ -36,6 +37,7 @@ import {
     removeWorkspace,
     reportedTestCount,
     runMutants,
+    sampleItems,
     survivingRangeLines,
     tokenize,
 } from './mutate-sites.mjs';
@@ -529,20 +531,130 @@ test('a module with an empty first wave is still judged by the suite', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Sampling
+// ---------------------------------------------------------------------------
+
+test('a seeded draw repeats exactly and picks each item once', () => {
+    const items = Array.from({ length: 100 }, (_, index) => index);
+
+    // A sample is worth reporting only if someone else can rerun it, so the
+    // seed has to fix the draw.
+    assert.deepEqual(sampleItems(items, 10, 7), sampleItems(items, 10, 7));
+    assert.notDeepEqual(sampleItems(items, 10, 7), sampleItems(items, 10, 8));
+
+    const drawn = sampleItems(items, 10, 7);
+    assert.equal(drawn.length, 10);
+    // Without replacement, and every item from the population.
+    assert.equal(new Set(drawn).size, 10);
+    for (const item of drawn) assert.equal(items.includes(item), true);
+    // Asking for the whole population, or more, returns all of it.
+    assert.deepEqual(sampleItems(items, 100, 7), items);
+    assert.deepEqual(sampleItems(items, 500, 7), items);
+});
+
+test('a draw spreads over the population', () => {
+    const items = Array.from({ length: 1000 }, (_, index) => index);
+    const drawn = sampleItems(items, 200, 4);
+
+    // A biased draw is the failure this guards against: `--limit` truncates in
+    // path order, and a sample that clustered the same way would measure one
+    // corner of the codebase. An even draw puts about 100 of the 200 in the
+    // lower half; truncation puts either 200 or 0 there.
+    const lower = drawn.filter((item) => item < 500).length;
+    assert.equal(lower > 60 && lower < 140, true);
+});
+
+test('the kill rate carries a Wilson interval', () => {
+    // 12 of 30 worked by hand: p = 0.4, z = 1.96, giving 24.6% to 57.7%.
+    const twelveOfThirty = killRateInterval(12, 30);
+    assert.equal(twelveOfThirty.rate.toFixed(1), '40.0');
+    assert.equal(twelveOfThirty.low.toFixed(1), '24.6');
+    assert.equal(twelveOfThirty.high.toFixed(1), '57.7');
+
+    // Wilson stays inside 0 and 100 at the ends, where the textbook normal
+    // interval runs past them.
+    const all = killRateInterval(20, 20);
+    assert.equal(all.rate, 100);
+    assert.equal(all.high <= 100, true);
+    assert.equal(all.low > 80, true);
+    const none = killRateInterval(0, 20);
+    assert.equal(none.low >= 0, true);
+    assert.equal(none.high < 20, true);
+    // Nothing ran, so there is nothing to estimate.
+    assert.deepEqual(killRateInterval(0, 0), { rate: 0, low: 0, high: 0 });
+});
+
+test('a sample cuts the target set down and repeats with its seed', () => {
+    const mutants = (targets) =>
+        targets.flatMap((target) => target.sites.map((site) =>
+            `${target.path}:${site.offset}:${site.replacement}`));
+    const paths = ['js/lock.js', 'js/regen.js'];
+    const drawn = collectTargets({ paths, sample: 6, seed: 5 });
+    const again = collectTargets({ paths, sample: 6, seed: 5 });
+    const whole = collectTargets({ paths });
+
+    assert.equal(mutants(drawn).length, 6);
+    assert.deepEqual(mutants(drawn), mutants(again));
+    // Every drawn mutant belongs to the population it was drawn from.
+    for (const mutant of mutants(drawn))
+        assert.equal(mutants(whole).includes(mutant), true);
+    assert.equal(mutants(whole).length > 6, true);
+});
+
+test('the report breaks the kill rate down by mutation kind', () => {
+    const result = withWorkspace((workspace) => runMutants({
+        workspace,
+        targets: [fixtureTarget()],
+        allTests: FIXTURE_SUITE,
+        fullSuite: true,
+    }));
+    const report = formatReport(result, 13);
+
+    // js/bounds.js holds one logical site, which scripts/bounds.test.mjs kills,
+    // and three relational sites, of which scripts/bounds.test.mjs kills one and
+    // scripts/wrapper.test.mjs kills another.
+    assert.deepEqual(result.byKind.get('logical'), { ran: 1, killed: 1 });
+    assert.deepEqual(result.byKind.get('relational'), { ran: 3, killed: 2 });
+    assert.equal(report.some((line) => line.startsWith(
+        'kind relational: 2 of 3 killed, 66.7%')), true);
+    // The population equals what ran, so no sample line is printed.
+    assert.equal(report.some((line) => line.startsWith('kill rate:')), false);
+});
+
+test('a sampled run states the interval for the population it sampled', () => {
+    const result = withWorkspace((workspace) => runMutants({
+        workspace,
+        targets: [fixtureTarget({ lines: new Set([10]) })],
+        allTests: FIXTURE_SUITE,
+        fullSuite: true,
+    }));
+
+    // Line 10 is `export const LIMIT = 4;`: two mutants, both killed, drawn from
+    // a population of thirteen.
+    assert.equal(result.ran, 2);
+    assert.equal(result.killed, 2);
+    assert.equal(formatReport(result, 13).some((line) => line.startsWith(
+        'kill rate: 100.0% of the 2 mutant(s) run, a 95% interval of ')), true);
+});
+
+// ---------------------------------------------------------------------------
 // The command line and the census
 // ---------------------------------------------------------------------------
 
 test('every target is named by --range or --file', () => {
     assert.deepEqual(parseArgs(['--range', 'a..b']),
         { range: 'a..b', paths: [], enumerateOnly: false, full: false,
-            limit: Infinity });
+            limit: Infinity, sample: null, seed: 1 });
     assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
         { range: null, paths: ['js/a.js', 'js/b.js'], enumerateOnly: false,
-            full: false, limit: Infinity });
+            full: false, limit: Infinity, sample: null, seed: 1 });
     // `--name=value` and `--name value` are the same option.
     assert.deepEqual(parseArgs(['--range=a..b', '--limit=5',
-        '--enumerate-only', '--full']),
-    { range: 'a..b', paths: [], enumerateOnly: true, full: true, limit: 5 });
+        '--enumerate-only', '--full', '--sample=40', '--seed=7']),
+    { range: 'a..b', paths: [], enumerateOnly: true, full: true, limit: 5,
+        sample: 40, seed: 7 });
+    assert.throws(() => parseArgs(['--sample', '0']), /positive integer/u);
+    assert.throws(() => parseArgs(['--seed', 'x']), /positive integer/u);
 
     assert.throws(() => parseArgs(['--range', 'a..b', '--all']),
         /unknown option/u);

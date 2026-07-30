@@ -53,6 +53,14 @@
 // suite, at the cost the figures below give. A correctness pass wants it; a
 // quick local check does not.
 //
+// `--sample <n>` draws n mutants uniformly at random from the whole target set
+// and runs only those, which is how to estimate a kill rate over a population too
+// large to run: the 126 files under js/ hold 94,899 mutants. `--seed <k>` sets
+// the draw, and the report names the seed it used, so a sample can be repeated
+// exactly. The report gives the kill rate with a 95% Wilson interval for the
+// population the sample was drawn from. Prefer this to `--limit`, which
+// truncates in path order and so samples nothing.
+//
 // Both forms take `--enumerate-only`, which prints the site and mutant counts
 // per file and stops before running any test, and `--limit <n>`, which stops
 // after n mutants have run. A limit truncates in path order, so it bounds an
@@ -733,7 +741,7 @@ export function runMutants({ workspace, targets,
             ranSeconds: 0, firstWaveKilled: 0, firstWaveRuns: 0,
             firstWaveSeconds: 0, fullSuiteKilled: 0, fullSuiteRuns: 0,
             fullSuiteSeconds: 0, baselineSeconds: 0, baselineFiles: [],
-            baselineTests: 0 };
+            baselineTests: 0, byKind: new Map() };
     }
 
     log(`baseline: ${baselineFiles.length} test file(s)`);
@@ -762,6 +770,16 @@ export function runMutants({ workspace, targets,
     const timeoutMs = Math.max(60_000, Math.ceil(baselineSeconds * 3) * 1000);
     const survivors = [];
     const perFile = [];
+    // Kill rates differ sharply by kind, and that is the signal worth reading:
+    // a surviving relational operator marks an untested boundary, while a
+    // surviving integer is often a constant nothing observes.
+    const byKind = new Map();
+    const recordKind = (kind, wasKilled) => {
+        const tally = byKind.get(kind) ?? { ran: 0, killed: 0 };
+        tally.ran += 1;
+        if (wasKilled) tally.killed += 1;
+        byKind.set(kind, tally);
+    };
     const scheduled = measurable.reduce((n, t) => n + t.sites.length, 0);
     let killed = 0;
     let timeouts = 0;
@@ -798,6 +816,7 @@ export function runMutants({ workspace, targets,
                     if (!wave.passed) {
                         killed += 1;
                         firstWaveKilled += 1;
+                        recordKind(site.kind, true);
                         continue;
                     }
                 }
@@ -807,6 +826,7 @@ export function runMutants({ workspace, targets,
                 if (!fullSuite || !remaining.length) {
                     survivors.push({ ...site, path: target.path,
                         tests: target.tests });
+                    recordKind(site.kind, false);
                     continue;
                 }
                 const rest = runTests(workspace, remaining, timeoutMs);
@@ -822,6 +842,7 @@ export function runMutants({ workspace, targets,
                     killed += 1;
                     fullSuiteKilled += 1;
                 }
+                recordKind(site.kind, !rest.passed);
             }
         } finally {
             writeFileSync(absolute, target.source);
@@ -831,7 +852,7 @@ export function runMutants({ workspace, targets,
     }
 
     return { survivors, killed, timeouts, ran, perFile, scheduled, unmeasured,
-        fullSuite, suiteSize: allTests.length,
+        byKind, fullSuite, suiteSize: allTests.length,
         ranSeconds: firstWaveSeconds + fullSuiteSeconds,
         firstWaveKilled, firstWaveRuns, firstWaveSeconds,
         fullSuiteKilled, fullSuiteRuns, fullSuiteSeconds,
@@ -856,7 +877,14 @@ export function describeSite(site) {
 const perMutant = (seconds, runs) =>
     runs ? (seconds / runs).toFixed(2) : '0.00';
 
-export function formatReport(result) {
+/**
+ * Render the run.
+ *
+ * `population` is how many mutants the target set holds, which differs from the
+ * number run when `--sample` or `--limit` cut the set down. The kill rate and its
+ * interval estimate the population from the mutants that ran.
+ */
+export function formatReport(result, population = result.ran) {
     const lines = [];
     lines.push(result.fullSuite
         ? `verdict: the whole suite, ${result.suiteSize} test file(s)`
@@ -903,6 +931,18 @@ export function formatReport(result) {
         lines.push(`limited to ${result.ran} of ${result.scheduled} mutant(s) `
             + 'in path order; the rest were not measured');
     }
+    for (const [kind, tally] of [...(result.byKind ?? new Map())].sort()) {
+        const { rate, low, high } = killRateInterval(tally.killed, tally.ran);
+        lines.push(`kind ${kind}: ${tally.killed} of ${tally.ran} killed, `
+            + `${rate.toFixed(1)}% (95% interval ${low.toFixed(1)}% to `
+            + `${high.toFixed(1)}%)`);
+    }
+    if (result.ran && result.ran < population) {
+        const { rate, low, high } = killRateInterval(result.killed, result.ran);
+        lines.push(`kill rate: ${rate.toFixed(1)}% of the ${result.ran} `
+            + `mutant(s) run, a 95% interval of ${low.toFixed(1)}% to `
+            + `${high.toFixed(1)}% for the ${population} in the target set`);
+    }
     lines.push(`${result.ran} mutant(s): ${result.killed} killed, `
         + `${result.survivors.length} survived, ${result.timeouts} timed out; `
         + `${result.ranSeconds.toFixed(1)} s of test time, `
@@ -911,6 +951,57 @@ export function formatReport(result) {
         + `${result.baselineFiles.length} file(s) in `
         + `${result.baselineSeconds.toFixed(1)} s`);
     return lines;
+}
+
+/**
+ * Draw `count` items uniformly without replacement, seeded so the draw repeats.
+ *
+ * mulberry32 is a small well-distributed 32-bit generator; the draw is a partial
+ * Fisher-Yates shuffle over the indices, which keeps every subset equally
+ * likely. js/isaac64.js is the game's generator and the scorer replaces it, so
+ * this keeps its own.
+ */
+export function sampleItems(items, count, seed) {
+    if (count >= items.length) return [...items];
+    let state = (seed >>> 0) || 1;
+    const random = () => {
+        state = (state + 0x6d2b79f5) >>> 0;
+        let t = state;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const indices = items.map((_, index) => index);
+    for (let i = 0; i < count; ++i) {
+        const pick = i + Math.floor(random() * (indices.length - i));
+        [indices[i], indices[pick]] = [indices[pick], indices[i]];
+    }
+    return indices.slice(0, count).sort((a, b) => a - b)
+        .map((index) => items[index]);
+}
+
+/**
+ * A 95% Wilson score interval for `killed` of `ran`, as percentages.
+ *
+ * Wilson holds up near 0 and 1, where the textbook normal interval runs past
+ * them, and a kill rate often sits near one end.
+ */
+export function killRateInterval(killed, ran) {
+    if (!ran) return { rate: 0, low: 0, high: 0 };
+    const z = 1.96;
+    const p = killed / ran;
+    const denominator = 1 + (z * z) / ran;
+    const centre = p + (z * z) / (2 * ran);
+    const spread = z * Math.sqrt((p * (1 - p)) / ran
+        + (z * z) / (4 * ran * ran));
+    // A proportion cannot leave 0 and 1, and the arithmetic above lands just
+    // outside at the ends: 0 of 20 puts the lower bound at -1.2e-15.
+    const clamp = (value) => Math.min(100, Math.max(0, value * 100));
+    return {
+        rate: p * 100,
+        low: clamp((centre - spread) / denominator),
+        high: clamp((centre + spread) / denominator),
+    };
 }
 
 /** Count the distinct tokens behind a mutant list. */
@@ -964,7 +1055,7 @@ export function formatSiteCounts(targets, scopedLines) {
  */
 export function parseArgs(argv) {
     const options = { range: null, paths: [], enumerateOnly: false,
-        full: false, limit: Infinity };
+        full: false, limit: Infinity, sample: null, seed: 1 };
     for (let i = 0; i < argv.length; ++i) {
         const separator = argv[i].indexOf('=');
         const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
@@ -998,6 +1089,16 @@ export function parseArgs(argv) {
             if (!Number.isInteger(value) || value < 1)
                 throw new Error('--limit takes a positive integer');
             options.limit = value;
+        } else if (name === '--sample') {
+            const value = Number(valueOf());
+            if (!Number.isInteger(value) || value < 1)
+                throw new Error('--sample takes a positive integer');
+            options.sample = value;
+        } else if (name === '--seed') {
+            const value = Number(valueOf());
+            if (!Number.isInteger(value) || value < 1)
+                throw new Error('--seed takes a positive integer');
+            options.seed = value;
         } else if (name.startsWith('-')) {
             throw new Error(`unknown option '${name}'`);
         } else {
@@ -1021,8 +1122,8 @@ export function parseArgs(argv) {
  * line of each file. Every target reports the working tree's bytes, so a
  * reported line number always addresses the file on disk.
  */
-export function collectTargets({ range = null, paths = [] },
-    root = REPO_ROOT) {
+export function collectTargets({ range = null, paths = [], sample = null,
+    seed = 1 }, root = REPO_ROOT) {
     const scope = range
         ? survivingRangeLines(range, root)
         : new Map(paths.map((path) => [assertJsPath(path, root), null]));
@@ -1039,7 +1140,21 @@ export function collectTargets({ range = null, paths = [] },
             tests: covering.get(path) ?? [],
         });
     }
-    return targets;
+    if (sample === null) return targets;
+    // Draw across the whole target set at once, so the sample spans every file
+    // in proportion to how many mutants each holds.
+    const drawn = new Set(sampleItems(
+        targets.flatMap((target) =>
+            target.sites.map((site) => `${target.path}:${site.offset}:`
+                + `${site.replacement}`)),
+        sample, seed));
+    return targets
+        .map((target) => ({
+            ...target,
+            sites: target.sites.filter((site) => drawn.has(
+                `${target.path}:${site.offset}:${site.replacement}`)),
+        }))
+        .filter((target) => target.sites.length);
 }
 
 /** Normalize a path argument, rejecting anything outside js/. */
@@ -1052,9 +1167,20 @@ function assertJsPath(path, root) {
 
 async function main(argv) {
     const options = parseArgs(argv);
-    const targets = collectTargets(options);
-    const scopedLines = targets.reduce((sum, t) => sum + t.lineCount, 0);
-    for (const line of formatSiteCounts(targets, scopedLines))
+    const population = collectTargets({ ...options, sample: null });
+    const populationMutants = population
+        .reduce((n, target) => n + target.sites.length, 0);
+    const targets = options.sample === null
+        ? population
+        : collectTargets(options);
+    if (options.sample !== null) {
+        console.log(`sample: ${targets.reduce((n, t) => n + t.sites.length, 0)} `
+            + `of ${populationMutants} mutant(s) across `
+            + `${targets.length} of ${population.length} file(s), seed `
+            + `${options.seed}`);
+    }
+    const scopedLines = population.reduce((sum, t) => sum + t.lineCount, 0);
+    for (const line of formatSiteCounts(population, scopedLines))
         console.log(line);
     if (options.enumerateOnly) return;
 
@@ -1074,7 +1200,8 @@ async function main(argv) {
             limit: options.limit,
             log: (message) => console.log(message),
         });
-        for (const line of formatReport(result)) console.log(line);
+        for (const line of formatReport(result, populationMutants))
+            console.log(line);
     } finally {
         removeWorkspace(workspace);
     }
