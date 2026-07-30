@@ -141,10 +141,11 @@ Three limits were measured while validating and belong to other owners.
 
 ## Validation
 
-- Commit checked: `d1a71f7ea035fe6f21567fe7760416ce9b0b5674`. The orchestrator
-  re-measured the full suite, the four generated-data checks,
-  `check:namespace-members`, `npm run quality -- --check` and the development
-  score at that exact head; the figures below are those measurements.
+- Commit checked: `d1a71f7ea035fe6f21567fe7760416ce9b0b5674`
+- Who measured: the orchestrator re-ran the full suite, the four generated-data
+  checks, `check:namespace-members`, `npm run quality -- --check` and the
+  development score at that exact head. The figures below are those
+  measurements, not the worker's report of them.
 - Source review: done. `detect.c` 1964-2104 and `display.c` 375-396 read in
   full, plus `cmd.c rhack()` 3627-3843, `include/display.h` 95-134, and
   `win/tty/getline.c` 275-320 for the `#search` lookup.
