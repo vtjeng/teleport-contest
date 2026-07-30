@@ -271,6 +271,15 @@ function defineObjclassAliases(object) {
     return object;
 }
 
+// Copy one live objects[] entry, its aliases included. A bare spread loses
+// them: defineObjclassAliases() installs each alias as a non-enumerable
+// accessor over the field it shares, so a spread copy answers undefined for
+// oc_armcat, a_ac, oc_bimanual and the five others, and a reader of the copy
+// takes a different branch from the same data.
+export function copyObjclassEntry(entry) {
+    return defineObjclassAliases({ ...entry });
+}
+
 function cloneObject(template) {
     return defineObjclassAliases({
         ...template,

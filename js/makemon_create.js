@@ -1625,9 +1625,13 @@ function m_dowear_type(
     monster,
     mask,
     creation,
-    state,
+    env,
     racialException = false,
 ) {
+    const state = env.state;
+    // C ref: worn.c m_dowear_type():814. A monster part-way through putting
+    // something on chooses nothing more this turn.
+    if (monster.mfrozen) return;
     const old = uniqueWornObject(monster, mask);
     if (old?.cursed) return;
     if (old && mask === W_AMUL && old.otyp !== AMULET_OF_GUARDING) return;
@@ -1694,6 +1698,17 @@ function m_dowear_type(
     }
 
     if (!best || best === old) return;
+    if (!creation) {
+        // C ref: worn.c m_dowear_type():912-960. Outside creation the same
+        // choice costs a turn and is announced: C prints "<Mon> [removes
+        // <old> and ]puts on <new>." through pline_mon(), adds both pieces'
+        // oc_delay to mfrozen and clears mcanmove, and may print an artifact
+        // light or a sudden-invisibility line. None of that is ported, and
+        // the creation-time effect below is not a substitute for it, so a
+        // live wearer goes to its caller's boundary instead.
+        wearArmorOperation(env)(monster, best, old, env);
+        return;
+    }
     if (old) {
         old.owornmask = 0;
         updateMonsterArmorEffects(monster, old, false, state);
@@ -1708,10 +1723,26 @@ function m_dowear_type(
     updateMonsterArmorEffects(monster, best, true, state);
 }
 
-// C ref: worn.c m_dowear()/m_dowear_type(), restricted to creation-time
-// behavior and the species and equipment reachable from initial generation.
+// The wearing effect outside monster creation. movemon_singlemon()'s
+// I_SPECIAL arm is the only caller that passes creation = false, and it comes
+// from a fail-closed boundary, so the operation is required rather than
+// defaulted: silently doing nothing there would drop a turn C spends.
+function wearArmorOperation(env) {
+    const operation = env.wearArmor;
+    if (typeof operation !== 'function') {
+        throw new TypeError(
+            'm_dowear outside creation requires a wearArmor operation',
+        );
+    }
+    return operation;
+}
+
+// C ref: worn.c m_dowear()/m_dowear_type(). The selection is complete for the
+// species and equipment reachable from initial generation; only the
+// creation-time effect is ported, and wearArmorOperation() owns the rest.
 export function m_dowear(monster, creation = false, env = {}) {
     const state = env.state ?? game;
+    const wearEnv = { ...env, state };
     const species = monster.data;
     const bodyFlags = species.mflags1 ?? 0;
     if (species.msize < MZ_SMALL
@@ -1731,19 +1762,19 @@ export function m_dowear(monster, creation = false, env = {}) {
         }
     }
 
-    m_dowear_type(monster, W_AMUL, creation, state);
+    m_dowear_type(monster, W_AMUL, creation, wearEnv);
     const canWearArmor = !cantWearArmor(species);
     if (canWearArmor && !(monster.misc_worn_check & W_ARM))
-        m_dowear_type(monster, W_ARMU, creation, state);
+        m_dowear_type(monster, W_ARMU, creation, wearEnv);
     if (canWearArmor || wrappingAllowed(species))
-        m_dowear_type(monster, W_ARMC, creation, state);
-    m_dowear_type(monster, W_ARMH, creation, state);
+        m_dowear_type(monster, W_ARMC, creation, wearEnv);
+    m_dowear_type(monster, W_ARMH, creation, wearEnv);
     if (!monster.mw || !state.objects?.[monster.mw.otyp]?.oc_bimanual)
-        m_dowear_type(monster, W_ARMS, creation, state);
-    m_dowear_type(monster, W_ARMG, creation, state);
+        m_dowear_type(monster, W_ARMS, creation, wearEnv);
+    m_dowear_type(monster, W_ARMG, creation, wearEnv);
     if (!(bodyFlags & M1_SLITHY) && species.mlet !== S_CENTAUR)
-        m_dowear_type(monster, W_ARMF, creation, state);
-    m_dowear_type(monster, W_ARM, creation, state, !canWearArmor);
+        m_dowear_type(monster, W_ARMF, creation, wearEnv);
+    m_dowear_type(monster, W_ARM, creation, wearEnv, !canWearArmor);
     return monster;
 }
 

@@ -77,6 +77,7 @@ import {
     PM_HUMAN,
     PM_HUMAN_MUMMY,
     PM_DWARF,
+    PM_GNOME,
     PM_GNOME_RULER,
     PM_GNOMISH_WIZARD,
     PM_JACKAL,
@@ -527,6 +528,64 @@ test('m_dowear creation exception applies to mummies and skeletons only', () => 
             name,
         );
     }
+});
+
+test('m_dowear outside creation hands a real change to its caller', () => {
+    // C ref: worn.c m_dowear_type():912-960. Outside creation the same choice
+    // prints a line, charges oc_delay turns of mfrozen and stops the monster
+    // moving; only the creation-time effect is ported, so a live wearer has to
+    // reach the caller's boundary instead of quietly putting the helm on.
+    const state = initialLevelState();
+    const { helm, monster } = monsterWithHelm(state, PM_GNOME);
+    const offered = [];
+
+    m_dowear(monster, false, {
+        state,
+        wearArmor: (subject, best, old) => { offered.push([subject, best, old]); },
+    });
+
+    assert.equal(offered.length, 1);
+    assert.deepEqual(offered[0], [monster, helm, null]);
+    // The creation-time effect below the hand-off must not have run.
+    assert.equal(helm.owornmask, 0);
+    assert.equal(monster.misc_worn_check & W_ARMH, 0);
+});
+
+test('m_dowear outside creation stays quiet when nothing would change', () => {
+    // A monster already wearing its best helmet reaches no slot change, so C
+    // spends no turn and prints nothing. The wearArmor hand-off must not fire.
+    const state = initialLevelState();
+    const { helm, monster } = monsterWithHelm(state, PM_GNOME);
+    helm.owornmask = W_ARMH;
+    monster.misc_worn_check = W_ARMH;
+
+    m_dowear(monster, false, {
+        state,
+        wearArmor: () => assert.fail('an unchanged slot reached wearArmor'),
+    });
+
+    assert.equal(helm.owornmask, W_ARMH);
+});
+
+test('m_dowear requires a wearArmor owner outside creation', () => {
+    const state = initialLevelState();
+    const { monster } = monsterWithHelm(state, PM_GNOME);
+    assert.throws(
+        () => m_dowear(monster, false, { state }),
+        /m_dowear outside creation requires a wearArmor operation/,
+    );
+});
+
+test('m_dowear leaves a monster part-way through dressing alone', () => {
+    // C ref: worn.c m_dowear_type():814, `if (mon->mfrozen) return;`.
+    const state = initialLevelState();
+    const { helm, monster } = monsterWithHelm(state, PM_GNOME);
+    monster.mfrozen = 2; // Any positive remainder of a previous wear delay.
+
+    m_dowear(monster, true, { state });
+
+    assert.equal(helm.owornmask, 0);
+    assert.equal(monster.misc_worn_check & W_ARMH, 0);
 });
 
 test('m_dowear retains tied and cursed worn helmets', () => {

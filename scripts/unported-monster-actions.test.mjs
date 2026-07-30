@@ -18,6 +18,7 @@ import {
     FOUNTAIN,
     HEADSTONE,
     IN_SIGHT,
+    I_SPECIAL,
     LADDER,
     LAVAPOOL,
     LS_OBJECT,
@@ -66,6 +67,7 @@ import { newObject } from '../js/obj.js';
 import {
     DAGGER,
     FOOD_RATION,
+    ORCISH_HELM,
     POT_HEALING,
     POT_SPEED,
     ROCK,
@@ -1859,6 +1861,51 @@ test('a planned monster pickup leaves a live carried stack untouched',
         assert.equal(target.monster.weapon_check, NEED_HTH_WEAPON);
     });
 
+test('a flagged monster is scanned and only a real change stops it',
+    async () => {
+        // C ref: mon.c movemon_singlemon():1268-1281. check_gear_next_turn()
+        // sets I_SPECIAL after every pickup, so the bit alone cannot be a
+        // boundary: C reruns m_dowear() and, when nothing is worth putting on,
+        // carries straight into the monster's ordinary move.
+        for (const wearable of [false, true]) {
+            const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+            target.monster.misc_worn_check |= I_SPECIAL;
+            // The arm is entered only for a peaceful or tame monster or one
+            // that believes the hero is more than three squares away; the
+            // fixture places the remembered hero exactly at 3.
+            target.monster.mux = target.monster.mx + 4;
+            target.monster.muy = target.monster.my;
+            if (wearable) {
+                // newObject() again: ocarry shares obj.v with nexthere, and a
+                // plain literal would keep them as two unrelated fields.
+                const helm = newObject(monsterObject(ORCISH_HELM, 9201));
+                helm.ocarry = target.monster;
+                target.monster.minvent = helm;
+            }
+            const before = completeSecondTurnSnapshot(game, target.replay);
+
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                if (wearable) {
+                    await assert.rejects(
+                        preflightSimpleMonsterActions(game),
+                        (error) => (
+                            error instanceof UnsupportedSimpleMonsterActionError
+                            && error.reason === 'monster equipment changes'
+                        ),
+                        `wearable, attempt ${attempt + 1}`,
+                    );
+                } else {
+                    await preflightSimpleMonsterActions(game);
+                }
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, target.replay),
+                    before,
+                    `wearable=${wearable}, attempt ${attempt + 1}`,
+                );
+            }
+        }
+    });
+
 test('the planning clone gives each monster its own pack and weapon',
     async () => {
         // Cloning inventories is only half the job: a monster also points at
@@ -1897,6 +1944,48 @@ test('the planning clone gives each monster its own pack and weapon',
         assert.equal(target.monster.minvent, dagger);
         assert.equal(target.monster.mw, dagger);
         assert.equal(dagger.ocarry, target.monster);
+    });
+
+test('the planning clone keeps the object catalog answering its aliases',
+    async () => {
+        // objects[] entries carry eight aliases that share a backing field and
+        // are defined non-enumerable, so a spread copy answers undefined for
+        // every one. m_dowear() reads oc_armcat and a_ac from the planning
+        // state and select_hwep() reads oc_skill and oc_bimanual, so a
+        // stripped copy sends the dry run down a different branch from the
+        // live pass it is meant to rehearse.
+        const target = await prepareSelectedAction();
+        target.monster.movement = 0;
+        game.u.umovement = 0;
+        let planned = null;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(state) {
+                planned = state;
+                return true;
+            },
+        });
+
+        assert.notEqual(planned.objects, game.objects);
+        const aliases = [
+            'oc_armcat', 'a_ac', 'oc_bimanual', 'oc_skill',
+            'oc_bulky', 'oc_hitbon', 'a_can', 'oc_level',
+        ];
+        for (const alias of aliases) {
+            assert.equal(
+                planned.objects[ORCISH_HELM][alias],
+                game.objects[ORCISH_HELM][alias],
+                alias,
+            );
+            assert.notEqual(
+                planned.objects[ORCISH_HELM][alias],
+                undefined,
+                alias,
+            );
+        }
+        // Still a copy: the discovery ledger the clone writes stays there.
+        planned.objects[ORCISH_HELM].oc_encountered = 1;
+        assert.equal(game.objects[ORCISH_HELM].oc_encountered, 0);
     });
 
 test('planning brackets only the monster scan with context.mon_moving',

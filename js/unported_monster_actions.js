@@ -16,7 +16,6 @@ import {
     CORR,
     DOOR,
     HEADSTONE,
-    I_SPECIAL,
     INVIS,
     MMOVE_DONE,
     MMOVE_MOVED,
@@ -41,6 +40,7 @@ import {
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { any_light_source } from './light.js';
+import { m_dowear } from './makemon_create.js';
 import {
     adaptMonsterActionToDochugwSignature,
     movemon_singlemon,
@@ -77,7 +77,7 @@ import {
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { newObject } from './obj.js';
-import { SADDLE } from './objects.js';
+import { copyObjclassEntry, SADDLE } from './objects.js';
 import {
     inside_region,
     mon_in_region,
@@ -168,8 +168,6 @@ function assertSimpleScanState(monster, state) {
     // path -- they all describe branches mon.c only takes after the movement
     // debit -- so they are deliberately skipped rather than merely bypassed.
     if (monster.movement < NORMAL_SPEED) return true;
-    if (monster.misc_worn_check & I_SPECIAL)
-        unsupported('monster equipment changes');
     if (is_pool(monster.mx, monster.my, state)
         || is_lava(monster.mx, monster.my, state)) {
         unsupported('monster liquid effects');
@@ -466,7 +464,7 @@ function planningState(state) {
         // discovery state and the writes survived even a rejected round. Each
         // is copied one level deeper than the spread reaches: the entries
         // themselves are replaced, not just the containers.
-        objects: state.objects?.map((entry) => ({ ...entry })),
+        objects: state.objects?.map(copyObjclassEntry),
         svd: state.svd ? { ...state.svd, disco: [...(state.svd.disco ?? [])] }
             : state.svd,
         svb: state.svb ? { ...state.svb } : state.svb,
@@ -749,7 +747,13 @@ async function planSimpleMonsterScan(monster, env) {
                 unsupported('an immobile monster in liquid');
             return false;
         },
-        dowear: () => unsupported('monster equipment changes'),
+        // C ref: mon.c movemon_singlemon():1268-1281. m_dowear() reassesses
+        // the monster's gear; only a monster that would actually put
+        // something on stops the scan.
+        dowear: (subject, creation, subjectEnv) => m_dowear(subject, creation, {
+            ...subjectEnv,
+            wearArmor: () => unsupported('monster equipment changes'),
+        }),
         restrap: () => unsupported('monster hiding'),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: () => unsupported('eel concealment'),

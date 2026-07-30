@@ -39,6 +39,7 @@ import {
 } from './mon.js';
 import {
     dmonsfree,
+    m_dowear,
     makemon,
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
@@ -635,7 +636,15 @@ async function moveElapsedTurnMonster(monster, env) {
             'monster bypass cleanup',
         ),
         minLiquid: elapsedTurnMinLiquid,
-        dowear: unavailableElapsedTurnOperation('monster equipment changes'),
+        // C ref: mon.c movemon_singlemon():1268-1281. A monster whose gear
+        // was flagged for reassessment reruns worn.c m_dowear(); only a
+        // monster that would actually put something on stops the turn.
+        dowear: (subject, creation, subjectEnv) => m_dowear(subject, creation, {
+            ...subjectEnv,
+            wearArmor: unavailableElapsedTurnOperation(
+                'monster equipment changes',
+            ),
+        }),
         restrap: unavailableElapsedTurnOperation('monster hiding'),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: unavailableElapsedTurnOperation('eel concealment'),
