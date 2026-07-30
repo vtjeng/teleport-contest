@@ -728,14 +728,22 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         if (runStopsBeforeMonster(destinationMonster, run, state)) return;
         // A refused diagonal with any monster on the destination fails closed,
         // safemon included, and it does so before the swap-consequence gates
-        // below. C reaches do_attack() first, and uhitm.c:474 evaluates
+        // below.
+        //
+        // C reaches do_attack() first: uhitm.c:474 evaluates
         // `foo = (Punished || !rn2(7) || ...)` inside its is_safemon branch, so
         // even the pet case spends a draw before do_attack() returns FALSE and
-        // test_move() refuses. The port cannot reproduce that draw until
-        // combat lands, and silently declining the step would diverge by
-        // exactly one rn2(7). Refusing ahead of requireOrdinaryStartingPetSwap()
-        // also keeps its trap, object, region and engraving gates out of a step
-        // C never lets reach them.
+        // test_move() refuses. do_attack() IS ported -- js/uhitm.js:51, with
+        // that draw at :70 -- and domove() calls it live at :1098. The blocker
+        // is ordering, not coverage: domove() runs test_move() at :1065 before
+        // that call, the reverse of hack.c:2794 and :2841, so admitting the
+        // step would refuse it inside test_move() and never reach the draw.
+        // Remove this throw when domove() is reordered to match, not when
+        // "combat lands" -- it already has.
+        //
+        // Refusing ahead of requireOrdinaryStartingPetSwap() also keeps its
+        // trap, object, region and engraving gates out of a step C never lets
+        // reach them.
         if (refusedDiagonalDoorway(x, y, state)) {
             throw new UnsupportedHeroMoveBoundaryError(
                 'hero combat or displacement',

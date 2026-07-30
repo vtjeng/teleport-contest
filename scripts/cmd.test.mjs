@@ -876,9 +876,11 @@ test('a diagonal pet swap stops rather than refusing silently', async () => {
     // before it. uhitm.c:474 evaluates `foo = (Punished || !rn2(7) || ...)`
     // inside the is_safemon branch, so C spends a draw even for the pet the
     // hero would otherwise swap with, then returns FALSE and lets
-    // test_move()'s exit rule decline the step. The port has no do_attack()
-    // yet, so declining silently would diverge by exactly that rn2(7); it
-    // fails closed instead.
+    // test_move()'s exit rule decline the step. The port does have do_attack()
+    // (js/uhitm.js:51) and spends that draw on an ordinary swap, but domove()
+    // runs test_move() before it, the reverse of hack.c, so admitting this
+    // step would refuse it without ever reaching the draw. It fails closed
+    // instead.
     const replay = await runSegment({
         seed: 840024,
         datetime: COMMAND_DATETIME,
@@ -920,6 +922,43 @@ test('a diagonal pet swap stops rather than refusing silently', async () => {
     // Fail-closed means before the draw, not instead of it: nothing may be
     // spent on a step the port cannot finish.
     assert.equal(replay.getRngLog().length, drawsBefore);
+});
+
+// The refusal sits ahead of requireOrdinaryStartingPetSwap() on purpose, and
+// the plain pet case cannot tell: its square holds nothing, so every swap gate
+// returns and the throw fires whichever order the two are in. A trap on the
+// destination distinguishes them. C never consults the swap gates on this step
+// -- do_attack() returns FALSE and test_move()'s exit rule declines it -- so
+// reporting a pet-swap trap boundary would name a situation C never reaches.
+test('a refused diagonal outranks the pet-swap consequence gates', async () => {
+    const replay = await runSegment({
+        seed: 840024,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:TrapDoorway,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const pet = game.level.monlist;
+    assert.ok(pet?.mtame, 'the starting pet is on the level');
+    const [x, y] = [game.u.ux + 1, game.u.uy - 1];
+    game.level.at(game.u.ux, game.u.uy).typ = DOOR;
+    game.level.at(game.u.ux, game.u.uy).flags = D_ISOPEN;
+    const destination = game.level.at(x, y);
+    destination.typ = ROOM;
+    destination.flags = 0;
+    game.level.monsters[pet.mx][pet.my] = null;
+    pet.mx = x;
+    pet.my = y;
+    game.level.monsters[x][y] = pet;
+    // The gate that would otherwise claim the step first.
+    game.level.traps = [{ tx: x, ty: y, ttyp: PIT, tseen: false }];
+
+    game.nhDisplay.pushKey(commandKeyCode('u'));
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error.reason === 'hero combat or displacement',
+    );
+    void replay;
 });
 
 // The mirror of the pet case above, and the ordering it protects.
