@@ -69,9 +69,10 @@ every surviving mutant.
 
 Before you commit, every surviving relational, logical, or boolean mutant needs
 one of two outcomes: an assertion that kills it, or a reason no test can kill
-it. Integer survivors are not gating, because most integers in js/ are constants
-that no observable behavior depends on, and they are the weakest kind by
-measured kill rate. The script's header comment records the measurements.
+it. One reason may cover several survivors that sit on the same branch. Integer
+survivors are not gating, because most integers in js/ are constants that no
+observable behavior depends on, and they are the weakest kind by measured kill
+rate. The script's header comment records the measurements.
 
 A survivor may be false. The check judges each mutant by the test files that
 reach its module without passing through another js/ module, so a test that
