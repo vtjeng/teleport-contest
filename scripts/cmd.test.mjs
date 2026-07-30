@@ -41,6 +41,7 @@ import {
     PIT,
     ROOM,
     ROWNO,
+    SDOOR,
     STAIRS,
     STATUE_TRAP,
     STONE,
@@ -2620,10 +2621,15 @@ test('an adjacent statue trap stops retryably at the `s` key', async () => {
             + 'pettype:none,!acoustics',
         moves: '',
     });
-    const screensBefore = replay.getScreens().length;
-    assert.ok(screensBefore > 0);
     const drawsBefore = replay.getRngLog().length;
-    // STATUE_TRAP on an adjacent square, unseen so the search would find it.
+    // A secret door on the first square the traversal visits. dosearch0() runs
+    // x from ux-1 and y from uy-1, so this square precedes the trap; its
+    // rnl(7 - fund) is what a refusal decided inside the loop would spend
+    // before ever reaching the statue. Without it the PRNG assertion below
+    // holds for both the right and the wrong placement, because nothing else
+    // in this hero's 3x3 draws.
+    game.level.at(game.u.ux - 1, game.u.uy - 1).typ = SDOOR;
+    // STATUE_TRAP on a later square, unseen so the search would find it.
     game.level.traps.push({
         tx: game.u.ux + 1, ty: game.u.uy, ttyp: STATUE_TRAP, tseen: false,
     });
@@ -2636,12 +2642,13 @@ test('an adjacent statue trap stops retryably at the `s` key', async () => {
             && error.key === searchKey
             && /activate_statue_trap\(\) is not ported/.test(error.message),
     );
-    // The prefix survives and nothing was drawn: the preflight settled the
-    // whole 3x3 before dosearch0()'s loop reached its first rnl(). The screen
-    // count is a floor rather than an equality because the retry prompt paints
-    // one more frame; what must never happen is losing frames already matched.
-    assert.ok(replay.getScreens().length >= screensBefore);
+    // Nothing was spent and no turn elapsed: the preflight settled the whole
+    // 3x3 before the loop reached the secret door, so the command is still
+    // retryable and the segment keeps its prefix.
     assert.equal(replay.getRngLog().length, drawsBefore);
+    assert.deepEqual(replay.getRngSlices().at(-1), []);
+    assert.equal(game.moves, 1);
+    assert.equal(game.context.move, 0);
     assert.equal(game.context.pendingCommand.phase, 'parsed');
     assert.equal(game.context.pendingCommand.key, searchKey);
 });

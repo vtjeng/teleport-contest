@@ -1387,7 +1387,9 @@ test('explicit search admits a monster carrying only the dknown flag', async () 
         ...recordingOperations(state, events),
         newSym: (x, y) => events.push(`newSym(${x},${y})`),
     }), 1);
-    assert.ok(events.includes('newSym(9,10)'));
+    // deepEqual, not includes(): mfind0()'s else arm must draw the monster and
+    // do nothing else, and only the whole list pins that.
+    assert.deepEqual(events, ['newSym(9,10)']);
     random.done();
 });
 

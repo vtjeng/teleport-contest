@@ -323,8 +323,14 @@ The search slice met this while choosing fresh cases: 21 of 40 candidate seeds
 stopped here rather than on anything the slice owned, so
 `scripts/run-explicit-search.mjs` uses secret doors outside current vision. The
 debt is the vision subsystem's, and it will reappear in any slice that changes
-a blocking point. `js/light.js:112` and `js/light.js:132` are the other two
-writers of the flag.
+a blocking point.
+
+Find the writers with `grep -rn vision_full_recalc js/` rather than from a list
+here, which goes stale. As at `c706db8` six places set the flag and four clear
+it. The two that matter most to this entry are easy to miss: `js/vision.js:165`
+`rebuildVisionPoint()`, which owns `block_point()`, `unblock_point()` and
+`recalc_block_point()`, and `js/detect.js:186`, a line-for-line duplicate of it.
+`js/mon.js:129` is the `movemon()` tail described above.
 
 #### no fresh case covers the secret-corridor arm
 
