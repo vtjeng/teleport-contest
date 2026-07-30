@@ -712,10 +712,13 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
 // cmd.c establishes movement intent only after this hack.c admission seam has
 // shown that the destination is inside the currently ported domove() subset.
 export function preflightDomoveDestination(x, y, state = game, run = 0) {
-    // test_move() owns both diagonal doorway refusals, and domove_core()
-    // reaches it before every branch below -- the pet displacement included --
-    // so admit the command whenever one of them will claim the step.
-    if (refusedDiagonalDoorway(x, y, state)) return;
+    // The destination monster comes first, because domove_core() does: it
+    // takes m_at() at hack.c:2762, runs its run-stop, then domove_bump_mon()
+    // and domove_attackmon_at() at 2786-2796, and only reaches test_move() at
+    // 2841. Admitting a diagonal doorway step ahead of that inverted the order
+    // and turned an honest 'hero combat or displacement' stop into a silent
+    // one: the port refused the step in test_move() and never attacked, where
+    // C attacks -- uhitm.c do_attack() has no diagonal-doorway test at all.
     const destinationMonster = m_at(x, y, state);
     if (destinationMonster) {
         // domove_core()'s run arm stops in front of a monster the hero can
@@ -724,6 +727,12 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // pet-displacement seam below owns every other destination monster.
         if (runStopsBeforeMonster(destinationMonster, run, state)) return;
         requireOrdinaryStartingPetSwap(destinationMonster, x, y, state);
+        // Only a safemon reaches here, and uhitm.c do_attack() returns FALSE
+        // for one and falls through to test_move(), so the diagonal refusal
+        // claims the step exactly as it does on an empty square.
+        if (refusedDiagonalDoorway(x, y, state)) return;
+    } else if (refusedDiagonalDoorway(x, y, state)) {
+        // test_move() owns both diagonal doorway refusals on an empty square.
     } else if (closed_door(x, y, state)) {
         // test_move()'s closed-door arm (1074) runs before its testdiag
         // label (1134-1135), so a diagonal walk into a closed door reaches

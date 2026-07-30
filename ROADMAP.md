@@ -453,6 +453,22 @@ imports `copyObjclassEntry`, which no line of the file calls now that the
 catalog clone is `state.objects?.map((entry) => Object.create(entry))`. Delete
 the import with the next simplification pass.
 
+#### eight diagonal-doorway findings are deferred
+
+The correctness pass over `4d54fa8..2776192` confirmed ten findings; two were
+applied and eight are recorded here. The applied pair are described in
+`SCORE.md` at the fix commit; these are what remains.
+
+They divide into assertions that do not discriminate — the new diagonal arms,
+the consolidated `cant_squeeze_thru()` and the obstacle-arm ordering each have
+coverage that survives mutation — and comments that overstate what their code
+establishes. Two vision comments in `js/unported_monster_actions.js` also
+remain unsettled: the slice worker declined to invent a justification it could
+not derive, and the pass did not settle them either.
+
+Take them with whatever next reads `test_move()`; none owns a fail-closed
+boundary today.
+
 #### eight door-opening findings are deferred
 
 The correctness pass over `c706db8..06a5629` confirmed ten findings; two were

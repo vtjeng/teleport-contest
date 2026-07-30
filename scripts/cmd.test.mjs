@@ -74,7 +74,13 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
-import { AT_CLAW, PM_FOG_CLOUD, PM_NEWT } from '../js/monsters.js';
+import {
+    AT_CLAW,
+    PM_FOG_CLOUD,
+    PM_NEWT,
+    S_FELINE,
+} from '../js/monsters.js';
+import { newMonster } from '../js/monst.js';
 import { BOULDER } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import { create_region } from '../js/region.js';
@@ -904,6 +910,53 @@ test('a diagonal pet swap obeys test_move()\'s doorway rules', async () => {
         [pet.mx, pet.my],
         [x, y],
         'the pet stayed on the destination square',
+    );
+    void replay;
+});
+
+// The mirror of the pet case above, and the ordering it protects.
+// domove_core() takes m_at() at hack.c:2762 and reaches domove_attackmon_at()
+// at 2794, well before test_move() at 2841, so a HOSTILE on the diagonal is
+// attacked whatever the doorway rules would say -- uhitm.c do_attack() has no
+// diagonal-doorway test. The seam briefly admitted the step ahead of its
+// monster branch, which turned this honest stop into a silent refusal: the
+// port declined the move and never attacked, where C attacks.
+test('a hostile on a refused diagonal still stops for combat', async () => {
+    const replay = await runSegment({
+        seed: 840024,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:HostileDoorway,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none',
+        moves: ' ',
+    });
+    const [x, y] = [game.u.ux + 1, game.u.uy - 1];
+    // The hero stands on a doorway that still has its door, so test_move()'s
+    // exit rule would refuse this diagonal on an empty square.
+    game.level.at(game.u.ux, game.u.uy).typ = DOOR;
+    game.level.at(game.u.ux, game.u.uy).flags = D_ISOPEN;
+    const destination = game.level.at(x, y);
+    destination.typ = ROOM;
+    destination.flags = 0;
+    const hostile = newMonster({
+        mx: x,
+        my: y,
+        mhp: 3,
+        data: {
+            pmnames: ['newt', 'newt', 'newt'],
+            mlet: S_FELINE,
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    game.level.monsters[x] ??= [];
+    game.level.monsters[x][y] = hostile;
+
+    game.nhDisplay.pushKey(commandKeyCode('u'));
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error.reason === 'hero combat or displacement',
     );
     void replay;
 });
