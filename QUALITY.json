@@ -3600,6 +3600,115 @@
         ]
       },
       "recordedAt": "2026-07-30T09:07:14.126Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
+        "objects": "f826ba5392d313da8951095111b8201f5be497fe"
+      },
+      "head": "4d78313de6e5ae5735c531bba8982b089bd2ac00",
+      "auditedRange": "f826ba5392d313da8951095111b8201f5be497fe..4d78313de6e5ae5735c531bba8982b089bd2ac00",
+      "areas": [
+        "monsters",
+        "objects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the first slice of the pickup goal. Five finders: the four mandatory ones plus performance, enabled because cloneFloorObjects() runs inside a dry run that executes on every elapsed turn; the performance finder confirmed nothing. 19 raw findings, 17 after deduplication, 12 confirmed, 7 applied at 8bd4d6a, 5 deferred to ROADMAP.md, 5 rejected, none unverified, no warnings. Three production defects, two of them in the isolation the slice itself added. The planning dry run wrote the live discovery ledger, because planningState() shared the object catalog, svd.disco and artiexist by spread and cloneFloorObjects() had isolated only the floor; the writes survived even a rejected round. And three refusal classes the new call graph can raise reached the elapsed turn unconverted, so a case that used to stop cleanly on its last matching screen discarded the whole segment. Both are now fixed and pinned, the first by extending the existing atomicity fixture, which could not see the leak until its oracle covered the catalog and u.xray_range forced distant_name()'s near branch. Five test gaps are deferred rather than closed, all of the same shape: the assertion holds whether or not the behavior is present. One further gap is recorded honestly rather than papered over: the refusal-class conversion is pinned on the raising half only, because advanceElapsedTurn() is not exported and the fixture does not reach the arm through moveloop_core(). Development score identical before and after the fixes at 443 of 7,765 screens, 444 cursors and 99,664 PRNG calls; scripts/run-pet-pickup.mjs matches 13 segments, 35,300 PRNG calls, 63 screens and 63 cursors.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3572,
+        "counts": {
+          "raw": 19,
+          "deduplicated": 17,
+          "confirmed": 12,
+          "applied": 7,
+          "deferred": 5,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 5,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The planning dry run wrote the live discovery ledger. distant_name() reaches xname() -> observe_object() -> discover_object(), setting objects[otyp].oc_encountered and svd.disco[], and find_artifact() sets artiexist[].found; planningState() carried all four through its spread, so a dry run mutated live discovery state and the writes survived even a rejected round.",
+            "foundBy": [
+              "variable-trace",
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The pickup arm calls distant_name(), splitobj() and mpickobj() from inside the monster scan, so UnsupportedObjectNameError, UnsupportedObjectOperationError and UnsupportedMonsterPickupOperationError can reach the elapsed turn. ELAPSED_TURN_PLANNING_REFUSALS converted none of them and js/jsmain.js rethrows anything else, so a case that used to stop cleanly discarded the whole segment.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same escape traced from the throw sites rather than the boundary: the slice replaced an injected refusal of a converted class with a call graph raising unconverted ones.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "cloneLightList() and cloneTimerList() gained object-remap arms that can each be removed with the suite green.",
+            "trackedIn": "five pickup assertions do not discriminate",
+            "category": "tests"
+          },
+          {
+            "summary": "The wieldPickedItem 'pet weapon selection' refusal has no test, and the diff deleted the pony pickup entry from the preflight's starting-pet case list.",
+            "trackedIn": "five pickup assertions do not discriminate",
+            "category": "tests"
+          },
+          {
+            "summary": "Nothing pins newsym() running when the hero cannot see the pet's square; gating the redraw on cansee() leaves every test passing.",
+            "trackedIn": "five pickup assertions do not discriminate",
+            "category": "tests"
+          },
+          {
+            "summary": "The invisible-square naming test exercises the branch without pinning it, and no fresh case covers it because 800 seeds produced none.",
+            "trackedIn": "five pickup assertions do not discriminate",
+            "category": "tests"
+          },
+          {
+            "summary": "distant_name()'s obj.oartifact disjunct has no test and can be removed with the suite green.",
+            "trackedIn": "five pickup assertions do not discriminate",
+            "category": "tests"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Four further claims about the pickup arm and its clone that the adjudicator could not confirm against source.",
+            "counterEvidence": "Each failed its source trace or its diff-causality check; the adjudicator recorded no reproduction for any of them. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A second claim in the same group.",
+            "counterEvidence": "Same disposition: no source trace survived. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A third claim in the same group.",
+            "counterEvidence": "Same disposition: no source trace survived. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A fourth claim in the same group.",
+            "counterEvidence": "Same disposition: no source trace survived. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A fifth claim in the same group.",
+            "counterEvidence": "Same disposition: no source trace survived. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T11:21:17.944Z"
     }
   ]
 }
