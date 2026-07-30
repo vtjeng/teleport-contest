@@ -427,6 +427,20 @@ test('safe interaction options keep their source defaults and state owners',
     assert.equal(enabled.iflags.cmdassist, false);
 });
 
+test('autoopen reaches the boolean handler in every negated spelling', () => {
+    // js/hack.js requireAutoopenClosedDoor() tests `!state.flags.autoopen`, so
+    // a stray string here is truthy and the port pulls at a door C refuses.
+    // options.c:5229-5233 maps false/no/off/0 and any unique prefix to
+    // negated == TRUE, so every spelling below must land on a real boolean.
+    for (const line of ['OPTIONS=!autoopen', 'OPTIONS=autoopen:false',
+        'OPTIONS=autoopen:no', 'OPTIONS=autoopen:off', 'OPTIONS=autoopen:0']) {
+        const parsed = parseNethackrc(`OPTIONS=autoopen\n${line}`);
+        assert.equal(parsed.flags.autoopen, false, line);
+        assert.equal(typeof parsed.flags.autoopen, 'boolean', line);
+    }
+    assert.equal(parseNethackrc('OPTIONS=autoopen').flags.autoopen, true);
+});
+
 test('extmenu reaches iflags through every spelling the source accepts', () => {
     // optlist.h:303 declares extmenu opt_in, defaulting Off, and binds it to
     // &iflags.extmenu, so C's startup value is FALSE.  The port stores that

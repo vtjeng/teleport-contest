@@ -1056,7 +1056,11 @@ function isDrawbridge(location) {
     return [DRAWBRIDGE_UP, DRAWBRIDGE_DOWN].includes(location?.typ);
 }
 
-function isDrawbridgeWall(x, y, state) {
+// C ref: dbridge.c is_drawbridge_wall() (148-159). C returns a direction or
+// -1; the port answers a boolean because every caller only tests >= 0.
+// This belongs in a js/dbridge.js port of that file; it lives here because
+// this file had the first caller.
+export function is_drawbridge_wall(x, y, state) {
     if (!isok(x, y)) return false;
     const location = state.level?.at(x, y);
     if (![DOOR, DBWALL].includes(location?.typ)) return false;
@@ -1075,7 +1079,7 @@ function isDrawbridgeWall(x, y, state) {
 }
 
 function doorDescription(location, x, y, state) {
-    if (isDrawbridgeWall(x, y, state))
+    if (is_drawbridge_wall(x, y, state))
         return 'open drawbridge portcullis';
     const mask = location.flags || location.doormask || 0;
     if ((mask & ~D_TRAPPED) === D_BROKEN) return 'broken door';

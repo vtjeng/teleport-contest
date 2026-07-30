@@ -109,6 +109,12 @@ test('the roll uses folded Strength, not acurr()\'s raw encoding', async () => {
     );
 
     assert.equal(door.flags, D_CLOSED);
+    // The mask alone is satisfied by any path that leaves the door shut,
+    // including one that never rolls or never prints. The event list pins the
+    // folded threshold, the draw order and the failure message together.
+    assert.deepEqual(events, [
+        'rnl(20)', 'rn2(19)', 'message(The door resists!)',
+    ]);
 });
 
 test('a failed pull exercises Strength before it prints', async () => {

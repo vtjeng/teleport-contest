@@ -1412,8 +1412,14 @@ export function feel_location(x, y, state = game) {
 // C ref: display.c feel_newsym(). Used where the hero knows what happened to a
 // square whether or not she can see it, such as the door she has just pulled
 // open in lock.c doopen_indir(). js/hack.js refuses a blind hero before the
-// autoopen branch runs, so only the sighted arm is live today; the blind arm
-// reuses feel_location()'s existing adjacent-square subset.
+// autoopen branch runs, so only the sighted arm is live today.
+//
+// The two arms treat `state` differently, which a later caller has to know.
+// newsym() ignores it and paints the module-level `game`; feel_location()
+// throws a plain Error for `state !== game` and for any non-adjacent square,
+// neither of which C's feel_newsym restricts. A caller outside a command
+// boundary gets that bare Error rather than a retryable refusal, because
+// js/cmd.js converts only the Unsupported* classes.
 export function feel_newsym(x, y, state = game) {
     if (_propertyActiveUnblocked(state.u, BLINDED)) feel_location(x, y, state);
     else newsym(x, y);

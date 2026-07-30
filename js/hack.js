@@ -105,6 +105,7 @@ import { rn2, rnd } from './rng.js';
 import { check_special_room_state } from './rooms.js';
 import {
     canSpotMonster,
+    is_drawbridge_wall,
     messageAt,
     monsterVisible,
     sensesMonster,
@@ -305,11 +306,15 @@ function heroIsBlind(state) {
 // why the command admission seam can skip its destination checks there and
 // leave the refusal to domove().
 //
-// It used to carry a `loc.doormask & (D_CLOSED | D_LOCKED)` term as well. That
-// term read a field js/mklev.js never writes for a generated door, so it
-// always answered FALSE; closed_door() now owns the closed-door route in both
-// callers, which is why the term is deleted rather than corrected into an
-// unreachable branch.
+// It used to carry a `loc.doormask & (D_CLOSED | D_LOCKED)` term as well. The
+// term was dead rather than wrong in general: js/mklev.js dosdoor() (2545)
+// writes only `loc.flags` for an ordinary dungeon door, so it answered FALSE
+// for those, though create_door() (2731) and the special-level door path (951)
+// do write `doormask` and would have satisfied it. Either way it is
+// unreachable now, because both functions that reach here test closed_door()
+// first: preflightDomoveDestination() at the admission seam and test_move().
+// That is why it is deleted rather than corrected into a branch nothing can
+// take.
 function blocksMove(x, y, state) {
     const loc = state.level?.at(x, y);
     return !loc || loc.typ === STONE || IS_WALL(loc.typ);
@@ -435,7 +440,12 @@ function doorless_door(location) {
 // D_CLOSED door. Every other state those two functions branch on stops here,
 // named for the C condition that diverges. Both the command admission seam and
 // test_move() call it, as they do requireSimpleHeroDestination().
-function requireAutoopenClosedDoor(x, y, state) {
+// `run` is a parameter rather than a read of `state.context.run` because the
+// admission seam runs before `executeMovement()` commits the intent: at
+// `js/cmd.js` the preflight is called first and `state.context.run = run` only
+// afterwards, so the field still holds the previous command's value there.
+// `runStopsBeforeMonster()` takes `run` for the same reason.
+function requireAutoopenClosedDoor(x, y, state, run) {
     const data = state.youmonst?.data;
     const u = state.u;
     // hack.c:1076 feels the square before the branch, and feel_newsym() at
@@ -458,7 +468,7 @@ function requireAutoopenClosedDoor(x, y, state) {
     // hack.c:1097. A failed autoopen test takes the orthogonal bump arm or
     // "That door is closed.", neither of which is ported.
     if (!state.flags?.autoopen
-        || state.context?.run
+        || run
         || propertyIntrinsic(state, CONFUSION)
         || propertyIntrinsic(state, STUNNED)
         || propertyPresent(state, FUMBLING)) {
@@ -471,13 +481,14 @@ function requireAutoopenClosedDoor(x, y, state) {
         || m_at(x, y, state)) {
         throw new UnsupportedHeroMoveBoundaryError('door opening interrupted');
     }
-    // lock.c:826 is_drawbridge_wall() answers >= 0 for a DOOR only when an
-    // orthogonally adjacent square holds a drawbridge, which makes the door a
-    // portcullis and diverts the whole function into its drawbridge messages.
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-        if (!isok(x + dx, y + dy)) continue;
-        if (IS_DRAWBRIDGE(state.level.at(x + dx, y + dy).typ))
-            throw new UnsupportedHeroMoveBoundaryError('portcullis');
+    // lock.c:826. is_drawbridge_wall() makes the door a portcullis and diverts
+    // the whole function into its drawbridge messages. Call the ported
+    // predicate rather than an adjacency test: dbridge.c:148-159 requires the
+    // neighbour's DB_DIR to point back at this square, so a bare adjacency
+    // check refuses a superset, including a DOOR whose neighbouring bridge
+    // faces away from it.
+    if (is_drawbridge_wall(x, y, state)) {
+        throw new UnsupportedHeroMoveBoundaryError('portcullis');
     }
     // lock.c:851 sends every other mask to the message switch, and the
     // D_TRAPPED half of lock.c:906 fires the door trap and bills a shop.
@@ -580,7 +591,7 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
     } else if (closed_door(x, y, state)) {
         // test_move()'s closed-door arm runs before its diagonal doorway
         // rules, so a diagonal walk into a closed door still autoopens.
-        requireAutoopenClosedDoor(x, y, state);
+        requireAutoopenClosedDoor(x, y, state, run);
     } else if (!blocksMove(x, y, state)) {
         requireSimpleHeroDestination(x, y, state);
     }
@@ -628,7 +639,10 @@ export async function test_move(
     }
 
     if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
-        requireAutoopenClosedDoor(x, y, state);
+        requireAutoopenClosedDoor(x, y, state, state.context?.run ?? 0);
+        // doopen_indir() accepts only `message` and `random` from this env and
+        // rejects any other key, so test_move()'s wider injection contract
+        // narrows here rather than being forwarded whole.
         await doopen_indir(x, y, state, env);
         // hack.c:1110-1111. door_opened suppresses domove_core()'s
         // `move = 0; nomul(0)` when the pull succeeded; move itself is FALSE

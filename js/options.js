@@ -1813,7 +1813,8 @@ const HANDLED_BOOLEAN_OPTIONS = new Set([
     'status_updates', 'accessiblemsg', 'mention_map', 'mon_movement',
     'spot_monsters',
     'menu_overlay', 'eight_bit_tty', 'customcolors', 'customsymbols',
-    'altmeta', 'cmdassist', 'extmenu', 'safe_pet', 'safe_wait', 'pushweapon',
+    'altmeta', 'autoopen', 'cmdassist', 'extmenu', 'safe_pet', 'safe_wait',
+    'pushweapon',
     'rest_on_space',
     'showexp', 'time', 'verbose',
 ]);
