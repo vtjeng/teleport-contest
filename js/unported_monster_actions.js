@@ -450,6 +450,14 @@ function planningState(state) {
         context: structuredClone(state.context),
         disp: structuredClone(state.disp),
         flags: structuredClone(state.flags),
+        // distant_name() raises gd.distantname around a name it must not let
+        // observe_object() record, and lowers it in a finally. The dry run
+        // reaches that raise through dog_invent(), so a shared gd is a live
+        // write. It never showed, because the counter is balanced and gd is
+        // absent from a fresh game -- it exists only once a live distant_name()
+        // has created it, and the leak needs both. The frozen-state case in
+        // scripts/unported-monster-actions.test.mjs seeds gd to reach it.
+        gd: { ...(state.gd ?? {}) },
         gg: { ...state.gg },
         gl: state.gl ? {
             ...state.gl,

@@ -360,35 +360,61 @@ against, because the construct has no C counterpart — so a reviewer cannot
 derive the correct answer, only notice the symptom. Every one of the nine was
 found by symptom.
 
-**Options, roughly costed.**
+**Options, costed against measurement.** The figures below were measured on
+this machine against the fixture the tests use, not estimated.
 
-1. *Freeze the live state during planning.* `Object.freeze()` the live objects
-   the dry run can reach, so any leaked write throws immediately instead of
-   diverging silently. This detects rather than prevents, and it would have
-   caught all nine. Cost: small, but every deliberate live write must be
-   declared — the transparency-index restore is one today, and there may be
-   others nobody has had to name.
+1. *Freeze the live state during planning.* Deep-freeze what the dry run can
+   reach, so a leaked write throws at the leaking line instead of diverging
+   silently. **It cannot run in production.** `Object.freeze()` is
+   irreversible, so a frozen game cannot run the live pass that follows; the
+   reversible substitute, `defineProperty({writable: false})` per property
+   undone afterwards, measured 74 to 131 ms per turn against the 1.13 ms
+   preflight it would guard. That is an order of magnitude worse than the
+   6.4 ms catalog copy this construct was already forced to withdraw. It is
+   also a weaker detector than first claimed: it would have caught three of
+   the nine defects outright, because four of the nine are not live writes at
+   all -- a missing refusal, a permissive stub, an unconverted refusal class,
+   and a clone that was too isolated rather than too little.
 2. *Copy-on-write.* Put the planned state behind a proxy whose writes land on
-   an overlay, so isolation is the default and the field list disappears.
-   Cost: larger, and it must not perturb PRNG order or hot-path cost; the
-   catalog copy already showed this clone sits on a per-turn path where a
-   naive approach cost 80-92% of a scored turn.
+   an overlay, so isolation is the default and the field list disappears. This
+   was costed as the more expensive option; measuring option 1 removes that
+   reason. Proxy overhead on this path has not been measured, so it is
+   unranked on cost rather than preferred, but it is now the only candidate
+   that could plausibly run per turn.
 3. *Journal and roll back.* Run against the live state, record every mutation,
    undo on refusal. Removes the clone, but replaces one omission problem with
    another: an unrecorded mutation is exactly as silent as an uncopied field.
 
-**Recommendation.** Option 1 first, on its own, as a detector. It converts the
-whole defect class from silent to loud at small cost, and it makes option 2
-safe to attempt afterwards by giving it a failing test whenever isolation is
-incomplete. Do not attempt option 3.
+**What landed.** Option 1 as a test-only detector, which is where its cost
+disappears and its irreversibility stops mattering:
+`scripts/planning-isolation-test-support.mjs` freezes the live graph and five
+cases run the dry run against it -- an ordinary move, a door opening, a pet
+pickup on each of `distant_name()`'s two branches, and one burdened turn that
+reaches the once-per-turn planning round through `moveloop_core()`. Each was
+confirmed by a distinct mutation to `planningState()`. It found a tenth leak on
+its first run: `gd` was shared, and `distant_name()` raises `gd.distantname`
+through `dog_invent()`. That is balanced by its own `finally` and `gd` is
+absent from a fresh game, so it was invisible both to inspection and to every
+oracle; it leaks only once a live `distant_name()` has created `gd`. Fixed in
+the same change.
 
-**When.** Not urgent by the usual test: it owns no fail-closed boundary and the
-score is correct today. But it is not like the other entries here — those are
-known single defects, whereas this is a mechanism that has produced a new
-defect in four of the last five correctness passes, and the trap goal in
-progress writes to object and trap state through it. If the current goal's
-remaining slices produce another, take this before the next goal rather than
-after.
+Two exclusions are permanent and declared at the site. The live root stays
+writable because the scan's own `finally` restore writes three fields on it.
+The object catalog stays writable because the clone delegates to it with
+`Object.create()`, and `[[Set]]` cannot shadow a frozen inherited property --
+freezing it would report the copy's writes as live leaks.
+
+**What the detector still cannot see.** `vision.c`'s module-level transparency
+index and `liveVisionBuffers` are not reachable from the state, so no freeze
+reaches them; they stay covered by the `finally` restore and the refusing
+`visionRecalc` owner. A leak that *adds* a field to a live object is also
+missed, since `preventExtensions()` is as irreversible as freezing.
+
+**When.** Option 2 is not urgent by the usual test: the construct owns no
+fail-closed boundary and the score is correct today. The detector removes the
+reason it was urgent, by making the next omission fail loudly in the suite
+rather than surface as a screen mismatch several goals later. Take option 2
+when a leak escapes the five cases above, or when the field list next grows.
 
 ### Game behavior
 

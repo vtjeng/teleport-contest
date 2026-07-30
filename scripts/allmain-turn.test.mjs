@@ -71,6 +71,7 @@ import {
     RECORDER_SEGMENT_LIMIT,
 } from './run-first-command-closure.mjs';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
+import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 function movementState(speed = 12, umovement = 0) {
@@ -1736,3 +1737,63 @@ test('interrupt_multi stops before Norep on a verbose counted repeat', () => {
     );
     assert.equal(state.multi, COLNO);
 });
+
+// The four freeze cases in scripts/unported-monster-actions.test.mjs call the
+// preflight directly, so none of them supplies advanceRound and none reaches
+// the once-per-turn planning round. That round runs the whole of
+// finishElapsedTurn() on the clone -- hunger, region upkeep, monster
+// generation, timeouts -- and is the largest single surface the clone has to
+// isolate. This case is the only one that covers it.
+//
+// finishElapsedTurn() is not exported, so the round is reached the way the
+// game reaches it: a burdened hero makes projected_capacity() positive, which
+// is what makes advanceElapsedTurn() supply advanceRound at all.
+//
+// The assertion is about where the turn's first live write happens rather than
+// whether one happens. Under a total freeze the live pass must fail -- it is
+// supposed to write -- so what distinguishes an isolated planning round from a
+// leaking one is whether that first failure lands after the preflight returned
+// or inside it. Sharing the hero instead of cloning it moves the reported
+// frame from js/allmain.js into js/unported_monster_actions.js, which is the
+// mutation this was confirmed against.
+test('a planned once-per-turn round writes nothing to frozen live state',
+    async () => {
+        await runSegment({
+            seed: 2026072301,
+            datetime: '20260723120000',
+            nethackrc: 'OPTIONS=name:FrozenUpkeep,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) * 2,
+            nobj: null,
+        };
+        // encumber_msg() prints only on a change, and its message would need a
+        // More dismissal unrelated to this case.
+        game.go = { oldcap: near_capacity(game) };
+        game.context.move = 1;
+        game.u.umovement = 0;
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+        game.nhDisplay.pushKey('.'.charCodeAt(0));
+        freezeLiveState(game);
+
+        let caught = null;
+        try {
+            await moveloop_core();
+        } catch (error) {
+            caught = error;
+        }
+
+        assert.ok(caught instanceof TypeError, `threw ${caught}`);
+        const firstFrame = caught.stack.split('\n')[1] ?? '';
+        assert.match(firstFrame, /js\/allmain\.js/u);
+    });

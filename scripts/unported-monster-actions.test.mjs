@@ -90,6 +90,7 @@ import {
 } from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
+import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
 
 const DATETIME = '20260725120000';
@@ -2437,4 +2438,115 @@ test('a planned door opening leaves vision_full_recalc as it found it',
         await preflightSimpleMonsterActions(game);
 
         assert.equal(game.vision_full_recalc, 0);
+    });
+
+// The three cases below share one detector rather than one assertion each.
+// freezeLiveState() deep-freezes everything the dry run can reach in the live
+// game, so a field planningState() forgot to copy throws a TypeError at the
+// line that writes it. They exist because the field list has no source of
+// truth to check against: nine recorded defects were all found by symptom,
+// after the fact, and two of them were introduced by the fix for a previous
+// one. See scripts/planning-isolation-test-support.mjs for the two objects the
+// detector deliberately leaves writable, and the two it cannot see at all.
+//
+// Each case ends with the game frozen for good, so none may run a live pass
+// afterwards.
+
+test('a planned ordinary move writes nothing to frozen live state',
+    async () => {
+        const target = await prepareSelectedAction();
+        const frozen = freezeLiveState(game);
+        // A guard on the detector itself. A walk that reached almost nothing
+        // would pass all three cases below without testing anything, and the
+        // failure would look like success.
+        assert.ok(frozen > 1000, `froze only ${frozen} objects`);
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.equal(target.monster.mx, target.monsterX);
+    });
+
+test('a planned door opening writes nothing to frozen live state',
+    async () => {
+        // The widest of the three: postmov()'s UnblockDoor arm runs
+        // vision_recalc() against the planned map, and the scan's finally
+        // re-derives the borrowed transparency index from the live one. The
+        // live root is left writable precisely so that restore can write its
+        // three fields; everything it reaches below the root is frozen.
+        const target = await prepareClosedDoorArrival();
+        freezeLiveState(game);
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.equal(target.location.doormask, D_CLOSED);
+        assert.equal(doorLetsLightThrough(target), 0);
+    });
+
+test('a planned pet pickup writes nothing to frozen live state',
+    async () => {
+        // dog_invent()'s carry arm splits stacks, unlinks floor objects,
+        // rewrites monster inventories and names the object, which reaches
+        // discover_object(). It is the path that produced the discovery-ledger
+        // defect and the dropped catalog aliases, so it is the one most worth
+        // freezing. The fixture matches the untouched-graph test above,
+        // including xray_range, which is what puts distant_name() on the near
+        // branch that names and therefore discovers; without it the carry arm
+        // formats a bare type name and the case proves nothing.
+        const target = await prepareStartingPetAction(PM_PONY);
+        target.monster.mextra.edog.apport = 20;
+        const dagger = floorObject(
+            target.monsterX,
+            target.heroY,
+            9101,
+            DAGGER,
+        );
+        installObject(target, dagger);
+        const rock = floorObject(target.destinationX, target.heroY, 9102);
+        game.level.objects[rock.ox][rock.oy] = rock;
+        rock.nobj = dagger;
+        game.level.objlist = rock;
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        game.u.xray_range = 3;
+        game.objects[DAGGER].oc_encountered = 0;
+        const discoBefore = JSON.stringify(game.svd.disco);
+        freezeLiveState(game);
+
+        await preflightSimpleMonsterActions(game);
+
+        // The freeze is the detector; these pin that the case still reaches
+        // the arm, so a fixture that stops refusing early cannot pass quietly.
+        assert.equal(game.objects[DAGGER].oc_encountered, 0);
+        assert.equal(JSON.stringify(game.svd.disco), discoBefore);
+        assert.equal(dagger.where, OBJ_FLOOR);
+        assert.equal(game.level.objlist, rock);
+    });
+
+test('a planned distant pet pickup writes nothing to frozen live state',
+    async () => {
+        // The same carry arm on distant_name()'s far branch, which is the
+        // only reader of gd. objnam.c computes neardist from u.xray_range, so
+        // the case above -- which sets it, to reach discover_object() --
+        // returns before the counter is touched; the two branches cannot be
+        // armed at once. gd.distantname is raised around the name and lowered
+        // in a finally, so a shared gd is balanced and shows nothing by
+        // inspection. It leaks only once gd exists, which it does from the
+        // first live distant_name() onwards: absent in a fresh game, present
+        // in a played one. Seeding it is what makes that state reachable here.
+        const target = await prepareStartingPetAction(PM_PONY);
+        target.monster.mextra.edog.apport = 20;
+        const dagger = floorObject(
+            target.monsterX,
+            target.heroY,
+            9101,
+            DAGGER,
+        );
+        installObject(target, dagger);
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        game.gd = { distantname: 0 };
+        freezeLiveState(game);
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.equal(game.gd.distantname, 0);
+        assert.equal(dagger.where, OBJ_FLOOR);
     });
