@@ -143,7 +143,11 @@ Several source-faithful helpers for these families are already committed. They
 remain preserved prerequisites; their existence does not make their live
 behavior part of a goal in progress.
 
-## Unresolved: `flush_screen()` rebuilds the whole screen
+## Unresolved
+
+### Display
+
+#### `flush_screen()` rebuilds the whole screen
 
 `js/display.js flush_screen()` calls `_buildScreenOutput()`, which clears the
 terminal and repaints from `game.level`. `display.c`'s writes only the glyph
@@ -185,7 +189,7 @@ all eleven `flush_screen()` call sites, so converting it to per-cell
 it owns no fail-closed boundary, and every one of the 398 emitted screens
 matches today, so nothing is emitted-and-wrong.
 
-## Unresolved: two more gaps on the same wrapped top line
+#### two more gaps on the same wrapped top line
 
 The `clearMessageWindow()` finding folded into the entry above is not alone on
 the row a wrapped prompt spills onto. Two further divergences land on the same
@@ -220,27 +224,7 @@ omits the `clearMessageWindow()` defect above, listing a test finding in its
 place. The counts are right and the ledger is append-only, so the correction
 lives here rather than in the record.
 
-## Unresolved: recording a debug-mode session needs local setup
-
-Two constraints bind anyone recording a `playmode:debug` case, both found while
-closing the `#` prompt slice at `f826ba5`.
-
-The recorder denies debug mode unless its `sysconf` names the running user:
-`WIZARDS=root games vtjeng`. That file is gitignored and uncommitted, so a fresh
-checkout does not have it. Without it the recorder falls back to explore mode
-and diverges from the intended run at PRNG call 202, which looks like a port
-defect rather than a setup problem.
-
-And a debug segment cannot be followed by another segment in one recording.
-`set_playmode()` renames the hero to "wizard", and `record-session.mjs`
-`clearStaleState` strips those files only before a recording's first segment, so
-a second debug game in the same recording dies. Record debug cases one segment
-at a time; the four in `scripts/run-extended-command-prompt.mjs` are.
-
-This matters beyond the current slice: five development sessions stop at
-`wiz_level_change`, so every one of them will need debug-mode recordings.
-
-## Unresolved: `newsym()` omits the infrared arm
+#### `newsym()` omits the infrared arm
 
 `display.c newsym()` has an out-of-sight arm that shows a monster when
 `see_with_infrared(mon) && mon_visible(mon)`; `js/display.js newsym()` does not.
@@ -253,21 +237,7 @@ for every screen the port draws and the slice's own boundary did not need it.
 That case is deliberately absent from `scripts/run-room-runs.mjs`. Fix it with
 the infravision work rather than inside a movement slice.
 
-## Unresolved: `blocksMove()` reads the wrong door field
-
-`js/hack.js blocksMove()` tests `loc.doormask`, but `js/mklev.js` writes an
-ordinary door's mask to `loc.flags` (lines 2554-2565), and the same file's
-`doorMask()` helper already reads `flags || doormask`. A generated closed or
-locked door therefore answers FALSE to `blocksMove()`.
-
-No wrong output follows today: `js/hack.js:488` reaches
-`requireSimpleHeroDestination()` through its `typ === DOOR` arm and refuses the
-square there instead, so the door is still refused, by a different route than
-the code intends. Fix it with the closed-door work, which is where the two
-routes stop agreeing, and take a fresh differential when doing so, because it
-changes which refusal a closed door takes.
-
-## Unresolved: an indented inverse menu heading cannot match
+#### an indented inverse menu heading cannot match
 
 The spell menu's column header records as `\x1b[20C\x1b[7m    Name`: C moves
 the cursor to the window edge, turns inverse video on, prints four spaces, then
@@ -291,7 +261,23 @@ No fix in game code exists, because `AGENTS.md` requires leaving
 ceiling: a session that displays the spell menu under the default option loses
 that screen however faithful the port is.
 
-## Unresolved: a live monster refusal escapes as a hard failure
+### Game behavior
+
+#### `blocksMove()` reads the wrong door field
+
+`js/hack.js blocksMove()` tests `loc.doormask`, but `js/mklev.js` writes an
+ordinary door's mask to `loc.flags` (lines 2554-2565), and the same file's
+`doorMask()` helper already reads `flags || doormask`. A generated closed or
+locked door therefore answers FALSE to `blocksMove()`.
+
+No wrong output follows today: `js/hack.js:488` reaches
+`requireSimpleHeroDestination()` through its `typ === DOOR` arm and refuses the
+square there instead, so the door is still refused, by a different route than
+the code intends. Fix it with the closed-door work, which is where the two
+routes stop agreeing, and take a fresh differential when doing so, because it
+changes which refusal a closed door takes.
+
+#### a live monster refusal escapes as a hard failure
 
 `UnsupportedMonsterCreationError` is listed in
 `ELAPSED_TURN_PLANNING_REFUSALS`, which converts it to a turn boundary, but
@@ -308,7 +294,80 @@ because moves and the regeneration draws are already spent by then, so the fix
 is a preflight for the unburdened path, as `preflightGetHungry()` and
 `preflight_nh_timeout_elapsed_turn()` already do for theirs.
 
-## Unresolved: unreviewed commits behind a review frontier
+### Process
+
+#### recording a debug-mode session needs local setup
+
+Two constraints bind anyone recording a `playmode:debug` case, both found while
+closing the `#` prompt slice at `f826ba5`.
+
+The recorder denies debug mode unless its `sysconf` names the running user:
+`WIZARDS=root games vtjeng`. That file is gitignored and uncommitted, so a fresh
+checkout does not have it. Without it the recorder falls back to explore mode
+and diverges from the intended run at PRNG call 202, which looks like a port
+defect rather than a setup problem.
+
+And a debug segment cannot be followed by another segment in one recording.
+`set_playmode()` renames the hero to "wizard", and `record-session.mjs`
+`clearStaleState` strips those files only before a recording's first segment, so
+a second debug game in the same recording dies. Record debug cases one segment
+at a time; the four in `scripts/run-extended-command-prompt.mjs` are.
+
+This matters beyond the current slice: five development sessions stop at
+`wiz_level_change`, so every one of them will need debug-mode recordings.
+
+#### a mistyped substitution name disables a test
+
+A test substitutes its own function for a real one by naming it in the `env`
+object a ported function reads:
+
+    const erodeObject = env.erodeObject ?? erode_monster_object;
+
+The lookup accepts any name. `erodeObj` falls through to the real
+implementation, so a substitution written to fail the test if it ever runs
+never runs, and the suite reports green. Only a substitution with nothing but
+that tripwire is silent; one whose call is recorded and asserted afterwards
+fails when its name goes stale.
+
+Six places are confirmed, each by renaming a key and watching the suite stay
+green on 29 July 2026:
+
+| File | What is disarmed |
+| --- | --- |
+| `scripts/dogmove.test.mjs` | four tripwires at lines 536, 607, 713, 739; two more at 606 and 639 resolve through `js/dogmove.js` itself |
+| `scripts/dogmove-inventory.test.mjs` | the `classified` guard at line 194, and `canCarry` at 347, which passes for the wrong reason |
+| `scripts/dogmove-goal.test.mjs` | `couldSee` at line 672, which reaches the asserted outcome through the default |
+| `scripts/monmove-items.test.mjs` | the `monsterCanSee` tripwire at line 415 |
+| `scripts/monmove-dochug.test.mjs` | five tripwires; line 162 has no positive counterpart at all |
+| `scripts/trap-water-damage.test.mjs` | three tripwires at lines 39, 50, 76; no helper exists, the defaults live in `js/trap_water_damage.js:17` |
+
+`scripts/mon.test.mjs` had the same defect and `fcdca9c` fixed it, by rejecting
+any override key its helper does not define.
+
+Two mechanisms need different fixes. Where a test helper holds the defaults,
+the helper rejects unknown keys. Where production resolves the operation
+itself, as `js/dogmove.js:209` and `js/trap_water_damage.js:17` do, the check
+belongs in production against the names that file recognises, and it must run
+before the first early return: a guard placed after one leaves every path that
+returns earlier unprotected.
+
+A worked fix for `js/trap_water_damage.js` turns all three of its silent
+renames into failures. It moves the two fallbacks into one frozen table, drops
+the third parameter from `waterOperation()`, and calls
+`requireKnownWaterOperations(env)` as the first statement of the exported
+function. 28 lines added, 12 removed.
+
+`js/dogmove.js` is harder. It resolves operations through five idioms in one
+file: an object literal at lines 207-214, bare `??` at line 333, and three
+lookup helpers taking the name as a string at lines 397, 455, and 830. A check
+there means routing every resolution through one helper backed by one table.
+Budget an afternoon.
+
+There are 223 `?? fallback` resolutions across 49 files in `js/`. Most are
+covered by no tripwire and need nothing. These seams shrink as the port
+advances, so fix the proven six and leave the rest.
+
+#### unreviewed commits behind a review frontier
 
 A review frontier is the latest commit a recorded correctness pass covers;
 `npm run quality` treats everything behind it as reviewed. Until `5e7fb47`,

@@ -24,7 +24,7 @@ const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
 // pointer to the heading that carries it.
 const DEFERRAL_TRACKER = 'ROADMAP.md';
 const DEFERRAL_TRACKER_PATH = resolve(REPO_ROOT, DEFERRAL_TRACKER);
-const DEFERRAL_HEADING_PREFIX = 'Unresolved:';
+const DEFERRAL_SECTION = 'Unresolved';
 const QUALITY_LOCK_PATH = resolve(REPO_ROOT, '.quality-status.lock');
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const PASS_KINDS = new Set(['review', 'simplification']);
@@ -131,18 +131,13 @@ function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
       );
     }
     const heading = deferral.trackedIn.trim();
-    if (!heading.startsWith(DEFERRAL_HEADING_PREFIX)) {
-      fail(
-        `${label}.trackedIn must name a "${DEFERRAL_HEADING_PREFIX}" heading, `
-          + `not "${heading}"`,
-      );
-    }
     // Only the recorder passes headings. Stored passes are revalidated on every
     // run, long after their debt is cleared and the heading is deleted.
     if (trackerHeadings && !trackerHeadings.has(heading)) {
       fail(
-        `${label}.trackedIn names "${heading}", which is not a heading in `
-          + `${DEFERRAL_TRACKER}. Write the finding there before recording the pass.`,
+        `${label}.trackedIn names "${heading}", which is not a heading under `
+          + `"## ${DEFERRAL_SECTION}" in ${DEFERRAL_TRACKER}. A finding is a `
+          + 'four-mark heading there; write it before recording the pass.',
       );
     }
   }
@@ -181,11 +176,23 @@ function validateDeferredProductionAgreement(deferrals, productionDefects) {
   }
 }
 
-export function parseMarkdownHeadings(markdown) {
+// The findings recorded under the tracker's `## Unresolved` section. Structure
+// is the check, in place of an earlier `Unresolved:` naming prefix: a prefix
+// can be typed onto any heading in the file, a position cannot. A heading at
+// one or two marks closes the section, and the three-mark headings inside it
+// name categories, so only a four-mark heading names a finding.
+export function unresolvedHeadings(markdown, section = DEFERRAL_SECTION) {
   const headings = new Set();
+  let inside = false;
   for (const line of markdown.split('\n')) {
-    const match = /^#{1,6}\s+(.*?)\s*$/.exec(line);
-    if (match) headings.add(match[1]);
+    const match = /^(#{1,6})\s+(.*?)\s*$/.exec(line);
+    if (!match) continue;
+    const [, marks, text] = match;
+    if (marks.length <= 2) {
+      inside = marks.length === 2 && text === section;
+      continue;
+    }
+    if (inside && marks.length === 4) headings.add(text);
   }
   return headings;
 }
@@ -1125,7 +1132,7 @@ export function auditMetricsFromOptions(options, {
   return validateAuditMetrics(metrics, {
     requireRejections: true,
     requireDeferrals: true,
-    trackerHeadings: parseMarkdownHeadings(tracker),
+    trackerHeadings: unresolvedHeadings(tracker),
   });
 }
 
@@ -1255,7 +1262,7 @@ separately. --head, when given, must name the same commit as the range head.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
 for every rejected finding, and one deferrals entry, with summary and a
-trackedIn naming an existing "${DEFERRAL_HEADING_PREFIX}" heading in
+trackedIn naming a heading under "## ${DEFERRAL_SECTION}" in
 ${DEFERRAL_TRACKER}, for every deferred finding.`);
 }
 

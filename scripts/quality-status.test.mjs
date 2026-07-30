@@ -10,11 +10,11 @@ import {
   formatReviewDebt,
   excludeRelocatedLines,
   parseAuditFixCommitLog,
-  parseMarkdownHeadings,
   parseNumstat,
   qualityGateBlocked,
   relocationCommits,
   thresholdReached,
+  unresolvedHeadings,
   validateAuditedRangeCoverage,
   validateAuditMetrics,
   validateConfigShape,
@@ -366,16 +366,16 @@ test('deferred findings name an existing tracker heading', () => {
   // failure the check exists to catch.
   assert.throws(
     () => validateAuditMetrics(metrics, { trackerHeadings: new Set(['Unresolved: something else']) }),
-    /is not a heading in ROADMAP\.md/,
+    /is not a heading under "## Unresolved" in ROADMAP\.md/,
   );
-  // Debt belongs under an Unresolved heading. A roadmap section that nothing
-  // schedules for clearing would strand it.
+  // Debt belongs under the Unresolved section. A goal heading, which the scoped
+  // parser never returns, would strand the finding where nothing clears it.
   assert.throws(
     () => validateAuditMetrics({
       ...metrics,
       deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'Next goals, in order' }],
-    }),
-    /must name an? "Unresolved:" heading/,
+    }, { trackerHeadings: headings }),
+    /is not a heading under "## Unresolved" in ROADMAP\.md/,
   );
   // Stored passes are revalidated on every run, after the heading is deleted.
   assert.doesNotThrow(() => validateAuditMetrics(metrics));
@@ -451,7 +451,7 @@ test('the recorder entry point enforces both durable-record gates', () => {
   // from the caller. They stay green if the recorder stops passing them, so
   // this drives the one place that does. The tracker is injected, so the case
   // does not depend on what ROADMAP.md happens to contain.
-  const readTracker = () => '## Unresolved: a deferred finding\n';
+  const readTracker = () => '## Unresolved\n### Process\n#### a deferred finding\n';
   const withMetrics = (metrics) => auditMetricsFromOptions(
     { 'audit-metrics': JSON.stringify(metrics) }, { readTracker },
   );
@@ -463,9 +463,9 @@ test('the recorder entry point enforces both durable-record gates', () => {
   assert.throws(
     () => withMetrics({
       ...DEFERRED_TESTS_FINDING,
-      deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'Unresolved: absent' }],
+      deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'absent' }],
     }),
-    /is not a heading in ROADMAP\.md/,
+    /is not a heading under "## Unresolved" in ROADMAP\.md/,
   );
   // A rejected finding needs its counter-evidence through the same entry point.
   assert.throws(
@@ -486,13 +486,13 @@ test('the recorder entry point enforces both durable-record gates', () => {
   const accepted = {
     ...DEFERRED_TESTS_FINDING,
     deferrals: [{
-      summary: 'a finding', category: 'tests', trackedIn: 'Unresolved: a deferred finding',
+      summary: 'a finding', category: 'tests', trackedIn: 'a deferred finding',
     }],
   };
   assert.deepEqual(withMetrics(accepted), accepted);
 });
 
-test('heading parsing strips the marker and keeps every level', () => {
+test('heading parsing returns the Unresolved section alone', () => {
   // parseMarkdownHeadings() is a pure function over text, so it is pinned
   // against a literal document rather than against ROADMAP.md. Reading the
   // live tracker would tie the suite to prose the workflow rewrites: clearing
@@ -503,21 +503,29 @@ test('heading parsing strips the marker and keeps every level', () => {
     '# Title',
     'body text that is not a heading',
     '## Current milestone: exploration',
+    '### A goal, outside the debt section',
+    '## Unresolved',
     '#NotAHeading',
-    '### Unresolved: a deferred finding   ',
+    '### Display',
+    '#### a deferred finding   ',
     '###### Deepest',
-    '    ## Four spaces, a code block even in CommonMark',
-    '  ## Two spaces, which CommonMark would accept',
+    '    #### Four spaces, a code block even in CommonMark',
+    '  #### Two spaces, which CommonMark would accept',
     '####### Seven marks, past the deepest level',
+    '## Later milestones',
+    '### Something after the section closes',
   ].join('\n');
-  const headings = parseMarkdownHeadings(document);
+  const headings = unresolvedHeadings(document);
 
-  assert.deepEqual([...headings].sort(), [
-    'Current milestone: exploration',
-    'Deepest',
-    'Title',
-    'Unresolved: a deferred finding',
-  ]);
+  // Four-mark headings between `## Unresolved` and the next two-mark heading.
+  // A goal or a milestone sits outside the section; a category sits inside it
+  // at three marks and names no finding. Neither can be a deferral's home.
+  assert.deepEqual([...headings].sort(), ['a deferred finding']);
+  assert.equal(headings.has('Display'), false);
+  assert.equal(headings.has('Deepest'), false);
+  assert.equal(headings.has('Current milestone: exploration'), false);
+  assert.equal(headings.has('A goal, outside the debt section'), false);
+  assert.equal(headings.has('Something after the section closes'), false);
   // The marker is stripped, so a trackedIn value carrying one never resolves.
   assert.equal(headings.has('## Current milestone: exploration'), false);
   // A run of marks with no space after it is not a heading.
