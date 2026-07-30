@@ -101,17 +101,34 @@ the ported C a later milestone calls. Traps score well on it: `mintrap()` is
 called from six other C files, `thitm()` serves three trap types, and each
 `trapeffect_*()` body already contains the hero arm combat will need.
 
-**Queued slices.**
+**Slices, both closed.**
 
 1. A squeaky board under an unseen monster: the `mintrap()` wrapper,
    `trapeffect_selector()`, `trapeffect_sqky_board()`'s monster arm, and
-   `trapnote()`.
-2. A dart trap under a pet that is missed: `t_missile()`, `thitm()`'s miss
-   path, and `trapeffect_dart_trap()`.
+   `trapnote()`. Closed at `bf96cda`; moved two sessions from 4 screens to 8.
+2. A dart trap under a monster the dart misses: `t_missile()`, `thitm()`'s
+   miss path, and `trapeffect_dart_trap()`. Closed at `b51b1d2`; moved no
+   development session at all.
 
 This goal crosses `trap.c`, `monmove.c`, `mon.c` and object placement, and is
 expected to span sessions, so an implementation checklist is created when its
 first slice opens.
+
+**A prediction this goal got wrong.** The census above said `seed1500`'s dart
+is a miss and that closing the miss path would unblock it. It does not.
+`seed1500` stops earlier, on `simple monster action requires pet cursed-object
+feedback`, with its random-number prefix unchanged by the slice. The census
+counted which trap types the blocked sessions *reach*, which is a fact about
+their recorded top lines; it did not check that the trap was the **first**
+refusal each session hits. Those are different questions, and only the second
+predicts movement. Read the refusal a session actually stops on before
+promising it will move -- `scripts/score-development.mjs` reports it per
+session.
+
+That is the second prediction this file has recorded and then falsified: the
+pickup goal was chosen on "fires without a player command" and gained +1
+development, +0 holdout. Both errors share a shape -- a property that is
+necessary for the session to move but not sufficient.
 
 ## Explicit future exploration work, outside the goal in progress
 
