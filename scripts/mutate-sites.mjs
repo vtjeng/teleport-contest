@@ -25,10 +25,10 @@
 // passing through another js/ module, so a test that imports the module through
 // a helper under scripts/ counts. A failure there kills the mutant.
 //
-// What happens next depends on `--full`. Without it the first wave is the
-// verdict, which is fast and reports false survivors. With it, a mutant that
-// passed its first wave runs every remaining test file, and only a mutant the
-// whole suite passed is reported as a survivor. On `ce9c59f~1..ce9c59f` the
+// What happens next depends on `--whole-suite`. Without it the first wave is
+// the verdict, which is fast and reports false survivors. With it, a mutant
+// that passed its first wave runs every remaining test file, and only a mutant
+// the whole suite passed is reported as a survivor. On `ce9c59f~1..ce9c59f` the
 // first wave alone reported five survivors and the rest of the suite killed
 // four of them, among them a mutant of js/hack.js that
 // `scripts/closed-door-autoopen.test.mjs` fails on while all seven files
@@ -36,30 +36,33 @@
 // applied.
 //
 // Judging by a transitive import set would cost nearly what the whole suite
-// costs, so it buys nothing over `--full`. Following js/-to-js/ imports puts 72
-// of the 132 test files behind js/hack.js and 102 behind js/mondata.js, and the
-// slowest files sit in those sets, so `node --test`'s concurrency leaves the
-// subset almost as slow as the full run.
+// costs, so it buys nothing over `--whole-suite`. Following js/-to-js/ imports
+// puts 72 of the 132 test files behind js/hack.js and 102 behind js/mondata.js,
+// and the slowest files sit in those sets, so `node --test`'s concurrency
+// leaves the subset almost as slow as the whole run.
 //
 // Usage:
 //
 //     node scripts/mutate-sites.mjs --range <base>..<head>
 //     node scripts/mutate-sites.mjs --file js/regen.js [--file js/lock.js ...]
+//     node scripts/mutate-sites.mjs --worktree
 //
 // `--range` mutates the lines that range changed. `--file` repeats and mutates
 // every line of each file, which is the form to reach for when the question is
-// whether a module's tests pin its behavior at all. The two cannot be combined.
-// `--full` judges every mutant that survives its first wave by the whole
+// whether a module's tests pin its behavior at all. `--worktree` mutates the
+// uncommitted js/ diff, which is the form for work that is not committed yet;
+// on a clean tree it reports no mutant and exits 0. The three cannot be
+// combined.
+// `--whole-suite` judges every mutant that survives its first wave by the whole
 // suite, at the cost the figures below give. A correctness pass wants it; a
 // quick local check does not.
 //
 // `--sample <n>` draws n mutants uniformly at random from the whole target set
-// and runs only those, which is how to estimate a kill rate over a population too
-// large to run: the 126 files under js/ hold 94,899 mutants. `--seed <k>` sets
-// the draw, and the report names the seed it used, so a sample can be repeated
-// exactly. The report gives the kill rate with a 95% Wilson interval for the
-// population the sample was drawn from. Prefer this to `--limit`, which
-// truncates in path order and so samples nothing.
+// and runs only those, which is how to estimate a kill rate over a population
+// too large to run: the 126 files under js/ hold 94,899 mutants. `--seed <k>`
+// sets the draw, and the report names the seed it used, so a sample can be
+// repeated exactly. The report gives the kill rate with a 95% Wilson interval
+// for the population the sample was drawn from.
 //
 // Both forms take `--enumerate-only`, which prints the site and mutant counts
 // per file and stops before running any test, and `--limit <n>`, which stops
@@ -68,6 +71,10 @@
 // target set's mutants went unmeasured. The command exits 0 whether or not
 // mutants survived, because a survivor is a finding to review. A bad argument
 // or a red baseline exits 2.
+//
+// `--worktree` takes its line numbers from `git diff HEAD`, which already
+// numbers them in the working tree. `--range` cannot cover that work at all: an
+// uncommitted line blames to the all-zero commit and belongs to no range.
 //
 // A range's lines are located by `git blame` over the working tree, not by the
 // diff's line numbers, so a range whose head is behind the working tree still
@@ -78,29 +85,30 @@
 // commit last changed js/.
 //
 // A first wave costs what its own files cost, from 0.14 s per mutant for a
-// one-file wave to 2.20 s for js/hack.js's seven. Under `--full`, every mutant
-// that passes its first wave costs about 13 s more, the time the 122-file
-// verdict suite takes, so the total depends on how many the first wave kills. A
-// module whose own tests are weak pays the suite for nearly every mutant.
+// one-file wave to 2.20 s for js/hack.js's seven. Under `--whole-suite`, every
+// mutant that passes its first wave costs about 13 s more, the time the
+// 122-file verdict suite takes, so the total depends on how many the first
+// wave kills. A module whose own tests are weak pays the suite for nearly every
+// mutant.
 //
-// Measured on 30 July 2026, wall clock for the whole command, without `--full`
-// and with it:
+// Measured on 30 July 2026, wall clock for the whole command:
 //
-// - `ce9c59f~1..ce9c59f`, 8 mutants over js/hack.js and js/lock.js: 12.7 s and
-//   84.0 s. The first wave killed 3 at 1.36 s each; the 5 that reached the
-//   suite cost 12.7 s each, and it killed 4 of them;
+// - `ce9c59f~1..ce9c59f`, 8 mutants over js/hack.js and js/lock.js: 12.7 s
+//   without `--whole-suite` and 84.0 s with it. The first wave killed 3 at
+//   1.36 s each; the 5 that reached the suite cost 12.7 s each, and it
+//   killed 4 of them;
 // - `c67aa92~1..c67aa92`, 17 mutants over js/regen.js alone: 3.0 s and 224.2 s.
 //   The first wave killed 1 at 0.14 s; the 16 that reached the suite cost
-//   13.0 s each and it killed none, so `--full` cost 75 times as much for the
-//   same answer.
+//   13.0 s each and it killed none, so `--whole-suite` cost 75 times as much
+//   for the same answer.
 //
 // Site density measured 0.165 per line in scope over the 692 lines
 // `HEAD~40..HEAD` changed at 049ebb0 on 29 July 2026, at 1.45 mutants per site.
 // Extrapolating that density, the 1,000-line review window that
 // `.agents/review.md` sets as the full-pass gate holds about 239 mutants. Under
-// `--full` that runs in roughly 26 minutes if the first wave kills half of them
-// and 52 minutes if it kills none. Both figures extrapolate from the two ranges
-// above and assume the same density and the same 13 s suite.
+// `--whole-suite` that runs in roughly 26 minutes if the first wave kills half
+// of them and 52 minutes if it kills none. Both figures extrapolate from the
+// two ranges above and assume the same density and the same 13 s suite.
 
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
@@ -189,6 +197,21 @@ export function changedJsLines(range, cwd = REPO_ROOT) {
     return parseAddedLines(git(
         ['diff', '--unified=0', '--no-color', '--no-ext-diff',
             `${base}..${head}`, '--', 'js/'],
+        cwd));
+}
+
+/**
+ * The uncommitted js/ lines, keyed by path.
+ *
+ * `git diff HEAD` numbers its added lines in the working tree, which is what the
+ * mutator reads, so no blame step is needed. survivingRangeLines() cannot cover
+ * this: an uncommitted line blames to the all-zero commit and belongs to no
+ * range. A clean tree yields no path and no mutant.
+ */
+export function uncommittedJsLines(cwd = REPO_ROOT) {
+    return parseAddedLines(git(
+        ['diff', '--unified=0', '--no-color', '--no-ext-diff', 'HEAD', '--',
+            'js/'],
         cwd));
 }
 
@@ -597,8 +620,26 @@ export function coveringTests(rootPath = REPO_ROOT) {
 
 const WORKSPACE_PREFIX = join(tmpdir(), 'teleport-mutate-');
 
+// Workspaces that exist right now. A `finally` arm removes each one on the
+// ordinary path, and a terminating signal skips every `finally`, so a run
+// stopped with Ctrl-C or `kill` used to leave its copy of js/ and scripts/
+// behind: 6.7 MB each.
+const liveWorkspaces = new Set();
+const INTERRUPTS = ['SIGINT', 'SIGTERM'];
+
+function onInterrupt(signal) {
+    for (const workspace of [...liveWorkspaces]) removeWorkspace(workspace);
+    // Re-raise so the caller sees the signal it sent, rather than an exit code
+    // this handler invented. Removing the listener first stops the recursion.
+    process.removeListener(signal, onInterrupt);
+    process.kill(process.pid, signal);
+}
+
 export function createWorkspace(root = REPO_ROOT) {
     const workspace = mkdtempSync(WORKSPACE_PREFIX);
+    if (liveWorkspaces.size === 0)
+        for (const signal of INTERRUPTS) process.on(signal, onInterrupt);
+    liveWorkspaces.add(workspace);
     try {
         for (const entry of COPIED_ENTRIES)
             cpSync(join(root, entry), join(workspace, entry),
@@ -616,6 +657,10 @@ export function removeWorkspace(workspace) {
     if (!resolve(workspace).startsWith(WORKSPACE_PREFIX))
         throw new Error('refusing to remove an unexpected workspace path');
     rmSync(workspace, { recursive: true, force: true });
+    liveWorkspaces.delete(workspace);
+    if (liveWorkspaces.size === 0)
+        for (const signal of INTERRUPTS)
+            process.removeListener(signal, onInterrupt);
 }
 
 // ---------------------------------------------------------------------------
@@ -722,26 +767,27 @@ export function partitionTestFiles(rootPath = REPO_ROOT) {
  * baseline kills every mutant, so the result would say nothing about the tests.
  */
 export function runMutants({ workspace, targets,
-    allTests = partitionTestFiles().suite, fullSuite = false,
-    limit = Infinity, log = () => {} }) {
+    allTests = partitionTestFiles().suite, wholeSuite = false,
+    log = () => {} }) {
     const withSites = targets.filter((target) => target.sites.length);
     // Without the whole suite, a module no test file reaches has no verdict at
     // all, and reporting its mutants as survivors would claim a gap that was
     // never tested for.
-    const measurable = fullSuite
+    const measurable = wholeSuite
         ? withSites
         : withSites.filter((target) => target.tests.length);
-    const unmeasured = fullSuite
+    const unmeasured = wholeSuite
         ? []
         : withSites.filter((target) => !target.tests.length);
-    const baselineFiles = fullSuite
+    const baselineFiles = wholeSuite
         ? allTests
         : [...new Set(measurable.flatMap((target) => target.tests))].sort();
 
-    // With no first wave and no `--full`, nothing can run and nothing is known.
+    // With no first wave and no `--whole-suite`, nothing runs and nothing is
+    // known.
     if (!baselineFiles.length) {
         return { survivors: [], killed: 0, timeouts: 0, ran: 0, perFile: [],
-            scheduled: 0, unmeasured, fullSuite, suiteSize: allTests.length,
+            unmeasured, wholeSuite, suiteSize: allTests.length,
             ranSeconds: 0, firstWaveKilled: 0, firstWaveRuns: 0,
             firstWaveSeconds: 0, fullSuiteKilled: 0, fullSuiteRuns: 0,
             fullSuiteSeconds: 0, baselineSeconds: 0, baselineFiles: [],
@@ -784,7 +830,6 @@ export function runMutants({ workspace, targets,
         if (wasKilled) tally.killed += 1;
         byKind.set(kind, tally);
     };
-    const scheduled = measurable.reduce((n, t) => n + t.sites.length, 0);
     let killed = 0;
     let timeouts = 0;
     let ran = 0;
@@ -806,7 +851,6 @@ export function runMutants({ workspace, targets,
             fullSuiteSeconds: 0 };
         try {
             for (const site of target.sites) {
-                if (ran >= limit) break;
                 writeFileSync(absolute, applyMutation(target.source, site));
                 ran += 1;
                 tally.mutants += 1;
@@ -827,7 +871,7 @@ export function runMutants({ workspace, targets,
 
                 // An empty remainder means the first wave was the whole suite,
                 // so passing it is already the whole suite's verdict.
-                if (!fullSuite || !remaining.length) {
+                if (!wholeSuite || !remaining.length) {
                     survivors.push({ ...site, path: target.path,
                         tests: target.tests });
                     recordKind(site.kind, false);
@@ -852,11 +896,10 @@ export function runMutants({ workspace, targets,
             writeFileSync(absolute, target.source);
         }
         if (tally.mutants) perFile.push(tally);
-        if (ran >= limit) break;
     }
 
-    return { survivors, killed, timeouts, ran, perFile, scheduled, unmeasured,
-        byKind, fullSuite, suiteSize: allTests.length,
+    return { survivors, killed, timeouts, ran, perFile, unmeasured,
+        byKind, wholeSuite, suiteSize: allTests.length,
         ranSeconds: firstWaveSeconds + fullSuiteSeconds,
         firstWaveKilled, firstWaveRuns, firstWaveSeconds,
         fullSuiteKilled, fullSuiteRuns, fullSuiteSeconds,
@@ -885,19 +928,19 @@ const perMutant = (seconds, runs) =>
  * Render the run.
  *
  * `population` is how many mutants the target set holds, which differs from the
- * number run when `--sample` or `--limit` cut the set down. The kill rate and its
- * interval estimate the population from the mutants that ran.
+ * number run when `--sample` cut the set down. The kill rate and its interval
+ * estimate the population from the mutants that ran.
  */
 export function formatReport(result, population = result.ran) {
     const lines = [];
-    lines.push(result.fullSuite
+    lines.push(result.wholeSuite
         ? `verdict: the whole suite, ${result.suiteSize} test file(s)`
         : 'verdict: the first wave only, so a survivor below may still be '
             + 'killed by a test that reaches its module through another js/ '
-            + 'module; pass --full to judge every mutant by the whole suite');
+            + 'module; pass --whole-suite to judge every mutant by the suite');
     for (const site of result.survivors) {
         lines.push(`survived ${describeSite(site)} `
-            + `(${result.fullSuite ? 'the whole suite passed; ' : ''}`
+            + `(${result.wholeSuite ? 'the whole suite passed; ' : ''}`
             + `first wave was ${site.tests.length} file(s): `
             + `${site.tests.join(', ') || 'none'})`);
     }
@@ -909,7 +952,7 @@ export function formatReport(result, population = result.ran) {
         lines.push(`cost ${tally.path}: ${tally.mutants} mutant(s), `
             + `${tally.tests} first-wave file(s) at `
             + `${perMutant(tally.firstWaveSeconds, tally.mutants)} s`
-            + (result.fullSuite
+            + (result.wholeSuite
                 ? `, ${tally.reachedFullSuite} reached the full suite at `
                     + `${perMutant(tally.fullSuiteSeconds,
                         tally.reachedFullSuite)} s`
@@ -918,22 +961,16 @@ export function formatReport(result, population = result.ran) {
     for (const target of result.unmeasured) {
         lines.push(`unmeasured ${target.path}: ${target.sites.length} site(s), `
             + 'no test file reaches this module without passing through another '
-            + 'js/ module; --full would judge it by the whole suite');
+            + 'js/ module; --whole-suite would judge it by the suite');
     }
     lines.push(`first wave: ${result.firstWaveKilled} of ${result.ran} `
         + `mutant(s) killed over ${result.firstWaveRuns} run(s) at `
         + `${perMutant(result.firstWaveSeconds, result.firstWaveRuns)} s each`);
-    if (result.fullSuite) {
+    if (result.wholeSuite) {
         lines.push(`full suite: ${result.fullSuiteRuns} mutant(s) reached it, `
             + `${result.fullSuiteKilled} killed, at `
             + `${perMutant(result.fullSuiteSeconds, result.fullSuiteRuns)} `
             + 's each');
-    }
-    if (result.ran < result.scheduled) {
-        // Say what the limit dropped. A truncated run that reported only its
-        // own totals would read as a complete measurement of the target set.
-        lines.push(`limited to ${result.ran} of ${result.scheduled} mutant(s) `
-            + 'in path order; the rest were not measured');
     }
     for (const [kind, tally] of [...(result.byKind ?? new Map())].sort()) {
         const { rate, low, high } = killRateInterval(tally.killed, tally.ran);
@@ -1058,9 +1095,8 @@ export function formatSiteCounts(targets, scopedLines) {
  * Each option accepts `--name value` and `--name=value`.
  */
 export function parseArgs(argv) {
-    const options = { range: null, paths: [], kinds: null,
-        enumerateOnly: false, full: false, limit: Infinity, sample: null,
-        seed: 1 };
+    const options = { range: null, paths: [], worktree: false, kinds: null,
+        enumerateOnly: false, wholeSuite: false, sample: null, seed: 1 };
     for (let i = 0; i < argv.length; ++i) {
         const separator = argv[i].indexOf('=');
         const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
@@ -1078,10 +1114,14 @@ export function parseArgs(argv) {
             if (inlineValue !== null)
                 throw new Error('--enumerate-only takes no value');
             options.enumerateOnly = true;
-        } else if (name === '--full') {
+        } else if (name === '--worktree') {
             if (inlineValue !== null)
-                throw new Error('--full takes no value');
-            options.full = true;
+                throw new Error('--worktree takes no value');
+            options.worktree = true;
+        } else if (name === '--whole-suite') {
+            if (inlineValue !== null)
+                throw new Error('--whole-suite takes no value');
+            options.wholeSuite = true;
         } else if (name === '--range') {
             if (options.range) throw new Error('pass one --range');
             const range = valueOf();
@@ -1089,11 +1129,6 @@ export function parseArgs(argv) {
             options.range = range;
         } else if (name === '--file') {
             options.paths.push(valueOf());
-        } else if (name === '--limit') {
-            const value = Number(valueOf());
-            if (!Number.isInteger(value) || value < 1)
-                throw new Error('--limit takes a positive integer');
-            options.limit = value;
         } else if (name === '--kind') {
             const named = valueOf().split(',').map((kind) => kind.trim());
             for (const kind of named) {
@@ -1120,11 +1155,14 @@ export function parseArgs(argv) {
                 + 'target with --range or --file');
         }
     }
-    if (options.range && options.paths.length)
-        throw new Error('pass --range or --file, not both');
-    if (!options.range && !options.paths.length) {
+    const named = [options.range && '--range', options.paths.length && '--file',
+        options.worktree && '--worktree'].filter(Boolean);
+    if (named.length > 1)
+        throw new Error(`pass one of ${named.join(' and ')}, not both`);
+    if (!named.length) {
         throw new Error('pass --range <base>..<head> to mutate the lines a '
-            + 'range changed, or --file <path> to mutate a whole file');
+            + 'range changed, --file <path> to mutate a whole file, or '
+            + '--worktree to mutate the uncommitted js/ diff');
     }
     return options;
 }
@@ -1136,11 +1174,12 @@ export function parseArgs(argv) {
  * line of each file. Every target reports the working tree's bytes, so a
  * reported line number always addresses the file on disk.
  */
-export function collectTargets({ range = null, paths = [], kinds = null,
-    sample = null, seed = 1 }, root = REPO_ROOT) {
-    const scope = range
-        ? survivingRangeLines(range, root)
-        : new Map(paths.map((path) => [assertJsPath(path, root), null]));
+export function collectTargets({ range = null, paths = [], worktree = false,
+    kinds = null, sample = null, seed = 1 }, root = REPO_ROOT) {
+    let scope;
+    if (worktree) scope = uncommittedJsLines(root);
+    else if (range) scope = survivingRangeLines(range, root);
+    else scope = new Map(paths.map((path) => [assertJsPath(path, root), null]));
     const covering = coveringTests(root);
     const targets = [];
     for (const path of [...scope.keys()].sort()) {
@@ -1207,7 +1246,7 @@ async function main(argv) {
     const workspace = createWorkspace();
     try {
         const { suite, unaffected } = partitionTestFiles();
-        if (options.full) {
+        if (options.wholeSuite) {
             console.log(`suite: ${suite.length} test file(s) import a js/ `
                 + `module; ${unaffected.length} cannot be affected by a `
                 + `mutation and are not run (${unaffected.join(', ')})`);
@@ -1216,8 +1255,7 @@ async function main(argv) {
             workspace,
             targets: targets.filter((target) => target.sites.length),
             allTests: suite,
-            fullSuite: options.full,
-            limit: options.limit,
+            wholeSuite: options.wholeSuite,
             log: (message) => console.log(message),
         });
         for (const line of formatReport(result, populationMutants))

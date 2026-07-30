@@ -5,8 +5,9 @@
 // be asserted exactly without a real gap in the game's tests.
 
 import assert from 'node:assert/strict';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
+    existsSync,
     mkdirSync,
     mkdtempSync,
     readFileSync,
@@ -41,6 +42,7 @@ import {
     SITE_KINDS,
     survivingRangeLines,
     tokenize,
+    uncommittedJsLines,
 } from './mutate-sites.mjs';
 
 const SCRIPT_PATH = fileURLToPath(
@@ -302,10 +304,9 @@ test('a run that executes no test file is not a run of survivors', () => {
 
     const result = withWorkspace((workspace) => runMutants({
         workspace,
-        targets: [fixtureTarget()],
+        targets: [fixtureTarget({ lines: new Set([10]) })],
         allTests: FIXTURE_SUITE,
-        fullSuite: true,
-        limit: 1,
+        wholeSuite: true,
     }));
 
     // bounds.test.mjs holds five tests and wrapper.test.mjs holds one.
@@ -369,7 +370,7 @@ test('the fixture run reports exactly the mutants its test leaves alive',
             workspace,
             targets: [fixtureTarget()],
             allTests: FIXTURE_SUITE,
-            fullSuite: true,
+            wholeSuite: true,
         }));
 
         // js/bounds.js documents why these five survive: nearEdge() is tested
@@ -412,7 +413,7 @@ test('a mutant the first wave passes and a wider file kills counts as killed',
             workspace,
             targets: [fixtureTarget({ lines: new Set([63]) })],
             allTests: ['bounds.test.mjs', 'wrapper.test.mjs'],
-            fullSuite: true,
+            wholeSuite: true,
         }));
 
         assert.equal(result.ran, 1);
@@ -423,7 +424,7 @@ test('a mutant the first wave passes and a wider file kills counts as killed',
         assert.equal(result.fullSuiteKilled, 1);
     });
 
-test('without --full the first wave is the verdict and the report says so',
+test('without --whole-suite the first wave is the verdict and the report says so',
     () => {
         const result = withWorkspace((workspace) => runMutants({
             workspace,
@@ -443,12 +444,12 @@ test('without --full the first wave is the verdict and the report says so',
 
         const report = formatReport(result);
         assert.match(report[0], /^verdict: the first wave only,/u);
-        assert.match(report[0], /pass --full/u);
+        assert.match(report[0], /pass --whole-suite/u);
         assert.equal(report.some((line) => line.startsWith('full suite:')),
             false);
     });
 
-test('without --full a module with no first wave is reported as unmeasured',
+test('without --whole-suite a module with no first wave is unmeasured',
     () => {
         const result = withWorkspace((workspace) => runMutants({
             workspace,
@@ -467,34 +468,13 @@ test('without --full a module with no first wave is reported as unmeasured',
 test('the module is restored after the last mutant', () => {
     const before = fixtureSource();
     withWorkspace((workspace) => {
-        runMutants({ workspace, targets: [fixtureTarget()], limit: 3,
-            allTests: FIXTURE_SUITE, fullSuite: true });
+        runMutants({ workspace, targets: [fixtureTarget({ lines: new Set([10]) })],
+            allTests: FIXTURE_SUITE, wholeSuite: true });
         // The workspace copy, not the repository file, is what a mutation
         // rewrites; it has to be put back so the next file's baseline holds.
         assert.equal(readFileSync(`${workspace}/js/bounds.js`, 'utf8'), before);
     });
     assert.equal(fixtureSource(), before);
-});
-
-test('a limit stops the run early', () => {
-    const result = withWorkspace((workspace) => runMutants({
-        workspace,
-        targets: [fixtureTarget()],
-        allTests: FIXTURE_SUITE,
-        fullSuite: true,
-        limit: 2,
-    }));
-
-    // The first two mutants of the fixture module both change LIMIT, which its
-    // test asserts, so neither survives.
-    assert.equal(result.ran, 2);
-    assert.deepEqual(result.survivors, []);
-    // The other eleven went unmeasured, which the report has to say: 2 killed
-    // of 2 run would otherwise read as a clean result for the whole file.
-    assert.equal(result.scheduled, 13);
-    assert.equal(formatReport(result).includes(
-        'limited to 2 of 13 mutant(s) in path order; the rest were not '
-        + 'measured'), true);
 });
 
 test('a red baseline stops the run before the first mutant',
@@ -506,7 +486,7 @@ test('a red baseline stops the run before the first mutant',
                 workspace,
                 targets: [fixtureTarget()],
                 allTests: ['red-baseline.test.mjs'],
-                fullSuite: true,
+                wholeSuite: true,
             })),
             /the unmutated tests do not pass/u,
         );
@@ -517,7 +497,7 @@ test('a module with an empty first wave is still judged by the suite', () => {
         workspace,
         targets: [fixtureTarget({ tests: [], lines: new Set([10]) })],
         allTests: FIXTURE_SUITE,
-        fullSuite: true,
+        wholeSuite: true,
     }));
 
     // Line 10 is `export const LIMIT = 4;`, which scripts/bounds.test.mjs
@@ -557,10 +537,10 @@ test('a draw spreads over the population', () => {
     const items = Array.from({ length: 1000 }, (_, index) => index);
     const drawn = sampleItems(items, 200, 4);
 
-    // A biased draw is the failure this guards against: `--limit` truncates in
-    // path order, and a sample that clustered the same way would measure one
-    // corner of the codebase. An even draw puts about 100 of the 200 in the
-    // lower half; truncation puts either 200 or 0 there.
+    // A biased draw is the failure this guards against. Taking the first n in
+    // order, which is what the dropped `--limit` did, would measure one corner
+    // of the codebase. An even draw puts about 100 of the 200 in the lower
+    // half; taking them in order puts either 200 or 0 there.
     const lower = drawn.filter((item) => item < 500).length;
     assert.equal(lower > 60 && lower < 140, true);
 });
@@ -648,7 +628,7 @@ test('the report breaks the kill rate down by mutation kind', () => {
         workspace,
         targets: [fixtureTarget()],
         allTests: FIXTURE_SUITE,
-        fullSuite: true,
+        wholeSuite: true,
     }));
     const report = formatReport(result, 13);
 
@@ -668,7 +648,7 @@ test('a sampled run states the interval for the population it sampled', () => {
         workspace,
         targets: [fixtureTarget({ lines: new Set([10]) })],
         allTests: FIXTURE_SUITE,
-        fullSuite: true,
+        wholeSuite: true,
     }));
 
     // Line 10 is `export const LIMIT = 4;`: two mutants, both killed, drawn from
@@ -683,19 +663,19 @@ test('a sampled run states the interval for the population it sampled', () => {
 // The command line and the census
 // ---------------------------------------------------------------------------
 
-test('every target is named by --range or --file', () => {
+test('every target is named by --range, --file, or --worktree', () => {
     assert.deepEqual(parseArgs(['--range', 'a..b']),
-        { range: 'a..b', paths: [], kinds: null, enumerateOnly: false,
-            full: false, limit: Infinity, sample: null, seed: 1 });
+        { range: 'a..b', paths: [], worktree: false, kinds: null,
+            enumerateOnly: false, wholeSuite: false, sample: null, seed: 1 });
     assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
-        { range: null, paths: ['js/a.js', 'js/b.js'], kinds: null,
-            enumerateOnly: false, full: false, limit: Infinity, sample: null,
+        { range: null, paths: ['js/a.js', 'js/b.js'], worktree: false,
+            kinds: null, enumerateOnly: false, wholeSuite: false, sample: null,
             seed: 1 });
     // `--name=value` and `--name value` are the same option.
-    assert.deepEqual(parseArgs(['--range=a..b', '--limit=5',
-        '--enumerate-only', '--full', '--sample=40', '--seed=7']),
-    { range: 'a..b', paths: [], kinds: null, enumerateOnly: true, full: true,
-        limit: 5, sample: 40, seed: 7 });
+    assert.deepEqual(parseArgs(['--range=a..b', '--enumerate-only',
+        '--whole-suite', '--sample=40', '--seed=7']),
+    { range: 'a..b', paths: [], worktree: false, kinds: null,
+        enumerateOnly: true, wholeSuite: true, sample: 40, seed: 7 });
     assert.deepEqual(parseArgs(['--range', 'a..b',
         '--kind', 'logical,relational,logical']).kinds,
     ['logical', 'relational']);
@@ -711,9 +691,20 @@ test('every target is named by --range or --file', () => {
     // A range already decides which lines of which files are in scope, so a
     // file alongside it would have no meaning.
     assert.throws(() => parseArgs(['--range', 'a..b', '--file', 'js/a.js']),
-        /--range or --file, not both/u);
-    assert.throws(() => parseArgs(['--range', 'a..b', '--limit', '0']),
-        /positive integer/u);
+        /pass one of --range and --file, not both/u);
+    // --worktree scopes the uncommitted diff, which no range and no file names.
+    assert.deepEqual(parseArgs(['--worktree']).worktree, true);
+    assert.throws(() => parseArgs(['--worktree', '--range', 'a..b']),
+        /pass one of --range and --worktree, not both/u);
+    assert.throws(() => parseArgs(['--worktree', '--file', 'js/a.js']),
+        /pass one of --file and --worktree, not both/u);
+    assert.throws(() => parseArgs(['--worktree=yes']),
+        /--worktree takes no value/u);
+    // --limit was dropped: it truncated in path order, so every use of it
+    // measured whichever files sorted first. --sample answers the same need
+    // without picking the population for you.
+    assert.throws(() => parseArgs(['--range', 'a..b', '--limit', '5']),
+        /unknown option '--limit'/u);
     assert.throws(() => parseArgs(['--range', 'HEAD']),
         /range must be spelled/u);
     assert.throws(() => parseArgs([]), /pass --range/u);
@@ -725,7 +716,8 @@ test('every target is named by --range or --file', () => {
     assert.throws(() => parseArgs(['a..b']), /unexpected argument/u);
     assert.throws(() => parseArgs(['--enumerate-only=yes']),
         /takes no value/u);
-    assert.throws(() => parseArgs(['--full=yes']), /--full takes no value/u);
+    assert.throws(() => parseArgs(['--whole-suite=yes']),
+        /--whole-suite takes no value/u);
 });
 
 test('a path outside js/ is refused', () => {
@@ -790,6 +782,71 @@ function addedTextIn(range) {
     return added;
 }
 
+test('the uncommitted diff is scoped by its working-tree line numbers', () => {
+    withTempRepo(({ root, git }) => {
+        const write = (name, text) =>
+            writeFileSync(join(root, 'js', name), text);
+        write('one.js', 'const a = 1;\n');
+        git('add', '-A');
+        git('commit', '--quiet', '-m', 'first');
+
+        // A clean tree has nothing uncommitted, so nothing is in scope.
+        assert.deepEqual([...uncommittedJsLines(root)], []);
+
+        // Two lines added at the top push the committed line to line 3. The
+        // numbers `git diff HEAD` reports already address the working tree, so
+        // they need no blame step, and survivingRangeLines() cannot supply them
+        // at all: an uncommitted line blames to the all-zero commit.
+        write('one.js', 'const added = n < 10;\nconst also = m > 2;\n'
+            + 'const a = 1;\n');
+        const scope = uncommittedJsLines(root);
+
+        assert.deepEqual([...scope.keys()], ['js/one.js']);
+        assert.deepEqual([...scope.get('js/one.js')], [1, 2]);
+
+        // And the flag has to reach it: `--worktree` puts exactly those two
+        // lines in scope, which is four mutants, the relational operator and
+        // the integer on each.
+        const targets = collectTargets({ worktree: true }, root);
+        assert.deepEqual(targets.map((target) => target.path), ['js/one.js']);
+        assert.equal(targets[0].lineCount, 2);
+        assert.deepEqual(targets[0].sites.map((site) => site.line).sort(),
+            [1, 1, 1, 2, 2, 2]);
+    });
+});
+
+test('a workspace is removed when a run is killed', async () => {
+    // removeWorkspace() runs from a `finally` arm, which a terminating signal
+    // skips, so an interrupted run used to leave 6.7 MB of copied js/ and
+    // scripts/ behind. The handler has to remove it and re-raise.
+    const child = spawn(process.execPath, ['--input-type=module', '-e',
+        `const M = await import(${JSON.stringify(SCRIPT_PATH)});`
+        + 'console.log(M.createWorkspace());'
+        + 'setTimeout(() => {}, 60000);'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const workspace = await new Promise((resolve, reject) => {
+        let out = '';
+        child.stdout.on('data', (chunk) => {
+            out += chunk;
+            if (out.includes('\n')) resolve(out.trim());
+        });
+        child.on('error', reject);
+        child.on('exit', () => reject(new Error(`child exited: ${out}`)));
+    });
+
+    assert.match(workspace, /teleport-mutate-/u);
+    assert.equal(existsSync(workspace), true);
+
+    const exit = new Promise((resolve) => {
+        child.on('exit', (code, signal) => resolve(signal));
+    });
+    child.kill('SIGTERM');
+
+    // The handler re-raises, so the caller sees the signal it sent rather than
+    // an exit code the handler invented.
+    assert.equal(await exit, 'SIGTERM');
+    assert.equal(existsSync(workspace), false);
+});
+
 test('a blamed line holds text that the range added', () => {
     // The two numbering schemes are not comparable: survivingRangeLines()
     // reports positions in the working tree and changedJsLines() reports
@@ -839,6 +896,9 @@ function withTempRepo(body) {
         git('config', 'user.email', 'test@example.invalid');
         git('config', 'user.name', 'Mutate Range Test');
         mkdirSync(join(root, 'js'));
+        // collectTargets() reads the covering test files from here. Git ignores
+        // an empty directory, so it stays out of every commit below.
+        mkdirSync(join(root, 'scripts'));
         return body({ root, git });
     } finally {
         rmSync(root, { recursive: true, force: true });

@@ -195,15 +195,19 @@ That kind list leaves out integer bounds, the largest group and the weakest
 signal, because most of them are constants that no test can observe. It ran two
 review windows in 174 seconds, covering 69 mutants and reporting 24 survivors.
 The run stops at each mutant's first wave, the test files that reach its module
-without passing through another `js/` module. `--full` judges every first-wave
-survivor by the whole suite, which cost 735 seconds over those same two windows
-and removed three survivors. Reach for `--full` when a survivor list looks
+without passing through another `js/` module. `--whole-suite` judges every
+first-wave survivor by every test file, which cost 735 seconds over those same
+two windows and removed three survivors. Reach for it when a survivor list looks
 wrong.
+
+`--worktree` puts the uncommitted `js/` diff in scope instead of a range, which
+is how to check work before it is committed. A pass runs over a frozen range, so
+it uses `--range`.
 
 Two limits bound what the list proves. A line holding no mutable site produces
 no mutant, so a line the list omits carries no evidence either way. A first-wave
 survivor may still be killed by a test that reaches its module through another
-`js/` module, which is what `--full` settles.
+`js/` module, which is what `--whole-suite` settles.
 
 Hand the survivor list to the pass as a `validation` context item addressed to
 the `tests` finder, which is how `/audit-diff-correctness` routes evidence to
