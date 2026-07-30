@@ -2348,9 +2348,14 @@ export async function postmov(
     let outcome = mmoved;
     if (mmoved === MMOVE_MOVED) {
         redraw(omx, omy);
-        // mintrap() runs here, at monmove.c:1509, before the door block.  A
-        // square holding a trap is refused before the monster steps onto it,
-        // by assertSimpleDestination() in js/unported_monster_actions.js.
+        // mintrap() runs here, at monmove.c:1509, before the door block.  The
+        // pre-move gate refuses a trap on a square a monster is about to
+        // enter, but MMOVE_MOVED does not imply the square changed, so this
+        // reads the monster's live square: postSimpleMove() used to do that
+        // for every move and deleting it left the standing-still case with no
+        // guard at all.
+        if (t_at(monster.mx, monster.my, state))
+            unsupported('trap activation');
         const here = state.level?.at(monster.mx, monster.my);
         if (IS_DOOR(here?.typ) && !passes_walls(species) && !canTunnel) {
             if (!INERT_DOOR_MASKS.has(doorMask(here)))
@@ -2404,6 +2409,15 @@ export async function postmov(
         // skipping it silently would move the whole PRNG log.  Its own guards are narrower than this refusal:
         // helpless() and soko_allow_web() are not ported.
         if (webmaker(species)) unsupported('monster web spinning');
+        // monmove.c:1692-1699 draws rn2(5) for a hides_under() species or an
+        // eel whose mundetected is clear, and helpless() cannot hold here
+        // because dochug() returns before m_move() for a sleeping or immobile
+        // monster.  The pre-scan guard keys on is_hider() (M1_HIDE), which is
+        // a different flag from hides_under() (M1_CONCEAL), so a garter snake,
+        // centipede or scorpion reached this point and the draw was simply
+        // skipped -- a divergence with no refusal and no stop.
+        if (hides_under(species) || species?.mlet === S_EEL)
+            unsupported('monster hiding under an object');
     }
     return outcome;
 }

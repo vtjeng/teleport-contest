@@ -458,6 +458,35 @@ imports `copyObjclassEntry`, which no line of the file calls now that the
 catalog clone is `state.objects?.map((entry) => Object.create(entry))`. Delete
 the import with the next simplification pass.
 
+#### nine postmov findings are deferred
+
+The correctness pass over `c64d350..005ea20` confirmed eleven findings; two
+were applied and nine are recorded here.
+
+**Comments that state a false rule.** Four copies of "every arm of C's door
+block tests `D_LOCKED` or `D_CLOSED`" are wrong: `monmove.c:1543-1548`'s first
+arm tests `D_TRAPPED` alone, for a magic-key holder, and writes the doormask.
+The port's whole-mask equality is right *because* of that arm, not despite it,
+and the refusal string for `D_ISOPEN | D_TRAPPED` should name a door trap
+rather than opening a door. Two more misdescribe their own code: the webmaker
+comment lists guards C applies that the port does not, and `const species =
+monster.data` is latched at entry where the header says `ptr` is refreshed
+after `mintrap()`.
+
+**Assertions that do not discriminate**, each verified by mutation with the
+suite green: the `IRONBARS` refusal is reached by no test; the engulfed-hero
+refusal has none at all and drops C's `(mtmp->mx != omx || mtmp->my != omy)`
+conjunct from `monmove.c:1650`; `m_move()`'s `can_tunnel` clearing is exercised
+only in the direction that clears, so every conjunct and the literal 8 survive
+mutation; and `simple preflight ignores an unselected rock during item search`
+gained a comment asserting something about its new gnome fixture that the test
+does not check.
+
+**Duplication.** The inert door mask set is written twice, as
+`INERT_DOOR_MASKS` in `js/monmove.js` and as an inline three-way comparison in
+`js/unported_monster_actions.js`, with the explanatory comment copied along
+with it.
+
 #### `dochug()` returns where C breaks into PHASE FOUR
 
 `dochug()`'s `MMOVE_MOVED` arm returns in the port where C breaks out of the
