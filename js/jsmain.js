@@ -44,24 +44,31 @@ import { ttyPline } from './tty_message.js';
 
 const RECORDER_SYSTEM_OPTIONS = Object.freeze({
     // nethack-c/upstream/sys/unix/sysconf, which nethack-c/build-recorder.sh
-    // installs into the recorder's HACKDIR.
+    // installs into the recorder's HACKDIR.  A local recorder may append its
+    // own user to the installed WIZARDS line, so the value below is the
+    // committed upstream list rather than whatever one checkout happens to
+    // have installed.
     wizards: 'root games',
     explorers: '*',
 });
 
-// The account that owns the recorder process.  check_user_string() matches it
-// against sysopt.wizards above, reading it from get_unix_pw() rather than from
-// any game input, so like the pinned seed and date it belongs to the fixed
-// recorder environment.
+// A stand-in for whatever get_unix_pw() returns under the recorder, not a
+// measured account name.  check_user_string() (unixmain.c:695) matches that
+// name against sysopt.wizards above and reads it from get_unix_pw() rather
+// than from any game input, so like the pinned seed and date it belongs to the
+// fixed recorder environment.
 //
-// Recorded evidence for both halves of that environment: sessions without a
-// name option reach tty_askname(), so USER, LOGNAME, and getlogin() are all
-// unset and whoami() never fills plname; and no playmode:debug session carries
-// the "Only users root or games may access debug (wizard) mode." message that
-// wd_message() prints on denial, so getpwuid() resolves to an authorized
-// account.  Debug mode changes starting inventory and dungeon PRNG order, so a
-// port that denies it diverges from the reference within the first hundred
-// random-number calls.
+// The one requirement on this constant is that RECORDER_SYSTEM_OPTIONS.wizards
+// lists it.  Changing either value alone flips every playmode:debug session
+// into explore mode, so a test in scripts/runtime-foundation.test.mjs pins the
+// pair through the same predicate set_playmode() uses.
+//
+// Recorded evidence that the recorder's own account is authorized: no
+// playmode:debug session carries the "Only users root or games may access
+// debug (wizard) mode." message that wd_message() prints on denial.  Debug
+// mode changes starting inventory and dungeon PRNG order, so a port that
+// denies it diverges from the reference within the first hundred random-number
+// calls.
 const RECORDER_ACCOUNT = 'root';
 
 function buildEnglishList(value) {
@@ -73,8 +80,11 @@ function buildEnglishList(value) {
 
 // C refs: options.c:set_playmode() and unixmain.c:check_user_string().
 // This runs after tty initialization and before plnamesuffix(), matching the
-// Unix startup owner.  loginName defaults to RECORDER_ACCOUNT; a caller can
-// pass another name, or '' for an unauthorized account, to test either branch.
+// Unix startup owner.  The account comes from exactly one place: the optional
+// loginName argument, defaulting to RECORDER_ACCOUNT.  Passing another name
+// exercises the denied branch, and passing '' stands for check_user_string()
+// finding an empty pw_name (unixmain.c:709), which it rejects before scanning
+// the option string.
 export function set_playmode(state = game, { loginName } = {}) {
     const flags = state.flags ??= {};
     const iflags = state.iflags ??= {};
@@ -82,9 +92,7 @@ export function set_playmode(state = game, { loginName } = {}) {
     sysopt.wizards ??= RECORDER_SYSTEM_OPTIONS.wizards;
     sysopt.explorers ??= RECORDER_SYSTEM_OPTIONS.explorers;
 
-    const username = String(
-        loginName ?? state.loginName ?? RECORDER_ACCOUNT,
-    );
+    const username = String(loginName ?? RECORDER_ACCOUNT);
     const authorized = (configuredUsers) => {
         const text = String(configuredUsers ?? '');
         if (text.startsWith('*')) return true;
@@ -320,11 +328,21 @@ export class NethackGame {
         // PRNG order, so it cannot be deferred to wd_message().
         set_playmode(g);
 
-        // unixmain.c overwrites the plnamelen that set_playmode() just set for
-        // wizard mode: gp.plnamelen = exact_username ? strlen(plname) : 0.
-        // exact_username comes from whoami(), which never fills plname in the
-        // recorder environment (see RECORDER_ACCOUNT), so this is always 0 and
-        // plnamesuffix() searches the whole name for a hyphen.
+        // unixmain.c:195 overwrites the plnamelen that set_playmode() just set
+        // for wizard mode: gp.plnamelen = exact_username ? strlen(plname) : 0.
+        // exact_username is whoami()'s result (unixmain.c:157), and whoami()
+        // returns TRUE only when it copies an environment name containing a
+        // hyphen into an empty plname (unixmain.c:570-585); the recorder always
+        // passes -u, which resets plnamelen to 0 anyway (unixmain.c:386-394).
+        // So the port writes the FALSE arm unconditionally.
+        //
+        // The value is currently inert rather than load-bearing: plnamelen is
+        // non-zero only where set_playmode() sets it beside plname 'wizard',
+        // and both readers use it as the start offset of a hyphen search
+        // (js/tty_startup.js and js/role_init.js), which finds none in
+        // 'wizard' from either 0 or 6. The statement is here for fidelity to
+        // unixmain.c:195, and the end-to-end assertion in
+        // scripts/runtime-foundation.test.mjs keeps it from being dropped.
         g.gp.plnamelen = 0;
 
         // C filters generic Unix usernames, prompts when necessary, then

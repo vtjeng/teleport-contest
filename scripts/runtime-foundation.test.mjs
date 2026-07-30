@@ -736,7 +736,11 @@ test('wd_message preserves denied-mode message and cleanup order', async () => {
 });
 
 test('set_playmode applies recorder authorization before new-game state', () => {
-    // No loginName means the recorder account, which sysopt.wizards lists.
+    // No loginName means RECORDER_ACCOUNT. js/jsmain.js holds that account and
+    // the sysopt.wizards list as two separate constants, and the port is
+    // correct only while the list names the account; this case pins the pair
+    // through the same predicate set_playmode() applies, so editing either one
+    // alone fails here rather than as a whole-session PRNG divergence.
     const authorized = {
         plname: 'FreshDiff',
         flags: { debug: true, explore: false },
@@ -770,6 +774,25 @@ test('set_playmode applies recorder authorization before new-game state', () => 
     assert.equal(denied.iflags.wiz_error_flag, true);
     assert.equal(denied.iflags.deferred_X, false);
     assert.equal(denied.plname, 'FreshDiff');
+
+    // '' stands for check_user_string() finding an empty pw_name, which
+    // unixmain.c:709 rejects before it scans the option string. The port
+    // reproduces that with `if (!username) return false;`, which only a
+    // nullish-coalescing default preserves: `||` would substitute
+    // RECORDER_ACCOUNT and grant wizard mode instead.
+    const nameless = {
+        plname: 'FreshDiff',
+        flags: { debug: true, explore: false },
+        iflags: {},
+        gp: {},
+    };
+    set_playmode(nameless, { loginName: '' });
+    assert.equal(nameless.wizard, false);
+    assert.equal(nameless.iflags.wiz_error_flag, true);
+    assert.equal(nameless.plname, 'FreshDiff');
+    // sysopt.explorers is '*', and check_user_string() returns TRUE on that
+    // leading '*' before it ever looks at pw_name, so explore mode still opens.
+    assert.equal(nameless.discover, true);
 });
 
 test('debug mode is authorized and diverges from explore mode', async () => {
@@ -790,6 +813,8 @@ test('debug mode is authorized and diverges from explore mode', async () => {
         return {
             inventory,
             rng: [...session.getRngLog()],
+            plname: game.plname,
+            plnamelen: game.gp.plnamelen,
             discover: game.discover,
             wizard: game.wizard,
             flags: {
@@ -824,15 +849,54 @@ test('debug mode is authorized and diverges from explore mode', async () => {
         },
     );
 
-    // dungeon.c short-circuits `!wizard && ... rn2(100)` in both
-    // place_level() and dungeon branch placement, so wizard mode skips
-    // random-number calls that explore mode makes.
-    assert.equal(debug.rng.length < explore.rng.length, true);
-    // The two runs share the startup calls that precede dungeon placement.
+    // set_playmode() renames the hero and sets plnamelen to 6 beside the new
+    // name; unixmain.c:195 then overwrites it with 0, which js/jsmain.js
+    // reproduces after its set_playmode() call. Nothing else observes the
+    // value, so this end-to-end read is the only check that the overwrite
+    // still happens and still happens second.
+    assert.equal(debug.plname, 'wizard');
+    assert.equal(debug.plnamelen, 0);
+
+    // Two `!wizard` short-circuits in dungeon.c skip a random-number call that
+    // explore mode makes: the per-dungeon chance test in
+    // init_dungeon_dungeons() (dungeon.c:1022) and the per-level chance test
+    // in init_level() (dungeon.c:572). Both draw rn2(100), and both are the
+    // only rn2(100) calls made while the dungeon description is read.
+    const isChanceDraw = (call) => String(call).startsWith('rn2(100)');
+
+    // The first call the two runs disagree on must be that first skipped
+    // draw, so it is explore's first rn2(100) and debug makes something else
+    // at the same index. A regression that lets wizard mode take the draws
+    // moves the divergence later; one that shifts any earlier startup call
+    // moves it earlier.
     const divergence = debug.rng.findIndex(
         (call, index) => call !== explore.rng[index],
     );
-    assert.equal(divergence > 0, true);
+    assert.equal(divergence, explore.rng.findIndex(isChanceDraw));
+    assert.equal(isChanceDraw(explore.rng[divergence]), true);
+    assert.equal(isChanceDraw(debug.rng[divergence]), false);
+
+    // Count the skipped draws over the window the dungeon description owns.
+    // init_dungeon() ends with init_castle_tune(), whose five `'A' + rn2(7)`
+    // draws (dungeon.c:1111-1116) are the first run of five consecutive rn2(7)
+    // calls in either log, so they mark the end of that window.
+    const castleTune = (log) => log.findIndex(
+        (call, index) => [0, 1, 2, 3, 4].every(
+            (offset) => String(log[index + offset]).startsWith('rn2(7)'),
+        ),
+    );
+    const chanceDrawsBeforeTune = (log) =>
+        log.slice(0, castleTune(log)).filter(isChanceDraw).length;
+    // dat/dungeon.lua describes 9 dungeon entries and 37 level entries, and C
+    // draws once per entry whatever the stored chance is: the comparison
+    // `chance <= rn2(100)` consumes the draw before it can reject anything.
+    assert.equal(chanceDrawsBeforeTune(explore.rng), 9 + 37);
+    // Wizard mode short-circuits every one of them.
+    assert.equal(chanceDrawsBeforeTune(debug.rng), 0);
+
+    // The wand of wishing above, not the skipped draws, is what makes the
+    // debug log the shorter of the two, so this only records the direction.
+    assert.equal(debug.rng.length < explore.rng.length, true);
 });
 
 test('runSegment shows welcome More before an unset tutorial query', async () => {
