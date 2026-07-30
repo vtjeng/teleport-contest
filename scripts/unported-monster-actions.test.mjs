@@ -41,6 +41,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     AT_BREA,
@@ -76,6 +77,7 @@ import {
     ROCK,
     SADDLE,
     TRIPE_RATION,
+    WAX_CANDLE,
 } from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import { start_timer } from '../js/timeout.js';
@@ -2181,6 +2183,53 @@ test('planning rounds cannot reach the live timer queue', async () => {
         );
     }
 });
+
+// planningState() remaps both list heads through the monster map and the
+// object map. Only the monster half was covered: a light source or a burn
+// timer keyed on a live floor object kept pointing at that object inside the
+// clone, so a planned round would read and write live state through it.
+test('the planning clone remaps a light source and a timer onto the copy',
+    async () => {
+        const target = await prepareSelectedAction();
+        target.monster.movement = 0;
+        game.u.umovement = 0;
+        game.level.regions = [];
+
+        // light.c keys an object light source on the object itself, and
+        // timeout.c's BURN_OBJECT timer holds the same object as its argument,
+        // so one lit candle on the floor exercises both maps at once.
+        const candle = floorObject(
+            target.monsterX,
+            target.heroY,
+            9403, // A live object id distinct from every other fixture's.
+            WAX_CANDLE,
+        );
+        candle.lamplit = true;
+        installObject(target, candle);
+        // Range 1 is the smallest new_light_source() accepts for an object.
+        new_light_source(candle.ox, candle.oy, 1, LS_OBJECT, candle, game);
+        // 50 turns is the same arbitrary timeout the queue-isolation test
+        // above uses; nothing here reads it.
+        start_timer(50, TIMER_OBJECT, BURN_OBJECT, candle, game);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    const copy = planned.level.objects[candle.ox][candle.oy];
+                    assert.notStrictEqual(copy, candle);
+                    assert.strictEqual(planned.gl.light_base.id, copy);
+                    assert.strictEqual(planned.gt.timer_base.arg, copy);
+                    throw new UnsupportedSimpleMonsterActionError(
+                        'after the clone check',
+                    );
+                },
+            }),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'after the clone check'
+            ),
+        );
+    });
 
 // The pickup arm calls distant_name(), splitobj() and mpickobj() from inside
 // the monster scan, so refusal classes that never used to reach the elapsed
