@@ -62,17 +62,26 @@ complete first.
 `js/fastforward.js` is gone at `263540f` and the turn-index special cases in
 `moveloop_core()` are gone at `9afade25`, so no structural replay remains.
 
-### In progress: search
+### Awaiting closure: search
 
-`detect.c:dosearch0(1)` is already ported. The explicit `s` command needs
-`mfind0()`, `unmap_invisible()`, and the `aflag == 0` branches. Five sessions
-stop here with 490 steps behind them, measured at `60bf3d0`, but each reaches
-an extended command within one or two keystrokes, so the immediate return is
-small.
+`detect.c dosearch()`, the `aflag == 0` arms of `dosearch0()`, `mfind0()` for
+`via_warning == 0`, and `display.c unmap_invisible()` are ported at `d1a71f7`.
+The goal opened at `16f22f8` and its one behavior slice closed there.
 
-This goal opened at `16f22f8` because it was the first goal queued here and the
-goal above has no startable slice. Its slices are not listed; the slice-selector
-identifies each one in turn.
+The development score rose from 398 to 433 of 7,765 screens and from 99,496 to
+99,552 matched PRNG calls, measured at `3011535` and `d1a71f7`. Five sessions
+improved and none regressed, and `seed8000-tourist-starter` became the first
+session to match completely. The estimate the goal opened with was too
+pessimistic in one direction: four of the five sessions do stop within a
+keystroke or two of the `s`, but each still gained six to eleven screens.
+
+`mfind0()`'s three discovery arms and `unmap_invisible()`'s TRUE arm are
+excluded and refuse before any draw. They need `map_invisible()`, which needs a
+canonical glyph identity the port's map memory does not carry; that belongs
+with the invisible-monster work, not here.
+
+No behavior slice remains. The goal stays listed until the correctness pass
+over its range is recorded and its holdout evaluation runs.
 
 ## Explicit future exploration work, outside the goal in progress
 
@@ -264,6 +273,43 @@ ceiling: a session that displays the spell menu under the default option loses
 that screen however faithful the port is.
 
 ### Game behavior
+
+#### a vision recalculation stops the cloned monster scan
+
+Converting a secret door that stands in the hero's current vision sets
+`vision_full_recalc`, and the cloned planning scan then refuses `visionRecalc`
+at `js/unported_monster_actions.js:618`. That refusal is deliberate and its
+comment says why: `mon.c movemon_singlemon()` runs `vision_recalc(0)` for the
+first ration-spending monster after `movemon()`'s tail sets the flag, which
+rebuilds `vision.c`'s live global buffers, and the dry run cannot reproduce
+that rebuild.
+
+The search slice met this while choosing fresh cases: 21 of 40 candidate seeds
+stopped here rather than on anything the slice owned, so
+`scripts/run-explicit-search.mjs` uses secret doors outside current vision. The
+debt is the vision subsystem's, and it will reappear in any slice that changes
+a blocking point. `js/light.js:112` and `js/light.js:132` are the other two
+writers of the flag.
+
+#### no fresh case covers the secret-corridor arm
+
+`dosearch0()`'s SCORR arm is ported and shares its shape with the SDOOR arm,
+but it has focused tests only. The search slice generated 28,000 levels without
+once placing the hero adjacent to a secret corridor, so no recorded case
+exercises it end to end. Record one when a level generator or a starting
+position that reaches an adjacent SCORR becomes available.
+
+#### the `m` prefix loses a frame
+
+C emits a screen and a cursor position for the `m` prefix and the port emits
+none. The search slice's worker reported reproducing this at seed 9300001 with
+`wait` as well as with `search`, which places it before that slice rather than
+inside it; the reproduction has not been repeated independently, so treat the
+seed as a lead rather than as recorded evidence.
+
+`js/cmd.js` has no `m` prefix handling at all, so the refusal is the port's
+general unbound-or-unadmitted path. It belongs with the prefix work that
+`hack.c lookaround()`'s corridor-widening arm also waits on.
 
 #### `blocksMove()` reads the wrong door field
 
