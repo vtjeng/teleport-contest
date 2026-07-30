@@ -14,6 +14,11 @@
             "type": "command",
             "command": "c=$(jq -r '.tool_input.command // empty'); printf '%s' \"$c\" | tr ';&|()' '\\n\\n\\n\\n\\n' | awk '/^[ \\t]*git[ \\t]+add([ \\t]|$)/{for(i=1;i<=NF;i++)if($i==\"-A\"||$i==\"--all\"||$i==\"-u\"||$i==\"--update\"||$i==\".\")f=1}END{exit f?0:1}' && printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"Bulk staging is blocked in this repository: -A, --all, -u, --update, and a bare dot. Workers, review passes, and other sessions commit to the same branch, so these can sweep in-flight edits by another agent into your commit. Stage the paths you changed by name: `git add path/one path/two`.\"}}'; exit 0",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "c=$(jq -r '.tool_input.command // empty'); printf '%s' \"$c\" | tr ';&|()' '\\n\\n\\n\\n\\n' | awk '/^[ \\t]*git[ \\t]+(checkout|restore)([ \\t]|$)/{for(i=1;i<=NF;i++)if($i==\".\"||$i==\"./\")f=1}END{exit f?0:1}' && printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"git checkout -- ., git checkout HEAD -- ., and git restore . discard every uncommitted change in the tree, including work in progress that belongs to another agent, and in a worktree they replace the nethack-c/upstream symlink with the gitlink git recorded, which empties the C source. Name the paths you mean to restore: `git checkout HEAD -- js/one.js js/two.js`. AGENTS.md, under Restore paths by name, states how to recover if one already ran.\"}}'; exit 0",
+            "timeout": 10
           }
         ]
       }
