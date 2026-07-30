@@ -4303,6 +4303,155 @@
         ]
       },
       "recordedAt": "2026-07-30T20:23:33.794Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world-effects": "06a5629b044794642e83fd6127cddc7f942680d0",
+        "monsters": "27761926cb6f41e6b236d9b27b9a7ab809c7d608"
+      },
+      "head": "bf96cda5edec310cfa12590706216ca5263af2f1",
+      "auditedRange": "06a5629b044794642e83fd6127cddc7f942680d0..bf96cda5edec310cfa12590706216ca5263af2f1",
+      "areas": [
+        "world-effects",
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the first slice of the trap goal: mintrap(), trapeffect_selector() and the monster arm of trapeffect_sqky_board(), into a new js/trap_effects.js. Five finders including performance, enabled because the planning clone gained another per-turn copy; the performance finder confirmed nothing. 22 raw findings, 21 after deduplication, 16 confirmed, 3 applied at 8de4b76, 13 deferred to ROADMAP.md, 5 rejected, none unverified, no warnings. All three production defects are the same class the pass was directed at: a refusal or check that does not precede what it guards. trapeffect_sqky_board() and seetrap() resolved their own injected owners, so those throws landed after mintrap() had written mtrapseen on the victim and every onlooker, spent rnl(5), and emitted the squeak; m_move()'s random fallback was narrower than its call graph and the resulting bare TypeError is not a class the elapsed turn converts, so it would discard a segment rather than stop it; and wake_nearto() made wake_msg() live without the coordinate prefix C's pline_mon() adds, with new_were()'s plain pline() checked against source and deliberately left alone. Of the thirteen deferred, eight are assertions that survive mutation — the sharpest being that nothing in the repository distinguishes mons_see_trap() from a no-op — one is a second spelling of the mtrapseen mask in js/shknam.js, and four are comments that misdescribe their code. Development score identical before and after the fixes at 467 of 7,765 screens, 467 cursors and 100,825 PRNG calls; scripts/run-monster-squeaky-board.mjs matches 10 segments, 47,504 calls and 2,084 screens and cursors.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2717,
+        "counts": {
+          "raw": 22,
+          "deduplicated": 21,
+          "confirmed": 16,
+          "applied": 3,
+          "deferred": 13,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 8,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "trapeffect_sqky_board() and seetrap() resolved their own injected owners, so those throws landed after mintrap() had already written mtrapseen on the victim and every onlooker, spent rnl(5), and in seetrap()'s case emitted the squeak — a refusal that does not precede the state change it guards, and raising a TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "m_move()'s random fallback was { rn2 } while its call graph now needs rnl through mintrap(), and the bare TypeError that mismatch raises is not a converted class, so it would escape runSegment() and discard the segment instead of stopping at the last matching screen.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "wake_nearto() made js/mon.js wake_msg() live, and it printed without the coordinate prefix C's pline_mon() adds at mon.c:4325, so the wake line loses its accessiblemsg prefix. new_were() at were.c:113 uses plain pline() and was deliberately left alone.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "Neither diagonal-doorway predicate's PASSES_WALLS guard is covered; removing it from either passes the suite.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "The test claiming to cover cant_squeeze_thru()'s four results never takes its passes_walls early return.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "floor_trigger()'s fourteen-case table has no direct test; removing a case leaves the suite green.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "check_in_air()'s trflags arms are unreachable from every ported caller and untested.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "Five of TRAP_NOTE_NAMES' twelve entries are pinned by neither the suite nor the fresh matrix.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "The tt === HOLE && !mindless() half of already_seen is reachable at depth one and has no test.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "No test pins mon_learns_traps() and mons_see_trap() to their position after mintrap()'s two early returns; hoisting them above the gates passes.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "Nothing in the repository distinguishes mons_see_trap() from a no-op: deleting its only call site leaves the whole suite green.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "tests"
+          },
+          {
+            "summary": "mon_learns_traps() is the port's owner of the mtrapseen mask but js/shknam.js:232 still writes the ALL_TRAPS sentinel by hand, so one C state value has two spellings.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "postmov()'s coverage list is in C's execution order except for mintrap().",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "postmov()'s header claims an unsupported refusal for vamp_shift() sequencing that exists nowhere.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "js/trap_effects.js's header states a five-owner env contract that omits unsupported and random.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "clarity"
+          },
+          {
+            "summary": "The comment replacing the deleted trap refusal says postmov() calls mintrap() after the move and only there, which is false.",
+            "trackedIn": "thirteen squeaky-board findings are deferred",
+            "category": "clarity"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "Five further claims about the trap port that the adjudicator could not confirm against source.",
+            "counterEvidence": "Each failed its source trace or diff-causality check with no reproduction recorded. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A second claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A third claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A fourth claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "A fifth claim in the same group.",
+            "counterEvidence": "Same disposition. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-07-30T22:13:55.711Z"
     }
   ]
 }
