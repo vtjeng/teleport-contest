@@ -262,6 +262,47 @@ test('postmov object selection follows consume then pickup order', () => {
     assert.equal(picked.object, dagger);
 });
 
+test('postmov object selection reports the carryable amount, not the stack',
+    () => {
+        // C ref: mon.c mpickstuff():1883-1889. carryamt is can_carry()'s
+        // result, and mpickstuff() calls splitobj() whenever it differs from
+        // obj->quan, so reporting obj->quan instead would empty a square C
+        // leaves a remainder on, print a different quantity, and drop
+        // splitobj()'s rnd(2) identity draw.
+        //
+        // A rock mole carries M1_NOHANDS (monsters.h:924) and is neither a
+        // dragon nor an engulfer, so mon.c can_carry():2013-2028 caps it at
+        // one item however large the pile. M2_COLLECT (monsters.h:925) puts a
+        // rock on its take list through likes_objs().
+        const state = makeState();
+        const mole = makeMonster(state, PM_ROCK_MOLE);
+        // Three rocks: any quantity above one exercises the nohands cap.
+        // ROCK weighs 10 (objects.h:1606), so the stack's owt is 30, under
+        // the mole's max_mon_load() and irrelevant anyway, because can_carry()
+        // returns at the cap before it reaches the weight test.
+        const rocks = placeObject(
+            state,
+            makeObject(state, ROCK, 9, 10, { quan: 3, owt: 30 }),
+        );
+
+        const selected = select_postmove_object_action(mole, 9, 10, {
+            random: {
+                rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+            },
+            state,
+        });
+
+        // ROCK's material is MINERAL, outside can_carry()'s IRON..MITHRIL
+        // window, so the metallivorous arm above passes the pile over and the
+        // mole reaches the pickup loop.
+        assert.equal(selected.kind, 'pick up');
+        assert.equal(selected.object, rocks);
+        assert.equal(selected.carryamt, 1);
+        // The selector reads the stack and must not disturb it; mpickstuff()
+        // is what splits.
+        assert.equal(rocks.quan, 3);
+    });
+
 test('postmov object selection preserves inert object and shop draws', () => {
     const state = makeState();
     const rat = makeMonster(state, PM_GIANT_RAT);

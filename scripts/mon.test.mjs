@@ -46,6 +46,7 @@ import {
     M2_STRONG,
     MZ_HUGE,
     PM_FLESH_GOLEM,
+    PM_DWARF,
     PM_GNOME,
     PM_HUMAN_WEREWOLF,
     PM_VAMPIRE,
@@ -1441,7 +1442,7 @@ const PICKUP_Y = 5; // An ordinary room coordinate away from the map edges.
 // The effect half runs the real splitobj(), obj_extract_self(), mpickobj()
 // and doname(), so it needs the object and monster catalogs, a map, and a
 // hero position from which the monster's square is both visible and near.
-function pickupState() {
+function pickupState(pmidx = PM_GNOME) {
     const state = {
         context: {
             achieveo: { mines_prize_oid: 0, soko_prize_oid: 0 },
@@ -1468,10 +1469,13 @@ function pickupState() {
     init_objects(state, () => 0);
     monst_globals_init(state);
     state.viz_array[PICKUP_Y][PICKUP_X] = IN_SIGHT;
-    // A gnome has hands and is M2_GREEDY and M2_COLLECT, which is what puts
-    // it on mpickstuff()'s path for both gold and ordinary goods.
+    // A gnome has hands and is M2_COLLECT (monsters.h:1686), so likes_objs()
+    // puts weapons, armor, gems and food on its take list. It is not
+    // M2_GREEDY, and gold is COIN_CLASS, which likes_objs() does not cover, so
+    // the gold cases below use a dwarf instead: M2_GREEDY | M2_COLLECT
+    // (monsters.h:491) and hands.
     const monster = {
-        data: state.mons[PM_GNOME],
+        data: state.mons[pmidx],
         mcanmove: true,
         minvent: null,
         misc_worn_check: 0,
@@ -1553,7 +1557,7 @@ test('mpickstuff names the stack left behind, not the portion taken',
         // otmp3 and leaves the remainder in otmp, and mpickstuff() hands otmp
         // to distant_name(). A four-coin pile from which one coin is taken
         // therefore announces the three that stay on the floor.
-        const { state, monster } = pickupState();
+        const { state, monster } = pickupState(PM_DWARF);
         const gold = pickupStack(state, GOLD_PIECE, 4);
         const messages = [];
 
@@ -1564,7 +1568,7 @@ test('mpickstuff names the stack left behind, not the portion taken',
             state,
         });
 
-        assert.deepEqual(messages, ['The gnome picks up 3 gold pieces.']);
+        assert.deepEqual(messages, ['The dwarf picks up 3 gold pieces.']);
         assert.equal(state.level.objects[PICKUP_X][PICKUP_Y], gold);
         assert.equal(gold.quan, 3);
         assert.equal(gold.where, OBJ_FLOOR);
@@ -1576,7 +1580,7 @@ test('mpickstuff names the stack left behind, not the portion taken',
     });
 
 test('mpickstuff merges into a stack the monster already carries', async () => {
-    const { state, monster } = pickupState();
+    const { state, monster } = pickupState(PM_DWARF);
     const carried = newObject({
         corpsenm: NON_PM,
         o_id: 102, // A second live object id, distinct from the floor pile.
@@ -1632,11 +1636,12 @@ test('mpickstuff names nothing on a square the hero cannot see', async () => {
     state.viz_array[PICKUP_Y][PICKUP_X] = 0;
     const potion = pickupStack(state, POT_HEALING, 1);
     const messages = [];
+    const redraws = [];
 
     await mpickstuff(monster, potion, potion.quan, {
         message: async (text) => { messages.push(text); },
         random: pickupRandom(),
-        redraw: () => {},
+        redraw: (x, y) => { redraws.push([x, y]); },
         state,
     });
 
@@ -1645,6 +1650,11 @@ test('mpickstuff names nothing on a square the hero cannot see', async () => {
     assert.equal(potion.dknown, false);
     assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
     assert.equal(monster.minvent, potion);
+    // C ref: mon.c:1891-1905. Only the naming and the line sit inside
+    // `if (cansee(mtmp->mx, mtmp->my))`; newsym() is outside it and runs
+    // whatever the hero can see, because the square's remembered glyph has to
+    // lose the object the monster just removed.
+    assert.deepEqual(redraws, [[PICKUP_X, PICKUP_Y]]);
 });
 
 test('mpickstuff demands the whole random set only when it splits', async () => {
@@ -1659,7 +1669,7 @@ test('mpickstuff demands the whole random set only when it splits', async () => 
     });
     assert.equal(whole.monster.minvent, ration);
 
-    const split = pickupState();
+    const split = pickupState(PM_DWARF);
     const gold = pickupStack(split.state, GOLD_PIECE, 4);
     await assert.rejects(
         mpickstuff(split.monster, gold, 1, {

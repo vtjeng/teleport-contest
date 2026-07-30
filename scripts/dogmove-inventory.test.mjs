@@ -505,6 +505,7 @@ test('dog_invent names nothing on a square the hero cannot see', async () => {
     state.viz_array[PET_Y][PET_X] = 0;
     const potion = floorStack(state, POT_HEALING, 1);
     const messages = [];
+    const redraws = [];
 
     await dog_invent(
         monster,
@@ -512,6 +513,7 @@ test('dog_invent names nothing on a square the hero cannot see', async () => {
         HERO_DISTANCE,
         pickupEnv(state, {
             message: async (text) => { messages.push(text); },
+            redraw: (x, y) => { redraws.push([x, y]); },
             random: pickupRandom([], [PET_APPORT + 2, 0, 0]),
         }),
     );
@@ -521,6 +523,11 @@ test('dog_invent names nothing on a square the hero cannot see', async () => {
     assert.equal(potion.dknown, false);
     assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
     assert.equal(monster.minvent, potion);
+    // C ref: dogmove.c:464. Only the naming and the line sit inside
+    // `if (cansee(omx, omy))`; newsym() is outside it and runs whatever the
+    // hero can see, because the square's remembered glyph has to lose the
+    // object the pet just removed.
+    assert.deepEqual(redraws, [[PET_X, PET_Y]]);
 });
 
 test('dog_invent hands an AT_WEAP carrier to its weapon owner', async () => {

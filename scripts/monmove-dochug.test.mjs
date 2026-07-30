@@ -15,7 +15,7 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { dochug } from '../js/monmove.js';
-import { AT_CLAW, AT_WEAP } from '../js/monsters.js';
+import { AT_CLAW, AT_NONE, AT_WEAP } from '../js/monsters.js';
 
 function makeState() {
     const uprops = [];
@@ -294,6 +294,86 @@ test('dochug lets a cornered scared hostile attack anyway', async () => {
         'move',
         'range',
         'attack',
+    ]);
+});
+
+test('dochug leaves an attackless hostile beside the hero alone', async () => {
+    // C ref: monmove.c:968, the `&& !noattacks(mdat)` term of the
+    // standard-attack gate. An acid blob's whole attack list is
+    // ATTK(AT_NONE, AD_ACID, 1, 8) (monsters.h:139), a passive, so
+    // mondata.c noattacks() answers TRUE and mattacku() never runs even
+    // though the blob is hostile and adjacent. AT_NONE, not a shorter list,
+    // is what C stores: NO_ATTK is itself an AT_NONE entry.
+    //
+    // The fixture omits the blob's real M2_WANDER bit, which would spend
+    // dochug()'s rn2(4) movement draw before the gate and move the test's
+    // subject off the arm it pins.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_NONE }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    const env = {
+        ...baseEnv(state, events),
+        distanceAndFear: () => {
+            events.push('range');
+            return { inrange: true, nearby: true, scared: false };
+        },
+        moveMonster: () => assert.fail('nearby hostile does not move'),
+        attackHero: () => assert.fail('an attackless monster does not attack'),
+    };
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'items',
+    ]);
+});
+
+test('dochug leaves a cornered hostile out of range alone', async () => {
+    // C ref: monmove.c:918-920. MMOVE_NOMOVES sets panicattk only when the
+    // recalculated scared is true. Out of BOLT_LIM range both gate terms are
+    // then false, and that is the only arrangement that tells the condition
+    // from an unconditional panicattk: wherever inrange holds and scared does
+    // not, `inrange && !scared` already admits the attack by itself.
+    const state = makeState();
+    const events = [];
+    const monster = makeMonster({
+        data: {
+            mattk: [{ aatyp: AT_CLAW }],
+            mflags2: 0,
+            mflags3: 0,
+        },
+    });
+    const env = {
+        ...baseEnv(state, events),
+        distanceAndFear: () => {
+            events.push('range');
+            return { inrange: false, nearby: false, scared: false };
+        },
+        moveMonster: () => {
+            events.push('move');
+            return MMOVE_NOMOVES;
+        },
+        attackHero: () => assert.fail('an out-of-range monster does not attack'),
+    };
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(events, [
+        'preflight',
+        'wipe',
+        'apparxy',
+        'range',
+        'items',
+        'move',
+        'range',
     ]);
 });
 

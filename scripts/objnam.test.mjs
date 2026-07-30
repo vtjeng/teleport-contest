@@ -878,6 +878,29 @@ test('distant_name treats an unseen square as distant however close', () => {
     assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
 });
 
+test('distant_name counts a visible artifact as near at any distance', () => {
+    // C ref: objnam.c:388, the `obj->oartifact ||` disjunct. Its purpose is
+    // the side effect the comment above it names: reaching xname()'s
+    // find_artifact() call, which is what marks the artifact as found.
+    // dist2 9 is the same distance the suppression case above uses, so only
+    // the disjunct separates the two.
+    const state = distantNamingState(10, 5);
+    state.artiexist[ART_GIANTSLAYER].exists = 1;
+    const artifact = objectOf(state, LONG_SWORD, {
+        oartifact: ART_GIANTSLAYER,
+        oextra: { oname: 'Giantslayer' },
+        ox: 10,
+        oy: 5,
+        where: OBJ_FLOOR,
+    });
+    state.u.ux = 7;
+
+    distant_name(artifact, donameFresh, state);
+    assert.equal(artifact.dknown, true);
+    assert.equal(state.artiexist[ART_GIANTSLAYER].found, 1);
+    assert.equal(state.gd?.distantname ?? 0, 0);
+});
+
 test('distant_name widens the near square with the hero xray range', () => {
     // xray_range 3 raises neardist to 3*3*2 - 3 == 15, which admits dist2 9.
     const state = distantNamingState(10, 5);
