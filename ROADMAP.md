@@ -314,6 +314,31 @@ satisfied by the two reference restores, so deleting the per-slot branches
 leaves it green. Deferred to a `/simplify-codebase` pass, which is what
 `.agents/review.md` routes dead declarations to.
 
+#### three arms of the door message switch are dormant
+
+`lock.c doopen_indir()`'s `!(doormask & D_CLOSED)` switch has four arms, and a
+walk can reach only the locked one. `monmove.c closed_door()` answers TRUE for
+`D_LOCKED | D_CLOSED` alone, so the broken, doorless and already-open arms
+arrive solely through `#open`, which is not ported.
+
+The switch is one C statement and was translated whole, which `AGENTS.md`
+prefers to splitting a source construct. The consequence is three arms that
+write output and are reached by no fresh recording; `scripts/lock.test.mjs`
+pins them and is their whole evidence. Record a differential for each when
+`#open` lands.
+
+#### an explicit `autounlock` setting is refused
+
+`flags.autounlock` is unmodeled. `options.c:1074` initializes it to
+`AUTOUNLOCK_APPLY_KEY`, and `js/options.js` keeps an explicit setting as raw
+text rather than parsing `optfn_autounlock`. The closed-door seam therefore
+refuses on any explicit setting.
+
+That is wider than it needs to be in one direction: C treats `!autounlock` as
+the default, so a session setting it would run identically and the port stops
+instead. Porting the parser is the fix, and it belongs with `pick_lock()` and
+`autokey()`, which are what the flag selects between.
+
 #### a vision recalculation stops the cloned monster scan
 
 Converting a secret door that stands in the hero's current vision sets
