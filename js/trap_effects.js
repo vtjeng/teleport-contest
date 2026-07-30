@@ -1,6 +1,7 @@
 // Trap triggering for monsters.
 // C ref: trap.c -- floor_trigger(), check_in_air(), seetrap(), trapnote(),
-// trapeffect_sqky_board(), trapeffect_selector(), mintrap().
+// t_missile(), thitm(), trapeffect_sqky_board(), trapeffect_dart_trap(),
+// trapeffect_selector(), mintrap().
 //
 // These are trap.c functions and belong beside js/trap.js's maketrap() group
 // by file name. They are split out because they reach the display, naming,
@@ -36,7 +37,9 @@ import {
     TELEP_TRAP,
     TOOKPLUNGE,
     TRAPDOOR,
+    Trap_Caught_Mon,
     Trap_Effect_Finished,
+    Trap_Killed_Mon,
     VIASITTING,
     VIBRATING_SQUARE,
     WEB,
@@ -47,6 +50,7 @@ import {
 import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
+import { stackobj } from './invent.js';
 import { wake_nearto } from './mon.js';
 import {
     is_floater,
@@ -56,10 +60,14 @@ import {
     mon_learns_traps,
     mons_see_trap,
 } from './mondata.js';
-import { just_an } from './objnam.js';
+import { mksobj, place_object, weight } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { DART } from './objects.js';
+import { donameFresh, just_an } from './objnam.js';
 import { canSeeMonster, messageAt } from './startup_a11y.js';
 import { t_at } from './trap.js';
-import { clear_path, couldsee } from './vision.js';
+import { cansee, clear_path, couldsee } from './vision.js';
+import { find_mac } from './worn.js';
 
 // Five owners arrive through the caller's env rather than through an import.
 // `mInAir` is mon.c m_in_air() and `youHear`/`heroDeaf` are pline.c You_hear()
@@ -211,12 +219,130 @@ async function trapeffect_sqky_board(monster, trap, _trflags, env) {
     return Trap_Effect_Finished;
 }
 
+// C ref: trap.c t_missile(). Make a single arrow/dart/rock for a trap to
+// shoot or drop. mksobj() draws the weapon-class initialization sequence --
+// rn1(6, 6) for the multigen quantity, rn2(11) or rn2(10) for the enchantment
+// and blessing, and rn2(100) for a poisoned edge -- and every draw survives
+// the overrides below, which only change the fields C overwrites.
+function t_missile(otyp, trap, env) {
+    const otmp = mksobj(otyp, true, false, env.objectEnv);
+
+    otmp.quan = 1;
+    otmp.owt = weight(otmp, env.objectEnv);
+    // C assigns 0 to an unsigned bitfield; js/obj.js mksobj_init() keeps
+    // opoisoned as a boolean, and this is the same value.
+    otmp.opoisoned = false;
+    otmp.ox = trap.tx;
+    otmp.oy = trap.ty;
+    return otmp;
+}
+
+// C ref: trap.c thitm() (6709-6773), the `!strike` arm. The `strike` arm needs
+// weapon.c dmgval() for the damage roll and mon.c monkilled() for a lethal
+// one, and neither is ported, so it stops the scan after the to-hit roll and
+// before the message, the damage and the missile's disposal. The `d_override`
+// and `nocorpse` parameters are C's; only trapeffect_dart_trap() calls this
+// here, and it passes 0 and FALSE, so `nocorpse` -- read only by the refused
+// arm's monkilled() call -- goes unused.
+async function thitm(tlev, mon, obj, d_override, _nocorpse, env) {
+    const { state } = env;
+    const random = env.random;
+    const message = requireTrapOperation(env, 'message');
+    const unsupported = requireTrapOperation(env, 'unsupported');
+
+    let strike;
+    if (d_override)
+        strike = 1;
+    else if (obj)
+        strike = find_mac(mon, state) + tlev + obj.spe <= random.rnd(20);
+    else
+        strike = find_mac(mon, state) + tlev <= random.rnd(20);
+
+    /* Actually more accurate than thitu, which doesn't take
+     * obj->spe into account.
+     */
+    if (strike) unsupported('a monster hit by a trap');
+
+    if (obj && cansee(mon.mx, mon.my, state)) {
+        // doname() runs for its discovery side effects as well as its text:
+        // xname() calls observe_object(), which sets dknown and enters the
+        // type in the hero's discoveries. C names the missile while it is
+        // still free, before place_object() puts it on the floor.
+        await message(
+            messageAt(
+                `${capitalizedMonsterName(mon, state)} is almost hit by`
+                + ` ${donameFresh(obj, state)}!`,
+                mon.mx,
+                mon.my,
+                state,
+            ),
+            state,
+            env,
+        );
+    }
+    // C ref: trap.c:6766-6770. A missed missile lands where the target
+    // stands; only a missile that struck is deallocated, which the refusal
+    // above owns. No newsym() follows in C.
+    if (obj) {
+        place_object(obj, mon.mx, mon.my, env.objectEnv);
+        stackobj(obj, env.objectEnv);
+    }
+    return false; /* trapkilled */
+}
+
+// C ref: trap.c trapeffect_dart_trap() (1250-1321), monster arm (1294-1318).
+// The `mtmp == &gy.youmonst` arm reaches the hero only through dotrap(), which
+// is not ported. C's `see_it` is read only by the misfire arm below, which
+// stops the scan, so it is computed there rather than at the top.
+async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
+    const { state } = env;
+    const random = env.random;
+    const unsupported = requireTrapOperation(env, 'unsupported');
+    requireTrapOperation(env, 'message');
+    requireTrapOperation(env, 'redraw');
+    // mksobj() and next_ident() need the whole source random set, and
+    // js/obj.js raises a bare TypeError for a missing one. Proven here, before
+    // the misfire draw and before trap->once is written, so a narrower
+    // injection cannot spend a draw and then fail with a class
+    // ELAPSED_TURN_PLANNING_REFUSALS does not convert.
+    for (const name of ['rn1', 'rn2', 'rnd', 'rne'])
+        if (typeof random?.[name] !== 'function')
+            throw new TypeError('a dart trap requires rn1, rn2, rnd and rne');
+    const objectEnv = objectGenerationEnv({ state, random });
+
+    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+
+    if (trap.once && trap.tseen && !random.rn2(15)) {
+        // The trap wears out: C writes the "nothing happens" line, calls
+        // deltrap() and repaints. deltrap() is not ported, and dropping the
+        // trap from the level list is the one write in this arm no later
+        // owner can reconstruct.
+        unsupported('a dart trap that wears out');
+    }
+    // C writes 1 into a bitfield; js/trap.js resetTrap() keeps once as a
+    // boolean, and this is the same value in one representation.
+    trap.once = true;
+    const otmp = t_missile(DART, trap, { ...env, objectEnv });
+    if (!random.rn2(6)) otmp.opoisoned = true;
+    if (inSight) seetrap(trap, env);
+    const trapkilled = await thitm(
+        7,
+        mtmp,
+        otmp,
+        0,
+        false,
+        { ...env, objectEnv },
+    );
+
+    return trapkilled ? Trap_Killed_Mon
+        : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+}
+
 // The trap types whose trapeffect_*() body has no monster arm in the port yet.
 // C dispatches all of them; each stops the monster scan before the effect
 // changes state, draws, or writes a message.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
-    DART_TRAP,
     ROCKTRAP,
     BEAR_TRAP,
     SLP_GAS_TRAP,
@@ -247,6 +373,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
     const unsupported = requireTrapOperation(env, 'unsupported');
     if (trap.ttyp === SQKY_BOARD)
         return trapeffect_sqky_board(monster, trap, trflags, env);
+    if (trap.ttyp === DART_TRAP)
+        return trapeffect_dart_trap(monster, trap, trflags, env);
     if (UNPORTED_TRAP_EFFECTS.has(trap.ttyp)) unsupported('trap activation');
     throw new Error(`trapeffect_selector: strange trap type ${trap.ttyp}`);
 }

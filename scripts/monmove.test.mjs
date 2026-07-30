@@ -36,6 +36,7 @@ import {
     D_CLOSED,
     D_ISOPEN,
     D_LOCKED,
+    DART_TRAP,
     D_TRAPPED,
     DUST,
     FAINTED,
@@ -155,6 +156,7 @@ import {
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
+import { init_objects } from '../js/o_init.js';
 import {
     COIN_CLASS,
     AXE,
@@ -162,6 +164,7 @@ import {
     CLOVE_OF_GARLIC,
     CREDIT_CARD,
     DAGGER,
+    DART,
     GOLD_DRAGON_SCALE_MAIL,
     LONG_SWORD,
     LOCK_PICK,
@@ -809,6 +812,192 @@ test('postmov lets a monster that knows the board escape on rn2(4)',
             assert.deepEqual(bounds, [4], `roll ${roll}`);
             assert.equal(messages.length, squeaks ? 1 : 0, `roll ${roll}`);
         }
+    });
+
+// C ref: trap.c trapeffect_dart_trap() (1294-1318) into thitm() (6709-6773).
+// The whole monster arm, from the misfire gate through the missed dart landing
+// on the floor. The rolls below select that path from the C source: rnd(20)
+// returns 1, which cannot reach the giant rat's find_mac() of 7 plus thitm()'s
+// tlev of 7, and every rn2() returns 1, which fails `!rn2(11)`, `!rn2(10)`,
+// `!rn2(100)` and `!rn2(80)` in mksobj_init() and `!rn2(6)` in the dart arm, so
+// the dart is plain and uneroded. rn1(6, 6) is the multigen quantity
+// t_missile() overwrites with 1.
+function dartTrapState(overrides = {}) {
+    const { locations, state } = makeState();
+    // o_init.c init_objects() shuffles descriptions; a zero random keeps the
+    // catalog in its source order, which is what the pinned names below read.
+    init_objects(state, () => 0);
+    state.flags = { acoustics: true, verbose: true };
+    // mkobj.c next_ident() reads and advances this counter.
+    state.context = { ident: 1 };
+    state.level.objlist = null;
+    state.level.traps = [{
+        tx: 5,
+        ty: 4,
+        ttyp: DART_TRAP,
+        tseen: false,
+        once: false,
+        madeby_u: false,
+        ...overrides,
+    }];
+    // canseemon() rejects a monster with no hit points, so the in-sight arm
+    // needs a live one.
+    const monster = ordinaryMonster(state, { mx: 5, my: 4, mhp: 3 });
+    state.level.monlist = monster;
+    state.level.monsters[5][4] = monster;
+    return { locations, state, monster };
+}
+
+function plainMissRandom(overrides = {}) {
+    return {
+        rn1: (_bound, offset) => offset,
+        rn2: () => 1,
+        rnd: () => 1,
+        rne: () => 1,
+        rnl: () => 1,
+        ...overrides,
+    };
+}
+
+test('postmov shoots a dart at a monster the hero watches and misses',
+    async () => {
+        const { state, monster } = dartTrapState();
+        seeSquare(state, 5, 4);
+        const { env, messages, redraws } = postmovEnv(state, {
+            random: plainMissRandom(),
+            unsupported: (refusal) => { throw new Error(refusal); },
+        });
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+        assert.deepEqual(
+            messages,
+            ['The giant rat is almost hit by a dart!'],
+        );
+        // trap.c:1308. The trap remembers that it has fired, which is what
+        // arms the misfire gate on the next monster to step on it.
+        assert.equal(state.level.traps[0].once, true);
+        // seetrap() runs for an in-sight victim and repaints the trap square
+        // between the two newsym() calls postmov() brackets the block with.
+        assert.equal(state.level.traps[0].tseen, true);
+        assert.deepEqual(redraws, [[4, 4], [5, 4], [5, 4]]);
+        // trap.c:6766-6768. A missed missile is placed and stacked where the
+        // target stands, with the quantity and coordinates t_missile() set.
+        const dart = state.level.objects[5][4];
+        assert.equal(dart.otyp, DART);
+        assert.equal(dart.quan, 1);
+        assert.equal(dart.ox, 5);
+        assert.equal(dart.oy, 4);
+        assert.equal(dart.opoisoned, false);
+        assert.equal(state.level.objlist, dart);
+        // mondata.c mon_learns_traps(): the victim remembers the type.
+        assert.equal(monster.mtrapseen, 1 << (DART_TRAP - 1));
+    });
+
+// C ref: trap.c:6732-6734. The line is the only part of the arm that cansee()
+// gates; the dart still lands, and seetrap() still does not run, because
+// canseemon() is false as well.
+test('postmov drops the dart silently for a monster out of sight', async () => {
+    const { state, monster } = dartTrapState();
+    const { env, messages, redraws } = postmovEnv(state, {
+        random: plainMissRandom(),
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+    assert.deepEqual(messages, []);
+    assert.equal(state.level.traps[0].once, true);
+    assert.equal(state.level.traps[0].tseen, false);
+    assert.deepEqual(redraws, [[4, 4], [5, 4]]);
+    assert.equal(state.level.objects[5][4].otyp, DART);
+});
+
+// C ref: trap.c:1310. The dart arm's own rn2(6) poisons the missile, which
+// doname() reports; mksobj_init()'s rn2(100) is a separate roll and stays
+// unpoisoned here.
+test('postmov names a poisoned dart when the trap arm rolls zero', async () => {
+    const { state, monster } = dartTrapState();
+    seeSquare(state, 5, 4);
+    const { env, messages } = postmovEnv(state, {
+        // Only the bound-6 draw is the dart arm's poison roll; every other
+        // rn2() in the sequence keeps the plain path above.
+        random: plainMissRandom({ rn2: (bound) => (bound === 6 ? 0 : 1) }),
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+    assert.deepEqual(
+        messages,
+        ['The giant rat is almost hit by a poisoned dart!'],
+    );
+    assert.equal(state.level.objects[5][4].opoisoned, true);
+});
+
+// C ref: trap.c:6731-6764. A dart that strikes needs weapon.c dmgval() and
+// mon.c monkilled(); the refusal comes after the to-hit roll, which C makes
+// either way, and before the message and the damage.
+test('postmov refuses a dart that hits its target', async () => {
+    const { state, monster } = dartTrapState();
+    seeSquare(state, 5, 4);
+    const { env, messages } = postmovEnv(state, {
+        // find_mac() is 7 for a giant rat and thitm()'s tlev is 7, so 20 is
+        // the smallest rnd(20) that strikes.
+        random: plainMissRandom({ rnd: (bound) => (bound === 20 ? 20 : 1) }),
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await assert.rejects(
+        postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+        (error) => error.message === 'a monster hit by a trap',
+    );
+    assert.deepEqual(messages, []);
+    assert.equal(state.level.objects[5][4], null);
+});
+
+// C ref: trap.c:1299-1307. A trap that has already fired under a hero who has
+// seen it wears out on one roll in fifteen, which needs deltrap().
+test('postmov refuses a dart trap that wears out', async () => {
+    const { state, monster } = dartTrapState({ once: true, tseen: true });
+    seeSquare(state, 5, 4);
+    const bounds = [];
+    const { env, messages } = postmovEnv(state, {
+        random: plainMissRandom({
+            rn2: (bound) => { bounds.push(bound); return 0; },
+        }),
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await assert.rejects(
+        postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+        (error) => error.message === 'a dart trap that wears out',
+    );
+    assert.deepEqual(bounds, [15]);
+    assert.deepEqual(messages, []);
+});
+
+// The sibling: the same gate on a nonzero roll spends the draw and continues
+// into the shot.
+test('postmov fires an already-seen dart trap that survives its roll',
+    async () => {
+        const { state, monster } = dartTrapState({ once: true, tseen: true });
+        const bounds = [];
+        const { env } = postmovEnv(state, {
+            random: plainMissRandom({
+                rn2: (bound) => { bounds.push(bound); return 1; },
+            }),
+            unsupported: (refusal) => { throw new Error(refusal); },
+        });
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+        // The bound-15 misfire roll comes first, then mksobj_init()'s
+        // enchantment, curse, poison and erosion rolls, then the dart arm's
+        // own rn2(6).
+        assert.deepEqual(bounds.slice(0, 2), [15, 11]);
+        assert.equal(bounds.at(-1), 6);
+        assert.equal(state.level.objects[5][4].otyp, DART);
     });
 
 test('postmov refuses a move that ends on iron bars', async () => {
