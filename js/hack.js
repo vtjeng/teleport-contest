@@ -3,6 +3,7 @@
 import {
     ACCESSIBLE,
     A_CON,
+    A_DEX,
     A_STR,
     BLINDED,
     CONFUSION,
@@ -54,7 +55,7 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     isok,
 } from './const.js';
-import { acurrstr, effective_attribute } from './attrib.js';
+import { acurrstr, effective_attribute, exercise } from './attrib.js';
 import {
     classify_terrain,
     feel_location,
@@ -438,12 +439,22 @@ function doorless_door(location) {
         && (doorMask(location) & ~(D_NODOOR | D_BROKEN)) === 0;
 }
 
-// This seam owns the one route through hack.c test_move()'s closed-door arm
-// (1074-1137) and lock.c doopen_indir() (780-923) that js/lock.js ports: a
-// walking hero in ordinary form, with `autoopen` set, pulling at a plain
-// D_CLOSED door. Every other state those two functions branch on stops here,
-// named for the C condition that diverges. Both the command admission seam and
-// test_move() call it, as they do requireSimpleHeroDestination().
+// C ref: hack.c:1097, the autoopen test. TRUE where test_move() falls through
+// to the bump arm and its "That door is closed." sibling instead of pulling at
+// the door. Only the two terms this port admits are here; the three it refuses
+// are named in requireAutoopenClosedDoor(), which rejects them before any
+// caller asks this.
+function autoopenSuppressed(state, run) {
+    return !state.flags?.autoopen || Boolean(run);
+}
+
+// This seam owns the two routes through hack.c test_move()'s closed-door arm
+// (1074-1137) that the port covers: a walking hero in ordinary form with
+// `autoopen` set, pulling at a door lock.c doopen_indir() (780-923) can answer
+// for, and the same hero with the pull suppressed, who bumps into the door or
+// is told it is closed. Every other state those two functions branch on stops
+// here, named for the C condition that diverges. Both the command admission
+// seam and test_move() call it, as they do requireSimpleHeroDestination().
 // `run` is a parameter rather than a read of `state.context.run` because the
 // admission seam runs before `executeMovement()` commits the intent: at
 // `js/cmd.js` the preflight is called first and `state.context.run = run` only
@@ -452,8 +463,15 @@ function doorless_door(location) {
 function requireAutoopenClosedDoor(x, y, state, run) {
     const data = state.youmonst?.data;
     const u = state.u;
-    // hack.c:1076 feels the square before the branch, and feel_newsym() at
-    // lock.c:914 takes its blind arm. No recorded case reaches either.
+    // hack.c:1076 feels the square before the branch, feel_newsym() at
+    // lock.c:914 takes its blind arm, and Blind is the first of the four
+    // terms hack.c:1120 gates the bump on. All three stay refused. Blindness
+    // cannot decide this arm on its own: reaching the bump needs the autoopen
+    // test to have failed already, and the gate's other three terms cover it
+    // without blindness, so nothing here is unreachable for want of it. Its
+    // only start-of-game source is optlist.h:211's `permablind`, which sets
+    // u.uroleplay.blind at u_init.c:1027 and changes what every square of the
+    // level draws from turn one, well outside this arm.
     if (heroIsBlind(state)) {
         throw new UnsupportedHeroMoveBoundaryError('blind door opening');
     }
@@ -469,20 +487,48 @@ function requireAutoopenClosedDoor(x, y, state, run) {
             'door bypassed rather than opened',
         );
     }
-    // hack.c:1097. A failed autoopen test takes the orthogonal bump arm or
-    // "That door is closed.", neither of which is ported.
-    if (!state.flags?.autoopen
-        || run
-        || propertyIntrinsic(state, CONFUSION)
-        || propertyIntrinsic(state, STUNNED)
-        || propertyPresent(state, FUMBLING)) {
-        throw new UnsupportedHeroMoveBoundaryError('autoopen suppressed');
+    // hack.c:1097's three remaining suppression terms. Each of them lands in
+    // the same bump arm that `!flags.autoopen` and a nonzero svc.context.run
+    // reach, but the hero carrying one diverges before test_move() is called
+    // at all: domove_core() runs impaired_movement() (hack.c:2425) first,
+    // which rerolls the step through confdir() for a stunned or confused hero
+    // and draws u_maybe_impaired()'s rn2(5) for the confused one. Neither is
+    // ported. Fumbling joins them because nothing in this port creates it:
+    // `grep -rn FUMBLING js/` finds readers only, so admitting it would port a
+    // branch against a state the game cannot reach.
+    if (propertyIntrinsic(state, CONFUSION)
+        || propertyIntrinsic(state, STUNNED)) {
+        throw new UnsupportedHeroMoveBoundaryError('impaired movement');
     }
-    // lock.c:790 nohands(), :815 the u.utrap pit refusal, :826
-    // stumble_on_door_mimic(), and :898 verysmall(). u.usteed reaches both
-    // hack.c:1101's "can't lead" line and lock.c:884's kick guard.
-    if (nohands(data) || verysmall(data) || u.utrap || u.usteed
-        || m_at(x, y, state)) {
+    if (propertyPresent(state, FUMBLING)) {
+        throw new UnsupportedHeroMoveBoundaryError('fumbling movement');
+    }
+    // hack.c:1101's "You can't lead <steed> through that closed door." needs
+    // y_monnam(), and lock.c:884's kick guard reads u.usteed as well, so a
+    // mounted hero diverges whichever arm the autoopen test picks.
+    if (u.usteed) {
+        throw new UnsupportedHeroMoveBoundaryError('closed door on a steed');
+    }
+    // domove_core() reaches domove_bump_mon() and domove_attackmon_at()
+    // (2786-2796) before test_move(), and this port's domove() calls
+    // test_move() first, so a monster standing on the closed door would take
+    // the door arm here where C attacks it. lock.c:826
+    // stumble_on_door_mimic() is the same square seen from doopen_indir().
+    if (m_at(x, y, state)) {
+        throw new UnsupportedHeroMoveBoundaryError('monster on a closed door');
+    }
+    // A held hero never gets as far as test_move(): domove_core():2830 hands
+    // the step to trapmove() and returns unless it escapes. lock.c:815 refuses
+    // the pull for the same hero from the other side.
+    if (u.utrap) {
+        throw new UnsupportedHeroMoveBoundaryError('held hero movement');
+    }
+    // hack.c:1097. The remaining refusals belong to doopen_indir(), which only
+    // the pull reaches; the bump arm and its "That door is closed." sibling
+    // leave the door alone, so none of them applies there.
+    if (autoopenSuppressed(state, run)) return;
+    // lock.c:790 nohands() and :898 verysmall().
+    if (nohands(data) || verysmall(data)) {
         throw new UnsupportedHeroMoveBoundaryError('door opening interrupted');
     }
     // lock.c:826. is_drawbridge_wall() makes the door a portcullis and diverts
@@ -647,11 +693,22 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
     }
 }
 
-// C ref: hack.c test_move(). Two of its branches are ported: the
+// Each pline() test_move() reaches is injected rather than imported, so a test
+// can read the line without a terminal. Resolving through one helper turns a
+// missing or misspelled operation into a failure instead of a silent no-op.
+function requiredMessageOperation(env, arm) {
+    const message = env.message;
+    if (typeof message !== 'function')
+        throw new TypeError(`${arm} requires a message operation`);
+    return message;
+}
+
+// C ref: hack.c test_move(). Three of its branches are ported: the
 // physical-obstacle refusal for ordinary wall and rock, which consumes no time
-// or randomness, and the IS_DOOR/closed_door() arm's autoopen route into
-// lock.c doopen_indir(). Its remaining terrain and ability branches, including
-// both diagonal doorway rules, remain at the command admission boundary.
+// or randomness, the IS_DOOR/closed_door() arm's autoopen route into lock.c
+// doopen_indir(), and the bump arm that a suppressed autoopen falls into. Its
+// remaining terrain and ability branches, including both diagonal doorway
+// rules, remain at the command admission boundary.
 export async function test_move(
     ux,
     uy,
@@ -674,12 +731,7 @@ export async function test_move(
             const symbol = location.typ === STONE
                 ? S_stone : wall_angle(location);
             const description = symbol === S_stone ? 'solid stone' : 'a wall';
-            const message = env.message;
-            if (typeof message !== 'function') {
-                throw new TypeError(
-                    'wall refusal requires a message operation',
-                );
-            }
+            const message = requiredMessageOperation(env, 'wall refusal');
             await message(
                 messageAt(`It's ${description}.`, x, y, state),
                 state,
@@ -689,17 +741,55 @@ export async function test_move(
     }
 
     if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
-        requireAutoopenClosedDoor(x, y, state, state.context?.run ?? 0);
-        // doopen_indir() accepts only `message` and `random` from this env and
-        // rejects any other key, so test_move()'s wider injection contract
-        // narrows here rather than being forwarded whole.
-        await doopen_indir(x, y, state, env);
-        // hack.c:1110-1111. door_opened suppresses domove_core()'s
-        // `move = 0; nomul(0)` when the pull succeeded; move itself is FALSE
-        // either way, because domove_core()'s only DO_MOVE call passes the
-        // hero's own square as <ux,uy>.
-        state.context.door_opened = !closed_door(x, y, state);
-        state.context.move = (ux !== state.u.ux || uy !== state.u.uy) ? 1 : 0;
+        const run = state.context.run ?? 0;
+        requireAutoopenClosedDoor(x, y, state, run);
+        if (!autoopenSuppressed(state, run)) {
+            // doopen_indir() accepts only `message` and `random` from this env
+            // and rejects any other key, so test_move()'s wider injection
+            // contract narrows here rather than being forwarded whole.
+            await doopen_indir(x, y, state, env);
+            // hack.c:1110-1111. door_opened suppresses domove_core()'s
+            // `move = 0; nomul(0)` when the pull succeeded; move itself is
+            // FALSE either way, because domove_core()'s only DO_MOVE call
+            // passes the hero's own square as <ux,uy>.
+            state.context.door_opened = !closed_door(x, y, state);
+            state.context.move
+                = (ux !== state.u.ux || uy !== state.u.uy) ? 1 : 0;
+        } else if (x === ux || y === uy) {
+            // hack.c:1099-1128, the arm a suppressed autoopen falls into. It
+            // is orthogonal-only: a diagonal step at a closed door prints
+            // nothing and just returns FALSE.
+            //
+            // C gates the bump on `Blind || Stunned || ACURR(A_DEX) < 10
+            // || Fumbling`. Three of those four stop at the seam above, so
+            // Dexterity is the whole live test; the C order still puts it
+            // third. Neither line goes through set_msg_xy(), and pline.c
+            // vpline() clears a11y.msg_loc after every message, so neither
+            // carries a direction prefix under `accessiblemsg`.
+            const message = requiredMessageOperation(env, 'closed door');
+            if (effective_attribute(state, A_DEX) < 10) {
+                await message('Ouch!  You bump into a door.', state);
+                await exercise(A_DEX, false, state, env.random ?? { rn2 });
+                // hack.c:1122-1127, the inverse of the pull's bookkeeping.
+                // C has just claimed a move it did not make, so the caller's
+                // `move = 0; nomul(0)` has to be suppressed by door_opened
+                // and the run stopped here by hand instead. The turn really
+                // does elapse: this is the one closed-door outcome that costs
+                // the hero time.
+                //
+                // door_opened is what does that work. The `move` half of C's
+                // combined assignment cannot be observed at this call site,
+                // because domove_core() is test_move()'s only DO_MOVE caller
+                // and rhack() has already set svc.context.move for the step;
+                // it is kept because it is half of one C statement, and no
+                // test can pin it.
+                state.context.door_opened = true;
+                state.context.move = 1;
+                nomul(0, state);
+            } else {
+                await message('That door is closed.', state);
+            }
+        }
         return false;
     }
     return true;
