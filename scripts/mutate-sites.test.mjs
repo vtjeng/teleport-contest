@@ -501,38 +501,55 @@ test('a real range resolves to files, lines, and covering tests', () => {
     }
 });
 
-test('a range whose head is the working tree blames its whole diff', () => {
-    // The newest js/ commit is the one range whose changed lines are certain to
-    // sit unchanged in the working tree, so blame has to reproduce the diff
-    // exactly. Anything less would mean the blame mapping loses lines that the
-    // diff-based reading found.
-    const head = newestJsCommit();
-    const range = `${head}~1..${head}`;
-    const fromDiff = changedJsLines(range);
-    const fromBlame = survivingRangeLines(range);
+/** The text of each line a range added, keyed by path. */
+function addedTextIn(range) {
+    const diff = execFileSync('git',
+        ['diff', '--unified=0', '--no-color', range, '--', 'js/'],
+        { encoding: 'utf8', maxBuffer: 1e8 });
+    const added = new Map();
+    let path = null;
+    for (const line of diff.split('\n')) {
+        if (line.startsWith('+++ ')) {
+            path = line.slice(4).trim().replace(/^b\//u, '');
+            continue;
+        }
+        if (!path || !line.startsWith('+')) continue;
+        if (!added.has(path)) added.set(path, new Set());
+        added.get(path).add(line.slice(1));
+    }
+    return added;
+}
 
-    assert.equal(fromDiff.size > 0, true);
-    for (const [path, lines] of fromDiff)
-        assert.deepEqual([...fromBlame.get(path)].sort((a, b) => a - b),
-            [...lines].sort((a, b) => a - b));
-});
-
-test('a range behind the working tree keeps only the lines that survive', () => {
-    // Five js/ commits back, so later commits have had the chance to rewrite
-    // some of these lines. Each surviving line must still be one the diff
-    // named, and a line a later commit rewrote belongs to that commit.
-    const head = execFileSync('git',
+test('a blamed line holds text that the range added', () => {
+    // The two numbering schemes are not comparable: survivingRangeLines()
+    // reports positions in the working tree and changedJsLines() reports
+    // positions as of the head commit, so a commit that grows a file above a
+    // reviewed line moves it in one scheme and not the other. What must hold is
+    // that the text found at each blamed position is text the range wrote.
+    //
+    // The newest js/ commit and the fifth newest cover both cases: a range whose
+    // lines have had no chance to move, and one whose lines have had four
+    // commits' worth.
+    const heads = execFileSync('git',
         ['log', '--format=%H', '-5', '--', 'js/'], { encoding: 'utf8' })
-        .trim().split('\n').at(-1);
-    const range = `${head}~1..${head}`;
-    const fromDiff = changedJsLines(range);
-    const fromBlame = survivingRangeLines(range);
+        .trim().split('\n');
 
-    assert.equal(fromBlame.size > 0, true);
-    for (const [path, lines] of fromBlame) {
-        assert.equal(lines.size > 0, true);
-        for (const line of lines)
-            assert.equal(fromDiff.get(path).has(line), true);
+    for (const head of [heads[0], heads.at(-1)]) {
+        const range = `${head}~1..${head}`;
+        const addedText = addedTextIn(range);
+        const fromDiff = changedJsLines(range);
+        const fromBlame = survivingRangeLines(range);
+
+        assert.equal(fromBlame.size > 0, true);
+        for (const [path, lines] of fromBlame) {
+            assert.equal(lines.size > 0, true);
+            // A later commit can take a line away from the range and cannot
+            // give it one, so blame never names more lines than the diff did.
+            assert.equal(lines.size <= fromDiff.get(path).size, true);
+            const current = readFileSync(path, 'utf8').split('\n');
+            for (const line of lines)
+                assert.equal(addedText.get(path).has(current[line - 1]), true);
+        }
     }
 });
 
@@ -575,6 +592,18 @@ test('blame reads the working tree, and skips a file deleted since', () => {
         write('one.js', 'const a = 1;\nconst added = n < 10;\n');
         write('two.js', 'const b = 2;\nconst alsoAdded = m < 20;\n');
         const head = commit('second');
+
+        // With the head committed and the tree clean, the two numbering schemes
+        // agree, so blame must reproduce the diff exactly. Only a controlled
+        // repository can assert that: in a working repository a later commit or
+        // an uncommitted edit shifts the working-tree positions.
+        assert.deepEqual(
+            [...survivingRangeLines(`${base}..${head}`, root)]
+                .map(([path, lines]) => [path, [...lines]]),
+            [...changedJsLines(`${base}..${head}`, root)]
+                .map(([path, lines]) => [path, [...lines]]),
+        );
+
         // A later commit deletes one of them, so the range names a file the
         // working tree does not hold.
         rmSync(join(root, 'js', 'two.js'));
