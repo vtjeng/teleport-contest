@@ -15,73 +15,15 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-The goals below were selected from the `scan-stops.mjs` census at `03c2add`,
-except where a later scan is named. Every session and step count in those
-sections is a ceiling taken from that census and goes stale as the port
-advances; re-run the scan for current numbers. The traced source findings do not
-go stale, which is why they are recorded here rather than re-derived.
+No goal is in progress and none is queued. The search goal closed at
+`19b8ed1`, taking the repeated-simple-commands goal with it, and the census has
+not been re-run since. Run `node scripts/scan-stops.mjs` and select the next
+goal from it; `.agents/selection.md` states how to read it.
 
-### Awaiting closure: repeated simple commands
-
-Starting at a correctly generated first command prompt, accept an unbounded
-sequence of single-keystroke commands on D:1, each either a wait or a one-square
-walk, and match through the prompt after every command. Walk destinations in
-scope are an unoccupied object-free ordinary clear square, a `test_move()`
-refusal against wall or rock that consumes no time, a swap with an ordinary
-active starting pet, a square whose objects only produce a floor description,
-and an object-free `STAIRS` square or `DOOR` whose mask is exactly `D_NODOOR`
-or `D_ISOPEN`. Ordinary D:1 monsters, including ones generated part-way through
-the sequence, and the starting little dog, kitten, or pony may move normally or
-stay put.
-
-Excluded: the future-work list below, count prefixes, running, travel, every
-other command, pickup, a diagonal move into or out of a doorway that is not
-doorless, every closed, locked, trapped, or broken door, a `STAIRS` or doorway
-square holding an object, and monster-initiated displacement of the hero. Each
-excluded path fails closed before any gameplay state change or PRNG
-consumption, preserving the supported prefix and leaving the pending phase
-retryable.
-
-**Status:** behaviorally complete. The full correctness pass over
-`e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c`
-ran and its nineteen confirmed findings are closed. The fix commit `88e2193`
-records the results, and the future-work list below carries the cases the fixes
-deferred. The fix commit itself is correctness debt for the next pass, which is
-where the third of these findings that the previous cycle's own fixes
-introduced would show up again.
-
-No behavior slice remains in this goal, so nothing here is startable. Do not
-schedule a pass over the fix tail on its own: `.agents/review.md`
-folds audit-fix debt into the next scheduled correctness range, and the
-thresholds pull it in when they fire. This goal stays listed only until its debt
-clears and it closes, at which point it is deleted from this file. Its holdout
-evaluation waits on that debt, because `.agents/review.md` makes a holdout
-evaluation a review deadline and requires every outstanding review to be
-complete first.
-
-`js/fastforward.js` is gone at `263540f` and the turn-index special cases in
-`moveloop_core()` are gone at `9afade25`, so no structural replay remains.
-
-### Awaiting closure: search
-
-`detect.c dosearch()`, the `aflag == 0` arms of `dosearch0()`, `mfind0()` for
-`via_warning == 0`, and `display.c unmap_invisible()` are ported at `d1a71f7`.
-The goal opened at `16f22f8` and its one behavior slice closed there.
-
-The development score rose from 398 to 433 of 7,765 screens and from 99,496 to
-99,552 matched PRNG calls, measured at `3011535` and `d1a71f7`. Five sessions
-improved and none regressed, and `seed8000-tourist-starter` became the first
-session to match completely. The estimate the goal opened with was too
-pessimistic in one direction: four of the five sessions do stop within a
-keystroke or two of the `s`, but each still gained six to eleven screens.
-
-`mfind0()`'s three discovery arms and `unmap_invisible()`'s TRUE arm are
-excluded and refuse before any draw. They need `map_invisible()`, which needs a
-canonical glyph identity the port's map memory does not carry; that belongs
-with the invisible-monster work, not here.
-
-No behavior slice remains. The goal stays listed until the correctness pass
-over its range is recorded and its holdout evaluation runs.
+Every session and step count written into a goal is a ceiling taken from the
+census that selected it, and goes stale as the port advances. Traced source
+findings do not go stale, which is why they are recorded here rather than
+re-derived.
 
 ## Explicit future exploration work, outside the goal in progress
 
