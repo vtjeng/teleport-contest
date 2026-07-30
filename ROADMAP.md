@@ -91,12 +91,21 @@ decomposes into apply, eat, quaff and cast, which belong to item interaction,
    arm.
 2. `mpickstuff()` at `postmov()`'s object arm, replacing the take half of the
    ordinary-monster refusal.
-3. The split-stack arm, where `carryamt != obj->quan`, and the `minvis`
-   redraw, if slice 1's fresh case does not reach them.
+3. The `minvis` redraw, if slice 2's fresh case does not reach it. The
+   split-stack arm this slice originally listed landed with slice 1:
+   `can_carry()` caps a nohands pet at one item, so every gold pickup splits
+   and refusing it would have been code deleted immediately.
 
 One subsystem and well under 500 production lines, so no implementation
 checklist is created. Revisit that if `preflightObjectName()` forces a broad
 `objnam.c` expansion.
+
+**What slice 1 left for slice 2.** Every pickup poisons the following turn.
+`check_gear_next_turn()` sets `I_SPECIAL`, so `assertSimpleScanState()` stops on
+`monster equipment changes` and `assertSimpleActionState()` stops on
+`pet inventory`. Both have to lift together, and lifting the second forces the
+planning clone to cover monster inventories as well — `cloneFloorObjects()`
+covers only the floor today.
 
 ## Explicit future exploration work, outside the goal in progress
 
