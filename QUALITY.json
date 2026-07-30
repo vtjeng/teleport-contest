@@ -3355,6 +3355,45 @@
         ]
       },
       "recordedAt": "2026-07-30T03:41:22.410Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world-effects": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
+        "commands": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
+        "runtime": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674"
+      },
+      "head": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
+      "auditedRange": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674..c706db8a6f372d28630d0f8e9bb06eba929a1123",
+      "areas": [
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review of c706db8, the audit-fix commit for the e30ea05..d1a71f7 correctness pass, run because an audit-fix commit is correctness debt and the goal's holdout evaluation is a review deadline. Three finders (correctness, tests, variable-trace); readability is the perspective a light pass drops. 8 raw findings, 5 after deduplication, 5 confirmed, 5 applied at 5dd04b2, none deferred, none rejected, none unverified, no warnings. No production defect: every finding is collateral from the fixes themselves, which is what this kind of review is for. The material one is that the new end-to-end statue-trap case could not distinguish a refusal decided before dosearch0's loop from one decided inside it, the single invariant the search slice rests on, because no square in that hero's 3x3 draws any rnl(). The fixture now places a secret door on the first square the traversal visits, and relocating the refusal into the loop with an unchanged class and message was observed failing the case. A screen-count assertion beside it was a tautology against an append-only array and is replaced by the sibling case's oracles. One ROADMAP.md tracking note under-counted the writers of vision_full_recalc and now points at the grep instead. Development score identical to d1a71f7 and c706db8 at 433 of 7,765 screens and 99,552 PRNG calls; 1,857 tests, four generated-data checks and check:namespace-members pass at 5dd04b2.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1242,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 5,
+          "confirmed": 5,
+          "applied": 5,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 4,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": []
+      },
+      "recordedAt": "2026-07-30T04:08:25.010Z"
     }
   ]
 }
