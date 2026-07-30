@@ -361,10 +361,15 @@ the default, so a session setting it would run identically and the port stops
 instead. Porting the parser is the fix, and it belongs with `pick_lock()` and
 `autokey()`, which are what the flag selects between.
 
-#### eleven monster-pickup findings are deferred
+#### five monster-pickup findings remain deferred
 
 The correctness pass over `5879bed..2fea8eb` confirmed fourteen findings; three
-were applied and eleven are recorded here. They divide into three groups.
+were applied there and eleven were recorded here. Four of the eleven are closed
+at `247675b`, which pinned each by breaking the line it covers and watching the
+test fail: `select_postmove_object_action()`'s `carryamt`, `panicattk`'s
+`range.scared` condition, `dochug()`'s `!noattacks(monster.data)` term, and
+`pickupState()`'s false claim that a gnome is `M2_GREEDY`. The rest divide into
+three groups.
 
 **A production gap.** `refuseHeroAttack()` is presented as a complete stand-in
 for `mhitu.c mattacku()` on the range2 path, but it enumerates only `AT_BREA`,
@@ -373,24 +378,9 @@ for `mhitu.c mattacku()` on the range2 path, but it enumerates only `AT_BREA`,
 offensive item is admitted where C acts. Fix it with the combat work, which is
 where `mattacku()` lands.
 
-**Assertions that do not discriminate**, each verified by mutation with the
-suite green:
-
-- `select_postmove_object_action()`'s new `carryamt` is pinned by no test and
-  no matrix segment, so the whole split-stack arm of `mpickstuff()` can be
-  disabled. Reporting the full stack would empty a floor square C leaves a
-  remainder on, print a different quantity, and drop one `rnd(2)` draw, which
-  desynchronises the rest of the segment.
-- `panicattk`'s `range.scared` condition: the one `MMOVE_NOMOVES` case sets
-  `scared` true, so the flag can be made unconditional.
-- `dochug()`'s new `!noattacks(monster.data)` term: the four tests touching the
-  gate were edited to satisfy it rather than to pin it, and an attackless
-  species standing beside the hero would stop a segment C plays through.
-- `refuseHeroAttack()`'s `AT_WEAP` arm, the `select_rwep()` check, has no test
-  while its three siblings do.
-- `scripts/mon.test.mjs pickupState()` states a false C fact — a gnome is not
-  `M2_GREEDY` — and two of the six new `mpickstuff` tests build a
-  gnome-plus-gold fixture on it.
+**An assertion that does not discriminate**, verified by mutation with the
+suite green: `refuseHeroAttack()`'s `AT_WEAP` arm, the `select_rwep()` check,
+has no test while its three siblings do.
 
 **Comments that misdescribe their code:** `is_drawbridge_wall()`'s export
 contradicts `js/invent.js:207`, which still documents the same predicate as
@@ -398,6 +388,45 @@ unported; `postSimpleMove()` reads injected message and redraw owners for the
 movement notice then hardcodes `ttyPline`/`newsym` for the pickup; and the
 comment calling `mattacku()`'s preamble inert cites `!ranged`, which C computes
 from the hero's real position, where the guard below tests something else.
+
+#### the postmov `minvis` redraw has no case that can reach it
+
+`monmove.c postmov()` (1683-1687) repeats `newsym()` — and `see_wsegs()` for a
+long worm — after the object arm whenever `mtmp->minvis` is set, whether or not
+`mpickstuff()` took anything. `postSimpleMove()` in
+`js/unported_monster_actions.js` omits it. Porting the arm is three lines;
+recording a differential for it is what fails.
+
+Nothing behind the current boundary sets `minvis` on D:1.
+
+- `pm_invisible()` (mondata.h:192) covers only the stalker and the black light,
+  difficulty 9 and 7. `rndmonst_adj()` caps generation at
+  `monmax_difficulty(levdif) = (levdif + u.ulevel) / 2` (monst.h:259), which is
+  1 on D:1 at experience level 1 and admits a black light only from level 13.
+  No `dat/` Lua file names either species, and no `mkclass()` caller passes
+  `S_LIGHT` or `S_ELEMENTAL`, so the cap-skipping `rn2(2)` arm at
+  `makemon.c:1944` cannot reach them either.
+- `MM_MINVIS` has one C caller, `read.c:3313`, behind wizard `^G`.
+- The two routes that do fire in C on D:1 at experience level 1 are each
+  refused earlier by the port. A monster that picks up a randomly generated
+  cloak of invisibility wears it on its next turn through
+  `movemon_singlemon()` → `m_dowear()` → `update_mon_extrinsics()`
+  (worn.c:598); the port refuses `monster equipment changes` before that runs.
+  A monster that quaffs a potion of invisibility reaches `mon_set_minvis()`
+  through `muse.c use_misc()`; `js/muse.js` ports the selection and refuses
+  `monster item use` before the effect.
+
+The arm is therefore dormant behind two refusals rather than silently wrong,
+and `AGENTS.md`'s rule to identify where the running game will use a piece of
+code before writing it defers it. Port it with whichever of monster equipment
+changes or monster item use lands first, and record the differential then.
+
+One latent trap belongs with it. `updateMonsterArmorEffects()` at
+`js/makemon_create.js:1606` implements only `MUMMY_WRAPPING` and `SPEED_BOOTS`
+and omits `update_mon_extrinsics()`'s `INVIS` arm silently rather than
+refusing. The post-creation wear path is masked by the boundary above, but the
+creation path calls the same function, so a creation-time cloak of invisibility
+would diverge without erroring. No creation-time route grants one today.
 
 #### the planning clone's object copy is still expensive
 
@@ -413,6 +442,11 @@ elapsed turn, 80-92% of a scored turn, and prototype delegation removed that at
 no correctness cost. The same treatment probably suits the object copy, but it
 needs its own check, because unlike a catalog entry an object is written
 through more paths.
+
+That catalog fix left one loose end: `js/unported_monster_actions.js:85` still
+imports `copyObjclassEntry`, which no line of the file calls now that the
+catalog clone is `state.objects?.map((entry) => Object.create(entry))`. Delete
+the import with the next simplification pass.
 
 #### `dochug()` returns where C breaks into PHASE FOUR
 
@@ -444,26 +478,19 @@ catalog entry, and the generator emits it. The general lesson is recorded here
 because the same trap applies to any state the port clones: a spread is not a
 copy when the source uses `Object.defineProperty`.
 
-#### five pickup assertions do not discriminate
+#### one pickup assertion still does not discriminate
 
 The correctness pass over `f826ba53..4d78313` confirmed five test gaps that its
 fixes did not close, all of the same shape: the assertion holds whether or not
-the behavior it names is present.
+the behavior it names is present. Four are closed at `247675b` and `5dd9bab` —
+`cloneLightList()`'s and `cloneTimerList()`'s object-remap arms, the redraw that
+runs whether or not the hero can see the square (in both `dog_invent()` and
+`mpickstuff()`), and `distant_name()`'s `obj.oartifact` disjunct. One remains:
 
-- `cloneLightList()` and `cloneTimerList()` gained object-remap arms
-  (`?? objectMap.get(source.id)` and `?? objectMap.get(source.arg)`); removing
-  either leaves the suite green.
 - The `wieldPickedItem: () => unsupported('pet weapon selection')` refusal has
   no test, and the same diff deleted the `pony pickup` entry from the
-  preflight's starting-pet case list.
-- Nothing pins `newsym()` running when the hero cannot see the pet's square:
-  gating the redraw on `cansee()` leaves every test passing.
-- `dog_invent names nothing on a square the hero cannot see` exercises that
-  branch without pinning it; every assertion holds either way. No fresh case
-  covers it either, because 800 seeds produced none.
-- `distant_name()`'s `obj.oartifact` disjunct, the arm that makes an artifact
-  count as near however far it lies, has no test and can be removed with the
-  suite green.
+  preflight's starting-pet case list. No starting pet has an `AT_WEAP` attack,
+  so pinning it needs a fabricated pet rather than a fresh case.
 
 #### the pickup naming conversion is unpinned end to end
 
