@@ -33,7 +33,7 @@ census that selected it, and goes stale as the port advances. Traced source
 findings do not go stale, which is why they are recorded here rather than
 re-derived.
 
-### In progress: a monster triggers a floor trap
+### Closed: a monster triggers a floor trap
 
 A monster or pet walks onto a trap and the trap fires. The hero hears
 `You hear an A note squeak in the distance`, or sees
@@ -113,6 +113,25 @@ called from six other C files, `thitm()` serves three trap types, and each
 This goal crosses `trap.c`, `monmove.c`, `mon.c` and object placement, and is
 expected to span sessions, so an implementation checklist is created when its
 first slice opens.
+
+**Closed at `628d9fe`.** Both slices ported and reviewed; the authorized
+holdout evaluation returned 138 of 3,640 screens and 30,048 of 182,022 PRNG
+values, 1 of 11 sessions — **identical to the previous three measurements**.
+Development rose 459 to 467 screens and 99,980 to 100,825 calls, all from slice
+1.
+
+**Three consecutive goals have now carried over nothing.** The pickup goal
+gained +1 development and +0 holdout; the door goal gained and carried nothing;
+this one gained 8 screens and carried nothing. Before those, the run was +21,
++17 and a first passing holdout session. The instrument that picked all three
+is the census — incidence times runway, then incidence times downstream reuse —
+and it has now mispredicted carry-over three times running while continuing to
+predict development movement correctly. That is a specific, falsifiable claim
+about the selector, and the next goal selection should treat it as one: the
+census measures what unblocks *development* sessions, and development and
+holdout sessions stopped agreeing about three goals ago. Whatever replaces it
+has to be validated against the holdout record above, not against development
+movement.
 
 **A prediction this goal got wrong.** The census above said `seed1500`'s dart
 is a miss and that closing the miss path would unblock it. It does not.
