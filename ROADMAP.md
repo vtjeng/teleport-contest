@@ -133,16 +133,32 @@ holdout sessions stopped agreeing about three goals ago. Whatever replaces it
 has to be validated against the holdout record above, not against development
 movement.
 
-**A prediction this goal got wrong.** The census above said `seed1500`'s dart
-is a miss and that closing the miss path would unblock it. It does not.
-`seed1500` stops earlier, on `simple monster action requires pet cursed-object
-feedback`, with its random-number prefix unchanged by the slice. The census
-counted which trap types the blocked sessions *reach*, which is a fact about
-their recorded top lines; it did not check that the trap was the **first**
-refusal each session hits. Those are different questions, and only the second
-predicts movement. Read the refusal a session actually stops on before
-promising it will move -- `scripts/score-development.mjs` reports it per
-session.
+**A prediction this goal got wrong, and the census did not cause it.** The
+goal statement above said `seed1500`'s dart is a miss and that closing the miss
+path would unblock it. It does not: `seed1500` stops earlier, on `simple
+monster action requires pet cursed-object feedback`, with its random-number
+prefix unchanged by the slice.
+
+An earlier version of this note blamed the census for counting what a session
+*contains* rather than what it stops on. That was wrong, and the correction
+matters because it moves the fault. `scripts/scan-stops.mjs` reports "the
+fail-closed boundary the port reaches **first**" for each session -- first
+refusal is exactly what it measures. `.agents/selection.md` also states, in
+terms, that the steps behind a boundary are an upper bound and that "sessions
+blocked on one owner routinely block again on another", and it names the only
+sound measurement: apply the candidate change and re-run the scan.
+
+Two real mistakes produced the wrong prediction, and neither is the
+instrument's. The trap types were read from the sessions' **recorded top
+lines** instead of from the scan, which is the same move `AGENTS.md` forbids
+for implementation -- a recorded trace points at an owner, it does not specify
+one -- and it is no more reliable for selection. And the documented upper-bound
+rule was not applied: nothing re-ran the scan against the candidate before the
+slice was promised.
+
+So the census's own caveats would have caught this. Do not replace an
+instrument for a failure its documentation already warns about; use it as
+written.
 
 That is the second prediction this file has recorded and then falsified: the
 pickup goal was chosen on "fires without a player command" and gained +1
