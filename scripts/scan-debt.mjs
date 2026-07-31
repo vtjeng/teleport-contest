@@ -136,17 +136,19 @@ export function cursorState(step) {
 export function extendedCommandAt(steps, index) {
     let typed = '';
     let cursor = index + 1;
+    let dispatchAt = index;
     for (; cursor < steps.length; cursor++) {
         const key = steps[cursor].key;
         if (typeof key !== 'string' || key.length === 0) break;
-        if (PROMPT_TERMINATORS.has(key)) { cursor++; break; }
+        if (PROMPT_TERMINATORS.has(key)) { dispatchAt = cursor; cursor++; break; }
         typed += key;
+        dispatchAt = cursor;
     }
     const matches = extcmdlist.filter(
         (entry) => entry.ef_txt?.startsWith(typed),
     );
     const name = typed && matches.length === 1 ? matches[0].ef_txt : typed;
-    return { name: `#${name}`, nextIndex: cursor };
+    return { name: `#${name}`, nextIndex: cursor, dispatchAt };
 }
 
 /**
@@ -190,7 +192,15 @@ export function commandsIssued(steps, resolve = resolvedCommand) {
         const command = resolve(steps[index].key);
         if (command === EXTENDED_COMMAND_KEY) {
             const extended = extendedCommandAt(steps, index);
-            commands.push({ index, command: extended.name });
+            // The owner sits at the byte that DISPATCHES the command, not at
+            // the `#` that opened the prompt. `doextcmd()` is ported, so the
+            // port paints every prompt frame the reference program painted for
+            // `#`, the name bytes and the autocomplete, and diverges only at
+            // the terminator that runs the command. Charging the owner from the
+            // `#` would take those frames off a function that already earns
+            // them: 5 screens per `#ride` in each of the two sessions that use
+            // it, which overstated that owner by 10 of 92.
+            commands.push({ index: extended.dispatchAt, command: extended.name });
             // The name's own bytes answered the prompt rather than issuing a
             // command, so skip them without counting them again.
             answers += extended.nextIndex - index - 1;
@@ -395,6 +405,28 @@ export function rankCandidates(rows, order = 'advance') {
     );
 }
 
+/**
+ * Check each session's earliest owner against where the port actually stopped.
+ *
+ * The port fail-closes at the first behavior it has not ported, so the earliest
+ * owner this script derives from the recorded input must sit at exactly the
+ * step the port never consumed. The two are computed by different routes: the
+ * stop comes from replaying the port, the owner from reading cursors and
+ * bindings out of the recording. Any disagreement means the classifier read the
+ * input wrongly, so the report states the count.
+ *
+ * This caught the extended-command owners being charged from the `#` that opens
+ * the prompt instead of the terminator that runs the command.
+ */
+export function stopPointAgreement(rows) {
+    const scored = rows.filter((row) => row.owners.length > 0);
+    const mismatches = scored.filter(
+        (row) => row.owners[0].at !== row.screensEmitted,
+    );
+    return { agree: scored.length - mismatches.length, total: scored.length,
+        mismatches };
+}
+
 /** Center a group heading over the columns it names. */
 function centered(label, width) {
     const left = Math.floor((width - label.length) / 2);
@@ -424,6 +456,18 @@ function report(rows, order = 'advance') {
         + `recorded; ${answers} recorded bytes answered a prompt and `
         + `${ambiguous} could not be classified.`,
     );
+
+    const agreement = stopPointAgreement(rows);
+    console.log(
+        `${agreement.agree} of ${agreement.total} sessions place their earliest `
+        + 'owner at the step the port stopped on.',
+    );
+    for (const row of agreement.mismatches) {
+        console.log(
+            `  MISMATCH ${row.file}: stopped at ${row.screensEmitted}, `
+            + `earliest owner ${row.owners[0].member} at ${row.owners[0].at}`,
+        );
+    }
 
     console.log(
         `\nOwners by the screens that depend on them, of ${recorded} recorded`

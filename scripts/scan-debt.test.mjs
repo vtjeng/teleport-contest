@@ -12,6 +12,7 @@ import {
     cursorState,
     extendedCommandAt,
     rankCandidates,
+    stopPointAgreement,
     supportedCommands,
 } from './scan-debt.mjs';
 
@@ -78,7 +79,11 @@ test('an extended command is read from the prefix its prompt records', () => {
         { key: 'r' }, { key: 'i' }, { key: 'd' }, { key: '\r' },
         { key: 'k' },
     ];
-    assert.deepEqual(extendedCommandAt(steps, 0), { name: '#ride', nextIndex: 5 });
+    // `dispatchAt` is the terminator at index 4, where the command runs. The
+    // port paints every frame up to it through `doextcmd()`, so the owner is
+    // charged from there and not from the `#` at index 0.
+    assert.deepEqual(extendedCommandAt(steps, 0),
+        { name: '#ride', nextIndex: 5, dispatchAt: 4 });
 });
 
 test('an ambiguous extended prefix keeps the text that was typed', () => {
@@ -141,9 +146,9 @@ test('the name answering a # prompt is not counted as a command', () => {
         { key: 'p' }, { key: 'r' }, { key: 'a' }, { key: 'y' }, { key: '\r' },
     ];
     const issued = commandsIssued(steps, (key) => (key === '#' ? '#' : 'eat'));
-    // The owner is placed at the `#` that opened the prompt, not at the name
-    // bytes, so its first use is the step the session actually issued it.
-    assert.deepEqual(issued.commands, [{ index: 1, command: '#pray' }]);
+    // The owner sits at the terminator at index 6, where `doextcmd()` runs the
+    // command. Every frame before it is painted by ported code.
+    assert.deepEqual(issued.commands, [{ index: 6, command: '#pray' }]);
     // Four name bytes and the terminator answered the prompt.
     assert.equal(issued.answers, 5);
 });
@@ -232,6 +237,23 @@ test('the two orders rank the same set differently', () => {
     );
     assert.deepEqual(rankCandidates(rows), rankCandidates(rows, 'advance'));
     assert.throws(() => rankCandidates(rows, 'screens'), /unknown order/u);
+});
+
+test('a session whose earliest owner misses the stop point is reported', () => {
+    const rows = [
+        // Agrees: the port stopped at step 11 and the earliest owner is at 11.
+        { file: 'a', screensEmitted: 11, owners: [{ member: 'x', at: 11 }] },
+        // Disagrees: the classifier put the owner 5 steps before the stop,
+        // which is the shape an extended command took when it was charged from
+        // the `#` rather than from the terminator that runs it.
+        { file: 'b', screensEmitted: 11, owners: [{ member: '#ride', at: 6 }] },
+        // A finished session has no owner and is outside the check.
+        { file: 'c', screensEmitted: 23, owners: [] },
+    ];
+    const agreement = stopPointAgreement(rows);
+    assert.equal(agreement.total, 2);
+    assert.equal(agreement.agree, 1);
+    assert.deepEqual(agreement.mismatches.map((row) => row.file), ['b']);
 });
 
 test('the unearned screens of a session are its recorded steps less its own', () => {
