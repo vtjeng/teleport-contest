@@ -167,7 +167,7 @@ export function commandsIssued(steps, resolve = resolvedCommand) {
         const command = resolve(steps[index].key);
         if (command === EXTENDED_COMMAND_KEY) {
             const extended = extendedCommandAt(steps, index);
-            commands.push(extended.name);
+            commands.push({ index, command: extended.name });
             // The name's own bytes answered the prompt rather than issuing a
             // command, so skip them without counting them again.
             answers += extended.nextIndex - index - 1;
@@ -176,9 +176,30 @@ export function commandsIssued(steps, resolve = resolvedCommand) {
         }
         // A byte bound to no command reaches rhack()'s bad-command path, which
         // the port already dispatches, so it is not debt.
-        if (command !== null) commands.push(command);
+        if (command !== null) commands.push({ index, command });
     }
     return { commands, answers, ambiguous };
+}
+
+/**
+ * The owners a session needs, earliest use first.
+ *
+ * A command issued more than once keeps its EARLIEST index, because that is
+ * where a port without it would first diverge; a later use changes nothing. The
+ * behavioral owner, when the port reached one, enters at the step it stopped
+ * on. Ties break by name so the order is total and the report is stable.
+ */
+export function assembleOwners(issued, supported, behavioral = null) {
+    const firstUse = new Map();
+    for (const { index, command } of issued) {
+        if (isSupported(command, supported)) continue;
+        if (!firstUse.has(command) || firstUse.get(command) > index)
+            firstUse.set(command, index);
+    }
+    if (behavioral) firstUse.set(behavioral.member, behavioral.at);
+    return [...firstUse.entries()]
+        .map(([member, at]) => ({ member, at }))
+        .sort((a, b) => a.at - b.at || a.member.localeCompare(b.member));
 }
 
 function createStorageHandle() {
@@ -225,8 +246,11 @@ async function scanSession(file) {
     let screensEmitted = 0;
     let stopped = false;
     let behavioral = null;
+    let stepOffset = 0;
     const supported = supportedCommands();
-    const commandDebt = new Set();
+    // Every command the session issued, numbered across segments so one index
+    // orders the whole recording.
+    const issuedAll = [];
     let answers = 0;
     let ambiguous = 0;
 
@@ -244,32 +268,37 @@ async function scanSession(file) {
         // and wrong. Counting those would overstate the total by 106, at 573
         // against the 467 scripts/score-development.mjs matched on 31 July 2026.
         if (!stopped) screensEmitted += (segmentGame.getScreens?.() ?? []).length;
-        if (boundary) stopped = true;
         // Read the bindings before the next segment overwrites the shared game
         // singleton, the same ordering scripts/scan-stops.mjs relies on.
         const issued = commandsIssued(segment.steps || []);
         answers += issued.answers;
         ambiguous += issued.ambiguous;
-        for (const command of issued.commands)
-            if (!isSupported(command, supported)) commandDebt.add(command);
+        for (const { index, command } of issued.commands)
+            issuedAll.push({ index: stepOffset + index, command });
         // A stop that is not a command refusal names an owner the input stream
-        // cannot: the port reached a behavior it has not ported. Only the first
-        // is visible, which is the censoring this script cannot remove.
+        // cannot: the port reached a behavior it has not ported. Its first use
+        // is the step the port never consumed. Only the FIRST such owner per
+        // session is visible, because the port stops there and never reports
+        // what stands behind it; that censoring is why `advance` below is an
+        // upper bound.
         if (boundary && !(boundary instanceof UnsupportedHeroCommandBoundaryError)
             && behavioral === null)
-            behavioral = boundary.message;
+            behavioral = { member: boundary.message, at: screensEmitted };
+        if (boundary) stopped = true;
+        stepOffset += (segment.steps || []).length;
     }
 
-    const debt = new Set(commandDebt);
-    if (behavioral !== null) debt.add(behavioral);
+    // The first entry is the session's current bottleneck, and the gap to the
+    // second is what porting it would earn.
+    const owners = assembleOwners(issuedAll, supported, behavioral);
 
     return {
         file,
         screensEmitted,
         recordedSteps,
-        behavioral,
-        commandDebt: [...commandDebt].sort(),
-        debt: [...debt].sort(),
+        behavioral: behavioral?.member ?? null,
+        debt: owners.map((owner) => owner.member).sort(),
+        owners,
         answers,
         ambiguous,
     };
@@ -285,30 +314,52 @@ function isSupported(command, supported) {
 }
 
 /**
- * Rank every debt member by the screens it would unblock: the sessions whose
- * WHOLE debt is this one member, summed over their unearned screens. A session
- * carrying two owners contributes to neither until the other lands, which is
- * exactly the correction this ranking makes to a first-boundary census.
+ * Rank every owner by how much of the recorded score depends on it.
+ *
+ * `gated` is the ablation measure: take a port that matches every recorded
+ * screen, remove this one owner, and count the screens that stop matching. A
+ * session cannot proceed past a capability it lacks, so everything from that
+ * owner's first use to the end of the session is lost. Summed over the sessions
+ * that use it, that is the share of the whole 7,765-screen population standing
+ * on this owner. Owners overlap by design: a screen late in a session is gated
+ * behind every owner used before it, so these columns total far more than 7,765
+ * and are read per row, never added up.
+ *
+ * `advance` is what porting it next would actually earn. A session moves from
+ * its earliest unmet owner only as far as its second, so a candidate collects
+ * the gap between the two in the sessions where it is the current bottleneck.
+ * It is an upper bound: a session's later behavioral owners are invisible,
+ * because the port stops at the first one and never reports what stands behind
+ * it, so a gap measured to the next COMMAND may hide a behavioral gate inside
+ * it.
+ *
+ * The two answer different questions and disagree usefully. A high `gated` with
+ * a low `advance` is a bottleneck buried behind another one; a high `advance`
+ * is the next goal to take.
  */
 export function rankCandidates(rows) {
     const candidates = new Map();
     for (const row of rows) {
-        for (const member of row.debt) {
-            const entry = candidates.get(member)
-                ?? { member, sessions: 0, screens: 0, blockedWith: 0 };
-            if (row.debt.length === 1) {
-                entry.sessions += 1;
-                entry.screens += ceilingFor(row);
-            } else {
-                entry.blockedWith += 1;
+        for (const [position, owner] of row.owners.entries()) {
+            const entry = candidates.get(owner.member) ?? {
+                member: owner.member,
+                gated: 0,
+                gatedSessions: 0,
+                advance: 0,
+                bottleneckIn: 0,
+            };
+            entry.gated += row.recordedSteps - owner.at;
+            entry.gatedSessions += 1;
+            if (position === 0) {
+                entry.bottleneckIn += 1;
+                const next = row.owners[1];
+                entry.advance += (next ? next.at : row.recordedSteps) - owner.at;
             }
-            candidates.set(member, entry);
+            candidates.set(owner.member, entry);
         }
     }
     return [...candidates.values()].sort(
-        (a, b) => b.screens - a.screens
-            || b.sessions - a.sessions
-            || a.member.localeCompare(b.member),
+        (a, b) => b.gated - a.gated || a.member.localeCompare(b.member),
     );
 }
 
@@ -337,23 +388,29 @@ function report(rows) {
     );
 
     console.log(
-        '\nCandidates by screens unblocked '
-        + '(sessions whose whole debt is this one member)',
+        `\nOwners by the screens that depend on them, of ${recorded} recorded`,
     );
     console.log(
-        `  ${'screens'.padStart(7)}  ${'sess'.padStart(4)}  `
-        + `${'also'.padStart(4)}  member`,
+        `  ${'gated'.padStart(6)}  ${'sess'.padStart(4)}  `
+        + `${'advance'.padStart(7)}  ${'first'.padStart(5)}  owner`,
     );
     for (const entry of rankCandidates(rows)) {
         console.log(
-            `  ${String(entry.screens).padStart(7)}  `
-            + `${String(entry.sessions).padStart(4)}  `
-            + `${String(entry.blockedWith).padStart(4)}  ${entry.member}`,
+            `  ${String(entry.gated).padStart(6)}  `
+            + `${String(entry.gatedSessions).padStart(4)}  `
+            + `${String(entry.advance).padStart(7)}  `
+            + `${String(entry.bottleneckIn).padStart(5)}  ${entry.member}`,
         );
     }
     console.log(
-        '\n`also` counts sessions holding this member alongside another, which '
-        + 'earn nothing until every member they hold lands.',
+        '\n`gated`   screens that stop matching if a perfect port loses this '
+        + 'owner: every screen from its first use to the end of each session '
+        + 'that uses it. Owners overlap, so these do not sum to the total.'
+        + '\n`sess`    sessions that use the owner at all.'
+        + '\n`advance` screens porting it next would earn, summed over the '
+        + 'sessions where it is the earliest unmet owner. An upper bound: a '
+        + 'later behavioral owner inside the gap is invisible.'
+        + '\n`first`   sessions where it is that earliest owner.',
     );
 }
 

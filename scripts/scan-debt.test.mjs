@@ -6,6 +6,7 @@ import {
     MOVEMENT_INTENTS,
 } from '../js/cmd.js';
 import {
+    assembleOwners,
     ceilingFor,
     commandsIssued,
     cursorState,
@@ -121,7 +122,12 @@ test('only the bytes read at a command position count as commands', () => {
     const resolve = (key) => ({ k: 'movenorth', y: 'movenorthwest', e: 'eat' }[key]
         ?? null);
     const issued = commandsIssued(steps, resolve);
-    assert.deepEqual(issued.commands, ['movenorth', 'eat']);
+    // The step index travels with each command, because the ranking needs the
+    // first step at which a session needs an owner, not merely that it does.
+    assert.deepEqual(issued.commands, [
+        { index: 1, command: 'movenorth' },
+        { index: 3, command: 'eat' },
+    ]);
     assert.equal(issued.answers, 1);
     assert.equal(issued.ambiguous, 0);
 });
@@ -135,7 +141,9 @@ test('the name answering a # prompt is not counted as a command', () => {
         { key: 'p' }, { key: 'r' }, { key: 'a' }, { key: 'y' }, { key: '\r' },
     ];
     const issued = commandsIssued(steps, (key) => (key === '#' ? '#' : 'eat'));
-    assert.deepEqual(issued.commands, ['#pray']);
+    // The owner is placed at the `#` that opened the prompt, not at the name
+    // bytes, so its first use is the step the session actually issued it.
+    assert.deepEqual(issued.commands, [{ index: 1, command: '#pray' }]);
     // Four name bytes and the terminator answered the prompt.
     assert.equal(issued.answers, 5);
 });
@@ -147,20 +155,54 @@ test('a byte bound to no command is not debt', () => {
     assert.deepEqual(commandsIssued(steps, () => null).commands, []);
 });
 
-test('a candidate earns only the sessions whose whole debt it is', () => {
-    const rows = [
-        // 60 unearned screens behind one owner: `eat` clears the session.
-        { file: 'a', screensEmitted: 40, recordedSteps: 100, debt: ['eat'] },
-        // 90 unearned screens behind two owners: neither clears it alone, so
-        // both count as blocked-with and neither earns the screens.
-        { file: 'b', screensEmitted: 10, recordedSteps: 100, debt: ['eat', 'down'] },
-        // A session already complete contributes nothing to any candidate.
-        { file: 'c', screensEmitted: 20, recordedSteps: 20, debt: [] },
+test('an owner is placed at its earliest use, and the list is ordered by it', () => {
+    // `eat` is issued twice. A port without it diverges at step 4, not step 40,
+    // so the later use must not displace the earlier one.
+    const issued = [
+        { index: 40, command: 'eat' },
+        { index: 4, command: 'eat' },
+        { index: 12, command: 'wait' },
+        { index: 30, command: 'down' },
     ];
-    assert.equal(ceilingFor(rows[0]), 60);
-    const ranking = rankCandidates(rows);
-    assert.deepEqual(ranking, [
-        { member: 'eat', sessions: 1, screens: 60, blockedWith: 1 },
-        { member: 'down', sessions: 0, screens: 0, blockedWith: 1 },
+    // `wait` is dispatched today, so it is not an owner to port.
+    const supported = new Set(['wait']);
+    // The port stopped at step 20 on a behavior it has not ported, which places
+    // that owner between `eat` at 4 and `down` at 30.
+    const behavioral = { member: 'a behavioral stop', at: 20 };
+    assert.deepEqual(assembleOwners(issued, supported, behavioral), [
+        { member: 'eat', at: 4 },
+        { member: 'a behavioral stop', at: 20 },
+        { member: 'down', at: 30 },
     ]);
+});
+
+test('an owner is charged every screen that stands behind its first use', () => {
+    const rows = [
+        // 100 recorded steps, `eat` first needed at step 40, and nothing else
+        // stands in the way: removing `eat` from a perfect port loses the 60
+        // screens from step 40 on, and porting it earns all 60.
+        { file: 'a', recordedSteps: 100, owners: [{ member: 'eat', at: 40 }] },
+        // `eat` at step 10 and `down` at step 30. Removing `eat` loses 90 and
+        // removing `down` loses 70, because each is needed for every screen
+        // after its own first use. `eat` is the bottleneck, so porting it
+        // advances this session the 20 steps to `down` and no further.
+        {
+            file: 'b',
+            recordedSteps: 100,
+            owners: [{ member: 'eat', at: 10 }, { member: 'down', at: 30 }],
+        },
+        // A session that needs nothing charges nothing to anybody.
+        { file: 'c', recordedSteps: 20, owners: [] },
+    ];
+    assert.deepEqual(rankCandidates(rows), [
+        // 60 + 90 gated, and 60 + 20 advance.
+        { member: 'eat', gated: 150, gatedSessions: 2, advance: 80, bottleneckIn: 2 },
+        // Gated in one session, and the bottleneck in none of them.
+        { member: 'down', gated: 70, gatedSessions: 1, advance: 0, bottleneckIn: 0 },
+    ]);
+});
+
+test('the unearned screens of a session are its recorded steps less its own', () => {
+    // The ceiling a session still stands to gain, used by the report's totals.
+    assert.equal(ceilingFor({ screensEmitted: 40, recordedSteps: 100 }), 60);
 });
