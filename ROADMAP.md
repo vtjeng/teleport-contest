@@ -146,8 +146,8 @@ development sessions, second only to `down`, with an `advance` of 78. It is the
 highest-gated owner that has a nonzero advance, which is the rule this goal
 tests: `#ride` was selected on advance alone, scored 82 gated, about 1% of the
 population, and carried nothing to the holdout. Every role eats, so this owner
-sits on the path of ordinary play rather than behind a role or a prefix, which
-is the one property the closed-door goal had.
+sits on the path of ordinary play. No role and no prefix gates it. That is the
+one property the closed-door goal had.
 
 **Upstream owners.** `eat.c doeat()` (2816-3084, 268 lines) is the command.
 Its opening sequence is `Strangled`, then `floorfood("eat", 0)`, then
@@ -170,7 +170,7 @@ occupation; `done_eating()` (543-573) and `eatmdone()` (162-177) end it.
    `What do you want to eat? [b-g or ?*]`, and answering with a letter that
    names no food prints `You cannot eat that!` and returns `ECMD_OK`, spending
    no turn. Nothing is eaten, so `start_eating()` stays refused. This slice
-   reuses the `getdir()`-era input boundary rather than adding one.
+   reuses the `getdir()`-era input boundary and adds none.
 2. *Eating a food item in one bite.* The `otmp->oclass == FOOD_CLASS` path for
    an object whose `oeaten` nutrition is consumed in a single turn, through
    `done_eating()`. Excludes corpses, tins and anything multi-turn.
