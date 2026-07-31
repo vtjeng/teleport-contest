@@ -101,6 +101,29 @@ test('find_mac gives an amulet of guarding a fixed two points', () => {
     assert.equal(find_mac(guarded, state), KITTEN_AC - 2);
 });
 
+// worn.c:724. Every other case here carries a single object, so the loop runs
+// once and its two control statements do nothing observable: replacing the
+// `continue` with a `break`, or `obj = obj.nobj` with `obj = null`, leaves them
+// all green. This case chains three objects with an unworn one in the middle,
+// so a `break` stops before the amulet and the advance has somewhere to go.
+test('find_mac sums every worn slot across a chained inventory', () => {
+    const state = catalogState();
+    const amulet = wornObject(state, AMULET_OF_GUARDING, W_AMUL);
+    // Between the two worn objects, and named by neither slot, so reaching the
+    // amulet requires the loop to continue rather than stop.
+    const carried = wornObject(state, ORCISH_HELM, 0, { spe: 50 });
+    carried.nobj = amulet;
+    const helm = wornObject(state, ORCISH_HELM, W_ARMH);
+    helm.nobj = carried;
+    const layered = kitten(state, {
+        minvent: helm,
+        misc_worn_check: W_ARMH | W_AMUL,
+    });
+    // Helm 1 + 0 - 0 is 1; the amulet is a flat 2; the carried helm's 51 is
+    // not counted. 6 - 1 - 2.
+    assert.equal(find_mac(layered, state), KITTEN_AC - 3);
+});
+
 // worn.c:733-734, the same cap do_wear.c find_ac() applies to the hero.
 test('find_mac caps the result at AC_MAX', () => {
     const state = catalogState();
@@ -110,4 +133,14 @@ test('find_mac caps the result at AC_MAX', () => {
         misc_worn_check: W_ARMH,
     });
     assert.equal(find_mac(overloaded, state), -99);
+
+    // The negative side alone leaves Math.sign() untested: replacing
+    // `Math.sign(base) * AC_MAX` with the constant `-AC_MAX` passes. A
+    // strongly negative enchantment drives base positive instead. ARM_BONUS is
+    // 1 - 200 - min(0, 1), so 6 - (-199) is 205 before the cap.
+    const cursed = kitten(state, {
+        minvent: wornObject(state, ORCISH_HELM, W_ARMH, { spe: -200 }),
+        misc_worn_check: W_ARMH,
+    });
+    assert.equal(find_mac(cursed, state), 99);
 });

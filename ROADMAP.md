@@ -388,10 +388,13 @@ this machine against the fixture the tests use, not estimated.
    undone afterwards, measured 74 to 131 ms per turn against the 1.13 ms
    preflight it would guard. That is an order of magnitude worse than the
    6.4 ms catalog copy this construct was already forced to withdraw. It is
-   also a weaker detector than first claimed: it would have caught three of
-   the nine defects outright, because four of the nine are not live writes at
-   all -- a missing refusal, a permissive stub, an unconverted refusal class,
-   and a clone that was too isolated rather than too little.
+   also a weaker detector than first claimed. Of the nine, **five are not live
+   writes at all** -- a missing refusal, a permissive stub, an unconverted
+   refusal class, a clone that was too isolated rather than too little, and the
+   6.4 ms materialization cost. Four are live writes, and the detector catches
+   **three of those four**. The fourth, the restore that left live
+   `vision_full_recalc` set, escapes because it is a root field the scan's own
+   restore has to write, so no freeze can tell that write from a leak.
 2. *Copy-on-write.* Put the planned state behind a proxy whose writes land on
    an overlay, so isolation is the default and the field list disappears. This
    was costed as the more expensive option; measuring option 1 removes that
@@ -422,10 +425,23 @@ The object catalog stays writable because the clone delegates to it with
 freezing it would report the copy's writes as live leaks.
 
 **What the detector still cannot see.** `vision.c`'s module-level transparency
-index and `liveVisionBuffers` are not reachable from the state, so no freeze
-reaches them; they stay covered by the `finally` restore and the refusing
-`visionRecalc` owner. A leak that *adds* a field to a live object is also
-missed, since `preventExtensions()` is as irreversible as freezing.
+index (`viz_clear`, `left_ptrs`, `right_ptrs`) is not reachable from the state,
+so no freeze reaches it; it stays covered by the `finally` restore and the
+refusing `visionRecalc` owner. The three root fields that restore writes --
+`_viz_rmin`, `_viz_rmax` and `vision_full_recalc` -- are uncovered for the same
+reason, and the last of those is a recorded defect, so a dedicated case pins it
+instead.
+
+Two claims made here earlier were wrong and are corrected. `liveVisionBuffers`
+*is* reachable: `js/vision.js:791` assigns `game.viz_array =
+liveVisionBuffers.rows[0]`. What hid it was that its rows are `Uint8Array`, and
+`Object.freeze()` throws on a typed array with elements, so the detector skipped
+the views. It now snapshots every reachable view before the dry run and compares
+afterwards, which catches a per-cell vision write -- confirmed by injecting one.
+And a leak that *adds* a field does not escape: `Object.freeze()` already clears
+`[[Extensible]]`, so an added field throws wherever the object is frozen. The
+one place it can still happen is the live root, which is deliberately left
+extensible, and `assertNoLeak()` checks the root's key set for exactly that.
 
 **When.** Option 2 is not urgent by the usual test: the construct owns no
 fail-closed boundary and the score is correct today. The detector removes the

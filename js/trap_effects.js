@@ -220,10 +220,14 @@ async function trapeffect_sqky_board(monster, trap, _trflags, env) {
 }
 
 // C ref: trap.c t_missile(). Make a single arrow/dart/rock for a trap to
-// shoot or drop. mksobj() draws the weapon-class initialization sequence --
-// rn1(6, 6) for the multigen quantity, rn2(11) or rn2(10) for the enchantment
-// and blessing, and rn2(100) for a poisoned edge -- and every draw survives
-// the overrides below, which only change the fields C overwrites.
+// shoot or drop. mksobj() draws mkobj.c's whole WEAPON_CLASS initialization
+// sequence, which is longer than it looks and is owned elsewhere: see
+// js/obj.js mksobj_init() for the quantity, enchantment, blessing and poison
+// draws -- blessorcurse() spends its own rn2(10) and sometimes rn2(2) on the
+// common path -- and the erosion block for the rest. Do not enumerate it here;
+// an earlier version of this comment did and was wrong in both directions.
+// Every draw survives the overrides below, which only change the fields C
+// overwrites.
 function t_missile(otyp, trap, env) {
     const otmp = mksobj(otyp, true, false, env.objectEnv);
 
@@ -292,12 +296,21 @@ async function thitm(tlev, mon, obj, d_override, _nocorpse, env) {
 
 // C ref: trap.c trapeffect_dart_trap() (1250-1321), monster arm (1294-1318).
 // The `mtmp == &gy.youmonst` arm reaches the hero only through dotrap(), which
-// is not ported. C's `see_it` is read only by the misfire arm below, which
-// stops the scan, so it is computed there rather than at the top.
+// is not ported. C computes `see_it` at the top of the monster arm
+// (trap.c:1296) but reads it in one place only, the misfire arm's message
+// (trap.c:1300), and that arm stops the scan before writing anything. The port
+// therefore has no `see_it` at all. Whoever ports the misfire arm must add
+// `cansee(mtmp.mx, mtmp.my, state)` back at C's position relative to the
+// rn2(15) draw.
 async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
     const unsupported = requireTrapOperation(env, 'unsupported');
+    // Resolved for their throw, not their value. Every owner this arm can
+    // reach has to be proven present here, before the misfire draw and before
+    // trap->once is written; a later resolution would refuse after the arm had
+    // already spent randomness or written state. The previous pass over this
+    // file confirmed three defects of exactly that shape.
     requireTrapOperation(env, 'message');
     requireTrapOperation(env, 'redraw');
     // mksobj() and next_ident() need the whole source random set, and

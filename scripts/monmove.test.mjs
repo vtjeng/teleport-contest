@@ -867,6 +867,7 @@ test('postmov shoots a dart at a monster the hero watches and misses',
             random: plainMissRandom(),
             unsupported: (refusal) => { throw new Error(refusal); },
         });
+        const discoBefore = JSON.stringify(state.svd.disco);
 
         await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
 
@@ -874,6 +875,13 @@ test('postmov shoots a dart at a monster the hero watches and misses',
             messages,
             ['The giant rat is almost hit by a dart!'],
         );
+        // The port's own comment calls doname()'s discovery side effect
+        // load-bearing, and the message text alone does not pin it: a namer
+        // that produced the same words without discovering the type would
+        // pass. C names the missile through xname() -> observe_object().
+        assert.equal(state.objects[DART].oc_encountered, 1);
+        assert.equal(state.level.objects[5][4].dknown, true);
+        assert.notEqual(JSON.stringify(state.svd.disco), discoBefore);
         // trap.c:1308. The trap remembers that it has fired, which is what
         // arms the misfire gate on the next monster to step on it.
         assert.equal(state.level.traps[0].once, true);
@@ -894,6 +902,34 @@ test('postmov shoots a dart at a monster the hero watches and misses',
         assert.equal(monster.mtrapseen, 1 << (DART_TRAP - 1));
     });
 
+// C ref: trap.c:1294-1295 and 6732-6734. The monster arm reads two different
+// visibility tests: `in_sight = canseemon(mtmp) || mtmp == u.usteed`, which
+// gates seetrap(), and `cansee(mtmp->mx, mtmp->my)`, which gates thitm()'s
+// message. Every other fixture here and every firing in the checked-in matrix
+// keeps the two in agreement, so conflating them passes. An invisible monster
+// on a square the hero can see separates them: the dart's line is written
+// because the square is visible, and the trap stays unseen because the monster
+// is not. Nothing on dungeon level one sets minvis, so this is unit-only.
+test('postmov separates the dart line gate from the seetrap gate', async () => {
+    const { state, monster } = dartTrapState();
+    seeSquare(state, 5, 4);
+    monster.minvis = true;
+    const { env, messages } = postmovEnv(state, {
+        random: plainMissRandom(),
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+    // cansee() is true, so thitm() writes its line.
+    assert.deepEqual(
+        messages,
+        ['The giant rat is almost hit by a dart!'],
+    );
+    // canseemon() is false, so seetrap() never runs and the trap stays unseen.
+    assert.equal(state.level.traps[0].tseen, false);
+});
+
 // C ref: trap.c:6732-6734. The line is the only part of the arm that cansee()
 // gates; the dart still lands, and seetrap() still does not run, because
 // canseemon() is false as well.
@@ -911,6 +947,37 @@ test('postmov drops the dart silently for a monster out of sight', async () => {
     assert.equal(state.level.traps[0].tseen, false);
     assert.deepEqual(redraws, [[4, 4], [5, 4]]);
     assert.equal(state.level.objects[5][4].otyp, DART);
+    // The mirror of the in-sight case: C reaches doname() only under
+    // cansee(), so an unseen dart discovers nothing.
+    assert.equal(state.objects[DART].oc_encountered ?? 0, 0);
+    assert.notEqual(state.level.objects[5][4].dknown, true);
+});
+
+// C ref: trap.c:1023. t_missile() clears opoisoned after mksobj(), which makes
+// the arm's own rn2(6) the sole poison source. Every other case leaves
+// mksobj()'s rn2(100) unpoisoned too, so `assert.equal(dart.opoisoned, false)`
+// there is satisfied by the default and pins nothing. This case poisons the
+// missile at generation and requires the reset to undo it.
+test('postmov clears a dart poisoned by its own generation', async () => {
+    const { state, monster } = dartTrapState();
+    seeSquare(state, 5, 4);
+    const { env, messages } = postmovEnv(state, {
+        // 0 for bound 100 is mksobj_init()'s poison roll; the arm's own
+        // bound-6 roll stays non-zero, so any poison left on the dart came
+        // from generation and survived a reset that should have cleared it.
+        random: plainMissRandom({
+            rn2: (bound) => (bound === 100 ? 0 : 1),
+        }),
+        unsupported: (refusal) => { throw new Error(refusal); },
+    });
+
+    await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+    assert.deepEqual(
+        messages,
+        ['The giant rat is almost hit by a dart!'],
+    );
+    assert.equal(state.level.objects[5][4].opoisoned, false);
 });
 
 // C ref: trap.c:1310. The dart arm's own rn2(6) poisons the missile, which
@@ -942,9 +1009,12 @@ test('postmov refuses a dart that hits its target', async () => {
     const { state, monster } = dartTrapState();
     seeSquare(state, 5, 4);
     const { env, messages } = postmovEnv(state, {
-        // find_mac() is 7 for a giant rat and thitm()'s tlev is 7, so 20 is
-        // the smallest rnd(20) that strikes.
-        random: plainMissRandom({ rnd: (bound) => (bound === 20 ? 20 : 1) }),
+        // C: strike = find_mac(mon) + tlev + obj->spe <= rnd(20). A giant
+        // rat's find_mac() is 7 and thitm()'s tlev is 7; plainMissRandom()
+        // leaves spe at 0, so 14 is the smallest rnd(20) that strikes. The
+        // boundary pair below pins that sum at exactly 14; this case only
+        // needs a value at or above it.
+        random: plainMissRandom({ rnd: (bound) => (bound === 20 ? 14 : 1) }),
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
@@ -955,6 +1025,44 @@ test('postmov refuses a dart that hits its target', async () => {
     assert.deepEqual(messages, []);
     assert.equal(state.level.objects[5][4], null);
 });
+
+// The pair that pins the threshold. Without it the six dart cases roll 1 for a
+// miss and something far above 14 for a strike, so an error of up to six points
+// in find_mac() or tlev leaves them all green -- and `<=` in thitm() can be
+// weakened to `<` with no test noticing.
+test('postmov puts the dart miss and strike either side of fourteen',
+    async () => {
+        for (const [roll, expectation] of [[13, 'miss'], [14, 'strike']]) {
+            const { state, monster } = dartTrapState();
+            seeSquare(state, 5, 4);
+            const { env, messages } = postmovEnv(state, {
+                random: plainMissRandom({
+                    rnd: (bound) => (bound === 20 ? roll : 1),
+                }),
+                unsupported: (refusal) => { throw new Error(refusal); },
+            });
+            const run = postmov(
+                monster, 4, 4, MMOVE_MOVED, false, false, true, env,
+            );
+
+            if (expectation === 'miss') {
+                await run;
+                assert.deepEqual(
+                    messages,
+                    ['The giant rat is almost hit by a dart!'],
+                    `rnd(20) of ${roll} must miss`,
+                );
+                assert.notEqual(state.level.objects[5][4], null);
+            } else {
+                await assert.rejects(
+                    run,
+                    (error) => error.message === 'a monster hit by a trap',
+                    `rnd(20) of ${roll} must strike`,
+                );
+                assert.deepEqual(messages, []);
+            }
+        }
+    });
 
 // C ref: trap.c:1299-1307. A trap that has already fired under a hero who has
 // seen it wears out on one roll in fifteen, which needs deltrap().

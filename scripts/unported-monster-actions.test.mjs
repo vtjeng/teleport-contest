@@ -2441,29 +2441,38 @@ test('a planned door opening leaves vision_full_recalc as it found it',
         assert.equal(game.vision_full_recalc, 0);
     });
 
-// The three cases below share one detector rather than one assertion each.
+// The cases below share one detector rather than one assertion each.
 // freezeLiveState() deep-freezes everything the dry run can reach in the live
 // game, so a field planningState() forgot to copy throws a TypeError at the
 // line that writes it. They exist because the field list has no source of
 // truth to check against: nine recorded defects were all found by symptom,
 // after the fact, and two of them were introduced by the fix for a previous
-// one. See scripts/planning-isolation-test-support.mjs for the two objects the
-// detector deliberately leaves writable, and the two it cannot see at all.
+// one. See scripts/planning-isolation-test-support.mjs for its three
+// exclusions and the one thing it cannot see at all. Each case asserts a floor
+// on the objects frozen, so a walk that reached almost nothing cannot pass as a
+// clean run, and each calls guard.assertNoLeak() afterwards, which covers the
+// typed-array grids -- state.viz_array among them -- that cannot be frozen.
 //
 // Each case ends with the game frozen for good, so none may run a live pass
 // afterwards.
 
+// Every case calls this. freezeLiveState() reports what it reached, and a
+// walk that reached almost nothing would let every case below pass without
+// testing anything -- a failure that looks exactly like success.
+function assertDetectorReachedTheGraph(guard) {
+    assert.ok(guard.frozen > 1000, `froze only ${guard.frozen} objects`);
+    assert.ok(guard.views > 0, `snapshotted only ${guard.views} typed arrays`);
+}
+
 test('a planned ordinary move writes nothing to frozen live state',
     async () => {
         const target = await prepareSelectedAction();
-        const frozen = freezeLiveState(game);
-        // A guard on the detector itself. A walk that reached almost nothing
-        // would pass all three cases below without testing anything, and the
-        // failure would look like success.
-        assert.ok(frozen > 1000, `froze only ${frozen} objects`);
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
 
         await preflightSimpleMonsterActions(game);
 
+        guard.assertNoLeak(assert);
         assert.equal(target.monster.mx, target.monsterX);
     });
 
@@ -2475,10 +2484,12 @@ test('a planned door opening writes nothing to frozen live state',
         // live root is left writable precisely so that restore can write its
         // three fields; everything it reaches below the root is frozen.
         const target = await prepareClosedDoorArrival();
-        freezeLiveState(game);
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
 
         await preflightSimpleMonsterActions(game);
 
+        guard.assertNoLeak(assert);
         assert.equal(target.location.doormask, D_CLOSED);
         assert.equal(doorLetsLightThrough(target), 0);
     });
@@ -2510,9 +2521,12 @@ test('a planned pet pickup writes nothing to frozen live state',
         game.u.xray_range = 3;
         game.objects[DAGGER].oc_encountered = 0;
         const discoBefore = JSON.stringify(game.svd.disco);
-        freezeLiveState(game);
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
 
         await preflightSimpleMonsterActions(game);
+
+        guard.assertNoLeak(assert);
 
         // The freeze is the detector; these pin that the case still reaches
         // the arm, so a fixture that stops refusing early cannot pass quietly.
@@ -2545,10 +2559,12 @@ test('a planned dart trap writes nothing to frozen live state', async () => {
         conjoined: 0,
     }];
     const identBefore = game.context.ident;
-    freezeLiveState(game);
+    const guard = freezeLiveState(game);
+    assertDetectorReachedTheGraph(guard);
 
     await preflightSimpleMonsterActions(game);
 
+    guard.assertNoLeak(assert);
     // The freeze is the detector; these pin that the case still reaches the
     // arm, so a fixture that stops refusing early cannot pass quietly.
     assert.equal(game.level.traps[0].once, false);
@@ -2579,10 +2595,12 @@ test('a planned distant pet pickup writes nothing to frozen live state',
         installObject(target, dagger);
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
         game.gd = { distantname: 0 };
-        freezeLiveState(game);
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
 
         await preflightSimpleMonsterActions(game);
 
+        guard.assertNoLeak(assert);
         assert.equal(game.gd.distantname, 0);
         assert.equal(dagger.where, OBJ_FLOOR);
     });

@@ -1753,9 +1753,15 @@ test('interrupt_multi stops before Norep on a verbose counted repeat', () => {
 // whether one happens. Under a total freeze the live pass must fail -- it is
 // supposed to write -- so what distinguishes an isolated planning round from a
 // leaking one is whether that first failure lands after the preflight returned
-// or inside it. Sharing the hero instead of cloning it moves the reported
-// frame from js/allmain.js into js/unported_monster_actions.js, which is the
-// mutation this was confirmed against.
+// or inside it.
+//
+// Asserting the frame's module is not enough to say that, and an earlier
+// version of this case did. finishElapsedTurn() runs on the clone from inside
+// preflightSimpleMonsterActions() and lives in js/allmain.js itself, so a leak
+// written by the planning round reports the same module as the live pass it is
+// meant to be distinguished from. What separates them is the call stack:
+// a throw from the planning round carries a preflightSimpleMonsterActions
+// frame, and a throw from the live pass does not.
 test('a planned once-per-turn round writes nothing to frozen live state',
     async () => {
         await runSegment({
@@ -1784,6 +1790,14 @@ test('a planned once-per-turn round writes nothing to frozen live state',
         game.context.seer_turn = 100000;
         game.context.next_attrib_check = 100000;
         game.nhDisplay.pushKey('.'.charCodeAt(0));
+        // The precondition the whole case rests on. advanceElapsedTurn()
+        // supplies advanceRound only when this is positive; if the fixture
+        // ever stopped burdening the hero, the planning round would not run at
+        // all and every assertion below would still pass.
+        assert.ok(
+            projected_capacity(game) > 0,
+            'the fixture must burden the hero',
+        );
         freezeLiveState(game);
 
         let caught = null;
@@ -1794,6 +1808,12 @@ test('a planned once-per-turn round writes nothing to frozen live state',
         }
 
         assert.ok(caught instanceof TypeError, `threw ${caught}`);
-        const firstFrame = caught.stack.split('\n')[1] ?? '';
-        assert.match(firstFrame, /js\/allmain\.js/u);
+        assert.doesNotMatch(
+            caught.stack,
+            /preflightSimpleMonsterActions/u,
+            'the planning round wrote to frozen live state',
+        );
+        // The live pass did reach its own first write, so the freeze was in
+        // force for the whole turn rather than the turn stopping early.
+        assert.match(caught.stack, /advanceElapsedTurn/u);
     });
