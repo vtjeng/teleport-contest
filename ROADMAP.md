@@ -185,6 +185,52 @@ pickup goal was chosen on "fires without a player command" and gained +1
 development, +0 holdout. Both errors share a shape -- a property that is
 necessary for the session to move but not sufficient.
 
+### Queued: the hero walks onto a floor square holding more than one object
+
+A walking hero steps onto a square holding two or more objects with
+`!autopickup`. `pickup.c pickup()` takes its `(autopickup && !flags.pickup)`
+early return into `check_here(FALSE)`, the run stops, and `invent.c
+look_here()` opens the `Things that are here:` window.
+
+In scope: the `look_here()` branches reachable when the square holds more than
+one object and no guard requiring `Blind`, `u.uswallow`, `is_pool`/`is_lava`,
+`visible_region_at()`, a seen trap, `will_feel_cockatrice()` or a nonzero
+`dfeature_at()` holds -- the `otmp->nexthere` window (`invent.c:4288-4313`) and
+the `skip_objects` count line (`4251-4276`) that `flags.pile_limit` selects --
+plus `pickup()`'s no-autopickup arm and its `nomul(0)` run stop. Excluded:
+`autopick()` and `pickup_object()`, the whole autopickup arm.
+
+`invent.c look_here()` (4104-4315) is already ported apart from those two
+branches, and `js/pickup.js check_here()` is live at `js/hack.js:1158` behind
+`domove_core()`, so the consumer exists. The work is widening
+`requireSimpleHeroDestination()` (`js/hack.js:414-444`) and finishing
+`look_here()`'s `'the object-pile menu'` throw at `js/invent.js:454`. Roughly
+150 new C lines, two or three slices.
+
+**Why this one, stated so it can be falsified.** Over 60 freshly generated D:1
+levels (seeds 7100000-7100059) the port produces 19.4 squares holding an object
+per level, in 100% of levels, and 1.28 squares holding a *pile*, in 72% --
+against 1.12 traps, 0.75 fountains and 0.10 sinks. Object squares outnumber
+every other unported destination class by an order of magnitude, and 20 of 33
+development sessions set `!autopickup`. The property this rests on is the one
+the closed-door goal had, the only goal whose holdout gain beat development: it
+lies on the path of **ordinary walking**, gated on nothing but the hero moving,
+unlike a pet on a trap or a monster with hands at a door.
+
+If this goal closes with another zero-screen holdout, that claim is dead, and
+the conclusion is that holdout sessions are censored upstream by unported
+*commands* -- which makes exploration due to close and the `flush_screen()`
+ordering question under `## Later milestones` due at once.
+
+`seed0004-feeding-pony` stops here at 26 of 409 steps, the largest single
+session ceiling left in exploration.
+
+**Unsettled, for the first slice to answer.** Whether the pile window trips the
+`flush_screen()` menu-erasure defect recorded under `## Unresolved`.
+`check_here()`'s `flush_screen(1)` runs before the window opens and no
+`pline()` runs while it is up, so probably not -- but no C differential has
+been recorded, and the first slice must record one.
+
 ## Explicit future exploration work, outside the goal in progress
 
 - Hero or monster combat, including attacks, retaliation, monster-initiated
