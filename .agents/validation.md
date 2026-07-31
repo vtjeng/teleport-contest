@@ -97,6 +97,31 @@ When a fresh differential fails:
 4. Add a regression test for the general behavior.
 5. Implement from source. Do not implement from the observed trace.
 
+## Facts about the measuring tools
+
+These four are settled and keep being re-derived. Each has cost a wrong
+conclusion at least once.
+
+- **`rngMatched` compares positionally over the whole log, not as a prefix.**
+  `frozen/ps_test_runner.mjs` walks both logs to their full length. A segment
+  that stops early therefore scores its *next* segment's startup calls against
+  C's still-running ones, so a matched-call count can fall while correctness
+  rises. When a count moves the wrong way, measure the first-divergence index
+  before concluding anything.
+- **`game.rng` does not exist.** Count draws through the replay object's
+  `getRngLog()`. An assertion written against `game.rng?.log?.length ?? 0`
+  compares 0 with 0 and passes whatever the code does.
+- **`js/terminal.js` outside the scoring workspace serializes to the empty
+  string.** A scan that greps rendered screens measures nothing there. Read
+  `gt.toplines`, or run inside the workspace the scorer builds.
+- **A mutation run's first wave can be empty.** `scripts/mutate-sites.mjs`
+  judges a mutant by the test files that reach its module without passing
+  through another `js/` module. Some modules have none -- `js/trap_effects.js`
+  reports `0 covering test file(s)`, because every test reaches it through
+  `js/monmove.js` -- and every mutant in such a file survives its first wave
+  vacuously. Check the per-file line the run prints; where it reports zero,
+  `--whole-suite` is not optional.
+
 ## Score evidence
 
 Calculate and report a score estimate for each completed implementation
