@@ -87,6 +87,21 @@ export function makeVisionBuffers() {
 
 const liveVisionBuffers = makeVisionBuffers();
 
+// The live COULD_SEE pair has no per-state form and is not reachable from the
+// game state: only rows[0] is, through game.viz_array. The spare row set and
+// both rmin/rmax pairs are exactly what vision_recalc() writes, so a planning
+// round that leaked into them would be invisible to any check that walks the
+// state. scripts/planning-isolation-test-support.mjs snapshots what this
+// returns for that reason. Read-only: callers must not mutate the arrays.
+export function liveVisionBufferViews() {
+    return [
+        ...liveVisionBuffers.rows[0],
+        ...liveVisionBuffers.rows[1],
+        ...liveVisionBuffers.rmin,
+        ...liveVisionBuffers.rmax,
+    ];
+}
+
 function visionBuffers(state) {
     return state._visionBuffers ?? liveVisionBuffers;
 }

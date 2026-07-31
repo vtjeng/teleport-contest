@@ -25,6 +25,7 @@ import {
     BUSTDOOR,
     COLNO,
     CONFLICT,
+    DETECT_MONSTERS,
     COULD_SEE,
     DB_ICE,
     DB_MOAT,
@@ -80,6 +81,10 @@ import {
     W_ARM,
 } from '../js/const.js';
 import { A_CHA } from '../js/const.js';
+import {
+    canSeeMonster,
+    canSpotMonster,
+} from '../js/startup_a11y.js';
 import { effective_attribute } from '../js/attrib.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
 import { online2 } from '../js/hacklib.js';
@@ -425,6 +430,23 @@ function deferred() {
 
 // postmov() takes the square the monster stands on from the level, so each
 // case below puts the monster on that square first.
+// mintrap() proves the whole random set trapeffect_selector() can dispatch to
+// before its first write, so a fixture that names only the draws it expects no
+// longer reaches the code under test -- it is refused for the absent ones. This
+// keeps the "no draw is due" intent by making every unnamed operation fail
+// loudly if it is ever called, while still satisfying the presence check.
+function trapRandom(overrides = {}) {
+    const refuse = (name) => () => assert.fail(`no ${name} draw is due`);
+    return {
+        rn1: refuse('rn1'),
+        rn2: refuse('rn2'),
+        rnd: refuse('rnd'),
+        rne: refuse('rne'),
+        rnl: refuse('rnl'),
+        ...overrides,
+    };
+}
+
 function postmovEnv(state, overrides = {}) {
     const redraws = [];
     const messages = [];
@@ -667,7 +689,7 @@ test('postmov refuses a move that ends on an unported trap type', async () => {
     // selector rather than from a destination check.
     state.level.traps = [{ tx: 5, ty: 4, ttyp: ARROW_TRAP, tseen: false }];
     const { env } = postmovEnv(state, {
-        random: { rn2: () => assert.fail('no draw is due'), rnl: () => 0 },
+        random: trapRandom({ rnl: () => 0 }),
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
@@ -677,6 +699,40 @@ test('postmov refuses a move that ends on an unported trap type', async () => {
     );
 });
 
+// The eager proof itself, which no test pinned: every other fixture supplies
+// all five random operations, so deleting mintrap()'s check restored the
+// original defect with the suite green. A short set has to be refused before
+// mon_learns_traps() writes mtrapseen on the victim and before the rn2(4) and
+// rnl(5) gates can draw.
+//
+// Only the random half is reachable from here. postmov() supplies message,
+// redraw, heroDeaf, mInAir and youHear itself (js/monmove.js:2392-2398), so
+// mintrap()'s owner loop answers to a direct caller rather than to this path;
+// scripts/monster-dart-trap.test.mjs owns that half.
+test('postmov proves a trap\'s random set before the first write or draw',
+    async () => {
+        const { state } = makeState();
+        const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+        state.level.monlist = monster;
+        state.level.traps = [
+            { tx: 5, ty: 4, ttyp: SQKY_BOARD, tnote: 9, tseen: false },
+        ];
+        // mintrap()'s own two draws, but the dart arm the selector can also
+        // dispatch to reaches mksobj() and next_ident(), which need three more.
+        const { env } = postmovEnv(state, {
+            random: { rn2: () => 0, rnl: () => 0 },
+            unsupported: (refusal) => { throw new Error(refusal); },
+        });
+
+        await assert.rejects(
+            postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
+            (error) => error instanceof TypeError,
+        );
+        // The whole point: nothing was written before the refusal.
+        assert.equal(monster.mtrapseen ?? 0, 0);
+        assert.equal(state.level.traps[0].tseen, false);
+    });
+
 // The sibling: mintrap() must not widen into a blanket refusal, or every
 // ordinary move would stop. C returns Trap_Effect_Finished with no draw for a
 // monster standing on no trap at all.
@@ -685,7 +741,7 @@ test('postmov admits a move that ends on a trapless square', async () => {
     const monster = ordinaryMonster(state, { mx: 5, my: 4, mtrapped: 1 });
     state.level.traps = [];
     const { env } = postmovEnv(state, {
-        random: { rn2: () => assert.fail('no draw is due'), rnl: () => 0 },
+        random: trapRandom({ rnl: () => 0 }),
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
@@ -710,7 +766,7 @@ test('postmov squeaks a board under a monster the hero cannot see',
             { tx: 5, ty: 4, ttyp: SQKY_BOARD, tnote: 9, tseen: false },
         ];
         const { env, messages, redraws } = postmovEnv(state, {
-            random: { rn2: () => assert.fail('no draw is due'), rnl: () => 0 },
+            random: trapRandom({ rnl: () => 0 }),
             unsupported: (refusal) => { throw new Error(refusal); },
         });
 
@@ -767,10 +823,7 @@ test('postmov chooses the squeak distance from couldsee and mdistu',
                 state.viz_array[my][mx] = COULD_SEE;
             }
             const { env, messages } = postmovEnv(state, {
-                random: {
-                    rn2: () => assert.fail('no draw is due'),
-                    rnl: () => 0,
-                },
+                random: trapRandom({ rnl: () => 0 }),
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
 
@@ -801,10 +854,10 @@ test('postmov lets a monster that knows the board escape on rn2(4)',
             ];
             const bounds = [];
             const { env, messages } = postmovEnv(state, {
-                random: {
+                random: trapRandom({
                     rn2: (bound) => { bounds.push(bound); return roll; },
                     rnl: () => 0,
-                },
+                }),
                 unsupported: (refusal) => { throw new Error(refusal); },
             });
 
@@ -910,10 +963,21 @@ test('postmov shoots a dart at a monster the hero watches and misses',
 // on a square the hero can see separates them: the dart's line is written
 // because the square is visible, and the trap stays unseen because the monster
 // is not. Nothing on dungeon level one sets minvis, so this is unit-only.
+//
+// The hero also needs to sense the monster, and that is not incidental.
+// thitm()'s line names the victim through C's Monnam(), whose x_monnam()
+// do_it branch (do_name.c:863, 876-882) returns "It" when canspotmon() is
+// false -- and minvis alone makes it false. The port has no do_it branch, so
+// it would answer the species name where C answers "It", and an earlier
+// version of this case pinned that wrong string as correct. Detection keeps
+// canspotmon() true through sensemon(), which separates the two gates this
+// case is about without dragging in an unported naming branch. The missing
+// do_it branch is recorded under `## Unresolved` in ROADMAP.md.
 test('postmov separates the dart line gate from the seetrap gate', async () => {
     const { state, monster } = dartTrapState();
     seeSquare(state, 5, 4);
     monster.minvis = true;
+    state.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
     const { env, messages } = postmovEnv(state, {
         random: plainMissRandom(),
         unsupported: (refusal) => { throw new Error(refusal); },
@@ -921,12 +985,17 @@ test('postmov separates the dart line gate from the seetrap gate', async () => {
 
     await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
 
-    // cansee() is true, so thitm() writes its line.
+    // The two gates the case exists to separate, asserted directly rather than
+    // inferred from the output: the monster cannot be seen, so seetrap() is
+    // skipped, but it can be spotted, so C's Monnam() gives the species name
+    // rather than "It".
+    assert.equal(canSeeMonster(monster, state), false);
+    assert.equal(canSpotMonster(monster, state), true);
+    // cansee() of the square is true, so thitm() writes its line.
     assert.deepEqual(
         messages,
         ['The giant rat is almost hit by a dart!'],
     );
-    // canseemon() is false, so seetrap() never runs and the trap stays unseen.
     assert.equal(state.level.traps[0].tseen, false);
 });
 
@@ -961,12 +1030,13 @@ test('postmov drops the dart silently for a monster out of sight', async () => {
 test('postmov clears a dart poisoned by its own generation', async () => {
     const { state, monster } = dartTrapState();
     seeSquare(state, 5, 4);
+    const bounds = [];
     const { env, messages } = postmovEnv(state, {
         // 0 for bound 100 is mksobj_init()'s poison roll; the arm's own
         // bound-6 roll stays non-zero, so any poison left on the dart came
         // from generation and survived a reset that should have cleared it.
         random: plainMissRandom({
-            rn2: (bound) => (bound === 100 ? 0 : 1),
+            rn2: (bound) => { bounds.push(bound); return bound === 100 ? 0 : 1; },
         }),
         unsupported: (refusal) => { throw new Error(refusal); },
     });
@@ -976,6 +1046,13 @@ test('postmov clears a dart poisoned by its own generation', async () => {
     assert.deepEqual(
         messages,
         ['The giant rat is almost hit by a dart!'],
+    );
+    // The precondition, asserted rather than assumed: without it this case
+    // reverts to the vacuous shape it was written to repair the moment
+    // mksobj_init() stops making that draw.
+    assert.ok(
+        bounds.includes(100),
+        `mksobj_init() must roll its poison chance; saw ${bounds}`,
     );
     assert.equal(state.level.objects[5][4].opoisoned, false);
 });

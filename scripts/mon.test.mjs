@@ -272,6 +272,28 @@ test('wake_nearto wakes only living monsters inside the strict range',
         assert.equal(dead.msleeping, true);
         assert.deepEqual(messages, ['The jackal wakes up.']);
         assert.equal(buriedCalls.length, 1);
+        // C reaches this line through pline_mon() (mon.c:4325), which prefixes
+        // the victim's coordinates under accessiblemsg, where new_were()'s
+        // plain pline() at were.c:113 does not. Nothing pinned that: with the
+        // option off both spellings answer the same string, so unwrapping
+        // wake_msg()'s messageAt() left the whole suite and every score
+        // unchanged. Re-run the same wake with the option on.
+        const accessible = [];
+        ordinary.msleeping = true;
+        ordinary.mstrategy = STRAT_WAITMASK;
+        state.a11y = { accessiblemsg: true };
+        await wake_nearto(0, 0, 4, {
+            canSeeMonster: (subject) => subject === ordinary,
+            disturbBuriedZombies: () => {},
+            message: (text) => { accessible.push(text); },
+            state,
+        });
+        // The jackal sits at <1,0> and the hero at the fixture's own position;
+        // the prefix comes from coordinateDescription(), so this asserts the
+        // wrapping is present rather than pinning a particular compass phrase.
+        assert.equal(accessible.length, 1);
+        assert.notEqual(accessible[0], 'The jackal wakes up.');
+        assert.match(accessible[0], /: The jackal wakes up\.$/u);
         assert.deepEqual(buriedCalls[0].slice(0, 2), [0, 0]);
         assert.equal(buriedCalls[0][2].state, state);
     });

@@ -316,6 +316,30 @@ that screen however faithful the port is.
 
 ### Trap effects
 
+#### `Monnam()` has no `do_it` branch, so an unspottable monster gets a name
+
+C's `x_monnam()` returns `"it"` when `canspotmon()` is false and the article is
+not `ARTICLE_YOUR` (`do_name.c:863`, `876-882`). `js/do_name.js`'s
+`monsterCommonName()` and `capitalizedMonsterName()` have no such branch and
+never consult visibility, so every message that names a monster the hero cannot
+spot answers the species name where C answers `It`.
+
+This is a **silent divergence, not a refusal**: nothing stops, and the first
+evidence would be a screen mismatch. `js/trap_effects.js thitm()` is one
+reachable writer, through `pline_mon(mon, "%s is almost hit by %s!",
+Monnam(mon), ...)` at `trap.c:6732-6734`, and there will be others as combat
+lands.
+
+Nothing on dungeon level one sets `minvis`, and `assertSimpleActionState()`
+refuses `is_hider`, so no admitted path reaches it today. It was found by a
+test that made a monster `minvis` to separate two visibility gates and pinned
+the species name as correct; that fixture now grants detection instead, which
+keeps `canspotmon()` true, and `scripts/monmove.test.mjs` asserts both gates
+directly. Port the `do_it` branch with the goal that first admits an
+unspottable monster, and give it the mirror case.
+
+
+
 #### thirteen squeaky-board findings are deferred
 
 The correctness pass over `06a5629..bf96cda` confirmed sixteen findings; three

@@ -53,11 +53,18 @@
 //    the end rather than at the leaking line, which is weaker than a throw,
 //    but it is the difference between covered and not.
 //
+// Reachability is not the same as being in the state. Only rows[0] of
+// vision.c's live COULD_SEE pair is reachable, through game.viz_array; the
+// spare row set and both rmin/rmax pairs are module-level, and they are
+// precisely what vision_recalc() writes. The snapshot therefore takes
+// liveVisionBufferViews() as well as everything the walk finds, so a leak into
+// the spare half is caught rather than silently missed.
+//
 // One thing the detector still cannot see at all: vision.c's module-level
-// transparency index (viz_clear, left_ptrs, right_ptrs, js/vision.js:65-67) is
-// not reachable from the state, so neither the freeze nor the snapshot touches
-// it. It stays covered by preflightSimpleMonsterActions()'s finally restore
-// and by the refusing visionRecalc owner.
+// transparency index (viz_clear, left_ptrs, right_ptrs, js/vision.js:65-67).
+// It holds run pointers rather than a per-cell grid, so there is nothing to
+// compare; it stays covered by preflightSimpleMonsterActions()'s finally
+// restore and by the refusing visionRecalc owner.
 
 // preflightSimpleMonsterActions() ends by calling recalc_block_point() against
 // the live map to re-derive the transparency index it borrowed. That restore
@@ -75,6 +82,8 @@ function collectExemptions(state) {
     // The catalog entries only; the root is now frozen field by field below.
     return new Set(state.objects ?? []);
 }
+
+import { liveVisionBufferViews } from '../js/vision.js';
 
 export function freezeLiveState(state) {
     const exempt = collectExemptions(state);
@@ -114,6 +123,8 @@ export function freezeLiveState(state) {
     // live entries, so following the chain would freeze exactly what the
     // catalog exemption exists to leave alone.
     walk(state);
+    // Not reachable from the state, and the half vision_recalc() writes.
+    for (const view of liveVisionBufferViews()) consider(view);
     while (pending.length > 0) {
         const target = pending.pop();
         walk(target);
@@ -133,10 +144,13 @@ export function freezeLiveState(state) {
     }
 
     return {
-        // Objects frozen, excluding the root and the catalog. Cases assert a
-        // floor on this so a walk that reached almost nothing cannot pass as a
-        // clean run.
-        frozen: seen.size - exempt.size - 1,
+        // Objects actually frozen: everything seen, less the catalog entries,
+        // less the root, less the typed-array views, which are snapshotted
+        // rather than frozen and are counted separately in `views`. Cases
+        // assert a floor on this so a walk that reached almost nothing cannot
+        // pass as a clean run, and the two numbers must not overlap or the
+        // floor counts arrays it never froze.
+        frozen: seen.size - exempt.size - 1 - views.length,
         views: views.length,
         assertNoLeak(assert) {
             for (const [view, before] of views) {

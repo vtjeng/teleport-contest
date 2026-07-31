@@ -313,14 +313,6 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
     // file confirmed three defects of exactly that shape.
     requireTrapOperation(env, 'message');
     requireTrapOperation(env, 'redraw');
-    // mksobj() and next_ident() need the whole source random set, and
-    // js/obj.js raises a bare TypeError for a missing one. Proven here, before
-    // the misfire draw and before trap->once is written, so a narrower
-    // injection cannot spend a draw and then fail with a class
-    // ELAPSED_TURN_PLANNING_REFUSALS does not convert.
-    for (const name of ['rn1', 'rn2', 'rnd', 'rne'])
-        if (typeof random?.[name] !== 'function')
-            throw new TypeError('a dart trap requires rn1, rn2, rnd and rne');
     const objectEnv = objectGenerationEnv({ state, random });
 
     const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
@@ -419,9 +411,18 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     // resolve their own owners, which put those throws after mintrap() had
     // already written mtrapseen and spent rnl(5), and after the squeak had
     // been emitted. A refusal has to precede the state change, not follow it.
+    // The random set covers every operation trapeffect_selector() can dispatch
+    // to, not only mintrap()'s own rn2(4) and rnl(5): the dart arm reaches
+    // mksobj() and next_ident(), which need rn1, rnd and rne. Proving them
+    // here rather than in the arm matters, because the arm runs after
+    // mon_learns_traps() has written mtrapseen on the victim and every
+    // onlooker, and after the rn2(4) and rnl(5) gates may have drawn -- so a
+    // late proof would refuse with state already changed, and with a bare
+    // TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert.
     const random = env.random;
-    if (typeof random?.rn2 !== 'function' || typeof random?.rnl !== 'function')
-        throw new TypeError('mintrap requires rn2 and rnl');
+    for (const name of ['rn1', 'rn2', 'rnd', 'rne', 'rnl'])
+        if (typeof random?.[name] !== 'function')
+            throw new TypeError('mintrap requires rn1, rn2, rnd, rne and rnl');
     for (const name of ['redraw', 'mInAir', 'heroDeaf', 'youHear', 'message'])
         requireTrapOperation(env, name);
 

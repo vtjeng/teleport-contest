@@ -1798,7 +1798,7 @@ test('a planned once-per-turn round writes nothing to frozen live state',
             projected_capacity(game) > 0,
             'the fixture must burden the hero',
         );
-        freezeLiveState(game);
+        const guard = freezeLiveState(game);
 
         let caught = null;
         try {
@@ -1807,13 +1807,22 @@ test('a planned once-per-turn round writes nothing to frozen live state',
             caught = error;
         }
 
+        // The typed-array grids cannot be frozen, so the snapshot is the only
+        // thing covering them. Every case in
+        // scripts/unported-monster-actions.test.mjs calls this; leaving it out
+        // here left the once-per-turn round -- the widest surface of the five
+        // -- as the one case with no vision-grid coverage.
+        guard.assertNoLeak(assert);
+
         assert.ok(caught instanceof TypeError, `threw ${caught}`);
         assert.doesNotMatch(
             caught.stack,
             /preflightSimpleMonsterActions/u,
             'the planning round wrote to frozen live state',
         );
-        // The live pass did reach its own first write, so the freeze was in
-        // force for the whole turn rather than the turn stopping early.
+        // Not a second discriminator: a planning-round throw carries an
+        // advanceElapsedTurn frame too, since the preflight is called from
+        // inside it. This only rules out the turn dying somewhere earlier than
+        // the elapsed-turn coordinator entirely.
         assert.match(caught.stack, /advanceElapsedTurn/u);
     });

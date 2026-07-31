@@ -5,6 +5,7 @@ import { DART_TRAP } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { DART } from '../js/objects.js';
+import { mintrap } from '../js/trap_effects.js';
 import {
     loadMonsterDartTrapRecipe,
 } from './run-monster-dart-trap.mjs';
@@ -109,3 +110,54 @@ test('every matrix segment fires a dart trap and replays to its last key',
             );
         }
     });
+
+// mintrap() proves every owner trapeffect_selector() can dispatch to before
+// its first write, because seetrap() and trapeffect_sqky_board() used to
+// resolve their own and put those throws after mintrap() had written
+// mtrapseen and spent rnl(5). Nothing pinned that proof: postmov() supplies
+// message, redraw, heroDeaf, mInAir and youHear itself, so only a direct
+// caller can leave one out, and deleting the loop left the whole suite green.
+test('mintrap refuses a missing owner before it writes mtrapseen', async () => {
+    const owners = ['redraw', 'mInAir', 'heroDeaf', 'youHear', 'message'];
+    for (const missing of owners) {
+        const monster = {
+            mx: 5,
+            my: 4,
+            mhp: 4,
+            data: { mflags1: 0, mflags2: 0, mflags3: 0 },
+            mtrapseen: 0,
+            mtrapped: 0,
+        };
+        const trap = { tx: 5, ty: 4, ttyp: DART_TRAP, tseen: false, once: false };
+        const state = {
+            level: { traps: [trap], monlist: monster },
+            u: { ux: 5, uy: 5, uprops: [] },
+            flags: {},
+        };
+        const env = {
+            state,
+            // A complete random set, so the refusal under test is the owner
+            // one rather than the random one beside it.
+            random: {
+                rn1: () => 0, rn2: () => 0, rnd: () => 1,
+                rne: () => 1, rnl: () => 0,
+            },
+            unsupported: (reason) => { throw new Error(reason); },
+            redraw: () => {},
+            mInAir: () => false,
+            heroDeaf: () => false,
+            youHear: () => {},
+            message: () => {},
+        };
+        delete env[missing];
+
+        await assert.rejects(
+            mintrap(monster, 0, env),
+            (error) => error instanceof TypeError,
+            `a missing ${missing} must be refused`,
+        );
+        assert.equal(monster.mtrapseen, 0, `${missing}: mtrapseen`);
+        assert.equal(trap.tseen, false, `${missing}: tseen`);
+        assert.equal(trap.once, false, `${missing}: once`);
+    }
+});
