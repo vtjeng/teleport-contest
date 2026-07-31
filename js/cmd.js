@@ -9,16 +9,28 @@ import {
 } from './command_bindings.js';
 import {
     COLNO,
+    DIR_ERR,
     ECMD_CANCEL,
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    MV_ANY,
+    MV_RUN,
+    MV_RUSH,
+    MV_WALK,
+    N_DIRS_Z,
     PICK_NONE,
     PICK_ONE,
+    PLNMSG_UNKNOWN,
+    QBUFSZ,
     SICK,
     SLIMED,
     STONED,
     STRANGLED,
+    quitchars,
+    xdir,
+    ydir,
+    zdir,
 } from './const.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
@@ -39,9 +51,10 @@ import {
 import {
     UnsupportedGetlinBoundaryError,
     tty_get_ext_cmd,
+    tty_yn_function,
 } from './getline.js';
 import { game } from './gstate.js';
-import { lcase } from './hacklib.js';
+import { lcase, visctrl } from './hacklib.js';
 import {
     ddoinv,
     dolook,
@@ -60,9 +73,12 @@ import {
     domove,
     monsterNearby,
     preflightDomoveDestination,
+    u_maybe_impaired,
+    NODIAG,
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { nhgetch } from './input.js';
+import { doride, UnsupportedSteedError } from './steed.js';
 import {
     clearTtyMessageWindow,
     ttyNorep,
@@ -81,6 +97,18 @@ export class UnsupportedHeroCommandBoundaryError extends Error {
         this.name = 'UnsupportedHeroCommandBoundaryError';
         this.reason = reason;
         this.key = key;
+    }
+}
+
+// A cmd.c getdir() or yn_function() path this port has not reached yet. Most
+// of these are raised after the prompt has painted and the answering key has
+// been read, so the segment keeps its matching prefix rather than the
+// keystroke; yn_function()'s two guards fire before anything paints.
+export class UnsupportedDirectionBoundaryError extends Error {
+    constructor(reason) {
+        super(`unsupported direction prompt: ${reason}`);
+        this.name = 'UnsupportedDirectionBoundaryError';
+        this.reason = reason;
     }
 }
 
@@ -233,10 +261,12 @@ function isDigit(key) {
     return key >= 0x30 && key <= 0x39;
 }
 
-// C ref: cmd.c readchar_core(). The window port supplies physical bytes;
-// this helper composes ESC+byte for altmeta and resets input_state after the
-// completed logical command read.
-async function readCommandKey(state) {
+// C ref: cmd.c readchar(), which is readchar_core() with the mouse-position
+// outputs discarded. The window port supplies physical bytes; this composes
+// ESC+byte for altmeta and resets input_state after the completed logical read.
+// The debug fuzzer, the do-again buffer and the readchar queue are all
+// unported, and none of them is reachable in a recorded game.
+export async function readchar(state) {
     let key = (await nhgetch(state)) & 0xFF;
     if (key === ESC && state.iflags.altmeta
         && state.program_state.input_state !== 'other') {
@@ -246,6 +276,233 @@ async function readCommandKey(state) {
     }
     state.program_state.input_state = 'other';
     return key;
+}
+
+// C ref: cmd.c key2txt(). The four named keys are spelled out; everything else
+// goes through visctrl().
+export function key2txt(c) {
+    const byte = c & 0xFF;
+    if (byte === 0x20) return '<space>';
+    if (byte === 0x1B) return '<esc>';
+    if (byte === 0x0A) return '<enter>';
+    if (byte === 0x7F) return '<del>';
+    return visctrl(byte);
+}
+
+// C ref: cmd.c yn_menuable_resp(). The C test compares `resp` against five
+// specific string literals by address, so no response set the port could build
+// at run time would match; a null `resp`, which is what getdir() passes,
+// answers FALSE on the address comparisons alone.
+function yn_menuable_resp(resp, state) {
+    return resp !== null && Boolean(state.iflags?.query_menu);
+}
+
+// C ref: cmd.c yn_function() (5471-5578). Covers the arm getdir() reaches. No
+// command queue is ported, so the `addcmdq && cmdq_pop()` branch and the
+// cmdq_add_key() below it never run; iflags.debug_fuzzer is never set; and
+// yn_function_menu() declines a null `resp`, leaving the window port's
+// tty_yn_function() as the only reader. The `resp && *resp && res &&
+// !strchr(resp, res)` repair at 5567 cannot run for a null `resp` either.
+export async function yn_function(query, resp, def, addcmdq, state = game) {
+    state.iflags ??= {};
+    // "most recent pline is clobbered". Nothing in the port reads last_msg
+    // back yet; js/invent.js is its other writer.
+    state.iflags.last_msg = PLNMSG_UNKNOWN;
+
+    if (query.length >= QBUFSZ) {
+        // cmd.c:5486-5491 calls paniclog() and then truncates the query to
+        // QBUFSZ-4 characters plus "...". paniclog() writes a file, which game
+        // code may not do, and no ported caller passes a query anywhere near
+        // this long, so the port stops instead of guessing at the log.
+        throw new UnsupportedDirectionBoundaryError(
+            `a query of ${query.length} characters needs paniclog()`,
+        );
+    }
+    if (yn_menuable_resp(resp, state)) {
+        throw new UnsupportedDirectionBoundaryError('yn_function_menu()');
+    }
+    const res = await tty_yn_function(query, resp, def, state);
+    if (addcmdq) {
+        throw new UnsupportedDirectionBoundaryError(
+            'cmdq_add_key(CQ_REPEAT) has no command queue',
+        );
+    }
+    // "in case we're called via getdir() which sets input_state".
+    state.program_state.input_state = 'other';
+    return res;
+}
+
+// C ref: hack.h:1329 y_n(), over decl.c ynchars[]. Every restricted response
+// set stops inside tty_yn_function(); this is here so its one ported caller,
+// steed.c doride()'s debug-mode question, can be written as C writes it.
+const ynchars = 'yn';
+export async function y_n(query, state = game) {
+    return yn_function(query, ynchars, 'n', true, state);
+}
+
+// C ref: cmd.c move_funcs[N_DIRS_Z][N_MOVEMODES] (2070-2082), named by the
+// extcmdlist[] handler each slot holds rather than by a function pointer.
+// Rows are xdir[]/ydir[]/zdir[] indexes; columns are MV_WALK, MV_RUN, MV_RUSH.
+// The down and up rows repeat one handler across all three columns, which is
+// why '>' and '<' answer a direction here even though rhack() rejects them
+// after a run or rush prefix.
+const MOVE_FUNCS = Object.freeze([
+    ['do_move_west', 'do_run_west', 'do_rush_west'],
+    ['do_move_northwest', 'do_run_northwest', 'do_rush_northwest'],
+    ['do_move_north', 'do_run_north', 'do_rush_north'],
+    ['do_move_northeast', 'do_run_northeast', 'do_rush_northeast'],
+    ['do_move_east', 'do_run_east', 'do_rush_east'],
+    ['do_move_southeast', 'do_run_southeast', 'do_rush_southeast'],
+    ['do_move_south', 'do_run_south', 'do_rush_south'],
+    ['do_move_southwest', 'do_run_southwest', 'do_rush_southwest'],
+    ['dodown', 'dodown', 'dodown'],
+    ['doup', 'doup', 'doup'],
+].map((row) => Object.freeze(row)));
+
+const HANDLER_BY_COMMAND_NAME = new Map(
+    extcmdlist.map((entry) => [entry.ef_txt, entry.ef_funct]),
+);
+
+// C ref: the `bind->cmd->ef_funct` that cmd.c cmdbind_get() yields. The port's
+// binding model stores extcmdlist[]'s ef_txt, and C compares handlers rather
+// than names, so resolve the name back to its handler before comparing.
+function boundHandler(model, key) {
+    const command = commandForKey(model, key & 0xFF);
+    return command === null
+        ? null
+        : (HANDLER_BY_COMMAND_NAME.get(command) ?? null);
+}
+
+// C ref: cmd.c movecmd(). Sets u.dx, u.dy and u.dz from the direction the key
+// is bound to and returns 1 only for a horizontal one, so '>' and '<' return 0
+// with u.dz set. A key bound to no movement command leaves u.dx and u.dy
+// untouched and only clears u.dz, which is what lets getdir()'s self arm keep
+// the zeroes it just wrote.
+export function movecmd(sym, mode, state = game) {
+    let d = DIR_ERR;
+    const fnc = boundHandler(commandBindings(state), sym);
+    if (fnc) {
+        if (mode === MV_ANY) {
+            for (d = N_DIRS_Z - 1; d > DIR_ERR; d--)
+                if (fnc === MOVE_FUNCS[d][MV_WALK]
+                    || fnc === MOVE_FUNCS[d][MV_RUN]
+                    || fnc === MOVE_FUNCS[d][MV_RUSH])
+                    break;
+        } else {
+            for (d = N_DIRS_Z - 1; d > DIR_ERR; d--)
+                if (fnc === MOVE_FUNCS[d][mode])
+                    break;
+        }
+    }
+
+    if (d !== DIR_ERR) {
+        state.u.dx = xdir[d];
+        state.u.dy = ydir[d];
+        state.u.dz = zdir[d];
+        return state.u.dz ? 0 : 1;
+    }
+    state.u.dz = 0;
+    return 0;
+}
+
+// C ref: cmd.c dxdy_moveok(). Grid bug handling: a diagonal is zeroed rather
+// than refused, so the caller sees no direction at all.
+export function dxdy_moveok(state = game) {
+    const u = state.u;
+    if (u.dx && u.dy && NODIAG(u.umonnum)) {
+        u.dx = 0;
+        u.dy = 0;
+    }
+    return (u.dx || u.dy) ? 1 : 0;
+}
+
+// C ref: cmd.c redraw_cmd().
+export function redraw_cmd(c, state = game) {
+    return boundHandler(commandBindings(state), c) === 'doredraw';
+}
+
+// C ref: cmd.c confdir(). The impaired arm draws rn2(kmax) and rewrites the
+// direction. Nothing the port admits can stun or confuse the hero -- the
+// closed-door seam in js/hack.js refuses both properties for the same reason
+// -- so it stops here rather than guess at a draw no recorded case can check.
+export function confdir(force_impairment, state = game) {
+    if (force_impairment || u_maybe_impaired(state)) {
+        throw new UnsupportedDirectionBoundaryError(
+            'an impaired hero rerolls the direction',
+        );
+    }
+}
+
+// C ref: cmd.c getdir() (3958-4098). Returns 1 when u.dx/u.dy/u.dz name a
+// direction and 0 otherwise, exactly as C does.
+//
+// Four inputs stop here. The simulated-mouse key needs getpos(); '^R' needs
+// docrt_flags() and the retry loop above got_dirsym; an invalid direction key
+// reaches help_dir(), which builds an NHW_TEXT window whenever cmdassist is
+// set, which it is by default; and confdir() stops for an impaired hero.
+//
+// Three of C's own inputs cannot arrive at all: cmdq_pop() answers NULL while
+// no command queue is ported, gi.in_doagain and readchar_queue are always
+// empty, and iflags.debug_fuzzer is never set.
+export async function getdir(s, state = game) {
+    const u = state.u;
+    // retry: -- only the '^R' arm jumps back here, and it is refused below.
+    state.program_state.input_state = 'getdir';
+    const dirsym = await yn_function(
+        (s && s[0] !== '^') ? s : 'In what direction?',
+        null,
+        '\0',
+        false,
+        state,
+    );
+    // "remove the prompt string so caller won't have to"
+    clearTtyMessageWindow(state);
+
+    if (redraw_cmd(dirsym, state)) {
+        throw new UnsupportedDirectionBoundaryError(
+            "'^R' repaints the screen and reissues the direction prompt",
+        );
+    }
+    // cmdq_add_key(CQ_REPEAT, dirsym): no command queue is ported.
+
+    const spkeys = commandBindings(state).specialKeys;
+    if (dirsym === spkeys['getdir.self']
+        || dirsym === spkeys['getdir.self2']) {
+        u.dx = 0;
+        u.dy = 0;
+        u.dz = 0;
+    } else if (dirsym === spkeys['getdir.mouse']) {
+        throw new UnsupportedDirectionBoundaryError(
+            'a simulated mouse click answers the direction prompt',
+        );
+    } else {
+        const is_mov = movecmd(dirsym, MV_ANY, state);
+        if (!is_mov && !u.dz) {
+            if (!quitchars.includes(String.fromCharCode(dirsym))) {
+                const help_requested = dirsym === spkeys['getdir.help'];
+                if (help_requested || state.iflags.cmdassist) {
+                    // help_dir()'s `!viawindow` early return is inside an
+                    // `#if 0` block, so with cmdassist set it always opens a
+                    // window and always answers TRUE.
+                    throw new UnsupportedDirectionBoundaryError(
+                        'help_dir() opens the direction-key window',
+                    );
+                }
+                // did_help stayed FALSE, which only !cmdassist can reach.
+                await ttyPline('What a strange direction!', state);
+            }
+            return 0;
+        }
+        if (is_mov && !dxdy_moveok(state)) {
+            await ttyPline(
+                "You can't orient yourself that direction.",
+                state,
+            );
+            return 0;
+        }
+    }
+    if (!u.dz) confdir(false, state);
+    return 1;
 }
 
 // C ref: cmd.c get_count(). parse() passes allowchars == NULL: an ordinary
@@ -267,7 +524,7 @@ async function getCount(state, inkey = 0) {
             // Restore commandInp before the next read so ESC+byte remains one
             // meta command after any number of digits.
             state.program_state.input_state = savedInputState;
-            key = await readCommandKey(state);
+            key = await readchar(state);
         }
 
         if (isDigit(key)) {
@@ -352,7 +609,7 @@ export async function parseCommand(state = game) {
         if (!state.iflags.num_pad) {
             parsed = await getCount(state);
         } else {
-            const key = await readCommandKey(state);
+            const key = await readchar(state);
             const countKey = commandBindings(state).specialKeys.count;
             if (key === countKey) {
                 // The initial read reset input_state; get_count() restores
@@ -374,12 +631,18 @@ export async function parseCommand(state = game) {
     return finishCommandParse(parsed, state);
 }
 
-// Every command this milestone dispatches, named once so the comment above
-// readSimpleCommand(), both boundary messages, and the admission test cannot
-// drift apart as more commands land. '#' opens the extended-command prompt,
-// through which the other seven are also reachable by name; every other
-// extended command stops inside doextcmd() instead, after the prompt has
-// painted the frames the reference program painted for the same keystrokes.
+// Every command this seam dispatches from the key bound to it, named once so
+// the comment above readSimpleCommand(), both boundary messages, and the
+// admission test cannot drift apart as more commands land. '#' opens the
+// extended-command prompt, through which the other seven are also reachable by
+// name; every other extended command stops inside doextcmd() instead, after
+// the prompt has painted the frames the reference program painted for the same
+// keystrokes.
+//
+// doextcmd() dispatches one command that is deliberately absent here: '#ride',
+// whose own key is M-R. Reaching doride() from that keystroke needs rhack()'s
+// arm for it as well as this admission, and nothing in the current goal drives
+// it, so the key stays on the refusing side while the typed name works.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     '#',
@@ -431,7 +694,7 @@ async function readSimpleCommand(state) {
     await beginCommandParse(state);
     let key;
     try {
-        key = await readCommandKey(state);
+        key = await readchar(state);
     } catch (error) {
         abortCommandParse(state);
         throw error;
@@ -563,6 +826,8 @@ async function failClosedCommand(key, state, run) {
             || error instanceof UnsupportedWeaponSkillError
             || error instanceof UnsupportedGetlinBoundaryError
             || error instanceof UnsupportedSearchError
+            || error instanceof UnsupportedDirectionBoundaryError
+            || error instanceof UnsupportedSteedError
             || error instanceof UnsupportedArtifactDisplayError) {
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
@@ -574,13 +839,14 @@ async function failClosedCommand(key, state, run) {
     }
 }
 
-// Six of the seven extcmdlist[] handlers this milestone owns follow, each
-// reachable both from the key bound to it and from the extended-command
-// prompt: ddoinv(), dovspell(), dodiscovered(), doattributes(), dolook() and
-// dosearch(). The seventh is donull(), which doextcmd() and rhack() call
-// directly because it formats nothing that can fail closed. The first five
-// wrappers return whether the command took time, which its two callers turn
-// into rhack()'s ECMD_TIME; dosearch() returns the ECMD_* result itself.
+// Six of the extcmdlist[] handlers this file owns follow, each reachable both
+// from the key bound to it and from the extended-command prompt: ddoinv(),
+// dovspell(), dodiscovered(), doattributes(), dolook() and dosearch(). Two
+// more have no wrapper: donull(), which doextcmd() and rhack() call directly
+// because it formats nothing that can fail closed, and steed.c doride(), which
+// only the prompt reaches. The first five wrappers return whether the command
+// took time, which its two callers turn into rhack()'s ECMD_TIME; dosearch()
+// returns the ECMD_* result itself, as doride() does.
 //
 // Each wrapper routes its handler through failClosedCommand(), and what that
 // preserves differs by caller. Reached from the single key bound to the
@@ -762,6 +1028,9 @@ async function doextcmd(key, state) {
         return await runKnownCommand(key, state) ? ECMD_TIME : ECMD_OK;
     case 'dosearch':
         return await runSearchCommand(key, state);
+    case 'doride':
+        // C ref: steed.c doride(), which returns its own ECMD_* result.
+        return await doride(state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(

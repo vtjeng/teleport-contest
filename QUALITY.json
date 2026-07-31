@@ -153,6 +153,7 @@
         "js/muse.js",
         "js/priest.js",
         "js/shk.js",
+        "js/steed.js",
         "js/teleport.js",
         "js/unported_monster_actions.js",
         "js/weapon.js"

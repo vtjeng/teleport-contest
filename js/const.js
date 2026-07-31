@@ -101,8 +101,8 @@ export const STATUS_ROW_1 = 22;
 export const STATUS_ROW_2 = 23;
 
 
-// Direction arrays (decl.h, hack.c)
-// Index: 0=W, 1=NW, 2=N, 3=NE, 4=E, 5=SE, 6=S, 7=SW, 8=up, 9=down
+// Direction arrays (decl.c:77-78 and decl.c's zdir[])
+// Index: 0=W, 1=NW, 2=N, 3=NE, 4=E, 5=SE, 6=S, 7=SW, 8=down, 9=up
 export const xdir = [-1, -1,  0,  1,  1,  1,  0, -1, 0,  0];
 export const ydir = [ 0, -1, -1, -1,  0,  1,  1,  1, 0,  0];
 export const zdir = [0, 0, 0, 0, 0, 0, 0, 0, 1, -1];
@@ -116,8 +116,10 @@ export const DIR_E = 4;
 export const DIR_SE = 5;
 export const DIR_S = 6;
 export const DIR_SW = 7;
-export const DIR_UP = 8;
-export const DIR_DOWN = 9;
+// hack.h:640-652 lists DIR_DOWN before DIR_UP, which is what pairs each name
+// with its zdir[] entry above: zdir[DIR_DOWN] is +1 and zdir[DIR_UP] is -1.
+export const DIR_DOWN = 8;
+export const DIR_UP = 9;
 export const N_DIRS = 8;
 export const N_DIRS_Z = 10;
 export function DIR_180(dir) { return (dir + 4) % N_DIRS; }
@@ -1979,6 +1981,10 @@ export const MAXDUNGEON = 16;
 export const MAXLEVEL = 32;
 // MAXOCLASSES: canonical home is objects.js; MAXMCLASSES: canonical home is symbols.js
 export const ROOMOFFSET = 3;
+
+// C ref: decl.c:96 quitchars[]. The keys every prompt accepts as "never mind":
+// space, carriage return, line feed and Escape.
+export const quitchars = ' \r\n\x1B';
 
 // Check if position is within map bounds
 // C ref: cmd.c isok() — x >= 1 && x <= COLNO-1 && y >= 0 && y <= ROWNO-1

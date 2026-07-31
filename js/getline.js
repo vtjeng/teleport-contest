@@ -4,6 +4,13 @@
 // win/tty/topl.c putsyms(), addtopl(), show_topl(), and
 // tty_clear_nhwindow(WIN_MESSAGE) painting they drive.
 //
+// win/tty/topl.c tty_yn_function() lives here as well. It is the port's other
+// top-line prompt reader, and it shares every painting helper below with
+// hooked_tty_getlin(): the same WIN_STOP handling, the same
+// remember_topl()/show_topl() pair for a SUPPRESS_HISTORY prompt, and the same
+// topl_putsym() cursor model. Splitting the two would put one of them behind
+// an import cycle for no gain.
+//
 // getline.c defines NEWAUTOCOMP for every build except MACOS9, so the
 // autocompletion arms below are the ones that write the expansion ahead of an
 // unmoved cursor and erase a stale expansion in place.
@@ -15,7 +22,12 @@ import {
     ECM_NOFLAGS,
     extcmdlist,
 } from './extcmdlist_data.js';
-import { extcmd_initiator, extcmds_match } from './cmd.js';
+import {
+    extcmd_initiator,
+    extcmds_match,
+    key2txt,
+    readchar,
+} from './cmd.js';
 import { flush_screen } from './display.js';
 import { game } from './gstate.js';
 import { mungspaces, visctrl } from './hacklib.js';
@@ -24,6 +36,7 @@ import { NO_COLOR } from './terminal.js';
 import {
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
+    TOPLINE_NON_EMPTY,
     dismissPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
@@ -252,6 +265,62 @@ async function hooked_tty_getlin(query, hook, state) {
     }
     display.topMessage = state._ttyToplines;
     return text;
+}
+
+// C ref: win/tty/topl.c tty_yn_function() (363-550).  Covers the
+// `resp == (char *) 0` arm alone, which is the one that accepts any single
+// keystroke and returns it: the prompt is written, one key is read, and the
+// function jumps straight to clean_up.  Every response-restricted caller --
+// y_n(), ynq(), the '#' count reader and the ctrl-P reprompt loop between
+// them -- stops at the guard below instead.
+//
+// `def` is unread on this arm; C names it because clean_up is shared with the
+// restricted arm, where quitchars and Escape resolve to it.
+export async function tty_yn_function(query, resp, def, state = game) {
+    if (resp !== null) {
+        throw new UnsupportedGetlinBoundaryError(
+            'tty_yn_function() with a restricted response set',
+        );
+    }
+    const display = state.nhDisplay;
+    if (!display) throw new Error('a yn prompt requires an initialized display');
+
+    // yn_number is only read back by the restricted arm's '#' count handling,
+    // which is refused above, so the port keeps no field for it.
+    if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped)
+        await dismissPendingTtyMessage(state);
+    // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
+    state._ttyMessageStopped = false;
+    // topl.c:392 then assigns ttyDisplay->toplin = TOPLINE_SPECIAL_PROMPT and
+    // topl.c:393 raises ttyDisplay->inread.  Neither is modeled, for the same
+    // reason hooked_tty_getlin() gives above: the state is read only once the
+    // top line has wrapped, and inread only gates tty_doprev_message().
+
+    // Sprintf(prompt, "%s ", query) followed by
+    // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt).
+    const prompt = `${query} `;
+    if (state.u?.ux) await flush_screen(1);
+    // remember_topl() moves whatever the top line held into history and
+    // empties gt.toplines; show_topl() then repaints from column zero.
+    state._ttyToplines = '';
+    show_topl(display, prompt);
+    state._pending_message = '';
+    // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
+    display.toplin = TOPLINE_NEED_MORE;
+    state._ttyPreviousMessage = prompt;
+
+    const q = await readchar(state);
+
+    // clean_up: gt.toplines is rewritten as the prompt followed by the key,
+    // so message recall shows the answered prompt rather than the bare query.
+    state._ttyToplines = `${prompt}${key2txt(q)}`;
+    display.toplines = state._ttyToplines;
+    display.topMessage = state._ttyToplines;
+    display.toplin = TOPLINE_NON_EMPTY;
+    // `if (wins[WIN_MESSAGE]->cury) tty_clear_nhwindow(WIN_MESSAGE)` closes
+    // clean_up.  cury is nonzero only for a prompt that wrapped onto a second
+    // row, and no ported query is long enough, so that arm has no owner here.
+    return q;
 }
 
 // C ref: win/tty/getline.c tty_getlin().  Returns the answer, or "\x1b" when

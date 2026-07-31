@@ -12,17 +12,21 @@ import { NO_COLOR } from './terminal.js';
 // print when no window supplies its own.
 export const MORE_PROMPT = '--More--';
 // C ref: include/wintty.h:85-88, which names four ttyDisplay->toplin states.
-// Only these two are ported. C assigns TOPLINE_SPECIAL_PROMPT in
-// hooked_tty_getlin() at getline.c:56, in tty_yn_function() at topl.c:394, and
-// on tty_wait_synch()'s interrupted-read arm at wintty.c:3639, and
-// TOPLINE_NON_EMPTY in several places including getline.c:213. The port
-// assigns neither. The only reads of either constant are topl.c:139, 155 and
-// 163, and every one is gated on a nonzero ttyDisplay->cury, so the two states
-// become distinguishable only once the top line has wrapped onto a second row.
-// No ported prompt wraps; js/getline.js hooked_tty_getlin() records what the
+// Three are ported. C assigns TOPLINE_SPECIAL_PROMPT in hooked_tty_getlin() at
+// getline.c:56, in tty_yn_function() at topl.c:392, and on tty_wait_synch()'s
+// interrupted-read arm at wintty.c:3639; the port assigns it nowhere. The only
+// reads of that constant are topl.c:139, 155 and 163, and every one is gated
+// on a nonzero ttyDisplay->cury, so it becomes distinguishable from
+// TOPLINE_NON_EMPTY only once the top line has wrapped onto a second row. No
+// ported prompt wraps; js/getline.js hooked_tty_getlin() records what the
 // wrapped case would need.
 export const TOPLINE_EMPTY = 0;
 export const TOPLINE_NEED_MORE = 1;
+// tty_yn_function()'s clean_up leaves this one behind (topl.c:543). What reads
+// it is clearTtyMessageWindow() below, whose C original repaints only when the
+// state is not TOPLINE_EMPTY -- which is how getdir()'s clear_nhwindow() takes
+// an answered prompt off the top line.
+export const TOPLINE_NON_EMPTY = 2;
 
 function ttyByteText(value) {
     // topl.c keeps the raw byte string for wrapping and message history.

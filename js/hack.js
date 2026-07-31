@@ -219,6 +219,15 @@ function propertyIntrinsic(state, property) {
     return Boolean(state.u?.uprops?.[property]?.intrinsic);
 }
 
+// C ref: hack.c u_maybe_impaired() (2417-2421). youprop.h:81 and :84 define
+// both Stunned and Confusion as the bare intrinsic field, with no extrinsic or
+// blocked term. rn2(5) is drawn only for a confused hero, so an unimpaired one
+// costs no randomness.
+export function u_maybe_impaired(state = game) {
+    return Boolean(propertyIntrinsic(state, STUNNED)
+        || (propertyIntrinsic(state, CONFUSION) && !rn2(5)));
+}
+
 // C ref: youprop.h's plain `HFoo || EFoo` property macros, such as
 // Passes_walls and Fumbling, which carry no blocked term.
 function propertyPresent(state, property) {
@@ -1206,7 +1215,7 @@ export async function runmode_delay_output(state = game) {
 }
 
 // C ref: hack.h NODIAG(). Only grid bugs are barred from diagonal movement.
-function NODIAG(monnum) {
+export function NODIAG(monnum) {
     return monnum === PM_GRID_BUG;
 }
 

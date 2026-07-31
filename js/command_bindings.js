@@ -54,6 +54,45 @@ const DIRECTION_KEYS = Object.freeze({
     phone: '41236987',
 });
 
+// C ref: cmd.c spkeys_binds[] (3161-3191), which reset_commands() copies into
+// gc.Cmd.spkeys[] on its `initial` pass. The names are the ones `bind` accepts
+// in a config file, and js/options.js emits a `special_key` operation carrying
+// the same name, so this table and that operation share one namespace.
+// NHKF_ESC is spelled here too even though spkeys_binds[] marks it "no
+// binding": reset_commands() copies every row, and bind_specialkey() declines
+// it only because the row carries a null name.
+const SOURCE_SPECIAL_KEY_DEFAULTS = Object.freeze({
+    escape: '\x1B',
+    'getdir.self': '.',
+    'getdir.self2': 's',
+    'getdir.help': '?',
+    'getdir.mouse': '_',
+    count: 'n',
+    'getpos.self': '@',
+    'getpos.pick': '.',
+    'getpos.pick.quick': ',',
+    'getpos.pick.once': ';',
+    'getpos.pick.verbose': ':',
+    'getpos.valid': '$',
+    'getpos.autodescribe': '#',
+    'getpos.mon.next': 'm',
+    'getpos.mon.prev': 'M',
+    'getpos.obj.next': 'o',
+    'getpos.obj.prev': 'O',
+    'getpos.door.next': 'd',
+    'getpos.door.prev': 'D',
+    'getpos.unexplored.next': 'x',
+    'getpos.unexplored.prev': 'X',
+    'getpos.valid.next': 'z',
+    'getpos.valid.prev': 'Z',
+    'getpos.all.next': 'a',
+    'getpos.all.prev': 'A',
+    'getpos.help': '?',
+    'getpos.filter': '"',
+    'getpos.moveskip': '*',
+    'getpos.menu': '!',
+});
+
 const YZ_SWAP_KEYS = Object.freeze([
     ['y', 'z'], ['Y', 'Z'], ['^Y', '^Z'],
     ['M-y', 'M-z'], ['M-Y', 'M-Z'], ['M-^Y', 'M-^Z'],
@@ -214,10 +253,16 @@ export function createCommandBindingModel(state) {
     const model = {
         bindings: [],
         // cmd.c spkeys_binds[] keeps prompt/navigation keys outside the
-        // extended-command linked list.  Only NHKF_COUNT is consumed by the
-        // command parser so far, but retain every configured special key in
-        // this separate namespace for its eventual source owner.
-        specialKeys: { count: commandKeyCode('n') },
+        // extended-command linked list.  NHKF_COUNT is consumed by the command
+        // parser and the four NHKF_GETDIR_* keys by cmd.c getdir(); the rest
+        // are carried unread until their source owner is ported, because
+        // reset_commands() installs the whole table at once and `bind` can
+        // move any row.
+        specialKeys: Object.fromEntries(
+            Object.entries(SOURCE_SPECIAL_KEY_DEFAULTS).map(
+                ([name, key]) => [name, commandKeyCode(key)],
+            ),
+        ),
         directionBackups: null,
         numPad: false,
         swapYZ: false,
