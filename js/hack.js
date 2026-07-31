@@ -23,6 +23,7 @@ import {
     FIRE_RES,
     FLYING,
     FUMBLING,
+    GOLD_SYM,
     HALLUC,
     HALLUC_RES,
     HEADSTONE,
@@ -207,6 +208,17 @@ export function inv_weight(state = game) {
     return inventory_weight(state) - state.gw.wc;
 }
 
+// C ref: hack.c inv_cnt() (4494-4507). Counts inventory slots, optionally
+// including the gold one. C selects gold by invlet rather than by class, so a
+// non-gold object that somehow carries '$' would be skipped too.
+export function inv_cnt(incl_gold, state = game) {
+    let count = 0;
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        if (incl_gold || obj.invlet !== GOLD_SYM) count++;
+    }
+    return count;
+}
+
 // C ref: hack.c calc_capacity() and near_capacity().
 export function calc_capacity(extraWeight = 0, state = game) {
     const excess = inv_weight(state) + Math.trunc(extraWeight);
@@ -260,6 +272,27 @@ export class UnsupportedHeroMoveBoundaryError extends Error {
 // polymorph that arrives later has to change one place.
 function Upolyd(state) {
     return state.u.umonnum !== state.u.umonster;
+}
+
+// C ref: hack.c rounddiv() (4549-4573). Integer division that rounds a
+// remainder of exactly half away from zero, and carries the sign of the
+// quotient rather than C's truncation. eat.c doeat() divides a meal's
+// remaining nutrition by its full nutrition through this.
+export function rounddiv(x, y) {
+    let divsgn = 1;
+    if (y === 0) throw new RangeError('division by zero in rounddiv');
+    if (y < 0) {
+        divsgn = -divsgn;
+        y = -y;
+    }
+    if (x < 0) {
+        divsgn = -divsgn;
+        x = -x;
+    }
+    let r = Math.trunc(x / y);
+    const m = x % y;
+    if (2 * m >= y) r++;
+    return divsgn * r;
 }
 
 function propertyActiveUnblocked(state, property) {

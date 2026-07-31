@@ -723,6 +723,23 @@ function wornSuffix(obj, type, state) {
     return suffix;
 }
 
+// C ref: objnam.c singular() (2087-2105). Names one item of a stack by
+// running the caller's namer with quan temporarily set to 1. C swaps xname()
+// for cxname() on a corpse, because xname() would drop the monster type;
+// cxname() is unported and eat.c's callers reach this only for non-corpses,
+// so that swap stops instead of guessing.
+export function singular(otmp, func, state) {
+    if (otmp.otyp === CORPSE && func === xnameFresh)
+        throw new UnsupportedObjectNameError('cxname() for singular()', otmp);
+    const savequan = otmp.quan;
+    otmp.quan = 1;
+    try {
+        return func(otmp, state);
+    } finally {
+        otmp.quan = savequan;
+    }
+}
+
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and
 // lit-candle branches stop before xname() can mutate discovery state.
 export function donameFresh(obj, state) {

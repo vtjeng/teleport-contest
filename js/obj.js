@@ -1593,7 +1593,7 @@ function floorObjectGrid(state) {
 // not ported here. Its source fast path proves that an unbilled free or
 // inventory object has no shop consequence; every other case needs the hook
 // so a potentially owed side effect cannot be silently discarded.
-function costlyAlteration(obj, alterType, env) {
+export function costly_alteration(obj, alterType, env = {}) {
     if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid)
         return;
     requiredHook(env, 'costlyAlteration', obj)(obj, alterType, env);
@@ -1619,7 +1619,7 @@ export function obj_no_longer_held(obj, env = {}) {
         }
 
         if (!state.context?.mon_moving && !state.program_state?.gameover)
-            costlyAlteration(current, COST_DEGRD, normalized);
+            costly_alteration(current, COST_DEGRD, normalized);
         current.otyp = WORM_TOOTH;
         current.oerodeproof = false;
     };

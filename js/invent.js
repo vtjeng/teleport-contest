@@ -6,6 +6,7 @@ import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     BLINDED,
+    GOLD_SYM,
     HALLUC,
     HALLUC_RES,
     LOST_EXPLODING,
@@ -66,6 +67,7 @@ import {
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
 import { yn_function } from './cmd.js';
+import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
@@ -141,10 +143,6 @@ import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
-// C ref: defsym.h:479, the OBJCLASS2() row that names COIN_CLASS's symbol.
-// assigninvlet() gives it to every coin stack and getobj() tests the answered
-// letter against it.
-const GOLD_SYM = '$';
 
 // Thrown where invent.c reads a terrain description this port has not reached
 // yet. dfeature_at() is otherwise a complete translation, so every stop below
@@ -1377,9 +1375,10 @@ export function obfree(obj, merge = null, rawEnv = {}) {
         requiredHook(env, 'unleashObject', obj)(obj, env);
 
     if (obj.oclass === FOOD_CLASS) {
-        if (env.state.context?.victual?.piece === obj) {
-            env.state.context.victual = { piece: null, o_id: 0 };
-        }
+        // C ref: eat.c food_disappears(), obfree()'s only caller. Its victual
+        // half lives in js/eat.js, which owns svc.context.victual; its
+        // obj_stop_timers() half stays here, where the timer hook resolves.
+        food_disappears(obj, env.state);
         if (obj.timed) stopObjectTimers(obj, env);
     }
     if (obj.oclass === SPBOOK_CLASS
@@ -1976,6 +1975,20 @@ export function useupall(obj, env = {}) {
     }
     freeinv(obj, normalized);
     obfree(obj, null, normalized);
+}
+
+// C ref: invent.c useup() (1319-1333). One item of a stack is consumed; the
+// last one takes the whole object out of inventory.
+export function useup(obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    if (obj.quan > 1) {
+        obj.in_use = false; /* no longer in use */
+        obj.quan--;
+        obj.owt = weight(obj, normalized);
+        update_inventory(normalized);
+    } else {
+        useupall(obj, normalized);
+    }
 }
 
 export function resetInventory(env = {}) {

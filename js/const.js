@@ -1494,6 +1494,10 @@ export const LOOKHERE_SKIP_DFEATURE = 2;
 export const WINTYPELEN = 16;
 export const MAX_BMASK = 4;
 export const CONTAINED_SYM = '>';
+// C ref: defsym.h:479, the OBJCLASS2() row that names COIN_CLASS's symbol.
+// assigninvlet() gives it to every coin stack; getobj() and hack.c inv_cnt()
+// each test an inventory letter against it.
+export const GOLD_SYM = '$';
 export const HANDS_SYM = '-';
 export const MSGTYP_NORMAL = 0;
 export const MSGTYP_NOREP = 1;

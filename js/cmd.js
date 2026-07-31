@@ -35,7 +35,7 @@ import {
 } from './const.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
-import { flush_screen } from './display.js';
+import { bot, flush_screen } from './display.js';
 import { doeat, UnsupportedEatError } from './eat.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import {
@@ -987,7 +987,12 @@ async function runSearchCommand(key, state) {
 // result, because doeat() distinguishes a refusal that spends no turn from the
 // meal that spends one.
 async function runEatCommand(key, state) {
-    return failClosedCommand(key, state, () => doeat(state));
+    return failClosedCommand(key, state, () => doeat(state, {
+        // C ref: eat.c newuhs()'s bot(), which redraws the status line as
+        // soon as the hunger status changes rather than waiting for the
+        // move loop.
+        statusRefresh: () => bot(),
+    }));
 }
 
 // C ref: invent.c dolook().

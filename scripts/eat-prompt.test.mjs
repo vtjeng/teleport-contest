@@ -216,10 +216,12 @@ test('the eat prompt lists the suggested letters and spends no turn',
         [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow], [35, 0],
     );
 
-    const beforeMoves = game.svm.moves;
+    // C's svm.moves is state.moves in this port; state.svm carries mvitals
+    // alone, so the turn counter has to be read from the flattened field.
+    const beforeMoves = game.moves;
     await runSegment({ ...segment, moves: '.ea' });
     assert.equal(topLine(), 'You cannot eat that!');
-    assert.equal(game.svm.moves, beforeMoves);
+    assert.equal(game.moves, beforeMoves);
     assert.equal(game.context.move, 0);
 });
 
