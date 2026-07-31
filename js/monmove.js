@@ -1400,7 +1400,7 @@ function heroDeaf(state) {
 // C ref: pline.c You_hear() (435-451).  Returns the composed line, or null
 // where C returns without printing.  Callers that already test Deaf still get
 // the acoustics gate, which C applies here and nowhere else.
-function youHear(line, state) {
+export function youHear(line, state) {
     if ((heroDeaf(state) && !heroUnaware(state)) || !state.flags?.acoustics)
         return null;
     if (state.u?.uinwater) return `You barely hear ${line}`;

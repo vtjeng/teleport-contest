@@ -22,6 +22,7 @@ import {
     COLNO,
     CORR,
     CROSSWALL,
+    DO_MOVE,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -149,13 +150,13 @@ test('test_move describes remembered walls without time or PRNG work',
         ]) {
             destination.typ = wall;
             assert.equal(
-                await test_move(ux, uy, 1, 0, state, env),
+                await test_move(ux, uy, 1, 0, DO_MOVE, state, env),
                 false,
             );
         }
         destination.typ = STONE;
         assert.equal(
-            await test_move(ux, uy, 1, 0, state, env),
+            await test_move(ux, uy, 1, 0, DO_MOVE, state, env),
             false,
         );
         assert.deepEqual(messages, [
@@ -168,7 +169,7 @@ test('test_move describes remembered walls without time or PRNG work',
         state.u = { ux, uy, uprops: [] };
         destination.typ = VWALL;
         messages.length = 0;
-        assert.equal(await test_move(ux, uy, 1, 0, state, env), false);
+        assert.equal(await test_move(ux, uy, 1, 0, DO_MOVE, state, env), false);
         assert.deepEqual(messages, ["(east): It's a wall."]);
 
         // mention_walls is the exact source output gate. The refusal itself
@@ -176,7 +177,7 @@ test('test_move describes remembered walls without time or PRNG work',
         state.flags.mention_walls = false;
         destination.typ = VWALL;
         assert.equal(
-            await test_move(ux, uy, 1, 0, state, {
+            await test_move(ux, uy, 1, 0, DO_MOVE, state, {
                 message: () => assert.fail('disabled wall message'),
             }),
             false,
@@ -184,7 +185,7 @@ test('test_move describes remembered walls without time or PRNG work',
 
         // ROOM is outside this ported test_move() branch and remains legal.
         destination.typ = ROOM;
-        assert.equal(await test_move(ux, uy, 1, 0, state), true);
+        assert.equal(await test_move(ux, uy, 1, 0, DO_MOVE, state), true);
     });
 
 test('blind obstacle refusal records exact tactile viewing vectors',
@@ -227,6 +228,7 @@ test('blind obstacle refusal records exact tactile viewing vectors',
                             game.u.uy,
                             dx,
                             dy,
+                            DO_MOVE,
                             game,
                             {
                                 message: () => assert.fail(
@@ -267,7 +269,7 @@ test('blind obstacle refusal records exact tactile viewing vectors',
         game.a11y = { accessiblemsg: true };
         const messages = [];
         assert.equal(
-            await test_move(game.u.ux, game.u.uy, 1, 0, game, {
+            await test_move(game.u.ux, game.u.uy, 1, 0, DO_MOVE, game, {
                 message: (text) => messages.push(text),
             }),
             false,

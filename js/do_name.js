@@ -4,23 +4,43 @@
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
+    ARTICLE_A,
+    ARTICLE_NONE,
+    ARTICLE_THE,
+    ARTICLE_YOUR,
     BLINDED,
     BOGUSMONFILE,
     HALLUC,
     HALLUC_RES,
+    MALE,
     MD_PAD_BOGONS,
+    M_AP_MONSTER,
+    M_AP_TYPMASK,
+    NEUTRAL,
+    NUM_MGENDERS,
     PL_PSIZ,
+    SUPPRESS_HALLUCINATION,
+    SUPPRESS_INVISIBLE,
+    SUPPRESS_IT,
+    SUPPRESS_MAPPEARANCE,
+    SUPPRESS_NAME,
+    SUPPRESS_SADDLE,
     W_SADDLE,
 } from './const.js';
 import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
+import { gender, is_mplayer, type_is_pname } from './mondata.js';
 import {
     G_NOGEN,
+    G_UNIQ,
     LOW_PM,
     M2_PNAME,
+    PM_GHOST,
+    PM_WIZARD_OF_YENDOR,
     SPECIAL_PM,
 } from './monsters.js';
+import { just_an } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
@@ -85,6 +105,15 @@ export function christen_monst(monster, name, env = {}) {
     return monster;
 }
 
+// A monster name this port cannot format yet.
+export class UnsupportedMonsterNameError extends Error {
+    constructor(reason) {
+        super(`unsupported monster name: ${reason}`);
+        this.name = 'UnsupportedMonsterNameError';
+        this.reason = reason;
+    }
+}
+
 function namingPropertyActive(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic)
@@ -114,6 +143,123 @@ export function monsterCommonName(monster, state = game) {
 export function capitalizedMonsterName(monster, state = game) {
     const name = monsterCommonName(monster, state);
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
+
+// C ref: do_name.c pmname() (1300-1308).
+//
+// The two range tests are carried because C indexes pmnames[] directly and
+// would read out of bounds without them. In JavaScript they change no answer:
+// an out-of-range index reads undefined, which the third disjunct already
+// rejects, so mutating either one leaves every result identical.
+export function pmname(species, mgender) {
+    let index = mgender;
+    if (index < MALE || index >= NUM_MGENDERS || !species.pmnames[index])
+        index = NEUTRAL;
+    return species.pmnames[index];
+}
+
+// C ref: do_name.c mon_pmname() (1311-1317).
+export function mon_pmname(monster) {
+    return pmname(monster.data, gender(monster));
+}
+
+// C ref: do_name.c x_monnam() (826-1032), restricted to the one `suppress`
+// combination the port asks for: SUPPRESS_IT | SUPPRESS_INVISIBLE |
+// SUPPRESS_HALLUCINATION, which steed.c mount_steed() uses to build the killer
+// string for a slipped mount ("a saddled pony", or "a saddled pony called
+// Dobbin"). Every other combination stops, because those three flags are what
+// make the do_it, do_invis and do_hallu branches statically dead here; do_hallu
+// in particular draws from the display RNG through rndmonnam(), so admitting it
+// without a caller would put an unspent random-number call in the port.
+//
+// monsterCommonName() and capitalizedMonsterName() above are the port's older
+// partial mon_nam() and Monnam(); they answer a different article and are not
+// yet expressed in terms of this function.
+export function x_monnam(
+    monster,
+    article,
+    adjective,
+    suppress,
+    called,
+    state = game,
+) {
+    const REQUIRED = SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION;
+    if ((suppress & REQUIRED) !== REQUIRED) {
+        throw new UnsupportedMonsterNameError(
+            `x_monnam() suppress flags 0x${suppress.toString(16)}`,
+        );
+    }
+    const mdat = monster.data;
+
+    // do_hallu, do_invis and do_it are all FALSE under the flags above, and
+    // program_state.gameover has no ported counterpart, so the game-over
+    // suppression and the "it"/"someone"/"something" early return cannot run.
+    let effectiveArticle = article;
+    if (effectiveArticle === ARTICLE_YOUR && !monster.mtame)
+        effectiveArticle = ARTICLE_THE;
+    if (state.u?.uswallow && monster === state.u.ustuck)
+        effectiveArticle = ARTICLE_THE;
+
+    const do_saddle = !(suppress & SUPPRESS_SADDLE);
+    const do_mappear = ((monster.m_ap_type ?? 0) & M_AP_TYPMASK)
+        === M_AP_MONSTER && !(suppress & SUPPRESS_MAPPEARANCE);
+    const do_name = !(suppress & SUPPRESS_NAME) || type_is_pname(mdat);
+
+    if (monster.ispriest || monster.isminion || monster.isshk
+        || do_mappear || is_mplayer(mdat)) {
+        throw new UnsupportedMonsterNameError(
+            'x_monnam() for a priest, minion, shopkeeper, mimic or player'
+            + ' monster',
+        );
+    }
+
+    const pm_name = mon_pmname(monster);
+    let buf = '';
+
+    if (adjective) buf += `${adjective} `;
+    // do_invis is FALSE, so the "invisible " adjective cannot be added.
+    if (do_saddle && (monster.misc_worn_check & W_SADDLE)
+        && !namingPropertyActive(state, BLINDED)
+        && !(namingPropertyActive(state, HALLUC)
+            && !namingPropertyActive(state, HALLUC_RES)))
+        buf += 'saddled ';
+    const has_adjectives = buf !== '';
+
+    let name_at_start;
+    const givenName = monster.mextra?.mgivenname;
+    if (do_name && givenName) {
+        if (mdat === state.mons?.[PM_GHOST]) {
+            throw new UnsupportedMonsterNameError(
+                "x_monnam() for a named ghost's s_suffix() form",
+            );
+        } else if (called) {
+            buf += `${pm_name} called ${givenName}`;
+            name_at_start = type_is_pname(mdat);
+        } else {
+            // The is_mplayer() " the " arm above this one is refused already.
+            buf += givenName;
+            name_at_start = true;
+        }
+    } else {
+        buf += pm_name;
+        name_at_start = type_is_pname(mdat);
+    }
+
+    if (name_at_start
+        && (effectiveArticle === ARTICLE_YOUR || !has_adjectives)) {
+        effectiveArticle = mdat === state.mons?.[PM_WIZARD_OF_YENDOR]
+            ? ARTICLE_THE : ARTICLE_NONE;
+    } else if ((mdat.geno & G_UNIQ) !== 0 && effectiveArticle === ARTICLE_A) {
+        effectiveArticle = ARTICLE_THE;
+    }
+
+    switch (effectiveArticle) {
+    case ARTICLE_YOUR: return `your ${buf}`;
+    case ARTICLE_THE: return `the ${buf}`;
+    case ARTICLE_A: return `${just_an(buf)}${buf}`;
+    case ARTICLE_NONE:
+    default: return buf;
+    }
 }
 
 // C ref: do_name.c noit_Monnam(). ARTICLE_YOUR becomes "your" for an

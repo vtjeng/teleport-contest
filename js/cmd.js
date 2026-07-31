@@ -79,6 +79,7 @@ import {
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { doride, UnsupportedSteedError } from './steed.js';
+import { UnsupportedHitPointLossError } from './hack.js';
 import {
     clearTtyMessageWindow,
     ttyNorep,
@@ -828,6 +829,7 @@ async function failClosedCommand(key, state, run) {
             || error instanceof UnsupportedSearchError
             || error instanceof UnsupportedDirectionBoundaryError
             || error instanceof UnsupportedSteedError
+            || error instanceof UnsupportedHitPointLossError
             || error instanceof UnsupportedArtifactDisplayError) {
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(

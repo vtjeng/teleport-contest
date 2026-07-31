@@ -15,6 +15,7 @@ import {
     CONFUSION,
     DIR_ERR,
     ECMD_CANCEL,
+    ECMD_OK,
     MV_ANY,
     MV_RUN,
     MV_RUSH,
@@ -24,7 +25,7 @@ import {
     quitchars,
 } from '../js/const.js';
 import { PM_GRID_BUG } from '../js/monsters.js';
-import { TOPLINE_EMPTY, TOPLINE_NEED_MORE } from '../js/tty_message.js';
+import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
 import { doride } from '../js/steed.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -141,36 +142,38 @@ test('each quitchars[] cancel leaves the prompt row clear and spends nothing',
     }
 });
 
-test('an accepted direction reaches the mount_steed boundary', async () => {
+test('an accepted direction hands mount_steed() the square it names',
+    async () => {
     // movecmd() sets u.dx/u.dy from the key's movement handler, doride() finds
-    // isok() true for every one of these, and mount_steed() is where the port
-    // stops. Each pair is the key and the [u.dx, u.dy] cmd.c's xdir[]/ydir[]
-    // give the direction reset_commands() binds it to.
+    // isok() true for every one of these, and mount_steed() reads the square.
+    // Each pair is the key and the [u.dx, u.dy] cmd.c's xdir[]/ydir[] give the
+    // direction reset_commands() binds it to.
     //
     // '\n' is here because it is C('j'): a line feed answers the prompt with
     // do_rush_south rather than cancelling, even though quitchars[] lists it.
+    //
+    // Nothing stands beside this hero, so every direction lands on
+    // mount_steed()'s `!mtmp` guard (steed.c:249-255), which prints and returns
+    // FALSE before the impairment roll. That is the shortest proof the roll
+    // sits behind the guards: the whole command spends no randomness.
     for (const [key, dx, dy] of [
         ['l', 1, 0], ['h', -1, 0], ['j', 0, 1], ['k', 0, -1],
         ['y', -1, -1], ['b', -1, 1],
         ['L', 1, 0], ['\n', 0, 1],
     ]) {
-        const { boundary } = await rideWith(promptSegment(), key);
-        assert.equal(
-            boundary?.name, 'UnsupportedHeroCommandBoundaryError',
-            `${JSON.stringify(key)} reaches a boundary`,
-        );
-        assert.match(boundary.message, /mount_steed\(m_at/u, JSON.stringify(key));
+        const before = await runSegment({
+            ...promptSegment(), moves: `.${RIDE_COMMAND}`,
+        });
+        const spentBefore = before.getRngLog().length;
+        const { boundary, replay } = await rideWith(promptSegment(), key);
+        assert.equal(boundary, null, JSON.stringify(key));
         assert.deepEqual(
             [game.u.dx, game.u.dy, game.u.dz], [dx, dy, 0], JSON.stringify(key),
         );
-        // getdir()'s own clear_nhwindow(WIN_MESSAGE) took the prompt off the
-        // row before doride() ran, and tty_yn_function()'s clean_up is what
-        // left a non-empty toplin for it to act on. Nothing repaints after a
-        // refusal, so this is the one place either is visible: after a cancel
-        // the port's next flush_screen() rebuilds the whole screen and erases
-        // the row whether or not getdir() cleared it.
-        assert.equal(topLine(), '', JSON.stringify(key));
-        assert.equal(game.nhDisplay.toplin, TOPLINE_EMPTY, JSON.stringify(key));
+        assert.equal(topLine(), 'I see nobody there.', JSON.stringify(key));
+        assert.equal(
+            replay.getRngLog().length, spentBefore, JSON.stringify(key),
+        );
     }
 });
 
@@ -179,10 +182,12 @@ test("the self keys zero the direction and mount the hero's own square",
     // getdir()'s first arm answers before movecmd() runs, so u.dx, u.dy and
     // u.dz all stay zero and doride() tests isok() at the hero's own square.
     // NHKF_GETDIR_SELF2 is 's' whether or not num_pad is set: cmd.c compares
-    // both spkeys unconditionally.
+    // both spkeys unconditionally. m_at() finds no monster on the hero's own
+    // square, so mount_steed() answers the same way it does for an empty one.
     for (const key of ['.', 's']) {
         const { boundary } = await rideWith(promptSegment(), key);
-        assert.match(boundary?.message ?? '', /mount_steed\(m_at/u, key);
+        assert.equal(boundary, null, key);
+        assert.equal(topLine(), 'I see nobody there.', key);
         assert.deepEqual([game.u.dx, game.u.dy, game.u.dz], [0, 0, 0], key);
     }
 });
@@ -194,7 +199,8 @@ test("'>' and '<' answer the prompt with u.dz alone", async () => {
     // and `if (!u.dz) confdir(FALSE)` skips the impairment reroll.
     for (const [key, dz] of [['>', 1], ['<', -1]]) {
         const { boundary } = await rideWith(promptSegment(), key);
-        assert.match(boundary?.message ?? '', /mount_steed\(m_at/u, key);
+        assert.equal(boundary, null, key);
+        assert.equal(topLine(), 'I see nobody there.', key);
         assert.deepEqual([game.u.dx, game.u.dy, game.u.dz], [0, 0, dz], key);
     }
 });
@@ -272,19 +278,24 @@ test('moving a gc.Cmd.spkeys[] getdir key moves the arm that reads it',
         });
         assert.equal(topLine(), 'What a strange direction!', spkey);
 
-        // And the key the bind moved the arm onto takes it instead.
+        // And the key the bind moved the arm onto takes it instead. The two
+        // self keys run through to mount_steed()'s `!mtmp` guard; the other
+        // two stop in an arm this port has not reached.
         const { boundary } = await rideWith(segment, 'a');
-        assert.equal(
-            boundary?.name, 'UnsupportedHeroCommandBoundaryError', spkey,
-        );
-        assert.match(
-            boundary.message,
-            spkey === 'getdir.self' || spkey === 'getdir.self2'
-                ? /mount_steed\(m_at/u
-                : (spkey === 'getdir.help' ? /help_dir\(\)/u
-                    : /simulated mouse click/u),
-            spkey,
-        );
+        if (spkey === 'getdir.self' || spkey === 'getdir.self2') {
+            assert.equal(boundary, null, spkey);
+            assert.equal(topLine(), 'I see nobody there.', spkey);
+        } else {
+            assert.equal(
+                boundary?.name, 'UnsupportedHeroCommandBoundaryError', spkey,
+            );
+            assert.match(
+                boundary.message,
+                spkey === 'getdir.help' ? /help_dir\(\)/u
+                    : /simulated mouse click/u,
+                spkey,
+            );
+        }
     }
 });
 
@@ -483,9 +494,12 @@ test('a direction that leaves the map cancels instead of mounting',
     assert.equal(off.result, ECMD_CANCEL);
 
     // The same key one column further in reaches mount_steed(), which is what
-    // makes the test above about isok() rather than about 'h'.
+    // makes the test above about isok() rather than about 'h'. mount_steed()
+    // finds no monster there and answers FALSE, so doride() returns ECMD_OK
+    // rather than the ECMD_CANCEL the guard above produces.
     const on = await rideOnce('h', (state) => { state.u.ux = 2; });
-    assert.match(on.error?.message ?? '', /mount_steed\(m_at/u);
+    assert.equal(on.error, null);
+    assert.equal(on.result, ECMD_OK);
 });
 
 test('debug mode asks whether to force the mount', async () => {
@@ -498,9 +512,11 @@ test('debug mode asks whether to force the mount', async () => {
     assert.match(forced.error?.message ?? '', /restricted response set/u);
     game.wizard = false;
 
-    // Without debug mode the same keystroke skips the question entirely.
+    // Without debug mode the same keystroke skips the question entirely and
+    // runs straight into mount_steed().
     const plain = await rideOnce('l');
-    assert.match(plain.error?.message ?? '', /mount_steed\(m_at/u);
+    assert.equal(plain.error, null);
+    assert.equal(plain.result, ECMD_OK);
 });
 
 test('yn_function returns the key it read, and stops if asked to repeat it',

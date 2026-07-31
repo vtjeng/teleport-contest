@@ -211,6 +211,13 @@ export function likes_objs(species) {
 export function likes_magic(species) { return flag2(species, M.M2_MAGIC); }
 export function is_covetous(species) { return flag3(species, M.M3_COVETOUS); }
 export function is_displacer(species) { return flag3(species, M.M3_DISPLACES); }
+export function type_is_pname(species) { return flag2(species, M.M2_PNAME); }
+// C ref: mondata.h is_mplayer() (157-158). C compares &mons[] addresses; the
+// port compares the same catalog indices.
+export function is_mplayer(species) {
+    return species?.pmidx >= M.PM_ARCHEOLOGIST
+        && species?.pmidx <= M.PM_WIZARD;
+}
 
 export function is_golem(species) { return species?.mlet === M.S_GOLEM; }
 export function nonliving(species) {

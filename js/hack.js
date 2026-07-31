@@ -6,15 +6,19 @@ import {
     A_DEX,
     A_STR,
     BLINDED,
+    COLD_RES,
     CONFUSION,
     CORR,
+    DISINT_RES,
     DOOR,
+    DO_MOVE,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    FAST,
     FIRE_RES,
     FLYING,
     FUMBLING,
@@ -31,6 +35,8 @@ import {
     IS_WALL,
     IS_WATERWALL,
     IRONBARS,
+    INTRINSIC,
+    INVIS,
     LAVAWALL,
     LEVITATION,
     MAX_TYPE,
@@ -38,14 +44,20 @@ import {
     M_AP_OBJECT,
     M_AP_TYPMASK,
     PASSES_WALLS,
+    POISON_RES,
     ROOM,
     RUN_CRAWL,
     RUN_LEAP,
     RUN_TPORT,
+    SEE_INVIS,
+    SHOCK_RES,
+    SLEEP_RES,
     STAIRS,
     STEALTH,
     STONE,
     STUNNED,
+    TELEPORT,
+    TELEPORT_CONTROL,
     TIMER_OBJECT,
     VIBRATING_SQUARE,
     W_NONDIGGABLE,
@@ -101,14 +113,17 @@ import {
     WATER_WALKING_BOOTS,
 } from './objects.js';
 import {
+    PM_ELF,
     PM_GRID_BUG,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
+    PM_VALKYRIE,
+    PM_WIZARD,
 } from './monsters.js';
 import { curr_mon_load } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { can_fog, closed_door, onscary } from './monmove.js';
+import { can_fog, closed_door, onscary, youHear } from './monmove.js';
 import { check_here } from './pickup.js';
 import { in_out_region, inside_region } from './region.js';
 import { rn2, rnd } from './rng.js';
@@ -207,6 +222,13 @@ export class UnsupportedHeroMoveBoundaryError extends Error {
         this.name = 'UnsupportedHeroMoveBoundaryError';
         this.reason = reason;
     }
+}
+
+// C ref: you.h Upolyd() (307). Nothing in this port assigns u.umonnum, so it
+// is always FALSE; the readers below still ask rather than assume, because a
+// polymorph that arrives later has to change one place.
+function Upolyd(state) {
+    return state.u.umonnum !== state.u.umonster;
 }
 
 function propertyActiveUnblocked(state, property) {
@@ -309,6 +331,105 @@ export function nomul(nval, state = game) {
     state.u.usleep = 0;
     state.multi = nval;
     endRunning(state);
+}
+
+// A hit point loss whose consequences this port has not reached.
+export class UnsupportedHitPointLossError extends Error {
+    constructor(reason) {
+        super(`unsupported hit point loss: ${reason}`);
+        this.name = 'UnsupportedHitPointLossError';
+        this.reason = reason;
+    }
+}
+
+// C ref: hack.c maybe_wail() (4210-4243). svm.moves is the turn counter and
+// gw.wailmsg the turn the last wail was printed on, so the first 50 turns of a
+// game are silent and the message repeats at most once every 51 turns.
+//
+// The powers[] tally reads the intrinsic field alone, not the property macros:
+// an extrinsic granted by worn equipment does not count.
+const WAIL_POWERS = Object.freeze([
+    TELEPORT, SEE_INVIS, POISON_RES, COLD_RES, SHOCK_RES, FIRE_RES,
+    SLEEP_RES, DISINT_RES, TELEPORT_CONTROL, STEALTH, FAST, INVIS,
+]);
+
+async function maybe_wail(state) {
+    if (state.moves <= (state.wailmsg ?? 0) + 50) return;
+
+    state.wailmsg = state.moves;
+    const role = state.urole?.mnum;
+    if (role === PM_WIZARD || state.urace?.mnum === PM_ELF
+        || role === PM_VALKYRIE) {
+        const who = (role === PM_WIZARD || role === PM_VALKYRIE)
+            ? state.urole.name.m : 'Elf';
+
+        if (state.u.uhp === 1) {
+            await ttyPline(`${who} is about to die.`, state);
+        } else {
+            let powercnt = 0;
+            for (const power of WAIL_POWERS) {
+                if (state.u.uprops?.[power]?.intrinsic & INTRINSIC)
+                    ++powercnt;
+            }
+            await ttyPline(
+                powercnt >= 4
+                    ? `${who}, all your powers will be lost...`
+                    : `${who}, your life force is running out.`,
+                state,
+            );
+        }
+    } else {
+        // Soundeffect() is a no-op without a sound library, which the tty
+        // build this port matches is.
+        const line = youHear(
+            state.u.uhp === 1
+                ? 'the wailing of the Banshee...'
+                : 'the howling of the CwnAnnwn...',
+            state,
+        );
+        if (line !== null) await ttyPline(line, state);
+    }
+}
+
+// C ref: hack.c showdamage() (4245-4253). options.c leaves iflags.showdamage
+// off, so an ordinary game prints nothing here.
+async function showdamage(dmg, state) {
+    if (!state.iflags?.showdamage || !dmg) return;
+
+    await ttyPline(`[HP ${-dmg}, ${Upolyd(state) ? state.u.mh : state.u.uhp}`
+        + ' left]', state);
+}
+
+// C ref: hack.c losehp() (4255-4290). `knam` and `k_format` describe the
+// killer and are read only on the death branch, which stops below.
+export async function losehp(n, knam, k_format, state = game) {
+    state.disp ??= {};
+    state.disp.botl = true; /* u.uhp or u.mh is changing */
+    endRunning(state);
+    if (Upolyd(state)) {
+        // Nothing in this port polymorphs the hero, so u.mh, rehumanize() and
+        // the Unchanging wail have no reachable caller. The branch stops
+        // rather than duplicating hit points into a second unowned field.
+        throw new UnsupportedHitPointLossError('damage to a polymorphed hero');
+    }
+
+    state.u.uhp -= n;
+    await showdamage(n, state);
+    // Widening this comparison to >= would assign u.uhpmax to itself, so no
+    // test can tell the two apart.
+    if (state.u.uhp > state.u.uhpmax)
+        state.u.uhpmax = state.u.uhp; /* perhaps n was negative */
+    if (state.u.uhp < 1) {
+        // svk.killer, urgent_pline("You die...") and done(DIED) own the whole
+        // end of game, which no part of this milestone covers. knam and
+        // k_format are consumed here and nowhere else, so a surviving hero
+        // never observes them.
+        throw new UnsupportedHitPointLossError(
+            `death, killer "${knam}" in format ${k_format}`,
+        );
+    } else if (n > 0 && state.u.uhp * 10 < state.u.uhpmax) {
+        await maybe_wail(state);
+    }
 }
 
 function heroIsBlind(state) {
@@ -790,11 +911,20 @@ function requiredMessageOperation(env, arm) {
 // doopen_indir(), the bump arm that a suppressed autoopen falls into, and its
 // two diagonal doorway rules, which also spend no time. Its remaining terrain
 // and ability branches remain at the command admission boundary.
+//
+// `mode` is C's fourth argument. Two of its four values have a ported caller:
+// domove_core() asks DO_MOVE, which is the only value that prints, opens a
+// door or spends a move, and steed.c mount_steed() asks TEST_MOVE, which only
+// wants the boolean. TEST_TRAV and TEST_TRAP belong to findtravelpath(), which
+// is unported; the two places C treats them differently from TEST_MOVE, the
+// closed-door `goto testdiag` and the `svc.context.run == 8` filter, therefore
+// have no caller that can reach them and are marked where they would sit.
 export async function test_move(
     ux,
     uy,
     dx,
     dy,
+    mode,
     state = game,
     env = {},
 ) {
@@ -817,9 +947,9 @@ export async function test_move(
                 'door or special terrain movement',
             );
         }
-        if (heroIsBlind(state)) feel_location(x, y, state);
+        if (heroIsBlind(state) && mode === DO_MOVE) feel_location(x, y, state);
 
-        if (state.flags?.mention_walls) {
+        if (mode === DO_MOVE && state.flags?.mention_walls) {
             const symbol = location.typ === STONE
                 ? S_stone : wall_angle(location);
             const description = symbol === S_stone ? 'solid stone' : 'a wall';
@@ -833,6 +963,11 @@ export async function test_move(
     }
 
     if (IS_DOOR(location.typ) && closed_door(x, y, state)) {
+        // hack.c:1093-1136. Everything below the `if (mode == DO_MOVE)` there
+        // is skipped for the other three modes, which answer FALSE without
+        // opening the door, printing, or spending a move. TEST_TRAV and
+        // TEST_TRAP take `goto testdiag` first; neither has a ported caller.
+        if (mode !== DO_MOVE) return false;
         const run = state.context.run ?? 0;
         requireAutoopenClosedDoor(x, y, state, run);
         if (!autoopenSuppressed(state, run)) {
@@ -892,8 +1027,9 @@ export async function test_move(
         // and not on the exit rule's below. Neither message goes through
         // set_msg_xy(), so neither carries a direction prefix under
         // `accessiblemsg`.
-        if (heroIsBlind(state)) feel_location(x, y, state);
-        if (state.u.uinwater || state.flags?.mention_walls) {
+        if (mode === DO_MOVE && heroIsBlind(state)) feel_location(x, y, state);
+        if (mode === DO_MOVE
+            && (state.u.uinwater || state.flags?.mention_walls)) {
             const message = requiredMessageOperation(env, 'doorway entry');
             await message(
                 "You can't move diagonally into an intact doorway.",
@@ -928,12 +1064,13 @@ export async function test_move(
     }
 
     // C ref: hack.c:1181-1205. The run == 8 travel filter and the TEST_TRAP
-    // return above `ust` have no ported caller: DO_MOVE is the only mode
-    // domove_core() passes.
+    // return above `ust` have no ported caller: findtravelpath() is what sets
+    // run to 8, and it passes TEST_TRAV or TEST_TRAP, neither of which any
+    // ported caller asks for.
     if (blocksDiagonalDoorwayExit(ux, uy, x, y, state)) {
         // C ref: hack.c:1208-1214. No feel_location() here, and mention_walls
         // is the whole gate.
-        if (state.flags?.mention_walls) {
+        if (mode === DO_MOVE && state.flags?.mention_walls) {
             const message = requiredMessageOperation(env, 'doorway exit');
             await message(
                 "You can't move diagonally out of an intact doorway.",
@@ -1079,7 +1216,7 @@ export async function domove(state = game) {
     // C ref: domove_core():2843-2849. The closed-door arm inside test_move()
     // sets context.door_opened when the pull succeeded, and that suppresses
     // the no-time refusal here even though the hero has not moved.
-    if (!await test_move(u.ux, u.uy, u.dx, u.dy, state, {
+    if (!await test_move(u.ux, u.uy, u.dx, u.dy, DO_MOVE, state, {
         message: ttyPline,
     })) {
         if (!state.context.door_opened) {

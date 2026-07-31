@@ -1795,7 +1795,11 @@ function applyBooleanOption(result, name, value, negated, lineNumber) {
             enabled,
         });
     }
-    else if (name === 'showexp') result.flags.showexp = enabled;
+    else if (name === 'showdamage') {
+        // optlist.h:654-655 stores showdamage in iflags, not flags, and
+        // defaults it Off. hack.c showdamage() is its only reader.
+        result.iflags.showdamage = enabled;
+    } else if (name === 'showexp') result.flags.showexp = enabled;
     else if (name === 'time') result.flags.time = enabled;
     else if (name === 'verbose') result.flags.verbose = enabled;
     else result.flags[name] = enabled;
@@ -1816,7 +1820,7 @@ const HANDLED_BOOLEAN_OPTIONS = new Set([
     'altmeta', 'autoopen', 'cmdassist', 'extmenu', 'safe_pet', 'safe_wait',
     'pushweapon',
     'rest_on_space',
-    'showexp', 'time', 'verbose',
+    'showdamage', 'showexp', 'time', 'verbose',
 ]);
 
 function setWhatisCoord(result, value, negated, lineNumber) {

@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     DOOR,
+    DO_MOVE,
     D_BROKEN,
     D_ISOPEN,
     D_NODOOR,
@@ -243,14 +244,14 @@ test('test_move stops a tight diagonal the hero cannot squeeze through',
 
         // An ordinary pack squeezes through, which is the live outcome.
         assert.equal(
-            await test_move(ux, uy, 1, 1, game, { message: async () => {} }),
+            await test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
             true,
         );
         // 601 crosses WT_TOOMUCH_DIAGONAL, so C would print "You are carrying
         // too much to get through." and this port stops.
         game.invent = { otyp: 0, oclass: 0, owt: 601, quan: 1, nobj: null };
         await assert.rejects(
-            test_move(ux, uy, 1, 1, game, { message: async () => {} }),
+            test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
             /tight diagonal move/u,
         );
         game.invent = null;
@@ -281,7 +282,7 @@ test('an obstructed destination outranks the diagonal doorway rules',
         const lines = [];
         const env = { message: async (line) => { lines.push(line); } };
         game.level.at(ux + 1, uy + 1).typ = ROOM;
-        assert.equal(await test_move(ux, uy, 1, 1, game, env), false);
+        assert.equal(await test_move(ux, uy, 1, 1, DO_MOVE, game, env), false);
         assert.deepEqual(
             lines,
             ["You can't move diagonally out of an intact doorway."],
@@ -291,7 +292,7 @@ test('an obstructed destination outranks the diagonal doorway rules',
         // step stops at the terrain boundary instead.
         game.level.at(ux + 1, uy + 1).typ = SDOOR;
         await assert.rejects(
-            test_move(ux, uy, 1, 1, game, env),
+            test_move(ux, uy, 1, 1, DO_MOVE, game, env),
             /door or special terrain movement/u,
         );
     });
@@ -318,12 +319,12 @@ test('test_move stops a diagonal between two segments of one monster',
         // One corner alone is not enough: worm_cross() needs the same monster
         // on both.
         assert.equal(
-            await test_move(ux, uy, 1, 1, game, { message: async () => {} }),
+            await test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
             true,
         );
         game.level.monsters[ux + 1][uy] = worm;
         await assert.rejects(
-            test_move(ux, uy, 1, 1, game, { message: async () => {} }),
+            test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
             /long worm body crossing/u,
         );
     });
