@@ -5,6 +5,7 @@ import {
     CONFUSION,
     DIR_E,
     DIR_ERR,
+    DIR_NE,
     DIR_NW,
     DIR_W,
     DISMOUNT_BONES,
@@ -22,6 +23,7 @@ import {
     LEVITATION,
     MAXULEV,
     MAX_CARR_CAP,
+    MON_STILL_ARRIVING,
     N_DIRS,
     PIT,
     POOL,
@@ -32,6 +34,7 @@ import {
     HOLE,
     STONE,
     STUNNED,
+    TEST_MOVE,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_LAVA,
@@ -49,10 +52,12 @@ import { dirtocoord, xytodir } from '../js/cmd.js';
 import { see_monsters, statusConditionActive } from '../js/display.js';
 import {
     UnsupportedHeroMoveBoundaryError,
+    cant_squeeze_thru,
     domove,
     invocation_message,
     notice_mon_off,
     notice_mon_on,
+    test_move,
     u_locomotion,
     weight_cap,
 } from '../js/hack.js';
@@ -205,12 +210,20 @@ test('mounting draws the steed on the hero square and dismounting undraws it',
     // <x - 1, y + 1>: the top line takes row 0 and map column 0 is unused.
     const mapCell = (state) => state.nhDisplay
         .grid[state.u.uy + 1][state.u.ux - 1];
-    assert.equal(mapCell(game).ch, 'u', 'the ridden pony covers the hero');
+    // A grid cell carries a colour and an attribute as well as a character,
+    // and the scored comparison reads all three. reset_glyphmap() gives a
+    // ridden glyph mon_color() and MG_RIDDEN rather than MG_PET, so the cell
+    // takes the pony's own colour -- monsters.h:1009 CLR_BROWN, 3 -- and
+    // neither the pet override symbol nor the hilite_pet attribute.
+    assert.deepEqual(mapCell(game), { ch: 'u', color: 3, attr: 0 },
+                     'the ridden pony covers the hero');
 
     await runSegment({
         ...southRideSegment(), moves: `.${RIDE_COMMAND}j${RIDE_COMMAND}`,
     });
-    assert.equal(mapCell(game).ch, '@');
+    // The hero's own glyph is a human's: monsters.h:2608 HI_DOMESTIC, which
+    // color.h:37 defines as CLR_WHITE, 15.
+    assert.deepEqual(mapCell(game), { ch: '@', color: 15, attr: 0 });
 });
 
 test('the second ride dismounts, releases the steed and charges a turn',
@@ -224,6 +237,7 @@ test('the second ride dismounts, releases the steed and charges a turn',
     const mountedY = state.u.uy;
     pony.mtame = 12; // any positive tameness; the dismount must not read it
     state.u.ugallop = 7; // steed.c:657 clears it unconditionally
+    const spentBefore = getRngLog().length;
 
     const result = await doride(state);
 
@@ -234,11 +248,17 @@ test('the second ride dismounts, releases the steed and charges a turn',
     assert.equal(state.u.usteed, null);
     assert.equal(state.u.ugallop, 0);
     // The steed takes the square the hero vacated, and the hero moves to the
-    // landing spot landing_spot() chose, which is adjacent to it.
+    // landing spot landing_spot() chose. steed.c:506's rn2(viable) is the only
+    // random number the dismount takes; this seed leaves three squares tied in
+    // turn, so it fires three times and settles on the square due west.
+    // scripts/run-ride-dismount.mjs records the same landing from the C
+    // program for this segment, screen for screen and call for call, so the
+    // offset below is the reference answer rather than the port's own.
+    const drawn = getRngLog().slice(spentBefore);
+    assert.equal(drawn.length, 3, JSON.stringify(drawn));
+    for (const entry of drawn) assert.match(entry, /^rn2\(\d+\)=\d+$/u);
     assert.equal(m_at(mountedX, mountedY, state), pony);
-    assert.notEqual(`${state.u.ux},${state.u.uy}`, `${mountedX},${mountedY}`);
-    assert.ok(Math.max(Math.abs(state.u.ux - mountedX),
-                       Math.abs(state.u.uy - mountedY)) === 1);
+    assert.deepEqual([state.u.ux, state.u.uy], [mountedX - 1, mountedY]);
     // steed_vs_stealth() runs again with u.usteed cleared, which unblocks it.
     assert.equal(state.u.uprops[STEALTH].blocked, 0);
     assert.equal(state.disp.botl, true);
@@ -633,22 +653,57 @@ test('update_player_regions recomputes hero membership', async () => {
     state.level.regions = [];
 });
 
-test('see_monsters marks the steed seen and skips the hero square',
+test('see_monsters repaints the monster list and skips the hero square',
     async () => {
-    // display.c:1487-1522. The final newsym() of the hero's own square is
-    // skipped while riding, because the steed is in the monster list and its
-    // coordinates are the hero's.
+    // display.c:1487-1522. The steed keeps the hero's coordinates and stays on
+    // the monster list, so the loop's own newsym() paints the hero's square
+    // and the final `if (!u.usteed) newsym(u.ux, u.uy)` is skipped while
+    // riding. Every assertion below reads the painted cell rather than
+    // meverseen, which display.c:1496 writes before the loop begins and which
+    // therefore says nothing about the loop or its MON_STILL_ARRIVING skip.
     const state = await mounted();
     const steed = state.u.usteed;
-    steed.meverseen = 0;
-    see_monsters(state);
-    assert.equal(steed.meverseen, 1);
+    // C's gbuf entry for the square, which show_glyph() writes and the next
+    // flush copies to the terminal. see_monsters() is called here without a
+    // flush behind it, so the buffer is where its newsym() calls land.
+    const buffered = () => {
+        const loc = state.level.at(state.u.ux, state.u.uy);
+        return { gnew: loc.gnew, ch: loc.disp_ch, color: loc.disp_color };
+    };
+    const scribble = () => Object.assign(
+        state.level.at(state.u.ux, state.u.uy),
+        { gnew: 0, disp_ch: '?', disp_color: 9 },
+    );
+    const SCRIBBLED = { gnew: 0, ch: '?', color: 9 };
 
-    // A monster still arriving on the level is skipped entirely.
-    steed.mstate = 0x100; // MON_STILL_ARRIVING
     steed.meverseen = 0;
+    scribble();
     see_monsters(state);
-    assert.equal(steed.meverseen, 1, 'the steed is marked before the loop');
+    // The steed is marked before the loop, so this holds either way; the
+    // repainted buffer entry is what shows the loop ran.
+    assert.equal(steed.meverseen, 1);
+    // monsters.h:1009 gives the pony CLR_BROWN, 3.
+    assert.deepEqual(buffered(), { gnew: 1, ch: 'u', color: 3 },
+                     'the loop repaints the ridden steed');
+
+    // A monster still arriving on the level is skipped entirely, and nothing
+    // else paints the hero's square while u.usteed is set.
+    steed.mstate = MON_STILL_ARRIVING;
+    scribble();
+    see_monsters(state);
+    assert.deepEqual(buffered(), SCRIBBLED,
+                     'a still-arriving monster is not repainted');
+
+    // With the steed skipped, clearing u.usteed is what lets the tail paint
+    // the hero's own square. monsters.h:2608 gives a human HI_DOMESTIC, which
+    // color.h:37 defines as CLR_WHITE, 15.
+    state.u.usteed = null;
+    scribble();
+    see_monsters(state);
+    assert.deepEqual(buffered(), { gnew: 1, ch: '@', color: 15 },
+                     'the tail paints the hero once he is on foot');
+
+    state.u.usteed = steed;
     steed.mstate = 0;
 });
 
@@ -736,6 +791,66 @@ test('landing_spot prefers an orthogonal square to a diagonal one', async () => 
         await _steedInternals.landing_spot(DISMOUNT_BYCHOICE, 0, state),
         at(state, DIR_E),
     );
+});
+
+test('landing_spot breaks a tie between two equally near squares by rn2',
+    async () => {
+    // steed.c:506. The scan runs W, NW, N, NE, E, SE, S, SW, so with only west
+    // and east open the west square becomes the pending candidate through the
+    // `min_distance < 0` arm, which draws nothing, and the east square, at the
+    // same dist2 of 1, is the only tie. rn2(viable) therefore fires exactly
+    // once, with viable == 2, and its value decides where the hero lands. It
+    // is the only random number the live dismount path takes.
+    const state = await mounted();
+    isolate(state, [DIR_E, DIR_W]);
+
+    const before = getRngLog().length;
+    const spot = await _steedInternals.landing_spot(
+        DISMOUNT_BYCHOICE, 0, state,
+    );
+    const drawn = getRngLog().slice(before);
+
+    assert.equal(drawn.length, 1, JSON.stringify(drawn));
+    const tie = /^rn2\(2\)=([01])$/u.exec(drawn[0]);
+    assert.ok(tie, `the tie-break draws rn2(2), not ${drawn[0]}`);
+    // `!rn2(viable)` substitutes the tied candidate, so 0 takes the east
+    // square the scan reached second and 1 keeps the west one.
+    assert.deepEqual(spot, at(state, tie[1] === '0' ? DIR_E : DIR_W));
+});
+
+test('landing_spot passes over a square the squeeze rule refuses',
+    async () => {
+    // hack.c:1153-1177 wraps each cant_squeeze_thru() case in
+    // `if (mode == DO_MOVE)` and returns FALSE for every mode, so a TEST_MOVE
+    // probe drops the square in silence. landing_spot() probes all eight
+    // neighbours, so a probe that refused loudly would end the dismount
+    // instead of the candidate.
+    const state = await mounted();
+    // Only the north-east diagonal and the west orthogonal stay open. The NE
+    // probe finds STONE at <ux, uy-1> and <ux+1, uy>, which bad_rock() answers
+    // true for on both, so it enters the switch; the W probe has dy == 0 and
+    // skips it.
+    isolate(state, [DIR_NE, DIR_W]);
+    // objects.h:1617-1618 gives a boulder a weight of 6000, ten times
+    // WT_TOOMUCH_DIAGONAL, so cant_squeeze_thru() answers 2, "lugging too much
+    // junk". No level this port generates hands the hero that much, which is
+    // why the arm is dormant in a recording.
+    const boulder = mksobj(BOULDER, false, false, { state });
+    boulder.nobj = state.invent;
+    state.invent = boulder;
+    try {
+        assert.equal(cant_squeeze_thru(state.youmonst, state), 2);
+        assert.equal(
+            await test_move(state.u.ux, state.u.uy, 1, -1, TEST_MOVE, state),
+            false,
+        );
+        assert.deepEqual(
+            await _steedInternals.landing_spot(DISMOUNT_BYCHOICE, 0, state),
+            at(state, DIR_W),
+        );
+    } finally {
+        state.invent = boulder.nobj;
+    }
 });
 
 // The two-candidate arrangement both trap tests use: a clean diagonal square

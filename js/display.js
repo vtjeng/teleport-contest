@@ -2137,9 +2137,18 @@ export function statusConditionActive(option, u) {
     case 'deaf': return _propertyActive(u, DEAF) || u.uroleplay?.deaf;
     // youprop.h:253's Flying counts a flying steed as carrying the hero, and
     // botl.c:1194 reads the whole macro. No steed this port can reach flies,
-    // so the steed term is dormant; it is written out because the other four
-    // copies of the macro in js/ carry it and a fifth that did not would be a
-    // silent divergence the moment one does.
+    // so the steed term is dormant; it is written out because the other five
+    // copies of the macro carry it too and one that did not would be a silent
+    // divergence the moment a steed does fly. Those five are hack.js
+    // heroIsFlying(), engrave.js heroFlying(), trap.js Flying(), steed.js
+    // Flying() and polyself.js Flying() -- one per C file that expands the
+    // macro. engrave.js spells the steed term `usteed?.data?.mflags1 & M1_FLY`
+    // rather than is_flyer(), so a grep for this line's spelling finds only
+    // four of the five. scripts/dismount-steed.test.mjs, "a flying steed
+    // carries the hero through every copy of Flying", pins this copy and three
+    // of the five against one flying steed; engrave.js's and steed.js's are
+    // module-private, reachable only through can_reach_floor() and
+    // mount_steed().
     case 'fly':
         return Boolean((u.uprops?.[FLYING]?.intrinsic
                         || u.uprops?.[FLYING]?.extrinsic

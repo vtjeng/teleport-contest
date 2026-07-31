@@ -1067,6 +1067,14 @@ export async function test_move(
     if (dx && dy && bad_rock(species, ux, y, state)
         && bad_rock(species, x, uy, state)) {
         if (cant_squeeze_thru(state.youmonst, state)) {
+            // Each of C's three cases wraps its line in `if (mode == DO_MOVE)`
+            // and then returns FALSE for every mode, so a TEST_MOVE or
+            // TEST_TRAV probe drops the candidate square in silence. Only
+            // DO_MOVE owes the message this port has not ported, and
+            // landing_spot() probes all eight neighbours of a hero who may be
+            // standing in a corridor, where both corner squares are STONE and
+            // this switch is entered every time.
+            if (mode !== DO_MOVE) return false;
             throw new UnsupportedHeroMoveBoundaryError('tight diagonal move');
         }
     } else if (dx && dy && m_at(ux, y, state)
@@ -1076,6 +1084,12 @@ export async function test_move(
         // long worm; the consecutive-segment test that decides the refusal
         // reads wtails[], which has no ported counterpart, and neither does
         // the YMonnam() in the message.
+        //
+        // This arm therefore refuses in every mode, unlike the switch above.
+        // Returning FALSE for a TEST_MOVE probe would be a guess: when the two
+        // segments are not consecutive C's worm_cross() answers FALSE and
+        // test_move() carries on to return TRUE, and this port cannot tell the
+        // two apart.
         throw new UnsupportedHeroMoveBoundaryError('long worm body crossing');
     }
 
@@ -1636,11 +1650,15 @@ export function hero_tread_disturbs_buried_zombies(state = game) {
 }
 
 // C ref: hack.c switch_terrain() (3178-3217). Terrain that blocks levitation
-// blocks flight as well, and both of those arms refuse here: every ported
-// caller admits its destination through requireSimpleHeroDestination() first,
-// which lets no square satisfy `blocklev` through, and nothing this port
-// reaches sets the FROMOUTSIDE bit that the two `else if` arms clear. What is
-// left reachable is the flags.terrainstatus tail.
+// blocks flight as well, and both of those arms refuse here. The first is out
+// of reach because every ported caller admits its destination through
+// requireSimpleHeroDestination() first, which lets no square satisfy
+// `blocklev` through. The second refuses on any nonzero blocked mask, matching
+// C's `else if (BLevitation)` and `else if (BFlying)`; the only writers of
+// those two masks in this port are polyself.c float_vs_flight()'s I_SPECIAL
+// assignments, which need a hero who already has Levitation or Flying, and
+// nothing grants either yet. What is left reachable is the flags.terrainstatus
+// tail.
 export function switch_terrain(state = game) {
     const { u } = state;
     const lev = state.level?.at(u.ux, u.uy);

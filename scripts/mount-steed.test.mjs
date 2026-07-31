@@ -69,6 +69,7 @@ import { game } from '../js/gstate.js';
 import { m_at } from '../js/monst.js';
 import { put_saddle_on_mon } from '../js/dog.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { getRngLog } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadMountSteedRecipe } from './run-mount-steed.mjs';
 
@@ -151,8 +152,11 @@ test('the impairment roll and the damage roll are the only draws the slip '
     assert.equal(after.boundary, null);
     const drawn = after.replay.getRngLog().slice(spentBefore);
     // steed.c:338-356 draws rnd(MAXULEV / 2 + 5) for the impairment test and
-    // rn1(5, 10) for the damage, and nothing between them.
+    // rn1(5, 10) for the damage, and nothing between them. rn1(x, y) is rn2(x)
+    // plus y (rnd.c:99-102), so the log records the damage draw as rn2(5).
     assert.equal(drawn.length, 2);
+    assert.match(drawn[0], /^rnd\(20\)=\d+$/u);
+    assert.match(drawn[1], /^rn2\(5\)=[0-4]$/u);
     assert.equal(topLine(),
         'You slip while trying to get on the saddled pony.');
 
@@ -162,10 +166,11 @@ test('the impairment roll and the damage roll are the only draws the slip '
     assert.equal(level, 1);
     assert.equal(pony.mtame, 10);
     assert.equal(MAXULEV / 2 + 5, 20);
-    // rn1(5, 10) is 10 through 14, and Maybe_Half_Phys() leaves it alone for a
-    // hero with no Half_physical_damage source.
+    // rn1(5, 10) is the drawn rn2(5) plus 10, and Maybe_Half_Phys() leaves it
+    // alone for a hero with no Half_physical_damage source. Reading the offset
+    // back off the logged draw pins it; a range would let rn1(5, 11) through.
     const lost = hp - game.u.uhp;
-    assert.ok(lost >= 10 && lost <= 14, `lost ${lost}`);
+    assert.equal(lost, Number(drawn[1].split('=')[1]) + 10);
     assert.equal(game.u.uhpmax, uhpmax);
     assert.equal(statusLine().includes(`HP:${game.u.uhp}(${uhpmax})`), true,
         statusLine());
@@ -608,26 +613,32 @@ test('a levitating hero watches the steed slip away instead of losing hit '
     assert.equal(game.u.uhp, game.u.uhpmax);
 });
 
-test('a greased or cursed saddle fails the mount without a roll', async () => {
+test('a greased or cursed saddle fails the mount without an impairment roll',
+    async () => {
     const segment = knightSlipSegment();
     for (const field of ['cursed', 'greased']) {
-        let spent = 0;
+        let spentBefore = 0;
         const { result } = await mountAfter(segment, (state) => {
             const pony = m_at(state.u.ux, state.u.uy + 1);
             pony.minvent[field] = true;
             // Above the roll's ceiling, so the saddle is the only thing that
             // can make the mount fail.
             state.u.ulevel = MAXULEV;
-            spent = state.rngCallCount ?? 0;
+            spentBefore = getRngLog().length;
             return pony;
         });
+        const drawn = getRngLog().slice(spentBefore);
         assert.equal(result, false, field);
         // steed.c:338's `||` chain reaches otmp->cursed and otmp->greased
         // before the rnd() call, so the slip happens with no impairment draw.
+        // What is left is the slip's own rn1(5, 10) damage, which the log
+        // records as rn2(5); a roll evaluated eagerly rather than in its place
+        // in the chain would put an rnd(20) in front of it.
+        assert.equal(drawn.length, 1, `${field}: ${JSON.stringify(drawn)}`);
+        assert.match(drawn[0], /^rn2\(5\)=[0-4]$/u);
         assert.equal(toplines(),
             'You slip while trying to get on the saddled pony.', field);
         assert.ok(game.u.uhp < game.u.uhpmax, field);
-        assert.equal(typeof spent, 'number');
     }
 });
 
@@ -955,12 +966,20 @@ test('Maybe_Half_Phys halves the damage for a protected hero', async () => {
     const pony = m_at(game.u.ux, game.u.uy + 1);
     pony.minvent.cursed = true; /* fail the mount without a roll */
     const full = game.u.uhp;
-    // hack.h:1236 halves with `(dmg + 1) / 2`, so 10 through 14 becomes 5
-    // through 7.
     game.u.uprops[HALF_PHDAM] = { intrinsic: 1, extrinsic: 0 };
+    const spentBefore = getRngLog().length;
     await mount_steed(pony, false, game);
-    const halved = full - game.u.uhp;
-    assert.ok(halved >= 5 && halved <= 7, `halved ${halved}`);
+    // The cursed saddle short-circuits the impairment roll, so the slip's
+    // rn1(5, 10) is the only draw and the log records it as rn2(5).
+    const drawn = getRngLog().slice(spentBefore);
+    assert.equal(drawn.length, 1, JSON.stringify(drawn));
+    assert.match(drawn[0], /^rn2\(5\)=[0-4]$/u);
+    // hack.h:1236 halves with `(dmg + 1) / 2`, rounding up. Reading the draw
+    // back pins the formula rather than the range it happens to land in. The
+    // rounding itself stays unpinned: this segment draws rn2(5) == 0, so the
+    // damage is even and `dmg / 2` would give the same answer.
+    const damage = Number(drawn[0].split('=')[1]) + 10;
+    assert.equal(full - game.u.uhp, Math.trunc((damage + 1) / 2));
 });
 
 test('test_move(TEST_MOVE) answers without printing or opening a door',

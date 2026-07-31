@@ -12,6 +12,7 @@ import {
     FLYING,
     FOUNTAIN,
     HEADSTONE,
+    I_SPECIAL,
     LEVITATION,
     MAX_TYPE,
     ROOM,
@@ -202,6 +203,30 @@ test('legal-move terrain switching classifies only at the source gate', () => {
     switch_terrain(forced);
     assert.equal(forced.iflags.terrain_typ, X_FLOOR);
     assert.equal(forced.disp.botl, true);
+});
+
+test('switch_terrain refuses both arms that would unblock levitation', () => {
+    // hack.c:3186-3205. Each `else if` unblocks a property and prints a line
+    // this port has no owner for, so each refuses instead of falling through
+    // to the flags.terrainstatus tail. Both are fail-closed guards in front of
+    // unported behaviour, and the fixture terrainState() builds routes around
+    // them.
+    //
+    // rm.h IS_OBSTRUCTED(typ) is `typ < POOL`, so STONE satisfies `blocklev`
+    // and reaches the first arm.
+    assert.throws(() => switch_terrain(terrainState(STONE)),
+                  /blocks levitation/u);
+
+    // The second arm is C's `else if (BLevitation)` / `else if (BFlying)`: it
+    // reads the whole blocked mask, and polyself.c float_vs_flight() is the
+    // only writer this port has, which sets I_SPECIAL in it. Either property
+    // alone reaches the refusal.
+    for (const property of [LEVITATION, FLYING]) {
+        const state = terrainState(FOUNTAIN);
+        state.u.uprops[property].blocked = I_SPECIAL;
+        assert.throws(() => switch_terrain(state),
+                      /unblocking levitation or flight/u);
+    }
 });
 
 test('movement smudges old then new engravings in source RNG order', () => {

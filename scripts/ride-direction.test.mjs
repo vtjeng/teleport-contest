@@ -4,7 +4,6 @@ import test from 'node:test';
 import {
     confdir,
     dxdy_moveok,
-    getdir,
     key2txt,
     movecmd,
     redraw_cmd,
@@ -32,6 +31,7 @@ import { runSegment } from '../js/jsmain.js';
 import { u_maybe_impaired } from '../js/hack.js';
 import {
     ESCAPE_KEY,
+    NUL_KEY,
     RIDE_COMMAND,
     SPACE_KEY,
     STRANGE_KEY,
@@ -77,7 +77,7 @@ function directionState() {
 test('the ride-direction matrix contains only source-selected inputs', () => {
     const recipe = loadRideDirectionRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 11);
+    assert.equal(recipe.segments.length, 12);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -94,7 +94,8 @@ test('the ride-direction matrix contains only source-selected inputs', () => {
     );
     assert.deepEqual(
         [...new Set(answers)].sort(),
-        [null, '.', '?', '_', ESCAPE_KEY, SPACE_KEY, STRANGE_KEY, 's'].sort(),
+        [null, '.', '?', '_', ESCAPE_KEY, NUL_KEY, SPACE_KEY, STRANGE_KEY,
+            's'].sort(),
     );
 });
 
@@ -141,6 +142,36 @@ test('each quitchars[] cancel leaves the prompt row clear and spends nothing',
         assert.equal(game.context.move, 0);
         assert.equal(game.multi, 0);
     }
+});
+
+test('a NUL answer cancels the prompt through the ESC substituted for it',
+    async () => {
+    // win/tty/wintty.c tty_nhgetch():4093-4094 maps NUL to ESC "since nethack
+    // doesn't expect NUL", so a Ctrl-@ answer cancels the command exactly as
+    // Escape does. quitchars[] holds only the substituted ESC, so a reader
+    // that saw the raw byte would take getdir()'s invalid-direction arm.
+    assert.equal(quitchars.includes(NUL_KEY), false);
+    assert.equal(quitchars.includes(ESCAPE_KEY), true);
+
+    const outcome = async (key) => {
+        const segment = segmentFor(`${RIDE_COMMAND}${key}.`);
+        const before = await runSegment({ ...segment, moves: '.' });
+        const start = { moves: game.moves, rng: before.getRngLog().length };
+        const { boundary, replay } = await rideWith(segment, key);
+        return {
+            boundary: boundary?.message ?? null,
+            topLine: topLine(),
+            spentMoves: game.moves - start.moves,
+            spentRng: replay.getRngLog().length - start.rng,
+        };
+    };
+
+    // The cancel prints nothing, spends no turn and draws no random number.
+    const cancelled = {
+        boundary: null, topLine: '', spentMoves: 0, spentRng: 0,
+    };
+    assert.deepEqual(await outcome(ESCAPE_KEY), cancelled);
+    assert.deepEqual(await outcome(NUL_KEY), cancelled);
 });
 
 test('an accepted direction hands mount_steed() the square it names',
@@ -460,8 +491,12 @@ test('a restricted response set stops before the prompt paints', async () => {
     // The guard precedes show_topl(), so neither call painted a query.
     assert.equal(topLine(), row);
     // getdir() itself always passes a null response, so this refusal is not on
-    // its path.
-    assert.equal(typeof getdir, 'function');
+    // its path: the same query with `null` gets past the guard and fails at
+    // the spent input queue instead.
+    await assert.rejects(
+        yn_function('Force the mount to succeed?', null, '\0', false, game),
+        (error) => !/restricted response set/u.test(error.message),
+    );
 });
 
 // Drive doride() once against the game a segment left behind, answering the

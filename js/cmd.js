@@ -378,8 +378,9 @@ function boundHandler(model, key) {
 // C ref: cmd.c movecmd(). Sets u.dx, u.dy and u.dz from the direction the key
 // is bound to and returns 1 only for a horizontal one, so '>' and '<' return 0
 // with u.dz set. A key bound to no movement command leaves u.dx and u.dy
-// untouched and only clears u.dz, which is what lets getdir()'s self arm keep
-// the zeroes it just wrote.
+// untouched and only clears u.dz, so the direction the hero last gave survives
+// a cancelled or invalid prompt; steed.c landing_spot() reads that survivor
+// back through xytodir(u.dx, u.dy) on a later dismount.
 export function movecmd(sym, mode, state = game) {
     let d = DIR_ERR;
     const fnc = boundHandler(commandBindings(state), sym);
@@ -484,6 +485,9 @@ export async function getdir(s, state = game) {
     // cmdq_add_key(CQ_REPEAT, dirsym): no command queue is ported.
 
     const spkeys = commandBindings(state).specialKeys;
+    // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
+    // only in the final `else if`, so the self arm writes <0,0,0> and returns
+    // it without movecmd() ever running.
     if (dirsym === spkeys['getdir.self']
         || dirsym === spkeys['getdir.self2']) {
         u.dx = 0;

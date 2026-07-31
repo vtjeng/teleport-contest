@@ -37,6 +37,11 @@ export const SPACE_KEY = ' ';
 // outside the movement set, the four getdir special keys and quitchars[]
 // reaches the same arm.
 export const STRANGE_KEY = 'a';
+// Ctrl-@ on a Unix terminal. win/tty/wintty.c tty_nhgetch():4093-4094 maps it
+// to Escape before readchar() sees it, so it cancels the prompt like the
+// Escape segment above; the recorder's terminal passes the byte through
+// untouched.
+export const NUL_KEY = '\x00';
 
 function nethackrc({ role, gender, align, options, bind = null }) {
     return [
@@ -112,6 +117,9 @@ export function loadRideDirectionRecipe() {
             segment(7710001, PLAIN, `${RIDE_COMMAND}${SPACE_KEY}${WAIT}`),
             segment(7710011, WITH_PONY,
                 `${RIDE_COMMAND}${ESCAPE_KEY}${WAIT}`, { gender: 'female' }),
+            // The NUL byte the window port substitutes an Escape for, which
+            // is the only way to reach that substitution from a keystroke.
+            segment(7710001, PLAIN, `${RIDE_COMMAND}${NUL_KEY}${WAIT}`),
 
             // --- the invalid-direction message ---
             segment(7710001, NO_CMDASSIST,
