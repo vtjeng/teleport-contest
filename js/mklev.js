@@ -12,6 +12,7 @@ import {
     depth as dungeon_depth,
     level_difficulty,
     on_level,
+    u_on_newpos,
 } from './dungeon.js';
 import { mkcorpstat } from './corpstat.js';
 import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
@@ -187,44 +188,6 @@ const TRAP_ENGRAVINGS = new Map([
 
 // ── Hero placement (C ref: stairs.c, mkmaze.c) ──
 
-export function u_on_newpos(x, y, state = game) {
-    if (!isok(x, y))
-        throw new RangeError(`u_on_newpos: hero location is off map <${x},${y}>`);
-
-    const hero = state.u;
-    hero.ux = x;
-    hero.uy = y;
-    hero.uundetected = false;
-    if (hero.usteed) {
-        hero.usteed.mx = x;
-        hero.usteed.my = y;
-    }
-
-    if (!on_level(hero.uz, hero.uz0)) {
-        hero.ux0 = x;
-        hero.uy0 = y;
-
-        // dungeon.c:u_on_newpos() calls map_location(FALSE). Preserve its
-        // independent lastseentyp[x][y] write here; the [x][y] matrix lives
-        // with the fresh GameMap so a new level starts cleared. The current
-        // display layer does not yet map objects, seen traps, or revealed
-        // engravings, so it remains responsible for replacing this seam with
-        // map_location's remembered-glyph priority once those layers exist.
-        const level = state.level;
-        if (level) {
-            level.lastseentyp ??= Array.from(
-                { length: COLNO },
-                () => new Array(ROWNO).fill(0),
-            );
-            level.lastseentyp[x][y] = level.at(x, y)?.typ ?? STONE;
-        }
-        state.iflags ??= {};
-        state.iflags.terrain_typ = MAX_TYPE;
-    }
-    // Same-level nearby-object remapping and dungeon.c:earth_sense() are not
-    // reached by this new-game placement boundary and remain explicit future
-    // dependencies before this function can serve general level movement.
-}
 
 // C ref: mkmaze.c bad_location — simplified for skeleton
 function bad_location(x, y, nlx, nly, nhx, nhy) {

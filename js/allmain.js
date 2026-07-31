@@ -856,6 +856,14 @@ export async function moveloop_core() {
     } else if ((g.multi ?? 0) === 0) {
         await rhack(0, g);
     }
+    // C ref: allmain.c moveloop_core():541, the second of the function's two
+    // vision_recalc() calls. It runs after rhack() and before the next
+    // iteration's monster movement, so a command that sets vision_full_recalc
+    // -- teleds() and dismount_steed() both do -- has the flag cleared before
+    // the monster scan reads it. Without this the scan would take
+    // movemon_singlemon()'s own recalculation arm on the turn the command
+    // charged, which C reaches only when movemon()'s tail sets the flag.
+    if (g.vision_full_recalc) vision_recalc(0);
     // show_glyph() emits its accessibility pline before returning to the
     // command loop. Preserve that boundary for command-generated reveals even
     // when no later region or combat message forces an earlier drain.

@@ -247,6 +247,17 @@ export function add_region(region, state = game, rawEnv = {}) {
     return region;
 }
 
+// C ref: region.c update_player_regions() (582-592). Recomputes each region's
+// hero-membership flag after a relocation that did not step across its
+// boundary. A region attached to the hero follows the hero, so it takes the
+// `else` arm and is cleared -- an oddity of the source that is preserved here.
+export function update_player_regions(state = game) {
+    for (const region of state.level?.regions ?? []) {
+        region.hero_inside = !region.attach_2_u
+            && inside_region(region, state.u.ux, state.u.uy);
+    }
+}
+
 // C ref: region.c update_monster_region(). Relocation updates each active
 // region's cached monster-id membership after the coordinate grid changes.
 export function update_monster_region(monster, state = game) {

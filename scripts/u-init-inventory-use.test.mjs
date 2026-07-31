@@ -395,7 +395,7 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', (
         ...env,
         hooks: { ...env.hooks, setArtifactIntrinsic: () => {} },
     });
-    assert.equal(_wornInternals.isPole(snickersnee, game), true);
+    assert.equal(_wornInternals.is_pole(snickersnee, game), true);
     assert.equal(game.unweapon, false);
 
     env = startup('Knight');

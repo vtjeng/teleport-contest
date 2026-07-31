@@ -39,6 +39,7 @@ import {
     INVIS,
     LAVAWALL,
     LEVITATION,
+    MAX_CARR_CAP,
     MAX_TYPE,
     M_AP_FURNITURE,
     M_AP_OBJECT,
@@ -63,6 +64,8 @@ import {
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
+    WT_WEIGHTCAP_SPARE,
+    WT_WEIGHTCAP_STRCON,
     WT_TOOMUCH_DIAGONAL,
     ZOMBIFY_MON,
     OVERLOADED,
@@ -78,7 +81,7 @@ import {
     wall_angle,
 } from './display.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
-import { dist2 } from './hacklib.js';
+import { dist2, highc } from './hacklib.js';
 import {
     can_reach_floor,
     engr_at,
@@ -93,11 +96,13 @@ import {
     is_hider,
     is_whirly,
     needspick,
+    locomotion,
     noattacks,
     nohands,
     noncorporeal,
     passes_walls,
     slithy,
+    strongmonst,
     throws_rocks,
     tunnels,
     verysmall,
@@ -130,6 +135,7 @@ import { rn2, rnd } from './rng.js';
 import { check_special_room_state } from './rooms.js';
 import {
     canSpotMonster,
+    collectMonsterNoticeMessages,
     is_drawbridge_wall,
     messageAt,
     monsterVisible,
@@ -148,16 +154,26 @@ import { vision_recalc } from './vision.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
-// C ref: hack.c weight_cap(), for the live unpolymorphed, unmounted,
+// C ref: hack.c weight_cap() (4293-4351), for the live unpolymorphed,
 // non-levitating repeated-command boundary. Unlike the former startup-only
 // helper, this reads effective Strength on every call, so hunger weakness can
 // change carrying capacity before the next monster/allocation cycle.
+//
+// Three of C's branches are absent because nothing reaches them: the
+// Boots_on/ELevitation deferral and its restore at 4337-4341, the Upolyd
+// adjustment, and the EWounded_legs reduction, which needs a property no line
+// of this port sets. The steed arm at 4325-4327 is live, because riding a
+// strong monster is one of the three ways C reaches MAX_CARR_CAP -- the other
+// two, Levitation and the air level, remain out of reach.
 export function weight_cap(state = game) {
-    let capacity = 25 * (
+    let capacity = WT_WEIGHTCAP_STRCON * (
         acurrstr(state) + effective_attribute(state, A_CON)
-    ) + 50;
-    capacity = Math.min(capacity, 1000);
-    return Math.max(Math.trunc(capacity), 1);
+    ) + WT_WEIGHTCAP_SPARE;
+    if (state.u.usteed && strongmonst(state.u.usteed.data))
+        capacity = MAX_CARR_CAP;
+    else
+        capacity = Math.min(capacity, MAX_CARR_CAP);
+    return Math.max(Math.trunc(capacity), 1); /* never return 0 */
 }
 
 function inventory_weight(state) {
@@ -512,7 +528,7 @@ function refusedDiagonalDoorway(x, y, state) {
 // disabled. These checks are a temporary admission seam in front of
 // hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
-function requireSimpleHeroDestination(x, y, state) {
+export function requireSimpleHeroDestination(x, y, state) {
     if (m_at(x, y, state))
         throw new UnsupportedHeroMoveBoundaryError(
             'hero combat or displacement',
@@ -1209,6 +1225,17 @@ export async function domove(state = game) {
     const newx = u.ux + u.dx;
     const newy = u.uy + u.dy;
 
+    // C ref: hack.c domove_core():2815-2818, 2874-2884, 2924-2926 and 2934.
+    // A mounted hero's step carries the steed: stucksteed() can refuse the
+    // move outright, the steed's <mx,my> follow the hero on the way out and
+    // on the way back from a failed pet swap, exercise_steed() trains the
+    // riding skill, and u_on_newpos() repositions both. None of that is
+    // ported, so a ride ends where the hero next tries to move rather than
+    // walking the steed's coordinates into a stale position in silence.
+    if (u.usteed) {
+        throw new UnsupportedHeroMoveBoundaryError('movement while riding');
+    }
+
     if (move_out_of_bounds(newx, newy, state)) {
         state.domoveAttempting = 0;
         return;
@@ -1298,10 +1325,8 @@ export async function domove(state = game) {
     newsym(oldx, oldy);
     vision_recalc(1);
     newsym(newx, newy);
-    switch_terrain_for_legal_move(state);
-    check_special_room_state(false, state);
-    // C ref: domove_core() -> spoteffects(TRUE) -> pickup(1) -> check_here().
-    await check_here(false, state);
+    // C ref: domove_core():2980 spoteffects(TRUE).
+    await spoteffects(true, state);
     await runmode_delay_output(state);
     maybe_smudge_engr(oldx, oldy, newx, newy, state);
     state.domoveAttempting = 0;
@@ -1610,22 +1635,128 @@ export function hero_tread_disturbs_buried_zombies(state = game) {
         && (state.youmonst?.data?.cwt ?? 0) >= (WT_ELF / 2);
 }
 
-// C ref: hack.c spoteffects() -> switch_terrain() -> classify_terrain().
-// Within the stable-level legal-move checkpoint, the destination cannot be
-// solid terrain and the starting hero cannot carry terrain-blocked levitation
-// or flight into this call. Those earlier switch_terrain() branches therefore
-// have no effect; this owns its reachable terrain-status tail.
-export function switch_terrain_for_legal_move(state = game) {
+// C ref: hack.c switch_terrain() (3178-3217). Terrain that blocks levitation
+// blocks flight as well, and both of those arms refuse here: every ported
+// caller admits its destination through requireSimpleHeroDestination() first,
+// which lets no square satisfy `blocklev` through, and nothing this port
+// reaches sets the FROMOUTSIDE bit that the two `else if` arms clear. What is
+// left reachable is the flags.terrainstatus tail.
+export function switch_terrain(state = game) {
     const { u } = state;
-    const current = state.level?.at(u?.ux, u?.uy);
-    const previous = state.level?.at(u?.ux0, u?.uy0);
-    if (!current || !previous) return false;
-    if (current.typ === previous.typ
-        && state.iflags?.terrain_typ !== MAX_TYPE) {
-        return false;
+    const lev = state.level?.at(u.ux, u.uy);
+    const blocklev = Boolean(lev)
+        && (IS_OBSTRUCTED(lev.typ) || closed_door(u.ux, u.uy, state)
+            || IS_WATERWALL(lev.typ) || lev.typ === LAVAWALL);
+    if (blocklev) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'switch_terrain() onto terrain that blocks levitation',
+        );
     }
+    if (state.u.uprops[LEVITATION].blocked
+        || state.u.uprops[FLYING].blocked) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'switch_terrain() unblocking levitation or flight',
+        );
+    }
+    // Neither Levitation nor Flying can have changed above, so the
+    // disp.botl update at 3212-3213 cannot fire either.
     if (state.flags?.terrainstatus) classify_terrain(state);
-    return true;
+}
+
+// C ref: hack.c spoteffects():3345-3347, the terrain test that guards
+// switch_terrain(). teleport.c teleds():551-552 has a test of its own with the
+// same call, so this one is written where spoteffects() has it rather than
+// folded into switch_terrain().
+export function terrain_changed_under_hero(state = game) {
+    const { u } = state;
+    const current = state.level?.at(u.ux, u.uy);
+    const previous = state.level?.at(u.ux0, u.uy0);
+    if (!current || !previous) return false;
+    return current.typ !== previous.typ
+        || state.iflags?.terrain_typ === MAX_TYPE;
+}
+
+// C ref: hack.c spoteffects() (3312-3480), the arms an ordinary ROOM, CORR,
+// STAIRS or open doorway square reaches. Its two ported callers, domove() and
+// teleport.c teleds(), each admit their destination through
+// requireSimpleHeroDestination() first, which refuses every square that could
+// reach the pool, lava, sink, trap, ice-warning or resident-monster arms; the
+// recursion guard and the iflags.in_lava_effects return are unreachable for
+// the same reason.
+//
+// gi.in_steed_dismounting is C's kludge for the one caller that needs the
+// pickup deferred: steed.c dismount_steed() sets it around its teleds() call
+// and then lets float_down() run pickup(1) exactly once.
+export async function spoteffects(pick, state = game) {
+    if (terrain_changed_under_hero(state)) switch_terrain(state);
+    check_special_room_state(false, state);
+    if (!state.in_steed_dismounting) {
+        // C ref: pickup(1) -> check_here(). pickup()'s own arms need
+        // describe_decor(), read_engr_at() and autopickup, all of which
+        // requireSimpleHeroDestination() refuses ahead of this call.
+        if (pick) await check_here(false, state);
+    }
+}
+
+// C ref: flag.h:233 notice_mon_off(). Suspends the accessibility monster
+// notices while a caller emits messages of its own.
+export function notice_mon_off(state = game) {
+    state.a11y ??= {};
+    state.a11y.mon_notices_blocked
+        = (state.a11y.mon_notices_blocked ?? 0) + 1;
+}
+
+// C ref: flag.h:234-237 notice_mon_on(). C reports an unpaired resume through
+// impossible() and clamps to zero; this throws instead, because a negative
+// count means a caller lost its notice_mon_off() and would silently start
+// noticing monsters again mid-message.
+export function notice_mon_on(state = game) {
+    state.a11y ??= {};
+    const blocked = (state.a11y.mon_notices_blocked ?? 0) - 1;
+    if (blocked < 0) throw new Error('mon_notices_blocked<0');
+    state.a11y.mon_notices_blocked = blocked;
+}
+
+// C ref: hack.c notice_all_mons() (1744-1782). Announces every monster the
+// hero can now spot, nearest first, after a notice_mon_off()/notice_mon_on()
+// pair suspended the per-monster notices.
+export async function notice_all_mons(reset, state = game, env = {}) {
+    if (!reset) {
+        // reset differs from TRUE only when nothing is spottable, where it
+        // leaves each monster's mspotted alone instead of clearing it.
+        // teleds() is the only ported caller and passes TRUE.
+        throw new UnsupportedHeroMoveBoundaryError('notice_all_mons(FALSE)');
+    }
+    if (!state.a11y?.mon_notices || state.a11y?.mon_notices_blocked) return;
+    const message = env.message ?? ttyPline;
+    for (const line of collectMonsterNoticeMessages(state))
+        await message(line, state);
+}
+
+// C ref: hack.c u_locomotion() (1817-1829). The hero's own movement verb.
+// mondata.c locomotion() cannot answer it, because its is_flyer() and
+// is_floater() tests read a monster form rather than the hero's properties.
+export function u_locomotion(def, state = game) {
+    if (propertyActiveUnblocked(state, LEVITATION))
+        return def[0] === highc(def[0]) ? 'Float' : 'float';
+    if (heroIsFlying(state))
+        return def[0] === highc(def[0]) ? 'Fly' : 'fly';
+    return locomotion(state.youmonst.data, def);
+}
+
+// C ref: hack.c invocation_message() (3064-3085). Its whole body sits behind
+// invocation_pos(), which is Invocation_lev() and the level's fixed vibrating
+// square. Invocation_lev() (dungeon.h:47) is In_hell() and the level above
+// the bottom of Gehennom, and this port generates no level outside the
+// Dungeons of Doom, so the clue message and u.uevent.uvibrated are dead. The
+// guard is kept so that the first caller which does reach Gehennom stops here
+// rather than skipping the clue in silence.
+export function invocation_message(state = game) {
+    if (state.u.uz.dnum !== 0) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'invocation_message() outside the Dungeons of Doom',
+        );
+    }
 }
 
 // C ref: hack.c maybe_smudge_engr(). Each eligible engraving consumes rnd(5)

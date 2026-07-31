@@ -10,12 +10,11 @@
 // rnd(MAXULEV / 2 + 5) for the impairment roll and rn1(5, 10) for the damage --
 // and three guards that return before the roll and therefore spend nothing.
 //
-// Nothing here can reach the success path at steed.c:358: mount_steed() sets
-// u.usteed there, which belongs to the next slice, so a segment whose roll
-// passes would run past what the port implements. Two slips in a row are
-// impossible for the same reason from the other side -- rn1(5, 10) is 10 to 14
-// and a level 1 Knight has 16 hit points, so a second slip always reaches
-// losehp()'s death branch.
+// No segment here reaches the success path at steed.c:358; that path and the
+// dismount that follows it have their own matrix in
+// scripts/run-ride-dismount.mjs. Two slips in a row are impossible: rn1(5, 10)
+// is 10 to 14 and a level 1 Knight has 16 hit points, so a second slip always
+// reaches losehp()'s death branch.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

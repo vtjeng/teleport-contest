@@ -1,5 +1,6 @@
 // trap.js -- Trap allocation and map ownership.
-// C ref: trap.c -- t_at(), hole_destination(), maketrap(), choose_trapnote().
+// C ref: trap.c -- t_at(), hole_destination(), maketrap(), choose_trapnote(),
+// set_utrap(), reset_utrap(), fill_pit(), float_down().
 
 import {
     BEAR_TRAP,
@@ -14,6 +15,7 @@ import {
     D_LOCKED,
     DOOR,
     DRAWBRIDGE_UP,
+    FLYING,
     HOLE,
     IS_AIR,
     IS_FURNITURE,
@@ -21,9 +23,12 @@ import {
     IS_POOL,
     IS_ROOM,
     IS_WALL,
+    Is_airlevel,
+    Is_waterlevel,
     LADDER,
     LAVAWALL,
     LEVEL_TELEP,
+    LEVITATION,
     MAGIC_PORTAL,
     MELT_ICE_AWAY,
     N_DIRS,
@@ -49,6 +54,7 @@ import {
     VIBRATING_SQUARE,
     WATER,
     WEB,
+    W_SADDLE,
     ZAP_POS,
     is_hole,
     is_pit,
@@ -60,14 +66,19 @@ import {
 import { unearth_objs } from './bury.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { nomul, UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { stackobj } from './invent.js';
+import { is_flyer } from './mondata.js';
 import {
     mksobj,
     obj_ice_effects,
     place_object,
+    sobj_at,
     weight,
 } from './obj.js';
 import { BOULDER } from './objects.js';
+import { check_here, encumber_msg } from './pickup.js';
+import { float_vs_flight } from './polyself.js';
 import { rn1, rn2, rnd, rne } from './rng.js';
 import { is_ice, set_levltyp } from './terrain.js';
 import { spot_stop_timers } from './timeout.js';
@@ -487,4 +498,161 @@ export function maketrap(x, y, typ, rawEnv = {}) {
 
     if (!oldplace) state.level.traps.unshift(trap);
     return trap;
+}
+
+// ── Hero trap state and the descent out of levitation (C ref: trap.c) ──
+
+// youprop.h:242 Levitation and :253 Flying, spelled out here for the same
+// reason every other file in this port spells them out: the macros read three
+// fields of one property and Flying adds a steed term.
+function Levitation(state) {
+    const levitation = state.u.uprops[LEVITATION];
+    return Boolean((levitation.intrinsic || levitation.extrinsic)
+                   && !levitation.blocked);
+}
+
+function Flying(state) {
+    const flying = state.u.uprops[FLYING];
+    return Boolean((flying.intrinsic || flying.extrinsic
+                    || (state.u.usteed && is_flyer(state.u.usteed.data)))
+                   && !flying.blocked);
+}
+
+// C ref: trap.c set_utrap() (1030-1043). The `!u.utrap ^ !tim` test fires only
+// when the hero enters or leaves a trap, so releasing an untrapped hero writes
+// no status-line flag of its own; float_vs_flight() writes one regardless.
+export function set_utrap(tim, typ, state = game) {
+    const u = state.u;
+    if (Boolean(!u.utrap) !== Boolean(!tim)) {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+    u.utrap = tim;
+    u.utraptype = tim ? typ : TT_NONE;
+    float_vs_flight(state);
+}
+
+// C ref: trap.c reset_utrap() (1045-1057). `msg` is FALSE at the one ported
+// call site, teleds(), so float_up() and the "You can fly." line below it are
+// unreachable; both are refused rather than silently dropped.
+export function reset_utrap(msg, state = game) {
+    const was_Lev = Levitation(state);
+    const was_Fly = Flying(state);
+
+    set_utrap(0, 0, state);
+
+    if (msg) {
+        if (!was_Lev && Levitation(state))
+            throw new UnsupportedHeroMoveBoundaryError(
+                'reset_utrap() resuming levitation',
+            );
+        if (!was_Fly && Flying(state))
+            throw new UnsupportedHeroMoveBoundaryError(
+                'reset_utrap() resuming flight',
+            );
+    }
+}
+
+// C ref: trap.c fill_pit() (4010-4021). A boulder resting on a pit or hole
+// settles into it when the hero leaves the square.
+export function fill_pit(x, y, state = game) {
+    const trap = t_at(x, y, state);
+    if (trap && (is_pit(trap.ttyp) || is_hole(trap.ttyp))
+        && sobj_at(BOULDER, x, y, state)) {
+        // obj_extract_self() then flooreffects(otmp, x, y, "settle"), which
+        // fills the pit, may break the boulder and can drown or burn it. None
+        // of flooreffects() is ported.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'fill_pit() settling a boulder into a pit',
+        );
+    }
+}
+
+// C ref: trap.c float_down() (4024-4177). dismount_steed() is the only ported
+// caller and passes hmask 0 with emask W_SADDLE, so no levitation source is
+// actually cleared and the whole "float gently to the surface" block at
+// 4109-4146 is suppressed by its `!(emask & W_SADDLE)` guard. What remains
+// reachable is the status-line flag, nomul(0), encumber_msg() and the deferred
+// pickup(1) that dismount_steed() relies on -- spoteffects() skips its own
+// pickup while gi.in_steed_dismounting is set, so this call is the only one.
+export async function float_down(hmask, emask, state = game) {
+    const u = state.u;
+    const levitation = u.uprops[LEVITATION];
+
+    levitation.intrinsic &= ~hmask;
+    levitation.extrinsic &= ~emask;
+    if (Levitation(state))
+        return 0; /* maybe another ring/potion/boots */
+    if (levitation.blocked) {
+        // The BLevitation arm gives terrain- or trap-specific feedback and
+        // returns before every side effect below it.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() with levitation blocked',
+        );
+    }
+    state.disp ??= {};
+    state.disp.botl = true;
+    nomul(0, state); /* stop running or resting */
+    if (u.uprops[FLYING].blocked) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() into controlled flight',
+        );
+    }
+    if (u.uswallow) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() while engulfed',
+        );
+    }
+    if (state.uball) {
+        // The Punished arm can move the hero onto the ball's square.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() with a punishing ball',
+        );
+    }
+    if (!Flying(state)) {
+        if (u.ustuck) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'float_down() while held',
+            );
+        }
+        if (is_pool(u.ux, u.uy, state) || is_lava(u.ux, u.uy, state)) {
+            // drown() and lava_effects() own these squares.
+            throw new UnsupportedHeroMoveBoundaryError(
+                'float_down() into water or lava',
+            );
+        }
+    }
+    const trap = t_at(u.ux, u.uy, state);
+    if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+        // "You begin to tumble in place." is printed even under W_SADDLE.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() on the air or water level',
+        );
+    }
+    if (u.uinwater) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() underwater',
+        );
+    }
+    if (!(emask & W_SADDLE)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() landing messages',
+        );
+    }
+
+    /* levitation gives maximum carrying capacity, so having it end
+       potentially triggers greater encumbrance */
+    await encumber_msg(state);
+
+    if (trap) {
+        // The switch here ends in dotrap(), and a HOLE or TRAPDOOR arm can
+        // leave the level before the pickup below runs.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'float_down() onto a trap',
+        );
+    }
+    // C ref: pickup(1). js/hack.js spoteffects() documents why check_here()
+    // stands for the whole of pickup() at this boundary.
+    await check_here(false, state);
+    return 1;
 }

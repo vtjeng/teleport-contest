@@ -1,5 +1,7 @@
-// Body-part naming shared by polymorph and monster-facing messages.
-// C ref: polyself.c mbodypart().
+// Body-part naming shared by polymorph and monster-facing messages, plus the
+// two property-blocking updates that riding and levitation share.
+// C ref: polyself.c mbodypart(), float_vs_flight() (131-154) and
+// steed_vs_stealth() (158-164).
 
 import {
     ARM,
@@ -7,22 +9,89 @@ import {
     FINGER,
     FINGERTIP,
     FOOT,
+    FLYING,
+    FROMOUTSIDE,
     HAIR,
     HAND,
     HANDED,
     HEAD,
+    I_SPECIAL,
     LEG,
+    LEVITATION,
     NO_PART,
     NOSE,
+    STEALTH,
     STOMACH,
     TOE,
+    TT_PIT,
 } from './const.js';
+import { game } from './gstate.js';
 import {
     attacktype,
     humanoid,
+    is_flyer,
     slithy,
 } from './mondata.js';
 import * as M from './monsters.js';
+
+function uprop(state, index) {
+    const property = state.u?.uprops?.[index];
+    if (!property)
+        throw new Error(`hero property ${index} is not initialized`);
+    return property;
+}
+
+// youprop.h:253 Flying. A flying steed carries the hero through the air, so
+// the steed term belongs inside the macro rather than at its call sites.
+function Flying(state) {
+    const flying = uprop(state, FLYING);
+    return Boolean((flying.intrinsic || flying.extrinsic
+                    || (state.u.usteed && is_flyer(state.u.usteed.data)))
+                   && !flying.blocked);
+}
+
+// youprop.h:242 Levitation.
+function Levitation(state) {
+    const levitation = uprop(state, LEVITATION);
+    return Boolean((levitation.intrinsic || levitation.extrinsic)
+                   && !levitation.blocked);
+}
+
+// C ref: polyself.c float_vs_flight() (131-154). Floating overrides flight and
+// being stuck in the floor overrides floating; both are expressed as the
+// I_SPECIAL bit of the corresponding blocked mask.
+export function float_vs_flight(state = game) {
+    const u = state.u;
+    const flying = uprop(state, FLYING);
+    const levitation = uprop(state, LEVITATION);
+    const stuck_in_floor = Boolean(u.utrap && u.utraptype !== TT_PIT);
+
+    if ((levitation.intrinsic || levitation.extrinsic)
+        || ((flying.intrinsic || flying.extrinsic) && stuck_in_floor))
+        flying.blocked |= I_SPECIAL;
+    else
+        flying.blocked &= ~I_SPECIAL;
+    if ((levitation.intrinsic || levitation.extrinsic) && stuck_in_floor)
+        levitation.blocked |= I_SPECIAL;
+    else
+        levitation.blocked &= ~I_SPECIAL;
+
+    steed_vs_stealth(state);
+
+    state.disp ??= {};
+    state.disp.botl = true;
+}
+
+// C ref: polyself.c steed_vs_stealth() (158-164). Riding blocks stealth unless
+// hero and steed fly. This is the only writer of uprops[STEALTH].blocked, the
+// BStealth term of youprop.h:210's Stealth macro.
+export function steed_vs_stealth(state = game) {
+    const stealth = uprop(state, STEALTH);
+    if (state.u.usteed && !Flying(state) && !Levitation(state))
+        stealth.blocked |= FROMOUTSIDE;
+    else
+        stealth.blocked &= ~FROMOUTSIDE;
+}
 
 const HUMANOID_PARTS = Object.freeze([
     'arm', 'eye', 'face', 'finger', 'fingertip', 'foot', 'hand',
@@ -113,8 +182,8 @@ function isSpecies(species, pmidx) {
 }
 
 // C ref: polyself.c body_part(). The hero's own anatomy, which is
-// mbodypart() applied to youmonst. The caller supplies youmonst because this
-// file holds no game-state import.
+// mbodypart() applied to youmonst. The caller passes youmonst explicitly so
+// that a test can ask about any form without installing it on a game state.
 export function body_part(part, youmonst) {
     return mbodypart(youmonst, part);
 }

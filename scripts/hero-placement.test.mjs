@@ -10,7 +10,8 @@ import {
 import { newgame_pre_mklev } from '../js/allmain.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
-import { mklev, u_on_newpos, u_on_upstairs } from '../js/mklev.js';
+import { u_on_newpos } from '../js/dungeon.js';
+import { mklev, u_on_upstairs } from '../js/mklev.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import {

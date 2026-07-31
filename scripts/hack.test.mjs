@@ -37,7 +37,8 @@ import {
     nomul,
     runmode_delay_output,
     runStopsBeforeMonster,
-    switch_terrain_for_legal_move,
+    switch_terrain,
+    terrain_changed_under_hero,
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { M1_FLY, PM_GRID_BUG } from '../js/monsters.js';
@@ -71,13 +72,25 @@ function treadState(overrides = {}) {
     };
 }
 
+function terrainProperties() {
+    const uprops = [];
+    uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    return uprops;
+}
+
 function terrainState(currentTyp, previousTyp = STAIRS) {
     const locations = new Map([
         ['4,4', { typ: previousTyp }],
         ['5,4', { typ: currentTyp }],
     ]);
     return {
-        u: { ux: 5, uy: 4, ux0: 4, uy0: 4, uinwater: false },
+        u: {
+            ux: 5, uy: 4, ux0: 4, uy0: 4, uinwater: false,
+            // switch_terrain() refuses a hero whose levitation or flight is
+            // already blocked; an ordinary hero has neither blocked.
+            uprops: terrainProperties(),
+        },
         level: {
             at: (x, y) => locations.get(`${x},${y}`),
             flags: {},
@@ -164,24 +177,29 @@ test('legal-move terrain switching classifies only at the source gate', () => {
     // botl.c reserves pseudo-type 39 for ordinary floor status.
     const X_FLOOR = 39;
     const fountain = terrainState(FOUNTAIN);
-    assert.equal(switch_terrain_for_legal_move(fountain), true);
+    assert.equal(terrain_changed_under_hero(fountain), true);
+    switch_terrain(fountain);
     assert.equal(fountain.iflags.terrain_typ, FOUNTAIN);
     assert.equal(fountain.disp.botl, true);
 
     const running = terrainState(FOUNTAIN);
     running.context.run = 1;
-    assert.equal(switch_terrain_for_legal_move(running), true);
+    assert.equal(terrain_changed_under_hero(running), true);
+    switch_terrain(running);
     assert.equal(running.iflags.terrain_typ, FOUNTAIN);
     assert.equal(running.disp.botl, false);
 
     const unchanged = terrainState(ROOM, ROOM);
     unchanged.iflags.terrain_typ = STAIRS;
-    assert.equal(switch_terrain_for_legal_move(unchanged), false);
+    assert.equal(terrain_changed_under_hero(unchanged), false);
     assert.equal(unchanged.iflags.terrain_typ, STAIRS);
 
+    // iflags.terrain_typ == MAX_TYPE is spoteffects()'s "none of the above"
+    // marker, and forces the call even when the square did not change.
     const forced = terrainState(ROOM, ROOM);
     forced.iflags.terrain_typ = MAX_TYPE;
-    assert.equal(switch_terrain_for_legal_move(forced), true);
+    assert.equal(terrain_changed_under_hero(forced), true);
+    switch_terrain(forced);
     assert.equal(forced.iflags.terrain_typ, X_FLOOR);
     assert.equal(forced.disp.botl, true);
 });

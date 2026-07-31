@@ -203,8 +203,7 @@ function assertSimpleActionState(monster, state) {
     if (monster.mtame && !monster.isminion) {
         if (!STARTING_PETS.has(monster.data?.pmidx))
             unsupported('a non-starting pet');
-        if (monster.msleeping || monster.mleashed
-            || monster === state.u?.usteed) {
+        if (monster.msleeping || monster.mleashed) {
             unsupported('special starting-pet state');
         }
         if (!monster.mextra?.edog)

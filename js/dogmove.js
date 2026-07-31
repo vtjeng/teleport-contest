@@ -23,6 +23,8 @@ import {
     IS_ROOM,
     MAGIC_PORTAL,
     MANFOOD,
+    M_AP_NOTHING,
+    M_AP_TYPMASK,
     M_ATTK_DEF_DIED,
     MMOVE_DIED,
     MMOVE_DONE,
@@ -74,6 +76,7 @@ import {
     MS_LEADER,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
+    S_MIMIC,
 } from './monsters.js';
 import {
     m_at,
@@ -370,6 +373,20 @@ export async function dog_hunger(monster, edog, rawEnv = {}) {
         return true;
     }
     return false;
+}
+
+// C ref: dogmove.c finish_meating() (1447-1457). Ends a meal in progress. The
+// second arm restores the appearance of a pet that was eating a mimic and had
+// taken on its disguise; M_AP_TYPE() is monst.h:73's masked read.
+export function finish_meating(mtmp) {
+    mtmp.meating = 0;
+    if (((mtmp.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_NOTHING
+        && mtmp.data.mlet !== S_MIMIC) {
+        /* was eating a mimic and now appearance needs resetting */
+        mtmp.m_ap_type = M_AP_NOTHING;
+        mtmp.mappearance = 0;
+        newsym(mtmp.mx, mtmp.my);
+    }
 }
 
 // Return MMOVE_MOVED when the pet ate, MMOVE_DIED when eating killed it,

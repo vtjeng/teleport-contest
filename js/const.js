@@ -1286,6 +1286,7 @@ export const MON_BUBBLEMOVE = 0x10;
 export const MON_ENDGAME_FREE = 0x20;
 export const MON_ENDGAME_MIGR = 0x40;
 export const MON_OBLITERATE = 0x80;
+export const MON_STILL_ARRIVING = 0x100;
 export const M_AP_TYPMASK = 0x7;
 export const M_AP_F_DKNOWN = 0x8;
 export const MAX_NUM_WORMS = 32;
@@ -1887,16 +1888,20 @@ export const MAY_HIT = (0x1 | 0x2);
 export const MAY_DESTROY = 0x4;
 export const MAY_FRACTURE = 0x8;
 
-// Steed dismount reason enum (src/steed.c)
+// Steed dismount reason enum (hack.h:347-356 `enum dismount_types`)
 // Runtime fields: dismount_steed(reason) reason selector.
-export const DISMOUNT_BYCHOICE = 0;
-export const DISMOUNT_THROWN = 1;
-export const DISMOUNT_KNOCKED = 2;
-export const DISMOUNT_FELL = 3;
+// dismount_steed()'s switch reads these as ordered cases and landing_spot()
+// compares `reason` against DISMOUNT_KNOCKED, DISMOUNT_POLY and
+// DISMOUNT_BYCHOICE, so the numbering has to match the enum rather than merely
+// be distinct.
+export const DISMOUNT_GENERIC = 0;
+export const DISMOUNT_FELL = 1;
+export const DISMOUNT_THROWN = 2;
+export const DISMOUNT_KNOCKED = 3;
 export const DISMOUNT_POLY = 4;
 export const DISMOUNT_ENGULFED = 5;
 export const DISMOUNT_BONES = 6;
-export const DISMOUNT_GENERIC = 7;
+export const DISMOUNT_BYCHOICE = 7;
 
 // Vault guard constants (src/vault.c)
 // Runtime fields: guard timers and guard activity/witness bits.

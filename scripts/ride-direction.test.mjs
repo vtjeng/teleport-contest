@@ -85,9 +85,10 @@ test('the ride-direction matrix contains only source-selected inputs', () => {
         // after one wait that puts the hero on a settled level.
         assert.ok(segment.moves.startsWith(`.${RIDE_COMMAND}`));
     }
-    // No segment may answer the prompt with a direction the port accepts:
-    // doride() would call mount_steed(), which this slice leaves refused, and
-    // the recording would then run past what the port implements.
+    // No segment answers the prompt with a direction: this matrix exists for
+    // getdir() itself, and the two matrices that follow it --
+    // scripts/run-mount-steed.mjs and scripts/run-ride-dismount.mjs -- own
+    // what mount_steed() does with an answered one.
     const answers = recipe.segments.map(
         (segment) => segment.moves.slice(`.${RIDE_COMMAND}`.length, -1) || null,
     );
@@ -125,9 +126,9 @@ test('each quitchars[] cancel leaves the prompt row clear and spends nothing',
         const start = { moves: game.moves, rng: before.getRngLog().length };
 
         const { boundary, replay } = await rideWith(segment, key);
-        // The cancel has to run the segment out rather than stop in it: every
-        // other answer this slice admits ends at a refusal, and a refusal
-        // leaves the same cleared row and unspent turn behind.
+        // The cancel has to run the segment out rather than stop in it, so
+        // that the assertions below observe a cleared row and an unspent turn
+        // rather than the state a refusal would have frozen.
         assert.equal(boundary, null, JSON.stringify(key));
         assert.equal(
             replay.getScreens().length,
@@ -581,16 +582,3 @@ test('a pending --More-- is dismissed before the direction prompt paints',
     }
 });
 
-test('a mounted hero stops at dismount_steed()', async () => {
-    // doride()'s first arm. Nothing in the port writes u.usteed yet, so this
-    // is the only way to reach it; a later slice's mount_steed() is what makes
-    // the field live and gives the arm a recorded case.
-    await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
-    assert.equal(game.u.usteed ?? null, null);
-    game.u.usteed = { m_id: 1 };
-    try {
-        await assert.rejects(doride(game), /dismount_steed\(DISMOUNT_BYCHOICE\)/u);
-    } finally {
-        game.u.usteed = null;
-    }
-});

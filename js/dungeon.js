@@ -19,10 +19,12 @@ import {
     LAVAPOOL,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
+    MAX_TYPE,
     MOAT,
     ROWNO,
     ROOM,
     STONE,
+    isok,
 } from './const.js';
 import { cmap_to_type } from './mkroom.js';
 
@@ -700,6 +702,57 @@ function dname_to_dnum(name, state) {
         panic(`Couldn't resolve dungeon number for ${name}`);
     return index;
 }
+
+// C ref: dungeon.c u_on_newpos() (1567-1601). The one place that writes the
+// hero's map position, and with it the ridden steed's, which always shares it.
+export function u_on_newpos(x, y, state = game) {
+    if (!isok(x, y))
+        throw new RangeError(
+            `u_on_newpos: hero location is off map <${x},${y}>`,
+        );
+
+    const hero = state.u;
+    hero.ux = x;
+    hero.uy = y;
+    hero.uundetected = false;
+    if (hero.usteed) {
+        hero.usteed.mx = x;
+        hero.usteed.my = y;
+    }
+
+    if (!on_level(hero.uz, hero.uz0)) {
+        hero.ux0 = x;
+        hero.uy0 = y;
+
+        // dungeon.c:u_on_newpos() calls map_location(FALSE). Preserve its
+        // independent lastseentyp[x][y] write here; the [x][y] matrix lives
+        // with the fresh GameMap so a new level starts cleared. The current
+        // display layer does not yet map objects, seen traps, or revealed
+        // engravings, so it remains responsible for replacing this seam with
+        // map_location's remembered-glyph priority once those layers exist.
+        const level = state.level;
+        if (level) {
+            level.lastseentyp ??= Array.from(
+                { length: COLNO },
+                () => new Array(ROWNO).fill(0),
+            );
+            level.lastseentyp[x][y] = level.at(x, y)?.typ ?? STONE;
+        }
+        state.iflags ??= {};
+        state.iflags.terrain_typ = MAX_TYPE;
+    }
+    // C's `else` arm calls see_nearby_objects(), which marks every generic
+    // object within the hero's near-distance square as seen up close. This
+    // port distributes that work: display.c's own observeNearbyObject() runs
+    // per cell inside newsym(), and flush_screen() repaints every cell, so a
+    // same-level arrival observes exactly the objects C's loop would.
+    //
+    // dungeon.c earth_sense() is omitted. Its body sits behind
+    // `!Race_if(PM_DWARF)`, and no ported caller reaches it with a dwarf on a
+    // ROOM or CORR square holding a buried object: teleds() is reachable only
+    // through #ride, and only a Knight -- a human-only role -- can ride.
+}
+
 
 // C ref: dungeon.c on_level(). Optional topology locations compare false when
 // either operand is absent.

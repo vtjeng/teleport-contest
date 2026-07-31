@@ -39,7 +39,7 @@ import {
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
     HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
-    M_AP_TYPMASK,
+    M_AP_TYPMASK, MON_STILL_ARRIVING, WARN_OF_MON,
     SYM_BOULDER, SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNING, WARNCOUNT,
     PROT_FROM_SHAPE_CHANGERS,
     def_warnsyms,
@@ -65,6 +65,7 @@ import {
     DEC_TO_UNICODE,
 } from './terminal.js';
 import { rankOf } from './roles.js';
+import { is_flyer } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     depth as dungeonDepth,
@@ -873,6 +874,28 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
     );
 }
 
+// C ref: display.h ridden_mon_to_glyph() (560-562), reached from
+// display_self()'s maybe_display_usteed() (245-249). reset_glyphmap()
+// (display.c:2986-3003) gives a ridden glyph the species symbol and mon_color()
+// and sets MG_RIDDEN rather than MG_PET, so neither the SYM_PET_OVERRIDE
+// accessibility symbol nor win/tty/wintty.c's hilite_pet attribute applies to
+// it. what_mon() replaces the species under Hallucination, at the cost of one
+// display-RNG draw.
+function riddenMonsterGlyphInfo(monster, state) {
+    const species = heroHallucinating(state)
+        ? state.mons?.[rn2_on_display_rng(NUMMONS)] : monster.data;
+    if (!species) {
+        throw new Error(
+            'ridden monster display requires the complete monster catalog',
+        );
+    }
+    return withMonsterAccessibility(glyphPresentation(
+        monster_class_symbol(species.mlet, state),
+        species.mcolor,
+        state,
+    ), monster, species, state, 'ridden');
+}
+
 // C ref: display.c display_monster() with sightflags == DETECTED and
 // win/tty/wintty.c tty_print_glyph()'s MG_DETECT handling.  Tame monsters use
 // their pet presentation unless hallucination defeats that source exception.
@@ -1621,7 +1644,14 @@ export function newsym(x, y) {
     }
 
     if (game.u?.ux === x && game.u?.uy === y) {
-        const hero = hero_glyph_info(game);
+        // C ref: display.h display_self() (251-260). maybe_display_usteed()
+        // puts a visible steed's glyph on the hero's square while the hero
+        // rides; the hero's own glyph shows through only when there is no
+        // steed or the hero cannot see it.
+        const steed = game.u.usteed;
+        const hero = (steed && monsterVisible(steed, game))
+            ? riddenMonsterGlyphInfo(steed, game)
+            : hero_glyph_info(game);
         show_glyph_cell(x, y, hero);
         if (game.level?.flags?.hero_memory)
             loc.remembered_glyph = remembered_glyph_from_presentation(
@@ -1718,6 +1748,52 @@ export function newsym(x, y) {
                 : undefined,
         });
     }
+}
+
+// ── see_monsters ──
+// C ref: display.c see_monsters() (1487-1522). Redraws every monster on the
+// level after something changed what the hero can perceive. newsym() reads the
+// module-global game, so this does too, and refuses any other state rather
+// than iterating one game's monsters while drawing another's map.
+//
+// gd.defer_see_monsters is not modeled: goto_level() is its only setter and no
+// level change is ported.
+export function see_monsters(state = game) {
+    if (state !== game)
+        throw new TypeError('see_monsters() draws the global game state');
+
+    let new_warn_obj_cnt = 0;
+
+    /* steed and unseen engulfer/holder/holdee are recognized via touch */
+    if (state.u.usteed) state.u.usteed.meverseen = 1;
+    if (state.u.ustuck) state.u.ustuck.meverseen = 1;
+
+    const warn_of_mon = Boolean(state.u.uprops?.[WARN_OF_MON]?.intrinsic
+                                || state.u.uprops?.[WARN_OF_MON]?.extrinsic);
+    for (let mon = state.level?.monlist ?? null; mon; mon = mon.nmon) {
+        if (mon.mhp < 1) continue; /* DEADMONSTER() */
+        if ((mon.mstate & MON_STILL_ARRIVING) !== 0) continue;
+        newsym(mon.mx, mon.my);
+        if (mon.wormno) {
+            // worm.c see_wsegs() redraws the tail segments; no worm reaches
+            // any level this port generates.
+            throw new Error('see_monsters() over a long worm');
+        }
+        if (warn_of_mon
+            && (state.context?.warntype?.obj & mon.data.mflags2) !== 0) {
+            ++new_warn_obj_cnt;
+        }
+    }
+
+    if (new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)) {
+        // artifact.c Sting_effects() makes Sting glow or stop glowing. Nothing
+        // grants Warn_of_mon on the levels this port reaches, so the count
+        // cannot leave zero and this arm cannot be entered.
+        throw new Error('see_monsters() toggling a warning artifact');
+    }
+
+    /* when mounted, hero's location gets caught by the monster loop */
+    if (!state.u.usteed) newsym(state.u.ux, state.u.uy);
 }
 
 // ── docrt ──
@@ -2053,13 +2129,22 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['TermIll', 'Ill', 'Ill'] },
 ]);
 
-function _statusConditionActive(option, u) {
+export function statusConditionActive(option, u) {
     switch (option) {
     case 'barehanded': return !game.uarmg && !game.uwep;
     case 'blind': return _propertyActiveUnblocked(u, BLINDED);
     case 'conf': return _propertyIntrinsic(u, CONFUSION);
     case 'deaf': return _propertyActive(u, DEAF) || u.uroleplay?.deaf;
-    case 'fly': return _propertyActiveUnblocked(u, FLYING);
+    // youprop.h:253's Flying counts a flying steed as carrying the hero, and
+    // botl.c:1194 reads the whole macro. No steed this port can reach flies,
+    // so the steed term is dormant; it is written out because the other four
+    // copies of the macro in js/ carry it and a fifth that did not would be a
+    // silent divergence the moment one does.
+    case 'fly':
+        return Boolean((u.uprops?.[FLYING]?.intrinsic
+                        || u.uprops?.[FLYING]?.extrinsic
+                        || (u.usteed && is_flyer(u.usteed.data)))
+                       && !u.uprops?.[FLYING]?.blocked);
     case 'foodpois':
         return _propertyIntrinsic(u, SICK)
             && Boolean((u.usick_type ?? 0) & SICK_VOMITABLE);
@@ -2088,7 +2173,7 @@ function _statusConditionEntries(u, shrinkLevel = 0) {
     const configured = game.iflags?.status_conditions ?? {};
     return STATUS_CONDITION_SPECS
         .filter((spec) => (configured[spec.option] ?? spec.enabled)
-            && _statusConditionActive(spec.option, u))
+            && statusConditionActive(spec.option, u))
         .sort((left, right) => left.rank - right.rank
             || left.option.localeCompare(right.option))
         .map((spec) => ({

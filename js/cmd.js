@@ -18,6 +18,7 @@ import {
     MV_RUN,
     MV_RUSH,
     MV_WALK,
+    N_DIRS,
     N_DIRS_Z,
     PICK_NONE,
     PICK_ONE,
@@ -404,6 +405,22 @@ export function movecmd(sym, mode, state = game) {
     }
     state.u.dz = 0;
     return 0;
+}
+
+// C ref: cmd.c xytodir() (3846-3856). Converts a unit offset into an index
+// into xdir[]/ydir[], or DIR_ERR when no compass direction matches.
+export function xytodir(x, y) {
+    for (let dd = 0; dd < N_DIRS; dd++)
+        if (x === xdir[dd] && y === ydir[dd]) return dd;
+    return DIR_ERR;
+}
+
+// C ref: cmd.c dirtocoord() (3858-3866). The inverse. C writes through a coord
+// pointer and leaves it untouched for an out-of-range code; this returns null
+// there so a caller cannot mistake a stale coordinate for a fresh one.
+export function dirtocoord(dd) {
+    if (dd > DIR_ERR && dd < N_DIRS_Z) return { x: xdir[dd], y: ydir[dd] };
+    return null;
 }
 
 // C ref: cmd.c dxdy_moveok(). Grid bug handling: a diagonal is zeroed rather

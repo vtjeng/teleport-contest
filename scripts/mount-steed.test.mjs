@@ -271,8 +271,9 @@ test('every guard prints its own line and answers FALSE', async () => {
     // doride() turns a TRUE into ECMD_TIME and charges the hero a turn.
     const segment = knightSlipSegment();
     const rows = [
-        // steed.c:201-204. Unreachable in play -- nothing writes u.usteed --
-        // but the arm is one line and a slice 3 dismount will use it.
+        // steed.c:201-204. doride() dismounts a mounted hero before it can
+        // reach mount_steed(), so this guard needs a caller that mounts twice
+        // in one turn; it is set up by hand here.
         ['You are already riding the saddled pony.', (state, pony) => {
             state.u.usteed = pony;
         }],
@@ -485,12 +486,12 @@ test('the arms of the impairment disjunction ahead of the roll each slip',
 
     // With none of them set, the same level mounts, which is what shows each
     // row above owns its outcome.
-    const { error } = await mountAfter(segment, (state) => {
+    const { result } = await mountAfter(segment, (state) => {
         state.u.ulevel = MAXULEV;
         return m_at(state.u.ux, state.u.uy + 1);
     });
-    assert.ok(error instanceof UnsupportedSteedError);
-    assert.match(error.message, /successful mount/u);
+    assert.equal(result, true);
+    assert.equal(toplines(), 'You mount the saddled pony.');
 });
 
 test('the roll fails only when the hero and the steed fall short of it',
@@ -514,8 +515,8 @@ test('the roll fails only when the hero and the steed fall short of it',
         pony.mtame = 15;
         return pony;
     });
-    assert.ok(mounted.error instanceof UnsupportedSteedError);
-    assert.match(mounted.error.message, /successful mount/u);
+    assert.equal(mounted.result, true);
+    assert.equal(toplines(), 'You mount the saddled pony.');
 });
 
 test('a slip that kills carries the killer string x_monnam built', async () => {
@@ -646,13 +647,6 @@ test('mount_steed stops at the arms this port has not reached', async () => {
             pony.mtrapped = 1;
             return pony;
         }, /trapped steed/u],
-        // steed.c:358-382, the success this slice stops before.
-        [(state) => {
-            const pony = m_at(state.u.ux, state.u.uy + 1);
-            // A level far above the roll's ceiling passes it every time.
-            state.u.ulevel = MAXULEV;
-            return pony;
-        }, /successful mount/u],
     ];
     for (const [mutate, pattern] of stops) {
         const { error } = await mountAfter(segment, mutate);

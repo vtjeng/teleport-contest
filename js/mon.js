@@ -201,6 +201,20 @@ function monsterOnMap(monster) {
     return !mon_offmap(monster);
 }
 
+// C ref: mon.c set_ustuck() (3421-3434). The sanity-check impossible() at the
+// top runs only under iflags.sanity_check or the debug fuzzer, neither of
+// which this port models. Clearing the holder clears the swallow state with
+// it, which is why teleds() reads u.uswallow before calling this.
+export function set_ustuck(mtmp, state = game) {
+    state.disp ??= {};
+    state.disp.botl = true;
+    state.u.ustuck = mtmp;
+    if (!state.u.ustuck) {
+        state.u.uswallow = 0;
+        state.u.uswldtim = 0;
+    }
+}
+
 // C ref: mon.c movemon_singlemon(). The injected operations retain the source
 // subsystem boundaries for guard cleanup, liquid effects, runtime equipment,
 // hiding, perception, monster combat, and dochugw(). All operations reachable

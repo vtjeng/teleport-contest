@@ -39,11 +39,16 @@ import {
     MON_FLOOR,
     MOAT,
     NO_TRAP,
+    OBJ_FREE,
     POOL,
     ROWNO,
+    SLT_ENCUMBER,
     STONE,
     STRAT_APPEARMSG,
+    TELEDS_ALLOW_DRAG,
+    TELEDS_TELEPORT,
     TRAPDOOR,
+    TT_BURIEDBALL,
     WATER,
     W_NONPASSWALL,
     ZAP_POS,
@@ -52,14 +57,28 @@ import {
 import {
     ledger_no,
     on_level,
+    u_on_newpos,
 } from './dungeon.js';
 import {
     capitalizedMonsterName,
     monsterCommonName,
 } from './do_name.js';
+import { newsym, see_monsters } from './display.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import {
+    invocation_message,
+    near_capacity,
+    nomul,
+    notice_all_mons,
+    notice_mon_off,
+    notice_mon_on,
+    requireSimpleHeroDestination,
+    spoteffects,
+    switch_terrain,
+    UnsupportedHeroMoveBoundaryError,
+} from './hack.js';
+import { dist2, distmin } from './hacklib.js';
 import {
     is_covetous,
     is_dlord,
@@ -88,20 +107,24 @@ import {
     S_EYE,
     S_HUMAN,
     S_LIGHT,
+    S_MIMIC,
     S_VAMPIRE,
 } from './monsters.js';
+import { set_ustuck } from './mon.js';
 import { sobj_at } from './obj.js';
 import { BOULDER, SCR_SCARE_MONSTER } from './objects.js';
 import { within_bounded_area } from './rect.js';
-import { update_monster_region } from './region.js';
+import { update_monster_region, update_player_regions } from './region.js';
 import { rn2, rnd } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
     sensesMonster,
 } from './startup_a11y.js';
+import { fill_pit, reset_utrap } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { couldsee } from './vision.js';
+import { vault_occupied } from './vault.js';
+import { couldsee, vision_recalc } from './vision.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -937,4 +960,104 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
     relocated.mux = state.u.ux;
     relocated.muy = state.u.uy;
     return relocated;
+}
+
+// ── Hero relocation (C ref: teleport.c teleds()) ──
+
+// C ref: teleport.c teleds() (448-573). Puts the hero on <nux,nuy> and runs
+// everything a changed hero square implies: ball and chain, vision, terrain,
+// regions and spoteffects(). steed.c mount_steed() and dismount_steed() are
+// its only ported callers and both pass TELEDS_ALLOW_DRAG.
+//
+// Four families of arm refuse rather than run, each named at its site: the
+// punishing ball, an engulfed hero, a hero disguised as a mimic, and the vault
+// guard. The `is_teleport` message at 545-547 refuses too, because no ported
+// caller passes TELEDS_TELEPORT and its "You materialize in ..." line has
+// never been recorded.
+export async function teleds(nux, nuy, teleds_flags, state = game) {
+    const u = state.u;
+    let allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) !== 0;
+    const is_teleport = (teleds_flags & TELEDS_TELEPORT) !== 0;
+    const vault_guard = vault_occupied(u.urooms, state);
+
+    if (vault_guard) {
+        // findgd() and uleftvault() own the guard's shrill whistle.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() out of an occupied vault',
+        );
+    }
+    if (u.utraptype === TT_BURIEDBALL) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() unearthing a buried ball',
+        );
+    }
+    const ball_active = Boolean(state.uball)
+        && state.uball.where !== OBJ_FREE;
+    if (ball_active) {
+        // drag_ball(), move_bc(), unplacebc() and placebc() have no owner.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() dragging a punishing ball',
+        );
+    }
+    // With no active ball this is always FALSE, so every later use of it is
+    // dead; it is written out because it is what decides whether the ball is
+    // dragged or teleported, and that decision returns the moment a punishing
+    // hero is admitted.
+    if (!ball_active
+        || near_capacity(state) > SLT_ENCUMBER
+        || distmin(u.ux, u.uy, nux, nuy) > 1)
+        allow_drag = false;
+
+    // The destination admission seam domove() uses. teleds() has no seam of
+    // its own, and spoteffects() below depends on the same guarantees.
+    requireSimpleHeroDestination(nux, nuy, state);
+
+    reset_utrap(false, state);
+    const was_swallowed = u.uswallow; /* set_ustuck(null) clears uswallow */
+    set_ustuck(null, state);
+    u.ux0 = u.ux;
+    u.uy0 = u.uy;
+
+    if (state.youmonst?.data?.mlet === S_MIMIC) {
+        // hideunder() and the M_AP_NOTHING reset belong to a hero polymorphed
+        // into a mimic, which nothing in this port can do.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() with the hero disguised as a mimic',
+        );
+    }
+    if (was_swallowed) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() out of an engulfer',
+        );
+    }
+
+    /* must set u.ux, u.uy after drag_ball() */
+    u_on_newpos(nux, nuy, state);
+    fill_pit(u.ux0, u.uy0, state);
+    update_player_regions(state);
+    /*
+     *  Make sure the hero disappears from the old location, and force a full
+     *  vision recalculation because the hero is now in a new location.
+     */
+    newsym(u.ux0, u.uy0);
+    see_monsters(state);
+    state.vision_full_recalc = 1;
+    nomul(0, state);
+    notice_mon_off(state);
+    vision_recalc(0, { state }); /* vision before effects */
+
+    if (is_teleport && state.flags?.verbose) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() announcing a teleport',
+        );
+    }
+    /* if terrain type changes, levitation or flying might become blocked or
+       unblocked; do this after map+vision has been updated */
+    if (state.level.at(u.ux, u.uy).typ !== state.level.at(u.ux0, u.uy0).typ)
+        switch_terrain(state);
+    /* possible shop entry message comes after guard's shrill whistle */
+    await spoteffects(true, state);
+    invocation_message(state);
+    notice_mon_on(state);
+    await notice_all_mons(true, state);
 }

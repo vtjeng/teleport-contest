@@ -334,7 +334,11 @@ function isLauncher(obj, state) {
         && skill >= P_BOW && skill <= P_CROSSBOW;
 }
 
-function isPole(obj, state) {
+// C ref: obj.h:228 is_pole(). Snickersnee is not a polearm, but can hit from
+// a distance, which is why the artifact term sits inside the macro rather than
+// at its call sites. steed.c reads it on both sides of a ride, so it is
+// exported under its source name.
+export function is_pole(obj, state = game) {
     const skill = objectType(obj, state).oc_skill;
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && (skill === P_POLEARMS || skill === P_LANCE
@@ -390,7 +394,7 @@ export function setuwep(obj, env = {}) {
         state.unweapon = obj.oclass === WEAPON_CLASS
             ? isLauncher(obj, state) || is_ammo(obj, state)
                 || is_missile(obj, state)
-                || (isPole(obj, state) && !state.u.usteed
+                || (is_pole(obj, state) && !state.u.usteed
                     && obj.oartifact !== ART_SNICKERSNEE)
             : !isWeptool(obj, state)
                 && !(obj.otyp === TOWEL && Math.trunc(obj.spe ?? 0) > 0);
@@ -413,7 +417,7 @@ export const _wornInternals = Object.freeze({
     addSlotEffects,
     artifactLight,
     blockedProperty,
-    isPole,
+    is_pole,
     preflightSetworn,
     removeSlotEffects,
 });
