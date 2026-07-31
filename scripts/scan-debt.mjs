@@ -280,7 +280,6 @@ async function scanSession(file) {
     let stopped = false;
     let behavioral = null;
     let stepOffset = 0;
-    const supported = supportedCommands();
     // Every command the session issued, numbered across segments so one index
     // orders the whole recording.
     const issuedAll = [];
@@ -321,20 +320,54 @@ async function scanSession(file) {
         stepOffset += (segment.steps || []).length;
     }
 
-    // The first entry is the session's current bottleneck, and the gap to the
-    // second is what porting it would earn.
-    const owners = assembleOwners(issuedAll, supported, behavioral);
-
+    // Owners are assembled by the caller, once every session has been scanned,
+    // because the supported set depends on what the port executed across all of
+    // them. See executedCommands() below.
     return {
         file,
         screensEmitted,
         recordedSteps,
-        behavioral: behavioral?.member ?? null,
-        debt: owners.map((owner) => owner.member).sort(),
-        owners,
+        behavioral,
+        issued: issuedAll,
         answers,
         ambiguous,
     };
+}
+
+/**
+ * Every command the port demonstrably ran, taken from the sessions themselves.
+ *
+ * `supportedCommands()` reads `ADMITTED_COMMANDS`, which gates only the FIRST
+ * byte of a command. An extended command reaches its handler through
+ * `doextcmd()` and never appears in that list, so porting one leaves it reading
+ * as debt. A command issued before the step the port stopped on is one the port
+ * executed, which settles the question without a second table to maintain.
+ *
+ * `stopPointAgreement()` is what exposed the gap: porting `#ride` left both
+ * ride sessions with an earliest owner sitting 15 and 2 steps before the step
+ * they actually stopped on.
+ */
+export function executedCommands(rows) {
+    const executed = new Set();
+    for (const row of rows)
+        for (const { index, command } of row.issued)
+            if (index < row.screensEmitted) executed.add(command);
+    return executed;
+}
+
+/** Attach owners to every scanned row, using one supported set for all. */
+export function attachOwners(rows) {
+    const supported = supportedCommands();
+    for (const command of executedCommands(rows)) supported.add(command);
+    return rows.map((row) => {
+        const owners = assembleOwners(row.issued, supported, row.behavioral);
+        return {
+            ...row,
+            behavioral: row.behavioral?.member ?? null,
+            debt: owners.map((owner) => owner.member).sort(),
+            owners,
+        };
+    });
 }
 
 /**
@@ -342,7 +375,11 @@ async function scanSession(file) {
  * name resolves to; `#` itself opens the prompt and is admitted already.
  */
 function isSupported(command, supported) {
-    if (!command.startsWith(EXTENDED_COMMAND_KEY)) return supported.has(command);
+    // Two spellings reach this set. `executedCommands()` adds what the report
+    // prints, `#ride`, while `ADMITTED_COMMANDS` names the command a `#` prompt
+    // resolves to, `look`, without the prefix. Accept either.
+    if (supported.has(command)) return true;
+    if (!command.startsWith(EXTENDED_COMMAND_KEY)) return false;
     return supported.has(command.slice(EXTENDED_COMMAND_KEY.length));
 }
 
@@ -523,8 +560,9 @@ export async function main(args) {
     if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
         throw new Error('development count changed');
 
-    const rows = [];
-    for (const file of files) rows.push(await scanSession(file));
+    const scanned = [];
+    for (const file of files) scanned.push(await scanSession(file));
+    const rows = attachOwners(scanned);
 
     if (json) {
         console.log(JSON.stringify(

@@ -7,9 +7,11 @@ import {
 } from '../js/cmd.js';
 import {
     assembleOwners,
+    attachOwners,
     ceilingFor,
     commandsIssued,
     cursorState,
+    executedCommands,
     extendedCommandAt,
     rankCandidates,
     stopPointAgreement,
@@ -237,6 +239,32 @@ test('the two orders rank the same set differently', () => {
     );
     assert.deepEqual(rankCandidates(rows), rankCandidates(rows, 'advance'));
     assert.throws(() => rankCandidates(rows, 'screens'), /unknown order/u);
+});
+
+test('a command the port ran before stopping counts as supported', () => {
+    // `#ride` reaches its handler through `doextcmd()` and so never appears in
+    // ADMITTED_COMMANDS, which gates only a command's first byte. Porting it
+    // left both ride sessions reading it as debt at a step the port had already
+    // run past. A command issued before the stop is one the port executed.
+    const rows = [
+        // Stopped at 26; `#ride` ran at 11 and `#pray` did not run at all.
+        {
+            screensEmitted: 26,
+            issued: [
+                { index: 11, command: '#ride' },
+                { index: 40, command: '#pray' },
+            ],
+        },
+    ];
+    const executed = executedCommands(rows);
+    assert.equal(executed.has('#ride'), true);
+    assert.equal(executed.has('#pray'), false);
+
+    // Attaching owners with that set leaves only the command the port has not
+    // run, and its earliest owner then agrees with the stop point.
+    const [attached] = attachOwners([{ ...rows[0], recordedSteps: 100, behavioral: { member: 'b', at: 26 } }]);
+    assert.deepEqual(attached.debt, ['#pray', 'b']);
+    assert.equal(attached.owners[0].at, 26);
 });
 
 test('a session whose earliest owner misses the stop point is reported', () => {
