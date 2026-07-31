@@ -12,6 +12,11 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: true
+          # scripts/mutate-sites.mjs resolves a review range through git, so
+          # its tests run `git rev-list <newest js/ commit>~1..HEAD` and
+          # `git blame`. The default depth-1 checkout has no parent commit to
+          # name, and those tests fail with `unknown revision`.
+          fetch-depth: 0
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
