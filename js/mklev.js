@@ -3202,18 +3202,25 @@ const SUPPLY_ITEMS = [
     SPE_HEALING,
 ];
 
-const SUPPLY_EXTRA_CLASSES = [
-    FOOD_CLASS,
-    WEAPON_CLASS,
-    ARMOR_CLASS,
-    GEM_CLASS,
-    SCROLL_CLASS,
-    POTION_CLASS,
-    RING_CLASS,
-    SPBOOK_NO_NOVEL,
-    SPBOOK_NO_NOVEL,
-    SPBOOK_NO_NOVEL,
-];
+// Built per call rather than at module scope. SPBOOK_NO_NOVEL is a js/obj.js
+// module-scope const, and js/obj.js imports js/eat.js, which since the #eat
+// command landed reaches this file: a module-scope read here would run while
+// js/obj.js's own body is still in its temporal dead zone. The table is read
+// once per supply chest, so rebuilding it costs nothing a level pays.
+function supplyExtraClasses() {
+    return [
+        FOOD_CLASS,
+        WEAPON_CLASS,
+        ARMOR_CLASS,
+        GEM_CLASS,
+        SCROLL_CLASS,
+        POTION_CLASS,
+        RING_CLASS,
+        SPBOOK_NO_NOVEL,
+        SPBOOK_NO_NOVEL,
+        SPBOOK_NO_NOVEL,
+    ];
+}
 
 function isMinesEntrance(branch, state) {
     const mines = state.mines_dnum;
@@ -3252,9 +3259,8 @@ export function populateSupplyChest(position, env) {
     } while (cursed || !random(5));
 
     if (random(3)) {
-        const objectClass = SUPPLY_EXTRA_CLASSES[
-            random(SUPPLY_EXTRA_CLASSES.length)
-        ];
+        const extraClasses = supplyExtraClasses();
+        const objectClass = extraClasses[random(extraClasses.length)];
         let obj = mkobj(objectClass, false, env);
         if (objectClass === SPBOOK_NO_NOVEL) {
             const maxPass = dungeon_depth(state.u.uz, state) > 2 ? 2 : 3;

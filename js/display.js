@@ -2069,7 +2069,16 @@ function _statusAlignment(u = game.u) {
 
 // botl.c reads eat.c's hu_stat[] and stores the bare word in the status
 // field; the eight-column padding belongs to the table, not to the field.
-const HUNGER_STATUS = Object.freeze(hu_stat.map(mungspaces));
+//
+// Read per call rather than mapped into a module-scope table: js/eat.js now
+// imports what the #eat command needs, and those imports reach this file, so a
+// module-scope read of hu_stat[] would run while js/eat.js is still
+// initializing and throw. Returns undefined for an index outside the table, as
+// indexing it would.
+function hungerStatusField(uhs) {
+    const entry = hu_stat[uhs];
+    return entry === undefined ? undefined : mungspaces(entry);
+}
 
 // C ref: botl.c enc_stat[], indexed by near_capacity(). insight.c reads it too.
 export const enc_stat = Object.freeze([
@@ -2092,7 +2101,7 @@ function _propertyActiveUnblocked(u, index) {
 
 function _hungerStatus(u) {
     if ((u.uhs ?? NOT_HUNGRY) === NOT_HUNGRY) return '';
-    const hunger = HUNGER_STATUS[u.uhs];
+    const hunger = hungerStatusField(u.uhs);
     return hunger ? ` ${hunger}` : '';
 }
 
@@ -2691,7 +2700,7 @@ function _statusFieldData(field) {
     case 'hunger':
         return {
             value: u?.uhs ?? NOT_HUNGRY,
-            text: HUNGER_STATUS[u?.uhs ?? NOT_HUNGRY] ?? '',
+            text: hungerStatusField(u?.uhs ?? NOT_HUNGRY) ?? '',
         };
     case 'hitpoints':
         return {

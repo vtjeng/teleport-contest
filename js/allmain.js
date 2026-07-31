@@ -607,22 +607,29 @@ function unavailableElapsedTurnOperation(operation) {
 // treats that class as a segment boundary. A refusal class that is neither in
 // this list nor already an UnsupportedTurnBoundaryError escapes runSegment()
 // as a hard failure, so a newly invented one belongs here.
-const ELAPSED_TURN_PLANNING_REFUSALS = [
-    UnsupportedSimpleMonsterActionError,
-    UnsupportedHeroTimeoutBoundaryError,
-    UnsupportedHungerTransitionError,
-    UnsupportedMonsterDistressError,
-    UnsupportedMonsterCreationError,
-    // Both pickup arms -- dogmove.c dog_invent()'s and mon.c mpickstuff()'s --
-    // call distant_name(), splitobj() and mpickobj() from inside the monster
-    // scan, so these three reach here from a path that used to stop at an
-    // injected refusal of the first class above. Without them a naming, split
-    // or pickup refusal discards the whole segment instead of stopping on its
-    // last matching screen.
-    UnsupportedObjectNameError,
-    UnsupportedObjectOperationError,
-    UnsupportedMonsterPickupOperationError,
-];
+// Built per call rather than at module scope. js/eat.js now imports what the
+// #eat command needs, which makes this file part of an import cycle with it,
+// and a module-scope read of a class js/eat.js exports would run while that
+// module is still initializing. This list is consulted only on the error path
+// below, so rebuilding it costs nothing a turn pays.
+function elapsedTurnPlanningRefusals() {
+    return [
+        UnsupportedSimpleMonsterActionError,
+        UnsupportedHeroTimeoutBoundaryError,
+        UnsupportedHungerTransitionError,
+        UnsupportedMonsterDistressError,
+        UnsupportedMonsterCreationError,
+        // Both pickup arms -- dogmove.c dog_invent()'s and mon.c
+        // mpickstuff()'s -- call distant_name(), splitobj() and mpickobj()
+        // from inside the monster scan, so these three reach here from a path
+        // that used to stop at an injected refusal of the first class above.
+        // Without them a naming, split or pickup refusal discards the whole
+        // segment instead of stopping on its last matching screen.
+        UnsupportedObjectNameError,
+        UnsupportedObjectOperationError,
+        UnsupportedMonsterPickupOperationError,
+    ];
+}
 
 const runElapsedTurnMonsterAction =
     adaptMonsterActionToDochugwSignature(runSimpleMonsterAction);
@@ -681,7 +688,7 @@ async function advanceElapsedTurn(state) {
         // three boundary types, so a class that is neither converted here nor
         // already one of those escapes as a hard failure and discards the
         // matching prefix instead of stopping on it.
-        if (!ELAPSED_TURN_PLANNING_REFUSALS.some(
+        if (!elapsedTurnPlanningRefusals().some(
             (type) => error instanceof type,
         )) {
             throw error;
