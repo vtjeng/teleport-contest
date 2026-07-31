@@ -202,6 +202,38 @@ test('an owner is charged every screen that stands behind its first use', () => 
     ]);
 });
 
+test('the two orders rank the same set differently', () => {
+    // Within one session an earlier owner always gates more, so the two orders
+    // can only disagree across sessions. This is the shape the real scan shows
+    // for `takeoff`, which gates 2,609 screens and earns none.
+    const rows = [
+        // A long session where `deep` sits behind `blocker`, so `deep` gates
+        // 980 of its 1,000 steps and can never be the one to port next.
+        {
+            file: 'a',
+            recordedSteps: 1000,
+            owners: [{ member: 'blocker', at: 10 }, { member: 'deep', at: 20 }],
+        },
+        // A short session blocked from its first step, so `near` gates only 99
+        // but earns all 99 the moment it lands.
+        { file: 'b', recordedSteps: 100, owners: [{ member: 'near', at: 1 }] },
+    ];
+    // What a perfect port would lose: blocker 990, deep 980, near 99.
+    assert.deepEqual(
+        rankCandidates(rows, 'gated').map((entry) => entry.member),
+        ['blocker', 'deep', 'near'],
+    );
+    // What the next goal earns: near 99, blocker the 10-step gap to `deep`,
+    // and `deep` nothing at all. This is the default, being the selection
+    // question.
+    assert.deepEqual(
+        rankCandidates(rows, 'advance').map((entry) => entry.member),
+        ['near', 'blocker', 'deep'],
+    );
+    assert.deepEqual(rankCandidates(rows), rankCandidates(rows, 'advance'));
+    assert.throws(() => rankCandidates(rows, 'screens'), /unknown order/u);
+});
+
 test('the unearned screens of a session are its recorded steps less its own', () => {
     // The ceiling a session still stands to gain, used by the report's totals.
     assert.equal(ceilingFor({ screensEmitted: 40, recordedSteps: 100 }), 60);

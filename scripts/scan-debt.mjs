@@ -12,11 +12,34 @@
 //
 // This script answers the other question. It differences a session's ENTIRE
 // recorded input against the commands the port dispatches, so a session's debt
-// is the whole set of owners between it and its last recorded screen, and then
-// ranks candidates by the screens in sessions whose whole debt that candidate
-// would clear. A candidate that clears a session's only remaining debt earns
-// that session's screens; a candidate that leaves another owner standing earns
-// nothing, which is the overestimate this script exists to remove.
+// is the whole set of owners between it and its last recorded screen, and it
+// reports two measures over that set.
+//
+// `gated` is an ablation: take a port that matches every recorded screen,
+// remove one owner, and count the screens that stop matching. A session cannot
+// proceed past a capability it lacks, so everything from that owner's first use
+// to the end of the session is lost. For a command the recording determines
+// this outright, with no estimate in it, because the input stream states where
+// the command is first issued. Owners overlap — a late screen stands behind
+// every owner used before it — so the column is read per row and never summed.
+//
+// `advance` is what porting an owner next would earn: a session moves from its
+// earliest unmet owner only as far as its second, so a candidate collects that
+// gap in the sessions where it is the earliest. It is an upper bound, because
+// the port stops at a session's first behavioral owner and never reports what
+// stands behind it, so a gap measured to the next command can hide a
+// behavioral gate inside it.
+//
+// The two disagree usefully, and `--by=` chooses which one orders the report.
+// A high `gated` with a low `advance` is a dependency nothing reaches yet; a
+// high `advance` is the goal to take next.
+//
+// Measured against the trap goal at 2f0e55e9, `advance` answered 46 where the
+// goal delivered 8: an upper bound that held. The metric this replaced, which
+// ranked by the sessions a candidate would COMPLETE, answered 0 for the same
+// goal, because all three sessions holding that owner held others too. Gains
+// come from sessions advancing to their next boundary, which a completion
+// metric cannot see at all.
 //
 // Which recorded bytes are commands
 // ---------------------------------
@@ -337,7 +360,16 @@ function isSupported(command, supported) {
  * a low `advance` is a bottleneck buried behind another one; a high `advance`
  * is the next goal to take.
  */
-export function rankCandidates(rows) {
+export const RANK_ORDERS = Object.freeze({
+    // What to port next: the screens a candidate earns now.
+    advance: (a, b) => b.advance - a.advance || b.gated - a.gated,
+    // What the score rests on: the screens that depend on it at all.
+    gated: (a, b) => b.gated - a.gated || b.advance - a.advance,
+});
+
+export function rankCandidates(rows, order = 'advance') {
+    const compare = RANK_ORDERS[order];
+    if (!compare) throw new Error(`unknown order: ${order}`);
     const candidates = new Map();
     for (const row of rows) {
         for (const [position, owner] of row.owners.entries()) {
@@ -359,7 +391,7 @@ export function rankCandidates(rows) {
         }
     }
     return [...candidates.values()].sort(
-        (a, b) => b.gated - a.gated || a.member.localeCompare(b.member),
+        (a, b) => compare(a, b) || a.member.localeCompare(b.member),
     );
 }
 
@@ -369,7 +401,7 @@ function centered(label, width) {
     return ' '.repeat(left) + label + ' '.repeat(width - label.length - left);
 }
 
-function report(rows) {
+function report(rows, order = 'advance') {
     const nameWidth = Math.max(...rows.map((r) => r.file.length));
     console.log('Whole remaining debt per development session\n');
     for (const row of rows) {
@@ -394,7 +426,8 @@ function report(rows) {
     );
 
     console.log(
-        `\nOwners by the screens that depend on them, of ${recorded} recorded`,
+        `\nOwners by the screens that depend on them, of ${recorded} recorded`
+        + `, ordered by ${order}`,
     );
     // Each measure is a (screens, sessions) pair, so the header groups its two
     // columns under one name rather than leaving four columns to be read as
@@ -404,7 +437,7 @@ function report(rows) {
         `  ${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  `
         + `${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  owner`,
     );
-    for (const entry of rankCandidates(rows)) {
+    for (const entry of rankCandidates(rows, order)) {
         console.log(
             `  ${String(entry.gated).padStart(7)}  `
             + `${String(entry.gatedSessions).padStart(8)}  `
@@ -429,9 +462,18 @@ function report(rows) {
 export async function main(args) {
     const json = args.includes('--json');
     // Reject every other argument, including any path: this scan must not be
-    // aimable at sessions/holdout/.
-    if (args.some((arg) => arg !== '--json'))
-        throw new Error('only --json is accepted');
+    // aimable at sessions/holdout/. `--by` takes its value in the same token
+    // for that reason, so no argument here can ever be read as a directory.
+    const orders = Object.keys(RANK_ORDERS);
+    const accepted = new Set(['--json', ...orders.map((o) => `--by=${o}`)]);
+    const rejected = args.find((arg) => !accepted.has(arg));
+    if (rejected !== undefined) {
+        throw new Error(
+            `only --json and --by=<${orders.join('|')}> are accepted`,
+        );
+    }
+    const order = args.find((arg) => arg.startsWith('--by='))
+        ?.slice('--by='.length) ?? 'advance';
 
     const files = listSessionFiles(DEVELOPMENT_DIR);
     if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
@@ -440,8 +482,11 @@ export async function main(args) {
     const rows = [];
     for (const file of files) rows.push(await scanSession(file));
 
-    if (json) console.log(JSON.stringify({ rows, ranking: rankCandidates(rows) }, null, 2));
-    else report(rows);
+    if (json) {
+        console.log(JSON.stringify(
+            { rows, order, ranking: rankCandidates(rows, order) }, null, 2,
+        ));
+    } else report(rows, order);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
