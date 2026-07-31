@@ -235,24 +235,39 @@ their required shape.
 Create or update a checklist, note, report, or permanent record only when
 `.agents/workflow.md` or `.agents/review.md` requires it.
 
+### Check out the C source in a new worktree
+
+Git records `nethack-c/upstream` as a submodule gitlink, and `git worktree add`
+leaves that path as an empty directory. The five generated-data checks and the
+source-pinned tests read the C source, so every one of them fails until you
+check it out. Those two sets of failures arriving together, naming neither git
+nor the submodule, are the symptom. Run this once in a new worktree, before its
+first `npm run checkpoint`:
+
+```
+git submodule update --init --checkout --no-fetch -- nethack-c/upstream
+```
+
+Two commands confirm the checkout. `ls nethack-c/upstream/src/monst.c` prints
+that path, and `git status` reports a clean tree with no `T nethack-c/upstream`
+line. Git writes a separate submodule gitdir under
+`.git/worktrees/<name>/modules/` for each worktree, so this checkout disturbs no
+other worktree. It costs 31 MiB for the working tree and 170 MiB for that
+gitdir.
+
 ### Restore paths by name
 
 Never run `git checkout -- .`, `git checkout HEAD -- .`, or `git restore .`.
 Name the paths you mean to restore. A bare restore discards every uncommitted
-change in the tree, including another agent's work in progress, and in a
-worktree it replaces the `nethack-c/upstream` symlink with the gitlink git
-recorded, which empties the C source. `.claude/settings.json` denies these
-commands, so a tool call that tries one is refused. Its deny message sits inside
-a single-quoted shell string, so it can hold no apostrophe; an apostrophe there
-breaks the hook, and a broken hook fails every Bash call.
+change in the tree, including another agent's work in progress.
+`.claude/settings.json` denies these commands, so a tool call that tries one is
+refused. Its deny message sits inside a single-quoted shell string, so it can
+hold no apostrophe; an apostrophe there breaks the hook, and a broken hook fails
+every Bash call.
 
-If you run one anyway, recover in this order. Staged work survives as an
-unreachable blob: `git fsck --unreachable` lists it and `git cat-file -p <sha>`
-prints it back. Unstaged work is gone. Then check `nethack-c/upstream`, which is
-the cause when the generated-data checks and the source-pinned tests fail
-together; restore it with
-`ln -s <primary checkout>/nethack-c/upstream nethack-c/upstream`, then re-run
-`npm run checkpoint`.
+If you run one anyway, staged work survives as an unreachable blob:
+`git fsck --unreachable` lists it and `git cat-file -p <sha>` prints it back.
+Unstaged work is gone.
 
 ### When to stop and ask the user
 

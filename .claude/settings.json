@@ -1,9 +1,6 @@
 {
   "worktree": {
-    "baseRef": "head",
-    "symlinkDirectories": [
-      "nethack-c/upstream"
-    ]
+    "baseRef": "head"
   },
   "hooks": {
     "PreToolUse": [
@@ -17,7 +14,7 @@
           },
           {
             "type": "command",
-            "command": "c=$(jq -r '.tool_input.command // empty'); printf '%s' \"$c\" | tr ';&|()' '\\n\\n\\n\\n\\n' | awk '/^[ \\t]*git[ \\t]+(checkout|restore)([ \\t]|$)/{for(i=1;i<=NF;i++)if($i==\".\"||$i==\"./\")f=1}END{exit f?0:1}' && printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"git checkout -- ., git checkout HEAD -- ., and git restore . discard every uncommitted change in the tree, including work in progress that belongs to another agent, and in a worktree they replace the nethack-c/upstream symlink with the gitlink git recorded, which empties the C source. Name the paths you mean to restore: `git checkout HEAD -- js/one.js js/two.js`. AGENTS.md, under Restore paths by name, states how to recover if one already ran.\"}}'; exit 0",
+            "command": "c=$(jq -r '.tool_input.command // empty'); printf '%s' \"$c\" | tr ';&|()' '\\n\\n\\n\\n\\n' | awk '/^[ \\t]*git[ \\t]+(checkout|restore)([ \\t]|$)/{for(i=1;i<=NF;i++)if($i==\".\"||$i==\"./\")f=1}END{exit f?0:1}' && printf '%s' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"git checkout -- ., git checkout HEAD -- ., and git restore . discard every uncommitted change in the tree, including work in progress that belongs to another agent. Name the paths you mean to restore: `git checkout HEAD -- js/one.js js/two.js`. AGENTS.md, under Restore paths by name, states how to recover if one already ran.\"}}'; exit 0",
             "timeout": 10
           }
         ]
