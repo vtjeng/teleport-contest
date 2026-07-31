@@ -39,6 +39,7 @@ import {
     M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
+    PASSES_WALLS,
     PIT,
     ROOM,
     ROWNO,
@@ -62,9 +63,13 @@ import { GameMap } from '../js/game.js';
 import { flush_screen } from '../js/display.js';
 import {
     CORPSE,
+    DAGGER,
     DART,
     FOOD_CLASS,
+    objects_globals_init,
+    PICK_AXE,
     SACK,
+    TOOL_CLASS,
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -77,6 +82,8 @@ import {
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import {
     AT_CLAW,
+    M1_NEEDPICK,
+    M1_TUNNEL,
     PM_FOG_CLOUD,
     PM_NEWT,
     S_FELINE,
@@ -186,6 +193,113 @@ test('test_move describes remembered walls without time or PRNG work',
         // ROOM is outside this ported test_move() branch and remains legal.
         destination.typ = ROOM;
         assert.equal(await test_move(ux, uy, 1, 0, DO_MOVE, state), true);
+    });
+
+// C ref: hack.c:1014-1045. Before its closing "It's solid stone." else, the
+// obstacle arm asks four questions about the hero, and every answer diverges
+// from the refusal this port gives: Passes_walls falls through the arm and can
+// answer TRUE, Underwater prints a different line, a tunneller that needs no
+// pick eats the rock, and autodig with a wielded pick digs. None is ported, so
+// each has to raise rather than answer FALSE.
+test('the obstacle arm refuses the four hero states C answers differently',
+    async () => {
+        // Interior coordinate and an eastward step, as in the wall case above:
+        // it keeps isok() and the map edge out of the result.
+        const ux = 10;
+        const uy = 10;
+
+        function obstacleState() {
+            const state = {
+                // mention_walls on so a state that fails to refuse reaches the
+                // message hook, which fails the case rather than passing it
+                // quietly.
+                flags: { mention_walls: true },
+                context: {},
+                level: new GameMap(),
+                u: { ux, uy, uprops: [], uinwater: 0 },
+                youmonst: { data: { mflags1: 0 } },
+            };
+            objects_globals_init(state);
+            state.level.at(ux + 1, uy).typ = STONE;
+            return state;
+        }
+
+        function step(state) {
+            return test_move(ux, uy, 1, 0, DO_MOVE, state, {
+                message: () => assert.fail('refused arm printed a wall line'),
+            });
+        }
+
+        // hack.c:1014. The port refuses on Passes_walls alone, without
+        // may_passwall(), so the extrinsic form has to stop here too.
+        const passwall = obstacleState();
+        passwall.u.uprops[PASSES_WALLS] = { intrinsic: 1, extrinsic: 0 };
+        await assert.rejects(() => step(passwall), {
+            name: 'UnsupportedHeroMoveBoundaryError',
+            reason: 'obstacle passed rather than blocking',
+        });
+
+        // hack.c:1016. u.uinwater, not a property slot.
+        const underwater = obstacleState();
+        underwater.u.uinwater = 1;
+        await assert.rejects(() => step(underwater), {
+            name: 'UnsupportedHeroMoveBoundaryError',
+            reason: 'obstacle passed rather than blocking',
+        });
+
+        // hack.c:1037 reads both flags, so a dwarf -- M1_TUNNEL and
+        // M1_NEEDPICK together -- keeps the ordinary refusal and its line.
+        const tunneller = obstacleState();
+        tunneller.youmonst.data.mflags1 = M1_TUNNEL;
+        await assert.rejects(() => step(tunneller), {
+            name: 'UnsupportedHeroMoveBoundaryError',
+            reason: 'obstacle passed rather than blocking',
+        });
+        const dwarf = obstacleState();
+        dwarf.youmonst.data.mflags1 = M1_TUNNEL | M1_NEEDPICK;
+        const dwarfLines = [];
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, dwarf, {
+                message: (line) => dwarfLines.push(line),
+            }),
+            false,
+        );
+        assert.deepEqual(dwarfLines, ["It's solid stone."]);
+
+        // hack.c:1042's four terms. PICK_AXE is TOOL_CLASS with oc_skill
+        // P_PICK_AXE, which is what is_pick() reads.
+        const digger = obstacleState();
+        digger.flags.autodig = true;
+        digger.uwep = { oclass: TOOL_CLASS, otyp: PICK_AXE };
+        await assert.rejects(() => step(digger), {
+            name: 'UnsupportedHeroMoveBoundaryError',
+            reason: 'automatic digging',
+        });
+
+        // Each of the other three terms alone returns the arm to its ordinary
+        // refusal, which is what keeps the guard from being wider than C.
+        for (const suppress of [
+            (state) => { state.flags.autodig = false; },
+            (state) => { state.context.run = 1; },
+            (state) => { state.context.nopick = 1; },
+            // A dagger is WEAPON_CLASS with oc_skill P_DAGGER, so is_pick()
+            // answers FALSE and C prints the wall line instead of digging.
+            (state) => { state.uwep = { oclass: WEAPON_CLASS, otyp: DAGGER }; },
+            (state) => { state.uwep = null; },
+        ]) {
+            const state = obstacleState();
+            state.flags.autodig = true;
+            state.uwep = { oclass: TOOL_CLASS, otyp: PICK_AXE };
+            suppress(state);
+            const lines = [];
+            assert.equal(
+                await test_move(ux, uy, 1, 0, DO_MOVE, state, {
+                    message: (line) => lines.push(line),
+                }),
+                false,
+            );
+            assert.deepEqual(lines, ["It's solid stone."]);
+        }
     });
 
 test('blind obstacle refusal records exact tactile viewing vectors',

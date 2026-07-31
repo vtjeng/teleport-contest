@@ -134,11 +134,17 @@ test('vision_recalc marks the hero square seen from every direction', () => {
     assert.equal(heroLocation.seenv, SVALL);
 });
 
-// vision_recalc()'s env names what C reads through globals. A caller that
-// hands it another state, that state's own COULD_SEE buffers and no painter
-// has to leave the live game's view alone however often it runs, and the
-// second run is what needs the separate pair: it lands on the buffer the live
-// game is holding. js/unported_monster_actions.js is that caller.
+// vision_recalc()'s env names three of the things C reads through globals. A
+// caller that hands it another state, that state's own COULD_SEE buffers and
+// its own painter has to leave the live game's view alone however often it
+// runs, and the second run is what needs the separate pair: it lands on the
+// buffer the live game is holding. js/unported_monster_actions.js is that
+// caller.
+//
+// The fourth shared structure, vision.c's transparency index, is not in env
+// and cannot be: the quadrant walks read it as a module global. That is what
+// the vision_reset() bracket below is for, and dropping either half is what
+// would make the clone compute the live map's sight lines.
 test('vision_recalc against another state leaves the live view alone', () => {
     const state = darkRoomState();
     vision_reset();
@@ -179,6 +185,26 @@ test('vision_recalc against another state leaves the live view alone', () => {
     assert.notDeepEqual(
         planned.viz_array.map((row) => [...row]),
         liveRows,
+    );
+});
+
+// The other half of the same contract, and the one the caller cannot repair
+// after the fact: newsym() ignores its state argument and paints the
+// module-level game, so a clone that omits `redraw` recomputes for itself and
+// repaints the live map. vision_recalc() refuses that shape rather than
+// leaving it to be noticed on a frame.
+test('vision_recalc refuses another state with no painter', () => {
+    const state = darkRoomState();
+    // The live call keeps its newsym default: the refusal is about the clone.
+    // It also fills the shared transparency index, which is what makes the
+    // clone's recalc terminate at all.
+    vision_reset();
+    vision_recalc(0);
+
+    const planned = { ...state, _visionBuffers: makeVisionBuffers() };
+    assert.throws(
+        () => vision_recalc(0, { state: planned }),
+        /vision_recalc on a state other than game requires a redraw/u,
     );
 });
 

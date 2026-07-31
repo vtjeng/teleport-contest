@@ -85,6 +85,7 @@ import {
     classify_terrain,
     cls,
     docrt,
+    feel_newsym,
     flush_screen,
     hero_glyph_info,
     monster_glyph_info,
@@ -1121,6 +1122,51 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
         dec: false,
     });
 });
+
+// C ref: display.c feel_newsym(). The two arms do different work, not the same
+// work by two routes: feel_location() records a tactile viewing vector and
+// draws the terrain, while newsym() draws whatever occupies the square. Only
+// the sighted arm is live -- js/hack.js refuses a blind hero before lock.c's
+// autoopen pull reaches it -- so nothing in the running game tells them apart.
+test('feel_newsym draws the occupant when sighted and the terrain when blind',
+    () => {
+        const state = resetGame();
+        // An interior square with the hero one step west: feel_location()'s
+        // obstacle subset accepts only an adjacent square.
+        const x = 7;
+        const y = 4;
+        state.level = new GameMap();
+        state.level.at(x, y).typ = ROOM;
+        state.u = { ux: x - 1, uy: y, umonnum: 0, uprops: [] };
+        state.urace = { mnum: 0 };
+        state.flags = {};
+        state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
+        state.objects = [];
+        initialize_symbols_from_options({ flags: {} }, state);
+        state.viz_array = [];
+        state.viz_array[y] = [];
+        state.viz_array[y][x] = 0x2; // vision.h IN_SIGHT
+        state.level.monsters[x][y] = {
+            data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+            mtame: 10,
+            minvis: false,
+            mundetected: false,
+            mx: x,
+            my: y,
+        };
+
+        feel_newsym(x, y, state);
+        assert.equal(state.level.at(x, y).disp_ch, 'f');
+        // newsym() records no viewing vector; only the blind arm does.
+        assert.equal(state.level.at(x, y).seenv ?? 0, 0);
+
+        state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        feel_newsym(x, y, state);
+        // The blind hero feels floor, not the cat standing on it.
+        assert.equal(state.level.at(x, y).disp_ch, '.');
+        // display.c seenv_matrix[1 - dy][dx + 1] for a step due east.
+        assert.equal(state.level.at(x, y).seenv, 0x80);
+    });
 
 test('hallucinated map_object paths preserve presentation, memory, and RNG', () => {
     const cases = [

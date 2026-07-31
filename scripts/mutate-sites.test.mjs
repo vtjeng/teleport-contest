@@ -703,7 +703,8 @@ test('every target is named by --range, --file, or --worktree', () => {
         /--worktree takes no value/u);
     // --limit was dropped: it truncated in path order, so every use of it
     // measured whichever files sorted first. --sample answers the same need
-    // without picking the population for you.
+    // without picking the population for you. The header-versus-parser case
+    // below is what keeps the usage block from documenting it again.
     assert.throws(() => parseArgs(['--range', 'a..b', '--limit', '5']),
         /unknown option '--limit'/u);
     assert.throws(() => parseArgs(['--range', 'HEAD']),
@@ -719,6 +720,51 @@ test('every target is named by --range, --file, or --worktree', () => {
         /takes no value/u);
     assert.throws(() => parseArgs(['--whole-suite=yes']),
         /--whole-suite takes no value/u);
+});
+
+// AGENTS.md sends every agent to this module's header comment before
+// mutation-testing, and that header is the tool's only usage documentation.
+// ab22231 removed --limit and left the sentence documenting it, and nothing
+// compared the header with the parser, so the contradiction sat there with the
+// suite green. This case compares them.
+test('every option the header documents is an option parseArgs accepts', () => {
+    const source = readFileSync(SCRIPT_PATH, 'utf8');
+    const header = [];
+    for (const line of source.split('\n').slice(1)) {
+        // The usage block runs from below the shebang to the first line that
+        // is not a comment, which is the first import.
+        if (line !== '' && !line.startsWith('//')) break;
+        header.push(line);
+    }
+    // The lookbehind drops `node --test`, which the header names as the
+    // runner's own flag rather than one of this tool's.
+    const documented = [...new Set(
+        header.join('\n').match(/(?<!node )--[a-z][a-z-]*/gu) ?? [],
+    )].sort();
+    // The header describes the whole option surface. An empty or tiny match
+    // would mean the extraction broke rather than that the tool takes no
+    // options, and the loop below would then assert nothing.
+    assert.ok(
+        documented.length >= 6,
+        `extracted ${documented.length} options: ${documented.join(' ')}`,
+    );
+
+    for (const option of documented) {
+        let refusal = '';
+        try {
+            parseArgs([option]);
+        } catch (error) {
+            refusal = error.message;
+        }
+        // A value-taking option refuses a bare form with "takes a value", and
+        // an option that names no target refuses with "pass --range"; only an
+        // option the parser does not know reports "unknown option".
+        assert.doesNotMatch(
+            refusal,
+            /unknown option/u,
+            `${option} is documented in the header but not accepted`,
+        );
+    }
 });
 
 test('a path outside js/ is refused', () => {

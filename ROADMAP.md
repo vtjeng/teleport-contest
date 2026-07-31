@@ -965,6 +965,36 @@ is a preflight for the unburdened path, as `preflightGetHungry()` and
 
 ### Process
 
+#### `npm run checkpoint` cannot fail on the development score
+
+`scripts/checkpoint-checks.mjs:138` returns
+`results.every(({ passed, informational }) => passed || informational)`. The
+development-score descriptor at line 73 carries `informational: true`, so a
+nonzero exit from `scripts/score-development.mjs` prints `FAIL  development
+score` in the summary and still leaves the run's exit code at 0.
+
+Measured on 31 July 2026 against `ed43517`: driving the real
+`checkpointCommands([], {})` descriptors through `runCheckpointChecks` with a
+`run` stub that fails only `scripts/score-development.mjs` prints
+`FAIL  development score` as the last summary line and returns `true`.
+
+Two things depend on the exit code. `.agents/validation.md` prescribes
+`npm run checkpoint > /tmp/checkpoint.log 2>&1 && tail -40 …`, whose `&&` now
+guards nothing. And `scripts/score-development.mjs` exits 1 both when the
+scorer runner fails and when `listSessionFiles()` finds other than 33
+development sessions, which is the signal that someone changed which sessions
+belong to the development and holdout sets — a change `AGENTS.md` says needs
+explicit user approval.
+
+The correctness pass over `c706db8a6..ed43517` proposed narrowing the predicate
+to `passed || skipped`. `summarizeMutation()` sets `skipped` on every nonzero
+exit, so the mutation check would stay non-failing while the score check, which
+sets no flag, would fail the run again. That is a one-line change with a large
+blast radius: it changes what the commit gate named throughout `AGENTS.md` and
+`.agents/validation.md` means for every agent, so it needs a decision from the
+user rather than an audit fix. The audit-fix commit for that pass left the
+predicate alone.
+
 #### recording a debug-mode session needs local setup
 
 Two constraints bind anyone recording a `playmode:debug` case, both found while

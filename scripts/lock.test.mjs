@@ -87,6 +87,9 @@ test('a winning pull opens the door for every reader of the mask', async () => {
     const { x, y, door } = await closedDoorBesideHero();
     const events = [];
     game.vision_full_recalc = 0;
+    // drawing.c defsyms: a closed door is S_vcdoor/S_hcdoor, '+' in either
+    // orientation. This one sits in the room's west wall.
+    assert.equal(door.disp_ch, '+');
 
     const result = await doopen_indir(
         x, y, game, scriptedPull(events, FOLDED_THRESHOLD - 1),
@@ -97,6 +100,11 @@ test('a winning pull opens the door for every reader of the mask', async () => {
     // see the open door.
     assert.equal(door.flags, D_ISOPEN);
     assert.equal(door.doormask, D_ISOPEN);
+    // lock.c:914's feel_newsym() is what repaints the square, and the repaint
+    // is the whole visible result of the pull: S_vodoor, the open door in a
+    // vertical wall, is '-'. Without it the square keeps drawing '+' while the
+    // mask says the door is open, which changes every later screen.
+    assert.equal(door.disp_ch, '-');
     // recalc_block_point() on a square the hero can currently see schedules
     // moveloop_core()'s vision_recalc(0).
     assert.equal(game.vision_full_recalc, 1);

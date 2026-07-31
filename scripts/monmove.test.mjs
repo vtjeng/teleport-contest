@@ -70,6 +70,7 @@ import {
     SLP_GAS_TRAP,
     STEALTH,
     SQKY_BOARD,
+    STRAT_WAITMASK,
     STONE,
     TELEP_TRAP,
     TEMPLE,
@@ -836,6 +837,63 @@ test('postmov chooses the squeak distance from couldsee and mdistu',
         }
     });
 
+// C ref: trap.c:1473, the last statement of trapeffect_sqky_board():
+// `wake_nearto(mtmp->mx, mtmp->my, 40)`. Waking the neighbours is the point of
+// a squeaky board -- a monster left asleep moves, draws and speaks differently
+// for the rest of the game -- and no other case in this file places a sleeping
+// monster inside the radius.
+//
+// The distance term is pinned as well as the call. mon.c wake_nearto() skips a
+// monster whose dist2 is >= the bound, so a monster at exactly 40 stays
+// asleep. 39 is not a sum of two squares, so no placement separates a bound of
+// 40 from one of 39; 41 is separated by the sleeper at dist2 40 below.
+test('postmov wakes the sleepers a squeaky board reaches and no others',
+    async () => {
+        const { state } = makeState();
+        state.flags = { acoustics: true };
+        const monster = ordinaryMonster(state, { mx: 5, my: 4 });
+        // dx 6, dy 0 from the board: dist2 36, inside 40.
+        const near = ordinaryMonster(state, {
+            mx: 11,
+            my: 4,
+            mhp: 5,
+            msleeping: true,
+            mstrategy: STRAT_WAITMASK,
+        });
+        // dx 6, dy 2: dist2 40 exactly, which C's `>=` excludes.
+        const far = ordinaryMonster(state, {
+            mx: 11,
+            my: 6,
+            mhp: 5,
+            msleeping: true,
+            mstrategy: STRAT_WAITMASK,
+        });
+        monster.nmon = near;
+        near.nmon = far;
+        state.level.monlist = monster;
+        state.level.traps = [
+            { tx: 5, ty: 4, ttyp: SQKY_BOARD, tnote: 9, tseen: false },
+        ];
+        const { env, messages } = postmovEnv(state, {
+            random: trapRandom({ rnl: () => 0 }),
+            unsupported: (refusal) => { throw new Error(refusal); },
+        });
+
+        await postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env);
+
+        assert.equal(near.msleeping, false);
+        // mon.c:4387 clears the waiting bits for a monster that is not unique.
+        assert.equal(near.mstrategy & STRAT_WAITMASK, 0);
+        assert.equal(far.msleeping, true);
+        assert.equal(far.mstrategy & STRAT_WAITMASK, STRAT_WAITMASK);
+        // Neither sleeper is in sight, so wake_msg() prints nothing and the
+        // squeak stays the only line.
+        assert.deepEqual(
+            messages,
+            ['You hear an A note squeak in the distance.'],
+        );
+    });
+
 // C ref: trap.c:3812. A monster that already knows the type escapes on three
 // of four draws, before mon_learns_traps(), mons_see_trap() and the effect.
 test('postmov lets a monster that knows the board escape on rn2(4)',
@@ -947,6 +1005,13 @@ test('postmov shoots a dart at a monster the hero watches and misses',
         const dart = state.level.objects[5][4];
         assert.equal(dart.otyp, DART);
         assert.equal(dart.quan, 1);
+        // trap.c:1023 recomputes the weight precisely because the line above
+        // it has just overwritten a multigen quantity: mksobj() gave the stack
+        // rn1(6, 6) darts, so the fixture's rn1 leaves 6 here, and a dart
+        // weighs 1. Without the recomputation the single dart on the floor
+        // carries the stack's 6, which then feeds curr_mon_load() and every
+        // carrying-capacity branch of whatever picks it up.
+        assert.equal(dart.owt, 1);
         assert.equal(dart.ox, 5);
         assert.equal(dart.oy, 4);
         assert.equal(dart.opoisoned, false);
@@ -1107,14 +1172,32 @@ test('postmov refuses a dart that hits its target', async () => {
 // miss and something far above 14 for a strike, so an error of up to six points
 // in find_mac() or tlev leaves them all green -- and `<=` in thitm() can be
 // weakened to `<` with no test noticing.
+//
+// The enchanted rows are what pin the `+ obj->spe` term itself, and with it
+// find_mac()'s contribution: plainMissRandom() fails both enchantment gates in
+// mksobj_init(), so the plain pair measures the sum with the term contributing
+// nothing. mkobj gives a trap dart a nonzero spe on 2 firings in 11.
 test('postmov puts the dart miss and strike either side of fourteen',
     async () => {
-        for (const [roll, expectation] of [[13, 'miss'], [14, 'strike']]) {
+        // js/obj.js mksobj_init() takes the `!rn2(11)` arm and sets
+        // spe = rne(3); pinning rne at 2 puts the boundary at 7 + 7 + 2 == 16.
+        const enchanted = {
+            rn2: (bound) => (bound === 11 ? 0 : 1),
+            rne: () => 2,
+        };
+        for (const [roll, expectation, overrides] of [
+            [13, 'miss', {}],
+            [14, 'strike', {}],
+            // 15 strikes without the term and misses with it.
+            [15, 'miss', enchanted],
+            [16, 'strike', enchanted],
+        ]) {
             const { state, monster } = dartTrapState();
             seeSquare(state, 5, 4);
             const { env, messages } = postmovEnv(state, {
                 random: plainMissRandom({
                     rnd: (bound) => (bound === 20 ? roll : 1),
+                    ...overrides,
                 }),
                 unsupported: (refusal) => { throw new Error(refusal); },
             });

@@ -60,11 +60,14 @@
 // liveVisionBufferViews() as well as everything the walk finds, so a leak into
 // the spare half is caught rather than silently missed.
 //
-// One thing the detector still cannot see at all: vision.c's module-level
-// transparency index (viz_clear, left_ptrs, right_ptrs, js/vision.js:65-67).
-// It holds run pointers rather than a per-cell grid, so there is nothing to
-// compare; it stays covered by preflightSimpleMonsterActions()'s finally
-// restore and by the refusing visionRecalc owner.
+// The same reasoning covers vision.c's module-level transparency index
+// (viz_clear, left_ptrs, right_ptrs, js/vision.js:65-67). Each is a ROWNO x
+// COLNO typed-array grid holding one pointer per cell, which is the shape the
+// view branch above already snapshots; what kept it out was reachability, not
+// shape, since nothing in the state points at it. It is the one vision
+// structure the planning clone deliberately borrows and hand-restores
+// (js/unported_monster_actions.js:891), so the snapshot takes
+// transparencyIndexViews() as well.
 
 // preflightSimpleMonsterActions() ends by calling recalc_block_point() against
 // the live map to re-derive the transparency index it borrowed. That restore
@@ -83,7 +86,10 @@ function collectExemptions(state) {
     return new Set(state.objects ?? []);
 }
 
-import { liveVisionBufferViews } from '../js/vision.js';
+import {
+    liveVisionBufferViews,
+    transparencyIndexViews,
+} from '../js/vision.js';
 
 export function freezeLiveState(state) {
     const exempt = collectExemptions(state);
@@ -125,6 +131,8 @@ export function freezeLiveState(state) {
     walk(state);
     // Not reachable from the state, and the half vision_recalc() writes.
     for (const view of liveVisionBufferViews()) consider(view);
+    // Also not reachable, and what the planning clone borrows outright.
+    for (const view of transparencyIndexViews()) consider(view);
     while (pending.length > 0) {
         const target = pending.pop();
         walk(target);

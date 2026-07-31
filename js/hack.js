@@ -107,7 +107,7 @@ import {
     tunnels,
     verysmall,
 } from './mondata.js';
-import { objectType, sobj_at } from './obj.js';
+import { is_pick, objectType, sobj_at } from './obj.js';
 import {
     BOULDER,
     COIN_CLASS,
@@ -911,6 +911,53 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
     }
 }
 
+// This seam owns the four hero states hack.c:1014-1045 answers for before its
+// closing else, the arm this port covers. A STONE or wall destination reaches
+// test_move() unexamined -- preflightDomoveDestination() has no arm for it --
+// so unlike requireAutoopenClosedDoor() this one has a single caller, the
+// obstacle arm itself. It runs after that arm's terrain refusal, because for
+// the two types left by then, STONE and IS_WALL, C's chain asks these four
+// questions in this order and nothing else stands between them.
+//
+// Every refusal here is unconditional in `mode`, which the tight-diagonal
+// switch below deliberately is not: `3f9be36` gated that switch because
+// landing_spot() probes eight neighbours with TEST_MOVE and one loud refusal
+// ended the dismount. The same gating is available to two of these four and
+// not to the other two. C's Underwater and autodig arms return FALSE in every
+// mode and print or dig only under DO_MOVE, so a probe could be answered
+// FALSE; its Passes_walls and tunnels arms fall through the chain and can
+// answer TRUE, so a probe answered FALSE would diverge. None of the four
+// states is reachable in this port, so nothing probes them and the plain
+// refusal costs nothing; whoever makes one reachable reads this first.
+function requireOrdinaryObstacleRefusal(state) {
+    const data = state.youmonst?.data;
+    // hack.c:1014 `Passes_walls && may_passwall(x, y)` falls through the whole
+    // arm and can answer TRUE, hack.c:1016 Underwater prints "There is an
+    // obstacle there." instead of the wall line, and hack.c:1037 a tunneller
+    // that needs no pick eats the rock through still_chewing(), which changes
+    // the map and draws. The refusal is wider than C for the first: it does
+    // not ask may_passwall(), so a Sokoban or nondiggable wall stops here too
+    // rather than reaching the "Sokoban walls resist your ability." line that
+    // shares this arm's closing else. Nothing in this port grants either
+    // property, so the width costs no reachable behavior.
+    if (propertyPresent(state, PASSES_WALLS)
+        || state.u?.uinwater
+        || (tunnels(data) && !needspick(data))) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'obstacle passed rather than blocking',
+        );
+    }
+    // hack.c:1042. use_pick_axe2() changes the map and draws, so the arm has
+    // to stop even though `flags.autodig` has no writer yet: js/options.js
+    // carries the name in its catalog and nothing reads it back into
+    // state.flags. svc.context.nopick has no writer either, which is why the
+    // read is `state.context?.nopick` rather than a ported field.
+    if (state.flags?.autodig && !state.context?.run && !state.context?.nopick
+        && state.uwep && is_pick(state.uwep, state)) {
+        throw new UnsupportedHeroMoveBoundaryError('automatic digging');
+    }
+}
+
 // Each pline() test_move() reaches is injected rather than imported, so a test
 // can read the line without a terminal. Resolving through one helper turns a
 // missing or misspelled operation into a failure instead of a silent no-op.
@@ -926,7 +973,16 @@ function requiredMessageOperation(env, arm) {
 // or randomness, the IS_DOOR/closed_door() arm's autoopen route into lock.c
 // doopen_indir(), the bump arm that a suppressed autoopen falls into, and its
 // two diagonal doorway rules, which also spend no time. Its remaining terrain
-// and ability branches remain at the command admission boundary.
+// branches remain at the command admission boundary, which refuses every
+// destination type this function does not own before domove() is reached.
+//
+// The ability branches are different, and the difference is easy to miss.
+// preflightDomoveDestination()'s else-if chain has no arm at all for a STONE
+// or wall destination -- blocksMove() answers TRUE there, so the chain falls
+// off its end without a throw -- so the hero states hack.c:1014-1045 branches
+// on inside the obstacle arm have no owner at the seam. They are refused here
+// instead, by requireOrdinaryObstacleRefusal(), the way
+// requireAutoopenClosedDoor() refuses the closed-door arm's equivalents.
 //
 // `mode` is C's fourth argument. Two of its four values have a ported caller:
 // domove_core() asks DO_MOVE, which is the only value that prints, opens a
@@ -963,6 +1019,11 @@ export async function test_move(
                 'door or special terrain movement',
             );
         }
+        // C runs feel_location() before its branch chain, so refusing here
+        // skips a tactile update C performs. The terrain refusal above sits on
+        // the same side for the same reason: a refusal ends the port's run, and
+        // a half-updated map would only make the stop harder to read.
+        requireOrdinaryObstacleRefusal(state);
         if (heroIsBlind(state) && mode === DO_MOVE) feel_location(x, y, state);
 
         if (mode === DO_MOVE && state.flags?.mention_walls) {

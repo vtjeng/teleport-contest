@@ -65,10 +65,8 @@
 // for the population the sample was drawn from.
 //
 // Both forms take `--enumerate-only`, which prints the site and mutant counts
-// per file and stops before running any test, and `--limit <n>`, which stops
-// after n mutants have run. A limit truncates in path order, so it bounds an
-// exploratory run and samples nothing, and the report says how many of the
-// target set's mutants went unmeasured. The command exits 0 whether or not
+// per file and stops before running any test. To bound a run rather than count
+// it, use `--sample <n>` with `--seed <k>`. The command exits 0 whether or not
 // mutants survived, because a survivor is a finding to review. A bad argument
 // or a red baseline exits 2.
 //

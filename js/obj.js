@@ -29,6 +29,7 @@ import {
     P_BOW,
     P_CROSSBOW,
     P_NONE,
+    P_PICK_AXE,
     P_SHURIKEN,
     RANDOM_TIN,
     REVIVE_MON,
@@ -677,6 +678,13 @@ export function is_ammo(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === GEM_CLASS)
         && skill >= -P_CROSSBOW
         && skill <= -P_BOW;
+}
+
+// C ref: obj.h is_pick(). The objects[] field C calls oc_skill is stored under
+// its union alias oc_subtyp here, as is_ammo() above also reads it.
+export function is_pick(obj, state = game) {
+    return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
+        && objectType(obj, state).oc_subtyp === P_PICK_AXE;
 }
 
 // C ref: obj.h greatest_erosion().

@@ -21,6 +21,7 @@ import {
     copy_oextra,
     dealloc_obj,
     isFlammable,
+    is_pick,
     mksobj,
     mkobj,
     newObject,
@@ -36,6 +37,7 @@ import {
     ACID_VENOM,
     AMULET_OF_REFLECTION,
     AMULET_OF_STRANGULATION,
+    AXE,
     BAG_OF_HOLDING,
     BLINDING_VENOM,
     BOULDER,
@@ -43,9 +45,11 @@ import {
     COIN_CLASS,
     CRYSKNIFE,
     DART,
+    DWARVISH_MATTOCK,
     EGG,
     FIGURINE,
     FOOD_RATION,
+    GEM_CLASS,
     GOLD_PIECE,
     LONG_SWORD,
     OIL_LAMP,
@@ -664,6 +668,28 @@ test('isFlammable follows material and source exceptions', () => {
     assert.equal(isFlammable(plainObject(TALLOW_CANDLE, state), state), false);
     assert.equal(isFlammable(plainObject(POT_OIL, state), state), false);
     assert.equal(isFlammable(plainObject(WAN_FIRE, state), state), false);
+});
+
+// C ref: obj.h is_pick(). Both halves of the macro are pinned to entries read
+// out of include/objects.h: the class test and the oc_skill test.
+test('is_pick accepts the two P_PICK_AXE entries and nothing else', () => {
+    const state = initializedState();
+    // objects.h:1007 WEPTOOL("pick-axe", ... P_PICK_AXE ...) -- TOOL_CLASS.
+    assert.equal(is_pick(plainObject(PICK_AXE, state), state), true);
+    // objects.h:345 WEAPON("dwarvish mattock", ... P_PICK_AXE ...), the other
+    // arm of the class test.
+    assert.equal(is_pick(plainObject(DWARVISH_MATTOCK, state), state), true);
+    // objects.h:236 WEAPON("axe", ... P_AXE ...): right class, wrong skill.
+    assert.equal(is_pick(plainObject(AXE, state), state), false);
+    // A tinning kit is TOOL_CLASS with no weapon skill, so a tool alone is not
+    // enough either.
+    assert.equal(is_pick(plainObject(TINNING_KIT, state), state), false);
+    // The skill alone is not enough: a pick-axe reclassed out of WEAPON_CLASS
+    // and TOOL_CLASS fails the first half of the macro.
+    assert.equal(
+        is_pick(plainObject(PICK_AXE, state, { oclass: GEM_CLASS }), state),
+        false,
+    );
 });
 
 test('object APIs reject uninitialized catalogs, ids, and partial RNGs', () => {

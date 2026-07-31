@@ -102,6 +102,17 @@ export function liveVisionBufferViews() {
     ];
 }
 
+// vision.c's transparency index, the other structure that has no per-state
+// form and no path from the game state: viz_clear and the two pointer grids
+// are module-level and are read by the quadrant walks, which take no state.
+// A planning clone borrows the index rather than copying it, so a leak into
+// these arrays would be invisible to a check that walks the state.
+// scripts/planning-isolation-test-support.mjs snapshots what this returns for
+// that reason. Read-only: callers must not mutate the arrays.
+export function transparencyIndexViews() {
+    return [...viz_clear, ...left_ptrs, ...right_ptrs];
+}
+
 function visionBuffers(state) {
     return state._visionBuffers ?? liveVisionBuffers;
 }
@@ -608,13 +619,35 @@ export function do_clear_area(
     }
 }
 
-// C ref: vision_recalc(control).  `env` names the three things C reaches
+// C ref: vision_recalc(control).  `env` names three of the things C reaches
 // through globals: the game state, its pair of COULD_SEE buffers, and
 // display.c's redraw.  js/unported_monster_actions.js supplies all three so
 // that its cloned monster scan can recompute vision for the map it planned
 // without touching the live view or painting a frame.
+//
+// A fourth remains shared and is not in `env`: the transparency index
+// viz_clear/left_ptrs/right_ptrs, declared as module constants above, read
+// here at the `!viz_clear[row][col]` tests and again inside view_from()'s
+// quadrant walks, none of which takes a state.  vision_reset(state) fills it
+// from whichever map it is handed.  A caller working on a state other than
+// `game` therefore has to rebuild the index from its own map before this call
+// and from the live map afterwards, or it computes the live map's sight lines
+// and writes them into the planned state.  js/unported_monster_actions.js is
+// the one caller that does: admitDoorOpening() rebuilds it from the planned
+// map, and the finally at :879-896 rebuilds it from the live one, both through
+// recalc_block_point(), which calls vision_reset().
+//
+// `env.redraw` defaults to newsym, which ignores its state argument and paints
+// the module-level `game`, so a caller whose state is not `game` must supply
+// its own.  Omitting it is refused below rather than left to be discovered on
+// a repainted frame.
 export function vision_recalc(control = 0, env = {}) {
     const state = env.state ?? game;
+    if (state !== game && typeof env.redraw !== 'function') {
+        throw new TypeError(
+            'vision_recalc on a state other than game requires a redraw',
+        );
+    }
     const redraw = env.redraw ?? newsym;
     const u = state.u;
     if (!u || !state.level) return;
