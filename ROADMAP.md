@@ -123,15 +123,35 @@ Development rose 459 to 467 screens and 99,980 to 100,825 calls, all from slice
 **Three consecutive goals have now carried over nothing.** The pickup goal
 gained +1 development and +0 holdout; the door goal gained and carried nothing;
 this one gained 8 screens and carried nothing. Before those, the run was +21,
-+17 and a first passing holdout session. The instrument that picked all three
-is the census — incidence times runway, then incidence times downstream reuse —
-and it has now mispredicted carry-over three times running while continuing to
-predict development movement correctly. That is a specific, falsifiable claim
-about the selector, and the next goal selection should treat it as one: the
-census measures what unblocks *development* sessions, and development and
-holdout sessions stopped agreeing about three goals ago. Whatever replaces it
-has to be validated against the holdout record above, not against development
-movement.
++17 and a first passing holdout session.
+
+**That is weaker evidence than it looks, and the first reading of it here was
+too strong.** Those three goals were selected on boundaries blocking 2, 3 and 3
+of 33 development sessions. Under the census's own model, the chance that none
+of 11 holdout sessions stops on a 3-of-33 boundary is about 0.91^11, near 0.35;
+across the three goals the chance of seeing three zeros is roughly 0.06. That is
+low but not damning, and combined with the 1 to 8 screens each unblocked
+development session actually gained, **the last three goals were plausibly below
+an 11-session holdout's resolution.** Three zeros is then a statement about
+effect size, not proof of a broken instrument, and the honest reading is that
+the holdout cannot resolve a goal this small either way.
+
+**The census is censored rather than wrong.** It measures the first fail-closed
+boundary per development session, which is exactly the right quantity, but a
+boundary hidden behind a different refusal is invisible to it: 23 of 33 sessions
+stop on an unported hero *command*, so everything downstream of a command
+cannot be counted. Object squares are the extreme case — the commonest unported
+destination on a generated level, carrying a single census row.
+
+The repair is a second column rather than a replacement: incidence **in the
+game** instead of in the session set, measured as squares per freshly generated
+level that each admission seam would claim. That samples the population the
+holdout is drawn from, which no session-set count does. Whoever commits it
+should validate it against the record above: it must retrodict low expected
+carry-over for the pickup, monster-door and trap goals, and high for the closed
+door. Until it exists, prefer goals on the path of ordinary walking, which is
+the one property the closed-door goal — the only goal whose holdout gain beat
+development — had and the three zeros did not.
 
 **A prediction this goal got wrong, and the census did not cause it.** The
 goal statement above said `seed1500`'s dart is a miss and that closing the miss
