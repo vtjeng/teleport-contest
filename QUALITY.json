@@ -4526,6 +4526,294 @@
         }
       },
       "recordedAt": "2026-07-31T01:04:17.298Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "generation": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674"
+      },
+      "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "auditedRange": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "areas": [
+        "generation"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the steed-riding goal (1f0e7d5..ed43517): 17 raw, 17 deduplicated, 11 confirmed, 11 applied at 3f9be36, 6 rejected, 0 unverified, 0 warnings. Finders: correctness, readability, tests, variable-trace; no optional finder triggered. Recorded from this area's frontier because no file of this area changed between that frontier and the audited base, so the reviewed diff is identical.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2162,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 17,
+          "confirmed": 11,
+          "applied": 11,
+          "deferred": 0,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 6,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/hack.js test_move(): the new mode parameter gated every message and side-effect arm but not the cant_squeeze_thru() refusal throw, so a TEST_MOVE probe that C answers FALSE with no output aborted the segment. mount_steed() is a live caller. Fixed by returning false under TEST_MOVE in that arm only; the worm and obstacle arms stay refusing because neither can compute C's answer without unported state.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/input.js nhgetch(): the port never applied win/tty/wintty.c:4093-4094 if (!i) i = 0x1B, so a NUL keystroke answering getdir() refused where C cancels the prompt silently. Fixed in nhgetch() so every reader sees the substituted ESC, and pinned by a twelfth segment in scripts/run-ride-direction.mjs recorded against the C reference.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/cmd.js:294 -- The header comment on yn_menuable_resp() states the opposite of both the code beneath it and cmd.c:5394-5399, and misnames two of the five response sets C compares against.",
+            "counterEvidence": "The headline's two specific claims do not survive a read of the comment itself. Counter-evidence: js/cmd.js:294-297 reads in full: \"C ref: cmd.c yn_menuable_resp(). The C test compares `resp` against five specific string literals by address, so no response set the port could build at run time would match; a null `resp`, which is what getdir() passes, answers FALSE on the address comparisons alone.\" It names no response set at all, so \"misnames two of the five\" is false -- `grep -n \"ynNaqchars\\|ynxaqchars\\|rightleftchars\\|hidespinchars\\|ynqchars\" js/*.js scripts/*.mjs` returns nothing (exit 1). Nor does it state the opposite of cmd.c:5394-5399; it restates that expression's structure (five li Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/cmd.js:351 -- MOVE_FUNCS is a hand-copied 26-entry table of extcmdlist ef_funct name strings with no cross-check against extcmdlist_data.js, and only 11 of the 26 names are exercised by any test.",
+            "counterEvidence": "No defect exists: every one of the 26 names resolves, as the finding itself concedes. Counter-evidence: I ran the set difference independently against js/extcmdlist_data.js for all 26 MOVE_FUNCS strings at js/cmd.js:351-370 and got `missing: []`. The finding is a hypothesis about a typo that is not present. Its own text says \"this is a latent hazard, not a live bug.\" AGENTS.md's \"Generate large fixed tables from source\" rule targets large fixed tables; cmd.c:2070-2082 is a 10x3 grid of handler names, which the port transcribes in the same row/column order with the rows labelled by direction index. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/cmd.js:1050 -- doextcmd()'s 'doride' arm is the only one in the switch not routed through failClosedCommand(), even though this change added its three error classes to that function's catch list.",
+            "counterEvidence": "The premise -- that a reviewer cannot tell from this file whether doride() is fail-closed -- is contradicted by the file's own comment block. Counter-evidence: js/cmd.js:861-868 states it outright: \"Two more have no wrapper: donull(), which doextcmd() and rhack() call directly because it formats nothing that can fail closed, and steed.c doride(), which only the prompt reaches ... dosearch() returns the ECMD_* result itself, as doride() does.\" The wrap point is js/cmd.js:1153-1155, failClosedCommand(key, state, () => doextcmd(key, state)). The M-R hazard is documented too, at js/cmd.js:660-663 (the finding cites 626-635, which is parseCommand()): \"doextcmd() dispatches one command that is del Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/steed.js:504 -- In landing_spot(), best_j/clockwise_j/counterclk_j are permanently -1 because the only branch that sets them throws, which makes three later expressions dead — but only the adjacent `(j % 1)` oddity is annotated as unreachable.",
+            "counterEvidence": "The premise that only the `(j % 1)` oddity is annotated is false; the fact the fix asks to add is already written twice in the same function. Counter-evidence: js/steed.js:434-438 is the function's header comment: \"Three RNG draws live here. `rn2(2)` picks between the two next-best directions and belongs to DISMOUNT_KNOCKED alone; `rn2(viable)` breaks a tie between equally distant candidates and fires on every reason; and enexto() behind `forceit` draws through goodpos(). Only the second is reachable from doride().\" That is precisely the \"reachable consequence\" the fix says to name. The throw at js/steed.js:449-455 carries \"The preferred direction and its two neighbours, which only a knockba Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/teleport.js:983 -- teleds() refuses whenever the hero stands in a vault room, but C only enters the guard branch when findgd() also returns a guard monster, and even then does nothing unless the hero has left the vault.",
+            "counterEvidence": "The dropped-conjunct observation is factually correct but does not establish a correctness problem: the refusal is a declared, tracked fail-closed boundary standing in front of unported code, and its precondition is unreachable in the port. Counter-evidence: js/teleport.js:983-987 names its owners in the comment (\"findgd() and uleftvault() own the guard's shrill whistle\"), and .agents/implementation-checklist.md:95 records it: \"The punishing ball, an engulfed hero, a mimic hero, the vault guard, `TELEDS_TELEPORT` | Each guarded | js/teleport.js | Five refusals, each unit-pinned | later | Port with the ball, engulfing, polymorph, vaults and teleportation\". Wider-than-C refusals are the docume Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/teleport.js:1002 -- teleds()'s allow_drag is assigned twice and read zero times, while the comment above the second assignment says \"every later use of it is dead\", implying uses exist further down.",
+            "counterEvidence": "The question the finding says a reviewer cannot answer is answered explicitly eight lines above, in the refusal that owns those consumers. Counter-evidence: js/teleport.js:997 reads \"// drag_ball(), move_bc(), unplacebc() and placebc() have no owner.\" immediately above the `throw new UnsupportedHeroMoveBoundaryError('teleds() dragging a punishing ball')`, which is the exact list the fix proposes to add. The comment the finding quotes continues \"...it is written out because it is what decides whether the ball is dragged or teleported, and that decision returns the moment a punishing hero is admitted\", which already states that the consumers sit behind the refusal. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 283,
+          "survivors": 58,
+          "byKind": {
+            "boolean": {
+              "ran": 45,
+              "killed": 33
+            },
+            "logical": {
+              "ran": 207,
+              "killed": 173
+            },
+            "relational": {
+              "ran": 31,
+              "killed": 19
+            }
+          },
+          "finderConclusion": "The test-quality finder reported six non-discriminating assertions, all confirmed and fixed, including landing_spot()'s rn2(viable) tie-break, which is the only random draw the live dismount path makes and which every test was built so it could not fire. Two survivor clusters were separately claimed as defects by other finders and rejected with counter-evidence: landing_spot()'s permanently -1 best_j variables and teleds()'s doubly-assigned allow_drag, both documented dead behind declared refusals."
+        }
+      },
+      "recordedAt": "2026-07-31T11:42:10.349Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "monsters": "21cea25678630be92405ccfda3c61b38bc0fc54a"
+      },
+      "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "auditedRange": "21cea25678630be92405ccfda3c61b38bc0fc54a..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "areas": [
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the steed-riding goal (1f0e7d5..ed43517): 17 raw, 17 deduplicated, 11 confirmed, 11 applied at 3f9be36, 6 rejected, 0 unverified, 0 warnings. Finders: correctness, readability, tests, variable-trace; no optional finder triggered. Recorded from this area's frontier because no file of this area changed between that frontier and the audited base, so the reviewed diff is identical.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2162,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 17,
+          "confirmed": 11,
+          "applied": 11,
+          "deferred": 0,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 6,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/hack.js test_move(): the new mode parameter gated every message and side-effect arm but not the cant_squeeze_thru() refusal throw, so a TEST_MOVE probe that C answers FALSE with no output aborted the segment. mount_steed() is a live caller. Fixed by returning false under TEST_MOVE in that arm only; the worm and obstacle arms stay refusing because neither can compute C's answer without unported state.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/input.js nhgetch(): the port never applied win/tty/wintty.c:4093-4094 if (!i) i = 0x1B, so a NUL keystroke answering getdir() refused where C cancels the prompt silently. Fixed in nhgetch() so every reader sees the substituted ESC, and pinned by a twelfth segment in scripts/run-ride-direction.mjs recorded against the C reference.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/cmd.js:294 -- The header comment on yn_menuable_resp() states the opposite of both the code beneath it and cmd.c:5394-5399, and misnames two of the five response sets C compares against.",
+            "counterEvidence": "The headline's two specific claims do not survive a read of the comment itself. Counter-evidence: js/cmd.js:294-297 reads in full: \"C ref: cmd.c yn_menuable_resp(). The C test compares `resp` against five specific string literals by address, so no response set the port could build at run time would match; a null `resp`, which is what getdir() passes, answers FALSE on the address comparisons alone.\" It names no response set at all, so \"misnames two of the five\" is false -- `grep -n \"ynNaqchars\\|ynxaqchars\\|rightleftchars\\|hidespinchars\\|ynqchars\" js/*.js scripts/*.mjs` returns nothing (exit 1). Nor does it state the opposite of cmd.c:5394-5399; it restates that expression's structure (five li Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/cmd.js:351 -- MOVE_FUNCS is a hand-copied 26-entry table of extcmdlist ef_funct name strings with no cross-check against extcmdlist_data.js, and only 11 of the 26 names are exercised by any test.",
+            "counterEvidence": "No defect exists: every one of the 26 names resolves, as the finding itself concedes. Counter-evidence: I ran the set difference independently against js/extcmdlist_data.js for all 26 MOVE_FUNCS strings at js/cmd.js:351-370 and got `missing: []`. The finding is a hypothesis about a typo that is not present. Its own text says \"this is a latent hazard, not a live bug.\" AGENTS.md's \"Generate large fixed tables from source\" rule targets large fixed tables; cmd.c:2070-2082 is a 10x3 grid of handler names, which the port transcribes in the same row/column order with the rows labelled by direction index. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/cmd.js:1050 -- doextcmd()'s 'doride' arm is the only one in the switch not routed through failClosedCommand(), even though this change added its three error classes to that function's catch list.",
+            "counterEvidence": "The premise -- that a reviewer cannot tell from this file whether doride() is fail-closed -- is contradicted by the file's own comment block. Counter-evidence: js/cmd.js:861-868 states it outright: \"Two more have no wrapper: donull(), which doextcmd() and rhack() call directly because it formats nothing that can fail closed, and steed.c doride(), which only the prompt reaches ... dosearch() returns the ECMD_* result itself, as doride() does.\" The wrap point is js/cmd.js:1153-1155, failClosedCommand(key, state, () => doextcmd(key, state)). The M-R hazard is documented too, at js/cmd.js:660-663 (the finding cites 626-635, which is parseCommand()): \"doextcmd() dispatches one command that is del Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/steed.js:504 -- In landing_spot(), best_j/clockwise_j/counterclk_j are permanently -1 because the only branch that sets them throws, which makes three later expressions dead — but only the adjacent `(j % 1)` oddity is annotated as unreachable.",
+            "counterEvidence": "The premise that only the `(j % 1)` oddity is annotated is false; the fact the fix asks to add is already written twice in the same function. Counter-evidence: js/steed.js:434-438 is the function's header comment: \"Three RNG draws live here. `rn2(2)` picks between the two next-best directions and belongs to DISMOUNT_KNOCKED alone; `rn2(viable)` breaks a tie between equally distant candidates and fires on every reason; and enexto() behind `forceit` draws through goodpos(). Only the second is reachable from doride().\" That is precisely the \"reachable consequence\" the fix says to name. The throw at js/steed.js:449-455 carries \"The preferred direction and its two neighbours, which only a knockba Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/teleport.js:983 -- teleds() refuses whenever the hero stands in a vault room, but C only enters the guard branch when findgd() also returns a guard monster, and even then does nothing unless the hero has left the vault.",
+            "counterEvidence": "The dropped-conjunct observation is factually correct but does not establish a correctness problem: the refusal is a declared, tracked fail-closed boundary standing in front of unported code, and its precondition is unreachable in the port. Counter-evidence: js/teleport.js:983-987 names its owners in the comment (\"findgd() and uleftvault() own the guard's shrill whistle\"), and .agents/implementation-checklist.md:95 records it: \"The punishing ball, an engulfed hero, a mimic hero, the vault guard, `TELEDS_TELEPORT` | Each guarded | js/teleport.js | Five refusals, each unit-pinned | later | Port with the ball, engulfing, polymorph, vaults and teleportation\". Wider-than-C refusals are the docume Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/teleport.js:1002 -- teleds()'s allow_drag is assigned twice and read zero times, while the comment above the second assignment says \"every later use of it is dead\", implying uses exist further down.",
+            "counterEvidence": "The question the finding says a reviewer cannot answer is answered explicitly eight lines above, in the refusal that owns those consumers. Counter-evidence: js/teleport.js:997 reads \"// drag_ball(), move_bc(), unplacebc() and placebc() have no owner.\" immediately above the `throw new UnsupportedHeroMoveBoundaryError('teleds() dragging a punishing ball')`, which is the exact list the fix proposes to add. The comment the finding quotes continues \"...it is written out because it is what decides whether the ball is dragged or teleported, and that decision returns the moment a punishing hero is admitted\", which already states that the consumers sit behind the refusal. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 283,
+          "survivors": 58,
+          "byKind": {
+            "boolean": {
+              "ran": 45,
+              "killed": 33
+            },
+            "logical": {
+              "ran": 207,
+              "killed": 173
+            },
+            "relational": {
+              "ran": 31,
+              "killed": 19
+            }
+          },
+          "finderConclusion": "The test-quality finder reported six non-discriminating assertions, all confirmed and fixed, including landing_spot()'s rn2(viable) tie-break, which is the only random draw the live dismount path makes and which every test was built so it could not fire. Two survivor clusters were separately claimed as defects by other finders and rejected with counter-evidence: landing_spot()'s permanently -1 best_j variables and teleds()'s doubly-assigned allow_drag, both documented dead behind declared refusals."
+        }
+      },
+      "recordedAt": "2026-07-31T11:42:12.499Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "startup": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67"
+      },
+      "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "auditedRange": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "areas": [
+        "startup"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over the steed-riding goal (1f0e7d5..ed43517): 17 raw, 17 deduplicated, 11 confirmed, 11 applied at 3f9be36, 6 rejected, 0 unverified, 0 warnings. Finders: correctness, readability, tests, variable-trace; no optional finder triggered. Recorded from this area's frontier because no file of this area changed between that frontier and the audited base, so the reviewed diff is identical.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2162,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 17,
+          "confirmed": 11,
+          "applied": 11,
+          "deferred": 0,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 6,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/hack.js test_move(): the new mode parameter gated every message and side-effect arm but not the cant_squeeze_thru() refusal throw, so a TEST_MOVE probe that C answers FALSE with no output aborted the segment. mount_steed() is a live caller. Fixed by returning false under TEST_MOVE in that arm only; the worm and obstacle arms stay refusing because neither can compute C's answer without unported state.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/input.js nhgetch(): the port never applied win/tty/wintty.c:4093-4094 if (!i) i = 0x1B, so a NUL keystroke answering getdir() refused where C cancels the prompt silently. Fixed in nhgetch() so every reader sees the substituted ESC, and pinned by a twelfth segment in scripts/run-ride-direction.mjs recorded against the C reference.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/cmd.js:294 -- The header comment on yn_menuable_resp() states the opposite of both the code beneath it and cmd.c:5394-5399, and misnames two of the five response sets C compares against.",
+            "counterEvidence": "The headline's two specific claims do not survive a read of the comment itself. Counter-evidence: js/cmd.js:294-297 reads in full: \"C ref: cmd.c yn_menuable_resp(). The C test compares `resp` against five specific string literals by address, so no response set the port could build at run time would match; a null `resp`, which is what getdir() passes, answers FALSE on the address comparisons alone.\" It names no response set at all, so \"misnames two of the five\" is false -- `grep -n \"ynNaqchars\\|ynxaqchars\\|rightleftchars\\|hidespinchars\\|ynqchars\" js/*.js scripts/*.mjs` returns nothing (exit 1). Nor does it state the opposite of cmd.c:5394-5399; it restates that expression's structure (five li Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/cmd.js:351 -- MOVE_FUNCS is a hand-copied 26-entry table of extcmdlist ef_funct name strings with no cross-check against extcmdlist_data.js, and only 11 of the 26 names are exercised by any test.",
+            "counterEvidence": "No defect exists: every one of the 26 names resolves, as the finding itself concedes. Counter-evidence: I ran the set difference independently against js/extcmdlist_data.js for all 26 MOVE_FUNCS strings at js/cmd.js:351-370 and got `missing: []`. The finding is a hypothesis about a typo that is not present. Its own text says \"this is a latent hazard, not a live bug.\" AGENTS.md's \"Generate large fixed tables from source\" rule targets large fixed tables; cmd.c:2070-2082 is a 10x3 grid of handler names, which the port transcribes in the same row/column order with the rows labelled by direction index. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/cmd.js:1050 -- doextcmd()'s 'doride' arm is the only one in the switch not routed through failClosedCommand(), even though this change added its three error classes to that function's catch list.",
+            "counterEvidence": "The premise -- that a reviewer cannot tell from this file whether doride() is fail-closed -- is contradicted by the file's own comment block. Counter-evidence: js/cmd.js:861-868 states it outright: \"Two more have no wrapper: donull(), which doextcmd() and rhack() call directly because it formats nothing that can fail closed, and steed.c doride(), which only the prompt reaches ... dosearch() returns the ECMD_* result itself, as doride() does.\" The wrap point is js/cmd.js:1153-1155, failClosedCommand(key, state, () => doextcmd(key, state)). The M-R hazard is documented too, at js/cmd.js:660-663 (the finding cites 626-635, which is parseCommand()): \"doextcmd() dispatches one command that is del Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/steed.js:504 -- In landing_spot(), best_j/clockwise_j/counterclk_j are permanently -1 because the only branch that sets them throws, which makes three later expressions dead — but only the adjacent `(j % 1)` oddity is annotated as unreachable.",
+            "counterEvidence": "The premise that only the `(j % 1)` oddity is annotated is false; the fact the fix asks to add is already written twice in the same function. Counter-evidence: js/steed.js:434-438 is the function's header comment: \"Three RNG draws live here. `rn2(2)` picks between the two next-best directions and belongs to DISMOUNT_KNOCKED alone; `rn2(viable)` breaks a tie between equally distant candidates and fires on every reason; and enexto() behind `forceit` draws through goodpos(). Only the second is reachable from doride().\" That is precisely the \"reachable consequence\" the fix says to name. The throw at js/steed.js:449-455 carries \"The preferred direction and its two neighbours, which only a knockba Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/teleport.js:983 -- teleds() refuses whenever the hero stands in a vault room, but C only enters the guard branch when findgd() also returns a guard monster, and even then does nothing unless the hero has left the vault.",
+            "counterEvidence": "The dropped-conjunct observation is factually correct but does not establish a correctness problem: the refusal is a declared, tracked fail-closed boundary standing in front of unported code, and its precondition is unreachable in the port. Counter-evidence: js/teleport.js:983-987 names its owners in the comment (\"findgd() and uleftvault() own the guard's shrill whistle\"), and .agents/implementation-checklist.md:95 records it: \"The punishing ball, an engulfed hero, a mimic hero, the vault guard, `TELEDS_TELEPORT` | Each guarded | js/teleport.js | Five refusals, each unit-pinned | later | Port with the ball, engulfing, polymorph, vaults and teleportation\". Wider-than-C refusals are the docume Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/teleport.js:1002 -- teleds()'s allow_drag is assigned twice and read zero times, while the comment above the second assignment says \"every later use of it is dead\", implying uses exist further down.",
+            "counterEvidence": "The question the finding says a reviewer cannot answer is answered explicitly eight lines above, in the refusal that owns those consumers. Counter-evidence: js/teleport.js:997 reads \"// drag_ball(), move_bc(), unplacebc() and placebc() have no owner.\" immediately above the `throw new UnsupportedHeroMoveBoundaryError('teleds() dragging a punishing ball')`, which is the exact list the fix proposes to add. The comment the finding quotes continues \"...it is written out because it is what decides whether the ball is dragged or teleported, and that decision returns the moment a punishing hero is admitted\", which already states that the consumers sit behind the refusal. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 283,
+          "survivors": 58,
+          "byKind": {
+            "boolean": {
+              "ran": 45,
+              "killed": 33
+            },
+            "logical": {
+              "ran": 207,
+              "killed": 173
+            },
+            "relational": {
+              "ran": 31,
+              "killed": 19
+            }
+          },
+          "finderConclusion": "The test-quality finder reported six non-discriminating assertions, all confirmed and fixed, including landing_spot()'s rn2(viable) tie-break, which is the only random draw the live dismount path makes and which every test was built so it could not fire. Two survivor clusters were separately claimed as defects by other finders and rejected with counter-evidence: landing_spot()'s permanently -1 best_j variables and teleds()'s doubly-assigned allow_drag, both documented dead behind declared refusals."
+        }
+      },
+      "recordedAt": "2026-07-31T11:42:14.638Z"
     }
   ]
 }
