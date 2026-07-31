@@ -139,6 +139,49 @@ this goal. `getdir()` calls `yn_function()`. The two known victims reach it
 through menu search prompts, and this query draws on the top line, so slice 1's
 differential settles whether this goal trips them.
 
+### In progress: the hero eats
+
+`scripts/scan-debt.mjs` rates `eat` 3,073 screens of `gated` across 11 of the 33
+development sessions, second only to `down`, with an `advance` of 78. It is the
+highest-gated owner that has a nonzero advance, which is the rule this goal
+tests: `#ride` was selected on advance alone, scored 82 gated, about 1% of the
+population, and carried nothing to the holdout. Every role eats, so this owner
+sits on the path of ordinary play rather than behind a role or a prefix, which
+is the one property the closed-door goal had.
+
+**Upstream owners.** `eat.c doeat()` (2816-3084, 268 lines) is the command.
+Its opening sequence is `Strangled`, then `floorfood("eat", 0)`, then
+`check_capacity()`, then `u.uedibility`, then the `&hands_obj` iron-bars arm,
+then `is_edible()`, the worn-mask arm, and `retouch_object()`.
+`eat.c start_eating()` (2021-2074) and `eatfood()` (518-541) own the multi-turn
+occupation; `done_eating()` (543-573) and `eatmdone()` (162-177) end it.
+
+**What the port has.** `js/eat.js` exists at 499 lines and already owns
+`gethungry()`, `newuhs()`, the `hu_stat[]` and `tintxts[]` tables,
+`nonrotting_corpse()`, `vegan()`, `vegetarian()`, `tin_variety()` and
+`tin_details()`. Absent: `doeat()`, `floorfood()`, `start_eating()`,
+`eatfood()`, `done_eating()`, `eatmdone()` and `bite()`.
+
+**Slices.**
+
+1. *The prompt and the refusal.* `doeat()`'s entry through `floorfood()`'s
+   `getobj()` prompt and the `!is_edible()` arm. `seed0900-tourist-explore-actions`
+   records exactly this at steps 6 and 7: `e` draws
+   `What do you want to eat? [b-g or ?*]`, and answering with a letter that
+   names no food prints `You cannot eat that!` and returns `ECMD_OK`, spending
+   no turn. Nothing is eaten, so `start_eating()` stays refused. This slice
+   reuses the `getdir()`-era input boundary rather than adding one.
+2. *Eating a food item in one bite.* The `otmp->oclass == FOOD_CLASS` path for
+   an object whose `oeaten` nutrition is consumed in a single turn, through
+   `done_eating()`. Excludes corpses, tins and anything multi-turn.
+3. *The multi-turn occupation.* `start_eating()`, `eatfood()` and the
+   `occupation` machinery, which is the first occupation the port would own.
+
+**Why slice 1 first, and what it is worth on its own.**
+`seed0900-tourist-explore-actions` carries a debt of exactly one owner, `eat`,
+and stops at 6 of 84 steps. It is the only session in the set that `eat` alone
+would complete, which is where the 78-screen advance comes from.
+
 ### Queued: the hero walks onto a floor square holding more than one object
 
 Set aside on 31 July 2026 when `scripts/scan-debt.mjs` landed. The scan rates
