@@ -15,133 +15,37 @@ updates. This is what a hero does moving around a level before fighting or using
 items, and it comes first because a hero who cannot walk cannot reach a monster,
 an object, or the stairs.
 
-The goal below was selected from the `scan-stops.mjs` census at `5397a2f`.
-Every session and step count in it is a ceiling taken from that census and goes
-stale as the port advances; re-run the scan for current numbers. The traced
-source findings do not go stale, which is why they are recorded here rather
-than re-derived.
+Every session and step count written into a goal below is a ceiling taken from
+the measurement that selected that goal, and goes stale as the port advances;
+re-run `scripts/scan-stops.mjs` for current numbers. Traced source findings do
+not go stale, which is why they are recorded here rather than re-derived.
 
-Two goals have now closed with zero holdout movement between them, on 17
-development screens. Exploration's high-incidence work is done, and what the
-census still holds inside this milestone is a tail of coincidence-gated
-boundaries. Expect flat holdout returns until the milestone closes and combat
-opens; that is a reason to keep choosing on the census rather than hunting for
-a boundary that will carry over.
+### What this milestone's goals have carried over, and what to make of it
 
-Every session and step count written into a goal is a ceiling taken from the
-census that selected it, and goes stale as the port advances. Traced source
-findings do not go stale, which is why they are recorded here rather than
-re-derived.
+Six goals now have holdout results. The run was +21 screens, then +17, then a
+first passing holdout session; after that the pickup, monster-door and trap
+goals gained +1, 0 and +8 development screens and carried **nothing**. The trap
+goal's authorized evaluation returned 138 of 3,640 screens, 30,048 of 182,022
+random-number values and 1 of 11 sessions, identical to the three measurements
+before it.
 
-### Closed: a monster triggers a floor trap
-
-A monster or pet walks onto a trap and the trap fires. The hero hears
-`You hear an A note squeak in the distance`, or sees
-`The kitten is almost hit by a dart!`; the dart lands on the floor, and nearby
-monsters wake.
-
-In scope: `trap.c mintrap()` (3733-3840) through `trapeffect_selector()` (2937)
-and the **monster arm** of each `trapeffect_*()` body, for the trap types
-`mklev.c traptype_rnd()` can return at `level_difficulty() == 1` — that is,
-whose case either does not exist or does not force `kind = NO_TRAP` when
-`lvl == 1`: ARROW_TRAP, DART_TRAP, ROCKTRAP, SQKY_BOARD, BEAR_TRAP, RUST_TRAP,
-PIT, MAGIC_TRAP and ANTI_MAGIC. With them come `t_missile()`, `thitm()`,
-`trapnote()`, `floor_trigger()`, `check_in_air()`, and `mondata.c`'s
-`mon_learns_traps()` and `mons_see_trap()`.
-
-Excluded: every type `traptype_rnd()` forces to `NO_TRAP` at depth one; HOLE,
-TRAPDOOR and TELEP_TRAP, whose monster arms relocate the victim and which the
-relocation family below already owns; and **every hero arm**. The caller in
-scope is `mintrap()`, not `dotrap()`, so each `trapeffect_*()`'s
-`mtmp == &gy.youmonst` branch stays refused: it has no live consumer here and
-needs `thitu()`, `losehp()` and `poisoned()`.
-
-**Traced source findings.**
-
-- The call site is `monmove.c:1509`, inside the `postmov()` the previous goal
-  built, which is why that goal left the position open.
-- All three blocked sessions reach only two trap types, read from their
-  recorded top lines: SQKY_BOARD twice and DART_TRAP once. `seed1500`'s dart is
-  a *miss*, `thitm()`'s `!strike` arm, so no monster-death path is needed to
-  close any of them.
-- Nearly every prerequisite has landed: `t_at()`, `maketrap()` and
-  `choose_trapnote()` in `js/trap.js`; `mon_knows_traps()` in `js/mondata.js`;
-  `wake_nearto()` in `js/mon.js`; `You_hear()` in `js/monmove.js`; and
-  `stackobj()`/`place_object()`.
-
-**Census.** Three sessions stop here with 177 steps behind them. Two of them
-stop at step 4, so nearly whole sessions stand behind it, and
-`seed0013-friday13-save-then-fullmoon-restore` is a save-then-restore session,
-so closing it also exercises cross-segment storage. No new command sequence is
-involved.
-
-**The seam this goal must pay for.** Two refusals have to go: `js/monmove.js`'s
-post-move trap guard and `assertSimpleDestination()`'s in
-`js/unported_monster_actions.js` — and the second is the **planning clone**.
-`mintrap()` draws inside the dry run: `rn2(4)` on `already_seen`, `rnl(5)` on
-`madeby_u`, and `rn2(15)` and `rnd(20)` in `thitm()`. The clone must reproduce
-every one call for call. That clone produced eight silent divergences across
-the monster-door goal, two of them introduced by the fixes themselves, so
-budget for it rather than treating it as incidental.
-
-**Why this row.** It is the highest-ranked row that genuinely belongs to
-exploration. The two above it do not: the repeated-command boundary decomposes
-across item interaction, relocation and prefix work, and `#levelchange` is the
-experience-level family this file already reassigned. `pet inventory` carries
-more steps but its ceiling is measured — the pickup goal moved those same two
-sessions exactly one step.
-
-**On choosing the next one.** Six goals now have holdout results, and the last
-two carried nothing on 17 development screens. `incidence x runway` predicted
-that correctly, but the runway term has stopped discriminating: `seed1500`
-re-blocks on `pet inventory` two steps past the dart. The census remains the
-right instrument, because it is the only one that measures incidence at all;
-the tiebreak that should replace runway is **downstream reuse** — how much of
-the ported C a later milestone calls. Traps score well on it: `mintrap()` is
-called from six other C files, `thitm()` serves three trap types, and each
-`trapeffect_*()` body already contains the hero arm combat will need.
-
-**Slices, both closed.**
-
-1. A squeaky board under an unseen monster: the `mintrap()` wrapper,
-   `trapeffect_selector()`, `trapeffect_sqky_board()`'s monster arm, and
-   `trapnote()`. Closed at `bf96cda`; moved two sessions from 4 screens to 8.
-2. A dart trap under a monster the dart misses: `t_missile()`, `thitm()`'s
-   miss path, and `trapeffect_dart_trap()`. Closed at `b51b1d2`; moved no
-   development session at all.
-
-This goal crosses `trap.c`, `monmove.c`, `mon.c` and object placement, and is
-expected to span sessions, so an implementation checklist is created when its
-first slice opens.
-
-**Closed at `628d9fe`.** Both slices ported and reviewed; the authorized
-holdout evaluation returned 138 of 3,640 screens and 30,048 of 182,022 PRNG
-values, 1 of 11 sessions — **identical to the previous three measurements**.
-Development rose 459 to 467 screens and 99,980 to 100,825 calls, all from slice
-1.
-
-**Three consecutive goals have now carried over nothing.** The pickup goal
-gained +1 development and +0 holdout; the door goal gained and carried nothing;
-this one gained 8 screens and carried nothing. Before those, the run was +21,
-+17 and a first passing holdout session.
-
-**That is weaker evidence than it looks, and the first reading of it here was
-too strong.** Those three goals were selected on boundaries blocking 2, 3 and 3
-of 33 development sessions. Under the census's own model, the chance that none
-of 11 holdout sessions stops on a 3-of-33 boundary is about 0.91^11, near 0.35;
-across the three goals the chance of seeing three zeros is roughly 0.06. That is
-low but not damning, and combined with the 1 to 8 screens each unblocked
-development session actually gained, **the last three goals were plausibly below
-an 11-session holdout's resolution.** Three zeros is then a statement about
-effect size, not proof of a broken instrument, and the honest reading is that
-the holdout cannot resolve a goal this small either way.
+**Three zeros is weaker evidence than it looks.** Those three goals were
+selected on boundaries blocking 2, 3 and 3 of 33 development sessions. Under
+the census's own model, the chance that none of 11 holdout sessions stops on a
+3-of-33 boundary is about 0.91^11, near 0.35; across the three goals the chance
+of seeing three zeros is roughly 0.06. That is low but not damning, and
+combined with the 1 to 8 screens each unblocked development session actually
+gained, the last three goals were plausibly below an 11-session holdout's
+resolution. Three zeros is then a statement about effect size, not proof of a
+broken instrument, and the honest reading is that the holdout cannot resolve a
+goal that small either way.
 
 **The census is censored rather than wrong.** It measures the first fail-closed
 boundary per development session, which is exactly the right quantity, but a
-boundary hidden behind a different refusal is invisible to it: 23 of 33 sessions
-stop on an unported hero *command*, so everything downstream of a command
-cannot be counted. Object squares are the extreme case — the commonest unported
-destination on a generated level, carrying a single census row.
+boundary hidden behind a different refusal is invisible to it: 23 of 33
+sessions stop on an unported hero *command*, so everything downstream of a
+command cannot be counted. Object squares are the extreme case, the commonest
+unported destination on a generated level and the owner of a single census row.
 
 The repair is a second column rather than a replacement: incidence **in the
 game** instead of in the session set, measured as squares per freshly generated
@@ -150,42 +54,31 @@ holdout is drawn from, which no session-set count does. Whoever commits it
 should validate it against the record above: it must retrodict low expected
 carry-over for the pickup, monster-door and trap goals, and high for the closed
 door. Until it exists, prefer goals on the path of ordinary walking, which is
-the one property the closed-door goal — the only goal whose holdout gain beat
-development — had and the three zeros did not.
+the one property the closed-door goal, the only goal whose holdout gain beat
+development, had and the three zeros did not. The goal now in progress was
+selected on exactly that basis, and states below how to falsify it.
 
-**A prediction this goal got wrong, and the census did not cause it.** The
-goal statement above said `seed1500`'s dart is a miss and that closing the miss
-path would unblock it. It does not: `seed1500` stops earlier, on `simple
-monster action requires pet cursed-object feedback`, with its random-number
-prefix unchanged by the slice.
+**Two predictions this file has recorded and then falsified.** The pickup goal
+was chosen on "fires without a player command" and gained +1 development and +0
+holdout. The trap goal stated that `seed1500`'s dart is a miss and that closing
+the miss path would unblock that session; it did not, because `seed1500` stops
+earlier, on `simple monster action requires pet cursed-object feedback`, with
+its random-number prefix unchanged by the slice. Both errors share a shape: a
+property that is necessary for the session to move but not sufficient.
 
-An earlier version of this note blamed the census for counting what a session
-*contains* rather than what it stops on. That was wrong, and the correction
-matters because it moves the fault. `scripts/scan-stops.mjs` reports "the
-fail-closed boundary the port reaches **first**" for each session -- first
-refusal is exactly what it measures. `.agents/selection.md` also states, in
-terms, that the steps behind a boundary are an upper bound and that "sessions
-blocked on one owner routinely block again on another", and it names the only
-sound measurement: apply the candidate change and re-run the scan.
+Neither error was the instrument's. `scripts/scan-stops.mjs` reports the
+fail-closed boundary each session reaches **first**, which is what it claims to
+report, and `.agents/selection.md` already states that the steps behind a
+boundary are an upper bound, that "sessions blocked on one owner routinely
+block again on another", and that the only sound measurement is to apply the
+candidate change and re-run the scan. The trap goal's trap types were read from
+the sessions' **recorded top lines** instead of from the scan, which is the
+move `AGENTS.md` forbids for implementation and is no more reliable for
+selection, and nothing re-ran the scan against the candidate before the slice
+was promised. Do not replace an instrument for a failure its own documentation
+already warns about; use it as written.
 
-Two real mistakes produced the wrong prediction, and neither is the
-instrument's. The trap types were read from the sessions' **recorded top
-lines** instead of from the scan, which is the same move `AGENTS.md` forbids
-for implementation -- a recorded trace points at an owner, it does not specify
-one -- and it is no more reliable for selection. And the documented upper-bound
-rule was not applied: nothing re-ran the scan against the candidate before the
-slice was promised.
-
-So the census's own caveats would have caught this. Do not replace an
-instrument for a failure its documentation already warns about; use it as
-written.
-
-That is the second prediction this file has recorded and then falsified: the
-pickup goal was chosen on "fires without a player command" and gained +1
-development, +0 holdout. Both errors share a shape -- a property that is
-necessary for the session to move but not sufficient.
-
-### Queued: the hero walks onto a floor square holding more than one object
+### In progress: the hero walks onto a floor square holding more than one object
 
 A walking hero steps onto a square holding two or more objects with
 `!autopickup`. `pickup.c pickup()` takes its `(autopickup && !flags.pickup)`
@@ -225,11 +118,64 @@ ordering question under `## Later milestones` due at once.
 `seed0004-feeding-pony` stops here at 26 of 409 steps, the largest single
 session ceiling left in exploration.
 
-**Unsettled, for the first slice to answer.** Whether the pile window trips the
-`flush_screen()` menu-erasure defect recorded under `## Unresolved`.
-`check_here()`'s `flush_screen(1)` runs before the window opens and no
-`pline()` runs while it is up, so probably not -- but no C differential has
-been recorded, and the first slice must record one.
+**The `flush_screen()` question, traced but not yet recorded.** Whether the
+pile window trips the menu-erasure defect under `## Unresolved` was left open
+when this goal was queued. A source trace says it does not. `pline.c:274`'s
+`if (u.ux) flush_screen()` is the only such call inside `vpline()`, and between
+`create_nhwindow()` and `destroy_nhwindow()` at `invent.c:4288-4313` there is
+no `pline()`, `You()` or `There()` -- only `putstr()`, `doname_with_price()`
+and `display_nhwindow()`. `check_here()`'s own `flush_screen(1)`
+(`pickup.c:451`) runs before the window opens. The one message that can follow
+is `read_engr_at()`'s, after `destroy_nhwindow()` has already repaired the
+corner through `docorner()`, and `js/hack.js:453` refuses an engraving on an
+admitted square regardless. The defect's two known victims are menu *search*
+prompts, which a window with no menu items cannot reach. That is a trace, not
+evidence; slice 1's differential converts it, and converts it automatically,
+because a wrong reading shows up as a mismatched pile screen.
+
+**Slices.**
+
+1. *The window itself.* A walking hero's one-square step onto a ROOM or CORR
+   square holding two to four objects, ending at the dismissed
+   `Things that are here:` window and the next command prompt. Upstream:
+   `look_here()`'s final `else` arm (`invent.c:4288-4313`) and its tty
+   realization -- `wintty.c tty_putstr()`'s NHW_MENU case (2360-2410, with
+   `compress_str()` and the `n0 > CO` line break), `tty_display_nhwindow()`'s
+   NHW_MENU arm, `dmore()`, and `tty_dismiss_nhwindow()` into
+   `erase_menu_or_text()`'s `docorner(offx, maxrow + 1, 0)`.
+2. *The count line.* `skip_objects` at `invent.c:4251-4276`
+   (`There are two/a few/several/many objects here.`), which `flags.pile_limit`
+   selects, plus explicit non-default settings including `pile_limit:0` and
+   `pile_limit:1`. Message only; no window, and none of slice 1's rendering.
+3. *A pile on a decorated square.* Lifting `js/hack.js:445`'s
+   `terrain feature description` refusal for a staircase or doorway holding a
+   pile, which adds the `dfeature` header `putstr()` pair at 4291-4294 and its
+   blank separator. This merges with the separately listed hero-destination
+   stop for a decorated square holding an object, whose `dfeature_at()` and
+   `stairs_description()` are ported already.
+
+The count line is second rather than first because the default `pile_limit` is
+5: an ordinary walk meets a two-to-four pile, and a pile of five or more is the
+rarer case that "complete common gameplay first" defers.
+
+**Where slice 1's difficulty sits: rendering, not game logic.** Three traced
+hazards, recorded here because each is invisible until it is fatal.
+`tty_display_nhwindow()` routes this NHW_MENU to `process_text_window()`
+because `cw->data` is non-NULL, while still using *menu* geometry --
+`offx = max(10, cols - maxcol - 1)`, `offy = 0`, `dmore()` offset 2 and the
+`(end)` prompt -- so neither `renderTtyMenu()` nor `displayTtyTextWindow()` is
+the right donor alone; the port needs the first one's layout and the second
+one's line loop. `maxcol` is `strlen(str) + 1` after `compress_str()`,
+maximized over every line including the heading, and one character off shifts
+the window a column and misses every cell in it, discontinuously, because
+`offx === 10` flips to a full-screen clear. And `tty_putstr()` splits a line
+wider than `CO` at the last space before column 79 and re-submits it, adding a
+row and changing `maxcol`, before `display_nhwindow()` computes any layout.
+`js/tty_menu.js:340` `displayTtyTextWindow()` hardcodes `offx = 0`;
+`dismissTtyMenu()` (`js/tty_menu.js:278-311`) already models the
+`maxrow + 1` repair that erases the `(end)` row, and is the better donor for
+it. `display_nhwindow(WIN_MESSAGE, FALSE)`'s
+`toplin == TOPLINE_NEED_MORE -> more()` arm has no owner in the port at all.
 
 ## Explicit future exploration work, outside the goal in progress
 

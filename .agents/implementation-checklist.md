@@ -1,215 +1,133 @@
-# Implementation checklist: a monster triggers a floor trap
+# Implementation checklist: the hero walks onto a floor square holding more than one object
 
 This checklist is a working record of implementation evidence for the goal
-`ROADMAP.md` opened at `f75a9da`. It supplements the required source review,
+`ROADMAP.md` opened at `24822e2`. It supplements the required source review,
 tests, fresh differentials, and the workflows in `.agents/workflow.md` and
 `.agents/review.md`.
 
-The goal holds two slices, and this checklist now covers both. Slice 1, the
-squeaky board, closed at `bf96cda`; slice 2, the dart trap, closed at
-`b51b1d2`. With both closed the goal's own scope is complete, and what remains
-`later` below belongs to other goals rather than to this one.
+The goal holds three slices. This checklist covers **slice 1**, the
+`Things that are here:` window itself. Slices 2 and 3 — the `skip_objects`
+count line and a pile on a decorated square — are `later` here and get their
+own coverage when they open.
 
 ## Boundary
 
-- Roadmap item: In progress: a monster triggers a floor trap — slice 1, a
-  squeaky board under an unseen monster, and slice 2, a dart trap under a
-  monster the dart misses.
-- Starting code commit: `f75a9da92ad9bcb0ea2180ea631ba3685db0f7c6`
-  (slice 2 starts at `16fe276673aa67dc25b0b871e008ce735c06db42`)
-- Starting event: `monmove.c postmov()` reaches its `mintrap()` call at
-  `monmove.c:1509`, for a monster whose square holds a trap.
-- Ending event: the top line the hero reads for that trap
-  (`You hear an A note squeak in the distance.`, or for slice 2
-  `The kitten is almost hit by a dart!`) and the screen drawn at the end of the
-  hero's command, with the monster scan complete. For slice 2 the dart also
-  has to be on the floor where the target stood, or in a pack if a monster
-  picked it up on a later turn.
-- Valid inputs: any seed, datetime and option set that puts a SQKY_BOARD or a
-  DART_TRAP on dungeon level one under a moving monster or pet. No new command is involved;
-  the hero's own input is an ordinary wait or move.
-- Observables: the `You_hear()` or `pline_mon()` top line, `trap->tseen` and
-  the trap glyph it exposes, every monster's `mtrapseen` and `msleeping`,
-  `mstrategy`'s wait bits, the `rn2(4)` and `rnl(5)` draws inside `mintrap()`,
-  the complete 24x80 screens and attributes, and the cursor.
-- Exclusions:
-  - Every hero arm of `trapeffect_*()`. `mintrap()` is the only caller in
-    scope; `dotrap()` is not ported, so no hero arm has a live consumer.
-  - Every trap type other than SQKY_BOARD and DART_TRAP.
-    `trapeffect_selector()` refuses them, so no state changes, no draw is
-    spent, and no output is written before the refusal.
-  - `thitm()`'s `strike` arm, and with it every monster-damage and
-    monster-death path. It needs `weapon.c dmgval()` and `mon.c monkilled()`.
-    The refusal stands after the `rnd(20)` C draws either way and before the
-    message, the damage and the missile's disposal.
-  - A dart trap that wears out (`trap.c:1299`). It needs `deltrap()`, and
-    dropping the trap from the level list is the one write in that arm no
-    later owner can reconstruct. The refusal stands after its `rn2(15)`.
-  - `mintrap()`'s `mtmp->mtrapped` branch (escape, metallivore). A SQKY_BOARD
-    never sets `mtrapped`, and `assertSimpleActionState()` in
-    `js/unported_monster_actions.js:202` refuses any monster that already
-    carries it, before the scan reaches `dochug()`.
+- Roadmap item: In progress: the hero walks onto a floor square holding more
+  than one object — slice 1, the object-pile window.
+- Starting code commit: to be filled with the full SHA of the commit this slice
+  starts from, once the roadmap and checklist commit lands.
+- Starting event: `domove_core()` completes a walking hero's one-square step
+  onto a ROOM or CORR square holding two or more objects, and reaches
+  `pickup.c pickup()` with `!flags.pickup`.
+- Ending event: the `Things that are here:` window is dismissed, the corner is
+  repaired, and the next command prompt is drawn — the complete screen and
+  cursor at the end of the hero's command.
+- Valid inputs: any seed, datetime, role, race and option set with
+  `!autopickup` that puts the hero one ordinary step from a ROOM or CORR square
+  holding two or more objects, with no boulder, trap, region, engraving or
+  decorated terrain on it. No new command is involved; the hero's input is an
+  ordinary move or run.
+- Observables: the window's heading and item lines, `offx`/`offy` geometry, the
+  `(end)` prompt and its dismissal, the `docorner()` repair, the complete 24x80
+  screens and attributes, the cursor, `multi` and the run stop `nomul(0)`
+  performs, and the random-number calls, of which this path should make none.
+- Exclusions, each to be justified from source in the table below:
+  - `skip_objects` (`invent.c:4251-4276`) — slice 2. The refusal at
+    `js/invent.js:452` stands.
+  - The `dfeature` header `putstr()` pair at `4291-4294` — slice 3. The refusal
+    at `js/hack.js:445` stands and admits no decorated square.
+  - `will_feel_cockatrice()`, `Blind`, `u.uswallow`, `is_pool`/`is_lava`,
+    `visible_region_at()`, a seen trap, and an engraving. Each is refused
+    before this path today; the row for each must cite the refusal and show it
+    precedes any state change, draw or output.
+  - `autopick()` and `pickup_object()` — the whole autopickup arm.
+    `js/hack.js:431` refuses `flags.pickup` first.
 
 ## How the candidate list was built
 
-- Upstream entry points: `trap.c mintrap()` (3733-3840),
-  `trap.c trapeffect_selector()` (2937-2992),
-  `trap.c trapeffect_sqky_board()` (1402-1476), `trap.c trapnote()`
-  (3062-3077), `trap.c floor_trigger()` (1060-1082),
-  `trap.c check_in_air()` (1085-1095), `trap.c trapeffect_dart_trap()`
-  (1251-1321), `trap.c t_missile()` (1018-1027), `trap.c thitm()` (6711-6773),
-  `worn.c find_mac()`, `mondata.c mon_learns_traps()` (1628)
-  and `mons_see_trap()` (1640-1657), `mon.c wake_nearto_core()` (4373-4400),
-  `monmove.c postmov()` (1453-1705).
-- Dispatch tables and catalogs: `trapeffect_selector()`'s switch over
-  `trap->ttyp` is the dispatch table; `mklev.c traptype_rnd()` bounds which of
-  its cases dungeon level one can produce. `trapnote()`'s `tnnames[]` is the
-  twelve-entry note table, indexed by `trap->tnote`, which
-  `trap.c choose_trapnote()` (already ported) fills at generation.
-- Reachable helpers: traced from `postmov()`'s `mintrap()` call through every
-  branch of the `!mtmp->mtrapped` arm, into `trapeffect_selector()`'s
-  SQKY_BOARD case and both halves of its monster arm, and out through
-  `wake_nearto()`. `Soundeffect()` is a tty-sound hook that writes nothing to
-  the terminal the recorder captures.
-- JavaScript cross-check:
-  - `grep -n "trap activation" js/` returned `js/monmove.js:2407` and
-    `js/unported_monster_actions.js:588` — the two refusals this slice pays
-    for.
-  - `grep -rn "wake_nearto\|mons_see_trap\|mon_learns_traps\|seetrap" js/`
-    returned only `js/mon.js:789 wake_nearto`; the other three were absent.
-  - `grep -n "FLOOR_TRIGGER_TRAPS\|fixedTeleportTrap" js/monmove.js` returned
-    the two private copies of `trap.c` predicates that this slice moves into
-    `js/trap.js`.
-- Remaining limits: the checklist covers SQKY_BOARD and DART_TRAP. The other
-  seven trap types the goal names are in the goal but in neither slice, and are
-  recorded as `later` rather than traced branch by branch.
+- Upstream entry points: `invent.c look_here()` (4104-4315), and in particular
+  its final `else` arm (4285-4312); `pickup.c pickup()`'s
+  `(autopickup && !flags.pickup)` early return into `check_here()`;
+  `win/tty/wintty.c tty_putstr()`'s NHW_MENU case, `tty_display_nhwindow()`'s
+  NHW_MENU arm, `process_text_window()`, `dmore()`,
+  `tty_dismiss_nhwindow()` and `erase_menu_or_text()`; `topl.c`'s
+  `display_nhwindow(WIN_MESSAGE, FALSE)` arm.
+- Dispatch tables and catalogs: `doname_with_price()` and the object naming it
+  reaches; `flags.pile_limit`, which selects between the count line and this
+  window; the `compress_str()` and `CO` line-break behavior that decides how
+  many rows the window occupies.
+- Reachable helpers: to be completed by the worker. Every call inside the
+  final `else` arm and every tty function it reaches must be traced through the
+  ending event, including the `n0 > CO` recursion in `tty_putstr()`.
+- JavaScript cross-check: `js/hack.js:432` throws
+  `unsupported hero move: floor object pile`; `js/invent.js:451-456` throws
+  `the object-pile menu`; `js/tty_menu.js:340` `displayTtyTextWindow()`
+  hardcodes `offx = 0`. Both throws and the hardcoded offset were read at
+  `24822e2`. The worker records the searches it runs for further stops.
+- Remaining limits: the candidate list is incomplete until the worker completes
+  `Reachable helpers` and `JavaScript cross-check`. The tty geometry is the
+  part most likely to hide a candidate, because a wrong `maxcol` misses every
+  cell in the window rather than one.
 
 ## Status values
 
-Statuses follow `.agents/implementation-checklist-template.md`.
+Assign exactly one status to every row: `done`, `no-effect-yet`, `later`,
+`cannot-occur`, `missing`, or `undecided`, as
+`.agents/implementation-checklist-template.md` defines them.
 
 ## Implementation table
 
 | Upstream function or branch family | Reachability and ordering | JavaScript owner | State, randomness, and output | Evidence | Status | Next action |
 | --- | --- | --- | --- | --- | --- | --- |
-| `postmov()`'s `mintrap()` call and return handling (monmove.c:1509-1516) | Runs for every `MMOVE_MOVED`, after `newsym(omx, omy)` and before the door block | `js/monmove.js postmov()` | No draw of its own; `Trap_Killed_Mon`/`Trap_Moved_Mon` return `MMOVE_DIED`, `mon_offmap()` returns `MMOVE_DONE` | monmove.c:1508-1517; `scripts/monmove.test.mjs` | done | none |
-| `mintrap()` wrapper, `!trap` arm | `t_at()` empty; C clears `mtrapped` | `js/trap.js mintrap()` | Writes `mtmp->mtrapped = 0` | trap.c:3739-3740 | done | none |
-| `mintrap()` wrapper, `mtmp->mtrapped` arm | Needs a monster already held; `assertSimpleActionState()` refuses one before `dochug()` | `js/trap.js mintrap()` | Would draw `rn2(40)`, `rn2(2)` | trap.c:3741-3789; js/unported_monster_actions.js:202 | cannot-occur | none |
-| `mintrap()` `fixed_tele_trap()` force | TELEP_TRAP with a fixed destination only | `js/trap.js fixed_tele_trap()` | Sets FORCETRAP | trap.c:3798-3801 | done | none |
-| `mintrap()` steed and Sokoban skips | `u.usteed` needs `#ride`; `Sokoban` needs the Sokoban branch | `js/trap.js mintrap()` | No state change; both are empty C statements | trap.c:3803-3807 | done | none |
-| `mintrap()` `floor_trigger() && check_in_air()` early return | Any floor trap under a flyer or floater | `js/trap.js floor_trigger()`, `check_in_air()` | Returns before any draw or output | trap.c:3808-3811 | done | none |
-| `mintrap()` `already_seen && rn2(4)` early return | Needs `mon_knows_traps(mtmp, tt)`, which `mons_see_trap()` sets for onlookers | `js/trap.js mintrap()` | Draws `rn2(4)` | trap.c:3812-3813 | done | none |
-| `mon_learns_traps()` and `mons_see_trap()` | Always, once past the early returns | `js/mondata.js` | Writes `mtrapseen` on the victim and on every eyed, sighted, non-mindless monster within range | mondata.c:1628-1657 | done | none |
-| `mintrap()` `trap->madeby_u && rnl(5)` | Needs a hero-set trap; `maketrap()` clears `madeby_u` for generated traps | `js/trap.js mintrap()` | Draws `rnl(5)`, then `setmangry()` | trap.c:3820-3821; js/trap.js resetTrap() | done | none |
-| `mintrap()` `maybe_unhide_at` tail | Needs `mtmp->mtrapped` set by the effect; SQKY_BOARD never sets it | `js/trap.js mintrap()` | `maybe_unhide_at()`, `pline_mon()` | trap.c:3827-3835 | cannot-occur | none |
-| `trapeffect_selector()` SQKY_BOARD case | The slice's case | `js/trap.js trapeffect_selector()` | Dispatch only | trap.c:2950 | done | none |
-| `trapeffect_selector()` DART_TRAP case | Slice 2's case | `js/trap_effects.js trapeffect_selector()` | Dispatch only | trap.c:2946 | done | none |
-| `trapeffect_selector()` every other case | In the goal, in neither slice | `js/trap_effects.js trapeffect_selector()` | Refuses before any draw or output | trap.c:2942-2989 | later | a later trap goal |
-| `trapeffect_sqky_board()` hero arm | `dotrap()` is the only caller that supplies the hero, and it is unported | `js/trap.js trapeffect_sqky_board()` | none | trap.c:1416-1436 | later | port with the hero trap goal |
-| `trapeffect_sqky_board()` `m_in_air()` early return | A clinger that `check_in_air()` let through | `js/monmove.js m_in_air()` | Returns before output | trap.c:1440-1441 | done | none |
-| `trapeffect_sqky_board()` in-sight, hearing arm | `canseemon()` true and `!Deaf` | `js/trap.js trapeffect_sqky_board()` | `pline_mon()` and `seetrap()`, which writes `tseen` and repaints | trap.c:1444-1451 | done | none |
-| `trapeffect_sqky_board()` in-sight, deaf arm | `canseemon()` true, `Deaf`, `!mindless()` | `js/trap.js trapeffect_sqky_board()` | `pline_mon()` only; no `seetrap()` | trap.c:1452-1456 | done | none |
-| `trapeffect_sqky_board()` out-of-sight arm | `canseemon()` false | `js/trap.js trapeffect_sqky_board()` | `You_hear()` with the near/far threshold | trap.c:1457-1471 | done | none |
-| `trapnote()` | Both message arms | `js/trap.js trapnote()` | Pure | trap.c:3062-3077 | done | none |
-| `wake_nearto(mx, my, 40)` | Unconditional tail of the monster arm | `js/mon.js wake_nearto()` | `wake_msg()` output, `msleeping`, `mstrategy`, buried zombies | trap.c:1473 | done | none |
-| `trapeffect_dart_trap()` hero arm | `dotrap()` is the only caller that supplies the hero, and it is unported | `js/trap_effects.js trapeffect_dart_trap()` | none | trap.c:1259-1292 | later | port with the hero trap goal |
-| `trapeffect_dart_trap()` misfire arm | Needs `trap->once && trap->tseen`, so a second firing on a trap the hero has already seen | `js/trap_effects.js trapeffect_dart_trap()` | Draws `rn2(15)`, then refuses before the message and `deltrap()` | trap.c:1298-1307 | later | needs `deltrap()`; unit-tested only, see Validation |
-| `trapeffect_dart_trap()` monster arm body | The slice's path: `trap->once = 1`, `t_missile()`, `rn2(6)` poison, `seetrap()` when in sight | `js/trap_effects.js trapeffect_dart_trap()` | Writes `trap->once`; draws `rn2(6)`; `seetrap()` writes `tseen` and repaints | trap.c:1308-1313 | done | none |
-| `t_missile()` | Both callers; only the DART one is reachable here | `js/trap_effects.js t_missile()` | `mksobj()` draws; writes `quan`, `owt`, `opoisoned`, `ox`, `oy` | trap.c:1018-1027 | done | none |
-| `thitm()` to-hit roll | Always, once the dart exists | `js/trap_effects.js thitm()` | Draws `rnd(20)`; reads `find_mac()` | trap.c:6720-6725 | done | none |
-| `thitm()` `!strike` arm | The slice's path | `js/trap_effects.js thitm()` | `pline_mon()` when `cansee()`, via `doname()` which discovers the type; `place_object()` and `stackobj()` | trap.c:6730-6734, 6766-6769 | done | none |
-| `thitm()` `strike` arm | Needs the roll to land | `js/trap_effects.js thitm()` | Refuses after the `rnd(20)`, before message, `dmgval()`, `monkilled()` and `dealloc_obj()` | trap.c:6735-6765 | later | needs `dmgval()` and `monkilled()` |
-| `thitm()` `d_override` and `nocorpse` parameters | No caller in scope passes either; `trapeffect_dart_trap()` passes 0 and FALSE | `js/trap_effects.js thitm()` | — | trap.c:6711-6716 | cannot-occur | none |
-| `worn.c find_mac()` and `ARM_BONUS()` | `thitm()`'s to-hit roll reads the target's armor class | `js/worn.js find_mac()`, `js/obj.js ARM_BONUS()`, `greatest_erosion()` | Pure | worn.c; `scripts/worn.test.mjs` | done | none |
+| `look_here()` final `else` arm, 4285-4312 | Runs when `otmp && otmp->nexthere && !skip_objects` and no earlier guard holds; after `pickup()`'s early return and `check_here()`'s `flush_screen(1)` | `js/invent.js look_here()` | Writes the window; no draw | `js/invent.js:452` refuses it today | `missing` | Port the arm |
+| `display_nhwindow(WIN_MESSAGE, FALSE)` and its `TOPLINE_NEED_MORE -> more()` arm | First statement of the arm | None found | May emit a `--More--` | No owner located at `24822e2` | `missing` | Locate or port the owner; decide whether the arm can fire here |
+| `tty_putstr()` NHW_MENU case, incl. `compress_str()` and the `n0 > CO` split | Once per `putstr()`, before any layout | `js/tty_menu.js` | Sets `maxcol`, `maxrow` | — | `missing` | Port; the split changes both |
+| `tty_display_nhwindow()` NHW_MENU arm, `offx = max(10, cols - maxcol - 1)`, `offy = 0`, dispatch to `process_text_window()` because `cw->data` is set | After every `putstr()` | `js/tty_menu.js`; neither existing path fits alone | Draws the window | `displayTtyTextWindow()` hardcodes `offx = 0` | `missing` | Port a path with menu geometry and the text line loop |
+| `dmore()` and the `(end)` prompt at `offx + 1` | After the last line | `js/tty_menu.js` | Draws the prompt; consumes the dismissing key | — | `missing` | Port |
+| `tty_dismiss_nhwindow()` -> `erase_menu_or_text()` -> `docorner(offx, maxrow + 1, 0)` | On dismissal | `js/tty_menu.js dismissTtyMenu()` already models `maxrow + 1` | Repaints the corner | — | `undecided` | Confirm the existing repair applies unchanged |
+| `read_engr_at()` after `destroy_nhwindow()` | Last statement of the arm | `js/invent.js readEngraving()` | Would print | `js/hack.js:453` refuses an engraving on an admitted square | `cannot-occur` | Cite the refusal in the row's evidence |
+| `feel_cockatrice()` / `will_feel_cockatrice()` inside the loop | Corpse only | `js/invent.js` | Breaks the loop early | `js/invent.js:457` refuses it | `later` | Slice outside scope |
+| `skip_objects` count line, 4251-4276 | `flags.pile_limit` selects it | `js/invent.js` | Message only | `js/invent.js:452` refuses it | `later` | Slice 2 |
+| `dfeature` header `putstr()` pair, 4291-4294 | Decorated square only | `js/invent.js` | Two extra lines | `js/hack.js:445` refuses it | `later` | Slice 3 |
+| `pickup()`'s `nomul(0)` run stop | On the same path | `js/pickup.js check_here()` | Sets `multi` | Reported already ported | `undecided` | Confirm by execution, not by reading |
 
 ## Missing work by owner
 
-None.
+1. `js/tty_menu.js`: the NHW_MENU-geometry text window, `tty_putstr()`'s
+   NHW_MENU case with the `CO` split, `dmore()` and the `(end)` prompt, and the
+   `docorner()` repair. Prerequisite for the rest, because the window cannot be
+   validated without it.
+2. `js/invent.js look_here()`: the final `else` arm, replacing the
+   `the object-pile menu` half of the throw at 451-456 and leaving the
+   `skip_objects` half standing.
+3. `js/hack.js requireSimpleHeroDestination()`: drop the `nexthere` throw at
+   432 and keep every other refusal.
+4. `display_nhwindow(WIN_MESSAGE, FALSE)`: find or port an owner, and settle
+   whether its `more()` arm can fire on this path.
 
 ## Validation
 
-Record evidence for the exact committed head that will be reviewed.
-
-- Commit checked:
-  21cea25678630be92405ccfda3c61b38bc0fc54a
-- Source review: every branch reachable from `postmov()`'s `mintrap()` call
-  through the end of the hero's command was traced against
-  `nethack-c/upstream/src/trap.c`, `mondata.c`, `mon.c` and `worn.c` at that
-  commit, in the order C evaluates them, including which gates precede each
-  draw. Slice 1's two upstream findings stand: `m_harmless_trap()`'s inline
-  flight test and its private `FLOOR_TRIGGER_TRAPS` set were duplicates of
-  `check_in_air(mtmp, 0L)` and `floor_trigger()`, and `postmov()`'s `species`
-  was latched at entry where `monmove.c:1517` reassigns `ptr` after
-  `mintrap()`. Slice 2 added one: three private copies of `ARM_BONUS()` existed
-  in `find_ac()` and `m_dowear()` before `find_mac()` needed a fourth, so the
-  port now has one. Remaining stops inside the boundary are
-  `trapeffect_selector()`'s 21 unported types, `thitm()`'s `strike` arm, the
-  dart trap's misfire arm, `mintrap()`'s `mtmp->mtrapped` arm, its
-  `setmangry()` call behind `trap->madeby_u`, and its `maybe_unhide_at()` tail;
-  each stops before changing state, drawing, or writing a message, and each
-  raises a converted class rather than a bare `TypeError`.
-- Focused tests: `node --test scripts/monmove.test.mjs`,
-  `scripts/monster-squeaky-board.test.mjs`, `scripts/monster-dart-trap.test.mjs`
-  and `scripts/worn.test.mjs` all pass.
-- Full suite: `npm test` reports 2,033 tests, 2,033 pass, 0 fail, measured by
-  the orchestrator at the commit above. The head is the applied-fix commit
-  for the b7cc9a3..b51b1d2 correctness pass, so the evidence below covers the
-  slice and the eighteen findings applied on top of it.
-- Generated-file checks: `check:extcmds`, `check:monsters`, `check:objects`,
-  `check:symbols`, `check:themerooms` and `check:namespace-members` all pass.
-  No generator in either slice's areas produces a file it changed.
-- Fresh differentials, slice 2: `TZ=America/New_York node
-  scripts/run-monster-dart-trap.mjs` reports `PASS: 9 segments, 47465 PRNG
-  calls, 949 screens, 949 cursors, 0 animation frames`. Four cases put the
-  victim in sight (plain, poisoned through the arm's `rn2(6)`, corroded through
-  `mksobj_init()`'s erosion, and a second plain), five put it out of sight
-  where the dart lands silently, and three carry a pet.
-- Fresh differentials, slice 1, re-run at this head as a regression check:
-  `TZ=America/New_York node scripts/run-monster-squeaky-board.mjs` still
-  reports `PASS: 10 segments, 47504 PRNG calls, 2084 screens, 2084 cursors, 0
-  animation frames`.
-- Development suite: `node scripts/score-development.mjs` matches 467 of 7,765
-  screens, 467 cursors and 100,825 of 610,816 random-number values, measured by
-  the orchestrator at this head. That is identical to `16fe276`, call for call
-  and screen for screen: **slice 2 moved no development session**. `ROADMAP.md`
-  predicted `seed1500-rogue-explore-move`'s dart would unblock it. It does not
-  — that session stops earlier, on `simple monster action requires pet
-  cursed-object feedback`, with its random-number prefix unchanged. The slice's
-  whole evidence is therefore its fresh matrix and its tests.
-- Quality check: the orchestrator owns `npm run quality`, per
-  `.claude/agents/slice-worker.md`. Gate and advisory are clear at this head.
-  `js/trap_effects.js` is assigned to `world-effects` in `QUALITY.json`;
-  `js/worn.js` and `js/obj.js` are `objects`, and
-  `js/u_init_inventory_attrs.js` is `hero`, whose review frontiers this slice's
-  window does not reach back to.
-- Browser check: not required. `.agents/validation.md` limits browser checks to
-  browser-specific code, DOM/CSS, input/storage, and browser-only
-  presentation; both slices change engine code and write through the existing
-  message and glyph owners.
+- Commit checked: not yet — slice 1 has not started.
+- Source review: pending.
+- Focused tests: pending.
+- Full suite: `npm run checkpoint` passes at `24822e2`, before the slice.
+- Generated-file checks: all five pass at `24822e2`.
+- Fresh differentials: pending. A candidate case reported as reaching the
+  boundary is seed `7300031`, datetime `20310203040506`, a female neutral human
+  Valkyrie with `pettype:none,!autopickup`, moves `"j"`, stepping from `<47,2>`
+  onto a two-object ROOM square at `<47,3>`. **This is a reported candidate,
+  not verified evidence**: the worker confirms it independently, then varies
+  pile size, `quan > 1` stacks, a corridor square, a name long enough to drive
+  `offx` toward 10, and a run that the pile stops.
+- Development suite: 467/7765 screens, 100,825/610,816 random-number values,
+  1/33 sessions at `24822e2`, measured before the slice.
+- Quality check: gate clear, advisory clear at `24822e2`.
+- Browser check: required if the tty rendering changes reach browser-only
+  presentation; `.agents/validation.md` otherwise exempts a shared-renderer
+  change. Decide when the diff exists.
 
 ## Readiness
 
-Current mode: Ready for audit
+Current readiness: `Implementation`
 
-Reason: every row is `done`, `later` or `cannot-occur` with its evidence; the
-source review above traces every branch reachable through the ending event for
-both slices; all required validation passes at `b51b1d2`; the production game
-executes every `done` path, shown by the nineteen fresh segments across the two
-matrices; and every branch the slices exclude -- the 21 unported trap types,
-`thitm()`'s `strike` arm, the dart trap's misfire arm, `mintrap()`'s
-trapped-monster arm, and every hero arm -- stops before changing state,
-consuming randomness, or producing output, raising a class
-`ELAPSED_TURN_PLANNING_REFUSALS` converts.
-
-Two qualifications to carry into the pass, neither of which blocks it:
-
-- The dart trap's misfire arm has unit coverage only. It needs a second firing
-  on a trap the hero has already seen, and the 20,000 seeds
-  `scripts/run-monster-dart-trap.mjs` records scanning produced none, so the
-  `rn2(15)` gate is pinned by test rather than by a fresh case. A separate scan
-  of roughly 6,000 seeds found no pet victim, so `thitm()` against a pet is
-  likewise test-only. The two figures are two scans for two branches; an
-  earlier version of this note wrongly attributed both to one.
-- Slice 2 moved no development session, so its fresh matrix and its tests are
-  the whole of its end-to-end evidence. The roadmap's prediction that it would
-  unblock `seed1500` was wrong, and the reason is recorded under Validation.
+Reason: no row is `done`; slice 1 has not started.
