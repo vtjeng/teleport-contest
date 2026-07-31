@@ -77,68 +77,6 @@ selection, and nothing re-ran the scan against the candidate before the slice
 was promised. Do not replace an instrument for a failure its own documentation
 already warns about; use it as written.
 
-### In progress: the hero rides a saddled steed
-
-`#ride` is the whole remaining debt of `seed0103-knight-ride-pony` and
-`seed0104-knight-ride-combat`, and `scripts/scan-debt.mjs` rates it 82 screens
-of `gated` and 82 of `advance`, equal because nothing stands behind it in either
-session. Both stop the moment the command dispatches: `seed0103` at step 11 of
-60 and `seed0104` at step 10 of 43.
-
-**Upstream owners.** `cmd.c extcmdlist[]:1833` binds `ride` to `doride` with
-`AUTOCOMPLETE`. `steed.c doride()` (177-192) dismounts through
-`dismount_steed(DISMOUNT_BYCHOICE)` when `u.usteed` is set, and otherwise calls
-`getdir((char *) 0)`, checks `isok(u.ux + u.dx, u.uy + u.dy)`, and returns
-`mount_steed(m_at(...), forcemount) ? ECMD_TIME : ECMD_OK`. The `wizard` arm
-asking "Force the mount to succeed?" is debug-mode only and out of scope.
-`steed.c mount_steed()` (194-383) runs fourteen guard branches, then the
-impairment roll at 338-356, then the success path at 358-382.
-
-**The roll and the two outcomes.** `u.ulevel + mtmp->mtame < rnd(MAXULEV / 2 + 5)`
-is one `rnd(20)` call, `MAXULEV` being 30. Failing it prints
-`You("slip while trying to get on %s.")` and calls
-`losehp(Maybe_Half_Phys(rn1(5, 10)), buf, NO_KILLER_PREFIX)`, a second
-random-number call, where `buf` comes from `x_monnam()` with
-`SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION`. Passing it runs
-`maybewakesteed()`, `You("mount %s.")`, `u.usteed = mtmp`,
-`steed_vs_stealth()`, `remove_monster()`, `teleds(..., TELEDS_ALLOW_DRAG)` and
-`disp.botl = TRUE`. `seed0103` records the slip at step 12, so the failing arm
-is the one an ordinary case reaches first.
-
-Both sessions are Knights, which matters at 308: `!Role_if(PM_KNIGHT)` exempts
-the role from the `--mtmp->mtame` decrement that untames an ordinary pet.
-
-**What the port has and lacks.** `m_at()` and `remove_monster()` are ported in
-`js/monst.js` and `can_saddle()` in `js/dog.js`. `js/steed.js` does not exist.
-`cmd.c getdir()` (3958) is absent, and its `yn_function("In what direction?")`
-adds an input boundary the port has never had; `js/options.js:1445` names
-`getdir.self` only as an option string. `hack.c losehp()` (4256) is absent, as
-are `can_ride()`, `teleds()`, `steed_vs_stealth()`, `maybewakesteed()`,
-`dismount_steed()` (`steed.c:576`) and `x_monnam()`. `u.usteed` is read at
-`js/hack.js:544`, `js/hack.js:963`, `js/hack.js:1453`, `js/light.js:138` and
-`js/engrave.js:169`, and nothing writes it.
-
-**Slices.**
-
-1. *The direction prompt.* `cmd.c getdir()` and the `yn_function` boundary it
-   opens, driven by `#ride` up to the point where `doride()` calls
-   `mount_steed()`. Ends at the recorded screen for the direction key. This is
-   the prerequisite both later slices need, and it is the first place the port
-   has to wait for input inside an extended command.
-2. *The failed mount.* `mount_steed()`'s guards, the `rnd(20)` impairment roll,
-   the slip message and `losehp()` with `rn1(5, 10)`. `seed0103` step 12 is the
-   recorded case. Ends at the screen after the hit-point loss.
-3. *The successful mount and dismount.* The success path at 358-382, `u.usteed`
-   becoming live, and `dismount_steed()` for the second `#ride`. Riding
-   movement and combat belong to whatever `seed0104` needs after mounting, and
-   the slice-selector reads that session's next boundary once slice 2 lands.
-
-**One risk, recorded before it is met.** Every extended-command goal draws its
-prompt into the `flush_screen()` defects under `## Unresolved`; that entry names
-this goal. `getdir()` calls `yn_function()`. The two known victims reach it
-through menu search prompts, and this query draws on the top line, so slice 1's
-differential settles whether this goal trips them.
-
 ### In progress: the hero eats
 
 `scripts/scan-debt.mjs` rates `eat` 3,073 screens of `gated` across 11 of the 33
@@ -283,6 +221,18 @@ it. `display_nhwindow(WIN_MESSAGE, FALSE)`'s
 
 ## Explicit future exploration work
 
+- Riding movement and riding combat, which is where `seed0104-knight-ride-combat`
+  stops now. `domove()` refuses a mounted hero: C carries the steed through
+  `stucksteed()`, the `<mx,my>` updates, `exercise_steed()` and `u_on_newpos()`,
+  none ported, and that refusal costs that session nine screens it would
+  otherwise match. Whoever takes it inherits one traced constraint worth not
+  re-deriving: **only a Knight can reach a saddled steed at all.**
+  `dog.c:263-268` puts a saddle on a starting pet only when
+  `pettype == PM_PONY`, `role.c:209` gives that `petnum` to the Knight alone,
+  and `u.uroleplay.pauper` suppresses the saddle even then. Every other route to
+  a tame saddled monster needs `#apply` or a taming effect. That is why
+  `mount_steed()`'s `!Role_if(PM_KNIGHT)` tame decrement at `steed.c:308` has no
+  recordable case and is pinned by a focused test instead.
 - Hero or monster combat, including attacks, retaliation, monster-initiated
   displacement, knockback, damage, death, corpses, weapon selection, ranged
   attacks, spells, passives, and special damage.
@@ -634,6 +584,21 @@ rather than surface as a screen mismatch several goals later. Take option 2
 when a leak escapes the five cases above, or when the field list next grows.
 
 ### Game behavior
+
+#### a drawbridge wall answers "It's a wall."
+
+`hack.c:1048` prints `"That drawbridge is up!"` when `is_db_wall(x, y)` holds
+inside `test_move()`'s closing obstacle arm. `DBWALL` satisfies `IS_WALL()`, so
+`js/hack.js`'s type refusal lets it through and the port prints `"It's a wall."`
+instead. It is a silent divergence rather than a refusal: nothing stops, and the
+first evidence would be a screen mismatch.
+
+The audit-fix agent for the `c706db8a6..ed43517` pass found this while applying
+a neighbouring finding and left it, correctly, because it sat outside the
+confirmed set. No level this port generates holds a drawbridge today, so no
+recorded case reaches it. Fold it into whichever correctness range next reads
+`test_move()`, or into the drawbridge work, whichever comes first.
+
 
 #### `nomul()` has two owners and they disagree
 
