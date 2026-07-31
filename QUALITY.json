@@ -4452,6 +4452,79 @@
         ]
       },
       "recordedAt": "2026-07-30T22:13:55.711Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "world-effects": "bf96cda5edec310cfa12590706216ca5263af2f1",
+        "monsters": "bf96cda5edec310cfa12590706216ca5263af2f1"
+      },
+      "head": "21cea25678630be92405ccfda3c61b38bc0fc54a",
+      "auditedRange": "bf96cda5edec310cfa12590706216ca5263af2f1..21cea25678630be92405ccfda3c61b38bc0fc54a",
+      "areas": [
+        "world-effects",
+        "monsters"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light audit-diff-correctness pass over bf96cda..21cea25, three finders (correctness, tests, variable-trace); readability was dropped, which is what light mode drops. 10 raw, 9 deduped, 9 confirmed, 9 applied, 0 deferred, 0 rejected, 0 unverified, no warnings. Applied at 628d9fe. The range was widened from the intended b7cc9a3..b51b1d2 because record-review correctly refused to advance the frontier over 8de4b76, the audit-fix commit for the previous pass, whose twenty-five production lines across js/mon.js, js/monmove.js and js/trap_effects.js no pass had read; audit-worktree.mjs cannot scope that tail alone, which is filed in .agents/proposals.md. Five of the nine findings land on 21cea25, the previous pass's own applied fixes, which answers whether a fix needs auditing. The worst was a test added at 21cea25 that pinned wrong behavior: it made a monster minvis to separate C's in_sight and cansee() gates, which also makes canspotmon() false, so C's Monnam() answers It through x_monnam()'s do_it branch at do_name.c:863 while the port answers the species name. The fixture now grants detection, keeping canspotmon() true, and both gates are asserted directly; the missing do_it branch is a silent divergence with no refusal behind it and is recorded under ## Unresolved, unreachable today because nothing on level one sets minvis and assertSimpleActionState() refuses is_hider. Two production defects fixed: mintrap()'s random proof covered only its own two draws while the dart arm needs three more, so the late check ran after mtrapseen was written and raised an unconverted bare TypeError; and the freeze detector's typed-array snapshot missed vision.c's spare COULD_SEE and rmin/rmax buffers, which are unreachable from the state and are precisely what vision_recalc() writes. Six test gaps closed, including both halves of mintrap()'s eager proof, which nothing pinned in either direction, and wake_msg()'s coordinate prefix, which unwrapping left every test and every score unchanged. Validation at the applied head: 2,035 tests pass; development holds at 467 of 7,765 screens, 467 cursors and 100,825 of 610,816 random-number values; the dart matrix passes 9 segments, 47,465 calls and 949 screens; the squeaky-board matrix passes 10 segments, 47,504 calls and 2,084 screens; generated-data and namespace checks pass.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2064,
+        "counts": {
+          "raw": 10,
+          "deduplicated": 9,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 6,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "mintrap() proved only rn2 and rnl before its first write, while the dart arm it dispatches to needs rn1, rnd and rne; that late check ran after mon_learns_traps() had written mtrapseen and after the rn2(4) and rnl(5) gates could draw, and raised a bare TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The freeze detector's typed-array snapshot reached only the COULD_SEE buffer game.viz_array points at; the spare row set and both rmin/rmax pairs are module-level, unreachable from the state, and are exactly what vision_recalc() writes.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [],
+        "rejections": [],
+        "mutation": {
+          "mutants": 17,
+          "survivors": 4,
+          "byKind": {
+            "boolean": {
+              "ran": 7,
+              "killed": 6
+            },
+            "logical": {
+              "ran": 5,
+              "killed": 5
+            },
+            "relational": {
+              "ran": 5,
+              "killed": 2
+            }
+          },
+          "finderConclusion": "Carried from the b7cc9a3..b51b1d2 run, whose target lines this range does not change: 17 mutants of kind relational, logical and boolean under a whole-suite verdict, 4 survivors, each with a reason no test can remove. Three are equivalent mutants (greatest_erosion()'s tie, find_mac()'s cap at exactly plus or minus AC_MAX, and thitm()'s !obj branch, which trapeffect_dart_trap() never takes) and one is nocorpse, read only by the refused strike arm. This pass's own subject, 8de4b76's twenty-five production lines, is a set of refusals and a message wrapping rather than operators, and the tests finder reached the same conclusion the mutation run would: the wake_msg() wrapping was killed by nothing, which is why it now has an accessiblemsg case."
+        }
+      },
+      "recordedAt": "2026-07-31T01:04:17.298Z"
     }
   ]
 }
