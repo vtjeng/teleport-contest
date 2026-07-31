@@ -131,7 +131,7 @@ None.
 Record evidence for the exact committed head that will be reviewed.
 
 - Commit checked:
-  b51b1d2fd167f297bd36e5a2248bb1ba7c5a7c50
+  21cea25678630be92405ccfda3c61b38bc0fc54a
 - Source review: every branch reachable from `postmov()`'s `mintrap()` call
   through the end of the hero's command was traced against
   `nethack-c/upstream/src/trap.c`, `mondata.c`, `mon.c` and `worn.c` at that
@@ -151,8 +151,10 @@ Record evidence for the exact committed head that will be reviewed.
 - Focused tests: `node --test scripts/monmove.test.mjs`,
   `scripts/monster-squeaky-board.test.mjs`, `scripts/monster-dart-trap.test.mjs`
   and `scripts/worn.test.mjs` all pass.
-- Full suite: `npm test` reports 1,984 tests, 1,984 pass, 0 fail, measured by
-  the orchestrator at the commit above.
+- Full suite: `npm test` reports 2,033 tests, 2,033 pass, 0 fail, measured by
+  the orchestrator at the commit above. The head is the applied-fix commit
+  for the b7cc9a3..b51b1d2 correctness pass, so the evidence below covers the
+  slice and the eighteen findings applied on top of it.
 - Generated-file checks: `check:extcmds`, `check:monsters`, `check:objects`,
   `check:symbols`, `check:themerooms` and `check:namespace-members` all pass.
   No generator in either slice's areas produces a file it changed.
@@ -202,11 +204,12 @@ consuming randomness, or producing output, raising a class
 Two qualifications to carry into the pass, neither of which blocks it:
 
 - The dart trap's misfire arm has unit coverage only. It needs a second firing
-  on a trap the hero has already seen; a scan of roughly 6,000 seeds produced
-  none, so the `rn2(15)` gate is pinned by test rather than by a fresh case.
-  The same scan found no pet victim, so `thitm()` against a pet is likewise
-  test-only. `scripts/run-monster-dart-trap.mjs` records both gaps in its
-  header.
+  on a trap the hero has already seen, and the 20,000 seeds
+  `scripts/run-monster-dart-trap.mjs` records scanning produced none, so the
+  `rn2(15)` gate is pinned by test rather than by a fresh case. A separate scan
+  of roughly 6,000 seeds found no pet victim, so `thitm()` against a pet is
+  likewise test-only. The two figures are two scans for two branches; an
+  earlier version of this note wrongly attributed both to one.
 - Slice 2 moved no development session, so its fresh matrix and its tests are
   the whole of its end-to-end evidence. The roadmap's prediction that it would
   unblock `seed1500` was wrong, and the reason is recorded under Validation.
