@@ -109,11 +109,16 @@ occupation; `done_eating()` (543-573) and `eatmdone()` (162-177) end it.
    names no food prints `You cannot eat that!` and returns `ECMD_OK`, spending
    no turn. Nothing is eaten, so `start_eating()` stays refused. This slice
    reuses the `getdir()`-era input boundary and adds none.
-2. *Eating a food item in one bite.* The `otmp->oclass == FOOD_CLASS` path for
-   an object whose `oeaten` nutrition is consumed in a single turn, through
-   `done_eating()`. Excludes corpses, tins and anything multi-turn.
-3. *The multi-turn occupation.* `start_eating()`, `eatfood()` and the
-   `occupation` machinery, which is the first occupation the port would own.
+2. *Eating a food that takes one turn.* The `FOOD_CLASS` path for an object
+   whose `oc_delay` gives `svc.context.victual.reqtime == 1`, through
+   `start_eating()` and `done_eating()`. **`start_eating()` cannot be deferred
+   to slice 3**: `eat.c` enters it for every food, and `reqtime == 1` only
+   selects the word "eat" over "begin eating" at `eat.c:3044`. So this slice
+   owns `svc.context.victual` and the one-turn path through it. Excludes
+   corpses and tins.
+3. *The multi-turn occupation.* `eatfood()` as an occupation callback and the
+   `occupation` machinery it needs, which is the first occupation the port
+   would own. This is what slice 2 leaves refused.
 
 **Why slice 1 first, and what it is worth on its own.**
 `seed0900-tourist-explore-actions` carries a debt of exactly one owner, `eat`,
