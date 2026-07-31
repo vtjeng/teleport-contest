@@ -46,6 +46,17 @@ import {
     Is_waterlevel,
     LOOKHERE_NOFLAGS,
     LOOKHERE_SKIP_DFEATURE,
+    GETOBJ_ALLOWCNT,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_INACCESS,
+    GETOBJ_EXCLUDE_NONINVENT,
+    GETOBJ_EXCLUDE_SELECTABLE,
+    GETOBJ_PROMPT,
+    GETOBJ_SUGGEST,
+    HANDS_SYM,
+    Never_mind,
+    quitchars,
     STONE_RES,
     PLNMSG_ONE_ITEM_HERE,
     P_SABER,
@@ -54,7 +65,10 @@ import {
     W_QUIVER,
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
+import { yn_function } from './cmd.js';
 import { makeplural } from './fruit.js';
+import { digit } from './hacklib.js';
+import { ttyPline } from './tty_message.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     S_fountain,
@@ -127,6 +141,10 @@ import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
+// C ref: defsym.h:479, the OBJCLASS2() row that names COIN_CLASS's symbol.
+// assigninvlet() gives it to every coin stack and getobj() tests the answered
+// letter against it.
+const GOLD_SYM = '$';
 
 // Thrown where invent.c reads a terrain description this port has not reached
 // yet. dfeature_at() is otherwise a complete translation, so every stop below
@@ -240,6 +258,285 @@ export function let_to_name(letter, unpaid, showsym) {
     // Only iflags.menu_head_objsym asks for that, and it is not ported.
     throw new UnsupportedFeatureDescriptionError('menu_head_objsym');
 }
+
+// Thrown where invent.c getobj() reaches an arm this port has not
+// implemented. Every stop names the C function or option that is missing.
+export class UnsupportedObjectPromptError extends Error {
+    constructor(reason) {
+        super(`the object prompt requires ${reason}`);
+        this.name = 'UnsupportedObjectPromptError';
+        this.reason = reason;
+    }
+}
+
+// C ref: invent.c invletter_value() (390-399). Orders '$' first, then 'a'-'z',
+// then 'A'-'Z', then the '#' overflow letter. `invlet_basic` is INVLET_BASIC.
+function invletter_value(c) {
+    if (c >= 'a' && c <= 'z') return c.charCodeAt(0) - 'a'.charCodeAt(0) + 2;
+    if (c >= 'A' && c <= 'Z')
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 2 + 26;
+    if (c === '$') return 1;
+    if (c === NOINVSYM) return 1 + INVLET_BASIC + 1;
+    return 1 + INVLET_BASIC + 1 + 1; /* none of the above (shouldn't happen) */
+}
+
+// C ref: invent.c sortloot() (592-643) called with SORTLOOT_INVLET alone, no
+// filter and by_nexthere FALSE, which is what getobj() asks for. With neither
+// SORTLOOT_PACK nor SORTLOOT_LOOT set, sortloot_cmp() (403-547) skips its
+// class, subclass, discovery and name arms and reduces to invletter_value()
+// with a tiebreak on the original position; Array.prototype.sort() is required
+// to be stable, which is the same tiebreak.
+//
+// The other modes stay with their own callers. js/invent.js display_pickinv()
+// already documents why SORTLOOT_INVLET|SORTLOOT_PACK needs no sort at all.
+function sortlootByInvlet(state) {
+    const items = [];
+    for (let otmp = inventoryHead(state); otmp; otmp = otmp.nobj)
+        items.push(otmp);
+    return items.sort(
+        (a, b) => invletter_value(a.invlet) - invletter_value(b.invlet),
+    );
+}
+
+// C ref: invent.c compactify() (1626-1659). Rewrites a run of three or more
+// consecutive letters in place as "<first>-<last>", so "bcdefg" becomes "b-g",
+// and squeezes three or more '#' overflow letters into "#-#".
+//
+// `buf` is a NUL-terminated array of one-character strings, mirroring C's
+// char buffer: the algorithm indexes past the position it is writing and
+// depends on the terminator to stop.
+function compactify(buf) {
+    const successor = (c) => String.fromCharCode(c.charCodeAt(0) + 1);
+    let i1 = 1;
+    let i2 = 1;
+    let ilet2 = buf[0];
+    let ilet1 = buf[1];
+    buf[++i2] = buf[++i1];
+    let ilet = buf[i1];
+    while (ilet !== '\0') {
+        if (ilet === successor(ilet1)) {
+            if (ilet1 === successor(ilet2)) {
+                ilet1 = '-';
+                buf[i2 - 1] = ilet1;
+            } else if (ilet2 === '-') {
+                ilet1 = successor(ilet1);
+                buf[i2 - 1] = ilet1;
+                buf[i2] = buf[++i1];
+                ilet = buf[i1];
+                continue;
+            }
+        } else if (ilet === NOINVSYM) {
+            /* compact three or more consecutive '#' characters into "#-#" */
+            if (i2 >= 2 && buf[i2 - 2] === NOINVSYM
+                && buf[i2 - 1] === NOINVSYM) {
+                buf[i2 - 1] = '-';
+            } else if (i2 >= 3 && buf[i2 - 3] === NOINVSYM
+                       && buf[i2 - 2] === '-' && buf[i2 - 1] === NOINVSYM) {
+                --i2;
+            }
+        }
+        ilet2 = ilet1;
+        ilet1 = ilet;
+        buf[++i2] = buf[++i1];
+        ilet = buf[i1];
+    }
+    buf.length = buf.indexOf('\0') + 1;
+}
+
+// C ref: invent.c getobj() (1751-2088). Answers the object the player chose,
+// null where C returns 0, and never &hands_obj: the one arm that produces it
+// needs allownone, which only a GETOBJ_SUGGEST answer for the hands/self
+// choice sets, and eat_ok() -- the only callback ported -- never gives one.
+//
+// Six of C's inputs cannot arrive. cmdq_pop() answers NULL and cmdq_add_key()
+// has nothing to add to while no command queue is ported; gi.in_doagain is
+// always false for the same reason; flags.invlet_constant is checked below
+// because reassign() is unported; and GETOBJ_ALLOWCNT, GETOBJ_PROMPT and
+// iflags.force_invmenu each stop rather than take an untested arm. The '?' and
+// '*' menu and the '-' hands answer stop too, each naming what it would need.
+export async function getobj(word, obj_ok, ctrlflags, state = game) {
+    let otmp = null;
+    let ilet = '';
+    // C's bp starts at buf and the hands/self arm may advance it past a "- "
+    // prefix; the letters it then collects are what `lets` copies and
+    // compactify() rewrites, so the two halves are kept apart here.
+    const prefix = [];
+    const letters = [];
+    const altlets = [];
+    const allowcnt = (ctrlflags & GETOBJ_ALLOWCNT) !== 0;
+    let forceprompt = (ctrlflags & GETOBJ_PROMPT) !== 0;
+    let allownone = false;
+    /* counts GETOBJ_EXCLUDE_INACCESS items to decide between "you don't have
+     * anything to <foo>" versus "you don't have anything _else_ to <foo>"
+     * (also used for GETOBJ_EXCLUDE_NONINVENT) */
+    let inaccess = 0;
+
+    if (allowcnt)
+        throw new UnsupportedObjectPromptError('get_count() and splitobj()');
+
+    /* is "hands"/"self" a valid thing to do this action on? */
+    switch (obj_ok(null, state)) {
+    case GETOBJ_SUGGEST: /* treat as likely candidate */
+        allownone = true;
+        prefix.push(HANDS_SYM);
+        prefix.push(' '); /* put a space after the '-' in the prompt */
+        break;
+    case GETOBJ_DOWNPLAY: /* acceptable but not shown as likely choice */
+    case GETOBJ_EXCLUDE_INACCESS:
+    case GETOBJ_EXCLUDE_SELECTABLE:
+        allownone = true;
+        altlets.push(HANDS_SYM);
+        break;
+    case GETOBJ_EXCLUDE_NONINVENT: /* player skipped some alternative that's
+                                    * not in inventory, now the hands/self
+                                    * possibility is telling us so */
+        forceprompt = false;
+        inaccess++;
+        break;
+    default:
+        break;
+    }
+
+    if (!state.flags.invlet_constant)
+        throw new UnsupportedObjectPromptError('reassign()');
+
+    /* force invent to be in invlet order before collecting candidate
+       inventory letters */
+    for (const item of sortlootByInvlet(state)) {
+        letters.push(item.invlet);
+        switch (obj_ok(item, state)) {
+        case GETOBJ_EXCLUDE_INACCESS:
+            /* remove inaccessible things */
+            letters.pop();
+            inaccess++;
+            break;
+        case GETOBJ_EXCLUDE:
+        case GETOBJ_EXCLUDE_SELECTABLE:
+            /* remove more inappropriate things, but unlike the first it won't
+               trigger an "else" in "you don't have anything else to ___" */
+            letters.pop();
+            break;
+        case GETOBJ_DOWNPLAY:
+            /* acceptable but not listed as likely candidates in the prompt
+               or in the inventory subset if player responds with '?' */
+            letters.pop();
+            forceprompt = true;
+            altlets.push(item.invlet);
+            break;
+        case GETOBJ_SUGGEST:
+            break; /* adding otmp->invlet is all that's needed */
+        default:
+            throw new Error('bad return from getobj callback');
+        }
+    }
+
+    const suggested = letters.length;
+    /* If no objects were suggested but we added '- ' at the beginning for
+     * hands, destroy the trailing space */
+    if (suggested === 0 && prefix.length && prefix[prefix.length - 1] === ' ')
+        prefix.pop();
+    const lets = letters.join(''); /* necessary since we destroy buf */
+    if (suggested > 5) { /* compactify string */
+        letters.push('\0');
+        compactify(letters);
+        letters.pop();
+    }
+    const buf = prefix.join('') + letters.join('');
+    const altletsStr = altlets.join('');
+
+    if (suggested === 0 && !forceprompt && !allownone) {
+        await ttyPline(
+            `You don't have anything ${inaccess ? 'else ' : ''}to ${word}.`,
+            state,
+        );
+        return null;
+    }
+    for (;;) {
+        let qbuf = `What do you want to ${word}?`;
+        if (state.iflags.force_invmenu)
+            throw new UnsupportedObjectPromptError('iflags.force_invmenu');
+        qbuf += buf ? ` [${buf} or ?*]` : ' [*]';
+        ilet = String.fromCharCode(
+            await yn_function(qbuf, null, '\0', false, state),
+        );
+
+        if (digit(ilet)) {
+            if (!allowcnt) {
+                await ttyPline('No count allowed with this command.', state);
+                continue;
+            }
+            /* get_count() is unreachable: GETOBJ_ALLOWCNT stops above. */
+        }
+        if (quitchars.includes(ilet)) {
+            if (state.flags.verbose) await ttyPline(Never_mind, state);
+            return null;
+        }
+        if (ilet === HANDS_SYM) { /* '-' */
+            // C answers mime_action(word) and returns 0 when allownone is
+            // clear, or &hands_obj when it is set. eat_ok(), the only ported
+            // callback, answers GETOBJ_EXCLUDE or GETOBJ_EXCLUDE_NONINVENT for
+            // the null object and neither sets allownone, so only the mime arm
+            // is reachable -- and mime_action() needs ing_suffix() over the
+            // caller's verb plus an rn2(2) on its " or " split.
+            throw new UnsupportedObjectPromptError('mime_action()');
+        }
+        if (ilet === '?' || ilet === '*') {
+            // C ref: getobj()'s redo_menu block (1966-1998). '?' reaches
+            // display_pickinv() with the suggested-letter subset and '*' with
+            // the hands/self extra choice getobj_hands_txt() builds; this
+            // port's display_pickinv() covers neither, so both stop here
+            // rather than draw a menu that lists the wrong items.
+            throw new UnsupportedObjectPromptError(
+                'display_pickinv() with a letter subset',
+            );
+        }
+        /* find the item which was picked */
+        for (otmp = inventoryHead(state); otmp; otmp = otmp.nobj)
+            if (otmp.invlet === ilet) break;
+        /* some items have restrictions */
+        if (ilet === GOLD_SYM
+            /* guard against the [hypothetical] chance of having more
+               than one invent slot of gold and picking the non-'$' one */
+            || (otmp && otmp.oclass === COIN_CLASS)) {
+            if (otmp && obj_ok(otmp, state) <= GETOBJ_EXCLUDE) {
+                await ttyPline(`You cannot ${word} gold.`, state);
+                return null;
+            }
+            /* the LRS arm below reads cntgiven, which GETOBJ_ALLOWCNT sets
+               and this caller cannot request. */
+        }
+        /* the "can only throw one at a time" arm reads cntgiven too. */
+        state.disp.botl = true; /* May have changed the amount of money */
+        /* cmdq_add_int()/cmdq_add_key(CQ_REPEAT): no command queue is ported */
+        /* verify the chosen object */
+        if (!otmp) {
+            await ttyPline("You don't have that object.", state);
+            continue;
+        }
+        /* C's `cnt < 0L || otmp->quan < cnt` needs a count as well. */
+        break;
+    }
+    if (obj_ok(otmp, state) === GETOBJ_EXCLUDE) {
+        // C answers silly_thing(word, otmp), which for every word but "call"
+        // prints silly_thing_to. eat_ok() answers GETOBJ_EXCLUDE only for
+        // COIN_CLASS, and the gold arm above returns before reaching here, so
+        // no ported caller can arrive.
+        throw new UnsupportedObjectPromptError('silly_thing()');
+    }
+    /* split_otmp: cntgiven is never set while GETOBJ_ALLOWCNT stops above. */
+    return otmp;
+}
+
+// compactify() and invletter_value() are staticfn in invent.c and have no
+// caller outside getobj() and sortloot(). They are exported here for the tests
+// that pin their results to values read from the C source: the prompt reaches
+// compactify() with only the letter runs a starting pack can produce, and
+// reaches invletter_value() only through a pack that is already in invlet
+// order, so neither is covered for its whole input range by a recorded case.
+export const _getobjInternals = Object.freeze({
+    compactify,
+    invletter_value,
+});
 
 // C ref: invent.c display_pickinv(). Covers the branch `i` reaches: the full
 // inventory, no letter subset, no extra choice, want_reply true, and the

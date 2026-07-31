@@ -1932,12 +1932,15 @@ export const BUC_BLESSED = 1;
 export const BUC_UNCURSED = 2;
 export const BUC_CURSED = 3;
 export const BUC_UNKNOWN = 4;
-export const GETOBJ_EXCLUDE = 0;
+// C ref: hack.h:513-539. The six values are ordered, not just distinct:
+// getobj() writes `obj_ok(otmp) <= GETOBJ_EXCLUDE` at invent.c:2011, which
+// relies on GETOBJ_EXCLUDE being the smallest of them.
+export const GETOBJ_EXCLUDE = -3;
+export const GETOBJ_EXCLUDE_NONINVENT = -2;
+export const GETOBJ_EXCLUDE_INACCESS = -1;
+export const GETOBJ_EXCLUDE_SELECTABLE = 0;
 export const GETOBJ_DOWNPLAY = 1;
 export const GETOBJ_SUGGEST = 2;
-export const GETOBJ_EXCLUDE_INACCESS = 3;
-export const GETOBJ_EXCLUDE_SELECTABLE = 4;
-export const GETOBJ_EXCLUDE_NONINVENT = 5;
 export const GETOBJ_ALLOWCNT = 0x01;
 export const GETOBJ_PROMPT = 0x02;
 export const GETOBJ_NOFLAGS = 0;

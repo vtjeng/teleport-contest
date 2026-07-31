@@ -1,12 +1,21 @@
-// Food helpers shared by object creation and eating.
-// C ref: src/eat.c nonrotting_corpse(), tin_variety(), set_tin_variety().
+// The #eat command, the hunger clock, and the food helpers that object
+// creation and naming share.
+// C refs: src/eat.c is_edible(), gethungry(), newuhs(), nonrotting_corpse(),
+//         vegan(), vegetarian(), tin_variety(), set_tin_variety(),
+//         tin_details(), eat_ok(), floorfood(), and doeat().
 
 import {
     A_STR,
     CONFLICT,
+    ECMD_OK,
     FAINTED,
     FAINTING,
     FROMFORM,
+    GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_NONINVENT,
+    GETOBJ_EXCLUDE_SELECTABLE,
+    GETOBJ_NOFLAGS,
+    GETOBJ_SUGGEST,
     HEALTHY_TIN,
     HOMEMADE_TIN,
     HUNGER,
@@ -22,6 +31,8 @@ import {
     SLOW_DIGESTION,
     SLT_ENCUMBER,
     SPINACH_TIN,
+    STRANGLED,
+    Upolyd,
     WEAK,
     W_ARTI,
     W_RINGL,
@@ -29,8 +40,11 @@ import {
     W_WEP,
     NEUTRAL,
 } from './const.js';
+import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
-import { is_rider } from './mondata.js';
+import { check_capacity } from './hack.js';
+import { getobj } from './invent.js';
+import { is_rider, metallivorous } from './mondata.js';
 import {
     M1_CARNIVORE,
     M1_HERBIVORE,
@@ -57,13 +71,18 @@ import {
     S_PUDDING,
     S_VORTEX,
 } from './monsters.js';
+import { objectType } from './obj.js';
 import {
+    COIN_CLASS,
     FAKE_AMULET_OF_YENDOR,
+    FOOD_CLASS,
     MEAT_RING,
     RIN_PROTECTION,
     RIN_SLOW_DIGESTION,
 } from './objects.js';
 import { rn2 } from './rng.js';
+import { is_pool_or_lava } from './trap.js';
+import { ttyPline } from './tty_message.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
 // insight.c. Every entry is eight columns wide, so a reader that wants the
@@ -171,6 +190,39 @@ export class UnsupportedHungerTransitionError extends Error {
         this.name = 'UnsupportedHungerTransitionError';
         this.reason = reason;
     }
+}
+
+// Thrown where eat.c doeat() or floorfood() reaches an arm this port has not
+// implemented. Every stop names the C function or hero state that is missing.
+export class UnsupportedEatError extends Error {
+    constructor(reason) {
+        super(`eating requires ${reason}`);
+        this.name = 'UnsupportedEatError';
+        this.reason = reason;
+    }
+}
+
+// C ref: eat.c is_edible() (88-121). Answers whether the possibly polymorphed
+// hero can eat this object.
+//
+// Four of C's five tests read the hero's current form: the fire elemental's
+// is_flammable() arm, the metallivore's is_metallic()/is_rustprone() arm, the
+// ghoul's corpse-and-egg arm and the gelatinous cube's is_organic() arm. Only
+// a polymorphed hero can take any of them -- u_init.c sets u.umonnum to the
+// role's mnum and polyself.c, the one writer that changes it, is unported --
+// so the port stops for a polymorphed hero rather than carry four arms and the
+// four objclass.h material predicates they need, none of which any case can
+// reach. oc_unique and the FOOD_CLASS answer apply to every hero and are here.
+export function is_edible(obj, state = game) {
+    /* protect invocation tools but not Rider corpses (handled elsewhere) */
+    if (objectType(obj, state).oc_unique) return false;
+    /* above also prevents the Amulet from being eaten, so we must never
+       allow fake amulets to be eaten either [which is already the case] */
+
+    if (Upolyd(state.u))
+        throw new UnsupportedEatError('is_edible() for a polymorphed hero');
+
+    return obj.oclass === FOOD_CLASS;
 }
 
 // Pure admission for eat.c:gethungry(). allmain.c uses this before changing
@@ -496,4 +548,140 @@ export function set_tin_variety(obj, forcetype, env = {}) {
         throw new RangeError(`unsupported tin variety ${forcetype}`);
     }
     obj.spe = -(variety + 1);
+}
+
+// C ref: eat.c getobj_else (79-85), a file-scope int rather than a member of
+// the bulk-reinitialized globals because floorfood() clears it at every entry
+// before anything reads it. It counts the floor alternatives the player
+// declined, which is what puts "else" into "You don't have anything else to
+// eat."
+let getobj_else = 0;
+
+// C ref: eat.c eat_ok() (3514-3533), the getobj() callback for #eat.
+function eat_ok(obj, state = game) {
+    /* 'getobj_else' will be non-zero if floor food is present and
+       player declined to eat that */
+    if (!obj)
+        return getobj_else ? GETOBJ_EXCLUDE_NONINVENT : GETOBJ_EXCLUDE;
+
+    if (is_edible(obj, state)) return GETOBJ_SUGGEST;
+
+    /* make sure to exclude, not downplay, gold (if not is_edible) in order to
+     * produce the "You cannot eat gold" message in getobj */
+    if (obj.oclass === COIN_CLASS) return GETOBJ_EXCLUDE;
+
+    return GETOBJ_EXCLUDE_SELECTABLE;
+}
+
+// C ref: eat.c floorfood() (3577-3730). Covers the `verb === "eat"` call
+// doeat() makes with corpsecheck 0, as far as the getobj() prompt.
+//
+// C reaches getobj() either by skipping the floor outright or by walking the
+// square's object chain and offering each candidate through yn_function().
+// Everything on the second route stops here: the metallivore's bear-trap,
+// iron-bars and gold questions, and the "There is <object> here; eat it?"
+// prompt, which needs otense(), safe_qbuf() and ansimpleoname(). Each would
+// consume a keystroke and paint a line, so answering the inventory prompt
+// instead would diverge rather than fail closed.
+//
+// corpsecheck is the sacrifice and tinning selector; #offer and #tin are
+// unported, so only doeat()'s 0 arrives and the tail that rejects a non-corpse
+// for them has no reachable input.
+export async function floorfood(verb, corpsecheck, state = game) {
+    const u = state.u;
+    const uptr = state.youmonst?.data;
+    const feeding = verb === 'eat'; /* corpsecheck==0 */
+
+    if (!feeding || corpsecheck)
+        throw new UnsupportedEatError(`floorfood() for '${verb}'`);
+
+    getobj_else = 0; /* haven't asked about floor food */
+
+    /* if we can't touch floor objects then use invent food only;
+       same when 'm' prefix is used--for #eat, it means "skip floor food" */
+    const skipfloor = state.iflags.menu_requested
+        || !can_reach_floor(true, state)
+        || (feeding && u.usteed);
+
+    if (!skipfloor) {
+        // C skips the floor as well when the hero is over a pool or lava and
+        // Wwalking, is_clinger() or (Flying && !Breathless) keeps them out of
+        // it, and otherwise walks the chain below. Either way the hero has to
+        // be standing on liquid, which the destination admission in
+        // js/hack.js does not allow, so one stop covers both arms.
+        if (is_pool_or_lava(u.ux, u.uy, state))
+            throw new UnsupportedEatError('floorfood() over water or lava');
+
+        if (feeding && metallivorous(uptr)) {
+            // The bear-trap, iron-bars and gold questions, and with them the
+            // &hands_obj return that doeat() treats as digging.
+            throw new UnsupportedEatError(
+                'floorfood() for a metallivorous hero',
+            );
+        }
+
+        /* Is there some food (probably a heavy corpse) here on the ground? */
+        for (let otmp = state.level.objects[u.ux]?.[u.uy] ?? null;
+            otmp;
+            otmp = otmp.nexthere) {
+            if (otmp.oclass !== COIN_CLASS && is_edible(otmp, state)) {
+                throw new UnsupportedEatError(
+                    'floorfood() offering an object on the floor',
+                );
+            }
+        }
+    }
+
+    /* skipfloor: */
+    /* We cannot use GETOBJ_PROMPT since we don't want a prompt in the case
+       where nothing edible is being carried. */
+    const otmp = await getobj('eat', eat_ok, GETOBJ_NOFLAGS, state);
+    /* resetting 'getobj_else' here isn't essential; it will be cleared the
+       next time it needs to be used */
+    getobj_else = 0;
+    return otmp;
+}
+
+// C ref: eat.c doeat() (2815-3084), from its entry as far as the
+// !is_edible(otmp) arm. Everything that actually eats stops below that:
+// the worn-item and retouch_object() arms, the rust-monster and slow-digestion
+// arms, doeat_nonfood(), the resumed meal, start_tin(), the conduct counters
+// and start_eating() with its occupation.
+export async function doeat(state = game) {
+    const u = state.u;
+
+    if (u.uprops[STRANGLED].intrinsic) {
+        await ttyPline(
+            "If you can't breathe air, how can you consume solids?",
+            state,
+        );
+        return ECMD_OK;
+    }
+    const otmp = await floorfood('eat', 0, state);
+    if (!otmp)
+        return ECMD_OK;
+    if (await check_capacity(null, state))
+        return ECMD_OK;
+
+    if (u.uedibility) {
+        // edibility_prompts() reads the corpse age, the petrification and
+        // slime tests and eight message arms, and then asks yn_function().
+        // Only blessed food detection sets u.uedibility, and neither the
+        // potion nor the scroll that grants it is ported.
+        throw new UnsupportedEatError('edibility_prompts()');
+    }
+
+    /* from floorfood(), &hands_obj means iron bars at current spot; only the
+       metallivorous arm floorfood() refuses can return it. */
+
+    /* We have to make non-foods take 1 move to eat, unless we want to
+     * do ridiculous amounts of coding to deal with partly eaten plate
+     * mails, players who polymorph back to human in the middle of their
+     * metallic meal, etc....
+     */
+    if (!is_edible(otmp, state)) {
+        await ttyPline('You cannot eat that!', state);
+        return ECMD_OK;
+    }
+    throw new UnsupportedEatError('start_eating() and the meal it begins');
 }

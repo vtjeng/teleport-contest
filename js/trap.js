@@ -129,6 +129,11 @@ export function is_lava(x, y, state = game) {
     return Boolean(location && isLavaAt(location));
 }
 
+// C ref: dbridge.c is_pool_or_lava() (76-83).
+export function is_pool_or_lava(x, y, state = game) {
+    return is_pool(x, y, state) || is_lava(x, y, state);
+}
+
 function closedDoor(location) {
     const mask = location.flags || location.doormask || 0;
     return location.typ === DOOR

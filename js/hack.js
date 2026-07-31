@@ -18,6 +18,7 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    EXT_ENCUMBER,
     FAST,
     FIRE_RES,
     FLYING,
@@ -214,6 +215,20 @@ export function calc_capacity(extraWeight = 0, state = game) {
 
 export function near_capacity(state = game) {
     return calc_capacity(0, state);
+}
+
+// C ref: hack.c check_capacity() (4398-4408). Answers whether the hero is too
+// loaded to act, and says so first. C's `str` is a caller-supplied replacement
+// line printed through pline1(); a null one takes the You_cant() default.
+export async function check_capacity(str, state = game) {
+    if (near_capacity(state) >= EXT_ENCUMBER) {
+        await ttyPline(
+            str ?? "You can't do that while carrying so much stuff.",
+            state,
+        );
+        return true;
+    }
+    return false;
 }
 
 // near_capacity() without the cache write. hack.c's inv_weight() assigns
