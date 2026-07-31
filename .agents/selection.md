@@ -45,11 +45,23 @@ cannot be aimed at `sessions/holdout/`.
 
 ## Choosing a goal
 
-The census orders goals inside the current milestone. It never reorders the
-milestones themselves. When every boundary it names belongs to a later
-milestone, the current one is exhausted: close it, take the next milestone from
-`ROADMAP.md`, and let the census order goals inside that one. A large ceiling
-does not justify jumping milestones.
+`scripts/scan-debt.mjs` differences each development session's whole recorded
+input against the commands the port dispatches. For every owner it reports two
+figures: `gated`, the screens a port matching all 7,765 recorded screens would
+lose without that owner, and `advance`, the screens porting it next earns.
+
+Run `node scripts/scan-debt.mjs` and take the owner at the top. The report
+orders by `advance`. `--by=gated` reorders it by total dependency.
+
+An owner with a high `gated` and an `advance` of 0 sits behind another owner. It
+becomes a candidate once the owner ahead of it lands.
+
+`advance` states an upper bound. The port stops at a session's first behavioral
+owner and reports nothing behind it, so a gap measured to the next command can
+hide a behavioral gate. Re-run the scan after the change to measure the gain.
+
+A milestone labels the system an owner belongs to. It orders no work: take the
+top owner whatever milestone names it.
 
 A goal may be larger than one agent session. When it is, it closes through
 several behavior slices, each closed on its own. A goal may list slices it is

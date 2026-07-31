@@ -11,7 +11,8 @@ every valid seed, date and time, set of options, and input sequence.
   comparison. These changes control the seed and time, stabilize sorting, log
   random-number calls, and capture terminal screens. Match the behavior and
   output produced after these changes are applied.
-- Complete the milestones in the order listed in `ROADMAP.md`.
+- Select each goal as `.agents/selection.md` states. `ROADMAP.md` records the
+  goal in progress and the work left.
 
 ## Recorded test sessions
 

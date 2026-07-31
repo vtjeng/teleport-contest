@@ -7,51 +7,6 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
-## Rank goals by the screens they would unblock, not by the screens behind them
-
-**Approved on 30 July 2026 and scheduled next**, after the object-pile window
-slice closes. It stays in this file until it lands.
-
-**What it changes.** A script under `scripts/` would report, per development
-session, the whole remaining debt rather than the first blocker: the set of
-commands the session issues that the port does not support, alongside the
-behavioral blocker `scripts/scan-stops.mjs` already names. Goals would then be
-ranked by the screens in sessions whose *entire* debt a candidate clears.
-`.agents/selection.md`, `AGENTS.md` and `.agents/workflow.md` would follow,
-demoting the milestone from a fixed order to a label and making expected
-screens the selection rule. **The demotion is approved in principle; the exact
-wording is not yet.** All three are instruction documents. The wording lands
-with the script rather than before it, so the rule never names an instrument
-that does not exist.
-
-**What prompted it.** The census reports the boundary each session reaches
-first and is silent about the rest, so nothing measures how far a session is
-from completing. Ranking by screens standing behind a boundary has
-overestimated by one to two orders of magnitude: the trap goal was selected on
-a row of that shape and delivered 8 development screens. Measured at `34949fa`,
-23 of 33 sessions stop on a hero command and 4,618 of the 7,298 unmatched
-screens sit behind one, while every one of the 467 screens the port emits
-matches C. The deficit is entirely reach, and reach is a chain.
-
-**Scope.** The keystroke-to-command resolution exists already:
-`scripts/scan-stops.mjs` reports a refused keystroke's command under the
-session's own bindings. What is new is applying it to a session's whole input
-stream and differencing against the supported set. Before the output may choose
-anything, it must retrodict the gains already observed — +21, +17, +1, 0 and +8
-development screens — as `ROADMAP.md` requires of its own proposed second
-column.
-
-**Cost.** About half a day, plus the retrodiction check.
-
-**What it leaves unfixed.** The keystroke stream does not distinguish a command
-byte from a prompt answer, so the inventory carries an ambiguity margin and
-remains an estimator; only re-running the scan after the work measures the real
-gain. The more direct instrument — bypassing a refusal and re-scanning to read
-the next one — was considered and rejected: it works for behavioral boundaries
-but not for command boundaries, where skipping the command leaves the following
-prompt answers misinterpreted and the reported chain is fiction, and command
-boundaries are where the screens are.
-
 ## Reconcile the checklist template with the gate that reads it
 
 **What it changes.** `.agents/implementation-checklist-template.md` and

@@ -3,24 +3,23 @@
 This file records the goal in progress, the goals selected after it, and
 unresolved debt. It holds state, not rules. `AGENTS.md` remains the authority
 for implementation, validation, holdout, quality, and attribution rules, and
-`.agents/selection.md` states how to read the `scan-stops.mjs` census, how the
-census picks a goal inside the current milestone, how a goal is sized, and how
-this file is kept short.
+`.agents/selection.md` states how `scripts/scan-debt.mjs` selects a goal, how a
+goal is sized, and how this file is kept short.
 
-## Current milestone: exploration
+## Exploration
 
-**Objective:** movement beyond the first unobstructed step, then running,
-search, doors, traps, pickup, stairs, terrain effects, vision, and status
-updates. This is what a hero does moving around a level before fighting or using
-items, and it comes first because a hero who cannot walk cannot reach a monster,
-an object, or the stairs.
+Movement beyond the first unobstructed step, then running, search, doors, traps,
+pickup, stairs, terrain effects, vision, and status updates. This is what a hero
+does moving around a level before fighting or using items. The heading labels
+the system these goals belong to and orders nothing; `scripts/scan-debt.mjs`
+selects each goal from every owner the development sessions need.
 
 Every session and step count written into a goal below is a ceiling taken from
 the measurement that selected that goal, and goes stale as the port advances;
-re-run `scripts/scan-stops.mjs` for current numbers. Traced source findings do
+re-run `scripts/scan-debt.mjs` for current numbers. Traced source findings do
 not go stale, which is why they are recorded here rather than re-derived.
 
-### What this milestone's goals have carried over, and what to make of it
+### What the closed goals have carried over, and what to make of it
 
 Six goals now have holdout results. The run was +21 screens, then +17, then a
 first passing holdout session; after that the pickup, monster-door and trap
@@ -47,16 +46,16 @@ sessions stop on an unported hero *command*, so everything downstream of a
 command cannot be counted. Object squares are the extreme case, the commonest
 unported destination on a generated level and the owner of a single census row.
 
-The repair is a second column rather than a replacement: incidence **in the
-game** instead of in the session set, measured as squares per freshly generated
-level that each admission seam would claim. That samples the population the
-holdout is drawn from, which no session-set count does. Whoever commits it
-should validate it against the record above: it must retrodict low expected
-carry-over for the pickup, monster-door and trap goals, and high for the closed
-door. Until it exists, prefer goals on the path of ordinary walking, which is
-the one property the closed-door goal, the only goal whose holdout gain beat
-development, had and the three zeros did not. The goal now in progress was
-selected on exactly that basis, and states below how to falsify it.
+`scripts/scan-debt.mjs` closes that gap. It reads each session's whole recorded
+input, so an owner standing behind a command is counted where the first-boundary
+census could not see it, and it reports the screens that depend on each owner
+and the screens porting it next earns. `.agents/selection.md` states how to run
+it.
+
+One check on it remains open. Against the trap goal at `2f0e55e9` its `advance`
+column answered 46 where the goal delivered 8, which holds as the upper bound
+that column claims to be. No other closed goal has been retrodicted, so how tight
+that bound runs across goals is unmeasured.
 
 **Two predictions this file has recorded and then falsified.** The pickup goal
 was chosen on "fires without a player command" and gained +1 development and +0
@@ -78,7 +77,13 @@ selection, and nothing re-ran the scan against the candidate before the slice
 was promised. Do not replace an instrument for a failure its own documentation
 already warns about; use it as written.
 
-### In progress: the hero walks onto a floor square holding more than one object
+### Queued: the hero walks onto a floor square holding more than one object
+
+Set aside on 31 July 2026 when `scripts/scan-debt.mjs` landed. The scan rates
+this owner 383 screens of `gated` and 61 of `advance` in one session,
+`seed0004-feeding-pony`, against 188 for `#levelchange`. Slice 1 was drafted and
+never validated; that draft is parked on the branch `wip/object-pile-window` and
+no line of it is verified against the C source.
 
 A walking hero steps onto a square holding two or more objects with
 `!autopickup`. `pickup.c pickup()` takes its `(autopickup && !flags.pickup)`
@@ -100,23 +105,17 @@ branches, and `js/pickup.js check_here()` is live at `js/hack.js:1158` behind
 `look_here()`'s `'the object-pile menu'` throw at `js/invent.js:454`. Roughly
 150 new C lines, two or three slices.
 
-**Why this one, stated so it can be falsified.** Over 60 freshly generated D:1
-levels (seeds 7100000-7100059) the port produces 19.4 squares holding an object
-per level, in 100% of levels, and 1.28 squares holding a *pile*, in 72% --
-against 1.12 traps, 0.75 fountains and 0.10 sinks. Object squares outnumber
-every other unported destination class by an order of magnitude, and 20 of 33
-development sessions set `!autopickup`. The property this rests on is the one
-the closed-door goal had, the only goal whose holdout gain beat development: it
-lies on the path of **ordinary walking**, gated on nothing but the hero moving,
-unlike a pet on a trap or a monster with hands at a door.
+**Why it was selected, and what replaced that reasoning.** Over 60 freshly
+generated D:1 levels (seeds 7100000-7100059) the port produces 19.4 squares
+holding an object per level, in 100% of levels, and 1.28 squares holding a
+*pile*, in 72%, against 1.12 traps, 0.75 fountains and 0.10 sinks. Object
+squares outnumber every other unported destination class by an order of
+magnitude, and 20 of 33 development sessions set `!autopickup`. That argument
+measured incidence on a generated level, which no development session samples.
+`scripts/scan-debt.mjs` measures the recorded sessions themselves and reaches a
+different answer: one session needs this owner, and it earns 61 screens there.
 
-If this goal closes with another zero-screen holdout, that claim is dead, and
-the conclusion is that holdout sessions are censored upstream by unported
-*commands* -- which makes exploration due to close and the `flush_screen()`
-ordering question under `## Later milestones` due at once.
-
-`seed0004-feeding-pony` stops here at 26 of 409 steps, the largest single
-session ceiling left in exploration.
+`seed0004-feeding-pony` stops here at 26 of 409 steps.
 
 **The `flush_screen()` question, traced but not yet recorded.** Whether the
 pile window trips the menu-erasure defect under `## Unresolved` was left open
@@ -177,7 +176,7 @@ row and changing `maxcol`, before `display_nhwindow()` computes any layout.
 it. `display_nhwindow(WIN_MESSAGE, FALSE)`'s
 `toplin == TOPLINE_NEED_MORE -> more()` arm has no owner in the port at all.
 
-## Explicit future exploration work, outside the goal in progress
+## Explicit future exploration work
 
 - Hero or monster combat, including attacks, retaliation, monster-initiated
   displacement, knockback, damage, death, corpses, weapon selection, ranged
@@ -266,6 +265,15 @@ the `flush_screen(1)` call, which `vpline()` really does make. Port the `gnew`
 dirty discipline and `gb.bot_disabled` so `flush_screen()` repaints only changed
 cells, then satisfy the readiness note again and run a new full correctness pass
 over the expanded range, as that file requires.
+
+**Every extended-command goal depends on this one.** Thirteen of the
+thirty-three development sessions stop on an extended command: five on
+`#levelchange`, two on `#ride`, and one each on `#loot`, `#name`, `#chat`,
+`#twoweapon`, `#pray` and `#wizwish`. Each draws a prompt or a menu into the two
+defects recorded here. `scripts/scan-debt.mjs` now ranks `#levelchange` first at
+188 screens of advance and `#ride` second at 92, so the dependency is live
+rather than deferred. Whoever takes either goal reads this entry first and
+decides whether the prompt it draws reaches the menu-erasure path.
 
 Three findings from that pass are the same defect seen from three angles: the
 menu erasure itself, the two menu call sites left untested against it, and the
@@ -965,37 +973,3 @@ Budget an afternoon.
 There are 223 `?? fallback` resolutions across 49 files in `js/`. Most are
 covered by no tripwire and need nothing. These seams shrink as the port
 advances, so fix the proven six and leave the rest.
-
-## Later milestones
-
-This list selects the next milestone; `scripts/scan-stops.mjs` selects goals
-inside whichever milestone is current. After the current milestone, proceed in
-this order:
-
-**An open ordering question, to settle when exploration closes rather than
-now.** The `flush_screen()` goal under `## Unresolved` is not urgent while all
-emitted screens match, and it owns no fail-closed boundary. But it stops being
-optional the moment the extended-command family opens: thirteen of the
-thirty-three development sessions stop on an extended command — five on
-`#levelchange`, two on `#ride`, and one each on `#loot`, `#name`, `#chat`,
-`#twoweapon`, `#pray` and `#wizwish` — and every one of those goals draws a
-prompt or a menu straight into the two defects that entry records. Whether it
-therefore precedes combat is a milestone-order decision, and this file is where
-it gets made. Exploration has roughly two goals left, so it is not due yet;
-what is recorded here is the argument, so it does not have to be rediscovered.
-
-Exploration is not exhausted. Three census rows still belong to it by the
-objective's own wording of doors, traps and pickup — monster trap activation,
-the floor object pile, and door or special terrain movement — plus two
-fragments of the repeated-command row, the `m` prefix and `@` autopickup.
-Everything else the census names belongs to a milestone below.
-
-1. **Combat and creatures:** complete melee, damage and death, the remaining
-   monster and pet behavior, monster inventory, conditions, and common creature
-   abilities.
-2. **Item interaction:** inventory commands and menus, wield/wear, eat/quaff,
-   read/zap, apply, throw, drop, identification, and equipment effects.
-3. **Levels and persistence:** level transitions, deeper and special levels,
-   save/restore, bones, and cross-segment state.
-4. **Long tail:** shops, advanced spells and effects, rare monsters and items,
-   endgame branches, and remaining valid commands and options.

@@ -14,13 +14,12 @@ and record one.
 Work is nested in four levels. A **coherent implementation chunk** is part of
 a **behavior slice**; slices make up a **goal**; goals make up a **milestone**.
 A slice is the unit of evidence, a goal is the unit of review, and a milestone
-fixes the order in which game systems are built.
+labels the system a goal belongs to.
 
 A slice, a goal, or a milestone is **in progress** from the moment work starts
 on it until it **closes**. Work written down but not begun is **queued**.
 Closing takes more than stopping: a slice closes on the evidence stated below,
-a goal closes when its last slice does, and a milestone closes when every
-boundary the census names belongs to a later one.
+and a goal closes when its last slice does.
 
 A **coherent implementation chunk** is one reviewable production change with
 its focused tests. A chunk may be one of several commits inside a behavior
@@ -39,13 +38,10 @@ hold several ordered behavior slices. When a slice meets the conditions in
 goal's state between sessions. A goal is the unit of review: when its last
 slice closes, a full correctness pass covers it.
 
-A **milestone** is a group of related game systems large enough to hold many
-goals: exploration, then combat and creatures, then item interaction, and so on.
-`ROADMAP.md` lists them in the order they are built. The census is the tally
-of fail-closed boundaries and commands that `node scripts/scan-stops.mjs`
-reports; `.agents/selection.md`, "Reading the census", states how to read it.
-The census picks goals inside the current milestone and never changes which
-milestone is current.
+A **milestone** is a group of related game systems: exploration, combat and
+creatures, item interaction, and so on. It labels the system a goal belongs to.
+`scripts/scan-debt.mjs` selects each goal from every owner the development
+sessions need; `.agents/selection.md` states how to run it.
 
 A **review window** is the bounded group of related implementation chunks
 covered by one scheduled correctness review. A review window completes when
