@@ -363,6 +363,12 @@ export function rankCandidates(rows) {
     );
 }
 
+/** Center a group heading over the columns it names. */
+function centered(label, width) {
+    const left = Math.floor((width - label.length) / 2);
+    return ' '.repeat(left) + label + ' '.repeat(width - label.length - left);
+}
+
 function report(rows) {
     const nameWidth = Math.max(...rows.map((r) => r.file.length));
     console.log('Whole remaining debt per development session\n');
@@ -390,27 +396,33 @@ function report(rows) {
     console.log(
         `\nOwners by the screens that depend on them, of ${recorded} recorded`,
     );
+    // Each measure is a (screens, sessions) pair, so the header groups its two
+    // columns under one name rather than leaving four columns to be read as
+    // four separate quantities.
+    console.log(`\n  ${centered('gated', 17)}  ${centered('advance', 17)}`);
     console.log(
-        `  ${'gated'.padStart(6)}  ${'sess'.padStart(4)}  `
-        + `${'advance'.padStart(7)}  ${'first'.padStart(5)}  owner`,
+        `  ${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  `
+        + `${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  owner`,
     );
     for (const entry of rankCandidates(rows)) {
         console.log(
-            `  ${String(entry.gated).padStart(6)}  `
-            + `${String(entry.gatedSessions).padStart(4)}  `
+            `  ${String(entry.gated).padStart(7)}  `
+            + `${String(entry.gatedSessions).padStart(8)}  `
             + `${String(entry.advance).padStart(7)}  `
-            + `${String(entry.bottleneckIn).padStart(5)}  ${entry.member}`,
+            + `${String(entry.bottleneckIn).padStart(8)}  ${entry.member}`,
         );
     }
     console.log(
-        '\n`gated`   screens that stop matching if a perfect port loses this '
-        + 'owner: every screen from its first use to the end of each session '
-        + 'that uses it. Owners overlap, so these do not sum to the total.'
-        + '\n`sess`    sessions that use the owner at all.'
-        + '\n`advance` screens porting it next would earn, summed over the '
-        + 'sessions where it is the earliest unmet owner. An upper bound: a '
-        + 'later behavioral owner inside the gap is invisible.'
-        + '\n`first`   sessions where it is that earliest owner.',
+        '\ngated    screens that stop matching if a perfect port loses this '
+        + 'owner, and the sessions that lose them: every screen from the '
+        + "owner's first use to the end of each session that uses it. Owners "
+        + 'overlap, so this column does not sum to the total.'
+        + '\nadvance  screens porting this owner next would earn, and the '
+        + 'sessions it would earn them in, which are the sessions where it is '
+        + 'the earliest unmet owner. Every session with an owner has exactly '
+        + 'one earliest, so that column sums to the number of unfinished '
+        + 'sessions. An upper bound: a later behavioral owner inside the gap '
+        + 'is invisible.',
     );
 }
 
