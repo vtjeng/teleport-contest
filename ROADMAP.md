@@ -590,8 +590,8 @@ when a leak escapes the five cases above, or when the field list next grows.
 `hack.c:1048` prints `"That drawbridge is up!"` when `is_db_wall(x, y)` holds
 inside `test_move()`'s closing obstacle arm. `DBWALL` satisfies `IS_WALL()`, so
 `js/hack.js`'s type refusal lets it through and the port prints `"It's a wall."`
-instead. It is a silent divergence rather than a refusal: nothing stops, and the
-first evidence would be a screen mismatch.
+instead. This is a silent divergence. Nothing stops, and the first evidence
+would be a screen mismatch.
 
 The audit-fix agent for the `c706db8a6..ed43517` pass found this while applying
 a neighbouring finding and left it, correctly, because it sat outside the
