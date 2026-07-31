@@ -4814,6 +4814,107 @@
         }
       },
       "recordedAt": "2026-07-31T11:42:14.638Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "ff865ec919042f747f12d44962b8c7b2f782bc2a",
+        "display": "5879bed71b42deb7fe8346e75e589c42922d956b",
+        "hero": "5879bed71b42deb7fe8346e75e589c42922d956b",
+        "objects": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67",
+        "runtime": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
+        "world-effects": "21cea25678630be92405ccfda3c61b38bc0fc54a"
+      },
+      "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "auditedRange": "c706db8a6f372d28630d0f8e9bb06eba929a1123..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+      "areas": [
+        "commands",
+        "display",
+        "hero",
+        "objects",
+        "runtime",
+        "world-effects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over c706db8a6..ed43517, based at the oldest frontier among these six areas so one pass clears all of them: 16 raw, 15 deduplicated, 10 confirmed, 9 applied at 739e957, 1 deferred, 5 rejected, 0 unverified, 0 warnings. One production defect: test_move()'s obstacle arm silently answering FALSE for four hero-capability branches C handles differently. Mutation over the frozen range: 470 mutants, 335 killed, 135 survived, 71.3% kill rate, against 79.5% for the steed sub-range alone.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2441,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 15,
+          "confirmed": 10,
+          "applied": 9,
+          "deferred": 1,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 7,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/hack.js test_move(): the obstacle arm triaged terrain type only and silently answered FALSE for four hero-capability branches hack.c:1014-1042 handles differently -- Passes_walls && may_passwall (C can return TRUE), Underwater, tunnels && !needspick, and flags.autodig with a wielded pick-axe. Two of those change the map and consume randomness in C. Fixed by requireOrdinaryObstacleRefusal(), which raises UnsupportedHeroMoveBoundaryError for all four in the shape requireAutoopenClosedDoor() already used; is_pick() was ported into js/obj.js for the autodig term.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/display.js:1780 -- see_monsters() repaints monsters and only then refuses a long worm, and it refuses with a bare Error that no command boundary converts.",
+            "counterEvidence": "The statement-order trace is accurate (js/display.js:1776 newsym(), :1777-1781 the worm refusal), but the reachability premise the impact rests on is false, so the bare Error is an impossibility assertion, which is this port's established idiom (see the TypeError at :1763 and the wormSlots() errors in js/makemon_create.js). Counter-evidence: `grep -rn \"wormno\" js/` shows exactly one writer of a nonzero monster.wormno: js/makemon_create.js:2075, inside apply_newcham_form() (the function beginning at :2037), not makemon. makemon never calls get_wormno(), so the finder's claim that 'makemon can put one on a level for some seeds' is wrong. The on Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/display.js:1788 -- see_monsters() guards its warning-artifact arm on `new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)`, but nothing in the port ever writes state.warn_obj_cnt, and C's paired assignment gw.warn_obj_cnt = new_warn_obj_cnt has no counterpart or mention.",
+            "counterEvidence": "causality refute: The stated impact is impossible: the arm does not silently fire, it throws, so no repeated firing or missing write-back can be observed, and the comment beside it already declares the arm unenterable. Counter-evidence: js/display.js:1788-1793 is `if (new_warn_obj_cnt !== (state.warn_obj_cnt ?? 0)) { ... throw new Error('see_monsters() toggling a warning artifact'); }`. While the arm refuses, the guard is exactly equivalent to C's: gw.warn_obj_cnt can only ever change inside the arm C guards (display.c:1521-1524), so an unwritten field pinned at 0 reproduces C's value for every state the port can reach. The comment at :1789-1 Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/display.js:2132 -- statusConditionActive() was promoted from module-private _statusConditionActive to exported API, but two of its arms ignore the `u` parameter and read the module-global game: 'barehanded' reads game.uarmg/game.uwep, and 'ice' looks up the passed hero's coordinates on game.level.",
+            "counterEvidence": "causality refute: The diff changes only the declaration line and the one call site (private `_statusConditionActive` to exported `statusConditionActive`); the two global reads are untouched, and no caller — live, cloned, or test — can observe the mixture. Counter-evidence: `git diff c706db8a6..ed43517 -- js/display.js` touches this function on exactly two lines: the `export function` header and the call inside _statusConditionEntries(). The planning clone the finding names never reaches the status line: js/allmain.js:570 passes `statusRefresh: planning ? async () => {} : () => bot()`, so bot() and _statusConditionEntries() do not run on a clo Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/trap_effects.js:309 -- trapeffect_dart_trap()'s comment claims \"Every owner this arm can reach has to be proven present here, before the misfire draw and before trap->once is written\", but the arm proves only message, redraw and unsupported; the rn1/rnd/rne that mksobj() needs are proven in mintrap(), which the exported trapeffect_selector() lets a caller bypass.",
+            "counterEvidence": "The trace facts are right but the comment they are held against does not say what the finding reads into it. Counter-evidence: js/trap_effects.js's own header fixes the vocabulary the disputed sentence uses: 'Five owners arrive through the caller's env … `random` arrives the same way, and mintrap() checks it separately because it needs two named draws rather than one callable.' Under that definition the arm's owners are message, redraw and unsupported, and all three are resolved at lines 308-310 before the rn2(15) draw and before `trap.once = true`, so the sentence is accurate. mintrap() states the placement of the random proof as a deliberat Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/worn.js:338 -- The new comment on is_pole() says the Snickersnee term \"sits inside the macro rather than at its call sites\", but the only call site in the file, 59 lines below, re-excludes Snickersnee explicitly — as C's wield.c:131 does.",
+            "counterEvidence": "causality refute: The stated impact — a maintainer deletes the call-site term and unweapon silently flips — is refuted: the deletion is already pinned by a passing assertion. Counter-evidence: scripts/u-init-inventory-use.test.mjs:386-398 wields a Snickersnee (O.KATANA, ART_SNICKERSNEE) on a Samurai with no steed and asserts both `_wornInternals.is_pole(snickersnee, game) === true` and `game.unweapon === false`. Deleting `obj.oartifact !== ART_SNICKERSNEE` at js/worn.js:398 makes the third disjunct true and unweapon true, so that assertion fails immediately. The change is therefore loud, not silent, which leaves a wording preference rather th Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "scripts/checkpoint-checks.mjs:138 returns results.every(({passed, informational}) => passed || informational), so a failing development score cannot fail npm run checkpoint. Reproduced by driving checkpointCommands([], {}) through runCheckpointChecks with a stub failing only score-development.mjs: it prints FAIL development score and returns true. Deferred because narrowing the predicate changes what the commit gate means for every agent in this repository.",
+            "category": "tests",
+            "trackedIn": "`npm run checkpoint` cannot fail on the development score"
+          }
+        ],
+        "mutation": {
+          "mutants": 470,
+          "survivors": 135,
+          "byKind": {
+            "boolean": {
+              "ran": 88,
+              "killed": 56
+            },
+            "logical": {
+              "ran": 333,
+              "killed": 255
+            },
+            "relational": {
+              "ran": 49,
+              "killed": 24
+            }
+          },
+          "finderConclusion": "71.3% kill rate over the frozen range, against 79.5% for the steed sub-range alone, so the older material this range added is the weaker-covered part. The test-quality finder reported seven non-discriminating assertions and six were fixed: a door-square repaint, wake_nearto(), a dart weight recomputation, thitm()'s + obj.spe term, a documented --limit flag the parser rejects, and a leak detector excluding vision.c's transparency index on a false premise. Survivors concentrate in js/hack.js (34), js/trap_effects.js (24) and js/steed.js (22)."
+        }
+      },
+      "recordedAt": "2026-07-31T16:03:16.845Z"
     }
   ]
 }
