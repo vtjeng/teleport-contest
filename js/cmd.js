@@ -87,7 +87,7 @@ export class UnsupportedHeroCommandBoundaryError extends Error {
 // Each value is [u.dx, u.dy, context.run]: 0 walks, 1 runs, and 3 rushes.
 // Preserve these source numeric modes; downstream code groups them by
 // truthiness only where cmd.c does.
-const MOVEMENT_INTENTS = Object.freeze({
+export const MOVEMENT_INTENTS = Object.freeze({
     movewest: [-1, 0, 0],
     movenorthwest: [-1, -1, 0],
     movenorth: [0, -1, 0],
@@ -380,7 +380,7 @@ export async function parseCommand(state = game) {
 // through which the other seven are also reachable by name; every other
 // extended command stops inside doextcmd() instead, after the prompt has
 // painted the frames the reference program painted for the same keystrokes.
-const ADMITTED_COMMANDS = Object.freeze([
+export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     '#',
 ]);
@@ -403,7 +403,7 @@ const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
 // cmd.c:1606 sets 3, the same value do_rush_<dir> sets, so this list cannot
 // tell a `G` run from a ctrl-direction rush. Porting PREFIXCMD dispatch has to
 // bring its own seam for `G`, or it will admit prefixed runs by accident.
-const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
+export const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
 // bad-command path, which this file owns. parse() returns such a byte
