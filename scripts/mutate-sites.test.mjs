@@ -832,18 +832,28 @@ test('the killing test file is read from a run that genuinely fails', () => {
             "import assert from 'node:assert/strict';\n"
             + "import test from 'node:test';\n"
             + "test('c passes', () => { assert.equal(1, 1); });\n");
-        const run = spawnSync(process.execPath, ['--test',
-            'scripts/red.test.mjs', 'scripts/green.test.mjs'], {
-            cwd: root,
-            encoding: 'utf8',
-            env: { ...process.env, NODE_TEST_CONTEXT: undefined },
-        });
+        // Both reporters are named explicitly because `node --test` picks
+        // between them by Node version, and `package.json` supports the whole
+        // range: Node 22 defaults to TAP when stdout is not a terminal, where
+        // Node 24 defaults to spec. Leaving the choice to the default pins
+        // only whichever reporter the developer happens to run, which is how
+        // the TAP half went unread until CI, pinned to 22, reported it.
+        for (const reporter of ['spec', 'tap']) {
+            const run = spawnSync(process.execPath,
+                ['--test', `--test-reporter=${reporter}`,
+                    'scripts/red.test.mjs', 'scripts/green.test.mjs'], {
+                    cwd: root,
+                    encoding: 'utf8',
+                    env: { ...process.env, NODE_TEST_CONTEXT: undefined },
+                });
 
-        assert.equal(run.status, 1);
-        assert.deepEqual(
-            killingTestFiles(`${run.stdout}${run.stderr}`),
-            ['red.test.mjs'],
-        );
+            assert.equal(run.status, 1, reporter);
+            assert.deepEqual(
+                killingTestFiles(`${run.stdout}${run.stderr}`),
+                ['red.test.mjs'],
+                reporter,
+            );
+        }
     } finally {
         rmSync(root, { recursive: true, force: true });
     }

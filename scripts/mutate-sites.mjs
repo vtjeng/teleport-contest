@@ -932,17 +932,25 @@ export function runMutants({ workspace, targets,
 }
 
 /**
- * The test files a failing run blamed, read from the reporter's failing-tests
- * section, which prints `test at <path>:<line>:<col>` once per failure.
+ * The test files a failing run blamed, read from the reporter's own failure
+ * output, over both the TAP and the spec reporter as `reportedTestCount()`
+ * above does. The spec reporter prints `test at <path>:<line>:<col>` once per
+ * failure; the TAP reporter prints `location: '<path>:<line>:<col>'` in the
+ * YAML block under each `not ok`.
+ *
+ * Both are read because `node --test` chooses between them by Node version and
+ * `package.json` supports the whole range: Node 22 defaults to TAP when stdout
+ * is not a terminal, where Node 24 defaults to spec. Reading one format alone
+ * attributes nothing on the other, and reports that silently, because an
+ * unattributed kill is a legitimate result; the import-failure note below
+ * covers that case.
  *
  * That format is the reporter's, not an API, so `scripts/mutate-sites.test.mjs`
- * pins it against a file that genuinely fails. Two other routes were measured
- * and rejected. `--test-reporter=tap` names the test and not its file, so
- * `not ok 2 - b fails` cannot attribute. Running a wave one file at a time to
- * attribute by position costs 2.72 times the concurrent wall clock for
- * js/monmove.js's six files and 2.58 times for js/hack.js's eight, because
- * `node --test` runs files concurrently and one file at a time turns a maximum
- * into a sum.
+ * pins each one against a file that genuinely fails. One other route was
+ * measured and rejected: running a wave one file at a time to attribute by
+ * position costs 2.72 times the concurrent wall clock for js/monmove.js's six
+ * files and 2.58 times for js/hack.js's eight, because `node --test` runs files
+ * concurrently and one file at a time turns a maximum into a sum.
  *
  * A run whose module throws at import can fail without naming a test, so an
  * empty result means the killer went unattributed.
@@ -950,7 +958,7 @@ export function runMutants({ workspace, targets,
 export function killingTestFiles(output) {
     const files = new Set();
     for (const match of output.matchAll(
-        /^test at (\S+\.test\.mjs):\d+:\d+$/gmu))
+        /^\s*(?:test at |location: ')(\S+?\.test\.mjs):\d+:\d+'?$/gmu))
         files.add(basename(match[1]));
     return [...files].sort();
 }
