@@ -15,6 +15,7 @@ import {
     UnsupportedHeroCommandBoundaryError,
 } from './cmd.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
+import { UnsupportedSpecialRoomError } from './mkroom.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import {
     newgame,
@@ -523,7 +524,8 @@ export async function runSegment(
             // prefix into a zero-session scorer error.
             if (e instanceof UnsupportedTurnBoundaryError
                 || e instanceof UnsupportedHeroMoveBoundaryError
-                || e instanceof UnsupportedHeroCommandBoundaryError) {
+                || e instanceof UnsupportedHeroCommandBoundaryError
+                || e instanceof UnsupportedSpecialRoomError) {
                 onBoundary?.(e);
                 break;
             }
