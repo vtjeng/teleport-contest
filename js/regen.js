@@ -47,9 +47,11 @@ function reachedFull(kind, state, env) {
     );
 }
 
-// No ported code assigns u.umonnum, so const.js Upolyd() is false until
-// polyself.c is ported and the polymorphed arm below cannot run. Keep the
-// boundary explicit until rehumanize and eel upkeep have a live owner.
+// No ported code makes u.umonnum differ from u.umonster: u_init.c writes the
+// pair together, and polyself.c, the only writer that separates them, is
+// unported. const.js Upolyd() is therefore false and the polymorphed arm below
+// cannot run. Keep the boundary explicit until rehumanize and eel upkeep have
+// a live owner.
 export function regen_hp(wtcap, state = game, env = {}) {
     const hero = state.u;
     if (Upolyd(hero)) {

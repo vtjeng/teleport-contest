@@ -172,10 +172,15 @@ function hungerProperty(state, index) {
 }
 
 // The `(HFoo || EFoo)` shape, and only that shape. youprop.h spells
-// Sleep_resistance (36), Hunger (147), Conflict (218), Slow_digestion (291)
-// and Halluc_resistance (119) this way; the maladies at :108-113 and
+// Sleep_resistance (36), Hunger (147), Slow_digestion (291) and
+// Halluc_resistance (119) this way; the maladies at :108-113 and
 // Hallucination's own positive term at :116 are the bare intrinsic, so they
 // read hungerProperty().intrinsic instead.
+//
+// youprop.h:218 spells Conflict this way too, but gethungry() must not read it
+// through this helper: eat.c:3202-3203 tests `HConflict || (EConflict &
+// (~W_ARTI))` rather than the macro, so an artifact is the one conflict source
+// that costs no nutrition. That masked test stays spelled out below.
 function propertyActive(state, index) {
     const property = hungerProperty(state, index);
     return Boolean(property.intrinsic || property.extrinsic);

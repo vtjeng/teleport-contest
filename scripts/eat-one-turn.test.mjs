@@ -49,6 +49,7 @@ import {
     OBJ_INVENT,
     SATIATED,
     SICK,
+    VOMITING,
     WEAK,
     W_TOOL,
 } from '../js/const.js';
@@ -715,16 +716,32 @@ test('the hunger clock spends the satiating meal back below 1000',
         // no other, so leaving SATIATED rewrites the status line and prints
         // nothing. Before this was admitted the segment stopped here instead.
         const segment = segmentFor(`eg.eg.eg${'.'.repeat(47)}`);
-        await runSegment({ ...segment, moves: '.eg.eg.eg' + '.'.repeat(40) });
+        const meal = '.eg.eg.eg';
+        // The third apple leaves the hero at 1044 nutrition, and each wait
+        // here costs one point, so the forty-fourth wait after the meal is the
+        // turn that lands on 1000 and hungerStatus()'s `> 1000` stops holding.
+        await runSegment({ ...segment, moves: meal + '.'.repeat(43) });
+        assert.equal(game.u.uhunger, 1001);
         assert.equal(game.u.uhs, SATIATED);
         assert.ok(statusRow().includes('Satiated'), statusRow());
 
-        assert.equal(await boundaryFor(segment, segment.moves), null);
+        // The crossing turn itself. Stopping the replay here is what makes the
+        // silence checkable: any later wait clears the top line, so a message
+        // printed at the crossing would be gone by the end of the segment.
+        await runSegment({ ...segment, moves: meal + '.'.repeat(44) });
+        assert.equal(game.u.uhunger, 1000);
         assert.equal(game.u.uhs, NOT_HUNGRY);
         assert.ok(!statusRow().includes('Satiated'), statusRow());
         assert.equal(topLine(), '');
-        // Both statuses sit below WEAK, so neither ATEMP arm fired.
+        // Both statuses sit below WEAK, so neither ATEMP arm fired. Nothing on
+        // this Knight's path writes atemp[0] at all, so this pins the pair of
+        // ATEMP arms staying shut rather than either one running.
         assert.equal(game.u.atemp[0], 0);
+
+        // The remaining four waits reach the end of the recorded segment
+        // without a fail-closed stop.
+        assert.equal(await boundaryFor(segment, segment.moves), null);
+        assert.equal(game.u.uhs, NOT_HUNGRY);
     });
 
 test('the rot test is reached only past thirty turns of age', async () => {
@@ -864,26 +881,35 @@ test('fpostfx reads Sick and Vomiting as the bare intrinsic', async () => {
     // keeps touchfood() from splitting it, and objects.h gives both rows VEGGY
     // with oc_delay 1, so the meal still takes exactly one turn.
     const priest = segmentFor('ef');
-    const eatLeaf = async (configure) => {
+    const eatLeaf = async (index, configure) => {
         await runSegment({ ...priest, moves: '.' });
         const leaf = slotFor(SPRIG_OF_WOLFSBANE);
         leaf.otyp = EUCALYPTUS_LEAF;
         leaf.owt = weight(leaf, { state: game });
-        configure(game.u.uprops[SICK]);
+        configure(game.u.uprops[index]);
         game.nhDisplay.pushKey('f'.charCodeAt(0));
         return doeat(game);
     };
 
-    // W_TOOL stands for a worn source, the shape an extrinsic takes elsewhere.
-    assert.equal(
-        await eatLeaf((sick) => { sick.extrinsic = W_TOOL; }),
-        ECMD_TIME,
-    );
-    // The intrinsic is the term the macro does have, so it still stops.
-    await assert.rejects(
-        eatLeaf((sick) => { sick.intrinsic = 1; }),
-        /make_sick\(\) and make_vomiting\(\)/u,
-    );
+    // Both operands of the arm's `||` are driven, each with the other left
+    // clear, so each one decides the answer on its own row. Running only SICK
+    // would leave the VOMITING read unpinned: the intrinsic case makes the
+    // left operand true, so the right one never decides anything.
+    for (const [name, index] of [['Sick', SICK], ['Vomiting', VOMITING]]) {
+        // W_TOOL stands for a worn source, the shape an extrinsic takes
+        // elsewhere.
+        assert.equal(
+            await eatLeaf(index, (malady) => { malady.extrinsic = W_TOOL; }),
+            ECMD_TIME,
+            `an extrinsic-only ${name} must leave the arm alone`,
+        );
+        // The intrinsic is the term the macro does have, so it still stops.
+        await assert.rejects(
+            eatLeaf(index, (malady) => { malady.intrinsic = 1; }),
+            /make_sick\(\) and make_vomiting\(\)/u,
+            `an intrinsic ${name} must stop`,
+        );
+    }
 });
 
 test('the option variations reach the same meal', async () => {

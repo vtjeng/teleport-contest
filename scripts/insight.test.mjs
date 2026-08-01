@@ -200,6 +200,28 @@ test('Fixed_abil reads the extrinsic alone', async () => {
     );
 });
 
+// insight.c enlightenment() describes a polymorphed hero's form and reads the
+// hit points from u.mh, neither of which is ported, so the window stops before
+// it opens. const.js Upolyd() takes the hero rather than the game: handing it
+// the game compares two absent fields, answers false, and prints a window that
+// C would have filled differently, so the guard needs a test of its own.
+test('a polymorphed hero stops the attributes window', async () => {
+    const state = await readyGame();
+    // The same hero unpolymorphed reaches the window, so the throw below
+    // belongs to this guard and not to an earlier stop.
+    assert.ok(
+        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+            ' You are'),
+    );
+
+    state.u.umonnum = state.u.umonster + 1;
+    assert.throws(
+        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        (error) => error instanceof UnsupportedEnlightenmentError
+            && error.branch === 'a polymorphed hero',
+    );
+});
+
 // youprop.h:125 defines Deaf as (HDeaf || EDeaf || u.uroleplay.deaf).
 // OPTIONS=deaf sets only the third term, which u.uprops never sees, so a
 // property-only guard would print a window C would have given a deafness line.

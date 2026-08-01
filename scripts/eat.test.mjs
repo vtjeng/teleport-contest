@@ -184,6 +184,16 @@ test('gethungry applies even-turn property and accessory costs', async () => {
     property(intrinsicConflict, CONFLICT).extrinsic = W_ARTI;
     assert.equal(await hungerTick(intrinsicConflict, 2), 2);
 
+    // eat.c:3202-3203 masks W_ARTI out of the extrinsic instead of reading
+    // youprop.h:218's Conflict macro, so an artifact is the one conflict
+    // source that costs nothing: the loss is the ordinary point alone. The two
+    // rows above leave the masked and unmasked reads agreeing -- W_RINGL makes
+    // both true, and so does the intrinsic -- so this is the row that
+    // separates them.
+    const artifactConflict = hungerState();
+    property(artifactConflict, CONFLICT).extrinsic = W_ARTI;
+    assert.equal(await hungerTick(artifactConflict, 2), 1);
+
     const slowArmor = hungerState();
     property(slowArmor, SLOW_DIGESTION).extrinsic = W_WEP;
     assert.equal(await hungerTick(slowArmor, 0), 1);

@@ -861,6 +861,30 @@ test('losehp takes the hit points, redraws the status line and stops at '
     );
 });
 
+test('losehp stops for a polymorphed hero before it spends a hit point',
+     async () => {
+    // hack.c:4267-4276 takes the loss out of u.mh for a polymorphed hero and
+    // can reach rehumanize(); nothing ported owns u.mh, so the arm stops
+    // rather than writing u.uhp for a hero who is not in his own form.
+    //
+    // const.js Upolyd() takes the hero, not the game. Handing it the game
+    // compares two absent fields, answers false, and turns this fail-closed
+    // guard into a skip that spends the hit points on the wrong field, which
+    // is why the guard needs a test of its own.
+    await runSegment({
+        ...knightSlipSegment(), moves: `.${RIDE_COMMAND}`,
+    });
+    const started = game.u.uhp;
+    game.u.umonnum = game.u.umonster + 1;
+
+    await assert.rejects(
+        losehp(3, 'a test', NO_KILLER_PREFIX, game),
+        UnsupportedHitPointLossError,
+    );
+    // The guard sits above the subtraction, so the hero keeps every point.
+    assert.equal(game.u.uhp, started);
+});
+
 test('losehp wails only below a tenth of the maximum and only after turn 50',
     async () => {
     // hack.c:4288-4289 calls maybe_wail() when `n > 0 && u.uhp * 10 <
