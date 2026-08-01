@@ -107,6 +107,97 @@ selection, and nothing re-ran the scan against the candidate before the slice
 was promised. Do not replace an instrument for a failure its own documentation
 already warns about; use it as written.
 
+### In progress: a starting pet that carries an object
+
+A tame starting pet holding an object takes its turn: it keeps the object, is
+steered by it, or drops it.
+
+**Why this goal, on evidence the last four goals did not have.** The descent
+goal was selected by `supports` on the strongest case any goal has had and its
+holdout did not move at all. So this goal was selected on a measurement of the
+population the holdout actually samples, not on the recorded 33. Over 600 fresh
+seeds walking 96 keys on D:1 across two roles and two pet types, the port's
+first boundary was a starting-pet boundary in **51 to 53%** of walks: pet
+inventory 93 (15.5%), pet ranged targeting 119 (19.8%), pet combat evaluation
+67 (11.2%), against door and terrain at 97 (16.2%). That is the likeliest
+reason four consecutive holdouts have not moved. Of the three pet boundaries,
+**only pet inventory can be closed**: pet ranged targeting bottoms out in
+`mattackm()` and can only be narrowed. Pet inventory also carries the largest
+`unlocks` in `scripts/scan-debt.mjs`, 279 screens across 2 sessions, so it is
+the only candidate that scores on both instruments.
+
+**The bounding property, testable against C.** Every arm reachable from
+`dogmove.c dog_invent()`'s `droppables()` branch (`dogmove.c:412-424`) resolves
+inside `steal.c`, `worn.c` and `do.c`. No arm calls `mattackm()` or
+`mattacku()`. Anything needing those is outside this goal.
+
+**Upstream owners.** `steal.c relobj()` (874-899) and `mdrop_obj()` (813-846);
+`worn.c extract_from_minvent()` (1376-1416), entered with
+`do_extrinsics = FALSE`; and `do.c flooreffects()` from 162, only far enough to
+return FALSE on an ordinary square and to refuse pool, lava, pit and hole by
+name. Roughly 110 new C lines. Already ported: `place_object` (`js/obj.js`),
+`stackobj` and `obj_extract_self` (`js/invent.js`), `distant_name`
+(`js/objnam.js`), `check_gear_next_turn` (`js/mon.js`).
+
+**Traced findings, recorded so they are not re-derived.**
+
+- `js/dogmove.js` already ports `dog_invent()`'s drop arm down to a
+  `dropInventory` seam (417-429) and all three of `dog_goal()`'s
+  `dog_has_minvent` reads (542, 616, 637; C 502, 551, 576). `relobj()` is the
+  single missing function.
+- The live blocker is wider than that seam. `assertSimpleActionState()` at
+  `js/unported_monster_actions.js:223-226` refuses **any** turn where a
+  starting pet's `minvent` holds more than an inert saddle, so deleting it is a
+  prerequisite of the first commit rather than a later tidy-up.
+- `dog.c:60` sets `edog->apport = ACURR(A_CHA)` and the gate is
+  `rn2(10) < apport`, so drop frequency depends on charisma. Recorded cases
+  must span at least two charisma values.
+- `update_mon_extrinsics()` is unreachable here: `relobj(..., is_pet=TRUE)`
+  iterates `droppables()`, which never returns a worn item, so `unwornmask` is
+  0.
+- `js/allmain.js:650` already reruns `m_dowear()` for the `I_SPECIAL` recheck a
+  pickup schedules, so that follow-on turn is not a hidden second boundary.
+
+**Expected gain, as a bound rather than a forecast.** `scan-debt` puts the
+ceiling at 279 screens across 2 sessions. Per session, and this is the quantity
+the descent goal taught us to ask for: `seed1150` gains 26 screens and then
+stops on `fire` at step 34; `seed0030` gains 253 and then stops on `fight` at
+step 261. Applying the 4.8x-to-26x overstatement this file records gives **11
+to 58 development screens**. `seed0030`'s gap is 253 steps of movement in the
+corpus's largest session, and `scan-debt` cannot see a hero-move or
+monster-action boundary inside a gap, so treat the low end as the honest one.
+
+**Slices.**
+
+1. *The drop.* Delete the `pet inventory` refusal and implement `dropInventory`
+   as `relobj()` for one uncursed object on a ROOM or CORR square in sight.
+   Starts at the hero's next command after `X picks up Y.`; ends at the
+   `X drops Y.` top line, the object's glyph, and the next command prompt.
+2. *Carrying without dropping.* The turns where both `rn2` gates fail:
+   `apport` unchanged, and `dog_goal()`'s 551 and 576 arms steering the pet.
+   Ends at two consecutive prompts with the pet still carrying.
+3. *The remaining arms.* `relobj()`'s multi-object `while`, `stackobj()`
+   merging onto an occupied square, the out-of-sight `show && cansee`
+   `newsym()`, and named refusals for the `flooreffects()` squares.
+
+**Sequencing decided with the goal.** `display.c map_object()` (338-352) is
+slice 1's **prerequisite**, not a separate item: `mdrop_obj()` reaches
+`place_object()` and then `newsym()`, and the dropped object is exactly the
+potion and gem class of all three recorded reproductions, so leaving it would
+cost this goal's candidate seeds as it cost the last three slices'. Record the
+orphaned jewelers-and-hardware mimic pairing when fixing it. The
+`flush_screen()` goal stays where it is, immediately before `#levelchange`,
+its only hard dependant; this goal draws no menu and no prompt.
+
+**A rule worth revisiting after this goal.** The runner-up, `pet combat
+evaluation` — `max_passive_dmg()`, `mon_reflects()` and `resists_ston()` behind
+`js/dogmove.js:867-903` — is 11.2% of fresh walks and closeable with near-pure
+functions, but `.agents/selection.md` filters it out because its `unlocks` is
+0. That filter's premise, that no fresh differential can execute its real
+consumer, is false here: 67 of 600 fresh seeds reach it as their earliest
+boundary. The filter is written for the recorded 33 and does not see the fresh
+population.
+
 ### Queued: the hero walks onto a floor square holding more than one object
 
 Set aside on 31 July 2026 when `scripts/scan-debt.mjs` landed. The scan rates
