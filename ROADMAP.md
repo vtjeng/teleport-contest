@@ -761,6 +761,37 @@ when a leak escapes the five cases above, or when the field list next grows.
 
 ### Game behavior
 
+#### `u_on_newpos()` drops `earth_sense()` with no refusal
+
+`dungeon.c u_on_newpos()` ends both arms with an unconditional `earth_sense()`
+at 1600. `js/dungeon.js` closes the function without it and without a named
+refusal, so a message-writing C branch is skipped silently — the one thing
+`AGENTS.md` forbids an unported path to do.
+
+`earth_sense()` (1547-1565) returns unless the hero is a dwarf; returns on
+`u.usteed`, `Flying`, `Levitation` or `Upolyd`; returns unless
+`levl[u.ux][u.uy].typ` is CORR or ROOM; and otherwise walks
+`svl.level.buriedobjlist` and prints
+`You("sense something below your %s.", makeplural(body_part(FOOT)))`. It draws
+no random number, and that one line is its whole output.
+
+**The comment excusing the omission is falsified, which is what makes this
+worth recording now.** It argued reachability through `teleds()` and `#ride`
+alone; `36562b9` added `js/hack.js domove()` as a caller, so the function is
+entered on every hero step, for every role and race. What actually keeps the
+branch dormant is narrower and was never written down: every burial site on a
+reachable level is a GRAVE or STONE square, which `earth_sense()` rejects
+before it reads the buried list.
+
+The goal-closing correctness pass over `9a7aef5..7caa325` confirmed this and
+deferred it, because porting a new upstream function is outside audit-fix
+scope. Take it with whatever next buries an object under a ROOM or CORR square
+— a bones load, `bury_objs()` from the boulder arm of `flooreffects()`, or a
+`make_grave()` that returns early — since that is the point at which a dwarf
+hero silently loses a top line. Either port `earth_sense()` outright or refuse
+exactly the state it would answer for, and replace the `teleds()` sentence with
+the reason above.
+
 #### the jewelers-and-hardware mimic pairing is still unrecorded
 
 `scripts/run-shop-mimic.mjs` puts no jewelers or hardware store on

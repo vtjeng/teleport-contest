@@ -5463,6 +5463,114 @@
         }
       },
       "recordedAt": "2026-08-01T17:38:35.622Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
+        "display": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
+        "generation": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
+        "hero": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
+        "monsters": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
+        "objects": "dc4e009eace59753032502a7c908808541957630",
+        "runtime": "dc4e009eace59753032502a7c908808541957630",
+        "startup": "17825d3f8092debe79586bcdaa175718c2e2b89a",
+        "world-effects": "0044be6b07b6224a46d9117a34fc2e9e41892d29"
+      },
+      "head": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
+      "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
+      "areas": [
+        "commands",
+        "display",
+        "generation",
+        "hero",
+        "monsters",
+        "objects",
+        "runtime",
+        "startup",
+        "world-effects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Four finders over 41 js/ files: 17 raw findings, 15 deduplicated, 12 confirmed, 3 rejected, none unverified, no warnings. Eleven applied at 12706a7 with the development score unchanged at 520 of 7,765 screens and 107,227 of 610,816 random-number values; one production finding deferred to ROADMAP.md. Readiness evidence at the frozen head: full suite, six generated-data checks and check:namespace-members pass; fresh differentials scripts/run-pet-drop.mjs at 28 strict segments and scripts/run-pet-carry.mjs at 14 over 44,497 calls and 229 screens; mutation over the range at 361 mutants and 63 survivors.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2685,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 15,
+          "confirmed": 12,
+          "applied": 11,
+          "deferred": 1,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "see_nearby_objects() honoured its state parameter for cansee(), observe_object() and level.at(), then redrew through newsym(), which reads the module-global game, so a caller threading another state would mark objects on one state and repaint cells of the other. Fixed by refusing a non-global state, following curs_on_u() at js/hack.js:1496.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "u_on_newpos() drops C's trailing earth_sense() call with no named refusal, and the comment excusing it is falsified by this range: 36562b9 added domove() as a caller, so the function now runs on every hero step for every race rather than only through teleds() and #ride.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "u_on_newpos() drops C's trailing earth_sense() call with no named refusal, and the comment excusing it is falsified by this range: 36562b9 added domove() as a caller, so the function now runs on every hero step for every race rather than only through teleds() and #ride.",
+            "trackedIn": "`u_on_newpos()` drops `earth_sense()` with no refusal",
+            "category": "production"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "glyph_is_generic_object() keeps C's name but hardcodes one of C's two glyph sources, reading location.remembered_glyph, while its docstring generalises from the single call site where C asks the question of levl[x][y].glyph.",
+            "counterEvidence": "The factual asymmetry is real but has no unported arm to land on. C's other call site, display.c:340, is already ported at js/display.js:1605-1612 observeNearbyObject(), which uses object_is_generic(), the port of display.h obj_is_generic(), so the helper is never asked C's other question. Do not reopen without a call site that reaches this helper with a computed glyph rather than a map location."
+          },
+          {
+            "summary": "The range adds a module-private heroBlind() to js/dungeon.js while js/teleport.js:395 already defines a differently-bodied heroBlind(); the two disagree on whether C's Blind includes u.uroleplay.blind.",
+            "counterEvidence": "Both same-named helpers exist, but the half that is wrong is pre-existing and outside this range, and the half this range adds is the C-faithful one: youprop.h:103 defines Blind as ((HBlinded || EBlinded) && !BBlinded) with no uroleplay term, which is what js/dungeon.js:820-824 implements. The range therefore introduces no defect. Do not reopen without a range that touches js/teleport.js:395."
+          },
+          {
+            "summary": "The range creates an unannotated import cycle between js/steal.js and js/dogmove.js, breaking the repository's convention of naming every cycle and the reason it resolves.",
+            "counterEvidence": "The cycle and the missing annotation are real, but the stated hazard cannot occur: both exports at its ends are hoistable function declarations, js/dogmove.js:257 droppables() and js/steal.js:282 relobj(), and ES module linking instantiates function declarations during InitializeEnvironment for every module in the graph before any module body evaluates. What remains is a convention deviation with no failure mode. Do not reopen without a binding in this cycle that is not a hoisted function declaration."
+          }
+        ],
+        "mutation": {
+          "mutants": 361,
+          "survivors": 63,
+          "byKind": {
+            "boolean": {
+              "ran": 80,
+              "killed": 67
+            },
+            "logical": {
+              "ran": 205,
+              "killed": 187
+            },
+            "relational": {
+              "ran": 76,
+              "killed": 44
+            }
+          },
+          "finderConclusion": "The test-quality finder traced the survivor list against source and converted four of it into confirmed findings: both relational survivors at js/const.js:2884 proved that ismnum()'s pm < NUMMONS bound had no test at all, all three logical survivors at js/detect.js:259 proved the same for the tactile-floor guard's ball-and-chain clauses, and the js/steal.js and js/worn.js survivors led to the dknown and silently gaps. The remaining survivors cluster in js/mklev.js (21) and js/do.js (18), on generation constants and on flooreffects() arms whose two answers reach the same named refusal, where no test can observe the difference."
+        }
+      },
+      "recordedAt": "2026-08-01T23:37:27.554Z"
     }
   ]
 }
