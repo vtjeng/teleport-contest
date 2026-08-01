@@ -28,6 +28,8 @@ import {
     COCKNEST,
     COURT,
     DELPHI,
+    FILL_NONE,
+    FILL_NORMAL,
     LEPREHALL,
     MORGUE,
     OROOM,
@@ -401,25 +403,36 @@ test('invalid_shop_shape rejects a room that pins the shopkeeper', () => {
     assert.equal(invalid_shop_shape(single, state3), false);
 });
 
-test('do_mkroom stops on the room the level would gain', () => {
+test('do_mkroom takes the room the level would gain', () => {
     const state = dungeonState();
     roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
     state.stairs = null;
-    assert.throws(
-        () => do_mkroom(SHOPBASE, state),
-        /mkshop\(\) choosing a shop for room 0/u,
-    );
+    // mkshop() draws one rnd(100) and nothing else; 1 selects shtypes[0], the
+    // general store. A rejected room reaches no draw at all, which is what
+    // makes `drawn` the evidence below.
+    let drawn = 0;
+    const oneRoll = { rnd: () => { drawn += 1; return 1; } };
+
+    do_mkroom(SHOPBASE, state, oneRoll);
+    assert.equal(drawn, 1);
+    assert.equal(state.level.rooms[0].rtype, SHOPBASE);
+    assert.equal(state.level.rooms[0].needfill, FILL_NORMAL);
+    state.level.rooms[0].rtype = OROOM;
+    state.level.rooms[0].needfill = FILL_NONE;
+
     // Every other room type reaches mkzoo(), mkswamp() or mktemple().
     assert.throws(() => do_mkroom(ZOO, state), /do_mkroom\(8\)/u);
 
     // A room the shop search rejects leaves the level unchanged: mkshop()
     // walks past a room that already holds the down staircase.
+    drawn = 0;
     state.stairs = { sx: 12, sy: 7, up: false, next: null };
-    do_mkroom(SHOPBASE, state);
+    do_mkroom(SHOPBASE, state, oneRoll);
     assert.equal(state.level.rooms[0].rtype, OROOM);
     // ... and past a room that holds the up staircase.
     state.stairs = { sx: 12, sy: 7, up: true, next: null };
-    do_mkroom(SHOPBASE, state);
+    do_mkroom(SHOPBASE, state, oneRoll);
+    assert.equal(state.level.rooms[0].rtype, OROOM);
 
     // A room that is already special is passed over, and so is one with a
     // door count other than one: C's loop tests `doorct == 1` rather than a
@@ -430,17 +443,22 @@ test('do_mkroom stops on the room the level would gain', () => {
         const room = state.level.rooms[0];
         const was = room[field];
         room[field] = value;
-        do_mkroom(SHOPBASE, state);
+        do_mkroom(SHOPBASE, state, oneRoll);
         room[field] = was;
     }
+    // A level with no rooms at all: the loop's bound, not its terminator.
+    const rooms = state.level.rooms;
+    state.level.nroom = 0;
+    do_mkroom(SHOPBASE, state, oneRoll);
+    assert.equal(drawn, 0, 'every rejection above reaches no roll');
+
     // With every rejection undone the search finds the room again, so the
     // walk above stopped for the reason each case names rather than because
     // the loop had ended.
-    assert.throws(() => do_mkroom(SHOPBASE, state), /choosing a shop/u);
-
-    // A level with no rooms at all: the loop's bound, not its terminator.
-    state.level.nroom = 0;
-    do_mkroom(SHOPBASE, state);
+    state.level.nroom = rooms.length;
+    do_mkroom(SHOPBASE, state, oneRoll);
+    assert.equal(drawn, 1);
+    assert.equal(state.level.rooms[0].rtype, SHOPBASE);
 });
 
 test('check_special_room stops on a room that would announce itself', () => {

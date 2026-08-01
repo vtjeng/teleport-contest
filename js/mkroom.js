@@ -13,6 +13,7 @@ import {
     DBWALL,
     DOOR,
     DRAWBRIDGE_DOWN,
+    FILL_NORMAL,
     FOUNTAIN,
     GRAVE,
     HWALL,
@@ -40,7 +41,11 @@ import {
     WATER,
 } from './const.js';
 import { game } from './gstate.js';
+import { topologize } from './mklev.js';
+import { SPBOOK_CLASS, WAND_CLASS } from './objects.js';
+import { rnd } from './rng.js';
 import { inside_room } from './room_coordinates.js';
+import { SHTYPES } from './shtypes_data.js';
 import {
     S_air,
     S_altar,
@@ -86,6 +91,8 @@ import {
     S_vwall,
     S_water,
 } from './symbols.js';
+
+const SOURCE_RANDOM = Object.freeze({ rnd });
 
 export function cmap_to_type(symbol) {
     switch (symbol) {
@@ -218,33 +225,67 @@ export function invalid_shop_shape(sroom, state = game) {
     return false;
 }
 
-// C ref: mkroom.c mkshop(), through its room search. The search draws no
-// random number: it walks the level's rooms in order and takes the first
-// ordinary one that holds no staircase, has exactly one door, and leaves the
-// shopkeeper somewhere to stand.
+// C ref: mkroom.c mkshop(). The room search draws no random number: it walks
+// the level's rooms in order and takes the first ordinary one that holds no
+// staircase, has exactly one door, and leaves the shopkeeper somewhere to
+// stand. C returns when no room qualifies, and the level gets no shop.
 //
-// Everything after that search stops. C lights the room, rolls the shop type
-// from shtypes[] with rnd(100), sets rtype and marks the room for filling,
-// after which stock_room() populates it and shkinit() creates its keeper. The
-// port stocks only the two themed "twin business" shop types that
-// dat/themerms.lua asks for by name; a shop chosen from the whole shtypes[]
-// table, and the shopkeeper that comes with it, are the shop work.
+// After the search, the only random number mkshop() draws is the single
+// rnd(100) that picks the shop type. The room is not stocked here: mkshop()
+// marks it FILL_NORMAL and makelevel()'s tail calls fill_special_room(), which
+// reaches js/shknam.js stock_room().
 //
 // C's wizard-mode SHOPTYPE arm above the search is unreachable: the port never
-// sets wizard mode, and game code may not read the environment.
-function mkshop(state) {
+// sets wizard mode, and game code may not read the environment. That arm is
+// also the only way `i` reaches the type roll already set, so the roll's
+// `if (i < 0)` guard is always true here.
+function mkshop(state, random) {
+    let sroom = null;
     for (let index = 0; index < state.level.nroom; ++index) {
-        const sroom = state.level.rooms[index];
-        if (!sroom || sroom.hx < 0) return;
-        if (sroom.rtype !== OROOM) continue;
-        if (has_dnstairs(sroom, state) || has_upstairs(sroom, state)) continue;
-        if (sroom.doorct === 1) {
-            if (invalid_shop_shape(sroom, state)) continue;
-            throw new UnsupportedSpecialRoomError(
-                `mkshop() choosing a shop for room ${index}`,
-            );
+        const candidate = state.level.rooms[index];
+        if (!candidate || candidate.hx < 0) return;
+        if (candidate.rtype !== OROOM) continue;
+        if (has_dnstairs(candidate, state) || has_upstairs(candidate, state))
+            continue;
+        if (candidate.doorct === 1) {
+            if (invalid_shop_shape(candidate, state)) continue;
+            sroom = candidate;
+            break;
         }
     }
+    if (!sroom) return;
+
+    // A dark shop is lit, along with the one-cell border that holds its walls
+    // and its door, so the hero sees the stock from the doorway.
+    if (!sroom.rlit) {
+        for (let x = sroom.lx - 1; x <= sroom.hx + 1; x++)
+            for (let y = sroom.ly - 1; y <= sroom.hy + 1; y++) {
+                const loc = state.level.at(x, y);
+                if (loc) loc.lit = 1;
+            }
+        sroom.rlit = 1;
+    }
+
+    // C: for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++). One draw
+    // whatever the outcome, so an off-by-one here shifts every shop type
+    // without changing the random-number log.
+    let j = random.rnd(100);
+    let i = 0;
+    while ((j -= SHTYPES[i].prob) > 0) i++;
+
+    // A big room cannot be a wand or spellbook shop, because those two stock
+    // too much value for a room this size; C makes it a general store instead.
+    if (isbig(sroom)
+        && (SHTYPES[i].symb === WAND_CLASS
+            || SHTYPES[i].symb === SPBOOK_CLASS)) {
+        i = 0;
+    }
+    sroom.rtype = SHOPBASE + i;
+
+    // Set the room's squares before it is stocked.
+    topologize(sroom, state);
+
+    sroom.needfill = FILL_NORMAL;
 }
 
 // C ref: mkroom.c do_mkroom(). mklev.c makelevel() calls it at most once per
@@ -254,9 +295,9 @@ function mkshop(state) {
 // the shop first and every other room type needs a depth greater than four.
 // mkzoo(), mkswamp() and mktemple() populate their rooms with monsters,
 // fountains, an altar and a priest, none of which is ported.
-export function do_mkroom(roomtype, state = game) {
+export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
     if (roomtype >= SHOPBASE) {
-        mkshop(state);
+        mkshop(state, random);
         return;
     }
     throw new UnsupportedSpecialRoomError(`do_mkroom(${roomtype})`);

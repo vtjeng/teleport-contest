@@ -2400,26 +2400,26 @@ function sort_rooms() {
 }
 
 // C ref: mklev.c topologize()
-function topologize(croom) {
+export function topologize(croom, state = game) {
     if (!croom || croom.irregular) return;
     const roomno = (croom.roomnoidx ?? -1) + ROOMOFFSET;
     const lowx = croom.lx, lowy = croom.ly;
     const hix = croom.hx, hiy = croom.hy;
-    if (!game.level || roomno < ROOMOFFSET) return;
-    if ((game.level.at(lowx, lowy)?.roomno ?? 0) === roomno) return;
+    if (!state.level || roomno < ROOMOFFSET) return;
+    if ((state.level.at(lowx, lowy)?.roomno ?? 0) === roomno) return;
     for (let x = lowx; x <= hix; x++)
         for (let y = lowy; y <= hiy; y++) {
-            const loc = game.level.at(x, y);
+            const loc = state.level.at(x, y);
             if (loc) loc.roomno = roomno;
         }
     for (let x = lowx - 1; x <= hix + 1; x++)
         for (let y = lowy - 1; y <= hiy + 1; y += (hiy - lowy + 2)) {
-            const loc = game.level.at(x, y);
+            const loc = state.level.at(x, y);
             if (loc) { loc.edge = true; loc.roomno = loc.roomno ? SHARED : roomno; }
         }
     for (let x = lowx - 1; x <= hix + 1; x += (hix - lowx + 2))
         for (let y = lowy; y <= hiy; y++) {
-            const loc = game.level.at(x, y);
+            const loc = state.level.at(x, y);
             if (loc) { loc.edge = true; loc.roomno = loc.roomno ? SHARED : roomno; }
         }
 }
