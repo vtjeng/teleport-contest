@@ -22,7 +22,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ECMD_TIME, HUNGRY, NOT_HUNGRY, SATIATED } from '../js/const.js';
+import {
+    ECMD_TIME,
+    HALLUC,
+    HUNGRY,
+    NOT_HUNGRY,
+    SATIATED,
+} from '../js/const.js';
 import { CRAM_RATION, FOOD_RATION } from '../js/objects.js';
 import {
     UnsupportedEatError,
@@ -32,7 +38,10 @@ import {
     newuhs,
     zero_victual,
 } from '../js/eat.js';
+import { UnsupportedTurnBoundaryError, moveloop_core } from '../js/allmain.js';
 import { set_occupation } from '../js/cmd.js';
+import { monsterNearby } from '../js/hack.js';
+import { youHear } from '../js/monmove.js';
 import { the } from '../js/objnam.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -41,14 +50,18 @@ import {
     loadEatOccupationRecipe,
 } from './run-eat-occupation.mjs';
 
-// Locate a segment by the keys it types, so reordering the matrix cannot
-// silently point a test at a different case.
-function segmentFor(moves, recipe = loadEatOccupationRecipe()) {
-    const found = recipe.segments.find(
-        (segment) => segment.moves === `.${moves}.`,
+// Locate a segment by its seed and the keys it types, so reordering the matrix
+// cannot silently point a test at a different case. The keys alone do not
+// identify one: the plain five-turn meal and the same meal watched by a pet
+// both type "ed ". Both halves of the key are asserted, so a segment that
+// changes either one fails here rather than in the test that uses it.
+function segmentFor(seed, moves, recipe = loadEatOccupationRecipe()) {
+    const found = recipe.segments.filter(
+        (segment) => segment.seed === seed && segment.moves === `.${moves}.`,
     );
-    assert.ok(found, `the matrix contains a segment typing ${moves}`);
-    return found;
+    assert.equal(found.length, 1,
+        `the matrix contains one segment with seed ${seed} typing ${moves}`);
+    return found[0];
 }
 
 // Replay a matrix segment with different keys and report the fail-closed
@@ -88,7 +101,7 @@ function recordingEnv(said = []) {
 }
 
 test('a five-turn meal spends six turns in all', async () => {
-    const segment = segmentFor('ed ');
+    const segment = segmentFor(5820011, 'ed ');
     // The turn before the meal, so the meal's own cost is the difference.
     await runSegment({ ...segment, moves: '.' });
     const beforeMoves = game.moves;
@@ -108,14 +121,36 @@ test('a five-turn meal spends six turns in all', async () => {
     // touchfood() split one ration off the stack and done_eating() used that
     // one up.
     assert.equal(slotFor(FOOD_RATION)?.quan ?? 0, beforeRations - 1);
-    // moveloop_core() cleared the occupation when eatfood() answered 0.
+    // done_eating() cleared the occupation before its own newuhs() call; the
+    // clear moveloop_core() makes when eatfood() answers 0 is the second of
+    // the two and is covered separately below.
     assert.equal(game.go.occupation, null);
     // done_eating() returns every field of the victual to zero.
     assert.deepEqual(game.context.victual, zero_victual());
+    // The fourth bite crossed 1500, so lesshungry() printed its nearly-full
+    // warning and left gn.nomovemsg behind; done_eating() prints that instead
+    // of "You finish eating the food ration." The warning left the top line
+    // through the --More-- that this segment's trailing space answers.
+    assert.equal(game._ttyToplines, "You're finally finished.");
+});
+
+test('moveloop_core clears an occupation that answers 0', async () => {
+    // allmain.c moveloop_core():502 `if ((*go.occupation)() == 0)
+    // go.occupation = 0;`. eat.c done_eating() clears it first, so the meal
+    // above cannot observe this line; a callback that answers 0 without
+    // touching go.occupation can.
+    await runSegment({ ...segmentFor(5820011, 'ed '), moves: '.' });
+    let calls = 0;
+    set_occupation(() => { calls++; return 0; }, 'testing', 0, game);
+    // Skip the elapsed-turn block, so the turn is the occupation call alone.
+    game.context.move = 0;
+    await moveloop_core();
+    assert.equal(calls, 1);
+    assert.equal(game.go.occupation, null);
 });
 
 test('the occupation carries the rest of the meal', async () => {
-    await startMeal(segmentFor('ed '), 'd');
+    await startMeal(segmentFor(5820011, 'ed '), 'd');
 
     // set_occupation() installed eatfood and the text stop_occupation() would
     // print. Comparing against the export proves the installed callback is
@@ -166,7 +201,7 @@ test('the occupation carries the rest of the meal', async () => {
 
 test('a meal that stays under the choking threshold says it finished',
     async () => {
-        const segment = segmentFor('ef');
+        const segment = segmentFor(5820023, 'ef');
         await runSegment({ ...segment, moves: '.' });
         const beforeRations = slotFor(CRAM_RATION).quan;
         await runSegment(segment);
@@ -188,7 +223,7 @@ test('newuhs holds back the comment on a boundary the meal crosses',
         // crossed a hunger boundary would comment in the middle rather than at
         // the end. gethungry() passes incr TRUE, which selects the wording the
         // assertion below would otherwise see.
-        await startMeal(segmentFor('ed '), 'd');
+        await startMeal(segmentFor(5820011, 'ed '), 'd');
         const env = recordingEnv();
         game.u.uhunger = 120;
         game.force_save_hs = false;
@@ -204,11 +239,66 @@ test('newuhs holds back the comment on a boundary the meal crosses',
         assert.deepEqual(env.said, ['You only feel hungry now.']);
     });
 
+test('done_eating leaves gn.nomovemsg in a shape its reader accepts',
+    async () => {
+        // C's `gn.nomovemsg = 0` assigns NULL to a `const char *`, and its
+        // readers test it rather than calling a string method on it. This
+        // port's other reader, js/monmove.js heroUnaware(), resolves the field
+        // with `??` and then calls String.prototype.startsWith, which the
+        // number 0 does not answer.
+        await runSegment(segmentFor(5820011, 'ed '));
+        assert.equal(game.nomovemsg, null);
+
+        // pline.c You_hear() consults heroUnaware() only while the hero is
+        // helpless; hack.c nomul() is the only writer of a negative gm.multi.
+        game.multi = -1;
+        game.flags.acoustics = true;
+        assert.equal(youHear('a door open.', game), 'You hear a door open.');
+    });
+
+test('done_eating clears the occupation before its own newuhs call',
+    async () => {
+        // C ref: eat.c done_eating():549 `go.occupation = 0; /* do this early,
+        // so newuhs() knows we're done */`. With the occupation still set,
+        // newuhs() takes its silent arm and returns, so the saved status stays
+        // held and the restore, the disp.botl write and any hunger comment all
+        // slide to the following turn.
+        await startMeal(segmentFor(5820011, 'ed '), 'd');
+        assert.equal(game.saved_hs, true);
+
+        // Drive the occupation by hand to the turn done_eating() runs on;
+        // runSegment() cannot stop there, and the closing wait would repaint.
+        // done_eating()'s closing message reaches a top line that still holds
+        // lesshungry()'s nearly-full warning, so it forces the same --More--
+        // the matrix segment answers with its trailing space.
+        game.nhDisplay.terminal.pushKey(' '.charCodeAt(0));
+        let refreshes = 0;
+        const env = { statusRefresh: async () => { refreshes++; } };
+        let turns = 1;
+        while (await eatfood(game, env)) {
+            turns++;
+            assert.ok(turns <= 5, 'the meal ends by its sixth eatfood() turn');
+            // Every earlier turn's newuhs() took the silent arm and returned
+            // before reaching bot().
+            assert.equal(refreshes, 0, `turn ${turns}`);
+        }
+        assert.equal(turns, 5);
+
+        // newuhs() ran with the occupation already cleared, so it took its
+        // second arm on the meal's own turn: the held status was released and
+        // the status line repainted here rather than on the turn after.
+        assert.equal(game.saved_hs, false);
+        assert.equal(refreshes, 1);
+        // 900 nutrition and five 160-point bites, with no elapsed turns in
+        // between because eatfood() was called directly.
+        assert.equal(game.u.uhs, SATIATED);
+    });
+
 test('lesshungry treats a running occupation as eating', async () => {
     // C's `iseating = (go.occupation == eatfood) || gf.force_save_hs`. Only
     // the first term is true on an eatfood turn outside bite()'s window, and
     // it is what spares a hero who was not satiated when the meal began.
-    await startMeal(segmentFor('ed '), 'd');
+    await startMeal(segmentFor(5820011, 'ed '), 'd');
     const env = recordingEnv();
     game.u.uhunger = 1999;
     game.force_save_hs = false;
@@ -226,7 +316,7 @@ test('lesshungry treats a running occupation as eating', async () => {
 });
 
 test('eatfood stops on each state a meal can be missing', async () => {
-    await startMeal(segmentFor('ed '), 'd');
+    await startMeal(segmentFor(5820011, 'ed '), 'd');
     const piece = game.context.victual.piece;
 
     // `if (!svc.context.victual.eating) return 0;` -- do_reset_eat() lowers
@@ -247,6 +337,65 @@ test('eatfood stops on each state a meal can be missing', async () => {
     await assert.rejects(() => eatfood(game), UnsupportedEatError);
 });
 
+test('a refusal raised inside the occupation becomes a turn boundary',
+    async () => {
+        // The occupation callback runs outside cmd.c failClosedCommand(), so
+        // a refusal it raises would otherwise escape runSegment() as a hard
+        // failure and cost the whole segment its matching prefix instead of
+        // ending it at the last matching screen.
+        const segment = segmentFor(5820011, 'ed ');
+        await runSegment({ ...segment, moves: '.' });
+        // doeat() sets victual.canchoke from `u.uhs == SATIATED`, so a hero
+        // already satiated when the meal begins reaches lesshungry()'s
+        // paranoid_query() refusal on the bite that carries u.uhunger past
+        // 1500 with more than one bite still to come. 1250 plus the first
+        // bite's 160 stays under 1500; the second crosses it.
+        game.u.uhunger = 1250;
+        game.u.uhs = SATIATED;
+        game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
+        await doeat(game, { statusRefresh: async () => {} });
+        assert.equal(game.context.victual.canchoke, 1);
+        assert.equal(game.u.uhunger, 1410);
+
+        // Skip the elapsed-turn block, so the turn is the occupation alone.
+        game.context.move = 0;
+        await assert.rejects(() => moveloop_core(), (error) => {
+            assert.ok(error instanceof UnsupportedTurnBoundaryError,
+                `${error.constructor.name} is not a turn boundary`);
+            assert.match(error.message,
+                /^an occupation reached .*paranoid_query/u);
+            return true;
+        });
+    });
+
+test('a meal that ends beside a monster plays its last turn through',
+    async () => {
+        // allmain.c:502-508 clears go.occupation when the callback answers 0
+        // and only then tests monster_nearby(). With go.occupation already 0,
+        // stop_occupation() (684-696) skips its whole printing arm --
+        // maybe_finished_meal(), You("stop %s.", go.occtxt) -- and takes
+        // `else if (gm.multi >= 0) nomul(0);`, while reset_eat() is inert
+        // because done_eating() has already zeroed victual.eating. C therefore
+        // emits nothing and keeps playing, so the port must not stop here.
+        const ranger = segmentFor(5820041, 'ef.ef');
+        await boundaryFor({ ...ranger, seed: 5820043 }, ranger.moves);
+        // That replay stopped with a hostile monster adjacent, which is the
+        // position C reaches when the monster arrives on the meal's own last
+        // turn rather than a turn earlier.
+        assert.equal(monsterNearby(game), true);
+        // Stand in for the finishing turn: a callback that answers 0, and a
+        // victual done_eating() has zeroed.
+        game.go.occupation = () => 0;
+        game.context.victual = zero_victual();
+        game.context.move = 0;
+        await moveloop_core();
+        assert.equal(game.go.occupation, null);
+        // stop_occupation()'s else arm is nomul(0), whose only effect visible
+        // here is the status flag it raises after moveloop_core()'s own bot()
+        // has cleared it.
+        assert.equal(game.disp.botl, true);
+    });
+
 test('a monster arriving beside the meal stops the occupation', async () => {
     // allmain.c:505-508 runs `stop_occupation(); reset_eat();` when
     // monster_nearby() answers true after a bite. Neither is ported, so the
@@ -254,7 +403,7 @@ test('a monster arriving beside the meal stops the occupation', async () => {
     // was chosen because a monster generated during the second cram ration
     // reaches the hero mid-meal; the matrix deliberately holds no such case,
     // because C keeps playing there.
-    const ranger = segmentFor('ef.ef');
+    const ranger = segmentFor(5820041, 'ef.ef');
     const interrupted = await boundaryFor({ ...ranger, seed: 5820043 },
         ranger.moves);
     assert.match(interrupted.message, /interrupted by a nearby monster/u);
@@ -306,21 +455,37 @@ test('fprefx names the spot a food ration hits when the hero is hungry',
         // The 200-nutrition boundary between fprefx()'s two food ration
         // messages, and the 700 above which it says nothing. No recording can
         // reach the lower arm; see this file's header.
-        const segment = segmentFor('ed ');
-        for (const [uhunger, expected] of [
-            [200, 'This food really hits the spot!'],
-            [201, 'This satiates your stomach!'],
-            [699, 'This satiates your stomach!'],
-            [700, ''],
+        //
+        // C reads Hallucination only inside the `u.uhunger <= 200` arm, as the
+        // ternary that swaps one wording for another, so the hallucinating
+        // rows below differ from the plain ones at 200 and nowhere else. A
+        // null expectation is the refusal the unported wording raises.
+        const segment = segmentFor(5820011, 'ed ');
+        for (const [uhunger, hallucinating, expected] of [
+            [200, false, 'This food really hits the spot!'],
+            [201, false, 'This satiates your stomach!'],
+            [699, false, 'This satiates your stomach!'],
+            [700, false, ''],
+            [200, true, null] /* "Oh wow, like, superior, man" */,
+            [201, true, 'This satiates your stomach!'],
+            [699, true, 'This satiates your stomach!'],
+            [700, true, ''],
         ]) {
             await runSegment({ ...segment, moves: '.' });
             game.u.uhunger = uhunger;
+            game.u.uprops[HALLUC] = { intrinsic: hallucinating ? 1 : 0 };
             game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
-            await doeat(game, { statusRefresh: async () => {} });
+            const eat = () => doeat(game, { statusRefresh: async () => {} });
+            const label = `u.uhunger ${uhunger}`
+                + (hallucinating ? ' hallucinating' : '');
+            if (expected === null) {
+                await assert.rejects(eat, UnsupportedEatError, label);
+                continue;
+            }
+            await eat();
             // getobj() clears the top line once the letter answers it, so
             // whatever is pending now is fprefx()'s own message.
-            assert.equal(game._pending_message, expected,
-                `u.uhunger ${uhunger}`);
+            assert.equal(game._pending_message, expected, label);
         }
     });
 

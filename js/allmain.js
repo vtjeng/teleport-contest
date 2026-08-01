@@ -877,16 +877,29 @@ export async function moveloop_core() {
         if (finished === 0) g.go.occupation = null;
         if (monsterNearby(g)) {
             // C ref: `if (monster_nearby()) { stop_occupation(); reset_eat(); }`
-            // at allmain.c:505-508. stop_occupation() (684) prints
-            // You("stop %s.", go.occtxt) unless maybe_finished_meal() finishes
-            // the meal instead, clears go.occupation, sets disp.botl and calls
-            // nomul(0); reset_eat() then flags victual.doreset so the next
-            // bite runs do_reset_eat(). Neither has a port, and the resumed
-            // meal that follows an interruption needs doeat()'s
-            // already-partly-eaten arm, which stops too.
-            throw new UnsupportedTurnBoundaryError(
-                'an occupation interrupted by a nearby monster',
-            );
+            // at allmain.c:505-508. Which arm of stop_occupation() (684-696)
+            // runs depends on whether the callback above just answered 0,
+            // because the clear at 502 precedes this test.
+            if (g.go.occupation) {
+                // Still installed: stop_occupation() prints
+                // You("stop %s.", go.occtxt) unless maybe_finished_meal()
+                // finishes the meal instead, clears go.occupation, sets
+                // disp.botl and calls nomul(0); reset_eat() then flags
+                // victual.doreset so the next bite runs do_reset_eat().
+                // Neither has a port, and the resumed meal that follows an
+                // interruption needs doeat()'s already-partly-eaten arm,
+                // which stops too.
+                throw new UnsupportedTurnBoundaryError(
+                    'an occupation interrupted by a nearby monster',
+                );
+            }
+            // Already cleared: stop_occupation() reaches none of that and
+            // takes `else if (gm.multi >= 0) nomul(0);` instead, and
+            // reset_eat() (eat.c:308-318) is guarded by victual.eating, which
+            // done_eating() zeroed on this same turn. C emits nothing here, so
+            // the turn continues. stop_occupation()'s closing
+            // cmdq_clear(CQ_CANNED) has no ported command queue.
+            nomul(0, g);
         }
         await runmode_delay_output(g);
         return;

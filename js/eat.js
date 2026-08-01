@@ -619,7 +619,11 @@ export function nonrotting_food(otyp) {
 //
 //   * doeat() writes piece, o_id and usedtime when it has a food to eat, and
 //     reqtime, nmod and canchoke once it knows how long the meal takes;
-//   * start_eating() writes fullwarn, eating and doreset;
+//   * start_eating() writes fullwarn, eating and doreset, and counts usedtime
+//     up for the first bite;
+//   * eatfood() counts usedtime up once for every later turn of the meal;
+//   * lesshungry() raises fullwarn once its nearly-full warning has printed,
+//     which is what stops a later bite repeating it;
 //   * bite() lowers reqtime through consume_oeaten() when the food runs out;
 //   * done_eating() returns every field to zero after the last bite, and
 //     food_disappears() does the same when the object is deleted from under
@@ -1050,16 +1054,17 @@ async function fprefx(otmp, state) {
         // A pyrolisk egg explodes; a stale one calls make_vomiting().
         throw new UnsupportedEatError("fprefx()'s egg arms");
     case FOOD_RATION: /* nutrition 800 */
-        if (Hallucination(state)) {
-            // "Oh wow, like, superior, man" replaces the first message.
-            // Nothing reachable on dungeon level one makes the hero
-            // hallucinate.
-            throw new UnsupportedEatError(
-                "fprefx()'s hallucinating food ration message",
-            );
-        }
         /* 200+800 remains below 1000+1, the satiation threshold */
         if (state.u.uhunger <= 200) {
+            if (Hallucination(state)) {
+                // C spells this arm as one pline() whose text is a ternary on
+                // Hallucination, so the hallucinating wording replaces this
+                // message and no other. Nothing reachable on dungeon level one
+                // makes the hero hallucinate.
+                throw new UnsupportedEatError(
+                    "fprefx()'s hallucinating food ration message",
+                );
+            }
             await ttyPline('This food really hits the spot!', state);
         } else if (state.u.uhunger < 700) {
             /* 700-1+800 remains below 1500, the choking threshold which
@@ -1218,7 +1223,10 @@ async function done_eating(message, state, env) {
     const plineMessage = requireEatOperation(env, 'message');
     if (state.nomovemsg) {
         if (message) await plineMessage(state.nomovemsg, state);
-        state.nomovemsg = 0;
+        // C's `gn.nomovemsg = 0` assigns NULL to a `const char *`. The number
+        // 0 is not that: js/monmove.js heroUnaware() resolves this field with
+        // `??`, which passes 0 through to String.prototype.startsWith.
+        state.nomovemsg = null;
     } else if (message) {
         await plineMessage(
             `You finish ${

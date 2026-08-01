@@ -984,6 +984,105 @@ because moves and the regeneration draws are already spent by then, so the fix
 is a preflight for the unburdened path, as `preflightGetHungry()` and
 `preflight_nh_timeout_elapsed_turn()` already do for theirs.
 
+#### `go.occupation` has one writer and three readers that never see it
+
+`js/cmd.js set_occupation()` stores C's `go.occupation` at
+`state.go.occupation`. The three JavaScript readers that already stood for that
+C value read `state.occupation`, which nothing in `js/` assigns:
+`grep -rn "\.occupation" js/` returns `js/monmove.js:529` and `:555`,
+`js/unported_monster_actions.js:871` and `js/teleport.js:259` as the readers of
+the bare name, and no assignment to it anywhere. Every writer of the value
+names `state.go.occupation`: `js/cmd.js:180` installs one, and `js/eat.js:1221`
+and `js/allmain.js:877` clear it.
+
+The reader that matters is `monmove.c dochugw()` (213, 223-235), which calls
+`stop_occupation()` when a hostile, spottable monster is within
+`(BOLT_LIM + 1)^2` and either could not be seen before or was further away. C
+therefore prints "You stop eating the food ration." and abandons the meal
+several turns before the monster becomes adjacent. The port evaluates a falsy
+`state.occupation`, short-circuits, and eats on to "You finish eating the food
+ration." `moveloop_core()`'s own `monster_nearby()` test does not cover the
+gap, because `hack.c monster_nearby()` (4106-4127) scans the eight adjacent
+squares alone. This is a **silent divergence, not a refusal**: the fail-closed
+stop the port installed for it,
+`js/unported_monster_actions.js:797 stopOccupation`, can never run.
+
+The correctness pass over `02c6e59..dc4e009` confirmed it and the audit fix at
+that pass left it here, because repointing the readers changes a state owner
+and makes a previously dead refusal live, which `.agents/review.md` puts
+outside audit-fix scope. Two parts need a decision rather than a rename.
+`js/unported_monster_actions.js:871` refuses the elapsed-turn monster scan
+outright, so wiring it up unchanged would refuse every occupation turn;
+`grep -n occupation nethack-c/upstream/src/allmain.c` returns only lines 332,
+485-506 and 684-689, so C gates nothing in that block on `go.occupation` and
+the term is stale scaffolding. `js/makemon_create.js:2484` documents
+`makemon.c:1503`'s `if (go.occupation) dochugw(mtmp, FALSE)` as deferred and is
+the same missing wiring.
+
+Fix it with a fresh differential: a recorded case where a hostile monster first
+enters the nine-square window mid-meal, which shows C printing "You stop
+eating ..." on that turn. Guard the result with a repository-wide grep that
+every reader names one field. Also correct the `stop_occupation()`
+reachability row in the slice's checklist, which omits `monmove.c dochugw()`
+and `makemon.c:1503`.
+
+#### the status line repaints on every turn, where C gates it
+
+`allmain.c moveloop_core()` (473-478) repaints the status line only when a
+writer has marked it dirty: `if (disp.botl || disp.botlx) { bot();
+curs_on_u(); } else if (disp.time_botl) { timebot(); curs_on_u(); }`, and
+`botl.c timebot()` refreshes `BL_TIME` alone through `stat_update_time()`, so
+the hunger cell keeps its last rendered text. `js/allmain.js:831` runs
+`find_ac(g); await bot(); await flush_screen(1);` with no gate at all.
+
+That became observable when the occupation landed. `eat.c newuhs()`'s
+`if (go.occupation == eatfood || gf.force_save_hs)` arm assigns `u.uhs` and
+returns before any `disp.botl = TRUE`, so a meal that crosses a hunger boundary
+moves the status silently. Driving matrix segment 5820079 turn by turn shows
+the port's last screen row carrying "Satiated" on the three turns after the
+crossing while its own `disp.botl` is false, which is C's gate tracked
+correctly and then ignored at the call site.
+
+No captured screen differs today, because a mid-meal frame is captured only at
+an input boundary and the two foods this slice ports cannot produce one inside
+the window. A mid-meal `--More--` would: `fprefx()`'s "This satiates your
+stomach!" left unseen, followed by a `dosounds()` "You hear ..." on a later
+meal turn, is the reachable pairing. It would be the project's first
+emitted-and-wrong screen.
+
+The fix belongs where C puts it, in `moveloop_core()`, and needs `timebot()`
+ported for the second arm. It changes rendering behavior on a line that runs
+every turn of every session, so it needs its own differential and a whole-score
+comparison rather than an audit fix. The cheap regression to carry with it:
+assert that the last row of `game.nhDisplay.grid` holds no hunger word on the
+turn after the crossing while `game.disp.botl` is false.
+
+#### the two-meal segment never reaches its second meal
+
+`scripts/run-eat-occupation.mjs:108` describes segment 5820041 (Ranger, moves
+`.ef.ef.`) as installing, running down and clearing the occupation twice. It
+installs it once. Replaying it through `runSegment()` stops at move 7 with
+`u.uhunger` 1694, `victual.usedtime` 0 with `eating` 1, and slot `h` holding an
+unbitten cram ration: the second meal's `fprefx()` label and `lesshungry()`'s
+nearly-full warning do not share the top line, so `more()` asks for a key the
+recipe does not supply. Adding one key reaches
+`UnsupportedHeroCommandBoundaryError: ... lesshungry()'s paranoid_query() for
+continued eating`, because the hero is already SATIATED when the second meal
+starts, so `canchoke` is 1 and `reqtime - usedtime` is 3. The second meal
+cannot complete at this seed and role at all.
+
+No test anywhere completes a second meal, so `done_eating()`'s `nomovemsg`
+reset is unpinned end to end: dropping it leaves the whole suite green, and in
+a real second meal it makes `done_eating()` print the stale "You're finally
+finished." where C prints "You finish eating the cram ration."
+
+Repairing it needs a fresh C recording, which puts it outside audit-fix scope.
+Choose a seed or wait count that leaves the hero below SATIATED when the second
+meal starts, which clears both blockers at once, and give the recipe the extra
+keys any `--More--` needs. Then assert that `game.nomovemsg` is null at the end
+and read the final top line off the amended recording rather than assuming the
+"You finish eating" wording.
+
 ### Process
 
 #### `npm run checkpoint` cannot fail on the development score
