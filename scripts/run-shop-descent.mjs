@@ -28,8 +28,9 @@
 // arbitrary; a datetime is shared within a character because the date changes
 // level generation, which would invalidate every path recorded against it.
 //
-// What no segment covers, and why. The other five shtypes[] rows are refused
-// by js/shknam.js SUPPORTED_SHOPS and belong to later slices. A shop room that
+// What no segment covers, and why. The two bookstore rows are covered by
+// scripts/run-shop-books.mjs instead, and the four shtypes[] rows left are
+// refused by js/shknam.js SUPPORTED_SHOPS. A shop room that
 // C rejects for its shape, and a level whose rooms all fail the search, draw
 // nothing extra and are already covered by scripts/run-leave-level.mjs, whose
 // seeds were chosen for having no eligible shop room.

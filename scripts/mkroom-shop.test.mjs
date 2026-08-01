@@ -23,6 +23,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { UnsupportedSpecialRoomError, do_mkroom } from '../js/mkroom.js';
 import { m_at } from '../js/monst.js';
 import { S_MIMIC } from '../js/monsters.js';
+import { SIR_TERRY_NOVELS } from '../js/do_name.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -30,8 +31,10 @@ import {
     POTION_CLASS,
     RANDOM_CLASS,
     RING_CLASS,
+    SCROLL_CLASS,
     SCR_CHARGING,
     SPBOOK_CLASS,
+    SPE_NOVEL,
     STRANGE_OBJECT,
     TOOL_CLASS,
     TOUCHSTONE,
@@ -350,12 +353,14 @@ test('mkshop takes the first eligible room and leaves the later ones alone',
     });
 
 test('stock_room refuses a shop type this port cannot stock', () => {
-    // The six rows outside SUPPORTED_SHOPS end the segment rather than
-    // stocking the wrong objects. UnsupportedSpecialRoomError is the class
+    // The four rows outside SUPPORTED_SHOPS end the segment rather than
+    // stocking the wrong objects: the delicatessen, wand shop and lighting
+    // store need mkshobj_at()'s negative-itype mksobj_at() arm and the health
+    // food store needs shkveg(). UnsupportedSpecialRoomError is the class
     // js/jsmain.js treats as a clean segment boundary.
     const state = initializedState();
     const room = shopCandidate(state, { hx: 13, hy: 8 });
-    for (const index of [2, 5, 7, 9, 10, 11]) {
+    for (const index of [5, 7, 10, 11]) {
         assert.throws(
             () => stock_room(index, room, { state }),
             (error) => error instanceof UnsupportedSpecialRoomError
@@ -385,15 +390,14 @@ test('a refused shop type ends the segment and keeps every screen before it',
         // The instrument this matters for is scripts/scan-debt.mjs, which
         // reads a session's whole recorded input and needs every fail-closed
         // stop to end its segment rather than escape runSegment() as a crash.
-        // A second-hand bookstore is one of the six rows SUPPORTED_SHOPS
-        // refuses.
+        // A delicatessen is one of the four rows SUPPORTED_SHOPS refuses.
         //
-        // Seed 7360089 and this walk were found by breadth-first search over
-        // the generated D:1 map: twelve steps to the down staircase, then `>`
-        // and the space that dismisses the arrival's `--More--`.
+        // Seed 7530899 and this walk were found by breadth-first search over
+        // the generated D:1 map: thirteen steps to the down staircase, then
+        // `>` and the space that dismisses the arrival's `--More--`.
         let boundary = null;
         const segment = await runSegment({
-            seed: 7360089,
+            seed: 7530899,
             datetime: '20330607081011',
             nethackrc: [
                 'OPTIONS=name:Shopper,role:Valkyrie,race:human,'
@@ -402,18 +406,18 @@ test('a refused shop type ends the segment and keeps every screen before it',
                 'OPTIONS=pettype:none,!acoustics,!autopickup',
                 '',
             ].join('\n'),
-            moves: 'kkkkkkkkllll> ',
+            moves: 'kullllllulllu> ',
         }, { onBoundary: (error) => { boundary = error; } });
 
         assert.ok(
             boundary instanceof UnsupportedSpecialRoomError,
             `boundary was ${boundary?.name ?? 'absent'}`,
         );
-        assert.match(boundary.message, /second-hand bookstore/u);
-        // Thirteen screens: one per walked step plus the `--More--` the
+        assert.match(boundary.message, /delicatessen/u);
+        // Fourteen screens: one per walked step plus the `--More--` the
         // descent stops on. The stop happens while D:2 is being generated, so
         // the map after it is never drawn.
-        assert.equal(segment.getScreens().length, 13);
+        assert.equal(segment.getScreens().length, 14);
     });
 
 // Walk one Valkyrie from her up staircase to D:1's down staircase, descend,
@@ -602,6 +606,32 @@ test('each newly stocked shop type stocks only the classes its iprobs[] names',
                 seed: 7372938, walk: 'ljjjjjjjjjjhb', index: TOOL_SHOP,
                 classes: [TOOL_CLASS], list: shktools, stocked: 32,
             },
+            // 90% scrolls, 10% spellbooks. The tribute novel below is a
+            // spellbook too, so this row's stock cannot separate the two
+            // classes on its own; the seed after it stocks eleven scrolls and
+            // no spellbook but the novel.
+            {
+                seed: 7500472, walk: 'llllnnlllln', index: SCROLL_SHOP,
+                classes: [SCROLL_CLASS, SPBOOK_CLASS], list: shkbooks,
+                stocked: 30,
+            },
+            {
+                seed: 7500432, walk: 'lnjjjjjjjjn', index: SCROLL_SHOP,
+                classes: [SCROLL_CLASS, SPBOOK_CLASS], list: shkbooks,
+                stocked: 12,
+            },
+            // Rare books mirrors the row above: 90% spellbooks, 10% scrolls.
+            // Both rows name shkbooks, so the keeper's name cannot tell them
+            // apart and the stock is the only thing that does.
+            {
+                seed: 7510158, walk: 'hyhhjjbjjjbjbjhhhhhhhh', index: BOOKSTORE,
+                classes: [SCROLL_CLASS, SPBOOK_CLASS], list: shkbooks,
+                stocked: 15,
+            },
+            {
+                seed: 7521343, walk: 'llkkkkkkuuukkkllkuu', index: BOOKSTORE,
+                classes: [SPBOOK_CLASS], list: shkbooks, stocked: 8,
+            },
         ];
         for (const { seed, walk, index, classes, list, stocked } of cases) {
             const shop = await descendToShop(seed, walk);
@@ -624,6 +654,74 @@ test('each newly stocked shop type stocks only the classes its iprobs[] names',
             [...new Set(jewelers.stock.map((obj) => obj.oclass))].sort(),
             [RING_CLASS, AMULET_CLASS, GEM_CLASS].sort(),
         );
+    });
+
+// The two rows that share shkbooks, and the tribute novel only they stock.
+// Each seed and walk below is a segment of scripts/run-shop-books.mjs, which
+// records the same inputs with the C reference program; the D:2 map it
+// compares carries one glyph per stocked square, so the class counts asserted
+// here are pinned cell for cell by those matching runs. The novel's title is
+// not: it never reaches the screen, and what the recording pins is the
+// rn2(41) that do_name.c noveltitle() draws for it.
+const BOOKSHOP_CASES = [
+    // shtypes[2], the second-hand bookstore: 90% SCROLL_CLASS, 10%
+    // SPBOOK_CLASS. Twenty-six scrolls and three spellbooks.
+    { seed: 7500472, walk: 'llllnnlllln', index: SCROLL_SHOP, scrolls: 26, books: 3 },
+    // The same row where the 10% pair never came up.
+    { seed: 7500432, walk: 'lnjjjjjjjjn', index: SCROLL_SHOP, scrolls: 11, books: 0 },
+    // shtypes[9], rare books: the same two classes with the shares reversed,
+    // so a port that read either row's iprobs[] for both fails on one pair.
+    { seed: 7510158, walk: 'hyhhjjbjjjbjbjhhhhhhhh', index: BOOKSTORE, scrolls: 2, books: 12 },
+    { seed: 7521343, walk: 'llkkkkkkuuukkkllkuu', index: BOOKSTORE, scrolls: 0, books: 7 },
+];
+
+test('each bookstore row stocks its own iprobs[] shares', async () => {
+    for (const { seed, walk, index, scrolls, books } of BOOKSHOP_CASES) {
+        const shop = await descendToShop(seed, walk);
+        assert.equal(shop.index, index, `seed ${seed} row`);
+        const stocked = shop.stock.filter((obj) => obj.otyp !== SPE_NOVEL);
+        assert.equal(
+            stocked.filter((obj) => obj.oclass === SCROLL_CLASS).length,
+            scrolls,
+            `seed ${seed} scrolls`,
+        );
+        assert.equal(
+            stocked.filter((obj) => obj.oclass === SPBOOK_CLASS).length,
+            books,
+            `seed ${seed} spellbooks`,
+        );
+        assert.equal(stocked.length, scrolls + books, `seed ${seed} stock`);
+    }
+});
+
+test('the 3.6 tribute puts one novel in a bookstore and nothing elsewhere',
+    async () => {
+        // shknam.c mkshobj_at():461-468. stock_room() singles out one stocked
+        // square with rnd(stockcount) whenever svc.context.tribute.enabled is
+        // set and bookstock is clear, which is every fresh game; mkshobj_at()
+        // then stocks that square with a novel only when the shop's name is
+        // one of the two bookstores.
+        for (const { seed, walk } of BOOKSHOP_CASES) {
+            const shop = await descendToShop(seed, walk);
+            const novels = shop.stock.filter((obj) => obj.otyp === SPE_NOVEL);
+            assert.equal(novels.length, 1, `seed ${seed} novel count`);
+            assert.ok(
+                SIR_TERRY_NOVELS.includes(novels[0].oextra?.oname),
+                `seed ${seed} title ${novels[0].oextra?.oname}`,
+            );
+            assert.equal(game.context.tribute.bookstock, true, `seed ${seed}`);
+        }
+
+        // A general store's stocking reaches the same singled-out square and
+        // stocks it normally, so the name test is what keeps the novel out.
+        // Seed 7331075 is the first segment of scripts/run-shop-descent.mjs.
+        const general = await descendToShop(7331075, 'hhjjjnjjjj');
+        assert.equal(general.index, GENERAL_STORE);
+        assert.equal(
+            general.stock.filter((obj) => obj.otyp === SPE_NOVEL).length,
+            0,
+        );
+        assert.ok(!game.context.tribute.bookstock);
     });
 
 test('the room search ends on the rooms[] terminator and on nothing else',

@@ -32,8 +32,8 @@ import { mkclass, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
 import { PM_SHOPKEEPER, S_MIMIC } from './monsters.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { mkobj_at } from './obj.js';
-import { SCR_CHARGING, TOUCHSTONE } from './objects.js';
+import { mkobj_at, mksobj_at } from './obj.js';
+import { SCR_CHARGING, SPE_NOVEL, TOUCHSTONE } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { newsym } from './display.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
@@ -48,18 +48,18 @@ import {
 const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
 // The SHTYPES rows this port stocks, by index, which is the room's
-// rtype - SHOPBASE. Together they take 77% of mkshop()'s roll: 42% general
-// store, 14% used armor dealership, 10% liquor emporium, 5% antique weapons
-// outlet, 3% jewelers, 3% hardware store. Every other row needs stock this
-// port cannot make yet, so shopType() refuses it and the segment ends there
-// rather than drawing the wrong objects:
+// rtype - SHOPBASE. Together they take 90% of mkshop()'s roll: 42% general
+// store, 14% used armor dealership, 10% second-hand bookstore, 10% liquor
+// emporium, 5% antique weapons outlet, 3% jewelers, 3% hardware store, 3%
+// rare books. Every other row needs stock this port cannot make yet, so
+// shopType() refuses it and the segment ends there rather than drawing the
+// wrong objects:
 //
-//   second-hand bookstore, rare books   mkshobj_at()'s SPE_NOVEL tribute arm
 //   delicatessen, wand shop, lighting   iprobs[] entries with a negative
 //     store                             itype, which need mksobj_at()
 //   health food store                   VEGETARIAN_CLASS, so shkveg(),
 //                                       veggy_item() and mkveggy_at()
-const SUPPORTED_SHOPS = new Set([0, 1, 3, 4, 6, 8]);
+const SUPPORTED_SHOPS = new Set([0, 1, 2, 3, 4, 6, 8, 9]);
 
 function shopType(shopIndex) {
     const shop = SHTYPES[shopIndex];
@@ -292,16 +292,32 @@ function stock_room_goodpos(sroom, roomNumber, doorIndex, sx, sy, state) {
     return IS_ROOM(state.level.at(sx, sy).typ);
 }
 
-// C ref: shknam.c mkshobj_at(). `mkspecl` selects C's SPE_NOVEL tribute stock,
-// which only the two bookstores make and shopType() refuses, so it is unused
-// here. get_shop_item() answers a non-negative object class for every shop
-// type this port stocks, so neither the VEGETARIAN_CLASS nor the negative-otyp
-// mksobj_at() arm is reachable either.
+// C ref: shknam.c mkshobj_at(). get_shop_item() answers a non-negative object
+// class for every shop type this port stocks, so neither the VEGETARIAN_CLASS
+// nor the negative-otyp mksobj_at() arm is reachable here.
 //
 // C takes the shtypes[] row by pointer and recovers its index for
 // get_shop_item(); the index is what this port passes throughout.
-function mkshobj_at(shopIndex, sx, sy, _mkspecl, normalized) {
+function mkshobj_at(shopIndex, sx, sy, mkspecl, normalized) {
     const { random, state } = normalized;
+    const shop = SHTYPES[shopIndex];
+
+    // The 3.6 tribute. C tests shp->name against the two bookstores by string,
+    // so the square stock_room() singled out holds a novel rather than the
+    // shop's own stock, and no other shop type can reach this. The novel is
+    // made with init false: mksobj() still runs its SPE_NOVEL finalization,
+    // which is where noveltitle() draws the title, but skips the
+    // blessorcurse(17) the SPBOOK_CLASS arm of mksobj_init() would spend.
+    // C's `artif` argument is FALSE too, and no test can tell it from TRUE:
+    // mksobj() reads it only inside mksobj_init(), which init false skips, and
+    // the novel is not oc_unique, so the mk_artifact() tail is unreachable.
+    if (mkspecl && (shop.name === 'rare books'
+                    || shop.name === 'second-hand bookstore')) {
+        const novel = mksobj_at(SPE_NOVEL, sx, sy, false, false, normalized);
+        if (novel) state.context.tribute.bookstock = true;
+        return;
+    }
+
     if (random.rn2(100) < depth(state.u.uz, state)
         && !m_at(sx, sy, state)) {
         const mimic = mkclass(S_MIMIC, 0, normalized);
