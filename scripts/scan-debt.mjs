@@ -7,39 +7,34 @@
 // FIRST and is silent about everything behind it, so its step counts state an
 // upper bound and nothing it prints says how far a session is from completing.
 // Ranking a goal by the steps standing behind one boundary has overestimated by
-// one to two orders of magnitude, because a session blocked on one owner
+// one to two orders of magnitude, because a session blocked on one behavior
 // routinely blocks again on another.
 //
 // This script answers the other question. It differences a session's ENTIRE
 // recorded input against the commands the port dispatches, so a session's debt
-// is the whole set of owners between it and its last recorded screen, and it
+// is the whole set of behaviors between it and its last recorded screen, and it
 // reports two measures over that set.
 //
-// `gated` is an ablation: take a port that matches every recorded screen,
-// remove one owner, and count the screens that stop matching. A session cannot
-// proceed past a capability it lacks, so everything from that owner's first use
-// to the end of the session is lost. For a command the recording determines
-// this outright, with no estimate in it, because the input stream states where
-// the command is first issued. Owners overlap — a late screen stands behind
-// every owner used before it — so the column is read per row and never summed.
+// `supports` counts screens that stop matching if a port matching all 7,765
+// recorded screens loses this behavior. That is every screen from the
+// behavior's first use to the end of each session that uses it. It is exact for
+// a command, because the recording states where the command is first issued.
+// Behaviors overlap, since a late screen rests on every behavior used before
+// it, so this column does not sum to the total.
 //
-// `advance` is what porting an owner next would earn: a session moves from its
-// earliest unmet owner only as far as its second, so a candidate collects that
-// gap in the sessions where it is the earliest. It is an upper bound, because
-// the port stops at a session's first behavioral owner and never reports what
-// stands behind it, so a gap measured to the next command can hide a
-// behavioral gate inside it.
+// `unlocks` counts screens porting this behavior next would earn. Those come
+// from the sessions where it is the earliest unmet behavior. It is an upper
+// bound: a second behavior hidden inside the gap is invisible, because the port
+// stops at the first one it cannot do.
 //
-// The two disagree usefully, and `--by=` chooses which one orders the report.
-// A high `gated` with a low `advance` is a dependency nothing reaches yet; a
-// high `advance` is the goal to take next.
+// For both, the sessions column counts the sessions holding those screens, as
+// guidance. Every session with an unmet behavior has exactly one earliest, so
+// the `unlocks` sessions column sums to the number of unfinished sessions.
 //
-// Measured against the trap goal at 2f0e55e9, `advance` answered 46 where the
-// goal delivered 8: an upper bound that held. The metric this replaced, which
-// ranked by the sessions a candidate would COMPLETE, answered 0 for the same
-// goal, because all three sessions holding that owner held others too. Gains
-// come from sessions advancing to their next boundary, which a completion
-// metric cannot see at all.
+// `--by=` chooses which column orders the report. `.agents/selection.md` states
+// the selection rule: filter to behaviors whose `unlocks` is not 0, then rank
+// those by `supports`. Do not rank by `unlocks`; measured against three closed
+// goals it overstated by 5.8, 4.8 and 26 times.
 //
 // Which recorded bytes are commands
 // ---------------------------------
@@ -192,14 +187,14 @@ export function commandsIssued(steps, resolve = resolvedCommand) {
         const command = resolve(steps[index].key);
         if (command === EXTENDED_COMMAND_KEY) {
             const extended = extendedCommandAt(steps, index);
-            // The owner sits at the byte that DISPATCHES the command, not at
+            // The behavior sits at the byte that DISPATCHES the command, not at
             // the `#` that opened the prompt. `doextcmd()` is ported, so the
             // port paints every prompt frame the reference program painted for
             // `#`, the name bytes and the autocomplete, and diverges only at
-            // the terminator that runs the command. Charging the owner from the
+            // the terminator that runs the command. Charging the behavior from the
             // `#` would take those frames off a function that already earns
             // them: 5 screens per `#ride` in each of the two sessions that use
-            // it, which overstated that owner by 10 of 92.
+            // it, which overstated that behavior by 10 of 92.
             commands.push({ index: extended.dispatchAt, command: extended.name });
             // The name's own bytes answered the prompt rather than issuing a
             // command, so skip them without counting them again.
@@ -215,14 +210,14 @@ export function commandsIssued(steps, resolve = resolvedCommand) {
 }
 
 /**
- * The owners a session needs, earliest use first.
+ * The behaviors a session needs, earliest use first.
  *
  * A command issued more than once keeps its EARLIEST index, because that is
  * where a port without it would first diverge; a later use changes nothing. The
- * behavioral owner, when the port reached one, enters at the step it stopped
+ * behavioral gate, when the port reached one, enters at the step it stopped
  * on. Ties break by name so the order is total and the report is stable.
  */
-export function assembleOwners(issued, supported, behavioral = null) {
+export function assembleBehaviors(issued, supported, behavioral = null) {
     const firstUse = new Map();
     for (const { index, command } of issued) {
         if (isSupported(command, supported)) continue;
@@ -307,11 +302,11 @@ async function scanSession(file) {
         ambiguous += issued.ambiguous;
         for (const { index, command } of issued.commands)
             issuedAll.push({ index: stepOffset + index, command });
-        // A stop that is not a command refusal names an owner the input stream
+        // A stop that is not a command refusal names a behavior the input stream
         // cannot: the port reached a behavior it has not ported. Its first use
-        // is the step the port never consumed. Only the FIRST such owner per
+        // is the step the port never consumed. Only the FIRST such behavior per
         // session is visible, because the port stops there and never reports
-        // what stands behind it; that censoring is why `advance` below is an
+        // what stands behind it; that censoring is why `unlocks` below is an
         // upper bound.
         if (boundary && !(boundary instanceof UnsupportedHeroCommandBoundaryError)
             && behavioral === null)
@@ -320,7 +315,7 @@ async function scanSession(file) {
         stepOffset += (segment.steps || []).length;
     }
 
-    // Owners are assembled by the caller, once every session has been scanned,
+    // Behaviors are assembled by the caller, once every session has been scanned,
     // because the supported set depends on what the port executed across all of
     // them. See executedCommands() below.
     return {
@@ -344,7 +339,7 @@ async function scanSession(file) {
  * executed, which settles the question without a second table to maintain.
  *
  * `stopPointAgreement()` is what exposed the gap: porting `#ride` left both
- * ride sessions with an earliest owner sitting 15 and 2 steps before the step
+ * ride sessions with an earliest behavior sitting 15 and 2 steps before the step
  * they actually stopped on.
  */
 export function executedCommands(rows) {
@@ -355,17 +350,17 @@ export function executedCommands(rows) {
     return executed;
 }
 
-/** Attach owners to every scanned row, using one supported set for all. */
-export function attachOwners(rows) {
+/** Attach behaviors to every scanned row, using one supported set for all. */
+export function attachBehaviors(rows) {
     const supported = supportedCommands();
     for (const command of executedCommands(rows)) supported.add(command);
     return rows.map((row) => {
-        const owners = assembleOwners(row.issued, supported, row.behavioral);
+        const behaviors = assembleBehaviors(row.issued, supported, row.behavioral);
         return {
             ...row,
             behavioral: row.behavioral?.member ?? null,
-            debt: owners.map((owner) => owner.member).sort(),
-            owners,
+            debt: behaviors.map((behavior) => behavior.member).sort(),
+            behaviors,
         };
     });
 }
@@ -384,57 +379,57 @@ function isSupported(command, supported) {
 }
 
 /**
- * Rank every owner by how much of the recorded score depends on it.
+ * Rank every behavior by how much of the recorded score depends on it.
  *
- * `gated` is the ablation measure: take a port that matches every recorded
- * screen, remove this one owner, and count the screens that stop matching. A
+ * `supports` is the ablation measure: take a port that matches every recorded
+ * screen, remove this one behavior, and count the screens that stop matching. A
  * session cannot proceed past a capability it lacks, so everything from that
- * owner's first use to the end of the session is lost. Summed over the sessions
+ * behavior's first use to the end of the session is lost. Summed over the sessions
  * that use it, that is the share of the whole 7,765-screen population standing
- * on this owner. Owners overlap by design: a screen late in a session is gated
- * behind every owner used before it, so these columns total far more than 7,765
+ * on this behavior. Behaviors overlap by design: a screen late in a session is supports
+ * behind every behavior used before it, so these columns total far more than 7,765
  * and are read per row, never added up.
  *
- * `advance` is what porting it next would actually earn. A session moves from
- * its earliest unmet owner only as far as its second, so a candidate collects
+ * `unlocks` is what porting it next would actually earn. A session moves from
+ * its earliest unmet behavior only as far as its second, so a candidate collects
  * the gap between the two in the sessions where it is the current bottleneck.
- * It is an upper bound: a session's later behavioral owners are invisible,
+ * It is an upper bound: a session's later behavioral gates are invisible,
  * because the port stops at the first one and never reports what stands behind
  * it, so a gap measured to the next COMMAND may hide a behavioral gate inside
  * it.
  *
- * The two answer different questions and disagree usefully. A high `gated` with
- * a low `advance` is a bottleneck buried behind another one; a high `advance`
+ * The two answer different questions and disagree usefully. A high `supports` with
+ * a low `unlocks` is a bottleneck buried behind another one; a high `unlocks`
  * is the next goal to take.
  */
 export const RANK_ORDERS = Object.freeze({
     // What to port next: the screens a candidate earns now.
-    advance: (a, b) => b.advance - a.advance || b.gated - a.gated,
+    unlocks: (a, b) => b.unlocks - a.unlocks || b.supports - a.supports,
     // What the score rests on: the screens that depend on it at all.
-    gated: (a, b) => b.gated - a.gated || b.advance - a.advance,
+    supports: (a, b) => b.supports - a.supports || b.unlocks - a.unlocks,
 });
 
-export function rankCandidates(rows, order = 'advance') {
+export function rankCandidates(rows, order = 'unlocks') {
     const compare = RANK_ORDERS[order];
     if (!compare) throw new Error(`unknown order: ${order}`);
     const candidates = new Map();
     for (const row of rows) {
-        for (const [position, owner] of row.owners.entries()) {
-            const entry = candidates.get(owner.member) ?? {
-                member: owner.member,
-                gated: 0,
-                gatedSessions: 0,
-                advance: 0,
-                bottleneckIn: 0,
+        for (const [position, behavior] of row.behaviors.entries()) {
+            const entry = candidates.get(behavior.member) ?? {
+                member: behavior.member,
+                supports: 0,
+                supportsSessions: 0,
+                unlocks: 0,
+                unlocksSessions: 0,
             };
-            entry.gated += row.recordedSteps - owner.at;
-            entry.gatedSessions += 1;
+            entry.supports += row.recordedSteps - behavior.at;
+            entry.supportsSessions += 1;
             if (position === 0) {
-                entry.bottleneckIn += 1;
-                const next = row.owners[1];
-                entry.advance += (next ? next.at : row.recordedSteps) - owner.at;
+                entry.unlocksSessions += 1;
+                const next = row.behaviors[1];
+                entry.unlocks += (next ? next.at : row.recordedSteps) - behavior.at;
             }
-            candidates.set(owner.member, entry);
+            candidates.set(behavior.member, entry);
         }
     }
     return [...candidates.values()].sort(
@@ -443,22 +438,22 @@ export function rankCandidates(rows, order = 'advance') {
 }
 
 /**
- * Check each session's earliest owner against where the port actually stopped.
+ * Check each session's earliest behavior against where the port actually stopped.
  *
  * The port fail-closes at the first behavior it has not ported, so the earliest
- * owner this script derives from the recorded input must sit at exactly the
+ * behavior this script derives from the recorded input must sit at exactly the
  * step the port never consumed. The two are computed by different routes: the
- * stop comes from replaying the port, the owner from reading cursors and
+ * stop comes from replaying the port, the behavior from reading cursors and
  * bindings out of the recording. Any disagreement means the classifier read the
  * input wrongly, so the report states the count.
  *
- * This caught the extended-command owners being charged from the `#` that opens
+ * This caught the extended-command behaviors being charged from the `#` that opens
  * the prompt instead of the terminator that runs the command.
  */
 export function stopPointAgreement(rows) {
-    const scored = rows.filter((row) => row.owners.length > 0);
+    const scored = rows.filter((row) => row.behaviors.length > 0);
     const mismatches = scored.filter(
-        (row) => row.owners[0].at !== row.screensEmitted,
+        (row) => row.behaviors[0].at !== row.screensEmitted,
     );
     return { agree: scored.length - mismatches.length, total: scored.length,
         mismatches };
@@ -470,7 +465,7 @@ function centered(label, width) {
     return ' '.repeat(left) + label + ' '.repeat(width - label.length - left);
 }
 
-function report(rows, order = 'advance') {
+function report(rows, order = 'unlocks') {
     const nameWidth = Math.max(...rows.map((r) => r.file.length));
     console.log('Whole remaining debt per development session\n');
     for (const row of rows) {
@@ -497,47 +492,53 @@ function report(rows, order = 'advance') {
     const agreement = stopPointAgreement(rows);
     console.log(
         `${agreement.agree} of ${agreement.total} sessions place their earliest `
-        + 'owner at the step the port stopped on.',
+        + 'behavior at the step the port stopped on.',
     );
     for (const row of agreement.mismatches) {
         console.log(
             `  MISMATCH ${row.file}: stopped at ${row.screensEmitted}, `
-            + `earliest owner ${row.owners[0].member} at ${row.owners[0].at}`,
+            + `earliest behavior ${row.behaviors[0].member} at ${row.behaviors[0].at}`,
         );
     }
 
     console.log(
-        `\nOwners by the screens that depend on them, of ${recorded} recorded`
+        `\nBehaviors by the screens that depend on them, of ${recorded} recorded`
         + `, ordered by ${order}`,
     );
     // Each measure is a (screens, sessions) pair, so the header groups its two
     // columns under one name rather than leaving four columns to be read as
     // four separate quantities.
-    console.log(`\n  ${centered('gated', 17)}  ${centered('advance', 17)}`);
+    console.log(`\n  ${centered('supports', 17)}  ${centered('unlocks', 17)}`);
     console.log(
         `  ${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  `
-        + `${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  owner`,
+        + `${'screens'.padStart(7)}  ${'sessions'.padStart(8)}  behavior`,
     );
     for (const entry of rankCandidates(rows, order)) {
         console.log(
-            `  ${String(entry.gated).padStart(7)}  `
-            + `${String(entry.gatedSessions).padStart(8)}  `
-            + `${String(entry.advance).padStart(7)}  `
-            + `${String(entry.bottleneckIn).padStart(8)}  ${entry.member}`,
+            `  ${String(entry.supports).padStart(7)}  `
+            + `${String(entry.supportsSessions).padStart(8)}  `
+            + `${String(entry.unlocks).padStart(7)}  `
+            + `${String(entry.unlocksSessions).padStart(8)}  ${entry.member}`,
         );
     }
     console.log(
-        '\ngated    screens that stop matching if a perfect port loses this '
-        + 'owner, and the sessions that lose them: every screen from the '
-        + "owner's first use to the end of each session that uses it. Owners "
-        + 'overlap, so this column does not sum to the total.'
-        + '\nadvance  screens porting this owner next would earn, and the '
-        + 'sessions it would earn them in, which are the sessions where it is '
-        + 'the earliest unmet owner. Every session with an owner has exactly '
-        + 'one earliest, so that column sums to the number of unfinished '
-        + 'sessions. An upper bound: a later behavioral owner inside the gap '
-        + 'is invisible.',
+        '\nsupports counts screens that stop matching if a port matching all '
+        + `${recorded} recorded screens loses this behavior. That is every `
+        + "screen from the behavior's first use to the end of each session that "
+        + 'uses it. It is exact for a command, because the recording states where '
+        + 'the command is first issued. Behaviors overlap, since a late screen '
+        + 'rests on every behavior used before it, so this column does not sum to '
+        + 'the total.'
+        + '\n\nunlocks counts screens porting this behavior next would earn. '
+        + 'Those come from the sessions where it is the earliest unmet behavior. '
+        + 'It is an upper bound: a second behavior hidden inside the gap is '
+        + 'invisible, because the port stops at the first one it cannot do.'
+        + '\n\nFor both, the sessions column counts the sessions holding those '
+        + 'screens, as guidance. Every session with an unmet behavior has exactly '
+        + 'one earliest, so the unlocks sessions column sums to the number of '
+        + 'unfinished sessions.',
     );
+
 }
 
 export async function main(args) {
@@ -554,7 +555,7 @@ export async function main(args) {
         );
     }
     const order = args.find((arg) => arg.startsWith('--by='))
-        ?.slice('--by='.length) ?? 'advance';
+        ?.slice('--by='.length) ?? 'unlocks';
 
     const files = listSessionFiles(DEVELOPMENT_DIR);
     if (files.length !== EXPECTED_DEVELOPMENT_COUNT)
@@ -562,7 +563,7 @@ export async function main(args) {
 
     const scanned = [];
     for (const file of files) scanned.push(await scanSession(file));
-    const rows = attachOwners(scanned);
+    const rows = attachBehaviors(scanned);
 
     if (json) {
         console.log(JSON.stringify(

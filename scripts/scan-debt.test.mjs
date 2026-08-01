@@ -6,8 +6,8 @@ import {
     MOVEMENT_INTENTS,
 } from '../js/cmd.js';
 import {
-    assembleOwners,
-    attachOwners,
+    assembleBehaviors,
+    attachBehaviors,
     ceilingFor,
     commandsIssued,
     cursorState,
@@ -82,7 +82,7 @@ test('an extended command is read from the prefix its prompt records', () => {
         { key: 'k' },
     ];
     // `dispatchAt` is the terminator at index 4, where the command runs. The
-    // port paints every frame up to it through `doextcmd()`, so the owner is
+    // port paints every frame up to it through `doextcmd()`, so the behavior is
     // charged from there and not from the `#` at index 0.
     assert.deepEqual(extendedCommandAt(steps, 0),
         { name: '#ride', nextIndex: 5, dispatchAt: 4 });
@@ -91,7 +91,7 @@ test('an extended command is read from the prefix its prompt records', () => {
 test('an ambiguous extended prefix keeps the text that was typed', () => {
     // `w` starts #wait, #wear, #wield and more, so no single entry owns it.
     // Reporting the raw prefix keeps the row honest; attributing it to one
-    // command would put screens behind an owner nobody typed.
+    // command would put screens behind an behavior nobody typed.
     const steps = [
         stepAt(HERO_ROW, HERO_COLUMN, '@', '#'),
         { key: 'w' }, { key: '\r' },
@@ -130,7 +130,7 @@ test('only the bytes read at a command position count as commands', () => {
         ?? null);
     const issued = commandsIssued(steps, resolve);
     // The step index travels with each command, because the ranking needs the
-    // first step at which a session needs an owner, not merely that it does.
+    // first step at which a session needs an behavior, not merely that it does.
     assert.deepEqual(issued.commands, [
         { index: 1, command: 'movenorth' },
         { index: 3, command: 'eat' },
@@ -141,14 +141,14 @@ test('only the bytes read at a command position count as commands', () => {
 
 test('the name answering a # prompt is not counted as a command', () => {
     // The bytes spelling `pray` answer the extended-command prompt. Counting
-    // them again as commands would add four owners that nobody issued.
+    // them again as commands would add four behaviors that nobody issued.
     const steps = [
         stepAt(HERO_ROW, HERO_COLUMN, '@'),
         { key: '#' },
         { key: 'p' }, { key: 'r' }, { key: 'a' }, { key: 'y' }, { key: '\r' },
     ];
     const issued = commandsIssued(steps, (key) => (key === '#' ? '#' : 'eat'));
-    // The owner sits at the terminator at index 6, where `doextcmd()` runs the
+    // The behavior sits at the terminator at index 6, where `doextcmd()` runs the
     // command. Every frame before it is painted by ported code.
     assert.deepEqual(issued.commands, [{ index: 6, command: '#pray' }]);
     // Four name bytes and the terminator answered the prompt.
@@ -157,12 +157,12 @@ test('the name answering a # prompt is not counted as a command', () => {
 
 test('a byte bound to no command is not debt', () => {
     // rhack()'s bad-command path is ported, so an unbound byte is dispatched
-    // already and must not appear as an owner to port.
+    // already and must not appear as an behavior to port.
     const steps = [stepAt(HERO_ROW, HERO_COLUMN, '@'), { key: '\\' }];
     assert.deepEqual(commandsIssued(steps, () => null).commands, []);
 });
 
-test('an owner is placed at its earliest use, and the list is ordered by it', () => {
+test('an behavior is placed at its earliest use, and the list is ordered by it', () => {
     // `eat` is issued twice. A port without it diverges at step 4, not step 40,
     // so the later use must not displace the earlier one.
     const issued = [
@@ -171,24 +171,24 @@ test('an owner is placed at its earliest use, and the list is ordered by it', ()
         { index: 12, command: 'wait' },
         { index: 30, command: 'down' },
     ];
-    // `wait` is dispatched today, so it is not an owner to port.
+    // `wait` is dispatched today, so it is not an behavior to port.
     const supported = new Set(['wait']);
     // The port stopped at step 20 on a behavior it has not ported, which places
-    // that owner between `eat` at 4 and `down` at 30.
+    // that behavior between `eat` at 4 and `down` at 30.
     const behavioral = { member: 'a behavioral stop', at: 20 };
-    assert.deepEqual(assembleOwners(issued, supported, behavioral), [
+    assert.deepEqual(assembleBehaviors(issued, supported, behavioral), [
         { member: 'eat', at: 4 },
         { member: 'a behavioral stop', at: 20 },
         { member: 'down', at: 30 },
     ]);
 });
 
-test('an owner is charged every screen that stands behind its first use', () => {
+test('an behavior is charged every screen that stands behind its first use', () => {
     const rows = [
         // 100 recorded steps, `eat` first needed at step 40, and nothing else
         // stands in the way: removing `eat` from a perfect port loses the 60
         // screens from step 40 on, and porting it earns all 60.
-        { file: 'a', recordedSteps: 100, owners: [{ member: 'eat', at: 40 }] },
+        { file: 'a', recordedSteps: 100, behaviors: [{ member: 'eat', at: 40 }] },
         // `eat` at step 10 and `down` at step 30. Removing `eat` loses 90 and
         // removing `down` loses 70, because each is needed for every screen
         // after its own first use. `eat` is the bottleneck, so porting it
@@ -196,21 +196,21 @@ test('an owner is charged every screen that stands behind its first use', () => 
         {
             file: 'b',
             recordedSteps: 100,
-            owners: [{ member: 'eat', at: 10 }, { member: 'down', at: 30 }],
+            behaviors: [{ member: 'eat', at: 10 }, { member: 'down', at: 30 }],
         },
         // A session that needs nothing charges nothing to anybody.
-        { file: 'c', recordedSteps: 20, owners: [] },
+        { file: 'c', recordedSteps: 20, behaviors: [] },
     ];
     assert.deepEqual(rankCandidates(rows), [
-        // 60 + 90 gated, and 60 + 20 advance.
-        { member: 'eat', gated: 150, gatedSessions: 2, advance: 80, bottleneckIn: 2 },
+        // 60 + 90 supports, and 60 + 20 unlocks.
+        { member: 'eat', supports: 150, supportsSessions: 2, unlocks: 80, unlocksSessions: 2 },
         // Gated in one session, and the bottleneck in none of them.
-        { member: 'down', gated: 70, gatedSessions: 1, advance: 0, bottleneckIn: 0 },
+        { member: 'down', supports: 70, supportsSessions: 1, unlocks: 0, unlocksSessions: 0 },
     ]);
 });
 
 test('the two orders rank the same set differently', () => {
-    // Within one session an earlier owner always gates more, so the two orders
+    // Within one session an earlier behavior always gates more, so the two orders
     // can only disagree across sessions. This is the shape the real scan shows
     // for `takeoff`, which gates 2,609 screens and earns none.
     const rows = [
@@ -219,25 +219,25 @@ test('the two orders rank the same set differently', () => {
         {
             file: 'a',
             recordedSteps: 1000,
-            owners: [{ member: 'blocker', at: 10 }, { member: 'deep', at: 20 }],
+            behaviors: [{ member: 'blocker', at: 10 }, { member: 'deep', at: 20 }],
         },
         // A short session blocked from its first step, so `near` gates only 99
         // but earns all 99 the moment it lands.
-        { file: 'b', recordedSteps: 100, owners: [{ member: 'near', at: 1 }] },
+        { file: 'b', recordedSteps: 100, behaviors: [{ member: 'near', at: 1 }] },
     ];
     // What a perfect port would lose: blocker 990, deep 980, near 99.
     assert.deepEqual(
-        rankCandidates(rows, 'gated').map((entry) => entry.member),
+        rankCandidates(rows, 'supports').map((entry) => entry.member),
         ['blocker', 'deep', 'near'],
     );
     // What the next goal earns: near 99, blocker the 10-step gap to `deep`,
     // and `deep` nothing at all. This is the default, being the selection
     // question.
     assert.deepEqual(
-        rankCandidates(rows, 'advance').map((entry) => entry.member),
+        rankCandidates(rows, 'unlocks').map((entry) => entry.member),
         ['near', 'blocker', 'deep'],
     );
-    assert.deepEqual(rankCandidates(rows), rankCandidates(rows, 'advance'));
+    assert.deepEqual(rankCandidates(rows), rankCandidates(rows, 'unlocks'));
     assert.throws(() => rankCandidates(rows, 'screens'), /unknown order/u);
 });
 
@@ -260,23 +260,23 @@ test('a command the port ran before stopping counts as supported', () => {
     assert.equal(executed.has('#ride'), true);
     assert.equal(executed.has('#pray'), false);
 
-    // Attaching owners with that set leaves only the command the port has not
-    // run, and its earliest owner then agrees with the stop point.
-    const [attached] = attachOwners([{ ...rows[0], recordedSteps: 100, behavioral: { member: 'b', at: 26 } }]);
+    // Attaching behaviors with that set leaves only the command the port has not
+    // run, and its earliest behavior then agrees with the stop point.
+    const [attached] = attachBehaviors([{ ...rows[0], recordedSteps: 100, behavioral: { member: 'b', at: 26 } }]);
     assert.deepEqual(attached.debt, ['#pray', 'b']);
-    assert.equal(attached.owners[0].at, 26);
+    assert.equal(attached.behaviors[0].at, 26);
 });
 
-test('a session whose earliest owner misses the stop point is reported', () => {
+test('a session whose earliest behavior misses the stop point is reported', () => {
     const rows = [
-        // Agrees: the port stopped at step 11 and the earliest owner is at 11.
-        { file: 'a', screensEmitted: 11, owners: [{ member: 'x', at: 11 }] },
-        // Disagrees: the classifier put the owner 5 steps before the stop,
+        // Agrees: the port stopped at step 11 and the earliest behavior is at 11.
+        { file: 'a', screensEmitted: 11, behaviors: [{ member: 'x', at: 11 }] },
+        // Disagrees: the classifier put the behavior 5 steps before the stop,
         // which is the shape an extended command took when it was charged from
         // the `#` rather than from the terminator that runs it.
-        { file: 'b', screensEmitted: 11, owners: [{ member: '#ride', at: 6 }] },
-        // A finished session has no owner and is outside the check.
-        { file: 'c', screensEmitted: 23, owners: [] },
+        { file: 'b', screensEmitted: 11, behaviors: [{ member: '#ride', at: 6 }] },
+        // A finished session has no behavior and is outside the check.
+        { file: 'c', screensEmitted: 23, behaviors: [] },
     ];
     const agreement = stopPointAgreement(rows);
     assert.equal(agreement.total, 2);
