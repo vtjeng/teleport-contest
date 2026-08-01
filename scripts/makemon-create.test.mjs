@@ -17,11 +17,14 @@ import {
     MM_NOGRP,
     MM_NOMSG,
     MON_DETACH,
+    M_AP_OBJECT,
     NO_MINVENT,
     OBJ_MINVENT,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    ROOMOFFSET,
     ROWNO,
+    SHOPBASE,
     STONE,
     WEB,
     W_AMUL,
@@ -98,6 +101,7 @@ import {
     PM_ROCK_MOLE,
     PM_SEWER_RAT,
     PM_SKELETON,
+    PM_SMALL_MIMIC,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
@@ -112,6 +116,7 @@ import {
 import {
     AKLYS,
     AMULET_OF_LIFE_SAVING,
+    ARMOR_CLASS,
     DART,
     CLUB,
     CROSSBOW,
@@ -135,12 +140,15 @@ import {
     ORCISH_DAGGER,
     ORCISH_HELM,
     POT_OBJECT_DETECTION,
+    RING_CLASS,
     SADDLE,
     SCR_CREATE_MONSTER,
+    STRANGE_OBJECT,
     TALLOW_CANDLE,
     T_SHIRT,
     WAN_DIGGING,
     WAN_MAGIC_MISSILE,
+    WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
 import { timeout_globals_init } from '../js/timeout.js';
@@ -2471,4 +2479,193 @@ test('elf racial hostility cannot be undone by goblin alignment', () => {
 
     assert.equal(monster.mpeaceful, false);
     assert.equal(monster.malign, 3);
+});
+
+// makemon.c set_mimic_sym():2467-2486, the arm a mimic standing inside a shop
+// takes. shknam.c mkshobj_at() is the caller that reaches it: it turns 2% of a
+// D:2 shop's stocked squares into a mimic instead of an object.
+//
+// The room's rtype is what selects the arm, so the fixture sets it directly
+// rather than running mkshop(); `shopIndex` is C's `rt - SHOPBASE`, the row of
+// shknam.c shtypes[] the room sells from.
+function shopLevelState(shopIndex, dlevel = 2) {
+    const state = initialLevelState();
+    state.u.uz = { dnum: 0, dlevel };
+    state.level.at(MON_X, MON_Y).roomno = ROOMOFFSET;
+    state.level.rooms = [{ rtype: SHOPBASE + shopIndex }];
+    state.level.nroom = 1;
+    init_objects(state, () => 0);
+    return state;
+}
+
+// A small mimic is level seven, so makemon() rolls d(6, 8) after lowering it
+// for depth two. The gender draw follows because mimics are not neuter.
+function mimicCreationSteps() {
+    return [
+        step('rnd', [2], 1), // advance context.ident from 2 to 3
+        step('d', [6, 8], 6), // hit points
+        step('rn2', [2], 1), // retained corpse gender
+    ];
+}
+
+// makemon()'s inventory tail for an unarmed, level-seven species: the
+// defensive and miscellaneous item gates, both of which fail here.
+function mimicInventoryTail() {
+    return [
+        step('rn2', [50], 1),
+        step('rn2', [100], 1),
+        step('rn2', [100], 1),
+    ];
+}
+
+function permissiveRandom() {
+    return {
+        d: (number) => number,
+        rn1: (_range, base) => base,
+        rn2: (bound) => (bound === 10 ? 1 : Math.max(0, bound - 1)),
+        rnd: (bound) => (bound === 100 ? 1 : 1),
+        rne: () => 1,
+        rnz: (value) => value,
+    };
+}
+
+function makeShopMimic(state, random) {
+    return makemon(
+        state.mons[PM_SMALL_MIMIC],
+        MON_X,
+        MON_Y,
+        0,
+        { state, random },
+    );
+}
+
+test('a shop mimic hides as a strange object once rn2(10) reaches the depth',
+    () => {
+        // makemon.c:2468. `rn2(10) >= depth(&u.uz)` sends the mimic to
+        // S_MIMIC_DEF, which assign_sym answers with STRANGE_OBJECT, and
+        // get_shop_item() is never called. Two is the smallest result that
+        // satisfies the test at depth two, so a port comparing with `>` takes
+        // the other arm here.
+        const reached = shopLevelState(0);
+        const reachedRandom = scriptedRandom([
+            ...mimicCreationSteps(),
+            step('rn2', [10], 2),
+            ...mimicInventoryTail(),
+        ]);
+        const strange = makeShopMimic(reached, reachedRandom.random);
+        reachedRandom.assertExhausted();
+        assert.equal(strange.m_ap_type, M_AP_OBJECT);
+        assert.equal(strange.mappearance, STRANGE_OBJECT);
+
+        // One below the depth takes the shop's own stock instead. The general
+        // store's single iprobs[] row is RANDOM_CLASS, so C rerolls over
+        // syms[]; index 14 of that reroll is one of the two S_MIMIC_DEF
+        // entries, so this mimic also ends as a strange object but costs two
+        // further draws to get there.
+        const below = shopLevelState(0);
+        const belowRandom = scriptedRandom([
+            ...mimicCreationSteps(),
+            step('rn2', [10], 1),
+            step('rnd', [100], 1), // get_shop_item(): RANDOM_CLASS
+            step('rn2', [15], 14), // syms[16], the second S_MIMIC_DEF
+            ...mimicInventoryTail(),
+        ]);
+        const stocked = makeShopMimic(below, belowRandom.random);
+        belowRandom.assertExhausted();
+        assert.equal(stocked.mappearance, STRANGE_OBJECT);
+    });
+
+test('a shop mimic compares rn2(10) against the depth, not against two', () => {
+    // The same draw that reached depth two falls below depth three, so the
+    // right-hand side has to be depth(&u.uz) rather than any constant.
+    const state = shopLevelState(0, 3);
+    const random = scriptedRandom([
+        ...mimicCreationSteps(),
+        step('rn2', [10], 2),
+        step('rnd', [100], 1), // get_shop_item(): RANDOM_CLASS
+        step('rn2', [15], 14), // syms[16], S_MIMIC_DEF
+        ...mimicInventoryTail(),
+    ]);
+    const mimic = makeShopMimic(state, random.random);
+    random.assertExhausted();
+    assert.equal(mimic.mappearance, STRANGE_OBJECT);
+});
+
+test('a general store mimic rerolls over syms[] past its furniture entries',
+    () => {
+        // makemon.c:2483-2484. `syms[rn2(SIZE(syms) - 2) + 2]` skips syms[]'s
+        // two leading MAXOCLASSES entries, so a shop mimic can never become
+        // furniture. Result 4 lands on syms[6], COIN_CLASS, which assign_sym
+        // answers with GOLD_PIECE without calling mkobj().
+        const coins = shopLevelState(0);
+        const coinsRandom = scriptedRandom([
+            ...mimicCreationSteps(),
+            step('rn2', [10], 1),
+            step('rnd', [100], 1), // get_shop_item(): RANDOM_CLASS
+            step('rn2', [15], 4), // syms[6]
+            ...mimicInventoryTail(),
+        ]);
+        const golden = makeShopMimic(coins, coinsRandom.random);
+        coinsRandom.assertExhausted();
+        assert.equal(golden.m_ap_type, M_AP_OBJECT);
+        assert.equal(golden.mappearance, GOLD_PIECE);
+
+        // Result 0 lands on syms[2], RING_CLASS. Without the offset it would
+        // land on syms[0], MAXOCLASSES, and the mimic would become furniture.
+        const rings = shopLevelState(0);
+        const ring = makeShopMimic(rings, {
+            ...permissiveRandom(),
+            rn2: (bound) => {
+                if (bound === 10) return 1;
+                if (bound === 15) return 0;
+                return Math.max(0, bound - 1);
+            },
+        });
+        assert.equal(ring.m_ap_type, M_AP_OBJECT);
+        assert.equal(rings.objects[ring.mappearance].oc_class, RING_CLASS);
+    });
+
+test('a themed shop mimic takes the class its own iprobs[] row names', () => {
+    // shknam.c get_shop_item(). The used armor dealership is shtypes[1], whose
+    // iprobs[] are 90% ARMOR_CLASS then 10% WEAPON_CLASS, and C subtracts each
+    // share from one rnd(100) in turn. A roll of 90 exhausts the first row
+    // exactly and stops there; 95 carries five into the second.
+    for (const [roll, expected] of [[90, ARMOR_CLASS], [95, WEAPON_CLASS]]) {
+        const state = shopLevelState(1);
+        const mimic = makeShopMimic(state, {
+            ...permissiveRandom(),
+            rnd: (bound) => (bound === 100 ? roll : 1),
+        });
+        assert.equal(mimic.m_ap_type, M_AP_OBJECT, `roll ${roll}`);
+        assert.equal(
+            state.objects[mimic.mappearance].oc_class, expected, `roll ${roll}`,
+        );
+    }
+});
+
+test('a mimic in a shop whose stock is unported refuses by name', () => {
+    // C's two remaining arms bypass assign_sym: a negative iprobs[] itype
+    // names one object outright, and the health food store's
+    // VEGETARIAN_CLASS becomes a lump of royal jelly or a slime mold on a
+    // further rn2(2). js/shknam.js SUPPORTED_SHOPS refuses both rows outright,
+    // so nothing generates these shops today and the arms fail closed.
+    //
+    // shtypes[5] is the delicatessen, whose first 83 shares are FOOD_CLASS and
+    // whose next five are -POT_FRUIT_JUICE; shtypes[10] is the health food
+    // store, whose first 70 shares are VEGETARIAN_CLASS.
+    for (const [shopIndex, roll, reason] of [
+        [5, 90, /mimic disguised as shop item/u],
+        [10, 1, /mimic disguised as vegetarian shop food/u],
+    ]) {
+        const state = shopLevelState(shopIndex);
+        assert.throws(
+            () => makeShopMimic(state, {
+                ...permissiveRandom(),
+                rnd: (bound) => (bound === 100 ? roll : 1),
+            }),
+            (error) => error instanceof UnsupportedMonsterCreationError
+                && reason.test(error.message),
+            `shtypes[${shopIndex}]`,
+        );
+    }
 });

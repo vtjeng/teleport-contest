@@ -9,6 +9,7 @@ import test from 'node:test';
 import {
     FILL_NONE,
     FILL_NORMAL,
+    M_AP_OBJECT,
     OROOM,
     ROOM,
     ROOMOFFSET,
@@ -20,6 +21,8 @@ import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { UnsupportedSpecialRoomError, do_mkroom } from '../js/mkroom.js';
+import { m_at } from '../js/monst.js';
+import { S_MIMIC } from '../js/monsters.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -29,6 +32,7 @@ import {
     RING_CLASS,
     SCR_CHARGING,
     SPBOOK_CLASS,
+    STRANGE_OBJECT,
     TOOL_CLASS,
     TOUCHSTONE,
     WAND_CLASS,
@@ -440,18 +444,22 @@ async function descendToShop(seed, walk) {
         pack.push(obj.otyp);
 
     const stock = [];
+    const mimics = [];
     let stockedSquares = 0;
     for (let x = room.lx; x <= room.hx; ++x)
         for (let y = room.ly; y <= room.hy; ++y) {
             if (game.level.objects[x][y]) stockedSquares += 1;
             for (let obj = game.level.objects[x][y]; obj; obj = obj.nexthere)
                 stock.push(obj);
+            const monster = m_at(x, y);
+            if (monster?.data?.mlet === S_MIMIC) mimics.push(monster);
         }
 
     return {
         index: room.rtype - SHOPBASE,
         shk: room.resident,
         keeper: room.resident.mextra.eshk.shknam,
+        mimics,
         pack,
         stock,
         stockedSquares,
@@ -667,4 +675,34 @@ test('topologize leaves a room the level does not own alone', () => {
     // is what shows the guard returned rather than the caller skipping it.
     assert.equal(room.rtype, SHOPBASE + GENERAL_STORE);
     assert.equal(room.needfill, FILL_NORMAL);
+});
+
+test('a shop mimic is disguised by the arm its own depth selects', async () => {
+    // makemon.c set_mimic_sym():2467-2486, reached through shknam.c
+    // mkshobj_at(), which turns a stocked square into a mimic on
+    // rn2(100) < depth(). Both seeds are segments of
+    // scripts/run-shop-mimic.mjs, which records the whole descent against C.
+    //
+    // `rn2(10) >= depth(&u.uz)` takes S_MIMIC_DEF, and assign_sym answers that
+    // with STRANGE_OBJECT.
+    const strange = await descendToShop(7412011, 'jnnnjjjhjjhb');
+    assert.equal(strange.index, GENERAL_STORE);
+    assert.equal(strange.mimics.length, 1);
+    assert.equal(strange.mimics[0].m_ap_type, M_AP_OBJECT);
+    assert.equal(strange.mimics[0].mappearance, STRANGE_OBJECT);
+
+    // Below the depth the mimic takes get_shop_item() instead, so its disguise
+    // comes from the room's own iprobs[]. shtypes[1] lists ARMOR_CLASS and
+    // WEAPON_CLASS and nothing else, and neither is the strange object's
+    // ILLOBJ_CLASS, so a port that ignored the first draw would fail here.
+    const stocked = await descendToShop(7412050, 'yhhkkkkkkkkkkhhhhhhhhhhhhb');
+    assert.equal(stocked.index, ARMOR_SHOP);
+    assert.equal(stocked.mimics.length, 1);
+    assert.equal(stocked.mimics[0].m_ap_type, M_AP_OBJECT);
+    assert.ok(
+        [ARMOR_CLASS, WEAPON_CLASS].includes(
+            game.objects[stocked.mimics[0].mappearance].oc_class,
+        ),
+        `mimic otyp ${stocked.mimics[0].mappearance}`,
+    );
 });

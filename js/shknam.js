@@ -86,8 +86,12 @@ function shopEnv(rawEnv = {}) {
 }
 
 // C ref: shknam.c get_shop_item(). One rnd(100) walks the shop's iprobs[],
-// whose shares total 100, so the walk always stops on a pair.
-function get_shop_item(shop, random) {
+// whose shares total 100, so the walk always stops on a pair. `type` is the
+// index into shtypes[], which is the room's rtype less SHOPBASE; C's callers
+// pass `shp - shtypes` and `rt - SHOPBASE` for the same quantity.
+export function get_shop_item(type, random) {
+    const shop = SHTYPES[type];
+    if (!shop) throw new RangeError(`shtypes[] has no row ${type}`);
     let roll = random.rnd(100);
     for (const item of shop.iprobs) {
         roll -= item.iprob;
@@ -293,14 +297,17 @@ function stock_room_goodpos(sroom, roomNumber, doorIndex, sx, sy, state) {
 // here. get_shop_item() answers a non-negative object class for every shop
 // type this port stocks, so neither the VEGETARIAN_CLASS nor the negative-otyp
 // mksobj_at() arm is reachable either.
-function mkshobj_at(shop, sx, sy, _mkspecl, normalized) {
+//
+// C takes the shtypes[] row by pointer and recovers its index for
+// get_shop_item(); the index is what this port passes throughout.
+function mkshobj_at(shopIndex, sx, sy, _mkspecl, normalized) {
     const { random, state } = normalized;
     if (random.rn2(100) < depth(state.u.uz, state)
         && !m_at(sx, sy, state)) {
         const mimic = mkclass(S_MIMIC, 0, normalized);
         if (mimic && makemon(mimic, sx, sy, 0, normalized)) return;
     }
-    mkobj_at(get_shop_item(shop, random), sx, sy, true, normalized);
+    mkobj_at(get_shop_item(shopIndex, random), sx, sy, true, normalized);
 }
 
 function insideShop(sroom, x, y) {
@@ -378,7 +385,9 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
                 sroom, roomNumber, shopDoor, x, y, state,
             )) continue;
             ++stockCount;
-            mkshobj_at(shop, x, y, stockCount === specialSpot, normalized);
+            mkshobj_at(
+                shopIndex, x, y, stockCount === specialSpot, normalized,
+            );
         }
     }
 
