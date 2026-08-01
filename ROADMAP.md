@@ -52,6 +52,15 @@ census could not see it, and it reports the screens that depend on each owner
 and the screens porting it next earns. `.agents/selection.md` states how to run
 it.
 
+Three closed goals have now measured how far `unlocks` overstates: the trap
+goal predicted 46 and delivered 8, `#ride` predicted 82 and delivered 17, and
+`eat`'s first slice predicted 78 for `seed0900` and delivered 3. The bound has
+never been violated and it overstates by 4.8 to 26 times, worst where it looks
+best, because a session whose whole visible debt is one command has had the
+least opportunity to reveal what else it needs. `.agents/selection.md` therefore
+filters on `unlocks` and ranks by `supports`, and lists the six mechanisms that
+break the bound. Do not re-derive these three ratios.
+
 One check on it remains open. Against the trap goal at `2f0e55e9` its `advance`
 column answered 46 where the goal delivered 8, which holds as the upper bound
 that column claims to be. No other closed goal has been retrodicted, so how tight
