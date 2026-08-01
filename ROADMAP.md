@@ -109,11 +109,23 @@ whose holdout gain was non-zero. Its `unlocks` of 25 is small, and
    through the tests that decide whether the hero descends at all, ending at
    the point where it would call `goto_level()`. That call stays refused, so
    this slice earns the screens `dodown()` draws before it and nothing after.
-2. *The destination level.* `goto_level()`'s generation or restore path. This
-   is where D:2 generation lands, and it is large enough to need its own
-   checklist and probably its own slices.
-3. *Arrival.* Placing the hero and the carried inventory, and the first drawn
-   screen of the new level.
+2. *Leaving the level.* `goto_level()`'s opening: the guards at 1521-1593, the
+   context discard at 1601-1619 (`maybe_reset_pick()`, `reset_trapset()`, the
+   digging context, `check_special_room(TRUE)`, `reset_utrap(FALSE)`),
+   `keepdogs(FALSE)` at 1624 and `vision_recalc(2)` at 1631. Ends before the
+   destination is chosen. Nothing is generated and no screen changes.
+3. *Arriving on a newly generated level.* `mklev()` at 1699 and the hero
+   placement at 1736-1753, ending at `docrt()` and the first drawn screen of
+   D:2. `js/mklev.js` already ports `mklev()` and `u_on_upstairs()`, so this
+   slice connects existing generation to a live consumer for the first time.
+4. *Returning to a level already visited.* `savelev()` and `getlev()`, both
+   absent. Out of scope until a session climbs back up: a first descent
+   generates, and no recorded session descends twice.
+
+Slices 2 and 3 were one slice until `goto_level()` was sized. Splitting them
+keeps a slice's fresh differential to one observable boundary: slice 2 changes
+no screen, and slice 3 draws the first screen of a level the port has never
+rendered.
 
 **One thing to settle before slice 2 is planned.** `ROADMAP.md`'s
 `## Unresolved` records that `flush_screen()` rebuilds the whole screen from
