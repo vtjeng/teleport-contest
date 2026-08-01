@@ -61,11 +61,6 @@ least opportunity to reveal what else it needs. `.agents/selection.md` therefore
 filters on `unlocks` and ranks by `supports`, and lists the six mechanisms that
 break the bound. Do not re-derive these three ratios.
 
-One check on it remains open. Against the trap goal at `2f0e55e9` its `advance`
-column answered 46 where the goal delivered 8, which holds as the upper bound
-that column claims to be. No other closed goal has been retrodicted, so how tight
-that bound runs across goals is unmeasured.
-
 **Two predictions this file has recorded and then falsified.** The pickup goal
 was chosen on "fires without a player command" and gained +1 development and +0
 holdout. The trap goal stated that `seed1500`'s dart is a miss and that closing
@@ -88,11 +83,14 @@ already warns about; use it as written.
 
 ### In progress: the hero eats
 
-`scripts/scan-debt.mjs` rates `eat` 3,073 screens of `gated` across 11 of the 33
-development sessions, second only to `down`, with an `advance` of 78. It is the
-highest-gated owner that has a nonzero advance, which is the rule this goal
-tests: `#ride` was selected on advance alone, scored 82 gated, about 1% of the
-population, and carried nothing to the holdout. Every role eats, so this owner
+`scripts/scan-debt.mjs` rated `eat` 3,073 screens of `supports` across 11 of the
+33 development sessions, second only to `down`, with `unlocks` of 78. It was the
+highest-`supports` behavior with a nonzero `unlocks`, which is the rule this
+goal tests: `#ride` was selected on `unlocks` alone, supported 82 screens, about
+1% of the population, and carried nothing to the holdout. Slices 1 and 2 have
+since landed, so the scan no longer lists `eat` at all: the port executes it,
+and the corpse, tin and multi-turn debt behind it is invisible, which is
+mechanism 2 in `.agents/selection.md`. Every role eats, so this owner
 sits on the path of ordinary play. No role and no prefix gates it. That is the
 one property the closed-door goal had.
 
@@ -132,12 +130,13 @@ occupation; `done_eating()` (543-573) and `eatmdone()` (162-177) end it.
 **Why slice 1 first, and what it is worth on its own.**
 `seed0900-tourist-explore-actions` carries a debt of exactly one owner, `eat`,
 and stops at 6 of 84 steps. It is the only session in the set that `eat` alone
-would complete, which is where the 78-screen advance comes from.
+would complete, which is where the 78-screen `unlocks` came from. It delivered
+3: the session stops again three steps later on pet ranged targeting.
 
 ### Queued: the hero walks onto a floor square holding more than one object
 
 Set aside on 31 July 2026 when `scripts/scan-debt.mjs` landed. The scan rates
-this owner 383 screens of `gated` and 61 of `advance` in one session,
+this behavior 383 screens of `supports` and 61 of `unlocks` in one session,
 `seed0004-feeding-pony`, against 188 for `#levelchange`. Slice 1 was drafted and
 never validated; that draft is parked on the branch `wip/object-pile-window` and
 no line of it is verified against the C source.
@@ -340,7 +339,7 @@ thirty-three development sessions stop on an extended command: five on
 `#levelchange`, two on `#ride`, and one each on `#loot`, `#name`, `#chat`,
 `#twoweapon`, `#pray` and `#wizwish`. Each draws a prompt or a menu into the two
 defects recorded here. `scripts/scan-debt.mjs` now ranks `#levelchange` first at
-188 screens of advance and `#ride` second at 92, so the dependency is live
+188 screens of `unlocks` and `#ride` second at 92, so the dependency is live
 rather than deferred. Whoever takes either goal reads this entry first and
 decides whether the prompt it draws reaches the menu-erasure path.
 
