@@ -109,6 +109,7 @@
         "js/rooms.js",
         "js/save.js",
         "js/shknam.js",
+        "js/shtypes_data.js",
         "js/sp_lev_object.js",
         "js/stairs.js",
         "js/themeroom_data.js",
@@ -121,6 +122,11 @@
           "path": "js/dungeon_data.js",
           "generator": "scripts/generate-dungeon-data.mjs",
           "check": "node scripts/generate-dungeon-data.mjs --check"
+        },
+        {
+          "path": "js/shtypes_data.js",
+          "generator": "scripts/generate-shtypes.mjs",
+          "check": "node scripts/generate-shtypes.mjs --check"
         },
         {
           "path": "js/themeroom_data.js",

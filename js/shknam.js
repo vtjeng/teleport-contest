@@ -1,10 +1,10 @@
-// Shop creation used by the Twin businesses themed room.
+// Shop stocking and shopkeeper creation.
 // C ref: shknam.c nameshk(), shkinit(), mkshobj_at(), and stock_room().
-// This slice deliberately supports only the armor and weapon shop records
-// selected by that initial-generation callback; other shop types fail closed.
+// The shop records come from js/shtypes_data.js, generated from shknam.c
+// shtypes[]. SUPPORTED_SHOPS below names the rows this port can stock; the
+// rest fail closed.
 
 import {
-    ARMORSHOP,
     CORR,
     DOOR,
     DUST,
@@ -18,8 +18,6 @@ import {
     ROOM,
     ROOMOFFSET,
     SDOOR,
-    SHOPBASE,
-    WEAPONSHOP,
 } from './const.js';
 import { depth, ledger_no } from './dungeon.js';
 import { make_engr_at } from './engrave.js';
@@ -28,67 +26,55 @@ import { distmin } from './hacklib.js';
 import {
     makemon,
     mkmonmoney,
+    mongets,
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
 import { PM_SHOPKEEPER, S_MIMIC } from './monsters.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { mkobj_at } from './obj.js';
-import { ARMOR_CLASS, WEAPON_CLASS } from './objects.js';
+import { SCR_CHARGING, TOUCHSTONE } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { newsym } from './display.js';
+import { UnsupportedSpecialRoomError } from './mkroom.js';
+import {
+    SHTYPES,
+    shkgeneral,
+    shkrings,
+    shktools,
+    shkwands,
+} from './shtypes_data.js';
 
 const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
-const ARMOR_NAMES = Object.freeze([
-    'Demirci', 'Kalecik', 'Boyabai', 'Yildizeli', 'Gaziantep',
-    'Siirt', 'Akhalataki', 'Tirebolu', 'Aksaray', 'Ermenak',
-    'Iskenderun', 'Kadirli', 'Siverek', 'Pervari', 'Malasgirt',
-    'Bayburt', 'Ayancik', 'Zonguldak', 'Balya', 'Tefenni',
-    'Artvin', 'Kars', 'Makharadze', 'Malazgirt', 'Midyat',
-    'Birecik', 'Kirikkale', 'Alaca', 'Polatli', 'Nallihan',
-]);
+// The SHTYPES rows this port stocks, by index, which is the room's
+// rtype - SHOPBASE. Together they take 61% of mkshop()'s roll: 42% general
+// store, 14% used armor dealership, 5% antique weapons outlet. Every other row
+// needs stock this port cannot make yet, so shopType() refuses it and the
+// segment ends there rather than drawing the wrong objects:
+//
+//   second-hand bookstore, rare books   mkshobj_at()'s SPE_NOVEL tribute arm
+//   delicatessen, wand shop, lighting   iprobs[] entries with a negative
+//     store                             itype, which need mksobj_at()
+//   health food store                   VEGETARIAN_CLASS, so shkveg(),
+//                                       veggy_item() and mkveggy_at()
+//   hardware store                      nameshk()'s shktools arm
+//   jewelers                            shkinit()'s TOUCHSTONE arm
+//   liquor emporium                     mkobj_at(POTION_CLASS) is untested
+//                                       against a recorded shop
+const SUPPORTED_SHOPS = new Set([0, 1, 4]);
 
-const WEAPON_NAMES = Object.freeze([
-    'Voulgezac', 'Rouffiac', 'Lerignac', 'Touverac', 'Guizengeard',
-    'Melac', 'Neuvicq', 'Vanzac', 'Picq', 'Urignac',
-    'Corignac', 'Fleac', 'Lonzac', 'Vergt', 'Queyssac',
-    'Liorac', 'Echourgnac', 'Cazelon', 'Eypau', 'Carignan',
-    'Monbazillac', 'Jonzac', 'Pons', 'Jumilhac', 'Fenouilledes',
-    'Laguiolet', 'Saujon', 'Eymoutiers', 'Eygurande', 'Eauze',
-    'Labouheyre',
-]);
-
-const GENERAL_NAMES = Object.freeze([
-    'Hebiwerie', 'Possogroenoe', 'Asidonhopo', 'Manlobbi',
-    'Adjama', 'Pakka Pakka', 'Kabalebo', 'Wonotobo',
-    'Akalapi', 'Sipaliwini', 'Annootok', 'Upernavik',
-    'Angmagssalik', 'Aklavik', 'Inuvik', 'Tuktoyaktuk',
-    'Chicoutimi', 'Ouiatchouane', 'Chibougamau', 'Matagami',
-    'Kipawa', 'Kinojevis', 'Abitibi', 'Maganasipi',
-    'Akureyri', 'Kopasker', 'Budereyri', 'Akranes',
-    'Bordeyri', 'Holmavik',
-]);
-
-// Indexes are rtype - SHOPBASE, matching shtypes[] in shknam.c.
-const TWIN_SHOPS = new Map([
-    [ARMORSHOP - SHOPBASE, Object.freeze({
-        name: 'used armor dealership',
-        iprobs: Object.freeze([
-            Object.freeze({ probability: 90, type: ARMOR_CLASS }),
-            Object.freeze({ probability: 10, type: WEAPON_CLASS }),
-        ]),
-        names: ARMOR_NAMES,
-    })],
-    [WEAPONSHOP - SHOPBASE, Object.freeze({
-        name: 'antique weapons outlet',
-        iprobs: Object.freeze([
-            Object.freeze({ probability: 90, type: WEAPON_CLASS }),
-            Object.freeze({ probability: 10, type: ARMOR_CLASS }),
-        ]),
-        names: WEAPON_NAMES,
-    })],
-]);
+function shopType(shopIndex) {
+    const shop = SHTYPES[shopIndex];
+    if (!shop)
+        throw new RangeError(`shtypes[] has no row ${shopIndex}`);
+    if (!SUPPORTED_SHOPS.has(shopIndex)) {
+        throw new UnsupportedSpecialRoomError(
+            `stock_room() stocking a ${shop.name}`,
+        );
+    }
+    return shop;
+}
 
 function shopEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
@@ -102,15 +88,27 @@ function shopEnv(rawEnv = {}) {
     return objectGenerationEnv({ ...rawEnv, state, random });
 }
 
+// C ref: shknam.c get_shop_item(). One rnd(100) walks the shop's iprobs[],
+// whose shares total 100, so the walk always stops on a pair.
 function get_shop_item(shop, random) {
     let roll = random.rnd(100);
     for (const item of shop.iprobs) {
-        roll -= item.probability;
-        if (roll <= 0) return item.type;
+        roll -= item.iprob;
+        if (roll <= 0) return item.itype;
     }
     throw new Error(`invalid stock probabilities for ${shop.name}`);
 }
 
+// C ref: shknam.c nameshk(). `initialNames` is C's `nlp`, and the branches
+// below compare it by identity exactly as C compares the pointer.
+//
+// The minetown shklight arm above C's else is unreachable here: the lighting
+// store has probability 0, so only the special-level loader ever asks for one.
+// The shktools arm inside the loop is unreachable for the same reason the
+// hardware store is refused above.
+//
+// This draws no random number on the path a fresh shop takes, so a wrong name
+// shows up only on the screen.
 function nameshk(shk, initialNames, normalized) {
     const { random, state } = normalized;
     const eshk = shk.mextra?.eshk;
@@ -136,8 +134,8 @@ function nameshk(shk, initialNames, normalized) {
             const choice = random.rn2(namesAvailable);
             if (choice) {
                 shopName = names[choice - 1];
-            } else if (names !== GENERAL_NAMES) {
-                names = GENERAL_NAMES;
+            } else if (names !== shkgeneral) {
+                names = shkgeneral;
                 namesAvailable = names.length;
                 continue;
             } else {
@@ -206,14 +204,16 @@ function good_shopdoor(sroom, state) {
     return null;
 }
 
+// C ref: shknam.c shkinit(). Returns the svd.doors index the shopkeeper was
+// placed beside, or null for C's -1.
 function shkinit(shop, sroom, normalized) {
     const { state } = normalized;
     const placement = good_shopdoor(sroom, state);
     if (!placement) return null;
     if (m_at(placement.sx, placement.sy, state)) {
-        throw new Error(
-            'Twin businesses shopkeeper square unexpectedly occupied',
-        );
+        // C rloc()s the occupant out of the way. Nothing has placed a monster
+        // by the time makelevel() stocks a fresh shop, so this stays a stop.
+        throw new Error('shopkeeper square unexpectedly occupied');
     }
 
     const shk = makemon(
@@ -250,7 +250,18 @@ function shkinit(shop, sroom, normalized) {
     eshk.customer = '';
 
     mkmonmoney(shk, 1000 + 30 * normalized.random.rnd(100), normalized);
-    nameshk(shk, shop.names, normalized);
+    // C's starting stock for the keeper, tested on the shop's name list rather
+    // than on the shop. The `||` chain short-circuits, so a general store draws
+    // exactly one rn2(5) here and an armor or weapon shop draws nothing: those
+    // two lists match none of the four tests. The jewelers' TOUCHSTONE arm and
+    // both wand-shop arms belong to shop types shopType() still refuses.
+    if (shop.shknms === shkrings) mongets(shk, TOUCHSTONE, normalized);
+    if (shop.shknms === shktools || shop.shknms === shkwands
+        || (shop.shknms === shkrings && normalized.random.rn2(2))
+        || (shop.shknms === shkgeneral && normalized.random.rn2(5))) {
+        mongets(shk, SCR_CHARGING, normalized);
+    }
+    nameshk(shk, shop.shknms, normalized);
     return placement.index;
 }
 
@@ -271,7 +282,12 @@ function stock_room_goodpos(sroom, roomNumber, doorIndex, sx, sy, state) {
     return IS_ROOM(state.level.at(sx, sy).typ);
 }
 
-function mkshobj_at(shop, sx, sy, _special, normalized) {
+// C ref: shknam.c mkshobj_at(). `mkspecl` selects C's SPE_NOVEL tribute stock,
+// which only the two bookstores make and shopType() refuses, so it is unused
+// here. get_shop_item() answers a non-negative object class for every shop
+// type this port stocks, so neither the VEGETARIAN_CLASS nor the negative-otyp
+// mksobj_at() arm is reachable either.
+function mkshobj_at(shop, sx, sy, _mkspecl, normalized) {
     const { random, state } = normalized;
     if (random.rn2(100) < depth(state.u.uz, state)
         && !m_at(sx, sy, state)) {
@@ -298,9 +314,7 @@ function redrawDoor(x, y, normalized) {
 export function stock_room(shopIndex, sroom, rawEnv = {}) {
     const normalized = shopEnv(rawEnv);
     const { random, state } = normalized;
-    const shop = TWIN_SHOPS.get(shopIndex);
-    if (!shop)
-        throw new RangeError(`unsupported shop type index ${shopIndex}`);
+    const shop = shopType(shopIndex);
 
     const shopDoor = shkinit(shop, sroom, normalized);
     if (shopDoor == null) return false;
