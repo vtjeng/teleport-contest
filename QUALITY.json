@@ -5074,6 +5074,142 @@
         }
       },
       "recordedAt": "2026-08-01T01:26:24.230Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
+        "runtime": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
+        "objects": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
+        "monsters": "9a7aef528acee7934f2c496647d2cb2f8f68b167"
+      },
+      "head": "dc4e009eace59753032502a7c908808541957630",
+      "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..dc4e009eace59753032502a7c908808541957630",
+      "areas": [
+        "commands",
+        "runtime",
+        "objects",
+        "monsters"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Goal-closing full /audit-diff-correctness pass over the eating goal's third and last slice, the first occupation this port owns: 19 raw, 16 deduplicated, 16 confirmed, 13 applied at 8da9a70, 3 deferred, 0 rejected, 0 unverified, 0 warnings. Recorded from 9a7aef5, the oldest frontier among these four areas, so the base sits at or before every one; the two intervening commits are the previous passes' audit fixes over the same files, which this pass also read. The production defect that mattered: moveloop_core() refused on a nearby monster after the occupation had already ended, truncating a segment on the last turn of every meal where C emits nothing. Mutation over 02c6e59..dc4e009: 16 mutants, 15 killed first wave, 16 of 16 under --whole-suite.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2091,
+        "counts": {
+          "raw": 19,
+          "deduplicated": 16,
+          "confirmed": 16,
+          "applied": 13,
+          "deferred": 3,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 8,
+          "tests": 6,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/allmain.js moveloop_core() refused on a nearby monster even after the occupation callback answered 0 and the line above cleared it. With go.occupation == 0, allmain.c stop_occupation() (684-696) skips its printing arm and takes else if (gm.multi >= 0) nomul(0), and reset_eat() is inert because done_eating() zeroed victual.eating that turn, so C emits nothing. The port truncated the segment on the last turn of every meal whenever a hostile was adjacent. Gated on the occupation surviving the callback, with nomul(0) ported for the else arm.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same refusal comment described the arm as unconditional; corrected alongside the gate.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/eat.js fprefx()s FOOD_RATION arm hoisted the Hallucination test above both nutrition tests, where eat.c:2119-2130 consults hallucination only inside the u.uhunger <= 200 arm, so the port refused at nutrition levels C handles plainly.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same hoist seen as a readability defect: the hallucination text belongs to one branch and the arm refused the whole thing.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same hoist seen through variable flow: it refused at nutrition levels where C prints.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/eat.js done_eating() cleared gn.nomovemsg with the number 0 where js/monmove.js:1387 reads it through a ?? chain, so an empty-string contract was broken by a falsy number. Now null.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/cmd.js set_occupation() stores C go.occupation at state.go.occupation, but js/monmove.js:529 and :555, js/unported_monster_actions.js:871 and js/teleport.js:259 read state.occupation, which nothing writes. dochugw()s stop_occupation() is therefore dead and a meal runs on where C prints You stop eating. Silent divergence. Deferred: repointing changes a state owner and makes a dead refusal live, and needs a fresh C recording.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/allmain.js moveloop_core() calls bot() on every turn where C gates on disp.botl || disp.botlx with a timebot() else arm. Deferred: changes rendering behavior and needs timebot() ported. Segment 5820079 shows Satiated on turns 3 to 5 with disp.botl false throughout.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [],
+        "deferrals": [
+          {
+            "summary": "js/cmd.js set_occupation() stores C go.occupation at state.go.occupation, but js/monmove.js:529 and :555, js/unported_monster_actions.js:871 and js/teleport.js:259 read state.occupation, which nothing writes. dochugw()s stop_occupation() is therefore dead and a meal runs on where C prints You stop eating. Silent divergence. Deferred: repointing changes a state owner and makes a dead refusal live, and needs a fresh C recording.",
+            "category": "production",
+            "trackedIn": "`go.occupation` has one writer and three readers that never see it"
+          },
+          {
+            "summary": "js/allmain.js moveloop_core() calls bot() on every turn where C gates on disp.botl || disp.botlx with a timebot() else arm. Deferred: changes rendering behavior and needs timebot() ported. Segment 5820079 shows Satiated on turns 3 to 5 with disp.botl false throughout.",
+            "category": "production",
+            "trackedIn": "the status line repaints on every turn, where C gates it"
+          },
+          {
+            "summary": "The two-meal matrix segment runs out of input one turn into its second meal, so no test completes two meals in one segment. Repair needs a new seed and a fresh C recording.",
+            "category": "tests",
+            "trackedIn": "the two-meal segment never reaches its second meal"
+          }
+        ],
+        "mutation": {
+          "mutants": 16,
+          "survivors": 1,
+          "byKind": {
+            "boolean": {
+              "ran": 3,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 6,
+              "killed": 6
+            },
+            "relational": {
+              "ran": 7,
+              "killed": 6
+            }
+          },
+          "finderConclusion": "93.8% first-wave kill rate, 16 of 16 under --whole-suite, the highest of any range this session and on the smallest. The pass still confirmed sixteen findings including three production defects, which is the useful lesson: mutation measures whether tests pin the lines that exist and says nothing about a line that is wrong. Seven of the sixteen were non-discriminating assertions, six fixed and one deferred with its seed."
+        }
+      },
+      "recordedAt": "2026-08-01T03:29:27.200Z"
     }
   ]
 }
