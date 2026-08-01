@@ -783,10 +783,15 @@ test('goto_level stops for a hero tethered to a buried ball', async () => {
 });
 
 test('goto_level stops for a punished hero', async () => {
-    // do.c:1616-1617, ball.c unplacebc(). Punished is (u.uball != 0).
+    // do.c:1616-1617, ball.c unplacebc(). Punished is (u.uball != 0), and the
+    // port's single home for C's global `uball` is `state.uball` -- the
+    // location js/steed.js Punished(), js/insight.js, js/monmove.js,
+    // js/steal.js and js/worn.js all read. Writing `state.u.uball` would leave
+    // the guard reading an undefined field, so the refusal would pass this
+    // test while never firing for a hero the game actually punished.
     const state = await descendTo('>');
     quiet(state);
-    state.u.uball = { otyp: 0 };
+    state.uball = { otyp: 0 };
     downStairsUnderHero(state);
 
     await assert.rejects(

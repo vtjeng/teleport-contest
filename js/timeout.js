@@ -613,8 +613,13 @@ export function run_timers(state = game) {
     timerGlobals(state);
     const due = state.gt.timer_base;
     if (due && Math.trunc(due.timeout) <= currentMove(state)) {
+        // Worded apart from preflight_nh_timeout_elapsed_turn(), which tests
+        // the same field: that one guards an elapsed turn, this one guards
+        // goto_level()'s arrival, and a log line naming only the timer would
+        // not say which of the two stopped.
         throw new UnsupportedHeroTimeoutBoundaryError(
-            `no timer due by move ${currentMove(state)}`,
+            `no timer due when run_timers() runs on arrival, but one is due `
+            + `by move ${currentMove(state)}`,
         );
     }
 }

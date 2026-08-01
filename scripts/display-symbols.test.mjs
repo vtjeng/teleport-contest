@@ -5549,3 +5549,74 @@ test('three-line status clips the map around a bottom-row hero', async () => {
         [0, 20],
     );
 });
+
+// do.c goto_level() calls flush_screen(-1) at 1718 to postpone every map flush
+// while it builds the destination, and again at 1839 to release it. Nothing
+// pinned either half: mutating the `-1` the toggle tests for left the whole
+// suite green, so the delay could have stopped engaging without a failure.
+test('flush_screen(-1) postpones the map flush, and a new segment starts undelayed', async () => {
+    const x = 7;
+    const y = 4;
+    const cat = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        mtame: 10,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+
+    const state = visibleCellState({ x, y });
+    state.nhDisplay = new GameDisplay(null);
+    state.level.flags.hero_memory = true;
+    state.iflags = {
+        wc_color: true,
+        wc_hilite_pet: true,
+        wc2_petattr: ATR_BOLD,
+    };
+    const gridCell = () => state.nhDisplay.grid[y + 1][x - 1];
+
+    state.level.monsters[x][y] = cat;
+    newsym(x, y);
+    await flush_screen(1);
+    assert.equal(gridCell().ch, 'f', 'the undelayed flush paints the pet');
+
+    // do.c:1718. Everything drawn from here is held back.
+    await flush_screen(-1);
+    state.level.monsters[x][y] = null;
+    newsym(x, y);
+    await flush_screen(1);
+    assert.equal(
+        gridCell().ch, 'f',
+        'a flush issued while delayed leaves the previous cell standing',
+    );
+
+    // do.c:1839. The release flushes what accumulated.
+    await flush_screen(-1);
+    assert.notEqual(
+        gridCell().ch, 'f',
+        'releasing the delay paints the square the pet left',
+    );
+
+    // The port can leave goto_level() between that pair, because nine
+    // fail-closed throws sit between them. A module-level flag would stay
+    // latched and suppress every flush in every later segment of the session;
+    // the flag lives on the game state, which resetGame() replaces per
+    // runSegment(), so the next segment paints normally.
+    await flush_screen(-1);
+    const next = visibleCellState({ x, y });
+    next.nhDisplay = new GameDisplay(null);
+    next.level.flags.hero_memory = true;
+    next.iflags = {
+        wc_color: true,
+        wc_hilite_pet: true,
+        wc2_petattr: ATR_BOLD,
+    };
+    next.level.monsters[x][y] = cat;
+    newsym(x, y);
+    await flush_screen(1);
+    assert.equal(
+        next.nhDisplay.grid[y + 1][x - 1].ch, 'f',
+        'a delay left latched by an aborted level change does not survive resetGame()',
+    );
+});

@@ -3,12 +3,21 @@
 //
 // `AGENTS.md` forbids game code from touching the filesystem, and the port
 // keeps its one level in `game.level` rather than in a level file, so every
-// write in savelev_core() has no counterpart here. What remains is the half
-// C performs under FREEING, which do.c goto_level() depends on: the level
-// being left surrenders the timers and light sources that belong to it, and
-// its ledger is marked VISITED.
+// write in savelev_core() has no counterpart here. What remains is the
+// teardown do.c goto_level() depends on, which comes from two different
+// branches of C rather than one:
 //
-// The rest of the FREEING half is done for the port by mklev.c
+//   - save_timers(RANGE_LEVEL) and save_light_sources(RANGE_LEVEL) release the
+//     timers and light sources belonging to the level being left. Each does
+//     that under its own `mode & FREEING` test (save.c:707, 715), so this is
+//     the FREEING half proper.
+//   - dmonsfree() (save.c:488) and the VISITED ledger flag (save.c:494) sit
+//     inside `if (nhfp->mode != FREEING)` at save.c:480, which is the
+//     *other* branch. goto_level() reaches it because it passes
+//     `WRITING | FREEING` (save.c:156), and that compound value is not equal
+//     to FREEING.
+//
+// The remainder of C's freeing is done for the port by mklev.c
 // clear_level_structures(), which replaces `game.level` with a fresh map and
 // so drops the monster chain, the object chains, the buried objects, the
 // traps, the rooms, the doors and the engravings in one assignment. C frees

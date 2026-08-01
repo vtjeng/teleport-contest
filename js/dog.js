@@ -823,6 +823,12 @@ export function losedogs(rawEnv = {}) {
     // rather than the one she is arriving on, so both walks find nothing on a
     // first descent. mon_arrive() refuses the Before_you and After_you modes
     // they use.
+    // mux/muy are overloaded here and hold no map position. While a monster
+    // sits on gm.migrating_mons, C stores its destination in them -- mux is
+    // the dungeon number and muy the level -- and mon_arrive() overwrites the
+    // pair with a real position once the monster lands. Comparing them
+    // against u.uz.dnum and u.uz.dlevel is therefore a destination test, not a
+    // proximity test.
     for (let mtmp = state.gm.migrating_mons; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.mux === state.u.uz.dnum && mtmp.muy === state.u.uz.dlevel) {
             throw new UnsupportedHeroMoveBoundaryError(

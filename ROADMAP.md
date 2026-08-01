@@ -738,6 +738,58 @@ when a leak escapes the five cases above, or when the field list next grows.
 
 ### Game behavior
 
+#### five descent-and-shop findings are deferred
+
+The correctness pass over `9a7aef5..17825d3` confirmed seventeen findings;
+twelve were applied at the fix commit and five are recorded here.
+
+**Two production gaps.**
+
+- `mon_arrive()` at `js/dog.js:750` refuses every follower that is neither
+  tame nor `u.ustuck`, but C's `set_apparxy()` returns the hero's own square
+  for those monsters too, so the port stops where C continues without drawing a
+  single random number. The `rn2(monster.mtame ? 10 : monster.mpeaceful ? 5 : 2)`
+  selector below the refusal already encodes the untame cases, which is the
+  evidence the refusal is too wide. Deferred rather than applied because
+  deleting a refusal changes what the game does and needs its own fresh
+  differential with a non-tame follower, which no recorded case supplies yet.
+- `set_mimic_sym()`'s `rt >= SHOPBASE` arm (`makemon.c:2467-2480`) is unported,
+  so a mimic generated inside the shop that `mkshop()` now places on D:2 raises
+  `UnsupportedMonsterCreationError` from `js/makemon_create.js`. The fix commit
+  added that class to `js/cmd.js failClosedCommandRefusals()`, so the descent
+  now ends its segment cleanly instead of discarding the prefix, but the arm
+  itself is new upstream work rather than an audit fix: it needs the
+  `rn2(10) >= depth()` test that selects `S_MIMIC_DEF` and otherwise calls
+  `get_shop_item(rt - SHOPBASE)`. Take it with the next shop slice.
+
+**Three assertions that do not discriminate.**
+
+- `compareScoreToBaseline()` in `scripts/checkpoint-checks.mjs` became gating
+  in this range and has no test, and the new
+  `summary.passed ?? (result.status === 0)` rule has none either. The one test
+  touching the score check still builds it with `informational: true`. Cover
+  the five outcomes: ratchet met, a drop, a session missing from the run, the
+  marker absent, and unparseable JSON.
+- `scripts/mkroom-shop.test.mjs:445` pins the shopkeeper names `Akranes` and
+  `Akureyri`, which only a run of the port can have produced: `eshk.shknam`
+  reaches neither the screen nor the random-number stream, so the differential
+  the comment credits cannot have validated them. Derive the expectation from
+  C instead — `name_wanted = m_id + ledger_no(u.uz) + (ubirthday/257 % 13)
+  - (ubirthday/257 % 5)`, reduced modulo the name list's length.
+- Nothing exercises `do.c u_collide_m()` or the `dog.c mon_arrive()` arm that
+  reaches it, although a descent with a pet reaches them about one time in ten
+  rather than the near-never this file assumed when slice 3 closed. Add a
+  descent segment to `scripts/run-leave-level.mjs` whose seed lands the pet on
+  the hero's arrival square.
+
+One clarity item is deferred with them, folded into the second bullet above
+rather than counted separately: `UnsupportedHeroTimeoutBoundaryError`'s message
+still opens `elapsed-turn nh_timeout requires` at all four of its sites, which
+is wrong for the `run_timers()` arrival site. The fix commit gave that site a
+distinct reason so the two are no longer indistinguishable in a log; renaming
+the shared prefix would reword three messages that read correctly today and is
+left for whatever next touches that class.
+
 #### a drawbridge wall answers "It's a wall."
 
 `hack.c:1048` prints `"That drawbridge is up!"` when `is_db_wall(x, y)` holds

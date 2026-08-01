@@ -124,7 +124,7 @@ function propertyIntrinsic(state, index) {
 }
 
 // youprop.h:77. The punishing ball is the whole test.
-function Punished(state) {
+export function Punished(state) {
     return Boolean(state.uball);
 }
 

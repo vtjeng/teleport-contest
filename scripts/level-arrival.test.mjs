@@ -229,7 +229,14 @@ test('run_timers stops rather than firing a timer that has come due', () => {
     // Scheduled for move 105, which is still ahead of the arrival turn.
     run_timers(state);
     state.moves = 105;
-    assert.throws(() => run_timers(state), /no timer due by move 105/u);
+    // The message names run_timers() and the arrival, which is what separates
+    // this stop from preflight_nh_timeout_elapsed_turn()'s. That one guards an
+    // elapsed turn and tests the same gt.timer_base field, so a reason naming
+    // only the timer would not say which of the two fired.
+    assert.throws(
+        () => run_timers(state),
+        /run_timers\(\) runs on arrival, but one is due by move 105/u,
+    );
 });
 
 test('save_light_sources releases exactly one range', () => {

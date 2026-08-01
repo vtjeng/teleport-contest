@@ -191,10 +191,13 @@ test('a big room turns a wand or spellbook shop into a general store', () => {
     assert.equal(SHTYPES[ARMOR_SHOP].symb, ARMOR_CLASS);
     assert.equal(SHTYPES[WEAPON_SHOP].symb, WEAPON_CLASS);
 
-    // Twenty-one squares, one over isbig()'s threshold.
+    // shopCandidate() puts every room at lx 10, ly 5, so the area is
+    // (hx - 9) * (hy - 4). These two sit one square either side of isbig()'s
+    // `area > 20`, which is the only boundary the override turns on.
+    // Seven by three, twenty-one squares: one over, so isbig() is true.
     const big = { hx: 16, hy: 7 };
-    // Twenty squares, the largest room isbig() calls small.
-    const small = { hx: 13, hy: 8 };
+    // Five by four, twenty squares: the largest room isbig() calls small.
+    const small = { hx: 14, hy: 8 };
     const cases = [
         // roll 90 selects the wand shop, roll 96 the bookstore.
         [big, 90, GENERAL_STORE], [big, 96, GENERAL_STORE],

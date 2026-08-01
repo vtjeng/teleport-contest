@@ -37,6 +37,10 @@ import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import { bot, flush_screen } from './display.js';
 import { dodown, UnsupportedLevelChangeError } from './do.js';
+import { UnsupportedMonsterCreationError } from './makemon_create.js';
+import { UnsupportedPickupError } from './pickup.js';
+import { UnsupportedPositionCheckError } from './teleport.js';
+import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import {
     doeat,
     UnsupportedEatError,
@@ -908,6 +912,16 @@ export function failClosedCommandRefusals() {
         UnsupportedHitPointLossError,
         UnsupportedArtifactDisplayError,
         UnsupportedLevelChangeError,
+        // do.c goto_level()'s tail reaches all four from inside the `>`
+        // handler, so each one ends the segment where it would otherwise
+        // discard the prefix: pickup(1) is goto_level()'s last statement,
+        // run_timers() fires timers that expired while away, mon_arrive()
+        // reaches rloc_to() placing a follower, and mklev() reaches makemon()
+        // when the shop it generates holds a mimic.
+        UnsupportedPickupError,
+        UnsupportedHeroTimeoutBoundaryError,
+        UnsupportedPositionCheckError,
+        UnsupportedMonsterCreationError,
     ];
 }
 

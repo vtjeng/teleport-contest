@@ -72,7 +72,7 @@ import {
     stairway_find_from,
     stairway_free_all,
 } from './stairs.js';
-import { stucksteed } from './steed.js';
+import { Punished, stucksteed } from './steed.js';
 import { enexto, mnexto } from './teleport.js';
 import { run_timers } from './timeout.js';
 import {
@@ -96,9 +96,12 @@ export class UnsupportedLevelChangeError extends Error {
     }
 }
 
-// C ref: youprop.h, which spells every hero property as
-// `(HProperty || EProperty)`. js/worn.js setworn() is the port's only writer of
-// an extrinsic property.
+// Renders youprop.h's `(HProperty || EProperty)` shape only. That is not what
+// every property macro says, so a caller must read the macro it wants before
+// reusing this: Flying (youprop.h:253-255) is
+// `((HFlying || EFlying || (u.usteed && is_flyer(u.usteed->data))) && !BFlying)`,
+// with a steed term and a blocker this helper models neither.
+// js/worn.js setworn() is the port's only writer of an extrinsic property.
 function heroPropertyActive(hero, index) {
     const property = hero?.uprops?.[index];
     return Boolean(property?.intrinsic || property?.extrinsic);
@@ -362,7 +365,7 @@ export async function goto_level(
     }
 
     check_special_room(true, state);
-    if (u.uball) {
+    if (Punished(state)) {
         // do.c:1616-1617, Punished -> ball.c unplacebc().
         throw new UnsupportedLevelChangeError(
             'goto_level() with a punished hero',
@@ -491,12 +494,16 @@ export async function goto_level(
     if (!u.dz) {
         /* stayed on same level? (no transit effects) */
     } else if (heroPropertyActive(u, FLYING)) {
-        // "You fly down the stairs." No hero the port builds can fly.
+        // do.c:1776. "You fly down the stairs." This tests only Flying's
+        // (HFlying || EFlying) half: the steed term cannot fire because
+        // stucksteed() refuses a mounted hero above, and no port path writes
+        // BFlying. Widen it to the whole macro when either becomes reachable.
+        // No hero the port builds can fly.
         throw new UnsupportedLevelChangeError(
             'goto_level() with a flying hero',
         );
     } else if (near_capacity(state) > UNENCUMBERED
-               || u.uball || heroPropertyActive(u, FUMBLING)) {
+               || Punished(state) || heroPropertyActive(u, FUMBLING)) {
         // do.c:1783-1795, the fall. It calls rnd(3) through losehp() and
         // drag_down()/ballrelease() for a punished hero. A hero who arrives
         // burdened has picked something up, which is unported, and the

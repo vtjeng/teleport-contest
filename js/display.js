@@ -1807,20 +1807,19 @@ export function see_monsters(state = game) {
 // C ref: display.c docrt() through docrt_flags(docrtRecalc) (1990-2050).
 //
 // C shuts vision down, clears the screen, shows every remembered glyph, turns
-// vision back on and overlays the monsters. The port's newsym() answers memory,
-// vision and monsters together from the level and the vision arrays, so one
-// sweep after vision is restored replaces C's three separate passes. What the
-// sweep cannot replace is the vision recalculation around it, which is the
-// reason a caller arriving on a level it has never seen gets a map at all.
-//
-// C ref: display.c docrt() through docrt_flags(docrtRecalc) (1990-2050).
-//
-// C shuts vision down, clears the screen, shows every remembered glyph, turns
 // vision back on and overlays the monsters. The port's newsym() answers
-// memory, vision and monsters together, so one sweep replaces C's three
-// passes, and the two vision_recalc() calls around them stay with this
-// function's callers -- newgame(), moveloop() and goto_level() each make them
-// at the point C's docrt() would.
+// memory, vision and monsters together from the level and the vision arrays,
+// so one sweep replaces C's three passes.
+//
+// The vision recalculation C brackets that repaint with stays with this
+// function's callers, and they do not all make the same calls. goto_level()
+// makes both, vision_recalc(2) then vision_recalc(0), at js/do.js:543-544;
+// newgame() at js/allmain.js:201 and moveloop() at js/allmain.js:826 each make
+// vision_recalc(0) alone, because neither has prior vision state to shut down.
+// A fourth caller -- doup(), a level teleport, a trapdoor fall -- must decide
+// which shape it needs from its own upstream site rather than by copying a
+// neighbour: this function performs no vision work itself, and an arriving
+// hero whose caller omits the recalculation gets no map.
 //
 // What does belong here is cls()'s first statement,
 // display_nhwindow(WIN_MESSAGE, FALSE). It reaches win/tty/wintty.c
@@ -3057,12 +3056,20 @@ function _buildScreenOutput() {
 
 // ── flush_screen ──
 
-// C ref: display.c flush_screen()'s function-static `delay_flushing`. It is a
-// static rather than a field of the game state, and it is kept as a module
-// variable for the same reason: it belongs to the function, not to the game.
-// Its only writer is a `flush_screen(-1)` call, and do.c goto_level() makes
-// exactly two of them, so the pair balances on every level change.
-let delayFlushing = false;
+// C ref: display.c flush_screen()'s function-static `delay_flushing`. Its only
+// writer is a `flush_screen(-1)` call, and do.c goto_level() makes exactly two
+// of them, at do.c:1718 and do.c:1839.
+//
+// C can keep it in a function-static because C never leaves goto_level()
+// between that pair. This port can: nine fail-closed `throw` statements sit
+// between the two calls, and a boundary raised at any of them would strand the
+// toggle in its delayed state. A module variable would then suppress every
+// later flush in the process, so each remaining segment of the session would
+// record its cursor at the origin. The flag therefore lives on the game state,
+// which js/gstate.js resetGame() replaces wholesale for each runSegment(), so
+// a new segment always starts undelayed. That is a port-side correction for a
+// port-side abort, not a divergence from the static's semantics within one
+// level change.
 
 // C ref: display.c flush_screen() (2207-2266). `mode` is C's cursor_on_u.
 //
@@ -3072,8 +3079,8 @@ let delayFlushing = false;
 // and flushes, with a nonzero cursor_on_u, so it places the cursor on the hero
 // exactly as flush_screen(1) does.
 export async function flush_screen(mode) {
-    if (mode === -1) delayFlushing = !delayFlushing;
-    if (delayFlushing) return;
+    if (mode === -1) game.delay_flushing = !game.delay_flushing;
+    if (game.delay_flushing) return;
     if (game.disp?.botl || game.disp?.botlx || game.disp?.time_botl) {
         await bot({
             // Before moveloop_preamble(), tty field dirtiness can preserve
