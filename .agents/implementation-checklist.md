@@ -8,7 +8,7 @@ source review, tests, fresh differentials, and the workflows in
 It exists because slice 1 changed roughly 840 production lines and slice 2
 changed 534, both past the trigger, and because this slice is the first
 occupation the port would own. `allmain.c moveloop_core()` runs every turn, so a
-mistake here reaches every scored screen rather than only the eating path.
+mistake here reaches every scored screen, and not only the eating path.
 
 ## Boundary
 
@@ -16,7 +16,7 @@ mistake here reaches every scored screen rather than only the eating path.
 - Starting code commit: `02c6e59`.
 - Starting event: `doeat()` selects a food whose `oc_delay` gives
   `svc.context.victual.reqtime` greater than 1, so `start_eating()` sets the
-  occupation instead of finishing in one turn. The port refuses there today.
+  occupation and the meal spans turns. The port refuses there today.
 - Ending event: the complete screen and cursor after the last bite completes,
   `done_eating()` runs and the next command prompt is drawn.
 - Valid inputs: any seed, datetime, role and option set that puts a food of
@@ -90,8 +90,9 @@ Assign exactly one status to every row: `done`, `no-effect-yet`, `later`,
   never run a turn with an occupation set, so the differential must cover every
   turn of the meal and not only its first and last.
 - Development score: 487/7,765 screens and 100,910/610,816 random-number values
-  at `02c6e59`, measured by the orchestrator from `scripts/score-development.mjs`
-  rather than from `npm run checkpoint`, which cannot fail on the score.
+  at `02c6e59`, measured by the orchestrator from `scripts/score-development.mjs`.
+  `npm run checkpoint` cannot fail on the score, so its exit code is no
+  evidence here.
 - Quality check: gate clear and advisory clear at `02c6e59`.
 - Browser check: `.agents/validation.md` exempts a shared-renderer change.
 
