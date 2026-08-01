@@ -175,9 +175,19 @@ exact, read from `shknam.c shtypes[]`'s `prob` column rather than sampled.
    spent the `rn2(5)` that `shknam.c:684-687` draws for every general store.
    The `||` chain short-circuits, which is why the two pre-existing themed
    shops never exposed it.
-6. *The remaining name lists.* Scroll, potion, ring and tool shops with
-   `nameshk()`'s `shktools` arm, 16%.
-7. *Bookstores.* The `SPE_NOVEL` tribute arm, 13%.
+6. *The remaining name lists.* **Closed at `fdab09e`.** The liquor emporium,
+   jewelers and hardware store, with `nameshk()`'s `shktools` arm
+   (`shknam.c:518-520`), 16%. Nothing else needed porting: `get_shop_item()`
+   already walked a three-entry `iprobs[]`, and `mkobj_at()` already made
+   potions, rings, gems, amulets and tools. It killed both mutation survivors
+   this list handed it, on the `mongets(SCR_CHARGING)` chain.
+   **A scoping correction: this slice was written as "scroll, potion, ring and
+   tool shops", and the scroll shop does not belong to it.** The scroll shop
+   *is* the second-hand bookstore, sharing the `shkbooks` name list with rare
+   books, so its 10% and rare books' 3% are slice 7's 13%. The 16% is exactly
+   the three rows above.
+7. *Bookstores.* The second-hand bookstore and rare books, which share
+   `shkbooks`, and the `SPE_NOVEL` tribute arm, 13%.
 8. *Deli, wand and health-food shops.* These need `mkshobj_at()`'s
    negative-`otyp` `mksobj_at()` path and `shkveg()`, `veggy_item()` and
    `mkveggy_at()`, 10%.
@@ -760,7 +770,10 @@ twelve were applied at the fix commit and five are recorded here.
   now ends its segment cleanly instead of discarding the prefix, but the arm
   itself is new upstream work rather than an audit fix: it needs the
   `rn2(10) >= depth()` test that selects `S_MIMIC_DEF` and otherwise calls
-  `get_shop_item(rt - SHOPBASE)`. Take it with the next shop slice.
+  `get_shop_item(rt - SHOPBASE)`. **Slice 6 raised its priority: with three
+  more shop types stocking, this arm now stops roughly a third of all shop
+  levels, of every type, which makes it the largest remaining shop stop.**
+  Take it before or with slice 7 rather than after the shop slices finish.
 
 **Three assertions that do not discriminate.**
 
@@ -789,6 +802,28 @@ is wrong for the `run_timers()` arrival site. The fix commit gave that site a
 distinct reason so the two are no longer indistinguishable in a log; renaming
 the shared prefix would reword three messages that read correctly today and is
 left for whatever next touches that class.
+
+#### `artifactTouchable()` crashes a segment instead of ending it
+
+`js/weapon.js:264-268 requiredOperation()` throws a bare `TypeError`, where
+every other unported path in this port throws a named fail-closed class. When
+`artifactTouchable()` (`js/weapon.js:289`) meets an artifact with no
+`touchArtifact` operation in its environment, that `TypeError` escapes
+`runSegment()`, so the scorer records a session error and loses the segment's
+matching prefix rather than stopping on it — and, because `pushAll` runs after
+the await, every later segment of the session with it.
+
+The shop slice found it while scanning seeds: it fires on an **ordinary D:1
+walk with no descent**, in roughly one seed in twelve thousand. The four the
+scan named are 7379930, 7386909, 7393793 and 7398316. That frequency is the
+scan's, not a measurement this file repeated.
+
+This is the same defect class the correctness pass over `9a7aef5..17825d3`
+fixed four times in `js/cmd.js failClosedCommandRefusals()`, and the fix is the
+same shape: give `js/weapon.js` a named boundary class and add it to that list.
+Doing so converts a lost session into a clean stop; it does not make the
+artifact path work. Take it with whatever next reads `js/weapon.js`, or sooner
+if a recorded session lands on one of those seeds.
 
 #### a drawbridge wall answers "It's a wall."
 
