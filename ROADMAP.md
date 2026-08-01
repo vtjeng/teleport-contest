@@ -172,6 +172,29 @@ to 58 development screens**. `seed0030`'s gap is 253 steps of movement in the
 corpus's largest session, and `scan-debt` cannot see a hero-move or
 monster-action boundary inside a gap, so treat the low end as the honest one.
 
+**What the two sessions did, measured after slice 2.**
+`node scripts/scan-stops.mjs` at `dfa8a61` settles the forecast above.
+`seed1150-caveman-explore-move` stops at step 34 of 51 on `fire`, exactly where
+the forecast put it, with 17 screens behind it. `seed0030-ten-diverse-deaths`
+stops at step **13 of 1,953** on `simple monster action requires pet ranged
+targeting`, where C's screen reads `The kitten drops a gold piece.` It gained 5
+of the 253 screens forecast for it. Neither session stops on a pet-carrying or
+pet-dropping boundary now, so **the goal's remaining development headroom is
+zero**, measured rather than estimated. Slice 3 will move neither metric, and
+its worth is the fresh population and the holdout alone.
+
+That is a third prediction of the shape this file already records twice: a
+property necessary for a session to move but not sufficient. The forecast named
+the owner correctly and the session's next stop wrongly, because the census
+cannot see a monster-action boundary hidden inside a gap — which is stated in
+the paragraph above and was still not enough to keep 253 from being written
+down as a per-session number.
+
+The same scan puts `simple monster action requires pet ranged targeting` at 4
+sessions and 2,081 screens standing behind it, now the largest monster-action
+boundary in the corpus and second overall to the repeated-command boundary's 9
+sessions and 1,950 screens.
+
 **Slices.**
 
 1. *The drop.* **Closed at `9a7a180`**, with the `map_object()` prerequisite at
@@ -183,9 +206,15 @@ monster-action boundary inside a gap, so treat the low end as the honest one.
    610,816 random-number values, two sessions gained and none regressed,
    measured with `npm run checkpoint` at `9a7a180`. That +24 sits inside the 11
    to 58 screens predicted above.
-2. *Carrying without dropping.* The turns where both `rn2` gates fail:
-   `apport` unchanged, and `dog_goal()`'s 551 and 576 arms steering the pet.
-   Ends at two consecutive prompts with the pet still carrying.
+2. *Carrying without dropping.* **Closed at `dfa8a61`**, and it needed no
+   production code: slice 1 deleted the refusal that stopped these turns and
+   `js/dogmove.js` already carried `dog_invent()`:416-424 and `dog_goal()`'s
+   502, 551 and 576 arms, so the slice owed evidence rather than a port.
+   `scripts/run-pet-carry.mjs` records 14 fresh C segments over 44,497
+   random-number calls, 229 screens and 229 cursors, each ending at a command
+   prompt with the pet still carrying and the prompt before it the same. The
+   development score is unchanged in both metrics, 520 of 7,765 screens and
+   107,227 of 610,816 random-number values.
 3. *The remaining arms.* `relobj()`'s multi-object `while`, `stackobj()`
    merging onto an occupied square, the out-of-sight `show && cansee`
    `newsym()`, and named refusals for the `flooreffects()` squares.
