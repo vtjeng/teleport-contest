@@ -144,24 +144,37 @@ whose holdout gain was non-zero. Its `unlocks` of 25 is small, and
    because a D:1 corpse's rot timer and a D:1 candle's light would otherwise
    follow the hero to D:2.
 
-**This goal is not closed, and what remains is larger than what is left in the
-list above.** `mklev()` had never run below D:1 before slice 3, and depth two
-reaches statements depth one does not: `mk_knox_portal()` and, decisively,
-`makelevel()`'s shop arm, which needs only `u_depth > 1`. `mkshop()` past its
-room search is unported, so **about half of reachable D:2 levels stop there**.
-A hero who cannot reliably reach the level below has not finished descending a
-staircase, and `.agents/selection.md` forbids narrowing a stated goal silently,
-so this is the goal's next boundary rather than a new goal.
+**This goal is not closed.** `mklev()` had never run below D:1 before slice 3,
+and depth two reaches statements depth one does not: `mk_knox_portal()` and,
+decisively, `makelevel()`'s shop arm. A hero who cannot reliably reach the
+level below has not finished descending a staircase, and
+`.agents/selection.md` forbids narrowing a stated goal silently, so the shops
+are this goal's work rather than a new goal.
+
+**How often the shop arm fires, corrected.** This entry said "about half of
+reachable D:2 levels". That was wrong. `makelevel()`'s shop test ends in
+`rn2(u_depth) < 3`, and at depth two `rn2(2)` is 0 or 1, so the arm fires on
+*every* D:2 with enough rooms. What varies is whether any room passes
+`mkshop()`'s search: over 4,000 fresh seeds scanned for slice 5, 189 descents
+reached a shop.
 
 **The shop slices, ordered by how often the roll reaches them.** The shares are
 exact, read from `shknam.c shtypes[]`'s `prob` column rather than sampled.
 
-5. *The commonest shops.* `mkshop()`'s tail from the `!sroom->rlit` lighting
-   loop through `needfill = FILL_NORMAL`, with `shtypes[]`'s `prob` and `symb`
-   columns generated from source and `isbig()`'s wand and spellbook override
-   connected. General store 42%, armor 14% and weapon 5% together take 61% of
-   rolls. `stock_room()`, `shkinit()`, `nameshk()`, `topologize()` and
-   `isbig()` are all ported already, so this slice mostly connects them.
+5. *The commonest shops.* **Closed at `3d8858c`.** `mkshop()`'s tail from the
+   `!sroom->rlit` lighting loop through `needfill = FILL_NORMAL`, with
+   `shtypes[]` generated whole from source by `scripts/generate-shtypes.mjs`
+   and checked by a sixth generated-data check. General store, armor and
+   weapon shops stock, 61% of rolls; the other nine rows refuse by name. It
+   also restored `scripts/scan-debt.mjs`, which had stopped running entirely
+   once slice 3 made `mkshop()` reachable, by adding
+   `UnsupportedSpecialRoomError` to `js/jsmain.js`'s fail-closed boundary
+   list. Two corrections it made to this entry's assumptions: the general
+   store's table record was **absent**, not present as the plan assumed, and
+   `shkinit()` was missing C's two `mongets()` arms, so the port had never
+   spent the `rn2(5)` that `shknam.c:684-687` draws for every general store.
+   The `||` chain short-circuits, which is why the two pre-existing themed
+   shops never exposed it.
 6. *The remaining name lists.* Scroll, potion, ring and tool shops with
    `nameshk()`'s `shktools` arm, 16%.
 7. *Bookstores.* The `SPE_NOVEL` tribute arm, 13%.
@@ -169,25 +182,24 @@ exact, read from `shknam.c shtypes[]`'s `prob` column rather than sampled.
    negative-`otyp` `mksobj_at()` path and `shkveg()`, `veggy_item()` and
    `mkveggy_at()`, 10%.
 
-**Slice 5 earns no development screens, and that is measured rather than
-assumed.** No development session stops at `mkshop()`; replaying every
-session's whole recorded input, exactly one reaches it at all,
-`seed0030-ten-diverse-deaths`, in a segment after its first stop at step 8 of
-1,953. The gain is the goal's closure and whatever carries to the holdout.
+Slices 6 to 8 inherit two mutation survivors from slice 5: `js/shknam.js:259`
+and `:260`, the first two clauses of the `mongets(SCR_CHARGING)` chain, which
+compare against the still-refused `shktools`, `shkwands` and `shkrings` and so
+are false for every shop that stocks today.
 
-**A broken instrument to fix with slice 5.** `UnsupportedSpecialRoomError` is
-absent from `js/jsmain.js`'s boundary list, so it escapes `runSegment()` as a
-crash rather than a clean segment end. `node scripts/scan-debt.mjs` therefore
-does not run at all today, failing with `unsupported special room: mkshop()
-choosing a shop for room 0`. That is the instrument `.agents/selection.md` uses
-to select goals, so the shop slices must add the class or the roughly 39% of
-shops they still refuse keep crashing.
+**Expect the shop slices to earn no development screens.** No development
+session stops at `mkshop()`; replaying every session's whole recorded input,
+exactly one reaches it at all, `seed0030-ten-diverse-deaths`, in a segment
+after its first stop at step 8 of 1,953. Slice 5 bore that out, moving 54
+random-number values in that session alone and no screens anywhere. The gain is
+the goal's closure and whatever carries to the holdout.
 
-**Two hazards that no random-number log can catch.** The type roll is
-`for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++)`: an off-by-one
-shifts every shop type by one while drawing the same single number, so only a
-screen comparison finds it. `nameshk()` derives the keeper's name from
-`ubirthday` and `m_id` and draws nothing at all.
+**One hazard no random-number log can catch, still live for slices 6 to 8.**
+The type roll is `for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++)`:
+an off-by-one shifts every shop type by one while drawing the same single
+number, so only a screen comparison finds it. `nameshk()` is the same hazard
+from the other side, deriving the keeper's name from `ubirthday` and `m_id`
+and drawing nothing at all.
 
 **Two loose ends this goal still owns.** Slice 3 connected `u_collide_m()`
 without a recorded case: it needs a monster standing on D:2's up staircase,
@@ -492,6 +504,23 @@ it: its `productionDefects` list names the two `flush_screen()` companions but
 omits the `clearMessageWindow()` defect above, listing a test finding in its
 place. The counts are right and the ledger is append-only, so the correction
 lives here rather than in the record.
+
+#### `map_object()` does not recolour a remembered generic object
+
+`display.c map_object()` (340-352) observes a nearby object whose remembered
+glyph is the generic one and redraws it in that object's own colour;
+`js/display.js` does not, so the port leaves the generic colour standing.
+
+This is a **silent divergence and it is not a level-transition bug**. Reproduce
+on D:1 with no descent at all: seed 7333427, moves `kkuukkkkk`, where C draws
+colour 11 for a worthless piece of yellow glass and the port draws 8, with the
+random-number stream matching exactly. The shop slice found it because two
+candidate matrix seeds failed on it, and dropped those seeds rather than encode
+the wrong colour.
+
+It belongs to the display area rather than to the descent goal. **A shop
+stocking a potion or gem will meet it**, so slices 6 to 8 are the likeliest
+next victims; fix it with whatever next reads `map_object()`.
 
 #### `newsym()` omits the infrared arm
 
