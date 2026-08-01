@@ -277,11 +277,15 @@ test('dog_invent preserves drop draw short-circuit order and state', async () =>
 test('dog_invent omits the final drop draw when both gates miss', async () => {
     const { state, monster, edog } = inventoryState();
     const bounds = [];
+    const drops = [];
     const result = await dog_invent(
         monster,
         edog,
         HERO_DISTANCE,
         {
+            dropInventory: async (...args) => {
+                drops.push(args);
+            },
             droppables: () => ({ otyp: DUMMY_OBJECT_TYPE }),
             random: {
                 rn2(bound) {
@@ -295,7 +299,61 @@ test('dog_invent omits the final drop draw when both gates miss', async () => {
 
     assert.equal(result, MMOVE_NOTHING);
     assert.deepEqual(bounds, [HERO_DISTANCE + 1, PET_APPORT]);
+    // dogmove.c:420-424 sits inside the guarded block, so a turn that keeps
+    // the object leaves all three of its writes alone. inventoryState() sets
+    // dropdist and droptime to 0 and state.moves to 17, so a stray write of
+    // either would be visible here.
+    assert.deepEqual(drops, []);
+    assert.deepEqual(
+        {
+            apport: edog.apport,
+            dropdist: edog.dropdist,
+            droptime: edog.droptime,
+        },
+        { apport: PET_APPORT, dropdist: 0, droptime: 0 },
+    );
 });
+
+test('dog_invent keeps the object when the drop probability draw misses',
+    async () => {
+        const { state, monster, edog } = inventoryState();
+        const bounds = [];
+        const drops = [];
+        const values = [
+            0, // The first zero-test succeeds and skips rn2(apport).
+            PET_APPORT, // rn2(10) ties apport, so `rn2(10) < apport` fails.
+        ];
+        const result = await dog_invent(
+            monster,
+            edog,
+            HERO_DISTANCE,
+            {
+                dropInventory: async (...args) => {
+                    drops.push(args);
+                },
+                droppables: () => ({ otyp: DUMMY_OBJECT_TYPE }),
+                random: {
+                    rn2(bound) {
+                        bounds.push(bound);
+                        return values.shift();
+                    },
+                },
+                state,
+            },
+        );
+
+        assert.equal(result, MMOVE_NOTHING);
+        assert.deepEqual(bounds, [HERO_DISTANCE + 1, 10]);
+        assert.deepEqual(drops, []);
+        assert.deepEqual(
+            {
+                apport: edog.apport,
+                dropdist: edog.dropdist,
+                droptime: edog.droptime,
+            },
+            { apport: PET_APPORT, dropdist: 0, droptime: 0 },
+        );
+    });
 
 test('dog_invent rejects nofetch classes, mail, and prize ids', async () => {
     const rejectedObjects = [

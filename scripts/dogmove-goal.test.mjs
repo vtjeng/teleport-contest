@@ -533,6 +533,104 @@ test('dog_goal applies pet sight before the apport and carrying draws', () => {
     );
 });
 
+// The pair below is the same fixture as the test above with `droppables`
+// changed, which is the only way dogmove.c:551's `!dog_has_minvent` can be
+// read in either direction: an empty-handed pet takes the APPORT goal, and a
+// carrying one is not even asked whether it can see or lift the object.
+test('dog_goal withholds the apport goal from a pet that already carries',
+    () => {
+        const { state, monster, edog } = petState();
+        const fetchable = {
+            ox: 6,
+            oy: 5,
+            kind: APPORT,
+            cursed: false,
+            nobj: null,
+            nexthere: null,
+        };
+        state.level.objlist = fetchable;
+        state.level.objects[6][5] = fetchable;
+        const calls = [];
+
+        dog_goal(monster, edog, false, 4, false, goalEnv(state, {
+            dogfood: (_monster, obj) => obj.kind,
+            droppables: () => ({ otyp: SKELETON_KEY }),
+            petCanSee(subject, x, y) {
+                calls.push(['sight', subject, x, y]);
+                return true;
+            },
+            random: {
+                rn2(bound) {
+                    calls.push(['rn2', bound]);
+                    return 1; // Miss rn2(4) so the carrying draw is reached.
+                },
+            },
+            canCarry(subject, obj) {
+                calls.push(['carry', subject, obj]);
+                return 1;
+            },
+        }));
+
+        // dogmove.c:551 short-circuits ahead of m_cansee(), rn2(8) and
+        // can_carry(), so the only draw left is the close-following pair at
+        // 574-576: rn2(4) and then rn2(apport).
+        assert.deepEqual(calls, [
+            ['rn2', 4],
+            ['rn2', edog.apport],
+        ]);
+        assert.equal(
+            state.gg.gtyp,
+            UNDEF,
+            'a carrying pet keeps no apport goal',
+        );
+    });
+
+// dogmove.c:576 `(dog_has_minvent && rn2(edog->apport))` is the last disjunct
+// of the close-following test, so it is read only once the room test and
+// rn2(4) have both missed and no whistle is pending.
+test('dog_goal makes a carrying pet close in unless its apport draw is zero',
+    () => {
+        // Each row is [carrying, apport draw, expected approach, expected
+        // bounds]. The first row is C's `dog_has_minvent && rn2(apport)`
+        // holding; the second is the same pet with a zero draw, which is the
+        // one apport value that leaves it free to keep its distance; the
+        // third is an empty-handed pet, for which the draw never happens.
+        // The 10 in each bound list is petState()'s edog.apport.
+        for (const [carrying, apportDraw, approach, bounds] of [
+            [true, 1, 1, [4, 10]],
+            [true, 0, 0, [4, 10]],
+            [false, 1, 0, [4]],
+        ]) {
+            const { state, monster, edog } = petState();
+            const drawn = [];
+            const values = [1, apportDraw]; // rn2(4) misses, then rn2(apport).
+
+            assert.equal(dog_goal(
+                monster,
+                edog,
+                false,
+                4, // udist > 1, so the close-following test is reached.
+                false, // No whistle, so whappr cannot short-circuit it.
+                goalEnv(state, {
+                    droppables: () => (
+                        carrying ? { otyp: SKELETON_KEY } : null
+                    ),
+                    random: {
+                        rn2(bound) {
+                            drawn.push(bound);
+                            return values.shift();
+                        },
+                    },
+                }),
+            ), approach, `approach for carrying=${carrying}`);
+            assert.deepEqual(
+                drawn,
+                bounds,
+                `draws for carrying=${carrying}`,
+            );
+        }
+    });
+
 test('dog_goal follows stairs, nearby portals, and carried dog food', () => {
     for (const setup of [
         (state) => {
