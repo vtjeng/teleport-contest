@@ -196,11 +196,10 @@ uses a fresh checkout and the Node version `.github/workflows/score.yml` pins,
 currently 22, so it can fail where a local checkpoint passes.
 
 After pushing, run `gh run watch <id> --exit-status` and wait for the run. A run
-takes about 85 seconds. Start the next slice only after the run reports
-`success`.
+takes about 85 seconds.
 
 If the run fails, diagnose the failure, fix it, and push again, then watch the
-new run.
+new run. Start the next slice only after the run reports `success`.
 
 ## Implementation checklist
 
