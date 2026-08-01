@@ -40,8 +40,8 @@
     "rngCalls": 3248
   },
   "seed0030-ten-diverse-deaths.session.json": {
-    "screens": 8,
-    "rngCalls": 6484,
+    "screens": 13,
+    "rngCalls": 6642,
     "lowerings": [
       {
         "metric": "rngCalls",
@@ -120,8 +120,8 @@
     "rngCalls": 2499
   },
   "seed1150-caveman-explore-move.session.json": {
-    "screens": 8,
-    "rngCalls": 2424
+    "screens": 27,
+    "rngCalls": 2988
   },
   "seed1500-rogue-explore-move.session.json": {
     "screens": 13,
