@@ -754,6 +754,36 @@ function maybewakesteed(steed) {
     finish_meating(steed);
 }
 
+// C ref: steed.c stucksteed() (876-895). Answers whether the hero's steed can
+// move at all. do.c dodown() and doup() pass checkfeeding TRUE, so a steed in
+// the middle of a meal stops them too.
+//
+// Both messages need do_name.c YMonnam(), which is unported, so each stops
+// instead of printing. Neither is reachable behind the commands that admit a
+// mounted hero today: steed.c maybewakesteed() clears msleeping and stops on
+// any steed that was immobile when mounted, and monst.h:251 helpless() reads
+// only msleeping and mcanmove, whose remaining writers are monster creation
+// and mon.c. meating has two writers, js/dog.js and js/dogmove.js, and both
+// clear it.
+export function stucksteed(checkfeeding, state = game) {
+    const steed = state.u?.usteed;
+
+    if (steed) {
+        /* monst.h:251 helpless() */
+        if (steed.msleeping || !steed.mcanmove) {
+            throw new UnsupportedSteedError(
+                "stucksteed() reporting a steed that won't move",
+            );
+        }
+        if (checkfeeding && steed.meating) {
+            throw new UnsupportedSteedError(
+                'stucksteed() reporting a steed that is still eating',
+            );
+        }
+    }
+    return false;
+}
+
 // C ref: steed.c doride() (177-192), the #ride command.
 //
 // The `u.usteed` arm dismounts through dismount_steed(DISMOUNT_BYCHOICE) and

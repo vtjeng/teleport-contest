@@ -262,6 +262,24 @@ export function t_at(x, y, state = game) {
     return null;
 }
 
+// C ref: trap.c uteetering_at_seen_pit() (6647-6653). TRUE when the hero
+// escaped a pit and stands on its edge, which is why the u.utrap test excludes
+// a hero still caught in one.
+export function uteetering_at_seen_pit(trap, state = game) {
+    const u = state.u;
+    return Boolean(trap && is_pit(trap.ttyp) && trap.tseen
+        && trap.tx === u?.ux && trap.ty === u?.uy
+        && !(u.utrap && u.utraptype === TT_PIT));
+}
+
+// C ref: trap.c uescaped_shaft() (6659-6664). TRUE when the hero is standing
+// on a known hole or trap door without having fallen through it.
+export function uescaped_shaft(trap, state = game) {
+    const u = state.u;
+    return Boolean(trap && is_hole(trap.ttyp) && trap.tseen
+        && trap.tx === u?.ux && trap.ty === u?.uy);
+}
+
 function choose_trapnote(current, env) {
     const used = Array(12).fill(false);
     for (const trap of env.state.level?.traps ?? []) {

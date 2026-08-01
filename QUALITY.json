@@ -204,6 +204,7 @@
       "paths": [
         "js/cmd.js",
         "js/command_bindings.js",
+        "js/do.js",
         "js/extcmdlist_data.js",
         "js/getline.js",
         "js/hack.js",

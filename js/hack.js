@@ -36,6 +36,8 @@ import {
     IS_TREE,
     IS_WALL,
     IS_WATERWALL,
+    Is_airlevel,
+    Is_waterlevel,
     IRONBARS,
     INTRINSIC,
     INVIS,
@@ -389,6 +391,27 @@ export function nomul(nval, state = game) {
     state.u.usleep = 0;
     state.multi = nval;
     endRunning(state);
+}
+
+// C ref: hack.c u_rooted() (1693-1705). TRUE for a hero whose current form
+// cannot move at all, which do.c dodown() and doup() and sit.c dosit() test
+// before anything else. mmove is the permonst speed field, so only a
+// polymorphed hero can answer TRUE; js/u_init.js is the port's only writer of
+// u.umonnum and it sets u.umonnum === u.umonster, so no admitted path reaches
+// the message.
+export async function u_rooted(state = game) {
+    const species = state.youmonst?.data;
+    if (!species?.mmove) {
+        const inPlace = propertyActiveUnblocked(state, LEVITATION)
+            || Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz);
+        await ttyPline(
+            `You are rooted ${inPlace ? 'in place' : 'to the ground'}.`,
+            state,
+        );
+        nomul(0, state);
+        return true;
+    }
+    return false;
 }
 
 // A hit point loss whose consequences this port has not reached.

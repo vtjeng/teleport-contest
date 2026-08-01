@@ -16,9 +16,6 @@ import {
     N_ENGRAVE,
     P_BASIC,
     P_RIDING,
-    TT_PIT,
-    is_hole,
-    is_pit,
 } from './const.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
@@ -33,7 +30,7 @@ import {
     S_MIMIC,
 } from './monsters.js';
 import { rn2, rnd } from './rng.js';
-import { t_at } from './trap.js';
+import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -199,11 +196,8 @@ export function can_reach_floor(checkPit = true, state = game) {
 
     if (checkPit) {
         const trap = t_at(hero.ux, hero.uy, state);
-        const atHero = trap?.tx === hero.ux && trap?.ty === hero.uy;
-        const teetering = atHero && is_pit(trap.ttyp) && trap.tseen
-            && !(hero.utrap && hero.utraptype === TT_PIT);
-        const escapedShaft = atHero && is_hole(trap.ttyp) && trap.tseen;
-        if (teetering || escapedShaft) return false;
+        if (uteetering_at_seen_pit(trap, state) || uescaped_shaft(trap, state))
+            return false;
     }
     return true;
 }

@@ -36,6 +36,7 @@ import {
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import { bot, flush_screen } from './display.js';
+import { dodown, UnsupportedLevelChangeError } from './do.js';
 import {
     doeat,
     UnsupportedEatError,
@@ -700,7 +701,7 @@ export async function parseCommand(state = game) {
 // it, so the key stays on the refusing side while the typed name works.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', '#',
+    'eat', 'down', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -791,6 +792,28 @@ export function resetCommandVars(state = game) {
     state.iflags.menu_requested = false;
 }
 
+// C ref: cmd.c set_move_cmd() (1386-1399), over the decl.c direction arrays
+// indexed by hack.h's DIR_* enum. Every do_move_<dir>, do_run_<dir> and
+// do_rush_<dir> handler calls it, and so do do.c dodown() and doup(), which
+// pass DIR_DOWN and DIR_UP. The zdir[] entry is what separates them: it is
+// nonzero for those two, so neither commits a walk or rush intent.
+//
+// C indexes the direction arrays; the port's MOVEMENT_INTENTS stores the
+// resulting offsets, so its caller resolves the index back with xytodir().
+export function set_move_cmd(dir, run, state = game) {
+    state.u.dz = zdir[dir];
+    state.u.dx = xdir[dir];
+    state.u.dy = ydir[dir];
+    /* #reqmenu -prefix disables autopickup during movement */
+    if (state.iflags?.menu_requested) state.context.nopick = 1;
+    state.context.travel = 0;
+    state.context.travel1 = 0;
+    if (!state.domoveAttempting && !state.u.dz) {
+        state.context.run = run;
+        state.domoveAttempting |= (!run ? DOMOVE_WALK : DOMOVE_RUSH);
+    }
+}
+
 // C ref: cmd.c set_move_cmd() and rhack()'s DOMOVE_WALK/DOMOVE_RUSH paths.
 async function executeMovement(command, firstTime, state) {
     const [dx, dy, run] = MOVEMENT_INTENTS[command];
@@ -809,13 +832,7 @@ async function executeMovement(command, firstTime, state) {
         throw error;
     }
 
-    state.u.dx = dx;
-    state.u.dy = dy;
-    state.u.dz = 0;
-    state.context.travel = 0;
-    state.context.travel1 = 0;
-    state.context.run = run;
-    state.domoveAttempting = run ? DOMOVE_RUSH : DOMOVE_WALK;
+    set_move_cmd(xytodir(dx, dy), run, state);
     state.context.move = 1;
 
     if (!run) {
@@ -890,6 +907,7 @@ export function failClosedCommandRefusals() {
         UnsupportedSteedError,
         UnsupportedHitPointLossError,
         UnsupportedArtifactDisplayError,
+        UnsupportedLevelChangeError,
     ];
 }
 
@@ -1043,6 +1061,13 @@ async function runEatCommand(key, state) {
     }));
 }
 
+// C ref: do.c dodown(). Like dosearch() and doeat() it returns its own ECMD_*
+// result, because dodown() distinguishes the refusal that spends no turn from
+// the arms that spend one.
+async function runDownCommand(key, state) {
+    return failClosedCommand(key, state, () => dodown(state));
+}
+
 // C ref: invent.c dolook().
 async function runLookCommand(key, state) {
     return failClosedCommand(key, state, () => dolook(state, {
@@ -1118,6 +1143,8 @@ async function doextcmd(key, state) {
         return await runSearchCommand(key, state);
     case 'doeat':
         return await runEatCommand(key, state);
+    case 'dodown':
+        return await runDownCommand(key, state);
     case 'doride':
         // C ref: steed.c doride(), which returns its own ECMD_* result.
         return await doride(state);
@@ -1252,6 +1279,25 @@ export async function rhack(key, state = game) {
             // reason it is there, because cmd.c:3805-3809 documents
             // (ECMD_TIME|ECMD_CANCEL) as a real result.
             const res = await runEatCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'down') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search` and `eat` arms apply. The
+            // MOVEMENTCMD and domove_attempting tests above them at 3773-3800
+            // cannot divert this command: extcmdlist[]'s "down" row carries
+            // CMD_M_PREFIX alone, and set_move_cmd(DIR_DOWN, 0) leaves
+            // domove_attempting at 0 because zdir[DIR_DOWN] is nonzero.
+            //
+            // dodown() answers ECMD_OK for the refusal this slice covers and
+            // ECMD_TIME for u_rooted(); the cancel test is written out for the
+            // same reason it is in the arms above, because cmd.c:3805-3809
+            // documents (ECMD_TIME|ECMD_CANCEL) as a real result.
+            const res = await runDownCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);
