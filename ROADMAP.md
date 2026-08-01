@@ -203,9 +203,31 @@ exact, read from `shknam.c shtypes[]`'s `prob` column rather than sampled.
    not `oc_unique`; and `svc.context.tribute.bookstock` is not persisted across
    segments, which no case can observe while `mkshop()` makes at most one shop
    per level.
-8. *Deli, wand and health-food shops.* These need `mkshobj_at()`'s
-   negative-`otyp` `mksobj_at()` path and `shkveg()`, `veggy_item()` and
-   `mkveggy_at()`, 10%.
+8. *Deli, wand and health-food shops.* **Closed at `c0afa09`, and with it the
+   whole shop set.** `shknam.c veggy_item()`, `shkveg()`, `mkveggy_at()` and
+   `mkshobj_at()`'s three-way `atype` dispatch, plus `set_mimic_sym()`'s
+   `s_sym < 0` and `rt == FODDERSHOP` arms (`makemon.c:2473-2481`), which
+   deleted the two refusals the mimic slice left for it. `SUPPORTED_SHOPS` and
+   `shopType()` are gone: **every `shtypes[]` row now stocks**, including the
+   lighting store at index 11, which `mkshop()` still cannot roll because its
+   `prob` is 0.
+
+**What still stops a descent, measured over 12,000 fresh seeds.** 2,341
+reached the staircase and pressed `>`. **2 stopped**, both on `mon_arrive()`'s
+non-tame-follower refusal at `js/dog.js:750`, seeds 7902379 and 7905523. The
+other 2,339 descended: 1,318 ended off the staircase through ordinary walk
+drift, 491 arrived on a shopless D:2, and 530 on a stocked shop. Nothing in
+`mkshop()` or `stock_room()` refuses any more.
+
+Those two seeds matter beyond their count. The correctness pass deferred the
+`mon_arrive()` refusal specifically because **no recorded case supplied a
+non-tame follower**; these are that case, so the reason for deferring it no
+longer holds and it becomes the goal's next slice rather than standing debt.
+
+The dominant obstacle has moved off the descent entirely: of the 12,000 seeds,
+1,994 never reached a staircase at all, stopping on the D:1 walk —
+`UnsupportedTurnBoundaryError` 1,540 and `UnsupportedHeroMoveBoundaryError`
+454. That is the next goal's territory, not this one's.
 
 Slices 6 to 8 inherit two mutation survivors from slice 5: `js/shknam.js:259`
 and `:260`, the first two clauses of the `mongets(SCR_CHARGING)` chain, which
@@ -560,6 +582,13 @@ that pairing is exercised by no recorded case; `scripts/run-shop-mimic.mjs`
 says so in its header. Whoever fixes the defect should record that case at the
 same time.
 
+Slice 8 gave it a **third** independent reproduction, seed 7612489, a wand shop
+drawing a potion in colour 8 where C draws 6 — again on a D:1 walk with no
+descent and with the random-number stream matching. Three reproductions across
+three slices, every one of them a potion or gem on an ordinary walk, make this
+the most frequently met unfixed defect in the port, and the one costing the
+most candidate seeds.
+
 #### `newsym()` omits the infrared arm
 
 `display.c newsym()` has an out-of-sight arm that shows a monster when
@@ -790,7 +819,11 @@ twelve were applied at the fix commit and five are recorded here.
   selector below the refusal already encodes the untame cases, which is the
   evidence the refusal is too wide. Deferred rather than applied because
   deleting a refusal changes what the game does and needs its own fresh
-  differential with a non-tame follower, which no recorded case supplies yet.
+  differential with a non-tame follower.
+  **That blocker is gone.** Slice 8's scan found the cases: over 12,000 fresh
+  seeds, 2,341 descents reached the staircase and exactly 2 stopped here,
+  seeds 7902379 and 7905523. They are now the only known stop on a descent, so
+  this is the descent goal's next slice rather than standing debt.
 - `set_mimic_sym()`'s `rt >= SHOPBASE` arm is **closed at `43445e9`**, ported
   from `makemon.c:2467-2486`. It was deferred here as new upstream work, and
   slice 6 then made it the largest remaining shop stop, so it was taken ahead
