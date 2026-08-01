@@ -528,9 +528,22 @@ random-number stream matching exactly. The shop slice found it because two
 candidate matrix seeds failed on it, and dropped those seeds rather than encode
 the wrong colour.
 
-It belongs to the display area rather than to the descent goal. **A shop
-stocking a potion or gem will meet it**, so slices 6 to 8 are the likeliest
-next victims; fix it with whatever next reads `map_object()`.
+It belongs to the display area rather than to the descent goal. Fix it with
+whatever next reads `map_object()`.
+
+**Two later slices sharpened what it costs.** Slice 6 stocked gems in two
+matrix segments without tripping it, which narrows the surface: stocking an
+object of an affected class is not sufficient. The mimic slice then hit it
+again at **seed 7411559**, where a D:1 walk draws a potion in colour 8 where C
+draws 6 with the random-number stream matching, and confirmed it fires on the
+walk alone with no descent — a second reproduction independent of the first,
+and again nothing to do with a level change.
+
+It has now cost coverage rather than only seeds. Seed 7411559 was the only
+jewelers-or-hardware candidate on the mimic stock arm across three scans, so
+that pairing is exercised by no recorded case; `scripts/run-shop-mimic.mjs`
+says so in its header. Whoever fixes the defect should record that case at the
+same time.
 
 #### `newsym()` omits the infrared arm
 
@@ -763,17 +776,18 @@ twelve were applied at the fix commit and five are recorded here.
   evidence the refusal is too wide. Deferred rather than applied because
   deleting a refusal changes what the game does and needs its own fresh
   differential with a non-tame follower, which no recorded case supplies yet.
-- `set_mimic_sym()`'s `rt >= SHOPBASE` arm (`makemon.c:2467-2480`) is unported,
-  so a mimic generated inside the shop that `mkshop()` now places on D:2 raises
-  `UnsupportedMonsterCreationError` from `js/makemon_create.js`. The fix commit
-  added that class to `js/cmd.js failClosedCommandRefusals()`, so the descent
-  now ends its segment cleanly instead of discarding the prefix, but the arm
-  itself is new upstream work rather than an audit fix: it needs the
-  `rn2(10) >= depth()` test that selects `S_MIMIC_DEF` and otherwise calls
-  `get_shop_item(rt - SHOPBASE)`. **Slice 6 raised its priority: with three
-  more shop types stocking, this arm now stops roughly a third of all shop
-  levels, of every type, which makes it the largest remaining shop stop.**
-  Take it before or with slice 7 rather than after the shop slices finish.
+- `set_mimic_sym()`'s `rt >= SHOPBASE` arm is **closed at `43445e9`**, ported
+  from `makemon.c:2467-2486`. It was deferred here as new upstream work, and
+  slice 6 then made it the largest remaining shop stop, so it was taken ahead
+  of slice 7 rather than after the shop slices. The one-third estimate that
+  justified that reordering was checked rather than inherited: over 8,500 fresh
+  seeds, 37 of 112 D:2 shops of a stocked type held a mimic, 33.0%, which also
+  matches the closed form `1 - 0.98^n` for a shop of n stocked squares. A first
+  sample of 25 read 24%, so the figure is not tight. Two of C's four exits stay
+  unported and refuse by name — a negative `iprobs[]` itype and the health food
+  store's `VEGETARIAN_CLASS` — because both belong to rows `SUPPORTED_SHOPS`
+  refuses outright and the second draws an `rn2(2)` no consumer would spend.
+  **Slice 8 must delete both refusals.**
 
 **Three assertions that do not discriminate.**
 
