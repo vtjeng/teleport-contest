@@ -942,8 +942,11 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
     // is set; an arriving follower's is clear, because dog.c relmon() cleared
     // it as the monster left the level it came from.
     newsym(x, y);
-    // set_apparxy() resolves to the hero's own square for a tame monster and
-    // for the one holding her, and mon_arrive() admits no other kind.
+    // set_apparxy() takes monmove.c:2211's first branch whatever the monster
+    // is: dog.c mon_arrive() has just written the hero's own square into
+    // mux/muy, so its `u_at(mx, my)` clause holds and it returns before
+    // reaching a displacement roll. That assignment is what dog.c:450 calls
+    // keeping mnexto(rloc_to(set_apparxy())) off stale data.
     monster.mux = state.u.ux;
     monster.muy = state.u.uy;
     return monster;
@@ -1000,9 +1003,11 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
         coordinate.y,
         state,
     );
-    // allmain.c invokes this before the first turn, with an undisplaced,
-    // visible hero; set_apparxy() therefore resolves directly to the hero and
-    // consumes no RNG in the supported startup call shape.
+    // Both ported callers reach set_apparxy()'s early returns and consume no
+    // RNG. allmain.c invokes this before the first turn, with an undisplaced,
+    // visible hero, so the zero-displacement return answers; dog.c
+    // mon_arrive() has already written the hero's own square into mux/muy, so
+    // the `u_at(mx, my)` return answers whatever the monster is.
     relocated.mux = state.u.ux;
     relocated.muy = state.u.uy;
     return relocated;

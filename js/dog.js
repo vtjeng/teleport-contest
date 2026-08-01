@@ -747,16 +747,6 @@ function mon_arrive(monster, when, env) {
             'mon_arrive() with a long worm',
         );
     }
-    if (!monster.mtame && monster !== u.ustuck) {
-        // mnexto() below stands in for set_apparxy()'s answer by writing the
-        // hero's own square into mux/muy, which mon.c set_apparxy() does only
-        // for a tame monster or the one holding the hero. Every other monster
-        // reaches the displacement arm, which draws random numbers.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'mon_arrive() with a follower that is not tame',
-        );
-    }
-
     monster.mstate |= MON_STILL_ARRIVING;
     monster.nmon = state.level.monlist;
     state.level.monlist = monster;
@@ -781,8 +771,9 @@ function mon_arrive(monster, when, env) {
 
     // "When a monster accompanies you, sometimes it will arrive at your
     // intended destination and you'll end up next to that spot." A tame
-    // follower takes the hero's own square one time in ten; do.c
-    // u_collide_m() then decides which of the two moves off it.
+    // follower takes the hero's own square one time in ten, a peaceful one
+    // time in five and a hostile stalker one time in two; do.c u_collide_m()
+    // then decides which of the two moves off it.
     if (!m_at(u.ux, u.uy, state)
         && !env.random.rn2(monster.mtame ? 10 : monster.mpeaceful ? 5 : 2)) {
         rloc_to(monster, u.ux, u.uy, env);

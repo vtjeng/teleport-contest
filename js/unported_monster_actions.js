@@ -26,7 +26,6 @@ import {
     OBJ_MINVENT,
     ROOM,
     STAIRS,
-    STRAT_ARRIVE,
     STRAT_CLOSE,
     W_SADDLE,
 } from './const.js';
@@ -189,8 +188,10 @@ function assertSimpleScanState(monster, state) {
 
 function assertSimpleActionState(monster, state) {
     if (!monster.mcanmove) return;
-    if (monster.mstrategy & STRAT_ARRIVE)
-        unsupported('monster arrival strategy');
+    // STRAT_ARRIVE needs no guard: dog.c mon_arrive() is the only writer, and
+    // monmove.c dochug() answers it at 704-708 by calling m_arrival(), which
+    // clears the bit and returns -1 so that dochug() carries straight on.
+    // js/monmove.js dochug() carries that clear.
     if (monster.mstrategy & STRAT_CLOSE)
         unsupported('quest wait strategy');
     if (monster.mfrozen)

@@ -77,10 +77,11 @@ import {
     invalid_shop_shape,
     isbig,
 } from '../js/mkroom.js';
-import { newMonster } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     NON_PM,
     PM_CHAMELEON,
+    PM_KOBOLD_ZOMBIE,
     PM_LITTLE_DOG,
     monst_globals_init,
     reset_mvitals,
@@ -611,4 +612,119 @@ test('losedogs stops on every list it cannot deliver', () => {
         () => losedogs({ state }),
         /migrating to the arrival level/u,
     );
+});
+
+// dog.c mon_arrive()'s With_you arm (468-480). Disposition changes one thing,
+// the bound of the single rn2() that decides whether the follower takes the
+// hero's own square: 10 for a pet, 5 for a peaceful monster, 2 for a hostile
+// one. Nothing else in the arm reads tameness, and monmove.c set_apparxy()
+// answers the hero's own square for all three because mon_arrive() has just
+// written it into mux/muy, so its `u_at(mx, my)` clause (2211) holds.
+function arrivalState() {
+    const state = dungeonState();
+    monst_globals_init(state);
+    reset_mvitals(state);
+    state.u.uprops = [];
+    // A three-by-three room around the hero, so that enexto() has a square to
+    // offer a follower that does not land on her.
+    for (let x = state.u.ux - 1; x <= state.u.ux + 1; ++x) {
+        for (let y = state.u.uy - 1; y <= state.u.uy + 1; ++y) {
+            state.level.at(x, y).typ = ROOM;
+        }
+    }
+    state.gm = { mydogs: null, migrating_mons: null };
+    return state;
+}
+
+// One species across all three dispositions, because the selector reads
+// mtame and mpeaceful and nothing else. A kobold zombie is what the two
+// scanned seeds that reach the hostile arm actually send down the stairs.
+function arrivingFollower(state, m_id) {
+    const monster = newMonster();
+    monster.data = state.mons[PM_KOBOLD_ZOMBIE];
+    monster.mhp = 6;
+    monster.mhpmax = 6;
+    monster.m_id = m_id;
+    // dog.c relmon() leaves a monster on gm.mydogs holding no square.
+    monster.mx = 0;
+    monster.my = 0;
+    return monster;
+}
+
+function recordingRandom(result) {
+    const bounds = [];
+    return {
+        bounds,
+        random: {
+            rn2(bound) {
+                bounds.push(bound);
+                return result;
+            },
+        },
+    };
+}
+
+test('mon_arrive weights the hero own square by the follower disposition',
+    () => {
+        for (const [label, disposition, bound] of [
+            ['a pet', (mon) => { mon.mtame = 1; }, 10],
+            ['a peaceful monster', (mon) => { mon.mpeaceful = true; }, 5],
+            ['a hostile stalker', () => {}, 2],
+        ]) {
+            const state = arrivalState();
+            const follower = arrivingFollower(state, 77);
+            disposition(follower);
+            state.gm.mydogs = follower;
+            // A zero answer is the "arrives at your intended destination"
+            // case, which takes rloc_to() and draws nothing further.
+            const { bounds, random } = recordingRandom(0);
+
+            losedogs({ state, random });
+
+            assert.deepEqual(bounds, [bound], label);
+            assert.deepEqual([follower.mx, follower.my],
+                [state.u.ux, state.u.uy], label);
+            assert.equal(state.level.monlist, follower, label);
+            assert.deepEqual([follower.mux, follower.muy],
+                [state.u.ux, state.u.uy], label);
+            assert.equal(state.gm.mydogs, null, label);
+        }
+    });
+
+test('mon_arrive puts a follower beside the hero when the roll misses', () => {
+    // The two halves of C's `!MON_AT(u.ux, u.uy) && !rn2(...)`, run against
+    // one another. Both reach mnexto(), and their draw sequences differ by
+    // exactly the selector the occupied square short-circuits away.
+    const missed = arrivalState();
+    const walkIn = arrivingFollower(missed, 78);
+    missed.gm.mydogs = walkIn;
+    // Any nonzero answer fails `!rn2(...)`, so mnexto() places the follower.
+    const miss = recordingRandom(1);
+    losedogs({ state: missed, random: miss.random });
+
+    const occupied = arrivalState();
+    const sitter = arrivingFollower(occupied, 79);
+    place_monster(sitter, occupied.u.ux, occupied.u.uy, occupied);
+    const arriving = arrivingFollower(occupied, 80);
+    occupied.gm.mydogs = arriving;
+    // A zero answer would take the hero's square if the selector were
+    // reached, so this fails if MON_AT() stops guarding it.
+    const taken = recordingRandom(0);
+    losedogs({ state: occupied, random: taken.random });
+
+    assert.equal(miss.bounds[0], 2);
+    // enexto() shuffles its candidate rings, so every later draw is
+    // collect_coords()'s and is common to both runs.
+    assert.deepEqual(taken.bounds, miss.bounds.slice(1));
+
+    for (const [state, follower] of [[missed, walkIn], [occupied, arriving]]) {
+        assert.notDeepEqual([follower.mx, follower.my],
+            [state.u.ux, state.u.uy]);
+        assert.equal(
+            Math.max(Math.abs(follower.mx - state.u.ux),
+                Math.abs(follower.my - state.u.uy)),
+            1,
+        );
+    }
+    assert.equal(m_at(occupied.u.ux, occupied.u.uy, occupied), sitter);
 });

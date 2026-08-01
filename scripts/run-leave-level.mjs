@@ -19,15 +19,25 @@
 // Choosing the walks: the paths were found by breadth-first search over the
 // generated map, then replayed through the port to confirm that the hero
 // really reaches the staircase and that nothing unported interrupts her. Each
-// seed is otherwise arbitrary; the fixed datetime is shared because the date
-// changes level generation, which would invalidate every path.
+// seed is otherwise arbitrary; a datetime is shared within a character because
+// the date changes level generation, which would invalidate every path
+// recorded against it.
 //
-// What no segment covers, and why. D:2 is deep enough for mklev.c
-// makelevel()'s shop test to fire, so roughly half of the levels reachable
-// here ask for a shop; js/mkroom.js mkshop() stops on the room it would
-// choose, and the seeds below are ones whose D:2 has no eligible shop room.
-// A monster standing on the arrival staircase, which is do.c u_collide_m()'s
-// only caller, appeared in none of the fresh cases scanned for this matrix.
+// The arrival segments below end in a run of `s` keys before the `>`. Search
+// costs a turn and moves nobody, which is how a monster beside the hero closes
+// the last square onto her before she descends. Waiting is what makes those
+// segments findable at all: over the 12,000 seeds scanned without it, 2 of the
+// 2,347 descents carried a follower that was not tame.
+//
+// What no segment covers, and why. dog.c mon_arrive()'s selector has a third
+// arm, rn2(5) for a peaceful follower, and no fresh case reaches it: over the
+// 60,000 seeds scanned for this matrix every non-tame follower found was
+// hostile, and a peaceful stalker beside the down staircase appeared in none
+// of them. scripts/level-arrival.test.mjs pins that arm instead. Nor does any
+// segment carry a hostile follower through the turn after the arrival:
+// mnexto() puts it next to the hero, so it attacks her, and that is combat
+// rather than descent. Seed 7902379 is that case, matching 6,745 of C's 6,755
+// calls before stopping.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,6 +47,9 @@ import { runFreshMatrix } from './fresh-matrix.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20330607081011';
+const PRIEST_DATETIME = '20340215090807';
+const PET_DATETIME = '20320718062030';
+const SAMURAI_DATETIME = '20291112131415';
 
 // The key bound to the `down` command, extcmdlist[]'s 0x3E row.
 export const DOWN_COMMAND = '>';
@@ -55,10 +68,10 @@ function nethackrc({ name, role, race = 'human', gender = 'female',
     ].join('\n');
 }
 
-function descent({ seed, walk, ...character }) {
+function descent({ seed, walk, datetime = DATETIME, ...character }) {
     return {
         seed,
-        datetime: DATETIME,
+        datetime,
         nethackrc: nethackrc(character),
         moves: `${walk}${DOWN_COMMAND}${DISMISS_MORE}`,
     };
@@ -131,12 +144,80 @@ export function loadLeaveLevelRecipe() {
     }, 'leave level recipe');
 }
 
+// dog.c mon_arrive()'s With_you arm places whatever keepdogs() collected, and
+// nothing there reads tameness except the bound of one rn2(): 10 for a pet,
+// 5 for a peaceful monster, 2 for a hostile one. The two outcomes are the
+// hero's own square through rloc_to(), which hands do.c u_collide_m() the
+// job of deciding who moves off it, and the square beside her through
+// mnexto(). These segments record both outcomes for a hostile follower and
+// the first for a pet.
+//
+// A monster that is not tame follows because mondata.c levl_follower()
+// answers TRUE for M2_STALK; every one the scan found was a zombie or another
+// ordinary stalker standing beside the hero on the down staircase.
+export function loadArrivingFollowerRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // A hostile follower whose rn2(2) missed, so mnexto() puts it
+            // beside the hero rather than on her square. It is the only
+            // mnexto() segment here, because that placement leaves the
+            // follower adjacent and it usually attacks on the next turn.
+            descent({
+                seed: 7905523, name: 'Shopper', role: 'Valkyrie',
+                pettype: 'none', walk: 'hyyhhhhhhhkhhkhhhjbb',
+            }),
+            // The same disposition with rn2(2) == 0: the zombie takes the
+            // hero's intended square, and u_collide_m() moves one of the two
+            // off it. No recorded case reached that function before this
+            // recipe.
+            descent({
+                seed: 7969455, name: 'Shopper', role: 'Valkyrie',
+                pettype: 'none', walk: 'llkkkkhhhkhhyhhhbjjhhhssss',
+            }),
+            // A second role and datetime on the same collision, this time
+            // arriving on a D:2 that carries a general store, so the shop's
+            // stocking and the follower's placement draw from one stream.
+            descent({
+                seed: 7984984, name: 'Arrive', role: 'Priest',
+                pettype: 'none', datetime: PRIEST_DATETIME,
+                walk: 'khhjjjhjhhhhhhss',
+            }),
+            // The same character on a shopless D:2, walked far enough that a
+            // port resting on one arrival position fails here.
+            descent({
+                seed: 8002297, name: 'Arrive', role: 'Priest',
+                pettype: 'none', datetime: PRIEST_DATETIME,
+                walk: 'llljjhhhhhjjhhhhjjbhhyhhhhhbssss',
+            }),
+            // A pet on the hero's square, which is the rn2(10) arm of the
+            // same selector reaching the same collision. A cat rather than a
+            // dog, on a fourth datetime and alignment.
+            descent({
+                seed: 8110945, name: 'Arrive', role: 'Valkyrie',
+                align: 'lawful', pettype: 'cat', datetime: PET_DATETIME,
+                walk: 'jnjjljjjjjjns',
+            }),
+            // The pet collision again for a fifth character, arriving on a
+            // D:2 with a general store.
+            descent({
+                seed: 8131449, name: 'Descend', role: 'Samurai',
+                gender: 'male', align: 'lawful', pettype: 'dog',
+                datetime: SAMURAI_DATETIME, walk: 'lllllllllllnnjss',
+            }),
+        ],
+    }, 'arriving follower recipe');
+}
+
 export async function runLeaveLevelMatrix() {
     return runFreshMatrix({
-        entries: [{
-            label: 'leave level',
-            recipe: loadLeaveLevelRecipe(),
-        }],
+        entries: [
+            { label: 'leave level', recipe: loadLeaveLevelRecipe() },
+            {
+                label: 'arriving follower',
+                recipe: loadArrivingFollowerRecipe(),
+            },
+        ],
         summaryLabel: 'LEAVE LEVEL',
     });
 }
