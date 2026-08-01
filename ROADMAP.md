@@ -149,9 +149,14 @@ name. Roughly 110 new C lines. Already ported: `place_object` (`js/obj.js`),
   `js/unported_monster_actions.js:223-226` refuses **any** turn where a
   starting pet's `minvent` holds more than an inert saddle, so deleting it is a
   prerequisite of the first commit rather than a later tidy-up.
-- `dog.c:60` sets `edog->apport = ACURR(A_CHA)` and the gate is
-  `rn2(10) < apport`, so drop frequency depends on charisma. Recorded cases
-  must span at least two charisma values.
+- `dog.c:60` sets `edog->apport = ACURR(A_CHA)`, but charisma never reaches it
+  for a starting pet, so this file's earlier claim that drop frequency depends
+  on charisma is wrong. `allmain.c newgame()` calls `makedog()` at 814 and
+  `u_init_inventory_attrs()` at 816, so `init_attr()` has not run when `apport`
+  is set and `acurr()`'s floor returns 3. Slice 1 confirmed it: a fresh
+  recording of seed 8902029, a Tourist whose status line reads `Ch:18`, logs
+  `rn2(3) @ dog_invent(dogmove.c:418)`. The live gate is `!rn2(udist + 1)`, so
+  recorded cases vary the hero-to-pet distance rather than charisma.
 - `update_mon_extrinsics()` is unreachable here: `relobj(..., is_pet=TRUE)`
   iterates `droppables()`, which never returns a worn item, so `unwornmask` is
   0.
@@ -169,10 +174,15 @@ monster-action boundary inside a gap, so treat the low end as the honest one.
 
 **Slices.**
 
-1. *The drop.* Delete the `pet inventory` refusal and implement `dropInventory`
-   as `relobj()` for one uncursed object on a ROOM or CORR square in sight.
-   Starts at the hero's next command after `X picks up Y.`; ends at the
+1. *The drop.* **Closed at `9a7a180`**, with the `map_object()` prerequisite at
+   `36562b9`. Deleted the `pet inventory` refusal and implemented
+   `dropInventory` as `relobj()` for one uncursed object on a ROOM or CORR
+   square in sight, from the hero's next command after `X picks up Y.` to the
    `X drops Y.` top line, the object's glyph, and the next command prompt.
+   Development score 496 to 520 of 7,765 screens and 106,505 to 107,227 of
+   610,816 random-number values, two sessions gained and none regressed,
+   measured with `npm run checkpoint` at `9a7a180`. That +24 sits inside the 11
+   to 58 screens predicted above.
 2. *Carrying without dropping.* The turns where both `rn2` gates fail:
    `apport` unchanged, and `dog_goal()`'s 551 and 576 arms steering the pet.
    Ends at two consecutive prompts with the pet still carrying.
