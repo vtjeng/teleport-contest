@@ -12,12 +12,17 @@ import {
     UnsupportedTurnBoundaryError,
 } from '../js/allmain.js';
 import {
+    failClosedCommandRefusals,
     MAX_COMMAND_COUNT,
     parseCommand,
     resetCommandVars,
     rhack,
     UnsupportedHeroCommandBoundaryError,
 } from '../js/cmd.js';
+import {
+    UnsupportedEatError,
+    UnsupportedHungerTransitionError,
+} from '../js/eat.js';
 import {
     COLNO,
     CORR,
@@ -2897,4 +2902,17 @@ test('a search branch this port lacks stops retryably at the `s` key', async () 
     );
     assert.equal(replay.getRngLog().length, drawsBefore);
     assert.equal(game.moves, 1);
+});
+
+test("both of eat.js's stop classes convert at the command seam", () => {
+    // js/cmd.js runEatCommand() wraps doeat() in failClosedCommand(), and
+    // js/jsmain.js breaks a segment only for the three boundary classes, so a
+    // class doeat() can raise that the wrapper does not list escapes as a hard
+    // failure and discards the segment's matching prefix instead of stopping
+    // on it. eat.js raises two: UnsupportedEatError from doeat() and
+    // floorfood(), and UnsupportedHungerTransitionError from newuhs(), which
+    // done_eating() and lesshungry() both call on the doeat() path.
+    const converted = failClosedCommandRefusals();
+    assert.ok(converted.includes(UnsupportedEatError));
+    assert.ok(converted.includes(UnsupportedHungerTransitionError));
 });

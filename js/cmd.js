@@ -36,7 +36,11 @@ import {
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import { bot, flush_screen } from './display.js';
-import { doeat, UnsupportedEatError } from './eat.js';
+import {
+    doeat,
+    UnsupportedEatError,
+    UnsupportedHungerTransitionError,
+} from './eat.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import {
     AUTOCOMPLETE,
@@ -833,6 +837,35 @@ function rejectedPhysicalCommand(pending) {
     );
 }
 
+// The classes failClosedCommand() converts. js/jsmain.js breaks the segment
+// only for the three boundary classes, so a class a command handler can raise
+// that is missing from this list escapes as a hard failure and discards the
+// segment's matching prefix instead of stopping on it.
+// js/allmain.js elapsedTurnPlanningRefusals() is the same list for the turn
+// loop; a class both paths can reach belongs in both.
+export function failClosedCommandRefusals() {
+    return [
+        UnsupportedFeatureDescriptionError,
+        UnsupportedObjectNameError,
+        UnsupportedSpellDisplayError,
+        UnsupportedDiscoveryDisplayError,
+        UnsupportedEnlightenmentError,
+        UnsupportedShopError,
+        UnsupportedWeaponSkillError,
+        UnsupportedGetlinBoundaryError,
+        UnsupportedSearchError,
+        UnsupportedDirectionBoundaryError,
+        UnsupportedEatError,
+        // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
+        // and done_eating() and lesshungry() call it from doeat().
+        UnsupportedHungerTransitionError,
+        UnsupportedObjectPromptError,
+        UnsupportedSteedError,
+        UnsupportedHitPointLossError,
+        UnsupportedArtifactDisplayError,
+    ];
+}
+
 // A command whose port is complete except for branches that are not, such as
 // an object name doname() cannot format yet. Those throw their owner's error;
 // converting it here keeps the segment's supported prefix and leaves the
@@ -841,21 +874,9 @@ async function failClosedCommand(key, state, run) {
     try {
         return await run();
     } catch (error) {
-        if (error instanceof UnsupportedFeatureDescriptionError
-            || error instanceof UnsupportedObjectNameError
-            || error instanceof UnsupportedSpellDisplayError
-            || error instanceof UnsupportedDiscoveryDisplayError
-            || error instanceof UnsupportedEnlightenmentError
-            || error instanceof UnsupportedShopError
-            || error instanceof UnsupportedWeaponSkillError
-            || error instanceof UnsupportedGetlinBoundaryError
-            || error instanceof UnsupportedSearchError
-            || error instanceof UnsupportedDirectionBoundaryError
-            || error instanceof UnsupportedEatError
-            || error instanceof UnsupportedObjectPromptError
-            || error instanceof UnsupportedSteedError
-            || error instanceof UnsupportedHitPointLossError
-            || error instanceof UnsupportedArtifactDisplayError) {
+        if (failClosedCommandRefusals().some(
+            (type) => error instanceof type,
+        )) {
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
                 `an unported branch of this command: ${error.message}`,

@@ -484,11 +484,13 @@ test('raceptr returns the racial species only for an unpolymorphed hero', () => 
     };
     assert.equal(raceptr(hero, heroState), pm(M.PM_HUMAN));
 
-    // A polymorphed hero reports the current form. Upolyd() reads
-    // u.mtimedone, so this also pins that raceptr passes state.u rather than
-    // the whole state, which would make the guard permanently false.
+    // A polymorphed hero reports the current form. you.h:554 spells Upolyd
+    // (u.umonnum != u.umonster), so this also pins that raceptr passes state.u
+    // rather than the whole state, which would make the guard permanently
+    // false.
     const polymorphed = {
-        ...heroState, u: { mtimedone: 100 },
+        ...heroState,
+        u: { umonnum: M.PM_GRAY_DRAGON, umonster: M.PM_HUMAN },
     };
     assert.equal(raceptr(hero, polymorphed), pm(M.PM_GRAY_DRAGON));
 });

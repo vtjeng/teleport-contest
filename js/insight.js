@@ -71,6 +71,7 @@ import {
     STRANGLED,
     STUNNED,
     UNENCUMBERED,
+    Upolyd,
     VOMITING,
     WOUNDED_LEGS,
     WWALKING,
@@ -150,11 +151,6 @@ const attrname = Object.freeze([
     'strength', 'intelligence', 'wisdom',
     'dexterity', 'constitution', 'charisma',
 ]);
-
-// C ref: you.h Upolyd().
-function Upolyd(state) {
-    return state.u.umonnum !== state.u.umonster;
-}
 
 // C ref: youprop.h. This asks only whether a property is present as an
 // intrinsic or an extrinsic. Several macros read more than those two fields,
@@ -720,7 +716,7 @@ export function enlightenment(mode, final, state = game) {
         throw new UnsupportedEnlightenmentError('end-of-game disclosure');
     if (mode !== BASICENLIGHTENMENT)
         throw new UnsupportedEnlightenmentError('attributes_enlightenment()');
-    if (Upolyd(state))
+    if (Upolyd(state.u))
         throw new UnsupportedEnlightenmentError('a polymorphed hero');
 
     const lines = [];

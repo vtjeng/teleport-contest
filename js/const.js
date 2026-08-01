@@ -2856,9 +2856,13 @@ export function OMONST(obj) { return obj?.oextra?.omonst; }
 export function MGIVENNAME(mtmp) { return mtmp?.mextra?.mgivenname || mtmp?.mgivenname || ''; }
 export function has_mgivenname(mtmp) { return !!(mtmp?.mextra?.mgivenname || mtmp?.mgivenname); }
 
-// C: you.h — #define Upolyd (u.mtimedone != 0)
+// C ref: you.h:554 — #define Upolyd (u.umonnum != u.umonster). The macro reads
+// the two monster indexes, not the polymorph timer: polyself.c polyman()
+// restores u.umonnum (210) before it clears u.mtimedone (216), so between
+// those two statements the timer still answers TRUE and the macro FALSE.
+// The single argument is the hero struct, so every call site passes `state.u`.
 export function Upolyd(player) {
-    return !!(player && player.mtimedone && player.mtimedone > 0);
+    return player?.umonnum !== player?.umonster;
 }
 
 // Canonical macros — previously duplicated as local stubs in 15+ files

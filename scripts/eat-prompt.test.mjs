@@ -145,7 +145,11 @@ function catalogState() {
     const state = {};
     monst_globals_init(state);
     objects_globals_init(state);
-    state.u = { umonnum: 0, mtimedone: 0 };
+    // you.h:554 spells Upolyd (u.umonnum != u.umonster), so an unpolymorphed
+    // hero is the pair holding the same monster index that u_init.c writes.
+    // mtimedone stays 0 throughout: the macro does not read the polymorph
+    // timer, and the test below moves umonnum alone.
+    state.u = { umonnum: 0, umonster: 0, mtimedone: 0 };
     state.youmonst = { data: state.mons[0] };
     return state;
 }
@@ -186,9 +190,12 @@ test('is_edible answers on object class and excludes unique objects', () => {
 
 test('is_edible stops for a polymorphed hero', () => {
     const state = catalogState();
-    // Upolyd is u.mtimedone != 0. The four form-dependent arms eat.c:99-118
-    // carries are unported, so the port must not answer them by class.
-    state.u.mtimedone = 10;
+    // you.h:554 spells Upolyd (u.umonnum != u.umonster). The four
+    // form-dependent arms eat.c:99-118 carries are unported, so the port must
+    // not answer them by class. A rust monster is the form that takes the
+    // is_metallic()/is_rustprone() arm, and u.mtimedone stays 0, so a guard
+    // that read the polymorph timer instead would answer false here.
+    state.u.umonnum = PM_RUST_MONSTER;
     assert.throws(
         () => is_edible({ otyp: FOOD_RATION, oclass: 7 }, state),
         /is_edible\(\) for a polymorphed hero/,

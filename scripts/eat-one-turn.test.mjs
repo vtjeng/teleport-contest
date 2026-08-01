@@ -3,7 +3,13 @@
 // they share. scripts/run-eat-one-turn.mjs holds the end-to-end differential.
 //
 // Thirty relational, logical and boolean mutants over this slice's diff
-// survive the whole suite, and they divide into two groups.
+// survived the whole suite when the slice was measured at 9a7aef5. That figure
+// has not been re-measured since, and the assertions added afterwards kill at
+// least five of it: doeat()'s `meal.usedtime = 0` mutated either way and
+// start_eating()'s `meal.eating = 1` and `meal.fullwarn = 0`, all four now read
+// by the cram-ration boundary's whole-struct comparison, and fpostfx()'s
+// eucalyptus `||`, which a test now enters from both sides. The survivors
+// divide into three groups.
 //
 // Seven are equivalent, so no test can kill them: eaten_stat()'s `scaled < 1`
 // answers 1 at scaled 1 either way; consume_oeaten()'s `amt > 0` and
@@ -14,21 +20,27 @@
 // the sign, which leaves +0 at zero and throws before reaching zero for the
 // divisor.
 //
+// One is a write on the reachable path that is equivalent all the same:
+// done_eating()'s `piece.in_use = true`, whose only reader is the useup() two
+// statements later, because neither the newuhs() call nor the nomovemsg test
+// between them can throw for a one-turn meal. It becomes observable in slice 3,
+// where a meal can be interrupted between the two.
+//
 // The rest guard branches no reachable state can enter, each named where it
 // sits: a pack already holding all fifty-two letters, a bite taken above 2000
 // nutrition, a multi-turn meal's positive nmod, a zero-nutrition comestible,
-// lycanthropy, the Sick or Vomiting properties, a slime mold, a K-ration or
-// C-ration, a cream pie or candy bar or lump of royal jelly, a corpse in the
-// pack, a eucalyptus leaf, and a meal that ends below 150 nutrition. Two of
-// those, the K-ration wording and the unvegan conduct chain, survive for a
-// second reason worth knowing: JavaScript binds `&&` tighter than `||`, so
-// rewriting one `||` inside a chain of them leaves an earlier true term
-// deciding the answer.
+// lycanthropy, a slime mold, a K-ration or C-ration, a cream pie or candy bar
+// or lump of royal jelly, a corpse in the pack, and a meal that ends below 150
+// nutrition. Two of those, the K-ration wording and the unvegan conduct chain,
+// survive for a second reason worth knowing: JavaScript binds `&&` tighter than
+// `||`, so rewriting one `||` inside a chain of them leaves an earlier true
+// term deciding the answer.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ECMD_TIME,
     FAINTED,
     HUNGER,
     HUNGRY,
@@ -36,13 +48,16 @@ import {
     OBJ_DELETED,
     OBJ_INVENT,
     SATIATED,
+    SICK,
     WEAK,
+    W_TOOL,
 } from '../js/const.js';
 import {
     UnsupportedEatError,
     UnsupportedHungerTransitionError,
     adj_victual_nutrition,
     consume_oeaten,
+    doeat,
     eaten_stat,
     food_disappears,
     lesshungry,
@@ -57,10 +72,16 @@ import {
     APPLE,
     CORPSE,
     CRAM_RATION,
+    EUCALYPTUS_LEAF,
+    FLESH,
     FOOD_CLASS,
     FOOD_RATION,
+    GENERIC_FOOD,
     LEMBAS_WAFER,
+    METAL,
     SPRIG_OF_WOLFSBANE,
+    TIN,
+    VEGGY,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -74,7 +95,7 @@ import {
     PM_WIZARD,
     monst_globals_init,
 } from '../js/monsters.js';
-import { newObject } from '../js/obj.js';
+import { isMetallic, newObject, weight } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { singular, xnameFresh } from '../js/objnam.js';
 import { game } from '../js/gstate.js';
@@ -624,8 +645,13 @@ test('a one-turn meal ends the same turn it starts', async () => {
     assert.equal(topLine(), '');
     // The meal spent exactly one turn, and the closing wait spent one more.
     assert.equal(game.moves, beforeMoves + 2);
-    // 50 nutrition from the apple, less one point of gethungry() per turn.
-    assert.ok(game.u.uhunger > beforeHunger + 40, 'the apple was digested');
+    // The apple's 50 oc_nutrition, less gethungry()'s one point on the meal
+    // turn and one more on the closing wait. The payout is pinned by an
+    // equality because nothing else can pin it: hu_stat[] prints nothing
+    // between 150 and 1000 nutrition, so u.uhunger is off the status line here
+    // and the fresh C differential cannot see a bite that pays the wrong
+    // amount.
+    assert.equal(game.u.uhunger, beforeHunger + 48);
     // done_eating() returns every field of the meal to zero.
     assert.deepEqual(game.context.victual, zero_victual());
     // newuhs()'s saved status is put back before the meal is judged.
@@ -679,6 +705,25 @@ test('a meal that crosses 1000 nutrition writes Satiated to the status line',
         assert.ok(statusRow().includes('Satiated'), statusRow());
         // SATIATED is above WEAK in hack.h's order, so neither of newuhs()'s
         // two ATEMP writes fires.
+        assert.equal(game.u.atemp[0], 0);
+    });
+
+test('the hunger clock spends the satiating meal back below 1000',
+    async () => {
+        // The reverse of the crossing above, and the one gethungry() owns:
+        // eat.c newuhs()'s switch has a case for HUNGRY and one for WEAK and
+        // no other, so leaving SATIATED rewrites the status line and prints
+        // nothing. Before this was admitted the segment stopped here instead.
+        const segment = segmentFor(`eg.eg.eg${'.'.repeat(47)}`);
+        await runSegment({ ...segment, moves: '.eg.eg.eg' + '.'.repeat(40) });
+        assert.equal(game.u.uhs, SATIATED);
+        assert.ok(statusRow().includes('Satiated'), statusRow());
+
+        assert.equal(await boundaryFor(segment, segment.moves), null);
+        assert.equal(game.u.uhs, NOT_HUNGRY);
+        assert.ok(!statusRow().includes('Satiated'), statusRow());
+        assert.equal(topLine(), '');
+        // Both statuses sit below WEAK, so neither ATEMP arm fired.
         assert.equal(game.u.atemp[0], 0);
     });
 
@@ -747,7 +792,99 @@ test('a comestible with an unported effect stops after doeat has committed',
         // yet; this is the text the next flush would paint onto row 0.
         assert.equal(game._pending_message, 'This cram ration is bland.');
         assert.match(cram.message, /set_occupation\(eatfood\)/u);
+
+        // The meal is left mid-flight here, which is the only place this
+        // slice can read svc.context.victual populated: done_eating() zeroes
+        // every field before a one-turn meal returns. Each value is derived
+        // from C, and the whole struct is compared so a field written by
+        // accident fails too.
+        const meal = game.context.victual;
+        assert.equal(meal.piece.otyp, CRAM_RATION);
+        // doeat() writes `meal.o_id = otmp->o_id` beside the piece itself.
+        assert.equal(meal.o_id, meal.piece.o_id);
+        assert.deepEqual({ ...meal, piece: null, o_id: 0 }, {
+            piece: null,
+            o_id: 0,
+            // start_eating()'s `++usedtime` runs once for the first bite,
+            // before the occupation this port stops at would take the rest.
+            usedtime: 1,
+            // objects.h gives the cram ration oc_delay 3, and doeat()
+            // recomputes reqtime as rounddiv(3 * oeaten, basenutrit), which is
+            // 3 again for a whole one.
+            reqtime: 3,
+            // oeaten 600 is at least reqtime 3, so nmod is -(600 / 3).
+            nmod: -200,
+            // doeat() sets canchoke from `u.uhs == SATIATED`, and the Ranger
+            // starts NOT_HUNGRY.
+            canchoke: 0,
+            // start_eating()'s other two writes.
+            fullwarn: 0,
+            eating: 1,
+            // Only reset_eat() sets doreset, and nothing ported calls it.
+            doreset: 0,
+        });
     });
+
+test('the FOOD rows carry three materials, one of them metallic', () => {
+    // doeat()'s two skipped arms are justified by what objects.h's FOOD rows
+    // are made of, so the claim is pinned to the table rather than to memory.
+    // retouch_object() (artifact.c:2510-2528) is a no-op for anything that is
+    // neither an artifact nor SILVER, and no FOOD row is SILVER. The
+    // rust-monster arm keys on is_metallic(), and one FOOD row -- the tin,
+    // objects.h:1117 -- is METAL, which objclass.h:194 puts inside
+    // is_metallic()'s IRON..MITHRIL range, so material is not what keeps that
+    // arm out; the polymorphed hero is_edible() refuses is.
+    const current = state();
+    const materials = new Set(
+        current.objects
+            // objects.h:92's GENERIC("food") holds slot [7] for display and is
+            // not an object, so it carries no material and is left out.
+            .filter((type, otyp) => type.oc_class === FOOD_CLASS
+                && otyp !== GENERIC_FOOD)
+            .map((type) => type.oc_material),
+    );
+    assert.deepEqual(
+        [...materials].sort((a, b) => a - b),
+        [VEGGY, FLESH, METAL],
+    );
+    assert.equal(current.objects[TIN].oc_material, METAL);
+    assert.equal(isMetallic({ otyp: TIN }, current), true);
+});
+
+test('fpostfx reads Sick and Vomiting as the bare intrinsic', async () => {
+    // youprop.h:108 and :111 define Sick and Vomiting as
+    // u.uprops[...].intrinsic with no extrinsic term, so an extrinsic-only
+    // malady must leave fpostfx()'s eucalyptus arm alone. Nothing in C writes
+    // uprops[SICK].extrinsic, so no recorded case can tell the two reads
+    // apart and this is the only check on which field the arm reads.
+    //
+    // No role starts with a eucalyptus leaf and no ported command picks one
+    // up, so the leaf goes into the pack by hand. The Priest's sprig of
+    // wolfsbane is the one starting comestible that is a stack of one, which
+    // keeps touchfood() from splitting it, and objects.h gives both rows VEGGY
+    // with oc_delay 1, so the meal still takes exactly one turn.
+    const priest = segmentFor('ef');
+    const eatLeaf = async (configure) => {
+        await runSegment({ ...priest, moves: '.' });
+        const leaf = slotFor(SPRIG_OF_WOLFSBANE);
+        leaf.otyp = EUCALYPTUS_LEAF;
+        leaf.owt = weight(leaf, { state: game });
+        configure(game.u.uprops[SICK]);
+        game.nhDisplay.pushKey('f'.charCodeAt(0));
+        return doeat(game);
+    };
+
+    // W_TOOL stands for a worn source, the shape an extrinsic takes elsewhere.
+    assert.equal(
+        await eatLeaf((sick) => { sick.extrinsic = W_TOOL; }),
+        ECMD_TIME,
+    );
+    // The intrinsic is the term the macro does have, so it still stops.
+    await assert.rejects(
+        eatLeaf((sick) => { sick.intrinsic = 1; }),
+        /make_sick\(\) and make_vomiting\(\)/u,
+    );
+});
 
 test('the option variations reach the same meal', async () => {
     // The matrix's second recipe repeats the meal with a pet, a visible clock
@@ -772,6 +909,8 @@ test('the one-turn matrix covers the branches this slice ports', () => {
         ["a stack split, and fprefx()'s apple arm", '.ek.'],
         ['a stack of one, which splits nothing', '.ef.'],
         ['a meal that reaches SATIATED, with a pet', '.eg.eg.eg.'],
+        ['the hunger clock spending that meal back below 1000',
+            `.eg.eg.eg${'.'.repeat(48)}`],
         ['the rot test one turn short of its threshold',
             `.${'.'.repeat(29)}ek.`],
         ['the rot test at its first drawing turn', `.${'.'.repeat(30)}ek.`],

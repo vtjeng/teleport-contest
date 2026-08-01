@@ -1339,7 +1339,8 @@ export function big_little_match(montyp1, montyp2, state = game) {
 
 // C ref: mondata.c raceptr().
 export function raceptr(monster, state = game) {
-    // Upolyd() reads the hero struct's mtimedone, so it takes state.u.
+    // Upolyd() reads the hero struct's two monster indexes, so it takes
+    // state.u.
     if (monster === state.youmonst && !Upolyd(state.u))
         return state.mons[state.urace.mnum];
     return monster.data;

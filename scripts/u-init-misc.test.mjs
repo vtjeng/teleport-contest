@@ -15,6 +15,7 @@ import {
     SEE_INVIS,
     SLEEP_RES,
     STEALTH,
+    Upolyd,
 } from '../js/const.js';
 import { init_dungeons } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -142,6 +143,16 @@ test('u_init_misc clears hero state and preserves only roleplay options', () => 
     assert.equal(state.u.ulycn, -1);
     assert.equal(state.u.umonnum, state.urole.mnum);
     assert.equal(state.u.umonster, state.urole.mnum);
+    // you.h:554 spells Upolyd (u.umonnum != u.umonster), so the pair u_init.c
+    // writes here is what makes it FALSE for a new hero. Moving umonnum alone
+    // makes it TRUE while u.mtimedone stays 0, which is the difference between
+    // the macro and the polymorph timer: polyself.c polyman() restores umonnum
+    // (210) before it clears mtimedone (216).
+    assert.equal(state.u.mtimedone, 0);
+    assert.equal(Upolyd(state.u), false);
+    assert.equal(
+        Upolyd({ ...state.u, umonnum: state.u.umonster + 1 }), true,
+    );
     assert.equal(state.youmonst.m_id, 1);
     assert.equal(state.youmonst.mnum, state.urole.mnum);
     assert.equal(state.youmonst.cham, -1);

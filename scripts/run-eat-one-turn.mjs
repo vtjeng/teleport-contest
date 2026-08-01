@@ -86,6 +86,13 @@ const PRIEST = { role: 'Priest' };
 const WAITS_AT_ROT_THRESHOLD = WAIT.repeat(29);
 const WAITS_PAST_ROT_THRESHOLD = WAIT.repeat(30);
 
+// Three apples leave a Knight above 1000 nutrition and gethungry() spends about
+// one point a turn, so u.uhs falls back out of SATIATED some forty turns later.
+// These waits carry the segment past that crossing with several turns to spare,
+// so the recording pins the turn "Satiated" leaves the status line and that
+// newuhs() prints nothing when it does. segment() supplies the last of them.
+const WAITS_PAST_SATIATION = WAIT.repeat(47);
+
 export function loadEatOneTurnRecipe() {
     return validateCleanRecipe({
         version: 5,
@@ -105,6 +112,16 @@ export function loadEatOneTurnRecipe() {
                 [`${EAT_KEY}${KNIGHT_APPLES}`,
                     `${EAT_KEY}${KNIGHT_APPLES}`,
                     `${EAT_KEY}${KNIGHT_APPLES}`].join(WAIT),
+                KNIGHT, '!acoustics,!autopickup'),
+            // The same three apples, then waits until the hunger clock spends
+            // the meal back down through 1000. newuhs()'s switch has no
+            // SATIATED and no NOT_HUNGRY case, so that transition writes the
+            // status line and says nothing.
+            segment(4510002,
+                [`${EAT_KEY}${KNIGHT_APPLES}`,
+                    `${EAT_KEY}${KNIGHT_APPLES}`,
+                    `${EAT_KEY}${KNIGHT_APPLES}${WAITS_PAST_SATIATION}`,
+                ].join(WAIT),
                 KNIGHT, '!acoustics,!autopickup'),
             // The same apple on each side of the rot threshold: at thirty
             // waits the test short-circuits and draws nothing, and at
@@ -143,7 +160,7 @@ export async function runEatOneTurnMatrix() {
             recipe: loadEatOneTurnRecipe(),
         }],
         summaryLabel: 'EAT ONE-TURN FOOD',
-        chunkLimit: 5,
+        chunkLimit: 6,
     });
     if (!ordinary.passed) return ordinary;
     return runFreshMatrix({

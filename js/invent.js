@@ -433,6 +433,14 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
      * hands, destroy the trailing space */
     if (suggested === 0 && prefix.length && prefix[prefix.length - 1] === ' ')
         prefix.pop();
+    // C's two letter subsets, kept here in the shape C builds them in. `lets`
+    // is the suggested set snapshotted before compactify() rewrites `letters`,
+    // and `altletsStr` below is the downplayed set. Neither is read in this
+    // port: their only two C consumers are the arms that stop below --
+    // invent.c:1925's force_invmenu choice between '?' and '*', and
+    // invent.c:1964-1970, which hands one subset or the other to
+    // display_pickinv(). Both become live together, when display_pickinv()
+    // gains its letter-subset support.
     const lets = letters.join(''); /* necessary since we destroy buf */
     if (suggested > 5) { /* compactify string */
         letters.push('\0');

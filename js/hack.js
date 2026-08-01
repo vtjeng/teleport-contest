@@ -62,6 +62,7 @@ import {
     TELEPORT,
     TELEPORT_CONTROL,
     TIMER_OBJECT,
+    Upolyd,
     VIBRATING_SQUARE,
     W_NONDIGGABLE,
     W_NONPASSWALL,
@@ -267,13 +268,6 @@ export class UnsupportedHeroMoveBoundaryError extends Error {
     }
 }
 
-// C ref: you.h Upolyd() (307). Nothing in this port assigns u.umonnum, so it
-// is always FALSE; the readers below still ask rather than assume, because a
-// polymorph that arrives later has to change one place.
-function Upolyd(state) {
-    return state.u.umonnum !== state.u.umonster;
-}
-
 // C ref: hack.c rounddiv() (4549-4573). Integer division that rounds a
 // remainder of exactly half away from zero, and carries the sign of the
 // quotient rather than C's truncation. eat.c doeat() divides a meal's
@@ -460,7 +454,7 @@ async function maybe_wail(state) {
 async function showdamage(dmg, state) {
     if (!state.iflags?.showdamage || !dmg) return;
 
-    await ttyPline(`[HP ${-dmg}, ${Upolyd(state) ? state.u.mh : state.u.uhp}`
+    await ttyPline(`[HP ${-dmg}, ${Upolyd(state.u) ? state.u.mh : state.u.uhp}`
         + ' left]', state);
 }
 
@@ -470,7 +464,7 @@ export async function losehp(n, knam, k_format, state = game) {
     state.disp ??= {};
     state.disp.botl = true; /* u.uhp or u.mh is changing */
     endRunning(state);
-    if (Upolyd(state)) {
+    if (Upolyd(state.u)) {
         // Nothing in this port polymorphs the hero, so u.mh, rehumanize() and
         // the Unchanging wail have no reachable caller. The branch stops
         // rather than duplicating hit points into a second unowned field.

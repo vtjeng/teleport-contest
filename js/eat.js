@@ -171,6 +171,11 @@ function hungerProperty(state, index) {
     return state.u?.uprops?.[index] ?? {};
 }
 
+// The `(HFoo || EFoo)` shape, and only that shape. youprop.h spells
+// Sleep_resistance (36), Hunger (147), Conflict (218), Slow_digestion (291)
+// and Halluc_resistance (119) this way; the maladies at :108-113 and
+// Hallucination's own positive term at :116 are the bare intrinsic, so they
+// read hungerProperty().intrinsic instead.
 function propertyActive(state, index) {
     const property = hungerProperty(state, index);
     return Boolean(property.intrinsic || property.extrinsic);
@@ -216,21 +221,30 @@ function preflightNutritionRing(ring, state) {
     }
 }
 
-function supportedIncreasingHungerTransition(oldStatus, newStatus) {
-    return (oldStatus === NOT_HUNGRY && newStatus === HUNGRY)
-        || (oldStatus === HUNGRY && newStatus === WEAK);
+// Which statuses newuhs() can be asked to move to. It carries the whole of
+// eat.c newuhs() (3361-3513) except the FAINTING arm, which needs
+// is_fainted(), stop_occupation(), incr_itimeout(HDeaf), nomul() with
+// afternmv, selftouch(), done(STARVING) and the rn2(20 - uhunger/10) draw that
+// picks between fainting and starving. hungerStatus() answers only the five
+// values below FAINTED, so FAINTED and STARVED cannot arrive here.
+function supportedHungerTransition(newStatus) {
+    return newStatus !== FAINTING;
 }
 
 function requireHungerTransitionOperation(env, name) {
     const operation = env[name];
     if (typeof operation !== 'function')
-        throw new TypeError(`gethungry transition requires ${name}`);
+        throw new TypeError(`newuhs() transition requires ${name}`);
     return operation;
 }
 
+// Raised by gethungry()'s preflight and by newuhs() itself. newuhs() is shared:
+// gethungry() calls it from the turn loop, and done_eating() and lesshungry()
+// call it from doeat(), so this class reaches the caller down both paths and
+// js/allmain.js and js/cmd.js each convert it at their own seam.
 export class UnsupportedHungerTransitionError extends Error {
     constructor(reason) {
-        super(`gethungry reached ${reason}`);
+        super(`the hunger clock reached ${reason}`);
         this.name = 'UnsupportedHungerTransitionError';
         this.reason = reason;
     }
@@ -333,9 +347,14 @@ export function preflightGetHungry(state = game, env = {}) {
     const earliestStatus = hungerStatus(
         u.uhunger - maximumReachableLoss,
     );
-    const mayReachSupportedTransition =
-        supportedIncreasingHungerTransition(u.uhs, earliestStatus);
-    if (u.uhs === HUNGRY && earliestStatus === WEAK
+    const mayChangeStatus = earliestStatus !== u.uhs;
+    const supported = supportedHungerTransition(earliestStatus);
+    // newuhs()'s `newhs >= WEAK && u.uhs < WEAK` arm writes ATEMP(A_STR), and
+    // its WEAK message reads the role and the race. Widening `<` to `<=` here
+    // is equivalent for every well-formed state: it only adds the case where
+    // the status does not move, and this guard rejects malformed input rather
+    // than deciding any game behavior.
+    if (earliestStatus === WEAK && u.uhs < WEAK
         && (!Array.isArray(u.atemp)
             || !Number.isInteger(u.atemp[A_STR])
             || !Number.isInteger(state.urole?.mnum)
@@ -346,19 +365,23 @@ export function preflightGetHungry(state = game, env = {}) {
     }
     // newuhs() resolves these at its own call sites; resolving them here as
     // well rejects a caller that cannot supply them before the rn2(20) draw
-    // that decides whether the transition happens.
-    if (mayReachSupportedTransition) {
-        requireHungerTransitionOperation(env, 'message');
-        requireHungerTransitionOperation(env, 'endRunning');
+    // that decides whether the transition happens. Every transition newuhs()
+    // takes rewrites the status line; only its HUNGRY and WEAK arms print a
+    // message and end a run.
+    if (mayChangeStatus && supported) {
         requireHungerTransitionOperation(env, 'statusRefresh');
+        if (earliestStatus === HUNGRY || earliestStatus === WEAK) {
+            requireHungerTransitionOperation(env, 'message');
+            requireHungerTransitionOperation(env, 'endRunning');
+        }
     }
 
-    // The admitted alert-hero slice must remain within one hunger status for
-    // every possible rn2(20) branch. Use only costs reachable from the current
-    // form, properties, burden, and equipment so harmless low-loss ticks are
-    // not rejected before their source draw. The first increasing transition
-    // is fully owned, so every parity outcome around that threshold is safe.
-    if (earliestStatus !== u.uhs && !mayReachSupportedTransition) {
+    // Use only costs reachable from the current form, properties, burden, and
+    // equipment so harmless low-loss ticks are not rejected before their
+    // source draw. gethungry() only spends nutrition, so every status the
+    // rn2(20) branches can land on lies between u.uhs and earliestStatus, and
+    // newuhs() owns all of them unless the worst case is FAINTING.
+    if (mayChangeStatus && !supported) {
         throw new UnsupportedHungerTransitionError(
             'unported hunger-status transition',
         );
@@ -376,9 +399,8 @@ export function preflightGetHungry(state = game, env = {}) {
 }
 
 // C ref: eat.c gethungry() and its live newuhs(TRUE) consumer. This owns the
-// nutrition decision for an alert hero through the source-reachable HUNGRY
-// and WEAK transitions. Fainting and death remain fail-closed before any
-// elapsed-turn mutation.
+// nutrition decision for an alert hero down to the WEAK status. Fainting and
+// death remain fail-closed before any elapsed-turn mutation.
 export async function gethungry(state = game, env = {}) {
     const plan = preflightGetHungry(state, env);
     if (plan.skipped) return 0;
@@ -436,8 +458,7 @@ export async function gethungry(state = game, env = {}) {
 
     const nextNutrition = u.uhunger - nutritionLoss;
     const nextStatus = hungerStatus(nextNutrition);
-    if (nextStatus !== u.uhs
-        && !supportedIncreasingHungerTransition(u.uhs, nextStatus)) {
+    if (nextStatus !== u.uhs && !supportedHungerTransition(nextStatus)) {
         throw new UnsupportedHungerTransitionError(
             'unported hunger-status transition',
         );
@@ -564,9 +585,11 @@ function carried(obj) {
     return obj.where === OBJ_INVENT;
 }
 
-// C ref: youprop.h Hallucination (117-120).
+// C ref: youprop.h Hallucination (120). Its positive term is HHallucination
+// (116), the intrinsic alone -- "Hallucination is solely a timeout" (115) --
+// while Halluc_resistance (119) is the intrinsic or the extrinsic.
 function Hallucination(state) {
-    return propertyActive(state, HALLUC)
+    return Boolean(hungerProperty(state, HALLUC).intrinsic)
         && !propertyActive(state, HALLUC_RES);
 }
 
@@ -937,7 +960,10 @@ async function fpostfx(otmp, state, env) {
         // A petrifying egg reaches make_stoned() through flesh_petrifies().
         throw new UnsupportedEatError("fpostfx()'s petrifying egg arm");
     case EUCALYPTUS_LEAF:
-        if ((propertyActive(state, SICK) || propertyActive(state, VOMITING))
+        // youprop.h:108 and :111 define Sick and Vomiting as the bare
+        // intrinsic, as doeat()'s Strangled read below does for :110.
+        if ((hungerProperty(state, SICK).intrinsic
+                || hungerProperty(state, VOMITING).intrinsic)
             && !otmp.cursed) {
             throw new UnsupportedEatError('make_sick() and make_vomiting()');
         }
@@ -1261,18 +1287,22 @@ export async function doeat(state = game, env = {}) {
     // C ref: `!(carried(otmp) ? retouch_object(&otmp, FALSE)
     //           : touch_artifact(otmp, &gy.youmonst))`, which spends a turn
     // when the hero is blasted. floorfood() cannot answer a floor object, and
-    // artifact.c retouch_object() returns 1 with no side effect for anything
-    // that is neither an artifact nor SILVER: a comestible is neither, because
-    // objects.h gives every FOOD row FLESH or VEGGY and no food is an
-    // artifact. The stop below keeps that derivation honest.
+    // artifact.c retouch_object() (2510-2528) returns 1 with no side effect
+    // for anything that is neither an artifact nor SILVER carried against
+    // Hate_silver. objects.h's FOOD rows are ten FLESH, twenty-one VEGGY and
+    // the METAL tin (1117), so none is SILVER, and no food is an artifact.
+    // The stop below keeps that derivation honest.
     if (otmp.oartifact)
         throw new UnsupportedEatError('retouch_object() for an artifact');
 
     // C ref: the rust-monster arm (2876-2907) and the RIN_SLOW_DIGESTION arm
     // (2909-2916), then `if (otmp->oclass != FOOD_CLASS)
-    // return doeat_nonfood(otmp)`. All three need an object is_edible() cannot
-    // answer true for: is_metallic() and a ring are both outside FOOD_CLASS,
-    // and PM_RUST_MONSTER needs a polymorphed hero.
+    // return doeat_nonfood(otmp)`. The rust arm needs
+    // `u.umonnum == PM_RUST_MONSTER`, which is_edible() refuses above; the
+    // other two need a ring or an object outside FOOD_CLASS, which is_edible()
+    // cannot answer true for. Being non-metallic is not what keeps a
+    // comestible out of the rust arm: objects.h:1117 gives the tin METAL, and
+    // objclass.h:194 puts METAL inside is_metallic()'s IRON..MITHRIL range.
 
     if (otmp === victual(state).piece) {
         // A meal interrupted and then resumed, which needs touchfood() against

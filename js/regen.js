@@ -47,7 +47,7 @@ function reachedFull(kind, state, env) {
     );
 }
 
-// No ported code assigns u.mtimedone, so const.js Upolyd() is false until
+// No ported code assigns u.umonnum, so const.js Upolyd() is false until
 // polyself.c is ported and the polymorphed arm below cannot run. Keep the
 // boundary explicit until rehumanize and eel upkeep have a live owner.
 export function regen_hp(wtcap, state = game, env = {}) {

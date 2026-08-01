@@ -15,6 +15,7 @@ import {
     PROTECTION,
     RANDOM_TIN,
     REGENERATION,
+    SATIATED,
     SLOW_DIGESTION,
     SPINACH_TIN,
     UNENCUMBERED,
@@ -22,6 +23,7 @@ import {
     W_ARTI,
     W_RINGL,
     W_RINGR,
+    W_TOOL,
     W_WEP,
 } from '../js/const.js';
 import { gethungry, set_tin_variety } from '../js/eat.js';
@@ -311,6 +313,85 @@ test('gethungry owns the first increasing hunger transition in source order',
             'end_running',
             'bot',
         ]);
+
+        // newuhs()'s HUNGRY arm prints and ends a run as well as writing the
+        // status line, so the preflight rejects a caller missing any of the
+        // three, and does so before the rn2(20) draw.
+        for (const missing of ['message', 'endRunning', 'statusRefresh']) {
+            const incomplete = hungerState();
+            incomplete.u.uhunger = 151;
+            const env = {
+                random: {
+                    rn2: () => assert.fail('the preflight draws nothing'),
+                },
+                nearCapacity: () => UNENCUMBERED,
+                message: () => {},
+                endRunning: () => {},
+                statusRefresh: () => {},
+            };
+            delete env[missing];
+            await assert.rejects(
+                gethungry(incomplete, env),
+                new RegExp(`requires ${missing}`, 'u'),
+            );
+            assert.equal(incomplete.u.uhunger, 151);
+        }
+    });
+
+test('gethungry drops out of SATIATED with no message and no run to end',
+    async () => {
+        const satiated = hungerState();
+        // newuhs() reads SATIATED above 1000 nutrition, so 1001 is the lowest
+        // value one point of ordinary loss takes out of it. doeat() is what
+        // puts a hero here: three of the Knight's apples pass 1000.
+        satiated.u.uhunger = 1001;
+        satiated.u.uhs = SATIATED;
+        const events = [];
+
+        assert.equal(await gethungry(satiated, {
+            random: {
+                rn2(bound) {
+                    events.push(`rn2(${bound})`);
+                    return 2;
+                },
+            },
+            nearCapacity: () => UNENCUMBERED,
+            async message(text) {
+                events.push(`message:${text}`);
+            },
+            endRunning() {
+                events.push('end_running');
+            },
+            async statusRefresh() {
+                events.push('bot');
+            },
+        }), 1);
+        assert.equal(satiated.u.uhunger, 1000);
+        assert.equal(satiated.u.uhs, NOT_HUNGRY);
+        assert.equal(satiated.disp.botl, true);
+        // newuhs()'s switch has a case for HUNGRY and one for WEAK and no
+        // other, so bot() is this transition's whole output: no pline() and no
+        // end_running().
+        assert.deepEqual(events, ['rn2(20)', 'bot']);
+        // SATIATED and NOT_HUNGRY are both below WEAK, so neither of
+        // newuhs()'s two ATEMP arms fires.
+        assert.equal(satiated.u.atemp[A_STR], 0);
+
+        // bot() is the whole output, so a caller that cannot supply it is
+        // rejected before the rn2(20) draw rather than part way through.
+        const noStatusRefresh = hungerState();
+        noStatusRefresh.u.uhunger = 1001;
+        noStatusRefresh.u.uhs = SATIATED;
+        await assert.rejects(
+            gethungry(noStatusRefresh, {
+                random: {
+                    rn2: () => assert.fail('the preflight draws nothing'),
+                },
+                nearCapacity: () => UNENCUMBERED,
+            }),
+            /requires statusRefresh/u,
+        );
+        assert.equal(noStatusRefresh.u.uhunger, 1001);
     });
 
 test('gethungry awaits transition output before later state and status work',
@@ -397,6 +478,19 @@ test('weakness messages preserve hallucination, role, and race branches',
                     property(stateValue, HALLUC).intrinsic = FROMOUTSIDE;
                 },
                 'The munchies are interfering with your motor capabilities.',
+            ],
+            [
+                // youprop.h:116 spells Hallucination's positive term
+                // u.uprops[HALLUC].intrinsic, and there is no EHallucination,
+                // so an extrinsic-only value is not hallucination and the
+                // plain wording stands. W_TOOL stands for a worn source;
+                // nothing in C writes this slot, so no recorded case can tell
+                // the two reads apart.
+                'hallucination as an extrinsic only',
+                (stateValue) => {
+                    property(stateValue, HALLUC).extrinsic = W_TOOL;
+                },
+                'You are beginning to feel weak.',
             ],
             [
                 'Wizard',

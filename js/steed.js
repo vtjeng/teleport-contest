@@ -46,6 +46,7 @@ import {
     TT_BEARTRAP,
     TT_PIT,
     TT_WEB,
+    Upolyd,
     VIBRATING_SQUARE,
     WOUNDED_LEGS,
     W_ARTI,
@@ -120,11 +121,6 @@ function propertyActive(state, index) {
 // youprop.h:84 and :112 define Confusion and Glib as the bare intrinsic field.
 function propertyIntrinsic(state, index) {
     return Boolean(state.u?.uprops?.[index]?.intrinsic);
-}
-
-// you.h:307 Upolyd().
-function Upolyd(state) {
-    return state.u.umonnum !== state.u.umonster;
 }
 
 // youprop.h:77. The punishing ball is the whole test.
@@ -227,7 +223,7 @@ export async function mount_steed(mtmp, force, state = game) {
         throw new UnsupportedSteedError('mount_steed() with wounded legs');
     }
 
-    if (Upolyd(state)) {
+    if (Upolyd(state.u)) {
         const you = state.youmonst?.data;
         if (!humanoid(you) || verysmall(you) || bigmonst(you) || slithy(you)) {
             await ttyPline("You won't fit on a saddle.", state);
