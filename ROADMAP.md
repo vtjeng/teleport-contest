@@ -186,8 +186,23 @@ exact, read from `shknam.c shtypes[]`'s `prob` column rather than sampled.
    *is* the second-hand bookstore, sharing the `shkbooks` name list with rare
    books, so its 10% and rare books' 3% are slice 7's 13%. The 16% is exactly
    the three rows above.
-7. *Bookstores.* The second-hand bookstore and rare books, which share
-   `shkbooks`, and the `SPE_NOVEL` tribute arm, 13%.
+7. *Bookstores.* **Closed at `a61ffab`.** The second-hand bookstore and rare
+   books, which share `shkbooks`, with `mkshobj_at()`'s 3.6 tribute arm
+   (`shknam.c:461-468`), 13%. Nothing else needed writing: `get_shop_item()`
+   already walked both `iprobs[]` pairs, `mkobj_at()` already made scrolls and
+   spellbooks, and `js/obj.js mksobj()` already carried the `SPE_NOVEL`
+   finalization that draws the title through `noveltitle()`. Two questions it
+   settled for slice 8: neither `js/makemon_create.js` refusal is reachable
+   from a bookshop, because both rows list only non-negative class itypes; and
+   the mimic arm closed at `43445e9` is reached by ordinary stocking rather
+   than by `SPE_NOVEL`, confirmed at seeds 7500385 and 7515159, which disguise
+   mimics as a scroll and a spellbook.
+   Two values are set and unobservable, recorded so nobody hunts them: the
+   `artif` argument to `mksobj_at(SPE_NOVEL, ...)` is dead, because `mksobj()`
+   reads it only inside `mksobj_init()` which `init` false skips and a novel is
+   not `oc_unique`; and `svc.context.tribute.bookstock` is not persisted across
+   segments, which no case can observe while `mkshop()` makes at most one shop
+   per level.
 8. *Deli, wand and health-food shops.* These need `mkshobj_at()`'s
    negative-`otyp` `mksobj_at()` path and `shkveg()`, `veggy_item()` and
    `mkveggy_at()`, 10%.
