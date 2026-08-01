@@ -41,7 +41,7 @@
   },
   "seed0030-ten-diverse-deaths.session.json": {
     "screens": 8,
-    "rngCalls": 6488,
+    "rngCalls": 6484,
     "lowerings": [
       {
         "metric": "rngCalls",
@@ -49,6 +49,13 @@
         "to": 6434,
         "commit": "6ac25fe",
         "reason": "The port's first divergence in this session is at random-number index 6336 both before and after 6ac25fe, and its emitted screens are unchanged at eight. What fell is the count of coincidental positional matches after that stop: the port now descends a staircase in a later segment and draws different numbers there. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
+      },
+      {
+        "metric": "rngCalls",
+        "from": 6488,
+        "to": 6484,
+        "commit": "fdab09e",
+        "reason": "The port's first divergence in this session is at random-number index 6336, rn2(5) in distfleeck(monmove.c:538), both before and after fdab09e, and its emitted screens and cursors are unchanged at eight. The orchestrator measured both sides by replaying the session against js/shknam.js from 44918b8 and from fdab09e in turn. What fell is coincidental positional matching after that stop: stocking the potion, ring and tool shops raises the port's own emitted total from 34,353 calls to 35,762, which reshuffles the alignment past the stop. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
       }
     ]
   },

@@ -184,8 +184,11 @@ test('the shop-type roll lands on each row at the source share boundaries',
         ];
         for (const [roll, expected] of boundaries) {
             const state = initializedState();
-            // A four-by-five room: isbig() is false at twenty squares, so the
-            // wand and spellbook override cannot rewrite the rolled type.
+            // A four-by-four room, sixteen squares: comfortably under
+            // isbig()'s `area > 20`, so the wand and spellbook override
+            // cannot rewrite the rolled type. The override's own boundary is
+            // exercised one square either side in the next test; this one only
+            // needs a room that is not big.
             const room = shopCandidate(state, { hx: 13, hy: 8 });
             const rolled = oneRoll(roll);
             do_mkroom(SHOPBASE, state, rolled.random);
