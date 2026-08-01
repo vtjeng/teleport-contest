@@ -189,6 +189,19 @@ end-to-end differential verifies the PRNG log, complete screens and attributes,
 cursors, and persisted state through the next boundary. Unit tests can validate
 a prerequisite but cannot close a dormant path.
 
+## Pushing a closed slice
+
+Push as soon as a behavior slice closes. CI runs only on pushed commits, and
+uses a fresh checkout and the Node version `.github/workflows/score.yml` pins,
+currently 22, so it can fail where a local checkpoint passes.
+
+After pushing, run `gh run watch <id> --exit-status` and wait for the run. A run
+takes about 85 seconds. Start the next slice only after the run reports
+`success`.
+
+If the run fails, diagnose the failure, fix it, and push again, then watch the
+new run.
+
 ## Implementation checklist
 
 Create or replace `.agents/implementation-checklist.md` from

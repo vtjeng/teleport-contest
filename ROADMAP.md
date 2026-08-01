@@ -1074,35 +1074,22 @@ and read the final top line off the amended recording rather than assuming the
 
 ### Process
 
-#### `npm run checkpoint` cannot fail on the development score
+#### the score ratchet's remaining gaps
 
-`scripts/checkpoint-checks.mjs:138` returns
-`results.every(({ passed, informational }) => passed || informational)`. The
-development-score descriptor at line 73 carries `informational: true`, so a
-nonzero exit from `scripts/score-development.mjs` prints `FAIL  development
-score` in the summary and still leaves the run's exit code at 0.
+`scripts/score-baseline.mjs` now holds a per-session baseline of matched screens
+and matched random-number values, and `npm run checkpoint` fails when a session
+falls below it. This entry previously claimed the checkpoint "cannot fail on the
+development score" as though a gate had been widened. That was wrong: `passed`
+was the scoring script's exit code, and that script is a reporter which exits 0
+whatever the score, so no predicate could have caught a regression. Nothing
+compared the score to anything.
 
-Measured on 31 July 2026 against `ed43517`: driving the real
-`checkpointCommands([], {})` descriptors through `runCheckpointChecks` with a
-`run` stub that fails only `scripts/score-development.mjs` prints
-`FAIL  development score` as the last summary line and returns `true`.
-
-Two things depend on the exit code. `.agents/validation.md` prescribes
-`npm run checkpoint > /tmp/checkpoint.log 2>&1 && tail -40 …`, whose `&&` now
-guards nothing. And `scripts/score-development.mjs` exits 1 both when the
-scorer runner fails and when `listSessionFiles()` finds other than 33
-development sessions, which is the signal that someone changed which sessions
-belong to the development and holdout sets — a change `AGENTS.md` says needs
-explicit user approval.
-
-The correctness pass over `c706db8a6..ed43517` proposed narrowing the predicate
-to `passed || skipped`. `summarizeMutation()` sets `skipped` on every nonzero
-exit, so the mutation check would stay non-failing while the score check, which
-sets no flag, would fail the run again. That is a one-line change with a large
-blast radius: it changes what the commit gate named throughout `AGENTS.md` and
-`.agents/validation.md` means for every agent, so it needs a decision from the
-user rather than an audit fix. The audit-fix commit for that pass left the
-predicate alone.
+Two limits remain. The ratchet reads only the matched counts, so a change that
+keeps every match and alters an unmatched screen is invisible to it. And a
+correct change that adds a refusal earlier than a session's current stop lowers
+that session legitimately; `score-baseline.mjs lower` records the reason beside
+the number, and a pattern of lowerings against one session is worth reading as a
+list.
 
 #### recording a debug-mode session needs local setup
 
