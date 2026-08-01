@@ -122,58 +122,43 @@ whose holdout gain was non-zero. Its `unlocks` of 25 is small, and
    Three C calls in this phase have no port location to write, each recorded
    in a comment at its site: `reset_trapset()`'s `gt.trapinfo` and
    `iflags.travelcc`, and `recalc_mapseen()`'s `mapseen` chain.
-3. *Arriving on a newly generated level.* `mklev()` at 1699, the hero
-   placement, and the whole arrival tail through `goto_level()`'s return,
-   ending at the first drawn screen of D:2 and the next command prompt.
-   `js/mklev.js` already ports `mklev()` and `u_on_upstairs()`, so this slice
-   connects existing generation to a live consumer for the first time.
-   **The boundary is `goto_level()`'s return, not `docrt()`.** An earlier
-   draft of this entry ended the slice at `docrt()`; those are different
-   points, because `goto_level()` prints arrival messages and runs
-   `check_special_room(FALSE)`, `obj_delivery(TRUE)` and `pickup(1)` after the
-   map is built, and the screen the player sees is the one drawn once the
-   command completes. Stopping at `docrt()` would leave the port a screen
-   short and force the same prefix oracle slice 2 had to accept.
-   Twelve of the tail's helpers are absent from the port, `losedogs()` and
-   `obj_delivery()` among them; `.agents/implementation-checklist.md` lists
-   every one and groups the work.
-4. *Returning to a level already visited.* `savelev()` and `getlev()`, both
-   absent. Out of scope until a session climbs back up: a first descent
-   generates, and no recorded session descends twice. One caution for whoever
-   takes it: `savelev()` is called on the way out at `do.c:1650` on *every*
-   descent, so slice 3 has to decide what a port that cannot touch the
-   filesystem owes that call before this slice inherits the rest.
+3. *Arriving on a newly generated level.* **Closed at `1cd7c32`.**
+   `goto_level()` 1692-1998 entire, so the hero presses `>` on D:1 and arrives
+   on a D:2 the port generated. It gained one screen and 5,465 matched
+   random-number calls in `seed0015-valk-level2-pit-dog-wait`; the calls are
+   the real signal, being the first evidence that `js/mklev.js` generates a
+   level correctly against a live game rather than a fixture.
+   **The boundary took three attempts, and only a recording settled it.** This
+   entry first ended the slice at `docrt()`, then at `goto_level()`'s return.
+   Both were wrong. `docrt()` calls `cls()`, whose
+   `display_nhwindow(WIN_MESSAGE, FALSE)` stops for a `--More--` over the level
+   being *left*, `Dlvl:1` still on the status line; D:2 appears only once that
+   prompt is dismissed. `scripts/run-leave-level.mjs` is strict
+   `runFreshMatrix()` again at nine segments, and
+   `scripts/leave-level-matrix.test.mjs` is deleted with the prefix verdict it
+   pinned.
+4. *Returning to a level already visited.* `getlev()`, absent. Out of scope
+   until a session climbs back up: a first descent generates, and no recorded
+   session descends twice. Slice 3 settled what `savelev()` owes: a port that
+   writes no level file still owes its FREEING half, ported in `js/save.js`,
+   because a D:1 corpse's rot timer and a D:1 candle's light would otherwise
+   follow the hero to D:2.
 
-Slices 2 and 3 were one slice until `goto_level()` was sized. Splitting them
-keeps a slice's fresh differential to one observable boundary: slice 2 changes
-no screen, and slice 3 draws the first screen of a level the port has never
-rendered.
+**This goal is not closed, and what remains is larger than what is left in the
+list above.** `mklev()` had never run below D:1 before slice 3, and depth two
+reaches statements depth one does not: `mk_knox_portal()` and, decisively,
+`makelevel()`'s shop arm, which needs only `u_depth > 1`. `mkshop()` past its
+room search is unported, so **about half of reachable D:2 levels stop there**.
+A hero who cannot reliably reach the level below has not finished descending a
+staircase, and `.agents/selection.md` forbids narrowing a stated goal silently,
+so this is the goal's next boundary rather than a new goal. Slice 3 also
+connected `u_collide_m()` without a recorded case: it needs a monster standing
+on D:2's up staircase, which appeared in none of the fresh cases scanned, and
+the function is not exported, so nothing pins it.
 
-**The `flush_screen()` question is settled, and the answer is that this goal
-owes that entry nothing until slice 3.** Slice 2 traced both of
-`goto_level()`'s `flush_screen(-1)` calls to `do.c:1720` and `1841`, past
-`savelev()` and inside the destination-building tail. Nothing between
-`goto_level()`'s entry and slice 2's refusal flushes the screen, which is why
-that slice draws nothing. Slice 3 inherits the question along with the tail.
-
-**Three things slice 3 inherits, each measured rather than guessed.**
-
-- Its differential can be strict again, and should be made so.
-  `scripts/run-leave-level.mjs` is the first matrix here to accept a segment
-  the port does not finish: C draws D:2 after `>` and the port stops one
-  screen short, so `runFreshMatrix()` fails every descending segment and the
-  runner asserts a matching prefix instead, with
-  `scripts/leave-level-matrix.test.mjs` pinning that weaker verdict against
-  nine result shapes it must reject. Reduce it to `runFreshMatrix()` when
-  slice 3 draws the D:2 screen.
-- `js/mklev.js` has never run against a live `game`. It is ported and tested,
-  but slice 3 is its first live consumer, which is the property that made this
-  slice worth separating.
-- `losedogs()` has to consume the `gm.mydogs` list slice 2 now creates.
-  `keepdogs(FALSE)` fills it on the way out; nothing empties it yet.
-
-C's first unmatched random-number call at the boundary slice 3 starts from is
-`getbones(bones.c:645)`.
+**One measurement worth not re-deriving.** The `--More--` above means a
+descending segment ends with a space, not with `>`. Any later matrix over this
+path inherits that.
 
 
 ### Queued: the hero walks onto a floor square holding more than one object
