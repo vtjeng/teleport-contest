@@ -189,6 +189,19 @@ orphaned jewelers-and-hardware mimic pairing when fixing it. The
 `flush_screen()` goal stays where it is, immediately before `#levelchange`,
 its only hard dependant; this goal draws no menu and no prompt.
 
+**A prediction recorded before its result.** This goal was selected on
+fresh-population incidence rather than on `supports`, so it is a test of the
+selection method as well as a piece of the port. Writing the prediction down
+before the measurement is what keeps it from being retrofitted afterwards, as
+the two falsified predictions above were not.
+
+If this goal's holdout gain is non-zero, that is the first evidence the
+fresh-population census ranks better than `supports`, and the method should be
+written into `.agents/selection.md`. If it is zero, then a boundary family
+standing in the way of 51 to 53% of fresh D:1 walks still failed to move an
+11-session holdout, and the fresh-population census is no better than the
+column it replaced. Do not standardize the method before that result.
+
 **A rule worth revisiting after this goal.** The runner-up, `pet combat
 evaluation` — `max_passive_dmg()`, `mon_reflects()` and `resists_ston()` behind
 `js/dogmove.js:867-903` — is 11.2% of fresh walks and closeable with near-pure
