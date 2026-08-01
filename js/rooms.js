@@ -1,20 +1,29 @@
 // Room membership bookkeeping.
-// C refs: hack.c in_rooms(), move_update(), and check_special_room() down to
-// its early return.  Entry messages and special-room side effects remain with
-// the future complete check_special_room() port.
+// C refs: hack.c in_rooms(), move_update(), and check_special_room().
 
 import { game } from './gstate.js';
 // js/hack.js imports this file; both sides use the other's exports only inside
 // function bodies, so the cycle resolves.
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import {
+    ANTHOLE,
+    BARRACKS,
+    BEEHIVE,
+    COCKNEST,
     COLNO,
+    COURT,
+    DELPHI,
+    LEPREHALL,
+    MORGUE,
     NO_ROOM,
     ROOMOFFSET,
     ROWNO,
     SHARED,
     SHARED_PLUS,
     SHOPBASE,
+    SWAMP,
+    TEMPLE,
+    ZOO,
 } from './const.js';
 
 const ROOM_STRING_SIZE = 5;
@@ -170,19 +179,19 @@ export function move_update(newlev, state = game) {
 }
 
 // C ref: hack.c check_special_room() (3624-3777).  Covered here: move_update(),
-// the u_left_shop() guard at 3634, the Mine Town achievement at 3646-3652, and
-// the early return at 3654 for a hero who entered neither a room nor a shop.
+// the u_left_shop() guard at 3634, the Mine Town achievement at 3646-3652, the
+// early return at 3654 for a hero who entered neither a room nor a shop, and
+// the entry-message switch below it for every room type that the switch's
+// `default` arm reduces to nothing.
 //
-// Not covered: u_entered_shop() and the entry-message switch below the return.
-// For an ordinary room the switch takes its `default` arm, which leaves
-// msg_given FALSE and rt zero and so changes nothing -- that is why the two
-// per-step callers ran through this function's prefix alone before goto_level()
-// needed the rest.  A hero entering a zoo, throne room, temple, morgue or shop
-// still diverges silently here; the special-room work owns that tail.
+// Not covered: u_entered_shop() and the eleven room types whose arms print,
+// wake monsters or clear a level flag.  Each stops rather than diverging in
+// silence.
 //
-// do.c goto_level() calls this with newlev TRUE, the one argument for which the
-// early return is unconditional, because move_update(TRUE) has just cleared
-// both u.uentered and u.ushops_entered.
+// do.c goto_level() calls this twice.  The call at 1615 passes newlev TRUE, for
+// which the early return is unconditional because move_update(TRUE) has just
+// cleared both u.uentered and u.ushops_entered; the call at 1976 passes FALSE
+// and is the one that can announce the room the hero arrived in.
 export function check_special_room(newlev, state = game) {
     move_update(newlev, state);
 
@@ -201,6 +210,37 @@ export function check_special_room(newlev, state = game) {
         throw new UnsupportedHeroMoveBoundaryError(
             'check_special_room() on a level holding a town',
         );
+    }
+
+    const entered = roomString(roomBuffer(state.u, 'uentered'));
+    const enteredShops = roomString(roomBuffer(state.u, 'ushops_entered'));
+    if (!entered.length && !enteredShops.length)
+        return state; /* no entrance messages necessary */
+
+    if (enteredShops.length) {
+        // u_entered_shop() greets the hero and starts the shopkeeper's
+        // bookkeeping; the shop work owns it.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'check_special_room() entering a shop',
+        );
+    }
+
+    for (const roomno of entered) {
+        const rt = roomType(roomno, state);
+        // Every arm of the entry switch that prints, sets a level flag, wakes
+        // a monster or calls room_discovered() is named here. C's `default`
+        // arm covers the rest, and for a room type that is neither TEMPLE nor
+        // a shop it leaves msg_given FALSE and rt zero, so the whole body
+        // below the switch does nothing -- which is why OROOM and THEMEROOM
+        // fall through this loop rather than being listed as exceptions.
+        if (rt === ZOO || rt === SWAMP || rt === COURT || rt === LEPREHALL
+            || rt === MORGUE || rt === BEEHIVE || rt === COCKNEST
+            || rt === ANTHOLE || rt === BARRACKS || rt === DELPHI
+            || rt === TEMPLE || rt >= SHOPBASE) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                `check_special_room() entering room type ${rt}`,
+            );
+        }
     }
 
     return state;

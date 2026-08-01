@@ -501,10 +501,17 @@ function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }
 
-// C ref: u_init.c's zeroed hero starts in dungeon zero and assigns level one;
-// mklev.c uses that same coordinate pair for the first dungeon level.
-function isInitialDungeonLevel(state) {
-    return state.u?.uz?.dnum === 0 && state.u.uz.dlevel === 1;
+// dat/dungeon.lua names dungeon zero "The Dungeons of Doom", the main dungeon
+// the hero starts in and descends through. It is the only dungeon whose levels
+// this port generates: every branch off it -- the Gnomish Mines, Sokoban, the
+// quest, Gehennom and the endgame -- has generation code of its own.
+//
+// Within it, the species allowlist below is what actually bounds the port, and
+// it applies to every created monster whether the caller names the species or
+// rndmonst() chooses it, so a level deep enough to roll something the port has
+// not verified stops on that species rather than on its depth.
+function isMainDungeonLevel(state) {
+    return state.u?.uz?.dnum === 0;
 }
 
 function isTutorialLevel(state) {
@@ -852,21 +859,21 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             `mmflags 0x${(mmflags & ~SUPPORTED_FLAGS).toString(16)}`,
         );
     }
-    const initialDungeonLevel = isInitialDungeonLevel(state);
+    const mainDungeonLevel = isMainDungeonLevel(state);
     const tutorialLevel = isTutorialLevel(state);
-    const runtimeRandomCall = initialDungeonLevel
+    const runtimeRandomCall = mainDungeonLevel
         && !state.in_mklev
         && randomCoordinates
         && !ptr
         && mmflags === 0;
-    const runtimeGroupCall = initialDungeonLevel
+    const runtimeGroupCall = mainDungeonLevel
         && !state.in_mklev
         && !randomCoordinates
         && Boolean(ptr)
         && mmflags === MM_NOGRP;
-    if (!initialDungeonLevel && !tutorialLevel) {
+    if (!mainDungeonLevel && !tutorialLevel) {
         throw new UnsupportedMonsterCreationError(
-            'outside initial dungeon level',
+            'outside the main dungeon',
         );
     }
     if (tutorialLevel

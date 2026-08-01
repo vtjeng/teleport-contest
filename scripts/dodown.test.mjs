@@ -20,6 +20,7 @@ import {
     ECMD_TIME,
     HOLE,
     LEVITATION,
+    LFILE_EXISTS,
     PIT,
     STRAT_WAITFORU,
     TT_BURIEDBALL,
@@ -28,6 +29,7 @@ import {
 } from '../js/const.js';
 import { set_move_cmd } from '../js/cmd.js';
 import { UnsupportedLevelChangeError, dodown } from '../js/do.js';
+import { ledger_no, level_info } from '../js/dungeon.js';
 import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -201,6 +203,28 @@ async function heroOnDownStairs(moves = '>', isladder = false) {
     return state;
 }
 
+// Mark the destination's ledger as a level that already has a file, so that
+// do.c:1692 picks getlev() over mklev() and goto_level() stops at the reload
+// this port does not do. Everything the leaving phase changed is then still
+// in place and observable, which building D:2 would bury.
+function destinationAlreadyVisited(state, destination = null) {
+    const target = destination ?? {
+        dnum: state.u.uz.dnum,
+        dlevel: state.u.uz.dlevel + 1,
+    };
+    level_info(ledger_no(target, state), state).flags |= LFILE_EXISTS;
+    return state;
+}
+
+// The refusal destinationAlreadyVisited() arranges.
+function rejectsAtTheReload(state) {
+    return assert.rejects(
+        dodown(state),
+        (error) => error instanceof UnsupportedLevelChangeError
+            && /returning to a level already visited/u.test(error.message),
+    );
+}
+
 // The matrix's fifth segment starts a Ranger with a little dog; every other
 // segment sets pettype:none. Replay it, move the hero next to the pet, and put
 // a down staircase under her, which is the state keepdogs() reads.
@@ -216,37 +240,47 @@ async function petBesideHeroOnDownStairs() {
     return { state, pet };
 }
 
-test('a down staircase or ladder stops at the destination choice', async () => {
+test('a down staircase or ladder builds and enters the level below',
+    async () => {
     // do.c:1288-1291 into goto_level(). Both stairs and a ladder reach
     // next_level() the same way; ga.at_ladder reads levl[][].typ, not the
     // stairway's own isladder flag, so both leave it FALSE here.
     for (const isladder of [false, true]) {
         const state = await heroOnDownStairs('>', isladder);
-        await assert.rejects(
-            dodown(state),
-            (error) => error instanceof UnsupportedLevelChangeError
-                && /choosing and building the destination level/u
-                    .test(error.message),
-        );
+        // docrt()'s message flush stops on a --More-- for "You descend the
+        // stairs."; a space is quitchars[]'s first entry.
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        await dodown(state);
+
         assert.equal(state.ga.at_ladder, false);
+        assert.equal(state.u.uz.dlevel, 2);
+        // stairs.c u_on_upstairs()'s square: goto_level() puts the hero on
+        // the new level's stairway back to the one she left.
+        const arrival = stairway_at(state.u.ux, state.u.uy, state);
+        assert.ok(arrival?.up, 'the hero arrives on the new level upstairs');
+        assert.deepEqual(arrival.tolev, { dnum: 0, dlevel: 1 });
+        assert.equal(arrival.u_traversed, true);
     }
 });
 
-test('the descent marks the staircase traversed and draws no random number',
+test('the descent marks the staircase traversed before building the level',
     async () => {
-    // dungeon.c:1503-1504 sets u_traversed, which stairs.c
-    // stairs_description() reads. Nothing between the '>' and the refusal
-    // calls rn2(), rnd() or rnl(), which is what makes this slice's fresh
-    // differential a pure prefix comparison.
+    // dungeon.c:1503-1504 sets u_traversed on the staircase being left, which
+    // stairs.c stairs_description() reads. It happens before mklev() draws
+    // its first random number, so the flag survives the level change even
+    // though the stairway list it belongs to does not.
     const state = await heroOnDownStairs();
     const stway = stairway_at(state.u.ux, state.u.uy, state);
     assert.notEqual(stway.u_traversed, true);
     const drawsBefore = getRngLog().length;
 
-    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    await dodown(state);
 
     assert.equal(stway.u_traversed, true);
-    assert.equal(getRngLog().length, drawsBefore);
+    // mklev() generates the destination, so the descent is far from silent.
+    assert.ok(getRngLog().length > drawsBefore + 100,
+        'building the destination level draws random numbers');
 });
 
 test('goto_level() discards the context belonging to the level being left',
@@ -267,7 +301,7 @@ test('goto_level() discards the context belonging to the level being left',
     state.u.uswldtim = 9;
     state.u.uundetected = true;
 
-    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+    await rejectsAtTheReload(destinationAlreadyVisited(state));
 
     assert.deepEqual(state.xlock, {
         usedtime: 0, chance: 0, picktyp: 0, magic_key: false,
@@ -309,7 +343,7 @@ test('goto_level() takes the hero out of the water she was in', async () => {
     const state = await heroOnDownStairs();
     state.u.uinwater = true;
 
-    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+    await rejectsAtTheReload(destinationAlreadyVisited(state));
 
     assert.equal(state.u.uinwater, false);
 });
@@ -323,7 +357,7 @@ test('goto_level() takes the pet off the level and onto gm.mydogs',
     const petX = pet.mx;
     const petY = pet.my;
 
-    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+    await rejectsAtTheReload(destinationAlreadyVisited(state));
 
     assert.equal(state.gm.mydogs, pet);
     assert.equal(m_at(petX, petY, state), null);
@@ -342,7 +376,7 @@ test('a pet that has not noticed the hero stays on the level', async () => {
     const { state, pet } = await petBesideHeroOnDownStairs();
     pet.mstrategy = (pet.mstrategy ?? 0) | STRAT_WAITFORU;
 
-    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+    await rejectsAtTheReload(destinationAlreadyVisited(state));
 
     assert.equal(state.gm?.mydogs ?? null, null);
     assert.equal(state.level.monlist, pet, 'the pet heads the level chain');
@@ -359,7 +393,7 @@ test('a sleeping pet stays behind but a following one does not', async () => {
         const { state, pet } = await petBesideHeroOnDownStairs();
         pet[field] = value;
 
-        await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+        await rejectsAtTheReload(destinationAlreadyVisited(state));
 
         assert.equal(Boolean(state.gm?.mydogs), follows,
             `${field}=${value} decides whether the pet follows`);
@@ -373,7 +407,7 @@ test('vision_recalc(2) leaves the hero seeing nothing', async () => {
     assert.ok(state.viz_array.some((row) => row.some((cell) => cell)),
         'the hero can see something before she leaves');
 
-    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+    await rejectsAtTheReload(destinationAlreadyVisited(state));
 
     assert.ok(state.viz_array.every((row) => row.every((cell) => !cell)));
 });
@@ -610,9 +644,11 @@ test('autodig with a wielded pick stops before use_pick_axe2()', async () => {
 });
 
 // goto_level()'s guards at do.c:1501-1581. Each needs a dungeon state D:1
-// cannot reach, so each fabricates it on the live game and then descends. The
-// destination-choice refusal is the "nothing stopped earlier" answer.
-const DESTINATION_REFUSAL = /choosing and building the destination level/u;
+// cannot reach, so each fabricates it on the live game and then descends.
+// Marking the destination as a level that already exists makes the getlev()
+// reload the "nothing stopped earlier" answer, which is cheaper to assert
+// than a generated level.
+const DESTINATION_REFUSAL = /returning to a level already visited/u;
 
 test('goto_level returns without a refusal when the destination is this level',
     async () => {
@@ -705,6 +741,7 @@ test('the mysterious force stops a climb but leaves every other case alone',
         inGehennom(state, setup);
         downStairsUnderHero(state, false,
             { dnum: state.u.uz.dnum, dlevel });
+        destinationAlreadyVisited(state, { dnum: state.u.uz.dnum, dlevel });
         const reached = await dodown(state).then(
             () => 'returned',
             (error) => error.message,

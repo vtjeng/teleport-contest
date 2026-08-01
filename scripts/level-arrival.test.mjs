@@ -1,0 +1,589 @@
+// The helpers do.c goto_level()'s arrival phase reaches, each pinned against
+// the C function it comes from: save.c savelev()'s freeing half, timeout.c
+// save_timers()/timer_is_local()/obj_is_local()/mon_is_local(), light.c
+// save_light_sources(), stairs.c stairway_free_all()/stairway_find_from(),
+// dungeon.c level_info()/dunlev_reached()/builds_up()/dungeon_branch()/
+// at_dgn_entrance(), mkroom.c isbig()/has_dnstairs()/has_upstairs()/
+// invalid_shop_shape()/mkshop(), mon.c pm_to_cham()/restore_cham(), and
+// dog.c update_mlstmv()/losedogs()/mon_arrive().
+//
+// Every expected value comes from reading those functions. None was copied
+// from a run of the port. scripts/run-leave-level.mjs is the recorded
+// evidence for the whole path.
+
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import {
+    LFILE_EXISTS,
+    LS_MONSTER,
+    OBJ_CONTAINED,
+    OBJ_FLOOR,
+    OBJ_INVENT,
+    OBJ_MIGRATING,
+    OBJ_MINVENT,
+    ANTHOLE,
+    BARRACKS,
+    BEEHIVE,
+    COCKNEST,
+    COURT,
+    DELPHI,
+    LEPREHALL,
+    MORGUE,
+    OROOM,
+    PROT_FROM_SHAPE_CHANGERS,
+    RANGE_GLOBAL,
+    RANGE_LEVEL,
+    ROOM,
+    SHOPBASE,
+    STONE,
+    SWAMP,
+    TEMPLE,
+    THEMEROOM,
+    VAULT,
+    TIMER_GLOBAL,
+    TIMER_LEVEL,
+    TIMER_MONSTER,
+    TIMER_OBJECT,
+    VISITED,
+    LS_OBJECT,
+    ZOO,
+} from '../js/const.js';
+import { losedogs, update_mlstmv } from '../js/dog.js';
+import {
+    assign_level,
+    at_dgn_entrance,
+    builds_up,
+    dungeon_branch,
+    dunlev_reached,
+    level_info,
+    set_dunlev_reached,
+} from '../js/dungeon.js';
+import { GameMap } from '../js/game.js';
+import { game, resetGame } from '../js/gstate.js';
+import {
+    light_globals_init,
+    new_light_source,
+    save_light_sources,
+} from '../js/light.js';
+import { pm_to_cham, restore_cham } from '../js/mon.js';
+import { is_shapeshifter } from '../js/mondata.js';
+import {
+    do_mkroom,
+    has_dnstairs,
+    has_upstairs,
+    invalid_shop_shape,
+    isbig,
+} from '../js/mkroom.js';
+import { newMonster } from '../js/monst.js';
+import {
+    NON_PM,
+    PM_CHAMELEON,
+    PM_LITTLE_DOG,
+    monst_globals_init,
+    reset_mvitals,
+} from '../js/monsters.js';
+import { check_special_room } from '../js/rooms.js';
+import { savelev } from '../js/save.js';
+import { stairway_add, stairway_find_from, stairway_free_all } from '../js/stairs.js';
+import {
+    mon_is_local,
+    obj_is_local,
+    run_timers,
+    save_timers,
+    start_timer,
+    timeout_globals_init,
+} from '../js/timeout.js';
+
+// dat/dungeon.lua's first two dungeons: "The Dungeons of Doom" builds down
+// from level one, "The Gnomish Mines" branches off it.
+function dungeonState() {
+    const state = resetGame();
+    state.dungeons = [
+        {
+            dname: 'The Dungeons of Doom',
+            depth_start: 1,
+            ledger_start: 0,
+            num_dunlevs: 29,
+            entry_lev: 1,
+            dunlev_ureached: 1,
+            flags: {},
+        },
+        {
+            dname: 'The Gnomish Mines',
+            depth_start: 3,
+            ledger_start: 29,
+            num_dunlevs: 8,
+            entry_lev: 1,
+            dunlev_ureached: 0,
+            flags: {},
+        },
+    ];
+    state.n_dgns = 2;
+    state.branches = [{
+        end1: { dnum: 0, dlevel: 3 },
+        end2: { dnum: 1, dlevel: 1 },
+        end1_up: false,
+    }];
+    state.u = { uz: { dnum: 0, dlevel: 1 }, ux: 20, uy: 10 };
+    state.level = new GameMap();
+    return state;
+}
+
+test('savelev drops the leaving level and marks its ledger visited', () => {
+    const state = dungeonState();
+    timeout_globals_init(state);
+    light_globals_init(state);
+    state.moves = 100;
+
+    // A corpse rotting on the floor of the level being left, and a lit candle
+    // in the hero's pack. timeout.c obj_is_local() answers TRUE for OBJ_FLOOR
+    // and FALSE for OBJ_INVENT, so save_timers(RANGE_LEVEL) frees the first
+    // and keeps the second.
+    const floorCorpse = { where: OBJ_FLOOR, timed: 0 };
+    const packCandle = { where: OBJ_INVENT, timed: 0 };
+    start_timer(50, TIMER_OBJECT, 1 /* ROT_CORPSE */, floorCorpse, state);
+    start_timer(60, TIMER_OBJECT, 4 /* BURN_OBJECT */, packCandle, state);
+    new_light_source(5, 5, 3, LS_OBJECT, floorCorpse, state);
+    new_light_source(20, 10, 3, LS_OBJECT, packCandle, state);
+    // light.c's save_light_sources() clears this on the way through.
+    state.vision_full_recalc = 1;
+
+    // ledger_no({dnum:0, dlevel:1}) is 1: ledger_start is 0 for dungeon zero.
+    savelev(1, state);
+
+    assert.equal(level_info(1, state).flags & VISITED, VISITED);
+    assert.equal(state.gt.timer_base.arg, packCandle);
+    assert.equal(state.gt.timer_base.next, null);
+    assert.equal(state.gl.light_base.id, packCandle);
+    assert.equal(state.gl.light_base.next, null);
+    assert.equal(state.vision_full_recalc, 0);
+});
+
+test('save_timers keeps the range it is not releasing', () => {
+    const state = dungeonState();
+    timeout_globals_init(state);
+    state.gm = { migrating_mons: null, mydogs: null };
+    state.moves = 0;
+
+    const levelTimer = { where: OBJ_FLOOR, timed: 0 };
+    const globalTimer = { where: OBJ_INVENT, timed: 0 };
+    start_timer(10, TIMER_OBJECT, 1, levelTimer, state);
+    start_timer(20, TIMER_OBJECT, 4, globalTimer, state);
+
+    // RANGE_GLOBAL releases the timers that travel with the hero and keeps
+    // the ones belonging to the level, which is the mirror of RANGE_LEVEL.
+    save_timers(RANGE_GLOBAL, state);
+    assert.equal(state.gt.timer_base.arg, levelTimer);
+    assert.equal(state.gt.timer_base.next, null);
+});
+
+test('timer locality follows the four timer kinds', () => {
+    const state = dungeonState();
+    timeout_globals_init(state);
+    state.moves = 0;
+    const migrating = newMonster();
+    const resident = newMonster();
+    state.gm = { migrating_mons: migrating, mydogs: null };
+
+    // timeout.c mon_is_local(): a monster on either travelling list belongs
+    // to no level.
+    assert.equal(mon_is_local(migrating, state), false);
+    assert.equal(mon_is_local(resident, state), true);
+    state.gm = { migrating_mons: null, mydogs: migrating };
+    assert.equal(mon_is_local(migrating, state), false);
+
+    // timeout.c obj_is_local()'s five cases.
+    assert.equal(obj_is_local({ where: OBJ_FLOOR }, state), true);
+    assert.equal(obj_is_local({ where: OBJ_INVENT }, state), false);
+    assert.equal(obj_is_local({ where: OBJ_MIGRATING }, state), false);
+    assert.equal(
+        obj_is_local({ where: OBJ_CONTAINED,
+            ocontainer: { where: OBJ_FLOOR } }, state),
+        true,
+    );
+    assert.equal(
+        obj_is_local({ where: OBJ_MINVENT, ocarry: migrating }, state),
+        false,
+    );
+
+    // TIMER_LEVEL is local whatever its argument; TIMER_GLOBAL never is.
+    const positional = 5 * 0x10000 + 5;
+    start_timer(10, TIMER_LEVEL, 8 /* MELT_ICE_AWAY */, positional, state);
+    start_timer(20, TIMER_GLOBAL, 1, { where: OBJ_FLOOR }, state);
+    start_timer(30, TIMER_MONSTER, 3 /* ZOMBIFY_MON */, resident, state);
+    save_timers(RANGE_LEVEL, state);
+    // Only the global timer survives: the positional and monster timers are
+    // both local.
+    assert.equal(state.gt.timer_base.kind, TIMER_GLOBAL);
+    assert.equal(state.gt.timer_base.next, null);
+});
+
+test('run_timers stops rather than firing a timer that has come due', () => {
+    const state = dungeonState();
+    timeout_globals_init(state);
+    state.moves = 100;
+    start_timer(5, TIMER_OBJECT, 1, { where: OBJ_INVENT, timed: 0 }, state);
+    // Scheduled for move 105, which is still ahead of the arrival turn.
+    run_timers(state);
+    state.moves = 105;
+    assert.throws(() => run_timers(state), /no timer due by move 105/u);
+});
+
+test('save_light_sources releases exactly one range', () => {
+    const state = dungeonState();
+    light_globals_init(state);
+    const floorLamp = { where: OBJ_FLOOR };
+    const carriedLamp = { where: OBJ_INVENT };
+    new_light_source(5, 5, 3, LS_OBJECT, floorLamp, state);
+    new_light_source(20, 10, 3, LS_OBJECT, carriedLamp, state);
+
+    save_light_sources(RANGE_GLOBAL, state);
+    assert.equal(state.gl.light_base.id, floorLamp);
+    assert.equal(state.gl.light_base.next, null);
+});
+
+test('a luminous monster is local while it stands on the level', () => {
+    const state = dungeonState();
+    light_globals_init(state);
+    // light.c:373's own mon_is_local is the macro `(mon)->mx > 0`, so a
+    // monster parked at column zero -- which dog.c relmon() is what produces
+    // -- travels with the hero instead of staying with the level.
+    const standing = newMonster();
+    standing.mx = 1;
+    standing.my = 4;
+    const travelling = newMonster();
+    travelling.mx = 0;
+    travelling.my = 0;
+    new_light_source(1, 4, 3, LS_MONSTER, standing, state);
+    new_light_source(0, 0, 3, LS_MONSTER, travelling, state);
+
+    save_light_sources(RANGE_LEVEL, state);
+    assert.equal(state.gl.light_base.id, travelling);
+    assert.equal(state.gl.light_base.next, null);
+
+    // new_light_source() admits only the two mobile types, so the walk's
+    // default arm needs a source planted directly on the list.
+    state.gl.light_base = { next: null, type: 0, id: standing };
+    assert.throws(() => save_light_sources(RANGE_LEVEL, state),
+        /save_light_sources: bad type/u);
+});
+
+test('the stairway list is emptied and searched by origin', () => {
+    const state = dungeonState();
+    state.stairs = null;
+    // D:2's two stairways: up to D:1, down to D:3. stairway_add() prepends,
+    // so the down staircase ends up first in the list.
+    stairway_add(10, 5, true, false, { dnum: 0, dlevel: 1 });
+    stairway_add(40, 15, false, false, { dnum: 0, dlevel: 3 });
+    // A ladder to the same level as the up staircase, so only the isladder
+    // term separates them.
+    stairway_add(60, 8, true, true, { dnum: 0, dlevel: 1 });
+
+    const stairs = stairway_find_from({ dnum: 0, dlevel: 1 }, false, game);
+    assert.deepEqual([stairs.sx, stairs.sy], [10, 5]);
+    const ladder = stairway_find_from({ dnum: 0, dlevel: 1 }, true, game);
+    assert.deepEqual([ladder.sx, ladder.sy], [60, 8]);
+    assert.equal(stairway_find_from({ dnum: 1, dlevel: 1 }, false, game), null);
+
+    stairway_free_all(game);
+    assert.equal(game.stairs, null);
+});
+
+test('assign_level writes through rather than replacing', () => {
+    // dungeon.c assign_level() copies dnum and dlevel into the destination
+    // struct. goto_level() moves u.uz through it, so a caller holding the
+    // same object keeps seeing the hero's level.
+    const destination = { dnum: 0, dlevel: 1 };
+    const alias = destination;
+    assert.equal(assign_level(destination, { dnum: 0, dlevel: 2 }), alias);
+    assert.deepEqual(alias, { dnum: 0, dlevel: 2 });
+});
+
+test('the level-identity helpers read dat/dungeon.lua', () => {
+    const state = dungeonState();
+
+    // The main dungeon's entry level is its first, so it builds down; the
+    // Mines are reached through a branch whose end1_up is false.
+    assert.equal(builds_up({ dnum: 0, dlevel: 2 }, state), false);
+    assert.equal(builds_up({ dnum: 1, dlevel: 1 }, state), false);
+
+    assert.equal(dunlev_reached({ dnum: 0, dlevel: 2 }, state), 1);
+    set_dunlev_reached({ dnum: 0, dlevel: 2 }, 2, state);
+    assert.equal(dunlev_reached({ dnum: 0, dlevel: 2 }, state), 2);
+
+    // A fresh ledger row starts with no flags at all, so goto_level() picks
+    // mklev() over getlev() for a level it has never built.
+    assert.equal(level_info(2, state).flags, 0);
+    assert.equal(level_info(2, state).flags & LFILE_EXISTS, 0);
+    // maxledgerno() is the last dungeon's ledger_start plus its level count,
+    // which is 29 + 8 here, and is itself a valid row.
+    assert.equal(level_info(37, state).flags, 0);
+    assert.throws(() => level_info(38, state), /out of range/u);
+    assert.equal(level_info(0, state).flags, 0);
+    assert.throws(() => level_info(-1, state), /out of range/u);
+
+    // dungeon.c's branch lookup keys on the branch's *destination* dungeon.
+    assert.equal(dungeon_branch('The Gnomish Mines', state).end1.dlevel, 3);
+    assert.throws(
+        () => dungeon_branch('Fort Ludios', state),
+        /unknown dungeon/u,
+    );
+    // at_dgn_entrance() compares the hero's level with the branch's end1.
+    state.u.uz = { dnum: 0, dlevel: 3 };
+    assert.equal(at_dgn_entrance('The Gnomish Mines', state), true);
+    state.u.uz = { dnum: 0, dlevel: 2 };
+    assert.equal(at_dgn_entrance('The Gnomish Mines', state), false);
+});
+
+// Build a rectangular room whose interior is ROOM and give it one door.
+function roomLevel(state, { lx, ly, hx, hy, doorx, doory }) {
+    for (let x = lx; x <= hx; ++x)
+        for (let y = ly; y <= hy; ++y) state.level.at(x, y).typ = ROOM;
+    state.level.rooms = [{
+        lx, ly, hx, hy, rtype: OROOM, doorct: 1, fdoor: 0, rlit: 1,
+        needfill: 0, irregular: false, nsubrooms: 0, sbrooms: [],
+    }];
+    state.level.nroom = 1;
+    state.level.doors = [{ x: doorx, y: doory }];
+    state.level.doorindex = 1;
+    return state.level.rooms[0];
+}
+
+test('mkroom.c room predicates answer from geometry and the stairway list', () => {
+    const state = dungeonState();
+    // 5 x 5 interior is 25 squares, above isbig()'s threshold of 20; a
+    // 5 x 4 interior is 20, which is not above it.
+    const big = roomLevel(state, {
+        lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7,
+    });
+    assert.equal(isbig(big), true);
+    assert.equal(isbig({ lx: 10, ly: 5, hx: 14, hy: 8 }), false);
+
+    state.stairs = null;
+    assert.equal(has_upstairs(big, state), false);
+    assert.equal(has_dnstairs(big, state), false);
+    state.stairs = { sx: 12, sy: 7, up: true, next: null };
+    assert.equal(has_upstairs(big, state), true);
+    assert.equal(has_dnstairs(big, state), false);
+    state.stairs = { sx: 12, sy: 7, up: false, next: null };
+    assert.equal(has_dnstairs(big, state), true);
+    // A staircase outside the room belongs to neither.
+    state.stairs = { sx: 40, sy: 7, up: false, next: null };
+    assert.equal(has_dnstairs(big, state), false);
+});
+
+test('invalid_shop_shape rejects a room that pins the shopkeeper', () => {
+    const state = dungeonState();
+    // A tall room: two squares beside the door are ROOM, so C stops counting
+    // there and calls the shape valid without the second scan.
+    const wide = roomLevel(state, {
+        lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7,
+    });
+    assert.equal(invalid_shop_shape(wide, state), false);
+
+    // A one-square-tall, two-square-wide room entered from the left: the one
+    // square beside the door has exactly one other room square to step to,
+    // which is the shape C rejects.
+    const state2 = dungeonState();
+    const corridorRoom = roomLevel(state2, {
+        lx: 10, ly: 5, hx: 11, hy: 5, doorx: 9, doory: 5,
+    });
+    assert.equal(invalid_shop_shape(corridorRoom, state2), true);
+
+    // A single-square room answers FALSE, because C's second scan counts zero
+    // rather than one and its test is an equality against one. Reproduce the
+    // source's answer rather than the intended one.
+    const state3 = dungeonState();
+    const single = roomLevel(state3, {
+        lx: 10, ly: 5, hx: 10, hy: 5, doorx: 9, doory: 5,
+    });
+    assert.equal(invalid_shop_shape(single, state3), false);
+});
+
+test('do_mkroom stops on the room the level would gain', () => {
+    const state = dungeonState();
+    roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
+    state.stairs = null;
+    assert.throws(
+        () => do_mkroom(SHOPBASE, state),
+        /mkshop\(\) choosing a shop for room 0/u,
+    );
+    // Every other room type reaches mkzoo(), mkswamp() or mktemple().
+    assert.throws(() => do_mkroom(ZOO, state), /do_mkroom\(8\)/u);
+
+    // A room the shop search rejects leaves the level unchanged: mkshop()
+    // walks past a room that already holds the down staircase.
+    state.stairs = { sx: 12, sy: 7, up: false, next: null };
+    do_mkroom(SHOPBASE, state);
+    assert.equal(state.level.rooms[0].rtype, OROOM);
+    // ... and past a room that holds the up staircase.
+    state.stairs = { sx: 12, sy: 7, up: true, next: null };
+    do_mkroom(SHOPBASE, state);
+
+    // A room that is already special is passed over, and so is one with a
+    // door count other than one: C's loop tests `doorct == 1` rather than a
+    // bound, so neither zero nor two is a shop.
+    state.stairs = null;
+    for (const [field, value] of [['rtype', ZOO], ['doorct', 0],
+        ['doorct', 2]]) {
+        const room = state.level.rooms[0];
+        const was = room[field];
+        room[field] = value;
+        do_mkroom(SHOPBASE, state);
+        room[field] = was;
+    }
+    // With every rejection undone the search finds the room again, so the
+    // walk above stopped for the reason each case names rather than because
+    // the loop had ended.
+    assert.throws(() => do_mkroom(SHOPBASE, state), /choosing a shop/u);
+
+    // A level with no rooms at all: the loop's bound, not its terminator.
+    state.level.nroom = 0;
+    do_mkroom(SHOPBASE, state);
+});
+
+test('check_special_room stops on a room that would announce itself', () => {
+    const state = dungeonState();
+    roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
+    state.level.at(20, 10).typ = STONE;
+    // The hero stands inside the room; move_update(FALSE) records it as newly
+    // entered because urooms0 is empty.
+    state.u.ux = 12;
+    state.u.uy = 7;
+    for (let x = 10; x <= 14; ++x)
+        for (let y = 5; y <= 9; ++y) state.level.at(x, y).roomno = 3;
+
+    // An ordinary room takes the switch's default arm and says nothing.
+    check_special_room(false, state);
+
+    // Every room type whose arm in hack.c's switch does something. C's
+    // `default` arm answers for the rest, so THEMEROOM and VAULT stay silent
+    // beside them.
+    for (const rt of [ZOO, SWAMP, COURT, LEPREHALL, MORGUE, BEEHIVE,
+        COCKNEST, ANTHOLE, BARRACKS, DELPHI, TEMPLE]) {
+        state.u.urooms = [0, 0, 0, 0, 0];
+        state.u.urooms0 = [0, 0, 0, 0, 0];
+        state.level.rooms[0].rtype = rt;
+        assert.throws(
+            () => check_special_room(false, state),
+            new RegExp(`entering room type ${rt}`, 'u'),
+            `room type ${rt}`,
+        );
+    }
+    for (const rt of [THEMEROOM, VAULT]) {
+        state.u.urooms = [0, 0, 0, 0, 0];
+        state.u.urooms0 = [0, 0, 0, 0, 0];
+        state.level.rooms[0].rtype = rt;
+        check_special_room(false, state);
+    }
+
+    // The switch's `rt >= SHOPBASE` arm cannot be reached from the loop:
+    // move_update() puts a shop into u.ushops_entered as well as u.uentered,
+    // and u_entered_shop() answers for it above.
+    for (const rt of [SHOPBASE, SHOPBASE + 4]) {
+        state.u.urooms = [0, 0, 0, 0, 0];
+        state.u.urooms0 = [0, 0, 0, 0, 0];
+        state.u.ushops = [0, 0, 0, 0, 0];
+        state.u.ushops0 = [0, 0, 0, 0, 0];
+        state.level.rooms[0].rtype = rt;
+        assert.throws(
+            () => check_special_room(false, state),
+            /entering a shop/u,
+            `shop type ${rt}`,
+        );
+    }
+});
+
+test('restore_cham gives a shapeshifter back its shape', () => {
+    const state = dungeonState();
+    monst_globals_init(state);
+    reset_mvitals(state);
+
+    // mondata.h is_shapeshifter() reads M2_SHAPESHIFTER, which the chameleon
+    // carries and a little dog does not.
+    assert.equal(is_shapeshifter(state.mons[PM_CHAMELEON]), true);
+    assert.equal(is_shapeshifter(state.mons[PM_LITTLE_DOG]), false);
+    assert.equal(pm_to_cham(PM_CHAMELEON, state), PM_CHAMELEON);
+    assert.equal(pm_to_cham(PM_LITTLE_DOG, state), NON_PM);
+
+    const dog = newMonster();
+    dog.data = state.mons[PM_LITTLE_DOG];
+    dog.cham = NON_PM;
+    restore_cham(dog, state);
+    assert.equal(dog.cham, NON_PM);
+
+    const chameleon = newMonster();
+    chameleon.data = state.mons[PM_CHAMELEON];
+    chameleon.cham = NON_PM;
+    restore_cham(chameleon, state);
+    assert.equal(chameleon.cham, PM_CHAMELEON);
+
+    // The forced-revert arm needs normal_shape(), which is unported. Each of
+    // its three terms reaches it on its own.
+    for (const set of [
+        (mon) => { mon.mcan = 1; },
+        () => {
+            state.u.uprops = [];
+            state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = { intrinsic: 1 };
+        },
+        () => {
+            state.u.uprops = [];
+            state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = { extrinsic: 1 };
+        },
+    ]) {
+        const mon = newMonster();
+        mon.data = state.mons[PM_CHAMELEON];
+        mon.cham = NON_PM;
+        state.u.uprops = [];
+        set(mon);
+        assert.throws(
+            () => restore_cham(mon, state),
+            /natural shape is future work/u,
+        );
+    }
+});
+
+test('update_mlstmv ages the level the hero is leaving', () => {
+    const state = dungeonState();
+    state.moves = 4321;
+    const alive = newMonster();
+    alive.mhp = 5;
+    alive.mlstmv = 0;
+    const dead = newMonster();
+    dead.mhp = 0;
+    dead.mlstmv = 0;
+    alive.nmon = dead;
+    state.level.monlist = alive;
+
+    update_mlstmv(state);
+    assert.equal(alive.mlstmv, 4321);
+    // DEADMONSTER() skips the corpse-in-waiting.
+    assert.equal(dead.mlstmv, 0);
+});
+
+test('losedogs stops on every list it cannot deliver', () => {
+    const state = dungeonState();
+    state.gm = { mydogs: null, migrating_mons: null };
+    // Nothing on either list: the walk finds nothing to place.
+    losedogs({ state });
+
+    const shopkeeper = newMonster();
+    shopkeeper.isshk = true;
+    state.gm.migrating_mons = shopkeeper;
+    assert.throws(
+        () => losedogs({ state }),
+        /shopkeeper returning to its shop level/u,
+    );
+
+    // A monster whose destination is the level being arrived on belongs to
+    // one of mon_arrive()'s independent-arrival modes.
+    const arriving = newMonster();
+    arriving.mux = 0;
+    arriving.muy = 1;
+    state.gm.migrating_mons = arriving;
+    assert.throws(
+        () => losedogs({ state }),
+        /migrating to the arrival level/u,
+    );
+});

@@ -23,6 +23,28 @@ export function stairway_add(x, y, up, isladder, dest) {
     game.stairs = node;
 }
 
+// C ref: stairs.c stairway_free_all(), which do.c goto_level() calls once the
+// hero's level has changed and before the destination is built. C frees each
+// node; dropping the list head is the port's equivalent.
+export function stairway_free_all(state = game) {
+    state.stairs = null;
+}
+
+// C ref: stairs.c stairway_find_from(). Answers the stairway on this level
+// that leads back to `fromdlev` and matches `isladder`, which is how an
+// arriving hero finds the foot of the staircase she just came down.
+export function stairway_find_from(fromdlev, isladder, state = game) {
+    const wantsLadder = Boolean(isladder);
+    for (let stway = state.stairs; stway; stway = stway.next) {
+        if (stway.tolev.dnum === fromdlev.dnum
+            && stway.tolev.dlevel === fromdlev.dlevel
+            && Boolean(stway.isladder) === wantsLadder) {
+            return stway;
+        }
+    }
+    return null;
+}
+
 // C ref: stairs.c stairway_at().
 export function stairway_at(x, y, state = game) {
     for (let stway = state.stairs; stway; stway = stway.next)

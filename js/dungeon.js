@@ -510,7 +510,7 @@ export function Can_fall_thru(level, state = game) {
             && on_level(level, state.stronghold_level));
 }
 
-function builds_up(level, state) {
+export function builds_up(level, state = game) {
     const dungeon = state.dungeons[level.dnum];
     if (dungeon.num_dunlevs > 1)
         return dungeon.entry_lev === dungeon.num_dunlevs;
@@ -527,7 +527,7 @@ function builds_up(level, state) {
 // goto_level() lives in js/do.js, which already imports this file; taking it as
 // an injected operation keeps the module graph acyclic. `env.gotoLevel` is
 // required rather than defaulted for that reason.
-export function next_level(at_stairs, state = game, env = {}) {
+export async function next_level(at_stairs, state = game, env = {}) {
     const gotoLevel = env.gotoLevel;
     if (typeof gotoLevel !== 'function')
         throw new TypeError('next_level requires a gotoLevel operation');
@@ -619,6 +619,65 @@ export function ledger_to_dnum(ledgerNumber, state = game) {
 export function ledger_to_dlev(ledgerNumber, state = game) {
     const dnum = ledger_to_dnum(ledgerNumber, state);
     return Math.trunc(ledgerNumber) - state.dungeons[dnum].ledger_start;
+}
+
+// C ref: dungeon.c assign_level(). It copies the two fields rather than
+// replacing the destination, which is what lets a caller hold a reference to
+// u.uz or u.uz0 across a level change.
+export function assign_level(dest, src) {
+    dest.dnum = src.dnum;
+    dest.dlevel = src.dlevel;
+    return dest;
+}
+
+// C refs: dungeon.c dname_to_dnum(), dungeon_branch() and at_dgn_entrance().
+// The last answers whether the hero stands on the level a named branch leaves
+// from, which do.c goto_level() asks about "The Quest" before its leader's
+// summons is delivered.
+export function dungeon_branch(dname, state = game) {
+    const dnum = state.dungeons.findIndex(
+        (dungeon) => dungeon.dname === dname,
+    );
+    if (dnum < 0) throw new Error(`dname_to_dnum: unknown dungeon ${dname}`);
+    const branch = state.branches.find(
+        (candidate) => candidate.end2.dnum === dnum,
+    );
+    if (!branch)
+        throw new Error(`dungeon_branch: can't find entrance to ${dname}`);
+    return branch;
+}
+
+export function at_dgn_entrance(dname, state = game) {
+    return on_level(state.u.uz, dungeon_branch(dname, state).end1);
+}
+
+// C ref: dungeon.h dunlev_reached(), the deepest level of a dungeon the hero
+// has reached.
+export function dunlev_reached(level, state = game) {
+    return Math.trunc(state.dungeons[level.dnum].dunlev_ureached ?? 0);
+}
+
+export function set_dunlev_reached(level, dlevel, state = game) {
+    state.dungeons[level.dnum].dunlev_ureached = dlevel;
+}
+
+// C ref: dungeon.h `struct level_info`, the ledger-indexed array decl.c
+// declares as `svl.level_info[MAXLINFO]`. Only its `flags` field has readers
+// in the port: files.c create_levelfile() sets LFILE_EXISTS, save.c
+// savelev_core() sets VISITED, and do.c goto_level() reads LFILE_EXISTS to
+// decide between generating the destination level and reloading it. C's
+// `where` and `time` fields describe a level file, which the port has none of.
+//
+// C's array is zero-initialized for a fresh game; the rows here are created on
+// first use with the same zero flags.
+export function level_info(ledgerNumber, state = game) {
+    const ledger = Math.trunc(ledgerNumber);
+    if (ledger < 0 || ledger > maxledgerno(state))
+        throw new RangeError(`level_info: ledger ${ledger} out of range`);
+    state.svl ??= {};
+    state.svl.level_info ??= [];
+    state.svl.level_info[ledger] ??= { flags: 0 };
+    return state.svl.level_info[ledger];
 }
 
 export function maxledgerno(state = game) {

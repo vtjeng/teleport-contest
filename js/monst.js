@@ -146,7 +146,7 @@ export function mon_track_clear(monster) {
 export function relocate_monster(monster, x, y, state = game) {
     if (!monster || typeof monster !== 'object')
         throw new TypeError('relocate_monster requires a monster instance');
-    if (m_at(monster.mx, monster.my, state) !== monster) {
+    if (monster.mx && m_at(monster.mx, monster.my, state) !== monster) {
         throw new Error(
             `relocate_monster: monster is not at <${monster.mx},${monster.my}>`,
         );
@@ -154,7 +154,10 @@ export function relocate_monster(monster, x, y, state = game) {
     // teleport.c rloc_to_core() returns before mon_track_clear() when the
     // requested destination is the monster's already-indexed square.
     if (x === monster.mx && y === monster.my) return monster;
-    remove_monster(monster.mx, monster.my, state);
+    // rloc_to_core() picks the monster up only `if (oldx)`. A monster arriving
+    // from gm.mydogs or gm.migrating_mons has mx == 0 and occupies no square,
+    // so there is nothing to remove.
+    if (monster.mx) remove_monster(monster.mx, monster.my, state);
     mon_track_clear(monster);
     place_monster(monster, x, y, state);
     update_monster_region(monster, state);

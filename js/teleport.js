@@ -903,6 +903,52 @@ export function enexto(xx, yy, species, env = {}) {
         ?? enexto_core(xx, yy, species, 0, env);
 }
 
+// C ref: teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG,
+// bounded to a monster arriving on a level it is not yet placed on. dog.c
+// mon_arrive() is its only ported caller and reaches it with `mtmp->mx == 0`,
+// which is what lets the whole "pick up the monster" block at the top of
+// rloc_to_core() be skipped rather than ported: there is no old square to
+// clear, redraw or unhide.
+//
+// Every message in rloc_to_core() is suppressed by RLOC_NOMSG, and the
+// shopkeeper, shop-goods, occupation and trap tails below the placement each
+// refuse rather than run.
+export function rloc_to(monster, x, y, rawEnv = {}) {
+    const env = teleportEnv(rawEnv);
+    const { state } = env;
+    if (monster.mx) {
+        throw new UnsupportedPositionCheckError(
+            'rloc_to() for a monster already on the map',
+        );
+    }
+    if (monster.isshk || monster.wormno || monster === state.u?.ustuck
+        || monster.mtrapped || state.occupation) {
+        throw new UnsupportedPositionCheckError(
+            'extended rloc_to_core side effects',
+        );
+    }
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.no_charge || obj.unpaid) {
+            throw new UnsupportedPositionCheckError(
+                'rloc_to() of carried shop goods',
+            );
+        }
+    }
+
+    mon_track_clear(monster);
+    place_monster(monster, x, y, state);
+    update_monster_region(monster, state);
+    // maybe_unhide_at(x, y) calls hideunder() for a monster whose mundetected
+    // is set; an arriving follower's is clear, because dog.c relmon() cleared
+    // it as the monster left the level it came from.
+    newsym(x, y);
+    // set_apparxy() resolves to the hero's own square for a tame monster and
+    // for the one holding her, and mon_arrive() admits no other kind.
+    monster.mux = state.u.ux;
+    monster.muy = state.u.uy;
+    return monster;
+}
+
 // C ref: mon.c mnexto(). Overcrowding and wizard destination control remain
 // explicit subsystem seams; both are reached at their source call boundary.
 export function mnexto(monster, _rlocflags = 0, env = {}) {

@@ -14,9 +14,14 @@ import {
     M_AP_NOTHING,
     M_AP_TYPMASK,
     MIGR_EXACT_XY,
+    MON_ARRIVE_WITH_YOU,
+    MON_LIMBO,
     MON_MIGRATING,
+    MON_STILL_ARRIVING,
     MM_EDOG,
     NO_MINVENT,
+    RLOC_NOMSG,
+    STRAT_ARRIVE,
     STRAT_WAITFORU,
     TELEPAT,
     W_SADDLE,
@@ -38,7 +43,8 @@ import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
 import { levl_follower } from './mondata.js';
 import { monnear } from './monmove.js';
-import { m_at, remove_monster } from './monst.js';
+import { restore_cham } from './mon.js';
+import { m_at, mon_track_clear, remove_monster } from './monst.js';
 import {
     M1_AMORPHOUS,
     M1_HUMANOID,
@@ -85,6 +91,7 @@ import {
     sensesMonster,
 } from './startup_a11y.js';
 import { effective_attribute } from './attrib.js';
+import { mnexto, rloc_to } from './teleport.js';
 import { vision_recalc } from './vision.js';
 import { mon_has_amulet } from './wizard.js';
 
@@ -687,6 +694,154 @@ export function keepdogs(pets_only, rawEnv = {}) {
             );
         }
     }
+}
+
+// C ref: dog.c set_mon_lastmove(), through iter_mons() in update_mlstmv().
+function set_mon_lastmove(monster, state) {
+    monster.mlstmv = state.moves;
+}
+
+// C ref: dog.c update_mlstmv(), which do.c goto_level() calls just before the
+// level is saved so that mon_arrive() can catch a restored monster up for the
+// turns it spent inactive.
+//
+// Every monster it writes to belongs to the level being left, because
+// keepdogs() has already moved the followers onto gm.mydogs and the accessible
+// ones onto gm.migrating_mons, and both of those set mlstmv themselves. The
+// port drops the leaving level rather than saving it, so nothing reads these
+// values back yet; they are written because the field has one owner and this
+// is where C writes it.
+export function update_mlstmv(state = game) {
+    for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
+        set_mon_lastmove(mtmp, state);
+    }
+}
+
+// C ref: dog.c mon_arrive() (419-620), bounded to `when == With_you`, the arm
+// losedogs() reaches for every monster on gm.mydogs. The independent-arrival
+// arms below it -- the xyloc switch, mon_catchup_elapsed_time(), the `wander`
+// displacement and mnearto()/rloc() -- serve gm.migrating_mons, which is empty
+// on a first descent because keep_mon_accessible() admits only the Wizard, a
+// shopkeeper, a priest or a vault guard.
+function mon_arrive(monster, when, env) {
+    const { state } = env;
+    const u = state.u;
+
+    if (when !== MON_ARRIVE_WITH_YOU) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            `mon_arrive(${when}) for a monster arriving on its own`,
+        );
+    }
+    if (monster.isshk) {
+        // set_residency(mtmp, FALSE) reclaims the shop for a returning
+        // shopkeeper; keepdogs() refuses one before it reaches this list.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'mon_arrive() with a shopkeeper',
+        );
+    }
+    if (monster.data?.pmidx === PM_LONG_WORM) {
+        // get_wormno()/initworm() rebuild the tail keepdogs() stored in
+        // wormno; js/dog.js mon_leave() refuses a long worm on the way out.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'mon_arrive() with a long worm',
+        );
+    }
+    if (!monster.mtame && monster !== u.ustuck) {
+        // mnexto() below stands in for set_apparxy()'s answer by writing the
+        // hero's own square into mux/muy, which mon.c set_apparxy() does only
+        // for a tame monster or the one holding the hero. Every other monster
+        // reaches the displacement arm, which draws random numbers.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'mon_arrive() with a follower that is not tame',
+        );
+    }
+
+    monster.mstate |= MON_STILL_ARRIVING;
+    monster.nmon = state.level.monlist;
+    state.level.monlist = monster;
+    monster.wormno = 0;
+    monster.mstrategy |= STRAT_ARRIVE;
+    monster.mstate &= ~(MON_MIGRATING | MON_LIMBO);
+    // Keep mnexto(rloc_to(set_apparxy())) from reading a stale guess.
+    monster.mux = u.ux;
+    monster.muy = u.uy;
+    // C reads the destination fields overloaded into mtrack here; the
+    // With_you arm below uses none of them.
+    mon_track_clear(monster);
+    restore_cham(monster, state);
+
+    if (monster === u.usteed) {
+        // js/apply_next_to_u.js refuses a mounted hero before the descent, so
+        // no steed reaches gm.mydogs; C returns here without placing it.
+        throw new UnsupportedHeroMoveBoundaryError(
+            'mon_arrive() with the hero\'s steed',
+        );
+    }
+
+    // "When a monster accompanies you, sometimes it will arrive at your
+    // intended destination and you'll end up next to that spot." A tame
+    // follower takes the hero's own square one time in ten; do.c
+    // u_collide_m() then decides which of the two moves off it.
+    if (!m_at(u.ux, u.uy, state)
+        && !env.random.rn2(monster.mtame ? 10 : monster.mpeaceful ? 5 : 2)) {
+        rloc_to(monster, u.ux, u.uy, env);
+    } else {
+        mnexto(monster, RLOC_NOMSG, env);
+    }
+    monster.mstate &= ~MON_STILL_ARRIVING;
+}
+
+// C ref: dog.c losedogs() (304-414), which do.c goto_level() calls once the
+// destination level exists. It places the monsters that came with the hero and
+// the ones migrating to this level.
+//
+// Four of its five phases have nothing to do on a first descent, and each is
+// written out below with the state that empties it. What runs is the gm.mydogs
+// walk, which drains the list keepdogs() filled on the way out.
+export function losedogs(rawEnv = {}) {
+    const env = dogEnv(rawEnv);
+    const { state } = env;
+    state.gm ??= {};
+
+    // Phases one and two, the shopkeeper scans and make_happy_shoppers(), read
+    // ESHK(mtmp)->dismiss_kops. No shopkeeper reaches either list: js/dog.js
+    // keepdogs() refuses one through mon_leave(), and migrate_to_level()
+    // refuses one directly.
+    for (let mtmp = state.gm.migrating_mons; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.isshk) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'losedogs() with a shopkeeper returning to its shop level',
+            );
+        }
+    }
+
+    // Phase three returns the monsters that went onto gm.migrating_mons only
+    // to stay reachable while the hero was away, and phase five delivers the
+    // monsters migrating here. Both select on the destination the monster
+    // carries, and every entry on that list targets a level the hero has left
+    // rather than the one she is arriving on, so both walks find nothing on a
+    // first descent. mon_arrive() refuses the Before_you and After_you modes
+    // they use.
+    for (let mtmp = state.gm.migrating_mons; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mux === state.u.uz.dnum && mtmp.muy === state.u.uz.dlevel) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'losedogs() with a monster migrating to the arrival level',
+            );
+        }
+    }
+
+    // Phase four: the monsters that accompany the hero, in the order
+    // keepdogs() pushed them onto the list.
+    let mtmp;
+    while ((mtmp = state.gm.mydogs) !== null && mtmp !== undefined) {
+        state.gm.mydogs = mtmp.nmon;
+        mon_arrive(mtmp, MON_ARRIVE_WITH_YOU, env);
+    }
+
+    // The failed_arrivals list is filled by mon_arrive()'s independent-arrival
+    // arms alone, all of which refuse above, so m_into_limbo() has no caller
+    // here.
 }
 
 // C refs: dog.c mon_leave()/migrate_to_level() and mon.c relmon()/

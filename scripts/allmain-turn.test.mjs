@@ -1451,10 +1451,15 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
         };
         assert.ok(projected_capacity(game) > 0);
         game.go = { oldcap: 1 };
-        // makemon() supports the species mklev places on D:1. Moving the hero
-        // off that level makes every random creation refuse, so the branch
-        // under test is the conversion rather than which species was rolled.
-        game.u.uz.dlevel = 2;
+        // makemon() supports the main dungeon, whose levels this port
+        // generates. Moving the hero into the Gnomish Mines, dungeon two,
+        // makes every random creation refuse, so the branch under test is the
+        // conversion rather than which species was rolled. The Mines rather
+        // than any deeper dungeon because maybe_generate_rnd_mon()'s bound
+        // drops from 70 to 50 below the Castle, which would change the draw
+        // this seed was chosen for.
+        game.u.uz.dnum = 2;
+        game.u.uz.dlevel = 1;
         game.context.seer_turn = 100000;
         game.context.next_attrib_check = 100000;
         game.u.umovement = 0;

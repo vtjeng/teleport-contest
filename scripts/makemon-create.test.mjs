@@ -2286,20 +2286,19 @@ test('Mausoleum preflight admits every reachable species and rejects its boundar
     }
 });
 
-test('creation outside the initial dungeon level fails before RNG or state', () => {
+test('creation outside the main dungeon fails before RNG or state', () => {
+    // No level of the main dungeon is a case here, the Stronghold included:
+    // mklev() now generates D:2 and below, and makemon()'s species allowlist
+    // is what bounds the port there. What still refuses is a level of another
+    // dungeon, whose generation this port does not do.
     const cases = [
-        {
-            name: 'later main-dungeon level',
-            level: { dnum: 0, dlevel: 2 },
-        },
         {
             name: 'another dungeon at local level one',
             level: { dnum: 1, dlevel: 1 },
         },
         {
-            name: 'Stronghold special level',
-            level: { dnum: 0, dlevel: 10 },
-            stronghold: true,
+            name: 'another dungeon at a deeper level',
+            level: { dnum: 2, dlevel: 3 },
         },
     ];
 

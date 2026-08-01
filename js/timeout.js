@@ -17,7 +17,13 @@ import {
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
     LS_OBJECT,
+    OBJ_BURIED,
+    OBJ_CONTAINED,
+    OBJ_FLOOR,
     OBJ_INVENT,
+    OBJ_MIGRATING,
+    OBJ_MINVENT,
+    RANGE_LEVEL,
     REVIVE_MON,
     ROT_AGE,
     ROT_CORPSE,
@@ -25,7 +31,9 @@ import {
     TAINT_AGE,
     TIMEOUT,
     TIMER_NONE,
+    TIMER_GLOBAL,
     TIMER_LEVEL,
+    TIMER_MONSTER,
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
     W_ARM,
@@ -518,6 +526,97 @@ export function obj_stop_timers(obj, state = game, env = {}) {
 
 export function obj_has_timer(obj, funcIndex, state = game) {
     return peek_timer(funcIndex, obj, state) !== 0;
+}
+
+// C ref: timeout.c mon_is_local(). A monster is local to the level it stands
+// on; one waiting on gm.migrating_mons or gm.mydogs belongs to no level and
+// travels with the global save instead.
+//
+// light.c defines a *different* mon_is_local, the macro `(mon)->mx > 0` at
+// light.c:373. The two agree for every monster this port creates, because
+// dog.c relmon() zeroes mx as it moves a monster onto either list, but they
+// are separate source definitions and js/light.js keeps its own.
+export function mon_is_local(monster, state = game) {
+    for (let mtmp = state.gm?.migrating_mons; mtmp; mtmp = mtmp.nmon)
+        if (mtmp === monster) return false;
+    for (let mtmp = state.gm?.mydogs; mtmp; mtmp = mtmp.nmon)
+        if (mtmp === monster) return false;
+    return true;
+}
+
+// C ref: timeout.c obj_is_local().
+export function obj_is_local(obj, state = game) {
+    switch (obj.where) {
+    case OBJ_INVENT:
+    case OBJ_MIGRATING:
+        return false;
+    case OBJ_FLOOR:
+    case OBJ_BURIED:
+        return true;
+    case OBJ_CONTAINED:
+        return obj_is_local(obj.ocontainer, state);
+    case OBJ_MINVENT:
+        return mon_is_local(obj.ocarry, state);
+    default:
+        throw new Error(`obj_is_local: object where=${obj.where}`);
+    }
+}
+
+// C ref: timeout.c timer_is_local().
+function timer_is_local(timer, state) {
+    switch (timer.kind) {
+    case TIMER_LEVEL:
+        return true;
+    case TIMER_GLOBAL:
+        return false;
+    case TIMER_OBJECT:
+        return obj_is_local(timer.arg, state);
+    case TIMER_MONSTER:
+        return mon_is_local(timer.arg, state);
+    default:
+        throw new Error(`timer_is_local: timer kind ${timer.kind}`);
+    }
+}
+
+// C ref: timeout.c save_timers(), its release_data() half alone. The port
+// writes no level file, so the surviving obligation is that a level's timers
+// leave the queue with the level; a rotting corpse left on D:1 must not still
+// be scheduled once the hero stands on D:2.
+//
+// `range` is RANGE_LEVEL or RANGE_GLOBAL exactly as in C, and the retained
+// timers are the ones whose locality disagrees with the range being released.
+export function save_timers(range, state = game) {
+    timerGlobals(state);
+    let previous = null;
+    let current = state.gt.timer_base;
+    while (current) {
+        const next = current.next;
+        if ((range === RANGE_LEVEL) === timer_is_local(current, state)) {
+            if (previous) previous.next = next;
+            else state.gt.timer_base = next;
+            current.next = null;
+        } else {
+            previous = current;
+        }
+        current = next;
+    }
+}
+
+// C ref: timer.c run_timers(), which do.c goto_level() calls once migrating
+// monsters and objects have arrived. Nothing dispatches here yet: the port
+// has no timeout_funcs[] table, so a timer that has come due stops instead of
+// firing the wrong effect. Level-local timers left with the level in
+// save_timers() above, so what can be due is a global timer -- an inventory
+// corpse rotting, a lit candle burning down -- and those are scheduled for
+// future turns rather than for the turn the descent happens on.
+export function run_timers(state = game) {
+    timerGlobals(state);
+    const due = state.gt.timer_base;
+    if (due && Math.trunc(due.timeout) <= currentMove(state)) {
+        throw new UnsupportedHeroTimeoutBoundaryError(
+            `no timer due by move ${currentMove(state)}`,
+        );
+    }
 }
 
 // C ref: timeout.c begin_burn(). age is fuel remaining before this segment;

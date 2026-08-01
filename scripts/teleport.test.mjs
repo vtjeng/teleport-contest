@@ -39,6 +39,7 @@ import {
     mnexto,
     noteleport_level,
     rloc,
+    rloc_to,
 } from '../js/teleport.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
 
@@ -538,6 +539,81 @@ test('rloc preflights live relocation operations before its first draw', () => {
     }), /random relocation without newsym/u);
     assert.equal(draws, 0);
     assert.equal(state.level.monsters[10][11], monster);
+});
+
+// teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG. dog.c
+// mon_arrive() reaches it with mtmp->mx == 0, and every tail below the
+// placement refuses instead of running.
+function arrivingMonster(state) {
+    const monster = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mhp: 2,
+        mhpmax: 2,
+        m_id: 91,
+    });
+    // dog.c relmon() leaves a monster on either travelling list at <0,0>.
+    monster.mx = 0;
+    monster.my = 0;
+    return monster;
+}
+
+test('rloc_to places a monster that holds no square', () => {
+    const state = positionState();
+    state.level.at(10, 11).typ = ROOM;
+    const monster = arrivingMonster(state);
+
+    assert.equal(rloc_to(monster, 10, 11, { state, newsym: () => {} }),
+        monster);
+    assert.deepEqual([monster.mx, monster.my], [10, 11]);
+    assert.equal(state.level.monsters[10][11], monster);
+    // set_apparxy() answers the hero's own square for the tame followers
+    // mon_arrive() admits.
+    assert.deepEqual([monster.mux, monster.muy], [state.u.ux, state.u.uy]);
+});
+
+test('rloc_to refuses each state whose tail it does not run', () => {
+    const state = positionState();
+    state.level.at(10, 11).typ = ROOM;
+
+    // A monster still on the map belongs to rloc_to_core()'s "pick up" block,
+    // which this port does not have.
+    const placed = arrivingMonster(state);
+    placed.mx = 10;
+    placed.my = 11;
+    assert.throws(() => rloc_to(placed, 12, 11, { state, newsym: () => {} }),
+        /already on the map/u);
+
+    // Each term of the side-effect guard on its own.
+    for (const set of [
+        (mon) => { mon.isshk = true; },
+        (mon) => { mon.wormno = 3; },
+        (mon) => { state.u.ustuck = mon; },
+        (mon) => { mon.mtrapped = 1; },
+        () => { state.occupation = () => 0; },
+    ]) {
+        const monster = arrivingMonster(state);
+        state.u.ustuck = null;
+        state.occupation = null;
+        set(monster);
+        assert.throws(
+            () => rloc_to(monster, 10, 11, { state, newsym: () => {} }),
+            /extended rloc_to_core side effects/u,
+        );
+        assert.equal(state.level.monsters[10][11] ?? null, null);
+    }
+    state.u.ustuck = null;
+    state.occupation = null;
+
+    // Carried shop goods reach stolen_value() and make_angry_shk(); either
+    // field on any carried object is enough.
+    for (const field of ['no_charge', 'unpaid']) {
+        const monster = arrivingMonster(state);
+        monster.minvent = { nobj: { nobj: null, [field]: 1 } };
+        assert.throws(
+            () => rloc_to(monster, 10, 11, { state, newsym: () => {} }),
+            /carried shop goods/u,
+        );
+    }
 });
 
 test('mnexto refreshes every gas-region monster membership after relocation', () => {

@@ -9,11 +9,14 @@ import { game } from './gstate.js';
 import { GameMap } from './game.js';
 import {
     Can_fall_thru,
+    at_dgn_entrance,
     depth as dungeon_depth,
+    dungeon_branch,
     level_difficulty,
     on_level,
     u_on_newpos,
 } from './dungeon.js';
+import { UnsupportedSpecialRoomError, do_mkroom } from './mkroom.js';
 import { mkcorpstat } from './corpstat.js';
 import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
 import { set_wall_state } from './display.js';
@@ -111,7 +114,11 @@ import {
 import {
     G_IGNORE,
     G_NOGEN,
+    PM_COCKATRICE,
     PM_GIANT_SPIDER,
+    PM_KILLER_BEE,
+    PM_LEPRECHAUN,
+    PM_SOLDIER,
     PM_GIANT_ZOMBIE,
     PM_ETTIN_ZOMBIE,
     PM_VAMPIRE_LEADER,
@@ -144,6 +151,7 @@ import {
     SPACE_POS, isok, W_NONDIGGABLE,
     W_RANDOM, W_NORTH, W_SOUTH, W_EAST, W_WEST, W_ANY,
     FILL_NONE, FILL_NORMAL,
+    G_GONE,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL,
     DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
@@ -485,6 +493,9 @@ async function makelevel(specialLevelLoader = null) {
 
     // Branch check
     const branchp = is_branchlev();
+    // C ref: mklev.c:1306. A level that carries a dungeon branch needs one
+    // more room before it can spare one for a special room.
+    let room_threshold = branchp ? 4 : 3;
 
     makecorridors();
     await make_niches();
@@ -504,14 +515,54 @@ async function makelevel(specialLevelLoader = null) {
         if (realized) {
             add_room(vx.v, vy.v, vx.v + vw.v, vy.v + vh.v, true, VAULT, false);
             g.level.flags.has_vault = true;
+            ++room_threshold;
             const vaultRoom = g.level.rooms[g.level.nroom - 1];
             if (vaultRoom) {
                 vaultRoom.needfill = FILL_NORMAL;
                 fill_special_room(vaultRoom);
             }
+            mk_knox_portal(vx.v + vw.v, vy.v + vh.v);
             if (!g.level.flags.noteleport && !rn2(3))
                 await makeniche(TELEP_TRAP);
         }
+    }
+
+    // C ref: mklev.c makelevel() (1344-1375). At most one special room per
+    // level, chosen by depth; every arm below the shop needs a depth greater
+    // than four, and js/mkroom.js do_mkroom() stops on each of them.
+    // `room_threshold` counts the rooms a level must have before it can spare
+    // one: four when the level carries a dungeon branch, three otherwise, plus
+    // one more when a vault was placed above.
+    const u_depth = depth_of_level(g.u.uz);
+    if (u_depth > 1 && u_depth < depth_of_level(g.medusa_level)
+        && g.level.nroom >= room_threshold && rn2(u_depth) < 3) {
+        do_mkroom(SHOPBASE, g);
+    } else if (u_depth > 4 && !rn2(6)) {
+        do_mkroom(COURT, g);
+    } else if (u_depth > 5 && !rn2(8)
+               && !(g.mvitals[PM_LEPRECHAUN].mvflags & G_GONE)) {
+        do_mkroom(LEPREHALL, g);
+    } else if (u_depth > 6 && !rn2(7)) {
+        do_mkroom(ZOO, g);
+    } else if (u_depth > 8 && !rn2(5)) {
+        do_mkroom(TEMPLE, g);
+    } else if (u_depth > 9 && !rn2(5)
+               && !(g.mvitals[PM_KILLER_BEE].mvflags & G_GONE)) {
+        do_mkroom(BEEHIVE, g);
+    } else if (u_depth > 11 && !rn2(6)) {
+        do_mkroom(MORGUE, g);
+    } else if (u_depth > 12 && !rn2(8)) {
+        // C's antholemon() picks the ant species that fills the hole and
+        // answers NON_PM when every candidate is gone.
+        do_mkroom(ANTHOLE, g);
+    } else if (u_depth > 14 && !rn2(4)
+               && !(g.mvitals[PM_SOLDIER].mvflags & G_GONE)) {
+        do_mkroom(BARRACKS, g);
+    } else if (u_depth > 15 && !rn2(6)) {
+        do_mkroom(SWAMP, g);
+    } else if (u_depth > 16 && !rn2(8)
+               && !(g.mvitals[PM_COCKATRICE].mvflags & G_GONE)) {
+        do_mkroom(COCKNEST, g);
     }
 
     const previousStairs = g.stairs;
@@ -548,6 +599,40 @@ async function makelevel(specialLevelLoader = null) {
 
     // themerooms_post_level_generate() is completed by
     // level_finalize_topology(), after every ordinary and special room fill.
+}
+
+
+// C ref: mklev.c mk_knox_portal(), which makelevel() calls once a vault has
+// been placed. Fort Ludios is reached through a magic portal rather than a
+// staircase, and the branch is deferred from level to level until one deep
+// enough accepts it.
+//
+// The placement itself stops: insert_branch() rewrites the branch list and
+// place_branch() puts a MAGIC_PORTAL trap on the map, and no level above depth
+// ten can reach either, so what runs here is the deferral and its rn2(3).
+function mk_knox_portal(x, y) {
+    const g = game;
+    const br = dungeon_branch('Fort Ludios', g);
+    const sourceIsEnd2 = on_level(g.knox_level, br.end1);
+    if (!sourceIsEnd2) {
+        /* disallow Knox branch on a level with one branch already */
+        if (is_branchlev()) return;
+    }
+    const source = sourceIsEnd2 ? br.end2 : br.end1;
+
+    /* Already set or 2/3 chance of deferring until a later level. */
+    if (source.dnum < g.n_dgns || rn2(3)) return;
+
+    const u_depth = depth_of_level(g.u.uz);
+    if (!(g.u.uz.dnum === g.oracle_level.dnum /* in main dungeon */
+          && !at_dgn_entrance('The Quest', g) /* but not Quest's entry */
+          && u_depth > 10                     /* beneath 10 */
+          && u_depth < depth_of_level(g.medusa_level))) /* above Medusa */
+        return;
+
+    throw new UnsupportedSpecialRoomError(
+        `mk_knox_portal() placing the Fort Ludios portal at <${x},${y}>`,
+    );
 }
 
 // C ref: mklev.c makerooms()

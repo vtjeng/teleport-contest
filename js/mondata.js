@@ -1102,6 +1102,11 @@ export function levl_follower(mtmp, state = game) {
 // C ref: mondata.h monsndx().
 export function monsndx(species) { return species?.pmidx; }
 
+// C ref: mondata.h is_shapeshifter().
+export function is_shapeshifter(species) {
+    return Boolean(species?.mflags2 & M.M2_SHAPESHIFTER);
+}
+
 // C compares a species against a mons[] entry by pointer, as in
 // `ptr == &mons[PM_GREMLIN]`. pmidx is that entry's index, so comparing it
 // against the same constant gives the same answer without needing the table.

@@ -321,7 +321,7 @@ test('dunlevs_in_dungeon and In_hell read the dungeon the level belongs to',
 });
 
 test('next_level follows the staircase it stands on, or descends one level',
-    () => {
+    async () => {
     // dungeon.c:1496-1514. The branch that matters is `at_stairs && stway`:
     // with both, the destination comes from the stairway and `falling` is
     // FALSE; without either, it is the next level down and `falling` is
@@ -353,7 +353,10 @@ test('next_level follows the staircase it stands on, or descends one level',
     assert.deepEqual(calls.at(-1),
         [{ dnum: 0, dlevel: 5 }, true, false, false]);
 
-    assert.throws(() => next_level(true, state, {}), TypeError);
+    // next_level() is async because goto_level() is; the missing-operation
+    // check still runs before its first await, so it rejects rather than
+    // throwing.
+    await assert.rejects(() => next_level(true, state, {}), TypeError);
 });
 
 test('is_fshk needs both the shopkeeper flag and the following flag', () => {

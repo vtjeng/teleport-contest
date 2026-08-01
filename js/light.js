@@ -15,6 +15,7 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
+    RANGE_LEVEL,
     ROWNO,
     TEMP_LIT,
     W_ARM,
@@ -32,6 +33,9 @@ import {
     TALLOW_CANDLE,
     WAX_CANDLE,
 } from './objects.js';
+// js/timeout.js imports this file; both sides use the other's exports only
+// inside function bodies, so the cycle resolves.
+import { obj_is_local } from './timeout.js';
 
 export class UnsupportedLightOperationError extends Error {
     constructor(operation) {
@@ -130,6 +134,44 @@ export function del_light_source(type, id, state = game) {
     else globals.light_base = current.next;
     current.next = null;
     state.vision_full_recalc = 1;
+}
+
+// C ref: light.c save_light_sources(), its release_data() half alone. The
+// port writes no level file, so what survives is the obligation to drop the
+// light sources that stay with the level the hero is leaving; a lit candle on
+// D:1's floor must not go on lighting a square of D:2.
+//
+// C's discard_flashes() call above it has no counterpart: a flash source is
+// created only by expose_film() with a null object, and no path in the port
+// makes one.
+//
+// `mon_is_local` here is light.c:373's macro `(mon)->mx > 0`, not timeout.c's
+// list walk of the same name; keeping the two definitions apart is why
+// js/timeout.js exports its own.
+export function save_light_sources(range, state = game) {
+    const globals = lightGlobals(state);
+    state.vision_full_recalc = 0;
+    let previous = null;
+    let current = globals.light_base;
+    while (current) {
+        const next = current.next;
+        let isGlobal;
+        if (current.type === LS_OBJECT)
+            isGlobal = !obj_is_local(current.id, state);
+        else if (current.type === LS_MONSTER)
+            isGlobal = !(current.id.mx > 0);
+        else
+            throw new Error(`save_light_sources: bad type ${current.type}`);
+
+        if (isGlobal !== (range === RANGE_LEVEL)) {
+            if (previous) previous.next = next;
+            else globals.light_base = next;
+            current.next = null;
+        } else {
+            previous = current;
+        }
+        current = next;
+    }
 }
 
 // C ref: zap.c get_mon_location(), for a live level monster or steed.

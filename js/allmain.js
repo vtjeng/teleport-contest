@@ -195,7 +195,9 @@ export async function newgame() {
     const objectHooks = objectGenerationHooks();
     u_init_inventory_attrs(g, undefined, { objectHooks });
 
-    // Initial display
+    // Initial display. C ref: allmain.c newgame() calls docrt() alone; the
+    // explicit vision_recalc(0) and cls() are what js/display.js docrt()
+    // leaves to its callers.
     vision_recalc(0);
     await cls();
     await docrt();

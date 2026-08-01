@@ -107,6 +107,7 @@
         "js/room_coordinates.js",
         "js/room_features.js",
         "js/rooms.js",
+        "js/save.js",
         "js/shknam.js",
         "js/sp_lev_object.js",
         "js/stairs.js",

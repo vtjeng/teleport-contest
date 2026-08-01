@@ -12,7 +12,14 @@ import { effective_attribute } from './attrib.js';
 import { near_capacity } from './hack.js';
 import { update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
-import { cansee, seenv_matrix } from './vision.js';
+import { cansee, seenv_matrix, vision_recalc } from './vision.js';
+// js/tty_message.js imports flush_screen() from this file; both sides use the
+// other's exports only inside function bodies, so the cycle resolves.
+import {
+    TOPLINE_EMPTY,
+    clearTtyMessageWindow,
+    dismissPendingTtyMessage,
+} from './tty_message.js';
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
@@ -1797,11 +1804,45 @@ export function see_monsters(state = game) {
 }
 
 // ── docrt ──
+// C ref: display.c docrt() through docrt_flags(docrtRecalc) (1990-2050).
+//
+// C shuts vision down, clears the screen, shows every remembered glyph, turns
+// vision back on and overlays the monsters. The port's newsym() answers memory,
+// vision and monsters together from the level and the vision arrays, so one
+// sweep after vision is restored replaces C's three separate passes. What the
+// sweep cannot replace is the vision recalculation around it, which is the
+// reason a caller arriving on a level it has never seen gets a map at all.
+//
+// C ref: display.c docrt() through docrt_flags(docrtRecalc) (1990-2050).
+//
+// C shuts vision down, clears the screen, shows every remembered glyph, turns
+// vision back on and overlays the monsters. The port's newsym() answers
+// memory, vision and monsters together, so one sweep replaces C's three
+// passes, and the two vision_recalc() calls around them stay with this
+// function's callers -- newgame(), moveloop() and goto_level() each make them
+// at the point C's docrt() would.
+//
+// What does belong here is cls()'s first statement,
+// display_nhwindow(WIN_MESSAGE, FALSE). It reaches win/tty/wintty.c
+// tty_display_nhwindow()'s NHW_MESSAGE arm, which calls more() when the top
+// line still holds a message the player has not acknowledged, and that is the
+// input boundary a level change stops on: a descending hero sees
+// "You descend the stairs.--More--" over the level she is leaving rather than
+// the level she has arrived on. cls()'s remaining statements clear the
+// physical map and the glyph buffer, which the sweep below and
+// _buildScreenOutput() rewrite in full before the next flush.
 export async function docrt() {
     if (!game.level || !game.u?.ux || game.program_state?.in_docrt) return;
     game.program_state ??= {};
     game.program_state.in_docrt = true;
     try {
+        if (await dismissPendingTtyMessage(game)) {
+            // tty_display_nhwindow() restores TOPLINE_NEED_MORE after more()
+            // has reset it, so tty_clear_nhwindow() takes its repair branch.
+            clearTtyMessageWindow(game);
+        } else if (game.nhDisplay) {
+            game.nhDisplay.toplin = TOPLINE_EMPTY;
+        }
         for (let y = 0; y < ROWNO; y++)
             for (let x = 1; x < COLNO; x++) newsym(x, y);
     } finally {
@@ -3015,7 +3056,24 @@ function _buildScreenOutput() {
 }
 
 // ── flush_screen ──
+
+// C ref: display.c flush_screen()'s function-static `delay_flushing`. It is a
+// static rather than a field of the game state, and it is kept as a module
+// variable for the same reason: it belongs to the function, not to the game.
+// Its only writer is a `flush_screen(-1)` call, and do.c goto_level() makes
+// exactly two of them, so the pair balances on every level change.
+let delayFlushing = false;
+
+// C ref: display.c flush_screen() (2207-2266). `mode` is C's cursor_on_u.
+//
+// A value of -1 toggles the delay: goto_level() calls flush_screen(-1) at
+// do.c:1718 to postpone every map flush while it builds the destination, and
+// again at do.c:1839 to release it. The second call falls past the guard below
+// and flushes, with a nonzero cursor_on_u, so it places the cursor on the hero
+// exactly as flush_screen(1) does.
 export async function flush_screen(mode) {
+    if (mode === -1) delayFlushing = !delayFlushing;
+    if (delayFlushing) return;
     if (game.disp?.botl || game.disp?.botlx || game.disp?.time_botl) {
         await bot({
             // Before moveloop_preamble(), tty field dirtiness can preserve

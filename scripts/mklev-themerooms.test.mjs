@@ -678,9 +678,12 @@ test('makerooms uses adjusted level difficulty for eligibility', async () => {
     // Aggravate Monster doubles difficulty on this regular Dungeons-of-Doom
     // level.  Raw depth two excludes difficulty-four Twin businesses, while
     // source difficulty four includes its 31st outer-reservoir draw.
-    // Newly chosen seed 15 enters the real room path and completes the
-    // currently supported noninitial-level generation without a test seam.
-    initializeNewGame(15);
+    // Seed 11 enters the real room path and completes the currently supported
+    // noninitial-level generation without a test seam.  It replaced seed 15,
+    // whose D:2 asks makelevel()'s shop test for a shop that js/mkroom.js
+    // mkshop() stops on; both seeds make the same 31 reservoir draws, because
+    // those depend on the difficulty filter rather than on the seed.
+    initializeNewGame(11);
     game.u.uz = { dnum: 0, dlevel: 2 };
     game.u.uprops[AGGRAVATE_MONSTER].extrinsic = 1;
     assert.equal(depth(game.u.uz, game), 2);
