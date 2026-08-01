@@ -5016,6 +5016,64 @@
         }
       },
       "recordedAt": "2026-08-01T00:18:01.660Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
+        "hero": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
+        "objects": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
+        "world-effects": "9a7aef528acee7934f2c496647d2cb2f8f68b167"
+      },
+      "head": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
+      "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..0044be6b07b6224a46d9117a34fc2e9e41892d29",
+      "areas": [
+        "commands",
+        "hero",
+        "objects",
+        "world-effects"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review over 9a7aef5..0044be6, the audit-fix commit for the previous full pass, run separately because two of its fixes grew supported behavior. 8 raw, 7 deduplicated, 6 confirmed, 6 applied at 02c6e59, 0 rejected, 1 unverified. Finders: correctness, tests, variable-trace; readability dropped as light mode specifies. No production defect: two comment corrections and four assertions that did not discriminate. The unverified finding is the same VOMITING defect as confirmed finding 2 reported from the test-file side, its adjudications lost to a dead batch; the orchestrator judged it a duplicate and the applied fix closes both. Mutation over the frozen range: 7 mutants, 6 killed, 1 equivalent survivor.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1470,
+        "counts": {
+          "raw": 8,
+          "deduplicated": 7,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 1
+        },
+        "categories": {
+          "production": 0,
+          "tests": 4,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 7,
+          "survivors": 1,
+          "byKind": {
+            "logical": {
+              "ran": 6,
+              "killed": 6
+            },
+            "relational": {
+              "ran": 1,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "Six of seven mutants killed. The survivor widens u.uhs < WEAK to <= in a guard rejecting malformed input and is equivalent for every well-formed state. The test-quality and variable-trace finders found four assertions that did not discriminate, all fixed and each verified by breaking the line it covers: the artifact-only conflict mask, the VOMITING half of a changed ||, two Upolyd polymorph guards, and a top-line check placed four game turns after the transition it claimed to observe."
+        }
+      },
+      "recordedAt": "2026-08-01T01:26:24.230Z"
     }
   ]
 }
