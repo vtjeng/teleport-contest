@@ -1,9 +1,12 @@
 // Room membership bookkeeping.
-// C ref: hack.c in_rooms(), move_update(), and the state-update prefix of
-// check_special_room().  Entry messages and special-room side effects remain
-// with the future complete check_special_room() port.
+// C refs: hack.c in_rooms(), move_update(), and check_special_room() down to
+// its early return.  Entry messages and special-room side effects remain with
+// the future complete check_special_room() port.
 
 import { game } from './gstate.js';
+// js/hack.js imports this file; both sides use the other's exports only inside
+// function bodies, so the cycle resolves.
+import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import {
     COLNO,
     NO_ROOM,
@@ -166,9 +169,39 @@ export function move_update(newlev, state = game) {
     return state;
 }
 
-// The first operation in check_special_room() is always move_update().  This
-// named boundary lets new-game startup initialize room state without implying
-// that shop and special-room entry effects have already been ported.
-export function check_special_room_state(newlev, state = game) {
-    return move_update(newlev, state);
+// C ref: hack.c check_special_room() (3624-3777).  Covered here: move_update(),
+// the u_left_shop() guard at 3634, the Mine Town achievement at 3646-3652, and
+// the early return at 3654 for a hero who entered neither a room nor a shop.
+//
+// Not covered: u_entered_shop() and the entry-message switch below the return.
+// For an ordinary room the switch takes its `default` arm, which leaves
+// msg_given FALSE and rt zero and so changes nothing -- that is why the two
+// per-step callers ran through this function's prefix alone before goto_level()
+// needed the rest.  A hero entering a zoo, throne room, temple, morgue or shop
+// still diverges silently here; the special-room work owns that tail.
+//
+// do.c goto_level() calls this with newlev TRUE, the one argument for which the
+// early return is unconditional, because move_update(TRUE) has just cleared
+// both u.uentered and u.ushops_entered.
+export function check_special_room(newlev, state = game) {
+    move_update(newlev, state);
+
+    // u_left_shop() bills the hero for anything unpaid she carries out of a
+    // shop; the shop work owns it.  u.ushops0 stays empty because no level
+    // this port generates holds a shop.
+    if (roomString(roomBuffer(state.u, 'ushops0')).length) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'check_special_room() leaving a shop',
+        );
+    }
+
+    // svl.level.flags.has_town is set by the Mine Town special level alone, so
+    // no level this port generates satisfies the achievement's first term.
+    if (state.level?.flags?.has_town) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'check_special_room() on a level holding a town',
+        );
+    }
+
+    return state;
 }

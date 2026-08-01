@@ -27,6 +27,9 @@ import {
     isok,
 } from './const.js';
 import { cmap_to_type } from './mkroom.js';
+// js/stairs.js imports depth() and on_level() from this file. Both sides use
+// the other's exports only inside function bodies, so the cycle resolves.
+import { stairway_at } from './stairs.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -473,6 +476,17 @@ export function dunlev(level) {
     return level.dlevel;
 }
 
+// C ref: dungeon.c dunlevs_in_dungeon(). The deepest level number this
+// dungeon branch holds.
+export function dunlevs_in_dungeon(level, state = game) {
+    return state.dungeons[level.dnum].num_dunlevs;
+}
+
+// C ref: dungeon.c In_hell(). The Inhell macro is In_hell(&u.uz).
+export function In_hell(level, state = game) {
+    return Boolean(state.dungeons[level.dnum].flags.hellish);
+}
+
 // C ref: dungeon.c Invocation_lev(), Can_dig_down(), and Can_fall_thru().
 // Falling retains the Castle exception even when digging is blocked there.
 export function Invocation_lev(level, state = game) {
@@ -506,6 +520,37 @@ function builds_up(level, state) {
     if (!branch)
         throw new Error(`builds_up: no branch for dungeon ${level.dnum}`);
     return Boolean(branch.end1_up);
+}
+
+// C ref: dungeon.c next_level() (1496-1514), the '>' command's descent.
+//
+// goto_level() lives in js/do.js, which already imports this file; taking it as
+// an injected operation keeps the module graph acyclic. `env.gotoLevel` is
+// required rather than defaulted for that reason.
+export function next_level(at_stairs, state = game, env = {}) {
+    const gotoLevel = env.gotoLevel;
+    if (typeof gotoLevel !== 'function')
+        throw new TypeError('next_level requires a gotoLevel operation');
+    const stway = stairway_at(state.u.ux, state.u.uy, state);
+
+    if (at_stairs && stway) stway.u_traversed = true;
+
+    if (at_stairs && stway) {
+        return gotoLevel(
+            { dnum: stway.tolev.dnum, dlevel: stway.tolev.dlevel },
+            at_stairs,
+            false,
+            false,
+            state,
+        );
+    }
+    return gotoLevel(
+        { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 },
+        at_stairs,
+        !at_stairs,
+        false,
+        state,
+    );
 }
 
 function deepest_lev_reached(state) {

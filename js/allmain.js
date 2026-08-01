@@ -87,7 +87,7 @@ import {
     emitStartupA11yNotices,
 } from './startup_a11y.js';
 import { can_reach_floor, wipe_engr_at } from './engrave.js';
-import { check_special_room_state } from './rooms.js';
+import { check_special_room } from './rooms.js';
 import { mnexto } from './teleport.js';
 import {
     block_point,
@@ -186,7 +186,7 @@ export async function newgame() {
     // starting pet chooses a neighboring square.
     init_vision_globals();
     vision_reset();
-    check_special_room_state(false, g);
+    check_special_room(false, g);
     const stairOccupant = m_at(g.u.ux, g.u.uy, g);
     if (stairOccupant)
         mnexto(stairOccupant, RLOC_NOMSG, { state: g });

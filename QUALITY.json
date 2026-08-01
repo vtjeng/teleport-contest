@@ -132,6 +132,7 @@
       "id": "monsters",
       "label": "Monsters and placement",
       "paths": [
+        "js/apply_next_to_u.js",
         "js/dog.js",
         "js/dogfood.js",
         "js/dogmove.js",
@@ -156,7 +157,8 @@
         "js/steed.js",
         "js/teleport.js",
         "js/unported_monster_actions.js",
-        "js/weapon.js"
+        "js/weapon.js",
+        "js/wizard.js"
       ],
       "generatedOutputs": [
         {

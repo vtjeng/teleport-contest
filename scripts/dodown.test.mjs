@@ -1,12 +1,14 @@
-// Focused tests for do.c dodown() and the helpers it reaches: hack.c
-// u_rooted(), steed.c stucksteed(), cmd.c set_move_cmd(), and trap.c
-// uteetering_at_seen_pit() / uescaped_shaft().
+// Focused tests for do.c dodown() and goto_level()'s opening phase, plus the
+// helpers they reach: hack.c u_rooted(), steed.c stucksteed(), cmd.c
+// set_move_cmd(), and trap.c uteetering_at_seen_pit() / uescaped_shaft().
 //
-// The recorded evidence for the arm that prints is
-// scripts/run-descend-refusal.mjs, whose seven segments compare complete
-// screens, cursors and random-number calls against fresh C recordings. These
-// tests cover the guards that no recorded case can reach, each of which stops
-// rather than descending.
+// The recorded evidence is two matrices, both of which compare complete
+// screens, cursors and random-number calls against fresh C recordings:
+// scripts/run-descend-refusal.mjs for the arm that prints "You can't go down
+// here.", and scripts/run-leave-level.mjs for a hero who walks to the down
+// staircase and presses '>'. These tests cover the guards that neither
+// recording can reach, each of which stops rather than descending, and the
+// state goto_level() leaves behind when it stops.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -19,6 +21,8 @@ import {
     HOLE,
     LEVITATION,
     PIT,
+    STRAT_WAITFORU,
+    TT_BURIEDBALL,
     TT_PIT,
     VIBRATING_SQUARE,
 } from '../js/const.js';
@@ -27,10 +31,11 @@ import { UnsupportedLevelChangeError, dodown } from '../js/do.js';
 import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { m_at } from '../js/monst.js';
 import { mksobj } from '../js/obj.js';
-import { BULLWHIP, PICK_AXE } from '../js/objects.js';
+import { BOULDER, BULLWHIP, PICK_AXE } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';
-import { stairway_at } from '../js/stairs.js';
+import { stairway_add, stairway_at } from '../js/stairs.js';
 import { UnsupportedSteedError } from '../js/steed.js';
 import {
     uescaped_shaft,
@@ -176,21 +181,201 @@ test('a hero standing on the up staircase is refused, not descended',
     assert.equal(state.context.move, 0);
 });
 
-test('a down staircase or ladder stops before goto_level()', async () => {
-    // do.c:1283-1292. Turning the staircase the hero stands on into a down
-    // staircase is what separates this from the test above.
+// Put a down staircase under the hero, which is what separates a descent from
+// the refusal above. The hero starts on the level's up staircase, and
+// stairway_add() prepends, so stairway_at() answers this one; the destination
+// is the next level of the same dungeon, exactly what mklev.c gives the real
+// down staircase.
+function downStairsUnderHero(state, isladder = false, dest = null) {
+    stairway_add(state.u.ux, state.u.uy, false, isladder, dest ?? {
+        dnum: state.u.uz.dnum,
+        dlevel: state.u.uz.dlevel + 1,
+    });
+    return stairway_at(state.u.ux, state.u.uy, state);
+}
+
+async function heroOnDownStairs(moves = '>', isladder = false) {
+    const state = await descendTo(moves);
+    quiet(state);
+    downStairsUnderHero(state, isladder);
+    return state;
+}
+
+// The matrix's fifth segment starts a Ranger with a little dog; every other
+// segment sets pettype:none. Replay it, move the hero next to the pet, and put
+// a down staircase under her, which is the state keepdogs() reads.
+async function petBesideHeroOnDownStairs() {
+    await runSegment({ ...segmentFor(`l${DOWN_COMMAND}.`), moves: 'l' });
+    const state = game;
+    quiet(state);
+    const pet = state.level.monlist;
+    assert.ok(pet?.mtame, 'the fixture has a tame monster on the level');
+    state.u.ux = pet.mx + 1;
+    state.u.uy = pet.my;
+    downStairsUnderHero(state);
+    return { state, pet };
+}
+
+test('a down staircase or ladder stops at the destination choice', async () => {
+    // do.c:1288-1291 into goto_level(). Both stairs and a ladder reach
+    // next_level() the same way; ga.at_ladder reads levl[][].typ, not the
+    // stairway's own isladder flag, so both leave it FALSE here.
     for (const isladder of [false, true]) {
-        const state = await descendTo('>');
-        quiet(state);
-        const stway = stairway_at(state.u.ux, state.u.uy, state);
-        stway.up = false;
-        stway.isladder = isladder;
+        const state = await heroOnDownStairs('>', isladder);
         await assert.rejects(
             dodown(state),
             (error) => error instanceof UnsupportedLevelChangeError
-                && /descending from this square/u.test(error.message),
+                && /choosing and building the destination level/u
+                    .test(error.message),
         );
+        assert.equal(state.ga.at_ladder, false);
     }
+});
+
+test('the descent marks the staircase traversed and draws no random number',
+    async () => {
+    // dungeon.c:1503-1504 sets u_traversed, which stairs.c
+    // stairs_description() reads. Nothing between the '>' and the refusal
+    // calls rn2(), rnd() or rnl(), which is what makes this slice's fresh
+    // differential a pure prefix comparison.
+    const state = await heroOnDownStairs();
+    const stway = stairway_at(state.u.ux, state.u.uy, state);
+    assert.notEqual(stway.u_traversed, true);
+    const drawsBefore = getRngLog().length;
+
+    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+
+    assert.equal(stway.u_traversed, true);
+    assert.equal(getRngLog().length, drawsBefore);
+});
+
+test('goto_level() discards the context belonging to the level being left',
+    async () => {
+    // do.c:1601-1622. Each field is given a value the discard has to clear, so
+    // that dropping any one line leaves it set.
+    const state = await heroOnDownStairs();
+    state.xlock = { usedtime: 3, chance: 4, picktyp: 1, magic_key: true,
+        door: {}, box: null };
+    state.context.polearm = { hitmon: { m_id: 7 } };
+    state.u.utrap = 5;
+    state.u.utraptype = TT_PIT;
+    // u.ustuck itself cannot be set here, because dodown()'s own
+    // u_stuck_cannot_go() refuses a held hero first. What set_ustuck(null)
+    // still clears is the swallow pair, which nothing else on this path
+    // writes.
+    state.u.uswallow = 1;
+    state.u.uswldtim = 9;
+    state.u.uundetected = true;
+
+    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+
+    assert.deepEqual(state.xlock, {
+        usedtime: 0, chance: 0, picktyp: 0, magic_key: false,
+        door: null, box: null,
+    });
+    assert.equal(state.context.polearm.hitmon, null);
+    assert.equal(state.u.utrap, 0);
+    // set_uinwater(0) at do.c:1621 must leave the flag alone rather than set
+    // it; the hero is not in water, and switch_terrain() would fire if it did.
+    assert.equal(state.u.uinwater, false);
+    assert.equal(state.u.uswallow, 0);
+    assert.equal(state.u.uswldtim, 0);
+    assert.equal(state.u.uundetected, false);
+    // move_update(TRUE) at the head of check_special_room().
+    assert.deepEqual([...state.u.urooms], [0, 0, 0, 0, 0]);
+});
+
+test('goto_level() settles a boulder into the pit it is leaving', async () => {
+    // do.c:1619. trap.c fill_pit() drops a boulder resting over a pit once the
+    // thing pinning it leaves, and this port stops at flooreffects(). The pit
+    // and the boulder are fabricated: no generated square carries a staircase
+    // and a trap at once, so the call site has no recordable case.
+    const state = await heroOnDownStairs();
+    state.level.traps.push({ tx: state.u.ux, ty: state.u.uy, ttyp: PIT });
+    const boulder = mksobj(BOULDER, true, false, { state });
+    boulder.nexthere = null;
+    state.level.objects[state.u.ux][state.u.uy] = boulder;
+
+    await assert.rejects(
+        dodown(state),
+        (error) => /fill_pit\(\) settling a boulder/u.test(error.message),
+    );
+});
+
+test('goto_level() takes the hero out of the water she was in', async () => {
+    // do.c:1621. A hero who was swimming is no longer swimming on the level
+    // she arrives at. hack.c set_uinwater() reaches switch_terrain() only for
+    // this direction of the flag, so the ordinary descent above cannot show it.
+    const state = await heroOnDownStairs();
+    state.u.uinwater = true;
+
+    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+
+    assert.equal(state.u.uinwater, false);
+});
+
+test('goto_level() takes the pet off the level and onto gm.mydogs',
+    async () => {
+    // do.c:1624 into dog.c keepdogs():850-856. The matrix segment typing
+    // `l>.` starts a Ranger with a little dog, and the pet is beside the hero
+    // when she reaches the staircase.
+    const { state, pet } = await petBesideHeroOnDownStairs();
+    const petX = pet.mx;
+    const petY = pet.my;
+
+    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+
+    assert.equal(state.gm.mydogs, pet);
+    assert.equal(m_at(petX, petY, state), null);
+    for (let mon = state.level.monlist; mon; mon = mon.nmon)
+        assert.notEqual(mon, pet, 'the pet has left the level chain');
+    assert.equal(pet.mx, 0);
+    assert.equal(pet.my, 0);
+    assert.equal(pet.wormno, 0);
+    assert.equal(pet.mlstmv, state.moves);
+});
+
+test('a pet that has not noticed the hero stays on the level', async () => {
+    // dog.c:813, the STRAT_WAITFORU term. keep_mon_accessible() answers FALSE
+    // for an ordinary pet, so it is neither followed nor migrated: it stays on
+    // the level chain to be saved with the level.
+    const { state, pet } = await petBesideHeroOnDownStairs();
+    pet.mstrategy = (pet.mstrategy ?? 0) | STRAT_WAITFORU;
+
+    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+
+    assert.equal(state.gm?.mydogs ?? null, null);
+    assert.equal(state.level.monlist, pet, 'the pet heads the level chain');
+});
+
+test('a sleeping pet stays behind but a following one does not', async () => {
+    // dog.c:815-816, monst.h:251 helpless(). Both halves are exercised, so a
+    // port that dropped either term would take the wrong branch in one of them.
+    for (const [field, value, follows] of [
+        ['msleeping', 1, false],
+        ['mcanmove', 0, false],
+        ['msleeping', 0, true],
+    ]) {
+        const { state, pet } = await petBesideHeroOnDownStairs();
+        pet[field] = value;
+
+        await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+
+        assert.equal(Boolean(state.gm?.mydogs), follows,
+            `${field}=${value} decides whether the pet follows`);
+    }
+});
+
+test('vision_recalc(2) leaves the hero seeing nothing', async () => {
+    // do.c:1631. C's comment says the hero no longer sees anything on the
+    // level she is leaving, which is what control 2 means.
+    const state = await heroOnDownStairs();
+    assert.ok(state.viz_array.some((row) => row.some((cell) => cell)),
+        'the hero can see something before she leaves');
+
+    await assert.rejects(dodown(state), UnsupportedLevelChangeError);
+
+    assert.ok(state.viz_array.every((row) => row.every((cell) => !cell)));
 });
 
 test('a levitating hero stops before the levitation arm', async () => {
@@ -422,4 +607,153 @@ test('autodig with a wielded pick stops before use_pick_axe2()', async () => {
         assert.equal(await dodown(other), ECMD_OK);
         assert.equal(toplines(other), REFUSAL);
     }
+});
+
+// goto_level()'s guards at do.c:1501-1581. Each needs a dungeon state D:1
+// cannot reach, so each fabricates it on the live game and then descends. The
+// destination-choice refusal is the "nothing stopped earlier" answer.
+const DESTINATION_REFUSAL = /choosing and building the destination level/u;
+
+test('goto_level returns without a refusal when the destination is this level',
+    async () => {
+    // do.c:1583, "this can happen". A staircase whose destination is the level
+    // the hero is already on ends the command with a spent turn and no throw.
+    const state = await descendTo('>');
+    quiet(state);
+    downStairsUnderHero(state, false, { ...state.u.uz });
+
+    assert.equal(await dodown(state), ECMD_TIME);
+    // do.c:1291 clears ga.at_ladder once next_level() returns. This is the one
+    // case in which it does return, so it is the only place the clear shows.
+    assert.equal(state.ga.at_ladder, false);
+});
+
+test('goto_level stops when the destination leaves the dungeon', async () => {
+    // do.c:1518-1519, done(ESCAPED). ledger_no() of dlevel 0 in the first
+    // dungeon is 0, which is the only ledger a descent can produce here.
+    const state = await descendTo('>');
+    quiet(state);
+    downStairsUnderHero(state, false, { dnum: state.u.uz.dnum, dlevel: 0 });
+
+    await assert.rejects(
+        dodown(state),
+        (error) => /escaping the dungeon/u.test(error.message),
+    );
+});
+
+test('goto_level stops for the endgame and for either tutorial arm',
+    async () => {
+    // do.c:1504-1514. All three sit behind `newdungeon`, so each case sends
+    // the hero to dungeon 1 and changes which of the three tests answers TRUE.
+    const cases = [
+        ['astral_level', { dnum: 1, dlevel: 1 }],
+        ['tutorial_dnum', 1], /* entering the tutorial */
+        ['tutorial_dnum', 0], /* leaving it: the hero's own dungeon */
+    ];
+    for (const [field, value] of cases) {
+        const state = await descendTo('>');
+        quiet(state);
+        state[field] = value;
+        downStairsUnderHero(state, false, { dnum: 1, dlevel: 1 });
+
+        await assert.rejects(
+            dodown(state),
+            (error) => /endgame or the tutorial/u.test(error.message),
+            `${field}=${JSON.stringify(value)} stops`,
+        );
+    }
+});
+
+// Put the hero deep in a hellish dungeon carrying the Amulet, which is what
+// do.c:1541's mysterious force needs. `dlevel` and `num_dunlevs` are chosen
+// per case; the guard reads both.
+function inGehennom(state, { dlevel, num_dunlevs, amulet = true }) {
+    state.dungeons[state.u.uz.dnum].flags.hellish = true;
+    state.dungeons[state.u.uz.dnum].num_dunlevs = num_dunlevs;
+    state.u.uz.dlevel = dlevel;
+    state.u.uhave.amulet = amulet;
+}
+
+test('the mysterious force stops a climb but leaves every other case alone',
+    async () => {
+    // do.c:1541-1542. Each case below turns exactly one term of the guard off
+    // and must reach the destination choice instead.
+    const climbing = await descendTo('>');
+    quiet(climbing);
+    inGehennom(climbing, { dlevel: 5, num_dunlevs: 29 });
+    downStairsUnderHero(climbing, false,
+        { dnum: climbing.u.uz.dnum, dlevel: 4 });
+    await assert.rejects(
+        dodown(climbing),
+        (error) => /mysterious force/u.test(error.message),
+    );
+
+    const cases = [
+        // Descending rather than climbing: `up` is FALSE.
+        [{ dlevel: 5, num_dunlevs: 29 }, 6],
+        // Without the Amulet the force has nothing to hold back.
+        [{ dlevel: 5, num_dunlevs: 29, amulet: false }, 4],
+        // Within three levels of the bottom, dunlev is not less than
+        // dunlevs_in_dungeon - 3.
+        [{ dlevel: 5, num_dunlevs: 8 }, 4],
+        // The same level, where `up` compares two equal depths.
+        [{ dlevel: 5, num_dunlevs: 29 }, 5],
+    ];
+    for (const [setup, dlevel] of cases) {
+        const state = await descendTo('>');
+        quiet(state);
+        inGehennom(state, setup);
+        downStairsUnderHero(state, false,
+            { dnum: state.u.uz.dnum, dlevel });
+        const reached = await dodown(state).then(
+            () => 'returned',
+            (error) => error.message,
+        );
+        assert.ok(
+            reached === 'returned' || DESTINATION_REFUSAL.test(reached),
+            `${JSON.stringify(setup)} -> D:${dlevel} met no force, got `
+            + reached,
+        );
+    }
+});
+
+test('goto_level stops on the first quest level', async () => {
+    // do.c:1578-1581. quest.c ok_to_quest() decides whether the leader has
+    // let the hero pass, and is unported.
+    const state = await descendTo('>');
+    quiet(state);
+    state.qstart_level = { ...state.u.uz };
+    downStairsUnderHero(state);
+
+    await assert.rejects(
+        dodown(state),
+        (error) => /first quest level/u.test(error.message),
+    );
+});
+
+test('goto_level stops for a hero tethered to a buried ball', async () => {
+    // do.c:1593-1595. buried_ball_to_punishment() is unported.
+    const state = await descendTo('>');
+    quiet(state);
+    state.u.utrap = 3;
+    state.u.utraptype = TT_BURIEDBALL;
+    downStairsUnderHero(state);
+
+    await assert.rejects(
+        dodown(state),
+        (error) => /tethered to a buried ball/u.test(error.message),
+    );
+});
+
+test('goto_level stops for a punished hero', async () => {
+    // do.c:1616-1617, ball.c unplacebc(). Punished is (u.uball != 0).
+    const state = await descendTo('>');
+    quiet(state);
+    state.u.uball = { otyp: 0 };
+    downStairsUnderHero(state);
+
+    await assert.rejects(
+        dodown(state),
+        (error) => /punished hero/u.test(error.message),
+    );
 });

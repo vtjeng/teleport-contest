@@ -46,6 +46,8 @@ import * as M from './monsters.js';
 import { ALCHEMY_SMOCK } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { roles } from './roles.js';
+import { is_fshk } from './shk.js';
+import { mon_has_amulet } from './wizard.js';
 
 function hasAttackType(species, attackType) {
     return Boolean(species?.mattk?.some(
@@ -1082,9 +1084,20 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //   can_blow, can_chant, can_be_strangled
 //                           their hero branches read Strangled and Breathless,
 //                           which the port does not model yet
-//   levl_follower           needs mon_has_amulet() and is_fshk()
 //   can_track               needs u_wield_art()
 //   name_to_monclass        needs def_monsyms[], makesingular(), strstri()
+
+// C ref: mondata.c levl_follower() (1209-1226). Answers whether a monster
+// beside the hero accompanies her to the next level; dog.c keepdogs() reads it
+// once per monster on the leaving level.
+export function levl_follower(mtmp, state = game) {
+    if (mtmp === state.u.usteed) return true;
+
+    if (mtmp.iswiz && mon_has_amulet(mtmp)) return false;
+    if (mtmp.mtame || mtmp.iswiz || is_fshk(mtmp)) return true;
+    return Boolean((mtmp.data.mflags2 & M.M2_STALK)
+        && (!mtmp.mflee || state.u.uhave?.amulet));
+}
 
 // C ref: mondata.h monsndx().
 export function monsndx(species) { return species?.pmidx; }

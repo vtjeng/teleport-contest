@@ -137,7 +137,7 @@ import { can_fog, closed_door, onscary, youHear } from './monmove.js';
 import { check_here } from './pickup.js';
 import { in_out_region, inside_region } from './region.js';
 import { rn2, rnd } from './rng.js';
-import { check_special_room_state } from './rooms.js';
+import { check_special_room } from './rooms.js';
 import {
     canSpotMonster,
     collectMonsterNoticeMessages,
@@ -1807,6 +1807,19 @@ export function switch_terrain(state = game) {
     if (state.flags?.terrainstatus) classify_terrain(state);
 }
 
+// C ref: hack.c set_uinwater() (3220-3227), the single owner of u.uinwater.
+// The switch_terrain() call fires only when the flag actually changes, so
+// do.c goto_level()'s set_uinwater(0) for a hero who is not in water is inert.
+// js/u_init.js stores u.uinwater as a boolean where C stores a one-bit field,
+// so compare and assign booleans here rather than C's 0 and 1.
+export function set_uinwater(in_out, state = game) {
+    const value = Boolean(in_out);
+    if (value !== Boolean(state.u.uinwater)) {
+        state.u.uinwater = value;
+        switch_terrain(state);
+    }
+}
+
 // C ref: hack.c spoteffects():3345-3347, the terrain test that guards
 // switch_terrain(). teleport.c teleds():551-552 has a test of its own with the
 // same call, so this one is written where spoteffects() has it rather than
@@ -1833,7 +1846,7 @@ export function terrain_changed_under_hero(state = game) {
 // and then lets float_down() run pickup(1) exactly once.
 export async function spoteffects(pick, state = game) {
     if (terrain_changed_under_hero(state)) switch_terrain(state);
-    check_special_room_state(false, state);
+    check_special_room(false, state);
     if (!state.in_steed_dismounting) {
         // C ref: pickup(1) -> check_here(). pickup()'s own arms need
         // describe_decor(), read_engr_at() and autopickup, all of which

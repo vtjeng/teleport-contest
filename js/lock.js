@@ -12,6 +12,7 @@ import {
     D_NODOOR,
     ECMD_OK,
     ECMD_TIME,
+    OBJ_INVENT,
 } from './const.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
 import { feel_newsym, newsym } from './display.js';
@@ -21,6 +22,45 @@ import { rn2, rnl } from './rng.js';
 import { messageAt } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point } from './vision.js';
+
+// C's gx.xlock, the lock-picking occupation's context. js/invent.js obfree()
+// already reads it to decide whether deleting a container invalidates the
+// occupation; this is its single owner, and reset_pick() below is the only
+// writer, because lock.c pick_lock() and doforce() are unported.
+function xlockContext(state) {
+    state.xlock ??= {
+        usedtime: 0,
+        chance: 0,
+        picktyp: 0,
+        magic_key: false,
+        door: null,
+        box: null,
+    };
+    return state.xlock;
+}
+
+// C ref: lock.c reset_pick() (258-266).
+export function reset_pick(state = game) {
+    const xlock = xlockContext(state);
+    xlock.usedtime = 0;
+    xlock.chance = 0;
+    xlock.picktyp = 0;
+    xlock.magic_key = false;
+    xlock.door = null;
+    xlock.box = null;
+}
+
+// C ref: lock.c maybe_reset_pick() (268-285). obfree() passes the container
+// being deleted; do.c goto_level() passes null, which keeps the context only
+// when the box the hero was picking is carried and so travels with her.
+export function maybe_reset_pick(container, state = game) {
+    const xlock = xlockContext(state);
+    if (container
+        ? container === xlock.box
+        // obj.h:332 carried().
+        : (!xlock.box || xlock.box.where !== OBJ_INVENT))
+        reset_pick(state);
+}
 
 // struct rm's shared door mask has two spellings in this port; js/mklev.js
 // writes an ordinary dungeon door's to `flags` and the special-level paths

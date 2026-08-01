@@ -201,6 +201,20 @@ function monsterOnMap(monster) {
     return !mon_offmap(monster);
 }
 
+// C ref: mon.c get_iter_mons(). Walks this level's monsters and answers the
+// first one `bfunc` accepts, or null. C caches each monster's `nmon` before
+// calling `bfunc` so that a predicate which removes the monster from the chain
+// still leaves the walk somewhere valid.
+export function get_iter_mons(bfunc, state = game) {
+    let next = null;
+    for (let mtmp = state.level?.monlist ?? null; mtmp; mtmp = next) {
+        next = mtmp.nmon;
+        if (mtmp.mhp < 1 /* DEADMONSTER() */ || mon_offmap(mtmp)) continue;
+        if (bfunc(mtmp)) return mtmp;
+    }
+    return null;
+}
+
 // C ref: mon.c set_ustuck() (3421-3434). The sanity-check impossible() at the
 // top runs only under iflags.sanity_check or the debug fuzzer, neither of
 // which this port models. Clearing the holder clears the swallow state with

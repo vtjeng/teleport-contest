@@ -1,5 +1,6 @@
 // Shop queries and remembered price quotes.
-// C ref: shk.c inhishop() and append_price_quote().
+// C refs: shk.c inhishop(), is_fshk(), append_price_quote(), contained_gold()
+// and costly_spot().
 
 import { BUFSZ, SHOPBASE } from './const.js';
 import { on_level } from './dungeon.js';
@@ -19,6 +20,14 @@ export function inhishop(shopkeeper, state) {
             SHOPBASE,
             state,
         ).includes(extension.shoproom));
+}
+
+// C ref: shk.c is_fshk() (5010-5015), which exists for mondata.c
+// levl_follower(). `following` is set when a shopkeeper chases a debtor off
+// the level; js/shknam.js never sets it, so this answers FALSE for every
+// shopkeeper the port creates.
+export function is_fshk(monster) {
+    return Boolean(monster.isshk && monster.mextra?.eshk?.following);
 }
 
 // C ref: shk.c append_price_quote(). C writes into the caller's buffer and

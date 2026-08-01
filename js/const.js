@@ -2884,6 +2884,10 @@ export function ismnum(pm) {
 export function In_quest(uz) { return (uz ?? game?.u?.uz)?.dnum === game?.quest_dnum; }
 export function In_endgame(uz) { const lev = uz ?? game?.u?.uz; const al = game?.astral_level; return !!lev && !!al && lev.dnum === al.dnum; }
 export function Is_astralevel(uz) { return In_endgame(uz) && (uz ?? game?.u?.uz)?.dlevel === 1; }
+// dungeon.h:142. C's tutorial_dnum is always a valid dungeon number; this port
+// leaves game.tutorial_dnum undefined when the topology holds no tutorial, so
+// the integer test keeps an undefined dnum from matching an undefined dnum.
+export function In_tutorial(uz) { const lev = uz ?? game?.u?.uz; return !!lev && Number.isInteger(game?.tutorial_dnum) && lev.dnum === game.tutorial_dnum; }
 export function Is_waterlevel(uz) { const lev = uz ?? game?.u?.uz; const wl = game?.water_level; return !!lev && !!wl && lev.dnum === wl.dnum && lev.dlevel === wl.dlevel; }
 export function Is_firelevel(uz) { const lev = uz ?? game?.u?.uz; const fl = game?.fire_level; return !!lev && !!fl && lev.dnum === fl.dnum && lev.dlevel === fl.dlevel; }
 export function Is_earthlevel(uz) { const lev = uz ?? game?.u?.uz; const el = game?.earth_level; return !!lev && !!el && lev.dnum === el.dnum && lev.dlevel === el.dlevel; }
