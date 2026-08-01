@@ -1,17 +1,26 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { W_AMUL, W_ARMH } from '../js/const.js';
+import {
+    I_SPECIAL,
+    OBJ_FREE,
+    OBJ_MINVENT,
+    W_AMUL,
+    W_ARM,
+    W_ARMH,
+    W_WEP,
+} from '../js/const.js';
 import { newMonster } from '../js/monst.js';
 import { PM_KITTEN, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
     AMULET_OF_GUARDING,
+    GOLD_DRAGON_SCALE_MAIL,
     ORCISH_HELM,
     objects_globals_init,
 } from '../js/objects.js';
-import { find_mac } from '../js/worn.js';
+import { extract_from_minvent, find_mac } from '../js/worn.js';
 
 // A kitten is monsters.h:381-388, `LVL(2, 18, 6, 0, 0)`, so its base armor
 // class is 6. An orcish helm is objects.h:448, whose HELM `ac` argument is 9
@@ -144,3 +153,148 @@ test('find_mac caps the result at AC_MAX', () => {
     });
     assert.equal(find_mac(cursed, state), 99);
 });
+
+// ── worn.c extract_from_minvent() ──
+
+// A hit point count that DEADMONSTER() rejects and one it accepts. C's macro
+// is `mhp < 1`, so 1 is the lowest living value and 0 the highest dead one.
+const ALIVE_HP = 1;
+const DEAD_HP = 0;
+
+// Build a monster carrying `held` in minvent, plus a recorder for each hook
+// extract_from_minvent() can reach.
+function carrier(state, held, overrides = {}) {
+    const mon = kitten(state, { mhp: ALIVE_HP, minvent: held, ...overrides });
+    held.where = OBJ_MINVENT;
+    held.ocarry = mon;
+    const calls = { updateMonExtrinsics: [], mwepgone: [], endArtifactLight: [] };
+    const env = {
+        state,
+        hooks: {
+            updateMonExtrinsics: (...args) => {
+                calls.updateMonExtrinsics.push(args.slice(0, 4));
+            },
+            mwepgone: (subject) => { calls.mwepgone.push(subject); },
+            endArtifactLight: (obj) => { calls.endArtifactLight.push(obj); },
+        },
+    };
+    return { mon, env, calls };
+}
+
+test('extract_from_minvent frees an unequipped object and leaves gear alone',
+    () => {
+        const state = catalogState();
+        // owornmask 0 is the only case steal.c mdrop_obj() reaches: it refuses
+        // an equipped object before calling this.
+        const held = wornObject(state, ORCISH_HELM, 0);
+        const { mon, env, calls } = carrier(state, held, {
+            misc_worn_check: W_AMUL,
+        });
+
+        extract_from_minvent(mon, held, false, true, env);
+
+        assert.equal(mon.minvent, null);
+        assert.equal(held.where, OBJ_FREE);
+        assert.equal(held.ocarry, null);
+        assert.equal(held.owornmask, 0);
+        // worn.c:1409-1413 sits behind `if (unwornmask)`, so an unequipped
+        // object neither clears a slot nor schedules the gear recheck.
+        assert.equal(mon.misc_worn_check, W_AMUL);
+        assert.deepEqual(calls.updateMonExtrinsics, []);
+        assert.deepEqual(calls.mwepgone, []);
+        assert.deepEqual(calls.endArtifactLight, []);
+    });
+
+test('extract_from_minvent clears an equipped slot and reschedules gear',
+    () => {
+        const state = catalogState();
+        const held = wornObject(state, ORCISH_HELM, W_ARMH);
+        const { mon, env, calls } = carrier(state, held, {
+            misc_worn_check: W_ARMH | W_AMUL,
+        });
+
+        // worn.c:1411 clears only the bits the object itself wore; the amulet
+        // slot survives. worn.c:1414 then sets I_SPECIAL.
+        extract_from_minvent(mon, held, true, true, env);
+
+        assert.equal(held.owornmask, 0);
+        assert.equal(mon.misc_worn_check, W_AMUL | I_SPECIAL);
+        // worn.c:1410 passes on=FALSE and the caller's own `silently`.
+        assert.deepEqual(
+            calls.updateMonExtrinsics,
+            [[mon, held, false, true]],
+        );
+        assert.deepEqual(calls.mwepgone, []);
+    });
+
+test('extract_from_minvent skips update_mon_extrinsics on two conditions',
+    () => {
+        const state = catalogState();
+        // steal.c mdrop_obj() passes do_extrinsics=FALSE precisely so that
+        // removing a steed's saddle cannot throw its rider before the drop.
+        const deferred = catalogState();
+        const saddleLike = wornObject(deferred, ORCISH_HELM, W_ARMH);
+        const withoutExtrinsics = carrier(deferred, saddleLike, {
+            misc_worn_check: W_ARMH,
+        });
+        extract_from_minvent(
+            withoutExtrinsics.mon, saddleLike, false, true, withoutExtrinsics.env,
+        );
+        assert.deepEqual(withoutExtrinsics.calls.updateMonExtrinsics, []);
+        // The rest of the equipped arm still runs.
+        assert.equal(withoutExtrinsics.mon.misc_worn_check, I_SPECIAL);
+
+        // worn.c:1409's other term is !DEADMONSTER(mon), which is `mhp < 1`.
+        const held = wornObject(state, ORCISH_HELM, W_ARMH);
+        const dead = carrier(state, held, {
+            mhp: DEAD_HP,
+            misc_worn_check: W_ARMH,
+        });
+        extract_from_minvent(dead.mon, held, true, true, dead.env);
+        assert.deepEqual(dead.calls.updateMonExtrinsics, []);
+        assert.equal(dead.mon.misc_worn_check, I_SPECIAL);
+    });
+
+test('extract_from_minvent unwields a weapon and ends an armor artifact light',
+    () => {
+        const state = catalogState();
+        // worn.c:1415 is a bit test on W_WEP alone, so a monster wielding and
+        // wearing the same mask value still gets exactly one mwepgone().
+        const wielded = wornObject(state, ORCISH_HELM, W_WEP);
+        const weapon = carrier(state, wielded, { misc_worn_check: W_WEP });
+        extract_from_minvent(weapon.mon, wielded, false, true, weapon.env);
+        assert.deepEqual(weapon.calls.mwepgone, [weapon.mon]);
+
+        // worn.c:1401-1402 runs before owornmask is cleared, because
+        // artifact_light() expects W_ARM to still be set. Gold dragon scale
+        // mail is artifact_light()'s non-artifact case.
+        const lit = catalogState();
+        const scales = wornObject(lit, GOLD_DRAGON_SCALE_MAIL, W_ARM, {
+            lamplit: true,
+        });
+        const burning = carrier(lit, scales, { misc_worn_check: W_ARM });
+        extract_from_minvent(burning.mon, scales, false, true, burning.env);
+        assert.deepEqual(burning.calls.endArtifactLight, [scales]);
+        assert.deepEqual(burning.calls.mwepgone, []);
+
+        // The same armor unlit takes no end_burn().
+        const dark = catalogState();
+        const cold = wornObject(dark, GOLD_DRAGON_SCALE_MAIL, W_ARM);
+        const quiet = carrier(dark, cold, { misc_worn_check: W_ARM });
+        extract_from_minvent(quiet.mon, cold, false, true, quiet.env);
+        assert.deepEqual(quiet.calls.endArtifactLight, []);
+    });
+
+test('extract_from_minvent rejects an object outside a monster inventory',
+    () => {
+        const state = catalogState();
+        const held = wornObject(state, ORCISH_HELM, 0);
+        const { mon, env } = carrier(state, held);
+        // C reports impossible() and returns; the port has no caller that can
+        // arrive this way, so it stops.
+        held.where = OBJ_FREE;
+        assert.throws(
+            () => extract_from_minvent(mon, held, false, true, env),
+            /not in minvent/u,
+        );
+    });

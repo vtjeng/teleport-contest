@@ -1,5 +1,5 @@
-// Monster pickup and theft transfer primitives.
-// C ref: src/steal.c mpickobj().
+// Monster pickup, theft and release transfer primitives.
+// C refs: src/steal.c mpickobj(), mdrop_obj() and relobj().
 
 import {
     BLINDED,
@@ -8,19 +8,31 @@ import {
     LOST_STOLEN,
     LOST_THROWN,
 } from './const.js';
+import { newsym } from './display.js';
+import { flooreffects } from './do.js';
+import { capitalizedMonsterName } from './do_name.js';
+import { droppables } from './dogmove.js';
 import { game } from './gstate.js';
 import {
     add_to_minv,
     carry_obj_effects,
     count_unpaid,
     preflight_carry_obj_effects,
+    stackobj,
 } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { attacktype, dead_species } from './mondata.js';
 import { AT_ENGL } from './monsters.js';
-import { unknow_object } from './obj.js';
-import { canSeeMonster as canSeeMonsterOnMap } from './startup_a11y.js';
+import { place_object, unknow_object } from './obj.js';
+import { distant_name, donameFresh } from './objnam.js';
+import {
+    canSeeMonster as canSeeMonsterOnMap,
+    messageAt,
+} from './startup_a11y.js';
 import { attach_fig_transform_timeout } from './timeout.js';
+import { ttyPline } from './tty_message.js';
+import { cansee } from './vision.js';
+import { extract_from_minvent } from './worn.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -189,4 +201,103 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
     if (plan.snuff)
         plan.snuffLightSource(monster.mx, monster.my, env);
     return freed;
+}
+
+function dropEnv(rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (typeof rawEnv.unsupported !== 'function') {
+        throw new TypeError(
+            'monster object release requires an unsupported operation',
+        );
+    }
+    return { ...rawEnv, state };
+}
+
+// C ref: steal.c mdrop_obj() (812-846). Drop one object taken from a
+// (possibly dead) monster's inventory onto the square the monster stands on.
+//
+// Two arms need an object the monster still has equipped: the saddle's
+// `no_charge` exemption, and the trailing update_mon_extrinsics(), which C
+// defers until after the drop precisely because removing a steed's saddle can
+// kill its rider. Neither is ported, so an equipped object stops up front and
+// both arms are unreachable below.
+export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
+    const env = dropEnv(rawEnv);
+    const { state, unsupported } = env;
+    const message = env.message ?? ttyPline;
+    const omx = mon.mx;
+    const omy = mon.my;
+
+    if (obj.owornmask)
+        unsupported('a monster dropping an object it has equipped');
+    // invent.c stackobj() merges the dropped object into an older pile member,
+    // which changes both objects and turns the survivor into a pile top.
+    if (state.level?.objects?.[omx]?.[omy])
+        unsupported('a monster dropping onto a square that holds an object');
+
+    // call distant_name() for its possible side-effects even if the result
+    // might not be printed, and do it before extracting obj from minvent
+    const objName = distant_name(obj, donameFresh, state);
+
+    // C's own arguments: do_extrinsics FALSE so that removing a steed's saddle
+    // cannot throw its rider before the object reaches the floor, and silently
+    // TRUE for the update_mon_extrinsics() call that FALSE just suppressed.
+    // Both are read only inside extract_from_minvent()'s `if (unwornmask)`
+    // block, which the equipped-object refusal above puts out of reach, so no
+    // test through this function can tell either literal from its opposite.
+    // scripts/worn.test.mjs drives both directly instead.
+    extract_from_minvent(mon, obj, false, true, env);
+    // obj_no_longer_held(obj); -- done by place_object
+    if (verbosely && cansee(omx, omy, state)) {
+        await message(
+            messageAt(
+                `${capitalizedMonsterName(mon, state)} drops ${objName}.`,
+                omx,
+                omy,
+                state,
+            ),
+            state,
+        );
+    }
+    if (!flooreffects(obj, omx, omy, 'fall', env)) {
+        place_object(obj, omx, omy, env);
+        stackobj(obj, env);
+    }
+}
+
+// C ref: steal.c relobj() (873-899). Release the objects a creature carries.
+// `show` redraws the square afterwards; `is_pet` restricts the release to what
+// droppables() offers, which is what keeps a pet's wielded weapon and its one
+// useful tool in its inventory.
+//
+// C's vault-guard arm is gated on `isgd && findgold(minvent)`. findgold() is
+// not ported, so the whole arm stops on `isgd` alone.
+export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
+    const env = dropEnv(rawEnv);
+    const { state, unsupported } = env;
+    // dog_move() normalizes droppables() into its own environment, so taking
+    // it from there keeps this loop and dog_invent()'s gate on one selector.
+    const findDroppable = env.droppables ?? droppables;
+    const redraw = env.redraw ?? newsym;
+    const omx = mtmp.mx;
+    const omy = mtmp.my;
+
+    if (mtmp.isgd) unsupported("a vault guard's gold vanishing");
+
+    let released = 0;
+    for (;;) {
+        const otmp = is_pet ? findDroppable(mtmp, env) : mtmp.minvent;
+        if (!otmp) break;
+        if (released)
+            unsupported('a monster releasing more than one object');
+        await mdrop_obj(
+            mtmp,
+            otmp,
+            Boolean(is_pet && state.flags?.verbose),
+            env,
+        );
+        released += 1;
+    }
+
+    if (show && cansee(omx, omy, state)) redraw(omx, omy, state);
 }

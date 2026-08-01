@@ -1,21 +1,25 @@
 // do.js -- Commands that drop, dig into, or descend through the floor.
-// C refs: do.c -- u_stuck_cannot_go(), dodown(), goto_level(), u_collide_m()
-// and temperature_change_msg(); dokick.c obj_delivery(); mon.c
+// C refs: do.c -- flooreffects(), u_stuck_cannot_go(), dodown(), goto_level(),
+// u_collide_m() and temperature_change_msg(); dokick.c obj_delivery(); mon.c
 // kill_genocided_monsters(); questpgr.c deliver_splev_message().
 
 import {
+    CORR,
     DIR_DOWN,
     ECMD_OK,
     ECMD_TIME,
     FLYING,
     FUMBLING,
     G_GENOD,
+    IS_ALTAR,
     In_endgame,
     In_quest,
     In_tutorial,
     LADDER,
     LEVITATION,
     LFILE_EXISTS,
+    OBJ_FREE,
+    ROOM,
     RLOC_NOMSG,
     TT_BURIEDBALL,
     UNENCUMBERED,
@@ -62,6 +66,7 @@ import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { PM_TOURIST } from './monsters.js';
 import { is_pick } from './obj.js';
+import { BOULDER, POTION_CLASS } from './objects.js';
 import { pickup } from './pickup.js';
 import { in_out_region } from './region.js';
 import { rn2 } from './rng.js';
@@ -77,13 +82,15 @@ import { enexto, mnexto } from './teleport.js';
 import { run_timers } from './timeout.js';
 import {
     fill_pit,
+    is_lava,
+    is_pool,
     reset_utrap,
     t_at,
     uescaped_shaft,
     uteetering_at_seen_pit,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { vision_recalc, vision_reset } from './vision.js';
+import { cansee, vision_recalc, vision_reset } from './vision.js';
 
 // A level change this port has not reached. do.c goto_level() rewrites the
 // hero's dungeon level and everything on it; nothing in the port does any of
@@ -110,6 +117,63 @@ function heroPropertyActive(hero, index) {
 // C ref: you.h next2u(), which is `distu(px, py) <= 2`.
 function next2u(x, y, state) {
     return dist2(x, y, state.u.ux, state.u.uy) <= 2;
+}
+
+// C ref: do.c flooreffects() (161-357). Answers whether an object landing on
+// <x,y> is consumed there, and runs whatever the landing does to the square.
+//
+// Only the answer for an ordinary square is ported: FALSE, with nothing
+// written and nothing drawn. Every arm that would destroy, damage, move, merge
+// or announce the object stops through the caller's `unsupported` operation
+// instead, named for the square or object that reached it. The arms are tested
+// in C's order, because C's own chain is an if/else-if ladder and an earlier
+// arm hides a later one.
+//
+// C's gb.bhitpos save, set and restore is not modelled. Only erode_obj(),
+// reached from the water and lava arms, reads it, and both of those arms stop;
+// C restores the saved value on every return, so the pair is invisible to a
+// caller that reaches the end.
+//
+// `verb` is unread while every arm that prints stops. It is kept so a call
+// site reads like its C counterpart, and so the message arms can use it
+// unchanged when they are ported.
+export function flooreffects(obj, x, y, verb, env = {}) {
+    const state = env.state ?? game;
+    const unsupported = env.unsupported;
+    if (typeof unsupported !== 'function')
+        throw new TypeError('flooreffects requires an unsupported operation');
+    if (obj.where !== OBJ_FREE)
+        throw new Error('flooreffects: obj not free');
+
+    // C's own first statement after the panic: water_damage() and its kin walk
+    // whatever these point at, so they are cleared before any arm runs.
+    obj.nobj = null;
+    obj.nexthere = null;
+
+    const location = state.level?.at(x, y);
+    const trap = t_at(x, y, state);
+    // boulder_hits_pool() decides the first arm and is not ported, so a
+    // boulder cannot be told apart from one that lands on ordinary ground.
+    if (obj.otyp === BOULDER)
+        unsupported(`a boulder landing at <${x},${y}>`);
+    if (is_lava(x, y, state)) unsupported('an object landing on lava');
+    if (is_pool(x, y, state)) unsupported('an object landing in water');
+    if (state.u?.ux === x && state.u?.uy === y && trap
+        && (uteetering_at_seen_pit(trap, state)
+            || uescaped_shaft(trap, state))) {
+        unsupported('an object landing in the pit or shaft the hero is in');
+    }
+    if (obj.globby) unsupported('a glob landing on the floor');
+    if (state.context?.mon_moving && IS_ALTAR(location?.typ)
+        && cansee(x, y, state)) {
+        unsupported('an object landing on an altar while a monster moves');
+    }
+    if (obj.oclass === POTION_CLASS
+        && Math.trunc(state.level?.flags?.temperature ?? 0) > 0
+        && (location?.typ === ROOM || location?.typ === CORR)) {
+        unsupported('a potion landing on the hot ground of a hot level');
+    }
+    return false;
 }
 
 // C ref: do.c u_stuck_cannot_go() (1109-1128). Its release arm calls

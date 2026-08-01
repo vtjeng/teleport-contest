@@ -1,6 +1,7 @@
-// Hero worn-object and weapon-slot primitives.
+// Hero worn-object and weapon-slot primitives, plus the monster-inventory
+// extraction that shares them.
 // C refs: src/worn.c setworn(), setnotworn(), recalc_telepat_range(),
-//         find_mac();
+//         find_mac(), extract_from_minvent();
 //         src/wield.c setuwep(), setuswapwep(), and setuqwep().
 
 import {
@@ -9,6 +10,7 @@ import {
     BOLT_LIM,
     CLAIRVOYANT,
     INVIS,
+    OBJ_MINVENT,
     P_BOW,
     P_BOOMERANG,
     P_CROSSBOW,
@@ -42,9 +44,15 @@ import {
     ART_SUNSWORD,
 } from './artifacts.js';
 import { game } from './gstate.js';
-import { update_inventory } from './invent.js';
+import { obj_extract_self, update_inventory } from './invent.js';
+import { check_gear_next_turn } from './mon.js';
 import { PM_WIZARD } from './monsters.js';
-import { ARM_BONUS, isWeptool, objectType } from './obj.js';
+import {
+    ARM_BONUS,
+    isWeptool,
+    obj_no_longer_held,
+    objectType,
+} from './obj.js';
 import {
     AMULET_OF_GUARDING,
     CORNUTHAUM,
@@ -99,6 +107,11 @@ function property(state, index) {
 //   setArtifactIntrinsic(obj, on, mask, env) -> set_artifact_intrinsic().
 //   endArtifactLight(obj, env) -> end_burn(obj, FALSE), including the visible
 //     "stop shining" message when the hero is not blind.
+//   updateMonExtrinsics(mon, obj, on, silently, env) ->
+//     update_mon_extrinsics(), which extract_from_minvent() reaches only for
+//     an object the monster still has equipped.
+//   mwepgone(mon, env) -> weapon.c mwepgone(), the wield reset the same
+//     equipped-object arm performs for W_WEP.
 function requiredHook(env, name, obj) {
     const hook = env.hooks[name];
     if (typeof hook !== 'function') {
@@ -309,6 +322,52 @@ export function setnotworn(obj, env = {}) {
     update_inventory(normalized);
     recalc_telepat_range(state, normalized.hooks);
     return obj;
+}
+
+// C ref: worn.c extract_from_minvent() (1376-1416). Take obj out of a
+// monster's inventory and undo whatever equipped state it still carries.
+// `do_extrinsics` selects update_mon_extrinsics(); `silently` is only that
+// call's message flag, which is why steal.c mdrop_obj() can pass FALSE for the
+// first and TRUE for the second and defer the extrinsics to after the drop.
+export function extract_from_minvent(
+    mon,
+    obj,
+    do_extrinsics,
+    silently,
+    env = {},
+) {
+    const normalized = wornEnv(env);
+    const unwornmask = obj.owornmask ?? 0;
+
+    // C reports impossible() and returns; the port has no caller that can
+    // legitimately arrive with a non-minvent object, so this stops instead.
+    if (obj.where !== OBJ_MINVENT) {
+        throw new Error(
+            'extract_from_minvent called on object not in minvent',
+        );
+    }
+    if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifactLight(obj))
+        requiredHook(normalized, 'endArtifactLight', obj)(obj, normalized);
+
+    obj_extract_self(obj, normalized);
+    obj.owornmask = 0;
+    if (unwornmask) {
+        if (!(mon.mhp < 1) /* !DEADMONSTER() */ && do_extrinsics) {
+            requiredHook(normalized, 'updateMonExtrinsics', obj)(
+                mon,
+                obj,
+                false,
+                silently,
+                normalized,
+            );
+        }
+        mon.misc_worn_check &= ~unwornmask;
+        // give monster a chance to wear other equipment on its next move
+        check_gear_next_turn(mon);
+    }
+    obj_no_longer_held(obj, normalized);
+    if (unwornmask & W_WEP)
+        requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
 }
 
 export function is_ammo(obj, state = game) {

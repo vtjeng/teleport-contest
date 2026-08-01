@@ -27,14 +27,9 @@ import {
     ROOM,
     STAIRS,
     STRAT_CLOSE,
-    W_SADDLE,
 } from './const.js';
 import { newsym } from './display.js';
-import {
-    dog_move,
-    droppables,
-    find_targ,
-} from './dogmove.js';
+import { dog_move, find_targ } from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { any_light_source } from './light.js';
@@ -83,7 +78,7 @@ import {
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { newObject } from './obj.js';
-import { copyObjclassEntry, SADDLE } from './objects.js';
+import { copyObjclassEntry } from './objects.js';
 import {
     inside_region,
     mon_in_region,
@@ -142,20 +137,6 @@ function activeProperty(state, property, blockedMatters = true) {
 function liveOnMap(monster) {
     return monster.mhp > 0
         && (monster.mstate ?? MON_FLOOR) === MON_FLOOR;
-}
-
-// C refs: dog.c:makedog(), dogmove.c:droppables(). A Knight's starting pony
-// carries a worn saddle, but dog_invent() cannot select that saddle to drop.
-export function hasOnlyInertStartingSaddle(monster, state) {
-    const saddle = monster.minvent;
-    return monster.data?.pmidx === PM_PONY
-        && state.context?.startingpet_mid === monster.m_id
-        && monster.misc_worn_check === W_SADDLE
-        && saddle?.otyp === SADDLE
-        && saddle.owornmask === W_SADDLE
-        && saddle.leashmon === monster.m_id
-        && !saddle.nobj
-        && droppables(monster) === null;
 }
 
 function assertSimpleScanState(monster, state) {
@@ -219,10 +200,6 @@ function assertSimpleActionState(monster, state) {
                 || monster.mfleetim < 1
                 || monster.mfleetim > 127)) {
             unsupported('altered monster movement state');
-        }
-        if (monster.minvent
-            && !hasOnlyInertStartingSaddle(monster, state)) {
-            unsupported('pet inventory');
         }
         return;
     }
@@ -292,8 +269,9 @@ function cloneMonster(monster) {
 //
 // The hero's belongings and the buried list stay shared, because no action the
 // scan admits writes to one: mpickstuff() and dog_invent()'s carry arm move an
-// object from the floor into a monster's pack and touch nothing else. Extend
-// this walk before admitting an action that steals from the hero or digs.
+// object from the floor into a monster's pack, and dog_invent()'s drop arm
+// moves one back, and neither touches anything else. Extend this walk before
+// admitting an action that steals from the hero or digs.
 //
 // obj.v is C's union: nexthere on the floor, ocontainer inside a container,
 // and ocarry inside a monster's pack, so an inventory object's `v` remaps
@@ -686,7 +664,6 @@ async function moveSimplePet(monster, after, env) {
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         digWeaponCheck: () => false,
         displaceMonster: () => unsupported('pet displacement'),
-        dropInventory: () => unsupported('pet inventory drop'),
         eatObject: () => unsupported('pet eating'),
         maxPassiveDamage: () => unsupported('pet combat evaluation'),
         mayCrossRegion: assertSimpleDestination,
@@ -700,6 +677,10 @@ async function moveSimplePet(monster, after, env) {
         reportCursedStep: () => unsupported('pet cursed-object feedback'),
         resistsStone: () => unsupported('pet combat evaluation'),
         resistsTrapEffect,
+        // steal.c relobj() and mdrop_obj() and do.c flooreffects() reach the
+        // drop arm as ported functions with unported branches, so they refuse
+        // through the caller's boundary class the way m_move() does.
+        unsupported,
         wieldPickedItem: () => unsupported('pet weapon selection'),
     });
 }

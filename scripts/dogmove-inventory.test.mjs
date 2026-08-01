@@ -238,14 +238,19 @@ test('dog_invent preserves drop draw short-circuit order and state', async () =>
         0, // The first zero-test succeeds and skips rn2(apport).
         PET_APPORT - 1, // The final draw remains below apport and drops.
     ];
-    let drops = 0;
+    const drops = [];
+    // dogmove.c:418 is `relobj(mtmp, (int) mtmp->minvis, TRUE)`. Recording
+    // which pet and which two flags reach it pins the argument order, and in
+    // particular the TRUE that keeps relobj() on droppables() instead of the
+    // whole of minvent.
+    monster.minvis = 1;
     const result = await dog_invent(
         monster,
         edog,
         HERO_DISTANCE,
         {
-            dropInventory: async () => {
-                drops++;
+            dropInventory: async (subject, show, isPet) => {
+                drops.push([subject, show, isPet]);
             },
             droppables: () => ({ otyp: DUMMY_OBJECT_TYPE }),
             random: {
@@ -263,7 +268,7 @@ test('dog_invent preserves drop draw short-circuit order and state', async () =>
         HERO_DISTANCE + 1,
         10, // The final drop-probability bound.
     ]);
-    assert.equal(drops, 1);
+    assert.deepEqual(drops, [[monster, 1, true]]);
     assert.equal(edog.apport, PET_APPORT - 1);
     assert.equal(edog.dropdist, HERO_DISTANCE);
     assert.equal(edog.droptime, state.moves);

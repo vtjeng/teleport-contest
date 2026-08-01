@@ -110,7 +110,7 @@ import {
 } from './objects.js';
 import { rn1, rn2, rnd, rne } from './rng.js';
 import { messageAt } from './startup_a11y.js';
-import { mpickobj } from './steal.js';
+import { mpickobj, relobj } from './steal.js';
 import { gettrack } from './track.js';
 import { ttyPline } from './tty_message.js';
 import {
@@ -420,8 +420,10 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         if ((!random.rn2(heroDistance + 1)
                 || !random.rn2(edog.apport))
             && random.rn2(10) < edog.apport) {
-            await inventoryOperation(rawEnv, 'dropInventory')(
+            await inventoryOperation(rawEnv, 'dropInventory', relobj)(
                 monster,
+                monster.minvis,
+                true,
                 operationEnv,
             );
             if (edog.apport > 1) edog.apport--;

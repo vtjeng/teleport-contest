@@ -39,7 +39,6 @@ import {
     TIMER_OBJECT,
     W_NONDIGGABLE,
     W_NONPASSWALL,
-    W_SADDLE,
     W_WEP,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -65,7 +64,6 @@ import {
     S_HUMAN,
 } from '../js/monsters.js';
 import {
-    hasOnlyInertStartingSaddle,
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
@@ -79,7 +77,6 @@ import {
     POT_HEALING,
     POT_SPEED,
     ROCK,
-    SADDLE,
     TRIPE_RATION,
     WAX_CANDLE,
 } from '../js/objects.js';
@@ -1030,60 +1027,6 @@ test('simple movement reports a door a blind hero only hears', async () => {
     assert.deepEqual(messages, ['You hear a door open.']);
 });
 
-test('simple preflight recognizes only the starting pony worn saddle', () => {
-    const monsterId = 7301; // A distinct live id couples saddle and pet state.
-    const nonSaddleType = SADDLE - 1; // A valid unequal catalog index.
-    const makeSubject = () => {
-        const saddle = {
-            leashmon: monsterId,
-            nobj: null,
-            otyp: SADDLE,
-            owornmask: W_SADDLE,
-        };
-        const monster = {
-            data: { mflags1: 0, pmidx: PM_PONY },
-            m_id: monsterId,
-            minvent: saddle,
-            misc_worn_check: W_SADDLE,
-            mw: null,
-        };
-        const state = {
-            context: { startingpet_mid: monsterId },
-        };
-        return { monster, saddle, state };
-    };
-
-    const admitted = makeSubject();
-    assert.equal(
-        hasOnlyInertStartingSaddle(admitted.monster, admitted.state),
-        true,
-    );
-
-    const rejected = [
-        ({ monster }) => { monster.data.pmidx = PM_LITTLE_DOG; },
-        ({ state }) => { state.context.startingpet_mid = monsterId + 1; },
-        ({ monster }) => { monster.misc_worn_check = 0; },
-        ({ saddle }) => { saddle.otyp = nonSaddleType; },
-        ({ saddle }) => { saddle.owornmask = 0; },
-        ({ saddle }) => { saddle.leashmon = monsterId + 1; },
-        ({ saddle }) => {
-            saddle.nobj = {
-                nobj: null,
-                otyp: nonSaddleType,
-                owornmask: 0,
-            };
-        },
-    ];
-    for (const mutate of rejected) {
-        const subject = makeSubject();
-        mutate(subject);
-        assert.equal(
-            hasOnlyInertStartingSaddle(subject.monster, subject.state),
-            false,
-        );
-    }
-});
-
 test('simple preflight plans a starting-dog action without live mutation',
     async () => {
         await runSegment({
@@ -1820,21 +1763,6 @@ test('simple preflight keeps starting-pet owner seams retryable',
                         |= IN_SIGHT;
                     game.viz_array[target.heroY][target.destinationX]
                         |= IN_SIGHT;
-                    return target;
-                },
-            },
-            {
-                name: 'kitten non-inert inventory',
-                reason: 'pet inventory',
-                prepare: async () => {
-                    const target = await prepareStartingPetAction(PM_KITTEN);
-                    target.monster.minvent = floorObject(
-                        0,
-                        0,
-                        9101,
-                        DAGGER,
-                    );
-                    target.monster.minvent.where = OBJ_MINVENT;
                     return target;
                 },
             },
