@@ -5220,6 +5220,152 @@
         }
       },
       "recordedAt": "2026-08-01T03:29:27.200Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "generation": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
+        "monsters": "dc4e009eace59753032502a7c908808541957630",
+        "commands": "dc4e009eace59753032502a7c908808541957630",
+        "startup": "9a7aef528acee7934f2c496647d2cb2f8f68b167"
+      },
+      "head": "17825d3f8092debe79586bcdaa175718c2e2b89a",
+      "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..17825d3f8092debe79586bcdaa175718c2e2b89a",
+      "areas": [
+        "generation",
+        "monsters",
+        "commands",
+        "startup"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Gate-forced full /audit-diff-correctness pass over the descent goal's four closed slices, run because npm run quality reported generation at 1,080 of its 1,000-line limit. 18 raw, 17 deduplicated, 17 confirmed, 12 applied at 5d09e39, 5 deferred, 0 rejected, 0 unverified, 0 warnings. Recorded from 9a7aef5, the oldest frontier among the four areas claimed. Three production defects were applied. goto_level()'s Punished guards read state.u.uball where the port owns state.uball, so do.c:1616's refusal failed open, and the test pinning it wrote the same wrong field. flush_screen()'s delay lived in a module variable that an aborted level change latched for the rest of the process, so every later segment would have recorded its cursor at the origin; it now lives on the game state that resetGame() replaces per segment. And failClosedCommandRefusals() omitted four classes the descent handler reaches through goto_level()'s tail, each of which discarded a segment's matching prefix instead of ending it, the same failure the shop slice had just fixed for one other class. Two production defects are deferred: mon_arrive()'s over-wide follower refusal, which needs its own fresh differential, and set_mimic_sym()'s shop arm, which is new upstream work. Validation at the fix commit: 2,325 tests pass, six generated-data checks, check:namespace-members, and the development score unchanged at 488 of 7,765 screens and 106,408 of 610,816 random-number values, every fixed defect being dormant behind a guard no development session reaches. Both new tests were observed failing against the defect they cover. No holdout ran.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2127,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 17,
+          "confirmed": 17,
+          "applied": 12,
+          "deferred": 5,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 8,
+          "tests": 4,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "goto_level()'s two Punished guards read state.u.uball, where the port's single home for C's global uball is state.uball, the field js/steed.js Punished(), js/insight.js, js/monmove.js, js/steal.js and js/worn.js all read. Both guards were permanently false, so do.c:1616's refusal failed open rather than closed. Both sites now call Punished(), the macro C itself uses at do.c:1616 and do.c:1783. The test that claimed to pin the refusal wrote state.u.uball too, matching the bug, which is why it passed.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "flush_screen()'s delay lived in a module variable. C keeps it in a function static and never leaves goto_level() between the two flush_screen(-1) calls; this port can, because nine fail-closed throws sit between them, so an aborted level change latched the flag for the rest of the process and every later segment of the session would have recorded its cursor at the origin. Moved onto the game state, which resetGame() replaces per runSegment().",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same defect reported against the comment asserting that goto_level()'s two flush_screen(-1) calls always balance, when nine throw statements sit between them in the same commit.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "failClosedCommandRefusals() omitted UnsupportedPickupError, raised by the pickup(1) that closes goto_level(), so the descent escaped runSegment() as a hard failure and discarded the segment's matching prefix.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same omission traced end to end across three classes: UnsupportedPickupError, UnsupportedHeroTimeoutBoundaryError from run_timers() and UnsupportedPositionCheckError from mon_arrive() reaching rloc_to(). All three added.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same omission for UnsupportedMonsterCreationError, which the newly live D:2 shop path raises from inside mklev(). Added to failClosedCommandRefusals(), so the descent ends its segment cleanly.",
+            "foundBy": [
+              "tests"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "mon_arrive() at js/dog.js:750 refuses every follower that is neither tame nor u.ustuck, but C's set_apparxy() returns the hero's own square for those monsters too, so the port stops where C continues without drawing a random number. Deferred: deleting a refusal changes what the game does and needs its own fresh differential with a non-tame follower, which no recorded case supplies.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "set_mimic_sym()'s rt >= SHOPBASE arm (makemon.c:2467-2480) is unported, so a mimic generated inside the shop mkshop() now places on D:2 raises UnsupportedMonsterCreationError. The class was added to the boundary list so the segment ends cleanly, but porting the arm is new upstream work rather than an audit fix.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "mon_arrive() at js/dog.js:750 refuses every follower that is neither tame nor u.ustuck, but C's set_apparxy() returns the hero's own square for those monsters too, so the port stops where C continues without drawing a random number. Deferred: deleting a refusal changes what the game does and needs its own fresh differential with a non-tame follower, which no recorded case supplies.",
+            "category": "production",
+            "trackedIn": "five descent-and-shop findings are deferred"
+          },
+          {
+            "summary": "set_mimic_sym()'s rt >= SHOPBASE arm (makemon.c:2467-2480) is unported, so a mimic generated inside the shop mkshop() now places on D:2 raises UnsupportedMonsterCreationError. The class was added to the boundary list so the segment ends cleanly, but porting the arm is new upstream work rather than an audit fix.",
+            "category": "production",
+            "trackedIn": "five descent-and-shop findings are deferred"
+          },
+          {
+            "summary": "compareScoreToBaseline() in scripts/checkpoint-checks.mjs became gating in this range with no test, and the new summary.passed rule has none; the one test touching the score check still builds it with informational: true.",
+            "category": "tests",
+            "trackedIn": "five descent-and-shop findings are deferred"
+          },
+          {
+            "summary": "scripts/mkroom-shop.test.mjs:445 pins the shopkeeper names Akranes and Akureyri, which only a run of the port can have produced: eshk.shknam reaches neither the screen nor the random-number stream, so the differential its comment credits cannot have validated them. Derive from C's name_wanted formula instead.",
+            "category": "tests",
+            "trackedIn": "five descent-and-shop findings are deferred"
+          },
+          {
+            "summary": "Nothing exercises do.c u_collide_m() or the dog.c mon_arrive() arm reaching it, although a descent with a pet reaches them about one time in ten rather than the near-never assumed when slice 3 closed.",
+            "category": "tests",
+            "trackedIn": "five descent-and-shop findings are deferred"
+          }
+        ],
+        "rejections": [],
+        "mutation": {
+          "mutants": 289,
+          "survivors": 51,
+          "byKind": {
+            "boolean": {
+              "ran": 63,
+              "killed": 54
+            },
+            "logical": {
+              "ran": 168,
+              "killed": 150
+            },
+            "relational": {
+              "ran": 58,
+              "killed": 34
+            }
+          },
+          "finderConclusion": "82.4% killed over the range, with relational the weak axis at 58.6%. The two largest survivor clusters were judged rather than closed: js/mklev.js:537-563 is makelevel()'s depth chain, where no test reaches depth 5 and every arm below the shop refuses in do_mkroom() either way, and js/do.js's 18 sit on goto_level() guards whose two answers reach the same refusal. Neither cluster produced a finding. The useful result came from the opposite direction: the pass's own fix for flush_screen() exposed two mutants on the mode === -1 toggle that the whole suite had left alive, and the new test kills both. Two survivors remain on js/do.js:506, the fall arm, which has no recordable case and is already deferred."
+        }
+      },
+      "recordedAt": "2026-08-01T12:58:50.433Z"
     }
   ]
 }
