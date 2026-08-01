@@ -33,10 +33,9 @@
 //
 // What no segment covers, and why. C's two remaining arms set the appearance
 // from the shop's stock without reaching assign_sym: a negative iprobs[] itype
-// and the health food store's VEGETARIAN_CLASS. Both belong to shop rows that
-// js/shknam.js SUPPORTED_SHOPS refuses outright, so no recording can reach
-// them until those rows stock. js/makemon_create.js refuses each by name and
-// scripts/makemon-create.test.mjs pins the refusals.
+// and the health food store's VEGETARIAN_CLASS. Both belong to shop rows this
+// file does not stock, and scripts/run-shop-deli-wand-health.mjs records them
+// under its `shop mimic stock` entry.
 //
 // No segment puts a jewelers or a hardware store on the stock arm either. Each
 // is 3% of mkshop()'s roll and the arm itself is 2 draws in 10, so the pair is

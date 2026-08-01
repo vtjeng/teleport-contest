@@ -22,22 +22,51 @@ import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { UnsupportedSpecialRoomError, do_mkroom } from '../js/mkroom.js';
 import { m_at } from '../js/monst.js';
-import { S_MIMIC } from '../js/monsters.js';
+import { init_objects } from '../js/o_init.js';
+import {
+    NON_PM,
+    PM_JACKAL,
+    PM_LICHEN,
+    S_MIMIC,
+    monst_globals_init,
+} from '../js/monsters.js';
 import { SIR_TERRY_NOVELS } from '../js/do_name.js';
 import {
     AMULET_CLASS,
+    APPLE,
     ARMOR_CLASS,
+    CORPSE,
+    CRAM_RATION,
+    EGG,
+    ELVEN_CLOAK,
+    EUCALYPTUS_LEAF,
+    FOOD_CLASS,
+    FOOD_RATION,
     GEM_CLASS,
+    ICE_BOX,
+    LEATHER_GLOVES,
+    LUMP_OF_ROYAL_JELLY,
+    MEATBALL,
+    NUM_OBJECTS,
     POTION_CLASS,
+    POT_BOOZE,
+    POT_FRUIT_JUICE,
+    POT_FULL_HEALING,
+    POT_HEALING,
+    POT_WATER,
     RANDOM_CLASS,
     RING_CLASS,
     SCROLL_CLASS,
     SCR_CHARGING,
+    SCR_FOOD_DETECTION,
+    SLIME_MOLD,
     SPBOOK_CLASS,
     SPE_NOVEL,
     STRANGE_OBJECT,
+    TIN,
     TOOL_CLASS,
     TOUCHSTONE,
+    TRIPE_RATION,
     WAND_CLASS,
     WEAPON_CLASS,
 } from '../js/objects.js';
@@ -51,7 +80,7 @@ import {
     shktools,
     shkweapons,
 } from '../js/shtypes_data.js';
-import { stock_room } from '../js/shknam.js';
+import { shkveg, stock_room, veggy_item } from '../js/shknam.js';
 
 // shknam.c shtypes[] in source order. mkroom.c stores the index as
 // rtype - SHOPBASE, so these are also the rtype offsets mkroom.h's
@@ -352,29 +381,22 @@ test('mkshop takes the first eligible room and leaves the later ones alone',
         assert.equal(ignored.rtype, OROOM);
     });
 
-test('stock_room refuses a shop type this port cannot stock', () => {
-    // The four rows outside SUPPORTED_SHOPS end the segment rather than
-    // stocking the wrong objects: the delicatessen, wand shop and lighting
-    // store need mkshobj_at()'s negative-itype mksobj_at() arm and the health
-    // food store needs shkveg(). UnsupportedSpecialRoomError is the class
-    // js/jsmain.js treats as a clean segment boundary.
+test('stock_room rejects a row shtypes[] does not carry', () => {
+    // Every row the table carries now stocks, so the only refusal left here is
+    // a subscript past the end, which is a programming error rather than a
+    // segment boundary. shtypes[11], the lighting store, is inside the table
+    // and stocks like any other row; mkshop() cannot roll it, because its prob
+    // column is 0.
     const state = initializedState();
     const room = shopCandidate(state, { hx: 13, hy: 8 });
-    for (const index of [5, 7, 10, 11]) {
-        assert.throws(
-            () => stock_room(index, room, { state }),
-            (error) => error instanceof UnsupportedSpecialRoomError
-                && error.message.includes(SHTYPES[index].name),
-            `shtypes[${index}]`,
-        );
-    }
-    // A row outside the table is a programming error rather than a boundary.
     assert.throws(() => stock_room(12, room, { state }), RangeError);
 });
 
 test('do_mkroom refuses every non-shop special room', () => {
     // mkroom.c do_mkroom() dispatches ten other room types to mkzoo(),
-    // mkswamp() and mktemple(), none of which is ported.
+    // mkswamp() and mktemple(), none of which is ported. Each needs a depth
+    // greater than four, so no case a recording can reach stops here, and this
+    // test is the whole evidence for the boundary.
     const state = initializedState();
     for (const roomtype of [2, 3, 5, 6, 7, 8, 10, 11, 12, 13]) {
         assert.throws(
@@ -384,41 +406,6 @@ test('do_mkroom refuses every non-shop special room', () => {
         );
     }
 });
-
-test('a refused shop type ends the segment and keeps every screen before it',
-    async () => {
-        // The instrument this matters for is scripts/scan-debt.mjs, which
-        // reads a session's whole recorded input and needs every fail-closed
-        // stop to end its segment rather than escape runSegment() as a crash.
-        // A delicatessen is one of the four rows SUPPORTED_SHOPS refuses.
-        //
-        // Seed 7530899 and this walk were found by breadth-first search over
-        // the generated D:1 map: thirteen steps to the down staircase, then
-        // `>` and the space that dismisses the arrival's `--More--`.
-        let boundary = null;
-        const segment = await runSegment({
-            seed: 7530899,
-            datetime: '20330607081011',
-            nethackrc: [
-                'OPTIONS=name:Shopper,role:Valkyrie,race:human,'
-                + 'gender:female,align:neutral',
-                'OPTIONS=!legacy,!tutorial,!splash_screen',
-                'OPTIONS=pettype:none,!acoustics,!autopickup',
-                '',
-            ].join('\n'),
-            moves: 'kullllllulllu> ',
-        }, { onBoundary: (error) => { boundary = error; } });
-
-        assert.ok(
-            boundary instanceof UnsupportedSpecialRoomError,
-            `boundary was ${boundary?.name ?? 'absent'}`,
-        );
-        assert.match(boundary.message, /delicatessen/u);
-        // Fourteen screens: one per walked step plus the `--More--` the
-        // descent stops on. The stop happens while D:2 is being generated, so
-        // the map after it is never drawn.
-        assert.equal(segment.getScreens().length, 14);
-    });
 
 // Walk one Valkyrie from her up staircase to D:1's down staircase, descend,
 // and read back the shop that makelevel() stocked on D:2. Every seed and walk
@@ -802,5 +789,217 @@ test('a shop mimic is disguised by the arm its own depth selects', async () => {
             game.objects[stocked.mimics[0].mappearance].oc_class,
         ),
         `mimic otyp ${stocked.mimics[0].mappearance}`,
+    );
+});
+
+// The three rows whose stock is not one object class per iprobs[] entry. Each
+// seed and walk below is a segment of scripts/run-shop-deli-wand-health.mjs,
+// which records the same inputs with the C reference program; the D:2 map it
+// compares carries one glyph per stocked square, so the object types asserted
+// here are pinned cell for cell by those matching runs.
+const DELICATESSEN = 5;
+const HEALTH_FOOD_STORE = 10;
+
+test('a negated iprobs[] itype stocks that object type and no other', async () => {
+    // shknam.c mkshobj_at():481-482. `atype < 0` reaches mksobj_at(-atype),
+    // which makes exactly the object the row names, where a non-negative
+    // atype reaches mkobj_at() and draws within a class.
+    //
+    // The delicatessen names four: -POT_FRUIT_JUICE, -POT_BOOZE, -POT_WATER
+    // and -ICE_BOX. This shop reaches all four in fifteen squares, so every
+    // non-FOOD_CLASS object it holds has to be one of them.
+    const deli = await descendToShop(7600129, 'kkkklkkkkkkkhhj');
+    assert.equal(deli.index, DELICATESSEN);
+    const negated = [POT_FRUIT_JUICE, POT_BOOZE, POT_WATER, ICE_BOX];
+    for (const obj of deli.stock) {
+        assert.ok(
+            obj.oclass === FOOD_CLASS || negated.includes(obj.otyp),
+            `otyp ${obj.otyp} class ${obj.oclass}`,
+        );
+    }
+    assert.deepEqual(
+        negated.map(
+            (otyp) => deli.stock.filter((obj) => obj.otyp === otyp).length,
+        ),
+        // One fruit juice, one booze, two waters and one ice box.
+        [1, 1, 2, 1],
+    );
+
+    // The wand shop names two, -LEATHER_GLOVES and -ELVEN_CLOAK, and both are
+    // ARMOR_CLASS. A port that passed the negated value to mkobj_at() would
+    // draw some other armor from the same stream.
+    const wands = await descendToShop(7604357, 'llnnjjhjjjjnlnn');
+    assert.equal(wands.index, WAND_SHOP);
+    for (const obj of wands.stock) {
+        assert.ok(
+            obj.oclass === WAND_CLASS
+            || [LEATHER_GLOVES, ELVEN_CLOAK].includes(obj.otyp),
+            `otyp ${obj.otyp} class ${obj.oclass}`,
+        );
+    }
+    assert.equal(
+        wands.stock.filter((obj) => obj.otyp === LEATHER_GLOVES).length, 1,
+    );
+    assert.equal(
+        wands.stock.filter((obj) => obj.otyp === ELVEN_CLOAK).length, 1,
+    );
+});
+
+test('a health food store stocks only vegetarian food and its own potions',
+    async () => {
+        // shknam.c mkshobj_at():480 sends VEGETARIAN_CLASS to mkveggy_at(),
+        // whose shkveg() admits a food type only when veggy_item() does. Every
+        // FOOD_CLASS object in the shop below therefore has to pass that test,
+        // and no tripe ration, meatball or other FLESH food may appear.
+        const shop = await descendToShop(7605798, 'llllllllllllllln');
+        assert.equal(shop.index, HEALTH_FOOD_STORE);
+        const negated = [
+            POT_FRUIT_JUICE, POT_HEALING, POT_FULL_HEALING,
+            SCR_FOOD_DETECTION, LUMP_OF_ROYAL_JELLY,
+        ];
+        for (const obj of shop.stock) {
+            if (negated.includes(obj.otyp)) continue;
+            assert.equal(obj.oclass, FOOD_CLASS, `otyp ${obj.otyp}`);
+            assert.ok(
+                veggy_item(null, obj.otyp, game),
+                `otyp ${obj.otyp} is not vegetarian`,
+            );
+        }
+
+        // shknam.c mkveggy_at():452-453. Every tin the shop stocks is forced
+        // through set_tin_variety(obj, HEALTHY_TIN), which either empties the
+        // tin and marks it spinach (spe 1, corpsenm NON_PM) or keeps a
+        // vegetarian corpsenm and encodes a variety as a negative spe. This
+        // shop holds both, which is what separates the two exits.
+        // Only a tin is forced. C guards the call with `obj->otyp == TIN`,
+        // and every other food the shop stocks keeps the spe mksobj() gave it,
+        // which is 0 for all of them but the slime mold. set_tin_variety()
+        // would write the spinach marker over each one.
+        const unforced = shop.stock.filter(
+            (obj) => obj.oclass === FOOD_CLASS
+                && obj.otyp !== TIN && obj.otyp !== SLIME_MOLD,
+        );
+        assert.ok(unforced.length > 20, `only ${unforced.length} plain foods`);
+        for (const obj of unforced)
+            assert.equal(obj.spe, 0, `otyp ${obj.otyp} spe`);
+        // The slime mold keeps svc.context.current_fruit instead.
+        const molds = shop.stock.filter((obj) => obj.otyp === SLIME_MOLD);
+        assert.ok(molds.length > 0, 'the shop stocks a slime mold');
+        for (const mold of molds)
+            assert.equal(mold.spe, game.context.current_fruit);
+
+        const tins = shop.stock.filter((obj) => obj.otyp === TIN);
+        assert.equal(tins.length, 4);
+        const spinach = tins.filter((obj) => obj.spe === 1);
+        assert.equal(spinach.length, 2);
+        for (const tin of spinach) assert.equal(tin.corpsenm, NON_PM);
+        for (const tin of tins.filter((obj) => obj.spe !== 1)) {
+            assert.ok(tin.spe < 0, `tin spe ${tin.spe}`);
+            assert.equal(tin.corpsenm, PM_LICHEN);
+        }
+    });
+
+// veggy_item() and shkveg() read objects[] and svb.bases[], so these two
+// tests build their own initialized catalog rather than inheriting whichever
+// game the descent tests above left behind.
+function catalogState() {
+    const state = initializedState();
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    return state;
+}
+
+test('veggy_item admits a food type on material, egg, tin or corpse', () => {
+    const state = catalogState();
+    // shknam.c veggy_item():358-374 with a null obj. The type form stands
+    // PM_LICHEN in for the corpse species, so a tin and a corpse of unknown
+    // contents both come back vegetarian, and the VEGGY material or EGG does
+    // the rest. Every otyp below is read from objects.c's FOOD entries.
+    for (const otyp of [
+        APPLE, // VEGGY
+        LUMP_OF_ROYAL_JELLY, // VEGGY
+        EGG, // FLESH, admitted by name
+        TIN, // METAL, admitted through the lichen standin
+        CORPSE, // FLESH, admitted through the lichen standin
+    ]) {
+        assert.ok(veggy_item(null, otyp, state), `otyp ${otyp}`);
+    }
+    for (const otyp of [
+        TRIPE_RATION, // FLESH
+        MEATBALL, // FLESH
+        POT_FRUIT_JUICE, // not FOOD_CLASS at all
+    ]) {
+        assert.ok(!veggy_item(null, otyp, state), `otyp ${otyp}`);
+    }
+
+    // The object form reads the tin's own contents instead. spe 1 is spinach
+    // and spe 0 an empty tin, and only the first is food.
+    assert.ok(veggy_item(
+        { otyp: TIN, oclass: FOOD_CLASS, corpsenm: NON_PM, spe: 1 },
+        0, state,
+    ));
+    assert.ok(!veggy_item(
+        { otyp: TIN, oclass: FOOD_CLASS, corpsenm: NON_PM, spe: 0 },
+        0, state,
+    ));
+    // A tin of a named species follows that species' own diet: a lichen is
+    // vegetarian and a jackal is not.
+    assert.ok(veggy_item(
+        { otyp: TIN, oclass: FOOD_CLASS, corpsenm: PM_LICHEN, spe: 0 },
+        0, state,
+    ));
+    assert.ok(!veggy_item(
+        { otyp: CORPSE, oclass: FOOD_CLASS, corpsenm: PM_JACKAL, spe: 0 },
+        0, state,
+    ));
+});
+
+test('shkveg walks the vegetarian foods weighted by oc_prob', () => {
+    const state = catalogState();
+    // shknam.c shkveg():377-405. The admitted types run in objects.c order
+    // from CORPSE to TIN, and their oc_prob column totals 860, which is the
+    // bound of the single rnd() the function spends. Each boundary below is
+    // the last roll that stops on one type and the first that carries into the
+    // next, computed from that column: EGG 85, KELP_FROND 0, EUCALYPTUS_LEAF
+    // 3, ... CRAM_RATION 20 (cumulative 405), FOOD_RATION 380 (785), then
+    // K_RATION and C_RATION at 0 each, and TIN 75 (860).
+    //
+    // CORPSE leads the list with oc_prob 0, so the loop's first subtraction
+    // never stops there; a port that stopped on a zero-probability entry would
+    // stock corpses.
+    const boundaries = [
+        [1, EGG], [85, EGG],
+        [86, EUCALYPTUS_LEAF], [88, EUCALYPTUS_LEAF],
+        [89, APPLE],
+        [405, CRAM_RATION], [406, FOOD_RATION], [785, FOOD_RATION],
+        [786, TIN], [860, TIN],
+    ];
+    for (const [roll, expected] of boundaries) {
+        let bound = null;
+        const otyp = shkveg({
+            state,
+            random: { rnd: (limit) => { bound = limit; return roll; } },
+        });
+        assert.equal(bound, 860, `roll ${roll} bound`);
+        assert.equal(otyp, expected, `roll ${roll}`);
+    }
+
+    // shknam.c:392-393 panics when the admitted shares total less than one,
+    // because rnd(0) has no answer. A catalog whose whole vegetarian weight is
+    // one food of oc_prob 1 is the largest that still passes the guard, which
+    // is what fixes the threshold at 1 rather than at 2.
+    const bare = catalogState();
+    for (let otyp = bare.svb.bases[FOOD_CLASS]; otyp < NUM_OBJECTS; ++otyp) {
+        if (bare.objects[otyp].oc_class !== FOOD_CLASS) break;
+        bare.objects[otyp].oc_prob = otyp === APPLE ? 1 : 0;
+    }
+    assert.equal(
+        shkveg({ state: bare, random: { rnd: () => 1 } }),
+        APPLE,
+    );
+    bare.objects[APPLE].oc_prob = 0;
+    assert.throws(
+        () => shkveg({ state: bare, random: { rnd: () => 1 } }),
+        /shkveg no veggy objects/u,
     );
 });

@@ -35,9 +35,10 @@
 // because the date changes level generation, which would invalidate every path
 // recorded against it.
 //
-// What no segment covers, and why. The delicatessen, wand shop, health food
-// store and lighting store are refused by js/shknam.js SUPPORTED_SHOPS and
-// belong to slice 8. No segment stocks a second bookstore either: C sets
+// What no segment covers, and why. The delicatessen, wand shop and health
+// food store belong to scripts/run-shop-deli-wand-health.mjs, and the lighting
+// store's prob column is 0, so mkshop() can never roll it. No segment stocks a
+// second bookstore either: C sets
 // svc.context.tribute.bookstock on the first novel it places and never places
 // another, but mkshop() makes at most one shop per level and no recorded
 // descent reaches a third level, so nothing can observe the flag's second

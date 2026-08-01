@@ -1,8 +1,7 @@
 // Shop stocking and shopkeeper creation.
-// C ref: shknam.c nameshk(), shkinit(), mkshobj_at(), and stock_room().
-// The shop records come from js/shtypes_data.js, generated from shknam.c
-// shtypes[]. SUPPORTED_SHOPS below names the rows this port can stock; the
-// rest fail closed.
+// C ref: shknam.c veggy_item(), shkveg(), mkveggy_at(), nameshk(), shkinit(),
+// mkshobj_at(), and stock_room(). The shop records come from
+// js/shtypes_data.js, generated from shknam.c shtypes[].
 
 import {
     CORR,
@@ -12,14 +11,17 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    HEALTHY_TIN,
     IS_ROOM,
     MM_ESHK,
     PL_NSIZ,
     ROOM,
     ROOMOFFSET,
     SDOOR,
+    ismnum,
 } from './const.js';
 import { depth, ledger_no } from './dungeon.js';
+import { set_tin_variety, vegetarian } from './eat.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { distmin } from './hacklib.js';
@@ -30,13 +32,23 @@ import {
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
-import { PM_SHOPKEEPER, S_MIMIC } from './monsters.js';
+import { NON_PM, PM_LICHEN, PM_SHOPKEEPER, S_MIMIC } from './monsters.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { mkobj_at, mksobj_at } from './obj.js';
-import { SCR_CHARGING, SPE_NOVEL, TOUCHSTONE } from './objects.js';
+import {
+    CORPSE,
+    EGG,
+    FOOD_CLASS,
+    MAXOCLASSES,
+    NUM_OBJECTS,
+    SCR_CHARGING,
+    SPE_NOVEL,
+    TIN,
+    TOUCHSTONE,
+    VEGGY,
+} from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { newsym } from './display.js';
-import { UnsupportedSpecialRoomError } from './mkroom.js';
 import {
     SHTYPES,
     shkgeneral,
@@ -47,31 +59,9 @@ import {
 
 const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
-// The SHTYPES rows this port stocks, by index, which is the room's
-// rtype - SHOPBASE. Together they take 90% of mkshop()'s roll: 42% general
-// store, 14% used armor dealership, 10% second-hand bookstore, 10% liquor
-// emporium, 5% antique weapons outlet, 3% jewelers, 3% hardware store, 3%
-// rare books. Every other row needs stock this port cannot make yet, so
-// shopType() refuses it and the segment ends there rather than drawing the
-// wrong objects:
-//
-//   delicatessen, wand shop, lighting   iprobs[] entries with a negative
-//     store                             itype, which need mksobj_at()
-//   health food store                   VEGETARIAN_CLASS, so shkveg(),
-//                                       veggy_item() and mkveggy_at()
-const SUPPORTED_SHOPS = new Set([0, 1, 2, 3, 4, 6, 8, 9]);
-
-function shopType(shopIndex) {
-    const shop = SHTYPES[shopIndex];
-    if (!shop)
-        throw new RangeError(`shtypes[] has no row ${shopIndex}`);
-    if (!SUPPORTED_SHOPS.has(shopIndex)) {
-        throw new UnsupportedSpecialRoomError(
-            `stock_room() stocking a ${shop.name}`,
-        );
-    }
-    return shop;
-}
+// C ref: shknam.c:19. The pseudo-class the health food store's iprobs[] names
+// where every other row names a real object class or a negated object type.
+const VEGETARIAN_CLASS = MAXOCLASSES + 1;
 
 function shopEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
@@ -83,6 +73,85 @@ function shopEnv(rawEnv = {}) {
         );
     }
     return objectGenerationEnv({ ...rawEnv, state, random });
+}
+
+// C ref: shknam.c veggy_item(). C answers for an actual object when `obj` is
+// given and for a bare type otherwise, in which case it stands a lichen in for
+// the corpse species so that a tin or a corpse of unknown contents counts as
+// vegetarian. shkveg() is the only caller here and always takes the type form;
+// the object form is translated with it because it is one C function.
+export function veggy_item(obj, otyp, state = game) {
+    let corpsenm;
+    let oclass;
+
+    if (obj) {
+        otyp = obj.otyp;
+        oclass = obj.oclass;
+        corpsenm = obj.corpsenm;
+    } else {
+        oclass = state.objects[otyp].oc_class;
+        corpsenm = PM_LICHEN;
+    }
+
+    if (oclass === FOOD_CLASS) {
+        if (state.objects[otyp].oc_material === VEGGY || otyp === EGG)
+            return true;
+        // Only an actual object reaches this, because the type form's lichen
+        // standin is never NON_PM. spe 0 is an empty tin and spe 1 spinach.
+        if (otyp === TIN && corpsenm === NON_PM)
+            return obj.spe === 1;
+        if (otyp === TIN || otyp === CORPSE)
+            return ismnum(corpsenm) && vegetarian(state.mons[corpsenm]);
+    }
+    return false;
+}
+
+// C ref: shknam.c shkveg(). Picks one food type from the vegetarian ones,
+// weighted by objects[].oc_prob, with a single rnd(maxprob). C's ok[] is a
+// NUM_OBJECTS array indexed by a separate counter; the array below holds the
+// same entries in the same order.
+//
+// The `index < NUM_OBJECTS` bound never ends the scan, because objects.c puts
+// POTION_CLASS straight after FOOD_CLASS and the class test above breaks
+// first. It is C's guard against a catalog whose last class is food, and the
+// generated-data check on js/objects.js is what keeps that from happening.
+export function shkveg(normalized) {
+    const { random, state } = normalized;
+    const oclass = FOOD_CLASS;
+    const ok = [];
+    let maxprob = 0;
+
+    for (let index = state.svb.bases[oclass]; index < NUM_OBJECTS; ++index) {
+        if (state.objects[index].oc_class !== oclass) break;
+        if (veggy_item(null, index, state)) {
+            ok.push(index);
+            maxprob += state.objects[index].oc_prob;
+        }
+    }
+    if (maxprob < 1) throw new Error('shkveg no veggy objects');
+
+    let prob = random.rnd(maxprob);
+    let j = 0;
+    let i = ok[0];
+    while ((prob -= state.objects[i].oc_prob) > 0) {
+        j++;
+        i = ok[j];
+    }
+    return i;
+}
+
+// C ref: shknam.c mkveggy_at(). A tin the health food store stocks is forced
+// to a variety a vegetarian may eat, which costs further draws inside
+// set_tin_variety().
+//
+// C's `artif` argument is TRUE and no test can tell it from FALSE: mksobj()
+// reads it only in mksobj_init()'s WEAPON_CLASS and ARMOR_CLASS arms, and
+// shkveg() answers a food type. The negated-itype arm below is where an
+// armor does reach that gate, and both of its booleans are pinned there.
+function mkveggy_at(sx, sy, normalized) {
+    const obj = mksobj_at(shkveg(normalized), sx, sy, true, true, normalized);
+    if (obj && obj.otyp === TIN)
+        set_tin_variety(obj, HEALTHY_TIN, normalized);
 }
 
 // C ref: shknam.c get_shop_item(). One rnd(100) walks the shop's iprobs[],
@@ -260,11 +329,10 @@ function shkinit(shop, sroom, normalized) {
     mkmonmoney(shk, 1000 + 30 * normalized.random.rnd(100), normalized);
     // C's starting stock for the keeper, tested on the shop's name list rather
     // than on the shop. The `||` chain short-circuits, so what each stocking
-    // shop draws here differs: a hardware store draws nothing and always gets
-    // the scroll, a jewelers draws one rn2(2) after its touchstone, a general
-    // store draws one rn2(5), and an armor, weapon or liquor shop draws
-    // nothing and gets neither item. The shkwands clause belongs to a shop
-    // type shopType() still refuses.
+    // shop draws here differs: a hardware store and a wand shop draw nothing
+    // and always get the scroll, a jewelers draws one rn2(2) after its
+    // touchstone, a general store draws one rn2(5), and an armor, weapon,
+    // liquor, food or health food shop draws nothing and gets neither item.
     if (shop.shknms === shkrings) mongets(shk, TOUCHSTONE, normalized);
     if (shop.shknms === shktools || shop.shknms === shkwands
         || (shop.shknms === shkrings && normalized.random.rn2(2))
@@ -292,12 +360,9 @@ function stock_room_goodpos(sroom, roomNumber, doorIndex, sx, sy, state) {
     return IS_ROOM(state.level.at(sx, sy).typ);
 }
 
-// C ref: shknam.c mkshobj_at(). get_shop_item() answers a non-negative object
-// class for every shop type this port stocks, so neither the VEGETARIAN_CLASS
-// nor the negative-otyp mksobj_at() arm is reachable here.
-//
-// C takes the shtypes[] row by pointer and recovers its index for
-// get_shop_item(); the index is what this port passes throughout.
+// C ref: shknam.c mkshobj_at(). C takes the shtypes[] row by pointer and
+// recovers its index for get_shop_item(); the index is what this port passes
+// throughout.
 function mkshobj_at(shopIndex, sx, sy, mkspecl, normalized) {
     const { random, state } = normalized;
     const shop = SHTYPES[shopIndex];
@@ -323,7 +388,14 @@ function mkshobj_at(shopIndex, sx, sy, mkspecl, normalized) {
         const mimic = mkclass(S_MIMIC, 0, normalized);
         if (mimic && makemon(mimic, sx, sy, 0, normalized)) return;
     }
-    mkobj_at(get_shop_item(shopIndex, random), sx, sy, true, normalized);
+
+    // An iprobs[] itype is a real object class when it is non-negative, the
+    // health food store's pseudo-class when it is VEGETARIAN_CLASS, and the
+    // negation of one object type when it is negative.
+    const atype = get_shop_item(shopIndex, random);
+    if (atype === VEGETARIAN_CLASS) mkveggy_at(sx, sy, normalized);
+    else if (atype < 0) mksobj_at(-atype, sx, sy, true, true, normalized);
+    else mkobj_at(atype, sx, sy, true, normalized);
 }
 
 function insideShop(sroom, x, y) {
@@ -343,7 +415,8 @@ function redrawDoor(x, y, normalized) {
 export function stock_room(shopIndex, sroom, rawEnv = {}) {
     const normalized = shopEnv(rawEnv);
     const { random, state } = normalized;
-    const shop = shopType(shopIndex);
+    const shop = SHTYPES[shopIndex];
+    if (!shop) throw new RangeError(`shtypes[] has no row ${shopIndex}`);
 
     const shopDoor = shkinit(shop, sroom, normalized);
     if (shopDoor == null) return false;

@@ -131,18 +131,24 @@ import {
     ELVEN_SHIELD,
     ELVEN_SPEAR,
     GOLD_PIECE,
+    ICE_BOX,
     IRON_SHOES,
     LEATHER_GLOVES,
+    LUMP_OF_ROYAL_JELLY,
     MIRROR,
     MUMMY_WRAPPING,
     ORCISH_ARROW,
     ORCISH_BOW,
     ORCISH_DAGGER,
     ORCISH_HELM,
+    POT_BOOZE,
+    POT_FRUIT_JUICE,
     POT_OBJECT_DETECTION,
+    POT_WATER,
     RING_CLASS,
     SADDLE,
     SCR_CREATE_MONSTER,
+    SLIME_MOLD,
     STRANGE_OBJECT,
     TALLOW_CANDLE,
     T_SHIRT,
@@ -2643,29 +2649,93 @@ test('a themed shop mimic takes the class its own iprobs[] row names', () => {
     }
 });
 
-test('a mimic in a shop whose stock is unported refuses by name', () => {
-    // C's two remaining arms bypass assign_sym: a negative iprobs[] itype
-    // names one object outright, and the health food store's
-    // VEGETARIAN_CLASS becomes a lump of royal jelly or a slime mold on a
-    // further rn2(2). js/shknam.js SUPPORTED_SHOPS refuses both rows outright,
-    // so nothing generates these shops today and the arms fail closed.
+test('a mimic wears the object a negated iprobs[] itype names', () => {
+    // makemon.c:2473-2475. `s_sym < 0` sets ap_type and appear straight from
+    // the shop's stock and jumps past assign_sym, so mkobj() is never called
+    // and the mimic costs no draw beyond get_shop_item()'s rnd(100).
     //
-    // shtypes[5] is the delicatessen, whose first 83 shares are FOOD_CLASS and
-    // whose next five are -POT_FRUIT_JUICE; shtypes[10] is the health food
-    // store, whose first 70 shares are VEGETARIAN_CLASS.
-    for (const [shopIndex, roll, reason] of [
-        [5, 90, /mimic disguised as shop item/u],
-        [10, 1, /mimic disguised as vegetarian shop food/u],
+    // shtypes[5] is the delicatessen: 83 FOOD_CLASS, then 5 -POT_FRUIT_JUICE,
+    // 4 -POT_BOOZE, 5 -POT_WATER and 3 -ICE_BOX. Rolls 84, 89, 93 and 98 are
+    // the first of each negated row, so a share read one short or one long
+    // answers a different object here.
+    for (const [roll, expected] of [
+        [84, POT_FRUIT_JUICE], [89, POT_BOOZE],
+        [93, POT_WATER], [98, ICE_BOX],
     ]) {
-        const state = shopLevelState(shopIndex);
-        assert.throws(
-            () => makeShopMimic(state, {
-                ...permissiveRandom(),
-                rnd: (bound) => (bound === 100 ? roll : 1),
-            }),
-            (error) => error instanceof UnsupportedMonsterCreationError
-                && reason.test(error.message),
-            `shtypes[${shopIndex}]`,
-        );
+        const state = shopLevelState(5);
+        const random = scriptedRandom([
+            ...mimicCreationSteps(),
+            step('rn2', [10], 1),
+            step('rnd', [100], roll),
+            ...mimicInventoryTail(),
+        ]);
+        const mimic = makeShopMimic(state, random.random);
+        random.assertExhausted();
+        assert.equal(mimic.m_ap_type, M_AP_OBJECT, `roll ${roll}`);
+        assert.equal(mimic.mappearance, expected, `roll ${roll}`);
+        // None of these four is a corpse, egg, tin or slime mold, so the
+        // tail leaves the mimic without an mcorpsenm overlay at all.
+        assert.equal(mimic.mextra, null, `roll ${roll}`);
     }
 });
+
+test('a health food store mimic is a lump of royal jelly or a slime mold',
+    () => {
+        // makemon.c:2476-2481. The health food store is shtypes[10], whose
+        // first 70 shares are VEGETARIAN_CLASS, which is MAXOCLASSES + 1. C
+        // declines to choose among every vegetarian food and spends one rn2(2)
+        // on two named objects instead, again without reaching assign_sym.
+        const jelly = shopLevelState(10);
+        const jellyRandom = scriptedRandom([
+            ...mimicCreationSteps(),
+            step('rn2', [10], 1),
+            step('rnd', [100], 70), // the last VEGETARIAN_CLASS share
+            step('rn2', [2], 1),
+            ...mimicInventoryTail(),
+        ]);
+        const jellyMimic = makeShopMimic(jelly, jellyRandom.random);
+        jellyRandom.assertExhausted();
+        assert.equal(jellyMimic.m_ap_type, M_AP_OBJECT);
+        assert.equal(jellyMimic.mappearance, LUMP_OF_ROYAL_JELLY);
+        assert.equal(jellyMimic.mextra, null);
+
+        // rn2(2) of 0 takes the slime mold, which the tail then gives the
+        // current fruit and which marks that fruit as made.
+        const mold = shopLevelState(10);
+        mold.context.current_fruit = 7; // an arbitrary live fruit index
+        mold.flags = { ...mold.flags, made_fruit: false };
+        const moldRandom = scriptedRandom([
+            ...mimicCreationSteps(),
+            step('rn2', [10], 1),
+            step('rnd', [100], 1),
+            step('rn2', [2], 0),
+            ...mimicInventoryTail(),
+        ]);
+        const moldMimic = makeShopMimic(mold, moldRandom.random);
+        moldRandom.assertExhausted();
+        assert.equal(moldMimic.mappearance, SLIME_MOLD);
+        assert.equal(moldMimic.mextra.mcorpsenm, 7);
+        assert.equal(mold.flags.made_fruit, true);
+    });
+
+test("the health food store's shares divide its two arms at 70", () => {
+    // shtypes[10] is 70 VEGETARIAN_CLASS then 20 -POT_FRUIT_JUICE, so the two
+    // arms meet between rolls 70 and 71. Roll 71 is the first negated share
+    // and takes the arm above without spending the jelly arm's rn2(2).
+    const state = shopLevelState(10);
+    const random = scriptedRandom([
+        ...mimicCreationSteps(),
+        step('rn2', [10], 1),
+        step('rnd', [100], 71),
+        ...mimicInventoryTail(),
+    ]);
+    const mimic = makeShopMimic(state, random.random);
+    random.assertExhausted();
+    assert.equal(mimic.mappearance, POT_FRUIT_JUICE);
+});
+
+// Left unpinned deliberately: `roomType === FODDERSHOP && stock > MAXOCLASSES`
+// has two clauses that are true on exactly the same inputs against shtypes[]
+// as generated. No row but the health food store's lists an itype above
+// MAXOCLASSES, and that row lists nothing else that is non-negative, so
+// dropping either clause leaves every reachable case unchanged.
