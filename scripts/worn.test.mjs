@@ -225,6 +225,21 @@ test('extract_from_minvent clears an equipped slot and reschedules gear',
             [[mon, held, false, true]],
         );
         assert.deepEqual(calls.mwepgone, []);
+
+        // The same slot with the caller's other `silently` value. worn.c:1406
+        // forwards the parameter rather than choosing the flag itself, and
+        // steal.c mdrop_obj()'s hardcoded TRUE is unreachable through that
+        // function, so this call is the port's only cover for the FALSE side.
+        const loud = catalogState();
+        const spoken = wornObject(loud, ORCISH_HELM, W_ARMH);
+        const noisy = carrier(loud, spoken, {
+            misc_worn_check: W_ARMH | W_AMUL,
+        });
+        extract_from_minvent(noisy.mon, spoken, true, false, noisy.env);
+        assert.deepEqual(
+            noisy.calls.updateMonExtrinsics,
+            [[noisy.mon, spoken, false, false]],
+        );
     });
 
 test('extract_from_minvent skips update_mon_extrinsics on two conditions',

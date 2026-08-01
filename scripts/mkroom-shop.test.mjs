@@ -9,12 +9,14 @@ import test from 'node:test';
 import {
     FILL_NONE,
     FILL_NORMAL,
+    LOW_PM,
     M_AP_OBJECT,
     OROOM,
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
     VAULT,
+    ismnum,
 } from '../js/const.js';
 import { ledger_no } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
@@ -25,6 +27,7 @@ import { m_at } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import {
     NON_PM,
+    NUMMONS,
     PM_JACKAL,
     PM_LICHEN,
     S_MIMIC,
@@ -952,6 +955,32 @@ test('veggy_item admits a food type on material, egg, tin or corpse', () => {
         { otyp: CORPSE, oclass: FOOD_CLASS, corpsenm: PM_JACKAL, spe: 0 },
         0, state,
     ));
+});
+
+test('ismnum bounds a species index at both ends', () => {
+    // monst.h:285 is `#define ismnum(x) ((x) >= LOW_PM && (x) < NUMMONS)`.
+    // permonst.h:15 makes LOW_PM `NON_PM + 1`, which is 0, and NUMMONS is the
+    // count monsters.c generates, so the admitted range is 0 to NUMMONS - 1.
+    assert.equal(ismnum(LOW_PM), true);
+    assert.equal(ismnum(LOW_PM - 1), false);
+    assert.equal(ismnum(NUMMONS - 1), true);
+    assert.equal(ismnum(NUMMONS), false);
+
+    // The upper bound through a live caller. shknam.c:402 is
+    // `ismnum(corpsenm) && vegetarian(&mons[corpsenm])`, so a corpse whose
+    // species index is out of range must answer FALSE without reading mons[].
+    // The index is NUMMONS + 1 rather than NUMMONS because monsters.c ends
+    // mons[] with C's zeroed terminator row, which the port carries too, so a
+    // read at exactly NUMMONS lands on it and answers FALSE either way. One
+    // past that is where the array truly ends.
+    const state = catalogState();
+    assert.equal(
+        veggy_item(
+            { otyp: CORPSE, oclass: FOOD_CLASS, corpsenm: NUMMONS + 1, spe: 0 },
+            0, state,
+        ),
+        false,
+    );
 });
 
 test('shkveg walks the vegetarian foods weighted by oc_prob', () => {

@@ -125,9 +125,16 @@ function next2u(x, y, state) {
 // Only the answer for an ordinary square is ported: FALSE, with nothing
 // written and nothing drawn. Every arm that would destroy, damage, move, merge
 // or announce the object stops through the caller's `unsupported` operation
-// instead, named for the square or object that reached it. The arms are tested
-// in C's order, because C's own chain is an if/else-if ladder and an earlier
-// arm hides a later one.
+// instead, named for the square or object that reached it.
+//
+// The arms are tested in C's order, but they are independent `if` statements
+// rather than C's if/else-if ladder, so nothing structural stops a later arm
+// once an earlier one has fired. What holds C's hiding here is `unsupported`:
+// it must not return. A caller that supplies a recording or logging operation
+// instead gets every later arm as well, and a FALSE answer that lets the
+// caller place an object C would have destroyed. Porting an arm for real ends
+// that arrangement -- C's hot-ground potion arm, for one, ends with
+// `res = TRUE` -- and the chain has to become `else if` at that point.
 //
 // C's gb.bhitpos save, set and restore is not modelled. Only erode_obj(),
 // reached from the water and lava arms, reads it, and both of those arms stop;

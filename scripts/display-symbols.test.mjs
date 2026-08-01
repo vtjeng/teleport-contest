@@ -4236,14 +4236,9 @@ test('see_nearby_objects scans the whole near square and nothing outside it',
         // cansee() rejects it.
         const unseen = unobservedPotion(state, 11, 11);
         state.viz_array[11][11] = 0;
-        // Off the map entirely, which display.c:1587's isok() drops before
-        // vobj_at() could be asked for it.
         state.level.objects[0][10] = null;
-        const edge = nearbyObjectsState(1, 10);
-        const offMap = unobservedPotion(edge, 0, 10);
 
         see_nearby_objects(state);
-        see_nearby_objects(edge);
 
         assert.equal(lowRow.dknown, true, 'row y - r');
         assert.equal(highRow.dknown, true, 'row y + r');
@@ -4251,8 +4246,45 @@ test('see_nearby_objects scans the whole near square and nothing outside it',
         assert.equal(highColumn.dknown, true, 'column x + r');
         assert.equal(corner.dknown, false, 'diagonal beyond the near distance');
         assert.equal(unseen.dknown, false, 'square the hero cannot see');
+
+        // Off the map entirely, which display.c:1587's isok() drops before
+        // vobj_at() could be asked for it. This second map has to be built
+        // after the first scan has run, because nearbyObjectsState() calls
+        // resetGame(), and see_nearby_objects() refuses any state but the one
+        // resetGame() last installed as the global.
+        const edge = nearbyObjectsState(1, 10);
+        const offMap = unobservedPotion(edge, 0, 10);
+
+        see_nearby_objects(edge);
+
         // isok() rejects column 0, so the scan neither reads nor observes it.
         assert.equal(offMap.dknown, false, 'column zero');
+    });
+
+test('see_nearby_objects leaves a memory that is not a generic object alone',
+    () => {
+        const state = nearbyObjectsState(10, 10);
+        // display.c:1601-1603 reads levl[ix][iy].glyph and redraws only cells
+        // whose *remembered* glyph is generic. A seen trap recorded before
+        // the object arrived is not in obj_is_generic()'s range, so C keeps
+        // that stale memory even though the nearer look identifies the object
+        // underneath it.
+        state.level.traps.push({ tx: 10, ty: 12, ttyp: LANDMINE, tseen: true });
+        newsym(10, 12);
+        const remembered = state.level.at(10, 12).remembered_glyph;
+        assert.equal(glyph_is_generic_object(state.level.at(10, 12)), false);
+
+        const potion = unobservedPotion(state, 10, 12);
+        see_nearby_objects(state);
+
+        // display.c:1599's observe_object() still runs above the guard, so the
+        // object becomes dknown whatever the map remembers.
+        assert.equal(potion.dknown, true);
+        // Deep-equal the whole glyph, so a redraw that rewrote only part of
+        // the memory is caught too. newsym() would replace this trap glyph
+        // with the potion's, because an object covers a seen trap.
+        assert.deepEqual(state.level.at(10, 12).remembered_glyph, remembered);
+        assert.equal(remembered.ch, '^');
     });
 
 test('see_nearby_objects skips an object it has already observed', () => {

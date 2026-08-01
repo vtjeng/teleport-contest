@@ -36,6 +36,8 @@ import {
     SV5,
     SV6,
     SV7,
+    W_BALL,
+    W_CHAIN,
 } from '../js/const.js';
 import {
     _detectInternals,
@@ -612,6 +614,31 @@ test('blind global search maps an ordinary trap through tactile defaults', async
     assert.equal(location.seenv, SV4);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
     assertCompleteMappedGlyph(location, expected, '', ANTI_MAGIC);
+});
+
+test('blind tactile mapping refuses a floor the hero cannot feel', async () => {
+    // display.c feel_location() branches on can_reach_floor(), u.uinwater and
+    // Punished, and the port computes none of those answers, so each one has
+    // to stop. The two ball-and-chain fields live on the state root, not on
+    // `u`: youprop.h:77 makes Punished `(uball != 0)` on the file-scope
+    // object, and js/worn.js setworn() writes state.uball and state.uchain
+    // through its W_BALL and W_CHAIN slots. u.uinwater really is a hero field.
+    const cases = [
+        ['uinwater', (state) => { state.u.uinwater = true; }],
+        ['uball', (state) => { state.uball = { owornmask: W_BALL }; }],
+        ['uchain', (state) => { state.uchain = { owornmask: W_CHAIN }; }],
+    ];
+    for (const [label, punish] of cases) {
+        const target = await blindGlobalSearchState();
+        installUnseenAntiMagicTrap(target);
+        punish(game);
+
+        await assert.rejects(
+            dosearch0(1, { state: game, random: tactileSearchRandom(8) }),
+            /automatic search reached an unsupported tactile floor state/u,
+            label,
+        );
+    }
 });
 
 test('default trap comparison preserves injected mapping contracts', async () => {

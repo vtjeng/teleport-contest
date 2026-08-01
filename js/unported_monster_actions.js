@@ -667,9 +667,13 @@ async function moveSimplePet(monster, after, env) {
         eatObject: () => unsupported('pet eating'),
         maxPassiveDamage: () => unsupported('pet combat evaluation'),
         mayCrossRegion: assertSimpleDestination,
-        // dog_invent()'s carry arm prints through pline_xy() and repaints the
-        // square. The planning scan replays the same turn against the live
-        // display afterwards, so it must produce neither.
+        // Both of dog_invent()'s arms print and repaint through these two
+        // seams: the carry arm through dogmove.c pline_xy(), and the drop arm
+        // through steal.c mdrop_obj() and relobj(). The planning scan replays
+        // the same turn against the live display afterwards, so it must
+        // produce neither. Removing either injection because one arm no longer
+        // needs it writes the other arm's line and repaint on a turn the scan
+        // may still refuse.
         message: env.planning ? async () => {} : ttyPline,
         monsterReflects: () => unsupported('pet combat evaluation'),
         petRangedAttack: rejectPetRangedTarget,

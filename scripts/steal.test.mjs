@@ -30,6 +30,8 @@ import {
     FIGURINE,
     FOOD_CLASS,
     OIL_LAMP,
+    POTION_CLASS,
+    POT_BOOZE,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -426,6 +428,47 @@ test('relobj drops a pet object onto the floor and announces it', async () => {
     // relobj()'s trailing newsym() is behind `show`, which dogmove.c passes as
     // mtmp->minvis; a visible pet leaves the square to m_move()'s redraw.
     assert.deepEqual(redraws, []);
+});
+
+// An unidentified potion. Its appearance is "brown potion" under the zero
+// description shuffle state() above installs, which differs from the plain
+// class form doname() falls back to while dknown is clear.
+const UNSEEN_POTION = { otyp: POT_BOOZE, oclass: POTION_CLASS, dknown: false };
+
+test('a nearby drop identifies the object before it leaves minvent', async () => {
+    // steal.c:821-823 calls distant_name() "before extracting obj from
+    // minvent" for its side-effects, and one of them shows: an object
+    // still in minvent resolves through get_obj_location() to its carrier's
+    // square, so distant_name() takes its near branch and doname() sets
+    // dknown. Once extracted the object is OBJ_FREE, get_obj_location()
+    // answers nothing, and the far branch raises gd.distantname instead.
+    const { carrier, held, env, messages } = dropFixture({
+        carried: UNSEEN_POTION,
+    });
+
+    await relobj(carrier, 0, true, env);
+
+    assert.equal(held.dknown, true);
+    assert.deepEqual(
+        messages,
+        ['The little dog drops an uncursed brown potion.'],
+    );
+});
+
+test('a drop beyond the near square keeps the object unidentified', async () => {
+    // objnam.c distant_name()'s neardist is r * r * 2 - r, which is 6 for the
+    // ordinary xray_range. Six columns away is a distu() of 36, so the far
+    // branch runs even though the drop square is lit and in sight.
+    const far = dropFixture({ carried: UNSEEN_POTION });
+    far.gameState.u.ux = DROP_X - 6;
+
+    await relobj(far.carrier, 0, true, far.env);
+
+    assert.equal(far.held.dknown, false);
+    assert.deepEqual(
+        far.messages,
+        ['The little dog drops an uncursed potion.'],
+    );
 });
 
 test('relobj redraws the square only when show is set', async () => {

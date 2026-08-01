@@ -36,7 +36,9 @@ function refuse(reason) {
     throw error;
 }
 
-function fixture({ typ = ROOM, temperature = 0, monMoving = false } = {}) {
+function fixture({
+    typ = ROOM, temperature = 0, monMoving = false, seen = true,
+} = {}) {
     const level = new GameMap();
     level.at(DROP_X, DROP_Y).typ = typ;
     level.flags.temperature = temperature;
@@ -48,7 +50,7 @@ function fixture({ typ = ROOM, temperature = 0, monMoving = false } = {}) {
         // that consults it, and it needs the drop square lit.
         viz_array: Array.from({ length: 21 }, () => new Array(80).fill(0)),
     };
-    state.viz_array[DROP_Y][DROP_X] = IN_SIGHT;
+    if (seen) state.viz_array[DROP_Y][DROP_X] = IN_SIGHT;
     return state;
 }
 
@@ -80,7 +82,7 @@ test('flooreffects answers FALSE on an ordinary floor square', () => {
     assert.equal(obj.nexthere, null);
 });
 
-test('flooreffects answers FALSE on a corridor and on an unlit altar', () => {
+test('flooreffects answers FALSE on a corridor and on two spared altars', () => {
     // The potion arm needs ROOM or CORR; a corridor at temperature zero still
     // falls through it.
     assert.equal(
@@ -89,9 +91,18 @@ test('flooreffects answers FALSE on a corridor and on an unlit altar', () => {
         })),
         false,
     );
-    // do.c:314's altar arm needs svc.context.mon_moving as well as the altar,
-    // so a hero's own drop onto one passes through.
+    // do.c:315-316's altar arm is `svc.context.mon_moving &&
+    // IS_ALTAR(levl[x][y].typ) && cansee(x,y)`. Each of the two cases below
+    // drops one of the first two terms while leaving the altar in place. A
+    // hero's own drop clears mon_moving...
     assert.equal(land(fixture({ typ: ALTAR }), object()), false);
+    // ...and a pet that wandered out of the hero's sight clears cansee(),
+    // which is the case the running game reaches: mklev.c:994 rolls an altar
+    // into an ordinary room on any level, and a pet drops wherever it stands.
+    assert.equal(
+        land(fixture({ typ: ALTAR, monMoving: true, seen: false }), object()),
+        false,
+    );
 });
 
 test('flooreffects refuses every arm this port has not reached', () => {
