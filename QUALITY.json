@@ -5366,6 +5366,103 @@
         }
       },
       "recordedAt": "2026-08-01T12:58:50.433Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "generation": "17825d3f8092debe79586bcdaa175718c2e2b89a",
+        "monsters": "17825d3f8092debe79586bcdaa175718c2e2b89a",
+        "commands": "17825d3f8092debe79586bcdaa175718c2e2b89a"
+      },
+      "head": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
+      "auditedRange": "17825d3f8092debe79586bcdaa175718c2e2b89a..a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
+      "areas": [
+        "generation",
+        "monsters",
+        "commands"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Goal-closing full /audit-diff-correctness pass over 'the hero descends a staircase': 17 raw, 12 deduplicated, 11 confirmed, 8 applied at 4102cb7, 3 deferred, 1 rejected, 0 unverified, 0 warnings. Recorded from 17825d3, the shared frontier of the three areas claimed. Both production defects were the previous pass's own work rather than a worker's. js/detect.js:253 was the last surviving reader of state.u.uball, the same fail-open shape that pass fixed in goto_level(), and it had appeared in that pass's grep output without being acted on. js/const.js ismnum() dropped monst.h:285's upper bound while js/eat.js kept a faithful private copy, so one C macro had two owners and the exported one read past the end of state.mons. A third finding closed a gap the previous pass left in its own fix: the four refusal classes it added to failClosedCommandRefusals() had no assertion, and deleting all four left the suite green; each is now asserted separately and each was observed failing on removal. Three of the five comment corrections were citations that pass wrote naming the wrong lines. Validation at the fix commit: 2,353 tests pass, six generated-data checks, check:namespace-members, and the development score unchanged at 496 of 7,765 screens and 106,505 of 610,816 random-number values, both production defects sitting on paths no development session reaches. Five strict runFreshMatrix() differentials pass. No holdout ran during the pass.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2246,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 12,
+          "confirmed": 11,
+          "applied": 8,
+          "deferred": 3,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 4,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/detect.js:253 was the last surviving reader of state.u.uball, a field nothing in the port writes, so the tactile-floor refusal's two ball-and-chain clauses never fired and it was live only through can_reach_floor(). Same fail-open shape the previous pass fixed in goto_level(), and it appeared in that pass's own grep output without being acted on. C's Punished is (uball != 0) on the file-scope object, youprop.h:77, and js/worn.js writes state.uball through its W_BALL slot.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/const.js ismnum() dropped the upper bound of monst.h:285's ((x) >= LOW_PM && (x) < NUMMONS), while js/eat.js kept a faithful private copy: two owners of one macro with the exported one wrong. veggy_item() calls the exported one and then indexes state.mons, so an index at or past NUMMONS answered TRUE and read past the end.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "mnexto()'s comment in js/teleport.js asserts a complete caller inventory, 'Both ported callers', which omits js/do.js:669 u_collide_m(); the runtime guard that enforced the stand-in's precondition was deleted in the same range, so the comment is now the only statement of it.",
+            "category": "clarity",
+            "trackedIn": "three descent-closing findings are deferred"
+          },
+          {
+            "summary": "scripts/mkroom-shop.test.mjs:524 is the only cover for nameshk()'s shktools arm, and its two assertions leave the name selection itself unpinned; a mutant that keeps the draw but changes which name it returns survives.",
+            "category": "tests",
+            "trackedIn": "three descent-closing findings are deferred"
+          },
+          {
+            "summary": "Two block headers in scripts/mkroom-shop.test.mjs claim the C differential pins their asserted counts cell for cell because the D:2 map carries one glyph per stocked square, but the recorded D:2 screen contains none of the shop's squares for any of the seeds those blocks use, so the differential does not establish what the headers say.",
+            "category": "tests",
+            "trackedIn": "three descent-closing findings are deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "That the audit fix replacing u.uball with Punished(state) left two hero-property predicates with incompatible first arguments side by side in js/do.js.",
+            "counterEvidence": "The adjudicator found the two predicates take different arguments by design: Punished(state) reads the state root because C's uball is a file-scope object, while heroPropertyActive(u, ...) reads u.uprops because C's property macros are hero fields. The asymmetry mirrors the C source rather than diverging from it. Do not reopen without a source line showing C treats the two alike."
+          }
+        ],
+        "mutation": {
+          "mutants": 33,
+          "survivors": 9,
+          "byKind": {
+            "boolean": {
+              "ran": 11,
+              "killed": 9
+            },
+            "logical": {
+              "ran": 12,
+              "killed": 9
+            },
+            "relational": {
+              "ran": 10,
+              "killed": 6
+            }
+          },
+          "finderConclusion": "72.7% killed, with relational again weakest at 60%. The run's own baseline was 178 tests in 4 files, a first-wave verdict that under-judges, and scripts/mutate-sites.mjs's header says --whole-suite is not optional at that coverage. The survivors did not drive the pass: its two production defects were both found by reading source, and the most valuable test finding -- that the four refusal classes the previous pass added had no assertion at all -- is invisible to mutation, because deleting a list entry is not an operator mutation. Mutation measured whether the tests pin the lines that exist and said nothing about the line that was wrong."
+        }
+      },
+      "recordedAt": "2026-08-01T17:38:35.622Z"
     }
   ]
 }
