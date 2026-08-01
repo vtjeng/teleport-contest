@@ -13,8 +13,9 @@ Read these three files:
 
 - `ROADMAP.md` - the goal in progress and its ordered slices
 - `.agents/validation.md` - what validating this slice requires
-- `.agents/workflow.md`, "Terms" and "Per-chunk workflow" - the work vocabulary
-  and the commit sequence
+- `.agents/workflow.md`, "Terms", "Per-chunk workflow" and "Pushing and CI" -
+  the work vocabulary, the commit sequence, and what happens to a closed
+  slice's commits
 
 Then read the C source for every function you are porting, before you write
 anything.
@@ -92,7 +93,9 @@ Add `--file js/<module>.js` when the remaining survivors sit in one module.
   matches from the chosen starting point through the chosen result.
 - `npm run checkpoint` passes: every test passes and no session's development
   score regressed.
-- The work is committed and the working tree is clean.
+- The work is committed, the working tree is clean, and the commits are pushed
+  with their CI run reporting `success`, as "Pushing and CI" in
+  `.agents/workflow.md` requires.
 
 If you cannot reach that state, commit nothing and report what blocked you. The
 next iteration then starts from a clean tree.

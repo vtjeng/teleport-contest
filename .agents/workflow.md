@@ -110,7 +110,10 @@ The orchestrator repeats, without returning to the user between its steps:
 2. Spawn a worker for that slice. When it returns, establish independently what
    landed: `git log --oneline` and `git status --short` for the commits and the
    tree, and `npm run checkpoint` for the suite and the development score.
-   Accept no figure from the worker that these commands measure.
+   Accept no figure from the worker that these commands measure. Add
+   `git log --oneline origin/main..HEAD` for what is not pushed. Push whatever
+   the worker left behind and every commit you landed yourself, then watch the
+   run to `success` as "Pushing and CI" requires.
 3. Run `npm run quality` yourself; no worker reports it. The advisory
    checkpoint and the gate are the two per-area thresholds that `QUALITY.json`
    configures and `npm run quality` measures; `.agents/review.md`,
@@ -189,14 +192,28 @@ end-to-end differential verifies the PRNG log, complete screens and attributes,
 cursors, and persisted state through the next boundary. Unit tests can validate
 a prerequisite but cannot close a dormant path.
 
-## Pushing a closed slice
+## Pushing and CI
 
-Push as soon as a behavior slice closes. CI runs only on pushed commits, and
-uses a fresh checkout and the Node version `.github/workflows/score.yml` pins,
-currently 22, so it can fail where a local checkpoint passes.
+Push when a behavior slice closes, and push any other commit, an evidence-only
+one included, before the turn ends. CI does not see a commit until it is
+pushed, and it can fail where a local checkpoint passes, because it runs from a
+fresh checkout on the Node version `.github/workflows/score.yml` pins,
+currently 22.
 
-After pushing, run `gh run watch <id> --exit-status` and wait for the run. A run
-takes about 85 seconds.
+```
+gh run list --limit 1
+gh run watch <id> --exit-status
+```
+
+Neither command needs a `--repo` flag: `gh repo set-default
+vtjeng/teleport-contest` is set in this clone, and linked worktrees share that
+config. Without it `gh` answers for `davidbau/teleport-contest`, the `upstream`
+remote, whose runs belong to someone else and stopped in June 2026, so a push
+looks as though it started no run at all. If `gh run list` ever shows runs you
+do not recognize, run `set-default` again.
+
+After pushing, wait for the run. The two runs measured on 1 August 2026 took 1
+minute 47 seconds and 1 minute 41 seconds.
 
 If the run fails, diagnose the failure, fix it, and push again, then watch the
 new run. Start the next slice only after the run reports `success`.
