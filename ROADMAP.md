@@ -332,6 +332,34 @@ defects recorded here. `scripts/scan-debt.mjs` now ranks `#levelchange` first at
 rather than deferred. Whoever takes either goal reads this entry first and
 decides whether the prompt it draws reaches the menu-erasure path.
 
+**What is now known about which goals it blocks.** Two traces settle more than
+the caution above implies.
+
+`goto_level()` calls `docrt()` (`do.c`, 363 lines into the function, commented
+"does a full vision recalc"), so C repaints the whole screen on the
+level-transition path. The port's always-full repaint coincides with C's there.
+The descent goal does **not** wait on this entry. What the descent goal does owe
+it is separate: `goto_level()` calls `flush_screen(-1)` twice, at 243 and 364,
+where `-1` postpones the map flush, and the port has no notion of postponing
+one. That is an ordering question for the descent goal to trace. This defect
+does not own it.
+
+The `#ride` goal's slice 1 drew a `getdir()` prompt straight at this defect and
+it did not fire: all 11 matrix segments matched cell for cell. Both known
+victims are menu *search* prompts, so the reachable surface is narrower than
+this entry first suggested.
+
+`#levelchange` is the goal that should not start before this lands. It sits at
+128 `unlocks` across five sessions and draws both a prompt and a menu into the
+two recorded victims.
+
+`scripts/score-baseline.mjs` changes what the conversion costs to attempt. The
+worry below is that `_buildScreenOutput()` is the port's only map renderer,
+behind all eleven `flush_screen()` call sites, so converting it puts every
+matching screen at risk. A regression used to surface as a total someone had to
+examine per session; the ratchet now fails `npm run checkpoint` and names the
+sessions that dropped.
+
 Three findings from that pass are the same defect seen from three angles: the
 menu erasure itself, the two menu call sites left untested against it, and the
 missing `state === game` guard that the other port of the same C line carries.
