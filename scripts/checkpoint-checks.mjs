@@ -29,7 +29,12 @@ export function checkpointCommands(focusedTests = [], {
             command: process.execPath,
             args: [
                 '--test',
-                '--test-isolation=none',
+                // Node 22, which .nvmrc and .github/workflows/score.yml pin,
+                // rejects the unflagged `--test-isolation` outright and exits
+                // with `node: bad option`, so --focus never ran a test there.
+                // Node 24 accepts both spellings; this one accepts both
+                // versions.
+                '--experimental-test-isolation=none',
                 ...focusedTests,
             ],
         });

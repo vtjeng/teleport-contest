@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -34,11 +35,26 @@ test('checkpoint runs focused, full, mutants, generated, static, and score',
         );
         assert.deepEqual(commands[0].args, [
             '--test',
-            '--test-isolation=none',
+            '--experimental-test-isolation=none',
             'scripts/dogmove.test.mjs',
             'scripts/monmove.test.mjs',
         ]);
     });
+
+test('the focused run\'s isolation flag is one this Node accepts', () => {
+    // Pinning the flag's spelling proves nothing on its own: `--focus` shipped
+    // for weeks spelled `--test-isolation=none`, which Node 22 rejects with
+    // `node: bad option` before running a single test, and the assertion above
+    // passed throughout. Node exits 9 on an unknown option, so spawning it is
+    // what tells the two spellings apart. `-e` stands in for the test files:
+    // the flag is parsed either way, and no test process is started.
+    const [, isolationFlag] = checkpointCommands(['scripts/dogmove.test.mjs'])
+        .find(({ label }) => label === 'focused tests').args;
+    const probe = spawnSync(process.execPath, [isolationFlag, '-e', '0']);
+
+    assert.equal(probe.status, 0,
+        `${process.version} rejects ${isolationFlag}: ${probe.stderr}`);
+});
 
 test('checkpoint options collect focus files and can skip scoring', () => {
     const options = parseCheckpointArgs([
