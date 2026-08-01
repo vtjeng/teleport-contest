@@ -740,6 +740,34 @@ export function singular(otmp, func, state) {
     }
 }
 
+// C ref: objnam.c the() (2170-2237). Prefixes "the " to a name that needs an
+// article.
+//
+// Only the two branches a lower-case name reaches are ported. C's third branch
+// decides whether a capitalized name is a proper noun, and needs CapitalMon(),
+// fruit_from_name() and artifact_name(); the arm above it that spares an
+// already-prefixed string is one `strncmpi`, so it is cheaper to port than to
+// justify leaving out. eat.c food_xname() is the only caller, and a comestible
+// whose xname() starts with a capital needs a named fruit, so the stop below is
+// reachable only through the `fruit:` option.
+export function the(str) {
+    if (!str) {
+        // C's impossible() returns "the []" and carries on. Reaching it means
+        // a caller handed this an empty name, which is a defect here.
+        throw new Error('the(): empty name');
+    }
+    if (str.slice(0, 4).toLowerCase() === 'the ')
+        return str[0].toLowerCase() + str.slice(1);
+    if (str[0] >= 'A' && str[0] <= 'Z') {
+        throw new UnsupportedObjectNameError(
+            'the() for a name that may be a proper noun',
+            null,
+        );
+    }
+    /* not a proper name, needs an article */
+    return `the ${str}`;
+}
+
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and
 // lit-candle branches stop before xname() can mutate discovery state.
 export function donameFresh(obj, state) {

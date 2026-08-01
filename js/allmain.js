@@ -64,11 +64,12 @@ import {
 } from './startup_skills.js';
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
-import { rhack } from './cmd.js';
+import { failClosedCommandRefusals, rhack } from './cmd.js';
 import {
     domove,
     endRunning,
     lookaround,
+    monsterNearby,
     near_capacity,
     nomul,
     projected_capacity,
@@ -844,6 +845,53 @@ export async function moveloop_core() {
     // repeats its established intent directly; other counted commands re-enter
     // rhack() with cmd_key.
     g.context.move = 1;
+
+    // C ref: allmain.c moveloop_core() (485-509). While an occupation is set
+    // and the hero is not helpless, the turn belongs to the occupation: C runs
+    // the callback, clears go.occupation when it answers 0, and returns without
+    // reading a key, so every turn of a multi-turn action passes through here
+    // instead of rhack(). The MICRO/WIN32CON keyboard-abort arm inside it is
+    // compiled out for the recorder's Unix build.
+    //
+    // The `gm.multi >= 0` guard is what suspends an occupation while the hero
+    // is helpless; nomul() with a negative value is its only writer, and every
+    // ported caller passes 0.
+    if ((g.multi ?? 0) >= 0 && g.go?.occupation) {
+        let finished;
+        try {
+            // C's callbacks read globals; this port's read the operations
+            // their command path injects. eat.c eatfood() needs only bot(),
+            // through the newuhs() call done_eating() makes.
+            finished = await g.go.occupation(g, { statusRefresh: () => bot() });
+        } catch (error) {
+            // The occupation runs outside js/cmd.js failClosedCommand(), so a
+            // refusal it raises would otherwise escape runSegment() as a hard
+            // failure and discard the segment's matching prefix.
+            if (failClosedCommandRefusals().some((t) => error instanceof t)) {
+                throw new UnsupportedTurnBoundaryError(
+                    `an occupation reached ${error.message}`,
+                );
+            }
+            throw error;
+        }
+        if (finished === 0) g.go.occupation = null;
+        if (monsterNearby(g)) {
+            // C ref: `if (monster_nearby()) { stop_occupation(); reset_eat(); }`
+            // at allmain.c:505-508. stop_occupation() (684) prints
+            // You("stop %s.", go.occtxt) unless maybe_finished_meal() finishes
+            // the meal instead, clears go.occupation, sets disp.botl and calls
+            // nomul(0); reset_eat() then flags victual.doreset so the next
+            // bite runs do_reset_eat(). Neither has a port, and the resumed
+            // meal that follows an interruption needs doeat()'s
+            // already-partly-eaten arm, which stops too.
+            throw new UnsupportedTurnBoundaryError(
+                'an occupation interrupted by a nearby monster',
+            );
+        }
+        await runmode_delay_output(g);
+        return;
+    }
+
     g.u.umoved = false;
     if ((g.multi ?? 0) > 0) {
         await lookaround(g);

@@ -527,8 +527,8 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         assert.equal(current.u.uhunger, 950);
         assert.deepEqual(messages, []);
 
-        // 1500 is where C warns that the meal is hard to get down, which
-        // needs gn.nomovemsg and paranoid_query().
+        // 1500 is where C warns that the meal is hard to get down. Outside a
+        // meal it also sets gm.multi = -2, which has no port.
         const full = state();
         full.u.uhunger = 1499;
         await assert.rejects(
@@ -536,12 +536,14 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
             UnsupportedEatError,
         );
         // A ring of hunger suppresses that warning entirely, so the same
-        // nutrition goes through.
+        // nutrition goes through with nothing said.
         const hungry = state();
         hungry.u.uhunger = 1499;
         hungry.u.uprops[HUNGER] = { intrinsic: 1, extrinsic: 0 };
-        await lesshungry(1, hungry, newuhsEnv());
+        const hungrySaid = [];
+        await lesshungry(1, hungry, newuhsEnv(hungrySaid));
         assert.equal(hungry.u.uhunger, 1500);
+        assert.deepEqual(hungrySaid, []);
         // So does a meal that has already given the warning once. A meal that
         // has not is warned again, which is what C's `fullwarn` selects.
         const warned = state();
@@ -549,17 +551,46 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         warned.context.victual = {
             ...zero_victual(), eating: 1, fullwarn: 1,
         };
-        await lesshungry(1, warned, newuhsEnv());
+        const warnedSaid = [];
+        await lesshungry(1, warned, newuhsEnv(warnedSaid));
         assert.equal(warned.u.uhunger, 1500);
+        assert.deepEqual(warnedSaid, []);
+        assert.equal(warned.nomovemsg, undefined);
         const unwarned = state();
         unwarned.u.uhunger = 1499;
         unwarned.context.victual = {
             ...zero_victual(), eating: 1, fullwarn: 0,
         };
+        const unwarnedSaid = [];
+        await lesshungry(1, unwarned, newuhsEnv(unwarnedSaid));
+        assert.deepEqual(unwarnedSaid,
+            ["You're having a hard time getting all of it down."]);
+        // done_eating() prints gn.nomovemsg in place of "You finish eating",
+        // and fullwarn is what stops the next bite repeating the warning.
+        assert.equal(unwarned.nomovemsg, "You're finally finished.");
+        assert.equal(unwarned.context.victual.fullwarn, 1);
+        // canchoke plus more than one bite left reaches paranoid_query(),
+        // which has no port. Two bites left is the smallest amount that does:
+        // C tests `(reqtime - usedtime) > 1`.
+        const risky = state();
+        risky.u.uhunger = 1499;
+        risky.context.victual = {
+            ...zero_victual(),
+            eating: 1, fullwarn: 0, canchoke: 1, reqtime: 5, usedtime: 3,
+        };
         await assert.rejects(
-            () => lesshungry(1, unwarned, newuhsEnv()),
+            () => lesshungry(1, risky, newuhsEnv()),
             UnsupportedEatError,
         );
+        // One bite left takes the same warning silently past that query.
+        const lastBite = state();
+        lastBite.u.uhunger = 1499;
+        lastBite.context.victual = {
+            ...zero_victual(),
+            eating: 1, fullwarn: 0, canchoke: 1, reqtime: 5, usedtime: 4,
+        };
+        await lesshungry(1, lastBite, newuhsEnv());
+        assert.equal(lastBite.context.victual.fullwarn, 1);
 
         // The status this settles on describes the whole meal, so C passes
         // incr false: a hero eating out of weakness "only feels hungry now"
@@ -796,50 +827,6 @@ test('a comestible with an unported effect stops after doeat has committed',
         assert.match(cookie.message, /outrumor\(\)/u);
         assert.equal(game.u.uconduct.unvegan, 1);
         assert.equal(game.u.uconduct.food, 1);
-
-        // A Ranger's cram ration prints fprefx()'s "bland." wording and then
-        // stops at the occupation a three-turn meal needs.
-        const ranger = {
-            ...monk,
-            seed: 4510031,
-            nethackrc: monk.nethackrc.replace('role:Monk', 'role:Ranger'),
-        };
-        const cram = await boundaryFor(ranger, '.ef');
-        // The stop follows the message, so nothing has flushed it to the grid
-        // yet; this is the text the next flush would paint onto row 0.
-        assert.equal(game._pending_message, 'This cram ration is bland.');
-        assert.match(cram.message, /set_occupation\(eatfood\)/u);
-
-        // The meal is left mid-flight here, which is the only place this
-        // slice can read svc.context.victual populated: done_eating() zeroes
-        // every field before a one-turn meal returns. Each value is derived
-        // from C, and the whole struct is compared so a field written by
-        // accident fails too.
-        const meal = game.context.victual;
-        assert.equal(meal.piece.otyp, CRAM_RATION);
-        // doeat() writes `meal.o_id = otmp->o_id` beside the piece itself.
-        assert.equal(meal.o_id, meal.piece.o_id);
-        assert.deepEqual({ ...meal, piece: null, o_id: 0 }, {
-            piece: null,
-            o_id: 0,
-            // start_eating()'s `++usedtime` runs once for the first bite,
-            // before the occupation this port stops at would take the rest.
-            usedtime: 1,
-            // objects.h gives the cram ration oc_delay 3, and doeat()
-            // recomputes reqtime as rounddiv(3 * oeaten, basenutrit), which is
-            // 3 again for a whole one.
-            reqtime: 3,
-            // oeaten 600 is at least reqtime 3, so nmod is -(600 / 3).
-            nmod: -200,
-            // doeat() sets canchoke from `u.uhs == SATIATED`, and the Ranger
-            // starts NOT_HUNGRY.
-            canchoke: 0,
-            // start_eating()'s other two writes.
-            fullwarn: 0,
-            eating: 1,
-            // Only reset_eat() sets doreset, and nothing ported calls it.
-            doreset: 0,
-        });
     });
 
 test('the FOOD rows carry three materials, one of them metallic', () => {

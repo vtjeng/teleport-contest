@@ -36,6 +36,7 @@ import {
     SLOW_DIGESTION,
     SLT_ENCUMBER,
     SPINACH_TIN,
+    STOMACH,
     STRANGLED,
     Upolyd,
     VOMITING,
@@ -50,6 +51,7 @@ import {
     W_WEP,
     NEUTRAL,
 } from './const.js';
+import { set_occupation } from './cmd.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity, endRunning, inv_cnt, rounddiv } from './hack.js';
@@ -70,6 +72,7 @@ import {
     PM_ACID_BLOB,
     PM_BLACK_PUDDING,
     PM_DWARF,
+    PM_FIRE_ELEMENTAL,
     PM_FLESH_GOLEM,
     PM_ELF,
     PM_LEATHER_GOLEM,
@@ -90,7 +93,7 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import { costly_alteration, objectType, splitobj, weight } from './obj.js';
-import { singular, xnameFresh } from './objnam.js';
+import { singular, the, xnameFresh } from './objnam.js';
 import {
     APPLE,
     CANDY_BAR,
@@ -124,6 +127,7 @@ import {
     TIN,
     TRIPE_RATION,
 } from './objects.js';
+import { body_part } from './polyself.js';
 import { rn2 } from './rng.js';
 import { is_pool_or_lava } from './trap.js';
 import { ttyPline } from './tty_message.js';
@@ -236,10 +240,15 @@ function supportedHungerTransition(newStatus) {
     return newStatus !== FAINTING;
 }
 
-function requireHungerTransitionOperation(env, name) {
+// The operations eat.c reaches through globals -- pline(), end_running() and
+// bot() -- and this port injects, because the elapsed-turn caller substitutes
+// silent versions of all three when it dry-runs a turn on a cloned state.
+// Resolving by name means a caller that omits one fails here rather than
+// silently skipping the output C produces.
+function requireEatOperation(env, name) {
     const operation = env[name];
     if (typeof operation !== 'function')
-        throw new TypeError(`newuhs() transition requires ${name}`);
+        throw new TypeError(`eat.c requires ${name}`);
     return operation;
 }
 
@@ -374,10 +383,10 @@ export function preflightGetHungry(state = game, env = {}) {
     // takes rewrites the status line; only its HUNGRY and WEAK arms print a
     // message and end a run.
     if (mayChangeStatus && supported) {
-        requireHungerTransitionOperation(env, 'statusRefresh');
+        requireEatOperation(env, 'statusRefresh');
         if (earliestStatus === HUNGRY || earliestStatus === WEAK) {
-            requireHungerTransitionOperation(env, 'message');
-            requireHungerTransitionOperation(env, 'endRunning');
+            requireEatOperation(env, 'message');
+            requireEatOperation(env, 'endRunning');
         }
     }
 
@@ -642,6 +651,26 @@ function victual(state) {
     return state.context.victual;
 }
 
+// C ref: the `go.occupation == eatfood` test eat.c makes in eight places.
+// eatfood() below is the callback cmd.c set_occupation() installs, so this
+// answers "a meal of more than one turn is in progress". It is deliberately
+// not the same question as svc.context.victual.eating, which start_eating()
+// raises one bite earlier and do_reset_eat() lowers on an interruption.
+function eating_occupation(state) {
+    return state.go?.occupation === eatfood;
+}
+
+// C ref: eat.c food_xname() (215-235), ``[the(] singular(food, xname) [)]''.
+// The corpse arm needs corpse_xname() and type_is_pname(); done_eating() is the
+// only caller here and doeat() refuses a corpse before a meal can start.
+function food_xname(food, the_pfx, state) {
+    if (food.otyp === CORPSE)
+        throw new UnsupportedEatError('corpse_xname() for food_xname()');
+    /* the ordinary case */
+    const result = singular(food, xnameFresh, state);
+    return the_pfx ? the(result) : result;
+}
+
 // C ref: eat.c obj_nutrition() (322-334).
 export function obj_nutrition(otmp, state = game) {
     if (otmp.otyp === CORPSE)
@@ -792,10 +821,12 @@ export async function newuhs(incr, state = game, env = {}) {
     const u = state.u;
     let newhs = hungerStatus(u.uhunger);
 
-    // C ref: `if (go.occupation == eatfood || gf.force_save_hs)`. This port has
-    // no occupation, so only bite() can take this arm; slice 3's multi-turn
-    // occupation is what adds the other half.
-    if (state.force_save_hs) {
+    // C ref: `if (go.occupation == eatfood || gf.force_save_hs)`. The first
+    // term covers every turn of a multi-turn meal, including the once-per-turn
+    // gethungry() call, which is why a meal that crosses a hunger boundary says
+    // nothing until it ends. The second covers start_eating()'s first bite,
+    // which C takes before it sets the occupation.
+    if (eating_occupation(state) || state.force_save_hs) {
         if (!state.saved_hs) {
             state.save_hs = u.uhs;
             state.saved_hs = true;
@@ -828,20 +859,25 @@ export async function newuhs(incr, state = game, env = {}) {
         }
 
         if (newhs === HUNGRY || newhs === WEAK) {
-            const message = requireHungerTransitionOperation(env, 'message');
-            const stopRunning = requireHungerTransitionOperation(
+            const message = requireEatOperation(env, 'message');
+            const stopRunning = requireEatOperation(
                 env,
                 'endRunning',
             );
             await message(hungerTransitionMessage(newhs, incr, state), state);
-            // C ref: `if (incr && go.occupation && ...) stop_occupation();`.
-            // No ported occupation can be running here.
+            // C ref: `if (incr && go.occupation
+            //          && (go.occupation != eatfood
+            //              && go.occupation != opentin)) stop_occupation();`.
+            // eatfood is the only occupation this port installs and C's own
+            // condition excludes it, so the call cannot happen. It is also
+            // unreachable from here for a second reason: the arm above returns
+            // early while eatfood is running, so a meal never gets this far.
             stopRunning(state);
         }
         u.uhs = newhs;
         state.disp ??= {};
         state.disp.botl = true;
-        await requireHungerTransitionOperation(env, 'statusRefresh')(state);
+        await requireEatOperation(env, 'statusRefresh')(state);
         if (u.uhp < 1) {
             // C prints "You die from hunger and exhaustion." and calls
             // done(STARVING).
@@ -888,9 +924,8 @@ export async function lesshungry(num, state, env) {
     const u = state.u;
     const meal = victual(state);
     /* See comments in newuhs() for discussion on force_save_hs */
-    // C ref: `(go.occupation == eatfood) || gf.force_save_hs`; only the second
-    // term exists in this port.
-    const iseating = Boolean(state.force_save_hs);
+    // C ref: `(go.occupation == eatfood) || gf.force_save_hs`.
+    const iseating = eating_occupation(state) || Boolean(state.force_save_hs);
 
     u.uhunger += num;
     if (u.uhunger >= 2000) {
@@ -903,12 +938,30 @@ export async function lesshungry(num, state, env) {
         && !propertyActive(state, HUNGER)
         // C spells this `!eating || (eating && !fullwarn)`.
         && (!meal.eating || !meal.fullwarn)) {
-        // "You're having a hard time getting all of it down." sets
-        // gn.nomovemsg, and either gm.multi or fullwarn plus a
-        // paranoid_query(); none of the three has a port.
-        throw new UnsupportedEatError(
-            "lesshungry()'s nearly-full warning",
+        await requireEatOperation(env, 'message')(
+            "You're having a hard time getting all of it down.",
+            state,
         );
+        state.nomovemsg = "You're finally finished.";
+        if (!meal.eating) {
+            // C sets gm.multi = -2, which paralyses the hero for two turns and
+            // needs nomul()'s afternmv machinery. Only potion.c's fruit juice
+            // reaches lesshungry() with no meal in progress, and no potion is
+            // ported, so nothing can take this arm.
+            throw new UnsupportedEatError(
+                "lesshungry()'s nearly-full warning outside a meal",
+            );
+        }
+        meal.fullwarn = 1;
+        if (meal.canchoke && (meal.reqtime - meal.usedtime) > 1) {
+            // paranoid_query(ParanoidEating, "Continue eating?") asks before
+            // risking a choke, and reset_eat() abandons the meal on a refusal.
+            // canchoke is set only when the hero was already SATIATED when the
+            // meal began.
+            throw new UnsupportedEatError(
+                "lesshungry()'s paranoid_query() for continued eating",
+            );
+        }
     }
     await newuhs(false, state, env);
 }
@@ -989,21 +1042,44 @@ async function fpostfx(otmp, state, env) {
 // C ref: eat.c fprefx() (2091-2213), the message on the first bite of a
 // non-corpse, non-tin food. Answers false when eating must not proceed.
 //
-// Only the default arm is ported. Every arm above it belongs to a food this
-// slice cannot reach: the multi-turn foods (a food ration, a tripe ration, a
-// lembas wafer) are slice 3's, and the rest each need an unported effect.
+// The food ration arm and the default arm are ported. Every other arm needs an
+// unported effect.
 async function fprefx(otmp, state) {
     switch (otmp.otyp) {
     case EGG:
         // A pyrolisk egg explodes; a stale one calls make_vomiting().
         throw new UnsupportedEatError("fprefx()'s egg arms");
-    case FOOD_RATION:
+    case FOOD_RATION: /* nutrition 800 */
+        if (Hallucination(state)) {
+            // "Oh wow, like, superior, man" replaces the first message.
+            // Nothing reachable on dungeon level one makes the hero
+            // hallucinate.
+            throw new UnsupportedEatError(
+                "fprefx()'s hallucinating food ration message",
+            );
+        }
+        /* 200+800 remains below 1000+1, the satiation threshold */
+        if (state.u.uhunger <= 200) {
+            await ttyPline('This food really hits the spot!', state);
+        } else if (state.u.uhunger < 700) {
+            /* 700-1+800 remains below 1500, the choking threshold which
+               triggers "you're having a hard time getting it down" feedback */
+            await ttyPline(
+                `This satiates your ${body_part(STOMACH, state.youmonst)}!`,
+                state,
+            );
+        }
+        break;
     case TRIPE_RATION:
+        // The three wordings need carnivorous(), humanoid() and the orc race
+        // test, and the "Yak - dog food!" arm also calls more_experienced(),
+        // newexplevel() and, on rn2(2) outside CANNIBAL_ALLOWED(),
+        // make_vomiting().
+        throw new UnsupportedEatError("fprefx()'s tripe ration arm");
     case LEMBAS_WAFER:
-        // oc_delay 5, 2 and 2: each is a multi-turn meal.
-        throw new UnsupportedEatError(
-            "fprefx()'s multi-turn ration arms",
-        );
+        // The orc and elf wordings, and the fall through to give_feedback for
+        // every other race.
+        throw new UnsupportedEatError("fprefx()'s lembas wafer arm");
     case MEATBALL:
     case MEAT_STICK:
     case ENORMOUS_MEATBALL:
@@ -1060,6 +1136,71 @@ async function fprefx(otmp, state) {
     return true;
 }
 
+// The operations eat.c's own code reaches through globals. doeat() and
+// eatfood() both build this, so a meal behaves the same whether the turn came
+// from the command or from the occupation. Only statusRefresh differs, because
+// display.c bot() would close an import cycle with this file and arrives from
+// the caller instead.
+function eatOperations(state, statusRefresh) {
+    return {
+        state,
+        // C ref: mkobj.c weight()'s partly-eaten arms, which reach eat.c
+        // eaten_stat() through this port's object env. No other hook is
+        // reachable: an ordinary comestible carries no timer, no light, no
+        // shop bill and no worn mask, so freeinv(), addinv_nomerge(),
+        // splitobj() and obfree() each take their hookless path, and a hook
+        // this meal did need would stop the command rather than be skipped.
+        hooks: { eatenStat: eaten_stat },
+        message: ttyPline,
+        endRunning,
+        // newuhs() resolves this only when the meal moves the hunger status,
+        // which is the one place C's doeat() reaches bot().
+        statusRefresh,
+    };
+}
+
+// C ref: eat.c eatfood() (517-541), the occupation callback set_occupation()
+// installs at the end of start_eating(). allmain.c moveloop_core() runs it once
+// a turn and clears go.occupation when it answers 0.
+//
+// `env` carries only statusRefresh; every other operation is this file's own.
+export async function eatfood(state = game, env = {}) {
+    const meal = victual(state);
+    const eatEnv = eatOperations(state, env.statusRefresh);
+    const food = meal.piece;
+
+    // C ref: `if (food && !carried(food) && !obj_here(food, u.ux, u.uy))
+    // food = 0;`. floorfood() refuses a floor object, so a meal always starts
+    // on a carried food, and no ported path takes one out of inventory while
+    // the meal runs. obj_here() therefore has no reachable input.
+    if (food && !carried(food)) {
+        throw new UnsupportedEatError("eatfood()'s food outside inventory");
+    }
+    if (!food) {
+        /* maybe it was stolen? */
+        // food_disappears() zeroes the victual without clearing the
+        // occupation, which is how C reaches this arm; obfree() is its only
+        // caller and, during a meal, done_eating()'s own useup() is the only
+        // ported route into obfree().
+        throw new UnsupportedEatError(
+            'do_reset_eat() for a meal whose food went away',
+        );
+    }
+    if (!meal.eating) {
+        // do_reset_eat() lowers `eating` when an interruption abandons the
+        // meal, and nothing ported calls it.
+        throw new UnsupportedEatError("eatfood()'s abandoned meal");
+    }
+
+    if (++meal.usedtime <= meal.reqtime) {
+        if (await bite(state, eatEnv)) return 0;
+        return 1; /* still busy */
+    }
+    /* done */
+    await done_eating(true, state, eatEnv);
+    return 0;
+}
+
 // C ref: eat.c done_eating() (542-573). The end of a meal: the food is used
 // up, its remaining effects run, and the victual struct returns to zero.
 async function done_eating(message, state, env) {
@@ -1068,19 +1209,23 @@ async function done_eating(message, state, env) {
 
     piece.in_use = true;
     // C ref: `go.occupation = 0; /* do this early, so newuhs() knows we're
-    // done */`. No ported occupation exists; state.force_save_hs, which
-    // bite() raised, is what newuhs() reads instead, and bite() has already
-    // lowered it.
+    // done */`. Clearing it here is what lets the newuhs() below restore the
+    // status the hero started the meal with and comment on the whole meal;
+    // leaving it set would take newuhs()'s silent arm instead. moveloop_core()
+    // clears it a second time when this callback answers 0.
+    if (state.go) state.go.occupation = null;
     await newuhs(false, state, env);
+    const plineMessage = requireEatOperation(env, 'message');
     if (state.nomovemsg) {
-        // Only lesshungry()'s nearly-full warning and choke() set nomovemsg,
-        // and both stop above.
-        throw new UnsupportedEatError("done_eating()'s nomovemsg");
+        if (message) await plineMessage(state.nomovemsg, state);
+        state.nomovemsg = 0;
     } else if (message) {
-        // You("finish %s %s.", ..., food_xname(piece, TRUE)); reached only by
-        // a meal of more than one turn or one resumed after an interruption.
-        throw new UnsupportedEatError(
-            "done_eating()'s \"You finish eating\" message",
+        await plineMessage(
+            `You finish ${
+                state.youmonst.data === state.mons[PM_FIRE_ELEMENTAL]
+                    ? 'consuming' : 'eating'
+            } ${food_xname(piece, true, state)}.`,
+            state,
         );
     }
 
@@ -1094,12 +1239,8 @@ async function done_eating(message, state, env) {
     state.context.victual = zero_victual();
 }
 
-// C ref: eat.c start_eating() (2020-2074). Takes the first bite and, when that
-// finishes the food, ends the meal at once.
-//
-// The multi-turn tail is slice 3's: set_occupation(eatfood, ...) and the
-// occupation machinery it needs have no port, so a meal that survives its
-// first bite stops here.
+// C ref: eat.c start_eating() (2020-2074). Takes the first bite and either ends
+// the meal at once or hands the rest of it to the eatfood() occupation.
 async function start_eating(otmp, already_partly_eaten, state, env) {
     const meal = victual(state);
 
@@ -1128,8 +1269,15 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
         return;
     }
 
-    throw new UnsupportedEatError(
-        'set_occupation(eatfood) for a meal of more than one turn',
+    // C ref: `Sprintf(msgbuf, "eating %s", food_xname(otmp, TRUE));
+    // set_occupation(eatfood, msgbuf, 0);`. msgbuf is a static buffer whose
+    // only reader is stop_occupation()'s "You stop %s." -- unported, so this
+    // text is stored and never printed yet.
+    set_occupation(
+        eatfood,
+        `eating ${food_xname(otmp, true, state)}`,
+        0,
+        state,
     );
 }
 
@@ -1234,21 +1382,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
 // two operations newuhs() needs are this file's own.
 export async function doeat(state = game, env = {}) {
     const u = state.u;
-    const eatEnv = {
-        state,
-        // C ref: mkobj.c weight()'s partly-eaten arms, which reach eat.c
-        // eaten_stat() through this port's object env. No other hook is
-        // reachable: an ordinary comestible carries no timer, no light, no
-        // shop bill and no worn mask, so freeinv(), addinv_nomerge(),
-        // splitobj() and obfree() each take their hookless path, and a hook
-        // this meal did need would stop the command rather than be skipped.
-        hooks: { eatenStat: eaten_stat },
-        message: ttyPline,
-        endRunning,
-        // newuhs() resolves this only when the meal moves the hunger status,
-        // which is the one place C's doeat() reaches bot().
-        statusRefresh: env.statusRefresh,
-    };
+    const eatEnv = eatOperations(state, env.statusRefresh);
 
     if (u.uprops[STRANGLED].intrinsic) {
         await ttyPline(

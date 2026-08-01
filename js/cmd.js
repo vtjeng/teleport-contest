@@ -155,6 +155,33 @@ function commandBindings(state) {
     return state.commandBindings;
 }
 
+// C ref: cmd.c set_occupation() (205-217). Installs the callback that
+// allmain.c moveloop_core() runs once a turn until it answers 0, together with
+// the text stop_occupation() puts into "You stop <occtxt>."
+//
+// go.occupation, go.occtxt and go.occtime live on state.go, the port's home for
+// decl.c's `go` globals. C never writes them to a save file, so nothing carries
+// them between segments either: an occupation lasts one segment at most.
+//
+// This module is part of an import cycle with js/eat.js, which calls this. The
+// callback therefore arrives as an argument and is never read from a module
+// scope that could still be initializing.
+export function set_occupation(fn, txt, xtime, state = game) {
+    if (xtime) {
+        // cmd.c timed_occupation() counts gm.multi down instead of letting the
+        // callback decide when it is finished. Its one caller is doextcmd()'s
+        // `if (tlist->f_text && !go.occupation && gm.multi)` at cmd.c:3728,
+        // which needs a count typed before an extended command. This port's
+        // command boundary parses no such count, so runSearchCommand() below
+        // already records that multi is 0 whenever an occupation text exists.
+        throw new Error('set_occupation() with a timeout is unreachable');
+    }
+    state.go ??= {};
+    state.go.occupation = fn;
+    state.go.occtxt = txt;
+    state.go.occtime = 0;
+}
+
 // C ref: cmd.c extcmd_initiator(). reset_commands() keeps gc.Cmd.extcmd_char
 // at cmd_from_func(doextcmd), the key currently bound to the '#' row, which
 // keyForCommand() ports.
