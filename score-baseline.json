@@ -41,7 +41,7 @@
   },
   "seed0030-ten-diverse-deaths.session.json": {
     "screens": 8,
-    "rngCalls": 6434,
+    "rngCalls": 6488,
     "lowerings": [
       {
         "metric": "rngCalls",
