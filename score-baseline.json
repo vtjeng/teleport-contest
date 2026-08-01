@@ -41,7 +41,16 @@
   },
   "seed0030-ten-diverse-deaths.session.json": {
     "screens": 8,
-    "rngCalls": 6455
+    "rngCalls": 6434,
+    "lowerings": [
+      {
+        "metric": "rngCalls",
+        "from": 6455,
+        "to": 6434,
+        "commit": "6ac25fe",
+        "reason": "The port's first divergence in this session is at random-number index 6336 both before and after 6ac25fe, and its emitted screens are unchanged at eight. What fell is the count of coincidental positional matches after that stop: the port now descends a staircase in a later segment and draws different numbers there. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
+      }
+    ]
   },
   "seed0077-rogue-chargen.session.json": {
     "screens": 18,
