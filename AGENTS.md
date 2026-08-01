@@ -239,7 +239,7 @@ Create or update a checklist, note, report, or permanent record only when
 ### Check out the C source in a new worktree
 
 Git records `nethack-c/upstream` as a submodule gitlink, and `git worktree add`
-leaves that path as an empty directory. The five generated-data checks and the
+leaves that path as an empty directory. The six generated-data checks and the
 source-pinned tests read the C source, so every one of them fails until you
 check it out. Those two sets of failures arriving together, naming neither git
 nor the submodule, are the symptom. Run this once in a new worktree, before its
