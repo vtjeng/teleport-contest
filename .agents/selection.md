@@ -54,17 +54,32 @@ highest `supports` among what remains. `node scripts/scan-debt.mjs --by=supports
 orders the report for that reading.
 
 **We filter on `unlocks` because a behavior that unlocks nothing cannot be
-closed.** It is never the earliest thing any session needs, so the port refuses
-before reaching it and no fresh differential can execute its real consumer.
-`.agents/workflow.md` closes a behavior slice on that differential. Such a
-behavior is unportable today whatever it supports, and becomes selectable once
-the behavior ahead of it lands.
+closed from a recorded session.** It is never the earliest thing any of those
+sessions needs, so the port refuses before reaching it there, and it becomes
+selectable once the behavior ahead of it lands.
+
+Note that this is only a statement about the recorded corpus, not all game
+states. `.agents/workflow.md` closes a behavior slice on a fresh differential,
+and a fresh seed can reach such a behavior first, in which case its real
+consumer does execute. Override the filter with a fresh-population measurement
+rather than silently.
+
+For example, a census of 600 fresh D:1 walks recorded at `a6b32bd` found 67
+stopping on `pet combat evaluation` as their earliest boundary, while its
+`unlocks` stood at 0.
 
 **We rank by `supports` because it is exact and it predicts breadth.** The
 recording states where a command is first issued, and every screen from there to
 the end of that session rests on it, so no estimate enters. It measures how much
-of the recorded score depends on the behavior, which is the quantity that
-predicts whether porting it generalizes.
+of the recorded score depends on the behavior.
+
+**It does not predict whether porting that behavior generalizes beyond the
+recorded corpus.** Rank by it for breadth within those sessions, and estimate
+gain separately, from where each unblocked session stops next.
+
+An example of this was that the descent goal (closed in `125601d`) was selected
+with `supports` at 3,515 screens, but the holdout evaluation remained
+unchanged.
 
 **We choose not to rank by `unlocks` because it is optimistic by construction.**
 Against three closed goals it overstated by 5.8, 4.8 and 26 times. It assumes
