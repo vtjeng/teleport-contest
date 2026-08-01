@@ -894,6 +894,30 @@ Doing so converts a lost session into a clean stop; it does not make the
 artifact path work. Take it with whatever next reads `js/weapon.js`, or sooner
 if a recorded session lands on one of those seeds.
 
+#### three descent-closing findings are deferred
+
+The goal-closing correctness pass over `17825d3..a8a7f5a` confirmed eleven
+findings; eight were applied at the fix commit and three are recorded here.
+All three are evidence quality rather than game behavior.
+
+- `mnexto()`'s comment in `js/teleport.js` asserts a complete caller inventory,
+  "Both ported callers", which omits `js/do.js:669 u_collide_m()`. The runtime
+  guard that used to enforce the stand-in's precondition was deleted in the
+  same range, so the comment is now the only statement of it. Re-derive the
+  inventory rather than reword it.
+- `scripts/mkroom-shop.test.mjs:524` is the only cover for `nameshk()`'s
+  `shktools` arm, and its two assertions — membership in `shktools`, and
+  inequality with the `name_wanted` index — leave the selection itself
+  unpinned. A mutant that keeps the draw but changes which name it returns
+  survives.
+- Two block headers in the same file claim the C differential pins their
+  asserted counts "cell for cell" because "the D:2 map it compares carries one
+  glyph per stocked square". **The recorded D:2 screen contains none of the
+  shop's squares for any of the seeds those blocks use**, so the differential
+  does not establish what the headers say it does. Correct the claim, or
+  choose seeds whose shop is actually on the drawn screen. This is the more
+  serious of the three: it overstates what the goal's evidence proves.
+
 #### a drawbridge wall answers "It's a wall."
 
 `hack.c:1048` prints `"That drawbridge is up!"` when `is_db_wall(x, y)` holds

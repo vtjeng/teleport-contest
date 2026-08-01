@@ -200,9 +200,11 @@ function nameshk(shk, initialNames, normalized) {
         if (names === shktools) {
             // C draws here rather than indexing by name_wanted, so a hardware
             // store is the one shop whose keeper's name costs a random number.
-            // C's comment on the assignment below says the '_' and '-' prefix
-            // test further down reverses it; no shktools entry carries either
-            // prefix, so it stands.
+            // C's comment on the assignment below says the '_' prefix test
+            // further down reverses it, and one entry does carry a prefix:
+            // shktools[22] is "-Zlaw", so the test at the foot of this loop
+            // sets female back to true for it. One hardware-store keeper in
+            // forty is female, and this assignment is not the last word.
             shopName = shktools[random.rn2(namesAvailable)];
             shk.female = false;
         } else if (nameWanted < namesAvailable) {

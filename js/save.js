@@ -8,9 +8,10 @@
 // branches of C rather than one:
 //
 //   - save_timers(RANGE_LEVEL) and save_light_sources(RANGE_LEVEL) release the
-//     timers and light sources belonging to the level being left. Each does
-//     that under its own `mode & FREEING` test (save.c:707, 715), so this is
-//     the FREEING half proper.
+//     timers and light sources belonging to the level being left. savelev_core()
+//     calls them at save.c:539; each frees under its own release_data() test,
+//     `save_timers()` at timeout.c:2667-2682 and `save_light_sources()` at
+//     light.c:421. That is the FREEING half proper.
 //   - dmonsfree() (save.c:488) and the VISITED ledger flag (save.c:494) sit
 //     inside `if (nhfp->mode != FREEING)` at save.c:480, which is the
 //     *other* branch. goto_level() reaches it because it passes

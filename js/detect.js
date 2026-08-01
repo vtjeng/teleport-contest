@@ -249,8 +249,14 @@ function defaultFeelSearchLocation(x, y, env) {
             'automatic search tactile mapping requires an adjacent square',
         );
     }
+    // The ball and chain live on the state root, not on `u`: C's Punished is
+    // `(uball != 0)` on the file-scope object (youprop.h:77), and js/worn.js
+    // setworn() writes `state.uball`/`state.uchain` through its W_BALL and
+    // W_CHAIN slots. Reading `state.u.uball` here answered undefined, so these
+    // two clauses never fired and the guard was live only through
+    // can_reach_floor(). `u.uinwater` really is a hero field and stays.
     if (!can_reach_floor(false, state)
-        || state.u.uinwater || state.u.uball || state.u.uchain) {
+        || state.u.uinwater || state.uball || state.uchain) {
         throw new Error(
             'automatic search reached an unsupported tactile floor state',
         );

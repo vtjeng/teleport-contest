@@ -1813,7 +1813,7 @@ export function see_monsters(state = game) {
 //
 // The vision recalculation C brackets that repaint with stays with this
 // function's callers, and they do not all make the same calls. goto_level()
-// makes both, vision_recalc(2) then vision_recalc(0), at js/do.js:543-544;
+// makes both, vision_recalc(2) then vision_recalc(0), at js/do.js:550-551;
 // newgame() at js/allmain.js:201 and moveloop() at js/allmain.js:826 each make
 // vision_recalc(0) alone, because neither has prior vision state to shut down.
 // A fourth caller -- doup(), a level teleport, a trapdoor fall -- must decide

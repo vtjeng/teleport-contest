@@ -2916,3 +2916,33 @@ test("both of eat.js's stop classes convert at the command seam", () => {
     assert.ok(converted.includes(UnsupportedEatError));
     assert.ok(converted.includes(UnsupportedHungerTransitionError));
 });
+
+// The '>' handler routes dodown() through failClosedCommand() (js/cmd.js), and
+// js/jsmain.js runSegment() breaks a segment only for the boundary classes
+// that wrapper produces. A class raised inside goto_level()'s tail that the
+// list omits escapes runSegment() as a hard throw, and the scorer records a
+// session error instead of keeping the screens the segment already matched.
+// Each of these four is reached by a named site in that tail, so each is
+// asserted separately: one deepEqual over the whole list would also catch a
+// deletion, but would churn on every unrelated addition.
+test('every class goto_level()\'s tail can raise converts at the command seam',
+    async () => {
+        const { UnsupportedPickupError } = await import('../js/pickup.js');
+        const { UnsupportedHeroTimeoutBoundaryError } =
+            await import('../js/timeout.js');
+        const { UnsupportedPositionCheckError } =
+            await import('../js/teleport.js');
+        const { UnsupportedMonsterCreationError } =
+            await import('../js/makemon_create.js');
+        const converted = failClosedCommandRefusals();
+
+        // do.c:1993 pickup(1), goto_level()'s last statement.
+        assert.ok(converted.includes(UnsupportedPickupError));
+        // do.c:1821 run_timers(), for timers due while the hero was away.
+        assert.ok(converted.includes(UnsupportedHeroTimeoutBoundaryError));
+        // do.c:1814 losedogs() -> mon_arrive() -> rloc_to(), placing a
+        // follower that arrives with the hero.
+        assert.ok(converted.includes(UnsupportedPositionCheckError));
+        // do.c:1699 mklev() -> makemon(), for a mimic inside a generated shop.
+        assert.ok(converted.includes(UnsupportedMonsterCreationError));
+    });

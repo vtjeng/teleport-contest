@@ -717,7 +717,8 @@ function hideunder(monster, state) {
     return hidden;
 }
 
-// C ref: makemon.c set_mimic_sym(), for ordinary and themed initial rooms.
+// C ref: makemon.c set_mimic_sym() (2467-2486), whole: the ordinary and
+// themed initial-room arms and the `rt >= SHOPBASE` shop arm alike.
 // The descriptor which requested the Storeroom mimic overwrites m_ap_type and
 // mappearance only. All RNG, temporary-object allocation, fruit state, and any
 // mcorpsenm overlay established here remain intact.
@@ -769,8 +770,12 @@ function set_mimic_sym(monster, normalized) {
                 if (stock < 0) {
                     // A negated iprobs[] itype names one object type, so the
                     // mimic wears that type itself rather than a draw from its
-                    // class. The delicatessen, wand shop and lighting store
-                    // are the rows that carry such entries.
+                    // class. Four rows carry such entries, read from the
+                    // generated table: the delicatessen, quality apparel and
+                    // accessories, the health food store with five, and the
+                    // lighting store with nine. The last is unreachable in
+                    // play, its shtypes[] prob being 0, so mkshop()'s roll
+                    // never lands on it.
                     appearanceType = M_AP_OBJECT;
                     appearance = -stock;
                 } else if (roomType === FODDERSHOP && stock > MAXOCLASSES) {
