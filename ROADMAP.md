@@ -151,14 +151,51 @@ reaches statements depth one does not: `mk_knox_portal()` and, decisively,
 room search is unported, so **about half of reachable D:2 levels stop there**.
 A hero who cannot reliably reach the level below has not finished descending a
 staircase, and `.agents/selection.md` forbids narrowing a stated goal silently,
-so this is the goal's next boundary rather than a new goal. Slice 3 also
-connected `u_collide_m()` without a recorded case: it needs a monster standing
-on D:2's up staircase, which appeared in none of the fresh cases scanned, and
-the function is not exported, so nothing pins it.
+so this is the goal's next boundary rather than a new goal.
 
-**One measurement worth not re-deriving.** The `--More--` above means a
-descending segment ends with a space, not with `>`. Any later matrix over this
-path inherits that.
+**The shop slices, ordered by how often the roll reaches them.** The shares are
+exact, read from `shknam.c shtypes[]`'s `prob` column rather than sampled.
+
+5. *The commonest shops.* `mkshop()`'s tail from the `!sroom->rlit` lighting
+   loop through `needfill = FILL_NORMAL`, with `shtypes[]`'s `prob` and `symb`
+   columns generated from source and `isbig()`'s wand and spellbook override
+   connected. General store 42%, armor 14% and weapon 5% together take 61% of
+   rolls. `stock_room()`, `shkinit()`, `nameshk()`, `topologize()` and
+   `isbig()` are all ported already, so this slice mostly connects them.
+6. *The remaining name lists.* Scroll, potion, ring and tool shops with
+   `nameshk()`'s `shktools` arm, 16%.
+7. *Bookstores.* The `SPE_NOVEL` tribute arm, 13%.
+8. *Deli, wand and health-food shops.* These need `mkshobj_at()`'s
+   negative-`otyp` `mksobj_at()` path and `shkveg()`, `veggy_item()` and
+   `mkveggy_at()`, 10%.
+
+**Slice 5 earns no development screens, and that is measured rather than
+assumed.** No development session stops at `mkshop()`; replaying every
+session's whole recorded input, exactly one reaches it at all,
+`seed0030-ten-diverse-deaths`, in a segment after its first stop at step 8 of
+1,953. The gain is the goal's closure and whatever carries to the holdout.
+
+**A broken instrument to fix with slice 5.** `UnsupportedSpecialRoomError` is
+absent from `js/jsmain.js`'s boundary list, so it escapes `runSegment()` as a
+crash rather than a clean segment end. `node scripts/scan-debt.mjs` therefore
+does not run at all today, failing with `unsupported special room: mkshop()
+choosing a shop for room 0`. That is the instrument `.agents/selection.md` uses
+to select goals, so the shop slices must add the class or the roughly 39% of
+shops they still refuse keep crashing.
+
+**Two hazards that no random-number log can catch.** The type roll is
+`for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++)`: an off-by-one
+shifts every shop type by one while drawing the same single number, so only a
+screen comparison finds it. `nameshk()` derives the keeper's name from
+`ubirthday` and `m_id` and draws nothing at all.
+
+**Two loose ends this goal still owns.** Slice 3 connected `u_collide_m()`
+without a recorded case: it needs a monster standing on D:2's up staircase,
+which appeared in none of the fresh cases scanned, and the function is not
+exported, so nothing pins it. And the `--More--` above means a descending
+segment ends with a space, not with `>`; any later matrix over this path
+inherits that. `mk_knox_portal()` needs no work: it is ported through its
+`u_depth > 10` gate at `js/mklev.js:613-636` and returns silently at depth 2.
 
 
 ### Queued: the hero walks onto a floor square holding more than one object
