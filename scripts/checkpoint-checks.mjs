@@ -3,6 +3,13 @@
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
+import {
+    compareToBaseline,
+    currentFromResults,
+    describeDrops,
+    readBaseline,
+} from './score-baseline.mjs';
+
 const GENERATED_CHECKS = [
     'check:extcmds',
     'check:monsters',
@@ -70,9 +77,9 @@ export function checkpointCommands(focusedTests = [], {
             command: process.execPath,
             args: ['scripts/score-development.mjs'],
             capture: true,
-            informational: true,
             summarize: ({ stdout }) => ({
                 body: summarizeDevelopmentScore(stdout),
+                ...compareScoreToBaseline(stdout),
             }),
         });
     }
@@ -119,7 +126,10 @@ export function runCheckpointChecks(commands, {
         if (summary.body) output(summary.body);
         if (capture && result.stderr && result.status !== 0)
             output(result.stderr.trimEnd());
-        const passed = result.status === 0;
+        // A summarize may decide the verdict. The score check reads its own
+        // ratchet, so a run that exits 0 while a session matched fewer screens
+        // than its baseline still fails.
+        const passed = summary.passed ?? (result.status === 0);
         results.push({ label, passed, informational,
             skipped: Boolean(summary.skipped), detail: summary.detail ?? '' });
     }
@@ -134,8 +144,14 @@ export function runCheckpointChecks(commands, {
         output(`${status}  ${result.label}`
             + (result.detail ? `: ${result.detail}` : ''));
     }
-    // An informational check carries evidence, so it never fails the run.
-    return results.every(({ passed, informational }) => passed || informational);
+    // A skipped check ran nothing and has nothing to say. An informational one
+    // carries evidence and no verdict, so it cannot fail either; the mutation
+    // run is the only one left, and its survivors are findings rather than
+    // failures. The development score used to be informational too, which meant
+    // a crashed scoring run reported DONE and exited 0; it now carries a
+    // verdict of its own through scripts/score-baseline.mjs.
+    return results.every(({ passed, informational, skipped }) =>
+        passed || informational || skipped);
 }
 
 /**
@@ -165,6 +181,29 @@ export function summarizeMutation({ stdout = '', stderr = '', status }) {
         detail: `${survivors.length} survivor(s) of ${summary[1]} mutant(s) `
             + 'over the uncommitted js/ diff',
     };
+}
+
+/**
+ * Compare a scoring run against the per-session ratchet.
+ *
+ * Returns a verdict the checkpoint honours. `scripts/score-baseline.mjs` states
+ * why the ratchet is per session and why a drop is worth stopping for.
+ */
+export function compareScoreToBaseline(stdout) {
+    const marker = '__RESULTS_JSON__';
+    const index = stdout.lastIndexOf(marker);
+    if (index < 0) return {};
+    let results;
+    try {
+        ({ results } = JSON.parse(stdout.slice(index + marker.length).trim()));
+    } catch {
+        return {};
+    }
+    const comparison = compareToBaseline(
+        currentFromResults(results ?? []), readBaseline());
+    const failed = comparison.drops.length > 0 || comparison.missing.length > 0;
+    if (!failed) return { passed: true };
+    return { passed: false, detail: describeDrops(comparison) };
 }
 
 export function summarizeDevelopmentScore(stdout) {

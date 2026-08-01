@@ -1,0 +1,134 @@
+{
+  "seed0004-feeding-pony.session.json": {
+    "screens": 26,
+    "rngCalls": 4013
+  },
+  "seed0006-wizard-water-demon.session.json": {
+    "screens": 41,
+    "rngCalls": 2523
+  },
+  "seed0007-rogue-snake-swamp.session.json": {
+    "screens": 19,
+    "rngCalls": 2824
+  },
+  "seed0012-monk-vault-escort.session.json": {
+    "screens": 24,
+    "rngCalls": 3096
+  },
+  "seed0013-friday13-save-then-fullmoon-restore.session.json": {
+    "screens": 8,
+    "rngCalls": 4259
+  },
+  "seed0013-rogue-friday13-combat.session.json": {
+    "screens": 8,
+    "rngCalls": 4257
+  },
+  "seed0014-dequa-fountain-explore.session.json": {
+    "screens": 17,
+    "rngCalls": 3020
+  },
+  "seed0015-valk-level2-pit-dog-wait.session.json": {
+    "screens": 19,
+    "rngCalls": 2918
+  },
+  "seed0016-healer-newmoon-eat-zap.session.json": {
+    "screens": 3,
+    "rngCalls": 2493
+  },
+  "seed0017-samurai-altar-pray.session.json": {
+    "screens": 46,
+    "rngCalls": 3248
+  },
+  "seed0030-ten-diverse-deaths.session.json": {
+    "screens": 8,
+    "rngCalls": 6455
+  },
+  "seed0077-rogue-chargen.session.json": {
+    "screens": 18,
+    "rngCalls": 3196
+  },
+  "seed0102-ranger-name-cancel.session.json": {
+    "screens": 9,
+    "rngCalls": 4442
+  },
+  "seed0103-knight-ride-pony.session.json": {
+    "screens": 26,
+    "rngCalls": 2490
+  },
+  "seed0104-knight-ride-combat.session.json": {
+    "screens": 12,
+    "rngCalls": 2647
+  },
+  "seed0105-valk-chat-lamp-ration.session.json": {
+    "screens": 9,
+    "rngCalls": 2468
+  },
+  "seed0107-samurai-twoweapon-enhance.session.json": {
+    "screens": 15,
+    "rngCalls": 2656
+  },
+  "seed0108-wizard-extcmd-wishlist.session.json": {
+    "screens": 13,
+    "rngCalls": 2772
+  },
+  "seed0200-monk-north-search.session.json": {
+    "screens": 8,
+    "rngCalls": 3257
+  },
+  "seed0360-wizard-world-tour.session.json": {
+    "screens": 17,
+    "rngCalls": 2898
+  },
+  "seed0361-archeologist-tour.session.json": {
+    "screens": 16,
+    "rngCalls": 2924
+  },
+  "seed0367-priest-quest-tour.session.json": {
+    "screens": 16,
+    "rngCalls": 1848
+  },
+  "seed0373-barbarian-quest-tour.session.json": {
+    "screens": 16,
+    "rngCalls": 2512
+  },
+  "seed0383-wizard-hallucinate.session.json": {
+    "screens": 16,
+    "rngCalls": 2450
+  },
+  "seed0501-priest-cast-read-turn.session.json": {
+    "screens": 4,
+    "rngCalls": 2205
+  },
+  "seed0900-tourist-explore-actions.session.json": {
+    "screens": 9,
+    "rngCalls": 2499
+  },
+  "seed1150-caveman-explore-move.session.json": {
+    "screens": 8,
+    "rngCalls": 2424
+  },
+  "seed1500-rogue-explore-move.session.json": {
+    "screens": 13,
+    "rngCalls": 2500
+  },
+  "seed2200-wizard-quaff-zap-read.session.json": {
+    "screens": 4,
+    "rngCalls": 2724
+  },
+  "seed2600-wizard-custom-binds.session.json": {
+    "screens": 12,
+    "rngCalls": 2839
+  },
+  "seed5002-wizard-coverage-pair.session.json": {
+    "screens": 2,
+    "rngCalls": 2734
+  },
+  "seed5006-tourist-stress-disaster.session.json": {
+    "screens": 2,
+    "rngCalls": 4189
+  },
+  "seed8000-tourist-starter.session.json": {
+    "screens": 23,
+    "rngCalls": 3130
+  }
+}
