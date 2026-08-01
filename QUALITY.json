@@ -4915,6 +4915,107 @@
         }
       },
       "recordedAt": "2026-07-31T16:03:16.845Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "display": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "generation": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "hero": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "monsters": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "objects": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "runtime": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "startup": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
+        "world-effects": "ed43517c137daca29d9c69bd86e5aa6ac5052b55"
+      },
+      "head": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
+      "auditedRange": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67..9a7aef528acee7934f2c496647d2cb2f8f68b167",
+      "areas": [
+        "commands",
+        "display",
+        "generation",
+        "hero",
+        "monsters",
+        "objects",
+        "runtime",
+        "startup",
+        "world-effects"
+      ],
+      "level": "full",
+      "outcome": "changed",
+      "evidence": "Full /audit-diff-correctness pass over 2fea8eb66..9a7aef5, based at the objects frontier which had reached the batch gate at 1,336 of 1,000 lines: 12 raw, 11 deduplicated, 10 confirmed, 10 applied at 0044be6, 1 rejected, 0 unverified, 0 warnings. Finders: correctness, readability, tests, variable-trace; no optional finder triggered. Three production defects, chief among them Upolyd carrying two different formulas across four definitions. Mutation over the frozen range: 546 mutants, 403 killed, 143 survived, 73.8% kill rate.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2051,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 11,
+          "confirmed": 10,
+          "applied": 10,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 2,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/const.js Upolyd() tested u.mtimedone where you.h:554 is (u.umonnum != u.umonster), and js/hack.js, js/steed.js and js/insight.js each carried a private copy, two of them citing you.h:307 which is struct Gender. Consolidated to one definition on you.h:554s formula; the private copies took `state` where the exported one takes the hero struct, so all five call sites were converted rather than the import rewired.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/eat.js preflightGetHungry() admitted only the two message-bearing transitions the pre-promotion inlined copy owned, so SATIATED to NOT_HUNGRY was refused although newuhs() implements it. A hero eating three apples reached SATIATED and the segment ended about fifty turns later. Fail-closed, so nothing diverged, but it capped the goals own reward.",
+            "foundBy": [
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/eat.js Hallucination() read uprops[HALLUC].extrinsic, a term youprop.h:116-121 does not have, and fpostfx()s eucalyptus arm read the same shape for SICK and VOMITING against youprop.h:108 and :111.",
+            "foundBy": [
+              "variable-trace",
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/cmd.js:854 -- failClosedCommand() converts fourteen refusal classes into a command boundary but omits UnsupportedObjectOperationError, which is the class every object-lifecycle hook on the newly ported #eat path throws; such a refusal escapes runSegment() as a hard failure and discards the segment's whole matching prefix instead of stopping on it.",
+            "counterEvidence": "The omission from failClosedCommand()'s instanceof chain is real, but the claimed problem -- a segment losing its matching prefix -- has no reachable trigger. Both claimed routes to UnsupportedObjectOperationError are dead in the current port. Counter-evidence: `grep -rn \"unpaid\\s*[:=]\" js/` returns exactly one line, `js/obj.js:311:        unpaid: false,`; no code in js/ ever sets obj.unpaid true. js/obj.js:1597 returns early for `(where === OBJ_FREE || where === OBJ_INVENT) && !obj.unpaid`, so costly_alteration() never reaches requiredHook() for an inventory comestible, and the finding's 'reachable-next case, a shop comestible' cannot occur. Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 546,
+          "survivors": 143,
+          "byKind": {
+            "boolean": {
+              "ran": 95,
+              "killed": 66
+            },
+            "logical": {
+              "ran": 372,
+              "killed": 292
+            },
+            "relational": {
+              "ran": 79,
+              "killed": 45
+            }
+          },
+          "finderConclusion": "73.8% kill rate over the frozen range, against 79.5% and 71.3% for the two earlier ranges. Survivors cluster in js/eat.js (28), the newest code. The test-quality finder reported two non-discriminating assertions, both fixed: the apple meals nutrition payout, pinned only by a one-sided inequality that could not catch an error under eight points, and the cram-ration victual struct, four of whose fields survived mutation. The eating slices own survivor categorisation was corrected but not re-measured: a whole-suite run over this range enumerates 1,130 mutants."
+        }
+      },
+      "recordedAt": "2026-08-01T00:18:01.660Z"
     }
   ]
 }
