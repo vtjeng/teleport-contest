@@ -81,57 +81,46 @@ selection, and nothing re-ran the scan against the candidate before the slice
 was promised. Do not replace an instrument for a failure its own documentation
 already warns about; use it as written.
 
-### In progress: the hero eats
+### In progress: the hero descends a staircase
 
-`scripts/scan-debt.mjs` rated `eat` 3,073 screens of `supports` across 11 of the
-33 development sessions, second only to `down`, with `unlocks` of 78. It was the
-highest-`supports` behavior with a nonzero `unlocks`, which is the rule this
-goal tests: `#ride` was selected on `unlocks` alone, supported 82 screens, about
-1% of the population, and carried nothing to the holdout. Slices 1 and 2 have
-since landed, so the scan no longer lists `eat` at all: the port executes it,
-and the corpse, tin and multi-turn debt behind it is invisible, which is
-mechanism 2 in `.agents/selection.md`. Every role eats, so this owner
-sits on the path of ordinary play. No role and no prefix gates it. That is the
-one property the closed-door goal had.
+`scripts/scan-debt.mjs --by=supports` rates `down` 3,515 screens of `supports`
+across 8 of the 33 development sessions, the largest single dependency in the
+set at 45% of the whole recorded population, with `unlocks` of 25. It is the
+highest-`supports` behavior with a nonzero `unlocks`, which is the rule
+`.agents/selection.md` states.
 
-**Upstream owners.** `eat.c doeat()` (2816-3084, 268 lines) is the command.
-Its opening sequence is `Strangled`, then `floorfood("eat", 0)`, then
-`check_capacity()`, then `u.uedibility`, then the `&hands_obj` iron-bars arm,
-then `is_edible()`, the worn-mask arm, and `retouch_object()`.
-`eat.c start_eating()` (2021-2074) and `eatfood()` (518-541) own the multi-turn
-occupation; `done_eating()` (543-573) and `eatmdone()` (162-177) end it.
+**This goal is larger than any taken so far, and the entry says so up front.**
+`do.c dodown()` is 164 lines, but it ends in `goto_level()`, which is 520. That
+function generates or restores the destination level, moves the hero and every
+carried thing onto it, and rewrites most of the game state. Nothing in the port
+does any of it: `dodown()`, `goto_level()` and `schedule_goto()` are all absent,
+and only `stairway_at()` in `js/stairs.js` and `on_level()` in `js/dungeon.js`
+exist. Expect several slices and at least one implementation checklist.
 
-**What the port has.** `js/eat.js` exists at 499 lines and already owns
-`gethungry()`, `newuhs()`, the `hu_stat[]` and `tintxts[]` tables,
-`nonrotting_corpse()`, `vegan()`, `vegetarian()`, `tin_variety()` and
-`tin_details()`. Absent: `doeat()`, `floorfood()`, `start_eating()`,
-`eatfood()`, `done_eating()`, `eatmdone()` and `bite()`.
+**Why it is still the right goal.** Eight sessions cannot finish without it and
+it gates nearly half the recorded screens. Every role uses stairs, so no role
+and no prefix gates it, which is the property that distinguished the two goals
+whose holdout gain was non-zero. Its `unlocks` of 25 is small, and
+`.agents/selection.md` records why that column does not rank.
 
-**Slices.**
+**Slices, provisional until the first one is traced in full.**
 
-1. *The prompt and the refusal.* `doeat()`'s entry through `floorfood()`'s
-   `getobj()` prompt and the `!is_edible()` arm. `seed0900-tourist-explore-actions`
-   records exactly this at steps 6 and 7: `e` draws
-   `What do you want to eat? [b-g or ?*]`, and answering with a letter that
-   names no food prints `You cannot eat that!` and returns `ECMD_OK`, spending
-   no turn. Nothing is eaten, so `start_eating()` stays refused. This slice
-   reuses the `getdir()`-era input boundary and adds none.
-2. *Eating a food that takes one turn.* The `FOOD_CLASS` path for an object
-   whose `oc_delay` gives `svc.context.victual.reqtime == 1`, through
-   `start_eating()` and `done_eating()`. **`start_eating()` cannot be deferred
-   to slice 3**: `eat.c` enters it for every food, and `reqtime == 1` only
-   selects the word "eat" over "begin eating" at `eat.c:3044`. So this slice
-   owns `svc.context.victual` and the one-turn path through it. Excludes
-   corpses and tins.
-3. *The multi-turn occupation.* `eatfood()` as an occupation callback and the
-   `occupation` machinery it needs, which is the first occupation the port
-   would own. This is what slice 2 leaves refused.
+1. *The refusal boundary and the descent decision.* `dodown()` from entry
+   through the tests that decide whether the hero descends at all, ending at
+   the point where it would call `goto_level()`. That call stays refused, so
+   this slice earns the screens `dodown()` draws before it and nothing after.
+2. *The destination level.* `goto_level()`'s generation or restore path. This
+   is where D:2 generation lands, and it is large enough to need its own
+   checklist and probably its own slices.
+3. *Arrival.* Placing the hero and the carried inventory, and the first drawn
+   screen of the new level.
 
-**Why slice 1 first, and what it is worth on its own.**
-`seed0900-tourist-explore-actions` carries a debt of exactly one owner, `eat`,
-and stops at 6 of 84 steps. It is the only session in the set that `eat` alone
-would complete, which is where the 78-screen `unlocks` came from. It delivered
-3: the session stops again three steps later on pet ranged targeting.
+**One thing to settle before slice 2 is planned.** `ROADMAP.md`'s
+`## Unresolved` records that `flush_screen()` rebuilds the whole screen from
+`game.level`. A level transition replaces `game.level` wholesale, so whoever
+plans slice 2 reads that entry first and decides whether the rebuild is a
+problem here or an accident that happens to work.
+
 
 ### Queued: the hero walks onto a floor square holding more than one object
 
