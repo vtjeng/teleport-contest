@@ -820,10 +820,18 @@ twelve were applied at the fix commit and five are recorded here.
   evidence the refusal is too wide. Deferred rather than applied because
   deleting a refusal changes what the game does and needs its own fresh
   differential with a non-tame follower.
-  **That blocker is gone.** Slice 8's scan found the cases: over 12,000 fresh
-  seeds, 2,341 descents reached the staircase and exactly 2 stopped here,
-  seeds 7902379 and 7905523. They are now the only known stop on a descent, so
-  this is the descent goal's next slice rather than standing debt.
+  **Closed at `f554d25`.** Slice 8's scan supplied the missing cases, seeds
+  7902379 and 7905523, and the fix followed. The source evidence sits one line
+  further than this bullet stated: `monmove.c set_apparxy()`'s first branch is
+  `mtmp->mtame || mtmp == u.ustuck || u_at(mx, my)` (2211), and `mon_arrive()`
+  writes `u.ux`/`u.uy` into `mux`/`muy` two statements earlier at `dog.c:450`,
+  so the early return fires for **any** follower, not only the two named here.
+  Deleting it exposed a second refusal that was not recorded anywhere:
+  `assertSimpleActionState()`'s `STRAT_ARRIVE` stop in
+  `js/unported_monster_actions.js`, which refused a state the port already
+  handles, because `monmove.c dochug():704-708` clears that bit through
+  `m_arrival()` and `js/monmove.js dochug()` already carries the clear. It
+  stopped 97 of a Samurai-with-dog census's descents and now stops none.
 - `set_mimic_sym()`'s `rt >= SHOPBASE` arm is **closed at `43445e9`**, ported
   from `makemon.c:2467-2486`. It was deferred here as new upstream work, and
   slice 6 then made it the largest remaining shop stop, so it was taken ahead
@@ -852,10 +860,9 @@ twelve were applied at the fix commit and five are recorded here.
   C instead — `name_wanted = m_id + ledger_no(u.uz) + (ubirthday/257 % 13)
   - (ubirthday/257 % 5)`, reduced modulo the name list's length.
 - Nothing exercises `do.c u_collide_m()` or the `dog.c mon_arrive()` arm that
-  reaches it, although a descent with a pet reaches them about one time in ten
-  rather than the near-never this file assumed when slice 3 closed. Add a
-  descent segment to `scripts/run-leave-level.mjs` whose seed lands the pet on
-  the hero's arrival square.
+  reaches it. **Closed at `f554d25`**, which took
+  `scripts/run-leave-level.mjs` to 15 strict segments across five characters,
+  six of them new; they cover both.
 
 One clarity item is deferred with them, folded into the second bullet above
 rather than counted separately: `UnsupportedHeroTimeoutBoundaryError`'s message
