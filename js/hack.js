@@ -86,6 +86,7 @@ import {
     wall_angle,
 } from './display.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
+import { u_on_newpos } from './dungeon.js';
 import { dist2, highc } from './hacklib.js';
 import {
     can_reach_floor,
@@ -1444,6 +1445,13 @@ export async function domove(state = game) {
             { message: ttyPline },
         );
     }
+
+    // C ref: domove_core():2934. The writes above are C's tentative move; this
+    // is its full re-position, possibly back to where the hero started when a
+    // pet swap failed. On a same-level step its whole effect is
+    // see_nearby_objects(), which turns a nearby generic potion or gem from
+    // its class colour into its own.
+    u_on_newpos(u.ux, u.uy, state);
 
     // C ref: domove_core()'s run arm after u_on_newpos(). A run that walks
     // onto a doorway or a furniture square such as a staircase ends there.

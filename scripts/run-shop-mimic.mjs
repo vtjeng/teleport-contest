@@ -40,9 +40,11 @@
 // No segment puts a jewelers or a hardware store on the stock arm either. Each
 // is 3% of mkshop()'s roll and the arm itself is 2 draws in 10, so the pair is
 // rare: over 8,500 scanned seeds the only candidate was seed 7411559, whose
-// D:1 walk trips the `map_object()` defect recorded in ROADMAP.md and misses a
-// potion's colour before the descent begins. It was dropped rather than
-// recorded against the wrong colour.
+// D:1 walk missed a potion's colour before the descent began, so it was
+// dropped rather than recorded against the wrong colour. The defect behind
+// that, a missing display.c see_nearby_objects(), is fixed; recording the seed
+// now needs only a fresh walk from its upstairs to its downstairs. ROADMAP.md
+// carries the outstanding item.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

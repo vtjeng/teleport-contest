@@ -34,6 +34,7 @@ import {
     HALLUC_RES,
     HWALL,
     ICE,
+    IN_SIGHT,
     LADDER,
     LANDMINE,
     LA_DOWN,
@@ -87,12 +88,14 @@ import {
     docrt,
     feel_newsym,
     flush_screen,
+    glyph_is_generic_object,
     hero_glyph_info,
     monster_glyph_info,
     newsym,
     object_glyph_info,
     random_object_glyph_info,
     remembered_glyph_from_presentation,
+    see_nearby_objects,
     show_glyph_cell,
     terrain_glyph,
     trap_glyph_info,
@@ -3208,6 +3211,10 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
         color: NO_COLOR,
         dec: false,
     };
+    // display.h obj_to_glyph() numbers a generic object into the range
+    // glyph_is_generic_object() recognizes, which object_glyph_info() carries
+    // as a mark on the presentation. The map's disp_* fields hold no such
+    // mark, so only the presentation comparison below expects it.
     const cases = [
         {
             otyp: POT_BOOZE,
@@ -3219,8 +3226,8 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
         },
         // obj_is_generic() consults otyp for gems and spellbooks, then the
         // zeroobj's untouched oclass selects generic object class zero.
-        { otyp: DIAMOND, expected: genericZeroClass },
-        { otyp: SPE_FORCE_BOLT, expected: genericZeroClass },
+        { otyp: DIAMOND, expected: genericZeroClass, generic: true },
+        { otyp: SPE_FORCE_BOLT, expected: genericZeroClass, generic: true },
         {
             otyp: CORPSE,
             expected: {
@@ -3255,10 +3262,14 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
         },
     ];
 
-    for (const { otyp, expected, mcorpsenm } of cases) {
+    for (const { otyp, expected, generic, mcorpsenm } of cases) {
         fake.mappearance = otyp;
         fake.mextra = mcorpsenm === undefined ? null : { mcorpsenm };
-        assert.deepEqual(monster_glyph_info(fake, state), expected, `${otyp}`);
+        assert.deepEqual(
+            monster_glyph_info(fake, state),
+            generic ? { ...expected, genericObject: true } : expected,
+            `${otyp}`,
+        );
         state.level.monsters[x][y] = fake;
         newsym(x, y);
         assert.deepEqual(
@@ -4131,6 +4142,10 @@ test('unobserved floor objects use the source generic class glyph', () => {
         ch: '!',
         color: NO_COLOR,
         dec: false,
+        // display.h obj_to_glyph() numbers this into the generic range, and
+        // display.c see_nearby_objects() reads the mark back out of map
+        // memory to decide whether a nearer look needs a redraw.
+        genericObject: true,
     });
 
     potion.dknown = true;
@@ -4139,6 +4154,115 @@ test('unobserved floor objects use the source generic class glyph', () => {
         color: state.objects[POT_BOOZE].oc_color,
         dec: false,
     });
+});
+
+// ── display.c see_nearby_objects() ──
+
+// display.c:1581-1583 computes r as 2 whenever u.xray_range is 2 or less, and
+// neardist as r * r * 2 - r, which is 6. objnam.c distant_name() and display.c
+// map_object() repeat the same two lines.
+const NEAR_RADIUS = 2;
+
+// A map on which every square is lit floor the hero can see, so that a test
+// below can switch off exactly one of see_nearby_objects()'s conditions.
+function nearbyObjectsState(ux, uy) {
+    const state = visibleCellState({ x: ux, y: uy, ux, uy });
+    init_objects(state, () => 0);
+    state.viz_array = Array.from(
+        { length: 21 }, // ROWNO
+        () => new Array(80).fill(IN_SIGHT), // COLNO
+    );
+    for (let y = 0; y < 21; ++y)
+        for (let x = 0; x < 80; ++x) state.level.at(x, y).typ = ROOM;
+    return state;
+}
+
+function unobservedPotion(state, x, y) {
+    const potion = {
+        otyp: POT_BOOZE,
+        oclass: state.objects[POT_BOOZE].oc_class,
+        dknown: false,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: null,
+    };
+    state.level.objects[x][y] = potion;
+    return potion;
+}
+
+test('a nearer look repaints a remembered generic object in its own colour',
+    () => {
+        // Recording the memory from far away is what makes the remembered
+        // glyph generic: newsym()'s own map_object() arm observes an object
+        // only inside the same near square this function scans.
+        const state = nearbyObjectsState(10, 3);
+        const potion = unobservedPotion(state, 10, 12);
+        newsym(10, 12);
+        const remembered = state.level.at(10, 12).remembered_glyph;
+        assert.equal(potion.dknown, false);
+        assert.equal(remembered.color, NO_COLOR);
+        assert.equal(glyph_is_generic_object(state.level.at(10, 12)), true);
+
+        // dungeon.c u_on_newpos() moves the hero first and calls this after.
+        state.u.ux = 10;
+        state.u.uy = 10;
+        see_nearby_objects(state);
+
+        assert.equal(potion.dknown, true);
+        assert.equal(state.objects[POT_BOOZE].oc_encountered, 1);
+        assert.equal(
+            state.level.at(10, 12).remembered_glyph.color,
+            state.objects[POT_BOOZE].oc_color,
+        );
+        assert.equal(glyph_is_generic_object(state.level.at(10, 12)), false);
+    });
+
+test('see_nearby_objects scans the whole near square and nothing outside it',
+    () => {
+        const state = nearbyObjectsState(10, 10);
+        // The four squares at the ends of display.c:1585-1586's two loops. A
+        // loop that stopped one short of `<=` would miss the far end of each.
+        const lowRow = unobservedPotion(state, 10, 10 - NEAR_RADIUS);
+        const highRow = unobservedPotion(state, 10, 10 + NEAR_RADIUS);
+        const lowColumn = unobservedPotion(state, 10 - NEAR_RADIUS, 10);
+        const highColumn = unobservedPotion(state, 10 + NEAR_RADIUS, 10);
+        // Inside the loops' square but outside the rounded near distance:
+        // 2 * 2 + 2 * 2 is 8, above 6.
+        const corner = unobservedPotion(
+            state, 10 + NEAR_RADIUS, 10 + NEAR_RADIUS,
+        );
+        // Adjacent, so well inside the near distance, but display.c:1592's
+        // cansee() rejects it.
+        const unseen = unobservedPotion(state, 11, 11);
+        state.viz_array[11][11] = 0;
+        // Off the map entirely, which display.c:1587's isok() drops before
+        // vobj_at() could be asked for it.
+        state.level.objects[0][10] = null;
+        const edge = nearbyObjectsState(1, 10);
+        const offMap = unobservedPotion(edge, 0, 10);
+
+        see_nearby_objects(state);
+        see_nearby_objects(edge);
+
+        assert.equal(lowRow.dknown, true, 'row y - r');
+        assert.equal(highRow.dknown, true, 'row y + r');
+        assert.equal(lowColumn.dknown, true, 'column x - r');
+        assert.equal(highColumn.dknown, true, 'column x + r');
+        assert.equal(corner.dknown, false, 'diagonal beyond the near distance');
+        assert.equal(unseen.dknown, false, 'square the hero cannot see');
+        // isok() rejects column 0, so the scan neither reads nor observes it.
+        assert.equal(offMap.dknown, false, 'column zero');
+    });
+
+test('see_nearby_objects skips an object it has already observed', () => {
+    const state = nearbyObjectsState(10, 10);
+    const potion = unobservedPotion(state, 10, 11);
+    potion.dknown = true;
+    // display.c:1590's `obj->dknown` short-circuit means no discovery ledger
+    // entry is written for an object the hero has already looked at closely.
+    see_nearby_objects(state);
+    assert.equal(state.objects[POT_BOOZE].oc_encountered, 0);
 });
 
 test('Enhanced glyph customization reaches the concrete fountain glyph', () => {

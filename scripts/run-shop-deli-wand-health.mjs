@@ -42,10 +42,11 @@
 // recorded against it.
 //
 // One candidate was dropped rather than recorded: seed 7612489, a wand shop
-// with both negated rows, whose D:1 walk trips the `map_object()` recolour
-// defect recorded in ROADMAP.md at step 7, drawing a potion in colour 8 where
-// C draws 6 with the random-number stream matching exactly. That is a third
-// independent reproduction of the same defect on a walk with no descent.
+// with both negated rows, whose D:1 walk drew a potion in colour 8 at step 7
+// where C drew 6, with the random-number stream matching exactly. The cause
+// was a missing display.c see_nearby_objects(), ported with the pet-drop
+// goal's first slice, so the seed is recordable again; the segment below has
+// not been re-derived against it.
 //
 // What no segment covers, and why. The lighting store is shtypes[11] and its
 // prob column is 0, so mkshop()'s walk can never reach it; only the special

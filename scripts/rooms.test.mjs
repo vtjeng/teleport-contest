@@ -209,6 +209,11 @@ test('domove updates room membership after entering the destination', async () =
         uy0: 10,
         dx: 1,
         dy: 0,
+        // domove() ends at dungeon.c u_on_newpos(), which branches on
+        // on_level(&u.uz, &u.uz0). A hero walking inside one level has the
+        // two equal; allmain.c moveloop_preamble() keeps them so.
+        uz: { dnum: 0, dlevel: 1 },
+        uz0: { dnum: 0, dlevel: 1 },
         uprops: [],
         weapon_skills: [],
         uswallow: false,

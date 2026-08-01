@@ -1093,6 +1093,13 @@ export function object_glyph_info(obj, state = game) {
             color = state.mons[obj.corpsenm].mcolor;
     }
     const glyph = glyphPresentation(symbol, color, state);
+    // display.h obj_to_glyph() numbers a generic object into the leading
+    // FIRST_OBJECT-1 slots of the object glyph ranges, which is the whole of
+    // what glyph_is_generic_object() recognizes. This port stores
+    // presentations rather than glyph numbers, so it carries the same fact as
+    // a mark, which remembered_glyph_from_presentation() copies into map
+    // memory for see_nearby_objects() to read back.
+    if (generic) glyph.genericObject = true;
     // C ref: win/tty/wintty.c tty_print_glyph(). Pile highlighting is a tty
     // presentation attribute and is suppressed together with inverse video.
     const piletop = object_is_piletop(obj, state);
@@ -1393,6 +1400,7 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
     // collide after symbol customization, so retain the trap identity needed
     // by detect.c:find_trap() in the same canonical memory record.
     if (trap) remembered.trapType = trap.ttyp;
+    if (glyph.genericObject) remembered.genericObject = true;
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor) remembered.displayColor = glyph.displayColor;
     if (glyph.rgb) remembered.rgb = [...glyph.rgb];
@@ -1544,6 +1552,54 @@ export function trap_glyph_info(trap, state = game) {
         `trap:${trap.ttyp}`,
         { type: 'trap', trap, ttyp: trap.ttyp },
     );
+}
+
+/**
+ * C ref: display.h glyph_is_generic_object(). C asks the question of the
+ * glyph number stored in levl[x][y].glyph; the port asks it of the mark
+ * object_glyph_info() puts on a generic object's presentation and
+ * remembered_glyph_from_presentation() carries into map memory.
+ */
+export function glyph_is_generic_object(location) {
+    return Boolean(location?.remembered_glyph?.genericObject);
+}
+
+/**
+ * C ref: display.c see_nearby_objects() (1574-1604). Mark the top object of
+ * each nearby pile as seen up close, and redraw the ones the map still
+ * remembers in their generic form. dungeon.c u_on_newpos() calls this on
+ * every same-level hero step, which is where a walk turns a remembered `!`
+ * or `*` from its class colour into the object's own.
+ *
+ * C's newsym_force() is newsym() plus the glyph buffer's dirty bookkeeping.
+ * js/display.js flush_screen() repaints from game.level rather than from a
+ * dirty range, so newsym() alone carries the whole effect here.
+ */
+export function see_nearby_objects(state = game) {
+    const x = state.u?.ux ?? 0;
+    const y = state.u?.uy ?? 0;
+    // these 'r' and 'neardist' calculations match distant_name(objnam.c)
+    const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;
+    // neardist produces a small square with rounded corners
+    const nearDistance = radius * radius * 2 - radius;
+
+    for (let iy = y - radius; iy <= y + radius; ++iy) {
+        for (let ix = x - radius; ix <= x + radius; ++ix) {
+            if (!isok(ix, iy)) continue;
+            // skip if no object or the object has already been marked as
+            // having been seen up close
+            const object = state.level?.objects?.[ix]?.[iy] ?? null;
+            if (!object || object.dknown) continue;
+            // skip if the spot can't be seen or is too far (diagonal)
+            if (!cansee(ix, iy, state) || dist2(ix, iy, x, y) > nearDistance)
+                continue;
+
+            observe_object(object, state);
+            // operate on remembered glyph rather than current one
+            if (glyph_is_generic_object(state.level.at(ix, iy)))
+                newsym(ix, iy);
+        }
+    }
 }
 
 function observeNearbyObject(object, x, y, state) {

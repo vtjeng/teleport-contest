@@ -506,43 +506,6 @@ omits the `clearMessageWindow()` defect above, listing a test finding in its
 place. The counts are right and the ledger is append-only, so the correction
 lives here rather than in the record.
 
-#### `map_object()` does not recolour a remembered generic object
-
-`display.c map_object()` (340-352) observes a nearby object whose remembered
-glyph is the generic one and redraws it in that object's own colour;
-`js/display.js` does not, so the port leaves the generic colour standing.
-
-This is a **silent divergence and it is not a level-transition bug**. Reproduce
-on D:1 with no descent at all: seed 7333427, moves `kkuukkkkk`, where C draws
-colour 11 for a worthless piece of yellow glass and the port draws 8, with the
-random-number stream matching exactly. The shop slice found it because two
-candidate matrix seeds failed on it, and dropped those seeds rather than encode
-the wrong colour.
-
-It belongs to the display area rather than to the descent goal. Fix it with
-whatever next reads `map_object()`.
-
-**Two later slices sharpened what it costs.** Slice 6 stocked gems in two
-matrix segments without tripping it, which narrows the surface: stocking an
-object of an affected class is not sufficient. The mimic slice then hit it
-again at **seed 7411559**, where a D:1 walk draws a potion in colour 8 where C
-draws 6 with the random-number stream matching, and confirmed it fires on the
-walk alone with no descent — a second reproduction independent of the first,
-and again nothing to do with a level change.
-
-It has now cost coverage rather than only seeds. Seed 7411559 was the only
-jewelers-or-hardware candidate on the mimic stock arm across three scans, so
-that pairing is exercised by no recorded case; `scripts/run-shop-mimic.mjs`
-says so in its header. Whoever fixes the defect should record that case at the
-same time.
-
-Slice 8 gave it a **third** independent reproduction, seed 7612489, a wand shop
-drawing a potion in colour 8 where C draws 6 — again on a D:1 walk with no
-descent and with the random-number stream matching. Three reproductions across
-three slices, every one of them a potion or gem on an ordinary walk, make this
-the most frequently met unfixed defect in the port, and the one costing the
-most candidate seeds.
-
 #### `newsym()` omits the infrared arm
 
 `display.c newsym()` has an out-of-sight arm that shows a monster when
@@ -758,6 +721,22 @@ rather than surface as a screen mismatch several goals later. Take option 2
 when a leak escapes the five cases above, or when the field list next grows.
 
 ### Game behavior
+
+#### the jewelers-and-hardware mimic pairing is still unrecorded
+
+`scripts/run-shop-mimic.mjs` puts no jewelers or hardware store on
+`set_mimic_sym()`'s stock arm. Each is 3% of `mkshop()`'s roll and the arm
+itself is 2 draws in 10, so the pairing is rare: across three scans totalling
+8,500 fresh seeds the only candidate was **seed 7411559**.
+
+What blocked it is gone. That seed's D:1 walk used to draw a potion in colour 8
+where C drew 6, which is why the shop slice dropped it rather than record the
+wrong colour; the defect behind that was the missing
+`display.c see_nearby_objects()`, ported with the pet-drop goal's first slice.
+What remains is a recording job: the segment needs a walk from that seed's
+upstairs to its downstairs, and no committed tool produces one. The shop slices
+found their paths by an uncommitted breadth-first search over the port's
+generated D:1 map.
 
 #### five descent-and-shop findings are deferred
 

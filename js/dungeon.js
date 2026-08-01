@@ -8,6 +8,7 @@ import { DUNGEON_DATA } from './dungeon_data.js';
 import {
     AGGRAVATE_MONSTER,
     Align2amask,
+    BLINDED,
     COLNO,
     DB_ICE,
     DB_LAVA,
@@ -15,6 +16,8 @@ import {
     DB_UNDER,
     DRAWBRIDGE_UP,
     CORR,
+    HALLUC,
+    HALLUC_RES,
     ICE,
     LAVAPOOL,
     M_AP_FURNITURE,
@@ -26,6 +29,9 @@ import {
     STONE,
     isok,
 } from './const.js';
+// js/display.js imports update_lastseentyp() from this file. Both sides use
+// the other's exports only inside function bodies, so the cycle resolves.
+import { see_nearby_objects } from './display.js';
 import { cmap_to_type } from './mkroom.js';
 // js/stairs.js imports depth() and on_level() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
@@ -807,6 +813,23 @@ function dname_to_dnum(name, state) {
     return index;
 }
 
+// C ref: youprop.h Blind (103) and Hallucination (116). Both are read once,
+// by the same-level arm of u_on_newpos() below. Blindness is intrinsic or
+// extrinsic unless an artifact blocks it; hallucination is solely an intrinsic
+// timeout that either kind of resistance suppresses.
+function heroBlind(state) {
+    const blindness = state.u?.uprops?.[BLINDED];
+    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
+        && !blindness?.blocked);
+}
+
+function heroHallucinating(state) {
+    const halluc = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(halluc?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
 // C ref: dungeon.c u_on_newpos() (1567-1601). The one place that writes the
 // hero's map position, and with it the ridden steed's, which always shares it.
 export function u_on_newpos(x, y, state = game) {
@@ -844,13 +867,13 @@ export function u_on_newpos(x, y, state = game) {
         }
         state.iflags ??= {};
         state.iflags.terrain_typ = MAX_TYPE;
+    } else if (!heroBlind(state)
+        && !heroHallucinating(state)
+        && !hero.uswallow) {
+        // still on same level; might have come close enough to
+        // generic object(s) to redisplay them as specific objects
+        see_nearby_objects(state);
     }
-    // C's `else` arm calls see_nearby_objects(), which marks every generic
-    // object within the hero's near-distance square as seen up close. This
-    // port distributes that work: display.c's own observeNearbyObject() runs
-    // per cell inside newsym(), and flush_screen() repaints every cell, so a
-    // same-level arrival observes exactly the objects C's loop would.
-    //
     // dungeon.c earth_sense() is omitted. Its body sits behind
     // `!Race_if(PM_DWARF)`, and no ported caller reaches it with a dwarf on a
     // ROOM or CORR square holding a buried object: teleds() is reachable only
