@@ -24,7 +24,7 @@ checklist covers slice 1 only, which stops before that call.
   a generated level.
 - Observables: the message; that no turn is spent; the complete 24x80 screens,
   attributes and cursor. This path should make no random-number call. Verify
-  that rather than assume it.
+  that by measurement.
 - Exclusions, each to be justified from source in the table below:
   - `goto_level()` and everything past it, which is slice 2. `dodown()` must
     stop before that call with a fail-closed refusal.
