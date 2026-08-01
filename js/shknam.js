@@ -48,21 +48,18 @@ import {
 const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
 // The SHTYPES rows this port stocks, by index, which is the room's
-// rtype - SHOPBASE. Together they take 61% of mkshop()'s roll: 42% general
-// store, 14% used armor dealership, 5% antique weapons outlet. Every other row
-// needs stock this port cannot make yet, so shopType() refuses it and the
-// segment ends there rather than drawing the wrong objects:
+// rtype - SHOPBASE. Together they take 77% of mkshop()'s roll: 42% general
+// store, 14% used armor dealership, 10% liquor emporium, 5% antique weapons
+// outlet, 3% jewelers, 3% hardware store. Every other row needs stock this
+// port cannot make yet, so shopType() refuses it and the segment ends there
+// rather than drawing the wrong objects:
 //
 //   second-hand bookstore, rare books   mkshobj_at()'s SPE_NOVEL tribute arm
 //   delicatessen, wand shop, lighting   iprobs[] entries with a negative
 //     store                             itype, which need mksobj_at()
 //   health food store                   VEGETARIAN_CLASS, so shkveg(),
 //                                       veggy_item() and mkveggy_at()
-//   hardware store                      nameshk()'s shktools arm
-//   jewelers                            shkinit()'s TOUCHSTONE arm
-//   liquor emporium                     mkobj_at(POTION_CLASS) is untested
-//                                       against a recorded shop
-const SUPPORTED_SHOPS = new Set([0, 1, 4]);
+const SUPPORTED_SHOPS = new Set([0, 1, 3, 4, 6, 8]);
 
 function shopType(shopIndex) {
     const shop = SHTYPES[shopIndex];
@@ -104,11 +101,10 @@ function get_shop_item(shop, random) {
 //
 // The minetown shklight arm above C's else is unreachable here: the lighting
 // store has probability 0, so only the special-level loader ever asks for one.
-// The shktools arm inside the loop is unreachable for the same reason the
-// hardware store is refused above.
 //
-// This draws no random number on the path a fresh shop takes, so a wrong name
-// shows up only on the screen.
+// Every list but shktools reaches its name without drawing, so a wrong name
+// shows up only on the screen. The hardware store is the exception: its arm
+// draws rn2(names_avail) on every pass of the loop.
 function nameshk(shk, initialNames, normalized) {
     const { random, state } = normalized;
     const eshk = shk.mextra?.eshk;
@@ -128,7 +124,15 @@ function nameshk(shk, initialNames, normalized) {
     let shopName = names[nameWanted];
 
     for (let tryCount = 0; tryCount < 50; ++tryCount) {
-        if (nameWanted < namesAvailable) {
+        if (names === shktools) {
+            // C draws here rather than indexing by name_wanted, so a hardware
+            // store is the one shop whose keeper's name costs a random number.
+            // C's comment on the assignment below says the '_' and '-' prefix
+            // test further down reverses it; no shktools entry carries either
+            // prefix, so it stands.
+            shopName = shktools[random.rn2(namesAvailable)];
+            shk.female = false;
+        } else if (nameWanted < namesAvailable) {
             shopName = names[nameWanted];
         } else {
             const choice = random.rn2(namesAvailable);
@@ -251,10 +255,12 @@ function shkinit(shop, sroom, normalized) {
 
     mkmonmoney(shk, 1000 + 30 * normalized.random.rnd(100), normalized);
     // C's starting stock for the keeper, tested on the shop's name list rather
-    // than on the shop. The `||` chain short-circuits, so a general store draws
-    // exactly one rn2(5) here and an armor or weapon shop draws nothing: those
-    // two lists match none of the four tests. The jewelers' TOUCHSTONE arm and
-    // both wand-shop arms belong to shop types shopType() still refuses.
+    // than on the shop. The `||` chain short-circuits, so what each stocking
+    // shop draws here differs: a hardware store draws nothing and always gets
+    // the scroll, a jewelers draws one rn2(2) after its touchstone, a general
+    // store draws one rn2(5), and an armor, weapon or liquor shop draws
+    // nothing and gets neither item. The shkwands clause belongs to a shop
+    // type shopType() still refuses.
     if (shop.shknms === shkrings) mongets(shk, TOUCHSTONE, normalized);
     if (shop.shknms === shktools || shop.shknms === shkwands
         || (shop.shknms === shkrings && normalized.random.rn2(2))

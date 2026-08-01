@@ -15,14 +15,22 @@ import {
     SHOPBASE,
     VAULT,
 } from '../js/const.js';
+import { ledger_no } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
 import { UnsupportedSpecialRoomError, do_mkroom } from '../js/mkroom.js';
 import {
+    AMULET_CLASS,
     ARMOR_CLASS,
+    GEM_CLASS,
+    POTION_CLASS,
     RANDOM_CLASS,
+    RING_CLASS,
+    SCR_CHARGING,
     SPBOOK_CLASS,
+    TOOL_CLASS,
+    TOUCHSTONE,
     WAND_CLASS,
     WEAPON_CLASS,
 } from '../js/objects.js';
@@ -31,6 +39,9 @@ import {
     shkarmors,
     shkbooks,
     shkgeneral,
+    shkliquors,
+    shkrings,
+    shktools,
     shkweapons,
 } from '../js/shtypes_data.js';
 import { stock_room } from '../js/shknam.js';
@@ -41,8 +52,11 @@ import { stock_room } from '../js/shknam.js';
 const GENERAL_STORE = 0;
 const ARMOR_SHOP = 1;
 const SCROLL_SHOP = 2;
+const LIQUOR_EMPORIUM = 3;
 const WEAPON_SHOP = 4;
+const JEWELERS = 6;
 const WAND_SHOP = 7;
+const TOOL_SHOP = 8;
 const BOOKSTORE = 9;
 
 function initializedState() {
@@ -329,12 +343,12 @@ test('mkshop takes the first eligible room and leaves the later ones alone',
     });
 
 test('stock_room refuses a shop type this port cannot stock', () => {
-    // The nine rows outside SUPPORTED_SHOPS end the segment rather than
+    // The six rows outside SUPPORTED_SHOPS end the segment rather than
     // stocking the wrong objects. UnsupportedSpecialRoomError is the class
     // js/jsmain.js treats as a clean segment boundary.
     const state = initializedState();
     const room = shopCandidate(state, { hx: 13, hy: 8 });
-    for (const index of [2, 3, 5, 6, 7, 8, 9, 10, 11]) {
+    for (const index of [2, 5, 7, 9, 10, 11]) {
         assert.throws(
             () => stock_room(index, room, { state }),
             (error) => error instanceof UnsupportedSpecialRoomError
@@ -364,14 +378,15 @@ test('a refused shop type ends the segment and keeps every screen before it',
         // The instrument this matters for is scripts/scan-debt.mjs, which
         // reads a session's whole recorded input and needs every fail-closed
         // stop to end its segment rather than escape runSegment() as a crash.
-        // A liquor emporium is one of the nine rows SUPPORTED_SHOPS refuses.
+        // A second-hand bookstore is one of the six rows SUPPORTED_SHOPS
+        // refuses.
         //
-        // Seed 7330325 and this walk were found by breadth-first search over
-        // the generated D:1 map: ten steps to the down staircase, then `>` and
-        // the space that dismisses the arrival's `--More--`.
+        // Seed 7360089 and this walk were found by breadth-first search over
+        // the generated D:1 map: twelve steps to the down staircase, then `>`
+        // and the space that dismisses the arrival's `--More--`.
         let boundary = null;
         const segment = await runSegment({
-            seed: 7330325,
+            seed: 7360089,
             datetime: '20330607081011',
             nethackrc: [
                 'OPTIONS=name:Shopper,role:Valkyrie,race:human,'
@@ -380,34 +395,89 @@ test('a refused shop type ends the segment and keeps every screen before it',
                 'OPTIONS=pettype:none,!acoustics,!autopickup',
                 '',
             ].join('\n'),
-            moves: 'njjlnljjll> ',
+            moves: 'kkkkkkkkllll> ',
         }, { onBoundary: (error) => { boundary = error; } });
 
         assert.ok(
             boundary instanceof UnsupportedSpecialRoomError,
             `boundary was ${boundary?.name ?? 'absent'}`,
         );
-        assert.match(boundary.message, /liquor emporium/u);
-        // Eleven screens: one per walked step plus the `--More--` the descent
-        // stops on. The stop happens while D:2 is being generated, so the map
-        // after it is never drawn.
-        assert.equal(segment.getScreens().length, 11);
+        assert.match(boundary.message, /second-hand bookstore/u);
+        // Thirteen screens: one per walked step plus the `--More--` the
+        // descent stops on. The stop happens while D:2 is being generated, so
+        // the map after it is never drawn.
+        assert.equal(segment.getScreens().length, 13);
     });
+
+// Walk one Valkyrie from her up staircase to D:1's down staircase, descend,
+// and read back the shop that makelevel() stocked on D:2. Every seed and walk
+// passed here is a segment of scripts/run-shop-descent.mjs, which records the
+// same inputs with the C reference program and compares every random number,
+// screen cell and cursor; the state read back below is what those matching
+// runs produced.
+async function descendToShop(seed, walk) {
+    await runSegment({
+        seed,
+        datetime: '20330607081011',
+        nethackrc: [
+            'OPTIONS=name:Shopper,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics,!autopickup',
+            '',
+        ].join('\n'),
+        moves: `${walk}> `,
+    }, {});
+    const rooms = game.level.rooms.slice(0, game.level.nroom);
+    const room = rooms.find((candidate) => candidate.rtype >= SHOPBASE);
+    assert.ok(room, `seed ${seed} generated a shop`);
+
+    const pack = [];
+    for (let obj = room.resident.minvent; obj; obj = obj.nobj)
+        pack.push(obj.otyp);
+
+    const stock = [];
+    let stockedSquares = 0;
+    for (let x = room.lx; x <= room.hx; ++x)
+        for (let y = room.ly; y <= room.hy; ++y) {
+            if (game.level.objects[x][y]) stockedSquares += 1;
+            for (let obj = game.level.objects[x][y]; obj; obj = obj.nexthere)
+                stock.push(obj);
+        }
+
+    return {
+        index: room.rtype - SHOPBASE,
+        shk: room.resident,
+        keeper: room.resident.mextra.eshk.shknam,
+        pack,
+        stock,
+        stockedSquares,
+    };
+}
+
+// shknam.c nameshk():507-510 and 515, transcribed rather than read back
+// from a run:
+// every name list but shktools is indexed by this value, which the game
+// derives from the keeper's m_id and the birthday without drawing.
+function name_wanted(shk) {
+    const nseed = Math.trunc(Math.trunc(game.ubirthday) / 257);
+    const wanted = shk.m_id + ledger_no(game.u.uz, game)
+        + (nseed % 13) - (nseed % 5);
+    // C's `if (name_wanted < 0) name_wanted += (13 + 5)`.
+    return wanted < 0 ? wanted + 18 : wanted;
+}
 
 test("a general store's keeper spends shkinit()'s rn2(5) on a charging scroll",
     async () => {
-        // shknam.c shkinit():684-687. The `||` chain short-circuits, so a
-        // general store is the only shop this port stocks that reaches a draw
-        // there: shknms is neither shktools nor shkwands, the shkrings test
-        // fails before its rn2(2), and the shkgeneral test then spends one
-        // rn2(5) on whether the keeper carries a scroll of charging.
+        // shknam.c shkinit():685-688. The `||` chain short-circuits, so a
+        // general store reaches its own clause and no earlier one: shknms is
+        // neither shktools nor shkwands, the shkrings test fails before its
+        // rn2(2), and the shkgeneral test then spends one rn2(5) on whether
+        // the keeper carries a scroll of charging.
         //
-        // Both segments below are in scripts/run-shop-descent.mjs, which
-        // records them with the C reference program and compares every random
-        // number, screen cell and cursor. The state pinned here is what that
-        // matching run produced; a change to the chain's short-circuit order
-        // moves the whole stream after mkmonmoney() and shows up in the stock
-        // as well as in the keeper's pack.
+        // A change to the chain's short-circuit order moves the whole stream
+        // after mkmonmoney() and shows up in the stock as well as in the
+        // keeper's pack.
         const cases = [
             // rn2(5) came up non-zero: the keeper carries SCR_CHARGING (342).
             {
@@ -423,37 +493,126 @@ test("a general store's keeper spends shkinit()'s rn2(5) on a charging scroll",
             },
         ];
         for (const { seed, walk, keeper, inventory, stocked } of cases) {
-            await runSegment({
-                seed,
-                datetime: '20330607081011',
-                nethackrc: [
-                    'OPTIONS=name:Shopper,role:Valkyrie,race:human,'
-                    + 'gender:female,align:neutral',
-                    'OPTIONS=!legacy,!tutorial,!splash_screen',
-                    'OPTIONS=pettype:none,!acoustics,!autopickup',
-                    '',
-                ].join('\n'),
-                moves: `${walk}> `,
-            }, {});
-            const rooms = game.level.rooms.slice(0, game.level.nroom);
-            const shop = rooms.find((room) => room.rtype >= SHOPBASE);
-            assert.ok(shop, `seed ${seed} generated a shop`);
-            assert.equal(shop.rtype - SHOPBASE, GENERAL_STORE, `seed ${seed}`);
-
-            const pack = [];
-            for (let obj = shop.resident.minvent; obj; obj = obj.nobj)
-                pack.push(obj.otyp);
-            assert.deepEqual(pack, inventory, `seed ${seed} keeper pack`);
-            assert.equal(
-                shop.resident.mextra.eshk.shknam, keeper, `seed ${seed} name`,
-            );
-
-            let stockedSquares = 0;
-            for (let x = shop.lx; x <= shop.hx; ++x)
-                for (let y = shop.ly; y <= shop.hy; ++y)
-                    if (game.level.objects[x][y]) stockedSquares += 1;
-            assert.equal(stockedSquares, stocked, `seed ${seed} stock`);
+            const shop = await descendToShop(seed, walk);
+            assert.equal(shop.index, GENERAL_STORE, `seed ${seed}`);
+            assert.deepEqual(shop.pack, inventory, `seed ${seed} keeper pack`);
+            assert.equal(shop.keeper, keeper, `seed ${seed} name`);
+            assert.equal(shop.stockedSquares, stocked, `seed ${seed} stock`);
         }
+    });
+
+test("a hardware store's keeper is named by a draw, not by name_wanted",
+    async () => {
+        // shknam.c nameshk():518-520. shktools is the one list C indexes with
+        // rn2(names_avail) instead of name_wanted, and the one whose keeper
+        // therefore costs a random number. It also forces female to 0 whatever
+        // name_wanted's low bit says.
+        //
+        // Both seeds are chosen so the drawn name differs from the name
+        // name_wanted would have selected, which is what separates the arm
+        // from the branch below it; the second seed's name_wanted is odd as
+        // well, so its keeper would be female without the arm.
+        for (const { seed, walk, oddNameWanted } of [
+            { seed: 7372938, walk: 'ljjjjjjjjjjhb', oddNameWanted: false },
+            { seed: 7380123, walk: 'kkllululuullll', oddNameWanted: true },
+        ]) {
+            const shop = await descendToShop(seed, walk);
+            assert.equal(shop.index, TOOL_SHOP, `seed ${seed}`);
+            assert.ok(
+                shktools.includes(shop.keeper),
+                `seed ${seed} keeper ${shop.keeper} is a shktools name`,
+            );
+            const wanted = name_wanted(shop.shk);
+            assert.equal(
+                Boolean(wanted & 1), oddNameWanted, `seed ${seed} name_wanted`,
+            );
+            assert.notEqual(
+                shop.keeper, shktools[wanted % shktools.length],
+                `seed ${seed} took the drawn name`,
+            );
+            assert.equal(shop.shk.female, false, `seed ${seed} female`);
+
+            // shkinit()'s chain is true on its first clause here, so the
+            // keeper gets the charging scroll with no rn2 at all, and never
+            // the jewelers' touchstone.
+            assert.ok(shop.pack.includes(SCR_CHARGING), `seed ${seed} scroll`);
+            assert.ok(!shop.pack.includes(TOUCHSTONE), `seed ${seed} stone`);
+        }
+    });
+
+test("a jewelers' keeper gets a touchstone and spends rn2(2) on the scroll",
+    async () => {
+        // shknam.c shkinit():683-688. shkrings is the only list that reaches
+        // the TOUCHSTONE arm, and the only one whose charging scroll is
+        // conditional on a draw of its own.
+        for (const { seed, walk, scroll } of [
+            // rn2(2) came up non-zero.
+            { seed: 7385612, walk: 'jhhhhhhhhhhhhh', scroll: true },
+            // rn2(2) came up 0, and every later draw in the shop moves with it.
+            { seed: 7360485, walk: 'bbhhhhbbbhhhhy', scroll: false },
+        ]) {
+            const shop = await descendToShop(seed, walk);
+            assert.equal(shop.index, JEWELERS, `seed ${seed}`);
+            assert.ok(shop.pack.includes(TOUCHSTONE), `seed ${seed} stone`);
+            assert.equal(
+                shop.pack.includes(SCR_CHARGING), scroll, `seed ${seed} scroll`,
+            );
+            // nameshk() indexes shkrings by name_wanted without drawing, so
+            // the name follows from C's formula rather than from the stream.
+            assert.equal(
+                shop.keeper,
+                shkrings[name_wanted(shop.shk) % shkrings.length],
+                `seed ${seed} name`,
+            );
+        }
+    });
+
+test('each newly stocked shop type stocks only the classes its iprobs[] names',
+    async () => {
+        // shknam.c get_shop_item() walks the shop's iprobs[] and mkshobj_at()
+        // passes the class it lands on to mkobj_at(). A row's stock therefore
+        // cannot hold a class that row does not list, whatever the seed.
+        const cases = [
+            {
+                seed: 7330325, walk: 'njjlnljjll', index: LIQUOR_EMPORIUM,
+                classes: [POTION_CLASS], list: shkliquors, stocked: 6,
+            },
+            {
+                seed: 7364483, walk: 'hhhhhhhhhhhhhhj', index: LIQUOR_EMPORIUM,
+                classes: [POTION_CLASS], list: shkliquors, stocked: 12,
+            },
+            // 85% rings, 10% gems, 5% amulets: this room stocks all three.
+            {
+                seed: 7385612, walk: 'jhhhhhhhhhhhhh', index: JEWELERS,
+                classes: [RING_CLASS, GEM_CLASS, AMULET_CLASS],
+                list: shkrings, stocked: 24,
+            },
+            {
+                seed: 7372938, walk: 'ljjjjjjjjjjhb', index: TOOL_SHOP,
+                classes: [TOOL_CLASS], list: shktools, stocked: 32,
+            },
+        ];
+        for (const { seed, walk, index, classes, list, stocked } of cases) {
+            const shop = await descendToShop(seed, walk);
+            assert.equal(shop.index, index, `seed ${seed}`);
+            assert.equal(shop.stockedSquares, stocked, `seed ${seed} stock`);
+            for (const obj of shop.stock) {
+                assert.ok(
+                    classes.includes(obj.oclass),
+                    `seed ${seed}: otyp ${obj.otyp} has class ${obj.oclass}`,
+                );
+            }
+            // The keeper's name comes from the row's own list, which is what
+            // ties the stocked row to the name list shkinit() branched on.
+            assert.ok(list.includes(shop.keeper), `seed ${seed} name list`);
+        }
+        // The jewelers above is the one case that has to reach all three of
+        // its classes for the assertion loop to mean anything.
+        const jewelers = await descendToShop(7385612, 'jhhhhhhhhhhhhh');
+        assert.deepEqual(
+            [...new Set(jewelers.stock.map((obj) => obj.oclass))].sort(),
+            [RING_CLASS, AMULET_CLASS, GEM_CLASS].sort(),
+        );
     });
 
 test('the room search ends on the rooms[] terminator and on nothing else',

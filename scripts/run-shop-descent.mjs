@@ -28,7 +28,7 @@
 // arbitrary; a datetime is shared within a character because the date changes
 // level generation, which would invalidate every path recorded against it.
 //
-// What no segment covers, and why. The other nine shtypes[] rows are refused
+// What no segment covers, and why. The other five shtypes[] rows are refused
 // by js/shknam.js SUPPORTED_SHOPS and belong to later slices. A shop room that
 // C rejects for its shape, and a level whose rooms all fail the search, draw
 // nothing extra and are already covered by scripts/run-leave-level.mjs, whose
@@ -132,12 +132,43 @@ export function loadShopDescentRecipe() {
                 gender: 'male', align: 'chaotic', pettype: 'dog',
                 walk: 'klllullulllllllu',
             }),
+            // A liquor emporium, 10% of the roll and the first shop here whose
+            // stock is a single class other than the general store's
+            // RANDOM_CLASS: iprobs[] is 100% POTION_CLASS. Its keeper's list
+            // is shkliquors, which matches none of shkinit()'s four mongets()
+            // tests, so he draws nothing after his purse and carries neither
+            // the touchstone nor the charging scroll.
+            valkyrie({ seed: 7330325, walk: 'njjlnljjll' }),
+            // A second liquor emporium in a wider room, so the potion stock is
+            // twelve squares rather than six.
+            valkyrie({ seed: 7364483, walk: 'hhhhhhhhhhhhhhj' }),
+            // A jewelers, 3% of the roll, whose iprobs[] are the first in this
+            // matrix to reach three entries: 85% rings, 10% gems, 5% amulets.
+            // This room stocks all three. The keeper's shkrings list is the
+            // only one that reaches shkinit()'s TOUCHSTONE arm, and its
+            // rn2(2) came up non-zero here, so he carries a charging scroll
+            // as well.
+            valkyrie({ seed: 7385612, walk: 'jhhhhhhhhhhhhh' }),
+            // A second jewelers, where that rn2(2) came up 0: the touchstone
+            // stands alone and every later draw in the shop moves with it.
+            valkyrie({ seed: 7360485, walk: 'bbhhhhbbbhhhhy' }),
+            // A hardware store, 3% of the roll and the one shop whose keeper's
+            // name costs a random number: nameshk()'s shktools arm draws
+            // rn2(40) instead of indexing by name_wanted. The shkinit() chain
+            // short-circuits on its first clause here, so the charging scroll
+            // arrives with no rn2 at all.
+            valkyrie({ seed: 7380123, walk: 'kkllululuullll' }),
+            // A second hardware store, in the largest shop room in the matrix
+            // at thirty-two stocked squares, so the tool stock is long enough
+            // for a wrong get_shop_item() walk to show.
+            valkyrie({ seed: 7372938, walk: 'ljjjjjjjjjjhb' }),
         ],
     }, 'shop descent recipe');
 }
 
-// A third role on a different date, kept in its own recipe because
-// runFreshMatrix() records at most ten segments per recorder run.
+// A third role on a different date, kept in its own recipe because it shares
+// neither. runFreshMatrix() chunks a longer recipe into recorder runs of ten
+// itself, so the recipe above is not split for that reason.
 export function loadShopDescentSamuraiRecipe() {
     return validateCleanRecipe({
         version: 5,
