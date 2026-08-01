@@ -21,7 +21,7 @@ not go stale, which is why they are recorded here rather than re-derived.
 
 ### What the closed goals have carried over, and what to make of it
 
-Six goals now have holdout results. The run was +21 screens, then +17, then a
+Seven goals now have holdout results. The run was +21 screens, then +17, then a
 first passing holdout session; after that the pickup, monster-door and trap
 goals gained +1, 0 and +8 development screens and carried **nothing**. The trap
 goal's authorized evaluation returned 138 of 3,640 screens, 30,048 of 182,022
@@ -38,6 +38,32 @@ gained, the last three goals were plausibly below an 11-session holdout's
 resolution. Three zeros is then a statement about effect size, not proof of a
 broken instrument, and the honest reading is that the holdout cannot resolve a
 goal that small either way.
+
+**The descent goal was the test of that reading, and it failed it.** Closed on
+1 August 2026, it is the largest goal this port has taken: selected on 3,515
+screens of `supports` across 8 of 33 sessions, 45% of the whole recorded
+population, gated by no role and no prefix — the property that distinguished
+the two goals whose holdout gain was non-zero. It gained 9 development screens
+and 5,595 random-number values, and the port now completes a level transition
+end to end, with 2,347 of 2,347 censused descents reaching a drawn D:2. **The
+holdout returned 139 of 3,640 screens and 30,048 of 182,022 values: unchanged,
+digit for digit, from the goal before it.**
+
+That is a fourth zero, and the size explanation no longer covers it. What the
+goal's own numbers say is simpler and was visible without the holdout: 3,515
+screens of `supports` yielded 9. Every development session that gained had
+already been counted, and the 8 sessions the census named still stop — now on
+what *follows* a descent rather than on the descent itself.
+
+**The lesson is about `supports`, not about the instrument being broken.** It
+ranked this behavior first and the behavior really was the port's largest
+single dependency; the column measures what depends on a boundary, which is not
+what porting that boundary earns. Unblocking a boundary moves a session to the
+next one. Expect a goal's gain to track the screens between its boundary and
+the *next* stop in the same sessions, which no column currently reports, rather
+than the screens behind it. Whoever next selects a goal should treat a large
+`supports` as evidence that a behavior is needed, not as a forecast of what it
+will score.
 
 **The census is censored rather than wrong.** It measures the first fail-closed
 boundary per development session, which is exactly the right quantity, but a
@@ -80,182 +106,6 @@ move `AGENTS.md` forbids for implementation and is no more reliable for
 selection, and nothing re-ran the scan against the candidate before the slice
 was promised. Do not replace an instrument for a failure its own documentation
 already warns about; use it as written.
-
-### In progress: the hero descends a staircase
-
-`scripts/scan-debt.mjs --by=supports` rates `down` 3,515 screens of `supports`
-across 8 of the 33 development sessions, the largest single dependency in the
-set at 45% of the whole recorded population, with `unlocks` of 25. It is the
-highest-`supports` behavior with a nonzero `unlocks`, which is the rule
-`.agents/selection.md` states.
-
-**This goal is larger than any taken so far, and the entry says so up front.**
-`do.c dodown()` is 164 lines, but it ends in `goto_level()`, which is 520. That
-function generates or restores the destination level, moves the hero and every
-carried thing onto it, and rewrites most of the game state. Nothing in the port
-does any of it: `dodown()`, `goto_level()` and `schedule_goto()` are all absent,
-and only `stairway_at()` in `js/stairs.js` and `on_level()` in `js/dungeon.js`
-exist. Expect several slices and at least one implementation checklist.
-
-**Why it is still the right goal.** Eight sessions cannot finish without it and
-it gates nearly half the recorded screens. Every role uses stairs, so no role
-and no prefix gates it, which is the property that distinguished the two goals
-whose holdout gain was non-zero. Its `unlocks` of 25 is small, and
-`.agents/selection.md` records why that column does not rank.
-
-**Slices. The first two are closed; their entries record what they measured.**
-
-1. *The refusal boundary and the descent decision.* **Closed at `6d7aedd`.**
-   `dodown()` from entry through the tests that decide whether the hero
-   descends at all, ending at the point where it would call `goto_level()`.
-   It earned no development screens: no session presses `>` where the refusal
-   answers, so its evidence is the eight fresh segments in
-   `scripts/run-descend-refusal.mjs`.
-2. *Leaving the level.* **Closed at `bb4ef50`.** `goto_level()`'s opening: the
-   guards, the context discard at 1601-1622, `keepdogs(FALSE)` at 1624 and
-   `vision_recalc(2)` at 1631, ending before the destination is chosen.
-   Closing it needed more than the line range above: `dodown()`'s own tail
-   (1242-1292) and nine helpers across seven C files came with it, and
-   `keepdogs()` did **not** need a slice of its own — `js/dog.js
-   migrate_to_level()` had folded `mon_leave()` and `relmon()` into one
-   function, and splitting them back out cost about 130 lines in that file.
-   Three C calls in this phase have no port location to write, each recorded
-   in a comment at its site: `reset_trapset()`'s `gt.trapinfo` and
-   `iflags.travelcc`, and `recalc_mapseen()`'s `mapseen` chain.
-3. *Arriving on a newly generated level.* **Closed at `1cd7c32`.**
-   `goto_level()` 1692-1998 entire, so the hero presses `>` on D:1 and arrives
-   on a D:2 the port generated. It gained one screen and 5,465 matched
-   random-number calls in `seed0015-valk-level2-pit-dog-wait`; the calls are
-   the real signal, being the first evidence that `js/mklev.js` generates a
-   level correctly against a live game rather than a fixture.
-   **The boundary took three attempts, and only a recording settled it.** This
-   entry first ended the slice at `docrt()`, then at `goto_level()`'s return.
-   Both were wrong. `docrt()` calls `cls()`, whose
-   `display_nhwindow(WIN_MESSAGE, FALSE)` stops for a `--More--` over the level
-   being *left*, `Dlvl:1` still on the status line; D:2 appears only once that
-   prompt is dismissed. `scripts/run-leave-level.mjs` is strict
-   `runFreshMatrix()` again at nine segments, and
-   `scripts/leave-level-matrix.test.mjs` is deleted with the prefix verdict it
-   pinned.
-4. *Returning to a level already visited.* `getlev()`, absent. Out of scope
-   until a session climbs back up: a first descent generates, and no recorded
-   session descends twice. Slice 3 settled what `savelev()` owes: a port that
-   writes no level file still owes its FREEING half, ported in `js/save.js`,
-   because a D:1 corpse's rot timer and a D:1 candle's light would otherwise
-   follow the hero to D:2.
-
-**This goal is not closed.** `mklev()` had never run below D:1 before slice 3,
-and depth two reaches statements depth one does not: `mk_knox_portal()` and,
-decisively, `makelevel()`'s shop arm. A hero who cannot reliably reach the
-level below has not finished descending a staircase, and
-`.agents/selection.md` forbids narrowing a stated goal silently, so the shops
-are this goal's work rather than a new goal.
-
-**How often the shop arm fires, corrected.** This entry said "about half of
-reachable D:2 levels". That was wrong. `makelevel()`'s shop test ends in
-`rn2(u_depth) < 3`, and at depth two `rn2(2)` is 0 or 1, so the arm fires on
-*every* D:2 with enough rooms. What varies is whether any room passes
-`mkshop()`'s search: over 4,000 fresh seeds scanned for slice 5, 189 descents
-reached a shop.
-
-**The shop slices, ordered by how often the roll reaches them.** The shares are
-exact, read from `shknam.c shtypes[]`'s `prob` column rather than sampled.
-
-5. *The commonest shops.* **Closed at `3d8858c`.** `mkshop()`'s tail from the
-   `!sroom->rlit` lighting loop through `needfill = FILL_NORMAL`, with
-   `shtypes[]` generated whole from source by `scripts/generate-shtypes.mjs`
-   and checked by a sixth generated-data check. General store, armor and
-   weapon shops stock, 61% of rolls; the other nine rows refuse by name. It
-   also restored `scripts/scan-debt.mjs`, which had stopped running entirely
-   once slice 3 made `mkshop()` reachable, by adding
-   `UnsupportedSpecialRoomError` to `js/jsmain.js`'s fail-closed boundary
-   list. Two corrections it made to this entry's assumptions: the general
-   store's table record was **absent**, not present as the plan assumed, and
-   `shkinit()` was missing C's two `mongets()` arms, so the port had never
-   spent the `rn2(5)` that `shknam.c:684-687` draws for every general store.
-   The `||` chain short-circuits, which is why the two pre-existing themed
-   shops never exposed it.
-6. *The remaining name lists.* **Closed at `fdab09e`.** The liquor emporium,
-   jewelers and hardware store, with `nameshk()`'s `shktools` arm
-   (`shknam.c:518-520`), 16%. Nothing else needed porting: `get_shop_item()`
-   already walked a three-entry `iprobs[]`, and `mkobj_at()` already made
-   potions, rings, gems, amulets and tools. It killed both mutation survivors
-   this list handed it, on the `mongets(SCR_CHARGING)` chain.
-   **A scoping correction: this slice was written as "scroll, potion, ring and
-   tool shops", and the scroll shop does not belong to it.** The scroll shop
-   *is* the second-hand bookstore, sharing the `shkbooks` name list with rare
-   books, so its 10% and rare books' 3% are slice 7's 13%. The 16% is exactly
-   the three rows above.
-7. *Bookstores.* **Closed at `a61ffab`.** The second-hand bookstore and rare
-   books, which share `shkbooks`, with `mkshobj_at()`'s 3.6 tribute arm
-   (`shknam.c:461-468`), 13%. Nothing else needed writing: `get_shop_item()`
-   already walked both `iprobs[]` pairs, `mkobj_at()` already made scrolls and
-   spellbooks, and `js/obj.js mksobj()` already carried the `SPE_NOVEL`
-   finalization that draws the title through `noveltitle()`. Two questions it
-   settled for slice 8: neither `js/makemon_create.js` refusal is reachable
-   from a bookshop, because both rows list only non-negative class itypes; and
-   the mimic arm closed at `43445e9` is reached by ordinary stocking rather
-   than by `SPE_NOVEL`, confirmed at seeds 7500385 and 7515159, which disguise
-   mimics as a scroll and a spellbook.
-   Two values are set and unobservable, recorded so nobody hunts them: the
-   `artif` argument to `mksobj_at(SPE_NOVEL, ...)` is dead, because `mksobj()`
-   reads it only inside `mksobj_init()` which `init` false skips and a novel is
-   not `oc_unique`; and `svc.context.tribute.bookstock` is not persisted across
-   segments, which no case can observe while `mkshop()` makes at most one shop
-   per level.
-8. *Deli, wand and health-food shops.* **Closed at `c0afa09`, and with it the
-   whole shop set.** `shknam.c veggy_item()`, `shkveg()`, `mkveggy_at()` and
-   `mkshobj_at()`'s three-way `atype` dispatch, plus `set_mimic_sym()`'s
-   `s_sym < 0` and `rt == FODDERSHOP` arms (`makemon.c:2473-2481`), which
-   deleted the two refusals the mimic slice left for it. `SUPPORTED_SHOPS` and
-   `shopType()` are gone: **every `shtypes[]` row now stocks**, including the
-   lighting store at index 11, which `mkshop()` still cannot roll because its
-   `prob` is 0.
-
-**What still stops a descent, measured over 12,000 fresh seeds.** 2,341
-reached the staircase and pressed `>`. **2 stopped**, both on `mon_arrive()`'s
-non-tame-follower refusal at `js/dog.js:750`, seeds 7902379 and 7905523. The
-other 2,339 descended: 1,318 ended off the staircase through ordinary walk
-drift, 491 arrived on a shopless D:2, and 530 on a stocked shop. Nothing in
-`mkshop()` or `stock_room()` refuses any more.
-
-Those two seeds matter beyond their count. The correctness pass deferred the
-`mon_arrive()` refusal specifically because **no recorded case supplied a
-non-tame follower**; these are that case, so the reason for deferring it no
-longer holds and it becomes the goal's next slice rather than standing debt.
-
-The dominant obstacle has moved off the descent entirely: of the 12,000 seeds,
-1,994 never reached a staircase at all, stopping on the D:1 walk —
-`UnsupportedTurnBoundaryError` 1,540 and `UnsupportedHeroMoveBoundaryError`
-454. That is the next goal's territory, not this one's.
-
-Slices 6 to 8 inherit two mutation survivors from slice 5: `js/shknam.js:259`
-and `:260`, the first two clauses of the `mongets(SCR_CHARGING)` chain, which
-compare against the still-refused `shktools`, `shkwands` and `shkrings` and so
-are false for every shop that stocks today.
-
-**Expect the shop slices to earn no development screens.** No development
-session stops at `mkshop()`; replaying every session's whole recorded input,
-exactly one reaches it at all, `seed0030-ten-diverse-deaths`, in a segment
-after its first stop at step 8 of 1,953. Slice 5 bore that out, moving 54
-random-number values in that session alone and no screens anywhere. The gain is
-the goal's closure and whatever carries to the holdout.
-
-**One hazard no random-number log can catch, still live for slices 6 to 8.**
-The type roll is `for (j = rnd(100), i = 0; (j -= shtypes[i].prob) > 0; i++)`:
-an off-by-one shifts every shop type by one while drawing the same single
-number, so only a screen comparison finds it. `nameshk()` is the same hazard
-from the other side, deriving the keeper's name from `ubirthday` and `m_id`
-and drawing nothing at all.
-
-**Two loose ends this goal still owns.** Slice 3 connected `u_collide_m()`
-without a recorded case: it needs a monster standing on D:2's up staircase,
-which appeared in none of the fresh cases scanned, and the function is not
-exported, so nothing pins it. And the `--More--` above means a descending
-segment ends with a space, not with `>`; any later matrix over this path
-inherits that. `mk_knox_portal()` needs no work: it is ported through its
-`u_depth > 10` gate at `js/mklev.js:613-636` and returns silently at depth 2.
-
 
 ### Queued: the hero walks onto a floor square holding more than one object
 
