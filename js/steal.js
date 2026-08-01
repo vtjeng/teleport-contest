@@ -24,6 +24,7 @@ import { obj_sheds_light } from './light.js';
 import { attacktype, dead_species } from './mondata.js';
 import { AT_ENGL } from './monsters.js';
 import { place_object, unknow_object } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { distant_name, donameFresh } from './objnam.js';
 import {
     canSeeMonster as canSeeMonsterOnMap,
@@ -230,10 +231,6 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
 
     if (obj.owornmask)
         unsupported('a monster dropping an object it has equipped');
-    // invent.c stackobj() merges the dropped object into an older pile member,
-    // which changes both objects and turns the survivor into a pile top.
-    if (state.level?.objects?.[omx]?.[omy])
-        unsupported('a monster dropping onto a square that holds an object');
 
     // call distant_name() for its possible side-effects even if the result
     // might not be printed, and do it before extracting obj from minvent
@@ -261,7 +258,13 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     }
     if (!flooreffects(obj, omx, omy, 'fall', env)) {
         place_object(obj, omx, omy, env);
-        stackobj(obj, env);
+        // A drop is the inverse of dog_invent()'s pickup and needs the same
+        // object-lifecycle owners that arm composes: merged() unlinks the
+        // older pile member through remove_object() and frees it, and a
+        // lamplit or timed member releases its light source and its timers on
+        // the way out. Composing them here rather than in dropEnv() keeps
+        // every other call in this function on the caller's own environment.
+        stackobj(obj, objectGenerationEnv(env));
     }
 }
 
@@ -284,19 +287,15 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
 
     if (mtmp.isgd) unsupported("a vault guard's gold vanishing");
 
-    let released = 0;
     for (;;) {
         const otmp = is_pet ? findDroppable(mtmp, env) : mtmp.minvent;
         if (!otmp) break;
-        if (released)
-            unsupported('a monster releasing more than one object');
         await mdrop_obj(
             mtmp,
             otmp,
             Boolean(is_pet && state.flags?.verbose),
             env,
         );
-        released += 1;
     }
 
     if (show && cansee(omx, omy, state)) redraw(omx, omy, state);

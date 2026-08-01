@@ -16,6 +16,28 @@
 // hero-to-pet distance that selects distant_name()'s near or far branch, which
 // pet drops, and the two message options.
 //
+// The second group of segments varies the square the object lands on and
+// whether the hero can see it, which is what selects the remaining arms of
+// steal.c mdrop_obj():
+//
+//   - `if (!flooreffects(...)) { place_object(); stackobj(); }`. An empty
+//     square is the first group's case. Here the square already holds one or
+//     two objects, so place_object() prepends to a pile and invent.c
+//     stackobj() walks it, either merging the older member into the dropped
+//     object or leaving both in place.
+//   - `if (verbosely && cansee(omx, omy))`. A pet that wanders into a dark
+//     corridor or a room the hero has left drops in silence, and the object's
+//     glyph does not appear.
+//
+// steal.c relobj()'s `while` gets no segment, because a starting pet cannot
+// reach it. dog_invent() takes its carry arm only when droppables() answers
+// nothing, and droppables() withholds only a wielded weapon and one preferred
+// tool; worn.c m_dowear() returns at once for is_animal(), and none of the
+// three starting pets has AT_WEAP to reach mon_wield_item(), so their packs
+// hold one droppable object at a time and a pony's worn saddle. A scan of
+// 8,650 fresh D:1 walks over four roles and both non-Knight pet types found
+// no exception. scripts/steal.test.mjs covers that loop instead.
+//
 // `edog->apport` is not a variable here, and that is upstream's doing rather
 // than this matrix's. dog.c:60 sets it to ACURR(A_CHA), but allmain.c
 // newgame() calls makedog() at 813 and u_init_inventory_attrs() only at 815,
@@ -42,6 +64,9 @@ const TOURIST = {
 };
 const PRIEST = {
     role: 'Priest', race: 'human', gender: 'female', align: 'neutral',
+};
+const SAMURAI = {
+    role: 'Samurai', race: 'human', gender: 'male', align: 'lawful',
 };
 
 function nethackrc({ role, race, gender, align, pet, options = '' }) {
@@ -160,6 +185,82 @@ export function loadPetDropRecipe() {
                 pet: 'cat',
                 searches: 2,
                 options: ',accessiblemsg',
+            }),
+
+            // ── the square the object lands on ──
+
+            // The commonest merge by far: gold onto gold. The kitten put a
+            // gold piece on this square ten prompts earlier, picked another
+            // one up, and merges the two into a single pile.
+            segment({
+                seed: 8920028, character: VALKYRIE, pet: 'cat', searches: 19,
+            }),
+            // Three merges onto one square in one segment, so a pile that has
+            // already absorbed a drop has to absorb the next two as well.
+            segment({
+                seed: 8950528, character: PRIEST, pet: 'cat', searches: 26,
+            }),
+            // A gem, which is the first merge here that reaches any of
+            // invent.c mergable()'s comparisons: `obj->oclass == COIN_CLASS`
+            // returns TRUE above all of them, so the three merges above test
+            // none of the blessing, enchantment or erosion rules.
+            segment({
+                seed: 8930162, character: VALKYRIE, pet: 'dog', searches: 38,
+            }),
+            // A crossbow bolt. objnam.c erosion_matters() answers TRUE for
+            // WEAPON_CLASS and FALSE for a gem, so this segment is the one
+            // that reaches mergable()'s erode-proofing and rknown tests.
+            segment({
+                seed: 8930194, character: VALKYRIE, pet: 'dog', searches: 28,
+            }),
+            // Both outcomes on one square: a black gem merges into its own
+            // kind, and five prompts later a gold piece lands on that pile
+            // and merges with nothing.
+            segment({
+                seed: 8960540, character: TOURIST, pet: 'dog', searches: 27,
+            }),
+            // The smallest no-merge case: gold onto a square holding one
+            // piece of armor, so stackobj() runs its loop once and stops.
+            segment({
+                seed: 8920126, character: VALKYRIE, pet: 'cat', searches: 13,
+            }),
+            // A pile of two, neither of which the dropped green gem can join,
+            // so stackobj() walks the whole chain and leaves three objects.
+            segment({
+                seed: 8930086, character: VALKYRIE, pet: 'dog', searches: 36,
+            }),
+            // A potion onto a two-object pile, twice on the same square. The
+            // Samurai's dog is also the only named pet in the matrix, so its
+            // drop line comes from do_name.c x_monnam()'s
+            // `has_mgivenname(mtmp)` branch rather than from the species name.
+            segment({
+                seed: 8940037, character: SAMURAI, pet: 'dog', searches: 30,
+            }),
+            // A pile of two whose head is the merge target, which is the one
+            // case where stackobj() merges without walking past anything.
+            segment({
+                seed: 8960502, character: TOURIST, pet: 'dog', searches: 23,
+            }),
+
+            // ── drops the hero cannot see ──
+
+            // Two silent drops on the same unlit square, ten prompts apart.
+            // C announces the pickup, because that happened where the hero
+            // could see, and then prints nothing at all for either drop.
+            segment({
+                seed: 8930527, character: VALKYRIE, pet: 'dog', searches: 26,
+            }),
+            // A spellbook rather than gold, so distant_name() runs for its
+            // side effects on a class whose unobserved appearance is
+            // display.h obj_is_generic()'s, with the line still withheld.
+            segment({
+                seed: 8920169, character: VALKYRIE, pet: 'cat', searches: 14,
+            }),
+            // Seen, seen, then unseen in one segment: two announced drops and
+            // a third the kitten makes after wandering out of view, so the
+            // three differ only in whether the line appears.
+            segment({
+                seed: 8980888, character: PRIEST, pet: 'cat', searches: 23,
             }),
         ],
     }, 'pet drop recipe');

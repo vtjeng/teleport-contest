@@ -458,6 +458,122 @@ test('a pet drop prints only under flags.verbose', async () => {
     assert.equal(untamed.held.where, OBJ_FLOOR);
 });
 
+// Register an object on the drop square the way place_object() would, on both
+// the coordinate pile and the level object list, so that the merge path's
+// remove_object() can find and unlink it.
+function floorObject(gameState, overrides = {}) {
+    const resident = object({
+        where: OBJ_FLOOR,
+        ox: DROP_X,
+        oy: DROP_Y,
+        oclass: FOOD_CLASS,
+        quan: 1,
+        ...overrides,
+    });
+    resident.nexthere = gameState.level.objects[DROP_X][DROP_Y] ?? null;
+    gameState.level.objects[DROP_X][DROP_Y] = resident;
+    resident.nobj = gameState.level.objlist ?? null;
+    gameState.level.objlist = resident;
+    return resident;
+}
+
+test('relobj empties the pack instead of dropping one object', async () => {
+    // steal.c:892's `while` re-asks droppables() after every drop, so one
+    // release puts down everything the selector still offers. The second apple
+    // is cursed, which stops invent.c mergable() at its blessed/cursed test,
+    // so both objects stay separately visible on the pile.
+    //
+    // No starting pet can hold two droppable objects, so this loop has no
+    // recorded case; scripts/run-pet-drop.mjs states the source argument and
+    // the scan behind it.
+    const { carrier, held, gameState, env, messages } = dropFixture();
+    const second = object({
+        where: OBJ_MINVENT, oclass: FOOD_CLASS, quan: 1, cursed: true,
+    });
+    held.nobj = second;
+    second.ocarry = carrier;
+
+    await relobj(carrier, 0, true, env);
+
+    assert.equal(carrier.minvent, null);
+    assert.equal(held.where, OBJ_FLOOR);
+    assert.equal(second.where, OBJ_FLOOR);
+    // place_object() prepends, so the object dropped second is the pile head.
+    assert.equal(gameState.level.objects[DROP_X][DROP_Y], second);
+    assert.equal(second.nexthere, held);
+    assert.deepEqual(messages, [
+        'The little dog drops an uncursed apple.',
+        'The little dog drops a cursed apple.',
+    ]);
+});
+
+test('a drop onto an occupied square stacks above what is there', async () => {
+    const { carrier, held, gameState, env } = dropFixture();
+    // Cursed again, so stackobj() walks the whole pile and merges nothing.
+    // quan 4 is any value the dropped object does not carry, so a merge that
+    // wrongly happened would show up in both quantities.
+    const resident = floorObject(gameState, { cursed: true, quan: 4 });
+
+    await relobj(carrier, 0, true, env);
+
+    assert.equal(gameState.level.objects[DROP_X][DROP_Y], held);
+    assert.equal(held.nexthere, resident);
+    assert.equal(gameState.level.objlist, held);
+    assert.equal(held.nobj, resident);
+    assert.equal(held.quan, 1);
+    assert.equal(resident.quan, 4);
+    assert.equal(resident.where, OBJ_FLOOR);
+});
+
+test('a drop merges into a compatible pile member', async () => {
+    // Ages 10 and 20 are arbitrary and distinct, so the weighted average below
+    // could not come out right by copying either one.
+    const { carrier, held, gameState, env } = dropFixture({
+        carried: { age: 10, o_id: 101 },
+    });
+    const resident = floorObject(gameState, { age: 20, quan: 2, o_id: 102 });
+
+    await relobj(carrier, 0, true, env);
+
+    // invent.c stackobj() passes the newly placed object as merged()'s first
+    // argument, so the dropped object survives and the older pile member is
+    // unlinked from both chains and freed.
+    assert.equal(gameState.level.objects[DROP_X][DROP_Y], held);
+    assert.equal(held.nexthere, null);
+    assert.equal(gameState.level.objlist, held);
+    assert.equal(held.nobj, null);
+    assert.equal(held.quan, 3);
+    // invent.c merged() averages the ages by quantity before it adds the
+    // quantities: trunc((10 * 1 + 20 * 2) / (1 + 2)).
+    assert.equal(held.age, 16);
+    // objects.c gives an apple oc_weight 2, and weight() multiplies by quan.
+    assert.equal(held.owt, 6);
+    assert.notEqual(resident.where, OBJ_FLOOR);
+    assert.equal(resident.nobj, null);
+    assert.equal(resident.nexthere, null);
+});
+
+test('a drop merges past a pile member it cannot join', async () => {
+    // invent.c stackobj() walks `nexthere` until merged() succeeds, so a pile
+    // whose head refuses the merge does not stop the one below it. No pet drop
+    // in a scan of 8,650 fresh D:1 walks met such a pile, so the branch has no
+    // recorded case and this is its only cover.
+    const { carrier, held, gameState, env } = dropFixture({
+        carried: { age: 10 },
+    });
+    const mergeable = floorObject(gameState, { age: 20, quan: 2 });
+    const blocker = floorObject(gameState, { cursed: true, quan: 1 });
+
+    await relobj(carrier, 0, true, env);
+
+    assert.equal(gameState.level.objects[DROP_X][DROP_Y], held);
+    assert.equal(held.nexthere, blocker);
+    assert.equal(blocker.nexthere, null);
+    assert.equal(held.quan, 3);
+    assert.equal(held.age, 16);
+    assert.notEqual(mergeable.where, OBJ_FLOOR);
+});
+
 test('relobj and mdrop_obj stop on the arms that are not ported', async () => {
     const guard = dropFixture({ isgd: true });
     await assert.rejects(
@@ -466,18 +582,6 @@ test('relobj and mdrop_obj stop on the arms that are not ported', async () => {
             && error.reason === "a vault guard's gold vanishing",
     );
     assert.equal(guard.held.where, OBJ_MINVENT);
-
-    // steal.c:892's `while` releases everything droppables() offers. Only the
-    // first object of a release is ported.
-    const pair = dropFixture();
-    const second = object({ where: OBJ_MINVENT, quan: 1 });
-    pair.held.nobj = second;
-    second.ocarry = pair.carrier;
-    await assert.rejects(
-        relobj(pair.carrier, 0, true, pair.env),
-        (error) => error instanceof RefusedRelease
-            && error.reason === 'a monster releasing more than one object',
-    );
 
     // mdrop_obj()'s saddle exemption and update_mon_extrinsics() both need an
     // object the monster still has equipped.
@@ -489,19 +593,6 @@ test('relobj and mdrop_obj stop on the arms that are not ported', async () => {
                 === 'a monster dropping an object it has equipped',
     );
     assert.equal(worn.held.where, OBJ_MINVENT);
-
-    // invent.c stackobj() merging onto an occupied square is a later slice.
-    const occupied = dropFixture();
-    occupied.gameState.level.objects[DROP_X][DROP_Y] = object({
-        where: OBJ_FLOOR, ox: DROP_X, oy: DROP_Y,
-    });
-    await assert.rejects(
-        relobj(occupied.carrier, 0, true, occupied.env),
-        (error) => error instanceof RefusedRelease
-            && error.reason
-                === 'a monster dropping onto a square that holds an object',
-    );
-    assert.equal(occupied.held.where, OBJ_MINVENT);
 });
 
 test('a monster release needs an unsupported operation', async () => {
