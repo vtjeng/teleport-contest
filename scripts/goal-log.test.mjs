@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import {
-    deliveredSince, formatGoal, readGoals, validateGoals,
+    calibrationLines, deliveredSince, formatGoal, readGoals, validateGoals,
 } from './goal-log.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'goal-log-'));
@@ -79,6 +79,44 @@ test('--detail adds the owners and traced findings the default omits', () => {
     const full = formatGoal(goal, { detail: true });
     assert.ok(full.includes('owners: invent.c look_here'));
     assert.ok(full.includes('  detail:\n    line one\n    line two'));
+});
+
+test('calibration pairs GOALS.json ratios with SCORE.tsv goal rows', () => {
+    // The trap goal's real calibration figures from docs/goal-history.md:
+    // forecast 46, delivered 8, so the ratio prints 0.17 and sits above the
+    // one-tenth retirement line in .agents/selection.md.
+    const store = {
+        goals: [{
+            id: 'trap',
+            status: 'closed',
+            boundary: 'walking onto a trap triggers it',
+            forecast: { steps: 46, basis: 'unlocks', sessions: [] },
+            delivered: { screens: 8, rng: 100 },
+            slices: [],
+        }],
+    };
+    // One full goal row and one with blank screen cells, the shape of the
+    // hand-appended 2026-07-22 rows; the blank cells must render as `-`
+    // rather than dropping the row. A checkpoint row must not appear.
+    const rows = [
+        { utc: '2026-07-22T01:00:00Z', sha: 'b'.repeat(40), event: 'goal',
+            screens_matched: '', screens_total: '',
+            holdout_screens_matched: '', holdout_screens_total: '', note: 'early' },
+        { utc: '2026-08-01T01:00:00Z', sha: 'c'.repeat(40), event: 'goal',
+            screens_matched: '520', screens_total: '7765',
+            holdout_screens_matched: '139', holdout_screens_total: '3640',
+            note: 'pet-inventory' },
+        { utc: '2026-08-01T02:00:00Z', sha: 'd'.repeat(40), event: 'checkpoint',
+            screens_matched: '520', screens_total: '7765',
+            holdout_screens_matched: '', holdout_screens_total: '', note: '' },
+    ];
+    const lines = calibrationLines(store, rows);
+    assert.ok(lines.some((line) => line.includes(
+        'trap: delivered 8 screens, forecast 46 steps (0.17 of forecast)')));
+    assert.ok(lines.some((line) => line.includes('screens -/-')));
+    assert.ok(lines.some((line) => line.includes('screens 520/7765')
+        && line.includes('holdout 139/3640')));
+    assert.equal(lines.filter((line) => line.startsWith('  20')).length, 2);
 });
 
 test('delivered figures are the closing standing minus the opening one', () => {

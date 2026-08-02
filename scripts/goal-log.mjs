@@ -134,6 +134,38 @@ export function formatGoal(goal, { detail = false } = {}) {
     return lines.join('\n');
 }
 
+// The calibration record behind .agents/selection.md's retirement rule: a
+// ranking statistic leaves selection when the last three closed goals each
+// delivered less than a tenth of its forecast. GOALS.json carries the
+// forecast and delivered figures for goals closed through close-goal;
+// SCORE.tsv's `goal` rows carry the standing at every goal close, including
+// closes that predate GOALS.json, so both are printed and a blank cell
+// renders as `-` instead of dropping the row.
+export function calibrationLines(store, rows) {
+    const lines = ['Closed goals in GOALS.json (delivered versus forecast):'];
+    const closed = store.goals.filter((goal) => goal.status === 'closed');
+    if (closed.length === 0) lines.push('  (none recorded)');
+    for (const goal of closed) {
+        const forecastSteps = goal.forecast?.steps;
+        const deliveredScreens = goal.delivered?.screens;
+        const ratio = forecastSteps > 0 && Number.isFinite(deliveredScreens)
+            ? ` (${(deliveredScreens / forecastSteps).toFixed(2)} of forecast)`
+            : '';
+        lines.push(`  ${goal.id}: delivered ${deliveredScreens ?? '-'} `
+            + `screens, forecast ${forecastSteps ?? '-'} steps${ratio}`);
+    }
+    lines.push('');
+    lines.push('SCORE.tsv goal rows (standing at each close; - is unrecorded):');
+    const cell = (value) => (value === '' || value === undefined ? '-' : value);
+    for (const row of rows.filter((entry) => entry.event === 'goal')) {
+        lines.push(`  ${row.utc.slice(0, 10)}  ${row.sha.slice(0, 8)}  `
+            + `screens ${cell(row.screens_matched)}/${cell(row.screens_total)}  `
+            + `holdout ${cell(row.holdout_screens_matched)}/${
+                cell(row.holdout_screens_total)}  ${row.note}`);
+    }
+    return lines;
+}
+
 function parseOptions(args) {
     const options = {};
     for (let index = 0; index < args.length; index += 1) {
@@ -165,6 +197,13 @@ function main(args) {
             return;
         }
         for (const goal of visible) console.log(formatGoal(goal, { detail }));
+        return;
+    }
+    if (mode === 'calibration') {
+        if (args.length > 1) throw new Error('calibration takes no options');
+        for (const line of calibrationLines(readGoals(), readRows())) {
+            console.log(line);
+        }
         return;
     }
     const options = parseOptions(args.slice(1));
@@ -235,8 +274,8 @@ function main(args) {
         console.log(formatGoal(goal));
         return;
     }
-    throw new Error('modes: --current [--detail], queue-goal, open-goal, '
-        + 'queue-slice, close-slice, close-goal');
+    throw new Error('modes: --current [--detail], calibration, queue-goal, '
+        + 'open-goal, queue-slice, close-slice, close-goal');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
