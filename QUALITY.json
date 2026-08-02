@@ -14,7 +14,7 @@
   "deferred": [
     {
       "id": "flush_screen() rebuilds the whole screen",
-      "area": null,
+      "area": "display",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -23,7 +23,7 @@
     },
     {
       "id": "two more gaps on the same wrapped top line",
-      "area": null,
+      "area": "display",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -32,7 +32,7 @@
     },
     {
       "id": "newsym() omits the infrared arm",
-      "area": null,
+      "area": "display",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -41,7 +41,7 @@
     },
     {
       "id": "vision_recalc(2) skips the redraw C performs",
-      "area": null,
+      "area": "display",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -50,7 +50,7 @@
     },
     {
       "id": "an indented inverse menu heading cannot match",
-      "area": null,
+      "area": "display",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -59,7 +59,7 @@
     },
     {
       "id": "Monnam() has no do_it branch, so an unspottable monster gets a name",
-      "area": null,
+      "area": "world-effects",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -77,7 +77,7 @@
     },
     {
       "id": "the planning clone leaks by omission, and should be made loud or removed",
-      "area": null,
+      "area": "monsters",
       "category": "production",
       "effort": "undecided",
       "status": "open",
