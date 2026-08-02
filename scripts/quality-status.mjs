@@ -1310,7 +1310,7 @@ function preparePass(kind, options) {
     areas,
     ...(kind === 'review' ? { level: options.level } : {}),
     outcome: options.outcome,
-    evidence: options.evidence.trim(),
+    evidence: `${renderCountsSentence(auditMetrics)} ${options.evidence.trim()}`,
     auditMetrics,
     recordedAt: new Date().toISOString(),
   };
@@ -1347,6 +1347,21 @@ function recordPass(kind, options) {
 
 // Ledger queries. Agents read recorded passes through these subcommands
 // rather than by opening QUALITY.json, whose passes array is an archive.
+// Rendered into the stored evidence so the prose never restates the
+// structured fields: 56 of the first 82 recorded passes duplicated every
+// nonzero count into --evidence by hand.
+export function renderCountsSentence(metrics) {
+  const { counts } = metrics;
+  const mutation = metrics.mutation
+    ? `; mutation: ${metrics.mutation.survivors} survivors of `
+      + `${metrics.mutation.mutants} mutants`
+    : '';
+  return `Counts: ${counts.raw} raw, ${counts.deduplicated} deduplicated, `
+    + `${counts.confirmed} confirmed, ${counts.applied} applied, `
+    + `${counts.deferred} deferred, ${counts.rejected} rejected, `
+    + `${counts.unverified} unverified${mutation}.`;
+}
+
 export function passesForAreas(passes, areaIds = null) {
   if (!areaIds || areaIds.length === 0) return passes;
   const wanted = new Set(areaIds);

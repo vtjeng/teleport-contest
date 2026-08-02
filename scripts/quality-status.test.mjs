@@ -22,6 +22,7 @@ import {
   collectRejections,
   newestFrontier,
   passesForAreas,
+  renderCountsSentence,
   validateConfigShape,
 } from './quality-status.mjs';
 
@@ -906,4 +907,22 @@ test('ledger queries filter passes by area and flatten their entries', () => {
     assert.deepEqual(openDeferrals(ledger, { status: 'all' }).length, 4);
     assert.deepEqual(sweepCandidates(ledger, 2), [['monsters', 2]]);
     assert.deepEqual(sweepCandidates(ledger, 3), []);
+});
+
+test('the recorder renders the counts sentence from the metrics', () => {
+    // Counts from the 2026-08-01 pet-goal closing pass, whose hand-written
+    // evidence duplicated exactly these values; the mutation clause appends
+    // only when the metrics carry a mutation record.
+    const metrics = {
+        counts: { raw: 17, deduplicated: 15, confirmed: 12, applied: 11,
+            deferred: 1, rejected: 3, unverified: 0 },
+        mutation: { mutants: 361, survivors: 63 },
+    };
+    assert.equal(renderCountsSentence(metrics),
+        'Counts: 17 raw, 15 deduplicated, 12 confirmed, 11 applied, '
+            + '1 deferred, 3 rejected, 0 unverified; mutation: 63 survivors '
+            + 'of 361 mutants.');
+    assert.equal(renderCountsSentence({ counts: metrics.counts }),
+        'Counts: 17 raw, 15 deduplicated, 12 confirmed, 11 applied, '
+            + '1 deferred, 3 rejected, 0 unverified.');
 });

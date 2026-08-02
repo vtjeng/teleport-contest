@@ -359,7 +359,10 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   raw, deduplicated, confirmed, applied, deferred, rejected, and unverified
   counts; confirmed totals by production, tests, clarity, simplification, and
   other categories; and each confirmed production defect with every finder that
-  reported it. Preserve unique finder attribution.
+  reported it. Preserve unique finder attribution. The recorder renders the
+  counts sentence into the stored evidence from `auditMetrics`; write in
+  `--evidence` only what the fields cannot hold, such as which finding
+  mattered and why, and the score movement's attribution.
 - Give every rejected finding a `rejections` entry in `auditMetrics`, with a
   `summary` of the claim and the `counterEvidence` that settled it. The
   recorder refuses a pass whose entry count differs from the rejected count.
