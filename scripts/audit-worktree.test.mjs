@@ -45,22 +45,14 @@ function commit(repositoryRoot, message) {
 }
 
 function readyChecklist(head) {
-    return `# Implementation checklist
-
-## Implementation table
-
-| Path | Status |
-| --- | --- |
-| ordinary path | \`done\` |
-
-## Validation
-
-- Commit checked: ${head}
-
-## Readiness
-
-Current mode: Ready for audit
-`;
+    return JSON.stringify({
+        mode: 'ready-for-audit',
+        reason: 'every entry is done with pinned evidence',
+        commitChecked: head,
+        entries: [
+            { candidate: 'ordinary path', status: 'done', evidence: 'pinned' },
+        ],
+    }, null, 2);
 }
 
 function makeFixture(t) {
@@ -79,7 +71,7 @@ function makeFixture(t) {
     const head = commit(repositoryRoot, 'implementation');
     mkdirSync(join(repositoryRoot, '.agents'));
     writeFileSync(
-        join(repositoryRoot, '.agents', 'implementation-checklist.md'),
+        join(repositoryRoot, '.agents', 'implementation-checklist.json'),
         readyChecklist(head),
     );
 
@@ -165,10 +157,28 @@ test('requires a ready checklist tied to the exact head', () => {
     assert.doesNotThrow(() => validateChecklist(readyChecklist(head), head));
     assert.throws(
         () => validateChecklist(
-            readyChecklist(head).replace('`done`', '`missing`'),
+            readyChecklist(head).replace('"done"', '"missing"'),
             head,
         ),
         /still contains: missing/u,
+    );
+    assert.throws(
+        () => validateChecklist(
+            readyChecklist(head).replace('"done"', '"finished"'),
+            head,
+        ),
+        /unknown status/u,
+    );
+    assert.throws(
+        () => validateChecklist(
+            readyChecklist(head).replace('"ready-for-audit"', '"implementation"'),
+            head,
+        ),
+        /mode is not ready-for-audit/u,
+    );
+    assert.throws(
+        () => validateChecklist('Current mode: Ready for audit', head),
+        /not valid JSON/u,
     );
     assert.throws(
         () => validateChecklist(readyChecklist('b'.repeat(40)), head),

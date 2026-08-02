@@ -29,7 +29,7 @@ export const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), '..');
 export const MANIFEST_NAME = 'audit-worktree.json';
 export const MANIFEST_VERSION = 1;
 export const TEMP_PREFIX = 'teleport-formal-audit-';
-export const DEFAULT_CHECKLIST = '.agents/implementation-checklist.md';
+export const DEFAULT_CHECKLIST = '.agents/implementation-checklist.json';
 
 export const USAGE = `Usage:
   node scripts/audit-worktree.mjs prepare \\
@@ -192,33 +192,50 @@ function validateRelativeRepositoryPath(path, label) {
     return portablePath;
 }
 
+export const CHECKLIST_STATUSES = Object.freeze([
+    'done', 'no-effect-yet', 'later', 'cannot-occur', 'missing', 'undecided',
+]);
+
+// The checklist is JSON so this gate reads fields as data. Its predecessor
+// regexed hand-written prose, and 29 of the 32 checklist versions committed
+// before 2026-08-01 failed its own patterns through wording drift.
 export function validateChecklist(text, head) {
-    const unfinished = new Set(
-        [...text.matchAll(/\|\s*`(missing|undecided)`\s*\|/gu)]
-            .map(match => match[1]),
+    let checklist;
+    try {
+        checklist = JSON.parse(text);
+    } catch (error) {
+        throw new Error(
+            `implementation checklist is not valid JSON: ${error.message}`,
+        );
+    }
+    const entries = checklist.entries ?? [];
+    const unknown = entries.filter(
+        (entry) => !CHECKLIST_STATUSES.includes(entry.status),
     );
+    if (unknown.length > 0) {
+        throw new Error(
+            'implementation checklist has entries with unknown status: '
+                + unknown.map((entry) => entry.candidate).join(', '),
+        );
+    }
+    const unfinished = new Set(entries
+        .map((entry) => entry.status)
+        .filter((status) => status === 'missing' || status === 'undecided'));
     if (unfinished.size > 0) {
         throw new Error(
             `implementation checklist still contains: ${
                 [...unfinished].join(', ')}`,
         );
     }
-    if (!/^Current mode:\s*Ready for audit\s*$/mu.test(text)) {
+    if (checklist.mode !== 'ready-for-audit') {
         throw new Error(
-            'implementation checklist does not say Current mode: Ready for audit',
+            'implementation checklist mode is not ready-for-audit',
         );
     }
-    const commitMatch = text.match(
-        /^-\s*Commit checked:\s*`?([0-9a-f]{40})`?\s*$/mu,
-    );
-    if (!commitMatch) {
+    if (checklist.commitChecked !== head) {
         throw new Error(
-            'implementation checklist needs a full Commit checked SHA',
-        );
-    }
-    if (commitMatch[1] !== head) {
-        throw new Error(
-            `implementation checklist covers ${commitMatch[1]}, not ${head}`,
+            `implementation checklist covers ${checklist.commitChecked}, `
+                + `not ${head}`,
         );
     }
 }
@@ -356,7 +373,7 @@ function validateManifestPaths(manifestPath, manifest, repositoryRoot) {
     }
     if (manifest.checklist.snapshotPath
         && resolve(manifest.checklist.snapshotPath)
-            !== join(workRoot, 'implementation-checklist.md')) {
+            !== join(workRoot, 'implementation-checklist.json')) {
         throw new Error('checklist snapshot is outside its temporary root');
     }
     if (resolve(manifest.repositoryRoot) !== resolve(repositoryRoot)) {
@@ -469,7 +486,7 @@ export function prepareAuditWorktree({
     const manifestPath = join(workRoot, MANIFEST_NAME);
     const promptSnapshotPath = join(workRoot, 'prompt.md');
     const checklistSnapshotPath = checklistExists
-        ? join(workRoot, 'implementation-checklist.md')
+        ? join(workRoot, 'implementation-checklist.json')
         : null;
     try {
         runGit(root, ['worktree', 'add', '--detach', worktreePath, head]);
@@ -626,7 +643,7 @@ function requirePreservedRoot(manifest) {
         'worktree',
     ]);
     if (manifest.checklist.snapshotPath) {
-        allowedRootEntries.add('implementation-checklist.md');
+        allowedRootEntries.add('implementation-checklist.json');
     }
     const unpreserved = readdirSync(manifest.workRoot)
         .filter(entry => !allowedRootEntries.has(entry));

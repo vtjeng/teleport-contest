@@ -83,7 +83,7 @@ Follow all instructions in those files.
 | Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
 | Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/workflow.md` and `.agents/implementation-checklist-template.md` |
-| Continue the active work described in `.agents/implementation-checklist.md` | `.agents/implementation-checklist.md` |
+| Continue the active work described in `.agents/implementation-checklist.json` | `.agents/implementation-checklist.json` |
 | Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
 | Commit game implementation or record a development score | `.agents/workflow.md` and `.agents/validation.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md` |
@@ -217,8 +217,9 @@ When choosing new cases:
   that limit. If the current goal says how the program should handle that case,
   add a passing test for the specified result. If the case belongs to future
   work and does not match the C reference yet, keep it out of the normal
-  passing test suite and record its inputs and expected failure in the active
-  implementation checklist.
+  passing test suite and record its inputs and expected failure as a deferred
+  entry with `npm run quality -- defer`, which outlives the slice and its
+  checklist.
 - Change the seed, date and time, options, character choices, or input sequence
   only when that input can affect the behavior being checked.
 - Choose inputs independently instead of copying values from an existing

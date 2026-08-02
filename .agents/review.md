@@ -38,7 +38,7 @@ complete. Freeze the committed range and include this readiness note:
   unmutated tests do not pass` and exits 2 when the head is red, which means the
   head is not ready for review.
 
-The active implementation checklist (`.agents/implementation-checklist.md`,
+The active implementation checklist (`.agents/implementation-checklist.json`,
 created when a qualifying slice opens) supports this note; it does not replace
 tests, differentials, source review, generated checks, quality checks, or
 formal review passes. If the note or evidence is incomplete, stay in
