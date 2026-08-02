@@ -52,6 +52,7 @@ import {
     ROOM,
     ROT_CORPSE,
     SCORR,
+    SATIATED,
     SDOOR,
     SEE_INVIS,
     SICK,
@@ -98,6 +99,7 @@ import {
     see_nearby_objects,
     show_glyph_cell,
     terrain_glyph,
+    timebot,
     trap_glyph_info,
     weapon_status,
 } from '../js/display.js';
@@ -5791,3 +5793,133 @@ test('flush_screen(-1) postpones the map flush, and a new segment starts undelay
         'a delay left latched by an aborted level change does not survive resetGame()',
     );
 });
+
+// A hero standing one turn into an ordinary level with the turn counter on the
+// status line, which is what botl.c timebot() exists to refresh.
+async function timedStartup() {
+    await runSegment({
+        seed: 5310007,
+        datetime: '20310203040506',
+        nethackrc: 'OPTIONS=name:Timebot,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen\n'
+            + 'OPTIONS=pettype:none,!acoustics,!autopickup,time\n',
+        moves: '.',
+    });
+    assert.equal(game.flags.time, true);
+}
+
+// The last terminal row, which holds the second status line.
+function statusRow() {
+    return terminalRow(game, game.nhDisplay.rows - 1).trimEnd();
+}
+
+test('timebot refreshes the turn counter and leaves the rest of the row',
+    async () => {
+        // botl.c timebot() calls stat_update_time(), which writes
+        // blstats[BL_TIME] alone. Every other field keeps the status_vals[]
+        // string the last full status pass left, so a value that moved with
+        // nothing marking the status line stays off the row.
+        await timedStartup();
+        const before = statusRow();
+        game.u.uhp -= 4;
+        game.moves += 1;
+        game.disp.botl = false;
+        game.disp.botlx = false;
+        game.disp.time_botl = true;
+
+        await timebot();
+
+        assert.equal(game.disp.time_botl, false);
+        assert.equal(
+            statusRow(),
+            before.replace(/T:\d+/u, `T:${game.moves}`),
+        );
+    });
+
+test('timebot shifts the fields a widened turn counter displaces',
+    async () => {
+        // wintty.c check_fields() re-lays every field out from the cached
+        // lengths, so a field whose own text is unchanged still moves when an
+        // earlier one grows. Nine to ten is the first width change a game
+        // reaches.
+        await timedStartup();
+        game.moves = 9;
+        // hu_stat[SATIATED] puts a word to the right of the turn counter.
+        game.u.uhs = SATIATED;
+        game.disp.botl = true;
+        await bot();
+        assert.equal(statusRow().endsWith('T:9 Satiated'), true, statusRow());
+
+        game.moves = 10;
+        game.disp.botl = false;
+        game.disp.botlx = false;
+        game.disp.time_botl = true;
+        await timebot();
+
+        assert.equal(statusRow().endsWith('T:10 Satiated'), true, statusRow());
+    });
+
+test('timebot with the time option off only clears its own flag', async () => {
+    // botl.c timebot()'s `if (flags.time && ...)` guard. allmain.c only sets
+    // disp.time_botl when the option is on, so the guard is reached with it
+    // off through options.c toggling the option mid-game.
+    await timedStartup();
+    const before = statusRow();
+    game.flags.time = false;
+    game.u.uhp -= 4;
+    // The counter moves too, so the row would change if the guard were gone.
+    game.moves += 1;
+    game.disp.botl = false;
+    game.disp.botlx = false;
+    game.disp.time_botl = true;
+
+    await timebot();
+
+    assert.equal(game.disp.time_botl, false);
+    assert.equal(statusRow(), before);
+});
+
+test('timebot with status updates suppressed leaves the row untouched',
+    async () => {
+        // The other half of timebot()'s guard, `iflags.status_updates`, which
+        // the 'status_updates' option turns off.
+        await timedStartup();
+        const before = statusRow();
+        game.iflags.status_updates = false;
+        game.moves += 1;
+        game.disp.botl = false;
+        game.disp.botlx = false;
+        game.disp.time_botl = true;
+
+        await timebot();
+
+        assert.equal(game.disp.time_botl, false);
+        assert.equal(statusRow(), before);
+    });
+
+test('flush_screen takes timebot when only the turn counter is marked',
+    async () => {
+        // display.c flush_screen():2236-2239 repeats moveloop_core()'s gate:
+        // `if (disp.botl || disp.botlx) bot(); else if (disp.time_botl)
+        // timebot();`.
+        await timedStartup();
+        const before = statusRow();
+        game.u.uhp -= 4;
+        game.moves += 1;
+        game.disp.botl = false;
+        game.disp.botlx = false;
+        game.disp.time_botl = true;
+
+        await flush_screen(1);
+
+        assert.equal(
+            statusRow(),
+            before.replace(/T:\d+/u, `T:${game.moves}`),
+        );
+
+        // The first arm still redraws everything.
+        game.disp.botl = true;
+        await flush_screen(1);
+        assert.match(statusRow(), new RegExp(`HP:${game.u.uhp}\\b`, 'u'));
+    });

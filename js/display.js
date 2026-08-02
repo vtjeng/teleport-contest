@@ -2332,10 +2332,17 @@ function _statusVitals(u) {
     return `$:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
 }
 
+// C ref: botl.c initblstats[]'s BL_TIME entry, whose "%ld" is filled from
+// svm.moves, under the " T:" prefix wintty.c status_fieldfmt[] supplies. This
+// is the one field botl.c timebot() refreshes on its own.
+function _statusTimeText() {
+    return `T:${game.moves || 1}`;
+}
+
 function _statusLine2Configuration() {
     const u = game.u;
     if (!u) return null;
-    const time = game.flags?.time ? ` T:${game.moves || 1}` : '';
+    const time = game.flags?.time ? ` ${_statusTimeText()}` : '';
     const optional = _optionalStatusFields();
     const versionLength = game.flags?.showvers
         ? status_version(game.flags).length + 1 : 0;
@@ -2371,7 +2378,7 @@ function _statusLine3VitalsBase(u) {
 function _statusLine3DetailsConfiguration() {
     const u = game.u;
     if (!u) return null;
-    const time = game.flags?.time ? ` T:${game.moves || 1}` : '';
+    const time = game.flags?.time ? ` ${_statusTimeText()}` : '';
     const optional = _optionalStatusFields();
     const version = game.flags?.showvers ? status_version(game.flags) : '';
     const versionFieldLength = version ? version.length + 1 : 0;
@@ -2575,7 +2582,7 @@ function _statusLine2Layout() {
     column = _writeVitals(row, column, u);
     if (game.flags?.time) {
         column = row.write(column, ' ');
-        column = row.write(column, `T:${game.moves || 1}`, _fieldOwner('time'));
+        column = row.write(column, _statusTimeText(), _fieldOwner('time'));
     }
     const hunger = _statusFieldData('hunger').text;
     if (hunger) {
@@ -3189,7 +3196,9 @@ function _buildScreenOutput() {
 export async function flush_screen(mode) {
     if (mode === -1) game.delay_flushing = !game.delay_flushing;
     if (game.delay_flushing) return;
-    if (game.disp?.botl || game.disp?.botlx || game.disp?.time_botl) {
+    // C ref: display.c flush_screen() (2235-2239). The turn counter has its
+    // own arm, which refreshes that field alone.
+    if (game.disp?.botl || game.disp?.botlx) {
         await bot({
             // Before moveloop_preamble(), tty field dirtiness can preserve
             // the initial three-row condition/optional-field overlap.
@@ -3199,6 +3208,8 @@ export async function flush_screen(mode) {
                 && game.u?.ux,
             ),
         });
+    } else if (game.disp?.time_botl) {
+        await timebot();
     }
     _buildScreenOutput();
     // C ref: display.c flush_glyph_buffer(). Once the buffered map has reached
@@ -3268,4 +3279,85 @@ export async function bot({ initialTtyRefresh = false } = {}) {
         game.disp.botlx = false;
         game.disp.time_botl = false;
     }
+}
+
+// ── timebot ──
+
+// C ref: botl.c timebot() (274-294). allmain.c moveloop_core() and
+// display.c flush_screen() reach it only when disp.time_botl is set while
+// disp.botl and disp.botlx are both clear, which is the turn counter moving
+// with nothing else marked dirty.
+//
+// gb.bot_disabled has no ported writer, and suppress_map_output() covers the
+// save, restore and hangup states this port does not enter.
+export async function timebot() {
+    if (game.flags?.time && game.iflags?.status_updates !== false) {
+        // VIA_WINDOWPORT() is true for the tty: wintty.c sets both
+        // WC2_HILITE_STATUS and WC2_FLUSH_STATUS in tty_procs.wincap2, so C
+        // takes stat_update_time() rather than falling back to whole bot().
+        _stat_update_time();
+    }
+    if (game.disp) game.disp.time_botl = false;
+}
+
+// C ref: botl.c stat_update_time() (1284-1299). It refreshes blstats[BL_TIME]
+// alone and flushes the status window. Every other field keeps the
+// status_vals[] string the last full status pass left there, so wintty.c
+// check_fields() re-lays the row out from those cached strings with only the
+// time field's own length changed: a field to its right keeps its text and
+// moves by the difference.
+//
+// game._renderedStatusLayouts is this port's status_vals[]. bot() stores the
+// rows it rendered there and _buildScreenOutput() draws the screen from them,
+// so rewriting the columns the time field owns, and shifting the rest of that
+// row, is the same re-layout.
+//
+// Two geometry decisions are not redone here, because both read lengths this
+// function does not recompute: make_things_fit()'s condition, encumbrance and
+// Dlvl shrinking, which runs only once a row no longer fits the terminal, and
+// render_status()'s BL_CONDITION indent, which applies only to a three-row
+// status line.
+function _stat_update_time() {
+    const rendered = game._renderedStatusLayouts;
+    // Before the first full status pass there is no cached text to keep.
+    // moveloop_preamble() sets disp.botlx, so a full pass always precedes the
+    // first turn that can set disp.time_botl, and C's blstats[] is likewise
+    // unpopulated until then.
+    const layouts = rendered
+        ? rendered.map((layout) => _replaceTimeField(layout))
+        : statusLayouts();
+    game._renderedStatusLayouts = layouts;
+    writeStatusRows(game?.nhDisplay, layouts);
+}
+
+function _isTimeOwner(owner) {
+    return owner?.kind === 'field' && owner.field === 'time';
+}
+
+// One rendered status row with the columns the time field owns replaced by the
+// current turn counter, and everything after them shifted by the difference.
+// A row without a time field is returned unchanged, which is every row when
+// the 'time' option is off.
+function _replaceTimeField(layout) {
+    const start = layout.owners.findIndex(_isTimeOwner);
+    // findIndex() answers -1 for a row that has no time field, and the owners
+    // array holds no entry there, so this reads as "the run starts at a time
+    // field" without a separate sentinel test.
+    if (!_isTimeOwner(layout.owners[start])) return layout;
+    // Reading past the end of the dense owners array yields undefined, which
+    // ends the run on its own.
+    let end = start;
+    while (_isTimeOwner(layout.owners[end])) ++end;
+    const text = _statusTimeText();
+    const owner = layout.owners[start];
+    const replaceRun = (cells, insert) => [
+        ...cells.slice(0, start), ...insert, ...cells.slice(end),
+    ];
+    return {
+        text: replaceRun([...layout.text], [...text]).join(''),
+        owners: replaceRun(
+            layout.owners,
+            Array.from({ length: text.length }, () => owner),
+        ),
+    };
 }

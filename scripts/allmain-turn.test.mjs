@@ -28,10 +28,12 @@ import {
     M_AP_MONSTER,
     MOD_ENCUMBER,
     NORMAL_SPEED,
+    NOT_HUNGRY,
     NO_SPELL,
     OVERLOADED,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
+    SATIATED,
     SEARCHING,
     DOOR,
     SLT_ENCUMBER,
@@ -40,6 +42,9 @@ import {
     W_ARMF,
     W_RINGL,
 } from '../js/const.js';
+import { set_occupation } from '../js/cmd.js';
+import { flush_screen } from '../js/display.js';
+import { doeat } from '../js/eat.js';
 import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
 import {
@@ -71,6 +76,8 @@ import {
     RECORDER_SEGMENT_LIMIT,
 } from './run-first-command-closure.mjs';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
+import { loadEatOccupationRecipe } from './run-eat-occupation.mjs';
+import { loadStatusRefreshRecipe } from './run-status-refresh.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
@@ -1831,3 +1838,158 @@ test('a planned once-per-turn round writes nothing to frozen live state',
         // the elapsed-turn coordinator entirely.
         assert.match(caught.stack, /advanceElapsedTurn/u);
     });
+
+// The last terminal row, which is the second of the two status lines.
+function statusRow() {
+    const display = game.nhDisplay;
+    return display.grid[display.rows - 1]
+        .map(({ ch }) => ch).join('').trimEnd();
+}
+
+// The turn counter the status line is showing, as a number.
+function statusTurn() {
+    const shown = /T:(\d+)/u.exec(statusRow());
+    assert.ok(shown, `the status row shows a turn counter: ${statusRow()}`);
+    return Number(shown[1]);
+}
+
+// One wait, then an occupation that answers "still busy", which returns from
+// moveloop_core() before rhack() asks for a key. That leaves the elapsed-turn
+// block and the status gate as the whole of the turn.
+async function occupiedTurn() {
+    set_occupation(() => 1, 'testing', 0, game);
+    game.context.move = 0;
+    await moveloop_core();
+}
+
+test('moveloop_core repaints the status line only for a marked writer',
+    async () => {
+        // allmain.c moveloop_core():473-478. `if (disp.botl || disp.botlx) {
+        // bot(); curs_on_u(); } else if (disp.time_botl) { timebot();
+        // curs_on_u(); }` -- a clean status line is left alone.
+        const segment = loadEatOccupationRecipe().segments.find(
+            (entry) => entry.seed === 5820011,
+        );
+        assert.ok(segment, 'the eat matrix holds the five-turn meal segment');
+        await runSegment({ ...segment, moves: '.' });
+        const before = statusRow();
+
+        // A field moving with nothing marking the status line is the shape
+        // eat.c newuhs()'s occupation arm produces; one poked hit point keeps
+        // the case to the gate itself.
+        game.u.uhp -= 3;
+        game.disp.botl = false;
+        game.disp.botlx = false;
+        game.disp.time_botl = false;
+        await occupiedTurn();
+        assert.equal(statusRow(), before);
+
+        // disp.botlx is the other half of the first arm.
+        game.disp.botlx = true;
+        await occupiedTurn();
+        assert.equal(statusRow(), before.replace(
+            /HP:\d+/u, `HP:${game.u.uhp}`,
+        ));
+    });
+
+test('a hunger word the meal moves silently stays off the status line',
+    async () => {
+        // eat.c newuhs()'s `go.occupation == eatfood` arm assigns u.uhs and
+        // returns before any disp.botl = TRUE, so the turn that crosses a
+        // hunger boundary in the middle of a meal marks nothing dirty. C then
+        // reaches timebot(), which refreshes BL_TIME alone.
+        const segment = loadEatOccupationRecipe().segments.find(
+            (entry) => entry.seed === 5820079,
+        );
+        assert.ok(segment, 'the eat matrix holds the satiation segment');
+        // The segment's own lead-in: the opening wait plus the 204 that carry
+        // the hero to 695 nutrition. From there the meal's second bite crosses
+        // 1000 and moves u.uhs, with the first bite's messages already flushed.
+        await runSegment({ ...segment, moves: '.'.repeat(205) });
+        // The second arm needs the turn counter on the status line; the
+        // matrix segment sets it and this case rests on that.
+        assert.equal(game.flags.time, true);
+        assert.equal(game.u.uhs, NOT_HUNGRY);
+
+        // doeat() returns once start_eating() has installed the occupation,
+        // which is the only way to stop inside a meal: moveloop_core() reads
+        // no key while one is set.
+        game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
+        await doeat(game, { statusRefresh: async () => {} });
+
+        const rows = [];
+        let crossed = null;
+        while (game.go.occupation) {
+            const was = game.u.uhs;
+            await moveloop_core();
+            rows.push(statusRow());
+            if (crossed === null && game.u.uhs !== was) {
+                crossed = rows.length - 1;
+                // The precondition the whole case rests on: the crossing left
+                // the status line unmarked.
+                assert.equal(game.disp.botl, false);
+                assert.equal(game.disp.botlx, false);
+            }
+        }
+        assert.equal(game.u.uhs, SATIATED);
+        assert.ok(crossed !== null, 'the meal crossed a hunger boundary');
+        assert.ok(rows.length > crossed + 1,
+            'the meal ran a turn after the crossing');
+        // hu_stat[SATIATED]. Every turn from the crossing to the last bite
+        // leaves the word off the row.
+        for (const row of rows.slice(crossed + 1, -1)) {
+            assert.doesNotMatch(row, /Satiated/u);
+        }
+        // The turn counter still advanced on each of them, so the row was
+        // refreshed rather than frozen whole.
+        assert.notEqual(rows[crossed + 1], rows[crossed]);
+        assert.match(rows[crossed + 1], /T:\d+/u);
+
+        // done_eating() clears the occupation before its own newuhs() call, so
+        // that one takes the ordinary arm and marks the status line, and the
+        // flush inside its own message repaints the row and clears the mark.
+        assert.match(rows[rows.length - 1], /Satiated/u);
+        assert.equal(game.disp.botl, false);
+        await flush_screen(1);
+        assert.match(statusRow(), /Satiated/u);
+    });
+
+test('the status-refresh matrix covers all three arms of the gate', () => {
+    // loadStatusRefreshRecipe() runs validateCleanRecipe(), so calling it is
+    // the cleanliness check as well.
+    const { segments } = loadStatusRefreshRecipe();
+    assert.ok(segments.length <= RECORDER_SEGMENT_LIMIT,
+        'the matrix records in one chunk');
+    const withTime = segments.filter(
+        ({ nethackrc }) => /(^|,)time(,|\n)/u.test(nethackrc),
+    );
+    // Both settings of the option, because it decides whether the second arm
+    // is reachable at all.
+    assert.ok(withTime.length > 0, 'a segment turns the turn counter on');
+    assert.ok(withTime.length < segments.length,
+        'a segment leaves the turn counter off');
+    // The terrain word is the field these cases watch go stale, and a run is
+    // what keeps classify_terrain() from marking it.
+    const runs = segments.filter(
+        ({ moves, nethackrc }) => /[HJKL]/u.test(moves)
+            && nethackrc.includes('terrainstatus'),
+    );
+    assert.ok(runs.length >= 2, 'runs cross terrain with the field shown');
+    // hack.c runmode_delay_output() flushes a different number of times in
+    // each cadence, and every flush re-enters the gate.
+    for (const cadence of ['runmode:walk', 'runmode:crawl']) {
+        assert.ok(runs.some(({ nethackrc }) => nethackrc.includes(cadence)),
+            `a run uses ${cadence}`);
+    }
+    assert.ok(
+        runs.some(({ nethackrc }) => !nethackrc.includes('runmode:')),
+        'a run uses the default RUN_LEAP cadence',
+    );
+    // The occupation case: C reads no key from the first bite to the last, so
+    // the whole meal passes through the gate with nothing marked.
+    assert.ok(
+        segments.some(({ moves, nethackrc }) => moves.includes('ed')
+            && !nethackrc.includes('time')),
+        'a multi-turn meal runs with the turn counter off',
+    );
+});

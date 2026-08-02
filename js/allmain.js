@@ -76,7 +76,14 @@ import {
     runmode_delay_output,
 } from './hack.js';
 import { encumber_msg } from './pickup.js';
-import { docrt, cls, bot, flush_screen, newsym } from './display.js';
+import {
+    docrt,
+    cls,
+    bot,
+    flush_screen,
+    newsym,
+    timebot,
+} from './display.js';
 import {
     dismissPendingTtyMessage,
     ttyPline,
@@ -831,8 +838,19 @@ export async function moveloop_core() {
     // flushing can expose the completed frame.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
     find_ac(g);
-    await bot();
-    await flush_screen(1);
+    // C ref: allmain.c moveloop_core() (473-478). The status line repaints
+    // only when a writer marked it dirty, and a turn on which only the counter
+    // moved refreshes that one field. curs_on_u() is display.c's
+    // flush_screen(1); C runs it in each arm and not at all when neither
+    // holds, so a turn that marked nothing leaves the screen as it stands
+    // until cmd.c parse() flushes before the next key.
+    if (g.disp?.botl || g.disp?.botlx) {
+        await bot();
+        await flush_screen(1);
+    } else if (g.disp?.time_botl) {
+        await timebot();
+        await flush_screen(1);
+    }
 
     await runEveryTurnEffectWithRegionHooks(g.youmonst, {
         state: g,
