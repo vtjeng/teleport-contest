@@ -7,6 +7,42 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
+## Collapse review bookkeeping to a single frontier
+
+**What it changes.** Review debt would be measured from one repository-wide
+frontier in place of eleven per-area frontiers: one `bases` value per pass,
+one debt counter, one gate. Quality areas would remain as labels on findings
+and deferrals, which the sweep rule and goal-close disposition key on, but
+would stop partitioning review history.
+
+**What prompted it.** The user asked what the area split buys. The per-area
+machinery is the costliest part of scripts/quality-status.mjs: per-pass
+`bases` maps validated against per-area frontiers, range-coverage refusals
+when a range starts after a claimed frontier, the documented workaround of
+reviewing from the oldest frontier, `legacyAreaExpansions`, and the
+unassigned-file gate. The 2026-08-01 audit measured how the loop reviews:
+passes are serial, and reviewers read the frozen range's whole diff whatever
+the areas say, so areas partition bookkeeping and never the reading. The
+`Review window` dashboard line already measures the single-frontier view.
+
+**What the split still buys.** Scoped recording: a pass over display code
+does not mark monsters history reviewed. Under a single frontier, recording
+a pass marks the whole range reviewed even where no reviewer looked at a
+subsystem, which is safe only while every pass covers the full diff since
+the previous pass; the eight-commit window makes that the normal case. The
+per-area BASELINE exemption is the second obstacle: collapsing frontiers to
+the oldest would pull exempt pre-enforcement debt into the gate unless the
+exemption is generalized first.
+
+**Cost.** Medium: recorder and dashboard surgery in quality-status.mjs, a
+QUALITY.json migration touching every recorded pass's `bases`, and a
+decision on the BASELINE exemption. Take it as its own reviewed change while
+the loop is stopped.
+
+**What it leaves unfixed.** Files still need area labels for finding
+attribution and deferral routing, so the taxonomy maintenance remains; only
+the frontier bookkeeping goes.
+
 ## Let a review pass scope an audit-fix tail on its own
 
 **What it changes.** `scripts/audit-worktree.mjs prepare` would accept a range
