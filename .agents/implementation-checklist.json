@@ -1,0 +1,134 @@
+{
+  "mode": "implementation",
+  "reason": "The slice is queued and unimplemented. Every dispatch and prompt entry below is missing: no JavaScript owner exists for wiz_wish(), makewish()'s head, or the wizwish rows in either dispatch seam.",
+  "commitChecked": "b2362aabe828b3dd7fcfdf57c20e35767323475c",
+  "boundary": {
+    "goalId": "wizard-mode-wish",
+    "startingCommit": "b2362aabe828b3dd7fcfdf57c20e35767323475c",
+    "startingEvent": "Either dispatch byte: \\u0017 (Ctrl-W) reaching rhack(), or the newline closing #wizwish at the extended-command prompt reaching doextcmd().",
+    "endingEvent": "The painted top line 'For what do you wish?' and each subsequent keystroke echo, which tty_getlin() renders. The port then fails closed at zap.c:6346, after mungspaces(buf) and before the ESC test, so it consumes and echoes the whole typed line and refuses the submitting Enter.",
+    "validInputs": "A wizard-mode game reached through playmode:debug. Both dispatch routes, with and without the m prefix. A non-debug game pressing Ctrl-W, which must print Unavailable command 'wizwish'.",
+    "observables": "The prompt text and its cursor, every echoed keystroke, the absence of 'You may wish for an object.', and an unchanged random-number log: no call in scope draws.",
+    "exclusions": "zap.c:6346 onward, meaning readobjnam() and everything after it, which is the next slice. zap.c:6334's wish_history_menu() arm, dead because DEBUG is undefined. zap.c:6330's cmdassist suffix, reachable only at tries > 0. zap.c:6339's iflags.term_gone, never set in the comparison build."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "wizcmds.c wiz_wish() 31-44; zap.c makewish() 6313-6345 head only; cmd.c can_do_extcmd() 463-489 reached from rhack() 3688-3692.",
+    "dispatchTablesAndCatalogs": "cmd.c extcmdlist row for wizwish at 2000-2001, carrying C('w') and IFBURIED | CMD_M_PREFIX | WIZMODECMD. js/extcmdlist_data.js holds the generated table.",
+    "reachableHelpers": "Every statement in makewish()'s head was enumerated from the C, and each arm assigned an entry below. The two dispatch seams were read in js/cmd.js at 708-777 and 1186.",
+    "javascriptCrossCheck": "grep -rn 'define DEBUG' nethack-c/upstream/include/config.h returns only DEBUG_MIGRATING_MONS at 621, and grep -rn 'DEBUG' nethack-c/patches/ returns nothing, so the wish-history arm is dead. grep for wiz_wish and makewish in js/ returns no owner.",
+    "remainingLimits": "The slice-selector did not read readobjnam_postparse1() (objnam.c:4240-4663) in full, so its claim that only 'amulet of life saving' may need a class-word strip is a lead. That bears on later slices rather than this one. The five makewish() call sites outside wizcmds.c, where 'You may wish for an object.' does print, were not re-checked."
+  },
+  "entries": [
+    {
+      "candidate": "cmd.c extcmdlist row 'wizwish' reached by Ctrl-W through rhack()",
+      "reachability": "A wizard-mode game; the key carries WIZMODECMD, which can_do_extcmd() tests at cmd.c:463-489. No random-number call.",
+      "owner": "None. js/cmd.js:708-777 readSimpleCommand() refuses the key at its ADMITTED_COMMANDS gate.",
+      "effects": "Dispatches wiz_wish(). Nothing else before the ending event.",
+      "evidence": "cmd.c:2000-2001 and 3688-3692; seed0360-wizard-world-tour stops at step 40 on this byte.",
+      "status": "missing",
+      "remaining": "Widen ADMITTED_COMMANDS and add the rhack() arm."
+    },
+    {
+      "candidate": "cmd.c extcmdlist row 'wizwish' reached by the #wizwish extended-command prompt",
+      "reachability": "A wizard-mode game; doextcmd() reaches the same row through the typed name. No random-number call.",
+      "owner": "None. js/cmd.js:1186 doextcmd()'s switch default throws.",
+      "effects": "Dispatches wiz_wish(). Nothing else before the ending event.",
+      "evidence": "seed0108-wizard-extcmd-wishlist stops at step 13 on the newline closing the name.",
+      "status": "missing",
+      "remaining": "Add case 'wiz_wish' to the dispatch switch."
+    },
+    {
+      "candidate": "cmd.c can_do_extcmd() called from rhack() for a key-dispatched command",
+      "reachability": "C runs it for every key-dispatched command at cmd.c:3689. The port runs it only inside doextcmd() at js/cmd.js:1121-1131.",
+      "owner": "js/cmd.js can_do_extcmd(), reached from doextcmd() alone.",
+      "effects": "Refuses an unavailable command before dispatch. Behavior-neutral for the ten currently key-dispatched commands, none of which carries WIZMODECMD and none of which runs while u.uburied is set.",
+      "evidence": "cmd.c:463-489 and 3688-3692.",
+      "status": "missing",
+      "remaining": "Add the call to rhack(). Neutrality for the existing ten needs an identical development score to confirm, not a reading."
+    },
+    {
+      "candidate": "wizcmds.c wiz_wish()'s wizard-mode arm, clearing and restoring flags.verbose around makewish()",
+      "reachability": "Runs on both dispatch routes once can_do_extcmd() admits the command.",
+      "owner": "None.",
+      "effects": "Suppresses 'You may wish for an object.' at zap.c:6321. flags.verbose defaults true at js/options.js:297 and neither session's nethackrc clears it, so omitting the clear prints an extra line and mismatches the first new screen.",
+      "evidence": "wizcmds.c:34-40; no recorded wish prints that line.",
+      "status": "missing",
+      "remaining": "Port the save, clear and restore. The restore itself is unobservable in this slice, because makewish() throws before wizcmds.c:39 runs; it is correct-by-reading until the next slice."
+    },
+    {
+      "candidate": "wizcmds.c:42's else pline(unavailcmd, ...) arm",
+      "reachability": "Dead behind can_do_extcmd(), which refuses first on both routes.",
+      "owner": "None.",
+      "effects": "None reachable.",
+      "evidence": "wizcmds.c:41-43.",
+      "status": "cannot-occur",
+      "remaining": "Port it with a comment naming can_do_extcmd() as the reason it cannot run, rather than dropping it."
+    },
+    {
+      "candidate": "zap.c makewish()'s head through the getlin() call at 6345",
+      "reachability": "Entered from wiz_wish(). No random-number call before the ending event.",
+      "owner": "None. js/zap.js does not exist.",
+      "effects": "Paints 'For what do you wish?' and reads the line.",
+      "evidence": "zap.c:6313-6345.",
+      "status": "missing",
+      "remaining": "Create js/zap.js, port the head, and assign the file a QUALITY.json area."
+    },
+    {
+      "candidate": "zap.c:6334's iflags.menu_requested && wish_history[0] arm",
+      "reachability": "wish_history[] is written only by wish_history_add(), inside #ifdef DEBUG at zap.c:6229. config.h defines only DEBUG_MIGRATING_MONS, and no patch defines DEBUG, so wish_history[0] is permanently NULL.",
+      "owner": "None.",
+      "effects": "None. The m prefix still reaches the else getlin() branch.",
+      "evidence": "zap.c:6229, 6261, 6277, 6334; include/config.h:621; grep over nethack-c/patches/.",
+      "status": "cannot-occur",
+      "remaining": "Port the else branch only, with the reason recorded."
+    },
+    {
+      "candidate": "zap.c:6330's cmdassist suffix on the prompt",
+      "reachability": "Appended only when tries > 0, which needs makewish()'s retry loop.",
+      "owner": "None.",
+      "effects": "None before the ending event.",
+      "evidence": "zap.c:6325-6332.",
+      "status": "later",
+      "remaining": "Owned by the slice that ports the retry loop."
+    },
+    {
+      "candidate": "zap.c:6339's iflags.term_gone arm",
+      "reachability": "iflags.term_gone is never set in the comparison build.",
+      "owner": "None.",
+      "effects": "None.",
+      "evidence": "zap.c:6337-6341.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The refusal class raised at zap.c:6346's position",
+      "reachability": "Every admitted wish reaches it, on both routes.",
+      "owner": "None yet.",
+      "effects": "Ends the segment on its last matching screen.",
+      "evidence": "js/cmd.js:897 failClosedCommandRefusals() and its own comment: a class missing from that list escapes as a hard failure and discards the segment's matching prefix.",
+      "status": "missing",
+      "remaining": "Add the class to failClosedCommandRefusals() and pin the membership with an assertion at the command seam. Omitting this turns all 45 earned steps into 0, which is the single most likely way to build the slice correctly and score nothing."
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "js/cmd.js dispatch seams",
+      "candidates": [
+        "cmd.c extcmdlist row 'wizwish' reached by Ctrl-W through rhack()",
+        "cmd.c extcmdlist row 'wizwish' reached by the #wizwish extended-command prompt",
+        "cmd.c can_do_extcmd() called from rhack() for a key-dispatched command",
+        "The refusal class raised at zap.c:6346's position"
+      ],
+      "next": "Widen ADMITTED_COMMANDS, add the rhack() arm and its can_do_extcmd() call, add the doextcmd() case, and register the refusal class."
+    },
+    {
+      "group": "js/wizcmds.js and a new js/zap.js",
+      "candidates": [
+        "wizcmds.c wiz_wish()'s wizard-mode arm, clearing and restoring flags.verbose around makewish()",
+        "zap.c makewish()'s head through the getlin() call at 6345"
+      ],
+      "next": "Port wiz_wish(), create js/zap.js for makewish()'s head, and assign the new file a QUALITY.json area."
+    }
+  ],
+  "sourceReview": "Every branch and helper reachable within the boundary was traced against nethack-c/upstream/src/: wizcmds.c wiz_wish() whole, zap.c makewish() 6313-6345 statement by statement, cmd.c can_do_extcmd() and rhack()'s dispatch, and the extcmdlist row's flags. The trace covered state and random-number order, and found no random-number call inside the boundary. Stubs, stops and partial implementations were identified: the two dispatch seams that refuse today, the absent js/zap.js, and the four arms of makewish()'s head that cannot occur or belong to a later slice, each with the source condition that settles it. Two limits are recorded in candidateListMethod: readobjnam_postparse1() was not read in full, and the five makewish() call sites outside wizcmds.c were not re-checked."
+}
