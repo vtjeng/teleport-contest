@@ -34,7 +34,8 @@ fresh differential. A slice is the unit of evidence.
 
 A **goal** is one coherent unit of behavior. It may
 hold several ordered behavior slices. When a slice meets the conditions in
-"Implementation checklist", `.agents/implementation-checklist.json` carries the
+`.agents/implementation-checklist-template.md`,
+`.agents/implementation-checklist.json` carries the
 goal's state between sessions. A goal is the unit of review: when its last
 slice closes, a full correctness pass covers it.
 
@@ -126,41 +127,6 @@ without waiting; the two runs measured on 1 August 2026 took 1 minute 47
 seconds and 1 minute 41 seconds. When a watched run fails, reopen the work
 that pushed it as the current slice's first item: diagnose the failure, fix
 it, push, and watch the new run before the current slice closes.
-
-## Implementation checklist
-
-Create or replace `.agents/implementation-checklist.json`, following the
-schema in `.agents/implementation-checklist-template.md`, when a behavior
-slice is expected to:
-
-- span sessions;
-- cross subsystems; or
-- reach about 500 changed production lines.
-
-Create the checklist as soon as a smaller slice grows to meet any of these
-three conditions.
-
-The orchestrator owns the checklist. Build the checklist's candidate entries
-from upstream entry points, dispatch tables, catalogs, reachable helpers, and
-valid input or configuration families. Cross-check those entries against
-JavaScript stops, fallbacks, no-ops, and replay code. Maintain the list
-throughout implementation. Passing samples do not prove completeness. When a
-fresh case exposes an omitted path, add it and inspect related branches owned
-by the same upstream function or subsystem.
-
-Keep `mode` at `implementation` while any checklist entry is `missing` or
-`undecided`. `.agents/implementation-checklist-template.md`, under
-"Readiness", defines that mode and the alternative, `ready-for-audit`;
-`scripts/audit-worktree.mjs prepare` enforces both and the `commitChecked`
-match as data. Commit a checklist update in the same commit as the work it
-describes; a checklist-only commit is for opening or retiring the file. Before
-a formal review pass, the checklist evidence must apply to the exact committed
-head. After
-the slice closes and its evidence is recorded in existing trackers, remove the
-checklist or replace it for the next qualifying slice. Smaller slices may keep
-equivalent information in their commit messages and in the readiness
-attestations
-in `.agents/review.md`.
 
 ## Progress reports
 

@@ -1,12 +1,37 @@
-# Implementation checklist schema
+# Implementation checklist
 
-A behavior slice is a bounded implementation unit. Create
-`.agents/implementation-checklist.json` for a behavior slice that is expected
-to span multiple work sessions, cross subsystems, or reach about 500 changed
-production lines across the quality areas it affects, which `QUALITY.json`
-lists. The orchestrator owns the checklist and verifies every piece of
-evidence recorded in it against the repository; a subagent's report of that
-evidence is a claim to check.
+A behavior slice is a bounded implementation unit. Create or replace
+`.agents/implementation-checklist.json`, following the schema below, when a
+behavior slice is expected to:
+
+- span sessions;
+- cross subsystems; or
+- reach about 500 changed production lines across the quality areas it
+  affects, which `QUALITY.json` lists.
+
+Create the checklist as soon as a smaller slice grows to meet any of these
+three conditions.
+
+The orchestrator owns the checklist and verifies every piece of evidence
+recorded in it against the repository; a subagent's report of that evidence
+is a claim to check. Build the checklist's candidate entries from upstream
+entry points, dispatch tables, catalogs, reachable helpers, and valid input
+or configuration families. Cross-check those entries against JavaScript
+stops, fallbacks, no-ops, and replay code. Maintain the list throughout
+implementation. Passing samples do not prove completeness. When a fresh case
+exposes an omitted path, add it and inspect related branches owned by the
+same upstream function or subsystem.
+
+Keep `mode` at `implementation` while any checklist entry is `missing` or
+`undecided`. "Readiness" below defines that mode and the alternative,
+`ready-for-audit`; `scripts/audit-worktree.mjs prepare` enforces both and the
+`commitChecked` match as data. Commit a checklist update in the same commit
+as the work it describes; a checklist-only commit is for opening or retiring
+the file. Before a formal review pass, the checklist evidence must apply to
+the exact committed head. After the slice closes and its evidence is recorded
+in existing trackers, remove the checklist or replace it for the next
+qualifying slice. Smaller slices may keep equivalent information in their
+commit messages and in the readiness attestations in `.agents/review.md`.
 
 The checklist is JSON because `scripts/audit-worktree.mjs prepare` reads it
 as data: it refuses to prepare a pass while `mode` is not `ready-for-audit`,

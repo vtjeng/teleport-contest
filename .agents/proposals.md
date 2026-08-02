@@ -56,7 +56,7 @@ proposal.
   `.agents/selection.md` states for retiring a ranking statistic.
 - `npm run quality` warns when dirty-tree changed lines exceed 500 while no
   `.agents/implementation-checklist.json` exists, the checklist-creation
-  trigger in `.agents/workflow.md`.
+  trigger in `.agents/implementation-checklist-template.md`.
 - `npm run checkpoint` runs `npm run quality -- slice-mutants` over new
   commits as an informational line, so a missing `Mutants:` trailer
   surfaces without anyone invoking the check by hand.

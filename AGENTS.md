@@ -84,7 +84,7 @@ Follow all instructions in those files.
 | Implement game behavior | `ROADMAP.md`, `.agents/workflow.md`, and `.agents/validation.md` |
 | Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
-| Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/workflow.md` and `.agents/implementation-checklist-template.md` |
+| Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/implementation-checklist-template.md` |
 | Continue the active work described in `.agents/implementation-checklist.json` | `.agents/implementation-checklist.json` |
 | Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
 | Commit game implementation or record a development score | `.agents/workflow.md` and `.agents/validation.md` |
