@@ -490,7 +490,13 @@
     "interaction": [
       "commands",
       "display"
+    ],
+    "replay": [
+      "startup"
     ]
+  },
+  "retiredAreaCutoffs": {
+    "replay": 48
   },
   "areas": [
     {
@@ -727,13 +733,6 @@
         "js/rng.js",
         "js/timeout.js",
         "js/version.js"
-      ]
-    },
-    {
-      "id": "replay",
-      "label": "Replay scaffolding",
-      "paths": [
-        "js/fastforward.js"
       ]
     },
     {

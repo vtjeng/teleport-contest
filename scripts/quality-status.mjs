@@ -808,6 +808,26 @@ export function validateConfigShape(config) {
     legacyAreaIds.add(legacyId);
   }
 
+  // Passes are append-only, so an area can retire mid-history: passes
+  // recorded before its cutoff legitimately name it, later ones must not.
+  // legacyPassCount covers ids retired before structured passes began.
+  if (config.retiredAreaCutoffs !== undefined) {
+    if (!config.retiredAreaCutoffs || typeof config.retiredAreaCutoffs !== 'object'
+        || Array.isArray(config.retiredAreaCutoffs)) {
+      fail('retiredAreaCutoffs must be an object');
+    }
+    for (const [legacyId, cutoff] of Object.entries(config.retiredAreaCutoffs)) {
+      if (!legacyAreaIds.has(legacyId)) {
+        fail(`retiredAreaCutoffs names unknown legacy area: ${legacyId}`);
+      }
+      if (!Number.isInteger(cutoff) || cutoff < config.legacyPassCount
+          || cutoff > config.passes.length) {
+        fail(`retiredAreaCutoffs.${legacyId} must count the passes recorded `
+          + 'before its area retired');
+      }
+    }
+  }
+
   if (!Array.isArray(config.deferred)) fail('deferred must be an array');
   const deferredIds = new Set();
   for (const [index, entry] of config.deferred.entries()) {
@@ -858,7 +878,9 @@ export function validateConfigShape(config) {
       if (!areaIds.has(areaId) && !legacyAreaIds.has(areaId)) {
         fail(`pass names unknown area: ${areaId}`);
       }
-      if (passIndex >= config.legacyPassCount && legacyAreaIds.has(areaId)) {
+      const legacyCutoff = config.retiredAreaCutoffs?.[areaId]
+        ?? config.legacyPassCount;
+      if (passIndex >= legacyCutoff && legacyAreaIds.has(areaId)) {
         fail(`new passes cannot name legacy area: ${areaId}`);
       }
     }

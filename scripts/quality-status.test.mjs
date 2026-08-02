@@ -70,7 +70,11 @@ test('the checked-in quality ledger has a valid schema', async () => {
   assert.deepEqual(config.legacyAreaExpansions, {
     world: ['generation', 'monsters', 'world-effects'],
     interaction: ['commands', 'display'],
+    replay: ['startup'],
   });
+  // 48: the last recorded pass naming replay is index 47, so 48 is the
+  // tightest cutoff that admits history and rejects any later use.
+  assert.deepEqual(config.retiredAreaCutoffs, { replay: 48 });
   const generatedOutputs = config.areas.flatMap(
     (area) => area.generatedOutputs ?? [],
   );
@@ -798,6 +802,56 @@ test('new ledger passes require structured audit metrics', () => {
   );
   pass.auditMetrics = EMPTY_AUDIT_METRICS;
   assert.doesNotThrow(() => validateConfigShape(config));
+});
+
+test('a retired area cutoff admits history and blocks later passes', () => {
+  const pass = (areas) => ({
+    kind: 'review',
+    head: '2'.repeat(40),
+    areas,
+    level: 'light',
+    outcome: 'no-change',
+    evidence: 'No findings.',
+    recordedAt: '2026-07-23T00:00:00.000Z',
+    auditMetrics: EMPTY_AUDIT_METRICS,
+  });
+  const config = {
+    version: 4,
+    trackingBase: '1'.repeat(40),
+    enforcementBase: '2'.repeat(40),
+    // Zero makes every pass "new", so only the per-area cutoff can admit a
+    // legacy id; the default legacyPassCount path guards the second pass.
+    legacyPassCount: 0,
+    thresholds: {
+      reviewAdvisoryCommits: 3,
+      reviewAdvisoryChangedLines: 500,
+      reviewCommits: 10,
+      reviewChangedLines: 1000,
+      windowCommits: 8,
+      windowChangedLines: 1000,
+    },
+    legacyAreaExpansions: { gone: ['first'] },
+    // Cutoff 1 admits exactly the first recorded pass, mirroring a
+    // retirement that happened after one pass had named the area.
+    retiredAreaCutoffs: { gone: 1 },
+    deferred: [],
+    areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
+    passes: [pass(['gone']), pass(['first'])],
+  };
+
+  assert.doesNotThrow(() => validateConfigShape(config));
+  // Index 1 sits at the cutoff, so the retired id is no longer nameable.
+  config.passes[1] = pass(['gone']);
+  assert.throws(
+    () => validateConfigShape(config),
+    /new passes cannot name legacy area: gone/,
+  );
+  config.passes[1] = pass(['first']);
+  config.retiredAreaCutoffs = { missing: 1 };
+  assert.throws(
+    () => validateConfigShape(config),
+    /retiredAreaCutoffs names unknown legacy area: missing/,
+  );
 });
 
 test('the review window thresholds validate below the gate', () => {
