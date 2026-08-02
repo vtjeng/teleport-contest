@@ -107,148 +107,37 @@ selection, and nothing re-ran the scan against the candidate before the slice
 was promised. Do not replace an instrument for a failure its own documentation
 already warns about; use it as written.
 
-### In progress: a starting pet that carries an object
+**The pet-inventory goal was the test of a different selection method, and it
+returned the fifth consecutive zero.** Closed on 1 August 2026, it was chosen
+against the population the holdout actually samples rather than by `supports`:
+over 600 fresh seeds walking 96 keys on D:1, a starting-pet boundary was the
+port's first stop in 51 to 53% of walks, and pet inventory was the only one of
+the three that could be closed. It gained **24 development screens**, 496 to
+520 of 7,765, and 722 random-number values. **The holdout returned 139 of 3,640
+screens, 30,048 of 182,022 values and 1 of 11 sessions — identical, digit for
+digit, to the descent goal's result and the three before it.**
 
-A tame starting pet holding an object takes its turn: it keeps the object, is
-steered by it, or drops it.
+The goal recorded its prediction before the measurement, and the measurement
+answered it: a boundary family standing in front of half of all fresh D:1 walks
+still failed to move an 11-session holdout, so **the fresh-population census is
+no better than the column it replaced**. Do not write that method into
+`.agents/selection.md`, and do not treat a large fresh-population incidence as a
+forecast of holdout gain any more than a large `supports`.
 
-**Why this goal, on evidence the last four goals did not have.** The descent
-goal was selected by `supports` on the strongest case any goal has had and its
-holdout did not move at all. So this goal was selected on a measurement of the
-population the holdout actually samples, not on the recorded 33. Over 600 fresh
-seeds walking 96 keys on D:1 across two roles and two pet types, the port's
-first boundary was a starting-pet boundary in **51 to 53%** of walks: pet
-inventory 93 (15.5%), pet ranged targeting 119 (19.8%), pet combat evaluation
-67 (11.2%), against door and terrain at 97 (16.2%). That is the likeliest
-reason four consecutive holdouts have not moved. Of the three pet boundaries,
-**only pet inventory can be closed**: pet ranged targeting bottoms out in
-`mattackm()` and can only be narrowed. Pet inventory also carries the largest
-`unlocks` in `scripts/scan-debt.mjs`, 279 screens across 2 sessions, so it is
-the only candidate that scores on both instruments.
+The generalization-failure protocol in `.agents/validation.md` is **not**
+triggered. It runs only where a review confirms behavior special-cased to a
+recorded session or hardcoded, and this goal ported whole C functions —
+`relobj()`, `mdrop_obj()`, `extract_from_minvent()`, `flooreffects()`,
+`stackobj()` — each validated against seeds recorded fresh for the purpose.
+Nothing here was fitted to a development session.
 
-**The bounding property, testable against C.** Every arm reachable from
-`dogmove.c dog_invent()`'s `droppables()` branch (`dogmove.c:412-424`) resolves
-inside `steal.c`, `worn.c` and `do.c`. No arm calls `mattackm()` or
-`mattacku()`. Anything needing those is outside this goal.
-
-**Upstream owners.** `steal.c relobj()` (874-899) and `mdrop_obj()` (813-846);
-`worn.c extract_from_minvent()` (1376-1416), entered with
-`do_extrinsics = FALSE`; and `do.c flooreffects()` from 162, only far enough to
-return FALSE on an ordinary square and to refuse pool, lava, pit and hole by
-name. Roughly 110 new C lines. Already ported: `place_object` (`js/obj.js`),
-`stackobj` and `obj_extract_self` (`js/invent.js`), `distant_name`
-(`js/objnam.js`), `check_gear_next_turn` (`js/mon.js`).
-
-**Traced findings, recorded so they are not re-derived.**
-
-- `js/dogmove.js` already ports `dog_invent()`'s drop arm down to a
-  `dropInventory` seam (417-429) and all three of `dog_goal()`'s
-  `dog_has_minvent` reads (542, 616, 637; C 502, 551, 576). `relobj()` is the
-  single missing function.
-- The live blocker is wider than that seam. `assertSimpleActionState()` at
-  `js/unported_monster_actions.js:223-226` refuses **any** turn where a
-  starting pet's `minvent` holds more than an inert saddle, so deleting it is a
-  prerequisite of the first commit rather than a later tidy-up.
-- `dog.c:60` sets `edog->apport = ACURR(A_CHA)`, but charisma never reaches it
-  for a starting pet, so this file's earlier claim that drop frequency depends
-  on charisma is wrong. `allmain.c newgame()` calls `makedog()` at 814 and
-  `u_init_inventory_attrs()` at 816, so `init_attr()` has not run when `apport`
-  is set and `acurr()`'s floor returns 3. Slice 1 confirmed it: a fresh
-  recording of seed 8902029, a Tourist whose status line reads `Ch:18`, logs
-  `rn2(3) @ dog_invent(dogmove.c:418)`. The live gate is `!rn2(udist + 1)`, so
-  recorded cases vary the hero-to-pet distance rather than charisma.
-- `update_mon_extrinsics()` is unreachable here: `relobj(..., is_pet=TRUE)`
-  iterates `droppables()`, which never returns a worn item, so `unwornmask` is
-  0.
-- `js/allmain.js:650` already reruns `m_dowear()` for the `I_SPECIAL` recheck a
-  pickup schedules, so that follow-on turn is not a hidden second boundary.
-
-**Expected gain, as a bound rather than a forecast.** `scan-debt` puts the
-ceiling at 279 screens across 2 sessions. Per session, and this is the quantity
-the descent goal taught us to ask for: `seed1150` gains 26 screens and then
-stops on `fire` at step 34; `seed0030` gains 253 and then stops on `fight` at
-step 261. Applying the 4.8x-to-26x overstatement this file records gives **11
-to 58 development screens**. `seed0030`'s gap is 253 steps of movement in the
-corpus's largest session, and `scan-debt` cannot see a hero-move or
-monster-action boundary inside a gap, so treat the low end as the honest one.
-
-**What the two sessions did, measured after slice 2.**
-`node scripts/scan-stops.mjs` at `dfa8a61` settles the forecast above.
-`seed1150-caveman-explore-move` stops at step 34 of 51 on `fire`, exactly where
-the forecast put it, with 17 screens behind it. `seed0030-ten-diverse-deaths`
-stops at step **13 of 1,953** on `simple monster action requires pet ranged
-targeting`, where C's screen reads `The kitten drops a gold piece.` It gained 5
-of the 253 screens forecast for it. Neither session stops on a pet-carrying or
-pet-dropping boundary now, so **the goal's remaining development headroom is
-zero**, measured rather than estimated. Slice 3 will move neither metric, and
-its worth is the fresh population and the holdout alone.
-
-That is a third prediction of the shape this file already records twice: a
-property necessary for a session to move but not sufficient. The forecast named
-the owner correctly and the session's next stop wrongly, because the census
-cannot see a monster-action boundary hidden inside a gap — which is stated in
-the paragraph above and was still not enough to keep 253 from being written
-down as a per-session number.
-
-The same scan puts `simple monster action requires pet ranged targeting` at 4
-sessions and 2,081 screens standing behind it, now the largest monster-action
-boundary in the corpus and second overall to the repeated-command boundary's 9
-sessions and 1,950 screens.
-
-**Slices.**
-
-1. *The drop.* **Closed at `9a7a180`**, with the `map_object()` prerequisite at
-   `36562b9`. Deleted the `pet inventory` refusal and implemented
-   `dropInventory` as `relobj()` for one uncursed object on a ROOM or CORR
-   square in sight, from the hero's next command after `X picks up Y.` to the
-   `X drops Y.` top line, the object's glyph, and the next command prompt.
-   Development score 496 to 520 of 7,765 screens and 106,505 to 107,227 of
-   610,816 random-number values, two sessions gained and none regressed,
-   measured with `npm run checkpoint` at `9a7a180`. That +24 sits inside the 11
-   to 58 screens predicted above.
-2. *Carrying without dropping.* **Closed at `dfa8a61`**, and it needed no
-   production code: slice 1 deleted the refusal that stopped these turns and
-   `js/dogmove.js` already carried `dog_invent()`:416-424 and `dog_goal()`'s
-   502, 551 and 576 arms, so the slice owed evidence rather than a port.
-   `scripts/run-pet-carry.mjs` records 14 fresh C segments over 44,497
-   random-number calls, 229 screens and 229 cursors, each ending at a command
-   prompt with the pet still carrying and the prompt before it the same. The
-   development score is unchanged in both metrics, 520 of 7,765 screens and
-   107,227 of 610,816 random-number values.
-3. *The remaining arms.* `relobj()`'s multi-object `while`, `stackobj()`
-   merging onto an occupied square, the out-of-sight `show && cansee`
-   `newsym()`, and named refusals for the `flooreffects()` squares.
-
-**Sequencing decided with the goal.** `display.c map_object()` (338-352) is
-slice 1's **prerequisite**, not a separate item: `mdrop_obj()` reaches
-`place_object()` and then `newsym()`, and the dropped object is exactly the
-potion and gem class of all three recorded reproductions, so leaving it would
-cost this goal's candidate seeds as it cost the last three slices'. Record the
-orphaned jewelers-and-hardware mimic pairing when fixing it. The
-`flush_screen()` goal stays where it is, immediately before `#levelchange`,
-its only hard dependant; this goal draws no menu and no prompt.
-
-**A prediction recorded before its result.** This goal was selected on
-fresh-population incidence rather than on `supports`, so it is a test of the
-selection method as well as a piece of the port. Writing the prediction down
-before the measurement is what keeps it from being retrofitted afterwards, as
-the two falsified predictions above were not.
-
-If this goal's holdout gain is non-zero, that is the first evidence the
-fresh-population census ranks better than `supports`, and the method should be
-written into `.agents/selection.md`. If it is zero, then a boundary family
-standing in the way of 51 to 53% of fresh D:1 walks still failed to move an
-11-session holdout, and the fresh-population census is no better than the
-column it replaced. Do not standardize the method before that result.
-
-**A rule worth revisiting after this goal.** The runner-up, `pet combat
-evaluation` — `max_passive_dmg()`, `mon_reflects()` and `resists_ston()` behind
-`js/dogmove.js:867-903` — is 11.2% of fresh walks and closeable with near-pure
-functions, but `.agents/selection.md` filters it out because its `unlocks` is
-0. That filter's premise, that no fresh differential can execute its real
-consumer, is false here: 67 of 600 fresh seeds reach it as their earliest
-boundary. The filter is written for the recorded 33 and does not see the fresh
-population.
+What five zeros now say together is that the holdout moves on what the port
+*cannot yet do at all*, not on what it does slightly better. Four of the eleven
+holdout sessions could be stopped at a single boundary and the aggregate would
+not shift by one screen until that boundary opened. The next selection should
+ask which boundary, if any, stands in front of many holdout-shaped sessions at
+once — and accept that no instrument in this repository can see that directly,
+which is the honest state of the problem rather than a gap to paper over.
 
 ### Queued: the hero walks onto a floor square holding more than one object
 
