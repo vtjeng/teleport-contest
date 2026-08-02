@@ -49,42 +49,50 @@ cannot be aimed at `sessions/holdout/`.
 input against the commands the port dispatches. For every behavior it reports
 `supports` and `unlocks`, which the report's own legend defines.
 
-**Filter, then rank.** Drop every behavior whose `unlocks` is 0. Take the
-highest `supports` among what remains. `node scripts/scan-debt.mjs --by=supports`
-orders the report for that reading.
+**Rank by the look-ahead forecast.** The port is fail-closed: a session earns
+no screen past its first stop, so a candidate pays what it unblocks. Start
+from `unlocks`, the recorded steps from the boundary to each stopped
+session's next unmet behavior, and cap each session's stretch at the first
+recorded message implying a second unported or partially ported behavior
+inside it. Sum the capped stretches across sessions and take the highest;
+break ties by the number of sessions stopped on the boundary.
+`node scripts/scan-debt.mjs --by=unlocks` orders the candidates, and
+`node scripts/scan-ahead.mjs <behavior>` prints each stopped session's
+message stream for the capping read. `supports` measures dependency breadth,
+and ranked the descent goal by 3,515 screens that closed as 9 (`125601d`); it
+stays in the report as context.
 
-**We filter on `unlocks` because a behavior that unlocks nothing cannot be
-closed from a recorded session.** It is never the earliest thing any of those
-sessions needs, so the port refuses before reaching it there, and it becomes
-selectable once the behavior ahead of it lands.
+**Read the stretch with a classifier before trusting it.** Hand each
+session's `scan-ahead` stream to a `sonnet-worker` subagent together with the
+port's fail-closed boundary list and the supported-command set, and ask for
+the first message implying a behavior the port refuses or only partly
+supports; that step caps the session's forecast. The classifier errs toward
+flagging: an optimistic forecast costs a mis-selected goal, a conservative
+one costs ranking precision. A second behavior recurring across many
+sessions' stretches is scope the goal should include, priced in from the
+start.
 
-Note that this is only a statement about the recorded corpus, not all game
-states. `.agents/workflow.md` closes a behavior slice on a fresh differential,
-and a fresh seed can reach such a behavior first, in which case its real
-consumer does execute. Override the filter with a fresh-population measurement
-rather than silently.
+**Record the forecast when the goal opens and the delivery when it closes.**
+Write the capped forecast and the sessions it covers into `ROADMAP.md` with
+the goal entry. At close, compare with
+`node scripts/score-log.mjs --since <opening sha>` and record delivered
+against forecast beside the goal's evidence. Retire a ranking statistic from
+selection when its last three goals each delivered less than a tenth of its
+forecast, until it is recalibrated against those closes. The goal budget in
+`.agents/workflow.md`, "Continuous operation", bounds what a missed forecast
+can cost.
 
-For example, a census of 600 fresh D:1 walks recorded at `a6b32bd` found 67
-stopping on `pet combat evaluation` as their earliest boundary, while its
-`unlocks` stood at 0.
+**A fresh census can nominate a candidate the recorded sessions cannot.** A
+behavior no development session stops on first can still be the most common
+first stop for fresh seeds: a census of 600 fresh D:1 walks recorded at
+`a6b32bd` found 67 stopping on `pet combat evaluation` as their earliest
+boundary, while its `unlocks` stood at 0. Before opening a goal on a
+fresh-census boundary, record the census that justifies it in the goal entry.
 
-**We rank by `supports` because it is exact and it predicts breadth.** The
-recording states where a command is first issued, and every screen from there to
-the end of that session rests on it, so no estimate enters. It measures how much
-of the recorded score depends on the behavior.
-
-**It does not predict whether porting that behavior generalizes beyond the
-recorded corpus.** Rank by it for breadth within those sessions, and estimate
-gain separately, from where each unblocked session stops next.
-
-An example of this was that the descent goal (closed in `125601d`) was selected
-with `supports` at 3,515 screens, but the holdout evaluation remained
-unchanged.
-
-**We choose not to rank by `unlocks` because it is optimistic by construction.**
-Against three closed goals it overstated by 5.8, 4.8 and 26 times. It assumes
-the behavior is atomic, that nothing the port newly refuses appears, and that
-every screen in the gap already matches. Six things break those assumptions:
+**The raw `unlocks` count is optimistic by construction.** Against three
+closed goals it overstated by 5.8, 4.8 and 26 times. It assumes the behavior
+is atomic, that nothing the port newly refuses appears, and that every screen
+in the gap already matches. Six things break those assumptions:
 
 1. A second behavior hidden inside the gap, invisible because the port stops at
    the first one it cannot do. This caused the 26-fold miss.
@@ -100,7 +108,9 @@ every screen in the gap already matches. Six things break those assumptions:
 6. Screens after the gap can be emitted and wrong. `unlocks` counts distance and
    assumes correctness.
 
-Re-run the scan after the change to measure the real gain.
+The classifier cap addresses the first two directly; the budget and the
+calibration record bound the rest. Re-run the scan after the change to
+measure the real gain.
 
 A milestone labels the system a behavior belongs to. It orders no work: take the
 top behavior whatever milestone names it.

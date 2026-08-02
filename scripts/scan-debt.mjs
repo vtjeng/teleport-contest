@@ -261,7 +261,7 @@ export function ceilingFor(row) {
     return row.recordedSteps - row.screensEmitted;
 }
 
-async function scanSession(file) {
+export async function scanSession(file) {
     const data = normalizeSession(
         JSON.parse(readFileSync(join(DEVELOPMENT_DIR, file), 'utf8')),
     );
