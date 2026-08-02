@@ -144,6 +144,25 @@ stops it. An iteration ending at a clean committed state is a reason to start
 the next iteration. End each turn with a subagent or a pass running, or with
 the next step started.
 
+Do not end a turn on a question that `AGENTS.md`, this file, or the files they
+name already answer; state the decision, cite the rule, and continue. Triage
+every other question by what it blocks. A question that blocks nothing goes
+into `.agents/questions.md` as an appended entry recording the provisional
+decision the loop took, and the loop continues. A question that blocks only
+the current slice parks that slice (the worker commits nothing and reports
+the blocker, so the slice stays queued), goes into the queue, fires a push
+notification to the user, and the loop takes the next slice or goal. A
+question that blocks every next step is the fourth stop case in `AGENTS.md`
+and stops the loop. Entries stay open until the user answers them; open each
+progress report with the count of open entries and the newest one.
+
+A goal carries a budget. When six hours of wall clock pass without a slice
+closing on a measured development-screen gain, close the goal where it
+stands, record delivered steps against the forecast in `ROADMAP.md`, and
+continue at step 1. A slice closing with a measured gain resets the budget.
+Closing on budget is a measurement of the forecast; it needs no user
+decision and does not stop the loop.
+
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
 each time: a worker to take the next queued slice from queued to closed, a
 slice-selector when the goal in progress has no queued slice left, a
@@ -212,11 +231,11 @@ remote, whose runs belong to someone else and stopped in June 2026, so a push
 looks as though it started no run at all. If `gh run list` ever shows runs you
 do not recognize, run `set-default` again.
 
-After pushing, wait for the run. The two runs measured on 1 August 2026 took 1
-minute 47 seconds and 1 minute 41 seconds.
-
-If the run fails, diagnose the failure, fix it, and push again, then watch the
-new run. Start the next slice only after the run reports `success`.
+After pushing, watch the run from a background task and start the next slice
+without waiting; the two runs measured on 1 August 2026 took 1 minute 47
+seconds and 1 minute 41 seconds. When a watched run fails, reopen the work
+that pushed it as the current slice's first item: diagnose the failure, fix
+it, push, and watch the new run before the current slice closes.
 
 ## Implementation checklist
 
