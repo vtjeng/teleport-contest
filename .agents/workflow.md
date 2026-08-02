@@ -115,12 +115,11 @@ The orchestrator repeats, without returning to the user between its steps:
    the worker left behind and every commit you landed yourself, then watch the
    run from a background task as "Pushing and CI" states.
 3. Run `npm run quality` yourself; no worker reports it. Its single
-   `Review since <frontier>` line escalates through the thresholds
-   `QUALITY.json` configures: `ADVISORY` notes it and continues, `WINDOW
-   DUE` is the per-slice pass advisory, and `DUE` is the gate that stops
+   `Review since <frontier>` line reports the running debt: `WATCH` prints
+   the counts against the gate, and `DUE` is the gate that stops
    implementation until the required pass has run, its confirmed findings
    are applied, and its entry is recorded. `.agents/review.md`, "When a
-   correctness pass is due", defines all three.
+   correctness pass is due", defines the gate.
 4. When a slice closes, continue at step 1. When the last slice of the goal
    closes, satisfy the readiness requirements in `.agents/review.md` and run the
    goal's full correctness pass, then continue at step 1.

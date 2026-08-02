@@ -9,10 +9,12 @@ Only the orchestrator does this work. "Continuous operation" in
 
 ## Readiness for a formal review pass
 
-While implementation is incomplete, find and fix gaps with source review,
-focused tests, the full test suite, and fresh differentials. Launch a formal
-review pass only when the orchestrator judges the behavior and evidence
-complete. Freeze the committed range and prepare it with
+While implementation is incomplete, find and fix gaps with the loop's own
+instruments: trace each ported function against its upstream C or Lua
+source as you port it, commit each chunk with its focused tests, run the
+full suite at every checkpoint, and run a fresh differential when a slice
+closes. Launch a formal review pass only when the orchestrator judges the
+behavior and evidence complete. Freeze the committed range and prepare it with
 `node scripts/audit-worktree.mjs prepare ... --readiness`, which runs
 `npm run checkpoint`, `npm run quality -- --check`, and
 `npm run mutate -- --range <base>..<head> --kind relational,logical,boolean`
@@ -90,8 +92,9 @@ their own evidence snapshots.
   Add the trailer only after scoring both commits and confirming every session
   matched, call for call and screen for screen. Put nothing else in that
   commit.
-- A full pass is also due after an unexplained source-review or differential
-  mismatch, and before a review deadline.
+- A full pass is also due after a mismatch nobody can explain, whether found
+  while tracing the port against its upstream C or Lua source or by a
+  differential, and before a review deadline.
 - Other small cohesive fixes may batch until one of the conditions in this
   section makes a full pass due. Do not repeat the same formal review pass
   until another threshold is met or the design materially changes.
@@ -105,9 +108,7 @@ Apply the per-chunk workflow in `.agents/workflow.md` to every commit of an
 open slice. Once the running game has executed the production code path that
 calls the newly ported behavior during normal play, run the fresh end-to-end
 differentials that `.agents/validation.md`, "Fresh differentials",
-describes. A mismatch nobody can explain, whether found while tracing the
-port against its upstream C or Lua source or by a differential, makes the
-pass due immediately.
+describes.
 
 ### Which finders and other passes to run
 
