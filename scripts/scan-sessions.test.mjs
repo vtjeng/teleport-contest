@@ -18,6 +18,7 @@ import {
     dedupeMessages,
     executedCommands,
     extendedCommandAt,
+    legend,
     main,
     rankCandidates,
     recordedTopLine,
@@ -69,6 +70,38 @@ test('main rejects every argument outside its three options', async () => {
         () => main(['--by=screens']),
         /only --json, --by=<unlocks\|supports> and --ahead=<behavior>/,
     );
+});
+
+test('the legend says its sort order ranks nothing', () => {
+    // .agents/selection.md gave up carrying this when its appendix stopped
+    // restating the report. A reader who takes the top row of either table as
+    // the selected candidate skips the capped forecast entirely, so the report
+    // has to disown its own ordering.
+    const text = legend(7765);
+    assert.match(text, /sort for display alone/);
+    assert.match(text, /Neither ordering ranks a row by priority/);
+    assert.match(text, /\.agents\/selection\.md states/);
+});
+
+test('--help prints the options and replays nothing', async () => {
+    // .agents/selection.md documents --ahead alone and sends a reader here for
+    // the rest, so --help has to be a real option rather than an unknown flag
+    // whose rejection happens to list them. It must also return before the
+    // replay: exercising it costs a full scan otherwise.
+    const lines = [];
+    const written = console.log;
+    console.log = (line) => lines.push(String(line));
+    try {
+        await main(['--help']);
+    } finally {
+        console.log = written;
+    }
+    const printed = lines.join('\n');
+    assert.match(printed, /--ahead=<behavior>/);
+    assert.match(printed, /--by=<unlocks\|supports>/);
+    assert.match(printed, /--json/);
+    // A replay prints this heading, so its absence shows --help returned first.
+    assert.doesNotMatch(printed, /first stops/);
 });
 
 test('a stop is attributed to the recorded step the port never consumed', () => {

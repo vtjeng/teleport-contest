@@ -90,72 +90,49 @@ the boundary, the forecast, and the traced findings in `detail`.
 
 ## Appendix A: Measuring what the port cannot do yet
 
-Our **development-session census** (implemented as
-`node scripts/scan-stops.mjs`) replays every development session, records where
-the port refuses to continue, and categorizes the refusals in two ways: 1) by
-the unported C behavior that stopped the session, identifying the code
-required, and 2) by the player command at that step, identifying what the
-player was trying to do.
-
-### Running the development-session census
-
-Run the script with no arguments; runs take 1-4 seconds.
-
-For each development session the scan reports the fail-closed boundary, that
-is, the first unsupported feature the port reaches, the recorded keystroke the
-port refused, that keystroke's command under the session's own bindings, and
-C's message on that step. It then groups those rows twice, by boundary and by
-refused command. Each census row lists the sessions in that class, the recorded
-steps behind the boundary, and the class name. This abridged output comes from
-a run at `460f194`:
-
-```
-Boundary census (sessions, screens standing behind it)
-   9   1950  unsupported hero command: the repeated-command boundary admits ...
-   5   1785  unsupported hero command: the extended command 'levelchange' is not ported
-   4   2081  simple monster action requires pet ranged targeting
-
-Refused command census
-   8   2179  rushsouth
-   4    321  (none)
-   3    173  runeast
-```
-
-`--json` emits, in machine-readable form, the same information reported for
-each development session.
-
-The scan reports the screens each session emitted.
-`scripts/score-development.mjs` is the authority on how many of those screens
-match C's recorded screens.
+Run `node scripts/scan-sessions.mjs`. It replays the 33 development sessions
+once and prints six sections and a legend: where each session first stops, a
+boundary census, a refused-command census, the behaviors each session's
+remaining recorded input needs that the port does not support, a reconciliation
+of those two halves, and a behavior table. The legend and the script's header
+comment define every section and column, and `--help` lists the options. This
+appendix states only what the report cannot decide for you.
 
 The scanned directory is fixed and the script accepts no path argument, so it
 cannot be aimed at `sessions/holdout/`.
 
-### Reading the census
+Emitted screens are not matched screens: `scripts/score-development.mjs` is the
+authority on how many of them match C.
 
-The census identifies the upstream owner of each stop: the C code whose
-behavior the port has not yet reproduced. Trace that code in
-`nethack-c/upstream/`. Its output sorts by session count and breaks ties by
-step count. That ordering controls display only. It does not rank the rows by
-priority. Two rules constrain how to interpret the census's output:
+### From a boundary census row to a C function
 
-- The steps standing behind a boundary represent an upper bound. They do not
-  predict how many steps porting that boundary will unblock. Sessions
-  blocked on one owner routinely block again on another, and the keystrokes
-  after a stop include prompt answers, count prefixes, and menu selections.
-  Not every keystroke after a stop is a command. To measure a candidate
-  change, apply it and re-run the scan; the difference between the two runs'
-  step counts is the measurement.
-- C's message at a stop is a search key. Grep the C source for its text, open
-  the function containing it, and port that function; "Implement NetHack
-  behavior from source" in `AGENTS.md` states why the message itself specifies
-  nothing.
+Trace the upstream owner, the C code whose behavior the port has not yet
+reproduced, in `nethack-c/upstream/`. C's message at the stop is a search key.
+Grep the C source for its text, open the function containing it, and port that
+function; "Implement NetHack behavior from source" in `AGENTS.md` states why
+the message itself specifies nothing.
 
-### Ranking candidates
+The steps standing behind a boundary are an upper bound. They do not predict
+how many steps porting that boundary will unblock. Sessions blocked on one
+owner routinely block again on another, and the keystrokes after a stop include
+prompt answers, count prefixes, and menu selections. To measure what a
+candidate change earns, apply it and re-run the scan; the difference between
+the two runs' step counts is the measurement.
 
-`scripts/scan-debt.mjs` differences each development session's whole recorded
-input against the commands the port dispatches. For every behavior it reports
-`supports` and `unlocks`, which the report's own legend defines.
+### Reading the reconciliation before you rank
+
+The observed and modeled halves are derived by different routes, so the report
+states where they disagree. Where a refused-command census row has no
+counterpart in the behavior table, it names a command no session issued, and
+ranking it would be an error: `rushsouth` stands at 8 sessions and 2,179 steps
+there because `\n` is Ctrl-J, which the binding table names `rushsouth` while
+those sessions were stopped inside an extended-command prompt. A stop with no
+modeled behavior at the step the port refused is the serious case: the model
+believes the port supports what the port just refused, so no candidate stands
+for that stop at all. That count is 0 today; if it is not, fix it before
+ranking.
+
+### Ranking the behavior table
 
 **Rank by the look-ahead forecast.** The port is fail-closed: a session earns
 no screen past its first stop, so a candidate pays what it unblocks. Start
@@ -163,13 +140,13 @@ from `unlocks`, the recorded steps from the boundary to each stopped
 session's next unmet behavior, and cap each session's stretch at the first
 recorded message implying a second unported or partially ported behavior
 inside it. Sum the capped stretches across sessions and take the highest;
-break ties by the number of sessions stopped on the boundary.
-`node scripts/scan-debt.mjs --by=unlocks` orders the candidates, and
-`node scripts/scan-ahead.mjs <behavior>` prints each stopped session's
-message stream for the capping read.
+break ties by the number of sessions stopped on the boundary. The table's
+default order already ranks by `unlocks`, and
+`node scripts/scan-sessions.mjs --ahead=<behavior>` prints each stopped
+session's message stream for the capping read.
 
 **Read the stretch with a classifier before trusting it.** Hand each
-session's `scan-ahead` stream to a `sonnet-worker` subagent together with the
+session's `--ahead` stream to a `sonnet-worker` subagent together with the
 port's fail-closed boundary list and the supported-command set, and ask for
 the first message implying a behavior the port refuses or only partly
 supports; that step caps the session's forecast. The classifier errs toward

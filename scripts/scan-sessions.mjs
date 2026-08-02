@@ -831,11 +831,20 @@ function report(rows, order) {
     reportReconciliation(rows, rankCandidates(rows, order));
     reportRanking(rows, recorded, order);
 
-    console.log(
+    console.log(legend(recorded));
+}
+
+// The legend defines every column this report prints, so it is built here
+// rather than inline: a test can read it without paying for a replay.
+export function legend(recorded) {
+    return (
         '\nObserved figures come from replaying the port, and cover everything '
         + "up to each\nsession's first stop. Modeled figures are derived from "
         + 'the recorded input,\nbecause nothing past a stop is observable at '
         + 'all.'
+        + '\n\nBoth tables sort for display alone. Neither ordering ranks a row '
+        + 'by priority, and the order a candidate is selected in is the one '
+        + '.agents/selection.md states.'
         + '\n\nsupports counts screens that stop matching if a port matching '
         + `all ${recorded} recorded screens loses this behavior. That is every `
         + "screen from the behavior's first use to the end of each session that "
@@ -851,7 +860,7 @@ function report(rows, order) {
         + '\n\nFor both, the sessions column counts the sessions holding those '
         + 'screens, as guidance. Every session with an unmet behavior has '
         + 'exactly one earliest, so the unlocks sessions column sums to the '
-        + 'number of unfinished sessions.',
+        + 'number of unfinished sessions.'
     );
 }
 
@@ -910,6 +919,25 @@ const AHEAD_PREFIX = '--ahead=';
 
 export async function main(args) {
     const orders = Object.keys(RANK_ORDERS);
+    // .agents/selection.md documents --ahead alone and sends a reader here for
+    // the rest, so --help answers before the replay rather than by being
+    // rejected as an unknown flag.
+    if (args.includes('--help')) {
+        console.log(
+            `Usage: node scripts/scan-sessions.mjs [--by=<${orders.join('|')}>]`
+            + ' [--ahead=<behavior>] [--json]\n'
+            + `\n  --by=<${orders.join('|')}>  order the behavior table.`
+            + ' Default: unlocks.'
+            + '\n  --ahead=<behavior>       print each stopped session\'s'
+            + ' recorded messages between\n'
+            + '                           its stop and its next unmet behavior.'
+            + '\n  --json                   emit the same figures in'
+            + ' machine-readable form.'
+            + '\n\nThe scanned directory is fixed and no path argument is'
+            + ' accepted, so this scan\ncannot be aimed at sessions/holdout/.',
+        );
+        return undefined;
+    }
     // Reject every other argument, including any bare path: this scan must not
     // be aimable at sessions/holdout/. Every option carries its value in the
     // same token for that reason, so no argument here can ever be read as a
