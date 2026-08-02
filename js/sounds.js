@@ -129,7 +129,7 @@ async function hear(message, state, pline) {
  *
  * Fountain, sink, and secret-vault behavior is complete.  Special rooms which
  * require a deeper level, plus the Oracle level, are rejected before any draw
- * until their owning gameplay milestones make them reachable.
+ * until their owning gameplay goals make them reachable.
  */
 export async function dosoundsInitialLevel(
     state = game,

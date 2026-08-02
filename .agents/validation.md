@@ -77,7 +77,7 @@ focused tests cover the renderer's input contract.
   contain replay inputs only. They must never contain recorded `steps`,
   weaken the sealed-path checks that reject paths under `sessions/holdout/`,
   or reference the sealed holdout.
-- Before closing a nontrivial behavior slice or milestone, run a reproducible
+- Before closing a nontrivial behavior slice or goal, run a reproducible
   matrix that varies inputs relevant to the change. Cover ordinary cases and
   rare branches identified from source; exhaustive combinations are
   unnecessary.

@@ -1,8 +1,8 @@
 # Choosing what to implement next
 
-Read this file when deciding which behavior to port next: which goal to open
-inside the current milestone, and which slice of that goal comes first.
-`.agents/workflow.md` defines a milestone, a goal, and a behavior slice, and
+Read this file when deciding which behavior to port next: which goal to open,
+and which slice of that goal comes first.
+`.agents/workflow.md` defines a goal and a behavior slice, and
 states the evidence that closes a behavior slice and the review a closed goal
 triggers.
 
@@ -119,8 +119,8 @@ The classifier cap addresses the first two directly; the budget and the
 calibration record bound the rest. Re-run the scan after the change to
 measure the real gain.
 
-A milestone labels the system a behavior belongs to. It orders no work: take the
-top behavior whatever milestone names it.
+The system-group heading in `ROADMAP.md` orders no work: take the top
+behavior whatever system it belongs to.
 
 A goal may be larger than one agent session. When it is, it closes through
 several behavior slices, each closed on its own. A goal may list slices it is
@@ -140,7 +140,7 @@ take.
 `node scripts/goal-log.mjs`. A closed goal's entry stays there as the
 calibration record; its score evidence stays in `SCORE.tsv`, its review
 metadata in `QUALITY.json`, and its implementation history in Git.
-`ROADMAP.md` describes the milestone in progress, and
+`ROADMAP.md` describes the systems the current goals belong to, and
 `docs/goal-history.md` holds what the closed goals carried over. Every task starts with
 `node scripts/goal-log.mjs --current`, so goal entries stay terse: the
 boundary, the forecast, and the traced findings in `detail`.

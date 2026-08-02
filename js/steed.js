@@ -282,7 +282,7 @@ export async function mount_steed(mtmp, force, state = game) {
     const ptr = mtmp.data;
     if (touch_petrifies(ptr) && !propertyActive(state, STONE_RES)) {
         // instapetrify() ends the game through done(STONING), which no part of
-        // this milestone covers. The arm is unreachable as well: guard 9 above
+        // the port covers. The arm is unreachable as well: guard 9 above
         // has already established that the monster wears a saddle, and the only
         // routes to a worn saddle -- use_saddle(), makedog() and makemon()'s 1%
         // pony -- all run behind can_saddle(), which admits neither the

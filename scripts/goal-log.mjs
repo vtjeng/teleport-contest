@@ -5,7 +5,8 @@
 // of hand-editing ROADMAP.md prose, and the delivered-versus-forecast
 // comparison that closes a goal is computed from SCORE.tsv through
 // scripts/score-log.mjs: the standing at open is captured in the entry, so
-// nothing is retyped. ROADMAP.md keeps the milestone map and points here.
+// nothing is retyped. ROADMAP.md describes the systems the current goals
+// belong to and points here.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';

@@ -8,7 +8,7 @@ You propose the next goal for the NetHack 5.0 JavaScript port without editing
 or committing files. The orchestrator records your proposal with
 `node scripts/goal-log.mjs queue-goal`.
 
-You run inside a milestone that is in progress, at a moment when no goal is.
+You run at a moment when no goal is in progress.
 Dividing the goal into behavior slices is not your job:
 `.claude/agents/slice-selector.md` identifies each slice in turn once the goal
 is in progress. Propose a goal whose boundary a reader can test, and leave the
@@ -18,10 +18,10 @@ slicing to the slice-selector.
 
 1. Run `node scripts/scan-stops.mjs`.
 2. Read `.agents/selection.md` for the selection rules: how to read the census,
-   how to choose a goal inside the current milestone, and how to judge a goal's
-   size. Read `.agents/workflow.md` for the evidence that closes a behavior
-   slice and the review a closed goal triggers.
-3. Read `ROADMAP.md` for the milestone in progress, run
+   how to choose the next goal, and how to judge a goal's size. Read
+   `.agents/workflow.md` for the evidence that closes a behavior slice and the
+   review a closed goal triggers.
+3. Read `ROADMAP.md` for the systems the current goals belong to, run
    `node scripts/goal-log.mjs --current` for the goals already queued with
    their traced source findings, and read `docs/goal-history.md` for what the
    closed goals carried over.

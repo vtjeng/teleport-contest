@@ -1,6 +1,6 @@
 ---
 name: survey-boundary-coverage
-description: Survey source-to-port coverage at a defined behavioral or roadmap boundary. Use when Codex needs to inventory remaining implementation paths, prove a milestone complete, enumerate reachable fallbacks, unsupported branches, replay seams, source handlers, or configuration families, or answer whether a boundary is ready to close. Produce a read-only evidence matrix from NetHack upstream and fresh differentials, then cluster confirmed gaps by shared ownership. Do not use for in-game item inventory, correctness review of a committed diff, or work beyond the selected boundary.
+description: Survey source-to-port coverage at a defined behavioral or roadmap boundary. Use when Codex needs to inventory remaining implementation paths, enumerate reachable fallbacks, unsupported branches, replay seams, source handlers, or configuration families, or answer whether a boundary is ready to close. Produce a read-only evidence matrix from NetHack upstream and fresh differentials, then cluster confirmed gaps by shared ownership. Do not use for in-game item inventory, correctness review of a committed diff, or work beyond the selected boundary.
 ---
 
 # Survey Boundary Coverage
@@ -32,8 +32,8 @@ formal correctness audit and not NetHack item-inventory work.
 
 State the exact behavior being closed, its success criteria, valid input
 dimensions, expected observable parity, and excluded later work. Use the
-earliest `ROADMAP.md` milestone still in progress when the user has not supplied a narrower
-boundary and the repository makes the choice unambiguous.
+goal in progress from `node scripts/goal-log.mjs --current` when the user
+has not supplied a narrower boundary.
 
 ### 2. Build the candidate universe
 
@@ -105,7 +105,7 @@ Call the behavioral boundary ready only when:
 
 Report formal quality, simplification, correctness, and score gates separately.
 This survey does not satisfy an audit, advance a quality frontier, close a
-roadmap milestone, or authorize gameplay beyond the boundary.
+goal, or authorize gameplay beyond the boundary.
 
 ## Output
 

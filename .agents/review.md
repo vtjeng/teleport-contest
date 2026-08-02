@@ -46,10 +46,9 @@ command is `NOT READY`: launch no reviewers.
 thresholds. When a threshold changes, update this policy and
 `scripts/quality-status.test.mjs` in the same chunk.
 
-Three events require every outstanding review to be complete before they happen:
-an authorized holdout evaluation, closure of the current milestone named in
-`ROADMAP.md`, and publishing a result outside this repository. This file calls
-those three events **review deadlines**.
+Two events require every outstanding review to be complete before they
+happen: an authorized holdout evaluation and publishing a result outside
+this repository. This file calls those two events **review deadlines**.
 
 Generated outputs declared in `QUALITY.json` do not count toward changed-line
 thresholds. Their generators do count, and a commit touching a generator or
@@ -132,7 +131,7 @@ the pass due immediately.
 Before recording a correctness pass, state whether the full-pass trigger, each
 optional finder trigger, and each separate-pass trigger below applies.
 Omitting an untriggered optional finder or separate pass is compliant and
-creates no debt. Commit counts, line counts, milestones, and prior
+creates no debt. Commit counts, line counts, and prior
 correctness passes do not trigger an optional finder or separate pass by
 themselves.
 

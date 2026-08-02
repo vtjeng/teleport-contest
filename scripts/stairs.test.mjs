@@ -182,7 +182,7 @@ test('stairs_description reproduces each stairs.c sentence', async () => {
 test('dfeature_at names the features invent.c reads from a square',
     async () => {
     const state = await startedGame();
-    // The hero starts on the upstairs, the one feature this milestone reaches.
+    // The hero starts on the upstairs, the one feature the port reaches.
     assert.equal(
         dfeature_at(state.u.ux, state.u.uy, state),
         'staircase up out of the dungeon',

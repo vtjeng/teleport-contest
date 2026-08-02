@@ -746,7 +746,7 @@ function unboundCommandKey(key, command, model) {
         : !isDigit(key);
 }
 
-// ADMITTED_COMMANDS above lists what this milestone dispatches; a one-square
+// ADMITTED_COMMANDS above lists what the port dispatches; a one-square
 // walk and a byte bound to no command join them here. Classify that first
 // logical byte before get_count() can consume a prefix byte or expose
 // transient count output.
@@ -1115,7 +1115,7 @@ async function can_do_extcmd(entry, state) {
 
 // C ref: cmd.c doextcmd(). The do/while loop repeats only while the command
 // reached is doextlist (#?), which stays unported, so one pass covers every
-// dispatch this milestone can make.
+// dispatch the port can make.
 async function doextcmd(key, state) {
     const idx = await tty_get_ext_cmd(state);
     if (idx < 0) return ECMD_OK; /* quit */
@@ -1171,7 +1171,7 @@ async function doextcmd(key, state) {
     }
 }
 
-// C ref: cmd.c rhack(). Only the source handlers owned by this milestone are
+// C ref: cmd.c rhack(). Only the source handlers the port owns are
 // dispatched here. A fresh excluded physical byte stops retryably before
 // parsing or an unknown-command diagnostic. A supplied nonzero key (normally
 // cmdKey during a repeat) is already logical input and retains the diagnostic
@@ -1356,7 +1356,7 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command !== null) {
-            // A bound command whose handler this milestone excludes. The
+            // A bound command whose handler the port excludes. The
             // fresh-read seam above rejects it before parsing; reaching here
             // means a repeat supplied it as logical input.
             resetCommandVars(state);

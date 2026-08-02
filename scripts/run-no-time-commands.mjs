@@ -103,7 +103,7 @@ export function loadNoTimeCommandsRecipe() {
                     options: 'pettype:none,!acoustics',
                 }),
                 // A doorless doorway, the other dfeature_at() branch this
-                // milestone reaches, looked at twice so the repeated message
+                // port reaches, looked at twice so the repeated message
                 // is covered too.
                 moves: 'h::',
             },

@@ -245,7 +245,7 @@ const CLASS_NAMES = Object.freeze([
 
 // C ref: invent.c let_to_name(). Covers the object-class headings the
 // inventory menu asks for. The CONTAINED_SYM heading and the unpaid prefix
-// belong to callers this milestone does not reach.
+// belong to callers the port does not reach.
 export function let_to_name(letter, unpaid, showsym) {
     // C's parameter is named `let`, which JavaScript reserves.
     if (unpaid) throw new UnsupportedFeatureDescriptionError('unpaid headings');
@@ -577,7 +577,7 @@ export async function display_pickinv(
     // C's n counts 0, 1, or "more than 1"; with no letter subset it then adds
     // one, so the single-item message-line shortcut cannot apply here.
     // C answers "Not carrying anything." here. Every starting character
-    // carries items, and nothing this milestone runs can empty the pack.
+    // carries items, and nothing the port runs can empty the pack.
     if (!state.invent)
         throw new UnsupportedFeatureDescriptionError('an empty inventory');
 
@@ -678,7 +678,7 @@ function activeStoneResistance(state) {
 // description. Blindness is not excluded; it selects the tactile wording and
 // is this function's whole return value, because C returns ECMD_TIME for a
 // blind look and ECMD_OK otherwise. The branches left out each stop, because
-// they belong to subsystems this milestone excludes: being swallowed, a
+// they belong to subsystems the port excludes: being swallowed, a
 // visible region or seen trap, a drifting level, a pile large enough for the
 // menu, and a corpse that will_feel_cockatrice() says the hero would feel.
 //

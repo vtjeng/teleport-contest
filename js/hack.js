@@ -503,7 +503,7 @@ export async function losehp(n, knam, k_format, state = game) {
         state.u.uhpmax = state.u.uhp; /* perhaps n was negative */
     if (state.u.uhp < 1) {
         // svk.killer, urgent_pline("You die...") and done(DIED) own the whole
-        // end of game, which no part of this milestone covers. knam and
+        // end of game, which no part of the port yet covers. knam and
         // k_format are consumed here and nowhere else, so a surviving hero
         // never observes them.
         throw new UnsupportedHitPointLossError(
@@ -1354,7 +1354,7 @@ export function runStopsBeforeMonster(monster, run, state) {
 }
 
 // C ref: hack.c domove(). This remains the narrow ordinary-floor subset; the
-// movement milestone will replace its collision and terrain branches in source
+// movement goal will replace its collision and terrain branches in source
 // order without changing the command intent established by cmd.c. It requires
 // established u.dx/u.dy and context.move = 1. Success updates the position and
 // leaves that turn flag untouched; a blocked step sets it to 0 and cancels

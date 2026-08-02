@@ -12,7 +12,7 @@ means the row states no such figure; it does not mean zero.
 | --- | --- |
 | `utc` | The date, or date and time, recorded for the snapshot, as written. |
 | `sha` | The commit the figures were measured at, full or abbreviated as recorded. |
-| `event` | What prompted the snapshot: `slice` (behavior slice closure), `window` (review window closure), `goal` (goal or milestone closure), `holdout` (standalone holdout evaluation), `publish` (published leaderboard result), `candidate` (validated handoff for an open slice). Where triggers coincide, the row records the most significant one. |
+| `event` | What prompted the snapshot: `slice` (behavior slice closure), `window` (review window closure), `goal` (goal closure), `holdout` (standalone holdout evaluation), `publish` (published leaderboard result), `candidate` (validated handoff for an open slice). Where triggers coincide, the row records the most significant one. |
 | `sessions_passed`, `sessions_total` | Development sessions matching completely, out of the development set. |
 | `screens_matched`, `screens_total` | Development screens matched, out of the screens the C reference recorded. |
 | `rng_matched`, `rng_total` | Development random-number values matched, out of those recorded. `frozen/ps_test_runner.mjs` compares the two logs position by position over their whole length, so a segment that stops early scores its next segment's startup calls against C's continuing log, and this count can fall while correctness rises. |

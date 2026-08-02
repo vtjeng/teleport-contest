@@ -11,12 +11,12 @@ and record one.
 
 ## Terms
 
-Work is nested in four levels. A **coherent implementation chunk** is part of
-a **behavior slice**; slices make up a **goal**; goals make up a **milestone**.
-A slice is the unit of evidence, a goal is the unit of review, and a milestone
-labels the system a goal belongs to.
+Work is nested in three levels. A **coherent implementation chunk** is part
+of a **behavior slice**; slices make up a **goal**. A slice is the unit of
+evidence and a goal is the unit of review. `ROADMAP.md` describes the group
+of game systems the current goals belong to.
 
-A slice, a goal, or a milestone is **in progress** from the moment work starts
+A slice or a goal is **in progress** from the moment work starts
 on it until it **closes**. Work written down but not begun is **queued**.
 Closing takes more than stopping: a slice closes on the evidence stated below,
 and a goal closes when its last slice does.
@@ -32,14 +32,12 @@ boundary. The real consumer is the production game path that consumes the new
 behavior; `.agents/validation.md`, "Fresh differentials", states how to run a
 fresh differential. A slice is the unit of evidence.
 
-A **goal** is one coherent unit of behavior inside the current milestone. It may
+A **goal** is one coherent unit of behavior. It may
 hold several ordered behavior slices. When a slice meets the conditions in
 "Implementation checklist", `.agents/implementation-checklist.json` carries the
 goal's state between sessions. A goal is the unit of review: when its last
 slice closes, a full correctness pass covers it.
 
-A **milestone** is a group of related game systems: exploration, combat and
-creatures, item interaction, and so on. It labels the system a goal belongs to.
 `scripts/scan-debt.mjs` selects each goal from every owner the development
 sessions need; `.agents/selection.md` states how to run it.
 

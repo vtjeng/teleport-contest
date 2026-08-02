@@ -13,8 +13,8 @@ every valid seed, date and time, set of options, and input sequence.
   output produced after these changes are applied.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
   goal in progress and the goals queued after it, read with
-  `node scripts/goal-log.mjs --current`; `ROADMAP.md` describes the
-  milestone in progress.
+  `node scripts/goal-log.mjs --current`; `ROADMAP.md` describes the group
+  of game systems the current goals belong to.
 
 ## Recorded test sessions
 
@@ -29,7 +29,7 @@ the correct behavior from the C source and patches before changing the
 JavaScript port.
 
 `sessions/holdout/` contains a fixed set of holdout evaluation sessions. Their
-contents remain hidden during development. At approved milestones, their
+contents remain hidden during development. At approved evaluation points, their
 combined results show whether progress on the development sessions carries
 over to previously unseen sessions.
 

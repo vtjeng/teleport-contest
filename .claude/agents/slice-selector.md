@@ -16,11 +16,10 @@ Proposing a new goal is out of scope: when no goal is in progress,
 1. Run `node scripts/scan-stops.mjs`.
 2. Read `.agents/selection.md` for the selection rules: how to read the census,
    the output of `node scripts/scan-stops.mjs` that reports where each
-   development session first stops; how to choose a goal inside the open
-   milestone; and how to judge a goal's size. Read `.agents/workflow.md` for
-   the evidence that closes a behavior slice, and identify only a slice that
-   can produce that evidence.
-3. Read `ROADMAP.md` for the milestone in progress, and run
+   development session first stops; how to choose a goal; and how to judge a
+   goal's size. Read `.agents/workflow.md` for the evidence that closes a
+   behavior slice, and identify only a slice that can produce that evidence.
+3. Read `ROADMAP.md` for the systems the current goals belong to, and run
    `node scripts/goal-log.mjs --current` for the goal in progress, its queued
    slices, and the traced source findings in its `detail` field.
 4. Read the C source the slice would port, far enough to confirm it closes as
