@@ -943,7 +943,7 @@ function printStatus(config, head, status, verbose) {
   }
   // The open backlog prints on every run so deferred findings stay visible;
   // .agents/loop.md disposes of them at goal close and .agents/selection.md
-  // makes a five-entry area a selectable sweep goal.
+  // requires one entry resolved once an area reaches ten.
   const openEntries = openDeferrals(config.deferred);
   const homeless = openEntries.filter((entry) => !entry.area).length;
   console.log(`Open deferrals: ${openEntries.length}`
@@ -1202,10 +1202,14 @@ export function openDeferrals(deferred, { area = null, status = 'open' } = {}) {
     && (!area || entry.area === area));
 }
 
-export function sweepCandidates(deferred, threshold = 5) {
+// A scope entry names unported territory a boundary goal attacks, so counting
+// it here would schedule the rest of the port as sweeps. Only debt a sweep can
+// resolve counts toward the ten .agents/selection.md holds every area under.
+export function sweepCandidates(deferred, threshold = 10) {
   const counts = new Map();
   for (const entry of deferred) {
     if (entry.status !== 'open' || !entry.area) continue;
+    if (entry.category === 'scope') continue;
     counts.set(entry.area, (counts.get(entry.area) ?? 0) + 1);
   }
   return [...counts.entries()].filter(([, count]) => count >= threshold);

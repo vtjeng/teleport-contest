@@ -852,6 +852,34 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
     assert.deepEqual(sweepCandidates(ledger, 3), []);
 });
 
+test('a scope deferral never counts toward a sweep candidate', () => {
+    // A scope entry names unported territory a boundary goal attacks, not
+    // deferred debt a sweep resolves, so counting it would schedule the rest of
+    // the port as sweeps. The threshold of 2 must see the production and tests
+    // entries and ignore the scope one.
+    const ledger = [
+        { id: 'A', area: 'monsters', status: 'open', category: 'production' },
+        { id: 'B', area: 'monsters', status: 'open', category: 'tests' },
+        { id: 'C', area: 'monsters', status: 'open', category: 'scope' },
+    ];
+    assert.deepEqual(sweepCandidates(ledger, 2), [['monsters', 2]]);
+    assert.deepEqual(sweepCandidates(ledger, 3), []);
+});
+
+test('the sweep threshold defaults to ten', () => {
+    // "Keep every area under ten" in .agents/selection.md requires one entry
+    // resolved once an area reaches ten, so nine must stay silent and ten must
+    // report.
+    const entries = (count) => Array.from({ length: count }, (unused, index) => ({
+        id: `E${index}`,
+        area: 'commands',
+        status: 'open',
+        category: 'production',
+    }));
+    assert.deepEqual(sweepCandidates(entries(9)), []);
+    assert.deepEqual(sweepCandidates(entries(10)), [['commands', 10]]);
+});
+
 test('the recorder renders the counts sentence from the metrics', () => {
     // Counts from the 2026-08-01 pet-goal closing pass, whose hand-written
     // evidence duplicated exactly these values; the mutation clause appends
