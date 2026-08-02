@@ -9,6 +9,7 @@ import {
     describeDrops,
     readBaseline,
 } from './score-baseline.mjs';
+import { appendRow } from './score-log.mjs';
 
 const GENERATED_CHECKS = [
     'check:extcmds',
@@ -21,6 +22,7 @@ const GENERATED_CHECKS = [
 
 export function checkpointCommands(focusedTests = [], {
     includeScore = true,
+    logScore = false,
 } = {}) {
     const commands = [];
     if (focusedTests.length) {
@@ -85,10 +87,15 @@ export function checkpointCommands(focusedTests = [], {
             command: process.execPath,
             args: ['scripts/score-development.mjs'],
             capture: true,
-            summarize: ({ stdout }) => ({
-                body: summarizeDevelopmentScore(stdout),
-                ...compareScoreToBaseline(stdout),
-            }),
+            summarize: (result) => {
+                // Opt-in so a test that invokes this summarize with fixture
+                // stdout appends nothing to SCORE.tsv; only main() logs.
+                if (logScore) logCheckpointScore(result);
+                return {
+                    body: summarizeDevelopmentScore(result.stdout),
+                    ...compareScoreToBaseline(result.stdout),
+                };
+            },
         });
     }
     return commands;
@@ -127,9 +134,11 @@ export function runCheckpointChecks(commands, {
         summarize = null,
     } of commands) {
         output(`\n== ${label} ==`);
+        const startedAt = Date.now();
         const result = run(command, args, capture
             ? { encoding: 'utf8' }
             : { stdio: 'inherit' });
+        result.durationMs = Date.now() - startedAt;
         const summary = summarize ? summarize(result) : {};
         if (summary.body) output(summary.body);
         if (capture && result.stderr && result.status !== 0)
@@ -214,10 +223,10 @@ export function compareScoreToBaseline(stdout) {
     return { passed: false, detail: describeDrops(comparison) };
 }
 
-export function summarizeDevelopmentScore(stdout) {
+export function developmentTotals(stdout) {
     const marker = '__RESULTS_JSON__';
     const markerIndex = stdout.lastIndexOf(marker);
-    if (markerIndex < 0) return stdout.trimEnd();
+    if (markerIndex < 0) return null;
     const jsonLine = stdout.slice(markerIndex + marker.length)
         .trimStart()
         .split(/\r?\n/u, 1)[0];
@@ -231,6 +240,7 @@ export function summarizeDevelopmentScore(stdout) {
         screensTotal: 0,
         cursorsMatched: 0,
         cursorsTotal: 0,
+        speedLabel: report.speed.label,
     };
     for (const { metrics } of report.results) {
         totals.rngMatched += metrics.rngCalls.matched;
@@ -240,20 +250,64 @@ export function summarizeDevelopmentScore(stdout) {
         totals.cursorsMatched += metrics.cursors.matched;
         totals.cursorsTotal += metrics.cursors.total;
     }
+    return totals;
+}
+
+export function summarizeDevelopmentScore(stdout) {
+    const totals = developmentTotals(stdout);
+    if (!totals) return stdout.trimEnd();
     return [
         `${totals.passing}/${totals.sessions} sessions fully matched`,
         `RNG ${totals.rngMatched}/${totals.rngTotal}`,
         `screens ${totals.screensMatched}/${totals.screensTotal}`,
         `cursors ${totals.cursorsMatched}/${totals.cursorsTotal}`,
-        `speed ${report.speed.label}`,
+        `speed ${totals.speedLabel}`,
     ].join('; ');
+}
+
+/**
+ * Append this scoring run to SCORE.tsv as a `checkpoint` row.
+ *
+ * The row is telemetry: a failure to write it never changes the checkpoint's
+ * verdict, which compareScoreToBaseline() alone decides. The sha column names
+ * HEAD, so when the tree holds uncommitted work the note says `tree dirty`
+ * and the figures describe that tree, and HEAD alone, only once it is clean.
+ */
+export function logCheckpointScore({ stdout = '', durationMs = 0 }, {
+    append = appendRow,
+    run = spawnSync,
+} = {}) {
+    try {
+        const totals = developmentTotals(stdout);
+        if (!totals) return;
+        const sha = run('git', ['rev-parse', 'HEAD'],
+            { encoding: 'utf8' }).stdout.trim();
+        const dirty = run('git', ['status', '--porcelain'],
+            { encoding: 'utf8' }).stdout.trim() !== '';
+        append({
+            sha,
+            event: 'checkpoint',
+            sessions_passed: String(totals.passing),
+            sessions_total: String(totals.sessions),
+            screens_matched: String(totals.screensMatched),
+            screens_total: String(totals.screensTotal),
+            rng_matched: String(totals.rngMatched),
+            rng_total: String(totals.rngTotal),
+            cursors_matched: String(totals.cursorsMatched),
+            cursors_total: String(totals.cursorsTotal),
+            wall_s: String(Math.round(durationMs / 1000)),
+            note: dirty ? 'tree dirty' : '',
+        });
+    } catch {
+        // Telemetry only; the checkpoint's verdict stands without the row.
+    }
 }
 
 function main(args) {
     const options = parseCheckpointArgs(args);
     const commands = checkpointCommands(
         options.focusedTests,
-        options,
+        { ...options, logScore: true },
     );
     if (!runCheckpointChecks(commands)) process.exitCode = 1;
 }

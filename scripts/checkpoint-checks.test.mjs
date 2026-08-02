@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 import {
     checkpointCommands,
+    logCheckpointScore,
     parseCheckpointArgs,
     runCheckpointChecks,
     summarizeDevelopmentScore,
@@ -241,6 +242,68 @@ test('development score summary keeps the checkpoint aggregates', () => {
         '1/2 sessions fully matched; RNG 15/30; screens 3/6; '
             + 'cursors 4/6; speed 80+0.10/turn',
     );
+});
+
+test('a scoring run appends one checkpoint row and survives a bad log', () => {
+    // The same scorer fixture as the summary test above: two sessions, one
+    // passing, aggregating to RNG 15/30, screens 3/6, cursors 4/6.
+    const stdout = [
+        'human-readable scorer output',
+        '__RESULTS_JSON__',
+        JSON.stringify({
+            speed: { label: '80+0.10/turn' },
+            results: [
+                {
+                    passed: true,
+                    metrics: {
+                        rngCalls: { matched: 10, total: 10 },
+                        screens: { matched: 2, total: 2 },
+                        cursors: { matched: 2, total: 2 },
+                    },
+                },
+                {
+                    passed: false,
+                    metrics: {
+                        rngCalls: { matched: 5, total: 20 },
+                        screens: { matched: 1, total: 4 },
+                        cursors: { matched: 2, total: 4 },
+                    },
+                },
+            ],
+        }),
+    ].join('\n');
+    const appended = [];
+    // rev-parse answers with a sha; status --porcelain answers with one
+    // modified file, so the row must carry the `tree dirty` note.
+    const fakeRun = (command, args) => ({
+        stdout: args[0] === 'rev-parse' ? 'abc123\n' : ' M js/dogmove.js\n',
+    });
+    logCheckpointScore({ stdout, durationMs: 104_499 }, {
+        append: (fields) => appended.push(fields),
+        run: fakeRun,
+    });
+    assert.equal(appended.length, 1);
+    assert.equal(appended[0].sha, 'abc123');
+    assert.equal(appended[0].event, 'checkpoint');
+    assert.equal(appended[0].sessions_passed, '1');
+    assert.equal(appended[0].screens_matched, '3');
+    assert.equal(appended[0].screens_total, '6');
+    assert.equal(appended[0].rng_matched, '15');
+    assert.equal(appended[0].note, 'tree dirty');
+    // wall_s holds whole seconds: 104,499 ms rounds to 104.
+    assert.equal(appended[0].wall_s, '104');
+
+    // No __RESULTS_JSON__ marker means the scorer crashed; nothing appends.
+    logCheckpointScore({ stdout: 'no marker here', durationMs: 5 }, {
+        append: () => { throw new Error('must not be called'); },
+        run: fakeRun,
+    });
+
+    // The row is telemetry: an appender that throws must not propagate.
+    logCheckpointScore({ stdout, durationMs: 5 }, {
+        append: () => { throw new Error('disk full'); },
+        run: fakeRun,
+    });
 });
 
 test('checkpoint parser rejects missing or unknown options', () => {

@@ -133,32 +133,24 @@ Report current published aggregate results when available. Otherwise
 estimate from development and fresh-differential evidence and state the
 uncertainty. Never run the sealed holdout merely to produce an estimate.
 
-Collect routine chunk evidence without appending a `SCORE.md` row. Preserve one
-permanent evidence snapshot when:
+`SCORE.tsv` is the score record: one append-only, tab-separated row per event,
+with the columns `SCORE.md` documents. `npm run checkpoint` appends a
+`checkpoint` row after each scoring run. Append a `slice`, `window`, `goal`,
+`holdout`, or `publish` row with `node scripts/score-log.mjs --append
+column=value ...` when that event completes, and an optional `candidate` row
+for a validated handoff on an open slice. A later row supersedes an earlier
+one by position, so no row is rewritten. Combine coincident events into one
+row recording the most significant one. The `note` column holds at most 15
+words: a prediction, an anomaly, or nothing. Fill the four holdout columns
+only on a row whose own event ran an authorized evaluation; an empty cell
+means no new holdout evidence. Longer evidence lives in the commit message of
+the SHA the row names, and review metrics stay in `QUALITY.json`. `SCORE.md`
+explains the columns and states the current standing; it holds no per-event
+prose.
 
-- a behavior slice closes;
-- a review window completes its required review, fixes, and validation;
-- the estimate changes; or
-- a result is published.
-
-Each snapshot records four values: the exact integrated code state at one full
-commit SHA, the estimate, evidence, and uncertainty. Formal review ranges
-remain in `QUALITY.json` and retained pass reports. Combine coincident
-triggers into one row per SHA.
-
-One optional `SCORE.md` row may be a mutable `current candidate` for an open
-behavior slice or review window after a selected handoff commit has complete
-validation. Replace it only after a later selected handoff is validated; do
-not update it merely because the code head advanced. If that same SHA later
-meets a permanent snapshot trigger, relabel the row with that trigger.
-Otherwise delete the candidate when a later permanent snapshot supersedes it.
-Evidence-only commits do not receive snapshots.
-
-Recorded correctness and simplification frontiers and metrics remain in
-`QUALITY.json`; complete reports not yet represented there remain with their
-related durable review evidence. Required clarity and copyedit reports remain
-with their related durable review or publication evidence. A score snapshot
-may reference these sources but does not replace them.
+Read the log with `node scripts/score-log.mjs --latest [event]`, `--standing`,
+or `--since <sha>`; `--standing` carries the last stated holdout figure
+forward. Do not answer a score question by scanning `SCORE.tsv` itself.
 
 Prefer source-faithful subsystem improvements to isolated score gains. If an
 authorized aggregate holdout evaluation shows that development results did not
