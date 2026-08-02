@@ -2368,7 +2368,7 @@ function _statusLine2Configuration() {
         shortLevel = true;
         status = build();
     }
-    return { capacityPadding, conditionLevel, shortLevel, status };
+    return { capacityPadding, conditionLevel, shortLevel };
 }
 
 function _statusLine3VitalsBase(u) {
@@ -2394,7 +2394,7 @@ function _statusLine3DetailsConfiguration() {
     }
     if (nominalLength() > TTY_STATUS_WIDTH) shortLevel = true;
 
-    return { conditionLevel, conditions, optional, shortLevel, time, version };
+    return { conditionLevel, shortLevel, time, version };
 }
 
 function _newStatusRow() {
@@ -2469,15 +2469,6 @@ function _writeCapturedHighlight(row, start, text, owner) {
     return column;
 }
 
-function _writeSeparatedFields(row, start, entries) {
-    let column = start;
-    for (const { field, text } of entries) {
-        column = row.write(column, ' ');
-        column = row.write(column, text, _fieldOwner(field));
-    }
-    return column;
-}
-
 function _writeConditions(row, start, entries) {
     let column = start;
     for (const { option, text } of entries) {
@@ -2487,28 +2478,142 @@ function _writeConditions(row, start, entries) {
     return column;
 }
 
-function _writeVitals(row, start, u) {
-    let column = start;
-    column = row.write(column, `$:${money_cnt(game.invent)}`, _fieldOwner('gold'));
-    column = row.write(column, ' ');
-    column = row.write(column, `HP:${u.uhp || 0}`, _fieldOwner('hitpoints'));
-    column = row.write(column, `(${u.uhpmax || 0})`, _fieldOwner('hitpoints-max'));
-    column = row.write(column, ' ');
-    column = row.write(column, `Pw:${u.uen || 0}`, _fieldOwner('power'));
-    column = row.write(column, `(${u.uenmax || 0})`, _fieldOwner('power-max'));
-    column = row.write(column, ' ');
-    column = row.write(column, `AC:${u.uac ?? 10}`, _fieldOwner('armor-class'));
-    column = row.write(column, ' ');
-    column = row.write(
-        column,
-        `Xp:${u.ulevel || 1}`,
-        _fieldOwner('experience-level'),
-    );
+// One entry of the ordered list a status row is laid out from. `text` is the
+// status_vals[] string the core last handed the window port and `owner` is the
+// highlight owner _statusStyleRows() reads back off the rendered row. C ref:
+// wintty.c check_fields(), which walks fieldorder[] in this order and gives
+// each field the column the running total of the fields before it reaches.
+//
+// C's leading blanks and BL_EXP's '/' are separate entries here because
+// render_status() writes them outside the field's own color and attribute.
+function _statusField(text, owner = null) {
+    return { owner, text };
+}
+
+// C ref: wintty.c set_condition_length(). BL_CONDITION carries no
+// status_vals[] string; its length is one space plus one word per set bit, and
+// render_status() writes the words itself so each can take its own color.
+// `indent` marks the last row of a three-row status line, the only row whose
+// conditions C lines up with a column on the row above.
+function _conditionStatusField(entries, indent) {
+    return {
+        entries,
+        indent,
+        kind: 'condition',
+        text: entries.map(({ text }) => ` ${text}`).join(''),
+    };
+}
+
+// C ref: wintty.c tty_status_update()'s default arm under
+// status_fieldfmt[BL_VERS], " %s". render_status() right justifies the field
+// when it ends its row and writes that leading space unhighlighted.
+function _versionStatusField(version) {
+    return { kind: 'version', text: ` ${version}`, version };
+}
+
+function _optionalStatusFieldList() {
+    return _optionalStatusEntries().flatMap(({ field, text }) => [
+        _statusField(' '),
+        _statusField(text, _fieldOwner(field)),
+    ]);
+}
+
+function _vitalStatusFields(u) {
+    const fields = [
+        _statusField(`$:${money_cnt(game.invent)}`, _fieldOwner('gold')),
+        _statusField(' '),
+        _statusField(`HP:${u.uhp || 0}`, _fieldOwner('hitpoints')),
+        _statusField(`(${u.uhpmax || 0})`, _fieldOwner('hitpoints-max')),
+        _statusField(' '),
+        _statusField(`Pw:${u.uen || 0}`, _fieldOwner('power')),
+        _statusField(`(${u.uenmax || 0})`, _fieldOwner('power-max')),
+        _statusField(' '),
+        _statusField(`AC:${u.uac ?? 10}`, _fieldOwner('armor-class')),
+        _statusField(' '),
+        _statusField(`Xp:${u.ulevel || 1}`, _fieldOwner('experience-level')),
+    ];
     if (game.flags?.showexp) {
-        column = row.write(column, '/');
-        column = row.write(column, `${u.uexp || 0}`, _fieldOwner('experience'));
+        fields.push(
+            _statusField('/'),
+            _statusField(`${u.uexp || 0}`, _fieldOwner('experience')),
+        );
+    }
+    return fields;
+}
+
+function _writeStatusFields(row, start, fields) {
+    let column = start;
+    for (const { owner, text } of fields) {
+        column = row.write(column, text, owner);
     }
     return column;
+}
+
+// C ref: wintty.c render_status() (5036-5062). Line the conditions up with
+// BL_HUNGER on the row above; where that leaves too little room, right justify
+// them; where even that does not fit, leave them at the column check_fields()
+// gave them. `hungerX` is tty_status[BEFORE][BL_HUNGER].x and `nominal` is the
+// zero-based form of that column.
+//
+// C's last_col equals cw->cols here. It drops BL_VERS's width only when
+// fieldorder[row][i + 1] is BL_VERS, and threelineorder[]'s entry after
+// BL_CONDITION is BL_WEAPON.
+function _conditionIndent(nominal, length, hungerX) {
+    const x = nominal + 1; // tty columns are one-based
+    const lastColumn = TTY_STATUS_WIDTH + 1; // cw->cols
+    if (hungerX !== null && x < hungerX
+        && hungerX + length < lastColumn - 1) return hungerX - 1;
+    if (x + length < TTY_STATUS_WIDTH) return lastColumn - length - 1;
+    return nominal;
+}
+
+// C ref: wintty.c render_status() (5185-5210). BL_VERS pads with spaces from
+// its nominal column to vstart = cw->cols - lth and draws there. The padding
+// erases whatever stands between, which on a three-row status line is the
+// indented BL_CONDITION; wintty.c:5194-5196 records that as a FIXME.
+function _writeVersion(row, nominal, field) {
+    const start = Math.max(nominal, TTY_STATUS_WIDTH - field.text.length);
+    row.clear(nominal, start);
+    row.write(start, ' ');
+    row.write(start + 1, field.version, _fieldOwner('version'));
+}
+
+// C ref: wintty.c check_fields() (4647-4737) and render_status() (4991-5262).
+// check_fields() assigns every field the column the running total of the
+// fields before it reaches, and render_status() draws them there, moving only
+// the two whose column does not follow from that total. Both moved fields
+// leave the running total alone, so what follows a displaced BL_CONDITION
+// resumes at its nominal column.
+//
+// Returns the unfinished row alongside the columns the caller may need to
+// redraw a field over, which is what _statusLine3DetailsLayout()'s second
+// initial pass does.
+function _renderStatusFields(fields, hungerX = null) {
+    const row = _newStatusRow();
+    const geometry = {
+        conditionNominal: null,
+        conditionStart: null,
+        versionNominal: null,
+    };
+    let nominal = 0;
+    for (const field of fields) {
+        if (field.kind === 'condition') {
+            geometry.conditionNominal = nominal;
+            if (field.entries.length) {
+                geometry.conditionStart = field.indent
+                    ? _conditionIndent(nominal, field.text.length, hungerX)
+                    : nominal;
+                _writeConditions(row, geometry.conditionStart, field.entries);
+            }
+        } else if (field.kind === 'version') {
+            geometry.versionNominal = nominal;
+            _writeVersion(row, nominal, field);
+        } else {
+            row.write(nominal, field.text, field.owner);
+        }
+        nominal += field.text.length;
+    }
+    return { geometry, row };
 }
 
 function _statusLine1Layout(includeAlignment = true) {
@@ -2567,44 +2672,52 @@ function _statusLine1Layout(includeAlignment = true) {
     return row.finish();
 }
 
-function _statusLine2Layout() {
+// The fields wintty.c twolineorder[]'s second row holds, in its order.
+function _statusLine2Fields() {
     const u = game.u;
+    // _statusLine2Configuration() answers null for exactly the missing hero
+    // this function has no row to draw for.
     const configuration = _statusLine2Configuration();
-    if (!u || !configuration) return { text: '', owners: [] };
-    const { capacityPadding, conditionLevel, shortLevel, status } = configuration;
-    const row = _newStatusRow();
-    let column = row.write(
-        0,
-        _statusLevelDescription(u, shortLevel),
-        _fieldOwner('dungeon-level'),
-    );
-    column = row.write(column, ' ');
-    column = _writeVitals(row, column, u);
+    if (!configuration) return null;
+    const { capacityPadding, conditionLevel, shortLevel } = configuration;
+    const fields = [
+        _statusField(
+            _statusLevelDescription(u, shortLevel),
+            _fieldOwner('dungeon-level'),
+        ),
+        _statusField(' '),
+        ..._vitalStatusFields(u),
+    ];
     if (game.flags?.time) {
-        column = row.write(column, ' ');
-        column = row.write(column, _statusTimeText(), _fieldOwner('time'));
+        fields.push(
+            _statusField(' '),
+            _statusField(_statusTimeText(), _fieldOwner('time')),
+        );
     }
     const hunger = _statusFieldData('hunger').text;
     if (hunger) {
-        column = row.write(column, ' ');
-        column = row.write(column, hunger, _fieldOwner('hunger'));
-    }
-    if (capacityPadding) column = row.write(column, capacityPadding);
-    column = _writeConditions(
-        row,
-        column,
-        _statusConditionEntries(u, conditionLevel),
-    );
-    column = _writeSeparatedFields(row, column, _optionalStatusEntries());
-    if (game.flags?.showvers) {
-        const version = status_version(game.flags);
-        const start = Math.max(
-            status.length + 1,
-            TTY_STATUS_WIDTH - version.length,
+        fields.push(
+            _statusField(' '),
+            _statusField(hunger, _fieldOwner('hunger')),
         );
-        row.write(start, version, _fieldOwner('version'));
     }
-    return row.finish();
+    if (capacityPadding) fields.push(_statusField(capacityPadding));
+    fields.push(_conditionStatusField(
+        _statusConditionEntries(u, conditionLevel),
+        false,
+    ));
+    fields.push(..._optionalStatusFieldList());
+    if (game.flags?.showvers) {
+        fields.push(_versionStatusField(status_version(game.flags)));
+    }
+    return fields;
+}
+
+function _statusLine2Layout() {
+    const fields = _statusLine2Fields();
+    if (!fields) return { text: '', owners: [] };
+    const { row } = _renderStatusFields(fields);
+    return { ...row.finish(), fields };
 }
 
 function _statusLine3VitalsLayout() {
@@ -2617,7 +2730,7 @@ function _statusLine3VitalsLayout() {
         _fieldOwner('alignment'),
     );
     column = row.write(column, ' ');
-    column = _writeVitals(row, column, u);
+    column = _writeStatusFields(row, column, _vitalStatusFields(u));
     const hunger = _statusFieldData('hunger').text;
     if (hunger) {
         column = row.write(column, ' ');
@@ -2626,92 +2739,64 @@ function _statusLine3VitalsLayout() {
     return row.finish();
 }
 
-function _statusLine3DetailsLayout({ initialTtyRefresh = false } = {}) {
+// The fields wintty.c threelineorder[]'s third row holds, in its order, with
+// the column a three-row BL_CONDITION indents toward.
+function _statusLine3DetailsFields() {
     const u = game.u;
+    // As in _statusLine2Fields(): a null configuration is a missing hero.
     const configuration = _statusLine3DetailsConfiguration();
-    if (!u || !configuration) return { text: '', owners: [] };
-    const {
-        conditionLevel,
-        conditions,
-        optional,
-        shortLevel,
-        time,
-        version,
-    } = configuration;
-    const row = _newStatusRow();
-    let column = row.write(
-        0,
-        _statusLevelDescription(u, shortLevel),
-        _fieldOwner('dungeon-level'),
-    );
+    if (!configuration) return null;
+    const { conditionLevel, shortLevel, time, version } = configuration;
+    const fields = [
+        _statusField(
+            _statusLevelDescription(u, shortLevel),
+            _fieldOwner('dungeon-level'),
+        ),
+    ];
     if (time) {
-        column = row.write(column, ' ');
-        column = row.write(
-            column,
-            time.slice(1),
-            _fieldOwner('time'),
+        fields.push(
+            _statusField(' '),
+            _statusField(time.slice(1), _fieldOwner('time')),
         );
     }
+    fields.push(_conditionStatusField(
+        _statusConditionEntries(u, conditionLevel),
+        true,
+    ));
+    fields.push(..._optionalStatusFieldList());
+    if (version) fields.push(_versionStatusField(version));
+    return {
+        fields,
+        // C ref: wintty.c render_status():5054-5057, tty_status[BEFORE]
+        // [BL_HUNGER].x. BL_HUNGER follows the alignment and the vitals on the
+        // second of three rows, and check_fields() gives it that column
+        // whether or not the hunger word is currently empty.
+        hungerX: _statusLine3VitalsBase(u).length + 1,
+    };
+}
 
-    // C ref: wintty.c render_status(). It computes nominal field positions,
-    // indents BL_CONDITION toward BL_HUNGER, then resumes later fields at
-    // their nominal positions. That can overwrite the indented condition.
-    const conditionNominalStart = column;
-    let nominal = column;
-    let conditionStart = null;
-    if (conditions) {
-        const x = nominal + 1; // tty field positions are one-based.
-        const hungerX = _statusLine3VitalsBase(u).length + 1;
-        let lastColumn = TTY_STATUS_WIDTH + 1;
-        if (!optional && version) lastColumn -= version.length + 1;
-        let conditionX = x;
-        if (x < hungerX
-            && hungerX + conditions.length < lastColumn - 1) {
-            conditionX = hungerX;
-        } else if (x + conditions.length < TTY_STATUS_WIDTH) {
-            conditionX = lastColumn - conditions.length;
-        }
-        conditionStart = conditionX - 1;
-        _writeConditions(row, conditionStart, _statusConditionEntries(
-            u,
-            conditionLevel,
-        ));
-        nominal += conditions.length;
-    }
-    if (optional) {
-        _writeSeparatedFields(row, nominal, _optionalStatusEntries());
-        nominal += optional.length;
-    }
-    if (version) {
-        const field = ` ${version}`;
-        const rightStart = TTY_STATUS_WIDTH - field.length;
-        const start = Math.max(nominal, rightStart);
-        row.clear(nominal, start);
-        row.write(start, ' ');
-        row.write(start + 1, version, _fieldOwner('version'));
-    }
+function _statusLine3DetailsLayout({ initialTtyRefresh }) {
+    const built = _statusLine3DetailsFields();
+    if (!built) return { text: '', owners: [] };
+    const { fields, hungerX } = built;
+    const { geometry, row } = _renderStatusFields(fields, hungerX);
 
-    if (initialTtyRefresh && conditionStart !== null) {
+    if (initialTtyRefresh && geometry.conditionStart !== null) {
         // newgame()'s explicit bot() follows the flush-triggered initial
         // status pass.  On that second tty pass, BL_CONDITION is redrawn:
         // its indent clears unchanged optional fields, then BL_VERS redraws
         // from its nominal position.  This incremental overlap is visible at
         // a More boundary before moveloop's forced status refresh.
-        row.clear(conditionNominalStart, conditionStart);
-        _writeConditions(row, conditionStart, _statusConditionEntries(
-            u,
-            conditionLevel,
-        ));
-        if (version) {
-            const field = ` ${version}`;
-            const rightStart = TTY_STATUS_WIDTH - field.length;
-            const start = Math.max(nominal, rightStart);
-            row.clear(nominal, start);
-            row.write(start, ' ');
-            row.write(start + 1, version, _fieldOwner('version'));
-        }
+        row.clear(geometry.conditionNominal, geometry.conditionStart);
+        _writeConditions(
+            row,
+            geometry.conditionStart,
+            fields.find(({ kind }) => kind === 'condition').entries,
+        );
+        const version = fields.find(({ kind }) => kind === 'version');
+        if (version) _writeVersion(row, geometry.versionNominal, version);
     }
-    return row.finish();
+    return { ...row.finish(), fields, hungerX };
 }
 
 function statusLayouts({ initialTtyRefresh = false } = {}) {
@@ -3303,20 +3388,14 @@ export async function timebot() {
 // C ref: botl.c stat_update_time() (1284-1299). It refreshes blstats[BL_TIME]
 // alone and flushes the status window. Every other field keeps the
 // status_vals[] string the last full status pass left there, so wintty.c
-// check_fields() re-lays the row out from those cached strings with only the
-// time field's own length changed: a field to its right keeps its text and
-// moves by the difference.
+// make_things_fit() and render_status() lay the row out again from those
+// cached strings with only BL_TIME's own length changed.
 //
-// game._renderedStatusLayouts is this port's status_vals[]. bot() stores the
-// rows it rendered there and _buildScreenOutput() draws the screen from them,
-// so rewriting the columns the time field owns, and shifting the rest of that
-// row, is the same re-layout.
-//
-// Two geometry decisions are not redone here, because both read lengths this
-// function does not recompute: make_things_fit()'s condition, encumbrance and
-// Dlvl shrinking, which runs only once a row no longer fits the terminal, and
-// render_status()'s BL_CONDITION indent, which applies only to a three-row
-// status line.
+// game._renderedStatusLayouts is this port's status_vals[]: bot() stores the
+// field list it rendered each row from, and rendering that list again with
+// BL_TIME's entry replaced is the same re-layout. A field that flows keeps its
+// text and moves by the difference; BL_VERS and a three-row BL_CONDITION are
+// placed from the row's width instead and so do not move at all.
 function _stat_update_time() {
     const rendered = game._renderedStatusLayouts;
     // Before the first full status pass there is no cached text to keep.
@@ -3324,40 +3403,57 @@ function _stat_update_time() {
     // first turn that can set disp.time_botl, and C's blstats[] is likewise
     // unpopulated until then.
     const layouts = rendered
-        ? rendered.map((layout) => _replaceTimeField(layout))
+        ? rendered.map((layout) => _refreshTimeField(layout))
         : statusLayouts();
     game._renderedStatusLayouts = layouts;
     writeStatusRows(game?.nhDisplay, layouts);
 }
 
-function _isTimeOwner(owner) {
+export class UnsupportedStatusRefreshError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedStatusRefreshError';
+    }
+}
+
+// C ref: wintty.c make_things_fit() (4583-4636), which runs on every BL_FLUSH,
+// stat_update_time()'s included, and restarts its shrink ladder from the
+// unshrunk strings the core last sent.
+//
+// A turn-counter refresh moves only BL_TIME's length, and the counter only
+// grows, so a row that still fits keeps the rung the full status pass chose: a
+// shorter rung did not fit the narrower counter and cannot fit the wider one.
+// A row that no longer fits needs a rung this port cannot reach from the
+// rendered strings, because shrinking the condition words, the encumbrance
+// word and Dlvl each read the value the core sent rather than the text on the
+// row. C's fit test is rowsz[condrow] - 1 <= cw->cols - 1, which is the sum of
+// the row's field lengths against TTY_STATUS_WIDTH.
+function _refuseUnfittableStatusRow(fields) {
+    const width = fields.reduce((total, { text }) => total + text.length, 0);
+    if (width > TTY_STATUS_WIDTH) {
+        throw new UnsupportedStatusRefreshError(
+            'make_things_fit() shrinking a row on a turn-counter refresh',
+        );
+    }
+}
+
+function _isTimeField({ owner }) {
     return owner?.kind === 'field' && owner.field === 'time';
 }
 
-// One rendered status row with the columns the time field owns replaced by the
-// current turn counter, and everything after them shifted by the difference.
-// A row without a time field is returned unchanged, which is every row when
-// the 'time' option is off.
-function _replaceTimeField(layout) {
-    const start = layout.owners.findIndex(_isTimeOwner);
-    // findIndex() answers -1 for a row that has no time field, and the owners
-    // array holds no entry there, so this reads as "the run starts at a time
-    // field" without a separate sentinel test.
-    if (!_isTimeOwner(layout.owners[start])) return layout;
-    // Reading past the end of the dense owners array yields undefined, which
-    // ends the run on its own.
-    let end = start;
-    while (_isTimeOwner(layout.owners[end])) ++end;
-    const text = _statusTimeText();
-    const owner = layout.owners[start];
-    const replaceRun = (cells, insert) => [
-        ...cells.slice(0, start), ...insert, ...cells.slice(end),
-    ];
-    return {
-        text: replaceRun([...layout.text], [...text]).join(''),
-        owners: replaceRun(
-            layout.owners,
-            Array.from({ length: text.length }, () => owner),
-        ),
-    };
+// One status row laid out again with BL_TIME's cached string replaced by the
+// current turn counter. A row that holds no BL_TIME comes back untouched,
+// which is every row when the 'time' option is off and every row but the last
+// when it is on.
+function _refreshTimeField(layout) {
+    const cached = layout.fields?.find(_isTimeField);
+    if (!cached) return layout;
+    const refreshed = _statusField(_statusTimeText(), _fieldOwner('time'));
+    const fields = layout.fields.map(
+        (field) => (field === cached ? refreshed : field),
+    );
+    _refuseUnfittableStatusRow(fields);
+    const hungerX = layout.hungerX ?? null;
+    const { row } = _renderStatusFields(fields, hungerX);
+    return { ...row.finish(), fields, hungerX };
 }

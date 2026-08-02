@@ -1985,6 +1985,20 @@ test('the status-refresh matrix covers all three arms of the gate', () => {
         runs.some(({ nethackrc }) => !nethackrc.includes('runmode:')),
         'a run uses the default RUN_LEAP cadence',
     );
+    // The counter's own width changes only after ten turns, and wintty.c
+    // render_status() places BL_VERS and a three-row BL_CONDITION from the
+    // row's width rather than from the counter's, so both need a segment that
+    // runs that far.
+    const widening = segments.filter(({ moves }) => moves.length > 10
+        && /^s+$/u.test(moves));
+    assert.ok(
+        widening.some(({ nethackrc }) => nethackrc.includes('showvers')),
+        'a widening counter runs with the version field shown',
+    );
+    assert.ok(
+        widening.some(({ nethackrc }) => nethackrc.includes('statuslines:3')),
+        'a widening counter runs with three status rows',
+    );
     // The occupation case: C reads no key from the first bite to the last, so
     // the whole meal passes through the gate with nothing marked.
     assert.ok(

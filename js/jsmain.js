@@ -14,6 +14,7 @@ import {
     MAX_COMMAND_COUNT,
     UnsupportedHeroCommandBoundaryError,
 } from './cmd.js';
+import { UnsupportedStatusRefreshError } from './display.js';
 import { UnsupportedEarthSenseError } from './dungeon.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
@@ -536,6 +537,13 @@ export async function runSegment(
                 // earth_sense() returns before reading the buried list unless
                 // the square is ROOM or CORR.
                 || e instanceof UnsupportedEarthSenseError
+                // botl.c timebot() reaches js/display.js
+                // _refuseUnfittableStatusRow() from allmain.c moveloop_core()
+                // and from display.c flush_screen(), both of which run under
+                // this loop, so a status row that outgrows the terminal on a
+                // turn-counter refresh ends the segment on its last matching
+                // screen.
+                || e instanceof UnsupportedStatusRefreshError
                 || e instanceof UnsupportedSpecialRoomError) {
                 onBoundary?.(e);
                 break;

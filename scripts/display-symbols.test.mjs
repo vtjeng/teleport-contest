@@ -101,6 +101,7 @@ import {
     terrain_glyph,
     timebot,
     trap_glyph_info,
+    UnsupportedStatusRefreshError,
     weapon_status,
 } from '../js/display.js';
 import { rndmonnam } from '../js/do_name.js';
@@ -4856,6 +4857,102 @@ test('tutorial overflow shrinking preserves complete status grids and attributes
     }
 });
 
+// A hero whose only status options are the turn counter and a three-row
+// layout, which leaves wintty.c render_status()'s BL_CONDITION indent as the
+// one thing deciding where the condition words land.
+function bareThreeLineState() {
+    const state = statusRenderingState();
+    state.flags.showexp = false;
+    state.flags.showvers = false;
+    state.flags.weaponstatus = false;
+    state.flags.armorstatus = false;
+    state.flags.terrainstatus = false;
+    state.iflags.wc2_statuslines = 3;
+    return state;
+}
+
+function setConditionProperties(state, properties) {
+    for (const property of properties) {
+        state.u.uprops[property] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
+    }
+}
+
+test('the vitals row prints the hero experience level, not a constant',
+    async () => {
+        // botl.c:1089 fills blstats[BL_XP] from u.ulevel, under the
+        // " Xp:%s" format initblstats[] gives it at 717. The port's
+        // `u.ulevel || 1` fallback covers an absent level and must not
+        // flatten a real one.
+        const state = statusRenderingState();
+        state.flags.showexp = false;
+        state.flags.showvers = false;
+        state.flags.weaponstatus = false;
+        state.flags.armorstatus = false;
+        state.flags.terrainstatus = false;
+        state.u.ulevel = 3;
+
+        await bot();
+
+        assert.match(terminalRow(state, 23), /\bXp:3\b/u);
+    });
+
+test('conditions right justify once lining up with hunger would overrun',
+    async () => {
+        // wintty.c render_status():5053-5057 takes BL_HUNGER's column only
+        // while the conditions still end before cw->cols - 1. Six conditions
+        // spell 38 columns, and BL_HUNGER stands at column 41 on the row
+        // above, so they would end exactly at that limit rather than before
+        // it; C right justifies instead, one column further right.
+        const state = bareThreeLineState();
+        state.u.usick_type = SICK_NONVOMITABLE | SICK_VOMITABLE;
+        setConditionProperties(state, [
+            FLYING, LEVITATION, SICK, SLIMED, STRANGLED,
+        ]);
+
+        await bot();
+
+        assert.equal(
+            terminalRow(state, 22).trimEnd(),
+            'Chaotic $:50 HP:16(16) Pw:4(6) AC:8 Xp:1',
+        );
+        assert.equal(
+            terminalRow(state, 23).trimEnd(),
+            `Dlvl:1 T:7${' '.repeat(31)} Strngl FoodPois Slime TermIll Fly Lev`,
+        );
+        // Right justified means ending on cw->cols - 1, one column right of
+        // where lining up with hunger would have ended.
+        assert.equal(terminalRow(state, 23).trimEnd().length, 79);
+    });
+
+test('conditions stay where they fall once right justifying would not fit',
+    async () => {
+        // render_status():5058-5061, the third arm. Eleven conditions spell 67
+        // columns and BL_HUNGER stands at column 41, so lining up with it
+        // overruns; right justifying needs the conditions to end before
+        // cw->cols - 1, and at 67 columns from column 12 they end exactly on
+        // it. C leaves them at the column check_fields() gave them.
+        const state = bareThreeLineState();
+        // Two digits of turn counter put BL_CONDITION at column 12.
+        state.moves = 10;
+        state.u.uroleplay.deaf = true;
+        state.u.usick_type = SICK_NONVOMITABLE | SICK_VOMITABLE;
+        setConditionProperties(state, [
+            BLINDED, CONFUSION, HALLUC, LEVITATION, SICK,
+            SLIMED, STONED, STRANGLED, STUNNED,
+        ]);
+
+        await bot();
+
+        assert.equal(
+            terminalRow(state, 23).trimEnd(),
+            'Dlvl:1 T:10 Strngl FoodPois Slime Stone TermIll Blind Conf Deaf '
+            + 'Hallu Lev Stun',
+        );
+        // One column short of the right margin, which is what refusing to
+        // right justify costs.
+        assert.equal(terminalRow(state, 23).trimEnd().length, 78);
+    });
+
 test('initial three-line status preserves tty overlap until the forced refresh', async () => {
     const state = statusRenderingState();
     state.uwep = null;
@@ -5795,15 +5892,17 @@ test('flush_screen(-1) postpones the map flush, and a new segment starts undelay
 });
 
 // A hero standing one turn into an ordinary level with the turn counter on the
-// status line, which is what botl.c timebot() exists to refresh.
-async function timedStartup() {
+// status line, which is what botl.c timebot() exists to refresh. 'options'
+// names the status-line options under test; every caller keeps 'time', because
+// botl.c timebot() returns without doing anything when it is off.
+async function timedStartup(options = 'time') {
     await runSegment({
         seed: 5310007,
         datetime: '20310203040506',
         nethackrc: 'OPTIONS=name:Timebot,role:Valkyrie,race:human,'
             + 'gender:female,align:neutral\n'
             + 'OPTIONS=!legacy,!tutorial,!splash_screen\n'
-            + 'OPTIONS=pettype:none,!acoustics,!autopickup,time\n',
+            + `OPTIONS=pettype:none,!acoustics,!autopickup,${options}\n`,
         moves: '.',
     });
     assert.equal(game.flags.time, true);
@@ -5858,6 +5957,124 @@ test('timebot shifts the fields a widened turn counter displaces',
         await timebot();
 
         assert.equal(statusRow().endsWith('T:10 Satiated'), true, statusRow());
+    });
+
+// wintty.c render_status() runs on the BL_FLUSH that botl.c
+// stat_update_time() sends, exactly as it does on the one bot() sends, so a
+// turn-counter refresh must leave the row where a whole-status pass leaves it.
+// Two of the row's fields make that more than a shift: BL_VERS right justifies
+// at cw->cols - lth when it ends its row (wintty.c:5185-5210) and the
+// three-row BL_CONDITION indents to tty_status[BEFORE][BL_HUNGER].x on the row
+// above (wintty.c:5036-5062). Neither column reads BL_TIME's width.
+//
+// Renders the same state twice: once through a whole-status pass at the turn
+// the counter widens, and once through a whole-status pass at the turn before
+// plus the refresh. Returns both rows for a byte comparison.
+async function rowBothWays(options, prepare = () => {}) {
+    // The counter gains its fourth digit here, which is the widest gain a
+    // single turn can produce and the one the recorded reproduction used.
+    const widened = 1000;
+    await timedStartup(options);
+    prepare();
+    game.moves = widened;
+    game.disp.botl = true;
+    await bot();
+    const wholePass = statusRow();
+
+    await timedStartup(options);
+    prepare();
+    game.moves = widened - 1;
+    game.disp.botl = true;
+    await bot();
+    game.moves = widened;
+    game.disp.botl = false;
+    game.disp.botlx = false;
+    game.disp.time_botl = true;
+    await timebot();
+
+    return { timeRefresh: statusRow(), wholePass };
+}
+
+test('a turn-counter refresh leaves the version where a whole pass does',
+    async () => {
+        const { timeRefresh, wholePass } = await rowBothWays('time,showvers');
+        // status_version() is "5.0.0" and status_fieldfmt[] prefixes a space,
+        // so vstart is 80 - 6 and the version text sits in columns 75-79,
+        // one-based, whatever the turn counter costs.
+        assert.equal(wholePass.endsWith('5.0.0'), true, wholePass);
+        assert.equal(wholePass.length, 79, wholePass);
+        assert.equal(timeRefresh, wholePass);
+    });
+
+test('a turn-counter refresh leaves the conditions where a whole pass does',
+    async () => {
+        const { timeRefresh, wholePass } = await rowBothWays(
+            'time,statuslines:3',
+            // botl.c:1202 reads Stunned for BL_MASK_STUN, which
+            // _propertyIntrinsic() answers from this timer.
+            () => { game.u.uprops[STUNNED] = { intrinsic: 50 }; },
+        );
+        // BL_HUNGER sits one column past "Neutral $:0 HP:16(16) Pw:2(2)
+        // AC:6 Xp:1" on the row above, so the indent puts the space at
+        // column 40 and "Stun" at 41, one-based.
+        assert.equal(wholePass.endsWith(' Stun'), true, wholePass);
+        assert.equal(wholePass.length, 44, wholePass);
+        assert.equal(timeRefresh, wholePass);
+    });
+
+test('a turn-counter refresh clears the indent the version overwrites',
+    async () => {
+        const { timeRefresh, wholePass } = await rowBothWays(
+            'time,statuslines:3,showvers',
+            () => { game.u.uprops[STUNNED] = { intrinsic: 50 }; },
+        );
+        // BL_VERS pads from its own nominal column, which sits just past the
+        // conditions' *unindented* end, so it erases the indented word on its
+        // way to column 75. wintty.c:5194-5196 calls that out as a FIXME; it
+        // is the rendering C produces and the row both paths must show.
+        assert.equal(wholePass.includes('Stun'), false, wholePass);
+        assert.equal(wholePass.endsWith('5.0.0'), true, wholePass);
+        assert.equal(timeRefresh, wholePass);
+    });
+
+test('a turn-counter refresh refuses a row it would have to shrink',
+    async () => {
+        // wintty.c make_things_fit() re-runs its shrink ladder on the BL_FLUSH
+        // stat_update_time() sends, from the unshrunk strings the core last
+        // supplied. This port holds only the rendered row, so a refresh that
+        // needs a shorter rung than the whole-status pass chose stops the
+        // segment instead of guessing at one.
+        await timedStartup('time,showexp');
+        // Six conditions at their full spellings, which is the most that fits
+        // before make_things_fit() abbreviates them.
+        for (const property of [
+            BLINDED, CONFUSION, FLYING, HALLUC, LEVITATION, STUNNED,
+        ]) {
+            game.u.uprops[property] = { intrinsic: 50 };
+        }
+        // Three experience points' worth of digits, plus BL_EXP's '/', leave
+        // the row one column short of the 79 wintty.c allows it.
+        game.u.uexp = 123;
+        game.moves = 999;
+        game.disp.botl = true;
+        await bot();
+        assert.equal(statusRow().length, 78, statusRow());
+
+        const refreshAt = async (moves) => {
+            game.moves = moves;
+            game.disp.botl = false;
+            game.disp.botlx = false;
+            game.disp.time_botl = true;
+            return timebot();
+        };
+
+        // A row that lands exactly on the limit still fits, so C shrinks
+        // nothing and this port renders it.
+        await refreshAt(1000);
+        assert.equal(statusRow().length, 79, statusRow());
+
+        // One column past it, C would abbreviate the condition words.
+        await assert.rejects(refreshAt(10000), UnsupportedStatusRefreshError);
     });
 
 test('timebot with the time option off only clears its own flag', async () => {

@@ -54,6 +54,13 @@ function nethackrc({ name, role, race, gender, align, options }) {
 const RUN_WEST = ' L.';
 const RUN_EAST = ' H.';
 
+// A game starts on turn 1, so the ninth of these searches gives the counter
+// its second digit: the first turn on which a status field's own width
+// changes with nothing else marked. The searches after it keep the widened
+// counter on screen. detect.c dosearch0() writes no disp.botl of its own, so
+// the turn-counter arm handles every one of these turns.
+const SEARCHES_PAST_TEN_TURNS = 's'.repeat(14);
+
 // eat.c fprefx()'s food ration arm says "This satiates your stomach!" below
 // 700 nutrition. A hero starts at 900 and gethungry() spends one point a turn,
 // so 205 waits carry the meal past that threshold, and the second bite then
@@ -137,6 +144,49 @@ const CASES = [
         align: 'neutral',
         options: 'pettype:none,!acoustics',
         moves: '.....',
+    },
+    {
+        // The turn the counter itself widens, with 'showvers' on. wintty.c
+        // render_status() right justifies BL_VERS at cw->cols - lth
+        // (5185-5210), a column BL_TIME's width does not enter, so the version
+        // must stay put while the fields between it and the counter move.
+        seed: 6200025,
+        name: 'Quiet',
+        role: 'Valkyrie',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        options: 'pettype:none,!acoustics,time,showvers',
+        moves: SEARCHES_PAST_TEN_TURNS,
+    },
+    {
+        // The same widening on a three-row status line, where render_status()
+        // (5036-5062) indents BL_CONDITION to BL_HUNGER's column on the row
+        // above instead. 'deaf' is the one condition a hero can hold from turn
+        // one: botl.c:1193 fills BL_MASK_DEAF from the Deaf macro, which
+        // youprop.h:125 spells to include u.uroleplay.deaf.
+        seed: 6400001,
+        name: 'Quiet',
+        role: 'Valkyrie',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        options: 'pettype:none,!acoustics,time,statuslines:3,deaf',
+        moves: SEARCHES_PAST_TEN_TURNS,
+    },
+    {
+        // Both placements at once. BL_VERS pads from its own nominal column,
+        // so it erases the indented conditions on its way to the right margin;
+        // wintty.c:5194-5196 records that as a FIXME, and it is the row C
+        // draws.
+        seed: 6400001,
+        name: 'Quiet',
+        role: 'Valkyrie',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        options: 'pettype:none,!acoustics,time,statuslines:3,showvers,deaf',
+        moves: SEARCHES_PAST_TEN_TURNS,
     },
     {
         // A meal of more than one turn with 'time' off. C reads no key between
