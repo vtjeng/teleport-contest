@@ -123,6 +123,41 @@
         "screens": 28,
         "rng": 824
       }
+    },
+    {
+      "id": "commands-deferral-sweep",
+      "status": "open",
+      "boundary": "clear the ten open non-scope deferrals the commands area has accumulated, starting with the two that fail open rather than fail closed",
+      "upstreamOwners": [
+        "allmain.c moveloop_core()",
+        "botl.c timebot()",
+        "dungeon.c u_on_newpos()",
+        "dungeon.c earth_sense()",
+        "hack.c test_move()",
+        "lock.c doopen_indir()",
+        "js/cmd.js executeMovement()"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "a deferred-area sweep, not a boundary port: commands holds ten open non-scope entries against a threshold of ten, and every entry names behavior no development session reaches, which is why each was deferred rather than fixed. Nothing is forecast in recorded steps. The status-line entry is the one exception in kind rather than degree: it changes rendering on a line every turn draws and can move the score either way.",
+        "sessions": []
+      },
+      "detail": "### Clearing the `commands` deferral backlog\n\n`npm run quality -- deferrals` reports `commands` holding ten open entries\noutside the `scope` category, which is the threshold `.agents/selection.md`\nsets for a deferred-area sweep. A sweep takes precedence over any fail-closed\nboundary port until the area drops below it, and each open entry is already a\nslice, scoped when it was deferred, so this goal needs no slice selection.\n\nThe ten, as at `e3a3d1d`:\n\n1. `the status line repaints on every turn, where C gates it` (production)\n2. `u_on_newpos() drops earth_sense() with no refusal` (production)\n3. `a drawbridge wall answers \"It's a wall.\"` (production)\n4. `three arms of the door message switch are dormant` (production)\n5. `the m prefix loses a frame` (production)\n6. `go.occupation has one writer and three readers that never see it`\n   (production)\n7. `movement-path-has-no-failclosed-wrapper` (production, slice)\n8. `eight diagonal-doorway findings are deferred` (clarity)\n9. `the two-meal segment never reaches its second meal` (tests)\n10. `adjabil()'s already-held suppression test has no reachable case` (tests,\n    slice, and blocked on `#wizintrinsic`)\n\n**Order.** Two of the ten are fail-open rather than fail-closed, meaning the\nport skips a message-writing C branch silently instead of stopping: entries 1\nand 2. `AGENTS.md` singles that out as the one thing an unported path must not\ndo, so they come first. Entry 1 leads because it sits on a line that runs every\nturn of every session and its own record calls it the first\nemitted-and-wrong screen the project would produce; entry 2's branch is dormant\nfor a narrower reason that is now written down, that every burial site on a\nreachable level is a GRAVE or STONE square which `earth_sense()` rejects before\nreading the buried list.\n\nEntry 10 cannot close inside this goal: it waits on `#wizintrinsic`, which no\ngoal has ported. It stays open and the area stays at nine until then, which is\nbelow the threshold.\n\n**What a sweep is worth.** Nothing in recorded steps, by construction: every\nentry names behavior no development session reaches, which is why each was\ndeferred rather than fixed. The forecast is recorded as 0 for that reason, not\nas a guess. Entry 1 is the exception in one direction -- it changes rendering\non a line every turn draws, so it can move the score either way and needs its\nown differential and a whole-score comparison rather than an audit-fix line.",
+      "slices": [
+        {
+          "name": "the status line repaints on every turn, where C gates it",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "e3a3d1dca4c91468755393449f53395f7c0722ce",
+      "openStanding": {
+        "sha": "b669b88",
+        "screens": 676,
+        "rng": 108261
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
