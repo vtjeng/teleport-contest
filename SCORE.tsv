@@ -101,3 +101,8 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T17:12:47.594Z	73ca61b139c62a69b5ad96aeb25fdf55647d0444	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
 2026-08-02T17:22:12.772Z	4084f4b87b0f7be8346468c286e6acb43a7426ec	checkpoint	1	33	676	7765	108261	610816	684	7765					15	
 2026-08-02T17:22:27.333Z	4084f4b	slice	1	33	676	7765	108261	610816	684	7765						Status-line repaint gated where moveloop_core() gates it. Score identical, as a sweep entry should be: no development session captures a frame that reaches it.
+2026-08-02T17:28:19.668Z	ab28567e37a6e40c47583075c7e898adf306d5b6	checkpoint	1	33	676	7765	108261	610816	684	7765					15	
+2026-08-02T17:52:06.870Z	ab28567e37a6e40c47583075c7e898adf306d5b6	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
+2026-08-02T17:55:54.509Z	ab28567e37a6e40c47583075c7e898adf306d5b6	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
+2026-08-02T18:02:49.075Z	441a378d0eafb94541de12bd7233c5ea233bb4ac	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
+2026-08-02T18:03:18.194Z	441a378	slice	1	33	676	7765	108261	610816	684	7765						Three sweep entries closed together; score unchanged, as grouping them predicted. Two of the three records carried a factual claim a probe overturned.

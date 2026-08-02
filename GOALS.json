@@ -151,8 +151,8 @@
         },
         {
           "name": "the drawbridge wall message, earth_sense()'s missing refusal, and the eight diagonal-doorway findings",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "441a378d0eafb94541de12bd7233c5ea233bb4ac"
         },
         {
           "name": "go.occupation has one writer and three readers that never see it",
