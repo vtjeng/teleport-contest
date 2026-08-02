@@ -63,8 +63,8 @@
         },
         {
           "name": "a Tourist gains experience points on reaching a new level",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "82cc6763ac9a7f6bc149de29eb31e80d181bc709"
         }
       ],
       "openedAt": "463cabd8ef401139326de6e698a9651c98c6936a",

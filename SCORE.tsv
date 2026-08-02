@@ -79,3 +79,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T10:30:04.145Z	8fe86c5	slice	1	33	648	7765	107437	610816	655	7765						adjabil() gain arm above level 1: +66 screens, the full ceiling the slice selection forecast.
 2026-08-02T11:10:40.133Z	4e2820a66dba54ef99e43e0a9438bc9a21bcce4d	checkpoint	1	33	648	7765	107437	610816	655	7765					12	tree dirty
 2026-08-02T11:20:16.987Z	4e2820a66dba54ef99e43e0a9438bc9a21bcce4d	checkpoint	1	33	648	7765	107437	610816	655	7765					12	tree dirty
+2026-08-02T11:25:16.114Z	82cc6763ac9a7f6bc149de29eb31e80d181bc709	checkpoint	1	33	648	7765	107437	610816	655	7765					13	
+2026-08-02T11:25:33.161Z	82cc676	slice	1	33	648	7765	107437	610816	655	7765						Tourist experience on level arrival: 0 recorded steps by design, no development session stops on the boundary.
