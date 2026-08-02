@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
-// Owns the SCORE.tsv format. scripts/checkpoint-checks.mjs appends a
-// `checkpoint` row through appendRow() after each scoring run, agents append
-// event rows through `--append`, and the query modes below answer the
-// questions agents previously answered by reading SCORE.md's prose rows.
-// SCORE.md documents the columns; this file is the only code that composes or
-// parses a row, so the two cannot drift apart without a test here failing.
+// Owns the SCORE.tsv format. Agents append event rows through `--append`, and
+// the query modes below answer the questions agents previously answered by
+// reading SCORE.md's prose rows. SCORE.md documents the columns; this file is
+// the only code that composes or parses a row, so the two cannot drift apart
+// without a test here failing.
+//
+// Every row names a commit an agent chose to record. `npm run checkpoint`
+// appended a `checkpoint` row of its own until 2026-08-02, which no query could
+// trust: 29 of those 37 rows measured an uncommitted tree while naming HEAD,
+// and none of them recorded a figure an event row did not already carry.
 
 import { appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -26,12 +30,10 @@ export const COLUMNS = [
     'holdout_screens_total',
     'holdout_rng_matched',
     'holdout_rng_total',
-    'wall_s',
     'note',
 ];
 
 export const EVENTS = [
-    'checkpoint',
     'slice',
     'window',
     'goal',

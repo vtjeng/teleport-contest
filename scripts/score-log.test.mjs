@@ -15,20 +15,20 @@ import {
 
 const dir = mkdtempSync(join(tmpdir(), 'score-log-'));
 
-// Three rows in the shape SCORE.tsv holds after the 2026-08-01 conversion. The
-// goal row carries holdout figures because its own event ran an evaluation
-// (139/3640 screens and 30048/182022 rng are the recorded fifth-zero values);
-// the two later rows leave the holdout cells empty, the encoding for "no new
-// holdout evidence", so standing() must reach back past both of them.
+// Three rows, one per event, in the shape SCORE.tsv holds after the 2026-08-01
+// conversion. The goal row carries holdout figures because its own event ran an
+// evaluation (139/3640 screens and 30048/182022 rng are the recorded fifth-zero
+// values); the two later rows leave the holdout cells empty, the encoding for
+// "no new holdout evidence", so standing() must reach back past both of them.
 const fixture = [
     COLUMNS.join('\t'),
     ['2026-08-01', 'aaaa111', 'goal', '', '', '496', '7765', '106505',
-        '610816', '', '', '139', '3640', '30048', '182022', '', 'goal row']
+        '610816', '', '', '139', '3640', '30048', '182022', 'goal row']
         .join('\t'),
     ['2026-08-01', 'bbbb222', 'slice', '', '', '520', '7765', '107227',
-        '610816', '', '', '', '', '', '', '', 'slice row'].join('\t'),
-    ['2026-08-02', 'cccc333', 'checkpoint', '', '', '520', '7765', '107227',
-        '610816', '', '', '', '', '', '', '104', ''].join('\t'),
+        '610816', '', '', '', '', '', '', 'slice row'].join('\t'),
+    ['2026-08-02', 'cccc333', 'window', '', '', '520', '7765', '107227',
+        '610816', '', '', '', '', '', '', ''].join('\t'),
 ].join('\n');
 
 function writeFixture(name, text = fixture) {
@@ -50,7 +50,7 @@ test('readRows parses rows keyed by column and rejects drifted shapes', () => {
     const renamed = fixture.replace('holdout_rng_total', 'holdout_rngs');
     assert.throws(() => readRows(writeFixture('renamed.tsv', renamed)),
         /header differs/u);
-    // A row with 16 fields is a hand-edit gone wrong; 17 is the shape.
+    // A row with 15 fields is a hand-edit gone wrong; 16 is the shape.
     const short = `${COLUMNS.join('\t')}\n2026-08-01\taaaa111\tgoal`;
     assert.throws(() => readRows(writeFixture('short.tsv', short)),
         /3 fields/u);
@@ -59,7 +59,7 @@ test('readRows parses rows keyed by column and rejects drifted shapes', () => {
 test('appendRow composes a full row and refuses malformed input', () => {
     const path = writeFixture('append.tsv');
     const row = appendRow(
-        { sha: 'dddd444', event: 'checkpoint', screens_matched: '521' }, path);
+        { sha: 'dddd444', event: 'slice', screens_matched: '521' }, path);
     // The utc column is filled by the writer; an ISO timestamp contains a 'T'.
     assert.match(row.utc, /T/u);
     const rows = readRows(path);
@@ -68,6 +68,11 @@ test('appendRow composes a full row and refuses malformed input', () => {
     assert.equal(rows[3].note, '');
     assert.throws(() => appendRow({ event: 'goal' }, path), /needs a sha/u);
     assert.throws(() => appendRow({ sha: 'e', event: 'victory' }, path),
+        /event must be/u);
+    // `checkpoint` was an event until the scoring run stopped appending a row
+    // of its own. Every row now names a commit an agent chose to record, so the
+    // retired name must not start working again.
+    assert.throws(() => appendRow({ sha: 'e', event: 'checkpoint' }, path),
         /event must be/u);
     assert.throws(() => appendRow({ sha: 'e', event: 'goal', bogus: '1' },
         path), /unknown SCORE.tsv column/u);
@@ -86,9 +91,9 @@ test('latestRow returns the last row, or the last of one event', () => {
 test('standing carries the last stated holdout figure forward', () => {
     const { development, holdout, publish } =
         standing(readRows(writeFixture('standing.tsv')));
-    // Development comes from the newest row stating screens (the checkpoint
-    // row); the holdout comes from the goal row two rows earlier, because the
-    // rows between state no holdout figure.
+    // Development comes from the newest row stating screens (the window row);
+    // the holdout comes from the goal row two rows earlier, because the rows
+    // between state no holdout figure.
     assert.equal(development.sha, 'cccc333');
     assert.equal(holdout.sha, 'aaaa111');
     assert.equal(holdout.holdout_screens_matched, '139');
