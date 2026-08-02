@@ -2552,8 +2552,11 @@ function _writeStatusFields(row, start, fields) {
 // C ref: wintty.c render_status() (5036-5062). Line the conditions up with
 // BL_HUNGER on the row above; where that leaves too little room, right justify
 // them; where even that does not fit, leave them at the column check_fields()
-// gave them. `hungerX` is tty_status[BEFORE][BL_HUNGER].x and `nominal` is the
-// zero-based form of that column.
+// gave them. The four columns here do not share a base, so each names its own:
+// `hungerX` is the one-based tty_status[BEFORE][BL_HUNGER].x; `nominal` is the
+// zero-based column check_fields() gave BL_CONDITION, which is a different
+// field on a different row; `x` below is C's one-based
+// tty_status[NOW][BL_CONDITION].x; and the return is zero-based.
 //
 // C's last_col equals cw->cols here. It drops BL_VERS's width only when
 // fieldorder[row][i + 1] is BL_VERS, and threelineorder[]'s entry after
@@ -3428,9 +3431,18 @@ export class UnsupportedStatusRefreshError extends Error {
 // word and Dlvl each read the value the core sent rather than the text on the
 // row. C's fit test is rowsz[condrow] - 1 <= cw->cols - 1, which is the sum of
 // the row's field lengths against TTY_STATUS_WIDTH.
-function _refuseUnfittableStatusRow(fields) {
-    const width = fields.reduce((total, { text }) => total + text.length, 0);
-    if (width > TTY_STATUS_WIDTH) {
+// The test is relative, comparing the row before and after the counter is
+// replaced. An absolute test would throw on every later refresh once a row
+// stood over the limit, including refreshes that change no width at all, such
+// as T:10 to T:11. Only a refresh that carries the row across the limit needs
+// a rung the last full pass did not already choose.
+function _rowWidth(fields) {
+    return fields.reduce((total, { text }) => total + text.length, 0);
+}
+
+function _refuseUnfittableStatusRow(cached, refreshed) {
+    if (_rowWidth(refreshed) > TTY_STATUS_WIDTH
+        && _rowWidth(cached) <= TTY_STATUS_WIDTH) {
         throw new UnsupportedStatusRefreshError(
             'make_things_fit() shrinking a row on a turn-counter refresh',
         );
@@ -3452,7 +3464,7 @@ function _refreshTimeField(layout) {
     const fields = layout.fields.map(
         (field) => (field === cached ? refreshed : field),
     );
-    _refuseUnfittableStatusRow(fields);
+    _refuseUnfittableStatusRow(layout.fields, fields);
     const hungerX = layout.hungerX ?? null;
     const { row } = _renderStatusFields(fields, hungerX);
     return { ...row.finish(), fields, hungerX };

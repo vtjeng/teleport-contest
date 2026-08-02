@@ -117,3 +117,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T21:12:43.690Z	b7480dbdc115fe1e94a15206518013c5ebdfda09	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
 2026-08-02T21:17:54.303Z	5a2ba4236082ead59edd28f392c301e3b0b0c05e	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
 2026-08-02T21:18:03.798Z	9ea5ff9	slice	1	33	676	7765	108261	610816	684	7765						Status geometry re-derived on a turn-counter refresh. Score unchanged: the orchestrator's claim that two scored sessions set showvers was wrong, the string appearing only inside a recorded options-menu screen.
+2026-08-02T21:20:15.912Z	3b2dde88fdbbad0115967dc9a8483a85f812cfba	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
+2026-08-02T22:06:24.750Z	3b2dde88fdbbad0115967dc9a8483a85f812cfba	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
