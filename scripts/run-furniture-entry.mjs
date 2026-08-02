@@ -8,7 +8,8 @@
 // The behavior is that neither the hero nor an ordinary monster meets a
 // furniture-specific branch on the way in. hack.c test_move() (991-1160) has
 // no arm for these seven types: rm.h:119 makes IS_OBSTRUCTED `typ < POOL` and
-// IS_DOOR is false, so an orthogonal step falls through to testdiag. What the
+// IS_DOOR is false, so the obstacle chain never claims the square and control
+// resumes below it, at hack.c:1153's diagonal bad_rock() test. What the
 // hero does meet is the run stop at hack.c:2936-2941, lookaround()'s
 // furniture arm at hack.c:4009-4019, and, when the square holds an object,
 // invent.c look_here()'s dfeature line from dfeature_at() (4037-4097). A

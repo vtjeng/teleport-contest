@@ -54,6 +54,7 @@ import {
     ROWNO,
     SDOOR,
     SINK,
+    BLINDED,
     STAIRS,
     STATUE_TRAP,
     STONE,
@@ -1259,9 +1260,9 @@ test('simple hero movement admits empty room and corridor controls',
     });
 
 // hack.c test_move() (991-1160) has no arm for any of these seven types --
-// rm.h:119 makes IS_OBSTRUCTED `typ < POOL` and IS_DOOR is false -- so an
-// orthogonal step falls through to testdiag and is admitted. ICE, rm.h:88's
-// next type after ALTAR, is the case just outside the range.
+// rm.h:119 makes IS_OBSTRUCTED `typ < POOL` and IS_DOOR is false -- so the
+// obstacle chain never claims the square and the step is admitted below it.
+// ICE, rm.h:88's next type after ALTAR, is the case just outside the range.
 test('simple hero movement admits every furniture square', async () => {
     for (const [label, terrain] of [
         ['stairs', STAIRS],
@@ -1376,30 +1377,98 @@ test('an altar holding an object stops for a_gname()', async () => {
         dknown: true,
     };
 
+    // The seam refuses this before look_here() can reach dfeature_at()'s
+    // a_gname() arm. That matters for where the error lands, not just which
+    // class it is: nothing wraps the movement path in failClosedCommand(), so
+    // an UnsupportedFeatureDescriptionError raised below domove() would travel
+    // past js/jsmain.js's boundary list and discard the segment's matching
+    // prefix. Only the four classes that list names end a segment, so the
+    // assertion is on the class the hero-move seam raises, not on membership
+    // in failClosedCommandRefusals(), which no code on this path consults.
     await assert.rejects(
         domove(game),
-        (error) => error instanceof UnsupportedFeatureDescriptionError,
+        (error) => error instanceof UnsupportedHeroMoveBoundaryError
+            && error.message.includes('terrain feature description'),
     );
-    // js/cmd.js failClosedCommandRefusals() lists the class, so the segment
-    // ends on its last matching screen instead of failing hard.
-    assert.ok(failClosedCommandRefusals()
-        .includes(UnsupportedFeatureDescriptionError));
 });
+
+// invent.c look_here()'s blind arm calls dungeon.c surface() for the noun the
+// hero feels underfoot, and js/dungeon.js surface() ports only its ROOM and
+// CORR arms. Every other admitted terrain would throw a bare Error out of
+// runSegment() and discard the segment, because js/jsmain.js breaks only on
+// the four boundary classes. OPTIONS=blind reaches this from turn one through
+// u.uroleplay.blind, so the guard is not hypothetical. The altar row expects
+// this reason rather than the a_gname() one because the blind guard sits
+// above it: a blind hero never reaches dfeature_at().
+test('a blind hero refuses an object on terrain surface() cannot name',
+    async () => {
+        for (const [label, terrain, admitted] of [
+            ['fountain', FOUNTAIN, false],
+            ['altar', ALTAR, false],
+            ['stairs', STAIRS, false],
+            ['room', ROOM, true],
+            ['corridor', CORR, true],
+        ]) {
+            const { destination, x, y } = await prepareHeroMoveAdmission();
+            destination.typ = terrain;
+            game.flags.pickup = false;
+            game.u.uprops[BLINDED].intrinsic = 1;
+            game.level.objects[x][y] = {
+                otyp: DART,
+                oclass: WEAPON_CLASS,
+                quan: 1,
+                nobj: null,
+                nexthere: null,
+                dknown: true,
+            };
+            if (admitted) {
+                // A blind hero on a room square reaches look_here()'s message
+                // and then waits for a key, so this control cannot run the
+                // move to completion. What it must show is that the guard did
+                // not fire, so it asserts on the reason rather than on
+                // reaching the end of the turn.
+                await domove(game).catch((error) => {
+                    assert.ok(
+                        !String(error?.message ?? '')
+                            .includes('blind terrain description'),
+                        label,
+                    );
+                });
+            } else {
+                await assert.rejects(
+                    domove(game),
+                    (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                        && error.message.includes(
+                            'blind terrain description',
+                        ),
+                    label,
+                );
+            }
+        }
+    });
 
 // pickup.c check_here() calls describe_decor() under flags.mention_decor, and
 // pickup.c:392-410 mentions a furniture square even when the terrain has not
 // changed, because its `ltyp == iflags.prev_decor` test carries
 // `&& !IS_FURNITURE(ltyp)`. Neither describe_decor() nor iflags.prev_decor is
 // ported, so the whole predicate stays refused rather than printing nothing.
+// The doorway rows matter as much as the furniture ones: the guard's
+// predicate is `IS_FURNITURE(location.typ) || doorway`, and without a doorway
+// case the `|| doorway` term can be deleted with the whole suite still green.
+// C reaches a doorway here to blank the dfeature and rewrite prev_decor, which
+// is why it is refused rather than admitted.
 test('a furniture square with mention_decor stays refused', async () => {
-    for (const [label, terrain, admitted] of [
-        ['fountain', FOUNTAIN, false],
-        ['altar', ALTAR, false],
-        ['room', ROOM, true],
-        ['corridor', CORR, true],
+    for (const [label, terrain, mask, admitted] of [
+        ['fountain', FOUNTAIN, 0, false],
+        ['altar', ALTAR, 0, false],
+        ['open doorway', DOOR, D_ISOPEN, false],
+        ['doorless doorway', DOOR, D_NODOOR, false],
+        ['room', ROOM, 0, true],
+        ['corridor', CORR, 0, true],
     ]) {
         const { destination, x, y } = await prepareHeroMoveAdmission();
         destination.typ = terrain;
+        destination.flags = destination.doormask = mask;
         game.flags.mention_decor = true;
 
         if (admitted) {

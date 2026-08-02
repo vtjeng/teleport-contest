@@ -209,26 +209,40 @@ test('live movement swaps with a pet standing on every furniture square',
 // A bare ROOM square stays admitted, as it is at the walking seam. There
 // dfeature_at() finds nothing, and describe_decor()'s remaining arm needs
 // prev_decor to be a pool, lava or ice, so C prints nothing either.
+// The whole seven-type table, not one terrain: the guard tests
+// IS_FURNITURE(destination.typ), so a single FOUNTAIN case leaves it free to
+// narrow to any one type with the suite still green.
 test('a pet swap onto furniture refuses mention_decor before it moves',
     async () => {
-        const pet = await startingPet({ pettype: 'cat' });
-        const { destination, oldHero } = standPetEastOf(pet, FOUNTAIN);
-        game.flags.mention_decor = true;
-        initRng(1);
-        game.nhDisplay.pushKey('l'.charCodeAt(0));
+        for (const [label, terrain] of [
+            ['stairs', STAIRS],
+            ['ladder', LADDER],
+            ['fountain', FOUNTAIN],
+            ['throne', THRONE],
+            ['sink', SINK],
+            ['grave', GRAVE],
+            ['altar', ALTAR],
+        ]) {
+            const pet = await startingPet({ pettype: 'cat' });
+            const { destination, oldHero } = standPetEastOf(pet, terrain);
+            game.flags.mention_decor = true;
+            initRng(1);
+            game.nhDisplay.pushKey('l'.charCodeAt(0));
 
-        await assert.rejects(
-            moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'decor description'
-            ),
-        );
-        assert.deepEqual([game.u.ux, game.u.uy], oldHero);
-        assert.deepEqual([pet.mx, pet.my], destination);
-        // Empty, not absent: runSegment() leaves the pending top line cleared,
-        // and the refusal writes nothing over it.
-        assert.equal(game._pending_message, '');
+            await assert.rejects(
+                moveloop_core(),
+                (error) => (
+                    error instanceof UnsupportedHeroMoveBoundaryError
+                    && error.reason === 'decor description'
+                ),
+                label,
+            );
+            assert.deepEqual([game.u.ux, game.u.uy], oldHero, label);
+            assert.deepEqual([pet.mx, pet.my], destination, label);
+            // Empty, not absent: runSegment() leaves the pending top line
+            // cleared, and the refusal writes nothing over it.
+            assert.equal(game._pending_message, '', label);
+        }
 
         const roomPet = await startingPet({ pettype: 'cat' });
         const room = standPetEastOf(roomPet, ROOM);

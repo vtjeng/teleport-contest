@@ -255,6 +255,17 @@ test('a levitating hero over a sink stops for dosinkfall()', async () => {
             /unblocking levitation or flight/u,
             `${field} blocked`,
         );
+
+        // That arm never reaches the sink guard, so on its own it says nothing
+        // about propertyActiveUnblocked()'s `blocked` half: deleting that half
+        // leaves it green. Arriving on a sink from a sink makes
+        // terrain_changed_under_hero() false, so switch_terrain() does not run
+        // and the sink guard is the first thing a blocked hero meets -- and
+        // must not stop, because C's Levitation is false when blocked.
+        const settled = terrainState(SINK, SINK);
+        settled.u.uprops[LEVITATION][field] = 1;
+        settled.u.uprops[LEVITATION].blocked = I_SPECIAL;
+        await spoteffects(false, settled);
     }
 
     // Neither term alone reaches it. A sink under a hero with no levitation

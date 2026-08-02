@@ -26,8 +26,11 @@ export function scanLevelArgument(buf) {
     // `%d` converts in two stages, and both are observable here because
     // `newlevel` is an `int`. The digits first become a `long`, saturating at
     // LONG_MAX or LONG_MIN when they overrun it, and the store into `int` then
-    // keeps the low 32 bits. So "2147483648" arrives as -2147483648,
-    // "4294967296" as 0, and any answer of 20 or more digits as -1.
+    // keeps the low 32 bits. So "2147483648" arrives as -2147483648 and
+    // "4294967296" as 0. Past the `long` the two directions differ rather than
+    // sharing a threshold: digits above LONG_MAX saturate to it and its low 32
+    // bits are all ones, giving -1, while digits below LONG_MIN saturate to it
+    // and its low 32 bits are zero, giving 0.
     let wide = BigInt(match[1]);
     if (wide > LONG_MAX) wide = LONG_MAX;
     else if (wide < LONG_MIN) wide = LONG_MIN;

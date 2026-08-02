@@ -1097,20 +1097,25 @@ export function auditMetricsFromOptions(options, {
   });
 }
 
+// Exported so a test can pin the options the recorder accepts, not just the
+// functions behind them. Testing passAreas() alone let --areas ship dead: the
+// branch was correct and unreachable, because the name was never in this set.
+export function passOptionNames(kind) {
+  return new Set([
+    'range',
+    'head',
+    'outcome',
+    'evidence',
+    'audit-metrics',
+    'audit-metrics-file',
+    'areas',
+    'dry-run',
+    ...(kind === 'review' ? ['level'] : []),
+  ]);
+}
+
 function preparePass(kind, options) {
-  rejectUnknownOptions(
-    options,
-    new Set([
-      'range',
-      'head',
-      'outcome',
-      'evidence',
-      'audit-metrics',
-      'audit-metrics-file',
-      'dry-run',
-      ...(kind === 'review' ? ['level'] : []),
-    ]),
-  );
+  rejectUnknownOptions(options, passOptionNames(kind));
   const config = loadConfig();
   const repositoryHead = resolveCommit('HEAD');
   const frontiers = validateHistory(config, repositoryHead);

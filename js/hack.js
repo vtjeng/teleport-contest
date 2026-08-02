@@ -5,6 +5,7 @@ import {
     A_CON,
     A_DEX,
     A_STR,
+    ALTAR,
     BLINDED,
     COLD_RES,
     CONFUSION,
@@ -602,9 +603,13 @@ export function requireSimpleHeroDestination(x, y, state) {
 
     const location = state.level?.at(x, y);
     // hack.c test_move() admits every IS_FURNITURE type untouched -- stairs,
-    // ladder, fountain, throne, sink, grave and altar. None is IS_OBSTRUCTED,
-    // since rm.h:119 makes that `typ < POOL`, and none is IS_DOOR, so no branch
-    // of the chain applies and an orthogonal step falls through to testdiag.
+    // ladder, fountain, throne, sink, grave and altar. Its obstacle chain never
+    // claims the square: `IS_OBSTRUCTED` is `typ < POOL` (rm.h:119) and
+    // `IS_DOOR` is `typ == DOOR`, so neither hack.c:1011's arm nor
+    // hack.c:1074's matches and control leaves the chain entirely, resuming at
+    // hack.c:1153's diagonal `bad_rock()` test and then hack.c:1207's rule
+    // against moving diagonally out of an intact doorway. `testdiag` is not
+    // reached; it sits at hack.c:1139, inside the IS_DOOR arm.
     // domove_core() then ends a run on the square through hack.c:2936-2941,
     // ported below, and spoteffects() reaches only its IS_SINK arm, refused
     // there.
@@ -655,12 +660,37 @@ export function requireSimpleHeroDestination(x, y, state) {
         throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
     if (floorObject?.nexthere)
         throw new UnsupportedHeroMoveBoundaryError('floor object pile');
+    // invent.c look_here()'s blind arm names what the hero feels underfoot,
+    // and dungeon.c surface() (1750-1787) answers per terrain: "altar",
+    // "headstone", "fountain", "stairs", "doorway", "floor" in a room and
+    // "ground" otherwise. js/dungeon.js surface() ports the room and corridor
+    // arms alone, so before this guard a blind arrival on furniture or a
+    // doorway holding an object threw a bare Error out of runSegment() and
+    // discarded the whole segment. The rest of surface() is not ported here
+    // because the line it feeds is only half the behavior: invent.c:4210-4211
+    // suppresses the dfeature line when it repeats the surface, which is what
+    // a fountain does ("fountain" both ways) and a grave does not ("grave"
+    // against "headstone"). OPTIONS=blind reaches this from turn one through
+    // u.uroleplay.blind.
+    if (floorObject && heroIsBlind(state)
+        && location.typ !== ROOM && location.typ !== CORR) {
+        throw new UnsupportedHeroMoveBoundaryError('blind terrain description');
+    }
     // invent.c look_here() computes dfeature_at() unconditionally and prints
     // it before "You see here" when the square holds exactly one object. Both
-    // dfeature_at() and stairs_description() are ported, and js/invent.js
-    // look_here() prints that line, so no guard stands here: every admitted
-    // terrain reaches its own owner. ALTAR is the one that has no answer yet,
-    // and dfeature_at() itself throws for a_gname() rather than diverging.
+    // dfeature_at() and stairs_description() are ported, so every admitted
+    // terrain but one reaches its own owner. ALTAR has no answer yet:
+    // dfeature_at() throws for a_gname() rather than diverging, and that class
+    // is refused here rather than left to escape. Nothing converts an
+    // Unsupported* class raised below domove() -- the movement path has no
+    // failClosedCommand() wrapper, unlike the extended commands -- so letting
+    // it travel would abort the segment instead of ending it on its last
+    // matching screen.
+    if (floorObject && location.typ === ALTAR) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'terrain feature description',
+        );
+    }
     if (t_at(x, y, state))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
 

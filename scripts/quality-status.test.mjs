@@ -25,6 +25,7 @@ import {
   renderCountsSentence,
   validateConfigShape,
     passAreas,
+    passOptionNames,
 } from './quality-status.mjs';
 
 const EMPTY_AUDIT_METRICS = Object.freeze({
@@ -975,4 +976,24 @@ test('a pass derives its area labels from the paths the range changed', () => {
         passAreas(config, 'hero', () => assert.fail('must not be called')),
         ['hero'],
     );
+});
+
+// passAreas() shipped correct and unreachable: --areas was documented, the
+// branch that reads it was tested directly, and the recorder rejected the
+// option before the branch could run, because the name was missing from the
+// allowed set. A test on the function alone cannot see that; this one names
+// the option as the command accepts it.
+test('the recorder accepts every option its pass record can carry', () => {
+    for (const name of [
+        'range', 'head', 'outcome', 'evidence',
+        'audit-metrics', 'audit-metrics-file', 'areas', 'dry-run',
+    ]) {
+        assert.ok(passOptionNames('review').has(name), name);
+        assert.ok(passOptionNames('simplification').has(name), name);
+    }
+    // --level is the one option only a review pass takes; a simplification
+    // pass is rejected for passing it, which quality-status.mjs asserts
+    // separately.
+    assert.ok(passOptionNames('review').has('level'));
+    assert.ok(!passOptionNames('simplification').has('level'));
 });

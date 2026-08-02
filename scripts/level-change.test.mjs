@@ -206,10 +206,17 @@ test('scanLevelArgument reproduces sscanf("%d%c")', () => {
     assert.deepEqual(
         scanLevelArgument('999999999999999999999999'), { count: 1, value: -1 },
     );
-    // The negative side saturates to LONG_MIN, whose low 32 bits are zero,
-    // and one below INT_MIN wraps to INT_MAX.
+    // One below INT_MIN is still inside `long`, so only the 32-bit wrap
+    // applies and it comes back as INT_MAX.
     assert.deepEqual(
         scanLevelArgument('-2147483649'), { count: 1, value: 2147483647 },
+    );
+    // Past `long` on the negative side the clamp does apply, and it is not the
+    // mirror of the positive one: LONG_MIN's low 32 bits are zero, so this is
+    // 0 where the positive overflow above is -1.
+    assert.deepEqual(
+        scanLevelArgument('-999999999999999999999999'),
+        { count: 1, value: 0 },
     );
 });
 

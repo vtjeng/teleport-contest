@@ -94,3 +94,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T15:01:31.039Z	d7ee80e6e32d2e825bff62f915d2e47eacfe02c8	checkpoint	1	33	676	7765	108261	610816	684	7765					13	
 2026-08-02T15:03:14.573Z	d7ee80e6e32d2e825bff62f915d2e47eacfe02c8	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
 2026-08-02T15:03:24.552Z	d7ee80e	slice	1	33	676	7765	108261	610816	684	7765						Pet swap onto furniture: +2 screens, the measured ceiling. The random-number fall is positional in seed0030, whose first divergence and screen count are unchanged.
+2026-08-02T15:27:15.140Z	e87beeaf37d9b8c99e3226e8ad2220cc4b4823cb	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
+2026-08-02T16:18:31.207Z	e87beeaf37d9b8c99e3226e8ad2220cc4b4823cb	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
