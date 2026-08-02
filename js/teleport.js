@@ -252,11 +252,15 @@ function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
             );
         }
     }
+    // teleport.c:1761-1762 ends rloc_to_core() with `if (go.occupation)
+    // (void) dochugw(mtmp, FALSE);`, whose stop_occupation() has no port.
+    // cmd.c set_occupation() writes that value to state.go.occupation, so this
+    // names that field rather than a bare one nothing assigns.
     if (monster.wormno
         || monster === env.state.u?.ustuck
         || monster.mtrapped
         || monster.mundetected
-        || env.state.occupation
+        || env.state.go?.occupation
         || (monster.mstrategy & STRAT_APPEARMSG)) {
         throw new UnsupportedPositionCheckError(
             'extended rloc_to_core side effects',
@@ -921,8 +925,11 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
             'rloc_to() for a monster already on the map',
         );
     }
+    // The occupation term names state.go.occupation, cmd.c set_occupation()'s
+    // home for C's go.occupation, so the tail at teleport.c:1761-1762 refuses
+    // instead of being skipped by a field nothing assigns.
     if (monster.isshk || monster.wormno || monster === state.u?.ustuck
-        || monster.mtrapped || state.occupation) {
+        || monster.mtrapped || state.go?.occupation) {
         throw new UnsupportedPositionCheckError(
             'extended rloc_to_core side effects',
         );

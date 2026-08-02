@@ -20,7 +20,10 @@
 // occupation, which leaves the game exactly one bite in.
 
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
     ECMD_TIME,
@@ -418,6 +421,41 @@ test('a monster arriving beside the meal stops the occupation', async () => {
     assert.equal(await boundaryFor(withPet, withPet.moves), null);
 });
 
+test('a monster nine squares away stops the meal before it is adjacent',
+    async () => {
+        // monmove.c dochugw() (213, 223-235) stops the occupation for a
+        // hostile, spottable monster inside (BOLT_LIM + 1) * (BOLT_LIM + 1)
+        // that either could not be seen before or was further away. That is a
+        // radius of nine, so it fires turns before hack.c monster_nearby()
+        // (4106-4127), whose scan covers the eight adjacent squares only.
+        //
+        // Recorded fresh with the C program on 2 August 2026, seed 5900020,
+        // datetime 20310203040506, the matrix's plain Valkyrie options and the
+        // keys below. C answers the food letter with
+        // "You stop eating the food ration." at T:3, one turn into a five-turn
+        // meal, and the two waits after it pass quietly at T:4 and T:5, so no
+        // monster is ever adjacent. On the map C draws, a lichen crosses from
+        // <4,7> to <4,8> while the hero stands at <13,8>: distu goes from
+        // 82 to 81, over the bound and then exactly on it, which is the "or
+        // it was too far away" clause.
+        //
+        // Until js/monmove.js dochugw() read go.occupation from the field
+        // js/cmd.js set_occupation() writes, the port emitted all six screens
+        // and finished the meal instead, ending on lesshungry()'s
+        // "You're having a hard time getting all of it down." at T:6.
+        const valkyrie = segmentFor(5820011, 'ed ');
+        const interrupted = await boundaryFor(
+            { ...valkyrie, seed: 5900020 },
+            '.ed..',
+        );
+        assert.ok(interrupted, 'the meal reaches a fail-closed boundary');
+        assert.match(interrupted.message, /occupation interruption/u);
+        // Not the adjacency arm: allmain.c moveloop_core()'s own
+        // monster_nearby() test raises a different boundary, and reaching that
+        // one would mean dochugw() never fired.
+        assert.doesNotMatch(interrupted.message, /nearby monster/u);
+    });
+
 test('set_occupation stores the callback and refuses a timeout', () => {
     const state = { go: {} };
     const callback = () => 0;
@@ -487,6 +525,38 @@ test('fprefx names the spot a food ration hits when the hero is hungry',
             // whatever is pending now is fprefx()'s own message.
             assert.equal(game._pending_message, expected, label);
         }
+    });
+
+test('every occupation reader in js/ names the one field that holds it',
+    () => {
+        // C keeps the running occupation in one global, go.occupation, and
+        // js/cmd.js set_occupation() gives it one home: state.go.occupation.
+        // Four readers -- js/monmove.js dochugw() twice, js/teleport.js
+        // rloc_to_core() and rloc_to() -- once named a bare state.occupation
+        // instead, which nothing in js/ ever assigns, so monmove.c dochugw()'s
+        // stop_occupation() could not run and a meal ran on where C abandons
+        // it.
+        //
+        // The scan covers comments as well as code. A comment naming a field
+        // that does not exist sends the next reader to the wrong owner, which
+        // is how this defect survived a correctness pass.
+        const jsDir = join(
+            dirname(fileURLToPath(import.meta.url)),
+            '..',
+            'js',
+        );
+        const offenders = [];
+        for (const name of readdirSync(jsDir)) {
+            if (!name.endsWith('.js')) continue;
+            const lines = readFileSync(join(jsDir, name), 'utf8').split('\n');
+            lines.forEach((line, index) => {
+                for (const m of line.matchAll(/([\w$?]*)\.occupation\b/gu)) {
+                    if (m[1] === 'go' || m[1] === 'go?') continue;
+                    offenders.push(`js/${name}:${index + 1}: ${line.trim()}`);
+                }
+            });
+        }
+        assert.deepEqual(offenders, []);
     });
 
 test('the multi-turn matrix covers the branches this slice ports', () => {

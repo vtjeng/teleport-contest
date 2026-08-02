@@ -13,6 +13,7 @@ import {
     POOL,
     ROOM,
     STONE,
+    STRAT_APPEARMSG,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { newMonster, place_monster } from '../js/monst.js';
@@ -461,6 +462,52 @@ test('rloc rejects carried shop state before its first destination draw', () => 
     }
 });
 
+test('rloc refuses each rloc_to_core tail state on its own', () => {
+    // teleport.c rloc_to_core() ends with tails this port does not run: the
+    // ustuck unstick block (1690-1698), the appearance message the
+    // STRAT_APPEARMSG bit forces (1702-1731), `if (go.occupation) (void)
+    // dochugw(mtmp, FALSE);` (1761-1762) and mintrap() for a trapped monster
+    // (1765-1766); a worm and a hidden monster reach maybe_unhide_at() and the
+    // segment walk instead. Each is set alone, so a guard joining any two of
+    // them would let that state through.
+    //
+    // The occupation term names state.go.occupation, cmd.c set_occupation()'s
+    // home for C's go.occupation. It used to name a bare state.occupation that
+    // nothing in js/ assigns, so it refused nothing.
+    for (const [name, set] of [
+        ['wormno', (mon) => { mon.wormno = 3; }],
+        ['ustuck', (mon, state) => { state.u.ustuck = mon; }],
+        ['mtrapped', (mon) => { mon.mtrapped = 1; }],
+        ['mundetected', (mon) => { mon.mundetected = 1; }],
+        ['occupation', (mon, state) => { state.go.occupation = () => 0; }],
+        ['appearmsg', (mon) => { mon.mstrategy |= STRAT_APPEARMSG; }],
+    ]) {
+        const state = positionState();
+        state.go = {};
+        state.level.at(10, 11).typ = ROOM;
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2, // A live monster selects the ordinary relocation path.
+            mhpmax: 2,
+            m_id: 89, // A nonzero id selects live-monster scary checks.
+        });
+        place_monster(monster, 10, 11, state);
+        let draws = 0;
+        set(monster, state);
+
+        assert.throws(() => rloc(monster, 0, {
+            state,
+            random: { rnd: () => ++draws, rn2: () => ++draws },
+            newsym: () => {},
+            onscary: () => false,
+            setApparxy: () => {},
+        }), /extended rloc_to_core side effects/u, name);
+        // The guard precedes every destination draw, so the refusal is atomic.
+        assert.equal(draws, 0, name);
+        assert.deepEqual([monster.mx, monster.my], [10, 11], name);
+    }
+});
+
 test('rloc exhausts fifty trials before its unshuffled fallback and backup',
     () => {
         const state = positionState();
@@ -583,17 +630,21 @@ test('rloc_to refuses each state whose tail it does not run', () => {
     assert.throws(() => rloc_to(placed, 12, 11, { state, newsym: () => {} }),
         /already on the map/u);
 
-    // Each term of the side-effect guard on its own.
+    // Each term of the side-effect guard on its own. The occupation term names
+    // state.go.occupation, where cmd.c set_occupation() puts C's
+    // go.occupation; it used to name a bare state.occupation that nothing in
+    // js/ assigns, so it refused nothing.
+    state.go = {};
     for (const set of [
         (mon) => { mon.isshk = true; },
         (mon) => { mon.wormno = 3; },
         (mon) => { state.u.ustuck = mon; },
         (mon) => { mon.mtrapped = 1; },
-        () => { state.occupation = () => 0; },
+        () => { state.go.occupation = () => 0; },
     ]) {
         const monster = arrivingMonster(state);
         state.u.ustuck = null;
-        state.occupation = null;
+        state.go.occupation = null;
         set(monster);
         assert.throws(
             () => rloc_to(monster, 10, 11, { state, newsym: () => {} }),
@@ -602,7 +653,7 @@ test('rloc_to refuses each state whose tail it does not run', () => {
         assert.equal(state.level.monsters[10][11] ?? null, null);
     }
     state.u.ustuck = null;
-    state.occupation = null;
+    state.go.occupation = null;
 
     // Carried shop goods reach stolen_value() and make_angry_shk(); either
     // field on any carried object is enough.

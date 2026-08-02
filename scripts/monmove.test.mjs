@@ -336,6 +336,10 @@ function makeState() {
         moves: 1,
         dungeons: [{ flags: { hellish: false } }],
         astral_level: { dnum: 99, dlevel: 1 },
+        // decl.c's `go`. cmd.c set_occupation() writes go.occupation here,
+        // and monmove.c dochugw() reads it; the tests below install a
+        // callback the same way the running game does.
+        go: {},
         level: {
             flags: {
                 arboreal: false,
@@ -2400,7 +2404,7 @@ test('dochugw delegates movement and leaves an idle hero alone', async () => {
 
 test('dochugw stops work for a newly nearby visible threat in source order', async () => {
     const { state } = makeState();
-    state.occupation = () => {};
+    state.go.occupation = () => {};
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mx: 1,
@@ -2450,7 +2454,7 @@ test('dochugw stops work for a newly nearby visible threat in source order', asy
 
 test('dochugw hallucination bypasses hostility only without resistance', async () => {
     const { state } = makeState();
-    state.occupation = () => {};
+    state.go.occupation = () => {};
     state.u.uprops[HALLUC].intrinsic = 5;
     const monster = ordinaryMonster(state, {
         mcanmove: true,
@@ -2476,7 +2480,7 @@ test('dochugw hallucination bypasses hostility only without resistance', async (
 
 test('dochugw rechecks occupation after the monster action', async () => {
     const { state } = makeState();
-    state.occupation = () => {};
+    state.go.occupation = () => {};
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mx: 9,
@@ -2488,7 +2492,7 @@ test('dochugw rechecks occupation after the monster action', async () => {
         canSpotMonster: () => true,
         couldSee: () => true,
         dochug() {
-            state.occupation = null;
+            state.go.occupation = null;
             return 0;
         },
         stopOccupation: () => assert.fail('action already stopped work'),
@@ -2546,7 +2550,7 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
 
     for (const [name, configure] of cases) {
         const { state } = makeState();
-        state.occupation = () => {};
+        state.go.occupation = () => {};
         const monster = ordinaryMonster(state, {
             mcanmove: true,
             mx: 9,
@@ -2574,7 +2578,7 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
 
 test('dochugw preflights occupation owners before monster action', async () => {
     const { state } = makeState();
-    state.occupation = () => {};
+    state.go.occupation = () => {};
     const monster = ordinaryMonster(state);
     let actions = 0;
     const dochug = () => { ++actions; return 0; };

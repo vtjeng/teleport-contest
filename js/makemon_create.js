@@ -2549,9 +2549,25 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         monster.minvent = null;
     }
 
-    // C ref: makemon.c makemon(). Runtime creation refreshes the final square
-    // after inventory and group creation. Appearance messages and occupation
-    // interruption remain with their future command/UI owners.
+    // C ref: makemon.c makemon() (1472-1505). Runtime creation refreshes the
+    // final square after inventory and group creation, then runs two tails
+    // this port omits: the Norep() appearance message (1473-1501) and
+    // `if (go.occupation) (void) dochugw(mtmp, FALSE);` (1502-1503).
+    //
+    // Both are dormant rather than deferred, for one reason.
+    // makemon_rnd_goodpos() rejects every square the hero can see when the
+    // level already exists -- `good = (!gi.in_mklev && cansee(nx,ny)) ? FALSE
+    // : goodpos(...)` at makemon.c:1089, ported above -- so a monster
+    // generated at runtime lands where cansee() is false. canseemon() needs
+    // cansee() at the monster's square, which makes both the message's
+    // `canseemon(mtmp)` arms and dochugw()'s `canspotmon(mtmp)` gate false.
+    // sensemon() is the other half of canspotmon(), and it needs telepathy,
+    // extended sight or warning, none of which a hero has in the ported scope.
+    //
+    // Two narrow paths escape that argument and stay unreached: the second
+    // scan pass at 1103-1113, which admits a visible square only after every
+    // invisible one has failed goodpos() across the whole map, and group
+    // members placed near an already-placed leader.
     if (!state.in_mklev) redrawSquare(monster.mx, monster.my, normalized);
 
     return monster;

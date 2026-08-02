@@ -253,7 +253,11 @@ async function prepareSelectedAction({
     game.u.utotype = 0;
     game.moves = 2;
     game.context.bypasses = false;
-    game.occupation = null;
+    // decl.c's go.occupation, which monmove.c dochugw() reads for every
+    // monster the scan moves. Cleared so the scan below is the idle-hero
+    // case; the line used to name a bare game.occupation that nothing
+    // assigns.
+    (game.go ??= {}).occupation = null;
     game.head_engr = null;
 
     clearCoordinateGrid(game.level.monsters);
@@ -1521,6 +1525,48 @@ test('simple preflight rejects every selected excluded action atomically',
                 );
             }
         }
+    });
+
+test('simple preflight refuses each turn-preamble state on its own',
+    async () => {
+        // allmain.c moveloop_core() runs `if (svc.context.bypasses)
+        // clear_bypasses();` at 193 and resolves a deferred level transition
+        // before the monster loop; neither is ported, so a scan entered with
+        // either one pending must refuse. Each is set alone, so a guard that
+        // demanded both would admit these two turns.
+        //
+        // The guard used to carry a third term reading game.occupation, a
+        // field nothing in js/ assigns. C gates nothing here on go.occupation
+        // -- allmain.c names it only at 332, 485-506 and 684-689, all later in
+        // the turn -- so dropping it stops nothing that C stops; monmove.c
+        // dochugw() owns the per-monster occupation test instead.
+        for (const pending of [
+            () => { game.context.bypasses = true; },
+            () => { game.u.utotype = 1; },
+        ]) {
+            await prepareSelectedAction();
+            pending();
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason
+                        === 'deferred monster cleanup or level transition'
+                ),
+            );
+            game.context.bypasses = false;
+            game.u.utotype = 0;
+        }
+
+        // With neither pending the same scan runs to completion, which is what
+        // makes the two refusals above attributable to the states they set.
+        const clean = await prepareSelectedAction();
+        const before = completeSecondTurnSnapshot(game, clean.replay);
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, clean.replay),
+            before,
+        );
     });
 
 test('simple preflight admits source-inert monster inventory', async () => {

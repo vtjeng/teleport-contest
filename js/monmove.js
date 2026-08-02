@@ -524,9 +524,14 @@ function heroHallucinating(state) {
 // monster action. canSpotMonster and stopOccupation retain display/sensing and
 // command-state ownership. When an occupation is active, preflight those
 // later seams before dochug can mutate the monster or game state.
+//
+// C's `go.occupation` lives at state.go.occupation, where cmd.c
+// set_occupation() writes it. Both reads below name that field, and the second
+// re-reads it as C does at monmove.c:223, because dochug() can clear it:
+// steal.c:370 calls stop_occupation() when a nymph steals mid-meal.
 export async function dochugw(monster, chug, env = {}) {
     const state = env.state ?? game;
-    const occupation = state.occupation;
+    const occupation = state.go?.occupation;
     const dochugOperation = chug
         ? requireDochugwOperation(env, 'dochug')
         : null;
@@ -552,7 +557,7 @@ export async function dochugw(monster, chug, env = {}) {
         : 0;
     const threatRange = (BOLT_LIM + 1) * (BOLT_LIM + 1);
 
-    if (state.occupation && !result
+    if (state.go?.occupation && !result
         && (heroHallucinating(state)
             || (!monster.mpeaceful && !noattacks(monster.data)))
         && dist2(monster.mx, monster.my, state.u?.ux, state.u?.uy)

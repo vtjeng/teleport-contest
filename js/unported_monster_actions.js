@@ -879,7 +879,15 @@ export async function preflightSimpleMonsterActions(
     state = game,
     { advanceRound = null } = {},
 ) {
-    if (state.context?.bypasses || state.u?.utotype || state.occupation)
+    // The two terms are allmain.c moveloop_core()'s own preamble:
+    // `if (svc.context.bypasses) clear_bypasses();` at 193 and the deferred
+    // level transition u.utotype records. A third term named an occupation,
+    // which C gates nothing on here -- allmain.c mentions go.occupation only
+    // at 332, 485-506 and 684-689, all after this point in the turn -- and it
+    // read a field nothing assigns, so it stopped nothing. monmove.c
+    // dochugw() carries the per-monster occupation test, and stopOccupation
+    // refuses there for the one monster that C would stop the meal for.
+    if (state.context?.bypasses || state.u?.utotype)
         unsupported('deferred monster cleanup or level transition');
     const planned = planningState(state);
     const random = clonedRandom(planned);
