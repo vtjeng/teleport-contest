@@ -565,6 +565,15 @@
       "status": "open",
       "from": "272c0c332c633a6b0ef45aef0b7f96df065f586b",
       "detail": "allmain.c stop_occupation() (684-696) runs maybe_finished_meal(), You(\"stop %s.\", go.occtxt), disp.botl and nomul(0). The port refuses instead, so both occupation boundaries end a segment where C prints \"You stop eating the food ration.\" and continues. The go.occupation repoint at 272c0c3 made the dochugw() boundary live, and the adjacency boundary predates it. Porting stop_occupation() converts both into matching output. The hard part is the dry-run architecture: its usedtime >= reqtime arm is reachable one turn per meal, when eatfood() has already raised usedtime to reqtime and returned 1, so eatfood() must run on the clone as well as live. Found by the slice that closed the go.occupation entry; opened by the orchestrator, since that brief reserved ledger writes."
+    },
+    {
+      "id": "the timebot splice translates absolutely-positioned status fields",
+      "area": "display",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "002c0a522cc4a3335cadb8d07e66b9361b8c54a0",
+      "detail": "js/display.js _replaceTimeField() shifts every cell after the time run by the length difference, but wintty.c render_status() re-derives two positions on the BL_FLUSH that stat_update_time() triggers. BL_VERS is right-justified at cw->cols - lth whenever it ends its row, which twolineorder does (wintty.c:4283-4284, 5185-5209). The three-row BL_CONDITION indent is recomputed from tty_status[BEFORE][BL_HUNGER].x, which sits on row 2 and does not move (wintty.c:5036-5062). Neither position depends on the time field's length, so the splice drags both right one column per digit the counter gains. make_things_fit()'s shrink ladder is the third omission, and its only moving input on a time-only refresh is BL_TIME's own length, so the declared reason for skipping it is wrong too. Reproduced at seed 5310007: with OPTIONS=time,showvers a full bot() at moves=1000 keeps 5.0.0 at columns 74-78 while bot() at 999 followed by timebot() at 1000 puts it at 75-79; with OPTIONS=time,statuslines:3 and STUNNED set, Stun sits at column 40 under a full render and 41 through the splice. Two development sessions set showvers with time, seed0007-rogue-snake-swamp and seed2200-wizard-quaff-zap-read, so this is reachable in the scored set rather than dormant, and it diverges silently instead of stopping. Found by the commands-sweep correctness pass as five confirmed findings with one root cause. Closing it means porting render_status()'s geometry: re-derive the right-anchored runs and the condition indent after splicing the time columns, and run the result back through the width ladder. That is a new upstream function, which .agents/review.md puts outside audit-fix scope. Closing condition: a display test that renders the same state through bot() and through bot() plus timebot() and asserts the rows are byte-identical, under time,showvers and under time,statuslines:3 with an active condition."
     }
   ],
   "areas": [

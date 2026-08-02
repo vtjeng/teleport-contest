@@ -528,9 +528,13 @@ export async function runSegment(
                 || e instanceof UnsupportedHeroCommandBoundaryError
                 // dungeon.c u_on_newpos() reaches earth_sense() from
                 // js/hack.js domove(), js/do.js goto_level() and
-                // js/teleport.js teleds(); all three run under this loop, so
-                // the missing notice ends the segment on its last matching
-                // screen rather than discarding the prefix.
+                // js/teleport.js teleds(), which run under this loop, so the
+                // missing notice ends the segment on its last matching screen.
+                // Two further callers run during level creation, outside it:
+                // js/mklev.js place_lregion() and u_on_upstairs(). Neither can
+                // reach the throw, because the hero arrives on a staircase and
+                // earth_sense() returns before reading the buried list unless
+                // the square is ROOM or CORR.
                 || e instanceof UnsupportedEarthSenseError
                 || e instanceof UnsupportedSpecialRoomError) {
                 onBoundary?.(e);

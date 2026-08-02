@@ -1058,8 +1058,10 @@ function isDrawbridge(location) {
 
 // C ref: dbridge.c is_drawbridge_wall() (148-159). C returns a direction or
 // -1; the port answers a boolean because every caller only tests >= 0.
-// This and is_db_wall() below belong in a js/dbridge.js port of that file;
-// they live here because this file had the first caller.
+// This and is_db_wall() below belong in a js/dbridge.js port of that file.
+// is_drawbridge_wall() lives here because this file held its first caller;
+// is_db_wall() sits beside its sibling from the same C file, and its only
+// caller is js/hack.js test_move().
 export function is_drawbridge_wall(x, y, state) {
     if (!isok(x, y)) return false;
     const location = state.level?.at(x, y);

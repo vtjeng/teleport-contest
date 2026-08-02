@@ -1477,7 +1477,24 @@ test('a blind hero refuses an object on terrain surface() cannot name',
             destination.typ = terrain;
             game.flags.pickup = false;
             game.u.uprops[BLINDED].intrinsic = 1;
-            game.level.objects[x][y] = {
+            // The bare square first: look_here() is reached only through
+            // check_here(), and pickup.c:702-707 returns before it when the
+            // square holds nothing, so C prints no surface line and the guard
+            // must not fire. Without this the `floorObject &&` term can be
+            // deleted with the whole suite still green.
+            await domove(game).catch((error) => {
+                assert.ok(
+                    !String(error?.message ?? '')
+                        .includes('blind terrain description'),
+                    `${label}, empty`,
+                );
+            });
+
+            const withObject = await prepareHeroMoveAdmission();
+            withObject.destination.typ = terrain;
+            game.flags.pickup = false;
+            game.u.uprops[BLINDED].intrinsic = 1;
+            game.level.objects[withObject.x][withObject.y] = {
                 otyp: DART,
                 oclass: WEAPON_CLASS,
                 quan: 1,

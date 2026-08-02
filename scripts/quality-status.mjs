@@ -1463,7 +1463,7 @@ trackedIn naming an id in the deferred ledger, for every deferred finding.
 Create the ledger entry with defer before recording the pass.`);
 }
 
-function main(argv) {
+export function main(argv) {
   const [first, ...rest] = argv;
   if (first === '--help' || first === '-h' || first === 'help') {
     printHelp();

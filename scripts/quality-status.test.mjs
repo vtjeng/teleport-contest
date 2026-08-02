@@ -24,6 +24,7 @@ import {
   missingMutantTrailers,
   renderCountsSentence,
   validateConfigShape,
+    main,
     passAreas,
     passOptionNames,
 } from './quality-status.mjs';
@@ -983,6 +984,28 @@ test('a pass derives its area labels from the paths the range changed', () => {
 // option before the branch could run, because the name was missing from the
 // allowed set. A test on the function alone cannot see that; this one names
 // the option as the command accepts it.
+// Through main(), not through passOptionNames(). The defect this replaced was
+// preparePass() rejecting --areas from an inline set while the exported helper
+// listed it, so a test that reads the helper passes with the command broken.
+test('the recorder command accepts --areas', () => {
+    const run = (extra) => {
+        try {
+            main(['record-review', '--range', 'HEAD~1..HEAD', '--level',
+                'full', '--outcome', 'changed', '--evidence', 'x',
+                '--dry-run', ...extra]);
+        } catch (error) {
+            return String(error?.message ?? '');
+        }
+        return '';
+    };
+    // --areas must clear option validation. Whatever the command then refuses
+    // it for, the message must not be the unknown-option one.
+    assert.ok(!run(['--areas', 'commands']).includes('unknown option'));
+    // A name the parser really does not take still fails, so the assertion
+    // above is not vacuous.
+    assert.match(run(['--nosuchoption', 'x']), /unknown option: --nosuchoption/u);
+});
+
 test('the recorder accepts every option its pass record can carry', () => {
     for (const name of [
         'range', 'head', 'outcome', 'evidence',
