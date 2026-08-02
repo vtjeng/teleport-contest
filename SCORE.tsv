@@ -75,3 +75,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T10:15:26.084Z	9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d	checkpoint	1	33	648	7765	107437	610816	655	7765					14	tree dirty
 2026-08-02T10:20:10.890Z	9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d	checkpoint	1	33	648	7765	107437	610816	655	7765					15	tree dirty
 2026-08-02T10:21:41.351Z	9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d	checkpoint	1	33	648	7765	107437	610816	655	7765					15	tree dirty
+2026-08-02T10:29:44.729Z	8fe86c57ceb2fddc9942d901f559031e7c5b80c5	checkpoint	1	33	648	7765	107437	610816	655	7765					15	
+2026-08-02T10:30:04.145Z	8fe86c5	slice	1	33	648	7765	107437	610816	655	7765						adjabil() gain arm above level 1: +66 screens, the full ceiling the slice selection forecast.
