@@ -19,6 +19,24 @@ more; it counts every category except `scope`, whose entries name unported
 territory a boundary goal attacks. Resolve one of that area's entries before
 opening the next boundary goal.
 
+Order the entries by how the port behaves at each one. An entry where the port
+skips a message-writing C branch silently comes before an entry where the port
+stops on a named refusal, because `AGENTS.md` forbids the first and permits the
+second.
+
+Read every entry in the area before opening the goal, then close every entry
+that reading showed to be small, even after the count falls below ten. The
+reading costs more than the closing. Once below ten, stop at an entry that
+turns out to need a fresh recording, a state-owner change, or a decision its
+record does not settle: queue it as its own slice, and state in the closing
+report what the reading found, because the ledger has no command that amends an
+open entry.
+
+An entry closes only when the behavior its record names as the closing
+condition is ported. An entry waiting on an unported command therefore survives
+the sweep. Name each surviving entry in the closing report with the behavior it
+waits on.
+
 ### Fail-closed boundary ports
 
 Once the report lists no area, pick a fail-closed boundary port. This goal
@@ -68,7 +86,10 @@ forecast can cost.
 behavior slices, each closed on its own. A goal may list the slices it is known
 to need; where it does not, the slice-selector identifies each in turn while the
 goal is in progress. A sweep needs no slice selection: each open entry is a
-slice, scoped when it was deferred. `AGENTS.md` states when a goal needs a
+slice, scoped when it was deferred. Group several entries into one slice when
+one body of evidence closes all of them. Leave an entry in its own slice when
+closing it needs a fresh recording, changes a state owner, or revives a dead
+refusal. `AGENTS.md` states when a goal needs a
 checklist: work that continues across agent sessions, touches more than one
 game system, or approaches 500 changed lines of game code. `QUALITY.json`'s
 thresholds schedule reviews inside a goal and set no ceiling on its size; size

@@ -7,6 +7,28 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
+## Let the ledger amend an open deferral
+
+**What it changes.** `npm run quality` would gain a mode that rewrites an open
+deferral's `detail`, leaving its id, area, category and `from` commit alone.
+
+**Scope.** One mode beside `defer`, a status guard so a closed entry stays
+closed, and its test.
+
+**What prompted it.** The `commands` sweep on 2 August 2026. Reading the ten
+entries produced findings none of them recorded: that `earth_sense()`'s branch
+is dormant because every burial site on a reachable level is a GRAVE or STONE
+square, and that the `m` prefix entry rests on a reproduction nobody repeated.
+`deferEntry()` refuses an id that already exists
+(`scripts/quality-status.mjs:1316`), so neither finding could go back into the
+entry that prompted it. `.agents/selection.md` now routes them to the closing
+report, so the sweep carries the finding and the entry keeps its original text.
+
+**Cost.** Small. The judgement of when a detail is stale stays the caller's.
+
+**What it leaves unfixed.** The `from` commit still dates the entry to its
+first writing, so an amended entry reads as older than its newest finding.
+
 ## Let a review pass scope an audit-fix tail on its own
 
 **What it changes.** `scripts/audit-worktree.mjs prepare` would accept a range
