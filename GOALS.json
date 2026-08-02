@@ -126,7 +126,7 @@
     },
     {
       "id": "commands-deferral-sweep",
-      "status": "open",
+      "status": "closed",
       "boundary": "clear the ten open non-scope deferrals the commands area has accumulated, starting with the two that fail open rather than fail closed",
       "upstreamOwners": [
         "allmain.c moveloop_core()",
@@ -171,8 +171,11 @@
         "screens": 676,
         "rng": 108261
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "94d5251899b8faac5e2ba5eca84b650816731046",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
