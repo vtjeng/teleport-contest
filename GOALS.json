@@ -60,6 +60,11 @@
           "name": "#levelchange raises the hero past a level that grants an innate ability",
           "status": "closed",
           "closedBy": "8fe86c57ceb2fddc9942d901f559031e7c5b80c5"
+        },
+        {
+          "name": "a Tourist gains experience points on reaching a new level",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "463cabd8ef401139326de6e698a9651c98c6936a",
