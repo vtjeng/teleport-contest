@@ -85,7 +85,7 @@ import { observe_object } from './o_init.js';
 import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
 import { isWeptool } from './obj.js';
-import { newuexp } from './exper.js';
+import { newuexp, UnsupportedExperienceChangeError } from './exper.js';
 import { weapon_type } from './startup_skills.js';
 import { weapon_descr } from './weapon.js';
 import { bimanual } from './worn.js';
@@ -2735,6 +2735,35 @@ function _statusExperiencePercentage(u) {
     const needed = newuexp(level) - levelStart;
     return gained === needed - 1
         ? 100 : _statusPercentage(gained, needed);
+}
+
+// C ref: botl.c exp_percent_changing(). exper.c more_experienced() asks it
+// whether a status redraw is needed after experience points changed but
+// 'showexp' left the points off the status line: a percentage highlight rule
+// on the Xp field reads those points, so its selected rule can change even
+// though nothing printed does.
+//
+// The first term of C's test is a constant here. initblstats[] builds BL_XP
+// through INIT_BLSTATP, so its percent_matters is TRUE, and nothing in the
+// program writes that member afterwards. What decides the answer is
+// curr->thresholds, the STATUSHILITE rules parsed for the field; with none of
+// them C returns FALSE without evaluating exp_percentage() at all.
+//
+// A rule on the field is refused rather than guessed. C answers it by
+// comparing get_hilite()'s choice against curr->hilite_rule, the rule the
+// last draw settled on, and this port keeps no such per-field memory:
+// _statusFieldStyle() reselects from current state every time the status line
+// is built. Reproducing the comparison means giving the renderer that memory.
+export function exp_percent_changing(state = game) {
+    /* "if status update is already requested, skip this processing" */
+    if (state.disp?.botl) return false;
+    const thresholds = (state.iflags?.status_hilites ?? []).filter(
+        (rule) => rule.field === 'experience-level',
+    );
+    if (!thresholds.length) return false;
+    throw new UnsupportedExperienceChangeError(
+        'exp_percent_changing() with a percentage highlight rule on Xp',
+    );
 }
 
 // C ref: botl.c xlev_to_rank(). Converts an experience level (1..30) to a

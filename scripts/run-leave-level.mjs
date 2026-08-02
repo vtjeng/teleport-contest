@@ -50,6 +50,7 @@ const DATETIME = '20330607081011';
 const PRIEST_DATETIME = '20340215090807';
 const PET_DATETIME = '20320718062030';
 const SAMURAI_DATETIME = '20291112131415';
+const TOURIST_PET_DATETIME = '20290418073000';
 
 // The key bound to the `down` command, extcmdlist[]'s 0x3E row.
 export const DOWN_COMMAND = '>';
@@ -58,22 +59,29 @@ export const DOWN_COMMAND = '>';
 const DISMISS_MORE = ' ';
 
 function nethackrc({ name, role, race = 'human', gender = 'female',
-    align = 'neutral', pettype }) {
+    align = 'neutral', pettype, showexp = false }) {
     return [
         `OPTIONS=name:${name},role:${role},race:${race},gender:${gender},`
         + `align:${align}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
-        `OPTIONS=pettype:${pettype},!acoustics,!autopickup`,
+        `OPTIONS=pettype:${pettype},!acoustics,!autopickup`
+        + (showexp ? ',showexp' : ''),
         '',
     ].join('\n');
 }
 
-function descent({ seed, walk, datetime = DATETIME, ...character }) {
+// `waits` appends that many `s` search keys after the arrival. Each one costs
+// a turn and moves nobody, so the status line is compared for that many more
+// command frames -- which is where a redraw one frame early or late shows up,
+// the arrival frame itself being drawn by docrt() either way.
+function descent({
+    seed, walk, waits = 0, datetime = DATETIME, ...character
+}) {
     return {
         seed,
         datetime,
         nethackrc: nethackrc(character),
-        moves: `${walk}${DOWN_COMMAND}${DISMISS_MORE}`,
+        moves: `${walk}${DOWN_COMMAND}${DISMISS_MORE}${'s'.repeat(waits)}`,
     };
 }
 
@@ -209,6 +217,68 @@ export function loadArrivingFollowerRecipe() {
     }, 'arriving follower recipe');
 }
 
+// do.c:1961-1964 pays a Tourist for sightseeing, and nobody else: on every
+// first arrival more_experienced(level_difficulty(), 0) adds the destination's
+// depth to u.uexp and four times that to u.urexp, and newexplevel() then asks
+// whether the total has reached the next level. On D:2 the grant is 2 points
+// against newuexp(1)'s 20, so the points move and the level does not.
+//
+// 'showexp' is what puts those points on the status line, so these segments
+// set it deliberately. Without it a Tourist's arrival changes u.uexp and
+// u.urexp and nothing on screen -- which is what both development segments
+// that descend as Tourists record, because both leave the option off. The
+// second segment repeats the first with it clear, where more_experienced()'s
+// disp.botl gate is the only difference between them.
+export function loadTouristArrivalRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // Xp:1/0 becomes Xp:1/2 on the arrival's status line.
+            descent({
+                seed: 9100135, name: 'Sightsee', role: 'Tourist',
+                pettype: 'none', showexp: true, walk: 'hhhhyyhhhhhh',
+            }),
+            // The same descent with the points off the status line. Nothing
+            // it draws differs from a Valkyrie's arrival, which is the point:
+            // more_experienced() must ask for no redraw here.
+            descent({
+                seed: 9100135, name: 'Sightsee', role: 'Tourist',
+                pettype: 'none', walk: 'hhhhyyhhhhhh',
+            }),
+            // Two more layouts, so a port that had tied the grant to one
+            // arrival position or one walk length fails here. The first holds
+            // the arrival still for two more command frames, which is what
+            // pins the redraw to the frame the C build puts it on.
+            descent({
+                seed: 9100145, name: 'Sightsee', role: 'Tourist',
+                pettype: 'none', showexp: true, walk: 'lnlllllllllu',
+                waits: 2,
+            }),
+            descent({
+                seed: 9100187, name: 'Sightsee', role: 'Tourist',
+                pettype: 'none', showexp: true, walk: 'lllukkkkyykk',
+            }),
+            // A Tourist with a pet, on a second gender and datetime: the
+            // arrival tail that mon_arrive() and the redraw own runs between
+            // docrt() and the sightseeing grant.
+            descent({
+                seed: 9300181, name: 'Sightsee', role: 'Tourist',
+                gender: 'male', pettype: 'dog', showexp: true,
+                datetime: TOURIST_PET_DATETIME, walk: 'kkkuuukkkkkklu',
+                waits: 2,
+            }),
+            // The control: another role descending with 'showexp' set, whose
+            // Xp:1/0 stays Xp:1/0. do.c:1961's Role_if(PM_TOURIST) is the
+            // only thing between this segment and the first.
+            descent({
+                seed: 9400067, name: 'Nogain', role: 'Valkyrie',
+                pettype: 'none', showexp: true, walk: 'hjjbbjjjb',
+                waits: 2,
+            }),
+        ],
+    }, 'tourist arrival recipe');
+}
+
 export async function runLeaveLevelMatrix() {
     return runFreshMatrix({
         entries: [
@@ -217,6 +287,7 @@ export async function runLeaveLevelMatrix() {
                 label: 'arriving follower',
                 recipe: loadArrivingFollowerRecipe(),
             },
+            { label: 'tourist arrival', recipe: loadTouristArrivalRecipe() },
         ],
         summaryLabel: 'LEAVE LEVEL',
     });

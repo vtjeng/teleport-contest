@@ -493,6 +493,33 @@
       "status": "open",
       "from": "9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d",
       "detail": "attrib.c:1050 gates You_feel() on\n`!(*(abil->ability) & INTRINSIC & ~mask)`, so an innate entry announces\nnothing when the hero already holds that property from the other mask. No\nlegal role and race pair reaches it above experience level 1, so\nscripts/run-level-change.mjs cannot record a case for it.\n\nTraced: no role table repeats a property, and adjabil()'s own race switch\nreads only elf_abil[] (infravision at 1, sleep resistance at 4) and orc_abil[]\n(infravision and poison resistance, both at 1). mon_abil[] grants sleep\nresistance and see invisible at 1 and poison resistance at 3, and tou_abil[]\ngrants poison resistance at 20, but role.c:258 and role.c:477 give Monk and\nTourist MH_HUMAN alone, so neither can be an elf or an orc. The one pair that\ndoes reach the test, an orc Barbarian whose bar_abil[] poison resistance at\nlevel 1 meets orc_abil[]'s, suppresses a message that is empty anyway.\n\nClose it by covering the branch from wizcmds.c wiz_intrinsic() (#wizintrinsic),\nwhich sets an intrinsic from an outside source and is unported, or record here\nthat the branch stays uncovered. scripts/level-change.test.mjs pins the\nexpression indirectly: flipping the test's sense makes four of its assertions\nfail, because every reachable gain then prints nothing."
+    },
+    {
+      "id": "pluslvl(TRUE) needs a Tourist on D:6",
+      "area": "hero",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "4e2820a66dba54ef99e43e0a9438bc9a21bcce4d",
+      "detail": "exper.c pluslvl()'s incremental arm -- the silent opening at 314-315 and the\nu.uexp = newuexp(u.ulevel + 1) - 1 cap at 341-345 -- stays refused inside\njs/exper.js pluslvl(). exper.c newexplevel() is now ported and calls it, so\nthe arm has a wired caller; what it has no case for is a hero who meets the\nthreshold.\n\nThe smallest one is a Tourist on D:6. do.c:1962 grants level_difficulty(),\nwhich is depth() in the main dungeon, and newuexp(1) is 20, so the arrivals on\nD:2 through D:6 sum to 2+3+4+5+6 = 20 exactly. #levelchange does not shorten\nit: raising u.ulevel raises newuexp(u.ulevel) faster than the arrivals raise\nu.uexp. The port has never gone past Dlvl:2 in any recorded or fresh case, so\nthe arm cannot be closed on unit tests alone.\n\nClose it when a wizard-mode hero can teleport between levels: a Tourist taken\nfrom D:1 to D:20 in one arrival gains exactly newuexp(1) and raises one level,\nwhich reaches pluslvl(TRUE) in a single command. scripts/level-arrival.test.mjs\npins the guard around it -- newexplevel() refuses at u.uexp >= newuexp(1) and\ndoes nothing below it or at MAXULEV -- but a unit test cannot close a dormant\npath."
+    },
+    {
+      "id": "give_may_advance_msg() needs hero combat",
+      "area": "monsters",
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "4e2820a66dba54ef99e43e0a9438bc9a21bcce4d",
+      "detail": "weapon.c give_may_advance_msg() still throws at js/weapon.js:883. It sits\ninside the experience-level-gain goal's bounding property -- exper.c pluslvl()\nreaches it through attrib.c adjabil() and weapon.c add_weapon_skill() -- but no\nraise can print it.\n\nadd_weapon_skill() calls it only when the skill's practice already stands at\nor above the next rank's requirement, so it needs P_ADVANCE(before) to have\nbeen raised by use. The only writer of that is use_skill(), which every ported\npath reaches through combat the hero starts, and hero combat is unported: the\nport refuses it at js/hack.js's 'hero combat or displacement' boundary. A hero\nraised by #levelchange or by a Tourist's arrival has practised nothing, so\nevery skill she gains slots for is at zero and the message is suppressed.\n\nClose it with hero combat, which gives P_ADVANCE its first nonzero value and\nmakes the branch reachable from an ordinary level gain."
+    },
+    {
+      "id": "newgame skips pickup(1), so a hero starting on an engraving misses its message",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "4e2820a66dba54ef99e43e0a9438bc9a21bcce4d",
+      "detail": "allmain.c moveloop_preamble()'s !resuming arm calls set_wear(NULL),\nreset_justpicked(gi.invent) and pickup(1) at allmain.c:73-75.\njs/moveloop_preamble.js:61-62 leaves all three out, recorded there as\ninventory side effects the inventory subsystem cannot yet own faithfully.\n\npickup(1) is not only an inventory call. Its local `autopickup` is\n`what > 0`, so a new game always takes it, and pickup.c:702-709's early\nreturn for a square holding nothing ends in read_engr_at(u.ux, u.uy). A hero\nwho starts on an engraved square therefore reads it before her first command,\nand the port prints nothing.\n\nFound while choosing seeds for the Tourist arrival matrix. Reproduce with\n`node scripts/diff-fresh.mjs --seed 9300030 --datetime 20290418073000\n--nethackrc-file <rc> --moves '   '` where the rc reads\n\n  OPTIONS=name:Sightsee,role:Tourist,race:human,gender:male,align:neutral\n  OPTIONS=!legacy,!tutorial,!splash_screen\n  OPTIONS=pettype:dog,!acoustics,!autopickup,showexp\n\nThe PRNG log matches call for call, 2534 either side, and every screen\ndiffers: C draws the welcome line with a --More-- over it and answers the\nfirst space with `Something is written here in the dust.  You read: \"ad\n??rar um\".`, while the port draws the welcome line alone and spends the space\non a command. js/pickup.js and js/engrave.js already hold both functions, so\nthe missing piece is the call site.\n\nClose it with the inventory work that lets moveloop_preamble() run set_wear()\nand reset_justpicked(), or earlier if pickup(1) can be wired without them."
     }
   ],
   "areas": [

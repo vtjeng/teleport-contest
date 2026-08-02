@@ -1,11 +1,13 @@
 // exper.js — experience and spell-energy advancement.
-// C ref: src/exper.c newuexp(), enermod(), newpw(), and pluslvl().
+// C ref: src/exper.c newuexp(), enermod(), newpw(), more_experienced(),
+// newexplevel(), and pluslvl().
 
 import { A_WIS, MAXULEV, Upolyd } from './const.js';
 import { adjabil, effective_attribute, newhp, setuhpmax } from './attrib.js';
-import { xlev_to_rank } from './display.js';
+import { exp_percent_changing, xlev_to_rank } from './display.js';
 import { game } from './gstate.js';
 import { achieve_rank, record_achievement } from './insight.js';
+import { PM_WIZARD } from './monsters.js';
 import { rn1, rnd } from './rng.js';
 
 function advancementValue(advance, field) {
@@ -84,6 +86,61 @@ export class UnsupportedExperienceChangeError extends Error {
     }
 }
 
+// C ref: exper.c more_experienced(). Adds `exper` experience points and
+// `rexp` bonus score points, the score also taking four times the experience.
+// It draws no random numbers and prints nothing; all it can do besides move
+// the two totals is ask for a status redraw.
+//
+// The score half sets no redraw: include/config.h:627 leaves SCORE_ON_BOTL
+// undefined in the reference build, so the `flags.showscore` test at
+// exper.c:196-198 is not compiled and the status line carries no S: field.
+export function more_experienced(exper, rexp, state = game) {
+    const u = state.u;
+    const oldexp = u.uexp;
+    const oldrexp = u.urexp;
+    const newexp = oldexp + exper;
+    const rexpincr = 4 * exper + rexp;
+    const newrexp = oldrexp + rexpincr;
+
+    /* "cap experience and score on wraparound" */
+    // exper.c:178-181 replaces a total that C's 64-bit `long` addition drove
+    // negative with LONG_MAX. A JavaScript number neither wraps nor stays an
+    // exact integer that far out, so the cap cannot be reproduced; refuse the
+    // arithmetic instead, at the point where the two languages part. Nothing
+    // ported comes close: neither total ever goes negative, and the largest
+    // single grant any caller makes here is level_difficulty(), 2 on D:2.
+    if (!Number.isSafeInteger(newexp) || !Number.isSafeInteger(newrexp)) {
+        throw new UnsupportedExperienceChangeError(
+            "more_experienced() past JavaScript's exact-integer range",
+        );
+    }
+
+    if (newexp !== oldexp) {
+        u.uexp = newexp;
+        if (state.flags.showexp) state.disp.botl = true;
+        /* "even when experience points aren't being shown, experience level
+           might be highlighted with a percentage highlight rule and that
+           percentage depends upon experience points" */
+        if (!state.disp.botl && exp_percent_changing(state))
+            state.disp.botl = true;
+    }
+    /* "newrexp will always differ from oldrexp unless they're LONG_MAX" */
+    if (newrexp !== oldrexp) u.urexp = newrexp;
+    if (u.urexp >= (state.urole?.mnum === PM_WIZARD ? 1000 : 2000))
+        state.flags.beginner = false;
+}
+
+// C ref: exper.c newexplevel(). "Make experience gaining similar to AD&D(tm),
+// whereby you can at most go up by one level at a time, extra expr possibly
+// helping you along." The one caller wired here is do.c goto_level()'s
+// Tourist arrival, whose grant is level_difficulty(); a Tourist needs to reach
+// D:6 before 2+3+4+5+6 meets newuexp(1), so pluslvl(TRUE) below stays refused.
+export async function newexplevel(state = game, env = {}) {
+    const u = state.u;
+    if (u.ulevel < MAXULEV && u.uexp >= newuexp(u.ulevel))
+        await pluslvl(true, state, env);
+}
+
 // C ref: exper.c pluslvl(). `incr` is False for the potion of gain level, the
 // wraith corpse, and wizard mode's #levelchange; only #levelchange reaches it
 // here, so the "You feel more experienced." opening always prints.
@@ -95,10 +152,15 @@ export class UnsupportedExperienceChangeError extends Error {
 // (pline.c:274), so a screen recorded at that prompt can show a level the top
 // line has not announced yet.
 //
-// Three arms have no owner. `incr` is True only from exper.c newexplevel(),
-// which is unported, so its arm -- the silent opening and the u.uexp cap just
-// below the next threshold -- is refused below rather than written blind. The
-// Upolyd block, which adds monhp_per_lvl() to u.mh, cannot run because
+// Three arms have no owner. `incr` is True only from exper.c newexplevel()
+// above, whose sole wired caller grants a Tourist level_difficulty() points on
+// arrival; the smallest fresh case that meets newuexp(1) with those grants is
+// a Tourist on D:6, and no recorded or fresh case has taken the port past D:2.
+// The `incr` arm -- the silent opening and the u.uexp cap just below the next
+// threshold -- is therefore refused below rather than written blind, and
+// QUALITY.json carries it as a deferral.
+//
+// The Upolyd block, which adds monhp_per_lvl() to u.mh, cannot run because
 // js/u_init.js is this port's only writer of u.umonnum and sets it equal to
 // u.umonster. livelog_printf() writes a file this port cannot write, the
 // treatment recorded at js/do.js:658-660; it is the only reader of C's

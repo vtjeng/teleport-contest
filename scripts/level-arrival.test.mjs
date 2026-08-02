@@ -61,6 +61,12 @@ import {
     level_info,
     set_dunlev_reached,
 } from '../js/dungeon.js';
+import { exp_percent_changing } from '../js/display.js';
+import {
+    more_experienced,
+    newexplevel,
+    UnsupportedExperienceChangeError,
+} from '../js/exper.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
@@ -83,6 +89,8 @@ import {
     PM_CHAMELEON,
     PM_KOBOLD_ZOMBIE,
     PM_LITTLE_DOG,
+    PM_TOURIST,
+    PM_WIZARD,
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
@@ -727,4 +735,160 @@ test('mon_arrive puts a follower beside the hero when the roll misses', () => {
         );
     }
     assert.equal(m_at(occupied.u.ux, occupied.u.uy, occupied), sitter);
+});
+
+// --- the sightseeing grant at do.c:1961-1964 ---
+
+// exper.c more_experienced() reads u.uexp, u.urexp, flags.showexp, disp.botl,
+// urole.mnum and flags.beginner, and nothing else.
+function sightseerState({ role = PM_TOURIST, showexp = true } = {}) {
+    const state = resetGame();
+    state.u = { uz: { dnum: 0, dlevel: 2 }, ulevel: 1, uexp: 0, urexp: 0 };
+    state.urole = { mnum: role };
+    state.flags = { showexp, beginner: true };
+    state.disp = { botl: false };
+    state.iflags = { status_hilites: [] };
+    return state;
+}
+
+test('more_experienced pays the score four times the experience', () => {
+    const state = sightseerState();
+
+    // do.c:1962 grants level_difficulty(), which on D:2 of the main dungeon
+    // is depth(), so 2. exper.c:174 makes the score increment
+    // 4 * exper + rexp.
+    more_experienced(2, 0, state);
+
+    assert.equal(state.u.uexp, 2);
+    assert.equal(state.u.urexp, 8);
+    // exper.c:185-186: the points are on the status line, so it is stale.
+    assert.equal(state.disp.botl, true);
+});
+
+test('more_experienced leaves the status line alone without showexp', () => {
+    const state = sightseerState({ showexp: false });
+
+    more_experienced(2, 0, state);
+
+    assert.equal(state.u.uexp, 2);
+    assert.equal(state.u.urexp, 8);
+    // exper.c:185-186 is the whole of the redraw for this grant: with
+    // SCORE_ON_BOTL undefined the u.urexp half at 196-198 sets nothing, and
+    // exp_percent_changing() answers FALSE without a highlight rule.
+    assert.equal(state.disp.botl, false);
+});
+
+test('more_experienced skips the experience half of a score-only grant', () => {
+    const state = sightseerState();
+
+    // engrave.c:1057 and read.c:62 grant (0, 10): score only. exper.c:183
+    // guards the whole experience block on newexp != oldexp.
+    more_experienced(0, 10, state);
+
+    assert.equal(state.u.uexp, 0);
+    assert.equal(state.u.urexp, 10);
+    assert.equal(state.disp.botl, false);
+});
+
+test('more_experienced refuses a total JavaScript cannot hold exactly', () => {
+    // exper.c:178-181 caps each total at LONG_MAX when C's 64-bit addition
+    // drives it negative. A JavaScript number stops being an exact integer at
+    // 2**53 - 1 instead, so the port refuses there rather than answering with
+    // a total that is neither C's cap nor the true sum. Each half stands on
+    // its own: the score takes four times the experience, so a grant u.uexp
+    // still holds exactly can already have left u.urexp behind, and a hero
+    // sitting at the limit overflows u.uexp on a grant of one point while her
+    // score stays small.
+    const scoreOverflows = sightseerState();
+    assert.throws(
+        () => more_experienced(Number.MAX_SAFE_INTEGER, 0, scoreOverflows),
+        UnsupportedExperienceChangeError,
+    );
+
+    const experienceOverflows = sightseerState();
+    experienceOverflows.u.uexp = Number.MAX_SAFE_INTEGER;
+    assert.throws(
+        () => more_experienced(1, 0, experienceOverflows),
+        UnsupportedExperienceChangeError,
+    );
+});
+
+test('more_experienced clears flags.beginner at the role threshold', () => {
+    // exper.c:201-202 compares u.urexp against 1000 for a Wizard and 2000
+    // for everyone else, after the increment. Each pair below straddles its
+    // threshold by one point: 1992 + 4 * 2 is exactly 2000, and 1991 + 8 is
+    // one short.
+    for (const [role, cleared, kept] of [
+        [PM_TOURIST, 1992, 1991],
+        [PM_WIZARD, 992, 991],
+    ]) {
+        const reached = sightseerState({ role });
+        reached.u.urexp = cleared;
+        more_experienced(2, 0, reached);
+        assert.equal(reached.flags.beginner, false, `${role} at threshold`);
+
+        const short = sightseerState({ role });
+        short.u.urexp = kept;
+        more_experienced(2, 0, short);
+        assert.equal(short.flags.beginner, true, `${role} below threshold`);
+    }
+});
+
+test('newexplevel leaves the level alone below the next threshold', async () => {
+    const state = sightseerState();
+    state.u.uexp = 2;
+
+    // exper.c:301: newuexp(1) is 10 * 2**1, so a Tourist needs 20 points to
+    // leave experience level 1 and D:2 pays 2 of them.
+    await newexplevel(state, { message: async () => {} });
+
+    assert.equal(state.u.ulevel, 1);
+    assert.equal(state.u.uexp, 2);
+});
+
+test('newexplevel raises the hero once the threshold is met', async () => {
+    const state = sightseerState();
+    state.u.uexp = 20;
+
+    // exper.c:302 calls pluslvl(TRUE), the arm this port refuses: the
+    // smallest fresh case that reaches it is a Tourist on D:6, where
+    // 2 + 3 + 4 + 5 + 6 first meets newuexp(1).
+    await assert.rejects(
+        () => newexplevel(state, { message: async () => {} }),
+        UnsupportedExperienceChangeError,
+    );
+});
+
+test('newexplevel stops at MAXULEV however many points are banked', async () => {
+    const state = sightseerState();
+    state.u.ulevel = 30;
+    // newuexp(30) is 10000000 * (30 - 19), and the hero holds more, so only
+    // exper.c:301's `u.ulevel < MAXULEV` stands between her and pluslvl().
+    state.u.uexp = 110_000_002;
+
+    await newexplevel(state, { message: async () => {} });
+
+    assert.equal(state.u.ulevel, 30);
+});
+
+test('exp_percent_changing answers for the Xp field alone', () => {
+    // botl.c:2100 skips the whole test when a redraw is already pending, and
+    // botl.c:2109-2111 needs a threshold rule on BL_XP, initblstats[]'s
+    // "experience-level" row, before it looks at any percentage.
+    const bare = sightseerState();
+    assert.equal(exp_percent_changing(bare), false);
+
+    const elsewhere = sightseerState();
+    elsewhere.iflags.status_hilites = [{ field: 'hitpoints' }];
+    assert.equal(exp_percent_changing(elsewhere), false);
+
+    const pending = sightseerState();
+    pending.disp.botl = true;
+    pending.iflags.status_hilites = [{ field: 'experience-level' }];
+    assert.equal(exp_percent_changing(pending), false);
+
+    const rule = sightseerState();
+    rule.iflags.status_hilites = [{ field: 'experience-level' }];
+    assert.throws(() => exp_percent_changing(rule),
+        UnsupportedExperienceChangeError);
 });

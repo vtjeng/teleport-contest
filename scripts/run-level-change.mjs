@@ -74,6 +74,24 @@ function refuse(answer) {
     return `${LEVELCHANGE}${NEWLINE}${answer}${NEWLINE}`;
 }
 
+// A segment that descends after the raise. It carries neither wait, unlike
+// every other segment here: monst.h:259 makes makemon()'s ceiling
+// `(level_difficulty() + u.ulevel) / 2`, so a hero at experience level 30
+// arrives on a D:2 stocked as if it were depth 16, and either wait would spend
+// a turn on a monster the port cannot yet run.
+function descend(seed, moves) {
+    return {
+        seed,
+        datetime: DATETIME,
+        nethackrc: nethackrc({
+            name: 'Levch', role: 'Tourist', race: 'human', gender: 'female',
+            align: 'neutral',
+            options: 'pettype:none,!acoustics,playmode:debug,showexp',
+        }),
+        moves,
+    };
+}
+
 export function loadLevelChangeRecipe() {
     return validateCleanRecipe({
         version: 5,
@@ -195,6 +213,14 @@ export function loadLevelChangeRecipe() {
             // From there wiz_level_change()'s `u.ulevel >= MAXULEV` arm is the
             // only reachable answer to a second raise.
             segment(8810008, `${raise(31, 2)}${refuse('40')}`),
+            // exper.c newexplevel()'s own ceiling, the same limit reached
+            // from the other entry point in the goal. A Tourist raised to 30
+            // walks to the down staircase and descends: do.c:1962 still pays
+            // her level_difficulty(), so Xp:30/100000000 becomes
+            // Xp:30/100000002, and newexplevel()'s `u.ulevel < MAXULEV` guard
+            // has to swallow the raise that newuexp(30) would otherwise
+            // permit. tou_abil[] prints at 10 and 20, hence two gains.
+            descend(8820137, `${raise(30, 2)}kkkuykklll> `),
         ],
     }, 'level-change recipe');
 }

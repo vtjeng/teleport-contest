@@ -44,12 +44,14 @@ import {
     dunlev_reached,
     dunlevs_in_dungeon,
     ledger_no,
+    level_difficulty,
     level_info,
     next_level,
     on_level,
     set_dunlev_reached,
     u_on_newpos,
 } from './dungeon.js';
+import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import {
@@ -659,12 +661,12 @@ export async function goto_level(
         // a file the port does not write, and describe_level()'s buffer has no
         // other reader here, so neither reaches the screen.
         if (state.urole?.mnum === PM_TOURIST) {
-            // more_experienced(level_difficulty(), 0) and newexplevel(); a
-            // Tourist gains experience for reaching a new level. exper.c is
-            // not ported.
-            throw new UnsupportedLevelChangeError(
-                'goto_level() as a Tourist reaching a new level',
-            );
+            // do.c:1961-1964. A Tourist alone is paid for sightseeing. Both
+            // calls run after docrt() and flush_screen(-1) above, so neither
+            // draws: more_experienced() only asks for a status redraw, which
+            // the next flush_screen() or the command loop's own bot() serves.
+            more_experienced(level_difficulty(state), 0, state);
+            await newexplevel(state, { message: ttyPline });
         }
     }
 
