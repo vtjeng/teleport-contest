@@ -19,7 +19,7 @@ means the row states no such figure; it does not mean zero.
 | `cursors_matched`, `cursors_total` | Development cursor positions matched, out of those recorded. |
 | `holdout_screens_matched`, `holdout_screens_total`, `holdout_rng_matched`, `holdout_rng_total` | Combined figures from the reserved local holdout of 11 sessions, filled only where that row's own event ran an evaluation. Empty means no new holdout evidence, so carry the last stated figure forward. |
 | `wall_s` | Run duration in seconds, where a row states one. |
-| `note` | Predictions, falsified forecasts, and anomalies worth keeping, in at most 15 words. |
+| `note` | A brief prediction, falsified forecast, or anomaly worth keeping. |
 
 A development figure is a conservative lower bound for the 44-session public
 score and does not scale from 33 to 44 sessions. The official held-out score is

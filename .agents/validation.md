@@ -143,8 +143,8 @@ with the columns `SCORE.md` documents. `npm run checkpoint` appends a
 column=value ...` when that event completes, and an optional `candidate` row
 for a validated handoff on an open slice. A later row supersedes an earlier
 one by position, so no row is rewritten. Combine coincident events into one
-row recording the most significant one. The `note` column holds at most 15
-words: a prediction, an anomaly, or nothing. Fill the four holdout columns
+row recording the most significant one. The `note` column holds a brief
+prediction, an anomaly, or nothing. Fill the four holdout columns
 only on a row whose own event ran an authorized evaluation; an empty cell
 means no new holdout evidence. Longer evidence lives in the commit message of
 the SHA the row names, and review metrics stay in `QUALITY.json`. `SCORE.md`

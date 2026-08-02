@@ -111,7 +111,7 @@ next iteration then starts from a clean tree.
 
 ## What to report
 
-Report to the orchestrator in one message of under 300 words. Cover:
+Report to the orchestrator in one brief message. Cover:
 
 - What you ported, from which C function, and any behavior you deliberately
   left unported, with the reason.

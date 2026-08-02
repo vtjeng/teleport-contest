@@ -37,7 +37,7 @@ property.
 
 ## What to report
 
-In under 200 words, report the one slice you identified:
+Briefly report the one slice you identified:
 
 - The slice: the fail-closed boundary, the upstream C file and functions to
   port, and where the running game reaches them.

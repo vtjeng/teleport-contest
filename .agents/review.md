@@ -148,11 +148,9 @@ themselves.
   and record its outcome with the evidence the "Readiness for a formal review
   pass" note lists
   for that pass's boundary.
-- Run `/copyedit-technical-prose` after every third scheduled correctness pass
-  when published prose has changed since the previous copyedit, and before
-  publishing changed documentation or reports outside this repository.
-  Tracker-only SHA and score entries do not trigger it. Do not run it on
-  unchanged prose.
+- Run `/copyedit-technical-prose` before publishing changed documentation or
+  reports outside this repository. Tracker-only SHA and score entries do not
+  trigger it. Do not run it on unchanged prose.
 
 ### Mutation-test the reviewed lines
 

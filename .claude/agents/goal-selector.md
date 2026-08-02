@@ -37,7 +37,7 @@ directory or any path inside it to another agent or tool.
 
 ## What to report
 
-Under 600 words. Report every field a `GOALS.json` entry holds: id,
+Keep it brief. Report every field a `GOALS.json` entry holds: id,
 boundary, upstream owners, forecast with its basis, and detail.
 
 - The goal: the behavior it accepts, and the property that bounds it. State that
