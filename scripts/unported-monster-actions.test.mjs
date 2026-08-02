@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ALTAR,
     BLINDED,
     BURN,
     BURN_OBJECT,
@@ -18,7 +19,9 @@ import {
     DOOR,
     FOUNTAIN,
     DART_TRAP,
+    GRAVE,
     HEADSTONE,
+    ICE,
     IN_SIGHT,
     I_SPECIAL,
     LADDER,
@@ -34,8 +37,10 @@ import {
     PIT,
     POOL,
     ROOM,
+    SINK,
     STAIRS,
     STONE,
+    THRONE,
     TIMER_OBJECT,
     W_NONDIGGABLE,
     W_NONPASSWALL,
@@ -816,26 +821,41 @@ test('simple preflight admits engravings that source wipe leaves intact',
 // accessible terrain and monmove.c postmov() has no stair branch, so an
 // ordinary monster steps onto a staircase with no extra effect. LADDER shares
 // that C treatment but no recorded case reaches it, so it stays refused.
-test('simple movement admits a staircase but not a ladder', async () => {
-    const staircase = await prepareSelectedAction();
-    const location = game.level.at(
-        staircase.destinationX,
-        staircase.heroY,
-    );
-    location.typ = STAIRS;
-    const before = preflightSnapshot();
+// mon.c mfndpos() and teleport.c goodpos() admit any ACCESSIBLE(typ) square
+// with no furniture branch, and monmove.c postmov() has none either, so all
+// seven of rm.h:138's types are ordinary destinations for a monster. ICE,
+// rm.h:88's next type after ALTAR, is the case just outside the range.
+test('simple movement admits every furniture square but not ice', async () => {
+    for (const [label, terrain] of [
+        ['stairs', STAIRS],
+        ['ladder', LADDER],
+        ['fountain', FOUNTAIN],
+        ['throne', THRONE],
+        ['sink', SINK],
+        ['grave', GRAVE],
+        ['altar', ALTAR],
+    ]) {
+        const admitted = await prepareSelectedAction();
+        const location = game.level.at(
+            admitted.destinationX,
+            admitted.heroY,
+        );
+        location.typ = terrain;
+        const before = preflightSnapshot();
 
-    await preflightSimpleMonsterActions(game);
-    assert.deepEqual(preflightSnapshot(), before);
-    await runSimpleMonsterAction(staircase.monster, { state: game });
-    assert.deepEqual(
-        [staircase.monster.mx, staircase.monster.my],
-        [staircase.destinationX, staircase.heroY],
-    );
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(preflightSnapshot(), before, label);
+        await runSimpleMonsterAction(admitted.monster, { state: game });
+        assert.deepEqual(
+            [admitted.monster.mx, admitted.monster.my],
+            [admitted.destinationX, admitted.heroY],
+            label,
+        );
+    }
 
-    const ladder = await prepareSelectedAction();
-    game.level.at(ladder.destinationX, ladder.heroY).typ = LADDER;
-    const ladderBefore = completeSecondTurnSnapshot(game, ladder.replay);
+    const ice = await prepareSelectedAction();
+    game.level.at(ice.destinationX, ice.heroY).typ = ICE;
+    const iceBefore = completeSecondTurnSnapshot(game, ice.replay);
 
     for (let attempt = 0; attempt < 2; ++attempt) {
         await assert.rejects(
@@ -844,12 +864,12 @@ test('simple movement admits a staircase but not a ladder', async () => {
                 error instanceof UnsupportedSimpleMonsterActionError
                 && error.reason === 'door or special terrain movement'
             ),
-            `ladder attempt ${attempt + 1}`,
+            `ice attempt ${attempt + 1}`,
         );
         assert.deepEqual(
-            completeSecondTurnSnapshot(game, ladder.replay),
-            ladderBefore,
-            `ladder attempt ${attempt + 1}`,
+            completeSecondTurnSnapshot(game, ice.replay),
+            iceBefore,
+            `ice attempt ${attempt + 1}`,
         );
     }
 });
@@ -1315,6 +1335,8 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
+                // ICE, the first type past IS_FURNITURE()'s range, stands for
+                // terrain the destination check still refuses.
                 name: 'special terrain',
                 reason: 'door or special terrain movement',
                 prepare: async () => {
@@ -1322,7 +1344,7 @@ test('simple preflight rejects every selected excluded action atomically',
                     game.level.at(
                         target.destinationX,
                         target.heroY,
-                    ).typ = FOUNTAIN;
+                    ).typ = ICE;
                     return target;
                 },
             },

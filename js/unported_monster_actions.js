@@ -18,6 +18,7 @@ import {
     D_CLOSED,
     HEADSTONE,
     INVIS,
+    IS_FURNITURE,
     MMOVE_NOTHING,
     MON_FLOOR,
     MON_MIGRATING,
@@ -25,7 +26,6 @@ import {
     NORMAL_SPEED,
     OBJ_MINVENT,
     ROOM,
-    STAIRS,
     STRAT_CLOSE,
 } from './const.js';
 import { newsym } from './display.js';
@@ -557,14 +557,25 @@ function assertSimpleDestination(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
     const doorMask = location?.flags || location?.doormask || 0;
-    // STAIRS is ordinary terrain for a monster that is not covetous: it is
-    // ACCESSIBLE, so mon.c mfndpos() and teleport.c goodpos() admit it with no
-    // stair-specific branch, and monmove.c postmov() has none either. No
-    // ordinary movement path changes a monster's level; every
+    // Every IS_FURNITURE type is ordinary terrain for a monster that is not
+    // covetous: all seven are ACCESSIBLE, so mon.c mfndpos() and teleport.c
+    // goodpos() admit them with no furniture branch, and monmove.c postmov()
+    // has none either. Three furniture tests do sit on the monster-move path.
+    // monmove.c:274 onscary()'s vampire-fears-altar arm is ported in
+    // js/monmove.js; monmove.c:1233 holds_up_web() is reached only from
+    // maybe_spin_web(), which js/monmove.js refuses for every webmaker; and
+    // mon.c:973 minliquid_core()'s `infountain` feeds the gremlin split at
+    // :987, whose rn2(3) neither minLiquid owner draws. That last one is a
+    // standing gap rather than a new one -- makemon() can place a monster on
+    // a fountain without any move at all -- and it is tracked as the
+    // gremlin-in-a-fountain deferral.
+    //
+    // No ordinary movement path changes a monster's level; every
     // migrate_to_level() caller is item use (muse.c), digging (dig.c),
     // teleportation (teleport.c), a shopkeeper (shk.c), or a wizard command.
     // dogmove.c reads stairs only through dog_goal()'s On_stairs(u.ux, u.uy),
-    // which asks where the hero stands, not where the pet steps.
+    // which asks where the hero stands, not where the pet steps, and names no
+    // other furniture at all.
     // A doorway a monster can stand in without acting on it, or a closed one
     // it opens. INERT_DOOR_MASKS names the first set; js/monmove.js owns it
     // beside the block that skips them.
@@ -574,7 +585,7 @@ function assertSimpleDestination(monster, x, y, env) {
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
-            || location.typ === STAIRS
+            || IS_FURNITURE(location.typ)
             || inertDoorway
             || opensDoor);
     if (!ordinaryDestination)

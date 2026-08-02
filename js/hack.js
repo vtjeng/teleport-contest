@@ -32,6 +32,7 @@ import {
     IS_DOOR,
     IS_FURNITURE,
     IS_OBSTRUCTED,
+    IS_SINK,
     IS_STWALL,
     IS_TREE,
     IS_WALL,
@@ -57,7 +58,6 @@ import {
     SEE_INVIS,
     SHOCK_RES,
     SLEEP_RES,
-    STAIRS,
     STEALTH,
     STONE,
     STUNNED,
@@ -589,10 +589,10 @@ function refusedDiagonalDoorway(x, y, state) {
 }
 
 // This repeated-command boundary owns entry into an unoccupied ROOM, CORR, or
-// STAIRS square, or a doorway whose mask is exactly D_NODOOR or D_ISOPEN,
-// plus the ordinary single-object description produced when autopickup is
-// disabled. These checks are a temporary admission seam in front of
-// hack.c:domove_core(); each rejected branch will move to its upstream owner
+// IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR or
+// D_ISOPEN, plus the ordinary single-object description produced when
+// autopickup is disabled. These checks are a temporary admission seam in front
+// of hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
 export function requireSimpleHeroDestination(x, y, state) {
     if (m_at(x, y, state))
@@ -601,10 +601,16 @@ export function requireSimpleHeroDestination(x, y, state) {
         );
 
     const location = state.level?.at(x, y);
-    // hack.c test_move() admits STAIRS untouched: it is neither
-    // IS_OBSTRUCTED nor IS_DOOR, so no branch there applies to it. A DOOR
-    // that is not closed_door() reaches only test_move()'s testdiag arm,
-    // which refuses a diagonal entry and allows an orthogonal one; the
+    // hack.c test_move() admits every IS_FURNITURE type untouched -- stairs,
+    // ladder, fountain, throne, sink, grave and altar. None is IS_OBSTRUCTED,
+    // since rm.h:119 makes that `typ < POOL`, and none is IS_DOOR, so no branch
+    // of the chain applies and an orthogonal step falls through to testdiag.
+    // domove_core() then ends a run on the square through hack.c:2936-2941,
+    // ported below, and spoteffects() reaches only its IS_SINK arm, refused
+    // there.
+    //
+    // A DOOR that is not closed_door() reaches only test_move()'s testdiag
+    // arm, which refuses a diagonal entry and allows an orthogonal one; the
     // diagonal case never arrives here, because preflightDomoveDestination()
     // admits it for test_move() to refuse.
     // Only D_NODOOR and D_ISOPEN are admitted, the two masks recorded against
@@ -621,7 +627,7 @@ export function requireSimpleHeroDestination(x, y, state) {
     const ordinaryDestination = location
         && (location.typ === ROOM
             || location.typ === CORR
-            || location.typ === STAIRS
+            || IS_FURNITURE(location.typ)
             || doorway);
     if (!ordinaryDestination) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -629,12 +635,17 @@ export function requireSimpleHeroDestination(x, y, state) {
         );
     }
     // pickup.c pickup() returns before look_here() when the square holds no
-    // object, running only describe_decor() and read_engr_at(). So a bare
-    // staircase or doorway prints nothing with mention_decor off. With it on,
-    // describe_decor() owns the line and tracks iflags.prev_decor, neither of
-    // which is ported.
+    // object, running only describe_decor() and read_engr_at(); pickup.c
+    // check_here() calls describe_decor() too when the square holds one. So a
+    // bare furniture square or doorway prints nothing with mention_decor off.
+    // With it on, describe_decor() owns the line and tracks iflags.prev_decor,
+    // neither of which is ported. The predicate is every type describe_decor()
+    // can speak for here: pickup.c:392-410 mentions a furniture square even
+    // when the terrain has not changed, because its `ltyp == prev_decor` test
+    // carries `&& !IS_FURNITURE(ltyp)`, and it reaches a doorway to blank the
+    // dfeature and rewrite prev_decor.
     if (state.flags?.mention_decor
-        && (location.typ === STAIRS || doorway)) {
+        && (IS_FURNITURE(location.typ) || doorway)) {
         throw new UnsupportedHeroMoveBoundaryError('decor description');
     }
     const floorObject = state.level?.objects?.[x]?.[y] ?? null;
@@ -645,15 +656,11 @@ export function requireSimpleHeroDestination(x, y, state) {
     if (floorObject?.nexthere)
         throw new UnsupportedHeroMoveBoundaryError('floor object pile');
     // invent.c look_here() computes dfeature_at() unconditionally and prints
-    // it before "You see here" when the square holds exactly one object.
-    // dfeature_at() describes a stairway through stairs_description() and
-    // every IS_DOOR mask through the cmap, and returns 0 for ROOM and CORR,
-    // so only the two terrain types admitted above can produce that line.
-    // Neither dfeature_at() nor stairs_description() is ported.
-    if (floorObject && (location.typ === STAIRS || doorway))
-        throw new UnsupportedHeroMoveBoundaryError(
-            'terrain feature description',
-        );
+    // it before "You see here" when the square holds exactly one object. Both
+    // dfeature_at() and stairs_description() are ported, and js/invent.js
+    // look_here() prints that line, so no guard stands here: every admitted
+    // terrain reaches its own owner. ALTAR is the one that has no answer yet,
+    // and dfeature_at() itself throws for a_gname() rather than diverging.
     if (t_at(x, y, state))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
 
@@ -1842,12 +1849,13 @@ export function terrain_changed_under_hero(state = game) {
 }
 
 // C ref: hack.c spoteffects() (3312-3480), the arms an ordinary ROOM, CORR,
-// STAIRS or open doorway square reaches. Its two ported callers, domove() and
-// teleport.c teleds(), each admit their destination through
+// IS_FURNITURE or open doorway square reaches. Its two ported callers,
+// domove() and teleport.c teleds(), each admit their destination through
 // requireSimpleHeroDestination() first, which refuses every square that could
-// reach the pool, lava, sink, trap, ice-warning or resident-monster arms; the
+// reach the pool, lava, trap, ice-warning or resident-monster arms; the
 // recursion guard and the iflags.in_lava_effects return are unreachable for
-// the same reason.
+// the same reason. The sink arm is the one an admitted destination can now
+// reach, so it is refused here rather than ahead of the move.
 //
 // gi.in_steed_dismounting is C's kludge for the one caller that needs the
 // pickup deferred: steed.c dismount_steed() sets it around its teleds() call
@@ -1855,6 +1863,14 @@ export function terrain_changed_under_hero(state = game) {
 export async function spoteffects(pick, state = game) {
     if (terrain_changed_under_hero(state)) switch_terrain(state);
     check_special_room(false, state);
+    // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
+    // in this port grants levitation, so the arm is unreachable today, but
+    // admitting a sink as a destination is what makes it reachable in
+    // principle; sit.c dosinkfall() has no owner.
+    if (IS_SINK(state.level?.at(state.u.ux, state.u.uy)?.typ)
+        && propertyActiveUnblocked(state, LEVITATION)) {
+        throw new UnsupportedHeroMoveBoundaryError('dosinkfall()');
+    }
     if (!state.in_steed_dismounting) {
         // C ref: pickup(1) -> check_here(). pickup()'s own arms need
         // describe_decor(), read_engr_at() and autopickup, all of which

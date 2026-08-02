@@ -22,6 +22,7 @@ import {
     RUN_LEAP,
     RUN_STEP,
     RUN_TPORT,
+    SINK,
     STONE,
     STAIRS,
     STEALTH,
@@ -38,6 +39,7 @@ import {
     nomul,
     runmode_delay_output,
     runStopsBeforeMonster,
+    spoteffects,
     switch_terrain,
     terrain_changed_under_hero,
 } from '../js/hack.js';
@@ -227,6 +229,45 @@ test('switch_terrain refuses both arms that would unblock levitation', () => {
         assert.throws(() => switch_terrain(state),
                       /unblocking levitation or flight/u);
     }
+});
+
+test('a levitating hero over a sink stops for dosinkfall()', async () => {
+    // hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm:
+    // `if (IS_SINK(levl[u.ux][u.uy].typ) && Levitation) dosinkfall();`
+    // Both terms have to hold, and the destination seam now admits a sink, so
+    // the arm needs a guard of its own. youprop.h:240 defines Levitation as
+    // `(HLevitation || ELevitation) && !BLevitation`, so an extrinsic source
+    // reaches it as an intrinsic one does and a blocked one does not.
+    for (const field of ['intrinsic', 'extrinsic']) {
+        const state = terrainState(SINK);
+        state.u.uprops[LEVITATION][field] = 1;
+        await assert.rejects(
+            spoteffects(false, state),
+            /dosinkfall\(\)/u,
+            field,
+        );
+
+        state.u.uprops[LEVITATION].blocked = I_SPECIAL;
+        // A blocked property leaves switch_terrain()'s own refusal ahead of
+        // this one, which is why the message differs rather than passing.
+        await assert.rejects(
+            spoteffects(false, state),
+            /unblocking levitation or flight/u,
+            `${field} blocked`,
+        );
+    }
+
+    // Neither term alone reaches it. A sink under a hero with no levitation
+    // falls through to check_here(), and a levitating hero on any other
+    // terrain never asks.
+    const sinkOnly = terrainState(SINK);
+    sinkOnly.level.objects = [];
+    await spoteffects(false, sinkOnly);
+
+    const levitationOnly = terrainState(FOUNTAIN);
+    levitationOnly.u.uprops[LEVITATION].intrinsic = 1;
+    levitationOnly.level.objects = [];
+    await spoteffects(false, levitationOnly);
 });
 
 test('movement smudges old then new engravings in source RNG order', () => {

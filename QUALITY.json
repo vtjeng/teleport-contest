@@ -520,6 +520,24 @@
       "status": "open",
       "from": "4e2820a66dba54ef99e43e0a9438bc9a21bcce4d",
       "detail": "allmain.c moveloop_preamble()'s !resuming arm calls set_wear(NULL),\nreset_justpicked(gi.invent) and pickup(1) at allmain.c:73-75.\njs/moveloop_preamble.js:61-62 leaves all three out, recorded there as\ninventory side effects the inventory subsystem cannot yet own faithfully.\n\npickup(1) is not only an inventory call. Its local `autopickup` is\n`what > 0`, so a new game always takes it, and pickup.c:702-709's early\nreturn for a square holding nothing ends in read_engr_at(u.ux, u.uy). A hero\nwho starts on an engraved square therefore reads it before her first command,\nand the port prints nothing.\n\nFound while choosing seeds for the Tourist arrival matrix. Reproduce with\n`node scripts/diff-fresh.mjs --seed 9300030 --datetime 20290418073000\n--nethackrc-file <rc> --moves '   '` where the rc reads\n\n  OPTIONS=name:Sightsee,role:Tourist,race:human,gender:male,align:neutral\n  OPTIONS=!legacy,!tutorial,!splash_screen\n  OPTIONS=pettype:dog,!acoustics,!autopickup,showexp\n\nThe PRNG log matches call for call, 2534 either side, and every screen\ndiffers: C draws the welcome line with a --More-- over it and answers the\nfirst space with `Something is written here in the dust.  You read: \"ad\n??rar um\".`, while the port draws the welcome line alone and spends the space\non a command. js/pickup.js and js/engrave.js already hold both functions, so\nthe missing piece is the call site.\n\nClose it with the inventory work that lets moveloop_preamble() run set_wear()\nand reset_justpicked(), or earlier if pickup(1) can be wired without them."
+    },
+    {
+      "id": "mention-decor-opening-screen",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "16574f3f18a4e8c06cdea0933e3e8ecc14faa649",
+      "detail": "flags.mention_decor is unported and diverges before any command, not only on furniture entry. u_init.c starts every hero on the up staircase, so pickup.c check_here()'s describe_decor() arm (pickup.c:436-439) names it on the opening screen: with OPTIONS=mention_decor the recorded C screen 1 carries a message and a --More-- at column 78 where the port's carries neither. Recipe: seed 5100321, datetime 20310203040506, OPTIONS=name:Furn,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:dog,!acoustics / mention_decor, moves 'hss'. Expected failure today: C=4 screens, JS=1, first mismatch at boundary 1 before any key, plus one extra JS PRNG call. requireSimpleHeroDestination()'s 'decor description' guard covers IS_FURNITURE(typ) || doorway for the entry half; describe_decor() and iflags.prev_decor (pickup.c:353-425) still have no owner."
+    },
+    {
+      "id": "gremlin-in-a-fountain",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "16574f3f18a4e8c06cdea0933e3e8ecc14faa649",
+      "detail": "mon.c:961 minliquid_core() sets infountain from IS_FOUNTAIN(levl[mx][my].typ) and feeds it to the gremlin split at :987: a PM_GREMLIN standing in a fountain draws rn2(3) and may split_mon() and dryup(). Both of this port's minLiquid owners -- js/allmain.js elapsedTurnMinLiquid() and the planning stub in js/unported_monster_actions.js -- refuse a pool or lava and return false for every other square, so that draw never happens and the divergence is silent. The gap predates the furniture-square-entry slice, since makemon() can place a monster on a fountain with no move involved, but that slice lets a monster walk onto one and so widens it. Fix: refuse a gremlin on a fountain in both owners, or port the split. No development session or fresh case reaches it: a gremlin is difficulty 8 (monsters.h:448-455) and D:1 generates nothing near that."
     }
   ],
   "areas": [

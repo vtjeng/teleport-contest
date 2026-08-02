@@ -24,6 +24,7 @@ import {
     UnsupportedHungerTransitionError,
 } from '../js/eat.js';
 import {
+    ALTAR,
     COLNO,
     CORR,
     CROSSWALL,
@@ -37,10 +38,13 @@ import {
     DOOR,
     FAST,
     FOUNTAIN,
+    GRAVE,
     HALLUC,
     HWALL,
+    ICE,
     IN_SIGHT,
     INTRINSIC,
+    LADDER,
     M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
@@ -49,11 +53,13 @@ import {
     ROOM,
     ROWNO,
     SDOOR,
+    SINK,
     STAIRS,
     STATUE_TRAP,
     STONE,
     STONED,
     TDWALL,
+    THRONE,
     TLCORNER,
     TLWALL,
     TRCORNER,
@@ -78,6 +84,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { game, resetGame } from '../js/gstate.js';
+import { UnsupportedFeatureDescriptionError } from '../js/invent.js';
 import {
     domove,
     monsterNearby,
@@ -85,6 +92,7 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
+import { stairway_find_dir } from '../js/stairs.js';
 import {
     AT_CLAW,
     M1_NEEDPICK,
@@ -595,10 +603,14 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             },
         },
         {
-            name: 'fountain terrain',
+            // ICE is rm.h:88's next type after ALTAR, so it is the terrain
+            // just outside IS_FURNITURE()'s range and the one that pins its
+            // upper bound. Its own arm of dfeature_at() calls ice_descr(),
+            // which is unported.
+            name: 'ice terrain',
             reason: 'door or special terrain movement',
             setup: ({ destination }) => {
-                destination.typ = FOUNTAIN;
+                destination.typ = ICE;
             },
         },
         {
@@ -734,10 +746,13 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             },
         },
         {
+            // ICE, the type immediately past ALTAR, stands for terrain
+            // outside IS_FURNITURE()'s range now that the seven types inside
+            // it are admitted.
             name: 'special terrain',
             reason: 'door or special terrain movement',
             install: ({ destination }) => {
-                destination.typ = FOUNTAIN;
+                destination.typ = ICE;
             },
             remove: ({ destination }) => {
                 destination.typ = ROOM;
@@ -813,35 +828,6 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                 destination.typ = ROOM;
             },
         },
-        // invent.c look_here() prints dfeature_at()'s line before "You see
-        // here" when a decorated square holds exactly one object. ROOM and
-        // CORR have no dfeature, which is why only these two terrain types
-        // reach the stop.
-        ...[
-            ['stairs', (destination) => {
-                destination.typ = STAIRS;
-            }],
-            ['open doorway', (destination) => {
-                destination.typ = DOOR;
-                destination.flags = destination.doormask = D_ISOPEN;
-            }],
-        ].map(([name, decorate]) => ({
-            name: `${name} arrival over one object`,
-            reason: 'terrain feature description',
-            install: ({ destination, x, y }) => {
-                game.flags.pickup = false;
-                decorate(destination);
-                game.level.objects[x][y] = {
-                    o_id: 7003,
-                    nexthere: null,
-                };
-            },
-            remove: ({ destination, x, y }) => {
-                game.level.objects[x][y] = null;
-                destination.typ = ROOM;
-                destination.flags = destination.doormask = 0;
-            },
-        })),
     ];
 
     for (const refusal of cases) {
@@ -1211,7 +1197,9 @@ test('unsupported movement retains its byte ahead of the next command',
         resetCommandVars(game);
         const start = [game.u.ux, game.u.uy];
         const east = game.level.at(start[0] + 1, start[1]);
-        east.typ = FOUNTAIN;
+        // ICE is the first type past IS_FURNITURE()'s range, so it is still a
+        // refused destination and holds this test's refusal.
+        east.typ = ICE;
         east.flags = east.doormask = 0;
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
@@ -1270,19 +1258,181 @@ test('simple hero movement admits empty room and corridor controls',
         }
     });
 
-test('a run onto a doorway or a staircase ends on the square it reaches',
+// hack.c test_move() (991-1160) has no arm for any of these seven types --
+// rm.h:119 makes IS_OBSTRUCTED `typ < POOL` and IS_DOOR is false -- so an
+// orthogonal step falls through to testdiag and is admitted. ICE, rm.h:88's
+// next type after ALTAR, is the case just outside the range.
+test('simple hero movement admits every furniture square', async () => {
+    for (const [label, terrain] of [
+        ['stairs', STAIRS],
+        ['ladder', LADDER],
+        ['fountain', FOUNTAIN],
+        ['throne', THRONE],
+        ['sink', SINK],
+        ['grave', GRAVE],
+        ['altar', ALTAR],
+    ]) {
+        const { destination, x, y } = await prepareHeroMoveAdmission();
+        destination.typ = terrain;
+
+        await domove(game);
+
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+        assert.equal(game.u.umoved, true, label);
+    }
+
+    const { destination } = await prepareHeroMoveAdmission();
+    destination.typ = ICE;
+    await assert.rejects(
+        domove(game),
+        (error) => (
+            error instanceof UnsupportedHeroMoveBoundaryError
+            && error.reason === 'door or special terrain movement'
+        ),
+    );
+});
+
+// invent.c look_here() computes dfeature_at() unconditionally and prints its
+// line above "You see here" when the square holds exactly one object.
+// dfeature_at() (4037-4097) reaches the cmap for a fountain, throne, sink and
+// grave, and stairs_description() for a staircase; its altar arm needs
+// a_gname(), which has no owner, so an altar holding an object still stops.
+test('a furniture square with one object prints its dfeature line',
+    async () => {
+        for (const [label, line, decorate] of [
+            ['fountain', 'There is a fountain here.', (destination) => {
+                destination.typ = FOUNTAIN;
+            }],
+            ['sink', 'There is a sink here.', (destination) => {
+                destination.typ = SINK;
+            }],
+            ['grave', 'There is a grave here.', (destination) => {
+                destination.typ = GRAVE;
+            }],
+            ['throne', 'There is an opulent throne here.', (destination) => {
+                destination.typ = THRONE;
+            }],
+            // A staircase and a doorway were refused here until dfeature_at()
+            // gained an owner, so they belong in the same list as the five
+            // types the seam has just admitted.
+            ['staircase', 'There is a staircase down here.',
+                (destination, x, y) => {
+                    destination.typ = STAIRS;
+                    // Move the level's own down staircase onto the square
+                    // rather than inventing a record: stairs_description()
+                    // reads tolev, isladder and u_traversed off it.
+                    const stway = stairway_find_dir(false, game);
+                    stway.sx = x;
+                    stway.sy = y;
+                }],
+            ['open doorway', 'There is an open door here.', (destination) => {
+                destination.typ = DOOR;
+                destination.flags = destination.doormask = D_ISOPEN;
+            }],
+        ]) {
+            const { destination, x, y } = await prepareHeroMoveAdmission();
+            decorate(destination, x, y);
+            game.flags.pickup = false;
+            game.level.objects[x][y] = {
+                otyp: DART,
+                oclass: WEAPON_CLASS,
+                quan: 1,
+                nobj: null,
+                nexthere: null,
+                dknown: true,
+            };
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            // The dfeature line and "You see here" are two messages in one
+            // turn, so the second asks for the --More-- a space dismisses.
+            game.nhDisplay.pushKey(commandKeyCode(' '));
+
+            await domove(game);
+
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+            assert.match(
+                game._ttyToplines ?? '',
+                new RegExp(`^${line.replace(/\./gu, '\\.')}`, 'u'),
+                label,
+            );
+            assert.match(
+                game._ttyToplines ?? '',
+                /You see here a dart\./u,
+                label,
+            );
+        }
+    });
+
+test('an altar holding an object stops for a_gname()', async () => {
+    const { destination, x, y } = await prepareHeroMoveAdmission();
+    destination.typ = ALTAR;
+    game.flags.pickup = false;
+    game.level.objects[x][y] = {
+        otyp: DART,
+        oclass: WEAPON_CLASS,
+        quan: 1,
+        nobj: null,
+        nexthere: null,
+        dknown: true,
+    };
+
+    await assert.rejects(
+        domove(game),
+        (error) => error instanceof UnsupportedFeatureDescriptionError,
+    );
+    // js/cmd.js failClosedCommandRefusals() lists the class, so the segment
+    // ends on its last matching screen instead of failing hard.
+    assert.ok(failClosedCommandRefusals()
+        .includes(UnsupportedFeatureDescriptionError));
+});
+
+// pickup.c check_here() calls describe_decor() under flags.mention_decor, and
+// pickup.c:392-410 mentions a furniture square even when the terrain has not
+// changed, because its `ltyp == iflags.prev_decor` test carries
+// `&& !IS_FURNITURE(ltyp)`. Neither describe_decor() nor iflags.prev_decor is
+// ported, so the whole predicate stays refused rather than printing nothing.
+test('a furniture square with mention_decor stays refused', async () => {
+    for (const [label, terrain, admitted] of [
+        ['fountain', FOUNTAIN, false],
+        ['altar', ALTAR, false],
+        ['room', ROOM, true],
+        ['corridor', CORR, true],
+    ]) {
+        const { destination, x, y } = await prepareHeroMoveAdmission();
+        destination.typ = terrain;
+        game.flags.mention_decor = true;
+
+        if (admitted) {
+            await domove(game);
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+            continue;
+        }
+        await assert.rejects(
+            domove(game),
+            (error) => (
+                error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === 'decor description'
+            ),
+            label,
+        );
+    }
+});
+
+test('a run onto a doorway or a furniture square ends on the square it reaches',
     async () => {
     // hack.c:2937-2941, domove_core()'s arm after u_on_newpos():
     // `if (svc.context.run && svc.context.run < 8
     //      && (IS_DOOR(typ) || IS_OBSTRUCTED(typ) || IS_FURNITURE(typ)))
     //          nomul(0);`
     // The three run matrices only ever reach the IS_DOOR term, so without the
-    // staircase case below the IS_FURNITURE term can be deleted outright.
-    // rm.h:138 puts STAIRS at the bottom of IS_FURNITURE's range, and
-    // requireSimpleHeroDestination() admits no other type in it yet.
+    // furniture cases below the IS_FURNITURE term can be deleted outright.
+    // STAIRS and ALTAR are the ends of rm.h:138's range, so between them they
+    // also pin both of that macro's bounds.
     for (const [label, typ, doormask] of [
         ['doorway', DOOR, D_NODOOR],
         ['staircase', STAIRS, 0],
+        ['fountain', FOUNTAIN, 0],
+        ['altar', ALTAR, 0],
     ]) {
         const { destination, x, y } = await prepareHeroMoveAdmission();
         destination.typ = typ;
