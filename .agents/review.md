@@ -322,8 +322,6 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   it, because recording that pass would turn the skipped commits into
   reviewed history; the refusal names the frontier and the base it received.
   A base older than the frontier re-reads reviewed commits and is harmless.
-  `--areas` labels the range for finding attribution and deferral routing;
-  areas carry no frontiers of their own.
 - Advance a review frontier only through the exact integrated commit that a
   recorded pass covered. An audit-fix commit recorded as its own pass's range
   head carries no debt; one applied after the pass was recorded remains debt

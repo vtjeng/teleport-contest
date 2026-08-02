@@ -20,7 +20,6 @@ import {
   openDeferrals,
   sweepCandidates,
   collectRejections,
-  passesForAreas,
   missingMutantTrailers,
   renderCountsSentence,
   validateConfigShape,
@@ -63,14 +62,6 @@ test('the checked-in quality ledger has a valid schema', async () => {
     reviewCommits: 10,
     reviewChangedLines: 1000,
   });
-  assert.deepEqual(config.legacyAreaExpansions, {
-    world: ['generation', 'monsters', 'world-effects'],
-    interaction: ['commands', 'display'],
-    replay: ['startup'],
-  });
-  // 48: the last recorded pass naming replay is index 47, so 48 is the
-  // tightest cutoff that admits history and rejects any later use.
-  assert.deepEqual(config.retiredAreaCutoffs, { replay: 48 });
   const generatedOutputs = config.areas.flatMap(
     (area) => area.generatedOutputs ?? [],
   );
@@ -622,7 +613,6 @@ test('a stored audited range must end at the pass head', () => {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    legacyAreaExpansions: {},
     deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [pass],
@@ -689,7 +679,6 @@ test('an implementation path cannot belong to two quality areas', () => {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    legacyAreaExpansions: {},
     deferred: [],
     areas: [
       { id: 'first', label: 'First', paths: ['js/shared.js'] },
@@ -724,7 +713,6 @@ test('new ledger passes require structured audit metrics', () => {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    legacyAreaExpansions: {},
     deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [pass],
@@ -738,56 +726,47 @@ test('new ledger passes require structured audit metrics', () => {
   assert.doesNotThrow(() => validateConfigShape(config));
 });
 
-test('a retired area cutoff admits history and blocks later passes', () => {
-  const pass = (areas) => ({
+test('pass area labels are inert history', () => {
+  const pass = {
     kind: 'review',
     head: '2'.repeat(40),
-    areas,
     level: 'light',
     outcome: 'no-change',
     evidence: 'No findings.',
     recordedAt: '2026-07-23T00:00:00.000Z',
     auditMetrics: EMPTY_AUDIT_METRICS,
-  });
+  };
   const config = {
     version: 4,
     trackingBase: '1'.repeat(40),
     enforcementBase: '2'.repeat(40),
-    // Zero makes every pass "new", so only the per-area cutoff can admit a
-    // legacy id; the default legacyPassCount path guards the second pass.
     legacyPassCount: 0,
     thresholds: {
       reviewCommits: 10,
       reviewChangedLines: 1000,
     },
-    legacyAreaExpansions: { gone: ['first'] },
-    // Cutoff 1 admits exactly the first recorded pass, mirroring a
-    // retirement that happened after one pass had named the area.
-    retiredAreaCutoffs: { gone: 1 },
     deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
-    passes: [pass(['gone']), pass(['first'])],
+    passes: [pass],
   };
 
+  // A new pass records no areas at all.
   assert.doesNotThrow(() => validateConfigShape(config));
-  // Index 1 sits at the cutoff, so the retired id is no longer nameable.
-  config.passes[1] = pass(['gone']);
+  // A historical label survives uninterpreted: 'gone' matches no area.
+  pass.areas = ['gone'];
+  assert.doesNotThrow(() => validateConfigShape(config));
+  // Anything but an array of strings is a malformed record.
+  pass.areas = [1];
   assert.throws(
     () => validateConfigShape(config),
-    /new passes cannot name legacy area: gone/,
-  );
-  config.passes[1] = pass(['first']);
-  config.retiredAreaCutoffs = { missing: 1 };
-  assert.throws(
-    () => validateConfigShape(config),
-    /retiredAreaCutoffs names unknown legacy area: missing/,
+    /pass areas, when present, must be an array of strings/,
   );
 });
 
-test('ledger queries filter passes by area and flatten their entries', () => {
-    // Two passes: one over monsters, one over display. The monsters pass
-    // carries one rejection and one deferral and spans a second area, so the
-    // area filter must match on intersection (some), never containment (every).
+test('ledger queries flatten pass rejections and filter deferrals', () => {
+    // Two passes; the first carries one rejection and one deferral, and its
+    // historical area labels ride along uninterpreted. The second records no
+    // areas at all, the shape every new pass takes.
     const passes = [
         {
             head: 'a'.repeat(40),
@@ -802,20 +781,14 @@ test('ledger queries filter passes by area and flatten their entries', () => {
         {
             head: 'b'.repeat(40),
             kind: 'review',
-            areas: ['display'],
             auditMetrics: {
                 rejections: [{ summary: 'claim C', counterEvidence: 'trace C' }],
             },
         },
     ];
-    assert.deepEqual(
-        passesForAreas(passes, ['monsters']).map(({ head }) => head),
-        ['a'.repeat(40)],
-    );
-    // No filter returns every pass, the whole-ledger read.
-    assert.equal(passesForAreas(passes).length, 2);
-    const rejections = collectRejections(passesForAreas(passes, ['display']));
-    assert.deepEqual(rejections.map(({ summary }) => summary), ['claim C']);
+    const rejections = collectRejections(passes);
+    assert.deepEqual(rejections.map(({ summary }) => summary),
+        ['claim A', 'claim C']);
     // The deferred ledger: two open entries in monsters, one closed, one open
     // without an area. Defaults return open entries only; the closed entry
     // needs status 'closed' or 'all'; the area filter excludes the null-area

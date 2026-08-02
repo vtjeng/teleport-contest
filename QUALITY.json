@@ -477,23 +477,6 @@
       "detail": "Every remaining command, including count prefixes, travel, force-fight,\npickup commands, and the extended-command set. `hack.c lookaround()`'s\ncorridor-widening arm hangs on this: it needs `svc.context.run == 2`, which\nonly `do_rush()` behind the `g` prefix sets, and `ADMITTED_RUN_MODES` in\n`js/cmd.js` admits 0, 1 and 3 only. Until the prefix is ported the arm and its\n`flags.mention_walls` message have no recorded case, and\n`scripts/hack.test.mjs` is their whole evidence."
     }
   ],
-  "legacyAreaExpansions": {
-    "world": [
-      "generation",
-      "monsters",
-      "world-effects"
-    ],
-    "interaction": [
-      "commands",
-      "display"
-    ],
-    "replay": [
-      "startup"
-    ]
-  },
-  "retiredAreaCutoffs": {
-    "replay": 48
-  },
   "areas": [
     {
       "id": "startup",

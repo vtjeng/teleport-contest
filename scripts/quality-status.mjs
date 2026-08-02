@@ -740,55 +740,6 @@ export function validateConfigShape(config) {
     }
   }
 
-  if (!config.legacyAreaExpansions
-      || typeof config.legacyAreaExpansions !== 'object'
-      || Array.isArray(config.legacyAreaExpansions)) {
-    fail('legacyAreaExpansions must be an object');
-  }
-  const legacyAreaIds = new Set();
-  const expandedTargets = new Set();
-  for (const [legacyId, targets] of Object.entries(config.legacyAreaExpansions)) {
-    if (!SLUG_PATTERN.test(legacyId) || areaIds.has(legacyId)) {
-      fail(`invalid legacy area id: ${legacyId}`);
-    }
-    if (!Array.isArray(targets) || targets.length === 0) {
-      fail(`legacy area ${legacyId} needs at least one current target`);
-    }
-    if (new Set(targets).size !== targets.length) {
-      fail(`legacy area ${legacyId} cannot name a target twice`);
-    }
-    for (const target of targets) {
-      if (!areaIds.has(target)) {
-        fail(`legacy area ${legacyId} names unknown target: ${target}`);
-      }
-      if (expandedTargets.has(target)) {
-        fail(`current area ${target} belongs to two legacy expansions`);
-      }
-      expandedTargets.add(target);
-    }
-    legacyAreaIds.add(legacyId);
-  }
-
-  // Passes are append-only, so an area can retire mid-history: passes
-  // recorded before its cutoff legitimately name it, later ones must not.
-  // legacyPassCount covers ids retired before structured passes began.
-  if (config.retiredAreaCutoffs !== undefined) {
-    if (!config.retiredAreaCutoffs || typeof config.retiredAreaCutoffs !== 'object'
-        || Array.isArray(config.retiredAreaCutoffs)) {
-      fail('retiredAreaCutoffs must be an object');
-    }
-    for (const [legacyId, cutoff] of Object.entries(config.retiredAreaCutoffs)) {
-      if (!legacyAreaIds.has(legacyId)) {
-        fail(`retiredAreaCutoffs names unknown legacy area: ${legacyId}`);
-      }
-      if (!Number.isInteger(cutoff) || cutoff < config.legacyPassCount
-          || cutoff > config.passes.length) {
-        fail(`retiredAreaCutoffs.${legacyId} must count the passes recorded `
-          + 'before its area retired');
-      }
-    }
-  }
-
   if (!Array.isArray(config.deferred)) fail('deferred must be an array');
   const deferredIds = new Set();
   for (const [index, entry] of config.deferred.entries()) {
@@ -825,25 +776,16 @@ export function validateConfigShape(config) {
   for (const [passIndex, pass] of config.passes.entries()) {
     if (!PASS_KINDS.has(pass.kind)) fail(`invalid pass kind: ${pass.kind}`);
     if (!SHA_PATTERN.test(pass.head ?? '')) fail('pass head must be a full commit SHA');
-    if (!Array.isArray(pass.areas) || pass.areas.length === 0) {
-      fail('every pass needs at least one area');
-    }
-    if (new Set(pass.areas).size !== pass.areas.length) {
-      fail('a pass cannot list an area twice');
+    // Passes recorded while areas labeled findings keep those labels as
+    // inert history; nothing interprets them and new passes record none.
+    if (pass.areas !== undefined
+        && (!Array.isArray(pass.areas)
+          || pass.areas.some((areaId) => typeof areaId !== 'string'))) {
+      fail('pass areas, when present, must be an array of strings');
     }
     if (pass.bases !== undefined) {
       fail('passes no longer carry per-area bases; the frontier is the '
         + 'newest recorded head');
-    }
-    for (const areaId of pass.areas) {
-      if (!areaIds.has(areaId) && !legacyAreaIds.has(areaId)) {
-        fail(`pass names unknown area: ${areaId}`);
-      }
-      const legacyCutoff = config.retiredAreaCutoffs?.[areaId]
-        ?? config.legacyPassCount;
-      if (passIndex >= legacyCutoff && legacyAreaIds.has(areaId)) {
-        fail(`new passes cannot name legacy area: ${areaId}`);
-      }
     }
     if (!PASS_OUTCOMES.has(pass.outcome)) fail(`invalid pass outcome: ${pass.outcome}`);
     if (pass.kind === 'review' && !REVIEW_LEVELS.has(pass.level)) {
@@ -876,17 +818,12 @@ export function validateConfigShape(config) {
     }
   }
 
-  return { areaIds, claimedPaths, legacyAreaIds };
 }
 
 function loadConfig() {
   const config = JSON.parse(readFileSync(QUALITY_PATH, 'utf8'));
   validateConfigShape(config);
   return config;
-}
-
-function currentAreaIds(config, recordedAreaId) {
-  return config.legacyAreaExpansions[recordedAreaId] ?? [recordedAreaId];
 }
 
 function allReviewHeads(config) {
@@ -896,11 +833,10 @@ function allReviewHeads(config) {
 }
 
 // One frontier per pass kind: the newest recorded head, floored at the
-// enforcement base. Areas label findings and route deferrals; they no longer
-// carry frontiers of their own, because every pass covers the whole diff
-// since the previous one and reviewers read the range's full diff either
-// way. Passes recorded before the 2026-08-01 collapse keep their per-area
-// `bases` maps as inert history.
+// enforcement base. Every pass covers the whole diff since the previous one
+// and reviewers read the range's full diff either way. Deferrals carry their
+// own area labels; passes recorded before 2026-08-01 keep per-area `bases`
+// maps and `areas` lists as inert history.
 function validateHistory(config, head) {
   if (!isAncestor(config.trackingBase, config.enforcementBase)) {
     fail('trackingBase must be an ancestor of enforcementBase');
@@ -953,18 +889,6 @@ function unassignedJsFiles(config) {
   return allCurrentJsFiles().filter((file) => !assigned.has(file));
 }
 
-// Areas never named by a recorded review pass, resolved through the legacy
-// expansions so an old 'world' pass covers today's generation, monsters, and
-// world-effects. The line replaces the per-area BASELINE bookkeeping: code
-// in these areas predates the frontier and was never independently read.
-function neverReviewedAreas(config) {
-  const covered = new Set(config.passes
-    .filter((pass) => pass.kind === 'review')
-    .flatMap((pass) => pass.areas)
-    .flatMap((recordedAreaId) => currentAreaIds(config, recordedAreaId)));
-  return config.areas.map(({ id }) => id).filter((id) => !covered.has(id));
-}
-
 function buildStatus(config, head) {
   const frontiers = validateHistory(config, head);
   const reviewHeads = allReviewHeads(config);
@@ -989,7 +913,6 @@ function buildStatus(config, head) {
     review,
     dirty: workingTreeMetrics(union),
     simplificationFrontier: frontiers.simplification,
-    neverReviewed: neverReviewedAreas(config),
     unassigned: unassignedJsFiles(config),
   };
 }
@@ -1014,10 +937,6 @@ function printStatus(config, head, status, verbose) {
   if (verbose) {
     console.log(`Simplification frontier: ${
       shortSha(status.simplificationFrontier)}`);
-  }
-  if (status.neverReviewed.length > 0) {
-    console.log('Never reviewed, informational: '
-      + `${status.neverReviewed.join(', ')}.`);
   }
   if (status.unassigned.length > 0) {
     console.log(`Unassigned js/ files: ${status.unassigned.join(', ')}`);
@@ -1076,18 +995,6 @@ function rejectUnknownOptions(options, allowed) {
   for (const key of Object.keys(options)) {
     if (!allowed.has(key)) fail(`unknown option: --${key}`);
   }
-}
-
-function selectedAreas(config, value) {
-  if (!value) fail('--areas is required');
-  const ids = value.split(',').map((id) => id.trim()).filter(Boolean);
-  if (ids.length === 0) fail('--areas must name at least one area');
-  if (new Set(ids).size !== ids.length) fail('--areas cannot name an area twice');
-  const known = new Set(config.areas.map((area) => area.id));
-  for (const id of ids) {
-    if (!known.has(id)) fail(`unknown area: ${id}`);
-  }
-  return ids;
 }
 
 function writeConfig(config) {
@@ -1160,7 +1067,6 @@ function preparePass(kind, options) {
   rejectUnknownOptions(
     options,
     new Set([
-      'areas',
       'range',
       'head',
       'outcome',
@@ -1174,7 +1080,6 @@ function preparePass(kind, options) {
   const config = loadConfig();
   const repositoryHead = resolveCommit('HEAD');
   const frontiers = validateHistory(config, repositoryHead);
-  const areas = selectedAreas(config, options.areas);
   if (!options.range?.trim()) fail('--range <base>..<head> is required');
   const revisions = parseRange(options.range.trim());
   const rangeBase = resolveCommit(revisions.base);
@@ -1207,7 +1112,7 @@ function preparePass(kind, options) {
   }
 
   // A pass covers the whole diff since the frontier, so any production
-  // worktree change disqualifies recording, whatever areas are claimed.
+  // worktree change disqualifies recording.
   const union = {
     id: 'all',
     label: 'All production paths',
@@ -1229,7 +1134,6 @@ function preparePass(kind, options) {
     kind,
     head,
     auditedRange: `${rangeBase}..${head}`,
-    areas,
     ...(kind === 'review' ? { level: options.level } : {}),
     outcome: options.outcome,
     evidence: `${renderCountsSentence(auditMetrics)} ${options.evidence.trim()}`,
@@ -1283,18 +1187,11 @@ export function renderCountsSentence(metrics) {
     + `${counts.unverified} unverified${mutation}.`;
 }
 
-export function passesForAreas(passes, areaIds = null) {
-  if (!areaIds || areaIds.length === 0) return passes;
-  const wanted = new Set(areaIds);
-  return passes.filter((pass) => pass.areas.some((areaId) => wanted.has(areaId)));
-}
-
 export function collectRejections(passes) {
   const rows = [];
   for (const pass of passes) {
     for (const rejection of pass.auditMetrics?.rejections ?? []) {
-      rows.push({ head: pass.head, kind: pass.kind, areas: pass.areas,
-        ...rejection });
+      rows.push({ head: pass.head, kind: pass.kind, ...rejection });
     }
   }
   return rows;
@@ -1326,11 +1223,10 @@ function queryLedger(command, options, config) {
     return;
   }
   if (command === 'rejections') {
-    rejectUnknownOptions(options, new Set(['areas']));
-    const areaIds = options.areas ? options.areas.split(',') : null;
-    const rows = collectRejections(passesForAreas(config.passes, areaIds));
+    rejectUnknownOptions(options, new Set());
+    const rows = collectRejections(config.passes);
     for (const row of rows) {
-      console.log(`${shortSha(row.head)} [${row.areas.join(',')}] ${row.summary}`);
+      console.log(`${shortSha(row.head)} ${row.summary}`);
       console.log(`    counter: ${row.counterEvidence}`);
     }
     console.log(`${plural(rows.length, 'recorded rejection')}.`);
@@ -1440,15 +1336,15 @@ function printHelp() {
   npm run quality
   npm run quality -- --check
   npm run quality -- --verbose
-  npm run quality -- record-review --areas <id,...> --range <base>..<head> \\
+  npm run quality -- record-review --range <base>..<head> \\
     --level <light|full> --outcome <changed|no-change> --evidence <text> \\
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
     [--head <commit>] [--dry-run]
-  npm run quality -- record-simplification --areas <id,...> \\
+  npm run quality -- record-simplification \\
     --range <base>..<head> --outcome <changed|no-change> --evidence <text> \\
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
     [--head <commit>] [--dry-run]
-  npm run quality -- rejections [--areas <id,...>]
+  npm run quality -- rejections
   npm run quality -- deferrals [--area <id>] [--status open|closed|all] [--id <id>]
   npm run quality -- pass --head <sha or prefix>
   npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
