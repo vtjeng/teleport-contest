@@ -5973,6 +5973,140 @@
         }
       },
       "recordedAt": "2026-08-02T16:20:00.174Z"
+    },
+    {
+      "kind": "review",
+      "head": "002c0a522cc4a3335cadb8d07e66b9361b8c54a0",
+      "auditedRange": "e87beeaf37d9b8c99e3226e8ad2220cc4b4823cb..002c0a522cc4a3335cadb8d07e66b9361b8c54a0",
+      "level": "full",
+      "areas": [
+        "commands",
+        "display",
+        "startup",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 13 raw, 12 deduplicated, 10 confirmed, 4 applied, 6 deferred, 2 rejected, 0 unverified; mutation: 0 survivors of 0 mutants. Full correctness pass over the commands deferred-area sweep, plus the previous goal's audit-fix commit, which no pass had read. Four finders; concurrency and performance were not triggered. Every slice in the range closed a deferral entry, so the development score is identical at every commit and the tests and differentials are the whole evidence, which the pass prompt stated. Ten of thirteen findings were confirmed. Six share one root cause and are queued as a slice rather than applied: js/display.js _replaceTimeField() shifts every cell after the time run, while wintty.c render_status() re-derives BL_VERS's right-justified column and the three-row BL_CONDITION indent on the BL_FLUSH that stat_update_time() triggers, so the splice drags both right one column per digit the turn counter gains. That is reachable in the scored set, since seed0007 and seed2200 set showvers with time, and it diverges silently; closing it means porting render_status()'s geometry, which is outside audit-fix scope. Four were applied at 60bb30f, two of them tests that stayed green when the defect they were written for was reinstated.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2382,
+        "counts": {
+          "raw": 13,
+          "deduplicated": 12,
+          "confirmed": 10,
+          "applied": 4,
+          "deferred": 6,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 4,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "optionalFinders": {
+          "concurrency": "not enabled: the range changes no asynchronous or reentrant control flow and adds no parallel work; the one async question it raised, whether earth_sense() could print, was settled by refusing rather than by making level creation async",
+          "performance": "not enabled: the range adds no unbounded or amplified work and no hot-path traversal beyond the source behavior it ports"
+        },
+        "productionDefects": [
+          {
+            "file": "js/display.js",
+            "summary": "js/display.js:3318 -- The same shift loses `render_status()`'s three-row BL_CONDITION indent: the comment declares the indent \"not redone here\" without establishing that a three-row status line cannot reach the splice, and it can — `OPTIONS=statuslines:3,time` plus any active condition moves the condition word one column per `T:` digit-width change while C leaves it aligned with the row-2 hunger column.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          },
+          {
+            "file": "js/display.js",
+            "summary": "js/display.js:3318 -- The same shift moves the three-row status line's indented BL_CONDITION run, whose column C recomputes from tty_status[BEFORE][BL_HUNGER].x on every redraw; the omission is declared in the comment but is reachable through the supported statuslines:3 option.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          },
+          {
+            "file": "js/display.js",
+            "summary": "js/display.js:3353 -- `_replaceTimeField()` shifts every column after the time field, but wintty.c `render_status()` right-justifies BL_VERS at `cw->cols - lth` independently of the accumulated column, so once `showvers` is on a widened turn counter drags the version field right (and off the 80-column terminal) on every turn that takes the new `timebot()` arm.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/display.js:3315 -- The header comment on _stat_update_time() enumerates the geometry C redoes on a time-only refresh and justifies skipping it with a reason that does not hold; the enumeration omits render_status()'s right-justification of BL_VERS, and the splice measurably diverges from a full status pass when the counter gains a digit.",
+            "trackedIn": "the timebot splice translates absolutely-positioned status fields",
+            "category": "clarity"
+          },
+          {
+            "summary": "js/display.js:3318 -- The same shift loses `render_status()`'s three-row BL_CONDITION indent: the comment declares the indent \"not redone here\" without establishing that a three-row status line cannot reach the splice, and it can — `OPTIONS=statuslines:3,time` plus any active condition moves the condition word one column per `T:` digit-width change while C leaves it aligned with the row-2 hunger column.",
+            "trackedIn": "the timebot splice translates absolutely-positioned status fields",
+            "category": "production"
+          },
+          {
+            "summary": "js/display.js:3318 -- The same shift moves the three-row status line's indented BL_CONDITION run, whose column C recomputes from tty_status[BEFORE][BL_HUNGER].x on every redraw; the omission is declared in the comment but is reachable through the supported statuslines:3 option.",
+            "trackedIn": "the timebot splice translates absolutely-positioned status fields",
+            "category": "production"
+          },
+          {
+            "summary": "js/display.js:3320 -- _stat_update_time()'s second declared omission — make_things_fit()'s shrinking — is exercised by no test, and it is not safe: once a two-row status line reaches 80 columns the splice keeps the un-shrunk layout where a full repaint shortens Dlvl and re-lays the row out.",
+            "trackedIn": "the timebot splice translates absolutely-positioned status fields",
+            "category": "tests"
+          },
+          {
+            "summary": "js/display.js:3353 -- `_replaceTimeField()` shifts every column after the time field, but wintty.c `render_status()` right-justifies BL_VERS at `cw->cols - lth` independently of the accumulated column, so once `showvers` is on a widened turn counter drags the version field right (and off the 80-column terminal) on every turn that takes the new `timebot()` arm.",
+            "trackedIn": "the timebot splice translates absolutely-positioned status fields",
+            "category": "production"
+          },
+          {
+            "summary": "scripts/display-symbols.test.mjs:5840 -- Every new timebot test runs on a two-row status line, so the splice's declared \"BL_CONDITION indent applies only to a three-row status line\" omission is pinned by nothing — and with statuslines:3 the splice shifts the condition block one column right on the first turn the counter widens, where C keeps it right-justified.",
+            "trackedIn": "the timebot splice translates absolutely-positioned status fields",
+            "category": "tests"
+          }
+        ],
+        "mutation": {
+          "mutants": 0,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "The audit fix enumerated no mutable site: three of the four applied findings change comments or tests, and the fourth adds a test rather than production logic. Each applied finding was instead validated by breaking the line it covers and observing its test fail, which the commit message records for all four. The deferred defect carries its own reproductions at the column level."
+        },
+        "rejections": [
+          {
+            "summary": "js/display.js:3328 -- _stat_update_time()'s `rendered ? … : statusLayouts()` fallback performs a complete status recompute — exactly the whole-bot() behavior timebot()'s comment nine lines above says C never takes — under a header that says the function \"refreshes blstats[BL_TIME] alone\".",
+            "counterEvidence": "The description of what the fallback does is accurate, but the hazard it rests on is not. The finding says the unreachability argument \"rests on ordering that nothing enforces\"; the ordering is in fact enforced twice over. Counter-evidence: js/allmain.js:141-142 (newgame_pre_mklev) sets g.disp.botlx = true before mklev, and js/moveloop_preamble.js:69 sets state.disp.botlx = true unconditionally, outside the `if (!resuming)` block, so it fires on resumed segments too. js/display.js:3201 gives the `botl || botlx` arm priority over the time_botl arm, and bot() assigns game._renderedStatusLayouts at js/display.js:3275 before clearing botl/botlx at 3276-3278. Every writer of disp.time_botl -- js/allmain.js:527, js/hack.js:372 and js/hack.js:1628 -- runs inside the moveloop, after both botlx writers. So reaching the timebot arm requires botl and botlx to be false, which requires a prior bot(), which sets _renderedStatusLayouts. The fallback cannot execute. The finding's secondary charge, that the arm \"neither clears disp.botl/disp.botlx\", describes correct porting rather than a defect: botl.c timebot() (293) clears only disp.time_botl."
+          },
+          {
+            "summary": "js/hack.js:678 -- The comment introducing the blind-terrain guard enumerates dungeon.c surface()'s per-terrain answers and omits THRONE and SINK, which C answers with the already-ported word \"floor\" through IS_ROOM(), not with a word of their own.",
+            "counterEvidence": "The comment does not omit THRONE and SINK; it states their answer. Counter-evidence: js/hack.js:679-681 reads \"answers per terrain: \\\"altar\\\", \\\"headstone\\\", \\\"fountain\\\", \\\"stairs\\\", \\\"doorway\\\", \\\"floor\\\" in a room and \\\"ground\\\" otherwise\". The clause \"'floor' in a room\" is precisely dungeon.c:1783's `IS_ROOM(levtyp) && !Is_earthlevel(&u.uz)` arm, and rm.h:126 `#define IS_ROOM(typ) ((typ) >= ROOM)` with THRONE=29 / SINK=30 (rm.h:85-86) is exactly how those two types reach it, so the comment already gives them their C word rather than implying a missing one. The list is plainly a summary of the arms this guard can reach and not a per-type catalogue: it also names none of surface()'s \"maw\", \"husk\", \"air bubble\", \"cloud\", \"air\", \"water\", \"bottom\", \"ice\", \"lava\", \"bridge\" or \"wall\" arms, and it cites dungeon.c (1750-1787) for the full function."
+          }
+        ],
+        "readiness": {
+          "boundary": "This goal is a deferred-area sweep, so its boundary is the set of entries it closed rather than one player-visible event. Five closed: the status-line repaint gate, the drawbridge wall message, earth_sense()'s missing refusal, the eight diagonal-doorway clarity findings, and go.occupation's unassigned readers. The running game executes each: the status gate on every turn, the occupation readers on every monster move, and the rest behind refusals the segment loop converts.",
+          "sourceReview": "Every branch reachable before each entry's closing point was traced against nethack-c/upstream/src/: allmain.c moveloop_core() and stop_occupation(); botl.c timebot(), stat_update_time() and classify_terrain(); display.c flush_screen(); wintty.c check_fields(), make_things_fit() and render_status(); dbridge.c is_db_wall(); hack.c test_move(); dungeon.c u_on_newpos() and earth_sense(); monmove.c dochugw(); makemon.c makemon_rnd_goodpos(). The trace covered state and random-number order, and it overturned three deferral records' factual claims.",
+          "completeness": "One known divergence remains inside the boundary and is queued as a slice rather than left silent: the timebot splice's treatment of absolutely-positioned fields, recorded with column-level reproductions and a closing condition. Every other excluded branch stops before changing state, consuming randomness or producing output, through a named refusal: earth_sense()'s notice, stop_occupation(), the blind surface() arms, and the altar's a_gname()."
+        }
+      },
+      "recordedAt": "2026-08-02T19:51:16.916Z"
     }
   ]
 }
