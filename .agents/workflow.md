@@ -70,7 +70,8 @@ For every coherent implementation chunk:
    or test-only changes may rely on immediate diff inspection and tests, but
    include them in the next scheduled correctness pass.
 5. Collect score and validation evidence for the current behavior slice or
-   review window. Publish it as specified in `.agents/validation.md`; do not
+   review window. A worker states it in its report; the orchestrator appends
+   the `SCORE.tsv` row as `.agents/scoring.md` states. Do not
    add a routine per-chunk `SCORE.md` row.
 
 A final integration runner, fixture, or test may remain uncommitted while it is

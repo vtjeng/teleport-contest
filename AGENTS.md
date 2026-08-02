@@ -87,8 +87,9 @@ Follow all instructions in those files.
 | Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/implementation-checklist-template.md` |
 | Continue the active work described in `.agents/implementation-checklist.json` | `.agents/implementation-checklist.json` |
 | Complete one behavior slice as a loop worker | `.claude/agents/slice-worker.md` |
-| Commit game implementation or record a development score | `.agents/workflow.md` and `.agents/validation.md` |
-| Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md` |
+| Commit game implementation | `.agents/workflow.md` and `.agents/validation.md` |
+| Append a `SCORE.tsv` event row or respond to a holdout result (orchestrator only) | `.agents/scoring.md` |
+| Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Check how much unreviewed code has accumulated, or schedule a review (orchestrator only) | `.agents/review.md` and `QUALITY.json`, which lists the tracked parts of the code, review limits, and completed correctness and simplification passes |
 | Run or record a correctness, clarity, simplification, or copyediting pass (orchestrator only) | `.agents/review.md` and the skill named for that pass |
 | Mutation-test the lines a review covers, or check whether a module's tests pin its behavior | `.agents/review.md` and the header comment in `scripts/mutate-sites.mjs` |
@@ -230,7 +231,7 @@ When choosing new cases:
 ## Commit, review, and report the work
 
 `SCORE.md` summarizes development-score results for completed work. Add entries
-at the points listed in `.agents/validation.md`, "Score evidence". You do not
+at the points listed in `.agents/scoring.md`, "Score evidence". You do not
 need to add an entry after every commit.
 
 Keep progress updates short. "Progress reports" in `.agents/workflow.md` states

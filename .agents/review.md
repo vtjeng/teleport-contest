@@ -22,7 +22,7 @@ An **evidence snapshot** is one `SCORE.tsv` row for the exact integrated code
 state at a full commit SHA: `npm run checkpoint` appends a `checkpoint` row
 after each scoring run, and agents append `slice`, `window`, `goal`,
 `holdout`, and `publish` rows when those events complete, as
-`.agents/validation.md`, "Score evidence", states. The quality ledger is
+`.agents/scoring.md`, "Score evidence", states. The quality ledger is
 `QUALITY.json`, which records completed correctness and simplification
 passes. Formal review ranges remain in that ledger.
 

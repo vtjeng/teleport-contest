@@ -132,7 +132,7 @@ candidate; do not promote it there to a ranking rule, and do not treat a
 large fresh-population incidence as a forecast of holdout gain any more
 than a large `supports`.
 
-The generalization-failure protocol in `.agents/validation.md` is not
+The generalization-failure protocol in `.agents/scoring.md` is not
 triggered. It runs only where a review confirms behavior special-cased to
 a recorded session or hardcoded, and this goal ported whole C functions:
 `relobj()`, `mdrop_obj()`, `extract_from_minvent()`, `flooreffects()`, and
