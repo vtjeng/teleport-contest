@@ -22,6 +22,7 @@ import {
   collectRejections,
   newestFrontier,
   passesForAreas,
+  missingMutantTrailers,
   renderCountsSentence,
   validateConfigShape,
 } from './quality-status.mjs';
@@ -925,4 +926,19 @@ test('the recorder renders the counts sentence from the metrics', () => {
     assert.equal(renderCountsSentence({ counts: metrics.counts }),
         'Counts: 17 raw, 15 deduplicated, 12 confirmed, 11 applied, '
             + '1 deferred, 3 rejected, 0 unverified.');
+});
+
+test('slice-mutants parsing separates trailered from bare commits', () => {
+    // Two js commits: the first carries the trailer mutate-sites emits, the
+    // second has an empty trailer column, the shape git prints for a commit
+    // without one. Only the second is missing.
+    const output = [
+        `${'a'.repeat(40)}\tMutants: 36/36 kind=relational,logical,boolean`,
+        `${'b'.repeat(40)}\t`,
+    ].join('\n');
+    assert.deepEqual(missingMutantTrailers(output),
+        { commits: 2, missing: ['b'.repeat(40)] });
+    // An empty log means an empty range, never a failure.
+    assert.deepEqual(missingMutantTrailers(''),
+        { commits: 0, missing: [] });
 });

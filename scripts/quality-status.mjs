@@ -1466,6 +1466,40 @@ function deferEntry(options) {
   });
 }
 
+/** Parse `git log --format=%H%x09<Mutants trailer>` rows for the check. */
+export function missingMutantTrailers(logOutput) {
+  if (!logOutput) return { commits: 0, missing: [] };
+  const rows = logOutput.split('\n').filter(Boolean).map((line) => {
+    const [sha, trailer = ''] = line.split('\t');
+    return { sha, trailer: trailer.trim() };
+  });
+  return {
+    commits: rows.length,
+    missing: rows.filter((row) => !row.trailer).map((row) => row.sha),
+  };
+}
+
+// Turns .agents/review.md's per-slice mutation record from an inspection
+// into a check: every js/-touching commit in the range must carry the
+// `Mutants:` trailer that `mutate-sites --emit-trailer` prints.
+function sliceMutants(options) {
+  rejectUnknownOptions(options, new Set(['range']));
+  if (!options.range?.trim()) fail('--range <base>..<head> is required');
+  const revisions = parseRange(options.range.trim());
+  const output = git([
+    'log',
+    '--format=%H%x09%(trailers:key=Mutants,valueonly,separator=%x2C)',
+    `${resolveCommit(revisions.base)}..${resolveCommit(revisions.head)}`,
+    '--',
+    'js',
+  ]);
+  const { commits, missing } = missingMutantTrailers(output);
+  for (const sha of missing) console.log(`no Mutants trailer: ${sha}`);
+  console.log(`${plural(commits, 'js commit')} in range, `
+    + `${missing.length} without a Mutants trailer.`);
+  if (missing.length > 0) process.exitCode = 1;
+}
+
 function resolveDeferral(options) {
   rejectUnknownOptions(options, new Set(['id']));
   if (!options.id?.trim()) fail('--id is required');
@@ -1499,6 +1533,7 @@ function printHelp() {
   npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
     --detail <text> [--area <id>]
   npm run quality -- resolve-deferral --id <id>
+  npm run quality -- slice-mutants --range <base>..<head>
 
 The query subcommands read the ledger, so a later pass consults prior
 rejections and open deferrals without opening QUALITY.json. defer opens a
@@ -1539,6 +1574,10 @@ function main(argv) {
   }
   if (first === 'resolve-deferral') {
     resolveDeferral(parseOptions(rest));
+    return;
+  }
+  if (first === 'slice-mutants') {
+    sliceMutants(parseOptions(rest));
     return;
   }
 

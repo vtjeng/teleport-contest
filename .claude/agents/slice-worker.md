@@ -85,6 +85,12 @@ to kill anyway. When only survivors you cannot explain remain, run
 `npm run mutate -- --worktree --kind relational,logical,boolean --whole-suite`.
 Add `--file js/<module>.js` when the remaining survivors sit in one module.
 
+Record the run in the slice's commit: rerun the final command with
+`--emit-trailer`, copy the `Mutants:` line it prints into the commit message
+as a trailer, and state each survivor's reason in the body.
+`npm run quality -- slice-mutants` later flags a js/ commit without that
+trailer.
+
 ## When the slice is done
 
 - The real consumer executes in the running game, per "Complete common gameplay

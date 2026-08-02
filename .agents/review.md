@@ -196,13 +196,15 @@ reach for it when a survivor list looks wrong.
 
 **Per slice.** A behavior slice closes with a mutation run over its own lines.
 The worker runs it while the work is uncommitted, which
-`.claude/agents/slice-worker.md` states, and the slice's commit message records
-the mutant count, the survivor count, and the reason no test can kill each
-surviving relational, logical, or boolean mutant. One recorded reason may cover
-several survivors that sit on the same branch. A survivor of those three kinds
-with no recorded reason blocks the slice from closing. Integer survivors are not
-gating. No check reads that record, so the orchestrator applies this by
-inspection.
+`.claude/agents/slice-worker.md` states, and the slice's commit message
+carries the `Mutants:` trailer that `--emit-trailer` prints, with the reason
+no test can kill each surviving relational, logical, or boolean mutant in the
+body. One recorded reason may cover several survivors that sit on the same
+branch. A survivor of those three kinds with no recorded reason blocks the
+slice from closing. Integer survivors are not gating.
+`npm run quality -- slice-mutants --range <base>..<head>` lists the
+js/-touching commits in a range that carry no `Mutants:` trailer, so the
+orchestrator checks the record in place of inspecting for it.
 
 The commit message carries that record because a slice run measures uncommitted
 work, whose subject is gone once the slice is committed, and because

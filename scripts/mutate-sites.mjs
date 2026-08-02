@@ -1155,7 +1155,8 @@ export function formatSiteCounts(targets, scopedLines) {
  */
 export function parseArgs(argv) {
     const options = { range: null, paths: [], worktree: false, kinds: null,
-        enumerateOnly: false, wholeSuite: false, sample: null, seed: 1 };
+        enumerateOnly: false, emitTrailer: false, wholeSuite: false,
+        sample: null, seed: 1 };
     for (let i = 0; i < argv.length; ++i) {
         const separator = argv[i].indexOf('=');
         const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
@@ -1173,6 +1174,10 @@ export function parseArgs(argv) {
             if (inlineValue !== null)
                 throw new Error('--enumerate-only takes no value');
             options.enumerateOnly = true;
+        } else if (name === '--emit-trailer') {
+            if (inlineValue !== null)
+                throw new Error('--emit-trailer takes no value');
+            options.emitTrailer = true;
         } else if (name === '--worktree') {
             if (inlineValue !== null)
                 throw new Error('--worktree takes no value');
@@ -1283,6 +1288,12 @@ function assertJsPath(path, root) {
     return normalized;
 }
 
+/** The commit-message trailer recording a slice's mutation run. */
+export function formatTrailer({ ran, killed }, kinds) {
+    return `Mutants: ${ran}/${killed} `
+        + `kind=${kinds?.length ? kinds.join(',') : 'all'}`;
+}
+
 async function main(argv) {
     const options = parseArgs(argv);
     const population = collectTargets({ ...options, sample: null });
@@ -1319,6 +1330,10 @@ async function main(argv) {
         });
         for (const line of formatReport(result, populationMutants))
             console.log(line);
+        // The worker copies this line into the slice's commit message, and
+        // `npm run quality -- slice-mutants` later checks it is there.
+        if (options.emitTrailer)
+            console.log(formatTrailer(result, options.kinds));
     } finally {
         removeWorkspace(workspace);
     }

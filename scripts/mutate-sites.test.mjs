@@ -41,6 +41,7 @@ import {
     runMutants,
     sampleItems,
     SITE_KINDS,
+    formatTrailer,
     survivingRangeLines,
     tokenize,
     uncommittedJsLines,
@@ -1114,4 +1115,16 @@ test('the command prints a census and rejects a bad argument', () => {
 
     assert.equal(rejected.status, 2);
     assert.match(rejected.stderr, /unexpected argument 'HEAD'/u);
+});
+
+test('the emitted trailer carries ran, killed, and the kind filter', () => {
+    // 36 mutants ran, 36 killed: the values the standard slice invocation
+    // prints; kinds arrive sorted from parseArgs.
+    assert.equal(
+        formatTrailer({ ran: 36, killed: 36 },
+            ['boolean', 'logical', 'relational']),
+        'Mutants: 36/36 kind=boolean,logical,relational');
+    // A run without --kind mutates every kind.
+    assert.equal(formatTrailer({ ran: 5, killed: 4 }, null),
+        'Mutants: 5/4 kind=all');
 });
