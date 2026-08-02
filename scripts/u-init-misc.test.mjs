@@ -93,7 +93,7 @@ function propertyIntrinsic(state, index) {
     return state.u.uprops[index].intrinsic;
 }
 
-test('u_init_misc clears hero state and preserves only roleplay options', () => {
+test('u_init_misc clears hero state and preserves only roleplay options', async () => {
     const state = initialState('Healer', 'human', 'male', 'neutral', {
         roleplay: {
             blind: true,
@@ -118,7 +118,7 @@ test('u_init_misc clears hero state and preserves only roleplay options', () => 
         { kind: 'rn2', bound: 10, result: 0 },
     ]);
 
-    u_init_misc(state, random, { now: SUMMER_RECORDING_TIME });
+    await u_init_misc(state, random, { now: SUMMER_RECORDING_TIME });
 
     assert.equal('staleRestoreField' in state.u, false);
     assert.deepEqual(state.u.uroleplay, {
@@ -235,7 +235,7 @@ test('u_init_misc clears hero state and preserves only roleplay options', () => 
     random.done();
 });
 
-test('representative roles preserve initial HP, Pw, alignment, and RNG order', () => {
+test('representative roles preserve initial HP, Pw, alignment, and RNG order', async () => {
     const cases = [
         {
             // Tourist has fixed initial Pw, so handedness is its only draw.
@@ -275,7 +275,7 @@ test('representative roles preserve initial HP, Pw, alignment, and RNG order', (
     for (const expected of cases) {
         const state = initialState(...expected.config);
         const random = scriptedRandom(expected.calls);
-        u_init_misc(state, random);
+        await u_init_misc(state, random);
 
         assert.deepEqual(
             [state.u.uhp, state.u.uen, state.u.ualign.record,
@@ -290,14 +290,14 @@ test('representative roles preserve initial HP, Pw, alignment, and RNG order', (
     }
 });
 
-test('level-one role, race, and form intrinsics retain distinct source bits', () => {
+test('level-one role, race, and form intrinsics retain distinct source bits', async () => {
     const barbarian = initialState(
         'Barbarian', 'orc', 'male', 'chaotic',
     );
     const barbarianRandom = scriptedRandom([
         { kind: 'rn2', bound: 10, result: 1 },
     ]);
-    u_init_misc(barbarian, barbarianRandom);
+    await u_init_misc(barbarian, barbarianRandom);
     assert.equal(
         propertyIntrinsic(barbarian, POISON_RES),
         FROM_FORM | FROMEXPER | FROM_RACE | FROMOUTSIDE,
@@ -314,7 +314,7 @@ test('level-one role, race, and form intrinsics retain distinct source bits', ()
         { kind: 'rnd', bound: 2, result: 1 },
         { kind: 'rn2', bound: 10, result: 1 },
     ]);
-    u_init_misc(monk, monkRandom);
+    await u_init_misc(monk, monkRandom);
     for (const propertyIndex of [FAST, SLEEP_RES, SEE_INVIS]) {
         assert.equal(
             propertyIntrinsic(monk, propertyIndex),
@@ -328,7 +328,7 @@ test('level-one role, race, and form intrinsics retain distinct source bits', ()
     const rangerRandom = scriptedRandom([
         { kind: 'rn2', bound: 10, result: 1 },
     ]);
-    u_init_misc(ranger, rangerRandom);
+    await u_init_misc(ranger, rangerRandom);
     assert.equal(
         propertyIntrinsic(ranger, SEARCHING),
         FROMEXPER | FROMOUTSIDE,
@@ -343,7 +343,7 @@ test('level-one role, race, and form intrinsics retain distinct source bits', ()
     const rogueRandom = scriptedRandom([
         { kind: 'rn2', bound: 10, result: 1 },
     ]);
-    u_init_misc(rogue, rogueRandom);
+    await u_init_misc(rogue, rogueRandom);
     assert.equal(
         propertyIntrinsic(rogue, STEALTH),
         FROMEXPER | FROMOUTSIDE,
@@ -356,7 +356,7 @@ test('level-one role, race, and form intrinsics retain distinct source bits', ()
     const valkyrieRandom = scriptedRandom([
         { kind: 'rn2', bound: 10, result: 1 },
     ]);
-    u_init_misc(valkyrie, valkyrieRandom);
+    await u_init_misc(valkyrie, valkyrieRandom);
     assert.equal(
         propertyIntrinsic(valkyrie, COLD_RES),
         FROM_FORM | FROMEXPER | FROMOUTSIDE,
@@ -368,7 +368,7 @@ test('level-one role, race, and form intrinsics retain distinct source bits', ()
     valkyrieRandom.done();
 });
 
-test('moves remains the source boundary for newhp alignment record setup', () => {
+test('moves remains the source boundary for newhp alignment record setup', async () => {
     const state = initialState(
         'Healer', 'human', 'male', 'neutral', { moves: 1 },
     );
@@ -376,7 +376,7 @@ test('moves remains the source boundary for newhp alignment record setup', () =>
         { kind: 'rnd', bound: 4, result: 1 },
         { kind: 'rn2', bound: 10, result: 1 },
     ]);
-    u_init_misc(state, random);
+    await u_init_misc(state, random);
 
     // u_init_role(), which changes moves to one, belongs after mklev. This
     // proves u_init_misc does not hide an incorrectly ordered integration.
@@ -384,7 +384,7 @@ test('moves remains the source boundary for newhp alignment record setup', () =>
     random.done();
 });
 
-function freshBootstrap(seed, role, race, gender, alignment) {
+async function freshBootstrap(seed, role, race, gender, alignment) {
     resetGame();
     monst_globals_init(game);
     initRng(seed);
@@ -403,13 +403,13 @@ function freshBootstrap(seed, role, race, gender, alignment) {
     game.u = { uroleplay: {} };
     role_init(game);
     init_dungeons(game);
-    u_init_misc(game);
+    await u_init_misc(game);
     assert.equal(game.moves, 0);
     assert.equal(game.u.ualign.record, game.urole.initrecord);
     return [...getRngLog()];
 }
 
-test('fresh role/dungeon/u_init composition reaches the recorder boundaries', () => {
+test('fresh role/dungeon/u_init composition reaches the recorder boundaries', async () => {
     const cases = [
         {
             // Calls 1..199 initialize objects, 200..299 initialize dungeons,
@@ -435,7 +435,7 @@ test('fresh role/dungeon/u_init composition reaches the recorder boundaries', ()
     ];
 
     for (const expected of cases) {
-        const log = freshBootstrap(...expected.config);
+        const log = await freshBootstrap(...expected.config);
         assert.equal(log.length, expected.length, expected.config.join('/'));
         assert.deepEqual(
             log.slice(-expected.tail.length),

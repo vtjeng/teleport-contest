@@ -28,6 +28,7 @@ import {
     HUNGRY,
     HVY_ENCUMBER,
     INFRAVISION,
+    INTRINSIC,
     MAXULEV,
     MOD_ENCUMBER,
     NOT_HUNGRY,
@@ -50,6 +51,9 @@ import {
     WOUNDED_LEGS,
 } from './const.js';
 import { SPFX_LUCK } from './artifacts.js';
+// js/display.js imports effective_attribute() from this file; both sides use
+// the other's exports only inside function bodies, so the cycle resolves.
+import { see_monsters } from './display.js';
 import { game } from './gstate.js';
 import {
     PM_AMOROUS_DEMON,
@@ -117,9 +121,9 @@ const EXERCISE_EXPLANATIONS = Object.freeze([
 // no counterpart here.
 //
 // Every entry whose ulevel is 1 has an empty gainstr, which is what lets
-// adjabil() below grant the level-1 abilities without owning You_feel().
-// innateTablesHaveSilentLevelOneEntries() re-derives that from the tables so
-// a mistyped entry cannot make the omission wrong.
+// u_init_misc()'s adjabil(0, 1) grant the level-1 abilities without a message
+// owner. innateTablesHaveSilentLevelOneEntries() re-derives that from the
+// tables so a mistyped entry cannot make the omission wrong.
 function innate(ulevel, ability, gainstr, losestr) {
     return Object.freeze({ ulevel, ability, gainstr, losestr });
 }
@@ -248,30 +252,35 @@ export class UnsupportedAbilityChangeError extends Error {
     }
 }
 
-// C ref: attrib.c postadjabil(). Its see_monsters() call needs a nonzero
-// u.ulevel, which only a gain or loss above experience level 1 produces, and
-// adjabil() below refuses both. The initializing early return is therefore the
-// whole reachable body.
+// C ref: attrib.c postadjabil(). C compares the `long *` it was handed against
+// &HWarning and &HSee_invisible; the port passes the prop.h index that pointer
+// stood for, so the comparison is against those two indices. Every other
+// property that changes here redraws nothing.
 function postadjabil(propertyIndex, state) {
-    if (!state.u.ulevel) return; /* initializing hero */
-    throw new UnsupportedAbilityChangeError(
-        `postadjabil() reaching see_monsters() for property ${propertyIndex}`,
-    );
+    if (!state.u.ulevel) /* initializing hero; don't attempt screen update yet */
+        return;
+    if (propertyIndex === WARNING || propertyIndex === SEE_INVIS)
+        see_monsters(state);
 }
 
 // C ref: attrib.c adjabil(). The traversal walks the role table and then the
 // race table, switching the intrinsic mask when it crosses over, exactly as C
 // does with its `abil`/`rabil` pair.
 //
-// Only the gain at experience level 1 is ported, which u_init_misc() reaches
-// through adjabil(0, 1). C's three other outcomes stay fail-closed:
+// C's You_feel("%s!") can block on --More--, so this is async and takes the
+// message owner exper.c pluslvl() was handed. Only a gain above experience
+// level 1 prints, because every level-1 entry's gainstr is empty
+// (innateTablesHaveSilentLevelOneEntries() below re-derives that); the
+// initializing adjabil(0, 1) therefore needs no owner and passes none.
+// C reaches this message through You_feel(), whose "You dream that you feel "
+// prefix needs Unaware -- gm.multi < 0 with the hero unconscious or fainted --
+// which no path that raises a level can produce.
 //
-//   a gain above level 1  -> `*(abil->ability) |= mask`, the
-//                            You_feel("%s!") that follows it, and
-//                            postadjabil()'s see_monsters()
-//   any loss              -> the whole `else if` arm at attrib.c:1054-1062
-//   a lowered level       -> weapon.c lose_weapon_skill()
-export function adjabil(oldlevel, newlevel, state = game) {
+// Two outcomes stay fail-closed:
+//
+//   any loss        -> the whole `else if` arm at attrib.c:1054-1062
+//   a lowered level -> weapon.c lose_weapon_skill()
+export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
     const u = state.u;
     let table = role_abil(state.urole?.mnum);
     let raceTable = race_abil(state.urace?.mnum);
@@ -296,13 +305,27 @@ export function adjabil(oldlevel, newlevel, state = game) {
              * only via means that remove _any_ sort of ability.  A "gain" of
              * such an ability from an outside source is devoid of meaning, so
              * C sets FROMOUTSIDE to avoid such gains. */
-            if (entry.ulevel !== 1) {
-                throw new UnsupportedAbilityChangeError(
-                    `adjabil() granting property ${entry.ability} at `
-                    + `experience level ${entry.ulevel}`,
-                );
+            if (entry.ulevel === 1)
+                property.intrinsic |= mask | FROMOUTSIDE;
+            else
+                property.intrinsic |= mask;
+            /* Silent when the hero already holds the property from the other
+             * mask. No role table repeats a property, and race_abil() reads
+             * only elf_abil[] and orc_abil[], whose properties no role that
+             * can be an elf or an orc also grants above level 1, so no hero
+             * #levelchange can build suppresses a message here. QUALITY.json
+             * carries the deferral for the branch that leaves. */
+            if (!(property.intrinsic & INTRINSIC & ~mask)) {
+                if (entry.gainstr) {
+                    if (typeof env.message !== 'function') {
+                        throw new TypeError(
+                            'adjabil() needs a message owner to print a gain',
+                        );
+                    }
+                    /* C ref: pline.c You_feel("%s!", abil->gainstr) */
+                    await env.message(`You feel ${entry.gainstr}!`, state);
+                }
             }
-            property.intrinsic |= mask | FROMOUTSIDE;
         } else if (oldlevel >= entry.ulevel && newlevel < entry.ulevel) {
             throw new UnsupportedAbilityChangeError(
                 `adjabil() removing property ${entry.ability} below `
@@ -320,10 +343,10 @@ export function adjabil(oldlevel, newlevel, state = game) {
     }
 }
 
-// Every innate entry the ported gain branch can reach carries an empty
-// gainstr, so adjabil() needs no owner for C's You_feel("%s!"). This re-reads
-// the tables rather than restating the claim, and scripts/level-change.test.mjs
-// asserts it.
+// Every innate entry gained at experience level 1 carries an empty gainstr, so
+// u_init_misc()'s adjabil(0, 1) needs no owner for C's You_feel("%s!"). This
+// re-reads the tables rather than restating the claim, and
+// scripts/level-change.test.mjs asserts it.
 export function innateTablesHaveSilentLevelOneEntries() {
     const tables = [
         arc_abil, bar_abil, cav_abil, hea_abil, kni_abil, mon_abil, pri_abil,

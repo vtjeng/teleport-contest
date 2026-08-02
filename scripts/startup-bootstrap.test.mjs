@@ -12,7 +12,7 @@ import {
     str2role,
 } from '../js/roles.js';
 
-function initialize(seed, role, race, gender, alignment) {
+async function initialize(seed, role, race, gender, alignment) {
     resetGame();
     initRng(seed);
     enableRngLog();
@@ -31,11 +31,12 @@ function initialize(seed, role, race, gender, alignment) {
     game.u = { uroleplay: {} };
     game.context = { move: 0 };
     monst_globals_init(game);
-    newgame_pre_mklev(game);
+    await newgame_pre_mklev(game);
     return { state: game, log: [...getRngLog()] };
 }
 
-test('pre-mklev startup composes every source initializer in order', () => {
+test('pre-mklev startup composes every source initializer in order',
+    async () => {
     const cases = [
         {
             // Healer adds rnd(4) initial Pw and the handedness draw after the
@@ -67,7 +68,7 @@ test('pre-mklev startup composes every source initializer in order', () => {
     ];
 
     for (const expected of cases) {
-        const { state, log } = initialize(...expected.config);
+        const { state, log } = await initialize(...expected.config);
         assert.equal(log.length, expected.calls, expected.config.join('/'));
         assert.match(log.at(-2), /^rn2\(3\)=/u);
         assert.match(log.at(-1), /^rn2\(2\)=/u);
@@ -95,8 +96,9 @@ test('pre-mklev startup composes every source initializer in order', () => {
     }
 });
 
-test('seed 8000 reaches mklev without the deleted replay scaffold', () => {
-    const { state, log } = initialize(
+test('seed 8000 reaches mklev without the deleted replay scaffold',
+    async () => {
+    const { state, log } = await initialize(
         8000, 'Tourist', 'human', 'female', 'neutral',
     );
 

@@ -915,9 +915,11 @@ export function failClosedCommandRefusals() {
         UnsupportedHitPointLossError,
         UnsupportedArtifactDisplayError,
         UnsupportedLevelChangeError,
-        // wizcmds.c wiz_level_change() reaches both while raising the hero:
-        // exper.c losexp() owns the lowering arm, and attrib.c adjabil()
-        // refuses the experience level that grants an innate ability.
+        // wizcmds.c wiz_level_change() reaches the first when asked to lower
+        // a level, which exper.c losexp() owns. attrib.c adjabil() throws the
+        // second only while losing an ability or a weapon-skill slot, which
+        // no ported command reaches; it is listed so that a future lowering
+        // path ends the segment instead of failing the run.
         UnsupportedExperienceChangeError,
         UnsupportedAbilityChangeError,
         // do.c goto_level()'s tail reaches all four from inside the `>`

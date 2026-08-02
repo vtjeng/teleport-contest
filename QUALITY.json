@@ -481,9 +481,18 @@
       "area": "commands",
       "category": "tests",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "72703fe69484ebccf125e0f932d24a5c01b33f91",
       "detail": "Two recorded cases sit just past this slice's limit and cannot match the C\nreference until attrib.c adjabil()'s gain branch lands. Both are kept out of\nscripts/run-level-change.mjs, whose runner stops on the first failing segment.\n\n1. `#levelchange 31`. wizcmds.c wiz_level_change() clamps a target above\n   MAXULEV to 30 and raises the hero there. Every role's innate table holds an\n   entry below 30, so the port refuses inside adjabil() partway up. Recorded\n   with `node scripts/diff-fresh.mjs --seed 8810008 --role Wizard --name Levch\n   --options 'pettype:none,!acoustics,playmode:debug' --moves` a `#levelchange`\n   answered `31` followed by 29 spaces: C draws 48 screens, the port 30, and the\n   first mismatch is at boundary 31, which is wiz_abil[]'s level-15 entry.\n   Expected once the gain branch lands: 48 screens and the hero at experience\n   level 30, not 31.\n\n2. `#levelchange` from experience level 30, which answers \"You are already as\n   experienced as you can get.\" Its `u.ulevel >= MAXULEV` arm is ported but has\n   no fresh case, because reaching level 30 needs case 1 to work first.\n\nClose both by adding them to scripts/run-level-change.mjs with the slice that\nports adjabil()'s `*(abil->ability) |= mask`, its You_feel(\"%s!\"), and\npostadjabil()'s see_monsters()."
+    },
+    {
+      "id": "adjabil()'s already-held suppression test has no reachable case",
+      "area": "commands",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d",
+      "detail": "attrib.c:1050 gates You_feel() on\n`!(*(abil->ability) & INTRINSIC & ~mask)`, so an innate entry announces\nnothing when the hero already holds that property from the other mask. No\nlegal role and race pair reaches it above experience level 1, so\nscripts/run-level-change.mjs cannot record a case for it.\n\nTraced: no role table repeats a property, and adjabil()'s own race switch\nreads only elf_abil[] (infravision at 1, sleep resistance at 4) and orc_abil[]\n(infravision and poison resistance, both at 1). mon_abil[] grants sleep\nresistance and see invisible at 1 and poison resistance at 3, and tou_abil[]\ngrants poison resistance at 20, but role.c:258 and role.c:477 give Monk and\nTourist MH_HUMAN alone, so neither can be an elf or an orc. The one pair that\ndoes reach the test, an orc Barbarian whose bar_abil[] poison resistance at\nlevel 1 meets orc_abil[]'s, suppresses a message that is empty anyway.\n\nClose it by covering the branch from wizcmds.c wiz_intrinsic() (#wizintrinsic),\nwhich sets an intrinsic from an outside source and is unported, or record here\nthat the branch stays uncovered. scripts/level-change.test.mjs pins the\nexpression indirectly: flipping the test's sense makes four of its assertions\nfail, because every reachable gain then prints nothing."
     }
   ],
   "areas": [

@@ -469,7 +469,7 @@ test('knowledge catalogs retain every upstream race entry', () => {
     assert.equal(_uInitInventoryAttrInternals.ORCISH_OBJECTS.length, 11);
 });
 
-test('the real object pipeline initializes every valid role/race pairing', () => {
+test('the real object pipeline initializes every valid role/race pairing', async () => {
     let caseNumber = 0;
     for (let roleIndex = 0; roleIndex < roles.length; ++roleIndex) {
         for (let raceIndex = 0; raceIndex < races.length; ++raceIndex) {
@@ -503,7 +503,7 @@ test('the real object pipeline initializes every valid role/race pairing', () =>
             init_objects(game);
             role_init(game);
             init_dungeons(game);
-            u_init_misc(game, undefined, { now: new Date(2_000_000_000_000) });
+            await u_init_misc(game, undefined, { now: new Date(2_000_000_000_000) });
             u_init_inventory_attrs(game);
 
             const label = `${roles[roleIndex].filecode}/${races[raceIndex].filecode}`;

@@ -336,8 +336,12 @@ function max_rank_sz(state) {
  * `role_init()` must already have populated `state.urole`, `state.urace`, and
  * the four initial-character flags. During a new game `state.moves` must
  * still be zero; u_init_role() changes it to one after level generation.
+ *
+ * Asynchronous only because attrib.c adjabil() is: its gain arm can print
+ * You_feel(), which blocks on --More--. No level-1 innate entry prints, so
+ * this call awaits nothing that can suspend.
  */
-export function u_init_misc(
+export async function u_init_misc(
     state = game,
     random = { rn2, rnd },
     { now = new Date() } = {},
@@ -368,8 +372,9 @@ export function u_init_misc(
     u.uen = u.uenmax = u.uenpeak = newpw(state, random);
     // u_init.c:995-1000 leaves u.ulevel at 0 across this call, which is what
     // makes adjabil() take its level-1 gain arm and postadjabil() its
-    // initializing early return.
-    adjabil(0, 1, state);
+    // initializing early return. Every level-1 gainstr is empty, so no message
+    // owner is needed here.
+    await adjabil(0, 1, state);
     u.ulevel = u.ulevelmax = 1;
 
     init_uhunger(state);

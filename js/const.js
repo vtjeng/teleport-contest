@@ -516,7 +516,6 @@ export const MV_KNOWS_EGG = 0x08;
 // ===== prop.h =====
 export const W_ART = 0x00001000;
 export const W_ARTI = 0x00002000;
-export const FROMRACE = 0x02000000;
 export const FROMFORM = 0x10000000;
 
 // ===== attrib.h =====
@@ -2350,7 +2349,7 @@ export const WATERPROOF = WWALKING;
 // C ref: include/prop.h — bitmask for intrinsic field
 export const TIMEOUT = 0x00FFFFFF;     // timeout portion of intrinsic
 export const FROMEXPER = 0x01000000;   // from role/experience
-export const FROM_RACE = 0x02000000;   // from race/experience
+export const FROM_RACE = 0x02000000;   // C's FROMRACE, from race/experience
 export const FROMOUTSIDE = 0x04000000; // from outside source (corpse, potion)
 export const INTRINSIC = (FROMEXPER | FROM_RACE | FROMOUTSIDE);
 export const FROM_FORM = 0x10000000;   // from polymorph form

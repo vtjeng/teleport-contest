@@ -28,9 +28,8 @@ export function scanLevelArgument(buf) {
 //
 // The lowering arm calls losexp() once per level, which this port does not
 // have; its `u.ulevel == 1` early return comes along because it lowers
-// nothing. C's clamp of a target above MAXULEV is ported, but every role
-// crosses an innate-ability threshold before level 30, so a raise that reaches
-// the clamp still stops inside adjabil().
+// nothing, and C's `if (newlevel < 1) newlevel = 1` clamp belongs to the loop
+// that refusal replaces.
 export async function wiz_level_change(state = game) {
     const buf = mungspaces(await tty_getlin(
         'To what experience level do you want to be set?',

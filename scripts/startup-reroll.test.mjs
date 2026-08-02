@@ -533,7 +533,8 @@ test('full-screen reroll dismissal redraws gameplay before continuing', async ()
     assert.doesNotMatch(rowText(state, 0), /Reroll this character/u);
 });
 
-test('every valid role and race builds a source-shaped reroll inventory', () => {
+test('every valid role and race builds a source-shaped reroll inventory',
+    async () => {
     let caseNumber = 0;
     for (let roleIndex = 0; roleIndex < roles.length; ++roleIndex) {
         for (let raceIndex = 0; raceIndex < races.length; ++raceIndex) {
@@ -565,7 +566,7 @@ test('every valid role and race builds a source-shaped reroll inventory', () => 
             init_objects(game);
             role_init(game);
             init_dungeons(game);
-            u_init_misc(game, undefined, {
+            await u_init_misc(game, undefined, {
                 now: new Date(2_000_000_000_000),
             });
             u_init_inventory_attrs(game);

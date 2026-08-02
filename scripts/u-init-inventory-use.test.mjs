@@ -43,7 +43,7 @@ import {
     setworn,
 } from '../js/worn.js';
 
-function startup(roleName, raceName = 'human', seed = 731_337) {
+async function startup(roleName, raceName = 'human', seed = 731_337) {
     resetGame();
     initRng(seed);
     game.context = { ident: 2 };
@@ -73,7 +73,7 @@ function startup(roleName, raceName = 'human', seed = 731_337) {
     role_init(game);
     init_dungeons(game);
     init_artifacts(game);
-    u_init_misc(game, undefined, { now: new Date(2_000_000_000_000) });
+    await u_init_misc(game, undefined, { now: new Date(2_000_000_000_000) });
     const hooks = objectGenerationHooks();
     u_init_inventory_attrs(game, undefined, { objectHooks: hooks });
     return { state: game, hooks };
@@ -95,8 +95,8 @@ function removalHooks(overrides = {}) {
     };
 }
 
-test('Healer inventory is used in final inventory-chain order', () => {
-    const env = startup('Healer');
+test('Healer inventory is used in final inventory-chain order', async () => {
+    const env = await startup('Healer');
     const spells = spellRecorder();
     use_initial_inventory({ ...env, initialSpell: spells.initialSpell });
 
@@ -111,8 +111,8 @@ test('Healer inventory is used in final inventory-chain order', () => {
     ]);
 });
 
-test('Ranger selects primary, alternate, quiver, and displacement cloak', () => {
-    const env = startup('Ranger');
+test('Ranger selects primary, alternate, quiver, and displacement cloak', async () => {
+    const env = await startup('Ranger');
     use_initial_inventory({ ...env, initialSpell: () => {} });
 
     assert.equal(game.uwep?.otyp, O.DAGGER);
@@ -128,8 +128,8 @@ test('Ranger selects primary, alternate, quiver, and displacement cloak', () => 
     );
 });
 
-test('Wizard cloak confers and removes its worn extrinsic', () => {
-    const env = startup('Wizard');
+test('Wizard cloak confers and removes its worn extrinsic', async () => {
+    const env = await startup('Wizard');
     use_initial_inventory({ ...env, initialSpell: () => {} });
 
     const cloak = game.uarmc;
@@ -152,8 +152,8 @@ test('Wizard cloak confers and removes its worn extrinsic', () => {
     assert.equal(cloak.owornmask & W_ARMC, 0);
 });
 
-test('known described objects and oil lamps update discovery state', () => {
-    const env = startup('Archeologist');
+test('known described objects and oil lamps update discovery state', async () => {
+    const env = await startup('Archeologist');
     const lamp = {
         otyp: O.OIL_LAMP,
         oclass: O.TOOL_CLASS,
@@ -168,8 +168,8 @@ test('known described objects and oil lamps update discovery state', () => {
     assert.equal(Boolean(game.objects[O.POT_OIL].oc_encountered), true);
 });
 
-test('nonweapon artifacts still receive wielded artifact intrinsics', () => {
-    const env = startup('Archeologist');
+test('nonweapon artifacts still receive wielded artifact intrinsics', async () => {
+    const env = await startup('Archeologist');
     const potionArtifact = {
         otyp: O.POT_HEALING,
         oclass: O.POTION_CLASS,
@@ -199,8 +199,8 @@ test('nonweapon artifacts still receive wielded artifact intrinsics', () => {
     assert.equal(game.u.uprops[0].extrinsic & W_WEP, 0);
 });
 
-test('setnotworn preserves cancellation, property, artifact, and block order', () => {
-    const env = startup('Monk');
+test('setnotworn preserves cancellation, property, artifact, and block order', async () => {
+    const env = await startup('Monk');
     const eyes = {
         otyp: O.LENSES,
         oclass: O.TOOL_CLASS,
@@ -265,8 +265,8 @@ test('setnotworn preserves cancellation, property, artifact, and block order', (
     assert.equal(game.u.uprops[BLINDED].blocked & W_TOOL, 0);
 });
 
-test('setworn replacement preserves its distinct old-object source order', () => {
-    const env = startup('Monk');
+test('setworn replacement preserves its distinct old-object source order', async () => {
+    const env = await startup('Monk');
     const eyes = {
         otyp: O.LENSES,
         oclass: O.TOOL_CLASS,
@@ -317,8 +317,8 @@ test('setworn replacement preserves its distinct old-object source order', () =>
     assert.equal(blindfold.owornmask & W_TOOL, W_TOOL);
 });
 
-test('set_twoweap dirties weapon status only when its value changes', () => {
-    startup('Rogue');
+test('set_twoweap dirties weapon status only when its value changes', async () => {
+    await startup('Rogue');
     game.flags.weaponstatus = true;
     game.disp = { botl: false };
 
@@ -329,8 +329,8 @@ test('set_twoweap dirties weapon status only when its value changes', () => {
     assert.equal(game.disp.botl, false);
 });
 
-test('setworn forwards the caller mask and inspects the old full worn mask', () => {
-    const env = startup('Rogue');
+test('setworn forwards the caller mask and inspects the old full worn mask', async () => {
+    const env = await startup('Rogue');
     const artifact = {
         otyp: O.DAGGER,
         oclass: O.WEAPON_CLASS,
@@ -364,8 +364,8 @@ test('setworn forwards the caller mask and inspects the old full worn mask', () 
     assert.equal(artifact.owornmask, W_WEP);
 });
 
-test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', () => {
-    let env = startup('Rogue');
+test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', async () => {
+    let env = await startup('Rogue');
     game.flags.weaponstatus = false;
     game.disp = { botl: false };
     const ogresmasher = {
@@ -382,7 +382,7 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', (
     });
     assert.equal(game.disp.botl, true);
 
-    env = startup('Samurai');
+    env = await startup('Samurai');
     const snickersnee = {
         otyp: O.KATANA,
         oclass: O.WEAPON_CLASS,
@@ -398,7 +398,7 @@ test('setuwep handles Ogresmasher, Sunsword, and Snickersnee source branches', (
     assert.equal(_wornInternals.is_pole(snickersnee, game), true);
     assert.equal(game.unweapon, false);
 
-    env = startup('Knight');
+    env = await startup('Knight');
     const sunsword = {
         otyp: O.LONG_SWORD,
         oclass: O.WEAPON_CLASS,

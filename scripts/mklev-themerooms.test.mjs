@@ -167,7 +167,7 @@ function buildDoorTestRooms() {
     return { parent, child };
 }
 
-function initializeNewGame(seed) {
+async function initializeNewGame(seed) {
     resetGame();
     objects_globals_init(game);
     monst_globals_init(game);
@@ -189,11 +189,11 @@ function initializeNewGame(seed) {
     game.u = { uroleplay: {} };
     game.context = { move: 0 };
     initoptions_finish({}, game);
-    newgame_pre_mklev(game);
+    await newgame_pre_mklev(game);
 }
 
-function initializeDirectThemeroomNewGame(seed) {
-    initializeNewGame(seed);
+async function initializeDirectThemeroomNewGame(seed) {
+    await initializeNewGame(seed);
     game.level = new GameMap();
     game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     game.in_mklev = true;
@@ -683,7 +683,7 @@ test('makerooms uses adjusted level difficulty for eligibility', async () => {
     // whose D:2 asks makelevel()'s shop test for a shop that js/mkroom.js
     // mkshop() stops on; both seeds make the same 31 reservoir draws, because
     // those depend on the difficulty filter rather than on the seed.
-    initializeNewGame(11);
+    await initializeNewGame(11);
     game.u.uz = { dnum: 0, dlevel: 2 };
     game.u.uprops[AGGRAVATE_MONSTER].extrinsic = 1;
     assert.equal(depth(game.u.uz, game), 2);
@@ -707,7 +707,7 @@ test('makerooms uses adjusted level difficulty for eligibility', async () => {
 });
 
 test('failed vault realization performs the one source retry attempt', async () => {
-    initializeNewGame(2);
+    await initializeNewGame(2);
     enableRngLog();
     await mklev();
 
@@ -736,7 +736,7 @@ test('successful vault retry realizes and fills its replacement room', async () 
     // A precise branch-coverage probe on this newly chosen seed verifies that
     // the staged vault at (39,17) fails check_room(), then create_vault()
     // stages the successful replacement at (52,16).
-    initializeNewGame(405);
+    await initializeNewGame(405);
     enableRngLog();
     await mklev();
 
@@ -839,7 +839,7 @@ test('ordinary trap creation unearths themed buried treasure', async () => {
 });
 
 test('mklev discards exclusion zones retained from the previous level', async () => {
-    initializeNewGame(450);
+    await initializeNewGame(450);
     const staleZone = {
         zonetype: LR_TELE,
         lx: 1,
@@ -861,7 +861,7 @@ test('mklev runs themed-room postprocessing before final wallification', async (
     // mklev() reaches its first async boundary after clearing the level and
     // initializing branch state, where this injected callback joins the live
     // generation attempt without relying on a seed-selected themed room.
-    initializeNewGame(450);
+    await initializeNewGame(450);
     const generation = mklev();
     const queue = initialize_themeroom_postprocess_branch(game);
     let callbackCount = 0;
@@ -1683,8 +1683,8 @@ test('Odd-room feature preserves every distinct shuffled terrain outcome', () =>
     }
 });
 
-test('Mausoleum corpse branch centers one human corpse in its inner room', () => {
-    initializeDirectThemeroomNewGame(1);
+test('Mausoleum corpse branch centers one human corpse in its inner room', async () => {
+    await initializeDirectThemeroomNewGame(1);
 
     assert.equal(dispatch_themeroom(definitionById('mausoleum')), true);
 
@@ -1709,7 +1709,7 @@ test('Mausoleum corpse branch centers one human corpse in its inner room', () =>
     assert.equal(game.level.monsters[child.lx][child.ly], null);
 });
 
-test('Mausoleum creates every source monster class and preserves waiting', () => {
+test('Mausoleum creates every source monster class and preserves waiting', async () => {
     const cases = [
         [2, S_MUMMY],
         [3, S_VAMPIRE],
@@ -1717,7 +1717,7 @@ test('Mausoleum creates every source monster class and preserves waiting', () =>
         [7, S_LICH],
     ];
     for (const [seed, expectedClass] of cases) {
-        initializeDirectThemeroomNewGame(seed);
+        await initializeDirectThemeroomNewGame(seed);
         assert.equal(dispatch_themeroom(definitionById('mausoleum')), true);
 
         const child = game.subrooms[0];
@@ -2311,8 +2311,8 @@ test('Water vault requires its complete creation facade before map mutation', ()
     assert.equal(game.level.at(10, 10).typ, STONE);
 });
 
-test('Water vault registers its chamber, chests, undead, and exclusion', () => {
-    initializeDirectThemeroomNewGame(1);
+test('Water vault registers its chamber, chests, undead, and exclusion', async () => {
+    await initializeDirectThemeroomNewGame(1);
     const previousZone = {
         zonetype: LR_UPTELE,
         lx: 1,
@@ -2361,8 +2361,8 @@ test('Water vault registers its chamber, chests, undead, and exclusion', () => {
     assert.equal(next, previousZone);
 });
 
-test('Water vault retains the random chest lock despite source olocked typo', () => {
-    initializeDirectThemeroomNewGame(14);
+test('Water vault retains the random chest lock despite source olocked typo', async () => {
+    await initializeDirectThemeroomNewGame(14);
     assert.equal(dispatch_themeroom(
         definitionById('water-surrounded-vault'),
     ), true);
@@ -2375,7 +2375,7 @@ test('Water vault retains the random chest lock despite source olocked typo', ()
     assert.equal(chest.olocked, true);
 });
 
-test('Water vault reaches every escape item and nasty-undead variant', () => {
+test('Water vault reaches every escape item and nasty-undead variant', async () => {
     const cases = [
         [1, WAN_TELEPORTATION, PM_GIANT_ZOMBIE, false],
         [2, WAN_DIGGING, PM_ETTIN_ZOMBIE, true],
@@ -2390,7 +2390,7 @@ test('Water vault reaches every escape item and nasty-undead variant', () => {
     ]);
 
     for (const [seed, escapeType, undeadType, locked] of cases) {
-        initializeDirectThemeroomNewGame(seed);
+        await initializeDirectThemeroomNewGame(seed);
         assert.equal(dispatch_themeroom(
             definitionById('water-surrounded-vault'),
         ), true, `seed ${seed}`);
@@ -2420,8 +2420,8 @@ test('Water vault reaches every escape item and nasty-undead variant', () => {
     }
 });
 
-test('Water vault preserves the male parse of its vampire-lord name', () => {
-    initializeDirectThemeroomNewGame(3);
+test('Water vault preserves the male parse of its vampire-lord name', async () => {
+    await initializeDirectThemeroomNewGame(3);
     assert.equal(dispatch_themeroom(
         definitionById('water-surrounded-vault'),
     ), true);
@@ -2433,8 +2433,8 @@ test('Water vault preserves the male parse of its vampire-lord name', () => {
     assert.equal(monster.female, false);
 });
 
-test('Twin businesses builds both source shop subrooms', () => {
-    initializeDirectThemeroomNewGame(1);
+test('Twin businesses builds both source shop subrooms', async () => {
+    await initializeDirectThemeroomNewGame(1);
     enableRngLog();
     assert.equal(dispatch_themeroom(
         definitionById('twin-businesses'),
@@ -2483,7 +2483,7 @@ test('Twin businesses builds both source shop subrooms', () => {
     );
 });
 
-test('Twin businesses preserves all eight placement and wall variants', () => {
+test('Twin businesses preserves all eight placement and wall variants', async () => {
     const expectedRooms = new Map([
         [1, [[0, 0, 2, 2], [4, 0, 6, 2]]],
         [2, [[0, 2, 2, 4], [4, 2, 6, 4]]],
@@ -2521,7 +2521,7 @@ test('Twin businesses preserves all eight placement and wall variants', () => {
     };
 
     for (const [seed, placementIndex, sides, expectedDoors] of cases) {
-        initializeDirectThemeroomNewGame(seed);
+        await initializeDirectThemeroomNewGame(seed);
         enableRngLog();
         assert.equal(dispatch_themeroom(
             definitionById('twin-businesses'),
@@ -2557,8 +2557,8 @@ test('Twin businesses preserves all eight placement and wall variants', () => {
     }
 });
 
-test('Twin businesses stocks both shops and initializes their keepers', () => {
-    initializeDirectThemeroomNewGame(1);
+test('Twin businesses stocks both shops and initializes their keepers', async () => {
+    await initializeDirectThemeroomNewGame(1);
     assert.equal(dispatch_themeroom(
         definitionById('twin-businesses'),
     ), true);
@@ -2618,7 +2618,7 @@ test('Twin businesses stocks both shops and initializes their keepers', () => {
     }
 });
 
-test('shopkeeper startup reaches every source inventory fallthrough', () => {
+test('shopkeeper startup reaches every source inventory fallthrough', async () => {
     const cases = [
         [1, 0, [POT_HEALING, POT_EXTRA_HEALING, WAN_STRIKING, WAN_MAGIC_MISSILE]],
         [6, 1, [POT_HEALING, POT_EXTRA_HEALING, WAN_STRIKING]],
@@ -2633,7 +2633,7 @@ test('shopkeeper startup reaches every source inventory fallthrough', () => {
     ]);
 
     for (const [seed, shopIndex, expectedTypes] of cases) {
-        initializeDirectThemeroomNewGame(seed);
+        await initializeDirectThemeroomNewGame(seed);
         assert.equal(dispatch_themeroom(
             definitionById('twin-businesses'),
         ), true, `seed ${seed}`);
@@ -2653,8 +2653,8 @@ test('shopkeeper startup reaches every source inventory fallthrough', () => {
     }
 });
 
-test('Twin shop stocking reaches both 90/10 secondary object classes', () => {
-    initializeDirectThemeroomNewGame(11);
+test('Twin shop stocking reaches both 90/10 secondary object classes', async () => {
+    await initializeDirectThemeroomNewGame(11);
     assert.equal(dispatch_themeroom(
         definitionById('twin-businesses'),
     ), true);
@@ -2686,8 +2686,8 @@ test('Twin shop stocking reaches both 90/10 secondary object classes', () => {
     ]);
 });
 
-test('shopkeeper inventory accepts a generated duplicate potion merge', () => {
-    initializeDirectThemeroomNewGame(5);
+test('shopkeeper inventory accepts a generated duplicate potion merge', async () => {
+    await initializeDirectThemeroomNewGame(5);
     assert.equal(dispatch_themeroom(
         definitionById('twin-businesses'),
     ), true);
@@ -2701,8 +2701,8 @@ test('shopkeeper inventory accepts a generated duplicate potion merge', () => {
     assert.deepEqual(extraHealingStacks, [2]);
 });
 
-test('Twin businesses marks the exterior of a locked shop', () => {
-    initializeDirectThemeroomNewGame(2);
+test('Twin businesses marks the exterior of a locked shop', async () => {
+    await initializeDirectThemeroomNewGame(2);
     assert.equal(dispatch_themeroom(
         definitionById('twin-businesses'),
     ), true);

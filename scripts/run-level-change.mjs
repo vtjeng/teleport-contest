@@ -57,12 +57,14 @@ function segment(seed, moves, {
 // Raising from experience level 1 to `target` calls pluslvl() target-1 times,
 // and each call but the first blocks on --More-- before it draws: pline()
 // wraps the pending top line as soon as the next "You feel more experienced."
-// no longer fits beside it. That costs target-2 dismissals. The trailing space
-// is one keystroke past the last one, so it draws "Unknown command ' '." only
-// if the chain really ended where C's did; a port that left a More pending
-// would answer with the next welcome line instead.
-function raise(target) {
-    const dismissals = Math.max(target - 2, 0) + 1;
+// no longer fits beside it. That costs target-2 dismissals. Each innate entry
+// the raise crosses adds a You_feel() to the same chain, and `gains` counts
+// the ones that print, so the keystrokes below are an upper bound on the
+// prompts. The extra ones draw "Unknown command ' '." in both programs, so a
+// chain that ended one message early or late still shows up as a screen
+// mismatch at the position where the two sequences part.
+function raise(target, gains = 0) {
+    const dismissals = Math.max(target - 2, 0) + gains + 1;
     return `${LEVELCHANGE}${NEWLINE}${target}${NEWLINE}`
         + ' '.repeat(dismissals);
 }
@@ -151,6 +153,48 @@ export function loadLevelChangeRecipe() {
                 gender: 'female',
                 options: 'pettype:dog,!acoustics,playmode:debug',
             }),
+
+            // --- the innate abilities a raise grants ---
+            // arc_abil[] { 5, &HStealth, "stealthy", "" }: one gain, whose
+            // property postadjabil() redraws nothing for.
+            segment(8820012, raise(6, 1), {
+                role: 'Archeologist', gender: 'female',
+            }),
+            // wiz_abil[] { 15, &HWarning, "sensitive" } and
+            // { 17, &HTeleport_control, "controlled" }: two gains in one
+            // command, the first of them a postadjabil() redraw.
+            segment(8820013, raise(18, 2)),
+            // ran_abil[] { 15, &HSee_invisible, "", "" } is the only entry
+            // above level 1 with an empty gainstr, so the intrinsic and
+            // see_monsters() are the whole of the gain and nothing prints.
+            // The pet gives see_monsters() a live monster to redraw.
+            segment(8820014, raise(16), {
+                role: 'Ranger',
+                align: 'chaotic',
+                options: 'pettype:dog,!acoustics,playmode:debug',
+            }),
+            // elf_abil[] { 4, &HSleep_resistance, "awake", "tired" } is the
+            // only entry above level 1 that adjabil() reaches with the mask
+            // flipped to FROMRACE.
+            segment(8820015, raise(5, 1), {
+                role: 'Priest', race: 'elf', gender: 'female',
+                align: 'chaotic',
+            }),
+            // mon_abil[] crosses five entries between levels 3 and 11, the
+            // densest message chain the tables hold, and its level-7 warning
+            // gain redraws a level that has a pet on it.
+            segment(8820016, raise(12, 5), {
+                role: 'Monk',
+                align: 'lawful',
+                options: 'pettype:dog,!acoustics,playmode:debug',
+            }),
+
+            // --- the MAXULEV ceiling ---
+            // C clamps a target above MAXULEV to 30 and raises the hero
+            // there, so the answer 31 leaves experience level 30 and not 31.
+            // From there wiz_level_change()'s `u.ulevel >= MAXULEV` arm is the
+            // only reachable answer to a second raise.
+            segment(8810008, `${raise(31, 2)}${refuse('40')}`),
         ],
     }, 'level-change recipe');
 }

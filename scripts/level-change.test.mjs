@@ -3,12 +3,13 @@
 // role_abil(), adjabil() and setuhpmax(), botl.c xlev_to_rank(), weapon.c
 // add_weapon_skill(), and insight.c record_achievement() and achieve_rank().
 //
-// scripts/run-level-change.mjs holds the strict differential evidence: 17
+// scripts/run-level-change.mjs holds the strict differential evidence: 23
 // segments recorded against the C reference, one per branch. The assertions
 // here pin values read off the C source, so a wrong constant fails before a
 // recording is needed, and they reach the branches the recorded screens
-// cannot show -- the refusals this slice leaves fail-closed, and the state
-// (u.uexp, u.uachieved[], u.weapon_slots) that never reaches a screen.
+// cannot show -- the refusals that stay fail-closed, the intrinsic bits a
+// gain writes, and the state (u.uexp, u.uachieved[], u.weapon_slots) that
+// never reaches a screen.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -18,7 +19,6 @@ import {
     innateTablesHaveSilentLevelOneEntries,
     role_abil,
     setuhpmax,
-    UnsupportedAbilityChangeError,
 } from '../js/attrib.js';
 import {
     ACH_RNK1,
@@ -240,13 +240,14 @@ test('every innate entry gained at level 1 is silent', () => {
     assert.equal(innateTablesHaveSilentLevelOneEntries(), true);
 });
 
-// adjabil(0, 1) is what u_init_misc() runs, and it is the only gain this slice
-// implements. Both masks carry FROMOUTSIDE because abil->ulevel is 1.
-test('adjabil(0, 1) grants the level-1 role and race intrinsics', () => {
+// adjabil(0, 1) is what u_init_misc() runs. Both masks carry FROMOUTSIDE
+// because abil->ulevel is 1, and every level-1 gainstr is empty, so the call
+// needs no message owner.
+test('adjabil(0, 1) grants the level-1 role and race intrinsics', async () => {
     const monk = initializingState({
         role: { ...ARCHEOLOGIST, mnum: PM_MONK, filecode: 'Mon' },
     });
-    adjabil(0, 1, monk);
+    await adjabil(0, 1, monk);
     assert.deepEqual([...intrinsicsOf(monk)].sort((a, b) => a[0] - b[0]), [
         [SLEEP_RES, FROMEXPER | FROMOUTSIDE],
         [SEE_INVIS, FROMEXPER | FROMOUTSIDE],
@@ -260,7 +261,7 @@ test('adjabil(0, 1) grants the level-1 role and race intrinsics', () => {
         role: { ...ARCHEOLOGIST, mnum: PM_ROGUE, filecode: 'Rog' },
         race: { ...HUMAN, mnum: PM_ORC },
     });
-    adjabil(0, 1, orcRogue);
+    await adjabil(0, 1, orcRogue);
     assert.deepEqual([...intrinsicsOf(orcRogue)].sort((a, b) => a[0] - b[0]), [
         [POISON_RES, FROM_RACE | FROMOUTSIDE],
         [INFRAVISION, FROM_RACE | FROMOUTSIDE],
@@ -272,7 +273,7 @@ test('adjabil(0, 1) grants the level-1 role and race intrinsics', () => {
         role: { ...ARCHEOLOGIST, mnum: PM_WIZARD, filecode: 'Wiz' },
         race: { ...HUMAN, mnum: PM_ELF },
     });
-    adjabil(0, 1, elfWizard);
+    await adjabil(0, 1, elfWizard);
     assert.deepEqual(
         [...intrinsicsOf(elfWizard)],
         [[INFRAVISION, FROM_RACE | FROMOUTSIDE]],
@@ -286,22 +287,23 @@ test('adjabil(0, 1) grants the level-1 role and race intrinsics', () => {
             role: { ...ARCHEOLOGIST, mnum: PM_KNIGHT, filecode: 'Kni' },
             race: { ...HUMAN, mnum: raceMnum },
         });
-        adjabil(0, 1, knight);
+        await adjabil(0, 1, knight);
         assert.deepEqual([...intrinsicsOf(knight)], [], `race ${raceMnum}`);
     }
 
     // attrib.c:1063 gates the weapon-slot tail on `oldlevel > 0`, so the
     // initializing call adds none.
     const archeologist = initializingState();
-    adjabil(0, 1, archeologist);
+    await adjabil(0, 1, archeologist);
     assert.equal(archeologist.u.weapon_slots, 0);
 });
 
-test('adjabil below an innate threshold changes nothing but skill slots', () => {
+test('adjabil below an innate threshold changes nothing but skill slots',
+    async () => {
     // arc_abil[] grants searching at experience level 1 and stealth at 5, so
     // a hero already past the first and short of the second gains neither.
     const archeologist = heroState();
-    adjabil(1, 2, archeologist);
+    await adjabil(1, 2, archeologist);
     assert.deepEqual([...intrinsicsOf(archeologist)], []);
     // attrib.c:1063-1070 calls add_weapon_skill(newlevel - oldlevel).
     assert.equal(archeologist.u.weapon_slots, 1);
@@ -310,29 +312,128 @@ test('adjabil below an innate threshold changes nothing but skill slots', () => 
     const wizard = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_WIZARD, filecode: 'Wiz' },
     });
-    adjabil(1, 2, wizard);
+    await adjabil(1, 2, wizard);
     assert.deepEqual([...intrinsicsOf(wizard)], []);
     assert.equal(wizard.u.weapon_slots, 1);
 });
 
-test('adjabil refuses the transitions this slice leaves unported', () => {
-    // A gain above level 1: wiz_abil[] { 15, &HWarning, "sensitive", "" }.
+// attrib.c:1046-1053. Above experience level 1 the mask goes in alone, without
+// FROMOUTSIDE, and the entry's gainstr reaches You_feel("%s!").
+test('adjabil grants an innate ability above level 1 and prints its gainstr',
+    async () => {
+    // arc_abil[] { 5, &HStealth, "stealthy", "" }.
+    const archeologist = heroState();
+    const messages = [];
+    const message = (text) => { messages.push(text); };
+    await adjabil(4, 5, archeologist, { message });
+    assert.deepEqual([...intrinsicsOf(archeologist)], [[STEALTH, FROMEXPER]]);
+    assert.deepEqual(messages, ['You feel stealthy!']);
+    // The tail still runs after the gain.
+    assert.equal(archeologist.u.weapon_slots, 1);
+
+    // elf_abil[] { 4, &HSleep_resistance, "awake", "" } is the only entry
+    // above level 1 that C reaches through the FROMRACE half of the traversal,
+    // so it is the only one whose mask is FROM_RACE.
+    const elfPriest = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_CLERIC, filecode: 'Pri' },
+        race: { ...HUMAN, mnum: PM_ELF },
+    });
+    const elfMessages = [];
+    await adjabil(3, 4, elfPriest, {
+        message: (text) => { elfMessages.push(text); },
+    });
+    assert.deepEqual([...intrinsicsOf(elfPriest)], [[SLEEP_RES, FROM_RACE]]);
+    assert.deepEqual(elfMessages, ['You feel awake!']);
+
+    // A raise that crosses two entries at once cannot happen through
+    // pluslvl(), which steps one level at a time, but adjabil() itself takes
+    // both in table order. mon_abil[] holds { 3, POISON_RES, "healthy" } and
+    // { 5, STEALTH, "stealthy" }.
+    const monk = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_MONK, filecode: 'Mon' },
+    });
+    const monkMessages = [];
+    await adjabil(2, 5, monk, {
+        message: (text) => { monkMessages.push(text); },
+    });
+    assert.deepEqual(
+        monkMessages,
+        ['You feel healthy!', 'You feel stealthy!'],
+    );
+});
+
+// attrib.c:1051 gates You_feel() on a non-empty gainstr, so an entry with an
+// empty one changes the intrinsic silently. ran_abil[] { 15, &HSee_invisible,
+// "", "" } is the only such entry above level 1.
+test('adjabil grants a see-invisible entry with no gainstr silently',
+    async () => {
+    const ranger = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_RANGER, filecode: 'Ran' },
+    });
+    // The state is not the module-global game, so display.c see_monsters()
+    // refuses it. That refusal is the probe: reaching it proves postadjabil()
+    // dispatched on SEE_INVIS, and a message owner that fails the test proves
+    // nothing printed on the way.
+    await assert.rejects(
+        () => adjabil(14, 15, ranger, {
+            message: () => assert.fail('an empty gainstr must print nothing'),
+        }),
+        TypeError,
+    );
+    assert.deepEqual([...intrinsicsOf(ranger)], [[SEE_INVIS, FROMEXPER]]);
+});
+
+// attrib.c postadjabil() redraws for &HWarning and &HSee_invisible alone.
+test('adjabil calls postadjabil only for warning and see invisible',
+    async () => {
+    // Every other property reaches postadjabil() and returns from it, so
+    // see_monsters() never refuses this fabricated state.
+    const valkyrie = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
+    });
+    await adjabil(2, 3, valkyrie, { message: () => {} });
+    assert.deepEqual([...intrinsicsOf(valkyrie)], [[STEALTH, FROMEXPER]]);
+
+    // wiz_abil[] { 15, &HWarning, "sensitive", "" } does reach see_monsters().
     const wizard = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_WIZARD, filecode: 'Wiz' },
     });
-    assert.throws(
-        () => adjabil(14, 15, wizard),
-        UnsupportedAbilityChangeError,
+    const messages = [];
+    await assert.rejects(
+        () => adjabil(14, 15, wizard, {
+            message: (text) => { messages.push(text); },
+        }),
+        TypeError,
     );
-    // Nothing is written before the refusal.
-    assert.deepEqual([...intrinsicsOf(wizard)], []);
-    assert.equal(wizard.u.weapon_slots, 0);
+    // The message runs first: C prints inside the gain arm and dispatches to
+    // postadjabil() only after it.
+    assert.deepEqual(messages, ['You feel sensitive!']);
+    assert.deepEqual([...intrinsicsOf(wizard)], [[WARNING, FROMEXPER]]);
+});
 
+test('adjabil needs a message owner only for an entry that prints',
+    async () => {
+    // No owner and nothing to print: rog_abil[] holds nothing between 1 and 9.
+    const quiet = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_ROGUE, filecode: 'Rog' },
+    });
+    await adjabil(1, 9, quiet);
+    assert.deepEqual([...intrinsicsOf(quiet)], []);
+
+    // rog_abil[] { 10, &HSearching, "perceptive", "" } does print.
+    const rogue = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_ROGUE, filecode: 'Rog' },
+    });
+    await assert.rejects(() => adjabil(9, 10, rogue), TypeError);
+});
+
+test('adjabil refuses the transitions this slice leaves unported',
+    async () => {
     // A loss: exper.c losexp() is the only caller that produces one.
     const valkyrie = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
     });
-    assert.throws(
+    await assert.rejects(
         () => adjabil(3, 2, valkyrie),
         /removing property/,
     );
@@ -342,7 +443,7 @@ test('adjabil refuses the transitions this slice leaves unported', () => {
     const knight = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_KNIGHT, filecode: 'Kni' },
     });
-    assert.throws(
+    await assert.rejects(
         () => adjabil(3, 2, knight),
         /lose_weapon_skill/,
     );
@@ -350,7 +451,7 @@ test('adjabil refuses the transitions this slice leaves unported', () => {
     // level as well as a lowered one, and lose_weapon_skill(0) is its no-op.
     // val_abil[]'s stealth entry sits exactly at 3, so the loss test has to
     // read `newlevel < abil->ulevel` strictly to leave it alone.
-    assert.throws(
+    await assert.rejects(
         () => adjabil(3, 3, heroState({
             role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
         })),
@@ -581,28 +682,28 @@ test('pluslvl refuses the incremental growth newexplevel() asks for',
     );
 });
 
-test('pluslvl refuses the innate ability its next level would grant', async () => {
+test('pluslvl prints the intrinsic it grants last, through the same owner',
+    async () => {
     const state = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
     });
     state.u.ulevel = 2;
     state.u.ulevelmax = 2;
     const messages = [];
-    await assert.rejects(
-        () => pluslvl(false, state, {
-            message: (text) => { messages.push(text); },
-            random: { rnd: () => 1, rn1: () => 1 },
-        }),
-        UnsupportedAbilityChangeError,
-    );
-    // val_abil[] { 3, &HStealth, "stealthy", "" }. The welcome line has
-    // already printed when adjabil() refuses, which is what keeps the
-    // recorded screens matching up to that point.
+    await pluslvl(false, state, {
+        message: (text) => { messages.push(text); },
+        random: { rnd: () => 1, rn1: () => 1 },
+    });
+    // val_abil[] { 3, &HStealth, "stealthy", "" }. exper.c calls adjabil()
+    // after the welcome line, so the gain message is third in the chain and
+    // shares the command's --More-- sequence with the two before it.
     assert.deepEqual(messages, [
         'You feel more experienced.',
         'Welcome to experience level 3.',
+        'You feel stealthy!',
     ]);
     assert.equal(state.u.ulevel, 3);
+    assert.deepEqual([...intrinsicsOf(state)], [[STEALTH, FROMEXPER]]);
 });
 
 // The matrix above is the strict evidence for these paths; runSegment() here
@@ -695,6 +796,53 @@ test('#levelchange raises the hero and stops the More chain where C does',
     assert.equal(game.u.ulevelmax, 3);
 });
 
+// The focused adjabil() tests above hand postadjabil() a fabricated state, so
+// display.c see_monsters() refuses them. These two drive the module-global
+// game instead, the only state see_monsters() accepts, with a pet on the level
+// for it to redraw. Both raises stop at experience level 15 and spend the same
+// fifteenth keystroke, so the only difference between their last screens is
+// the one attrib.c's tables make.
+test('#levelchange announces the intrinsic a level grants', async () => {
+    const wizard = loadLevelChangeRecipe().segments.find(
+        (segment) => segment.moves.includes('#levelchange\n18\n'),
+    );
+    assert.ok(wizard);
+
+    // wiz_abil[] { 15, &HWarning, "sensitive", "" }, printed by exper.c after
+    // the welcome line and therefore on the far side of its --More--.
+    await runSegment({ ...wizard, moves: `.#levelchange\n15\n${' '.repeat(14)}` });
+    assert.equal(game.u.ulevel, 15);
+    assert.equal(game.u.uprops[WARNING].intrinsic, FROMEXPER);
+    assert.equal(topLine(), 'You feel sensitive!');
+});
+
+test('#levelchange grants see invisible without announcing it', async () => {
+    const ranger = loadLevelChangeRecipe().segments.find(
+        (segment) => segment.moves.includes('#levelchange\n16\n'),
+    );
+    assert.ok(ranger);
+    assert.ok(ranger.nethackrc.includes('pettype:dog'));
+
+    // ran_abil[] { 15, &HSee_invisible, "", "" } has an empty gainstr, so the
+    // welcome line is the whole of the last screen.
+    await runSegment({ ...ranger, moves: `.#levelchange\n15\n${' '.repeat(14)}` });
+    assert.equal(game.u.ulevel, 15);
+    assert.equal(game.u.uprops[SEE_INVIS].intrinsic, FROMEXPER);
+    assert.equal(topLine(), 'Welcome to experience level 15.');
+    // postadjabil() reached see_monsters() with the pet on the level and the
+    // map unchanged: newsym() answers the same glyph it already showed, and
+    // display.h _mon_warning() needs m_lev / 4 >= svc.context.warnlevel, which
+    // allmain.c:774 sets to 1, so no D:1 monster below level 4 raises one.
+    // 'adjabil grants a see-invisible entry with no gainstr silently' above is
+    // what discriminates the dispatch; this pins that it costs no screen.
+    const monsters = [];
+    for (let mon = game.level.monlist; mon; mon = mon.nmon) monsters.push(mon);
+    assert.ok(
+        monsters.some((mon) => mon.mtame),
+        'see_monsters() walked a list holding the starting little dog',
+    );
+});
+
 test('the level-change matrix covers each traced branch', () => {
     const moves = loadLevelChangeRecipe().segments.map(
         (segment) => segment.moves,
@@ -712,4 +860,26 @@ test('the level-change matrix covers each traced branch', () => {
     assert.ok(moves.some((keys) => keys.includes('#levelchange\n\x1b')));
     // The raise that crosses newhp()'s and newpw()'s xlev switch.
     assert.ok(moves.some((keys) => keys.includes('#levelchange\n14\n')));
+    // The raise that C clamps back to MAXULEV, whose hero then meets
+    // wiz_level_change()'s `u.ulevel >= MAXULEV` arm.
+    const clamped = moves.find((keys) => keys.includes('#levelchange\n31\n'));
+    assert.ok(clamped);
+    assert.ok(clamped.includes('#levelchange\n40\n'));
+
+    // One raise per shape of innate gain the tables hold, keyed by the role
+    // and the target that reaches it.
+    const roles = loadLevelChangeRecipe().segments.map(
+        (segment) => `${/role:(\w+)/u.exec(segment.nethackrc)[1]}`
+            + `/${/race:(\w+)/u.exec(segment.nethackrc)[1]}`
+            + `:${segment.moves}`,
+    );
+    for (const [expected, why] of [
+        ['Archeologist/human:.#levelchange\n6\n', 'a lone gain, no redraw'],
+        ['Wizard/human:.#levelchange\n18\n', 'two gains, one of them a redraw'],
+        ['Ranger/human:.#levelchange\n16\n', 'a gain with an empty gainstr'],
+        ['Priest/elf:.#levelchange\n5\n', 'a gain with the FROMRACE mask'],
+        ['Monk/human:.#levelchange\n12\n', 'five gains in one command'],
+    ]) {
+        assert.ok(roles.some((key) => key.startsWith(expected)), why);
+    }
 });

@@ -252,7 +252,7 @@ async function generateNewGameLevel(seed) {
     game.iflags = {};
     game.u = { uroleplay: {} };
     game.context = { move: 0 };
-    newgame_pre_mklev(game);
+    await newgame_pre_mklev(game);
     await mklev();
     return game;
 }

@@ -150,7 +150,9 @@ export async function pluslvl(incr, state = game, env = {}) {
             state,
         );
         if (u.ulevelmax < u.ulevel) u.ulevelmax = u.ulevel;
-        adjabil(u.ulevel - 1, u.ulevel, state); /* give new intrinsics */
+        /* give new intrinsics; adjabil() prints through the same owner so a
+           You_feel() gain shares this call's --More-- chain */
+        await adjabil(u.ulevel - 1, u.ulevel, state, { message });
         const newrank = xlev_to_rank(u.ulevel);
         if (newrank > oldrank)
             record_achievement(achieve_rank(newrank, state), state);

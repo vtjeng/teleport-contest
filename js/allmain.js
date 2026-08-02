@@ -128,8 +128,9 @@ import { is_lava, is_pool } from './trap.js';
 import { clear_splitobjs } from './obj.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
-// allmain.c:newgame() calls mklev().
-export function newgame_pre_mklev(g = game) {
+// allmain.c:newgame() calls mklev(). Asynchronous only because u_init_misc()
+// is; nothing it awaits can suspend before mklev().
+export async function newgame_pre_mklev(g = game) {
     g.disp ??= {};
     g.disp.botlx = true;
     g.context ??= {};
@@ -155,7 +156,7 @@ export function newgame_pre_mklev(g = game) {
     role_init(g);
     init_dungeons(g);
     init_artifacts(g);
-    u_init_misc(g);
+    await u_init_misc(g);
     l_nhcore_init(g);
     return g;
 }
@@ -171,7 +172,7 @@ export async function newgame() {
 
     // C ref: allmain.c newgame(). Preserve this order: each initializer owns
     // state and PRNG effects used by every initializer that follows it.
-    newgame_pre_mklev(g);
+    await newgame_pre_mklev(g);
 
     // Real mklev generates the level with correct room positions
     // Structural phase consumes RNG for rooms/corridors/doors/stairs
