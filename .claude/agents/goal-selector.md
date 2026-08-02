@@ -21,7 +21,7 @@ slicing to the slice-selector.
    how to choose a goal inside the current milestone, and how to judge a goal's
    size. Read `.agents/workflow.md` for the evidence that closes a behavior
    slice and the review a closed goal triggers.
-3. Read `ROADMAP.md` for the milestone map, run
+3. Read `ROADMAP.md` for the milestone in progress, run
    `node scripts/goal-log.mjs --current` for the goals already queued with
    their traced source findings, and read `docs/goal-history.md` for what the
    closed goals carried over.

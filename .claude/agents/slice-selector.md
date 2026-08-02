@@ -20,7 +20,7 @@ Proposing a new goal is out of scope: when no goal is in progress,
    milestone; and how to judge a goal's size. Read `.agents/workflow.md` for
    the evidence that closes a behavior slice, and identify only a slice that
    can produce that evidence.
-3. Read `ROADMAP.md` for the milestone map, and run
+3. Read `ROADMAP.md` for the milestone in progress, and run
    `node scripts/goal-log.mjs --current` for the goal in progress, its queued
    slices, and the traced source findings in its `detail` field.
 4. Read the C source the slice would port, far enough to confirm it closes as

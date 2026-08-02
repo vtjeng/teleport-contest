@@ -140,7 +140,7 @@ take.
 `node scripts/goal-log.mjs`. A closed goal's entry stays there as the
 calibration record; its score evidence stays in `SCORE.tsv`, its review
 metadata in `QUALITY.json`, and its implementation history in Git.
-`ROADMAP.md` holds the milestone map alone, and `docs/goal-history.md`
-holds what the closed goals carried over. Every task starts with
+`ROADMAP.md` describes the milestone in progress, and
+`docs/goal-history.md` holds what the closed goals carried over. Every task starts with
 `node scripts/goal-log.mjs --current`, so goal entries stay terse: the
 boundary, the forecast, and the traced findings in `detail`.

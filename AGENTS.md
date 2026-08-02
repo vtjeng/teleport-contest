@@ -13,8 +13,8 @@ every valid seed, date and time, set of options, and input sequence.
   output produced after these changes are applied.
 - Select each goal as `.agents/selection.md` states. `GOALS.json` records the
   goal in progress and the goals queued after it, read with
-  `node scripts/goal-log.mjs --current`; `ROADMAP.md` holds the milestone
-  map.
+  `node scripts/goal-log.mjs --current`; `ROADMAP.md` describes the
+  milestone in progress.
 
 ## Recorded test sessions
 
