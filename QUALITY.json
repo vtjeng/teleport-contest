@@ -113,7 +113,7 @@
     },
     {
       "id": "artifactTouchable() crashes a segment instead of ending it",
-      "area": null,
+      "area": "monsters",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -131,7 +131,7 @@
     },
     {
       "id": "a drawbridge wall answers \"It's a wall.\"",
-      "area": null,
+      "area": "commands",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -158,7 +158,7 @@
     },
     {
       "id": "three arms of the door message switch are dormant",
-      "area": null,
+      "area": "commands",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -167,7 +167,7 @@
     },
     {
       "id": "an explicit autounlock setting is refused",
-      "area": null,
+      "area": "startup",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -176,7 +176,7 @@
     },
     {
       "id": "five monster-pickup findings remain deferred",
-      "area": null,
+      "area": "monsters",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -185,7 +185,7 @@
     },
     {
       "id": "the postmov minvis redraw has no case that can reach it",
-      "area": null,
+      "area": "monsters",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -230,7 +230,7 @@
     },
     {
       "id": "dochug() returns where C breaks into PHASE FOUR",
-      "area": null,
+      "area": "monsters",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -239,7 +239,7 @@
     },
     {
       "id": "the planning clone must copy non-enumerable catalog aliases",
-      "area": null,
+      "area": "monsters",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -248,7 +248,7 @@
     },
     {
       "id": "one pickup assertion still does not discriminate",
-      "area": null,
+      "area": "monsters",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -257,7 +257,7 @@
     },
     {
       "id": "the pickup naming conversion is unpinned end to end",
-      "area": null,
+      "area": "startup",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -266,7 +266,7 @@
     },
     {
       "id": "a vision recalculation stops the cloned monster scan",
-      "area": null,
+      "area": "world-effects",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -275,7 +275,7 @@
     },
     {
       "id": "no fresh case covers the secret-corridor arm",
-      "area": null,
+      "area": "world-effects",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -284,7 +284,7 @@
     },
     {
       "id": "the m prefix loses a frame",
-      "area": null,
+      "area": "commands",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -293,7 +293,7 @@
     },
     {
       "id": "a live monster refusal escapes as a hard failure",
-      "area": null,
+      "area": "startup",
       "category": "production",
       "effort": "undecided",
       "status": "open",
@@ -356,7 +356,7 @@
     },
     {
       "id": "Riding movement and riding combat, which is where",
-      "area": null,
+      "area": "monsters",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -374,7 +374,7 @@
     },
     {
       "id": "Hero- or monster-triggered traps, including holding, projectiles,",
-      "area": null,
+      "area": "world-effects",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -401,7 +401,7 @@
     },
     {
       "id": "Regions, engravings, ice, pools, lava, fountains, sinks, graves,",
-      "area": null,
+      "area": "world-effects",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -410,7 +410,7 @@
     },
     {
       "id": "Closed, locked, trapped, broken, or obstructing doors; tunneling;",
-      "area": null,
+      "area": "commands",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -419,7 +419,7 @@
     },
     {
       "id": "pickup.c:describe_decor() and the iflags.prev_decor per-square memory",
-      "area": null,
+      "area": "objects",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -428,7 +428,7 @@
     },
     {
       "id": "The hero-destination stop for a decorated square that holds an object.",
-      "area": null,
+      "area": "commands",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -437,7 +437,7 @@
     },
     {
       "id": "hack.c:overexert_hp(), the hit point moveloop_core() costs a hero who",
-      "area": null,
+      "area": "startup",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -446,7 +446,7 @@
     },
     {
       "id": "Special monster movement or actions, including hiding, shapechanging,",
-      "area": null,
+      "area": "monsters",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -455,7 +455,7 @@
     },
     {
       "id": "js/dogmove.js heroDeaf() does not match youprop.h:125, which defines",
-      "area": null,
+      "area": "monsters",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -464,7 +464,7 @@
     },
     {
       "id": "Pet states beyond an ordinary active starting pet, including eating,",
-      "area": null,
+      "area": "monsters",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
@@ -473,7 +473,7 @@
     },
     {
       "id": "Every remaining command, including count prefixes, travel,",
-      "area": null,
+      "area": "commands",
       "category": "scope",
       "effort": "undecided",
       "status": "open",
