@@ -4,7 +4,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 
-import { deliveredSince, readGoals, validateGoals } from './goal-log.mjs';
+import {
+    deliveredSince, formatGoal, readGoals, validateGoals,
+} from './goal-log.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'goal-log-'));
 
@@ -53,6 +55,30 @@ test('the goal store validates statuses, ids, and the single open goal', () => {
     const badSlice = structuredClone(store);
     badSlice.goals[0].slices[0].status = 'done';
     assert.throws(() => validateGoals(badSlice), /unknown status done/u);
+});
+
+test('--detail adds the owners and traced findings the default omits', () => {
+    // The queued-goal shape queue-goal writes: the two detail lines stand in
+    // for the multi-line markdown recorded in the real entry's detail field,
+    // and the owner mirrors GOALS.json's upstreamOwners strings.
+    const goal = {
+        id: 'object-pile-window',
+        status: 'queued',
+        boundary: 'look_here() opens the Things-that-are-here window',
+        upstreamOwners: ['invent.c look_here'],
+        detail: 'line one\nline two',
+        slices: [{ name: 'first', status: 'queued', closedBy: null }],
+    };
+    // The default stays terse because --current opens every task; detail
+    // must not leak into it.
+    const brief = formatGoal(goal);
+    assert.ok(!brief.includes('line one'));
+    assert.ok(!brief.includes('owners:'));
+    // --detail prints the owners line and the detail block, each detail line
+    // indented four spaces under its label.
+    const full = formatGoal(goal, { detail: true });
+    assert.ok(full.includes('owners: invent.c look_here'));
+    assert.ok(full.includes('  detail:\n    line one\n    line two'));
 });
 
 test('delivered figures are the closing standing minus the opening one', () => {

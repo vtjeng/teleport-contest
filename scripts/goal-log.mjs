@@ -101,7 +101,10 @@ function required(options, keys) {
     }
 }
 
-function formatGoal(goal) {
+// The default stays terse because `--current` opens every task; `--detail`
+// adds the upstream owners and the traced source findings recorded at
+// queue-goal, which the selectors and the worker read before touching source.
+export function formatGoal(goal, { detail = false } = {}) {
     const lines = [
         `${goal.status.toUpperCase()} ${goal.id}: ${goal.boundary}`,
     ];
@@ -116,6 +119,17 @@ function formatGoal(goal) {
     for (const slice of goal.slices ?? []) {
         lines.push(`  [${slice.status}] ${slice.name}`
             + (slice.closedBy ? ` (${slice.closedBy.slice(0, 8)})` : ''));
+    }
+    if (detail) {
+        if (goal.upstreamOwners?.length) {
+            lines.push(`  owners: ${goal.upstreamOwners.join(', ')}`);
+        }
+        if (goal.detail) {
+            lines.push('  detail:');
+            for (const line of goal.detail.split('\n')) {
+                lines.push(`    ${line}`);
+            }
+        }
     }
     return lines.join('\n');
 }
@@ -139,17 +153,21 @@ function parseOptions(args) {
 
 function main(args) {
     const mode = args[0];
-    const options = parseOptions(args.slice(1));
     if (mode === '--current' || mode === undefined) {
+        const rest = args.slice(1);
+        const unexpected = rest.find((argument) => argument !== '--detail');
+        if (unexpected) throw new Error(`unexpected argument: ${unexpected}`);
+        const detail = rest.includes('--detail');
         const store = readGoals();
         const visible = store.goals.filter((goal) => goal.status !== 'closed');
         if (visible.length === 0) {
             console.log('No open or queued goal.');
             return;
         }
-        for (const goal of visible) console.log(formatGoal(goal));
+        for (const goal of visible) console.log(formatGoal(goal, { detail }));
         return;
     }
+    const options = parseOptions(args.slice(1));
     if (mode === 'queue-goal' || mode === 'open-goal') {
         required(options, ['id', 'boundary']);
         const store = readGoals();
@@ -217,8 +235,8 @@ function main(args) {
         console.log(formatGoal(goal));
         return;
     }
-    throw new Error('modes: --current, queue-goal, open-goal, queue-slice, '
-        + 'close-slice, close-goal');
+    throw new Error('modes: --current [--detail], queue-goal, open-goal, '
+        + 'queue-slice, close-slice, close-goal');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

@@ -11,8 +11,9 @@ end at a committed, fully validated state.
 
 Read these three sources:
 
-- `node scripts/goal-log.mjs --current` - the goal in progress and its ordered
-  slices
+- `node scripts/goal-log.mjs --current --detail` - the goal in progress, its
+  ordered
+  slices, and the traced source findings recorded when it was queued
 - `.agents/validation.md` - what validating this slice requires
 - `.agents/workflow.md`, "Terms", "Per-chunk workflow" and "Pushing and CI" -
   the work vocabulary, the commit sequence, and what happens to a closed

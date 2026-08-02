@@ -27,7 +27,8 @@ slicing to the slice-selector.
    review a closed goal triggers; the rest of that file serves the worker and
    is not needed here.
 3. Read `ROADMAP.md` for the systems the current goals belong to, and run
-   `node scripts/goal-log.mjs --current` for the goals already queued with
+   `node scripts/goal-log.mjs --current --detail` for the goals already
+   queued with
    their traced source findings.
 4. Read the C source the goal would port, far enough to state the property that
    bounds it and to judge its size against `.agents/selection.md`. This reading
