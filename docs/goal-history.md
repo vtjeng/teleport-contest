@@ -62,7 +62,7 @@ The census cannot count every boundary. It reports the first
 fail-closed boundary per development session: the point where the port
 ends the segment because the next step needs behavior that is not ported
 yet. Within that scope it is accurate. A boundary hidden behind a different
-refusal is invisible to it: 23 of 33 sessions stop on an unported hero
+refusal is invisible to it: 20 of 33 sessions stop on an unported hero
 command, so everything downstream of a command cannot be counted. Object
 squares are the extreme case, the commonest unported destination class
 over the 60 freshly generated D:1 levels censused in `GOALS.json` (seeds
