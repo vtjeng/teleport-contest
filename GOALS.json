@@ -105,6 +105,11 @@
           "name": "A walking or running hero and an ordinary monster each enter an IS_FURNITURE square",
           "status": "closed",
           "closedBy": "7d397d756316438c393a6d4d3cb296b7b11deef4"
+        },
+        {
+          "name": "The hero swaps places with the ordinary starting pet standing on an IS_FURNITURE square",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "ad194eb79d3f2190269804cda91c4eafe5174e14",
