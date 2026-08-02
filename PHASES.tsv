@@ -26,3 +26,5 @@ utc	event	phase	goal	detail
 2026-08-02T21:18:03.769Z	end	implement	commands-deferral-sweep	
 2026-08-02T21:19:13.136Z	start	review	commands-deferral-sweep	
 2026-08-02T22:08:05.405Z	end	review	commands-deferral-sweep	
+2026-08-02T22:48:55.495Z	start	select		
+2026-08-02T22:49:34.329Z	end	select	wizard-mode-wish	
