@@ -100,13 +100,15 @@ Four agents run that loop, and no agent performs more than one of these jobs.
 
 The orchestrator repeats, without returning to the user between its steps:
 
-1. When no goal is in progress, start the first goal queued in `ROADMAP.md`.
-   When no goal is queued either, ask the goal-selector for the next one,
-   write it to `ROADMAP.md` yourself with the traced source findings that
-   justify it, re-pin the commit the census ran against, and start it. Then
-   take the first queued slice that goal lists. When it lists no queued
-   slice, ask the slice-selector for the next slice inside it. Both selectors
-   report; only you write.
+1. When no goal is in progress, open the first goal
+   `node scripts/goal-log.mjs --current` reports queued. When none is queued,
+   ask the goal-selector for the next one and record it yourself with
+   `queue-goal`: the traced source findings go in `--detail` and the
+   look-ahead forecast in `--forecast-steps` and `--forecast-basis`. Then
+   `open-goal` it, which captures the score standing the close will be
+   measured against, and take its first queued slice. When it lists none, ask
+   the slice-selector and `queue-slice` the answer. Both selectors report;
+   only you write.
 2. Spawn a worker for that slice. When it returns, establish independently what
    landed: `git log --oneline` and `git status --short` for the commits and the
    tree, and `npm run checkpoint` for the suite and the development score.
@@ -131,8 +133,10 @@ The orchestrator repeats, without returning to the user between its steps:
    areas the goal touched, read from `npm run quality -- deferrals --area
    <id>`: fix a `small` one in the goal's audit-fix commit and resolve its
    entry, queue a `slice` one as a queued slice, or state in the closing
-   report why it stays open. Delete the goal from `ROADMAP.md` and continue
-   at step 1.
+   report why it stays open. Close the goal with
+   `node scripts/goal-log.mjs close-goal`, which records delivered figures
+   beside the forecast from the score log; the closed entry stays in
+   `GOALS.json` as the calibration record. Continue at step 1.
 
 A formal review pass is a step of this loop, and the orchestrator runs it.
 
@@ -162,8 +166,7 @@ progress report with the count of open entries and the newest one.
 
 A goal carries a budget. When six hours of wall clock pass without a slice
 closing on a measured development-screen gain, close the goal where it
-stands, record delivered steps against the forecast in `ROADMAP.md`, and
-continue at step 1. A slice closing with a measured gain resets the budget.
+stands with `node scripts/goal-log.mjs close-goal` and continue at step 1. A slice closing with a measured gain resets the budget.
 Closing on budget is a measurement of the forecast; it needs no user
 decision and does not stop the loop.
 

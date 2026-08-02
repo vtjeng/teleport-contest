@@ -11,8 +11,10 @@ every valid seed, date and time, set of options, and input sequence.
   comparison. These changes control the seed and time, stabilize sorting, log
   random-number calls, and capture terminal screens. Match the behavior and
   output produced after these changes are applied.
-- Select each goal as `.agents/selection.md` states. `ROADMAP.md` records the
-  goal in progress and the work left.
+- Select each goal as `.agents/selection.md` states. `GOALS.json` records the
+  goal in progress and the goals queued after it, read with
+  `node scripts/goal-log.mjs --current`; `ROADMAP.md` holds the milestone
+  map.
 
 ## Recorded test sessions
 

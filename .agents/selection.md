@@ -73,11 +73,12 @@ sessions' stretches is scope the goal should include, priced in from the
 start.
 
 **Record the forecast when the goal opens and the delivery when it closes.**
-Write the capped forecast and the sessions it covers into `ROADMAP.md` with
-the goal entry. At close, compare with
-`node scripts/score-log.mjs --since <opening sha>` and record delivered
-against forecast beside the goal's evidence. Retire a ranking statistic from
-selection when its last three goals each delivered less than a tenth of its
+Record the capped forecast and the sessions it covers with
+`node scripts/goal-log.mjs queue-goal --forecast-steps <n>
+--forecast-basis <text> --sessions <csv>`; `open-goal` captures the score
+standing, and `close-goal` records delivered figures beside the forecast
+from the score log. Retire a ranking statistic from selection when the last
+three closed goals in `GOALS.json` each delivered less than a tenth of its
 forecast, until it is recalibrated against those closes. The goal budget in
 `.agents/workflow.md`, "Continuous operation", bounds what a missed forecast
 can cost.
@@ -133,10 +134,13 @@ silently. Start at the first queued slice.
 The agent selecting work chooses the goal. Do not ask the user which goal to
 take.
 
-## Keeping the roadmap short
+## Where goal state lives
 
-`ROADMAP.md` holds only open work. Delete a goal or milestone from
-`ROADMAP.md` when that goal or milestone closes: its score evidence stays in
-`SCORE.tsv`, its review metadata in `QUALITY.json`, and its implementation
-history in Git. Every task starts by reading `ROADMAP.md`, so it has to stay short enough
-to read.
+`GOALS.json` holds every goal, written only through
+`node scripts/goal-log.mjs`. A closed goal's entry stays there as the
+calibration record; its score evidence stays in `SCORE.tsv`, its review
+metadata in `QUALITY.json`, and its implementation history in Git.
+`ROADMAP.md` holds the milestone map alone, and `docs/goal-history.md`
+holds what the closed goals carried over. Every task starts with
+`node scripts/goal-log.mjs --current`, so goal entries stay terse: the
+boundary, the forecast, and the traced findings in `detail`.

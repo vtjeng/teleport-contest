@@ -20,10 +20,9 @@ Proposing a new goal is out of scope: when no goal is in progress,
    milestone; and how to judge a goal's size. Read `.agents/workflow.md` for
    the evidence that closes a behavior slice, and identify only a slice that
    can produce that evidence.
-3. Read `ROADMAP.md` for three things: the current milestone and the goal in
-   progress;
-   the traced source findings recorded under "Next goals, in order"; and the
-   "Later milestones" section, which states what is not yet in scope.
+3. Read `ROADMAP.md` for the milestone map, and run
+   `node scripts/goal-log.mjs --current` for the goal in progress, its queued
+   slices, and the traced source findings in its `detail` field.
 4. Read the C source the slice would port, far enough to confirm it closes as
    one unit: one real consumer running in the game, verified by one fresh
    end-to-end differential. If the reading shows several such units, identify a
