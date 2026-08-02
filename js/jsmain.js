@@ -14,6 +14,7 @@ import {
     MAX_COMMAND_COUNT,
     UnsupportedHeroCommandBoundaryError,
 } from './cmd.js';
+import { UnsupportedEarthSenseError } from './dungeon.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
@@ -525,6 +526,12 @@ export async function runSegment(
             if (e instanceof UnsupportedTurnBoundaryError
                 || e instanceof UnsupportedHeroMoveBoundaryError
                 || e instanceof UnsupportedHeroCommandBoundaryError
+                // dungeon.c u_on_newpos() reaches earth_sense() from
+                // js/hack.js domove(), js/do.js goto_level() and
+                // js/teleport.js teleds(); all three run under this loop, so
+                // the missing notice ends the segment on its last matching
+                // screen rather than discarding the prefix.
+                || e instanceof UnsupportedEarthSenseError
                 || e instanceof UnsupportedSpecialRoomError) {
                 onBoundary?.(e);
                 break;

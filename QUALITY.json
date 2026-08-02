@@ -85,7 +85,7 @@
       "area": "commands",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
       "detail": "`dungeon.c u_on_newpos()` ends both arms with an unconditional `earth_sense()`\nat 1600. `js/dungeon.js` closes the function without it and without a named\nrefusal, so a message-writing C branch is skipped silently — the one thing\n`AGENTS.md` forbids an unported path to do.\n\n`earth_sense()` (1547-1565) returns unless the hero is a dwarf; returns on\n`u.usteed`, `Flying`, `Levitation` or `Upolyd`; returns unless\n`levl[u.ux][u.uy].typ` is CORR or ROOM; and otherwise walks\n`svl.level.buriedobjlist` and prints\n`You(\"sense something below your %s.\", makeplural(body_part(FOOT)))`. It draws\nno random number, and that one line is its whole output.\n\n**The comment excusing the omission is falsified, which is what makes this\nworth recording now.** It argued reachability through `teleds()` and `#ride`\nalone; `36562b9` added `js/hack.js domove()` as a caller, so the function is\nentered on every hero step, for every role and race. What actually keeps the\nbranch dormant is narrower and was never written down: every burial site on a\nreachable level is a GRAVE or STONE square, which `earth_sense()` rejects\nbefore it reads the buried list.\n\nThe goal-closing correctness pass over `9a7aef5..7caa325` confirmed this and\ndeferred it, because porting a new upstream function is outside audit-fix\nscope. Take it with whatever next buries an object under a ROOM or CORR square\n— a bones load, `bury_objs()` from the boulder arm of `flooreffects()`, or a\n`make_grave()` that returns early — since that is the point at which a dwarf\nhero silently loses a top line. Either port `earth_sense()` outright or refuse\nexactly the state it would answer for, and replace the `teleds()` sentence with\nthe reason above."
     },
@@ -130,7 +130,7 @@
       "area": "commands",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "`hack.c:1048` prints `\"That drawbridge is up!\"` when `is_db_wall(x, y)` holds\ninside `test_move()`'s closing obstacle arm. `DBWALL` satisfies `IS_WALL()`, so\n`js/hack.js`'s type refusal lets it through and the port prints `\"It's a wall.\"`\ninstead. This is a silent divergence. Nothing stops, and the first evidence\nwould be a screen mismatch.\n\nThe audit-fix agent for the `c706db8a6..ed43517` pass found this while applying\na neighbouring finding and left it, correctly, because it sat outside the\nconfirmed set. No level this port generates holds a drawbridge today, so no\nrecorded case reaches it. Fold it into whichever correctness range next reads\n`test_move()`, or into the drawbridge work, whichever comes first."
     },
@@ -202,7 +202,7 @@
       "area": "commands",
       "category": "clarity",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "27761926cb6f41e6b236d9b27b9a7ab809c7d608",
       "detail": "The correctness pass over `4d54fa8..2776192` confirmed ten findings; two were\napplied and eight are recorded here. The applied pair are described in\n`SCORE.md` at the fix commit; these are what remains.\n\nThey divide into assertions that do not discriminate — the new diagonal arms,\nthe consolidated `cant_squeeze_thru()` and the obstacle-arm ordering each have\ncoverage that survives mutation — and comments that overstate what their code\nestablishes. Two vision comments in `js/unported_monster_actions.js` also\nremain unsettled: the slice worker declined to invent a justification it could\nnot derive, and the pass did not settle them either.\n\nTake them with whatever next reads `test_move()`; none owns a fail-closed\nboundary today."
     },
@@ -547,6 +547,15 @@
       "status": "open",
       "from": "9b7333ed150faacc0bb1798a653ceefe155ea52c",
       "detail": "js/cmd.js executeMovement() calls domove() without the failClosedCommand() wrapper every extended command uses, and js/allmain.js:922 re-enters domove() in the run loop without a fresh key. Any Unsupported* class raised below domove() that is not one of the four js/jsmain.js:525-529 breaks on therefore escapes runSegment() and discards the segment's matching prefix rather than ending on it. Found by the furniture-square-entry correctness pass through UnsupportedFeatureDescriptionError on an altar arrival, which 9b7333e closes at the seam; the general gap stays open. Widening the jsmain boundary list is not the fix, because it would skip resetCommandVars() and leave the rejected keystroke unretryable. Closing condition: wrap both call sites and pin an escaping class end to end through moveloop_core()."
+    },
+    {
+      "id": "earth_sense()'s notice is refused rather than printed",
+      "area": "commands",
+      "category": "production",
+      "effort": "undecided",
+      "status": "open",
+      "from": "ab28567e37a6e40c47583075c7e898adf306d5b6",
+      "detail": "`dungeon.c earth_sense()` (1543-1565) is ported into `js/dungeon.js` with every\ngate, but the one line those gates lead to --\n`You(\"sense something below your %s.\", makeplural(body_part(FOOT)))` -- raises\n`UnsupportedEarthSenseError` instead of printing. That is fail-closed, and it\nreplaces a fail-open omission, but the line is still unported.\n\nThe blocker is shape, not source. `u_on_newpos()` is synchronous, and so are\n`js/mklev.js place_lregion()` and `u_on_upstairs()`, which call it while the\nlevel is being created; this port's message owner, `js/tty_message.js\nttyPline()`, is async. Printing here means making level creation async, which\nis why the port was declined inside a deferral sweep rather than attempted.\n\nThe branch is live rather than dormant, and its gate is the hero's race. Over\nthe 40 D:1 levels the port generates for seeds 7200000-7200039 it buried 215\nobjects, 27 of them under a ROOM square, through js/themeroom_fill.js's\n`Buried zombies` and `Buried treasure` fills; `js/hack.js domove()` has called\n`u_on_newpos()` since 36562b9, so a dwarf hero reaches the notice by walking\nonto one. No development session runs a dwarf -- the 33 use elf, gnome and\nhuman -- so nothing recorded reaches it.\n\nNo fresh case is recorded, because none was found. A search over seeds\n7400000-7400149 for a dwarf Archeologist looked for a buried ROOM or CORR\nsquare reachable from the starting square by one or two straight walks through\nsquares holding no monster, object or trap, and found none in 150 levels: the\nfills put their burials inside a themed room the hero does not start beside.\nClosing this needs either a longer path found by a real search, or a recorded\nC case built some other way, and then the async conversion above."
     }
   ],
   "areas": [

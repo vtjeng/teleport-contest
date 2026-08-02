@@ -6,9 +6,15 @@ import {
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    CORR,
     DB_ICE,
     DRAWBRIDGE_UP,
+    FLYING,
+    GRAVE,
     ICE,
+    LEVITATION,
+    ROOM,
+    STONE,
 } from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
@@ -26,9 +32,13 @@ import {
     level_range,
     maxledgerno,
     on_level,
+    u_on_newpos,
+    UnsupportedEarthSenseError,
     update_lastseentyp,
 } from '../js/dungeon.js';
+import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
+import { PM_DWARF, PM_GNOME } from '../js/monsters.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     parseDungeonSource,
@@ -471,4 +481,90 @@ test('digging and falling predicates preserve bottom and Castle rules', () => {
     state.stronghold_level = bottom;
     assert.equal(Can_dig_down(bottom, state), false);
     assert.equal(Can_fall_thru(bottom, state), true);
+});
+
+// C ref: dungeon.c earth_sense() (1543-1565), reached from u_on_newpos()'s
+// unconditional call at 1600. Every gate is ported; the notice it leads to is
+// refused, so a state that would print raises and every other state returns
+// having done nothing.
+//
+// The map is built by hand rather than generated: the gates read one square's
+// typ and one buried-object list, and a generated level would settle neither
+// the CORR half of the terrain test nor the u_at() test against a burial one
+// square away.
+function earthSenseState(typ, buriedAt) {
+    const state = {
+        // 10,10 is interior, so isok() plays no part in the result.
+        u: { ux: 0, uy: 0, uprops: [], umonnum: 1, umonster: 1 },
+        urace: { mnum: PM_DWARF },
+        level: new GameMap(),
+    };
+    state.level.at(10, 10).typ = typ;
+    state.level.buriedobjlist = buriedAt
+        ? { otyp: 0, ox: buriedAt[0], oy: buriedAt[1], nobj: null }
+        : null;
+    return state;
+}
+
+test('earth_sense refuses only the state its notice would speak for', () => {
+    // ROOM and CORR are the two types the terrain gate admits, and each has to
+    // reach the buried list on its own.
+    for (const typ of [ROOM, CORR]) {
+        assert.throws(
+            () => u_on_newpos(10, 10, earthSenseState(typ, [10, 10])),
+            UnsupportedEarthSenseError,
+        );
+    }
+
+    // GRAVE is where this port's other burials land, and STONE is where most
+    // of them do; both are rejected before the list is read.
+    for (const typ of [GRAVE, STONE]) {
+        u_on_newpos(10, 10, earthSenseState(typ, [10, 10]));
+    }
+
+    // u_at() compares both coordinates, so a burial one square away in either
+    // direction is not felt.
+    for (const buriedAt of [[11, 10], [10, 11], null]) {
+        u_on_newpos(10, 10, earthSenseState(ROOM, buriedAt));
+    }
+
+    // A second entry further down the list is still found: C walks nobj to the
+    // end rather than testing the head.
+    const listed = earthSenseState(ROOM, [11, 10]);
+    listed.level.buriedobjlist.nobj = { otyp: 0, ox: 10, oy: 10, nobj: null };
+    assert.throws(() => u_on_newpos(10, 10, listed), UnsupportedEarthSenseError);
+
+    // Race_if(PM_DWARF) is the first gate and the only one no development
+    // session can fail: PM_GNOME is the nearest neighbour in mons[].
+    const gnome = earthSenseState(ROOM, [10, 10]);
+    gnome.urace.mnum = PM_GNOME;
+    u_on_newpos(10, 10, gnome);
+
+    // The four states C returns on before reading the map, each on its own.
+    const riding = earthSenseState(ROOM, [10, 10]);
+    riding.u.usteed = { mx: 0, my: 0 };
+    u_on_newpos(10, 10, riding);
+
+    for (const property of [FLYING, LEVITATION]) {
+        const intrinsic = earthSenseState(ROOM, [10, 10]);
+        intrinsic.u.uprops[property] = { intrinsic: 1 };
+        u_on_newpos(10, 10, intrinsic);
+
+        const extrinsic = earthSenseState(ROOM, [10, 10]);
+        extrinsic.u.uprops[property] = { extrinsic: 1 };
+        u_on_newpos(10, 10, extrinsic);
+
+        // youprop.h:240 and :253-255 both subtract the blocked field, so a
+        // blocked property does not suppress the notice.
+        const blocked = earthSenseState(ROOM, [10, 10]);
+        blocked.u.uprops[property] = { intrinsic: 1, blocked: 1 };
+        assert.throws(
+            () => u_on_newpos(10, 10, blocked),
+            UnsupportedEarthSenseError,
+        );
+    }
+
+    const polymorphed = earthSenseState(ROOM, [10, 10]);
+    polymorphed.u.umonnum = polymorphed.u.umonster + 1;
+    u_on_newpos(10, 10, polymorphed);
 });

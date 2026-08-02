@@ -16,10 +16,12 @@ import {
     DB_UNDER,
     DRAWBRIDGE_UP,
     CORR,
+    FLYING,
     HALLUC,
     HALLUC_RES,
     ICE,
     LAVAPOOL,
+    LEVITATION,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
     MAX_TYPE,
@@ -27,8 +29,10 @@ import {
     ROWNO,
     ROOM,
     STONE,
+    Upolyd,
     isok,
 } from './const.js';
+import { PM_DWARF } from './monsters.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_nearby_objects } from './display.js';
@@ -874,10 +878,78 @@ export function u_on_newpos(x, y, state = game) {
         // generic object(s) to redisplay them as specific objects
         see_nearby_objects(state);
     }
-    // dungeon.c earth_sense() is omitted. Its body sits behind
-    // `!Race_if(PM_DWARF)`, and no ported caller reaches it with a dwarf on a
-    // ROOM or CORR square holding a buried object: teleds() is reachable only
-    // through #ride, and only a Knight -- a human-only role -- can ride.
+    earth_sense(state);
+}
+
+export class UnsupportedEarthSenseError extends Error {
+    constructor(reason) {
+        super(`unsupported earth sense: ${reason}`);
+        this.name = 'UnsupportedEarthSenseError';
+        this.reason = reason;
+    }
+}
+
+// C ref: youprop.h Levitation (240) and Flying (253-255). Both are read once,
+// by earth_sense() below. C's Flying carries a third term,
+// `u.usteed && is_flyer(u.usteed->data)`, which earth_sense() cannot observe:
+// its own `u.usteed` test returns one operand earlier.
+function heroLevitating(state) {
+    const levitation = state.u?.uprops?.[LEVITATION];
+    return Boolean((levitation?.intrinsic || levitation?.extrinsic)
+        && !levitation?.blocked);
+}
+
+function heroFlying(state) {
+    const flying = state.u?.uprops?.[FLYING];
+    return Boolean((flying?.intrinsic || flying?.extrinsic)
+        && !flying?.blocked);
+}
+
+// C ref: dungeon.c earth_sense() (1543-1565). A dwarf feels a buried object
+// through the floor. Every gate is ported; the one thing that is not is the
+// single line the gates lead to, `You("sense something below your %s.",
+// makeplural(body_part(FOOT)))`, and the state that would print it is refused
+// instead of skipped. The function draws no random number, so a refusal costs
+// the PRNG log nothing.
+//
+// Why the line is refused rather than printed: u_on_newpos() is synchronous,
+// and so are js/mklev.js place_lregion() and u_on_upstairs(), which call it
+// while the level is being created, whereas this port's message owner,
+// js/tty_message.js ttyPline(), is async. Printing here means making level
+// creation async, a change to a different subsystem than the one that reaches
+// this function.
+//
+// Every caller but one runs under js/jsmain.js's moveloop_core() loop, which
+// treats the class below as a segment boundary. The exception is
+// allmain.c newgame() -> u_on_upstairs(), where a throw would discard the
+// whole segment; it cannot arrive there, because the hero starts on the up
+// staircase and STAIRS fails the terrain gate. Over the 60 D:1 levels the port
+// generates for seeds 7300000-7300059 the starting square was STAIRS every
+// time, and u_on_upstairs() reaches place_lregion()'s random square only when
+// the level has neither an ordinary nor a special up stair.
+//
+// This branch is live, not dormant, and the reason it never fires is the hero,
+// not the map. js/hack.js domove() has called u_on_newpos() since 36562b9, so
+// earth_sense() is entered on every hero step for every role and race, and
+// buried objects do sit on ROOM squares: over the 40 D:1 levels the port
+// generates for seeds 7200000-7200039 it buried 215 objects, 27 of them under
+// ROOM, through js/themeroom_fill.js's `Buried zombies` and `Buried treasure`
+// fills. `Race_if(PM_DWARF)` is the whole of what keeps the notice quiet.
+function earth_sense(state) {
+    const hero = state.u;
+    if (state.urace?.mnum !== PM_DWARF) return;
+    if (hero.usteed || heroFlying(state) || heroLevitating(state)
+        || Upolyd(hero)) return;
+    const typ = state.level?.at(hero.ux, hero.uy)?.typ;
+    if (typ !== CORR && typ !== ROOM) return;
+
+    for (let obj = state.level?.buriedobjlist ?? null; obj; obj = obj.nobj) {
+        if (obj.ox === hero.ux && obj.oy === hero.uy) {
+            throw new UnsupportedEarthSenseError(
+                'the buried-object notice a dwarf feels underfoot',
+            );
+        }
+    }
 }
 
 

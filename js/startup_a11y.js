@@ -1058,8 +1058,8 @@ function isDrawbridge(location) {
 
 // C ref: dbridge.c is_drawbridge_wall() (148-159). C returns a direction or
 // -1; the port answers a boolean because every caller only tests >= 0.
-// This belongs in a js/dbridge.js port of that file; it lives here because
-// this file had the first caller.
+// This and is_db_wall() below belong in a js/dbridge.js port of that file;
+// they live here because this file had the first caller.
 export function is_drawbridge_wall(x, y, state) {
     if (!isok(x, y)) return false;
     const location = state.level?.at(x, y);
@@ -1076,6 +1076,15 @@ export function is_drawbridge_wall(x, y, state) {
             && (drawbridgeMask(neighbor) & DB_DIR) === direction) return true;
     }
     return false;
+}
+
+// C ref: dbridge.c is_db_wall() (167-173). The narrower question its comment
+// draws out: this square is a drawbridge wall that is up, where
+// is_drawbridge_wall() answers for a portcullis whether the bridge is up or
+// down. C reads levl[x][y].typ with no isok() guard and no neighbour walk, so
+// the whole predicate is the type test.
+export function is_db_wall(x, y, state) {
+    return state.level?.at(x, y)?.typ === DBWALL;
 }
 
 function doorDescription(location, x, y, state) {

@@ -7,14 +7,30 @@ import {
     D_BROKEN,
     D_ISOPEN,
     D_NODOOR,
+    IRONBARS,
+    PIT,
     ROOM,
     SDOOR,
     STONE,
+    TREE,
 } from '../js/const.js';
-import { cant_squeeze_thru, test_move } from '../js/hack.js';
+import {
+    cant_squeeze_thru,
+    preflightDomoveDestination,
+    test_move,
+    UnsupportedHeroMoveBoundaryError,
+} from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_GARTER_SNAKE, PM_HORSE } from '../js/monsters.js';
+import { bigmonst } from '../js/mondata.js';
+import {
+    PM_AIR_ELEMENTAL,
+    PM_BLACK_PUDDING,
+    PM_GARTER_SNAKE,
+    PM_HORSE,
+    PM_PYTHON,
+    PM_XORN,
+} from '../js/monsters.js';
 import {
     loadDiagonalDoorwayEntryRecipe,
     loadDiagonalDoorwayExitRecipe,
@@ -219,6 +235,32 @@ test('cant_squeeze_thru answers for the hero and for a monster', async () => {
     game.level.flags.sokoban_rules = false;
     monster.data = game.mons[PM_HORSE];
     assert.equal(cant_squeeze_thru(monster, game), 1);
+
+    // hack.c:1183, the passes_walls() early return, which answers 0 ahead of
+    // both thresholds. A xorn carrying 601 units answers 2 without it, so this
+    // is the assertion that separates the return from falling through.
+    const xorn = {
+        data: game.mons[PM_XORN],
+        minvent: { otyp: 0, owt: 601, nobj: null },
+    };
+    assert.equal(cant_squeeze_thru(xorn, game), 0);
+
+    // hack.c:1186-1190. bigmonst() on its own does not answer 1: five
+    // predicates each let a large body through, and folding any of them into
+    // its neighbour turns one of these into a 1. Each species below is
+    // MZ_LARGE or bigger and satisfies exactly one of the five, so the case
+    // that fails names the term that moved. noncorporeal() has no species of
+    // its own here: mondata.h:31 makes it `mlet == S_GHOST`, and neither a
+    // ghost nor a shade reaches MZ_LARGE.
+    for (const [pmidx, escape] of [
+        [PM_BLACK_PUDDING, 'amorphous'],
+        [PM_AIR_ELEMENTAL, 'is_whirly'],
+        [PM_PYTHON, 'slithy'],
+    ]) {
+        const large = { data: game.mons[pmidx], minvent: null };
+        assert.ok(bigmonst(large.data), `${escape} species is bigmonst`);
+        assert.equal(cant_squeeze_thru(large, game), 0, escape);
+    }
 });
 
 // hack.c:1153-1171. The tight-diagonal switch's three refusals are deferred,
@@ -254,6 +296,22 @@ test('test_move stops a tight diagonal the hero cannot squeeze through',
             test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
             /tight diagonal move/u,
         );
+
+        // hack.c:1153 tests both corners, so one open corner leaves the switch
+        // unentered and the same overloaded hero walks through. Each corner
+        // gets its own case: with the pack still at 601 a term that stopped
+        // being required would refuse here instead.
+        for (const corner of [[0, 1], [1, 0]]) {
+            game.level.at(ux + corner[0], uy + corner[1]).typ = ROOM;
+            assert.equal(
+                await test_move(
+                    ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} },
+                ),
+                true,
+                `corner ${corner}`,
+            );
+            game.level.at(ux + corner[0], uy + corner[1]).typ = STONE;
+        }
         game.invent = null;
     });
 
@@ -327,4 +385,70 @@ test('test_move stops a diagonal between two segments of one monster',
             test_move(ux, uy, 1, 1, DO_MOVE, game, { message: async () => {} }),
             /long worm body crossing/u,
         );
+    });
+
+// preflightDomoveDestination()'s answer for a step with no monster on the
+// destination is what refusedDiagonalDoorway() decides, and the arm it selects
+// there is empty: test_move() owns the refusal either way. So the predicate is
+// observable at the seam only through the checks it skips. A trap or an
+// obstructed type is one such check, and hack.c consults neither on a step it
+// refuses for a doorway, which is why getting the predicate wrong shows up as a
+// segment-ending boundary on a step C declines quietly.
+test('the seam consults its destination checks only where the rules allow',
+    async () => {
+        await runSegment({
+            seed: 9600003,
+            datetime: '20310203040506',
+            nethackrc: 'OPTIONS=name:Seam,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: '',
+        });
+        const { ux, uy } = game.u;
+        const here = game.level.at(ux, uy);
+        const destination = game.level.at(ux + 1, uy + 1);
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.traps = [];
+
+        // The entry rule: a doorway that still has its door refuses a diagonal
+        // arrival, so the trap on it is never consulted. hack.c reaches
+        // testdiag at 1139 and returns at 1150, well before the arrival
+        // consequences spoteffects() owns.
+        here.typ = ROOM;
+        destination.typ = DOOR;
+        destination.flags = destination.doormask = D_ISOPEN;
+        game.level.traps = [{ tx: ux + 1, ty: uy + 1, ttyp: PIT, tseen: true }];
+        preflightDomoveDestination(ux + 1, uy + 1, game);
+
+        // Same square, orthogonal step: the entry rule reads dx and dy, so an
+        // orthogonal arrival is admitted and the trap is consulted after all.
+        game.level.at(ux + 1, uy).typ = DOOR;
+        game.level.at(ux + 1, uy).flags = D_ISOPEN;
+        game.level.traps = [{ tx: ux + 1, ty: uy, ttyp: PIT, tseen: true }];
+        assert.throws(
+            () => preflightDomoveDestination(ux + 1, uy, game),
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === 'trap activation',
+        );
+        game.level.at(ux + 1, uy).typ = STONE;
+        game.level.traps = [];
+
+        // The obstacle arm claims an obstructed destination before either
+        // diagonal rule, whichever square the hero is standing on. TREE and
+        // IRONBARS are the two halves of hack.c:1011's test -- IRONBARS is
+        // 22 and POOL is 16, so IS_OBSTRUCTED() answers FALSE for it and the
+        // second term is the only thing that catches it.
+        for (const source of [ROOM, DOOR]) {
+            here.typ = source;
+            here.flags = here.doormask = source === DOOR ? D_ISOPEN : 0;
+            for (const typ of [TREE, IRONBARS]) {
+                destination.typ = typ;
+                assert.throws(
+                    () => preflightDomoveDestination(ux + 1, uy + 1, game),
+                    (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                        && error.reason === 'door or special terrain movement',
+                    `${typ} from ${source}`,
+                );
+            }
+        }
     });

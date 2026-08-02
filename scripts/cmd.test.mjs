@@ -28,6 +28,7 @@ import {
     COLNO,
     CORR,
     CROSSWALL,
+    DBWALL,
     DO_MOVE,
     D_BROKEN,
     D_CLOSED,
@@ -60,6 +61,7 @@ import {
     STONE,
     STONED,
     TDWALL,
+    TEST_MOVE,
     THRONE,
     TLCORNER,
     TLWALL,
@@ -207,6 +209,68 @@ test('test_move describes remembered walls without time or PRNG work',
         // ROOM is outside this ported test_move() branch and remains legal.
         destination.typ = ROOM;
         assert.equal(await test_move(ux, uy, 1, 0, DO_MOVE, state), true);
+    });
+
+// C ref: hack.c:1050. is_db_wall() takes the closing else's first arm, ahead of
+// the flags.mention_walls line the case above covers, so a raised drawbridge
+// speaks for itself. DBWALL satisfies IS_WALL() (rm.h:117), which is why it
+// reaches this arm at all and why, before the arm existed, the port fell
+// through to that line and said "It's solid stone." -- display.c wall_angle()
+// has no DBWALL case.
+test('a raised drawbridge answers for itself rather than as a wall',
+    async () => {
+        // The same interior coordinate and eastward step as the wall case, so
+        // isok() and the map edge stay out of the result.
+        const ux = 10;
+        const uy = 10;
+        const state = {
+            flags: { mention_walls: true },
+            level: new GameMap(),
+        };
+        const destination = state.level.at(ux + 1, uy);
+        destination.typ = DBWALL;
+        // A seen square: the wall line the drawbridge arm displaces reads
+        // seenv through wall_angle(), so leaving it clear would let the arms
+        // agree by accident.
+        destination.seenv = 0xFF;
+        const messages = [];
+        const env = { message: (message) => messages.push(message) };
+
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, state, env),
+            false,
+        );
+        assert.deepEqual(messages, ['That drawbridge is up!']);
+
+        // C's pline() here is not the pline_dir() the wall line uses
+        // (pline.c:114-123), so accessiblemsg adds no location prefix.
+        state.a11y = { accessiblemsg: true };
+        state.iflags = {};
+        state.u = { ux, uy, uprops: [] };
+        messages.length = 0;
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, state, env),
+            false,
+        );
+        assert.deepEqual(messages, ['That drawbridge is up!']);
+
+        // No flag gates this line, unlike the wall line below it in C's chain.
+        state.flags.mention_walls = false;
+        messages.length = 0;
+        assert.equal(
+            await test_move(ux, uy, 1, 0, DO_MOVE, state, env),
+            false,
+        );
+        assert.deepEqual(messages, ['That drawbridge is up!']);
+
+        // TEST_MOVE answers FALSE in silence: C wraps the whole chain in
+        // `if (mode == DO_MOVE)`.
+        messages.length = 0;
+        assert.equal(
+            await test_move(ux, uy, 1, 0, TEST_MOVE, state, env),
+            false,
+        );
+        assert.deepEqual(messages, []);
     });
 
 // C ref: hack.c:1014-1045. Before its closing "It's solid stone." else, the

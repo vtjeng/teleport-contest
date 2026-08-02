@@ -799,14 +799,21 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
 async function planningEveryTurnEffect(monster, env) {
     await m_everyturn_effect(monster, {
         ...env,
-        // The live owner passes region.c's real block_point(), which rebuilds
-        // vision.c's transparency index and sets vision_full_recalc, so every
-        // monster after this one in the live scan sees a darker map. Planning
-        // cannot reproduce that: rebuildVisionPoint() refuses any state other
-        // than the live game. Stubbing it out instead would admit a scan whose
-        // later monsters then take different vision-dependent dochug()
-        // branches live, spending PRNG the dry run never charged. Stop here so
-        // the whole scan stays retryable.
+        // C ref: monmove.c:657-661. A fog cloud lays a one-square vapour
+        // region through create_gas_cloud(). The PRNG is not what stops the
+        // dry run following it: at cloudsize 1 that is a single rn1(3, 4)
+        // (region.c:1303), which the cloned ISAAC context can afford.
+        // add_region() is. For a visible region it calls block_point() on the
+        // inside square (region.c:326-328), and js/vision.js keeps the
+        // transparency index that rebuilds in module constants (64-66), which
+        // the caller's restore below repairs only for a planned door opening;
+        // and it repaints through newsym() (region.c:329-330), for which
+        // js/allmain.js regionEffectEnv() is the live owner and the plan has
+        // no counterpart.
+        //
+        // The reason this comment used to give was that rebuildVisionPoint()
+        // refuses a state other than the live game. It does not; js/vision.js
+        // takes a state, and the door path already runs it against the clone.
         createGasCloud: () => unsupported('monster region creation'),
     });
 }
@@ -815,13 +822,20 @@ async function planSimpleMonsterScan(monster, env) {
     return movemon_singlemon(monster, {
         ...env,
         everyTurnEffect: planningEveryTurnEffect,
-        // C ref: mon.c movemon_singlemon() runs vision_recalc(0) for the first
-        // ration-spending monster after movemon()'s tail set
-        // vision_full_recalc. That rebuilds vision.c's live global buffers, so
-        // the dry run cannot reproduce it; a later monster in the same scan,
-        // or in the scan after the next allocation, would then test visibility
-        // against an index the live pass has already replaced. Refuse rather
-        // than model the rebuild as a no-op.
+        // C ref: mon.c:1258-1259. movemon()'s tail sets vision_full_recalc
+        // whenever a light source exists (mon.c:1332-1333), and the next
+        // ration-spending monster clears it with vision_recalc(0). That spends
+        // no randomness, but it writes seenv and waslit on the map cells and
+        // swaps the COULD_SEE pair.
+        //
+        // planningVisionRecalc() cannot stand in here, which is what the
+        // sentence this replaces got wrong. It is safe only after
+        // isolatePlannedVision(), which gives the clone its own COULD_SEE
+        // buffers and its own level.locations; admitDoorOpening() is that
+        // function's only caller, and this arm can be the first vision work in
+        // a plan where no door was opened. Without the isolation
+        // visionBuffers() falls back to the live pair and GameMap.at() reads
+        // the live cells, so the plan would write through to the running game.
         visionRecalc: () => unsupported(
             'monster light-source vision recalculation',
         ),

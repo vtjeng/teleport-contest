@@ -143,6 +143,7 @@ import { check_special_room } from './rooms.js';
 import {
     canSpotMonster,
     collectMonsterNoticeMessages,
+    is_db_wall,
     is_drawbridge_wall,
     messageAt,
     monsterVisible,
@@ -548,11 +549,16 @@ function blocksMove(x, y, state) {
 // C ref: hack.c:1140-1141, the condition on test_move()'s testdiag arm. A
 // doorway that still has its door refuses a diagonal entry.
 //
-// block_door() is omitted. shk.c:5791 answers FALSE unless <x,y> lies in a
-// shop the hero is standing in and owes for, and mklev.c:1349 gates every
-// randomly placed shop on `u_depth > 1`, so no level this boundary reaches
-// holds one. blocksDiagonalDoorwayExit()'s block_entry() (shk.c:5826) is
-// absent for the same reason, and additionally needs a D_BROKEN hero square.
+// block_door() is omitted, and the reason has moved. It used to be that
+// mklev.c:1349 gates every randomly placed shop on `u_depth > 1` and this
+// boundary reached no such level; the ported descent now does generate D:2
+// shops. What is left is shk.c:5815's final term, `debit || billct ||
+// robbed`: js/shknam.js:319-326 and js/makemon_create.js:468-480 initialize
+// all three to zero and nothing in this port writes any of them, so a
+// shopkeeper is never owed and the predicate stays FALSE.
+// blocksDiagonalDoorwayExit()'s block_entry() (shk.c:5826) is absent for the
+// same reason, and additionally needs a D_BROKEN hero square, which neither
+// admission seam allows.
 function blocksDiagonalDoorwayEntry(ux, uy, x, y, state) {
     return Boolean((x - ux) && (y - uy)
         && !propertyPresent(state, PASSES_WALLS)
@@ -569,16 +575,25 @@ function blocksDiagonalDoorwayExit(ux, uy, x, y, state) {
 }
 
 // TRUE where test_move() refuses the step through one of its two diagonal
-// doorway rules. Both refusals spend no time and change nothing, exactly like
-// the wall blocksMove() reports, so the admission seam admits the command and
-// leaves the refusal to domove().
+// doorway rules. Neither refusal spends time -- both return FALSE, which
+// domove_core():2843-2849 answers with `svc.context.move = 0; nomul(0)` -- so
+// the admission seam admits the command and leaves the refusal to domove().
+// Neither is a no-op, though: the entry rule still feels the square for a
+// blind hero (hack.c:1144-1145), writing seenv and the remembered glyph. The
+// wall branch blocksMove() reports is the right precedent for that too, since
+// the wall arm feels the square as well (hack.c:1012-1013).
 //
 // The two arms C reaches before either rule decide nothing here: its obstacle
-// arm (1011) and its closed-door arm (1075) both return before testdiag, and
-// the seam has its own branches for them.
+// arm (1011) and its closed-door arm (1075) either return or skip testdiag
+// entirely, and the seam has its own branches for both.
 function refusedDiagonalDoorway(x, y, state) {
     const { ux, uy } = state.u;
     const destination = state.level?.at(x, y);
+    // No test can tell this answer from TRUE, and none should be written to
+    // try. The caller's two arms for a square off the map are both no-ops: the
+    // TRUE arm is empty, and on FALSE closed_door() answers FALSE and
+    // blocksMove() answers TRUE for a missing location, so the else-if chain
+    // falls off its end. The guard is here to keep the reads below defined.
     if (!destination) return false;
     if (IS_OBSTRUCTED(destination.typ) || destination.typ === IRONBARS)
         return false;
@@ -1141,12 +1156,19 @@ export async function test_move(
     if (!isok(x, y)) return false;
     const location = state.level?.at?.(x, y);
 
-    // C ref: hack.c:1011. The obstacle arm claims the square before either
-    // diagonal doorway rule below can look at it, so the types it owns that
-    // this port does not are refused here rather than falling through to them.
-    // They keep the reason requireSimpleHeroDestination() gives them, which is
-    // the only other place that can refuse a TREE, SDOOR, SCORR or IRONBARS
-    // destination.
+    // C ref: hack.c:1011. The obstacle arm returns before the entry rule can
+    // look at the square, since testdiag (1139) sits inside the IS_DOOR arm --
+    // and, for every hero state this port admits, before the exit rule at 1208
+    // as well. That second half is narrower than it looks: C's Passes_walls
+    // (1015), passes_bars (1030) and tunnels (1036) branches fall out of the
+    // arm rather than returning, and reach 1208, whose only property test is
+    // !Passes_walls. requireOrdinaryObstacleRefusal() refuses all three below,
+    // which is what makes the port's unconditional return safe.
+    //
+    // The four types this port does not own are refused here with the reason
+    // requireSimpleHeroDestination() gives them, so a walk and a pet swap onto
+    // one report the same boundary: requireOrdinaryStartingPetSwap() throws it
+    // for the same four.
     if (IS_OBSTRUCTED(location.typ) || location.typ === IRONBARS) {
         if (location.typ !== STONE && !IS_WALL(location.typ)) {
             throw new UnsupportedHeroMoveBoundaryError(
@@ -1160,15 +1182,38 @@ export async function test_move(
         requireOrdinaryObstacleRefusal(state);
         if (heroIsBlind(state) && mode === DO_MOVE) feel_location(x, y, state);
 
-        if (mode === DO_MOVE && state.flags?.mention_walls) {
-            const symbol = location.typ === STONE
-                ? S_stone : wall_angle(location);
-            const description = symbol === S_stone ? 'solid stone' : 'a wall';
-            const message = requiredMessageOperation(env, 'wall refusal');
-            await message(
-                messageAt(`It's ${description}.`, x, y, state),
-                state,
-            );
+        // C ref: hack.c:1048-1069, the three-arm chain inside the closing
+        // else's `if (mode == DO_MOVE)`. Only the drawbridge arm and the
+        // mention_walls arm are here: the Sokoban arm between them (1052-1055)
+        // needs Passes_walls, which requireOrdinaryObstacleRefusal() has
+        // already refused above.
+        if (mode === DO_MOVE) {
+            if (is_db_wall(x, y, state)) {
+                // hack.c:1050. A raised drawbridge's wall is DBWALL, which
+                // IS_WALL() admits (rm.h:117, `typ <= DBWALL`), so before this
+                // arm existed the square fell through to the line below, where
+                // display.c wall_angle() has no DBWALL case and answers
+                // S_stone: the port said "It's solid stone." with
+                // mention_walls set and nothing at all without it. C reaches
+                // neither, and gates this line on no flag. Its own
+                // back_to_glyph() would have said S_vcdbridge (display.c:2394),
+                // which is a third answer again.
+                //
+                // C's line is a plain pline(), not the pline_dir() below, so it
+                // carries no accessiblemsg location prefix; pline.c:114-123 is
+                // what separates the two.
+                const message = requiredMessageOperation(env, 'drawbridge wall');
+                await message('That drawbridge is up!', state);
+            } else if (state.flags?.mention_walls) {
+                const symbol = location.typ === STONE
+                    ? S_stone : wall_angle(location);
+                const description = symbol === S_stone ? 'solid stone' : 'a wall';
+                const message = requiredMessageOperation(env, 'wall refusal');
+                await message(
+                    messageAt(`It's ${description}.`, x, y, state),
+                    state,
+                );
+            }
         }
         return false;
     }
@@ -1235,9 +1280,10 @@ export async function test_move(
         && blocksDiagonalDoorwayEntry(ux, uy, x, y, state)) {
         // C ref: hack.c:1139-1150, the testdiag arm, which the closed-door arm
         // above returns before. Underwater joins mention_walls on this line
-        // and not on the exit rule's below. Neither message goes through
-        // set_msg_xy(), so neither carries a direction prefix under
-        // `accessiblemsg`.
+        // and not on the exit rule's below. Both lines are You_cant(), which
+        // reaches plain pline(), not the pline_dir() the wall line above uses,
+        // and pline.c:162-164 clears a11y.msg_loc on every call, so neither
+        // carries a direction prefix under `accessiblemsg`.
         if (mode === DO_MOVE && heroIsBlind(state)) feel_location(x, y, state);
         if (mode === DO_MOVE
             && (state.u.uinwater || state.flags?.mention_walls)) {
@@ -2082,8 +2128,9 @@ export function bad_rock(species, x, y, state = game) {
 // diagonal is tight; this reports why the mover cannot fit through it -- 1:
 // too big, 2: possessions too heavy, 3: Sokoban -- or 0 when it can squeeze.
 //
-// C's `mon == &gy.youmonst` tests are what separate its two callers, so both
-// live here rather than in two files. The hero reads the Passes_walls property
+// C's `mon == &gy.youmonst` tests are what separate its hero and monster
+// callers -- hack.c:1156 and 4100 for the hero, mon.c:2346 for a monster --
+// so both branches live here rather than in two files. The hero reads the Passes_walls property
 // and inv_weight() + weight_cap(), which is the plain inventory weight because
 // inv_weight() returns that same total minus that same capacity; a monster
 // reads its species and curr_mon_load(). Only the hero is stopped by Sokoban.
