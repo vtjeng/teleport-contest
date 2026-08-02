@@ -87,3 +87,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T12:37:58.763Z	4c0399f	goal	1	33	648	7765	107437	610816	655	7765	162	3640	30089	182022		experience-level-gain closes. The reserved holdout moved to 162 screens from the 139 it held across the two preceding goal closes, and to 30,089 random-number values from 30,048; still 1 of 11 sessions and 0 replay errors. At 23 screens it is the largest single-close holdout gain in the log, ahead of the 21 at d0bee360.
 2026-08-02T13:59:05.745Z	16574f3f18a4e8c06cdea0933e3e8ecc14faa649	checkpoint	1	33	674	7765	108336	610816	681	7765					12	tree dirty
 2026-08-02T14:02:56.783Z	16574f3f18a4e8c06cdea0933e3e8ecc14faa649	checkpoint	1	33	674	7765	108336	610816	681	7765					12	tree dirty
+2026-08-02T14:06:53.417Z	7d397d756316438c393a6d4d3cb296b7b11deef4	checkpoint	1	33	674	7765	108336	610816	681	7765					13	
+2026-08-02T14:07:41.385Z	7d397d7	slice	1	33	674	7765	108336	610816	681	7765						Furniture admitted as a hero and monster destination: +26 screens, the figure the paired measurement predicted before the slice was queued.

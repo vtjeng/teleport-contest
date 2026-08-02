@@ -28,7 +28,7 @@ states it.
 
 ## Current standing
 
-- Development, at `4c0399f` (2026-08-02): 648 of 7,765 screens and 107,437 of
+- Development, at `7d397d7` (2026-08-02): 674 of 7,765 screens and 108,336 of
   610,816 random-number values, over the development set of 33 sessions.
 - Reserved holdout, at the same commit: 162 of 3,640 screens, 30,089 of
   182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
