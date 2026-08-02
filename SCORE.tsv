@@ -106,3 +106,8 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T17:55:54.509Z	ab28567e37a6e40c47583075c7e898adf306d5b6	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
 2026-08-02T18:02:49.075Z	441a378d0eafb94541de12bd7233c5ea233bb4ac	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
 2026-08-02T18:03:18.194Z	441a378	slice	1	33	676	7765	108261	610816	684	7765						Three sweep entries closed together; score unchanged, as grouping them predicted. Two of the three records carried a factual claim a probe overturned.
+2026-08-02T18:18:38.349Z	bcf0bd699e2673a0c246166c717ed472e55ea206	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
+2026-08-02T18:29:07.914Z	bcf0bd699e2673a0c246166c717ed472e55ea206	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
+2026-08-02T18:33:30.405Z	bcf0bd699e2673a0c246166c717ed472e55ea206	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
+2026-08-02T18:38:24.341Z	272c0c332c633a6b0ef45aef0b7f96df065f586b	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
+2026-08-02T18:38:55.857Z	272c0c3	slice	1	33	676	7765	108261	610816	684	7765						go.occupation repointed to its one writer; score unchanged because no development session eats through a monster crossing the boundary. Two of 60 fresh seeds reach the newly live stop.

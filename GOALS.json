@@ -156,8 +156,8 @@
         },
         {
           "name": "go.occupation has one writer and three readers that never see it",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "272c0c332c633a6b0ef45aef0b7f96df065f586b"
         }
       ],
       "openedAt": "e3a3d1dca4c91468755393449f53395f7c0722ce",

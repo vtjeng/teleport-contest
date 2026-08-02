@@ -556,6 +556,15 @@
       "status": "open",
       "from": "ab28567e37a6e40c47583075c7e898adf306d5b6",
       "detail": "`dungeon.c earth_sense()` (1543-1565) is ported into `js/dungeon.js` with every\ngate, but the one line those gates lead to --\n`You(\"sense something below your %s.\", makeplural(body_part(FOOT)))` -- raises\n`UnsupportedEarthSenseError` instead of printing. That is fail-closed, and it\nreplaces a fail-open omission, but the line is still unported.\n\nThe blocker is shape, not source. `u_on_newpos()` is synchronous, and so are\n`js/mklev.js place_lregion()` and `u_on_upstairs()`, which call it while the\nlevel is being created; this port's message owner, `js/tty_message.js\nttyPline()`, is async. Printing here means making level creation async, which\nis why the port was declined inside a deferral sweep rather than attempted.\n\nThe branch is live rather than dormant, and its gate is the hero's race. Over\nthe 40 D:1 levels the port generates for seeds 7200000-7200039 it buried 215\nobjects, 27 of them under a ROOM square, through js/themeroom_fill.js's\n`Buried zombies` and `Buried treasure` fills; `js/hack.js domove()` has called\n`u_on_newpos()` since 36562b9, so a dwarf hero reaches the notice by walking\nonto one. No development session runs a dwarf -- the 33 use elf, gnome and\nhuman -- so nothing recorded reaches it.\n\nNo fresh case is recorded, because none was found. A search over seeds\n7400000-7400149 for a dwarf Archeologist looked for a buried ROOM or CORR\nsquare reachable from the starting square by one or two straight walks through\nsquares holding no monster, object or trap, and found none in 150 levels: the\nfills put their burials inside a themed room the hero does not start beside.\nClosing this needs either a longer path found by a real search, or a recorded\nC case built some other way, and then the async conversion above."
+    },
+    {
+      "id": "stop_occupation() refuses where C prints the stop",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "272c0c332c633a6b0ef45aef0b7f96df065f586b",
+      "detail": "allmain.c stop_occupation() (684-696) runs maybe_finished_meal(), You(\"stop %s.\", go.occtxt), disp.botl and nomul(0). The port refuses instead, so both occupation boundaries end a segment where C prints \"You stop eating the food ration.\" and continues. The go.occupation repoint at 272c0c3 made the dochugw() boundary live, and the adjacency boundary predates it. Porting stop_occupation() converts both into matching output. The hard part is the dry-run architecture: its usedtime >= reqtime arm is reachable one turn per meal, when eatfood() has already raised usedtime to reqtime and returned 1, so eatfood() must run on the clone as well as live. Found by the slice that closed the go.occupation entry; opened by the orchestrator, since that brief reserved ledger writes."
     }
   ],
   "areas": [
