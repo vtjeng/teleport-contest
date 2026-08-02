@@ -1322,6 +1322,68 @@ function recordPass(kind, options) {
   withLedgerLock(() => preparePass(kind, options));
 }
 
+// Ledger queries. Agents read recorded passes through these subcommands
+// rather than by opening QUALITY.json, whose passes array is an archive.
+export function passesForAreas(passes, areaIds = null) {
+  if (!areaIds || areaIds.length === 0) return passes;
+  const wanted = new Set(areaIds);
+  return passes.filter((pass) => pass.areas.some((areaId) => wanted.has(areaId)));
+}
+
+export function collectRejections(passes) {
+  const rows = [];
+  for (const pass of passes) {
+    for (const rejection of pass.auditMetrics?.rejections ?? []) {
+      rows.push({ head: pass.head, kind: pass.kind, areas: pass.areas,
+        ...rejection });
+    }
+  }
+  return rows;
+}
+
+export function collectDeferrals(passes) {
+  const rows = [];
+  for (const pass of passes) {
+    for (const deferral of pass.auditMetrics?.deferrals ?? []) {
+      rows.push({ head: pass.head, kind: pass.kind, areas: pass.areas,
+        ...deferral });
+    }
+  }
+  return rows;
+}
+
+function queryLedger(command, options, config) {
+  if (command === 'pass') {
+    rejectUnknownOptions(options, new Set(['head']));
+    if (!options.head) fail('pass needs --head <sha or prefix>');
+    const matches = config.passes.filter(
+      (pass) => pass.head.startsWith(options.head),
+    );
+    if (matches.length === 0) fail(`no recorded pass has head ${options.head}`);
+    for (const pass of matches) console.log(JSON.stringify(pass, null, 2));
+    return;
+  }
+  if (command === 'rejections') {
+    rejectUnknownOptions(options, new Set(['areas']));
+    const areaIds = options.areas ? options.areas.split(',') : null;
+    const rows = collectRejections(passesForAreas(config.passes, areaIds));
+    for (const row of rows) {
+      console.log(`${shortSha(row.head)} [${row.areas.join(',')}] ${row.summary}`);
+      console.log(`    counter: ${row.counterEvidence}`);
+    }
+    console.log(`${plural(rows.length, 'recorded rejection')}.`);
+    return;
+  }
+  rejectUnknownOptions(options, new Set(['area']));
+  const areaIds = options.area ? [options.area] : null;
+  const rows = collectDeferrals(passesForAreas(config.passes, areaIds));
+  for (const row of rows) {
+    console.log(`${shortSha(row.head)} [${row.category}] `
+      + `${row.trackedIn}: ${row.summary}`);
+  }
+  console.log(`${plural(rows.length, 'recorded deferral')}.`);
+}
+
 function printHelp() {
   console.log(`Usage:
   npm run quality
@@ -1335,6 +1397,12 @@ function printHelp() {
     --range <base>..<head> --outcome <changed|no-change> --evidence <text> \\
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
     [--head <commit>] [--dry-run]
+  npm run quality -- rejections [--areas <id,...>]
+  npm run quality -- deferrals [--area <id>]
+  npm run quality -- pass --head <sha or prefix>
+
+The three query subcommands read the recorded passes, so a later pass
+consults prior rejections and open deferrals without opening QUALITY.json.
 
 Status is derived from Git. A recorded pass advances each selected area's
 frontier from its prior exact commit through the --range head.
@@ -1359,6 +1427,10 @@ function main(argv) {
   if (first === 'record-review' || first === 'record-simplification') {
     const kind = first === 'record-review' ? 'review' : 'simplification';
     recordPass(kind, parseOptions(rest));
+    return;
+  }
+  if (first === 'rejections' || first === 'deferrals' || first === 'pass') {
+    queryLedger(first, parseOptions(rest), loadConfig());
     return;
   }
 

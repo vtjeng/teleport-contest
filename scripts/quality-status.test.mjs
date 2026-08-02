@@ -18,7 +18,10 @@ import {
   validateAuditedRangeCoverage,
   validateAuditMetrics,
   validateAuditMutation,
+  collectDeferrals,
+  collectRejections,
   newestFrontier,
+  passesForAreas,
   validateConfigShape,
 } from './quality-status.mjs';
 
@@ -895,4 +898,43 @@ test('newestFrontier picks the frontier every other one precedes', () => {
     const ancestorCheck = (x, y) => x <= y;
     assert.equal(newestFrontier(['b', 'a', 'c'], ancestorCheck), 'c');
     assert.equal(newestFrontier(['a'], ancestorCheck), 'a');
+});
+
+test('ledger queries filter passes by area and flatten their entries', () => {
+    // Two passes: one over monsters, one over display. The monsters pass
+    // carries one rejection and one deferral and spans a second area, so the
+    // area filter must match on intersection (some), never containment (every).
+    const passes = [
+        {
+            head: 'a'.repeat(40),
+            kind: 'review',
+            areas: ['monsters', 'world'],
+            auditMetrics: {
+                rejections: [{ summary: 'claim A', counterEvidence: 'trace A' }],
+                deferrals: [{ summary: 'gap B', trackedIn: 'Unresolved: B',
+                    category: 'tests' }],
+            },
+        },
+        {
+            head: 'b'.repeat(40),
+            kind: 'review',
+            areas: ['display'],
+            auditMetrics: {
+                rejections: [{ summary: 'claim C', counterEvidence: 'trace C' }],
+            },
+        },
+    ];
+    assert.deepEqual(
+        passesForAreas(passes, ['monsters']).map(({ head }) => head),
+        ['a'.repeat(40)],
+    );
+    // No filter returns every pass, the whole-ledger read.
+    assert.equal(passesForAreas(passes).length, 2);
+    const rejections = collectRejections(passesForAreas(passes, ['display']));
+    assert.deepEqual(rejections.map(({ summary }) => summary), ['claim C']);
+    const deferrals = collectDeferrals(passes);
+    // A pass without a deferrals array contributes nothing rather than
+    // throwing, because 21 legacy passes predate auditMetrics.
+    assert.deepEqual(deferrals.map(({ trackedIn }) => trackedIn),
+        ['Unresolved: B']);
 });
