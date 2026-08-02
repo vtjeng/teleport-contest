@@ -668,16 +668,18 @@ test('a sampled run states the interval for the population it sampled', () => {
 test('every target is named by --range, --file, or --worktree', () => {
     assert.deepEqual(parseArgs(['--range', 'a..b']),
         { range: 'a..b', paths: [], worktree: false, kinds: null,
-            enumerateOnly: false, wholeSuite: false, sample: null, seed: 1 });
+            enumerateOnly: false, emitTrailer: false, wholeSuite: false,
+            sample: null, seed: 1 });
     assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
         { range: null, paths: ['js/a.js', 'js/b.js'], worktree: false,
-            kinds: null, enumerateOnly: false, wholeSuite: false, sample: null,
-            seed: 1 });
+            kinds: null, enumerateOnly: false, emitTrailer: false,
+            wholeSuite: false, sample: null, seed: 1 });
     // `--name=value` and `--name value` are the same option.
     assert.deepEqual(parseArgs(['--range=a..b', '--enumerate-only',
         '--whole-suite', '--sample=40', '--seed=7']),
     { range: 'a..b', paths: [], worktree: false, kinds: null,
-        enumerateOnly: true, wholeSuite: true, sample: 40, seed: 7 });
+        enumerateOnly: true, emitTrailer: false, wholeSuite: true,
+        sample: 40, seed: 7 });
     assert.deepEqual(parseArgs(['--range', 'a..b',
         '--kind', 'logical,relational,logical']).kinds,
     ['logical', 'relational']);
