@@ -81,7 +81,7 @@
     },
     {
       "id": "furniture-square-entry",
-      "status": "open",
+      "status": "closed",
       "boundary": "the hero enters a square whose terrain satisfies rm.h:138 IS_FURNITURE() -- STAIRS through ALTAR -- by walking, by running, or by swapping with the ordinary starting pet standing on it",
       "upstreamOwners": [
         "hack.c domove_core()",
@@ -118,8 +118,11 @@
         "screens": 648,
         "rng": 107437
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b669b88ee33568fc58d169c7865467c95c9f0343",
+      "delivered": {
+        "screens": 28,
+        "rng": 824
+      }
     }
   ]
 }
