@@ -1,5 +1,6 @@
 // attrib.js — hero attributes, advancement, exercise, and adjustment.
-// C ref: src/attrib.c newhp(), init_attr(), vary_init_attr(), exercise(),
+// C ref: src/attrib.c the innate-ability tables, role_abil(), postadjabil(),
+// adjabil(), newhp(), setuhpmax(), init_attr(), vary_init_attr(), exercise(),
 // exerper(), adjattrib(), and exerchk().
 
 import {
@@ -10,26 +11,41 @@ import {
     A_STR,
     A_WIS,
     CLAIRVOYANT,
+    COLD_RES,
     CONFUSION,
     EXT_ENCUMBER,
     FAINTED,
     FAINTING,
+    FAST,
+    FIRE_RES,
     FIXED_ABIL,
+    FROMEXPER,
+    FROMOUTSIDE,
+    FROM_RACE,
     FUMBLING,
     HALLUC,
     HALLUC_RES,
     HUNGRY,
     HVY_ENCUMBER,
+    INFRAVISION,
     MAXULEV,
     MOD_ENCUMBER,
     NOT_HUNGRY,
     NUM_ATTRS,
+    POISON_RES,
     REGENERATION,
     SATIATED,
+    SEARCHING,
+    SEE_INVIS,
+    SHOCK_RES,
     SICK,
+    SLEEP_RES,
+    STEALTH,
     STUNNED,
+    TELEPORT_CONTROL,
     Upolyd,
     VOMITING,
+    WARNING,
     WEAK,
     WOUNDED_LEGS,
 } from './const.js';
@@ -37,12 +53,27 @@ import { SPFX_LUCK } from './artifacts.js';
 import { game } from './gstate.js';
 import {
     PM_AMOROUS_DEMON,
+    PM_ARCHEOLOGIST,
+    PM_BARBARIAN,
+    PM_CAVE_DWELLER,
+    PM_CLERIC,
+    PM_ELF,
+    PM_HEALER,
+    PM_KNIGHT,
     PM_MONK,
+    PM_ORC,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_SAMURAI,
+    PM_TOURIST,
+    PM_VALKYRIE,
+    PM_WIZARD,
     S_NYMPH,
 } from './monsters.js';
 import { DUNCE_CAP, LUCKSTONE } from './objects.js';
 import { rn1, rn2, rnd } from './rng.js';
 import { aligns } from './roles.js';
+import { add_weapon_skill } from './weapon.js';
 
 const EXERCISE_LIMIT = 50;
 const ATTRIBUTE_NAMES = Object.freeze([
@@ -77,6 +108,232 @@ const EXERCISE_EXPLANATIONS = Object.freeze([
     Object.freeze(['leading a healthy life-style', 'watching your health']),
     Object.freeze([null, null]),
 ]);
+
+// C ref: attrib.c's `struct innate` tables (23-105), in source order. Each C
+// entry names an intrinsic with `&(HFoo)`, which expands to
+// u.uprops[FOO].intrinsic; `ability` below is that prop.h index. The C arrays
+// end in a `{ 0, 0, 0, 0 }` terminator that adjabil() tests with
+// `!abil->ability`; a JavaScript array ends on its own, so the terminator has
+// no counterpart here.
+//
+// Every entry whose ulevel is 1 has an empty gainstr, which is what lets
+// adjabil() below grant the level-1 abilities without owning You_feel().
+// innateTablesHaveSilentLevelOneEntries() re-derives that from the tables so
+// a mistyped entry cannot make the omission wrong.
+function innate(ulevel, ability, gainstr, losestr) {
+    return Object.freeze({ ulevel, ability, gainstr, losestr });
+}
+
+const arc_abil = Object.freeze([
+    innate(1, SEARCHING, '', ''),
+    innate(5, STEALTH, 'stealthy', ''),
+    innate(10, FAST, 'quick', 'slow'),
+]);
+const bar_abil = Object.freeze([
+    innate(1, POISON_RES, '', ''),
+    innate(7, FAST, 'quick', 'slow'),
+    innate(15, STEALTH, 'stealthy', ''),
+]);
+const cav_abil = Object.freeze([
+    innate(7, FAST, 'quick', 'slow'),
+    innate(15, WARNING, 'sensitive', ''),
+]);
+const hea_abil = Object.freeze([
+    innate(1, POISON_RES, '', ''),
+    innate(15, WARNING, 'sensitive', ''),
+]);
+const kni_abil = Object.freeze([
+    innate(7, FAST, 'quick', 'slow'),
+]);
+const mon_abil = Object.freeze([
+    innate(1, FAST, '', ''),
+    innate(1, SLEEP_RES, '', ''),
+    innate(1, SEE_INVIS, '', ''),
+    innate(3, POISON_RES, 'healthy', ''),
+    innate(5, STEALTH, 'stealthy', ''),
+    innate(7, WARNING, 'sensitive', ''),
+    innate(9, SEARCHING, 'perceptive', 'unaware'),
+    innate(11, FIRE_RES, 'cool', 'warmer'),
+    innate(13, COLD_RES, 'warm', 'cooler'),
+    innate(15, SHOCK_RES, 'insulated', 'conductive'),
+    innate(17, TELEPORT_CONTROL, 'controlled', 'uncontrolled'),
+]);
+const pri_abil = Object.freeze([
+    innate(15, WARNING, 'sensitive', ''),
+    innate(20, FIRE_RES, 'cool', 'warmer'),
+]);
+const ran_abil = Object.freeze([
+    innate(1, SEARCHING, '', ''),
+    innate(7, STEALTH, 'stealthy', ''),
+    innate(15, SEE_INVIS, '', ''),
+]);
+const rog_abil = Object.freeze([
+    innate(1, STEALTH, '', ''),
+    innate(10, SEARCHING, 'perceptive', ''),
+]);
+const sam_abil = Object.freeze([
+    innate(1, FAST, '', ''),
+    innate(15, STEALTH, 'stealthy', ''),
+]);
+const tou_abil = Object.freeze([
+    innate(10, SEARCHING, 'perceptive', ''),
+    innate(20, POISON_RES, 'hardy', ''),
+]);
+const val_abil = Object.freeze([
+    innate(1, COLD_RES, '', ''),
+    innate(3, STEALTH, 'stealthy', ''),
+    innate(7, FAST, 'quick', 'slow'),
+]);
+const wiz_abil = Object.freeze([
+    innate(15, WARNING, 'sensitive', ''),
+    innate(17, TELEPORT_CONTROL, 'controlled', 'uncontrolled'),
+]);
+
+// The race tables adjabil()'s own switch selects. C also defines dwa_abil[],
+// gno_abil[] and the empty hum_abil[], but that switch folds PM_DWARF,
+// PM_GNOME and PM_HUMAN into its `default: rabil = 0` arm, so a dwarf or gnome
+// never gains infravision through adjabil(). Only check_innate_abil(), which
+// answers where an already-held intrinsic came from and has no consumer here,
+// reads those three.
+const elf_abil = Object.freeze([
+    innate(1, INFRAVISION, '', ''),
+    innate(4, SLEEP_RES, 'awake', 'tired'),
+]);
+const orc_abil = Object.freeze([
+    innate(1, INFRAVISION, '', ''),
+    innate(1, POISON_RES, '', ''),
+]);
+
+// C ref: attrib.c role_abil(). C walks a local roleabils[] array and returns
+// the null `abil` of its terminating entry for a monster number that is not a
+// role; the switch below answers null there, which adjabil() treats the same
+// way.
+export function role_abil(roleMnum) {
+    switch (roleMnum) {
+    case PM_ARCHEOLOGIST: return arc_abil;
+    case PM_BARBARIAN: return bar_abil;
+    case PM_CAVE_DWELLER: return cav_abil;
+    case PM_HEALER: return hea_abil;
+    case PM_KNIGHT: return kni_abil;
+    case PM_MONK: return mon_abil;
+    case PM_CLERIC: return pri_abil;
+    case PM_RANGER: return ran_abil;
+    case PM_ROGUE: return rog_abil;
+    case PM_SAMURAI: return sam_abil;
+    case PM_TOURIST: return tou_abil;
+    case PM_VALKYRIE: return val_abil;
+    case PM_WIZARD: return wiz_abil;
+    default: return null;
+    }
+}
+
+// C ref: attrib.c adjabil()'s own `switch (Race_switch)`, which is a separate
+// selection from check_innate_abil()'s.
+function race_abil(raceMnum) {
+    switch (raceMnum) {
+    case PM_ELF: return elf_abil;
+    case PM_ORC: return orc_abil;
+    default: return null;
+    }
+}
+
+// Thrown where attrib.c reaches an ability transition this port has not
+// ported. Every one of them changes an intrinsic while the hero is playing,
+// which is the boundary of the experience-level slice this file serves.
+export class UnsupportedAbilityChangeError extends Error {
+    constructor(branch) {
+        super(`ability change requires ${branch}`);
+        this.name = 'UnsupportedAbilityChangeError';
+        this.branch = branch;
+    }
+}
+
+// C ref: attrib.c postadjabil(). Its see_monsters() call needs a nonzero
+// u.ulevel, which only a gain or loss above experience level 1 produces, and
+// adjabil() below refuses both. The initializing early return is therefore the
+// whole reachable body.
+function postadjabil(propertyIndex, state) {
+    if (!state.u.ulevel) return; /* initializing hero */
+    throw new UnsupportedAbilityChangeError(
+        `postadjabil() reaching see_monsters() for property ${propertyIndex}`,
+    );
+}
+
+// C ref: attrib.c adjabil(). The traversal walks the role table and then the
+// race table, switching the intrinsic mask when it crosses over, exactly as C
+// does with its `abil`/`rabil` pair.
+//
+// Only the gain at experience level 1 is ported, which u_init_misc() reaches
+// through adjabil(0, 1). C's three other outcomes stay fail-closed:
+//
+//   a gain above level 1  -> `*(abil->ability) |= mask`, the
+//                            You_feel("%s!") that follows it, and
+//                            postadjabil()'s see_monsters()
+//   any loss              -> the whole `else if` arm at attrib.c:1054-1062
+//   a lowered level       -> weapon.c lose_weapon_skill()
+export function adjabil(oldlevel, newlevel, state = game) {
+    const u = state.u;
+    let table = role_abil(state.urole?.mnum);
+    let raceTable = race_abil(state.urace?.mnum);
+    let index = 0;
+    let mask = FROMEXPER;
+
+    while (table || raceTable) {
+        /* Have we finished with the intrinsics list? */
+        if (!table || index >= table.length) {
+            /* Try the race intrinsics */
+            if (!raceTable || raceTable.length === 0) break;
+            table = raceTable;
+            raceTable = null;
+            index = 0;
+            mask = FROM_RACE;
+        }
+        const entry = table[index];
+        const property = u.uprops[entry.ability];
+        const prevabil = property.intrinsic;
+        if (oldlevel < entry.ulevel && newlevel >= entry.ulevel) {
+            /* Abilities gained at level 1 can never be lost via level loss,
+             * only via means that remove _any_ sort of ability.  A "gain" of
+             * such an ability from an outside source is devoid of meaning, so
+             * C sets FROMOUTSIDE to avoid such gains. */
+            if (entry.ulevel !== 1) {
+                throw new UnsupportedAbilityChangeError(
+                    `adjabil() granting property ${entry.ability} at `
+                    + `experience level ${entry.ulevel}`,
+                );
+            }
+            property.intrinsic |= mask | FROMOUTSIDE;
+        } else if (oldlevel >= entry.ulevel && newlevel < entry.ulevel) {
+            throw new UnsupportedAbilityChangeError(
+                `adjabil() removing property ${entry.ability} below `
+                + `experience level ${entry.ulevel}`,
+            );
+        }
+        if (prevabil !== property.intrinsic) /* it changed */
+            postadjabil(entry.ability, state);
+        ++index;
+    }
+
+    if (oldlevel > 0) {
+        if (newlevel > oldlevel) add_weapon_skill(newlevel - oldlevel, state);
+        else throw new UnsupportedAbilityChangeError('lose_weapon_skill()');
+    }
+}
+
+// Every innate entry the ported gain branch can reach carries an empty
+// gainstr, so adjabil() needs no owner for C's You_feel("%s!"). This re-reads
+// the tables rather than restating the claim, and scripts/level-change.test.mjs
+// asserts it.
+export function innateTablesHaveSilentLevelOneEntries() {
+    const tables = [
+        arc_abil, bar_abil, cav_abil, hea_abil, kni_abil, mon_abil, pri_abil,
+        ran_abil, rog_abil, sam_abil, tou_abil, val_abil, wiz_abil,
+        elf_abil, orc_abil,
+    ];
+    return tables.every((table) => table.every(
+        (entry) => entry.ulevel !== 1 || entry.gainstr === '',
+    ));
+}
 
 function roleAndRace(state) {
     if (!state?.urole || !state?.urace) {
@@ -143,6 +400,30 @@ export function newhp(state = game, random = { rnd }) {
         if (hp > limit) hp = limit;
     }
     return hp;
+}
+
+// C ref: attrib.c setuhpmax(). It owns u.uhpmax, u.uhppeak and the u.uhp
+// ceiling together, so nothing else writes u.uhpmax once a level is gained.
+// The Upolyd arm, which redirects the same work at u.mhmax, has no owner:
+// js/u_init.js is this port's only writer of u.umonnum and sets it equal to
+// u.umonster, so Upolyd() is false for every hero the port can build.
+export function setuhpmax(newmax, even_when_polyd, state = game) {
+    const u = state.u;
+    if (!Upolyd(u) || even_when_polyd) {
+        if (newmax !== u.uhpmax) {
+            u.uhpmax = newmax;
+            if (u.uhpmax > u.uhppeak) u.uhppeak = u.uhpmax;
+            state.disp.botl = true;
+        }
+        if (u.uhp > u.uhpmax) {
+            u.uhp = u.uhpmax;
+            state.disp.botl = true;
+        }
+    } else {
+        throw new UnsupportedAbilityChangeError(
+            'setuhpmax() updating u.mhmax while polymorphed',
+        );
+    }
 }
 
 function attributeArrays(u) {

@@ -475,6 +475,15 @@
       "status": "open",
       "from": "roadmap",
       "detail": "Every remaining command, including count prefixes, travel, force-fight,\npickup commands, and the extended-command set. `hack.c lookaround()`'s\ncorridor-widening arm hangs on this: it needs `svc.context.run == 2`, which\nonly `do_rush()` behind the `g` prefix sets, and `ADMITTED_RUN_MODES` in\n`js/cmd.js` admits 0, 1 and 3 only. Until the prefix is ported the arm and its\n`flags.mention_walls` message have no recorded case, and\n`scripts/hack.test.mjs` is their whole evidence."
+    },
+    {
+      "id": "the two #levelchange cases at the MAXULEV ceiling",
+      "area": "commands",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "72703fe69484ebccf125e0f932d24a5c01b33f91",
+      "detail": "Two recorded cases sit just past this slice's limit and cannot match the C\nreference until attrib.c adjabil()'s gain branch lands. Both are kept out of\nscripts/run-level-change.mjs, whose runner stops on the first failing segment.\n\n1. `#levelchange 31`. wizcmds.c wiz_level_change() clamps a target above\n   MAXULEV to 30 and raises the hero there. Every role's innate table holds an\n   entry below 30, so the port refuses inside adjabil() partway up. Recorded\n   with `node scripts/diff-fresh.mjs --seed 8810008 --role Wizard --name Levch\n   --options 'pettype:none,!acoustics,playmode:debug' --moves` a `#levelchange`\n   answered `31` followed by 29 spaces: C draws 48 screens, the port 30, and the\n   first mismatch is at boundary 31, which is wiz_abil[]'s level-15 entry.\n   Expected once the gain branch lands: 48 screens and the hero at experience\n   level 30, not 31.\n\n2. `#levelchange` from experience level 30, which answers \"You are already as\n   experienced as you can get.\" Its `u.ulevel >= MAXULEV` arm is ported but has\n   no fresh case, because reaching level 30 needs case 1 to work first.\n\nClose both by adding them to scripts/run-level-change.mjs with the slice that\nports adjabil()'s `*(abil->ability) |= mask`, its You_feel(\"%s!\"), and\npostadjabil()'s see_monsters()."
     }
   ],
   "areas": [
@@ -671,7 +680,8 @@
         "js/lock.js",
         "js/tty_menu.js",
         "js/tty_message.js",
-        "js/uhitm.js"
+        "js/uhitm.js",
+        "js/wizcmds.js"
       ],
       "generatedOutputs": [
         {

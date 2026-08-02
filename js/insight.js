@@ -32,6 +32,8 @@ import {
     A_STR,
     A_WIS,
     AC_MAX,
+    ACH_RNK1,
+    ACH_RNK8,
     BASICENLIGHTENMENT,
     BLINDED,
     CONFUSION,
@@ -55,6 +57,7 @@ import {
     LEVITATION,
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
+    N_ACH,
     NEW_MOON,
     OVERLOADED,
     P_ISRESTRICTED,
@@ -742,6 +745,57 @@ export function enlightenment(mode, final, state = game) {
     enl_msg(lines, final, 'Total elapsed playing time ', 'is', 'was',
         fmt_elapsed_time(final, state), '');
     return lines;
+}
+
+// C ref: insight.c record_achievement(). exper.c pluslvl() is the only caller
+// this port reaches, and it always passes a rank achievement.
+//
+// Appending to u.uachieved[] is the whole reachable body. Three of C's other
+// effects have no owner here and reach nothing observable:
+//
+//   SoundAchievement()   the optional sound interface
+//   livelog_printf()     a file this port cannot write, the treatment
+//                        recorded at js/do.js:658-660. Its three arms are the
+//                        only readers of botl.c rank_to_xlev(), of
+//                        achieve_msg[] and of the `program_state.gameover`
+//                        early return, so none of those has a consumer either
+//   impossible()         a corrupt achievement index, which pluslvl() cannot
+//                        produce because xlev_to_rank() answers 1..8 for
+//                        every level it reaches. The range test below throws
+//                        rather than warning, so a wrong index cannot be
+//                        recorded silently
+export function record_achievement(achidx, state = game) {
+    const u = state.u;
+    const absidx = Math.abs(achidx);
+
+    /* valid achievements range from 1 to N_ACH-1; however, ranks can be
+       stored as the complement (ie, negative) to track gender */
+    if ((achidx < 1 && (absidx < ACH_RNK1 || absidx > ACH_RNK8))
+        || achidx >= N_ACH) {
+        throw new RangeError(`Achievement #${achidx} is out of range.`);
+    }
+
+    /* the list has an extra slot so there is always at least one 0 at its
+       end; find the first empty slot or achievement #achidx */
+    let i = 0;
+    let repeat_achievement = false;
+    for (; u.uachieved[i]; ++i) {
+        if (Math.abs(u.uachieved[i]) === absidx) {
+            repeat_achievement = true;
+            break;
+        }
+    }
+
+    if (repeat_achievement)
+        return; /* already recorded, don't duplicate it */
+    u.uachieved[i] = achidx;
+}
+
+// C ref: insight.c achieve_rank(). The complement encodes a female hero so
+// that a later report can name the gender-specific rank title.
+export function achieve_rank(rank, state = game) {
+    const achidx = (rank - 1) + ACH_RNK1;
+    return state.flags.female ? -achidx : achidx;
 }
 
 // C ref: insight.c doattributes(), bound to `^X`. Returns whether the command

@@ -5,8 +5,6 @@
 import {
     BLINDED,
     COLD_RES,
-    FAST,
-    FROMEXPER,
     FROMOUTSIDE,
     FROM_FORM,
     FROM_RACE,
@@ -20,13 +18,9 @@ import {
     P_NUM_SKILLS,
     P_SKILL_LIMIT,
     POISON_RES,
-    SEARCHING,
-    SEE_INVIS,
-    SLEEP_RES,
-    STEALTH,
     WARN_OF_MON,
 } from './const.js';
-import { newhp } from './attrib.js';
+import { adjabil, newhp } from './attrib.js';
 import { getnow } from './calendar.js';
 import { newpw } from './exper.js';
 import { game } from './gstate.js';
@@ -47,25 +41,6 @@ const ROLE_FORM_RESISTANCES = Object.freeze({
     Bar: [POISON_RES],
     Hea: [POISON_RES],
     Val: [COLD_RES],
-});
-
-// Only abilities reached by attrib.c adjabil(0, 1) are needed at this
-// boundary. Higher-level entries remain the responsibility of a complete
-// adjabil port.
-const LEVEL_ONE_ROLE_ABILITIES = Object.freeze({
-    Arc: [SEARCHING],
-    Bar: [POISON_RES],
-    Hea: [POISON_RES],
-    Mon: [FAST, SLEEP_RES, SEE_INVIS],
-    Ran: [SEARCHING],
-    Rog: [STEALTH],
-    Sam: [FAST],
-    Val: [COLD_RES],
-});
-
-const LEVEL_ONE_RACE_ABILITIES = Object.freeze({
-    Elf: [INFRAVISION],
-    Orc: [INFRAVISION, POISON_RES],
 });
 
 const ROLEPLAY_BOOLEAN_FIELDS = Object.freeze([
@@ -323,14 +298,6 @@ function setInitialUasmon(state) {
     state.gw.were_changes = 0;
 }
 
-function applyInitialAbilities(state) {
-    const { u } = state;
-    for (const index of LEVEL_ONE_ROLE_ABILITIES[state.urole.filecode] ?? [])
-        property(u, index).intrinsic |= FROMEXPER | FROMOUTSIDE;
-    for (const index of LEVEL_ONE_RACE_ABILITIES[state.urace.filecode] ?? [])
-        property(u, index).intrinsic |= FROM_RACE | FROMOUTSIDE;
-}
-
 function init_uhunger(state) {
     const { u } = state;
     state.disp ??= {};
@@ -399,7 +366,10 @@ export function u_init_misc(
 
     u.uhp = u.uhpmax = u.uhppeak = newhp(state, random);
     u.uen = u.uenmax = u.uenpeak = newpw(state, random);
-    applyInitialAbilities(state); // C: adjabil(0, 1), while u.ulevel is zero.
+    // u_init.c:995-1000 leaves u.ulevel at 0 across this call, which is what
+    // makes adjabil() take its level-1 gain arm and postadjabil() its
+    // initializing early return.
+    adjabil(0, 1, state);
     u.ulevel = u.ulevelmax = 1;
 
     init_uhunger(state);
@@ -423,7 +393,6 @@ export function u_init_misc(
 }
 
 export const _uInitInternals = Object.freeze({
-    applyInitialAbilities,
     clearSpellIds,
     copyRoleplay,
     init_uhunger,

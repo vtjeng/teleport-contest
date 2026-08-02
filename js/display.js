@@ -2737,14 +2737,20 @@ function _statusExperiencePercentage(u) {
         ? 100 : _statusPercentage(gained, needed);
 }
 
+// C ref: botl.c xlev_to_rank(). Converts an experience level (1..30) to a
+// rank index (0..8): 1..2 give 0, 3..5 give 1, and every further band of four
+// levels gives the next index, with level 30 alone giving 8.
+export function xlev_to_rank(xlev) {
+    return xlev <= 2 ? 0 : xlev <= 30 ? Math.trunc((xlev + 2) / 4) : 8;
+}
+
 function _criticallyLowHp(onlyIfInjured) {
     const u = game.u;
     const current = u?.uhp ?? 0;
     let maximum = u?.uhpmax ?? 0;
     if (onlyIfInjured && current >= maximum) return false;
     maximum = Math.min(maximum, 15 * (u?.ulevel ?? 1));
-    const rank = (u?.ulevel ?? 1) <= 2
-        ? 0 : (u.ulevel <= 30 ? Math.trunc((u.ulevel + 2) / 4) : 8);
+    const rank = xlev_to_rank(u?.ulevel ?? 1);
     const divisor = rank <= 1 ? 5
         : rank <= 3 ? 6 : rank <= 5 ? 7 : rank <= 7 ? 8 : 9;
     return current <= 5 || current * divisor <= maximum;

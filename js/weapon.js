@@ -23,6 +23,7 @@ import {
     P_LAST_WEAPON,
     P_MASTER,
     P_NONE,
+    P_NUM_SKILLS,
     P_PICK_AXE,
     P_SKILLED,
     P_SKILL_LIMIT,
@@ -861,6 +862,25 @@ export function can_advance(skill, speedy, state = game) {
     return P_ADVANCE(skill, state)
             >= practice_needed_to_advance(P_SKILL(skill, state))
         && state.u.weapon_slots >= slots_required(skill, state);
+}
+
+// C ref: weapon.c add_weapon_skill(), which attrib.c adjabil() calls once per
+// experience level gained. can_advance() also requires practice, so a slot
+// alone never lifts the count: a hero who has struck nothing has zero
+// P_ADVANCE for every skill and `before == after`. Where the count does rise,
+// give_may_advance_msg() prints "You feel more confident in your skills." and
+// then calls handle_tip(TIP_ENHANCE), which has no owner here, so that arm
+// stays fail-closed.
+export function add_weapon_skill(n, state = game) {
+    let before = 0;
+    for (let i = 0; i < P_NUM_SKILLS; i++)
+        if (can_advance(i, false, state)) before++;
+    state.u.weapon_slots += n;
+    let after = 0;
+    for (let i = 0; i < P_NUM_SKILLS; i++)
+        if (can_advance(i, false, state)) after++;
+    if (before < after)
+        throw new UnsupportedWeaponSkillError('give_may_advance_msg(P_NONE)');
 }
 
 // Thrown where weapon.c reaches a skill branch this port has not ported.
