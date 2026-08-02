@@ -148,6 +148,16 @@
           "name": "the status line repaints on every turn, where C gates it",
           "status": "queued",
           "closedBy": null
+        },
+        {
+          "name": "the drawbridge wall message, earth_sense()'s missing refusal, and the eight diagonal-doorway findings",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "go.occupation has one writer and three readers that never see it",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "e3a3d1dca4c91468755393449f53395f7c0722ce",
