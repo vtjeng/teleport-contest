@@ -8,26 +8,29 @@ closing a goal triggers.)
 
 ## Choosing a goal
 
-We have two categories of goals.
+We have two categories of goals. Clear every deferred-area sweep the report
+names before opening a fail-closed boundary port.
 
-**A deferred-area sweep** resolves the open deferral entries one area has
-accumulated. `npm run quality -- deferrals` reports an area holding ten or more;
-it counts every category except `scope`, whose entries name unported territory
-a boundary goal attacks. Resolve one of that area's entries before opening the
-next boundary goal.
+### Deferred-area sweeps
 
-Once the report lists no area, pick a **fail-closed boundary port**. This goal
-implements C behavior the port refuses; "Porting a fail-closed boundary" below
-selects which behavior.
+A deferred-area sweep resolves the open deferral entries one area has
+accumulated. `npm run quality -- deferrals` reports an area holding ten or
+more; it counts every category except `scope`, whose entries name unported
+territory a boundary goal attacks. Resolve one of that area's entries before
+opening the next boundary goal.
 
-### Porting a fail-closed boundary
+### Fail-closed boundary ports
+
+Once the report lists no area, pick a fail-closed boundary port. This goal
+implements C behavior the port refuses.
 
 Two sources nominate a boundary.
 
 **The development-session census nominates every ordinary candidate.** It
-ranks the boundaries that stop the 33 recorded sessions. "Measuring what the
-port cannot do yet" states how to run it, read it, and discount its forecast.
-Take the top-ranked behavior whichever system it belongs to.
+ranks the boundaries that stop the 33 recorded sessions. "Appendix A:
+Measuring what the port cannot do yet" states how to run it, read it, and
+discount its forecast. Take the top-ranked behavior whichever system it
+belongs to.
 
 **A fresh-seed census nominates what the recorded sessions cannot show.** The
 33 development sessions are a fixed sample, so a behavior that stops none of
@@ -47,7 +50,7 @@ where the port gains behavior it cannot yet perform at all. Ask which boundary
 stands in front of many sessions at once that resemble the eleven hidden
 holdout sessions; no instrument in this repository reports that directly.
 
-### Opening the goal
+## Opening the goal
 
 **Record the forecast when the goal opens and the delivery when it closes.**
 Record the capped forecast and the sessions it covers with
@@ -72,7 +75,20 @@ queued slice.
 **The agent selecting work chooses the goal.** Do not ask the user which goal
 to take.
 
-## Measuring what the port cannot do yet
+## Where goal state lives
+
+`GOALS.json` holds every goal, written only through
+`node scripts/goal-log.mjs`. A closed goal's entry stays there as the
+calibration record; its score evidence stays in `SCORE.tsv`, its review
+metadata in `QUALITY.json`, and its implementation history in Git.
+`ROADMAP.md` describes the systems the current goals belong to, and
+`docs/goal-history.md` holds what the closed goals carried over. Every task
+starts with `node scripts/goal-log.mjs --current`, so goal entries stay terse:
+the boundary, the forecast, and the traced findings in `detail`.
+
+-------------------------------------------------------------------------------
+
+## Appendix A: Measuring what the port cannot do yet
 
 Our **development-session census** (implemented as
 `node scripts/scan-stops.mjs`) replays every development session, records where
@@ -88,10 +104,10 @@ Run the script with no arguments; runs take 1-4 seconds.
 For each development session the scan reports the fail-closed boundary, that
 is, the first unsupported feature the port reaches, the recorded keystroke the
 port refused, that keystroke's command under the session's own bindings, and
-C's message on that step. It
-then groups those rows twice, by boundary and by refused command. Each census
-row lists the sessions in that class, the recorded steps behind the boundary,
-and the class name. This abridged output comes from a run at `460f194`:
+C's message on that step. It then groups those rows twice, by boundary and by
+refused command. Each census row lists the sessions in that class, the recorded
+steps behind the boundary, and the class name. This abridged output comes from
+a run at `460f194`:
 
 ```
 Boundary census (sessions, screens standing behind it)
@@ -198,14 +214,3 @@ stated above: apply the candidate change and re-run the scan.
 
 `supports` measures dependency breadth. It ranked the descent goal by 3,515
 screens that closed as 9 (`125601d`), and stays in the report as context.
-
-## Where goal state lives
-
-`GOALS.json` holds every goal, written only through
-`node scripts/goal-log.mjs`. A closed goal's entry stays there as the
-calibration record; its score evidence stays in `SCORE.tsv`, its review
-metadata in `QUALITY.json`, and its implementation history in Git.
-`ROADMAP.md` describes the systems the current goals belong to, and
-`docs/goal-history.md` holds what the closed goals carried over. Every task
-starts with `node scripts/goal-log.mjs --current`, so goal entries stay terse:
-the boundary, the forecast, and the traced findings in `detail`.
