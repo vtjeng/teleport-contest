@@ -108,8 +108,8 @@
         },
         {
           "name": "The hero swaps places with the ordinary starting pet standing on an IS_FURNITURE square",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d7ee80e6e32d2e825bff62f915d2e47eacfe02c8"
         }
       ],
       "openedAt": "ad194eb79d3f2190269804cda91c4eafe5174e14",

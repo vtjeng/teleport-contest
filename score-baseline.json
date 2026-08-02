@@ -16,12 +16,12 @@
     "rngCalls": 3096
   },
   "seed0013-friday13-save-then-fullmoon-restore.session.json": {
-    "screens": 8,
-    "rngCalls": 4259
+    "screens": 21,
+    "rngCalls": 4701
   },
   "seed0013-rogue-friday13-combat.session.json": {
-    "screens": 8,
-    "rngCalls": 4257
+    "screens": 21,
+    "rngCalls": 4701
   },
   "seed0014-dequa-fountain-explore.session.json": {
     "screens": 17,
@@ -99,24 +99,24 @@
     "rngCalls": 3257
   },
   "seed0360-wizard-world-tour.session.json": {
-    "screens": 17,
-    "rngCalls": 2898
+    "screens": 40,
+    "rngCalls": 2939
   },
   "seed0361-archeologist-tour.session.json": {
-    "screens": 16,
-    "rngCalls": 2924
+    "screens": 40,
+    "rngCalls": 2969
   },
   "seed0367-priest-quest-tour.session.json": {
-    "screens": 16,
-    "rngCalls": 1848
+    "screens": 51,
+    "rngCalls": 1894
   },
   "seed0373-barbarian-quest-tour.session.json": {
-    "screens": 16,
-    "rngCalls": 2512
+    "screens": 39,
+    "rngCalls": 2549
   },
   "seed0383-wizard-hallucinate.session.json": {
-    "screens": 16,
-    "rngCalls": 2450
+    "screens": 39,
+    "rngCalls": 2491
   },
   "seed0501-priest-cast-read-turn.session.json": {
     "screens": 4,
@@ -139,8 +139,8 @@
     "rngCalls": 2724
   },
   "seed2600-wizard-custom-binds.session.json": {
-    "screens": 12,
-    "rngCalls": 2839
+    "screens": 14,
+    "rngCalls": 2855
   },
   "seed5002-wizard-coverage-pair.session.json": {
     "screens": 2,
