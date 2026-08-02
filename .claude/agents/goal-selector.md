@@ -16,10 +16,11 @@ slicing to the slice-selector.
 
 ## Method
 
-1. Run `node scripts/scan-stops.mjs` for the first-stop census, then
-   `node scripts/scan-debt.mjs --by=unlocks` for the ranked candidates, and
-   `node scripts/scan-ahead.mjs <behavior>` per candidate for the capping
-   read that `.agents/selection.md` requires.
+1. Run `node scripts/scan-sessions.mjs`, which replays the development sessions
+   once and reports the first-stop census, the ranked candidates and the
+   reconciliation between them. Then run
+   `node scripts/scan-sessions.mjs --ahead=<behavior>` per candidate for the
+   capping read that `.agents/selection.md` requires.
 2. Read `.agents/selection.md` for the selection rules: how to read the census,
    how to choose the next goal, and how to judge a goal's size. Read
    `.agents/workflow.md`, "Terms", for the evidence that closes a behavior

@@ -3,7 +3,7 @@
 // The per-session score ratchet.
 //
 // Every screen this port draws matches C, because it fail-closes rather than
-// guessing at unported behavior: `scripts/scan-debt.mjs` and
+// guessing at unported behavior: `scripts/scan-sessions.mjs` and
 // `scripts/score-development.mjs` agree on the emitted and matched counts. So a
 // session's matched total can only fall by the port emitting fewer screens,
 // which means stopping earlier than it used to. That is worth a human's

@@ -66,3 +66,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-01	9a7a1807600febcc0d0b150231c0d77440fcc4e5	slice			520	7765	107227	610816								+24 screens inside the predicted 11-to-58 band; charisma claim falsified, apport floors at 3.
 2026-08-01	dfa8a619d0716f9a0d57a4988b17b6376a63aa5b	slice			520	7765	107227	610816								No js/ line changed; forecast stop confirmed; the goal's development headroom is zero.
 2026-08-01	0b9717d3908f04719a7e35f8c5c1f576f4f8d83b	goal			520	7765	107227	610816			139	3640	30048	182022		Fifth consecutive holdout zero; fresh-population census predicted no better than supports.
+2026-08-02T07:55:40.068Z	920f6fb66e5951f1dc8552bdbd0854fac7a38be9	checkpoint	1	33	520	7765	107227	610816	527	7765					14	tree dirty

@@ -13,7 +13,7 @@ Proposing a new goal is out of scope: when no goal is in progress,
 
 ## Method
 
-1. Run `node scripts/scan-stops.mjs`.
+1. Run `node scripts/scan-sessions.mjs`.
 2. Read `.agents/selection.md`: "Reading the census" for the scan output and
    its two interpretation rules, and the closing paragraphs of "Choosing a
    goal" for how goals divide into slices and how large a slice may grow. The
@@ -34,9 +34,9 @@ Select the slice without asking the user.
 
 Never list, read, search, or copy `sessions/holdout/`, and never pass the
 directory or any path inside it to another agent or tool.
-`scripts/scan-stops.mjs` scans a fixed directory and accepts no path argument,
-so it cannot be aimed at `sessions/holdout/`. Do not propose changing either
-property.
+`scripts/scan-sessions.mjs` scans a fixed directory and accepts no path
+argument, so it cannot be aimed at `sessions/holdout/`. Do not propose changing
+either property.
 
 ## What to report
 

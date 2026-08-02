@@ -39,7 +39,7 @@ hold several ordered behavior slices. When a slice meets the conditions in
 goal's state between sessions. A goal is the unit of review: when its last
 slice closes, a full correctness pass covers it.
 
-`scripts/scan-debt.mjs` selects each goal from every owner the development
+`scripts/scan-sessions.mjs` selects each goal from every owner the development
 sessions need; `.agents/selection.md` states how to run it.
 
 A **review window** is the bounded group of related implementation chunks

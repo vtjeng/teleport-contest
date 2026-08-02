@@ -53,7 +53,7 @@ correctly: `supports` ranked it first, and the behavior really was the port's
 largest single dependency; the column measures what depends on a boundary,
 which is not what porting that boundary earns. Unblocking a boundary moves a
 session to the next one. Expect a goal's gain to track the screens between its
-boundary and the next stop in the same sessions, which `scripts/scan-debt.mjs`
+boundary and the next stop in the same sessions, which `scripts/scan-sessions.mjs`
 reports as `unlocks`, an upper bound. Whoever next selects a goal should treat
 a large `supports` as evidence that a behavior is needed. It is not a forecast
 of what it will score.
@@ -68,11 +68,11 @@ squares are the extreme case, the commonest unported destination class
 over the 60 freshly generated D:1 levels censused in `GOALS.json` (seeds
 7100000-7100059), and the owner of a single census row.
 
-`scripts/scan-debt.mjs` closes that gap. It reads each session's whole
-recorded input, so an owner standing behind a command is counted where the
-first-boundary census could not see it. It reports `supports`, the screens
-that depend on each owner, and `unlocks`, the screens porting it next
-earns. `.agents/selection.md` states how to run it.
+The modeled half of `scripts/scan-sessions.mjs` closes that gap. It reads
+each session's whole recorded input, so an owner standing behind a command
+is counted where the first-boundary census could not see it. It reports
+`supports`, the screens that depend on each owner, and `unlocks`, the
+screens porting it next earns. `.agents/selection.md` states how to run it.
 
 Three closed goals have now measured how far `unlocks` overstates: the
 trap goal predicted 46 and delivered 8, `#ride` predicted 82 and delivered
@@ -84,7 +84,7 @@ command has had the least opportunity to reveal what else it needs.
 `.agents/selection.md` therefore ranks candidates by the look-ahead
 forecast that starts from `unlocks` and caps each stopped session's
 stretch, and lists the six mechanisms that break the bound. `supports`
-stays in the `scripts/scan-debt.mjs` report as context. Do not re-derive
+stays in the `scripts/scan-sessions.mjs` report as context. Do not re-derive
 these three ratios.
 
 This file has recorded two predictions and then falsified both. The pickup
@@ -96,7 +96,7 @@ monster action requires pet cursed-object feedback`, with its
 random-number prefix unchanged by the slice. Both goals treated a property
 that is necessary for the session to move as sufficient.
 
-Neither error was the instrument's. `scripts/scan-stops.mjs` reports the
+Neither error was the instrument's. `scripts/scan-sessions.mjs` reports the
 fail-closed boundary each session reaches first, which is what it claims
 to report, and `.agents/selection.md` already states that the steps behind
 a boundary are an upper bound, that "sessions blocked on one owner
