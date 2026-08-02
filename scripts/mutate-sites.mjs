@@ -56,6 +56,11 @@
 // `--whole-suite` judges every mutant that survives its first wave by the whole
 // suite, at the cost the figures below give. A correctness pass wants it; a
 // quick local check does not.
+// `--report <path>` writes the run's survivors as a versioned JSON report, and
+// `--from-report <path>` re-runs exactly those survivors, which is the
+// escalation path: write the report on the first wave, then judge the
+// survivors alone with `--from-report <path> --whole-suite` in place of
+// re-running every mutant's first wave to rediscover them.
 //
 // `--sample <n>` draws n mutants uniformly at random from the whole target set
 // and runs only those, which is how to estimate a kill rate over a population
@@ -1156,7 +1161,7 @@ export function formatSiteCounts(targets, scopedLines) {
 export function parseArgs(argv) {
     const options = { range: null, paths: [], worktree: false, kinds: null,
         enumerateOnly: false, emitTrailer: false, wholeSuite: false,
-        sample: null, seed: 1 };
+        sample: null, seed: 1, report: null, fromReport: null };
     for (let i = 0; i < argv.length; ++i) {
         const separator = argv[i].indexOf('=');
         const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
@@ -1178,6 +1183,10 @@ export function parseArgs(argv) {
             if (inlineValue !== null)
                 throw new Error('--emit-trailer takes no value');
             options.emitTrailer = true;
+        } else if (name === '--report') {
+            options.report = valueOf();
+        } else if (name === '--from-report') {
+            options.fromReport = valueOf();
         } else if (name === '--worktree') {
             if (inlineValue !== null)
                 throw new Error('--worktree takes no value');
@@ -1220,13 +1229,15 @@ export function parseArgs(argv) {
         }
     }
     const named = [options.range && '--range', options.paths.length && '--file',
-        options.worktree && '--worktree'].filter(Boolean);
+        options.worktree && '--worktree',
+        options.fromReport && '--from-report'].filter(Boolean);
     if (named.length > 1)
         throw new Error(`pass one of ${named.join(' and ')}, not both`);
     if (!named.length) {
         throw new Error('pass --range <base>..<head> to mutate the lines a '
-            + 'range changed, --file <path> to mutate a whole file, or '
-            + '--worktree to mutate the uncommitted js/ diff');
+            + 'range changed, --file <path> to mutate a whole file, '
+            + '--worktree to mutate the uncommitted js/ diff, or '
+            + '--from-report <path> to re-run a report\'s survivors');
     }
     return options;
 }
@@ -1288,6 +1299,39 @@ function assertJsPath(path, root) {
     return normalized;
 }
 
+// The report a run writes with --report and a later run consumes with
+// --from-report, so escalating a survivor list mutates the survivors alone.
+// The version field gates parsing: a schema change bumps it, and a consumer
+// refuses a version it does not know rather than misreading the file.
+export const REPORT_VERSION = 1;
+
+export function reportFromResult(result, kinds) {
+    return {
+        kind: 'mutate-sites-report',
+        version: REPORT_VERSION,
+        kinds: kinds ?? null,
+        survivors: result.survivors.map(
+            ({ path, line, column, kind, original, replacement }) =>
+                ({ path, line, column, kind, original, replacement })),
+    };
+}
+
+export function siteFilterFromReport(report) {
+    if (report?.kind !== 'mutate-sites-report'
+        || report.version !== REPORT_VERSION) {
+        throw new Error('not a mutate-sites report this version understands '
+            + `(expected kind mutate-sites-report version ${REPORT_VERSION})`);
+    }
+    const ids = new Set(report.survivors.map((survivor) =>
+        `${survivor.path}:${survivor.line}`
+            + `:${survivor.column}:${survivor.replacement}`));
+    return {
+        paths: [...new Set(report.survivors.map(({ path }) => path))].sort(),
+        matches: (path, site) =>
+            ids.has(`${path}:${site.line}:${site.column}:${site.replacement}`),
+    };
+}
+
 /** The commit-message trailer recording a slice's mutation run. */
 export function formatTrailer({ ran, killed }, kinds) {
     return `Mutants: ${ran}/${killed} `
@@ -1296,12 +1340,26 @@ export function formatTrailer({ ran, killed }, kinds) {
 
 async function main(argv) {
     const options = parseArgs(argv);
-    const population = collectTargets({ ...options, sample: null });
+    let reportFilter = null;
+    if (options.fromReport) {
+        // parseArgs already rejects --from-report combined with another
+        // target source, so the report alone names the paths.
+        reportFilter = siteFilterFromReport(
+            JSON.parse(readFileSync(options.fromReport, 'utf8')));
+        options.paths = reportFilter.paths;
+    }
+    const narrowToReport = (list) => (reportFilter
+        ? list.map((target) => ({ ...target,
+            sites: target.sites.filter(
+                (site) => reportFilter.matches(target.path, site)) }))
+        : list);
+    const population = narrowToReport(
+        collectTargets({ ...options, sample: null }));
     const populationMutants = population
         .reduce((n, target) => n + target.sites.length, 0);
     const targets = options.sample === null
         ? population
-        : collectTargets(options);
+        : narrowToReport(collectTargets(options));
     if (options.sample !== null) {
         console.log(`sample: ${targets.reduce((n, t) => n + t.sites.length, 0)} `
             + `of ${populationMutants} mutant(s) across `
@@ -1334,6 +1392,11 @@ async function main(argv) {
         // `npm run quality -- slice-mutants` later checks it is there.
         if (options.emitTrailer)
             console.log(formatTrailer(result, options.kinds));
+        if (options.report) {
+            writeFileSync(options.report, `${JSON.stringify(
+                reportFromResult(result, options.kinds), null, 2)}\n`);
+            console.log(`report written: ${options.report}`);
+        }
     } finally {
         removeWorkspace(workspace);
     }

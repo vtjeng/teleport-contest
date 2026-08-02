@@ -42,6 +42,8 @@ import {
     sampleItems,
     SITE_KINDS,
     formatTrailer,
+    reportFromResult,
+    siteFilterFromReport,
     survivingRangeLines,
     tokenize,
     uncommittedJsLines,
@@ -669,17 +671,18 @@ test('every target is named by --range, --file, or --worktree', () => {
     assert.deepEqual(parseArgs(['--range', 'a..b']),
         { range: 'a..b', paths: [], worktree: false, kinds: null,
             enumerateOnly: false, emitTrailer: false, wholeSuite: false,
-            sample: null, seed: 1 });
+            sample: null, seed: 1, report: null, fromReport: null });
     assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
         { range: null, paths: ['js/a.js', 'js/b.js'], worktree: false,
             kinds: null, enumerateOnly: false, emitTrailer: false,
-            wholeSuite: false, sample: null, seed: 1 });
+            wholeSuite: false, sample: null, seed: 1, report: null,
+            fromReport: null });
     // `--name=value` and `--name value` are the same option.
     assert.deepEqual(parseArgs(['--range=a..b', '--enumerate-only',
         '--whole-suite', '--sample=40', '--seed=7']),
     { range: 'a..b', paths: [], worktree: false, kinds: null,
         enumerateOnly: true, emitTrailer: false, wholeSuite: true,
-        sample: 40, seed: 7 });
+        sample: 40, seed: 7, report: null, fromReport: null });
     assert.deepEqual(parseArgs(['--range', 'a..b',
         '--kind', 'logical,relational,logical']).kinds,
     ['logical', 'relational']);
@@ -1129,4 +1132,28 @@ test('the emitted trailer carries ran, killed, and the kind filter', () => {
     // A run without --kind mutates every kind.
     assert.equal(formatTrailer({ ran: 5, killed: 4 }, null),
         'Mutants: 5/4 kind=all');
+});
+
+test('a survivor report round-trips into a targeted re-run filter', () => {
+    // One survivor at bounds.js:21:16 `<` -> `<=`: the identity a filter must
+    // match on is path, line, column, and replacement together, because two
+    // mutants can share a line (the two integer directions at 21:10 do).
+    const result = { survivors: [{ path: 'js/bounds.js', line: 21, column: 16,
+        kind: 'relational', original: '<', replacement: '<=' }] };
+    const report = reportFromResult(result, ['relational']);
+    assert.equal(report.version, 1);
+    assert.equal(report.kind, 'mutate-sites-report');
+    const filter = siteFilterFromReport(report);
+    assert.deepEqual(filter.paths, ['js/bounds.js']);
+    assert.equal(filter.matches('js/bounds.js',
+        { line: 21, column: 16, replacement: '<=' }), true);
+    // The sibling mutant on the same line but another column stays excluded.
+    assert.equal(filter.matches('js/bounds.js',
+        { line: 21, column: 10, replacement: '11' }), false);
+    // A future schema bump must refuse rather than misread.
+    assert.throws(
+        () => siteFilterFromReport({ ...report, version: 2 }),
+        /version 1/u,
+    );
+    assert.throws(() => siteFilterFromReport({ survivors: [] }), /version 1/u);
 });

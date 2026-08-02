@@ -81,9 +81,11 @@ reaches the module through another js/ module can kill a mutant this check
 reports as surviving. Kill what you can first, then escalate once:
 `--whole-suite` runs every test file that imports a js/ module against each
 surviving mutant, so an earlier escalation pays that for mutants you are about
-to kill anyway. When only survivors you cannot explain remain, run
-`npm run mutate -- --worktree --kind relational,logical,boolean --whole-suite`.
-Add `--file js/<module>.js` when the remaining survivors sit in one module.
+to kill anyway. When only survivors you cannot explain remain, escalate them alone: add
+`--report <path>` to your first-wave run, then run
+`npm run mutate -- --from-report <path> --kind relational,logical,boolean
+--whole-suite`, which judges the reported survivors without re-running every
+mutant's first wave.
 
 Record the run in the slice's commit: rerun the final command with
 `--emit-trailer`, copy the `Mutants:` line it prints into the commit message

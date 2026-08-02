@@ -7,33 +7,6 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
-## Re-run only the survivors a previous mutation run reported
-
-**What it changes.** `scripts/mutate-sites.mjs` would accept a previous run's
-report and mutate only the survivors it named, so escalating a survivor list to
-`--whole-suite` costs the survivors alone.
-
-**Scope.** One option that reads the report's `survived` lines, which already
-carry the file, line, column, and substitution that identify a mutant, and
-filters the target set to those. The enumerator, the applier, and the report
-need no change.
-
-**Cost.** Escalating today re-runs every mutant's first wave to reach the
-survivors. Over the two review windows `005ea20..06a5629` and
-`06a5629..2776192`, that is 69 first-wave mutants re-run to escalate 24
-survivors, about 150 seconds of repetition; at slice scale it is nearer a
-minute. Building it is perhaps 30 lines and a test.
-
-**What prompted it.** `.claude/agents/slice-worker.md` tells a worker to kill
-what it can and then escalate once, so every slice that reaches an escalation
-pays the repetition.
-
-**What it leaves unfixed.** The report becomes an input as well as an output,
-so its `survived` line format acquires a compatibility obligation that the same
-file already documents as a hazard for the test reporter's format. `--file
-js/<module>.js --whole-suite` narrows an escalation today whenever the
-remaining survivors sit in one module, which covers most slice-scale cases and
-none at window scale.
 ## Let a review pass scope an audit-fix tail on its own
 
 **What it changes.** `scripts/audit-worktree.mjs prepare` would accept a range
