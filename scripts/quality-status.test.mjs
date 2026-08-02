@@ -60,12 +60,8 @@ test('the checked-in quality ledger has a valid schema', async () => {
     true,
   );
   assert.deepEqual(config.thresholds, {
-    reviewAdvisoryCommits: 3,
-    reviewAdvisoryChangedLines: 500,
     reviewCommits: 10,
     reviewChangedLines: 1000,
-    windowCommits: 8,
-    windowChangedLines: 1000,
   });
   assert.deepEqual(config.legacyAreaExpansions, {
     world: ['generation', 'monsters', 'world-effects'],
@@ -247,12 +243,8 @@ test('excluded audit-fix commits retain visible line-based review debt', () => {
   };
   assert.match(
     formatReviewDebt(current, current, clean, {
-      reviewAdvisoryCommits: 3,
-      reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
-      windowCommits: 8,
-      windowChangedLines: 1000,
     }),
     /^WATCH \(0\/10 commits, 5\/1000 lines\)/,
   );
@@ -627,12 +619,8 @@ test('a stored audited range must end at the pass head', () => {
     enforcementBase: head,
     legacyPassCount: 0,
     thresholds: {
-      reviewAdvisoryCommits: 3,
-      reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
-      windowCommits: 8,
-      windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
     deferred: [],
@@ -651,9 +639,8 @@ test('a stored audited range must end at the pass head', () => {
   assert.doesNotThrow(() => validateConfigShape(config));
 });
 
-test('review thresholds separate the advisory checkpoint from the gate', () => {
-  // Three ten-line fixes reach the commit advisory while remaining below both
-  // the ten-commit and 1,000-line blocking thresholds.
+test('the review gate counts commits and changed lines since the frontier', () => {
+  // Three ten-line fixes stay below both the ten-commit and 1,000-line gate.
   const threeSmallCommits = {
     commits: 3,
     files: new Set(['js/obj.js']),
@@ -664,25 +651,14 @@ test('review thresholds separate the advisory checkpoint from the gate', () => {
   const clean = {
     files: new Set(), additions: 0, deletions: 0, binaryFiles: 0,
   };
-  assert.equal(thresholdReached(threeSmallCommits, clean, 3, 500), true);
   assert.equal(thresholdReached(threeSmallCommits, clean, 10, 1000), false);
 
-  // Ten commits exercise the hard accumulation bound even when each is tiny.
+  // Ten commits exercise the accumulation bound even when each is tiny.
   assert.equal(
     thresholdReached({ ...threeSmallCommits, commits: 10 }, clean, 10, 1000),
     true,
   );
-  // Five hundred lines reach only the size advisory.
-  const advisoryLines = {
-    ...threeSmallCommits,
-    commits: 1,
-    additions: 450,
-    deletions: 50,
-  };
-  assert.equal(thresholdReached(advisoryLines, clean, 3, 500), true);
-  assert.equal(thresholdReached(advisoryLines, clean, 10, 1000), false);
-
-  // One 1,000-line change reaches the hard size bound without ten commits.
+  // One 1,000-line change reaches the size bound without ten commits.
   assert.equal(
     thresholdReached(
       { ...threeSmallCommits, commits: 1, additions: 900, deletions: 100 },
@@ -692,40 +668,6 @@ test('review thresholds separate the advisory checkpoint from the gate', () => {
     ),
     true,
   );
-});
-
-test('the per-area line advisory must stay below the per-area line gate', () => {
-  // The per-slice review window in `.agents/review.md` allows 1,000
-  // changed lines summed across areas, while `reviewAdvisoryChangedLines` is a
-  // per-area checkpoint. Raising the advisory to the window's 1,000 would
-  // collapse the advisory tier into the gate, so validateConfigShape refuses
-  // it. Full-length placeholder SHAs only satisfy the schema.
-  const config = {
-    version: 4,
-    trackingBase: '1'.repeat(40),
-    enforcementBase: '2'.repeat(40),
-    legacyPassCount: 0,
-    thresholds: {
-      reviewAdvisoryCommits: 3,
-      reviewAdvisoryChangedLines: 1000,
-      reviewCommits: 10,
-      reviewChangedLines: 1000,
-      windowCommits: 8,
-      windowChangedLines: 1000,
-    },
-    legacyAreaExpansions: {},
-    deferred: [],
-    areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
-    passes: [],
-  };
-
-  assert.throws(
-    () => validateConfigShape(config),
-    /the review line advisory must be below the review gate/,
-  );
-  // The repository's 500 keeps a usable advisory band below the 1,000 gate.
-  config.thresholds.reviewAdvisoryChangedLines = 500;
-  assert.doesNotThrow(() => validateConfigShape(config));
 });
 
 test('review debt and path ownership block the quality gate', () => {
@@ -744,12 +686,8 @@ test('an implementation path cannot belong to two quality areas', () => {
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
     thresholds: {
-      reviewAdvisoryCommits: 3,
-      reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
-      windowCommits: 8,
-      windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
     deferred: [],
@@ -783,12 +721,8 @@ test('new ledger passes require structured audit metrics', () => {
     enforcementBase: '2'.repeat(40),
     legacyPassCount: 0,
     thresholds: {
-      reviewAdvisoryCommits: 3,
-      reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
-      windowCommits: 8,
-      windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
     deferred: [],
@@ -823,12 +757,8 @@ test('a retired area cutoff admits history and blocks later passes', () => {
     // legacy id; the default legacyPassCount path guards the second pass.
     legacyPassCount: 0,
     thresholds: {
-      reviewAdvisoryCommits: 3,
-      reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
-      windowCommits: 8,
-      windowChangedLines: 1000,
     },
     legacyAreaExpansions: { gone: ['first'] },
     // Cutoff 1 admits exactly the first recorded pass, mirroring a
@@ -853,35 +783,6 @@ test('a retired area cutoff admits history and blocks later passes', () => {
     /retiredAreaCutoffs names unknown legacy area: missing/,
   );
 });
-
-test('the review window thresholds validate below the gate', () => {
-    const base = {
-        version: 4,
-        trackingBase: '1'.repeat(40),
-        enforcementBase: '2'.repeat(40),
-        thresholds: {
-            reviewAdvisoryCommits: 3,
-            reviewAdvisoryChangedLines: 500,
-            reviewCommits: 10,
-            reviewChangedLines: 1000,
-            windowCommits: 8,
-            windowChangedLines: 1000,
-        },
-    };
-    // Ten window commits equal the gate, so the window could never fire first.
-    const equal = structuredClone(base);
-    equal.thresholds.windowCommits = 10;
-    assert.throws(() => validateConfigShape(equal),
-        /window must close below/u);
-    // 1,001 window lines would exceed the 1,000-line gate.
-    const above = structuredClone(base);
-    above.thresholds.windowChangedLines = 1001;
-    assert.throws(() => validateConfigShape(above), /must not exceed/u);
-    const missing = structuredClone(base);
-    delete missing.thresholds.windowCommits;
-    assert.throws(() => validateConfigShape(missing), /windowCommits/u);
-});
-
 
 test('ledger queries filter passes by area and flatten their entries', () => {
     // Two passes: one over monsters, one over display. The monsters pass

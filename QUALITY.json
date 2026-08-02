@@ -4,12 +4,8 @@
   "enforcementBase": "f11f5c2bfb80d323ac171f83b0a3214d9dbaf9b3",
   "legacyPassCount": 21,
   "thresholds": {
-    "reviewAdvisoryCommits": 3,
-    "reviewAdvisoryChangedLines": 500,
     "reviewCommits": 10,
-    "reviewChangedLines": 1000,
-    "windowCommits": 8,
-    "windowChangedLines": 1000
+    "reviewChangedLines": 1000
   },
   "deferred": [
     {

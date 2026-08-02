@@ -63,14 +63,10 @@ their own evidence snapshots.
 
 ### When a correctness pass is due
 
-- Treat three unreviewed implementation commits or 500 changed production
-  lines since the frontier as an advisory checkpoint. Neither trigger
-  requires a full correctness pass by itself; `QUALITY.json` configures this
-  checkpoint and `npm run quality` measures it.
 - Run a full correctness pass no later than ten unreviewed implementation
-  commits or 1,000 changed production lines since the frontier. That
-  full-pass limit is the gate; the three-commit/500-line checkpoint is
-  advisory only.
+  commits or 1,000 changed production lines since the frontier.
+  `npm run quality` reports the running debt against that gate; plan each
+  pass to land at a slice boundary before the gate forces one mid-slice.
 - These limits count changed production lines across every area-owned path,
   measured from the one review frontier, the newest recorded review head. A
   file boundary does not affect the count: splitting a file into several
@@ -105,26 +101,13 @@ persistence, PRNG or evaluation order, lifecycle ownership, an input boundary,
 or another shared behavioral interface. Imports, exports, call sites, tests,
 and wiring that consume an existing contract do not cross areas by themselves.
 
-Related shared-contract changes within one named behavior slice and roadmap
-item may share a review window through the next observable boundary. The
-window may contain at most eight unreviewed implementation commits and 1,000
-changed production lines since the frontier. Apply the per-chunk workflow
-throughout and run fresh end-to-end differentials once the real consumer
-executes.
-
-The `windowCommits` and `windowChangedLines` keys in `QUALITY.json` encode
-this window, and the dashboard's single `Review since <frontier>` line
-reports `WINDOW DUE` when the debt reaches it. `WINDOW DUE` is the advisory
-to run the per-slice pass; only `DUE`, the ten-commit gate, blocks.
-
-Run a formal review pass over the exact window before:
-
-- adding a ninth implementation commit;
-- accepting a change that would exceed 1,000 changed production lines; or
-- reaching a review deadline.
-
-An unexplained source-review or differential mismatch ends the window and makes
-the pass due immediately.
+Apply the per-chunk workflow in `.agents/workflow.md` to every commit of an
+open slice. Once the running game has executed the production code path that
+calls the newly ported behavior during normal play, run the fresh end-to-end
+differentials that `.agents/validation.md`, "Fresh differentials",
+describes. A mismatch nobody can explain, whether found while tracing the
+port against its upstream C or Lua source or by a differential, makes the
+pass due immediately.
 
 ### Which finders and other passes to run
 

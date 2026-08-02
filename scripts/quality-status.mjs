@@ -654,16 +654,6 @@ export function formatReviewDebt(total, current, dirty, thresholds) {
     return `DUE (${currentUnits}/${thresholds.reviewCommits} commits, `
       + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
   }
-  if (currentUnits >= thresholds.windowCommits
-      || currentLines >= thresholds.windowChangedLines) {
-    return `WINDOW DUE (${currentUnits}/${thresholds.windowCommits} commits, `
-      + `${currentLines}/${thresholds.windowChangedLines} lines) — ${totalText}`;
-  }
-  if (currentUnits >= thresholds.reviewAdvisoryCommits
-      || currentLines >= thresholds.reviewAdvisoryChangedLines) {
-    return `ADVISORY (${currentUnits}/${thresholds.reviewCommits} commits, `
-      + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
-  }
   return `WATCH (${currentUnits}/${thresholds.reviewCommits} commits, `
     + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
 }
@@ -675,14 +665,6 @@ export function validateConfigShape(config) {
   if (!SHA_PATTERN.test(config.enforcementBase ?? '')) {
     fail('enforcementBase must be a full commit SHA');
   }
-  if (!Number.isInteger(config.thresholds?.reviewAdvisoryCommits)
-      || config.thresholds.reviewAdvisoryCommits < 1) {
-    fail('thresholds.reviewAdvisoryCommits must be a positive integer');
-  }
-  if (!Number.isInteger(config.thresholds?.reviewAdvisoryChangedLines)
-      || config.thresholds.reviewAdvisoryChangedLines < 1) {
-    fail('thresholds.reviewAdvisoryChangedLines must be a positive integer');
-  }
   if (!Number.isInteger(config.thresholds?.reviewCommits)
       || config.thresholds.reviewCommits < 1) {
     fail('thresholds.reviewCommits must be a positive integer');
@@ -690,27 +672,6 @@ export function validateConfigShape(config) {
   if (!Number.isInteger(config.thresholds?.reviewChangedLines)
       || config.thresholds.reviewChangedLines < 1) {
     fail('thresholds.reviewChangedLines must be a positive integer');
-  }
-  if (config.thresholds.reviewAdvisoryCommits >= config.thresholds.reviewCommits) {
-    fail('the review commit advisory must be below the review gate');
-  }
-  if (config.thresholds.reviewAdvisoryChangedLines
-      >= config.thresholds.reviewChangedLines) {
-    fail('the review line advisory must be below the review gate');
-  }
-  if (!Number.isInteger(config.thresholds?.windowCommits)
-      || config.thresholds.windowCommits < 1) {
-    fail('thresholds.windowCommits must be a positive integer');
-  }
-  if (!Number.isInteger(config.thresholds?.windowChangedLines)
-      || config.thresholds.windowChangedLines < 1) {
-    fail('thresholds.windowChangedLines must be a positive integer');
-  }
-  if (config.thresholds.windowCommits >= config.thresholds.reviewCommits) {
-    fail('the review window must close below the review gate');
-  }
-  if (config.thresholds.windowChangedLines > config.thresholds.reviewChangedLines) {
-    fail('the review window lines must not exceed the review gate');
   }
   if (!Array.isArray(config.areas) || config.areas.length === 0) {
     fail('areas must be a non-empty array');
