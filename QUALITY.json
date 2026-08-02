@@ -6116,6 +6116,146 @@
         }
       },
       "recordedAt": "2026-08-02T19:51:16.916Z"
+    },
+    {
+      "kind": "review",
+      "head": "3b2dde88fdbbad0115967dc9a8483a85f812cfba",
+      "auditedRange": "002c0a522cc4a3335cadb8d07e66b9361b8c54a0..3b2dde88fdbbad0115967dc9a8483a85f812cfba",
+      "level": "full",
+      "areas": [
+        "display",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 14 raw, 14 deduplicated, 10 confirmed, 4 applied, 6 deferred, 4 rejected, 0 unverified; mutation: 0 survivors of 0 mutants. Full correctness pass over the status-row geometry rewrite, 468 changed production lines, plus the previous pass's audit-fix commit. Four finders; concurrency and performance were not triggered. No development session sets showvers or statuslines:3, so the development score distinguishes nothing here and the fresh differentials and unit tests are the whole evidence. Ten of fourteen findings confirmed. Four applied at 4a0ff0d: the refusal now tests the row relative to its cached width, because an absolute test threw on every later refresh once a row stood over the limit; and three comments stated a wrong C value, two written by earlier work in this goal. Six are deferred together, sharing one obstacle: no supported input builds a row wide enough to drive them. Two of the six are unpinned lines in this very range, the deleted version-width adjustment and the relative refusal this pass added, both of which stay green when reverted; an attempt to pin the first was withdrawn because the assumed expectation was wrong.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2419,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 14,
+          "confirmed": 10,
+          "applied": 4,
+          "deferred": 6,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 3,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "optionalFinders": {
+          "concurrency": "not enabled: the range changes no asynchronous or reentrant control flow",
+          "performance": "not enabled: the range re-lays out one status row per refresh, the same work the full pass already did"
+        },
+        "productionDefects": [
+          {
+            "file": "js/display.js",
+            "summary": "js/display.js:2563 -- Removing `_statusLine3DetailsLayout()`'s `lastColumn -= version.length + 1` adjustment moves the condition words six columns in a reachable configuration, and no test or differential distinguishes the",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          },
+          {
+            "file": "js/display.js",
+            "summary": "js/display.js:3433 -- `_refuseUnfittableStatusRow()` aborts the segment on the very first rung of `make_things_fit()`'s shrink ladder — the condition-word abbreviation — which the port already knows how to apply from the c",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          },
+          {
+            "file": "js/display.js",
+            "summary": "js/display.js:3433 -- _refuseUnfittableStatusRow() measured the refreshed row against TTY_STATUS_WIDTH alone, so once a row stood over the limit every later refresh threw, including refreshes that change no width.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied",
+            "fixedAt": "4a0ff0d"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/display.js:2544 -- `_writeStatusFields()` and `_renderStatusFields()` consume the same field-list type under near-identical names, but only the latter understands the `kind` discriminant; passing a tagged entry to the f",
+            "trackedIn": "the status-refresh refusal and the dead version adjustment are unpinned",
+            "category": "clarity"
+          },
+          {
+            "summary": "js/display.js:2563 -- Removing `_statusLine3DetailsLayout()`'s `lastColumn -= version.length + 1` adjustment moves the condition words six columns in a reachable configuration, and no test or differential distinguishes the",
+            "trackedIn": "the status-refresh refusal and the dead version adjustment are unpinned",
+            "category": "production"
+          },
+          {
+            "summary": "js/display.js:2602 -- The new `if (field.entries.length)` gate in `_renderStatusFields()` ports render_status()'s `bits != 0L` and now also decides whether `_statusLine3DetailsLayout()`'s initial-overlap block runs, but no",
+            "trackedIn": "the status-refresh refusal and the dead version adjustment are unpinned",
+            "category": "tests"
+          },
+          {
+            "summary": "js/display.js:3433 -- `_refuseUnfittableStatusRow()` aborts the segment on the very first rung of `make_things_fit()`'s shrink ladder — the condition-word abbreviation — which the port already knows how to apply from the c",
+            "trackedIn": "the status-refresh refusal and the dead version adjustment are unpinned",
+            "category": "production"
+          },
+          {
+            "summary": "scripts/allmain-turn.test.mjs:1992 -- The new `widening` coverage assertions filter the matrix on `moves.length > 10 && /^s+$/` but never require the segment to set `time`, so the two cases they guard can lose the turn counter with the me",
+            "trackedIn": "the status-refresh refusal and the dead version adjustment are unpinned",
+            "category": "tests"
+          },
+          {
+            "summary": "scripts/display-symbols.test.mjs:6009 -- No changed test performs two consecutive turn-counter refreshes on a three-row status line, so `_refreshTimeField()`'s carry-forward of the cached `hungerX` (js/display.js:3456-3458) — the only input ",
+            "trackedIn": "the status-refresh refusal and the dead version adjustment are unpinned",
+            "category": "tests"
+          }
+        ],
+        "mutation": {
+          "mutants": 0,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "The audit fix enumerated no mutable site: three of the four applied findings change comments, and the fourth adds a conjunct whose own coverage this pass found missing and which is filed with the deferred set. Each applied change was checked by reverting it and observing what the suite did; the relative refusal stayed green either way, which is recorded rather than papered over."
+        },
+        "rejections": [
+          {
+            "summary": "js/display.js:2514 -- `_optionalStatusFieldList()` joins two pre-existing helpers whose names already overlap: `_optionalStatusFields()` returns a joined string, `_optionalStatusEntries()` returns `{field, text}` records, ",
+            "counterEvidence": "The naming overlap is real, but the harm mechanism the finding rests on is impossible. Counter-evidence: The finding claims substituting `_optionalStatusFields()` into a `fields.push(...)` site \"produces one unowned blob ... which no type check and no throw catches\". It throws. `_optionalStatusFields()` returns a plain string; whether pushed whole or spread into characters, the resulting element has `field.text === undefined`, and js/display.js:2612 (`row.write(nominal, field.text, field.owner)`) reaches `_newStatusRow()`'s `write` at 2405, which evaluates `text.length` on undefined and raises a TypeError before any cell is written. The same is true of the `_writeStatusFields()` path at 2546-2547. There is no silent wrong-shape outcome to guard against."
+          },
+          {
+            "summary": "js/display.js:2744 -- The sibling builders `_statusLine2Fields()` and `_statusLine3DetailsFields()` return different shapes — a bare array versus `{ fields, hungerX }` — and the missing `hungerX` silently changes `_conditi",
+            "counterEvidence": "The stated impact depends on the omission being undetected; it is detected loudly, by three existing tests including two on the whole-pass path. Counter-evidence: I applied the finding's own mutation in an isolated copy of the tree — dropping `hungerX` from `_statusLine3DetailsLayout()`'s call to `_renderStatusFields()` (js/display.js:2782), which is equivalent to dropping it from `_statusLine3DetailsFields()`'s return — and ran the full suite. Three tests fail beyond the four environment-only baseline failures: 'initial three-line status preserves tty overlap until the forced refresh', 'status uses source attribute order and exceptional strength text' (whose assertion at scripts/display-symbols.test.mjs:5175 pins `row(23).indexOf('Deaf') === row(22).length + 1`), and 'a turn-counter refresh leaves the conditions where a whole pass does'. Two of those three are whole-pass tests, contradicting the finding's claim that only the refresh path is covered and that the conditions move \"with the suite still green\"."
+          },
+          {
+            "summary": "js/display.js:2799 -- The layout `_statusLine3DetailsLayout()` returns on the `initialTtyRefresh` pass pairs an overlap `text` with a `fields` list that re-renders to a different (steady) row, yet `_stat_update_time()`'s c",
+            "counterEvidence": "No supported input can feed the overlap layout to `_refreshTimeField()`, so the stated impact — a whole-row repaint where C repaints only BL_TIME — is unreachable, and the finding itself concedes the trigger is 'anyone who later makes that row survive into a turn-counter tick'. Counter-evidence: js/moveloop_preamble.js:69 sets `state.disp.botlx = true` unconditionally (outside the `if (!resuming)` block, so resumed segments too) and only then sets `state.program_state.in_moveloop = 1` at line 84. js/display.js:3285-3296 and js/allmain.js:847-852 both give the `botl || botlx` arm priority over the `time_botl` arm, and js/display.js:3290-3294 computes `initialTtyRefresh` from `!game.program_state.in_moveloop`, so the first in-moveloop flush runs a steady `bot()` that overwrites `game._renderedStatusLayouts` at js/display.js:3360. Every `disp.time_botl` writer (js/allmain.js:527 and the two in js/hack.js) runs inside the moveloop, after that preamble. The overlap layout is therefore always replaced before any `timebot()`."
+          },
+          {
+            "summary": "scripts/quality-status.test.mjs:1003 -- The new `--areas` command-level test stops at `rejectUnknownOptions()` and never reaches the code that consumes the option, so the 'correct but unreachable branch' defect its comment names is only hal",
+            "counterEvidence": "The test covers the defect its comment actually names, and the assertion is not vacuous for it. Counter-evidence: The comment at scripts/quality-status.test.mjs:981-990 names the defect as the recorder rejecting `--areas`: 'passAreas() shipped correct and unreachable ... the recorder rejected the option before the branch could run, because the name was missing from the allowed set', and the added lines say 'The defect this replaced was preparePass() rejecting --areas from an inline set'. scripts/quality-status.mjs:1118 calls `rejectUnknownOptions(options, passOptionNames(kind))` as the first statement of `preparePass()`, before any other validation, so if `areas` were missing from that set the run would return 'unknown option: --areas' and the first assertion would fail. Running the test's own argv confirms the three outcomes discriminate: `['--areas','commands']` returns '--audit-metrics or --audit-metrics-file is required', `['--nosuchoption','x']` returns 'unknown option: --nosuchoption'. The 'correct but unreachable branch' the finding attributes to the comment is the rejection, not a silently ignored option."
+          }
+        ],
+        "readiness": {
+          "boundary": "Starting event: any turn that sets disp.time_botl without disp.botl, which allmain.c moveloop_core() and display.c flush_screen() both gate. Ending event: the redrawn status row and the next command prompt. The running game executes it on every run step through js/hack.js:1628 runmode_delay_output().",
+          "sourceReview": "Traced against wintty.c render_status(), check_fields() and make_things_fit(), and botl.c bot(), timebot() and stat_update_time(). The trace covered column arithmetic and field ordering, and it corrected two comments in the range that stated a wrong C value.",
+          "completeness": "One branch of make_things_fit() stays unported and refuses: the shrink rungs a row needs once a turn-counter refresh carries it past the terminal width. The refusal stops before changing state, consuming randomness or producing output. Six findings are deferred rather than applied, each recorded with the recording it needs."
+        }
+      },
+      "recordedAt": "2026-08-02T22:07:57.422Z"
     }
   ]
 }
