@@ -32,9 +32,10 @@
 // the `unlocks` sessions column sums to the number of unfinished sessions.
 //
 // `--by=` chooses which column orders the report. `.agents/selection.md` states
-// the selection rule: filter to behaviors whose `unlocks` is not 0, then rank
-// those by `supports`. Do not rank by `unlocks`; measured against three closed
-// goals it overstated by 5.8, 4.8 and 26 times.
+// the selection rule: `--by=unlocks` orders the candidates by the look-ahead
+// forecast's starting figure, and a classifier caps each session's stretch
+// before the figure is trusted. The raw `unlocks` count is an upper bound;
+// measured against three closed goals it overstated by 5.8, 4.8 and 26 times.
 //
 // Which recorded bytes are commands
 // ---------------------------------

@@ -92,7 +92,7 @@ Follow all instructions in those files.
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run an authorized holdout evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
 | Check how much unreviewed code has accumulated, or schedule a review (orchestrator only) | `.agents/review.md` and `QUALITY.json`, which lists the tracked parts of the code, review limits, and completed correctness and simplification passes |
 | Run or record a correctness, clarity, simplification, or copyediting pass (orchestrator only) | `.agents/review.md` and the skill named for that pass |
-| Mutation-test the lines a review covers, or check whether a module's tests pin its behavior | `.agents/review.md` and the header comment in `scripts/mutate-sites.mjs` |
+| Mutation-test the lines a slice changes or a review covers, or check whether a module's tests pin its behavior | `.claude/agents/slice-worker.md` for a slice's run, `.agents/review.md` for a review's, and the header comment in `scripts/mutate-sites.mjs` |
 
 ## Implementation rules
 

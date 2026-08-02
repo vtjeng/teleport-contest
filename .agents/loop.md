@@ -15,8 +15,8 @@ Implementation, review, and further implementation alternate inside one goal.
 Four agents run that loop, and no agent performs more than one of these jobs.
 
 - The **goal-selector** runs when no goal is in progress. It applies
-  `.agents/selection.md` to propose the next goal and the ordered behavior
-  slices that close it. It writes nothing.
+  `.agents/selection.md` to propose the next goal. It writes nothing; the
+  slice-selector divides the goal once it is in progress.
   `.claude/agents/goal-selector.md` is its brief.
 - The **slice-selector** runs while a goal is in progress. It applies
   `.agents/selection.md` to identify the next slice inside that goal. It writes

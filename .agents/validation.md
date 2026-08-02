@@ -54,8 +54,10 @@ defined there.
 `scripts/mutate-sites.mjs` rewrites one operator, boolean, or integer bound at
 a time in a set of js/ lines, runs the tests that reach those modules, and
 reports the mutants that no test failed on. `--worktree` scopes uncommitted work
-and `--range <base>..<head>` scopes a commit range. `.agents/review.md`, under
-"Mutation-test the reviewed lines", holds the procedure and states what a
+and `--range <base>..<head>` scopes a commit range. Your brief states which
+run you owe: `.claude/agents/slice-worker.md` holds the per-slice run over
+uncommitted work, and `.agents/review.md`, under "Mutation-test the reviewed
+lines", holds the per-window run over a frozen range and states what a
 survivor proves.
 
 This measures the tests. A survivor says the suite would not notice a wrong
