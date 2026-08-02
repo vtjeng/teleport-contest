@@ -112,7 +112,7 @@ written.
 The pet-inventory goal was the test of a different selection method, and
 it returned the fifth of those zeros. Closed on 1 August 2026, it was
 chosen against the population the holdout samples. Earlier goals had been
-chosen by `supports`; this one was chosen by that sampled population: 600
+chosen by `supports`; this one was chosen by that sampled population: over 600
 fresh seeds walking 96 keystrokes on D:1, one of three starting-pet
 boundaries was the port's first stop in 51 to 53% of walks. The three are
 pet inventory, pet ranged targeting and pet combat evaluation, and pet
