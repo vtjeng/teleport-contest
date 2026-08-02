@@ -78,6 +78,37 @@
         "screens": 128,
         "rng": 210
       }
+    },
+    {
+      "id": "furniture-square-entry",
+      "status": "open",
+      "boundary": "the hero enters a square whose terrain satisfies rm.h:138 IS_FURNITURE() -- STAIRS through ALTAR -- by walking, by running, or by swapping with the ordinary starting pet standing on it",
+      "upstreamOwners": [
+        "hack.c domove_core()",
+        "hack.c domove_swap_with_pet()",
+        "hack.c spoteffects()",
+        "pickup.c pickup()",
+        "invent.c dfeature_at()"
+      ],
+      "forecast": {
+        "steps": 31,
+        "basis": "capped look-ahead, 2 August 2026: seed0013-rogue-friday13-combat 13 and seed0013-friday13-save-then-fullmoon-restore 13, both uncapped inside the stretch and ending on ',', plus seed2600-wizard-custom-binds 5 ending on Ctrl-V. Highest of twelve candidates; pet ranged targeting caps at 20 over 4 sessions, apply at 26 over 2, and object-pile-window at 1.",
+        "sessions": [
+          "seed0013-rogue-friday13-combat",
+          "seed0013-friday13-save-then-fullmoon-restore",
+          "seed2600-wizard-custom-binds"
+        ]
+      },
+      "detail": "### The hero enters a furniture square\n\n`rm.h:138` defines `IS_FURNITURE(typ)` as `typ >= STAIRS && typ <= ALTAR`, which\nis this goal's whole subject: stairs, ladders, thrones, fountains, sinks, graves\nand altars. The hero reaches one by walking, by running, or by swapping with the\nordinary starting pet standing on it.\n\n**The stop is measured, not inferred.** Replaying each session and catching the\nboundary with `onBoundary` on `runSegment()` puts the two `seed0013` sessions at\n`js/hack.js:627` inside `requireSimpleHeroDestination()`, hero at (34,15),\nrefused destination (35,15), `typ=30` = `SINK` (`js/const.js:77`), with\n`context.run === 1`. `seed2600` stops at `js/hack.js:885` inside\n`requireOrdinaryStartingPetSwap()`, refused destination (60,3), `typ=26` =\n`STAIRS`, occupied by the kitten. One census row, two seams, two terrains. C's\nrecorded screen confirms the sink: the hero stands on the `{` at the next step\nwith an empty top line.\n\n**C reaches almost nothing new, which is why the refusal is the whole cost.**\n`hack.c test_move()`'s chain has no arm for furniture -- `IS_OBSTRUCTED` is\n`typ < POOL` (`rm.h:119`) and `IS_DOOR` is false -- so an orthogonal step falls\nthrough to `testdiag` and is admitted. The run stop at `hack.c:2936-2941`\n(`IS_DOOR || IS_OBSTRUCTED || IS_FURNITURE(tmpr->typ)`) is already ported at\n`js/hack.js:1461-1466`. `hack.c spoteffects()` (3312-3480) has exactly one\nfurniture arm, `IS_SINK(...) && Levitation -> dosinkfall()` at 3353-3354,\nunreachable without levitation; its tail below the `pickup(1)` at 3381 holds only\nthe ice warning and the hidden-monster surprise, both refused ahead of it.\n`pickup.c:702-709` returns before `look_here()` on an object-free square, running\n`describe_decor()` only under `flags.mention_decor` and then `read_engr_at()`.\n\n**Where the work actually sits.** Two sibling guards are written against\n`STAIRS || doorway` and must be restated against the same predicate, or widening\n`ordinaryDestination` silently admits cases they were holding: `js/hack.js:636-639`\n(`'decor description'`) and `js/hack.js:653-656` (`'terrain feature\ndescription'`). `invent.c dfeature_at()` is already ported (`js/invent.js:161-230`)\nand covers fountain, throne, sink and grave through the cmap; its ALTAR arm throws\nfor `a_gname()` and its ice arm for `ice_descr()`, so ALTAR needs those helpers or\nan explicit refusal. A temple altar is already bounded: `js/rooms.js` refuses\n`check_special_room()` entering room type TEMPLE.\n\n**The pet swap has no terrain condition in C.** `hack.c domove_swap_with_pet()`\n(2098-2180) tests the pet's trapped state, its diagonal ability, a boulder on the\nhero's square, `bad_rock()`, and `goodpos(u.ux0, u.uy0, mtmp, 0)` for the square\nthe *pet* moves into. It never tests the square the hero moves onto.\n`js/hack.js:879-888`'s ROOM/CORR/D_NODOOR list is a seam artifact that lags the\nwalk seam, which already admits STAIRS.\n\n**Incidence, as context and explicitly not as a forecast.** Over 80 freshly\ngenerated D:1 levels (seeds 7300000-7300079, Valkyrie, datetime 20290418073000)\nthe port's own generator produces 1.09 non-stairs furniture squares per level,\nwith 68% of levels holding at least one: fountains 0.80, sinks 0.15, altars 0.07,\ngraves 0.06, and no thrones or ladders on D:1. `docs/goal-history.md` demotes\nfresh incidence to nomination only, and records that the pet-inventory goal was\nchosen on fresh incidence alone and returned a holdout zero. It is here only to\nsay which terrain the first slice should cover -- the fountain -- and that ladder\nand throne belong last or stay refused.\n\n**Why this goal and not the field.** Capped look-ahead on 2 August 2026 across\ntwelve candidates: this boundary 31 (3 sessions, no stretch cut), `apply` 26 (2),\n`#twoweapon` 24 of 35 (1), `#pray` 21 (1), pet ranged targeting 20 of 370 (4),\n`fire` 17 (1), monster trap activation 16 (1), `wizlevelport` 14 of 95 (4),\n`takeoff` 14 (2), movement while riding 10 of 31 (1), and the floor object pile 1\nof 61 (1). Pet ranged targeting stops the most sessions but its four stretches cap\non four different unported behaviors -- graffiti, `#ride`, hero combat and a count\nprefix -- so its sessions buy the shallowest follow-on in the field.\n\n**Indicative slices** (the slice-selector decides the real division).\n\n1. *The walk onto a bare fountain or sink.* Widen the seam to `IS_FURNITURE()`\n   and restate the two sibling guards. Closes on both `seed0013` sessions plus a\n   fresh differential over a fountain and a sink.\n2. *The ordinary-pet swap onto furniture.* Closes on `seed2600`.\n3. *Grave and altar.* Includes `dfeature_at()`'s `a_gname()` arm or its explicit\n   refusal, with the case just outside the limit being an altar inside a temple.",
+      "slices": [],
+      "openedAt": "ad194eb79d3f2190269804cda91c4eafe5174e14",
+      "openStanding": {
+        "sha": "4c0399f",
+        "screens": 648,
+        "rng": 107437
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
