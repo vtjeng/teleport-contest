@@ -197,7 +197,7 @@ test('extract_from_minvent frees an unequipped object and leaves gear alone',
         assert.equal(held.where, OBJ_FREE);
         assert.equal(held.ocarry, null);
         assert.equal(held.owornmask, 0);
-        // worn.c:1409-1413 sits behind `if (unwornmask)`, so an unequipped
+        // worn.c:1404-1412 sits behind `if (unwornmask)`, so an unequipped
         // object neither clears a slot nor schedules the gear recheck.
         assert.equal(mon.misc_worn_check, W_AMUL);
         assert.deepEqual(calls.updateMonExtrinsics, []);
@@ -213,13 +213,13 @@ test('extract_from_minvent clears an equipped slot and reschedules gear',
             misc_worn_check: W_ARMH | W_AMUL,
         });
 
-        // worn.c:1411 clears only the bits the object itself wore; the amulet
-        // slot survives. worn.c:1414 then sets I_SPECIAL.
+        // worn.c:1408 clears only the bits the object itself wore; the amulet
+        // slot survives. worn.c:1411 then sets I_SPECIAL.
         extract_from_minvent(mon, held, true, true, env);
 
         assert.equal(held.owornmask, 0);
         assert.equal(mon.misc_worn_check, W_AMUL | I_SPECIAL);
-        // worn.c:1410 passes on=FALSE and the caller's own `silently`.
+        // worn.c:1406 passes on=FALSE and the caller's own `silently`.
         assert.deepEqual(
             calls.updateMonExtrinsics,
             [[mon, held, false, true]],
@@ -259,7 +259,7 @@ test('extract_from_minvent skips update_mon_extrinsics on two conditions',
         // The rest of the equipped arm still runs.
         assert.equal(withoutExtrinsics.mon.misc_worn_check, I_SPECIAL);
 
-        // worn.c:1409's other term is !DEADMONSTER(mon), which is `mhp < 1`.
+        // worn.c:1405's other term is !DEADMONSTER(mon), which is `mhp < 1`.
         const held = wornObject(state, ORCISH_HELM, W_ARMH);
         const dead = carrier(state, held, {
             mhp: DEAD_HP,
@@ -273,14 +273,14 @@ test('extract_from_minvent skips update_mon_extrinsics on two conditions',
 test('extract_from_minvent unwields a weapon and ends an armor artifact light',
     () => {
         const state = catalogState();
-        // worn.c:1415 is a bit test on W_WEP alone, so a monster wielding and
+        // worn.c:1414 is a bit test on W_WEP alone, so a monster wielding and
         // wearing the same mask value still gets exactly one mwepgone().
         const wielded = wornObject(state, ORCISH_HELM, W_WEP);
         const weapon = carrier(state, wielded, { misc_worn_check: W_WEP });
         extract_from_minvent(weapon.mon, wielded, false, true, weapon.env);
         assert.deepEqual(weapon.calls.mwepgone, [weapon.mon]);
 
-        // worn.c:1401-1402 runs before owornmask is cleared, because
+        // worn.c:1399-1400 runs before owornmask is cleared, because
         // artifact_light() expects W_ARM to still be set. Gold dragon scale
         // mail is artifact_light()'s non-artifact case.
         const lit = catalogState();

@@ -4236,7 +4236,6 @@ test('see_nearby_objects scans the whole near square and nothing outside it',
         // cansee() rejects it.
         const unseen = unobservedPotion(state, 11, 11);
         state.viz_array[11][11] = 0;
-        state.level.objects[0][10] = null;
 
         see_nearby_objects(state);
 
@@ -4286,6 +4285,22 @@ test('see_nearby_objects leaves a memory that is not a generic object alone',
         assert.deepEqual(state.level.at(10, 12).remembered_glyph, remembered);
         assert.equal(remembered.ch, '^');
     });
+
+test('see_nearby_objects refuses a state that is not the global one', () => {
+    const stale = nearbyObjectsState(10, 10);
+    // Each nearbyObjectsState() call runs resetGame(), which js/gstate.js
+    // rebinds to a fresh object, so building the second one makes the first
+    // stale. The refusal, not a threaded state, is what keeps
+    // observe_object() and newsym() reading one map: newsym() takes no state
+    // and reads the module-global, exactly as js/hack.js:1491-1497 records
+    // for curs_on_u().
+    nearbyObjectsState(10, 10);
+
+    assert.throws(
+        () => see_nearby_objects(stale),
+        /redraws the global game/u,
+    );
+});
 
 test('see_nearby_objects skips an object it has already observed', () => {
     const state = nearbyObjectsState(10, 10);

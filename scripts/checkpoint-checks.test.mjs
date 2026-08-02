@@ -35,25 +35,51 @@ test('checkpoint runs focused, full, mutants, generated, static, and score',
         );
         assert.deepEqual(commands[0].args, [
             '--test',
-            '--experimental-test-isolation=none',
             'scripts/dogmove.test.mjs',
             'scripts/monmove.test.mjs',
         ]);
     });
 
-test('the focused run\'s isolation flag is one this Node accepts', () => {
-    // Pinning the flag's spelling proves nothing on its own: `--focus` shipped
-    // for weeks spelled `--test-isolation=none`, which Node 22 rejects with
-    // `node: bad option` before running a single test, and the assertion above
-    // passed throughout. Node exits 9 on an unknown option, so spawning it is
-    // what tells the two spellings apart. `-e` stands in for the test files:
-    // the flag is parsed either way, and no test process is started.
-    const [, isolationFlag] = checkpointCommands(['scripts/dogmove.test.mjs'])
-        .find(({ label }) => label === 'focused tests').args;
-    const probe = spawnSync(process.execPath, [isolationFlag, '-e', '0']);
+test('the focused run this Node builds actually runs its tests', () => {
+    // Pinning an argument list proves nothing about whether Node will take it:
+    // --focus shipped for weeks passing `--test-isolation=none`, which Node 22
+    // rejects with `node: bad option` before starting a test process, and the
+    // assertion above passed throughout because it compared the broken string
+    // with itself. Only running the command tells an accepted option from a
+    // rejected one, so this spawns it over one small file -- 23 tests, about a
+    // third of a second -- and demands the tests it reports.
+    const focused = checkpointCommands(['scripts/dogmove-goal.test.mjs'])
+        .find(({ label }) => label === 'focused tests');
+    // Node sets NODE_TEST_CONTEXT for a test file's own process, and a runner
+    // that inherits it reports to its parent over the nested-runner protocol
+    // instead of writing TAP, which leaves stdout empty here. The checkpoint
+    // spawns this command from an ordinary process, so drop the variable.
+    const environment = { ...process.env };
+    delete environment.NODE_TEST_CONTEXT;
+    const probe = spawnSync(focused.command, focused.args, {
+        encoding: 'utf8',
+        env: environment,
+    });
 
     assert.equal(probe.status, 0,
-        `${process.version} rejects ${isolationFlag}: ${probe.stderr}`);
+        `${process.version} rejected ${focused.args.join(' ')}: `
+            + `${probe.stderr}`);
+    assert.match(probe.stdout, /^# fail 0$/mu);
+});
+
+test('the focused run isolates test files the way the full suite does', () => {
+    // The two commands must agree on a verdict, so they must agree on
+    // isolation. Under one shared process the whole suite reports 2,379 of
+    // 2,380: state that one file freezes or installs globally outlives it.
+    // `npm test` takes Node's default, one process per file, so the focused
+    // run passes no isolation flag either.
+    const [focused, full] = checkpointCommands(['scripts/dogmove.test.mjs']);
+
+    assert.deepEqual(full.args, ['test']);
+    assert.equal(
+        focused.args.some((argument) => argument.includes('isolation')),
+        false,
+    );
 });
 
 test('checkpoint options collect focus files and can skip scoring', () => {

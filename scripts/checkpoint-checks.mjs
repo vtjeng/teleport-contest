@@ -27,16 +27,18 @@ export function checkpointCommands(focusedTests = [], {
         commands.push({
             label: 'focused tests',
             command: process.execPath,
-            args: [
-                '--test',
-                // Node 22, which .nvmrc and .github/workflows/score.yml pin,
-                // rejects the unflagged `--test-isolation` outright and exits
-                // with `node: bad option`, so --focus never ran a test there.
-                // Node 24 accepts both spellings; this one accepts both
-                // versions.
-                '--experimental-test-isolation=none',
-                ...focusedTests,
-            ],
+            // No isolation flag: the focused run uses Node's default, one
+            // process per file, which is what `npm test` below uses too. A
+            // focused run whose verdict disagrees with the full suite is worse
+            // than a slow one, and `--experimental-test-isolation=none` buys
+            // that disagreement -- the whole suite in one shared process
+            // reports 2,379 of 2,380 where per-file isolation reports 2,380,
+            // because state one file freezes or installs globally outlives it.
+            // The flag was also spelled `--test-isolation=none` until db386f6,
+            // which Node 22 -- the floor in package.json's engines and the
+            // version .github/workflows/score.yml pins -- rejects outright with
+            // `node: bad option`, so --focus started no test process at all.
+            args: ['--test', ...focusedTests],
         });
     }
     commands.push({
