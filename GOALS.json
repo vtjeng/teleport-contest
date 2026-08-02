@@ -53,8 +53,8 @@
       "slices": [
         {
           "name": "#levelchange raises the hero to a level that grants no innate ability",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "984da156c122a843b9bafe9fc66d20fe81a3a113"
         }
       ],
       "openedAt": "463cabd8ef401139326de6e698a9651c98c6936a",
