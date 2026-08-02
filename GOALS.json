@@ -25,7 +25,7 @@
     },
     {
       "id": "experience-level-gain",
-      "status": "open",
+      "status": "closed",
       "boundary": "the hero's experience level rises: exper.c pluslvl() grants a level's hit points, power, intrinsics and rank, reached from wizcmds.c wiz_level_change()'s raising arm and from do.c goto_level()'s Tourist arrival",
       "upstreamOwners": [
         "wizcmds.c wiz_level_change()",
@@ -73,8 +73,11 @@
         "screens": 520,
         "rng": 107227
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "4c0399fe14b7b5750cf1a51d86b7c930fdbfbfa3",
+      "delivered": {
+        "screens": 128,
+        "rng": 210
+      }
     }
   ]
 }

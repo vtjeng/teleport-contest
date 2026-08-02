@@ -28,11 +28,12 @@ states it.
 
 ## Current standing
 
-- Development, at `8fe86c57` (2026-08-02): 648 of 7,765 screens and 107,437 of
+- Development, at `4c0399f` (2026-08-02): 648 of 7,765 screens and 107,437 of
   610,816 random-number values, over the development set of 33 sessions.
-- Reserved holdout, at the same commit: 139 of 3,640 screens, 30,048 of
+- Reserved holdout, at the same commit: 162 of 3,640 screens, 30,089 of
   182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  The figure is identical across the last five goal-closure evaluations.
+  It had stood at 139 across the two preceding goal closes. The 23-screen gain
+  is the largest a single close has produced.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
