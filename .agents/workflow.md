@@ -164,6 +164,14 @@ question that blocks every next step is the fourth stop case in `AGENTS.md`
 and stops the loop. Entries stay open until the user answers them; open each
 progress report with the count of open entries and the newest one.
 
+Mark phase boundaries as they happen: `node scripts/phase-log.mjs start
+<phase>` and `end <phase>`, with `--goal <id>`, around selection (`select`),
+each worker run (`implement`), and each formal review pass (`review`).
+Scoring runs already record their wall seconds in `SCORE.tsv`, so `validate`
+rows are optional. `node scripts/phase-log.mjs --summary` totals the phases;
+judge the goal budget against it, and commit `PHASES.tsv` with the work that
+ended the phase.
+
 A goal carries a budget. When six hours of wall clock pass without a slice
 closing on a measured development-screen gain, close the goal where it
 stands with `node scripts/goal-log.mjs close-goal` and continue at step 1. A slice closing with a measured gain resets the budget.
