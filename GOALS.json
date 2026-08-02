@@ -146,8 +146,8 @@
       "slices": [
         {
           "name": "the status line repaints on every turn, where C gates it",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4084f4b87b0f7be8346468c286e6acb43a7426ec"
         },
         {
           "name": "the drawbridge wall message, earth_sense()'s missing refusal, and the eight diagonal-doorway findings",

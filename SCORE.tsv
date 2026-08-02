@@ -99,3 +99,5 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T16:20:53.326Z	b669b88	goal	1	33	676	7765	108261	610816	684	7765	162	3640	30089	182022		furniture-square-entry closes having delivered 28 development screens and carried none: the holdout holds at 162 of 3,640 and 30,089 of 182,022, identical to the previous close. The goal was chosen partly because the hero could not stand on a fountain at any seed, the property that moved the holdout last time; that property did not repeat.
 2026-08-02T16:54:54.368Z	cfa65b6f25cdb5427ab27dbfdb085be2110366fe	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
 2026-08-02T17:12:47.594Z	73ca61b139c62a69b5ad96aeb25fdf55647d0444	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
+2026-08-02T17:22:12.772Z	4084f4b87b0f7be8346468c286e6acb43a7426ec	checkpoint	1	33	676	7765	108261	610816	684	7765					15	
+2026-08-02T17:22:27.333Z	4084f4b	slice	1	33	676	7765	108261	610816	684	7765						Status-line repaint gated where moveloop_core() gates it. Score identical, as a sweep entry should be: no development session captures a frame that reaches it.
