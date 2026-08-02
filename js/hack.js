@@ -883,15 +883,46 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
         );
     }
 
+    // hack.c domove_swap_with_pet() (2098-2180) never reads this square. Each
+    // of its six refusal arms is about the pet or about the square the pet
+    // moves into: the pit-and-boulder pin, NODIAG on a diagonal, a boulder on
+    // the hero's square, bad_rock() through an opening, a trapped peaceful,
+    // and goodpos(u.ux0, u.uy0, mtmp, 0). So this list only has to name the
+    // terrain whose *arrival* consequences are ported, which is the same set
+    // requireSimpleHeroDestination() admits above, less the doorway masks: a
+    // D_ISOPEN swap has no recording behind it and this seam has never carried
+    // one, so it keeps the mask-0 test it was written with.
     const destination = state.level?.at(x, y);
     const ordinaryDestination = destination
         && (destination.typ === ROOM
             || destination.typ === CORR
+            || IS_FURNITURE(destination.typ)
             || (destination.typ === DOOR && doorMask(destination) === 0));
     if (!ordinaryDestination) {
         throw new UnsupportedHeroMoveBoundaryError(
             'door or special terrain movement',
         );
+    }
+    // The furniture arrival's own consequences. domove_core()'s run stop at
+    // hack.c:2936-2941 reads levl[x][y] after the swap and is ported below;
+    // spoteffects() reaches only its IS_SINK && Levitation arm, refused there;
+    // and C's pickup(1) returns at pickup.c:702-707 without look_here(),
+    // because this seam refuses an object on the square. What is left on that
+    // return is describe_decor() (pickup.c:376-425), which pickup.c:392's
+    // `ltyp == prev_decor` shortcut cannot silence on furniture -- the test
+    // carries `&& !IS_FURNITURE(ltyp)` -- so with mention_decor set it always
+    // speaks a line this port cannot produce.
+    //
+    // Nothing downstream would catch that. spoteffects() calls check_here()
+    // rather than pickup(), and js/pickup.js check_here() has no
+    // mention_decor arm, so an admitted swap would omit C's line in silence
+    // rather than stop. The refusal has to be here, and here it also precedes
+    // the swap and its message. ROOM, CORR and the doorway stay admitted, as
+    // they are at the walking seam: dfeature_at() finds nothing on them, and
+    // describe_decor()'s remaining arm needs iflags.prev_decor to be a pool,
+    // lava or ice, which is the unported prev_decor debt and not this seam's.
+    if (state.flags?.mention_decor && IS_FURNITURE(destination.typ)) {
+        throw new UnsupportedHeroMoveBoundaryError('decor description');
     }
 
     const source = state.level?.at(state.u.ux, state.u.uy);

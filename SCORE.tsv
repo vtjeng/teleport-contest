@@ -89,3 +89,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T14:02:56.783Z	16574f3f18a4e8c06cdea0933e3e8ecc14faa649	checkpoint	1	33	674	7765	108336	610816	681	7765					12	tree dirty
 2026-08-02T14:06:53.417Z	7d397d756316438c393a6d4d3cb296b7b11deef4	checkpoint	1	33	674	7765	108336	610816	681	7765					13	
 2026-08-02T14:07:41.385Z	7d397d7	slice	1	33	674	7765	108336	610816	681	7765						Furniture admitted as a hero and monster destination: +26 screens, the figure the paired measurement predicted before the slice was queued.
+2026-08-02T14:49:38.141Z	dfc97e3df19c100c5ba405f4775388a9a2d76721	checkpoint	1	33	676	7765	108261	610816	684	7765					12	tree dirty

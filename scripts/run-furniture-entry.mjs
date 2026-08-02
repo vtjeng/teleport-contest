@@ -13,11 +13,13 @@
 // furniture arm at hack.c:4009-4019, and, when the square holds an object,
 // invent.c look_here()'s dfeature line from dfeature_at() (4037-4097). A
 // monster meets nothing: mon.c mfndpos() and teleport.c goodpos() admit any
-// ACCESSIBLE square, and monmove.c postmov() has no furniture branch.
+// ACCESSIBLE square, and monmove.c postmov() has no furniture branch. Nor
+// does the pet swap: every refusal arm of hack.c domove_swap_with_pet()
+// (2098-2180) is about the pet or about the square the pet moves into.
 //
-// The matrix therefore spreads over the three things that do differ:
-//   * the terrain -- fountain, sink, altar, and, for a monster, grave. D:1
-//     generates no throne and no ladder, and a grave carries mkgrave()'s
+// The matrix therefore spreads over the four things that do differ:
+//   * the terrain -- fountain, sink, altar, stairs, and, for a monster, grave.
+//     D:1 generates no throne and no ladder, and a grave carries mkgrave()'s
 //     headstone engraving, which the hero-destination seam still refuses.
 //   * svc.context.run, because hack.c:4009-4019 splits on it. Shift-direction
 //     sets run to 1 (cmd.c do_run_west():1520) and takes lookaround()'s bcorr
@@ -25,14 +27,17 @@
 //     sets run to 3 (cmd.c do_rush_west():1463) and stops in front of it.
 //   * whether the square holds an object, which is what selects look_here()'s
 //     "There is a fountain here." line ahead of "You see here".
+//   * whether the pet stands on the square, which routes the arrival through
+//     domove_swap_with_pet() instead of the empty-square path.
 //
 // Seeds were found by generating levels with the port and reading which
-// squares near the hero, and which squares a monster reached, were furniture;
-// no recorded session was read. Each hero segment was then checked twice: it
-// passes the differential now, and with both destination predicates narrowed
-// back to STAIRS the port stops early at the recorded screen. Each monster
-// segment was chosen the same way, from the 16 seeds in 5200000-5200299 whose
-// search-only replay the narrowed predicate stopped short.
+// squares near the hero, and which squares a monster or the pet reached, were
+// furniture; no recorded session was read. Each hero segment was then checked
+// twice: it passes the differential now, and with the destination predicate
+// its own seam reads narrowed back the port stops early at the recorded
+// screen. Each monster segment was chosen the same way, from the 16 seeds in
+// 5200000-5200299 whose search-only replay the narrowed predicate stopped
+// short.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -137,6 +142,44 @@ export function loadFurnitureEntryRecipe() {
             // case and the earliest stop in the group. Narrowed, the port
             // stopped after two screens.
             waiting({ seed: 5200295, turns: 20 }),
+
+            // The hero swaps places with the starting pet standing on the
+            // furniture. hack.c domove_swap_with_pet() (2098-2180) never reads
+            // the square the hero moves onto, so the swap itself is the same
+            // as on a room square; what these segments add is the arrival,
+            // which is why each is a furniture terrain and a run mode rather
+            // than a pet state. Every one of the five was checked twice: it
+            // passes the differential now, and with the pet-swap destination
+            // predicate narrowed back to ROOM, CORR and a doorless doorway the
+            // port stops at the recorded screen given below.
+            //
+            // One step east into the pet on a fountain, which it already
+            // occupies at the first prompt. Narrowed: one screen of four.
+            arriveThenWait({ seed: 5200270, moves: 'l' }),
+            // Four searches, then one step north into the pet on a sink -- the
+            // terrain both seed0013 sessions need. Narrowed: five of eight.
+            arriveThenWait({ seed: 5300240, moves: 'ssssk' }),
+            // Shift-run north into the pet on a fountain. The run's first step
+            // happens before allmain.c moveloop_core() calls lookaround(), so
+            // the hero swaps into the square, and hack.c:2936-2941 then ends
+            // the run because tmpr is the fountain. Narrowed: three of six.
+            arriveThenWait({ seed: 5300310, moves: `ss${RUN_NORTH}` }),
+            // The same seed and direction with Ctrl-rush. hack.c:2936-2941
+            // reads only `run < 8`, so run == 3 arrives and stops where
+            // run == 1 does; C recorded the same 2,741 calls and six screens
+            // for both, and the pair pins that the port does not split there
+            // either. It differs from the unoccupied-fountain rush above,
+            // which lookaround() stops one square short. Narrowed: three of
+            // six.
+            arriveThenWait({ seed: 5300310, moves: `ss${RUSH_NORTH}` }),
+            // One step west off the up-staircase and one step back east onto
+            // it, by which point the pet has followed onto the square the hero
+            // left. This is the only swap segment whose *source* square is an
+            // ordinary room rather than furniture, so it is the one that
+            // exercises goodpos(u.ux0, u.uy0, mtmp, 0) over a room; it is also
+            // the shape seed2600-wizard-custom-binds stops on, a kitten on
+            // STAIRS. Narrowed: two of five.
+            arriveThenWait({ seed: 5300090, moves: 'hl' }),
         ],
     }, 'furniture entry recipe');
 }
