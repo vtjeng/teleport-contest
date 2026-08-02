@@ -5720,6 +5720,101 @@
         }
       },
       "recordedAt": "2026-08-02T00:16:23.482Z"
+    },
+    {
+      "kind": "review",
+      "head": "04c26211d2f0d10bc2277fff1a2fb3aaf9bddc21",
+      "auditedRange": "12706a7a5750dbb8b89937511c44c9efc97c9436..04c26211d2f0d10bc2277fff1a2fb3aaf9bddc21",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 11 raw, 10 deduplicated, 6 confirmed, 6 applied, 0 deferred, 4 rejected, 0 unverified; mutation: 2 survivors of 2 mutants. Full correctness pass over the whole of the experience-level-gain goal: wiz_level_change(), pluslvl(), attrib.c's innate tables with adjabil() and postadjabil(), xlev_to_rank(), add_weapon_skill(), record_achievement(), and the Tourist arrival grant. Five finders including concurrency, enabled because threading a message owner through You_feel() made adjabil() async and rippled to 26 call sites across seven files, among them the new-game initializer every recorded session runs. All six confirmed findings were applied at feac9a2 with the development score unchanged at 648 of 7,765 screens and 107,437 of 610,816 random-number values. The one production defect was scanLevelArgument() returning the full-precision decimal where wizcmds.c:448 declares int newlevel and reads it with sscanf('%d%c'): C converts through strtol() to a long, saturating, then keeps the low 32 bits, so it reads 4294967296 as 0 and any 20-digit answer as -1, while the port raised the hero toward MAXULEV instead. The concurrency finder returned nothing, which is the pass's substantive negative result about the async seam. Recording this pass also surfaced a defect in the recorder: --areas was documented but never parsed, and the summary printed an unbound identifier, so the write succeeded, dropped the field every other pass carries, and then exited non-zero.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1911,
+        "counts": {
+          "raw": 11,
+          "deduplicated": 10,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 4,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "concurrency",
+          "variable-trace"
+        ],
+        "optionalFinders": {
+          "concurrency": "enabled: the range converts adjabil() to async, which rippled to 26 call sites across seven files including u_init_misc() and newgame_pre_mklev(), the new-game initializer every recorded session runs",
+          "performance": "not enabled: the range adds no unbounded or amplified work, no worse complexity, no hot-path traversal and no startup cost beyond the source behavior it ports"
+        },
+        "productionDefects": [
+          {
+            "file": "js/wizcmds.js",
+            "summary": "scanLevelArgument() returned the full-precision decimal where wizcmds.c:448 declares int newlevel and reads it with sscanf(\"%d%c\"). glibc converts in two stages, strtol() to a long saturating at LONG_MAX or LONG_MIN and then a store keeping the low 32 bits, so C reads \"4294967296\" as 0 and any 20-digit answer as -1 while the port read each as itself and raised the hero toward MAXULEV.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied",
+            "fixedAt": "feac9a2"
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 2,
+          "survivors": 2,
+          "byKind": {
+            "relational": {
+              "ran": 2,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "Both survivors are the saturation guards the audit fix added to scanLevelArgument(): js/wizcmds.js:32 `>` -> `>=` and :33 `<` -> `<=`, each verified against the whole suite of 143 test files and a 2,286-test baseline. Both are equivalent by construction, so no test can kill either: the only input that distinguishes the operators is wide === LONG_MAX (or LONG_MIN), where the guarded body assigns the value the variable already holds. js/display.js contributed no mutable site, its change being a string literal, and the reviewed range's own three survivors were recorded as equivalent by the slices that landed them."
+        },
+        "readiness": {
+          "boundary": "Starting event: the newline submitting `levelchange` at the `#` prompt, and the `>` accepted on a down staircase. Ending events: the `Welcome to experience level N.` top line with the status line the flush repaints beside it and the next command prompt; and the D:2 arrival screen with `Xp:1/2`. The real game executes both paths: `js/cmd.js` doextcmd() dispatches `#levelchange` into `js/wizcmds.js wiz_level_change()`, and `js/do.js goto_level()`'s isNew arm runs the Tourist grant. Five recorded development sessions replay the first path and gained 128 screens across the range.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream/src/: exper.c pluslvl(), more_experienced() and newexplevel(); attrib.c's fifteen innate tables, role_abil(), adjabil() and postadjabil(), setuhpmax(); wizcmds.c wiz_level_change(); botl.c xlev_to_rank() and exp_percent_changing(); weapon.c add_weapon_skill(); insight.c record_achievement() and achieve_rank(); do.c goto_level():1961-1964. The trace covered state and random-number order, including that pluslvl() prints before newhp() and newpw() draw and that postadjabil() runs after its entry's message. Explicit stops, partial implementations and missing subsystems were identified and are listed in the completeness attestation.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every excluded branch stops before changing state, consuming randomness or producing output, through a named refusal: adjabil()'s loss arm and lose_weapon_skill(); wiz_level_change()'s lowering arm behind losexp(); pluslvl(TRUE) behind newexplevel(); the Upolyd arms of pluslvl() and setuhpmax(); give_may_advance_msg(); and exp_percent_changing() with a status-highlight rule on Xp. Four excluded branches are unreachable rather than refused, each recorded with the reason: pluslvl()'s Upolyd arm and setuhpmax()'s else branch, since js/u_init.js is the port's only writer of u.umonnum; pluslvl()'s 'Welcome back' arm, since u.ulevelmax is bumped in the same block; adjabil()'s already-held suppression test, filed as a deferral against #wizintrinsic; and count_achievements() with rank_to_xlev(), whose only reader is a file the port does not write."
+        },
+        "rejections": [
+          {
+            "summary": "js/allmain.js:132 -- The comments that justify the new `async` signatures state that these initializers cannot suspend, which is false for JavaScript `await`, and the false claim invites dropping an `await` that silently leaves the hero half-initialized.",
+            "counterEvidence": "The comments do not claim what the finding says they claim. js/u_init.js:340-342 reads 'Asynchronous only because attrib.c adjabil() is: its gain arm can print You_feel(), which blocks on --More--. No level-1 innate entry prints, so this call awaits nothing that can suspend.' The word 'suspend' is anaphoric to 'blocks on --More--' in the preceding sentence, and under that definition the sentence is true. js/allmain.js:131-132 uses the same term in the same sense. 'suspend' is used nowhere in js/ in the microtask sense (grep -rn suspend js/ returns only these two lines, js/hack.js:1887 about notices, js/allmain.js:859 about occupations, and the extcmdlist row for ^Z), so no in-repo convention makes the strict reading natural. Counter-evidence: js/u_init.js:340-342 defines its own term one clause earlier: 'its gain arm can print You_feel(), which blocks on --More--. No level-1 innate entry prints, so this call awaits nothing that can suspend.'"
+          },
+          {
+            "summary": "js/attrib.js:244 -- UnsupportedAbilityChangeError's own doc says every throw site changes an intrinsic while the hero is playing, but two of its three sites do not, and cmd.js repeats the incomplete claim by attributing all of them to adjabil()'s lowering arms.",
+            "counterEvidence": "The impact rests on setuhpmax() raising this class on the raising path, and it cannot. js/exper.js:192 calls setuhpmax(u.uhpmax + hpinc, true, state), and js/attrib.js:434 guards the throw with `if (!Upolyd(u) || even_when_polyd)`; with even_when_polyd true the else arm is unreachable for that call regardless of Upolyd, and the decided non-issues already record Upolyd as false for every hero the port can build. The class is therefore reachable only from adjabil()'s two arms, exactly what js/cmd.js:918-922 describes, so no wrong edit follows from the wording. Counter-evidence: js/exper.js:192 passes even_when_polyd = true, so js/attrib.js:434's `!Upolyd(u) || even_when_polyd` is always true on the pluslvl() path and the throw at js/attrib.js:394-397 cannot execute; the claim that 'setuhpmax() throws it from the raising path' is false."
+          },
+          {
+            "summary": "js/attrib.js:320 -- adjabil() validates its message-owner contract in the middle of the traversal, after it has already written intrinsics, so a caller that omits `env.message` gets a half-applied hero plus a raw TypeError that no refusal list catches; the invariant that licenses u_init.js's owner-less call is enforced only by a test.",
+            "counterEvidence": "No caller can reach the throw. The two in-tree callers are js/exper.js:217 adjabil(u.ulevel - 1, u.ulevel, state, { message }), which always supplies an owner, and js/u_init.js:377 adjabil(0, 1, state), whose span crosses only ulevel-1 entries, every one of which has an empty gainstr (js/attrib.js:127-218). The invariant is stated at js/attrib.js:123-125, 270-274 and 346-349, the last naming the test that asserts it. A non-atomic assertion on an unreachable path is a harmless deviation. Counter-evidence: js/exper.js:217 passes { message } and js/u_init.js:377 crosses only entries with gainstr '' (js/attrib.js:127-218), so js/attrib.js:320's throw is unreachable from either caller."
+          },
+          {
+            "summary": "scripts/level-change.test.mjs:378 -- Three assertions use a bare `TypeError` matcher to stand for two different refusals that adjabil() can raise -- see_monsters()'s non-global-state guard and adjabil()'s own missing-message-owner check -- so the oracle does not say which contract each test is pinning.",
+            "counterEvidence": "The three assertions are not ambiguous once their setups are traced. The see-invisible test passes `message: () => assert.fail(...)`, so typeof env.message !== 'function' is false and js/attrib.js:320's TypeError cannot fire; had the message printed, the rejection would be an AssertionError, which the TypeError matcher rejects. The postadjabil test likewise passes a collector function. In the third, adjabil(9, 10, rogue) crosses rog_abil's SEARCHING entry, which js/attrib.js:262 does not dispatch on, and the owner check throws before postadjabil() is reached, so see_monsters()'s TypeError is unreachable there. No swap of one refusal for the other is possible. Counter-evidence: scripts/level-change.test.mjs supplies a message function in both see_monsters cases, making js/attrib.js:320's TypeError unreachable, and the third case crosses SEARCHING, which js/attrib.js:262 does not dispatch on, making see_monsters()'s TypeError unreachable."
+          }
+        ]
+      },
+      "recordedAt": "2026-08-02T12:35:02.765Z"
     }
   ]
 }

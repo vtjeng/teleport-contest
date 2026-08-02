@@ -24,6 +24,7 @@ import {
   missingMutantTrailers,
   renderCountsSentence,
   validateConfigShape,
+    passAreas,
 } from './quality-status.mjs';
 
 const EMPTY_AUDIT_METRICS = Object.freeze({
@@ -931,5 +932,47 @@ test('recorded readiness attestations must carry all three statements', () => {
     assert.throws(
         () => validateAuditMetrics({ ...EMPTY_AUDIT_METRICS, readiness: [] }),
         /readiness must be an object/u,
+    );
+});
+
+// Every pass before this one carries area labels, and the recorder printed
+// them from an identifier that was never bound: `--areas` appears in the usage
+// text but nothing parsed it. The write succeeded, the field was dropped, and
+// the command then exited non-zero on a ReferenceError, so the failure looked
+// like the record had not been made when it had.
+test('a pass derives its area labels from the paths the range changed', () => {
+    const config = {
+        areas: [
+            { id: 'commands', paths: ['js/cmd.js', 'js/wizcmds.js'] },
+            { id: 'hero', paths: ['js/attrib.js', 'js/exper.js'] },
+            { id: 'display', paths: ['js/display.js'] },
+        ],
+    };
+
+    // Only the areas owning a changed path are named, and they keep the
+    // config's own order rather than the diff's.
+    assert.deepEqual(
+        passAreas(config, undefined, () => ['js/display.js', 'js/cmd.js']),
+        ['commands', 'display'],
+    );
+    // A range touching nothing an area owns names none, rather than throwing.
+    assert.deepEqual(
+        passAreas(config, undefined, () => ['README.md']),
+        [],
+    );
+    // An explicit list wins, and is not second-guessed against the diff.
+    assert.deepEqual(
+        passAreas(config, 'hero, display', () => ['js/cmd.js']),
+        ['hero', 'display'],
+    );
+    // A label no area defines is a typo, not a new area.
+    assert.throws(
+        () => passAreas(config, 'heroes', () => []),
+        /--areas names no such area: heroes/u,
+    );
+    // The derivation is skipped entirely when the caller named the labels.
+    assert.deepEqual(
+        passAreas(config, 'hero', () => assert.fail('must not be called')),
+        ['hero'],
     );
 });

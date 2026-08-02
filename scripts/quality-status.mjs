@@ -600,6 +600,40 @@ function hasChanges(metrics) {
   return metrics.files.size > 0;
 }
 
+// The repository-relative paths a committed range touched. record-review and
+// record-simplification derive a pass's area labels from these when the caller
+// names none.
+function changedPathsIn(base, head) {
+  const output = git(['diff', '--name-only', `${base}..${head}`]);
+  return output ? output.split('\n').filter(Boolean) : [];
+}
+
+/**
+ * The area labels a pass records. `--areas` names them as a comma-separated
+ * list; with no option they are derived from the paths the range changed,
+ * which is what a caller would otherwise write out by hand. `changedPaths` is
+ * a thunk so the derivation costs nothing when the caller named the labels.
+ *
+ * Labels attribute findings and route deferrals. They carry no frontier of
+ * their own, so an area missing here loses no coverage; it only makes the
+ * record less useful to the pass that reads it next.
+ */
+export function passAreas(config, option, changedPaths) {
+  if (option === undefined) {
+    const paths = new Set(changedPaths());
+    return config.areas
+      .filter((area) => area.paths.some((path) => paths.has(path)))
+      .map((area) => area.id);
+  }
+  const labels = option.split(',').map((label) => label.trim())
+    .filter(Boolean);
+  const known = new Set(config.areas.map((area) => area.id));
+  for (const label of labels) {
+    if (!known.has(label)) fail(`--areas names no such area: ${label}`);
+  }
+  return labels;
+}
+
 function changedLines(metrics) {
   return metrics.additions + metrics.deletions;
 }
@@ -1130,11 +1164,18 @@ function preparePass(kind, options) {
   }
   validateAuditedRangeCoverage(kind, rangeBase, frontier, isAncestor);
 
+  const areas = passAreas(
+    config,
+    options.areas,
+    () => changedPathsIn(rangeBase, head),
+  );
+
   const pass = {
     kind,
     head,
     auditedRange: `${rangeBase}..${head}`,
     ...(kind === 'review' ? { level: options.level } : {}),
+    areas,
     outcome: options.outcome,
     evidence: `${renderCountsSentence(auditMetrics)} ${options.evidence.trim()}`,
     auditMetrics,
