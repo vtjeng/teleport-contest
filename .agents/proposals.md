@@ -109,3 +109,34 @@ the end of the log so a tail read stays valid while agents migrate.
 
 **What it leaves unfixed.** The checkpoint's output volume: the log keeps
 its 14,491 lines on disk, and an agent that opens it whole still drowns.
+
+## Let `goal-log.mjs` restate a queued goal's forecast
+
+**What it changes.** `node scripts/goal-log.mjs` would gain a mode that
+overwrites the `forecast` of a goal still queued -- its steps, basis and
+sessions -- leaving an opened or closed goal alone, so the calibration record
+cannot be edited after the fact.
+
+**Scope.** One mode beside `queue-goal`, a status guard, and its test.
+`queue-goal` already parses all three fields; today it builds them only when it
+creates the entry, and finding an existing goal makes the call a no-op.
+
+**What prompted it.** The re-rank on 2 August 2026 before opening
+`experience-level-gain`. `object-pile-window` stays queued behind it with a
+recorded forecast of 61 steps, which the capped look-ahead measured at **1**:
+its one session, `seed0004-feeding-pony`, replays a single step past the pile
+window before `A bear trap closes on your foot!--More--` puts it on trap
+activation at `js/hack.js:658`. That drops it from third of six candidates to
+last, behind pet ranged targeting (33), door or special terrain movement (31),
+`#twoweapon` (21) and movement while riding (10). Two further findings belong
+with it: trap activation gates it, and a trap goal would collect both this
+stretch and `seed0015`'s 16 steps, so the trap boundary deserves a look at the
+next selection. Nothing can hold any of that in `GOALS.json`, so it is recorded
+here instead.
+
+**Cost.** Small. The judgement of when a forecast is stale stays the caller's.
+
+**What it leaves unfixed.** Nothing prompts a re-rank. A queued goal's forecast
+goes stale silently as the port gains behavior, and only an agent reading the
+entry before opening it notices -- which is why `object-pile-window` carries the
+instruction to re-rank in its own forecast text.
