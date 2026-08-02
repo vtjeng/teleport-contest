@@ -1,13 +1,43 @@
 // wizcmds.js -- the wizard-mode extended commands.
-// C ref: src/wizcmds.c wiz_level_change(), so far the only row of that file
-// cmd.c doextcmd() dispatches here.
+// C refs: src/wizcmds.c wiz_level_change() and wiz_wish(), so far the only two
+// rows of that file cmd.c dispatches here.
 
 import { ECMD_OK, MAXULEV } from './const.js';
 import { pluslvl, UnsupportedExperienceChangeError } from './exper.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
+import { encumber_msg } from './pickup.js';
 import { ttyPline } from './tty_message.js';
+import { makewish } from './zap.js';
+
+// C ref: wizcmds.c wiz_wish() (31-44), the #wizwish command.
+//
+// The saved flags.verbose is what keeps "You may wish for an object." off the
+// screen: zap.c:6326 prints it for every other caller of makewish(), and this
+// one alone suppresses it. Restoring the flag rather than skipping the line
+// matters because potion.c:2809, sit.c:110, sit.c:251 and zap.c:2583 reach
+// makewish() with the flag as the player set it.
+export async function wiz_wish(state = game) {
+    if (state.wizard) {
+        const save_verbose = state.flags.verbose;
+
+        state.flags.verbose = false;
+        await makewish(state);
+        state.flags.verbose = save_verbose;
+        await encumber_msg(state);
+    } else {
+        // Dead behind cmd.c can_do_extcmd(), which prints this same message
+        // for a WIZMODECMD row and refuses before either dispatch route
+        // reaches this function: rhack() calls it at cmd.c:3689 and
+        // doextcmd() at cmd.c:505. The arm is written out because
+        // wizcmds.c:42 has it, not because a game can run it. C spells the
+        // name as ecname_from_fn(wiz_wish), which walks extcmdlist[] for the
+        // row whose ef_funct is wiz_wish -- the "wizwish" row at cmd.c:2000.
+        await ttyPline("Unavailable command 'wizwish'.", state);
+    }
+    return ECMD_OK;
+}
 
 // The range a C `long` holds, which strtol() saturates to. `scanLevelArgument()`
 // explains why `%d` needs it.

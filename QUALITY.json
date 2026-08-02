@@ -583,6 +583,24 @@
       "status": "open",
       "from": "3b2dde88fdbbad0115967dc9a8483a85f812cfba",
       "detail": "Six findings from the correctness pass over 002c0a5..3b2dde8 that need tests or a port rather than a comment, recorded together because they share one obstacle: no supported input builds a status row wide enough to drive them, so each needs a fabricated state or a new fresh recording. (1) Reinstating _statusLine3DetailsLayout()'s deleted lastColumn -= version.length + 1 leaves the whole suite green; the pass reproduced a six-column shift with statuslines:3, showvers, no optional fields and ten conditions. An orchestrator attempt to pin it assumed showvers would not move the right-justified run, which is false: with showvers on, that condition set renders as Strngl alone plus the version, so the expectation has to come from a C recording. (2) Making _refuseUnfittableStatusRow() absolute again, undoing the relative test added in the audit fix, also leaves the suite green. (3) _refuseUnfittableStatusRow() aborts on make_things_fit()'s first rung, the condition-word abbreviation, which the port already implements from cached option values, so it should re-spell at forms[1] and forms[2] before refusing. (4) The new if (field.entries.length) gate in _renderStatusFields() now also decides whether the three-row initial-overlap block runs, and no no-condition arm covers that. (5) allmain-turn.test.mjs's widening filter matches on moves.length and /^s+$/ without requiring the segment to set time, so its showvers and statuslines:3 assertions can pass on a segment with no turn counter. (6) No test performs two consecutive turn-counter refreshes on a three-row row, so _refreshTimeField()'s carry-forward of the cached hungerX is unpinned. Closing condition: fresh C recordings under statuslines:3 with showvers and with a long condition set, which the pass's own repro describes."
+    },
+    {
+      "id": "the Enter that submits a wish is unported",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "b5e3153930cfa62b91038c6c366be8b26e8b6ea6",
+      "detail": "zap.c:6346 onward -- the Escape test, the \"help\" arm, readobjnam() and the object hold_another_object() adds -- is the next slice of the wizard-mode-wish goal. Fresh case, recorded 2 August 2026: seed 4471005, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W>mud boots\\n.\". C runs 2743 random-number calls and 14 screens; the port stops at boundary 13, the submitting Enter, having matched 12 screens and 2717 calls. C's first unmatched call is rn2(13) from rnd_otyp_by_namedesc(objnam.c:3522), the draw that fires even for a unique match."
+    },
+    {
+      "id": "Escape at the wish prompt still grants a random wish",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "b5e3153930cfa62b91038c6c366be8b26e8b6ea6",
+      "detail": "getline.c:97 leaves the buffer as \"\\033\" for an Escape over an empty line, and zap.c:6347 turns that into the empty string rather than a cancellation. readobjnam(\"\") then falls through readobjnam_preparse()'s empty return to the 'any:' label at objnam.c:4994, where wrpsym[rn2(13)] picks a random object class, so Escape grants a wish instead of declining one. Fresh case, recorded 2 August 2026: seed 4471006, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W><ESC>.\". C runs 2536 random-number calls and 5 screens; the port stops at boundary 4, the Escape, having matched 3 screens and 2517 calls, and C's first unmatched call is rn2(13) from readobjnam(objnam.c:4996). Escape over a non-empty line is a different arm and is covered by the passing matrix in scripts/run-wizard-wish.mjs, because getline.c:88 restarts the prompt there instead of returning."
     }
   ],
   "areas": [
@@ -648,6 +666,7 @@
         "js/u_init_inventory_use.js",
         "js/vault.js",
         "js/worn.js",
+        "js/zap.js",
         "js/zap_destroy_items.js"
       ],
       "generatedOutputs": [

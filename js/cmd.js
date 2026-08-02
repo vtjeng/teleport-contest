@@ -94,7 +94,8 @@ import { doride, UnsupportedSteedError } from './steed.js';
 import { UnsupportedHitPointLossError } from './hack.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
-import { wiz_level_change } from './wizcmds.js';
+import { wiz_level_change, wiz_wish } from './wizcmds.js';
+import { UnsupportedWishError } from './zap.js';
 import {
     clearTtyMessageWindow,
     ttyNorep,
@@ -697,10 +698,10 @@ export async function parseCommand(state = game) {
 // Every command this seam dispatches from the key bound to it, named once so
 // the comment above readSimpleCommand(), both boundary messages, and the
 // admission test cannot drift apart as more commands land. '#' opens the
-// extended-command prompt, through which the other eight are also reachable by
-// name; every other extended command stops inside doextcmd() instead, after
-// the prompt has painted the frames the reference program painted for the same
-// keystrokes.
+// extended-command prompt, through which every other name in the list is also
+// reachable; every other extended command stops inside doextcmd() instead,
+// after the prompt has painted the frames the reference program painted for
+// the same keystrokes.
 //
 // doextcmd() dispatches one command that is deliberately absent here: '#ride',
 // whose own key is M-R. Reaching doride() from that keystroke needs rhack()'s
@@ -708,7 +709,7 @@ export async function parseCommand(state = game) {
 // it, so the key stays on the refusing side while the typed name works.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'down', '#',
+    'eat', 'down', 'wizwish', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -932,6 +933,11 @@ export function failClosedCommandRefusals() {
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
+        // zap.c makewish() raises this where readobjnam() stands, after
+        // getlin() has echoed the whole wished-for line. Both #wizwish routes
+        // reach it, so leaving it out would discard every screen the wish
+        // prompt already matched instead of stopping on the last of them.
+        UnsupportedWishError,
     ];
 }
 
@@ -1099,6 +1105,13 @@ async function runLevelChangeCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_level_change(state));
 }
 
+// C ref: wizcmds.c wiz_wish(). Both of its arms end `return ECMD_OK`, so the
+// result never varies. doextcmd() hands it back anyway, the way it does for
+// every other ECMD_* handler; rhack()'s arm drops it, and says why.
+async function runWishCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_wish(state));
+}
+
 // C ref: invent.c dolook().
 async function runLookCommand(key, state) {
     return failClosedCommand(key, state, () => dolook(state, {
@@ -1115,9 +1128,10 @@ async function runLookCommand(key, state) {
 // C ref: cmd.c can_do_extcmd(). The Lua NHCB_CMD_BEFORE arm needs a callback
 // registered by a level script, which no recorded game installs, and
 // iflags.debug_fuzzer is never set. The extended-command prompt cannot reach
-// the WIZMODECMD arm either, because extcmds_match() has already dropped every
+// the WIZMODECMD arm, because extcmds_match() has already dropped every
 // WIZMODECMD row for a hero who is not in debug mode; rhack()'s own
-// can_do_extcmd() call, which this port does not make yet, is what reaches it.
+// can_do_extcmd() call below is what reaches it, for a hero who presses the
+// key such a row is bound to.
 async function can_do_extcmd(entry, state) {
     if (!state.wizard && (entry.flags & WIZMODECMD)) {
         await ttyPline(`Unavailable command '${entry.ef_txt}'.`, state);
@@ -1125,6 +1139,32 @@ async function can_do_extcmd(entry, state) {
     }
     if (state.u?.uburied && !(entry.flags & IFBURIED)) {
         await ttyPline("You can't do that while you are buried!", state);
+        return false;
+    }
+    return true;
+}
+
+// extcmdlist[] indexed by the name commandForKey() answers, which is the row's
+// ef_txt. C keeps the row itself in the binding, so rhack() reaches it through
+// gc.cmd_bind->cmd; this port stores the name and looks the row back up.
+const EXTCMD_BY_NAME = new Map(
+    extcmdlist.map((entry) => [entry.ef_txt, entry]),
+);
+
+// C ref: cmd.c rhack() at 3688-3692, the can_do_extcmd() call rhack() makes
+// for the row the pressed key is bound to, ahead of the prefix tests and the
+// dispatch below. A refusal reset_cmd_vars(TRUE)s and leaves res at ECMD_OK,
+// which the tail at 3814 answers with a second reset and no spent turn, so
+// returning here reproduces both.
+//
+// cmdbind_get() answers no row for an unbound byte and C skips the call for
+// it. `null` is this port's spelling of that; so is a name with no row, which
+// only an OPTIONS `bind` to a command C's bind_key() would have rejected can
+// produce, and which rhack()'s unported-command arm below already refuses.
+async function rhackCanDoExtcmd(command, state) {
+    const entry = EXTCMD_BY_NAME.get(command);
+    if (entry && !await can_do_extcmd(entry, state)) {
+        resetCommandVars(state);
         return false;
     }
     return true;
@@ -1181,6 +1221,8 @@ async function doextcmd(key, state) {
         return await doride(state);
     case 'wiz_level_change':
         return await runLevelChangeCommand(key, state);
+    case 'wiz_wish':
+        return await runWishCommand(key, state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
@@ -1250,6 +1292,7 @@ export async function rhack(key, state = game) {
         }
 
         let command = commandForKey(commandBindings(state), key);
+        if (!await rhackCanDoExtcmd(command, state)) return;
         if (command === 'reqmenu') {
             state.iflags.menu_requested = true;
             // do_reqmenu() is a PREFIXCMD, so rhack() immediately reads and
@@ -1260,6 +1303,10 @@ export async function rhack(key, state = game) {
                     captureParsedCommand(key, state);
             }
             command = commandForKey(commandBindings(state), key);
+            // C loops back to do_cmdq_extcmd for the prefixed command, so the
+            // second key gets its own can_do_extcmd() before do_reqmenu()
+            // reports a doubled prefix.
+            if (!await rhackCanDoExtcmd(command, state)) return;
             if (command === 'reqmenu') {
                 const prefix = keyForCommand(commandBindings(state), 'reqmenu');
                 await ttyNorep(
@@ -1335,6 +1382,19 @@ export async function rhack(key, state = game) {
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);
             if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'wizwish') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, which the
+            // '#', `search`, `eat` and `down` arms above spell out in full.
+            // Both arms of wiz_wish() end `return ECMD_OK` (wizcmds.c:44), so
+            // neither the cancel test nor the ECMD_TIME test can fire and
+            // reset_cmd_vars() is the whole of the handling. The MOVEMENTCMD
+            // and domove_attempting tests at 3773-3800 cannot divert it
+            // either: extcmdlist[]'s "wizwish" row carries IFBURIED,
+            // CMD_M_PREFIX and WIZMODECMD and none of the movement flags.
+            await runWishCommand(key, state);
+            resetCommandVars(state);
             return;
         }
         if (command === 'inventory') {
