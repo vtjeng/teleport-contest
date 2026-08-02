@@ -12,39 +12,33 @@ Only the orchestrator does this work. "Continuous operation" in
 While implementation is incomplete, find and fix gaps with source review,
 focused tests, the full test suite, and fresh differentials. Launch a formal
 review pass only when the orchestrator judges the behavior and evidence
-complete. Freeze the committed range and include this readiness note:
+complete. Freeze the committed range and prepare it with
+`node scripts/audit-worktree.mjs prepare ... --readiness`, which runs
+`npm run checkpoint`, `npm run quality -- --check`, and
+`npm run mutate -- --range <base>..<head> --kind relational,logical,boolean`
+at the repository head, embeds each command's result in the manifest, and
+refuses to prepare while any is red. That is the machine half of readiness;
+"Mutation-test the reviewed lines" states what a survivor proves and how the
+run's survivor list reaches the review.
 
-- **Boundary and live path:** Name the user-visible starting and ending events
-  and confirm the real game executes the path.
-- **Source review:** Confirm that every branch and helper reachable before
-  the ending event was traced against upstream C or Lua. Confirm that
-  this source review covered state and PRNG order and identified stubs,
-  explicit stops, partial implementations, and missing subsystems.
-- **Differential evidence:** List reproducible fresh differentials that vary
-  relevant inputs and compare PRNG, complete screens and attributes, cursors,
-  and persisted state.
-- **Completeness:** Confirm that no known unsupported behavior remains inside
-  the boundary. Any reachable excluded branch must stop before changing state,
-  consuming randomness, or producing output.
-- **Checks:** Confirm that focused tests, the full test suite, relevant
-  generated checks, and `npm run quality -- --check` pass for the exact head.
-  There must be no unassigned `js/` files or non-exempt review debt at a
-  batching threshold declared in `QUALITY.json`, outside the frozen range.
-- **Mutation survivors:** Run
-  `npm run mutate -- --range <base>..<head> --kind relational,logical,boolean`
-  over the frozen range and attach its survivor list, its mutant count, and its
-  survivor count to this note. "Mutation-test the reviewed lines" states what a
-  survivor proves and how to pass the list to the review. The run reports `the
-  unmutated tests do not pass` and exits 2 when the head is red, which means the
-  head is not ready for review.
+The hand-written half is three attestations, recorded in the pass's
+`auditMetrics.readiness`:
+
+- **boundary**: name the user-visible starting and ending events and confirm
+  the real game executes the path.
+- **sourceReview**: confirm that every branch and helper reachable before the
+  ending event was traced against upstream C or Lua, that the trace covered
+  state and PRNG order, and that stubs, explicit stops, partial
+  implementations, and missing subsystems were identified.
+- **completeness**: confirm that no known unsupported behavior remains inside
+  the boundary, and that any reachable excluded branch stops before changing
+  state, consuming randomness, or producing output.
 
 The active implementation checklist (`.agents/implementation-checklist.json`,
-created when a qualifying slice opens) supports this note; it does not replace
-tests, differentials, source review, generated checks, quality checks, or
-formal review passes. If the note or evidence is incomplete, stay in
-Implementation mode.
-The orchestrator that receives an incomplete note reports `NOT READY` and
-launches no reviewers.
+created when a qualifying slice opens) supports these attestations; it does
+not replace tests, differentials, source review, generated checks, quality
+checks, or formal review passes. A missing attestation or a red prepared
+command is `NOT READY`: launch no reviewers.
 
 ## Review scheduling
 
@@ -210,7 +204,7 @@ The commit message carries that record because a slice run measures uncommitted
 work, whose subject is gone once the slice is committed, and because
 `QUALITY.json` holds `auditMetrics` for passes alone.
 
-**Per window.** The readiness note's run over the frozen range stays as it is:
+**Per window.** The run `prepare --readiness` performs over the frozen range stays as it is:
 
 ```
 npm run mutate -- --range <base>..<head> --kind relational,logical,boolean

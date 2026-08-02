@@ -38,7 +38,7 @@ export const USAGE = `Usage:
     --skill-path <path/to/SKILL.md> \\
     --prompt <path/to/audit-prompt.md> \\
     [--checklist <repo-relative-path> |
-     --no-checklist-reason <reason>]
+     --no-checklist-reason <reason>] [--readiness]
 
   node scripts/audit-worktree.mjs check <manifest-path>
   node scripts/audit-worktree.mjs cleanup <manifest-path>
@@ -101,6 +101,7 @@ function parsePrepareArgs(args) {
     const parsed = {
         checklistPath: DEFAULT_CHECKLIST,
         noChecklistReason: null,
+        readiness: false,
     };
     for (let index = 0; index < args.length; ++index) {
         const option = args[index];
@@ -112,6 +113,9 @@ function parsePrepareArgs(args) {
             parsed.skillPath = optionValue(args, index, option);
         } else if (option === '--prompt') {
             parsed.promptPath = optionValue(args, index, option);
+        } else if (option === '--readiness') {
+            parsed.readiness = true;
+            continue;
         } else if (option === '--checklist') {
             parsed.checklistPath = optionValue(args, index, option);
         } else if (option === '--no-checklist-reason') {
@@ -397,6 +401,48 @@ function repositoryRootFor(path = PROJECT_ROOT) {
     );
 }
 
+// The machine half of readiness, run at the repository head before a pass is
+// prepared. Survivors are findings, so a mutation run that reports them still
+// passes; exit 2 there means a red baseline, which refuses like any red
+// command. .agents/review.md, "Readiness for a formal review pass", holds the
+// three hand-written attestations that remain.
+export function readinessCommands(base, head) {
+    return [
+        { label: 'checkpoint', command: 'npm', args: ['run', 'checkpoint'] },
+        { label: 'quality check', command: 'npm',
+            args: ['run', 'quality', '--', '--check'] },
+        { label: 'range mutation', command: 'npm',
+            args: ['run', 'mutate', '--', '--range', `${base}..${head}`,
+                '--kind', 'relational,logical,boolean'] },
+    ];
+}
+
+export function runReadiness({ root, base, head, run = runCommand }) {
+    const results = [];
+    for (const { label, command, args } of readinessCommands(base, head)) {
+        const result = run(command, args, {
+            cwd: root,
+            allowFailure: true,
+            maxBuffer: 64 * 1024 * 1024,
+        });
+        const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd();
+        results.push({
+            label,
+            command: `${command} ${args.join(' ')}`,
+            passed: result.status === 0,
+            tail: output.split('\n').slice(-15).join('\n'),
+        });
+    }
+    const red = results.filter((entry) => !entry.passed);
+    if (red.length > 0) {
+        throw new Error(
+            `readiness commands failed: ${red.map((r) => r.label).join(', ')}\n`
+                + red.map((r) => r.tail).join('\n'),
+        );
+    }
+    return results;
+}
+
 export function prepareAuditWorktree({
     range,
     skill,
@@ -404,6 +450,8 @@ export function prepareAuditWorktree({
     promptPath,
     checklistPath = DEFAULT_CHECKLIST,
     noChecklistReason = null,
+    readiness = false,
+    runReadinessCommands = runReadiness,
     repositoryRoot = PROJECT_ROOT,
     temporaryRoot = tmpdir(),
 }) {
@@ -512,6 +560,17 @@ export function prepareAuditWorktree({
             checklist.snapshotPath = checklistSnapshotPath;
         }
         const createdAt = new Date().toISOString();
+        let readinessResults = null;
+        if (readiness) {
+            const repoHead = runGit(root, ['rev-parse', 'HEAD']).stdout.trim();
+            if (repoHead !== head) {
+                throw new Error(
+                    `--readiness runs its commands at the repository head; `
+                        + `HEAD is ${repoHead} and the range head ${head}`,
+                );
+            }
+            readinessResults = runReadinessCommands({ root, base, head });
+        }
         const manifest = {
             version: MANIFEST_VERSION,
             createdAt,
@@ -521,6 +580,7 @@ export function prepareAuditWorktree({
             base,
             head,
             range: `${base}..${head}`,
+            readiness: readinessResults,
             skill: {
                 name: skill,
                 path: resolvedSkillPath,

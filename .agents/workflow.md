@@ -48,12 +48,13 @@ covered by one scheduled correctness review. A review window completes when
 that review, its required fixes, and the required post-fix validation are
 finished.
 
-An **evidence snapshot** is one `SCORE.md` row for the exact integrated code
-state at a full commit SHA. Preserve a snapshot when a behavior slice or review
-window completes, the score changes, or a result is published. The quality
-ledger is `QUALITY.json`, which records completed correctness and
-simplification passes. Formal review ranges remain in that ledger. Routine chunks collect score and validation evidence
-too, and do not add a `SCORE.md` row.
+An **evidence snapshot** is one `SCORE.tsv` row for the exact integrated code
+state at a full commit SHA: `npm run checkpoint` appends a `checkpoint` row
+after each scoring run, and agents append `slice`, `window`, `goal`,
+`holdout`, and `publish` rows when those events complete, as
+`.agents/validation.md`, "Score evidence", states. The quality ledger is
+`QUALITY.json`, which records completed correctness and simplification
+passes. Formal review ranges remain in that ledger.
 
 A **check** is routine diff inspection, testing, source comparison, or
 `npm run quality`.
@@ -112,7 +113,7 @@ The orchestrator repeats, without returning to the user between its steps:
    Accept no figure from the worker that these commands measure. Add
    `git log --oneline origin/main..HEAD` for what is not pushed. Push whatever
    the worker left behind and every commit you landed yourself, then watch the
-   run to `success` as "Pushing and CI" requires.
+   run from a background task as "Pushing and CI" states.
 3. Run `npm run quality` yourself; no worker reports it. The advisory
    checkpoint and the gate are the two per-area thresholds that `QUALITY.json`
    configures and `npm run quality` measures; `.agents/review.md`,
@@ -123,7 +124,7 @@ The orchestrator repeats, without returning to the user between its steps:
    per-slice shared review window; `npm run quality` measures it and prints
    it as the `Review window` line.
 4. When a slice closes, continue at step 1. When the last slice of the goal
-   closes, satisfy the readiness note in `.agents/review.md` and run the
+   closes, satisfy the readiness requirements in `.agents/review.md` and run the
    goal's full correctness pass, then continue at step 1.
 5. When a goal closes, run the authorized holdout evaluation and record its
    result with the goal's evidence. Dispose of every open deferral in the
@@ -137,7 +138,7 @@ A formal review pass is a step of this loop, and the orchestrator runs it.
 
 Commits landing while a pass reviews a frozen range are expected. They fall
 outside that range and belong to the next one. They do not block the pass and
-the pass does not block them. They do constrain the readiness note in
+the pass does not block them. They do constrain the readiness requirements in
 `.agents/review.md`, which requires no non-exempt review debt at a batching
 threshold outside the frozen range. Clear that debt when declaring readiness.
 Implementation commits may land while the debt stands.
@@ -271,7 +272,8 @@ a formal review pass, the checklist evidence must apply to the exact committed
 head. After
 the slice closes and its evidence is recorded in existing trackers, remove the
 checklist or replace it for the next qualifying slice. Smaller slices may keep
-equivalent information in their commit messages and in the readiness note
+equivalent information in their commit messages and in the readiness
+attestations
 in `.agents/review.md`.
 
 ## Progress reports
@@ -286,6 +288,7 @@ slice that closed, the development score before and after, any bug the worker
 hit, and where the port stops next. Every figure in that report comes from
 your own measurement in step 2 of the loop, never from the worker's report.
 
-State a workflow-mode change once and explain why. Formal readiness notes and
+State a workflow-mode change once and explain why. Formal readiness
+attestations and
 pass reports keep their required structures. Planning, process discussion,
 questions, and other meta-conversation use ordinary prose.

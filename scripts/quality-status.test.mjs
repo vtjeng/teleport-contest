@@ -942,3 +942,24 @@ test('slice-mutants parsing separates trailered from bare commits', () => {
     assert.deepEqual(missingMutantTrailers(''),
         { commits: 0, missing: [] });
 });
+
+test('recorded readiness attestations must carry all three statements', () => {
+    // The three keys review.md defines; whitespace-only text is as absent as
+    // a missing key, so a blank attestation cannot pass as recorded.
+    const readiness = {
+        boundary: 'from the e keypress to the "You finish eating" message',
+        sourceReview: 'traced eat.c branches against the port',
+        completeness: 'no unsupported behavior inside the boundary',
+    };
+    assert.doesNotThrow(() => validateAuditMetrics(
+        { ...EMPTY_AUDIT_METRICS, readiness }));
+    assert.throws(
+        () => validateAuditMetrics({ ...EMPTY_AUDIT_METRICS,
+            readiness: { ...readiness, sourceReview: '  ' } }),
+        /readiness.sourceReview must be nonempty/u,
+    );
+    assert.throws(
+        () => validateAuditMetrics({ ...EMPTY_AUDIT_METRICS, readiness: [] }),
+        /readiness must be an object/u,
+    );
+});

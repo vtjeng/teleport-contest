@@ -327,6 +327,22 @@ export function validateAuditMetrics(metrics, {
 
   if (metrics.mutation !== undefined) validateAuditMutation(metrics.mutation);
 
+  // The hand-written half of readiness: three attestations recorded with the
+  // pass. .agents/review.md defines them; prepare --readiness supplies the
+  // machine half.
+  if (metrics.readiness !== undefined) {
+    if (!metrics.readiness || typeof metrics.readiness !== 'object'
+        || Array.isArray(metrics.readiness)) {
+      fail('auditMetrics.readiness must be an object');
+    }
+    for (const key of ['boundary', 'sourceReview', 'completeness']) {
+      if (typeof metrics.readiness[key] !== 'string'
+          || metrics.readiness[key].trim().length === 0) {
+        fail(`auditMetrics.readiness.${key} must be nonempty`);
+      }
+    }
+  }
+
   if (metrics.rejections !== undefined) {
     validateAuditRejections(metrics.rejections, counts.rejected);
   } else if (requireRejections && counts.rejected > 0) {

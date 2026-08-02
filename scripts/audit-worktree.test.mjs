@@ -20,6 +20,7 @@ import {
     parseAuditArgs,
     parseRange,
     prepareAuditWorktree,
+    runReadiness,
     validateChecklist,
 } from './audit-worktree.mjs';
 
@@ -375,4 +376,46 @@ test('cleanup rejects a manifest moved outside its prepared root', t => {
         }),
         /outside an expected temporary root/u,
     );
+});
+
+test('readiness runs the three commands and refuses any red one', () => {
+    const base = 'b'.repeat(40);
+    const head = 'a'.repeat(40);
+    const seen = [];
+    // A fake runner that passes everything: the entries carry each command,
+    // its verdict, and the last lines of its output for the manifest.
+    const green = (command, args) => {
+        seen.push(`${command} ${args.join(' ')}`);
+        return { status: 0, stdout: 'line1\nline2\n', stderr: '' };
+    };
+    const results = runReadiness({ root: '/repo', base, head, run: green });
+    assert.deepEqual(results.map(({ label }) => label),
+        ['checkpoint', 'quality check', 'range mutation']);
+    // The mutation command names the exact frozen range and the three gating
+    // kinds, so a transcribed range cannot drift from the audited one.
+    assert.equal(seen[2],
+        `npm run mutate -- --range ${base}..${head} `
+            + '--kind relational,logical,boolean');
+    assert.equal(results[0].passed, true);
+    assert.equal(results[0].tail, 'line1\nline2');
+
+    // One red command refuses the whole preparation and names the failure.
+    const redOnQuality = (command, args) => ({
+        status: args.includes('quality') ? 1 : 0,
+        stdout: 'boom\n',
+        stderr: '',
+    });
+    assert.throws(
+        () => runReadiness({ root: '/repo', base, head, run: redOnQuality }),
+        /readiness commands failed: quality check/u,
+    );
+});
+
+test('prepare accepts --readiness as a boolean option', () => {
+    const parsed = parseAuditArgs(['prepare', '--range', 'a..b',
+        '--skill', 's', '--skill-path', 'p', '--prompt', 'q', '--readiness']);
+    assert.equal(parsed.readiness, true);
+    const without = parseAuditArgs(['prepare', '--range', 'a..b',
+        '--skill', 's', '--skill-path', 'p', '--prompt', 'q']);
+    assert.equal(without.readiness, false);
 });
