@@ -9,7 +9,30 @@ import {
     runCheckpointChecks,
     summarizeDevelopmentScore,
     summarizeMutation,
+    summarizeReviewGate,
 } from './checkpoint-checks.mjs';
+
+test('the checkpoint surfaces the review gate without gating on it', () => {
+    const gate = checkpointCommands([]).find(
+        (entry) => entry.label.startsWith('review gate'));
+    // Informational: .agents/review.md's gate stops implementation, and the
+    // checkpoint only surfaces it, so a red gate must not fail a checkpoint.
+    assert.equal(gate.informational, true);
+    assert.deepEqual(gate.args, ['scripts/quality-status.mjs', '--check']);
+    // The detail is the dashboard's own Review line, the one number agents
+    // otherwise only see by running npm run quality themselves.
+    assert.equal(
+        summarizeReviewGate({
+            stdout: 'Quality coverage at abc12345\n\n'
+                + 'Review since 12345678: clear\n',
+            status: 0,
+        }).detail,
+        'Review since 12345678: clear',
+    );
+    // Exit 1 means the gate blocks; DONE flips to FAIL on the summary line
+    // while the informational flag keeps the checkpoint itself green.
+    assert.equal(summarizeReviewGate({ stdout: '', status: 1 }).passed, false);
+});
 
 test('checkpoint runs focused, full, mutants, generated, static, and score',
     () => {
@@ -31,6 +54,7 @@ test('checkpoint runs focused, full, mutants, generated, static, and score',
                 'generated data (check:symbols)',
                 'generated data (check:themerooms)',
                 'static sources (check:namespace-members)',
+                'review gate',
                 'development score',
             ],
         );

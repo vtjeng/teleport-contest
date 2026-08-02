@@ -7,8 +7,21 @@ import { fileURLToPath } from 'node:url';
 import {
     formatSummary,
     parseRunnerBundle,
+    reviewGateRefusal,
     summarizeBundle,
 } from './score-holdout.mjs';
+
+test('a red review gate refuses a holdout evaluation', () => {
+    // execFileSync throws when the dashboard exits nonzero, so a throwing
+    // runner stands in for a blocked gate. The refusal names the dashboard
+    // command and the override flag, so a reader can tell a deliberate
+    // exception from an oversight.
+    const refusal = reviewGateRefusal(() => { throw new Error('exit 1'); });
+    assert.match(refusal, /review debt blocks a holdout evaluation/u);
+    assert.match(refusal, /--despite-review-debt/u);
+    // A runner that returns is a clear gate: no refusal, evaluation proceeds.
+    assert.equal(reviewGateRefusal(() => {}), null);
+});
 
 const TEST_DIR = dirname(fileURLToPath(import.meta.url));
 

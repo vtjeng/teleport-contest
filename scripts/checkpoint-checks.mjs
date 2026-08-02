@@ -81,6 +81,17 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['run', 'check:namespace-members'],
     });
+    // Informational: .agents/review.md's 10-commit/1,000-line gate stops
+    // implementation, and this line puts its state in the one output every
+    // agent already reads, so passing DUE cannot happen by omission.
+    commands.push({
+        label: 'review gate',
+        command: process.execPath,
+        args: ['scripts/quality-status.mjs', '--check'],
+        capture: true,
+        informational: true,
+        summarize: summarizeReviewGate,
+    });
     if (includeScore) {
         commands.push({
             label: 'development score',
@@ -179,6 +190,14 @@ export function runCheckpointChecks(commands, {
  * the suite check above has already reported that, so this reports itself
  * skipped.
  */
+export function summarizeReviewGate({ stdout = '', status }) {
+    const line = stdout.split('\n').find((l) => l.startsWith('Review since '));
+    return {
+        passed: status === 0,
+        detail: line ?? 'no review line in quality output',
+    };
+}
+
 export function summarizeMutation({ stdout = '', stderr = '', status }) {
     const output = `${stdout}${stderr}`;
     if (status !== 0) {

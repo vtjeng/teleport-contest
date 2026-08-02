@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,6 +31,21 @@ function sessionFiles() {
 }
 
 export { parseRunnerBundle };
+
+// .agents/review.md, "Review scheduling": an authorized holdout evaluation is
+// a review deadline, so every outstanding review completes before one runs.
+// The dashboard's exit code is that rule's executable form; runCheck is
+// injected so a test can stand in for the spawned dashboard.
+export function reviewGateRefusal(runCheck) {
+    try {
+        runCheck();
+        return null;
+    } catch {
+        return 'review debt blocks a holdout evaluation: npm run quality -- '
+            + '--check is red. Clear the gate, or pass --despite-review-debt '
+            + 'to record a deliberate exception.';
+    }
+}
 
 export function summarizeBundle(bundle) {
     const summary = {
@@ -72,7 +88,23 @@ async function main(args) {
         console.log(`Reserved holdout is sealed: ${count} sessions; contents not read.`);
         return;
     }
-    if (args.length !== 0) throw new Error('arguments are not accepted');
+    const override = args.includes('--despite-review-debt');
+    const evaluationArgs = args.filter((arg) => arg !== '--despite-review-debt');
+    if (evaluationArgs.length !== 0) throw new Error('arguments are not accepted');
+    if (!override) {
+        const refusal = reviewGateRefusal(() => execFileSync(
+            process.execPath,
+            [join(PROJECT_ROOT, 'scripts', 'quality-status.mjs'), '--check'],
+            { stdio: 'ignore' },
+        ));
+        if (refusal) {
+            // Printed directly: the generic catch below hides messages by
+            // design, and this refusal precedes any holdout access.
+            console.error(refusal);
+            process.exitCode = 1;
+            return;
+        }
+    }
 
     const files = sessionFiles();
     const tempRoot = createScoringWorkspace(HOLDOUT_DIR, files);
