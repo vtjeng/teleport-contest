@@ -538,6 +538,15 @@
       "status": "open",
       "from": "16574f3f18a4e8c06cdea0933e3e8ecc14faa649",
       "detail": "mon.c:961 minliquid_core() sets infountain from IS_FOUNTAIN(levl[mx][my].typ) and feeds it to the gremlin split at :987: a PM_GREMLIN standing in a fountain draws rn2(3) and may split_mon() and dryup(). Both of this port's minLiquid owners -- js/allmain.js elapsedTurnMinLiquid() and the planning stub in js/unported_monster_actions.js -- refuse a pool or lava and return false for every other square, so that draw never happens and the divergence is silent. The gap predates the furniture-square-entry slice, since makemon() can place a monster on a fountain with no move involved, but that slice lets a monster walk onto one and so widens it. Fix: refuse a gremlin on a fountain in both owners, or port the split. No development session or fresh case reaches it: a gremlin is difficulty 8 (monsters.h:448-455) and D:1 generates nothing near that."
+    },
+    {
+      "id": "movement-path-has-no-failclosed-wrapper",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "9b7333ed150faacc0bb1798a653ceefe155ea52c",
+      "detail": "js/cmd.js executeMovement() calls domove() without the failClosedCommand() wrapper every extended command uses, and js/allmain.js:922 re-enters domove() in the run loop without a fresh key. Any Unsupported* class raised below domove() that is not one of the four js/jsmain.js:525-529 breaks on therefore escapes runSegment() and discards the segment's matching prefix rather than ending on it. Found by the furniture-square-entry correctness pass through UnsupportedFeatureDescriptionError on an altar arrival, which 9b7333e closes at the seam; the general gap stays open. Widening the jsmain boundary list is not the fix, because it would skip resetCommandVars() and leave the rejected keystroke unretryable. Closing condition: wrap both call sites and pin an escaping class end to end through moveloop_core()."
     }
   ],
   "areas": [
