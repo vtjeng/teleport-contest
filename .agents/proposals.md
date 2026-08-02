@@ -52,13 +52,12 @@ exists, so there is no way to say "this range predates the checklist".
 
 The range was widened to `bf96cda..21cea25` instead, which works and is
 arguably better -- it audits the applied fixes too, and a fix is not audited by
-the pass that proposed it. But widening was forced rather than chosen, and it
-mixes an unaudited tail with a range whose findings must not be re-reported,
+the pass that proposed it. But the widening was forced. It also mixes an
+unaudited tail with a range whose findings must not be re-reported,
 which the prompt then has to spend three paragraphs fencing off.
 
 **Cost.** Small: the check already parses both SHAs. The judgement of whether a
-range holds a slice is the author's, so the option is a declaration rather than
-an inference.
+range holds a slice is the author's, and the option records that judgement.
 
 **What it leaves unfixed.** Nothing forces an audit-fix tail to be reviewed
 before the next slice's pass, so the debt can still accumulate silently until
@@ -101,8 +100,8 @@ sweep-candidate line.
 
 **What it leaves unfixed.** Compliance stays voluntary: these make skipping
 a rule visible, and the reader still decides. Rules the same survey judged
-unenforceable by construction, such as report word caps, are handled by
-rewording rather than tooling and are outside this entry.
+unenforceable by construction, such as report word caps, are outside this
+entry; rewording fixes them.
 
 ## Let `npm run checkpoint` write its own log
 
@@ -146,15 +145,16 @@ that reports the disagreement, plus `.agents/selection.md:132-137`.
 the first partially supported command. It added `levelchange` to the supported
 set while `adjabil()`'s gain branch stays refused, so the model names each
 session's next unmet *command* while the port stops mid-command. Two
-consequences, both measured rather than predicted:
+consequences, each measured:
 
 - The behavior table carries no row for the `adjabil()` boundary, so its
   `unlocks` reads 0 and the boundary never reaches the ranking. Only the
   observed boundary census names it.
 - `--ahead` cannot be aimed at it. The boundary string returns "No session stops
   first on ...", and the modeled name measures the wrong stretch:
-  `--ahead=takeoff` prints `seed0361` steps 40..43, not the 22..40 this slice
-  opens. The 66-step ceiling for slice 2 had to be computed by hand from the
+  `--ahead=takeoff` prints `seed0361` steps 40..43, where the stretch that
+  slice opens is 22..40. The 66-step ceiling for slice 2 had to be computed by
+  hand from the
   reconciliation section's paired indices.
 
 `.agents/selection.md:133-137` calls a stop with no modeled behavior at the

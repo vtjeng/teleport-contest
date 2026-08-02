@@ -107,7 +107,7 @@ When a fresh differential fails:
 These four are settled and keep being re-derived. Each has cost a wrong
 conclusion at least once.
 
-- **`rngMatched` compares positionally over the whole log, not as a prefix.**
+- **`rngMatched` compares positionally over the whole log.**
   `frozen/ps_test_runner.mjs` walks both logs to their full length. A segment
   that stops early therefore scores its *next* segment's startup calls against
   C's still-running ones, so a matched-call count can fall while correctness
