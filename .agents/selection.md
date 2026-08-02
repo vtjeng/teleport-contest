@@ -83,6 +83,16 @@ forecast, until it is recalibrated against those closes. The goal budget in
 `.agents/loop.md` bounds what a missed forecast
 can cost.
 
+**A property the session needs proves too little on its own.** Two recorded
+predictions failed this way, and `docs/goal-history.md` preserves both so
+nobody re-derives them. The pickup goal was chosen because its behavior
+"fires without a player command" and gained one development screen. The trap
+goal promised that closing the dart-miss path would unblock `seed1500`,
+which stops earlier, on pet cursed-object feedback, with its random-number
+prefix unchanged by the slice. Both goals treated a property the session
+needs as if reaching it were enough. The sound measurement stays the one
+stated above: apply the candidate change and re-run the scan.
+
 **Sweep an area when its backlog reaches five.** When
 `npm run quality -- deferrals` prints a sweep candidate, a deferred-sweep
 goal over that area is selectable like any boundary: its slices fix open
@@ -95,6 +105,12 @@ first stop for fresh seeds: a census of 600 fresh D:1 walks recorded at
 `a6b32bd` found 67 stopping on `pet combat evaluation` as their earliest
 boundary, while its `unlocks` stood at 0. Before opening a goal on a
 fresh-census boundary, record the census that justifies it in the goal entry.
+Five goal closes in a row left the holdout counts unchanged, and
+`docs/goal-history.md` reads those zeros as one account: the counts move
+only where the port gains behavior it cannot yet perform at all. Ask which
+boundary stands in front of many sessions at once that resemble the eleven
+hidden holdout sessions; no instrument in this repository reports that
+directly.
 
 **The raw `unlocks` count is optimistic by construction.** Against three
 closed goals it overstated by 5.8, 4.8 and 26 times. It assumes the behavior
