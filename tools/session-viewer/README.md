@@ -99,9 +99,9 @@ to move ten steps.
 (buttons above the grid):
 
 - `canon`: the recorded canonical screen, with red, yellow, and blue
-  highlights on the cells where the JS port diverges
-- `js`: the JS port's screen, with the same divergence highlights
-- `diff`: the JS port's screen, except that where the character
+  highlights on the cells where the port diverges
+- `js`: the port's screen, with the same divergence highlights
+- `diff`: the port's screen, except that where the character
   differs and the port rendered a blank, the canonical character is
   shown; the same divergence highlights apply
 
@@ -109,7 +109,7 @@ to move ten steps.
 the canon and js cursor coordinates and flags a mismatch. `prng
 (this step)` lists the step's calls in order, color-coded
 `match`/`diff`/`missing`/`extra`. `message line` prints row 0 of the
-canonical screen, and the JS port's row 0 below it when the two
+canonical screen, and the port's row 0 below it when the two
 differ.
 
 ## Pass/fail decoration
