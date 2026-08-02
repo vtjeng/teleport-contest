@@ -5571,6 +5571,71 @@
         }
       },
       "recordedAt": "2026-08-01T23:37:27.554Z"
+    },
+    {
+      "kind": "review",
+      "bases": {
+        "commands": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
+        "display": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
+        "monsters": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5"
+      },
+      "head": "12706a7a5750dbb8b89937511c44c9efc97c9436",
+      "auditedRange": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5..12706a7a5750dbb8b89937511c44c9efc97c9436",
+      "areas": [
+        "commands",
+        "display",
+        "monsters"
+      ],
+      "level": "light",
+      "outcome": "changed",
+      "evidence": "Light delta review over the audit-fix commit, run because .agents/review.md treats the authorized holdout evaluation that follows as a review deadline that audit-fix debt may not cross. Three finders: 12 raw findings, 8 deduplicated, 7 confirmed, 1 rejected, none unverified, no warnings. All seven applied at 8bd0743, with the development score unchanged at 520 of 7,765 screens and 107,227 of 610,816 random-number values. The sharpest was the commit's own production line: see_nearby_objects()'s refusal of a non-global state had no assertion, and deleting the three guard lines left the whole suite green. Two more were the orchestrator's: db386f6's comment cited a .nvmrc this repository does not contain, and correcting the isolation flag's spelling made --focus run every named file in one shared process, where the whole suite reports 2,379 of 2,380.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1731,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 8,
+          "confirmed": 7,
+          "applied": 7,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 3,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 1
+        },
+        "productionDefects": [],
+        "deferrals": [],
+        "rejections": [
+          {
+            "summary": "The rewritten flooreffects() header states that C's hot-ground potion arm ends with res = TRUE, while do.c:345-353 sets res = TRUE only inside if (!obj_resists(obj, survival_chance, 100)), so a potion that survives the heat leaves res FALSE.",
+            "counterEvidence": "The C fact is right but the comment does not claim what the finding attributes to it: do.c:353's res = TRUE is literally the last statement of the arm's body, and the sentence says nothing about the assignment being unconditional. The comment's argument, that porting an arm for real ends the 'unsupported must not return' arrangement and forces else if, holds identically for a conditional assignment. Do not reopen without a reading in which the omitted obj_resists() guard changes what the header asserts about the chain's structure."
+          }
+        ],
+        "mutation": {
+          "mutants": 0,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 0,
+              "killed": 0
+            },
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "The range's only js/ change is see_nearby_objects()'s state refusal plus comments, so mutate-sites found no relational, logical or boolean site in scope and produced 0 mutants. The test-quality finder covered that line directly instead, and its confirmed finding is the reason the refusal now has an assertion: it deleted the three guard lines and watched the whole suite stay green."
+        }
+      },
+      "recordedAt": "2026-08-02T00:16:23.482Z"
     }
   ]
 }
