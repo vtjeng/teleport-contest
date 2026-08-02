@@ -1,9 +1,10 @@
 # Choosing what to implement next
 
 Read this file when deciding which behavior to port next: which goal to open,
-and which slice of that goal comes first.
-(For more detail: `.agents/workflow.md` defines the terms "goal" and "behavior slice",
-states the evidence require to closes a behavior slice, and outlines the review closing a goal triggers).
+and which slice of that goal comes first. (For more detail:
+`.agents/workflow.md` defines the terms "goal" and "behavior slice", states the
+evidence required to close a behavior slice, and outlines the review that
+closing a goal triggers.)
 
 ## Choosing a goal
 
@@ -73,20 +74,21 @@ to take.
 
 ## Measuring what the port cannot do yet
 
-Select the next goal by identifying features our JavaScript port does not support but that the 33
-development sessions require. Our **development-session census** (implemented
-as `node scripts/scan-stops.mjs`) measures this by replaying every session,
-recording where the port refuses to continue, and categorizing the refusals in
-two ways: 1) by the unported C behavior that stopped the session (identifying the code required), and 2) by
-the player command at that step (identifying what the player was trying to do).
+Our **development-session census** (implemented as
+`node scripts/scan-stops.mjs`) replays every development session, records where
+the port refuses to continue, and categorizes the refusals in two ways: 1) by
+the unported C behavior that stopped the session, identifying the code
+required, and 2) by the player command at that step, identifying what the
+player was trying to do.
 
 ### Running the development-session census
 
 Run the script with no arguments; runs take 1-4 seconds.
 
-For each development session the scan reports the fail-closed boundary (that is, the first unsupported feature) the
-port reaches first, the recorded keystroke the port refused, that keystroke's
-command under the session's own bindings, and C's message on that step. It
+For each development session the scan reports the fail-closed boundary, that
+is, the first unsupported feature the port reaches, the recorded keystroke the
+port refused, that keystroke's command under the session's own bindings, and
+C's message on that step. It
 then groups those rows twice, by boundary and by refused command. Each census
 row lists the sessions in that class, the recorded steps behind the boundary,
 and the class name. This abridged output comes from a run at `460f194`:
@@ -106,8 +108,9 @@ Refused command census
 `--json` emits, in machine-readable form, the same information reported for
 each development session.
 
-The scan reports the screens each session emitted. `scripts/score-development.mjs`
-is the authority on how many of those screens match C's recorded screens.
+The scan reports the screens each session emitted.
+`scripts/score-development.mjs` is the authority on how many of those screens
+match C's recorded screens.
 
 The scanned directory is fixed and the script accepts no path argument, so it
 cannot be aimed at `sessions/holdout/`.
@@ -203,6 +206,6 @@ screens that closed as 9 (`125601d`), and stays in the report as context.
 calibration record; its score evidence stays in `SCORE.tsv`, its review
 metadata in `QUALITY.json`, and its implementation history in Git.
 `ROADMAP.md` describes the systems the current goals belong to, and
-`docs/goal-history.md` holds what the closed goals carried over. Every task starts with
-`node scripts/goal-log.mjs --current`, so goal entries stay terse: the
-boundary, the forecast, and the traced findings in `detail`.
+`docs/goal-history.md` holds what the closed goals carried over. Every task
+starts with `node scripts/goal-log.mjs --current`, so goal entries stay terse:
+the boundary, the forecast, and the traced findings in `detail`.
