@@ -756,11 +756,6 @@
   "passes": [
     {
       "kind": "simplification",
-      "bases": {
-        "startup": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
-        "world": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
-        "runtime": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7"
-      },
       "head": "f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad",
       "areas": [
         "startup",
@@ -773,12 +768,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
-        "objects": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
-        "world": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
-        "runtime": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7"
-      },
       "head": "db2ab36938751e3d49b9385a014a3074784669bb",
       "areas": [
         "startup",
@@ -793,9 +782,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "objects": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7"
-      },
       "head": "db2ab36938751e3d49b9385a014a3074784669bb",
       "areas": [
         "objects"
@@ -806,9 +792,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "world": "f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad"
-      },
       "head": "7890324121d3ecdd73c21e3a2d2d062c9219bf9a",
       "areas": [
         "world"
@@ -819,9 +802,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "startup": "f3e7841a4b48e0b3d3bdfebf7b11efe6ec5a2aad"
-      },
       "head": "71e40ad128009c7959c361aaa7946f10a18528fe",
       "areas": [
         "startup"
@@ -832,9 +812,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "db2ab36938751e3d49b9385a014a3074784669bb"
-      },
       "head": "0c4714233f3da0deac679a3f8220079136303359",
       "areas": [
         "world"
@@ -846,9 +823,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "db2ab36938751e3d49b9385a014a3074784669bb"
-      },
       "head": "71e40ad128009c7959c361aaa7946f10a18528fe",
       "areas": [
         "startup"
@@ -860,11 +834,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "objects": "db2ab36938751e3d49b9385a014a3074784669bb",
-        "world": "0c4714233f3da0deac679a3f8220079136303359",
-        "runtime": "db2ab36938751e3d49b9385a014a3074784669bb"
-      },
       "head": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
       "areas": [
         "objects",
@@ -878,9 +847,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "world": "7890324121d3ecdd73c21e3a2d2d062c9219bf9a"
-      },
       "head": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
       "areas": [
         "world"
@@ -891,14 +857,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "71e40ad128009c7959c361aaa7946f10a18528fe",
-        "hero": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
-        "objects": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
-        "world": "88ccb28d900bfc81e76f092f7b34218dbcbabba9",
-        "interaction": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7",
-        "runtime": "88ccb28d900bfc81e76f092f7b34218dbcbabba9"
-      },
       "head": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73",
       "areas": [
         "startup",
@@ -915,9 +873,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73"
-      },
       "head": "61b7fdd519355688de5ce2b17aba7d7124b84512",
       "areas": [
         "world"
@@ -929,9 +884,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "61b7fdd519355688de5ce2b17aba7d7124b84512"
-      },
       "head": "1a1bda23cf19fa7d3551fa93b858d30cd98c157e",
       "areas": [
         "world"
@@ -943,11 +895,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "1a1bda23cf19fa7d3551fa93b858d30cd98c157e",
-        "interaction": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73",
-        "runtime": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73"
-      },
       "head": "4d53ba9ad59b8a658e4a919a84296f7543000b90",
       "areas": [
         "world",
@@ -961,10 +908,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "4d53ba9ad59b8a658e4a919a84296f7543000b90",
-        "interaction": "4d53ba9ad59b8a658e4a919a84296f7543000b90"
-      },
       "head": "634ddf65b6f585185bd741e4830c015b02e6ade6",
       "areas": [
         "world",
@@ -977,9 +920,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "world": "88ccb28d900bfc81e76f092f7b34218dbcbabba9"
-      },
       "head": "218748c76f0bce0b9311a195b9e55c99b33de254",
       "areas": [
         "world"
@@ -990,9 +930,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "634ddf65b6f585185bd741e4830c015b02e6ade6"
-      },
       "head": "1a8adff62f1c769c665e5dc5f46350dffecd9a1f",
       "areas": [
         "world"
@@ -1004,9 +941,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "1a8adff62f1c769c665e5dc5f46350dffecd9a1f"
-      },
       "head": "44c4f69aed40dc3644b809c52d7bd9c32a667a2d",
       "areas": [
         "world"
@@ -1018,9 +952,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "44c4f69aed40dc3644b809c52d7bd9c32a667a2d"
-      },
       "head": "67240887f5a10776689c216aa97f1c577e73e509",
       "areas": [
         "world"
@@ -1032,9 +963,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world": "67240887f5a10776689c216aa97f1c577e73e509"
-      },
       "head": "b4c7dcb2a36e0a7726c12c7bf05b368621aea800",
       "areas": [
         "world"
@@ -1046,9 +974,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "world": "218748c76f0bce0b9311a195b9e55c99b33de254"
-      },
       "head": "61d2bf62cbd692e6bb93ce37c1232efe84e31a34",
       "areas": [
         "world"
@@ -1059,9 +984,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "interaction": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7"
-      },
       "head": "7426b1287958b0cd06bce3d9a60331f2a4d71de9",
       "areas": [
         "interaction"
@@ -1072,10 +994,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73",
-        "objects": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73"
-      },
       "head": "33594973e33e4af23e557305fb052b10e1f7692f",
       "areas": [
         "startup",
@@ -1152,11 +1070,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "generation": "b4c7dcb2a36e0a7726c12c7bf05b368621aea800",
-        "monsters": "b4c7dcb2a36e0a7726c12c7bf05b368621aea800",
-        "world-effects": "b4c7dcb2a36e0a7726c12c7bf05b368621aea800"
-      },
       "head": "33594973e33e4af23e557305fb052b10e1f7692f",
       "areas": [
         "generation",
@@ -1198,9 +1111,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "replay": "37e3dc2094fb84d65afd7da33bddef6ed9ebc4c7"
-      },
       "head": "33594973e33e4af23e557305fb052b10e1f7692f",
       "areas": [
         "replay"
@@ -1232,10 +1142,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "634ddf65b6f585185bd741e4830c015b02e6ade6",
-        "display": "634ddf65b6f585185bd741e4830c015b02e6ade6"
-      },
       "head": "33594973e33e4af23e557305fb052b10e1f7692f",
       "areas": [
         "commands",
@@ -1297,9 +1203,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "33594973e33e4af23e557305fb052b10e1f7692f"
-      },
       "head": "ece6b80a84e7389f0c54aa2371213b05966763ee",
       "areas": [
         "startup"
@@ -1346,10 +1249,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "generation": "33594973e33e4af23e557305fb052b10e1f7692f",
-        "world-effects": "33594973e33e4af23e557305fb052b10e1f7692f"
-      },
       "head": "ece6b80a84e7389f0c54aa2371213b05966763ee",
       "areas": [
         "generation",
@@ -1382,9 +1281,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "display": "33594973e33e4af23e557305fb052b10e1f7692f"
-      },
       "head": "ece6b80a84e7389f0c54aa2371213b05966763ee",
       "areas": [
         "display"
@@ -1431,12 +1327,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "ece6b80a84e7389f0c54aa2371213b05966763ee",
-        "generation": "ece6b80a84e7389f0c54aa2371213b05966763ee",
-        "world-effects": "ece6b80a84e7389f0c54aa2371213b05966763ee",
-        "display": "ece6b80a84e7389f0c54aa2371213b05966763ee"
-      },
       "head": "e1770ccb153d0f930c039bcad36186ae9ec89065",
       "areas": [
         "startup",
@@ -1486,12 +1376,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "e1770ccb153d0f930c039bcad36186ae9ec89065",
-        "world-effects": "e1770ccb153d0f930c039bcad36186ae9ec89065",
-        "commands": "33594973e33e4af23e557305fb052b10e1f7692f",
-        "display": "e1770ccb153d0f930c039bcad36186ae9ec89065"
-      },
       "head": "b38b104133dedd76e33c6a092669d4871ec34de3",
       "areas": [
         "startup",
@@ -1549,12 +1433,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "b38b104133dedd76e33c6a092669d4871ec34de3",
-        "generation": "e1770ccb153d0f930c039bcad36186ae9ec89065",
-        "commands": "b38b104133dedd76e33c6a092669d4871ec34de3",
-        "display": "b38b104133dedd76e33c6a092669d4871ec34de3"
-      },
       "head": "5a845405522d685ed8320d112ee7a1fce492a53e",
       "areas": [
         "startup",
@@ -1598,12 +1476,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "5a845405522d685ed8320d112ee7a1fce492a53e",
-        "generation": "5a845405522d685ed8320d112ee7a1fce492a53e",
-        "commands": "5a845405522d685ed8320d112ee7a1fce492a53e",
-        "display": "5a845405522d685ed8320d112ee7a1fce492a53e"
-      },
       "head": "3cc0649943020c3968cfad9e74c5919df9e570b4",
       "areas": [
         "startup",
@@ -1646,9 +1518,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "display": "3cc0649943020c3968cfad9e74c5919df9e570b4"
-      },
       "head": "f0624a759f50fbf061ab7e48ff7e83a08ea57ef1",
       "areas": [
         "display"
@@ -1680,9 +1549,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "display": "f0624a759f50fbf061ab7e48ff7e83a08ea57ef1"
-      },
       "head": "82615f42653158d8074f3903e7d2087545ffe05f",
       "areas": [
         "display"
@@ -1714,11 +1580,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "3cc0649943020c3968cfad9e74c5919df9e570b4",
-        "generation": "3cc0649943020c3968cfad9e74c5919df9e570b4",
-        "commands": "3cc0649943020c3968cfad9e74c5919df9e570b4"
-      },
       "head": "76109518c4e879b444ee53cddd9617f875780888",
       "areas": [
         "startup",
@@ -1790,10 +1651,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "33594973e33e4af23e557305fb052b10e1f7692f",
-        "replay": "33594973e33e4af23e557305fb052b10e1f7692f"
-      },
       "head": "afcbd77b5e33169f749c6dc59f3e973b8beb650b",
       "areas": [
         "monsters",
@@ -1835,10 +1692,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world-effects": "b38b104133dedd76e33c6a092669d4871ec34de3",
-        "replay": "afcbd77b5e33169f749c6dc59f3e973b8beb650b"
-      },
       "head": "91220dc310e2efd2b00cecdca5598c2b39b2c8fa",
       "areas": [
         "world-effects",
@@ -1901,9 +1754,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "afcbd77b5e33169f749c6dc59f3e973b8beb650b"
-      },
       "head": "0708853dc18b2a0723dab61f6d116f7606fc23ab",
       "areas": [
         "monsters"
@@ -1944,12 +1794,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "76109518c4e879b444ee53cddd9617f875780888",
-        "objects": "33594973e33e4af23e557305fb052b10e1f7692f",
-        "monsters": "0708853dc18b2a0723dab61f6d116f7606fc23ab",
-        "replay": "91220dc310e2efd2b00cecdca5598c2b39b2c8fa"
-      },
       "head": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
       "areas": [
         "startup",
@@ -2028,12 +1872,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
-        "objects": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
-        "monsters": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336",
-        "replay": "9f24c329a44af7c7ccf9f9bf6dae3904b0189336"
-      },
       "head": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0",
       "areas": [
         "startup",
@@ -2091,9 +1929,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0"
-      },
       "head": "10dd52becdd3f3d2c6193b4b63483c3ad043bdaa",
       "areas": [
         "monsters"
@@ -2147,9 +1982,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "10dd52becdd3f3d2c6193b4b63483c3ad043bdaa"
-      },
       "head": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
       "areas": [
         "monsters"
@@ -2215,9 +2047,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world-effects": "91220dc310e2efd2b00cecdca5598c2b39b2c8fa"
-      },
       "head": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
       "areas": [
         "world-effects"
@@ -2282,12 +2111,6 @@
     },
     {
       "kind": "simplification",
-      "bases": {
-        "startup": "71e40ad128009c7959c361aaa7946f10a18528fe",
-        "monsters": "61d2bf62cbd692e6bb93ce37c1232efe84e31a34",
-        "world-effects": "61d2bf62cbd692e6bb93ce37c1232efe84e31a34",
-        "display": "7426b1287958b0cd06bce3d9a60331f2a4d71de9"
-      },
       "head": "e153d07dad0aad333bfb5e51d1ea6ad0aa4bf5ac",
       "areas": [
         "startup",
@@ -2368,16 +2191,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0",
-        "objects": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0",
-        "monsters": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
-        "world-effects": "09a1caaa291bf39ccdcb13ff945fb1eeb0bc2144",
-        "commands": "76109518c4e879b444ee53cddd9617f875780888",
-        "display": "82615f42653158d8074f3903e7d2087545ffe05f",
-        "runtime": "4d53ba9ad59b8a658e4a919a84296f7543000b90",
-        "replay": "32c3c65fd379384d7f9ca56a6604a0612c3ba9f0"
-      },
       "head": "3b6c38de148679a5cc8313d755ec906fa95627c3",
       "areas": [
         "startup",
@@ -2765,18 +2578,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "3b6c38de148679a5cc8313d755ec906fa95627c3",
-        "hero": "f140abfaa499b2e8d7648fffc5c0fb73e33a5c73",
-        "objects": "3b6c38de148679a5cc8313d755ec906fa95627c3",
-        "generation": "76109518c4e879b444ee53cddd9617f875780888",
-        "monsters": "3b6c38de148679a5cc8313d755ec906fa95627c3",
-        "world-effects": "3b6c38de148679a5cc8313d755ec906fa95627c3",
-        "commands": "3b6c38de148679a5cc8313d755ec906fa95627c3",
-        "display": "3b6c38de148679a5cc8313d755ec906fa95627c3",
-        "runtime": "3b6c38de148679a5cc8313d755ec906fa95627c3",
-        "replay": "3b6c38de148679a5cc8313d755ec906fa95627c3"
-      },
       "head": "f97bd584d5cd9262f27921953b8f55e792a58f10",
       "areas": [
         "startup",
@@ -2825,9 +2626,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "f97bd584d5cd9262f27921953b8f55e792a58f10"
-      },
       "head": "d29414adb650373a3c25cbbb6b650ad586688ba9",
       "areas": [
         "monsters"
@@ -2896,18 +2694,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "hero": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "objects": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "generation": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "monsters": "d29414adb650373a3c25cbbb6b650ad586688ba9",
-        "world-effects": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "commands": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "display": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "runtime": "f97bd584d5cd9262f27921953b8f55e792a58f10",
-        "replay": "f97bd584d5cd9262f27921953b8f55e792a58f10"
-      },
       "head": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
       "areas": [
         "startup",
@@ -3000,14 +2786,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
-        "hero": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
-        "objects": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
-        "monsters": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
-        "world-effects": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
-        "commands": "e30ea05440a4850bee40881d3f65180c6ae7bb7b"
-      },
       "head": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
       "auditedRange": "e30ea05440a4850bee40881d3f65180c6ae7bb7b..4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
       "areas": [
@@ -3123,14 +2901,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
-        "objects": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
-        "monsters": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
-        "hero": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
-        "startup": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c",
-        "world-effects": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c"
-      },
       "head": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
       "auditedRange": "4fc57d807d8e780714c2a3725d1fb8b7eabca92c..eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
       "areas": [
@@ -3276,14 +3046,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
-        "hero": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
-        "objects": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
-        "monsters": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
-        "world-effects": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef",
-        "commands": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef"
-      },
       "head": "60bf2c3cf1fc8d7313970a91417547af466206c3",
       "auditedRange": "eb7e17ec72379124ff7bab6f80ff4b3f773393ef..60bf2c3cf1fc8d7313970a91417547af466206c3",
       "areas": [
@@ -3362,14 +3124,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "60bf2c3cf1fc8d7313970a91417547af466206c3",
-        "hero": "60bf2c3cf1fc8d7313970a91417547af466206c3",
-        "objects": "60bf2c3cf1fc8d7313970a91417547af466206c3",
-        "monsters": "60bf2c3cf1fc8d7313970a91417547af466206c3",
-        "world-effects": "60bf2c3cf1fc8d7313970a91417547af466206c3",
-        "commands": "60bf2c3cf1fc8d7313970a91417547af466206c3"
-      },
       "head": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
       "auditedRange": "60bf2c3cf1fc8d7313970a91417547af466206c3..2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
       "areas": [
@@ -3413,14 +3167,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
-        "hero": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
-        "objects": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
-        "monsters": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
-        "world-effects": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73",
-        "commands": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73"
-      },
       "head": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
       "auditedRange": "2adc5af64b2a6dffc08e56c1ae71d0b453f92d73..60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
       "areas": [
@@ -3488,14 +3234,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
-        "hero": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
-        "objects": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
-        "monsters": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
-        "world-effects": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5",
-        "commands": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5"
-      },
       "head": "f826ba5392d313da8951095111b8201f5be497fe",
       "auditedRange": "60bf3d04c84bce48ff7aadf7989556874ee0f3e5..f826ba5392d313da8951095111b8201f5be497fe",
       "areas": [
@@ -3577,10 +3315,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "f826ba5392d313da8951095111b8201f5be497fe",
-        "commands": "f826ba5392d313da8951095111b8201f5be497fe"
-      },
       "head": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
       "auditedRange": "f826ba5392d313da8951095111b8201f5be497fe..4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
       "areas": [
@@ -3628,10 +3362,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071",
-        "commands": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071"
-      },
       "head": "61f41f9b8255ad5359d491196bde97d69ea7d3eb",
       "auditedRange": "4e9a59f8b7098a4f9e80e7d05c7df2bc21363071..61f41f9b8255ad5359d491196bde97d69ea7d3eb",
       "areas": [
@@ -3684,10 +3414,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "61f41f9b8255ad5359d491196bde97d69ea7d3eb",
-        "commands": "61f41f9b8255ad5359d491196bde97d69ea7d3eb"
-      },
       "head": "2ac43bceb22c833fb670117105f40f85d334cd13",
       "auditedRange": "61f41f9b8255ad5359d491196bde97d69ea7d3eb..2ac43bceb22c833fb670117105f40f85d334cd13",
       "areas": [
@@ -3721,16 +3447,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "2ac43bceb22c833fb670117105f40f85d334cd13",
-        "hero": "f826ba5392d313da8951095111b8201f5be497fe",
-        "generation": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
-        "monsters": "f826ba5392d313da8951095111b8201f5be497fe",
-        "world-effects": "f826ba5392d313da8951095111b8201f5be497fe",
-        "commands": "2ac43bceb22c833fb670117105f40f85d334cd13",
-        "display": "e30ea05440a4850bee40881d3f65180c6ae7bb7b",
-        "runtime": "e30ea05440a4850bee40881d3f65180c6ae7bb7b"
-      },
       "head": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
       "auditedRange": "e30ea05440a4850bee40881d3f65180c6ae7bb7b..d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
       "areas": [
@@ -3843,11 +3559,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world-effects": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
-        "commands": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
-        "runtime": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674"
-      },
       "head": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
       "auditedRange": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674..c706db8a6f372d28630d0f8e9bb06eba929a1123",
       "areas": [
@@ -3882,12 +3593,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
-        "hero": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
-        "display": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
-        "startup": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674"
-      },
       "head": "5879bed71b42deb7fe8346e75e589c42922d956b",
       "auditedRange": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674..5879bed71b42deb7fe8346e75e589c42922d956b",
       "areas": [
@@ -3977,9 +3682,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "5879bed71b42deb7fe8346e75e589c42922d956b"
-      },
       "head": "cdb83a481180205a8f011ee67b066116a93aaad6",
       "auditedRange": "5879bed71b42deb7fe8346e75e589c42922d956b..cdb83a481180205a8f011ee67b066116a93aaad6",
       "areas": [
@@ -4046,9 +3748,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "cdb83a481180205a8f011ee67b066116a93aaad6"
-      },
       "head": "4d54fa81d05cc763102b5a17dfc44125325ce46b",
       "auditedRange": "cdb83a481180205a8f011ee67b066116a93aaad6..4d54fa81d05cc763102b5a17dfc44125325ce46b",
       "areas": [
@@ -4087,10 +3786,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674",
-        "objects": "f826ba5392d313da8951095111b8201f5be497fe"
-      },
       "head": "4d78313de6e5ae5735c531bba8982b089bd2ac00",
       "auditedRange": "f826ba5392d313da8951095111b8201f5be497fe..4d78313de6e5ae5735c531bba8982b089bd2ac00",
       "areas": [
@@ -4196,11 +3891,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "5879bed71b42deb7fe8346e75e589c42922d956b",
-        "monsters": "4d78313de6e5ae5735c531bba8982b089bd2ac00",
-        "objects": "4d78313de6e5ae5735c531bba8982b089bd2ac00"
-      },
       "head": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67",
       "auditedRange": "5879bed71b42deb7fe8346e75e589c42922d956b..2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67",
       "areas": [
@@ -4318,9 +4008,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67"
-      },
       "head": "c64d35015524984772317b67783e3cc59228cec3",
       "auditedRange": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67..c64d35015524984772317b67783e3cc59228cec3",
       "areas": [
@@ -4363,9 +4050,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "c64d35015524984772317b67783e3cc59228cec3"
-      },
       "head": "005ea20e047e76958b57d78c39ed3136f3ebe1d1",
       "auditedRange": "c64d35015524984772317b67783e3cc59228cec3..005ea20e047e76958b57d78c39ed3136f3ebe1d1",
       "areas": [
@@ -4473,10 +4157,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world-effects": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
-        "monsters": "005ea20e047e76958b57d78c39ed3136f3ebe1d1"
-      },
       "head": "06a5629b044794642e83fd6127cddc7f942680d0",
       "auditedRange": "c706db8a6f372d28630d0f8e9bb06eba929a1123..06a5629b044794642e83fd6127cddc7f942680d0",
       "areas": [
@@ -4576,10 +4256,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "4d54fa81d05cc763102b5a17dfc44125325ce46b",
-        "monsters": "06a5629b044794642e83fd6127cddc7f942680d0"
-      },
       "head": "27761926cb6f41e6b236d9b27b9a7ab809c7d608",
       "auditedRange": "4d54fa81d05cc763102b5a17dfc44125325ce46b..27761926cb6f41e6b236d9b27b9a7ab809c7d608",
       "areas": [
@@ -4675,9 +4351,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "27761926cb6f41e6b236d9b27b9a7ab809c7d608"
-      },
       "head": "3471a99a07b6fb35dbb8a2d63801ee4c787a380a",
       "auditedRange": "27761926cb6f41e6b236d9b27b9a7ab809c7d608..3471a99a07b6fb35dbb8a2d63801ee4c787a380a",
       "areas": [
@@ -4727,9 +4400,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "3471a99a07b6fb35dbb8a2d63801ee4c787a380a"
-      },
       "head": "ff865ec919042f747f12d44962b8c7b2f782bc2a",
       "auditedRange": "3471a99a07b6fb35dbb8a2d63801ee4c787a380a..ff865ec919042f747f12d44962b8c7b2f782bc2a",
       "areas": [
@@ -4789,10 +4459,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world-effects": "06a5629b044794642e83fd6127cddc7f942680d0",
-        "monsters": "27761926cb6f41e6b236d9b27b9a7ab809c7d608"
-      },
       "head": "bf96cda5edec310cfa12590706216ca5263af2f1",
       "auditedRange": "06a5629b044794642e83fd6127cddc7f942680d0..bf96cda5edec310cfa12590706216ca5263af2f1",
       "areas": [
@@ -4938,10 +4604,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "world-effects": "bf96cda5edec310cfa12590706216ca5263af2f1",
-        "monsters": "bf96cda5edec310cfa12590706216ca5263af2f1"
-      },
       "head": "21cea25678630be92405ccfda3c61b38bc0fc54a",
       "auditedRange": "bf96cda5edec310cfa12590706216ca5263af2f1..21cea25678630be92405ccfda3c61b38bc0fc54a",
       "areas": [
@@ -5011,9 +4673,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "generation": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674"
-      },
       "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "auditedRange": "d1a71f7ea035fe6f21567fe7760416ce9b0b5674..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "areas": [
@@ -5107,9 +4766,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "monsters": "21cea25678630be92405ccfda3c61b38bc0fc54a"
-      },
       "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "auditedRange": "21cea25678630be92405ccfda3c61b38bc0fc54a..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "areas": [
@@ -5203,9 +4859,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "startup": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67"
-      },
       "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "auditedRange": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "areas": [
@@ -5299,14 +4952,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "ff865ec919042f747f12d44962b8c7b2f782bc2a",
-        "display": "5879bed71b42deb7fe8346e75e589c42922d956b",
-        "hero": "5879bed71b42deb7fe8346e75e589c42922d956b",
-        "objects": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67",
-        "runtime": "c706db8a6f372d28630d0f8e9bb06eba929a1123",
-        "world-effects": "21cea25678630be92405ccfda3c61b38bc0fc54a"
-      },
       "head": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "auditedRange": "c706db8a6f372d28630d0f8e9bb06eba929a1123..ed43517c137daca29d9c69bd86e5aa6ac5052b55",
       "areas": [
@@ -5400,17 +5045,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "display": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "generation": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "hero": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "monsters": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "objects": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "runtime": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "startup": "ed43517c137daca29d9c69bd86e5aa6ac5052b55",
-        "world-effects": "ed43517c137daca29d9c69bd86e5aa6ac5052b55"
-      },
       "head": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
       "auditedRange": "2fea8eb66ad213da5064a8aa49c93f2e9dc5bb67..9a7aef528acee7934f2c496647d2cb2f8f68b167",
       "areas": [
@@ -5501,12 +5135,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
-        "hero": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
-        "objects": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
-        "world-effects": "9a7aef528acee7934f2c496647d2cb2f8f68b167"
-      },
       "head": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
       "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..0044be6b07b6224a46d9117a34fc2e9e41892d29",
       "areas": [
@@ -5559,12 +5187,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
-        "runtime": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
-        "objects": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
-        "monsters": "9a7aef528acee7934f2c496647d2cb2f8f68b167"
-      },
       "head": "dc4e009eace59753032502a7c908808541957630",
       "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..dc4e009eace59753032502a7c908808541957630",
       "areas": [
@@ -5695,12 +5317,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "generation": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
-        "monsters": "dc4e009eace59753032502a7c908808541957630",
-        "commands": "dc4e009eace59753032502a7c908808541957630",
-        "startup": "9a7aef528acee7934f2c496647d2cb2f8f68b167"
-      },
       "head": "17825d3f8092debe79586bcdaa175718c2e2b89a",
       "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..17825d3f8092debe79586bcdaa175718c2e2b89a",
       "areas": [
@@ -5841,11 +5457,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "generation": "17825d3f8092debe79586bcdaa175718c2e2b89a",
-        "monsters": "17825d3f8092debe79586bcdaa175718c2e2b89a",
-        "commands": "17825d3f8092debe79586bcdaa175718c2e2b89a"
-      },
       "head": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
       "auditedRange": "17825d3f8092debe79586bcdaa175718c2e2b89a..a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
       "areas": [
@@ -5938,17 +5549,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
-        "display": "9a7aef528acee7934f2c496647d2cb2f8f68b167",
-        "generation": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
-        "hero": "0044be6b07b6224a46d9117a34fc2e9e41892d29",
-        "monsters": "a8a7f5ae1a8303adae12dfd44ad99f2a39a23e9d",
-        "objects": "dc4e009eace59753032502a7c908808541957630",
-        "runtime": "dc4e009eace59753032502a7c908808541957630",
-        "startup": "17825d3f8092debe79586bcdaa175718c2e2b89a",
-        "world-effects": "0044be6b07b6224a46d9117a34fc2e9e41892d29"
-      },
       "head": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
       "auditedRange": "9a7aef528acee7934f2c496647d2cb2f8f68b167..7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
       "areas": [
@@ -6046,11 +5646,6 @@
     },
     {
       "kind": "review",
-      "bases": {
-        "commands": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
-        "display": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5",
-        "monsters": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5"
-      },
       "head": "12706a7a5750dbb8b89937511c44c9efc97c9436",
       "auditedRange": "7caa32513e2beb417234a8f3c3f92475d2d7ffc5..12706a7a5750dbb8b89937511c44c9efc97c9436",
       "areas": [

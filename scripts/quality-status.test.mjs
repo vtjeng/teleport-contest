@@ -20,7 +20,6 @@ import {
   openDeferrals,
   sweepCandidates,
   collectRejections,
-  newestFrontier,
   passesForAreas,
   missingMutantTrailers,
   renderCountsSentence,
@@ -576,7 +575,7 @@ test('the recorder entry point enforces both durable-record gates', () => {
   assert.deepEqual(withMetrics(accepted), accepted);
 });
 
-test('an audited range must start at or before every claimed frontier', () => {
+test('an audited range must start at or before the frontier', () => {
   // A three-commit line of history: OLDEST is an ancestor of MIDDLE, which is
   // an ancestor of NEWEST.
   const OLDEST = '1'.repeat(40);
@@ -585,38 +584,21 @@ test('an audited range must start at or before every claimed frontier', () => {
   const order = [OLDEST, MIDDLE, NEWEST];
   const ancestorCheck = (base, head) => order.indexOf(base) <= order.indexOf(head);
 
-  // Frontiers diverge: hero was last reviewed at OLDEST, monsters at MIDDLE.
-  // One range starting at the older frontier covers both areas' debt.
+  // Starting exactly at the frontier covers the debt with nothing skipped.
   assert.doesNotThrow(() => validateAuditedRangeCoverage(
-    'review',
-    OLDEST,
-    { hero: OLDEST, monsters: MIDDLE },
-    ancestorCheck,
-  ));
+    'review', MIDDLE, MIDDLE, ancestorCheck));
 
-  // Starting at the newer frontier skips hero's OLDEST..MIDDLE commits, which
-  // recording the pass would mark reviewed. The message names the area, the
-  // frontier it expected, and the base it received.
+  // Starting after the frontier skips MIDDLE..NEWEST, which recording the
+  // pass would mark reviewed. The message names the frontier and the base.
   assert.throws(
-    () => validateAuditedRangeCoverage(
-      'review',
-      MIDDLE,
-      { hero: OLDEST, monsters: MIDDLE },
-      ancestorCheck,
-    ),
-    new RegExp(
-      `starts at ${MIDDLE}, after the review frontier ${OLDEST} for hero`,
-    ),
+    () => validateAuditedRangeCoverage('review', NEWEST, MIDDLE, ancestorCheck),
+    new RegExp(`starts at ${NEWEST}, after the review frontier ${MIDDLE}`),
   );
 
-  // Auditing more than the frontier requires is safe: NEWEST is claimed from a
-  // base older than both frontiers.
+  // Auditing more than the frontier requires is safe: a base older than the
+  // frontier re-reads reviewed commits and skips nothing.
   assert.doesNotThrow(() => validateAuditedRangeCoverage(
-    'simplification',
-    OLDEST,
-    { hero: MIDDLE, monsters: NEWEST },
-    ancestorCheck,
-  ));
+    'simplification', OLDEST, MIDDLE, ancestorCheck));
 });
 
 test('a stored audited range must end at the pass head', () => {
@@ -624,7 +606,6 @@ test('a stored audited range must end at the pass head', () => {
   const head = '2'.repeat(40);
   const pass = {
     kind: 'review',
-    bases: { first: trackingBase },
     head,
     // The range ends one commit short of the pass head, so the recorded pass
     // would advance the frontier past commits the audit never read.
@@ -785,7 +766,6 @@ test('new ledger passes require structured audit metrics', () => {
   const sha = '1'.repeat(40);
   const pass = {
     kind: 'review',
-    bases: { first: sha },
     head: '2'.repeat(40),
     areas: ['first'],
     level: 'light',
@@ -848,13 +828,6 @@ test('the review window thresholds validate below the gate', () => {
     assert.throws(() => validateConfigShape(missing), /windowCommits/u);
 });
 
-test('newestFrontier picks the frontier every other one precedes', () => {
-    // Linear history a -> b -> c, encoded in the check: x precedes y when x
-    // sorts at or before y, matching git ancestry on a linear branch.
-    const ancestorCheck = (x, y) => x <= y;
-    assert.equal(newestFrontier(['b', 'a', 'c'], ancestorCheck), 'c');
-    assert.equal(newestFrontier(['a'], ancestorCheck), 'a');
-});
 
 test('ledger queries filter passes by area and flatten their entries', () => {
     // Two passes: one over monsters, one over display. The monsters pass

@@ -65,17 +65,18 @@ their own evidence snapshots.
 ### When a correctness pass is due
 
 - Treat three unreviewed implementation commits or 500 changed production
-  lines in an affected area as an advisory checkpoint. Neither trigger
+  lines since the frontier as an advisory checkpoint. Neither trigger
   requires a full correctness pass by itself; `QUALITY.json` configures this
   checkpoint and `npm run quality` measures it.
 - Run a full correctness pass no later than ten unreviewed implementation
-  commits or 1,000 changed production lines in an affected area. That
+  commits or 1,000 changed production lines since the frontier. That
   full-pass limit is the gate; the three-commit/500-line checkpoint is
   advisory only.
-- These limits count changed lines per quality area. A file boundary does not
-  affect the count: splitting a file into several files does not reduce
-  review debt, and is not a reason to split one. See "Keep each source file's
-  port in one place" in `AGENTS.md`.
+- These limits count changed production lines across every area-owned path,
+  measured from the one review frontier, the newest recorded review head. A
+  file boundary does not affect the count: splitting a file into several
+  files does not reduce review debt, and is not a reason to split one. See
+  "Keep each source file's port in one place" in `AGENTS.md`.
 - Two kinds of commit are counted but reviewed differently, because an
   identical development score already shows they changed no behavior the
   scored sessions exercise.
@@ -106,18 +107,16 @@ or another shared behavioral interface. Imports, exports, call sites, tests,
 and wiring that consume an existing contract do not cross areas by themselves.
 
 Related shared-contract changes within one named behavior slice and roadmap
-item may share a review window through the next observable boundary. The window
-may contain at most eight unreviewed implementation commits and 1,000 changed
-production lines summed across affected areas. Apply the per-chunk workflow
+item may share a review window through the next observable boundary. The
+window may contain at most eight unreviewed implementation commits and 1,000
+changed production lines since the frontier. Apply the per-chunk workflow
 throughout and run fresh end-to-end differentials once the real consumer
 executes.
 
 The `windowCommits` and `windowChangedLines` keys in `QUALITY.json` encode
-this window, and `npm run quality` prints it as the `Review window` line,
-measured from the newest recorded correctness frontier across every
-area-owned path. It is separate from the per-area advisory checkpoint and
-gate above. A `DUE` window is an advisory to run the pass; it never blocks
-the gate by itself.
+this window, and the dashboard's single `Review since <frontier>` line
+reports `WINDOW DUE` when the debt reaches it. `WINDOW DUE` is the advisory
+to run the per-slice pass; only `DUE`, the ten-commit gate, blocks.
 
 Run a formal review pass over the exact window before:
 
@@ -336,14 +335,13 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   `scripts/audit-worktree.mjs prepare` takes. The recorder stores it as the
   pass's `auditedRange`. Pass `--head` only to restate the range head; it must
   name the same commit.
-- The range base must be at or before the current frontier of every area named
-  in `--areas`. The recorder refuses a range that starts after a claimed
-  frontier, because recording that pass would turn the skipped commits into
-  reviewed history. The refusal names the area, the frontier it expected, and
-  the base it received. Frontiers diverge per area, and one range cannot start at
-  two commits. Either review from the oldest frontier among the areas you claim,
-  which re-reads commits already covered and is harmless, or review and record
-  each frontier group separately.
+- The range base must be at or before the frontier, the newest recorded
+  head of the pass's kind. The recorder refuses a range that starts after
+  it, because recording that pass would turn the skipped commits into
+  reviewed history; the refusal names the frontier and the base it received.
+  A base older than the frontier re-reads reviewed commits and is harmless.
+  `--areas` labels the range for finding attribution and deferral routing;
+  areas carry no frontiers of their own.
 - Advance a review frontier only through the exact integrated commit that a
   recorded pass covered. An audit-fix commit recorded as its own pass's range
   head carries no debt; one applied after the pass was recorded remains debt

@@ -364,21 +364,18 @@ export function validateAuditMetrics(metrics, {
   return metrics;
 }
 
-// The per-area frontier is where an area's unreviewed debt starts. An audit
-// that begins after a claimed area's frontier never read the commits in
-// between, yet recording it would mark them reviewed forever. Require the
-// range to begin at or before every claimed frontier. Auditing extra already
-// reviewed commits is harmless; skipping unreviewed ones is not.
-export function validateAuditedRangeCoverage(kind, base, bases, ancestorCheck) {
-  for (const [areaId, frontier] of Object.entries(bases)) {
-    if (ancestorCheck(base, frontier)) continue;
-    fail(
-      `the audited range starts at ${base}, after the ${kind} frontier `
-        + `${frontier} for ${areaId}. Those commits would become reviewed `
-        + `history without being audited. Re-run the audit from ${frontier}, `
-        + `or drop ${areaId} from --areas and record it separately.`,
-    );
-  }
+// The frontier is where unreviewed debt starts. An audit that begins after
+// it never read the commits in between, yet recording it would mark them
+// reviewed forever. Require the range to begin at or before the frontier.
+// Auditing extra already reviewed commits is harmless; skipping unreviewed
+// ones is not.
+export function validateAuditedRangeCoverage(kind, base, frontier, ancestorCheck) {
+  if (ancestorCheck(base, frontier)) return;
+  fail(
+    `the audited range starts at ${base}, after the ${kind} frontier `
+      + `${frontier}. Those commits would become reviewed history without `
+      + `being audited. Re-run the audit from ${frontier}.`,
+  );
 }
 
 function git(args, options = {}) {
@@ -617,13 +614,6 @@ export function qualityGateBlocked({ reviewDue, unassignedCount }) {
   return reviewDue > 0 || unassignedCount > 0;
 }
 
-// The per-slice review window in .agents/review.md is measured from the
-// newest recorded correctness frontier, across every area-owned path.
-// Frontiers sit on the repository's linear history, so the newest is the one
-// every other frontier is an ancestor of.
-export function newestFrontier(frontiers, ancestorCheck) {
-  return [...frontiers].reduce((a, b) => (ancestorCheck(a, b) ? b : a));
-}
 
 function plural(count, singular) {
   return `${count.toLocaleString('en-US')} ${singular}${count === 1 ? '' : 's'}`;
@@ -664,20 +654,18 @@ export function formatReviewDebt(total, current, dirty, thresholds) {
     return `DUE (${currentUnits}/${thresholds.reviewCommits} commits, `
       + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
   }
+  if (currentUnits >= thresholds.windowCommits
+      || currentLines >= thresholds.windowChangedLines) {
+    return `WINDOW DUE (${currentUnits}/${thresholds.windowCommits} commits, `
+      + `${currentLines}/${thresholds.windowChangedLines} lines) — ${totalText}`;
+  }
   if (currentUnits >= thresholds.reviewAdvisoryCommits
       || currentLines >= thresholds.reviewAdvisoryChangedLines) {
     return `ADVISORY (${currentUnits}/${thresholds.reviewCommits} commits, `
       + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
   }
-  if (currentUnits > 0 || currentLines > 0 || hasChanges(current)) {
-    return `WATCH (${currentUnits}/${thresholds.reviewCommits} commits, `
-      + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
-  }
-  if (total.commits >= thresholds.reviewCommits
-      || changedLines(total) >= thresholds.reviewChangedLines) {
-    return `BASELINE DUE — ${totalText}`;
-  }
-  return `BASELINE — ${totalText}`;
+  return `WATCH (${currentUnits}/${thresholds.reviewCommits} commits, `
+    + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
 }
 
 export function validateConfigShape(config) {
@@ -862,11 +850,9 @@ export function validateConfigShape(config) {
     if (new Set(pass.areas).size !== pass.areas.length) {
       fail('a pass cannot list an area twice');
     }
-    if (!pass.bases || typeof pass.bases !== 'object' || Array.isArray(pass.bases)) {
-      fail('every pass needs per-area bases');
-    }
-    if (Object.keys(pass.bases).length !== pass.areas.length) {
-      fail('pass bases must match its areas exactly');
+    if (pass.bases !== undefined) {
+      fail('passes no longer carry per-area bases; the frontier is the '
+        + 'newest recorded head');
     }
     for (const areaId of pass.areas) {
       if (!areaIds.has(areaId) && !legacyAreaIds.has(areaId)) {
@@ -874,9 +860,6 @@ export function validateConfigShape(config) {
       }
       if (passIndex >= config.legacyPassCount && legacyAreaIds.has(areaId)) {
         fail(`new passes cannot name legacy area: ${areaId}`);
-      }
-      if (!SHA_PATTERN.test(pass.bases[areaId] ?? '')) {
-        fail(`pass base for ${areaId} must be a full commit SHA`);
       }
     }
     if (!PASS_OUTCOMES.has(pass.outcome)) fail(`invalid pass outcome: ${pass.outcome}`);
@@ -923,19 +906,18 @@ function currentAreaIds(config, recordedAreaId) {
   return config.legacyAreaExpansions[recordedAreaId] ?? [recordedAreaId];
 }
 
-function reviewHeadsByArea(config) {
-  const heads = new Map(config.areas.map(({ id }) => [id, new Set()]));
-  for (const pass of config.passes) {
-    if (pass.kind !== 'review') continue;
-    for (const recordedAreaId of pass.areas) {
-      for (const areaId of currentAreaIds(config, recordedAreaId)) {
-        heads.get(areaId).add(pass.head);
-      }
-    }
-  }
-  return heads;
+function allReviewHeads(config) {
+  return new Set(config.passes
+    .filter((pass) => pass.kind === 'review')
+    .map((pass) => pass.head));
 }
 
+// One frontier per pass kind: the newest recorded head, floored at the
+// enforcement base. Areas label findings and route deferrals; they no longer
+// carry frontiers of their own, because every pass covers the whole diff
+// since the previous one and reviewers read the range's full diff either
+// way. Passes recorded before the 2026-08-01 collapse keep their per-area
+// `bases` maps as inert history.
 function validateHistory(config, head) {
   if (!isAncestor(config.trackingBase, config.enforcementBase)) {
     fail('trackingBase must be an ancestor of enforcementBase');
@@ -944,32 +926,21 @@ function validateHistory(config, head) {
     fail('enforcementBase must be an ancestor of HEAD');
   }
   const frontiers = {
-    review: new Map(config.areas.map((area) => [area.id, config.trackingBase])),
-    simplification: new Map(config.areas.map((area) => [area.id, config.trackingBase])),
+    review: config.enforcementBase,
+    simplification: config.enforcementBase,
   };
 
   for (const pass of config.passes) {
     if (!isAncestor(pass.head, head)) {
       fail(`pass head ${pass.head} is not an ancestor of HEAD`);
     }
-    for (const recordedAreaId of pass.areas) {
-      for (const areaId of currentAreaIds(config, recordedAreaId)) {
-        const expectedBase = frontiers[pass.kind].get(areaId);
-        if (pass.bases[recordedAreaId] !== expectedBase) {
-          fail(
-            `${pass.kind} pass for ${recordedAreaId} -> ${areaId} starts at `
-              + `${pass.bases[recordedAreaId]}; expected ${expectedBase}`,
-          );
-        }
-        if (!isAncestor(expectedBase, pass.head)) {
-          fail(`${pass.kind} pass for ${areaId} moves its frontier backwards or sideways`);
-        }
-        frontiers[pass.kind].set(areaId, pass.head);
-      }
-    }
     if (pass.auditedRange !== undefined) {
       const { base } = parseRange(pass.auditedRange);
-      validateAuditedRangeCoverage(pass.kind, base, pass.bases, isAncestor);
+      validateAuditedRangeCoverage(pass.kind, base, frontiers[pass.kind],
+        isAncestor);
+    }
+    if (isAncestor(frontiers[pass.kind], pass.head)) {
+      frontiers[pass.kind] = pass.head;
     }
   }
 
@@ -999,45 +970,45 @@ function unassignedJsFiles(config) {
   return allCurrentJsFiles().filter((file) => !assigned.has(file));
 }
 
+// Areas never named by a recorded review pass, resolved through the legacy
+// expansions so an old 'world' pass covers today's generation, monsters, and
+// world-effects. The line replaces the per-area BASELINE bookkeeping: code
+// in these areas predates the frontier and was never independently read.
+function neverReviewedAreas(config) {
+  const covered = new Set(config.passes
+    .filter((pass) => pass.kind === 'review')
+    .flatMap((pass) => pass.areas)
+    .flatMap((recordedAreaId) => currentAreaIds(config, recordedAreaId)));
+  return config.areas.map(({ id }) => id).filter((id) => !covered.has(id));
+}
+
 function buildStatus(config, head) {
   const frontiers = validateHistory(config, head);
-  const reviewHeads = reviewHeadsByArea(config);
-  const rows = [];
-
-  for (const area of config.areas) {
-    const dirty = workingTreeMetrics(area);
-    const row = { area, dirty, kinds: {} };
-    const reviewFrontier = frontiers.review.get(area.id);
-    const enforcedBase = currentBase(reviewFrontier, config.enforcementBase);
-    row.kinds.review = {
-      frontier: reviewFrontier,
-      total: committedMetrics(reviewFrontier, head, area, reviewHeads.get(area.id)),
-      current: committedMetrics(enforcedBase, head, area, reviewHeads.get(area.id)),
-    };
-    row.kinds.simplification = {
-      frontier: frontiers.simplification.get(area.id),
-    };
-    rows.push(row);
-  }
+  const reviewHeads = allReviewHeads(config);
 
   // A pseudo-area spanning every owned path, so committedMetrics counts each
-  // window commit once however many areas it touches, while its changed lines
+  // commit once however many areas it touches, while its changed lines
   // still sum across those areas' paths.
   const union = {
-    id: 'window',
-    label: 'Review window',
+    id: 'all',
+    label: 'All production paths',
     paths: config.areas.flatMap((area) => area.paths),
     generatedOutputs: config.areas.flatMap((area) => area.generatedOutputs ?? []),
   };
-  const windowBase = newestFrontier(frontiers.review.values(), isAncestor);
-  const window = {
-    frontier: windowBase,
-    current: committedMetrics(windowBase, head, union,
-      new Set([...reviewHeads.values()].flatMap((heads) => [...heads]))),
-    dirty: workingTreeMetrics(union),
+  const enforcedBase = currentBase(frontiers.review, config.enforcementBase);
+  const review = {
+    frontier: frontiers.review,
+    total: committedMetrics(frontiers.review, head, union, reviewHeads),
+    current: committedMetrics(enforcedBase, head, union, reviewHeads),
   };
 
-  return { rows, window, unassigned: unassignedJsFiles(config) };
+  return {
+    review,
+    dirty: workingTreeMetrics(union),
+    simplificationFrontier: frontiers.simplification,
+    neverReviewed: neverReviewedAreas(config),
+    unassigned: unassignedJsFiles(config),
+  };
 }
 
 function shortSha(sha) {
@@ -1045,8 +1016,8 @@ function shortSha(sha) {
 }
 
 function printStatus(config, head, status, verbose) {
-  const hasImplementationWorktree = status.rows.some((row) => hasChanges(row.dirty));
-  const worktreeSuffix = hasImplementationWorktree ? ' + implementation worktree' : '';
+  const worktreeSuffix = hasChanges(status.dirty)
+    ? ' + implementation worktree' : '';
   console.log(`Quality coverage at ${shortSha(head)}${worktreeSuffix}`);
   console.log(
     `Baseline: ${shortSha(config.trackingBase)}; enforcement begins after `
@@ -1054,63 +1025,20 @@ function printStatus(config, head, status, verbose) {
   );
   console.log('');
 
-  let reviewDue = 0;
-  let reviewAdvisory = 0;
-  for (const row of status.rows) {
-    const review = row.kinds.review;
-    const areaReviewDue = thresholdReached(
-      review.current,
-      row.dirty,
-      config.thresholds.reviewCommits,
-      config.thresholds.reviewChangedLines,
-    );
-    const areaReviewAdvisory = !areaReviewDue && thresholdReached(
-      review.current,
-      row.dirty,
-      config.thresholds.reviewAdvisoryCommits,
-      config.thresholds.reviewAdvisoryChangedLines,
-    );
-    if (areaReviewDue) reviewDue += 1;
-    if (areaReviewAdvisory) reviewAdvisory += 1;
-
-    console.log(`${row.area.label} [${row.area.id}]`);
-    console.log(
-      `  Review:  ${formatReviewDebt(
-        review.total,
-        review.current,
-        row.dirty,
-        config.thresholds,
-      )}`,
-    );
-    if (verbose) {
-      console.log(
-        `  Frontiers: review ${shortSha(review.frontier)}, `
-          + `simplification ${shortSha(row.kinds.simplification.frontier)}`,
-      );
-    }
+  const { review } = status;
+  console.log(`Review since ${shortSha(review.frontier)}: ${formatReviewDebt(
+    review.total, review.current, status.dirty, config.thresholds)}`);
+  if (verbose) {
+    console.log(`Simplification frontier: ${
+      shortSha(status.simplificationFrontier)}`);
   }
-
-  console.log('');
+  if (status.neverReviewed.length > 0) {
+    console.log('Never reviewed, informational: '
+      + `${status.neverReviewed.join(', ')}.`);
+  }
   if (status.unassigned.length > 0) {
     console.log(`Unassigned js/ files: ${status.unassigned.join(', ')}`);
   }
-  const { window } = status;
-  const windowUnits = window.current.commits + (hasChanges(window.dirty) ? 1 : 0);
-  const windowLines = changedLines(window.current) + changedLines(window.dirty);
-  const windowDue = thresholdReached(
-    window.current,
-    window.dirty,
-    config.thresholds.windowCommits,
-    config.thresholds.windowChangedLines,
-  );
-  // Advisory, never the gate: .agents/review.md has the orchestrator run the
-  // per-slice pass when this line reports DUE.
-  console.log(
-    `Review window since ${shortSha(window.frontier)}: `
-      + (windowDue ? 'DUE' : windowUnits > 0 || windowLines > 0 ? 'OPEN' : 'clear')
-      + ` (${windowUnits}/${config.thresholds.windowCommits} commits, `
-      + `${windowLines}/${config.thresholds.windowChangedLines} lines).`,
-  );
   // The open backlog prints on every run so deferred findings stay visible;
   // .agents/workflow.md disposes of them at goal close and .agents/selection.md
   // makes a five-entry area a selectable sweep goal.
@@ -1121,23 +1049,17 @@ function printStatus(config, head, status, verbose) {
   for (const [area, count] of sweepCandidates(config.deferred)) {
     console.log(`Sweep candidate: ${area} holds ${count} open deferrals.`);
   }
+  const reviewDue = thresholdReached(
+    review.current,
+    status.dirty,
+    config.thresholds.reviewCommits,
+    config.thresholds.reviewChangedLines,
+  ) ? 1 : 0;
   console.log(
-    reviewDue > 0
-      ? `Review gate: BLOCKED (${plural(reviewDue, 'area')} reached the batch threshold).`
+    reviewDue
+      ? 'Review gate: BLOCKED (the batch threshold is reached).'
       : 'Review gate: clear.',
   );
-  console.log(
-    reviewAdvisory > 0
-      ? `Review advisory: CHECKPOINT (${plural(reviewAdvisory, 'area')} reached `
-        + 'the advisory threshold).'
-      : 'Review advisory: clear.',
-  );
-  if (status.rows.some((row) => row.kinds.review.frontier === config.trackingBase)) {
-    console.log(
-      'BASELINE debt is visible but exempt from the gate until that area '
-        + 'receives its first recorded pass.',
-    );
-  }
 
   return {
     blocked: qualityGateBlocked({
@@ -1301,26 +1223,27 @@ function preparePass(kind, options) {
     fail('simplification passes do not accept --level');
   }
 
-  const areaById = new Map(config.areas.map((area) => [area.id, area]));
-  const dirtyAreas = areas.filter((id) => hasChanges(workingTreeMetrics(areaById.get(id))));
-  if (dirtyAreas.length > 0) {
-    fail(
-      'cannot record an exact committed pass while these areas have '
-        + `worktree changes: ${dirtyAreas.join(', ')}`,
-    );
+  // A pass covers the whole diff since the frontier, so any production
+  // worktree change disqualifies recording, whatever areas are claimed.
+  const union = {
+    id: 'all',
+    label: 'All production paths',
+    paths: config.areas.flatMap((area) => area.paths),
+    generatedOutputs: config.areas.flatMap((area) => area.generatedOutputs ?? []),
+  };
+  if (hasChanges(workingTreeMetrics(union))) {
+    fail('cannot record an exact committed pass while production paths have '
+      + 'worktree changes');
   }
 
-  const bases = Object.fromEntries(areas.map((id) => [id, frontiers[kind].get(id)]));
-  for (const [areaId, base] of Object.entries(bases)) {
-    if (!isAncestor(base, head)) {
-      fail(`head ${head} does not cover the existing ${kind} frontier for ${areaId}`);
-    }
+  const frontier = frontiers[kind];
+  if (!isAncestor(frontier, head)) {
+    fail(`head ${head} does not cover the existing ${kind} frontier ${frontier}`);
   }
-  validateAuditedRangeCoverage(kind, rangeBase, bases, isAncestor);
+  validateAuditedRangeCoverage(kind, rangeBase, frontier, isAncestor);
 
   const pass = {
     kind,
-    bases,
     head,
     auditedRange: `${rangeBase}..${head}`,
     areas,
@@ -1343,9 +1266,8 @@ function preparePass(kind, options) {
 
   console.log(`${options['dry-run'] ? 'Would record' : 'Recorded'} ${kind} pass through ${head}:`);
   console.log(`  audited range: ${rangeBase}..${head}`);
-  for (const areaId of areas) {
-    console.log(`  ${areaId}: ${bases[areaId]}..${head}`);
-  }
+  console.log(`  ${kind} frontier: ${frontier} -> ${head}`);
+  console.log(`  area labels: ${areas.join(', ')}`);
   if (options['dry-run']) {
     console.log('Dry run: QUALITY.json was not changed.');
   } else {
@@ -1555,13 +1477,14 @@ The query subcommands read the ledger, so a later pass consults prior
 rejections and open deferrals without opening QUALITY.json. defer opens a
 ledger entry and resolve-deferral closes one when its fix lands.
 
-Status is derived from Git. A recorded pass advances each selected area's
-frontier from its prior exact commit through the --range head.
+Status is derived from Git. The review frontier is the newest recorded
+review head, and recording a pass advances it through the --range head.
+--areas names the areas the range touched, as labels for finding attribution
+and deferral routing; areas carry no frontiers of their own.
 
 --range is the commit range the audit actually read. Its base must be at or
-before every selected area's frontier, so no unaudited commit becomes reviewed
-history; when frontiers differ, audit from the oldest one or record the areas
-separately. --head, when given, must name the same commit as the range head.
+before the frontier, so no unaudited commit becomes reviewed history.
+--head, when given, must name the same commit as the range head.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
 for every rejected finding, and one deferrals entry, with summary and a

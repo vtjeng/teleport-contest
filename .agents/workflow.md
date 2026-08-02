@@ -116,15 +116,13 @@ The orchestrator repeats, without returning to the user between its steps:
    `git log --oneline origin/main..HEAD` for what is not pushed. Push whatever
    the worker left behind and every commit you landed yourself, then watch the
    run from a background task as "Pushing and CI" states.
-3. Run `npm run quality` yourself; no worker reports it. The advisory
-   checkpoint and the gate are the two per-area thresholds that `QUALITY.json`
-   configures and `npm run quality` measures; `.agents/review.md`,
-   "When a correctness pass is due", defines them. An advisory checkpoint leaves
-   implementation running: note it and continue. A fired gate stops
-   implementation until the required pass has run, its confirmed findings are
-   applied, and its entry is recorded. `.agents/review.md` also defines a
-   per-slice shared review window; `npm run quality` measures it and prints
-   it as the `Review window` line.
+3. Run `npm run quality` yourself; no worker reports it. Its single
+   `Review since <frontier>` line escalates through the thresholds
+   `QUALITY.json` configures: `ADVISORY` notes it and continues, `WINDOW
+   DUE` is the per-slice pass advisory, and `DUE` is the gate that stops
+   implementation until the required pass has run, its confirmed findings
+   are applied, and its entry is recorded. `.agents/review.md`, "When a
+   correctness pass is due", defines all three.
 4. When a slice closes, continue at step 1. When the last slice of the goal
    closes, satisfy the readiness requirements in `.agents/review.md` and run the
    goal's full correctness pass, then continue at step 1.
