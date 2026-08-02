@@ -2762,7 +2762,7 @@ export function exp_percent_changing(state = game) {
     );
     if (!thresholds.length) return false;
     throw new UnsupportedExperienceChangeError(
-        'exp_percent_changing() with a percentage highlight rule on Xp',
+        'exp_percent_changing() with a status-highlight rule on Xp',
     );
 }
 

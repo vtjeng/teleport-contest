@@ -2946,3 +2946,24 @@ test('every class goto_level()\'s tail can raise converts at the command seam',
         // do.c:1699 mklev() -> makemon(), for a mimic inside a generated shop.
         assert.ok(converted.includes(UnsupportedMonsterCreationError));
     });
+
+// Both classes lowering an experience level raises, asserted separately for
+// the reason the goto_level() test above states. The first is reachable from
+// the running game today: js/cmd.js doextcmd() routes '#levelchange' through
+// failClosedCommand(), and wizcmds.c wiz_level_change()'s lowering arm throws
+// it for any answer below the hero's level once she is above level 1. Drop it
+// from the list and that answer stops being a segment boundary, so every
+// screen the segment already matched is discarded as a session error instead.
+test("both classes a lowered experience level raises convert at the command "
+    + 'seam', async () => {
+    const { UnsupportedExperienceChangeError } =
+        await import('../js/exper.js');
+    const { UnsupportedAbilityChangeError } = await import('../js/attrib.js');
+    const converted = failClosedCommandRefusals();
+
+    // wizcmds.c:474 losexp("#levelchange"), the lowering arm's loop body.
+    assert.ok(converted.includes(UnsupportedExperienceChangeError));
+    // attrib.c:1054-1062 adjabil()'s loss arm, and its lose_weapon_skill()
+    // tail at 1072. No ported command reaches either yet.
+    assert.ok(converted.includes(UnsupportedAbilityChangeError));
+});

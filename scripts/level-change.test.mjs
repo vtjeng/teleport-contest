@@ -186,6 +186,31 @@ test('scanLevelArgument reproduces sscanf("%d%c")', () => {
     // %d skips leading whitespace itself, which is what makes a buffer
     // mungspaces() left with a leading space still convert one field.
     assert.deepEqual(scanLevelArgument(' 7'), { count: 1, value: 7 });
+
+    // `newlevel` is an `int` (wizcmds.c:448), so %d converts in two stages:
+    // strtol() to a `long`, saturating at LONG_MAX or LONG_MIN, then a store
+    // that keeps the low 32 bits. Each value below was read off a C program
+    // calling the same sscanf("%d%c") on the same buffer.
+    // 2^31, the first value that wraps to negative.
+    assert.deepEqual(
+        scanLevelArgument('2147483648'), { count: 1, value: -2147483648 },
+    );
+    // 2^32, a whole turn of the wheel back to zero.
+    assert.deepEqual(scanLevelArgument('4294967296'), { count: 1, value: 0 });
+    // Eleven digits: 99999999999 - 23 * 2^32.
+    assert.deepEqual(
+        scanLevelArgument('99999999999'), { count: 1, value: 1215752191 },
+    );
+    // Wider than a `long`: strtol() saturates to LONG_MAX, whose low 32 bits
+    // are all ones, so the answer is -1 rather than anything large.
+    assert.deepEqual(
+        scanLevelArgument('999999999999999999999999'), { count: 1, value: -1 },
+    );
+    // The negative side saturates to LONG_MIN, whose low 32 bits are zero,
+    // and one below INT_MIN wraps to INT_MAX.
+    assert.deepEqual(
+        scanLevelArgument('-2147483649'), { count: 1, value: 2147483647 },
+    );
 });
 
 // attrib.c:23-105, entry for entry. A wrong property index or level here would
@@ -360,6 +385,9 @@ test('adjabil grants an innate ability above level 1 and prints its gainstr',
         monkMessages,
         ['You feel healthy!', 'You feel stealthy!'],
     );
+    // attrib.c:1068-1070 passes the whole span to add_weapon_skill(), which
+    // adds that many slots rather than one per call. 5 - 2 is 3.
+    assert.equal(monk.u.weapon_slots, 3);
 });
 
 // attrib.c:1051 gates You_feel() on a non-empty gainstr, so an entry with an
@@ -394,6 +422,37 @@ test('adjabil calls postadjabil only for warning and see invisible',
     await adjabil(2, 3, valkyrie, { message: () => {} });
     assert.deepEqual([...intrinsicsOf(valkyrie)], [[STEALTH, FROMEXPER]]);
 
+    // One property proves nothing about the word "only", so sweep the rest.
+    // mon_abil[]'s span above warning holds five in one call: searching at 9,
+    // fire at 11, cold at 13, shock at 15 and teleport control at 17. The span
+    // starts at 7 rather than 2 because attrib.c:1039's test is
+    // `oldlevel < abil->ulevel`, so warning at 7 stays outside it; a span that
+    // crossed warning would refuse and prove nothing about the others.
+    const monk = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_MONK, filecode: 'Mon' },
+    });
+    await adjabil(7, 17, monk, { message: () => {} });
+    // intrinsicsOf() walks u.uprops, so these come back in prop.h index order
+    // (1, 2, 5, 34, 47) rather than the table order the gains happened in.
+    assert.deepEqual([...intrinsicsOf(monk)], [
+        [FIRE_RES, FROMEXPER], [COLD_RES, FROMEXPER], [SHOCK_RES, FROMEXPER],
+        [SEARCHING, FROMEXPER], [TELEPORT_CONTROL, FROMEXPER],
+    ]);
+
+    // val_abil[] { 7, &HFast, "quick", "slow" } is the only entry above level
+    // 1 that grants speed, and it must not redraw either.
+    const quick = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_VALKYRIE, filecode: 'Val' },
+    });
+    await adjabil(6, 7, quick, { message: () => {} });
+    assert.deepEqual([...intrinsicsOf(quick)], [[FAST, FROMEXPER]]);
+
+    // Infravision is absent from this sweep because no reachable call can
+    // dispatch on it. It appears only as a level-1 race entry, and
+    // js/u_init.js:373-377 leaves u.ulevel at 0 across the one call that
+    // crosses level 1, which is exactly when postadjabil() takes its
+    // initializing early return.
+
     // wiz_abil[] { 15, &HWarning, "sensitive", "" } does reach see_monsters().
     const wizard = heroState({
         role: { ...ARCHEOLOGIST, mnum: PM_WIZARD, filecode: 'Wiz' },
@@ -419,6 +478,9 @@ test('adjabil needs a message owner only for an entry that prints',
     });
     await adjabil(1, 9, quiet);
     assert.deepEqual([...intrinsicsOf(quiet)], []);
+    // The slot tail runs even though the traversal printed nothing, and it
+    // counts the span: attrib.c:1068-1070, 9 - 1 is 8.
+    assert.equal(quiet.u.weapon_slots, 8);
 
     // rog_abil[] { 10, &HSearching, "perceptive", "" } does print.
     const rogue = heroState({

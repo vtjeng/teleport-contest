@@ -75,6 +75,7 @@ import {
     save_light_sources,
 } from '../js/light.js';
 import { pm_to_cham, restore_cham } from '../js/mon.js';
+import { loadTouristArrivalRecipe } from './run-leave-level.mjs';
 import { is_shapeshifter } from '../js/mondata.js';
 import {
     do_mkroom,
@@ -891,4 +892,68 @@ test('exp_percent_changing answers for the Xp field alone', () => {
     rule.iflags.status_hilites = [{ field: 'experience-level' }];
     assert.throws(() => exp_percent_changing(rule),
         UnsupportedExperienceChangeError);
+
+    // botl.c:2111 tests curr->thresholds alone, and botl.c:2799-2810 chains
+    // every rule for the field onto it whatever its kind, so an 'always' rule
+    // refuses exactly as a percentage rule does. The refusal is the diagnostic
+    // a stopped session reports, so it must name what was tested -- a
+    // highlight rule on Xp -- and not the narrower thing it once claimed.
+    const always = sightseerState();
+    always.iflags.status_hilites = [
+        { field: 'experience-level', behavior: 'always', color: 'red' },
+    ];
+    assert.throws(
+        () => exp_percent_changing(always),
+        (error) => error instanceof UnsupportedExperienceChangeError
+            && /status-highlight rule on Xp/u.test(error.message),
+    );
 });
+
+// The sightseeing grant's own guard, do.c:1963's Role_if(PM_TOURIST), is not
+// reachable from a unit test: it sits inside goto_level()'s arrival tail,
+// after the level has been built and drawn. What proves it is the recorded
+// matrix in scripts/run-leave-level.mjs, whose Valkyrie segment walks the same
+// staircase and must arrive with no experience at all. That segment is the
+// only thing separating a correct guard from `if (true)`, and nothing else
+// notices if it is dropped, so this test pins the shape of the matrix the way
+// scripts/level-change.test.mjs pins its sibling's.
+test('the tourist-arrival matrix keeps the segments that prove the guard',
+    () => {
+        const segments = loadTouristArrivalRecipe().segments;
+        const roleOf = (segment) =>
+            /role:(\w+)/u.exec(segment.nethackrc)?.[1];
+        // showexp rides a comma-separated OPTIONS line, and an option is
+        // cleared by a leading '!', so neither anchor nor bare substring will
+        // do.
+        const showsExp = (segment) =>
+            /(?<![!\w])showexp\b/u.test(segment.nethackrc);
+
+        // The control: a non-Tourist descending the same way. Without it the
+        // matrix cannot tell "only a Tourist is paid" from "everyone is".
+        const control = segments.filter(
+            (segment) => roleOf(segment) !== 'Tourist',
+        );
+        assert.equal(control.length, 1);
+        assert.equal(roleOf(control[0]), 'Valkyrie');
+        assert.ok(showsExp(control[0]),
+            'the control must show Xp, or its arrival proves nothing');
+
+        // The showexp pair: same walk, same seed, one option apart. It is what
+        // separates more_experienced()'s disp.botl gate from an unconditional
+        // redraw, because with showexp clear nothing may reach the screen.
+        const tourists = segments.filter(
+            (segment) => roleOf(segment) === 'Tourist',
+        );
+        const paired = tourists.filter((segment) => tourists.some(
+            (other) => other !== segment
+                && other.moves === segment.moves
+                && showsExp(other) !== showsExp(segment),
+        ));
+        assert.equal(paired.length, 2);
+
+        // The pet segment: see_monsters() needs a live monster to pass through
+        // newsym(), and no other segment carries one.
+        assert.ok(segments.some(
+            (segment) => /pettype:dog/u.test(segment.nethackrc),
+        ));
+    });

@@ -9,6 +9,11 @@ import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
 
+// The range a C `long` holds, which strtol() saturates to. `scanLevelArgument()`
+// explains why `%d` needs it.
+const LONG_MAX = (1n << 63n) - 1n;
+const LONG_MIN = -(1n << 63n);
+
 // C ref: the `sscanf(buf, "%d%c", &newlevel, &dummy)` in wiz_level_change().
 // `%d` skips leading whitespace, then takes an optional sign and at least one
 // decimal digit; `%c` takes exactly one further byte without skipping
@@ -18,9 +23,17 @@ import { ttyPline } from './tty_message.js';
 export function scanLevelArgument(buf) {
     const match = /^[ \t\n\v\f\r]*([+-]?[0-9]+)/.exec(buf);
     if (!match) return { count: 0, value: 0 };
+    // `%d` converts in two stages, and both are observable here because
+    // `newlevel` is an `int`. The digits first become a `long`, saturating at
+    // LONG_MAX or LONG_MIN when they overrun it, and the store into `int` then
+    // keeps the low 32 bits. So "2147483648" arrives as -2147483648,
+    // "4294967296" as 0, and any answer of 20 or more digits as -1.
+    let wide = BigInt(match[1]);
+    if (wide > LONG_MAX) wide = LONG_MAX;
+    else if (wide < LONG_MIN) wide = LONG_MIN;
     return {
         count: buf.length > match[0].length ? 2 : 1,
-        value: Number.parseInt(match[1], 10),
+        value: Number(BigInt.asIntN(32, wide)),
     };
 }
 
