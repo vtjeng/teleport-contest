@@ -29,7 +29,7 @@ orchestrator and the selectors.
 
 You own one slice: the source it ports, the code and tests it changes, the
 recipes or scripts that validate them, and the commits that land them.
-"Continuous operation" in `.agents/workflow.md` gives the rest of the loop to
+`.agents/loop.md` assigns the rest of the loop to
 the orchestrator and the two selectors.
 
 Two of their steps appear inside instructions you are told to read. Skip both

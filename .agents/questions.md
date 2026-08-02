@@ -1,7 +1,7 @@
 # Questions for the user
 
-The loop appends a question here when "Continuous operation" in
-`.agents/workflow.md` triages it as non-blocking or slice-blocking. Entries
+The loop appends a question here when
+`.agents/loop.md` triages it as non-blocking or slice-blocking. Entries
 stay open until the user answers, here or in conversation; apply the answer,
 then delete the entry. Append new entries at the end.
 

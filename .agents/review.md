@@ -1,11 +1,10 @@
 # Review cadence and methodology
 
-`.agents/workflow.md` defines a formal review pass, states that audit means the
-same thing, and holds the loop these passes are steps in.
+`.agents/workflow.md` defines a formal review pass and states that audit means
+the same thing. `.agents/loop.md` holds the loop these passes are steps in.
 
 Read this file before scheduling, running, or recording a formal review pass.
-Only the orchestrator does this work. "Continuous operation" in
-`.agents/workflow.md` assigns the roles.
+Only the orchestrator does this work. `.agents/loop.md` assigns the roles.
 
 ## Readiness for a formal review pass
 

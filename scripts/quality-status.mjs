@@ -942,7 +942,7 @@ function printStatus(config, head, status, verbose) {
     console.log(`Unassigned js/ files: ${status.unassigned.join(', ')}`);
   }
   // The open backlog prints on every run so deferred findings stay visible;
-  // .agents/workflow.md disposes of them at goal close and .agents/selection.md
+  // .agents/loop.md disposes of them at goal close and .agents/selection.md
   // makes a five-entry area a selectable sweep goal.
   const openEntries = openDeferrals(config.deferred);
   const homeless = openEntries.filter((entry) => !entry.area).length;

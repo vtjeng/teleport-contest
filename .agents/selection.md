@@ -80,7 +80,7 @@ standing, and `close-goal` records delivered figures beside the forecast
 from the score log. Retire a ranking statistic from selection when the last
 three closed goals in `GOALS.json` each delivered less than a tenth of its
 forecast, until it is recalibrated against those closes. The goal budget in
-`.agents/workflow.md`, "Continuous operation", bounds what a missed forecast
+`.agents/loop.md` bounds what a missed forecast
 can cost.
 
 **Sweep an area when its backlog reaches five.** When

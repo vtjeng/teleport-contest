@@ -275,7 +275,7 @@ Unstaged work is gone.
 
 ### When to stop and ask the user
 
-"Continuous operation" in `.agents/workflow.md` describes a loop that
+`.agents/loop.md` describes a loop that
 alternates implementation and review without returning to the user between its
 steps. Stop that loop and ask the user only for:
 

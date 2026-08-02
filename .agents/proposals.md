@@ -50,7 +50,7 @@ proposal.
 
 - `scripts/phase-log.mjs --summary --goal <id>` prints elapsed wall time
   since the last slice close that improved the development score, so the
-  six-hour goal budget in `.agents/workflow.md` becomes a printed figure.
+  six-hour goal budget in `.agents/loop.md` becomes a printed figure.
 - `node scripts/goal-log.mjs calibration` prints delivered-versus-forecast
   ratios for the last three closed goals, the condition
   `.agents/selection.md` states for retiring a ranking statistic.

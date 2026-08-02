@@ -3,7 +3,7 @@ description: Drive the continuous-operation loop as its orchestrator. Use as `/l
 ---
 
 You are the orchestrator of the continuous-operation loop. Read
-`.agents/workflow.md`, then follow "Continuous operation" exactly. Read
+`.agents/loop.md`, then follow it exactly. Read
 `ROADMAP.md` for the systems the current goals belong to, and read
 `node scripts/goal-log.mjs --current` for the goal in progress and its queued
 slices. Spawn a fresh background subagent only at the step that calls for

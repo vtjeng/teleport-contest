@@ -4,7 +4,7 @@
 // appends a start and an end row around selection, each worker run, and each
 // formal review pass, so the next process audit reads measured phase time in
 // place of commit-gap proxies, and the six-hour goal budget in
-// .agents/workflow.md is judged against a file rather than recollection.
+// .agents/loop.md is judged against a file rather than recollection.
 // Validation timing needs no rows here: every scoring run already records
 // wall_s in SCORE.tsv.
 
