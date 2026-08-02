@@ -27,13 +27,15 @@ states it.
 
 ## Current standing
 
-- Development, at `b669b88` (2026-08-02): 676 of 7,765 screens and 108,261 of
+- Development, at `f43439d` (2026-08-02): 676 of 7,765 screens and 108,261 of
   610,816 random-number values, over the development set of 33 sessions.
 - Reserved holdout, at the same commit: 162 of 3,640 screens, 30,089 of
   182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
   The 23-screen gain that reached 162 came from `experience-level-gain` and is
-  the largest a single close has produced; `furniture-square-entry` then closed
-  without moving any of the three figures.
+  the largest a single close has produced. Two closes since have moved none of
+  the three figures: `furniture-square-entry`, and the `commands` deferred-area
+  sweep, which forecast 0 because every entry it closed named behavior no
+  session reaches.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
