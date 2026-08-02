@@ -46,14 +46,12 @@ proposal.
 
 ## Print the remaining unenforced advisories
 
-**What it changes.** Six checks that turn prose rules into printed numbers:
+**What it changes.** Five checks that turn prose rules into printed numbers
+(`node scripts/goal-log.mjs calibration`, a sixth, landed on 2 August 2026):
 
 - `scripts/phase-log.mjs --summary --goal <id>` prints elapsed wall time
   since the last slice close that improved the development score, so the
   six-hour goal budget in `.agents/loop.md` becomes a printed figure.
-- `node scripts/goal-log.mjs calibration` prints delivered-versus-forecast
-  ratios for the last three closed goals, the condition
-  `.agents/selection.md` states for retiring a ranking statistic.
 - `npm run quality` warns when dirty-tree changed lines exceed 500 while no
   `.agents/implementation-checklist.json` exists, the checklist-creation
   trigger in `.agents/implementation-checklist-template.md`.
@@ -69,7 +67,7 @@ proposal.
   on where the per-goal record lives before implementation.
 
 **Scope.** Each item is a small addition to an existing script and its test
-file; the first two add one subcommand each.
+file; the first adds one subcommand.
 
 **What prompted it.** A survey of the instruction documents for rules that
 present as limits or cadences while nothing detects a violation. Two
@@ -83,3 +81,31 @@ sweep-candidate line.
 a rule visible, and the reader still decides. Rules the same survey judged
 unenforceable by construction, such as report word caps, are handled by
 rewording rather than tooling and are outside this entry.
+
+## Let `npm run checkpoint` write its own log
+
+**What it changes.** `scripts/checkpoint-checks.mjs` would capture each
+check's output into a run log itself, keep streaming to the terminal when
+stdout is a TTY, and print the per-check summary, each failing test's
+location, and the log path. The redirect-and-tail recipe in
+`.agents/validation.md`, "Routine validation", then shrinks to the command
+and the printed log path, and the `--test-reporter=dot` warning moves to a
+code comment beside the reporter choice.
+
+**Scope.** Output capture in `runCheckpointChecks()`, the recipe cut in
+`.agents/validation.md`, and the `scripts/checkpoint-checks.test.mjs`
+assertion that explains why detail rides the summary line, which moves with
+the recipe.
+
+**What prompted it.** The reading audit of the agent briefs on 2 August
+2026: every reader of `.agents/validation.md` pays about 20 lines of
+redirect recipe, byte counts included, for a mechanic the script can
+perform itself.
+
+**Cost.** Small in code but it changes the one command every agent runs.
+Capturing a child's stdout replaces `stdio: 'inherit'`, which streamed live
+progress; the TTY case has to keep streaming, and the summary must stay at
+the end of the log so a tail read stays valid while agents migrate.
+
+**What it leaves unfixed.** The checkpoint's output volume: the log keeps
+its 14,491 lines on disk, and an agent that opens it whole still drowns.
