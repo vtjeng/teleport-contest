@@ -55,6 +55,11 @@
           "name": "#levelchange raises the hero to a level that grants no innate ability",
           "status": "closed",
           "closedBy": "984da156c122a843b9bafe9fc66d20fe81a3a113"
+        },
+        {
+          "name": "#levelchange raises the hero past a level that grants an innate ability",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "463cabd8ef401139326de6e698a9651c98c6936a",
