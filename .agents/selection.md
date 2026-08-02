@@ -82,6 +82,12 @@ forecast, until it is recalibrated against those closes. The goal budget in
 `.agents/workflow.md`, "Continuous operation", bounds what a missed forecast
 can cost.
 
+**Sweep an area when its backlog reaches five.** When
+`npm run quality -- deferrals` prints a sweep candidate, a deferred-sweep
+goal over that area is selectable like any boundary: its slices fix open
+entries and resolve them, and its forecast is the entry count in place of a
+screen figure.
+
 **A fresh census can nominate a candidate the recorded sessions cannot.** A
 behavior no development session stops on first can still be the most common
 first stop for fresh seeds: a census of 600 fresh D:1 walks recorded at

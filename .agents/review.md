@@ -368,13 +368,17 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   wording when copying it forward. The next pass reads these recorded
   rejections to avoid re-deriving a claim that was already answered. A
   working note deleted with its slice is unavailable by then.
-- Write every deferred finding into `ROADMAP.md` under an `## Unresolved:`
-  heading before recording the pass, and give each one a `deferrals` entry in
-  `auditMetrics` naming that heading and its category. `productionDefects`
+- Open a ledger entry for every deferred finding with `npm run quality --
+  defer --id <id> --area <area> --category <c> --effort <small|slice>
+  --detail <text>` before recording the pass, and give each one a `deferrals`
+  entry in `auditMetrics` naming that id and its category. `small` fits a
+  later audit-fix commit; `slice` needs its own slice. Close an entry with
+  `npm run quality -- resolve-deferral --id <id>` when its fix lands;
+  recording a deferral against a closed id reopens it. `productionDefects`
   covers the production category alone, so a deferred test, clarity, or
   simplification finding has no other durable record. The recorder refuses a
-  pass whose entry count differs from the deferred count, one whose entry names
-  a heading `ROADMAP.md` does not have, and one whose production-category
+  pass whose entry count differs from the deferred count, one whose entry
+  names an id the ledger does not hold, and one whose production-category
   deferrals disagree with the deferred `productionDefects` entries.
 - A full correctness record also names the exact range, enabled optional
   finders, fixes, deferrals, unverified judgments, rejections and their

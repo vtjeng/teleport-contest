@@ -22,9 +22,8 @@ const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
 // ROADMAP.md holds each deferred finding as prose. The ledger stores a
 // pointer to the heading that carries it.
-const DEFERRAL_TRACKER = 'ROADMAP.md';
-const DEFERRAL_TRACKER_PATH = resolve(REPO_ROOT, DEFERRAL_TRACKER);
-const DEFERRAL_SECTION = 'Unresolved';
+const DEFERRAL_EFFORTS = Object.freeze(['small', 'slice', 'undecided']);
+const DEFERRAL_STATUSES = Object.freeze(['open', 'closed']);
 const QUALITY_LOCK_PATH = resolve(REPO_ROOT, '.quality-status.lock');
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const PASS_KINDS = new Set(['review', 'simplification']);
@@ -129,8 +128,8 @@ function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
     }
     if (typeof deferral.trackedIn !== 'string' || deferral.trackedIn.trim().length === 0) {
       fail(
-        `${label}.trackedIn must name the ${DEFERRAL_TRACKER} heading that `
-          + 'carries this finding',
+        `${label}.trackedIn must name the deferred-ledger id that carries `
+          + 'this finding',
       );
     }
     if (!AUDIT_CATEGORY_FIELDS.includes(deferral.category)) {
@@ -138,14 +137,14 @@ function validateAuditDeferrals(deferrals, deferredCount, trackerHeadings) {
         `${label}.category must be one of: ${AUDIT_CATEGORY_FIELDS.join(', ')}`,
       );
     }
-    const heading = deferral.trackedIn.trim();
-    // Only the recorder passes headings. Stored passes are revalidated on every
-    // run, long after their debt is cleared and the heading is deleted.
-    if (trackerHeadings && !trackerHeadings.has(heading)) {
+    const id = deferral.trackedIn.trim();
+    // Only the recorder passes ids. Stored passes are revalidated on every
+    // run, long after their debt is cleared and its entry closed or renamed.
+    if (trackerHeadings && !trackerHeadings.has(id)) {
       fail(
-        `${label}.trackedIn names "${heading}", which is not a heading under `
-          + `"## ${DEFERRAL_SECTION}" in ${DEFERRAL_TRACKER}. A finding is a `
-          + 'four-mark heading there; write it before recording the pass.',
+        `${label}.trackedIn names "${id}", which is no id in the deferred `
+          + 'ledger. Add the entry with npm run quality -- defer before '
+          + 'recording the pass.',
       );
     }
   }
@@ -184,26 +183,6 @@ function validateDeferredProductionAgreement(deferrals, productionDefects) {
   }
 }
 
-// The findings recorded under the tracker's `## Unresolved` section. Structure
-// is the check, in place of an earlier `Unresolved:` naming prefix: a prefix
-// can be typed onto any heading in the file, a position cannot. A heading at
-// one or two marks closes the section, and the three-mark headings inside it
-// name categories, so only a four-mark heading names a finding.
-export function unresolvedHeadings(markdown, section = DEFERRAL_SECTION) {
-  const headings = new Set();
-  let inside = false;
-  for (const line of markdown.split('\n')) {
-    const match = /^(#{1,6})\s+(.*?)\s*$/.exec(line);
-    if (!match) continue;
-    const [, marks, text] = match;
-    if (marks.length <= 2) {
-      inside = marks.length === 2 && text === section;
-      continue;
-    }
-    if (inside && marks.length === 4) headings.add(text);
-  }
-  return headings;
-}
 
 /**
  * Check one pass's mutation record: what `scripts/mutate-sites.mjs` reported
@@ -363,7 +342,7 @@ export function validateAuditMetrics(metrics, {
   } else if (requireDeferrals && counts.deferred > 0) {
     fail(
       `auditMetrics.deferrals must record all ${counts.deferred} deferred `
-        + `findings with the ${DEFERRAL_TRACKER} heading that carries each one`,
+        + 'findings with the deferred-ledger id that carries each one',
     );
   }
   return metrics;
@@ -825,6 +804,39 @@ export function validateConfigShape(config) {
     legacyAreaIds.add(legacyId);
   }
 
+  if (!Array.isArray(config.deferred)) fail('deferred must be an array');
+  const deferredIds = new Set();
+  for (const [index, entry] of config.deferred.entries()) {
+    const label = `deferred[${index}]`;
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      fail(`${label} must be an object`);
+    }
+    if (typeof entry.id !== 'string' || entry.id.trim().length === 0) {
+      fail(`${label}.id must be nonempty`);
+    }
+    if (deferredIds.has(entry.id)) fail(`deferred ids must be unique: ${entry.id}`);
+    deferredIds.add(entry.id);
+    if (entry.area !== null && !areaIds.has(entry.area)) {
+      fail(`${label}.area must be null or a known area id`);
+    }
+    if (!AUDIT_CATEGORY_FIELDS.includes(entry.category) && entry.category !== 'scope') {
+      fail(`${label}.category must be scope or one of: `
+        + AUDIT_CATEGORY_FIELDS.join(', '));
+    }
+    if (!DEFERRAL_EFFORTS.includes(entry.effort)) {
+      fail(`${label}.effort must be one of: ${DEFERRAL_EFFORTS.join(', ')}`);
+    }
+    if (!DEFERRAL_STATUSES.includes(entry.status)) {
+      fail(`${label}.status must be one of: ${DEFERRAL_STATUSES.join(', ')}`);
+    }
+    if (typeof entry.from !== 'string' || entry.from.trim().length === 0) {
+      fail(`${label}.from must name the recording pass head or origin`);
+    }
+    if (typeof entry.detail !== 'string' || entry.detail.trim().length === 0) {
+      fail(`${label}.detail must be nonempty`);
+    }
+  }
+
   for (const [passIndex, pass] of config.passes.entries()) {
     if (!PASS_KINDS.has(pass.kind)) fail(`invalid pass kind: ${pass.kind}`);
     if (!SHA_PATTERN.test(pass.head ?? '')) fail('pass head must be a full commit SHA');
@@ -1083,6 +1095,16 @@ function printStatus(config, head, status, verbose) {
       + ` (${windowUnits}/${config.thresholds.windowCommits} commits, `
       + `${windowLines}/${config.thresholds.windowChangedLines} lines).`,
   );
+  // The open backlog prints on every run so deferred findings stay visible;
+  // .agents/workflow.md disposes of them at goal close and .agents/selection.md
+  // makes a five-entry area a selectable sweep goal.
+  const openEntries = openDeferrals(config.deferred);
+  const homeless = openEntries.filter((entry) => !entry.area).length;
+  console.log(`Open deferrals: ${openEntries.length}`
+    + (homeless > 0 ? ` (${homeless} without an area)` : '') + '.');
+  for (const [area, count] of sweepCandidates(config.deferred)) {
+    console.log(`Sweep candidate: ${area} holds ${count} open deferrals.`);
+  }
   console.log(
     reviewDue > 0
       ? `Review gate: BLOCKED (${plural(reviewDue, 'area')} reached the batch threshold).`
@@ -1180,11 +1202,10 @@ function withLedgerLock(callback) {
   }
 }
 
-// readTracker is injectable so a test can drive this wiring against a literal
-// document. Reading the real ROADMAP.md here would tie the test to prose the
-// workflow rewrites, which is why the heading parser is pinned separately.
+// deferredIds is injectable so a test can drive this wiring against a
+// literal id set instead of the repository's QUALITY.json.
 export function auditMetricsFromOptions(options, {
-  readTracker = () => readFileSync(DEFERRAL_TRACKER_PATH, 'utf8'),
+  deferredIds = null,
 } = {}) {
   if (options['audit-metrics'] && options['audit-metrics-file']) {
     fail('provide only one of --audit-metrics or --audit-metrics-file');
@@ -1207,16 +1228,10 @@ export function auditMetricsFromOptions(options, {
   } catch (error) {
     fail(`audit metrics must be valid JSON: ${error.message}`);
   }
-  let tracker;
-  try {
-    tracker = readTracker();
-  } catch (error) {
-    fail(`could not read ${DEFERRAL_TRACKER}: ${error.message}`);
-  }
   return validateAuditMetrics(metrics, {
     requireRejections: true,
     requireDeferrals: true,
-    trackerHeadings: unresolvedHeadings(tracker),
+    trackerHeadings: deferredIds,
   });
 }
 
@@ -1260,7 +1275,9 @@ function preparePass(kind, options) {
     fail('--outcome must be changed or no-change');
   }
   if (!options.evidence?.trim()) fail('--evidence is required');
-  const auditMetrics = auditMetricsFromOptions(options);
+  const auditMetrics = auditMetricsFromOptions(options, {
+    deferredIds: new Set(config.deferred.map((entry) => entry.id)),
+  });
   if (kind === 'review' && !REVIEW_LEVELS.has(options.level)) {
     fail('review passes require --level light or --level full');
   }
@@ -1299,6 +1316,12 @@ function preparePass(kind, options) {
   };
   if (!options['dry-run']) {
     config.passes.push(pass);
+    // A recorded deferral reopens its ledger entry: deferring a finding a
+    // second time means its earlier closure did not hold.
+    for (const { trackedIn } of auditMetrics.deferrals ?? []) {
+      const entry = config.deferred.find((d) => d.id === trackedIn.trim());
+      if (entry) entry.status = 'open';
+    }
     writeConfig(config);
   }
 
@@ -1341,15 +1364,18 @@ export function collectRejections(passes) {
   return rows;
 }
 
-export function collectDeferrals(passes) {
-  const rows = [];
-  for (const pass of passes) {
-    for (const deferral of pass.auditMetrics?.deferrals ?? []) {
-      rows.push({ head: pass.head, kind: pass.kind, areas: pass.areas,
-        ...deferral });
-    }
+export function openDeferrals(deferred, { area = null, status = 'open' } = {}) {
+  return deferred.filter((entry) => (status === 'all' || entry.status === status)
+    && (!area || entry.area === area));
+}
+
+export function sweepCandidates(deferred, threshold = 5) {
+  const counts = new Map();
+  for (const entry of deferred) {
+    if (entry.status !== 'open' || !entry.area) continue;
+    counts.set(entry.area, (counts.get(entry.area) ?? 0) + 1);
   }
-  return rows;
+  return [...counts.entries()].filter(([, count]) => count >= threshold);
 }
 
 function queryLedger(command, options, config) {
@@ -1374,14 +1400,69 @@ function queryLedger(command, options, config) {
     console.log(`${plural(rows.length, 'recorded rejection')}.`);
     return;
   }
-  rejectUnknownOptions(options, new Set(['area']));
-  const areaIds = options.area ? [options.area] : null;
-  const rows = collectDeferrals(passesForAreas(config.passes, areaIds));
-  for (const row of rows) {
-    console.log(`${shortSha(row.head)} [${row.category}] `
-      + `${row.trackedIn}: ${row.summary}`);
+  rejectUnknownOptions(options, new Set(['area', 'status', 'id']));
+  if (options.id) {
+    const entry = config.deferred.find((d) => d.id === options.id);
+    if (!entry) fail(`no deferred entry has id: ${options.id}`);
+    console.log(JSON.stringify(entry, null, 2));
+    return;
   }
-  console.log(`${plural(rows.length, 'recorded deferral')}.`);
+  const status = options.status ?? 'open';
+  if (status !== 'all' && !DEFERRAL_STATUSES.includes(status)) {
+    fail('--status must be open, closed, or all');
+  }
+  const rows = openDeferrals(config.deferred,
+    { area: options.area ?? null, status });
+  for (const row of rows) {
+    console.log(`[${row.area ?? '-'}] (${row.category}, ${row.effort}) ${row.id}`);
+  }
+  console.log(`${plural(rows.length, 'deferral')} (${status}`
+    + `${options.area ? `, ${options.area}` : ''}).`);
+  for (const [area, count] of sweepCandidates(config.deferred)) {
+    console.log(`Sweep candidate: ${area} holds ${count} open deferrals.`);
+  }
+}
+
+function deferEntry(options) {
+  rejectUnknownOptions(options,
+    new Set(['id', 'area', 'category', 'effort', 'detail']));
+  for (const key of ['id', 'category', 'effort', 'detail']) {
+    if (!options[key]?.trim()) fail(`--${key} is required`);
+  }
+  withLedgerLock(() => {
+    const config = loadConfig();
+    if (config.deferred.some((entry) => entry.id === options.id.trim())) {
+      fail(`deferred id already exists: ${options.id.trim()}`);
+    }
+    config.deferred.push({
+      id: options.id.trim(),
+      area: options.area ?? null,
+      category: options.category,
+      effort: options.effort,
+      status: 'open',
+      from: resolveCommit('HEAD'),
+      detail: options.detail.trim(),
+    });
+    // Full-shape validation rejects a bad area, category, or effort before
+    // anything is written.
+    validateConfigShape(config);
+    writeConfig(config);
+    console.log(`Deferred: ${options.id.trim()}`);
+  });
+}
+
+function resolveDeferral(options) {
+  rejectUnknownOptions(options, new Set(['id']));
+  if (!options.id?.trim()) fail('--id is required');
+  withLedgerLock(() => {
+    const config = loadConfig();
+    const entry = config.deferred.find((d) => d.id === options.id.trim());
+    if (!entry) fail(`no deferred entry has id: ${options.id.trim()}`);
+    if (entry.status === 'closed') fail(`already closed: ${entry.id}`);
+    entry.status = 'closed';
+    writeConfig(config);
+    console.log(`Closed: ${entry.id}`);
+  });
 }
 
 function printHelp() {
@@ -1398,11 +1479,15 @@ function printHelp() {
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
     [--head <commit>] [--dry-run]
   npm run quality -- rejections [--areas <id,...>]
-  npm run quality -- deferrals [--area <id>]
+  npm run quality -- deferrals [--area <id>] [--status open|closed|all] [--id <id>]
   npm run quality -- pass --head <sha or prefix>
+  npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
+    --detail <text> [--area <id>]
+  npm run quality -- resolve-deferral --id <id>
 
-The three query subcommands read the recorded passes, so a later pass
-consults prior rejections and open deferrals without opening QUALITY.json.
+The query subcommands read the ledger, so a later pass consults prior
+rejections and open deferrals without opening QUALITY.json. defer opens a
+ledger entry and resolve-deferral closes one when its fix lands.
 
 Status is derived from Git. A recorded pass advances each selected area's
 frontier from its prior exact commit through the --range head.
@@ -1414,8 +1499,8 @@ separately. --head, when given, must name the same commit as the range head.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
 for every rejected finding, and one deferrals entry, with summary and a
-trackedIn naming a heading under "## ${DEFERRAL_SECTION}" in
-${DEFERRAL_TRACKER}, for every deferred finding.`);
+trackedIn naming an id in the deferred ledger, for every deferred finding.
+Create the ledger entry with defer before recording the pass.`);
 }
 
 function main(argv) {
@@ -1431,6 +1516,14 @@ function main(argv) {
   }
   if (first === 'rejections' || first === 'deferrals' || first === 'pass') {
     queryLedger(first, parseOptions(rest), loadConfig());
+    return;
+  }
+  if (first === 'defer') {
+    deferEntry(parseOptions(rest));
+    return;
+  }
+  if (first === 'resolve-deferral') {
+    resolveDeferral(parseOptions(rest));
     return;
   }
 

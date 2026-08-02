@@ -14,11 +14,11 @@ import {
   qualityGateBlocked,
   relocationCommits,
   thresholdReached,
-  unresolvedHeadings,
   validateAuditedRangeCoverage,
   validateAuditMetrics,
   validateAuditMutation,
-  collectDeferrals,
+  openDeferrals,
+  sweepCandidates,
   collectRejections,
   newestFrontier,
   passesForAreas,
@@ -445,22 +445,21 @@ test('deferred findings name an existing tracker heading', () => {
     () => validateAuditMetrics({ ...metrics, deferrals: [] }),
     /deferrals lists 0 findings but the deferred count is 1/,
   );
-  // A heading that names no section leaves the finding untracked, which is the
+  // An id absent from the ledger leaves the finding untracked, which is the
   // failure the check exists to catch.
   assert.throws(
     () => validateAuditMetrics(metrics, { trackerHeadings: new Set(['Unresolved: something else']) }),
-    /is not a heading under "## Unresolved" in ROADMAP\.md/,
+    /is no id in the deferred ledger/,
   );
-  // Debt belongs under the Unresolved section. A goal heading, which the scoped
-  // parser never returns, would strand the finding where nothing clears it.
+  // An unopened id would strand the finding where nothing clears it.
   assert.throws(
     () => validateAuditMetrics({
       ...metrics,
       deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'Next goals, in order' }],
     }, { trackerHeadings: headings }),
-    /is not a heading under "## Unresolved" in ROADMAP\.md/,
+    /is no id in the deferred ledger/,
   );
-  // Stored passes are revalidated on every run, after the heading is deleted.
+  // Stored passes are revalidated on every run, after the entry closes.
   assert.doesNotThrow(() => validateAuditMetrics(metrics));
 });
 
@@ -521,7 +520,7 @@ test('recording a pass requires a deferrals entry for every deferred finding', (
   assert.doesNotThrow(() => validateAuditMetrics(DEFERRED_TESTS_FINDING));
   assert.throws(
     () => validateAuditMetrics(DEFERRED_TESTS_FINDING, { requireDeferrals: true }),
-    /deferrals must record all 1 deferred findings with the ROADMAP\.md heading/,
+    /deferrals must record all 1 deferred findings with the deferred-ledger id/,
   );
   // An audit that deferred nothing has nothing to record.
   assert.doesNotThrow(
@@ -532,11 +531,11 @@ test('recording a pass requires a deferrals entry for every deferred finding', (
 test('the recorder entry point enforces both durable-record gates', () => {
   // The two tests above pin validateAuditMetrics(), which takes its options
   // from the caller. They stay green if the recorder stops passing them, so
-  // this drives the one place that does. The tracker is injected, so the case
-  // does not depend on what ROADMAP.md happens to contain.
-  const readTracker = () => '## Unresolved\n### Process\n#### a deferred finding\n';
+  // this drives the one place that does. The id set is injected, so the case
+  // does not depend on what QUALITY.json happens to contain.
+  const deferredIds = new Set(['a deferred finding']);
   const withMetrics = (metrics) => auditMetricsFromOptions(
-    { 'audit-metrics': JSON.stringify(metrics) }, { readTracker },
+    { 'audit-metrics': JSON.stringify(metrics) }, { deferredIds },
   );
 
   assert.throws(
@@ -548,7 +547,7 @@ test('the recorder entry point enforces both durable-record gates', () => {
       ...DEFERRED_TESTS_FINDING,
       deferrals: [{ summary: 'a finding', category: 'tests', trackedIn: 'absent' }],
     }),
-    /is not a heading under "## Unresolved" in ROADMAP\.md/,
+    /is no id in the deferred ledger/,
   );
   // A rejected finding needs its counter-evidence through the same entry point.
   assert.throws(
@@ -573,55 +572,6 @@ test('the recorder entry point enforces both durable-record gates', () => {
     }],
   };
   assert.deepEqual(withMetrics(accepted), accepted);
-});
-
-test('heading parsing returns the Unresolved section alone', () => {
-  // parseMarkdownHeadings() is a pure function over text, so it is pinned
-  // against a literal document rather than against ROADMAP.md. Reading the
-  // live tracker would tie the suite to prose the workflow rewrites: clearing
-  // every "Unresolved:" section is the deferral ledger's whole purpose, and
-  // closing a goal deletes its heading, so a repository in exactly the state
-  // the workflow aims for would fail a test about a parser.
-  const document = [
-    '# Title',
-    'body text that is not a heading',
-    '## Current milestone: exploration',
-    '### A goal, outside the debt section',
-    '## Unresolved',
-    '#NotAHeading',
-    '### Display',
-    '#### a deferred finding   ',
-    '###### Deepest',
-    '    #### Four spaces, a code block even in CommonMark',
-    '  #### Two spaces, which CommonMark would accept',
-    '####### Seven marks, past the deepest level',
-    '## Later milestones',
-    '### Something after the section closes',
-  ].join('\n');
-  const headings = unresolvedHeadings(document);
-
-  // Four-mark headings between `## Unresolved` and the next two-mark heading.
-  // A goal or a milestone sits outside the section; a category sits inside it
-  // at three marks and names no finding. Neither can be a deferral's home.
-  assert.deepEqual([...headings].sort(), ['a deferred finding']);
-  assert.equal(headings.has('Display'), false);
-  assert.equal(headings.has('Deepest'), false);
-  assert.equal(headings.has('Current milestone: exploration'), false);
-  assert.equal(headings.has('A goal, outside the debt section'), false);
-  assert.equal(headings.has('Something after the section closes'), false);
-  // The marker is stripped, so a trackedIn value carrying one never resolves.
-  assert.equal(headings.has('## Current milestone: exploration'), false);
-  // A run of marks with no space after it is not a heading.
-  assert.equal(headings.has('NotAHeading'), false);
-  // Any leading whitespace disqualifies a line. That is stricter than
-  // CommonMark, which accepts up to three spaces of indentation, so both
-  // widths are probed rather than only the four-space case where the two
-  // agree. The strictness is harmless here because a trackedIn value is
-  // matched against ROADMAP.md headings, which are never indented.
-  assert.equal(headings.has('Four spaces, a code block even in CommonMark'), false);
-  assert.equal(headings.has('Two spaces, which CommonMark would accept'), false);
-  // Seven marks exceed the deepest level, so the line is not a heading either.
-  assert.equal(headings.has('Seven marks, past the deepest level'), false);
 });
 
 test('an audited range must start at or before every claimed frontier', () => {
@@ -698,6 +648,7 @@ test('a stored audited range must end at the pass head', () => {
       windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
+    deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [pass],
   };
@@ -776,6 +727,7 @@ test('the per-area line advisory must stay below the per-area line gate', () => 
       windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
+    deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [],
   };
@@ -813,6 +765,7 @@ test('an implementation path cannot belong to two quality areas', () => {
       windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
+    deferred: [],
     areas: [
       { id: 'first', label: 'First', paths: ['js/shared.js'] },
       { id: 'second', label: 'Second', paths: ['js/shared.js'] },
@@ -852,6 +805,7 @@ test('new ledger passes require structured audit metrics', () => {
       windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
+    deferred: [],
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
     passes: [pass],
   };
@@ -932,9 +886,24 @@ test('ledger queries filter passes by area and flatten their entries', () => {
     assert.equal(passesForAreas(passes).length, 2);
     const rejections = collectRejections(passesForAreas(passes, ['display']));
     assert.deepEqual(rejections.map(({ summary }) => summary), ['claim C']);
-    const deferrals = collectDeferrals(passes);
-    // A pass without a deferrals array contributes nothing rather than
-    // throwing, because 21 legacy passes predate auditMetrics.
-    assert.deepEqual(deferrals.map(({ trackedIn }) => trackedIn),
-        ['Unresolved: B']);
+    // The deferred ledger: two open entries in monsters, one closed, one open
+    // without an area. Defaults return open entries only; the closed entry
+    // needs status 'closed' or 'all'; the area filter excludes the null-area
+    // entry; and the sweep threshold of 2 fires for monsters alone, because
+    // closed and area-less entries never count toward a sweep.
+    const ledger = [
+        { id: 'A', area: 'monsters', status: 'open' },
+        { id: 'B', area: 'monsters', status: 'open' },
+        { id: 'C', area: 'monsters', status: 'closed' },
+        { id: 'D', area: null, status: 'open' },
+    ];
+    assert.deepEqual(openDeferrals(ledger).map(({ id }) => id),
+        ['A', 'B', 'D']);
+    assert.deepEqual(openDeferrals(ledger, { area: 'monsters' })
+        .map(({ id }) => id), ['A', 'B']);
+    assert.deepEqual(openDeferrals(ledger, { status: 'closed' })
+        .map(({ id }) => id), ['C']);
+    assert.deepEqual(openDeferrals(ledger, { status: 'all' }).length, 4);
+    assert.deepEqual(sweepCandidates(ledger, 2), [['monsters', 2]]);
+    assert.deepEqual(sweepCandidates(ledger, 3), []);
 });

@@ -126,8 +126,12 @@ The orchestrator repeats, without returning to the user between its steps:
    closes, satisfy the readiness note in `.agents/review.md` and run the
    goal's full correctness pass, then continue at step 1.
 5. When a goal closes, run the authorized holdout evaluation and record its
-   result with the goal's evidence. Delete the goal from `ROADMAP.md` and
-   continue at step 1.
+   result with the goal's evidence. Dispose of every open deferral in the
+   areas the goal touched, read from `npm run quality -- deferrals --area
+   <id>`: fix a `small` one in the goal's audit-fix commit and resolve its
+   entry, queue a `slice` one as a queued slice, or state in the closing
+   report why it stays open. Delete the goal from `ROADMAP.md` and continue
+   at step 1.
 
 A formal review pass is a step of this loop, and the orchestrator runs it.
 
