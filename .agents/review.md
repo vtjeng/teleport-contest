@@ -1,10 +1,30 @@
 # Review cadence and methodology
 
-`.agents/workflow.md` defines a formal review pass and states that audit means
-the same thing. `.agents/loop.md` holds the loop these passes are steps in.
-
 Read this file before scheduling, running, or recording a formal review pass.
-Only the orchestrator does this work. `.agents/loop.md` assigns the roles.
+Only the orchestrator does this work. `.agents/loop.md` assigns the roles and
+holds the loop these passes are steps in. `.agents/workflow.md` defines the
+implementation vocabulary this file relies on: a coherent implementation
+chunk, a behavior slice, a goal, and a review window.
+
+A **formal review pass** is an independent structured review of a frozen
+committed range. It comes in four kinds: correctness, clarity, simplification,
+and copyediting. The orchestrator invokes the skill that this file
+names for the kind it needs, which runs its reviewers as parallel subagents and
+reports possible problems; the orchestrator reviews each finding and applies
+only fixes for confirmed findings. All four kinds follow the process rules in
+"Running formal review passes" below.
+
+**Audit** means the same thing. That word is fixed in the skill names
+`/audit-diff-correctness` and `/audit-diff-clarity`, and in the `Audit-fix-for:`
+commit trailer.
+
+An **evidence snapshot** is one `SCORE.tsv` row for the exact integrated code
+state at a full commit SHA: `npm run checkpoint` appends a `checkpoint` row
+after each scoring run, and agents append `slice`, `window`, `goal`,
+`holdout`, and `publish` rows when those events complete, as
+`.agents/validation.md`, "Score evidence", states. The quality ledger is
+`QUALITY.json`, which records completed correctness and simplification
+passes. Formal review ranges remain in that ledger.
 
 ## Readiness for a formal review pass
 

@@ -47,28 +47,9 @@ covered by one scheduled correctness review. A review window completes when
 that review, its required fixes, and the required post-fix validation are
 finished.
 
-An **evidence snapshot** is one `SCORE.tsv` row for the exact integrated code
-state at a full commit SHA: `npm run checkpoint` appends a `checkpoint` row
-after each scoring run, and agents append `slice`, `window`, `goal`,
-`holdout`, and `publish` rows when those events complete, as
-`.agents/validation.md`, "Score evidence", states. The quality ledger is
-`QUALITY.json`, which records completed correctness and simplification
-passes. Formal review ranges remain in that ledger.
-
 A **check** is routine diff inspection, testing, source comparison, or
-`npm run quality`.
-
-A **formal review pass** is an independent structured review of a frozen
-committed range. It comes in four kinds: correctness, clarity, simplification,
-and copyediting. The orchestrator invokes the skill that `.agents/review.md`
-names for the kind it needs, which runs its reviewers as parallel subagents and
-reports possible problems; the orchestrator reviews each finding and applies
-only fixes for confirmed findings. All four kinds follow the process rules in
-`.agents/review.md`, "Running formal review passes".
-
-**Audit** means the same thing. That word is fixed in the skill names
-`/audit-diff-correctness` and `/audit-diff-clarity`, and in the `Audit-fix-for:`
-commit trailer.
+`npm run quality`. `.agents/review.md` defines the review vocabulary: a
+formal review pass, an audit, and an evidence snapshot.
 
 ## Per-chunk workflow
 
