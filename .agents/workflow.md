@@ -52,8 +52,7 @@ An **evidence snapshot** is one `SCORE.md` row for the exact integrated code
 state at a full commit SHA. Preserve a snapshot when a behavior slice or review
 window completes, the score changes, or a result is published. The quality
 ledger is `QUALITY.json`, which records completed correctness and
-simplification passes. Formal review ranges remain in that ledger and in
-retained pass reports. Routine chunks collect score and validation evidence
+simplification passes. Formal review ranges remain in that ledger. Routine chunks collect score and validation evidence
 too, and do not add a `SCORE.md` row.
 
 A **check** is routine diff inspection, testing, source comparison, or

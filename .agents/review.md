@@ -302,8 +302,9 @@ copyediting passes:
   `cleanup`; it refuses to discard a changed worktree.
 - Freeze the assigned scope. Later commits remain outside the pass and normally
   need review only as a later delta.
-- Capture the complete report: counts, findings, rejections, unverified items,
-  warnings, validation, proposed changes, session identifier, and token usage.
+- Record the pass's counts, findings, rejections, deferrals, unverified
+  items, warnings, and validation in its `QUALITY.json` entry. That entry is
+  the pass's whole durable record; no separate report file is retained.
 
 Preserve source-shaped code, planned dependency seams, generated data, and
 temporary scaffolding until a source-faithful replacement owns the behavior and
@@ -379,10 +380,8 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   finders, fixes, deferrals, unverified judgments, rejections and their
   counter-evidence, warnings, and validation. Record clarity separately only
   when it ran.
-- For non-ledger clarity and copyedit passes, include elapsed wall time and
-  finding counts in the complete formal-pass report required under Running
-  formal review passes. Retain that report as part of the related review or
-  publication evidence.
+- A clarity or copyedit pass leaves no ledger record. State its elapsed wall
+  time and finding counts in the progress report that announces it.
 - Finish each formal review pass with `npm run quality -- --check`. Resolve
   review debt at a batching threshold declared in `QUALITY.json` and assign
   every unassigned `js/` file to a `QUALITY.json` area. An audit-fix commit

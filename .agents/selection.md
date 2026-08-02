@@ -131,7 +131,6 @@ take.
 
 `ROADMAP.md` holds only open work. Delete a goal or milestone from
 `ROADMAP.md` when that goal or milestone closes: its score evidence stays in
-`SCORE.md`, its review metadata in `QUALITY.json` and the formal-pass reports
-that `.agents/review.md` requires retaining, and its implementation history in
-Git. Every task starts by reading `ROADMAP.md`, so it has to stay short enough
+`SCORE.tsv`, its review metadata in `QUALITY.json`, and its implementation
+history in Git. Every task starts by reading `ROADMAP.md`, so it has to stay short enough
 to read.
