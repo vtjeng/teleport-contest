@@ -23,7 +23,7 @@ fields; the gate reads only `mode`, `commitChecked`, and each entry's
   "reason": "the specific missing work, or the evidence supporting readiness",
   "commitChecked": "full commit SHA the evidence applies to",
   "boundary": {
-    "roadmapItem": "the current ROADMAP.md item",
+    "goalId": "the GOALS.json id this behavior slice belongs to",
     "startingCommit": "full commit SHA before this behavior slice",
     "startingEvent": "the input or game event that begins the behavior",
     "endingEvent": "the next observable prompt, screen, or termination",

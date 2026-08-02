@@ -55,9 +55,9 @@ Generated outputs declared in `QUALITY.json` do not count toward changed-line
 thresholds. Their generators do count, and a commit touching a generator or
 output counts toward the commit threshold unless it is a linked audit-fix
 commit. Each declaration names the generator and regeneration check; reviews
-cover both. An **evidence-only commit** changes only `SCORE.md`, correctness or
-simplification records, or their supporting documentation, and no area-owned
-path. A **quality-ledger-only commit** is the subtype of evidence-only commit
+cover both. An **evidence-only commit** changes only `SCORE.tsv`, `SCORE.md`, correctness
+or simplification records, or their supporting documentation, and no
+area-owned path. A **quality-ledger-only commit** is the subtype of evidence-only commit
 that changes only correctness or simplification records. Evidence-only
 commits do not count toward path-scoped commit totals and do not receive
 their own evidence snapshots.
@@ -324,7 +324,7 @@ state. Simplification must preserve PRNG and evaluation order.
 
 A review frontier is the latest integrated commit covered by a recorded pass.
 
-- A `SCORE.md` evidence snapshot may reference the correctness and
+- A `SCORE.tsv` evidence snapshot may reference the correctness and
   simplification records described in this section, and the retained pass
   reports, but it does not replace them or advance a review frontier.
 - Record correctness with
@@ -389,6 +389,6 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   applied after its pass was recorded may stand as correctness debt, except
   before a review deadline.
   Resolve concrete simplification or clarity triggers, but do not invent
-  a formal review pass when none exists. Historical `BASELINE` debt remains
-  exempt
-  until the first recorded pass for the area that holds it.
+  a formal review pass when none exists. An area no recorded pass has covered
+  appears in the dashboard's never-reviewed line, which is information but
+  does not block.

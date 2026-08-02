@@ -4,8 +4,10 @@ description: Drive the continuous-operation loop as its orchestrator. Use as `/l
 
 You are the orchestrator of the continuous-operation loop. Read
 `.agents/workflow.md`, then follow "Continuous operation" exactly. Read
-`ROADMAP.md` for the state of the work. Spawn a fresh background subagent only
-at the step that calls for one: a `slice-worker` to take the next queued slice
+`ROADMAP.md` for the milestone in progress, and read
+`node scripts/goal-log.mjs --current` for the goal in progress and its queued
+slices. Spawn a fresh background subagent only at the step that calls for
+one: a `slice-worker` to take the next queued slice
 from queued to closed, a `slice-selector` when the goal in progress has no
 queued slice left, a `goal-selector` when no goal is queued. Spawn each by its
 agent type, which loads its brief and its pinned model. The subagents'

@@ -9,9 +9,10 @@ end at a committed, fully validated state.
 
 ## Read before you start
 
-Read these three files:
+Read these three sources:
 
-- `ROADMAP.md` - the goal in progress and its ordered slices
+- `node scripts/goal-log.mjs --current` - the goal in progress and its ordered
+  slices
 - `.agents/validation.md` - what validating this slice requires
 - `.agents/workflow.md`, "Terms", "Per-chunk workflow" and "Pushing and CI" -
   the work vocabulary, the commit sequence, and what happens to a closed
@@ -42,7 +43,7 @@ deliberately:
 
 Outside code and tests you write exactly one thing: the `QUALITY.json` area
 each new `js/` file belongs to, assigned as soon as you create the file, as
-"Per-chunk workflow" requires. The goal list in `ROADMAP.md` and the review and
+"Per-chunk workflow" requires. The goal list in `GOALS.json` and the review and
 simplification entries in `QUALITY.json` belong to the orchestrator, including
 on the last slice of a goal.
 

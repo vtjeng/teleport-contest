@@ -25,18 +25,21 @@ defined there.
   npm run checkpoint > /tmp/checkpoint.log 2>&1 && tail -40 /tmp/checkpoint.log
   ```
 
-  A green checkpoint prints about 133,000 bytes over 1,724 lines. An agent
-  reading that directly loses most of it to truncation and spends thousands of
-  tokens on passing test names. The tail is about 1,100 bytes and ends with the
-  per-check `PASS`/`FAIL` summary, and the full output stays on disk.
+  A green checkpoint printed about 468,000 bytes over 14,491 lines, measured
+  on 1 August 2026 with the development-score step skipped, and the total
+  grows with the test suite. An agent reading that directly loses most of it
+  to truncation and spends thousands of tokens on passing test names. The
+  tail is about 1,200 bytes and ends with the per-check `PASS`/`FAIL`
+  summary, and the full output stays on disk.
 
   When the checkpoint fails, `&&` suppresses the tail and the command exits
   nonzero. Run the tail as a separate command. `tail -40 /tmp/checkpoint.log`
   still ends with the summary, because every check runs whether or not an
   earlier one failed.
-  `grep -n '✖' /tmp/checkpoint.log` prints the line number of each failing test,
-  and the default reporter repeats them with their assertion output at the end
-  of the log.
+  `grep -n 'not ok' /tmp/checkpoint.log` prints the line number of each failing
+  test. A redirected run has no TTY, so the runner uses the `tap` reporter,
+  which prints each failure's `error`, `stack`, and `location` fields directly
+  under its `not ok` line.
 
   Keep the default test reporter. `node --test --test-reporter=dot` prints no
   pass or fail summary on a green run, discards test-process stdout and stderr,
@@ -116,10 +119,10 @@ conclusion at least once.
   `gt.toplines`, or run inside the workspace the scorer builds.
 - **A mutation run's first wave can be empty.** `scripts/mutate-sites.mjs`
   judges a mutant by the test files that reach its module without passing
-  through another `js/` module. Some modules have none -- `js/trap_effects.js`
-  reports `0 covering test file(s)`, because every test reaches it through
-  `js/monmove.js` -- and every mutant in such a file survives its first wave
-  vacuously. Check the per-file line the run prints; where it reports zero,
+  through another `js/` module. A module reached only through other `js/`
+  modules reports `0 covering test file(s)`, and every mutant in it survives
+  its first wave vacuously. Check the per-file line the run prints; where it
+  reports zero,
   `--whole-suite` is not optional.
 
 ## Score evidence
