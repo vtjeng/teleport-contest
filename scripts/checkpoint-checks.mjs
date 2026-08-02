@@ -183,6 +183,25 @@ export function runCheckpointChecks(commands, {
 }
 
 /**
+ * Read the review gate's state for the checkpoint summary.
+ *
+ * The detail carries the dashboard's Review line and, when one prints, its
+ * Unassigned js/ files line, so the checkpoint a worker already runs names
+ * the file it forgot to assign with `npm run quality -- assign`.
+ */
+export function summarizeReviewGate({ stdout = '', status }) {
+    const lines = stdout.split('\n');
+    const review = lines.find((line) => line.startsWith('Review since '));
+    const unassigned = lines.find(
+        (line) => line.startsWith('Unassigned js/ files: '));
+    return {
+        passed: status === 0,
+        detail: [review ?? 'no review line in quality output', unassigned]
+            .filter(Boolean).join('; '),
+    };
+}
+
+/**
  * Read the mutation run's outcome for the checkpoint.
  *
  * Survivors are evidence and never a failure. The mutator exits 2 without
@@ -190,14 +209,6 @@ export function runCheckpointChecks(commands, {
  * the suite check above has already reported that, so this reports itself
  * skipped.
  */
-export function summarizeReviewGate({ stdout = '', status }) {
-    const line = stdout.split('\n').find((l) => l.startsWith('Review since '));
-    return {
-        passed: status === 0,
-        detail: line ?? 'no review line in quality output',
-    };
-}
-
 export function summarizeMutation({ stdout = '', stderr = '', status }) {
     const output = `${stdout}${stderr}`;
     if (status !== 0) {

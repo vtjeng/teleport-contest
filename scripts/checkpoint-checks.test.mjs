@@ -32,6 +32,19 @@ test('the checkpoint surfaces the review gate without gating on it', () => {
     // Exit 1 means the gate blocks; DONE flips to FAIL on the summary line
     // while the informational flag keeps the checkpoint itself green.
     assert.equal(summarizeReviewGate({ stdout: '', status: 1 }).passed, false);
+    // An unassigned js/ file blocks the gate silently unless the summary
+    // names it: the dashboard's own line rides along after the Review line,
+    // so the worker's checkpoint states which file needs
+    // `npm run quality -- assign`.
+    assert.equal(
+        summarizeReviewGate({
+            stdout: 'Quality coverage at abc12345\n\n'
+                + 'Review since 12345678: clear\n'
+                + 'Unassigned js/ files: js/newfile.js\n',
+            status: 1,
+        }).detail,
+        'Review since 12345678: clear; Unassigned js/ files: js/newfile.js',
+    );
 });
 
 test('checkpoint runs focused, full, mutants, generated, static, and score',
