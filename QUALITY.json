@@ -5842,6 +5842,110 @@
         ]
       },
       "recordedAt": "2026-08-02T12:35:02.765Z"
+    },
+    {
+      "kind": "review",
+      "head": "e87beeaf37d9b8c99e3226e8ad2220cc4b4823cb",
+      "auditedRange": "04c26211d2f0d10bc2277fff1a2fb3aaf9bddc21..e87beeaf37d9b8c99e3226e8ad2220cc4b4823cb",
+      "level": "full",
+      "areas": [
+        "commands",
+        "display",
+        "startup",
+        "hero"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 15 raw, 14 deduplicated, 12 confirmed, 12 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 0 survivors of 4 mutants. Full correctness pass over the whole of the furniture-square-entry goal, plus the previous goal's audit-fix commit, which no pass had read. Four finders; concurrency and performance were not triggered, since the range changes no asynchronous control flow and adds no hot-path work. Both slices delete refusals rather than porting new C, so the pass was aimed at the reading behind them. Three of the twelve confirmed findings were defects in shipped behavior. A blind hero arriving on furniture or an open doorway holding an object threw a bare Error out of runSegment() and discarded the segment, because js/dungeon.js surface() ports only its ROOM and CORR arms. An altar arrival over one object aborted the segment, because dfeature_at() throws and nothing on the movement path converts it. And --areas, added by the previous pass's own fix, was rejected by the recorder because the option name never entered the allowed set, while its function was tested directly and passed. All twelve applied at 9b7333e with the development score unchanged at 676 of 7,765 screens; the structural half of the second defect is deferred as movement-path-has-no-failclosed-wrapper.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2219,
+        "counts": {
+          "raw": 15,
+          "deduplicated": 14,
+          "confirmed": 12,
+          "applied": 12,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 5,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "optionalFinders": {
+          "concurrency": "not enabled: the range changes no asynchronous or reentrant control flow, no shared mutable lifecycle, and adds no parallel work; both slices delete refusals from synchronous destination predicates",
+          "performance": "not enabled: the range adds no unbounded or amplified work, no worse complexity and no hot-path traversal beyond the source behavior it ports"
+        },
+        "productionDefects": [
+          {
+            "file": "js/hack.js",
+            "summary": "Deleting the terrain-feature guard exposed invent.c look_here()'s blind arm, whose dungeon.c surface() port answers ROOM and CORR alone and throws a bare Error otherwise. A blind hero arriving on any furniture square or open doorway holding an object escaped js/jsmain.js's boundary list and discarded the whole segment. OPTIONS=blind reaches this from turn one.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied",
+            "fixedAt": "9b7333e"
+          },
+          {
+            "file": "js/hack.js",
+            "summary": "dfeature_at() throws UnsupportedFeatureDescriptionError for an altar, and nothing on the movement path converts it: domove() has no failClosedCommand() wrapper. An altar arrival over one object aborted the segment instead of ending on its last matching screen. The reachable case is refused at the seam; the general gap is deferred as movement-path-has-no-failclosed-wrapper.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied",
+            "fixedAt": "9b7333e"
+          },
+          {
+            "file": "scripts/quality-status.mjs",
+            "summary": "passAreas() read options.areas, but preparePass() never added the name to its allowed set, so rejectUnknownOptions() killed the command before the branch could run. The option was documented and its function tested directly, so the dead branch shipped green.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied",
+            "fixedAt": "9b7333e"
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 4,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 2,
+              "killed": 2
+            },
+            "logical": {
+              "ran": 2,
+              "killed": 2
+            }
+          },
+          "finderConclusion": "Four mutants over the audit-fix diff, all killed. The two guards added to js/hack.js are pinned by new case tables that were each watched failing: removing the blind guard and removing the altar guard each fail their own test, and narrowing the pet-swap decor predicate from IS_FURNITURE to FOUNTAIN fails the widened seven-type table. No survivor needed an equivalence argument."
+        },
+        "rejections": [
+          {
+            "summary": "js/hack.js:892 -- The pet-swap destination list is described as \"the same set requireSimpleHeroDestination() admits above, less the doorway masks\", while the code admits a doorway whose mask is 0 -- and D_NODOOR is 0, so a doorway is admitted. The sibling seam writes the same test as `mask === D_NODOOR` (js/hack.js:625-626); this one writes a bare literal.",
+            "counterEvidence": "The alleged contradiction requires stopping mid-sentence. Counter-evidence: The full sentence at js/hack.js:891-894 reads '... the same set requireSimpleHeroDestination() admits above, less the doorway masks: a D_ISOPEN swap has no recording behind it and this seam has never carried one, so it keeps the mask-0 test it was written with.' The clause after the colon states plainly that the mask-0 test survives, so the comment does not tell a reader that no doorway swaps. js/const.js:87 confirms D_NODOOR is 0x00, so `doorMask(destination) === 0` is the D_NODOOR case the sentence says is kept -- code and sentence agree."
+          },
+          {
+            "summary": "js/unported_monster_actions.js:562 -- The justification for admitting furniture to the monster destination seam claims \"teleport.c goodpos() admit[s] them with no furniture branch\". goodpos() does have one: teleport.c:167 calls goodpos_onscary(), which refuses an altar to any S_VAMPIRE at teleport.c:62.",
+            "counterEvidence": "The sentence is about goodpos()'s own body, which has no furniture branch, and the same comment names the altar rule two sentences later. Counter-evidence: goodpos() (teleport.c:104-180) contains no IS_ALTAR, IS_FURNITURE or other terrain-furniture test of its own; the altar test lives in the separate goodpos_onscary() at teleport.c:62, reached only through teleport.c:167 `if (checkscary && (mtmp->m_id ? onscary(x, y, mtmp) : goodpos_onscary(x, y, mdat)))`, and for a real monster (m_id set) that line calls onscary(), not goodpos_onscary() at all. The comment at js/unported_monster_actions.js:559-566 then says outright: 'Three furniture tests do sit on the monster-move path. monmove.c:274 onscary()'s vampire-fears-altar arm is ported in js/monmove.js', so the reader is given the altar rule, its C location and its port. No false model survives the paragraph."
+          }
+        ],
+        "readiness": {
+          "boundary": "Starting events: a hero movement command reaching domove_core(), and a direction key toward the ordinary starting pet. Ending events: the hero standing on the furniture square with the run ended by nomul(0) and the map redrawn; and \"You swap places with your kitten.\" with the pet on the hero's former square. The real game executes both: three development sessions replay them, moving 648 to 674 to 676 screens of 7,765.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream/src/: hack.c test_move(), domove_swap_with_pet(), spoteffects(), switch_terrain(), lookaround() and the run stop at 2936-2941; pickup.c pickup() and check_here(); invent.c dfeature_at() and look_here(); dungeon.c surface(); mon.c mfndpos() and minliquid_core(); monmove.c onscary(); teleport.c goodpos(). The trace covered state and random-number order. The pass corrected the range's own account of test_move()'s control flow: a furniture destination matches neither the IS_OBSTRUCTED arm nor the IS_DOOR arm, so control leaves the chain rather than reaching testdiag.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every excluded branch stops before changing state, consuming randomness or producing output, through a named refusal: dosinkfall() for a levitating hero over a sink; describe_decor() under mention_decor at both the walking and pet-swap seams; a_gname() for an altar holding an object; the blind surface() arms; the headstone engraving for a grave; and the door masks neither seam admits. hack.c:2179's minliquid()/mintrap() tail stays unreachable because the seam requires the hero's former square to be accessible and trap-free."
+        }
+      },
+      "recordedAt": "2026-08-02T16:20:00.174Z"
     }
   ]
 }
