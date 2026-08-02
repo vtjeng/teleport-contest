@@ -7,7 +7,9 @@
     "reviewAdvisoryCommits": 3,
     "reviewAdvisoryChangedLines": 500,
     "reviewCommits": 10,
-    "reviewChangedLines": 1000
+    "reviewChangedLines": 1000,
+    "windowCommits": 8,
+    "windowChangedLines": 1000
   },
   "legacyAreaExpansions": {
     "world": [

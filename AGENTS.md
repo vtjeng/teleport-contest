@@ -79,7 +79,7 @@ Follow all instructions in those files.
 | Before you... | Read... |
 | --- | --- |
 | Choose which goal or behavior slice to implement next | `.agents/selection.md` and `ROADMAP.md` |
-| Implement game behavior | `ROADMAP.md`, `.agents/workflow.md`, `.agents/validation.md`, and `QUALITY.json` |
+| Implement game behavior | `ROADMAP.md`, `.agents/workflow.md`, and `.agents/validation.md` |
 | Validate game behavior | `ROADMAP.md` and `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
 | Plan work likely to continue across agent sessions, involve more than one game system, or approach a total of 500 changed lines of game code | `.agents/workflow.md` and `.agents/implementation-checklist-template.md` |

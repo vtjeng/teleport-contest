@@ -113,20 +113,22 @@ and wiring that consume an existing contract do not cross areas by themselves.
 
 Related shared-contract changes within one named behavior slice and roadmap
 item may share a review window through the next observable boundary. The window
-may contain at most three unreviewed implementation commits and 1,000 changed
+may contain at most eight unreviewed implementation commits and 1,000 changed
 production lines summed across affected areas. Apply the per-chunk workflow
 throughout and run fresh end-to-end differentials once the real consumer
 executes.
 
-This window is a per-slice rule that agents apply by inspection. It is separate
-from the per-area advisory checkpoint and gate above, which `QUALITY.json`
-configures and `npm run quality` measures. No threshold key encodes this window.
+The `windowCommits` and `windowChangedLines` keys in `QUALITY.json` encode
+this window, and `npm run quality` prints it as the `Review window` line,
+measured from the newest recorded correctness frontier across every
+area-owned path. It is separate from the per-area advisory checkpoint and
+gate above. A `DUE` window is an advisory to run the pass; it never blocks
+the gate by itself.
 
 Run a formal review pass over the exact window before:
 
-- adding a fourth implementation commit;
-- accepting a change that would exceed 1,000 changed production lines;
-- starting another behavior slice or roadmap item; or
+- adding a ninth implementation commit;
+- accepting a change that would exceed 1,000 changed production lines; or
 - reaching a review deadline.
 
 An unexplained source-review or differential mismatch ends the window and makes
@@ -252,8 +254,8 @@ Return to **Implementation** when a finding:
 - requires new end-to-end cases because supported behavior has grown.
 
 Stop audit-fix work, record the requirement in the pass report, and do not
-claim the pass covers the new implementation. Do not run a light delta review
-or another pass first. Implement through the next observable boundary,
+claim the pass covers the new implementation. Do not run another pass first.
+Implement through the next observable boundary,
 satisfy the readiness requirements again, and run a new full correctness
 pass over the expanded range.
 
@@ -264,14 +266,13 @@ behavior. A commit confined to confirmed findings may use
 changes. The `npm run quality` dashboard excludes a valid linked audit-fix
 commit from the commit threshold but still counts its production lines.
 
-Audit-fix commits constitute correctness debt until a correctness pass reviews
-them. Include them in the next scheduled correctness range. Before a review
-deadline, fixes confined to confirmed findings may instead receive a `light`
-delta review covering source fidelity, end-to-end state and PRNG effects, test
-adequacy, and collateral changes. A clean review of that kind
-clears the correctness debt for the reviewed audit-fix commits. Run a full
-pass if fixes expand scope, change a shared contract, cause an unexplained
-mismatch, or independently meet a normal full-review trigger.
+A pass closes over its own fixes. After the audit-fix commit lands, re-verify
+its diff against the pass's confirmed findings and record the pass with
+`--range <base>..<audit-fix commit>`, so the fixes leave no correctness debt
+behind. A fix applied after its pass was recorded is correctness debt for the
+next scheduled correctness range. Run a full pass when fixes expand scope,
+change a shared contract, cause an unexplained mismatch, or independently
+meet a normal full-review trigger.
 
 ## Running formal review passes
 
@@ -347,8 +348,9 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   which re-reads commits already covered and is harmless, or review and record
   each frontier group separately.
 - Advance a review frontier only through the exact integrated commit that a
-  recorded pass covered. Audit-fix commits remain debt until a later
-  correctness pass covers them.
+  recorded pass covered. An audit-fix commit recorded as its own pass's range
+  head carries no debt; one applied after the pass was recorded remains debt
+  until a later correctness pass covers it.
   Correctness does not create simplification debt; the dashboard may show the
   last simplification frontier for context. Separate clarity and copyedit
   passes are not ledger records.
@@ -383,8 +385,9 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   publication evidence.
 - Finish each formal review pass with `npm run quality -- --check`. Resolve
   review debt at a batching threshold declared in `QUALITY.json` and assign
-  every unassigned `js/` file to a `QUALITY.json` area. Audit-fix commits may
-  stand as correctness debt, except before a review deadline.
+  every unassigned `js/` file to a `QUALITY.json` area. An audit-fix commit
+  applied after its pass was recorded may stand as correctness debt, except
+  before a review deadline.
   Resolve concrete simplification or clarity triggers, but do not invent
   a formal review pass when none exists. Historical `BASELINE` debt remains
   exempt

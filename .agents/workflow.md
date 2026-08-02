@@ -121,8 +121,8 @@ The orchestrator repeats, without returning to the user between its steps:
    implementation running: note it and continue. A fired gate stops
    implementation until the required pass has run, its confirmed findings are
    applied, and its entry is recorded. `.agents/review.md` also defines a
-   per-slice shared review window; judge that window by inspection, since no
-   threshold key encodes it.
+   per-slice shared review window; `npm run quality` measures it and prints
+   it as the `Review window` line.
 4. When a slice closes, continue at step 1. When the last slice of the goal
    closes, satisfy the readiness note in `.agents/review.md` and run the
    goal's full correctness pass, then continue at step 1.

@@ -18,6 +18,7 @@ import {
   validateAuditedRangeCoverage,
   validateAuditMetrics,
   validateAuditMutation,
+  newestFrontier,
   validateConfigShape,
 } from './quality-status.mjs';
 
@@ -59,6 +60,8 @@ test('the checked-in quality ledger has a valid schema', async () => {
     reviewAdvisoryChangedLines: 500,
     reviewCommits: 10,
     reviewChangedLines: 1000,
+    windowCommits: 8,
+    windowChangedLines: 1000,
   });
   assert.deepEqual(config.legacyAreaExpansions, {
     world: ['generation', 'monsters', 'world-effects'],
@@ -240,6 +243,8 @@ test('excluded audit-fix commits retain visible line-based review debt', () => {
       reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
+      windowCommits: 8,
+      windowChangedLines: 1000,
     }),
     /^WATCH \(0\/10 commits, 5\/1000 lines\)/,
   );
@@ -686,6 +691,8 @@ test('a stored audited range must end at the pass head', () => {
       reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
+      windowCommits: 8,
+      windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
@@ -762,6 +769,8 @@ test('the per-area line advisory must stay below the per-area line gate', () => 
       reviewAdvisoryChangedLines: 1000,
       reviewCommits: 10,
       reviewChangedLines: 1000,
+      windowCommits: 8,
+      windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
@@ -797,6 +806,8 @@ test('an implementation path cannot belong to two quality areas', () => {
       reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
+      windowCommits: 8,
+      windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
     areas: [
@@ -834,6 +845,8 @@ test('new ledger passes require structured audit metrics', () => {
       reviewAdvisoryChangedLines: 500,
       reviewCommits: 10,
       reviewChangedLines: 1000,
+      windowCommits: 8,
+      windowChangedLines: 1000,
     },
     legacyAreaExpansions: {},
     areas: [{ id: 'first', label: 'First', paths: ['js/first.js'] }],
@@ -846,4 +859,40 @@ test('new ledger passes require structured audit metrics', () => {
   );
   pass.auditMetrics = EMPTY_AUDIT_METRICS;
   assert.doesNotThrow(() => validateConfigShape(config));
+});
+
+test('the review window thresholds validate below the gate', () => {
+    const base = {
+        version: 4,
+        trackingBase: '1'.repeat(40),
+        enforcementBase: '2'.repeat(40),
+        thresholds: {
+            reviewAdvisoryCommits: 3,
+            reviewAdvisoryChangedLines: 500,
+            reviewCommits: 10,
+            reviewChangedLines: 1000,
+            windowCommits: 8,
+            windowChangedLines: 1000,
+        },
+    };
+    // Ten window commits equal the gate, so the window could never fire first.
+    const equal = structuredClone(base);
+    equal.thresholds.windowCommits = 10;
+    assert.throws(() => validateConfigShape(equal),
+        /window must close below/u);
+    // 1,001 window lines would exceed the 1,000-line gate.
+    const above = structuredClone(base);
+    above.thresholds.windowChangedLines = 1001;
+    assert.throws(() => validateConfigShape(above), /must not exceed/u);
+    const missing = structuredClone(base);
+    delete missing.thresholds.windowCommits;
+    assert.throws(() => validateConfigShape(missing), /windowCommits/u);
+});
+
+test('newestFrontier picks the frontier every other one precedes', () => {
+    // Linear history a -> b -> c, encoded in the check: x precedes y when x
+    // sorts at or before y, matching git ancestry on a linear branch.
+    const ancestorCheck = (x, y) => x <= y;
+    assert.equal(newestFrontier(['b', 'a', 'c'], ancestorCheck), 'c');
+    assert.equal(newestFrontier(['a'], ancestorCheck), 'a');
 });

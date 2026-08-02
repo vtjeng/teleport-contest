@@ -622,6 +622,14 @@ export function qualityGateBlocked({ reviewDue, unassignedCount }) {
   return reviewDue > 0 || unassignedCount > 0;
 }
 
+// The per-slice review window in .agents/review.md is measured from the
+// newest recorded correctness frontier, across every area-owned path.
+// Frontiers sit on the repository's linear history, so the newest is the one
+// every other frontier is an ancestor of.
+export function newestFrontier(frontiers, ancestorCheck) {
+  return [...frontiers].reduce((a, b) => (ancestorCheck(a, b) ? b : a));
+}
+
 function plural(count, singular) {
   return `${count.toLocaleString('en-US')} ${singular}${count === 1 ? '' : 's'}`;
 }
@@ -706,6 +714,20 @@ export function validateConfigShape(config) {
   if (config.thresholds.reviewAdvisoryChangedLines
       >= config.thresholds.reviewChangedLines) {
     fail('the review line advisory must be below the review gate');
+  }
+  if (!Number.isInteger(config.thresholds?.windowCommits)
+      || config.thresholds.windowCommits < 1) {
+    fail('thresholds.windowCommits must be a positive integer');
+  }
+  if (!Number.isInteger(config.thresholds?.windowChangedLines)
+      || config.thresholds.windowChangedLines < 1) {
+    fail('thresholds.windowChangedLines must be a positive integer');
+  }
+  if (config.thresholds.windowCommits >= config.thresholds.reviewCommits) {
+    fail('the review window must close below the review gate');
+  }
+  if (config.thresholds.windowChangedLines > config.thresholds.reviewChangedLines) {
+    fail('the review window lines must not exceed the review gate');
   }
   if (!Array.isArray(config.areas) || config.areas.length === 0) {
     fail('areas must be a non-empty array');
@@ -970,7 +992,24 @@ function buildStatus(config, head) {
     rows.push(row);
   }
 
-  return { rows, unassigned: unassignedJsFiles(config) };
+  // A pseudo-area spanning every owned path, so committedMetrics counts each
+  // window commit once however many areas it touches, while its changed lines
+  // still sum across those areas' paths.
+  const union = {
+    id: 'window',
+    label: 'Review window',
+    paths: config.areas.flatMap((area) => area.paths),
+    generatedOutputs: config.areas.flatMap((area) => area.generatedOutputs ?? []),
+  };
+  const windowBase = newestFrontier(frontiers.review.values(), isAncestor);
+  const window = {
+    frontier: windowBase,
+    current: committedMetrics(windowBase, head, union,
+      new Set([...reviewHeads.values()].flatMap((heads) => [...heads]))),
+    dirty: workingTreeMetrics(union),
+  };
+
+  return { rows, window, unassigned: unassignedJsFiles(config) };
 }
 
 function shortSha(sha) {
@@ -1027,6 +1066,23 @@ function printStatus(config, head, status, verbose) {
   if (status.unassigned.length > 0) {
     console.log(`Unassigned js/ files: ${status.unassigned.join(', ')}`);
   }
+  const { window } = status;
+  const windowUnits = window.current.commits + (hasChanges(window.dirty) ? 1 : 0);
+  const windowLines = changedLines(window.current) + changedLines(window.dirty);
+  const windowDue = thresholdReached(
+    window.current,
+    window.dirty,
+    config.thresholds.windowCommits,
+    config.thresholds.windowChangedLines,
+  );
+  // Advisory, never the gate: .agents/review.md has the orchestrator run the
+  // per-slice pass when this line reports DUE.
+  console.log(
+    `Review window since ${shortSha(window.frontier)}: `
+      + (windowDue ? 'DUE' : windowUnits > 0 || windowLines > 0 ? 'OPEN' : 'clear')
+      + ` (${windowUnits}/${config.thresholds.windowCommits} commits, `
+      + `${windowLines}/${config.thresholds.windowChangedLines} lines).`,
+  );
   console.log(
     reviewDue > 0
       ? `Review gate: BLOCKED (${plural(reviewDue, 'area')} reached the batch threshold).`
