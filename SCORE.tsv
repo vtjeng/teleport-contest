@@ -113,3 +113,7 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-02T18:38:55.857Z	272c0c3	slice	1	33	676	7765	108261	610816	684	7765						go.occupation repointed to its one writer; score unchanged because no development session eats through a monster crossing the boundary. Two of 60 fresh seeds reach the newly live stop.
 2026-08-02T19:01:44.713Z	002c0a522cc4a3335cadb8d07e66b9361b8c54a0	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
 2026-08-02T19:48:40.437Z	002c0a522cc4a3335cadb8d07e66b9361b8c54a0	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
+2026-08-02T20:46:37.646Z	b7480dbdc115fe1e94a15206518013c5ebdfda09	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
+2026-08-02T21:12:43.690Z	b7480dbdc115fe1e94a15206518013c5ebdfda09	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
+2026-08-02T21:17:54.303Z	5a2ba4236082ead59edd28f392c301e3b0b0c05e	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
+2026-08-02T21:18:03.798Z	9ea5ff9	slice	1	33	676	7765	108261	610816	684	7765						Status geometry re-derived on a turn-counter refresh. Score unchanged: the orchestrator's claim that two scored sessions set showvers was wrong, the string appearing only inside a recorded options-menu screen.

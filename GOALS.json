@@ -161,8 +161,8 @@
         },
         {
           "name": "the timebot splice translates absolutely-positioned status fields",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "5a2ba4236082ead59edd28f392c301e3b0b0c05e"
         }
       ],
       "openedAt": "e3a3d1dca4c91468755393449f53395f7c0722ce",
