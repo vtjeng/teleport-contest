@@ -9,7 +9,6 @@ import {
     describeDrops,
     readBaseline,
 } from './score-baseline.mjs';
-import { appendRow } from './score-log.mjs';
 
 const GENERATED_CHECKS = [
     'check:extcmds',
@@ -22,7 +21,6 @@ const GENERATED_CHECKS = [
 
 export function checkpointCommands(focusedTests = [], {
     includeScore = true,
-    logScore = false,
 } = {}) {
     const commands = [];
     if (focusedTests.length) {
@@ -98,15 +96,10 @@ export function checkpointCommands(focusedTests = [], {
             command: process.execPath,
             args: ['scripts/score-development.mjs'],
             capture: true,
-            summarize: (result) => {
-                // Opt-in so a test that invokes this summarize with fixture
-                // stdout appends nothing to SCORE.tsv; only main() logs.
-                if (logScore) logCheckpointScore(result);
-                return {
-                    body: summarizeDevelopmentScore(result.stdout),
-                    ...compareScoreToBaseline(result.stdout),
-                };
-            },
+            summarize: (result) => ({
+                body: summarizeDevelopmentScore(result.stdout),
+                ...compareScoreToBaseline(result.stdout),
+            }),
         });
     }
     return commands;
@@ -145,11 +138,9 @@ export function runCheckpointChecks(commands, {
         summarize = null,
     } of commands) {
         output(`\n== ${label} ==`);
-        const startedAt = Date.now();
         const result = run(command, args, capture
             ? { encoding: 'utf8' }
             : { stdio: 'inherit' });
-        result.durationMs = Date.now() - startedAt;
         const summary = summarize ? summarize(result) : {};
         if (summary.body) output(summary.body);
         if (capture && result.stderr && result.status !== 0)
@@ -295,50 +286,15 @@ export function summarizeDevelopmentScore(stdout) {
     ].join('; ');
 }
 
-/**
- * Append this scoring run to SCORE.tsv as a `checkpoint` row.
- *
- * The row is telemetry: a failure to write it never changes the checkpoint's
- * verdict, which compareScoreToBaseline() alone decides. The sha column names
- * HEAD, so when the tree holds uncommitted work the note says `tree dirty`
- * and the figures describe that tree, and HEAD alone, only once it is clean.
- */
-export function logCheckpointScore({ stdout = '', durationMs = 0 }, {
-    append = appendRow,
-    run = spawnSync,
-} = {}) {
-    try {
-        const totals = developmentTotals(stdout);
-        if (!totals) return;
-        const sha = run('git', ['rev-parse', 'HEAD'],
-            { encoding: 'utf8' }).stdout.trim();
-        const dirty = run('git', ['status', '--porcelain'],
-            { encoding: 'utf8' }).stdout.trim() !== '';
-        append({
-            sha,
-            event: 'checkpoint',
-            sessions_passed: String(totals.passing),
-            sessions_total: String(totals.sessions),
-            screens_matched: String(totals.screensMatched),
-            screens_total: String(totals.screensTotal),
-            rng_matched: String(totals.rngMatched),
-            rng_total: String(totals.rngTotal),
-            cursors_matched: String(totals.cursorsMatched),
-            cursors_total: String(totals.cursorsTotal),
-            wall_s: String(Math.round(durationMs / 1000)),
-            note: dirty ? 'tree dirty' : '',
-        });
-    } catch {
-        // Telemetry only; the checkpoint's verdict stands without the row.
-    }
-}
+// A scoring run writes no SCORE.tsv row. It ran on whatever the working tree
+// held, which is usually not HEAD, so the row it used to append named a commit
+// that had not produced its figures; `.agents/scoring.md` has the orchestrator
+// record a row at each event instead, when the tree is committed. The score's
+// verdict never depended on the row: compareScoreToBaseline() alone decides it.
 
 function main(args) {
     const options = parseCheckpointArgs(args);
-    const commands = checkpointCommands(
-        options.focusedTests,
-        { ...options, logScore: true },
-    );
+    const commands = checkpointCommands(options.focusedTests, options);
     if (!runCheckpointChecks(commands)) process.exitCode = 1;
 }
 

@@ -1,122 +1,80 @@
-utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_matched	rng_total	cursors_matched	cursors_total	holdout_screens_matched	holdout_screens_total	holdout_rng_matched	holdout_rng_total	wall_s	note
-2026-07-20	e143b964e1e12f458cbccab0c14521cef42ca259	slice			103											Initial baseline; 286 tests and both then-declared generated-catalog checks passed.
-2026-07-21	9dd455841a755c4506ee821b45fc741b1bbef43c	slice			162											Replay scaffolding replaced by source-shaped startup; earlier level-generation divergences remained.
-2026-07-21	1be5455e9c24c4a6515c7a176a62f5d7aca3fd8b	slice			166											Earlier level-generation divergence still blocked whole-session parity on sampled seeds.
-2026-07-21	0ad24831c0de0d098af381520c8b85449bbd0802	slice			172											Fresh exact differential through the first prompt.
-2026-07-21	f140abfaa499b2e8d7648fffc5c0fb73e33a5c73	slice			178											Fresh Enhanced1 and IBM cases matched; arbitrary first-prompt parity remained open.
-2026-07-22	5d3bfb9a5232fd966df86b678b6a27651eea0de4	slice			191											Broad first-command validation remained open.
-2026-07-22	2b88f27dab4d6fc0af5dd50673cd4de6d87bfdb2	slice			217											Later corrected: this 217-screen result did not reproduce.
-2026-07-22	e0f8b050a5215a2a999f10c75b8c574d6682e2a4	slice			213		78280		418							Clean detached rerun; the recorded 217-screen result did not reproduce.
-2026-07-22	f0624a759f50fbf061ab7e48ff7e83a08ea57ef1	goal														First-command milestone closed on a 107-case matrix; score carried from published ancestor.
-2026-07-22	76109518c4e879b444ee53cddd9617f875780888	slice			302		78350		590							Live command decoding and turn intent; never a published result.
-2026-07-22	ddb23823ac69f27906257ee615a4bdb818deeaac	slice														Result fell by one already-divergent level-two screen; no absolute figures stated.
-2026-07-22	0708853dc18b2a0723dab61f6d116f7606fc23ab	slice			302		78645		590							Runtime monster creation; this credit was later removed as unearned.
-2026-07-23	68472ba3aa99786e5c3e01f4407b07bc853ea89b	slice			204											Correction removing credit beyond ported behavior; four-way reproduction confirmed the attribution.
-2026-07-23	270731e88cb25c3813820b7f4d516a9763719061	slice			205		77588		243							Source-shaped safe-wait handling.
-2026-07-23	3b6c38de148679a5cc8313d755ec906fa95627c3	goal														First complete gameplay turn; row states matrix figures only, no development score.
-2026-07-24	a61681496d5712aa17ddee750d1a72a5275ab627	slice			206		77588		243							Gain from a live first-move object case.
-2026-07-25	33523218ed285430300f14e725bf43928b8b65e1	goal			207		77658		238							Second-command milestone; 17-case matrix and two excluded prefixes match fresh C.
-2026-07-26	f8911ff71ac9800094d4251fe7911cb8bcceb7cc	slice			241		98270		256							Debug mode authorized via recorder account; no fresh differential possible locally.
-2026-07-27	5affc313ef52c662772099857cabd36596676767	window			241		98270		256							Five production defects from eight unexported AD_*/AT_* constants; score could not catch them.
-2026-07-27	aa57304216fd4e15b976bd7483e89a1ff55f8a93	slice			259		98598		277							One-wait extension exposes the next monster-doorway gap; repeated-command closure stays open.
-2026-07-27	7363380130986e84ba023d9c7791e866ee90d036	candidate			264		98751		284							Superseded candidate, kept because the shown value changed after it.
-2026-07-28	5e4db311f275f3a28be791a4355e48de35f70993	candidate			250		98385		250							Falls 14 screens below the superseded candidate; that credit was unearned.
-2026-07-28	88e21932488cb928be4c4d6b49a90cd244d446fe	window			254		98436		254							One known non-matching case: port stops a screen short of C's refusal frame.
-2026-07-28	03c2addb5ef05f76d1be619a7363f7f78c0c013e	goal			265		98686		265							Closes the goal for monster and pet movement onto stairs; two sessions advance.
-2026-07-28	2628f43fc89000171f2b439f231457237efc009b	slice			269		98749		269							Session that stopped on its first keystroke now reaches its fifth screen.
-2026-07-28	7f4c101ab2e77c2efbad64ecb9466f89465563a8	slice			273		98759		273							Three preparatory commits each left the score identical, one verified session by session.
-2026-07-28	e05118c6cce47f3cb8d139b4728367b6010416c6	slice			279		98759		279							Menu Space-finish defect older than this slice; 107-segment matrix guarded the fix.
-2026-07-29	ff6efb9b321f78d9dd1f3a6fa149708467b59c64	slice			283		98759		283							Gains came from three ancestor commits, not this slice; menu-heading ceiling costs twelve screens.
-2026-07-29	0b87fd287a759e699e340dca67cc3800b40f9aa1	window			286		98759		286							Four production defects reachable by accepted input, none moving a development session.
-2026-07-29	525f43f8b4450705f831c98e049e0b8e272769cb	goal			286	7765	98759	610816			94	3640	29939	182022		Per-session holdout and development agree closely; zero replay errors, no session passes.
-2026-07-29	bc6b5aaca117f65698667acb5a8512489c1683fb	slice			290		98989		290							Seven sessions improved, none regressed; newsym() infrared and blocksMove() defects recorded unfixed.
-2026-07-29	e9cd289b6803c1d2686619af410ae686de531e19	slice			321		99496		321							Largest single-slice gain, 31 screens; all-human matrix cannot detect race-dependent regression.
-2026-07-29	60bf3d04c84bce48ff7aadf7989556874ee0f3e5	slice			321		99496		321							Score unmoved by design; trap arm exercised but its TRUE result unreachable.
-2026-07-29	b0de52e2d44db14fd322633e25d365c8b24e95cb	goal			321						94	3640	29951	182022		Holdout gained nothing; run commands are reached by only a fifth of sessions.
-2026-07-29	f826ba5392d313da8951095111b8201f5be497fe	slice			398		99496		398							77-screen gain matched the pre-work keystroke forecast; review gate BLOCKED on commands.
-2026-07-29	ae1a94b0294dba841a4b81e97c914c8327b6fa72	goal					99496				111	3640	29951	182022		Two-thirds of development rate carried; flat holdout PRNG is the predicted prompt signature.
-2026-07-30	19b8ed124ad2a749ff28415cd875c9f8687c79c7	goal			433	7765	99552				117	3640	29959			Carry-over 37 to 51% by normalization; seed8000 first session to match completely.
-2026-07-30	5879bed	slice			436		99541		437							Matched PRNG fell as a positional-comparison artifact; prefix correctness improved.
-2026-07-30	cfbc2055ad2db10598193f9c75f9a69bbd5cd4e7	window														Score identical to 5879bed; three live defects reachable by ordinary input.
-2026-07-30	cdb83a481180205a8f011ee67b066116a93aaad6	slice			442	7765	99625		443							Locked arm draws nothing; three switch arms rest on unit tests alone.
-2026-07-30	b8323b12c1bb43468c60a899ccec4123dd659932	window														Score identical to cdb83a4; the port had refused a case it fully supports.
-2026-07-30	4d54fa81d05cc763102b5a17dfc44125325ce46b	slice														No figures stated, identical to cdb83a4; the fresh matrix is the whole evidence.
-2026-07-30	d0bee36028c22cea7435423e94b122c2d296fbf6	goal			442	7765	99625				138	3640	30048			First goal whose holdout gain beat development, sevenfold; one holdout session now passes.
-2026-07-30	4d78313de6e5ae5735c531bba8982b089bd2ac00	slice			443	7765	99664		444							First admitted monster action that writes an object; planning clone emptied live square.
-2026-07-30	c64d35015524984772317b67783e3cc59228cec3	slice			443	7765	99664		444							Intended arm dormant on D:1 and left unported; slice closed nine deferred findings.
-2026-07-30	e18f5340d2ca1ce25399005ba179cd0d3b9ae5eb	goal			443	7765	99664				138	3640	30048	182022		Above-rate carry-over prediction failed; three passes each found a defect the previous fix introduced.
-2026-07-30	005ea20e047e76958b57d78c39ed3136f3ebe1d1	slice			446	7765	99840		446							PRNG gain came from two silent gaps: mdig_tunnel() rnd(12) and maybe_spin_web() rn2(1000).
-2026-07-30	06a5629b044794642e83fd6127cddc7f942680d0	slice			452	7765	99971		452							Precondition was a 170-line vision change; the first design was disproved by test.
-2026-07-30	27761926cb6f41e6b236d9b27b9a7ab809c7d608	slice			459	7765	99980		459							Goal's sixteen screens roughly double the single-digit gain predicted at opening.
-2026-07-30	2f0e55e99a8896d3fd85b3420a9476c98b0f1169	goal			459	7765	99980				138	3640	30048	182022		Second goal carrying nothing; eight silent divergences, two introduced by the fixes themselves.
-2026-07-30	65d64c2d6b3a98387fe9df4c4905768173904eec	slice			467	7765	100825		467							Planning clone was not cloning level.traps; mtrapped number-versus-boolean split caught only by digests.
-2026-07-30	628d9fe	goal			467	7765	100825				138	3640	30048	182022		Dart slice's prediction failed: census counted traps reached, not first blocking refusal.
-2026-07-31	28b9df3	goal			484	7765	100892				138	3640	30048	182022		advance column predicted 82 screens for #ride; it delivered 17 and carried none.
-2026-07-31	5b8061d	goal			487	7765	100910				139	3640	30048	182022		First holdout movement in five goals, one screen; eat was ranked by supports.
-2026-07-31	6d7aedd4c83068380821985fb833c83131aba464	slice			487	7765	100910	610816								Row written late at bb4ef50; figures read from the commit, not measured here.
-2026-08-01	bb4ef50774898600d8748f5d643b72b3392076ce	slice			487	7765	100910	610816	487	7765						First matrix accepting an unfinished segment; a prefix oracle misses later divergence.
-2026-08-01	1cd7c3220fc1db23b360395a6daff9eaf8b596f2	slice			488	7765	106354	610816								First completed level transition; 47 of 143 mutants survive; boundary wrong twice.
-2026-08-01	3d8858cb9315c6bc56259955a46356f322c00712	slice			488	7765	106408	610816								Corrected the about-half-of-D:2-levels claim; new map_object() colour defect; review gate fired.
-2026-08-01	dd3c01f	slice			488	7765	106404	610816								Matched values fell four while correctness rose; rngMatched compares positionally, ratchet lowered.
-2026-08-01	43445e9	slice			488	7765	106404	610816								Taken out of queued order; mimic incidence rechecked at 33% over 8,500 seeds.
-2026-08-01	a61ffab	slice			488	7765	106404	610816								First slice in the goal to hit no defect; map_object() recolour never fired.
-2026-08-01	c0afa09	slice			488	7765	106404	610816								Fourth consecutive shop slice moving nothing, as predicted; 2 of 2,341 descents stopped.
-2026-08-01	f554d25	slice			496	7765	106505	610816								STRAT_ARRIVE guard stopped 97 census descents and now stops none; none fails closed.
-2026-08-01	20dd659	goal			496	7765	106505	610816			139	3640	30048	182022		Largest goal so far carried nothing; 3,515 supports screens yielded nine.
-2026-08-01	9a7a1807600febcc0d0b150231c0d77440fcc4e5	slice			520	7765	107227	610816								+24 screens inside the predicted 11-to-58 band; charisma claim falsified, apport floors at 3.
-2026-08-01	dfa8a619d0716f9a0d57a4988b17b6376a63aa5b	slice			520	7765	107227	610816								No js/ line changed; forecast stop confirmed; the goal's development headroom is zero.
-2026-08-01	0b9717d3908f04719a7e35f8c5c1f576f4f8d83b	goal			520	7765	107227	610816			139	3640	30048	182022		Fifth consecutive holdout zero; fresh-population census predicted no better than supports.
-2026-08-02T07:55:40.068Z	920f6fb66e5951f1dc8552bdbd0854fac7a38be9	checkpoint	1	33	520	7765	107227	610816	527	7765					14	tree dirty
-2026-08-02T07:59:37.330Z	5ec27d691b7f66a96e2ee45d6058f74f75a038d7	checkpoint	1	33	520	7765	107227	610816	527	7765					15	
-2026-08-02T08:58:18.264Z	72703fe69484ebccf125e0f932d24a5c01b33f91	checkpoint	1	33	582	7765	107361	610816	589	7765					16	tree dirty
-2026-08-02T09:31:15.898Z	72703fe69484ebccf125e0f932d24a5c01b33f91	checkpoint	1	33	582	7765	107361	610816	589	7765					15	tree dirty
-2026-08-02T09:37:41.602Z	984da156c122a843b9bafe9fc66d20fe81a3a113	checkpoint	1	33	582	7765	107361	610816	589	7765					14	
-2026-08-02T09:39:20.911Z	984da156c122a843b9bafe9fc66d20fe81a3a113	slice	1	33	582	7765	107361	610816	589	7765						#levelchange below any innate ability: +62 screens against a predicted ceiling of 67, across the five sessions the goal forecast.
-2026-08-02T10:15:26.084Z	9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d	checkpoint	1	33	648	7765	107437	610816	655	7765					14	tree dirty
-2026-08-02T10:20:10.890Z	9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d	checkpoint	1	33	648	7765	107437	610816	655	7765					15	tree dirty
-2026-08-02T10:21:41.351Z	9e13e052e3e5ec424dbcaf66ca29472a8bf4f56d	checkpoint	1	33	648	7765	107437	610816	655	7765					15	tree dirty
-2026-08-02T10:29:44.729Z	8fe86c57ceb2fddc9942d901f559031e7c5b80c5	checkpoint	1	33	648	7765	107437	610816	655	7765					15	
-2026-08-02T10:30:04.145Z	8fe86c5	slice	1	33	648	7765	107437	610816	655	7765						adjabil() gain arm above level 1: +66 screens, the full ceiling the slice selection forecast.
-2026-08-02T11:10:40.133Z	4e2820a66dba54ef99e43e0a9438bc9a21bcce4d	checkpoint	1	33	648	7765	107437	610816	655	7765					12	tree dirty
-2026-08-02T11:20:16.987Z	4e2820a66dba54ef99e43e0a9438bc9a21bcce4d	checkpoint	1	33	648	7765	107437	610816	655	7765					12	tree dirty
-2026-08-02T11:25:16.114Z	82cc6763ac9a7f6bc149de29eb31e80d181bc709	checkpoint	1	33	648	7765	107437	610816	655	7765					13	
-2026-08-02T11:25:33.161Z	82cc676	slice	1	33	648	7765	107437	610816	655	7765						Tourist experience on level arrival: 0 recorded steps by design, no development session stops on the boundary.
-2026-08-02T11:30:12.390Z	04c26211d2f0d10bc2277fff1a2fb3aaf9bddc21	checkpoint	1	33	648	7765	107437	610816	655	7765					13	tree dirty
-2026-08-02T12:15:21.223Z	04c26211d2f0d10bc2277fff1a2fb3aaf9bddc21	checkpoint	1	33	648	7765	107437	610816	655	7765					12	tree dirty
-2026-08-02T12:35:55.343Z	feac9a2500da79dd4546fe3e0cc37f14aa668701	checkpoint	1	33	648	7765	107437	610816	655	7765					12	tree dirty
-2026-08-02T12:37:58.763Z	4c0399f	goal	1	33	648	7765	107437	610816	655	7765	162	3640	30089	182022		experience-level-gain closes. The reserved holdout moved to 162 screens from the 139 it held across the two preceding goal closes, and to 30,089 random-number values from 30,048; still 1 of 11 sessions and 0 replay errors. At 23 screens it is the largest single-close holdout gain in the log, ahead of the 21 at d0bee360.
-2026-08-02T13:59:05.745Z	16574f3f18a4e8c06cdea0933e3e8ecc14faa649	checkpoint	1	33	674	7765	108336	610816	681	7765					12	tree dirty
-2026-08-02T14:02:56.783Z	16574f3f18a4e8c06cdea0933e3e8ecc14faa649	checkpoint	1	33	674	7765	108336	610816	681	7765					12	tree dirty
-2026-08-02T14:06:53.417Z	7d397d756316438c393a6d4d3cb296b7b11deef4	checkpoint	1	33	674	7765	108336	610816	681	7765					13	
-2026-08-02T14:07:41.385Z	7d397d7	slice	1	33	674	7765	108336	610816	681	7765						Furniture admitted as a hero and monster destination: +26 screens, the figure the paired measurement predicted before the slice was queued.
-2026-08-02T14:49:38.141Z	dfc97e3df19c100c5ba405f4775388a9a2d76721	checkpoint	1	33	676	7765	108261	610816	684	7765					12	tree dirty
-2026-08-02T14:56:45.320Z	b86645970c4f16b9a89e4d3e20e1fe88f28c7629	checkpoint	1	33	676	7765	108261	610816	684	7765					12	tree dirty
-2026-08-02T15:01:31.039Z	d7ee80e6e32d2e825bff62f915d2e47eacfe02c8	checkpoint	1	33	676	7765	108261	610816	684	7765					13	
-2026-08-02T15:03:14.573Z	d7ee80e6e32d2e825bff62f915d2e47eacfe02c8	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
-2026-08-02T15:03:24.552Z	d7ee80e	slice	1	33	676	7765	108261	610816	684	7765						Pet swap onto furniture: +2 screens, the measured ceiling. The random-number fall is positional in seed0030, whose first divergence and screen count are unchanged.
-2026-08-02T15:27:15.140Z	e87beeaf37d9b8c99e3226e8ad2220cc4b4823cb	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
-2026-08-02T16:18:31.207Z	e87beeaf37d9b8c99e3226e8ad2220cc4b4823cb	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
-2026-08-02T16:20:53.326Z	b669b88	goal	1	33	676	7765	108261	610816	684	7765	162	3640	30089	182022		furniture-square-entry closes having delivered 28 development screens and carried none: the holdout holds at 162 of 3,640 and 30,089 of 182,022, identical to the previous close. The goal was chosen partly because the hero could not stand on a fountain at any seed, the property that moved the holdout last time; that property did not repeat.
-2026-08-02T16:54:54.368Z	cfa65b6f25cdb5427ab27dbfdb085be2110366fe	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
-2026-08-02T17:12:47.594Z	73ca61b139c62a69b5ad96aeb25fdf55647d0444	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
-2026-08-02T17:22:12.772Z	4084f4b87b0f7be8346468c286e6acb43a7426ec	checkpoint	1	33	676	7765	108261	610816	684	7765					15	
-2026-08-02T17:22:27.333Z	4084f4b	slice	1	33	676	7765	108261	610816	684	7765						Status-line repaint gated where moveloop_core() gates it. Score identical, as a sweep entry should be: no development session captures a frame that reaches it.
-2026-08-02T17:28:19.668Z	ab28567e37a6e40c47583075c7e898adf306d5b6	checkpoint	1	33	676	7765	108261	610816	684	7765					15	
-2026-08-02T17:52:06.870Z	ab28567e37a6e40c47583075c7e898adf306d5b6	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
-2026-08-02T17:55:54.509Z	ab28567e37a6e40c47583075c7e898adf306d5b6	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
-2026-08-02T18:02:49.075Z	441a378d0eafb94541de12bd7233c5ea233bb4ac	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
-2026-08-02T18:03:18.194Z	441a378	slice	1	33	676	7765	108261	610816	684	7765						Three sweep entries closed together; score unchanged, as grouping them predicted. Two of the three records carried a factual claim a probe overturned.
-2026-08-02T18:18:38.349Z	bcf0bd699e2673a0c246166c717ed472e55ea206	checkpoint	1	33	676	7765	108261	610816	684	7765					15	tree dirty
-2026-08-02T18:29:07.914Z	bcf0bd699e2673a0c246166c717ed472e55ea206	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
-2026-08-02T18:33:30.405Z	bcf0bd699e2673a0c246166c717ed472e55ea206	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
-2026-08-02T18:38:24.341Z	272c0c332c633a6b0ef45aef0b7f96df065f586b	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
-2026-08-02T18:38:55.857Z	272c0c3	slice	1	33	676	7765	108261	610816	684	7765						go.occupation repointed to its one writer; score unchanged because no development session eats through a monster crossing the boundary. Two of 60 fresh seeds reach the newly live stop.
-2026-08-02T19:01:44.713Z	002c0a522cc4a3335cadb8d07e66b9361b8c54a0	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
-2026-08-02T19:48:40.437Z	002c0a522cc4a3335cadb8d07e66b9361b8c54a0	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
-2026-08-02T20:46:37.646Z	b7480dbdc115fe1e94a15206518013c5ebdfda09	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
-2026-08-02T21:12:43.690Z	b7480dbdc115fe1e94a15206518013c5ebdfda09	checkpoint	1	33	676	7765	108261	610816	684	7765					14	tree dirty
-2026-08-02T21:17:54.303Z	5a2ba4236082ead59edd28f392c301e3b0b0c05e	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
-2026-08-02T21:18:03.798Z	9ea5ff9	slice	1	33	676	7765	108261	610816	684	7765						Status geometry re-derived on a turn-counter refresh. Score unchanged: the orchestrator's claim that two scored sessions set showvers was wrong, the string appearing only inside a recorded options-menu screen.
-2026-08-02T21:20:15.912Z	3b2dde88fdbbad0115967dc9a8483a85f812cfba	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
-2026-08-02T22:06:24.750Z	3b2dde88fdbbad0115967dc9a8483a85f812cfba	checkpoint	1	33	676	7765	108261	610816	684	7765					13	tree dirty
-2026-08-02T22:08:31.618Z	94d5251	goal	1	33	676	7765	108261	610816	684	7765	162	3640	30089	182022		commands-deferral-sweep closes. Development and holdout both unchanged, which a sweep forecasts: every entry named behavior no session reaches. commands fell from ten open non-scope entries to eight.
+utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_matched	rng_total	cursors_matched	cursors_total	holdout_screens_matched	holdout_screens_total	holdout_rng_matched	holdout_rng_total	note
+2026-07-20	e143b964e1e12f458cbccab0c14521cef42ca259	slice			103										Initial baseline; 286 tests and both then-declared generated-catalog checks passed.
+2026-07-21	9dd455841a755c4506ee821b45fc741b1bbef43c	slice			162										Replay scaffolding replaced by source-shaped startup; earlier level-generation divergences remained.
+2026-07-21	1be5455e9c24c4a6515c7a176a62f5d7aca3fd8b	slice			166										Earlier level-generation divergence still blocked whole-session parity on sampled seeds.
+2026-07-21	0ad24831c0de0d098af381520c8b85449bbd0802	slice			172										Fresh exact differential through the first prompt.
+2026-07-21	f140abfaa499b2e8d7648fffc5c0fb73e33a5c73	slice			178										Fresh Enhanced1 and IBM cases matched; arbitrary first-prompt parity remained open.
+2026-07-22	5d3bfb9a5232fd966df86b678b6a27651eea0de4	slice			191										Broad first-command validation remained open.
+2026-07-22	2b88f27dab4d6fc0af5dd50673cd4de6d87bfdb2	slice			217										Later corrected: this 217-screen result did not reproduce.
+2026-07-22	e0f8b050a5215a2a999f10c75b8c574d6682e2a4	slice			213		78280		418						Clean detached rerun; the recorded 217-screen result did not reproduce.
+2026-07-22	f0624a759f50fbf061ab7e48ff7e83a08ea57ef1	goal													First-command milestone closed on a 107-case matrix; score carried from published ancestor.
+2026-07-22	76109518c4e879b444ee53cddd9617f875780888	slice			302		78350		590						Live command decoding and turn intent; never a published result.
+2026-07-22	ddb23823ac69f27906257ee615a4bdb818deeaac	slice													Result fell by one already-divergent level-two screen; no absolute figures stated.
+2026-07-22	0708853dc18b2a0723dab61f6d116f7606fc23ab	slice			302		78645		590						Runtime monster creation; this credit was later removed as unearned.
+2026-07-23	68472ba3aa99786e5c3e01f4407b07bc853ea89b	slice			204										Correction removing credit beyond ported behavior; four-way reproduction confirmed the attribution.
+2026-07-23	270731e88cb25c3813820b7f4d516a9763719061	slice			205		77588		243						Source-shaped safe-wait handling.
+2026-07-23	3b6c38de148679a5cc8313d755ec906fa95627c3	goal													First complete gameplay turn; row states matrix figures only, no development score.
+2026-07-24	a61681496d5712aa17ddee750d1a72a5275ab627	slice			206		77588		243						Gain from a live first-move object case.
+2026-07-25	33523218ed285430300f14e725bf43928b8b65e1	goal			207		77658		238						Second-command milestone; 17-case matrix and two excluded prefixes match fresh C.
+2026-07-26	f8911ff71ac9800094d4251fe7911cb8bcceb7cc	slice			241		98270		256						Debug mode authorized via recorder account; no fresh differential possible locally.
+2026-07-27	5affc313ef52c662772099857cabd36596676767	window			241		98270		256						Five production defects from eight unexported AD_*/AT_* constants; score could not catch them.
+2026-07-27	aa57304216fd4e15b976bd7483e89a1ff55f8a93	slice			259		98598		277						One-wait extension exposes the next monster-doorway gap; repeated-command closure stays open.
+2026-07-27	7363380130986e84ba023d9c7791e866ee90d036	candidate			264		98751		284						Superseded candidate, kept because the shown value changed after it.
+2026-07-28	5e4db311f275f3a28be791a4355e48de35f70993	candidate			250		98385		250						Falls 14 screens below the superseded candidate; that credit was unearned.
+2026-07-28	88e21932488cb928be4c4d6b49a90cd244d446fe	window			254		98436		254						One known non-matching case: port stops a screen short of C's refusal frame.
+2026-07-28	03c2addb5ef05f76d1be619a7363f7f78c0c013e	goal			265		98686		265						Closes the goal for monster and pet movement onto stairs; two sessions advance.
+2026-07-28	2628f43fc89000171f2b439f231457237efc009b	slice			269		98749		269						Session that stopped on its first keystroke now reaches its fifth screen.
+2026-07-28	7f4c101ab2e77c2efbad64ecb9466f89465563a8	slice			273		98759		273						Three preparatory commits each left the score identical, one verified session by session.
+2026-07-28	e05118c6cce47f3cb8d139b4728367b6010416c6	slice			279		98759		279						Menu Space-finish defect older than this slice; 107-segment matrix guarded the fix.
+2026-07-29	ff6efb9b321f78d9dd1f3a6fa149708467b59c64	slice			283		98759		283						Gains came from three ancestor commits, not this slice; menu-heading ceiling costs twelve screens.
+2026-07-29	0b87fd287a759e699e340dca67cc3800b40f9aa1	window			286		98759		286						Four production defects reachable by accepted input, none moving a development session.
+2026-07-29	525f43f8b4450705f831c98e049e0b8e272769cb	goal			286	7765	98759	610816			94	3640	29939	182022	Per-session holdout and development agree closely; zero replay errors, no session passes.
+2026-07-29	bc6b5aaca117f65698667acb5a8512489c1683fb	slice			290		98989		290						Seven sessions improved, none regressed; newsym() infrared and blocksMove() defects recorded unfixed.
+2026-07-29	e9cd289b6803c1d2686619af410ae686de531e19	slice			321		99496		321						Largest single-slice gain, 31 screens; all-human matrix cannot detect race-dependent regression.
+2026-07-29	60bf3d04c84bce48ff7aadf7989556874ee0f3e5	slice			321		99496		321						Score unmoved by design; trap arm exercised but its TRUE result unreachable.
+2026-07-29	b0de52e2d44db14fd322633e25d365c8b24e95cb	goal			321						94	3640	29951	182022	Holdout gained nothing; run commands are reached by only a fifth of sessions.
+2026-07-29	f826ba5392d313da8951095111b8201f5be497fe	slice			398		99496		398						77-screen gain matched the pre-work keystroke forecast; review gate BLOCKED on commands.
+2026-07-29	ae1a94b0294dba841a4b81e97c914c8327b6fa72	goal					99496				111	3640	29951	182022	Two-thirds of development rate carried; flat holdout PRNG is the predicted prompt signature.
+2026-07-30	19b8ed124ad2a749ff28415cd875c9f8687c79c7	goal			433	7765	99552				117	3640	29959		Carry-over 37 to 51% by normalization; seed8000 first session to match completely.
+2026-07-30	5879bed	slice			436		99541		437						Matched PRNG fell as a positional-comparison artifact; prefix correctness improved.
+2026-07-30	cfbc2055ad2db10598193f9c75f9a69bbd5cd4e7	window													Score identical to 5879bed; three live defects reachable by ordinary input.
+2026-07-30	cdb83a481180205a8f011ee67b066116a93aaad6	slice			442	7765	99625		443						Locked arm draws nothing; three switch arms rest on unit tests alone.
+2026-07-30	b8323b12c1bb43468c60a899ccec4123dd659932	window													Score identical to cdb83a4; the port had refused a case it fully supports.
+2026-07-30	4d54fa81d05cc763102b5a17dfc44125325ce46b	slice													No figures stated, identical to cdb83a4; the fresh matrix is the whole evidence.
+2026-07-30	d0bee36028c22cea7435423e94b122c2d296fbf6	goal			442	7765	99625				138	3640	30048		First goal whose holdout gain beat development, sevenfold; one holdout session now passes.
+2026-07-30	4d78313de6e5ae5735c531bba8982b089bd2ac00	slice			443	7765	99664		444						First admitted monster action that writes an object; planning clone emptied live square.
+2026-07-30	c64d35015524984772317b67783e3cc59228cec3	slice			443	7765	99664		444						Intended arm dormant on D:1 and left unported; slice closed nine deferred findings.
+2026-07-30	e18f5340d2ca1ce25399005ba179cd0d3b9ae5eb	goal			443	7765	99664				138	3640	30048	182022	Above-rate carry-over prediction failed; three passes each found a defect the previous fix introduced.
+2026-07-30	005ea20e047e76958b57d78c39ed3136f3ebe1d1	slice			446	7765	99840		446						PRNG gain came from two silent gaps: mdig_tunnel() rnd(12) and maybe_spin_web() rn2(1000).
+2026-07-30	06a5629b044794642e83fd6127cddc7f942680d0	slice			452	7765	99971		452						Precondition was a 170-line vision change; the first design was disproved by test.
+2026-07-30	27761926cb6f41e6b236d9b27b9a7ab809c7d608	slice			459	7765	99980		459						Goal's sixteen screens roughly double the single-digit gain predicted at opening.
+2026-07-30	2f0e55e99a8896d3fd85b3420a9476c98b0f1169	goal			459	7765	99980				138	3640	30048	182022	Second goal carrying nothing; eight silent divergences, two introduced by the fixes themselves.
+2026-07-30	65d64c2d6b3a98387fe9df4c4905768173904eec	slice			467	7765	100825		467						Planning clone was not cloning level.traps; mtrapped number-versus-boolean split caught only by digests.
+2026-07-30	628d9fe	goal			467	7765	100825				138	3640	30048	182022	Dart slice's prediction failed: census counted traps reached, not first blocking refusal.
+2026-07-31	28b9df3	goal			484	7765	100892				138	3640	30048	182022	advance column predicted 82 screens for #ride; it delivered 17 and carried none.
+2026-07-31	5b8061d	goal			487	7765	100910				139	3640	30048	182022	First holdout movement in five goals, one screen; eat was ranked by supports.
+2026-07-31	6d7aedd4c83068380821985fb833c83131aba464	slice			487	7765	100910	610816							Row written late at bb4ef50; figures read from the commit, not measured here.
+2026-08-01	bb4ef50774898600d8748f5d643b72b3392076ce	slice			487	7765	100910	610816	487	7765					First matrix accepting an unfinished segment; a prefix oracle misses later divergence.
+2026-08-01	1cd7c3220fc1db23b360395a6daff9eaf8b596f2	slice			488	7765	106354	610816							First completed level transition; 47 of 143 mutants survive; boundary wrong twice.
+2026-08-01	3d8858cb9315c6bc56259955a46356f322c00712	slice			488	7765	106408	610816							Corrected the about-half-of-D:2-levels claim; new map_object() colour defect; review gate fired.
+2026-08-01	dd3c01f	slice			488	7765	106404	610816							Matched values fell four while correctness rose; rngMatched compares positionally, ratchet lowered.
+2026-08-01	43445e9	slice			488	7765	106404	610816							Taken out of queued order; mimic incidence rechecked at 33% over 8,500 seeds.
+2026-08-01	a61ffab	slice			488	7765	106404	610816							First slice in the goal to hit no defect; map_object() recolour never fired.
+2026-08-01	c0afa09	slice			488	7765	106404	610816							Fourth consecutive shop slice moving nothing, as predicted; 2 of 2,341 descents stopped.
+2026-08-01	f554d25	slice			496	7765	106505	610816							STRAT_ARRIVE guard stopped 97 census descents and now stops none; none fails closed.
+2026-08-01	20dd659	goal			496	7765	106505	610816			139	3640	30048	182022	Largest goal so far carried nothing; 3,515 supports screens yielded nine.
+2026-08-01	9a7a1807600febcc0d0b150231c0d77440fcc4e5	slice			520	7765	107227	610816							+24 screens inside the predicted 11-to-58 band; charisma claim falsified, apport floors at 3.
+2026-08-01	dfa8a619d0716f9a0d57a4988b17b6376a63aa5b	slice			520	7765	107227	610816							No js/ line changed; forecast stop confirmed; the goal's development headroom is zero.
+2026-08-01	0b9717d3908f04719a7e35f8c5c1f576f4f8d83b	goal			520	7765	107227	610816			139	3640	30048	182022	Fifth consecutive holdout zero; fresh-population census predicted no better than supports.
+2026-08-02T09:39:20.911Z	984da156c122a843b9bafe9fc66d20fe81a3a113	slice	1	33	582	7765	107361	610816	589	7765					#levelchange below any innate ability: +62 screens against a predicted ceiling of 67, across the five sessions the goal forecast.
+2026-08-02T10:30:04.145Z	8fe86c5	slice	1	33	648	7765	107437	610816	655	7765					adjabil() gain arm above level 1: +66 screens, the full ceiling the slice selection forecast.
+2026-08-02T11:25:33.161Z	82cc676	slice	1	33	648	7765	107437	610816	655	7765					Tourist experience on level arrival: 0 recorded steps by design, no development session stops on the boundary.
+2026-08-02T12:37:58.763Z	4c0399f	goal	1	33	648	7765	107437	610816	655	7765	162	3640	30089	182022	experience-level-gain closes. The reserved holdout moved to 162 screens from the 139 it held across the two preceding goal closes, and to 30,089 random-number values from 30,048; still 1 of 11 sessions and 0 replay errors. At 23 screens it is the largest single-close holdout gain in the log, ahead of the 21 at d0bee360.
+2026-08-02T14:07:41.385Z	7d397d7	slice	1	33	674	7765	108336	610816	681	7765					Furniture admitted as a hero and monster destination: +26 screens, the figure the paired measurement predicted before the slice was queued.
+2026-08-02T15:03:24.552Z	d7ee80e	slice	1	33	676	7765	108261	610816	684	7765					Pet swap onto furniture: +2 screens, the measured ceiling. The random-number fall is positional in seed0030, whose first divergence and screen count are unchanged.
+2026-08-02T16:20:53.326Z	b669b88	goal	1	33	676	7765	108261	610816	684	7765	162	3640	30089	182022	furniture-square-entry closes having delivered 28 development screens and carried none: the holdout holds at 162 of 3,640 and 30,089 of 182,022, identical to the previous close. The goal was chosen partly because the hero could not stand on a fountain at any seed, the property that moved the holdout last time; that property did not repeat.
+2026-08-02T17:22:27.333Z	4084f4b	slice	1	33	676	7765	108261	610816	684	7765					Status-line repaint gated where moveloop_core() gates it. Score identical, as a sweep entry should be: no development session captures a frame that reaches it.
+2026-08-02T18:03:18.194Z	441a378	slice	1	33	676	7765	108261	610816	684	7765					Three sweep entries closed together; score unchanged, as grouping them predicted. Two of the three records carried a factual claim a probe overturned.
+2026-08-02T18:38:55.857Z	272c0c3	slice	1	33	676	7765	108261	610816	684	7765					go.occupation repointed to its one writer; score unchanged because no development session eats through a monster crossing the boundary. Two of 60 fresh seeds reach the newly live stop.
+2026-08-02T21:18:03.798Z	9ea5ff9	slice	1	33	676	7765	108261	610816	684	7765					Status geometry re-derived on a turn-counter refresh. Score unchanged: the orchestrator's claim that two scored sessions set showvers was wrong, the string appearing only inside a recorded options-menu screen.
+2026-08-02T22:08:31.618Z	94d5251	goal	1	33	676	7765	108261	610816	684	7765	162	3640	30089	182022	commands-deferral-sweep closes. Development and holdout both unchanged, which a sweep forecasts: every entry named behavior no session reaches. commands fell from ten open non-scope entries to eight.

@@ -97,7 +97,7 @@ test('calibration pairs GOALS.json ratios with SCORE.tsv goal rows', () => {
     };
     // One full goal row and one with blank screen cells, the shape of the
     // hand-appended 2026-07-22 rows; the blank cells must render as `-`
-    // rather than dropping the row. A checkpoint row must not appear.
+    // rather than dropping the row. A row of another event must not appear.
     const rows = [
         { utc: '2026-07-22T01:00:00Z', sha: 'b'.repeat(40), event: 'goal',
             screens_matched: '', screens_total: '',
@@ -106,7 +106,7 @@ test('calibration pairs GOALS.json ratios with SCORE.tsv goal rows', () => {
             screens_matched: '520', screens_total: '7765',
             holdout_screens_matched: '139', holdout_screens_total: '3640',
             note: 'pet-inventory' },
-        { utc: '2026-08-01T02:00:00Z', sha: 'd'.repeat(40), event: 'checkpoint',
+        { utc: '2026-08-01T02:00:00Z', sha: 'd'.repeat(40), event: 'slice',
             screens_matched: '520', screens_total: '7765',
             holdout_screens_matched: '', holdout_screens_total: '', note: '' },
     ];

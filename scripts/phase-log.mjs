@@ -5,8 +5,8 @@
 // formal review pass, so the next process audit reads measured phase time in
 // place of commit-gap proxies, and the six-hour goal budget in
 // .agents/loop.md is judged against a file rather than recollection.
-// Validation timing needs no rows here: every scoring run already records
-// wall_s in SCORE.tsv.
+// A `validate` row pair is the only record of validation time: SCORE.tsv
+// carried a scoring run's wall seconds until 2026-08-02 and now carries none.
 
 import { appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';

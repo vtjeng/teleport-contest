@@ -10,19 +10,20 @@ for `sessions/holdout/`, the sealed holdout, always apply.
 ## Score evidence
 
 `SCORE.tsv` is the score record: one append-only, tab-separated row per event,
-with the columns `SCORE.md` documents. `npm run checkpoint` appends a
-`checkpoint` row after each scoring run. Append a `slice`, `window`, `goal`,
+with the columns `SCORE.md` documents. Append a `slice`, `window`, `goal`,
 `holdout`, or `publish` row with `node scripts/score-log.mjs --append
 column=value ...` when that event completes, and an optional `candidate` row
-for a validated handoff on an open slice. A later row supersedes an earlier
-one by position, so no row is rewritten. Combine coincident events into one
-row recording the most significant one. The `note` column holds a brief
-prediction, an anomaly, or nothing. Fill the four holdout columns
-only on a row whose own event ran an authorized evaluation; an empty cell
-means no new holdout evidence. Longer evidence lives in the commit message of
-the SHA the row names, and review metrics stay in `QUALITY.json`. `SCORE.md`
-explains the columns and states the current standing; it holds no per-event
-prose.
+for a validated handoff on an open slice. A scoring run appends nothing itself.
+Take a row's figures from a run of the tree the named commit holds: a run over
+uncommitted work states a figure that no later run of that commit reproduces.
+A later row supersedes an earlier one by position, so no row is rewritten.
+Combine coincident events into one row recording the most significant one. The
+`note` column holds a brief prediction, an anomaly, or nothing. Fill the four
+holdout columns only on a row whose own event ran an authorized evaluation; an
+empty cell means no new holdout evidence. Longer evidence lives in the commit
+message of the SHA the row names, and review metrics stay in `QUALITY.json`.
+`SCORE.md` explains the columns and states the current standing; it holds no
+per-event prose.
 
 Read the log with `node scripts/score-log.mjs --latest [event]`, `--standing`,
 or `--since <sha>`; `--standing` carries the last stated holdout figure

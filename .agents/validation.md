@@ -138,8 +138,7 @@ Report current published aggregate results when available. Otherwise
 estimate from development and fresh-differential evidence and state the
 uncertainty. Never run the sealed holdout merely to produce an estimate.
 
-`npm run checkpoint` appends a `checkpoint` row to `SCORE.tsv` after each
-scoring run, so a scoring run dirties that one tracked file.
-`.agents/scoring.md` states how the orchestrator records every other
-`SCORE.tsv` event row and what an authorized holdout evaluation without
+A scoring run writes no `SCORE.tsv` row, so `npm run checkpoint` leaves the
+tree as it found it. `.agents/scoring.md` states how the orchestrator records
+every `SCORE.tsv` event row and what an authorized holdout evaluation without
 carry-over triggers.

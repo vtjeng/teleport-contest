@@ -18,7 +18,6 @@ means the row states no such figure; it does not mean zero.
 | `rng_matched`, `rng_total` | Development random-number values matched, out of those recorded. `frozen/ps_test_runner.mjs` compares the two logs position by position over their whole length, so a segment that stops early scores its next segment's startup calls against C's continuing log, and this count can fall while correctness rises. |
 | `cursors_matched`, `cursors_total` | Development cursor positions matched, out of those recorded. |
 | `holdout_screens_matched`, `holdout_screens_total`, `holdout_rng_matched`, `holdout_rng_total` | Combined figures from the reserved local holdout of 11 sessions, filled only where that row's own event ran an evaluation. Empty means no new holdout evidence, so carry the last stated figure forward. |
-| `wall_s` | Run duration in seconds, where a row states one. |
 | `note` | A brief prediction, falsified forecast, or anomaly worth keeping. |
 
 A development figure is a conservative lower bound for the 44-session public
@@ -40,3 +39,10 @@ Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
 mutation results, deferred findings, and review metrics. The prose rows this
 file held before 2026-08-01 remain in its Git history.
+
+`SCORE.tsv` also held a `checkpoint` row per scoring run, added on 2026-08-01
+and removed the next day, and a `wall_s` column that only those rows filled.
+Both are gone. A scoring run measures the working tree, so 34 of the 42 rows
+written described an uncommitted tree while naming HEAD, and none of them stated
+a figure an event row did not already carry. They remain in `SCORE.tsv`'s Git
+history.
