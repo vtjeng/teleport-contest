@@ -7,7 +7,6 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-07-22	5d3bfb9a5232fd966df86b678b6a27651eea0de4	slice			191											Broad first-command validation remained open.
 2026-07-22	2b88f27dab4d6fc0af5dd50673cd4de6d87bfdb2	slice			217											Later corrected: this 217-screen result did not reproduce.
 2026-07-22	e0f8b050a5215a2a999f10c75b8c574d6682e2a4	slice			213		78280		418							Clean detached rerun; the recorded 217-screen result did not reproduce.
-2026-07-22	8866764466effe643de8f2020fc3e6612ed21bf4	publish			213											Leaderboard 249 public and 194 held-out points, 18:31 UTC run; local holdout skipped.
 2026-07-22	f0624a759f50fbf061ab7e48ff7e83a08ea57ef1	goal														First-command milestone closed on a 107-case matrix; score carried from published ancestor.
 2026-07-22	76109518c4e879b444ee53cddd9617f875780888	slice			302		78350		590							Live command decoding and turn intent; never a published result.
 2026-07-22	ddb23823ac69f27906257ee615a4bdb818deeaac	slice														Result fell by one already-divergent level-two screen; no absolute figures stated.

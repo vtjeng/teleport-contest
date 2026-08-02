@@ -34,10 +34,6 @@ states it.
 - Reserved holdout, at the same commit: 139 of 3,640 screens, 30,048 of
   182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
   The figure is identical across the last five goal-closure evaluations.
-- Published leaderboard, at `8866764466effe643de8f2020fc3e6612ed21bf4`
-  (2026-07-22, from the 18:31 UTC run): 249 public and 194 held-out points.
-  Later code changes leave the held-out value uncertain; it is carried forward
-  from that run.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
