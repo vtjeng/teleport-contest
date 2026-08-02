@@ -58,11 +58,10 @@ For every coherent implementation chunk:
 1. Connect the production game path that consumes the new behavior (the real
    consumer), then run the checks in `.agents/validation.md`.
 2. Assign every new `js/` file to exactly one `QUALITY.json` area as soon as
-   the file is created. Count untracked production files toward review limits
-   before the `npm run quality` scheduling dashboard can measure them. Even
-   when the dashboard reports no debt, an unassigned `js/` file still needs
-   its `QUALITY.json` area, and a threshold overrun you counted by hand still
-   counts toward review limits.
+   the file is created, with `npm run quality -- assign --file <path>
+   --area <id>`; `npm run quality -- areas` lists the ids. Count untracked
+   production files toward review limits before the `npm run quality`
+   scheduling dashboard can measure them.
 3. Commit the implementation, then run `npm run quality` to display the
    scheduling dashboard.
 4. Directly review source behavior, PRNG and evaluation order, parsing, state

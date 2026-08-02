@@ -46,7 +46,8 @@ deliberately:
   and validation evidence in your report instead.
 
 Outside code and tests you write exactly one thing: the `QUALITY.json` area
-each new `js/` file belongs to, assigned as soon as you create the file, as
+each new `js/` file belongs to, assigned with `npm run quality -- assign
+--file <path> --area <id>` as soon as you create the file, as
 "Per-chunk workflow" requires. The goal list in `GOALS.json` and the review and
 simplification entries in `QUALITY.json` belong to the orchestrator, including
 on the last slice of a goal.

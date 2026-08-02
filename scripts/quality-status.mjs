@@ -1283,6 +1283,44 @@ function deferEntry(options) {
   });
 }
 
+// The one QUALITY.json write the per-chunk workflow asks of a worker:
+// assigning each new js/ file to an area as soon as the file is created.
+// A subcommand makes that write without hand-editing the ledger. Validation
+// runs on the mutated config before anything is written, so an unknown
+// area, a duplicate assignment, and a path outside js/ are all refused.
+export function assignPathToArea(config, file, areaId) {
+  const area = config.areas.find((entry) => entry.id === areaId);
+  if (!area) fail(`no area has id: ${areaId}`);
+  const owner = config.areas.find((entry) => entry.paths.includes(file));
+  if (owner) fail(`${file} already belongs to area ${owner.id}`);
+  area.paths.push(file);
+  area.paths.sort();
+  validateConfigShape(config);
+  return area;
+}
+
+function listAreas() {
+  const config = loadConfig();
+  for (const area of config.areas) {
+    console.log(`${area.id}: ${area.label} `
+      + `(${plural(area.paths.length, 'file')})`);
+  }
+}
+
+function assignEntry(options) {
+  rejectUnknownOptions(options, new Set(['file', 'area']));
+  for (const key of ['file', 'area']) {
+    if (!options[key]?.trim()) fail(`--${key} is required`);
+  }
+  withLedgerLock(() => {
+    const config = loadConfig();
+    const area = assignPathToArea(
+      config, options.file.trim(), options.area.trim());
+    writeConfig(config);
+    console.log(`Assigned ${options.file.trim()} to ${area.id}.`);
+  });
+}
+
 /** Parse `git log --format=%H%x09<Mutants trailer>` rows for the check. */
 export function missingMutantTrailers(logOutput) {
   if (!logOutput) return { commits: 0, missing: [] };
@@ -1347,6 +1385,8 @@ function printHelp() {
   npm run quality -- rejections
   npm run quality -- deferrals [--area <id>] [--status open|closed|all] [--id <id>]
   npm run quality -- pass --head <sha or prefix>
+  npm run quality -- areas
+  npm run quality -- assign --file js/<name>.js --area <id>
   npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
     --detail <text> [--area <id>]
   npm run quality -- resolve-deferral --id <id>
@@ -1354,7 +1394,9 @@ function printHelp() {
 
 The query subcommands read the ledger, so a later pass consults prior
 rejections and open deferrals without opening QUALITY.json. defer opens a
-ledger entry and resolve-deferral closes one when its fix lands.
+ledger entry and resolve-deferral closes one when its fix lands. areas lists
+the quality areas, and assign inserts a new js/ file into one, the write the
+per-chunk workflow requires as soon as the file is created.
 
 Status is derived from Git. The review frontier is the newest recorded
 review head, and recording a pass advances it through the --range head.
@@ -1384,6 +1426,15 @@ function main(argv) {
   }
   if (first === 'rejections' || first === 'deferrals' || first === 'pass') {
     queryLedger(first, parseOptions(rest), loadConfig());
+    return;
+  }
+  if (first === 'areas') {
+    rejectUnknownOptions(parseOptions(rest), new Set());
+    listAreas();
+    return;
+  }
+  if (first === 'assign') {
+    assignEntry(parseOptions(rest));
     return;
   }
   if (first === 'defer') {

@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
+  assignPathToArea,
   auditMetricsFromOptions,
   countReviewCommits,
   excludeGeneratedLines,
@@ -690,6 +691,46 @@ test('an implementation path cannot belong to two quality areas', () => {
   assert.throws(
     () => validateConfigShape(config),
     /js\/shared\.js belongs to both first and second/,
+  );
+});
+
+test('assign inserts a js/ file into one area and refuses every bad write', () => {
+  // The same minimal-valid config shape the ownership test above uses;
+  // js/aaa.js sorts before js/monmove.js so the sort outcome is observable.
+  const config = () => ({
+    version: 4,
+    trackingBase: '1'.repeat(40),
+    enforcementBase: '2'.repeat(40),
+    legacyPassCount: 0,
+    thresholds: { reviewCommits: 10, reviewChangedLines: 1000 },
+    deferred: [],
+    areas: [
+      { id: 'monsters', label: 'Monsters', paths: ['js/monmove.js'] },
+      { id: 'world', label: 'World', paths: ['js/dungeon.js'] },
+    ],
+    passes: [],
+  });
+
+  const assigned = config();
+  assignPathToArea(assigned, 'js/aaa.js', 'monsters');
+  assert.deepEqual(
+    assigned.areas[0].paths,
+    ['js/aaa.js', 'js/monmove.js'],
+  );
+
+  // An unknown area, a file another area owns, and a path outside js/ (which
+  // validateConfigShape rejects) must each refuse before a write.
+  assert.throws(
+    () => assignPathToArea(config(), 'js/aaa.js', 'nope'),
+    /no area has id: nope/,
+  );
+  assert.throws(
+    () => assignPathToArea(config(), 'js/dungeon.js', 'monsters'),
+    /js\/dungeon\.js already belongs to area world/,
+  );
+  assert.throws(
+    () => assignPathToArea(config(), 'scripts/foo.mjs', 'monsters'),
+    /invalid path in area monsters/,
   );
 });
 

@@ -383,7 +383,8 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   time and finding counts in the progress report that announces it.
 - Finish each formal review pass with `npm run quality -- --check`. Resolve
   review debt at a batching threshold declared in `QUALITY.json` and assign
-  every unassigned `js/` file to a `QUALITY.json` area. An audit-fix commit
+  every unassigned `js/` file to a `QUALITY.json` area with
+  `npm run quality -- assign`. An audit-fix commit
   applied after its pass was recorded may stand as correctness debt, except
   before a review deadline.
   Resolve concrete simplification or clarity triggers, but do not invent
