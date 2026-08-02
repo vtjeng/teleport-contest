@@ -14,12 +14,14 @@ Proposing a new goal is out of scope: when no goal is in progress,
 ## Method
 
 1. Run `node scripts/scan-stops.mjs`.
-2. Read `.agents/selection.md` for the selection rules: how to read the census,
-   the output of `node scripts/scan-stops.mjs` that reports where each
-   development session first stops; how to choose a goal; and how to judge a
-   goal's size. Read `.agents/workflow.md` for the evidence that closes a
+2. Read `.agents/selection.md`: "Reading the census" for the scan output and
+   its two interpretation rules, and the closing paragraphs of "Choosing a
+   goal" for how goals divide into slices and how large a slice may grow. The
+   ranking and forecasting rules earlier in that section serve goal choice,
+   which is out of scope for you. Read `.agents/workflow.md`, "Terms", for
+   the evidence that closes a
    behavior slice, and identify only a slice that can produce that evidence.
-3. Read `ROADMAP.md` for the systems the current goals belong to, and run
+3. Run
    `node scripts/goal-log.mjs --current` for the goal in progress, its queued
    slices, and the traced source findings in its `detail` field.
 4. Read the C source the slice would port, far enough to confirm it closes as

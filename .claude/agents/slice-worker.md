@@ -21,9 +21,11 @@ Read these three sources:
 Then read the C source for every function you are porting, before you write
 anything.
 
-You do not open `.agents/review.md` or
-`.agents/selection.md`: review scheduling and slice choice belong to the
-orchestrator and the selectors.
+You do not open `.agents/review.md`,
+`.agents/selection.md`, or `ROADMAP.md`: review scheduling, slice choice, and
+the system grouping belong to the
+orchestrator and the selectors, and this list overrides the AGENTS.md reading
+rows that name those files.
 
 ## Scope
 
@@ -37,9 +39,10 @@ deliberately:
 
 - After each commit, "Per-chunk workflow" says to run `npm run quality`. Leave
   it. The orchestrator runs it and reads the thresholds it reports.
-- When a slice closes, `.agents/validation.md` says to preserve an evidence
-  snapshot. Leave the `SCORE.md` row to the orchestrator and put the score and
-  validation evidence in your report instead.
+- When a slice closes, `.agents/validation.md`, "Score estimates", names the
+  `SCORE.tsv` event rows that `.agents/scoring.md` specifies. Those rows and
+  the `SCORE.md` entry are the orchestrator's: append none, and put the score
+  and validation evidence in your report instead.
 
 Outside code and tests you write exactly one thing: the `QUALITY.json` area
 each new `js/` file belongs to, assigned as soon as you create the file, as
@@ -74,7 +77,8 @@ one of two outcomes: an assertion that kills it, or a reason no test can kill
 it. One reason may cover several survivors that sit on the same branch. Integer
 survivors are not gating, because most integers in js/ are constants that no
 observable behavior depends on, and they are the weakest kind by measured kill
-rate. The script's header comment records the measurements.
+rate. Open the script's 134-line header comment only when you need those
+measured figures; nothing else in it is required here.
 
 A survivor may be false. The check judges each mutant by the test files that
 reach its module without passing through another js/ module, so a test that

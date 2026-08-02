@@ -16,11 +16,16 @@ slicing to the slice-selector.
 
 ## Method
 
-1. Run `node scripts/scan-stops.mjs`.
+1. Run `node scripts/scan-stops.mjs` for the first-stop census, then
+   `node scripts/scan-debt.mjs --by=unlocks` for the ranked candidates, and
+   `node scripts/scan-ahead.mjs <behavior>` per candidate for the capping
+   read that `.agents/selection.md` requires.
 2. Read `.agents/selection.md` for the selection rules: how to read the census,
    how to choose the next goal, and how to judge a goal's size. Read
-   `.agents/workflow.md` for the evidence that closes a behavior slice and the
-   review a closed goal triggers.
+   `.agents/workflow.md`, "Terms", for the evidence that closes a behavior
+   slice and the
+   review a closed goal triggers; the rest of that file serves the worker and
+   is not needed here.
 3. Read `ROADMAP.md` for the systems the current goals belong to, and run
    `node scripts/goal-log.mjs --current` for the goals already queued with
    their traced source findings.
