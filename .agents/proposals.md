@@ -43,3 +43,43 @@ before the next slice's pass, so the debt can still accumulate silently until
 `record-review` refuses. A check that compares each area's frontier against the
 first production commit after it would surface that earlier, and is a separate
 proposal.
+
+## Print the remaining unenforced advisories
+
+**What it changes.** Six checks that turn prose rules into printed numbers:
+
+- `scripts/phase-log.mjs --summary --goal <id>` prints elapsed wall time
+  since the last slice close that improved the development score, so the
+  six-hour goal budget in `.agents/workflow.md` becomes a printed figure.
+- `node scripts/goal-log.mjs calibration` prints delivered-versus-forecast
+  ratios for the last three closed goals, the condition
+  `.agents/selection.md` states for retiring a ranking statistic.
+- `npm run quality` warns when dirty-tree changed lines exceed 500 while no
+  `.agents/implementation-checklist.json` exists, the checklist-creation
+  trigger in `.agents/workflow.md`.
+- `npm run checkpoint` runs `npm run quality -- slice-mutants` over new
+  commits as an informational line, so a missing `Mutants:` trailer
+  surfaces without anyone invoking the check by hand.
+- A turn-end warning prints `git log --oneline origin/main..HEAD` when
+  commits sit unpushed, the push rule in `.agents/workflow.md`,
+  "Pushing and CI".
+- `scripts/score-holdout.mjs` takes a required `--goal <id>` and refuses a
+  second evaluation for the same goal without a recorded override, the
+  one-evaluation-per-goal rule in `AGENTS.md`. This one needs a decision
+  on where the per-goal record lives before implementation.
+
+**Scope.** Each item is a small addition to an existing script and its test
+file; the first two add one subcommand each.
+
+**What prompted it.** A survey of the instruction documents for rules that
+present as limits or cadences while nothing detects a violation. Two
+siblings landed the same day it ran: the review-gate refusal in
+`score-holdout.mjs` and the review-gate line in the checkpoint summary.
+
+**Cost.** Small per item. None blocks; each prints, in the pattern of the
+sweep-candidate line.
+
+**What it leaves unfixed.** Compliance stays voluntary: these make skipping
+a rule visible, and the reader still decides. Rules the same survey judged
+unenforceable by construction, such as report word caps, are handled by
+rewording rather than tooling and are outside this entry.
