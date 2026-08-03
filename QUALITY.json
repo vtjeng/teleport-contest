@@ -646,6 +646,15 @@
       "status": "closed",
       "from": "7042a6582dd8bcdd62e8bde6995004576b4e1991",
       "detail": "The wizard-mode-wish correctness pass confirmed that readobjnam()'s spe switch drops C's 'case SCR_MAIL: d.otmp->spe = 1', so a wished-for scroll of mail would be created with spe 0. No work is required: objnam.c:5169-5174 wraps that case in #ifdef MAIL_STRUCTURES, and neither nethack-c/upstream/include/config.h nor any file under nethack-c/patches/ defines the macro, so the arm is compiled out of the program the port is compared against. The entry exists so a later pass finds this reasoning rather than re-reporting the finding. Closing condition: none while MAIL_STRUCTURES stays undefined; if a patch ever defines it, port the one-line assignment."
+    },
+    {
+      "id": "a wished-for container stops the segment at mkbox_cnts()",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "4aaee0e6c0bc8ba846176c87ae2b898ed93cfd05",
+      "detail": "A wish for SACK, OILSKIN_SACK or BAG_OF_HOLDING after move 1 stops the segment at the submit, where C runs mkbox_cnts() (mkobj.c:304-382) with n = 1, so rn2(2) can place one random item inside. C's first unmatched call is rnd(2) from next_ident(mkobj.c:521). Found while selecting the first slice of wizard-level-teleport, by fresh differential: seeds 6620141-6620147, datetime 20310417113000, playmode:debug,pettype:none. Wand, ring and scroll wishes pass call for call and screen for screen at the same seeds; only the container class diverges. The container machinery is ported already, at js/mkobj_container.js and js/obj.js:1025-1054, so this is a wiring or content-class refusal on the wish path rather than a missing port. Cost to the current goal is one step: seed5006-tourist-stress-disaster wishes 'cursed bag of holding' as its last wish, submitting at move 108 of a stretch the census caps at move 109 on P, puton. Reproduce with: node scripts/diff-fresh.mjs --seed 6620144 --datetime 20310417113000 --name Wshr --role Wizard --race human --gender male --align neutral --options 'pettype:none,!acoustics,playmode:debug' --moves $'.\\x17cursed sack\\n.'  Closing condition: the wished-for container reaches hold_another_object() with the contents mkbox_cnts() gives it, matching C call for call, or a refusal that stops before the first divergent draw."
     }
   ],
   "areas": [
