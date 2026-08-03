@@ -10,19 +10,11 @@
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
+import { UnsupportedWishError } from './objnam_readobjnam.js';
 import { ttyPline } from './tty_message.js';
 
-// A wish this port cannot grant yet.
-export class UnsupportedWishError extends Error {
-    constructor(reason, buf) {
-        super(`unsupported wish: ${reason}`);
-        this.name = 'UnsupportedWishError';
-        this.reason = reason;
-        // The line mungspaces() left, which readobjnam() reads once the rest
-        // of makewish() lands.
-        this.buf = buf;
-    }
-}
+// The wish parser raises every other refusal, so the class lives with it.
+export { UnsupportedWishError };
 
 // C ref: zap.c makewish() (6313-6422), through the getlin() call at 6337, the
 // iflags.term_gone return at 6339 and the mungspaces() at 6345. The Escape

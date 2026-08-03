@@ -1,10 +1,12 @@
-// The wish parser's pure half: hacklib.c fuzzymatch() and strstri(), and
-// objnam.c wishymatch(), o_ranges[], spellings[], wrp[], wrpsym[],
-// readobjnam_init() and readobjnam_parse_charges().
+// The wish parser: hacklib.c fuzzymatch() and strstri(), and objnam.c
+// readobjnam() with its parse chain, wishymatch(), rnd_otyp_by_namedesc() and
+// the four tables they read.
 //
-// None of these draws a random number, writes output or changes game state,
-// so no recorded session can check them; the values below are read from the C
-// source and are the only proof the port is right.
+// Most of these draw no random number, write no output and change no game
+// state, so no recorded session can check them; the values below are read from
+// the C source and are the only proof the port is right.  The end-to-end
+// evidence for the wishes readobjnam() does resolve is in
+// scripts/run-wizard-wish.mjs, which replays them against fresh C recordings.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -13,9 +15,13 @@ import { fuzzymatch, strstri } from '../js/hacklib.js';
 import {
     RANDOM_TIN,
     TIN_UNDEFINED,
+    UnsupportedWishError,
     o_ranges,
+    readobjnam,
+    rnd_otyp_by_namedesc,
     readobjnam_init,
     readobjnam_parse_charges,
+    readobjnam_preparse,
     scanCount,
     spellings,
     wishymatch,
@@ -23,26 +29,59 @@ import {
     wrpsym,
 } from '../js/objnam_readobjnam.js';
 import {
+    ACID_VENOM,
+    AGATE,
     AMULET_CLASS,
     ARMOR_CLASS,
+    ARROW,
     BAG_OF_TRICKS,
+    BEARTRAP,
     BRASS_LANTERN,
+    CLOAK_OF_DISPLACEMENT,
+    ELVEN_BOOTS,
+    FAKE_AMULET_OF_YENDOR,
     FOOD_CLASS,
+    FOOD_RATION,
+    GAUNTLETS_OF_POWER,
     GEM_CLASS,
+    GRAY_DRAGON_SCALES,
+    HELM_OF_TELEPATHY,
+    JADE,
+    KATANA,
+    LAND_MINE,
+    LEATHER_ARMOR,
     LUCKSTONE,
     MAGIC_LAMP,
+    MEAT_RING,
     OIL_LAMP,
     POTION_CLASS,
+    POT_SEE_INVISIBLE,
     RING_CLASS,
+    RING_MAIL,
     SACK,
     SCROLL_CLASS,
+    SCR_MAGIC_MAPPING,
     SPBOOK_CLASS,
+    SPEED_BOOTS,
+    SPE_FINGER_OF_DEATH,
+    SPE_NOVEL,
+    SPE_WIZARD_LOCK,
+    STRANGE_OBJECT,
+    TOOLED_HORN,
     TOOL_CLASS,
     VENOM_CLASS,
+    WAN_DEATH,
     WAND_CLASS,
     WEAPON_CLASS,
+    YELLOW_DRAGON_SCALES,
 } from '../js/objects.js';
 import { NON_PM, SPE_LIM } from '../js/const.js';
+import { init_artifacts } from '../js/artifacts.js';
+import { name_to_monplus } from '../js/mondata.js';
+import { PM_GRAY_DRAGON, monst_globals_init } from '../js/monsters.js';
+import { init_objects } from '../js/o_init.js';
+import { objects_globals_init } from '../js/objects.js';
+import { roles } from '../js/roles.js';
 
 // hacklib.c fuzzymatch(): "match occurs only when the end of both strings has
 // been reached", after every ignore_chars byte is skipped in both.
@@ -356,4 +395,476 @@ test('readobjnam_parse_charges leaves a one-character name alone', () => {
     readobjnam_parse_charges(d);
     assert.equal(d.bp, '(');
     assert.equal(d.spesgn, 0);
+});
+
+// A wizard-mode game with a shuffled objects[] and an initialized monster
+// catalog: readobjnam() reads OBJ_DESCR(), which o_init.c shuffles, and calls
+// name_to_monplus(), which needs monst_globals_init().  Zero choices
+// deterministically initialize every randomized description.
+function wishState() {
+    const wizard = roles.find((role) => role.filecode === 'Wiz');
+    const state = {
+        // Object and monster id 1 is reserved; startup begins from 2.
+        context: { ident: 2, current_fruit: 1 },
+        flags: { implicit_uncursed: true, initalign: 0, invlet_constant: true },
+        gf: { ffruit: { fid: 1, fname: 'slime mold', nextf: null } },
+        iflags: {},
+        program_state: { gameover: false, in_moveloop: true },
+        moves: 1,
+        u: { uprops: [], ulevel: 1, uluck: 0 },
+        urole: { ...wizard },
+        wizard: true,
+    };
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    monst_globals_init(state);
+    init_artifacts(state);
+    return state;
+}
+
+// Records every draw the parse chain makes, so a test can assert both the
+// object and the calls that produced it.  Each stub answers its lowest result,
+// which picks the first candidate rnd_otyp_by_namedesc() collected.
+function recordingRandom(draws) {
+    return {
+        rn2: (x) => { draws.push(`rn2(${x})`); return 0; },
+        rnd: (x) => { draws.push(`rnd(${x})`); return 1; },
+        rn1: (x, y) => { draws.push(`rn1(${x},${y})`); return y; },
+        rne: (x) => { draws.push(`rne(${x})`); return 1; },
+    };
+}
+
+// The sentinel readobjnam() answers for "nothing"; C compares its address, so
+// any object identity will do.
+const NO_WISH = Object.freeze({});
+
+function wish(state, text) {
+    const draws = [];
+    const random = recordingRandom(draws);
+    try {
+        return { obj: readobjnam(text, NO_WISH, { state, random }), draws };
+    } catch (error) {
+        if (error instanceof UnsupportedWishError)
+            return { refusal: error.reason, draws };
+        throw error;
+    }
+}
+
+// mondata.c name_to_monplus() runs on every wish longer than two characters
+// (objnam.c:4404-4407), and a false monster match silently truncates the name
+// before the object lookup.  These four pin what the parse chain depends on.
+test('name_to_monplus finds no monster in three ordinary wish names', () => {
+    const state = wishState();
+    for (const name of ['magic lamp', 'speed boots', 'amulet of life saving']) {
+        const found = name_to_monplus(name, { state });
+        assert.equal(found.mnum, NON_PM, name);
+    }
+    // The one recorded wish name that does hold a monster: monst.c names
+    // PM_GRAY_DRAGON "gray dragon", leaving " scale mail" for the object.
+    const dragon = name_to_monplus('gray dragon scale mail', { state });
+    assert.equal(dragon.mnum, PM_GRAY_DRAGON);
+    assert.equal(dragon.remainder, ' scale mail');
+});
+
+test('readobjnam resolves an exact objects[] name', () => {
+    const state = wishState();
+    const { obj, draws } = wish(state, 'magic lamp');
+    assert.equal(obj.otyp, MAGIC_LAMP);
+    assert.equal(obj.oclass, TOOL_CLASS);
+    assert.equal(obj.quan, 1);
+    // objects.h:931 gives MAGIC_LAMP oc_prob 15, and
+    // readobjnam_postparse3() adds xtra_prob 1 to it: rn2(16) selects the one
+    // candidate and is spent even though the loop after it never runs.  The
+    // three draws after it are mksobj()'s: next_ident() and blessorcurse().
+    assert.deepEqual(draws, ['rn2(16)', 'rnd(2)', 'rn2(2)', 'rn2(2)']);
+});
+
+test('readobjnam resolves an inverted "of" spelling', () => {
+    const state = wishState();
+    const { obj, draws } = wish(state, 'boots of speed');
+    assert.equal(obj.otyp, SPEED_BOOTS);
+    // objects.h:836 gives SPEED_BOOTS oc_prob 12, so the match draws rn2(13).
+    assert.equal(draws[0], 'rn2(13)');
+});
+
+test('readobjnam resolves an alternate spelling without a lookup', () => {
+    const state = wishState();
+    const { obj, draws } = wish(state, 'lantern');
+    assert.equal(obj.otyp, BRASS_LANTERN);
+    // spellings[] returns 2 from readobjnam_postparse1(), which skips
+    // readobjnam_postparse3() entirely, so the first draw is mksobj()'s
+    // next_ident() rather than a lookup.
+    assert.equal(draws[0], 'rnd(2)');
+});
+
+test('readobjnam picks at random inside an o_ranges[] subrange', () => {
+    const state = wishState();
+    const { obj, draws } = wish(state, 'lamp');
+    // objects.h:929,931 give OIL_LAMP and MAGIC_LAMP the same description,
+    // "lamp", but readobjnam_postparse2()'s o_ranges[] row catches the bare
+    // word first and calls rnd_class(OIL_LAMP, MAGIC_LAMP).  Their oc_prob
+    // values, 45 and 15, sum to the rnd(60) below, and the lowest result picks
+    // the first of the two.
+    assert.equal(obj.otyp, OIL_LAMP);
+    assert.equal(draws[0], 'rnd(60)');
+});
+
+test('readobjnam answers the caller sentinel for a declined wish', () => {
+    const state = wishState();
+    for (const text of ['nothing', 'nil', 'none', 'Nothing']) {
+        const { obj, draws } = wish(state, text);
+        assert.equal(obj, NO_WISH, text);
+        assert.deepEqual(draws, [], text);
+    }
+});
+
+// Every refusal below has to come before the draw its branch would make;
+// otherwise a wish outside the port's boundary moves the random-number stream
+// and then stops, which no screen would show.
+test('readobjnam refuses a wish outside its boundary without drawing', () => {
+    const state = wishState();
+    for (const text of [
+        // readobjnam_preparse() consumes a qualifier, a count or a sign.
+        'blessed magic lamp', 'cursed lamp', '+3 long sword', '2 daggers',
+        'rustproof long sword', 'wet towel', 'partly eaten food ration',
+        // A monster name, which the typfnd: tail would turn into a corpse or
+        // dragon scale mail.
+        'gray dragon scale mail', 'newt corpse',
+        // Types whose fine tuning is unported.
+        'glob of gray ooze', 'tin of newt meat', 'gold piece',
+        // A unique object, which mksobj() would make an artifact.
+        'Amulet of Yendor',
+        // And a name that matches nothing, which C answers by printing
+        // "Nothing fitting that description exists in the game." and asking
+        // again.
+        'florble',
+    ]) {
+        const { refusal, draws } = wish(state, text);
+        assert.ok(refusal, `${text} is refused`);
+        assert.deepEqual(draws, [], `${text} draws nothing`);
+    }
+});
+
+// objnam.c readobjnam_preparse() (3965-4175).
+test('readobjnam_preparse consumes the qualifiers it recognizes', () => {
+    const state = wishState();
+    const d = readobjnam_init('blessed +3 rustproof long sword', state);
+    assert.equal(readobjnam_preparse(d, state), 0);
+    assert.equal(d.bp, 'long sword');
+    assert.equal(d.consumed, 'blessed +3 rustproof ');
+    assert.equal(d.blessed, 1);
+    assert.equal(d.spe, 3);
+    assert.equal(d.spesgn, 1);
+    assert.equal(d.erodeproof, 1);
+    // "blessed" clears the other two, which 3999-4001 spells out.
+    assert.equal(d.iscursed, 0);
+    assert.equal(d.uncursed, 0);
+});
+
+test('readobjnam_preparse reads a count and an article', () => {
+    const state = wishState();
+    const counted = readobjnam_init('7 daggers', state);
+    readobjnam_preparse(counted, state);
+    assert.equal(counted.cnt, 7);
+    assert.equal(counted.bp, 'daggers');
+    // "a"/"an" mean one; "the" means nothing at all.
+    const article = readobjnam_init('a long sword', state);
+    readobjnam_preparse(article, state);
+    assert.equal(article.cnt, 1);
+    assert.equal(article.bp, 'long sword');
+    const the = readobjnam_init('the long sword', state);
+    readobjnam_preparse(the, state);
+    assert.equal(the.cnt, 0);
+    assert.equal(the.bp, 'long sword');
+    // 3980's `strcmp(d->bp, "0")` keeps a bare "0" out of the count arm.
+    const zero = readobjnam_init('0', state);
+    readobjnam_preparse(zero, state);
+    assert.equal(zero.cnt, 0);
+    assert.equal(zero.bp, '0');
+});
+
+test('readobjnam_preparse answers 1 only for an empty line', () => {
+    const state = wishState();
+    // C's comment at 3963-3964 claims 1 for a line of nothing but qualifiers
+    // too, but `res = 0` runs at the top of every iteration the loop enters,
+    // so a consumed qualifier leaves 0 behind.  readobjnam() reads the answer
+    // as "go to `any:` and grant a random object", which is why an Escape at
+    // the wish prompt -- which empties the buffer -- grants one.
+    const d = readobjnam_init('blessed ', state);
+    assert.equal(readobjnam_preparse(d, state), 0);
+    assert.equal(d.bp, '');
+    // An empty line never enters the loop, so res keeps its initial 1.
+    const empty = readobjnam_init('', state);
+    assert.equal(readobjnam_preparse(empty, state), 1);
+});
+
+test('readobjnam_preparse leaves a glob adjective alone', () => {
+    const state = wishState();
+    // 4113-4116: "small" is a glob size only when "glob" follows; otherwise it
+    // is part of a monster name and the loop stops without consuming it.
+    const mimic = readobjnam_init('small mimic corpse', state);
+    readobjnam_preparse(mimic, state);
+    assert.equal(mimic.bp, 'small mimic corpse');
+    assert.equal(mimic.gsize, 0);
+    const glob = readobjnam_init('small glob of gray ooze', state);
+    readobjnam_preparse(glob, state);
+    assert.equal(glob.bp, 'glob of gray ooze');
+    assert.equal(glob.gsize, 1);
+    // 4121-4127 gives "large" the same guard and gsize 3.
+    const large = readobjnam_init('large glob of gray ooze', state);
+    readobjnam_preparse(large, state);
+    assert.equal(large.bp, 'glob of gray ooze');
+    assert.equal(large.gsize, 3);
+    // 4108-4110's "zombifying".
+    const zombie = readobjnam_init('zombifying newt corpse', state);
+    readobjnam_preparse(zombie, state);
+    assert.equal(zombie.bp, 'newt corpse');
+    assert.equal(zombie.zombify, true);
+    // 4152-4160: "corpse"/"statue"/"figurine" is the gender hack only when
+    // "of " follows, so the word on its own is left in place.
+    const bare = readobjnam_init('corpse mail', state);
+    readobjnam_preparse(bare, state);
+    assert.equal(bare.bp, 'corpse mail');
+});
+
+// objnam.c rnd_otyp_by_namedesc() (3454-3529), the lookup readobjnam ends at.
+test('rnd_otyp_by_namedesc matches a name, a description and a partial', () => {
+    const state = wishState();
+    const draws = [];
+    const random = recordingRandom(draws);
+    const find = (name, oclass = 0) =>
+        rnd_otyp_by_namedesc(name, oclass, 1, { state, random });
+
+    // The objects[] name.
+    assert.equal(find('magic lamp'), MAGIC_LAMP);
+    // The " of " partial at 3499-3506: "tricks" has to reach "bag of tricks".
+    assert.equal(find('tricks'), BAG_OF_TRICKS);
+    // A shuffled description, which o_init.c assigns and objects.c does not:
+    // with every shuffle choice zero, "mud boots" lands on ELVEN_BOOTS.
+    assert.equal(find('mud boots'), ELVEN_BOOTS);
+    // The partial description at 3510-3512: "cloth" has to reach the cloak
+    // whose description is "piece of cloth".
+    assert.equal(find('cloth'), CLOAK_OF_DISPLACEMENT);
+    // The scan runs to the last objects[] entry, which is ACID_VENOM.
+    assert.equal(find('acid venom'), ACID_VENOM);
+    // 3504-3505 keeps the glob range out of the " of " partial match, so
+    // neither end of it answers its monster's name.  Both ends matter: the
+    // range is tested with `<` at one end and `>` at the other.
+    assert.equal(find('gray ooze'), STRANGE_OBJECT);
+    assert.equal(find('black pudding'), STRANGE_OBJECT);
+    // Only the objects[] name is matched with retry_inverted set, so an
+    // inverted description finds nothing where the description itself works.
+    assert.equal(find('boots of mud'), STRANGE_OBJECT);
+    // Nothing matches, and no draw is made: STRANGE_OBJECT is 0.
+    draws.length = 0;
+    assert.equal(find('florble'), STRANGE_OBJECT);
+    assert.deepEqual(draws, []);
+});
+
+test('rnd_otyp_by_namedesc weights its candidates by oc_prob', () => {
+    const state = wishState();
+    // objects.h:929,931 give OIL_LAMP and MAGIC_LAMP the same description,
+    // "lamp", so both are candidates.  Their oc_prob values are 45 and 15 and
+    // readobjnam_postparse3() adds 1 to each, so the draw is rn2(62).
+    const drawn = [];
+    const pick = (result) => rnd_otyp_by_namedesc('lamp', 0, 1, {
+        state,
+        random: {
+            rn2: (x) => { drawn.push(x); return result; },
+            rnd: () => 1,
+            rn1: (x, y) => y,
+            rne: () => 1,
+        },
+    });
+    assert.equal(pick(0), OIL_LAMP);
+    assert.deepEqual(drawn, [62]);
+    // 45 lands one past OIL_LAMP's share, so the loop stops on the second.
+    assert.equal(pick(45), OIL_LAMP);
+    assert.equal(pick(46), MAGIC_LAMP);
+});
+
+// The branches of readobjnam_postparse1() that reshape the typed name before
+// the lookup.  Each expectation is the objects[] entry the C reaches.
+test('readobjnam follows the name-reshaping branches', () => {
+    const state = wishState();
+    const resolved = (text) => wish(state, text).obj?.otyp;
+
+    // 4448-4459: makesingular() is skipped for "tricks", which must stay
+    // plural to reach "bag of tricks", but not for other plurals.
+    assert.equal(resolved('tricks'), undefined); // a container, refused below
+    assert.equal(wish(state, 'tricks').draws[0], 'rn2(21)');
+    // 4467-4473: "armour" loses its "u" so that "leather armour" matches.
+    assert.equal(resolved('leather armour'), LEATHER_ARMOR);
+    // 4460-4466: the spellings[] loop compares with retry_inverted set, so an
+    // inverted alternate spelling reaches its entry.  "helm of esp" is
+    // spellings[]'s wording; "esp helm" is the inversion of it.
+    assert.equal(resolved('esp helm'), HELM_OF_TELEPATHY);
+    // 4479-4485: a dragon's scales are found by monster number, and the
+    // monster is then cleared so no corpse handling follows.  Both ends of
+    // the dragon range have to be inside it.
+    assert.equal(resolved('gray dragon scales'), GRAY_DRAGON_SCALES);
+    assert.equal(resolved('yellow dragon scales'), YELLOW_DRAGON_SCALES);
+    // 4513-4519 blanks a scroll or spellbook only for an "unlabeled" wish,
+    // which is a qualifier this port refuses; a bare "spellbook" is a class
+    // word with nothing after it.
+    assert.equal(wish(state, 'spellbook').refusal,
+                 'a name the first objects[] lookup does not resolve');
+    // 4283-4284: the Amulet's description has to open the name or follow a
+    // space, so one embedded in a word is not it.
+    assert.equal(wish(state, 'brassAmulet of Yendor').refusal,
+                 'a name the first objects[] lookup does not resolve');
+    // 4502-4511: "paperback" and "paperback book" are the novel; anything
+    // else after it returns a null object instead.
+    assert.equal(resolved('paperback'), SPE_NOVEL);
+    assert.equal(resolved('paperback book'), SPE_NOVEL);
+    assert.equal(wish(state, 'paperback spellbook').refusal,
+                 'readobjnam action 3');
+    // 4283-4306: the fake Amulet is reached by prefixing its description.
+    assert.equal(resolved('imitation Amulet of Yendor'),
+                 FAKE_AMULET_OF_YENDOR);
+});
+
+test('readobjnam keeps a monster name out of six object names', () => {
+    const state = wishState();
+    // objnam.c:4396-4401.  Without each exception name_to_monplus() would
+    // match a monster or a rank title and truncate the name, which shows up
+    // as the monster-type refusal rather than as an object or a failed
+    // lookup.
+    const reason = (text) => wish(state, text).refusal;
+    // "samurai sword" is KATANA's description, not the samurai monster.
+    assert.equal(wish(state, 'samurai sword').obj.otyp, KATANA);
+    assert.equal(wish(state, 'wizard lock').obj.otyp, SPE_WIZARD_LOCK);
+    // "death wand" inverts to "wand of death", not the Rider.
+    assert.equal(wish(state, 'death wand').obj.otyp, WAN_DEATH);
+    // These two name no object at all, so the lookup is what fails; had the
+    // exception been missing, the "master" and "ninja" rank titles would have
+    // matched instead.
+    assert.equal(reason('master key'),
+                 'a name the first objects[] lookup does not resolve');
+    assert.equal(reason('ninja-to'),
+                 'a name the first objects[] lookup does not resolve');
+    // "magenta" is a potion description; the "mage" rank must not take it.
+    assert.equal(wish(state, 'magenta').obj.otyp, POT_SEE_INVISIBLE);
+    // 4372-4373's own exceptions: "wand ", "spellbook ", "gauntlets ",
+    // "gloves " and "finger " suppress the "<foo> of <monster>" split, so
+    // these three name objects rather than monsters.
+    assert.equal(wish(state, 'wand of death').obj.otyp, WAN_DEATH);
+    assert.equal(wish(state, 'finger of death').obj.otyp, SPE_FINGER_OF_DEATH);
+    assert.equal(wish(state, 'gauntlets of ogre power').obj.otyp,
+                 GAUNTLETS_OF_POWER);
+    assert.equal(wish(state, 'gloves of ogre power').obj.otyp,
+                 GAUNTLETS_OF_POWER);
+    // 4374-4386 takes a tin before the "<foo> of <monster>" split does, so
+    // "tin of newt meat" is a tin rather than a newt.
+    assert.equal(reason('tin of newt meat'), 'a tin wish');
+    // A bare monster name leaves no referent, so 4425-4429 puts the name back
+    // and forgets the monster; the lookup then fails on its own.
+    assert.equal(reason('newt'),
+                 'a name the first objects[] lookup does not resolve');
+    // With a referent the monster stays, and the wish is out of boundary.
+    assert.equal(reason('newt corpse'), 'a wish naming a monster type');
+    // 4425-4429 puts the name back only when nothing else has been parsed:
+    // a " called " or " labeled " phrase counts, so the monster stays.
+    assert.equal(reason('newt called foo'), 'a wish naming a monster type');
+    assert.equal(reason('newt labeled foo'), 'a wish naming a monster type');
+    // monst.c's first monster is the giant ant, whose number is LOW_PM
+    // itself, so it is the one that distinguishes `>= LOW_PM` from `>`.
+    assert.equal(reason('giant ant corpse'), 'a wish naming a monster type');
+});
+
+test('readobjnam leaves the ten class-word exceptions alone', () => {
+    const state = wishState();
+    // objnam.c:4553-4562.  Each of these would otherwise lose its leading or
+    // trailing class word to the wrp[] loop and match something else.
+    assert.equal(wish(state, 'ring mail').obj.otyp, RING_MAIL);
+    assert.equal(wish(state, 'leather armor').obj.otyp, LEATHER_ARMOR);
+    assert.equal(wish(state, 'tooled horn').obj.otyp, TOOLED_HORN);
+    assert.equal(wish(state, 'food ration').obj.otyp, FOOD_RATION);
+    assert.equal(wish(state, 'meat ring').obj.otyp, MEAT_RING);
+    // And the loop itself still runs for everything else, in both
+    // directions: a leading class word with " of ", and a trailing one.
+    assert.equal(wish(state, 'scroll of magic mapping').obj.otyp,
+                 SCR_MAGIC_MAPPING);
+    assert.equal(wish(state, 'magic mapping scroll').obj.otyp,
+                 SCR_MAGIC_MAPPING);
+});
+
+test('readobjnam finds a gem by its real name before its class', () => {
+    const state = wishState();
+    // objnam.c:4733-4742 compares d.actualn against every real gem's name
+    // with strcmpi and needs no draw; the class-word loop has not set
+    // d.oclass for a bare "agate", so the loop runs.
+    const bare = wish(state, 'agate');
+    assert.equal(bare.obj.otyp, AGATE);
+    assert.equal(bare.draws[0], 'rnd(2)'); // mksobj()'s next_ident()
+    // The loop runs through LAST_REAL_GEM itself, which is jade; the entry
+    // after it is a worthless piece of glass.
+    const last = wish(state, 'jade');
+    assert.equal(last.obj.otyp, JADE);
+    assert.equal(last.draws[0], 'rnd(2)');
+    // readobjnam_postparse2()'s " stone" and " gem" suffixes (4676-4682) set
+    // d.oclass, which skips that loop and reaches the weighted lookup.
+    // objects.h gives AGATE oc_prob 14, so the draw is rn2(15).
+    assert.equal(wish(state, 'agate stone').obj.otyp, AGATE);
+    assert.equal(wish(state, 'agate gem').draws[0], 'rn2(15)');
+});
+
+test('readobjnam gives a wizard a disarmed trap object', () => {
+    const state = wishState();
+    // objnam.c:4626-4661.  With no prefix or suffix the name falls through to
+    // the object lookup; " object" takes the object directly; anything else
+    // appended asks for an armed trap, which is outside the boundary.
+    assert.equal(wish(state, 'bear trap').obj.otyp, BEARTRAP);
+    assert.equal(wish(state, 'land mine').obj.otyp, LAND_MINE);
+    const direct = wish(state, 'beartrap object');
+    assert.equal(direct.obj.otyp, BEARTRAP);
+    assert.equal(direct.draws[0], 'rnd(2)'); // no lookup draw
+    assert.equal(wish(state, 'landmine object').obj.otyp, LAND_MINE);
+    assert.equal(wish(state, 'bear trap trap').refusal,
+                 'a wizard-mode trap wish');
+});
+
+test('readobjnam honors the count for a mergeable type', () => {
+    const state = wishState();
+    // objnam.c:5074-5084.  mksobj() rolls rn1(6, 6) arrows, and the count --
+    // 1, since readobjnam() supplies it when the player gives none -- then
+    // replaces that quantity because arrows carry oc_merge.
+    const { obj, draws } = wish(state, 'arrow');
+    assert.equal(obj.otyp, ARROW);
+    assert.equal(obj.quan, 1);
+    assert.ok(draws.includes('rn1(6,6)'), 'mksobj() rolled a stack');
+});
+
+test('readobjnam refuses each glob spelling', () => {
+    const state = wishState();
+    // objnam.c:4340-4345 recognizes six shapes, and all of them draw rn1() at
+    // 4354 for a monster type it cannot resolve.
+    for (const text of [
+        'glob', 'gray ooze glob', 'globs', 'gray ooze globs',
+        'glob of gray ooze', 'globs of gray ooze',
+    ]) {
+        const { refusal, draws } = wish(state, text);
+        assert.equal(refusal, 'a glob wish', text);
+        assert.deepEqual(draws, [], text);
+    }
+});
+
+test('readobjnam refuses the branches that leave the typfnd tail', () => {
+    const state = wishState();
+    const reason = (text) => wish(state, text).refusal;
+    // objnam.c:4531-4544, gold, which returns its object before typfnd:.
+    for (const text of ['gold', 'money', 'coin', 'zorkmid', '$100'])
+        assert.equal(reason(text), 'a wish for gold', text);
+    // 4547-4551, a single character, which is either a class symbol or
+    // nothing at all.
+    assert.equal(reason('/'), 'a one-character wish');
+    // 4374-4386, a tin, and 4686-4714, a worthless glass gem.
+    assert.equal(reason('tin of spinach'),
+                 'a wish for a corpse, statue, figurine, egg or tin');
+    assert.equal(reason('worthless piece of blue glass'), 'a glass-gem wish');
+    // 4260-4270's " named ", which the oname() tail cannot finish.
+    assert.equal(reason('long sword named Foo'), 'a " named " wish');
+    // 4152-4174's corpse/statue/figurine gender hack.
+    assert.equal(reason('statue of a gnome'),
+                 'a "corpse/statue/figurine of" wish');
 });

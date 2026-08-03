@@ -661,6 +661,7 @@
         "js/objnam_data.js",
         "js/objnam_readobjnam.js",
         "js/pickup.js",
+        "js/questpgr.js",
         "js/steal.js",
         "js/u_init_inventory.js",
         "js/u_init_inventory_data.js",
