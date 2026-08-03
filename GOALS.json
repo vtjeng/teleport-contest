@@ -209,6 +209,11 @@
           "name": "a wizard-mode hero wishes for a bare object name, readobjnam() resolves it to one objects[] entry, and hold_another_object() prints its inventory letter line",
           "status": "closed",
           "closedBy": "cd00dc4d9c25785710d13fc12c969b50543c9f08"
+        },
+        {
+          "name": "a wizard-mode hero wishes with a blessed/cursed/uncursed word and a +N/-N enchantment, readobjnam()'s typfnd: tail applies both, and a dragon-named scale mail becomes that dragon's scale mail",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "364408ca14fbd535139416badea0e1f3a6df0c9e",
