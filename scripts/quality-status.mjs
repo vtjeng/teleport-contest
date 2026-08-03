@@ -644,8 +644,32 @@ export function thresholdReached(current, dirty, commitThreshold, lineThreshold)
   return currentUnits >= commitThreshold || currentLines >= lineThreshold;
 }
 
+/**
+ * The gate's two states, which mean opposite things to a review pass.
+ *
+ * `debt` is review debt: implementation stops until a pass runs. A pass is the
+ * remedy, so `debt` must never stop one.
+ *
+ * `health` is whether the ledger can attribute a finding at all. An unassigned
+ * `js/` file has no area to route a finding to, so it stops everything,
+ * including a pass.
+ *
+ * Callers read whichever applies. `--check` guards a commit and reads both;
+ * `scripts/audit-worktree.mjs prepare --readiness` guards a pass and reads
+ * `health` alone. Collapsing the two into one boolean deadlocked the pass a
+ * `DUE` gate demands, because readiness refused on the debt the pass existed to
+ * clear.
+ */
+export function qualityGateState({ reviewDue, unassignedCount }) {
+  return {
+    debt: reviewDue > 0,
+    health: unassignedCount === 0,
+  };
+}
+
 export function qualityGateBlocked({ reviewDue, unassignedCount }) {
-  return reviewDue > 0 || unassignedCount > 0;
+  const { debt, health } = qualityGateState({ reviewDue, unassignedCount });
+  return debt || !health;
 }
 
 
@@ -997,12 +1021,11 @@ function printStatus(config, head, status, verbose) {
       : 'Review gate: clear.',
   );
 
-  return {
-    blocked: qualityGateBlocked({
-      reviewDue,
-      unassignedCount: status.unassigned.length,
-    }),
-  };
+  const gate = qualityGateState({
+    reviewDue,
+    unassignedCount: status.unassigned.length,
+  });
+  return { blocked: gate.debt || !gate.health, gate };
 }
 
 function parseOptions(args) {
@@ -1012,7 +1035,8 @@ function parseOptions(args) {
     if (!argument.startsWith('--')) fail(`unexpected argument: ${argument}`);
     const key = argument.slice(2);
     if (Object.hasOwn(options, key)) fail(`${argument} was provided twice`);
-    if (key === 'check' || key === 'verbose' || key === 'dry-run') {
+    if (key === 'check' || key === 'verbose' || key === 'dry-run'
+        || key === 'health') {
       options[key] = true;
       continue;
     }
@@ -1502,12 +1526,18 @@ export function main(argv) {
 
   const statusArgs = first === 'status' ? rest : argv;
   const options = parseOptions(statusArgs);
-  rejectUnknownOptions(options, new Set(['check', 'verbose']));
+  rejectUnknownOptions(options, new Set(['check', 'verbose', 'health']));
   const config = loadConfig();
   const head = resolveCommit('HEAD');
   const status = buildStatus(config, head);
   const result = printStatus(config, head, status, options.verbose === true);
-  if (options.check && result.blocked) process.exitCode = 1;
+  // --health narrows --check to the half a review pass must satisfy. A pass is
+  // the remedy for review debt, so debt cannot be a reason to refuse one; an
+  // unassigned js/ file still is, because a finding in it has no area to go to.
+  if (options.check) {
+    const failed = options.health ? !result.gate.health : result.blocked;
+    if (failed) process.exitCode = 1;
+  }
 }
 
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : '';

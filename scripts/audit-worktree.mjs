@@ -406,11 +406,47 @@ function repositoryRootFor(path = PROJECT_ROOT) {
 // passes; exit 2 there means a red baseline, which refuses like any red
 // command. .agents/review.md, "Readiness for a formal review pass", holds the
 // three hand-written attestations that remain.
+//
+// The quality check runs under --health, which reads the gate's health half
+// alone. The other half is review debt, and a pass is what clears it: a plain
+// --check refuses once the gate reaches DUE, so the pass the gate demands
+// could not be prepared. Health still refuses, because an unassigned js/ file
+// leaves a finding in it with no area to be routed to.
+/**
+ * The newest recorded head for `kind`, which is the frontier a pass must start
+ * at or before. Computed here rather than imported, because
+ * `scripts/quality-status.mjs` already imports `parseRange()` from this file
+ * and the reverse edge would close a cycle.
+ *
+ * A pass prepared over a range starting after the frontier would advance the
+ * frontier past commits nobody read, turning them into reviewed history.
+ * `record-review` refuses that, but only once the pass has already run;
+ * refusing here costs a second instead of an hour.
+ */
+export function reviewFrontier(config, kind, isAncestorOf) {
+    let frontier = config.enforcementBase;
+    for (const pass of config.passes ?? []) {
+        if (pass.kind !== kind) continue;
+        if (isAncestorOf(frontier, pass.head)) frontier = pass.head;
+    }
+    return frontier;
+}
+
+export function assertRangeCoversFrontier(base, frontier, isAncestorOf) {
+    if (isAncestorOf(base, frontier)) return;
+    throw new Error(
+        `audit base ${base.slice(0, 8)} sits after the review frontier `
+        + `${frontier.slice(0, 8)}. Recording a pass over this range would `
+        + 'advance the frontier past commits no pass read. Start the range at '
+        + `${frontier.slice(0, 8)}.`,
+    );
+}
+
 export function readinessCommands(base, head) {
     return [
         { label: 'checkpoint', command: 'npm', args: ['run', 'checkpoint'] },
         { label: 'quality check', command: 'npm',
-            args: ['run', 'quality', '--', '--check'] },
+            args: ['run', 'quality', '--', '--check', '--health'] },
         { label: 'range mutation', command: 'npm',
             args: ['run', 'mutate', '--', '--range', `${base}..${head}`,
                 '--kind', 'relational,logical,boolean'] },
@@ -467,6 +503,19 @@ export function prepareAuditWorktree({
     );
     if (ancestry.status !== 0) {
         throw new Error('audit base is not an ancestor of audit head');
+    }
+
+    // The range must reach back to the frontier, so recording it cannot
+    // advance the frontier past commits no pass read.
+    const qualityPath = resolve(root, 'QUALITY.json');
+    if (existsSync(qualityPath)) {
+        const isAncestorOf = (ancestor, descendant) => ancestor === descendant
+            || runGit(root, ['merge-base', '--is-ancestor', ancestor,
+                descendant], { allowFailure: true }).status === 0;
+        const config = JSON.parse(readUtf8(qualityPath, 'quality ledger'));
+        assertRangeCoversFrontier(
+            base, reviewFrontier(config, 'review', isAncestorOf), isAncestorOf,
+        );
     }
 
     if (!/^[a-z0-9][a-z0-9:-]*$/u.test(skill)) {

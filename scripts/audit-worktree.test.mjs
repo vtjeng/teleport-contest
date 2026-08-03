@@ -22,6 +22,9 @@ import {
     prepareAuditWorktree,
     runReadiness,
     validateChecklist,
+    assertRangeCoversFrontier,
+    readinessCommands,
+    reviewFrontier,
 } from './audit-worktree.mjs';
 
 function git(repositoryRoot, ...args) {
@@ -418,4 +421,49 @@ test('prepare accepts --readiness as a boolean option', () => {
     const without = parseAuditArgs(['prepare', '--range', 'a..b',
         '--skill', 's', '--skill-path', 'p', '--prompt', 'q']);
     assert.equal(without.readiness, false);
+});
+
+// The gate's two halves mean opposite things to a pass. readinessCommands()
+// must ask for the health half alone: a plain --check refuses once the review
+// gate reaches DUE, which is exactly when a pass is required, so the pass the
+// gate demands could not be prepared.
+test('readiness asks the quality gate for its health half alone', () => {
+    const quality = readinessCommands('base', 'head')
+        .find((entry) => entry.label === 'quality check');
+    assert.deepEqual(quality.args, ['run', 'quality', '--', '--check', '--health']);
+});
+
+// reviewFrontier() takes the newest recorded review head, and ignores
+// simplification passes, which carry their own frontier.
+test('the review frontier is the newest recorded review head', () => {
+    const isAncestorOf = (a, b) => a === b || Number(a) < Number(b);
+    const config = {
+        enforcementBase: '10',
+        passes: [
+            { kind: 'review', head: '20' },
+            { kind: 'simplification', head: '90' },
+            { kind: 'review', head: '30' },
+        ],
+    };
+    assert.equal(reviewFrontier(config, 'review', isAncestorOf), '30');
+    // With no recorded pass the frontier is the enforcement base.
+    assert.equal(
+        reviewFrontier({ enforcementBase: '10', passes: [] }, 'review',
+            isAncestorOf),
+        '10',
+    );
+});
+
+// prepare() checks this before running anything, because record-review refuses
+// the same range only after the whole pass has run.
+test('a range starting after the frontier is refused', () => {
+    const isAncestorOf = (a, b) => a === b || Number(a) < Number(b);
+    // At the frontier, and before it, both cover it.
+    assertRangeCoversFrontier('30', '30', isAncestorOf);
+    assertRangeCoversFrontier('20', '30', isAncestorOf);
+    // After it, the commits between would become reviewed history unread.
+    assert.throws(
+        () => assertRangeCoversFrontier('40', '30', isAncestorOf),
+        /sits after the review frontier/u,
+    );
 });

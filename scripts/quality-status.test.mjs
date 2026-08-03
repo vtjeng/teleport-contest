@@ -13,6 +13,7 @@ import {
   parseAuditFixCommitLog,
   parseNumstat,
   qualityGateBlocked,
+  qualityGateState,
   relocationCommits,
   thresholdReached,
   validateAuditedRangeCoverage,
@@ -1019,4 +1020,32 @@ test('the recorder accepts every option its pass record can carry', () => {
     // separately.
     assert.ok(passOptionNames('review').has('level'));
     assert.ok(!passOptionNames('simplification').has('level'));
+});
+
+// The two halves mean opposite things to a review pass, which is why they are
+// returned separately. Review debt is what a pass clears, so it must never
+// refuse one; an unassigned js/ file leaves a finding with no area to be routed
+// to, so it refuses everything. Collapsing them deadlocked the pass a DUE gate
+// demands, because readiness refused on the debt the pass existed to clear.
+test('the quality gate reports debt and health as separate facts', () => {
+    // Clean: no debt, healthy.
+    assert.deepEqual(
+        qualityGateState({ reviewDue: 0, unassignedCount: 0 }),
+        { debt: false, health: true },
+    );
+    // Debt alone. A pass must still be preparable here; this is the state that
+    // used to deadlock it.
+    assert.deepEqual(
+        qualityGateState({ reviewDue: 1, unassignedCount: 0 }),
+        { debt: true, health: true },
+    );
+    // An unassigned file alone stops a pass too, with no debt in sight.
+    assert.deepEqual(
+        qualityGateState({ reviewDue: 0, unassignedCount: 1 }),
+        { debt: false, health: false },
+    );
+    // The combined predicate keeps its meaning for a commit guard.
+    assert.equal(qualityGateBlocked({ reviewDue: 1, unassignedCount: 0 }), true);
+    assert.equal(qualityGateBlocked({ reviewDue: 0, unassignedCount: 1 }), true);
+    assert.equal(qualityGateBlocked({ reviewDue: 0, unassignedCount: 0 }), false);
 });
