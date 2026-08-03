@@ -655,6 +655,114 @@
       "status": "open",
       "from": "4aaee0e6c0bc8ba846176c87ae2b898ed93cfd05",
       "detail": "A wish for SACK, OILSKIN_SACK or BAG_OF_HOLDING after move 1 stops the segment at the submit, where C runs mkbox_cnts() (mkobj.c:304-382) with n = 1, so rn2(2) can place one random item inside. C's first unmatched call is rnd(2) from next_ident(mkobj.c:521). Found while selecting the first slice of wizard-level-teleport, by fresh differential: seeds 6620141-6620147, datetime 20310417113000, playmode:debug,pettype:none. Wand, ring and scroll wishes pass call for call and screen for screen at the same seeds; only the container class diverges. The container machinery is ported already, at js/mkobj_container.js and js/obj.js:1025-1054, so this is a wiring or content-class refusal on the wish path rather than a missing port. Cost to the current goal is one step: seed5006-tourist-stress-disaster wishes 'cursed bag of holding' as its last wish, submitting at move 108 of a stretch the census caps at move 109 on P, puton. Reproduce with: node scripts/diff-fresh.mjs --seed 6620144 --datetime 20310417113000 --name Wshr --role Wizard --race human --gender male --align neutral --options 'pettype:none,!acoustics,playmode:debug' --moves $'.\\x17cursed sack\\n.'  Closing condition: the wished-for container reaches hold_another_object() with the contents mkbox_cnts() gives it, matching C call for call, or a refusal that stops before the first divergent draw."
+    },
+    {
+      "id": "wlt-checklist-contract",
+      "area": "commands",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "The committed implementation checklist remains at implementation mode/old commit and retains stale future-tense ownership; close by committing or retiring an exact-head source map after the expanded slice is verified."
+    },
+    {
+      "id": "wlt-goto-level-header",
+      "area": "commands",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "js/do.js goto_level() header still describes a staircase-only port after non-stair level teleport became supported; close by documenting both callers and their placement/message branches."
+    },
+    {
+      "id": "wlt-special-room-generation",
+      "area": "generation",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "Ordinary numeric destinations can select COURT or another unsupported special-room type and stop before arrival; port every room type reachable under the positive-decimal destination boundary with source PRNG order."
+    },
+    {
+      "id": "wlt-quest-entrance-arrival",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "A numeric destination at the ordinary main-dungeon Quest entrance throws after repaint instead of updating qcalled and delivering the source quest pager flow."
+    },
+    {
+      "id": "wlt-shop-arrival",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "Random level-teleport placement can land inside a generated shop and stop in check_special_room(); port reachable shop-entry state and greeting behavior."
+    },
+    {
+      "id": "wlt-autopickup-arrival",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "Random arrival can select a floor-object square; with autopickup enabled goto_level() stops at pickup(1) instead of performing source inventory, burden, and message behavior."
+    },
+    {
+      "id": "wlt-dwarf-earth-sense",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "A dwarf can land over a buried object and abort in earth_sense(); port the source-ordered notice and continue through the arrival boundary."
+    },
+    {
+      "id": "wlt-mkmaze-owner-comment",
+      "area": "generation",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "js/mkmaze.js attributes u_on_upstairs() to mklev.c although the source and JavaScript owners are stairs.c and js/stairs.js."
+    },
+    {
+      "id": "wlt-atoi-overflow",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "level_tele() cAtoi() fails to reproduce recorder-ABI signed 32-bit narrowing for overflowing positive decimals; implement long saturation, int32 narrowing, C whitespace, and strict boundary cases."
+    },
+    {
+      "id": "wlt-level-tele-header",
+      "area": "monsters",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "js/teleport.js level_tele() header still says every destination-resolution path refuses, hiding the now-supported positive-decimal scheduling tail."
+    },
+    {
+      "id": "wlt-special-level-preflight",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "A numeric destination resolving to a special level is scheduled and generated as an ordinary map before failing; reject the identity before scheduling with no new state, output, or randomness."
+    },
+    {
+      "id": "wlt-arrival-recipe-full-moon",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "detail": "The three-case fresh recipe uses a full-moon date whose pending More prompt consumes the level-teleport inputs; realign the input/date and assert final levels and dispatch counts."
     }
   ],
   "areas": [
@@ -6636,6 +6744,223 @@
         }
       },
       "recordedAt": "2026-08-03T06:49:25.051Z"
+    },
+    {
+      "kind": "review",
+      "head": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "auditedRange": "41cd43b4572fa43c313cde84e7e6d3451e379bd9..5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
+      "level": "full",
+      "areas": [
+        "startup",
+        "generation",
+        "monsters",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 14 raw, 14 deduplicated, 12 confirmed, 0 applied, 12 deferred, 2 rejected, 0 unverified; mutation: 27 survivors of 75 mutants. Full pass found seven scope-expanding production gaps, four clarity defects, and one invalid live-consumer recipe. No fixes were applied; all 12 findings are deferred and the loop returns to Implementation. The fresh three-case matrix was invalid because a full-moon More prompt consumed its inputs.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1567,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 14,
+          "confirmed": 12,
+          "applied": 0,
+          "deferred": 12,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 7,
+          "tests": 1,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "concurrency",
+          "variable-trace"
+        ],
+        "optionalFinders": {
+          "concurrency": "enabled: the range adds awaited asynchronous deferred level-change control flow, shared transition state, and deferred-message cleanup after rhack()",
+          "performance": "not enabled: the only amplified loop is mkmaze.c's source-required 200-attempt placement algorithm, with no plausible material regression beyond upstream behavior"
+        },
+        "productionDefects": [
+          {
+            "file": "js/do.js",
+            "summary": "Ordinary D:5 generation can select a court or another non-shop special-room type and stop before arrival.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/do.js",
+            "summary": "Teleporting to the ordinary main-dungeon Quest entrance throws after repaint instead of delivering the quest call.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/do.js",
+            "summary": "A random clear arrival inside a generated shop stops in check_special_room().",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/do.js",
+            "summary": "Autopickup makes valid object-bearing arrival squares stop before the next command.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/dungeon.js",
+            "summary": "A dwarf landing over a buried object aborts in earth_sense() before the arrival screen.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/teleport.js",
+            "summary": "cAtoi() does not reproduce the recorder ABI's signed 32-bit int result for overflowing positive decimals.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "file": "js/teleport.js",
+            "summary": "A numeric destination that resolves to a special level is scheduled and generated as an ordinary level before any fail-closed boundary.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "The committed checklist remains in implementation mode at an older checked commit and contains stale future-tense ownership descriptions.",
+            "category": "clarity",
+            "trackedIn": "wlt-checklist-contract"
+          },
+          {
+            "summary": "The goto_level() header still describes a staircase-descent-only port after the range added non-stair level-teleport arrivals.",
+            "category": "clarity",
+            "trackedIn": "wlt-goto-level-header"
+          },
+          {
+            "summary": "Ordinary D:5 generation can select a court or another non-shop special-room type and stop before arrival.",
+            "category": "production",
+            "trackedIn": "wlt-special-room-generation"
+          },
+          {
+            "summary": "Teleporting to the ordinary main-dungeon Quest entrance throws after repaint instead of delivering the quest call.",
+            "category": "production",
+            "trackedIn": "wlt-quest-entrance-arrival"
+          },
+          {
+            "summary": "A random clear arrival inside a generated shop stops in check_special_room().",
+            "category": "production",
+            "trackedIn": "wlt-shop-arrival"
+          },
+          {
+            "summary": "Autopickup makes valid object-bearing arrival squares stop before the next command.",
+            "category": "production",
+            "trackedIn": "wlt-autopickup-arrival"
+          },
+          {
+            "summary": "A dwarf landing over a buried object aborts in earth_sense() before the arrival screen.",
+            "category": "production",
+            "trackedIn": "wlt-dwarf-earth-sense"
+          },
+          {
+            "summary": "The module header attributes u_on_upstairs() to mklev.c although the source and JavaScript owners are stairs.c and js/stairs.js.",
+            "category": "clarity",
+            "trackedIn": "wlt-mkmaze-owner-comment"
+          },
+          {
+            "summary": "cAtoi() does not reproduce the recorder ABI's signed 32-bit int result for overflowing positive decimals.",
+            "category": "production",
+            "trackedIn": "wlt-atoi-overflow"
+          },
+          {
+            "summary": "The level_tele() header still says every destination-resolution path stops with a refusal.",
+            "category": "clarity",
+            "trackedIn": "wlt-level-tele-header"
+          },
+          {
+            "summary": "A numeric destination that resolves to a special level is scheduled and generated as an ordinary level before any fail-closed boundary.",
+            "category": "production",
+            "trackedIn": "wlt-special-level-preflight"
+          },
+          {
+            "summary": "The three-case arrival recipe never invokes level teleport because its fixed date produces a pending full-moon More prompt.",
+            "category": "tests",
+            "trackedIn": "wlt-arrival-recipe-full-moon"
+          }
+        ],
+        "mutation": {
+          "mutants": 75,
+          "survivors": 27,
+          "byKind": {
+            "boolean": {
+              "ran": 11,
+              "killed": 10
+            },
+            "logical": {
+              "ran": 45,
+              "killed": 31
+            },
+            "relational": {
+              "ran": 19,
+              "killed": 7
+            }
+          },
+          "finderConclusion": "The test-quality finder traced all 27 first-wave survivors individually. Three are killed by transitive tests or broader execution, twelve are behaviorally equivalent under the selected numeric boundary, and twelve affect only excluded or unreachable paths; none identifies a missing in-boundary assertion. This window run is the authoritative mutation record and supersedes the interrupted slice's missing trailer and the closing commit's staged-diff 0/0 trailer."
+        },
+        "rejections": [
+          {
+            "summary": "runDeferredGotoAtTurnBoundary() allegedly creates an undocumented cross-boundary dependency on failClosedCommandRefusals().",
+            "counterEvidence": "js/allmain.js:409-412 explicitly explains that deferred_goto() runs outside failClosedCommand() and reuses the same owner-specific refusals; a pre-range occupation boundary already reused the registry at lines 909-915. Do not reopen without a concrete refusal that this documented shared registry classifies incorrectly."
+          },
+          {
+            "summary": "A buried-ball hero is allegedly a reachable positive-decimal path that should convert the ball back into punishment.",
+            "counterEvidence": "The only production assignment is setBuriedBallTrap() through bury_an_obj(state.uball), but no production caller establishes state.uball or invokes setworn() with W_BALL. Observed TT_BURIEDBALL states require fixture injection. Do not reopen without a valid production seed/options/input sequence reaching the prompt with that state."
+          }
+        ],
+        "readiness": {
+          "boundary": "Starts when Enter submits a positive decimal answer at the wizard level-teleport prompt and ends at the destination arrival screen plus the next command boundary. The audited code is reached by both Ctrl-V and #wizlevelport, and the development sessions execute the deferred transition; the pass discovered that the intended fresh three-case recipe did not execute it.",
+          "sourceReview": "The pass traced teleport.c level_tele(); do.c schedule_goto(), deferred_goto(), goto_level() and arrival feedback; dungeon.c topology and random placement helpers; mkmaze.c region placement; allmain.c's post-rhack call; every affected caller and focused test; and all 27 mutation survivors. It identified reachable generator, Quest entrance, shop, pickup, earth-sense, integer-conversion and special-level gaps plus four source-contract documentation defects and one invalid live-consumer recipe.",
+          "completeness": "NOT COMPLETE after audit: seven confirmed production gaps remain reachable under the stated positive-decimal boundary, the fresh recipe did not cross the prompt, and four clarity findings remain. All twelve findings are recorded as deferrals and the loop returns to Implementation before any goal-close claim or holdout evaluation."
+        },
+        "validation": {
+          "machineReadiness": "Prepared exact-head checkpoint, quality health, and 75-mutant frozen-range run were green as commands; mutation survivors were findings rather than command failures.",
+          "suppliedCheckpoint": "1/33 development sessions, 115661/610816 RNG, 965/7765 screens, 974/7765 cursors.",
+          "reviewCorrection": "The checked-in three-case matrix stayed on D:1 because a full-moon More prompt consumed its inputs; it is not accepted as fresh live-consumer evidence.",
+          "adjudicatorReproductions": [
+            "ordinary D:5 COURT refusal",
+            "main-dungeon Quest-entrance refusal",
+            "shop-interior arrival refusal",
+            "object-bearing autopickup refusal",
+            "dwarf buried-object earth-sense refusal",
+            "overflow input 4294967297 taking the wrong refusal",
+            "numeric Oracle-depth ordinary generation",
+            "all three checked-in recipes remaining on D:1"
+          ],
+          "worktree": "clean; no review changes applied"
+        },
+        "warnings": []
+      },
+      "recordedAt": "2026-08-03T21:18:42.144Z"
     }
   ]
 }

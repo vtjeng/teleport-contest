@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The worker traced and implemented every entry through the positive-decimal arrival boundary, and the focused tests plus the fresh three-case differential support the done claims below. The checklist remains in implementation mode and commitChecked remains at the last orchestrator-verified commit until the orchestrator independently checks the landed commit; only that verification may change this file to ready-for-audit.",
-  "commitChecked": "496e4f3f94d8caf8dbc926ad38620a2d57f8e501",
+  "reason": "The full correctness pass through 5fdcb62 found seven reachable production gaps, four source-contract clarity defects, and one invalid live-consumer recipe. The fixed recipe's full-moon More prompt consumed the teleport inputs, so the earlier three-case result is not evidence. The review findings are tracked in QUALITY.json and this checklist returns to implementation until the expanded boundary is implemented and freshly proved.",
+  "commitChecked": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
   "boundary": {
     "goalId": "wizard-level-teleport",
     "startingCommit": "7bf8ee7e",
@@ -16,7 +16,7 @@
     "dispatchTablesAndCatalogs": "dungeon.c's dungeons[] and level_info[] flags, read by get_level() for LFILE_EXISTS, and the branch chain find_branch() walks. No new table is copied by this slice.",
     "reachableHelpers": "mklev.c occupied() 1806-1812 is already ported, at js/mktrap.js:158, and bad_location() must call it rather than a second copy. next_to_u() is ported at js/apply_next_to_u.js and answers TRUE for an ordinary hero with a pet, so level_tele()'s You1(shudder_for_moment) guard passes without new work. find_level() is ported at js/dungeon.js:803. In_W_tower() and On_W_tower_level() are unported and needed for goto_level()'s was_in_W_tower; both are false above the Wizard's tower, so a small ported guard suffices.",
     "javascriptCrossCheck": "Verified at 496e4f3 by the orchestrator, not accepted from a report. js/teleport.js throws UnsupportedLevelChangeError('level_tele() resolving a typed destination') where the resolution begins. grep -c UnsupportedLevelChangeError js/jsmain.js returns 0, so that class is not among the six boundary classes js/jsmain.js:527-549 breaks a segment for; it sits only in failClosedCommandRefusals() (js/cmd.js:919), which the command wrapper alone consults. js/mklev.js:200-238 stubs place_lregion() and bad_location() as 'simplified for skeleton', and no js/mkmaze.js exists. js/stairs.js:87-94 holds duplicate dunlev() and single_level_branch() behind a comment saying they stay there rather than becoming a dungeon.c port they do not represent; this slice retires that justification. js/allmain.js:626 elapsedTurnPlanningRefusals() is the wrapper the turn loop already uses, and js/allmain.js:940-946 holds the two rhack() call sites the new site follows.",
-    "remainingLimits": "The two original limits are resolved inside the selected boundary. scripts/level-teleport-arrival.test.mjs pins trap rejection, monster rejection and the third clear ROOM acceptance to three exact rn1 coordinate pairs without disturbing the trap or monster; it also pins AIR, maze CORR, restricted-area and exclusion-zone decisions. scripts/run-level-teleport-arrival.mjs freshly matched an ordinary D:5 destination as well as D:2 with a Mines branch and the same-level D:1 control. The deterministic oneshot cleanup after 200 failures, special destinations and restored levels remain explicit boundary exclusions and fail closed."
+    "remainingLimits": "The formal pass proved that the previous three-case recipe never crossed the prompt, and reproduced reachable stops for special-room generation, the ordinary Quest entrance, shop entry, object-bearing autopickup, dwarf earth sense, overflowing decimal conversion, and a numeric destination resolving to a special level. Those source families and a corrected live recipe now belong to this slice. The deterministic oneshot cleanup after 200 failures and restored levels remain explicit exclusions."
   },
   "entries": [
     {
@@ -24,16 +24,16 @@
       "reachability": "Reached from js/teleport.js level_tele() where the current refusal stands. Spends rnl(5) only for a confused hero, which the fixtures exclude.",
       "owner": "js/teleport.js level_tele().",
       "effects": "Resolves the typed answer to newlev and calls schedule_goto().",
-      "evidence": "js/teleport.js level_tele() resolves lev_by_name()/atoi(), applies the positive-destination guards in source order and schedules the destination. scripts/wizard-level-tele.test.mjs pins schedule-only state and zero draws; scripts/run-level-teleport-arrival.mjs reaches it in all three fresh cases.",
-      "status": "done",
-      "remaining": "No work inside the positive-decimal boundary. Invalid retries, named/special answers, Nowhere and negative destinations retain named fail-closed exits because the boundary excludes them."
+      "evidence": "The full review reproduced 4294967297 taking a different branch from the recorder ABI and a numeric Oracle-depth destination being generated as an ordinary level. The checked-in recipe did not reach this function because of the pending full-moon prompt.",
+      "status": "missing",
+      "remaining": "Match the recorder ABI's strtol-to-signed-int narrowing, reject unsupported special-level destinations before scheduling or side effects, and prove ordinary positive destinations through a corrected live recipe."
     },
     {
       "candidate": "dungeon.c lev_by_name() 2098-2170 and get_level() 1802-1846",
       "reachability": "Called from level_tele()'s tail for every typed answer. For a numeric answer find_mapseen_by_str() has nothing to search, the port keeping no mapseen chain, so the else arm runs find_level() and find_branch() and returns 0, leaving atoi() to supply newlev.",
       "owner": "js/dungeon.js, to be added.",
       "effects": "Pure: no draw, no output, no state change.",
-      "evidence": "js/dungeon.js carries both find_branch() forms, lev_by_name() and get_level() from dungeon.c. scripts/level-teleport-arrival.test.mjs proves a numeric answer returns 0 without creating level_info state, translates D:5 and clamps an overlarge depth; the fresh matrix proves D:2 and D:5 live consumers.",
+      "evidence": "js/dungeon.js carries both find_branch() forms, lev_by_name() and get_level() from dungeon.c. scripts/level-teleport-arrival.test.mjs proves a numeric answer returns 0 without creating level_info state, translates D:5 and clamps an overlarge depth. Live-consumer proof remains pending because the previous matrix never crossed the prompt.",
       "status": "done",
       "remaining": "No work for numeric input. The unmodelled mapseen annotation chain cannot affect a numeric string and named destinations remain outside this boundary."
     },
@@ -51,9 +51,9 @@
       "reachability": "schedule_goto() from level_tele()'s tail; deferred_goto() from the new allmain.c:538-539 call site, which runs outside rhack().",
       "owner": "js/do.js, to be added; the call site in js/allmain.js after the rhack() calls at 940-946.",
       "effects": "Carries the transition out of the command and into the turn loop. wiz_level_tele() returns ECMD_OK, so no time passes and no monster moves in between.",
-      "evidence": "js/do.js ports schedule_goto(), deferred_goto() and maybe_lvltport_feedback(); js/allmain.js calls deferred_goto() immediately after either rhack() arm. The scheduling and same-level cleanup unit tests pin the deferred bit, destination, messages and zero draws; the strict fresh matrix proves changed-level delivery and arrival-message order.",
-      "status": "done",
-      "remaining": "The independent allmain.c:385-386 monster-loop site remains deliberately refused and outside this command-to-arrival slice."
+      "evidence": "The scheduling and same-level cleanup unit tests pin the deferred bit, destination, messages and zero draws. The formal review invalidated the claimed fresh matrix, so changed-level delivery still needs live proof after the reachable arrival-tail gaps are implemented.",
+      "status": "missing",
+      "remaining": "Preserve the ported scheduling order while completing goto_level()'s reachable generator and arrival effects, then prove changed-level delivery through the next command boundary. The independent allmain.c:385-386 monster-loop site remains outside this slice."
     },
     {
       "candidate": "The refusal wrapper for the new deferred_goto() call site",
@@ -69,38 +69,122 @@
       "reachability": "js/do.js:540-544 throws 'goto_level() arriving without stairs' today. The up refusal at 545-550 stays dead: both destinations are below D:1.",
       "owner": "js/do.js goto_level().",
       "effects": "Places the hero through u_on_rndspot() and ends in pickup(1) on whatever square rn1 chose.",
-      "evidence": "js/do.js goto_level() calls u_on_rndspot() when at_stairs is false, skips staircase transit text, then runs the existing deliveries, repaint, feedback and pickup tail. The D:2 and D:5 fresh cases match every PRNG call, screen and cursor through the next command.",
-      "status": "done",
-      "remaining": "The existing pickup object-pile refusal stays owned by the queued object-pile-window goal and did not fire in the reproducible matrix."
+      "evidence": "The full review reproduced valid stops at the ordinary Quest entrance, inside a generated shop, on an object-bearing autopickup square, and for a dwarf over a buried object. The previous D:2/D:5 recipe stayed on D:1 and provides no live proof.",
+      "status": "missing",
+      "remaining": "Port the reachable quest-call, room-entry, pickup, and earth-sense effects in upstream order and prove them with fresh C/JavaScript cases."
     },
     {
       "candidate": "dungeon.c u_on_rndspot() 1605-1638",
       "reachability": "Called from goto_level()'s arrival arm. Its in-scope work is place_lregion(..., LR_DOWNTELE, 0) plus switch_terrain(), whose arms are all dead for an ordinary hero on a ROOM square.",
       "owner": "js/dungeon.js, to be added.",
       "effects": "Chooses the arrival square.",
-      "evidence": "js/dungeon.js u_on_rndspot() ports all three region selections and the switch_terrain() call, with the ordinary ROOM reasoning recorded at the function. scripts/level-teleport-arrival.test.mjs drives the LR_DOWNTELE consumer through three exact random candidates.",
-      "status": "done",
-      "remaining": "None for an ordinary ROOM arrival."
+      "evidence": "Focused tests cover the LR_DOWNTELE placement helper, but the formal review invalidated the live recipe and found downstream effects on valid selected squares that still stop before the arrival boundary.",
+      "status": "missing",
+      "remaining": "Keep the placement order intact while the downstream room, pickup, and earth-sense consumers are completed, then prove an ordinary ROOM arrival live."
     },
     {
       "candidate": "mkmaze.c place_lregion() 355-408, put_lregion_here() 412-467, bad_location() 340-352 and is_exclusion_zone() 316-332",
       "reachability": "place_lregion() from u_on_rndspot(). Its two existing call sites are dead in the scored replay: js/tutorial_startup.js:196 needs the tutorial, which all 45 development segments decline, and js/mklev.js:248 u_on_upstairs() reaches it only on a level with neither an ordinary nor a special up stair, which js/dungeon.js:926-929 records as never observed.",
       "owner": "A new js/mkmaze.js, with js/mklev.js:200-238's stubs deleted and js/mklev.js:248 and js/tutorial_startup.js:196 repointed.",
       "effects": "Spends rn1((hx-lx)+1, lx) and rn1((hy-ly)+1, ly) per try, retrying about three times in four on the ROOM test.",
-      "evidence": "js/mkmaze.js ports the four-function group, calls js/mktrap.js occupied(), and is assigned to QUALITY.json area generation. The focused test pins ROOM/AIR/maze-CORR acceptance, restricted and exclusion rejection, a trap retry, a monster retry, the exact six rn2 calls underlying three rn1 pairs, and an unchanged trap and monster.",
-      "status": "done",
-      "remaining": "No work in the probabilistic LR_DOWNTELE path. The excluded deterministic oneshot trap deletion and monster relocation retain explicit UnsupportedRegionPlacementError exits."
+      "evidence": "Focused tests pin the placement helper itself. The full review reproduced ordinary D:5 generation selecting COURT and stopping before placement, so the live consumer is not yet complete.",
+      "status": "missing",
+      "remaining": "Port every special-room type reachable while generating an in-boundary ordinary destination, beginning with COURT, without changing source RNG order. The excluded deterministic oneshot trap deletion and monster relocation retain explicit UnsupportedRegionPlacementError exits."
     },
     {
       "candidate": "In_W_tower() and On_W_tower_level(), for goto_level()'s was_in_W_tower",
       "reachability": "Read once per arrival.",
       "owner": "js/dungeon.js, to be added.",
       "effects": "Pure.",
-      "evidence": "js/dungeon.js ports both predicates and goto_level() captures was_in_W_tower before leaving. The focused test pins an ordinary-level miss plus the tower-level inside/outside coordinate branches; every fresh destination is above the Wizard's tower and takes the source-false path.",
+      "evidence": "js/dungeon.js ports both predicates and goto_level() captures was_in_W_tower before leaving. The focused test pins an ordinary-level miss plus the tower-level inside/outside coordinate branches; the selected ordinary destinations are above the Wizard's tower and take the source-false path.",
       "status": "done",
       "remaining": "C's impossible()+FALSE result for a Wizard-tower level with no boundary remains an explicit throw outside this slice; the valid inputs cannot reach any Wizard-tower level."
+    },
+    {
+      "candidate": "mkroom.c special-room selection and generation reachable from an ordinary destination's mklev()",
+      "reachability": "The ordinary D:5 generator can select COURT or another supported special-room enum before u_on_rndspot(); seed 2 reproduced the current stop.",
+      "owner": "js/mkroom.js and the existing generation call chain.",
+      "effects": "Consumes source-ordered random calls and changes rooms, terrain, monsters and objects before the arrival square is chosen.",
+      "evidence": "The formal correctness finder reproduced a COURT refusal on an otherwise valid positive-decimal D:5 transition.",
+      "status": "missing",
+      "remaining": "Trace the reachable room-type dispatch from upstream, port the complete common branch family needed by ordinary generation, and add focused plus live differential coverage."
+    },
+    {
+      "candidate": "do.c ordinary main-dungeon Quest-entrance arrival feedback",
+      "reachability": "A valid numeric destination can be the ordinary main-dungeon level containing the Quest entrance; seed 1 targeting D:13 reproduced the stop after repaint.",
+      "owner": "js/do.js goto_level() arrival feedback and the corresponding quest-message owner.",
+      "effects": "Sets the source quest-call state and emits the pager/message flow before the next command boundary.",
+      "evidence": "The formal correctness finder reproduced the JavaScript refusal after the arrival repaint where C continues with qcalled/pager behavior.",
+      "status": "missing",
+      "remaining": "Port the reachable Quest-entrance branch in source order and compare its state, messages, screens and cursor with a fresh C case."
+    },
+    {
+      "candidate": "do.c check_special_room() arrival handling for a generated shop",
+      "reachability": "Random clear placement can select a square inside a shop generated on an ordinary destination; seed 43 targeting D:2 reproduced the current stop.",
+      "owner": "js/do.js and the shop/room-entry source owner it calls.",
+      "effects": "Updates room-entry state and emits shop-entry effects before the next command boundary.",
+      "evidence": "The formal correctness finder reproduced check_special_room() stopping a valid shop-interior arrival.",
+      "status": "missing",
+      "remaining": "Trace and port the reachable shop-entry branch, including exact state and output order, then prove the branch live against C."
+    },
+    {
+      "candidate": "do.c goto_level() pickup(1) arrival tail on an object-bearing square",
+      "reachability": "An ordinary generated destination can place an object on the random clear arrival square while autopickup is enabled; seed 10 targeting D:2 reproduced the current stop.",
+      "owner": "The current JavaScript pickup/object command owner called by js/do.js.",
+      "effects": "Processes the object pile, inventory, messages and any source random calls before accepting the next command.",
+      "evidence": "The formal correctness finder reproduced the pickup(1) refusal on a valid object-bearing arrival square.",
+      "status": "missing",
+      "remaining": "Port the complete common autopickup effect through its next observable boundary and add focused and fresh C/JavaScript coverage."
+    },
+    {
+      "candidate": "dungeon.c earth_sense() arrival feedback for a dwarf over a buried object",
+      "reachability": "A dwarf can arrive on an ordinary clear square whose buried-object chain is nonempty; the formal review constructed a source-valid reproduction.",
+      "owner": "js/dungeon.js earth_sense() and the buried-object access it requires.",
+      "effects": "Emits the dwarf earth-sense feedback and continues to the arrival screen rather than aborting.",
+      "evidence": "The formal correctness finder confirmed that C prints the feedback and continues while JavaScript stops before the arrival screen.",
+      "status": "missing",
+      "remaining": "Port the reachable buried-object test and exact feedback without introducing a second owner for buried-object state, then prove a fresh dwarf case."
+    },
+    {
+      "candidate": "teleport.c numeric special-level destination before schedule_goto()",
+      "reachability": "A positive decimal can resolve through get_level() to an ordinary dungeon depth occupied by a special level; seed 4 at the Oracle depth reproduced ordinary generation of that special destination.",
+      "owner": "js/teleport.js level_tele() preflight.",
+      "effects": "The current port mutates deferred transition state and later consumes generation RNG; the selected boundary requires a fail-closed stop before either effect until special-level loading is ported.",
+      "evidence": "The formal correctness finder reproduced the Oracle depth being scheduled and generated as an ordinary level.",
+      "status": "missing",
+      "remaining": "Identify special destinations from source-owned dungeon topology before schedule_goto(), preserve zero state/output/RNG at the explicit refusal, and pin the preflight with a focused test."
+    },
+    {
+      "candidate": "Fresh C/JavaScript positive-decimal arrival recipe through the next command boundary",
+      "reachability": "Required validation for every completed gameplay case; the current fixed datetime is full moon and leaves a More prompt pending before Ctrl-V.",
+      "owner": "scripts/run-level-teleport-arrival.mjs and its assertion/oracle code.",
+      "effects": "No game behavior; it must prove that the intended input actually dispatched level teleport, reached the requested level, and accepted the trailing command.",
+      "evidence": "All three checked-in cases remained on D:1 because newline dismissed the More prompt only after the later inputs had already been consumed.",
+      "status": "missing",
+      "remaining": "Use a non-full-moon datetime or explicitly dismiss More, assert dispatch and final level, and cover the repaired common and audit-found branches with independently selected fresh cases."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Worker attestation pending orchestrator verification: traced teleport.c level_tele() through its positive numeric tail; dungeon.c get_level(), lev_by_name()'s numeric no-mapseen path, single_level_branch(), u_on_rndspot(), On_W_tower_level() and In_W_tower(); do.c schedule_goto(), deferred_goto(), maybe_lvltport_feedback() and goto_level() from pre-change tower capture through pickup; mkmaze.c is_exclusion_zone(), bad_location(), place_lregion() and put_lregion_here(); and allmain.c moveloop_core()'s post-rhack deferred call. Compared state mutation and PRNG/evaluation order directly with upstream, identified all named fail-closed/excluded paths, and found no missing branch reachable under boundary.validInputs."
+  "missingWorkByOwner": [
+    {
+      "group": "numeric destination preflight",
+      "candidates": ["teleport.c level_tele() positive-decimal tail", "teleport.c numeric special-level destination before schedule_goto()"],
+      "next": "Match signed-32-bit recorder conversion and fail closed for unsupported special destinations before any deferred state, output or random call. Resolve wlt-atoi-overflow and wlt-special-level-preflight."
+    },
+    {
+      "group": "ordinary destination generation",
+      "candidates": ["mkroom.c special-room selection and generation reachable from an ordinary destination's mklev()", "mkmaze.c random landing placement"],
+      "next": "Port reachable common special-room types beginning with COURT in exact source RNG order, then prove D:5 and other representative ordinary arrivals. Resolve wlt-special-room-generation."
+    },
+    {
+      "group": "arrival side effects",
+      "candidates": ["Quest-entrance arrival feedback", "check_special_room() shop entry", "pickup(1) autopickup", "dwarf earth_sense()"],
+      "next": "Port each reachable branch through the next command boundary with focused tests and fresh C differentials. Resolve wlt-quest-entrance-arrival, wlt-shop-arrival, wlt-autopickup-arrival and wlt-dwarf-earth-sense."
+    },
+    {
+      "group": "validation and source contracts",
+      "candidates": ["fresh positive-decimal arrival recipe", "checklist state", "goto_level(), level_tele() and mkmaze.js ownership comments"],
+      "next": "Correct the full-moon input alignment, add dispatch/final-level oracles, update stale source-owner comments and make the checklist accurately describe the final committed boundary. Resolve wlt-arrival-recipe-full-moon, wlt-checklist-contract, wlt-goto-level-header, wlt-mkmaze-owner-comment and wlt-level-tele-header."
+    }
+  ],
+  "sourceReview": "The full correctness pass through 5fdcb62 traced teleport.c level_tele(); do.c schedule_goto(), deferred_goto(), goto_level() and arrival feedback; dungeon.c topology and random placement helpers; mkmaze.c region placement; allmain.c's post-rhack call; every affected caller and focused test; and all 27 mutation survivors. It invalidated the earlier live matrix and identified reachable generator, Quest-entrance, shop, pickup, earth-sense, integer-conversion and special-level gaps plus four source-contract clarity defects. The source boundary is therefore not complete; implementation must expand through those first observables before readiness can be claimed again."
 }
