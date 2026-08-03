@@ -1,6 +1,7 @@
-// Monster destination selection and short-range relocation.
-// C ref: teleport.c goodpos(), enexto(), enexto_core(), collect_coords();
-// mon.c mnexto().
+// Monster destination selection and short-range relocation, plus the hero's
+// own level teleport.
+// C ref: teleport.c goodpos(), enexto(), enexto_core(), collect_coords(),
+// level_tele(); mon.c mnexto().
 
 import {
     ACCESSIBLE,
@@ -14,6 +15,7 @@ import {
     CC_SKIP_MONS,
     CC_UNSHUFFLED,
     COLNO,
+    CONFUSION,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -64,7 +66,9 @@ import {
     monsterCommonName,
 } from './do_name.js';
 import { newsym, see_monsters } from './display.js';
+import { UnsupportedLevelChangeError } from './do.js';
 import { engr_at } from './engrave.js';
+import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import {
     invocation_message,
@@ -115,7 +119,7 @@ import { sobj_at } from './obj.js';
 import { BOULDER, SCR_SCARE_MONSTER } from './objects.js';
 import { within_bounded_area } from './rect.js';
 import { update_monster_region, update_player_regions } from './region.js';
-import { rn2, rnd } from './rng.js';
+import { rn2, rnd, rnl } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -1118,4 +1122,78 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     invocation_message(state);
     notice_mon_on(state);
     await notice_all_mons(true, state);
+}
+
+// youprop.h:83-84 defines Confusion as the bare intrinsic field, with neither
+// an extrinsic nor a blocked term.
+function Confusion(state) {
+    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
+}
+
+// C ref: teleport.c level_tele() (1164-1249), the head that opens the prompt
+// and classifies the four answers C recognizes before `newlev` exists. Every
+// path that needs a destination -- dungeon.c lev_by_name(), atoi(),
+// print_dungeon() and random_teleport_level() -- stops with a named refusal.
+//
+// teleport.c:1174-1184's iflags.debug_fuzzer arm is omitted rather than
+// refused, for the reason cmd.c can_do_extcmd()'s fuzzer arm is: nothing in
+// this port writes that flag.
+export async function level_tele(state = game) {
+    // Two guards need `!wizard` and so cannot fire for the port's only
+    // caller, wizcmds.c wiz_level_tele(): 1185-1189's "You feel very
+    // disoriented for a moment." and 1190's `(Teleport_control && !Stunned)
+    // || wizard`, whose else arm is the random_levtport label. Neither of
+    // their operands has a side effect, so collapsing both to this one
+    // refusal changes no random-number call and no output. teleport.c
+    // level_tele_trap() is the caller that reaches them, and it is unported.
+    if (!state.wizard) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() for a hero who is not in wizard mode',
+        );
+    }
+    const qbuf = 'To what level do you want to teleport?';
+    // C counts prompts in `trycnt` and appends
+    // " [type a number, name, or ? for a menu]" when `++trycnt == 2`. Only
+    // the do/while at 1250 starts that second pass, and its condition reads
+    // the `newlev` that lev_by_name() and atoi() produce, so the refusal at
+    // the end of this function precedes it and the suffix is unreachable.
+    if (state.iflags?.menu_requested) {
+        state.iflags.menu_requested = false;
+        // 1196-1202: wizard mode's `m ^V` skips the prompt entirely and
+        // jumps to the levTport_menu label, which is print_dungeon().
+        throw new UnsupportedLevelChangeError(
+            "level_tele() reaching print_dungeon() for the 'm' prefix",
+        );
+    }
+    // C's `*buf = '\0'` before getlin() matters only under EDIT_GETLIN, which
+    // include/config.h:655 leaves undefined, so tty_getlin() ignores whatever
+    // the buffer held and this port has nothing to clear.
+    const buf = await tty_getlin(qbuf, state);
+    if (buf === '*') {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() random_levtport for "*"',
+        );
+    }
+    // rnl() is drawn only for a confused hero, so an unconfused one costs no
+    // randomness. The draw comes before the Escape test below, which is why a
+    // confused hero can be sent elsewhere by a keystroke meant to cancel.
+    if (Confusion(state) && rnl(5)) {
+        await ttyPline('Oops...', state);
+        throw new UnsupportedLevelChangeError(
+            'level_tele() random_levtport for a confused hero',
+        );
+    }
+    if (buf === '\x1B') return; /* cancelled */
+    // 1221: `wizard && !strcmp(buf, "?")`, whose first operand this function
+    // has already established.
+    if (buf === '?') {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() reaching print_dungeon() for "?"',
+        );
+    }
+    // 1248-1249's `lev_by_name(buf)` and `atoi(buf)`, and everything the loop
+    // condition and the arms below them decide.
+    throw new UnsupportedLevelChangeError(
+        'level_tele() resolving a typed destination',
+    );
 }

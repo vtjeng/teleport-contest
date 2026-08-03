@@ -95,7 +95,7 @@ import { doride, UnsupportedSteedError } from './steed.js';
 import { UnsupportedHitPointLossError } from './hack.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
-import { wiz_level_change, wiz_wish } from './wizcmds.js';
+import { wiz_level_change, wiz_level_tele, wiz_wish } from './wizcmds.js';
 import { UnsupportedWishError } from './zap.js';
 import {
     clearTtyMessageWindow,
@@ -710,7 +710,7 @@ export async function parseCommand(state = game) {
 // it, so the key stays on the refusing side while the typed name works.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'down', 'wizwish', '#',
+    'eat', 'down', 'wizwish', 'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -1121,6 +1121,12 @@ async function runWishCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_wish(state));
 }
 
+// C ref: wizcmds.c wiz_level_tele(). Like wiz_wish() it ends `return ECMD_OK`
+// on both arms, so a cancelled level teleport spends no turn.
+async function runLevelTeleCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_level_tele(state));
+}
+
 // C ref: invent.c dolook().
 async function runLookCommand(key, state) {
     return failClosedCommand(key, state, () => dolook(state, {
@@ -1230,6 +1236,8 @@ async function doextcmd(key, state) {
         return await doride(state);
     case 'wiz_level_change':
         return await runLevelChangeCommand(key, state);
+    case 'wiz_level_tele':
+        return await runLevelTeleCommand(key, state);
     case 'wiz_wish':
         return await runWishCommand(key, state);
     default:
@@ -1403,6 +1411,19 @@ export async function rhack(key, state = game) {
             // either: extcmdlist[]'s "wizwish" row carries IFBURIED,
             // CMD_M_PREFIX and WIZMODECMD and none of the movement flags.
             await runWishCommand(key, state);
+            resetCommandVars(state);
+            return;
+        }
+        if (command === 'wizlevelport') {
+            // C ref: rhack()'s result handling, the same shape the `wizwish`
+            // arm above spells out: wizcmds.c:405 ends both arms of
+            // wiz_level_tele() with `return ECMD_OK`, so reset_cmd_vars() is
+            // all of it. The prefix test at 3693-3695 cannot divert the
+            // command either -- cmd.c:1970's "wizlevelport" row carries
+            // CMD_M_PREFIX, so an 'm' prefix reaches level_tele() rather than
+            // "The wizlevelport command does not accept 'm' prefix." -- and
+            // the row holds no movement flag.
+            await runLevelTeleCommand(key, state);
             resetCommandVars(state);
             return;
         }

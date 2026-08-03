@@ -1,6 +1,6 @@
 // wizcmds.js -- the wizard-mode extended commands.
-// C refs: src/wizcmds.c wiz_level_change() and wiz_wish(), so far the only two
-// rows of that file cmd.c dispatches here.
+// C refs: src/wizcmds.c wiz_level_change(), wiz_level_tele() and wiz_wish(),
+// so far the only three rows of that file cmd.c dispatches here.
 
 import { ECMD_OK, MAXULEV } from './const.js';
 import { pluslvl, UnsupportedExperienceChangeError } from './exper.js';
@@ -8,6 +8,7 @@ import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
+import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
 
@@ -35,6 +36,22 @@ export async function wiz_wish(state = game) {
         // name as ecname_from_fn(wiz_wish), which walks extcmdlist[] for the
         // row whose ef_funct is wiz_wish -- the "wizwish" row at cmd.c:2000.
         await ttyPline("Unavailable command 'wizwish'.", state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_level_tele() (397-406), the #wizlevelport command.
+//
+// Its else arm is dead for the same reason wiz_wish()'s is, and is written out
+// for the same reason: cmd.c can_do_extcmd() refuses the WIZMODECMD row with
+// this exact line before either dispatch route arrives, and doextcmd() never
+// even sees the row because extcmds_match() drops it first. C spells the name
+// as ecname_from_fn(wiz_level_tele), which finds the "wizlevelport" row.
+export async function wiz_level_tele(state = game) {
+    if (state.wizard) {
+        await level_tele(state);
+    } else {
+        await ttyPline("Unavailable command 'wizlevelport'.", state);
     }
     return ECMD_OK;
 }
