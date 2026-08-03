@@ -274,6 +274,19 @@ If you run one anyway, staged work survives as an unreachable blob:
 `git fsck --unreachable` lists it and `git cat-file -p <sha>` prints it back.
 Unstaged work is gone.
 
+### Stage paths by name
+
+Never run `git add -A`, `git add --all`, `git add -u`,
+`git add --update`, or `git add .`. These commands can stage another agent's
+in-progress changes from the shared working tree.
+
+Stage only the paths the current work intentionally changed:
+
+`git add path/one path/two`
+
+Before committing, inspect `git diff --cached --name-only` and confirm that
+every staged path belongs to the commit.
+
 ### When to stop and ask the user
 
 `.agents/loop.md` describes a loop that
