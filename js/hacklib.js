@@ -383,6 +383,48 @@ export function strsubst(bp, orig, replacement) {
     return bp.slice(0, at) + replacement + bp.slice(at + orig.length);
 }
 
+// C ref: hacklib.c strstri().  Case-insensitive substring search, answering
+// the offset of the match rather than C's pointer to it, and -1 for no match.
+// C's nibble-count tables are a shortcut that rejects impossible matches
+// early; they change no answer, so the port keeps only the comparison loop.
+export function strstri(str, sub) {
+    if (!sub) return 0;
+    // lcase() rather than toLowerCase(): C folds with lowc(), which touches
+    // 'A'-'Z' and nothing else, so a non-ASCII byte must compare unchanged.
+    return lcase(str).indexOf(lcase(sub));
+}
+
+// C ref: hacklib.c fuzzymatch().  Two strings match when they run out
+// together, once every character of `ignore_chars` is skipped in both.
+export function fuzzymatch(s1, s2, ignore_chars, caseblind) {
+    let i = 0;
+    let j = 0;
+    let c1;
+    let c2;
+    do {
+        // Indexing past the end answers undefined, which stands for the '\0'
+        // C stops at; `?? ''` makes that sentinel the empty string the tests
+        // below read.
+        do {
+            c1 = s1[i++] ?? '';
+        } while (c1 !== '' && ignore_chars.includes(c1));
+        do {
+            c2 = s2[j++] ?? '';
+        } while (c2 !== '' && ignore_chars.includes(c2));
+        // Redundant with the `c1 === c2` test below whenever exactly one
+        // string has run out, but it is what stops the loop when both have.
+        if (!c1 || !c2) break; /* stop when end of either string is reached */
+
+        if (caseblind) {
+            c1 = lowc(c1);
+            c2 = lowc(c2);
+        }
+    } while (c1 === c2);
+
+    /* match occurs only when the end of both strings has been reached */
+    return !c1 && !c2;
+}
+
 // C ref: hacklib.c ordin().  The teens all take "th".
 export function ordin(n) {
     const dd = n % 10;

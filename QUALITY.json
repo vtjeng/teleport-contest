@@ -659,6 +659,7 @@
         "js/objects.js",
         "js/objnam.js",
         "js/objnam_data.js",
+        "js/objnam_readobjnam.js",
         "js/pickup.js",
         "js/steal.js",
         "js/u_init_inventory.js",
