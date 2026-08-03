@@ -204,6 +204,11 @@
           "name": "a wizard-mode hero opens the wish prompt from Ctrl-W or #wizwish, and getlin() echoes the line",
           "status": "closed",
           "closedBy": "a1a0e753aa03be49c091452b69e8f87c5cc7d621"
+        },
+        {
+          "name": "a wizard-mode hero wishes for a bare object name, readobjnam() resolves it to one objects[] entry, and hold_another_object() prints its inventory letter line",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "364408ca14fbd535139416badea0e1f3a6df0c9e",
