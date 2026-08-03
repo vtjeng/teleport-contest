@@ -27,7 +27,7 @@ states it.
 
 ## Current standing
 
-- Development, at `a1a0e75` (2026-08-02): 721 of 7,765 screens and 108,261 of
+- Development, at `cd00dc4` (2026-08-02): 726 of 7,765 screens and 108,266 of
   610,816 random-number values, over the development set of 33 sessions.
 - Reserved holdout, last evaluated at `f43439d`: 162 of 3,640 screens, 30,089
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
@@ -35,7 +35,7 @@ states it.
   the largest a single close has produced. Two closes since have moved none of
   the three figures: `furniture-square-entry`, and the `commands` deferred-area
   sweep, which forecast 0 because every entry it closed named behavior no
-  session reaches. The 45 development screens the wish prompt has earned since
+  session reaches. The 50 development screens the wish goal has earned since
   `f43439d` carry no holdout measurement, because an evaluation runs only at a
   goal close.
 
