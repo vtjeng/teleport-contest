@@ -7,38 +7,50 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
-## Let readiness prepare the pass the gate is waiting for
+## Split the quality gate's two signals, which mean opposite things to a pass
 
-**What it changes.** `scripts/audit-worktree.mjs prepare --readiness` would
-accept a `quality --check` that is red on the review gate alone, when the range
-it prepares is the one that clears it. Every other red result would still
-refuse.
+**What it changes.** `qualityGateBlocked()` (`scripts/quality-status.mjs:647`)
+returns `reviewDue > 0 || unassignedCount > 0`. That would become two facts a
+caller reads separately, because the two conditions imply opposite actions for a
+review pass. Review debt means implementation should stop and a pass should run,
+so it must not stop one. An unassigned `js/` file means a pass cannot attribute
+its findings to an area, so it must stop one. `prepare --readiness` would then
+require the second and ignore the first.
 
-**Scope.** One test in the readiness check, plus the reason recorded in the
-manifest so a later reader knows which red condition was admitted and why.
+**Scope.** Three parts. Return the two states separately and let each caller
+choose; teach `prepare --readiness` to read the health half alone; and give
+`prepare` the range-coverage check `record-review` already performs through
+`validateAuditedRangeCoverage()`, so a pass cannot be prepared over a range
+whose base sits after the frontier.
 
-**What prompted it.** The wish goal's correctness pass on 2 August 2026.
-`.agents/review.md` prescribes `prepare --readiness`, which runs
-`npm run checkpoint`, `npm run quality -- --check` and a mutation run, and
-refuses while any is red. The gate had reached `DUE` at 1,912 of 1,000 changed
-lines, so `quality --check` printed `Review gate: BLOCKED (the batch threshold
-is reached)` and prepare refused. That is circular: the gate blocks because a
-pass is due, and readiness refuses because the gate blocks, so the pass that
-would clear it cannot be prepared. The two passes earlier that day prepared
-cleanly only because the gate stood at `WATCH`.
+The third part is what makes the first two safe. Today the blunt gate is a proxy
+for "you have reviewed everything", and `prepare` checks range coverage nowhere:
+`grep -n "frontier\|isAncestor\|coverage" scripts/audit-worktree.mjs` returns
+nothing. `record-review` catches an under-covering range, but only after the
+whole pass has run. Moving that check into `prepare` catches it in a second
+rather than an hour, and replaces the protection the proxy was accidentally
+providing.
 
-The pass was prepared without `--readiness` and its evidence supplied by hand:
-`npm run checkpoint` passed at the range head, with the review gate its only
-failing check. The mutation half could not be re-run, so the pass carries the
-implementer's own figures, which is weaker: that run was interrupted once by a
-background job exiting 144.
+**What prompted it.** The wish goal's correctness pass on 2 August 2026. The
+gate reached `DUE` at 1,912 of 1,000 changed lines, so
+`npm run quality -- --check` printed `Review gate: BLOCKED` and
+`prepare --readiness` refused. The gate blocks because a pass is due, and
+readiness refuses because the gate blocks, so the pass that clears it cannot be
+prepared. The two passes earlier that day prepared cleanly only because their
+gate stood at `WATCH`, which is why the circularity had not appeared before.
 
-**Cost.** Small. The check already parses the gate's state, and the range head
-is already compared against the checklist's `commitChecked`.
+The pass was prepared without `--readiness`, and its three readiness commands
+supplied by hand: `npm run checkpoint` passed at the range head with the review
+gate its only failing check, and the mutation run over
+`3b2dde88..a00741d` was run separately.
 
-**What it leaves unfixed.** Nothing forces the mutation half to be re-run at the
-range head when the implementer's own run was partial, so a pass can still open
-with weaker mutation evidence than it should have.
+**Cost.** Small for the first two parts; the third reuses
+`validateAuditedRangeCoverage()`, which already exists and is already tested.
+
+**What it leaves unfixed.** Nothing re-runs the mutation half when an
+implementer's own run was partial. This pass's was interrupted once by a
+background job exiting 144, which is why the orchestrator re-ran it rather than
+carrying the implementer's figures.
 
 ## Let the ledger amend an open deferral
 
