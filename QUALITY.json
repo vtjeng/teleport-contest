@@ -6498,6 +6498,134 @@
         }
       },
       "recordedAt": "2026-08-03T04:04:14.908Z"
+    },
+    {
+      "kind": "review",
+      "head": "41cd43b4572fa43c313cde84e7e6d3451e379bd9",
+      "auditedRange": "a00741d0b7458d98a73b2845f0a39b5f74513176..41cd43b4572fa43c313cde84e7e6d3451e379bd9",
+      "level": "full",
+      "areas": [
+        "objects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 17 raw, 15 deduplicated, 11 confirmed, 11 applied, 0 deferred, 4 rejected, 0 unverified; mutation: 1 survivors of 14 mutants. The goal-closing correctness pass over wizard-mode-wish, run before the authorized holdout evaluation that .agents/review.md makes a review deadline. Four finders; concurrency and performance were not triggered. Eleven of fifteen findings confirmed and all eleven applied at 41cd43b, so the pass closes over its own fixes and leaves no correctness debt. Three were production divergences, two of them introduced by the range itself when 517f5fb stopped refusing a nonzero d.spesgn and a count: a requested enchantment reached the four types objnam.c breaks on, which is screen-visible on a towel, and the count guard read d.cnt before postparse1 settles it, so a plural wish ran the unverified stack line. The third withdrew a deferral this range had recorded: SCR_MAIL's arm is compiled in, because include/global.h:430 defines MAIL_STRUCTURES unconditionally, and the port's own objects table carries the row that proves it. The development score is identical at 782 of 7,765 screens before and after, since no development session wishes for a towel, an iron chain, a scroll of mail or a plural; the fresh wish matrix and the unit tests are the whole evidence for these fixes, which the pass prompt stated. One rejection is recorded as a partial: the count trace was correct and is fixed, and only its claim of an unported path was refuted.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1847,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 15,
+          "confirmed": 11,
+          "applied": 11,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 5,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "optionalFinders": {
+          "concurrency": "not enabled: the range changes no shared mutable state beyond the single object under construction, and adds no asynchronous, reentrant, cancellation, retry or overlapping-lifecycle path",
+          "performance": "not enabled: the range adds three straight-line blocks inside a function that runs once per wish, with no unbounded work, worse complexity, hot-path traversal, material allocation or startup cost"
+        },
+        "productionDefects": [
+          {
+            "file": "js/objnam_readobjnam.js",
+            "summary": "readobjnam()'s spe switch sent TOWEL, SKELETON_KEY, HEAVY_IRON_BALL and IRON_CHAIN to its default arm, which assigns d.spe, where objnam.c:5133-5146 gives TOWEL an arm assigning only d.wetness and the other three a bare break. Harmless while a nonzero d.spesgn was refused; 517f5fb stopped refusing it, so `+2 towel` produced spe 2 and js/objnam.js:304-305 renders that as \"moist towel\" where C prints \"towel\". Fix: Ported C's TOWEL arm and the bare-break group; rewrote the default arm's comment, which had claimed the default handles those four correctly.",
+            "foundBy": [
+              "tests",
+              "correctness",
+              "variable-trace"
+            ],
+            "fixedAt": null,
+            "resolution": "applied"
+          },
+          {
+            "file": "js/objnam_readobjnam.js",
+            "summary": "The count guard ran before readobjnam_postparse1(), which is where d.cnt is settled: objnam.c:4408 doubles it for \"pair of \" and 4423-4433's makesingular() block raises it from 1 to 2. So \"daggers\" reached hold_another_object() with quan 2 and ran the stack line the port declares unverified, and the range widened the hole, since \"the daggers\" was refused at a00741d0 and admitted at 223e9079. Fix: Moved the refusal into requireSingleWishedObject(), after typfnd:, testing both operands objnam.c:5071-5083 reads. The count alone is the wrong test, because the tail leaves quan at 1 for a type that does not merge, so \"pair of speed boots\" must still be admitted. Reading oc_merge costs one draw, C's own lookup at C's position, with none after it.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "fixedAt": null,
+            "resolution": "applied"
+          },
+          {
+            "file": "js/objnam_readobjnam.js",
+            "summary": "The SCR_MAIL arm was absent, so a wished-for scroll of mail took the default arm and was created with the enchantment the wish asked for rather than objnam.c:5168-5174's spe 1. The deferral recorded in this range justified the absence on a false premise, that no config or patch defines MAIL_STRUCTURES. Fix: Ported the arm. include/global.h:430 defines MAIL_STRUCTURES unconditionally and global.h reaches the build through hack.h; include/objects.h gates the SCR_MAIL row on the same macro and js/objects.js carries it at SCR_MAIL = 364, which is the port's own proof the comparison build compiles both. The deferral is closed and its two narrative copies corrected in place.",
+            "foundBy": [
+              "correctness"
+            ],
+            "fixedAt": null,
+            "resolution": "applied"
+          },
+          {
+            "file": "js/objnam.js",
+            "summary": "The module header added in this range stated that js/objnam_readobjnam.js \"calls back here for the naming helpers above\". Neither file imports the other. Fix: Replaced the clause with the real dependency: that file reaches the objects[] tables through js/objects.js OBJ_NAME() and OBJ_DESCR(), and object construction through js/obj.js. Verified by grep in both directions.",
+            "foundBy": [
+              "correctness"
+            ],
+            "fixedAt": null,
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "mutants": 14,
+          "survivors": 1,
+          "byKind": {
+            "boolean": {
+              "ran": 4,
+              "killed": 4
+            },
+            "logical": {
+              "ran": 3,
+              "killed": 2
+            },
+            "relational": {
+              "ran": 7,
+              "killed": 7
+            }
+          },
+          "finderConclusion": "The one survivor, `&&` to `||` in the case SCALE_MAIL arm's own PM_GRAY_DRAGON..PM_YELLOW_DRAGON test, stands. The refusal in front of the parse chain admits no monster outside that range, so both operands hold for every wish that reaches the arm, and --whole-suite over all 146 test files did not kill it either. The line is kept because C has it and it begins doing work the moment that refusal widens. The finder's separate conclusion was that the surviving risk lay not in mutable operators but in lines no test reached at all: the `if (d.spesgn === 0)` branch, the uncursed arm's `blessed = false`, and 24 of the 27 UNSUPPORTED_WISH_FIELDS entries. All three now have oracles."
+        },
+        "rejections": [
+          {
+            "summary": "js/obj.js:818 -- curseFreeObject() is labelled the port of mkobj.c curse() while the file already holds a function named curse() ported from the same C function, and the two disagree on a bag of holding.",
+            "counterEvidence": "The premise is false: `grep -n \"mkobj.c curse\" js/obj.js` returns exactly one hit, line 818, on curseFreeObject(). The file-local `function curse(obj)` at line 810 carries no C-ref comment at all, before or after the range, and the two are not interchangeable ports of one routine. Do not reopen without showing two functions that both claim the same C ref."
+          },
+          {
+            "summary": "js/objnam_readobjnam.js:1184 -- UNSUPPORTED_WISH_FIELDS reads as the complete set of fields the typfnd: tail cannot accept, but four entries are also assigned inside postparse1, after the guard has run.",
+            "counterEvidence": "The comment's first clause scopes the object precisely, to the fields readobjnam_preparse() and readobjnam_parse_charges() can set that still feed unported fine-tuning code. All four fields named are in fact set by readobjnam_preparse(), which is why they are listed. Do not reopen without a field in the object that preparse and parse_charges cannot set."
+          },
+          {
+            "summary": "js/objnam_readobjnam.js:1205 -- requireSimpleWishQualifiers() reads d.cnt before postparse1 doubles it, so the documented count boundary does not hold for the plural and \"pair of\" forms.",
+            "counterEvidence": "Rejected on causality alone, and only for its stated impact: the claim that the port fails open on an unported path does not survive, because js/invent.js:2004-2061 ports hold_another_object()'s stack path rather than stopping on it. The underlying trace is correct and was confirmed as a separate finding at the same site, which this range fixes; this entry records that the failure mode is an unverified path, not an unported one."
+          },
+          {
+            "summary": "js/objnam_readobjnam.js:1393 -- the default arm of the ismnum(d.mntmp) switch is annotated only with the refused corpse, tin, egg, figurine and statue types, hiding that it is the normal path for an admitted dragon-named wish whose object is not scale mail.",
+            "counterEvidence": "The reachability observation is correct and was reproduced -- readobjnam('gray dragon ring mail') returns RING_MAIL through that arm -- but the comment states nothing the source contradicts and never claims the arm is unreachable. It is prose completeness, which this pass is directed to leave to a clarity audit. Reopen in a clarity pass, not a correctness one."
+          }
+        ],
+        "readiness": {
+          "boundary": "Starts at the Enter that submits a wish line at the prompt wiz_wish() or #wizwish opened, and ends at prinv()'s inventory-letter line for the created object. The running game executes it: seed0360-wizard-world-tour steps 74, 98 and 129 type 'blessed +3 gray dragon scale mail', 'blessed +3 speed boots' and 'blessed amulet of life saving' after Ctrl-W, and the development score moved by exactly the 56 screens and 19 random-number calls those three wishes cover.",
+          "sourceReview": "Every branch reachable before the ending event was traced against nethack-c/upstream/src/objnam.c: the d.spesgn clamp at 5093-5120, the whole spe switch at 5121-5187, the ismnum(d.mntmp) block at 5191-5253, and the four BUC arms at 5255-5268, plus mkobj.c curse() at 1783 and blessorcurse(). The trace covered state and random-number order, and it corrected the range's own account three times: the spe switch was missing C's TOWEL and bare-break arms, the count guard read d.cnt before postparse1 settled it, and SCR_MAIL's arm was omitted on the false premise that MAIL_STRUCTURES is undefined. Stubs and partial implementations are identified: Luck has no owner, so the BUC arms are ported through their wizard operand alone; the non-wizard clamps at 5099-5117 and the long-worm-tail and werecreature rewrites at 5195-5203 are unported behind refusals.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Each reachable excluded branch stops before changing state, producing output, or spending a draw C does not spend at the same position: requireSimpleWishQualifiers() refuses the 27 unported fine-tuning fields before the parse chain draws at all, the monster-name and ' named ' refusals stand ahead of postparse3()'s lookup, and requireSingleWishedObject() and requireSimpleWishedObject() stop after that lookup -- the one draw C makes there -- and before mksobj(). The wish matrix at scripts/run-wizard-wish.mjs passes strictly over 21 recorded segments, and the development score is identical to the reviewed head, since no development session wishes for a towel, an iron chain, a scroll of mail or a plural."
+        }
+      },
+      "recordedAt": "2026-08-03T06:49:25.051Z"
     }
   ]
 }
