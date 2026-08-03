@@ -532,7 +532,8 @@ export async function runSegment(
                 // js/teleport.js teleds(), which run under this loop, so the
                 // missing notice ends the segment on its last matching screen.
                 // Two further callers run during level creation, outside it:
-                // js/mklev.js place_lregion() and u_on_upstairs(). The stair
+                // js/mkmaze.js place_lregion() and js/stairs.js
+                // u_on_upstairs(). The stair
                 // claim covers only the second. place_lregion() picks a random
                 // square, which can be ROOM, so the terrain gate does not stop
                 // it; what does is that u_on_upstairs() reaches it only on a

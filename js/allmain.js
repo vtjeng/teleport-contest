@@ -25,7 +25,8 @@ import {
 } from './const.js';
 import { effective_attribute, exerchk } from './attrib.js';
 import { makedog, see_nearby_monsters } from './dog.js';
-import { mklev, l_nhcore_init, u_on_upstairs } from './mklev.js';
+import { mklev, l_nhcore_init } from './mklev.js';
+import { u_on_upstairs } from './stairs.js';
 import { m_at } from './monst.js';
 import {
     adaptMonsterActionToDochugwSignature,
@@ -65,6 +66,7 @@ import {
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { failClosedCommandRefusals, rhack } from './cmd.js';
+import { deferred_goto } from './do.js';
 import {
     domove,
     endRunning,
@@ -401,6 +403,25 @@ export class UnsupportedTurnBoundaryError extends Error {
     constructor(message) {
         super(message);
         this.name = 'UnsupportedTurnBoundaryError';
+    }
+}
+
+// allmain.c:538-539 runs deferred_goto() outside rhack(), after the command's
+// failClosedCommand() wrapper has returned. Convert the same owner-specific
+// refusals here so a late goto_level() boundary preserves the supported
+// segment prefix instead of escaping runSegment() as a hard failure.
+async function runDeferredGotoAtTurnBoundary(state) {
+    try {
+        await deferred_goto(state);
+    } catch (error) {
+        if (!failClosedCommandRefusals().some(
+            (type) => error instanceof type,
+        )) {
+            throw error;
+        }
+        const boundary = new UnsupportedTurnBoundaryError(error.message);
+        boundary.reason = error.reason;
+        throw boundary;
     }
 }
 
@@ -945,6 +966,8 @@ export async function moveloop_core() {
     } else if ((g.multi ?? 0) === 0) {
         await rhack(0, g);
     }
+    if (g.u.utotype)
+        await runDeferredGotoAtTurnBoundary(g);
     // C ref: allmain.c moveloop_core():541, the second of the function's two
     // vision_recalc() calls. It runs after rhack() and before the next
     // iteration's monster movement, so a command that sets vision_full_recalc

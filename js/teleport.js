@@ -51,14 +51,19 @@ import {
     TELEDS_TELEPORT,
     TRAPDOOR,
     TT_BURIEDBALL,
+    UTOTYPE_NONE,
     WATER,
     W_NONPASSWALL,
     ZAP_POS,
     isok,
 } from './const.js';
 import {
+    depth,
+    get_level,
     ledger_no,
+    lev_by_name,
     on_level,
+    single_level_branch,
     u_on_newpos,
 } from './dungeon.js';
 import {
@@ -66,7 +71,11 @@ import {
     monsterCommonName,
 } from './do_name.js';
 import { newsym, see_monsters } from './display.js';
-import { UnsupportedLevelChangeError } from './do.js';
+import {
+    schedule_goto,
+    UnsupportedLevelChangeError,
+} from './do.js';
+import { next_to_u } from './apply_next_to_u.js';
 import { engr_at } from './engrave.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
@@ -1130,6 +1139,14 @@ function Confusion(state) {
     return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
 }
 
+// ISO C atoi() skips leading whitespace, accepts one sign, consumes decimal
+// digits, and answers 0 when there are none. level_tele() deliberately uses
+// that permissive result after lev_by_name(), so "2foo" still means level 2.
+function cAtoi(text) {
+    const match = String(text).match(/^\s*[+-]?\d+/u);
+    return match ? Number.parseInt(match[0], 10) : 0;
+}
+
 // C ref: teleport.c level_tele() (1164-1249), the head that opens the prompt
 // and classifies the four answers C recognizes before `newlev` exists. Every
 // path that needs a destination -- dungeon.c lev_by_name(), atoi(),
@@ -1191,9 +1208,77 @@ export async function level_tele(state = game) {
             'level_tele() reaching print_dungeon() for "?"',
         );
     }
-    // 1248-1249's `lev_by_name(buf)` and `atoi(buf)`, and everything the loop
-    // condition and the arms below them decide.
-    throw new UnsupportedLevelChangeError(
-        'level_tele() resolving a typed destination',
+    const namedLevel = lev_by_name(buf, state);
+    let newlev = namedLevel || cAtoi(buf);
+
+    // The current slice begins with a positive decimal answer. Retain the
+    // previous fail-closed boundary for invalid retries, named/special levels,
+    // Nowhere, and the negative-level heaven and escape paths.
+    if (namedLevel || newlev <= 0) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() resolving a non-positive or named destination',
+        );
+    }
+
+    if (single_level_branch(state.u.uz, state)) {
+        await ttyPline('You shudder for a moment.', state);
+        return;
+    }
+    if (Number.isInteger(state.quest_dnum)
+        && state.u.uz.dnum === state.quest_dnum) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() resolving a Quest-relative destination',
+        );
+    }
+    if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() with the hero tethered to a buried ball',
+        );
+    }
+    if (!next_to_u(state)) {
+        await ttyPline('You shudder for a moment.', state);
+        return;
+    }
+    if (state.astral_level
+        && state.u.uz.dnum === state.astral_level.dnum) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() from the endgame',
+        );
+    }
+
+    const newlevel = { dnum: 0, dlevel: 0 };
+    if (state.medusa_level
+        && state.u.uz.dnum === state.medusa_level.dnum
+        && newlev >= state.dungeons[state.u.uz.dnum].depth_start
+                     + state.dungeons[state.u.uz.dnum].num_dunlevs) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() finding the entrance to Gehennom',
+        );
+    }
+
+    // For an ordinary level of the main dungeon, qbranch is the Sanctum and
+    // `deepest` is used only by the same-level error wording below. The
+    // invocation clamp is guarded by !wizard and cannot fire here.
+    const qbranch = state.sanctum_level;
+    const deepest = state.dungeons[qbranch.dnum].depth_start
+        + state.dungeons[qbranch.dnum].num_dunlevs - 1;
+    get_level(newlevel, newlev, state);
+
+    if (on_level(newlevel, state.u.uz) && newlev !== depth(state.u.uz, state)) {
+        await ttyPline(
+            `You can't get there from ${newlev > deepest ? 'anywhere' : 'here'}.`,
+            state,
+        );
+        return;
+    }
+
+    schedule_goto(
+        newlevel,
+        UTOTYPE_NONE,
+        null,
+        state.flags?.verbose
+            ? 'You materialize on a different level!'
+            : null,
+        state,
     );
 }

@@ -24,6 +24,11 @@ import {
     TT_BURIEDBALL,
     UNENCUMBERED,
     UTOTYPE_NONE,
+    UTOTYPE_ATSTAIRS,
+    UTOTYPE_DEFERRED,
+    UTOTYPE_FALLING,
+    UTOTYPE_PORTAL,
+    UTOTYPE_RMPORTAL,
     Upolyd,
     VIBRATING_SQUARE,
     VISITED,
@@ -36,6 +41,7 @@ import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import {
     Can_fall_thru,
     In_hell,
+    In_W_tower,
     assign_level,
     at_dgn_entrance,
     builds_up,
@@ -50,6 +56,7 @@ import {
     on_level,
     set_dunlev_reached,
     u_on_newpos,
+    u_on_rndspot,
 } from './dungeon.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
@@ -63,7 +70,7 @@ import {
     u_rooted,
 } from './hack.js';
 import { maybe_reset_pick } from './lock.js';
-import { mklev, u_on_upstairs } from './mklev.js';
+import { mklev } from './mklev.js';
 import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { PM_TOURIST } from './monsters.js';
@@ -78,6 +85,7 @@ import {
     stairway_at,
     stairway_find_from,
     stairway_free_all,
+    u_on_upstairs,
 } from './stairs.js';
 import { Punished, stucksteed } from './steed.js';
 import { enexto, mnexto } from './teleport.js';
@@ -94,15 +102,79 @@ import {
 import { ttyPline } from './tty_message.js';
 import { cansee, vision_recalc, vision_reset } from './vision.js';
 
-// A level change this port has not reached. do.c goto_level() rewrites the
-// hero's dungeon level and everything on it; nothing in the port does any of
-// it, so every dodown() arm that would descend stops here instead.
+// A fail-closed boundary for goto_level() branches outside the ordinary
+// staircase descent and positive-decimal level teleport ports.
 export class UnsupportedLevelChangeError extends Error {
     constructor(reason) {
         super(`unsupported level change: ${reason}`);
         this.name = 'UnsupportedLevelChangeError';
         this.reason = reason;
     }
+}
+
+// C ref: do.c maybe_lvltport_feedback() (2031-2040). goto_level() calls this
+// after repainting the destination but before any special-level arrival text,
+// so the level-teleport message becomes the top line of the arrival screen.
+export async function maybe_lvltport_feedback(state = game) {
+    const postMessage = state.gd?.dfr_post_msg;
+    if (postMessage
+        && postMessage.slice(0, 15).toLowerCase() === 'you materialize') {
+        await ttyPline(postMessage, state);
+        state.gd.dfr_post_msg = null;
+    }
+}
+
+// C ref: do.c schedule_goto() (2056-2070). The deferred bit is deliberately
+// present even for UTOTYPE_NONE: allmain.c keys off the nonzero field after
+// the command stack has unwound.
+export function schedule_goto(
+    tolev,
+    utotype_flags,
+    pre_msg,
+    post_msg,
+    state = game,
+) {
+    state.u.utotype = utotype_flags | UTOTYPE_DEFERRED;
+    assign_level(state.u.utolev, tolev);
+    state.gd ??= {};
+    if (pre_msg) state.gd.dfr_pre_msg = String(pre_msg);
+    if (post_msg) state.gd.dfr_post_msg = String(post_msg);
+}
+
+// C ref: do.c deferred_goto() (2074-2102). This is async only because the
+// port's messages and goto_level() are async; their order is C's order.
+export async function deferred_goto(state = game) {
+    const u = state.u;
+    state.gd ??= {};
+    if (!on_level(u.uz, u.utolev)) {
+        const dest = { ...u.utolev };
+        const oldlev = { ...u.uz };
+        const typmask = u.utotype;
+
+        if (state.gd.dfr_pre_msg)
+            await ttyPline(state.gd.dfr_pre_msg, state);
+        await goto_level(
+            dest,
+            Boolean(typmask & UTOTYPE_ATSTAIRS),
+            Boolean(typmask & UTOTYPE_FALLING),
+            Boolean(typmask & UTOTYPE_PORTAL),
+            state,
+        );
+        if (typmask & UTOTYPE_RMPORTAL) {
+            // trap.c deltrap() is not ported. No level-teleport transition
+            // carries this flag; portal ejection owns the first live use.
+            throw new UnsupportedLevelChangeError(
+                'deferred_goto() removing a destination portal',
+            );
+        }
+        if (state.gd.dfr_post_msg) {
+            if (!on_level(u.uz, oldlev))
+                await ttyPline(state.gd.dfr_post_msg, state);
+        }
+    }
+    u.utotype = UTOTYPE_NONE;
+    state.gd.dfr_pre_msg = null;
+    state.gd.dfr_post_msg = null;
 }
 
 // Renders youprop.h's `(HProperty || EProperty)` shape only. That is not what
@@ -328,7 +400,7 @@ export async function dodown(state = game) {
 // the arrival tail at 1967-1993.
 //
 // Not covered, each named at its site: the endgame, tutorial, portal, falling,
-// level-teleport, punished, Gehennom, quest, Knox, Mines, Sokoban and
+// punished, Gehennom, quest, Knox, Mines, Sokoban and
 // Rogue-level arms, and the getlev() reload at 1704-1711.
 //
 // One caution about `state`: In_endgame() and In_tutorial() are js/const.js's
@@ -347,6 +419,7 @@ export async function goto_level(
     const newdungeon = u.uz.dnum !== newlevel.dnum;
     // C captures this before anything runs, so it reads the level being left.
     const prev_temperature = state.level.flags.temperature;
+    const was_in_W_tower = In_W_tower(u.ux, u.uy, u.uz, state);
 
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel, state))
         newlevel.dlevel = dunlevs_in_dungeon(newlevel, state);
@@ -535,36 +608,34 @@ export async function goto_level(
 
     // do.c:1720-1745 places the hero at the destination portal, and
     // do.c:1802-1810 at a random spot after a fall or a level teleport.
-    // `portal` and `falling` are both refused earlier in this function, so the
-    // at_stairs arm is the one that runs.
     if (!at_stairs) {
-        throw new UnsupportedLevelChangeError(
-            'goto_level() arriving without stairs',
-        );
-    }
-    if (up) {
+        u_on_rndspot((up ? 1 : 0) | (was_in_W_tower ? 2 : 0), state);
+    } else if (up) {
         // The climbing arm at do.c:1767-1780 belongs with doup().
         throw new UnsupportedLevelChangeError(
             'goto_level() arriving from below',
         );
     }
 
-    const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
-    if (stway) {
-        u_on_newpos(stway.sx, stway.sy, state);
-        stway.u_traversed = true;
-    } else if (newdungeon) {
-        // u_on_sstairs(0) places the hero on a branch staircase. A descent
-        // that keeps u.uz.dnum is not a new dungeon, and mklev() always makes
-        // an up staircase leading back the way the hero came.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() arriving in a new dungeon',
-        );
-    } else {
-        u_on_upstairs();
+    if (at_stairs) {
+        const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
+        if (stway) {
+            u_on_newpos(stway.sx, stway.sy, state);
+            stway.u_traversed = true;
+        } else if (newdungeon) {
+            // u_on_sstairs(0) places the hero on a branch staircase. A
+            // same-dungeon descent always makes an up staircase instead.
+            throw new UnsupportedLevelChangeError(
+                'goto_level() arriving in a new dungeon',
+            );
+        } else {
+            u_on_upstairs(state);
+        }
     }
 
-    if (!u.dz) {
+    if (!at_stairs) {
+        /* random level-teleport placement has no stair transit message */
+    } else if (!u.dz) {
         /* stayed on same level? (no transit effects) */
     } else if (heroPropertyActive(u, FLYING)) {
         // do.c:1776. "You fly down the stairs." This tests only Flying's
@@ -625,8 +696,8 @@ export async function goto_level(
     await docrt(); /* does a full vision recalc */
     await flush_screen(-1);
 
-    // do.c:1844-1849 delivers a deferred level-teleport message through
-    // gd.dfr_post_msg, which only level teleport sets.
+    if (state.gd?.dfr_post_msg)
+        await maybe_lvltport_feedback(state);
     deliver_splev_message(state);
 
     // do.c:1858-1872, entering Gehennom. Both arms need In_hell, and

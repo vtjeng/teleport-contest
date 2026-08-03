@@ -22,6 +22,8 @@ import {
     ICE,
     LAVAPOOL,
     LEVITATION,
+    LR_DOWNTELE,
+    LR_UPTELE,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
     MAX_TYPE,
@@ -30,13 +32,18 @@ import {
     ROOM,
     STONE,
     Upolyd,
+    VISITED,
     isok,
 } from './const.js';
 import { PM_DWARF } from './monsters.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_nearby_objects } from './display.js';
+import { switch_terrain } from './hack.js';
+import { strstri } from './hacklib.js';
+import { place_lregion } from './mkmaze.js';
 import { cmap_to_type } from './mkroom.js';
+import { within_bounded_area } from './rect.js';
 // js/stairs.js imports depth() and on_level() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { stairway_at } from './stairs.js';
@@ -1053,7 +1060,8 @@ function heroFlying(state) {
 // the PRNG log nothing.
 //
 // Why the line is refused rather than printed: u_on_newpos() is synchronous,
-// and so are js/mklev.js place_lregion() and u_on_upstairs(), which call it
+// and so are js/mkmaze.js place_lregion() and js/stairs.js u_on_upstairs(),
+// which call it
 // while the level is being created, whereas this port's message owner,
 // js/tty_message.js ttyPline(), is async. Printing here means making level
 // creation async, a change to a different subsystem than the one that reaches
@@ -1136,10 +1144,7 @@ export function lev_by_name(nam, state = game) {
     /* hell is the old name, and wouldn't match; gehennom would match its
        branch, yielding the castle level instead of valley of the dead */
     if (nam.toLowerCase() === 'gehennom' || nam.toLowerCase() === 'hell') {
-        // In_V_tower() is js/const.js's rendering of the dungeon.h macro and
-        // reads the module-level game rather than `state`, as every other
-        // caller of those macros does. On the live path the two are the same.
-        nam = In_V_tower(state.u.uz)
+        nam = state.u.uz.dnum === state.tower_dnum
             ? " to Vlad's tower" /* branch to... */
             : 'valley';
     } else if (nam.toLowerCase() === 'delphi') {

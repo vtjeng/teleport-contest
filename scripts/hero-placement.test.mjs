@@ -6,6 +6,7 @@ import {
     HALLUC,
     HALLUC_RES,
     IN_SIGHT,
+    LAST_PROP,
     MAX_TYPE,
     OBJ_FLOOR,
     ROOM,
@@ -16,7 +17,8 @@ import { newgame_pre_mklev } from '../js/allmain.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { u_on_newpos } from '../js/dungeon.js';
-import { mklev, u_on_upstairs } from '../js/mklev.js';
+import { mklev } from '../js/mklev.js';
+import { u_on_upstairs } from '../js/stairs.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init, ROCK } from '../js/objects.js';
@@ -46,6 +48,10 @@ function initializedState() {
         uz0: { dnum: 0, dlevel: 0 },
         uundetected: true,
         usteed: null,
+        uprops: Array.from(
+            { length: LAST_PROP + 1 },
+            () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
+        ),
     };
     state.iflags = {};
     state.stairs = null;
@@ -204,7 +210,7 @@ test('u_on_upstairs selects the first upward stair without drawing PRNG', () => 
         },
     };
 
-    u_on_upstairs();
+    u_on_upstairs(state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [21, 9]);
 });
@@ -224,7 +230,7 @@ test('u_on_upstairs does not mistake a downward special stair for upward', () =>
     initRng(0x51a1);
     enableRngLog();
 
-    u_on_upstairs();
+    u_on_upstairs(state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [4, 4]);
     // Every failed attempt draws x and y once; fallback itself draws nothing.
@@ -273,7 +279,7 @@ test('generated first levels place and register the hero in the branch-stair roo
         })();
         assert.ok(upward, `seed ${seed} did not generate the level-one branch stair`);
 
-        u_on_upstairs();
+        u_on_upstairs(state);
         move_update(false, state);
 
         assert.deepEqual(

@@ -11,7 +11,8 @@ import {
     INVLET_BASIC,
     update_inventory,
 } from './invent.js';
-import { mklev, place_lregion } from './mklev.js';
+import { mklev } from './mklev.js';
+import { place_lregion } from './mkmaze.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
 import {
@@ -204,6 +205,7 @@ export async function enter_tutorial(target, state = game) {
             destination.nhy,
             LR_DOWNTELE,
             null,
+            state,
         );
         await dismissPendingTtyMessage(state);
 

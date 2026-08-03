@@ -38,6 +38,7 @@ import { dosearch, UnsupportedSearchError } from './detect.js';
 import { bot, flush_screen } from './display.js';
 import { dodown, UnsupportedLevelChangeError } from './do.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
+import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedPickupError } from './pickup.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
@@ -934,6 +935,7 @@ export function failClosedCommandRefusals() {
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
+        UnsupportedRegionPlacementError,
         // zap.c makewish() raises this where readobjnam() stands, after
         // getlin() has echoed the whole wished-for line. Both #wizwish routes
         // reach it, so leaving it out would discard every screen the wish
