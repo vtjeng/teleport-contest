@@ -1,0 +1,104 @@
+{
+  "mode": "implementation",
+  "reason": "Opened for the level-teleport arrival slice, which crosses four QUALITY.json areas -- startup (js/allmain.js), generation (js/dungeon.js, js/mklev.js and a new js/mkmaze.js), monsters (js/teleport.js) and commands (js/do.js) -- and four game systems: the level-teleport command, dungeon-topology resolution, the deferred level-change mechanism, and level-arrival hero placement. That is the 'cross subsystems' condition in .agents/implementation-checklist-template.md. Size is nearer the line than over it: roughly 230 in-scope C lines, which the descent port's ratio puts at 250 to 400 JavaScript lines. Every entry below starts at missing and is the worker's to advance; the orchestrator verifies each against the repository before the mode changes to ready-for-audit.",
+  "commitChecked": "496e4f3f94d8caf8dbc926ad38620a2d57f8e501",
+  "boundary": {
+    "goalId": "wizard-level-teleport",
+    "startingCommit": "7bf8ee7e",
+    "startingEvent": "The Enter that submits a positive decimal answer at 'To what level do you want to teleport?'. js/teleport.js level_tele() has echoed the line and classified the four literal answers, and throws UnsupportedLevelChangeError('level_tele() resolving a typed destination') where objnam-style resolution would begin. Both dispatch routes already reach that point, so this slice adds no dispatch work.",
+    "endingEvent": "The arrival screen goto_level() paints for the destination level, after u_on_rndspot() has placed the hero. Measured at seed 5514004, moves '.\\x162\\n.', datetime 20300214113000, Wizard/human/male/neutral, pettype:none,!acoustics,playmode:debug: C produces 6 screens where the port produces 4, and C's first unmatched draw is rn2(3) from getbones(bones.c:645).",
+    "validInputs": "A wizard-mode game whose typed answer is a decimal string for which lev_by_name() returns 0 and atoi() a positive newlev; single_level_branch(&u.uz) and In_quest(&u.uz) false and next_to_u() true; get_level() resolving newlev inside dnum 0 to a level whose level_info[].flags lacks LFILE_EXISTS; and goto_level() running with at_stairs, falling and portal all FALSE. The hero must not be confused, or teleport.c:1216 spends an rnl(5) no recording holds.",
+    "observables": "The arrival screen and its cursor; the random-number calls the destination level's mklev() spends, beginning with C's rn2(3) at getbones(bones.c:645); place_lregion()'s rn1((hx-lx)+1, lx) and rn1((hy-ly)+1, ly) pair per try, including the roughly three-in-four tries that fail the ROOM test and retry; and the hero's resulting position, which the next command reads back.",
+    "exclusions": "print_dungeon() and the '?' answer; '*' and the random_levtport arm; negative levels with their heaven, Nowhere and done() paths; the In_endgame arm; the non-wizard Teleport_control route; level_tele_trap() and mlevel_tele_trap(); any destination that is a special level or one already generated; and put_lregion_here()'s deterministic oneshot pass with deltrap(), rloc() and m_into_limbo(), which needs 200 consecutive failures to reach."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "teleport.c level_tele() 1250-1424, the tail; dungeon.c lev_by_name() 2098-2170, get_level() 1802-1846, u_on_rndspot() 1605-1638, single_level_branch() 1967-1975; do.c schedule_goto() 2056-2070, deferred_goto() 2074-2102, maybe_lvltport_feedback() 2031-2040, and goto_level()'s else arrival arm 1802-1810 with its call at 1853-1855; mkmaze.c is_exclusion_zone() 316-332, bad_location() 340-352, place_lregion() 355-408, put_lregion_here() 412-467; allmain.c moveloop_core() 538-539.",
+    "dispatchTablesAndCatalogs": "dungeon.c's dungeons[] and level_info[] flags, read by get_level() for LFILE_EXISTS, and the branch chain find_branch() walks. No new table is copied by this slice.",
+    "reachableHelpers": "mklev.c occupied() 1806-1812 is already ported, at js/mktrap.js:158, and bad_location() must call it rather than a second copy. next_to_u() is ported at js/apply_next_to_u.js and answers TRUE for an ordinary hero with a pet, so level_tele()'s You1(shudder_for_moment) guard passes without new work. find_level() is ported at js/dungeon.js:803. In_W_tower() and On_W_tower_level() are unported and needed for goto_level()'s was_in_W_tower; both are false above the Wizard's tower, so a small ported guard suffices.",
+    "javascriptCrossCheck": "Verified at 496e4f3 by the orchestrator, not accepted from a report. js/teleport.js throws UnsupportedLevelChangeError('level_tele() resolving a typed destination') where the resolution begins. grep -c UnsupportedLevelChangeError js/jsmain.js returns 0, so that class is not among the six boundary classes js/jsmain.js:527-549 breaks a segment for; it sits only in failClosedCommandRefusals() (js/cmd.js:919), which the command wrapper alone consults. js/mklev.js:200-238 stubs place_lregion() and bad_location() as 'simplified for skeleton', and no js/mkmaze.js exists. js/stairs.js:87-94 holds duplicate dunlev() and single_level_branch() behind a comment saying they stay there rather than becoming a dungeon.c port they do not represent; this slice retires that justification. js/allmain.js:626 elapsedTurnPlanningRefusals() is the wrapper the turn loop already uses, and js/allmain.js:940-946 holds the two rhack() call sites the new site follows.",
+    "remainingLimits": "Two, both stated rather than resolved. First, place_lregion() picks uniformly over 79x21 squares while a fresh level holds roughly three sleeping monsters and about one trap, so put_lregion_here()'s monster retry and occupied()'s t_at() term inside bad_location() fire on the order of 0.3% of tries; the differential is unlikely to reach them and they need RNG-pinned focused tests instead. Second, seed5002 teleports to D:5, a depth no evidence has scored: maybe_sdoor() (mklev.c:1795, depth > 2), maxpass (mklev.c:1103, depth > 2), trapped doors (mklev.c:671, level_difficulty() >= 4) and mimics (mklev.c:632, level_difficulty() >= 5) all open between D:2 and D:5, and the descent goal's evidence stops at D:2. A mismatch there will present as a level-teleport bug and will not be one."
+  },
+  "entries": [
+    {
+      "candidate": "teleport.c level_tele() 1250-1424, the tail after the four literal answers",
+      "reachability": "Reached from js/teleport.js level_tele() where the current refusal stands. Spends rnl(5) only for a confused hero, which the fixtures exclude.",
+      "owner": "js/teleport.js level_tele().",
+      "effects": "Resolves the typed answer to newlev and calls schedule_goto().",
+      "evidence": "Not yet implemented.",
+      "status": "missing",
+      "remaining": "Port the tail, keeping the do/while at 1250 and refusing every arm the goal excludes before it can draw."
+    },
+    {
+      "candidate": "dungeon.c lev_by_name() 2098-2170 and get_level() 1802-1846",
+      "reachability": "Called from level_tele()'s tail for every typed answer. For a numeric answer find_mapseen_by_str() has nothing to search, the port keeping no mapseen chain, so the else arm runs find_level() and find_branch() and returns 0, leaving atoi() to supply newlev.",
+      "owner": "js/dungeon.js, to be added.",
+      "effects": "Pure: no draw, no output, no state change.",
+      "evidence": "Not yet implemented.",
+      "status": "missing",
+      "remaining": "Port both. find_branch()'s level-teleport leg is not implemented at js/dungeon.js:232, which holds the proto-dungeon variant with a different signature; that leg is needed."
+    },
+    {
+      "candidate": "dungeon.c single_level_branch() 1967-1975, and the duplicate at js/stairs.js:87-94",
+      "reachability": "Read by level_tele()'s tail before it accepts a destination.",
+      "owner": "js/dungeon.js, with js/stairs.js:87-94 deleted and its caller at :115 repointed.",
+      "effects": "Pure.",
+      "evidence": "Not yet implemented.",
+      "status": "missing",
+      "remaining": "Move rather than copy. The comment at js/stairs.js:87 explains the duplicate as avoiding a dungeon.c port these functions do not represent; this slice ports that group, so the justification lapses and one copy must remain."
+    },
+    {
+      "candidate": "do.c schedule_goto() 2056-2070, deferred_goto() 2074-2102 and maybe_lvltport_feedback() 2031-2040",
+      "reachability": "schedule_goto() from level_tele()'s tail; deferred_goto() from the new allmain.c:538-539 call site, which runs outside rhack().",
+      "owner": "js/do.js, to be added; the call site in js/allmain.js after the rhack() calls at 940-946.",
+      "effects": "Carries the transition out of the command and into the turn loop. wiz_level_tele() returns ECMD_OK, so no time passes and no monster moves in between.",
+      "evidence": "Not yet implemented.",
+      "status": "missing",
+      "remaining": "Port all three and add the call site. js/allmain.js:777 already refuses the other site, allmain.c:385-386, and that refusal stays."
+    },
+    {
+      "candidate": "The refusal wrapper for the new deferred_goto() call site",
+      "reachability": "Every refusal goto_level() can raise, about twenty of them, now reachable from outside failClosedCommand().",
+      "owner": "js/allmain.js, following the elapsedTurnPlanningRefusals() pattern at :626.",
+      "effects": "Converts a fail-closed refusal into a boundary js/jsmain.js breaks the segment for, preserving the matched prefix.",
+      "evidence": "Not yet implemented. The gap is verified: grep -c UnsupportedLevelChangeError js/jsmain.js returns 0.",
+      "status": "missing",
+      "remaining": "Without this, any goto_level() refusal reached from the new site escapes as a hard failure and discards the segment's whole matching prefix, turning matched screens into a session error."
+    },
+    {
+      "candidate": "do.c goto_level()'s else arrival arm 1802-1810 and its call at 1853-1855",
+      "reachability": "js/do.js:540-544 throws 'goto_level() arriving without stairs' today. The up refusal at 545-550 stays dead: both destinations are below D:1.",
+      "owner": "js/do.js goto_level().",
+      "effects": "Places the hero through u_on_rndspot() and ends in pickup(1) on whatever square rn1 chose.",
+      "evidence": "Not yet implemented.",
+      "status": "missing",
+      "remaining": "Lift the one refusal. Note that pickup(1) on a random square can reach js/invent.js:454's object-pile throw, which the queued object-pile-window goal owns; it is seed-dependent and a fixture can be re-seeded around it."
+    },
+    {
+      "candidate": "dungeon.c u_on_rndspot() 1605-1638",
+      "reachability": "Called from goto_level()'s arrival arm. Its in-scope work is place_lregion(..., LR_DOWNTELE, 0) plus switch_terrain(), whose arms are all dead for an ordinary hero on a ROOM square.",
+      "owner": "js/dungeon.js, to be added.",
+      "effects": "Chooses the arrival square.",
+      "evidence": "Not yet implemented.",
+      "status": "missing",
+      "remaining": "Port it, and state in a comment which switch_terrain() arms are dead and why."
+    },
+    {
+      "candidate": "mkmaze.c place_lregion() 355-408, put_lregion_here() 412-467, bad_location() 340-352 and is_exclusion_zone() 316-332",
+      "reachability": "place_lregion() from u_on_rndspot(). Its two existing call sites are dead in the scored replay: js/tutorial_startup.js:196 needs the tutorial, which all 45 development segments decline, and js/mklev.js:248 u_on_upstairs() reaches it only on a level with neither an ordinary nor a special up stair, which js/dungeon.js:926-929 records as never observed.",
+      "owner": "A new js/mkmaze.js, with js/mklev.js:200-238's stubs deleted and js/mklev.js:248 and js/tutorial_startup.js:196 repointed.",
+      "effects": "Spends rn1((hx-lx)+1, lx) and rn1((hy-ly)+1, ly) per try, retrying about three times in four on the ROOM test.",
+      "evidence": "Not yet implemented. The existing stub is wrong for the LR_DOWNTELE caller, not merely incomplete: bad_location() omits occupied() and the AIR term, and put_lregion_here() is absent.",
+      "status": "missing",
+      "remaining": "Rewrite rather than widen. bad_location() must call the ported occupied() at js/mktrap.js:158 rather than a second copy. Run npm run quality -- assign --file js/mkmaze.js --area generation in the same chunk."
+    },
+    {
+      "candidate": "In_W_tower() and On_W_tower_level(), for goto_level()'s was_in_W_tower",
+      "reachability": "Read once per arrival.",
+      "owner": "js/dungeon.js, to be added.",
+      "effects": "Pure.",
+      "evidence": "Not yet implemented.",
+      "status": "missing",
+      "remaining": "Both are false above the Wizard's tower, so a small ported guard suffices; say so in a comment rather than omitting them."
+    }
+  ]
+}
