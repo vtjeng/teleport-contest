@@ -260,8 +260,8 @@
       "slices": [
         {
           "name": "a wizard-mode hero opens the level-teleport prompt from Ctrl-V or #wizlevelport, getlin() echoes the answer, and an Escape cancels without spending a turn",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7bf8ee7e5d586c7b8bc6f01174c9bc22fbdfc533"
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
