@@ -637,6 +637,15 @@
       "status": "open",
       "from": "c138e0514b1aa47e733cdc3f73bcb83ab2150ccf",
       "detail": "Five findings from the wizard-mode-wish correctness pass, grouped because each needs the same thing: a fixture the current tests do not build. (1) scripts/inventory-substrate.test.mjs:1653 leaves hold_another_object()'s flags.pickup_burden clamp untested, every fixture being weightless or a boulder, so the clamp's own comparison is unexercised. (2) scripts/objnam-readobjnam.test.mjs:231 samples the four hand-transcribed tables rather than pinning them: 4 of 46 spellings[] rows, 2 of 19 o_ranges[] rows and part of wrp[]/wrpsym[], with no generated check against the C. (3) The find() helper at :635 asserts only the winning otyp under an rn2 stub pinned at 0, so the candidate set, which is what sets rn2's argument, is never checked. (4) The assertion at :644 advertised as the guard for the per-game shuffled description table is inert, because init_objects(state, () => 0) is the identity permutation, so it would pass against the static table too. (5) The count test at :834 pins only quan === 1, leaving readobjnam_postparse1()'s 'if (d.cnt === 1) d.cnt = 2' doubling unexercised. Closing condition: a generated table check against objnam.c for (2), a non-identity permutation for (4), and fixtures for the rest."
+    },
+    {
+      "id": "SCR_MAIL's spe arm is compiled out of the comparison build",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "7042a6582dd8bcdd62e8bde6995004576b4e1991",
+      "detail": "The wizard-mode-wish correctness pass confirmed that readobjnam()'s spe switch drops C's 'case SCR_MAIL: d.otmp->spe = 1', so a wished-for scroll of mail would be created with spe 0. No work is required: objnam.c:5169-5174 wraps that case in #ifdef MAIL_STRUCTURES, and neither nethack-c/upstream/include/config.h nor any file under nethack-c/patches/ defines the macro, so the arm is compiled out of the program the port is compared against. The entry exists so a later pass finds this reasoning rather than re-reporting the finding. Closing condition: none while MAIL_STRUCTURES stays undefined; if a patch ever defines it, port the one-line assignment."
     }
   ],
   "areas": [
@@ -6313,6 +6322,182 @@
         }
       },
       "recordedAt": "2026-08-02T22:07:57.422Z"
+    },
+    {
+      "kind": "review",
+      "head": "a00741d0b7458d98a73b2845f0a39b5f74513176",
+      "auditedRange": "3b2dde88fdbbad0115967dc9a8483a85f812cfba..a00741d0b7458d98a73b2845f0a39b5f74513176",
+      "level": "full",
+      "areas": [
+        "objects",
+        "commands",
+        "display",
+        "startup"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 18 raw, 17 deduplicated, 15 confirmed, 6 applied, 9 deferred, 2 rejected, 0 unverified; mutation: 62 survivors of 226 mutants. Full correctness pass over the wizard-mode wish, run because the review gate reached DUE at 1,912 changed production lines. Four finders; concurrency and performance were not triggered. Fifteen of eighteen findings confirmed. One was a defect that discarded matched screens: failClosedCommandRefusals() omitted UnsupportedObjectOperationError, which hold_another_object() raises from the wish path, so a wish the hero cannot carry escaped runSegment() rather than stopping at the boundary; a boulder does it on any hero, and readobjnam() grants one without refusing. Six applied at c138e05 and 7042a65, four of them comments that stated something the source does not. Nine deferred in four groups, each recording what it needs. One of those needs no work and says so: SCR_MAIL's spe assignment sits inside #ifdef MAIL_STRUCTURES, which neither include/config.h nor any patch defines, so the arm is compiled out and the port is right to omit it; the entry exists to stop a later pass re-reporting it. Two are divergences rather than gaps: a wished-for holy water loses its blessing, because the port reaches POT_WATER by a route that never sets d.blessed or d.iscursed, and an attempt to close it by refusing on those fields was reverted because the port never sets them on that path; and wishymatch() folds case where C's strsubst() does not, which cannot be matched exactly until C's recursion is traced, since an unbounded recursion in C becomes a stack overflow in JavaScript. The mutation half was re-run at the range head, because the implementer's own run was interrupted and prepare --readiness could not run it while the gate was BLOCKED.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2477,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 17,
+          "confirmed": 15,
+          "applied": 6,
+          "deferred": 9,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 5,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace"
+        ],
+        "optionalFinders": {
+          "concurrency": "not enabled: the range changes no asynchronous or reentrant control flow",
+          "performance": "not enabled: the parse chain runs once per wish and adds no hot-path traversal"
+        },
+        "productionDefects": [
+          {
+            "file": "js/objnam_readobjnam.js",
+            "summary": "js/objnam_readobjnam.js:253 -- `strsubstFold()` finds its target with case-insensitive `strstri()`, but `hacklib.c strsubst()` uses case-sensitive `strstr()`; the comment's stated justification — that `wishymatc",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          },
+          {
+            "file": "js/objnam_readobjnam.js",
+            "summary": "js/objnam_readobjnam.js:1127 -- The `\" glass\"` refusal's comment claims the canonical-form rewrite beneath the two draws it names \"feeds only those two\", but in C that rewrite falls through to `d->actualn = d->bp",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          },
+          {
+            "file": "js/objnam_readobjnam.js",
+            "summary": "js/objnam_readobjnam.js:1350 -- readobjnam() never applies d.blessed / d.iscursed, so \"potion of [un]holy water\" produces a plain uncursed potion of water instead of C's blessed or cursed one.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          },
+          {
+            "file": "js/cmd.js",
+            "summary": "js/cmd.js:940 -- failClosedCommandRefusals() omitted UnsupportedObjectOperationError, which hold_another_object() raises from the wish path, so a wish the hero cannot carry escaped runSegment() and discarded every screen the wish prompt had matched.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied",
+            "fixedAt": "c138e05"
+          },
+          {
+            "file": "js/objnam_readobjnam.js",
+            "summary": "js/objnam_readobjnam.js:1341 -- The spe switch drops C's case SCR_MAIL: d.otmp->spe = 1, so a wished-for scroll of mail is created with spe 0.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred",
+            "fixedAt": null
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/objnam_readobjnam.js:253 -- `strsubstFold()` finds its target with case-insensitive `strstri()`, but `hacklib.c strsubst()` uses case-sensitive `strstr()`; the comment's stated justification — that `wishymatc",
+            "trackedIn": "wishymatch() folds case where C's strsubst() does not",
+            "category": "production"
+          },
+          {
+            "summary": "js/objnam_readobjnam.js:1127 -- The `\" glass\"` refusal's comment claims the canonical-form rewrite beneath the two draws it names \"feeds only those two\", but in C that rewrite falls through to `d->actualn = d->bp",
+            "trackedIn": "five wish-parser test gaps the pass confirmed",
+            "category": "production"
+          },
+          {
+            "summary": "js/objnam_readobjnam.js:1350 -- readobjnam() never applies d.blessed / d.iscursed, so \"potion of [un]holy water\" produces a plain uncursed potion of water instead of C's blessed or cursed one.",
+            "trackedIn": "a wished-for holy water loses its blessing",
+            "category": "production"
+          },
+          {
+            "summary": "scripts/inventory-substrate.test.mjs:1653 -- hold_another_object()'s `flags.pickup_burden` clamp is untested: every fixture in the new tests is either weightless (lamp, arrows, corpse) or a boulder, so the clamp's only effect",
+            "trackedIn": "five wish-parser test gaps the pass confirmed",
+            "category": "tests"
+          },
+          {
+            "summary": "scripts/objnam-readobjnam.test.mjs:231 -- The four hand-transcribed tables are sampled rather than pinned — 4 of 46 spellings[] rows, 2 of 19 o_ranges[] rows and part of wrp[]/wrpsym[] are checked — and no generated-data c",
+            "trackedIn": "five wish-parser test gaps the pass confirmed",
+            "category": "tests"
+          },
+          {
+            "summary": "scripts/objnam-readobjnam.test.mjs:635 -- The `find()` helper asserts only the winning otyp under an rn2 stub pinned at 0, which always returns `validobjs[0]`, so the candidate set — the value that sets rn2's argument and ",
+            "trackedIn": "five wish-parser test gaps the pass confirmed",
+            "category": "tests"
+          },
+          {
+            "summary": "scripts/objnam-readobjnam.test.mjs:644 -- The assertion advertised as the guard for the per-game shuffled description table is inert: `init_objects(state, () => 0)` is the identity permutation, so `find('mud boots') === EL",
+            "trackedIn": "five wish-parser test gaps the pass confirmed",
+            "category": "tests"
+          },
+          {
+            "summary": "scripts/objnam-readobjnam.test.mjs:834 -- The count test pins only the singular case (`quan === 1`), so readobjnam_postparse1()'s `if (d.cnt === 1) d.cnt = 2` — the doubling C applies whenever makesingular() changes the ty",
+            "trackedIn": "five wish-parser test gaps the pass confirmed",
+            "category": "tests"
+          },
+          {
+            "summary": "js/objnam_readobjnam.js:1341 -- The spe switch drops C's case SCR_MAIL: d.otmp->spe = 1, so a wished-for scroll of mail is created with spe 0.",
+            "trackedIn": "SCR_MAIL's spe arm is compiled out of the comparison build",
+            "category": "production"
+          }
+        ],
+        "mutation": {
+          "mutants": 226,
+          "survivors": 62,
+          "byKind": {
+            "boolean": {
+              "ran": 37,
+              "killed": 31
+            },
+            "logical": {
+              "ran": 117,
+              "killed": 99
+            },
+            "relational": {
+              "ran": 72,
+              "killed": 34
+            }
+          },
+          "finderConclusion": "Re-run by the orchestrator over 3b2dde88..a00741d at the range head, because the implementer own run was interrupted by a background job exiting 144 and prepare --readiness could not run it while the gate was BLOCKED. 226 mutants, 164 killed, 62 survived, 4 timed out, first wave only. The survivor groups the implementer reasoned about are strstri offset-against-zero comparisons, guards on d.cnt and state.wizard the boundary makes constant, makewish() oops_msg and verb ternaries, and hold_another_object() drop guards. The test-quality finder confirmed five gaps in the same area, filed together."
+        },
+        "rejections": [
+          {
+            "summary": "js/display.js:3443 -- `_refuseUnfittableStatusRow(cached, refreshed)` takes two whole field arrays, but its parameter names are the same two identifiers its only caller uses, twenty lines below, for two",
+            "counterEvidence": "The stated impact is not material: it is a parameter-naming and comment-placement concern, and the concrete failure mode claimed is refuted by the code as written. Counter-evidence: The finding claims a reviewer 'will bind the names to the single BL_TIME field and conclude the guard measures one field's text ... i.e. that the guard is dead'. _rowWidth is defined immediately above the guard at js/display.js:3439-3441 as `function _rowWidth(fields) { return fields.reduce((total, { text }) => total + text.length, 0); }`, so both call sites inside the guard body (`_rowWidth(refreshed)`, `_rowWidth(cached)`) show on the same screen that the arguments are field lists, not single fields. No scrolling to the call site is needed, and the guard cannot be read as dead. Behavior is unchanged either way."
+          },
+          {
+            "summary": "js/objnam_readobjnam.js:1191 -- `d.consumed` carries two unrelated contracts -- C's `bp - origbp` bookkeeping and the port-only \"the player typed a qualifier\" boundary signal -- and neither comment mentions the o",
+            "counterEvidence": "The omission is correct rather than accidental, the guard order makes it harmless, and both claimed failure scenarios are refuted by adjacent code. Counter-evidence: cnt cannot belong to a list of 'fields that must still equal their readobjnam_init() value': js/objnam_readobjnam.js:1270-1271 (C objnam.c:4928-4929) runs `if (!d.cnt) d.cnt = 1;` unconditionally before requireUnqualifiedWish() is called at 1275, so the init value 0 is always overwritten and any such test would refuse every wish. The first claimed misreading ('counted wishes are already supported') requires ignoring the d.consumed test that is the first line of the same function the field list belongs to. The second sub-claim is wrong on its own terms: a leading count IS one of readobjnam_preparse()'s arms (objnam.c:3984-3990, the `digit(*d->bp)` branch), so the message 'the \"2\" qualifier' sends the reader to preparse, the correct block, not to the wrong one."
+          }
+        ],
+        "readiness": {
+          "boundary": "Starting events: the dispatch byte for Ctrl-W or the newline closing #wizwish, and the Enter that submits the wish line. Ending events: the painted wish prompt with its keystroke echoes, and prinv()'s inventory-letter line for the created object. The running game executes both; two development sessions replay them, moving 676 to 726 of 7,765 screens.",
+          "sourceReview": "Every branch reachable before the ending events was traced against nethack-c/upstream/src/: readobjnam() and its five-function chain, wishymatch(), rnd_otyp_by_namedesc(), makewish(), wiz_wish(), hold_another_object(), prinv(), xprname(), obj_to_let() and five objnam.c naming helpers. The trace covered state and random-number order and enumerated six draw sites inside the parse chain. It also corrected the range own account twice: SCR_MAIL sits inside #ifdef MAIL_STRUCTURES, which no config or patch defines, and four comments stated something the source does not.",
+          "completeness": "Two known divergences remain inside the boundary and are filed rather than left silent: a wished-for holy water loses its blessing, because the port reaches POT_WATER by a route that does not set d.blessed or d.iscursed; and wishymatch() folds case where C strsubst() does not. Every other excluded branch stops before changing state, consuming randomness or producing output, through a named refusal, and the class that escaped one is now converted at the command seam."
+        }
+      },
+      "recordedAt": "2026-08-03T04:04:14.908Z"
     }
   ]
 }
