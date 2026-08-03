@@ -616,7 +616,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "a79c15a8f054fa69e7ad5da5e31c93edcf3e9c2b",
       "detail": "objnam.c:4489-4501 reads 'potion of [un]holy water' inside readobjnam_postparse1(), sets d->iscursed or d->blessed, assigns d->typ = POT_WATER and returns 2 straight to typfnd:, where the BUC arms at 5256-5268 apply it. The port reaches POT_WATER by a different route: js/objnam_readobjnam.js:963's endsWithFold(d.bp, 'holy water') arm does not fire for that input, so d.blessed and d.iscursed stay 0 and the wish produces a plain uncursed potion of water where C blesses or curses it. Found by the wizard-mode-wish correctness pass. An orchestrator attempt to close it by refusing on d.blessed/d.iscursed after postparse1 does not fire, because the port never sets them on this path, and is not the fix; the port's path divergence is. Diagnose why line 963 is missed before writing any guard: the C arm is reached only after adjective parsing has stopped at 'potion', so the port's d.bp at that point is the value to check first. Closing condition: a fresh recording of 'potion of unholy water' and 'potion of holy water' in wizard mode, with the BUC arms ported or refused where C applies them. The bare forms 'holy water' and 'unholy water' are already refused by the qualifier guard and are not affected."
     },

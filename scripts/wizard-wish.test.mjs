@@ -80,7 +80,7 @@ function wishState(keys, { verbose = false } = {}) {
 test('the wish matrix contains only source-selected inputs', () => {
     const recipe = loadWizardWishRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 21);
+    assert.equal(recipe.segments.length, 23);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -97,14 +97,14 @@ test('the wish matrix contains only source-selected inputs', () => {
         if (opened.includes('\n'))
             assert.equal(segment.moves.at(-1), WAIT_KEY);
     }
-    // Nineteen segments reach the command and two are refused, so exactly
-    // nineteen set debug mode. cmd.c:2000's "wizwish" row carries WIZMODECMD,
+    // Twenty-one segments reach the command and two are refused, so exactly
+    // twenty-one set debug mode. cmd.c:2000's "wizwish" row carries WIZMODECMD,
     // which can_do_extcmd() and extcmds_match() both read.
     assert.equal(
         recipe.segments.filter(
             ({ nethackrc }) => nethackrc.includes('playmode:debug'),
         ).length,
-        19,
+        21,
     );
     assert.equal(
         extcmdlist.find(({ ef_txt }) => ef_txt === 'wizwish').flags

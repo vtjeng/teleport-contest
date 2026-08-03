@@ -11,7 +11,7 @@
 // through doextcmd().
 //
 // The first eight segments end while getlin() is still reading, which costs
-// one game lock apiece; the thirteen after them submit a wish and close with a
+// one game lock apiece; the fifteen after them submit a wish and close with a
 // wait. The matrix records one segment at a time for the same reason the
 // #levelchange matrix does.
 
@@ -191,6 +191,21 @@ export function loadWizardWishRecipe() {
             // the rewritten type is visible in the name on its own.
             segment(4471021,
                 `${WIZWISH_KEY}yellow dragon scale mail${NEWLINE}${WAIT}`,
+                { role: 'Valkyrie', gender: 'female', align: 'lawful' }),
+            // The "potion of" phrasing of both waters. objnam.c:4489-4501
+            // reaches POT_WATER by a route of its own -- adjective parsing has
+            // stopped at "potion", so the arm reads what is left and returns 2
+            // straight to typfnd: -- where the bare forms above arrive through
+            // the ordinary lookup. Both routes must set the same BUC, and only
+            // a recording shows that the two agree.
+            segment(4471022,
+                `${WIZWISH_KEY}potion of holy water${NEWLINE}${WAIT}`,
+                { role: 'Valkyrie', gender: 'female', align: 'lawful' }),
+            // 4471023 is skipped: its closing wait reaches
+            // distfleeck() (monmove.c:538), an unported monster-movement path,
+            // so the segment would stop for a reason unrelated to the wish.
+            segment(4471024,
+                `${WIZWISH_KEY}potion of unholy water${NEWLINE}${WAIT}`,
                 { role: 'Valkyrie', gender: 'female', align: 'lawful' }),
         ],
     }, 'wizard wish recipe');
