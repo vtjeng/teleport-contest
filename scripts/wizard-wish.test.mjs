@@ -11,7 +11,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { failClosedCommandRefusals, rhack } from '../js/cmd.js';
+import {
+    UnsupportedHeroCommandBoundaryError, failClosedCommandRefusals, rhack,
+} from '../js/cmd.js';
 import { UnsupportedObjectOperationError } from '../js/obj.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -304,8 +306,24 @@ test('a wish the hero cannot carry stops the segment rather than escaping',
         // no boulder segment, because no fresh recording can pass through a
         // refusal, so this borrows a recorded segment's configuration and
         // types a different wish.
+        //
+        // runSegment()'s onBoundary is what makes this an assertion rather
+        // than a smoke test: without it the call passes just as happily when
+        // no wish is typed at all, or when the wish stops somewhere earlier.
         const recorded = loadWizardWishRecipe().segments[0];
-        await runSegment({
-            ...recorded, moves: `.${WIZWISH_KEY}boulder\n.`,
-        });
+        const boundaries = [];
+        await runSegment(
+            { ...recorded, moves: `.${WIZWISH_KEY}boulder\n.` },
+            { onBoundary: (error) => boundaries.push(error) },
+        );
+        assert.equal(boundaries.length, 1);
+        // failClosedCommand() wraps the original class and keeps its message,
+        // so the boundary names the drop arm rather than any earlier stop.
+        assert.ok(boundaries[0] instanceof UnsupportedHeroCommandBoundaryError);
+        // js/objects.js gives BOULDER otyp 475, so the message names the
+        // object the wish created and not some earlier one.
+        assert.match(
+            boundaries[0].message,
+            /held object dropped is not available for otyp 475/,
+        );
     });

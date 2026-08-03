@@ -66,6 +66,7 @@ import {
     SCALE_MAIL,
     SCROLL_CLASS,
     SCR_MAGIC_MAPPING,
+    SCR_MAIL,
     SPBOOK_CLASS,
     SPEED_BOOTS,
     SPE_FINGER_OF_DEATH,
@@ -74,6 +75,7 @@ import {
     STRANGE_OBJECT,
     TOOLED_HORN,
     TOOL_CLASS,
+    TOWEL,
     VENOM_CLASS,
     WAN_DEATH,
     WAND_CLASS,
@@ -442,13 +444,34 @@ function recordingRandom(draws) {
     };
 }
 
+// recordingRandom() answers every rn2() with 0, which sends mkobj.c
+// blessorcurse() down its curse() branch, so no object it builds is ever
+// blessed.  blessorcurse() reads two rn2() in a row -- `if (!rn2(chance))` to
+// act at all, then `if (!rn2(2))` to choose between curse() and bless() -- and
+// for a magic lamp chance is 2, so both are rn2(2).  This stub answers the
+// first rn2(2) with 0 to enter and every later one with 1 to bless.  It is what
+// gives the `uncursed` arm's `blessed = false` something to undo.  A fresh stub
+// is built per wish() call, so the count restarts with each wish.
+function blessingRandom(draws) {
+    const base = recordingRandom(draws);
+    let seenPair = 0;
+    return {
+        ...base,
+        rn2: (x) => {
+            draws.push(`rn2(${x})`);
+            if (x !== 2) return 0;
+            return seenPair++ === 0 ? 0 : 1;
+        },
+    };
+}
+
 // The sentinel readobjnam() answers for "nothing"; C compares its address, so
 // any object identity will do.
 const NO_WISH = Object.freeze({});
 
-function wish(state, text) {
+function wish(state, text, makeRandom = recordingRandom) {
     const draws = [];
-    const random = recordingRandom(draws);
+    const random = makeRandom(draws);
     try {
         return { obj: readobjnam(text, NO_WISH, { state, random }), draws };
     } catch (error) {
@@ -532,10 +555,19 @@ test('readobjnam answers the caller sentinel for a declined wish', () => {
 test('readobjnam refuses a wish outside its boundary without drawing', () => {
     const state = wishState();
     for (const text of [
-        // readobjnam_preparse() consumes a count or a qualifier the typfnd:
-        // tail cannot apply.
-        '2 daggers',
+        // readobjnam_preparse() consumes a qualifier the typfnd: tail cannot
+        // apply.  A count is not here: it is refused after the lookup instead,
+        // which the stack test below covers.
         'rustproof long sword', 'wet towel', 'partly eaten food ration',
+        // One string per remaining UNSUPPORTED_WISH_FIELDS entry with a
+        // visible effect, because a field dropped from that object leaves the
+        // rest of the suite green.  Each names the objnam.c block that would
+        // finish the wish: isgreased at 5335, ispoisoned at 5307-5312,
+        // unlabeled at 5289-5292, islit at 5086-5091, isdiluted at 5300-5303,
+        // eroded at 5273-5283 and rechrg at 5155-5166.
+        'greased long sword', 'poisoned dagger', 'unlabeled scroll of mail',
+        'lit brass lantern', 'diluted potion of see invisible',
+        'rusty long sword', 'wand of death (3:5)',
         // A monster name outside the dragon range, which the typfnd: tail
         // would turn into a corpse.
         'newt corpse',
@@ -630,6 +662,12 @@ test('readobjnam negates a -N enchantment and curses the object', () => {
     const bare = wish(state, 'long sword').obj;
     assert.equal(bare.cursed, false);
     assert.equal(bare.blessed, false);
+    // 5094-5096's `if (d.spesgn == 0) d.spe = d.otmp->spe` retains what
+    // mksobj() rolled, which is the rne(3) at mkobj.c:878-880 -- 1 under the
+    // stub, since recordingRandom() answers rnd()/rne() with 1.  Without that
+    // branch d.spe would stay 0 and the sword would come back unenchanted, so
+    // this is the assertion that separates the two.
+    assert.equal(bare.spe, 1);
 });
 
 test('readobjnam applies the cursed and uncursed words', () => {
@@ -651,6 +689,20 @@ test('readobjnam applies the cursed and uncursed words', () => {
     const last = wish(state, 'cursed uncursed blessed magic lamp').obj;
     assert.equal(last.blessed, true);
     assert.equal(last.cursed, false);
+});
+
+// The uncursed arm sets both fields, and the test above can only see the
+// cursed one, because every object recordingRandom() builds starts cursed.
+// Under blessingRandom() blessorcurse() blesses instead, so 5261's
+// `otmp->blessed = 0` is the line that has to run.
+test('an uncursed wish clears a blessing the object was created with', () => {
+    const state = wishState();
+    const plain = wish(state, 'magic lamp', blessingRandom).obj;
+    assert.equal(plain.blessed, true);
+    assert.equal(plain.cursed, false);
+    const uncursed = wish(state, 'uncursed magic lamp', blessingRandom).obj;
+    assert.equal(uncursed.blessed, false);
+    assert.equal(uncursed.cursed, false);
 });
 
 test('readobjnam blesses holy water and curses unholy water', () => {
@@ -691,9 +743,71 @@ test('readobjnam refuses a count above one', () => {
     // stops here.  A count of one reaches the same object as no count at all.
     const many = wish(state, '3 daggers');
     assert.equal(many.refusal, 'a wish for more than one object');
-    assert.deepEqual(many.draws, []);
+    // The stop stands after readobjnam_postparse3()'s lookup, because
+    // oc_merge is not knowable until the type is.  objects.h gives DAGGER
+    // oc_prob 30, so the lookup draws rn2(31) -- the one draw C makes in the
+    // same place, with none after it.
+    assert.deepEqual(many.draws, ['rn2(31)']);
     for (const text of ['a long sword', 'the long sword', '1 long sword'])
         assert.equal(wish(state, text).obj.otyp, LONG_SWORD, text);
+});
+
+// The count a plural name produces, which readobjnam_preparse() never sees.
+// objnam.c:4408 doubles d.cnt for "pair of " and 4423-4433's makesingular()
+// block raises it from 1 to 2, both inside readobjnam_postparse1(), so a guard
+// reading d.cnt before that call sees 1.  Both forms below reached
+// hold_another_object() with quan 2 until the stack guard moved after the
+// lookup.
+test('readobjnam refuses the count a plural name produces', () => {
+    const state = wishState();
+    for (const text of ['daggers', 'the daggers']) {
+        const plural = wish(state, text);
+        assert.equal(plural.refusal, 'a wish for more than one object', text);
+        assert.deepEqual(plural.draws, ['rn2(31)'], text);
+    }
+    // But the count alone does not decide it.  "pair of " doubles d.cnt for
+    // boots too, and objnam.c:5071-5083 leaves quan alone for a type that does
+    // not merge, so C produces the single pair this must also produce.
+    const boots = wish(state, 'pair of speed boots');
+    assert.equal(boots.obj.otyp, SPEED_BOOTS);
+    assert.equal(boots.obj.quan, 1);
+});
+
+// objnam.c:5123-5187's `switch (d.typ)` reaches its `default: otmp->spe =
+// d.spe` only for the types no earlier arm claims.  TOWEL has its own arm at
+// 5133-5136 that assigns d.wetness alone, and SKELETON_KEY, HEAVY_IRON_BALL
+// and IRON_CHAIN break at 5141-5146 without assigning, so a requested
+// enchantment must not reach any of the four.  A towel makes it visible:
+// js/objnam.js:304-305 prints "moist" for spe 1 or 2, so a +2 towel that took
+// the default arm would read "a moist towel" where C prints "a towel".
+test('readobjnam leaves spe alone for the types C breaks on', () => {
+    const state = wishState();
+    for (const text of ['+2 towel', '-2 towel']) {
+        const towel = wish(state, text);
+        assert.equal(towel.obj.otyp, TOWEL, text);
+        // mksobj() rolls no spe for a towel: mkobj.c's TOOL_CLASS switch has
+        // no TOWEL case, so the object keeps the 0 it was created with.
+        assert.equal(towel.obj.spe, 0, text);
+    }
+    const chain = wish(state, '+2 iron chain');
+    assert.equal(chain.obj.spe, 0);
+    // The control: a long sword has no arm of its own, so the default arm
+    // assigns the enchantment C's wizard branch left unclamped at 5097-5098.
+    const sword = wish(state, '+2 long sword');
+    assert.equal(sword.obj.otyp, LONG_SWORD);
+    assert.equal(sword.obj.spe, 2);
+});
+
+// objnam.c:5168-5174 sets spe to 1 for a wished-for scroll of mail, marking it
+// as coming from bones or wishing rather than from an in-game mail event.  The
+// arm sits inside #ifdef MAIL_STRUCTURES, which include/global.h:430 defines
+// unconditionally; include/objects.h gates the SCR_MAIL row on the same macro,
+// and js/objects.js carries that row, so the comparison build compiles both.
+test('readobjnam marks a wished-for scroll of mail', () => {
+    const state = wishState();
+    const mail = wish(state, 'scroll of mail');
+    assert.equal(mail.obj.otyp, SCR_MAIL);
+    assert.equal(mail.obj.spe, 1);
 });
 
 // objnam.c readobjnam_preparse() (3965-4175).

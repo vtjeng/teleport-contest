@@ -5,8 +5,9 @@
 // objnam.c is split across two files. Its wish-parsing group lives in
 // js/objnam_readobjnam.js: readobjnam() and its five-function chain,
 // wishymatch(), rnd_otyp_by_namedesc() and the o_ranges[], spellings[], wrp[]
-// and wrpsym[] tables. Nothing here calls into that file; it calls back here
-// for the naming helpers above.
+// and wrpsym[] tables. Neither file imports the other. That file reaches the
+// objects[] tables through js/objects.js OBJ_NAME() and OBJ_DESCR(), and
+// object construction through js/obj.js.
 
 import {
     ART_EYES_OF_THE_OVERWORLD, find_artifact, permapoisoned,

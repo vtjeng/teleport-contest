@@ -1021,11 +1021,14 @@ function printStatus(config, head, status, verbose) {
       : 'Review gate: clear.',
   );
 
-  const gate = qualityGateState({
+  const gateInput = {
     reviewDue,
     unassignedCount: status.unassigned.length,
-  });
-  return { blocked: gate.debt || !gate.health, gate };
+  };
+  return {
+    blocked: qualityGateBlocked(gateInput),
+    gate: qualityGateState(gateInput),
+  };
 }
 
 function parseOptions(args) {

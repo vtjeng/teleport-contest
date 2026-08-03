@@ -66,6 +66,7 @@ import {
     HEAVY_IRON_BALL,
     HELM_OF_TELEPATHY,
     HORN_OF_PLENTY,
+    IRON_CHAIN,
     IRON_SHOES,
     KATANA,
     KELP_FROND,
@@ -100,9 +101,11 @@ import {
     SCROLL_CLASS,
     SCR_BLANK_PAPER,
     SCR_CHARGING,
+    SCR_MAIL,
     SHIELD_OF_REFLECTION,
     SHORT_SWORD,
     SILVER_SABER,
+    SKELETON_KEY,
     SLIME_MOLD,
     SMALL_SHIELD,
     SPBOOK_CLASS,
@@ -116,6 +119,7 @@ import {
     TOOLED_HORN,
     TOOL_CLASS,
     TOUCHSTONE,
+    TOWEL,
     TRIPE_RATION,
     T_SHIRT,
     VENOM_CLASS,
@@ -1195,16 +1199,10 @@ const UNSUPPORTED_WISH_FIELDS = Object.freeze({
 // A guard placed after the chain would let a wish outside the boundary draw
 // first and stop afterwards.
 //
-// The count is tested on its own rather than through d.consumed, which no
-// longer separates a supported qualifier from an unsupported one.  A count
-// above 1 stops here even though objnam.c:5071-5083's wizard arm is ported,
-// because nothing has yet checked the inventory line hold_another_object()
-// prints for a stack.  A count of 1 -- "a", "an", "the", "1", or none at all --
-// reaches exactly what a bare name reaches and is admitted.
+// The count is not tested here.  readobjnam_postparse1()'s makesingular() block
+// raises d.cnt to 2 after this runs, so a count refused here would still let
+// "daggers" through.  readobjnam() tests it once postparse1 has settled it.
 function requireSimpleWishQualifiers(d) {
-    if (d.cnt > 1)
-        throw new UnsupportedWishError('a wish for more than one object',
-                                       origbp(d));
     for (const [field, value] of Object.entries(UNSUPPORTED_WISH_FIELDS))
         if (d[field] !== value)
             throw new UnsupportedWishError(`a wish that sets ${field}`,
@@ -1216,6 +1214,28 @@ function requireSimpleWishQualifiers(d) {
 // until readobjnam_postparse3() has matched it, so the one draw that match
 // makes has already happened -- it is the draw C makes, in C's order, and no
 // later one follows it.
+// The stack boundary.  objnam.c:5071-5083's wizard arm assigns otmp->quan from
+// d.cnt, and nothing has yet checked the inventory line hold_another_object()
+// prints for a stack, so a wish that would set quan above 1 stops.
+//
+// Both operands have to be read here rather than beside the qualifier guard.
+// d.cnt is not settled until readobjnam_postparse1() has run: "pair of " doubles
+// it at objnam.c:4408 and the makesingular() block at 4423-4433 raises it from 1
+// to 2, so "daggers" and "the daggers" arrive at the earlier guard holding 1.
+// And oc_merge is not knowable until postparse3() has resolved the type.  Both
+// are needed, because the tail leaves quan alone for a type that does not merge:
+// "pair of speed boots" reaches d.cnt 2 and still produces the single pair C
+// produces, so refusing on the count alone would stop a wish C completes.
+//
+// This stands after postparse3()'s lookup, which is the one draw C makes in the
+// same place, and before mksobj(), so no draw follows the stop.
+function requireSingleWishedObject(d, type, state) {
+    if (d.cnt > 1 && type.oc_merge && state.wizard) {
+        throw new UnsupportedWishError('a wish for more than one object',
+                                       origbp(d));
+    }
+}
+
 function requireSimpleWishedObject(d, type, state) {
     const refuse = (reason) => {
         throw new UnsupportedWishError(reason, origbp(d));
@@ -1326,6 +1346,7 @@ export function readobjnam(bp, no_wish, env = {}) {
         d.oclass = state.objects[d.typ].oc_class;
 
     requireSimpleWishedObject(d, objectType(d.typ, state), state);
+    requireSingleWishedObject(d, objectType(d.typ, state), state);
 
     /*
      * Create the object, then fine-tune it.
@@ -1361,15 +1382,39 @@ export function readobjnam(bp, no_wish, env = {}) {
 
     /* set otmp->spe.  This may, or may not, use d.spe... */
     switch (d.typ) {
+    case TOWEL:
+        // d.wetness is 0 for every wish this port admits, because
+        // readobjnam_preparse()'s "wet " and "moist " arms set it and
+        // UNSUPPORTED_WISH_FIELDS refuses them.  The arm is still needed: it is
+        // what stops a requested enchantment from reaching a towel, which C
+        // leaves at the 0 mksobj() rolled.
+        if (d.wetness)
+            d.otmp.spe = d.wetness;
+        break;
+    case SKELETON_KEY:
+    case HEAVY_IRON_BALL:
+    case IRON_CHAIN:
+        /* objnam.c:5141-5146 breaks without assigning otmp->spe */
+        break;
+    /* scroll of mail:  0: delivered in-game via external event (or randomly
+       for fake mail); 1: from bones or wishing; 2: written with marker */
+    case SCR_MAIL:
+        // objnam.c:5168-5174 wraps this arm in #ifdef MAIL_STRUCTURES, which
+        // include/global.h:430 defines unconditionally.  include/objects.h
+        // gates the SCR_MAIL row on the same macro, and js/objects.js carries
+        // that row, so the comparison build has both.
+        d.otmp.spe = 1;
+        break;
     /* splash of venom:  0: normal, and transitory; 1: wishing */
     case ACID_VENOM:
     case BLINDING_VENOM:
         d.otmp.spe = 1;
         break;
     default:
-        // The rest of objnam.c:5121-5186 either belongs to a type refused
-        // above or, for TOWEL, SKELETON_KEY, HEAVY_IRON_BALL, IRON_CHAIN and
-        // WAN_WISHING in wizard mode, assigns the value d.spe already holds.
+        // objnam.c:5123-5187's other arms belong to types
+        // requireSimpleWishedObject() refuses: TIN, SLIME_MOLD, CHEST,
+        // LARGE_BOX, STATUE, FIGURINE and CORPSE.  WAN_WISHING falls through
+        // to here for a wizard, which is the only hero that reaches this code.
         d.otmp.spe = d.spe;
         break;
     }
