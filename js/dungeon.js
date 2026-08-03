@@ -229,12 +229,34 @@ function init_dungeon_branches(rawBranches, pd, dngidx) {
         panic('init_dungeon: too many branches');
 }
 
-function find_branch(name, pd) {
-    for (let index = 0; index < pd.n_brs; ++index) {
-        if (pd.tmpbranch[index].name === name)
-            return index;
+// C ref: dungeon.c find_branch() (310-337). Two functions share one name: with
+// a proto-dungeon it answers an index into that structure's branch table, and
+// without one it answers the packed ledger pair of the branch whose far
+// dungeon is called `name`. lev_by_name() is the caller of the second form,
+// which is why C describes it as "support for level tport by name".
+function find_branch(name, pd, state = game) {
+    let index;
+    if (pd) {
+        for (index = 0; index < pd.n_brs; ++index) {
+            if (pd.tmpbranch[index].name === name)
+                return index;
+        }
+        panic(`find_branch: can't find ${name}`);
     }
-    panic(`find_branch: can't find ${name}`);
+    /* support for level tport by name */
+    const folded = name.toLowerCase();
+    const branch = (state.branches ?? []).find((candidate) => {
+        const dnam = state.dungeons[candidate.end2.dnum].dname;
+        const foldedName = dnam.toLowerCase();
+        return foldedName === folded
+            || (foldedName.startsWith('the ')
+                && foldedName.slice(4) === folded);
+    }) ?? null;
+    // C packs the two ledger numbers into one int so that the caller can
+    // recover both ends of the branch; -1 means no branch carries that name.
+    return branch
+        ? ((ledger_no(branch.end1, state) << 8) | ledger_no(branch.end2, state))
+        : -1;
 }
 
 function parent_dnum(name, pd) {
@@ -495,6 +517,86 @@ export function dunlevs_in_dungeon(level, state = game) {
 // C ref: dungeon.c In_hell(). The Inhell macro is In_hell(&u.uz).
 export function In_hell(level, state = game) {
     return Boolean(state.dungeons[level.dnum].flags.hellish);
+}
+
+// C ref: dungeon.c On_W_tower_level() (1913-1920) and In_W_tower()
+// (1922-1940). The first asks whether the level holds the Wizard's tower, the
+// second whether a square is inside it.
+//
+// dat/dungeon.lua puts wizard1, wizard2 and wizard3 in Gehennom, so both stay
+// false everywhere this port can reach. They are ported rather than assumed
+// because do.c goto_level() reads In_W_tower() before it can know where it is
+// going, and a Gehennom arrival would otherwise pick the answer up silently.
+export function On_W_tower_level(level, state = game) {
+    return Boolean(on_level(level, state.wiz1_level)
+        || on_level(level, state.wiz2_level)
+        || on_level(level, state.wiz3_level));
+}
+
+export function In_W_tower(x, y, level, state = game) {
+    if (!On_W_tower_level(level, state))
+        return false;
+    const dndest = state.dndest ?? {};
+    if (!dndest.nlx) {
+        // C's impossible("No boundary for Wizard's Tower?") reports a level
+        // that claims the tower without carrying its exclusion region.
+        throw new Error("No boundary for Wizard's Tower?");
+    }
+    /*
+     * Both of the exclusion regions for arriving via level teleport
+     * (from above or below) define the tower's boundary.
+     */
+    return within_bounded_area(x, y, dndest.nlx, dndest.nly,
+                               dndest.nhx, dndest.nhy);
+}
+
+// C ref: dungeon.c single_level_branch() (1966-1975). C's own comment calls
+// this a hard-coded assumption that Fort Ludios is the only one-level branch.
+// teleport.c level_tele() refuses to send the hero anywhere from such a
+// branch, and stairs.c stairs_description() names its level by branch depth.
+export function single_level_branch(level, state = game) {
+    return on_level(level, state.knox_level);
+}
+
+// C ref: dungeon.c get_level() (1795-1846). Translates the depth the player
+// typed, which counts from the surface, into a dungeon number and a level
+// within it. C's comment: teleporting "down" is confined to the current
+// dungeon, and the search walks up the branch chain until it finds the dungeon
+// that contains `levnum`.
+export function get_level(newlevel, levnum, state = game) {
+    let dgn = state.u.uz.dnum;
+
+    if (levnum <= 0) {
+        /* can only currently happen in endgame */
+        levnum = state.u.uz.dlevel;
+    } else if (levnum > (state.dungeons[dgn].depth_start
+                         + state.dungeons[dgn].num_dunlevs - 1)) {
+        /* beyond end of dungeon, jump to last level */
+        levnum = state.dungeons[dgn].num_dunlevs;
+    } else {
+        /* The desired level is in this dungeon or a "higher" one. */
+        if (levnum < state.dungeons[dgn].depth_start) {
+            do {
+                /*
+                 * Find the parent dungeon of this dungeon.
+                 *
+                 * This assumes that end2 is always the "child" and it is
+                 * unique.
+                 */
+                const br = (state.branches ?? []).find(
+                    (candidate) => candidate.end2.dnum === dgn,
+                );
+                if (!br) panic("get_level: can't find parent dungeon");
+                dgn = br.end1.dnum;
+            } while (levnum < state.dungeons[dgn].depth_start);
+        }
+
+        /* We're within the same dungeon; calculate the level. */
+        levnum = levnum - state.dungeons[dgn].depth_start + 1;
+    }
+
+    newlevel.dnum = dgn;
+    newlevel.dlevel = levnum;
 }
 
 // C ref: dungeon.c Invocation_lev(), Can_dig_down(), and Can_fall_thru().
@@ -881,6 +983,44 @@ export function u_on_newpos(x, y, state = game) {
     earth_sense(state);
 }
 
+// C ref: dungeon.c u_on_rndspot() (1604-1638). Places the hero at a random
+// spot in the arrival region a level change left behind, which is what a level
+// teleport, a fall through a trap door and a portal with no exit all use.
+//
+// `upflag` packs two bits, as C's own `int up = (upflag & 1),
+// was_in_W_tower = (upflag & 2)` shows.
+//
+// hack.c switch_terrain() closes the function because the hero may have just
+// left solid rock. Every arm of it needs terrain that blocks levitation or
+// flight, or one of those properties already blocked; a hero arriving on a
+// ROOM square with neither reaches only its `flags.terrainstatus` tail.
+export function u_on_rndspot(upflag, state = game) {
+    const up = (upflag & 1), was_in_W_tower = (upflag & 2);
+    const dndest = state.dndest ?? {};
+    const updest = state.updest ?? {};
+
+    /*
+     * Place the hero at a random location within the relevant region.
+     * place_lregion(xTELE) -> put_lregion_here(xTELE) -> u_on_newpos()
+     * Unspecified region (.lx == 0) defaults to entire level.
+     */
+    if (was_in_W_tower && On_W_tower_level(state.u.uz, state))
+        /* Stay inside the Wizard's tower when feasible. */
+        place_lregion(dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
+                      0, 0, 0, 0, LR_DOWNTELE, null, state);
+    else if (up)
+        place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
+                      updest.nlx, updest.nly, updest.nhx, updest.nhy,
+                      LR_UPTELE, null, state);
+    else
+        place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
+                      dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
+                      LR_DOWNTELE, null, state);
+
+    /* might have just left solid rock and unblocked levitation */
+    switch_terrain(state);
+}
+
 export class UnsupportedEarthSenseError extends Error {
     constructor(reason) {
         super(`unsupported earth sense: ${reason}`);
@@ -952,6 +1092,100 @@ function earth_sense(state) {
     }
 }
 
+
+// C ref: dungeon.c dlev_in_current_branch() (2086-2093), the macro
+// lev_by_name() uses twice. Its comment: within the same branch, or else main
+// dungeon <-> Gehennom.
+function dlev_in_current_branch(dlev, state) {
+    const here = state.u.uz;
+    return dlev.dnum === here.dnum
+        || (here.dnum === state.valley_level?.dnum
+            && dlev.dnum === state.medusa_level?.dnum)
+        || (here.dnum === state.medusa_level?.dnum
+            && dlev.dnum === state.valley_level?.dnum);
+}
+
+// C ref: dungeon.c lev_by_name() (2095-2170). Matches one word against a level
+// the player can name, and answers its depth, or 0 for no match. teleport.c
+// level_tele() asks it before falling back to atoi(), so a purely numeric
+// answer runs the whole function and drops out with 0.
+//
+// C's first leg is find_mapseen_by_str(), which searches the player's own
+// #annotate notes. This port keeps no mapseen chain -- js/do.js records the
+// same gap for recalc_mapseen() -- so nothing can match and `mseen` is always
+// null here.
+export function lev_by_name(nam, state = game) {
+    let lev = 0;
+    let slev = null;
+    let dlev = null;
+    const mseen = null;
+
+    /* no matching annotation, check whether they used a name we know */
+
+    /* allow strings like "the oracle level" to find "oracle" */
+    if (nam.slice(0, 4).toLowerCase() === 'the ')
+        nam = nam.slice(4);
+    // C's `(p = strstri(nam, " level")) != 0 && p == eos(nam) - 6` accepts the
+    // suffix only where it ends the string, and strstri() answers the first
+    // occurrence, so "level level" keeps its second word. The `>= 0` stands
+    // for C's NULL test: without it a five-character name would match the
+    // no-match answer of -1 against its own length minus six.
+    const levelSuffix = strstri(nam, ' level');
+    if (levelSuffix >= 0 && levelSuffix === nam.length - 6)
+        nam = nam.slice(0, -6);
+    /* hell is the old name, and wouldn't match; gehennom would match its
+       branch, yielding the castle level instead of valley of the dead */
+    if (nam.toLowerCase() === 'gehennom' || nam.toLowerCase() === 'hell') {
+        // In_V_tower() is js/const.js's rendering of the dungeon.h macro and
+        // reads the module-level game rather than `state`, as every other
+        // caller of those macros does. On the live path the two are the same.
+        nam = In_V_tower(state.u.uz)
+            ? " to Vlad's tower" /* branch to... */
+            : 'valley';
+    } else if (nam.toLowerCase() === 'delphi') {
+        /* Oracle says "welcome to Delphi" so recognize that name too */
+        nam = 'oracle';
+    }
+
+    slev = find_level(nam, state);
+    if (slev) dlev = slev.dlevel;
+
+    if (mseen || slev) {
+        const idx = ledger_no(dlev, state);
+        if (dlev_in_current_branch(dlev, state)
+            /* either wizard mode or else seen and not forgotten */
+            && (state.wizard
+                || (level_info(idx, state).flags & VISITED) === VISITED)) {
+            lev = depth(dlev, state);
+        }
+    } else { /* not a specific level; try branch names */
+        let idx = find_branch(nam, null, state);
+        /* "<branch> to Xyzzy" */
+        const p = strstri(nam, ' to ');
+        if (idx < 0 && p >= 0)
+            idx = find_branch(nam.slice(p + 4), null, state);
+
+        if (idx >= 0) {
+            const idxtoo = (idx >> 8) & 0x00FF;
+            idx &= 0x00FF;
+            /* either wizard mode, or else _both_ sides of branch seen */
+            if (state.wizard
+                || (((level_info(idx, state).flags & VISITED) === VISITED)
+                    && ((level_info(idxtoo, state).flags & VISITED)
+                        === VISITED))) {
+                if (ledger_to_dnum(idxtoo, state) === state.u.uz.dnum)
+                    idx = idxtoo;
+                dlev = {
+                    dnum: ledger_to_dnum(idx, state),
+                    dlevel: ledger_to_dlev(idx, state),
+                };
+                if (dlev_in_current_branch(dlev, state))
+                    lev = depth(dlev, state);
+            }
+        }
+    }
+    return lev;
+}
 
 // C ref: dungeon.c on_level(). Optional topology locations compare false when
 // either operand is absent.

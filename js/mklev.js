@@ -14,7 +14,6 @@ import {
     dungeon_branch,
     level_difficulty,
     on_level,
-    u_on_newpos,
 } from './dungeon.js';
 import { UnsupportedSpecialRoomError, do_mkroom } from './mkroom.js';
 import { mkcorpstat } from './corpstat.js';
@@ -128,11 +127,7 @@ import {
     S_VAMPIRE,
     S_ZOMBIE,
 } from './monsters.js';
-import {
-    stairway_add,
-    stairway_find_dir,
-    stairway_find_special_dir,
-} from './stairs.js';
+import { stairway_add } from './stairs.js';
 import { THEMEROOM_DEFINITIONS } from './themeroom_data.js';
 import {
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS,
@@ -156,7 +151,7 @@ import {
     DBWALL, AIR, CLOUD,
     MAX_TYPE, MATCH_WALL,
     A_LAWFUL, A_NEUTRAL, A_CHAOTIC,
-    LR_TELE, LR_UPTELE, MALE,
+    LR_TELE, MALE,
     NO_TRAP, TRAPNUM, ARROW_TRAP, DART_TRAP, ROCKTRAP,
     SQKY_BOARD, LANDMINE, ROLLING_BOULDER_TRAP,
     SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, PIT, SPIKED_PIT, HOLE,
@@ -193,60 +188,6 @@ const TRAP_ENGRAVINGS = new Map([
     [TELEP_TRAP, 'ad aerarium'],
     [LEVEL_TELEP, 'ad aerarium'],
 ]);
-
-// ── Hero placement (C ref: stairs.c, mkmaze.c) ──
-
-
-// C ref: mkmaze.c bad_location — simplified for skeleton
-function bad_location(x, y, nlx, nly, nhx, nhy) {
-    const loc = game.level?.at(x, y);
-    if (!loc) return true;
-    // Excluded region
-    if (nlx && x >= nlx && x <= nhx && y >= nly && y <= nhy) return true;
-    // Must be ROOM or (CORR in maze)
-    if (loc.typ !== ROOM && !(loc.typ === CORR && game.level?.flags?.is_maze_lev))
-        return true;
-    return false;
-}
-
-// C ref: mkmaze.c place_lregion — place hero (LR_UPTELE/LR_DOWNTELE)
-export function place_lregion(lx, ly, hx, hy, nlx, nly, nhx, nhy, rtype, lev) {
-    if (!lx) {
-        lx = 1; hx = COLNO - 1; ly = 0; hy = ROWNO - 1;
-    }
-    if (lx < 1) lx = 1;
-    if (hx > COLNO - 1) hx = COLNO - 1;
-    if (ly < 0) ly = 0;
-    if (hy > ROWNO - 1) hy = ROWNO - 1;
-
-    // Probabilistic search
-    for (let trycnt = 0; trycnt < 200; trycnt++) {
-        const x = rn1((hx - lx) + 1, lx);
-        const y = rn1((hy - ly) + 1, ly);
-        if (!bad_location(x, y, nlx, nly, nhx, nhy)) {
-            u_on_newpos(x, y);
-            return;
-        }
-    }
-    // Deterministic fallback
-    for (let x = lx; x <= hx; x++)
-        for (let y = ly; y <= hy; y++)
-            if (!bad_location(x, y, nlx, nly, nhx, nhy)) {
-                u_on_newpos(x, y);
-                return;
-            }
-}
-
-// C ref: stairs.c u_on_upstairs — place hero on upstairs or fallback
-export function u_on_upstairs() {
-    const stway = stairway_find_dir(true);
-    if (stway) { u_on_newpos(stway.sx, stway.sy); return; }
-    // No upstair — try special stairs, then random
-    const special = stairway_find_special_dir(false);
-    if (special) { u_on_newpos(special.sx, special.sy); return; }
-    // Random placement via place_lregion
-    place_lregion(0, 0, 0, 0, 0, 0, 0, 0, LR_UPTELE, null);
-}
 
 function levelObjectEnv(overrides = {}) {
     return objectGenerationEnv({ state: game, ...overrides });

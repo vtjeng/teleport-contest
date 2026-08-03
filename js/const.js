@@ -2261,6 +2261,9 @@ export const Trap_Moved_Mon = 3;
 // Trap helpers (trap.h)
 export function is_pit(ttyp) { return ttyp === PIT || ttyp === SPIKED_PIT; }
 export function is_hole(ttyp) { return ttyp === HOLE || ttyp === TRAPDOOR; }
+export function undestroyable_trap(ttyp) {
+    return ttyp === MAGIC_PORTAL || ttyp === VIBRATING_SQUARE;
+}
 
 // Trap flags for mktrap
 export const MKTRAP_NOFLAGS = 0;

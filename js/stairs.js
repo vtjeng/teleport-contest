@@ -4,7 +4,14 @@
 // stands for C's gs.stairs. Every lookup below walks that list, so the list is
 // the single owner of stairway state and nothing else may keep its own copy.
 
-import { depth, on_level } from './dungeon.js';
+import {
+    depth,
+    dunlev,
+    on_level,
+    single_level_branch,
+    u_on_newpos,
+    u_on_rndspot,
+} from './dungeon.js';
 import { game } from './gstate.js';
 import { strsubst } from './hacklib.js';
 
@@ -72,6 +79,30 @@ export function stairway_find_special_dir(up, state = game) {
     return null;
 }
 
+// C ref: stairs.c u_on_sstairs(). Places the hero on the branch staircase that
+// leads the other way from `upflag`, and falls back to a random spot when this
+// level has none.
+export function u_on_sstairs(upflag, state = game) {
+    const stway = stairway_find_special_dir(upflag, state);
+
+    if (stway)
+        u_on_newpos(stway.sx, stway.sy, state);
+    else
+        u_on_rndspot(upflag, state);
+}
+
+// C ref: stairs.c u_on_upstairs(). allmain.c newgame() places the starting
+// hero with it, and do.c goto_level() uses it for a descent whose destination
+// carries no staircase back to the level just left.
+export function u_on_upstairs(state = game) {
+    const stway = stairway_find_dir(true, state);
+
+    if (stway)
+        u_on_newpos(stway.sx, stway.sy, state);
+    else
+        u_on_sstairs(0, state); /* destination upstairs implies moving down */
+}
+
 // C ref: stairs.c On_stairs().
 export function On_stairs(x, y, state = game) {
     return stairway_at(x, y, state) !== null;
@@ -82,19 +113,6 @@ export function known_branch_stairs(stway, state = game) {
     return Boolean(stway
         && stway.tolev?.dnum !== state.u?.uz?.dnum
         && stway.u_traversed);
-}
-
-// C ref: dungeon.c dunlev() and single_level_branch(). Both are one-line
-// helpers that stairs_description() reads, so they stay beside their caller
-// rather than becoming the whole of a dungeon.c port they do not represent.
-function dunlev(level) {
-    return level.dlevel;
-}
-
-function single_level_branch(level, state) {
-    const knox = state.knox_level;
-    return Boolean(knox
-        && level.dnum === knox.dnum && level.dlevel === knox.dlevel);
 }
 
 // C ref: stairs.c stairs_description(). stcase true asks for the singular
