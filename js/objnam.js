@@ -1,7 +1,9 @@
 // Runtime object naming for the early movement, pet, trap, and combat paths.
 // C refs: objnam.c xname(), corpse_xname(), doname(), and distant_name().
 
-import { find_artifact, permapoisoned } from './artifacts.js';
+import {
+    ART_EYES_OF_THE_OVERWORLD, find_artifact, permapoisoned,
+} from './artifacts.js';
 import {
     BLINDED, CORPSTAT_HISTORIC, HAND, NON_PM, P_BOW,
     W_AMUL, W_ARMG, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
@@ -12,7 +14,7 @@ import {
 } from './fruit.js';
 import { tin_details } from './eat.js';
 import { game } from './gstate.js';
-import { dist2, lowc, strcasecpy } from './hacklib.js';
+import { dist2, highc, lowc, strcasecpy } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import { cansee } from './vision.js';
 import { body_part } from './polyself.js';
@@ -723,6 +725,15 @@ function wornSuffix(obj, type, state) {
     return suffix;
 }
 
+// C ref: objnam.c cxname() (1922-1930). xname() drops a corpse's monster
+// type, so a corpse goes to corpse_xname() instead; that helper is unported
+// and no wish this port grants makes a corpse.
+export function cxname(obj, state = game) {
+    if (obj.otyp === CORPSE)
+        unsupported('corpse_xname() for cxname()', obj);
+    return xnameFresh(obj, state);
+}
+
 // C ref: objnam.c singular() (2087-2105). Names one item of a stack by
 // running the caller's namer with quan temporarily set to 1. C swaps xname()
 // for cxname() on a corpse, because xname() would drop the monster type;
@@ -766,6 +777,44 @@ export function the(str) {
     }
     /* not a proper name, needs an article */
     return `the ${str}`;
+}
+
+// C ref: objnam.c The() (2234-2241). the() with its first character
+// capitalized.
+export function The(str) {
+    const tmp = the(str);
+    return highc(tmp[0]) + tmp.slice(1);
+}
+
+// C ref: obj.h is_plural() (421-427). The Eyes of the Overworld are plural
+// once discovered but not while they are still "a pair of lenses";
+// undiscovered_artifact() is unported and no wish this port grants makes an
+// artifact, so that arm stops.
+function is_plural(otmp) {
+    if (otmp.quan !== 1) return true;
+    if (otmp.oartifact === ART_EYES_OF_THE_OVERWORLD)
+        unsupported('undiscovered_artifact() for is_plural()', otmp);
+    return false;
+}
+
+// C ref: objnam.c otense() (2529-2545). `verb` arrives in the plural, without
+// a trailing s, and comes back agreeing with what xname(otmp) would be.
+export function otense(otmp, verb) {
+    if (!is_plural(otmp))
+        return vtense(null, verb);
+    return verb;
+}
+
+// C ref: objnam.c aobjnam() (2242-2258). "count cxname(otmp)", or just
+// cxname(otmp) when the count is 1, with the verb agreed and appended.
+export function aobjnam(otmp, verb, state = game) {
+    let bp = cxname(otmp, state);
+
+    if (otmp.quan !== 1)
+        bp = `${otmp.quan} ${bp}`;
+    if (verb)
+        bp = `${bp} ${otense(otmp, verb)}`;
+    return bp;
 }
 
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and

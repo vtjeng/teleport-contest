@@ -4,12 +4,18 @@ import test from 'node:test';
 import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
+    A_CON,
+    A_STR,
     BLINDED,
+    CONTAINED_SYM,
+    FUMBLING,
     HALLUC,
     HALLUC_RES,
+    HANDS_SYM,
     LAST_PROP,
     LOST_THROWN,
     NON_PM,
+    NUM_ATTRS,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -29,6 +35,7 @@ import {
     assigninvlet,
     delete_contents,
     freeinv,
+    hold_another_object,
     INVLET_BASIC,
     initializeInventory,
     inventoryObjects,
@@ -36,10 +43,13 @@ import {
     merged,
     money_cnt,
     obj_extract_self,
+    obj_to_let,
+    prinv,
     resetInventory,
     stackobj,
     update_inventory,
     useupall,
+    xprname,
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
 import {
@@ -56,12 +66,15 @@ import {
     BAG_OF_HOLDING,
     CORPSE,
     DART,
+    ARROW,
+    BOULDER,
     EGG,
     FIGURINE,
     FOOD_RATION,
     GLOB_OF_GRAY_OOZE,
     GOLD_PIECE,
     LUCKSTONE,
+    OIL_LAMP,
     SACK,
     TALLOW_CANDLE,
     objects_globals_init,
@@ -1472,4 +1485,176 @@ test('resetInventory deletes each object and restores first-letter state', () =>
     assert.equal(state.lastinvnr, INVLET_BASIC - 1);
     assert.equal(ration.where, OBJ_DELETED);
     assert.equal(apple.where, OBJ_DELETED);
+});
+
+// A hero the capacity tests can weigh: acurrstr() and effective_attribute()
+// read u.acurr, and near_capacity() needs both Strength and Constitution.
+function carryingState() {
+    const state = initializedState();
+    const attributes = new Array(NUM_ATTRS).fill(0);
+    attributes[A_STR] = 18;
+    attributes[A_CON] = 18;
+    state.u.acurr = { a: attributes };
+    state.u.uprops = state.u.uprops.map((prop) => ({ ...prop }));
+    return state;
+}
+
+// invent.c obj_to_let() (2857-2868).
+test('obj_to_let answers the letter assigned to the object', () => {
+    const state = carryingState();
+    const lamp = instance(OIL_LAMP, state);
+    addinv(lamp, { state });
+    assert.equal(obj_to_let(lamp, state), 'a');
+    // options.c starts flags.invlet_constant at TRUE, so a state that has not
+    // set it reads as set.
+    delete state.flags.invlet_constant;
+    assert.equal(obj_to_let(lamp, state), 'a');
+    // C renumbers every letter first when flags.invlet_constant is off, which
+    // needs reassign(); nothing in this port clears the flag.
+    state.flags.invlet_constant = false;
+    assert.throws(() => obj_to_let(lamp, state),
+                  UnsupportedObjectOperationError);
+});
+
+// invent.c xprname() (2892-2953).
+test('xprname formats the inventory line', () => {
+    const state = carryingState();
+    // A wished-for lamp is seen but neither identified nor known to be
+    // uncursed, which is what makes doname() answer its description.
+    const lamp = instance(OIL_LAMP, state,
+                          { bknown: false, dknown: true, known: false });
+    addinv(lamp, { state });
+    // "%c - %.*s%s" with a period for `dot`, and none without it.
+    assert.equal(xprname(lamp, null, 'a', true, 0, 0, state), 'a - a lamp.');
+    assert.equal(xprname(lamp, null, 'a', false, 0, 0, state), 'a - a lamp');
+    // `use_invlet` overrides the caller's letter with the object's own, so a
+    // caller that passes the wrong one still prints the right line.
+    lamp.invlet = 'q';
+    assert.equal(xprname(lamp, null, 'a', true, 0, 0, state), 'q - a lamp.');
+    // The same default as obj_to_let()'s: an unset flag reads as C's TRUE, so
+    // the override still happens.
+    delete state.flags.invlet_constant;
+    assert.equal(xprname(lamp, null, 'a', true, 0, 0, state), 'q - a lamp.');
+    state.flags.invlet_constant = true;
+    // CONTAINED_SYM and HANDS_SYM suppress that override, because C uses them
+    // for lines that name no inventory slot.
+    assert.equal(xprname(lamp, 'your hands', HANDS_SYM, true, 0, 0, state),
+                 '- - your hands.');
+    assert.equal(xprname(lamp, 'a lamp', CONTAINED_SYM, false, 0, 0, state),
+                 '> - a lamp');
+    // A non-zero quantity is shown instead of the object's own, and put back
+    // afterwards.
+    const arrows = instance(ARROW, state,
+                            { bknown: false, known: false, quan: 7 });
+    addinv(arrows, { state });
+    assert.equal(xprname(arrows, null, 'b', true, 0, 3, state), 'b - 3 arrows.');
+    assert.equal(arrows.quan, 7);
+    // The shop price column is the only other shape C formats, and it stops.
+    assert.throws(() => xprname(lamp, null, 'a', true, 10, 0, state),
+                  UnsupportedObjectOperationError);
+    assert.throws(() => xprname(lamp, 'total', '*', true, 0, 0, state),
+                  UnsupportedObjectOperationError);
+});
+
+// invent.c prinv() (2869-2890).
+test('prinv prints the line, with the prefix and total C adds', async () => {
+    const state = carryingState();
+    state.flags.verbose = true;
+    const lines = [];
+    const withMessage = { state, hooks: { message: (text) => lines.push(text) } };
+    const arrows = instance(ARROW, state,
+                            { bknown: false, known: false, quan: 7 });
+    addinv(arrows, { state });
+
+    // A null prefix prints nothing before the letter, and quan == 0 means the
+    // object's own quantity, which suppresses the total.
+    await prinv(null, arrows, 0, withMessage);
+    assert.deepEqual(lines, ['a - 7 arrows.']);
+    lines.length = 0;
+    // A partial quantity drops the period and appends the total instead.
+    await prinv('You have', arrows, 3, withMessage);
+    assert.deepEqual(lines, ['You have a - 3 arrows (7 in total).']);
+    lines.length = 0;
+    // flags.verbose gates only the total, not the line.
+    state.flags.verbose = false;
+    await prinv(null, arrows, 3, withMessage);
+    assert.deepEqual(lines, ['a - 3 arrows']);
+});
+
+// invent.c hold_another_object() (1206-1306), the arm a wish reaches.
+test('hold_another_object adds the object and prints its letter', async () => {
+    const state = carryingState();
+    const lines = [];
+    let encumbered = 0;
+    const env = {
+        state,
+        hooks: {
+            message: (text) => lines.push(text),
+            encumberMessage: () => { encumbered += 1; },
+        },
+    };
+    // A wished-for lamp is seen but neither identified nor known to be
+    // uncursed, which is what makes doname() answer its description.
+    const lamp = instance(OIL_LAMP, state,
+                          { bknown: false, dknown: true, known: false });
+
+    const held = await hold_another_object(lamp, 'Oops!  %s to the floor!',
+                                           'The lamp drops', null, env);
+    assert.equal(held, lamp);
+    assert.equal(lamp.where, OBJ_INVENT);
+    // C passes a null hold_msg, so prinv() prints the bare letter line; it
+    // runs because drop_fmt is non-null, which is the `hold_msg || drop_fmt`
+    // test at 1287.
+    assert.deepEqual(lines, ['a - a lamp.']);
+    assert.equal(encumbered, 1);
+
+    // 1250-1256 drops only a corpse the wish marked; an ordinary one is held
+    // like anything else.
+    lines.length = 0;
+    const corpse = instance(CORPSE, state, {
+        corpsenm: TEST_SPECIES,
+        owt: PLACEHOLDER_CORPSE_WEIGHT,
+    });
+    assert.equal(await hold_another_object(corpse, 'Oops!  %s to the floor!',
+                                           'The corpse drops', null, env),
+                 corpse);
+    assert.equal(corpse.where, OBJ_INVENT);
+
+    // Both messages null is C's silent grab: nothing is printed, and the
+    // object is still held.
+    lines.length = 0;
+    const arrows = instance(ARROW, state,
+                            { bknown: false, known: false, quan: 7 });
+    assert.equal(await hold_another_object(arrows, null, null, null, env),
+                 arrows);
+    assert.deepEqual(lines, []);
+    assert.equal(arrows.where, OBJ_INVENT);
+});
+
+test('hold_another_object stops on the arms it cannot finish', async () => {
+    const state = carryingState();
+    const env = { state, hooks: { encumberMessage: () => {} } };
+    // 1216-1244 puts an artifact on the floor to run touch_artifact().
+    const artifact = instance(OIL_LAMP, state, { oartifact: 1 });
+    await assert.rejects(
+        () => hold_another_object(artifact, null, null, null, env),
+        UnsupportedObjectOperationError,
+    );
+    // 1245-1249 adds the object and drops it again while Fumbling.
+    const fumbling = carryingState();
+    fumbling.u.uprops[FUMBLING] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
+    await assert.rejects(
+        () => hold_another_object(instance(OIL_LAMP, fumbling), null, null,
+                                  null,
+                                  { state: fumbling,
+                                    hooks: { encumberMessage: () => {} } }),
+        UnsupportedObjectOperationError,
+    );
+    // 1275-1281 drops what will not fit: a boulder outweighs any hero's
+    // capacity, so near_capacity() rises past the pickup burden.
+    await assert.rejects(
+        () => hold_another_object(instance(BOULDER, state), null, null, null,
+                                 env),
+        UnsupportedObjectOperationError,
+    );
 });

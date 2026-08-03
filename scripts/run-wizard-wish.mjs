@@ -4,17 +4,16 @@
 // Every segment contains replay inputs only; runFreshMatrix() records new
 // reference output in an isolated temporary workspace.
 //
-// Each segment reaches one branch of wizcmds.c wiz_wish(), zap.c makewish()'s
-// head, or the cmd.c can_do_extcmd() call rhack() makes for the key a command
-// is bound to. Two dispatch routes lead to the same handler, so the matrix
-// carries both: C('w') through rhack(), and the typed name through
-// doextcmd().
+// Each segment reaches one branch of wizcmds.c wiz_wish(), zap.c makewish(),
+// objnam.c readobjnam(), or the cmd.c can_do_extcmd() call rhack() makes for
+// the key a command is bound to. Two dispatch routes lead to the same handler,
+// so the matrix carries both: C('w') through rhack(), and the typed name
+// through doextcmd().
 //
-// A wish that is submitted runs readobjnam(), which is not ported, so no
-// segment presses Return at the prompt. Every debug segment therefore ends
-// while getlin() is still reading, which costs one game lock per segment; the
-// matrix records one segment at a time for the same reason the #levelchange
-// matrix does.
+// The first eight segments end while getlin() is still reading, which costs
+// one game lock apiece; the six after them submit a wish and close with a
+// wait. The matrix records one segment at a time for the same reason the
+// #levelchange matrix does.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,7 +30,8 @@ export const ESCAPE_KEY = '\x1b';
 export const ERASE_KEY = '\x7f'; /* the erase character gettty() seeds */
 export const KILL_KEY = '\x15'; /* the kill character gettty() seeds */
 const NEWLINE = '\n';
-const WAIT = '.';
+export const WAIT_KEY = '.';
+const WAIT = WAIT_KEY;
 
 const DEBUG_OPTIONS = 'pettype:none,!acoustics,playmode:debug';
 const ORDINARY_OPTIONS = 'pettype:none,!acoustics';
@@ -115,6 +115,35 @@ export function loadWizardWishRecipe() {
             // mungspaces() then collapses out of the buffer.
             segment(4471008, `${WIZWISH_KEY}  blessed   +2  cry`,
                 { role: 'Barbarian', gender: 'female', align: 'chaotic' }),
+
+            // --- the wish the Return submits ---
+            // An exact objects[] name, which rnd_otyp_by_namedesc() resolves
+            // to one entry and hold_another_object() then holds: the spine of
+            // this behavior, and the case seed0108 records.
+            segment(4471009, `${WIZWISH_KEY}magic lamp${NEWLINE}${WAIT}`),
+            // A per-game shuffled description rather than a name. o_init.c
+            // assigns it, so a port reading objects.c's static table passes
+            // the case above and fails this one.
+            segment(4471010, `${WIZWISH_KEY}mud boots${NEWLINE}${WAIT}`,
+                { role: 'Valkyrie', gender: 'female', align: 'lawful' }),
+            // wishymatch()'s " of " inversion (objnam.c:3256-3272), which
+            // nothing else in the chain reaches.
+            segment(4471011, `${WIZWISH_KEY}boots of speed${NEWLINE}${WAIT}`,
+                { role: 'Rogue', align: 'chaotic' }),
+            // An alternate spelling from spellings[], which returns before
+            // readobjnam_postparse3() and so spends no lookup draw at all.
+            segment(4471012, `${WIZWISH_KEY}lantern${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // Declining: readobjnam() answers its caller's sentinel at 4918
+            // and makewish() returns without spending rn1(100, 50).
+            segment(4471013, `${WIZWISH_KEY}nothing${NEWLINE}${WAIT}`,
+                { role: 'Samurai', align: 'lawful' }),
+            // Just outside the slice's stated limit: objects.h:929,931 give
+            // both lamps the description "lamp", but readobjnam_postparse2()'s
+            // o_ranges[] row catches the bare word first and calls
+            // rnd_class() over the pair instead of matching a description.
+            segment(4471014, `${WIZWISH_KEY}lamp${NEWLINE}${WAIT}`,
+                { role: 'Archeologist' }),
         ],
     }, 'wizard wish recipe');
 }

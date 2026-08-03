@@ -16,10 +16,13 @@ import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { init_objects } from '../js/o_init.js';
+import { objects_globals_init } from '../js/objects.js';
 import { UnsupportedWishError, makewish } from '../js/zap.js';
 import {
     ESCAPE_KEY,
     EXTCMD_KEY,
+    WAIT_KEY,
     WIZWISH_KEY,
     loadWizardWishRecipe,
 } from './run-wizard-wish.mjs';
@@ -52,6 +55,11 @@ function wishState(keys, { verbose = false } = {}) {
     const state = resetGame();
     state.flags = { verbose };
     state.iflags = {};
+    // readobjnam() reads the shuffled objects[] from its first block onward,
+    // so even a line it refuses needs the catalog in place.  Zero choices
+    // initialize every randomized description deterministically.
+    objects_globals_init(state);
+    init_objects(state, () => 0);
     state.nhDisplay = new GameDisplay(null);
     state.nhDisplay.onEmptyQueue = () => {
         throw new Error('the wish prompt asked for a key the test withheld');
@@ -65,30 +73,31 @@ function wishState(keys, { verbose = false } = {}) {
 test('the wish matrix contains only source-selected inputs', () => {
     const recipe = loadWizardWishRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 8);
+    assert.equal(recipe.segments.length, 14);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
         // Every segment opens with a wait, so the prompt paints over a screen
         // an ordinary turn produced rather than over the arrival screen.
         assert.equal(segment.moves.at(0), '.');
-        // Pressing Return at the wish prompt submits the wish, which runs
-        // readobjnam(); that is the next slice, so no segment may do it. The
+        // A segment that submits a wish has to close with a wait, so the
+        // screen the letter line paints over is one the reply settled. The
         // '#' route spends one Return closing the command name before the
         // prompt opens, so the test starts counting after that.
         const opened = segment.moves.includes(WIZWISH_KEY)
             ? segment.moves.slice(segment.moves.indexOf(WIZWISH_KEY) + 1)
             : segment.moves.slice(segment.moves.indexOf('\n') + 1);
-        assert.equal(opened.includes('\n'), false);
+        if (opened.includes('\n'))
+            assert.equal(segment.moves.at(-1), WAIT_KEY);
     }
-    // Six segments reach the command and two are refused, so exactly six set
-    // debug mode. cmd.c:2000's "wizwish" row carries WIZMODECMD, which
+    // Twelve segments reach the command and two are refused, so exactly twelve
+    // set debug mode. cmd.c:2000's "wizwish" row carries WIZMODECMD, which
     // can_do_extcmd() and extcmds_match() both read.
     assert.equal(
         recipe.segments.filter(
             ({ nethackrc }) => nethackrc.includes('playmode:debug'),
         ).length,
-        6,
+        12,
     );
     assert.equal(
         extcmdlist.find(({ ef_txt }) => ef_txt === 'wizwish').flags

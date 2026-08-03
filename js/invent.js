@@ -2,14 +2,19 @@
 // C refs: src/invent.c addinv(), mergable(), merged(), useupall();
 //         src/mkobj.c extract_nobj(), add_to_container(), and add_to_buried().
 
+import { inv_cnt, near_capacity } from './hack.js';
 import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     BLINDED,
+    BUFSZ,
+    CONTAINED_SYM,
+    FUMBLING,
     GOLD_SYM,
     HALLUC,
     HALLUC_RES,
     LOST_EXPLODING,
+    MOD_ENCUMBER,
     LOST_NONE,
     LOST_THROWN,
     OBJ_BURIED,
@@ -70,6 +75,7 @@ import { yn_function } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
+import { observe_object } from './o_init.js';
 import { ttyPline } from './tty_message.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
@@ -1195,6 +1201,13 @@ function isBlind(env) {
         && !property.blocked);
 }
 
+// C's `Fumbling`, which reads u.uprops[FUMBLING] the way the property macros
+// in youprop.h do.  Nothing in this port raises it.
+function propertyPresent(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
 function isHallucinating(env) {
     const hallucination = env.state.u?.uprops?.[HALLUC];
     const resistance = env.state.u?.uprops?.[HALLUC_RES];
@@ -1919,6 +1932,132 @@ export function addinv_nomerge(obj, env = {}) {
     } finally {
         obj.nomerge = previous;
     }
+}
+
+// C ref: invent.c obj_to_let() (2857-2868).  Answers the object's inventory
+// letter.  C first renumbers every letter when flags.invlet_constant is off;
+// reassign() is unported and no option path in this game clears that flag.
+export function obj_to_let(obj, state = game) {
+    if (!(state.flags?.invlet_constant ?? true))
+        throw new UnsupportedObjectOperationError('reassign()', obj);
+    return obj.invlet;
+}
+
+// C ref: invent.c xprname() (2892-2953).  Formats one inventory line:
+// "<letter> - <name>", with a period when `dot` is set.
+//
+// The price column at 2926-2936, which a shop's unpaid or expended items use,
+// is the only other shape; `cost` is 0 and `let` is never '*' for the pickup
+// and acquisition messages this port reaches.
+export function xprname(obj, txt, invletter, dot, cost, quan, state = game) {
+    const use_invlet = (state.flags?.invlet_constant ?? true) && obj != null
+        && invletter !== CONTAINED_SYM && invletter !== HANDS_SYM;
+    let savequan = 0;
+    let letter = invletter;
+
+    if (quan && obj) {
+        savequan = obj.quan;
+        obj.quan = quan;
+    }
+    try {
+        /*
+         * If let is:
+         *  -  Then obj == null and 'txt' refers to hands or fingers.
+         *  *  Then obj == null and we are printing a total amount.
+         *  >  Then the object is contained and doesn't have an inventory
+         *     letter.
+         */
+        const text = txt ?? donameFresh(obj, state);
+        if (cost !== 0 || letter === '*')
+            throw new UnsupportedObjectOperationError('xprname price', obj);
+        /* ordinary inventory display or pickup message */
+        if (use_invlet) letter = obj.invlet;
+        const suffix = dot ? '.' : '';
+        /* 4: the "c - " prefix */
+        const limit = BUFSZ - 1 - (4 + suffix.length);
+        return `${letter} - ${text.slice(0, limit)}${suffix}`;
+    } finally {
+        if (savequan) obj.quan = savequan;
+    }
+}
+
+// C ref: invent.c prinv() (2869-2890).  Prints the indicated quantity of the
+// given object; quan == 0 means the object's own quantity.
+export async function prinv(prefix, obj, quan, env = {}) {
+    const normalized = inventoryEnv(env);
+    const { state } = normalized;
+    const total_of = Boolean(quan && quan < obj.quan);
+    const head = prefix ?? '';
+    const totalbuf = total_of ? ` (${obj.quan} in total).` : '';
+
+    // pline()'s owner, injectable the way pickup.c encumber_msg()'s is, so a
+    // test can read the line without a display.
+    const message = normalized.hooks.message ?? ttyPline;
+    await message(
+        `${head}${head ? ' ' : ''}`
+        + xprname(obj, null, obj_to_let(obj, state), !total_of, 0, quan, state)
+        + (state.flags?.verbose ? totalbuf : ''),
+        state,
+    );
+}
+
+// C ref: invent.c hold_another_object() (1206-1306), its plain addinv arm.
+// The object a wish creates is no artifact, the hero is not Fumbling and has a
+// free slot, so C's artifact block (1216-1244), its Fumbling arm (1245-1249),
+// its wished-for-corpse arm (1250-1256) and the drop_it: tail (1293-1304) each
+// stop here instead.
+//
+// C calls addinv_core0(obj, NULL, FALSE), whose FALSE holds back the
+// permanent-inventory refresh until the explicit update_inventory() below.
+// addinv() makes that refresh unconditionally, but update_inventory() does
+// nothing unless iflags.perm_invent is set with a window to draw into, and
+// throws when it is set without one, so the two orders cannot diverge here.
+export async function hold_another_object(
+    obj, drop_fmt, drop_arg, hold_msg, env = {},
+) {
+    const normalized = inventoryEnv(env);
+    const { state } = normalized;
+
+    if (!isBlind(normalized))
+        observe_object(obj, state); /* maximize mergeability */
+    if (obj.oartifact)
+        throw new UnsupportedObjectOperationError('held artifact', obj);
+    if (propertyPresent(state, FUMBLING)) {
+        throw new UnsupportedObjectOperationError('held while fumbling', obj);
+    } else if (obj.otyp === CORPSE && obj.wishedfor) {
+        throw new UnsupportedObjectOperationError('held fatal corpse', obj);
+    } else {
+        const oquan = obj.quan;
+        let prev_encumbr = near_capacity(state); /* before addinv() */
+
+        /* encumbrance limit is max( current_state, pickup_burden );
+           options.c initoptions_init() starts flags.pickup_burden at
+           MOD_ENCUMBER, and no ported option path has read it yet */
+        const pickupBurden = state.flags?.pickup_burden ?? MOD_ENCUMBER;
+        if (prev_encumbr < pickupBurden)
+            prev_encumbr = pickupBurden;
+        /* C copies drop_arg into a local buffer here, because addinv() could
+           recycle the obuf[] doname() built it in; JavaScript strings need no
+           such copy */
+        obj = addinv(obj, normalized);
+        if (inv_cnt(false, state) > INVLET_BASIC
+            || ((obj.otyp !== LOADSTONE || !obj.cursed)
+                && near_capacity(state) > prev_encumbr)) {
+            /* 1275-1281 undoes any merge that took place and drops it */
+            throw new UnsupportedObjectOperationError('held object dropped',
+                                                      obj);
+        }
+        if (state.flags?.autoquiver && !state.uquiver && !obj.owornmask) {
+            /* 1283-1286 quivers a missile; ammo_and_launcher() is unported */
+            throw new UnsupportedObjectOperationError('held autoquiver', obj);
+        }
+        if (hold_msg || drop_fmt)
+            await prinv(hold_msg, obj, oquan, normalized);
+        /* obj made it into inventory and is staying there */
+        update_inventory(normalized);
+        await requiredHook(normalized, 'encumberMessage', obj)(state);
+    }
+    return obj;
 }
 
 // C ref: mkobj.c add_to_minv(). Returns true when `obj` merged into an

@@ -589,7 +589,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "b5e3153930cfa62b91038c6c366be8b26e8b6ea6",
       "detail": "zap.c:6346 onward -- the Escape test, the \"help\" arm, readobjnam() and the object hold_another_object() adds -- is the next slice of the wizard-mode-wish goal. Fresh case, recorded 2 August 2026: seed 4471005, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W>mud boots\\n.\". C runs 2743 random-number calls and 14 screens; the port stops at boundary 13, the submitting Enter, having matched 12 screens and 2717 calls. C's first unmatched call is rn2(13) from rnd_otyp_by_namedesc(objnam.c:3522), the draw that fires even for a unique match."
     },
@@ -601,6 +601,15 @@
       "status": "open",
       "from": "b5e3153930cfa62b91038c6c366be8b26e8b6ea6",
       "detail": "getline.c:97 leaves the buffer as \"\\033\" for an Escape over an empty line, and zap.c:6347 turns that into the empty string rather than a cancellation. readobjnam(\"\") then falls through readobjnam_preparse()'s empty return to the 'any:' label at objnam.c:4994, where wrpsym[rn2(13)] picks a random object class, so Escape grants a wish instead of declining one. Fresh case, recorded 2 August 2026: seed 4471006, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W><ESC>.\". C runs 2536 random-number calls and 5 screens; the port stops at boundary 4, the Escape, having matched 3 screens and 2517 calls, and C's first unmatched call is rn2(13) from readobjnam(objnam.c:4996). Escape over a non-empty line is a different arm and is covered by the passing matrix in scripts/run-wizard-wish.mjs, because getline.c:88 restarts the prompt there instead of returning."
+    },
+    {
+      "id": "a wish that matches nothing is not retried",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "ce2bd7ffeae579e9bcb59aa12e86d2830ca1dcac",
+      "detail": "objnam.c readobjnam() answers null when no objects[] entry matches, and zap.c makewish():6355-6368 then prints \"Nothing fitting that description exists in the game.\" and reprompts, up to MAXWISHTRY times, before falling back to a random wish. The port refuses at readobjnam_postparse3() instead, and the retry loop, its three remaining rnd_otyp_by_namedesc() calls at objnam.c:4751-4758 and the rest of readobjnam_postparse3() (4760-4899, Japanese item names, the ARMOR_CLASS \" mail\" retry, spinach, named fruits and artifacts by name) are all unported. Fresh case, recorded 2 August 2026: seed 4471015, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W>florble\\n.\". All 2641 random-number calls match, because the failed lookup draws nothing; the port stops at boundary 11, the submitting Enter, having matched 10 of C's 12 screens. C paints the message and reprompts with the cursor at [60,0,1]."
     }
   ],
   "areas": [

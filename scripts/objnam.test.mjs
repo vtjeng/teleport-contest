@@ -30,8 +30,12 @@ import { init_objects } from '../js/o_init.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
 import {
+    The,
     an,
+    aobjnam,
     cloak_simple_name,
+    cxname,
+    otense,
     gloves_simple_name,
     helm_simple_name,
     distant_name,
@@ -56,6 +60,7 @@ import {
     CHEST,
     CHAIN_MAIL,
     CORPSE,
+    OIL_LAMP,
     DART,
     DWARVISH_IRON_HELM,
     ELVEN_LEATHER_HELM,
@@ -923,4 +928,29 @@ test('distant_name lowers its counter when the formatter refuses', () => {
         (error) => error instanceof UnsupportedObjectNameError,
     );
     assert.equal(state.gd.distantname, 0);
+});
+
+// objnam.c cxname() (1922-1930), The() (2234-2241), otense() (2529-2545) and
+// aobjnam() (2242-2258).  zap.c makewish() builds The(aobjnam(otmp, verb))
+// for the message it prints only when the object cannot be held.
+test('aobjnam names the object and agrees the verb with it', () => {
+    const state = namingState();
+    const lamp = objectOf(state, OIL_LAMP, { dknown: true });
+
+    // Singular: the verb takes vtense()'s third-person "s".
+    assert.equal(aobjnam(lamp, 'drop', state), 'lamp drops');
+    assert.equal(The(aobjnam(lamp, 'drop', state)), 'The lamp drops');
+    // The verb is optional; without it the name stands alone.
+    assert.equal(aobjnam(lamp, null, state), 'lamp');
+    // A stack prefixes its count and leaves the plural verb as it arrived.
+    lamp.quan = 2;
+    assert.equal(aobjnam(lamp, 'drop', state), '2 lamps drop');
+    assert.equal(otense(lamp, 'drop'), 'drop');
+    lamp.quan = 1;
+    assert.equal(otense(lamp, 'drop'), 'drops');
+    // cxname() answers xname() for everything but a corpse, whose monster
+    // type xname() would drop; corpse_xname() is unported.
+    assert.equal(cxname(lamp, state), 'lamp');
+    const corpse = objectOf(state, CORPSE, { corpsenm: PM_NEWT });
+    assert.throws(() => cxname(corpse, state), UnsupportedObjectNameError);
 });

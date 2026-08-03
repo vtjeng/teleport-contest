@@ -1,131 +1,131 @@
 {
   "mode": "implementation",
-  "reason": "The slice is queued and unimplemented. Every parse-chain entry is missing: no JavaScript owner exists for readobjnam() or any of its five helpers, wishymatch(), rnd_otyp_by_namedesc(), hold_another_object() or prinv().",
-  "commitChecked": "d52e628a5afa131f2028dbb6dd7a478edb851fa6",
+  "reason": "Every entry inside this slice's boundary is now done, and the fresh matrix in scripts/run-wizard-wish.mjs verifies all fourteen segments against C. mode stays at implementation for two reasons the orchestrator owns: the goal's remaining qualifier-and-class-word slice is not covered by this boundary, and commitChecked names the parse-chain commit rather than the tail commit that carries this update, because a commit cannot record its own SHA.",
+  "commitChecked": "ce2bd7ffeae579e9bcb59aa12e86d2830ca1dcac",
   "boundary": {
     "goalId": "wizard-mode-wish",
     "startingCommit": "d52e628a5afa131f2028dbb6dd7a478edb851fa6",
-    "startingEvent": "The Enter that submits the wish line. zap.c:6345's mungspaces(buf) has run and js/zap.js:67 throws UnsupportedWishError where zap.c:6346's Escape test stands. Both dispatch routes already reach it, so this slice adds no dispatch work.",
+    "startingEvent": "The Enter that submits the wish line. zap.c:6345's mungspaces(buf) has run and js/zap.js:67 threw UnsupportedWishError where zap.c:6346's Escape test stands. Both dispatch routes already reached it, so this slice added no dispatch work.",
     "endingEvent": "invent.c prinv()'s inventory-letter line for the created object, which seed0108-wizard-extcmd-wishlist step 24 paints as 'n - a lamp.' at cursor [41,18,1], after makewish() has spent zap.c:6421's rn1(100, 50).",
-    "validInputs": "A wizard-mode game whose typed line readobjnam_preparse() leaves wholly unconsumed, readobjnam_parse_charges() finds no '(' in, postparse1() and postparse2() take no branch of, and postparse3()'s first rnd_otyp_by_namedesc(d.actualn, 0, 1) resolves to exactly one entry; plus the words nothing, nil and none. Refused: any qualifier or count, +N and -N, any class word, an empty buffer, and text matching nothing.",
+    "validInputs": "A wizard-mode game whose typed line readobjnam_preparse() leaves wholly unconsumed, readobjnam_parse_charges() finds no '(' in, postparse1() and postparse2() take no branch of, and postparse3()'s first rnd_otyp_by_namedesc(d.actualn, 0, 1) resolves; plus the words nothing, nil and none, and the o_ranges[] subranges postparse2() answers with rnd_class(). Refused: any qualifier or count, +N and -N, an empty buffer, and text matching nothing.",
     "observables": "The letter line and its cursor; the five random-number calls in order, rn2(16) at rnd_otyp_by_namedesc(objnam.c:3522), rnd(2) at next_ident(mkobj.c:521), two rn2(2) at blessorcurse(mkobj.c:1846-1847) and rn2(100) at makewish(zap.c:6421); the inventory letter, which seed0108's next command reads back as 'What do you want to rub? [n or ?*]'; u.uconduct.wishes and u.ublesscnt.",
-    "exclusions": "Six draw sites inside the parse chain, each refused before the draw rather than after: the wetness rn2(3)/rnd(2) at objnam.c:4025-4027, the glob rn1() at 4354, rnd_otyp_by_namedesc(amubuf, AMULET_CLASS, 0) at 4611, rnd_class() on an o_ranges[] hit at 4673, rn2(NUM_GLASS_GEMS) at 4705, and wrpsym[rn2(13)] at 4996. The whole typfnd: fine-tuning set at readobjnam() 5069-5382. makewish()'s help arm 6348-6352, its MAXWISHTRY retry loop 6361-6368, the hands_obj and wizterrainwish() arm 6374-6377, and oartifact 6381-6383. hold_another_object()'s artifact block 1217-1244, Fumbling 1245-1249, the wished-for corpse arm 1250-1256 and the drop_it: tail 1293-1304."
+    "exclusions": "Five draw sites inside the parse chain, each refused before the draw: the wetness rn2(3)/rnd(2) at objnam.c:4025-4027, the glob rn1() at 4354, rnd_otyp_by_namedesc(amubuf, AMULET_CLASS, 0) at 4611, rn2(NUM_GLASS_GEMS) at 4705, and wrpsym[rn2(13)] at 4996. The sixth, rnd_class() on an o_ranges[] hit at 4673, was admitted instead. The whole typfnd: fine-tuning set at readobjnam() 5069-5382. makewish()'s help arm 6348-6352, its MAXWISHTRY retry loop 6361-6368, the hands_obj and wizterrainwish() arm 6374-6377, and oartifact 6381-6383. hold_another_object()'s artifact block 1217-1244, Fumbling 1245-1249, the wished-for corpse arm 1250-1256 and the drop_it: tail 1293-1304."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "objnam.c readobjnam() 4910-5400 and its chain readobjnam_init() 3933-3961, readobjnam_preparse() 3966-4175, readobjnam_parse_charges() 4178-4237, readobjnam_postparse1() 4240-4663, readobjnam_postparse2() 4666-4724, readobjnam_postparse3() 4727-4899; wishymatch() 3243-3338; rnd_otyp_by_namedesc() 3455-3529; zap.c makewish() 6346-6421; invent.c hold_another_object() 1208-1306, prinv() 2875-2890, xprname() 2894-2953, obj_to_let() 2860-2868.",
-    "dispatchTablesAndCatalogs": "objnam.c's o_ranges[] and spellings[] at 3346-3420, wrp[] and wrpsym[] at 2517-2528. The objects[] and obj_descr[] tables are already ported, but rnd_otyp_by_namedesc() reads OBJ_DESCR() at objnam.c:3506, the per-game shuffled description that o_init.c produces, not the static table.",
-    "reachableHelpers": "readobjnam_postparse1() was read end to end for this scoping, which retires the earlier limit that it had not been. Every block in it executes for the plainest wish and merely takes no branch, so the chain is indivisible: the splits on ' named ', ' called ' and ' labeled ', the glob test, name_to_monplus(), makesingular(), the spellings[] loop and the class-word loop all run for 'magic lamp'.",
-    "javascriptCrossCheck": "grep -rn over js/ finds no owner for readobjnam, wishymatch, rnd_otyp_by_namedesc, hold_another_object or prinv. aobjnam(), erosion_matters() and is_quest_artifact() are likewise absent; only aobjnam() sits on the live path, and only to build a string the success arm never prints. js/mklev.js:1781 new_water_vault_escape_object() is a stand-in that fakes readobjnam() for four class-qualified names by issuing rn2(oc_prob + 1) and rnd(6) directly.",
-    "remainingLimits": "name_to_monplus() runs on every wish longer than two characters (objnam.c:4404-4407) and a false monster match silently truncates the string before the object lookup. It is ported at js/mondata.js:711 but needs monst_globals_init(), so it could not be probed outside a game during scoping. hold_another_object() calls addinv_core0(obj, NULL, FALSE) at invent.c:1273, suppressing the perm-invent update, while js/invent.js:1850 addinv() calls update_inventory() unconditionally; whether that is observable here is unchecked."
+    "upstreamEntryPoints": "objnam.c readobjnam() 4910-5400 and its chain readobjnam_init() 3933-3961, readobjnam_preparse() 3966-4175, readobjnam_parse_charges() 4178-4237, readobjnam_postparse1() 4240-4663, readobjnam_postparse2() 4666-4724, readobjnam_postparse3() 4727-4899; wishymatch() 3243-3338; rnd_otyp_by_namedesc() 3455-3529; zap.c makewish() 6346-6421; invent.c hold_another_object() 1208-1306, prinv() 2875-2890, xprname() 2894-2953, obj_to_let() 2860-2868; objnam.c cxname() 1924-1930, The() 2239-2246, aobjnam() 2243-2258, otense() 2531-2545; questpgr.c is_quest_artifact() 67-70.",
+    "dispatchTablesAndCatalogs": "objnam.c's o_ranges[] and spellings[] at 3346-3420, wrp[] and wrpsym[] at 2517-2528, all ported into js/objnam_readobjnam.js. The objects[] and obj_descr[] tables were already ported, and rnd_otyp_by_namedesc() reads OBJ_DESCR() at objnam.c:3506 through js/objects.js OBJ_DESCR(), the per-game shuffled description that o_init.c produces rather than the static table.",
+    "reachableHelpers": "readobjnam_postparse1() was read end to end. Every block in it executes for the plainest wish and merely takes no branch, so the chain was ported whole: the splits on ' named ', ' called ' and ' labeled ', the glob test, name_to_monplus(), makesingular(), the spellings[] loop and the class-word loop all run for 'magic lamp'. name_to_monplus() was probed with a live game state and answers NON_PM for 'magic lamp', 'speed boots' and 'amulet of life saving', and PM_GRAY_DRAGON with remainder ' scale mail' for 'gray dragon scale mail'.",
+    "javascriptCrossCheck": "grep -rn over js/ before the slice found no owner for readobjnam, wishymatch, rnd_otyp_by_namedesc, hold_another_object or prinv, and none for aobjnam(), erosion_matters() or is_quest_artifact(). erosion_matters() turned out to be ported after all, in js/obj.js under the name erosionMatters(), where trap.c erode_obj() found it first; the port calls that rather than adding a second copy. js/mklev.js:1781 new_water_vault_escape_object() remains a stand-in that fakes readobjnam() for four class-qualified names.",
+    "remainingLimits": "hold_another_object() calls addinv_core0(obj, NULL, FALSE) at invent.c:1273, suppressing the perm-invent update, while js/invent.js addinv() calls update_inventory() unconditionally. That was checked: update_inventory() does nothing unless iflags.perm_invent is set with a window to draw into, and throws when it is set without one, so the two orders cannot diverge for any game this port runs. A wish for a type the tail cannot finish -- a tin, a container, a unique object -- stops one draw after the lookup that identifies the type, because the type is not known before it; that draw is the one C makes, at C's position, and none follows it."
   },
   "entries": [
     {
       "candidate": "hacklib.c fuzzymatch() and objnam.c wishymatch() 3243-3338",
       "reachability": "Called from rnd_otyp_by_namedesc() and postparse3(). Pure: no draw, no output, no state change.",
-      "owner": "None.",
+      "owner": "js/hacklib.js fuzzymatch() and strstri(); js/objnam_readobjnam.js wishymatch().",
       "effects": "Answers whether a typed string names an objects[] entry, including the ' of ' inversion at objnam.c:3256-3272 that nothing else reaches.",
-      "evidence": "objnam.c:3243-3338.",
-      "status": "missing",
-      "remaining": "Port as a pure batch before the live path exists, under AGENTS.md 'Port pure functions in bulk', with tests pinned to values read from the C."
+      "evidence": "objnam.c:3243-3338. scripts/objnam-readobjnam.test.mjs pins every arm to values read from the C, including the inversion that reaches SPEED_BOOTS from 'boots of speed'.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "objnam.c rnd_otyp_by_namedesc() 3455-3529",
       "reachability": "Reached from postparse3()'s first call at 4749. Draws rn2(maxprob) at 3522 even when n == 1, because the for (i = 0; i < n - 1; i++) body never runs after the call has fired.",
-      "owner": "None.",
-      "effects": "Selects the matching object type and spends one random number. Omitting that draw desynchronizes the stream at the first wish.",
-      "evidence": "objnam.c:3516-3527. seed0108 logs rn2(16) for MAGIC_LAMP, whose oc_prob is 15 at objects.h:931; seed0360 logs rn2(67) for SCALE_MAIL, oc_prob 66 at objects.h:583.",
-      "status": "missing",
-      "remaining": "Port including the discarded draw. It reads OBJ_DESCR(), the per-game shuffled description, so a port matching the static table passes 'magic lamp' and fails 'mud boots', seed-dependently."
+      "owner": "js/objnam_readobjnam.js rnd_otyp_by_namedesc().",
+      "effects": "Selects the matching object type and spends one random number.",
+      "evidence": "objnam.c:3516-3527. seed0108 logs rn2(16) for MAGIC_LAMP, whose oc_prob is 15 at objects.h:931, and the port now matches that session through step 29. The 'mud boots' segment of scripts/run-wizard-wish.mjs checks the shuffled-description path against a fresh C recording.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "objnam.c's o_ranges[], spellings[], wrp[] and wrpsym[] tables",
       "reachability": "Read by postparse1(), postparse2() and readobjnam()'s any: arm.",
-      "owner": "None.",
+      "owner": "js/objnam_readobjnam.js o_ranges, spellings, wrp, wrpsym.",
       "effects": "Static data. No draw.",
-      "evidence": "objnam.c:3346-3420 and 2517-2528.",
-      "status": "missing",
-      "remaining": "Port with the pure batch."
+      "evidence": "objnam.c:3346-3420 and 2517-2528, with row counts and key rows pinned by test.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "objnam.c readobjnam_init() 3933-3961 and readobjnam_parse_charges() 4178-4237",
       "reachability": "Run for every wish. Pure.",
-      "owner": "None.",
+      "owner": "js/objnam_readobjnam.js readobjnam_init() and readobjnam_parse_charges().",
       "effects": "Set every _readobjnam_data field to its initial value, and consume a parenthesised charge count, which no in-scope wish carries.",
-      "evidence": "objnam.c:3933-3961, 4178-4237.",
-      "status": "missing",
-      "remaining": "Port with the pure batch. The init values are what the fail-closed guard tests against."
+      "evidence": "objnam.c:3933-3961, 4178-4237. The init values are what the fail-closed guard tests against, and the tests pin them field by field.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "objnam.c readobjnam_preparse() 3966-4175",
       "reachability": "Runs for every wish and takes no branch for a bare name.",
-      "owner": "None.",
-      "effects": "Consumes a count, a BUC word and an enchantment, none of which an in-scope wish carries. Draws rn2(3) and rnd(2) for towel wetness at 4025-4027.",
-      "evidence": "objnam.c:3966-4175.",
-      "status": "missing",
-      "remaining": "Port the traversal; refuse before the wetness draw rather than after it."
+      "owner": "js/objnam_readobjnam.js readobjnam_preparse().",
+      "effects": "Consumes a count, a BUC word and an enchantment, none of which an in-scope wish carries.",
+      "evidence": "objnam.c:3966-4175. The traversal is ported whole; the wetness draw at 4022-4027 and the corpse/statue/figurine gender hack at 4152-4174 refuse before doing anything.",
+      "status": "done",
+      "remaining": "The qualifier slice lifts the refusal that follows preparse, not preparse itself."
     },
     {
       "candidate": "objnam.c readobjnam_postparse1() 4240-4663",
       "reachability": "Runs for every wish. Every block executes and takes no branch for a bare name.",
-      "owner": "None.",
-      "effects": "Splits on ' named ', ' called ' and ' labeled '; tests for a glob; calls name_to_monplus() for any bp longer than two characters; calls makesingular() at 4444-4459; walks spellings[] at 4460-4466 and the class-word loop at 4567-4620. Draws rn1() for a glob at 4354 and rnd_otyp_by_namedesc(amubuf, AMULET_CLASS, 0) at 4611.",
-      "evidence": "objnam.c:4240-4663, read end to end during scoping.",
-      "status": "missing",
-      "remaining": "Port the traversal with both draws refused. Assert name_to_monplus() answers NON_PM for 'magic lamp', 'speed boots' and 'amulet of life saving', and PM_GRAY_DRAGON with remainder ' scale mail' for 'gray dragon scale mail', before trusting the rest. makesingular() is ported at js/fruit.js and returns every recorded wish name unchanged."
+      "owner": "js/objnam_readobjnam.js readobjnam_postparse1().",
+      "effects": "Splits on ' named ', ' called ' and ' labeled '; tests for a glob; calls name_to_monplus() for any bp longer than two characters; calls makesingular() at 4444-4459; walks spellings[] at 4460-4466 and the class-word loop at 4567-4620.",
+      "evidence": "objnam.c:4240-4663, read end to end. Both draws are refused before they fire: the glob rn1() at 4354 and rnd_otyp_by_namedesc(amubuf, AMULET_CLASS, 0) at 4611.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "objnam.c readobjnam_postparse2() 4666-4724",
       "reachability": "Runs for every wish and takes no branch for a bare name.",
-      "owner": "None.",
-      "effects": "Draws rnd_class() on an o_ranges[] hit at 4673 and rn2(NUM_GLASS_GEMS) at 4705.",
-      "evidence": "objnam.c:4666-4724.",
-      "status": "missing",
-      "remaining": "Port with both draws refused. The o_ranges[] row { 'lamp', TOOL_CLASS, OIL_LAMP, MAGIC_LAMP } catches the bare word 'lamp' here before postparse3() ever sees it, which is the case just outside the slice's stated limit."
+      "owner": "js/objnam_readobjnam.js readobjnam_postparse2().",
+      "effects": "Answers an o_ranges[] hit with rnd_class() at 4673; the glass-gem rn2(NUM_GLASS_GEMS) at 4705 refuses.",
+      "evidence": "objnam.c:4666-4724. The o_ranges[] row { 'lamp', TOOL_CLASS, OIL_LAMP, MAGIC_LAMP } catches the bare word 'lamp' here before postparse3() sees it, which is the case just outside the slice's stated limit; it was admitted rather than deferred, and the 'lamp' segment of the fresh matrix checks it against C.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "objnam.c readobjnam_postparse3()'s head, through the first rnd_otyp_by_namedesc(d.actualn, 0, 1) at 4749",
       "reachability": "The match that resolves an in-scope wish.",
-      "owner": "None.",
+      "owner": "js/objnam_readobjnam.js readobjnam_postparse3().",
       "effects": "Sets d.typ and reaches typfnd:.",
-      "evidence": "objnam.c:4727-4899.",
-      "status": "missing",
-      "remaining": "Port the first of the four match calls; the rest belong to the qualifier slice."
+      "evidence": "objnam.c:4727-4750, including the real-gem name loop and the bare 'tin' case above the match.",
+      "status": "done",
+      "remaining": "The three remaining match calls at 4751-4758 and the rest of the function at 4760-4899 belong to the qualifier slice; the deferred entry 'a wish that matches nothing is not retried' records the fresh case that reaches them."
     },
     {
       "candidate": "objnam.c readobjnam()'s head, its nothing/nil/none return at 4918-4921, and its typfnd: tail",
       "reachability": "The whole in-scope path passes through it.",
-      "owner": "None.",
-      "effects": "Builds the object. The any: arm at 4996 draws wrpsym[rn2(13)], which the open Escape deferral records.",
-      "evidence": "objnam.c:4910-5400.",
-      "status": "missing",
-      "remaining": "Port the head and the tail's object creation, refusing the whole fine-tuning set at 5069-5382 on any field left at its init value. Keep the nothing/nil/none return: it is four lines and otherwise needs its own refusal."
+      "owner": "js/objnam_readobjnam.js readobjnam().",
+      "effects": "Builds the object.",
+      "evidence": "objnam.c:4910-5400. The any: arm at 4996 and the whole fine-tuning set at 5069-5382 refuse on any field the guard finds away from its init value; the blocks that still run with init values -- the count, the spe switch, erosion_matters(), the wand recharge count, permapoisoned() and weight() -- are ported.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "zap.c makewish() 6346-6421",
-      "reachability": "Resumes where slice 1's refusal stands.",
-      "owner": "js/zap.js makewish() head only.",
+      "reachability": "Resumes where slice 1's refusal stood.",
+      "owner": "js/zap.js makewish().",
       "effects": "Holds the object, increments u.uconduct.wishes at 6390, and spends rn1(100, 50) at 6421.",
-      "evidence": "zap.c:6346-6421. Every recorded wish ends with that draw.",
-      "status": "missing",
-      "remaining": "Port the body; refuse the help arm, the MAXWISHTRY retry loop, the hands_obj arm and oartifact. Keep the otmp == &nothing arm, which pairs with readobjnam()'s no_wish return."
+      "evidence": "zap.c:6346-6421. Every recorded wish ends with that draw, and seed0108 now matches through it. The help arm, the MAXWISHTRY retry loop, the hands_obj arm and oartifact all refuse; the otmp == &nothing arm is ported and the 'nothing' segment of the fresh matrix checks it.",
+      "status": "done",
+      "remaining": "The Escape arm at 6346-6347 stays refused; the deferred entry 'Escape at the wish prompt still grants a random wish' records it."
     },
     {
       "candidate": "invent.c hold_another_object() 1208-1306, plain addinv arm",
       "reachability": "Reached once the object exists, for a hero with a free slot and no Fumbling.",
-      "owner": "None.",
+      "owner": "js/invent.js hold_another_object().",
       "effects": "Adds the object to inventory and assigns its letter.",
-      "evidence": "invent.c:1208-1306.",
-      "status": "missing",
-      "remaining": "Port the plain arm only. C calls addinv_core0(obj, NULL, FALSE) at 1273, suppressing the perm-invent update, while js/invent.js addinv() calls update_inventory() unconditionally; check that against js/invent.js:858 before the differential rather than after."
+      "evidence": "invent.c:1208-1306. The perm-invent question is settled: update_inventory() is inert without iflags.perm_invent and a window, so addinv() and addinv_core0(obj, NULL, FALSE) cannot diverge here.",
+      "status": "done",
+      "remaining": "The artifact, Fumbling, wished-for-corpse and drop_it: arms all refuse."
     },
     {
       "candidate": "invent.c prinv() 2875-2890, xprname() 2894-2953 and obj_to_let() 2860-2868",
       "reachability": "The ending event.",
-      "owner": "None.",
+      "owner": "js/invent.js prinv(), xprname(), obj_to_let(); js/objnam.js cxname(), The(), aobjnam(), otense().",
       "effects": "Prints the inventory-letter line.",
-      "evidence": "invent.c:2860-2953. seed0108 step 24 paints 'n - a lamp.' at cursor [41,18,1], and step 29 reads the letter back as 'What do you want to rub? [n or ?*]'.",
-      "status": "missing",
-      "remaining": "Port all three."
+      "evidence": "invent.c:2860-2953. seed0108 step 24 paints 'n - a lamp.' at cursor [41,18,1], and step 29 reads the letter back as 'What do you want to rub? [n or ?*]'; the port now matches both.",
+      "status": "done",
+      "remaining": "xprname()'s shop-price column at 2926-2936 refuses, and obj_to_let() refuses when flags.invlet_constant is off, which no ported option path clears."
     },
     {
       "candidate": "js/mklev.js:1781 new_water_vault_escape_object(), a stand-in that fakes readobjnam()",
@@ -134,40 +134,9 @@
       "effects": "Issues rn2(oc_prob + 1) and rnd(6) directly for four class-qualified names.",
       "evidence": "js/mklev.js:1781.",
       "status": "later",
-      "remaining": "It cannot be retired here: its names are class-qualified, so it needs postparse1()'s class-word loop, and it runs with wizard false, so it also needs the d.cnt < rnd(6) arm at objnam.c:5077 that a wizard-mode wish short-circuits. Retire it with the qualifier-and-class-word slice. Leaving a stand-in beside the real function is a hazard, recorded here rather than omitted."
+      "remaining": "It still cannot be retired: its names are class-qualified, so it needs postparse1()'s class-word loop to answer a type rather than a class, and it runs with wizard false, so it also needs the d.cnt < rnd(6) arm at objnam.c:5077 that a wizard-mode wish short-circuits. Retire it with the qualifier-and-class-word slice. Leaving a stand-in beside the real function is a hazard, recorded here rather than omitted."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "A pure batch, portable before any live consumer",
-      "candidates": [
-        "hacklib.c fuzzymatch() and objnam.c wishymatch() 3243-3338",
-        "objnam.c's o_ranges[], spellings[], wrp[] and wrpsym[] tables",
-        "objnam.c readobjnam_init() 3933-3961 and readobjnam_parse_charges() 4178-4237"
-      ],
-      "next": "Port and commit these first under AGENTS.md 'Port pure functions in bulk', with tests pinned to C values and an identical development score. That shrinks the live-path commit and gives the correctness pass a natural seam."
-    },
-    {
-      "group": "The live parse chain in a new js/objnam parse owner",
-      "candidates": [
-        "objnam.c rnd_otyp_by_namedesc() 3455-3529",
-        "objnam.c readobjnam_preparse() 3966-4175",
-        "objnam.c readobjnam_postparse1() 4240-4663",
-        "objnam.c readobjnam_postparse2() 4666-4724",
-        "objnam.c readobjnam_postparse3()'s head, through the first rnd_otyp_by_namedesc(d.actualn, 0, 1) at 4749",
-        "objnam.c readobjnam()'s head, its nothing/nil/none return at 4918-4921, and its typfnd: tail"
-      ],
-      "next": "Port the traversal with every one of the six in-chain draw sites refused before the draw, so the port never spends a random number and then stops."
-    },
-    {
-      "group": "The tail, from the created object to the screen",
-      "candidates": [
-        "zap.c makewish() 6346-6421",
-        "invent.c hold_another_object() 1208-1306, plain addinv arm",
-        "invent.c prinv() 2875-2890, xprname() 2894-2953 and obj_to_let() 2860-2868"
-      ],
-      "next": "Port the body, the plain hold arm and the three print helpers, ending at the letter line."
-    }
-  ],
-  "sourceReview": "Every branch and helper reachable within this slice's boundary was traced against nethack-c/upstream/src/: readobjnam() and all five chain functions, wishymatch(), rnd_otyp_by_namedesc(), makewish()'s body, hold_another_object(), prinv(), xprname() and obj_to_let(). readobjnam_postparse1() was read end to end, which retires the earlier limit recording that it had not been. The trace covered state and random-number order and enumerated six draw sites inside the chain, each with the source condition that makes it out of scope. Stubs, stops and partial implementations were identified: js/zap.js's refusal where the slice starts, and js/mklev.js:1781's stand-in for readobjnam(), which this slice cannot retire. Two limits remain, recorded in candidateListMethod: name_to_monplus() could not be probed outside a game, and addinv()'s unconditional update_inventory() against C's suppressed perm-invent update is unchecked. This attestation covers this slice's boundary alone; the goal's remaining qualifier-and-class-word slice is not covered."
+  "missingWorkByOwner": [],
+  "sourceReview": "Every branch and helper reachable within this slice's boundary was traced against nethack-c/upstream/src/ and then ported: readobjnam() and all five chain functions, wishymatch(), rnd_otyp_by_namedesc(), makewish()'s body, hold_another_object(), prinv(), xprname(), obj_to_let(), cxname(), The(), aobjnam(), otense() and questpgr.c is_quest_artifact(). readobjnam_postparse1() was read end to end. The trace covered state and random-number order and enumerated six draw sites inside the chain; five refuse before the draw and the sixth, rnd_class() on an o_ranges[] hit, was admitted. Stubs, stops and partial implementations were identified: js/zap.js's refusal where the slice started is gone, and js/mklev.js:1781's stand-in for readobjnam() remains and cannot be retired here. One qualification on readiness: a wish for a type the tail cannot finish stops after the lookup draw that identifies the type rather than before it, because the type is not known any earlier; that draw is C's own, at C's position, and nothing follows it. This attestation covers this slice's boundary alone; the goal's remaining qualifier-and-class-word slice is not covered."
 }
