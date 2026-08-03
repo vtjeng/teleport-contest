@@ -212,8 +212,8 @@
         },
         {
           "name": "a wizard-mode hero wishes with a blessed/cursed/uncursed word and a +N/-N enchantment, readobjnam()'s typfnd: tail applies both, and a dragon-named scale mail becomes that dragon's scale mail",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "517f5fbd17ffe2dfbf638cbaca4c7080526baf87"
         }
       ],
       "openedAt": "364408ca14fbd535139416badea0e1f3a6df0c9e",
