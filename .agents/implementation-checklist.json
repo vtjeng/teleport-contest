@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "Every entry inside this slice's boundary is now done, and the fresh matrix in scripts/run-wizard-wish.mjs verifies all fourteen segments against C. mode stays at implementation for two reasons the orchestrator owns: the goal's remaining qualifier-and-class-word slice is not covered by this boundary, and commitChecked names the parse-chain commit rather than the tail commit that carries this update, because a commit cannot record its own SHA.",
-  "commitChecked": "ce2bd7ffeae579e9bcb59aa12e86d2830ca1dcac",
+  "mode": "ready-for-audit",
+  "reason": "Every entry inside this slice boundary is done, and the fourteen-segment matrix in scripts/run-wizard-wish.mjs verifies each against a fresh C recording. The orchestrator checked the entries against the repository rather than accepting them: twelve done, one later, no missing work, and js/objnam_readobjnam.js, js/questpgr.js and js/zap.js all present with the named owners. commitChecked now names a00741d, the range head the pass will read, which carries the closing bookkeeping above the tail commit. The goal remaining qualifier-and-class-word slice is outside this boundary and the sourceReview below says so.",
+  "commitChecked": "a00741d0b7458d98a73b2845f0a39b5f74513176",
   "boundary": {
     "goalId": "wizard-mode-wish",
     "startingCommit": "d52e628a5afa131f2028dbb6dd7a478edb851fa6",

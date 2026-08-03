@@ -7,6 +7,39 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
+## Let readiness prepare the pass the gate is waiting for
+
+**What it changes.** `scripts/audit-worktree.mjs prepare --readiness` would
+accept a `quality --check` that is red on the review gate alone, when the range
+it prepares is the one that clears it. Every other red result would still
+refuse.
+
+**Scope.** One test in the readiness check, plus the reason recorded in the
+manifest so a later reader knows which red condition was admitted and why.
+
+**What prompted it.** The wish goal's correctness pass on 2 August 2026.
+`.agents/review.md` prescribes `prepare --readiness`, which runs
+`npm run checkpoint`, `npm run quality -- --check` and a mutation run, and
+refuses while any is red. The gate had reached `DUE` at 1,912 of 1,000 changed
+lines, so `quality --check` printed `Review gate: BLOCKED (the batch threshold
+is reached)` and prepare refused. That is circular: the gate blocks because a
+pass is due, and readiness refuses because the gate blocks, so the pass that
+would clear it cannot be prepared. The two passes earlier that day prepared
+cleanly only because the gate stood at `WATCH`.
+
+The pass was prepared without `--readiness` and its evidence supplied by hand:
+`npm run checkpoint` passed at the range head, with the review gate its only
+failing check. The mutation half could not be re-run, so the pass carries the
+implementer's own figures, which is weaker: that run was interrupted once by a
+background job exiting 144.
+
+**Cost.** Small. The check already parses the gate's state, and the range head
+is already compared against the checklist's `commitChecked`.
+
+**What it leaves unfixed.** Nothing forces the mutation half to be re-run at the
+range head when the implementer's own run was partial, so a pass can still open
+with weaker mutation evidence than it should have.
+
 ## Let the ledger amend an open deferral
 
 **What it changes.** `npm run quality` would gain a mode that rewrites an open
