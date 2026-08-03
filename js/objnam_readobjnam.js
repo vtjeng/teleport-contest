@@ -10,7 +10,7 @@
 
 import { nartifact_exist, permapoisoned } from './artifacts.js';
 import {
-    FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM, SPE_LIM,
+    FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM, SPE_LIM, ismnum,
 } from './const.js';
 import { makesingular } from './fruit.js';
 import { game } from './gstate.js';
@@ -18,7 +18,8 @@ import { digit, fuzzymatch, lcase, lowc, mungspaces, strstri } from './hacklib.j
 import { name_to_monplus } from './mondata.js';
 import { PM_GRAY_DRAGON, PM_YELLOW_DRAGON } from './monsters.js';
 import {
-    erosionMatters, isContainer, mksobj, objectType, rnd_class, weight,
+    curseFreeObject, erosionMatters, isContainer, mksobj, objectType,
+    rnd_class, weight,
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn1, rn2, rnd } from './rng.js';
@@ -95,6 +96,7 @@ import {
     RIN_PROTECTION_FROM_SHAPE_CHAN,
     ROCK,
     SACK,
+    SCALE_MAIL,
     SCROLL_CLASS,
     SCR_BLANK_PAPER,
     SCR_CHARGING,
@@ -1173,13 +1175,14 @@ export function readobjnam_postparse3(d, env) {
         'a name the first objects[] lookup does not resolve', origbp(d));
 }
 
-// The fields readobjnam_preparse() and readobjnam_parse_charges() can set,
-// with the value readobjnam_init() gives each.  Every one of them feeds
-// fine-tuning code between objnam.c:5069 and 5382 that this port has not
-// reached, so a wish that sets one stops before the parse chain can draw.
-const UNQUALIFIED_WISH_FIELDS = Object.freeze({
-    spe: 0, spesgn: 0, rechrg: 0, islit: 0,
-    blessed: 0, uncursed: 0, iscursed: 0, erodeproof: 0,
+// The fields readobjnam_preparse() and readobjnam_parse_charges() can set that
+// still feed fine-tuning code this port has not reached -- d.islit's light
+// source at objnam.c:5086-5091, and everything from the erosion block at 5271
+// through the partly-eaten one at 5383 -- with the value readobjnam_init()
+// gives each.  d.spe, d.spesgn, d.blessed, d.uncursed and d.iscursed are absent
+// because the typfnd: tail now applies all five.
+const UNSUPPORTED_WISH_FIELDS = Object.freeze({
+    rechrg: 0, islit: 0, erodeproof: 0,
     eroded: 0, eroded2: 0, very: 0, unlabeled: 0, ispoisoned: 0,
     trapped: 0, locked: 0, unlocked: 0, broken: 0,
     open: 0, closed: 0, doorless: 0, looted: 0,
@@ -1188,14 +1191,21 @@ const UNQUALIFIED_WISH_FIELDS = Object.freeze({
     mgend: -1, contents: TIN_UNDEFINED,
 });
 
-// The qualifier slice's boundary, checked before the parse chain can spend a
-// random number.  A guard placed after the chain would let a qualified wish
-// draw first and stop afterwards.
-function requireUnqualifiedWish(d) {
-    if (d.consumed)
-        throw new UnsupportedWishError(`the "${d.consumed.trim()}" qualifier`,
+// The wish boundary, checked before the parse chain can spend a random number.
+// A guard placed after the chain would let a wish outside the boundary draw
+// first and stop afterwards.
+//
+// The count is tested on its own rather than through d.consumed, which no
+// longer separates a supported qualifier from an unsupported one.  A count
+// above 1 stops here even though objnam.c:5071-5083's wizard arm is ported,
+// because nothing has yet checked the inventory line hold_another_object()
+// prints for a stack.  A count of 1 -- "a", "an", "the", "1", or none at all --
+// reaches exactly what a bare name reaches and is admitted.
+function requireSimpleWishQualifiers(d) {
+    if (d.cnt > 1)
+        throw new UnsupportedWishError('a wish for more than one object',
                                        origbp(d));
-    for (const [field, value] of Object.entries(UNQUALIFIED_WISH_FIELDS))
+    for (const [field, value] of Object.entries(UNSUPPORTED_WISH_FIELDS))
         if (d[field] !== value)
             throw new UnsupportedWishError(`a wish that sets ${field}`,
                                            origbp(d));
@@ -1275,17 +1285,22 @@ export function readobjnam(bp, no_wish, env = {}) {
         d.cnt = 1; /* will be changed to 2 if makesingular() changes string */
 
     readobjnam_parse_charges(d);
-    requireUnqualifiedWish(d);
+    requireSimpleWishQualifiers(d);
 
     let action = readobjnam_postparse1(d, normalized);
     // Two refusals stand here rather than at typfnd:, because
-    // readobjnam_postparse3() would otherwise draw first -- "gray dragon
-    // scale mail" spends rn2(67) on SCALE_MAIL before its dragon becomes
-    // visible again, and "long sword named Foo" spends rn2(51) on a sword it
-    // then declines to name.
-    if (d.mntmp >= LOW_PM) {
+    // readobjnam_postparse3() would otherwise draw first -- "gnome corpse"
+    // spends rn2(1) on CORPSE before its monster becomes visible again, and
+    // "long sword named Foo" spends rn2(51) on a sword it then declines to
+    // name.
+    if (d.mntmp >= LOW_PM
+        && !(d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)) {
         // objnam.c:5026-5030 turns a wished-for pudding corpse into a glob,
-        // and 5187-5254 sets corpsenm or converts scale mail.
+        // and 5206-5245 sets corpsenm for a tin, corpse, egg, figurine or
+        // statue.  The ten dragons pass because the one arm of that block this
+        // port has, `case SCALE_MAIL` at 5246-5251, is theirs; a dragon in
+        // front of a type the tail cannot finish is still refused below, after
+        // the lookup draw C makes in the same place.
         throw new UnsupportedWishError('a wish naming a monster type',
                                        origbp(d));
     }
@@ -1330,10 +1345,19 @@ export function readobjnam(bp, no_wish, env = {}) {
             d.otmp.quan = d.cnt;
     }
 
-    // objnam.c:5086-5091 lights a wished-for light source, and 5095-5115
-    // clamps a requested enchantment.  d.islit and d.spesgn are 0, so the
-    // first does not run and the second keeps the value mksobj() rolled.
-    d.spe = d.otmp.spe;
+    // objnam.c:5086-5091 lights a wished-for light source; d.islit is 0, so it
+    // does not run.
+
+    if (d.spesgn === 0) {
+        /* spe not specified; retain the randomly assigned value */
+        d.spe = d.otmp.spe;
+    }
+    // objnam.c:5097-5098 leaves a wizard's requested enchantment alone, capped
+    // only by the SPE_LIM readobjnam_parse_charges() has already applied.  The
+    // 5099-5117 clamps against rnd(5), Luck and the rolled spe belong to the
+    // non-wizard hero requireSimpleWishedObject() refuses above.
+    if (d.spesgn === -1)
+        d.spe = -d.spe;
 
     /* set otmp->spe.  This may, or may not, use d.spe... */
     switch (d.typ) {
@@ -1350,8 +1374,46 @@ export function readobjnam(bp, no_wish, env = {}) {
         break;
     }
 
-    // objnam.c:5187-5254's corpsenm and dragon-scale fine tuning needs
-    // d.mntmp, and 5256-5264's blessed/cursed arms need a qualifier.
+    /* set otmp->corpsenm or dragon scale [mail] */
+    if (ismnum(d.mntmp)) {
+        // objnam.c:5195-5203 renames a long worm tail and switches a
+        // werecreature to its human form.  Only the ten dragons reach here,
+        // and none of them is either, so both rewrites are dead.
+        switch (d.typ) {
+        case SCALE_MAIL:
+            /* Dragon mail - depends on the order of objects & dragons. */
+            // Both operands hold for every wish that arrives, because the
+            // refusal above admits no other monster; the test is kept because
+            // C has it, and it starts doing work the moment that widens.
+            if (d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)
+                d.otmp.otyp = GRAY_DRAGON_SCALE_MAIL + d.mntmp
+                              - PM_GRAY_DRAGON;
+            break;
+        default:
+            // objnam.c:5206-5245's TIN, CORPSE, EGG, FIGURINE and STATUE arms
+            // belong to types requireSimpleWishedObject() refuses.
+            break;
+        }
+    }
+
+    /* set blessed/cursed -- setting the fields directly is safe
+     * since weight() is called below and addinv() will take care
+     * of luck */
+    if (d.iscursed) {
+        curseFreeObject(d.otmp, normalized);
+    } else if (d.uncursed) {
+        d.otmp.blessed = false;
+        // C's second operand is `(Luck < 0 && !wizard)`, and the arm below
+        // reads `(Luck >= 0 || wizard)`.  Every wish this port admits is a
+        // wizard's, so `wizard` settles both without reading Luck -- which
+        // has no owner in the port yet.
+        d.otmp.cursed = false;
+    } else if (d.blessed) {
+        d.otmp.blessed = true;
+        d.otmp.cursed = false;
+    } else if (d.spesgn < 0) {
+        curseFreeObject(d.otmp, normalized);
+    }
 
     /* set eroded and erodeproof; js/obj.js owns objnam.c erosion_matters()
        under the name erosionMatters(), where trap.c's erode_obj() found it

@@ -17,6 +17,7 @@ import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
 import { UnsupportedWishError, makewish } from '../js/zap.js';
@@ -61,6 +62,9 @@ function wishState(keys, { verbose = false } = {}) {
     // initialize every randomized description deterministically.
     objects_globals_init(state);
     init_objects(state, () => 0);
+    // readobjnam_postparse1() hands every name longer than two characters to
+    // name_to_monplus(), which reads mons[].
+    monst_globals_init(state);
     state.nhDisplay = new GameDisplay(null);
     state.nhDisplay.onEmptyQueue = () => {
         throw new Error('the wish prompt asked for a key the test withheld');
@@ -74,7 +78,7 @@ function wishState(keys, { verbose = false } = {}) {
 test('the wish matrix contains only source-selected inputs', () => {
     const recipe = loadWizardWishRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 14);
+    assert.equal(recipe.segments.length, 21);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -91,14 +95,14 @@ test('the wish matrix contains only source-selected inputs', () => {
         if (opened.includes('\n'))
             assert.equal(segment.moves.at(-1), WAIT_KEY);
     }
-    // Twelve segments reach the command and two are refused, so exactly twelve
-    // set debug mode. cmd.c:2000's "wizwish" row carries WIZMODECMD, which
-    // can_do_extcmd() and extcmds_match() both read.
+    // Nineteen segments reach the command and two are refused, so exactly
+    // nineteen set debug mode. cmd.c:2000's "wizwish" row carries WIZMODECMD,
+    // which can_do_extcmd() and extcmds_match() both read.
     assert.equal(
         recipe.segments.filter(
             ({ nethackrc }) => nethackrc.includes('playmode:debug'),
         ).length,
-        12,
+        19,
     );
     assert.equal(
         extcmdlist.find(({ ef_txt }) => ef_txt === 'wizwish').flags
@@ -191,10 +195,12 @@ test('rhack() runs can_do_extcmd() for the key a command is bound to',
 
 test('makewish() hands readobjnam() the line mungspaces() collapsed',
     async () => {
-    // zap.c:6345 runs mungspaces(buf) before the Escape test at 6346, where
-    // this port stops, so the buffer the next slice reads is already
-    // collapsed: hacklib.c mungspaces() folds tabs into spaces, squeezes each
-    // run to one, and drops the leading and trailing ones.
+    // zap.c:6345 runs mungspaces(buf) before the Escape test at 6346, so the
+    // buffer readobjnam() parses is already collapsed: hacklib.c mungspaces()
+    // folds tabs into spaces, squeezes each run to one, and drops the leading
+    // and trailing ones.  "blessed" and "+2" are qualifiers the parser now
+    // applies, so the refusal comes from "cry" matching no object name; either
+    // way the error carries the collapsed line, which is what this pins.
     const { state } = wishState('  blessed   +2  cry\n');
     state.context = { resume_wish: 7 }; /* a value zap.c:6323 has to clear */
     await assert.rejects(

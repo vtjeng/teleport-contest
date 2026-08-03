@@ -815,10 +815,17 @@ function curse(obj) {
     return obj;
 }
 
-// Narrow cross-module helper for free objects. This covers startup loadstones
-// and objects generated for level features before they acquire an owner.
-// Carried, worn, lit, or otherwise owned objects still need curse()'s full
-// luck, equipment, timer, light, occupation, and display side effects.
+// C ref: mkobj.c curse() (1783-1820), narrowed to free objects. This covers
+// startup loadstones, objects generated for level features before they acquire
+// an owner, and the object readobjnam() builds for a wish. Carried, worn, lit,
+// or otherwise owned objects still need curse()'s full luck, equipment, timer,
+// light, occupation, and display side effects.
+//
+// Four of curse()'s arms cannot fire on a free object and are omitted rather
+// than guarded: the uwep and uswapwep tests at 1795-1801; confers_luck()'s
+// set_moreluck() at 1803, which carried() gates; attach_fig_transform_timeout()
+// at 1808-1810, which carried() or mcarried() gates; and spell.c:343
+// book_cursed(), which acts only on the book svc.context.spbook.book points at.
 export function curseFreeObject(obj, env = {}) {
     if (obj.oclass === COIN_CLASS) return obj;
     if (obj.where !== OBJ_FREE || obj.lamplit) {

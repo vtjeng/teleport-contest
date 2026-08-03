@@ -11,7 +11,7 @@
 // through doextcmd().
 //
 // The first eight segments end while getlin() is still reading, which costs
-// one game lock apiece; the six after them submit a wish and close with a
+// one game lock apiece; the thirteen after them submit a wish and close with a
 // wait. The matrix records one segment at a time for the same reason the
 // #levelchange matrix does.
 
@@ -144,6 +144,54 @@ export function loadWizardWishRecipe() {
             // rnd_class() over the pair instead of matching a description.
             segment(4471014, `${WIZWISH_KEY}lamp${NEWLINE}${WAIT}`,
                 { role: 'Archeologist' }),
+
+            // --- the qualifiers readobjnam()'s typfnd: tail applies ---
+            // Six of the seven below wish as a Priest, because
+            // objnam.c xname_flags():629-630 sets bknown for
+            // Role_if(PM_CLERIC), which puts the object's blessed or cursed
+            // state into the line prinv() prints. No other hero can see a
+            // BUC change at all.
+            //
+            // A blessed enchanted dragon suit: objnam.c:5248-5250 rewrites
+            // SCALE_MAIL to the named dragon's row, 5264 blesses it, and 5395
+            // re-weighs it -- DRGN_ARMR (objects.h:497-499) weighs 40 against
+            // the scale mail row's 250.
+            segment(4471015,
+                `${WIZWISH_KEY}blessed +5 silver dragon scale mail`
+                + `${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // 5258-5259's curse() (mkobj.c:1783), the one BUC arm that is not
+            // a pair of direct field assignments.
+            segment(4471016, `${WIZWISH_KEY}cursed long sword${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // 5260-5262's "uncursed", which has to undo a curse the object
+            // already carries. The amulet is what makes that visible:
+            // mkobj.c:1063-1066 curses an amulet of strangulation nine times
+            // in ten, where blessorcurse() leaves most types alone.
+            segment(4471017,
+                `${WIZWISH_KEY}uncursed amulet of strangulation`
+                + `${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // 5266-5267: a negative enchantment with no BUC word curses the
+            // object, which is the only way a screen can show that 5119-5120
+            // read the sign.
+            segment(4471018, `${WIZWISH_KEY}-2 long sword${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // The same wish with the opposite sign, which reaches no BUC arm
+            // at all and leaves the object uncursed.
+            segment(4471019, `${WIZWISH_KEY}+2 long sword${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // readobjnam_postparse1():4489-4500 sets d.iscursed for "unholy
+            // water" rather than choosing a type of its own, so the tail is
+            // what tells the two waters apart. Cursed water cannot merge with
+            // the blessed stack a Priest starts with.
+            segment(4471020, `${WIZWISH_KEY}unholy water${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // The far end of 5248's dragon range, on a hero who sees no BUC:
+            // the rewritten type is visible in the name on its own.
+            segment(4471021,
+                `${WIZWISH_KEY}yellow dragon scale mail${NEWLINE}${WAIT}`,
+                { role: 'Valkyrie', gender: 'female', align: 'lawful' }),
         ],
     }, 'wizard wish recipe');
 }

@@ -45,20 +45,25 @@ import {
     GAUNTLETS_OF_POWER,
     GEM_CLASS,
     GRAY_DRAGON_SCALES,
+    GRAY_DRAGON_SCALE_MAIL,
     HELM_OF_TELEPATHY,
     JADE,
     KATANA,
     LAND_MINE,
     LEATHER_ARMOR,
+    LONG_SWORD,
     LUCKSTONE,
     MAGIC_LAMP,
     MEAT_RING,
     OIL_LAMP,
     POTION_CLASS,
     POT_SEE_INVISIBLE,
+    POT_WATER,
+    RED_DRAGON_SCALE_MAIL,
     RING_CLASS,
     RING_MAIL,
     SACK,
+    SCALE_MAIL,
     SCROLL_CLASS,
     SCR_MAGIC_MAPPING,
     SPBOOK_CLASS,
@@ -74,11 +79,14 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
     YELLOW_DRAGON_SCALES,
+    YELLOW_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
 import { NON_PM, SPE_LIM } from '../js/const.js';
 import { init_artifacts } from '../js/artifacts.js';
 import { name_to_monplus } from '../js/mondata.js';
-import { PM_GRAY_DRAGON, monst_globals_init } from '../js/monsters.js';
+import {
+    PM_GRAY_DRAGON, PM_RED_DRAGON, PM_YELLOW_DRAGON, monst_globals_init,
+} from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
 import { roles } from '../js/roles.js';
@@ -524,12 +532,13 @@ test('readobjnam answers the caller sentinel for a declined wish', () => {
 test('readobjnam refuses a wish outside its boundary without drawing', () => {
     const state = wishState();
     for (const text of [
-        // readobjnam_preparse() consumes a qualifier, a count or a sign.
-        'blessed magic lamp', 'cursed lamp', '+3 long sword', '2 daggers',
+        // readobjnam_preparse() consumes a count or a qualifier the typfnd:
+        // tail cannot apply.
+        '2 daggers',
         'rustproof long sword', 'wet towel', 'partly eaten food ration',
-        // A monster name, which the typfnd: tail would turn into a corpse or
-        // dragon scale mail.
-        'gray dragon scale mail', 'newt corpse',
+        // A monster name outside the dragon range, which the typfnd: tail
+        // would turn into a corpse.
+        'newt corpse',
         // Types whose fine tuning is unported.
         'glob of gray ooze', 'tin of newt meat', 'gold piece',
         // A unique object, which mksobj() would make an artifact.
@@ -543,6 +552,148 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
         assert.ok(refusal, `${text} is refused`);
         assert.deepEqual(draws, [], `${text} draws nothing`);
     }
+});
+
+// objnam.c:5094-5120, 5191-5253 and 5255-5268: the enchantment sign, the
+// dragon-scale rewrite and the blessed/cursed arms of the typfnd: tail.  Every
+// wish below runs in wizard mode, which is the only mode readobjnam() serves
+// here, so the `Luck` operand of each BUC test is short-circuited away.
+test('readobjnam applies a blessed word and a +N enchantment', () => {
+    const state = wishState();
+    const { obj, draws } = wish(state, 'blessed +3 gray dragon scale mail');
+    // 5246-5251 rewrites SCALE_MAIL to GRAY_DRAGON_SCALE_MAIL plus the
+    // dragon's offset from PM_GRAY_DRAGON; objects.h:493-495 states that the
+    // two orderings match, which is what makes the arithmetic legal.
+    assert.equal(obj.otyp, GRAY_DRAGON_SCALE_MAIL);
+    // 5097-5098 leaves a wizard's requested enchantment alone and 5188
+    // assigns it over the rne(3) mkobj.c:1096 rolled.
+    assert.equal(obj.spe, 3);
+    // 5264-5265's `(Luck >= 0 || wizard)` and `(Luck < 0 && !wizard)`.
+    assert.equal(obj.blessed, true);
+    assert.equal(obj.cursed, false);
+    // DRGN_ARMR (objects.h:497-499) weighs every dragon suit 40, against the
+    // 250 of the "scale mail" row at 583-585 that mksobj() built from; 5395's
+    // weight() call is what replaces the stale value.
+    assert.equal(obj.owt, 40);
+    // objects.h:584 gives SCALE_MAIL oc_prob 66, so the lookup draws rn2(67).
+    // The rest are mksobj()'s: next_ident(), then mkobj.c:1085-1097's
+    // ARMOR_CLASS arm, whose first rn2(10) fails, whose second succeeds, and
+    // which then rolls a blessing and an enchantment the wish overrides.
+    assert.deepEqual(draws, ['rn2(67)', 'rnd(2)', 'rn2(10)', 'rn2(10)',
+                             'rn2(2)', 'rne(3)']);
+});
+
+test('readobjnam converts scale mail for each named dragon', () => {
+    const state = wishState();
+    // Both ends of 5248's range, which is tested with `>=` at one end and
+    // `<=` at the other, plus one interior dragon.  monsters.js and objects.js
+    // put PM_GRAY_DRAGON at 143 and GRAY_DRAGON_SCALE_MAIL at 101, so each
+    // expected type is 101 + (pm - 143).
+    assert.equal(wish(state, 'gray dragon scale mail').obj.otyp,
+                 GRAY_DRAGON_SCALE_MAIL);
+    assert.equal(PM_RED_DRAGON - PM_GRAY_DRAGON,
+                 RED_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALE_MAIL);
+    assert.equal(wish(state, 'red dragon scale mail').obj.otyp,
+                 RED_DRAGON_SCALE_MAIL);
+    assert.equal(PM_YELLOW_DRAGON - PM_GRAY_DRAGON,
+                 YELLOW_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALE_MAIL);
+    assert.equal(wish(state, 'yellow dragon scale mail').obj.otyp,
+                 YELLOW_DRAGON_SCALE_MAIL);
+    // 5246's `case SCALE_MAIL` is the only arm the dragons reach, so a dragon
+    // in front of any other armor name leaves the type alone.
+    assert.equal(wish(state, 'gray dragon ring mail').obj.otyp, RING_MAIL);
+    // And a scale mail with no dragon in front of it stays plain.
+    assert.equal(wish(state, 'scale mail').obj.otyp, SCALE_MAIL);
+});
+
+test('readobjnam negates a -N enchantment and curses the object', () => {
+    const state = wishState();
+    const { obj, draws } = wish(state, '-2 long sword');
+    // objects.h:271 gives LONG_SWORD oc_prob 50, so the lookup draws rn2(51).
+    assert.equal(draws[0], 'rn2(51)');
+    // 5119-5120's `if (d.spesgn == -1) d.spe = -d.spe`, over the rne(3)
+    // mkobj.c:879 rolled.
+    assert.equal(obj.spe, -2);
+    // 5266-5267: a negative enchantment with no BUC word curses the object.
+    assert.equal(obj.cursed, true);
+    assert.equal(obj.blessed, false);
+    // A positive one does not, and leaves mkobj.c:880's rn2(2) blessing --
+    // false, since the stub answers 0 -- in place.
+    const plus = wish(state, '+3 long sword').obj;
+    assert.equal(plus.spe, 3);
+    assert.equal(plus.cursed, false);
+    assert.equal(plus.blessed, false);
+    // 5266's test is `< 0`, not `<= 0`: an unenchanted wish leaves d.spesgn at
+    // 0 and reaches none of the four arms.  The long sword is the object that
+    // shows it, because mkobj.c:878-880 leaves this one uncursed where
+    // mkobj.c:1008's blessorcurse() curses a magic lamp on its own.
+    const bare = wish(state, 'long sword').obj;
+    assert.equal(bare.cursed, false);
+    assert.equal(bare.blessed, false);
+});
+
+test('readobjnam applies the cursed and uncursed words', () => {
+    const state = wishState();
+    // mkobj.c:1008's blessorcurse(otmp, 2) curses a magic lamp outright here,
+    // because the stub answers 0 to both of its rn2() calls.  That is what
+    // makes each arm below discriminating: "uncursed" has to undo it and
+    // "blessed" has to reverse it.
+    const plain = wish(state, 'magic lamp').obj;
+    assert.equal(plain.cursed, true);
+    assert.equal(wish(state, 'cursed magic lamp').obj.cursed, true);
+    const uncursed = wish(state, 'uncursed magic lamp').obj;
+    assert.equal(uncursed.cursed, false);
+    assert.equal(uncursed.blessed, false);
+    const blessed = wish(state, 'blessed magic lamp').obj;
+    assert.equal(blessed.cursed, false);
+    assert.equal(blessed.blessed, true);
+    // 3997-4004: the last BUC word wins, because each arm clears the other two.
+    const last = wish(state, 'cursed uncursed blessed magic lamp').obj;
+    assert.equal(last.blessed, true);
+    assert.equal(last.cursed, false);
+});
+
+test('readobjnam blesses holy water and curses unholy water', () => {
+    const state = wishState();
+    // objnam.c:4489-4500 sets d.blessed or d.iscursed rather than a type of
+    // its own, so the typfnd: tail is the only thing that tells the two
+    // apart.  Neither reaches mkobj.c's blessorcurse(), which skips POT_WATER.
+    const holy = wish(state, 'holy water').obj;
+    assert.equal(holy.otyp, POT_WATER);
+    assert.equal(holy.blessed, true);
+    assert.equal(holy.cursed, false);
+    const unholy = wish(state, 'unholy water').obj;
+    assert.equal(unholy.otyp, POT_WATER);
+    assert.equal(unholy.cursed, true);
+    assert.equal(unholy.blessed, false);
+});
+
+test('readobjnam refuses a monster name outside the dragon range', () => {
+    const state = wishState();
+    // The typfnd: tail has 5246's `case SCALE_MAIL` and none of the other
+    // arms at 5206-5245, so every non-dragon monster name is still refused --
+    // and refused before readobjnam_postparse3() can draw for the object.
+    const newt = wish(state, 'newt corpse');
+    assert.equal(newt.refusal, 'a wish naming a monster type');
+    assert.deepEqual(newt.draws, []);
+    // A dragon reaches the lookup, so a dragon-named type the tail cannot
+    // finish is refused after the draw C makes in the same place.
+    const corpse = wish(state, 'gray dragon corpse');
+    assert.equal(corpse.refusal,
+                 'a wish for a corpse, statue, figurine, egg or tin');
+    assert.deepEqual(corpse.draws, ['rn2(1)']);
+});
+
+test('readobjnam refuses a count above one', () => {
+    const state = wishState();
+    // objnam.c:5071-5083's wizard arm assigns otmp->quan directly, but no
+    // recorded case covers the inventory line a stack produces, so a count
+    // stops here.  A count of one reaches the same object as no count at all.
+    const many = wish(state, '3 daggers');
+    assert.equal(many.refusal, 'a wish for more than one object');
+    assert.deepEqual(many.draws, []);
+    for (const text of ['a long sword', 'the long sword', '1 long sword'])
+        assert.equal(wish(state, text).obj.otyp, LONG_SWORD, text);
 });
 
 // objnam.c readobjnam_preparse() (3965-4175).
