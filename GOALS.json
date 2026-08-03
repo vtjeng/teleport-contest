@@ -179,7 +179,7 @@
     },
     {
       "id": "wizard-mode-wish",
-      "status": "open",
+      "status": "closed",
       "boundary": "a wizard-mode hero issues the wish command and types a description readobjnam() resolves to exactly one objects[] entry, and hold_another_object() adds the created object to inventory and prints its letter line",
       "upstreamOwners": [
         "wizcmds.c wiz_wish()",
@@ -222,8 +222,11 @@
         "screens": 676,
         "rng": 108261
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "0797ecc720afdf4a7f4abaf804c7c440034a9ff6",
+      "delivered": {
+        "screens": 106,
+        "rng": 24
+      }
     }
   ]
 }
