@@ -1,5 +1,12 @@
 // Runtime object naming for the early movement, pet, trap, and combat paths.
-// C refs: objnam.c xname(), corpse_xname(), doname(), and distant_name().
+// C refs: objnam.c xname(), corpse_xname(), doname(), distant_name(), cxname(),
+// The(), aobjnam(), otense() and singular().
+//
+// objnam.c is split across two files. Its wish-parsing group lives in
+// js/objnam_readobjnam.js: readobjnam() and its five-function chain,
+// wishymatch(), rnd_otyp_by_namedesc() and the o_ranges[], spellings[], wrp[]
+// and wrpsym[] tables. Nothing here calls into that file; it calls back here
+// for the naming helpers above.
 
 import {
     ART_EYES_OF_THE_OVERWORLD, find_artifact, permapoisoned,
@@ -736,9 +743,10 @@ export function cxname(obj, state = game) {
 
 // C ref: objnam.c singular() (2087-2105). Names one item of a stack by
 // running the caller's namer with quan temporarily set to 1. C swaps xname()
-// for cxname() on a corpse, because xname() would drop the monster type;
-// cxname() is unported and eat.c's callers reach this only for non-corpses,
-// so that swap stops instead of guessing.
+// for cxname() on a corpse, because xname() would drop the monster type.
+// cxname() is ported above, but it refuses a corpse itself, needing
+// corpse_xname(), which is not. So the swap stops here rather than routing a
+// corpse into a helper that would throw one frame later.
 export function singular(otmp, func, state) {
     if (otmp.otyp === CORPSE && func === xnameFresh)
         throw new UnsupportedObjectNameError('cxname() for singular()', otmp);

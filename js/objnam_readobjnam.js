@@ -218,8 +218,8 @@ export const spellings = Object.freeze([
 ].map(([sp, ob]) => Object.freeze({ sp, ob })));
 
 // C ref: objnam.c wrp[] and wrpsym[] (2517-2528).  The two arrays are indexed
-// together, and `sizeof wrpsym` -- 13, one more than SIZE(wrp) -- is what
-// bounds both loops that read them: the class-name loop in
+// together and hold 13 entries each, so `sizeof wrpsym` equals SIZE(wrp) and
+// one bound serves both loops that read them: the class-name loop in
 // readobjnam_postparse1() and the random class in readobjnam()'s `any:` arm.
 export const wrp = Object.freeze([
     'wand', 'ring', 'potion', 'scroll', 'gem',
@@ -246,10 +246,14 @@ export function strcmpiEqual(a, b) {
     return lcase(a) === lcase(b);
 }
 
-// C's strsubst() on a copy of the caller's string.  hacklib.c strsubst()
-// finds its target with case-sensitive strstr(), but wishymatch() reaches it
-// only after a case-insensitive strstri() has already found the same text, so
-// this fold matches where wishymatch()'s guard did.
+// C's strsubst() on a copy of the caller's string, with one difference this
+// port has not settled: hacklib.c strsubst() finds its target with
+// case-sensitive strstr(), while wishymatch()'s guard above it uses
+// case-insensitive strstri().  So C leaves "Helmet of brilliance" unchanged and
+// recurses on the original, where this fold rewrites it to "Helm".  Matching C
+// exactly would re-enter the same branch with the same string, which is why the
+// deferral "wishymatch() folds case where C's strsubst() does not" holds it: the
+// recursion needs tracing before the fold is removed.
 function strsubstFold(str, orig, replacement) {
     const at = strstri(str, orig);
     if (at < 0) return str;

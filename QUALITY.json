@@ -619,6 +619,24 @@
       "status": "open",
       "from": "a79c15a8f054fa69e7ad5da5e31c93edcf3e9c2b",
       "detail": "objnam.c:4489-4501 reads 'potion of [un]holy water' inside readobjnam_postparse1(), sets d->iscursed or d->blessed, assigns d->typ = POT_WATER and returns 2 straight to typfnd:, where the BUC arms at 5256-5268 apply it. The port reaches POT_WATER by a different route: js/objnam_readobjnam.js:963's endsWithFold(d.bp, 'holy water') arm does not fire for that input, so d.blessed and d.iscursed stay 0 and the wish produces a plain uncursed potion of water where C blesses or curses it. Found by the wizard-mode-wish correctness pass. An orchestrator attempt to close it by refusing on d.blessed/d.iscursed after postparse1 does not fire, because the port never sets them on this path, and is not the fix; the port's path divergence is. Diagnose why line 963 is missed before writing any guard: the C arm is reached only after adjective parsing has stopped at 'potion', so the port's d.bp at that point is the value to check first. Closing condition: a fresh recording of 'potion of unholy water' and 'potion of holy water' in wizard mode, with the BUC arms ported or refused where C applies them. The bare forms 'holy water' and 'unholy water' are already refused by the qualifier guard and are not affected."
+    },
+    {
+      "id": "wishymatch() folds case where C's strsubst() does not",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "c138e0514b1aa47e733cdc3f73bcb83ab2150ccf",
+      "detail": "objnam.c:3287-3294 guards the helmet and gloves arms with case-insensitive strstri(), then substitutes with hacklib.c strsubst(), which finds its target using case-sensitive strstr(). For 'Helmet of brilliance' C therefore leaves the buffer unchanged and recurses on the original string, which re-enters the same branch with the same input. js/objnam_readobjnam.js strsubstFold() folds case instead, so the port rewrites to 'Helm' and the recursion terminates. Found by the wizard-mode-wish correctness pass. Matching C exactly is what AGENTS.md requires, including behavior that looks accidental, but an unbounded recursion in C becomes a stack overflow in JavaScript, so the C recursion must be traced first: establish whether any caller lowercases the wish text before wishymatch() sees it, and whether C terminates by another route. The comment at the fold now states the difference rather than the false justification it carried, which claimed the guard made the fold equivalent. Closing condition: a trace of C's recursion for a mixed-case 'Helmet' or 'Gloves' wish, then either the case-sensitive substitution or a recorded reason to keep the fold."
+    },
+    {
+      "id": "five wish-parser test gaps the pass confirmed",
+      "area": "objects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "c138e0514b1aa47e733cdc3f73bcb83ab2150ccf",
+      "detail": "Five findings from the wizard-mode-wish correctness pass, grouped because each needs the same thing: a fixture the current tests do not build. (1) scripts/inventory-substrate.test.mjs:1653 leaves hold_another_object()'s flags.pickup_burden clamp untested, every fixture being weightless or a boulder, so the clamp's own comparison is unexercised. (2) scripts/objnam-readobjnam.test.mjs:231 samples the four hand-transcribed tables rather than pinning them: 4 of 46 spellings[] rows, 2 of 19 o_ranges[] rows and part of wrp[]/wrpsym[], with no generated check against the C. (3) The find() helper at :635 asserts only the winning otyp under an rn2 stub pinned at 0, so the candidate set, which is what sets rn2's argument, is never checked. (4) The assertion at :644 advertised as the guard for the per-game shuffled description table is inert, because init_objects(state, () => 0) is the identity permutation, so it would pass against the static table too. (5) The count test at :834 pins only quan === 1, leaving readobjnam_postparse1()'s 'if (d.cnt === 1) d.cnt = 2' doubling unexercised. Closing condition: a generated table check against objnam.c for (2), a non-identity permutation for (4), and fixtures for the rest."
     }
   ],
   "areas": [
