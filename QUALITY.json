@@ -610,6 +610,15 @@
       "status": "open",
       "from": "ce2bd7ffeae579e9bcb59aa12e86d2830ca1dcac",
       "detail": "objnam.c readobjnam() answers null when no objects[] entry matches, and zap.c makewish():6355-6368 then prints \"Nothing fitting that description exists in the game.\" and reprompts, up to MAXWISHTRY times, before falling back to a random wish. The port refuses at readobjnam_postparse3() instead, and the retry loop, its three remaining rnd_otyp_by_namedesc() calls at objnam.c:4751-4758 and the rest of readobjnam_postparse3() (4760-4899, Japanese item names, the ARMOR_CLASS \" mail\" retry, spinach, named fruits and artifacts by name) are all unported. Fresh case, recorded 2 August 2026: seed 4471015, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W>florble\\n.\". All 2641 random-number calls match, because the failed lookup draws nothing; the port stops at boundary 11, the submitting Enter, having matched 10 of C's 12 screens. C paints the message and reprompts with the cursor at [60,0,1]."
+    },
+    {
+      "id": "a wished-for holy water loses its blessing",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "a79c15a8f054fa69e7ad5da5e31c93edcf3e9c2b",
+      "detail": "objnam.c:4489-4501 reads 'potion of [un]holy water' inside readobjnam_postparse1(), sets d->iscursed or d->blessed, assigns d->typ = POT_WATER and returns 2 straight to typfnd:, where the BUC arms at 5256-5268 apply it. The port reaches POT_WATER by a different route: js/objnam_readobjnam.js:963's endsWithFold(d.bp, 'holy water') arm does not fire for that input, so d.blessed and d.iscursed stay 0 and the wish produces a plain uncursed potion of water where C blesses or curses it. Found by the wizard-mode-wish correctness pass. An orchestrator attempt to close it by refusing on d.blessed/d.iscursed after postparse1 does not fire, because the port never sets them on this path, and is not the fix; the port's path divergence is. Diagnose why line 963 is missed before writing any guard: the C arm is reached only after adjective parsing has stopped at 'potion', so the port's d.bp at that point is the value to check first. Closing condition: a fresh recording of 'potion of unholy water' and 'potion of holy water' in wizard mode, with the BUC arms ported or refused where C applies them. The bare forms 'holy water' and 'unholy water' are already refused by the qualifier guard and are not affected."
     }
   ],
   "areas": [

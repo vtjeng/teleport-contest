@@ -12,6 +12,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { failClosedCommandRefusals, rhack } from '../js/cmd.js';
+import { UnsupportedObjectOperationError } from '../js/obj.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -278,3 +279,27 @@ test('Escape over a typed wish restarts the prompt instead of ending it',
     });
     assert.equal(topLine(), 'For what do you wish? ri');
 });
+
+// invent.c hold_another_object() is reachable from the wish path, and raises
+// UnsupportedObjectOperationError from its drop arm whenever near_capacity()
+// passes flags.pickup_burden. A boulder does that on any hero. The class has to
+// convert at the command seam like every other one makewish() can reach: left
+// out, the throw escapes runSegment() and the scorer discards every screen the
+// wish prompt already matched instead of stopping on the last of them.
+test('a wish the hero cannot carry stops the segment rather than escaping',
+    async () => {
+        assert.ok(
+            failClosedCommandRefusals()
+                .includes(UnsupportedObjectOperationError),
+        );
+
+        // End to end: readobjnam() grants a boulder without refusing it, so
+        // the drop arm is the first thing that stops this wish. The matrix has
+        // no boulder segment, because no fresh recording can pass through a
+        // refusal, so this borrows a recorded segment's configuration and
+        // types a different wish.
+        const recorded = loadWizardWishRecipe().segments[0];
+        await runSegment({
+            ...recorded, moves: `.${WIZWISH_KEY}boulder\n.`,
+        });
+    });

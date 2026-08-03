@@ -38,6 +38,7 @@ import { dosearch, UnsupportedSearchError } from './detect.js';
 import { bot, flush_screen } from './display.js';
 import { dodown, UnsupportedLevelChangeError } from './do.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
+import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedPickupError } from './pickup.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
@@ -938,6 +939,14 @@ export function failClosedCommandRefusals() {
         // reach it, so leaving it out would discard every screen the wish
         // prompt already matched instead of stopping on the last of them.
         UnsupportedWishError,
+        // invent.c hold_another_object(), which makewish() calls unguarded,
+        // raises this from its drop, artifact, Fumbling and autoquiver arms.
+        // A wish heavy or numerous enough to push near_capacity() past
+        // flags.pickup_burden reaches the drop arm: a boulder does it on any
+        // hero. js/allmain.js elapsedTurnPlanningRefusals() already lists the
+        // class, and the note above says a class both paths can reach belongs
+        // in both.
+        UnsupportedObjectOperationError,
     ];
 }
 
