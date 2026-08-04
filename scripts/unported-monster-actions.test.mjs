@@ -1723,7 +1723,8 @@ test('simple preflight rejects a selected trap without live mutation',
         assert.deepEqual(preflightSnapshot(), before);
     });
 
-test('simple preflight stops before unowned pet target scoring', async () => {
+test('a starting pony targets at range and later refusal stays retryable',
+    async () => {
     const replay = await runSegment({
         // This fresh-derived Knight layout lines the pony up with a distant
         // monster after one clear diagonal walk.
@@ -1734,19 +1735,43 @@ test('simple preflight stops before unowned pet target scoring', async () => {
         moves: ' u.',
     });
     assert.equal(game.context.startingpet_typ, PM_PONY);
-    assert.equal(game.moves, 2);
+    assert.equal(game.moves, 3);
+    let pony = null;
+    for (let monster = game.level.monlist;
+        monster;
+        monster = monster.nmon) {
+        if (monster.data?.pmidx === PM_PONY) pony = monster;
+    }
+    assert.ok(pony);
+    assert.equal(pony.mlstmv, game.moves - 1);
+    assert.deepEqual(game.gb.bhitpos, pony.mtrack[0]);
+    assert.equal(game.gn.notonhead, false);
+    assert.equal(game.gv.vis, true);
+    assert.equal(game.gs.skipdrin, false);
     const before = completeSecondTurnSnapshot(game, replay);
+    const combatBefore = structuredClone({
+        gb: game.gb,
+        gn: game.gn,
+        gs: game.gs,
+        gv: game.gv,
+    });
 
     for (let attempt = 0; attempt < 2; ++attempt) {
         await assert.rejects(
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'pet ranged targeting',
+                && error.reason === 'pet combat evaluation',
         );
         assert.deepEqual(
             completeSecondTurnSnapshot(game, replay),
             before,
         );
+        assert.deepEqual({
+            gb: game.gb,
+            gn: game.gn,
+            gs: game.gs,
+            gv: game.gv,
+        }, combatBefore);
     }
 });
 

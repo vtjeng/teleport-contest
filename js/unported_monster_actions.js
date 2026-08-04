@@ -29,7 +29,11 @@ import {
     STRAT_CLOSE,
 } from './const.js';
 import { newsym } from './display.js';
-import { dog_move, find_targ } from './dogmove.js';
+import {
+    best_target,
+    dog_move,
+    pet_ranged_attk,
+} from './dogmove.js';
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { any_light_source } from './light.js';
@@ -462,7 +466,12 @@ function planningState(state) {
         // has created it, and the leak needs both. The frozen-state case in
         // scripts/unported-monster-actions.test.mjs seeds gd to reach it.
         gd: { ...(state.gd ?? {}) },
+        gb: state.gb ? {
+            ...state.gb,
+            bhitpos: { ...(state.gb.bhitpos ?? {}) },
+        } : state.gb,
         gg: { ...state.gg },
+        gn: { ...(state.gn ?? {}) },
         gl: state.gl ? {
             ...state.gl,
             light_base: cloneLightList(state.gl.light_base),
@@ -473,6 +482,8 @@ function planningState(state) {
             timer_base: cloneTimerList(state.gt.timer_base),
         } : state.gt,
         gw: { ...(state.gw ?? {}) },
+        gs: { ...(state.gs ?? {}) },
+        gv: { ...(state.gv ?? {}) },
         head_engr: structuredClone(state.head_engr),
         iflags: structuredClone(state.iflags),
         level,
@@ -673,21 +684,6 @@ async function moveSimpleOrdinary(monster, env) {
     });
 }
 
-function rejectPetRangedTarget(monster, _forced, env) {
-    if (!monster.mcansee) return MMOVE_NOTHING;
-    for (let dy = -1; dy <= 1; ++dy) {
-        for (let dx = -1; dx <= 1; ++dx) {
-            if (!dx && !dy) continue;
-            const target = find_targ(monster, dx, dy, 7, env);
-            // score_targ() rejects the remembered hero before its random
-            // fuzz. Any monster target enters the unowned scoring branch.
-            if (target && target !== env.state.youmonst)
-                unsupported('pet ranged targeting');
-        }
-    }
-    return MMOVE_NOTHING;
-}
-
 async function moveSimplePet(monster, after, env) {
     return dog_move(monster, after, {
         ...env,
@@ -697,7 +693,7 @@ async function moveSimplePet(monster, after, env) {
             m_avoid_kicked_loc(subject, x, y, env.state),
         avoidSokobanPush: (subject, x, y) =>
             m_avoid_soko_push_loc(subject, x, y, env.state),
-        bestTarget: () => unsupported('pet ranged targeting'),
+        bestTarget: best_target,
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         digWeaponCheck: () => false,
         displaceMonster: () => unsupported('pet displacement'),
@@ -713,7 +709,7 @@ async function moveSimplePet(monster, after, env) {
         // may still refuse.
         message: env.planning ? async () => {} : ttyPline,
         monsterReflects: () => unsupported('pet combat evaluation'),
-        petRangedAttack: rejectPetRangedTarget,
+        petRangedAttack: pet_ranged_attk,
         redraw: env.planning ? () => {} : newsym,
         reportCursedStep: () => unsupported('pet cursed-object feedback'),
         resistsStone: () => unsupported('pet combat evaluation'),

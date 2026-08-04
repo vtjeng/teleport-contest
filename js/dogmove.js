@@ -26,6 +26,7 @@ import {
     M_AP_NOTHING,
     M_AP_TYPMASK,
     M_ATTK_DEF_DIED,
+    M_ATTK_MISS,
     MMOVE_DIED,
     MMOVE_DONE,
     MMOVE_MOVED,
@@ -48,6 +49,7 @@ import {
     dist2,
     distmin,
     isok,
+    sgn,
 } from './hacklib.js';
 import { check_gear_next_turn } from './mon.js';
 import { can_carry } from './moncarry.js';
@@ -69,15 +71,21 @@ import {
     touch_petrifies,
     tunnels,
     verysmall,
+    is_vampshifter,
 } from './mondata.js';
 import {
+    AT_NONE,
     AT_WEAP,
     MS_GUARDIAN,
     MS_LEADER,
+    PM_KITTEN,
+    PM_LITTLE_DOG,
+    PM_PONY,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
     S_MIMIC,
 } from './monsters.js';
+import { mattackm } from './mhitm.js';
 import {
     m_at,
     place_monster,
@@ -138,6 +146,13 @@ const UNUSABLE_TOOL = Object.freeze({
 
 const DOG_WEAK = 500;
 const DOG_STARVE = 750;
+const DOG_HUNGRY = 300;
+const STARTING_PETS = new Set([PM_KITTEN, PM_LITTLE_DOG, PM_PONY]);
+const TARGET_DIRECTIONS = Object.freeze([
+    [-1, -1], [0, -1], [1, -1],
+    [-1, 0], [1, 0],
+    [-1, 1], [0, 1], [1, 1],
+]);
 
 function doorMask(location) {
     return location?.flags || location?.doormask || 0;
@@ -733,6 +748,165 @@ export function find_targ(
         }
     }
     return null;
+}
+
+function targetingRefusal(rawEnv, reason) {
+    if (typeof rawEnv.unsupported === 'function')
+        return rawEnv.unsupported(reason);
+    throw new RangeError(`pet ranged targeting requires ${reason}`);
+}
+
+function admitOrdinaryStartingPet(monster, rawEnv) {
+    if ([
+        !STARTING_PETS.has(monster?.data?.pmidx),
+        monster.isminion,
+        monster.ispriest,
+        is_vampshifter(monster),
+    ].includes(true)) {
+        targetingRefusal(rawEnv, 'an ordinary starting pet');
+    }
+    if (monster.mconf)
+        targetingRefusal(rawEnv, 'an unconfused starting pet');
+}
+
+// C ref: dogmove.c find_friends(). Scan beyond a candidate along the same
+// ray for the remembered hero, a visible tame ally, or a quest friendly.
+export function find_friends(monster, target, maxDistance, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const monsterAt = rawEnv.monsterAt
+        ?? ((x, y) => m_at(x, y, state));
+    const monsterCanSee = rawEnv.monsterCanSee
+        ?? ((subject, x, y) => clear_path(subject.mx, subject.my, x, y));
+    const dx = sgn(target.mx - monster.mx);
+    const dy = sgn(target.my - monster.my);
+    let x = target.mx;
+    let y = target.my;
+
+    for (let distance = distmin(target.mx, target.my, monster.mx, monster.my);
+        distance <= maxDistance;
+        ++distance) {
+        x += dx;
+        y += dy;
+        if ([!isok(x, y), !monsterCanSee(monster, x, y, rawEnv)]
+            .includes(true)) {
+            return 0;
+        }
+        if ([monster.mux === x, monster.muy === y].every(Boolean)) return 1;
+        const ally = monsterAt(x, y, rawEnv);
+        if (!ally) continue;
+        if (ally.mtame) {
+            if ([!ally.minvis, perceives(monster.data)].includes(true))
+                return 1;
+        } else if ([MS_LEADER, MS_GUARDIAN]
+            .includes(ally.data?.msound)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// C ref: dogmove.c score_targ(). Covers the ordinary, unconfused starting-pet
+// branch used by dog_move(); special faith and shapeshifter branches stay at
+// the fail-closed boundary.
+export function score_targ(monster, target, rawEnv = {}) {
+    admitOrdinaryStartingPet(monster, rawEnv);
+    if ([target.isminion, target.ispriest, target.isshk, target.isgd]
+        .some(Boolean)) {
+        targetingRefusal(rawEnv, 'an ordinary monster target');
+    }
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rnd };
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('score_targ random injection requires rnd');
+
+    if ([MS_LEADER, MS_GUARDIAN].includes(target.data?.msound)) {
+        targetingRefusal(rawEnv, 'an ordinary monster target');
+    }
+    if (distmin(monster.mx, monster.my, target.mx, target.my) <= 1)
+        return -3000;
+    if ([Boolean(target.mtame), target === state.youmonst].includes(true))
+        return -3000;
+    if (find_friends(monster, target, 15, rawEnv)) return -3000;
+
+    let score = target.mpeaceful ? 0 : 10;
+    if (target.data?.mattk?.[0]?.aatyp === AT_NONE) score -= 1000;
+    const weakTarget = [target.m_lev < 2, monster.m_lev > 5]
+        .every(Boolean);
+    const farOutclassed = [
+        monster.m_lev > 12,
+        target.m_lev < monster.m_lev - 9,
+        state.u.ulevel > 8,
+        target.m_lev < state.u.ulevel - 7,
+    ].every(Boolean);
+    if ([weakTarget, farOutclassed].includes(true)) {
+        score -= 25;
+    }
+    if (target.m_lev > monster.m_lev + 4)
+        score -= (target.m_lev - monster.m_lev) * 20;
+    score += target.m_lev * 2 + Math.trunc(target.mhp / 3);
+    score += random.rnd(5);
+    return score;
+}
+
+// C ref: dogmove.c best_target(). Preserve dy-major/dx-minor ray order and
+// first-on-tie selection; score_targ() owns each candidate's random fuzz.
+export function best_target(monster, forced, rawEnv = {}) {
+    if (!monster) return null;
+    if (!monster.mcansee) return null;
+    admitOrdinaryStartingPet(monster, rawEnv);
+    let bestScore = -40000;
+    let bestTarget = null;
+    for (const [dx, dy] of TARGET_DIRECTIONS) {
+        const candidate = find_targ(monster, dx, dy, 7, rawEnv);
+        if (!candidate) continue;
+        const candidateScore = score_targ(monster, candidate, rawEnv);
+        if (candidateScore > bestScore) {
+            bestScore = candidateScore;
+            bestTarget = candidate;
+        }
+    }
+    if (!forced) {
+        if (bestScore < 0) return null;
+    }
+    return bestTarget;
+}
+
+// C ref: dogmove.c pet_ranged_attk(). Covers forced=FALSE and the distant
+// physical miss returned by mhitm.c mattackm(); real ranged attacks and
+// retaliation remain refused by the called narrow owner.
+export function pet_ranged_attk(monster, forced, rawEnv = {}) {
+    if (forced) targetingRefusal(rawEnv, 'an unforced target scan');
+    admitOrdinaryStartingPet(monster, rawEnv);
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    if ([random.rn2, random.rnd]
+        .some((operation) => typeof operation !== 'function')) {
+        throw new TypeError(
+            'pet_ranged_attk random injection requires rn2 and rnd',
+        );
+    }
+    const edog = monster.mextra?.edog;
+    if (!edog) targetingRefusal(rawEnv, 'ordinary pet hunger state');
+    const hungry = state.moves > edog.hungrytime + DOG_HUNGRY;
+    const target = best_target(monster, false, { ...rawEnv, state, random });
+    if (!target) return MMOVE_NOTHING;
+    if (hungry) {
+        if (random.rn2(5)) return MMOVE_NOTHING;
+    }
+    if (target === state.youmonst)
+        targetingRefusal(rawEnv, 'a monster target');
+
+    state.gb ??= {};
+    state.gb.bhitpos ??= {};
+    state.gb.bhitpos.x = monster.mx;
+    state.gb.bhitpos.y = monster.my;
+    state.gn ??= {};
+    state.gn.notonhead = false;
+    const attack = rawEnv.mattackm ?? mattackm;
+    const status = attack(monster, target, { ...rawEnv, state, random });
+    if (status !== M_ATTK_MISS)
+        targetingRefusal(rawEnv, 'a distant physical miss');
+    return MMOVE_NOTHING;
 }
 
 // Own the x-major mfndpos candidate scan, source tie-breaking draws, and

@@ -28,7 +28,11 @@ import {
     dog_goal,
     dog_move,
     droppables,
+    best_target,
+    find_friends,
     find_targ,
+    pet_ranged_attk,
+    score_targ,
 } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
 import { initrack, settrack } from '../js/track.js';
@@ -38,7 +42,10 @@ import {
     M2_ROCKTHROW,
     MONSTER_TEMPLATES,
     PM_FIRE_ELEMENTAL,
+    PM_GIANT_ANT,
+    PM_KITTEN,
     PM_LITTLE_DOG,
+    PM_PONY,
 } from '../js/monsters.js';
 import { place_monster } from '../js/monst.js';
 import {
@@ -250,6 +257,258 @@ test('find_targ preserves hero, visibility, and worm-head boundaries', () => {
         monsterCanSee: () => false,
     }), null);
 });
+
+test('find_friends scans beyond a target in source order', () => {
+    const { monster, state } = activePetState();
+    monster.mx = 5;
+    monster.my = 5;
+    monster.mux = 11;
+    monster.muy = 5;
+    const target = { mx: 8, my: 5 };
+    assert.equal(find_friends(monster, target, 15, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: () => true,
+    }), 1, 'remembered hero behind the target');
+
+    monster.mux = 1;
+    const invisiblePet = {
+        data: state.mons[PM_KITTEN],
+        minvis: true,
+        mtame: 10,
+    };
+    assert.equal(find_friends(monster, target, 15, {
+        state,
+        monsterAt: (x, y) => x === 10 && y === 5 ? invisiblePet : null,
+        monsterCanSee: () => true,
+    }), 0, 'a little dog cannot perceive an invisible ally');
+    invisiblePet.minvis = false;
+    assert.equal(find_friends(monster, target, 15, {
+        state,
+        monsterAt: (x, y) => x === 10 && y === 5 ? invisiblePet : null,
+        monsterCanSee: () => true,
+    }), 1);
+
+    const boundaryTarget = { mx: 20, my: 5 };
+    monster.mux = 21;
+    monster.muy = 5;
+    assert.equal(find_friends(monster, boundaryTarget, 15, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: () => true,
+    }), 1, 'the inclusive loop checks one square beyond distance 15');
+    assert.equal(find_friends(monster, boundaryTarget, 14, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: () => true,
+    }), 0);
+});
+
+test('score_targ preserves ordinary early returns and random fuzz', () => {
+    const { monster, state } = activePetState();
+    monster.m_lev = 2;
+    const target = {
+        data: state.mons[PM_GIANT_ANT],
+        m_lev: 2,
+        mhp: 7,
+        mpeaceful: false,
+        mtame: 0,
+        mx: 8,
+        my: 5,
+    };
+    const draws = [];
+    assert.equal(score_targ(monster, target, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: () => true,
+        random: {
+            rnd(bound) {
+                draws.push(bound);
+                return 4;
+            },
+        },
+    }), 20); // 10 hostile + 4 level + 2 hp + 4 fuzz.
+    assert.deepEqual(draws, [5]);
+
+    target.mx = 6;
+    assert.equal(score_targ(monster, target, {
+        state,
+        random: { rnd: () => assert.fail('adjacency returns before fuzz') },
+    }), -3000);
+});
+
+test('score_targ preserves source level-penalty boundaries', () => {
+    const { monster, state } = activePetState();
+    monster.mux = 1;
+    monster.muy = 8;
+    const target = {
+        data: state.mons[PM_GIANT_ANT],
+        m_lev: 2,
+        mhp: 6,
+        mpeaceful: true,
+        mtame: 0,
+        mx: 8,
+        my: 5,
+    };
+    const score = (petLevel, targetLevel, heroLevel) => {
+        monster.m_lev = petLevel;
+        target.m_lev = targetLevel;
+        state.u.ulevel = heroLevel;
+        return score_targ(monster, target, {
+            state,
+            monsterAt: () => null,
+            monsterCanSee: () => true,
+            random: { rnd: () => 1 },
+        });
+    };
+
+    assert.equal(score(5, 1, 1), 5);
+    assert.equal(score(6, 1, 1), -20, 'weak-pet cutoff is strictly above 5');
+    assert.equal(score(6, 2, 1), 7, 'target level 2 is not very low');
+
+    assert.equal(score(12, 2, 10), 7);
+    assert.equal(score(13, 2, 10), -18, 'far-outclassed pet starts above 12');
+    assert.equal(score(13, 4, 12), 11);
+    assert.equal(score(13, 3, 12), -16, 'target must be over nine levels lower');
+    assert.equal(score(15, 5, 12), 13);
+    assert.equal(score(15, 4, 12), -14, 'hero-relative cutoff is strict');
+
+    assert.equal(score(2, 6, 1), 15);
+    assert.equal(score(2, 7, 1), -83, 'strength penalty begins five levels up');
+});
+
+test('best_target uses dy-major ray order and rejects negative scores', () => {
+    const { monster, state } = activePetState();
+    monster.m_lev = 2;
+    monster.mux = 1;
+    monster.muy = 8;
+    const first = {
+        data: state.mons[PM_GIANT_ANT],
+        m_lev: 1,
+        mhp: 3,
+        mpeaceful: false,
+        mtame: 0,
+        mx: 3,
+        my: 3,
+    };
+    const second = { ...first, mx: 7, my: 3 };
+    const targets = new Map([
+        [`${first.mx},${first.my}`, first],
+        [`${second.mx},${second.my}`, second],
+    ]);
+    const draws = [];
+    assert.equal(best_target(monster, false, {
+        state,
+        monsterAt: (x, y) => targets.get(`${x},${y}`) ?? null,
+        monsterCanSee: () => true,
+        random: { rnd: (bound) => (draws.push(bound), 1) },
+    }), first, 'a strict comparison retains the first tied ray');
+    assert.deepEqual(draws, [5, 5]);
+
+    first.mpeaceful = second.mpeaceful = true;
+    first.data = second.data = state.mons[28]; // passive floating eye.
+    assert.equal(best_target(monster, false, {
+        state,
+        monsterAt: (x, y) => targets.get(`${x},${y}`) ?? null,
+        monsterCanSee: () => true,
+        random: { rnd: () => 1 },
+    }), null);
+
+    first.data = second.data = state.mons[PM_GIANT_ANT];
+    first.mpeaceful = second.mpeaceful = true;
+    first.m_lev = second.m_lev = 0;
+    first.mhp = second.mhp = 0;
+    assert.equal(best_target(monster, false, {
+        state,
+        monsterAt: (x, y) => targets.get(`${x},${y}`) ?? null,
+        monsterCanSee: () => true,
+        random: { rnd: () => 0 },
+    }), first, 'a zero score is retained when the scan is not forced');
+
+    first.data = second.data = state.mons[28];
+    first.mhp = second.mhp = 1;
+    assert.equal(best_target(monster, true, {
+        state,
+        monsterAt: (x, y) => targets.get(`${x},${y}`) ?? null,
+        monsterCanSee: () => true,
+        random: { rnd: () => 1 },
+    }), first, 'forced selection retains a negative target');
+});
+
+test('pet_ranged_attk preserves target fuzz and hungry gate ordering', () => {
+    const { monster, state } = activePetState();
+    monster.m_lev = 2;
+    monster.mux = 1;
+    monster.muy = 1;
+    monster.mextra.edog.hungrytime = -400;
+    const target = {
+        data: state.mons[PM_GIANT_ANT],
+        m_lev: 1,
+        mhp: 3,
+        mcanmove: true,
+        mpeaceful: false,
+        mtame: 0,
+        mx: 8,
+        my: 5,
+    };
+    place_monster(target, target.mx, target.my, state);
+    const events = [];
+    assert.equal(pet_ranged_attk(monster, false, {
+        state,
+        monsterCanSee: () => true,
+        random: {
+            rnd: (bound) => (events.push(['rnd', bound]), 1),
+            rn2: (bound) => (events.push(['rn2', bound]), 1),
+        },
+        mattackm: () => assert.fail('hungry gate rejects the attack'),
+    }), MMOVE_NOTHING);
+    assert.deepEqual(events, [['rnd', 5], ['rn2', 5]]);
+});
+
+test('pet_ranged_attk rejects negative targets and uses strict hunger time',
+    () => {
+        const { monster, state } = activePetState();
+        monster.m_lev = 2;
+        monster.mux = 1;
+        monster.muy = 8;
+        const target = {
+            data: state.mons[28], // passive floating eye scores below zero.
+            m_lev: 2,
+            mhp: 3,
+            mcanmove: true,
+            mpeaceful: true,
+            mtame: 0,
+            mx: 8,
+            my: 5,
+        };
+        place_monster(target, target.mx, target.my, state);
+        const common = {
+            state,
+            monsterCanSee: () => true,
+            random: { rnd: () => 1, rn2: () => 0 },
+            mattackm: () => assert.fail('a negative target is filtered'),
+        };
+        assert.equal(pet_ranged_attk(monster, false, common), MMOVE_NOTHING);
+
+        target.data = state.mons[PM_GIANT_ANT];
+        target.mpeaceful = false;
+        monster.mextra.edog.hungrytime = state.moves - 300;
+        const events = [];
+        assert.equal(pet_ranged_attk(monster, false, {
+            ...common,
+            random: {
+                rnd: () => 1,
+                rn2: () => assert.fail('exact hunger boundary is not hungry'),
+            },
+            mattackm(aggressor, defender) {
+                events.push([aggressor, defender]);
+                return 0;
+            },
+        }), MMOVE_NOTHING);
+        assert.deepEqual(events, [[monster, target]]);
+        assert.deepEqual(state.gb.bhitpos, { x: monster.mx, y: monster.my });
+        assert.equal(state.gn.notonhead, false);
+    });
 
 test('could_reach_item preserves water, lava, and boulder gates', () => {
     const { state, monster } = petState();
