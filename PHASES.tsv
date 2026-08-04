@@ -55,3 +55,8 @@ utc	event	phase	goal	detail
 2026-08-03T20:18:08.367Z	end	implement	wizard-level-teleport	
 2026-08-03T20:27:35.313Z	start	review	wizard-level-teleport	
 2026-08-03T21:18:46.956Z	end	review	wizard-level-teleport	
+2026-08-03T21:21:53.101Z	start	implement	wizard-level-teleport	
+2026-08-04T01:26:27.253Z	end	implement	wizard-level-teleport	
+2026-08-04T01:26:27.283Z	start	review	wizard-level-teleport	
+2026-08-04T03:34:07.234Z	end	review	wizard-level-teleport	Recorded the full correctness pass through a3e694d; 14 findings applied, one special-room clarification remains deferred, and supplemental source tracing returns the still-queued slice to implementation.
+2026-08-04T03:34:07.273Z	start	implement	wizard-level-teleport	Resume the queued arrival slice for pickup merge/prinv atomicity, generated shop-door fail-closed state, and the ordinary-monster reservoir reachable at higher hero level and option state.

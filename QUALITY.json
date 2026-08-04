@@ -6961,6 +6961,115 @@
         "warnings": []
       },
       "recordedAt": "2026-08-03T21:18:42.144Z"
+    },
+    {
+      "kind": "review",
+      "head": "a3e694dd50957d4933318456c653d9bf22a3b65c",
+      "auditedRange": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441..a3e694dd50957d4933318456c653d9bf22a3b65c",
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "generation",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 16 raw, 16 deduplicated, 15 confirmed, 14 applied, 1 deferred, 1 rejected, 0 unverified; mutation: 1 survivors of 9 mutants. Formal full review covered the arrival implementation and its audit-fix commit. The common arrival slice changed; remaining special-room and supplemental source-trace work stays explicit and the loop returns to Implementation.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2847,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 16,
+          "confirmed": 15,
+          "applied": 14,
+          "deferred": 1,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 8,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "variable-trace",
+          "concurrency"
+        ],
+        "optionalFinders": {
+          "concurrency": "Enabled because the deferred transition and object-chain mutations cross input/resume boundaries; no concurrency defect was confirmed.",
+          "performance": "Not enabled because the audited paths do not introduce a hot loop, allocation-sensitive kernel, or benchmark-sensitive change."
+        },
+        "productionDefects": [
+          {
+            "summary": "loot_reset_justpicked was set before every selected floor object completed addinv preflight, so a later refusal could leave pickup state mutated despite preserving the floor pile.",
+            "foundBy": [
+              "tests",
+              "root-reproduction"
+            ],
+            "resolution": "applied",
+            "fixedAt": "a3e694dd50957d4933318456c653d9bf22a3b65c"
+          },
+          {
+            "summary": "The Deaf predicate omitted u.uroleplay.deaf and incorrectly applied a blocked-property term copied from Invis, producing an audible greeting for OPTIONS=deaf.",
+            "foundBy": [
+              "tests"
+            ],
+            "resolution": "applied",
+            "fixedAt": "a3e694dd50957d4933318456c653d9bf22a3b65c"
+          }
+        ],
+        "mutation": {
+          "mutants": 9,
+          "survivors": 1,
+          "byKind": {
+            "boolean": {
+              "ran": 3,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 6,
+              "killed": 5
+            }
+          },
+          "finderConclusion": "The formal original window enumerated 140 sites, killed 83 in the first wave, and fully classified all 57 survivors. The audit-fix delta reran all nine new mutable sites, killed eight, and left only js/shk.js:158:9, which affects robbed or invisible shop states outside the peaceful-visible boundary exercised here."
+        },
+        "deferrals": [
+          {
+            "summary": "Irregular or maze Courts and the deeper special-room families remain outside the common rectangular-Court slice.",
+            "category": "clarity",
+            "trackedIn": "wlt-special-room-generation"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "initializeQuestPagerLua is misleadingly named.",
+            "counterEvidence": "The name preserves the upstream nhl_init and Lua relationship, and the adjacent comment states the per-call alignment-table behavior. Reopen only if source evidence shows that relationship no longer describes the function."
+          }
+        ],
+        "readiness": {
+          "boundary": "Reviewed wizard positive-decimal ordinary-new-Dungeons-level transitions through deferred goto_level, mklev, arrival placement, room filling, generated-shop arrival, and ordinary autopickup.",
+          "sourceReview": "Compared the audited JavaScript paths against NetHack 5.0 sources and patches, ran correctness, readability, tests, variable-trace, and concurrency finders, adjudicated all findings, and independently reproduced the production defects before accepting fixes.",
+          "completeness": "The common OROOM, generated-shop, rectangular-Court, and arrival invariants are fixed through a3e694d. Supplemental tracing found pickup merge and prinv atomicity, generated shop-door state leakage, and high-level ordinary-monster reservoir families, so the loop returns to Implementation and does not close the goal."
+        },
+        "validation": {
+          "differential": "Fresh strict arrival differential passed 10 segments, 53,868 RNG calls, 69 screens, and 69 cursor captures.",
+          "checkpoint": "2,616 tests, all six generated-data checks, namespace checks, and the unchanged development score passed at a3e694d.",
+          "ci": "Score run 30868493449 succeeded for 6e9ed9f; a3e694d has not yet been pushed.",
+          "holdout": "No holdout path was accessed and no holdout scorer was run."
+        },
+        "warnings": [
+          "The skill's bundled Workflow runner was unavailable, so fresh independent finder and adjudicator agents reproduced the full-mode role boundaries manually.",
+          "The formal report's applied and deferred fields overlapped for D-05; this durable record classifies its comment fix as applied and its remaining behavior family as one exclusive deferred finding.",
+          "The structured mutation tally records the audit-fix delta; the finder conclusion also preserves the 140-site original-window result."
+        ]
+      },
+      "recordedAt": "2026-08-04T03:32:56.756Z"
     }
   ]
 }
