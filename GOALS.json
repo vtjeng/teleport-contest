@@ -333,7 +333,7 @@
     },
     {
       "id": "ordinary-starting-pet-ranged-targeting",
-      "status": "open",
+      "status": "closed",
       "boundary": "during dog_move() for an ordinary active starting kitten, little dog, or pony, pet_ranged_attk(FALSE) scans best_target()'s eight rays to distance 7, scores visible ordinary targets, and a selected nonadjacent target reaches only mattackm()'s distant physical-attack miss path before the pet continues its move",
       "upstreamOwners": [
         "dogmove.c find_targ()",
@@ -369,8 +369,11 @@
         "screens": 965,
         "rng": 115661
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "149231182a15c0e0e995ba186ba005fb07c51e11",
+      "delivered": {
+        "screens": 36,
+        "rng": 536
+      }
     }
   ]
 }
