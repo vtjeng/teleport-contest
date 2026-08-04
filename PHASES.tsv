@@ -76,3 +76,5 @@ utc	event	phase	goal	detail
 2026-08-04T06:01:22.989Z	start	select	wizard-level-teleport	Fresh selector chooses the next child; generated-shop rollback and the remaining ordinary monster reservoir stay open.
 2026-08-04T06:10:54.858Z	end	select	wizard-level-teleport	Fresh selector chose ordinary-forest-centaur-initialization: an already-admitted low-band species whose armed branch incorrectly inherits the plains/mountain crossbow loadout; development ceiling 0 because inventory is offscreen.
 2026-08-04T06:10:55.270Z	start	implement	wizard-level-teleport	Fresh worker ports PM_FOREST_CENTAUR bow/arrow initialization in source RNG order and saves armed/no-weapon high-level D:5 cases plus a plains-centaur outside case.
+2026-08-04T06:25:38.053Z	end	implement	wizard-level-teleport	Closed ordinary-forest-centaur-initialization at ad8c4bc: strict 19-segment matrix matched 103,028 RNG calls and 261 screens/cursors; 4/4 committed mutants killed; development score unchanged.
+2026-08-04T06:25:38.454Z	start	select	wizard-level-teleport	Fresh selector chooses the next child; generated-shop rollback and remaining ordinary reservoir families stay open.
