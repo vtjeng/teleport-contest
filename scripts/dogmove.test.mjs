@@ -400,12 +400,15 @@ test('score_targ rejects pets, the hero, and a friend in the line of fire',
 
         monster.mux = 1;
         monster.muy = 1;
-        target.isminion = true;
-        assert.throws(
-            () => score_targ(monster, target, noFuzz),
-            /ordinary monster target/,
-        );
-        target.isminion = false;
+        for (const specialFlag of ['isminion', 'ispriest', 'isshk']) {
+            target[specialFlag] = true;
+            assert.throws(
+                () => score_targ(monster, target, noFuzz),
+                /ordinary monster target/,
+                specialFlag,
+            );
+            target[specialFlag] = false;
+        }
         target.data = { ...state.mons[PM_GIANT_ANT], msound: MS_LEADER };
         assert.throws(
             () => score_targ(monster, target, noFuzz),
