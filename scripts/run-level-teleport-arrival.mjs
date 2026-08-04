@@ -24,6 +24,7 @@ import { mergable } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import {
+    PM_BARROW_WIGHT,
     PM_FOREST_CENTAUR,
     PM_HOBBIT,
     PM_OGRE_LEADER,
@@ -44,6 +45,8 @@ import {
     ELVEN_MITHRIL_COAT,
     GLAIVE,
     GOLD_PIECE,
+    KNIFE,
+    LONG_SWORD,
     MACE,
     PARTISAN,
     POT_ACID,
@@ -74,6 +77,7 @@ const HIGH_LEVEL_ARRIVALS = new Set([
     9449779,
     9449967,
     9450654,
+    7650800,
 ]);
 
 const HOBBIT_ARRIVALS = new Map([
@@ -123,6 +127,13 @@ const TROLL_ARRIVALS = new Map([
     ]],
     [9449779, [
         { otyp: SPETUM, quan: 1, id: 108, worn: 0 },
+    ]],
+]);
+
+const BARROW_WIGHT_ARRIVALS = new Map([
+    [7650800, [
+        { otyp: LONG_SWORD, quan: 1, id: 84, worn: 0 },
+        { otyp: KNIFE, quan: 1, id: 82, worn: 0 },
     ]],
 ]);
 
@@ -210,6 +221,10 @@ export function loadLevelTeleportArrivalRecipe() {
             highLevelTeleport(9449443, 5),
             highLevelTeleport(9449967, 5),
             highLevelTeleport(9449779, 5),
+            // This high-level D:5 layout creates exactly one barrow wight.
+            // Its unconditional knife-then-long-sword construction leaves
+            // the final prepended inventory in long-sword-then-knife order.
+            highLevelTeleport(7650800, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -357,7 +372,7 @@ export async function verifyLevelTeleportArrival(segment) {
             + `commands, expected the trailing command to be ${expectedDispatches}`,
         );
     }
-    const expectedMoves = segment.seed === 7650048 ? 2 : 3;
+    const expectedMoves = [7650048, 7650800].includes(segment.seed) ? 2 : 3;
     if (game.moves !== expectedMoves) {
         throw new Error(
             `seed ${segment.seed} ended on move ${game.moves}, expected `
@@ -608,6 +623,61 @@ export async function verifyLevelTeleportArrival(segment) {
                 + `or ownership: level=${game.u.ulevel}, `
                 + `mgenmklev=${troll.mgenmklev}, `
                 + `grid=${game.level.monsters[troll.mx][troll.my] === troll}, `
+                + `inventory=${JSON.stringify(inventory)}`,
+            );
+        }
+    }
+    const expectedWightInventory = BARROW_WIGHT_ARRIVALS.get(segment.seed);
+    if (expectedWightInventory) {
+        const wights = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_BARROW_WIGHT) wights.push(monster);
+        }
+        if (wights.length !== 1) {
+            throw new Error(
+                `barrow-wight seed ${segment.seed} generated `
+                + `${wights.length} barrow wights`,
+            );
+        }
+        const [wight] = wights;
+        const inventory = [];
+        const objectIds = new Set();
+        for (let obj = wight.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT || obj.ocarry !== wight) {
+                throw new Error(
+                    `barrow-wight seed ${segment.seed} lost inventory ownership`,
+                );
+            }
+            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+                throw new Error(
+                    `barrow-wight seed ${segment.seed} has invalid object identity`,
+                );
+            }
+            objectIds.add(obj.o_id);
+            inventory.push({
+                otyp: obj.otyp,
+                quan: obj.quan,
+                id: obj.o_id,
+                worn: obj.owornmask,
+            });
+        }
+        const selectedWeapons = inventory.filter(
+            ({ otyp }) => otyp === KNIFE || otyp === LONG_SWORD,
+        );
+        if (game.u.ulevel !== 30
+            || wight.mgenmklev !== true
+            || game.level.monsters[wight.mx][wight.my] !== wight
+            || selectedWeapons.length !== 2
+            || selectedWeapons[0].otyp !== LONG_SWORD
+            || selectedWeapons[1].otyp !== KNIFE
+            || selectedWeapons[0].id <= selectedWeapons[1].id
+            || JSON.stringify(inventory)
+                !== JSON.stringify(expectedWightInventory)) {
+            throw new Error(
+                `barrow-wight seed ${segment.seed} lost source inventory, `
+                + `hero level, or ownership: level=${game.u.ulevel}, `
+                + `mgenmklev=${wight.mgenmklev}, `
+                + `grid=${game.level.monsters[wight.mx][wight.my] === wight}, `
                 + `inventory=${JSON.stringify(inventory)}`,
             );
         }

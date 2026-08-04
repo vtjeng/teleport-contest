@@ -230,6 +230,7 @@ import {
     S_TROLL,
     S_VAMPIRE,
     S_VORTEX,
+    S_WRAITH,
 } from './monsters.js';
 import {
     ARM_BONUS,
@@ -1425,6 +1426,10 @@ function m_initweap(monster, normalized) {
                 m_initthrow(monster, CROSSBOW_BOLT, 12, normalized);
             }
         }
+        break;
+    case S_WRAITH:
+        mongets(monster, KNIFE, normalized);
+        mongets(monster, LONG_SWORD, normalized);
         break;
     default:
         if (ptr.mlet !== S_GNOME) {

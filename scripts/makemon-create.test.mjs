@@ -62,6 +62,7 @@ import {
     M2_ORC,
     NON_PM,
     PM_ARCH_LICH,
+    PM_BARROW_WIGHT,
     PM_ELF,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
@@ -98,6 +99,7 @@ import {
     PM_LEPRECHAUN,
     PM_LONG_WORM,
     PM_MASTER_LICH,
+    PM_NAZGUL,
     PM_NEWT,
     PM_ORC,
     PM_ORC_CAPTAIN,
@@ -152,7 +154,9 @@ import {
     GOLD_PIECE,
     ICE_BOX,
     IRON_SHOES,
+    KNIFE,
     LEATHER_GLOVES,
+    LONG_SWORD,
     LUMP_OF_ROYAL_JELLY,
     MIRROR,
     MUMMY_WRAPPING,
@@ -177,6 +181,7 @@ import {
     TALLOW_CANDLE,
     T_SHIRT,
     WAN_DIGGING,
+    WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
     WEAPON_CLASS,
     objects_globals_init,
@@ -2231,6 +2236,80 @@ test('rock trolls remain outside the ordinary D:5 reservoir before RNG', () => {
         ),
         (error) => error instanceof UnsupportedMonsterCreationError
             && error.operation === `monster ${PM_ROCK_TROLL}`,
+    );
+    assert.deepEqual(random.calls, []);
+});
+
+test('barrow wights construct knife then long sword before generic inventory',
+    () => {
+        const state = initialLevelState();
+        const random = recordingRandom({
+            rn2Result: (bound) => bound === 75 ? 0 : Math.max(0, bound - 1),
+        });
+        const monster = makemon(
+            state.mons[PM_BARROW_WIGHT],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        const inventory = monsterInventory(monster);
+
+        // mongets() prepends.  The lower source-order ids prove that the
+        // knife was constructed first and the long sword second; the later
+        // generic offensive item then becomes the final chain head.
+        assert.deepEqual(
+            inventory.map((obj) => [obj.otyp, obj.o_id]),
+            [
+                [WAN_LIGHTNING, 5],
+                [LONG_SWORD, 4],
+                [KNIFE, 3],
+            ],
+        );
+        for (const obj of inventory) {
+            assert.equal(obj.where, OBJ_MINVENT);
+            assert.equal(obj.ocarry, monster);
+            assert.equal(obj.quan, 1);
+            assert.equal(obj.owornmask, 0);
+        }
+
+        const offensiveGate = random.calls.findIndex(
+            (call) => call.kind === 'rn2' && call.args[0] === 75,
+        );
+        assert.ok(offensiveGate > 0);
+        assert.deepEqual(
+            random.calls.slice(offensiveGate).map(
+                (call) => [call.kind, call.args, call.result],
+            ),
+            [
+                ['rn2', [75], 0],
+                ['rn2', [35], 34],
+                ['rn2', [13], 12],
+                ['rnd', [2], 1],
+                ['rn1', [5, 4], 4],
+                ['rn2', [17], 16],
+                ['rn2', [50], 49],
+                ['rn2', [100], 99],
+                ['rn2', [100], 99],
+            ],
+            'source generic item and inventory continuation',
+        );
+    });
+
+test('Nazgul remain outside the ordinary D:5 reservoir before RNG', () => {
+    const state = initialLevelState();
+    const random = recordingRandom();
+
+    assert.throws(
+        () => makemon(
+            state.mons[PM_NAZGUL],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        ),
+        (error) => error instanceof UnsupportedMonsterCreationError
+            && error.operation === `monster ${PM_NAZGUL}`,
     );
     assert.deepEqual(random.calls, []);
 });
