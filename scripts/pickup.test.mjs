@@ -8,6 +8,7 @@ import {
     MOAT,
     MOD_ENCUMBER,
     OBJ_FLOOR,
+    OBJ_FREE,
     OBJ_INVENT,
     OBJ_DELETED,
     PIT,
@@ -31,7 +32,7 @@ import {
     pickup,
     UnsupportedPickupError,
 } from '../js/pickup.js';
-import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
     COIN_CLASS,
     ELVEN_DAGGER,
@@ -366,9 +367,35 @@ test('sighted pickup discovers a merge and prints comparison before prinv',
         target.known = true;
         incoming.known = false;
         quiet(state);
-        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        await ttyPline('An earlier message.', state);
 
-        assert.equal(await pickup(1, state), 1);
+        let reachedInput;
+        const inputBoundary = new Promise((resolve) => {
+            reachedInput = resolve;
+        });
+        let releaseInput;
+        const inputGate = new Promise((resolve) => {
+            releaseInput = resolve;
+        });
+        state._preNhgetchHook = async () => {
+            state._preNhgetchHook = null;
+            reachedInput();
+            await inputGate;
+        };
+        const pendingPickup = pickup(1, state);
+        await inputBoundary;
+        assert.equal(target.quan, 2);
+        assert.equal(target.known, true);
+        assert.equal(incoming.where, OBJ_FREE);
+        assert.equal(target.pickup_prev, false);
+
+        // The comparison message dismisses the earlier line; prinv then
+        // dismisses the comparison before replacing it with pickup feedback.
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        releaseInput();
+
+        assert.equal(await pendingPickup, 1);
         assert.equal(target.quan, 2);
         assert.equal(incoming.where, OBJ_DELETED);
         assert.equal(state.nhDisplay.inputQueueLength, 0);

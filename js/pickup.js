@@ -25,7 +25,7 @@ import {
     weight_cap,
 } from './hack.js';
 import {
-    addinv,
+    addinv_runtime,
     look_here,
     obj_extract_self,
     preflight_addinv_sequence,
@@ -230,16 +230,14 @@ export async function pickup(what, state = game) {
         throw new UnsupportedPickupError('pickup() requiring a burden prompt');
     }
 
-    const pendingInventoryMessages = [];
     const env = objectGenerationEnv({
         state,
         hooks: {
             message: ttyPline,
-            inventoryComparisonDiscovered: () => {
-                pendingInventoryMessages.push(
-                    'You learn more about your items by comparing them.',
-                );
-            },
+            inventoryComparisonDiscovered: () => ttyPline(
+                'You learn more about your items by comparing them.',
+                state,
+            ),
         },
     });
     const addPlans = preflight_addinv_sequence(
@@ -257,9 +255,7 @@ export async function pickup(what, state = game) {
         observe_pickup_object(obj, state);
         obj_extract_self(obj, env);
         newsym(u.ux, u.uy);
-        const carried = addinv(obj, env, addPlans[index]);
-        while (pendingInventoryMessages.length)
-            await ttyPline(pendingInventoryMessages.shift(), state);
+        const carried = await addinv_runtime(obj, env, addPlans[index]);
         const nearload = near_capacity(state);
         let prefix = null;
         if (nearload !== state.gp.pickup_encumbrance) {

@@ -13,6 +13,7 @@ import {
     HALLUC_RES,
     HANDS_SYM,
     LAST_PROP,
+    LOST_EXPLODING,
     LOST_THROWN,
     NON_PM,
     NUM_ATTRS,
@@ -31,6 +32,7 @@ import {
     add_to_buried,
     add_to_container,
     addinv,
+    addinv_runtime,
     addinv_nomerge,
     assigninvlet,
     delete_contents,
@@ -962,6 +964,119 @@ test('comparison-message seams are checked before a merge mutates stacks', () =>
     assert.equal(target.quan, 2);
     assert.equal(target.known, true);
     assert.equal(messages, 1);
+});
+
+test('runtime comparison messages pause before object deletion and addinv tail', async () => {
+    const state = initializedState();
+    const target = instance(APPLE, state, {
+        dknown: false,
+        known: false,
+        o_id: 3,
+        quan: 1,
+    });
+    const incoming = instance(APPLE, state, {
+        dknown: false,
+        known: true,
+        o_id: 4,
+        quan: 1,
+    });
+    addinv(target, { state });
+    target.pickup_prev = false;
+    state.iflags.perm_invent = true;
+
+    let releaseMessage;
+    const messageGate = new Promise((resolve) => {
+        releaseMessage = resolve;
+    });
+    let comparisonCalls = 0;
+    let inventoryRefreshes = 0;
+    let settled = false;
+    const pending = addinv_runtime(incoming, {
+        state,
+        hooks: {
+            inventoryComparisonDiscovered() {
+                ++comparisonCalls;
+                return messageGate;
+            },
+            updateInventory() {
+                ++inventoryRefreshes;
+            },
+        },
+    }).then((result) => {
+        settled = true;
+        return result;
+    });
+
+    await Promise.resolve();
+    assert.equal(comparisonCalls, 1);
+    assert.equal(settled, false);
+    assert.equal(target.quan, 2);
+    assert.equal(target.known, true);
+    assert.equal(target.o_id, 3);
+    assert.equal(incoming.where, OBJ_FREE);
+    assert.equal(target.pickup_prev, false);
+    assert.equal(inventoryRefreshes, 0);
+
+    releaseMessage();
+    assert.equal(await pending, target);
+    assert.equal(incoming.where, OBJ_DELETED);
+    assert.equal(target.o_id, 4);
+    assert.equal(target.pickup_prev, true);
+    assert.equal(inventoryRefreshes, 1);
+});
+
+test('runtime addinv keeps nonblocking source branches synchronous', async () => {
+    const mergeState = initializedState();
+    const target = instance(APPLE, mergeState);
+    const incoming = instance(APPLE, mergeState);
+    addinv(target, { state: mergeState });
+    target.pickup_prev = false;
+    const mergeResult = addinv_runtime(incoming, { state: mergeState });
+    assert.equal(incoming.where, OBJ_DELETED);
+    assert.equal(target.pickup_prev, true);
+    assert.equal(await mergeResult, target);
+
+    const quiverState = initializedState();
+    const quivered = instance(DART, quiverState);
+    const extraDart = instance(DART, quiverState);
+    addinv(quivered, { state: quiverState });
+    quiverState.uquiver = quivered;
+    quivered.owornmask = W_QUIVER;
+    quivered.pickup_prev = false;
+    const quiverResult = addinv_runtime(extraDart, { state: quiverState });
+    assert.equal(extraDart.where, OBJ_DELETED);
+    assert.equal(quivered.pickup_prev, true);
+    assert.equal(await quiverResult, quivered);
+
+    const thrownState = initializedState();
+    thrownState.flags.pickup_thrown = true;
+    const thrown = instance(DART, thrownState, { how_lost: LOST_THROWN });
+    const thrownResult = addinv_runtime(thrown, { state: thrownState });
+    assert.equal(thrownState.uquiver, thrown);
+    assert.equal(thrown.owornmask, W_QUIVER);
+    assert.equal(await thrownResult, thrown);
+
+    const defaultLettersState = initializedState();
+    const ration = instance(FOOD_RATION, defaultLettersState, { invlet: 'b' });
+    const apple = instance(APPLE, defaultLettersState, { invlet: 'a' });
+    addinv(ration, { state: defaultLettersState });
+    delete defaultLettersState.flags.invlet_constant;
+    assert.equal(
+        await addinv_runtime(apple, { state: defaultLettersState }),
+        apple,
+    );
+    assert.equal(defaultLettersState.invent, apple);
+
+    const explodingState = initializedState();
+    const exploding = instance(APPLE, explodingState, {
+        how_lost: LOST_EXPLODING,
+    });
+    assert.equal(
+        await addinv_runtime(exploding, { state: explodingState }),
+        null,
+    );
+    assert.equal(exploding.where, OBJ_FREE);
+    assert.equal(explodingState.invent, null);
 });
 
 test('corpse weight dependencies are checked before merge mutation', () => {
