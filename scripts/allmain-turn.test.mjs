@@ -68,6 +68,7 @@ import {
 } from '../js/monsters.js';
 import { SACK, TOOL_CLASS } from '../js/objects.js';
 import { create_region } from '../js/region.js';
+import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { cansee, vision_recalc } from '../js/vision.js';
 import {
@@ -389,6 +390,61 @@ test('random creation finishes a complete meal only for an actual threat',
             messages.some((text) => text.startsWith('You finish eating ')),
             true,
         );
+    });
+
+test('a planned random threat finishes only the cloned complete meal',
+    async () => {
+        const segment = loadEatOccupationRecipe().segments.find(
+            (entry) => entry.seed === 5820011,
+        );
+        assert.ok(segment);
+        await runSegment({ ...segment, moves: '.' });
+        game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
+        await doeat(game, { statusRefresh: async () => {} });
+        game.context.victual.usedtime = game.context.victual.reqtime;
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.u.umovement = 0;
+
+        const livePiece = game.context.victual.piece;
+        const liveInventory = game.invent;
+        const liveOccupation = game.go.occupation;
+        const liveQuantity = livePiece.quan;
+        const liveUsedTime = game.context.victual.usedtime;
+        const liveRequiredTime = game.context.victual.reqtime;
+        let reachedRound = false;
+        await preflightSimpleMonsterActions(game, {
+            async advanceRound(planned) {
+                reachedRound = true;
+                assert.notStrictEqual(planned.invent, liveInventory);
+                assert.notStrictEqual(planned.context.victual.piece, livePiece);
+                assert.ok((() => {
+                    for (let obj = planned.invent; obj; obj = obj.nobj) {
+                        if (obj === planned.context.victual.piece) return true;
+                    }
+                    return false;
+                })(), 'the cloned victual piece must remain on cloned inventory');
+                await maybe_generate_rnd_mon(planned, {
+                    random: { rn2: () => 0 },
+                    message: async () => {},
+                    statusRefresh: async () => {},
+                    async makemon(_ptr, _x, _y, _flags, runtimeEnv) {
+                        await runtimeEnv.hooks.stopOccupation({}, runtimeEnv);
+                        return {};
+                    },
+                });
+                assert.equal(planned.go.occupation, null);
+                assert.equal(planned.context.victual.piece, null);
+                return true;
+            },
+        });
+        assert.equal(reachedRound, true);
+        assert.strictEqual(game.go.occupation, liveOccupation);
+        assert.strictEqual(game.invent, liveInventory);
+        assert.strictEqual(game.context.victual.piece, livePiece);
+        assert.equal(livePiece.quan, liveQuantity);
+        assert.equal(game.context.victual.usedtime, liveUsedTime);
+        assert.equal(game.context.victual.reqtime, liveRequiredTime);
     });
 
 test('runtime interruption preserves stop_occupation status invalidation',

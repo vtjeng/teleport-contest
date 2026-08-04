@@ -267,11 +267,10 @@ function cloneMonster(monster) {
 // object writes objects[].oc_encountered, svd.disco[] and artiexist[].found,
 // which the spread would otherwise share.
 //
-// The hero's belongings and the buried list stay shared, because no action the
-// scan admits writes to one: mpickstuff() and dog_invent()'s carry arm move an
-// object from the floor into a monster's pack, and dog_invent()'s drop arm
-// moves one back, and neither touches anything else. Extend this walk before
-// admitting an action that steals from the hero or digs.
+// The buried list stays shared because no admitted action digs. Hero inventory
+// must be cloned too: a runtime-created threat can stop an eating occupation,
+// and maybe_finished_meal(TRUE) can consume context.victual.piece. That pointer
+// and every top-level worn/inventory pointer must name this same copied graph.
 //
 // obj.v is C's union: nexthere on the floor, ocontainer inside a container,
 // and ocarry inside a monster's pack, so an inventory object's `v` remaps
@@ -289,6 +288,7 @@ function cloneObjects(state, monsterMap) {
         if (obj && !objectMap.has(obj)) pending.push(obj);
     };
     enqueue(state.level?.objlist);
+    enqueue(state.invent);
     for (const monster of monsterMap.keys()) enqueue(monster.minvent);
     while (pending.length) {
         const original = pending.pop();
@@ -318,6 +318,22 @@ function planningState(state) {
         monsterMap.set(monster, cloneMonster(monster));
     }
     const objectMap = cloneObjects(state, monsterMap);
+    const context = structuredClone(state.context);
+    const remapContextObject = (target, source, field) => {
+        const original = source?.[field];
+        if (!original) return;
+        const copy = objectMap.get(original);
+        if (!copy)
+            throw new Error(`planning clone: context.${field} outside objects`);
+        target[field] = copy;
+    };
+    remapContextObject(context.victual, state.context?.victual, 'piece');
+    remapContextObject(context.tin, state.context?.tin, 'tin');
+    const topLevelObjectPointers = {};
+    for (const [field, value] of Object.entries(state)) {
+        const copy = objectMap.get(value);
+        if (copy) topLevelObjectPointers[field] = copy;
+    }
     const clonedObject = (obj) => {
         if (!obj) return null;
         const copy = objectMap.get(obj);
@@ -425,7 +441,8 @@ function planningState(state) {
     };
     return {
         ...state,
-        context: structuredClone(state.context),
+        ...topLevelObjectPointers,
+        context,
         // Hallucinatory runtime creation names use rnd.c's independent
         // display stream.  A planned appearance must advance only this copy;
         // otherwise a dry run changes later live glyphs even though every
