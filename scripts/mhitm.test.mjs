@@ -79,11 +79,25 @@ for (const pmidx of [PM_KITTEN, PM_LITTLE_DOG, PM_PONY]) {
 test('mattackm wakes a sleeping distant defender without a hit draw', () => {
     const { aggressor, defender, state } = attackState(PM_PONY);
     defender.msleeping = true;
-    defender.mconf = true;
-    defender.mcanmove = false;
     assert.equal(mattackm(aggressor, defender, { state }), M_ATTK_MISS);
     assert.equal(defender.msleeping, false);
-    assert.equal(defender.mcanmove, false);
+    assert.equal(defender.mcanmove, true);
+});
+
+test('mattackm sees an action when exactly one combatant is visible', () => {
+    const { aggressor, defender, state } = attackState(PM_KITTEN);
+    state.viz_array[defender.my][defender.mx] = 0;
+    assert.equal(mattackm(aggressor, defender, { state }), M_ATTK_MISS);
+    assert.equal(state.gv.vis, true);
+});
+
+test('mattackm clears stale action visibility outside hero sight', () => {
+    const { aggressor, defender, state } = attackState(PM_LITTLE_DOG);
+    state.viz_array[aggressor.my][aggressor.mx] = 0;
+    state.viz_array[defender.my][defender.mx] = 0;
+    state.gv.vis = true;
+    assert.equal(mattackm(aggressor, defender, { state }), M_ATTK_MISS);
+    assert.equal(state.gv.vis, false);
 });
 
 test('mattackm refuses excluded combat before setup writes', () => {

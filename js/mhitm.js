@@ -23,10 +23,10 @@ import { cansee } from './vision.js';
 import { find_mac } from './worn.js';
 
 const STARTING_PETS = new Set([PM_KITTEN, PM_LITTLE_DOG, PM_PONY]);
-const DISTANT_PHYSICAL_ATTACKS = new Set([AT_NONE, AT_BITE, AT_KICK]);
+const STARTING_PET_ATTACK_TYPES = new Set([AT_NONE, AT_BITE, AT_KICK]);
 
 function helpless(monster) {
-    return [Boolean(monster.msleeping), !monster.mcanmove].includes(true);
+    return Boolean(monster.msleeping) || !monster.mcanmove;
 }
 
 function refuse(rawEnv, reason) {
@@ -36,42 +36,35 @@ function refuse(rawEnv, reason) {
 }
 
 function admitDistantStartingPetAttack(aggressor, defender, rawEnv) {
-    if ([
-        !STARTING_PETS.has(aggressor.data?.pmidx),
-        !aggressor.mtame,
-        !aggressor.mextra?.edog,
-    ].includes(true)) {
+    if (!STARTING_PETS.has(aggressor.data?.pmidx)
+        || !aggressor.mtame
+        || !aggressor.mextra?.edog) {
         refuse(rawEnv, 'an ordinary starting pet aggressor');
     }
     if (aggressor.mconf)
         refuse(rawEnv, 'an unconfused starting pet aggressor');
     if (distmin(aggressor.mx, aggressor.my, defender.mx, defender.my) <= 1)
         refuse(rawEnv, 'a nonadjacent target');
-    if ([
-        defender.mundetected,
-        defender.minvis,
-        defender.isminion,
-        defender.ispriest,
-        defender.isshk,
-        defender.isgd,
-        defender.data?.msound === MS_LEADER,
-        defender.data?.msound === MS_GUARDIAN,
-    ].some(Boolean)) {
+    if (defender.mundetected
+        || defender.minvis
+        || defender.isminion
+        || defender.ispriest
+        || defender.isshk
+        || defender.isgd
+        || defender.data?.msound === MS_LEADER
+        || defender.data?.msound === MS_GUARDIAN) {
         refuse(rawEnv, 'an ordinary monster target');
     }
     const attacks = aggressor.data?.mattk;
     const expectedFirst = aggressor.data.pmidx === PM_PONY
         ? AT_KICK : AT_BITE;
-    if ([
-        !Array.isArray(attacks),
-        attacks?.length !== 6,
-        attacks?.[0]?.aatyp !== expectedFirst,
-        attacks?.[0]?.adtyp !== AD_PHYS,
-        attacks?.some((attack) => [
-            !DISTANT_PHYSICAL_ATTACKS.has(attack.aatyp),
-            attack.adtyp !== AD_PHYS,
-        ].includes(true)),
-    ].includes(true)) {
+    if (!Array.isArray(attacks)
+        || attacks.length !== 6
+        || attacks[0]?.aatyp !== expectedFirst
+        || attacks[0]?.adtyp !== AD_PHYS
+        || attacks.some((attack) =>
+            !STARTING_PET_ATTACK_TYPES.has(attack.aatyp)
+                || attack.adtyp !== AD_PHYS)) {
         refuse(rawEnv, 'a distant physical miss attack array');
     }
 }
@@ -82,7 +75,7 @@ function admitDistantStartingPetAttack(aggressor, defender, rawEnv) {
 // later slot fails mattackm()'s target-still-there check. Preserve the source
 // setup writes which occur before that miss.
 export function mattackm(aggressor, defender, rawEnv = {}) {
-    if ([!aggressor, !defender].includes(true)) return M_ATTK_MISS;
+    if (!aggressor || !defender) return M_ATTK_MISS;
     if (helpless(aggressor)) return M_ATTK_MISS;
 
     admitDistantStartingPetAttack(aggressor, defender, rawEnv);
@@ -91,19 +84,15 @@ export function mattackm(aggressor, defender, rawEnv = {}) {
     // C computes this before waking a helpless defender. It is not consumed
     // by this distant path, but retaining the read keeps the source order clear.
     find_mac(defender, state);
-    if ([Boolean(defender.mconf), helpless(defender)].includes(true))
+    if (defender.mconf || helpless(defender))
         defender.msleeping = false;
 
     state.gv ??= {};
-    const aggressorVisible = [
-        cansee(aggressor.mx, aggressor.my, state),
-        canSpotMonster(aggressor, state),
-    ].every(Boolean);
-    const defenderVisible = [
-        cansee(defender.mx, defender.my, state),
-        canSpotMonster(defender, state),
-    ].every(Boolean);
-    state.gv.vis = [aggressorVisible, defenderVisible].includes(true);
+    const aggressorVisible = cansee(aggressor.mx, aggressor.my, state)
+        && canSpotMonster(aggressor, state);
+    const defenderVisible = cansee(defender.mx, defender.my, state)
+        && canSpotMonster(defender, state);
+    state.gv.vis = aggressorVisible || defenderVisible;
     aggressor.mlstmv = state.moves;
     state.gs ??= {};
     state.gs.skipdrin = false;

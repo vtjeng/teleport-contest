@@ -1,7 +1,8 @@
 // Pet movement, goals, hunger, and inventory decisions.
 // C ref: dogmove.c — droppables(), cursed_object_at(), dog_hunger(),
-// dog_invent(), dog_goal(), find_targ(), dog_move(), could_reach_item(),
-// and can_reach_location().
+// dog_invent(), dog_goal(), find_targ(), find_friends(), score_targ(),
+// best_target(), pet_ranged_attk(), dog_move(), could_reach_item(), and
+// can_reach_location().
 
 import {
     ACCFOOD,
@@ -757,12 +758,10 @@ function targetingRefusal(rawEnv, reason) {
 }
 
 function admitOrdinaryStartingPet(monster, rawEnv) {
-    if ([
-        !STARTING_PETS.has(monster?.data?.pmidx),
-        monster.isminion,
-        monster.ispriest,
-        is_vampshifter(monster),
-    ].includes(true)) {
+    if (!STARTING_PETS.has(monster?.data?.pmidx)
+        || monster.isminion
+        || monster.ispriest
+        || is_vampshifter(monster)) {
         targetingRefusal(rawEnv, 'an ordinary starting pet');
     }
     if (monster.mconf)
@@ -787,18 +786,17 @@ export function find_friends(monster, target, maxDistance, rawEnv = {}) {
         ++distance) {
         x += dx;
         y += dy;
-        if ([!isok(x, y), !monsterCanSee(monster, x, y, rawEnv)]
-            .includes(true)) {
+        if (!isok(x, y) || !monsterCanSee(monster, x, y, rawEnv)) {
             return 0;
         }
-        if ([monster.mux === x, monster.muy === y].every(Boolean)) return 1;
+        if (monster.mux === x && monster.muy === y) return 1;
         const ally = monsterAt(x, y, rawEnv);
         if (!ally) continue;
         if (ally.mtame) {
-            if ([!ally.minvis, perceives(monster.data)].includes(true))
+            if (!ally.minvis || perceives(monster.data))
                 return 1;
-        } else if ([MS_LEADER, MS_GUARDIAN]
-            .includes(ally.data?.msound)) {
+        } else if (ally.data?.msound === MS_LEADER
+            || ally.data?.msound === MS_GUARDIAN) {
             return 1;
         }
     }
@@ -810,8 +808,7 @@ export function find_friends(monster, target, maxDistance, rawEnv = {}) {
 // the fail-closed boundary.
 export function score_targ(monster, target, rawEnv = {}) {
     admitOrdinaryStartingPet(monster, rawEnv);
-    if ([target.isminion, target.ispriest, target.isshk, target.isgd]
-        .some(Boolean)) {
+    if (target.isminion || target.ispriest || target.isshk || target.isgd) {
         targetingRefusal(rawEnv, 'an ordinary monster target');
     }
     const state = rawEnv.state ?? game;
@@ -819,26 +816,24 @@ export function score_targ(monster, target, rawEnv = {}) {
     if (typeof random.rnd !== 'function')
         throw new TypeError('score_targ random injection requires rnd');
 
-    if ([MS_LEADER, MS_GUARDIAN].includes(target.data?.msound)) {
+    if (target.data?.msound === MS_LEADER
+        || target.data?.msound === MS_GUARDIAN) {
         targetingRefusal(rawEnv, 'an ordinary monster target');
     }
     if (distmin(monster.mx, monster.my, target.mx, target.my) <= 1)
         return -3000;
-    if ([Boolean(target.mtame), target === state.youmonst].includes(true))
+    if (target.mtame || target === state.youmonst)
         return -3000;
     if (find_friends(monster, target, 15, rawEnv)) return -3000;
 
     let score = target.mpeaceful ? 0 : 10;
     if (target.data?.mattk?.[0]?.aatyp === AT_NONE) score -= 1000;
-    const weakTarget = [target.m_lev < 2, monster.m_lev > 5]
-        .every(Boolean);
-    const farOutclassed = [
-        monster.m_lev > 12,
-        target.m_lev < monster.m_lev - 9,
-        state.u.ulevel > 8,
-        target.m_lev < state.u.ulevel - 7,
-    ].every(Boolean);
-    if ([weakTarget, farOutclassed].includes(true)) {
+    const weakTarget = target.m_lev < 2 && monster.m_lev > 5;
+    const farOutclassed = monster.m_lev > 12
+        && target.m_lev < monster.m_lev - 9
+        && state.u.ulevel > 8
+        && target.m_lev < state.u.ulevel - 7;
+    if (weakTarget || farOutclassed) {
         score -= 25;
     }
     if (target.m_lev > monster.m_lev + 4)
@@ -879,8 +874,8 @@ export function pet_ranged_attk(monster, forced, rawEnv = {}) {
     admitOrdinaryStartingPet(monster, rawEnv);
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
-    if ([random.rn2, random.rnd]
-        .some((operation) => typeof operation !== 'function')) {
+    if (typeof random.rn2 !== 'function'
+        || typeof random.rnd !== 'function') {
         throw new TypeError(
             'pet_ranged_attk random injection requires rn2 and rnd',
         );

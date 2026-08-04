@@ -12,6 +12,7 @@ import {
     DOGFOOD,
     LAVAPOOL,
     MANFOOD,
+    M_ATTK_MISS,
     MMOVE_DIED,
     MMOVE_DONE,
     MMOVE_MOVED,
@@ -40,8 +41,10 @@ import {
     M1_SWIM,
     M1_ANIMAL,
     M2_ROCKTHROW,
+    MS_LEADER,
     MONSTER_TEMPLATES,
     PM_FIRE_ELEMENTAL,
+    PM_FLOATING_EYE,
     PM_GIANT_ANT,
     PM_KITTEN,
     PM_LITTLE_DOG,
@@ -289,6 +292,22 @@ test('find_friends scans beyond a target in source order', () => {
         monsterCanSee: () => true,
     }), 1);
 
+    assert.equal(find_friends(monster, target, 15, {
+        state,
+        monsterAt: () => assert.fail('blocked sight ends the scan'),
+        monsterCanSee: () => false,
+    }), 0);
+
+    const questFriendly = {
+        data: { ...state.mons[PM_GIANT_ANT], msound: MS_LEADER },
+        mtame: 0,
+    };
+    assert.equal(find_friends(monster, target, 15, {
+        state,
+        monsterAt: (x, y) => x === 9 && y === 5 ? questFriendly : null,
+        monsterCanSee: () => true,
+    }), 1, 'quest leaders behind the target are always treated as friends');
+
     const boundaryTarget = { mx: 20, my: 5 };
     monster.mux = 21;
     monster.muy = 5;
@@ -301,6 +320,14 @@ test('find_friends scans beyond a target in source order', () => {
         state,
         monsterAt: () => null,
         monsterCanSee: () => true,
+    }), 0);
+
+    monster.mx = 78;
+    monster.my = 5;
+    assert.equal(find_friends(monster, { mx: 79, my: 5 }, 15, {
+        state,
+        monsterAt: () => null,
+        monsterCanSee: () => assert.fail('off-map square stops before sight'),
     }), 0);
 });
 
@@ -336,6 +363,41 @@ test('score_targ preserves ordinary early returns and random fuzz', () => {
         random: { rnd: () => assert.fail('adjacency returns before fuzz') },
     }), -3000);
 });
+
+test('score_targ rejects pets, the hero, and a friend in the line of fire',
+    () => {
+        const { monster, state } = activePetState();
+        monster.m_lev = 2;
+        monster.mux = 1;
+        monster.muy = 1;
+        const target = {
+            data: state.mons[PM_GIANT_ANT],
+            m_lev: 2,
+            mhp: 7,
+            mpeaceful: false,
+            mtame: 0,
+            mx: 8,
+            my: 5,
+        };
+        const noFuzz = {
+            state,
+            monsterAt: () => null,
+            monsterCanSee: () => true,
+            random: { rnd: () => assert.fail('rejection precedes fuzz') },
+        };
+
+        target.mtame = 1;
+        assert.equal(score_targ(monster, target, noFuzz), -3000);
+
+        target.mtame = 0;
+        state.youmonst = target;
+        assert.equal(score_targ(monster, target, noFuzz), -3000);
+
+        state.youmonst = { data: state.mons[PM_LITTLE_DOG] };
+        monster.mux = 10;
+        monster.muy = 5;
+        assert.equal(score_targ(monster, target, noFuzz), -3000);
+    });
 
 test('score_targ preserves source level-penalty boundaries', () => {
     const { monster, state } = activePetState();
@@ -406,7 +468,7 @@ test('best_target uses dy-major ray order and rejects negative scores', () => {
     assert.deepEqual(draws, [5, 5]);
 
     first.mpeaceful = second.mpeaceful = true;
-    first.data = second.data = state.mons[28]; // passive floating eye.
+    first.data = second.data = state.mons[PM_FLOATING_EYE];
     assert.equal(best_target(monster, false, {
         state,
         monsterAt: (x, y) => targets.get(`${x},${y}`) ?? null,
@@ -425,7 +487,7 @@ test('best_target uses dy-major ray order and rejects negative scores', () => {
         random: { rnd: () => 0 },
     }), first, 'a zero score is retained when the scan is not forced');
 
-    first.data = second.data = state.mons[28];
+    first.data = second.data = state.mons[PM_FLOATING_EYE];
     first.mhp = second.mhp = 1;
     assert.equal(best_target(monster, true, {
         state,
@@ -463,6 +525,27 @@ test('pet_ranged_attk preserves target fuzz and hungry gate ordering', () => {
         mattackm: () => assert.fail('hungry gate rejects the attack'),
     }), MMOVE_NOTHING);
     assert.deepEqual(events, [['rnd', 5], ['rn2', 5]]);
+
+    const accepted = [];
+    assert.equal(pet_ranged_attk(monster, false, {
+        state,
+        monsterCanSee: () => true,
+        random: {
+            rnd: (bound) => (accepted.push(['rnd', bound]), 1),
+            rn2: (bound) => (accepted.push(['rn2', bound]), 0),
+        },
+        mattackm(aggressor, defender) {
+            accepted.push(['mattackm', aggressor, defender]);
+            return M_ATTK_MISS;
+        },
+    }), MMOVE_NOTHING);
+    assert.deepEqual(accepted, [
+        ['rnd', 5],
+        ['rn2', 5],
+        ['mattackm', monster, target],
+    ]);
+    assert.deepEqual(state.gb.bhitpos, { x: monster.mx, y: monster.my });
+    assert.equal(state.gn.notonhead, false);
 });
 
 test('pet_ranged_attk rejects negative targets and uses strict hunger time',

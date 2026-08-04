@@ -1725,30 +1725,38 @@ test('simple preflight rejects a selected trap without live mutation',
 
 test('a starting pony targets at range and later refusal stays retryable',
     async () => {
-    const replay = await runSegment({
-        // This fresh-derived Knight layout lines the pony up with a distant
-        // monster after one clear diagonal walk.
-        seed: 2026072220,
-        datetime: DATETIME,
-        nethackrc: 'OPTIONS=name:PonyWalkWait,role:Knight,race:human,'
-            + 'gender:male,align:lawful,!legacy,!tutorial,!splash_screen',
-        moves: ' u.',
-    });
-    assert.equal(game.context.startingpet_typ, PM_PONY);
-    assert.equal(game.moves, 3);
-    let pony = null;
-    for (let monster = game.level.monlist;
-        monster;
-        monster = monster.nmon) {
-        if (monster.data?.pmidx === PM_PONY) pony = monster;
-    }
-    assert.ok(pony);
-    assert.equal(pony.mlstmv, game.moves - 1);
-    assert.deepEqual(game.gb.bhitpos, pony.mtrack[0]);
-    assert.equal(game.gn.notonhead, false);
-    assert.equal(game.gv.vis, true);
-    assert.equal(game.gs.skipdrin, false);
-    const before = completeSecondTurnSnapshot(game, replay);
+    const target = await prepareStartingPetAction(PM_PONY);
+    const { monster: pony } = target;
+    const defender = ordinaryMonster(
+        PM_GIANT_RAT,
+        target.monsterX,
+        target.heroY - 2,
+        { m_id: 9002, movement: 0 },
+    );
+    const laterAttacker = ordinaryMonster(
+        PM_GIANT_RAT,
+        game.u.ux,
+        game.u.uy - 1,
+        { m_id: 9003 },
+    );
+    pony.nmon = defender;
+    defender.nmon = laterAttacker;
+    game.level.monsters[defender.mx][defender.my] = defender;
+    game.level.monsters[laterAttacker.mx][laterAttacker.my] = laterAttacker;
+    for (let y = defender.my; y <= pony.my; ++y)
+        game.level.at(pony.mx, y).typ = ROOM;
+    game.level.at(laterAttacker.mx, laterAttacker.my).typ = ROOM;
+    game.viz_array[pony.my][pony.mx] |= IN_SIGHT;
+    game.viz_array[defender.my][defender.mx] |= IN_SIGHT;
+
+    // Distinct sentinels make each omitted planning clone observable. The
+    // pony writes all four owners during its distant miss; the later ordinary
+    // monster then refuses while adjacent to the hero.
+    (game.gb ??= {}).bhitpos = { x: 1, y: 2 };
+    (game.gn ??= {}).notonhead = true;
+    (game.gs ??= {}).skipdrin = true;
+    (game.gv ??= {}).vis = false;
+    const before = completeSecondTurnSnapshot(game, target.replay);
     const combatBefore = structuredClone({
         gb: game.gb,
         gn: game.gn,
@@ -1760,10 +1768,10 @@ test('a starting pony targets at range and later refusal stays retryable',
         await assert.rejects(
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'pet combat evaluation',
+                && error.reason === 'monster attack on the hero',
         );
         assert.deepEqual(
-            completeSecondTurnSnapshot(game, replay),
+            completeSecondTurnSnapshot(game, target.replay),
             before,
         );
         assert.deepEqual({
