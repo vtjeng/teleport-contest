@@ -27,17 +27,10 @@ states it.
 
 ## Current standing
 
-- Development, at `cd00dc4` (2026-08-02): 726 of 7,765 screens and 108,266 of
+- Development, at `4e12459` (2026-08-04): 965 of 7,765 screens and 115,661 of
   610,816 random-number values, over the development set of 33 sessions.
-- Reserved holdout, last evaluated at `f43439d`: 162 of 3,640 screens, 30,089
+- Reserved holdout, last evaluated at `4e12459`: 196 of 3,640 screens, 32,633
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  The 23-screen gain that reached 162 came from `experience-level-gain` and is
-  the largest a single close has produced. Two closes since have moved none of
-  the three figures: `furniture-square-entry`, and the `commands` deferred-area
-  sweep, which forecast 0 because every entry it closed named behavior no
-  session reaches. The 50 development screens the wish goal has earned since
-  `f43439d` carry no holdout measurement, because an evaluation runs only at a
-  goal close.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
