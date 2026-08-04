@@ -77,6 +77,8 @@ test('the arrival matrix is a clean audited replay recipe', () => {
             7633019,
             7633019,
             7641005,
+            7660607,
+            7660416,
             7643705,
             7645000,
             7621009,
@@ -94,7 +96,7 @@ test('the arrival matrix is a clean audited replay recipe', () => {
         assert.match(segment.nethackrc, /pettype:none/u);
         assert.match(segment.nethackrc, /playmode:debug/u);
         assert.equal(segment.datetime, '20310417113000');
-        assert.match(segment.moves, /^\.\x16(?:1|2|5|14)\n *\.$/u);
+        assert.match(segment.moves, /^\.\x16(?:1|2|5|14)\n *[.h]$/u);
     }
 });
 

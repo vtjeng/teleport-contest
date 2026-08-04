@@ -9,6 +9,7 @@ import {
     MOD_ENCUMBER,
     OBJ_FLOOR,
     OBJ_INVENT,
+    OBJ_DELETED,
     PIT,
     ROOM,
     SLT_ENCUMBER,
@@ -23,6 +24,7 @@ import { runSegment } from '../js/jsmain.js';
 import { M1_NOTAKE, PM_KOBOLD_ZOMBIE } from '../js/monsters.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
+import { addinv, obj_extract_self } from '../js/invent.js';
 import {
     encumber_msg,
     observe_pickup_object,
@@ -31,6 +33,7 @@ import {
 } from '../js/pickup.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
+    COIN_CLASS,
     ELVEN_DAGGER,
     FIGURINE,
     LUCKSTONE,
@@ -126,6 +129,32 @@ function typedObjectUnderHero(state, otyp) {
         false,
         objectGenerationEnv({ state }),
     );
+}
+
+function carryGeneratedObject(state, otyp) {
+    const object = typedObjectUnderHero(state, otyp);
+    const env = objectGenerationEnv({ state });
+    obj_extract_self(object, env);
+    return addinv(object, env);
+}
+
+function matchStackTraits(object, target) {
+    const ownership = {
+        o_id: object.o_id,
+        where: object.where,
+        nobj: object.nobj,
+        nexthere: object.nexthere,
+        ox: object.ox,
+        oy: object.oy,
+    };
+    Object.assign(object, {
+        ...target,
+        ...ownership,
+        oextra: target.oextra ? { ...target.oextra } : target.oextra,
+        pickup_prev: false,
+        quan: 1,
+    });
+    return object;
 }
 
 function assertStillOnBothFloorChains(state, object, links) {
@@ -293,6 +322,154 @@ test('pickup preflights the whole pile before any state or floor mutation',
         assert.equal(state.loot_reset_justpicked, beforeLootReset);
         assert.equal(state.gp.pickup_encumbrance, 0);
         assert.equal(state._ttyToplines, beforeToplines);
+    });
+
+test('pickup projects sight-created merge dependencies before observation',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        const target = carryGeneratedObject(state, ELVEN_DAGGER);
+        const incoming = objectUnderHero(state);
+        matchStackTraits(incoming, target);
+        target.dknown = true;
+        incoming.dknown = false;
+        target.lamplit = true;
+        incoming.lamplit = true;
+        target.pickup_prev = true;
+        const links = { nobj: incoming.nobj, nexthere: incoming.nexthere };
+        const beforeDisco = [...state.svd.disco];
+        const beforeToplines = state._ttyToplines;
+        const beforeLootReset = state.loot_reset_justpicked;
+
+        await assert.rejects(
+            () => pickup(1, state),
+            /mergeLightSources is not available/u,
+        );
+        assertStillOnBothFloorChains(state, incoming, links);
+        assert.equal(incoming.dknown, false);
+        assert.equal(target.quan, 1);
+        assert.equal(target.pickup_prev, true);
+        assert.deepEqual(state.svd.disco, beforeDisco);
+        assert.equal(state._ttyToplines, beforeToplines);
+        assert.equal(state.loot_reset_justpicked, beforeLootReset);
+    });
+
+test('sighted pickup discovers a merge and prints comparison before prinv',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        const target = carryGeneratedObject(state, ELVEN_DAGGER);
+        const incoming = objectUnderHero(state);
+        matchStackTraits(incoming, target);
+        target.dknown = true;
+        incoming.dknown = false;
+        target.known = true;
+        incoming.known = false;
+        quiet(state);
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(target.quan, 2);
+        assert.equal(incoming.where, OBJ_DELETED);
+        assert.equal(state.nhDisplay.inputQueueLength, 0);
+        assert.match(
+            state._ttyToplines ?? '',
+            /^e - a \+0 elven dagger \(2 in total\)\.$/u,
+        );
+    });
+
+test('pickup projects an earlier selected object as the later merge target',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        const later = objectUnderHero(state);
+        const earlier = objectUnderHero(state);
+        matchStackTraits(later, earlier);
+        earlier.lamplit = true;
+        later.lamplit = true;
+        earlier.dknown = false;
+        later.dknown = false;
+        const floorHead = state.level.objects[state.u.ux][state.u.uy];
+        const levelHead = state.level.objlist;
+        const firstLinks = { nobj: earlier.nobj, nexthere: earlier.nexthere };
+        const secondLinks = { nobj: later.nobj, nexthere: later.nexthere };
+        const carriedHead = state.invent;
+        carriedHead.pickup_prev = true;
+        const beforeToplines = state._ttyToplines;
+
+        await assert.rejects(
+            () => pickup(1, state),
+            /mergeLightSources is not available/u,
+        );
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], floorHead);
+        assert.equal(state.level.objlist, levelHead);
+        assert.deepEqual(
+            { nobj: earlier.nobj, nexthere: earlier.nexthere },
+            firstLinks,
+        );
+        assert.deepEqual(
+            { nobj: later.nobj, nexthere: later.nexthere },
+            secondLinks,
+        );
+        assert.equal(earlier.where, OBJ_FLOOR);
+        assert.equal(later.where, OBJ_FLOOR);
+        assert.equal(earlier.dknown, false);
+        assert.equal(later.dknown, false);
+        assert.equal(state.invent, carriedHead);
+        assert.equal(carriedHead.pickup_prev, true);
+        assert.equal(state._ttyToplines, beforeToplines);
+    });
+
+test('pickup commits a selected pile in source order and merges later items',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        quiet(state);
+        const later = objectUnderHero(state);
+        const earlier = objectUnderHero(state);
+        matchStackTraits(later, earlier);
+        earlier.dknown = false;
+        later.dknown = false;
+        const previouslyCarried = state.invent;
+        previouslyCarried.pickup_prev = true;
+        const beforeLootReset = state.loot_reset_justpicked;
+
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+        assert.equal(state.level.objlist === earlier, false);
+        assert.equal(state.level.objlist === later, false);
+        assert.equal(earlier.where, OBJ_INVENT);
+        assert.equal(later.where, OBJ_DELETED);
+        assert.equal(earlier.quan, 2);
+        assert.equal(earlier.dknown, true);
+        assert.equal(earlier.pickup_prev, true);
+        assert.equal(previouslyCarried.pickup_prev, false);
+        assert.equal(state.loot_reset_justpicked, beforeLootReset);
+        assert.match(state._ttyToplines ?? '', /elven dagger \(2 in total\)/u);
+    });
+
+test('pickup finishes prinv through reassign when inventory letters move',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        state.flags.invlet_constant = false;
+        const object = objectUnderHero(state);
+        object.dknown = false;
+        quiet(state);
+
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(object.where, OBJ_INVENT);
+        let expected = 'a';
+        for (let carried = state.invent; carried; carried = carried.nobj) {
+            if (carried.oclass === COIN_CLASS) continue;
+            assert.equal(carried.invlet, expected);
+            if (expected === 'z') expected = 'A';
+            else expected = String.fromCharCode(expected.charCodeAt(0) + 1);
+        }
+        assert.match(
+            state._ttyToplines ?? '',
+            new RegExp(`^${object.invlet} - .*elven dagger`, 'u'),
+        );
     });
 
 function weightForCapacity(state, target) {

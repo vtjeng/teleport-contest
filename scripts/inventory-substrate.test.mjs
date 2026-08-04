@@ -45,7 +45,9 @@ import {
     obj_extract_self,
     obj_to_let,
     preflight_addinv,
+    preflight_addinv_sequence,
     prinv,
+    reassign,
     resetInventory,
     stackobj,
     update_inventory,
@@ -176,6 +178,151 @@ test('a prepared addinv plan is object-specific, state-specific, and one-shot',
         );
         assert.deepEqual(inventoryObjects(state), [ration]);
     });
+
+test('addinv sequence projection carries source merge state forward', () => {
+    const state = initializedState();
+    const first = instance(ARROW, state, {
+        age: 10,
+        bknown: false,
+        dknown: false,
+        known: false,
+        oerodeproof: true,
+        rknown: false,
+    });
+    const second = instance(ARROW, state, {
+        age: 20,
+        bknown: true,
+        dknown: false,
+        known: true,
+        oerodeproof: true,
+        rknown: true,
+    });
+    const plans = preflight_addinv_sequence(
+        [first, second],
+        {
+            state,
+            hooks: { inventoryComparisonDiscovered: () => {} },
+        },
+        { observeObjects: true },
+    );
+
+    assert.equal(plans[1].projectedResult, plans[0].projectedResult);
+    assert.equal(plans[1].projectedResult.quan, 2);
+    assert.equal(plans[1].projectedResult.age, 15);
+    assert.equal(plans[1].projectedResult.known, true);
+    assert.equal(plans[1].projectedResult.rknown, true);
+    assert.equal(plans[1].projectedResult.bknown, true);
+    assert.equal(plans[1].projectedResult.pickup_prev, true);
+    assert.equal(first.where, OBJ_FREE);
+    assert.equal(first.dknown, false);
+    assert.equal(first.known, false);
+    assert.equal(state.invent, null);
+});
+
+test('addinv sequence projection preserves the lit-merge age exception', () => {
+    const state = initializedState();
+    const first = instance(ARROW, state, { age: 10, lamplit: true });
+    const second = instance(ARROW, state, { age: 20, lamplit: true });
+    const plans = preflight_addinv_sequence(
+        [first, second],
+        { state, hooks: { mergeLightSources: () => {} } },
+        { observeObjects: true },
+    );
+
+    assert.equal(plans[1].projectedResult, plans[0].projectedResult);
+    assert.equal(plans[1].projectedResult.age, 10);
+});
+
+test('addinv sequence projection clears a tracked prize nomerge flag', () => {
+    const state = initializedState();
+    const prize = instance(LUCKSTONE, state, { nomerge: true, o_id: 101 });
+    const ordinary = instance(LUCKSTONE, state, { o_id: 102 });
+    state.context.achieveo = {
+        mines_prize_oid: prize.o_id,
+        soko_prize_oid: 0,
+    };
+    const plans = preflight_addinv_sequence(
+        [prize, ordinary],
+        {
+            state,
+            hooks: {
+                recalculateLuck: () => {},
+                recordAchievement: () => {},
+            },
+        },
+        { observeObjects: true },
+    );
+
+    assert.equal(plans[1].projectedResult, plans[0].projectedResult);
+    assert.equal(plans[1].projectedResult.nomerge, false);
+    assert.equal(plans[1].projectedResult.quan, 2);
+    assert.equal(prize.nomerge, true);
+});
+
+test('addinv sequence projection keeps default and flexible insertion distinct',
+    () => {
+        const fixedState = initializedState();
+        const existing = instance(APPLE, fixedState);
+        addinv(existing, { state: fixedState });
+        existing.invlet = 'q';
+        delete fixedState.flags.invlet_constant;
+        const incoming = instance(OIL_LAMP, fixedState);
+        const [fixedPlan] = preflight_addinv_sequence(
+            [incoming],
+            { state: fixedState },
+            { observeObjects: true },
+        );
+        assert.equal(fixedPlan.projectedResult.nobj.otyp, APPLE);
+        assert.equal(fixedPlan.projectedResult.nobj.invlet, 'q');
+
+        const flexibleState = initializedState();
+        flexibleState.flags.invlet_constant = false;
+        const flexible = instance(OIL_LAMP, flexibleState);
+        const [flexiblePlan] = preflight_addinv_sequence(
+            [flexible],
+            { state: flexibleState },
+            { observeObjects: true },
+        );
+        assert.equal(flexiblePlan.projectedResult.where, OBJ_INVENT);
+        assert.equal(flexiblePlan.projectedResult.invlet, 'a');
+        assert.equal(flexiblePlan.projectedResult.nobj, null);
+    });
+
+test('addinv sequence projection does not observe through Hallucination', () => {
+    const state = initializedState();
+    state.u.uprops[HALLUC].intrinsic = 1;
+    const arrow = instance(ARROW, state, { dknown: false });
+    const [plan] = preflight_addinv_sequence(
+        [arrow],
+        { state },
+        { observeObjects: true },
+    );
+    assert.equal(plan.projectedResult.dknown, false);
+    assert.equal(arrow.dknown, false);
+});
+
+test('addinv sequence projection preserves quiver merge preference', () => {
+    const state = initializedState();
+    const first = instance(ARROW, state);
+    const quivered = instance(ARROW, state);
+    first.where = OBJ_INVENT;
+    quivered.where = OBJ_INVENT;
+    first.nobj = quivered;
+    state.invent = first;
+    state.uquiver = quivered;
+    const incoming = instance(ARROW, state);
+
+    const [plan] = preflight_addinv_sequence(
+        [incoming],
+        { state },
+        { observeObjects: true },
+    );
+    assert.equal(plan.sourceResult, quivered);
+    assert.notEqual(plan.projectedResult, quivered);
+    assert.equal(plan.projectedResult.quan, 2);
+    assert.equal(first.quan, 1);
+    assert.equal(quivered.quan, 1);
+});
 
 test('coins always merge and use the dedicated inventory symbol', () => {
     const state = initializedState();
@@ -1535,13 +1682,55 @@ test('obj_to_let answers the letter assigned to the object', () => {
     assert.equal(obj_to_let(lamp, state), 'a');
     // options.c starts flags.invlet_constant at TRUE, so a state that has not
     // set it reads as set.
+    lamp.invlet = 'q';
     delete state.flags.invlet_constant;
-    assert.equal(obj_to_let(lamp, state), 'a');
-    // C renumbers every letter first when flags.invlet_constant is off, which
-    // needs reassign(); nothing in this port clears the flag.
+    assert.equal(obj_to_let(lamp, state), 'q');
+    // C renumbers every letter first when flags.invlet_constant is off.
     state.flags.invlet_constant = false;
-    assert.throws(() => obj_to_let(lamp, state),
-                  UnsupportedObjectOperationError);
+    lamp.invlet = 'q';
+    assert.equal(obj_to_let(lamp, state), 'a');
+    assert.equal(state.lastinvnr, 1);
+});
+
+test('reassign puts gold first and letters the remaining chain in order', () => {
+    const state = carryingState();
+    const lamp = instance(OIL_LAMP, state);
+    const ration = instance(FOOD_RATION, state);
+    const gold = instance(GOLD_PIECE, state, { quan: 20 });
+    addinv(lamp, { state });
+    addinv(ration, { state });
+    addinv(gold, { state });
+    lamp.invlet = 'z';
+    ration.invlet = 'y';
+    gold.invlet = 'x';
+
+    assert.equal(reassign(state), gold);
+    assert.equal(gold.invlet, '$');
+    assert.equal(gold.nobj.invlet, 'a');
+    assert.equal(gold.nobj.nobj.invlet, 'b');
+    assert.equal(state.lastinvnr, 2);
+});
+
+test('reassign uses the overflow symbol after all 52 ordinary letters', () => {
+    const state = carryingState();
+    let tail = null;
+    const objects = [];
+    for (let index = 0; index < INVLET_BASIC + 1; ++index) {
+        const object = instance(OIL_LAMP, state, { nomerge: true });
+        objects.push(object);
+        if (tail) tail.nobj = object;
+        else state.invent = object;
+        tail = object;
+        object.where = OBJ_INVENT;
+    }
+
+    reassign(state);
+    assert.equal(objects[0].invlet, 'a');
+    assert.equal(objects[25].invlet, 'z');
+    assert.equal(objects[26].invlet, 'A');
+    assert.equal(objects[51].invlet, 'Z');
+    assert.equal(objects[52].invlet, '#');
+    assert.equal(state.lastinvnr, INVLET_BASIC - 1);
 });
 
 // invent.c xprname() (2892-2953).

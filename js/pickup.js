@@ -28,7 +28,7 @@ import {
     addinv,
     look_here,
     obj_extract_self,
-    preflight_addinv,
+    preflight_addinv_sequence,
     prinv,
 } from './invent.js';
 import { notake } from './mondata.js';
@@ -99,6 +99,13 @@ function heroIsBlind(state) {
 export function observe_pickup_object(obj, state = game) {
     if (!heroIsBlind(state)) observe_object(obj, state);
     return obj;
+}
+
+// C ref: pickup.c reset_justpicked().  Regular pickup owns this direct reset;
+// gl.loot_reset_justpicked is the separate doloot() handoff consumed by
+// addinv_core0() and must not be used to delay this mutation.
+function reset_justpicked(head) {
+    for (let obj = head; obj; obj = obj.nobj) obj.pickup_prev = false;
 }
 
 // C ref: pickup.c pickup() (672-910), autopick(), pickup_object(), pick_obj()
@@ -223,12 +230,27 @@ export async function pickup(what, state = game) {
         throw new UnsupportedPickupError('pickup() requiring a burden prompt');
     }
 
+    const pendingInventoryMessages = [];
     const env = objectGenerationEnv({
         state,
-        hooks: { message: ttyPline },
+        hooks: {
+            message: ttyPline,
+            inventoryComparisonDiscovered: () => {
+                pendingInventoryMessages.push(
+                    'You learn more about your items by comparing them.',
+                );
+            },
+        },
     });
-    const addPlans = selected.map(({ obj }) => preflight_addinv(obj, env));
-    if (selected.length) state.loot_reset_justpicked = true;
+    const addPlans = preflight_addinv_sequence(
+        selected.map(({ obj }) => obj),
+        env,
+        { observeObjects: !heroIsBlind(state) },
+    );
+    for (const plan of addPlans)
+        assertObjectNameable(plan.projectedResult, state);
+
+    if (selected.length) reset_justpicked(state.invent);
     let picked = 0;
     for (let index = 0; index < selected.length; ++index) {
         const { obj, count } = selected[index];
@@ -236,6 +258,8 @@ export async function pickup(what, state = game) {
         obj_extract_self(obj, env);
         newsym(u.ux, u.uy);
         const carried = addinv(obj, env, addPlans[index]);
+        while (pendingInventoryMessages.length)
+            await ttyPline(pendingInventoryMessages.shift(), state);
         const nearload = near_capacity(state);
         let prefix = null;
         if (nearload !== state.gp.pickup_encumbrance) {

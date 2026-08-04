@@ -1460,24 +1460,7 @@ export function obfree(obj, merge = null, rawEnv = {}) {
 // C ref: invent.c merged(). Returns true when `obj` was absorbed into otmp.
 export function merged(otmp, obj, env = {}) {
     const normalized = inventoryEnv(env);
-    if (!mergable(otmp, obj, normalized)) return false;
-
-    if (obj.lamplit) requiredHook(normalized, 'mergeLightSources', obj);
-    if (obj.timed) requiredHook(normalized, 'stopObjectTimers', obj);
-    if (obj.owornmask && otmp.where === OBJ_INVENT)
-        requiredHook(normalized, 'mergeWornMasks', obj);
-    if (obj.globby) requiredHook(normalized, 'absorbGlob', obj);
-    if (!obj.globby
-        && comparisonWillDiscover(otmp, obj, normalized.state)
-        && otmp.where === OBJ_INVENT
-        && obj.how_lost !== LOST_THROWN
-        && otmp.how_lost !== LOST_THROWN) {
-        requiredHook(normalized, 'inventoryComparisonDiscovered', otmp);
-    }
-    preflightObjectExtraction(obj, normalized);
-    if (!obj.globby) preflightObfree(obj, otmp, normalized);
-    if (otmp.oclass === COIN_CLASS || !isPudding(otmp))
-        preflightWeight(otmp, normalized);
+    if (!preflightMerged(otmp, obj, normalized)) return false;
 
     if (!obj.lamplit && !obj.globby) {
         obj.age = Math.trunc(obj.age);
@@ -1551,6 +1534,30 @@ export function merged(otmp, obj, env = {}) {
         )(otmp, normalized);
     }
     obfree(obj, otmp, normalized);
+    return true;
+}
+
+// Dependency-only prefix of invent.c merged().  Pickup plans an entire
+// selected floor sequence before observing or unlinking its first object, so
+// the merge target can be the projected result of an earlier selection.
+function preflightMerged(otmp, obj, normalized) {
+    if (!mergable(otmp, obj, normalized)) return false;
+    if (obj.lamplit) requiredHook(normalized, 'mergeLightSources', obj);
+    if (obj.timed) requiredHook(normalized, 'stopObjectTimers', obj);
+    if (obj.owornmask && otmp.where === OBJ_INVENT)
+        requiredHook(normalized, 'mergeWornMasks', obj);
+    if (obj.globby) requiredHook(normalized, 'absorbGlob', obj);
+    if (!obj.globby
+        && comparisonWillDiscover(otmp, obj, normalized.state)
+        && otmp.where === OBJ_INVENT
+        && obj.how_lost !== LOST_THROWN
+        && otmp.how_lost !== LOST_THROWN) {
+        requiredHook(normalized, 'inventoryComparisonDiscovered', otmp);
+    }
+    preflightObjectExtraction(obj, normalized);
+    if (!obj.globby) preflightObfree(obj, otmp, normalized);
+    if (otmp.oclass === COIN_CLASS || !isPudding(otmp))
+        preflightWeight(otmp, normalized);
     return true;
 }
 
@@ -1875,6 +1882,135 @@ export function preflight_addinv(obj, env = {}) {
     };
 }
 
+function cloneInventoryForProjection(state) {
+    const sourceByProjected = new Map();
+    let projectedHead = null;
+    let projectedTail = null;
+    for (let source = inventoryHead(state); source; source = source.nobj) {
+        const projected = { ...source, nobj: null };
+        sourceByProjected.set(projected, source);
+        if (projectedTail) projectedTail.nobj = projected;
+        else projectedHead = projected;
+        projectedTail = projected;
+    }
+    return { projectedHead, sourceByProjected };
+}
+
+function projectMerge(target, incoming) {
+    if (!incoming.lamplit && !incoming.globby) {
+        target.age = Math.trunc(
+            (target.age * target.quan + incoming.age * incoming.quan)
+            / (target.quan + incoming.quan),
+        );
+    }
+    if (!target.globby) target.quan += incoming.quan;
+    if (!oname(target) && oname(incoming)) {
+        target.oextra = {
+            ...(target.oextra ?? {}),
+            oname: incoming.oextra.oname,
+        };
+    }
+    if (Boolean(incoming.known) !== Boolean(target.known))
+        target.known = true;
+    if (Boolean(incoming.rknown) !== Boolean(target.rknown))
+        target.rknown = true;
+    if (Boolean(incoming.bknown) !== Boolean(target.bknown))
+        target.bknown = true;
+    return target;
+}
+
+function projectAddinv(obj, projectedEnv, sourceByProjected) {
+    const { state } = projectedEnv;
+    obj.where = OBJ_FREE;
+    obj.nobj = null;
+    obj.nexthere = null;
+    obj.no_charge = false;
+    obj.how_lost = LOST_NONE;
+
+    const prize = specialPrize(obj, state);
+    if (prize) obj.nomerge = false;
+
+    let target = null;
+    if (state.uquiver && preflightMerged(state.uquiver, obj, projectedEnv)) {
+        target = state.uquiver;
+    } else {
+        let previous = null;
+        let current = inventoryHead(state);
+        while (current && !preflightMerged(current, obj, projectedEnv)) {
+            previous = current;
+            current = current.nobj;
+        }
+        if (current) {
+            target = current;
+        } else {
+            assigninvlet(obj, state);
+            const fixedLetters = state.flags?.invlet_constant ?? true;
+            if (fixedLetters || !previous) {
+                obj.nobj = inventoryHead(state);
+                setInventoryHead(state, obj);
+                if (fixedLetters) reorderInventory(state);
+            } else {
+                previous.nobj = obj;
+            }
+            obj.where = OBJ_INVENT;
+            target = obj;
+        }
+    }
+
+    if (target !== obj) projectMerge(target, obj);
+    target.pickup_prev = true;
+    if (!(state.flags?.invlet_constant ?? true)) {
+        target.invlet = NOINVSYM;
+        reassign(state);
+    }
+    return {
+        projectedResult: target,
+        sourceResult: sourceByProjected.get(target) ?? null,
+    };
+}
+
+// Plan a source-ordered series of invent.c addinv()/prinv() calls without
+// changing discovery, floor ownership, inventory, output, or pickup flags.
+// Each projected item is observed just before its projected insertion, as
+// pickup_object() does, so later items see both discovery-driven mergeability
+// and every earlier selected object in the projected inventory.
+export function preflight_addinv_sequence(objects, env = {}, options = {}) {
+    const normalized = inventoryEnv(env);
+    const { projectedHead, sourceByProjected } = cloneInventoryForProjection(
+        normalized.state,
+    );
+    const projectedState = {
+        ...normalized.state,
+        flags: { ...(normalized.state.flags ?? {}) },
+        invent: projectedHead,
+        lastinvnr: normalized.state.lastinvnr,
+    };
+    projectedState.uquiver = [...sourceByProjected.entries()].find(
+        ([, source]) => source === normalized.state.uquiver,
+    )?.[0] ?? null;
+    const projectedEnv = { ...normalized, state: projectedState };
+    resetJustPicked(projectedHead);
+
+    const plans = [];
+    for (const source of objects) {
+        const plan = preflight_addinv(source, normalized);
+        const projected = {
+            ...source,
+            oextra: source.oextra ? { ...source.oextra } : source.oextra,
+        };
+        sourceByProjected.set(projected, source);
+        if (options.observeObjects && !isHallucinating(projectedEnv))
+            projected.dknown = true;
+        const result = projectAddinv(
+            projected,
+            projectedEnv,
+            sourceByProjected,
+        );
+        plans.push({ ...plan, ...result });
+    }
+    return plans;
+}
+
 // C ref: invent.c addinv_core0() and addinv().
 export function addinv(obj, env = {}, prepared = null) {
     const plan = prepared ?? preflight_addinv(obj, env);
@@ -1957,12 +2093,41 @@ export function addinv_nomerge(obj, env = {}) {
     }
 }
 
+// C ref: invent.c reassign() (4855-4884).  !fixinv inventories use the chain
+// order for consecutive letters, with gold forced back to '$' at the head.
+export function reassign(state = game) {
+    let previous = null;
+    let gold = null;
+    for (let obj = inventoryHead(state); obj; obj = obj.nobj) {
+        if (obj.oclass !== COIN_CLASS) {
+            previous = obj;
+            continue;
+        }
+        gold = obj;
+        if (previous) previous.nobj = gold.nobj;
+        else setInventoryHead(state, gold.nobj);
+        break;
+    }
+
+    let index = 0;
+    for (let obj = inventoryHead(state); obj; obj = obj.nobj, ++index)
+        obj.invlet = index < INVLET_BASIC ? inventoryLetter(index) : NOINVSYM;
+    if (gold) {
+        gold.invlet = '$';
+        gold.nobj = inventoryHead(state);
+        setInventoryHead(state, gold);
+    }
+    state.lastinvnr = Math.min(index, INVLET_BASIC - 1);
+    return inventoryHead(state);
+}
+
 // C ref: invent.c obj_to_let() (2857-2868).  Answers the object's inventory
-// letter.  C first renumbers every letter when flags.invlet_constant is off;
-// reassign() is unported and no option path in this game clears that flag.
+// letter after applying !fixinv's source relettering pass when needed.
 export function obj_to_let(obj, state = game) {
-    if (!(state.flags?.invlet_constant ?? true))
-        throw new UnsupportedObjectOperationError('reassign()', obj);
+    if (!(state.flags?.invlet_constant ?? true)) {
+        obj.invlet = NOINVSYM;
+        reassign(state);
+    }
     return obj.invlet;
 }
 

@@ -18,8 +18,10 @@ import {
     THRONE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { mergable } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import { CHEST, GOLD_PIECE, MACE, STATUE } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -46,6 +48,7 @@ function nethackrc({
 function teleport(seed, destination, {
     config = undefined,
     dismissals = '',
+    trailingCommand = '.',
 } = {}) {
     return {
         seed,
@@ -53,7 +56,7 @@ function teleport(seed, destination, {
         nethackrc: nethackrc(config),
         // The opening wait paints an ordinary D:1 frame. The closing wait
         // proves the arrival position is live at the next input boundary.
-        moves: `.${LEVELPORT_KEY}${destination}\n${dismissals}.`,
+        moves: `.${LEVELPORT_KEY}${destination}\n${dismissals}${trailingCommand}`,
     };
 }
 
@@ -88,6 +91,20 @@ export function loadLevelTeleportArrivalRecipe() {
             teleport(7641005, 2, {
                 config: { autopickup: true },
             }),
+            // Sight makes the floor scroll mergeable with a carried scroll;
+            // comparison and pickup feedback each need a dismissal before a
+            // trailing westward move proves ordinary dispatch resumed.
+            teleport(7660607, 2, {
+                config: { autopickup: true },
+                dismissals: '  ',
+                trailingCommand: 'h',
+            }),
+            // Random arrival naturally selects a two-object pile. Both floor
+            // indexes evolve twice before the trailing wait command.
+            teleport(7660416, 2, {
+                config: { autopickup: true },
+                dismissals: ' ',
+            }),
             // A dwarf lands over a buried object. One key dismisses the exact
             // earth-sense notice before the trailing command.
             teleport(7643705, 2, {
@@ -117,33 +134,74 @@ export async function verifyLevelTeleportArrival(segment) {
         throw new Error(`seed ${segment.seed} has no numeric destination`);
     }
     let pickupControl = null;
-    if (segment.seed === 7641005) {
+    if ([7641005, 7660607, 7660416].includes(segment.seed)) {
         const control = {
             ...segment,
+            moves: segment.moves.slice(0, segment.moves.indexOf('\n') + 1),
             nethackrc: segment.nethackrc.replace(
                 ',autopickup,',
                 ',!autopickup,',
             ),
         };
         await runSegment(control);
-        const object = game.level.objects[game.u.ux][game.u.uy];
+        const objects = [];
+        for (let object = game.level.objects[game.u.ux][game.u.uy];
+            object;
+            object = object.nexthere) {
+            objects.push({
+                object,
+                objectId: object.o_id,
+                objectType: object.otyp,
+                quantity: object.quan,
+            });
+        }
         let inventoryCount = 0;
-        for (let carried = game.invent; carried; carried = carried.nobj)
+        const carriedObjects = [];
+        for (let carried = game.invent; carried; carried = carried.nobj) {
             ++inventoryCount;
-        if (object?.where !== OBJ_FLOOR || object.otyp !== STATUE
-            || object.quan !== 1 || object.o_id !== 84) {
+            carriedObjects.push(carried);
+        }
+        if (!objects.length
+            || objects.some(({ object }) => object.where !== OBJ_FLOOR)) {
             throw new Error(
-                'pickup control did not leave statue #84 at arrival',
+                'pickup control did not leave its arrival pile on the floor',
             );
         }
         pickupControl = {
             x: game.u.ux,
             y: game.u.uy,
-            objectId: object.o_id,
-            objectType: object.otyp,
-            quantity: object.quan,
+            objects,
             inventoryCount,
+            carriedObjects,
         };
+        if (segment.seed === 7641005) {
+            const [object] = objects;
+            if (objects.length !== 1 || object.objectType !== STATUE
+                || object.quantity !== 1 || object.objectId !== 84) {
+                throw new Error(
+                    'pickup control did not leave statue #84 at arrival',
+                );
+            }
+        } else if (segment.seed === 7660607) {
+            const [incoming] = objects;
+            const observed = { ...incoming.object, dknown: true };
+            const target = carriedObjects.find((carried) => mergable(
+                carried,
+                observed,
+                objectGenerationEnv({ state: game }),
+            ));
+            if (objects.length !== 1 || !target) {
+                throw new Error(
+                    'sight-created pickup control has no inventory merge target',
+                );
+            }
+            pickupControl.mergeTarget = {
+                objectId: target.o_id,
+                quantity: target.quan,
+            };
+        } else if (objects.length !== 2) {
+            throw new Error('multi-object pickup control does not have two items');
+        }
     }
     await runSegment(segment);
     if (game.u?.uz?.dnum !== 0 || game.u?.uz?.dlevel !== destination) {
@@ -259,18 +317,56 @@ export async function verifyLevelTeleportArrival(segment) {
         let pickedUp = null;
         for (let obj = game.invent; obj; obj = obj.nobj) {
             ++inventoryCount;
-            if (obj.o_id === pickupControl?.objectId) pickedUp = obj;
+            if (obj.o_id === pickupControl?.objects[0].objectId) pickedUp = obj;
         }
         if (!pickupControl
             || game.u.ux !== pickupControl.x || game.u.uy !== pickupControl.y
             || game.level.objects[game.u.ux][game.u.uy] !== null
             || inventoryCount !== pickupControl.inventoryCount + 1
             || pickedUp?.where !== OBJ_INVENT
-            || pickedUp.otyp !== pickupControl.objectType
-            || pickedUp.quan !== pickupControl.quantity) {
+            || pickedUp.otyp !== pickupControl.objects[0].objectType
+            || pickedUp.quan !== pickupControl.objects[0].quantity) {
             throw new Error(
                 'autopickup did not transfer its control floor object',
             );
+        }
+    }
+    if (segment.seed === 7660607) {
+        const target = (() => {
+            for (let obj = game.invent; obj; obj = obj.nobj) {
+                if (obj.o_id === pickupControl?.mergeTarget?.objectId)
+                    return obj;
+            }
+            return null;
+        })();
+        const incomingId = pickupControl?.objects[0].objectId;
+        const incomingStillOwned = (() => {
+            for (let obj = game.invent; obj; obj = obj.nobj) {
+                if (obj.o_id === incomingId) return true;
+            }
+            return false;
+        })();
+        if (!target || incomingStillOwned
+            || target.quan !== pickupControl.mergeTarget.quantity
+                + pickupControl.objects[0].quantity
+            || !target.pickup_prev
+            || game.level.objects[pickupControl.x][pickupControl.y] !== null) {
+            throw new Error('sight-created pickup did not merge atomically');
+        }
+    }
+    if (segment.seed === 7660416) {
+        const pickedIds = new Set();
+        let inventoryCount = 0;
+        for (let obj = game.invent; obj; obj = obj.nobj) {
+            ++inventoryCount;
+            if (pickupControl?.objects.some(
+                ({ objectId }) => objectId === obj.o_id,
+            )) pickedIds.add(obj.o_id);
+        }
+        if (pickedIds.size !== 2
+            || inventoryCount !== pickupControl.inventoryCount + 2
+            || game.level.objects[pickupControl.x][pickupControl.y] !== null) {
+            throw new Error('multi-object arrival pile was not wholly picked up');
         }
     }
     if (segment.seed === 7643705) {
