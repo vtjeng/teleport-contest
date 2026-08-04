@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The full correctness pass through a3e694d closed its two confirmed production defects, but supplemental source tracing disproved readiness. A fresh selector has split the broad queued arrival item into source-coherent child slices and selected ordinary-autopickup-transaction first: observation can create a merge, an earlier selected pile object can become the later merge target, and prinv/reassign is currently reached only after unlinking. The generated shop-door refusal and the 240-species ordinary monster reservoir remain later child slices; no hero-level, Amulet, aggravation or monster-difficulty exclusion was added.",
-  "commitChecked": "a3e694dd50957d4933318456c653d9bf22a3b65c",
+  "reason": "The ordinary-autopickup-transaction child is closed and independently verified at 8830d77: projected observation and evolving inventory admit every selected object before the live reset/observe/unlink/merge-or-insert/prinv sequence, !fixinv reassign is ported, and two fresh live arrivals match C. The generated shop-door refusal and the 240-species ordinary monster reservoir remain missing child slices; no hero-level, Amulet, aggravation or monster-difficulty exclusion was added.",
+  "commitChecked": "8830d77d949127b75ab047837c29644dc2eec034",
   "boundary": {
     "goalId": "wizard-level-teleport",
     "startingCommit": "7bf8ee7e",
@@ -16,7 +16,7 @@
     "dispatchTablesAndCatalogs": "dungeon.c's dungeons[] and level_info[] flags, read by get_level() for LFILE_EXISTS, and the branch chain find_branch() walks. The reopened source review also covers monst.c mons[], makemon.c's rndmonst reservoir filters and every generated species family reachable from an ordinary destination at valid hero levels and option states.",
     "reachableHelpers": "mklev.c occupied() 1806-1812 is already ported, at js/mktrap.js:158, and bad_location() must call it rather than a second copy. next_to_u() is ported at js/apply_next_to_u.js and answers TRUE for an ordinary hero with a pet, so level_tele()'s You1(shudder_for_moment) guard passes without new work. find_level() is ported at js/dungeon.js:803. In_W_tower() and On_W_tower_level() are unported and needed for goto_level()'s was_in_W_tower; both are false above the Wizard's tower, so a small ported guard suffices.",
     "javascriptCrossCheck": "Verified at 496e4f3 by the orchestrator, not accepted from a report. js/teleport.js throws UnsupportedLevelChangeError('level_tele() resolving a typed destination') where the resolution begins. grep -c UnsupportedLevelChangeError js/jsmain.js returns 0, so that class is not among the six boundary classes js/jsmain.js:527-549 breaks a segment for; it sits only in failClosedCommandRefusals() (js/cmd.js:919), which the command wrapper alone consults. js/mklev.js:200-238 stubs place_lregion() and bad_location() as 'simplified for skeleton', and no js/mkmaze.js exists. js/stairs.js:87-94 holds duplicate dunlev() and single_level_branch() behind a comment saying they stay there rather than becoming a dungeon.c port they do not represent; this slice retires that justification. js/allmain.js:626 elapsedTurnPlanningRefusals() is the wrapper the turn loop already uses, and js/allmain.js:940-946 holds the two rhack() call sites the new site follows.",
-    "remainingLimits": "The implemented common outcome family is ordinary OROOM/shop/COURT generation, with the audited Quest/shop/pickup/earth-sense arrival effects when generation stays in that family. Readiness still depends on transactionally admitting ordinary pickup merges and final prinv, refusing the generated shop-door branch before mutation, and replacing the fixed difficulty-9 monster admission assumption with source-complete ordinary-level reservoir ownership. LEPREHALL, ZOO, TEMPLE, BEEHIVE, MORGUE, ANTHOLE, BARRACKS, SWAMP and COCKNEST remain explicit fail-closed later families, alongside deterministic oneshot cleanup and restored levels."
+    "remainingLimits": "The implemented common outcome family is ordinary OROOM/shop/COURT generation, with the audited Quest/shop/transactional-pickup/earth-sense arrival effects when generation stays in that family. Readiness still depends on refusing the generated shop-door branch before mutation and replacing the fixed difficulty-9 monster admission assumption with source-complete ordinary-level reservoir ownership. LEPREHALL, ZOO, TEMPLE, BEEHIVE, MORGUE, ANTHOLE, BARRACKS, SWAMP and COCKNEST remain explicit fail-closed later families, alongside deterministic oneshot cleanup and restored levels."
   },
   "entries": [
     {
@@ -168,9 +168,9 @@
       "reachability": "goto_level() calls pickup(1) after random placement. A sighted incoming object can become mergeable only after observe_object() changes dknown, and an earlier selected pile object can become the later selection's first inventory merge target. With nonconstant inventory letters, prinv() can reach reassign() only after live insertion.",
       "owner": "js/pickup.js and js/invent.js, with focused transaction fixtures in scripts/pickup.test.mjs and scripts/inventory-substrate.test.mjs.",
       "effects": "Source order resets pickup_prev once, observes each object, extracts it from both floor chains, merges or inserts it, assigns inventory presentation, emits messages and leaves every selected object owned. A missing JavaScript dependency must refuse before any observation, floor unlink, inventory mutation, message or delayed loot flag.",
-      "evidence": "Fresh direct reproductions at a3e694d orphaned an observed dagger after its newly discovered merge reached inventoryComparisonDiscovered, orphaned the second of two selected daggers when the first became its target, leaked loot_reset_justpicked after a luckstone refusal, and inserted an apple before the nonconstant-letter reassign() refusal.",
-      "status": "missing",
-      "remaining": "Plan the selected sequence against projected observation and projected inventory in source order, preflight the exact merge and final prinv dependencies, move reset_justpicked to the live commit point, remove regular pickup's doloot-only flag use, and pin rollback plus successful multi-item behavior."
+      "evidence": "Commit 8830d77 ports the source-ordered projected transaction and reassign(), resets pickup_prev at the live pickup commit point, and removes regular pickup's doloot-only flag use. The orchestrator independently passed 102 focused tests, a strict 12-segment matrix matching 64,497 RNG calls and 84 complete screens/cursors, 2,629 checkpoint tests, all generated/namespace checks, and 33/33 committed-range mutants. Fresh seed 7660607 proves the sight-created merge and two More waits before a trailing move; seed 7660416 proves a natural two-object pile.",
+      "status": "done",
+      "remaining": "None inside the selected ordinary transaction; artifacts, corpses, scare scrolls, option filters, burden prompts, partial stacks and full packs keep their named later boundaries."
     },
     {
       "candidate": "shk.c u_entered_shop() unsupported generated shop-door branch",
@@ -193,13 +193,6 @@
   ],
   "missingWorkByOwner": [
     {
-      "group": "ordinary pickup transaction",
-      "candidates": [
-        "pickup.c pickup()/pickup_object() and invent.c addinv()/merged()/prinv() transactional admission for an ordinary selected pile"
-      ],
-      "next": "Implement a source-ordered projected sequence admission and exact rollback/success fixtures in the two pickup owners."
-    },
-    {
       "group": "generated shop entry refusal",
       "candidates": [
         "shk.c u_entered_shop() unsupported generated shop-door branch"
@@ -214,5 +207,5 @@
       "next": "Trace the full source catalog, implement the common high-level reservoir cluster and its initializer dependencies, and record strict high-level level-teleport cases."
     }
   ],
-  "sourceReview": "The orchestrator directly rechecked the reviewed diff and fresh finder evidence against teleport.c level_tele(); dungeon.c Is_special(), u_on_newpos(), earth_sense() and u_on_rndspot(); do.c schedule_goto(), deferred_goto() and goto_level(); mkroom.c pick_room(), courtmon(), fill_zoo() and do_mkroom(); hack.c check_special_room(); shk.c shop entry; pickup.c pickup()/autopick()/pickup_object(); invent.c addinv(), merged() and prinv(); questpgr.c/Lua pager order; and all changed async callers. The formal pass through a3e694d is durably recorded and its audit-fix commit passes a 10-segment strict matrix with 53,868 PRNG calls and 69 complete screens/cursors plus 2,616 checkpoint tests. Supplemental direct reproductions establish the three missing owner groups above. The ordinary-monster catalog trace is not yet complete enough to attest every reachable species family, so this checklist remains in implementation mode."
+  "sourceReview": "The orchestrator directly rechecked the reviewed diff and fresh finder evidence against teleport.c level_tele(); dungeon.c Is_special(), u_on_newpos(), earth_sense() and u_on_rndspot(); do.c schedule_goto(), deferred_goto() and goto_level(); mkroom.c pick_room(), courtmon(), fill_zoo() and do_mkroom(); hack.c check_special_room(); shk.c shop entry; pickup.c reset_justpicked(), pickup(), pickup_object(), pick_obj() and pickup_prinv(); invent.c mergable(), merged(), addinv_core0(), addinv(), obj_to_let(), prinv() and reassign(); questpgr.c/Lua pager order; and all changed async callers. The formal pass through a3e694d is durably recorded. The independently verified 8830d77 child closes the ordinary pickup transaction at a strict trailing command and leaves only the generated shop refusal plus the source-catalogued ordinary monster reservoir missing. The ordinary-monster catalog is split by initializer ownership but not yet complete in production, so this checklist remains in implementation mode."
 }
