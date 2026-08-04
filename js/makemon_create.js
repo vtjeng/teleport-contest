@@ -55,6 +55,7 @@ import {
     SDOOR,
     SEE_INVIS,
     SHOPBASE,
+    P_POLEARMS,
     PROT_FROM_SHAPE_CHANGERS,
     TDWALL,
     TLCORNER,
@@ -103,6 +104,7 @@ import {
     can_be_hatched,
     is_female,
     is_male,
+    is_mercenary,
     is_ndemon,
     is_neuter,
     is_unicorn,
@@ -193,6 +195,7 @@ import {
     PM_PONY,
     PM_SEWER_RAT,
     PM_SHOPKEEPER,
+    PM_SOLDIER,
     PM_SHOCKING_SPHERE,
     PM_SKELETON,
     PM_SNAKE,
@@ -260,6 +263,7 @@ import {
     ARROW,
     AXE,
     BATTLE_AXE,
+    BEC_DE_CORBIN,
     BOW,
     CLUB,
     COIN_CLASS,
@@ -268,6 +272,7 @@ import {
     CROSSBOW_BOLT,
     DAGGER,
     DART,
+    DENTED_POT,
     DUNCE_CAP,
     DWARVISH_CLOAK,
     DWARVISH_IRON_HELM,
@@ -295,11 +300,20 @@ import {
     GLAIVE,
     GOLD_PIECE,
     GLASS,
+    HELMET,
+    HIGH_BOOTS,
     HELM_OF_OPPOSITE_ALIGNMENT,
     IRON_SHOES,
     IRON,
     KNIFE,
+    K_RATION,
+    C_RATION,
     LEATHER,
+    LEATHER_ARMOR,
+    LEATHER_CLOAK,
+    LEATHER_GLOVES,
+    LARGE_SHIELD,
+    LOW_BOOTS,
     LONG_SWORD,
     LUCERN_HAMMER,
     LUMP_OF_ROYAL_JELLY,
@@ -333,11 +347,15 @@ import {
     POTION_CLASS,
     RANDOM_CLASS,
     RANSEUR,
+    RING_MAIL,
     RING_CLASS,
     ROCK,
     ROCK_CLASS,
     SCIMITAR,
     SKELETON_KEY,
+    SHORT_SWORD,
+    SMALL_SHIELD,
+    SPEAR,
     SCR_CREATE_MONSTER,
     SCR_EARTH,
     SCR_TELEPORTATION,
@@ -348,6 +366,7 @@ import {
     SPETUM,
     SPEED_BOOTS,
     STATUE,
+    STUDDED_LEATHER_ARMOR,
     STRANGE_OBJECT,
     TALLOW_CANDLE,
     TIN,
@@ -1259,7 +1278,29 @@ function m_initweap(monster, normalized) {
 
     switch (ptr.mlet) {
     case S_HUMAN:
-        if (ptr.mflags2 & M2_ELF) {
+        if (is_mercenary(ptr)) {
+            if (ptr.pmidx !== PM_SOLDIER) {
+                throw new UnsupportedMonsterCreationError(
+                    `mercenary weapon branch ${ptr.pmidx}`,
+                );
+            }
+            let w1 = 0;
+            let w2 = 0;
+            if (!random.rn2(3)) {
+                do {
+                    w1 = random.rn1(
+                        BEC_DE_CORBIN - PARTISAN + 1,
+                        PARTISAN,
+                    );
+                } while (state.objects[w1].oc_skill !== P_POLEARMS);
+                w2 = random.rn2(2) ? DAGGER : KNIFE;
+            } else {
+                w1 = random.rn2(2) ? SPEAR : SHORT_SWORD;
+            }
+            if (w1) mongets(monster, w1, normalized);
+            if (!w2 && w1 !== DAGGER && !random.rn2(4)) w2 = KNIFE;
+            if (w2) mongets(monster, w2, normalized);
+        } else if (ptr.mflags2 & M2_ELF) {
             if (random.rn2(2)) {
                 mongets(
                     monster,
@@ -1653,7 +1694,61 @@ function m_initinv(monster, normalized) {
     assertSupportedSpecies(ptr);
     if (isRogueLevel(state)) return;
 
-    if (ptr.mlet === S_NYMPH) {
+    if (ptr.mlet === S_HUMAN && is_mercenary(ptr)) {
+        if (ptr.pmidx !== PM_SOLDIER) {
+            throw new UnsupportedMonsterCreationError(
+                `mercenary inventory branch ${ptr.pmidx}`,
+            );
+        }
+        let mac = 3;
+        let obj;
+        const addArmorClass = () => {
+            if (obj) mac += ARM_BONUS(obj, state);
+            obj = null;
+        };
+
+        if (random.rn2(5)) {
+            obj = mongets(
+                monster,
+                random.rn2(3) ? RING_MAIL : STUDDED_LEATHER_ARMOR,
+                normalized,
+            );
+        } else {
+            obj = mongets(monster, LEATHER_ARMOR, normalized);
+        }
+        addArmorClass();
+
+        if (mac < 10 && random.rn2(3)) {
+            obj = mongets(monster, HELMET, normalized);
+        } else if (mac < 10 && random.rn2(2)) {
+            obj = mongets(monster, DENTED_POT, normalized);
+        }
+        addArmorClass();
+
+        if (mac < 10 && random.rn2(3)) {
+            obj = mongets(monster, SMALL_SHIELD, normalized);
+        } else if (mac < 10 && random.rn2(2)) {
+            obj = mongets(monster, LARGE_SHIELD, normalized);
+        }
+        addArmorClass();
+
+        if (mac < 10 && random.rn2(3)) {
+            obj = mongets(monster, LOW_BOOTS, normalized);
+        } else if (mac < 10 && random.rn2(2)) {
+            obj = mongets(monster, HIGH_BOOTS, normalized);
+        }
+        addArmorClass();
+
+        if (mac < 10 && random.rn2(3)) {
+            obj = mongets(monster, LEATHER_GLOVES, normalized);
+        } else if (mac < 10 && random.rn2(2)) {
+            obj = mongets(monster, LEATHER_CLOAK, normalized);
+        }
+        addArmorClass();
+
+        if (!random.rn2(3)) mongets(monster, K_RATION, normalized);
+        if (!random.rn2(2)) mongets(monster, C_RATION, normalized);
+    } else if (ptr.mlet === S_NYMPH) {
         if (!random.rn2(2)) mongets(monster, MIRROR, normalized);
         if (!random.rn2(2))
             mongets(monster, POT_OBJECT_DETECTION, normalized);
@@ -1701,6 +1796,8 @@ function m_initinv(monster, normalized) {
             begin_burn(carriedCandle, false, normalized);
         }
     }
+
+    if (ptr.pmidx === PM_SOLDIER && random.rn2(13)) return;
 
     if (monster.m_lev > random.rn2(50)) {
         mongets(monster, rnd_defensive_item(monster, normalized), normalized);

@@ -186,6 +186,7 @@ export function metallivorous(species) {
 export function is_undead(species) { return flag2(species, M.M2_UNDEAD); }
 export function is_were(species) { return flag2(species, M.M2_WERE); }
 export function is_demon(species) { return flag2(species, M.M2_DEMON); }
+export function is_mercenary(species) { return flag2(species, M.M2_MERC); }
 export function is_elf(species) { return flag2(species, M.M2_ELF); }
 export function is_dwarf(species) { return flag2(species, M.M2_DWARF); }
 export function is_gnome(species) { return flag2(species, M.M2_GNOME); }

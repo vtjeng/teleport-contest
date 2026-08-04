@@ -20,6 +20,7 @@ import {
     M_AP_OBJECT,
     NO_MINVENT,
     OBJ_MINVENT,
+    P_POLEARMS,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     ROOMOFFSET,
@@ -52,7 +53,7 @@ import {
     startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
-import { is_ndemon } from '../js/mondata.js';
+import { is_mercenary, is_ndemon } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
@@ -120,6 +121,7 @@ import {
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_SMALL_MIMIC,
+    PM_SOLDIER,
     PM_STALKER,
     PM_TROLL,
     PM_VAMPIRE,
@@ -129,6 +131,7 @@ import {
     PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
     PM_WUMPUS,
+    PM_WATCHMAN,
     PM_ZRUTY,
     S_ELEMENTAL,
     S_LIGHT,
@@ -142,12 +145,15 @@ import {
     ARMOR_CLASS,
     ARROW,
     BATTLE_AXE,
+    BEC_DE_CORBIN,
     BOW,
     DART,
     CLUB,
     CROSSBOW,
     CROSSBOW_BOLT,
+    C_RATION,
     DAGGER,
+    DENTED_POT,
     DWARVISH_CLOAK,
     DWARVISH_MITHRIL_COAT,
     ELVEN_BOOTS,
@@ -162,9 +168,16 @@ import {
     GOLD_PIECE,
     ICE_BOX,
     IRON_SHOES,
+    HELMET,
+    HIGH_BOOTS,
+    K_RATION,
     KNIFE,
+    LARGE_SHIELD,
+    LEATHER_ARMOR,
+    LEATHER_CLOAK,
     LEATHER_GLOVES,
     LONG_SWORD,
+    LOW_BOOTS,
     LUMP_OF_ROYAL_JELLY,
     MIRROR,
     MUMMY_WRAPPING,
@@ -178,16 +191,21 @@ import {
     POT_OBJECT_DETECTION,
     POT_WATER,
     RANSEUR,
+    RING_MAIL,
     RING_CLASS,
     ROCK,
     SADDLE,
     SCR_CREATE_MONSTER,
     SLIME_MOLD,
     SLING,
+    SHORT_SWORD,
+    SMALL_SHIELD,
+    SPEAR,
     SPETUM,
     STRANGE_OBJECT,
     TALLOW_CANDLE,
     T_SHIRT,
+    STUDDED_LEATHER_ARMOR,
     WAN_DIGGING,
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
@@ -337,6 +355,233 @@ function monsterInventory(monster) {
     const result = [];
     for (let obj = monster.minvent; obj; obj = obj.nobj) result.push(obj);
     return result;
+}
+
+function plannedSoldierRandom(plan = {}) {
+    const calls = [];
+    const armorRounds = plan.armorRounds ?? [
+        { direct: 1 },
+        { direct: 1 },
+        { direct: 1 },
+        { direct: 1 },
+    ];
+    let phase = 'primary';
+    let polearmIndex = 0;
+    let objectCount = 0;
+    let objectCompletionBound = 1000;
+    let objectEnchantment = 0;
+    let objectEnchantmentUsed = false;
+    let armorTenCalls = 0;
+    let armorBlessedCall = false;
+    let armorObjectIndex = 0;
+    let afterObjects = null;
+    let armorRound = 0;
+
+    const record = (kind, args, result) => {
+        calls.push({ kind, args, result });
+        return result;
+    };
+    const startObjects = (count, next, completionBound = 1000) => {
+        objectCount = count;
+        objectCompletionBound = completionBound;
+        objectEnchantment = 0;
+        objectEnchantmentUsed = false;
+        armorTenCalls = 0;
+        armorBlessedCall = false;
+        afterObjects = next;
+        phase = 'object';
+    };
+    const startArmorObject = (next) => {
+        startObjects(1, next);
+        objectEnchantment = plan.armorEnchantments?.[armorObjectIndex++] ?? 0;
+    };
+    const finishObject = () => {
+        if (--objectCount > 0) return;
+        const next = afterObjects;
+        afterObjects = null;
+        if (typeof next === 'function') next();
+        else phase = next;
+    };
+    const startArmorRound = () => {
+        if (armorRound >= 4
+            || plan.suppressedFromRound === armorRound + 2) {
+            phase = 'ration-k';
+        } else {
+            phase = 'armor-direct';
+        }
+    };
+    const random = {
+        d: (number, sides) => record('d', [number, sides], number),
+        rnd: (bound) => record('rnd', [bound], 1),
+        rne: (bound) => {
+            const result = phase === 'object'
+                    && objectEnchantment > 0
+                    && !objectEnchantmentUsed
+                ? objectEnchantment : 1;
+            if (result === objectEnchantment && objectEnchantment > 0)
+                objectEnchantmentUsed = true;
+            return record('rne', [bound], result);
+        },
+        rnz: (value) => record('rnz', [value], value),
+        rn1: (range, base) => {
+            let result = base;
+            if (phase === 'polearm') {
+                const choices = plan.polearmChoices ?? [PARTISAN];
+                assert.ok(
+                    polearmIndex < choices.length,
+                    'polearm rejection plan ran out of choices',
+                );
+                result = choices[polearmIndex++];
+                if (polearmIndex === choices.length) phase = 'pole-secondary';
+            }
+            return record('rn1', [range, base], result);
+        },
+        rn2: (bound) => {
+            let result = Math.max(0, bound - 1);
+            switch (phase) {
+            case 'primary':
+                if (bound === 3) {
+                    result = plan.primaryGate ?? 1;
+                    phase = result ? 'primary-choice' : 'polearm';
+                }
+                break;
+            case 'primary-choice':
+                assert.equal(bound, 2);
+                result = plan.primaryChoice ?? 1;
+                startObjects(1, 'fallback');
+                break;
+            case 'pole-secondary':
+                assert.equal(bound, 2);
+                result = plan.poleSecondary ?? 1;
+                startObjects(2, 'offensive');
+                break;
+            case 'fallback':
+                assert.equal(bound, 4);
+                result = plan.fallbackKnife ?? 1;
+                if (result) phase = 'offensive';
+                else startObjects(1, 'offensive');
+                break;
+            case 'offensive':
+                assert.equal(bound, 75);
+                result = 74;
+                phase = 'body-gate';
+                break;
+            case 'body-gate':
+                assert.equal(bound, 5);
+                result = plan.bodyGate ?? 1;
+                if (result) phase = 'body-choice';
+                else startArmorObject(startArmorRound);
+                break;
+            case 'body-choice':
+                assert.equal(bound, 3);
+                result = plan.bodyChoice ?? 1;
+                startArmorObject(startArmorRound);
+                break;
+            case 'armor-direct': {
+                assert.equal(bound, 3);
+                const round = armorRounds[armorRound] ?? {};
+                result = round.direct ?? 0;
+                if (result) {
+                    startArmorObject(() => {
+                        ++armorRound;
+                        startArmorRound();
+                    });
+                } else {
+                    phase = 'armor-fallback';
+                }
+                break;
+            }
+            case 'armor-fallback': {
+                assert.equal(bound, 2);
+                const round = armorRounds[armorRound] ?? {};
+                result = round.fallback ?? 0;
+                if (result) {
+                    startArmorObject(() => {
+                        ++armorRound;
+                        startArmorRound();
+                    });
+                } else {
+                    ++armorRound;
+                    startArmorRound();
+                }
+                break;
+            }
+            case 'ration-k':
+                assert.equal(bound, 3);
+                result = plan.kRation ?? 1;
+                if (result) phase = 'ration-c';
+                else startObjects(1, 'ration-c', 6);
+                break;
+            case 'ration-c':
+                assert.equal(bound, 2);
+                result = plan.cRation ?? 1;
+                if (result) phase = 'early-return';
+                else startObjects(1, 'early-return', 6);
+                break;
+            case 'early-return':
+                assert.equal(bound, 13);
+                result = plan.earlyReturn ?? 1;
+                phase = result ? 'saddle' : 'defensive';
+                break;
+            case 'defensive':
+                assert.equal(bound, 50);
+                result = 49;
+                phase = 'misc';
+                break;
+            case 'misc':
+                assert.equal(bound, 100);
+                result = 99;
+                phase = 'saddle';
+                break;
+            case 'saddle':
+                assert.equal(bound, 100);
+                result = 99;
+                phase = 'done';
+                break;
+            case 'object':
+                if (objectEnchantment > 0 && !objectEnchantmentUsed) {
+                    if (bound === 10 && armorTenCalls < 2) {
+                        ++armorTenCalls;
+                        result = 0;
+                    } else if (bound === 2 && armorTenCalls === 2
+                        && !armorBlessedCall) {
+                        armorBlessedCall = true;
+                        result = 1;
+                    }
+                }
+                if (bound === objectCompletionBound) finishObject();
+                break;
+            case 'done':
+                assert.fail(`unexpected rn2(${bound}) after soldier creation`);
+                break;
+            default:
+                assert.fail(`unknown soldier random phase ${phase}`);
+            }
+            return record('rn2', [bound], result);
+        },
+    };
+    return {
+        calls,
+        random,
+        assertFinished() {
+            assert.equal(phase, 'done');
+        },
+    };
+}
+
+function createPlannedSoldier(plan = {}, flags = 0) {
+    const state = initialLevelState();
+    plan.prepareState?.(state);
+    const random = plannedSoldierRandom(plan);
+    const monster = makemon(
+        state.mons[PM_SOLDIER],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH | flags,
+        { state, random: random.random },
+    );
+    random.assertFinished();
+    return { monster, random, state };
 }
 
 test('non-armed initial monsters preserve source state and RNG order', () => {
@@ -2466,6 +2711,376 @@ test('Nazgul remain outside the ordinary D:5 reservoir before RNG', () => {
     );
     assert.deepEqual(random.calls, []);
 });
+
+test('soldiers preserve both primary weapon arms and secondary knife gates',
+    () => {
+        assert.equal(is_mercenary(initialLevelState().mons[PM_SOLDIER]), true);
+        assert.equal(is_mercenary(initialLevelState().mons[PM_HUMAN]), false);
+
+        const cases = [
+            {
+                name: 'polearm and dagger',
+                plan: { primaryGate: 0, poleSecondary: 1 },
+                expected: [DAGGER, PARTISAN],
+            },
+            {
+                name: 'polearm and knife',
+                plan: { primaryGate: 0, poleSecondary: 0 },
+                expected: [KNIFE, PARTISAN],
+            },
+            {
+                name: 'spear without fallback',
+                plan: {
+                    primaryGate: 1,
+                    primaryChoice: 1,
+                    fallbackKnife: 1,
+                },
+                expected: [SPEAR],
+            },
+            {
+                name: 'short sword with fallback knife',
+                plan: {
+                    primaryGate: 1,
+                    primaryChoice: 0,
+                    fallbackKnife: 0,
+                },
+                expected: [KNIFE, SHORT_SWORD],
+            },
+        ];
+        const soldierWeapons = new Set([
+            PARTISAN, DAGGER, KNIFE, SPEAR, SHORT_SWORD,
+        ]);
+
+        for (const { name, plan, expected } of cases) {
+            const { monster } = createPlannedSoldier(plan);
+            const inventory = monsterInventory(monster);
+            assert.deepEqual(
+                inventory
+                    .filter((obj) => soldierWeapons.has(obj.otyp))
+                    .map((obj) => obj.otyp),
+                expected,
+                name,
+            );
+            for (const obj of inventory) {
+                assert.equal(obj.where, OBJ_MINVENT, name);
+                assert.equal(obj.ocarry, monster, name);
+            }
+        }
+    });
+
+test('soldier polearm selection retries until the catalog skill is polearms',
+    () => {
+        const { monster, random, state } = createPlannedSoldier({
+            primaryGate: 0,
+            polearmChoices: [PARTISAN, RANSEUR],
+            prepareState: (catalogState) => {
+                catalogState.objects[PARTISAN].oc_skill = P_POLEARMS + 1;
+            },
+        });
+        const polearmCalls = random.calls.filter(
+            (call) => call.kind === 'rn1'
+                && call.args[0] === BEC_DE_CORBIN - PARTISAN + 1
+                && call.args[1] === PARTISAN,
+        );
+        assert.deepEqual(
+            polearmCalls.map(({ result }) => result),
+            [PARTISAN, RANSEUR],
+        );
+        assert.notEqual(state.objects[PARTISAN].oc_skill, P_POLEARMS);
+        assert.equal(state.objects[RANSEUR].oc_skill, P_POLEARMS);
+        assert.deepEqual(
+            monsterInventory(monster)
+                .filter((obj) => obj.otyp === PARTISAN || obj.otyp === RANSEUR)
+                .map((obj) => obj.otyp),
+            [RANSEUR],
+        );
+    });
+
+test('soldier armor rounds update mac, wear their winners, and stop at ten',
+    () => {
+        const direct = createPlannedSoldier();
+        assert.deepEqual(
+            monsterInventory(direct.monster).map((obj) => [
+                obj.otyp,
+                obj.owornmask,
+            ]),
+            [
+                [LEATHER_GLOVES, W_ARMG],
+                [LOW_BOOTS, W_ARMF],
+                [SMALL_SHIELD, W_ARMS],
+                [HELMET, W_ARMH],
+                [RING_MAIL, W_ARM],
+                [SPEAR, 0],
+            ],
+        );
+        assert.equal(
+            direct.monster.misc_worn_check,
+            W_ARM | W_ARMH | W_ARMS | W_ARMF | W_ARMG,
+        );
+
+        const studded = createPlannedSoldier({
+            bodyChoice: 0,
+            armorRounds: [
+                { direct: 0, fallback: 0 },
+                { direct: 0, fallback: 0 },
+                { direct: 0, fallback: 0 },
+                { direct: 0, fallback: 0 },
+            ],
+        });
+        assert.deepEqual(
+            monsterInventory(studded.monster).map((obj) => obj.otyp),
+            [STUDDED_LEATHER_ARMOR, SPEAR],
+        );
+
+        const cloak = createPlannedSoldier({
+            bodyGate: 0,
+            armorRounds: [
+                { direct: 0, fallback: 0 },
+                { direct: 0, fallback: 0 },
+                { direct: 0, fallback: 0 },
+                { direct: 0, fallback: 1 },
+            ],
+        });
+        assert.deepEqual(
+            monsterInventory(cloak.monster).map((obj) => [
+                obj.otyp,
+                obj.owornmask,
+            ]),
+            [
+                [LEATHER_CLOAK, W_ARMC],
+                [LEATHER_ARMOR, W_ARM],
+                [SPEAR, 0],
+            ],
+        );
+
+        const capped = createPlannedSoldier({
+            bodyGate: 0,
+            armorRounds: [
+                { direct: 0, fallback: 1 },
+                { direct: 0, fallback: 1 },
+                { direct: 0, fallback: 1 },
+            ],
+            suppressedFromRound: 5,
+        });
+        assert.deepEqual(
+            monsterInventory(capped.monster).map((obj) => [
+                obj.otyp,
+                obj.owornmask,
+            ]),
+            [
+                [HIGH_BOOTS, W_ARMF],
+                [LARGE_SHIELD, W_ARMS],
+                [DENTED_POT, W_ARMH],
+                [LEATHER_ARMOR, W_ARM],
+                [SPEAR, 0],
+            ],
+        );
+        assert.equal(
+            monsterInventory(capped.monster).some(
+                (obj) => obj.otyp === LEATHER_GLOVES
+                    || obj.otyp === LEATHER_CLOAK,
+            ),
+            false,
+        );
+
+        // mksobj(TRUE) can give armor a positive spe through rne(3).
+        // These source-valid enchantments put mac at exactly 10 before each
+        // earlier round, pinning every short-circuit rather than assuming an
+        // unenchanted base armor class.
+        const cappedBeforeHelmet = createPlannedSoldier({
+            armorEnchantments: [4],
+            suppressedFromRound: 2,
+        });
+        assert.deepEqual(
+            monsterInventory(cappedBeforeHelmet.monster).map((obj) => [
+                obj.otyp,
+                obj.spe,
+                obj.owornmask,
+            ]),
+            [
+                [RING_MAIL, 4, W_ARM],
+                [SPEAR, 0, 0],
+            ],
+        );
+
+        const cappedBeforeShield = createPlannedSoldier({
+            armorEnchantments: [0, 3],
+            armorRounds: [{ direct: 1 }],
+            suppressedFromRound: 3,
+        });
+        assert.deepEqual(
+            monsterInventory(cappedBeforeShield.monster).map((obj) => [
+                obj.otyp,
+                obj.spe,
+                obj.owornmask,
+            ]),
+            [
+                [HELMET, 3, W_ARMH],
+                [RING_MAIL, 0, W_ARM],
+                [SPEAR, 0, 0],
+            ],
+        );
+
+        const cappedBeforeBoots = createPlannedSoldier({
+            armorEnchantments: [0, 0, 2],
+            armorRounds: [{ direct: 1 }, { direct: 1 }],
+            suppressedFromRound: 4,
+        });
+        assert.deepEqual(
+            monsterInventory(cappedBeforeBoots.monster).map((obj) => [
+                obj.otyp,
+                obj.spe,
+                obj.owornmask,
+            ]),
+            [
+                [SMALL_SHIELD, 2, W_ARMS],
+                [HELMET, 0, W_ARMH],
+                [RING_MAIL, 0, W_ARM],
+                [SPEAR, 0, 0],
+            ],
+        );
+    });
+
+test('soldier rations and rn2(13) preserve the generic-tail boundary', () => {
+    const withRations = createPlannedSoldier({
+        kRation: 0,
+        cRation: 0,
+    });
+    const rationObjects = monsterInventory(withRations.monster).filter(
+        (obj) => obj.otyp === K_RATION || obj.otyp === C_RATION,
+    );
+    assert.deepEqual(
+        rationObjects.map((obj) => [obj.otyp, obj.quan]),
+        [[C_RATION, 1], [K_RATION, 1]],
+    );
+    assert.ok(rationObjects[0].o_id > rationObjects[1].o_id);
+
+    const earlyIndex = withRations.random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 13,
+    );
+    assert.ok(earlyIndex >= 0);
+    assert.deepEqual(
+        withRations.random.calls.slice(earlyIndex).map(
+            (call) => [call.kind, call.args, call.result],
+        ),
+        [
+            ['rn2', [13], 1],
+            ['rn2', [100], 99],
+        ],
+    );
+
+    const continued = createPlannedSoldier({ earlyReturn: 0 });
+    const continueIndex = continued.random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 13,
+    );
+    assert.ok(continueIndex >= 0);
+    assert.deepEqual(
+        continued.random.calls.slice(continueIndex).map(
+            (call) => [call.kind, call.args, call.result],
+        ),
+        [
+            ['rn2', [13], 0],
+            ['rn2', [50], 49],
+            ['rn2', [100], 99],
+            ['rn2', [100], 99],
+        ],
+    );
+});
+
+test('soldier NO_MINVENT and unsupported mercenary siblings stay drawless',
+    () => {
+        const state = initialLevelState();
+        const random = recordingRandom();
+        const soldier = makemon(
+            state.mons[PM_SOLDIER],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH | NO_MINVENT,
+            { state, random: random.random },
+        );
+        assert.equal(soldier.minvent, null);
+        assert.equal(soldier.misc_worn_check, 0);
+        assert.equal(
+            random.calls.some(
+                (call) => call.kind === 'rn2'
+                    && (call.args[0] === 75 || call.args[0] === 13),
+            ),
+            false,
+        );
+
+        const siblingState = initialLevelState();
+        const siblingRandom = recordingRandom();
+        assert.equal(is_mercenary(siblingState.mons[PM_WATCHMAN]), true);
+        assert.throws(
+            () => makemon(
+                siblingState.mons[PM_WATCHMAN],
+                MON_X,
+                MON_Y,
+                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+                { state: siblingState, random: siblingRandom.random },
+            ),
+            (error) => error instanceof UnsupportedMonsterCreationError
+                && error.operation === `monster ${PM_WATCHMAN}`,
+        );
+        assert.deepEqual(siblingRandom.calls, []);
+    });
+
+test('runtime random soldier groups initialize members before parent inventory',
+    () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ulevel = 30;
+        leaveOnlyRandomSpecies(state, [PM_SOLDIER]);
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) state.level.at(x, y).typ = ROOM;
+        }
+        const random = recordingRandom();
+        const parent = makemon(null, 0, 0, 0, {
+            state,
+            random: random.random,
+            hooks: { newsym: () => {} },
+        });
+        const member = state.level.monlist;
+        assert.notEqual(member, parent);
+        assert.equal(member.nmon, parent);
+        assert.equal(parent.nmon, null);
+        assert.equal(member.data, state.mons[PM_SOLDIER]);
+        assert.equal(parent.data, state.mons[PM_SOLDIER]);
+
+        const memberInventory = monsterInventory(member);
+        const parentInventory = monsterInventory(parent);
+        for (const [name, monster, inventory] of [
+            ['member', member, memberInventory],
+            ['parent', parent, parentInventory],
+        ]) {
+            assert.deepEqual(
+                inventory.map((obj) => [obj.otyp, obj.owornmask]),
+                [
+                    [LEATHER_GLOVES, W_ARMG],
+                    [LOW_BOOTS, W_ARMF],
+                    [SMALL_SHIELD, W_ARMS],
+                    [HELMET, W_ARMH],
+                    [RING_MAIL, W_ARM],
+                    [SPEAR, 0],
+                ],
+                name,
+            );
+            assert.equal(
+                monster.misc_worn_check,
+                W_ARM | W_ARMH | W_ARMS | W_ARMF | W_ARMG,
+                name,
+            );
+            for (const obj of inventory) {
+                assert.equal(obj.where, OBJ_MINVENT, name);
+                assert.equal(obj.ocarry, monster, name);
+            }
+        }
+        assert.ok(
+            Math.max(...memberInventory.map((obj) => obj.o_id))
+                < Math.min(...parentInventory.map((obj) => obj.o_id)),
+            'recursive member inventory must finish before parent inventory',
+        );
+    });
 
 test('hobbits receive each source weapon arm before the generic item gates', () => {
     const cases = [

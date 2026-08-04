@@ -18,6 +18,9 @@ import {
     ROWNO,
     THRONE,
     W_ARM,
+    W_ARMG,
+    W_ARMH,
+    W_ARMS,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { mergable } from '../js/invent.js';
@@ -29,6 +32,7 @@ import {
     PM_FOREST_CENTAUR,
     PM_HOBBIT,
     PM_OGRE_LEADER,
+    PM_SOLDIER,
     PM_STALKER,
     PM_TROLL,
     PM_WUMPUS,
@@ -43,21 +47,32 @@ import {
     CROSSBOW,
     CROSSBOW_BOLT,
     DAGGER,
+    DENTED_POT,
     ELVEN_DAGGER,
     ELVEN_MITHRIL_COAT,
     GLAIVE,
     GOLD_PIECE,
+    HELMET,
+    K_RATION,
+    C_RATION,
+    LARGE_SHIELD,
+    LEATHER_ARMOR,
+    LEATHER_GLOVES,
     KNIFE,
     LONG_SWORD,
+    LUCERN_HAMMER,
     MACE,
     PARTISAN,
     POT_ACID,
     POT_INVISIBILITY,
     POT_SPEED,
     RANSEUR,
+    RING_MAIL,
     ROCK,
     SLING,
     SPETUM,
+    SMALL_SHIELD,
+    SPEAR,
     STATUE,
     WAN_FIRE,
 } from '../js/objects.js';
@@ -82,6 +97,8 @@ const HIGH_LEVEL_ARRIVALS = new Set([
     7650800,
     9461088,
     9461387,
+    9470202,
+    9470211,
 ]);
 
 const HOBBIT_ARRIVALS = new Map([
@@ -144,6 +161,25 @@ const BARROW_WIGHT_ARRIVALS = new Map([
 const MKLEV_SLEEPER_ARRIVALS = new Map([
     [9461088, PM_AMOROUS_DEMON],
     [9461387, PM_WUMPUS],
+]);
+
+const SOLDIER_ARRIVALS = new Map([
+    [9470202, [
+        { otyp: K_RATION, quan: 1, id: 120, worn: 0 },
+        { otyp: LARGE_SHIELD, quan: 1, id: 118, worn: W_ARMS },
+        { otyp: HELMET, quan: 1, id: 116, worn: W_ARMH },
+        { otyp: LEATHER_ARMOR, quan: 1, id: 114, worn: W_ARM },
+        { otyp: DAGGER, quan: 1, id: 113, worn: 0 },
+        { otyp: LUCERN_HAMMER, quan: 1, id: 112, worn: 0 },
+    ]],
+    [9470211, [
+        { otyp: C_RATION, quan: 1, id: 101, worn: 0 },
+        { otyp: LEATHER_GLOVES, quan: 1, id: 100, worn: W_ARMG },
+        { otyp: SMALL_SHIELD, quan: 1, id: 99, worn: W_ARMS },
+        { otyp: DENTED_POT, quan: 1, id: 97, worn: W_ARMH },
+        { otyp: RING_MAIL, quan: 1, id: 95, worn: W_ARM },
+        { otyp: SPEAR, quan: 1, id: 94, worn: 0 },
+    ]],
 ]);
 
 function nethackrc({
@@ -239,6 +275,11 @@ export function loadLevelTeleportArrivalRecipe() {
             // takes makemon()'s nonzero mklev sleeper roll.
             highLevelTeleport(9461088, 5),
             highLevelTeleport(9461387, 5),
+            // Complementary ordinary-soldier layouts: the first selects the
+            // polearm-and-dagger arm, the second the spear arm. Both preserve
+            // source armor, ration, wearing, ownership, and object-id order.
+            highLevelTeleport(9470202, 5),
+            highLevelTeleport(9470211, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -721,6 +762,59 @@ export async function verifyLevelTeleportArrival(segment) {
                 + `mgenmklev=${sleeper.mgenmklev}, `
                 + `grid=${game.level.monsters[sleeper.mx][sleeper.my] === sleeper}, `
                 + `sleeping=${sleeper.msleeping}`,
+            );
+        }
+    }
+    const expectedSoldierInventory = SOLDIER_ARRIVALS.get(segment.seed);
+    if (expectedSoldierInventory) {
+        const soldiers = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_SOLDIER) soldiers.push(monster);
+        }
+        if (soldiers.length !== 1) {
+            throw new Error(
+                `soldier seed ${segment.seed} generated ${soldiers.length} soldiers`,
+            );
+        }
+        const [soldier] = soldiers;
+        const inventory = [];
+        const objectIds = new Set();
+        for (let obj = soldier.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT || obj.ocarry !== soldier) {
+                throw new Error(
+                    `soldier seed ${segment.seed} lost inventory ownership`,
+                );
+            }
+            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+                throw new Error(
+                    `soldier seed ${segment.seed} has invalid object identity`,
+                );
+            }
+            objectIds.add(obj.o_id);
+            inventory.push({
+                otyp: obj.otyp,
+                quan: obj.quan,
+                id: obj.o_id,
+                worn: obj.owornmask,
+            });
+        }
+        const expectedMiscWorn = expectedSoldierInventory.reduce(
+            (mask, obj) => mask | obj.worn,
+            0,
+        );
+        if (game.u.ulevel !== 30
+            || soldier.mgenmklev !== true
+            || game.level.monsters[soldier.mx][soldier.my] !== soldier
+            || soldier.misc_worn_check !== expectedMiscWorn
+            || JSON.stringify(inventory)
+                !== JSON.stringify(expectedSoldierInventory)) {
+            throw new Error(
+                `soldier seed ${segment.seed} lost source inventory, wearing, `
+                + `hero level, or ownership: level=${game.u.ulevel}, `
+                + `mgenmklev=${soldier.mgenmklev}, `
+                + `grid=${game.level.monsters[soldier.mx][soldier.my] === soldier}, `
+                + `misc=${soldier.misc_worn_check}, `
+                + `inventory=${JSON.stringify(inventory)}`,
             );
         }
     }
