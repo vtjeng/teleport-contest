@@ -255,13 +255,14 @@ function cloneMonster(monster) {
     };
 }
 
-// Copy every object on this level's floor and in every monster's pack. A
-// monster picking an item up splits a stack, unlinks it from the pile and the
-// level list, and merges it into its own inventory, so without this the dry
-// run would empty the live square and change a live carried stack's quantity.
-// C has no counterpart: the dry run is this port's own device for keeping a
-// refusal atomic, and objects are shared state that device has to isolate,
-// exactly as it already isolates monsters, light sources and timers.
+// Copy every object on this level's floor, in the hero's inventory, and in
+// every monster's pack. A monster picking an item up splits a stack, unlinks
+// it from the pile and the level list, and merges it into its own inventory;
+// a newly created threat can also finish the hero's meal. Without these
+// copies the dry run would empty the live square or change a live carried
+// stack. C has no counterpart: the dry run is this port's own device for
+// keeping a refusal atomic, and objects are shared state that device has to
+// isolate, exactly as it already isolates monsters, light sources and timers.
 //
 // The discovery ledger is cloned beside this, in planningState(): naming an
 // object writes objects[].oc_encountered, svd.disco[] and artiexist[].found,
@@ -277,10 +278,11 @@ function cloneMonster(monster) {
 // through the monster map rather than the object map. The matching guard in
 // the walk keeps a carrier out of the object queue; it changes no result on
 // its own, since the remap already discriminates on `where`, and it exists so
-// that no `newObject({ ...monster })` is ever built. The two roots are the
-// level list and each monster's minvent, because obj.js keeps the level list
-// and the coordinate grid in step: place_object() writes both and
-// remove_object() refuses an object missing from either.
+// that no `newObject({ ...monster })` is ever built. The three root families
+// are the level object list, hero inventory, and each monster's minvent. The
+// coordinate grid needs no separate floor-object root because obj.js keeps it
+// in step with the level list: place_object() writes both and remove_object()
+// refuses an object missing from either.
 function cloneObjects(state, monsterMap) {
     const objectMap = new Map();
     const pending = [];
