@@ -23,15 +23,24 @@ import { game } from '../js/gstate.js';
 import { mergable } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
-import { PM_HOBBIT, PM_STALKER } from '../js/monsters.js';
+import {
+    PM_FOREST_CENTAUR,
+    PM_HOBBIT,
+    PM_STALKER,
+} from '../js/monsters.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
+    ARROW,
+    BOW,
     CHEST,
+    CROSSBOW,
+    CROSSBOW_BOLT,
     DAGGER,
     ELVEN_DAGGER,
     ELVEN_MITHRIL_COAT,
     GOLD_PIECE,
     MACE,
+    POT_ACID,
     ROCK,
     SLING,
     STATUE,
@@ -43,6 +52,7 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310417113000';
 const LEVELPORT_KEY = '\x16';
 const LEVELCHANGE_DISMISSALS_TO_30 = 29;
+const HIGH_LEVEL_ARRIVALS = new Set([7650048, 7650182, 7650574]);
 
 const HOBBIT_ARRIVALS = new Map([
     [7661000, [{ otyp: DAGGER, quan: 1, worn: 0 }]],
@@ -54,6 +64,15 @@ const HOBBIT_ARRIVALS = new Map([
     [7661513, [
         { otyp: ELVEN_MITHRIL_COAT, quan: 1, worn: W_ARM },
         { otyp: ELVEN_DAGGER, quan: 1, worn: 0 },
+    ]],
+]);
+
+const FOREST_CENTAUR_ARRIVALS = new Map([
+    [7650182, []],
+    [7650574, [
+        { otyp: POT_ACID, quan: 1 },
+        { otyp: ARROW, quan: 11 },
+        { otyp: BOW, quan: 1 },
     ]],
 ]);
 
@@ -122,6 +141,11 @@ export function loadLevelTeleportArrivalRecipe() {
             // A high-level hero widens rndmonst() enough for this ordinary
             // D:5 to create one stalker through makemon()'s elemental arm.
             highLevelTeleport(7650048, 5),
+            // Two more high-level D:5 layouts select exactly one forest
+            // centaur. The first takes the no-weapon gate; the second takes
+            // the source bow-and-arrow arm.
+            highLevelTeleport(7650182, 5),
+            highLevelTeleport(7650574, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -262,7 +286,7 @@ export async function verifyLevelTeleportArrival(segment) {
             + `${game.u?.uz?.dnum}:${game.u?.uz?.dlevel}, expected 0:${destination}`,
         );
     }
-    const expectedDispatches = segment.seed === 7650048 ? 4 : 3;
+    const expectedDispatches = HIGH_LEVEL_ARRIVALS.has(segment.seed) ? 4 : 3;
     if (game._commandDispatchCount !== expectedDispatches) {
         throw new Error(
             `seed ${segment.seed} dispatched ${game._commandDispatchCount} `
@@ -362,6 +386,53 @@ export async function verifyLevelTeleportArrival(segment) {
             || !stalker.perminvis || !stalker.minvis) {
             throw new Error(
                 'stalker seed lost hero level, ownership, or invisibility',
+            );
+        }
+    }
+    const expectedCentaurInventory = FOREST_CENTAUR_ARRIVALS.get(segment.seed);
+    if (expectedCentaurInventory) {
+        const centaurs = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_FOREST_CENTAUR) centaurs.push(monster);
+        }
+        if (centaurs.length !== 1) {
+            throw new Error(
+                `forest-centaur seed ${segment.seed} generated `
+                + `${centaurs.length} forest centaurs`,
+            );
+        }
+        const [centaur] = centaurs;
+        const inventory = [];
+        const objectIds = new Set();
+        for (let obj = centaur.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT || obj.ocarry !== centaur) {
+                throw new Error(
+                    `forest-centaur seed ${segment.seed} lost inventory ownership`,
+                );
+            }
+            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+                throw new Error(
+                    `forest-centaur seed ${segment.seed} has invalid object identity`,
+                );
+            }
+            objectIds.add(obj.o_id);
+            inventory.push({ otyp: obj.otyp, quan: obj.quan });
+        }
+        const wrongLoadout = inventory.some(
+            ({ otyp }) => otyp === CROSSBOW || otyp === CROSSBOW_BOLT,
+        );
+        if (game.u.ulevel !== 30
+            || centaur.mgenmklev !== true
+            || game.level.monsters[centaur.mx][centaur.my] !== centaur
+            || wrongLoadout
+            || JSON.stringify(inventory)
+                !== JSON.stringify(expectedCentaurInventory)) {
+            throw new Error(
+                `forest-centaur seed ${segment.seed} lost source inventory, `
+                + `hero level, or ownership: level=${game.u.ulevel}, `
+                + `mgenmklev=${centaur.mgenmklev}, `
+                + `grid=${game.level.monsters[centaur.mx][centaur.my] === centaur}, `
+                + `inventory=${JSON.stringify(inventory)}`,
             );
         }
     }

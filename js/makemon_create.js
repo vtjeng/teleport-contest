@@ -154,6 +154,7 @@ import {
     PM_FLAMING_SPHERE,
     PM_FOG_CLOUD,
     PM_FOX,
+    PM_FOREST_CENTAUR,
     PM_GARTER_SNAKE,
     PM_GHOST,
     PM_GNOME_RULER,
@@ -1383,8 +1384,13 @@ function m_initweap(monster, normalized) {
         break;
     case S_CENTAUR:
         if (random.rn2(2)) {
-            mongets(monster, CROSSBOW, normalized);
-            m_initthrow(monster, CROSSBOW_BOLT, 12, normalized);
+            if (ptr.pmidx === PM_FOREST_CENTAUR) {
+                mongets(monster, BOW, normalized);
+                m_initthrow(monster, ARROW, 12, normalized);
+            } else {
+                mongets(monster, CROSSBOW, normalized);
+                m_initthrow(monster, CROSSBOW_BOLT, 12, normalized);
+            }
         }
         break;
     default:

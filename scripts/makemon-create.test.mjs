@@ -72,6 +72,7 @@ import {
     PM_FIRE_ELEMENTAL,
     PM_FOG_CLOUD,
     PM_FOX,
+    PM_FOREST_CENTAUR,
     PM_GARTER_SNAKE,
     PM_GHOST,
     PM_GIANT_MUMMY,
@@ -124,6 +125,8 @@ import {
     AKLYS,
     AMULET_OF_LIFE_SAVING,
     ARMOR_CLASS,
+    ARROW,
+    BOW,
     DART,
     CLUB,
     CROSSBOW,
@@ -1909,6 +1912,86 @@ test('Statuary armed families generate their source equipment', () => {
             expected,
             state.mons[mndx].pmnames[2],
         );
+    }
+});
+
+test('forest centaurs use bows while other centaurs retain crossbows', () => {
+    const cases = [
+        {
+            name: 'armed forest centaur',
+            mndx: PM_FOREST_CENTAUR,
+            weaponGate: 1,
+            expected: [ARROW, BOW],
+            wrong: [CROSSBOW_BOLT, CROSSBOW],
+        },
+        {
+            name: 'unarmed forest centaur',
+            mndx: PM_FOREST_CENTAUR,
+            weaponGate: 0,
+            expected: [],
+            wrong: [ARROW, BOW, CROSSBOW_BOLT, CROSSBOW],
+        },
+        {
+            name: 'armed plains centaur',
+            mndx: PM_PLAINS_CENTAUR,
+            weaponGate: 1,
+            expected: [CROSSBOW_BOLT, CROSSBOW],
+            wrong: [ARROW, BOW],
+        },
+    ];
+
+    for (const scenario of cases) {
+        const state = initialLevelState();
+        let twoDraws = 0;
+        const random = recordingRandom({
+            rn2Result: (bound) => {
+                if (bound === 2 && ++twoDraws === 2)
+                    return scenario.weaponGate;
+                return Math.max(0, bound - 1);
+            },
+        });
+        const monster = makemon(
+            state.mons[scenario.mndx],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        const inventory = monsterInventory(monster);
+
+        assert.deepEqual(
+            inventory.map((obj) => obj.otyp),
+            scenario.expected,
+            scenario.name,
+        );
+        assert.equal(
+            inventory.some((obj) => scenario.wrong.includes(obj.otyp)),
+            false,
+            `${scenario.name}: wrong centaur loadout`,
+        );
+        for (const obj of inventory) {
+            assert.equal(obj.where, OBJ_MINVENT, scenario.name);
+            assert.equal(obj.ocarry, monster, scenario.name);
+            assert.equal(obj.owornmask, 0, scenario.name);
+        }
+
+        const quantityDraws = random.calls.filter(
+            (call) => call.kind === 'rn1'
+                && call.args[0] === 12 && call.args[1] === 3,
+        );
+        assert.equal(
+            quantityDraws.length,
+            scenario.weaponGate,
+            `${scenario.name}: m_initthrow gate and order`,
+        );
+        if (scenario.weaponGate) {
+            assert.equal(inventory[0].quan, 3, scenario.name);
+            assert.equal(
+                inventory[0].owt,
+                state.objects[inventory[0].otyp].oc_weight * 3,
+                scenario.name,
+            );
+        }
     }
 });
 
