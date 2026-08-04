@@ -20,8 +20,8 @@
       "slices": [
         {
           "name": "ordinary-two-to-four-object-pile-window",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d1d3169b17bb99b30a049ba5917ee9f93b916d79"
         }
       ],
       "openedAt": "18b809a1a725ade6b83f296d3fa76c775e887fdb",
