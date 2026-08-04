@@ -356,7 +356,13 @@
         ]
       },
       "detail": "### Ordinary starting pets evaluate distant targets\n\nThe source-bounded capability is the target-selection pass reached from dog_move() for an active starting kitten, little dog, or pony. best_target() scans eight rays through find_targ() to distance 7 and score_targ() ranks a visible ordinary target. The three fixed starting species have only AT_BITE or AT_KICK followed by AT_NONE; score_targ() rejects adjacent targets. A selected target therefore reaches only mattackm()'s distant physical-attack miss path and the pet may continue moving. Real AT_WEAP, AT_BREA, or AT_SPIT attacks, special or confused pets, minions, priests, vampshifters, melee, retaliation, and displacement remain outside this goal and fail closed.\n\nThe current port already owns find_targ() in js/dogmove.js. The missing coherent group is dogmove.c find_friends(), score_targ(), best_target(), and pet_ranged_attk(), plus dog_move()'s call. Roughly 328 C lines define that targeting group. mhitm.c mattackm() is larger in full, but this boundary reaches only its setup and distant bite, kick, and AT_NONE miss projection. That narrow source-named port belongs in js/mhitm.js and must preserve source quirks even though the attack misses: wake a helpless target, set visibility, assign magr->mlstmv to moves, clear skipdrin, and return M_ATTK_MISS without a to-hit draw. mhitu.c getmattk() substitutions cannot fire for the three fixed species.\n\nFresh scan-sessions and look-ahead classification at c27653f cap the raw 394-step ceiling to 42 across five sessions: seed0030 contributes 15 before pet combat, seed0103 14 before pony combat, seed0200 6 before hero combat, seed0900 4 before pet combat, and seed2600 3 before the still-partial level-teleport question-mark route. One ambiguous byte inside those stretches is the already-supported #ride prompt. This boundary opens those later pet-combat, hero-combat, and print_dungeon boundaries without claiming them.\n\nRunner-up apply carries 26 uncapped steps across two sessions, below 42 over five. The queued object-pile-window remains behind this goal because its raw 61-step stretch caps at 1: bear-trap activation follows the Things-that-are-here window immediately.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "ordinary-starting-pet-target-selection-miss",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "c27653f74211563d648b8ff9f0e921955f6ad116",
       "openStanding": {
         "sha": "4e12459a14d0b4ef2b898476a3080a7d463618c4",

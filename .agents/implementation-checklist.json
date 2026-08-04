@@ -1,0 +1,132 @@
+{
+  "mode": "implementation",
+  "reason": "The selected live slice crosses dogmove.c target selection, a narrow mhitm.c attack projection, and retry-planning state isolation. The target scoring, distant physical miss, and live dog_move() consumer are not implemented yet.",
+  "commitChecked": "46bcab33c7058be750405b59255cdd18778d51e8",
+  "boundary": {
+    "goalId": "ordinary-starting-pet-ranged-targeting",
+    "startingCommit": "46bcab33c7058be750405b59255cdd18778d51e8",
+    "startingEvent": "A completed hero command gives an awake, sighted, unconfused ordinary starting kitten, little dog, or pony a dog_move() action while an ordinary visible monster is aligned two to seven squares away.",
+    "endingEvent": "pet_ranged_attk(FALSE) has selected and scored the target, mattackm() has taken only the distant physical-attack miss path, the pet has completed its remaining movement and postmov() work, and the game is waiting for the next hero input.",
+    "validInputs": "Ordinary starting kitten, little dog, or pony; active edog pet; visible ordinary nonadjacent target on one of the eight rays within distance 7; selected, rejected-negative-score, and no-target outcomes; dog and kitten bite arrays and pony kick-plus-bite array; ordinary and hungry pet gates when reachable before the ending event.",
+    "observables": "Exact RNG calls and order; target choice; pet and defender coordinates, movement, wake state, mlstmv, visibility and combat scratch state; messages, screens, cursor, attributes, and persisted storage through the next prompt; atomic retry behavior if a later planned action refuses.",
+    "exclusions": "Confused, blind, minion, priest, guardian, vampshifter, or non-starting pets; adjacent melee, displacement, retaliation, hero attacks, and real AT_WEAP, AT_BREA, AT_SPIT, gaze, spell, or other ranged attacks. Every reachable excluded path must refuse before changing state, consuming RNG, or writing output."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "Trace dogmove.c dog_move() from its pet_ranged_attk(FALSE) checkpoint through pet_ranged_attk(), best_target(), score_targ(), find_targ(), and find_friends(), then trace the selected ordinary target through mhitm.c mattackm() and mhitu.c getmattk().",
+    "dispatchTablesAndCatalogs": "Read the mons[] attack arrays and ordinary starting-pet selection for PM_KITTEN, PM_LITTLE_DOG, and PM_PONY; account for edog hunger state, monster alignment, msound, attack type, tame/peaceful state, and the eight ray directions in C loop order.",
+    "reachableHelpers": "Follow every call and short-circuit reachable from the fixed species and target family through the next prompt, including find_friends() line scanning, score_targ() fuzz, hungry gating, mattackm() setup, dog_move() continuation, and postmov().",
+    "javascriptCrossCheck": "Search js/dogmove.js, js/mhitm.js, js/unported_monster_actions.js, and the monster-action tests for injected seams, UnsupportedSimpleMonsterActionError reasons, partial source ports, state cloning, and shared gb/gn/gv/gs scratch objects.",
+    "remainingLimits": "Fresh recordings must prove a natural aligned target and every live state/RNG effect. Source tracing must still show whether hungrytime is reachable in the five development stretches and whether any fixed-species getmattk() substitution or attack-slot side effect survives the stated exclusions."
+  },
+  "entries": [
+    {
+      "candidate": "dogmove.c find_targ() ray traversal",
+      "reachability": "best_target() calls it once for each dy-major, dx-minor nonzero direction while the pet can see.",
+      "owner": "js/dogmove.js find_targ()",
+      "effects": "Returns the first visible monster on a ray within seven squares, skipping invisible monsters the pet cannot perceive.",
+      "evidence": "Existing source-named implementation and focused tests are present; worker must reconfirm it matches the exact caller contract and loop order.",
+      "status": "done",
+      "remaining": "Revalidate through the live best_target() consumer and preserve direction order."
+    },
+    {
+      "candidate": "dogmove.c find_friends() ordinary alignment scan",
+      "reachability": "score_targ() calls it after finding a nonadjacent, non-tame target to reject a shot with the hero or a pet ally behind the target.",
+      "owner": "js/dogmove.js find_friends()",
+      "effects": "Scans up to fifteen squares beyond the target and affects the target score without consuming RNG.",
+      "evidence": "C source group is traced; no JavaScript owner is currently wired.",
+      "status": "missing",
+      "remaining": "Port all branches reachable for the fixed ordinary pets and targets, with focused line-of-fire cases."
+    },
+    {
+      "candidate": "dogmove.c score_targ() ordinary starting-pet score",
+      "reachability": "best_target() scores every first visible ray target; the fixed pets and ordinary targets reach adjacency, friendliness, strength, peacefulness, passive-attack, level, HP, and final fuzz terms.",
+      "owner": "js/dogmove.js score_targ()",
+      "effects": "Computes target ordering and consumes exactly one rnd(5) for every target that reaches the fuzz tail.",
+      "evidence": "Current moveSimplePet() refuses before this owner; source conditions have been bounded but are not implemented.",
+      "status": "missing",
+      "remaining": "Port reachable expression order and integer arithmetic, and explicitly refuse excluded faith, vampshifter, confusion, and special-target families before effects."
+    },
+    {
+      "candidate": "dogmove.c best_target() eight-ray selection",
+      "reachability": "pet_ranged_attk(FALSE) calls it for every awake sighted in-boundary pet action.",
+      "owner": "js/dogmove.js best_target()",
+      "effects": "Visits eight directions in source order, retains the first strictly highest score, and rejects a negative best score when not forced.",
+      "evidence": "The current injected bestTarget seam refuses and rejectPetRangedTarget only detects the existence of a target.",
+      "status": "missing",
+      "remaining": "Port and test no-target, negative-score, ties, and multi-ray RNG ordering."
+    },
+    {
+      "candidate": "dogmove.c pet_ranged_attk(FALSE) ordinary miss path",
+      "reachability": "dog_move() reaches the checkpoint after evaluating movement candidates and before newdogpos; selected ordinary targets may pass the edog hunger gate.",
+      "owner": "js/dogmove.js pet_ranged_attk()",
+      "effects": "Selects a target, conditionally consumes rn2(5) for a hungry pet, sets combat scratch coordinates, calls mattackm(), and returns MMOVE_NOTHING after a physical miss so movement continues.",
+      "evidence": "Current petRangedAttack injection is a refusal-only approximation.",
+      "status": "missing",
+      "remaining": "Port selected, rejected, no-target, and reachable hunger branches; keep forced and real-attack branches outside the boundary."
+    },
+    {
+      "candidate": "mhitm.c mattackm() setup and distant AT_BITE/AT_KICK/AT_NONE miss projection",
+      "reachability": "The fixed starting species can be selected only at nonadjacent range and their attack arrays contain bite or kick followed by AT_NONE.",
+      "owner": "js/mhitm.js mattackm()",
+      "effects": "Wakes a helpless defender, sets action visibility, assigns aggressor mlstmv, clears skipdrin, walks the fixed attack slots without a to-hit draw, and returns M_ATTK_MISS.",
+      "evidence": "No live JavaScript owner currently covers this projection; full mattackm() is intentionally outside the slice.",
+      "status": "missing",
+      "remaining": "Implement the source-named narrow projection with explicit fail-closed guards before any excluded attack type or adjacency effect."
+    },
+    {
+      "candidate": "dog_move() live wiring and continuation through movement/postmov()",
+      "reachability": "Every admitted pet turn reaches the existing ranged checkpoint after movement choice and must continue through newdogpos when mattackm() misses.",
+      "owner": "js/dogmove.js dog_move(); js/unported_monster_actions.js moveSimplePet()",
+      "effects": "Replaces injected refusal seams with ported owners while preserving the existing movement choice, relocation, trap, region, redraw, and postmov order.",
+      "evidence": "The live consumer exists but currently stops at pet ranged targeting.",
+      "status": "missing",
+      "remaining": "Wire the owners and prove one natural turn through the next hero prompt against C."
+    },
+    {
+      "candidate": "Retry-planning isolation for mattackm() scratch writes",
+      "reachability": "preflightSimpleMonsterActions() runs the same pet turn on a clone before the live pass, and a later action in the scan may still refuse.",
+      "owner": "js/unported_monster_actions.js planningState() and related clone helpers",
+      "effects": "Prevents planned bhitpos, notonhead, visibility, skipdrin, mlstmv, wake-state, and pet/defender changes from leaking into live state on refusal.",
+      "evidence": "The selector found top-level gb, gn, gv, and gs scratch objects are currently shallow-shared by the clone.",
+      "status": "missing",
+      "remaining": "Clone or localize every newly written value and add a retry-atomicity regression that refuses after target evaluation."
+    },
+    {
+      "candidate": "Real ranged attacks, special pets, adjacent combat, retaliation, and getmattk() substitutions",
+      "reachability": "These require an excluded species, attack type, pet state, target distance, or response branch not admitted by the boundary.",
+      "owner": "Fail-closed seams in js/dogmove.js, js/mhitm.js, and js/unported_monster_actions.js",
+      "effects": "Could consume RNG, print, move combatants, deal damage, or kill a monster if accidentally admitted.",
+      "evidence": "PM_KITTEN, PM_LITTLE_DOG, and PM_PONY attack arrays and the nonadjacent target condition exclude these paths; mhitu.c getmattk() has no applicable substitution for the fixed family.",
+      "status": "cannot-occur",
+      "remaining": "Keep explicit pre-effect refusals and pin representative just-outside cases."
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "dogmove.c target evaluation",
+      "candidates": [
+        "find_friends()",
+        "score_targ()",
+        "best_target()",
+        "pet_ranged_attk(FALSE)"
+      ],
+      "next": "Port the reachable fixed-species target-selection transaction in C order with focused RNG and target-choice tests."
+    },
+    {
+      "group": "mhitm.c distant physical miss",
+      "candidates": [
+        "mattackm() setup and AT_BITE/AT_KICK/AT_NONE projection"
+      ],
+      "next": "Implement the narrow source-named projection and refuse all excluded attack families before effects."
+    },
+    {
+      "group": "live and planning integration",
+      "candidates": [
+        "dog_move() wiring",
+        "retry-planning scratch-state isolation"
+      ],
+      "next": "Connect the live consumer, isolate planning writes, and record a fresh C/JavaScript differential through the next prompt."
+    }
+  ],
+  "sourceReview": "Incomplete: the selector bounded the entry points and exclusions, but the worker must trace every reachable branch, helper, state write, and random call through the next prompt and replace missing or undecided entries with evidence before setting ready-for-audit."
+}
