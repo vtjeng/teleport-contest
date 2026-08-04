@@ -312,6 +312,11 @@
           "name": "ordinary-soldier-initialization",
           "status": "closed",
           "closedBy": "854e9a9bc21810fa7856416c6db8eef4f598424d"
+        },
+        {
+          "name": "ordinary-stone-giant-initialization",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
