@@ -316,8 +316,8 @@ function displayRandomFunction(random) {
 }
 
 // C ref: do_name.c bogusmon(). Prefix codes affect capitalization and
-// personal-name handling in other callers; glyph-update descriptions only
-// need the stripped text, so expose the code alongside it for future users.
+// personal-name handling; Amonnam() uses the code when it selects the article,
+// while glyph-update descriptions only need the stripped text.
 export function bogusmon(env = {}) {
     const random = displayRandomFunction(
         env.random ?? rn2_on_display_rng,
@@ -340,7 +340,7 @@ export function bogusmon(env = {}) {
 // with monster glyph randomization and may retry excluded species. An ordinary
 // monster then draws its gender; a bogus name instead uses get_rnd_text()'s
 // byte-offset selection, which may retry when it lands in a long record.
-export function rndmonnamDetails(env = {}) {
+function rndmonnamDetails(env = {}) {
     const state = env.state ?? game;
     const random = displayRandomFunction(
         env.random ?? rn2_on_display_rng,

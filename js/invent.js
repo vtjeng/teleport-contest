@@ -1927,17 +1927,17 @@ export function preflight_addinv(obj, env = {}) {
 }
 
 function cloneInventoryForProjection(state) {
-    const sourceByProjected = new Map();
     let projectedHead = null;
     let projectedTail = null;
+    let projectedUquiver = null;
     for (let source = inventoryHead(state); source; source = source.nobj) {
         const projected = { ...source, nobj: null };
-        sourceByProjected.set(projected, source);
+        if (source === state.uquiver) projectedUquiver = projected;
         if (projectedTail) projectedTail.nobj = projected;
         else projectedHead = projected;
         projectedTail = projected;
     }
-    return { projectedHead, sourceByProjected };
+    return { projectedHead, projectedUquiver };
 }
 
 function projectMerge(target, incoming) {
@@ -2017,7 +2017,7 @@ function projectAddinv(obj, projectedEnv) {
 // and every earlier selected object in the projected inventory.
 export function preflight_addinv_sequence(objects, env = {}, options = {}) {
     const normalized = inventoryEnv(env);
-    const { projectedHead, sourceByProjected } = cloneInventoryForProjection(
+    const { projectedHead, projectedUquiver } = cloneInventoryForProjection(
         normalized.state,
     );
     const projectedState = {
@@ -2026,9 +2026,7 @@ export function preflight_addinv_sequence(objects, env = {}, options = {}) {
         invent: projectedHead,
         lastinvnr: normalized.state.lastinvnr,
     };
-    projectedState.uquiver = [...sourceByProjected.entries()].find(
-        ([, source]) => source === normalized.state.uquiver,
-    )?.[0] ?? null;
+    projectedState.uquiver = projectedUquiver;
     const projectedEnv = { ...normalized, state: projectedState };
     resetJustPicked(projectedHead);
 
