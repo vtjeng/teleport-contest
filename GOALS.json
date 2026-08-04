@@ -305,8 +305,8 @@
         },
         {
           "name": "ordinary-mklev-sleeper-initialization",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "94d2a3aa342d7fea4d173ecab087b6726cd18386"
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
