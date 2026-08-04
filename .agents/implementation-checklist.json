@@ -1,6 +1,6 @@
 {
   "mode": "implementation",
-  "reason": "The full correctness pass through a3e694d closed its two confirmed production defects, but supplemental source tracing disproved readiness. Ordinary autopickup can discover a merge only after observation, can make an earlier selected pile object the later merge target, and can reach prinv/reassign only after unlinking; generated shop-door refusal mutates shop state before stopping; and a high-level hero can make ordinary mklev choose monster species above the port's fixed difficulty-9 admission ceiling. These owners remain missing at the exact reviewed head.",
+  "reason": "The full correctness pass through a3e694d closed its two confirmed production defects, but supplemental source tracing disproved readiness. A fresh selector has split the broad queued arrival item into source-coherent child slices and selected ordinary-autopickup-transaction first: observation can create a merge, an earlier selected pile object can become the later merge target, and prinv/reassign is currently reached only after unlinking. The generated shop-door refusal and the 240-species ordinary monster reservoir remain later child slices; no hero-level, Amulet, aggravation or monster-difficulty exclusion was added.",
   "commitChecked": "a3e694dd50957d4933318456c653d9bf22a3b65c",
   "boundary": {
     "goalId": "wizard-level-teleport",

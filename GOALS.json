@@ -267,6 +267,11 @@
           "name": "a wizard-mode hero's positive decimal answer resolves to a Dungeons-of-Doom level, schedule_goto() and deferred_goto() carry the transition out of rhack(), and goto_level() arrives through u_on_rndspot() on a level mklev() has just generated",
           "status": "queued",
           "closedBy": null
+        },
+        {
+          "name": "ordinary-autopickup-transaction",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
