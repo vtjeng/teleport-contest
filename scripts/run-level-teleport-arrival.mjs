@@ -28,6 +28,7 @@ import {
     PM_HOBBIT,
     PM_OGRE_LEADER,
     PM_STALKER,
+    PM_TROLL,
 } from '../js/monsters.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
@@ -41,12 +42,17 @@ import {
     DAGGER,
     ELVEN_DAGGER,
     ELVEN_MITHRIL_COAT,
+    GLAIVE,
     GOLD_PIECE,
     MACE,
+    PARTISAN,
     POT_ACID,
     POT_INVISIBILITY,
+    POT_SPEED,
+    RANSEUR,
     ROCK,
     SLING,
+    SPETUM,
     STATUE,
     WAN_FIRE,
 } from '../js/objects.js';
@@ -63,6 +69,11 @@ const HIGH_LEVEL_ARRIVALS = new Set([
     7650182,
     7650278,
     7650574,
+    7650103,
+    9449443,
+    9449779,
+    9449967,
+    9450654,
 ]);
 
 const HOBBIT_ARRIVALS = new Map([
@@ -95,6 +106,23 @@ const OGRE_LEADER_ARRIVALS = new Map([
     [7650278, [
         { otyp: WAN_FIRE, quan: 1, id: 105, worn: 0 },
         { otyp: BATTLE_AXE, quan: 1, id: 104, worn: 0 },
+    ]],
+]);
+
+const TROLL_ARRIVALS = new Map([
+    [7650103, []],
+    [9450654, [
+        { otyp: RANSEUR, quan: 1, id: 70, worn: 0 },
+    ]],
+    [9449443, [
+        { otyp: PARTISAN, quan: 1, id: 76, worn: 0 },
+    ]],
+    [9449967, [
+        { otyp: POT_SPEED, quan: 1, id: 137, worn: 0 },
+        { otyp: GLAIVE, quan: 1, id: 135, worn: 0 },
+    ]],
+    [9449779, [
+        { otyp: SPETUM, quan: 1, id: 108, worn: 0 },
     ]],
 ]);
 
@@ -174,6 +202,14 @@ export function loadLevelTeleportArrivalRecipe() {
             // arm and later receives a generic wand of fire.
             highLevelTeleport(7650033, 5),
             highLevelTeleport(7650278, 5),
+            // Five high-level D:5 layouts each create exactly one ordinary
+            // troll and collectively cover the outer no-weapon gate plus
+            // the source switch's ranseur, partisan, glaive, and spetum arms.
+            highLevelTeleport(7650103, 5),
+            highLevelTeleport(9450654, 5),
+            highLevelTeleport(9449443, 5),
+            highLevelTeleport(9449967, 5),
+            highLevelTeleport(9449779, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -516,6 +552,62 @@ export async function verifyLevelTeleportArrival(segment) {
                 + `hero level, or ownership: level=${game.u.ulevel}, `
                 + `mgenmklev=${leader.mgenmklev}, `
                 + `grid=${game.level.monsters[leader.mx][leader.my] === leader}, `
+                + `inventory=${JSON.stringify(inventory)}`,
+            );
+        }
+    }
+    const expectedTrollInventory = TROLL_ARRIVALS.get(segment.seed);
+    if (expectedTrollInventory) {
+        const trolls = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_TROLL) trolls.push(monster);
+        }
+        if (trolls.length !== 1) {
+            throw new Error(
+                `troll seed ${segment.seed} generated ${trolls.length} trolls`,
+            );
+        }
+        const [troll] = trolls;
+        const inventory = [];
+        const objectIds = new Set();
+        for (let obj = troll.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT || obj.ocarry !== troll) {
+                throw new Error(
+                    `troll seed ${segment.seed} lost inventory ownership`,
+                );
+            }
+            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+                throw new Error(
+                    `troll seed ${segment.seed} has invalid object identity`,
+                );
+            }
+            objectIds.add(obj.o_id);
+            inventory.push({
+                otyp: obj.otyp,
+                quan: obj.quan,
+                id: obj.o_id,
+                worn: obj.owornmask,
+            });
+        }
+        const polearms = [RANSEUR, PARTISAN, GLAIVE, SPETUM];
+        const selectedWeapons = inventory.filter(
+            ({ otyp }) => polearms.includes(otyp),
+        );
+        const expectedWeapon = expectedTrollInventory.find(
+            ({ otyp }) => polearms.includes(otyp),
+        );
+        if (game.u.ulevel !== 30
+            || troll.mgenmklev !== true
+            || game.level.monsters[troll.mx][troll.my] !== troll
+            || selectedWeapons.length !== Number(Boolean(expectedWeapon))
+            || selectedWeapons[0]?.otyp !== expectedWeapon?.otyp
+            || JSON.stringify(inventory)
+                !== JSON.stringify(expectedTrollInventory)) {
+            throw new Error(
+                `troll seed ${segment.seed} lost source inventory, hero level, `
+                + `or ownership: level=${game.u.ulevel}, `
+                + `mgenmklev=${troll.mgenmklev}, `
+                + `grid=${game.level.monsters[troll.mx][troll.my] === troll}, `
                 + `inventory=${JSON.stringify(inventory)}`,
             );
         }

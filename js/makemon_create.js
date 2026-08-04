@@ -227,6 +227,7 @@ import {
     S_ORC,
     S_SNAKE,
     S_SPIDER,
+    S_TROLL,
     S_VAMPIRE,
     S_VORTEX,
 } from './monsters.js';
@@ -287,6 +288,7 @@ import {
     FLINT,
     FOOD_CLASS,
     GEM_CLASS,
+    GLAIVE,
     GOLD_PIECE,
     GLASS,
     HELM_OF_OPPOSITE_ALIGNMENT,
@@ -309,6 +311,7 @@ import {
     ORCISH_HELM,
     ORCISH_SHIELD,
     ORCISH_SHORT_SWORD,
+    PARTISAN,
     PICK_AXE,
     POT_ACID,
     POT_BLINDNESS,
@@ -325,6 +328,7 @@ import {
     POT_SPEED,
     POTION_CLASS,
     RANDOM_CLASS,
+    RANSEUR,
     RING_CLASS,
     ROCK,
     ROCK_CLASS,
@@ -337,6 +341,7 @@ import {
     SLIME_MOLD,
     SLING,
     SPBOOK_CLASS,
+    SPETUM,
     SPEED_BOOTS,
     STATUE,
     STRANGE_OBJECT,
@@ -1391,6 +1396,24 @@ function m_initweap(monster, normalized) {
             !random.rn2(ogreWeaponDivisor(ptr)) ? BATTLE_AXE : CLUB,
             normalized,
         );
+        break;
+    case S_TROLL:
+        if (!random.rn2(2)) {
+            switch (random.rn2(4)) {
+            case 0:
+                mongets(monster, RANSEUR, normalized);
+                break;
+            case 1:
+                mongets(monster, PARTISAN, normalized);
+                break;
+            case 2:
+                mongets(monster, GLAIVE, normalized);
+                break;
+            case 3:
+                mongets(monster, SPETUM, normalized);
+                break;
+            }
+        }
         break;
     case S_CENTAUR:
         if (random.rn2(2)) {

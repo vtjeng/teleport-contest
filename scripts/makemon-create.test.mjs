@@ -107,10 +107,12 @@ import {
     PM_PLAINS_CENTAUR,
     PM_PONY,
     PM_ROCK_MOLE,
+    PM_ROCK_TROLL,
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_SMALL_MIMIC,
     PM_STALKER,
+    PM_TROLL,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
@@ -146,6 +148,7 @@ import {
     ELVEN_SHIELD,
     ELVEN_SPEAR,
     FLINT,
+    GLAIVE,
     GOLD_PIECE,
     ICE_BOX,
     IRON_SHOES,
@@ -157,16 +160,19 @@ import {
     ORCISH_BOW,
     ORCISH_DAGGER,
     ORCISH_HELM,
+    PARTISAN,
     POT_BOOZE,
     POT_FRUIT_JUICE,
     POT_OBJECT_DETECTION,
     POT_WATER,
+    RANSEUR,
     RING_CLASS,
     ROCK,
     SADDLE,
     SCR_CREATE_MONSTER,
     SLIME_MOLD,
     SLING,
+    SPETUM,
     STRANGE_OBJECT,
     TALLOW_CANDLE,
     T_SHIRT,
@@ -2118,6 +2124,115 @@ test('ordinary ogres retain rn2(12) and the same generic continuation', () => {
             ['rn2', [100], 99],
         ],
     );
+});
+
+test('trolls preserve the outer no-weapon gate and all four polearm arms', () => {
+    const cases = [
+        { name: 'no weapon', outer: 1, selection: null, expected: null },
+        { name: 'ranseur', outer: 0, selection: 0, expected: RANSEUR },
+        { name: 'partisan', outer: 0, selection: 1, expected: PARTISAN },
+        { name: 'glaive', outer: 0, selection: 2, expected: GLAIVE },
+        { name: 'spetum', outer: 0, selection: 3, expected: SPETUM },
+    ];
+
+    for (const scenario of cases) {
+        const state = initialLevelState();
+        let twoDraws = 0;
+        let selectionPending = scenario.selection !== null;
+        const random = recordingRandom({
+            rn2Result: (bound) => {
+                if (bound === 2 && ++twoDraws === 2)
+                    return scenario.outer;
+                if (bound === 4 && selectionPending) {
+                    selectionPending = false;
+                    return scenario.selection;
+                }
+                return Math.max(0, bound - 1);
+            },
+        });
+        const monster = makemon(
+            state.mons[PM_TROLL],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        const inventory = monsterInventory(monster);
+
+        assert.deepEqual(
+            inventory.map((obj) => obj.otyp),
+            scenario.expected === null ? [] : [scenario.expected],
+            scenario.name,
+        );
+        for (const obj of inventory) {
+            assert.equal(obj.where, OBJ_MINVENT, scenario.name);
+            assert.equal(obj.ocarry, monster, scenario.name);
+            assert.equal(obj.quan, 1, scenario.name);
+            assert.equal(obj.owornmask, 0, scenario.name);
+        }
+
+        const twoDrawIndexes = random.calls.flatMap(
+            (call, index) => call.kind === 'rn2' && call.args[0] === 2
+                ? [index] : [],
+        );
+        assert.ok(twoDrawIndexes.length >= 2, scenario.name);
+        const outerIndex = twoDrawIndexes[1];
+        assert.equal(
+            random.calls[outerIndex].result,
+            scenario.outer,
+            `${scenario.name}: outer rn2(2) gate`,
+        );
+        if (scenario.selection === null) {
+            assert.deepEqual(
+                random.calls[outerIndex + 1],
+                { kind: 'rn2', args: [75], result: 74 },
+                `${scenario.name}: skip directly to generic inventory`,
+            );
+        } else {
+            assert.equal(selectionPending, false, scenario.name);
+            assert.deepEqual(
+                random.calls[outerIndex + 1],
+                { kind: 'rn2', args: [4], result: scenario.selection },
+                `${scenario.name}: polearm switch follows outer gate`,
+            );
+        }
+
+        const offensiveGate = random.calls.findIndex(
+            (call, index) => index > outerIndex
+                && call.kind === 'rn2' && call.args[0] === 75,
+        );
+        assert.ok(offensiveGate > outerIndex, scenario.name);
+        assert.deepEqual(
+            random.calls.slice(offensiveGate).map(
+                (call) => [call.kind, call.args, call.result],
+            ),
+            [
+                ['rn2', [75], 74],
+                ['rn2', [50], 49],
+                ['rn2', [100], 99],
+                ['rn2', [100], 99],
+            ],
+            `${scenario.name}: generic inventory continuation`,
+        );
+    }
+});
+
+test('rock trolls remain outside the ordinary D:5 reservoir before RNG', () => {
+    const state = initialLevelState();
+    const random = recordingRandom();
+
+    assert.throws(
+        () => makemon(
+            state.mons[PM_ROCK_TROLL],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        ),
+        (error) => error instanceof UnsupportedMonsterCreationError
+            && error.operation === `monster ${PM_ROCK_TROLL}`,
+    );
+    assert.deepEqual(random.calls, []);
 });
 
 test('hobbits receive each source weapon arm before the generic item gates', () => {
