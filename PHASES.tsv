@@ -88,3 +88,5 @@ utc	event	phase	goal	detail
 2026-08-04T07:21:18.674Z	start	select	wizard-level-teleport	Fresh selector chooses the next child; generated-shop rollback and remaining ordinary reservoir families stay open.
 2026-08-04T07:31:07.527Z	end	select	wizard-level-teleport	Fresh selector chose ordinary-barrow-wight-weapon-initialization: admitted PM_BARROW_WIGHT directly reaches an unported S_WRAITH knife/long-sword arm; development ceiling 0 because inventory is offscreen.
 2026-08-04T07:31:07.995Z	start	implement	wizard-level-teleport	Fresh worker ports S_WRAITH knife then long-sword creation, saves a natural high-level D:5 case, keeps Nazgul unadmitted, and validates strict parity/checkpoint/mutation.
+2026-08-04T07:47:20.864Z	end	implement	wizard-level-teleport	Closed ordinary-barrow-wight-weapon-initialization at c19097a: strict 27-segment matrix matched 161,799 RNG calls and 669 screens/cursors; committed mutation census 0 sites/0 mutants; development score unchanged.
+2026-08-04T07:47:21.270Z	start	select	wizard-level-teleport	Fresh selector chooses the next child; generated-shop rollback and remaining ordinary reservoir families stay open.

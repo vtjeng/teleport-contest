@@ -300,8 +300,8 @@
         },
         {
           "name": "ordinary-barrow-wight-weapon-initialization",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "c19097a635f70d486331582270553e7ab0faa882"
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
