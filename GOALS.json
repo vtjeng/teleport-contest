@@ -359,8 +359,8 @@
       "slices": [
         {
           "name": "ordinary-starting-pet-target-selection-miss",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "85ca9c0ef501a2e8ecf8c491b9fab7b1a8427080"
         }
       ],
       "openedAt": "c27653f74211563d648b8ff9f0e921955f6ad116",

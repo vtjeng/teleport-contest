@@ -7197,6 +7197,119 @@
         }
       },
       "recordedAt": "2026-08-04T15:41:59.084Z"
+    },
+    {
+      "kind": "review",
+      "head": "1dd015811e327524b61de87575851855180f4586",
+      "auditedRange": "3d18ef4263d91261a3563a061aca1f0f2b556e62..1dd015811e327524b61de87575851855180f4586",
+      "level": "full",
+      "areas": [
+        "monsters"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 49 raw, 26 deduplicated, 15 confirmed, 15 applied, 0 deferred, 11 rejected, 0 unverified; mutation: 20 survivors of 55 mutants. The goal-close audit found and applied test, clarity, and simplification fixes without a production defect: retry isolation now executes the planned ranged miss before a later refusal, target/hunger/wake/visibility branches are pinned, and source-shaped predicates preserve C short-circuit order. Development scoring remains at 1,001 screens and 116,197 RNG values.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2224,
+        "counts": {
+          "raw": 49,
+          "deduplicated": 26,
+          "confirmed": 15,
+          "applied": 15,
+          "deferred": 0,
+          "rejected": 11,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 11,
+          "clarity": 3,
+          "simplification": 1,
+          "other": 0
+        },
+        "productionDefects": [],
+        "mutation": {
+          "mutants": 55,
+          "survivors": 20,
+          "byKind": {
+            "boolean": {
+              "ran": 4,
+              "killed": 4
+            },
+            "logical": {
+              "ran": 38,
+              "killed": 19
+            },
+            "relational": {
+              "ran": 13,
+              "killed": 12
+            }
+          },
+          "finderConclusion": "All six source-reachable distinguishable survivors exposed during the audit-fix recheck were killed by focused tests. The final twenty survivors are excluded or caller-invariant admission guards, fixed generated-template invariants, malformed harness-only inputs, or the source-equivalent hero-level boundary."
+        },
+        "readiness": {
+          "boundary": "An awake ordinary starting kitten, little dog, or pony begins dog_move() with an ordinary visible target aligned two to seven squares away; the boundary ends at the next hero prompt after target scoring, the distant physical mattackm() miss, continued movement, and postmov(). Fresh dog, kitten, and pony games execute the path.",
+          "sourceReview": "The orchestrator and independent reviewers traced dogmove.c find_targ(), find_friends(), score_targ(), best_target(), pet_ranged_attk(FALSE), the dog_move() checkpoint, mhitm.c mattackm() through the distant slot-zero miss, and mhitu.c getmattk() substitutions, including short-circuit, state, and PRNG order.",
+          "completeness": "The exact final head passes 2,685 tests, all six generated checks, namespace validation, development scoring, a fresh three-species differential, and the 55-site mutation run. Every reachable excluded path remains fail-closed before state, RNG, or output."
+        },
+        "rejections": [
+          {
+            "summary": "The u.ulevel > 8 condition can be weakened to >= 8.",
+            "counterEvidence": "At hero level 8, the other far-outclassed terms require pet level above 12 and target level below 1, which already makes weakTarget true and applies the same 25-point penalty. Reopen only with a valid level tuple producing a different score."
+          },
+          {
+            "summary": "The bhitpos and slot-zero distant-miss contract is incorrect or insufficiently explained.",
+            "counterEvidence": "C pet_ranged_attk() writes the aggressor position; mattackm() exempts slot zero, distance-continues its bite or kick, then skips later slots before getmattk(). The source comment and retry test pin this. Reopen if admitted attack arrays or callers expand."
+          },
+          {
+            "summary": "The planning clone needs deeper copies than gb.bhitpos plus scalar gn, gs, and gv records.",
+            "counterEvidence": "This boundary writes only gb.bhitpos's coordinates and scalar fields in gn, gs, and gv; monster wake and mlstmv changes are already isolated through monsterMap. Reopen if a supported path writes a nested field in those owners."
+          },
+          {
+            "summary": "mattackm() improperly excludes an invisible ordinary defender.",
+            "counterEvidence": "All three admitted starting pets lack perception, so find_targ() cannot select an invisible or undetected defender. Reopen if the admitted pet family gains perception."
+          },
+          {
+            "summary": "The duplicated STARTING_PETS sets and admission guards should be centralized.",
+            "counterEvidence": "dogmove.c scoring and mhitm.c combat admission are distinct source-stage fail-closed contracts with different predicates, and dogmove.js already imports mhitm.js. A shared owner would add coupling or a cycle. Reopen when a neutral existing owner gains the exact stable contract."
+          },
+          {
+            "summary": "Surviving dogmove ordinary-pet admission operators represent untested admitted behavior.",
+            "counterEvidence": "The fixed starting species cannot also be minions, priests, or vampshifters in a valid game, and the outer action boundary rejects the incompatible lifecycle shapes. Reopen with a production-reachable admitted starting-pet state carrying one of those identities."
+          },
+          {
+            "summary": "The pet_ranged_attk random-dependency guard needs gameplay coverage for one missing operation.",
+            "counterEvidence": "Live gameplay always supplies the complete core random adapter; one missing rn2 or rnd is malformed test-harness injection and cannot arise from a seed, option, or input sequence. Reopen if a production caller can provide a partial adapter."
+          },
+          {
+            "summary": "Surviving mhitm starting-pet aggressor admission operators are distinguishable in the selected boundary.",
+            "counterEvidence": "pet_ranged_attk() first admits the fixed tame starting species with edog state and is the only selected caller. Reopen if mattackm() gains another in-boundary caller or the caller guard changes."
+          },
+          {
+            "summary": "Surviving mhitm defender-speciality admission operators can be reached after target selection.",
+            "counterEvidence": "find_targ() skips invisible and undetected targets for these pets, while score_targ() refuses minions, priests, shopkeepers, guards, leaders, and guardians before mattackm(). Reopen if target selection admits any such family."
+          },
+          {
+            "summary": "Surviving mhitm attack-array guard operators distinguish a valid starting-pet attack array.",
+            "counterEvidence": "The generated immutable kitten, little-dog, and pony templates have exactly six AD_PHYS slots whose types are the expected bite or kick followed by AT_NONE. Reopen if generated templates or admitted species change."
+          },
+          {
+            "summary": "mattackm() needs an in-boundary one-null-argument case.",
+            "counterEvidence": "The selected pet_ranged_attk() caller invokes mattackm() only after it has both a live aggressor and selected defender. A one-null call is a direct harness misuse. Reopen with a production caller that can pass one missing combatant."
+          }
+        ],
+        "warnings": [],
+        "optionalFinders": {
+          "concurrency": {
+            "enabled": true,
+            "conclusion": "Sequential planning and live replay isolate gb.bhitpos, gn, gs, gv, monster wake state, and mlstmv; the corrected retry fixture proves writes occur before a later refusal and no live state leaks."
+          },
+          "performance": {
+            "enabled": false,
+            "conclusion": "The fixed eight rays and bounded line scans are source-required; the audit simplification removed temporary boolean arrays rather than adding work."
+          }
+        }
+      },
+      "recordedAt": "2026-08-04T17:34:11.544Z"
     }
   ]
 }
