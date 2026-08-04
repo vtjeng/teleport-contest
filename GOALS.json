@@ -287,6 +287,11 @@
           "name": "ordinary-forest-centaur-initialization",
           "status": "closed",
           "closedBy": "ad8c4bcddc607ab9e6ad2fef1730eb62769e1b11"
+        },
+        {
+          "name": "ordinary-ogre-leader-weapon-initialization",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
