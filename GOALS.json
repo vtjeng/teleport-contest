@@ -272,6 +272,11 @@
           "name": "ordinary-autopickup-transaction",
           "status": "closed",
           "closedBy": "8830d77d949127b75ab047837c29644dc2eec034"
+        },
+        {
+          "name": "ordinary-hobbit-initialization",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
