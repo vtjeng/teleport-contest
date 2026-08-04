@@ -31,13 +31,14 @@ import {
     maybe_lvltport_feedback,
     UnsupportedLevelChangeError,
 } from '../js/do.js';
+import { Is_special } from '../js/dungeon.js';
 import {
     CMD_M_PREFIX, IFBURIED, WIZMODECMD, extcmdlist,
 } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { level_tele } from '../js/teleport.js';
+import { cAtoi, level_tele } from '../js/teleport.js';
 import { wiz_level_tele } from '../js/wizcmds.js';
 import {
     ESCAPE_KEY,
@@ -269,6 +270,51 @@ test('a positive decimal schedules a deferred level teleport without drawing',
             state.gd.dfr_post_msg,
             'You materialize on a different level!',
         );
+        assert.deepEqual(getRngLog(), []);
+    });
+
+test('level-teleport decimal conversion matches the recorder ABI', () => {
+    const cases = [
+        ['  +2junk', 2],
+        ['2147483648', -2147483648],
+        ['4294967296', 0],
+        ['4294967297', 1],
+        ['99999999999', 1215752191],
+        ['999999999999999999999999999999', -1],
+        ['-2147483649', 2147483647],
+        ['-999999999999999999999999999999', 0],
+        ['\u00a02', 0],
+        ['no digits', 0],
+    ];
+    for (const [text, expected] of cases)
+        assert.equal(cAtoi(text), expected, text);
+});
+
+test('a numeric special level refuses before scheduling any transition',
+    async () => {
+        const { state } = schedulableLevelTeleState('2');
+        const special = { proto: 'oracle', dlevel: { dnum: 0, dlevel: 2 } };
+        state.specialLevels = [special];
+        assert.equal(Is_special({ dnum: 0, dlevel: 2 }, state), special);
+
+        const before = {
+            utolev: { ...state.u.utolev },
+            utotype: state.u.utotype,
+            gd: state.gd,
+        };
+        await assert.rejects(
+            () => level_tele(state),
+            (error) => {
+                assert.equal(
+                    error.reason,
+                    'level_tele() resolving a numeric special-level destination',
+                );
+                return true;
+            },
+        );
+        assert.deepEqual(state.u.utolev, before.utolev);
+        assert.equal(state.u.utotype, before.utotype);
+        assert.equal(state.gd, before.gd);
         assert.deepEqual(getRngLog(), []);
     });
 

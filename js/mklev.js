@@ -15,7 +15,11 @@ import {
     level_difficulty,
     on_level,
 } from './dungeon.js';
-import { UnsupportedSpecialRoomError, do_mkroom } from './mkroom.js';
+import {
+    UnsupportedSpecialRoomError,
+    do_mkroom,
+    fill_zoo,
+} from './mkroom.js';
 import { mkcorpstat } from './corpstat.js';
 import { del_engr_at, make_engr_at, wipe_engr_at } from './engrave.js';
 import { set_wall_state } from './display.js';
@@ -284,8 +288,8 @@ function litstate_rnd(litstate, random = rn2, randomOneBased = rnd) {
     return !!litstate;
 }
 
-// C ref: sp_lev.c fill_special_room(). The Twin businesses shop types are
-// backed by stock_room(); zoo-family rooms retain their narrow population hook.
+// C ref: sp_lev.c fill_special_room(). Shops are backed by stock_room(); the
+// selected ordinary D:5 special-room family is backed by mkroom.c fill_zoo().
 export function fill_special_room(croom, env = {}) {
     if (!croom) return;
 
@@ -325,6 +329,8 @@ export function fill_special_room(croom, env = {}) {
             break;
         }
         case COURT:
+            fill_zoo(croom, normalized);
+            break;
         case ZOO:
         case BEEHIVE:
         case ANTHOLE:
@@ -332,10 +338,9 @@ export function fill_special_room(croom, env = {}) {
         case LEPREHALL:
         case MORGUE:
         case BARRACKS:
-            if (typeof env.fillZoo !== 'function')
-                throw new Error('fill_special_room requires the fill_zoo subsystem');
-            env.fillZoo(croom, normalized);
-            break;
+            throw new UnsupportedSpecialRoomError(
+                `fill_special_room(${croom.rtype}) beyond the Court boundary`,
+            );
         default:
             break;
         }
@@ -469,8 +474,8 @@ async function makelevel(specialLevelLoader = null) {
     }
 
     // C ref: mklev.c makelevel() (1344-1375). At most one special room per
-    // level, chosen by depth; every arm below the shop needs a depth greater
-    // than four, and js/mkroom.js do_mkroom() stops on each of them.
+    // level, chosen by depth. Shops and the first depth-gated family, COURT,
+    // are selected here; later families remain source-labelled refusals.
     // `room_threshold` counts the rooms a level must have before it can spare
     // one: four when the level carries a dungeon branch, three otherwise, plus
     // one more when a vault was placed above.

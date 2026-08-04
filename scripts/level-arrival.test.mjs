@@ -42,6 +42,7 @@ import {
     SWAMP,
     TEMPLE,
     THEMEROOM,
+    THRONE,
     VAULT,
     TIMER_GLOBAL,
     TIMER_LEVEL,
@@ -437,7 +438,19 @@ test('do_mkroom takes the room the level would gain', () => {
     state.level.rooms[0].rtype = OROOM;
     state.level.rooms[0].needfill = FILL_NONE;
 
-    // Every other room type reaches mkzoo(), mkswamp() or mktemple().
+    // COURT uses pick_room(FALSE). This room has one door and no stairs, so
+    // only the initial room-index draw is spent before it is selected.
+    let courtDraws = 0;
+    do_mkroom(COURT, state, {
+        rn2: () => { courtDraws += 1; return 0; },
+    });
+    assert.equal(courtDraws, 1);
+    assert.equal(state.level.rooms[0].rtype, COURT);
+    assert.equal(state.level.rooms[0].needfill, FILL_NORMAL);
+    state.level.rooms[0].rtype = OROOM;
+    state.level.rooms[0].needfill = FILL_NONE;
+
+    // The next room type reaches the named later-family boundary.
     assert.throws(() => do_mkroom(ZOO, state), /do_mkroom\(8\)/u);
 
     // A room the shop search rejects leaves the level unchanged: mkshop()
@@ -478,7 +491,8 @@ test('do_mkroom takes the room the level would gain', () => {
     assert.equal(state.level.rooms[0].rtype, SHOPBASE);
 });
 
-test('check_special_room stops on a room that would announce itself', () => {
+test('check_special_room handles Court and stops on later room families',
+    async () => {
     const state = dungeonState();
     roomLevel(state, { lx: 10, ly: 5, hx: 14, hy: 9, doorx: 9, doory: 7 });
     state.level.at(20, 10).typ = STONE;
@@ -490,27 +504,124 @@ test('check_special_room stops on a room that would announce itself', () => {
         for (let y = 5; y <= 9; ++y) state.level.at(x, y).roomno = 3;
 
     // An ordinary room takes the switch's default arm and says nothing.
-    check_special_room(false, state);
+    await check_special_room(false, state);
 
     // Every room type whose arm in hack.c's switch does something. C's
     // `default` arm answers for the rest, so THEMEROOM and VAULT stay silent
     // beside them.
-    for (const rt of [ZOO, SWAMP, COURT, LEPREHALL, MORGUE, BEEHIVE,
+    for (const rt of [ZOO, SWAMP, LEPREHALL, MORGUE, BEEHIVE,
         COCKNEST, ANTHOLE, BARRACKS, DELPHI, TEMPLE]) {
         state.u.urooms = [0, 0, 0, 0, 0];
         state.u.urooms0 = [0, 0, 0, 0, 0];
         state.level.rooms[0].rtype = rt;
-        assert.throws(
+        await assert.rejects(
             () => check_special_room(false, state),
             new RegExp(`entering room type ${rt}`, 'u'),
             `room type ${rt}`,
         );
     }
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    // Put the Court at rooms[3].  hack.c subtracts ROOMOFFSET before its
+    // wake-loop comparison but compares that index with the still-encoded
+    // levl.roomno.  A sleeper in rooms[0] is therefore the one it visits.
+    const court = {
+        ...state.level.rooms[0],
+        rtype: COURT,
+        orig_rtype: COURT,
+    };
+    state.level.rooms.push(
+        { ...state.level.rooms[0], rtype: OROOM },
+        { ...state.level.rooms[0], rtype: OROOM },
+        court,
+    );
+    state.level.rooms[0].rtype = OROOM;
+    state.level.flags.has_court = true;
+    // furniture_present() scans both inclusive bounds. Put the only throne at
+    // the far corner so either `<` mutation loses the "throne" adjective.
+    state.level.at(14, 9).typ = THRONE;
+    state.level.at(12, 7).roomno = 6;
+    monst_globals_init(state);
+    const sleeper = newMonster({
+        data: state.mons[PM_KOBOLD_ZOMBIE],
+        mnum: PM_KOBOLD_ZOMBIE,
+        mhp: 4,
+        mhpmax: 4,
+        mcanmove: true,
+        mcansee: true,
+        msleeping: true,
+        mx: 11,
+        my: 7,
+    });
+    const courtSleeper = newMonster({
+        data: state.mons[PM_KOBOLD_ZOMBIE],
+        mnum: PM_KOBOLD_ZOMBIE,
+        mhp: 4,
+        mhpmax: 4,
+        mcanmove: true,
+        mcansee: true,
+        msleeping: true,
+        mx: 12,
+        my: 7,
+    });
+    const dead = newMonster({
+        data: state.mons[PM_KOBOLD_ZOMBIE],
+        mnum: PM_KOBOLD_ZOMBIE,
+        mhp: 0,
+        mhpmax: 4,
+        mcanmove: true,
+        mcansee: true,
+        msleeping: true,
+        mx: 11,
+        my: 6,
+    });
+    sleeper.nmon = dead;
+    dead.nmon = courtSleeper;
+    state.level.monlist = sleeper;
+    const courtEvents = [];
+    await check_special_room(false, state, {
+        message: async (line) => courtEvents.push(`msg:${line}`),
+        random: (limit) => {
+            assert.equal(limit, 3);
+            assert.equal(state.level.rooms[0].rtype, OROOM);
+            assert.equal(state.level.flags.has_court, false);
+            courtEvents.push(`rng:${limit}`);
+            return 0;
+        },
+        canSeeMonster: () => true,
+    });
+    assert.deepEqual(courtEvents, [
+        'msg:You enter an opulent throne room!',
+        'rng:3',
+        'msg:The kobold zombie wakes up.',
+    ]);
+    assert.equal(state.level.rooms[3].rtype, OROOM);
+    assert.equal(state.level.flags.has_court, false);
+    assert.equal(sleeper.msleeping, false);
+    assert.equal(dead.msleeping, true);
+    assert.equal(courtSleeper.msleeping, true);
+
+    // The same inclusive scan finds no furniture after the far-corner throne
+    // is removed. This pins the initial FALSE value as well as both bounds.
+    state.level.rooms[3].rtype = COURT;
+    state.level.flags.has_court = true;
+    state.level.at(14, 9).typ = ROOM;
+    state.u.urooms = [0, 0, 0, 0, 0];
+    state.u.urooms0 = [0, 0, 0, 0, 0];
+    const plainCourtEvents = [];
+    await check_special_room(false, state, {
+        message: async (line) => plainCourtEvents.push(line),
+        random: () => 1,
+        canSeeMonster: () => true,
+    });
+    assert.equal(plainCourtEvents[0], 'You enter an opulent room!');
+    state.level.at(12, 7).roomno = 3;
+
     for (const rt of [THEMEROOM, VAULT]) {
         state.u.urooms = [0, 0, 0, 0, 0];
         state.u.urooms0 = [0, 0, 0, 0, 0];
         state.level.rooms[0].rtype = rt;
-        check_special_room(false, state);
+        await check_special_room(false, state);
     }
 
     // The switch's `rt >= SHOPBASE` arm cannot be reached from the loop:
@@ -522,13 +633,13 @@ test('check_special_room stops on a room that would announce itself', () => {
         state.u.ushops = [0, 0, 0, 0, 0];
         state.u.ushops0 = [0, 0, 0, 0, 0];
         state.level.rooms[0].rtype = rt;
-        assert.throws(
+        await assert.rejects(
             () => check_special_room(false, state),
-            /entering a shop/u,
+            /untended shop/u,
             `shop type ${rt}`,
         );
     }
-});
+    });
 
 test('restore_cham gives a shapeshifter back its shape', () => {
     const state = dungeonState();

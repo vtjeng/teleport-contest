@@ -945,7 +945,12 @@ function heroHallucinating(state) {
 
 // C ref: dungeon.c u_on_newpos() (1567-1601). The one place that writes the
 // hero's map position, and with it the ridden steed's, which always shares it.
-export function u_on_newpos(x, y, state = game) {
+export function u_on_newpos(
+    x,
+    y,
+    state = game,
+    { earthSenseMessage = null } = {},
+) {
     if (!isok(x, y))
         throw new RangeError(
             `u_on_newpos: hero location is off map <${x},${y}>`,
@@ -987,7 +992,7 @@ export function u_on_newpos(x, y, state = game) {
         // generic object(s) to redisplay them as specific objects
         see_nearby_objects(state);
     }
-    earth_sense(state);
+    earth_sense(state, { message: earthSenseMessage });
 }
 
 // C ref: dungeon.c u_on_rndspot() (1604-1638). Places the hero at a random
@@ -1001,7 +1006,11 @@ export function u_on_newpos(x, y, state = game) {
 // left solid rock. Every arm of it needs terrain that blocks levitation or
 // flight, or one of those properties already blocked; a hero arriving on a
 // ROOM square with neither reaches only its `flags.terrainstatus` tail.
-export function u_on_rndspot(upflag, state = game) {
+export function u_on_rndspot(
+    upflag,
+    state = game,
+    { earthSenseMessage = null, deferSwitchTerrain = false } = {},
+) {
     const up = (upflag & 1), was_in_W_tower = (upflag & 2);
     const dndest = state.dndest ?? {};
     const updest = state.updest ?? {};
@@ -1014,18 +1023,19 @@ export function u_on_rndspot(upflag, state = game) {
     if (was_in_W_tower && On_W_tower_level(state.u.uz, state))
         /* Stay inside the Wizard's tower when feasible. */
         place_lregion(dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
-                      0, 0, 0, 0, LR_DOWNTELE, null, state);
+                      0, 0, 0, 0, LR_DOWNTELE, null, state,
+                      { earthSenseMessage });
     else if (up)
         place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
                       updest.nlx, updest.nly, updest.nhx, updest.nhy,
-                      LR_UPTELE, null, state);
+                      LR_UPTELE, null, state, { earthSenseMessage });
     else
         place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
                       dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
-                      LR_DOWNTELE, null, state);
+                      LR_DOWNTELE, null, state, { earthSenseMessage });
 
     /* might have just left solid rock and unblocked levitation */
-    switch_terrain(state);
+    if (!deferSwitchTerrain) switch_terrain(state);
 }
 
 export class UnsupportedEarthSenseError extends Error {
@@ -1052,38 +1062,13 @@ function heroFlying(state) {
         && !flying?.blocked);
 }
 
-// C ref: dungeon.c earth_sense() (1543-1565). A dwarf feels a buried object
-// through the floor. Every gate is ported; the one thing that is not is the
-// single line the gates lead to, `You("sense something below your %s.",
-// makeplural(body_part(FOOT)))`, and the state that would print it is refused
-// instead of skipped. The function draws no random number, so a refusal costs
-// the PRNG log nothing.
-//
-// Why the line is refused rather than printed: u_on_newpos() is synchronous,
-// and so are js/mkmaze.js place_lregion() and js/stairs.js u_on_upstairs(),
-// which call it
-// while the level is being created, whereas this port's message owner,
-// js/tty_message.js ttyPline(), is async. Printing here means making level
-// creation async, a change to a different subsystem than the one that reaches
-// this function.
-//
-// Every caller but one runs under js/jsmain.js's moveloop_core() loop, which
-// treats the class below as a segment boundary. The exception is
-// allmain.c newgame() -> u_on_upstairs(), where a throw would discard the
-// whole segment; it cannot arrive there, because the hero starts on the up
-// staircase and STAIRS fails the terrain gate. Over the 60 D:1 levels the port
-// generates for seeds 7300000-7300059 the starting square was STAIRS every
-// time, and u_on_upstairs() reaches place_lregion()'s random square only when
-// the level has neither an ordinary nor a special up stair.
-//
-// This branch is live, not dormant, and the reason it never fires is the hero,
-// not the map. js/hack.js domove() has called u_on_newpos() since 36562b9, so
-// earth_sense() is entered on every hero step for every role and race, and
-// buried objects do sit on ROOM squares: over the 40 D:1 levels the port
-// generates for seeds 7200000-7200039 it buried 215 objects, 27 of them under
-// ROOM, through js/themeroom_fill.js's `Buried zombies` and `Buried treasure`
-// fills. `Race_if(PM_DWARF)` is the whole of what keeps the notice quiet.
-function earth_sense(state) {
+// C ref: dungeon.c earth_sense() (1543-1565). A dwarf standing on ROOM or
+// CORR terrain senses a buried object at her square unless mounted, flying,
+// levitating, or polymorphed. The placement helpers are synchronous, so an
+// arrival caller supplies a message collector and prints the line at its
+// source-ordered async point. Other movement callers retain the explicit
+// boundary below until their message path is ported.
+function earth_sense(state, { message = null } = {}) {
     const hero = state.u;
     if (state.urace?.mnum !== PM_DWARF) return;
     if (hero.usteed || heroFlying(state) || heroLevitating(state)
@@ -1093,6 +1078,10 @@ function earth_sense(state) {
 
     for (let obj = state.level?.buriedobjlist ?? null; obj; obj = obj.nobj) {
         if (obj.ox === hero.ux && obj.oy === hero.uy) {
+            if (message) {
+                message('You sense something below your feet.');
+                return;
+            }
             throw new UnsupportedEarthSenseError(
                 'the buried-object notice a dwarf feels underfoot',
             );
@@ -1198,6 +1187,18 @@ export function on_level(left, right) {
     return Boolean(left && right
         && left.dnum === right.dnum
         && left.dlevel === right.dlevel);
+}
+
+// C ref: dungeon.c Is_special(). The C chain and state.specialLevels are two
+// views of the same topology; init_dungeons() links the array entries through
+// `next` and stores its head in sp_levchn. Iterating the array also lets
+// focused callers provide a minimal source-shaped topology without rebuilding
+// that linked-list cache.
+export function Is_special(level, state = game) {
+    for (const special of state.specialLevels ?? []) {
+        if (on_level(level, special.dlevel)) return special;
+    }
+    return null;
 }
 
 // C ref: dungeon.c surface(), ordinary repeated-command subset.  The live

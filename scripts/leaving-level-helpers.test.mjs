@@ -286,14 +286,14 @@ test('set_uinwater only reaches switch_terrain() when the flag changes', () => {
 });
 
 test('check_special_room(TRUE) clears the room strings and stops for a shop',
-    () => {
+    async () => {
     // hack.c:3624-3654. move_update(TRUE) blanks u.uentered and
     // u.ushops_entered, so the early return is unconditional for a new level.
     const state = heroState();
     state.u.urooms[0] = 3;
     state.u.uentered[0] = 3;
 
-    check_special_room(true, state);
+    await check_special_room(true, state);
 
     assert.deepEqual([...state.u.urooms], [0, 0, 0, 0, 0]);
     assert.deepEqual([...state.u.uentered], [0, 0, 0, 0, 0]);
@@ -303,11 +303,17 @@ test('check_special_room(TRUE) clears the room strings and stops for a shop',
     // a shop reaches u_left_shop().
     const shopper = heroState();
     shopper.u.ushops[0] = 5;
-    assert.throws(() => check_special_room(true, shopper), /leaving a shop/u);
+    await assert.rejects(
+        () => check_special_room(true, shopper),
+        /leaving a shop/u,
+    );
 
     const town = heroState();
     town.level.flags = { has_town: true };
-    assert.throws(() => check_special_room(true, town), /holding a town/u);
+    await assert.rejects(
+        () => check_special_room(true, town),
+        /holding a town/u,
+    );
 });
 
 test('dunlevs_in_dungeon and In_hell read the dungeon the level belongs to',

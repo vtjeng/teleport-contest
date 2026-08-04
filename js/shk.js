@@ -2,12 +2,26 @@
 // C refs: shk.c inhishop(), is_fshk(), append_price_quote(), contained_gold()
 // and costly_spot().
 
-import { BUFSZ, SHOPBASE } from './const.js';
+import {
+    ACH_SHOP,
+    BUFSZ,
+    DEAF,
+    INVIS,
+    PL_NSIZ,
+    ROOMOFFSET,
+    SHOPBASE,
+} from './const.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { s_suffix } from './hacklib.js';
+import { record_achievement } from './insight.js';
+import { set_malign } from './makemon.js';
 import { hasContents } from './obj.js';
 import { COIN_CLASS } from './objects.js';
+import { Hello } from './role_init.js';
 import { in_rooms } from './rooms.js';
+import { SHTYPES } from './shtypes_data.js';
+import { ttyPline } from './tty_message.js';
 
 // C ref: shk.c inhishop().
 export function inhishop(shopkeeper, state) {
@@ -20,6 +34,26 @@ export function inhishop(shopkeeper, state) {
             SHOPBASE,
             state,
         ).includes(extension.shoproom));
+}
+
+// C ref: shk.c inside_shop(). A wall, boundary square, or non-shop room is
+// not strictly inside even when in_rooms() associates it with a shop.
+export function inside_shop(x, y, state = game) {
+    const location = state.level?.at(x, y);
+    const roomno = location?.roomno ?? 0;
+    const room = roomno >= ROOMOFFSET
+        ? state.level.rooms?.[roomno - ROOMOFFSET]
+        : null;
+    return room && !location.edge && room.rtype >= SHOPBASE ? roomno : 0;
+}
+
+// C ref: shk.c shop_keeper(). Generated shops keep their resident on the room
+// record and its ESHK extension records the same room number.
+export function shop_keeper(roomno, state = game) {
+    if (roomno < ROOMOFFSET) return null;
+    const resident = state.level?.rooms?.[roomno - ROOMOFFSET]?.resident;
+    return resident?.isshk
+        && resident.mextra?.eshk?.shoproom === roomno ? resident : null;
 }
 
 // C ref: shk.c is_fshk() (5010-5015), which exists for mondata.c
@@ -78,12 +112,79 @@ export function contained_gold(obj, even_if_unknown) {
     return value;
 }
 
-// C ref: shk.c costly_spot(). A level with no shop answers FALSE before any
-// shopkeeper lookup, which is every level this port generates; the rest of
-// the test needs the shopkeeper subsystem.
+// C ref: shk.c costly_spot().
 export function costly_spot(x, y, state = game) {
     if (!state.level?.flags?.has_shop) return false;
-    throw new UnsupportedShopError('costly_spot() inside a shop level');
+    const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return false;
+    const extension = shopkeeper.mextra.eshk;
+    return inside_shop(x, y, state) === roomno
+        && !(x === extension.shk.x && y === extension.shk.y);
+}
+
+function heroPropertyActive(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
+}
+
+// C ref: shk.c u_entered_shop(), through the generated, present, peaceful
+// shopkeeper branch reached by random level-teleport arrival.
+export async function u_entered_shop(
+    enterstring,
+    state = game,
+    { message = ttyPline } = {},
+) {
+    const roomno = Math.trunc(enterstring?.[0] ?? 0);
+    if (!roomno) return false;
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) {
+        throw new UnsupportedShopError('u_entered_shop() in an untended shop');
+    }
+    const extension = shopkeeper.mextra.eshk;
+    const room = state.level.rooms[roomno - ROOMOFFSET];
+    if (!shopkeeper.mcanmove || shopkeeper.msleeping
+        || extension.following || !shopkeeper.mpeaceful
+        || extension.surcharge || extension.robbed
+        || heroPropertyActive(state, INVIS)) {
+        throw new UnsupportedShopError(
+            'u_entered_shop() outside the peaceful visible greeting',
+        );
+    }
+
+    record_achievement(ACH_SHOP, state);
+    extension.bill_p = extension.bill;
+    const playerName = String(state.plname ?? '').slice(0, PL_NSIZ - 1);
+    if ((!extension.visitct || extension.customer)
+        && extension.customer.toLowerCase() !== playerName.toLowerCase()) {
+        extension.visitct = 0;
+        extension.following = false;
+        extension.customer = playerName;
+        shopkeeper.mpeaceful = true;
+        extension.surcharge = false;
+        set_malign(shopkeeper, state);
+    }
+
+    const again = extension.visitct++ ? ' again' : '';
+    const shopName = SHTYPES[room.rtype - SHOPBASE]?.name;
+    if (!shopName)
+        throw new UnsupportedShopError('u_entered_shop() shop type');
+    const owner = s_suffix(extension.shknam);
+    if (!heroPropertyActive(state, DEAF)) {
+        await message(
+            `"${Hello(state.urole, { shopkeeper: true })}, ${playerName}!  `
+            + `Welcome${again} to ${owner} ${shopName}!"`,
+            state,
+        );
+    } else {
+        await message(`You enter ${owner} ${shopName}${again}!`, state);
+    }
+    if (!inside_shop(state.u.ux, state.u.uy, state)) {
+        throw new UnsupportedShopError(
+            'u_entered_shop() arriving outside the shop interior',
+        );
+    }
+    return true;
 }
 
 // Thrown where shk.c reaches shop bookkeeping this port has not ported.

@@ -6,6 +6,7 @@ import test from 'node:test';
 
 import {
     AIR,
+    ACH_SHOP,
     ARROW_TRAP,
     CORR,
     LAST_PROP,
@@ -14,7 +15,10 @@ import {
     LR_TELE,
     LR_UPTELE,
     MAGIC_PORTAL,
+    OBJ_INVENT,
+    ROOMOFFSET,
     ROOM,
+    SHOPBASE,
     STONE,
     VIBRATING_SQUARE,
     undestroyable_trap,
@@ -25,32 +29,69 @@ import {
     get_level,
     lev_by_name,
     single_level_branch,
+    u_on_newpos,
     u_on_rndspot,
 } from '../js/dungeon.js';
+import {
+    finish_random_arrival_effects,
+    place_random_arrival,
+} from '../js/do.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     UnsupportedRegionPlacementError,
     bad_location,
     is_exclusion_zone,
     place_lregion,
 } from '../js/mkmaze.js';
+import { PM_DWARF, monst_globals_init } from '../js/monsters.js';
+import { mksobj_at } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { APPLE } from '../js/objects.js';
+import { pickup } from '../js/pickup.js';
+import { com_pager } from '../js/questpgr.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { loadLevelTeleportArrivalRecipe } from './run-level-teleport-arrival.mjs';
+import { roles } from '../js/roles.js';
+import { inside_shop, u_entered_shop } from '../js/shk.js';
+import { SHTYPES } from '../js/shtypes_data.js';
+import {
+    loadLevelTeleportArrivalRecipe,
+    verifyLevelTeleportArrival,
+} from './run-level-teleport-arrival.mjs';
 
-test('the arrival matrix is a clean three-case replay recipe', () => {
+test('the arrival matrix is a clean audited replay recipe', () => {
     const recipe = loadLevelTeleportArrivalRecipe();
     assert.equal(recipe.version, 5);
     assert.deepEqual(
         recipe.segments.map(({ seed }) => seed),
-        [7621004, 7621001, 7621009],
+        [
+            7621004,
+            7621001,
+            7640011,
+            7640059,
+            7633019,
+            7641005,
+            7643705,
+            7645000,
+            7621009,
+        ],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /pettype:none/u);
         assert.match(segment.nethackrc, /playmode:debug/u);
-        assert.match(segment.moves, /^\.\x16[125]\n\.$/u);
+        assert.equal(segment.datetime, '20310417113000');
+        assert.match(segment.moves, /^\.\x16(?:1|2|5|14)\n *\.$/u);
     }
 });
+
+test('the arrival recipe reaches its exact destination and trailing command',
+    async () => {
+        for (const segment of loadLevelTeleportArrivalRecipe().segments) {
+            await verifyLevelTeleportArrival(segment);
+        }
+    });
 
 function placementState() {
     return {
@@ -264,3 +305,210 @@ test('undestroyable_trap names exactly the two trap.h exceptions', () => {
     assert.equal(undestroyable_trap(VIBRATING_SQUARE), true);
     assert.equal(undestroyable_trap(ARROW_TRAP), false);
 });
+
+test('a random-arrival earth-sense collector preserves the exact notice',
+    () => {
+        const state = placementState();
+        state.urace.mnum = PM_DWARF;
+        state.level.at(10, 8).typ = ROOM;
+        state.level.buriedobjlist = {
+            ox: 9, oy: 8,
+            nobj: { ox: 10, oy: 8, nobj: null },
+        };
+        const lines = [];
+        u_on_newpos(10, 8, state, {
+            earthSenseMessage: (line) => lines.push(line),
+        });
+        assert.deepEqual(lines, ['You sense something below your feet.']);
+        assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
+    });
+
+test('random arrival prints earth sense before switching terrain', async () => {
+    const state = placementState();
+    state.urace.mnum = PM_DWARF;
+    state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
+    state.level.at(10, 8).typ = ROOM;
+    state.level.buriedobjlist = { ox: 10, oy: 8, nobj: null };
+    const lines = [];
+    const events = [];
+
+    u_on_rndspot(0, state, {
+        earthSenseMessage: (line) => {
+            events.push('collect');
+            lines.push(line);
+        },
+        deferSwitchTerrain: true,
+    });
+    await finish_random_arrival_effects(lines, state, {
+        message: async (line) => {
+            events.push(`message:${line}`);
+            await Promise.resolve();
+            events.push('message:done');
+        },
+        switchTerrain: () => events.push('switch_terrain'),
+    });
+
+    assert.deepEqual(events, [
+        'collect',
+        'message:You sense something below your feet.',
+        'message:done',
+        'switch_terrain',
+    ]);
+
+    const integrationEvents = [];
+    await place_random_arrival(0, state, {
+        place: (_upflag, _state, options) => {
+            integrationEvents.push(`defer:${options.deferSwitchTerrain}`);
+            options.earthSenseMessage('earth');
+        },
+        message: async (line) => integrationEvents.push(`message:${line}`),
+        switchTerrain: () => integrationEvents.push('switch_terrain'),
+    });
+    assert.deepEqual(integrationEvents, [
+        'defer:true',
+        'message:earth',
+        'switch_terrain',
+    ]);
+});
+
+test('the Quest portal pager spends its private shuffle before exact lines',
+    async () => {
+        const state = { urole: roles.find((role) => role.filecode === 'Wiz') };
+        monst_globals_init(state);
+        const events = [];
+        await com_pager('quest_portal', state, {
+            random: (bound) => {
+                events.push(`rng:${bound}`);
+                return 0;
+            },
+            message: async (line) => events.push(`msg:${line}`),
+        });
+        assert.deepEqual(events, [
+            'rng:3',
+            'rng:2',
+            'msg:You receive a faint telepathic message from Neferet the Green:',
+            'msg:Your help is urgently needed at the Lonely Tower!',
+            'msg:Look for a ...ic transporter.',
+            "msg:You couldn't quite make out that last message.",
+        ]);
+    });
+
+test('ordinary arrival autopickup transfers both floor indexes to inventory',
+    async () => {
+        await runSegment({
+            seed: 7632401,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:Pickup,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,autopickup,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '',
+        });
+        const { ux, uy } = game.u;
+        const apple = mksobj_at(
+            APPLE,
+            ux,
+            uy,
+            false,
+            false,
+            objectGenerationEnv({ state: game }),
+        );
+        // The segment stopped at its first command boundary with the welcome
+        // line pending; C dismisses that before the pickup message can print.
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        enableRngLog();
+
+        assert.equal(await pickup(1, game), 1);
+        assert.notEqual(game.level.objlist, apple);
+        assert.notEqual(game.level.objects[ux][uy], apple);
+        assert.equal(apple.where, OBJ_INVENT);
+        let carriedApple = false;
+        for (let obj = game.invent; obj; obj = obj.nobj) {
+            if (obj === apple) carriedApple = true;
+        }
+        assert.equal(carriedApple, true);
+        assert.equal(apple.pickup_prev, true);
+        assert.equal(apple.dknown, true);
+        assert.deepEqual(getRngLog(), []);
+    });
+
+test('ordinary shop arrival performs the peaceful first-visit greeting',
+    async () => {
+        await runSegment({
+            seed: 7621001,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:Shop,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '.\x165\n.',
+        });
+        const room = game.level.rooms.find(
+            (candidate) => candidate?.rtype >= SHOPBASE,
+        );
+        assert.ok(room?.resident, 'the source-selected D:5 layout has a shop');
+        const roomno = room.roomnoidx + ROOMOFFSET;
+        let interior = null;
+        for (let x = room.lx; x <= room.hx && !interior; x++) {
+            for (let y = room.ly; y <= room.hy; y++) {
+                if (!game.level.at(x, y).edge
+                    && (x !== room.resident.mx || y !== room.resident.my)) {
+                    interior = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(interior);
+        game.u.ux = interior.x;
+        game.u.uy = interior.y;
+
+        const originalRoomType = room.rtype;
+        room.rtype = SHOPBASE;
+        assert.equal(inside_shop(interior.x, interior.y, game), roomno);
+        room.rtype = originalRoomType;
+
+        const lines = [];
+        assert.equal(await u_entered_shop([roomno], game, {
+            message: async (line) => lines.push(line),
+        }), true);
+
+        const extension = room.resident.mextra.eshk;
+        const owner = extension.shknam.endsWith('s')
+            ? `${extension.shknam}'` : `${extension.shknam}'s`;
+        assert.deepEqual(lines, [
+            `"Hello, wizard!  Welcome to ${owner} `
+                + `${SHTYPES[room.rtype - SHOPBASE].name}!"`,
+        ]);
+        assert.equal(game.u.uachieved.includes(ACH_SHOP), true);
+        assert.equal(extension.bill_p, extension.bill);
+        assert.equal(extension.customer, 'wizard');
+        assert.equal(extension.visitct, 1);
+        assert.equal(extension.following, false);
+        assert.equal(room.resident.mpeaceful, true);
+        assert.equal(extension.surcharge, false);
+    });
+
+test('the first later room family remains a named live generation boundary',
+    async () => {
+        let boundary = null;
+        await runSegment({
+            seed: 7646010,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:Arrival,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '.\x166\n.',
+        }, { onBoundary: (error) => { boundary = error; } });
+
+        assert.equal(boundary?.name, 'UnsupportedSpecialRoomError');
+        assert.equal(boundary?.message, 'unsupported special room: do_mkroom(11)');
+        assert.equal(game.u.uz.dlevel, 6);
+        assert.equal(game._commandDispatchCount, 2);
+    });

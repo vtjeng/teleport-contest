@@ -1859,9 +1859,23 @@ function setQuiver(obj, env) {
     update_inventory(env);
 }
 
-// C ref: invent.c addinv_core0() and addinv().
-export function addinv(obj, env = {}) {
+// Dependency-only half of invent.c addinv_core0(). Transfer callers use this
+// while an object still belongs to its source chain so every missing inventory
+// effect is rejected before ownership changes.
+export function preflight_addinv(obj, env = {}) {
     const normalized = inventoryEnv(env);
+    requireInventoryRefresh(normalized);
+    return {
+        normalized,
+        addinvFacts: preflightAddinvCores(obj, normalized),
+        carryEffects: preflight_carry_obj_effects(obj, normalized),
+    };
+}
+
+// C ref: invent.c addinv_core0() and addinv().
+export function addinv(obj, env = {}, prepared = null) {
+    const plan = prepared ?? preflight_addinv(obj, env);
+    const normalized = plan.normalized;
     const { state } = normalized;
     if (obj.where !== OBJ_FREE)
         throw new Error(`addinv: object where=${obj.where}, expected OBJ_FREE`);
@@ -1869,12 +1883,11 @@ export function addinv(obj, env = {}) {
         throw new Error('addinv: free object retains a chain link');
     if (obj.how_lost === LOST_EXPLODING) return null;
 
-    requireInventoryRefresh(normalized);
-    const addinvFacts = preflightAddinvCores(obj, normalized);
+    const addinvFacts = plan.addinvFacts;
     const willConsiderAutoquiver = obj.how_lost === LOST_THROWN
         && state.flags?.pickup_thrown
         && !state.uquiver;
-    const carryEffects = preflight_carry_obj_effects(obj, normalized);
+    const carryEffects = plan.carryEffects;
 
     obj.no_charge = false;
     if (obj.cobj) clearContainedNoCharge(obj);

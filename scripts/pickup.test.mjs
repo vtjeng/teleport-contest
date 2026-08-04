@@ -1,14 +1,38 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { MOAT, PIT, ROOM } from '../js/const.js';
+import {
+    BLINDED,
+    EXT_ENCUMBER,
+    HVY_ENCUMBER,
+    MOAT,
+    MOD_ENCUMBER,
+    OBJ_FLOOR,
+    OBJ_INVENT,
+    PIT,
+    ROOM,
+    SLT_ENCUMBER,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { calc_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { M1_NOTAKE } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
-import { encumber_msg, pickup } from '../js/pickup.js';
+import { M1_NOTAKE, PM_KOBOLD_ZOMBIE } from '../js/monsters.js';
+import { mksobj_at } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import {
+    encumber_msg,
+    observe_pickup_object,
+    pickup,
+} from '../js/pickup.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { ELVEN_DAGGER, SACK, TOOL_CLASS } from '../js/objects.js';
+import {
+    ELVEN_DAGGER,
+    FIGURINE,
+    LUCKSTONE,
+    SACK,
+    SCR_IDENTIFY,
+    TOOL_CLASS,
+} from '../js/objects.js';
 
 function burdenState() {
     return {
@@ -78,19 +102,41 @@ function quiet(state) {
 }
 
 function objectUnderHero(state) {
-    const object = mksobj(ELVEN_DAGGER, true, false, { state });
-    object.nexthere = null;
-    object.ox = state.u.ux;
-    object.oy = state.u.uy;
-    state.level.objects[state.u.ux][state.u.uy] = object;
-    return object;
+    return mksobj_at(
+        ELVEN_DAGGER,
+        state.u.ux,
+        state.u.uy,
+        true,
+        false,
+        objectGenerationEnv({ state }),
+    );
+}
+
+function typedObjectUnderHero(state, otyp) {
+    return mksobj_at(
+        otyp,
+        state.u.ux,
+        state.u.uy,
+        true,
+        false,
+        objectGenerationEnv({ state }),
+    );
+}
+
+function assertStillOnBothFloorChains(state, object, links) {
+    assert.equal(object.where, OBJ_FLOOR);
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], object);
+    assert.equal(state.level.objlist, object);
+    assert.equal(object.nexthere, links.nexthere);
+    assert.equal(object.nobj, links.nobj);
 }
 
 test('pickup answers an empty square without taking anything', async () => {
     const state = await heroOnAnEmptySquare();
-    // The early return needs `autopickup`: a count pickup falls past it.
+    // Autopickup takes the early empty-square return; a count pickup reaches
+    // query_objlist() with an empty chain and also answers zero.
     assert.equal(await pickup(1, state), 0);
-    await assert.rejects(() => pickup(-1, state), /selecting objects/u);
+    assert.equal(await pickup(-1, state), 0);
 });
 
 test('pickup describes a square it is not allowed to take from', async () => {
@@ -106,12 +152,136 @@ test('pickup describes a square it is not allowed to take from', async () => {
     assert.equal(await pickup(1, state), 0);
     assert.match(state._ttyToplines ?? '', /You see here/u);
 
-    // With the option on the same square reaches the selection half.
+    // With the option on, the ordinary object follows autopick(),
+    // pickup_object() and pick_obj() into inventory.
     quiet(state);
     state.flags.pickup = true;
-    await assert.rejects(() => pickup(1, state), /selecting objects/u);
-    assert.equal(state._ttyToplines ?? '', '');
+    const object = state.level.objects[state.u.ux][state.u.uy];
+    object.dknown = false;
+    const previouslyCarried = state.invent;
+    previouslyCarried.pickup_prev = true;
+    assert.equal(await pickup(1, state), 1);
+    assert.equal(object.where, OBJ_INVENT);
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+    assert.equal(object.dknown, true);
+    assert.equal(previouslyCarried.pickup_prev, false);
+    assert.match(state._ttyToplines ?? '', /elven dagger/u);
 });
+
+test('blind pickup does not observe the object before carrying it',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        const object = objectUnderHero(state);
+        state.flags.pickup = true;
+        state.u.uprops[BLINDED].intrinsic = 1;
+        object.dknown = false;
+
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(object.where, OBJ_INVENT);
+        assert.equal(object.dknown, false);
+    });
+
+test('pickup_object observes before naming only when the hero can see',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        const object = objectUnderHero(state);
+        object.dknown = false;
+        observe_pickup_object(object, state);
+        assert.equal(object.dknown, true);
+
+        object.dknown = false;
+        state.u.uprops[BLINDED].intrinsic = 1;
+        observe_pickup_object(object, state);
+        assert.equal(object.dknown, false);
+    });
+
+test('pickup preflights every reachable addinv dependency before unlinking',
+    async () => {
+        const cases = [
+            {
+                name: 'luckstone recalculation',
+                otyp: LUCKSTONE,
+                expected: /recalculateLuck is not available/u,
+            },
+            {
+                name: 'cursed figurine timer',
+                otyp: FIGURINE,
+                expected: /isDeadSpecies is not available/u,
+                prepare(object) {
+                    object.cursed = true;
+                    object.corpsenm = PM_KOBOLD_ZOMBIE;
+                },
+            },
+            {
+                name: 'Archeologist scroll label',
+                otyp: SCR_IDENTIFY,
+                expected: /archeologistDeciphersScroll is not available/u,
+                prepare(object, state) {
+                    state.urole = { ...state.urole, filecode: 'Arc' };
+                    state.objects[object.otyp].oc_name_known = 0;
+                },
+            },
+            {
+                name: 'permanent inventory refresh',
+                otyp: ELVEN_DAGGER,
+                expected: /updateInventory is not available/u,
+                prepare(_object, state) {
+                    state.program_state.in_moveloop = true;
+                    state.iflags.perm_invent = true;
+                },
+            },
+        ];
+
+        for (const specimen of cases) {
+            const state = await heroOnAnEmptySquare();
+            state.flags.pickup = true;
+            const object = typedObjectUnderHero(state, specimen.otyp);
+            specimen.prepare?.(object, state);
+            const links = { nobj: object.nobj, nexthere: object.nexthere };
+
+            await assert.rejects(
+                () => pickup(1, state),
+                specimen.expected,
+                specimen.name,
+            );
+            assertStillOnBothFloorChains(state, object, links);
+            assert.equal(state.invent === object, false, specimen.name);
+        }
+    });
+
+function weightForCapacity(state, target) {
+    for (let weight = 1; weight < 5000; ++weight) {
+        if (calc_capacity(weight, state) === target) return weight;
+    }
+    throw new Error(`no object weight reaches capacity ${target}`);
+}
+
+test('pickup admits its exact burden limit and uses inclusive prefix thresholds',
+    async () => {
+        const prefixes = [
+            [SLT_ENCUMBER, 'You have a little trouble lifting'],
+            [MOD_ENCUMBER, 'You have trouble lifting'],
+            [HVY_ENCUMBER, 'You have much trouble lifting'],
+            [EXT_ENCUMBER, 'You have extreme difficulty lifting'],
+        ];
+        for (const [capacity, prefix] of prefixes) {
+            const state = await heroOnAnEmptySquare();
+            state.flags.pickup = true;
+            state.flags.pickup_burden = capacity;
+            const object = objectUnderHero(state);
+            object.owt = weightForCapacity(state, capacity);
+            quiet(state);
+
+            assert.equal(
+                calc_capacity(object.owt, state),
+                capacity,
+                'fixture sits exactly on the source threshold',
+            );
+            assert.equal(await pickup(1, state), 1);
+            assert.equal(object.where, OBJ_INVENT);
+            assert.match(state._ttyToplines ?? '', new RegExp(`^${prefix}`, 'u'));
+        }
+    });
 
 test('pickup takes the early return for each thing that hides the square',
     async () => {
@@ -186,18 +356,22 @@ test('pickup stops on each state it has no answer for', async () => {
 
 test('pickup stops a run before it selects anything', async () => {
     const state = await heroOnAnEmptySquare();
-    objectUnderHero(state);
+    const first = objectUnderHero(state);
     state.flags.pickup = true;
     state.context.run = 1;
     state.multi = 1;
 
-    await assert.rejects(() => pickup(1, state), /selecting objects/u);
+    assert.equal(await pickup(1, state), 1);
+    assert.equal(first.where, OBJ_INVENT);
     // hack.c nomul(0) ends the run before the selection begins.
     assert.equal(state.context.run, 0);
 
     // svc.context.run == 8 is the travel command, which pickup() leaves
     // running.
+    quiet(state);
+    const second = objectUnderHero(state);
     state.context.run = 8;
-    await assert.rejects(() => pickup(1, state), /selecting objects/u);
+    assert.equal(await pickup(1, state), 1);
+    assert.equal(second.where, OBJ_INVENT);
     assert.equal(state.context.run, 8);
 });

@@ -16,15 +16,22 @@ import {
     LEPREHALL,
     MORGUE,
     NO_ROOM,
+    OROOM,
     ROOMOFFSET,
     ROWNO,
     SHARED,
     SHARED_PLUS,
     SHOPBASE,
+    STEALTH,
     SWAMP,
     TEMPLE,
+    THRONE,
     ZOO,
 } from './const.js';
+import { wake_msg } from './mon.js';
+import { rn2 } from './rng.js';
+import { u_entered_shop } from './shk.js';
+import { ttyPline } from './tty_message.js';
 
 const ROOM_STRING_SIZE = 5;
 
@@ -178,21 +185,20 @@ export function move_update(newlev, state = game) {
     return state;
 }
 
-// C ref: hack.c check_special_room() (3624-3777).  Covered here: move_update(),
-// the u_left_shop() guard at 3634, the Mine Town achievement at 3646-3652, the
-// early return at 3654 for a hero who entered neither a room nor a shop, and
-// the entry-message switch below it for every room type that the switch's
-// `default` arm reduces to nothing.
-//
-// Not covered: u_entered_shop() and the eleven room types whose arms print,
-// wake monsters or clear a level flag.  Each stops rather than diverging in
-// silence.
+// C ref: hack.c check_special_room() (3624-3777). Covered here: move_update(),
+// the leaving/town guards, generated-shop entry, the complete COURT entry
+// message/reset/wake arm, and the no-effect default. Later special-room types
+// remain named boundaries at their switch arm.
 //
 // do.c goto_level() calls this twice.  The call at 1615 passes newlev TRUE, for
 // which the early return is unconditional because move_update(TRUE) has just
 // cleared both u.uentered and u.ushops_entered; the call at 1976 passes FALSE
 // and is the one that can announce the room the hero arrived in.
-export function check_special_room(newlev, state = game) {
+export async function check_special_room(
+    newlev,
+    state = game,
+    { message = ttyPline, random = rn2, canSeeMonster = null } = {},
+) {
     move_update(newlev, state);
 
     // u_left_shop() bills the hero for anything unpaid she carries out of a
@@ -218,14 +224,11 @@ export function check_special_room(newlev, state = game) {
         return state; /* no entrance messages necessary */
 
     if (enteredShops.length) {
-        // u_entered_shop() greets the hero and starts the shopkeeper's
-        // bookkeeping; the shop work owns it.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'check_special_room() entering a shop',
-        );
+        await u_entered_shop(enteredShops, state, { message });
     }
 
     for (const roomno of entered) {
+        const roomIndex = roomno - ROOMOFFSET;
         const rt = roomType(roomno, state);
         // Every arm of the entry switch that prints, sets a level flag, wakes
         // a monster or calls room_discovered() is named here. C's `default`
@@ -233,10 +236,59 @@ export function check_special_room(newlev, state = game) {
         // a shop it leaves msg_given FALSE and rt zero, so the whole body
         // below the switch does nothing -- which is why OROOM and THEMEROOM
         // fall through this loop rather than being listed as exceptions.
-        if (rt === ZOO || rt === SWAMP || rt === COURT || rt === LEPREHALL
+        if (rt === COURT) {
+            const room = state.level.rooms[roomIndex];
+            let hasThrone = false;
+            for (let x = room.lx; x <= room.hx && !hasThrone; ++x) {
+                for (let y = room.ly; y <= room.hy; ++y) {
+                    if (state.level.at(x, y)?.typ === THRONE) {
+                        hasThrone = true;
+                        break;
+                    }
+                }
+            }
+            await message(
+                `You enter an opulent${hasThrone ? ' throne' : ''} room!`,
+                state,
+            );
+            // room_discovered() records mapseen data. This port has no mapseen
+            // chain; the room's one-time identity is the live state owner.
+            room.rtype = OROOM;
+            if (!state.level.rooms.some(
+                (candidate) => candidate?.rtype === COURT,
+            )) state.level.flags.has_court = false;
+
+            const stealth = state.u?.uprops?.[STEALTH];
+            const stealthy = Boolean(
+                (stealth?.intrinsic || stealth?.extrinsic)
+                && !stealth?.blocked,
+            );
+            for (let monster = state.level.monlist;
+                monster;
+                monster = monster.nmon) {
+                if ((monster.mhp ?? 0) <= 0) continue;
+                const location = state.level.at(monster.mx, monster.my);
+                // Preserve hack.c's accidental comparison exactly: roomno is
+                // the zero-based svr.rooms[] index here, while levl.roomno
+                // still includes ROOMOFFSET.  It normally skips the Court's
+                // own monsters, and can instead select monsters in an earlier
+                // room whose encoded number happens to equal this index.
+                if (!location || location.roomno !== roomIndex) continue;
+                if (!stealthy && !random(3)) {
+                    await wake_msg(monster, false, {
+                        state,
+                        message,
+                        canSeeMonster,
+                    });
+                    monster.msleeping = false;
+                }
+            }
+            continue;
+        }
+        if (rt === ZOO || rt === SWAMP || rt === LEPREHALL
             || rt === MORGUE || rt === BEEHIVE || rt === COCKNEST
             || rt === ANTHOLE || rt === BARRACKS || rt === DELPHI
-            || rt === TEMPLE || rt >= SHOPBASE) {
+            || rt === TEMPLE) {
             throw new UnsupportedHeroMoveBoundaryError(
                 `check_special_room() entering room type ${rt}`,
             );

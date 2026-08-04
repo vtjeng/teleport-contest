@@ -58,6 +58,7 @@ import {
     isok,
 } from './const.js';
 import {
+    Is_special,
     depth,
     get_level,
     ledger_no,
@@ -1139,18 +1140,27 @@ function Confusion(state) {
     return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
 }
 
-// ISO C atoi() skips leading whitespace, accepts one sign, consumes decimal
-// digits, and answers 0 when there are none. level_tele() deliberately uses
-// that permissive result after lev_by_name(), so "2foo" still means level 2.
-function cAtoi(text) {
-    const match = String(text).match(/^\s*[+-]?\d+/u);
-    return match ? Number.parseInt(match[0], 10) : 0;
+// The comparison recorder's atoi() reaches strtol() and then stores the
+// result in a signed int. Match that concrete LP64 ABI: ASCII whitespace,
+// optional sign, a decimal prefix, long saturation, then low-32-bit narrowing.
+// level_tele() deliberately accepts the prefix, so "2foo" still means level 2.
+const LONG_MAX = (1n << 63n) - 1n;
+const LONG_MIN = -(1n << 63n);
+
+export function cAtoi(text) {
+    const match = /^[ \t\n\v\f\r]*([+-]?[0-9]+)/.exec(String(text));
+    if (!match) return 0;
+    let wide = BigInt(match[1]);
+    if (wide > LONG_MAX) wide = LONG_MAX;
+    else if (wide < LONG_MIN) wide = LONG_MIN;
+    return Number(BigInt.asIntN(32, wide));
 }
 
-// C ref: teleport.c level_tele() (1164-1249), the head that opens the prompt
-// and classifies the four answers C recognizes before `newlev` exists. Every
-// path that needs a destination -- dungeon.c lev_by_name(), atoi(),
-// print_dungeon() and random_teleport_level() -- stops with a named refusal.
+// C ref: teleport.c level_tele() (1164-1424). Covered here: the prompt and
+// literal-answer classification, recorder-ABI decimal conversion, topology
+// resolution for an ordinary positive main-dungeon destination, its guards,
+// and schedule_goto(). Named, random, non-positive, special-level and other
+// explicitly unsupported destinations stop at their source branch.
 //
 // teleport.c:1174-1184's iflags.debug_fuzzer arm is omitted rather than
 // refused, for the reason cmd.c can_do_extcmd()'s fuzzer arm is: nothing in
@@ -1270,6 +1280,16 @@ export async function level_tele(state = game) {
             state,
         );
         return;
+    }
+
+    // A numeric depth can be occupied by a special level even though
+    // lev_by_name() returned zero. Loading those .lua levels is outside this
+    // boundary, so refuse before schedule_goto() writes u.utolev/utotype or
+    // a later turn consumes generation randomness.
+    if (Is_special(newlevel, state)) {
+        throw new UnsupportedLevelChangeError(
+            'level_tele() resolving a numeric special-level destination',
+        );
     }
 
     schedule_goto(

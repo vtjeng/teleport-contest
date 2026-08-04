@@ -527,18 +527,9 @@ export async function runSegment(
             if (e instanceof UnsupportedTurnBoundaryError
                 || e instanceof UnsupportedHeroMoveBoundaryError
                 || e instanceof UnsupportedHeroCommandBoundaryError
-                // dungeon.c u_on_newpos() reaches earth_sense() from
-                // js/hack.js domove(), js/do.js goto_level() and
-                // js/teleport.js teleds(), which run under this loop, so the
-                // missing notice ends the segment on its last matching screen.
-                // Two further callers run during level creation, outside it:
-                // js/mkmaze.js place_lregion() and js/stairs.js
-                // u_on_upstairs(). The stair
-                // claim covers only the second. place_lregion() picks a random
-                // square, which can be ROOM, so the terrain gate does not stop
-                // it; what does is that u_on_upstairs() reaches it only on a
-                // level holding neither an ordinary nor a special up stair,
-                // and every level this port builds holds one.
+                // Arrival placement supplies earth_sense() a source-ordered
+                // message collector. Other movement callers remain an
+                // explicit boundary until their async message path is ported.
                 || e instanceof UnsupportedEarthSenseError
                 // botl.c timebot() reaches js/display.js
                 // _refuseUnfittableStatusRow() from allmain.c moveloop_core()

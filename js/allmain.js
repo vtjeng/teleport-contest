@@ -196,7 +196,7 @@ export async function newgame() {
     // starting pet chooses a neighboring square.
     init_vision_globals();
     vision_reset();
-    check_special_room(false, g);
+    await check_special_room(false, g);
     const stairOccupant = m_at(g.u.ux, g.u.uy, g);
     if (stairOccupant)
         mnexto(stairOccupant, RLOC_NOMSG, { state: g });

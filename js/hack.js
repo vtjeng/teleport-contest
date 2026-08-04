@@ -1969,7 +1969,7 @@ export function terrain_changed_under_hero(state = game) {
 // and then lets float_down() run pickup(1) exactly once.
 export async function spoteffects(pick, state = game) {
     if (terrain_changed_under_hero(state)) switch_terrain(state);
-    check_special_room(false, state);
+    await check_special_room(false, state);
     // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
     // in this port grants levitation, so the arm is unreachable today, but
     // admitting a sink as a destination is what makes it reachable in

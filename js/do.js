@@ -67,16 +67,18 @@ import {
     notice_mon_off,
     notice_mon_on,
     set_uinwater,
+    switch_terrain,
     u_rooted,
 } from './hack.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
 import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
-import { PM_TOURIST } from './monsters.js';
+import { PM_ROGUE, PM_TOURIST } from './monsters.js';
 import { is_pick } from './obj.js';
 import { BOULDER, POTION_CLASS } from './objects.js';
 import { pickup } from './pickup.js';
+import { com_pager } from './questpgr.js';
 import { in_out_region } from './region.js';
 import { rn2 } from './rng.js';
 import { check_special_room } from './rooms.js';
@@ -110,6 +112,41 @@ export class UnsupportedLevelChangeError extends Error {
         this.name = 'UnsupportedLevelChangeError';
         this.reason = reason;
     }
+}
+
+// do.c goto_level() receives earth_sense()'s synchronous pline before
+// u_on_rndspot() reaches switch_terrain().  The display port is asynchronous,
+// so keep those two effects together at their source-ordered await boundary.
+export async function finish_random_arrival_effects(
+    earthSenseMessages,
+    state = game,
+    { message = ttyPline, switchTerrain = switch_terrain } = {},
+) {
+    for (const line of earthSenseMessages) await message(line, state);
+    switchTerrain(state);
+}
+
+// Async integration seam for do.c goto_level()'s random-arrival arm.  Keeping
+// the deferral flag and its matching completion in one function makes the C
+// order (earth_sense(), then switch_terrain()) independently testable.
+export async function place_random_arrival(
+    upflag,
+    state = game,
+    {
+        message = ttyPline,
+        switchTerrain = switch_terrain,
+        place = u_on_rndspot,
+    } = {},
+) {
+    const earthSenseMessages = [];
+    place(upflag, state, {
+        earthSenseMessage: (line) => earthSenseMessages.push(line),
+        deferSwitchTerrain: true,
+    });
+    await finish_random_arrival_effects(earthSenseMessages, state, {
+        message,
+        switchTerrain,
+    });
 }
 
 // C ref: do.c maybe_lvltport_feedback() (2031-2040). goto_level() calls this
@@ -387,8 +424,8 @@ export async function dodown(state = game) {
     return ECMD_TIME;
 }
 
-// C ref: do.c goto_level() (1478-1998), for a hero walking down a staircase
-// onto a level of the main dungeon she has never visited.
+// C ref: do.c goto_level() (1478-1998), for first-time arrival on an ordinary
+// main-dungeon level through stairs or positive-decimal level teleport.
 //
 // Covered: the destination clamp and dungeon-change guards at 1501-1519, the
 // mysterious force at 1541-1573, the quest guard at 1578-1581, the
@@ -400,8 +437,9 @@ export async function dodown(state = game) {
 // the arrival tail at 1967-1993.
 //
 // Not covered, each named at its site: the endgame, tutorial, portal, falling,
-// punished, Gehennom, quest, Knox, Mines, Sokoban and
-// Rogue-level arms, and the getlev() reload at 1704-1711.
+// punished, Gehennom, Knox, Mines, Sokoban and Rogue-level arms, and the
+// getlev() reload at 1704-1711. Common Quest-entrance, shop-entry, object
+// pickup, and dwarf earth-sense arrival effects are included below.
 //
 // One caution about `state`: In_endgame() and In_tutorial() are js/const.js's
 // renderings of the dungeon.h macros and read the module-level game. They
@@ -510,7 +548,7 @@ export async function goto_level(
         );
     }
 
-    check_special_room(true, state);
+    await check_special_room(true, state);
     if (Punished(state)) {
         // do.c:1616-1617, Punished -> ball.c unplacebc().
         throw new UnsupportedLevelChangeError(
@@ -609,7 +647,10 @@ export async function goto_level(
     // do.c:1720-1745 places the hero at the destination portal, and
     // do.c:1802-1810 at a random spot after a fall or a level teleport.
     if (!at_stairs) {
-        u_on_rndspot((up ? 1 : 0) | (was_in_W_tower ? 2 : 0), state);
+        await place_random_arrival(
+            (up ? 1 : 0) | (was_in_W_tower ? 2 : 0),
+            state,
+        );
     } else if (up) {
         // The climbing arm at do.c:1767-1780 belongs with doup().
         throw new UnsupportedLevelChangeError(
@@ -719,10 +760,18 @@ export async function goto_level(
         && at_dgn_entrance('The Quest', state)
         && !(u.uevent?.qcompleted || u.uevent?.qexpelled
              || state.svq?.quest_status?.leader_is_dead)) {
-        // com_pager("quest_portal") opens the quest leader's summons.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() arriving at the quest entrance',
-        );
+        u.uevent ??= {};
+        if (!u.uevent.qcalled) {
+            u.uevent.qcalled = 1;
+            await com_pager('quest_portal', state);
+        } else {
+            await com_pager(
+                state.urole?.mnum === PM_ROGUE
+                    ? 'quest_portal_demand'
+                    : 'quest_portal_again',
+                state,
+            );
+        }
     }
 
     temperature_change_msg(prev_temperature, state);
@@ -749,7 +798,7 @@ export async function goto_level(
     // for this level. The port keeps no mapseen chain, so get_annotation()
     // has nothing to answer with; js/do.js records the same gap for
     // recalc_mapseen() above.
-    check_special_room(false, state); /* give room entrance message, if any */
+    await check_special_room(false, state); /* give room entrance message */
     obj_delivery(true, state); /* deliver objects traveling with player */
 
     /* assume this will always return TRUE when changing level */

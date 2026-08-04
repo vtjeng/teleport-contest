@@ -141,11 +141,13 @@ import {
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
     PM_CAVE_SPIDER,
+    PM_BUGBEAR,
     PM_CENTIPEDE,
     PM_CHAMELEON,
     PM_CHICKATRICE,
     PM_COCKATRICE,
     PM_DEMILICH,
+    PM_DWARF_RULER,
     PM_ELF,
     PM_FIRE_ELEMENTAL,
     PM_FIRE_VORTEX,
@@ -154,6 +156,7 @@ import {
     PM_FOX,
     PM_GARTER_SNAKE,
     PM_GHOST,
+    PM_GNOME_RULER,
     PM_GIANT,
     PM_GIANT_MUMMY,
     PM_GIANT_MIMIC,
@@ -163,6 +166,7 @@ import {
     PM_GRAY_UNICORN,
     PM_GRID_BUG,
     PM_HUMAN,
+    PM_HOBGOBLIN,
     PM_JACKAL,
     PM_KOBOLD,
     PM_KOBOLD_MUMMY,
@@ -886,6 +890,19 @@ function isStatuaryReservoirSpecies(species) {
         && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL));
 }
 
+// The selected ordinary level-teleport boundary generates through D:5. Its
+// rndmonst() reservoir extends below and above the D:1 set but remains in the
+// common non-unique, non-hell generated band. Inventory initialization still
+// fail-closes by source weapon class when a later species needs a new branch.
+function isOrdinaryD5ReservoirSpecies(species) {
+    return species.pmidx >= 0
+        && species.pmidx < SPECIAL_PM
+        && species.difficulty >= 0
+        && species.difficulty <= 9
+        && Boolean(species.geno & G_FREQ)
+        && !(species.geno & (G_NOGEN | G_UNIQ | G_HELL));
+}
+
 // dat/themerms.lua's Mausoleum chooses one of these four classes through
 // mkclass(..., G_NOGEN).  On D:1 the source can reach both ordinary liches,
 // every mummy, both non-unique vampires, and every generated zombie; the
@@ -899,11 +916,21 @@ function isMausoleumSpecies(species) {
 }
 
 function assertSupportedSpecies(species) {
+    const courtSpecies = species
+        && (species.pmidx === PM_BUGBEAR
+            || species.pmidx === PM_DWARF_RULER
+            || species.pmidx === PM_GNOME_RULER
+            || species.pmidx === PM_HOBGOBLIN
+            || species.mlet === S_KOBOLD
+            || species.mlet === S_GNOME
+            || species.mlet === S_ORC);
     if (!species
         || (!INITIAL_LEVEL_MONSTERS.has(species.pmidx)
             && !TUTORIAL_LEVEL_MONSTERS.has(species.pmidx)
             && !isStatuaryReservoirSpecies(species)
-            && !isMausoleumSpecies(species))) {
+            && !isOrdinaryD5ReservoirSpecies(species)
+            && !isMausoleumSpecies(species)
+            && !courtSpecies)) {
         throw new UnsupportedMonsterCreationError(
             `monster ${species?.pmidx ?? 'null'}`,
         );

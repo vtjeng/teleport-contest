@@ -4,8 +4,8 @@
 // place_lregion() (355-408) and put_lregion_here() (412-467). Together they
 // answer "where on this level does <something> go", and the something this
 // port asks about is the hero: dungeon.c u_on_rndspot() sends a level-teleport
-// arrival here, and mklev.c u_on_upstairs() falls back to it on a level with no
-// up staircase.
+// arrival here, and stairs.c u_on_upstairs() falls back to it on a level with
+// no up staircase.
 //
 // The rest of mkmaze.c -- maze carving, the Wizard's tower, wallification and
 // the bubble levels -- has no port yet, so this file holds only that group.
@@ -91,6 +91,7 @@ export function place_lregion(
     rtype,
     lev,
     state = game,
+    options = {},
 ) {
     lx ??= 0;
     ly ??= 0;
@@ -130,7 +131,7 @@ export function place_lregion(
         const x = rn1((hx - lx) + 1, lx);
         const y = rn1((hy - ly) + 1, ly);
         if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, oneshot, lev,
-                             state))
+                             state, options))
             return;
     }
 
@@ -139,7 +140,7 @@ export function place_lregion(
     for (let x = lx; x <= hx; x++)
         for (let y = ly; y <= hy; y++)
             if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, true, lev,
-                                 state))
+                                 state, options))
                 return;
 
     // C's impossible() prints "Couldn't place lregion type %d!" and returns,
@@ -162,6 +163,7 @@ function put_lregion_here(
     oneshot,
     lev,
     state = game,
+    options = {},
 ) {
     if (bad_location(x, y, nlx, nly, nhx, nhy, state)
         || is_exclusion_zone(rtype, x, y, state)) {
@@ -200,7 +202,7 @@ function put_lregion_here(
             }
             return false;
         }
-        u_on_newpos(x, y, state);
+        u_on_newpos(x, y, state, options);
         break;
     }
     default:

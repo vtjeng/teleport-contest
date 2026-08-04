@@ -9,12 +9,14 @@ import test from 'node:test';
 import {
     FILL_NONE,
     FILL_NORMAL,
+    COURT,
     LOW_PM,
     M_AP_OBJECT,
     OROOM,
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
+    THRONE,
     VAULT,
     ismnum,
 } from '../js/const.js';
@@ -22,22 +24,40 @@ import { ledger_no } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
-import { UnsupportedSpecialRoomError, do_mkroom } from '../js/mkroom.js';
+import {
+    UnsupportedSpecialRoomError,
+    courtCellIsFillable,
+    courtmon,
+    do_mkroom,
+    fill_zoo,
+    pick_room,
+} from '../js/mkroom.js';
 import { m_at } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import {
     NON_PM,
     NUMMONS,
     PM_JACKAL,
+    PM_BUGBEAR,
+    PM_DWARF_RULER,
+    PM_GNOME_RULER,
+    PM_HOBGOBLIN,
+    PM_HUMAN,
     PM_LICHEN,
+    M2_GNOME,
     S_MIMIC,
+    S_GNOME,
+    S_KOBOLD,
+    S_ORC,
     monst_globals_init,
+    reset_mvitals,
 } from '../js/monsters.js';
 import { SIR_TERRY_NOVELS } from '../js/do_name.js';
 import {
     AMULET_CLASS,
     APPLE,
     ARMOR_CLASS,
+    CHEST,
     CORPSE,
     CRAM_RATION,
     EGG,
@@ -83,7 +103,13 @@ import {
     shktools,
     shkweapons,
 } from '../js/shtypes_data.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { timeout_globals_init } from '../js/timeout.js';
 import { shkveg, stock_room, veggy_item } from '../js/shknam.js';
+import {
+    loadLevelTeleportArrivalRecipe,
+    verifyLevelTeleportArrival,
+} from './run-level-teleport-arrival.mjs';
 
 // shknam.c shtypes[] in source order. mkroom.c stores the index as
 // rtype - SHOPBASE, so these are also the rtype offsets mkroom.h's
@@ -106,6 +132,69 @@ function initializedState() {
     state.level.rooms = [];
     state.stairs = null;
     return state;
+}
+
+function initializedCourtState() {
+    const state = initializedState();
+    state.astral_level = { dnum: 9, dlevel: 9 };
+    state.branches = [];
+    state.context = { current_fruit: 1, ident: 2, mon_moving: false };
+    state.dungeons = [{
+        depth_start: 1,
+        ledger_start: 0,
+        num_dunlevs: 29,
+        entry_lev: 1,
+        dunlev_ureached: 5,
+        flags: {},
+    }];
+    state.flags = {};
+    state.gz = { zombify: false };
+    state.in_mklev = true;
+    state.moves = 0;
+    state.program_state = { gameover: false };
+    state.quest_dnum = 1;
+    state.rogue_level = { dnum: 0, dlevel: 15 };
+    state.sanctum_level = { dnum: 9, dlevel: 8 };
+    state.specialLevels = [];
+    state.u = {
+        ualign: { type: -1, record: 20, abuse: 0 },
+        uhave: { amulet: 0 },
+        ulevel: 5,
+        uz: { dnum: 0, dlevel: 5 },
+    };
+    state.urace = { lovemask: 0, hatemask: 0 };
+    state.urole = { mnum: PM_HUMAN };
+    monst_globals_init(state);
+    reset_mvitals(state);
+    init_objects(state, () => 0);
+    timeout_globals_init(state);
+    return state;
+}
+
+function courtFillRandom(rulerRoll) {
+    let pendingRulerRoll = rulerRoll;
+    return {
+        d: (count) => count,
+        rn1: (_bound, base) => base,
+        rn2(bound) {
+            // courtmon() receives 16 and selects the gnome class. A hero with
+            // the matching race affinity necessarily makes those subjects
+            // peaceful before fill_zoo() applies the Court hostility override.
+            if (bound === 60) return 16;
+            if (bound === 15) return 0;
+            return bound > 1 ? 1 : 0;
+        },
+        rnd(bound) {
+            if (pendingRulerRoll !== null && bound === 5) {
+                const result = pendingRulerRoll;
+                pendingRulerRoll = null;
+                return result;
+            }
+            return 1;
+        },
+        rne: () => 1,
+        rnz: (value) => value,
+    };
 }
 
 // A rectangular room with one door, no staircase, and enough floor beside the
@@ -395,13 +484,18 @@ test('stock_room rejects a row shtypes[] does not carry', () => {
     assert.throws(() => stock_room(12, room, { state }), RangeError);
 });
 
-test('do_mkroom refuses every non-shop special room', () => {
-    // mkroom.c do_mkroom() dispatches ten other room types to mkzoo(),
-    // mkswamp() and mktemple(), none of which is ported. Each needs a depth
-    // greater than four, so no case a recording can reach stops here, and this
-    // test is the whole evidence for the boundary.
+test('do_mkroom supports Court and refuses every later special room', () => {
+    // COURT is the first depth-gated family and now dispatches to mkzoo().
+    // The other nine types remain the explicit later-family boundary.
     const state = initializedState();
-    for (const roomtype of [2, 3, 5, 6, 7, 8, 10, 11, 12, 13]) {
+    const room = shopCandidate(state, { hx: 13, hy: 8 });
+    room.rtype = OROOM;
+    room.needfill = FILL_NONE;
+    do_mkroom(2, state, { rn2: () => 0 });
+    assert.equal(room.rtype, 2);
+    assert.equal(room.needfill, FILL_NORMAL);
+
+    for (const roomtype of [3, 5, 6, 7, 8, 10, 11, 12, 13]) {
         assert.throws(
             () => do_mkroom(roomtype, state),
             UnsupportedSpecialRoomError,
@@ -409,6 +503,272 @@ test('do_mkroom refuses every non-shop special room', () => {
         );
     }
 });
+
+test('pick_room preserves strict stairs, wrap count, and source draw order',
+    () => {
+        const state = initializedState();
+        const down = shopCandidate(state, { lx: 10, hx: 13 });
+        const up = shopCandidate(state, { lx: 30, hx: 33 });
+        const clear = shopCandidate(state, { lx: 50, hx: 53 });
+        state.stairs = {
+            sx: 11, sy: 6, up: false,
+            next: { sx: 31, sy: 6, up: true, next: null },
+        };
+
+        let draws = [];
+        assert.equal(pick_room(true, state, {
+            rn2: (bound) => { draws.push(bound); return 0; },
+        }), clear);
+        assert.deepEqual(draws, [3]);
+
+        draws = [];
+        assert.equal(pick_room(false, state, {
+            rn2: (bound) => {
+                draws.push(bound);
+                return 0;
+            },
+        }), down, 'rn2(3)==0 admits the down-stair room');
+        assert.deepEqual(draws, [3, 3]);
+
+        draws = [];
+        assert.equal(pick_room(false, state, {
+            rn2: (bound) => {
+                draws.push(bound);
+                return bound === 3 && draws.length === 2 ? 1 : 0;
+            },
+        }), clear, 'nonzero rn2(3) rejects down; up is unconditional');
+        assert.deepEqual(draws, [3, 3]);
+
+        state.stairs = null;
+        for (const room of state.level.rooms) room.doorct = 0;
+        draws = [];
+        assert.equal(pick_room(false, state, {
+            rn2: (bound) => {
+                draws.push(bound);
+                return bound === 3 ? 0 : 1;
+            },
+        }), null);
+        assert.deepEqual(draws, [3, 5, 5, 5], 'exactly nroom candidates');
+
+        down.hx = -1;
+        clear.doorct = 1;
+        assert.equal(pick_room(false, state, { rn2: () => 0 }), null,
+            'the rooms[] terminator ends the search immediately');
+        down.hx = 13;
+
+        down.doorct = 0;
+        state.wizard = true;
+        draws = [];
+        assert.equal(pick_room(false, state, {
+            rn2: (bound) => { draws.push(bound); return bound === 5 ? 1 : 0; },
+        }), down);
+        assert.deepEqual(draws, [3, 5], 'wizard is after the rn2(5) draw');
+        state.wizard = false;
+
+        down.doorct = 1;
+        draws = [];
+        assert.equal(pick_room(false, state, {
+            rn2: (bound) => { draws.push(bound); return 0; },
+        }), down);
+        assert.deepEqual(draws, [3], 'one door short-circuits rn2(5)');
+        assert.equal(up.rtype, OROOM);
+
+        const nonstrictState = initializedState();
+        const downOnly = shopCandidate(nonstrictState, { hx: 13 });
+        nonstrictState.stairs = {
+            sx: 11, sy: 6, up: false, next: null,
+        };
+        do_mkroom(COURT, nonstrictState, { rn2: () => 0 });
+        assert.equal(
+            downOnly.rtype,
+            COURT,
+            'mkzoo calls the non-strict selector and admits rn2(3)==0',
+        );
+    });
+
+test('D:5 courtmon uses strict source thresholds for each reachable class',
+    () => {
+        const state = initializedState();
+        state.u.uz.dlevel = 5;
+        state.u.ulevel = 5;
+        state.dungeons = [{
+            depth_start: 1,
+            ledger_start: 0,
+            num_dunlevs: 29,
+            entry_lev: 1,
+            dunlev_ureached: 5,
+            flags: {},
+        }];
+        monst_globals_init(state);
+        reset_mvitals(state);
+
+        const cases = [
+            [[15, 0], { mlet: S_KOBOLD }],
+            [[16, 0], { mlet: S_GNOME }],
+            [[30, 0], { mlet: S_GNOME }],
+            [[31, 0], { pmidx: PM_HOBGOBLIN }],
+            [[45, 0], { pmidx: PM_HOBGOBLIN }],
+            [[46, 0], { pmidx: PM_BUGBEAR }],
+            [[59, 1], { pmidx: PM_BUGBEAR }],
+            [[59, 2], { mlet: S_ORC }],
+        ];
+        for (const [prefix, expected] of cases) {
+            const values = [...prefix];
+            const species = courtmon(state, {
+                rn2: () => values.length ? values.shift() : 0,
+                rnd: () => 1,
+            });
+            if (Object.hasOwn(expected, 'mlet')) {
+                assert.equal(
+                    species.mlet,
+                    expected.mlet,
+                    `sum ${prefix[0] + prefix[1]}`,
+                );
+            } else {
+                assert.equal(
+                    species.pmidx,
+                    expected.pmidx,
+                    `sum ${prefix[0] + prefix[1]}`,
+                );
+            }
+        }
+    });
+
+test('Court fill geometry excludes exactly the door-facing boundary', () => {
+    const state = initializedState();
+    const room = shopCandidate(state, { lx: 10, ly: 5, hx: 13, hy: 8 });
+    room.rtype = COURT;
+    const orientations = [
+        [{ x: 9, y: 6 }, [10, 8], [11, 8]],
+        [{ x: 14, y: 6 }, [13, 5], [12, 5]],
+        [{ x: 11, y: 4 }, [13, 5], [13, 6]],
+        [{ x: 11, y: 9 }, [10, 8], [10, 7]],
+    ];
+    for (const [door, excluded, admitted] of orientations) {
+        state.level.doors[0] = door;
+        assert.equal(courtCellIsFillable(room, ...excluded, state), false);
+        assert.equal(courtCellIsFillable(room, ...admitted, state), true);
+    }
+    state.level.doors[0] = { x: 9, y: 6 };
+    state.level.at(11, 7).typ = 0;
+    assert.equal(courtCellIsFillable(room, 11, 7, state), false);
+    state.level.at(11, 7).typ = ROOM;
+    room.doorct = 0;
+    assert.equal(courtCellIsFillable(room, 10, 5, state), true);
+});
+
+test('D:5 Court ruler boundary changes from gnome to dwarf at roll three',
+    () => {
+        for (const [roll, expected] of [
+            [2, PM_GNOME_RULER],
+            [3, PM_DWARF_RULER],
+        ]) {
+            const state = initializedCourtState();
+            const room = shopCandidate(state, {
+                lx: 10, ly: 5, hx: 11, hy: 6,
+            });
+            room.rtype = COURT;
+            room.doorct = 0;
+            const random = courtFillRandom(roll);
+            fill_zoo(room, objectGenerationEnv({
+                state,
+                random,
+                hooks: { populateContainer: () => {} },
+            }));
+
+            const throne = [];
+            for (let x = room.lx; x <= room.hx; ++x) {
+                for (let y = room.ly; y <= room.hy; ++y) {
+                    if (state.level.at(x, y).typ === THRONE) throne.push([x, y]);
+                }
+            }
+            assert.equal(throne.length, 1, `roll ${roll} creates one throne`);
+            assert.equal(
+                m_at(throne[0][0], throne[0][1], state)?.mnum,
+                expected,
+                `ruler roll ${roll}`,
+            );
+        }
+    });
+
+test('Court fill forces peaceful subjects hostile and initializes coffers',
+    () => {
+        const state = initializedCourtState();
+        state.urace.lovemask = M2_GNOME;
+        const room = shopCandidate(state, {
+            lx: 10, ly: 5, hx: 11, hy: 6,
+        });
+        room.rtype = COURT;
+        room.doorct = 0;
+        const random = courtFillRandom(2);
+        fill_zoo(room, objectGenerationEnv({
+            state,
+            random,
+            hooks: { populateContainer: () => {} },
+        }));
+
+        const subjects = [];
+        for (let monster = state.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum !== PM_GNOME_RULER) subjects.push(monster);
+        }
+        assert.ok(subjects.length > 0, 'Court creates at least one subject');
+        assert.ok(
+            subjects.every((monster) => monster.mpeaceful === false),
+            'co-aligned subjects are forced hostile',
+        );
+
+        let chest = null;
+        for (let obj = state.level.objlist; obj; obj = obj.nobj) {
+            if (obj.otyp === CHEST) chest = obj;
+        }
+        assert.ok(chest, 'Court creates its royal chest');
+        assert.equal(chest.olocked, true, 'royal chest runs object initialization');
+        assert.equal(state.level.flags.has_court, true);
+    });
+
+test('Court throne selection stops after exactly one hundred failed spots',
+    () => {
+        const state = initializedCourtState();
+        const room = shopCandidate(state, {
+            lx: 10, ly: 5, hx: 10, hy: 5,
+        });
+        room.rtype = COURT;
+        room.doorct = 0;
+        state.level.traps.push({ tx: room.lx, ty: room.ly, ttyp: 0 });
+
+        const stop = new Error('stop after throne-selection retries');
+        let coordinateDrawsAtRuler = null;
+        const random = {
+            rn1(_bound, base) {
+                coordinateDrawsAtRuler = (coordinateDrawsAtRuler ?? 0) + 1;
+                return base;
+            },
+            rn2: () => 0,
+            rnd() {
+                const draws = coordinateDrawsAtRuler;
+                coordinateDrawsAtRuler = { draws };
+                throw stop;
+            },
+        };
+        assert.throws(
+            () => fill_zoo(room, { state, random }),
+            (error) => error === stop,
+        );
+        assert.equal(
+            coordinateDrawsAtRuler.draws,
+            100 * 101 * 2,
+            '100 outer tries, each with somexyspace()\'s 101 candidates',
+        );
+    });
+
+test('live D:5 Court fill pins population bounds, ruler, coffers, and flag',
+    async () => {
+        const segment = loadLevelTeleportArrivalRecipe().segments.find(
+            ({ seed }) => seed === 7640011,
+        );
+        assert.ok(segment);
+        await verifyLevelTeleportArrival(segment);
+    });
 
 // Walk one Valkyrie from her up staircase to D:1's down staircase, descend,
 // and read back the shop that makelevel() stocked on D:2. Every seed and walk

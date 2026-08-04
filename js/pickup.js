@@ -2,16 +2,41 @@
 // C refs: pickup.c encumber_msg(), pickup() and check_here().
 
 import {
+    BLINDED,
+    EXT_ENCUMBER,
+    HVY_ENCUMBER,
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
+    LOST_NONE,
+    MOD_ENCUMBER,
+    OBJ_FLOOR,
+    SLT_ENCUMBER,
     is_pit,
 } from './const.js';
-import { flush_screen } from './display.js';
+import { flush_screen, newsym } from './display.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
-import { near_capacity, nomul } from './hack.js';
-import { look_here } from './invent.js';
+import {
+    calc_capacity,
+    inv_cnt,
+    inv_weight,
+    near_capacity,
+    nomul,
+    weight_cap,
+} from './hack.js';
+import {
+    addinv,
+    look_here,
+    obj_extract_self,
+    preflight_addinv,
+    prinv,
+} from './invent.js';
 import { notake } from './mondata.js';
+import { observe_object } from './o_init.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { CORPSE, SCR_SCARE_MONSTER } from './objects.js';
+import { assertObjectNameable } from './objnam.js';
+import { costly_spot } from './shk.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 
@@ -62,15 +87,25 @@ export class UnsupportedPickupError extends Error {
     }
 }
 
-// C ref: pickup.c pickup() (672-910), through the two arms that answer without
-// taking anything: the early return for a square holding nothing, and the
-// `autopickup && !flags.pickup` arm that describes the square instead. do.c
-// goto_level() calls pickup(1) as its last statement, which is the caller this
-// covers.
-//
-// The whole selection half below those arms -- autopick(), query_objlist() and
-// pickup_object() -- stops instead. Reaching it needs `autopickup` set, and
-// what it would do is the object-pickup work.
+function heroIsBlind(state) {
+    const blindness = state.u?.uprops?.[BLINDED];
+    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
+        && !blindness?.blocked);
+}
+
+// C ref: pickup.c pickup_object()'s sight-gated observe_object() call. Keep
+// this source boundary independently testable because later object naming can
+// also set dknown and would otherwise mask a wrong early Blind predicate.
+export function observe_pickup_object(obj, state = game) {
+    if (!heroIsBlind(state)) observe_object(obj, state);
+    return obj;
+}
+
+// C ref: pickup.c pickup() (672-910), autopick(), pickup_object(), pick_obj()
+// and pickup_prinv(). In addition to the no-object/no-autopickup arms, this
+// covers the complete ordinary generated-floor-object path used by a level
+// teleport arrival. Special corpses, artifacts, scare scrolls, option filters,
+// burden prompts, partial stacks and full packs stop before ownership changes.
 export async function pickup(what, state = game) {
     const u = state.u;
     const autopickup = what > 0;
@@ -133,7 +168,95 @@ export async function pickup(what, state = game) {
         nomul(0, state);
     }
 
-    throw new UnsupportedPickupError('pickup() selecting objects to take');
+    if (state.ga?.apelist) {
+        throw new UnsupportedPickupError(
+            'pickup() with autopickup exceptions',
+        );
+    }
+    if (state.flags?.pickup_types) {
+        throw new UnsupportedPickupError('pickup() with pickup_types');
+    }
+
+    const costly = costly_spot(u.ux, u.uy, state);
+    const selected = [];
+    for (let obj = state.level.objects[u.ux][u.uy];
+        obj;
+        obj = obj.nexthere) {
+        if (costly && !obj.no_charge) continue;
+        if ((obj.how_lost ?? LOST_NONE) !== LOST_NONE) {
+            throw new UnsupportedPickupError(
+                'pickup() with a lost-object option override',
+            );
+        }
+        selected.push({ obj, count: obj.quan });
+    }
+
+    // Preflight every selected item before observe_object() or unlinking the
+    // first. This is the narrow fail-closed boundary for special pickup
+    // behavior and keeps both floor indexes and discovery state atomic.
+    let addedWeight = 0;
+    for (const { obj, count } of selected) {
+        if (obj.where !== OBJ_FLOOR || !Number.isInteger(count) || count < 1)
+            throw new UnsupportedPickupError('pickup() malformed floor object');
+        if (obj.oartifact || obj.otyp === CORPSE
+            || obj.otyp === SCR_SCARE_MONSTER) {
+            throw new UnsupportedPickupError(
+                'pickup() special artifact, corpse, or scare scroll',
+            );
+        }
+        assertObjectNameable(obj, state);
+        addedWeight += Math.trunc(obj.owt ?? 0);
+    }
+    if (inv_cnt(false, state) + selected.length > 52) {
+        throw new UnsupportedPickupError('pickup() with a full pack');
+    }
+    if (inv_weight(state) + addedWeight >= 2 * weight_cap(state)) {
+        throw new UnsupportedPickupError(
+            'pickup() requiring a partial or failed lift',
+        );
+    }
+    const promptLimit = Math.max(
+        near_capacity(state),
+        state.flags?.pickup_burden ?? MOD_ENCUMBER,
+    );
+    if (calc_capacity(addedWeight, state) > promptLimit) {
+        throw new UnsupportedPickupError('pickup() requiring a burden prompt');
+    }
+
+    if (selected.length) state.loot_reset_justpicked = true;
+    const env = objectGenerationEnv({
+        state,
+        hooks: { message: ttyPline },
+    });
+    const addPlans = selected.map(({ obj }) => preflight_addinv(obj, env));
+    let picked = 0;
+    for (let index = 0; index < selected.length; ++index) {
+        const { obj, count } = selected[index];
+        observe_pickup_object(obj, state);
+        obj_extract_self(obj, env);
+        newsym(u.ux, u.uy);
+        const carried = addinv(obj, env, addPlans[index]);
+        const nearload = near_capacity(state);
+        let prefix = null;
+        if (nearload !== state.gp.pickup_encumbrance) {
+            state.gp.pickup_encumbrance = nearload;
+            if (nearload >= EXT_ENCUMBER)
+                prefix = 'You have extreme difficulty lifting';
+            else if (nearload >= HVY_ENCUMBER)
+                prefix = 'You have much trouble lifting';
+            else if (nearload >= MOD_ENCUMBER)
+                prefix = 'You have trouble lifting';
+            else if (nearload >= SLT_ENCUMBER)
+                prefix = 'You have a little trouble lifting';
+        }
+        await prinv(prefix, carried, count, env);
+        ++picked;
+    }
+
+    if (picked) newsym(u.ux, u.uy);
+    await check_here(picked > 0, state);
+    state.gp.pickup_encumbrance = 0;
+    return selected.length > 0 ? 1 : 0;
 }
 
 // C ref: pickup.c check_here(), reached from domove() through spoteffects()

@@ -1,6 +1,7 @@
 // Room-topology projections and the special room one level may receive.
 // C refs: mkroom.c cmap_to_type(), isbig(), do_mkroom(), mkshop(),
-// has_dnstairs(), has_upstairs() and invalid_shop_shape().
+// pick_room(), mkzoo(), fill_zoo(), courtmon(), has_dnstairs(),
+// has_upstairs() and invalid_shop_shape().
 
 import {
     AIR,
@@ -9,6 +10,7 @@ import {
     BRCORNER,
     CLOUD,
     CORR,
+    COURT,
     CROSSWALL,
     DBWALL,
     DOOR,
@@ -25,6 +27,7 @@ import {
     OROOM,
     POOL,
     ROOM,
+    ROOMOFFSET,
     SHOPBASE,
     SINK,
     STAIRS,
@@ -39,11 +42,40 @@ import {
     TUWALL,
     VWALL,
     WATER,
+    MM_ASLEEP,
+    MM_NOGRP,
+    SPACE_POS,
 } from './const.js';
+import { level_difficulty } from './dungeon.js';
 import { game } from './gstate.js';
-import { topologize } from './mklev.js';
-import { SPBOOK_CLASS, WAND_CLASS } from './objects.js';
-import { rnd } from './rng.js';
+import { add_to_container } from './invent.js';
+import { occupied, somexyspace, topologize } from './mklev.js';
+import { makemon, mongets } from './makemon_create.js';
+import { mkclass, set_malign } from './makemon.js';
+import {
+    PM_BUGBEAR,
+    PM_DWARF_RULER,
+    PM_ELVEN_MONARCH,
+    PM_GNOME_RULER,
+    PM_HOBGOBLIN,
+    PM_OGRE_TYRANT,
+    S_CENTAUR,
+    S_DRAGON,
+    S_GIANT,
+    S_GNOME,
+    S_KOBOLD,
+    S_ORC,
+    S_TROLL,
+} from './monsters.js';
+import {
+    CHEST,
+    GOLD_PIECE,
+    MACE,
+    SPBOOK_CLASS,
+    WAND_CLASS,
+} from './objects.js';
+import { mksobj, mksobj_at, weight } from './obj.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { inside_room } from './room_coordinates.js';
 import { SHTYPES } from './shtypes_data.js';
 import {
@@ -92,7 +124,7 @@ import {
     S_water,
 } from './symbols.js';
 
-const SOURCE_RANDOM = Object.freeze({ rnd });
+const SOURCE_RANDOM = Object.freeze({ d, rn1, rn2, rnd, rne, rnz });
 
 export function cmap_to_type(symbol) {
     switch (symbol) {
@@ -288,16 +320,162 @@ function mkshop(state, random) {
     sroom.needfill = FILL_NORMAL;
 }
 
+// C ref: mkroom.c pick_room(). Zoo-family rooms prefer a one-door ordinary
+// room, may use the down-stair room one time in three, and never use the
+// up-stair room. The non-strict form is the one mkzoo() calls.
+export function pick_room(strict, state = game, random = SOURCE_RANDOM) {
+    let index = random.rn2(state.level.nroom);
+    for (let remaining = state.level.nroom; remaining-- > 0;) {
+        const sroom = state.level.rooms[index];
+        index = (index + 1) % state.level.nroom;
+        if (!sroom || sroom.hx < 0) return null;
+        if (sroom.rtype !== OROOM) continue;
+        if (!strict) {
+            if (has_upstairs(sroom, state)
+                || (has_dnstairs(sroom, state) && random.rn2(3))) continue;
+        } else if (has_upstairs(sroom, state) || has_dnstairs(sroom, state)) {
+            continue;
+        }
+        // rn2(5) is evaluated even for a wizard; C's `|| wizard` is last.
+        if (sroom.doorct === 1 || !random.rn2(5) || state.wizard)
+            return sroom;
+    }
+    return null;
+}
+
+function mkzoo(type, state, random) {
+    const sroom = pick_room(false, state, random);
+    if (!sroom) return;
+    sroom.rtype = type;
+    sroom.needfill = FILL_NORMAL;
+}
+
+// C ref: mkroom.c courtmon(). D:5 can reach the kobold, gnome, hobgoblin,
+// bugbear and orc outcomes; the higher thresholds remain source-complete for
+// callers that exercise this pure selector at a deeper difficulty.
+export function courtmon(state = game, random = SOURCE_RANDOM) {
+    const i = random.rn2(60) + random.rn2(3 * level_difficulty(state));
+    if (i > 100) return mkclass(S_DRAGON, 0, { state, random });
+    if (i > 95) return mkclass(S_GIANT, 0, { state, random });
+    if (i > 85) return mkclass(S_TROLL, 0, { state, random });
+    if (i > 75) return mkclass(S_CENTAUR, 0, { state, random });
+    if (i > 60) return mkclass(S_ORC, 0, { state, random });
+    if (i > 45) return state.mons[PM_BUGBEAR];
+    if (i > 30) return state.mons[PM_HOBGOBLIN];
+    if (i > 15) return mkclass(S_GNOME, 0, { state, random });
+    return mkclass(S_KOBOLD, 0, { state, random });
+}
+
+function mk_zoo_thronemon(x, y, normalized) {
+    const { random, state } = normalized;
+    const roll = random.rnd(level_difficulty(state));
+    const species = state.mons[
+        roll > 9 ? PM_OGRE_TYRANT
+            : roll > 5 ? PM_ELVEN_MONARCH
+                : roll > 2 ? PM_DWARF_RULER : PM_GNOME_RULER
+    ];
+    const monster = makemon(species, x, y, 0, normalized);
+    if (!monster) return null;
+    monster.msleeping = true;
+    monster.mpeaceful = false;
+    set_malign(monster, state);
+    mongets(monster, MACE, normalized);
+    return monster;
+}
+
+export function courtCellIsFillable(sroom, x, y, state) {
+    const roomno = (sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))
+        + ROOMOFFSET;
+    if (sroom.irregular) {
+        const location = state.level.at(x, y);
+        if (!location || location.roomno !== roomno || location.edge)
+            return false;
+        if (!sroom.doorct) return true;
+        const door = state.level.doors[sroom.fdoor];
+        return Math.max(Math.abs(x - door.x), Math.abs(y - door.y)) > 1;
+    }
+    const location = state.level.at(x, y);
+    if (!location || !SPACE_POS(location.typ)) return false;
+    if (!sroom.doorct) return true;
+    const door = state.level.doors[sroom.fdoor];
+    return !((x === sroom.lx && door.x === x - 1)
+        || (x === sroom.hx && door.x === x + 1)
+        || (y === sroom.ly && door.y === y - 1)
+        || (y === sroom.hy && door.y === y + 1));
+}
+
+// C ref: mkroom.c fill_zoo(), restricted to the complete COURT arm selected
+// by the ordinary D:5 generation boundary. Other zoo families retain their
+// named do_mkroom()/fill_special_room() refusal.
+export function fill_zoo(sroom, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? SOURCE_RANDOM;
+    const normalized = { ...env, state, random };
+    if (sroom.rtype !== COURT) {
+        throw new UnsupportedSpecialRoomError(
+            `fill_zoo(${sroom.rtype}) beyond the Court boundary`,
+        );
+    }
+
+    const throne = { x: 0, y: 0 };
+    let remaining = 100;
+    do {
+        somexyspace(sroom, throne, normalized);
+    } while (occupied(throne.x, throne.y, state) && --remaining > 0);
+    mk_zoo_thronemon(throne.x, throne.y, normalized);
+
+    for (let x = sroom.lx; x <= sroom.hx; ++x) {
+        for (let y = sroom.ly; y <= sroom.hy; ++y) {
+            if (!courtCellIsFillable(sroom, x, y, state)) continue;
+            if (state.level.at(x, y).typ === THRONE) continue;
+            const species = courtmon(state, random);
+            const monster = makemon(
+                species,
+                x,
+                y,
+                MM_ASLEEP | MM_NOGRP,
+                normalized,
+            );
+            if (monster && monster.mpeaceful) {
+                monster.mpeaceful = false;
+                set_malign(monster, state);
+            }
+        }
+    }
+
+    state.level.at(throne.x, throne.y).typ = THRONE;
+    const coffers = { x: 0, y: 0 };
+    somexyspace(sroom, coffers, normalized);
+    const gold = mksobj(GOLD_PIECE, true, false, normalized);
+    gold.quan = random.rn1(50 * level_difficulty(state), 10);
+    gold.owt = weight(gold, normalized);
+    const chest = mksobj_at(
+        CHEST,
+        coffers.x,
+        coffers.y,
+        true,
+        false,
+        normalized,
+    );
+    add_to_container(chest, gold, normalized);
+    chest.owt = weight(chest, normalized);
+    chest.spe = 2;
+    state.level.flags.has_court = true;
+}
+
 // C ref: mkroom.c do_mkroom(). mklev.c makelevel() calls it at most once per
 // level, with the type its depth selects.
 //
-// Only the shop arm has a caller the port reaches: makelevel()'s chain tests
-// the shop first and every other room type needs a depth greater than four.
-// mkzoo(), mkswamp() and mktemple() populate their rooms with monsters,
-// fountains, an altar and a priest, none of which is ported.
+// The ordinary D:2/D:5 boundary reaches shops and COURT. Later zoo families,
+// swamps and temples stay named refusals until their complete population and
+// entry effects are selected.
 export function do_mkroom(roomtype, state = game, random = SOURCE_RANDOM) {
     if (roomtype >= SHOPBASE) {
         mkshop(state, random);
+        return;
+    }
+    if (roomtype === COURT) {
+        mkzoo(COURT, state, random);
         return;
     }
     throw new UnsupportedSpecialRoomError(`do_mkroom(${roomtype})`);
