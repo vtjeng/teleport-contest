@@ -292,6 +292,11 @@
           "name": "ordinary-ogre-leader-weapon-initialization",
           "status": "closed",
           "closedBy": "f6a132b0bedd445024fb3e6324a7bb6e50ce9fd1"
+        },
+        {
+          "name": "ordinary-troll-weapon-initialization",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
