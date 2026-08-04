@@ -46,6 +46,7 @@ import {
     makemon,
     m_dowear,
     mongone,
+    racial_exception,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
 import { newMonster, place_monster } from '../js/monst.js';
@@ -77,6 +78,7 @@ import {
     PM_GRID_BUG,
     PM_HOMUNCULUS,
     PM_HORSE,
+    PM_HOBBIT,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
     PM_DWARF,
@@ -123,6 +125,7 @@ import {
     CROSSBOW_BOLT,
     DAGGER,
     DWARVISH_CLOAK,
+    DWARVISH_MITHRIL_COAT,
     ELVEN_BOOTS,
     ELVEN_CLOAK,
     ELVEN_DAGGER,
@@ -130,6 +133,7 @@ import {
     ELVEN_MITHRIL_COAT,
     ELVEN_SHIELD,
     ELVEN_SPEAR,
+    FLINT,
     GOLD_PIECE,
     ICE_BOX,
     IRON_SHOES,
@@ -146,9 +150,11 @@ import {
     POT_OBJECT_DETECTION,
     POT_WATER,
     RING_CLASS,
+    ROCK,
     SADDLE,
     SCR_CREATE_MONSTER,
     SLIME_MOLD,
+    SLING,
     STRANGE_OBJECT,
     TALLOW_CANDLE,
     T_SHIRT,
@@ -1860,6 +1866,190 @@ test('Statuary armed families generate their source equipment', () => {
             state.mons[mndx].pmnames[2],
         );
     }
+});
+
+test('hobbits receive each source weapon arm before the generic item gates', () => {
+    const cases = [
+        {
+            name: 'dagger',
+            arm: 0,
+            expected: [DAGGER],
+        },
+        {
+            name: 'elven dagger',
+            arm: 1,
+            expected: [ELVEN_DAGGER],
+        },
+        {
+            name: 'sling with flint',
+            arm: 2,
+            ammoRoll: 0,
+            expected: [FLINT, SLING],
+        },
+        {
+            name: 'sling with rocks',
+            arm: 2,
+            ammoRoll: 1,
+            expected: [ROCK, SLING],
+        },
+    ];
+
+    for (const scenario of cases) {
+        const state = initialLevelState();
+        let weaponChoicePending = true;
+        let ammoChoicePending = scenario.arm === 2;
+        const random = recordingRandom({
+            rn2Result: (bound) => {
+                if (bound === 3 && weaponChoicePending) {
+                    weaponChoicePending = false;
+                    return scenario.arm;
+                }
+                if (bound === 4 && ammoChoicePending) {
+                    ammoChoicePending = false;
+                    return scenario.ammoRoll;
+                }
+                return Math.max(0, bound - 1);
+            },
+        });
+        const monster = makemon(
+            state.mons[PM_HOBBIT],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        const inventory = monsterInventory(monster);
+
+        assert.deepEqual(
+            inventory.map((obj) => obj.otyp),
+            scenario.expected,
+            scenario.name,
+        );
+        for (const obj of inventory) {
+            assert.equal(obj.where, OBJ_MINVENT, scenario.name);
+            assert.equal(obj.ocarry, monster, scenario.name);
+            assert.equal(obj.owornmask, 0, scenario.name);
+        }
+        if (scenario.arm === 2) {
+            assert.equal(inventory[0].quan, 3, scenario.name);
+            assert.equal(
+                inventory[0].owt,
+                state.objects[inventory[0].otyp].oc_weight * 3,
+                scenario.name,
+            );
+            assert.ok(
+                random.calls.some(
+                    (call) => call.kind === 'rn1'
+                        && call.args[0] === 6 && call.args[1] === 3,
+                ),
+                `${scenario.name}: m_initthrow quantity range`,
+            );
+        }
+
+        const offensiveGate = random.calls.findIndex(
+            (call) => call.kind === 'rn2' && call.args[0] === 75,
+        );
+        assert.ok(offensiveGate >= 2, scenario.name);
+        assert.deepEqual(
+            random.calls
+                .slice(offensiveGate - 2, offensiveGate)
+                .map((call) => [call.kind, call.args, call.result]),
+            [
+                ['rn2', [10], 9],
+                ['rn2', [10], 9],
+            ],
+            `${scenario.name}: ordered coat and cloak gates`,
+        );
+        assert.deepEqual(
+            random.calls
+                .slice(offensiveGate)
+                .map((call) => [call.kind, call.args]),
+            [
+                ['rn2', [75]],
+                ['rn2', [50]],
+                ['rn2', [100]],
+                ['rn2', [100]],
+            ],
+            `${scenario.name}: generic inventory continuation`,
+        );
+    }
+});
+
+test('hobbit coat gate creates an owned elven suit and wears it', () => {
+    const state = initialLevelState();
+    let phase = 'weapon-choice';
+    let coatObjectTenDraws = 0;
+    const random = recordingRandom({
+        rn2Result: (bound) => {
+            if (phase === 'weapon-choice' && bound === 3) {
+                phase = 'weapon-object';
+                return 0;
+            }
+            if (phase === 'weapon-object' && bound === 1000) {
+                phase = 'coat-gate';
+                return bound - 1;
+            }
+            if (phase === 'coat-gate' && bound === 10) {
+                phase = 'coat-object';
+                return 0;
+            }
+            if (phase === 'coat-object' && bound === 10) {
+                ++coatObjectTenDraws;
+                if (coatObjectTenDraws === 4) {
+                    phase = 'generic-tail';
+                }
+                return bound - 1;
+            }
+            return Math.max(0, bound - 1);
+        },
+    });
+    const monster = makemon(
+        state.mons[PM_HOBBIT],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    const inventory = monsterInventory(monster);
+    const coat = inventory.find((obj) => obj.otyp === ELVEN_MITHRIL_COAT);
+
+    assert.equal(phase, 'generic-tail');
+    assert.deepEqual(inventory.map((obj) => obj.otyp), [
+        ELVEN_MITHRIL_COAT,
+        DAGGER,
+    ]);
+    assert.equal(coat.where, OBJ_MINVENT);
+    assert.equal(coat.ocarry, monster);
+    assert.equal(coat.quan, 1);
+    assert.equal(coat.owornmask, W_ARM);
+    assert.equal(monster.misc_worn_check, W_ARM);
+});
+
+test('racial_exception matches worn.c elven armor membership', () => {
+    const state = initialLevelState();
+    const hobbit = newMonster({ data: state.mons[PM_HOBBIT] });
+    const dwarf = newMonster({ data: state.mons[PM_DWARF] });
+    const elvenArmor = [
+        ELVEN_LEATHER_HELM,
+        ELVEN_MITHRIL_COAT,
+        ELVEN_CLOAK,
+        ELVEN_SHIELD,
+        ELVEN_BOOTS,
+    ];
+
+    for (const otyp of elvenArmor) {
+        const obj = mksobj(otyp, false, false, {
+            state,
+            random: FIXED_OBJECT_ID_RANDOM,
+        });
+        assert.equal(racial_exception(hobbit, obj), 1, otyp);
+        assert.equal(racial_exception(dwarf, obj), 0, otyp);
+    }
+    const nonElven = mksobj(DWARVISH_MITHRIL_COAT, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    assert.equal(racial_exception(hobbit, nonElven), 0);
 });
 
 test('every Statuary reservoir species completes creation', () => {

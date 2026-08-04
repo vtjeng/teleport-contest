@@ -13,22 +13,48 @@ import {
     COURT,
     OBJ_FLOOR,
     OBJ_INVENT,
+    OBJ_MINVENT,
     ROOMOFFSET,
     ROWNO,
     THRONE,
+    W_ARM,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { mergable } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
+import { PM_HOBBIT } from '../js/monsters.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { CHEST, GOLD_PIECE, MACE, STATUE } from '../js/objects.js';
+import {
+    CHEST,
+    DAGGER,
+    ELVEN_DAGGER,
+    ELVEN_MITHRIL_COAT,
+    GOLD_PIECE,
+    MACE,
+    ROCK,
+    SLING,
+    STATUE,
+} from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310417113000';
 const LEVELPORT_KEY = '\x16';
+
+const HOBBIT_ARRIVALS = new Map([
+    [7661000, [{ otyp: DAGGER, quan: 1, worn: 0 }]],
+    [7661011, [
+        { otyp: ROCK, quan: 5, worn: 0 },
+        { otyp: SLING, quan: 1, worn: 0 },
+    ]],
+    [7661130, [{ otyp: ELVEN_DAGGER, quan: 1, worn: 0 }]],
+    [7661513, [
+        { otyp: ELVEN_MITHRIL_COAT, quan: 1, worn: W_ARM },
+        { otyp: ELVEN_DAGGER, quan: 1, worn: 0 },
+    ]],
+]);
 
 function nethackrc({
     character = 'role:Wizard,race:human,gender:male,align:neutral',
@@ -70,6 +96,13 @@ export function loadLevelTeleportArrivalRecipe() {
             // D:5 exercises the depth-gated ordinary generation branches
             // which the earlier staircase-descent goal never reached.
             teleport(7621001, 5),
+            // Independently selected ordinary D:5 layouts naturally create
+            // hobbits covering all three source weapon arms. The last also
+            // creates an elven mithril coat which the small hobbit wears.
+            teleport(7661000, 5),
+            teleport(7661011, 5),
+            teleport(7661130, 5),
+            teleport(7661513, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -246,6 +279,49 @@ export async function verifyLevelTeleportArrival(segment) {
         }
         if (!game.level.flags.has_court) {
             throw new Error('undiscovered Court did not retain has_court');
+        }
+    }
+    const expectedHobbitInventory = HOBBIT_ARRIVALS.get(segment.seed);
+    if (expectedHobbitInventory) {
+        const hobbits = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_HOBBIT) hobbits.push(monster);
+        }
+        if (hobbits.length !== 1) {
+            throw new Error(
+                `hobbit seed ${segment.seed} generated ${hobbits.length} hobbits`,
+            );
+        }
+        const [hobbit] = hobbits;
+        const inventory = [];
+        const objectIds = new Set();
+        for (let obj = hobbit.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT || obj.ocarry !== hobbit) {
+                throw new Error(
+                    `hobbit seed ${segment.seed} lost inventory ownership`,
+                );
+            }
+            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+                throw new Error(
+                    `hobbit seed ${segment.seed} has invalid object identity`,
+                );
+            }
+            objectIds.add(obj.o_id);
+            inventory.push({
+                otyp: obj.otyp,
+                quan: obj.quan,
+                worn: obj.owornmask,
+            });
+        }
+        if (hobbit.mgenmklev !== true
+            || game.level.monsters[hobbit.mx][hobbit.my] !== hobbit
+            || hobbit.misc_worn_check
+                !== (segment.seed === 7661513 ? W_ARM : 0)
+            || JSON.stringify(inventory)
+                !== JSON.stringify(expectedHobbitInventory)) {
+            throw new Error(
+                `hobbit seed ${segment.seed} lost source inventory or worn state`,
+            );
         }
     }
     if (segment.seed === 7640059) {

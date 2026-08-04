@@ -72,6 +72,10 @@ test('the arrival matrix is a clean audited replay recipe', () => {
         [
             7621004,
             7621001,
+            7661000,
+            7661011,
+            7661130,
+            7661513,
             7640011,
             7640059,
             7633019,

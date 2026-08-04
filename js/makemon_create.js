@@ -165,6 +165,7 @@ import {
     PM_GOBLIN,
     PM_GRAY_UNICORN,
     PM_GRID_BUG,
+    PM_HOBBIT,
     PM_HUMAN,
     PM_HOBGOBLIN,
     PM_JACKAL,
@@ -279,6 +280,7 @@ import {
     ELVEN_SHORT_SWORD,
     ELVEN_SPEAR,
     FIGURINE,
+    FLINT,
     FOOD_CLASS,
     GEM_CLASS,
     GOLD_PIECE,
@@ -320,6 +322,7 @@ import {
     POTION_CLASS,
     RANDOM_CLASS,
     RING_CLASS,
+    ROCK,
     ROCK_CLASS,
     SCIMITAR,
     SKELETON_KEY,
@@ -328,6 +331,7 @@ import {
     SCR_TELEPORTATION,
     SCROLL_CLASS,
     SLIME_MOLD,
+    SLING,
     SPBOOK_CLASS,
     SPEED_BOOTS,
     STATUE,
@@ -1269,7 +1273,29 @@ function m_initweap(monster, normalized) {
         }
         break;
     case S_HUMANOID:
-        if (ptr.mflags2 & M2_DWARF) {
+        if (ptr.pmidx === PM_HOBBIT) {
+            switch (random.rn2(3)) {
+            case 0:
+                mongets(monster, DAGGER, normalized);
+                break;
+            case 1:
+                mongets(monster, ELVEN_DAGGER, normalized);
+                break;
+            case 2:
+                mongets(monster, SLING, normalized);
+                m_initthrow(
+                    monster,
+                    !random.rn2(4) ? FLINT : ROCK,
+                    6,
+                    normalized,
+                );
+                break;
+            }
+            if (!random.rn2(10))
+                mongets(monster, ELVEN_MITHRIL_COAT, normalized);
+            if (!random.rn2(10))
+                mongets(monster, DWARVISH_CLOAK, normalized);
+        } else if (ptr.mflags2 & M2_DWARF) {
             if (random.rn2(7))
                 mongets(monster, DWARVISH_CLOAK, normalized);
             if (random.rn2(7)) mongets(monster, IRON_SHOES, normalized);
@@ -1694,6 +1720,21 @@ function armorExtraPreference(monster, obj) {
     return obj.otyp === SPEED_BOOTS && monster.permspeed !== MFAST ? 20 : 0;
 }
 
+// C ref: worn.c racial_exception().  raceptr(monster) is monster.data for a
+// non-hero monster; the source currently has one acceptable combination and
+// no unacceptable ones.
+export function racial_exception(monster, obj) {
+    if (monster.data.pmidx === PM_HOBBIT
+        && (obj.otyp === ELVEN_LEATHER_HELM
+            || obj.otyp === ELVEN_MITHRIL_COAT
+            || obj.otyp === ELVEN_CLOAK
+            || obj.otyp === ELVEN_SHIELD
+            || obj.otyp === ELVEN_BOOTS)) {
+        return 1;
+    }
+    return 0;
+}
+
 // C ref: worn.c update_mon_extrinsics(), for effects reachable from the
 // currently supported creation-time armor set.
 function updateMonsterArmorEffects(monster, obj, on, state) {
@@ -1777,9 +1818,10 @@ function m_dowear_type(
             && !isFlimsy(obj, state)) {
             continue;
         }
-        // No currently supported Statuary species has the hobbit/elven-suit
-        // racial exception, so a race-exception suit remains ineligible.
-        if (mask === W_ARM && racialException) continue;
+        if (mask === W_ARM && racialException
+            && racial_exception(monster, obj) < 1) {
+            continue;
+        }
         if (obj.owornmask) continue;
         if (best
             && ARM_BONUS(best, state) + armorExtraPreference(monster, best)
