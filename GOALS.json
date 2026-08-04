@@ -275,8 +275,8 @@
         },
         {
           "name": "ordinary-hobbit-initialization",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a3e463bd91fa1ec9f53b733c3298b52e88975592"
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
