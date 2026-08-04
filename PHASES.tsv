@@ -72,3 +72,5 @@ utc	event	phase	goal	detail
 2026-08-04T05:30:03.101Z	start	select	wizard-level-teleport	Fresh selector chooses the next child, with generated-shop rollback and remaining admitted low-band monster initializers still open.
 2026-08-04T05:43:19.479Z	end	select	wizard-level-teleport	Fresh selector chose ordinary-stalker-initialization: direct already-admitted PM_STALKER state branch; development ceiling 0 because offscreen invisibility is silent.
 2026-08-04T05:43:19.519Z	start	implement	wizard-level-teleport	Fresh worker ports PM_STALKER perminvis/minvis at source position and saves a high-level D:5 state-verifying strict arrival case.
+2026-08-04T06:01:22.609Z	end	implement	wizard-level-teleport	Closed ordinary-stalker-initialization at aa9a259: strict 17-segment matrix matched 91,009 RNG calls and 159 screens/cursors; 5/5 committed mutants killed; development score unchanged.
+2026-08-04T06:01:22.989Z	start	select	wizard-level-teleport	Fresh selector chooses the next child; generated-shop rollback and the remaining ordinary monster reservoir stay open.
