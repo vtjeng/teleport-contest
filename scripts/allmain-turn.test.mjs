@@ -14,6 +14,7 @@ import {
 import {
     CLAIRVOYANT,
     COLNO,
+    DETECT_MONSTERS,
     DUST,
     EXT_ENCUMBER,
     FAST,
@@ -23,6 +24,7 @@ import {
     HUNGER,
     HVY_ENCUMBER,
     HUNGRY,
+    HALLUC,
     INTRINSIC,
     LEVITATION,
     M_AP_MONSTER,
@@ -276,7 +278,7 @@ test('u_calc_moveamt applies every source encumbrance fraction', () => {
     }
 });
 
-test('maybe_generate_rnd_mon preserves every source gate', () => {
+test('maybe_generate_rnd_mon preserves every source gate', async () => {
     for (const scenario of [
         {
             name: 'ordinary dungeon level',
@@ -312,7 +314,7 @@ test('maybe_generate_rnd_mon preserves every source gate', () => {
         };
         const created = { scenario: scenario.name };
         assert.equal(
-            maybe_generate_rnd_mon(scenario.state, {
+            await maybe_generate_rnd_mon(scenario.state, {
                 random,
                 makemon(...args) {
                     creations.push(args);
@@ -332,7 +334,7 @@ test('maybe_generate_rnd_mon preserves every source gate', () => {
     const state = randomMonsterTurnState();
     const bounds = [];
     assert.equal(
-        maybe_generate_rnd_mon(state, {
+        await maybe_generate_rnd_mon(state, {
             random: {
                 rn2(bound) {
                     bounds.push(bound);
@@ -345,6 +347,72 @@ test('maybe_generate_rnd_mon preserves every source gate', () => {
     );
     assert.deepEqual(bounds, [70]);
 });
+
+test('random creation finishes a complete meal only for an actual threat',
+    async () => {
+        const segment = loadEatOccupationRecipe().segments.find(
+            (entry) => entry.seed === 5820011,
+        );
+        assert.ok(segment);
+        await runSegment({ ...segment, moves: '.' });
+        game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
+        await doeat(game, { statusRefresh: async () => {} });
+        const occupation = game.go.occupation;
+        assert.equal(typeof occupation, 'function');
+        game.context.victual.usedtime = game.context.victual.reqtime;
+
+        await maybe_generate_rnd_mon(game, {
+            random: { rn2: () => 0 },
+            makemon: async () => null,
+        });
+        assert.equal(game.go.occupation, occupation);
+        assert.equal(
+            game.context.victual.usedtime,
+            game.context.victual.reqtime,
+        );
+
+        const messages = [];
+        const threat = {};
+        assert.equal(await maybe_generate_rnd_mon(game, {
+            random: { rn2: () => 0 },
+            message: async (text) => messages.push(text),
+            statusRefresh: async () => {},
+            async makemon(_ptr, _x, _y, _flags, runtimeEnv) {
+                await runtimeEnv.hooks.stopOccupation(threat, runtimeEnv);
+                return threat;
+            },
+        }), threat);
+        assert.equal(game.go.occupation, null);
+        assert.equal(game.context.victual.piece, null);
+        assert.equal(messages.some((text) => text.startsWith('You stop ')), false);
+        assert.equal(
+            messages.some((text) => text.startsWith('You finish eating ')),
+            true,
+        );
+    });
+
+test('runtime interruption preserves stop_occupation status invalidation',
+    async () => {
+        const state = randomMonsterTurnState();
+        state.go = { occupation: () => 1, occtxt: 'waiting' };
+        state.disp = { botl: false };
+        // hack.c nomul(0) deliberately returns for a negative multi; C's
+        // preceding stop_occupation() status write must still survive.
+        state.multi = -1;
+        const messages = [];
+        await maybe_generate_rnd_mon(state, {
+            random: { rn2: () => 0 },
+            message: async (text) => messages.push(text),
+            async makemon(_ptr, _x, _y, _flags, runtimeEnv) {
+                await runtimeEnv.hooks.stopOccupation({}, runtimeEnv);
+                return {};
+            },
+        });
+        assert.deepEqual(messages, ['You stop waiting.']);
+        assert.equal(state.go.occupation, null);
+        assert.equal(state.disp.botl, true);
+        assert.equal(state.multi, -1);
+    });
 
 test('clairvoyance cadence preserves gating, mapping, and update order', () => {
     const early = clairvoyanceTurnState({ moves: 19, seerTurn: 20 });
@@ -1436,12 +1504,12 @@ test('burdened multi-cycle upkeep stops before region and search work',
 test('a refused planned monster becomes a turn boundary, not a hard failure',
     async () => {
         const replay = await runSegment({
-            // At this seed the first planned round's rn2(70) selects a random
-            // monster, which is what carries the refusal below into the
-            // caller.
-            seed: 2026080005,
-            datetime: '20260728120000',
-            nethackrc: 'OPTIONS=name:PlannedMonGen,role:Healer,race:human,'
+            // First qualifying seed in an independently selected fresh scan.
+            // The shortened unburdened plan enters rn2(25), selects a mimic,
+            // and refuses its unported runtime appearance before live birth.
+            seed: 2026123986,
+            datetime: '20260804120000',
+            nethackrc: 'OPTIONS=name:PlannedMimic,role:Healer,race:human,'
                 + 'gender:female,align:neutral,!legacy,!tutorial,'
                 + '!splash_screen,pettype:none,!acoustics',
             moves: '',
@@ -1450,37 +1518,29 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
         game.level.monlist = null;
         game.level.regions = [];
         game.head_engr = null;
-        game.invent = {
-            oclass: TOOL_CLASS,
-            otyp: SACK,
-            owt: weight_cap(game) + 5,
-            nobj: null,
-        };
-        assert.ok(projected_capacity(game) > 0);
-        game.go = { oldcap: 1 };
-        // makemon() supports the main dungeon, whose levels this port
-        // generates. Moving the hero into the Gnomish Mines, dungeon two,
-        // makes every random creation refuse, so the branch under test is the
-        // conversion rather than which species was rolled. The Mines rather
-        // than any deeper dungeon because maybe_generate_rnd_mon()'s bound
-        // drops from 70 to 50 below the Castle, which would change the draw
-        // this seed was chosen for.
-        game.u.uz.dnum = 2;
-        game.u.uz.dlevel = 1;
+        assert.equal(projected_capacity(game), 0);
+        // Keep the generated D:1 map and topology coherent.  A returning
+        // demigod carrying the Amulet raises the generation cadence while
+        // level difficulty one keeps the random reservoir at difficulty 8,
+        // where this draw selects a small mimic.
+        game.u.ulevel = 15;
+        game.u.uevent.udemigod = true;
+        game.u.uhave.amulet = true;
         game.context.seer_turn = 100000;
         game.context.next_attrib_check = 100000;
         game.u.umovement = 0;
         game.context.move = 1;
+        game.nhDisplay.pushKey('.'.charCodeAt(0));
 
         const before = completeSecondTurnSnapshot(game, replay);
         const beforeRng = getRngLog().length;
-        for (let attempt = 0; attempt < 2; ++attempt) {
+        for (let attempt = 0; attempt < 3; ++attempt) {
             game.context.move = 1;
             await assert.rejects(
                 () => moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedTurnBoundaryError
-                    && /monster creation/u.test(error.message)
+                    && /runtime mimic appearance message/u.test(error.message)
                 ),
                 `rejects attempt ${attempt}`,
             );
@@ -1491,6 +1551,62 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
             );
             assert.equal(getRngLog().length, beforeRng, `rng attempt ${attempt}`);
         }
+    });
+
+test('a planned hallucinated appearance advances only cloned display state',
+    async () => {
+        const replay = await runSegment({
+            // Independently selected for the first planned rn2(70) to enter
+            // maybe_generate_rnd_mon().  Detect monsters makes any successful
+            // placement nameable regardless of its random coordinate.
+            seed: 2026080005,
+            datetime: '20260728120000',
+            nethackrc: 'OPTIONS=name:PlannedDisplayRng,role:Healer,'
+                + 'race:human,gender:female,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.head_engr = null;
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) + 5,
+            nobj: null,
+        };
+        assert.ok(projected_capacity(game) > 0);
+        game.u.uprops[HALLUC] = {
+            intrinsic: FROMOUTSIDE,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        game.u.uprops[DETECT_MONSTERS] = {
+            intrinsic: FROMOUTSIDE,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        game.level.regions = [create_region([{
+            lx: game.u.ux,
+            ly: game.u.uy,
+            hx: game.u.ux,
+            hy: game.u.uy,
+        }])];
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+        game.u.umovement = 0;
+        game.context.move = 1;
+
+        const before = completeSecondTurnSnapshot(game, replay);
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => error instanceof UnsupportedTurnBoundaryError
+                && /burdened multi-cycle region upkeep/u.test(error.message),
+        );
+        // The planned constructor reached redraw and hallucinated Amonnam
+        // before the later region refusal.  All state, both RNG streams,
+        // terminal output, and queued input remain live and retryable.
+        assert.deepEqual(completeSecondTurnSnapshot(game, replay), before);
     });
 
 test('the billionth turn stops atomically for an unburdened hero too',

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    Amonnam,
     bogusmon,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
@@ -15,6 +16,8 @@ import {
 } from '../js/do_name.js';
 import {
     BLINDED,
+    HALLUC,
+    M_AP_MONSTER,
     MD_PAD_BOGONS,
     W_SADDLE,
 } from '../js/const.js';
@@ -22,6 +25,9 @@ import {
     G_NOGEN,
     LOW_PM,
     M2_PNAME,
+    PM_GHOST,
+    PM_GNOME_RULER,
+    PM_NEWT,
     SPECIAL_PM,
     monst_globals_init,
 } from '../js/monsters.js';
@@ -82,6 +88,81 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         monster.mextra.mgivenname = 'Horses';
         assert.equal(monsterPossessive(monster, state), "Horses'");
     });
+
+test('Amonnam preserves gender, invisibility, appearance, and display RNG', () => {
+    const state = {
+        u: { uprops: [], uroleplay: { blind: false } },
+    };
+    monst_globals_init(state);
+    const monster = {
+        data: state.mons[PM_GNOME_RULER],
+        female: true,
+        mextra: {},
+        minvis: true,
+        misc_worn_check: W_SADDLE,
+        m_ap_type: 0,
+    };
+    assert.equal(Amonnam(monster, { state }), 'An invisible saddled gnome queen');
+
+    monster.data = state.mons[PM_NEWT];
+    monster.m_ap_type = M_AP_MONSTER;
+    monster.mappearance = PM_GNOME_RULER;
+    assert.equal(Amonnam(monster, { state }), 'An invisible saddled gnome queen');
+
+    const pname = state.mons.find((species) => species.mflags2 & M2_PNAME);
+    assert.ok(pname, 'catalog has an apparent personal name');
+    monster.minvis = false;
+    monster.misc_worn_check = 0;
+    monster.mappearance = pname.pmidx;
+    // M_AP_MONSTER changes pm_name only.  C decides whether an article is
+    // suppressed from the real newt, so a personal-looking appearance still
+    // takes ARTICLE_A.
+    assert.equal(
+        Amonnam(monster, { state }),
+        `A ${pname.pmnames[0] ?? pname.pmnames[2]}`,
+    );
+
+    monster.data = state.mons[PM_GHOST];
+    monster.mappearance = PM_GNOME_RULER;
+    monster.mextra.mgivenname = 'Alex';
+    assert.equal(Amonnam(monster, { state }), "Alex's ghost");
+    delete monster.mextra.mgivenname;
+
+    monster.m_ap_type = 0;
+    monster.data = state.mons[PM_NEWT];
+    monster.minvis = true;
+    monster.misc_worn_check = W_SADDLE;
+    state.u.uprops[BLINDED] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    assert.equal(Amonnam(monster, { state }), 'An invisible newt');
+    state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const selected = state.mons.findIndex((species, index) => (
+        index >= LOW_PM
+        && index < SPECIAL_PM
+        && !(species.mflags2 & M2_PNAME)
+        && !(species.geno & G_NOGEN)
+    ));
+    const displayDraws = [selected, 0];
+    assert.equal(
+        Amonnam(monster, {
+            state,
+            displayRandom(bound) {
+                const result = displayDraws.shift();
+                assert.ok(result < bound);
+                return result;
+            },
+        }),
+        `An invisible ${
+            state.mons[selected].pmnames[0]
+                ?? state.mons[selected].pmnames[2]
+        }`,
+    );
+    assert.deepEqual(displayDraws, []);
+});
 
 test('the source novel catalog has all 41 titles in stable order', () => {
     assert.equal(SIR_TERRY_NOVELS.length, 41);

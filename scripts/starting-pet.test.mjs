@@ -191,7 +191,7 @@ test('pet_type preserves fixed-role and preference precedence', () => {
     assert.deepEqual(horseDraws, [2]);
 });
 
-test('makedog creates a named random dog with exact startup state and RNG', () => {
+test('makedog creates a named random dog with exact startup state and RNG', async () => {
     const state = startingPetState({ dogname: 'Fido' });
     const random = scriptedRandom([
         step('rn2', [2], 0),
@@ -202,7 +202,7 @@ test('makedog creates a named random dog with exact startup state and RNG', () =
         step('rn2', [16], 1),
         step('rn2', [2], 1),
     ]);
-    const monster = makedog({ state, random: random.random });
+    const monster = await makedog({ state, random: random.random });
     random.assertExhausted();
 
     assert.equal(monster.mnum, PM_LITTLE_DOG);
@@ -328,7 +328,7 @@ test('see_nearby_monsters records an adjacent worm tail separately', () => {
     assert.equal(state.mvitals[PM_LONG_WORM_TAIL].photographed, 1);
 });
 
-test('fixed Caveman dog skips selection draw and receives source default name', () => {
+test('fixed Caveman dog skips selection draw and receives source default name', async () => {
     const state = startingPetState({
         petnum: PM_LITTLE_DOG,
         role: PM_CAVE_DWELLER,
@@ -340,13 +340,13 @@ test('fixed Caveman dog skips selection draw and receives source default name', 
         step('rn2', [2], 0),
         step('rn2', [16], 0),
     ]);
-    const monster = makedog({ state, random: random.random });
+    const monster = await makedog({ state, random: random.random });
     random.assertExhausted();
     assert.equal(monster.mnum, PM_LITTLE_DOG);
     assert.equal(monster.mextra.mgivenname, 'Slasher');
 });
 
-test('starting pony creates and equips a separately identified saddle', () => {
+test('starting pony creates and equips a separately identified saddle', async () => {
     const state = startingPetState({
         petnum: PM_PONY,
         role: PM_KNIGHT,
@@ -360,7 +360,7 @@ test('starting pony creates and equips a separately identified saddle', () => {
         step('rn2', [2], 0),
         step('rnd', [2], 1),
     ]);
-    const monster = makedog({ state, random: random.random });
+    const monster = await makedog({ state, random: random.random });
     random.assertExhausted();
 
     assert.equal(monster.mnum, PM_PONY);
@@ -389,7 +389,7 @@ test('starting pony creates and equips a separately identified saddle', () => {
     assert.equal(state.context.ident, 4);
 });
 
-test('blind starting pony forgets saddle-instance knowledge after discovery', () => {
+test('blind starting pony forgets saddle-instance knowledge after discovery', async () => {
     const state = startingPetState({
         petnum: PM_PONY,
         role: PM_KNIGHT,
@@ -408,7 +408,7 @@ test('blind starting pony forgets saddle-instance knowledge after discovery', ()
         step('rnd', [2], 1),
     ]);
 
-    const monster = makedog({ state, random: random.random });
+    const monster = await makedog({ state, random: random.random });
     random.assertExhausted();
     const saddle = monster.minvent;
 
@@ -431,7 +431,7 @@ test('blind starting pony forgets saddle-instance knowledge after discovery', ()
     );
 });
 
-test('pauper pony suppresses saddle creation and its object-id draw', () => {
+test('pauper pony suppresses saddle creation and its object-id draw', async () => {
     const state = startingPetState({
         petnum: PM_PONY,
         role: PM_KNIGHT,
@@ -444,20 +444,20 @@ test('pauper pony suppresses saddle creation and its object-id draw', () => {
         step('d', [2, 8], 8),
         step('rn2', [2], 0),
     ]);
-    const monster = makedog({ state, random: random.random });
+    const monster = await makedog({ state, random: random.random });
     random.assertExhausted();
     assert.equal(monster.minvent, null);
     assert.equal(state.context.ident, 3);
 });
 
-test('preferred pet none suppresses fixed-role pets without drawing', () => {
+test('preferred pet none suppresses fixed-role pets without drawing', async () => {
     const state = startingPetState({
         petnum: PM_KITTEN,
         role: PM_WIZARD,
         preferredPet: 'n',
     });
     const random = scriptedRandom([]);
-    assert.equal(makedog({ state, random: random.random }), null);
+    assert.equal(await makedog({ state, random: random.random }), null);
     random.assertExhausted();
     assert.equal(state.context.startingpet_typ, NON_PM);
     assert.equal(state.context.startingpet_mid, undefined);

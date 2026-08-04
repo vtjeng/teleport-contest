@@ -23,5 +23,8 @@ export function scriptedRandom(steps) {
         assertExhausted() {
             assert.equal(offset, steps.length);
         },
+        consumedCount() {
+            return offset;
+        },
     };
 }

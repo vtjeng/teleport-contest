@@ -2515,6 +2515,18 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
             monster.mx = monster.my = 1;
         }],
         ['already visible nearby', () => {}],
+        ['already visible at the exact prior boundary', ({ env, monster }) => {
+            // The hero is at <10,10>; the old square is exactly distance 9.
+            // C requires old distu > 81, so equality must not interrupt even
+            // after the monster moves adjacent.
+            monster.mx = 1;
+            monster.my = 10;
+            env.dochug = (candidate) => {
+                candidate.mx = 9;
+                candidate.my = 10;
+                return 0;
+            };
+        }],
         ['not spotted now', ({ env, monster }) => {
             monster.mx = monster.my = 1;
             env.dochug = (candidate) => {

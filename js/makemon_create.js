@@ -13,6 +13,7 @@ import {
     AM_NEUTRAL,
     BLCORNER,
     BLINDED,
+    BOLT_LIM,
     COLNO,
     CROSSWALL,
     DOOR,
@@ -37,6 +38,9 @@ import {
     MM_NOCOUNTBIRTH,
     MM_NOGRP,
     MM_NOMSG,
+    M_AP_NOTHING,
+    M_AP_MONSTER,
+    M_AP_TYPE,
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_SEEN_NOTHING,
@@ -57,6 +61,9 @@ import {
     SHOPBASE,
     P_POLEARMS,
     PROT_FROM_SHAPE_CHANGERS,
+    STRAT_APPEARMSG,
+    STRAT_CLOSE,
+    STRAT_WAITFORU,
     TDWALL,
     TLCORNER,
     TRWALL,
@@ -81,7 +88,11 @@ import {
     newedog,
     put_saddle_on_mon,
 } from './dog.js';
-import { christen_monst, rndghostname } from './do_name.js';
+import {
+    Amonnam,
+    christen_monst,
+    rndghostname,
+} from './do_name.js';
 import { newsym } from './display.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
@@ -110,6 +121,7 @@ import {
     is_neuter,
     is_unicorn,
 } from './mondata.js';
+import { dochugw } from './monmove.js';
 import {
     m_at,
     newMonster,
@@ -134,6 +146,9 @@ import {
     M2_ELF,
     M2_GREEDY,
     M2_NASTY,
+    M3_CLOSE,
+    M3_COVETOUS,
+    M3_WAITFORU,
     M2_UNDEAD,
     M2_WERE,
     MZ_MEDIUM,
@@ -250,6 +265,7 @@ import {
     rnd_class,
     weight,
 } from './obj.js';
+import { vtense } from './objnam.js';
 import {
     AKLYS,
     AMULET_CLASS,
@@ -399,7 +415,14 @@ import {
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto_core, goodpos } from './teleport.js';
-import { cansee } from './vision.js';
+import {
+    canSeeMonster,
+    canSpotMonster,
+    messageAt,
+    sensesMonster,
+} from './startup_a11y.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
+import { cansee, couldsee } from './vision.js';
 import { get_shop_item } from './shknam.js';
 import {
     S_altar,
@@ -619,6 +642,39 @@ function redrawSquare(x, y, normalized) {
     } else if (normalized.state === game) {
         newsym(x, y);
     }
+}
+
+function runtimeAppearanceMessage(monster, mmflags, normalized) {
+    const { state } = normalized;
+    if (mmflags & MM_NOMSG) return null;
+    const appearance = M_AP_TYPE(monster);
+    if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER) {
+        throw new UnsupportedMonsterCreationError(
+            'runtime furniture or object appearance message',
+        );
+    }
+    if (!((canSeeMonster(monster, state)
+            && (appearance === M_AP_NOTHING
+                || appearance === M_AP_MONSTER))
+        || sensesMonster(monster, state))) {
+        return null;
+    }
+    const name = Amonnam(monster, {
+        state,
+        displayRandom: normalized.displayRandom,
+    });
+    const distance = (monster.mx - state.u.ux) ** 2
+        + (monster.my - state.u.uy) ** 2;
+    const suffix = distance <= 2 ? ' next to you'
+        : distance <= BOLT_LIM * BOLT_LIM ? ' close by' : '';
+    // MM_NOEXCLAM is outside the admitted runtime call shapes, so every
+    // supported appearance takes makemon.c's exclaiming arm.
+    return messageAt(
+        `${name} suddenly ${vtense(name, 'appear')}${suffix}!`,
+        monster.mx,
+        monster.my,
+        state,
+    );
 }
 
 function wormSlots(state) {
@@ -1043,6 +1099,25 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EDOG | NO_MINVENT);
+    const runtimeCall = startingPetCall || runtimeRandomCall || runtimeGroupCall;
+    if (runtimeCall
+        && (!normalized.runtimeContinuation
+            || typeof normalized.runtimeContinuation !== 'object')) {
+        throw new UnsupportedMonsterCreationError(
+            'runtime creation without its async tail owner',
+        );
+    }
+    if (runtimeCall && state.go?.occupation
+        && typeof normalized.hooks?.stopOccupation !== 'function') {
+        throw new UnsupportedMonsterCreationError(
+            'runtime creation while an occupation lacks stopOccupation',
+        );
+    }
+    if (runtimeCall && ptr?.mlet === S_MIMIC && !(mmflags & MM_NOMSG)) {
+        throw new UnsupportedMonsterCreationError(
+            'runtime mimic appearance message',
+        );
+    }
     const shopkeeperCall = state.in_mklev
         && ptr?.pmidx === PM_SHOPKEEPER
         && !randomCoordinates
@@ -1220,6 +1295,53 @@ function initializeMonsterGroup(monster, countBound, mmflags, normalized) {
         if (!nextCoordinate) continue;
         coordinate = nextCoordinate;
         const groupMonster = makemon(
+            monster.data,
+            coordinate.x,
+            coordinate.y,
+            mmflags | MM_NOGRP,
+            normalized,
+        );
+        if (groupMonster) {
+            groupMonster.mpeaceful = false;
+            groupMonster.mavenge = false;
+            set_malign(groupMonster, state);
+        }
+    }
+}
+
+// Runtime m_initgrp() has to await each recursive makemon() tail before the
+// loop can advance: that tail can stop at a tty --More-- prompt.  C applies
+// the forced-hostile correction only after the recursive call returns.
+async function initializeRuntimeMonsterGroup(
+    monster,
+    countBound,
+    mmflags,
+    normalized,
+) {
+    const { random, state } = normalized;
+    const divisor = state.u.ulevel < 3 ? 4 : state.u.ulevel < 5 ? 2 : 1;
+    let count = Math.trunc(random.rnd(countBound) / divisor);
+    if (!count) count = 1;
+    let coordinate = { x: monster.mx, y: monster.my };
+
+    while (count-- > 0) {
+        if (peace_minded(monster.data, normalized)) continue;
+        const nextCoordinate = enexto_core(
+            coordinate.x,
+            coordinate.y,
+            monster.data,
+            GP_CHECKSCARY | mmflags,
+            normalized,
+        ) ?? enexto_core(
+            coordinate.x,
+            coordinate.y,
+            monster.data,
+            mmflags,
+            normalized,
+        );
+        if (!nextCoordinate) continue;
+        coordinate = nextCoordinate;
+        const groupMonster = await makemon_runtime(
             monster.data,
             coordinate.x,
             coordinate.y,
@@ -2636,6 +2758,62 @@ export function restore_waiting_vampire(monster, rawEnv = {}) {
     return apply_newcham_form(monster, target, normalized);
 }
 
+function finishMonsterInventoryAndStrategy(
+    monster,
+    ptr,
+    allowMinvent,
+    normalized,
+) {
+    const { random } = normalized;
+    if (allowMinvent) {
+        if (isArmed(ptr)) m_initweap(monster, normalized);
+        m_initinv(monster, normalized);
+        m_dowear(monster, true, normalized);
+
+        const saddleRoll = random.rn2(100);
+        if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)
+            && can_saddle(monster)
+            && !whichArmor(monster, W_SADDLE)) {
+            put_saddle_on_mon(null, monster, normalized);
+        }
+    } else {
+        if (monster.minvent) discard_minvent(monster, true, normalized);
+        monster.minvent = null;
+    }
+
+    // C ref: makemon.c makemon() (1457-1466). MM_NOWAIT is not among this
+    // port's admitted flags, so every supported call takes the ordinary arm.
+    if (ptr.mflags3) {
+        if (ptr.mflags3 & M3_WAITFORU)
+            monster.mstrategy |= STRAT_WAITFORU;
+        if (ptr.mflags3 & M3_CLOSE)
+            monster.mstrategy |= STRAT_CLOSE;
+        if (ptr.mflags3 & (M3_WAITFORU | M3_CLOSE | M3_COVETOUS))
+            monster.mstrategy |= STRAT_APPEARMSG;
+    }
+    // deliver_obj_to_mon() is excluded in preflightCreation() whenever a
+    // supported call allows inventory and migrating objects are present.
+}
+
+async function finishRuntimeCreationTail(monster, mmflags, normalized) {
+    const { state } = normalized;
+    redrawSquare(monster.mx, monster.my, normalized);
+    const appearance = runtimeAppearanceMessage(monster, mmflags, normalized);
+    if (appearance) {
+        await normalized.norepMessage(appearance, state, normalized);
+    }
+    await dochugw(monster, false, {
+        ...normalized,
+        state,
+        canSpotMonster: (subject) => canSpotMonster(subject, state),
+        couldSee: (x, y) => couldsee(x, y, state),
+        stopOccupation: () => normalized.hooks.stopOccupation(
+            monster,
+            normalized,
+        ),
+    });
+}
+
 // C ref: makemon.c makemon(). This implements the level-one, explicit-square
 // call shapes needed by fill_ordinary_room(), the Ghost, Cloud, Garden, and
 // Storeroom themed fills, dog.c:makedog(), plus the level-generation random
@@ -2699,6 +2877,16 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
                 gpflags,
                 normalized,
             ));
+    }
+    if (normalized.runtimeContinuation
+        && ptr.mlet === S_MIMIC
+        && !(mmflags & MM_NOMSG)) {
+        // A random runtime call does not know its species during preflight.
+        // The once-per-turn planning clone reaches this after the same
+        // selection draws and refuses before the live constructor runs.
+        throw new UnsupportedMonsterCreationError(
+            'runtime mimic appearance message',
+        );
     }
     const mndx = ptr.pmidx;
     let allowMinvent = !(mmflags & NO_MINVENT);
@@ -2791,6 +2979,24 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     }
     set_malign(monster, state);
 
+    if (!state.in_mklev) {
+        const continuation = normalized.runtimeContinuation;
+        if (!continuation || continuation.claimed) {
+            throw new UnsupportedMonsterCreationError(
+                'runtime creation without an unused async continuation',
+            );
+        }
+        Object.assign(continuation, {
+            claimed: true,
+            monster,
+            ptr,
+            anymon,
+            allowMinvent,
+            mmflags,
+        });
+        return monster;
+    }
+
     if (anymon && !(mmflags & MM_NOGRP)) {
         if ((ptr.geno & G_SGROUP) && random.rn2(2)) {
             initializeMonsterGroup(monster, 3, mmflags, normalized);
@@ -2803,44 +3009,69 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             );
         }
     }
+    finishMonsterInventoryAndStrategy(
+        monster,
+        ptr,
+        allowMinvent,
+        normalized,
+    );
 
-    if (allowMinvent) {
-        if (isArmed(ptr)) m_initweap(monster, normalized);
-        m_initinv(monster, normalized);
-        m_dowear(monster, true, normalized);
+    return monster;
+}
 
-        const saddleRoll = random.rn2(100);
-        if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)
-            && can_saddle(monster)
-            && !whichArmor(monster, W_SADDLE)) {
-            put_saddle_on_mon(null, monster, normalized);
-        }
-    } else {
-        if (monster.minvent) discard_minvent(monster, true, normalized);
-        monster.minvent = null;
+// Async adapter for makemon.c's runtime suffix.  The synchronous constructor
+// stops immediately after set_malign(); this continuation then preserves C's
+// awaited recursive group tails, parent inventory, and final output order.
+export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
+    const message = env.message === undefined ? ttyPline : env.message;
+    const norepMessage = env.norepMessage === undefined
+        ? env.message === undefined ? ttyNorep : message
+        : env.norepMessage;
+    if (typeof message !== 'function' || typeof norepMessage !== 'function') {
+        throw new TypeError('makemon_runtime requires message operations');
     }
-
-    // C ref: makemon.c makemon() (1472-1505). Runtime creation refreshes the
-    // final square after inventory and group creation, then runs two tails
-    // this port omits: the Norep() appearance message (1473-1501) and
-    // `if (go.occupation) (void) dochugw(mtmp, FALSE);` (1502-1503).
-    //
-    // Both are dormant rather than deferred, for one reason.
-    // makemon_rnd_goodpos() rejects every square the hero can see when the
-    // level already exists -- `good = (!gi.in_mklev && cansee(nx,ny)) ? FALSE
-    // : goodpos(...)` at makemon.c:1089, ported above -- so a monster
-    // generated at runtime lands where cansee() is false. canseemon() needs
-    // cansee() at the monster's square, which makes both the message's
-    // `canseemon(mtmp)` arms and dochugw()'s `canspotmon(mtmp)` gate false.
-    // sensemon() is the other half of canspotmon(), and it needs telepathy,
-    // extended sight or warning, none of which a hero has in the ported scope.
-    //
-    // Two narrow paths escape that argument and stay unreached: the second
-    // scan pass at 1103-1113, which admits a visible square only after every
-    // invisible one has failed goodpos() across the whole map, and group
-    // members placed near an already-placed leader.
-    if (!state.in_mklev) redrawSquare(monster.mx, monster.my, normalized);
-
+    const runtimeContinuation = { claimed: false };
+    const normalized = creationEnv({
+        ...env,
+        message,
+        norepMessage,
+        runtimeContinuation,
+    });
+    const monster = makemon(ptr, x, y, mmflags, normalized);
+    if (!monster) return null;
+    if (!runtimeContinuation.claimed
+        || runtimeContinuation.monster !== monster) {
+        throw new Error('makemon runtime continuation was not claimed');
+    }
+    const {
+        anymon,
+        allowMinvent,
+        ptr: selected,
+    } = runtimeContinuation;
+    if (anymon && !(mmflags & MM_NOGRP)) {
+        if ((selected.geno & G_SGROUP) && normalized.random.rn2(2)) {
+            await initializeRuntimeMonsterGroup(
+                monster,
+                3,
+                mmflags,
+                normalized,
+            );
+        } else if (selected.geno & G_LGROUP) {
+            await initializeRuntimeMonsterGroup(
+                monster,
+                normalized.random.rn2(3) ? 10 : 3,
+                mmflags,
+                normalized,
+            );
+        }
+    }
+    finishMonsterInventoryAndStrategy(
+        monster,
+        selected,
+        allowMinvent,
+        normalized,
+    );
+    await finishRuntimeCreationTail(monster, mmflags, normalized);
     return monster;
 }
 

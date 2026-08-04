@@ -426,6 +426,13 @@ function planningState(state) {
     return {
         ...state,
         context: structuredClone(state.context),
+        // Hallucinatory runtime creation names use rnd.c's independent
+        // display stream.  A planned appearance must advance only this copy;
+        // otherwise a dry run changes later live glyphs even though every
+        // terminal operation is suppressed.
+        displayCtx: state.displayCtx
+            ? cloneIsaacContext(state.displayCtx)
+            : state.displayCtx,
         disp: structuredClone(state.disp),
         flags: structuredClone(state.flags),
         // distant_name() raises gd.distantname around a name it must not let

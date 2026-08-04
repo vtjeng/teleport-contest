@@ -18,6 +18,7 @@ import {
     ROWNO,
     THRONE,
     W_ARM,
+    W_ARMC,
     W_ARMG,
     W_ARMH,
     W_ARMS,
@@ -50,6 +51,7 @@ import {
     CROSSBOW_BOLT,
     DAGGER,
     DENTED_POT,
+    DWARVISH_CLOAK,
     ELVEN_DAGGER,
     ELVEN_MITHRIL_COAT,
     GLAIVE,
@@ -118,6 +120,11 @@ const HOBBIT_ARRIVALS = new Map([
     [7661513, [
         { otyp: ELVEN_MITHRIL_COAT, quan: 1, worn: W_ARM },
         { otyp: ELVEN_DAGGER, quan: 1, worn: 0 },
+    ]],
+    [8040709, [
+        { otyp: DWARVISH_CLOAK, quan: 1, worn: W_ARMC, id: 114 },
+        { otyp: ROCK, quan: 5, worn: 0, id: 113 },
+        { otyp: SLING, quan: 1, worn: 0, id: 111 },
     ]],
 ]);
 
@@ -263,6 +270,10 @@ export function loadLevelTeleportArrivalRecipe() {
             teleport(7661011, 5),
             teleport(7661130, 5),
             teleport(7661513, 5),
+            // This independently selected D:5 rejects the elven-mithril coat
+            // gate, accepts the following dwarvish-cloak gate, and makes the
+            // small hobbit wear that cloak in W_ARMC.
+            teleport(8040709, 5, { trailingCommand: 'h' }),
             // A high-level hero widens rndmonst() enough for this ordinary
             // D:5 to create one stalker through makemon()'s elemental arm.
             highLevelTeleport(7650048, 5),
@@ -500,6 +511,9 @@ export async function verifyLevelTeleportArrival(segment) {
         const [hobbit] = hobbits;
         const inventory = [];
         const objectIds = new Set();
+        const expectsIds = expectedHobbitInventory.some(
+            (expected) => Object.hasOwn(expected, 'id'),
+        );
         for (let obj = hobbit.minvent; obj; obj = obj.nobj) {
             if (obj.where !== OBJ_MINVENT || obj.ocarry !== hobbit) {
                 throw new Error(
@@ -516,12 +530,16 @@ export async function verifyLevelTeleportArrival(segment) {
                 otyp: obj.otyp,
                 quan: obj.quan,
                 worn: obj.owornmask,
+                ...(expectsIds ? { id: obj.o_id } : {}),
             });
         }
+        const expectedWorn = expectedHobbitInventory.reduce(
+            (mask, obj) => mask | obj.worn,
+            0,
+        );
         if (hobbit.mgenmklev !== true
             || game.level.monsters[hobbit.mx][hobbit.my] !== hobbit
-            || hobbit.misc_worn_check
-                !== (segment.seed === 7661513 ? W_ARM : 0)
+            || hobbit.misc_worn_check !== expectedWorn
             || JSON.stringify(inventory)
                 !== JSON.stringify(expectedHobbitInventory)) {
             throw new Error(

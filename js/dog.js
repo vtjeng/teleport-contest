@@ -40,7 +40,7 @@ import { game } from './gstate.js';
 import { add_to_minv, update_inventory } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
-import { makemon } from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
 import { levl_follower } from './mondata.js';
 import { monnear } from './monmove.js';
 import { restore_cham } from './mon.js';
@@ -427,7 +427,7 @@ export function see_nearby_monsters(state = game, env = {}) {
 }
 
 // C ref: dog.c makedog().
-export function makedog(env = {}) {
+export async function makedog(env = {}) {
     const normalized = dogEnv(env);
     const { state } = normalized;
     state.context ??= {};
@@ -443,7 +443,7 @@ export function makedog(env = {}) {
     if (!petname && pettype === PM_LITTLE_DOG)
         petname = defaultDogName(state);
 
-    const monster = makemon(
+    const monster = await makemon_runtime(
         state.mons?.[pettype],
         state.u?.ux,
         state.u?.uy,

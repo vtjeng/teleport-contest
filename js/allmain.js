@@ -41,7 +41,7 @@ import {
 import {
     dmonsfree,
     m_dowear,
-    makemon,
+    makemon_runtime,
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { init_objects } from './o_init.js';
@@ -88,6 +88,7 @@ import {
 } from './display.js';
 import {
     dismissPendingTtyMessage,
+    ttyNorep,
     ttyPline,
 } from './tty_message.js';
 import {
@@ -107,9 +108,19 @@ import {
     vision_recalc,
     vision_reset,
 } from './vision.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import {
+    createCoreRandom,
+    d,
+    rn1,
+    rn2,
+    rnd,
+    rne,
+    rnl,
+    rnz,
+} from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
 import {
+    eatfood,
     gethungry,
     preflightGetHungry,
     UnsupportedHungerTransitionError,
@@ -200,7 +211,7 @@ export async function newgame() {
     const stairOccupant = m_at(g.u.ux, g.u.uy, g);
     if (stairOccupant)
         mnexto(stairOccupant, RLOC_NOMSG, { state: g });
-    makedog({ state: g });
+    await makedog({ state: g });
 
     const objectHooks = objectGenerationHooks();
     u_init_inventory_attrs(g, undefined, { objectHooks });
@@ -299,9 +310,33 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
 // C ref: allmain.c maybe_generate_rnd_mon(). New monsters receive their
 // movement only on the following allocation round because this gate follows
 // the current round's monster movement allocation.
-export function maybe_generate_rnd_mon(state = game, env = {}) {
+async function stopOccupationForRuntimeMonster(_monster, env) {
+    const { state } = env;
+    if (!state.go?.occupation) return;
+    const occupation = state.go.occupation;
+    const meal = state.context?.victual;
+    if (occupation === eatfood && meal?.usedtime >= meal?.reqtime) {
+        // C ref: eat.c maybe_finished_meal(TRUE). Clear the occupation before
+        // the final eatfood() call so done_eating()->newuhs() sees the meal as
+        // finished, then let eatfood own its object and message lifecycle.
+        state.go.occupation = null;
+        await eatfood(state, {
+            message: env.message,
+            statusRefresh: env.statusRefresh,
+        });
+    } else {
+        await env.message(`You stop ${state.go.occtxt}.`, state, env);
+    }
+    state.go.occupation = null;
+    state.disp ??= {};
+    state.disp.botl = true;
+    nomul(0, state);
+    // C also clears CQ_CANNED. The port has no command queue.
+}
+
+export async function maybe_generate_rnd_mon(state = game, env = {}) {
     const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
-    const createMonster = env.makemon ?? makemon;
+    const createMonster = env.makemon ?? makemon_runtime;
     const heroLevel = state.u?.uz;
     const strongholdLevel = state.stronghold_level;
     if (!heroLevel || !strongholdLevel || !state.u?.uevent) {
@@ -313,8 +348,13 @@ export function maybe_generate_rnd_mon(state = game, env = {}) {
         ? 25
         : depth(heroLevel, state) > depth(strongholdLevel, state) ? 50 : 70;
     if (random.rn2(bound) !== 0) return null;
-    return createMonster(null, 0, 0, NO_MM_FLAGS, {
+    return await createMonster(null, 0, 0, NO_MM_FLAGS, {
         ...env,
+        hooks: {
+            ...(env.hooks ?? {}),
+            stopOccupation: env.hooks?.stopOccupation
+                ?? stopOccupationForRuntimeMonster,
+        },
         random,
         state,
     });
@@ -493,7 +533,7 @@ function elapsedTurnMinLiquid(monster, env) {
 async function finishElapsedTurn(
     state,
     random,
-    { planning = false } = {},
+    { planning = false, randomMonsterOnly = false } = {},
 ) {
     // C ref: allmain.c moveloop_core()'s mvl_wtcap, taken once after the
     // monster loop. C reuses this snapshot only for u_calc_moveamt(),
@@ -508,6 +548,8 @@ async function finishElapsedTurn(
     await mcalcdistress(state, {
         state,
         random,
+        message: planning ? async () => {} : ttyPline,
+        redrawSquare: planning ? () => {} : newsym,
         visionRecalc: planning ? () => {} : vision_recalc,
         minLiquid: elapsedTurnMinLiquid,
         decideToShapeshift: decide_to_shapeshift,
@@ -524,7 +566,27 @@ async function finishElapsedTurn(
             random.rn2,
         );
     }
-    maybe_generate_rnd_mon(state, { random });
+    const silentMessage = async () => {};
+    const planningDisplayRandom = planning
+        ? state.displayCtx
+            ? createCoreRandom(state.displayCtx, state).rn2
+            : () => {
+                throw new TypeError(
+                    'planned monster naming requires initialized display RNG',
+                );
+            }
+        : undefined;
+    await maybe_generate_rnd_mon(state, {
+        random,
+        displayRandom: planningDisplayRandom,
+        message: planning ? silentMessage : ttyPline,
+        norepMessage: planning ? silentMessage : ttyNorep,
+        statusRefresh: planning ? silentMessage : () => bot(),
+    });
+    // planSimpleMonsterTurn() treats a truthy advanceRound result as "this
+    // single unburdened allocation is fully preflighted" and must not plan a
+    // second allocation that the live hero will not need.
+    if (randomMonsterOnly) return true;
     u_calc_moveamt(wtcap, state, random.rn2);
     settrack(state);
 
@@ -549,13 +611,9 @@ async function finishElapsedTurn(
     }
 
     nh_timeout_elapsed_turn(state);
-    // `planning` is true only on the burdened multi-allocation path, because
-    // advanceElapsedTurn supplies advanceRound only when projected_capacity()
-    // is above zero. So these two stops read as "burdened", and an unburdened
-    // turn runs run_regions() and automatic_search() live with no prior dry
-    // run. That asymmetry is deliberate: an unburdened hero regains a ration
-    // in one allocation, so there is no second cycle whose mid-turn failure
-    // would need to be rejected atomically.
+    // Full planning remains specific to the burdened multi-allocation path.
+    // An unburdened clone returns just after random monster generation above,
+    // which is the newly async lifecycle that also needs atomic preflight.
     if (planning && state.level.regions.length)
         elapsedTurnBoundary('burdened multi-cycle region upkeep');
     if (!planning) await run_regions(regionEnv);
@@ -704,13 +762,14 @@ async function advanceElapsedTurn(state) {
     let preflight;
     try {
         preflight = await preflightSimpleMonsterActions(state, {
-            advanceRound: initialCapacity > 0
-                ? (planned, planningRandom) => finishElapsedTurn(
-                    planned,
-                    planningRandom,
-                    { planning: true },
-                )
-                : null,
+            advanceRound: (planned, planningRandom) => finishElapsedTurn(
+                planned,
+                planningRandom,
+                {
+                    planning: true,
+                    randomMonsterOnly: initialCapacity <= 0,
+                },
+            ),
         });
     } catch (error) {
         // The planning round runs the whole once-per-turn block on the clone,
@@ -738,10 +797,10 @@ async function advanceElapsedTurn(state) {
         && (state.moves || 1) + 1 >= 1000000000;
     // The turn C would finish with done(ESCAPED) is refused here, beside the
     // other preflight boundaries, so both capacity paths stop identically. A
-    // burdened hero's dry run also reaches the limit inside finishElapsedTurn,
-    // but an unburdened hero has no dry run of that block at all, and letting
-    // the live pass discover the limit would leave moves at the wrap value
-    // with an ISAAC draw already spent.
+    // burdened hero's full dry run also reaches the limit inside
+    // finishElapsedTurn; an unburdened hero's shortened dry run returns before
+    // it, and letting the live pass discover the limit would leave moves at
+    // the wrap value with an ISAAC draw already spent.
     if (reachesTurnLimit)
         elapsedTurnBoundary('game end through done(ESCAPED)');
     if (preflight.runsOncePerTurnUpkeep) {

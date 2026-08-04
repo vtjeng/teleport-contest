@@ -520,6 +520,44 @@ function heroHallucinating(state) {
         && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
 }
 
+// Source predicate shared by monmove.c:dochugw() and makemon.c:makemon()'s
+// runtime-creation tail.  makemon() calls dochugw(mtmp, FALSE), so it needs to
+// decide this at the exact recursive-creation point even though its TTY
+// message is drained by an async wrapper after the synchronous constructor
+// returns.
+function dochugwInterruptsOccupation(
+    monster,
+    {
+        state = game,
+        result = 0,
+        alreadySawMonster = false,
+        oldX = monster.mx,
+        oldY = monster.my,
+        canSpotMonster,
+        couldSee = (x, y) => couldsee(x, y, state),
+    } = {},
+) {
+    if (!state.go?.occupation) return false;
+    if (typeof canSpotMonster !== 'function') {
+        throw new TypeError(
+            'dochugw occupation check requires a canSpotMonster operation',
+        );
+    }
+    const threatRange = (BOLT_LIM + 1) * (BOLT_LIM + 1);
+    return !result
+        && (heroHallucinating(state)
+            || (!monster.mpeaceful && !noattacks(monster.data)))
+        && dist2(monster.mx, monster.my, state.u?.ux, state.u?.uy)
+            <= threatRange
+        && (!alreadySawMonster
+            || !couldSee(oldX, oldY, state)
+            || dist2(oldX, oldY, state.u?.ux, state.u?.uy) > threatRange)
+        && canSpotMonster(monster, state)
+        && couldSee(monster.mx, monster.my, state)
+        && monster.mcanmove
+        && !onscary(state.u?.ux, state.u?.uy, monster, state);
+}
+
 // C ref: monmove.c dochugw(). The injected dochug operation owns the complete
 // monster action. canSpotMonster and stopOccupation retain display/sensing and
 // command-state ownership. When an occupation is active, preflight those
@@ -555,20 +593,22 @@ export async function dochugw(monster, chug, env = {}) {
     const result = chug
         ? await dochugOperation(monster, { ...env, state })
         : 0;
-    const threatRange = (BOLT_LIM + 1) * (BOLT_LIM + 1);
-
-    if (state.go?.occupation && !result
-        && (heroHallucinating(state)
-            || (!monster.mpeaceful && !noattacks(monster.data)))
-        && dist2(monster.mx, monster.my, state.u?.ux, state.u?.uy)
-            <= threatRange
-        && (!alreadySawMonster
-            || !couldSee(x, y, { ...env, state })
-            || dist2(x, y, state.u?.ux, state.u?.uy) > threatRange)
-        && canSpotMonster(monster, { ...env, state })
-        && couldSee(monster.mx, monster.my, { ...env, state })
-        && monster.mcanmove
-        && !onscary(state.u?.ux, state.u?.uy, monster, state)) {
+    if (dochugwInterruptsOccupation(monster, {
+        state,
+        result,
+        alreadySawMonster,
+        oldX: x,
+        oldY: y,
+        canSpotMonster: (subject) => canSpotMonster(
+            subject,
+            { ...env, state },
+        ),
+        couldSee: (targetX, targetY) => couldSee(
+            targetX,
+            targetY,
+            { ...env, state },
+        ),
+    })) {
         await stopOccupation({ ...env, state });
     }
 

@@ -137,6 +137,30 @@ export function loadEatOccupationOptionsRecipe() {
     }, 'eat occupation options recipe');
 }
 
+// A runtime random group member completes makemon.c's async output tail while
+// a meal occupation is active.  This seed was the first qualifying case in an
+// independently selected ascending scan from 8400000; no recorded session
+// supplied it.  The outer sewer rat takes its small-group gate, the one
+// recursive MM_NOGRP child appears beside the hero, and dochugw() stops the
+// meal only after that child's Norep() prompt has completed.
+export function loadRuntimeMonsterInterruptRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: 8400223,
+            datetime: '20330517091113',
+            nethackrc: nethackrc({
+                name: 'WaitScan',
+                role: 'Valkyrie',
+                gender: 'female',
+                align: 'lawful',
+                options: 'pettype:none,!acoustics,!autopickup',
+            }),
+            moves: 'ed ',
+        }],
+    }, 'runtime monster occupation interruption recipe');
+}
+
 export async function runEatOccupationMatrix() {
     const ordinary = await runFreshMatrix({
         entries: [{
@@ -147,12 +171,21 @@ export async function runEatOccupationMatrix() {
         chunkLimit: 5,
     });
     if (!ordinary.passed) return ordinary;
-    return runFreshMatrix({
+    const options = await runFreshMatrix({
         entries: [{
             label: 'eat multi-turn food (option variations)',
             recipe: loadEatOccupationOptionsRecipe(),
         }],
         summaryLabel: 'EAT MULTI-TURN FOOD (OPTION VARIATIONS)',
+        chunkLimit: 1,
+    });
+    if (!options.passed) return options;
+    return runFreshMatrix({
+        entries: [{
+            label: 'runtime monster occupation interruption',
+            recipe: loadRuntimeMonsterInterruptRecipe(),
+        }],
+        summaryLabel: 'RUNTIME MONSTER OCCUPATION INTERRUPTION',
         chunkLimit: 1,
     });
 }

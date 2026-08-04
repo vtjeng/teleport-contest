@@ -1146,7 +1146,7 @@ async function fprefx(otmp, state) {
 // from the command or from the occupation. Only statusRefresh differs, because
 // display.c bot() would close an import cycle with this file and arrives from
 // the caller instead.
-function eatOperations(state, statusRefresh) {
+function eatOperations(state, statusRefresh, message = ttyPline) {
     return {
         state,
         // C ref: mkobj.c weight()'s partly-eaten arms, which reach eat.c
@@ -1156,7 +1156,7 @@ function eatOperations(state, statusRefresh) {
         // splitobj() and obfree() each take their hookless path, and a hook
         // this meal did need would stop the command rather than be skipped.
         hooks: { eatenStat: eaten_stat },
-        message: ttyPline,
+        message,
         endRunning,
         // newuhs() resolves this only when the meal moves the hunger status,
         // which is the one place C's doeat() reaches bot().
@@ -1168,10 +1168,11 @@ function eatOperations(state, statusRefresh) {
 // installs at the end of start_eating(). allmain.c moveloop_core() runs it once
 // a turn and clears go.occupation when it answers 0.
 //
-// `env` carries only statusRefresh; every other operation is this file's own.
+// `env` carries the display operations that differ for the live game and an
+// atomic planning clone; every other operation is this file's own.
 export async function eatfood(state = game, env = {}) {
     const meal = victual(state);
-    const eatEnv = eatOperations(state, env.statusRefresh);
+    const eatEnv = eatOperations(state, env.statusRefresh, env.message);
     const food = meal.piece;
 
     // C ref: `if (food && !carried(food) && !obj_here(food, u.ux, u.uy))
@@ -1404,7 +1405,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
 // two operations newuhs() needs are this file's own.
 export async function doeat(state = game, env = {}) {
     const u = state.u;
-    const eatEnv = eatOperations(state, env.statusRefresh);
+    const eatEnv = eatOperations(state, env.statusRefresh, env.message);
 
     if (u.uprops[STRANGLED].intrinsic) {
         await ttyPline(

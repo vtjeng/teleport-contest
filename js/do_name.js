@@ -29,7 +29,11 @@ import {
 } from './const.js';
 import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
-import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
+import {
+    decodeUtf8ByteString,
+    encodeUtf8ByteString,
+    s_suffix,
+} from './hacklib.js';
 import { gender, is_mplayer, type_is_pname } from './mondata.js';
 import {
     G_NOGEN,
@@ -336,7 +340,7 @@ export function bogusmon(env = {}) {
 // with monster glyph randomization and may retry excluded species. An ordinary
 // monster then draws its gender; a bogus name instead uses get_rnd_text()'s
 // byte-offset selection, which may retry when it lands in a long record.
-export function rndmonnam(env = {}) {
+export function rndmonnamDetails(env = {}) {
     const state = env.state ?? game;
     const random = displayRandomFunction(
         env.random ?? rn2_on_display_rng,
@@ -349,15 +353,85 @@ export function rndmonnam(env = {}) {
             || (state.mons?.[index]?.geno & G_NOGEN)));
 
     if (index >= SPECIAL_PM)
-        return bogusmon({ ...env, random }).name;
+        return bogusmon({ ...env, random });
 
     const species = state.mons?.[index];
     if (!species)
         throw new Error('rndmonnam requires the complete monster catalog');
     const gender = random(2);
-    return species.pmnames?.[gender]
-        ?? species.pmnames?.[2]
-        ?? 'monster';
+    return {
+        name: species.pmnames?.[gender]
+            ?? species.pmnames?.[2]
+            ?? 'monster',
+        code: '',
+    };
+}
+
+export function rndmonnam(env = {}) {
+    return rndmonnamDetails(env).name;
+}
+
+// C ref: do_name.c x_monnam(), a_monnam(), and Amonnam().  This is the
+// ordinary, already-spotted monster path used by makemon.c's runtime creation
+// message.  Priests, shopkeepers, player monsters, and the unseen "it" arm
+// retain their separate owners and fail closed here.
+export function Amonnam(monster, env = {}) {
+    const state = env.state ?? game;
+    if (monster.ispriest || monster.isminion || monster.isshk
+        || is_mplayer(monster.data)) {
+        throw new UnsupportedMonsterNameError(
+            'Amonnam() for a priest, minion, shopkeeper, or player monster',
+        );
+    }
+
+    const hallucinating = namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES);
+    const blind = namingPropertyActive(state, BLINDED)
+        || Boolean(state.u?.uroleplay?.blind);
+    let text = '';
+    if (monster.minvis) text += 'invisible ';
+    if ((monster.misc_worn_check & W_SADDLE) && !blind && !hallucinating)
+        text += 'saddled ';
+    const hasAdjectives = text !== '';
+
+    let nameAtStart = false;
+    if (hallucinating) {
+        const randomName = rndmonnamDetails({
+            state,
+            random: env.displayRandom ?? rn2_on_display_rng,
+        });
+        text += randomName.name;
+        nameAtStart = '-+='.includes(randomName.code);
+    } else {
+        const mdat = monster.data;
+        const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
+        const species = appearance === M_AP_MONSTER
+            ? state.mons?.[monster.mappearance]
+            : mdat;
+        if (!species) {
+            throw new UnsupportedMonsterNameError(
+                'Amonnam() for an invalid monster appearance',
+            );
+        }
+        const givenName = monster.mextra?.mgivenname;
+        if (givenName) {
+            // do_name.c changes pm_name for M_AP_MONSTER, but every decision
+            // about the monster's own name continues to use real mdat.
+            text += mdat === state.mons?.[PM_GHOST]
+                ? `${s_suffix(givenName)} ghost` : givenName;
+            nameAtStart = true;
+        } else {
+            text += pmname(species, gender(monster));
+            nameAtStart = type_is_pname(mdat);
+        }
+    }
+
+    let article = ARTICLE_A;
+    if (nameAtStart && !hasAdjectives) article = ARTICLE_NONE;
+    else if ((monster.data.geno & G_UNIQ) !== 0) article = ARTICLE_THE;
+    const named = article === ARTICLE_A ? `${just_an(text)}${text}`
+        : article === ARTICLE_THE ? `the ${text}` : text;
+    return `${named.charAt(0).toUpperCase()}${named.slice(1)}`;
 }
 
 // C ref: do_name.c hliquid().  Hallucinatory terrain descriptions share the

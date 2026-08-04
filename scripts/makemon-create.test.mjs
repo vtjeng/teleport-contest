@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BURN_OBJECT,
     COLNO,
+    COULD_SEE,
     DUST,
     G_GENOD,
     G_GONE,
@@ -45,6 +46,7 @@ import {
     dmonsfree,
     discard_minvent,
     makemon,
+    makemon_runtime,
     m_dowear,
     mklevSleeperSpecies,
     mongone,
@@ -868,7 +870,7 @@ test('demon lord and prince masks suppress the mklev sleeper draw', () => {
     }
 });
 
-test('mklev sleeper roll preserves explicit sleep and skips other contexts', () => {
+test('mklev sleeper roll preserves explicit sleep and skips other contexts', async () => {
     {
         const state = initialLevelState();
         const random = recordingRandom({
@@ -899,7 +901,13 @@ test('mklev sleeper roll preserves explicit sleep and skips other contexts', () 
             rn2Result: (bound) => bound === 5
                 ? 4 : Math.max(0, bound - 1),
         });
-        const monster = makemon(
+        const monster = inMklev ? makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            flags,
+            { state, random: random.random },
+        ) : await makemon_runtime(
             state.mons[mndx],
             MON_X,
             MON_Y,
@@ -1394,7 +1402,7 @@ test('random-coordinate creation accepts the first sampled good position', () =>
     assert.equal(state.mvitals[PM_NEWT].born, 0);
 });
 
-test('runtime random creation selects a compatible unseen D:1 monster', () => {
+test('runtime random creation selects a compatible unseen D:1 monster', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
     state.level.at(17, 4).typ = ROOM;
@@ -1408,7 +1416,7 @@ test('runtime random creation selects a compatible unseen D:1 monster', () => {
         ...ordinaryInventoryTail(),
     ]);
 
-    const monster = makemon(null, 0, 0, 0, {
+    const monster = await makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
     });
@@ -1421,7 +1429,7 @@ test('runtime random creation selects a compatible unseen D:1 monster', () => {
     assert.equal(monster.nmon, null);
 });
 
-test('runtime random coordinates reject a visible sample before goodpos', () => {
+test('runtime random coordinates reject a visible sample before goodpos', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
     state.level.at(17, 4).typ = ROOM;
@@ -1442,7 +1450,7 @@ test('runtime random coordinates reject a visible sample before goodpos', () => 
         ...ordinaryInventoryTail(),
     ]);
 
-    const monster = makemon(null, 0, 0, 0, {
+    const monster = await makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
     });
@@ -1451,7 +1459,7 @@ test('runtime random coordinates reject a visible sample before goodpos', () => 
     assert.equal(monster.data, state.mons[PM_NEWT]);
 });
 
-test('runtime random coordinates use the unseen exhaustive scan first', () => {
+test('runtime random coordinates use the unseen exhaustive scan first', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
     state.level.at(MON_X, MON_Y).typ = STONE;
@@ -1474,7 +1482,7 @@ test('runtime random coordinates use the unseen exhaustive scan first', () => {
         ...ordinaryInventoryTail(),
     ]);
 
-    const monster = makemon(null, 0, 0, 0, {
+    const monster = await makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
     });
@@ -1483,22 +1491,27 @@ test('runtime random coordinates use the unseen exhaustive scan first', () => {
     assert.equal(monster.data, state.mons[PM_NEWT]);
 });
 
-test('runtime random coordinates relax visibility on the final scan', () => {
+test('runtime random coordinates relax visibility on the final scan', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
+    state.u.ux = 17;
+    state.u.uy = 5;
+    const occupation = () => 1;
+    state.go = { occupation, occtxt: 'waiting' };
     state.level.at(MON_X, MON_Y).typ = STONE;
     // The only valid square is visible. With no stair, the first scan must
     // skip it and the second scan must return it with GP_CHECKSCARY still off.
     state.level.at(18, 5).typ = ROOM;
     state.viz_array = Array.from(
         { length: ROWNO },
-        () => new Uint8Array(COLNO).fill(IN_SIGHT),
+        () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE),
     );
     const failedPairs = Array.from({ length: 50 }, () => [
         step('rn1', [77, 2], 17),
         step('rn2', [21], 4),
     ]).flat();
     const redraws = [];
+    const stopped = [];
     const random = scriptedRandom([
         ...failedPairs,
         ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
@@ -1507,17 +1520,50 @@ test('runtime random coordinates relax visibility on the final scan', () => {
         ...ordinaryInventoryTail(),
     ]);
 
-    const monster = makemon(null, 0, 0, 0, {
+    const messages = [];
+    let releaseAppearance;
+    const appearancePaused = new Promise((resolve) => {
+        releaseAppearance = resolve;
+    });
+    const creation = makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
-        hooks: { newsym: (x, y) => redraws.push([x, y]) },
+        message: (text) => messages.push(['pline', text]),
+        async norepMessage(text) {
+            messages.push(['norep', text]);
+            await appearancePaused;
+        },
+        hooks: {
+            newsym: (x, y) => redraws.push([x, y]),
+            async stopOccupation(threat, env) {
+                stopped.push(threat);
+                assert.equal(state.go.occupation, occupation);
+                await env.message('You stop waiting.');
+                state.go.occupation = null;
+            },
+        },
     });
+    await Promise.resolve();
+    assert.deepEqual(messages, [[
+        'norep',
+        'A newt suddenly appears next to you!',
+    ]]);
+    assert.equal(state.go.occupation, occupation);
+    assert.deepEqual(stopped, []);
+    releaseAppearance();
+    const monster = await creation;
     random.assertExhausted();
     assert.deepEqual([monster.mx, monster.my], [18, 5]);
     assert.deepEqual(redraws, [[18, 5]]);
+    assert.deepEqual(messages, [
+        ['norep', 'A newt suddenly appears next to you!'],
+        ['pline', 'You stop waiting.'],
+    ]);
+    assert.deepEqual(stopped, [monster]);
+    assert.equal(state.go.occupation, null);
 });
 
-test('runtime random coordinates fall back to an in-dungeon stair', () => {
+test('runtime random coordinates fall back to an in-dungeon stair', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
     state.level.at(20, 8).typ = ROOM;
@@ -1547,7 +1593,7 @@ test('runtime random coordinates fall back to an in-dungeon stair', () => {
     ]);
 
     const redraws = [];
-    const monster = makemon(null, 0, 0, 0, {
+    const monster = await makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
         hooks: { newsym: (x, y) => redraws.push([x, y]) },
@@ -1558,7 +1604,7 @@ test('runtime random coordinates fall back to an in-dungeon stair', () => {
     assert.deepEqual(redraws, [[20, 8]]);
 });
 
-test('runtime random creation retries a species that cannot use its square', () => {
+test('runtime random creation retries a species that cannot use its square', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
     // Hero level seven admits the difficulty-four fog cloud. Keep only it and
@@ -1587,7 +1633,7 @@ test('runtime random creation retries a species that cannot use its square', () 
         ...ordinaryInventoryTail(),
     ]);
 
-    const monster = makemon(null, 0, 0, 0, {
+    const monster = await makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
     });
@@ -1598,7 +1644,161 @@ test('runtime random creation retries a species that cannot use its square', () 
     assert.equal(state.context.ident, 3);
 });
 
-test('runtime random creation builds source-order hostile groups', () => {
+test('runtime appearance suffixes retain exact source distance boundaries',
+    async () => {
+        for (const scenario of [
+            {
+                name: 'unseen', x: 20, y: 5, visible: false, expected: [],
+            },
+            {
+                name: 'diagonal', x: 11, y: 6, visible: true,
+                expected: ['A newt suddenly appears next to you!'],
+            },
+            {
+                name: 'radius eight', x: 18, y: 5, visible: true,
+                expected: ['A newt suddenly appears close by!'],
+            },
+        ]) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            state.u.ux = 10;
+            state.u.uy = 5;
+            state.level.at(scenario.x, scenario.y).typ = ROOM;
+            state.viz_array = Array.from(
+                { length: ROWNO },
+                () => new Uint8Array(COLNO),
+            );
+            if (scenario.visible) {
+                state.viz_array[scenario.y][scenario.x]
+                    = IN_SIGHT | COULD_SEE;
+            }
+            const random = scriptedRandom([
+                ...basicCreationSteps(),
+                ...ordinaryInventoryTail(),
+            ]);
+            const messages = [];
+
+            await makemon_runtime(
+                state.mons[PM_NEWT],
+                scenario.x,
+                scenario.y,
+                MM_NOGRP,
+                {
+                    state,
+                    random: random.random,
+                    norepMessage: async (text) => messages.push(text),
+                },
+            );
+            random.assertExhausted();
+            assert.deepEqual(messages, scenario.expected, scenario.name);
+        }
+    });
+
+test('direct runtime call shapes require an async tail owner before mutation',
+    () => {
+        for (const scenario of [
+            { name: 'random parent', ptr: null, x: 0, y: 0, flags: 0 },
+            {
+                name: 'group child', ptr: PM_NEWT,
+                x: MON_X, y: MON_Y, flags: MM_NOGRP,
+            },
+            {
+                name: 'primitive owner', ptr: PM_NEWT,
+                x: MON_X, y: MON_Y, flags: MM_NOGRP,
+                runtimeContinuation: 1,
+            },
+        ]) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            const random = scriptedRandom([]);
+            const ident = state.context.ident;
+            const ptr = scenario.ptr == null
+                ? null : state.mons[scenario.ptr];
+
+            assert.throws(
+                () => makemon(ptr, scenario.x, scenario.y, scenario.flags, {
+                    state,
+                    random: random.random,
+                    runtimeContinuation: scenario.runtimeContinuation,
+                }),
+                /runtime creation without its async tail owner/u,
+                scenario.name,
+            );
+            random.assertExhausted();
+            assert.equal(state.context.ident, ident, scenario.name);
+            assert.equal(state.level.monlist, null, scenario.name);
+            if (scenario.ptr != null) {
+                assert.equal(
+                    state.mvitals[scenario.ptr].born,
+                    0,
+                    scenario.name,
+                );
+            }
+        }
+    });
+
+test('runtime creation validates output owners before RNG or state', async () => {
+    for (const owners of [
+        { message: null, norepMessage: async () => {} },
+        { message: async () => {}, norepMessage: null },
+    ]) {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        const random = scriptedRandom([]);
+        const ident = state.context.ident;
+
+        await assert.rejects(
+            makemon_runtime(null, 0, 0, 0, {
+                state,
+                random: random.random,
+                ...owners,
+            }),
+            /message operations/u,
+        );
+        random.assertExhausted();
+        assert.equal(state.context.ident, ident);
+        assert.equal(state.level.monlist, null);
+    }
+});
+
+test('a runtime-random mimic refuses after selection but before live mutation',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.mons[PM_SMALL_MIMIC].difficulty = 1;
+        leaveOnlyRandomSpecies(state, [PM_SMALL_MIMIC]);
+        state.level.at(17, 4).typ = ROOM;
+        const random = recordingRandom({
+            rn1Result: (_range, base) => base === 2 ? 17 : base,
+            rn2Result: (bound) => bound === 21 ? 4 : 0,
+        });
+        const ident = state.context.ident;
+
+        await assert.rejects(
+            makemon_runtime(null, 0, 0, 0, {
+                state,
+                random: random.random,
+            }),
+            /runtime mimic appearance message/u,
+        );
+        assert.deepEqual(
+            random.calls.slice(0, 2).map(({ kind, args, result }) => [
+                kind,
+                args,
+                result,
+            ]),
+            [
+                ['rn1', [77, 2], 17],
+                ['rn2', [21], 4],
+            ],
+        );
+        assert.equal(state.context.ident, ident);
+        assert.equal(state.mvitals[PM_SMALL_MIMIC].born, 0);
+        assert.equal(state.level.monlist, null);
+        assert.equal(state.level.monsters[17][4], null);
+    });
+
+test('runtime random creation builds source-order hostile groups', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
     // The parent and every radius-three candidate are valid floor squares;
@@ -1606,7 +1806,16 @@ test('runtime random creation builds source-order hostile groups', () => {
     for (let x = 14; x <= 20; ++x) {
         for (let y = 1; y <= 7; ++y) state.level.at(x, y).typ = ROOM;
     }
-    const random = scriptedRandom([
+    // The child is visible while the randomly placed parent is not. Its
+    // creation message therefore supplies an awaited boundary inside
+    // m_initgrp(), before the parent's inventory tail can draw.
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO),
+    );
+    state.viz_array[3][16] = IN_SIGHT | COULD_SEE;
+    const parentInventorySteps = ordinaryInventoryTail();
+    const script = [
         step('rn1', [77, 2], 17), // Parent coordinate.
         step('rn2', [21], 4),
         ...DEPTH_ONE_RESERVOIR_BOUNDS.map((bound) =>
@@ -1617,13 +1826,33 @@ test('runtime random creation builds source-order hostile groups', () => {
         ...radiusThreeShuffleSteps(),
         ...basicCreationSteps(), // Create the hostile group member first.
         ...ordinaryInventoryTail(),
-        ...ordinaryInventoryTail(), // Parent inventory follows its group.
-    ]);
+        ...parentInventorySteps, // Parent inventory follows its group.
+    ];
+    const random = scriptedRandom(script);
+    let releaseChildMessage;
+    const childMessagePaused = new Promise((resolve) => {
+        releaseChildMessage = resolve;
+    });
+    const messages = [];
 
-    const parent = makemon(null, 0, 0, 0, {
+    const creation = makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
+        async norepMessage(text) {
+            messages.push(text);
+            await childMessagePaused;
+        },
     });
+    await Promise.resolve();
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /^A jackal suddenly appears/u);
+    assert.equal(
+        random.consumedCount(),
+        script.length - parentInventorySteps.length,
+        'parent inventory must wait for the child Norep boundary',
+    );
+    releaseChildMessage();
+    const parent = await creation;
     random.assertExhausted();
 
     const groupMember = state.level.monlist;
@@ -1636,7 +1865,7 @@ test('runtime random creation builds source-order hostile groups', () => {
     assert.equal(parent.nmon, null);
 });
 
-test('large runtime groups chain placement and override recursive peace', () => {
+test('large runtime groups chain placement and override recursive peace', async () => {
     const state = initialLevelState();
     state.in_mklev = false;
     // Level five removes m_initgrp()'s low-level divisor. Restrict rndmonst()
@@ -1668,7 +1897,7 @@ test('large runtime groups chain placement and override recursive peace', () => 
         ...ordinaryInventoryTail(), // Parent inventory follows the group.
     ]);
 
-    const parent = makemon(null, 0, 0, 0, {
+    const parent = await makemon_runtime(null, 0, 0, 0, {
         state,
         random: random.random,
         hooks: { newsym: (x, y) => redraws.push([x, y]) },
@@ -1697,6 +1926,44 @@ test('large runtime groups chain placement and override recursive peace', () => 
     // Recursive children redraw as each creation finishes; the parent redraw
     // remains last, after its own inventory initialization.
     assert.deepEqual(redraws, [[16, 3], [15, 2], [14, 1], [17, 4]]);
+});
+
+test('hero level three applies the middle runtime group divisor', async () => {
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.u.ulevel = 3;
+    state.u.uz.dlevel = 5;
+    leaveOnlyRandomSpecies(state, [PM_GARTER_SNAKE]);
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) state.level.at(x, y).typ = ROOM;
+    }
+    const memberSteps = () => [
+        step('rn2', [16], 0),
+        ...radiusThreeShuffleSteps(),
+        ...garterSnakeCreationSteps({ peaceful: true }),
+        ...ordinaryInventoryTail(),
+    ];
+    const random = scriptedRandom([
+        step('rn1', [77, 2], 17),
+        step('rn2', [21], 4),
+        step('rn2', [1], 0),
+        ...garterSnakeCreationSteps({ peaceful: false }),
+        step('rn2', [3], 1),
+        // At level three C divides four by two, producing two members. The
+        // level-one divisor would reduce it to one before the zero clamp.
+        step('rnd', [10], 4),
+        ...memberSteps(),
+        ...memberSteps(),
+        ...ordinaryInventoryTail(),
+    ]);
+
+    const parent = await makemon_runtime(null, 0, 0, 0, {
+        state,
+        random: random.random,
+    });
+    random.assertExhausted();
+    assert.equal(state.level.monlist.nmon.nmon, parent);
+    assert.equal(state.mvitals[PM_GARTER_SNAKE].born, 3);
 });
 
 test('random-coordinate creation scans x-major after exactly 50 failed pairs', () => {
@@ -2361,6 +2628,21 @@ test('ordinary domestic creation equips a saddle after inventory gates', () => {
     assert.ok(defensiveGate >= 0);
     assert.ok(saddleGate > defensiveGate);
     assert.ok(saddleId > saddleGate);
+
+    const missedState = initialLevelState();
+    init_objects(missedState, () => 0);
+    const missedRandom = recordingRandom();
+    const unsaddled = makemon(
+        missedState.mons[PM_PONY],
+        MON_X,
+        MON_Y,
+        MM_NOCOUNTBIRTH,
+        { state: missedState, random: missedRandom.random },
+    );
+    assert.equal(
+        monsterInventory(unsaddled).some((obj) => obj.otyp === SADDLE),
+        false,
+    );
 });
 
 test('Statuary armed families generate their source equipment', () => {
@@ -3109,7 +3391,7 @@ test('soldier NO_MINVENT and unsupported mercenary siblings stay drawless',
     });
 
 test('runtime random soldier groups initialize members before parent inventory',
-    () => {
+    async () => {
         const state = initialLevelState();
         state.in_mklev = false;
         state.u.ulevel = 30;
@@ -3118,7 +3400,7 @@ test('runtime random soldier groups initialize members before parent inventory',
             for (let y = 0; y < ROWNO; ++y) state.level.at(x, y).typ = ROOM;
         }
         const random = recordingRandom();
-        const parent = makemon(null, 0, 0, 0, {
+        const parent = await makemon_runtime(null, 0, 0, 0, {
             state,
             random: random.random,
             hooks: { newsym: () => {} },
@@ -3445,7 +3727,7 @@ test('stone giant NO_MINVENT and later giant families stop before inventory RNG'
     });
 
 test('runtime random stone giant groups finish members before parent inventory',
-    () => {
+    async () => {
         const state = initialLevelState();
         state.in_mklev = false;
         state.u.ulevel = 30;
@@ -3454,7 +3736,7 @@ test('runtime random stone giant groups finish members before parent inventory',
             for (let y = 0; y < ROWNO; ++y) state.level.at(x, y).typ = ROOM;
         }
         const random = recordingRandom();
-        const parent = makemon(null, 0, 0, 0, {
+        const parent = await makemon_runtime(null, 0, 0, 0, {
             state,
             random: random.random,
             hooks: { newsym: () => {} },
@@ -3647,6 +3929,58 @@ test('hobbit coat gate creates an owned elven suit and wears it', () => {
     assert.equal(coat.quan, 1);
     assert.equal(coat.owornmask, W_ARM);
     assert.equal(monster.misc_worn_check, W_ARM);
+});
+
+test('hobbit cloak gate follows a rejected coat and equips its own slot', () => {
+    const state = initialLevelState();
+    let phase = 'weapon-choice';
+    let cloakObjectTenDraws = 0;
+    const random = recordingRandom({
+        rn2Result: (bound) => {
+            if (phase === 'weapon-choice' && bound === 3) {
+                phase = 'weapon-object';
+                return 0;
+            }
+            if (phase === 'weapon-object' && bound === 1000) {
+                phase = 'coat-gate';
+                return bound - 1;
+            }
+            if (phase === 'coat-gate' && bound === 10) {
+                phase = 'cloak-gate';
+                return bound - 1;
+            }
+            if (phase === 'cloak-gate' && bound === 10) {
+                phase = 'cloak-object';
+                return 0;
+            }
+            if (phase === 'cloak-object' && bound === 10) {
+                ++cloakObjectTenDraws;
+                if (cloakObjectTenDraws === 3) phase = 'generic-tail';
+                return bound - 1;
+            }
+            return Math.max(0, bound - 1);
+        },
+    });
+    const monster = makemon(
+        state.mons[PM_HOBBIT],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+    const inventory = monsterInventory(monster);
+    const cloak = inventory.find((obj) => obj.otyp === DWARVISH_CLOAK);
+
+    assert.equal(phase, 'generic-tail');
+    assert.deepEqual(inventory.map((obj) => obj.otyp), [
+        DWARVISH_CLOAK,
+        DAGGER,
+    ]);
+    assert.equal(cloak.where, OBJ_MINVENT);
+    assert.equal(cloak.ocarry, monster);
+    assert.equal(cloak.quan, 1);
+    assert.equal(cloak.owornmask, W_ARMC);
+    assert.equal(monster.misc_worn_check, W_ARMC);
 });
 
 test('racial_exception matches worn.c elven armor membership', () => {

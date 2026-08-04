@@ -51,6 +51,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     loadEatOccupationOptionsRecipe,
     loadEatOccupationRecipe,
+    loadRuntimeMonsterInterruptRecipe,
 } from './run-eat-occupation.mjs';
 
 // Locate a segment by its seed and the keys it types, so reordering the matrix
@@ -399,21 +400,27 @@ test('a meal that ends beside a monster plays its last turn through',
         assert.equal(game.disp.botl, true);
     });
 
-test('a monster arriving beside the meal stops the occupation', async () => {
-    // allmain.c:505-508 runs `stop_occupation(); reset_eat();` when
-    // monster_nearby() answers true after a bite. Neither is ported, so the
-    // port has to stop rather than eat on through the interruption. This seed
-    // was chosen because a monster generated during the second cram ration
-    // reaches the hero mid-meal; the matrix deliberately holds no such case,
-    // because C keeps playing there.
-    const ranger = segmentFor(5820041, 'ef.ef');
-    const interrupted = await boundaryFor({ ...ranger, seed: 5820043 },
-        ranger.moves);
-    assert.match(interrupted.message, /interrupted by a nearby monster/u);
+test('a new hostile group member appears before it stops the meal', async () => {
+    const recipe = loadRuntimeMonsterInterruptRecipe();
+    assert.equal(recipe.version, 5);
+    assert.deepEqual(recipe.segments.map(({ seed }) => seed), [8400223]);
+    const [segment] = recipe.segments;
+    assert.equal(segment.datetime, '20330517091113');
+    assert.match(segment.nethackrc, /name:WaitScan,role:Valkyrie/u);
+    assert.match(segment.nethackrc, /align:lawful/u);
+    assert.equal(segment.moves, 'ed ');
+    assert.equal(Object.hasOwn(segment, 'steps'), false);
 
-    // A pet standing beside its owner for a whole meal must not do that:
-    // monster_nearby() skips a peaceful monster. That case is in the matrix,
-    // and it reaches no boundary at all.
+    const replay = await runSegment(segment);
+    assert.equal(replay.getScreens().length, 4);
+    assert.equal(game.go.occupation, null);
+    assert.equal(
+        game.nhDisplay.toplines,
+        'You stop eating the food ration.',
+    );
+
+    // A pet standing beside its owner for a whole meal does not interrupt it:
+    // monster_nearby() and dochugw() both skip a peaceful monster.
     const withPet = loadEatOccupationRecipe().segments.find(
         (segment) => segment.nethackrc.includes('pettype:dog'),
     );
