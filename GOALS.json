@@ -297,6 +297,11 @@
           "name": "ordinary-troll-weapon-initialization",
           "status": "closed",
           "closedBy": "a8401fadf8d4780100859c1204e0fdf8001b25a4"
+        },
+        {
+          "name": "ordinary-barrow-wight-weapon-initialization",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "90ce78b45eac3e92c96b16f092020af4865f7980",
