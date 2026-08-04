@@ -34,6 +34,7 @@ import {
     PM_OGRE_LEADER,
     PM_SOLDIER,
     PM_STALKER,
+    PM_STONE_GIANT,
     PM_TROLL,
     PM_WUMPUS,
 } from '../js/monsters.js';
@@ -41,6 +42,7 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     ARROW,
     BATTLE_AXE,
+    BOULDER,
     BOW,
     CHEST,
     CLUB,
@@ -74,7 +76,10 @@ import {
     SMALL_SHIELD,
     SPEAR,
     STATUE,
+    TWO_HANDED_SWORD,
     WAN_FIRE,
+    WORTHLESS_BLACK_GLASS,
+    WORTHLESS_WHITE_GLASS,
 } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -99,6 +104,8 @@ const HIGH_LEVEL_ARRIVALS = new Set([
     9461387,
     9470202,
     9470211,
+    9490235,
+    9495425,
 ]);
 
 const HOBBIT_ARRIVALS = new Map([
@@ -179,6 +186,18 @@ const SOLDIER_ARRIVALS = new Map([
         { otyp: DENTED_POT, quan: 1, id: 97, worn: W_ARMH },
         { otyp: RING_MAIL, quan: 1, id: 95, worn: W_ARM },
         { otyp: SPEAR, quan: 1, id: 94, worn: 0 },
+    ]],
+]);
+
+const STONE_GIANT_ARRIVALS = new Map([
+    [9490235, [
+        { otyp: TWO_HANDED_SWORD, quan: 1, id: 76, weight: 150, worn: 0 },
+        { otyp: BOULDER, quan: 1, id: 74, weight: 6000, worn: 0 },
+    ]],
+    [9495425, [
+        { otyp: WORTHLESS_WHITE_GLASS, quan: 4, id: 101, weight: 4, worn: 0 },
+        { otyp: WORTHLESS_BLACK_GLASS, quan: 4, id: 100, weight: 4, worn: 0 },
+        { otyp: BATTLE_AXE, quan: 1, id: 99, weight: 120, worn: 0 },
     ]],
 ]);
 
@@ -280,6 +299,13 @@ export function loadLevelTeleportArrivalRecipe() {
             // source armor, ration, wearing, ownership, and object-id order.
             highLevelTeleport(9470202, 5),
             highLevelTeleport(9470211, 5),
+            // Stone-giant complements. The first keeps its boulder, selects
+            // a two-handed sword, and has zero gemstones. The second skips
+            // its boulder, selects a battle axe, and carries two distinct
+            // weighted gemstone stacks. Ordinary-room generation passes
+            // MM_NOGRP, so the live G_SGROUP recursion is focused-tested.
+            highLevelTeleport(9490235, 5),
+            highLevelTeleport(9495425, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -814,6 +840,57 @@ export async function verifyLevelTeleportArrival(segment) {
                 + `mgenmklev=${soldier.mgenmklev}, `
                 + `grid=${game.level.monsters[soldier.mx][soldier.my] === soldier}, `
                 + `misc=${soldier.misc_worn_check}, `
+                + `inventory=${JSON.stringify(inventory)}`,
+            );
+        }
+    }
+    const expectedStoneInventory = STONE_GIANT_ARRIVALS.get(segment.seed);
+    if (expectedStoneInventory) {
+        const giants = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_STONE_GIANT) giants.push(monster);
+        }
+        if (giants.length !== 1) {
+            throw new Error(
+                `stone-giant seed ${segment.seed} generated `
+                + `${giants.length} stone giants`,
+            );
+        }
+        const [giant] = giants;
+        const inventory = [];
+        const objectIds = new Set();
+        for (let obj = giant.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT || obj.ocarry !== giant) {
+                throw new Error(
+                    `stone-giant seed ${segment.seed} lost inventory ownership`,
+                );
+            }
+            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+                throw new Error(
+                    `stone-giant seed ${segment.seed} has invalid object identity`,
+                );
+            }
+            objectIds.add(obj.o_id);
+            inventory.push({
+                otyp: obj.otyp,
+                quan: obj.quan,
+                id: obj.o_id,
+                weight: obj.owt,
+                worn: obj.owornmask,
+            });
+        }
+        if (game.u.ulevel !== 30
+            || giant.mgenmklev !== true
+            || game.level.monsters[giant.mx][giant.my] !== giant
+            || giant.misc_worn_check !== 0
+            || JSON.stringify(inventory)
+                !== JSON.stringify(expectedStoneInventory)) {
+            throw new Error(
+                `stone-giant seed ${segment.seed} lost source inventory, `
+                + `hero level, or ownership: level=${game.u.ulevel}, `
+                + `mgenmklev=${giant.mgenmklev}, `
+                + `grid=${game.level.monsters[giant.mx][giant.my] === giant}, `
+                + `misc=${giant.misc_worn_check}, `
                 + `inventory=${JSON.stringify(inventory)}`,
             );
         }

@@ -103,6 +103,7 @@ import {
 import {
     can_be_hatched,
     is_female,
+    is_giant,
     is_male,
     is_mercenary,
     is_ndemon,
@@ -200,6 +201,7 @@ import {
     PM_SKELETON,
     PM_SNAKE,
     PM_STALKER,
+    PM_STONE_GIANT,
     PM_URUK_HAI,
     PM_VAMPIRE,
     PM_VAMPIRE_BAT,
@@ -217,6 +219,7 @@ import {
     S_ELEMENTAL,
     S_EYE,
     S_GHOST,
+    S_GIANT,
     S_GNOME,
     S_GOLEM,
     S_HUMAN,
@@ -244,6 +247,7 @@ import {
     mkobj_at,
     mksobj,
     next_ident,
+    rnd_class,
     weight,
 } from './obj.js';
 import {
@@ -264,6 +268,7 @@ import {
     AXE,
     BATTLE_AXE,
     BEC_DE_CORBIN,
+    BOULDER,
     BOW,
     CLUB,
     COIN_CLASS,
@@ -273,6 +278,7 @@ import {
     DAGGER,
     DART,
     DENTED_POT,
+    DILITHIUM_CRYSTAL,
     DUNCE_CAP,
     DWARVISH_CLOAK,
     DWARVISH_IRON_HELM,
@@ -316,6 +322,7 @@ import {
     LOW_BOOTS,
     LONG_SWORD,
     LUCERN_HAMMER,
+    LUCKSTONE,
     LUMP_OF_ROYAL_JELLY,
     MAXOCLASSES,
     MIRROR,
@@ -1277,6 +1284,21 @@ function m_initweap(monster, normalized) {
     }
 
     switch (ptr.mlet) {
+    case S_GIANT:
+        if (ptr.pmidx !== PM_STONE_GIANT) {
+            throw new UnsupportedMonsterCreationError(
+                `giant weapon branch ${ptr.pmidx}`,
+            );
+        }
+        if (random.rn2(2)) mongets(monster, BOULDER, normalized);
+        if (!random.rn2(5)) {
+            mongets(
+                monster,
+                random.rn2(2) ? TWO_HANDED_SWORD : BATTLE_AXE,
+                normalized,
+            );
+        }
+        break;
     case S_HUMAN:
         if (is_mercenary(ptr)) {
             if (ptr.pmidx !== PM_SOLDIER) {
@@ -1752,6 +1774,29 @@ function m_initinv(monster, normalized) {
         if (!random.rn2(2)) mongets(monster, MIRROR, normalized);
         if (!random.rn2(2))
             mongets(monster, POT_OBJECT_DETECTION, normalized);
+    } else if (ptr.mlet === S_GIANT && is_giant(ptr)) {
+        if (ptr.pmidx !== PM_STONE_GIANT) {
+            throw new UnsupportedMonsterCreationError(
+                `giant inventory branch ${ptr.pmidx}`,
+            );
+        }
+        for (let count = random.rn2(Math.trunc(monster.m_lev / 2));
+            count > 0;
+            --count) {
+            const obj = mksobj(
+                rnd_class(
+                    DILITHIUM_CRYSTAL,
+                    LUCKSTONE - 1,
+                    normalized,
+                ),
+                false,
+                false,
+                normalized,
+            );
+            obj.quan = random.rn1(2, 3);
+            obj.owt = weight(obj, normalized);
+            addFreshMonsterObject(monster, obj, normalized);
+        }
     } else if (ptr.mlet === S_MUMMY) {
         if (random.rn2(7)) mongets(monster, MUMMY_WRAPPING, normalized);
     } else if (ptr.mlet === S_LEPRECHAUN) {

@@ -53,16 +53,17 @@ import {
     startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
-import { is_mercenary, is_ndemon } from '../js/mondata.js';
+import { is_giant, is_mercenary, is_ndemon } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, weight } from '../js/obj.js';
 import {
     G_FREQ,
     G_HELL,
     G_NOGEN,
     G_UNIQ,
     M2_DEMON,
+    M2_GIANT,
     M2_LORD,
     M2_ORC,
     M2_PRINCE,
@@ -79,6 +80,7 @@ import {
     PM_DOPPELGANGER,
     PM_DEMILICH,
     PM_FIRE_ELEMENTAL,
+    PM_FIRE_GIANT,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_FOREST_CENTAUR,
@@ -87,8 +89,10 @@ import {
     PM_GIANT_MUMMY,
     PM_GIANT_EEL,
     PM_GIANT_ZOMBIE,
+    PM_GIANT,
     PM_GOBLIN,
     PM_GRID_BUG,
+    PM_HILL_GIANT,
     PM_HOMUNCULUS,
     PM_HORSE,
     PM_HOBBIT,
@@ -107,6 +111,7 @@ import {
     PM_LEPRECHAUN,
     PM_LONG_WORM,
     PM_MASTER_LICH,
+    PM_MINOTAUR,
     PM_NAZGUL,
     PM_NEWT,
     PM_ORC,
@@ -123,6 +128,9 @@ import {
     PM_SMALL_MIMIC,
     PM_SOLDIER,
     PM_STALKER,
+    PM_STONE_GIANT,
+    PM_FROST_GIANT,
+    PM_ETTIN,
     PM_TROLL,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
@@ -147,6 +155,7 @@ import {
     BATTLE_AXE,
     BEC_DE_CORBIN,
     BOW,
+    BOULDER,
     DART,
     CLUB,
     CROSSBOW,
@@ -154,6 +163,7 @@ import {
     C_RATION,
     DAGGER,
     DENTED_POT,
+    DILITHIUM_CRYSTAL,
     DWARVISH_CLOAK,
     DWARVISH_MITHRIL_COAT,
     ELVEN_BOOTS,
@@ -179,6 +189,7 @@ import {
     LONG_SWORD,
     LOW_BOOTS,
     LUMP_OF_ROYAL_JELLY,
+    LUCKSTONE,
     MIRROR,
     MUMMY_WRAPPING,
     ORCISH_ARROW,
@@ -196,6 +207,7 @@ import {
     ROCK,
     SADDLE,
     SCR_CREATE_MONSTER,
+    SCR_TELEPORTATION,
     SLIME_MOLD,
     SLING,
     SHORT_SWORD,
@@ -206,9 +218,11 @@ import {
     TALLOW_CANDLE,
     T_SHIRT,
     STUDDED_LEATHER_ARMOR,
+    TWO_HANDED_SWORD,
     WAN_DIGGING,
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
+    WORTHLESS_VIOLET_GLASS,
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
@@ -324,7 +338,7 @@ function garterSnakeCreationSteps({ peaceful }) {
     return steps;
 }
 
-function recordingRandom({ rn2Result, rndResult } = {}) {
+function recordingRandom({ rn1Result, rn2Result, rndResult } = {}) {
     const calls = [];
     const record = (kind, args, result) => {
         calls.push({ kind, args, result });
@@ -334,7 +348,11 @@ function recordingRandom({ rn2Result, rndResult } = {}) {
         calls,
         random: {
             d: (number, sides) => record('d', [number, sides], number),
-            rn1: (range, base) => record('rn1', [range, base], base),
+            rn1: (range, base) => record(
+                'rn1',
+                [range, base],
+                rn1Result ? rn1Result(range, base) : base,
+            ),
             rn2: (bound) => record(
                 'rn2',
                 [bound],
@@ -581,6 +599,71 @@ function createPlannedSoldier(plan = {}, flags = 0) {
         { state, random: random.random },
     );
     random.assertFinished();
+    return { monster, random, state };
+}
+
+function createPlannedStoneGiant(plan = {}, flags = 0) {
+    let twoCalls = 0;
+    let fourCalls = 0;
+    let fiveCalls = 0;
+    let fiftyCalls = 0;
+    let hundredCalls = 0;
+    let fortyCalls = 0;
+    let gemRoll = 0;
+    let gemQuantity = 0;
+    const gemRolls = plan.gemRolls ?? [];
+    const gemQuantities = plan.gemQuantities ?? [];
+    const heavyGate = plan.heavyGate ?? 1;
+    const highLevelGems = (plan.heroLevel ?? 1) > 1;
+    const random = recordingRandom({
+        rn1Result: (range, base) => {
+            if (range === 2 && base === 3) {
+                return gemQuantities[gemQuantity++] ?? base;
+            }
+            return base;
+        },
+        rn2Result: (bound) => {
+            if (bound === 2) {
+                ++twoCalls;
+                if (twoCalls === 2) return plan.boulderGate ?? 0;
+                if (twoCalls === 3 && heavyGate === 0)
+                    return plan.weaponChoice ?? 0;
+                const gemCountCall = heavyGate === 0 ? 4 : 3;
+                if (!highLevelGems && twoCalls === gemCountCall)
+                    return plan.gemCount ?? 0;
+            } else if (bound === 4 && ++fourCalls === 1 && highLevelGems) {
+                return plan.gemCount ?? 0;
+            } else if (bound === 5 && ++fiveCalls === 1) {
+                return heavyGate;
+            } else if (bound === 75) {
+                return plan.offensiveGate ?? 74;
+            } else if (bound === 50 && ++fiftyCalls === 1) {
+                return plan.defensiveGate ?? 49;
+            } else if (bound === 100 && ++hundredCalls === 1) {
+                return plan.miscGate ?? 99;
+            } else if (bound === 40 && ++fortyCalls === 1) {
+                return plan.lifeSavingGate ?? 39;
+            }
+            return Math.max(0, bound - 1);
+        },
+        rndResult: (bound) => {
+            if (bound === 862) {
+                const choice = gemRolls[gemRoll++] ?? 1;
+                return choice === 'last' ? bound : choice;
+            }
+            return 1;
+        },
+    });
+    const state = initialLevelState();
+    state.u.ulevel = plan.heroLevel ?? state.u.ulevel;
+    plan.prepareState?.(state);
+    const monster = makemon(
+        state.mons[PM_STONE_GIANT],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH | flags,
+        { state, random: random.random },
+    );
     return { monster, random, state };
 }
 
@@ -3073,6 +3156,333 @@ test('runtime random soldier groups initialize members before parent inventory',
             for (const obj of inventory) {
                 assert.equal(obj.where, OBJ_MINVENT, name);
                 assert.equal(obj.ocarry, monster, name);
+            }
+        }
+        assert.ok(
+            Math.max(...memberInventory.map((obj) => obj.o_id))
+                < Math.min(...parentInventory.map((obj) => obj.o_id)),
+            'recursive member inventory must finish before parent inventory',
+        );
+    });
+
+test('stone giants preserve both weapon gates and choices before inventory',
+    () => {
+        assert.equal(is_giant(initialLevelState().mons[PM_STONE_GIANT]), true);
+        const cases = [
+            {
+                name: 'no boulder or heavy weapon',
+                plan: { boulderGate: 0, heavyGate: 1 },
+                expected: [],
+            },
+            {
+                name: 'boulder without heavy weapon',
+                plan: { boulderGate: 1, heavyGate: 1 },
+                expected: [BOULDER],
+            },
+            {
+                name: 'battle axe without boulder',
+                plan: {
+                    boulderGate: 0,
+                    heavyGate: 0,
+                    weaponChoice: 0,
+                },
+                expected: [BATTLE_AXE],
+            },
+            {
+                name: 'two-handed sword after boulder',
+                plan: {
+                    boulderGate: 1,
+                    heavyGate: 0,
+                    weaponChoice: 1,
+                },
+                // mongets() prepends the later source object.
+                expected: [TWO_HANDED_SWORD, BOULDER],
+            },
+        ];
+
+        for (const scenario of cases) {
+            const { monster, random } = createPlannedStoneGiant(scenario.plan);
+            const inventory = monsterInventory(monster);
+            assert.deepEqual(
+                inventory.map((obj) => obj.otyp),
+                scenario.expected,
+                scenario.name,
+            );
+            for (const obj of inventory) {
+                assert.equal(obj.where, OBJ_MINVENT, scenario.name);
+                assert.equal(obj.ocarry, monster, scenario.name);
+                assert.equal(obj.quan, 1, scenario.name);
+                assert.equal(obj.owornmask, 0, scenario.name);
+            }
+            const boulderGate = random.calls.findIndex(
+                (call, index) => index > 0
+                    && call.kind === 'rn2' && call.args[0] === 2,
+            );
+            const heavyGate = random.calls.findIndex(
+                (call) => call.kind === 'rn2' && call.args[0] === 5,
+            );
+            const offensiveGate = random.calls.findIndex(
+                (call) => call.kind === 'rn2' && call.args[0] === 75,
+            );
+            const gemCount = random.calls.findIndex(
+                (call, index) => index > offensiveGate
+                    && call.kind === 'rn2' && call.args[0] === 2,
+            );
+            assert.ok(boulderGate >= 0, scenario.name);
+            assert.ok(heavyGate > boulderGate, scenario.name);
+            assert.ok(offensiveGate > heavyGate, scenario.name);
+            assert.ok(gemCount > offensiveGate, scenario.name);
+            assert.deepEqual(
+                random.calls.slice(gemCount).map(
+                    (call) => [call.kind, call.args, call.result],
+                ),
+                [
+                    ['rn2', [2], 0],
+                    ['rn2', [50], 49],
+                    ['rn2', [100], 99],
+                    ['rn2', [100], 99],
+                ],
+                `${scenario.name}: generic inventory and saddle continuation`,
+            );
+        }
+    });
+
+test('stone giant gemstone loops use weighted endpoints, quantities, and merges',
+    () => {
+        const distinct = createPlannedStoneGiant({
+            heroLevel: 30,
+            gemCount: 2,
+            gemRolls: [1, 'last'],
+            gemQuantities: [3, 4],
+        });
+        const distinctInventory = monsterInventory(distinct.monster);
+        assert.deepEqual(
+            distinctInventory.map((obj) => obj.otyp),
+            [WORTHLESS_VIOLET_GLASS, DILITHIUM_CRYSTAL],
+        );
+        assert.deepEqual(
+            distinctInventory.map((obj) => obj.quan),
+            [4, 3],
+        );
+        assert.deepEqual(
+            distinct.random.calls
+                .filter((call) => call.kind === 'rnd'
+                    && call.args[0] === 862)
+                .map((call) => call.result),
+            [1, 862],
+            // objects.h contributes 171 across real gems and 691 across
+            // glass, so rnd_class() selects over an inclusive total of 862.
+            'rnd_class must retain the weighted inclusive endpoint choices',
+        );
+        assert.deepEqual(
+            distinct.random.calls
+                .filter((call) => call.kind === 'rn1'
+                    && call.args[0] === 2 && call.args[1] === 3)
+                .map((call) => call.result),
+            [3, 4],
+        );
+        const countIndex = distinct.random.calls.findIndex(
+            (call) => call.kind === 'rn2'
+                && call.args[0] === 4 && call.result === 2,
+        );
+        assert.ok(countIndex >= 0);
+        assert.deepEqual(
+            distinct.random.calls.slice(countIndex).map(
+                (call) => [call.kind, call.args, call.result],
+            ),
+            [
+                ['rn2', [4], 2],
+                ['rnd', [862], 1],
+                ['rnd', [2], 1],
+                ['rn1', [2, 3], 3],
+                ['rnd', [862], 862],
+                ['rnd', [2], 1],
+                ['rn1', [2, 3], 4],
+                ['rn2', [50], 49],
+                ['rn2', [100], 99],
+                ['rn2', [100], 99],
+            ],
+            'mksobj(FALSE,FALSE) stays drawless between selection and quantity',
+        );
+        for (const obj of distinctInventory) {
+            assert.equal(obj.where, OBJ_MINVENT);
+            assert.equal(obj.ocarry, distinct.monster);
+            assert.equal(obj.owt, weight(obj, { state: distinct.state }));
+        }
+        assert.ok(distinctInventory[0].o_id > distinctInventory[1].o_id);
+
+        const realMerge = createPlannedStoneGiant({
+            heroLevel: 30,
+            gemCount: 2,
+            gemRolls: [1, 1],
+            gemQuantities: [3, 4],
+        });
+        const [realGem] = monsterInventory(realMerge.monster);
+        assert.equal(realGem.nobj, null);
+        assert.equal(realGem.otyp, DILITHIUM_CRYSTAL);
+        assert.equal(realGem.quan, 7);
+        assert.equal(realGem.owt, weight(realGem, { state: realMerge.state }));
+        assert.equal(realGem.o_id, 4,
+            'the incoming undiscovered real gem has the higher oid adjustment');
+        assert.equal(realMerge.state.context.ident, 5);
+
+        const glassMerge = createPlannedStoneGiant({
+            heroLevel: 30,
+            gemCount: 2,
+            gemRolls: ['last', 'last'],
+            gemQuantities: [3, 4],
+        });
+        const [glass] = monsterInventory(glassMerge.monster);
+        assert.equal(glass.nobj, null);
+        assert.equal(glass.otyp, WORTHLESS_VIOLET_GLASS);
+        assert.equal(glass.quan, 7);
+        assert.equal(glass.owt, weight(glass, { state: glassMerge.state }));
+        assert.equal(glass.o_id, 3,
+            'glass keeps the earlier stack id because it has no oid adjustment');
+        assert.equal(glassMerge.state.context.ident, 5);
+    });
+
+test('stone giants retain generic defensive, miscellaneous, wearing, and no gold',
+    () => {
+        const defensive = createPlannedStoneGiant({ defensiveGate: 0 });
+        assert.deepEqual(
+            monsterInventory(defensive.monster).map((obj) => obj.otyp),
+            [SCR_TELEPORTATION],
+        );
+
+        const lifeSaving = createPlannedStoneGiant({
+            miscGate: 0,
+            lifeSavingGate: 0,
+        });
+        const [amulet] = monsterInventory(lifeSaving.monster);
+        assert.equal(amulet.otyp, AMULET_OF_LIFE_SAVING);
+        assert.equal(amulet.where, OBJ_MINVENT);
+        assert.equal(amulet.ocarry, lifeSaving.monster);
+        assert.equal(amulet.owornmask, W_AMUL);
+        assert.equal(lifeSaving.monster.misc_worn_check, W_AMUL);
+        assert.equal(
+            lifeSaving.random.calls.filter(
+                (call) => call.kind === 'rn2' && call.args[0] === 5,
+            ).length,
+            1,
+            'M2_JEWELS alone must not take the likes_gold() gate',
+        );
+        assert.deepEqual(
+            lifeSaving.random.calls
+                .filter((call) => call.kind === 'rn2'
+                    && call.args[0] === 100)
+                .map((call) => call.result),
+            [0, 99],
+            'miscellaneous creation precedes the unconditional saddle roll',
+        );
+    });
+
+test('the giant gemstone predicate remains is_giant rather than the glyph alone',
+    () => {
+        const result = createPlannedStoneGiant({
+            heroLevel: 30,
+            gemCount: 2,
+            prepareState: (state) => {
+                const source = state.mons[PM_STONE_GIANT];
+                state.mons[PM_STONE_GIANT] = {
+                    ...source,
+                    mflags2: source.mflags2 & ~M2_GIANT,
+                };
+            },
+        });
+        assert.equal(is_giant(result.monster.data), false);
+        assert.deepEqual(monsterInventory(result.monster), []);
+        assert.equal(
+            result.random.calls.some(
+                (call) => call.kind === 'rn2' && call.args[0] === 4,
+            ),
+            false,
+            'non-giant S_GIANT skips the gemstone count draw',
+        );
+    });
+
+test('stone giant NO_MINVENT and later giant families stop before inventory RNG',
+    () => {
+        const suppressed = createPlannedStoneGiant({}, NO_MINVENT);
+        assert.equal(suppressed.monster.minvent, null);
+        assert.equal(suppressed.monster.misc_worn_check, 0);
+        assert.equal(
+            suppressed.random.calls.some(
+                (call) => call.kind === 'rn2'
+                    && [75, 50, 100].includes(call.args[0]),
+            ),
+            false,
+        );
+
+        for (const mndx of [
+            PM_GIANT,
+            PM_HILL_GIANT,
+            PM_FIRE_GIANT,
+            PM_FROST_GIANT,
+            PM_ETTIN,
+            PM_MINOTAUR,
+        ]) {
+            const state = initialLevelState();
+            const random = recordingRandom();
+            assert.throws(
+                () => makemon(
+                    state.mons[mndx],
+                    MON_X,
+                    MON_Y,
+                    MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+                    { state, random: random.random },
+                ),
+                (error) => error instanceof UnsupportedMonsterCreationError
+                    && error.operation === `monster ${mndx}`,
+                state.mons[mndx].pmnames[2],
+            );
+            assert.deepEqual(random.calls, [], state.mons[mndx].pmnames[2]);
+            assert.equal(state.level.monlist, null);
+            assert.equal(state.level.monsters[MON_X][MON_Y], null);
+            assert.equal(state.mvitals[mndx].born, 0);
+            assert.equal(state.context.ident, 2);
+        }
+    });
+
+test('runtime random stone giant groups finish members before parent inventory',
+    () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ulevel = 30;
+        leaveOnlyRandomSpecies(state, [PM_STONE_GIANT]);
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) state.level.at(x, y).typ = ROOM;
+        }
+        const random = recordingRandom();
+        const parent = makemon(null, 0, 0, 0, {
+            state,
+            random: random.random,
+            hooks: { newsym: () => {} },
+        });
+        const member = state.level.monlist;
+        assert.notEqual(member, parent);
+        assert.equal(member.nmon, parent);
+        assert.equal(parent.nmon, null);
+        assert.equal(member.data, state.mons[PM_STONE_GIANT]);
+        assert.equal(parent.data, state.mons[PM_STONE_GIANT]);
+
+        const memberInventory = monsterInventory(member);
+        const parentInventory = monsterInventory(parent);
+        for (const [name, monster, inventory] of [
+            ['member', member, memberInventory],
+            ['parent', parent, parentInventory],
+        ]) {
+            assert.deepEqual(
+                inventory.map((obj) => [obj.otyp, obj.quan]),
+                [[DILITHIUM_CRYSTAL, 9], [BOULDER, 1]],
+                name,
+            );
+            assert.equal(monster.mgenmklev, false, name);
+            assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+            for (const obj of inventory) {
+                assert.equal(obj.where, OBJ_MINVENT, name);
+                assert.equal(obj.ocarry, monster, name);
+                assert.equal(obj.owt, weight(obj, { state }), name);
             }
         }
         assert.ok(
