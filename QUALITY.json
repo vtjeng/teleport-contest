@@ -706,7 +706,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "Random arrival can select a floor-object square; with autopickup enabled goto_level() stops at pickup(1) instead of performing source inventory, burden, and message behavior."
     },
@@ -733,7 +733,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "level_tele() cAtoi() fails to reproduce recorder-ABI signed 32-bit narrowing for overflowing positive decimals; implement long saturation, int32 narrowing, C whitespace, and strict boundary cases."
     },
@@ -742,7 +742,7 @@
       "area": "monsters",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "js/teleport.js level_tele() header still says every destination-resolution path refuses, hiding the now-supported positive-decimal scheduling tail."
     },
@@ -751,7 +751,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "A numeric destination resolving to a special level is scheduled and generated as an ordinary map before failing; reject the identity before scheduling with no new state, output, or randomness."
     },
@@ -7070,6 +7070,132 @@
         ]
       },
       "recordedAt": "2026-08-04T03:32:56.756Z"
+    },
+    {
+      "kind": "review",
+      "head": "3d18ef4263d91261a3563a061aca1f0f2b556e62",
+      "auditedRange": "a3e694dd50957d4933318456c653d9bf22a3b65c..3d18ef4263d91261a3563a061aca1f0f2b556e62",
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 44 raw, 16 deduplicated, 3 confirmed, 3 applied, 0 deferred, 13 rejected, 0 unverified; mutation: 10 survivors of 149 mutants. Independent source, state-flow, test, readability and concurrency review found no remaining behavioral defect at the exact audit-fix head. It confirmed and applied three nonbehavioral findings in 3d18ef4: direct projected-quiver tracking, a private same-module naming helper, and a corrected bogus-name ownership comment. Earlier expanded passes in this range found and fixed the runtime creation tail, planner meal identity and pickup comparison wait boundary; the final pass rechecked those owners. Validation stayed at 965 development screens and 115,661 RNG values.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2700,
+        "counts": {
+          "raw": 44,
+          "deduplicated": 16,
+          "confirmed": 3,
+          "applied": 3,
+          "deferred": 0,
+          "rejected": 13,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 0,
+          "clarity": 1,
+          "simplification": 2,
+          "other": 0
+        },
+        "productionDefects": [],
+        "mutation": {
+          "mutants": 149,
+          "survivors": 10,
+          "byKind": {
+            "boolean": {
+              "ran": 41,
+              "killed": 37
+            },
+            "logical": {
+              "ran": 88,
+              "killed": 82
+            },
+            "relational": {
+              "ran": 20,
+              "killed": 20
+            }
+          },
+          "finderConclusion": "All ten survivors were traced to source-invariant or unreachable conditions under the admitted callers; the audit-fix commit added no mutable site."
+        },
+        "readiness": {
+          "boundary": "The checklist names the completed ordinary arrival, pickup, runtime creation and closed monster-initialization outcomes and keeps generated shop-door rollback and later reservoir families outside the claimed budget-close boundary.",
+          "sourceReview": "The orchestrator and independent reviewers traced pickup through pickup.c/invent.c, runtime creation through makemon.c/allmain.c/eat.c, naming through do_name.c, and planner identity through every admitted object root and consumer.",
+          "completeness": "The exact final range passed 2,671 tests, all six generated checks, namespace validation, the strict arrival and meal matrices, unchanged development scoring, and 149-site mutation analysis with every survivor classified."
+        },
+        "rejections": [
+          {
+            "summary": "The runtime constructor omits an observable early by-hero redraw.",
+            "counterEvidence": "The only admitted explicit by-hero caller is starting-pet creation, whose startup coordinates are visible and undisplaced; JavaScript performs the final source redraw before appearance output, and there is no source wait or observation between the two C redraw points. Reopen only for a caller with nontrivial apparxy state or an observable operation between those points."
+          },
+          {
+            "summary": "Synchronous merged() can silently ignore an asynchronous comparison callback in the reviewed boundary.",
+            "counterEvidence": "The admitted live comparison path exclusively awaits addinv_runtime(); generation callers require synchronous results and own no asynchronous comparison. The separate wizard-wish consumer predates and lies outside this boundary. Reopen only when an admitted synchronous consumer can supply a thenable comparison hook."
+          },
+          {
+            "summary": "The planning clone leaks through the nested hero uskin object pointer.",
+            "counterEvidence": "Every admitted planner mutation of hero inventory is completed-meal consumption through the separately remapped context.victual.piece; no admitted action reads or writes through u.uskin. Reopen with a supported planner action that consumes that nested pointer."
+          },
+          {
+            "summary": "Projected inventory merges must update weight and bypass to preserve a later decision.",
+            "counterEvidence": "Those fields are not read by later projected mergeability, naming, inventory-letter, or capacity decisions, while the live commit still performs both C updates. Reopen only with a concrete admitted selected sequence where an omitted projected field changes a later outcome."
+          },
+          {
+            "summary": "Amonnam special-name guards need tests for priests, minions, shopkeepers, or player monsters in this range.",
+            "counterEvidence": "The reviewed runtime reservoir and starting-pet callers admit none of those lifecycle shapes, while the source guards remain ported for future callers. Reopen when one of those families is admitted."
+          },
+          {
+            "summary": "The initial nameAtStart value can affect article selection.",
+            "counterEvidence": "Every supported hallucinating or ordinary-name branch overwrites the value before article selection, matching do_name.c. Reopen if a new branch reaches the article decision without assigning it."
+          },
+          {
+            "summary": "The stone-giant gemstone mksobj artifact flag can change an admitted result.",
+            "counterEvidence": "The call uses init=false, so mksobj_init never consults artif, and the fixed nonunique gemstone range cannot take the later unique-object conversion. Reopen if initialization or the selected object family changes."
+          },
+          {
+            "summary": "The disallowed-minventory discard flag can alter an admitted artifact or object lifecycle.",
+            "counterEvidence": "Every admitted allowMinvent=false shape reaches the discard with an empty pack. Reopen when an admitted caller can populate minvent before suppression, especially with an artifact."
+          },
+          {
+            "summary": "The runtime continuation claimed guards cover independently reachable failure states.",
+            "counterEvidence": "makemon_runtime creates one fresh unclaimed continuation, the synchronous constructor claims it atomically for the exact returned monster, and the wrapper checks it immediately. Reopen for direct runtime makemon use or reusable/injectable continuations."
+          },
+          {
+            "summary": "The mixed anymon/MM_NOGRP runtime group gate has an untested admitted combination.",
+            "counterEvidence": "Random leaders, recursive children, and the three starting-pet species exhaust admitted shapes; their flags make the mutation inert, and recursive group order is separately pinned. Reopen for a new explicit grouped species or caller/flag combination."
+          },
+          {
+            "summary": "The default alreadySawMonster value can change an admitted dochugw path.",
+            "counterEvidence": "The helper is private and every caller explicitly supplies the source-derived boolean. Reopen only when a caller omits the argument."
+          },
+          {
+            "summary": "Merge the synchronous and runtime merged/addinv implementations into one async abstraction.",
+            "counterEvidence": "Generation callers require immediate booleans, runtime comparison can suspend at each candidate, and earlier candidates mutate the graph. Reopen only if every caller becomes async or a shared state machine preserves both synchronous return and exact wait boundaries."
+          },
+          {
+            "summary": "Consolidate synchronous and runtime monster-group construction.",
+            "counterEvidence": "Recursive awaited child tails must complete before hostility correction and later placement against mutated state and RNG. Reopen only if the source-shaped makemon API is intentionally made async across every consumer."
+          }
+        ],
+        "warnings": [
+          "The generic top-level worn-object pointer remap is structurally covered but lacks a direct representative alias assertion; no admitted planner writer consumes such an alias.",
+          "git diff --check reports intentional trailing terminal TSV fields in historical PHASES.tsv rows; no production source line is affected."
+        ],
+        "optionalFinders": {
+          "concurrency": {
+            "enabled": true,
+            "conclusion": "Await chains, recursive creation tails, comparison suspension, and retry isolation have no remaining finding."
+          },
+          "performance": {
+            "enabled": false,
+            "conclusion": "No performance finder was triggered; reviewed loops are bounded source-shaped work."
+          }
+        }
+      },
+      "recordedAt": "2026-08-04T15:41:59.084Z"
     }
   ]
 }
