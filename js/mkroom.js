@@ -404,9 +404,9 @@ export function courtCellIsFillable(sroom, x, y, state) {
         || (y === sroom.hy && door.y === y + 1));
 }
 
-// C ref: mkroom.c fill_zoo(), restricted to the complete COURT arm selected
-// by the ordinary D:5 generation boundary. Other zoo families retain their
-// named do_mkroom()/fill_special_room() refusal.
+// C ref: mkroom.c fill_zoo(), restricted to the rectangular, non-maze COURT
+// arm selected by ordinary D:5 generation. Irregular and maze-level Courts,
+// plus the other zoo families, retain their named generation boundary.
 export function fill_zoo(sroom, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? SOURCE_RANDOM;

@@ -202,8 +202,8 @@ export async function check_special_room(
     move_update(newlev, state);
 
     // u_left_shop() bills the hero for anything unpaid she carries out of a
-    // shop; the shop work owns it.  u.ushops0 stays empty because no level
-    // this port generates holds a shop.
+    // shop. Generated shops now make u.ushops0 reachable after first entry,
+    // but departure billing remains an explicit shop-work boundary.
     if (roomString(roomBuffer(state.u, 'ushops0')).length) {
         throw new UnsupportedHeroMoveBoundaryError(
             'check_special_room() leaving a shop',

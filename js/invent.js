@@ -1861,26 +1861,36 @@ function setQuiver(obj, env) {
 
 // Dependency-only half of invent.c addinv_core0(). Transfer callers use this
 // while an object still belongs to its source chain so every missing inventory
-// effect is rejected before ownership changes.
+// effect is rejected before ownership changes. The returned plan is bound to
+// that exact object and normalized state, and one addinv() commit consumes it.
 export function preflight_addinv(obj, env = {}) {
     const normalized = inventoryEnv(env);
     requireInventoryRefresh(normalized);
     return {
+        object: obj,
         normalized,
         addinvFacts: preflightAddinvCores(obj, normalized),
         carryEffects: preflight_carry_obj_effects(obj, normalized),
+        consumed: false,
     };
 }
 
 // C ref: invent.c addinv_core0() and addinv().
 export function addinv(obj, env = {}, prepared = null) {
     const plan = prepared ?? preflight_addinv(obj, env);
+    if (prepared && plan.object !== obj)
+        throw new Error('addinv: prepared plan belongs to another object');
+    if (prepared && plan.normalized.state !== (env.state ?? game))
+        throw new Error('addinv: prepared plan belongs to another state');
+    if (prepared && plan.consumed)
+        throw new Error('addinv: prepared plan was already consumed');
     const normalized = plan.normalized;
     const { state } = normalized;
     if (obj.where !== OBJ_FREE)
         throw new Error(`addinv: object where=${obj.where}, expected OBJ_FREE`);
     if (obj.nobj || obj.nexthere)
         throw new Error('addinv: free object retains a chain link');
+    plan.consumed = true;
     if (obj.how_lost === LOST_EXPLODING) return null;
 
     const addinvFacts = plan.addinvFacts;

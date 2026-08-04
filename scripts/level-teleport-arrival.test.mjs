@@ -9,12 +9,14 @@ import {
     ACH_SHOP,
     ARROW_TRAP,
     CORR,
+    DEAF,
     LAST_PROP,
     LR_BRANCH,
     LR_DOWNTELE,
     LR_TELE,
     LR_UPTELE,
     MAGIC_PORTAL,
+    OBJ_FLOOR,
     OBJ_INVENT,
     ROOMOFFSET,
     ROOM,
@@ -34,6 +36,7 @@ import {
 } from '../js/dungeon.js';
 import {
     finish_random_arrival_effects,
+    goto_level,
     place_random_arrival,
 } from '../js/do.js';
 import { GameMap } from '../js/game.js';
@@ -48,13 +51,14 @@ import {
 import { PM_DWARF, monst_globals_init } from '../js/monsters.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { APPLE } from '../js/objects.js';
+import { APPLE, ELVEN_DAGGER } from '../js/objects.js';
 import { pickup } from '../js/pickup.js';
 import { com_pager } from '../js/questpgr.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { roles } from '../js/roles.js';
-import { inside_shop, u_entered_shop } from '../js/shk.js';
+import { costly_spot, inside_shop, u_entered_shop } from '../js/shk.js';
 import { SHTYPES } from '../js/shtypes_data.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     loadLevelTeleportArrivalRecipe,
     verifyLevelTeleportArrival,
@@ -71,11 +75,19 @@ test('the arrival matrix is a clean audited replay recipe', () => {
             7640011,
             7640059,
             7633019,
+            7633019,
             7641005,
             7643705,
             7645000,
             7621009,
         ],
+    );
+    assert.deepEqual(
+        recipe.segments
+            .filter(({ seed }) => seed === 7633019)
+            .map(({ nethackrc }) => /\bdeaf\b/u.test(nethackrc))
+            .sort(),
+        [false, true],
     );
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
@@ -393,6 +405,37 @@ test('the Quest portal pager spends its private shuffle before exact lines',
         ]);
     });
 
+test('Quest arrival sets qcalled before the pager shuffle', async () => {
+    const segment = loadLevelTeleportArrivalRecipe().segments.find(
+        ({ seed }) => seed === 7645000,
+    );
+    assert.ok(segment);
+    await runSegment({ ...segment, moves: '.' });
+    enableRngLog();
+
+    const uevent = { ...game.u.uevent };
+    let qcalled = uevent.qcalled ?? 0;
+    let drawsAtAssignment = null;
+    Object.defineProperty(uevent, 'qcalled', {
+        configurable: true,
+        enumerable: true,
+        get: () => qcalled,
+        set(value) {
+            drawsAtAssignment = getRngLog().length;
+            qcalled = value;
+        },
+    });
+    game.u.uevent = uevent;
+    for (const key of '    ') game.nhDisplay.pushKey(key.charCodeAt(0));
+
+    await goto_level({ dnum: 0, dlevel: 14 }, false, false, false, game);
+
+    assert.equal(qcalled, 1);
+    assert.notEqual(drawsAtAssignment, null);
+    assert.match(getRngLog()[drawsAtAssignment], /^rn2\(3\)=/u);
+    assert.match(getRngLog()[drawsAtAssignment + 1], /^rn2\(2\)=/u);
+});
+
 test('ordinary arrival autopickup transfers both floor indexes to inventory',
     async () => {
         await runSegment({
@@ -471,25 +514,109 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
         assert.equal(inside_shop(interior.x, interior.y, game), roomno);
         room.rtype = originalRoomType;
 
-        const lines = [];
-        assert.equal(await u_entered_shop([roomno], game, {
-            message: async (line) => lines.push(line),
-        }), true);
-
         const extension = room.resident.mextra.eshk;
         const owner = extension.shknam.endsWith('s')
             ? `${extension.shknam}'` : `${extension.shknam}'s`;
-        assert.deepEqual(lines, [
-            `"Hello, wizard!  Welcome to ${owner} `
-                + `${SHTYPES[room.rtype - SHOPBASE].name}!"`,
-        ]);
-        assert.equal(game.u.uachieved.includes(ACH_SHOP), true);
-        assert.equal(extension.bill_p, extension.bill);
-        assert.equal(extension.customer, 'wizard');
-        assert.equal(extension.visitct, 1);
-        assert.equal(extension.following, false);
-        assert.equal(room.resident.mpeaceful, true);
-        assert.equal(extension.surcharge, false);
+        const shopName = SHTYPES[room.rtype - SHOPBASE].name;
+        const wizardRole = roles.find((role) => role.filecode === 'Wiz');
+        const samuraiRole = roles.find((role) => role.filecode === 'Sam');
+        assert.ok(wizardRole && samuraiRole);
+
+        async function enterWith({ role, intrinsic = 0, extrinsic = 0,
+            blocked = 0, roleplay = false, expected }) {
+            extension.visitct = 0;
+            extension.customer = '';
+            extension.bill_p = null;
+            extension.following = false;
+            extension.surcharge = false;
+            extension.robbed = 0;
+            room.resident.mpeaceful = true;
+            room.resident.mcanmove = true;
+            room.resident.msleeping = false;
+            game.urole = role;
+            game.u.uprops[DEAF].intrinsic = intrinsic;
+            game.u.uprops[DEAF].extrinsic = extrinsic;
+            game.u.uprops[DEAF].blocked = blocked;
+            game.u.uroleplay.deaf = roleplay;
+            const lines = [];
+            assert.equal(await u_entered_shop([roomno], game, {
+                message: async (line) => {
+                    assert.equal(game.u.uachieved.includes(ACH_SHOP), true);
+                    assert.equal(extension.bill_p, extension.bill);
+                    assert.equal(extension.customer, game.plname);
+                    assert.equal(extension.visitct, 1);
+                    assert.equal(extension.following, false);
+                    assert.equal(room.resident.mpeaceful, true);
+                    assert.equal(extension.surcharge, false);
+                    lines.push(line);
+                },
+            }), true);
+            assert.deepEqual(lines, [expected]);
+        }
+
+        await enterWith({
+            role: wizardRole,
+            expected: `"Hello, ${game.plname}!  Welcome to ${owner} ${shopName}!"`,
+        });
+        await enterWith({
+            role: samuraiRole,
+            expected: `"Irasshaimase, ${game.plname}!  Welcome to ${owner} ${shopName}!"`,
+        });
+        const deafGreeting = `You enter ${owner} ${shopName}!`;
+        await enterWith({ role: wizardRole, intrinsic: 1, expected: deafGreeting });
+        await enterWith({ role: wizardRole, extrinsic: 1, expected: deafGreeting });
+        await enterWith({
+            role: wizardRole,
+            intrinsic: 1,
+            blocked: 1,
+            expected: deafGreeting,
+        });
+        await enterWith({ role: wizardRole, roleplay: true, expected: deafGreeting });
+
+        // pickup.c autopick() skips owned merchandise but accepts no_charge
+        // objects. Put both on a square aligned with exactly one keeper
+        // coordinate so costly_spot()'s source `x && y` exclusion is pinned.
+        let aligned = null;
+        for (let x = room.lx; x <= room.hx && !aligned; ++x) {
+            for (let y = room.ly; y <= room.hy; ++y) {
+                const sharesExactlyOne = (x === room.resident.mx)
+                    !== (y === room.resident.my);
+                if (!game.level.at(x, y).edge && sharesExactlyOne) {
+                    aligned = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(aligned);
+        game.u.ux = aligned.x;
+        game.u.uy = aligned.y;
+        game.u.uprops[DEAF].intrinsic = 0;
+        game.u.uprops[DEAF].extrinsic = 0;
+        game.u.uprops[DEAF].blocked = 0;
+        game.u.uroleplay.deaf = false;
+        game.flags.pickup = true;
+        const owned = mksobj_at(
+            APPLE, aligned.x, aligned.y, false, false,
+            objectGenerationEnv({ state: game }),
+        );
+        const noCharge = mksobj_at(
+            ELVEN_DAGGER, aligned.x, aligned.y, false, false,
+            objectGenerationEnv({ state: game }),
+        );
+        noCharge.no_charge = true;
+        const ownedLinks = { nobj: owned.nobj, nexthere: owned.nexthere };
+        assert.equal(costly_spot(aligned.x, aligned.y, game), true);
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+        assert.equal(await pickup(1, game), 1);
+        assert.equal(noCharge.where, OBJ_INVENT);
+        assert.equal(owned.where, OBJ_FLOOR);
+        assert.equal(game.level.objects[aligned.x][aligned.y], owned);
+        assert.equal(game.level.objlist, owned);
+        assert.deepEqual({ nobj: owned.nobj, nexthere: owned.nexthere },
+            ownedLinks);
     });
 
 test('the first later room family remains a named live generation boundary',

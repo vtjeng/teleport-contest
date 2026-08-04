@@ -126,9 +126,11 @@ export async function finish_random_arrival_effects(
     switchTerrain(state);
 }
 
-// Async integration seam for do.c goto_level()'s random-arrival arm.  Keeping
-// the deferral flag and its matching completion in one function makes the C
-// order (earth_sense(), then switch_terrain()) independently testable.
+// Async integration seam for do.c goto_level()'s random-arrival arm. `place`,
+// its earthSenseMessage collector, and `switchTerrain` are synchronous like
+// their C owners; only terminal message delivery is awaited. Keeping the
+// deferral flag and its matching completion together makes the C order
+// (earth_sense(), then switch_terrain()) independently testable.
 export async function place_random_arrival(
     upflag,
     state = game,
@@ -690,9 +692,10 @@ export async function goto_level(
     } else if (near_capacity(state) > UNENCUMBERED
                || Punished(state) || heroPropertyActive(u, FUMBLING)) {
         // do.c:1783-1795, the fall. It calls rnd(3) through losehp() and
-        // drag_down()/ballrelease() for a punished hero. A hero who arrives
-        // burdened has picked something up, which is unported, and the
-        // punished arm is already refused at do.c:1616 above.
+        // drag_down()/ballrelease() for a punished hero. Ordinary pickup can
+        // now make the burdened arm reachable, but the complete stair-fall
+        // behavior remains excluded; the punished arm is already refused at
+        // do.c:1616 above.
         throw new UnsupportedLevelChangeError(
             'goto_level() falling down the stairs',
         );

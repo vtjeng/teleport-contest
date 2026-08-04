@@ -44,6 +44,7 @@ import {
     money_cnt,
     obj_extract_self,
     obj_to_let,
+    preflight_addinv,
     prinv,
     resetInventory,
     stackobj,
@@ -148,6 +149,33 @@ test('addinv assigns stable letters, keeps chain order, and merges stacks', () =
     assert.equal(moreRations.where, OBJ_DELETED);
     assert.deepEqual(inventoryObjects(state), [ration, apple]);
 });
+
+test('a prepared addinv plan is object-specific, state-specific, and one-shot',
+    () => {
+        const state = initializedState();
+        const otherState = initializedState();
+        const ration = instance(FOOD_RATION, state);
+        const apple = instance(APPLE, state);
+        const plan = preflight_addinv(ration, { state });
+
+        assert.throws(
+            () => addinv(apple, { state }, plan),
+            /prepared plan belongs to another object/u,
+        );
+        assert.throws(
+            () => addinv(ration, { state: otherState }, plan),
+            /prepared plan belongs to another state/u,
+        );
+        assert.equal(state.invent, null);
+        assert.equal(otherState.invent, null);
+
+        assert.equal(addinv(ration, { state }, plan), ration);
+        assert.throws(
+            () => addinv(ration, { state }, plan),
+            /prepared plan was already consumed/u,
+        );
+        assert.deepEqual(inventoryObjects(state), [ration]);
+    });
 
 test('coins always merge and use the dedicated inventory symbol', () => {
     const state = initializedState();

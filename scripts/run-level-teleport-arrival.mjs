@@ -31,11 +31,13 @@ const LEVELPORT_KEY = '\x16';
 function nethackrc({
     character = 'role:Wizard,race:human,gender:male,align:neutral',
     autopickup = false,
+    deaf = false,
 } = {}) {
     return [
         `OPTIONS=name:Arrival,${character}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         `OPTIONS=pettype:none,!acoustics,${autopickup ? 'autopickup,' : ''}`
+            + `${deaf ? 'deaf,' : ''}`
             + 'playmode:debug',
         '',
     ].join('\n');
@@ -75,6 +77,12 @@ export function loadLevelTeleportArrivalRecipe() {
             // Random arrival lands strictly inside a generated shop. One key
             // dismisses its source greeting before the trailing command.
             teleport(7633019, 5, { dismissals: ' ' }),
+            // The same peaceful shop arrival with OPTIONS=deaf takes
+            // youprop.h Deaf's roleplay term and prints the visual entry line.
+            teleport(7633019, 5, {
+                config: { deaf: true },
+                dismissals: ' ',
+            }),
             // The destination square bears an object and autopickup transfers
             // it into inventory without an intervening prompt.
             teleport(7641005, 2, {
@@ -148,6 +156,12 @@ export async function verifyLevelTeleportArrival(segment) {
         throw new Error(
             `seed ${segment.seed} dispatched ${game._commandDispatchCount} `
             + 'commands, expected the trailing command to be third',
+        );
+    }
+    if (game.moves !== 3) {
+        throw new Error(
+            `seed ${segment.seed} ended on move ${game.moves}, expected `
+            + 'both waits and the zero-time teleport to end on move 3',
         );
     }
     if (game.u?.utotype !== 0) {

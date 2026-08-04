@@ -123,9 +123,18 @@ export function costly_spot(x, y, state = game) {
         && !(x === extension.shk.x && y === extension.shk.y);
 }
 
-function heroPropertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
+function heroIsInvisible(state) {
+    const value = state.u?.uprops?.[INVIS];
     return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
+}
+
+// C ref: youprop.h Deaf. Unlike ordinary properties it has a roleplay-option
+// source and no blocked term.
+function heroIsDeaf(state) {
+    const value = state.u?.uprops?.[DEAF];
+    return Boolean(
+        value?.intrinsic || value?.extrinsic || state.u?.uroleplay?.deaf,
+    );
 }
 
 // C ref: shk.c u_entered_shop(), through the generated, present, peaceful
@@ -146,7 +155,7 @@ export async function u_entered_shop(
     if (!shopkeeper.mcanmove || shopkeeper.msleeping
         || extension.following || !shopkeeper.mpeaceful
         || extension.surcharge || extension.robbed
-        || heroPropertyActive(state, INVIS)) {
+        || heroIsInvisible(state)) {
         throw new UnsupportedShopError(
             'u_entered_shop() outside the peaceful visible greeting',
         );
@@ -170,7 +179,7 @@ export async function u_entered_shop(
     if (!shopName)
         throw new UnsupportedShopError('u_entered_shop() shop type');
     const owner = s_suffix(extension.shknam);
-    if (!heroPropertyActive(state, DEAF)) {
+    if (!heroIsDeaf(state)) {
         await message(
             `"${Hello(state.urole, { shopkeeper: true })}, ${playerName}!  `
             + `Welcome${again} to ${owner} ${shopName}!"`,

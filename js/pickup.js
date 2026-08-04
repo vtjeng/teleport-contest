@@ -223,12 +223,12 @@ export async function pickup(what, state = game) {
         throw new UnsupportedPickupError('pickup() requiring a burden prompt');
     }
 
-    if (selected.length) state.loot_reset_justpicked = true;
     const env = objectGenerationEnv({
         state,
         hooks: { message: ttyPline },
     });
     const addPlans = selected.map(({ obj }) => preflight_addinv(obj, env));
+    if (selected.length) state.loot_reset_justpicked = true;
     let picked = 0;
     for (let index = 0; index < selected.length; ++index) {
         const { obj, count } = selected[index];

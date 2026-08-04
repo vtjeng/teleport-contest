@@ -14,7 +14,11 @@ import {
     SLT_ENCUMBER,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { calc_capacity } from '../js/hack.js';
+import {
+    calc_capacity,
+    inv_weight,
+    weight_cap,
+} from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { M1_NOTAKE, PM_KOBOLD_ZOMBIE } from '../js/monsters.js';
 import { mksobj_at } from '../js/obj.js';
@@ -23,6 +27,7 @@ import {
     encumber_msg,
     observe_pickup_object,
     pickup,
+    UnsupportedPickupError,
 } from '../js/pickup.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -249,6 +254,47 @@ test('pickup preflights every reachable addinv dependency before unlinking',
         }
     });
 
+test('pickup preflights the whole pile before any state or floor mutation',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        const failing = typedObjectUnderHero(state, LUCKSTONE);
+        const ordinary = objectUnderHero(state);
+        ordinary.dknown = false;
+        failing.dknown = false;
+        const previouslyCarried = state.invent;
+        previouslyCarried.pickup_prev = true;
+        quiet(state);
+
+        const ordinaryLinks = {
+            nobj: ordinary.nobj,
+            nexthere: ordinary.nexthere,
+        };
+        const failingLinks = {
+            nobj: failing.nobj,
+            nexthere: failing.nexthere,
+        };
+        const beforeToplines = state._ttyToplines;
+        const beforeLootReset = state.loot_reset_justpicked;
+
+        await assert.rejects(
+            () => pickup(1, state),
+            /recalculateLuck is not available/u,
+        );
+        assertStillOnBothFloorChains(state, ordinary, ordinaryLinks);
+        assert.equal(ordinary.nexthere, failing);
+        assert.equal(ordinary.nobj, failing);
+        assert.deepEqual({ nobj: failing.nobj, nexthere: failing.nexthere },
+            failingLinks);
+        assert.equal(ordinary.dknown, false);
+        assert.equal(failing.dknown, false);
+        assert.equal(state.invent, previouslyCarried);
+        assert.equal(previouslyCarried.pickup_prev, true);
+        assert.equal(state.loot_reset_justpicked, beforeLootReset);
+        assert.equal(state.gp.pickup_encumbrance, 0);
+        assert.equal(state._ttyToplines, beforeToplines);
+    });
+
 function weightForCapacity(state, target) {
     for (let weight = 1; weight < 5000; ++weight) {
         if (calc_capacity(weight, state) === target) return weight;
@@ -281,6 +327,30 @@ test('pickup admits its exact burden limit and uses inclusive prefix thresholds'
             assert.equal(object.where, OBJ_INVENT);
             assert.match(state._ttyToplines ?? '', new RegExp(`^${prefix}`, 'u'));
         }
+    });
+
+test('pickup refuses exact maximum-capacity equality before floor mutation',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        const object = objectUnderHero(state);
+        object.dknown = false;
+        object.owt = 2 * weight_cap(state) - inv_weight(state);
+        const links = { nobj: object.nobj, nexthere: object.nexthere };
+        const beforeLootReset = state.loot_reset_justpicked;
+
+        assert.equal(
+            inv_weight(state) + object.owt,
+            2 * weight_cap(state),
+        );
+        await assert.rejects(
+            () => pickup(1, state),
+            (error) => error instanceof UnsupportedPickupError
+                && /partial or failed lift/u.test(error.message),
+        );
+        assertStillOnBothFloorChains(state, object, links);
+        assert.equal(object.dknown, false);
+        assert.equal(state.loot_reset_justpicked, beforeLootReset);
     });
 
 test('pickup takes the early return for each thing that hides the square',

@@ -38,6 +38,7 @@ import {
     RANGE_LEVEL,
     ROOM,
     SHOPBASE,
+    STEALTH,
     STONE,
     SWAMP,
     TEMPLE,
@@ -580,10 +581,16 @@ test('check_special_room handles Court and stops on later room families',
     state.level.monlist = sleeper;
     const courtEvents = [];
     await check_special_room(false, state, {
-        message: async (line) => courtEvents.push(`msg:${line}`),
+        message: async (line) => {
+            if (line.startsWith('You enter an opulent')) {
+                assert.equal(state.level.rooms[3].rtype, COURT);
+                assert.equal(state.level.flags.has_court, true);
+            }
+            courtEvents.push(`msg:${line}`);
+        },
         random: (limit) => {
             assert.equal(limit, 3);
-            assert.equal(state.level.rooms[0].rtype, OROOM);
+            assert.equal(state.level.rooms[3].rtype, OROOM);
             assert.equal(state.level.flags.has_court, false);
             courtEvents.push(`rng:${limit}`);
             return 0;
@@ -600,6 +607,36 @@ test('check_special_room handles Court and stops on later room families',
     assert.equal(sleeper.msleeping, false);
     assert.equal(dead.msleeping, true);
     assert.equal(courtSleeper.msleeping, true);
+
+    async function exerciseStealth({ intrinsic, extrinsic, blocked, draws }) {
+        state.u.uprops ??= [];
+        state.u.uprops[STEALTH] ??= {};
+        state.level.rooms[3].rtype = COURT;
+        state.level.flags.has_court = true;
+        state.u.urooms = [0, 0, 0, 0, 0];
+        state.u.urooms0 = [0, 0, 0, 0, 0];
+        state.u.uprops[STEALTH].intrinsic = intrinsic;
+        state.u.uprops[STEALTH].extrinsic = extrinsic;
+        state.u.uprops[STEALTH].blocked = blocked;
+        sleeper.msleeping = true;
+        let actualDraws = 0;
+        await check_special_room(false, state, {
+            message: async () => {},
+            random: () => {
+                ++actualDraws;
+                return 0;
+            },
+            canSeeMonster: () => true,
+        });
+        assert.equal(actualDraws, draws);
+        assert.equal(sleeper.msleeping, draws === 0);
+    }
+    await exerciseStealth({ intrinsic: 1, extrinsic: 0, blocked: 0, draws: 0 });
+    await exerciseStealth({ intrinsic: 0, extrinsic: 1, blocked: 0, draws: 0 });
+    await exerciseStealth({ intrinsic: 1, extrinsic: 0, blocked: 1, draws: 1 });
+    state.u.uprops[STEALTH].intrinsic = 0;
+    state.u.uprops[STEALTH].extrinsic = 0;
+    state.u.uprops[STEALTH].blocked = 0;
 
     // The same inclusive scan finds no furniture after the far-corner throne
     // is removed. This pins the initial FALSE value as well as both bounds.

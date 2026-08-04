@@ -657,11 +657,12 @@ test('Court fill geometry excludes exactly the door-facing boundary', () => {
     assert.equal(courtCellIsFillable(room, 10, 5, state), true);
 });
 
-test('D:5 Court ruler boundary changes from gnome to dwarf at roll three',
+test('D:5 Court ruler boundaries include the reachable roll-five upper edge',
     () => {
         for (const [roll, expected] of [
             [2, PM_GNOME_RULER],
             [3, PM_DWARF_RULER],
+            [5, PM_DWARF_RULER],
         ]) {
             const state = initializedCourtState();
             const room = shopCandidate(state, {

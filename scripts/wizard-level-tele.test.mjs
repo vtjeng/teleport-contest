@@ -300,7 +300,10 @@ test('a numeric special level refuses before scheduling any transition',
         const before = {
             utolev: { ...state.u.utolev },
             utotype: state.u.utotype,
-            gd: state.gd,
+            gd: {
+                dfr_pre_msg: state.gd?.dfr_pre_msg,
+                dfr_post_msg: state.gd?.dfr_post_msg,
+            },
         };
         await assert.rejects(
             () => level_tele(state),
@@ -314,7 +317,10 @@ test('a numeric special level refuses before scheduling any transition',
         );
         assert.deepEqual(state.u.utolev, before.utolev);
         assert.equal(state.u.utotype, before.utotype);
-        assert.equal(state.gd, before.gd);
+        assert.deepEqual({
+            dfr_pre_msg: state.gd?.dfr_pre_msg,
+            dfr_post_msg: state.gd?.dfr_post_msg,
+        }, before.gd);
         assert.deepEqual(getRngLog(), []);
     });
 
