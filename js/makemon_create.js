@@ -2992,7 +2992,6 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             ptr,
             anymon,
             allowMinvent,
-            mmflags,
         });
         return monster;
     }

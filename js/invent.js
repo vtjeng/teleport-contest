@@ -1919,7 +1919,7 @@ function projectMerge(target, incoming) {
     return target;
 }
 
-function projectAddinv(obj, projectedEnv, sourceByProjected) {
+function projectAddinv(obj, projectedEnv) {
     const { state } = projectedEnv;
     obj.where = OBJ_FREE;
     obj.nobj = null;
@@ -1963,10 +1963,7 @@ function projectAddinv(obj, projectedEnv, sourceByProjected) {
         target.invlet = NOINVSYM;
         reassign(state);
     }
-    return {
-        projectedResult: target,
-        sourceResult: sourceByProjected.get(target) ?? null,
-    };
+    return { projectedResult: target };
 }
 
 // Plan a source-ordered series of invent.c addinv()/prinv() calls without
@@ -1998,14 +1995,9 @@ export function preflight_addinv_sequence(objects, env = {}, options = {}) {
             ...source,
             oextra: source.oextra ? { ...source.oextra } : source.oextra,
         };
-        sourceByProjected.set(projected, source);
         if (options.observeObjects && !isHallucinating(projectedEnv))
             projected.dknown = true;
-        const result = projectAddinv(
-            projected,
-            projectedEnv,
-            sourceByProjected,
-        );
+        const result = projectAddinv(projected, projectedEnv);
         plans.push({ ...plan, ...result });
     }
     return plans;

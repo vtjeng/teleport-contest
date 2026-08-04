@@ -605,57 +605,128 @@ function createPlannedSoldier(plan = {}, flags = 0) {
 }
 
 function createPlannedStoneGiant(plan = {}, flags = 0) {
-    let twoCalls = 0;
-    let fourCalls = 0;
-    let fiveCalls = 0;
-    let fiftyCalls = 0;
-    let hundredCalls = 0;
-    let fortyCalls = 0;
+    let phase = 'initial-gender';
+    let remainingGems = 0;
     let gemRoll = 0;
     let gemQuantity = 0;
     const gemRolls = plan.gemRolls ?? [];
     const gemQuantities = plan.gemQuantities ?? [];
     const heavyGate = plan.heavyGate ?? 1;
     const highLevelGems = (plan.heroLevel ?? 1) > 1;
+    const finishGem = () => {
+        --remainingGems;
+        phase = remainingGems > 0 ? 'gem-kind' : 'defensive-item-gate';
+    };
     const random = recordingRandom({
         rn1Result: (range, base) => {
-            if (range === 2 && base === 3) {
-                return gemQuantities[gemQuantity++] ?? base;
-            }
-            return base;
+            if (phase !== 'gem-quantity') return base;
+            assert.deepEqual([range, base], [2, 3], phase);
+            const result = gemQuantities[gemQuantity++] ?? base;
+            finishGem();
+            return result;
         },
         rn2Result: (bound) => {
-            if (bound === 2) {
-                ++twoCalls;
-                if (twoCalls === 2) return plan.boulderGate ?? 0;
-                if (twoCalls === 3 && heavyGate === 0)
-                    return plan.weaponChoice ?? 0;
-                const gemCountCall = heavyGate === 0 ? 4 : 3;
-                if (!highLevelGems && twoCalls === gemCountCall)
-                    return plan.gemCount ?? 0;
-            } else if (bound === 4 && ++fourCalls === 1 && highLevelGems) {
-                return plan.gemCount ?? 0;
-            } else if (bound === 5 && ++fiveCalls === 1) {
+            switch (phase) {
+            case 'initial-gender':
+                assert.equal(bound, 2, phase);
+                phase = 'boulder-gate';
+                return 1;
+            case 'boulder-gate':
+                assert.equal(bound, 2, phase);
+                if (plan.boulderGate ?? 0) {
+                    phase = 'boulder-item-tail';
+                    return 1;
+                }
+                phase = 'heavy-weapon-gate';
+                return 0;
+            case 'boulder-item-tail':
+                if (bound !== 5) return Math.max(0, bound - 1);
+                phase = heavyGate === 0
+                    ? 'heavy-weapon-choice' : 'offensive-item-gate';
                 return heavyGate;
-            } else if (bound === 75) {
+            case 'heavy-weapon-gate':
+                assert.equal(bound, 5, phase);
+                phase = heavyGate === 0
+                    ? 'heavy-weapon-choice' : 'offensive-item-gate';
+                return heavyGate;
+            case 'heavy-weapon-choice':
+                assert.equal(bound, 2, phase);
+                phase = 'heavy-weapon-item-tail';
+                return plan.weaponChoice ?? 0;
+            case 'heavy-weapon-item-tail':
+                if (bound !== 75) return Math.max(0, bound - 1);
+                phase = 'offensive-item-tail';
                 return plan.offensiveGate ?? 74;
-            } else if (bound === 50 && ++fiftyCalls === 1) {
-                return plan.defensiveGate ?? 49;
-            } else if (bound === 100 && ++hundredCalls === 1) {
-                return plan.miscGate ?? 99;
-            } else if (bound === 40 && ++fortyCalls === 1) {
-                return plan.lifeSavingGate ?? 39;
+            case 'offensive-item-gate':
+                assert.equal(bound, 75, phase);
+                phase = 'offensive-item-tail';
+                return plan.offensiveGate ?? 74;
+            case 'offensive-item-tail': {
+                const gemCountBound = highLevelGems ? 4 : 2;
+                if (bound === gemCountBound) {
+                    remainingGems = plan.gemCount ?? 0;
+                    phase = remainingGems > 0
+                        ? 'gem-kind' : 'defensive-item-gate';
+                    return remainingGems;
+                }
+                if (bound === 50) {
+                    phase = 'defensive-item-tail';
+                    return plan.defensiveGate ?? 49;
+                }
+                return Math.max(0, bound - 1);
             }
-            return Math.max(0, bound - 1);
+            case 'defensive-item-gate':
+                assert.equal(bound, 50, phase);
+                phase = 'defensive-item-tail';
+                return plan.defensiveGate ?? 49;
+            case 'defensive-item-tail':
+                if (bound === 100) {
+                    const result = plan.miscGate ?? 99;
+                    phase = result === 0 ? 'misc-item-choice' : 'saddle-gate';
+                    return result;
+                }
+                return Math.max(0, bound - 1);
+            case 'misc-item-choice':
+                assert.equal(bound, 40, phase);
+                phase = 'misc-item-tail';
+                return plan.lifeSavingGate ?? 39;
+            case 'misc-item-tail':
+                if (bound !== 100) return Math.max(0, bound - 1);
+                phase = 'done';
+                return 99;
+            case 'saddle-gate':
+                assert.equal(bound, 100, phase);
+                phase = 'done';
+                return 99;
+            case 'done':
+                assert.fail(`unexpected rn2(${bound}) after stone giant creation`);
+                break;
+            default:
+                assert.fail(`unexpected rn2(${bound}) during ${phase}`);
+            }
         },
         rndResult: (bound) => {
-            if (bound === 862) {
+            if (phase === 'gem-kind') {
+                assert.equal(bound, 862, phase);
                 const choice = gemRolls[gemRoll++] ?? 1;
+                phase = 'gem-stack-roll';
                 return choice === 'last' ? bound : choice;
+            }
+            if (phase === 'gem-stack-roll') {
+                assert.equal(bound, 2, phase);
+                phase = 'gem-quantity';
             }
             return 1;
         },
     });
+    random.assertFinished = () => {
+        assert.equal(
+            phase,
+            flags & NO_MINVENT ? 'boulder-gate' : 'done',
+            'stone giant planner must reach its source lifecycle boundary',
+        );
+        assert.equal(remainingGems, 0);
+    };
     const state = initialLevelState();
     state.u.ulevel = plan.heroLevel ?? state.u.ulevel;
     plan.prepareState?.(state);
@@ -666,6 +737,7 @@ function createPlannedStoneGiant(plan = {}, flags = 0) {
         MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH | flags,
         { state, random: random.random },
     );
+    random.assertFinished();
     return { monster, random, state };
 }
 

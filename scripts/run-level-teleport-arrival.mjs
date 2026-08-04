@@ -90,25 +90,12 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310417113000';
 const LEVELPORT_KEY = '\x16';
 const LEVELCHANGE_DISMISSALS_TO_30 = 29;
-const HIGH_LEVEL_ARRIVALS = new Set([
-    7650033,
-    7650048,
-    7650182,
-    7650278,
-    7650574,
-    7650103,
-    9449443,
-    9449779,
-    9449967,
-    9450654,
-    7650800,
-    9461088,
-    9461387,
-    9470202,
-    9470211,
-    9490235,
-    9495425,
-]);
+const HIGH_LEVEL_INPUT_PREFIX = '.#levelchange\n30\n';
+const OPENING_WAIT_REFUSED_BY_NEARBY_MONSTER = new Set([7650048, 7650800]);
+
+function isHighLevelArrival(segment) {
+    return segment.moves.startsWith(HIGH_LEVEL_INPUT_PREFIX);
+}
 
 const HOBBIT_ARRIVALS = new Map([
     [7661000, [{ otyp: DAGGER, quan: 1, worn: 0 }]],
@@ -372,6 +359,46 @@ export function loadLevelTeleportArrivalRecipe() {
     }, 'level teleport arrival recipe');
 }
 
+function requireSingleMonster(mndx, label, seed) {
+    const matches = [];
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        if (monster.mnum === mndx) matches.push(monster);
+    }
+    if (matches.length !== 1) {
+        throw new Error(
+            `${label} seed ${seed} generated ${matches.length} target monsters`,
+        );
+    }
+    return matches[0];
+}
+
+const INVENTORY_FIELD_SOURCES = Object.freeze({
+    otyp: 'otyp',
+    quan: 'quan',
+    id: 'o_id',
+    weight: 'owt',
+    worn: 'owornmask',
+});
+
+function snapshotMonsterInventory(monster, fields, label, seed) {
+    const inventory = [];
+    const objectIds = new Set();
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.where !== OBJ_MINVENT || obj.ocarry !== monster) {
+            throw new Error(`${label} seed ${seed} lost inventory ownership`);
+        }
+        if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+            throw new Error(`${label} seed ${seed} has invalid object identity`);
+        }
+        objectIds.add(obj.o_id);
+        inventory.push(Object.fromEntries(fields.map((field) => [
+            field,
+            obj[INVENTORY_FIELD_SOURCES[field]],
+        ])));
+    }
+    return inventory;
+}
+
 export async function verifyLevelTeleportArrival(segment) {
     const destination = Number(
         new RegExp(`${LEVELPORT_KEY}(\\d+)\\n`, 'u')
@@ -457,14 +484,20 @@ export async function verifyLevelTeleportArrival(segment) {
             + `${game.u?.uz?.dnum}:${game.u?.uz?.dlevel}, expected 0:${destination}`,
         );
     }
-    const expectedDispatches = HIGH_LEVEL_ARRIVALS.has(segment.seed) ? 4 : 3;
+    const expectedDispatches = isHighLevelArrival(segment) ? 4 : 3;
     if (game._commandDispatchCount !== expectedDispatches) {
         throw new Error(
             `seed ${segment.seed} dispatched ${game._commandDispatchCount} `
             + `commands, expected the trailing command to be ${expectedDispatches}`,
         );
     }
-    const expectedMoves = [7650048, 7650800].includes(segment.seed) ? 2 : 3;
+    // On these two source-valid D:1 layouts the opening '.' is refused with
+    // "Are you waiting to get hit?" because a monster is already adjacent.
+    // Level change, level teleport, and the trailing command still dispatch;
+    // only that refused opening wait does not advance moves.
+    const expectedMoves = OPENING_WAIT_REFUSED_BY_NEARBY_MONSTER.has(
+        segment.seed,
+    ) ? 2 : 3;
     if (game.moves !== expectedMoves) {
         throw new Error(
             `seed ${segment.seed} ended on move ${game.moves}, expected `
@@ -499,40 +532,18 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const expectedHobbitInventory = HOBBIT_ARRIVALS.get(segment.seed);
     if (expectedHobbitInventory) {
-        const hobbits = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_HOBBIT) hobbits.push(monster);
-        }
-        if (hobbits.length !== 1) {
-            throw new Error(
-                `hobbit seed ${segment.seed} generated ${hobbits.length} hobbits`,
-            );
-        }
-        const [hobbit] = hobbits;
-        const inventory = [];
-        const objectIds = new Set();
+        const hobbit = requireSingleMonster(PM_HOBBIT, 'hobbit', segment.seed);
         const expectsIds = expectedHobbitInventory.some(
             (expected) => Object.hasOwn(expected, 'id'),
         );
-        for (let obj = hobbit.minvent; obj; obj = obj.nobj) {
-            if (obj.where !== OBJ_MINVENT || obj.ocarry !== hobbit) {
-                throw new Error(
-                    `hobbit seed ${segment.seed} lost inventory ownership`,
-                );
-            }
-            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
-                throw new Error(
-                    `hobbit seed ${segment.seed} has invalid object identity`,
-                );
-            }
-            objectIds.add(obj.o_id);
-            inventory.push({
-                otyp: obj.otyp,
-                quan: obj.quan,
-                worn: obj.owornmask,
-                ...(expectsIds ? { id: obj.o_id } : {}),
-            });
-        }
+        const inventory = snapshotMonsterInventory(
+            hobbit,
+            expectsIds
+                ? ['otyp', 'quan', 'worn', 'id']
+                : ['otyp', 'quan', 'worn'],
+            'hobbit',
+            segment.seed,
+        );
         const expectedWorn = expectedHobbitInventory.reduce(
             (mask, obj) => mask | obj.worn,
             0,
@@ -548,16 +559,11 @@ export async function verifyLevelTeleportArrival(segment) {
         }
     }
     if (segment.seed === 7650048) {
-        const stalkers = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_STALKER) stalkers.push(monster);
-        }
-        if (stalkers.length !== 1) {
-            throw new Error(
-                `stalker seed generated ${stalkers.length} stalkers`,
-            );
-        }
-        const [stalker] = stalkers;
+        const stalker = requireSingleMonster(
+            PM_STALKER,
+            'stalker',
+            segment.seed,
+        );
         if (game.u.ulevel !== 30
             || stalker.mgenmklev !== true
             || game.level.monsters[stalker.mx][stalker.my] !== stalker
@@ -569,33 +575,17 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const expectedCentaurInventory = FOREST_CENTAUR_ARRIVALS.get(segment.seed);
     if (expectedCentaurInventory) {
-        const centaurs = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_FOREST_CENTAUR) centaurs.push(monster);
-        }
-        if (centaurs.length !== 1) {
-            throw new Error(
-                `forest-centaur seed ${segment.seed} generated `
-                + `${centaurs.length} forest centaurs`,
-            );
-        }
-        const [centaur] = centaurs;
-        const inventory = [];
-        const objectIds = new Set();
-        for (let obj = centaur.minvent; obj; obj = obj.nobj) {
-            if (obj.where !== OBJ_MINVENT || obj.ocarry !== centaur) {
-                throw new Error(
-                    `forest-centaur seed ${segment.seed} lost inventory ownership`,
-                );
-            }
-            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
-                throw new Error(
-                    `forest-centaur seed ${segment.seed} has invalid object identity`,
-                );
-            }
-            objectIds.add(obj.o_id);
-            inventory.push({ otyp: obj.otyp, quan: obj.quan });
-        }
+        const centaur = requireSingleMonster(
+            PM_FOREST_CENTAUR,
+            'forest-centaur',
+            segment.seed,
+        );
+        const inventory = snapshotMonsterInventory(
+            centaur,
+            ['otyp', 'quan'],
+            'forest-centaur',
+            segment.seed,
+        );
         const wrongLoadout = inventory.some(
             ({ otyp }) => otyp === CROSSBOW || otyp === CROSSBOW_BOLT,
         );
@@ -616,38 +606,17 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const expectedOgreInventory = OGRE_LEADER_ARRIVALS.get(segment.seed);
     if (expectedOgreInventory) {
-        const leaders = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_OGRE_LEADER) leaders.push(monster);
-        }
-        if (leaders.length !== 1) {
-            throw new Error(
-                `ogre-leader seed ${segment.seed} generated `
-                + `${leaders.length} ogre leaders`,
-            );
-        }
-        const [leader] = leaders;
-        const inventory = [];
-        const objectIds = new Set();
-        for (let obj = leader.minvent; obj; obj = obj.nobj) {
-            if (obj.where !== OBJ_MINVENT || obj.ocarry !== leader) {
-                throw new Error(
-                    `ogre-leader seed ${segment.seed} lost inventory ownership`,
-                );
-            }
-            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
-                throw new Error(
-                    `ogre-leader seed ${segment.seed} has invalid object identity`,
-                );
-            }
-            objectIds.add(obj.o_id);
-            inventory.push({
-                otyp: obj.otyp,
-                quan: obj.quan,
-                id: obj.o_id,
-                worn: obj.owornmask,
-            });
-        }
+        const leader = requireSingleMonster(
+            PM_OGRE_LEADER,
+            'ogre-leader',
+            segment.seed,
+        );
+        const inventory = snapshotMonsterInventory(
+            leader,
+            ['otyp', 'quan', 'id', 'worn'],
+            'ogre-leader',
+            segment.seed,
+        );
         const selectedWeapons = inventory.filter(
             ({ otyp }) => otyp === BATTLE_AXE || otyp === CLUB,
         );
@@ -672,37 +641,13 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const expectedTrollInventory = TROLL_ARRIVALS.get(segment.seed);
     if (expectedTrollInventory) {
-        const trolls = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_TROLL) trolls.push(monster);
-        }
-        if (trolls.length !== 1) {
-            throw new Error(
-                `troll seed ${segment.seed} generated ${trolls.length} trolls`,
-            );
-        }
-        const [troll] = trolls;
-        const inventory = [];
-        const objectIds = new Set();
-        for (let obj = troll.minvent; obj; obj = obj.nobj) {
-            if (obj.where !== OBJ_MINVENT || obj.ocarry !== troll) {
-                throw new Error(
-                    `troll seed ${segment.seed} lost inventory ownership`,
-                );
-            }
-            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
-                throw new Error(
-                    `troll seed ${segment.seed} has invalid object identity`,
-                );
-            }
-            objectIds.add(obj.o_id);
-            inventory.push({
-                otyp: obj.otyp,
-                quan: obj.quan,
-                id: obj.o_id,
-                worn: obj.owornmask,
-            });
-        }
+        const troll = requireSingleMonster(PM_TROLL, 'troll', segment.seed);
+        const inventory = snapshotMonsterInventory(
+            troll,
+            ['otyp', 'quan', 'id', 'worn'],
+            'troll',
+            segment.seed,
+        );
         const polearms = [RANSEUR, PARTISAN, GLAIVE, SPETUM];
         const selectedWeapons = inventory.filter(
             ({ otyp }) => polearms.includes(otyp),
@@ -728,38 +673,17 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const expectedWightInventory = BARROW_WIGHT_ARRIVALS.get(segment.seed);
     if (expectedWightInventory) {
-        const wights = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_BARROW_WIGHT) wights.push(monster);
-        }
-        if (wights.length !== 1) {
-            throw new Error(
-                `barrow-wight seed ${segment.seed} generated `
-                + `${wights.length} barrow wights`,
-            );
-        }
-        const [wight] = wights;
-        const inventory = [];
-        const objectIds = new Set();
-        for (let obj = wight.minvent; obj; obj = obj.nobj) {
-            if (obj.where !== OBJ_MINVENT || obj.ocarry !== wight) {
-                throw new Error(
-                    `barrow-wight seed ${segment.seed} lost inventory ownership`,
-                );
-            }
-            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
-                throw new Error(
-                    `barrow-wight seed ${segment.seed} has invalid object identity`,
-                );
-            }
-            objectIds.add(obj.o_id);
-            inventory.push({
-                otyp: obj.otyp,
-                quan: obj.quan,
-                id: obj.o_id,
-                worn: obj.owornmask,
-            });
-        }
+        const wight = requireSingleMonster(
+            PM_BARROW_WIGHT,
+            'barrow-wight',
+            segment.seed,
+        );
+        const inventory = snapshotMonsterInventory(
+            wight,
+            ['otyp', 'quan', 'id', 'worn'],
+            'barrow-wight',
+            segment.seed,
+        );
         const selectedWeapons = inventory.filter(
             ({ otyp }) => otyp === KNIFE || otyp === LONG_SWORD,
         );
@@ -783,17 +707,11 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const sleeperMndx = MKLEV_SLEEPER_ARRIVALS.get(segment.seed);
     if (sleeperMndx !== undefined) {
-        const sleepers = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === sleeperMndx) sleepers.push(monster);
-        }
-        if (sleepers.length !== 1) {
-            throw new Error(
-                `mklev-sleeper seed ${segment.seed} generated `
-                + `${sleepers.length} target monsters`,
-            );
-        }
-        const [sleeper] = sleepers;
+        const sleeper = requireSingleMonster(
+            sleeperMndx,
+            'mklev-sleeper',
+            segment.seed,
+        );
         if (game.u.ulevel !== 30
             || game.u.uhave.amulet
             || sleeper.mgenmklev !== true
@@ -811,37 +729,17 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const expectedSoldierInventory = SOLDIER_ARRIVALS.get(segment.seed);
     if (expectedSoldierInventory) {
-        const soldiers = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_SOLDIER) soldiers.push(monster);
-        }
-        if (soldiers.length !== 1) {
-            throw new Error(
-                `soldier seed ${segment.seed} generated ${soldiers.length} soldiers`,
-            );
-        }
-        const [soldier] = soldiers;
-        const inventory = [];
-        const objectIds = new Set();
-        for (let obj = soldier.minvent; obj; obj = obj.nobj) {
-            if (obj.where !== OBJ_MINVENT || obj.ocarry !== soldier) {
-                throw new Error(
-                    `soldier seed ${segment.seed} lost inventory ownership`,
-                );
-            }
-            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
-                throw new Error(
-                    `soldier seed ${segment.seed} has invalid object identity`,
-                );
-            }
-            objectIds.add(obj.o_id);
-            inventory.push({
-                otyp: obj.otyp,
-                quan: obj.quan,
-                id: obj.o_id,
-                worn: obj.owornmask,
-            });
-        }
+        const soldier = requireSingleMonster(
+            PM_SOLDIER,
+            'soldier',
+            segment.seed,
+        );
+        const inventory = snapshotMonsterInventory(
+            soldier,
+            ['otyp', 'quan', 'id', 'worn'],
+            'soldier',
+            segment.seed,
+        );
         const expectedMiscWorn = expectedSoldierInventory.reduce(
             (mask, obj) => mask | obj.worn,
             0,
@@ -864,39 +762,17 @@ export async function verifyLevelTeleportArrival(segment) {
     }
     const expectedStoneInventory = STONE_GIANT_ARRIVALS.get(segment.seed);
     if (expectedStoneInventory) {
-        const giants = [];
-        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
-            if (monster.mnum === PM_STONE_GIANT) giants.push(monster);
-        }
-        if (giants.length !== 1) {
-            throw new Error(
-                `stone-giant seed ${segment.seed} generated `
-                + `${giants.length} stone giants`,
-            );
-        }
-        const [giant] = giants;
-        const inventory = [];
-        const objectIds = new Set();
-        for (let obj = giant.minvent; obj; obj = obj.nobj) {
-            if (obj.where !== OBJ_MINVENT || obj.ocarry !== giant) {
-                throw new Error(
-                    `stone-giant seed ${segment.seed} lost inventory ownership`,
-                );
-            }
-            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
-                throw new Error(
-                    `stone-giant seed ${segment.seed} has invalid object identity`,
-                );
-            }
-            objectIds.add(obj.o_id);
-            inventory.push({
-                otyp: obj.otyp,
-                quan: obj.quan,
-                id: obj.o_id,
-                weight: obj.owt,
-                worn: obj.owornmask,
-            });
-        }
+        const giant = requireSingleMonster(
+            PM_STONE_GIANT,
+            'stone-giant',
+            segment.seed,
+        );
+        const inventory = snapshotMonsterInventory(
+            giant,
+            ['otyp', 'quan', 'id', 'weight', 'worn'],
+            'stone-giant',
+            segment.seed,
+        );
         if (game.u.ulevel !== 30
             || giant.mgenmklev !== true
             || game.level.monsters[giant.mx][giant.my] !== giant

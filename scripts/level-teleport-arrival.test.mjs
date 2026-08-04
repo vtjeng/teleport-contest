@@ -118,32 +118,15 @@ test('the arrival matrix is a clean audited replay recipe', () => {
         assert.match(segment.nethackrc, /pettype:none/u);
         assert.match(segment.nethackrc, /playmode:debug/u);
         assert.equal(segment.datetime, '20310417113000');
-        if ([
-            7650033,
-            7650048,
-            7650182,
-            7650278,
-            7650574,
-            7650103,
-            9449443,
-            9449779,
-            9449967,
-            9450654,
-            7650800,
-            9461088,
-            9461387,
-            9470202,
-            9470211,
-            9490235,
-            9495425,
-        ].includes(segment.seed)) {
-            assert.match(
-                segment.moves,
-                /^\.#levelchange\n30\n {29}\x165\n\.$/u,
-            );
-        } else {
-            assert.match(segment.moves, /^\.\x16(?:1|2|5|14)\n *[.h]$/u);
-        }
+        const acceptedMoveShapes = [
+            /^\.#levelchange\n30\n {29}\x165\n\.$/u,
+            /^\.\x16(?:1|2|5|14)\n *[.h]$/u,
+        ];
+        assert.equal(
+            acceptedMoveShapes.filter((shape) => shape.test(segment.moves)).length,
+            1,
+            `seed ${segment.seed} must use exactly one audited move shape`,
+        );
     }
 });
 

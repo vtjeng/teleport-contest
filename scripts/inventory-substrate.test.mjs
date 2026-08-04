@@ -317,8 +317,8 @@ test('addinv sequence projection preserves quiver merge preference', () => {
         { state },
         { observeObjects: true },
     );
-    assert.equal(plan.sourceResult, quivered);
     assert.notEqual(plan.projectedResult, quivered);
+    assert.equal(plan.projectedResult.o_id, quivered.o_id);
     assert.equal(plan.projectedResult.quan, 2);
     assert.equal(first.quan, 1);
     assert.equal(quivered.quan, 1);

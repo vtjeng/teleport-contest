@@ -1280,11 +1280,11 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
 
     // C ref: `Sprintf(msgbuf, "eating %s", food_xname(otmp, TRUE));
     // set_occupation(eatfood, msgbuf, 0);`. msgbuf is a static buffer whose
-    // only reader is stop_occupation()'s "You stop %s." -- unported, so this
-    // text is stored and never printed yet.
+    // only reader is stop_occupation()'s "You stop %s." Runtime monster
+    // creation now reaches that owner through makemon()->dochugw(FALSE).
     //
-    // Three ported paths reach allmain.c stop_occupation() while the meal
-    // runs, and each stops the segment rather than printing:
+    // Three other paths can reach allmain.c stop_occupation() while the meal
+    // runs, and each remains refused before printing:
     //   - allmain.c moveloop_core():505-508, monster_nearby() after a bite,
     //     which js/allmain.js stops with "interrupted by a nearby monster";
     //   - monmove.c dochugw():223-235, a hostile spottable monster newly
@@ -1294,8 +1294,8 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
     //     hack.c monster_nearby() scans the eight adjacent squares alone;
     //   - teleport.c rloc_to_core():1761-1762, whose whole tail js/teleport.js
     //     refuses.
-    // makemon.c:1503 holds a fourth call that cannot fire;
-    // js/makemon_create.js gives the reason where it would go.
+    // makemon.c:1503 is the supported fourth call. js/allmain.js owns its exact
+    // complete-meal versus "You stop eating ..." behavior.
     set_occupation(
         eatfood,
         `eating ${food_xname(otmp, true, state)}`,
