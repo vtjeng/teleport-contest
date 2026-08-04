@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    DETECT_MONSTERS,
     IN_SIGHT,
     M_ATTK_MISS,
     ROOM,
@@ -95,6 +96,11 @@ test('mattackm clears stale action visibility outside hero sight', () => {
     const { aggressor, defender, state } = attackState(PM_LITTLE_DOG);
     state.viz_array[aggressor.my][aggressor.mx] = 0;
     state.viz_array[defender.my][defender.mx] = 0;
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 1,
+        extrinsic: 0,
+        blocked: 0,
+    };
     state.gv.vis = true;
     assert.equal(mattackm(aggressor, defender, { state }), M_ATTK_MISS);
     assert.equal(state.gv.vis, false);

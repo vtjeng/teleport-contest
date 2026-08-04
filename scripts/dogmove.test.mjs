@@ -397,6 +397,20 @@ test('score_targ rejects pets, the hero, and a friend in the line of fire',
         monster.mux = 10;
         monster.muy = 5;
         assert.equal(score_targ(monster, target, noFuzz), -3000);
+
+        monster.mux = 1;
+        monster.muy = 1;
+        target.isminion = true;
+        assert.throws(
+            () => score_targ(monster, target, noFuzz),
+            /ordinary monster target/,
+        );
+        target.isminion = false;
+        target.data = { ...state.mons[PM_GIANT_ANT], msound: MS_LEADER };
+        assert.throws(
+            () => score_targ(monster, target, noFuzz),
+            /ordinary monster target/,
+        );
     });
 
 test('score_targ preserves source level-penalty boundaries', () => {
@@ -555,7 +569,7 @@ test('pet_ranged_attk rejects negative targets and uses strict hunger time',
         monster.mux = 1;
         monster.muy = 8;
         const target = {
-            data: state.mons[28], // passive floating eye scores below zero.
+            data: state.mons[PM_FLOATING_EYE],
             m_lev: 2,
             mhp: 3,
             mcanmove: true,
