@@ -24,12 +24,14 @@ import { mergable } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
 import {
+    PM_AMOROUS_DEMON,
     PM_BARROW_WIGHT,
     PM_FOREST_CENTAUR,
     PM_HOBBIT,
     PM_OGRE_LEADER,
     PM_STALKER,
     PM_TROLL,
+    PM_WUMPUS,
 } from '../js/monsters.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
@@ -78,6 +80,8 @@ const HIGH_LEVEL_ARRIVALS = new Set([
     9449967,
     9450654,
     7650800,
+    9461088,
+    9461387,
 ]);
 
 const HOBBIT_ARRIVALS = new Map([
@@ -135,6 +139,11 @@ const BARROW_WIGHT_ARRIVALS = new Map([
         { otyp: LONG_SWORD, quan: 1, id: 84, worn: 0 },
         { otyp: KNIFE, quan: 1, id: 82, worn: 0 },
     ]],
+]);
+
+const MKLEV_SLEEPER_ARRIVALS = new Map([
+    [9461088, PM_AMOROUS_DEMON],
+    [9461387, PM_WUMPUS],
 ]);
 
 function nethackrc({
@@ -225,6 +234,11 @@ export function loadLevelTeleportArrivalRecipe() {
             // Its unconditional knife-then-long-sword construction leaves
             // the final prepended inventory in long-sword-then-knife order.
             highLevelTeleport(7650800, 5),
+            // Fresh high-level D:5 layouts respectively create exactly one
+            // ordinary amorous demon and one Wumpus. With no Amulet, each
+            // takes makemon()'s nonzero mklev sleeper roll.
+            highLevelTeleport(9461088, 5),
+            highLevelTeleport(9461387, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -679,6 +693,34 @@ export async function verifyLevelTeleportArrival(segment) {
                 + `mgenmklev=${wight.mgenmklev}, `
                 + `grid=${game.level.monsters[wight.mx][wight.my] === wight}, `
                 + `inventory=${JSON.stringify(inventory)}`,
+            );
+        }
+    }
+    const sleeperMndx = MKLEV_SLEEPER_ARRIVALS.get(segment.seed);
+    if (sleeperMndx !== undefined) {
+        const sleepers = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === sleeperMndx) sleepers.push(monster);
+        }
+        if (sleepers.length !== 1) {
+            throw new Error(
+                `mklev-sleeper seed ${segment.seed} generated `
+                + `${sleepers.length} target monsters`,
+            );
+        }
+        const [sleeper] = sleepers;
+        if (game.u.ulevel !== 30
+            || game.u.uhave.amulet
+            || sleeper.mgenmklev !== true
+            || game.level.monsters[sleeper.mx][sleeper.my] !== sleeper
+            || sleeper.msleeping !== true) {
+            throw new Error(
+                `mklev-sleeper seed ${segment.seed} lost source sleep, `
+                + `hero level, Amulet state, or ownership: `
+                + `level=${game.u.ulevel}, amulet=${game.u.uhave.amulet}, `
+                + `mgenmklev=${sleeper.mgenmklev}, `
+                + `grid=${game.level.monsters[sleeper.mx][sleeper.my] === sleeper}, `
+                + `sleeping=${sleeper.msleeping}`,
             );
         }
     }

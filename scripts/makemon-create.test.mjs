@@ -45,12 +45,14 @@ import {
     discard_minvent,
     makemon,
     m_dowear,
+    mklevSleeperSpecies,
     mongone,
     ogreWeaponDivisor,
     racial_exception,
     startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
+import { is_ndemon } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj } from '../js/obj.js';
@@ -59,9 +61,13 @@ import {
     G_HELL,
     G_NOGEN,
     G_UNIQ,
+    M2_DEMON,
+    M2_LORD,
     M2_ORC,
+    M2_PRINCE,
     NON_PM,
     PM_ARCH_LICH,
+    PM_AMOROUS_DEMON,
     PM_BARROW_WIGHT,
     PM_ELF,
     PM_BLACK_LIGHT,
@@ -78,6 +84,7 @@ import {
     PM_GARTER_SNAKE,
     PM_GHOST,
     PM_GIANT_MUMMY,
+    PM_GIANT_EEL,
     PM_GIANT_ZOMBIE,
     PM_GOBLIN,
     PM_GRID_BUG,
@@ -121,6 +128,7 @@ import {
     PM_WOODLAND_ELF,
     PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
+    PM_WUMPUS,
     PM_ZRUTY,
     S_ELEMENTAL,
     S_LIGHT,
@@ -431,6 +439,151 @@ test('wood nymph creation preserves source sleep and empty-inventory draws', () 
     assert.equal(monster.mpeaceful, false);
     assert.equal(monster.minvent, null);
     assert.equal(state.mvitals[PM_WOOD_NYMPH].born, 1);
+});
+
+test('mklev sleeper species match the complete source predicate', () => {
+    const state = initialLevelState();
+
+    assert.equal(is_ndemon(state.mons[PM_AMOROUS_DEMON]), true);
+    assert.equal(is_ndemon({ mflags2: M2_DEMON | M2_LORD }), false);
+    assert.equal(is_ndemon({ mflags2: M2_DEMON | M2_PRINCE }), false);
+    assert.equal(is_ndemon({ mflags2: M2_LORD }), false);
+    assert.deepEqual(
+        [
+            PM_AMOROUS_DEMON,
+            PM_WUMPUS,
+            PM_LONG_WORM,
+            PM_GIANT_EEL,
+            PM_STALKER,
+        ].map((mndx) => mklevSleeperSpecies(state.mons[mndx])),
+        [true, true, true, true, false],
+    );
+});
+
+test('mklev Wumpus and ordinary demon sleep only on a nonzero roll', () => {
+    for (const mndx of [PM_WUMPUS, PM_AMOROUS_DEMON]) {
+        for (const [roll, sleeping] of [[4, true], [0, false]]) {
+            const state = initialLevelState();
+            const random = recordingRandom({
+                rn2Result: (bound) => bound === 5
+                    ? roll : Math.max(0, bound - 1),
+            });
+            const monster = makemon(
+                state.mons[mndx],
+                MON_X,
+                MON_Y,
+                MM_ANGRY | MM_NOCOUNTBIRTH | NO_MINVENT,
+                { state, random: random.random },
+            );
+            const sleeperDraws = random.calls.filter(
+                ({ kind, args }) => kind === 'rn2' && args[0] === 5,
+            );
+
+            assert.equal(monster.msleeping, sleeping);
+            assert.deepEqual(sleeperDraws, [{
+                kind: 'rn2',
+                args: [5],
+                result: roll,
+            }]);
+            assert.equal(random.calls.at(-1), sleeperDraws[0]);
+        }
+    }
+});
+
+test('the Amulet suppresses the mklev sleeper draw and state change', () => {
+    for (const mndx of [PM_WUMPUS, PM_AMOROUS_DEMON]) {
+        const state = initialLevelState();
+        state.u.uhave.amulet = 1;
+        const random = recordingRandom({
+            rn2Result: (bound) => bound === 5
+                ? 4 : Math.max(0, bound - 1),
+        });
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH | NO_MINVENT,
+            { state, random: random.random },
+        );
+
+        assert.equal(monster.msleeping, false);
+        assert.equal(random.calls.some(
+            ({ kind, args }) => kind === 'rn2' && args[0] === 5,
+        ), false);
+    }
+});
+
+test('demon lord and prince masks suppress the mklev sleeper draw', () => {
+    for (const rank of [M2_LORD, M2_PRINCE]) {
+        const state = initialLevelState();
+        const ordinary = state.mons[PM_AMOROUS_DEMON];
+        state.mons[PM_AMOROUS_DEMON] = {
+            ...ordinary,
+            mflags2: ordinary.mflags2 | rank,
+        };
+        const random = recordingRandom({
+            rn2Result: (bound) => bound === 5
+                ? 4 : Math.max(0, bound - 1),
+        });
+        const monster = makemon(
+            state.mons[PM_AMOROUS_DEMON],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH | NO_MINVENT,
+            { state, random: random.random },
+        );
+
+        assert.equal(monster.msleeping, false);
+        assert.equal(random.calls.some(
+            ({ kind, args }) => kind === 'rn2' && args[0] === 5,
+        ), false);
+    }
+});
+
+test('mklev sleeper roll preserves explicit sleep and skips other contexts', () => {
+    {
+        const state = initialLevelState();
+        const random = recordingRandom({
+            rn2Result: (bound) => bound === 5
+                ? 0 : Math.max(0, bound - 1),
+        });
+        const monster = makemon(
+            state.mons[PM_WUMPUS],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_ASLEEP | MM_NOCOUNTBIRTH | NO_MINVENT,
+            { state, random: random.random },
+        );
+        assert.equal(monster.msleeping, true);
+        assert.equal(random.calls.filter(
+            ({ kind, args }) => kind === 'rn2' && args[0] === 5,
+        ).length, 1);
+    }
+
+    for (const { mndx, inMklev, flags } of [
+        { mndx: PM_STALKER, inMklev: true,
+          flags: MM_ANGRY | MM_NOCOUNTBIRTH | NO_MINVENT },
+        { mndx: PM_WUMPUS, inMklev: false, flags: MM_NOGRP },
+    ]) {
+        const state = initialLevelState();
+        state.in_mklev = inMklev;
+        const random = recordingRandom({
+            rn2Result: (bound) => bound === 5
+                ? 4 : Math.max(0, bound - 1),
+        });
+        const monster = makemon(
+            state.mons[mndx],
+            MON_X,
+            MON_Y,
+            flags,
+            { state, random: random.random },
+        );
+
+        assert.equal(monster.msleeping, false);
+        assert.equal(random.calls.some(
+            ({ kind, args }) => kind === 'rn2' && args[0] === 5,
+        ), false);
+    }
 });
 
 test('wood nymph receives mirror then potion in source inventory order', () => {

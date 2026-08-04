@@ -192,6 +192,9 @@ export function is_gnome(species) { return flag2(species, M.M2_GNOME); }
 export function is_orc(species) { return flag2(species, M.M2_ORC); }
 export function is_lord(species) { return flag2(species, M.M2_LORD); }
 export function is_prince(species) { return flag2(species, M.M2_PRINCE); }
+export function is_ndemon(species) {
+    return is_demon(species) && !flag2(species, M.M2_LORD | M.M2_PRINCE);
+}
 export function is_dlord(species) {
     return is_demon(species) && is_lord(species);
 }

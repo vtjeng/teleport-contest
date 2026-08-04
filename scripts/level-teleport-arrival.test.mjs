@@ -87,6 +87,8 @@ test('the arrival matrix is a clean audited replay recipe', () => {
             9449967,
             9449779,
             7650800,
+            9461088,
+            9461387,
             7640011,
             7640059,
             7633019,
@@ -123,6 +125,8 @@ test('the arrival matrix is a clean audited replay recipe', () => {
             9449967,
             9450654,
             7650800,
+            9461088,
+            9461387,
         ].includes(segment.seed)) {
             assert.match(
                 segment.moves,

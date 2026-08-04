@@ -103,6 +103,7 @@ import {
     can_be_hatched,
     is_female,
     is_male,
+    is_ndemon,
     is_neuter,
     is_unicorn,
 } from './mondata.js';
@@ -180,6 +181,7 @@ import {
     PM_LITTLE_DOG,
     PM_LONG_WORM,
     PM_MANES,
+    PM_GIANT_EEL,
     PM_MORDOR_ORC,
     PM_SMALL_MIMIC,
     PM_NEWT,
@@ -202,6 +204,7 @@ import {
     PM_WHITE_UNICORN,
     PM_WOLF,
     PM_WOOD_NYMPH,
+    PM_WUMPUS,
     PM_WIZARD,
     PM_YELLOW_LIGHT,
     PM_YELLOW_MOLD,
@@ -2632,6 +2635,12 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             updateInventory: () => update_inventory(normalized),
         });
     }
+    if (state.in_mklev
+        && mklevSleeperSpecies(ptr)
+        && !state.u.uhave.amulet
+        && random.rn2(5)) {
+        monster.msleeping = true;
+    }
     if (byHero && !state.in_mklev) {
         // makemon.c calls set_apparxy() here. At initial startup the hero is
         // visible and undisplaced, so the source result is exact and drawless.
@@ -2691,4 +2700,15 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     if (!state.in_mklev) redrawSquare(monster.mx, monster.my, normalized);
 
     return monster;
+}
+
+// C ref: makemon.c makemon() (1385-1392), species half of the mklev-only
+// sleeping predicate. Keeping it pure lets the non-random long-worm and
+// giant-eel membership be pinned without widening either creation lifecycle.
+export function mklevSleeperSpecies(species) {
+    const mndx = species?.pmidx;
+    return is_ndemon(species)
+        || mndx === PM_WUMPUS
+        || mndx === PM_LONG_WORM
+        || mndx === PM_GIANT_EEL;
 }
