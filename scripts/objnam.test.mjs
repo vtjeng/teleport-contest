@@ -9,11 +9,14 @@ import {
     BLINDED,
     COLNO,
     CORR,
+    FOUNTAIN,
     IN_SIGHT,
+    LAVAPOOL,
     LOOKHERE_NOFLAGS,
     OBJ_FLOOR,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
+    PIT,
     ROOM,
     ROWNO,
     W_RINGR,
@@ -49,12 +52,14 @@ import {
 import {
     MZ_MEDIUM,
     PM_CLERIC,
+    PM_COCKATRICE,
     PM_NEWT,
     PM_SAMURAI,
     monst_globals_init,
     PM_FOX,
     M1_HUMANOID,
 } from '../js/monsters.js';
+import { create_region } from '../js/region.js';
 import {
     ALCHEMY_SMOCK,
     CHEST,
@@ -299,6 +304,27 @@ function lookState(typ, otmp, { blind = false } = {}) {
     return state;
 }
 
+function pileLookState({
+    blind = false,
+    count = 2,
+    first = DART,
+    firstOverrides = {},
+    typ = ROOM,
+} = {}) {
+    const state = lookState(typ, null, { blind });
+    const types = [first, FOOD_RATION, DAGGER, ARROW, POT_HEALING];
+    let head = null;
+    for (let index = count - 1; index >= 0; --index) {
+        head = objectOf(state, types[index], {
+            dknown: false,
+            nexthere: head,
+            ...(index === 0 ? firstOverrides : {}),
+        });
+    }
+    state.level.objects[1][1] = head;
+    return { head, state };
+}
+
 test('single-object look_here reports the item and records its message kind',
     async () => {
         const dart = objectOf(namingState(), DART);
@@ -403,6 +429,134 @@ test('single-object look_here requires its engraving owner before output',
             /engraving owners/u,
         );
         assert.deepEqual(messages, []);
+    });
+
+test('ordinary object piles display every name before reading the engraving',
+    async () => {
+        const { head, state } = pileLookState({ count: 3 });
+        const events = [];
+
+        const output = await look_here(3, LOOKHERE_NOFLAGS, state, {
+            message: async (text) => events.push(['message', text]),
+            displayObjectPile: async (lines, owner) => {
+                events.push(['display', lines, owner]);
+            },
+            readEngraving: async () => events.push(['engraving']),
+        });
+
+        assert.equal(output, false);
+        assert.deepEqual(events, [
+            [
+                'display',
+                [
+                    'Things that are here:',
+                    'a dart',
+                    'a food ration',
+                    'a dagger',
+                ],
+                state,
+            ],
+            ['engraving'],
+        ]);
+        assert.equal(head.dknown, true);
+    });
+
+test('object-pile exclusions stop before names, output, or engraving',
+    async () => {
+        const cases = [
+            {
+                name: 'pile-limit count',
+                build: () => pileLookState({ count: 2 }),
+                prepare: ({ state }) => { state.flags.pile_limit = 2; },
+                expected: /skipped-pile count/u,
+            },
+            {
+                name: 'five-object pile',
+                build: () => pileLookState({ count: 5 }),
+                expected: /outside the two-to-four-item window/u,
+            },
+            {
+                name: 'blind cockatrice pile',
+                build: () => pileLookState({
+                    blind: true,
+                    first: CORPSE,
+                    firstOverrides: { corpsenm: PM_COCKATRICE },
+                }),
+                expected: /blind object-pile menu/u,
+            },
+            {
+                name: 'mention-decor pile',
+                build: () => pileLookState(),
+                prepare: ({ state }) => { state.flags.mention_decor = true; },
+                expected: /describe_decor/u,
+            },
+            {
+                name: 'trap under pile',
+                build: () => pileLookState(),
+                prepare: ({ state }) => state.level.traps.push({
+                    tx: 1, ty: 1, ttyp: PIT, tseen: false,
+                }),
+                expected: /trap under/u,
+            },
+            {
+                name: 'visible region over pile',
+                build: () => pileLookState(),
+                prepare: ({ state }) => {
+                    const region = create_region([
+                        { lx: 1, ly: 1, hx: 1, hy: 1 },
+                    ]);
+                    region.visible = true;
+                    state.level.regions.push(region);
+                },
+                expected: /visible region description/u,
+            },
+            {
+                name: 'engraving under pile',
+                build: () => pileLookState(),
+                prepare: ({ state }) => {
+                    state.head_engr = {
+                        engr_x: 1,
+                        engr_y: 1,
+                        engr_txt: ['Elbereth'],
+                        nxt_engr: null,
+                    };
+                },
+                expected: /engraving after/u,
+            },
+            {
+                name: 'decorated pile',
+                build: () => pileLookState({ typ: FOUNTAIN }),
+                expected: /decorated object-pile menu/u,
+            },
+            {
+                name: 'lava pile',
+                build: () => pileLookState({ typ: LAVAPOOL }),
+                expected: /inaccessible liquid square/u,
+            },
+        ];
+
+        for (const specimen of cases) {
+            const built = specimen.build();
+            specimen.prepare?.(built);
+            const events = [];
+            await assert.rejects(
+                look_here(
+                    Math.max(2, specimen.name === 'five-object pile' ? 5 : 2),
+                    LOOKHERE_NOFLAGS,
+                    built.state,
+                    {
+                        message: (text) => events.push(['message', text]),
+                        displayObjectPile: (lines) =>
+                            events.push(['display', lines]),
+                        readEngraving: () => events.push(['engraving']),
+                    },
+                ),
+                specimen.expected,
+                specimen.name,
+            );
+            assert.deepEqual(events, [], specimen.name);
+            assert.equal(built.head.dknown, false, specimen.name);
+        }
     });
 
 test('worn and wielded suffixes follow doname()\'s owornmask branches', () => {

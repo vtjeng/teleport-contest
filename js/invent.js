@@ -51,6 +51,7 @@ import {
     Is_airlevel,
     Is_waterlevel,
     LOOKHERE_NOFLAGS,
+    LOOKHERE_PICKED_SOME,
     LOOKHERE_SKIP_DFEATURE,
     GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
@@ -98,7 +99,8 @@ import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { game } from './gstate.js';
 import { surface } from './dungeon.js';
-import { can_reach_floor } from './engrave.js';
+import { can_reach_floor, engr_at } from './engrave.js';
+import { displayTtyMenuTextWindow } from './tty_menu.js';
 import {
     AMULET_OF_YENDOR,
     AKLYS,
@@ -680,13 +682,12 @@ function activeStoneResistance(state) {
 
 // C ref: invent.c look_here(). Covers a hero standing on an ordinary square,
 // sighted or blind: the region and trap line, the terrain feature line, the
-// engraving read, and either "You see no objects here." or the single-object
-// description. Blindness is not excluded; it selects the tactile wording and
-// is this function's whole return value, because C returns ECMD_TIME for a
-// blind look and ECMD_OK otherwise. The branches left out each stop, because
-// they belong to subsystems the port excludes: being swallowed, a
-// visible region or seen trap, a drifting level, a pile large enough for the
-// menu, and a corpse that will_feel_cockatrice() says the hero would feel.
+// engraving read, and the no-object, single-object, or ordinary
+// two-to-four-object menu. Blindness is not excluded from the first two
+// outcomes; a pile reached while blind stops before its tactile preamble
+// because feel_cockatrice() and the tactile menu belong to a later slice. A
+// pile-limit count, decorated pile, liquid square, engraving, or pile outside
+// two through four likewise stops before output.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
@@ -694,7 +695,11 @@ export async function look_here(
     obj_cnt,
     lookhere_flags,
     state = game,
-    { message, readEngraving } = {},
+    {
+        message,
+        readEngraving,
+        displayObjectPile = (lines) => displayTtyMenuTextWindow(state, lines),
+    } = {},
 ) {
     if (typeof message !== 'function' || typeof readEngraving !== 'function')
         throw new TypeError('look_here needs message and engraving owners');
@@ -709,6 +714,51 @@ export async function look_here(
     const skip_objects = state.flags.pile_limit > 0
         && obj_cnt >= state.flags.pile_limit;
 
+    const otmp = state.level.objects[ux]?.[uy] ?? null;
+    const hasPile = Boolean(otmp?.nexthere);
+    let pileCount = 0;
+    if (hasPile) {
+        for (let object = otmp; object; object = object.nexthere) ++pileCount;
+        if (pileCount < 2 || pileCount > 4) {
+            throw new UnsupportedFeatureDescriptionError(
+                'an object pile outside the two-to-four-item window',
+            );
+        }
+        if (skip_objects) {
+            throw new UnsupportedFeatureDescriptionError(
+                'the skipped-pile count',
+            );
+        }
+        if (blind) {
+            throw new UnsupportedFeatureDescriptionError(
+                'a blind object-pile menu',
+            );
+        }
+        if (state.flags.mention_decor) {
+            throw new UnsupportedFeatureDescriptionError(
+                'describe_decor() before an object-pile menu',
+            );
+        }
+        if (t_at(ux, uy, state)) {
+            throw new UnsupportedFeatureDescriptionError(
+                'a trap under an object-pile menu',
+            );
+        }
+        if (engr_at(ux, uy, state)) {
+            throw new UnsupportedFeatureDescriptionError(
+                'an engraving after an object-pile menu',
+            );
+        }
+        if (is_lava(ux, uy, state)
+            || (is_pool(ux, uy, state) && !state.u.uinwater)) {
+            throw new UnsupportedFeatureDescriptionError(
+                'objects on an inaccessible liquid square',
+            );
+        }
+        for (let object = otmp; object; object = object.nexthere)
+            assertObjectNameable(object, state);
+    }
+
     if (!skip_objects) {
         const reg = visible_region_at(ux, uy, state);
         const trap = t_at(ux, uy, state);
@@ -719,9 +769,13 @@ export async function look_here(
         }
     }
 
-    const otmp = state.level.objects[ux]?.[uy] ?? null;
     let dfeature = dfeature_at(ux, uy, state);
     if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
+    if (hasPile && dfeature && !skip_dfeature) {
+        throw new UnsupportedFeatureDescriptionError(
+            'a decorated object-pile menu',
+        );
+    }
 
     if (blind) {
         // C's drift case belongs to the Air and Water levels, and its ice
@@ -765,10 +819,20 @@ export async function look_here(
             await message(`You ${verb} no objects here.`, state);
         return blind;
     }
-    if (skip_objects || otmp.nexthere) {
-        throw new UnsupportedFeatureDescriptionError(
-            skip_objects ? 'the skipped-pile count' : 'the object-pile menu',
-        );
+    if (skip_objects)
+        throw new UnsupportedFeatureDescriptionError('the skipped-pile count');
+    if (otmp.nexthere) {
+        if (typeof displayObjectPile !== 'function')
+            throw new TypeError('look_here needs an object-pile display owner');
+        const lines = [
+            `${(lookhere_flags & LOOKHERE_PICKED_SOME) !== 0
+                ? 'Other things' : 'Things'} that are here:`,
+        ];
+        for (let object = otmp; object; object = object.nexthere)
+            lines.push(donameFresh(object, state));
+        await displayObjectPile(lines, state);
+        await readEngraving(state);
+        return blind;
     }
     // Only one object. C ends this branch with feel_cockatrice(otmp, FALSE),
     // which does nothing unless will_feel_cockatrice() holds; that case is

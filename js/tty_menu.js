@@ -6,8 +6,13 @@
 import { game } from './gstate.js';
 import { tty_getlin } from './getline.js';
 import { nhgetch } from './input.js';
-import { MORE_PROMPT, xwaitforspace } from './tty_message.js';
-import { PICK_ANY, PICK_NONE, PICK_ONE } from './const.js';
+import {
+    clearTtyMessageWindow,
+    dismissPendingTtyMessage,
+    MORE_PROMPT,
+    xwaitforspace,
+} from './tty_message.js';
+import { BUFSZ, PICK_ANY, PICK_NONE, PICK_ONE } from './const.js';
 import {
     ok_align,
     ok_gend,
@@ -104,6 +109,11 @@ function clearRegion(display, firstColumn, rowCount) {
     }
 }
 
+function clearRowFrom(display, firstColumn, row) {
+    for (let column = firstColumn; column < display.cols; ++column)
+        display.setCell(column, row, ' ', CLR_GRAY, 0);
+}
+
 function restoreRegion(display, firstColumn, snapshot) {
     for (let row = 0; row < snapshot.length; row++) {
         for (let offset = 0; offset < snapshot[row].length; offset++) {
@@ -117,6 +127,158 @@ function restoreRegion(display, firstColumn, snapshot) {
             );
         }
     }
+}
+
+// C ref: win/tty/wintty.c compress_str(). tty_putstr() applies this to menu
+// and text data before it measures or stores a line. CO is the live terminal
+// width and BUFSZ bounds the function's static buffer.
+function compressTtyWindowLine(value, columns) {
+    const source = String(value ?? '');
+    if (source.length < columns && !source.includes('\n')) return source;
+
+    let result = '';
+    let wasSpace = true;
+    for (const sourceCharacter of source) {
+        const character = sourceCharacter === '\n' ? ' ' : sourceCharacter;
+        if (wasSpace && character === ' ') continue;
+        if (result.length >= BUFSZ - 1) break;
+        result += character;
+        wasSpace = character === ' ';
+    }
+    if ((wasSpace && result.length) || result.length === BUFSZ - 1)
+        result = result.slice(0, -1);
+    return result;
+}
+
+// C ref: win/tty/wintty.c tty_putstr()'s NHW_MENU/NHW_TEXT arm. The width
+// is measured before an over-CO line is split, so a split adds a row without
+// narrowing the eventual window.
+export function ttyMenuTextData(lines, columns) {
+    const stored = [];
+    let maxcol = 0;
+
+    const putstr = (line) => {
+        const compressed = compressTtyWindowLine(line, columns);
+        const n0 = compressed.length + 1;
+        maxcol = Math.max(maxcol, n0);
+        if (n0 > columns) {
+            let split = columns - 1;
+            while (split && compressed[split] !== ' '
+                && compressed[split] !== '\n') {
+                --split;
+            }
+            if (split) {
+                const next = split + 1;
+                stored.push(compressed.slice(0, next));
+                putstr(compressed.slice(next));
+                return;
+            }
+        }
+        stored.push(compressed);
+    };
+
+    for (const line of lines) putstr(line?.text ?? line);
+    return { lines: stored, maxcol };
+}
+
+// C refs: tty_display_nhwindow(NHW_MENU) and process_text_window(). A menu
+// with cw->data follows the text-window line loop but retains menu geometry.
+export function ttyMenuTextLayout(display, rawLines, overlay = true) {
+    const data = ttyMenuTextData(rawLines, display.cols);
+    const maxrow = data.lines.length;
+    let offx = Math.min(
+        82,
+        Math.floor(display.cols / 2),
+        display.cols - data.maxcol - 1,
+    );
+    offx = Math.max(0, offx);
+    const clearsScreen = maxrow >= display.rows || !overlay;
+    if (clearsScreen) offx = 0;
+    return {
+        firstColumn: offx,
+        repairColumn: Math.max(0, offx - 1),
+        lineColumn: offx ? offx + 1 : 0,
+        promptColumn: offx + 1,
+        promptRow: maxrow,
+        maxcol: data.maxcol,
+        maxrow,
+        clearsScreen,
+        fullRepair: offx === 0,
+        lines: data.lines,
+    };
+}
+
+// C refs: invent.c look_here()'s NHW_MENU window; wintty.c
+// tty_display_nhwindow(), process_text_window(), dmore(),
+// tty_destroy_nhwindow(), tty_dismiss_nhwindow(), and
+// erase_menu_or_text(). Returns the key accepted by dmore().
+export async function displayTtyMenuTextWindow(
+    state = game,
+    rawLines,
+) {
+    const display = state.nhDisplay;
+    if (!display)
+        throw new Error('tty menu text window requires an initialized display');
+
+    // look_here() displays WIN_MESSAGE before it creates the menu. Its only
+    // input-bearing arm dismisses a pending topline before the menu appears.
+    await dismissPendingTtyMessage(state);
+    clearTtyMessageWindow(state);
+    display.clearRow(0);
+
+    const layout = ttyMenuTextLayout(
+        display,
+        rawLines,
+        state.iflags?.menu_overlay !== false,
+    );
+    if (layout.maxrow >= display.rows) {
+        // The selected two-to-four-object transaction cannot reach paging:
+        // one header plus four BUFSZ-bounded names occupies at most seventeen
+        // rows even when every name is split repeatedly.
+        throw new RangeError('paged tty menu text window is not supported');
+    }
+
+    const restoredRows = Math.min(display.rows, layout.maxrow + 1);
+    const snapshot = layout.fullRepair
+        ? copyRegion(display, 0, display.rows)
+        : copyRegion(display, layout.repairColumn, restoredRows);
+    const baseCursor = [display.cursorCol, display.cursorRow];
+
+    if (layout.clearsScreen) display.clearScreen();
+    for (let row = 0; row < layout.lines.length; ++row) {
+        clearRowFrom(display, layout.firstColumn, row);
+        writeStyledText(
+            display,
+            layout.lineColumn,
+            row,
+            layout.lines[row],
+            NO_COLOR,
+            0,
+        );
+    }
+    clearRowFrom(display, layout.firstColumn, layout.promptRow);
+    writeStyledText(
+        display,
+        layout.promptColumn,
+        layout.promptRow,
+        END_PROMPT,
+        NO_COLOR,
+        0,
+    );
+    display.setCursor(
+        layout.promptColumn + END_PROMPT.length,
+        layout.promptRow,
+    );
+
+    const response = await xwaitforspace(state);
+
+    if (layout.fullRepair) {
+        restoreRegion(display, 0, snapshot);
+        display.setCursor(...baseCursor);
+    } else {
+        restoreRegion(display, layout.repairColumn, snapshot);
+    }
+    return response;
 }
 
 function itemLine(item) {

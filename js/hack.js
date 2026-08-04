@@ -115,6 +115,7 @@ import {
     verysmall,
 } from './mondata.js';
 import { is_pick, objectType, sobj_at } from './obj.js';
+import { assertObjectNameable } from './objnam.js';
 import {
     BOULDER,
     COIN_CLASS,
@@ -673,8 +674,35 @@ export function requireSimpleHeroDestination(x, y, state) {
         throw new UnsupportedHeroMoveBoundaryError('boulder movement');
     if (floorObject && state.flags?.pickup)
         throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
-    if (floorObject?.nexthere)
-        throw new UnsupportedHeroMoveBoundaryError('floor object pile');
+    if (floorObject?.nexthere) {
+        let pileCount = 0;
+        for (let object = floorObject; object; object = object.nexthere)
+            ++pileCount;
+        if (pileCount < 2 || pileCount > 4) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'object pile outside the two-to-four-item window',
+            );
+        }
+        if (location.typ !== ROOM && location.typ !== CORR) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'decorated object pile',
+            );
+        }
+        if (state.flags?.mention_decor) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'decor description before object pile',
+            );
+        }
+        if (heroIsBlind(state)) {
+            throw new UnsupportedHeroMoveBoundaryError('blind object pile');
+        }
+        if (state.flags?.pile_limit > 0
+            && pileCount >= state.flags.pile_limit) {
+            throw new UnsupportedHeroMoveBoundaryError('skipped-pile count');
+        }
+        for (let object = floorObject; object; object = object.nexthere)
+            assertObjectNameable(object, state);
+    }
     // invent.c look_here()'s blind arm names what the hero feels underfoot,
     // and dungeon.c surface() (1750-1787) answers per terrain: "altar",
     // "headstone", "fountain", "stairs", "doorway", "floor" in a room and

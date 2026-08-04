@@ -46,9 +46,11 @@ import {
     IN_SIGHT,
     INTRINSIC,
     LADDER,
+    LAVAPOOL,
     M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
+    OBJ_FLOOR,
     PASSES_WALLS,
     PIT,
     ROOM,
@@ -101,6 +103,7 @@ import {
     M1_NEEDPICK,
     M1_TUNNEL,
     PM_FOG_CLOUD,
+    PM_COCKATRICE,
     PM_NEWT,
     S_FELINE,
 } from '../js/monsters.js';
@@ -635,6 +638,56 @@ async function prepareHeroMoveAdmission() {
     return { destination, replay, x, y };
 }
 
+function installFloorPile(x, y, count = 2, firstOverrides = {}) {
+    let head = null;
+    for (let index = count - 1; index >= 0; --index) {
+        head = {
+            o_id: 7000 + index,
+            otyp: DART,
+            oclass: WEAPON_CLASS,
+            corpsenm: PM_NEWT,
+            quan: 1,
+            where: OBJ_FLOOR,
+            dknown: false,
+            nobj: null,
+            nexthere: head,
+            ...(index === 0 ? firstOverrides : {}),
+        };
+    }
+    game.level.objects[x][y] = head;
+    return head;
+}
+
+test('a walk opens and dismisses ordinary two-to-four-object pile windows',
+    async () => {
+        for (const [count, pileLimit] of [[2, 5], [4, 5], [2, 0]]) {
+            const { replay, x, y } = await prepareHeroMoveAdmission();
+            game.flags.pickup = false;
+            game.flags.pile_limit = pileLimit;
+            const head = installFloorPile(x, y, count);
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            game.context.run = 1;
+            game.multi = COLNO;
+            const screensBefore = replay.getScreens().length;
+            game.nhDisplay.pushKey(commandKeyCode(' '));
+
+            await domove(game);
+
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+            assert.equal(game.level.objects[x][y], head);
+            assert.equal(game.context.run, 0);
+            assert.equal(game.multi, 0);
+            assert.equal(replay.getScreens().length, screensBefore + 1);
+            let observed = 0;
+            for (let object = head; object; object = object.nexthere) {
+                assert.equal(object.dknown, true);
+                ++observed;
+            }
+            assert.equal(observed, count);
+        }
+    });
+
 test('simple hero movement rejects spot effects before mutation', async () => {
     const cases = [
         {
@@ -646,25 +699,65 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             },
         },
         {
-            name: 'floor object pile',
-            reason: 'floor object pile',
+            name: 'five-object pile',
+            reason: 'object pile outside the two-to-four-item window',
             setup: ({ x, y }) => {
-                // Two linked objects exercise the pile path, not merely the
-                // single-object floor-description branch.
-                game.level.objects[x][y] = {
-                    o_id: 1,
-                    nexthere: { o_id: 2, nexthere: null },
-                };
+                installFloorPile(x, y, 5);
+            },
+        },
+        {
+            name: 'pile-limit count',
+            reason: 'skipped-pile count',
+            setup: ({ x, y }) => {
+                installFloorPile(x, y);
+                game.flags.pile_limit = 2;
+            },
+        },
+        {
+            name: 'blind cockatrice pile',
+            reason: 'blind object pile',
+            setup: ({ x, y }) => {
+                installFloorPile(x, y, 2, {
+                    otyp: CORPSE,
+                    oclass: FOOD_CLASS,
+                    corpsenm: PM_COCKATRICE,
+                });
+                game.u.uprops[BLINDED].intrinsic = 1;
+            },
+        },
+        {
+            name: 'mention-decor pile',
+            reason: 'decor description before object pile',
+            setup: ({ x, y }) => {
+                installFloorPile(x, y);
+                game.flags.mention_decor = true;
+            },
+        },
+        {
+            name: 'decorated pile',
+            reason: 'decorated object pile',
+            setup: ({ destination, x, y }) => {
+                destination.typ = FOUNTAIN;
+                installFloorPile(x, y);
             },
         },
         {
             name: 'hidden pit',
             reason: 'trap activation',
             setup: ({ x, y }) => {
+                installFloorPile(x, y);
                 // tseen=false models a legally enterable hidden trap.
                 game.level.traps.push({
                     tx: x, ty: y, ttyp: PIT, tseen: false,
                 });
+            },
+        },
+        {
+            name: 'lava under pile',
+            reason: 'door or special terrain movement',
+            setup: ({ destination, x, y }) => {
+                destination.typ = LAVAPOOL;
+                installFloorPile(x, y);
             },
         },
         {
@@ -682,6 +775,7 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             name: 'region entry',
             reason: 'region crossing',
             setup: ({ x, y }) => {
+                installFloorPile(x, y);
                 // A one-cell region isolates the false -> true membership
                 // transition at this destination.
                 game.level.regions.push(create_region([
@@ -693,6 +787,7 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             name: 'floor engraving',
             reason: 'engraving interaction',
             setup: ({ x, y }) => {
+                installFloorPile(x, y);
                 game.head_engr = {
                     engr_x: x,
                     engr_y: y,

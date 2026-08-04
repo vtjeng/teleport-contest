@@ -6,10 +6,13 @@ import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { parseNethackrc } from '../js/options.js';
 import {
+    displayTtyMenuTextWindow,
     dismissTtyMenu,
     renderTtyMenu,
     selectTtyMenu,
     ttyMenuLayout,
+    ttyMenuTextData,
+    ttyMenuTextLayout,
 } from '../js/tty_menu.js';
 import { renderTtyStartupBanner } from '../js/tty_startup.js';
 
@@ -38,6 +41,142 @@ const confirmation = {
     preselected: 1,
     cancelValue: -1,
 };
+
+test('NHW_MENU text data keeps pre-wrap width and the split space', () => {
+    const source = `${'A'.repeat(70)} ${'B'.repeat(20)}`;
+    const data = ttyMenuTextData([source], 80);
+
+    assert.equal(data.maxcol, source.length + 1);
+    assert.deepEqual(data.lines, [
+        `${'A'.repeat(70)} `,
+        'B'.repeat(20),
+    ]);
+
+    const compressed = ttyMenuTextData([
+        `  ${'C'.repeat(70)}     ${'D'.repeat(10)}\n  tail  `,
+    ], 80);
+    assert.equal(compressed.lines[0].startsWith('C'), true);
+    assert.equal(compressed.lines.join('').includes('     '), false);
+    assert.equal(compressed.lines.join('').endsWith('tail'), true);
+
+    // strlen(str) == CO still enters compress_str(); a long line without a
+    // newline distinguishes both terms of its source condition.
+    const exactWidth = `  ${'E'.repeat(75)}   `;
+    assert.equal(exactWidth.length, 80);
+    assert.deepEqual(ttyMenuTextData([exactWidth], 80).lines, [
+        'E'.repeat(75),
+    ]);
+
+    const longWithoutNewline = `  ${'F'.repeat(80)}     tail  `;
+    assert.equal(
+        ttyMenuTextData([longWithoutNewline], 80).lines.join('')
+            .includes('     '),
+        false,
+    );
+
+    // compress_str() reserves a byte for NUL in its BUFSZ-sized static
+    // buffer, removing the last copied byte when it exactly fills the buffer.
+    assert.equal(ttyMenuTextData(['G'.repeat(300)], 80).lines.join('').length,
+        254);
+
+    // n0 == CO is stored without entering tty_putstr()'s n0 > CO split arm.
+    const fitsExactly = `${'H'.repeat(60)} ${'I'.repeat(18)}`;
+    assert.equal(fitsExactly.length, 79);
+    assert.deepEqual(ttyMenuTextData([fitsExactly], 80).lines, [fitsExactly]);
+});
+
+test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {
+    const state = menuState();
+    const layout = ttyMenuTextLayout(state.nhDisplay, [
+        'Things that are here:',
+        'a dart',
+        'a food ration',
+    ]);
+
+    assert.deepEqual(
+        [
+            layout.firstColumn,
+            layout.lineColumn,
+            layout.promptColumn,
+            layout.promptRow,
+            layout.maxcol,
+        ],
+        [40, 41, 41, 3, 22],
+    );
+
+    const terminalHeight = ttyMenuTextLayout(
+        state.nhDisplay,
+        Array.from({ length: 24 }, (_, index) => `line ${index}`),
+    );
+    assert.equal(terminalHeight.clearsScreen, true);
+    assert.equal(terminalHeight.firstColumn, 0);
+
+    const overlayDisabled = ttyMenuTextLayout(
+        state.nhDisplay,
+        ['Things that are here:', 'a dart'],
+        false,
+    );
+    assert.equal(overlayDisabled.clearsScreen, true);
+    assert.equal(overlayDisabled.firstColumn, 0);
+});
+
+test('NHW_MENU text waits at (end) and repairs through docorner', async () => {
+    const state = menuState('x ');
+    const boundaries = [];
+    state._preNhgetchHook = () => boundaries.push({
+        rows: Array.from({ length: 4 }, (_, row) => rowText(state, row)),
+        cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+    });
+
+    assert.equal(await displayTtyMenuTextWindow(state, [
+        'Things that are here:',
+        'a dart',
+        'a food ration',
+    ]), ' '.charCodeAt(0));
+
+    assert.equal(boundaries.length, 2);
+    assert.deepEqual(boundaries[0], boundaries[1]);
+    assert.deepEqual(boundaries[0], {
+        rows: [
+            `${' '.repeat(41)}Things that are here:`,
+            `${' '.repeat(41)}a dart`,
+            `${' '.repeat(41)}a food ration`,
+            `${' '.repeat(41)}(end)`,
+        ],
+        cursor: [46, 3],
+    });
+    assert.equal(rowText(state, 4), 'NetHack, Copyright 1985-2026');
+    assert.equal(rowText(state, 3), '');
+});
+
+test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
+    async () => {
+        const state = menuState(' ');
+        state.iflags = { menu_overlay: false };
+        const boundaries = [];
+        state._preNhgetchHook = () => boundaries.push({
+            first: rowText(state, 0),
+            cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        });
+
+        await displayTtyMenuTextWindow(state, [
+            'Things that are here:',
+            'a dart',
+        ]);
+        assert.deepEqual(boundaries, [{
+            first: 'Things that are here:',
+            cursor: [6, 2],
+        }]);
+
+        const paged = menuState(' ');
+        await assert.rejects(
+            displayTtyMenuTextWindow(
+                paged,
+                Array.from({ length: 24 }, (_, index) => `line ${index}`),
+            ),
+            /paged tty menu text window is not supported/u,
+        );
+    });
 
 test('narrow tty menus overlay the right half and restore it on dismissal', () => {
     const state = menuState();
