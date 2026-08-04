@@ -46,6 +46,7 @@ import {
     makemon,
     m_dowear,
     mongone,
+    ogreWeaponDivisor,
     racial_exception,
     startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
@@ -101,6 +102,8 @@ import {
     PM_ORC,
     PM_ORC_CAPTAIN,
     PM_OGRE,
+    PM_OGRE_LEADER,
+    PM_OGRE_TYRANT,
     PM_PLAINS_CENTAUR,
     PM_PONY,
     PM_ROCK_MOLE,
@@ -126,6 +129,7 @@ import {
     AMULET_OF_LIFE_SAVING,
     ARMOR_CLASS,
     ARROW,
+    BATTLE_AXE,
     BOW,
     DART,
     CLUB,
@@ -1993,6 +1997,127 @@ test('forest centaurs use bows while other centaurs retain crossbows', () => {
             );
         }
     }
+});
+
+test('ogre weapon divisors retain the source tyrant, leader, and ordinary bounds',
+    () => {
+        const state = initialLevelState();
+        assert.equal(ogreWeaponDivisor(state.mons[PM_OGRE_TYRANT]), 3);
+        assert.equal(ogreWeaponDivisor(state.mons[PM_OGRE_LEADER]), 6);
+        assert.equal(ogreWeaponDivisor(state.mons[PM_OGRE]), 12);
+
+        const random = recordingRandom();
+        assert.throws(
+            () => makemon(
+                state.mons[PM_OGRE_TYRANT],
+                MON_X,
+                MON_Y,
+                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+                { state, random: random.random },
+            ),
+            (error) => error instanceof UnsupportedMonsterCreationError
+                && error.operation === `monster ${PM_OGRE_TYRANT}`,
+        );
+        assert.deepEqual(random.calls, []);
+    });
+
+test('ogre leaders use rn2(6) for both source weapons before generic inventory',
+    () => {
+        for (const { name, gate, expected } of [
+            { name: 'battle axe', gate: 0, expected: BATTLE_AXE },
+            { name: 'club', gate: 1, expected: CLUB },
+        ]) {
+            const state = initialLevelState();
+            let leaderGatePending = true;
+            const random = recordingRandom({
+                rn2Result: (bound) => {
+                    if (bound === 6 && leaderGatePending) {
+                        leaderGatePending = false;
+                        return gate;
+                    }
+                    return Math.max(0, bound - 1);
+                },
+            });
+            const monster = makemon(
+                state.mons[PM_OGRE_LEADER],
+                MON_X,
+                MON_Y,
+                MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+                { state, random: random.random },
+            );
+            const inventory = monsterInventory(monster);
+
+            assert.equal(leaderGatePending, false, name);
+            assert.deepEqual(inventory.map((obj) => obj.otyp), [expected], name);
+            assert.equal(inventory[0].where, OBJ_MINVENT, name);
+            assert.equal(inventory[0].ocarry, monster, name);
+            assert.equal(inventory[0].quan, 1, name);
+            assert.equal(inventory[0].owornmask, 0, name);
+
+            const weaponGate = random.calls.findIndex(
+                (call) => call.kind === 'rn2' && call.args[0] === 6,
+            );
+            const offensiveGate = random.calls.findIndex(
+                (call) => call.kind === 'rn2' && call.args[0] === 75,
+            );
+            assert.ok(weaponGate >= 0, name);
+            assert.ok(offensiveGate > weaponGate, name);
+            assert.equal(random.calls[weaponGate].result, gate, name);
+            assert.deepEqual(
+                random.calls.slice(offensiveGate).map(
+                    (call) => [call.kind, call.args, call.result],
+                ),
+                [
+                    ['rn2', [75], 74],
+                    ['rn2', [50], 49],
+                    ['rn2', [100], 99],
+                    ['rn2', [5], 4],
+                    ['rn2', [100], 99],
+                ],
+                `${name}: generic inventory continuation`,
+            );
+        }
+    });
+
+test('ordinary ogres retain rn2(12) and the same generic continuation', () => {
+    const state = initialLevelState();
+    const random = recordingRandom();
+    const monster = makemon(
+        state.mons[PM_OGRE],
+        MON_X,
+        MON_Y,
+        MM_ANGRY | MM_NOGRP | MM_NOCOUNTBIRTH,
+        { state, random: random.random },
+    );
+
+    assert.deepEqual(monsterInventory(monster).map((obj) => obj.otyp), [CLUB]);
+    assert.equal(
+        random.calls.some(
+            (call) => call.kind === 'rn2' && call.args[0] === 6,
+        ),
+        false,
+    );
+    const weaponGate = random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 12,
+    );
+    const offensiveGate = random.calls.findIndex(
+        (call) => call.kind === 'rn2' && call.args[0] === 75,
+    );
+    assert.ok(weaponGate >= 0);
+    assert.ok(offensiveGate > weaponGate);
+    assert.equal(random.calls[weaponGate].result, 11);
+    assert.deepEqual(
+        random.calls.slice(offensiveGate).map(
+            (call) => [call.kind, call.args, call.result],
+        ),
+        [
+            ['rn2', [75], 74],
+            ['rn2', [50], 49],
+            ['rn2', [100], 99],
+            ['rn2', [5], 4],
+            ['rn2', [100], 99],
+        ],
+    );
 });
 
 test('hobbits receive each source weapon arm before the generic item gates', () => {

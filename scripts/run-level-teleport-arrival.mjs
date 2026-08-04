@@ -26,13 +26,16 @@ import { m_at } from '../js/monst.js';
 import {
     PM_FOREST_CENTAUR,
     PM_HOBBIT,
+    PM_OGRE_LEADER,
     PM_STALKER,
 } from '../js/monsters.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     ARROW,
+    BATTLE_AXE,
     BOW,
     CHEST,
+    CLUB,
     CROSSBOW,
     CROSSBOW_BOLT,
     DAGGER,
@@ -41,9 +44,11 @@ import {
     GOLD_PIECE,
     MACE,
     POT_ACID,
+    POT_INVISIBILITY,
     ROCK,
     SLING,
     STATUE,
+    WAN_FIRE,
 } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -52,7 +57,13 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310417113000';
 const LEVELPORT_KEY = '\x16';
 const LEVELCHANGE_DISMISSALS_TO_30 = 29;
-const HIGH_LEVEL_ARRIVALS = new Set([7650048, 7650182, 7650574]);
+const HIGH_LEVEL_ARRIVALS = new Set([
+    7650033,
+    7650048,
+    7650182,
+    7650278,
+    7650574,
+]);
 
 const HOBBIT_ARRIVALS = new Map([
     [7661000, [{ otyp: DAGGER, quan: 1, worn: 0 }]],
@@ -73,6 +84,17 @@ const FOREST_CENTAUR_ARRIVALS = new Map([
         { otyp: POT_ACID, quan: 1 },
         { otyp: ARROW, quan: 11 },
         { otyp: BOW, quan: 1 },
+    ]],
+]);
+
+const OGRE_LEADER_ARRIVALS = new Map([
+    [7650033, [
+        { otyp: POT_INVISIBILITY, quan: 1, id: 77, worn: 0 },
+        { otyp: CLUB, quan: 1, id: 76, worn: 0 },
+    ]],
+    [7650278, [
+        { otyp: WAN_FIRE, quan: 1, id: 105, worn: 0 },
+        { otyp: BATTLE_AXE, quan: 1, id: 104, worn: 0 },
     ]],
 ]);
 
@@ -146,6 +168,12 @@ export function loadLevelTeleportArrivalRecipe() {
             // the source bow-and-arrow arm.
             highLevelTeleport(7650182, 5),
             highLevelTeleport(7650574, 5),
+            // These high-level D:5 layouts each create exactly one ogre
+            // leader. The first takes its rn2(6) club arm and later receives
+            // a generic invisibility potion; the second takes the battle-axe
+            // arm and later receives a generic wand of fire.
+            highLevelTeleport(7650033, 5),
+            highLevelTeleport(7650278, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -432,6 +460,62 @@ export async function verifyLevelTeleportArrival(segment) {
                 + `hero level, or ownership: level=${game.u.ulevel}, `
                 + `mgenmklev=${centaur.mgenmklev}, `
                 + `grid=${game.level.monsters[centaur.mx][centaur.my] === centaur}, `
+                + `inventory=${JSON.stringify(inventory)}`,
+            );
+        }
+    }
+    const expectedOgreInventory = OGRE_LEADER_ARRIVALS.get(segment.seed);
+    if (expectedOgreInventory) {
+        const leaders = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_OGRE_LEADER) leaders.push(monster);
+        }
+        if (leaders.length !== 1) {
+            throw new Error(
+                `ogre-leader seed ${segment.seed} generated `
+                + `${leaders.length} ogre leaders`,
+            );
+        }
+        const [leader] = leaders;
+        const inventory = [];
+        const objectIds = new Set();
+        for (let obj = leader.minvent; obj; obj = obj.nobj) {
+            if (obj.where !== OBJ_MINVENT || obj.ocarry !== leader) {
+                throw new Error(
+                    `ogre-leader seed ${segment.seed} lost inventory ownership`,
+                );
+            }
+            if (!Number.isInteger(obj.o_id) || objectIds.has(obj.o_id)) {
+                throw new Error(
+                    `ogre-leader seed ${segment.seed} has invalid object identity`,
+                );
+            }
+            objectIds.add(obj.o_id);
+            inventory.push({
+                otyp: obj.otyp,
+                quan: obj.quan,
+                id: obj.o_id,
+                worn: obj.owornmask,
+            });
+        }
+        const selectedWeapons = inventory.filter(
+            ({ otyp }) => otyp === BATTLE_AXE || otyp === CLUB,
+        );
+        const expectedWeapon = expectedOgreInventory.find(
+            ({ otyp }) => otyp === BATTLE_AXE || otyp === CLUB,
+        );
+        if (game.u.ulevel !== 30
+            || leader.mgenmklev !== true
+            || game.level.monsters[leader.mx][leader.my] !== leader
+            || selectedWeapons.length !== 1
+            || selectedWeapons[0].otyp !== expectedWeapon?.otyp
+            || JSON.stringify(inventory)
+                !== JSON.stringify(expectedOgreInventory)) {
+            throw new Error(
+                `ogre-leader seed ${segment.seed} lost source inventory, `
+                + `hero level, or ownership: level=${game.u.ulevel}, `
+                + `mgenmklev=${leader.mgenmklev}, `
+                + `grid=${game.level.monsters[leader.mx][leader.my] === leader}, `
                 + `inventory=${JSON.stringify(inventory)}`,
             );
         }

@@ -186,6 +186,8 @@ import {
     PM_ORC,
     PM_ORC_CAPTAIN,
     PM_ORC_SHAMAN,
+    PM_OGRE_LEADER,
+    PM_OGRE_TYRANT,
     PM_PONY,
     PM_SEWER_RAT,
     PM_SHOPKEEPER,
@@ -535,6 +537,14 @@ function isTutorialLevel(state) {
 
 function isArmed(species) {
     return species.mattk.some((attack) => attack.aatyp === AT_WEAP);
+}
+
+// C ref: makemon.c m_initweap(), S_OGRE.  The tyrant mapping is retained
+// here even though that species remains outside the admitted D:5 reservoir.
+export function ogreWeaponDivisor(species) {
+    return species?.pmidx === PM_OGRE_TYRANT ? 3
+        : species?.pmidx === PM_OGRE_LEADER ? 6
+            : 12;
 }
 
 function setMimicCorpsenm(monster, value) {
@@ -1378,7 +1388,7 @@ function m_initweap(monster, normalized) {
     case S_OGRE:
         mongets(
             monster,
-            !random.rn2(12) ? BATTLE_AXE : CLUB,
+            !random.rn2(ogreWeaponDivisor(ptr)) ? BATTLE_AXE : CLUB,
             normalized,
         );
         break;
