@@ -23,7 +23,7 @@ import { game } from '../js/gstate.js';
 import { mergable } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
-import { PM_HOBBIT } from '../js/monsters.js';
+import { PM_HOBBIT, PM_STALKER } from '../js/monsters.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     CHEST,
@@ -42,6 +42,7 @@ import { runFreshMatrix } from './fresh-matrix.mjs';
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const DATETIME = '20310417113000';
 const LEVELPORT_KEY = '\x16';
+const LEVELCHANGE_DISMISSALS_TO_30 = 29;
 
 const HOBBIT_ARRIVALS = new Map([
     [7661000, [{ otyp: DAGGER, quan: 1, worn: 0 }]],
@@ -86,6 +87,21 @@ function teleport(seed, destination, {
     };
 }
 
+function highLevelTeleport(seed, destination) {
+    return {
+        seed,
+        datetime: DATETIME,
+        nethackrc: nethackrc(),
+        // Wizard #levelchange raises from 1 to 30 without spending a turn.
+        // Twenty-nine spaces dismiss its complete welcome/intrinsic chain;
+        // Ctrl-V then reaches the ordinary destination and the final wait
+        // proves the arrived level accepted another command.
+        moves: `.#levelchange\n30\n`
+            + ' '.repeat(LEVELCHANGE_DISMISSALS_TO_30)
+            + `${LEVELPORT_KEY}${destination}\n.`,
+    };
+}
+
 export function loadLevelTeleportArrivalRecipe() {
     return validateCleanRecipe({
         version: 5,
@@ -103,6 +119,9 @@ export function loadLevelTeleportArrivalRecipe() {
             teleport(7661011, 5),
             teleport(7661130, 5),
             teleport(7661513, 5),
+            // A high-level hero widens rndmonst() enough for this ordinary
+            // D:5 to create one stalker through makemon()'s elemental arm.
+            highLevelTeleport(7650048, 5),
             // Independently selected D:5 generation chooses and fills a
             // throne room, while random arrival lands outside it.
             teleport(7640011, 5),
@@ -243,16 +262,18 @@ export async function verifyLevelTeleportArrival(segment) {
             + `${game.u?.uz?.dnum}:${game.u?.uz?.dlevel}, expected 0:${destination}`,
         );
     }
-    if (game._commandDispatchCount !== 3) {
+    const expectedDispatches = segment.seed === 7650048 ? 4 : 3;
+    if (game._commandDispatchCount !== expectedDispatches) {
         throw new Error(
             `seed ${segment.seed} dispatched ${game._commandDispatchCount} `
-            + 'commands, expected the trailing command to be third',
+            + `commands, expected the trailing command to be ${expectedDispatches}`,
         );
     }
-    if (game.moves !== 3) {
+    const expectedMoves = segment.seed === 7650048 ? 2 : 3;
+    if (game.moves !== expectedMoves) {
         throw new Error(
             `seed ${segment.seed} ended on move ${game.moves}, expected `
-            + 'both waits and the zero-time teleport to end on move 3',
+            + `its zero-time wizard commands to end on move ${expectedMoves}`,
         );
     }
     if (game.u?.utotype !== 0) {
@@ -321,6 +342,26 @@ export async function verifyLevelTeleportArrival(segment) {
                 !== JSON.stringify(expectedHobbitInventory)) {
             throw new Error(
                 `hobbit seed ${segment.seed} lost source inventory or worn state`,
+            );
+        }
+    }
+    if (segment.seed === 7650048) {
+        const stalkers = [];
+        for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+            if (monster.mnum === PM_STALKER) stalkers.push(monster);
+        }
+        if (stalkers.length !== 1) {
+            throw new Error(
+                `stalker seed generated ${stalkers.length} stalkers`,
+            );
+        }
+        const [stalker] = stalkers;
+        if (game.u.ulevel !== 30
+            || stalker.mgenmklev !== true
+            || game.level.monsters[stalker.mx][stalker.my] !== stalker
+            || !stalker.perminvis || !stalker.minvis) {
+            throw new Error(
+                'stalker seed lost hero level, ownership, or invisibility',
             );
         }
     }

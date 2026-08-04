@@ -205,6 +205,7 @@ import {
     PM_GOLD_DRAGON,
     SPECIAL_PM,
     S_CENTAUR,
+    S_ELEMENTAL,
     S_EYE,
     S_GHOST,
     S_GNOME,
@@ -556,6 +557,14 @@ function emitsLight(species) {
 function permanentlyInvisible(species) {
     return species?.pmidx === PM_STALKER
         || species?.pmidx === PM_BLACK_LIGHT;
+}
+
+// C ref: makemon.c makemon(), the shared S_LIGHT/S_ELEMENTAL switch arm.
+// The class half matters: ordinary elementals do not inherit invisibility.
+export function startsPermanentlyInvisible(species) {
+    return (species?.mlet === S_LIGHT || species?.mlet === S_ELEMENTAL)
+        && (species?.pmidx === PM_STALKER
+            || species?.pmidx === PM_BLACK_LIGHT);
 }
 
 function redrawSquare(x, y, normalized) {
@@ -2542,11 +2551,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             if (x && y) mkobj_at(RANDOM_CLASS, x, y, true, normalized);
             hideunder(monster, state);
         }
-    } else if (ptr.mlet === S_LIGHT) {
-        if (mndx === PM_BLACK_LIGHT) {
-            monster.perminvis = true;
-            monster.minvis = true;
-        }
+    } else if (startsPermanentlyInvisible(ptr)) {
+        monster.perminvis = true;
+        monster.minvis = true;
     } else if (ptr.mlet === S_LEPRECHAUN) {
         monster.msleeping = true;
     } else if (ptr.mlet === S_ORC && state.urace.mnum === PM_ELF) {

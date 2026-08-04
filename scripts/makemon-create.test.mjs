@@ -47,6 +47,7 @@ import {
     m_dowear,
     mongone,
     racial_exception,
+    startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
 import { newMonster, place_monster } from '../js/monst.js';
@@ -68,6 +69,7 @@ import {
     PM_CHAMELEON,
     PM_DOPPELGANGER,
     PM_DEMILICH,
+    PM_FIRE_ELEMENTAL,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_GARTER_SNAKE,
@@ -104,6 +106,7 @@ import {
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_SMALL_MIMIC,
+    PM_STALKER,
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
@@ -111,6 +114,8 @@ import {
     PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
     PM_ZRUTY,
+    S_ELEMENTAL,
+    S_LIGHT,
     SPECIAL_PM,
     monst_globals_init,
     reset_mvitals,
@@ -1388,6 +1393,45 @@ test('light monsters own mobile light through creation and teardown', () => {
     assert.equal(state.gl.light_base, null);
     assert.equal(state.iflags.purge_monsters, 2);
 });
+
+test('makemon starts only stalkers and black lights permanently invisible',
+    () => {
+        const state = initialLevelState();
+        // makemon.c:1315-1320 shares one switch arm between S_LIGHT and
+        // S_ELEMENTAL, then admits exactly these two species. Pin both halves
+        // against the generated mons[] catalog: neither another light nor
+        // another elemental may acquire the two struct monst fields.
+        assert.equal(state.mons[PM_STALKER].mlet, S_ELEMENTAL);
+        assert.equal(state.mons[PM_BLACK_LIGHT].mlet, S_LIGHT);
+        assert.equal(state.mons[PM_YELLOW_LIGHT].mlet, S_LIGHT);
+        assert.equal(state.mons[PM_FIRE_ELEMENTAL].mlet, S_ELEMENTAL);
+        assert.equal(startsPermanentlyInvisible(state.mons[PM_STALKER]), true);
+        assert.equal(
+            startsPermanentlyInvisible(state.mons[PM_BLACK_LIGHT]),
+            true,
+        );
+        assert.equal(
+            startsPermanentlyInvisible(state.mons[PM_YELLOW_LIGHT]),
+            false,
+        );
+        assert.equal(
+            startsPermanentlyInvisible(state.mons[PM_FIRE_ELEMENTAL]),
+            false,
+        );
+
+        const random = recordingRandom();
+        const stalker = makemon(
+            state.mons[PM_STALKER],
+            MON_X,
+            MON_Y,
+            MM_ANGRY | MM_NOCOUNTBIRTH,
+            { state, random: random.random },
+        );
+        assert.equal(stalker.perminvis, true);
+        assert.equal(stalker.minvis, true);
+        assert.equal(stalker.mgenmklev, true);
+        assert.equal(state.level.monsters[MON_X][MON_Y], stalker);
+    });
 
 test('initial chameleon can retain its natural form and inventory gates', () => {
     const state = initialLevelState();
