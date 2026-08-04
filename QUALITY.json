@@ -661,7 +661,7 @@
       "area": "commands",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "The committed implementation checklist remains at implementation mode/old commit and retains stale future-tense ownership; close by committing or retiring an exact-head source map after the expanded slice is verified."
     },
@@ -670,7 +670,7 @@
       "area": "commands",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "js/do.js goto_level() header still describes a staircase-only port after non-stair level teleport became supported; close by documenting both callers and their placement/message branches."
     },
@@ -688,7 +688,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "A numeric destination at the ordinary main-dungeon Quest entrance throws after repaint instead of updating qcalled and delivering the source quest pager flow."
     },
@@ -697,7 +697,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "Random level-teleport placement can land inside a generated shop and stop in check_special_room(); port reachable shop-entry state and greeting behavior."
     },
@@ -760,7 +760,7 @@
       "area": "commands",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "The three-case fresh recipe uses a full-moon date whose pending More prompt consumes the level-teleport inputs; realign the input/date and assert final levels and dispatch counts."
     }
