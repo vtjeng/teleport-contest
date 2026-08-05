@@ -147,10 +147,13 @@ import {
 import {
     an,
     assertObjectNameable,
+    assertPricedObjectNameable,
     donameFresh,
+    doname_with_price,
     vtense,
 } from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
+import { costly_spot } from './shk.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
@@ -724,6 +727,7 @@ export async function look_here(
 
     const otmp = state.level.objects[ux]?.[uy] ?? null;
     const hasPile = Boolean(otmp?.nexthere);
+    const withShopPrice = Boolean(otmp) && costly_spot(ux, uy, state);
     const pickedSome = (lookhere_flags & LOOKHERE_PICKED_SOME) !== 0;
     let supportedPileCount = 0;
     if (hasPile) {
@@ -777,8 +781,12 @@ export async function look_here(
             );
         }
         if (!skip_objects) {
-            for (let object = otmp; object; object = object.nexthere)
-                assertObjectNameable(object, state);
+            for (let object = otmp; object; object = object.nexthere) {
+                if (withShopPrice)
+                    assertPricedObjectNameable(object, state);
+                else
+                    assertObjectNameable(object, state);
+            }
         }
     }
 
@@ -859,8 +867,11 @@ export async function look_here(
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
         lines.push(`${(lookhere_flags & LOOKHERE_PICKED_SOME) !== 0
             ? 'Other things' : 'Things'} that are here:`);
-        for (let object = otmp; object; object = object.nexthere)
-            lines.push(donameFresh(object, state));
+        for (let object = otmp; object; object = object.nexthere) {
+            lines.push(withShopPrice
+                ? doname_with_price(object, state, { currencyName: currency })
+                : donameFresh(object, state));
+        }
         await displayObjectPile(lines, state);
         await readEngraving(state);
         return blind;
@@ -870,9 +881,13 @@ export async function look_here(
     // unported, so it stops here, before any of the branch's output.
     if (will_feel_cockatrice(otmp, false, state))
         throw new UnsupportedFeatureDescriptionError('feel_cockatrice()');
+    if (withShopPrice) assertPricedObjectNameable(otmp, state);
     if (dfeature && !skip_dfeature) await message(fbuf, state);
     await readEngraving(state);
-    await message(`You ${verb} here ${donameFresh(otmp, state)}.`, state);
+    const namedObject = withShopPrice
+        ? doname_with_price(otmp, state, { currencyName: currency })
+        : donameFresh(otmp, state);
+    await message(`You ${verb} here ${namedObject}.`, state);
     state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
     return blind;
 }

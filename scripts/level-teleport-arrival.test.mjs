@@ -622,6 +622,11 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
         assert.ok(aligned);
         game.u.ux = aligned.x;
         game.u.uy = aligned.y;
+        // This test relocates the hero without move_update(). Keep u.ushops
+        // synchronized with the generated strict-interior square so the
+        // post-pickup look_here() call sees the same state a real move would.
+        game.u.ushops.fill(0);
+        game.u.ushops[0] = roomno;
         game.u.uprops[DEAF].intrinsic = 0;
         game.u.uprops[DEAF].extrinsic = 0;
         game.u.uprops[DEAF].blocked = 0;

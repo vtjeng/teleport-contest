@@ -3,21 +3,42 @@
 // and costly_spot().
 
 import {
+    A_CHA,
     ACH_SHOP,
     BUFSZ,
     DEAF,
+    HUNGRY,
     INVIS,
+    OBJ_FLOOR,
     PL_NSIZ,
     ROOMOFFSET,
     SHOPBASE,
 } from './const.js';
+import { effective_attribute } from './attrib.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { s_suffix } from './hacklib.js';
 import { record_achievement } from './insight.js';
+import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
-import { hasContents } from './obj.js';
-import { COIN_CLASS } from './objects.js';
+import { hasContents, isCandle, isContainer, objectType } from './obj.js';
+import {
+    ARMOR_CLASS,
+    COIN_CLASS,
+    CORPSE,
+    DUNCE_CAP,
+    EGG,
+    FOOD_CLASS,
+    GEM_CLASS,
+    GLASS,
+    POTION_CLASS,
+    POT_WATER,
+    TIN,
+    TOOL_CLASS,
+    WAND_CLASS,
+    WEAPON_CLASS,
+} from './objects.js';
+import { PM_TOURIST } from './monsters.js';
 import { Hello } from './role_init.js';
 import { in_rooms } from './rooms.js';
 import { SHTYPES } from './shtypes_data.js';
@@ -98,6 +119,207 @@ export function append_price_quote(buf, otyp, state = game) {
 
     buf2 += '}';
     return buf2.length < BUFSZ - buf.length - 1 ? buf2 : '';
+}
+
+// C ref: shk.c record_price_quote(). The object catalog owns the four quote
+// extrema; callers pass the per-unit price after the player has seen it.
+export function record_price_quote(
+    otyp,
+    price,
+    buyprice,
+    state = game,
+) {
+    const type = state.objects[otyp];
+    const quoted = Math.trunc(price);
+    if (buyprice) {
+        if (quoted > type.oc_buy_maxseen) type.oc_buy_maxseen = quoted;
+        if (quoted < type.oc_buy_minseen) type.oc_buy_minseen = quoted;
+    } else {
+        if (quoted > type.oc_sell_maxseen) type.oc_sell_maxseen = quoted;
+        if (quoted < type.oc_sell_minseen) type.oc_sell_minseen = quoted;
+    }
+}
+
+// C ref: shk.c get_pricing_units(). This slice admits ordinary stacks; globs
+// remain at the pricing preflight because their units depend on weight().
+export function get_pricing_units(obj) {
+    if (obj.globby)
+        throw new UnsupportedShopError('globby pricing units');
+    return Math.trunc(obj.quan);
+}
+
+// C ref: shk.c oid_price_adjustment(). The port has no discount result, just
+// the source's zero-or-one arbitrary surcharge for an unidentified object.
+export function oid_price_adjustment(obj, oid, state = game) {
+    const type = objectType(obj, state);
+    if (!(obj.dknown && type.oc_name_known)
+        && (obj.oclass !== GEM_CLASS || type.oc_material !== GLASS)) {
+        return Math.trunc(oid) % 4 === 0 ? 1 : 0;
+    }
+    return 0;
+}
+
+// C ref: shk.c getprice(), reached selling-to-hero branches. Artifact and
+// corpse-family adjustments are excluded by preflight_floor_shop_price().
+export function getprice(obj, shk_buying, state = game) {
+    const type = objectType(obj, state);
+    let price = Math.trunc(type.oc_cost);
+    switch (obj.oclass) {
+    case FOOD_CLASS:
+        if (state.u.uhs >= HUNGRY && !shk_buying)
+            price *= Math.trunc(state.u.uhs);
+        if (obj.oeaten) price = 0;
+        break;
+    case WAND_CLASS:
+        if (obj.spe === -1) price = 0;
+        break;
+    case POTION_CLASS:
+        if (obj.otyp === POT_WATER && !obj.blessed && !obj.cursed)
+            price = 0;
+        break;
+    case ARMOR_CLASS:
+    case WEAPON_CLASS:
+        if (obj.spe > 0) price += 10 * Math.trunc(obj.spe);
+        break;
+    case TOOL_CLASS:
+        if (isCandle(obj) && obj.age < 20 * Math.trunc(type.oc_cost))
+            price = Math.trunc(price / 2);
+        break;
+    default:
+        break;
+    }
+    return price;
+}
+
+// C ref: shk.c get_cost(). This function returns the per-unit price. The
+// caller multiplies it by get_pricing_units() after ownership is established.
+export function get_cost(obj, shopkeeper, state = game) {
+    let price = getprice(obj, false, state);
+    let multiplier = 1;
+    let divisor = 1;
+
+    if (!price) price = 5;
+    const type = objectType(obj, state);
+    if (!obj.dknown || !type.oc_name_known) {
+        if (obj.oclass === GEM_CLASS && type.oc_material === GLASS) {
+            throw new UnsupportedShopError('unidentified glass-gem pricing');
+        }
+        if (oid_price_adjustment(obj, obj.o_id, state) > 0) {
+            multiplier *= 4;
+            divisor *= 3;
+        }
+    }
+    if (state.uarmh?.otyp === DUNCE_CAP)
+        throw new UnsupportedShopError('Dunce cap pricing adjustment');
+    if ((state.urole?.mnum === PM_TOURIST && state.u.ulevel < 15)
+        || (state.uarmu && !state.uarm && !state.uarmc)) {
+        throw new UnsupportedShopError('tourist pricing adjustment');
+    }
+
+    const charisma = effective_attribute(state, A_CHA);
+    if (charisma > 18) divisor *= 2;
+    else if (charisma === 18) {
+        multiplier *= 2;
+        divisor *= 3;
+    } else if (charisma >= 16) {
+        multiplier *= 3;
+        divisor *= 4;
+    } else if (charisma <= 5) multiplier *= 2;
+    else if (charisma <= 7) {
+        multiplier *= 3;
+        divisor *= 2;
+    } else if (charisma <= 10) {
+        multiplier *= 4;
+        divisor *= 3;
+    }
+
+    price *= multiplier;
+    if (divisor > 1) {
+        price *= 10;
+        price = Math.trunc(price / divisor);
+        price += 5;
+        price = Math.trunc(price / 10);
+    }
+    if (obj.oartifact)
+        throw new UnsupportedShopError('artifact pricing');
+    if (shopkeeper?.mextra?.eshk?.surcharge)
+        throw new UnsupportedShopError('shopkeeper surcharge');
+    return price;
+}
+
+function firstRoom(buffer) {
+    return Math.trunc(buffer?.[0] ?? 0);
+}
+
+// C ref: shk.c get_cost_of_shop_item(), for the selected common generated-
+// shop floor branch. Every refused condition is checked before naming or
+// movement mutates the object, quote catalog, hero, or display state.
+export function get_cost_of_shop_item(
+    obj,
+    state = game,
+    options = {},
+) {
+    const observed = Boolean(options.observed);
+    if (state.iflags?.suppress_price || state.program_state?.restoring)
+        throw new UnsupportedShopError('suppressed or restoring price');
+    if (!obj || obj.where !== OBJ_FLOOR)
+        throw new UnsupportedShopError('non-floor shop object');
+    if (obj.oclass === COIN_CLASS)
+        throw new UnsupportedShopError('coin pricing');
+    if (obj === state.uball || obj === state.uchain)
+        throw new UnsupportedShopError('punishment-object pricing');
+    if (obj.unpaid || obj.no_charge)
+        throw new UnsupportedShopError('unpaid or no-charge floor object');
+    if (obj.globby)
+        throw new UnsupportedShopError('globby pricing units');
+    if (isContainer(obj) || hasContents(obj))
+        throw new UnsupportedShopError('container pricing');
+    if (obj.oartifact)
+        throw new UnsupportedShopError('artifact pricing');
+    if (obj.otyp === CORPSE || obj.otyp === TIN || obj.otyp === EGG)
+        throw new UnsupportedShopError('corpse, tin, or egg pricing adjustment');
+
+    const position = get_obj_location(obj, 0, state);
+    if (!position)
+        throw new UnsupportedShopError('shop object without a location');
+    const rooms = in_rooms(position.x, position.y, SHOPBASE, state);
+    const currentShop = firstRoom(state.u?.ushops);
+    if (rooms.length !== 1 || rooms[0] !== currentShop)
+        throw new UnsupportedShopError('other or shared shop ownership');
+    const roomno = inside_shop(position.x, position.y, state);
+    if (roomno !== currentShop)
+        throw new UnsupportedShopError('shop boundary ownership');
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper || !inhishop(shopkeeper, state))
+        throw new UnsupportedShopError('absent or displaced shopkeeper');
+    if (!shopkeeper.mpeaceful)
+        throw new UnsupportedShopError('angry shopkeeper pricing');
+    if (shopkeeper.mextra.eshk.surcharge)
+        throw new UnsupportedShopError('shopkeeper surcharge');
+    const keeperSquare = shopkeeper.mextra.eshk.shk;
+    if (position.x === keeperSquare.x && position.y === keeperSquare.y)
+        throw new UnsupportedShopError('shopkeeper freespot pricing');
+
+    const type = objectType(obj, state);
+    if (!type.oc_name_known && obj.oclass === GEM_CLASS
+        && type.oc_material === GLASS) {
+        throw new UnsupportedShopError('unidentified glass-gem pricing');
+    }
+    const units = get_pricing_units(obj);
+    if (!Number.isInteger(units) || units < 1)
+        throw new UnsupportedShopError('invalid pricing quantity');
+    // xname() observes a nearby object before doname_base() appends its price.
+    // Movement admission cannot mutate discovery state, so project that one
+    // source-ordered write for its arithmetic preflight.
+    const pricedObject = observed && !obj.dknown
+        ? { ...obj, dknown: true }
+        : obj;
+    const perUnit = get_cost(pricedObject, shopkeeper, state);
+    return {
+        cost: units * perUnit,
+        perUnit,
+        shopkeeper,
+    };
 }
 
 // C ref: shk.c contained_gold(). `even_if_unknown` false limits the tally to

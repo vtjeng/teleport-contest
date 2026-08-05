@@ -115,7 +115,10 @@ import {
     verysmall,
 } from './mondata.js';
 import { is_pick, objectType, sobj_at } from './obj.js';
-import { assertObjectNameable } from './objnam.js';
+import {
+    assertObjectNameable,
+    assertPricedObjectNameable,
+} from './objnam.js';
 import {
     BOULDER,
     COIN_CLASS,
@@ -729,11 +732,6 @@ export function requireSimpleHeroDestination(x, y, state) {
                 'mention-decor pile-limit count',
             );
         }
-        if (costly_spot(x, y, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'shop-priced object pile',
-            );
-        }
         if (heroIsBlind(state)) {
             throw new UnsupportedHeroMoveBoundaryError('blind object pile');
         }
@@ -741,9 +739,20 @@ export function requireSimpleHeroDestination(x, y, state) {
         // threshold selects its count line. Keep nameability as a menu-only
         // preflight so the message path admits every ordinary pile count.
         if (!skipObjects) {
-            for (let object = floorObject; object; object = object.nexthere)
-                assertObjectNameable(object, state);
+            const withShopPrice = costly_spot(x, y, state);
+            for (let object = floorObject; object; object = object.nexthere) {
+                if (withShopPrice)
+                    assertPricedObjectNameable(object, state);
+                else
+                    assertObjectNameable(object, state);
+            }
         }
+    }
+    if (floorObject && !floorObject.nexthere && !noPickMove) {
+        if (costly_spot(x, y, state))
+            assertPricedObjectNameable(floorObject, state);
+        else
+            assertObjectNameable(floorObject, state);
     }
     // invent.c look_here()'s blind arm names what the hero feels underfoot,
     // and dungeon.c surface() (1750-1787) answers per terrain: "altar",

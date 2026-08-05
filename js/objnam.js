@@ -13,7 +13,7 @@ import {
     ART_EYES_OF_THE_OVERWORLD, find_artifact, permapoisoned,
 } from './artifacts.js';
 import {
-    BLINDED, CORPSTAT_HISTORIC, HAND, NON_PM, P_BOW,
+    BLINDED, CORPSTAT_HISTORIC, HALLUC, HALLUC_RES, HAND, NON_PM, P_BOW,
     W_AMUL, W_ARMG, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
     W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
@@ -56,6 +56,10 @@ import {
     YELLOW_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES,
     HORN_OF_PLENTY,
 } from './objects.js';
+import {
+    get_cost_of_shop_item,
+    record_price_quote,
+} from './shk.js';
 
 export class UnsupportedObjectNameError extends Error {
     constructor(branch, obj) {
@@ -240,18 +244,20 @@ export function gloves_simple_name(gloves, state = game) {
         ? 'gauntlets'
         : 'gloves';
 }
-function preflightObjectName(obj, type, state, forDoname = false) {
+function preflightXname(obj, type, state) {
     if (state.iflags?.override_ID)
         unsupported('override identification', obj);
     if (state.program_state?.gameover)
         unsupported('end-of-game object text', obj);
     if (type.oc_uname)
         unsupported('user-assigned type name', obj);
+}
 
-    if (!forDoname) return;
+function preflightDoname(obj, type, state, withPrice) {
+    preflightXname(obj, type, state);
     if (obj.unpaid)
         unsupported('shop price suffix', obj);
-    if (state.iflags?.pricequotes && !type.oc_name_known)
+    if (!withPrice && state.iflags?.pricequotes && !type.oc_name_known)
         unsupported('price quote suffix', obj);
     if (obj.owornmask & (W_RING | W_RINGL | W_RINGR))
         unsupported('worn-ring suffix', obj);
@@ -577,7 +583,7 @@ export function xnameFresh(obj, state) {
     if (quantity <= 0)
         throw new RangeError('xnameFresh requires positive quantity');
     const type = objectType(obj, state);
-    preflightObjectName(obj, type, state);
+    preflightXname(obj, type, state);
     if (!type.oc_name_known && type.oc_uses_known && type.oc_unique)
         obj.known = false;
     // C ref: objnam.c xname_flags():627, `if (!Blind && !gd.distantname)`.
@@ -676,7 +682,22 @@ function corpseDoname(obj, modifiers, state) {
 // observe_object() as it formats, so a caller that must not change discovery
 // state until every object is nameable runs this over all of them first.
 export function assertObjectNameable(obj, state = game) {
-    preflightObjectName(obj, objectType(obj, state), state, true);
+    preflightDoname(obj, objectType(obj, state), state, false);
+}
+
+// C refs: objnam.c doname_base(DONAME_WITH_PRICE) and invent.c currency().
+// This check is mutation-free so movement can refuse every pile member before
+// the hero, discovery catalog, quote catalog, or display changes.
+export function assertPricedObjectNameable(obj, state = game) {
+    const type = objectType(obj, state);
+    preflightDoname(obj, type, state, true);
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    if (hallucination?.intrinsic
+        && !(resistance?.intrinsic || resistance?.extrinsic)) {
+        unsupported('hallucinated currency', obj);
+    }
+    return get_cost_of_shop_item(obj, state, { observed: true });
 }
 
 // C ref: objnam.c doname(), the owornmask suffixes. Amulets, armor, and worn
@@ -828,9 +849,10 @@ export function aobjnam(otmp, verb, state = game) {
 
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and
 // lit-candle branches stop before xname() can mutate discovery state.
-export function donameFresh(obj, state) {
+export function donameFresh(obj, state, options = {}) {
     const type = objectType(obj, state);
-    preflightObjectName(obj, type, state, true);
+    const withPrice = Boolean(options.withPrice);
+    preflightDoname(obj, type, state, withPrice);
     let base = xnameFresh(obj, state);
     const quantity = Math.trunc(obj.quan);
     const modifiers = [];
@@ -924,6 +946,25 @@ export function donameFresh(obj, state) {
     return articleName(words);
 }
 
+// C ref: objnam.c doname_base(DONAME_WITH_PRICE), through its ordinary floor
+// item branch. xname() observes first, the suffix uses the resulting price,
+// and record_price_quote() is the final durable write.
+export function doname_with_price(
+    obj,
+    state,
+    { currencyName } = {},
+) {
+    if (typeof currencyName !== 'function')
+        throw new TypeError('doname_with_price needs the currency owner');
+    assertPricedObjectNameable(obj, state);
+    const name = donameFresh(obj, state, { withPrice: true });
+    const quote = get_cost_of_shop_item(obj, state);
+    const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
+    const result = `${name} (for sale, ${suffix})`;
+    record_price_quote(obj.otyp, quote.cost / obj.quan, true, state);
+    return result;
+}
+
 // C ref: objnam.c distant_name(). Format an object seen from wherever the
 // hero stands. `func` is xname() or doname(); the near test rounds the corners
 // of a square whose radius is 2, or the hero's larger xray range, and an
@@ -933,7 +974,7 @@ export function donameFresh(obj, state) {
 //
 // C also saves obj->o_id and zeroes it while `program_state.gameover` is set,
 // so that a disclosure name omits a T-shirt slogan or candy wrapper label.
-// preflightObjectName() refuses gameover outright, so no path here reaches
+// preflightXname() refuses gameover outright, so no path here reaches
 // that save and restore.
 export function distant_name(obj, func, state = game) {
     if (typeof func !== 'function')

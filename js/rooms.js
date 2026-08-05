@@ -201,10 +201,11 @@ export async function check_special_room(
 ) {
     move_update(newlev, state);
 
-    // u_left_shop() bills the hero for anything unpaid she carries out of a
-    // shop. Generated shops now make u.ushops0 reachable after first entry,
-    // but departure billing remains an explicit shop-work boundary.
-    if (roomString(roomBuffer(state.u, 'ushops0')).length) {
+    // C ref: shk.c u_left_shop() (579-625). A move between two strict-interior
+    // squares passes an empty leave string and returns immediately. Boundary
+    // warnings and actual departures can reach billing, so they remain the
+    // explicit shop-work boundary.
+    if (roomString(roomBuffer(state.u, 'ushops_left')).length) {
         throw new UnsupportedHeroMoveBoundaryError(
             'check_special_room() leaving a shop',
         );
