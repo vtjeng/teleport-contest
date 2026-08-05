@@ -2,8 +2,10 @@
 
 // Run one mutation-test wave in its own process group.  A mutant can hang a
 // Node test worker; killing only the test-runner parent leaves that worker in
-// teleport-mutate.scope, where enough orphans eventually exhaust the scope's
-// memory ceiling.  This wrapper kills the complete group at the wave timeout.
+// the wave scope, where enough orphans eventually exhaust its memory ceiling.
+// This wrapper kills the original process group at the wave timeout. Its
+// caller stops the complete uniquely owned scope after every result, which
+// also collects a helper that created another process group.
 
 import { spawn } from 'node:child_process';
 import { constants as osConstants } from 'node:os';

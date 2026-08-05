@@ -87,11 +87,12 @@
 // own set, which `scripts/mutate-sites.test.mjs` asserts against whichever
 // commit last changed js/.
 //
-// Every CLI form re-executes itself in `teleport-mutate.scope`. The scope caps
-// the complete process tree at 2 GiB of memory, disables swap for that tree,
-// and permits at most 64 tasks. A fixed unit name also refuses a second local
-// mutation run while the first remains active. The Node test runner admits at
-// most four test files at once inside that scope.
+// Every CLI form acquires one local exclusivity lock and creates a uniquely
+// named aggregate slice. The slice contains the outer mutator and every wave,
+// caps their combined memory at 2 GiB, disables swap, and permits at most 64
+// tasks. The lock refuses a second local run without giving that contender any
+// unit it could stop. The Node test runner admits at most four test files at
+// once inside the slice.
 //
 // A first wave costs what its own files cost, from 0.14 s per mutant for a
 // one-file wave to 2.20 s for js/hack.js's seven. Under `--whole-suite`, every
@@ -138,13 +139,15 @@
 // hides a gap silently, so a change to the verdict path needs a test that
 // distinguishes the two.
 
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
     cpSync,
     existsSync,
+    mkdirSync,
     mkdtempSync,
     readFileSync,
     readdirSync,
+    renameSync,
     rmSync,
     symlinkSync,
     writeFileSync,
@@ -157,39 +160,210 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MUTATION_CGROUP_MARKER = 'TELEPORT_MUTATION_CGROUP';
+const MUTATION_SLICE_MARKER = 'TELEPORT_MUTATION_SLICE';
+const DEFAULT_MUTATION_LOCK = join(
+    tmpdir(),
+    `teleport-mutate-${process.getuid?.() ?? 'user'}.lock`,
+);
 const BOUNDED_TEST_RUNNER = fileURLToPath(
     new URL('./run-bounded-tests.mjs', import.meta.url));
 let testWaveSequence = 0;
 
 /** Build the systemd scope that contains the mutator and every test child. */
-export function mutationCgroupArgs(nodePath, scriptPath, argv) {
+export function mutationCgroupArgs(
+    nodePath,
+    scriptPath,
+    argv,
+    { scopeName, sliceName },
+) {
     return [
         '--user',
         '--scope',
         '--collect',
-        '--unit=teleport-mutate',
-        '--property=MemoryAccounting=yes',
-        '--property=MemoryMax=2G',
-        '--property=MemorySwapMax=0',
-        '--property=TasksMax=64',
+        `--unit=${scopeName}`,
+        `--slice=${sliceName}.slice`,
         nodePath,
         scriptPath,
         ...argv,
     ];
 }
 
-function runInMutationCgroup(scriptPath, argv) {
-    const result = spawnSync('systemd-run',
-        mutationCgroupArgs(process.execPath, scriptPath, argv), {
-            stdio: 'inherit',
-            env: { ...process.env, [MUTATION_CGROUP_MARKER]: '1' },
-        });
-    if (result.error) throw result.error;
-    if (result.status === null) {
-        throw new Error(`bounded mutation scope ended with signal ${
-            result.signal ?? 'unknown'}`);
+export function mutationRunNames(
+    pid = process.pid,
+    token = Date.now().toString(36),
+) {
+    // A hyphen in a slice name creates another slice level. Underscores keep
+    // each invocation in one leaf unit which cleanup can remove completely.
+    const sliceName = `teleport_mutate_${pid}_${token}`;
+    return { sliceName, scopeName: `${sliceName}_run` };
+}
+
+function processIsAlive(pid) {
+    if (!Number.isInteger(pid) || pid < 1) return false;
+    try {
+        process.kill(pid, 0);
+        return true;
+    } catch (error) {
+        if (error.code === 'ESRCH') return false;
+        throw error;
     }
-    return result.status;
+}
+
+export function acquireMutationLock(
+    lockPath = process.env.TELEPORT_MUTATION_LOCK ?? DEFAULT_MUTATION_LOCK,
+    names = mutationRunNames(),
+) {
+    const ownerPath = join(lockPath, 'owner.json');
+    const owner = { pid: process.pid, ...names };
+    for (let attempt = 0; attempt < 4; ++attempt) {
+        try {
+            mkdirSync(lockPath);
+            writeFileSync(ownerPath, `${JSON.stringify(owner)}\n`, {
+                flag: 'wx',
+            });
+            return { lockPath, ownerPath, owner };
+        } catch (error) {
+            if (error.code !== 'EEXIST') throw error;
+        }
+
+        let incumbent = null;
+        try {
+            incumbent = JSON.parse(readFileSync(ownerPath, 'utf8'));
+        } catch (error) {
+            if (!['ENOENT', 'EISDIR', 'SyntaxError'].includes(
+                error.code ?? error.name)) throw error;
+        }
+        if (processIsAlive(incumbent?.pid)) {
+            throw new Error(`another mutation run owns ${lockPath} `
+                + `(pid ${incumbent.pid})`);
+        }
+        if (incumbent?.sliceName)
+            stopMutationSlice(incumbent.sliceName);
+
+        const stalePath = `${lockPath}.stale-${process.pid}-${attempt}`;
+        try {
+            renameSync(lockPath, stalePath);
+        } catch (error) {
+            if (error.code === 'ENOENT') continue;
+            throw error;
+        }
+        rmSync(stalePath, { recursive: true, force: true });
+    }
+    throw new Error(`could not acquire mutation lock ${lockPath}`);
+}
+
+export function releaseMutationLock(lock) {
+    if (!lock) return;
+    let owner = null;
+    try {
+        owner = JSON.parse(readFileSync(lock.ownerPath, 'utf8'));
+    } catch (error) {
+        if (error.code === 'ENOENT') return;
+        throw error;
+    }
+    if (owner.pid !== lock.owner.pid
+        || owner.sliceName !== lock.owner.sliceName) {
+        throw new Error(`mutation lock ownership changed at ${lock.lockPath}`);
+    }
+    rmSync(lock.lockPath, { recursive: true, force: true });
+}
+
+function runSystemctl(args, action) {
+    const result = spawnSync('systemctl', ['--user', ...args], {
+        encoding: 'utf8',
+        env: { ...process.env, LC_ALL: 'C' },
+    });
+    if (result.status === 0) return;
+    const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd();
+    const detail = result.error?.message
+        ?? (output || (result.signal
+            ? `systemctl ended with signal ${result.signal}`
+            : `systemctl exited with status ${result.status}`));
+    throw new Error(`${action}: ${detail}`);
+}
+
+export function startMutationSlice(sliceName) {
+    const unit = `${sliceName}.slice`;
+    runSystemctl(['start', unit], `failed to start mutation slice ${unit}`);
+    try {
+        runSystemctl([
+            'set-property', '--runtime', unit,
+            'MemoryAccounting=yes',
+            'MemoryMax=2G',
+            'MemorySwapMax=0',
+            'TasksMax=64',
+        ], `failed to limit mutation slice ${unit}`);
+    } catch (error) {
+        stopMutationSlice(sliceName);
+        throw error;
+    }
+}
+
+export function stopMutationSlice(sliceName) {
+    const unit = `${sliceName}.slice`;
+    runSystemctl(['stop', unit], `failed to stop mutation slice ${unit}`);
+    // set-property writes a runtime drop-in. Remove it once the uniquely owned
+    // slice is empty so completed runs do not accumulate unit definitions.
+    runSystemctl(['revert', unit], `failed to revert mutation slice ${unit}`);
+}
+
+async function runInMutationCgroup(scriptPath, argv) {
+    const names = mutationRunNames();
+    const lock = acquireMutationLock(undefined, names);
+    let sliceStarted = false;
+    let child = null;
+    let interrupt = null;
+    let resolveInterrupt;
+    const interrupted = new Promise((resolve) => {
+        resolveInterrupt = resolve;
+    });
+    const onInterrupt = (signal) => {
+        if (interrupt) return;
+        interrupt = signal;
+        resolveInterrupt({ type: 'interrupt', signal });
+    };
+    for (const signal of INTERRUPTS) process.on(signal, onInterrupt);
+
+    let status = 2;
+    try {
+        startMutationSlice(names.sliceName);
+        sliceStarted = true;
+        child = spawn('systemd-run',
+            mutationCgroupArgs(process.execPath, scriptPath, argv, names), {
+                stdio: 'inherit',
+                env: {
+                    ...process.env,
+                    [MUTATION_CGROUP_MARKER]: '1',
+                    [MUTATION_SLICE_MARKER]: names.sliceName,
+                },
+            });
+        const exited = new Promise((resolve) => {
+            child.once('error', (error) => resolve({ type: 'error', error }));
+            child.once('exit', (code, signal) =>
+                resolve({ type: 'exit', code, signal }));
+        });
+        const outcome = await Promise.race([exited, interrupted]);
+        if (outcome.type === 'interrupt') {
+            stopMutationSlice(names.sliceName);
+            sliceStarted = false;
+            child.kill(outcome.signal);
+            await exited;
+        } else if (outcome.type === 'error') {
+            throw outcome.error;
+        } else if (outcome.code === null) {
+            throw new Error(`bounded mutation scope ended with signal ${
+                outcome.signal ?? 'unknown'}`);
+        } else {
+            status = outcome.code;
+        }
+    } finally {
+        for (const signal of INTERRUPTS)
+            process.removeListener(signal, onInterrupt);
+        if (sliceStarted) stopMutationSlice(names.sliceName);
+        releaseMutationLock(lock);
+    }
+    if (interrupt) process.kill(process.pid, interrupt);
+    return status;
 }
 
 // Copied into the workspace because a mutation rewrites js/ and the test files
@@ -755,15 +929,17 @@ export function testCommandArgs(testFiles) {
     ];
 }
 
-// Each wave receives its own cgroup because a pathological mutant can allocate
-// past the parent scope's 2 GiB ceiling before the time limit.  Its 1 GiB cap
+// Each wave receives its own scope inside the aggregate slice because a
+// pathological mutant can allocate quickly. Its 1 GiB cap
 // turns that runaway into one failed wave without killing the range run.  The
 // wrapper also starts Node's test runner in a new process group and kills that
-// complete group on timeout and after ordinary exit, so no worker or helper
-// survives into the next mutant.
+// complete group on timeout and after ordinary exit. runTests() then stops the
+// complete wave scope, which also collects helpers in another process group.
 export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     runnerPath = BOUNDED_TEST_RUNNER,
-    unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`) {
+    unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`,
+    sliceName = null) {
+    const sliceArgs = sliceName ? [`--slice=${sliceName}.slice`] : [];
     return {
         command: 'systemd-run',
         unitName,
@@ -773,6 +949,7 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
             '--collect',
             '--quiet',
             `--unit=${unitName}`,
+            ...sliceArgs,
             '--property=MemoryAccounting=yes',
             '--property=MemoryMax=1G',
             '--property=MemorySwapMax=0',
@@ -787,7 +964,7 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     };
 }
 
-/** Stop a wave scope after spawnSync's own deadline killed systemd-run. */
+/** Stop a uniquely owned wave scope after any test result. */
 export function stopWaveScope(unitName) {
     const scopeUnit = `${unitName}.scope`;
     // `systemctl stop` waits for the scope to empty. Capture its result so a
@@ -821,7 +998,9 @@ export function runTests(workspace, testFiles, timeoutMs) {
     if (!testFiles.length)
         throw new Error('runTests needs at least one test file');
     const args = testCommandArgs(testFiles);
-    const runner = testRunnerCommand(process.execPath, args, timeoutMs);
+    const runner = testRunnerCommand(process.execPath, args, timeoutMs,
+        BOUNDED_TEST_RUNNER, undefined,
+        process.env[MUTATION_SLICE_MARKER] ?? null);
     const started = process.hrtime.bigint();
     const result = spawnSync(runner.command, runner.args, {
         cwd: workspace,
@@ -830,8 +1009,11 @@ export function runTests(workspace, testFiles, timeoutMs) {
         timeout: runner.outerTimeoutMs,
         maxBuffer: 64 * 1024 * 1024,
     });
-    if (result.error?.code === 'ETIMEDOUT')
-        stopWaveScope(runner.unitName);
+    // The test runner's process group cannot contain a helper which called
+    // setsid() or spawned with detached:true. The uniquely named scope does,
+    // so stop it after every result and preserve the runner's result only once
+    // systemd confirms that the complete wave cgroup is empty.
+    stopWaveScope(runner.unitName);
     const seconds = Number(process.hrtime.bigint() - started) / 1e9;
     const timedOut = result.status === 124
         || result.error?.code === 'ETIMEDOUT'
@@ -902,7 +1084,7 @@ export function partitionTestFiles(rootPath = REPO_ROOT) {
  */
 export function runMutants({ workspace, targets,
     allTests = partitionTestFiles().suite, wholeSuite = false,
-    log = () => {} }) {
+    log = () => {}, runTestWave = runTests }) {
     const withSites = targets.filter((target) => target.sites.length);
     // Without the whole suite, a module no test file reaches has no verdict at
     // all, and reporting its mutants as survivors would claim a gap that was
@@ -921,7 +1103,7 @@ export function runMutants({ workspace, targets,
     // known.
     if (!baselineFiles.length) {
         return { survivors: [], kills: [], killed: 0, timeouts: 0, ran: 0,
-            perFile: [],
+            perFile: [], timeoutRecords: [],
             unmeasured, wholeSuite, suiteSize: allTests.length,
             ranSeconds: 0, firstWaveKilled: 0, firstWaveRuns: 0,
             firstWaveSeconds: 0, wholeSuiteKilled: 0, wholeSuiteRuns: 0,
@@ -930,7 +1112,8 @@ export function runMutants({ workspace, targets,
     }
 
     log(`baseline: ${baselineFiles.length} test file(s)`);
-    const baseline = runTests(workspace, baselineFiles, 15 * 60 * 1000);
+    const baseline = runTestWave(
+        workspace, baselineFiles, 15 * 60 * 1000);
     const baselineSeconds = baseline.seconds;
     const baselineTests = reportedTestCount(baseline.output);
     if (!baseline.passed) {
@@ -955,6 +1138,7 @@ export function runMutants({ workspace, targets,
     const timeoutMs = Math.max(60_000, Math.ceil(baselineSeconds * 3) * 1000);
     const survivors = [];
     const kills = [];
+    const timeoutRecords = [];
     const perFile = [];
     // Kill rates differ sharply by kind, and that is the signal worth reading:
     // a surviving relational operator marks an untested boundary, while a
@@ -992,11 +1176,16 @@ export function runMutants({ workspace, targets,
                 tally.mutants += 1;
 
                 if (target.tests.length) {
-                    const wave = runTests(workspace, target.tests, timeoutMs);
+                    const wave = runTestWave(
+                        workspace, target.tests, timeoutMs);
                     firstWaveRuns += 1;
                     firstWaveSeconds += wave.seconds;
                     tally.firstWaveSeconds += wave.seconds;
-                    if (wave.timedOut) timeouts += 1;
+                    if (wave.timedOut) {
+                        timeouts += 1;
+                        timeoutRecords.push({ ...site, path: target.path,
+                            wave: 'first' });
+                    }
                     if (!wave.passed) {
                         killed += 1;
                         firstWaveKilled += 1;
@@ -1015,12 +1204,16 @@ export function runMutants({ workspace, targets,
                     recordKind(site.kind, false);
                     continue;
                 }
-                const rest = runTests(workspace, remaining, timeoutMs);
+                const rest = runTestWave(workspace, remaining, timeoutMs);
                 wholeSuiteRuns += 1;
                 wholeSuiteSeconds += rest.seconds;
                 tally.reachedFullSuite += 1;
                 tally.wholeSuiteSeconds += rest.seconds;
-                if (rest.timedOut) timeouts += 1;
+                if (rest.timedOut) {
+                    timeouts += 1;
+                    timeoutRecords.push({ ...site, path: target.path,
+                        wave: 'suite' });
+                }
                 if (rest.passed) {
                     survivors.push({ ...site, path: target.path,
                         tests: target.tests });
@@ -1038,7 +1231,8 @@ export function runMutants({ workspace, targets,
         if (tally.mutants) perFile.push(tally);
     }
 
-    return { survivors, kills, killed, timeouts, ran, perFile, unmeasured,
+    return { survivors, kills, killed, timeouts, timeoutRecords, ran,
+        perFile, unmeasured,
         byKind, wholeSuite, suiteSize: allTests.length,
         ranSeconds: firstWaveSeconds + wholeSuiteSeconds,
         firstWaveKilled, firstWaveRuns, firstWaveSeconds,
@@ -1116,6 +1310,8 @@ export function formatReport(result, population = result.ran) {
             + `first wave was ${site.tests.length} file(s): `
             + `${site.tests.join(', ') || 'none'})`);
     }
+    for (const timeout of result.timeoutRecords ?? [])
+        lines.push(`timed out ${describeSite(timeout)} (${timeout.wave} wave)`);
     // Per-file cost, split by phase. The first-wave figure follows from how
     // many test files reach the module; the full-suite figure is the same for
     // every file and applies only to the mutants that got past their first
@@ -1415,13 +1611,16 @@ function assertJsPath(path, root) {
 // --from-report, so escalating a survivor list mutates the survivors alone.
 // The version field gates parsing: a schema change bumps it, and a consumer
 // refuses a version it does not know rather than misreading the file.
-export const REPORT_VERSION = 1;
+export const REPORT_VERSION = 2;
 
 export function reportFromResult(result, kinds) {
     return {
         kind: 'mutate-sites-report',
         version: REPORT_VERSION,
         kinds: kinds ?? null,
+        timeouts: (result.timeoutRecords ?? []).map(
+            ({ path, line, column, kind, original, replacement, wave }) =>
+                ({ path, line, column, kind, original, replacement, wave })),
         survivors: result.survivors.map(
             ({ path, line, column, kind, original, replacement }) =>
                 ({ path, line, column, kind, original, replacement })),
@@ -1521,7 +1720,7 @@ if (process.argv[1] === SCRIPT_PATH) {
         if (process.env[MUTATION_CGROUP_MARKER] === '1') {
             await main(process.argv.slice(2));
         } else {
-            process.exitCode = runInMutationCgroup(
+            process.exitCode = await runInMutationCgroup(
                 SCRIPT_PATH, process.argv.slice(2));
         }
     } catch (error) {

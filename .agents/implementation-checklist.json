@@ -123,36 +123,36 @@
       "reachability": "The unmarked CLI has launched a long mutation run and receives SIGINT or SIGTERM, or a concurrent invocation is refused while another run owns the exclusivity lock.",
       "owner": "scripts/mutate-sites.mjs outer launcher and exclusivity owner",
       "effects": "Forward cancellation only to the owned run, await cleanup, reproduce the caller-visible signal, and prevent a refused contender from stopping the owner.",
-      "evidence": "Three finders confirmed the missing outer handler; the audit itself demonstrated fixed-name cleanup stopping an unrelated active run. Adjudication accepted all lenses.",
-      "status": "missing",
-      "remaining": "Replace spawnSync ownership with an asynchronous owned launcher and test real outer-PID cancellation and collision."
+      "evidence": "scripts/mutate-sites.mjs now acquires an owner-record lock, launches systemd-run asynchronously, forwards SIGINT and SIGTERM through its uniquely named aggregate slice, awaits cleanup, and re-raises the signal. The real-process regression refuses a contender while the owner remains live, cancels the owner with SIGTERM, confirms the slice is inactive, then proves the next invocation can acquire the lock. A stale-lock regression stops the dead owner's recorded slice before replacement.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Aggregate mutation cgroup containment",
       "reachability": "The outer mutator owns an active per-wave scope under memory/task limits and is cancelled or resource-limited.",
       "owner": "scripts/mutate-sites.mjs systemd unit topology",
       "effects": "Place outer and wave scopes beneath one uniquely owned aggregate slice so limits and cancellation contain the full process tree.",
-      "evidence": "The concurrency finder observed sibling app.slice scopes; adjudication confirmed the command topology and material contract mismatch.",
-      "status": "missing",
-      "remaining": "Introduce aggregate containment and assert ControlGroup ancestry plus cancellation cleanup."
+      "evidence": "Each invocation creates one underscore-named aggregate slice with the 2 GiB, zero-swap and 64-task limits. mutationCgroupArgs and testRunnerCommand place the outer scope and every production wave beneath it. The live outer regression reads both ControlGroup values and proves the scope is a descendant of the slice; command-shape tests pin the same ancestry for waves.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Detached wave descendant cleanup",
       "reachability": "A test runner exits normally after a helper creates a new process group inside its wave scope.",
       "owner": "scripts/run-bounded-tests.mjs and scripts/mutate-sites.mjs wave cleanup",
       "effects": "Preserve the runner result while collecting every helper and the uniquely owned wave scope after ordinary completion.",
-      "evidence": "Concurrency and test finders showed the existing unref fixture remains in the original process group; adjudication accepted the detached schedule.",
-      "status": "missing",
-      "remaining": "Stop the owned wave after every result and add a genuinely detached helper case."
+      "evidence": "runTests now stops its uniquely named wave scope after every result and accepts a result only after systemd confirms the cgroup is empty. The ordinary-completion fixture spawns its helper with detached:true, proves the runner result remains passing, and proves the helper pid no longer exists.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Attributable mutation timeouts",
       "reachability": "A first-wave or wider-suite mutant exceeds its bounded test deadline.",
       "owner": "scripts/mutate-sites.mjs result model, text report, and JSON report",
       "effects": "Retain path, line, column, mutation, and wave for every timed-out kill instead of exposing only an aggregate count.",
-      "evidence": "The exact audit run reported five timeouts whose identities could not be recovered; adjudication confirmed the reporting loss.",
-      "status": "missing",
-      "remaining": "Persist timeout records with a schema bump and controlled timeout fixtures."
+      "evidence": "runMutants now records the complete site plus first or suite wave for each timeout. formatReport prints each identity, and report schema version 2 persists the records in a timeouts array. An injected controlled runner times out both integer mutants at one fixture site and pins their two identities and wave names.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Confirmed test-oracle coverage",
@@ -174,16 +174,6 @@
     }
   ],
   "missingWorkByOwner": [
-    {
-      "group": "mutation process lifecycle",
-      "candidates": [
-        "Owned outer mutation cancellation",
-        "Aggregate mutation cgroup containment",
-        "Detached wave descendant cleanup",
-        "Attributable mutation timeouts"
-      ],
-      "next": "Redesign ownership and containment as one tested lifecycle transaction."
-    },
     {
       "group": "tests and contracts",
       "candidates": [
